@@ -9,7 +9,6 @@
 #define SkValidatingReadBuffer_DEFINED
 
 #include "SkRefCnt.h"
-#include "SkBitmapHeap.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkPath.h"
@@ -21,30 +20,35 @@ class SkBitmap;
 class SkValidatingReadBuffer : public SkReadBuffer {
 public:
     SkValidatingReadBuffer(const void* data, size_t size);
-    virtual ~SkValidatingReadBuffer();
+    ~SkValidatingReadBuffer() override;
+
+    SkReadBuffer* clone(const void* data, size_t size) const override {
+        return new SkValidatingReadBuffer(data, size);
+    }
 
     const void* skip(size_t size) override;
 
     // primitives
     bool readBool() override;
     SkColor readColor() override;
-    SkFixed readFixed() override;
     int32_t readInt() override;
     SkScalar readScalar() override;
     uint32_t readUInt() override;
     int32_t read32() override;
 
+    // peek
+    uint8_t peekByte() override;
+
     // strings -- the caller is responsible for freeing the string contents
     void readString(SkString* string) override;
-    void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) override;
 
     // common data structures
     SkFlattenable* readFlattenable(SkFlattenable::Type type) override;
-    void skipFlattenable() override;
     void readPoint(SkPoint* point) override;
     void readMatrix(SkMatrix* matrix) override;
     void readIRect(SkIRect* rect) override;
     void readRect(SkRect* rect) override;
+    void readRRect(SkRRect* rrect) override;
     void readRegion(SkRegion* region) override;
     void readPath(SkPath* path) override;
 

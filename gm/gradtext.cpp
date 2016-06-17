@@ -11,28 +11,25 @@
 #include "SkTypeface.h"
 
 // test shader w/ transparency
-static SkShader* make_grad(SkScalar width) {
+static sk_sp<SkShader> make_grad(SkScalar width) {
     SkColor colors[] = { SK_ColorRED, 0x0000FF00, SK_ColorBLUE };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr,
-                                          SK_ARRAY_COUNT(colors),
-                                          SkShader::kMirror_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                        SkShader::kMirror_TileMode);
 }
 
 // test opaque shader
-static SkShader* make_grad2(SkScalar width) {
+static sk_sp<SkShader> make_grad2(SkScalar width) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr,
-                                          SK_ARRAY_COUNT(colors),
-                                          SkShader::kMirror_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                        SkShader::kMirror_TileMode);
 }
 
-static SkShader* make_chrome_solid() {
+static sk_sp<SkShader> make_chrome_solid() {
     SkColor colors[] = { SK_ColorGREEN, SK_ColorGREEN };
     SkPoint pts[] = { { 0, 0 }, { 1, 0 } };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
-                                          SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
 namespace skiagm {
@@ -56,7 +53,7 @@ protected:
         canvas->drawRect(r, paint);
 
         // Minimal repro doesn't require AA, LCD, or a nondefault typeface
-        paint.setShader(make_chrome_solid())->unref();
+        paint.setShader(make_chrome_solid());
         paint.setTextSize(SkIntToScalar(500));
 
         canvas->drawText("I", 1, 0, 100, paint);
@@ -84,7 +81,7 @@ protected:
         canvas->drawText("Normal Stroke Text", 18, 0, 100, paint);
 
         // Minimal repro doesn't require AA, LCD, or a nondefault typeface
-        paint.setShader(make_chrome_solid())->unref();
+        paint.setShader(make_chrome_solid());
 
         paint.setStyle(SkPaint::kFill_Style);
         canvas->drawText("Gradient Fill Text", 18, 0, 150, paint);
@@ -140,12 +137,12 @@ protected:
         canvas->translate(SkIntToScalar(20), paint.getTextSize());
 
         for (int i = 0; i < 2; ++i) {
-            paint.setShader(make_grad(SkIntToScalar(80)))->unref();
+            paint.setShader(make_grad(SkIntToScalar(80)));
             draw_text3(canvas, paint);
 
             canvas->translate(0, paint.getTextSize() * 2);
 
-            paint.setShader(make_grad2(SkIntToScalar(80)))->unref();
+            paint.setShader(make_grad2(SkIntToScalar(80)));
             draw_text3(canvas, paint);
 
             canvas->translate(0, paint.getTextSize() * 2);

@@ -18,7 +18,7 @@
 
 class GrTextureProvider;
 
-// This FP handles the special case of a blurred circle. It uses a 1D 
+// This FP handles the special case of a blurred circle. It uses a 1D
 // profile that is just rotated about the origin of the circle.
 class GrCircleBlurFragmentProcessor : public GrFragmentProcessor {
 public:
@@ -64,7 +64,7 @@ private:
     bool onIsEqual(const GrFragmentProcessor& other) const override {
         const GrCircleBlurFragmentProcessor& cbfp = other.cast<GrCircleBlurFragmentProcessor>();
         // fOffset is computed from the circle width and the sigma
-        return this->circle().width() == cbfp.circle().width() && fSigma == cbfp.fSigma;    
+        return this->circle() == cbfp.circle() && fSigma == cbfp.fSigma;
     }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;

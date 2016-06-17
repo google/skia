@@ -13,10 +13,10 @@
 
 class SkImageShader : public SkShader {
 public:
-    static SkShader* Create(const SkImage*, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
+    static sk_sp<SkShader> Make(const SkImage*, TileMode tx, TileMode ty,
+                                const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
-    size_t contextSize() const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageShader)
@@ -28,6 +28,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
+    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
     SkAutoTUnref<const SkImage> fImage;

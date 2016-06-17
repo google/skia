@@ -15,13 +15,8 @@
         'conditions': [
           ['skia_android_framework', {
               'libraries': [
-                  '-lskia',
-                  '-landroid',
-                  '-lhwui',
-                  '-lutils',
-              ],
-              'include_dirs': [
-                  '../../../frameworks/base/libs/hwui/',
+                  'skia_static.a',
+                  'hwui_static.a',
               ],
               'sources': [
                 '../dm/DMSrcSinkAndroid.cpp',

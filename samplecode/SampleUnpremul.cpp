@@ -8,14 +8,13 @@
 #include "gm.h"
 
 #include "sk_tool_utils.h"
+#include "DecodeFile.h"
 #include "Resources.h"
 #include "SampleCode.h"
 #include "SkBlurMask.h"
 #include "SkBlurDrawLooper.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkForceLinking.h"
-#include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -23,8 +22,6 @@
 #include "SkTypes.h"
 #include "SkUtils.h"
 #include "SkView.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 /**
  *  Interprets c as an unpremultiplied color, and returns the
@@ -83,10 +80,9 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(24));
-        SkAutoTUnref<SkDrawLooper> looper(
-            SkBlurDrawLooper::Create(SK_ColorBLUE,
-                                     SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(2)),
-                                     0, 0));
+        auto looper(
+            SkBlurDrawLooper::Make(SK_ColorBLUE, SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(2)),
+                                   0, 0));
         paint.setLooper(looper);
         SkScalar height = paint.getFontMetrics(nullptr);
         if (!fDecodeSucceeded) {
@@ -167,17 +163,7 @@ private:
             fDecodeSucceeded = false;
             return;
         }
-        SkFILEStream stream(fCurrFile.c_str());
-        SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&stream));
-        if (nullptr == decoder.get()) {
-            fDecodeSucceeded = false;
-            return;
-        }
-        if (!fPremul) {
-            decoder->setRequireUnpremultipliedColors(true);
-        }
-        fDecodeSucceeded = decoder->decode(&stream, &fBitmap, kN32_SkColorType,
-                SkImageDecoder::kDecodePixels_Mode) != SkImageDecoder::kFailure;
+        fDecodeSucceeded = decode_file(fCurrFile.c_str(), &fBitmap, kN32_SkColorType, !fPremul);
         this->inval(nullptr);
     }
 

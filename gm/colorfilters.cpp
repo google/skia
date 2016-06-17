@@ -10,7 +10,7 @@
 #include "SkColorMatrixFilter.h"
 #include "SkGradientShader.h"
 
-static SkShader* make_shader(const SkRect& bounds) {
+static sk_sp<SkShader> make_shader(const SkRect& bounds) {
     const SkPoint pts[] = {
         { bounds.left(), bounds.top() },
         { bounds.right(), bounds.bottom() },
@@ -19,9 +19,8 @@ static SkShader* make_shader(const SkRect& bounds) {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK,
         SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW,
     };
-    return SkGradientShader::CreateLinear(pts,
-                                          colors, nullptr, SK_ARRAY_COUNT(colors),
-                                          SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                        SkShader::kClamp_TileMode);
 }
 
 typedef void (*InstallPaint)(SkPaint*, uint32_t, uint32_t);
@@ -31,7 +30,7 @@ static void install_nothing(SkPaint* paint, uint32_t, uint32_t) {
 }
 
 static void install_lighting(SkPaint* paint, uint32_t mul, uint32_t add) {
-    paint->setColorFilter(SkColorMatrixFilter::CreateLightingFilter(mul, add))->unref();
+    paint->setColorFilter(SkColorMatrixFilter::MakeLightingFilter(mul, add));
 }
 
 class ColorFiltersGM : public skiagm::GM {
@@ -46,14 +45,14 @@ protected:
     }
 
     virtual SkISize onISize() override {
-        return SkISize::Make(640, 480);
+        return SkISize::Make(620, 430);
     }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         SkRect r;
         r.setWH(600, 50);
-        paint.setShader(make_shader(r))->unref();
+        paint.setShader(make_shader(r));
 
         const struct {
             InstallPaint    fProc;

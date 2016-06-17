@@ -17,15 +17,14 @@ class MorphologyGM : public GM {
 public:
     MorphologyGM() {
         this->setBGColor(0xFF000000);
-        fOnce = false;
     }
 
 protected:
-    virtual SkString onShortName() {
+    SkString onShortName() override {
         return SkString("morphology");
     }
 
-    void make_bitmap() {
+    void onOnceBeforeDraw() override {
         fBitmap.allocN32Pixels(135, 135);
         SkCanvas canvas(fBitmap);
         canvas.clear(0x0);
@@ -40,7 +39,7 @@ protected:
         canvas.drawText(str2, strlen(str2), 10, 110, paint);
     }
 
-    virtual SkISize onISize() {
+    SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
@@ -53,11 +52,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        if (!fOnce) {
-            make_bitmap();
-            fOnce = true;
-        }
+    void onDraw(SkCanvas* canvas) override {
         struct {
             int fWidth, fHeight;
             int fRadiusX, fRadiusY;
@@ -75,32 +70,29 @@ protected:
             for (unsigned i = 0; i < SK_ARRAY_COUNT(samples); ++i) {
                 const SkImageFilter::CropRect* cr = j & 0x02 ? &cropRect : nullptr;
                 if (j & 0x01) {
-                    paint.setImageFilter(SkErodeImageFilter::Create(
-                        samples[i].fRadiusX,
-                        samples[i].fRadiusY,
-                        nullptr,
-                        cr))->unref();
+                    paint.setImageFilter(SkErodeImageFilter::Make(samples[i].fRadiusX,
+                                                                  samples[i].fRadiusY,
+                                                                  nullptr,
+                                                                  cr));
                 } else {
-                    paint.setImageFilter(SkDilateImageFilter::Create(
-                        samples[i].fRadiusX,
-                        samples[i].fRadiusY,
-                        nullptr,
-                        cr))->unref();
+                    paint.setImageFilter(SkDilateImageFilter::Make(samples[i].fRadiusX,
+                                                                   samples[i].fRadiusY,
+                                                                   nullptr,
+                                                                   cr));
                 }
-                drawClippedBitmap(canvas, paint, i * 140, j * 140);
+                this->drawClippedBitmap(canvas, paint, i * 140, j * 140);
             }
         }
     }
 
 private:
-    typedef GM INHERITED;
     SkBitmap fBitmap;
-    bool fOnce;
+
+    typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new MorphologyGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM(return new MorphologyGM;)
 
 }

@@ -22,6 +22,7 @@ bool GMBench::isSuitableFor(Backend backend) {
 }
 
 void GMBench::onDraw(int loops, SkCanvas* canvas) {
+    fGM->setMode(skiagm::GM::kBench_Mode);
     // Do we care about timing the draw of the background (once)?
     // Does the GM ever rely on drawBackground to lazily compute something?
     fGM->drawBackground(canvas);
@@ -34,4 +35,3 @@ SkIPoint GMBench::onGetSize() {
     SkISize size = fGM->getISize();
     return SkIPoint::Make(size.fWidth, size.fHeight);
 }
-

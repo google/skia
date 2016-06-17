@@ -21,12 +21,15 @@ public:
         , fCache(cache) // take ownership
     {}
 
+    virtual SkImageInfo onImageInfo() const override {
+        return fCache->info();
+    }
+
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
-    const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
     SkImageCacherator* peekCacherator() const override { return fCache; }
     SkData* onRefEncoded(GrContext*) const override;
     bool isOpaque() const override { return fCache->info().isOpaque(); }
-    SkImage* onNewSubset(const SkIRect&) const override;
+    sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const override;
     bool onIsLazyGenerated() const override { return true; }
@@ -62,10 +65,6 @@ bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels
     return false;
 }
 
-const void* SkImage_Generator::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesPtr) const {
-    return NULL;
-}
-
 SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
     return fCache->refEncoded(ctx);
 }
@@ -78,26 +77,29 @@ GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrTextureParams
     return fCache->lockAsTexture(ctx, params, this);
 }
 
-SkImage* SkImage_Generator::onNewSubset(const SkIRect& subset) const {
+sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
     // TODO: make this lazy, by wrapping the subset inside a new generator or something
     // For now, we do effectively what we did before, make it a raster
 
     const SkImageInfo info = SkImageInfo::MakeN32(subset.width(), subset.height(),
                                       this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     if (!surface) {
         return nullptr;
     }
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawImage(this, SkIntToScalar(-subset.x()), SkIntToScalar(-subset.y()),
                                     nullptr);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
-SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
+sk_sp<SkImage> SkImage::MakeFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
+    if (!generator) {
+        return nullptr;
+    }
     SkImageCacherator* cache = SkImageCacherator::NewFromGenerator(generator, subset);
     if (!cache) {
         return nullptr;
     }
-    return new SkImage_Generator(cache);
+    return sk_make_sp<SkImage_Generator>(cache);
 }

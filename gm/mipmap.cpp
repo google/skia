@@ -11,9 +11,9 @@
 #include "SkRandom.h"
 #include "SkSurface.h"
 
-static SkImage* make_image() {
+static sk_sp<SkImage> make_image() {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(319, 52);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     SkCanvas* canvas = surface->getCanvas();
     canvas->drawColor(sk_tool_utils::color_to_565(0xFFF8F8F8));
 
@@ -25,11 +25,11 @@ static SkImage* make_image() {
         canvas->drawCircle(-4, 25, 20, paint);
         canvas->translate(25, 0);
     }
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 DEF_SIMPLE_GM(mipmap, canvas, 400, 200) {
-    SkAutoTUnref<SkImage> img(make_image());//SkImage::NewFromEncoded(data));
+    sk_sp<SkImage> img(make_image());//SkImage::NewFromEncoded(data));
 
     SkPaint paint;
     const SkRect dst = SkRect::MakeWH(177, 15);
@@ -42,9 +42,8 @@ DEF_SIMPLE_GM(mipmap, canvas, 400, 200) {
     canvas->translate(20, 20);
     for (int i = 0; i < 4; ++i) {
         paint.setFilterQuality(SkFilterQuality(i));
-        canvas->drawImageRect(img, dst, &paint);
+        canvas->drawImageRect(img.get(), dst, &paint);
         canvas->translate(0, 20);
     }
-    canvas->drawImage(img, 20, 20, nullptr);
+    canvas->drawImage(img.get(), 20, 20, nullptr);
 }
-

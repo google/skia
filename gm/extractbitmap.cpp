@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkString.h"
 #include "SkSurface.h"
 

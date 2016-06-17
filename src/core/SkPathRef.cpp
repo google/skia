@@ -6,7 +6,7 @@
  */
 
 #include "SkBuffer.h"
-#include "SkOncePtr.h"
+#include "SkOnce.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
 #include <limits>
@@ -45,13 +45,15 @@ SkPathRef::~SkPathRef() {
     SkDEBUGCODE(fEditorsAttached = 0x7777777;)
 }
 
-SK_DECLARE_STATIC_ONCE_PTR(SkPathRef, empty);
+static SkPathRef* gEmpty = nullptr;
+
 SkPathRef* SkPathRef::CreateEmpty() {
-    return SkRef(empty.get([]{
-        SkPathRef* pr = new SkPathRef;
-        pr->computeBounds();   // Avoids races later to be the first to do this.
-        return pr;
-    }));
+    static SkOnce once;
+    once([]{
+        gEmpty = new SkPathRef;
+        gEmpty->computeBounds();   // Avoids races later to be the first to do this.
+    });
+    return SkRef(gEmpty);
 }
 
 void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
@@ -299,6 +301,19 @@ void SkPathRef::copy(const SkPathRef& ref,
     SkDEBUGCODE(this->validate();)
 }
 
+
+void SkPathRef::interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef* out) const {
+    const SkScalar* inValues = &ending.getPoints()->fX;
+    SkScalar* outValues = &out->getPoints()->fX;
+    int count = out->countPoints() * 2;
+    for (int index = 0; index < count; ++index) {
+        outValues[index] = outValues[index] * weight + inValues[index] * (1 - weight);
+    }
+    out->fBoundsIsDirty = true;
+    out->fIsOval = false;
+    out->fIsRRect = false;
+}
+
 SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
                                         int numVbs,
                                         SkScalar** weights) {
@@ -456,7 +471,7 @@ uint32_t SkPathRef::genID() const {
 }
 
 void SkPathRef::addGenIDChangeListener(GenIDChangeListener* listener) {
-    if (nullptr == listener || this == (SkPathRef*)empty) {
+    if (nullptr == listener || this == gEmpty) {
         delete listener;
         return;
     }

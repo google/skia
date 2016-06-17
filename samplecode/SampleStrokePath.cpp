@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -166,12 +165,10 @@ protected:
                 kSolid_SkBlurStyle,
             };
             for (int x = 0; x < 5; x++) {
-                SkMaskFilter* mf;
                 SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4));
                 for (int y = 0; y < 10; y++) {
                     if (x) {
-                        mf = SkBlurMaskFilter::Create(gStyle[x - 1], sigma);
-                        paint.setMaskFilter(mf)->unref();
+                        paint.setMaskFilter(SkBlurMaskFilter::Make(gStyle[x - 1], sigma));
                     }
                     canvas->drawText("Title Bar", 9, x*SkIntToScalar(100), y*SkIntToScalar(30), paint);
                     sigma *= 0.75f;

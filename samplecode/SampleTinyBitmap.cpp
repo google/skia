@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
 #include "SkColorPriv.h"
 #include "SkShader.h"
@@ -47,8 +47,7 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "TinyBitmap");
             return true;
@@ -61,11 +60,10 @@ protected:
         bm->setAlphaType(isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
-        SkShader* s = SkShader::CreateBitmapShader(fBM, SkShader::kRepeat_TileMode,
-                                                   SkShader::kMirror_TileMode);
+    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setShader(s)->unref();
+        paint.setShader(SkShader::MakeBitmapShader(fBM, SkShader::kRepeat_TileMode,
+                                                   SkShader::kMirror_TileMode));
         canvas->drawPaint(paint);
     }
 

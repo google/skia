@@ -138,7 +138,7 @@ void SkOpPtT::removeNext(SkOpPtT* kept) {
     SkOpSpanBase* span = next->span();
     next->setDeleted();
     if (span->ptT() == next) {
-        span->upCast()->detach(kept);
+        span->upCast()->release(kept);
     }
 }
 
@@ -293,7 +293,7 @@ void SkOpSpanBase::merge(SkOpSpan* span) {
     SkOpPtT* spanPtT = span->ptT();
     SkASSERT(this->t() != spanPtT->fT);
     SkASSERT(!zero_or_one(spanPtT->fT));
-    span->detach(this->ptT());
+    span->release(this->ptT());
     SkOpPtT* remainder = spanPtT->next();
     ptT()->insert(spanPtT);
     while (remainder != spanPtT) {
@@ -334,7 +334,7 @@ bool SkOpSpan::containsCoincidence(const SkOpSegment* segment) const {
     return false;
 }
 
-void SkOpSpan::detach(SkOpPtT* kept) {
+void SkOpSpan::release(SkOpPtT* kept) {
     SkASSERT(!final());
     SkOpSpan* prev = this->prev();
     SkASSERT(prev);
@@ -342,7 +342,7 @@ void SkOpSpan::detach(SkOpPtT* kept) {
     SkASSERT(next);
     prev->setNext(next);
     next->setPrev(prev);
-    this->segment()->detach(this);
+    this->segment()->release(this);
     SkOpCoincidence* coincidence = this->globalState()->coincidence();
     if (coincidence) {
         coincidence->fixUp(this->ptT(), kept);

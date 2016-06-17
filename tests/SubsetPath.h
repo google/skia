@@ -11,15 +11,15 @@
 #include "SkTDArray.h"
 
 /* Given a path, generate a the desired minimal subset of the original.
-   
+
    This does a binary divide-and-conquer on the path, first splitting by
    contours, and then by verbs. The caller passes whether the previous subset
    behaved the same as the original. If not, the subset() call restores the
    prior state before returning a new subset.
-   
+
    If a path fails a local test, this reduces the data to the
    minimal set that fails using a pattern like:
-   
+
    bool testFailed = true;
    SkPath minimal;
    SubsetContours subsetContours(testPath);

@@ -62,13 +62,12 @@ public:
 
     const char* name() const override { return "AAStrokeRect"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
         coverage->setUnknownSingleComponent();
-        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -124,8 +123,7 @@ private:
     static const int kBevelVertexCnt = 24;
     static const int kNumBevelRectsInIndexBuffer = 256;
 
-    static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* resourceProvider,
-                                               bool miterStroke);
+    static const GrBuffer* GetIndexBuffer(GrResourceProvider* resourceProvider, bool miterStroke);
 
     GrColor color() const { return fBatch.fColor; }
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
@@ -194,8 +192,6 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
         return;
     }
 
-    target->initDraw(gp, this->pipeline());
-
     size_t vertexStride = gp->getVertexStride();
 
     SkASSERT(canTweakAlphaForCoverage ?
@@ -207,11 +203,11 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
     int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
     int instanceCount = fGeoData.count();
 
-    const SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+    const SkAutoTUnref<const GrBuffer> indexBuffer(
         GetIndexBuffer(target->resourceProvider(), this->miterStroke()));
     InstancedHelper helper;
     void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                 indexBuffer, verticesPerInstance,  indicesPerInstance,
+                                 indexBuffer, verticesPerInstance, indicesPerInstance,
                                  instanceCount);
     if (!vertices || !indexBuffer) {
          SkDebugf("Could not allocate vertices\n");
@@ -233,11 +229,11 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
                                            args.fDegenerate,
                                            canTweakAlphaForCoverage);
     }
-    helper.recordDraw(target);
+    helper.recordDraw(target, gp);
 }
 
-const GrIndexBuffer* AAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourceProvider,
-                                                       bool miterStroke) {
+const GrBuffer* AAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourceProvider,
+                                                  bool miterStroke) {
 
     if (miterStroke) {
         static const uint16_t gMiterIndices[] = {
@@ -584,15 +580,14 @@ static void compute_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRect* 
 
 namespace GrAAStrokeRectBatch {
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& devOutside,
-                    const SkRect& devOutsideAssist,
-                    const SkRect& devInside,
-                    bool miterStroke,
-                    bool degenerate) {
-    AAStrokeRectBatch* batch = AAStrokeRectBatch::Create(viewMatrix, miterStroke);
-    batch->append(color, devOutside, devOutsideAssist, devInside, degenerate);
+GrDrawBatch* CreateFillBetweenRects(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& devOutside,
+                                    const SkRect& devInside) {
+    SkASSERT(!devOutside.isEmpty())
+    SkASSERT(!devInside.isEmpty())
+    AAStrokeRectBatch* batch = AAStrokeRectBatch::Create(viewMatrix, true);
+    batch->append(color, devOutside, devOutside, devInside, false);
     batch->init();
     return batch;
 }
@@ -647,19 +642,21 @@ bool Append(GrBatch* origBatch,
 DRAW_BATCH_TEST_DEFINE(AAStrokeRectBatch) {
     bool miterStroke = random->nextBool();
 
-    // Create mock stroke rect
-    SkRect outside = GrTest::TestRect(random);
-    SkScalar minDim = SkMinScalar(outside.width(), outside.height());
-    SkScalar strokeWidth = minDim * 0.1f;
-    SkRect outsideAssist = outside;
-    outsideAssist.outset(strokeWidth, strokeWidth);
-    SkRect inside = outside;
-    inside.inset(strokeWidth, strokeWidth);
+    // Create either a empty rect or a non-empty rect.
+    SkRect rect = random->nextBool() ? SkRect::MakeXYWH(10, 10, 50, 40) :
+                                       SkRect::MakeXYWH(6, 7, 0, 0);
+    SkScalar minDim = SkMinScalar(rect.width(), rect.height());
+    SkScalar strokeWidth = random->nextUScalar1() * minDim;
 
     GrColor color = GrRandomColor(random);
 
-    return GrAAStrokeRectBatch::Create(color, GrTest::TestMatrix(random), outside, outsideAssist,
-                                       inside, miterStroke, inside.isFinite() && inside.isEmpty());
+    SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
+    rec.setStrokeStyle(strokeWidth);
+    rec.setStrokeParams(SkPaint::kButt_Cap,
+                        miterStroke ? SkPaint::kMiter_Join : SkPaint::kBevel_Join,
+                        1.f);
+    SkMatrix matrix = GrTest::TestMatrixRectStaysRect(random);
+    return GrAAStrokeRectBatch::Create(color, matrix, rect, rec);
 }
 
 #endif

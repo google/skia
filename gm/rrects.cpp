@@ -8,12 +8,11 @@
 #include "gm.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrDrawContextPriv.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrRRectEffect.h"
 #endif
-#include "SkDevice.h"
 #include "SkRRect.h"
 
 namespace skiagm {
@@ -63,24 +62,8 @@ protected:
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = nullptr;
-#if SK_SUPPORT_GPU
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        context = rt ? rt->getContext() : nullptr;
-        SkAutoTUnref<GrDrawContext> drawContext;
-        if (kEffect_Type == fType) {
-            if (!context) {
-                skiagm::GM::DrawGpuOnlyMessage(canvas);
-                return;
-            }
-
-            drawContext.reset(context->drawContext(rt));
-            if (!drawContext) {
-                return;
-            }
-        }
-#endif
-        if (kEffect_Type == fType && nullptr == context) {
+        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
+        if (kEffect_Type == fType && !drawContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
@@ -129,7 +112,7 @@ protected:
                                                                                    rrect));
                         if (fp) {
                             pipelineBuilder.addCoverageFragmentProcessor(fp);
-                            pipelineBuilder.setRenderTarget(rt);
+                            pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
@@ -137,7 +120,8 @@ protected:
                             SkAutoTUnref<GrDrawBatch> batch(
                                     GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(),
                                                                         bounds, nullptr, nullptr));
-                            drawContext->internal_drawBatch(pipelineBuilder, batch);
+                            drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder,
+                                                                                 batch);
                         } else {
                             drew = false;
                         }

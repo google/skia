@@ -101,7 +101,7 @@
 
         static const struct {
             const char* name;
-            int code;
+            const DWORD code;
         } kExceptions[] = {
         #define _(E) {#E, E}
             _(EXCEPTION_ACCESS_VIOLATION),

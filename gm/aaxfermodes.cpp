@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -113,8 +112,8 @@ protected:
                         kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2,
                         kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint);
                 canvas->drawText("Src Opaque", sizeof("Src Opaque") - 1,
-                        kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2 + 
-                        kPaintSpacing, kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, 
+                        kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2 +
+                        kPaintSpacing, kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3,
                         fLabelPaint);
             }
 
@@ -211,7 +210,7 @@ protected:
             if (maxSum > 255) {
                 SkPaint dimPaint;
                 dimPaint.setAntiAlias(false);
-                dimPaint.setXfermode(SkXfermode::Create(SkXfermode::kDstIn_Mode));
+                dimPaint.setXfermode(SkXfermode::Make(SkXfermode::kDstIn_Mode));
                 if (255 != paint->getAlpha()) {
                     // Dim the src and dst colors.
                     dimPaint.setARGB(255 * 255 / maxSum, 0, 0, 0);
@@ -231,13 +230,13 @@ protected:
         SkPaint shapePaint(paint);
         shapePaint.setAntiAlias(kSquare_Shape != shape);
 
-        SkAutoTUnref<SkXfermode> xfermode;
+        sk_sp<SkXfermode> xfermode;
         if (mode <= SkXfermode::kLastMode) {
-            xfermode.reset(SkXfermode::Create(mode));
+            xfermode = SkXfermode::Make(mode);
         } else {
-            xfermode.reset(SkArithmeticMode::Create(+1.0f, +0.25f, -0.5f, +0.1f));
+            xfermode = SkArithmeticMode::Make(+1.0f, +0.25f, -0.5f, +0.1f);
         }
-        shapePaint.setXfermode(xfermode);
+        shapePaint.setXfermode(std::move(xfermode));
 
         switch (shape) {
             case kSquare_Shape:

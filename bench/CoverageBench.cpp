@@ -6,6 +6,7 @@
  */
 
 #include "Benchmark.h"
+#include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -39,7 +40,6 @@ public:
 
         fDraw.fDst      = fPixmap;
         fDraw.fMatrix   = &fIdentity;
-        fDraw.fClip     = &fRC.bwRgn();
         fDraw.fRC       = &fRC;
     }
 

@@ -171,7 +171,7 @@ void GrMemoryPool::validate() {
             SkASSERT(userStart == block->fCurrPtr);
         } else {
             AllocHeader* allocData = reinterpret_cast<AllocHeader*>(userStart);
-            SkASSERT(allocData->fSentinal == kAssignedMarker || 
+            SkASSERT(allocData->fSentinal == kAssignedMarker ||
                      allocData->fSentinal == kFreedMarker);
             SkASSERT(block == allocData->fHeader);
         }

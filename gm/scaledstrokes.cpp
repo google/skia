@@ -43,7 +43,6 @@ protected:
         const SkScalar size = 60.0f;
         for (int i = 0; i < 2; i++) {
             paint.setAntiAlias(i == 1);
-            canvas->save();
             for (int j = 0; j < 4; j++) {
                 SkScalar scale = 4.0f - j;
                 paint.setStrokeWidth(4.0f / scale);

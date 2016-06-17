@@ -30,40 +30,26 @@ public:
     ~GrTextBlobCache();
 
     // creates an uncached blob
-    GrAtlasTextBlob* createBlob(int glyphCount, int runCount, size_t maxVASize);
-    GrAtlasTextBlob* createBlob(const SkTextBlob* blob, size_t maxVAStride) {
+    GrAtlasTextBlob* createBlob(int glyphCount, int runCount) {
+        return GrAtlasTextBlob::Create(&fPool, glyphCount, runCount);
+    }
+    GrAtlasTextBlob* createBlob(const SkTextBlob* blob) {
         int glyphCount = 0;
         int runCount = 0;
         BlobGlyphCount(&glyphCount, &runCount, blob);
-        GrAtlasTextBlob* cacheBlob = this->createBlob(glyphCount, runCount, maxVAStride);
+        GrAtlasTextBlob* cacheBlob = GrAtlasTextBlob::Create(&fPool, glyphCount, runCount);
         return cacheBlob;
-    }
-
-    static void SetupCacheBlobKey(GrAtlasTextBlob* cacheBlob,
-                                  const GrAtlasTextBlob::Key& key,
-                                  const SkMaskFilter::BlurRec& blurRec,
-                                  const SkPaint& paint) {
-        cacheBlob->fKey = key;
-        if (key.fHasBlur) {
-            cacheBlob->fBlurRec = blurRec;
-        }
-        if (key.fStyle != SkPaint::kFill_Style) {
-            cacheBlob->fStrokeInfo.fFrameWidth = paint.getStrokeWidth();
-            cacheBlob->fStrokeInfo.fMiterLimit = paint.getStrokeMiter();
-            cacheBlob->fStrokeInfo.fJoin = paint.getStrokeJoin();
-        }
     }
 
     GrAtlasTextBlob* createCachedBlob(const SkTextBlob* blob,
                                       const GrAtlasTextBlob::Key& key,
                                       const SkMaskFilter::BlurRec& blurRec,
-                                      const SkPaint& paint,
-                                      size_t maxVAStride) {
+                                      const SkPaint& paint) {
         int glyphCount = 0;
         int runCount = 0;
         BlobGlyphCount(&glyphCount, &runCount, blob);
-        GrAtlasTextBlob* cacheBlob = this->createBlob(glyphCount, runCount, maxVAStride);
-        SetupCacheBlobKey(cacheBlob, key, blurRec, paint);
+        GrAtlasTextBlob* cacheBlob = GrAtlasTextBlob::Create(&fPool, glyphCount, runCount);
+        cacheBlob->setupKey(key, blurRec, paint);
         this->add(cacheBlob);
         return cacheBlob;
     }
@@ -73,7 +59,7 @@ public:
     }
 
     void remove(GrAtlasTextBlob* blob) {
-        fCache.remove(blob->fKey);
+        fCache.remove(blob->key());
         fBlobList.remove(blob);
         blob->unref();
     }
@@ -119,7 +105,7 @@ private:
             iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
             GrAtlasTextBlob* lruBlob = nullptr;
             while (fPool.size() > fBudget && (lruBlob = iter.get()) && lruBlob != blob) {
-                fCache.remove(lruBlob->fKey);
+                fCache.remove(lruBlob->key());
 
                 // Backup the iterator before removing and unrefing the blob
                 iter.prev();

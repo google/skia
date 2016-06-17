@@ -55,12 +55,12 @@ sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pi
     if (!from_c_info(*cinfo, &info)) {
         return NULL;
     }
-    return (sk_image_t*)SkImage::NewRasterCopy(info, pixels, rowBytes);
+    return (sk_image_t*)SkImage::MakeRasterCopy(SkPixmap(info, pixels, rowBytes)).release();
 }
 
 sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata, const sk_irect_t* subset) {
-    return ToImage(SkImage::NewFromEncoded(AsData(cdata),
-                                           reinterpret_cast<const SkIRect*>(subset)));
+    return ToImage(SkImage::MakeFromEncoded(sk_ref_sp(AsData(cdata)),
+                                           reinterpret_cast<const SkIRect*>(subset)).release());
 }
 
 sk_data_t* sk_image_encode(const sk_image_t* cimage) {
@@ -206,6 +206,11 @@ void sk_canvas_draw_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_
     AsCanvas(ccanvas)->drawRect(AsRect(*crect), AsPaint(*cpaint));
 }
 
+void sk_canvas_draw_circle(sk_canvas_t* ccanvas, float cx, float cy, float rad,
+                           const sk_paint_t* cpaint) {
+    AsCanvas(ccanvas)->drawCircle(cx, cy, rad, AsPaint(*cpaint));
+}
+
 void sk_canvas_draw_oval(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawOval(AsRect(*crect), AsPaint(*cpaint));
 }
@@ -259,7 +264,7 @@ sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
     }
 
     SkSurfaceProps surfProps(0, geo);
-    return (sk_surface_t*)SkSurface::NewRaster(info, &surfProps);
+    return (sk_surface_t*)SkSurface::MakeRaster(info, &surfProps).release();
 }
 
 sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pixels,
@@ -275,7 +280,7 @@ sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pi
     }
 
     SkSurfaceProps surfProps(0, geo);
-    return (sk_surface_t*)SkSurface::NewRasterDirect(info, pixels, rowBytes, &surfProps);
+    return (sk_surface_t*)SkSurface::MakeRasterDirect(info, pixels, rowBytes, &surfProps).release();
 }
 
 void sk_surface_unref(sk_surface_t* csurf) {
@@ -289,7 +294,7 @@ sk_canvas_t* sk_surface_get_canvas(sk_surface_t* csurf) {
 
 sk_image_t* sk_surface_new_image_snapshot(sk_surface_t* csurf) {
     SkSurface* surf = (SkSurface*)csurf;
-    return (sk_image_t*)surf->newImageSnapshot();
+    return (sk_image_t*)surf->makeImageSnapshot().release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -308,7 +313,7 @@ sk_canvas_t* sk_picture_recorder_begin_recording(sk_picture_recorder_t* crec,
 }
 
 sk_picture_t* sk_picture_recorder_end_recording(sk_picture_recorder_t* crec) {
-    return ToPicture(AsPictureRecorder(crec)->endRecording());
+    return ToPicture(AsPictureRecorder(crec)->finishRecordingAsPicture().release());
 }
 
 void sk_picture_ref(sk_picture_t* cpic) {
@@ -356,10 +361,10 @@ sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
     } else {
         matrix.setIdentity();
     }
-    SkShader* s = SkGradientShader::CreateLinear(reinterpret_cast<const SkPoint*>(pts),
-                                                 reinterpret_cast<const SkColor*>(colors),
-                                                 colorPos, colorCount, mode, 0, &matrix);
-    return (sk_shader_t*)s;
+    return (sk_shader_t*)SkGradientShader::MakeLinear(reinterpret_cast<const SkPoint*>(pts),
+                                                      reinterpret_cast<const SkColor*>(colors),
+                                                      colorPos, colorCount,
+                                                      mode, 0, &matrix).release();
 }
 
 static const SkPoint& to_skpoint(const sk_point_t& p) {
@@ -384,12 +389,10 @@ sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* ccenter,
         matrix.setIdentity();
     }
     SkPoint center = to_skpoint(*ccenter);
-    SkShader* s = SkGradientShader::CreateRadial(
-            center, (SkScalar)radius,
-            reinterpret_cast<const SkColor*>(colors),
-            reinterpret_cast<const SkScalar*>(colorPos),
-            colorCount, mode, 0, &matrix);
-    return (sk_shader_t*)s;
+    return (sk_shader_t*)SkGradientShader::MakeRadial(center, (SkScalar)radius,
+                                                      reinterpret_cast<const SkColor*>(colors),
+                                                      reinterpret_cast<const SkScalar*>(colorPos),
+                                                      colorCount, mode, 0, &matrix).release();
 }
 
 sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* ccenter,
@@ -403,13 +406,11 @@ sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* ccenter,
     } else {
         matrix.setIdentity();
     }
-    SkShader* s = SkGradientShader::CreateSweep(
-            (SkScalar)(ccenter->x),
-            (SkScalar)(ccenter->y),
-            reinterpret_cast<const SkColor*>(colors),
-            reinterpret_cast<const SkScalar*>(colorPos),
-            colorCount, 0, &matrix);
-    return (sk_shader_t*)s;
+    return (sk_shader_t*)SkGradientShader::MakeSweep((SkScalar)(ccenter->x),
+                                                     (SkScalar)(ccenter->y),
+                                                     reinterpret_cast<const SkColor*>(colors),
+                                                     reinterpret_cast<const SkScalar*>(colorPos),
+                                                     colorCount, 0, &matrix).release();
 }
 
 sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
@@ -433,13 +434,11 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
     }
     SkPoint skstart = to_skpoint(*start);
     SkPoint skend = to_skpoint(*end);
-    SkShader* s = SkGradientShader::CreateTwoPointConical(
-            skstart, (SkScalar)startRadius,
-            skend, (SkScalar)endRadius,
-            reinterpret_cast<const SkColor*>(colors),
-            reinterpret_cast<const SkScalar*>(colorPos),
-            colorCount, mode, 0, &matrix);
-    return (sk_shader_t*)s;
+    return (sk_shader_t*)SkGradientShader::MakeTwoPointConical(skstart, (SkScalar)startRadius,
+                                                        skend, (SkScalar)endRadius,
+                                                        reinterpret_cast<const SkColor*>(colors),
+                                                        reinterpret_cast<const SkScalar*>(colorPos),
+                                                        colorCount, mode, 0, &matrix).release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -460,7 +459,7 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
     if (!find_blurstyle(cstyle, &style)) {
         return NULL;
     }
-    return ToMaskFilter(SkBlurMaskFilter::Create(style, sigma));
+    return ToMaskFilter(SkBlurMaskFilter::Make(style, sigma).release());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -470,15 +469,15 @@ sk_data_t* sk_data_new_empty() {
 }
 
 sk_data_t* sk_data_new_with_copy(const void* src, size_t length) {
-    return ToData(SkData::NewWithCopy(src, length));
+    return ToData(SkData::MakeWithCopy(src, length).release());
 }
 
 sk_data_t* sk_data_new_from_malloc(const void* memory, size_t length) {
-    return ToData(SkData::NewFromMalloc(memory, length));
+    return ToData(SkData::MakeFromMalloc(memory, length).release());
 }
 
 sk_data_t* sk_data_new_subset(const sk_data_t* csrc, size_t offset, size_t length) {
-    return ToData(SkData::NewSubset(AsData(csrc), offset, length));
+    return ToData(SkData::MakeSubset(AsData(csrc), offset, length).release());
 }
 
 void sk_data_ref(const sk_data_t* cdata) {

@@ -15,7 +15,7 @@
  */
 DEF_SIMPLE_GM(grayscalejpg, canvas, 128, 128) {
     const char kResource[] = "grayscale.jpg";
-    SkAutoTUnref<SkImage> image(GetResourceAsImage(kResource));
+    sk_sp<SkImage> image(GetResourceAsImage(kResource));
     if (image) {
         canvas->drawImage(image, 0.0f, 0.0f);
     } else {

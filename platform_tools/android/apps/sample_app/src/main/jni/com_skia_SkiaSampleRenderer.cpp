@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Skia
  *
@@ -27,13 +26,11 @@ struct ActivityGlue {
     jweak m_obj;
     jmethodID m_setTitle;
     jmethodID m_setSlideList;
-    jmethodID m_addToDownloads;
     ActivityGlue() {
         m_env = nullptr;
         m_obj = nullptr;
         m_setTitle = nullptr;
         m_setSlideList = nullptr;
-        m_addToDownloads = nullptr;
     }
 } gActivityGlue;
 
@@ -64,7 +61,8 @@ SkOSWindow::SkOSWindow(void*) : fDestroyRequested(false) {
 SkOSWindow::~SkOSWindow() {
 }
 
-bool SkOSWindow::attach(SkBackEndTypes /* attachType */, int /*msaaSampleCount*/, AttachmentInfo* info)
+bool SkOSWindow::attach(SkBackEndTypes /* attachType */, int /*msaaSampleCount*/,
+                        bool /*deepColor*/, AttachmentInfo* info)
 {
     JNIEnv* env = gActivityGlue.m_env;
     if (!env || !gWindowGlue.m_getMSAASampleCount || !gWindowGlue.m_obj) {
@@ -81,7 +79,7 @@ bool SkOSWindow::attach(SkBackEndTypes /* attachType */, int /*msaaSampleCount*/
     return true;
 }
 
-void SkOSWindow::detach() {
+void SkOSWindow::release() {
 }
 
 void SkOSWindow::present() {
@@ -120,30 +118,6 @@ void SkOSWindow::onHandleInval(const SkIRect& rect)
         return;
     }
     env->CallVoidMethod(gWindowGlue.m_obj, gWindowGlue.m_inval);
-}
-
-void SkOSWindow::onPDFSaved(const char title[], const char desc[],
-        const char path[])
-{
-    JNIEnv* env = gActivityGlue.m_env;
-    if (!env || !gActivityGlue.m_addToDownloads || !gActivityGlue.m_obj) {
-        return;
-    }
-    if (env->IsSameObject(gActivityGlue.m_obj, nullptr)) {
-        SkDebugf("ERROR: The JNI WeakRef to the Activity is invalid");
-        return;
-    }
-
-    jstring jtitle = env->NewStringUTF(title);
-    jstring jdesc = env->NewStringUTF(desc);
-    jstring jpath = env->NewStringUTF(path);
-
-    env->CallVoidMethod(gActivityGlue.m_obj, gActivityGlue.m_addToDownloads,
-            jtitle, jdesc, jpath);
-
-    env->DeleteLocalRef(jtitle);
-    env->DeleteLocalRef(jdesc);
-    env->DeleteLocalRef(jpath);
 }
 
 ///////////////////////////////////////////
@@ -198,8 +172,6 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_init(JNIEnv* env,
     gActivityGlue.m_obj = env->NewWeakGlobalRef(jsampleActivity);
     gActivityGlue.m_setTitle = GetJMethod(env, clazz, "setTitle", "(Ljava/lang/CharSequence;)V");
     gActivityGlue.m_setSlideList = GetJMethod(env, clazz, "setSlideList", "([Ljava/lang/String;)V");
-    gActivityGlue.m_addToDownloads = GetJMethod(env, clazz, "addToDownloads",
-            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     env->DeleteLocalRef(clazz);
 
     // setup jni hooks to the java renderer

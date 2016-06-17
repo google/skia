@@ -8,7 +8,7 @@
 #ifndef SkXMLWriter_DEFINED
 #define SkXMLWriter_DEFINED
 
-#include "SkTDArray.h"
+#include "../private/SkTDArray.h"
 #include "SkString.h"
 #include "SkDOM.h"
 

@@ -9,12 +9,13 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
+#include "../private/SkAtomics.h"
+#include "../private/SkTDArray.h"
 #include "SkMatrix.h"
 #include "SkPoint.h"
 #include "SkRRect.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
-#include "SkTDArray.h"
 #include <stddef.h> // ptrdiff_t
 
 class SkRBuffer;
@@ -270,6 +271,8 @@ public:
      * Gets the number of bytes that would be written in writeBuffer()
      */
     uint32_t writeSize() const;
+
+    void interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef* out) const;
 
     /**
      * Gets an ID that uniquely identifies the contents of the path ref. If two path refs have the

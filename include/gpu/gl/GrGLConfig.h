@@ -56,15 +56,6 @@
  * Chrome's cmd buffer will create a new allocation and memset the whole thing
  * to zero (for security reasons). Defaults to 1 (enabled).
  *
- * GR_GL_PER_GL_FUNC_CALLBACK: When set to 1 the GrGLInterface object provides
- * a function pointer that is called just before every gl function. The ptr must
- * be valid (i.e. there is no NULL check). However, by default the callback will
- * be set to a function that does nothing. The signature of the function is:
- *    void function(const GrGLInterface*)
- * It is not extern "C".
- * The GrGLInterface field fCallback specifies the function ptr and there is an
- * additional field fCallbackData of type intptr_t for client data.
- *
  * GR_GL_CHECK_ALLOC_WITH_GET_ERROR: If set to 1 this will then glTexImage,
  * glBufferData, glRenderbufferStorage, etc will be checked for errors. This
  * amounts to ensuring the error is GL_NO_ERROR, calling the allocating
@@ -113,10 +104,6 @@
 
 #if !defined(GR_GL_USE_BUFFER_DATA_NULL_HINT)
     #define GR_GL_USE_BUFFER_DATA_NULL_HINT             1
-#endif
-
-#if !defined(GR_GL_PER_GL_FUNC_CALLBACK)
-    #define GR_GL_PER_GL_FUNC_CALLBACK                  0
 #endif
 
 #if !defined(GR_GL_CHECK_ALLOC_WITH_GET_ERROR)

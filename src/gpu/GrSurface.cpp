@@ -100,8 +100,8 @@ bool GrSurface::writePixels(int left, int top, int width, int height,
     if (nullptr == context) {
         return false;
     }
-    return context->writeSurfacePixels(this, left, top, width, height, config, buffer, rowBytes,
-                                       pixelOpsFlags);
+    return context->writeSurfacePixels(this, left, top, width, height, config, buffer,
+                                       rowBytes, pixelOpsFlags);
 }
 
 bool GrSurface::readPixels(int left, int top, int width, int height,

@@ -28,8 +28,8 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps);
 
-DEF_GPUTEST_FOR_NULL_CONTEXT(GrPorterDuff, reporter, context) {
-    const GrCaps& caps = *context->getGpu()->caps();
+DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrPorterDuff, reporter, ctxInfo) {
+    const GrCaps& caps = *ctxInfo.grContext()->getGpu()->caps();
     if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
         SkFAIL("Null context does not support dual source blending.");
         return;
@@ -72,7 +72,7 @@ public:
             SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
             SkAutoTUnref<GrXferProcessor> xp(
                 xpf->createXferProcessor(optimizations, false, nullptr, caps));
-            TEST_ASSERT(!xpf->willNeedDstTexture(caps, optimizations, false));
+            TEST_ASSERT(!xpf->willNeedDstTexture(caps, optimizations));
             xpf->getInvariantBlendedColor(optimizations.fColorPOI, &fBlendedColor);
             fOptFlags = xp->getOptimizations(optimizations, false, nullptr, caps);
             GetXPOutputTypes(xp, &fPrimaryOutputType, &fSecondaryOutputType);
@@ -286,9 +286,9 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
 }
 static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
     GrPipelineOptimizations optimizations;
-    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
+    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags,
                                                   false);
-    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags,
                                                      true);
 
     SkASSERT(!optimizations.fColorPOI.isOpaque());
@@ -482,7 +482,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
     GrPipelineOptimizations optimizations;
     optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackRGBA(229, 0, 154, 0),
                                    kR_GrColorComponentFlag | kB_GrColorComponentFlag, false);
-    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
                                                      kRGBA_GrColorComponentFlags, true);
 
     SkASSERT(!optimizations.fColorPOI.isOpaque());
@@ -684,9 +684,9 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
 
 static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
     GrPipelineOptimizations optimizations;
-    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
+    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
                                                   kA_GrColorComponentFlag, false);
-    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags,
                                                      true);
 
     SkASSERT(optimizations.fColorPOI.isOpaque());
@@ -885,7 +885,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
     GrPipelineOptimizations optimizations;
     optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackRGBA(0, 82, 0, 255),
                                    kG_GrColorComponentFlag | kA_GrColorComponentFlag, false);
-    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
                                                      kRGBA_GrColorComponentFlags, true);
 
     SkASSERT(optimizations.fColorPOI.isOpaque());
@@ -1098,14 +1098,12 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         TestLCDCoverageBatch() : INHERITED(ClassID()) {}
 
     private:
-        void computePipelineOptimizations(GrInitInvariantOutput* color, 
+        void computePipelineOptimizations(GrInitInvariantOutput* color,
                                           GrInitInvariantOutput* coverage,
                                           GrBatchToXPOverrides* overrides) const override {
             color->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
             coverage->setUnknownFourComponents();
-            coverage->setUsingLCDCoverage();
-            overrides->fUsePLSDstRead = false;
-        }
+            coverage->setUsingLCDCoverage();        }
 
         const char* name() const override { return "Test LCD Text Batch"; }
         void initBatchTracker(const GrXPOverridesForBatch&) override {}
@@ -1124,7 +1122,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     SkASSERT(covPOI.isFourChannelOutput());
 
     SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode));
-    TEST_ASSERT(!xpf->willNeedDstTexture(caps, opts, false));
+    TEST_ASSERT(!xpf->willNeedDstTexture(caps, opts));
 
     SkAutoTUnref<GrXferProcessor> xp(
         xpf->createXferProcessor(opts, false, nullptr, caps));
@@ -1149,8 +1147,8 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
 DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
     GrContextOptions opts;
     opts.fSuppressDualSourceBlending = true;
-    GrContextFactory mockFactory(opts);
-    GrContext* ctx = mockFactory.get(GrContextFactory::kNull_GLContextType);
+    sk_gpu_test::GrContextFactory mockFactory(opts);
+    GrContext* ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType);
     if (!ctx) {
         SkFAIL("Failed to create null context without ARB_blend_func_extended.");
         return;
@@ -1188,11 +1186,11 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
 
     for (size_t c = 0; c < SK_ARRAY_COUNT(testColors); c++) {
         GrPipelineOptimizations optimizations;
-        optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, testColors[c], testColorFlags[c], 
+        optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, testColors[c], testColorFlags[c],
                                                       false);
         for (int f = 0; f <= 1; f++) {
             if (!f) {
-                optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, 
+                optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0,
                                                                  kNone_GrColorComponentFlags, true);
             } else {
                 optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
@@ -1202,7 +1200,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                 SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
                 SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
                 GrXferProcessor::DstTexture* dstTexture =
-                    xpf->willNeedDstTexture(caps, optimizations, false) ? &fakeDstTexture : 0;
+                    xpf->willNeedDstTexture(caps, optimizations) ? &fakeDstTexture : 0;
                 SkAutoTUnref<GrXferProcessor> xp(
                     xpf->createXferProcessor(optimizations, false, dstTexture, caps));
                 if (!xp) {
@@ -1219,4 +1217,3 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
 }
 
 #endif
-

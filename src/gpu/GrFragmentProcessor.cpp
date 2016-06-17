@@ -1,4 +1,3 @@
-
 /*
 * Copyright 2015 Google Inc.
 *
@@ -28,7 +27,7 @@ GrFragmentProcessor::~GrFragmentProcessor() {
 bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that,
                                   bool ignoreCoordTransforms) const {
     if (this->classID() != that.classID() ||
-        !this->hasSameTextureAccesses(that)) {
+        !this->hasSameSamplers(that)) {
         return false;
     }
     if (ignoreCoordTransforms) {
@@ -70,6 +69,15 @@ void GrFragmentProcessor::addTextureAccess(const GrTextureAccess* textureAccess)
     fNumTexturesExclChildren++;
 }
 
+void GrFragmentProcessor::addBufferAccess(const GrBufferAccess* bufferAccess) {
+    // Can't add buffer accesses after registering any children since their buffer accesses have
+    // already been bubbled up into our fBufferAccesses array
+    SkASSERT(fChildProcessors.empty());
+
+    INHERITED::addBufferAccess(bufferAccess);
+    fNumBuffersExclChildren++;
+}
+
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     // Can't add transforms after registering any children since their transforms have already been
     // bubbled up into our fCoordTransforms array
@@ -96,9 +104,7 @@ int GrFragmentProcessor::registerChildProcessor(const GrFragmentProcessor* child
     int index = fChildProcessors.count();
     fChildProcessors.push_back(SkRef(child));
 
-    if (child->willReadFragmentPosition()) {
-        this->setWillReadFragmentPosition();
-    }
+    this->combineRequiredFeatures(*child);
 
     if (child->usesLocalCoords()) {
         fUsesLocalCoords = true;
@@ -152,10 +158,8 @@ const GrFragmentProcessor* GrFragmentProcessor::MulOutputByInputUnpremulColor(
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
-                GLFP() {}
-
                 void emitCode(EmitArgs& args) override {
-                    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+                    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
                     this->emitChild(0, nullptr, args);
                     fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
                                                                 args.fInputColor);
@@ -228,10 +232,10 @@ const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentPr
                 GLFP() : fHaveSetColor(false) {}
                 void emitCode(EmitArgs& args) override {
                     const char* colorName;
-                    fColorUni = args.fUniformHandler->addUniform(
-                                                         GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                                         "Color", &colorName);
+                    fColorUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                 kVec4f_GrSLType,
+                                                                 kDefault_GrSLPrecision,
+                                                                 "Color", &colorName);
                     this->emitChild(0, colorName, args);
                 }
 
@@ -304,7 +308,6 @@ const GrFragmentProcessor* GrFragmentProcessor::RunInSeries(const GrFragmentProc
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
-                GLFP() {}
                 void emitCode(EmitArgs& args) override {
                     SkString input(args.fInputColor);
                     for (int i = 0; i < this->numChildProcessors() - 1; ++i) {
@@ -378,4 +381,3 @@ const GrFragmentProcessor* GrFragmentProcessor::RunInSeries(const GrFragmentProc
         return new SeriesFragmentProcessor(series, cnt);
     }
 }
-

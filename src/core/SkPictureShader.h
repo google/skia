@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -22,10 +21,8 @@ class SkPicture;
  */
 class SkPictureShader : public SkShader {
 public:
-    static SkShader* Create(const SkPicture*, TileMode, TileMode, const SkMatrix*,
-                                   const SkRect*);
-
-    size_t contextSize() const override;
+    static sk_sp<SkShader> Make(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*,
+                                const SkRect*);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureShader)
@@ -40,21 +37,23 @@ public:
 protected:
     SkPictureShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
+    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:
-    SkPictureShader(const SkPicture*, TileMode, TileMode, const SkMatrix*, const SkRect*);
+    SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*);
 
-    SkShader* refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix, const int maxTextureSize = 0) const;
+    sk_sp<SkShader> refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix,
+                                    const int maxTextureSize = 0) const;
 
-    SkAutoTUnref<const SkPicture> fPicture;
-    SkRect                        fTile;
-    TileMode                      fTmx, fTmy;
+    sk_sp<SkPicture>    fPicture;
+    SkRect              fTile;
+    TileMode            fTmx, fTmy;
 
     class PictureShaderContext : public SkShader::Context {
     public:
         static Context* Create(void* storage, const SkPictureShader&, const ContextRec&,
-                               SkShader* bitmapShader);
+                               sk_sp<SkShader> bitmapShader);
 
         virtual ~PictureShaderContext();
 
@@ -64,11 +63,12 @@ private:
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
 
     private:
-        PictureShaderContext(const SkPictureShader&, const ContextRec&, SkShader* bitmapShader);
+        PictureShaderContext(const SkPictureShader&, const ContextRec&,
+                             sk_sp<SkShader> bitmapShader);
 
-        SkAutoTUnref<SkShader>  fBitmapShader;
-        SkShader::Context*      fBitmapShaderContext;
-        void*                   fBitmapShaderContextStorage;
+        sk_sp<SkShader>     fBitmapShader;
+        SkShader::Context*  fBitmapShaderContext;
+        void*               fBitmapShaderContextStorage;
 
         typedef SkShader::Context INHERITED;
     };

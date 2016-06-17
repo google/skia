@@ -27,7 +27,6 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        SkAutoTUnref<SkTypeface> typeface(GetResourceAsTypeface("/fonts/HangingS.ttf"));
         SkTextBlobBuilder builder;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
@@ -35,7 +34,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
-        paint.setTypeface(typeface);
+        paint.setTypeface(MakeResourceAsTypeface("/fonts/HangingS.ttf"));
 
         const char* text = "Skia";
 
@@ -73,6 +72,13 @@ protected:
 
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset);
 
+        // Zero size.
+        paint.measureText(text, strlen(text), &bounds);
+        yOffset += bounds.height();
+        paint.setTextSize(0);
+
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset);
+
         // build
         fBlob.reset(builder.build());
     }
@@ -91,16 +97,19 @@ protected:
 
     void onDraw(SkCanvas* inputCanvas) override {
         SkCanvas* canvas = inputCanvas;
-        SkAutoTUnref<SkSurface> surface;
+        sk_sp<SkSurface> surface;
         if (fUseDFT) {
 #if SK_SUPPORT_GPU
             // Create a new Canvas to enable DFT
             GrContext* ctx = inputCanvas->getGrContext();
-            SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
-            SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
+            SkImageInfo info = SkImageInfo::MakeN32Premul(onISize(),
+                                                          inputCanvas->imageInfo().profileType());
+            SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
+            uint32_t gammaCorrect = inputCanvas->getProps(&canvasProps)
+                ? canvasProps.flags() & SkSurfaceProps::kGammaCorrect_Flag : 0;
+            SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag | gammaCorrect,
                                  SkSurfaceProps::kLegacyFontHost_InitType);
-            surface.reset(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info, 0,
-                                                     &props));
+            surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
             canvas = surface.get() ? surface->getCanvas() : inputCanvas;
             // init our new canvas with the old canvas's matrix
             canvas->setMatrix(inputCanvas->getTotalMatrix());
@@ -129,9 +138,8 @@ protected:
         // setup blur paint
         SkPaint blurPaint(paint);
         blurPaint.setColor(sk_tool_utils::color_to_565(SK_ColorBLACK));
-        SkAutoTUnref<SkMaskFilter> mf(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, kSigma));
-        blurPaint.setMaskFilter(mf);
-
+        blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kSigma));
+        
         for (int i = 0; i < 4; i++) {
             canvas->save();
             switch (i % 2) {
@@ -164,9 +172,7 @@ protected:
             SkAutoCanvasRestore acr(inputCanvas, true);
             // since we prepended this matrix already, we blit using identity
             inputCanvas->resetMatrix();
-            SkImage* image = surface->newImageSnapshot();
-            inputCanvas->drawImage(image, 0, 0, nullptr);
-            image->unref();
+            inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
 #endif
     }
@@ -174,8 +180,8 @@ protected:
 private:
     SkAutoTUnref<const SkTextBlob> fBlob;
 
-    static const int kWidth = 2000;
-    static const int kHeight = 2000;
+    static const int kWidth = 2100;
+    static const int kHeight = 1900;
 
     bool fUseDFT;
 

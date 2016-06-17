@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This script will update Skia's dependencies as necessary.
+
+# Depends on: Python, Git, and depot_tools.
+
+# To retreive and use all optional deps:
+#
+#   python bin/sync --deps=all
+
+import hashlib
+import os
+import subprocess
+import sys
+
+skia_dir = os.path.join(os.path.dirname(__file__), os.pardir)
+
+skia_opt_deps = [arg for arg in sys.argv[1:] if arg.startswith('--deps=')]
+
+os.chdir(skia_dir)
+
+if not os.path.isfile('DEPS'):
+  sys.stderr.write('DEPS file missing')
+  exit(1)
+
+deps_hasher = hashlib.sha1()
+with open('DEPS', 'r') as f:
+  deps_hasher.update(f.read())
+deps_hasher.update(repr(skia_opt_deps))
+deps_hash = deps_hasher.hexdigest()
+current_deps_hash = None
+if os.path.isfile('.deps_sha1'):
+  with open('.deps_sha1', 'r') as f:
+    current_deps_hash = f.read().strip()
+
+default_gclient_config = '''
+solutions = [
+  { "name"        : ".",
+    "url"         : "https://skia.googlesource.com/skia.git",
+    "deps_file"   : "DEPS",
+    "managed"     : False,
+    "custom_deps" : {
+    },
+    "safesync_url": "",
+  },
+]
+cache_dir = None
+'''
+
+# Must use gclient.bat rather than gclient on windows (at least on mingw)
+gclient = 'gclient'
+if sys.platform == 'win32' or sys.platform == 'cygwin':
+  gclient = 'gclient.bat'
+
+if current_deps_hash != deps_hash:
+  # `gclient sync` is very slow, so skip whenever we can.
+  try:
+    subprocess.call([gclient, '--version'])
+  except:
+    sys.stdout.write('gclient missing from $PATH, please install ' +
+                     'depot_tools\n    https://skia.org/user/quick/desktop\n')
+    exit(1)
+  if not os.path.isfile('.gclient'):
+    with open('.gclient', 'w') as o:
+      o.write(default_gclient_config)
+  gclient_sync_command = [gclient, 'sync'] + skia_opt_deps
+  try:
+    sys.stdout.write('%r\n' % gclient_sync_command)
+    subprocess.check_call(gclient_sync_command)
+  except:
+    sys.stderr.write('\n`gclient sync` failed.\n')
+    try:
+      os.remove('.deps_sha1')  # Unknown state.
+    except:
+      pass
+    exit(1)
+  # Only write hash after a successful sync.
+  with open('.deps_sha1', 'w') as o:
+    o.write(deps_hash)

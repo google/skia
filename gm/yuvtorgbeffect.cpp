@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -13,14 +12,14 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrDrawContextPriv.h"
 #include "GrPipelineBuilder.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
-#include "effects/GrYUVtoRGBEffect.h"
+#include "effects/GrYUVEffect.h"
 
 #define YSIZE 8
 #define USIZE 4
@@ -70,18 +69,14 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (nullptr == rt) {
-            return;
-        }
-        GrContext* context = rt->getContext();
-        if (nullptr == context) {
+        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
+        if (!drawContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
+            return;        
         }
 
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
-        if (!drawContext) {
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
             return;
         }
 
@@ -118,21 +113,21 @@ protected:
                 GrPipelineBuilder pipelineBuilder;
                 pipelineBuilder.setXPFactory(
                     GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                SkAutoTUnref<GrFragmentProcessor> fp(
-                            GrYUVtoRGBEffect::Create(texture[indices[i][0]],
-                                                     texture[indices[i][1]],
-                                                     texture[indices[i][2]],
-                                                     sizes,
-                                                     static_cast<SkYUVColorSpace>(space)));
+                SkAutoTUnref<const GrFragmentProcessor> fp(
+                            GrYUVEffect::CreateYUVToRGB(texture[indices[i][0]],
+                                                        texture[indices[i][1]],
+                                                        texture[indices[i][2]],
+                                                        sizes,
+                                                        static_cast<SkYUVColorSpace>(space)));
                 if (fp) {
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    pipelineBuilder.setRenderTarget(rt);
+                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
                     pipelineBuilder.addColorFragmentProcessor(fp);
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->internal_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
                 }
                 x += renderRect.width() + kTestPad;
             }

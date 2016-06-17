@@ -316,14 +316,20 @@ static void B2(DFData* curr, int width) {
 #define DUMP_EDGE 0
 
 #if !DUMP_EDGE
-static unsigned char pack_distance_field_val(float dist, float distanceMagnitude) {
-    if (dist <= -distanceMagnitude) {
-        return 255;
-    } else if (dist > distanceMagnitude) {
-        return 0;
-    } else {
-        return (unsigned char)((distanceMagnitude-dist)*128.0f/distanceMagnitude);
-    }
+template <int distanceMagnitude>
+static unsigned char pack_distance_field_val(float dist) {
+    // The distance field is constructed as unsigned char values, so that the zero value is at 128,
+    // Beside 128, we have 128 values in range [0, 128), but only 127 values in range (128, 255].
+    // So we multiply distanceMagnitude by 127/128 at the latter range to avoid overflow.
+    dist = SkScalarPin(-dist, -distanceMagnitude, distanceMagnitude * 127.0f / 128.0f);
+
+    // Scale into the positive range for unsigned distance.
+    dist += distanceMagnitude;
+
+    // Scale into unsigned char range.
+    // Round to place negative and positive values as equally as possible around 128
+    // (which represents zero).
+    return (unsigned char)SkScalarRoundToInt(dist / (2 * distanceMagnitude) * 256.0f);
 }
 #endif
 
@@ -441,7 +447,7 @@ static bool generate_distance_field_from_image(unsigned char* distanceField,
             } else {
                 dist = SkScalarSqrt(currData->fDistSq);
             }
-            *dfPtr++ = pack_distance_field_val(dist, (float)SK_DistanceFieldMagnitude);
+            *dfPtr++ = pack_distance_field_val<SK_DistanceFieldMagnitude>(dist);
 #endif
             ++currData;
             ++currEdge;

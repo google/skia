@@ -27,11 +27,7 @@ void SkPDFCanon::reset() {
     fGraphicStateRecords.foreach ([](WrapGS w) { w.fPtr->unref(); });
     fGraphicStateRecords.reset();
 
-    fBitmapToImageMap.foreach(
-            [](SkBitmapKey, const SkImage** p) { SkSafeUnref(*p); });
-    fBitmapToImageMap.reset();
-
-    fPDFBitmapMap.foreach([](uint32_t, SkPDFObject** p) { SkSafeUnref(*p); });
+    fPDFBitmapMap.foreach([](SkBitmapKey, SkPDFObject** p) { (*p)->unref(); });
     fPDFBitmapMap.reset();
 }
 
@@ -127,25 +123,35 @@ void SkPDFCanon::addGraphicState(const SkPDFGraphicState* state) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFObject* SkPDFCanon::findPDFBitmap(const SkImage* image) const {
-    SkPDFObject** ptr = fPDFBitmapMap.find(image->uniqueID());
-    return ptr ? *ptr : nullptr;
+sk_sp<SkPDFObject> SkPDFCanon::findPDFBitmap(SkBitmapKey key) const {
+    SkPDFObject** ptr = fPDFBitmapMap.find(key);
+    return ptr ? sk_ref_sp(*ptr) : sk_sp<SkPDFObject>();
 }
 
-void SkPDFCanon::addPDFBitmap(uint32_t imageUniqueID, SkPDFObject* pdfBitmap) {
-    fPDFBitmapMap.set(imageUniqueID, SkRef(pdfBitmap));
+void SkPDFCanon::addPDFBitmap(SkBitmapKey key, sk_sp<SkPDFObject> pdfBitmap) {
+    fPDFBitmapMap.set(key, pdfBitmap.release());
 }
 
-const SkImage* SkPDFCanon::bitmapToImage(const SkBitmap& bm) {
-    // reference remains owned by the fBitmapToImageMap!
-    SkBitmapKey key(bm);
-    if (const SkImage** img = fBitmapToImageMap.find(key)) {
-        return *img;
+////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkPDFStream> SkPDFCanon::makeInvertFunction() {
+    if (fInvertFunction) {
+        return fInvertFunction;
     }
-    if (SkImage* image = SkImage::NewFromBitmap(bm)) {
-        return *fBitmapToImageMap.set(key, image);
+    fInvertFunction = SkPDFGraphicState::MakeInvertFunction();
+    return fInvertFunction;
+}
+sk_sp<SkPDFDict> SkPDFCanon::makeNoSmaskGraphicState() {
+    if (fNoSmaskGraphicState) {
+        return fNoSmaskGraphicState;
     }
-    SkBitmap n32bitmap;  // SkImage::NewFromBitmap can be finicky.
-    bm.copyTo(&n32bitmap, kN32_SkColorType);
-    return *fBitmapToImageMap.set(key, SkImage::NewFromBitmap(n32bitmap));
+    fNoSmaskGraphicState = SkPDFGraphicState::MakeNoSmaskGraphicState();
+    return fNoSmaskGraphicState;
+}
+sk_sp<SkPDFArray> SkPDFCanon::makeRangeObject() {
+    if (fRangeObject) {
+        return fRangeObject;
+    }
+    fRangeObject = SkPDFShader::MakeRangeObject();
+    return fRangeObject;
 }

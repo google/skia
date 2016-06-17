@@ -10,7 +10,7 @@
 
 GrPathRange::GrPathRange(GrGpu* gpu,
                          PathGenerator* pathGenerator)
-    : INHERITED(gpu, kCached_LifeCycle),
+    : INHERITED(gpu),
       fPathGenerator(SkRef(pathGenerator)),
       fNumPaths(fPathGenerator->getNumPaths()) {
     const int numGroups = (fNumPaths + kPathsPerGroup - 1) / kPathsPerGroup;
@@ -20,7 +20,7 @@ GrPathRange::GrPathRange(GrGpu* gpu,
 
 GrPathRange::GrPathRange(GrGpu* gpu,
                          int numPaths)
-    : INHERITED(gpu, kCached_LifeCycle),
+    : INHERITED(gpu),
       fNumPaths(numPaths) {
 }
 

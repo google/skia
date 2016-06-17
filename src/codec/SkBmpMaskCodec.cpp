@@ -12,14 +12,13 @@
 /*
  * Creates an instance of the decoder
  */
-SkBmpMaskCodec::SkBmpMaskCodec(const SkImageInfo& info, SkStream* stream,
+SkBmpMaskCodec::SkBmpMaskCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
                                uint16_t bitsPerPixel, SkMasks* masks,
                                SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(info, stream, bitsPerPixel, rowOrder)
+    : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder)
     , fMasks(masks)
     , fMaskSwizzler(nullptr)
-    , fSrcRowBytes(SkAlign4(compute_row_bytes(this->getInfo().width(), this->bitsPerPixel())))
-    , fSrcBuffer(new uint8_t [fSrcRowBytes])
+    , fSrcBuffer(new uint8_t [this->srcRowBytes()])
 {}
 
 /*
@@ -58,25 +57,12 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
     return kSuccess;
 }
 
-bool SkBmpMaskCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
-    // Create the swizzler
-    fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(dstInfo, this->getInfo(), fMasks,
-            this->bitsPerPixel(), options));
-
-    if (nullptr == fMaskSwizzler.get()) {
-        return false;
-    }
-
-    return true;
-}
-
 SkCodec::Result SkBmpMaskCodec::prepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
-    // Initialize a the mask swizzler
-    if (!this->initializeSwizzler(dstInfo, options)) {
-        SkCodecPrintf("Error: cannot initialize swizzler.\n");
-        return SkCodec::kInvalidConversion;
-    }
+    // Initialize the mask swizzler
+    fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(dstInfo, this->getInfo(), fMasks,
+            this->bitsPerPixel(), options));
+    SkASSERT(fMaskSwizzler);
 
     return SkCodec::kSuccess;
 }
@@ -92,7 +78,7 @@ int SkBmpMaskCodec::decodeRows(const SkImageInfo& dstInfo,
     const int height = dstInfo.height();
     for (int y = 0; y < height; y++) {
         // Read a row of the input
-        if (this->stream()->read(srcRow, fSrcRowBytes) != fSrcRowBytes) {
+        if (this->stream()->read(srcRow, this->srcRowBytes()) != this->srcRowBytes()) {
             SkCodecPrintf("Warning: incomplete input stream.\n");
             return y;
         }

@@ -12,11 +12,11 @@
 #include "SkString.h"
 
 /**
- * This bench measures the rendering time of the call SkCanvas::drawPatch with different types of 
- * input patches (regular case, with loops, a square, with a big difference between "parallel" 
- * sides). This bench also tests the different combination of optional parameters for the function 
+ * This bench measures the rendering time of the call SkCanvas::drawPatch with different types of
+ * input patches (regular case, with loops, a square, with a big difference between "parallel"
+ * sides). This bench also tests the different combination of optional parameters for the function
  * (passing texture coordinates and colors, only textures coordinates, only colors or none).
- * Finally, it applies a scale to test if the size affects the rendering time. 
+ * Finally, it applies a scale to test if the size affects the rendering time.
  */
 
 class PatchBench : public Benchmark {
@@ -69,16 +69,15 @@ public:
     }
 
     // override this method to change the shader
-    virtual SkShader* createShader() {
+    virtual sk_sp<SkShader> createShader() {
         const SkColor colors[] = {
             SK_ColorRED, SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE,
             SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
         };
         const SkPoint pts[] = { { 200.f / 4.f, 0.f }, { 3.f * 200.f / 4, 200.f } };
 
-        return SkGradientShader::CreateLinear(pts, colors, nullptr,
-                                              SK_ARRAY_COUNT(colors),
-                                              SkShader::kMirror_TileMode);
+        return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                            SkShader::kMirror_TileMode);
     }
 
 protected:
@@ -115,7 +114,7 @@ protected:
         switch (fVertexMode) {
             case kTexCoords_VertexMode:
             case kBoth_VertexMode:
-                fPaint.setShader(this->createShader())->unref();
+                fPaint.setShader(this->createShader());
                 break;
             default:
                 fPaint.setShader(nullptr);

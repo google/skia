@@ -26,9 +26,12 @@ struct Sk4fStorage {
 
 class SkLinearGradient : public SkGradientShaderBase {
 public:
-    SkLinearGradient(const SkPoint pts[2], const Descriptor&);
+    enum {
+        // Temp flag for testing the 4f impl.
+        kForce4fContext_PrivateFlag     = 1 << 7,
+    };
 
-    size_t contextSize() const override;
+    SkLinearGradient(const SkPoint pts[2], const Descriptor&);
 
     class LinearGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
@@ -66,9 +69,12 @@ public:
 protected:
     SkLinearGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
+    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:
+    class LinearGradient4fContext;
+
     friend class SkGradientShader;
     typedef SkGradientShaderBase INHERITED;
     const SkPoint fStart;

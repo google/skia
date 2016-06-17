@@ -11,7 +11,7 @@
 #
 {
     'sources': [
-        '<(skia_src_path)/doc/SkDocument_PDF.cpp',
+        '<(skia_src_path)/pdf/SkBitmapKey.h',
         '<(skia_src_path)/pdf/SkDeflate.cpp',
         '<(skia_src_path)/pdf/SkDeflate.h',
         '<(skia_src_path)/pdf/SkJpegInfo.cpp',
@@ -20,8 +20,12 @@
         '<(skia_src_path)/pdf/SkPDFBitmap.h',
         '<(skia_src_path)/pdf/SkPDFCanon.cpp',
         '<(skia_src_path)/pdf/SkPDFCanon.h',
+        '<(skia_src_path)/pdf/SkPDFCanvas.cpp',
+        '<(skia_src_path)/pdf/SkPDFCanvas.h',
         '<(skia_src_path)/pdf/SkPDFDevice.cpp',
         '<(skia_src_path)/pdf/SkPDFDevice.h',
+        '<(skia_src_path)/pdf/SkPDFDocument.cpp',
+        '<(skia_src_path)/pdf/SkPDFDocument.h',
         '<(skia_src_path)/pdf/SkPDFFont.cpp',
         '<(skia_src_path)/pdf/SkPDFFont.h',
         '<(skia_src_path)/pdf/SkPDFFontImpl.h',

@@ -41,7 +41,7 @@ static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     bm.setPixelRef(new FailurePixelRef(info), 0, 0)->unref();
     // now our bitmap has a pixelref, but we know it will fail to lock
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(200, 200));
+    auto surface(SkSurface::MakeRasterN32Premul(200, 200));
     SkCanvas* canvas = surface->getCanvas();
 
     const SkFilterQuality levels[] = {
@@ -195,11 +195,9 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
                   0.0078740157f,
                   SkIntToScalar(239),
                   0, 0, SK_Scalar1);
-    SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode, &matrix);
-
     SkPaint paint;
-    paint.setShader(s)->unref();
+    paint.setShader(SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode,
+                                               SkShader::kRepeat_TileMode, &matrix));
 
     SkRect r = SkRect::MakeXYWH(681, 239, 695, 253);
     c.drawRect(r, paint);

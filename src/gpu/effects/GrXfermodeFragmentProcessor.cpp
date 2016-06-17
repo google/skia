@@ -59,8 +59,6 @@ private:
 
 class GLComposeTwoFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
-    GLComposeTwoFragmentProcessor(const GrProcessor& processor) {}
-
     void emitCode(EmitArgs&) override;
 
 private:
@@ -82,14 +80,14 @@ const GrFragmentProcessor* ComposeTwoFragmentProcessor::TestCreate(GrProcessorTe
 }
 
 GrGLSLFragmentProcessor* ComposeTwoFragmentProcessor::onCreateGLSLInstance() const{
-    return new GLComposeTwoFragmentProcessor(*this);
+    return new GLComposeTwoFragmentProcessor;
 }
 
 /////////////////////////////////////////////////////////////////////
 
 void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     const ComposeTwoFragmentProcessor& cs = args.fFp.cast<ComposeTwoFragmentProcessor>();
 
     const char* inputColor = nullptr;
@@ -229,10 +227,8 @@ private:
 
 class GLComposeOneFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
-    GLComposeOneFragmentProcessor(const GrProcessor& processor) {}
-
     void emitCode(EmitArgs& args) override {
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkXfermode::Mode mode = args.fFp.cast<ComposeOneFragmentProcessor>().mode();
         ComposeOneFragmentProcessor::Child child =
             args.fFp.cast<ComposeOneFragmentProcessor>().child();
@@ -278,7 +274,7 @@ const GrFragmentProcessor* ComposeOneFragmentProcessor::TestCreate(GrProcessorTe
 }
 
 GrGLSLFragmentProcessor* ComposeOneFragmentProcessor::onCreateGLSLInstance() const {
-    return new GLComposeOneFragmentProcessor(*this);
+    return new GLComposeOneFragmentProcessor;
 }
 
 //////////////////////////////////////////////////////////////////////////////

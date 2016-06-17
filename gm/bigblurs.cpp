@@ -70,8 +70,7 @@ protected:
 
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j <= kLastEnum_SkBlurStyle; ++j) {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create((SkBlurStyle)j, kSigma);
-                blurPaint.setMaskFilter(mf)->unref();
+                blurPaint.setMaskFilter(SkBlurMaskFilter::Make((SkBlurStyle)j, kSigma));
 
                 for (int k = 0; k < (int)SK_ARRAY_COUNT(origins); ++k) {
                     canvas->save();

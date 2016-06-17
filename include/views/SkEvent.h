@@ -206,12 +206,19 @@ public:
     /**
      *  Post to the event queue using the event's targetID or target-proc.
      *  The event will be delivered no sooner than the specified millisecond
-     *  time, as measured by SkTime::GetMSecs().
+     *  time, as measured by GetMSecsSinceStartup().
      *
      *  The event must be dynamically allocated, as ownership is transferred to
      *  the event queue. It cannot be allocated on the stack or in a global.
      */
     void postTime(SkMSec time);
+
+    /**
+     *  Returns ~zero the first time it's called, then returns the number of
+     *  milliseconds since the first call. Behavior is undefined if the program
+     *  runs more than ~25 days.
+     */
+    static SkMSec GetMSecsSinceStartup();
 
     ///////////////////////////////////////////////
     /** Porting layer must call these functions **/

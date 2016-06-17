@@ -8,8 +8,8 @@
 #ifndef GrProgramElement_DEFINED
 #define GrProgramElement_DEFINED
 
+#include "../private/SkTArray.h"
 #include "SkRefCnt.h"
-#include "SkTArray.h"
 
 class GrGpuResourceRef;
 

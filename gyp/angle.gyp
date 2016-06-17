@@ -11,7 +11,7 @@
       'type': 'none',
       'conditions': [
         [ 'skia_angle', {
-          'direct_dependent_settings': {
+          'all_dependent_settings': {
             'include_dirs': [
               '../third_party/externals/angle2/include',
             ],

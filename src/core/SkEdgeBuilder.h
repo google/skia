@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -27,6 +26,15 @@ public:
     SkEdge** edgeList() { return fEdgeList; }
 
 private:
+    enum Combine {
+        kNo_Combine,
+        kPartial_Combine,
+        kTotal_Combine
+    };
+
+    static Combine CombineVertical(const SkEdge* edge, SkEdge* last);
+    Combine checkVertical(const SkEdge* edge, SkEdge** edgePtr);
+
     SkChunkAlloc        fAlloc;
     SkTDArray<SkEdge*>  fList;
 

@@ -8,15 +8,16 @@
 #ifndef GrGLSLFragmentProcessor_DEFINED
 #define GrGLSLFragmentProcessor_DEFINED
 
+#include "GrFragmentProcessor.h"
 #include "glsl/GrGLSLProcessorTypes.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLTextureSampler.h"
+#include "glsl/GrGLSLSampler.h"
 
 class GrProcessor;
 class GrProcessorKeyBuilder;
 class GrGLSLCaps;
 class GrGLSLFPBuilder;
-class GrGLSLFragmentBuilder;
+class GrGLSLFPFragmentBuilder;
 class GrGLSLUniformHandler;
 
 class GrGLSLFragmentProcessor {
@@ -30,7 +31,7 @@ public:
     }
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
+    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -52,14 +53,15 @@ public:
      */
 
     struct EmitArgs {
-        EmitArgs(GrGLSLFragmentBuilder* fragBuilder,
+        EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
                  GrGLSLUniformHandler* uniformHandler,
                  const GrGLSLCaps* caps,
                  const GrFragmentProcessor& fp,
                  const char* outputColor,
                  const char* inputColor,
                  const GrGLSLTransformedCoordsArray& coords,
-                 const TextureSamplerArray& samplers)
+                 const SamplerHandle* texSamplers,
+                 const SamplerHandle* bufferSamplers)
             : fFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
             , fGLSLCaps(caps)
@@ -67,15 +69,17 @@ public:
             , fOutputColor(outputColor)
             , fInputColor(inputColor)
             , fCoords(coords)
-            , fSamplers(samplers) {}
-        GrGLSLFragmentBuilder* fFragBuilder;
+            , fTexSamplers(texSamplers)
+            , fBufferSamplers(bufferSamplers) {}
+        GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrGLSLCaps* fGLSLCaps;
         const GrFragmentProcessor& fFp;
         const char* fOutputColor;
         const char* fInputColor;
         const GrGLSLTransformedCoordsArray& fCoords;
-        const TextureSamplerArray& fSamplers;
+        const SamplerHandle* fTexSamplers;
+        const SamplerHandle* fBufferSamplers;
     };
 
     virtual void emitCode(EmitArgs&) = 0;

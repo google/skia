@@ -9,10 +9,11 @@
 #define GrBatchAtlas_DEFINED
 
 #include "GrTexture.h"
-#include "batches/GrDrawBatch.h"
 #include "SkPoint.h"
 #include "SkTDArray.h"
 #include "SkTInternalLList.h"
+
+#include "batches/GrDrawBatch.h"
 
 class GrRectanizer;
 
@@ -21,6 +22,8 @@ struct GrBatchAtlasConfig {
     int numPlotsY() const { return fHeight / fPlotWidth; }
     int fWidth;
     int fHeight;
+    int fLog2Width;
+    int fLog2Height;
     int fPlotWidth;
     int fPlotHeight;
 };
@@ -62,7 +65,7 @@ public:
     }
 
     // To ensure the atlas does not evict a given entry, the client must set the last use token
-    inline void setLastUseToken(AtlasID id, GrBatchToken batchToken) {
+    inline void setLastUseToken(AtlasID id, GrBatchDrawToken batchToken) {
         SkASSERT(this->hasID(id));
         uint32_t index = GetIndexFromID(id);
         SkASSERT(index < fNumPlots);
@@ -121,7 +124,7 @@ public:
         friend class GrBatchAtlas;
     };
 
-    void setLastUseTokenBulk(const BulkUseTokenUpdater& updater, GrBatchToken batchToken) {
+    void setLastUseTokenBulk(const BulkUseTokenUpdater& updater, GrBatchDrawToken batchToken) {
         int count = updater.fPlotsToUpdate.count();
         for (int i = 0; i < count; i++) {
             BatchPlot* plot = fPlotArray[updater.fPlotsToUpdate[i]];
@@ -164,18 +167,12 @@ private:
         // we don't need to issue a new upload even if we update the cpu backing store.  We use
         // lastUse to determine when we can evict a plot from the cache, ie if the last use has
         // already flushed through the gpu then we can reuse the plot.
-        GrBatchToken lastUploadToken() const { return fLastUpload; }
-        GrBatchToken lastUseToken() const { return fLastUse; }
-        void setLastUploadToken(GrBatchToken batchToken) {
-            SkASSERT(batchToken >= fLastUpload);
-            fLastUpload = batchToken;
-        }
-        void setLastUseToken(GrBatchToken batchToken) {
-            SkASSERT(batchToken >= fLastUse);
-            fLastUse = batchToken;
-        }
+        GrBatchDrawToken lastUploadToken() const { return fLastUpload; }
+        GrBatchDrawToken lastUseToken() const { return fLastUse; }
+        void setLastUploadToken(GrBatchDrawToken batchToken) { fLastUpload = batchToken; }
+        void setLastUseToken(GrBatchDrawToken batchToken) { fLastUse = batchToken; }
 
-        void uploadToTexture(GrBatchUploader::TextureUploader* uploader, GrTexture* texture);
+        void uploadToTexture(GrDrawBatch::WritePixelsFn&, GrTexture* texture);
         void resetRects();
 
     private:
@@ -196,8 +193,8 @@ private:
             return generation << 16 | index;
         }
 
-        GrBatchToken          fLastUpload;
-        GrBatchToken          fLastUse;
+        GrBatchDrawToken      fLastUpload;
+        GrBatchDrawToken      fLastUse;
 
         const uint32_t        fIndex;
         uint64_t              fGenID;
@@ -242,8 +239,6 @@ private:
     }
 
     inline void processEviction(AtlasID);
-
-    friend class GrPlotUploader; // to access GrBatchPlot
 
     GrTexture* fTexture;
     SkDEBUGCODE(uint32_t fNumPlots;)

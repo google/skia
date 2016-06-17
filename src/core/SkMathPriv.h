@@ -78,4 +78,18 @@ static inline unsigned SkDiv255Round(unsigned prod) {
     return (prod + (prod >> 8)) >> 8;
 }
 
+static inline float SkPinToUnitFloat(float x) {
+    return SkTMin(SkTMax(x, 0.0f), 1.0f);
+}
+
+/**
+ * Swap byte order of a 4-byte value, e.g. 0xaarrggbb -> 0xbbggrraa.
+ */
+#if defined(_MSC_VER)
+    #include <intrin.h>
+    static inline uint32_t SkBSwap32(uint32_t v) { return _byteswap_ulong(v); }
+#else
+    static inline uint32_t SkBSwap32(uint32_t v) { return __builtin_bswap32(v); }
+#endif
+
 #endif

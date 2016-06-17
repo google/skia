@@ -11,9 +11,9 @@
 #include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrMesh.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
-#include "GrVertices.h"
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
@@ -28,130 +28,6 @@ GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
     : fSeparateStencil(separateStencilSupport)
     , fStencilWrapOps(stencilWrapOpsSupport) {
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Stencil rules for paths
-
-////// Even/Odd
-
-GR_STATIC_CONST_SAME_STENCIL(gEOStencilPass,
-    kInvert_StencilOp,
-    kKeep_StencilOp,
-    kAlwaysIfInClip_StencilFunc,
-    0xffff,
-    0xffff,
-    0xffff);
-
-// ok not to check clip b/c stencil pass only wrote inside clip
-GR_STATIC_CONST_SAME_STENCIL(gEOColorPass,
-    kZero_StencilOp,
-    kZero_StencilOp,
-    kNotEqual_StencilFunc,
-    0xffff,
-    0x0000,
-    0xffff);
-
-// have to check clip b/c outside clip will always be zero.
-GR_STATIC_CONST_SAME_STENCIL(gInvEOColorPass,
-    kZero_StencilOp,
-    kZero_StencilOp,
-    kEqualIfInClip_StencilFunc,
-    0xffff,
-    0x0000,
-    0xffff);
-
-////// Winding
-
-// when we have separate stencil we increment front faces / decrement back faces
-// when we don't have wrap incr and decr we use the stencil test to simulate
-// them.
-
-GR_STATIC_CONST_STENCIL(gWindStencilSeparateWithWrap,
-    kIncWrap_StencilOp,             kDecWrap_StencilOp,
-    kKeep_StencilOp,                kKeep_StencilOp,
-    kAlwaysIfInClip_StencilFunc,    kAlwaysIfInClip_StencilFunc,
-    0xffff,                         0xffff,
-    0xffff,                         0xffff,
-    0xffff,                         0xffff);
-
-// if inc'ing the max value, invert to make 0
-// if dec'ing zero invert to make all ones.
-// we can't avoid touching the stencil on both passing and
-// failing, so we can't resctrict ourselves to the clip.
-GR_STATIC_CONST_STENCIL(gWindStencilSeparateNoWrap,
-    kInvert_StencilOp,              kInvert_StencilOp,
-    kIncClamp_StencilOp,            kDecClamp_StencilOp,
-    kEqual_StencilFunc,             kEqual_StencilFunc,
-    0xffff,                         0xffff,
-    0xffff,                         0x0000,
-    0xffff,                         0xffff);
-
-// When there are no separate faces we do two passes to setup the winding rule
-// stencil. First we draw the front faces and inc, then we draw the back faces
-// and dec. These are same as the above two split into the incrementing and
-// decrementing passes.
-GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilWithWrapInc,
-    kIncWrap_StencilOp,
-    kKeep_StencilOp,
-    kAlwaysIfInClip_StencilFunc,
-    0xffff,
-    0xffff,
-    0xffff);
-
-GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilWithWrapDec,
-    kDecWrap_StencilOp,
-    kKeep_StencilOp,
-    kAlwaysIfInClip_StencilFunc,
-    0xffff,
-    0xffff,
-    0xffff);
-
-GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilNoWrapInc,
-    kInvert_StencilOp,
-    kIncClamp_StencilOp,
-    kEqual_StencilFunc,
-    0xffff,
-    0xffff,
-    0xffff);
-
-GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilNoWrapDec,
-    kInvert_StencilOp,
-    kDecClamp_StencilOp,
-    kEqual_StencilFunc,
-    0xffff,
-    0x0000,
-    0xffff);
-
-// Color passes are the same whether we use the two-sided stencil or two passes
-
-GR_STATIC_CONST_SAME_STENCIL(gWindColorPass,
-    kZero_StencilOp,
-    kZero_StencilOp,
-    kNonZeroIfInClip_StencilFunc,
-    0xffff,
-    0x0000,
-    0xffff);
-
-GR_STATIC_CONST_SAME_STENCIL(gInvWindColorPass,
-    kZero_StencilOp,
-    kZero_StencilOp,
-    kEqualIfInClip_StencilFunc,
-    0xffff,
-    0x0000,
-    0xffff);
-
-////// Normal render to stencil
-
-// Sometimes the default path renderer can draw a path directly to the stencil
-// buffer without having to first resolve the interior / exterior.
-GR_STATIC_CONST_SAME_STENCIL(gDirectToStencil,
-    kZero_StencilOp,
-    kIncClamp_StencilOp,
-    kAlwaysIfInClip_StencilFunc,
-    0xffff,
-    0x0000,
-    0xffff);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for drawPath
@@ -170,8 +46,8 @@ static inline bool single_pass_path(const SkPath& path, const SkStrokeRec& strok
 }
 
 GrPathRenderer::StencilSupport
-GrDefaultPathRenderer::onGetStencilSupport(const SkPath& path, const GrStrokeInfo& stroke) const {
-    if (single_pass_path(path, stroke)) {
+GrDefaultPathRenderer::onGetStencilSupport(const SkPath& path) const {
+    if (single_pass_path(path, SkStrokeRec(SkStrokeRec::kFill_InitStyle))) {
         return GrPathRenderer::kNoRestriction_StencilSupport;
     } else {
         return GrPathRenderer::kStencilOnly_StencilSupport;
@@ -228,13 +104,12 @@ public:
 
     const char* name() const override { return "DefaultPathBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
         coverage->setKnownSingleComponent(this->coverage());
-        overrides->fUsePLSDstRead = false;
     }
 
 private:
@@ -269,8 +144,6 @@ private:
 
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
-
-        target->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
 
@@ -314,7 +187,7 @@ private:
         }
 
         // allocate vertex / index buffers
-        const GrVertexBuffer* vertexBuffer;
+        const GrBuffer* vertexBuffer;
         int firstVertex;
 
         void* verts = target->makeVertexSpace(vertexStride, maxVertices,
@@ -325,7 +198,7 @@ private:
             return;
         }
 
-        const GrIndexBuffer* indexBuffer = nullptr;
+        const GrBuffer* indexBuffer = nullptr;
         int firstIndex = 0;
 
         void* indices = nullptr;
@@ -363,14 +236,14 @@ private:
             SkASSERT(vertexOffset <= maxVertices && indexOffset <= maxIndices);
         }
 
-        GrVertices vertices;
+        GrMesh mesh;
         if (isIndexed) {
-            vertices.initIndexed(primitiveType, vertexBuffer, indexBuffer, firstVertex, firstIndex,
-                                 vertexOffset, indexOffset);
+            mesh.initIndexed(primitiveType, vertexBuffer, indexBuffer, firstVertex, firstIndex,
+                             vertexOffset, indexOffset);
         } else {
-            vertices.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
+            mesh.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
         }
-        target->draw(vertices);
+        target->draw(gp, mesh);
 
         // put back reserves
         target->putBackIndices((size_t)(maxIndices - indexOffset));
@@ -546,24 +419,24 @@ private:
 
 bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                              GrPipelineBuilder* pipelineBuilder,
+                                             const GrClip& clip,
                                              GrColor color,
                                              const SkMatrix& viewMatrix,
                                              const SkPath& path,
-                                             const GrStrokeInfo& origStroke,
+                                             const GrStyle& origStyle,
                                              bool stencilOnly) {
-    SkTCopyOnFirstWrite<GrStrokeInfo> stroke(origStroke);
+    const GrStyle* style = &origStyle;
 
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
-    if (IsStrokeHairlineOrEquivalent(*stroke, viewMatrix, &hairlineCoverage)) {
+    bool isHairline = false;
+    if (IsStrokeHairlineOrEquivalent(*style, viewMatrix, &hairlineCoverage)) {
         newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
-
-        if (!stroke->isHairlineStyle()) {
-            stroke.writable()->setHairlineStyle();
-        }
+        style = &GrStyle::SimpleHairline();
+        isHairline = true;
+    } else {
+        SkASSERT(style->isSimpleFill());
     }
-
-    const bool isHairline = stroke->isHairlineStyle();
 
     // Save the current xp on the draw state so we can reset it if needed
     const GrXPFactory* xpFactory = pipelineBuilder->getXPFactory();
@@ -571,11 +444,11 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     // face culling doesn't make sense here
     SkASSERT(GrPipelineBuilder::kBoth_DrawFace == pipelineBuilder->getDrawFace());
 
-    int                         passCount = 0;
-    const GrStencilSettings*    passes[3];
-    GrPipelineBuilder::DrawFace drawFace[3];
-    bool                        reverse = false;
-    bool                        lastPassIsBounds;
+    int                          passCount = 0;
+    const GrUserStencilSettings* passes[3];
+    GrPipelineBuilder::DrawFace  drawFace[3];
+    bool                         reverse = false;
+    bool                         lastPassIsBounds;
 
     if (isHairline) {
         passCount = 1;
@@ -587,7 +460,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
         lastPassIsBounds = false;
         drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
     } else {
-        if (single_pass_path(path, *stroke)) {
+        if (single_pass_path(path, style->strokeRec())) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
@@ -672,7 +545,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     for (int p = 0; p < passCount; ++p) {
         pipelineBuilder->setDrawFace(drawFace[p]);
         if (passes[p]) {
-            *pipelineBuilder->stencil() = *passes[p];
+            pipelineBuilder->setUserStencil(passes[p]);
         }
 
         if (lastPassIsBounds && (p == passCount-1)) {
@@ -701,7 +574,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             SkAutoTUnref<GrDrawBatch> batch(
                     GrRectBatchFactory::CreateNonAAFill(color, viewM, bounds, nullptr,
                                                         &localMatrix));
-            target->drawBatch(*pipelineBuilder, batch);
+            target->drawBatch(*pipelineBuilder, clip, batch);
         } else {
             if (passCount > 1) {
                 pipelineBuilder->setDisableColorXPFactory();
@@ -716,27 +589,29 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                                                      viewMatrix, isHairline,
                                                                      devBounds));
 
-            target->drawBatch(*pipelineBuilder, batch);
+            target->drawBatch(*pipelineBuilder, clip, batch);
         }
     }
     return true;
 }
 
 bool GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // this class can draw any path with any fill but doesn't do any anti-aliasing.
-    return !args.fAntiAlias && (args.fStroke->isFillStyle() ||
-                                IsStrokeHairlineOrEquivalent(*args.fStroke, *args.fViewMatrix,
-                                                             nullptr));
+    // this class can draw any path with any simple fill style but doesn't do any anti-aliasing.
+    return !args.fAntiAlias &&
+           (args.fStyle->isSimpleFill() || IsStrokeHairlineOrEquivalent(*args.fStyle,
+                                                                        *args.fViewMatrix,
+                                                                        nullptr));
 }
 
 bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(), "GrDefaultPathRenderer::onDrawPath");
     return this->internalDrawPath(args.fTarget,
                                   args.fPipelineBuilder,
+                                  *args.fClip,
                                   args.fColor,
                                   *args.fViewMatrix,
                                   *args.fPath,
-                                  *args.fStroke,
+                                  *args.fStyle,
                                   false);
 }
 
@@ -744,8 +619,8 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),"GrDefaultPathRenderer::onStencilPath");
     SkASSERT(SkPath::kInverseEvenOdd_FillType != args.fPath->getFillType());
     SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
-    this->internalDrawPath(args.fTarget, args.fPipelineBuilder, GrColor_WHITE, *args.fViewMatrix,
-                           *args.fPath, *args.fStroke, true);
+    this->internalDrawPath(args.fTarget, args.fPipelineBuilder, *args.fClip, GrColor_WHITE,
+                           *args.fViewMatrix, *args.fPath, GrStyle::SimpleFill(), true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -758,7 +633,7 @@ DRAW_BATCH_TEST_DEFINE(DefaultPathBatch) {
 
     // For now just hairlines because the other types of draws require two batches.
     // TODO we should figure out a way to combine the stencil and cover steps into one batch
-    GrStrokeInfo stroke(SkStrokeRec::kHairline_InitStyle);
+    GrStyle style(SkStrokeRec::kHairline_InitStyle);
     SkPath path = GrTest::TestPath(random);
 
     // Compute srcSpaceTol

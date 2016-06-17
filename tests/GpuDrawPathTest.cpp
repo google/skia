@@ -11,7 +11,7 @@
 
 #include "GrContext.h"
 #include "GrPath.h"
-#include "GrStrokeInfo.h"
+#include "GrStyle.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
@@ -49,7 +49,7 @@ static void test_drawPathEmpty(skiatest::Reporter*, SkCanvas* canvas) {
 }
 
 static void fill_and_stroke(SkCanvas* canvas, const SkPath& p1, const SkPath& p2,
-                            SkPathEffect* effect) {
+                            sk_sp<SkPathEffect> effect) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setPathEffect(effect);
@@ -73,17 +73,16 @@ static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
     fill_and_stroke(canvas, oval1, oval2, nullptr);
 
     const SkScalar intervals[] = { 1, 1 };
-    SkAutoTUnref<SkPathEffect> dashEffect(SkDashPathEffect::Create(intervals, 2, 0));
-    fill_and_stroke(canvas, oval1, oval2, dashEffect);
+    fill_and_stroke(canvas, oval1, oval2, SkDashPathEffect::Make(intervals, 2, 0));
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuDrawPath, reporter, context) {
+DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo) {
     for (auto& test_func : { &test_drawPathEmpty, &test_drawSameRectOvals }) {
         for (auto& sampleCount : {0, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
-            SkAutoTUnref<SkSurface> surface(
-                SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info,
-                                           sampleCount, nullptr));
+            auto surface(
+                SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info,
+                                            sampleCount, nullptr));
             if (!surface) {
                 continue;
             }
@@ -105,9 +104,8 @@ DEF_GPUTEST(GrPathKeys, reporter, /*factory*/) {
 
     bool isVolatile;
     GrUniqueKey key1, key2;
-    GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
-    GrPath::ComputeKey(path1, stroke, &key1, &isVolatile);
-    GrPath::ComputeKey(path2, stroke, &key2, &isVolatile);
+    GrPath::ComputeKey(path1, GrStyle::SimpleFill(), &key1, &isVolatile);
+    GrPath::ComputeKey(path2, GrStyle::SimpleFill(), &key2, &isVolatile);
     REPORTER_ASSERT(reporter, key1 != key2);
 }
 

@@ -32,14 +32,13 @@ protected:
 
         // Empty bitmap.
         fPaints.push_back().setColor(SK_ColorGREEN);
-        fPaints.back().setShader(SkShader::CreateBitmapShader(emptyBmp, SkShader::kClamp_TileMode,
-                                                              SkShader::kClamp_TileMode))->unref();
+        fPaints.back().setShader(SkShader::MakeBitmapShader(emptyBmp, SkShader::kClamp_TileMode,
+                                                            SkShader::kClamp_TileMode));
 
         // Non-invertible local matrix.
         fPaints.push_back().setColor(SK_ColorGREEN);
-        fPaints.back().setShader(SkShader::CreateBitmapShader(blueBmp, SkShader::kClamp_TileMode,
-                                                              SkShader::kClamp_TileMode,
-                                                              &badMatrix))->unref();
+        fPaints.back().setShader(SkShader::MakeBitmapShader(blueBmp, SkShader::kClamp_TileMode,
+                                                            SkShader::kClamp_TileMode, &badMatrix));
     }
 
     void onDraw(SkCanvas* canvas) override {

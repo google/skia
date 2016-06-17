@@ -36,7 +36,7 @@
       ],
       'msvs_disabled_warnings': [4244, 4267,4345, 4390, 4554, 4800],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'link_settings': {
             'libraries': [
               '-lpthread',
@@ -85,13 +85,6 @@
         [ 'skia_os == "android"', {
           'dependencies': [
             'android_deps.gyp:cpu_features',
-          ],
-        }],
-        [ 'skia_arch_type == "arm"', {
-          # The code in SkUtilsArm.cpp can be used on an ARM-based Linux system, not only Android.
-          'sources': [
-            '../src/core/SkUtilsArm.cpp',
-            '../src/core/SkUtilsArm.h',
           ],
         }],
         ['skia_gpu == 1', {

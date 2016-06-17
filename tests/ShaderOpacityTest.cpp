@@ -17,42 +17,36 @@ static void test_bitmap(skiatest::Reporter* reporter) {
     bmp.setInfo(info);
 
     // test 1: bitmap without pixel data
-    SkShader* shader = SkShader::CreateBitmapShader(bmp,
+    auto shader = SkShader::MakeBitmapShader(bmp,
         SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
     REPORTER_ASSERT(reporter, shader);
     REPORTER_ASSERT(reporter, !shader->isOpaque());
-    shader->unref();
 
     // From this point on, we have pixels
     bmp.allocPixels(info);
 
     // test 2: not opaque by default
-    shader = SkShader::CreateBitmapShader(bmp,
+    shader = SkShader::MakeBitmapShader(bmp,
         SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
     REPORTER_ASSERT(reporter, shader);
     REPORTER_ASSERT(reporter, !shader->isOpaque());
-    shader->unref();
 
     // test 3: explicitly opaque
     bmp.setAlphaType(kOpaque_SkAlphaType);
-    shader = SkShader::CreateBitmapShader(bmp,
+    shader = SkShader::MakeBitmapShader(bmp,
         SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
     REPORTER_ASSERT(reporter, shader);
     REPORTER_ASSERT(reporter, shader->isOpaque());
-    shader->unref();
 
     // test 4: explicitly not opaque
     bmp.setAlphaType(kPremul_SkAlphaType);
-    shader = SkShader::CreateBitmapShader(bmp,
+    shader = SkShader::MakeBitmapShader(bmp,
         SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
     REPORTER_ASSERT(reporter, shader);
     REPORTER_ASSERT(reporter, !shader->isOpaque());
-    shader->unref();
-
 }
 
-static void test_gradient(skiatest::Reporter* reporter)
-{
+static void test_gradient(skiatest::Reporter* reporter) {
     SkPoint pts[2];
     pts[0].iset(0, 0);
     pts[1].iset(1, 0);
@@ -64,39 +58,33 @@ static void test_gradient(skiatest::Reporter* reporter)
     // test 1: all opaque
     colors[0] = SkColorSetARGB(0xFF, 0, 0, 0);
     colors[1] = SkColorSetARGB(0xFF, 0, 0, 0);
-    SkShader* grad = SkGradientShader::CreateLinear(pts, colors, pos, count,
-                                                    mode);
+    auto grad = SkGradientShader::MakeLinear(pts, colors, pos, count, mode);
     REPORTER_ASSERT(reporter, grad);
     REPORTER_ASSERT(reporter, grad->isOpaque());
-    grad->unref();
 
     // test 2: all 0 alpha
     colors[0] = SkColorSetARGB(0, 0, 0, 0);
     colors[1] = SkColorSetARGB(0, 0, 0, 0);
-    grad = SkGradientShader::CreateLinear(pts, colors, pos, count, mode);
+    grad = SkGradientShader::MakeLinear(pts, colors, pos, count, mode);
     REPORTER_ASSERT(reporter, grad);
     REPORTER_ASSERT(reporter, !grad->isOpaque());
-    grad->unref();
 
     // test 3: one opaque, one transparent
     colors[0] = SkColorSetARGB(0xFF, 0, 0, 0);
     colors[1] = SkColorSetARGB(0x40, 0, 0, 0);
-    grad = SkGradientShader::CreateLinear(pts, colors, pos, count, mode);
+    grad = SkGradientShader::MakeLinear(pts, colors, pos, count, mode);
     REPORTER_ASSERT(reporter, grad);
     REPORTER_ASSERT(reporter, !grad->isOpaque());
-    grad->unref();
 
     // test 4: test 3, swapped
     colors[0] = SkColorSetARGB(0x40, 0, 0, 0);
     colors[1] = SkColorSetARGB(0xFF, 0, 0, 0);
-    grad = SkGradientShader::CreateLinear(pts, colors, pos, count, mode);
+    grad = SkGradientShader::MakeLinear(pts, colors, pos, count, mode);
     REPORTER_ASSERT(reporter, grad);
     REPORTER_ASSERT(reporter, !grad->isOpaque());
-    grad->unref();
 }
 
-static void test_color(skiatest::Reporter* reporter)
-{
+static void test_color(skiatest::Reporter* reporter) {
     SkColorShader colorShader1(SkColorSetARGB(0,0,0,0));
     REPORTER_ASSERT(reporter, !colorShader1.isOpaque());
     SkColorShader colorShader2(SkColorSetARGB(0xFF,0,0,0));

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Intel Inc.
  *
@@ -52,11 +51,10 @@ protected:
         // AA with mask filter
         SkPaint p;
         p.setAntiAlias(true);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(
+        p.setMaskFilter(SkBlurMaskFilter::Make(
                                kNormal_SkBlurStyle,
                                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
-                               SkBlurMaskFilter::kHighQuality_BlurFlag);
-        p.setMaskFilter(mf)->unref();
+                               SkBlurMaskFilter::kHighQuality_BlurFlag));
         fPaints.push_back(p);
         }
 
@@ -67,13 +65,8 @@ protected:
         SkPoint center = SkPoint::Make(SkIntToScalar(40), SkIntToScalar(40));
         SkColor colors[] = { SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN };
         SkScalar pos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
-        SkShader* s = SkGradientShader::CreateRadial(center,
-                                                     SkIntToScalar(20),
-                                                     colors,
-                                                     pos,
-                                                     SK_ARRAY_COUNT(colors),
-                                                     SkShader::kClamp_TileMode);
-        p.setShader(s)->unref();
+        p.setShader(SkGradientShader::MakeRadial(center, 20, colors, pos, SK_ARRAY_COUNT(colors),
+                                                 SkShader::kClamp_TileMode));
         fPaints.push_back(p);
         }
 
@@ -81,15 +74,12 @@ protected:
         // AA with blur
         SkPaint p;
         p.setAntiAlias(true);
-        SkDrawLooper* shadowLooper =
-            SkBlurDrawLooper::Create(SK_ColorBLUE,
+        p.setLooper(SkBlurDrawLooper::Make(SK_ColorBLUE,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
                                      SkIntToScalar(5), SkIntToScalar(10),
                                      SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                                      SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                                     SkBlurDrawLooper::kHighQuality_BlurFlag);
-        SkAutoUnref aurL0(shadowLooper);
-        p.setLooper(shadowLooper);
+                                     SkBlurDrawLooper::kHighQuality_BlurFlag));
         fPaints.push_back(p);
         }
 
@@ -163,7 +153,7 @@ protected:
         giantPaint.setAntiAlias(true);
         giantPaint.setColor(0x80808080);
         canvas->drawCircle(giantCenter.fX, giantCenter.fY, giantRadius, giantPaint);
-        
+
         SkRandom rand;
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
         int i;

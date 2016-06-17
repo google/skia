@@ -14,6 +14,7 @@
 
 struct ProcCoeff {
     SkXfermodeProc      fProc;
+    SkXfermodeProc4f    fProc4f;
     SkXfermode::Coeff   fSC;
     SkXfermode::Coeff   fDC;
 };
@@ -44,10 +45,9 @@ public:
     bool isOpaque(SkXfermode::SrcColorOpacity opacityType) const override;
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessor(const GrFragmentProcessor**,
-                             const GrFragmentProcessor*) const override;
-
-    bool asXPFactory(GrXPFactory**) const override;
+    const GrFragmentProcessor* getFragmentProcessorForImageFilter(
+                                                        const GrFragmentProcessor*) const override;
+    GrXPFactory* asXPFactory() const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

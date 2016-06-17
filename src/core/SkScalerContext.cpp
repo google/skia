@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -8,6 +7,7 @@
 
 
 #include "SkScalerContext.h"
+#include "SkAutoPixmapStorage.h"
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"
 #include "SkDraw.h"
@@ -62,30 +62,14 @@ void SkGlyph::zeroMetrics() {
     #define DUMP_RECx
 #endif
 
-static SkFlattenable* load_flattenable(const SkDescriptor* desc, uint32_t tag,
-                                       SkFlattenable::Type ft) {
-    SkFlattenable*  obj = nullptr;
-    uint32_t        len;
-    const void*     data = desc->findEntry(tag, &len);
-
-    if (data) {
-        SkReadBuffer buffer(data, len);
-        obj = buffer.readFlattenable(ft);
-        SkASSERT(buffer.offset() == buffer.size());
-    }
-    return obj;
-}
-
-SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
+SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkScalerContextEffects& effects,
+                                 const SkDescriptor* desc)
     : fRec(*static_cast<const Rec*>(desc->findEntry(kRec_SkDescriptorTag, nullptr)))
 
-    , fTypeface(SkRef(typeface))
-    , fPathEffect(static_cast<SkPathEffect*>(load_flattenable(desc, kPathEffect_SkDescriptorTag,
-                                             SkFlattenable::kSkPathEffect_Type)))
-    , fMaskFilter(static_cast<SkMaskFilter*>(load_flattenable(desc, kMaskFilter_SkDescriptorTag,
-                                             SkFlattenable::kSkMaskFilter_Type)))
-    , fRasterizer(static_cast<SkRasterizer*>(load_flattenable(desc, kRasterizer_SkDescriptorTag,
-                                             SkFlattenable::kSkRasterizer_Type)))
+    , fTypeface(sk_ref_sp(typeface))
+    , fPathEffect(sk_ref_sp(effects.fPathEffect))
+    , fMaskFilter(sk_ref_sp(effects.fMaskFilter))
+    , fRasterizer(sk_ref_sp(effects.fRasterizer))
       // Initialize based on our settings. Subclasses can also force this.
     , fGenerateImageFromPath(fRec.fFrameWidth > 0 || fPathEffect != nullptr || fRasterizer != nullptr)
 
@@ -100,20 +84,16 @@ SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
     SkDebugf(" textsize %g prescale %g preskew %g post [%g %g %g %g]\n",
         rec->fTextSize, rec->fPreScaleX, rec->fPreSkewX, rec->fPost2x2[0][0],
         rec->fPost2x2[0][1], rec->fPost2x2[1][0], rec->fPost2x2[1][1]);
-    SkDebugf("  frame %g miter %g hints %d framefill %d format %d join %d\n",
+    SkDebugf("  frame %g miter %g hints %d framefill %d format %d join %d cap %d\n",
         rec->fFrameWidth, rec->fMiterLimit, rec->fHints, rec->fFrameAndFill,
-        rec->fMaskFormat, rec->fStrokeJoin);
+        rec->fMaskFormat, rec->fStrokeJoin, rec->fStrokeCap);
     SkDebugf("  pathEffect %x maskFilter %x\n",
              desc->findEntry(kPathEffect_SkDescriptorTag, nullptr),
         desc->findEntry(kMaskFilter_SkDescriptorTag, nullptr));
 #endif
 }
 
-SkScalerContext::~SkScalerContext() {
-    SkSafeUnref(fPathEffect);
-    SkSafeUnref(fMaskFilter);
-    SkSafeUnref(fRasterizer);
-}
+SkScalerContext::~SkScalerContext() {}
 
 void SkScalerContext::getAdvance(SkGlyph* glyph) {
     // mark us as just having a valid advance
@@ -156,7 +136,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             SkMask  mask;
 
             if (fRasterizer->rasterize(fillPath, fillToDevMatrix, nullptr,
-                                       fMaskFilter, &mask,
+                                       fMaskFilter.get(), &mask,
                                        SkMask::kJustComputeBounds_CreateMode)) {
                 glyph->fLeft    = mask.fBounds.fLeft;
                 glyph->fTop     = mask.fBounds.fTop;
@@ -422,7 +402,6 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     SkDraw  draw;
     draw.fDst   = dst;
     draw.fRC    = &clip;
-    draw.fClip  = &clip.bwRgn();
     draw.fMatrix = &matrix;
     draw.drawPath(path, paint);
 
@@ -485,10 +464,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         tmpGlyph.initGlyphIdFrom(origGlyph);
 
         // need the original bounds, sans our maskfilter
-        SkMaskFilter* mf = fMaskFilter;
-        fMaskFilter = nullptr;             // temp disable
+        SkMaskFilter* mf = fMaskFilter.release();   // temp disable
         this->getMetrics(&tmpGlyph);
-        fMaskFilter = mf;               // restore
+        fMaskFilter = sk_sp<SkMaskFilter>(mf);      // restore
 
         // we need the prefilter bounds to be <= filter bounds
         SkASSERT(tmpGlyph.fWidth <= origGlyph.fWidth);
@@ -516,7 +494,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             sk_bzero(glyph->fImage, mask.computeImageSize());
 
             if (!fRasterizer->rasterize(fillPath, fillToDevMatrix, nullptr,
-                                        fMaskFilter, &mask,
+                                        fMaskFilter.get(), &mask,
                                         SkMask::kJustRenderImage_CreateMode)) {
                 return;
             }
@@ -635,7 +613,7 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
                                SkToBool(fRec.fFlags & kFrameAndFill_Flag));
             // glyphs are always closed contours, so cap type is ignored,
             // so we just pass something.
-            rec.setStrokeParams(SkPaint::kButt_Cap,
+            rec.setStrokeParams((SkPaint::Cap)fRec.fStrokeCap,
                                 (SkPaint::Join)fRec.fStrokeJoin,
                                 fRec.fMiterLimit);
         }
@@ -724,13 +702,17 @@ void SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
     // If the 'total' matrix is singular, set the 'scale' to something finite and zero the matrices.
     // All underlying ports have issues with zero text size, so use the matricies to zero.
 
-    // Map the vectors [1,1] and [1,-1] (the EM) through the 'total' matrix.
+    // Map the vectors [0,1], [1,0], [1,1] and [1,-1] (the EM) through the 'total' matrix.
     // If the length of one of these vectors is less than 1/256 then an EM filling square will
     // never affect any pixels.
-    SkVector diag[2] = { { A.getScaleX() + A.getSkewX(), A.getScaleY() + A.getSkewY() },
+    SkVector diag[4] = { { A.getScaleX()               ,                 A.getSkewY() },
+                         {                 A.getSkewX(), A.getScaleY()                },
+                         { A.getScaleX() + A.getSkewX(), A.getScaleY() + A.getSkewY() },
                          { A.getScaleX() - A.getSkewX(), A.getScaleY() - A.getSkewY() }, };
     if (diag[0].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero ||
-        diag[1].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero)
+        diag[1].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero ||
+        diag[2].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero ||
+        diag[3].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero)
     {
         s->fX = SK_Scalar1;
         s->fY = SK_Scalar1;
@@ -823,13 +805,21 @@ void SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
     }
 }
 
-SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix) {
-    SkASSERT(!matrix.hasPerspective());
+SkAxisAlignment SkScalerContext::computeAxisAlignmentForHText() {
+    // Why fPost2x2 can be used here.
+    // getSingleMatrix multiplies in getLocalMatrix, which consists of
+    // * fTextSize (a scale, which has no effect)
+    // * fPreScaleX (a scale in x, which has no effect)
+    // * fPreSkewX (has no effect, but would on vertical text alignment).
+    // In other words, making the text bigger, stretching it along the
+    // horizontal axis, or fake italicizing it does not move the baseline.
 
-    if (0 == matrix[SkMatrix::kMSkewY]) {
+    if (0 == fRec.fPost2x2[1][0]) {
+        // The x axis is mapped onto the x axis.
         return kX_SkAxisAlignment;
     }
-    if (0 == matrix[SkMatrix::kMSkewX]) {
+    if (0 == fRec.fPost2x2[0][0]) {
+        // The x axis is mapped onto the y axis.
         return kY_SkAxisAlignment;
     }
     return kNone_SkAxisAlignment;
@@ -839,8 +829,9 @@ SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix) {
 
 class SkScalerContext_Empty : public SkScalerContext {
 public:
-    SkScalerContext_Empty(SkTypeface* face, const SkDescriptor* desc)
-        : SkScalerContext(face, desc) {}
+    SkScalerContext_Empty(SkTypeface* typeface, const SkScalerContextEffects& effects,
+                          const SkDescriptor* desc)
+        : SkScalerContext(typeface, effects, desc) {}
 
 protected:
     unsigned generateGlyphCount() override {
@@ -866,12 +857,13 @@ protected:
 
 extern SkScalerContext* SkCreateColorScalerContext(const SkDescriptor* desc);
 
-SkScalerContext* SkTypeface::createScalerContext(const SkDescriptor* desc,
+SkScalerContext* SkTypeface::createScalerContext(const SkScalerContextEffects& effects,
+                                                 const SkDescriptor* desc,
                                                  bool allowFailure) const {
-    SkScalerContext* c = this->onCreateScalerContext(desc);
+    SkScalerContext* c = this->onCreateScalerContext(effects, desc);
 
     if (!c && !allowFailure) {
-        c = new SkScalerContext_Empty(const_cast<SkTypeface*>(this), desc);
+        c = new SkScalerContext_Empty(const_cast<SkTypeface*>(this), effects, desc);
     }
     return c;
 }

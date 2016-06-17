@@ -28,7 +28,7 @@ static const int kNumAAFillRectsInIndexBuffer = 256;
 static const int kVertsPerAAFillRect = 8;
 static const int kIndicesPerAAFillRect = 30;
 
-const GrIndexBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
+const GrBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 
     static const uint16_t gFillAARectIdx[] = {
@@ -191,7 +191,7 @@ public:
         out->setUnknownSingleComponent();
     }
 
-    static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* rp) {
+    static const GrBuffer* GetIndexBuffer(GrResourceProvider* rp) {
         return get_index_buffer(rp);
     }
 
@@ -250,7 +250,7 @@ public:
     static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
                           const GrXPOverridesForBatch& overrides) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
-                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, 
+                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect,
                                        overrides, nullptr);
     }
 };
@@ -298,7 +298,7 @@ public:
     static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
                           const GrXPOverridesForBatch& overrides) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
-                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, 
+                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect,
                                        overrides, &geo.fLocalMatrix);
     }
 };

@@ -59,7 +59,7 @@ public:
     virtual void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
         int16_t runs[3];
         uint8_t aa[2];
-        
+
         runs[0] = 1;
         runs[1] = 1;
         runs[2] = 0;
@@ -72,7 +72,7 @@ public:
     virtual void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
         int16_t runs[2];
         uint8_t aa[1];
-        
+
         runs[0] = 1;
         runs[1] = 0;
         aa[0] = SkToU8(a0);
@@ -83,7 +83,7 @@ public:
         aa[0] = SkToU8(a1);
         this->blitAntiH(x, y + 1, aa, runs);
     }
-    
+
     /**
      *  Special method just to identify the null blitter, which is returned
      *  from Choose() if the request cannot be fulfilled. Default impl
@@ -136,6 +136,8 @@ public:
                                    int left, int top,
                                    SkTBlitterAllocator*);
     ///@}
+
+    static SkShader::ContextRec::DstType PreferredShaderDest(const SkImageInfo&);
 
 protected:
     SkAutoMalloc fBlitMemory;

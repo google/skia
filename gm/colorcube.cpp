@@ -13,39 +13,24 @@
 
 namespace skiagm {
 
-static SkShader* MakeLinear() {
+static sk_sp<SkShader> MakeLinear() {
     static const SkPoint pts[2] = {
             { 0, 0 },
             { SkIntToScalar(80), SkIntToScalar(80) }
         };
     static const SkColor colors[] = { SK_ColorYELLOW, SK_ColorBLUE };
-    return SkGradientShader::CreateLinear(
-        pts, colors, nullptr, 2, SkShader::kRepeat_TileMode, 0, &SkMatrix::I());
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kRepeat_TileMode, 0,
+                                        &SkMatrix::I());
 }
 
 class ColorCubeGM : public GM {
 public:
-    ColorCubeGM()
-    : fInitialized(false)
-    , f3DLut4(nullptr)
-    , f3DLut8(nullptr)
-    , f3DLut16(nullptr)
-    , f3DLut32(nullptr)
-    , f3DLut64(nullptr)
-    {
+    ColorCubeGM() : fInitialized(false) {
         this->setBGColor(0xFF000000);
     }
 
-    ~ColorCubeGM() {
-        SkSafeUnref(f3DLut4);
-        SkSafeUnref(f3DLut8);
-        SkSafeUnref(f3DLut16);
-        SkSafeUnref(f3DLut32);
-        SkSafeUnref(f3DLut64);
-    }
-
 protected:
-    virtual SkString onShortName() {
+    SkString onShortName() override {
         return SkString("colorcube");
     }
 
@@ -63,15 +48,12 @@ protected:
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
-        SkShader* shader = MakeLinear();
-        paint.setShader(shader);
-        SkRect r = { 0, 0, SkIntToScalar(80), SkIntToScalar(80) };
-        canvas.drawRect(r, paint);
-        shader->unref();
+        paint.setShader(MakeLinear());
+        canvas.drawRect(SkRect::MakeWH(80, 80), paint);
     }
 
-    void make_3Dlut(SkData** data, int size, bool invR, bool invG, bool invB) {
-        *data = SkData::NewUninitialized(sizeof(SkColor) * size * size * size);
+    void make_3Dlut(sk_sp<SkData>* data, int size, bool invR, bool invG, bool invB) {
+        *data = SkData::MakeUninitialized(sizeof(SkColor) * size * size * size);
         SkColor* pixels = (SkColor*)((*data)->writable_data());
         SkAutoTMalloc<uint8_t> lutMemory(size);
         SkAutoTMalloc<uint8_t> invLutMemory(size);
@@ -95,11 +77,11 @@ protected:
         }
     }
 
-    virtual SkISize onISize() {
+    SkISize onISize() override {
         return SkISize::Make(500, 100);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         if (!fInitialized) {
             this->make_bitmap();
             this->make_3Dluts();
@@ -107,19 +89,19 @@ protected:
         }
         canvas->clear(0x00000000);
         SkPaint paint;
-        paint.setColorFilter(SkColorCubeFilter::Create(f3DLut4, 4))->unref();
+        paint.setColorFilter(SkColorCubeFilter::Make(f3DLut4, 4));
         canvas->drawBitmap(fBitmap, 10, 10, &paint);
 
-        paint.setColorFilter(SkColorCubeFilter::Create(f3DLut8, 8))->unref();
+        paint.setColorFilter(SkColorCubeFilter::Make(f3DLut8, 8));
         canvas->drawBitmap(fBitmap, 110, 10, &paint);
 
-        paint.setColorFilter(SkColorCubeFilter::Create(f3DLut16, 16))->unref();
+        paint.setColorFilter(SkColorCubeFilter::Make(f3DLut16, 16));
         canvas->drawBitmap(fBitmap, 210, 10, &paint);
 
-        paint.setColorFilter(SkColorCubeFilter::Create(f3DLut32, 32))->unref();
+        paint.setColorFilter(SkColorCubeFilter::Make(f3DLut32, 32));
         canvas->drawBitmap(fBitmap, 310, 10, &paint);
 
-        paint.setColorFilter(SkColorCubeFilter::Create(f3DLut64, 64))->unref();
+        paint.setColorFilter(SkColorCubeFilter::Make(f3DLut64, 64));
         canvas->drawBitmap(fBitmap, 410, 10, &paint);
     }
 
@@ -127,11 +109,11 @@ private:
     typedef GM INHERITED;
     bool fInitialized;
     SkBitmap fBitmap;
-    SkData* f3DLut4;
-    SkData* f3DLut8;
-    SkData* f3DLut16;
-    SkData* f3DLut32;
-    SkData* f3DLut64;
+    sk_sp<SkData> f3DLut4;
+    sk_sp<SkData> f3DLut8;
+    sk_sp<SkData> f3DLut16;
+    sk_sp<SkData> f3DLut32;
+    sk_sp<SkData> f3DLut64;
 };
 
 //////////////////////////////////////////////////////////////////////////////

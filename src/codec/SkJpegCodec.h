@@ -9,15 +9,13 @@
 #define SkJpegCodec_DEFINED
 
 #include "SkCodec.h"
+#include "SkColorSpace.h"
 #include "SkImageInfo.h"
-#include "SkJpegDecoderMgr.h"
-#include "SkJpegUtility_codec.h"
+#include "SkSwizzler.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 
-extern "C" {
-    #include "jpeglib.h"
-}
+class JpegDecoderMgr;
 
 /*
  *
@@ -47,6 +45,10 @@ protected:
      */
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
             SkPMColor*, int*, int*) override;
+
+    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override;
+
+    Result onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override;
 
     SkEncodedFormat onGetEncodedFormat() const override {
         return kJPEG_SkEncodedFormat;
@@ -84,12 +86,13 @@ private:
      * Creates an instance of the decoder
      * Called only by NewFromStream
      *
-     * @param srcInfo contains the source width and height
+     * @param info contains properties of the encoded data
      * @param stream the encoded image data
      * @param decoderMgr holds decompress struct, src manager, and error manager
      *                   takes ownership
      */
-    SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream, JpegDecoderMgr* decoderMgr);
+    SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin);
 
     /*
      * Checks if the conversion between the input image and the requested output
@@ -114,6 +117,10 @@ private:
     // scanline decoding
     SkAutoTMalloc<uint8_t>     fStorage;    // Only used if sampling is needed
     uint8_t*                   fSrcRow;     // Only used if sampling is needed
+    // libjpeg-turbo provides some subsetting.  In the case that libjpeg-turbo
+    // cannot take the exact the subset that we need, we will use the swizzler
+    // to further subset the output from libjpeg-turbo.
+    SkIRect                    fSwizzlerSubset;
     SkAutoTDelete<SkSwizzler>  fSwizzler;
     
     typedef SkCodec INHERITED;

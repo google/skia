@@ -13,16 +13,14 @@
 
 class GrGLSimpleTextureEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLSimpleTextureEffect(const GrProcessor&) {}
-
-    virtual void emitCode(EmitArgs& args) override {
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
-        fragBuilder->codeAppendf("\t%s = ", args.fOutputColor);
+    void emitCode(EmitArgs& args) override {
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        fragBuilder->codeAppendf("%s = ", args.fOutputColor);
         fragBuilder->appendTextureLookupAndModulate(args.fInputColor,
-                                                  args.fSamplers[0],
+                                                  args.fTexSamplers[0],
                                                   args.fCoords[0].c_str(),
                                                   args.fCoords[0].getType());
-        fragBuilder->codeAppend(";\n");
+        fragBuilder->codeAppend(";");
     }
 
 private:
@@ -41,7 +39,7 @@ void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const  {
-    return new GrGLSimpleTextureEffect(*this);
+    return new GrGLSimpleTextureEffect;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

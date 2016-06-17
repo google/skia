@@ -26,11 +26,11 @@ static void makebm(SkBitmap* bm, int w, int h) {
 
     SkPaint     paint;
 
-    paint.setShader(SkGradientShader::CreateLinear(kPts0, kColors0, kPos,
-                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos,
+                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
-    paint.setShader(SkGradientShader::CreateLinear(kPts1, kColors1, kPos,
-                    SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos,
+                    SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
 }
 
@@ -57,7 +57,7 @@ protected:
         return SkString("shadertext3");
     }
 
-    SkISize onISize() override{ return SkISize::Make(800, 1000); }
+    SkISize onISize() override{ return SkISize::Make(820, 930); }
 
     void onOnceBeforeDraw() override {
         makebm(&fBmp, kPointSize / 4, kPointSize / 4);
@@ -100,17 +100,13 @@ protected:
                 localM.postRotate(20);
                 localM.postScale(1.15f, .85f);
 
-                SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(fBmp,
-                                                                           kTileModes[tm0],
-                                                                           kTileModes[tm1],
-                                                                           &localM));
-
                 SkPaint fillPaint;
                 fillPaint.setAntiAlias(true);
                 sk_tool_utils::set_portable_typeface(&fillPaint);
                 fillPaint.setTextSize(SkIntToScalar(kPointSize));
                 fillPaint.setFilterQuality(kLow_SkFilterQuality);
-                fillPaint.setShader(shader);
+                fillPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTileModes[tm0],
+                                                               kTileModes[tm1], &localM));
 
                 canvas->drawText(kText, kTextLen, 0, 0, fillPaint);
                 canvas->drawText(kText, kTextLen, 0, 0, outlinePaint);

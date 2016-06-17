@@ -1,0 +1,10 @@
+{
+  'includes': [
+    'android_bin.isolate',
+    'images.isolate',
+    'infrabots.isolate',
+    'ios_bin.isolate',
+    'resources.isolate',
+    'skps.isolate',
+  ],
+}

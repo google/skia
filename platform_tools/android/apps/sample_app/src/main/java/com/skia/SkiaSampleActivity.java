@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 
@@ -209,7 +208,6 @@ public class SkiaSampleActivity extends Activity
 
     private static final int SET_TITLE = 1;
     private static final int SET_SLIDES = 2;
-    private static final int TOAST_DOWNLOAD = 3;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -221,10 +219,6 @@ public class SkiaSampleActivity extends Activity
                 break;
             case SET_SLIDES:
                 mSlideList.addAll((String[]) msg.obj);
-                break;
-            case TOAST_DOWNLOAD:
-                Toast.makeText(SkiaSampleActivity.this, (String) msg.obj,
-                        Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;
@@ -241,28 +235,6 @@ public class SkiaSampleActivity extends Activity
     // Called by JNI
     public void setSlideList(String[] slideList) {
         mHandler.obtainMessage(SET_SLIDES, slideList).sendToTarget();
-    }
-
-    // Called by JNI
-    public void addToDownloads(final String title, final String desc, final String path) {
-        File file = new File(path);
-        final long length = file.exists() ? file.length() : 0;
-        if (length == 0) {
-            String failed = getString(R.string.save_failed);
-            mHandler.obtainMessage(TOAST_DOWNLOAD, failed).sendToTarget();
-            return;
-        }
-        String toast = getString(R.string.file_saved).replace("%s", title);
-        mHandler.obtainMessage(TOAST_DOWNLOAD, toast).sendToTarget();
-        final DownloadManager manager =
-                (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        new Thread("Add PDF to downloads") {
-            @Override
-            public void run() {
-                final String mimeType = "application/pdf";
-                manager.addCompletedDownload(title, desc, true, mimeType, path, length, true);
-            }
-        }.start();
     }
 
     private boolean setOpenGLContextSettings(boolean requestedOpenGLAPI, int requestedSampleCount) {

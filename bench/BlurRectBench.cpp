@@ -92,7 +92,7 @@ protected:
         SkMask mask;
         if (!SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(this->radius()),
                                   &mask, r, kNormal_SkBlurStyle)) {
-            return;    
+            return;
         }
         SkMask::FreeImage(mask.fImage);
     }

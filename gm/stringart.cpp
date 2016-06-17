@@ -6,21 +6,23 @@
  */
 
 #include "gm.h"
+#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 
-static const int kWidth = 640;
-static const int kHeight = 480;
+static const int kWidth = 440;
+static const int kHeight = 440;
 static const SkScalar kAngle = 0.305f;
+static const int kMaxNumSteps = 140;
 
 // Renders a string art shape.
 // The particular shape rendered can be controlled by adjusting kAngle, from 0 to 1
 
 class StringArtGM : public skiagm::GM {
 public:
-    StringArtGM() {}
+    StringArtGM() : fNumSteps(kMaxNumSteps) {}
 
 protected:
 
@@ -42,15 +44,13 @@ protected:
         SkPath path;
         path.moveTo(center);
 
-        while (length < (SkScalarHalf(size) - 10.f))
-        {
+        for (int i = 0; i < fNumSteps && length < (SkScalarHalf(size) - 10.f); ++i) {
             SkPoint rp = SkPoint::Make(length*SkScalarCos(step) + center.fX,
                                        length*SkScalarSin(step) + center.fY);
             path.lineTo(rp);
             length += angle / SkScalarHalf(SK_ScalarPI);
             step += angle;
         }
-        path.close();
 
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -60,7 +60,24 @@ protected:
         canvas->drawPath(path, paint);
     }
 
+    bool onAnimate(const SkAnimTimer& timer) override {
+        static const SkScalar kDesiredDurationSecs = 3.0f;
+
+        // Make the animation ping-pong back and forth but start in the fully drawn state
+        SkScalar fraction = 1.0f - timer.scaled(2.0f/kDesiredDurationSecs, 2.0f);
+        if (fraction <= 0.0f) {
+            fraction = -fraction;
+        }
+
+        SkASSERT(fraction >= 0.0f && fraction <= 1.0f);
+
+        fNumSteps = (int) (fraction * kMaxNumSteps);
+        return true;
+    }
+
 private:
+    int fNumSteps;
+
     typedef GM INHERITED;
 };
 

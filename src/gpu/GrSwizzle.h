@@ -8,8 +8,8 @@
 #ifndef GrSwizzle_DEFINED
 #define GrSwizzle_DEFINED
 
-#include "GrTypes.h"
 #include "GrColor.h"
+#include "SkRandom.h"
 
 /** Represents a rgba swizzle. It can be converted either into a string or a eight bit int.
     Currently there is no way to specify an arbitrary swizzle, just some static swizzles and an
@@ -82,6 +82,22 @@ public:
     static const GrSwizzle& BGRA() {
         static GrSwizzle gBGRA("bgra");
         return gBGRA;
+    }
+
+    static const GrSwizzle& CreateRandom(SkRandom* random) {
+        switch (random->nextU() % 4) {
+            case 0:
+                return RGBA();
+            case 1:
+                return BGRA();
+            case 2:
+                return RRRR();
+            case 3:
+                return AAAA();
+            default:
+                SkFAIL("Mod is broken?!?");
+                return RGBA();
+        }
     }
 
 private:

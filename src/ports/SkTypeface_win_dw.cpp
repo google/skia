@@ -111,7 +111,7 @@ int DWriteFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
         break;
     }
     default:
-        SK_CRASH();
+        SK_ABORT("Invalid Text Encoding");
     }
 
     for (int i = 0; i < glyphCount; ++i) {
@@ -244,8 +244,9 @@ SkStreamAsset* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
     return new SkDWriteFontFileStream(fontFileStream.get());
 }
 
-SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
-    return new SkScalerContext_DW(const_cast<DWriteFontTypeface*>(this), desc);
+SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
+                                                           const SkDescriptor* desc) const {
+    return new SkScalerContext_DW(const_cast<DWriteFontTypeface*>(this), effects, desc);
 }
 
 void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
@@ -265,8 +266,8 @@ void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
     h = SkPaint::kSlight_Hinting;
     rec->setHinting(h);
 
-#if SK_FONT_HOST_USE_SYSTEM_SETTINGS
-    IDWriteFactory* factory = get_dwrite_factory();
+#if defined(SK_FONT_HOST_USE_SYSTEM_SETTINGS)
+    IDWriteFactory* factory = sk_get_dwrite_factory();
     if (factory != nullptr) {
         SkTScopedComPtr<IDWriteRenderingParams> defaultRenderingParams;
         if (SUCCEEDED(factory->CreateRenderingParams(&defaultRenderingParams))) {
@@ -282,8 +283,6 @@ void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 //PDF Support
-
-using namespace skia_advanced_typeface_metrics_utils;
 
 // Construct Glyph to Unicode table.
 // Unicode code points that require conjugate pairs in utf16 are not
@@ -443,19 +442,23 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
 
     if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
         if (fixedWidth) {
-            appendRange(&info->fGlyphWidths, 0);
+            SkAdvancedTypefaceMetrics::WidthRange range(0);
             int16_t advance;
             getWidthAdvance(fDWriteFontFace.get(), 1, &advance);
-            info->fGlyphWidths->fAdvance.append(1, &advance);
-            finishRange(info->fGlyphWidths.get(), 0,
-                        SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+            range.fAdvance.append(1, &advance);
+            SkAdvancedTypefaceMetrics::FinishRange(
+                    &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+            info->fGlyphWidths.emplace_back(std::move(range));
         } else {
-            info->fGlyphWidths.reset(
-                getAdvanceData(fDWriteFontFace.get(),
-                               glyphCount,
-                               glyphIDs,
-                               glyphIDsCount,
-                               getWidthAdvance));
+            IDWriteFontFace* borrowedFontFace = fDWriteFontFace.get();
+            info->setGlyphWidths(
+                glyphCount,
+                glyphIDs,
+                glyphIDsCount,
+                SkAdvancedTypefaceMetrics::GetAdvance([borrowedFontFace](int gId, int16_t* data) {
+                    return getWidthAdvance(borrowedFontFace, gId, data);
+                })
+            );
         }
     }
 

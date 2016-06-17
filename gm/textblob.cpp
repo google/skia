@@ -72,7 +72,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fTypeface.reset(sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal));
+        fTypeface = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal);
         SkPaint p;
         p.setTypeface(fTypeface);
         size_t txtLen = strlen(fText);
@@ -170,7 +170,7 @@ private:
                     memcpy(buf.pos, pos.begin(), count * sizeof(SkScalar) * 2);
                 } break;
                 default:
-                    SkFAIL("unhandled pos value");
+                    SK_ABORT("unhandled pos value");
                 }
 
                 currentGlyph += count;
@@ -180,9 +180,9 @@ private:
         return builder.build();
     }
 
-    SkTDArray<uint16_t>      fGlyphs;
-    SkAutoTUnref<SkTypeface> fTypeface;
-    const char*              fText;
+    SkTDArray<uint16_t> fGlyphs;
+    sk_sp<SkTypeface>   fTypeface;
+    const char*         fText;
     typedef skiagm::GM INHERITED;
 };
 

@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "float.h"
+
 #include "SkColorPriv.h"
 #include "SkEndian.h"
+#include "SkFixed.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "SkHalf.h"
@@ -52,9 +55,10 @@ static float std_floor(float x) {
 static void test_floor_value(skiatest::Reporter* reporter, float value) {
     float fast = fast_floor(value);
     float std = std_floor(value);
-    REPORTER_ASSERT(reporter, std == fast);
-//    SkDebugf("value[%1.9f] std[%g] fast[%g] equal[%d]\n",
-//             value, std, fast, std == fast);
+    if (std != fast) {
+        ERRORF(reporter, "fast_floor(%.9g) == %.9g != %.9g == std_floor(%.9g)",
+               value, fast, std, value);
+    }
 }
 
 static void test_floor(skiatest::Reporter* reporter) {
@@ -150,7 +154,7 @@ static void test_blend31() {
 
                 if (r0 != r1 && r0 != r2) {
                     SkDebugf("src:%d dst:%d a:%d result:%d float:%g\n",
-                                  src,   dst, a,        r0,      f);
+                                 src,   dst, a,        r0,      f);
                     failed += 1;
                 }
                 if (r0 > 255) {
@@ -176,11 +180,8 @@ static void test_blend(skiatest::Reporter* reporter) {
                     float diff = sk_float_abs(f1 - r1);
                     diff = sk_float_abs(diff - 0.5f);
                     if (diff > (1 / 255.f)) {
-#ifdef SK_DEBUG
-                        SkDebugf("src:%d dst:%d a:%d result:%d float:%g\n",
-                                 src, dst, a, r0, f1);
-#endif
-                        REPORTER_ASSERT(reporter, false);
+                        ERRORF(reporter, "src:%d dst:%d a:%d "
+                               "result:%d float:%g\n", src, dst, a, r0, f1);
                     }
                 }
             }
@@ -382,14 +383,15 @@ static void unittest_half(skiatest::Reporter* reporter) {
 
 }
 
-static void test_rsqrt(skiatest::Reporter* reporter) {
+template <typename RSqrtFn>
+static void test_rsqrt(skiatest::Reporter* reporter, RSqrtFn rsqrt) {
     const float maxRelativeError = 6.50196699e-4f;
 
     // test close to 0 up to 1
     float input = 0.000001f;
     for (int i = 0; i < 1000; ++i) {
         float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = sk_float_rsqrt(input);
+        float estimate = rsqrt(input);
         float relativeError = sk_float_abs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 0.001f;
@@ -399,7 +401,7 @@ static void test_rsqrt(skiatest::Reporter* reporter) {
     input = 1.0f;
     for (int i = 0; i < 1000; ++i) {
         float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = sk_float_rsqrt(input);
+        float estimate = rsqrt(input);
         float relativeError = sk_float_abs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 0.01f;
@@ -409,7 +411,7 @@ static void test_rsqrt(skiatest::Reporter* reporter) {
     input = 1000000.0f;
     for (int i = 0; i < 100; ++i) {
         float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = sk_float_rsqrt(input);
+        float estimate = rsqrt(input);
         float relativeError = sk_float_abs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 754326.f;
@@ -555,7 +557,8 @@ DEF_TEST(Math, reporter) {
     unittest_fastfloat(reporter);
     unittest_isfinite(reporter);
     unittest_half(reporter);
-    test_rsqrt(reporter);
+    test_rsqrt(reporter, sk_float_rsqrt);
+    test_rsqrt(reporter, sk_float_rsqrt_portable);
 
     for (i = 0; i < 10000; i++) {
         SkFixed numer = rand.nextS();

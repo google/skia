@@ -39,12 +39,13 @@ public:
     enum Slant {
         kUpright_Slant,
         kItalic_Slant,
+        kOblique_Slant,
     };
 
     SkFontStyle();
     SkFontStyle(int weight, int width, Slant);
-    /** oldStyle means the style-bits in SkTypeface::Style: bold=1, italic=2 */
-    explicit SkFontStyle(unsigned oldStyle);
+
+    static SkFontStyle FromOldStyle(unsigned oldStyle);
 
     bool operator==(const SkFontStyle& rhs) const {
         return fUnion.fU32 == rhs.fUnion.fU32;
@@ -53,10 +54,6 @@ public:
     int weight() const { return fUnion.fR.fWeight; }
     int width() const { return fUnion.fR.fWidth; }
     Slant slant() const { return (Slant)fUnion.fR.fSlant; }
-
-    bool isItalic() const {
-        return kItalic_Slant == fUnion.fR.fSlant;
-    }
 
 private:
     union {

@@ -99,7 +99,7 @@ static void make_path_crbug364224_simplified(SkPath* path) {
 static void test_path_crbug364224() {
     SkPath path;
     SkPaint paint;
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(84, 88));
+    auto surface(SkSurface::MakeRasterN32Premul(84, 88));
     SkCanvas* canvas = surface->getCanvas();
 
     make_path_crbug364224_simplified(&path);
@@ -293,7 +293,7 @@ static void test_bad_cubic_crbug234190() {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(84, 88));
+    auto surface(SkSurface::MakeRasterN32Premul(84, 88));
     surface->getCanvas()->drawPath(path, paint);
 }
 
@@ -412,7 +412,7 @@ static void test_crbug_170666() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(1000, 1000));
+    auto surface(SkSurface::MakeRasterN32Premul(1000, 1000));
 
     build_path_simple_170666(path);
     surface->getCanvas()->drawPath(path, paint);
@@ -553,7 +553,7 @@ static void build_big_path(SkPath* path, bool reducedCase) {
 }
 
 static void test_clipped_cubic() {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
+    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
 
     // This path used to assert, because our cubic-chopping code incorrectly
     // moved control points after the chop. This test should be run in SK_DEBUG
@@ -626,9 +626,7 @@ static void test_tricky_cubic() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkSurface* surface = SkSurface::NewRasterN32Premul(19, 130);
-    surface->getCanvas()->drawPath(path, paint);
-    surface->unref();
+    SkSurface::MakeRasterN32Premul(19, 130)->getCanvas()->drawPath(path, paint);
 }
 
 // Inspired by http://code.google.com/p/chromium/issues/detail?id=141651
@@ -816,6 +814,23 @@ static void test_path_isfinite(skiatest::Reporter* reporter) {
 static void test_isfinite(skiatest::Reporter* reporter) {
     test_rect_isfinite(reporter);
     test_path_isfinite(reporter);
+}
+
+static void test_islastcontourclosed(skiatest::Reporter* reporter) {
+    SkPath path;
+    REPORTER_ASSERT(reporter, !path.isLastContourClosed());
+    path.moveTo(0, 0);
+    REPORTER_ASSERT(reporter, !path.isLastContourClosed());
+    path.close();
+    REPORTER_ASSERT(reporter, path.isLastContourClosed());
+    path.lineTo(100, 100);
+    REPORTER_ASSERT(reporter, !path.isLastContourClosed());
+    path.moveTo(200, 200);
+    REPORTER_ASSERT(reporter, !path.isLastContourClosed());
+    path.close();
+    REPORTER_ASSERT(reporter, path.isLastContourClosed());
+    path.moveTo(0, 0);
+    REPORTER_ASSERT(reporter, !path.isLastContourClosed());
 }
 
 // assert that we always
@@ -3887,6 +3902,49 @@ public:
     }
 };
 
+static void test_interp(skiatest::Reporter* reporter) {
+    SkPath p1, p2, out;
+    REPORTER_ASSERT(reporter, p1.isInterpolatable(p2));
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 0, &out));
+    REPORTER_ASSERT(reporter, p1 == out);
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 1, &out));
+    REPORTER_ASSERT(reporter, p1 == out);
+    p1.moveTo(0, 2);
+    p1.lineTo(0, 4);
+    REPORTER_ASSERT(reporter, !p1.isInterpolatable(p2));
+    REPORTER_ASSERT(reporter, !p1.interpolate(p2, 1, &out));
+    p2.moveTo(6, 0);
+    p2.lineTo(8, 0);
+    REPORTER_ASSERT(reporter, p1.isInterpolatable(p2));
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 0, &out));
+    REPORTER_ASSERT(reporter, p2 == out);
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 1, &out));
+    REPORTER_ASSERT(reporter, p1 == out);
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 0.5f, &out));
+    REPORTER_ASSERT(reporter, out.getBounds() == SkRect::MakeLTRB(3, 1, 4, 2));
+    p1.reset();
+    p1.moveTo(4, 4);
+    p1.conicTo(5, 4, 5, 5, 1 / SkScalarSqrt(2));
+    p2.reset();
+    p2.moveTo(4, 2);
+    p2.conicTo(7, 2, 7, 5, 1 / SkScalarSqrt(2));
+    REPORTER_ASSERT(reporter, p1.isInterpolatable(p2));
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 0.5f, &out));
+    REPORTER_ASSERT(reporter, out.getBounds() == SkRect::MakeLTRB(4, 3, 6, 5));
+    p2.reset();
+    p2.moveTo(4, 2);
+    p2.conicTo(6, 3, 6, 5, 1);
+    REPORTER_ASSERT(reporter, !p1.isInterpolatable(p2));
+    p2.reset();
+    p2.moveTo(4, 4);
+    p2.conicTo(5, 4, 5, 5, 0.5f);
+    REPORTER_ASSERT(reporter, !p1.isInterpolatable(p2));
+}
+
+DEF_TEST(PathInterp, reporter) {
+    test_interp(reporter);
+}
+
 DEF_TEST(PathContains, reporter) {
     test_contains(reporter);
 }
@@ -4005,6 +4063,7 @@ DEF_TEST(Paths, reporter) {
     test_addPoly(reporter);
     test_isfinite(reporter);
     test_isfinite_after_transform(reporter);
+    test_islastcontourclosed(reporter);
     test_arb_round_rect_is_convex(reporter);
     test_arb_zero_rad_round_rect_is_rect(reporter);
     test_addrect(reporter);

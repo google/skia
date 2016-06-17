@@ -20,7 +20,7 @@
 // memory barrier between accesses of a context on different threads. Also, there may be multiple
 // GrContexts and those contexts may be in use concurrently on different threads.
 namespace {
-SK_DECLARE_STATIC_SPINLOCK(gBatchSpinlock);
+static SkSpinlock gBatchSpinlock;
 class MemoryPoolAccessor {
 public:
     MemoryPoolAccessor() { gBatchSpinlock.acquire(); }
@@ -36,7 +36,7 @@ public:
 
 int32_t GrBatch::gCurrBatchClassID = GrBatch::kIllegalBatchID;
 
-GrBATCH_SPEW(int32_t GrBatch::gCurrBatchUniqueID = GrBatch::kIllegalBatchID;)
+int32_t GrBatch::gCurrBatchUniqueID = GrBatch::kIllegalBatchID;
 
 void* GrBatch::operator new(size_t size) {
     return MemoryPoolAccessor().pool()->allocate(size);
@@ -48,10 +48,7 @@ void GrBatch::operator delete(void* target) {
 
 GrBatch::GrBatch(uint32_t classID)
     : fClassID(classID)
-#if GR_BATCH_SPEW
-    , fUniqueID(GenBatchID())
-#endif
-{
+    , fUniqueID(kIllegalBatchID) {
     SkDEBUGCODE(fUsed = false;)
 }
 

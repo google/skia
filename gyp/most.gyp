@@ -29,29 +29,29 @@
         'visualbench.gyp:visualbench',
         'fuzz.gyp:fuzz',
         'kilobench.gyp:kilobench',
+        'viewer.gyp:viewer',
       ],
       'conditions': [
         [ 'skia_gpu == 0', {
           'dependencies!': [
             'visualbench.gyp:visualbench',
             'kilobench.gyp:kilobench',
+            'viewer.gyp:viewer',
           ]
+        }],
+        [ 'skia_os != "android" and skia_os != "linux"', {
+          'dependencies!': [
+            'kilobench.gyp:kilobench',
+          ],
         }],
         [ 'skia_gpu == 0 or skia_os == "android"', {
           'dependencies!': [
             'example.gyp:HelloWorld',
           ],
         }],
-        ['skia_os == "android"', {
+        ['skia_os == "android" and skia_vulkan == 1', {
           'dependencies': [
-            'android_system.gyp:SampleApp_APK',
-          ],
-          'conditions': [
-            [ 'skia_gpu == 1', {
-              'dependencies': [
-                'android_system.gyp:VisualBench_APK',
-              ],
-            }],
+            'android_system.gyp:Viewer_APK',
           ],
         }],
         ['skia_os == "ios"', {
@@ -63,7 +63,19 @@
           'dependencies': ['iOSShell.gyp:iOSShell' ],
         }],
         ['skia_os == "mac" or skia_os == "linux"', {
-          'dependencies': [ 'nanomsg.gyp:*' ],
+          'dependencies': [ 
+            'nanomsg.gyp:*' ,
+          ],
+        }],
+        ['skia_os in ["linux", "mac", "win"]', {
+          'dependencies': [
+            'skiaserve.gyp:skiaserve',
+          ],
+        }],
+        [ 'skia_vulkan == 0 or (skia_os != "win" and skia_os != "android")', {
+          'dependencies!': [
+            'viewer.gyp:viewer',
+          ],
         }],
         [ 'skia_skip_gui',
           {
@@ -73,7 +85,7 @@
               'visualbench.gyp:visualbench',
             ]
           }
-        ]
+        ],
       ],
     },
   ],

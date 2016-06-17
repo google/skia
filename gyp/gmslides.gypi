@@ -7,7 +7,9 @@
   'include_dirs': [
     '../gm',
     # include dirs needed by particular GMs
-    '../src/utils/debugger',
+    '../include/client/android',
+    '../tools/debugger',
+    '../src/effects/gradients',
     '../src/images',
     '../src/lazy',
   ],
@@ -21,13 +23,20 @@
 
         # Files needed by particular GMs
         '../src/gpu/batches/GrTestBatch.h',
-        '../src/utils/debugger/SkDrawCommand.h',
-        '../src/utils/debugger/SkDrawCommand.cpp',
-        '../src/utils/debugger/SkDebugCanvas.h',
-        '../src/utils/debugger/SkDebugCanvas.cpp',
-        '../src/utils/debugger/SkObjectParser.h',
-        '../src/utils/debugger/SkObjectParser.cpp',
+        '../tools/debugger/SkDrawCommand.h',
+        '../tools/debugger/SkDrawCommand.cpp',
+        '../tools/debugger/SkDebugCanvas.h',
+        '../tools/debugger/SkDebugCanvas.cpp',
+        '../tools/debugger/SkJsonWriteBuffer.h',
+        '../tools/debugger/SkJsonWriteBuffer.cpp',
+        '../tools/debugger/SkObjectParser.h',
+        '../tools/debugger/SkObjectParser.cpp',
+        '../tools/debugger/SkOverdrawMode.h',
+        '../tools/debugger/SkOverdrawMode.cpp',
       ],
+      'dependencies': [
+        'libpng.gyp:libpng',
+      ]
     }],
   ],
 }

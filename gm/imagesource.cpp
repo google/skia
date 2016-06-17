@@ -12,6 +12,17 @@
 
 // This GM exercises the SkImageSource ImageFilter class.
 
+static void fill_rect_filtered(SkCanvas* canvas,
+                               const SkRect& clipRect,
+                               sk_sp<SkImageFilter> filter) {
+    SkPaint paint;
+    paint.setImageFilter(std::move(filter));
+    canvas->save();
+    canvas->clipRect(clipRect);
+    canvas->drawPaint(paint);
+    canvas->restore();
+}
+
 class ImageSourceGM : public skiagm::GM {
 public:
     ImageSourceGM() { }
@@ -25,53 +36,48 @@ protected:
 
     void onOnceBeforeDraw() override {
         SkBitmap bm = sk_tool_utils::create_string_bitmap(100, 100, 0xFFFFFFFF, 20, 70, 96, "e");
-        fImage.reset(SkImage::NewFromBitmap(bm));
-    }
-
-    static void FillRectFiltered(SkCanvas* canvas, const SkRect& clipRect, SkImageFilter* filter) {
-        SkPaint paint;
-        paint.setImageFilter(filter);
-        canvas->save();
-        canvas->clipRect(clipRect);
-        canvas->drawPaint(paint);
-        canvas->restore();
+        fImage = SkImage::MakeFromBitmap(bm);
     }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
+
+        const SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
+        const SkRect dstRect = SkRect::MakeXYWH(0, 10, 60, 60);
+        const SkRect clipRect = SkRect::MakeXYWH(0, 0, 100, 100);
+        const SkRect bounds = SkRect::MakeIWH(fImage->width(), fImage->height());
+
         {
-            SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
-            SkRect dstRect = SkRect::MakeXYWH(0, 10, 60, 60);
-            SkRect clipRect = SkRect::MakeXYWH(0, 0, 100, 100);
-            SkRect bounds = SkRect::MakeIWH(fImage->width(), fImage->height());
-            SkAutoTUnref<SkImageFilter> imageSource(SkImageSource::Create(fImage));
-            SkAutoTUnref<SkImageFilter> imageSourceSrcRect(
-                SkImageSource::Create(fImage, srcRect, srcRect, kHigh_SkFilterQuality));
-            SkAutoTUnref<SkImageFilter> imageSourceSrcRectDstRect(
-                SkImageSource::Create(fImage, srcRect, dstRect, kHigh_SkFilterQuality));
-            SkAutoTUnref<SkImageFilter> imageSourceDstRectOnly(
-                SkImageSource::Create(fImage, bounds, dstRect, kHigh_SkFilterQuality));
-
             // Draw an unscaled bitmap.
-            FillRectFiltered(canvas, clipRect, imageSource);
+            sk_sp<SkImageFilter> imageSource(SkImageSource::Make(fImage));
+            fill_rect_filtered(canvas, clipRect, std::move(imageSource));
             canvas->translate(SkIntToScalar(100), 0);
-
+        }
+        {
             // Draw an unscaled subset of the source bitmap (srcRect -> srcRect).
-            FillRectFiltered(canvas, clipRect, imageSourceSrcRect);
+            sk_sp<SkImageFilter> imageSourceSrcRect(
+                SkImageSource::Make(fImage, srcRect, srcRect, kHigh_SkFilterQuality));
+            fill_rect_filtered(canvas, clipRect, std::move(imageSourceSrcRect));
             canvas->translate(SkIntToScalar(100), 0);
-
+        }
+        {
             // Draw a subset of the bitmap scaled to a destination rect (srcRect -> dstRect).
-            FillRectFiltered(canvas, clipRect, imageSourceSrcRectDstRect);
+            sk_sp<SkImageFilter> imageSourceSrcRectDstRect(
+                SkImageSource::Make(fImage, srcRect, dstRect, kHigh_SkFilterQuality));
+            fill_rect_filtered(canvas, clipRect, std::move(imageSourceSrcRectDstRect));
             canvas->translate(SkIntToScalar(100), 0);
-
+        }
+        {
             // Draw the entire bitmap scaled to a destination rect (bounds -> dstRect).
-            FillRectFiltered(canvas, clipRect, imageSourceDstRectOnly);
+            sk_sp<SkImageFilter> imageSourceDstRectOnly(
+                SkImageSource::Make(fImage, bounds, dstRect, kHigh_SkFilterQuality));
+            fill_rect_filtered(canvas, clipRect, std::move(imageSourceDstRectOnly));
             canvas->translate(SkIntToScalar(100), 0);
         }
     }
 
 private:
-    SkAutoTUnref<SkImage> fImage;
+    sk_sp<SkImage> fImage;
     typedef GM INHERITED;
 };
 

@@ -253,8 +253,7 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
 
             // We handle filling uninitialized memory here instead of using this->codec().
             // this->codec() does not know that we are sampling.
-            const uint32_t fillValue = this->codec()->getFillValue(info.colorType(),
-                    info.alphaType());
+            const uint32_t fillValue = this->codec()->getFillValue(info.colorType());
             const SkImageInfo fillInfo = info.makeWH(info.width(), 1);
             for (; y < nativeSize.height(); y++) {
                 int srcY = this->codec()->outputScanline(y);

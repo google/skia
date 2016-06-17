@@ -32,8 +32,9 @@ public:
 #endif // SK_COMMAND_BUFFER
     };
 
-    void    detach();
-    bool    attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);
+    void    release();
+    bool    attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor,
+                   AttachmentInfo*);
     void    present();
 
     bool    makeFullscreen();

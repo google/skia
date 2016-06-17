@@ -14,11 +14,9 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrDrawTarget.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
-#include "GrStrokeInfo.h"
-#include "GrVertexBuffer.h"
+#include "GrStyle.h"
 #include "SkGr.h"
 #include "batches/GrVertexBatch.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -31,7 +29,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Returns whether or not the gpu can fast path the dash line effect.
-bool GrDashingEffect::CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
+bool GrDashingEffect::CanDrawDashLine(const SkPoint pts[2], const GrStyle& style,
                                       const SkMatrix& viewMatrix) {
     // Pts must be either horizontal or vertical in src space
     if (pts[0].fX != pts[1].fX && pts[0].fY != pts[1].fY) {
@@ -44,16 +42,16 @@ bool GrDashingEffect::CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& 
         return false;
     }
 
-    if (!strokeInfo.isDashed() || 2 != strokeInfo.getDashCount()) {
+    if (!style.isDashed() || 2 != style.dashIntervalCnt()) {
         return false;
     }
 
-    const SkScalar* intervals = strokeInfo.getDashIntervals();
+    const SkScalar* intervals = style.dashIntervals();
     if (0 == intervals[0] && 0 == intervals[1]) {
         return false;
     }
 
-    SkPaint::Cap cap = strokeInfo.getCap();
+    SkPaint::Cap cap = style.strokeRec().getCap();
     // Current we do don't handle Round or Square cap dashes
     if (SkPaint::kRound_Cap == cap && intervals[0] != 0.f) {
         return false;
@@ -269,13 +267,12 @@ public:
 
     const char* name() const override { return "DashBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
         coverage->setUnknownSingleComponent();
-        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -360,8 +357,6 @@ private:
             SkDebugf("Could not create GrGeometryProcessor\n");
             return;
         }
-
-        target->initDraw(gp, this->pipeline());
 
         // useAA here means Edge AA or MSAA
         bool useAA = this->aaMode() != kBW_DashAAMode;
@@ -630,7 +625,7 @@ private:
             rectIndex++;
         }
         SkASSERT(0 == (curVIdx % 4) && (curVIdx / 4) == totalRectCount);
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -695,14 +690,15 @@ private:
 };
 
 static GrDrawBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const SkPoint pts[2],
-                                 bool useAA, const GrStrokeInfo& strokeInfo, bool msaaRT) {
-    const SkScalar* intervals = strokeInfo.getDashIntervals();
-    SkScalar phase = strokeInfo.getDashPhase();
+                                 bool useAA, const GrStyle& style, bool msaaRT) {
+    SkASSERT(GrDashingEffect::CanDrawDashLine(pts, style, viewMatrix));
+    const SkScalar* intervals = style.dashIntervals();
+    SkScalar phase = style.dashPhase();
 
-    SkPaint::Cap cap = strokeInfo.getCap();
+    SkPaint::Cap cap = style.strokeRec().getCap();
 
     DashBatch::Geometry geometry;
-    geometry.fSrcStrokeWidth = strokeInfo.getWidth();
+    geometry.fSrcStrokeWidth = style.strokeRec().getWidth();
 
     // the phase should be normalized to be [0, sum of all intervals)
     SkASSERT(phase >= 0 && phase < intervals[0] + intervals[1]);
@@ -747,19 +743,13 @@ static GrDrawBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, cons
     return DashBatch::Create(geometry, cap, aaMode, fullDash);
 }
 
-bool GrDashingEffect::DrawDashLine(GrDrawTarget* target,
-                                   const GrPipelineBuilder& pipelineBuilder, GrColor color,
-                                   const SkMatrix& viewMatrix, const SkPoint pts[2],
-                                   bool useAA, const GrStrokeInfo& strokeInfo) {
-    SkAutoTUnref<GrDrawBatch> batch(
-            create_batch(color, viewMatrix, pts, useAA, strokeInfo,
-                         pipelineBuilder.getRenderTarget()->isUnifiedMultisampled()));
-    if (!batch) {
-        return false;
-    }
-
-    target->drawBatch(pipelineBuilder, batch);
-    return true;
+GrDrawBatch* GrDashingEffect::CreateDashLineBatch(GrColor color,
+                                                  const SkMatrix& viewMatrix,
+                                                  const SkPoint pts[2],
+                                                  bool useAA,
+                                                  bool msaaIsEnabled,
+                                                  const GrStyle& style) {
+    return create_batch(color, viewMatrix, pts, useAA, style, msaaIsEnabled);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -880,7 +870,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("CircleParams", &circleParams);
     vertBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->fName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!dce.colorIgnored()) {
         this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
@@ -1094,7 +1084,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("RectParams", &inRectParams, GrSLPrecision::kHigh_GrSLPrecision);
     vertBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!de.colorIgnored()) {
         this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
@@ -1300,17 +1290,11 @@ DRAW_BATCH_TEST_DEFINE(DashBatch) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SkIntToScalar(1));
     p.setStrokeCap(cap);
+    p.setPathEffect(GrTest::TestDashPathEffect::Make(intervals, 2, phase));
 
-    GrStrokeInfo strokeInfo(p);
+    GrStyle style(p);
 
-    SkPathEffect::DashInfo info;
-    info.fIntervals = intervals;
-    info.fCount = 2;
-    info.fPhase = phase;
-    SkDEBUGCODE(bool success = ) strokeInfo.setDashInfo(info);
-    SkASSERT(success);
-
-    return create_batch(color, viewMatrix, pts, useAA, strokeInfo, msaaRT);
+    return create_batch(color, viewMatrix, pts, useAA, style, msaaRT);
 }
 
 #endif

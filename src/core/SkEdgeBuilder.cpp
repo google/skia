@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -22,11 +21,67 @@ SkEdgeBuilder::SkEdgeBuilder() : fAlloc(16*1024) {
     fEdgeList = nullptr;
 }
 
+SkEdgeBuilder::Combine SkEdgeBuilder::CombineVertical(const SkEdge* edge, SkEdge* last) {
+    if (last->fCurveCount || last->fDX || edge->fX != last->fX) {
+        return kNo_Combine;
+    }
+    if (edge->fWinding == last->fWinding) {
+        if (edge->fLastY + 1 == last->fFirstY) {
+            last->fFirstY = edge->fFirstY;
+            return kPartial_Combine;
+        }
+        if (edge->fFirstY == last->fLastY + 1) {
+            last->fLastY = edge->fLastY;
+            return kPartial_Combine;
+        }
+        return kNo_Combine;
+    }
+    if (edge->fFirstY == last->fFirstY) {
+        if (edge->fLastY == last->fLastY) {
+            return kTotal_Combine;
+        }
+        if (edge->fLastY < last->fLastY) {
+            last->fFirstY = edge->fLastY + 1;
+            return kPartial_Combine;
+        }
+        last->fFirstY = last->fLastY + 1;
+        last->fLastY = edge->fLastY;
+        last->fWinding = edge->fWinding;
+        return kPartial_Combine;
+    }
+    if (edge->fLastY == last->fLastY) {
+        if (edge->fFirstY > last->fFirstY) {
+            last->fLastY = edge->fFirstY - 1;
+            return kPartial_Combine;
+        }
+        last->fLastY = last->fFirstY - 1;
+        last->fFirstY = edge->fFirstY;
+        last->fWinding = edge->fWinding;
+        return kPartial_Combine;
+    }
+    return kNo_Combine;
+}
+
+static bool vertical_line(const SkEdge* edge) {
+    return !edge->fDX && !edge->fCurveCount;
+}
+
 void SkEdgeBuilder::addLine(const SkPoint pts[]) {
     SkEdge* edge = typedAllocThrow<SkEdge>(fAlloc);
     if (edge->setLine(pts[0], pts[1], fShiftUp)) {
+        if (vertical_line(edge) && fList.count()) {
+            Combine combine = CombineVertical(edge, *(fList.end() - 1));
+            if (kNo_Combine != combine) {
+                if (kTotal_Combine == combine) {
+                    fList.pop();
+                }
+                goto unallocate_edge;
+            }
+        }
         fList.push(edge);
     } else {
+unallocate_edge:
+        ;
         // TODO: unallocate edge from storage...
     }
 }
@@ -79,6 +134,11 @@ static void setShiftedClip(SkRect* dst, const SkIRect& src, int shift) {
              SkIntToScalar(src.fBottom >> shift));
 }
 
+SkEdgeBuilder::Combine SkEdgeBuilder::checkVertical(const SkEdge* edge, SkEdge** edgePtr) {
+    return !vertical_line(edge) || edgePtr <= fEdgeList ? kNo_Combine :
+            CombineVertical(edge, edgePtr[-1]);
+}
+
 int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shiftUp,
                              bool canCullToTheRight) {
     SkPath::Iter    iter(path, true);
@@ -119,7 +179,12 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shift
                     SkASSERT(lineCount <= SkLineClipper::kMaxClippedLineSegments);
                     for (int i = 0; i < lineCount; i++) {
                         if (edge->setLine(lines[i], lines[i + 1], shiftUp)) {
-                            *edgePtr++ = edge++;
+                            Combine combine = checkVertical(edge, edgePtr);
+                            if (kNo_Combine == combine) {
+                                *edgePtr++ = edge++;
+                            } else if (kTotal_Combine == combine) {
+                                --edgePtr;
+                            }
                         }
                     }
                     break;
@@ -139,7 +204,12 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shift
                     break;
                 case SkPath::kLine_Verb:
                     if (edge->setLine(pts[0], pts[1], shiftUp)) {
-                        *edgePtr++ = edge++;
+                        Combine combine = checkVertical(edge, edgePtr);
+                        if (kNo_Combine == combine) {
+                            *edgePtr++ = edge++;
+                        } else if (kTotal_Combine == combine) {
+                            --edgePtr;
+                        }
                     }
                     break;
                 default:

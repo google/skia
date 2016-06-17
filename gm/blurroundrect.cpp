@@ -55,15 +55,13 @@ public:
             info.fOffset = SkPoint::Make(SkIntToScalar(-1), SkIntToScalar(0));
             info.fPostTranslate = false;
             SkPaint* paint = looperBuilder.addLayerOnTop(info);
-            SkMaskFilter* maskFilter = SkBlurMaskFilter::Create(
+            paint->setMaskFilter(SkBlurMaskFilter::Make(
                     kNormal_SkBlurStyle,
                     SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf),
-                    SkBlurMaskFilter::kHighQuality_BlurFlag);
-            paint->setMaskFilter(maskFilter)->unref();
-            SkColorFilter* colorFilter = SkColorFilter::CreateModeFilter(
+                    SkBlurMaskFilter::kHighQuality_BlurFlag));
+            paint->setColorFilter(SkColorFilter::MakeModeFilter(
                     sk_tool_utils::color_to_565(SK_ColorLTGRAY),
-                    SkXfermode::kSrcIn_Mode);
-            paint->setColorFilter(colorFilter)->unref();
+                    SkXfermode::kSrcIn_Mode));
             paint->setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
         }
         {
@@ -73,7 +71,7 @@ public:
         SkPaint paint;
         canvas->drawRect(fRRect.rect(), paint);
 
-        paint.setLooper(looperBuilder.detachLooper())->unref();
+        paint.setLooper(looperBuilder.detach());
         paint.setColor(SK_ColorCYAN);
         paint.setAntiAlias(true);
 
@@ -92,7 +90,7 @@ private:
 /*
  * Spits out a dummy gradient to test blur with shader on paint
  */
-static SkShader* MakeRadial() {
+static sk_sp<SkShader> MakeRadial() {
     SkPoint pts[2] = {
         { 0, 0 },
         { SkIntToScalar(100), SkIntToScalar(100) }
@@ -108,10 +106,10 @@ static SkShader* MakeRadial() {
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::CreateTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
-                                                   center0, (pts[1].fX - pts[0].fX) / 2,
-                                                   colors, pos, SK_ARRAY_COUNT(colors), tm,
-                                                   0, &scale);
+    return SkGradientShader::MakeTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
+                                                 center0, (pts[1].fX - pts[0].fX) / 2,
+                                                 colors, pos, SK_ARRAY_COUNT(colors), tm,
+                                                 0, &scale);
 }
 
 // Simpler blurred RR test cases where all the radii are the same.
@@ -143,17 +141,15 @@ protected:
             canvas->translate(0, (r.height() + SkIntToScalar(50)) * i);
             for (size_t j = 0; j < SK_ARRAY_COUNT(cornerRadii); ++j) {
                 for (int k = 0; k <= 1; k++) {
-                    SkMaskFilter* filter = SkBlurMaskFilter::Create(
-                        kNormal_SkBlurStyle,
-                        SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i])),
-                        SkBlurMaskFilter::kHighQuality_BlurFlag);
                     SkPaint paint;
                     paint.setColor(SK_ColorBLACK);
-                    paint.setMaskFilter(filter)->unref();
+                    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                   SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i])),
+                                   SkBlurMaskFilter::kHighQuality_BlurFlag));
 
                     bool useRadial = SkToBool(k);
                     if (useRadial) {
-                        paint.setShader(MakeRadial())->unref();
+                        paint.setShader(MakeRadial());
                     }
 
                     SkRRect rrect;

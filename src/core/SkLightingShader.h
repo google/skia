@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkLightingShader_DEFINED
 #define SkLightingShader_DEFINED
@@ -38,7 +36,7 @@ public:
             }
 
             const Lights* finish() {
-                return fLights.detach();
+                return fLights.release();
             }
 
         private:
@@ -71,7 +69,7 @@ public:
         @param  normal      the normal map
         @param  light       the light applied to the normal map
         @param  ambient     the linear (unpremul) ambient light color. Range is 0..1/channel.
-        @param  localMatrix the matrix mapping the textures to the dest rect 
+        @param  localMatrix the matrix mapping the textures to the dest rect
 
         nullptr will be returned if:
             either 'diffuse' or 'normal' are empty
@@ -90,9 +88,9 @@ public:
         The +Z axis is thus encoded in RGB as (127, 127, 255) while the -Z axis is
         (127, 127, 0).
     */
-    static SkShader* Create(const SkBitmap& diffuse, const SkBitmap& normal,
-                            const Lights* lights, const SkVector& invNormRotation,
-                            const SkMatrix* diffLocalMatrix, const SkMatrix* normLocalMatrix);
+    static sk_sp<SkShader> Make(const SkBitmap& diffuse, const SkBitmap& normal,
+                                const Lights* lights, const SkVector& invNormRotation,
+                                const SkMatrix* diffLocalMatrix, const SkMatrix* normLocalMatrix);
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };

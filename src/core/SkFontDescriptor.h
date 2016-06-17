@@ -8,6 +8,7 @@
 #ifndef SkFontDescriptor_DEFINED
 #define SkFontDescriptor_DEFINED
 
+#include "SkFixed.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTypeface.h"
@@ -34,7 +35,7 @@ public:
     }
     bool hasStream() const { return fStream.get() != nullptr; }
     SkStreamAsset* duplicateStream() const { return fStream->duplicate(); }
-    SkStreamAsset* detachStream() { return fStream.detach(); }
+    SkStreamAsset* detachStream() { return fStream.release(); }
     SkStreamAsset* getStream() { return fStream.get(); }
     int getIndex() const { return fIndex; }
     int getAxisCount() const { return fAxisCount; }
@@ -51,7 +52,7 @@ class SkFontDescriptor : SkNoncopyable {
 public:
     SkFontDescriptor(SkTypeface::Style = SkTypeface::kNormal);
     // Does not affect ownership of SkStream.
-    SkFontDescriptor(SkStream*);
+    static bool Deserialize(SkStream*, SkFontDescriptor* result);
 
     void serialize(SkWStream*);
 
@@ -62,7 +63,7 @@ public:
     const char* getFullName() const { return fFullName.c_str(); }
     const char* getPostscriptName() const { return fPostscriptName.c_str(); }
     bool hasFontData() const { return fFontData.get() != nullptr; }
-    SkFontData* detachFontData() { return fFontData.detach(); }
+    SkFontData* detachFontData() { return fFontData.release(); }
 
     void setFamilyName(const char* name) { fFamilyName.set(name); }
     void setFullName(const char* name) { fFullName.set(name); }

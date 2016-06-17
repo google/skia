@@ -9,6 +9,7 @@
 #define SkCodec_wbmp_DEFINED
 
 #include "SkCodec.h"
+#include "SkColorSpace.h"
 #include "SkSwizzler.h"
 
 class SkWbmpCodec final : public SkCodec {
@@ -43,7 +44,7 @@ private:
      */
     bool readRow(uint8_t* row);
 
-    SkWbmpCodec(const SkImageInfo&, SkStream*);
+    SkWbmpCodec(int width, int height, const SkEncodedInfo&, SkStream*);
 
     const size_t                 fSrcRowBytes;
 
@@ -52,8 +53,8 @@ private:
     SkAutoTUnref<SkColorTable>   fColorTable;
     SkAutoTMalloc<uint8_t>       fSrcBuffer;
 
-    // FIXME: Override onSkipScanlines to avoid swizzling.
     int onGetScanlines(void* dst, int count, size_t dstRowBytes) override;
+    bool onSkipScanlines(int count) override;
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
             SkPMColor inputColorTable[], int* inputColorCount) override;
 

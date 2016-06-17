@@ -13,17 +13,14 @@
         'skia_lib.gyp:skia_lib',
       ],
       'include_dirs': [
+        '../include/private',
         '../include/xml',
       ],
       'sources': [
-        '../include/xml/SkBML_WXMLParser.h',
-        '../include/xml/SkBML_XMLParser.h',
         '../include/xml/SkDOM.h',
         '../include/xml/SkXMLParser.h',
         '../include/xml/SkXMLWriter.h',
 
-        '../src/xml/SkBML_Verbs.h',
-        '../src/xml/SkBML_XMLParser.cpp',
         '../src/xml/SkDOM.cpp',
         '../src/xml/SkXMLParser.cpp',
         '../src/xml/SkXMLPullParser.cpp',

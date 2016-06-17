@@ -18,7 +18,7 @@ Unlike `SkCanvas`, paints do not maintain an internal stack of state
 (i.e. there is no save/restore on a paint). However, paints are
 relatively light-weight, so the client may create and maintain any
 number of paint objects, each set up for a particular use. Factoring
-all of these color and stylistic attribute out of the canvas state,
+all of these color and stylistic attributes out of the canvas state,
 and into (multiple) paint objects, allows canvas' save/restore to be
 that much more efficient, as all they have to do is maintain the stack
 of matrix and clip settings.
@@ -32,12 +32,12 @@ of matrix and clip settings.
 
         paint1.setTextSize(64.0f);
         paint1.setAntiAlias(true);
-        paint1.setColor(SkColorSetRGB(255, 0, 0);
+        paint1.setColor(SkColorSetRGB(255, 0, 0));
         paint1.setStyle(SkPaint::kFill_Style);
 
         paint2.setTextSize(64.f);
         paint2.setAntiAlias(true);
-        paint2.setColor(SkColorSetRGB(0, 136, 0);
+        paint2.setColor(SkColorSetRGB(0, 136, 0));
         paint2.setStyle(SkPaint::kStroke_Style);
         paint2.setStrokeWidth(SkIntToScalar(3));
 
@@ -52,8 +52,8 @@ of matrix and clip settings.
         canvas->drawText(text, strlen(text), 20.0f, 224.0f, paint3);
     }
 
-<a href="https://fiddle.skia.org/c/c4cfc71ed9232dac9c0d6518311b386e">
-<img src="https://fiddle.skia.org/i/c4cfc71ed9232dac9c0d6518311b386e_raster.png"></a>
+<a href='https://fiddle.skia.org/c/@skpaint_skia'><img
+  src='https://fiddle.skia.org/i/@skpaint_skia_raster.png'></a>
 
 This shows three different paints, each set up to draw in a different
 style. Now the caller can intermix these paints freely, either using
@@ -78,8 +78,8 @@ them as is, or modifying them as the drawing proceeds.
     paint3.setColor(SK_ColorBLUE);
     canvas->drawText("SKIA", 4, 20, 220, paint3);
 
-<a href="https://fiddle.skia.org/c/5203b17103f487dd33965b4211d80956">
-<img src="https://fiddle.skia.org/i/5203b17103f487dd33965b4211d80956_raster.png"></a>
+<a href='https://fiddle.skia.org/c/@skpaint_mix'><img
+  src='https://fiddle.skia.org/i/@skpaint_mix_raster.png'></a>
 
 Beyond simple attributes such as color, strokes, and text values,
 paints support effects. These are subclasses of different aspects of
@@ -92,25 +92,24 @@ assign a SkShader to the paint.
 
 <!--?prettify lang=cc?-->
 
-    SkPoint points[2] = {
-        SkPoint::Make(0.0f, 0.0f),
-        SkPoint::Make(256.0f, 256.0f)
-    };
-    SkColor colors[2] = {SK_ColorBLUE, SK_ColorYELLOW};
-    SkShader* shader =
-            SkGradientShader::CreateLinear(
-                     points, colors, nullptr, 2,
-                     SkShader::kClamp_TileMode, 0, nullptr);
-    SkPaint paint;
-    paint.setShader(shader);
-    shader->unref();
-    canvas->drawPaint(paint);
+    void draw(SkCanvas* canvas) {
+        SkPoint points[2] = {
+            SkPoint::Make(0.0f, 0.0f),
+            SkPoint::Make(256.0f, 256.0f)
+        };
+        SkColor colors[2] = {SK_ColorBLUE, SK_ColorYELLOW};
+        SkPaint paint;
+        paint.setShader(SkGradientShader::MakeLinear(
+                         points, colors, nullptr, 2,
+                         SkShader::kClamp_TileMode, 0, nullptr));
+        canvas->drawPaint(paint);
+    }
 
-<a href="https://fiddle.skia.org/c/f91b5310d57744a5a1475b7e47d4a172">
-<img src="https://fiddle.skia.org/i/f91b5310d57744a5a1475b7e47d4a172_raster.png"></a>
+<a href='https://fiddle.skia.org/c/@skpaint_shader'><img
+  src='https://fiddle.skia.org/i/@skpaint_shader_raster.png'></a>
 
 Now, anything drawn with that paint will be drawn with the gradient
-specified in the call to `CreateLinear()`. The shader object that is
+specified in the call to `MakeLinear()`. The shader object that is
 returned is reference-counted. Whenever any effects object, like a
 shader, is assigned to a paint, its reference-count is increased by
 the paint. To balance this, the caller in the above example calls
@@ -156,87 +155,86 @@ with a vertical alpha gradient.
 
 <!--?prettify lang=cc?-->
 
-    SkXfermode::Mode modes[] = {
-        SkXfermode::kClear_Mode,
-        SkXfermode::kSrc_Mode,
-        SkXfermode::kDst_Mode,
-        SkXfermode::kSrcOver_Mode,
-        SkXfermode::kDstOver_Mode,
-        SkXfermode::kSrcIn_Mode,
-        SkXfermode::kDstIn_Mode,
-        SkXfermode::kSrcOut_Mode,
-        SkXfermode::kDstOut_Mode,
-        SkXfermode::kSrcATop_Mode,
-        SkXfermode::kDstATop_Mode,
-        SkXfermode::kXor_Mode,
-        SkXfermode::kPlus_Mode,
-        SkXfermode::kModulate_Mode,
-        SkXfermode::kScreen_Mode,
-        SkXfermode::kOverlay_Mode,
-        SkXfermode::kDarken_Mode,
-        SkXfermode::kLighten_Mode,
-        SkXfermode::kColorDodge_Mode,
-        SkXfermode::kColorBurn_Mode,
-        SkXfermode::kHardLight_Mode,
-        SkXfermode::kSoftLight_Mode,
-        SkXfermode::kDifference_Mode,
-        SkXfermode::kExclusion_Mode,
-        SkXfermode::kMultiply_Mode,
-        SkXfermode::kHue_Mode,
-        SkXfermode::kSaturation_Mode,
-        SkXfermode::kColor_Mode,
-        SkXfermode::kLuminosity_Mode,
-    };
-    SkRect rect = SkRect::MakeWH(64.0f, 64.0f);
-    SkPaint text, stroke, src, dst;
-    stroke.setStyle(SkPaint::kStroke_Style);
-    text.setTextSize(24.0f);
-    text.setAntiAlias(true);
-    SkPoint srcPoints[2] = {
-        SkPoint::Make(0.0f, 0.0f),
-        SkPoint::Make(64.0f, 0.0f)
-    };
-    SkColor srcColors[2] = {
-        SK_ColorMAGENTA & 0x00FFFFFF,
-        SK_ColorMAGENTA};
-    SkAutoTUnref<SkShader> srcShader(
-        SkGradientShader::CreateLinear(
-                srcPoints, srcColors, nullptr, 2,
-                SkShader::kClamp_TileMode, 0, nullptr));
-    src.setShader(srcShader);
+    void draw(SkCanvas* canvas) {
+        SkXfermode::Mode modes[] = {
+            SkXfermode::kClear_Mode,
+            SkXfermode::kSrc_Mode,
+            SkXfermode::kDst_Mode,
+            SkXfermode::kSrcOver_Mode,
+            SkXfermode::kDstOver_Mode,
+            SkXfermode::kSrcIn_Mode,
+            SkXfermode::kDstIn_Mode,
+            SkXfermode::kSrcOut_Mode,
+            SkXfermode::kDstOut_Mode,
+            SkXfermode::kSrcATop_Mode,
+            SkXfermode::kDstATop_Mode,
+            SkXfermode::kXor_Mode,
+            SkXfermode::kPlus_Mode,
+            SkXfermode::kModulate_Mode,
+            SkXfermode::kScreen_Mode,
+            SkXfermode::kOverlay_Mode,
+            SkXfermode::kDarken_Mode,
+            SkXfermode::kLighten_Mode,
+            SkXfermode::kColorDodge_Mode,
+            SkXfermode::kColorBurn_Mode,
+            SkXfermode::kHardLight_Mode,
+            SkXfermode::kSoftLight_Mode,
+            SkXfermode::kDifference_Mode,
+            SkXfermode::kExclusion_Mode,
+            SkXfermode::kMultiply_Mode,
+            SkXfermode::kHue_Mode,
+            SkXfermode::kSaturation_Mode,
+            SkXfermode::kColor_Mode,
+            SkXfermode::kLuminosity_Mode,
+        };
+        SkRect rect = SkRect::MakeWH(64.0f, 64.0f);
+        SkPaint text, stroke, src, dst;
+        stroke.setStyle(SkPaint::kStroke_Style);
+        text.setTextSize(24.0f);
+        text.setAntiAlias(true);
+        SkPoint srcPoints[2] = {
+            SkPoint::Make(0.0f, 0.0f),
+            SkPoint::Make(64.0f, 0.0f)
+        };
+        SkColor srcColors[2] = {
+            SK_ColorMAGENTA & 0x00FFFFFF,
+            SK_ColorMAGENTA};
+        src.setShader(SkGradientShader::MakeLinear(
+                    srcPoints, srcColors, nullptr, 2,
+                    SkShader::kClamp_TileMode, 0, nullptr));
 
-    SkPoint dstPoints[2] = {
-        SkPoint::Make(0.0f, 0.0f),
-        SkPoint::Make(0.0f, 64.0f)
-    };
-    SkColor dstColors[2] = {
-        SK_ColorCYAN & 0x00FFFFFF,
-        SK_ColorCYAN};
-    SkAutoTUnref<SkShader> dstShader(
-        SkGradientShader::CreateLinear(
-                dstPoints, dstColors, nullptr, 2,
-                SkShader::kClamp_TileMode, 0, nullptr));
-    dst.setShader(dstShader);
-    canvas->clear(SK_ColorWHITE);
-    size_t N = sizeof(modes) / sizeof(modes[0]);
-    size_t K = (N - 1) / 3 + 1;
-    SkASSERT(K * 64 == 640);  // tall enough
-    for (size_t i = 0; i < N; ++i) {
-        SkAutoCanvasRestore autoCanvasRestore(canvas, true);
-        canvas->translate(192.0f * (i / K), 64.0f * (i % K));
-        const char* desc = SkXfermode::ModeName(modes[i]);
-        canvas->drawText(desc, strlen(desc), 68.0f, 30.0f, text);
-        canvas->clipRect(SkRect::MakeWH(64.0f, 64.0f));
-        canvas->drawColor(SK_ColorLTGRAY);
-        (void)canvas->saveLayer(nullptr, nullptr);
-        canvas->clear(SK_ColorTRANSPARENT);
-        canvas->drawPaint(dst);
-        src.setXfermodeMode(modes[i]);
-        canvas->drawPaint(src);
-        canvas->drawRect(rect, stroke);
+        SkPoint dstPoints[2] = {
+            SkPoint::Make(0.0f, 0.0f),
+            SkPoint::Make(0.0f, 64.0f)
+        };
+        SkColor dstColors[2] = {
+            SK_ColorCYAN & 0x00FFFFFF,
+            SK_ColorCYAN};
+        dst.setShader(SkGradientShader::MakeLinear(
+                    dstPoints, dstColors, nullptr, 2,
+                    SkShader::kClamp_TileMode, 0, nullptr));
+        canvas->clear(SK_ColorWHITE);
+        size_t N = sizeof(modes) / sizeof(modes[0]);
+        size_t K = (N - 1) / 3 + 1;
+        SkASSERT(K * 64 == 640);  // tall enough
+        for (size_t i = 0; i < N; ++i) {
+            SkAutoCanvasRestore autoCanvasRestore(canvas, true);
+            canvas->translate(192.0f * (i / K), 64.0f * (i % K));
+            const char* desc = SkXfermode::ModeName(modes[i]);
+            canvas->drawText(desc, strlen(desc), 68.0f, 30.0f, text);
+            canvas->clipRect(SkRect::MakeWH(64.0f, 64.0f));
+            canvas->drawColor(SK_ColorLTGRAY);
+            (void)canvas->saveLayer(nullptr, nullptr);
+            canvas->clear(SK_ColorTRANSPARENT);
+            canvas->drawPaint(dst);
+            src.setXfermodeMode(modes[i]);
+            canvas->drawPaint(src);
+            canvas->drawRect(rect, stroke);
+        }
     }
 
-<a href="https://fiddle.skia.org/c/0a2392be5adf339ce6537799f2807f3c"><img src="https://fiddle.skia.org/i/0a2392be5adf339ce6537799f2807f3c_raster.png" alt=""></a>
+<a href='https://fiddle.skia.org/c/@skpaint_xfer'><img
+  src='https://fiddle.skia.org/i/@skpaint_xfer_raster.png'></a>
 
 <span id="ShShader"></span>
 
@@ -253,54 +251,44 @@ Several shaders are defined (besides the linear gradient already mentioned):
         SkMatrix matrix;
         matrix.setScale(0.75f, 0.75f);
         matrix.preRotate(30.0f);
-        SkShader* shader =
-            SkShader::CreateBitmapShader(
-                source,
-                SkShader::kRepeat_TileMode ,
-                SkShader::kRepeat_TileMode ,
-                &matrix);
         SkPaint paint;
-        paint.setShader(shader);
-        shader->unref();
+        paint.setShader(SkShader::MakeBitmapShader(source,
+                    SkShader::kRepeat_TileMode,
+                    SkShader::kRepeat_TileMode,
+                    &matrix));
         canvas->drawPaint(paint);
 
-    <a href="https://fiddle.skia.org/c/0e8d08e0a0b342e9e45c364d0e5cea8a">
-    <img src="https://fiddle.skia.org/i/0e8d08e0a0b342e9e45c364d0e5cea8a_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_bitmap_shader'><img
+      src='https://fiddle.skia.org/i/@skpaint_bitmap_shader_raster.png'></a>
 
 *   Radial Gradient Shader
 
     <!--?prettify lang=cc?-->
 
         SkColor colors[2] = {SK_ColorBLUE, SK_ColorYELLOW};
-        SkShader* shader =
-                SkGradientShader::CreateRadial(
-                        SkPoint::Make(128.0f, 128.0f), 180.0f,
-                        colors, nullptr, 2, SkShader::kClamp_TileMode, 0, nullptr);
         SkPaint paint;
-        paint.setShader(shader);
-        shader->unref();
+        paint.setShader(SkGradientShader::MakeRadial(
+                    SkPoint::Make(128.0f, 128.0f), 180.0f,
+                    colors, nullptr, 2, SkShader::kClamp_TileMode, 0, nullptr));
         canvas->drawPaint(paint);
 
-    <a href="https://fiddle.skia.org/c/601abd2819e38365900bf62286986024">
-    <img src="https://fiddle.skia.org/i/601abd2819e38365900bf62286986024_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_radial'><img
+      src='https://fiddle.skia.org/i/@skpaint_radial_raster.png'></a>
 
 *  Two-Point Conical Gradient Shader
 
     <!--?prettify lang=cc?-->
 
         SkColor colors[2] = {SK_ColorBLUE, SK_ColorYELLOW};
-        SkShader* shader =
-                SkGradientShader::CreateTwoPointConical(
-                         SkPoint::Make(128.0f, 128.0f), 128.0f,
-                         SkPoint::Make(128.0f, 16.0f), 16.0f,
-                         colors, nullptr, 2, SkShader::kClamp_TileMode, 0, nullptr);
         SkPaint paint;
-        paint.setShader(shader);
-        shader->unref();
+        paint.setShader(SkGradientShader::MakeTwoPointConical(
+              SkPoint::Make(128.0f, 128.0f), 128.0f,
+              SkPoint::Make(128.0f, 16.0f), 16.0f,
+              colors, nullptr, 2, SkShader::kClamp_TileMode, 0, nullptr));
         canvas->drawPaint(paint);
 
-    <a href="https://fiddle.skia.org/c/991f7d67ff1ccebd6c2c4fab18a76edc">
-    <img src="https://fiddle.skia.org/i/991f7d67ff1ccebd6c2c4fab18a76edc_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_2pt'><img
+      src='https://fiddle.skia.org/i/@skpaint_2pt_raster.png'></a>
 
 
 *   Sweep Gradient Shader
@@ -309,69 +297,58 @@ Several shaders are defined (besides the linear gradient already mentioned):
 
         SkColor colors[4] = {
             SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW, SK_ColorCYAN};
-        SkShader* shader =
-                SkGradientShader::CreateSweep(
-                    128.0f, 128.0f, colors, nullptr, 4, 0, nullptr);
         SkPaint paint;
-        paint.setShader(shader);
-        shader->unref();
+        paint.setShader(SkGradientShader::MakeSweep(
+                    128.0f, 128.0f, colors, nullptr, 4, 0, nullptr));
         canvas->drawPaint(paint);
 
-    <a href="https://fiddle.skia.org/c/cee9d1831f6679c3d88170f857995d12">
-    <img src="https://fiddle.skia.org/i/cee9d1831f6679c3d88170f857995d12_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_sweep'><img
+      src='https://fiddle.skia.org/i/@skpaint_sweep_raster.png'></a>
 
 *   Fractal Perlin Noise Shader
 
     <!--?prettify lang=cc?-->
 
         canvas->clear(SK_ColorWHITE);
-        SkShader* shader = SkPerlinNoiseShader::CreateFractalNoise(
-                 0.05f, 0.05f, 4, 0.0f, nullptr);
         SkPaint paint;
-        paint.setShader(shader);
-        shader->unref();
+        paint.setShader(SkPerlinNoiseShader::MakeFractalNoise(
+                 0.05f, 0.05f, 4, 0.0f, nullptr));
         canvas->drawPaint(paint);
 
-    <a href="https://fiddle.skia.org/c/cc45c5349c3b31f97da7c1af7f84162a">
-    <img src="https://fiddle.skia.org/i/cc45c5349c3b31f97da7c1af7f84162a_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_perlin'><img
+    src='https://fiddle.skia.org/i/@skpaint_perlin_raster.png'></a>
 
 *   Turbulence Perlin Noise Shader
 
     <!--?prettify lang=cc?-->
 
         canvas->clear(SK_ColorWHITE);
-        SkShader* shader = SkPerlinNoiseShader::CreateTurbulence(
-                 0.05f, 0.05f, 4, 0.0f, nullptr);
         SkPaint paint;
-        paint.setShader(shader);
-        shader->unref();
+        paint.setShader(SkPerlinNoiseShader::MakeTurbulence(
+                 0.05f, 0.05f, 4, 0.0f, nullptr));
         canvas->drawPaint(paint);
 
-    <a href="https://fiddle.skia.org/c/52729ed3a71b89a6dba4f60e8eb67727">
-    <img src="https://fiddle.skia.org/i/52729ed3a71b89a6dba4f60e8eb67727_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_turb'><img
+      src='https://fiddle.skia.org/i/@skpaint_turb_raster.png'></a>
 
 *   Compose Shader
 
     <!--?prettify lang=cc?-->
 
         SkColor colors[2] = {SK_ColorBLUE, SK_ColorYELLOW};
-        SkShader* shader1 =
-                SkGradientShader::CreateRadial(
-                    SkPoint::Make(128.0f, 128.0f), 180.0f,
-                    colors, nullptr, 2, SkShader::kClamp_TileMode, 0, nullptr);
-        SkShader* shader2 = SkPerlinNoiseShader::CreateTurbulence(
-                 0.025f, 0.025f, 2, 0.0f, nullptr);
-        SkShader* shader =
-            new SkComposeShader(shader1, shader2);
         SkPaint paint;
-        paint.setShader(shader);
-        shader->unref();
-        shader2->unref();
-        shader1->unref();
+        paint.setShader(
+            SkShader::MakeComposeShader(
+                SkGradientShader::MakeRadial(
+                    SkPoint::Make(128.0f, 128.0f), 180.0f,
+                    colors, nullptr, 2, SkShader::kClamp_TileMode, 0, nullptr),
+                SkPerlinNoiseShader::MakeTurbulence(0.025f, 0.025f, 2, 0.0f, nullptr),
+                SkXfermode::kDifference_Mode)
+            );
         canvas->drawPaint(paint);
 
-    <a href="https://fiddle.skia.org/c/1209b7a29d870302edcc43dc0916e8d5">
-    <img src="https://fiddle.skia.org/i/1209b7a29d870302edcc43dc0916e8d5_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_compose_shader'><img
+      src='https://fiddle.skia.org/i/@skpaint_compose_shader_raster.png'></a>
 
 
 <span id="SkMaskFilter"></span>
@@ -383,20 +360,18 @@ SkMaskFilter
 
     <!--?prettify lang=cc?-->
 
+        canvas->drawText(text, strlen(text), 0, 160, paint);
         canvas->drawColor(SK_ColorWHITE);
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(120);
-        SkMaskFilter* filter =
-            SkBlurMaskFilter::Create(
-                kNormal_SkBlurStyle, 5.0f, 0);
-        paint.setMaskFilter(filter);
-        filter->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::Make(
+                kNormal_SkBlurStyle, 5.0f, 0));
         const char text[] = "Skia";
         canvas->drawText(text, strlen(text), 0, 160, paint);
 
-    <a href="https://fiddle.skia.org/c/0e004664122851691d67a291007b64d7">
-    <img src="https://fiddle.skia.org/i/0e004664122851691d67a291007b64d7_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_blur_mask_filter'><img
+      src='https://fiddle.skia.org/i/@skpaint_blur_mask_filter_raster.png'></a>
 
 *   Emboss Mask Filter
 
@@ -407,16 +382,13 @@ SkMaskFilter
         paint.setAntiAlias(true);
         paint.setTextSize(120);
         SkScalar direction[3] = {1.0f, 1.0f, 1.0f};
-        SkMaskFilter* filter =
-            SkBlurMaskFilter::CreateEmboss(
-                2.0f, direction, 0.3f, 0.1f);
-        paint.setMaskFilter(filter);
-        filter->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::MakeEmboss(
+                2.0f, direction, 0.3f, 0.1f));
         const char text[] = "Skia";
         canvas->drawText(text, strlen(text), 0, 160, paint);
 
-    <a href="https://fiddle.skia.org/c/1ef71be7fb749a2d81a55721b2d2c77d">
-    <img src="https://fiddle.skia.org/i/1ef71be7fb749a2d81a55721b2d2c77d_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_emboss'><img
+      src='https://fiddle.skia.org/i/@skpaint_emboss_raster.png'></a>
 
 
 <span id="SkColorFilter"></span>
@@ -429,12 +401,11 @@ SkColorFilter
     <!--?prettify lang=cc?-->
 
         void f(SkCanvas* c, SkScalar x, SkScalar y, SkScalar colorMatrix[20]) {
-            SkColorFilter* cf = SkColorMatrixFilter::Create(colorMatrix);
             SkPaint paint;
-            paint.setColorFilter(cf);
-            cf->unref();
+            paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(colorMatrix));
             c->drawBitmap(source, x, y, &paint);
         }
+
         void draw(SkCanvas* c) {
             c->scale(0.25, 0.25);
             SkScalar colorMatrix1[20] = {
@@ -494,27 +465,27 @@ SkColorFilter
             f(c, 1536, 512, inverter);
         }
 
-    <a href="https://fiddle.skia.org/c/91fb5341ee7903c9682df20bb3d73dbb">
-    <img src="https://fiddle.skia.org/i/91fb5341ee7903c9682df20bb3d73dbb_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_matrix_color_filter'><img
+    src='https://fiddle.skia.org/i/@skpaint_matrix_color_filter_raster.png'></a>
 
 *   Color Table Color Filter
 
     <!--?prettify lang=cc?-->
 
-        canvas->scale(0.5, 0.5);
-        uint8_t ct[256];
-        for (int i = 0; i < 256; ++i) {
-            int x = (i - 96) * 255 / 64;
-            ct[i] = x < 0 ? 0 : x > 255 ? 255 : x;
+        void draw(SkCanvas* canvas) {
+            canvas->scale(0.5, 0.5);
+            uint8_t ct[256];
+            for (int i = 0; i < 256; ++i) {
+                int x = (i - 96) * 255 / 64;
+                ct[i] = x < 0 ? 0 : x > 255 ? 255 : x;
+            }
+            SkPaint paint;
+          paint.setColorFilter(SkTableColorFilter::MakeARGB(nullptr, ct, ct, ct));
+            canvas->drawBitmap(source, 0, 0, &paint);
         }
-        SkColorFilter* cf = SkTableColorFilter::CreateARGB(nullptr, ct, ct, ct);
-        SkPaint paint;
-        paint.setColorFilter(cf);
-        cf->unref();
-        canvas->drawBitmap(source, 0, 0, &paint);
 
-    <a href="https://fiddle.skia.org/c/0d3d339543afa1b10c60f9826f264c3f">
-    <img src="https://fiddle.skia.org/i/0d3d339543afa1b10c60f9826f264c3f_raster.png"></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_color_table_filter'><img
+      src='https://fiddle.skia.org/i/@skpaint_color_table_filter_raster.png'></a>
 
 
 <span id="SkPathEffect"></span>
@@ -528,8 +499,8 @@ SkPathEffect
     <!--?prettify lang=cc?-->
 
         void draw(SkCanvas* canvas) {
-            SkScalar scale = 10.0f;
-            SkPath path;
+          SkScalar scale = 10.0f;
+          SkPath path;
             static const int8_t pts[] = { 2, 2, 1, 3, 0, 3, 2, 1, 3, 1,
                  4, 0, 4, 1, 5, 1, 4, 2, 4, 3, 2, 5, 2, 4, 3, 3, 2, 3 };
             path.moveTo(2 * scale, 3 * scale);
@@ -538,10 +509,8 @@ SkPathEffect
             }
             path.close();
             SkMatrix matrix = SkMatrix::MakeScale(4 * scale);
-            SkAutoTUnref<SkPathEffect> pathEffect(
-                    SkPath2DPathEffect::Create(matrix, path));
             SkPaint paint;
-            paint.setPathEffect(pathEffect);
+            paint.setPathEffect(SkPath2DPathEffect::Make(matrix, path));
             paint.setAntiAlias(true);
             canvas->clear(SK_ColorWHITE);
             SkRect bounds;
@@ -550,7 +519,8 @@ SkPathEffect
             canvas->drawRect(bounds, paint);
         }
 
-    <a href="https://fiddle.skia.org/c/aae271e4f0178455f0e128981d714d73"><img src="https://fiddle.skia.org/i/aae271e4f0178455f0e128981d714d73_raster.png" alt=""></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_path_2d_path_effect'><img
+      src='https://fiddle.skia.org/i/@skpaint_path_2d_path_effect_raster.png'></a>
 
 *   SkLine2DPathEffect: a special case of SkPath2DPathEffect where the
     path is a straight line to be stroked, not a path to be filled.
@@ -562,9 +532,7 @@ SkPathEffect
             SkMatrix lattice;
             lattice.setScale(8.0f, 8.0f);
             lattice.preRotate(30.0f);
-            SkAutoTUnref<SkPathEffect> pe(
-                SkLine2DPathEffect::Create(0.0f, lattice));
-            paint.setPathEffect(pe);
+            paint.setPathEffect(SkLine2DPathEffect::Make(0.0f, lattice));
             paint.setAntiAlias(true);
             SkRect bounds;
             (void)canvas->getClipBounds(&bounds);
@@ -573,7 +541,8 @@ SkPathEffect
             canvas->drawRect(bounds, paint);
         }
 
-    <a href="https://fiddle.skia.org/c/3f49502145886920f95d43912e0f550d"><img src="https://fiddle.skia.org/i/3f49502145886920f95d43912e0f550d_raster.png" alt=""></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_line_2d_path_effect'><img
+      src='https://fiddle.skia.org/i/@skpaint_line_2d_path_effect_raster.png'></a>
 
 *   SkPath1DPathEffect: create dash-like effects by replicating the specified path along the drawn path.
 
@@ -583,16 +552,15 @@ SkPathEffect
             SkPaint paint;
             SkPath path;
             path.addOval(SkRect::MakeWH(16.0f, 6.0f));
-            SkAutoTUnref<SkPathEffect> pe(
-                SkPath1DPathEffect::Create(
+            paint.setPathEffect(SkPath1DPathEffect::Make(
                     path, 32.0f, 0.0f, SkPath1DPathEffect::kRotate_Style));
-            paint.setPathEffect(pe);
             paint.setAntiAlias(true);
             canvas->clear(SK_ColorWHITE);
             canvas->drawCircle(128.0f, 128.0f, 122.0f, paint);
         }
 
-    <a href="https://fiddle.skia.org/c/756a8cdb9458c05f6c1c7c398d979dac"><img src="https://fiddle.skia.org/i/756a8cdb9458c05f6c1c7c398d979dac_raster.png" alt=""></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_path_1d_path_effect'><img
+      src='https://fiddle.skia.org/i/@skpaint_path_1d_path_effect_raster.png'></a>
 
 *   SkArcToPathEffect
 
@@ -604,21 +572,15 @@ SkPathEffect
             const SkScalar R = 115.2f, C = 128.0f;
             SkPath path;
             path.moveTo(C + R, C);
-            for (int i = 1; i < 7; ++i) {
+            for (int i = 1; i < 8; ++i) {
                 SkScalar a = 2.6927937f * i;
                 path.lineTo(C + R * cos(a), C + R * sin(a));
             }
-            path.close();
             return path;
         }
-
-    <!--?prettify lang=cc?-->
-
         void draw(SkCanvas* canvas) {
             SkPaint paint;
-            SkAutoTUnref<SkPathEffect> pe(
-                SkArcToPathEffect::Create(8.0f));
-            paint.setPathEffect(pe);
+            paint.setPathEffect(SkArcToPathEffect::Make(8.0f));
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setAntiAlias(true);
             canvas->clear(SK_ColorWHITE);
@@ -626,7 +588,9 @@ SkPathEffect
             canvas->drawPath(path, paint);
         }
 
-    <a href="https://fiddle.skia.org/c/1cc2a1363dd0e96954e084f7ca29aa5f"><img src="https://fiddle.skia.org/i/1cc2a1363dd0e96954e084f7ca29aa5f_raster.png" alt=""></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_arc_to_path_effect'><img
+      src='https://fiddle.skia.org/i/@skpaint_arc_to_path_effect_raster.png'></a>
+
 
 *   SkCornerPathEffect: a path effect that can turn sharp corners into
     various treatments (e.g. rounded corners).
@@ -635,9 +599,7 @@ SkPathEffect
 
         void draw(SkCanvas* canvas) {
             SkPaint paint;
-            SkAutoTUnref<SkPathEffect> pe(
-                SkCornerPathEffect::Create(32.0f));
-            paint.setPathEffect(pe);
+            paint.setPathEffect(SkCornerPathEffect::Make(32.0f));
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setAntiAlias(true);
             canvas->clear(SK_ColorWHITE);
@@ -646,7 +608,7 @@ SkPathEffect
             canvas->drawPath(path, paint);
         }
 
-    <a href="https://fiddle.skia.org/c/f5361bbb33ad43c656dd40bb03ee2114"><img src="https://fiddle.skia.org/i/f5361bbb33ad43c656dd40bb03ee2114_raster.png" alt=""></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_corner_path_effects'><img src='https://fiddle.skia.org/i/@skpaint_corner_path_effects_raster.png'></a>
 
 *   SkDashPathEffect:  a path effect that implements dashing.
 
@@ -655,10 +617,8 @@ SkPathEffect
         void draw(SkCanvas* canvas) {
             const SkScalar intervals[] = { 10.0f, 5.0f, 2.0f, 5.0f };
             size_t count  = sizeof(intervals) / sizeof(intervals[0]);
-            SkAutoTUnref<SkPathEffect> pe(
-                SkDashPathEffect::Create(intervals, count, 0.0f));
             SkPaint paint;
-            paint.setPathEffect(pe);
+            paint.setPathEffect(SkDashPathEffect::Make(intervals, count, 0.0f));
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(2.0f);
             paint.setAntiAlias(true);
@@ -667,7 +627,7 @@ SkPathEffect
             canvas->drawPath(path, paint);
         }
 
-    <a href="https://fiddle.skia.org/c/d221ced999a80ac23870d0301ffeedad"><img src="https://fiddle.skia.org/i/d221ced999a80ac23870d0301ffeedad_raster.png" alt=""></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_dash_path_effect'><img src='https://fiddle.skia.org/i/@skpaint_dash_path_effect_raster.png'></a>
 
 *   SkDiscretePathEffect: This path effect chops a path into discrete
     segments, and randomly displaces them.
@@ -675,10 +635,8 @@ SkPathEffect
     <!--?prettify lang=cc?-->
 
         void draw(SkCanvas* canvas) {
-            SkAutoTUnref<SkPathEffect> pe(
-                SkDiscretePathEffect::Create(10.0f, 4.0f));
             SkPaint paint;
-            paint.setPathEffect(pe);
+            paint.setPathEffect(SkDiscretePathEffect::Make(10.0f, 4.0f));
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(2.0f);
             paint.setAntiAlias(true);
@@ -687,7 +645,8 @@ SkPathEffect
             canvas->drawPath(path, paint);
         }
 
-    <a href="https://fiddle.skia.org/c/af2f177438b376ca45cfffc29cc0177a"><img src="https://fiddle.skia.org/i/af2f177438b376ca45cfffc29cc0177a_raster.png" alt=""></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_discrete_path_effect'><img
+      src='https://fiddle.skia.org/i/@skpaint_discrete_path_effect_raster.png'></a>
 
 *   SkComposePathEffect: a pathEffect whose effect is to apply
     first the inner pathEffect and the the outer pathEffect (i.e.
@@ -696,16 +655,13 @@ SkPathEffect
     <!--?prettify lang=cc?-->
 
         void draw(SkCanvas* canvas) {
-            SkAutoTUnref<SkPathEffect> pe0(
-                SkDiscretePathEffect::Create(10.0f, 4.0f));
             const SkScalar intervals[] = { 10.0f, 5.0f, 2.0f, 5.0f };
             size_t count  = sizeof(intervals) / sizeof(intervals[0]);
-            SkAutoTUnref<SkPathEffect> pe1(
-                SkDashPathEffect::Create(intervals, count, 0.0f));
-            SkAutoTUnref<SkPathEffect> pe(
-                SkComposePathEffect::Create(pe1, pe0));
             SkPaint paint;
-            paint.setPathEffect(pe);
+            paint.setPathEffect(SkComposePathEffect::Make(
+                SkDashPathEffect::Make(intervals, count, 0.0f),
+                SkDiscretePathEffect::Make(10.0f, 4.0f)
+            ));
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(2.0f);
             paint.setAntiAlias(true);
@@ -714,7 +670,8 @@ SkPathEffect
             canvas->drawPath(path, paint);
         }
 
-    <a href="https://fiddle.skia.org/c/39a644161da79e8b5e49c193adac7173"><img src="https://fiddle.skia.org/i/39a644161da79e8b5e49c193adac7173_raster.png" alt=""></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_compose_path_effect'><img
+      src='https://fiddle.skia.org/i/@skpaint_compose_path_effect_raster.png'></a>
 
 *    SkSumPathEffect: a pathEffect whose effect is to apply two effects,
      in sequence (i.e. first(path) + second(path)).
@@ -722,14 +679,11 @@ SkPathEffect
     <!--?prettify lang=cc?-->
 
         void draw(SkCanvas* canvas) {
-            SkAutoTUnref<SkPathEffect> pe0(
-                SkDiscretePathEffect::Create(10.0f, 4.0f));
-            SkAutoTUnref<SkPathEffect> pe1(
-                SkDiscretePathEffect::Create(10.0f, 4.0f, 1245u));
-            SkAutoTUnref<SkPathEffect> pe(
-                SkSumPathEffect::Create(pe1, pe0));
             SkPaint paint;
-            paint.setPathEffect(pe);
+            paint.setPathEffect(SkSumPathEffect::Make(
+                SkDiscretePathEffect::Make(10.0f, 4.0f),
+                SkDiscretePathEffect::Make(10.0f, 4.0f, 1245u)
+            ));
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(2.0f);
             paint.setAntiAlias(true);
@@ -738,9 +692,6 @@ SkPathEffect
             canvas->drawPath(path, paint);
         }
 
-    <a href="https://fiddle.skia.org/c/e5f7861072893bd08c305a076bf32958"><img src="https://fiddle.skia.org/i/e5f7861072893bd08c305a076bf32958_raster.png" alt=""></a>
-
-<!--
-    <a href="https://fiddle.skia.org/c/"><img src="https://fiddle.skia.org/i/_raster.png" alt=""></a>
--->
+    <a href='https://fiddle.skia.org/c/@skpaint_sum_path_effect'><img
+      src='https://fiddle.skia.org/i/@skpaint_sum_path_effect_raster.png'></a>
 

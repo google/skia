@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -15,6 +14,7 @@
 // Should only be initialized once via init(). Immutable afterwards.
 struct TwoPtRadial {
     enum {
+        // This value is outside the range SK_FixedMin to SK_FixedMax.
         kDontDrawT  = 0x80000000
     };
 
@@ -43,9 +43,6 @@ public:
     SkTwoPointConicalGradient(const SkPoint& start, SkScalar startRadius,
                               const SkPoint& end, SkScalar endRadius,
                               bool flippedGrad, const Descriptor&);
-
-
-    size_t contextSize() const override;
 
     class TwoPointConicalGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
@@ -81,6 +78,7 @@ public:
 protected:
     SkTwoPointConicalGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
+    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:

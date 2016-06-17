@@ -1,0 +1,35 @@
+#!/bin/sh
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Script for building Fiddle build bots.
+
+set -e
+set -x
+
+cd "$(dirname "$0")"
+fiddle_dir="$PWD"
+cd "../.."
+skia_dir="$PWD"
+
+if ! command -v cmake > /dev/null 2>&1 ; then
+    cores=32
+    echo "Bootstrapping CMake"
+    cmake_dir="${skia_dir}/third_party/externals/cmake"
+    cd "$cmake_dir"
+    ./bootstrap --parallel=$cores
+    make -j $cores cmake
+    export PATH="${cmake_dir}/bin:${PATH}"
+fi
+
+echo "Building Skia and Fiddle"
+cd "$fiddle_dir"
+git clean -fxd .
+go build fiddler.go
+./fiddler "$skia_dir"
+./fiddler "$skia_dir" draw.cpp > /dev/null
+
+echo "cleaning up"
+git clean -fxd .

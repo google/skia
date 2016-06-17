@@ -58,7 +58,7 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
 /*
  * Spits out a dummy gradient to test blur with shader on paint
  */
-static SkShader* MakeRadial() {
+static sk_sp<SkShader> MakeRadial() {
     SkPoint pts[2] = {
         { 0, 0 },
         { SkIntToScalar(100), SkIntToScalar(100) }
@@ -74,16 +74,16 @@ static SkShader* MakeRadial() {
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::CreateTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
-                                                  center0, (pts[1].fX - pts[0].fX) / 2,
-                                                  colors, pos, SK_ARRAY_COUNT(colors), tm,
-                                                  0, &scale);
+    return SkGradientShader::MakeTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
+                                                 center0, (pts[1].fX - pts[0].fX) / 2,
+                                                 colors, pos, SK_ARRAY_COUNT(colors), tm,
+                                                 0, &scale);
 }
 
 typedef void (*PaintProc)(SkPaint*, SkScalar width);
 
 class BlurRectGM : public skiagm::GM {
-      SkAutoTUnref<SkMaskFilter> fMaskFilters[kLastEnum_SkBlurStyle + 1];
+      sk_sp<SkMaskFilter> fMaskFilters[kLastEnum_SkBlurStyle + 1];
       SkString  fName;
       SkAlpha   fAlpha;
 public:
@@ -95,9 +95,9 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         for (int i = 0; i <= kLastEnum_SkBlurStyle; ++i) {
-            fMaskFilters[i].reset(SkBlurMaskFilter::Create((SkBlurStyle)i,
+            fMaskFilters[i] = SkBlurMaskFilter::Make((SkBlurStyle)i,
                                   SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(STROKE_WIDTH/2)),
-                                  SkBlurMaskFilter::kHighQuality_BlurFlag));
+                                  SkBlurMaskFilter::kHighQuality_BlurFlag);
         }
     }
 
@@ -123,7 +123,7 @@ protected:
                 paint.setAlpha(fAlpha);
 
                 SkPaint paintWithRadial = paint;
-                paintWithRadial.setShader(MakeRadial())->unref();
+                paintWithRadial.setShader(MakeRadial());
 
                 static const Proc procs[] = {
                     fill_rect, draw_donut, draw_donut_skewed

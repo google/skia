@@ -112,7 +112,7 @@
           }
         ],
         [
-          'skia_os in ["linux", "chromeos"]', {
+          'skia_os == "linux"', {
             'sources': [ '<(icu_directory)/linux/icudtl_dat.S', ],
           }
         ],

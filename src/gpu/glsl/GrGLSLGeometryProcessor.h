@@ -30,6 +30,7 @@ public:
         this->setTransformDataMatrix(SkMatrix::I(), pdman, index, transforms);
     }
 
+protected:
     // A helper which subclasses can use if needed
     template <class GeometryProcessor>
     void setTransformDataHelper(const GrPrimitiveProcessor& primProc,
@@ -40,7 +41,6 @@ public:
         this->setTransformDataMatrix(gp.localMatrix(), pdman, index, transforms);
     }
 
-protected:
     // Emit a uniform matrix for each coord transform.
     void emitTransforms(GrGLSLVertexBuilder* vb,
                         GrGLSLVaryingHandler* varyingHandler,
@@ -100,7 +100,7 @@ private:
                                 const GrGLSLProgramDataManager& pdman,
                                 int index,
                                 const SkTArray<const GrCoordTransform*, true>& transforms) {
-        SkSTArray<2, Transform, true>& procTransforms = fInstalledTransforms[index];
+        SkSTArray<2, UniformTransform, true>& procTransforms = fInstalledTransforms[index];
         int numTransforms = transforms.count();
         for (int t = 0; t < numTransforms; ++t) {
             SkASSERT(procTransforms[t].fHandle.isValid());
@@ -113,6 +113,13 @@ private:
     }
 
     virtual void onEmitCode(EmitArgs&, GrGPArgs*) = 0;
+
+    struct UniformTransform : public Transform {
+        UniformTransform() : Transform() {}
+        UniformHandle  fHandle;
+    };
+
+    SkSTArray<8, SkSTArray<2, UniformTransform, true> > fInstalledTransforms;
 
     typedef GrGLSLPrimitiveProcessor INHERITED;
 };

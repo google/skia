@@ -46,23 +46,19 @@ public:
     //   template <typename T>
     //   R operator()(const T& record) { ... }
     // This operator() must be defined for at least all SkRecords::*.
-    template <typename R, typename F>
-    R visit(int i, F& f) const {
-        SkASSERT(i < this->count());
-        return fRecords[i].visit<R>(f);
+    template <typename F>
+    auto visit(int i, F&& f) const -> decltype(f(SkRecords::NoOp())) {
+        return fRecords[i].visit(f);
     }
 
     // Mutate the i-th canvas command with a functor matching this interface:
     //   template <typename T>
     //   R operator()(T* record) { ... }
     // This operator() must be defined for at least all SkRecords::*.
-    template <typename R, typename F>
-    R mutate(int i, F& f) {
-        SkASSERT(i < this->count());
-        return fRecords[i].mutate<R>(f);
+    template <typename F>
+    auto mutate(int i, F&& f) -> decltype(f((SkRecords::NoOp*)nullptr)) {
+        return fRecords[i].mutate(f);
     }
-
-    // TODO: It'd be nice to infer R from F for visit and mutate.
 
     // Allocate contiguous space for count Ts, to be freed when the SkRecord is destroyed.
     // Here T can be any class, not just those from SkRecords.  Throws on failure.
@@ -89,7 +85,7 @@ public:
         SkASSERT(i < this->count());
 
         Destroyer destroyer;
-        this->mutate<void>(i, destroyer);
+        this->mutate(i, destroyer);
 
         return fRecords[i].set(this->allocCommand<T>());
     }
@@ -168,23 +164,23 @@ private:
         void* ptr() const { return (void*)(fTypeAndPtr & ((1ull<<kTypeShift)-1)); }
 
         // Visit this record with functor F (see public API above).
-        template <typename R, typename F>
-        R visit(F& f) const {
+        template <typename F>
+        auto visit(F&& f) const -> decltype(f(SkRecords::NoOp())) {
         #define CASE(T) case SkRecords::T##_Type: return f(*(const SkRecords::T*)this->ptr());
             switch(this->type()) { SK_RECORD_TYPES(CASE) }
         #undef CASE
             SkDEBUGFAIL("Unreachable");
-            return R();
+            return f(SkRecords::NoOp());
         }
 
         // Mutate this record with functor F (see public API above).
-        template <typename R, typename F>
-        R mutate(F& f) {
+        template <typename F>
+        auto mutate(F&& f) -> decltype(f((SkRecords::NoOp*)nullptr)) {
         #define CASE(T) case SkRecords::T##_Type: return f((SkRecords::T*)this->ptr());
             switch(this->type()) { SK_RECORD_TYPES(CASE) }
         #undef CASE
             SkDEBUGFAIL("Unreachable");
-            return R();
+            return f((SkRecords::NoOp*)nullptr);
         }
     };
 

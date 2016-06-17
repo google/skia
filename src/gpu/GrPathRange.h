@@ -23,7 +23,7 @@ class SkDescriptor;
 
 class GrPathRange : public GrGpuResource {
 public:
-    
+
 
     enum PathIndexType {
         kU8_PathIndexType,   //!< uint8_t

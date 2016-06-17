@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -9,6 +8,7 @@
 #include "effects/GrCoverageSetOpXP.h"
 #include "GrCaps.h"
 #include "GrColor.h"
+#include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "GrProcOptInfo.h"
 #include "glsl/GrGLSLBlend.h"
@@ -112,7 +112,7 @@ CoverageSetOpXP::onGetOptimizations(const GrPipelineOptimizations& optimizations
                                     GrColor* color,
                                     const GrCaps& caps) const {
     // We never look at the color input
-    return GrXferProcessor::kIgnoreColor_OptFlag; 
+    return GrXferProcessor::kIgnoreColor_OptFlag;
 }
 
 void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
@@ -151,7 +151,6 @@ class ShaderCSOXferProcessor : public GrXferProcessor {
 public:
     ShaderCSOXferProcessor(const DstTexture* dstTexture,
                            bool hasMixedSamples,
-                           SkXfermode::Mode xfermode,
                            SkRegion::Op regionOp,
                            bool invertCoverage)
         : INHERITED(dstTexture, true, hasMixedSamples)
@@ -168,10 +167,10 @@ public:
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*, 
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*,
                                                  const GrCaps&) const override {
         // We never look at the color input
-        return GrXferProcessor::kIgnoreColor_OptFlag; 
+        return GrXferProcessor::kIgnoreColor_OptFlag;
     }
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
@@ -323,6 +322,9 @@ GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
         return nullptr;
     }
 
+    if (optimizations.fOverrides.fUsePLSDstRead) {
+        return new ShaderCSOXferProcessor(dst, hasMixedSamples, fRegionOp, fInvertCoverage);
+    }
     return CoverageSetOpXP::Create(fRegionOp, fInvertCoverage);
 }
 
@@ -339,4 +341,3 @@ const GrXPFactory* GrCoverageSetOpXPFactory::TestCreate(GrProcessorTestData* d) 
     bool invertCoverage = !d->fRenderTarget->hasMixedSamples() && d->fRandom->nextBool();
     return GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage);
 }
-

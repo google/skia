@@ -54,13 +54,12 @@ public:
 
     const char* name() const override { return "GrStrokeRectBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
         coverage->setKnownSingleComponent(0xff);
-        overrides->fUsePLSDstRead = false;
     }
 
     void append(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
@@ -118,8 +117,6 @@ private:
                                                      this->viewMatrix()));
         }
 
-        target->initDraw(gp, this->pipeline());
-
         size_t vertexStride = gp->getVertexStride();
 
         SkASSERT(vertexStride == sizeof(GrDefaultGeoProcFactory::PositionAttr));
@@ -131,7 +128,7 @@ private:
             vertexCount = kVertsPerStrokeRect;
         }
 
-        const GrVertexBuffer* vertexBuffer;
+        const GrBuffer* vertexBuffer;
         int firstVertex;
 
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
@@ -145,7 +142,7 @@ private:
         SkPoint* vertex = reinterpret_cast<SkPoint*>(verts);
 
         GrPrimitiveType primType;
-        if (args.fStrokeWidth > 0) {;
+        if (args.fStrokeWidth > 0) {
             primType = kTriangleStrip_GrPrimitiveType;
             init_stroke_rect_strip(vertex, args.fRect, args.fStrokeWidth);
         } else {
@@ -158,9 +155,9 @@ private:
             vertex[4].set(args.fRect.fLeft, args.fRect.fTop);
         }
 
-        GrVertices vertices;
-        vertices.init(primType, vertexBuffer, firstVertex, vertexCount);
-        target->draw(vertices);
+        GrMesh mesh;
+        mesh.init(primType, vertexBuffer, firstVertex, vertexCount);
+        target->draw(gp, mesh);
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {

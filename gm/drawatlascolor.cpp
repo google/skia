@@ -15,40 +15,40 @@
 //  ------------------------------------
 //   opaque green  |  transparent black
 //
-static SkImage* make_atlas(SkCanvas* caller, int atlasSize) {
+static sk_sp<SkImage> make_atlas(SkCanvas* caller, int atlasSize) {
     const int kBlockSize = atlasSize/2;
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(atlasSize, atlasSize);
-    SkAutoTUnref<SkSurface> surface(caller->newSurface(info));
+    auto surface(caller->makeSurface(info));
     if (nullptr == surface) {
-        surface.reset(SkSurface::NewRaster(info));
+        surface = SkSurface::MakeRaster(info);
     }
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
-    paint.setXfermode(SkXfermode::Create(SkXfermode::kSrc_Mode));
+    paint.setXfermode(SkXfermode::Make(SkXfermode::kSrc_Mode));
 
     paint.setColor(SK_ColorWHITE);
-    SkRect r = SkRect::MakeXYWH(0, 0, 
+    SkRect r = SkRect::MakeXYWH(0, 0,
                                 SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
     canvas->drawRect(r, paint);
 
     paint.setColor(SK_ColorRED);
-    r = SkRect::MakeXYWH(SkIntToScalar(kBlockSize), 0, 
+    r = SkRect::MakeXYWH(SkIntToScalar(kBlockSize), 0,
                          SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
     canvas->drawRect(r, paint);
 
     paint.setColor(SK_ColorGREEN);
-    r = SkRect::MakeXYWH(0, SkIntToScalar(kBlockSize), 
+    r = SkRect::MakeXYWH(0, SkIntToScalar(kBlockSize),
                          SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
     canvas->drawRect(r, paint);
 
     paint.setColor(SK_ColorTRANSPARENT);
-    r = SkRect::MakeXYWH(SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize), 
+    r = SkRect::MakeXYWH(SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize),
                          SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
     canvas->drawRect(r, paint);
 
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 // This GM tests the drawAtlas API with colors, different xfer modes
@@ -58,22 +58,22 @@ public:
     DrawAtlasColorsGM() {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
     }
-    
+
 protected:
     SkString onShortName() override {
         return SkString("draw-atlas-colors");
     }
-    
+
     SkISize onISize() override {
         return SkISize::Make(kNumXferModes * (kAtlasSize + kPad) + kPad,
                              2 * kNumColors * (kAtlasSize + kPad) + kTextPad + kPad);
     }
-    
+
     void onDraw(SkCanvas* canvas) override {
         const SkRect target = SkRect::MakeWH(SkIntToScalar(kAtlasSize), SkIntToScalar(kAtlasSize));
 
         if (nullptr == fAtlas) {
-            fAtlas.reset(make_atlas(canvas, kAtlasSize));
+            fAtlas = make_atlas(canvas, kAtlasSize);
         }
 
         const struct {
@@ -147,20 +147,20 @@ protected:
         }
 
         for (int i = 0; i < numModes; ++i) {
-            canvas->save();            
+            canvas->save();
             canvas->translate(SkIntToScalar(i*(target.height()+kPad)),
                               SkIntToScalar(kTextPad+kPad));
             // w/o a paint
-            canvas->drawAtlas(fAtlas, xforms, rects, quadColors, numColors, 
+            canvas->drawAtlas(fAtlas.get(), xforms, rects, quadColors, numColors,
                               gModes[i].fMode, nullptr, nullptr);
             canvas->translate(0.0f, numColors*(target.height()+kPad));
             // w a paint
-            canvas->drawAtlas(fAtlas, xforms, rects, quadColors, numColors, 
+            canvas->drawAtlas(fAtlas.get(), xforms, rects, quadColors, numColors,
                               gModes[i].fMode, nullptr, &paint);
-            canvas->restore();        
+            canvas->restore();
         }
     }
-    
+
 private:
     static const int kNumXferModes = 29;
     static const int kNumColors = 4;
@@ -169,9 +169,8 @@ private:
     static const int kTextPad = 8;
 
 
-    SkAutoTUnref<SkImage> fAtlas;
+    sk_sp<SkImage> fAtlas;
 
     typedef GM INHERITED;
 };
 DEF_GM( return new DrawAtlasColorsGM; )
-

@@ -19,7 +19,7 @@ SkImageShader::SkImageShader(const SkImage* img, TileMode tmx, TileMode tmy, con
     , fTileModeY(tmy)
 {}
 
-SkFlattenable* SkImageShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     const TileMode tx = (TileMode)buffer.readUInt();
     const TileMode ty = (TileMode)buffer.readUInt();
     SkMatrix matrix;
@@ -28,7 +28,7 @@ SkFlattenable* SkImageShader::CreateProc(SkReadBuffer& buffer) {
     if (!img) {
         return nullptr;
     }
-    return new SkImageShader(img, tx, ty, &matrix);
+    return SkImageShader::Make(img, tx, ty, &matrix);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
@@ -42,8 +42,8 @@ bool SkImageShader::isOpaque() const {
     return fImage->isOpaque();
 }
 
-size_t SkImageShader::contextSize() const {
-    return SkBitmapProcShader::ContextSize();
+size_t SkImageShader::onContextSize(const ContextRec& rec) const {
+    return SkBitmapProcShader::ContextSize(rec, SkBitmapProvider(fImage).info());
 }
 
 SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* storage) const {
@@ -51,12 +51,12 @@ SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* s
                                            SkBitmapProvider(fImage), rec, storage);
 }
 
-SkShader* SkImageShader::Create(const SkImage* image, TileMode tx, TileMode ty,
-                                const SkMatrix* localMatrix) {
+sk_sp<SkShader> SkImageShader::Make(const SkImage* image, TileMode tx, TileMode ty,
+                                    const SkMatrix* localMatrix) {
     if (!image) {
         return nullptr;
     }
-    return new SkImageShader(image, tx, ty, localMatrix);
+    return sk_sp<SkShader>(new SkImageShader(image, tx, ty, localMatrix));
 }
 
 #ifndef SK_IGNORE_TO_STRING

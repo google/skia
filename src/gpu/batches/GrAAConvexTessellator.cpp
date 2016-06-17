@@ -36,7 +36,7 @@ static SkScalar intersect(const SkPoint& p0, const SkPoint& n0,
     return (v.fX * n1.fY - v.fY * n1.fX) / perpDot;
 }
 
-// This is a special case version of intersect where we have the vector 
+// This is a special case version of intersect where we have the vector
 // perpendicular to the second line rather than the vector parallel to it.
 static SkScalar perp_intersect(const SkPoint& p0, const SkPoint& n0,
                                const SkPoint& p1, const SkPoint& perp) {
@@ -142,7 +142,7 @@ void GrAAConvexTessellator::computeBisectors() {
             SkVector other;
             other.setOrthog(fNorms[prev], fSide);
             fBisectors[cur] += other;
-            SkAssertResult(fBisectors[cur].normalize());        
+            SkAssertResult(fBisectors[cur].normalize());
         } else {
             fBisectors[cur].negate();      // make the bisector face in
         }
@@ -154,7 +154,7 @@ void GrAAConvexTessellator::computeBisectors() {
 // Create as many rings as we need to (up to a predefined limit) to reach the specified target
 // depth. If we are in fill mode, the final ring will automatically be fanned.
 bool GrAAConvexTessellator::createInsetRings(Ring& previousRing, SkScalar initialDepth,
-                                             SkScalar initialCoverage, SkScalar targetDepth, 
+                                             SkScalar initialCoverage, SkScalar targetDepth,
                                              SkScalar targetCoverage, Ring** finalRing) {
     static const int kMaxNumRings = 8;
 
@@ -167,7 +167,7 @@ bool GrAAConvexTessellator::createInsetRings(Ring& previousRing, SkScalar initia
         Ring* nextRing = this->getNextRing(currentRing);
         SkASSERT(nextRing != currentRing);
 
-        bool done = this->createInsetRing(*currentRing, nextRing, initialDepth, initialCoverage, 
+        bool done = this->createInsetRing(*currentRing, nextRing, initialDepth, initialCoverage,
                                           targetDepth, targetCoverage, i == 0);
         currentRing = nextRing;
         if (done) {
@@ -203,11 +203,11 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
     SkScalar coverage = 1.0f;
     SkScalar scaleFactor = 0.0f;
     if (fStrokeWidth >= 0.0f) {
-        SkASSERT(m.isSimilarity()); 
+        SkASSERT(m.isSimilarity());
         scaleFactor = m.getMaxScale(); // x and y scale are the same
         SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;
         Ring outerStrokeRing;
-        this->createOuterRing(fInitialRing, effectiveStrokeWidth / 2 - kAntialiasingRadius, 
+        this->createOuterRing(fInitialRing, effectiveStrokeWidth / 2 - kAntialiasingRadius,
                               coverage, &outerStrokeRing);
         outerStrokeRing.init(*this);
         Ring outerAARing;
@@ -223,10 +223,10 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
         SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;
         Ring* insetStrokeRing;
         SkScalar strokeDepth = effectiveStrokeWidth / 2 - kAntialiasingRadius;
-        if (this->createInsetRings(fInitialRing, 0.0f, coverage, strokeDepth, coverage, 
+        if (this->createInsetRings(fInitialRing, 0.0f, coverage, strokeDepth, coverage,
                              &insetStrokeRing)) {
             Ring* insetAARing;
-            this->createInsetRings(*insetStrokeRing, strokeDepth, coverage, strokeDepth + 
+            this->createInsetRings(*insetStrokeRing, strokeDepth, coverage, strokeDepth +
                              kAntialiasingRadius * 2, 0.0f, &insetAARing);
         }
     } else {
@@ -373,7 +373,7 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
 
         this->computeBisectors();
     } else if (this->numPts() == 2) {
-        // We've got two points, so we're degenerate. 
+        // We've got two points, so we're degenerate.
         if (fStrokeWidth < 0.0f) {
             // it's a fill, so we don't need to worry about degenerate paths
             return false;
@@ -429,7 +429,7 @@ void GrAAConvexTessellator::fanRing(const Ring& ring) {
     }
 }
 
-void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar outset, 
+void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar outset,
                                             SkScalar coverage, Ring* nextRing) {
     const int numPts = previousRing.numPts();
     if (numPts == 0) {
@@ -444,9 +444,9 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
     miterLimitSq = SkScalarMul(miterLimitSq, miterLimitSq);
     for (int cur = 0; cur < numPts; ++cur) {
         int originalIdx = previousRing.index(cur);
-        // For each vertex of the original polygon we add at least two points to the 
+        // For each vertex of the original polygon we add at least two points to the
         // outset polygon - one extending perpendicular to each impinging edge. Connecting these
-        // two points yields a bevel join. We need one additional point for a mitered join, and 
+        // two points yields a bevel join. We need one additional point for a mitered join, and
         // a round join requires one or more points depending upon curvature.
 
         // The perpendicular point for the last edge
@@ -532,7 +532,7 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
                         this->addTri(originalIdx, perp1Idx, perp2Idx);
                         break;
                     default:
-                        // kRound_Join is unsupported for now. GrAALinearizingConvexPathRenderer is 
+                        // kRound_Join is unsupported for now. GrAALinearizingConvexPathRenderer is
                         // only willing to draw mitered or beveled, so we should never get here.
                         SkASSERT(false);
                 }
@@ -574,20 +574,20 @@ void GrAAConvexTessellator::terminate(const Ring& ring) {
     }
 }
 
-static SkScalar compute_coverage(SkScalar depth, SkScalar initialDepth, SkScalar initialCoverage, 
+static SkScalar compute_coverage(SkScalar depth, SkScalar initialDepth, SkScalar initialCoverage,
                                 SkScalar targetDepth, SkScalar targetCoverage) {
     if (SkScalarNearlyEqual(initialDepth, targetDepth)) {
         return targetCoverage;
     }
-    SkScalar result = (depth - initialDepth) / (targetDepth - initialDepth) * 
+    SkScalar result = (depth - initialDepth) / (targetDepth - initialDepth) *
             (targetCoverage - initialCoverage) + initialCoverage;
     return SkScalarClampMax(result, 1.0f);
 }
 
 // return true when processing is complete
-bool GrAAConvexTessellator::createInsetRing(const Ring& lastRing, Ring* nextRing, 
-                                            SkScalar initialDepth, SkScalar initialCoverage, 
-                                            SkScalar targetDepth, SkScalar targetCoverage, 
+bool GrAAConvexTessellator::createInsetRing(const Ring& lastRing, Ring* nextRing,
+                                            SkScalar initialDepth, SkScalar initialCoverage,
+                                            SkScalar targetDepth, SkScalar targetCoverage,
                                             bool forceNew) {
     bool done = false;
 
@@ -699,9 +699,9 @@ bool GrAAConvexTessellator::createInsetRing(const Ring& lastRing, Ring* nextRing
     for (int i = 0; i < fCandidateVerts.numPts(); ++i) {
         int newIdx;
         if (fCandidateVerts.needsToBeNew(i) || forceNew) {
-            // if the originating index is still valid then this point wasn't 
+            // if the originating index is still valid then this point wasn't
             // fused (and is thus movable)
-            SkScalar coverage = compute_coverage(depth, initialDepth, initialCoverage, 
+            SkScalar coverage = compute_coverage(depth, initialDepth, initialCoverage,
                                                  targetDepth, targetCoverage);
             newIdx = this->addPt(fCandidateVerts.point(i), depth, coverage,
                                  fCandidateVerts.originatingIdx(i) != -1, false);
@@ -829,7 +829,7 @@ void GrAAConvexTessellator::lineTo(SkPoint p, bool isCurve) {
     }
 
     SkASSERT(fPts.count() <= 1 || fPts.count() == fNorms.count()+1);
-    if (this->numPts() >= 2 && 
+    if (this->numPts() >= 2 &&
         abs_dist_from_line(fPts.top(), fNorms.top(), p) < kClose) {
         // The old last point is on the line from the second to last to the new point
         this->popLastPt();
@@ -862,7 +862,7 @@ void GrAAConvexTessellator::quadTo(SkPoint pts[3]) {
     int maxCount = GrPathUtils::quadraticPointCount(pts, kQuadTolerance);
     fPointBuffer.setReserve(maxCount);
     SkPoint* target = fPointBuffer.begin();
-    int count = GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2], 
+    int count = GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
             kQuadTolerance, &target, maxCount);
     fPointBuffer.setCount(count);
     for (int i = 0; i < count; i++) {
@@ -884,7 +884,7 @@ void GrAAConvexTessellator::cubicTo(const SkMatrix& m, SkPoint pts[4]) {
     int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
     fPointBuffer.setReserve(maxCount);
     SkPoint* target = fPointBuffer.begin();
-    int count = GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3], 
+    int count = GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
             kCubicTolerance, &target, maxCount);
     fPointBuffer.setCount(count);
     for (int i = 0; i < count; i++) {
@@ -933,7 +933,7 @@ static void draw_point(SkCanvas* canvas, const SkPoint& p, SkScalar paramValue, 
         stroke.setColor(SK_ColorYELLOW);
         stroke.setStyle(SkPaint::kStroke_Style);
         stroke.setStrokeWidth(kPointRadius/3.0f);
-        canvas->drawCircle(p.fX, p.fY, kPointRadius, stroke); 
+        canvas->drawCircle(p.fX, p.fY, kPointRadius, stroke);
     }
 }
 
@@ -985,7 +985,7 @@ void GrAAConvexTessellator::Ring::draw(SkCanvas* canvas, const GrAAConvexTessell
             draw_arrow(canvas, tess.point(fPts[cur].fIndex), fPts[cur].fBisector,
                        kArrowLength, SK_ColorBLUE);
         }
-    }    
+    }
 }
 
 void GrAAConvexTessellator::draw(SkCanvas* canvas) const {
@@ -1012,7 +1012,7 @@ void GrAAConvexTessellator::draw(SkCanvas* canvas) const {
 
     for (int i = 0; i < this->numPts(); ++i) {
         draw_point(canvas,
-                   this->point(i), 0.5f + (this->depth(i)/(2 * kAntialiasingRadius)), 
+                   this->point(i), 0.5f + (this->depth(i)/(2 * kAntialiasingRadius)),
                    !this->movable(i));
 
         SkPaint paint;
@@ -1024,11 +1024,10 @@ void GrAAConvexTessellator::draw(SkCanvas* canvas) const {
 
         SkString num;
         num.printf("%d", i);
-        canvas->drawText(num.c_str(), num.size(), 
-                         this->point(i).fX, this->point(i).fY+(kPointRadius/2.0f), 
+        canvas->drawText(num.c_str(), num.size(),
+                         this->point(i).fX, this->point(i).fY+(kPointRadius/2.0f),
                          paint);
     }
 }
 
 #endif
-

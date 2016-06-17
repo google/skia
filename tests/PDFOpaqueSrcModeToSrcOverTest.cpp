@@ -10,7 +10,7 @@
 #include "Test.h"
 
 static void run_test(SkWStream* out, SkXfermode::Mode mode, U8CPU alpha) {
-    SkAutoTUnref<SkDocument> pdfDoc(SkDocument::CreatePDF(out));
+    sk_sp<SkDocument> pdfDoc(SkDocument::MakePDF(out));
     SkCanvas* c = pdfDoc->beginPage(612.0f, 792.0f);
     SkPaint black;
     SkPaint background;

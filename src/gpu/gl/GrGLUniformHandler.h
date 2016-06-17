@@ -11,13 +11,14 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 #include "gl/GrGLProgramDataManager.h"
+#include "gl/GrGLSampler.h"
 
 class GrGLCaps;
 
-static const int kUniformsPerBlock = 8;
-
 class GrGLUniformHandler : public GrGLSLUniformHandler {
 public:
+    static const int kUniformsPerBlock = 8;
+
     const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms[u.toIndex()].fVariable;
     }
@@ -38,7 +39,18 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    void appendUniformDecls(ShaderVisibility, SkString*) const override;
+    SamplerHandle internalAddSampler(uint32_t visibility,
+                                     GrPixelConfig config,
+                                     GrSLType type,
+                                     GrSLPrecision precision,
+                                     const char* name) override;
+
+    int numSamplers() const override { return fSamplers.count(); }
+    const GrGLSLSampler& getSampler(SamplerHandle handle) const override {
+        return fSamplers[handle.toIndex()];
+    }
+
+    void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
 
     // Manually set uniform locations for all our uniforms.
     void bindUniformLocations(GrGLuint programID, const GrGLCaps& caps);
@@ -53,9 +65,11 @@ private:
 
     UniformInfoArray fUniforms;
 
+    SkTArray<GrGLSampler> fSamplers;
+
     friend class GrGLProgramBuilder;
 
-    typedef GrGLSLUniformHandler INHERITED; 
+    typedef GrGLSLUniformHandler INHERITED;
 };
 
 #endif

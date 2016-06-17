@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -23,7 +22,7 @@ class SkPDFObjNumMap;
     SkObjRef).
 */
 class SkPDFStream : public SkPDFDict {
-    
+
 public:
     /** Create a PDF stream. A Length entry is automatically added to the
      *  stream dictionary.
@@ -43,6 +42,7 @@ public:
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& objNumMap,
                     const SkPDFSubstituteMap& substitutes) const override;
+    void drop() override;
 
 protected:
     /* Create a PDF stream with no data.  The setData method must be called to
@@ -58,7 +58,7 @@ protected:
     }
 
 private:
-    SkAutoTDelete<SkStreamRewindable> fCompressedData;
+    std::unique_ptr<SkStreamRewindable> fCompressedData;
 
     typedef SkPDFDict INHERITED;
 };

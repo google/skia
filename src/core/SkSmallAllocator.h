@@ -18,11 +18,15 @@
  *  allocations. kMaxObjects is a hard limit on the number of objects that can
  *  be allocated using this class. After that, attempts to create more objects
  *  with this class will assert and return nullptr.
+ *
  *  kTotalBytes is the total number of bytes provided for storage for all
  *  objects created by this allocator. If an object to be created is larger
  *  than the storage (minus storage already used), it will be allocated on the
  *  heap. This class's destructor will handle calling the destructor for each
  *  object it allocated and freeing its memory.
+ *
+ *  Current the class always aligns each allocation to 16-bytes to be safe, but future
+ *  may reduce this to only the alignment that is required per alloc.
  */
 template<uint32_t kMaxObjects, size_t kTotalBytes>
 class SkSmallAllocator : SkNoncopyable {
@@ -73,8 +77,7 @@ public:
         if (kMaxObjects == fNumObjects) {
             return nullptr;
         }
-        const size_t storageRemaining = SkAlign4(kTotalBytes) - fStorageUsed;
-        storageRequired = SkAlign4(storageRequired);
+        const size_t storageRemaining = sizeof(fStorage) - fStorageUsed;
         Rec* rec = &fRecs[fNumObjects];
         if (storageRequired > storageRemaining) {
             // Allocate on the heap. Ideally we want to avoid this situation,
@@ -88,8 +91,7 @@ public:
             // There is space in fStorage.
             rec->fStorageSize = storageRequired;
             rec->fHeapStorage = nullptr;
-            SkASSERT(SkIsAlign4(fStorageUsed));
-            rec->fObj = static_cast<void*>(fStorage + (fStorageUsed / 4));
+            rec->fObj = static_cast<void*>(fStorage.fBytes + fStorageUsed);
             fStorageUsed += storageRequired;
         }
         rec->fKillProc = DestroyT<T>;
@@ -125,12 +127,17 @@ private:
         static_cast<T*>(ptr)->~T();
     }
 
+    struct SK_STRUCT_ALIGN(16) Storage {
+        // we add kMaxObjects * 15 to account for the worst-case slop, where each allocation wasted
+        // 15 bytes (due to forcing each to be 16-byte aligned)
+        char    fBytes[kTotalBytes + kMaxObjects * 15];
+    };
+
+    Storage     fStorage;
     // Number of bytes used so far.
-    size_t              fStorageUsed;
-    // Pad the storage size to be 4-byte aligned.
-    uint32_t            fStorage[SkAlign4(kTotalBytes) >> 2];
-    uint32_t            fNumObjects;
-    Rec                 fRecs[kMaxObjects];
+    size_t      fStorageUsed;
+    uint32_t    fNumObjects;
+    Rec         fRecs[kMaxObjects];
 };
 
 #endif // SkSmallAllocator_DEFINED

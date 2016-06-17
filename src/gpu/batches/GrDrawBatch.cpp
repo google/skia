@@ -29,7 +29,7 @@ bool GrDrawBatch::installPipeline(const GrPipeline::CreateArgs& args) {
     if (!GrPipeline::CreateAt(location, args, &overrides)) {
         return false;
     }
-    this->initBatchTracker(overrides);
     fPipelineInstalled = true;
+    this->initBatchTracker(overrides);
     return true;
 }

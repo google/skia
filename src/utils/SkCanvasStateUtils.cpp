@@ -11,6 +11,7 @@
 #include "SkCanvasStack.h"
 #include "SkDevice.h"
 #include "SkErrorInternals.h"
+#include "SkRasterClip.h"
 #include "SkWriter32.h"
 
 /*
@@ -250,7 +251,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
         layerState->raster.rowBytes = pmap.rowBytes();
         layerState->raster.pixels = pmap.writable_addr();
 
-        setup_MC_state(&layerState->mcState, layer.matrix(), layer.clip());
+        setup_MC_state(&layerState->mcState, layer.matrix(), layer.clip().bwRgn());
         layerCount++;
     }
 
@@ -260,12 +261,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     canvasState->layers = (SkCanvasLayerState*) sk_malloc_throw(layerWriter.bytesWritten());
     layerWriter.flatten(canvasState->layers);
 
-    // for now, just ignore any client supplied DrawFilter.
-    if (canvas->getDrawFilter()) {
-//        SkDEBUGF(("CaptureCanvasState will ignore the canvas's draw filter.\n"));
-    }
-
-    return canvasState.detach();
+    return canvasState.release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -316,7 +312,7 @@ static SkCanvas* create_canvas_from_canvas_layer(const SkCanvasLayerState& layer
     // setup the matrix and clip
     setup_canvas_from_MC_state(layerState.mcState, canvas.get());
 
-    return canvas.detach();
+    return canvas.release();
 }
 
 SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) {
@@ -345,7 +341,7 @@ SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) 
                                                              state_v1->layers[i].y));
     }
 
-    return canvas.detach();
+    return canvas.release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -93,7 +93,7 @@ const GrFragmentProcessor* CircleEffect::TestCreate(GrProcessorTestData* d) {
 
 class GLCircleEffect : public GrGLSLFragmentProcessor {
 public:
-    GLCircleEffect(const GrProcessor&);
+    GLCircleEffect() : fPrevRadius(-1.0f) { }
 
     virtual void emitCode(EmitArgs&) override;
 
@@ -110,21 +110,17 @@ private:
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
-GLCircleEffect::GLCircleEffect(const GrProcessor&) {
-    fPrevRadius = -1.f;
-}
-
 void GLCircleEffect::emitCode(EmitArgs& args) {
     const CircleEffect& ce = args.fFp.cast<CircleEffect>();
     const char *circleName;
     // The circle uniform is (center.x, center.y, radius + 0.5, 1 / (radius + 0.5)) for regular
     // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
-    fCircleUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fCircleUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                       "circle",
                                                       &circleName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     const char* fragmentPos = fragBuilder->fragmentPosition();
 
     SkASSERT(kHairlineAA_GrProcessorEdgeType != ce.getEdgeType());
@@ -180,7 +176,7 @@ void CircleEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* CircleEffect::onCreateGLSLInstance() const  {
-    return new GLCircleEffect(*this);
+    return new GLCircleEffect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -265,9 +261,11 @@ const GrFragmentProcessor* EllipseEffect::TestCreate(GrProcessorTestData* d) {
 
 class GLEllipseEffect : public GrGLSLFragmentProcessor {
 public:
-    GLEllipseEffect(const GrProcessor&);
+    GLEllipseEffect() {
+        fPrevRadii.fX = -1.0f;
+    }
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -283,16 +281,12 @@ private:
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
-GLEllipseEffect::GLEllipseEffect(const GrProcessor& effect) {
-    fPrevRadii.fX = -1.f;
-}
-
 void GLEllipseEffect::emitCode(EmitArgs& args) {
     const EllipseEffect& ee = args.fFp.cast<EllipseEffect>();
     const char *ellipseName;
     // The ellipse uniform is (center.x, center.y, 1 / rx^2, 1 / ry^2)
     // The last two terms can underflow on mediump, so we use highp.
-    fEllipseUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fEllipseUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                        kVec4f_GrSLType, kHigh_GrSLPrecision,
                                                        "ellipse",
                                                        &ellipseName);
@@ -303,11 +297,11 @@ void GLEllipseEffect::emitCode(EmitArgs& args) {
     const char* scaleName = nullptr;
     if (args.fGLSLCaps->floatPrecisionVaries()) {
         fScaleUniform = args.fUniformHandler->addUniform(
-            GrGLSLUniformHandler::kFragment_Visibility, kVec2f_GrSLType, kDefault_GrSLPrecision,
+            kFragment_GrShaderFlag, kVec2f_GrSLType, kDefault_GrSLPrecision,
             "scale", &scaleName);
     }
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     const char* fragmentPos = fragBuilder->fragmentPosition();
 
     // d is the offset to the ellipse center
@@ -392,7 +386,7 @@ void EllipseEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* EllipseEffect::onCreateGLSLInstance() const  {
-    return new GLEllipseEffect(*this);
+    return new GLEllipseEffect;
 }
 
 //////////////////////////////////////////////////////////////////////////////

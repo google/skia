@@ -19,21 +19,23 @@
         'bench.gypi',
         'gmslides.gypi',
       ],
+      'include_dirs' : [
+        '../src/image',
+      ],
       'dependencies': [
         'flags.gyp:flags_common',
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
         'tools.gyp:proc_stats',
+        'tools.gyp:thermal_manager',
         'tools.gyp:timer',
       ],
       'conditions': [
         ['skia_android_framework', {
           'libraries': [
-            '-lskia',
-            '-landroid',
+            'skia_static.a',
             '-lhwui',
-            '-lutils',
           ],
           'include_dirs': [
             '../../../frameworks/base/libs/hwui/',

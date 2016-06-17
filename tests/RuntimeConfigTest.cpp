@@ -16,12 +16,12 @@ DEF_TEST(RuntimeConfig, reporter) {
     REPORTER_ASSERT(reporter, 1 == c_RTConfTestVariable);
 
     SK_CONF_SET("test.utils.rtconf.testVariable", 2);
-#ifdef SK_DEVELOPER
+#ifdef SK_DEBUG
     REPORTER_ASSERT(reporter, 2 == c_RTConfTestVariable);
-#else  // not SK_DEVELOPER
-    // Can not change RTConf variables in Release.
+#else  // not SK_DEBUG
+    // Can not change RTConf variables in SK_RELEASE.
     REPORTER_ASSERT(reporter, 1 == c_RTConfTestVariable);
-#endif  // SK_DEVELOPER
+#endif  // SK_DEBUG
 
     // This should not give a warning.
     SK_CONF_TRY_SET("test.utils.rtconf.nonexistentVariable", 7);

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -15,7 +14,7 @@
 #include "GrAutoLocaleSetter.h"
 #include "GrBatchTest.h"
 #include "GrContextFactory.h"
-#include "GrDrawContext.h"
+#include "GrDrawContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"
@@ -45,9 +44,7 @@ static const uint32_t kMaxKeySize = 1024;
 
 class GLBigKeyProcessor : public GrGLSLFragmentProcessor {
 public:
-    GLBigKeyProcessor(const GrProcessor&) {}
-
-    virtual void emitCode(EmitArgs& args) override {
+    void emitCode(EmitArgs& args) override {
         // pass through
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         if (args.fInputColor) {
@@ -76,7 +73,7 @@ public:
     const char* name() const override { return "Big Ole Key"; }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLBigKeyProcessor(*this);
+        return new GLBigKeyProcessor;
     }
 
 private:
@@ -172,7 +169,7 @@ static GrRenderTarget* random_render_target(GrTextureProvider* textureProvider, 
 
     GrTexture* texture = textureProvider->findAndRefTextureByUniqueKey(key);
     if (!texture) {
-        texture = textureProvider->createTexture(texDesc, true);
+        texture = textureProvider->createTexture(texDesc, SkBudgeted::kYes);
         if (texture) {
             textureProvider->assignUniqueKeyToTexture(key, texture);
         }
@@ -280,25 +277,29 @@ static void set_random_state(GrPipelineBuilder* pipelineBuilder, SkRandom* rando
 
 // right now, the only thing we seem to care about in drawState's stencil is 'doesWrite()'
 static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* random) {
-    GR_STATIC_CONST_SAME_STENCIL(kDoesWriteStencil,
-                                 kReplace_StencilOp,
-                                 kReplace_StencilOp,
-                                 kAlways_StencilFunc,
-                                 0xffff,
-                                 0xffff,
-                                 0xffff);
-    GR_STATIC_CONST_SAME_STENCIL(kDoesNotWriteStencil,
-                                 kKeep_StencilOp,
-                                 kKeep_StencilOp,
-                                 kNever_StencilFunc,
-                                 0xffff,
-                                 0xffff,
-                                 0xffff);
+    static constexpr GrUserStencilSettings kDoesWriteStencil(
+        GrUserStencilSettings::StaticInit<
+            0xffff,
+            GrUserStencilTest::kAlways,
+            0xffff,
+            GrUserStencilOp::kReplace,
+            GrUserStencilOp::kReplace,
+            0xffff>()
+    );
+    static constexpr GrUserStencilSettings kDoesNotWriteStencil(
+        GrUserStencilSettings::StaticInit<
+            0xffff,
+            GrUserStencilTest::kNever,
+            0xffff,
+            GrUserStencilOp::kKeep,
+            GrUserStencilOp::kKeep,
+            0xffff>()
+    );
 
     if (random->nextBool()) {
-        pipelineBuilder->setStencil(kDoesWriteStencil);
+        pipelineBuilder->setUserStencil(&kDoesWriteStencil);
     } else {
-        pipelineBuilder->setStencil(kDoesNotWriteStencil);
+        pipelineBuilder->setUserStencil(&kDoesNotWriteStencil);
     }
 }
 
@@ -312,13 +313,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
     SkAutoTUnref<GrTexture> dummyTexture1(
-        context->textureProvider()->createTexture(dummyDesc, false, nullptr, 0));
+        context->textureProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
     dummyDesc.fFlags = kNone_GrSurfaceFlags;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
     SkAutoTUnref<GrTexture> dummyTexture2(
-        context->textureProvider()->createTexture(dummyDesc, false, nullptr, 0));
+        context->textureProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
 
     if (!dummyTexture1 || ! dummyTexture2) {
         SkDebugf("Could not allocate dummy textures");
@@ -330,14 +331,11 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     // dummy scissor state
     GrScissorState scissor;
 
-    // wide open clip
-    GrClip clip;
-
     SkRandom random;
-    static const int NUM_TESTS = 2048;
+    static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
-        SkAutoTUnref<GrRenderTarget> rt(random_render_target(
+        sk_sp<GrRenderTarget> rt(random_render_target(
             context->textureProvider(), &random, context->caps()));
         if (!rt.get()) {
             SkDebugf("Could not allocate render target");
@@ -346,24 +344,23 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
         GrPipelineBuilder pipelineBuilder;
         pipelineBuilder.setRenderTarget(rt.get());
-        pipelineBuilder.setClip(clip);
 
         SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
         SkASSERT(batch);
 
-        GrProcessorTestData ptd(&random, context, context->caps(), rt, dummyTextures);
+        GrProcessorTestData ptd(&random, context, context->caps(), rt.get(), dummyTextures);
         set_random_color_coverage_stages(&pipelineBuilder, &ptd, maxStages);
         set_random_xpf(&pipelineBuilder, &ptd);
         set_random_state(&pipelineBuilder, &random);
         set_random_stencil(&pipelineBuilder, &random);
 
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        sk_sp<GrDrawContext> drawContext(context->drawContext(rt));
         if (!drawContext) {
             SkDebugf("Could not allocate drawContext");
             return false;
         }
 
-        drawContext->internal_drawBatch(pipelineBuilder, batch);
+        drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
@@ -374,19 +371,18 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     rtDesc.fHeight = kRenderTargetHeight;
     rtDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     rtDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    SkAutoTUnref<GrRenderTarget> rt(
-        context->textureProvider()->createTexture(rtDesc, false)->asRenderTarget());
+    sk_sp<GrRenderTarget> rt(
+        context->textureProvider()->createTexture(rtDesc, SkBudgeted::kNo)->asRenderTarget());
     int fpFactoryCnt = GrProcessorTestFactory<GrFragmentProcessor>::Count();
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
             SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
             SkASSERT(batch);
-            GrProcessorTestData ptd(&random, context, context->caps(), rt, dummyTextures);
+            GrProcessorTestData ptd(&random, context, context->caps(), rt.get(), dummyTextures);
             GrPipelineBuilder builder;
             builder.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-            builder.setRenderTarget(rt);
-            builder.setClip(clip);
+            builder.setRenderTarget(rt.get());
 
             SkAutoTUnref<const GrFragmentProcessor> fp(
                 GrProcessorTestFactory<GrFragmentProcessor>::CreateIdx(i, &ptd));
@@ -394,13 +390,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Create(fp));
             builder.addColorFragmentProcessor(blockFP);
 
-            SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+            sk_sp<GrDrawContext> drawContext(context->drawContext(rt));
             if (!drawContext) {
                 SkDebugf("Could not allocate a drawcontext");
                 return false;
             }
 
-            drawContext->internal_drawBatch(builder, batch);
+            drawContext->drawContextPriv().testingOnly_drawBatch(builder, batch);
             drawingManager->flush();
         }
     }
@@ -425,16 +421,19 @@ static int get_glprograms_max_stages(GrContext* context) {
     return 0;
 }
 
-static void test_glprograms_native(skiatest::Reporter* reporter, GrContext* context) {
-    int maxStages = get_glprograms_max_stages(context);
+static void test_glprograms_native(skiatest::Reporter* reporter,
+                                   const sk_gpu_test::ContextInfo& ctxInfo) {
+    int maxStages = get_glprograms_max_stages(ctxInfo.grContext());
     if (maxStages == 0) {
         return;
     }
-    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages));
 }
 
-static void test_glprograms_other_contexts(skiatest::Reporter* reporter, GrContext* context) {
-    int maxStages = get_glprograms_max_stages(context);
+static void test_glprograms_other_contexts(
+            skiatest::Reporter* reporter,
+            const sk_gpu_test::ContextInfo& ctxInfo) {
+    int maxStages = get_glprograms_max_stages(ctxInfo.grContext());
 #ifdef SK_BUILD_FOR_WIN
     // Some long shaders run out of temporary registers in the D3D compiler on ANGLE and
     // command buffer.
@@ -443,7 +442,17 @@ static void test_glprograms_other_contexts(skiatest::Reporter* reporter, GrConte
     if (maxStages == 0) {
         return;
     }
-    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages));
+}
+
+static bool is_native_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {
+    return type == sk_gpu_test::GrContextFactory::kNativeGL_ContextType;
+}
+
+static bool is_other_rendering_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {
+    return !is_native_gl_context_type(type) &&
+           kOpenGL_GrBackend == sk_gpu_test::GrContextFactory::ContextTypeBackend(type) &&
+           sk_gpu_test::GrContextFactory::IsRenderingContext(type);
 }
 
 DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {
@@ -458,11 +467,11 @@ DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {
     // We suppress prints to avoid spew
     GrContextOptions opts;
     opts.fSuppressPrints = true;
-    GrContextFactory debugFactory(opts);
-    skiatest::RunWithGPUTestContexts(test_glprograms_native, skiatest::kNative_GPUTestContexts,
+    sk_gpu_test::GrContextFactory debugFactory(opts);
+    skiatest::RunWithGPUTestContexts(test_glprograms_native, &is_native_gl_context_type,
                                      reporter, &debugFactory);
     skiatest::RunWithGPUTestContexts(test_glprograms_other_contexts,
-                                     skiatest::kOther_GPUTestContexts, reporter, &debugFactory);
+                                     &is_other_rendering_gl_context_type, reporter, &debugFactory);
 }
 
 #endif

@@ -63,6 +63,10 @@ public:
         fMiterLimit = miterLimit;
     }
 
+    SkScalar getResScale() const {
+        return fResScale;
+    }
+
     void setResScale(SkScalar rs) {
         SkASSERT(rs > 0 && SkScalarIsFinite(rs));
         fResScale = rs;
@@ -93,6 +97,22 @@ public:
      *  Apply these stroke parameters to a paint.
      */
     void applyToPaint(SkPaint* paint) const;
+
+    /**
+     * Gives a conservative value for the outset that should applied to a
+     * geometries bounds to account for any inflation due to applying this
+     * strokeRec to the geometry.
+     */
+    SkScalar getInflationRadius() const;
+
+    /**
+     * Equivalent to:
+     *   SkStrokeRec rec(paint, style);
+     *   rec.getInflationRadius();
+     * This does not account for other effects on the paint (i.e. path
+     * effect).
+     */
+    static SkScalar GetInflationRadius(const SkPaint&, SkPaint::Style);
 
     /**
      * Compare if two SkStrokeRecs have an equal effect on a path.

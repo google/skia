@@ -120,6 +120,14 @@ public:
     static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
     /**
+     *  Free as much globally cached memory as possible. This will purge all private caches in Skia,
+     *  including font and image caches.
+     *
+     *  If there are caches associated with GPU context, those will not be affected by this call.
+     */
+    static void PurgeAllCaches();
+
+    /**
      *  Applications with command line options may pass optional state, such
      *  as cache sizes, here, for instance:
      *  font-cache-limit=12345678

@@ -78,7 +78,7 @@ void VisualBench::setTitle() {
 SkSurface* VisualBench::createSurface() {
     if (!fSurface) {
         SkSurfaceProps props(INHERITED::getSurfaceProps());
-        fSurface.reset(SkSurface::NewRenderTargetDirect(fRenderTarget, &props));
+        fSurface.reset(SkSurface::MakeRenderTargetDirect(fRenderTarget, &props).release());
     }
 
     // The caller will wrap the SkSurface in an SkAutoTUnref
@@ -86,7 +86,6 @@ SkSurface* VisualBench::createSurface() {
 }
 
 bool VisualBench::setupBackend() {
-    this->setColorType(kRGBA_8888_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
@@ -107,9 +106,9 @@ void VisualBench::resetContext() {
 
 void VisualBench::setupContext() {
     int screenSamples = FLAGS_offscreen ? 0 : FLAGS_msaa;
-    if (!this->attach(kNativeGL_BackEndType, screenSamples, &fAttachmentInfo)) {
+    if (!this->attach(kNativeGL_BackEndType, screenSamples, false, &fAttachmentInfo)) {
         SkDebugf("Not possible to create backend.\n");
-        INHERITED::detach();
+        INHERITED::release();
         SkFAIL("Could not create backend\n");
     }
 
@@ -119,7 +118,7 @@ void VisualBench::setupContext() {
 
     fInterface.reset(GrGLCreateNativeInterface());
 
-    // TODO use the GLContext creation factories and also set this all up in configs
+    // TODO use the GLTestContext creation factories and also set this all up in configs
     if (!FLAGS_nvpr) {
         fInterface.reset(GrGLInterfaceRemoveNVPR(fInterface));
     }
@@ -140,7 +139,7 @@ void VisualBench::tearDownContext() {
         fContext.reset();
         fSurface.reset();
         fInterface.reset();
-        this->detach();
+        this->release();
     }
 }
 
@@ -193,4 +192,3 @@ void application_term() {
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     return new VisualBench(hwnd, argc, argv);
 }
-

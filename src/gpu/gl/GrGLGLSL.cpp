@@ -19,7 +19,9 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
     switch (gl->fStandard) {
         case kGL_GrGLStandard:
             SkASSERT(ver >= GR_GLSL_VER(1,10));
-            if (ver >= GR_GLSL_VER(3,30)) {
+            if (ver >= GR_GLSL_VER(4,00)) {
+                *generation = k400_GrGLSLGeneration;
+            } else if (ver >= GR_GLSL_VER(3,30)) {
                 *generation = k330_GrGLSLGeneration;
             } else if (ver >= GR_GLSL_VER(1,50)) {
                 *generation = k150_GrGLSLGeneration;
@@ -33,10 +35,11 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
             return true;
         case kGLES_GrGLStandard:
             SkASSERT(ver >= GR_GL_VER(1,00));
-            if (ver >= GR_GLSL_VER(3,1)) {
+            if (ver >= GR_GLSL_VER(3,20)) {
+                *generation = k320es_GrGLSLGeneration;
+            } else if (ver >= GR_GLSL_VER(3,10)) {
                 *generation = k310es_GrGLSLGeneration;
-            }
-            else if (ver >= GR_GLSL_VER(3,0)) {
+            } else if (ver >= GR_GLSL_VER(3,00)) {
                 *generation = k330_GrGLSLGeneration;
             } else {
                 *generation = k110_GrGLSLGeneration;
@@ -47,4 +50,3 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
             return false;
     }
 }
-

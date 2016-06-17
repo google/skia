@@ -8,9 +8,9 @@
 #ifndef SK_COMMAND_LINE_FLAGS_H
 #define SK_COMMAND_LINE_FLAGS_H
 
+#include "../private/SkTArray.h"
+#include "../private/SkTDArray.h"
 #include "SkString.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
 
 /**
  *  Including this file (and compiling SkCommandLineFlags.cpp) provides command line
@@ -106,6 +106,11 @@ public:
      *  Parse.
      */
     static void SetUsage(const char* usage);
+
+    /**
+     *  Call this to display the help message. Should be called after SetUsage.
+     */
+    static void PrintUsage();
 
     /**
      *  Call at the beginning of main to parse flags created by DEFINE_x, above.

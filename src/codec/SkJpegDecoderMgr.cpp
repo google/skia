@@ -6,7 +6,8 @@
  */
 
 #include "SkJpegDecoderMgr.h"
-#include "SkJpegUtility_codec.h"
+
+#include "SkJpegUtility.h"
 
 /*
  * Print information, warning, and error messages
@@ -34,12 +35,25 @@ SkCodec::Result JpegDecoderMgr::returnFailure(const char caller[], SkCodec::Resu
     return result;
 }
 
-SkColorType JpegDecoderMgr::getColorType() {
+bool JpegDecoderMgr::getEncodedColor(SkEncodedInfo::Color* outColor) {
     switch (fDInfo.jpeg_color_space) {
         case JCS_GRAYSCALE:
-            return kGray_8_SkColorType;
+            *outColor = SkEncodedInfo::kGray_Color;
+            return true;
+        case JCS_YCbCr:
+            *outColor = SkEncodedInfo::kYUV_Color;
+            return true;
+        case JCS_RGB:
+            *outColor = SkEncodedInfo::kRGB_Color;
+            return true;
+        case JCS_YCCK:
+            *outColor = SkEncodedInfo::kYCCK_Color;
+            return true;
+        case JCS_CMYK:
+            *outColor = SkEncodedInfo::kInvertedCMYK_Color;
+            return true;
         default:
-            return kN32_SkColorType;
+            return false;
     }
 }
 

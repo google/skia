@@ -40,7 +40,19 @@ public:
 
 private:
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        // We could combine clears. TBD how much complexity to put here.
+        // This could be much more complicated. Currently we look at cases where the new clear
+        // contains the old clear, or when the new clear is a subset of the old clear and is the
+        // same color.
+        GrClearBatch* cb = t->cast<GrClearBatch>();
+        SkASSERT(cb->fRenderTarget == fRenderTarget);
+        if (cb->fRect.contains(fRect)) {
+            fRect = cb->fRect;
+            fBounds = cb->fBounds;
+            fColor = cb->fColor;
+            return true;
+        } else if (cb->fColor == fColor && fRect.contains(cb->fRect)) {
+            return true;
+        }
         return false;
     }
 

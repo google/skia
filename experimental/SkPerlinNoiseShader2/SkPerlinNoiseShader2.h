@@ -61,30 +61,27 @@ public:
      *  the frequencies so that the noise will be tileable for the given tile size. If tileSize
      *  is NULL or an empty size, the frequencies will be used as is without modification.
      */
-    static SkShader* CreateFractalNoise(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                        int numOctaves, SkScalar seed,
-                                        const SkISize* tileSize = NULL);
-    static SkShader* CreateTurbulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                     int numOctaves, SkScalar seed,
-                                     const SkISize* tileSize = NULL);
+    static sk_sp<SkShader> MakeFractalNoise(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
+                                            int numOctaves, SkScalar seed,
+                                            const SkISize* tileSize = NULL);
+    static sk_sp<SkShader> MakeTurbulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
+                                          int numOctaves, SkScalar seed,
+                                          const SkISize* tileSize = NULL);
     /**
      * Creates an Improved Perlin Noise shader. The z value is roughly equivalent to the seed of the
      * other two types, but minor variations to z will only slightly change the noise.
      */
-    static SkShader* CreateImprovedNoise(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                         int numOctaves, SkScalar z);
+    static sk_sp<SkShader> MakeImprovedNoise(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
+                                             int numOctaves, SkScalar z);
     /**
      * Create alias for CreateTurbulunce until all Skia users changed
      * its code to use the new naming
      */
-    static SkShader* CreateTubulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                     int numOctaves, SkScalar seed,
-                                     const SkISize* tileSize = NULL) {
-    return CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize);
+    static sk_sp<SkShader> MakeTubulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
+                                         int numOctaves, SkScalar seed,
+                                         const SkISize* tileSize = NULL) {
+        return MakeTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize);
     }
-
-
-    size_t contextSize() const override;
 
     class PerlinNoiseShaderContext : public SkShader::Context {
     public:
@@ -118,6 +115,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
+    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:

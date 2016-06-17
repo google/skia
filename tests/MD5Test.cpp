@@ -23,7 +23,7 @@ static void md5_test(const char* string, const SkMD5::Digest& expectedDigest, sk
     // All at once
     {
         SkMD5 context;
-        context.update(reinterpret_cast<const uint8_t*>(string), len);
+        context.write(string, len);
         SkMD5::Digest digest;
         context.finish(digest);
 
@@ -36,7 +36,7 @@ static void md5_test(const char* string, const SkMD5::Digest& expectedDigest, sk
         const uint8_t* data = reinterpret_cast<const uint8_t*>(string);
         const uint8_t* end = reinterpret_cast<const uint8_t*>(string + len);
         for (; data < end; ++data) {
-            context.update(data, 1);
+            context.write(data, 1);
         }
         SkMD5::Digest digest;
         context.finish(digest);

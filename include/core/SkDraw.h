@@ -13,6 +13,7 @@
 #include "SkCanvas.h"
 #include "SkMask.h"
 #include "SkPaint.h"
+#include "SkStrokeRec.h"
 
 class SkBitmap;
 class SkClipStack;
@@ -93,7 +94,7 @@ public:
     static bool DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
                            const SkMaskFilter*, const SkMatrix* filterMatrix,
                            SkMask* mask, SkMask::CreateMode mode,
-                           SkPaint::Style style);
+                           SkStrokeRec::InitStyle style);
 
     enum RectType {
         kHair_RectType,
@@ -119,7 +120,7 @@ public:
     void        drawPosText_asPaths(const char text[], size_t byteLength,
                                     const SkScalar pos[], int scalarsPerPosition,
                                     const SkPoint& offset, const SkPaint&) const;
-
+    static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:
     void    drawDevMask(const SkMask& mask, const SkPaint&) const;
     void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
@@ -128,6 +129,9 @@ private:
                      bool pathIsMutable, bool drawCoverage,
                      SkBlitter* customBlitter = NULL) const;
 
+    void drawLine(const SkPoint[2], const SkPaint&) const;
+    void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
+                     SkBlitter* customBlitter, bool doFill) const;
     /**
      *  Return the current clip bounds, in local coordinates, with slop to account
      *  for antialiasing or hairlines (i.e. device-bounds outset by 1, and then
@@ -139,14 +143,16 @@ private:
     bool SK_WARN_UNUSED_RESULT
     computeConservativeLocalClipBounds(SkRect* bounds) const;
 
+    /** Returns the current setting for using fake gamma and contrast. */
+    uint32_t SK_WARN_UNUSED_RESULT scalerContextFlags() const;
+
 public:
     SkPixmap        fDst;
     const SkMatrix* fMatrix;        // required
-    const SkRegion* fClip;          // DEPRECATED
     const SkRasterClip* fRC;        // required
 
-    const SkClipStack* fClipStack;  // optional
-    SkBaseDevice*   fDevice;        // optional
+    const SkClipStack* fClipStack;  // optional, may be null
+    SkBaseDevice*   fDevice;        // optional, may be null
 
 #ifdef SK_DEBUG
     void validate() const;

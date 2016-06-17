@@ -239,30 +239,33 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
     pipelineBuilder.setXPFactory(
         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
     pipelineBuilder.setRenderTarget(rt);
-    GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
+    GrNoClip noClip;
+    GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrPathRenderer::DrawPathArgs args;
     args.fTarget = dt;
     args.fPipelineBuilder = &pipelineBuilder;
+    args.fClip = &noClip;
     args.fResourceProvider = rp;
     args.fColor = GrColor_WHITE;
     args.fViewMatrix = &SkMatrix::I();
     args.fPath = &path;
-    args.fStroke = &stroke;
+    args.fStyle = &style;
     args.fAntiAlias = false;
     tess.drawPath(args);
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, context) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = 800;
     desc.fHeight = 800;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createApproxTexture(desc));
+    SkAutoTUnref<GrTexture> texture(
+        ctxInfo.grContext()->textureProvider()->createApproxTexture(desc));
     GrTestTarget tt;
     GrRenderTarget* rt = texture->asRenderTarget();
-    context->getTestTarget(&tt, rt);
+    ctxInfo.grContext()->getTestTarget(&tt, rt);
     GrDrawTarget* dt = tt.target();
     GrResourceProvider* rp = tt.resourceProvider();
 

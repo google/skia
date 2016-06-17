@@ -37,8 +37,8 @@
   #
   'variables': {  # level 1
     'angle_path%': '../',
-    'variables': {  # level 2
 
+    'variables': {  # level 2
       # Variables needed by conditions list within the level-2 variables dict.
       'variables': {  # level 3
         'variables': { # level 4
@@ -49,8 +49,11 @@
           'skia_os%': '<(OS)',
         },
         'skia_os%': '<(skia_os)',
-
+        'vulkan_merged_into_skia': '1',
         'skia_android_framework%': 0,
+        # RAW codec needs exceptions. Due to that, it is a separate target. Its usage can be
+        # controlled by skia_codec_decodes_raw.
+        'skia_codec_decodes_raw%' : 1,
         'conditions' : [
           [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "mac"]', {
             'skia_arch_type%': 'x86_64',
@@ -67,11 +70,12 @@
       # so that siblings of the level-2 'variables' dict can see them.
       # (skia_os will depend on skia_android_framework.)
       'skia_android_framework%': '<(skia_android_framework)',
+      'skia_codec_decodes_raw%': '<(skia_codec_decodes_raw)',
       'skia_arch_type%': '<(skia_arch_type)',
       'arm_version%': '<(arm_version)',
       'arm_neon%': '<(arm_neon)',
       'skia_egl%': '<(skia_egl)',
-
+      'vulkan_merged_into_skia%': '<(vulkan_merged_into_skia)',
       'conditions': [
         [ 'skia_android_framework == 1', {
           'skia_os%': 'android',
@@ -192,7 +196,6 @@
     # so that siblings of the level-1 'variables' dict can see them.
     'arm_version%': '<(arm_version)',
     'arm_neon%': '<(arm_neon)',
-    'arm_neon_optional%': 0,
     'mips_arch_variant%': 'mips32',
     'mips_dsp%': 0,
     'skia_os%': '<(skia_os)',
@@ -209,6 +212,7 @@
     'skia_gpu_extra_tests_path%': '<(skia_gpu_extra_tests_path)',
     'skia_stroke_path_rendering%': '<(skia_stroke_path_rendering)',
     'skia_android_framework%': '<(skia_android_framework)',
+    'skia_codec_decodes_raw%': '<(skia_codec_decodes_raw)',
     'skia_use_android_framework_defines%': '<(skia_use_android_framework_defines)',
     'skia_use_system_json%': '<(skia_use_system_json)',
     'skia_android_path_rendering%': '<(skia_android_path_rendering)',
@@ -225,7 +229,6 @@
     'skia_win_ltcg%': '<(skia_is_bot)',
     'skia_osx_deployment_target%': '<(skia_osx_deployment_target)',
     'skia_pdf%': '<(skia_pdf)',
-    'skia_pdf_generate_pdfa%': 0,  # emit larger PDF/A-2b file
     'skia_profile_enabled%': '<(skia_profile_enabled)',
     'skia_shared_lib%': '<(skia_shared_lib)',
     'skia_force_distance_field_text%': '<(skia_force_distance_field_text)',
@@ -239,11 +242,12 @@
     'skia_use_sdl%': 0,
     'skia_fast%': 0,
     'skia_dump_stats%': 0,
+    'vulkan_merged_into_skia%': '<(vulkan_merged_into_skia)',
     'skia_fast_flags': [
         '-O3',                   # Even for Debug builds.
         '-march=native',         # Use all features of and optimize for THIS machine.
         '-fomit-frame-pointer',  # Sometimes an extra register is nice, and cuts a push/pop.
-        '-ffast-math',           # Optimize float math even when it breaks IEEE compliance.
+        #'-ffast-math',           # Optimize float math even when it breaks IEEE compliance.
         #'-flto'                  # Enable link-time optimization.
     ],
 

@@ -31,10 +31,10 @@ protected:
         const float blurRadii[kNumBlurs] = { 1,5,10,20 };
 
         for (int i = 0; i < kNumBlurs; ++i) {
-            fBlurFilters[i].reset(SkBlurMaskFilter::Create(
+            fBlurFilters[i] = SkBlurMaskFilter::Make(
                                     kNormal_SkBlurStyle,
                                     SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i])),
-                                    SkBlurMaskFilter::kHighQuality_BlurFlag));
+                                    SkBlurMaskFilter::kHighQuality_BlurFlag);
         }
     }
 
@@ -60,7 +60,7 @@ protected:
 private:
     static const int kNumBlurs = 4;
 
-    SkAutoTUnref<SkMaskFilter> fBlurFilters[kNumBlurs];
+    sk_sp<SkMaskFilter> fBlurFilters[kNumBlurs];
 
     typedef         skiagm::GM INHERITED;
 };

@@ -26,22 +26,5 @@ android {
     }
 
     // make sure that app is built and shared libraries are copied to correct directories
-    applicationVariants.all{ variant ->
-
-        def buildNativeLib = task("${variant.name}_NativeLib", type:Exec) {
-            workingDir '../../../..' // top-level skia directory
-            commandLine constructBuildCommand(variant, "CopyVisualBenchDeps").split()
-            environment PATH: getPathWithDepotTools()
-            environment ANDROID_SDK_ROOT: getSDKPath()
-        }
-
-        buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
-
-        TaskCollection<Task> assembleTask
-        assembleTask = project.tasks.matching {
-            it.name.contains("assemble") &&
-                    it.name.toLowerCase().endsWith(variant.name.toLowerCase())
-        }
-        assembleTask.getAt(0).dependsOn buildNativeLib
-    }
+    setupSkiaLibraryBuild(project, applicationVariants, "CopyVisualBenchDeps")
 }

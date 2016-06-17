@@ -7,6 +7,7 @@
 
 #include "SkAlphaThresholdFilter.h"
 #include "SkImage.h"
+#include "SkRegion.h"
 #include "Test.h"
 
 static void test_flattenable(skiatest::Reporter* r,
@@ -29,14 +30,13 @@ DEF_TEST(FlattenableFactoryToName, r) {
     rects[1] = SkIRect::MakeXYWH(150, 0, 200, 500);
     SkRegion region;
     region.setRects(rects, 2);
-    SkAutoTUnref<SkImageFilter> filter( SkAlphaThresholdFilter::Create(region, 0.2f, 0.7f));
-    test_flattenable(r, filter, "SkAlphaThresholdFilter()");
+    sk_sp<SkImageFilter> filter(SkAlphaThresholdFilter::Make(region, 0.2f, 0.7f, nullptr));
+    test_flattenable(r, filter.get(), "SkAlphaThresholdFilter()");
 
     SkBitmap bm;
     bm.allocN32Pixels(8, 8);
     bm.eraseColor(SK_ColorCYAN);
-    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bm));
-    SkAutoTUnref<SkShader> shader(image->newShader(SkShader::kClamp_TileMode,
-                                                   SkShader::kClamp_TileMode));
-    test_flattenable(r, shader, "SkImage::newShader()");
+    sk_sp<SkImage> image(SkImage::MakeFromBitmap(bm));
+    auto shader = image->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+    test_flattenable(r, shader.get(), "SkImage::newShader()");
 }

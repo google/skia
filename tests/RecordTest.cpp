@@ -29,7 +29,7 @@ public:
 
     void apply(const SkRecord& record) {
         for (int i = 0; i < record.count(); i++) {
-            record.visit<void>(i, *this);
+            record.visit(i, *this);
         }
     }
 
@@ -47,7 +47,7 @@ struct Stretch {
 
     void apply(SkRecord* record) {
         for (int i = 0; i < record->count(); i++) {
-            record->mutate<void>(i, *this);
+            record->mutate(i, *this);
         }
     }
 };
@@ -116,4 +116,3 @@ DEF_TEST(Record_Alignment, r) {
         REPORTER_ASSERT(r, is_aligned(record.alloc<uint64_t>()));
     }
 }
-

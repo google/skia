@@ -8,10 +8,9 @@
 #ifndef SkTextBlob_DEFINED
 #define SkTextBlob_DEFINED
 
+#include "../private/SkTemplates.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

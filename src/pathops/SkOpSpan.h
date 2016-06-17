@@ -404,7 +404,7 @@ public:
     }
 
     bool debugCoinLoopCheck() const;
-    void detach(SkOpPtT* );
+    void release(SkOpPtT* );
 
     bool done() const {
         SkASSERT(!final());

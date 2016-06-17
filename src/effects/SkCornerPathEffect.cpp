@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -139,8 +138,8 @@ DONE:
     return true;
 }
 
-SkFlattenable* SkCornerPathEffect::CreateProc(SkReadBuffer& buffer) {
-    return SkCornerPathEffect::Create(buffer.readScalar());
+sk_sp<SkFlattenable> SkCornerPathEffect::CreateProc(SkReadBuffer& buffer) {
+    return SkCornerPathEffect::Make(buffer.readScalar());
 }
 
 void SkCornerPathEffect::flatten(SkWriteBuffer& buffer) const {

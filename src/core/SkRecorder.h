@@ -48,7 +48,7 @@ public:
     size_t approxBytesUsedBySubPictures() const { return fApproxBytesUsedBySubPictures; }
 
     SkDrawableList* getDrawableList() const { return fDrawableList.get(); }
-    SkDrawableList* detachDrawableList() { return fDrawableList.detach(); }
+    SkDrawableList* detachDrawableList() { return fDrawableList.release(); }
 
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();
@@ -120,8 +120,9 @@ public:
     void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+    void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override { return nullptr; }
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
     void flushMiniRecorder();
 

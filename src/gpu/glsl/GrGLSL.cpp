@@ -17,7 +17,9 @@ bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
         case k140_GrGLSLGeneration:
         case k150_GrGLSLGeneration:
         case k330_GrGLSLGeneration:
+        case k400_GrGLSLGeneration:
         case k310es_GrGLSLGeneration:
+        case k320es_GrGLSLGeneration:
             return true;
     }
     return false;

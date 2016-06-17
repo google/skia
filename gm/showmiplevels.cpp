@@ -11,35 +11,38 @@
 #include "SkBitmapScaler.h"
 #include "SkGradientShader.h"
 #include "SkTypeface.h"
-#include "SkImageDecoder.h"
 #include "SkStream.h"
 #include "SkPaint.h"
 #include "SkMipMap.h"
 #include "Resources.h"
 #include "sk_tool_utils.h"
 
-static SkBitmap make_bitmap(int size) {
+#define SHOW_MIP_COLOR  0xFF000000
+
+static SkBitmap make_bitmap(int w, int h) {
     SkBitmap bm;
-    bm.allocN32Pixels(size, size);
+    bm.allocN32Pixels(w, h);
     SkCanvas canvas(bm);
     canvas.clear(0xFFFFFFFF);
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(size / 16.0f);
-    canvas.drawCircle(size/2.0f, size/2.0f, size/3.0f, paint);
+    paint.setStrokeWidth(w / 16.0f);
+    paint.setColor(SHOW_MIP_COLOR);
+    canvas.drawCircle(w/2.0f, h/2.0f, w/3.0f, paint);
     return bm;
 }
 
-static SkBitmap make_bitmap2(int size) {
+static SkBitmap make_bitmap2(int w, int h) {
     SkBitmap bm;
-    bm.allocN32Pixels(size, size);
+    bm.allocN32Pixels(w, h);
     SkCanvas canvas(bm);
     canvas.clear(0xFFFFFFFF);
     SkPaint paint;
+    paint.setColor(SHOW_MIP_COLOR);
     paint.setStyle(SkPaint::kStroke_Style);
 
     SkScalar inset = 2;
-    SkRect r = SkRect::MakeIWH(size, size).makeInset(0.5f, 0.5f);
+    SkRect r = SkRect::MakeIWH(w, h).makeInset(0.5f, 0.5f);
     while (r.width() > 4) {
         canvas.drawRect(r, paint);
         r.inset(inset, inset);
@@ -49,20 +52,21 @@ static SkBitmap make_bitmap2(int size) {
 }
 
 #include "SkNx.h"
-static SkBitmap make_bitmap3(int size) {
+static SkBitmap make_bitmap3(int w, int h) {
     SkBitmap bm;
-    bm.allocN32Pixels(size, size);
+    bm.allocN32Pixels(w, h);
     SkCanvas canvas(bm);
     canvas.clear(0xFFFFFFFF);
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(2.1f);
+    paint.setColor(SHOW_MIP_COLOR);
 
-    SkScalar s = SkIntToScalar(size);
+    SkScalar s = SkIntToScalar(w);
     Sk4f p(s, -s, -s, s);
     Sk4f d(5);
-    while (p.kth<1>() < s) {
-        canvas.drawLine(p.kth<0>(),p.kth<1>(), p.kth<2>(), p.kth<3>(), paint);
+    while (p[1] < s) {
+        canvas.drawLine(p[0],p[1], p[2], p[3], paint);
         p = p + d;
     }
     return bm;
@@ -103,9 +107,9 @@ public:
 
     ShowMipLevels(int N) : fN(N) {
         fBM[0] = sk_tool_utils::create_checkerboard_bitmap(N, N, SK_ColorBLACK, SK_ColorWHITE, 2);
-        fBM[1] = make_bitmap(N);
-        fBM[2] = make_bitmap2(N);
-        fBM[3] = make_bitmap3(N);
+        fBM[1] = make_bitmap(N, N);
+        fBM[2] = make_bitmap2(N, N);
+        fBM[3] = make_bitmap3(N, N);
     }
 
 protected:
@@ -145,23 +149,20 @@ protected:
         int index = 0;
         SkMipMap::Level level;
         SkScalar scale = 0.5f;
-        while (mm->extractLevel(scale, &level)) {
-            SkImageInfo info = SkImageInfo::MakeN32Premul(level.fWidth, level.fHeight);
-            SkPixmap levelPM{ info, level.fPixels, level.fRowBytes };
-
-            SkBitmap bm = func(prevPM, levelPM);
+        while (mm->extractLevel(SkSize::Make(scale, scale), &level)) {
+            SkBitmap bm = func(prevPM, level.fPixmap);
             DrawAndFrame(canvas, bm, x, y);
 
-            if (info.width() <= 2 || info.height() <= 2) {
+            if (level.fPixmap.width() <= 2 || level.fPixmap.height() <= 2) {
                 break;
             }
             if (index & 1) {
-                x += info.width() + 4;
+                x += level.fPixmap.width() + 4;
             } else {
-                y += info.height() + 4;
+                y += level.fPixmap.height() + 4;
             }
             scale /= 2;
-            prevPM = levelPM;
+            prevPM = level.fPixmap;
             index += 1;
         }
     }
@@ -203,10 +204,107 @@ protected:
             canvas->translate(0, bm.height() * 0.85f);
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new ShowMipLevels(255); )
 DEF_GM( return new ShowMipLevels(256); )
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Show mip levels that were built, for all supported colortypes
+ */
+class ShowMipLevels2 : public skiagm::GM {
+    const int fW, fH;
+    SkBitmap  fBM[4];
+
+public:
+    ShowMipLevels2(int w, int h) : fW(w), fH(h) {
+        fBM[0] = sk_tool_utils::create_checkerboard_bitmap(w, h, SHOW_MIP_COLOR, SK_ColorWHITE, 2);
+        fBM[1] = make_bitmap(w, h);
+        fBM[2] = make_bitmap2(w, h);
+        fBM[3] = make_bitmap3(w, h);
+    }
+
+protected:
+
+    SkString onShortName() override {
+        SkString str;
+        str.printf("showmiplevels2_%dx%d", fW, fH);
+        return str;
+    }
+
+    SkISize onISize() override {
+        return { 824, 862 };
+    }
+
+    static void DrawAndFrame(SkCanvas* canvas, const SkBitmap& bm, SkScalar x, SkScalar y) {
+        canvas->drawBitmap(bm, x, y, nullptr);
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setColor(0xFFFFCCCC);
+        canvas->drawRect(SkRect::MakeIWH(bm.width(), bm.height()).makeOffset(x, y).makeOutset(0.5f, 0.5f), paint);
+    }
+
+    void drawLevels(SkCanvas* canvas, const SkBitmap& baseBM) {
+        SkScalar x = 4;
+        SkScalar y = 4;
+
+        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(baseBM, nullptr));
+
+        int index = 0;
+        SkMipMap::Level level;
+        SkScalar scale = 0.5f;
+        while (mm->extractLevel(SkSize::Make(scale, scale), &level)) {
+            SkBitmap bm;
+            bm.installPixels(level.fPixmap);
+            DrawAndFrame(canvas, bm, x, y);
+
+            if (level.fPixmap.width() <= 2 || level.fPixmap.height() <= 2) {
+                break;
+            }
+            if (index & 1) {
+                x += level.fPixmap.width() + 4;
+            } else {
+                y += level.fPixmap.height() + 4;
+            }
+            scale /= 2;
+            index += 1;
+        }
+    }
+
+    void drawSet(SkCanvas* canvas, const SkBitmap& orig) {
+        const SkColorType ctypes[] = {
+            kN32_SkColorType, kRGB_565_SkColorType, kARGB_4444_SkColorType, kGray_8_SkColorType
+        };
+
+        SkAutoCanvasRestore acr(canvas, true);
+
+        for (auto ctype : ctypes) {
+            SkBitmap bm;
+            orig.copyTo(&bm, ctype);
+            drawLevels(canvas, bm);
+            canvas->translate(orig.width()/2 + 8.0f, 0);
+        }
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->translate(4, 4);
+        for (const auto& bm : fBM) {
+            this->drawSet(canvas, bm);
+            // round so we always produce an integral translate, so the GOLD tool won't show
+            // unimportant diffs if this is drawn on a GPU with different rounding rules
+            // since we draw the bitmaps using nearest-neighbor
+            canvas->translate(0, SkScalarRoundToScalar(bm.height() * 0.85f));
+        }
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new ShowMipLevels2(255, 255); )
+DEF_GM( return new ShowMipLevels2(256, 255); )
+DEF_GM( return new ShowMipLevels2(255, 256); )
+DEF_GM( return new ShowMipLevels2(256, 256); )

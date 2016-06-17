@@ -25,7 +25,7 @@ void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
                               const uint32_t* SK_RESTRICT xy,
                               int count, SkPMColor* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != nullptr);
-    SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
+    SkASSERT(kNone_SkFilterQuality == s.fFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
 
 #ifdef PREAMBLE
@@ -68,7 +68,7 @@ void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
                             int count, SkPMColor* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
-    SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
+    SkASSERT(kNone_SkFilterQuality == s.fFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
 
 #ifdef PREAMBLE
@@ -122,7 +122,7 @@ void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
                           const uint32_t* SK_RESTRICT xy,
                            int count, SkPMColor* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != nullptr);
-    SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
+    SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
 
 #ifdef PREAMBLE
@@ -168,7 +168,7 @@ void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
                             int count, SkPMColor* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != nullptr);
-    SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
+    SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
 
 #ifdef PREAMBLE

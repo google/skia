@@ -59,7 +59,9 @@ protected:
         }
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
-            fMatchStr.appendUnichar(uni);
+            if (uni >= ' ') {
+                fMatchStr.appendUnichar(uni);
+            }
             this->inval(nullptr);
             return true;
         }
@@ -170,4 +172,3 @@ void OverView::onDraw(SkCanvas* canvas) {
         }
     }
 }
-

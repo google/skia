@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -24,8 +23,8 @@ enum {
 class BenchResource : public GrGpuResource {
 public:
     BenchResource (GrGpu* gpu)
-        : INHERITED(gpu, kCached_LifeCycle) {
-        this->registerWithCache();
+        : INHERITED(gpu) {
+        this->registerWithCache(SkBudgeted::kYes);
     }
 
     static void ComputeKey(int i, int keyData32Count, GrUniqueKey* key) {

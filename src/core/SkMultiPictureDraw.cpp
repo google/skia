@@ -16,6 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "GrLayerHoister.h"
 #include "GrRecordReplaceDraw.h"
 #include "GrRenderTarget.h"
@@ -123,7 +124,9 @@ void SkMultiPictureDraw::draw(bool flush) {
         // we only expect 1 context for all the canvases
         SkASSERT(data.fCanvas->getGrContext() == context);
 
-        if (!data.fPaint) {
+        if (!data.fPaint && 
+            (kRGBA_8888_SkColorType == data.fCanvas->imageInfo().colorType() ||
+             kBGRA_8888_SkColorType == data.fCanvas->imageInfo().colorType())) {
             SkRect clipBounds;
             if (!data.fCanvas->getClipBounds(&clipBounds)) {
                 continue;
@@ -132,8 +135,8 @@ void SkMultiPictureDraw::draw(bool flush) {
             SkMatrix initialMatrix = data.fCanvas->getTotalMatrix();
             initialMatrix.preConcat(data.fMatrix);
 
-            GrRenderTarget* rt = data.fCanvas->internal_private_accessTopLayerRenderTarget();
-            SkASSERT(rt);
+            GrDrawContext* dc = data.fCanvas->internal_private_accessTopLayerDrawContext();
+            SkASSERT(dc);
 
             // TODO: sorting the cacheable layers from smallest to largest
             // would improve the packing and reduce the number of swaps
@@ -142,7 +145,7 @@ void SkMultiPictureDraw::draw(bool flush) {
             GrLayerHoister::FindLayersToAtlas(context, data.fPicture, initialMatrix,
                                               clipBounds,
                                               &atlasedNeedRendering, &atlasedRecycled,
-                                              rt->numColorSamples());
+                                              dc->numColorSamples());
         }
     }
 
@@ -168,14 +171,14 @@ void SkMultiPictureDraw::draw(bool flush) {
 
             const SkMatrix initialMatrix = canvas->getTotalMatrix();
 
-            GrRenderTarget* rt = data.fCanvas->internal_private_accessTopLayerRenderTarget();
-            SkASSERT(rt);
+            GrDrawContext* dc = data.fCanvas->internal_private_accessTopLayerDrawContext();
+            SkASSERT(dc);
 
             // Find the layers required by this canvas. It will return atlased
             // layers in the 'recycled' list since they have already been drawn.
             GrLayerHoister::FindLayersToHoist(context, picture, initialMatrix,
                                               clipBounds, &needRendering, &recycled,
-                                              rt->numColorSamples());
+                                              dc->numColorSamples());
 
             GrLayerHoister::DrawLayers(context, needRendering);
 
@@ -204,4 +207,3 @@ void SkMultiPictureDraw::draw(bool flush) {
     GrLayerHoister::End(context);
 #endif
 }
-

@@ -11,7 +11,6 @@
 #define SkSnapShot_DEFINED
 
 #include "SkADrawable.h"
-#include "SkImageDecoder.h"
 #include "SkMemberInfo.h"
 #include "SkString.h"
 

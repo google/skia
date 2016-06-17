@@ -21,7 +21,7 @@ public:
         kOpaque_ShaderOverrideOpacity,      //!< the overriding shader is opaque
         kNotOpaque_ShaderOverrideOpacity,   //!< the overriding shader may not be opaque
     };
-    
+
     /**
      *  Returns true if drawing with this paint (or nullptr) will ovewrite all affected pixels.
      *

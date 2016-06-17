@@ -9,7 +9,9 @@
 #define SkMipMap_DEFINED
 
 #include "SkCachedData.h"
+#include "SkPixmap.h"
 #include "SkScalar.h"
+#include "SkSize.h"
 
 class SkBitmap;
 class SkDiscardableMemory;
@@ -18,16 +20,21 @@ typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
 
 class SkMipMap : public SkCachedData {
 public:
+    static SkMipMap* Build(const SkPixmap& src, SkDiscardableFactoryProc);
     static SkMipMap* Build(const SkBitmap& src, SkDiscardableFactoryProc);
 
+    // This function lets you determine how many levels a SkMipMap will have without
+    // creating that mipmap.
+    static int ComputeLevelCount(int baseWidth, int baseHeight);
+
     struct Level {
-        void*       fPixels;
-        uint32_t    fRowBytes;
-        uint32_t    fWidth, fHeight;
-        float       fScale; // < 1.0
+        SkPixmap    fPixmap;
+        SkSize      fScale; // < 1.0
     };
 
-    bool extractLevel(SkScalar scale, Level*) const;
+    bool extractLevel(const SkSize& scale, Level*) const;
+    int countLevels() const;
+    bool getLevel(int index, Level*) const;
 
 protected:
     void onDataChange(void* oldData, void* newData) override {

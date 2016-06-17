@@ -21,7 +21,6 @@ class SkBitmapRegionDecoder {
 public:
 
     enum Strategy {
-        kCanvas_Strategy,       // Draw to the canvas, uses SkCodec
         kAndroidCodec_Strategy, // Uses SkAndroidCodec for scaling and subsetting
     };
 

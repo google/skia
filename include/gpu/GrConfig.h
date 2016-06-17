@@ -33,7 +33,7 @@
  */
 
 #if !defined(GR_CACHE_STATS)
-  #if defined(SK_DEVELOPER) || defined(SK_DUMP_STATS)
+  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS)
       #define GR_CACHE_STATS  1
   #else
       #define GR_CACHE_STATS  0
@@ -41,7 +41,7 @@
 #endif
 
 #if !defined(GR_GPU_STATS)
-  #if defined(SK_DEVELOPER) || defined(SK_DUMP_STATS)
+  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS)
       #define GR_GPU_STATS    1
   #else
       #define GR_GPU_STATS    0
@@ -106,7 +106,7 @@ typedef unsigned __int64 uint64_t;
  *  particular compiler.
  *  To insert compiler warnings use "#pragma message GR_WARN(<string>)"
  */
-#if defined(_MSC_VER) && _MSC_VER
+#if defined(_MSC_VER)
     #define GR_WARN(MSG) (GR_FILE_AND_LINE_STR "WARNING: " MSG)
 #else//__GNUC__ - may need other defines for different compilers
     #define GR_WARN(MSG) ("WARNING: " MSG)
@@ -171,26 +171,13 @@ typedef unsigned __int64 uint64_t;
  *  it may print the message in the compiler log. Obviously, the condition must
  *  be evaluatable at compile time.
  */
-// VS 2010 and GCC compiled with c++0x or gnu++0x support the new
-// static_assert.
-#if !defined(GR_STATIC_ASSERT)
-    #if (defined(_MSC_VER) && _MSC_VER >= 1600) || (defined(__GXX_EXPERIMENTAL_CXX0X__) && __GXX_EXPERIMENTAL_CXX0X__)
-        #define GR_STATIC_ASSERT(CONDITION) static_assert(CONDITION, "bug")
-    #else
-        template <bool> class GR_STATIC_ASSERT_FAILURE;
-        template <> class GR_STATIC_ASSERT_FAILURE<true> {};
-        #define GR_STATIC_ASSERT(CONDITION) \
-            enum {GR_CONCAT(X,__LINE__) = \
-            sizeof(GR_STATIC_ASSERT_FAILURE<CONDITION>)}
-    #endif
-#endif
+#define GR_STATIC_ASSERT(CONDITION) static_assert(CONDITION, "bug")
 
 /**
- * Enable batch debugging output as json.  The enabler of this flag is responsible for making sure
- * GrAuditTrail is reset occasionally.
- * TODO make this runtime configurable
+ * Set to 1 to enable pixel local storage path rendering on supported devices.
  */
-#if !defined(GR_BATCH_DEBUGGING_OUTPUT)
-    #define GR_BATCH_DEBUGGING_OUTPUT 0
+#if !defined(GR_ENABLE_PLS_PATH_RENDERING)
+    #define GR_ENABLE_PLS_PATH_RENDERING 0
 #endif
+
 #endif

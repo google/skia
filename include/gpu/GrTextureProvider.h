@@ -9,7 +9,7 @@
 #define GrTextureProvider_DEFINED
 
 #include "GrTexture.h"
-#include "SkImageFilter.h"
+#include "GrTypes.h"
 
 class GrSingleOwner;
 
@@ -22,19 +22,29 @@ public:
      * Creates a new texture in the resource cache and returns it. The caller owns a
      * ref on the returned texture which must be balanced by a call to unref.
      *
-     * @param desc      Description of the texture properties.
-     * @param budgeted  Does the texture count against the resource cache budget?
+     * @param desc          Description of the texture properties.
+     * @param budgeted      Does the texture count against the resource cache budget?
+     * @param texels        A contiguous array of mipmap levels
+     * @param mipLevelCount The amount of elements in the texels array
+     */
+    GrTexture* createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                      const GrMipLevel* texels, int mipLevelCount);
+
+    /**
+     * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
+     * It then calls createTexture with that SkTArray.
+     *
      * @param srcData   Pointer to the pixel values (optional).
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows. For compressed pixel configs, this
      *                  field is ignored.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted, const void* srcData,
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, const void* srcData,
                              size_t rowBytes);
 
     /** Shortcut for creating a texture with no initial data to upload. */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted) {
-        return this->createTexture(desc, budgeted, NULL, 0);
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
+        return this->createTexture(desc, budgeted, nullptr, 0);
     }
 
     /** Assigns a unique key to the texture. The texture will be findable via this key using
@@ -73,7 +83,7 @@ public:
         if (kApprox_ScratchTexMatch == match) {
             return this->createApproxTexture(desc);
         } else {
-            return this->createTexture(desc, true);
+            return this->createTexture(desc, SkBudgeted::kYes);
         }
     }
 
@@ -98,7 +108,7 @@ public:
      * the client will resolve to a texture). Currently wrapped render targets
      * always use the kBorrow_GrWrapOwnership semantics.
      *
-     * @return GrTexture object or NULL on failure.
+     * @return GrRenderTarget object or NULL on failure.
      */
      GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
 

@@ -12,7 +12,12 @@
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
+
+#ifdef SK_PRINT_CODEC_MESSAGES
+    #define SkCodecPrintf SkDebugf
+#else
+    #define SkCodecPrintf(...)
+#endif
 
 // FIXME: Consider sharing with dm, nanbench, and tools.
 inline float get_scale_from_sample_size(int sampleSize) {
@@ -75,11 +80,16 @@ inline bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
 }
 
 inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
-    // Check for supported alpha types
+    if (kUnknown_SkAlphaType == dstAlpha) {
+        return false;
+    }
+
     if (srcAlpha != dstAlpha) {
         if (kOpaque_SkAlphaType == srcAlpha) {
-            // If the source is opaque, we must decode to opaque
-            return false;
+            // If the source is opaque, we can support any.
+            SkCodecPrintf("Warning: an opaque image should be decoded as opaque "
+                          "- it is being decoded as non-opaque, which will draw slower\n");
+            return true;
         }
 
         // The source is not opaque
@@ -99,15 +109,17 @@ inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
 /*
  * Most of our codecs support the same conversions:
  * - profileType must be the same
- * - opaque only to opaque (and 565 only if opaque)
+ * - opaque to any alpha type
+ * - 565 only if opaque
  * - premul to unpremul and vice versa
  * - always support N32
  * - otherwise match the src color type
  */
 inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
-    if (dst.profileType() != src.profileType()) {
-        return false;
-    }
+    // FIXME: skbug.com/4895
+    // Currently, we ignore the SkColorProfileType on the SkImageInfo.  We
+    // will treat the encoded data as linear regardless of what the client
+    // requests.
 
     // Ensure the alpha type is valid
     if (!valid_alpha(dst.alphaType(), src.alphaType())) {
@@ -116,10 +128,16 @@ inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
 
     // Check for supported color types
     switch (dst.colorType()) {
-        case kN32_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
             return true;
         case kRGB_565_SkColorType:
-            return src.alphaType() == kOpaque_SkAlphaType;
+            return kOpaque_SkAlphaType == dst.alphaType();
+        case kGray_8_SkColorType:
+            if (kOpaque_SkAlphaType != dst.alphaType()) {
+                return false;
+            }
+            // Fall through
         default:
             return dst.colorType() == src.colorType();
     }
@@ -139,7 +157,8 @@ inline uint32_t get_color_table_fill_value(SkColorType colorType, const SkPMColo
         uint8_t fillIndex) {
     SkASSERT(nullptr != colorPtr);
     switch (colorType) {
-        case kN32_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
             return colorPtr[fillIndex];
         case kRGB_565_SkColorType:
             return SkPixel32ToPixel16(colorPtr[fillIndex]);
@@ -230,10 +249,76 @@ inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
 #endif
 }
 
-#ifdef SK_PRINT_CODEC_MESSAGES
-    #define SkCodecPrintf SkDebugf
+/*
+ * @param data           Buffer to read bytes from
+ * @param isLittleEndian Output parameter
+ *                       Indicates if the data is little endian
+ *                       Is unaffected on false returns
+ */
+inline bool is_valid_endian_marker(const uint8_t* data, bool* isLittleEndian) {
+    // II indicates Intel (little endian) and MM indicates motorola (big endian).
+    if (('I' != data[0] || 'I' != data[1]) && ('M' != data[0] || 'M' != data[1])) {
+        return false;
+    }
+
+    *isLittleEndian = ('I' == data[0]);
+    return true;
+}
+
+inline uint16_t get_endian_short(const uint8_t* data, bool littleEndian) {
+    if (littleEndian) {
+        return (data[1] << 8) | (data[0]);
+    }
+
+    return (data[0] << 8) | (data[1]);
+}
+
+inline SkPMColor premultiply_argb_as_rgba(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+    if (a != 255) {
+        r = SkMulDiv255Round(r, a);
+        g = SkMulDiv255Round(g, a);
+        b = SkMulDiv255Round(b, a);
+    }
+
+    return SkPackARGB_as_RGBA(a, r, g, b);
+}
+
+inline SkPMColor premultiply_argb_as_bgra(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+    if (a != 255) {
+        r = SkMulDiv255Round(r, a);
+        g = SkMulDiv255Round(g, a);
+        b = SkMulDiv255Round(b, a);
+    }
+
+    return SkPackARGB_as_BGRA(a, r, g, b);
+}
+
+inline bool is_rgba(SkColorType colorType) {
+#ifdef SK_PMCOLOR_IS_RGBA
+    return (kBGRA_8888_SkColorType != colorType);
 #else
-    #define SkCodecPrintf(...)
+    return (kRGBA_8888_SkColorType == colorType);
 #endif
+}
+
+// Method for coverting to a 32 bit pixel.
+typedef uint32_t (*PackColorProc)(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
+
+inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType colorType) {
+    bool isRGBA = is_rgba(colorType);
+    if (isPremul) {
+        if (isRGBA) {
+            return &premultiply_argb_as_rgba;
+        } else {
+            return &premultiply_argb_as_bgra;
+        }
+    } else {
+        if (isRGBA) {
+            return &SkPackARGB_as_RGBA;
+        } else {
+            return &SkPackARGB_as_BGRA;
+        }
+    }
+}
 
 #endif // SkCodecPriv_DEFINED

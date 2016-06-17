@@ -19,27 +19,27 @@
 /*
  * Spits out a dummy gradient to test blur with shader on paint
  */
-static SkShader* MakeLinear() {
+static sk_sp<SkShader> MakeLinear() {
     static const SkPoint     kPts[] = { { 0, 0 }, { 32, 32 } };
     static const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     static const SkColor kColors[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
-    return SkGradientShader::CreateLinear(kPts, kColors, kPos,
-                                          SK_ARRAY_COUNT(kColors), SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(kPts, kColors, kPos, SK_ARRAY_COUNT(kColors),
+                                        SkShader::kClamp_TileMode);
 }
 
-static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
+static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
     SkScalar matrix[20];
     memset(matrix, 0, 20 * sizeof(SkScalar));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    SkAutoTUnref<SkColorFilter> filter(SkColorMatrixFilter::Create(matrix));
-    return SkColorFilterImageFilter::Create(filter, input);
+    sk_sp<SkColorFilter> filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+    return SkColorFilterImageFilter::Make(std::move(filter), std::move(input));
 }
 
-static SkImageFilter* make_blur(float amount, SkImageFilter* input = nullptr) {
-    return SkBlurImageFilter::Create(amount, amount, input);
+static sk_sp<SkImageFilter> make_blur(float amount, sk_sp<SkImageFilter> input) {
+    return SkBlurImageFilter::Make(amount, amount, std::move(input));
 }
 
 namespace skiagm {
@@ -50,11 +50,11 @@ public:
 
 protected:
     struct EmojiFont {
-        SkAutoTUnref<SkTypeface> typeface;
+        sk_sp<SkTypeface> typeface;
         const char* text;
     } emojiFont;
     virtual void onOnceBeforeDraw() override {
-        sk_tool_utils::emoji_typeface(&emojiFont.typeface);
+        emojiFont.typeface = sk_tool_utils::emoji_typeface();
         emojiFont.text = sk_tool_utils::emoji_sample_text();
     }
 
@@ -92,21 +92,19 @@ protected:
             for (int makeBlur = 0; makeBlur < 2; makeBlur++) {
                 for (int makeGray = 0; makeGray < 2; makeGray++) {
                     SkPaint shaderPaint;
-                    shaderPaint.setTypeface(paint.getTypeface());
+                    shaderPaint.setTypeface(sk_ref_sp(paint.getTypeface()));
                     if (SkToBool(makeLinear)) {
-                        shaderPaint.setShader(MakeLinear())->unref();
+                        shaderPaint.setShader(MakeLinear());
                     }
 
                     if (SkToBool(makeBlur) && SkToBool(makeGray)) {
-                        SkAutoTUnref<SkImageFilter> grayScale(make_grayscale(nullptr));
-                        SkAutoTUnref<SkImageFilter> blur(make_blur(3.0f, grayScale));
-                        shaderPaint.setImageFilter(blur);
+                        sk_sp<SkImageFilter> grayScale(make_grayscale(nullptr));
+                        sk_sp<SkImageFilter> blur(make_blur(3.0f, std::move(grayScale)));
+                        shaderPaint.setImageFilter(std::move(blur));
                     } else if (SkToBool(makeBlur)) {
-                        SkAutoTUnref<SkImageFilter> blur(make_blur(3.0f, nullptr));
-                        shaderPaint.setImageFilter(blur);
+                        shaderPaint.setImageFilter(make_blur(3.0f, nullptr));
                     } else if (SkToBool(makeGray)) {
-                        SkAutoTUnref<SkImageFilter> grayScale(make_grayscale(nullptr));
-                        shaderPaint.setImageFilter(grayScale);
+                        shaderPaint.setImageFilter(make_grayscale(nullptr));
                     }
                     shaderPaint.setTextSize(30);
                     canvas->drawText(text, strlen(text), 380, SkIntToScalar(y_offset),
@@ -160,7 +158,6 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ColorEmojiGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM(return new ColorEmojiGM;)
 
 }

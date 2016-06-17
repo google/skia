@@ -15,6 +15,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/ios_setup.sh
 
 # Run the application.
-IOS_DEPLOY_ARGS="${SKIA_SRC_DIR}/xcodebuild/${BUILDTYPE}-iphoneos/iOSShell.app --args \"${*}\""
+IOS_DEPLOY_ARGS="${IOS_OUT}/iOSShell.app --args \"${*}\""
 CMD="ios-deploy -I -m -b ${IOS_DEPLOY_ARGS}"
 eval $CMD

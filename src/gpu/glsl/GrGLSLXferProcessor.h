@@ -9,7 +9,7 @@
 #define GrGLSLXferProcessor_DEFINED
 
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLTextureSampler.h"
+#include "glsl/GrGLSLSampler.h"
 
 class GrXferProcessor;
 class GrGLSLCaps;
@@ -22,7 +22,8 @@ public:
     GrGLSLXferProcessor() {}
     virtual ~GrGLSLXferProcessor() {}
 
-    typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
+    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
+
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
                  GrGLSLUniformHandler* uniformHandler,
@@ -32,7 +33,9 @@ public:
                  const char* inputCoverage,
                  const char* outputPrimary,
                  const char* outputSecondary,
-                 const TextureSamplerArray& samplers)
+                 const SamplerHandle* texSamplers,
+                 const SamplerHandle* bufferSamplers,
+                 const bool usePLSDstRead)
             : fXPFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
             , fGLSLCaps(caps)
@@ -41,7 +44,9 @@ public:
             , fInputCoverage(inputCoverage)
             , fOutputPrimary(outputPrimary)
             , fOutputSecondary(outputSecondary)
-            , fSamplers(samplers) {}
+            , fTexSamplers(texSamplers)
+            , fBufferSamplers(bufferSamplers)
+            , fUsePLSDstRead(usePLSDstRead) {}
 
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
@@ -51,7 +56,9 @@ public:
         const char* fInputCoverage;
         const char* fOutputPrimary;
         const char* fOutputSecondary;
-        const TextureSamplerArray& fSamplers;
+        const SamplerHandle* fTexSamplers;
+        const SamplerHandle* fBufferSamplers;
+        bool fUsePLSDstRead;
     };
     /**
      * This is similar to emitCode() in the base class, except it takes a full shader builder.
@@ -67,6 +74,14 @@ public:
         function calls onSetData on the subclass of GrGLSLXferProcessor
      */
     void setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp);
+
+protected:
+    static void DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fragBuilder,
+                                          const char* srcCoverage,
+                                          const char* dstColor,
+                                          const char* outColor,
+                                          const char* outColorSecondary,
+                                          const GrXferProcessor& proc);
 
 private:
     /**

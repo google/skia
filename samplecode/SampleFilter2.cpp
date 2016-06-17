@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -35,12 +35,10 @@ public:
         fBitmaps = new SkBitmap[fBitmapCount];
 
         for (int i = 0; i < fBitmapCount/2; i++) {
-            SkImageDecoder::DecodeFile(gNames[i], &fBitmaps[i], kN32_SkColorType,
-                                       SkImageDecoder::kDecodePixels_Mode, nullptr);
+            decode_file(gNames[i], &fBitmaps[i]);
         }
         for (int i = fBitmapCount/2; i < fBitmapCount; i++) {
-            SkImageDecoder::DecodeFile(gNames[i-fBitmapCount/2], &fBitmaps[i], kRGB_565_SkColorType,
-                                       SkImageDecoder::kDecodePixels_Mode, nullptr);
+            decode_file(gNames[i-fBitmapCount/2], &fBitmaps[i], kRGB_565_SkColorType);
         }
         fCurrIndex = 0;
 

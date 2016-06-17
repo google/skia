@@ -23,7 +23,7 @@ static bool is_enable_bytecode_hints(const SkPaint& paint) {
 }
 
 static void test_cachedfont(skiatest::Reporter* reporter, const SkPaint& paint) {
-    SkAutoTUnref<SkFont> font(SkFont::Testing_CreateFromPaint(paint));
+    sk_sp<SkFont> font(SkFont::Testing_CreateFromPaint(paint));
 
     // Currently SkFont resolves null into the default, so only test if paint's is not null
     if (paint.getTypeface()) {
@@ -78,8 +78,7 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
     char txt[] = "long.text.with.lots.of.dots.";
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
-        SkAutoTUnref<SkTypeface> face(SkTypeface::CreateFromName(faces[i], SkTypeface::kNormal));
-        paint.setTypeface(face);
+        paint.setTypeface(SkTypeface::MakeFromName(faces[i], SkTypeface::kNormal));
 
         for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
             paint.setHinting(settings[j].hinting);
@@ -103,7 +102,7 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
 
                 REPORTER_ASSERT(reporter, width1 == width2);
 
-                SkAutoTUnref<SkFont> font(SkFont::Testing_CreateFromPaint(paint));
+                sk_sp<SkFont> font(SkFont::Testing_CreateFromPaint(paint));
                 SkScalar font_width1 = font->measureText(txt, strlen(txt), kUTF8_SkTextEncoding);
                 // measureText not yet implemented...
                 REPORTER_ASSERT(reporter, font_width1 == -1);

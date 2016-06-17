@@ -3,6 +3,7 @@
 *.iml
 .DS_Store
 .android_config
+.deps_sha1
 .gclient*
 .gm-actuals
 .gradle
@@ -19,9 +20,9 @@ platform_tools/android/apps/build
 platform_tools/android/apps/*.properties
 platform_tools/android/apps/*/build
 platform_tools/android/apps/*/src/main/libs
-platform_tools/chromeos/third_party/externals
-platform_tools/chromeos/toolchain
+sampleapp_prefs.txt
 /skps
+skia.conf
 third_party/externals
 tools/skp/page_sets/data/*.json
 tools/skp/page_sets/data/*.wpr

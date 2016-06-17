@@ -571,7 +571,7 @@ int SkOpSegment::computeSum(SkOpSpanBase* start, SkOpSpanBase* end,
     return start->starter(end)->windSum();
 }
 
-void SkOpSegment::detach(const SkOpSpan* span) {
+void SkOpSegment::release(const SkOpSpan* span) {
     if (span->done()) {
         --fDoneCount;
     }
@@ -1297,12 +1297,14 @@ bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
 }
 
 // if a span has more than one intersection, merge the other segments' span as needed
-void SkOpSegment::moveMultiples() {
+bool SkOpSegment::moveMultiples() {
     debugValidate();
     SkOpSpanBase* test = &fHead;
     do {
         int addCount = test->spanAddsCount();
-        SkASSERT(addCount >= 1);
+        if (addCount < 1) {
+            return false;
+        }
         if (addCount == 1) {
             continue;
         }
@@ -1393,6 +1395,7 @@ checkNextSpan:
         ;
     } while ((test = test->final() ? nullptr : test->upCast()->next()));
     debugValidate();
+    return true;
 }
 
 // Move nearby t values and pts so they all hang off the same span. Alignment happens later.
@@ -1404,10 +1407,10 @@ void SkOpSegment::moveNearby() {
         SkOpSpanBase* next;
         if (spanS->contains(test)) {
             if (!test->final()) {
-                test->upCast()->detach(spanS->ptT());
+                test->upCast()->release(spanS->ptT());
                 continue;
             } else if (spanS != &fHead) {
-                spanS->upCast()->detach(test->ptT());
+                spanS->upCast()->release(test->ptT());
                 spanS = test;
                 continue;
             }

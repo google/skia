@@ -49,5 +49,3 @@ bool HWUITarget::init(SkImageInfo info, Benchmark* bench) {
 bool HWUITarget::capturePixels(SkBitmap* bmp) {
     return this->renderer.capturePixels(bmp);
 }
-
-

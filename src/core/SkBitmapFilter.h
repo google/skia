@@ -12,9 +12,7 @@
 #include "SkMath.h"
 #include "SkScalar.h"
 
-#ifndef SK_SUPPORT_LEGACY_BITMAP_FILTER
 #include "SkNx.h"
-#endif
 
 // size of the precomputed bitmap filter tables for high quality filtering.
 // Used to precompute the shape of the filter kernel.
@@ -30,15 +28,6 @@ public:
     }
     virtual ~SkBitmapFilter() {}
 
-    SkFixed lookup(float x) const {
-        if (!fPrecomputed) {
-            precomputeTable();
-        }
-        int filter_idx = int(sk_float_abs(x * fLookupMultiplier));
-        SkASSERT(filter_idx < SKBITMAP_FILTER_TABLE_SIZE);
-        return fFilterTable[filter_idx];
-    }
-
     SkScalar lookupScalar(float x) const {
         if (!fPrecomputed) {
             precomputeTable();
@@ -52,7 +41,6 @@ public:
     float invWidth() const { return fInvWidth; }
     virtual float evaluate(float x) const = 0;
 
-#ifndef SK_SUPPORT_LEGACY_BITMAP_FILTER
     virtual float evaluate_n(float val, float diff, int count, float* output) const {
         float sum = 0;
         for (int index = 0; index < count; index++) {
@@ -63,7 +51,6 @@ public:
         }
         return sum;
     }
-#endif
 
 protected:
     float fWidth;
@@ -71,28 +58,22 @@ protected:
     float fLookupMultiplier;
 
     mutable bool fPrecomputed;
-    mutable SkFixed fFilterTable[SKBITMAP_FILTER_TABLE_SIZE];
     mutable SkScalar fFilterTableScalar[SKBITMAP_FILTER_TABLE_SIZE];
 
 private:
     void precomputeTable() const {
         fPrecomputed = true;
-        SkFixed *ftp = fFilterTable;
         SkScalar *ftpScalar = fFilterTableScalar;
         for (int x = 0; x < SKBITMAP_FILTER_TABLE_SIZE; ++x) {
             float fx = ((float)x + .5f) * this->width() / SKBITMAP_FILTER_TABLE_SIZE;
             float filter_value = evaluate(fx);
             *ftpScalar++ = filter_value;
-            *ftp++ = SkFloatToFixed(filter_value);
         }
     }
 };
 
 class SkMitchellFilter final : public SkBitmapFilter {
 public:
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-    SkMitchellFilter() : INHERITED(2), B(1.f / 3), C(1.f / 3) {}
-#else
     SkMitchellFilter()
         : INHERITED(2)
         , fB(1.f / 3.f)
@@ -105,39 +86,20 @@ public:
         , fB2(-18 + 12*fB + 6*fC)
         , fD2(6 - 2*fB)
     {}
-#endif
 
     float evaluate(float x) const override {
         x = fabsf(x);
         if (x > 2.f) {
             return 0;
         } else if (x > 1.f) {
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-            return ((-B - 6*C) * x*x*x + (6*B + 30*C) * x*x +
-                    (-12*B - 48*C) * x + (8*B + 24*C)) * (1.f/6.f);
-#else
             return (((fA1 * x + fB1) * x + fC1) * x + fD1) * (1.f/6.f);
-#endif
         } else {
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-            return ((12 - 9*B - 6*C) * x*x*x +
-                    (-18 + 12*B + 6*C) * x*x +
-                    (6 - 2*B)) * (1.f/6.f);
-#else
             return ((fA2 * x + fB2) * x*x + fD2) * (1.f/6.f);
-#endif
         }
     }
 
-#ifndef SK_SUPPORT_LEGACY_BITMAP_FILTER
-    // TODO : native Sk4f abs
-    static Sk4f abs(const Sk4f& x) {
-        Sk4f neg = x < Sk4f(0);
-        return neg.thenElse(Sk4f(0) - x, x);
-    }
-
     Sk4f evalcore_n(const Sk4f& val) const {
-        Sk4f x = abs(val);
+        Sk4f x = val.abs();
         Sk4f over2 = x > Sk4f(2);
         Sk4f over1 = x > Sk4f(1);
         Sk4f poly1 = (((Sk4f(fA1) * x + Sk4f(fB1)) * x + Sk4f(fC1)) * x + Sk4f(fD1))
@@ -166,16 +128,11 @@ public:
         result += INHERITED::evaluate_n(val, diff, count, output);
         return result;
     }
-#endif
 
   protected:
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-      float B, C;
-#else
       float fB, fC;
       float fA1, fB1, fC1, fD1;
       float fA2, fB2, fD2;
-#endif
 private:
     typedef SkBitmapFilter INHERITED;
 };

@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkLayerRasterizer_DEFINED
 #define SkLayerRasterizer_DEFINED
@@ -44,7 +42,7 @@ public:
           *
           *  The caller is responsible for calling unref() on the returned object, if non NULL.
           */
-        SkLayerRasterizer* detachRasterizer();
+        sk_sp<SkLayerRasterizer> detach();
 
         /**
           *  Create and return a new immutable SkLayerRasterizer that contains a shapshot of the
@@ -58,7 +56,16 @@ public:
           *
           *  The caller is responsible for calling unref() on the returned object, if non NULL.
           */
-        SkLayerRasterizer* snapshotRasterizer() const;
+        sk_sp<SkLayerRasterizer> snapshot() const;
+    
+#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
+        SkLayerRasterizer* detachRasterizer() {
+            return this->detach().release();
+        }
+        SkLayerRasterizer* snapshotRasterizer() const {
+            return this->snapshot().release();
+        }
+#endif
 
     private:
         SkDeque* fLayers;

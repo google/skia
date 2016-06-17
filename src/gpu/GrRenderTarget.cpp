@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -30,7 +29,7 @@ void GrRenderTarget::discard() {
         return;
     }
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(this));
+    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(this)));
     if (!drawContext) {
         return;
     }
@@ -102,6 +101,23 @@ bool GrRenderTargetPriv::attachStencilAttachment(GrStencilAttachment* stencil) {
     if (!fRenderTarget->completeStencilAttachment()) {
         SkSafeSetNull(fRenderTarget->fStencilAttachment);
         return false;
-    } 
+    }
     return true;
 }
+
+int GrRenderTargetPriv::numStencilBits() const {
+    return fRenderTarget->fStencilAttachment ? fRenderTarget->fStencilAttachment->bits() : 0;
+}
+
+const GrGpu::MultisampleSpecs&
+GrRenderTargetPriv::getMultisampleSpecs(const GrStencilSettings& stencil) const {
+    return fRenderTarget->getGpu()->getMultisampleSpecs(fRenderTarget, stencil);
+}
+
+GrRenderTarget::SampleConfig GrRenderTarget::ComputeSampleConfig(const GrCaps& caps,
+                                                                 int sampleCnt) {
+    return (caps.usesMixedSamples() && sampleCnt > 0)
+                        ? GrRenderTarget::kStencil_SampleConfig
+                        : GrRenderTarget::kUnified_SampleConfig;
+}
+

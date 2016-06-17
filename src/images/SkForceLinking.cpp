@@ -5,35 +5,36 @@
  * found in the LICENSE file.
  */
 
+#include "SkImageEncoder.h"
 #include "SkForceLinking.h"
-#include "SkImageDecoder.h"
 
 // This method is required to fool the linker into not discarding the pre-main
-// initialization and registration of the decoder classes. Passing true will
+// initialization and registration of the encoder classes. Passing true will
 // cause memory leaks.
 int SkForceLinking(bool doNotPassTrue) {
     if (doNotPassTrue) {
         SkASSERT(false);
-        CreateJPEGImageDecoder();
-        CreateWEBPImageDecoder();
-        CreateBMPImageDecoder();
-        CreateICOImageDecoder();
-        CreateWBMPImageDecoder();
+#if defined(SK_HAS_JPEG_LIBRARY)
+        CreateJPEGImageEncoder();
+#endif
+#if defined(SK_HAS_WEBP_LIBRARY)
+        CreateWEBPImageEncoder();
+#endif
+
         // Only link hardware texture codecs on platforms that build them. See images.gyp
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        CreatePKMImageDecoder();
-        CreateKTXImageDecoder();
-        CreateASTCImageDecoder();
+        CreateKTXImageEncoder();
 #endif
-        // Only link GIF and PNG on platforms that build them. See images.gyp
-#if !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_IOS)
-        CreateGIFImageDecoder();
+
+#if !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_IOS) && \
+    defined(SK_HAS_PNG_LIBRARY)
+        CreatePNGImageEncoder();
 #endif
-#if !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_IOS)
-        CreatePNGImageDecoder();
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+        CreatePNGImageEncoder_CG();
 #endif
-#if defined(SK_BUILD_FOR_IOS)
-        CreatePNGImageEncoder_IOS();
+#if defined(SK_BUILD_FOR_WIN)
+        CreateImageEncoder_WIC();
 #endif
         return -1;
     }

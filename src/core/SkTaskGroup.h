@@ -14,8 +14,6 @@
 #include "SkAtomics.h"
 #include "SkTemplates.h"
 
-struct SkRunnable;
-
 class SkTaskGroup : SkNoncopyable {
 public:
     // Create one of these in main() to enable SkTaskGroups globally.
@@ -28,9 +26,6 @@ public:
     ~SkTaskGroup() { this->wait(); }
 
     // Add a task to this SkTaskGroup.  It will likely run on another thread.
-    // Neither add() method takes owership of any of its parameters.
-    void add(SkRunnable*);
-
     void add(std::function<void(void)> fn);
 
     // Add a batch of N tasks, all calling fn with different arguments.
@@ -43,8 +38,5 @@ public:
 private:
     SkAtomic<int32_t> fPending;
 };
-
-// Returns best estimate of number of CPU cores available to use.
-int sk_num_cores();
 
 #endif//SkTaskGroup_DEFINED

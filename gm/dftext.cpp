@@ -19,7 +19,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        sk_tool_utils::emoji_typeface(&fEmojiTypeface);
+        fEmojiTypeface = sk_tool_utils::emoji_typeface();
         fEmojiText = sk_tool_utils::emoji_sample_text();
     }
 
@@ -48,12 +48,15 @@ protected:
         // set up offscreen rendering with distance field text
 #if SK_SUPPORT_GPU
         GrContext* ctx = inputCanvas->getGrContext();
-        SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
-        SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
+        SkImageInfo info = SkImageInfo::MakeN32Premul(onISize(),
+                                                      inputCanvas->imageInfo().profileType());
+        SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
+        uint32_t gammaCorrect = inputCanvas->getProps(&canvasProps)
+            ? canvasProps.flags() & SkSurfaceProps::kGammaCorrect_Flag : 0;
+        SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag | gammaCorrect,
                              SkSurfaceProps::kLegacyFontHost_InitType);
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted,
-                                                                   info, 0, &props));
-        SkCanvas* canvas = surface.get() ? surface->getCanvas() : inputCanvas;
+        auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props));
+        SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
         // init our new canvas with the old canvas's matrix
         canvas->setMatrix(inputCanvas->getTotalMatrix());
 #else
@@ -201,15 +204,13 @@ protected:
             SkAutoCanvasRestore acr(inputCanvas, true);
             // since we prepended this matrix already, we blit using identity
             inputCanvas->resetMatrix();
-            SkImage* image = surface->newImageSnapshot();
-            inputCanvas->drawImage(image, 0, 0, nullptr);
-            image->unref();
+            inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
 #endif
     }
 
 private:
-    SkAutoTUnref<SkTypeface> fEmojiTypeface;
+    sk_sp<SkTypeface> fEmojiTypeface;
     const char* fEmojiText;
 
     typedef skiagm::GM INHERITED;

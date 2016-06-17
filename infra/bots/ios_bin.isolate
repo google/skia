@@ -1,0 +1,11 @@
+{
+  'conditions': [
+    ['OS=="iOS-9.2"', {
+      'variables': {
+        'files': [
+          '../../platform_tools/ios/bin/',
+        ],
+      },
+    }],
+  ],
+}

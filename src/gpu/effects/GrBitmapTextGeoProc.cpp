@@ -31,19 +31,15 @@ public:
 
         // compute numbers to be hardcoded to convert texture coordinates from int to float
         SkASSERT(cte.numTextures() == 1);
-        GrTexture* atlas = cte.textureAccess(0).getTexture();
+        SkDEBUGCODE(GrTexture* atlas = cte.textureAccess(0).getTexture());
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
-        SkScalar recipWidth = 1.0f / atlas->width();
-        SkScalar recipHeight = 1.0f / atlas->height();
 
         GrGLSLVertToFrag v(kVec2f_GrSLType);
-        varyingHandler->addVarying("TextureCoords", &v);
-        vertBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", v.vsOut(),
-                                 GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipWidth,
-                                 GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipHeight,
+        varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
+        vertBuilder->codeAppendf("%s = %s;", v.vsOut(),
                                  cte.inTextureCoords()->fName);
 
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
         if (!cte.colorIgnored()) {
             if (cte.hasVertexColor()) {
@@ -70,14 +66,14 @@ public:
         if (cte.maskFormat() == kARGB_GrMaskFormat) {
             fragBuilder->codeAppendf("%s = ", args.fOutputColor);
             fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
-                                                        args.fSamplers[0],
+                                                        args.fTexSamplers[0],
                                                         v.fsIn(),
                                                         kVec2f_GrSLType);
             fragBuilder->codeAppend(";");
             fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
         } else {
             fragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
-            fragBuilder->appendTextureLookup(args.fSamplers[0], v.fsIn(), kVec2f_GrSLType);
+            fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kVec2f_GrSLType);
             fragBuilder->codeAppend(";");
             if (cte.maskFormat() == kA565_GrMaskFormat) {
                 // set alpha to be max of rgb coverage
@@ -150,7 +146,8 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
         fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
     }
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                        kVec2s_GrVertexAttribType));
+                                                        kVec2us_GrVertexAttribType,
+                                                        kHigh_GrSLPrecision));
     this->addTextureAccess(&fTextureAccess);
 }
 
@@ -182,7 +179,7 @@ const GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
     GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
 
-    GrMaskFormat format;
+    GrMaskFormat format = kARGB_GrMaskFormat; // init to avoid warning
     switch (d->fRandom->nextULessThan(3)) {
         case 0:
             format = kA8_GrMaskFormat;

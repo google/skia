@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -20,20 +19,12 @@ enum {
     kConic_SegType,
 };
 
-#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
-#define kMaxTValue  32767
-#else
 #define kMaxTValue  0x3FFFFFFF
-#endif
 
 static inline SkScalar tValue2Scalar(int t) {
     SkASSERT((unsigned)t <= kMaxTValue);
-#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
-    return t * 3.05185e-5f; // t / 32767
-#else
     const SkScalar kMaxTReciprocal = 1.0f / kMaxTValue;
     return t * kMaxTReciprocal;
-#endif
 }
 
 SkScalar SkPathMeasure::Segment::getScalarT() const {
@@ -61,7 +52,7 @@ static inline int tspan_big_enough(int tspan) {
 // so we compare midpoints
 #define CHEAP_DIST_LIMIT    (SK_Scalar1/2)  // just made this value up
 
-static bool quad_too_curvy(const SkPoint pts[3]) {
+bool SkPathMeasure::quad_too_curvy(const SkPoint pts[3]) {
     // diff = (a/4 + b/2 + c/4) - (a/2 + c/2)
     // diff = -a/4 + b/2 - c/4
     SkScalar dx = SkScalarHalf(pts[1].fX) -
@@ -70,17 +61,26 @@ static bool quad_too_curvy(const SkPoint pts[3]) {
                         SkScalarHalf(SkScalarHalf(pts[0].fY + pts[2].fY));
 
     SkScalar dist = SkMaxScalar(SkScalarAbs(dx), SkScalarAbs(dy));
-    return dist > CHEAP_DIST_LIMIT;
+    return dist > fTolerance;
 }
 
-static bool cheap_dist_exceeds_limit(const SkPoint& pt,
+bool SkPathMeasure::conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,
+                            const SkPoint& lastPt) {
+    SkPoint midEnds = firstPt + lastPt;
+    midEnds *= 0.5f;
+    SkVector dxy = midTPt - midEnds;
+    SkScalar dist = SkMaxScalar(SkScalarAbs(dxy.fX), SkScalarAbs(dxy.fY));
+    return dist > fTolerance;
+}
+
+bool SkPathMeasure::cheap_dist_exceeds_limit(const SkPoint& pt,
                                      SkScalar x, SkScalar y) {
     SkScalar dist = SkMaxScalar(SkScalarAbs(x - pt.fX), SkScalarAbs(y - pt.fY));
     // just made up the 1/2
-    return dist > CHEAP_DIST_LIMIT;
+    return dist > fTolerance;
 }
 
-static bool cubic_too_curvy(const SkPoint pts[4]) {
+bool SkPathMeasure::cubic_too_curvy(const SkPoint pts[4]) {
     return  cheap_dist_exceeds_limit(pts[1],
                          SkScalarInterp(pts[0].fX, pts[3].fX, SK_Scalar1/3),
                          SkScalarInterp(pts[0].fY, pts[3].fY, SK_Scalar1/3))
@@ -90,27 +90,57 @@ static bool cubic_too_curvy(const SkPoint pts[4]) {
                          SkScalarInterp(pts[0].fY, pts[3].fY, SK_Scalar1*2/3));
 }
 
-/* from http://www.malczak.linuxpl.com/blog/quadratic-bezier-curve-length/ */
-static SkScalar compute_quad_len(const SkPoint pts[3]) {
-     SkPoint a,b;
-     a.fX = pts[0].fX - 2 * pts[1].fX + pts[2].fX;
-     a.fY = pts[0].fY - 2 * pts[1].fY + pts[2].fY;
-     b.fX = 2 * (pts[1].fX - pts[0].fX);
-     b.fY = 2 * (pts[1].fY - pts[0].fY);
-     SkScalar A = 4 * (a.fX * a.fX + a.fY * a.fY);
-     SkScalar B = 4 * (a.fX * b.fX + a.fY * b.fY);
-     SkScalar C =      b.fX * b.fX + b.fY * b.fY;
-
-     SkScalar Sabc = 2 * SkScalarSqrt(A + B + C);
-     SkScalar A_2  = SkScalarSqrt(A);
-     SkScalar A_32 = 2 * A * A_2;
-     SkScalar C_2  = 2 * SkScalarSqrt(C);
-     SkScalar BA   = B / A_2;
-
-     return (A_32 * Sabc + A_2 * B * (Sabc - C_2) +
-            (4 * C * A - B * B) * SkScalarLog((2 * A_2 + BA + Sabc) / (BA + C_2))) / (4 * A_32);
+static SkScalar quad_folded_len(const SkPoint pts[3]) {
+    SkScalar t = SkFindQuadMaxCurvature(pts);
+    SkPoint pt = SkEvalQuadAt(pts, t);
+    SkVector a = pts[2] - pt;
+    SkScalar result = a.length();
+    if (0 != t) {
+        SkVector b = pts[0] - pt;
+        result += b.length();
+    }
+    SkASSERT(SkScalarIsFinite(result));
+    return result;
 }
 
+/* from http://www.malczak.linuxpl.com/blog/quadratic-bezier-curve-length/ */
+/* This works -- more needs to be done to see if it is performant on all platforms.
+   To use this to measure parts of quads requires recomputing everything -- perhaps
+   a chop-like interface can start from a larger measurement and get two new measurements
+   with one call here.
+ */
+static SkScalar compute_quad_len(const SkPoint pts[3]) {
+    SkPoint a,b;
+    a.fX = pts[0].fX - 2 * pts[1].fX + pts[2].fX;
+    a.fY = pts[0].fY - 2 * pts[1].fY + pts[2].fY;
+    SkScalar A = 4 * (a.fX * a.fX + a.fY * a.fY);
+    if (0 == A) {
+        a = pts[2] - pts[0];
+        return a.length();
+    }
+    b.fX = 2 * (pts[1].fX - pts[0].fX);
+    b.fY = 2 * (pts[1].fY - pts[0].fY);
+    SkScalar B = 4 * (a.fX * b.fX + a.fY * b.fY);
+    SkScalar C =      b.fX * b.fX + b.fY * b.fY;
+    SkScalar Sabc = 2 * SkScalarSqrt(A + B + C);
+    SkScalar A_2  = SkScalarSqrt(A);
+    SkScalar A_32 = 2 * A * A_2;
+    SkScalar C_2  = 2 * SkScalarSqrt(C);
+    SkScalar BA   = B / A_2;
+    if (0 == BA + C_2) {
+        return quad_folded_len(pts);
+    }
+    SkScalar J = A_32 * Sabc + A_2 * B * (Sabc - C_2);
+    SkScalar K = 4 * C * A - B * B;
+    SkScalar L = (2 * A_2 + BA + Sabc) / (BA + C_2);
+    if (L <= 0) {
+        return quad_folded_len(pts);
+    }
+    SkScalar M = SkScalarLog(L);
+    SkScalar result = (J + K * M) / (4 * A_32);
+    SkASSERT(SkScalarIsFinite(result));
+    return result;
+}
 
 SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
                           SkScalar distance, int mint, int maxt, int ptIndex) {
@@ -136,17 +166,16 @@ SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
     return distance;
 }
 
-SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic,
-                                           SkScalar distance, int mint, int maxt, int ptIndex) {
-    if (tspan_big_enough(maxt - mint) && quad_too_curvy(conic.fPts)) {
-        SkConic tmp[2];
-        conic.chop(tmp);
-
-        int halft = (mint + maxt) >> 1;
-        distance = this->compute_conic_segs(tmp[0], distance, mint, halft, ptIndex);
-        distance = this->compute_conic_segs(tmp[1], distance, halft, maxt, ptIndex);
+SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic, SkScalar distance,
+                                           int mint, const SkPoint& minPt,
+                                           int maxt, const SkPoint& maxPt, int ptIndex) {
+    int halft = (mint + maxt) >> 1;
+    SkPoint halfPt = conic.evalAt(tValue2Scalar(halft));
+    if (tspan_big_enough(maxt - mint) && conic_too_curvy(minPt, halfPt, maxPt)) {
+        distance = this->compute_conic_segs(conic, distance, mint, minPt, halft, halfPt, ptIndex);
+        distance = this->compute_conic_segs(conic, distance, halft, halfPt, maxt, maxPt, ptIndex);
     } else {
-        SkScalar d = SkPoint::Distance(conic.fPts[0], conic.fPts[2]);
+        SkScalar d = SkPoint::Distance(minPt, maxPt);
         SkScalar prevD = distance;
         distance += d;
         if (distance > prevD) {
@@ -253,7 +282,8 @@ void SkPathMeasure::buildSegments() {
             case SkPath::kConic_Verb: {
                 const SkConic conic(pts, fIter.conicWeight());
                 SkScalar prevD = distance;
-                distance = this->compute_conic_segs(conic, distance, 0, kMaxTValue, ptIndex);
+                distance = this->compute_conic_segs(conic, distance, 0, conic.fPts[0],
+                                                    kMaxTValue, conic.fPts[2], ptIndex);
                 if (distance > prevD) {
                     // we store the conic weight in our next point, followed by the last 2 pts
                     // thus to reconstitue a conic, you'd need to say
@@ -406,14 +436,14 @@ static void seg_to(const SkPoint pts[], int segType,
                     dst->conicTo(tmp[0].fPts[1], tmp[0].fPts[2], tmp[0].fW);
                 }
             } else {
-                SkConic tmp1[2];
-                conic.chopAt(startT, tmp1);
                 if (SK_Scalar1 == stopT) {
+                    SkConic tmp1[2];
+                    conic.chopAt(startT, tmp1);
                     dst->conicTo(tmp1[1].fPts[1], tmp1[1].fPts[2], tmp1[1].fW);
                 } else {
-                    SkConic tmp2[2];
-                    tmp1[1].chopAt((stopT - startT) / (SK_Scalar1 - startT), tmp2);
-                    dst->conicTo(tmp2[0].fPts[1], tmp2[0].fPts[2], tmp2[0].fW);
+                    SkConic tmp;
+                    conic.chopAt(startT, stopT, &tmp);
+                    dst->conicTo(tmp.fPts[1], tmp.fPts[2], tmp.fW);
                 }
             }
         } break;
@@ -446,13 +476,15 @@ static void seg_to(const SkPoint pts[], int segType,
 
 SkPathMeasure::SkPathMeasure() {
     fPath = nullptr;
+    fTolerance = CHEAP_DIST_LIMIT;
     fLength = -1;   // signal we need to compute it
     fForceClosed = false;
     fFirstPtIndex = -1;
 }
 
-SkPathMeasure::SkPathMeasure(const SkPath& path, bool forceClosed) {
+SkPathMeasure::SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale) {
     fPath = &path;
+    fTolerance = CHEAP_DIST_LIMIT * SkScalarInvert(resScale);
     fLength = -1;   // signal we need to compute it
     fForceClosed = forceClosed;
     fFirstPtIndex = -1;
@@ -494,12 +526,12 @@ int SkTKSearch(const T base[], int count, const K& key) {
     if (count <= 0) {
         return ~0;
     }
-    
+
     SkASSERT(base != nullptr); // base may be nullptr if count is zero
-    
+
     int lo = 0;
     int hi = count - 1;
-    
+
     while (lo < hi) {
         int mid = (hi + lo) >> 1;
         if (base[mid].fDistance < key) {
@@ -508,7 +540,7 @@ int SkTKSearch(const T base[], int count, const K& key) {
             hi = mid;
         }
     }
-    
+
     if (base[hi].fDistance < key) {
         hi += 1;
         hi = ~hi;
@@ -617,6 +649,9 @@ bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
         stopD = length;
     }
     if (startD > stopD) {
+        return false;
+    }
+    if (!fSegments.count()) {
         return false;
     }
 

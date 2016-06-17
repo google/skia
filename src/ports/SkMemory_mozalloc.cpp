@@ -12,9 +12,8 @@
 #include "mozilla/mozalloc_abort.h"
 #include "mozilla/mozalloc_oom.h"
 
-void sk_throw() {
-    SkDEBUGFAIL("sk_throw");
-    mozalloc_abort("Abort from sk_throw");
+void sk_abort_no_print() {
+    mozalloc_abort("Abort from sk_abort");
 }
 
 void sk_out_of_memory(void) {

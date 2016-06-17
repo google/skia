@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -7,6 +6,7 @@
  */
 
 
+#include "SkFixed.h"
 #include "SkInterpolator.h"
 #include "SkMath.h"
 #include "SkTSearch.h"

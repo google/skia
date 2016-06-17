@@ -37,11 +37,15 @@ void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
     }
 }
 
-SkColorFilter* SkLumaColorFilter::Create() { return new SkLumaColorFilter; }
+sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
+    return sk_sp<SkColorFilter>(new SkLumaColorFilter);
+}
 
 SkLumaColorFilter::SkLumaColorFilter() : INHERITED() {}
 
-SkFlattenable* SkLumaColorFilter::CreateProc(SkReadBuffer&) { return new SkLumaColorFilter; }
+sk_sp<SkFlattenable> SkLumaColorFilter::CreateProc(SkReadBuffer&) {
+    return Make();
+}
 
 void SkLumaColorFilter::flatten(SkWriteBuffer&) const {}
 
@@ -62,16 +66,14 @@ public:
 
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
-        GLSLProcessor(const GrProcessor&) {}
+        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
-        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
-
-        virtual void emitCode(EmitArgs& args) override {
+        void emitCode(EmitArgs& args) override {
             if (nullptr == args.fInputColor) {
                 args.fInputColor = "vec4(1)";
             }
 
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             fragBuilder->codeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
                                      SK_ITU_BT709_LUM_COEFF_R,
                                      SK_ITU_BT709_LUM_COEFF_G,
@@ -92,7 +94,7 @@ private:
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLSLProcessor(*this);
+        return new GLSLProcessor;
     }
 
     virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,

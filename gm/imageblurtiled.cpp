@@ -21,27 +21,26 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() {
+    SkString onShortName() override {
         return SkString("imageblurtiled");
     }
 
-    virtual SkISize onISize() {
+    SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(fSigmaX, fSigmaY));
-        paint.setImageFilter(blur);
-        const SkScalar tile_size = SkIntToScalar(128);
+        paint.setImageFilter(SkBlurImageFilter::Make(fSigmaX, fSigmaY, nullptr));
+        const SkScalar tileSize = SkIntToScalar(128);
         SkRect bounds;
         if (!canvas->getClipBounds(&bounds)) {
             bounds.setEmpty();
         }
-        for (SkScalar y = bounds.top(); y < bounds.bottom(); y += tile_size) {
-            for (SkScalar x = bounds.left(); x < bounds.right(); x += tile_size) {
+        for (SkScalar y = bounds.top(); y < bounds.bottom(); y += tileSize) {
+            for (SkScalar x = bounds.left(); x < bounds.right(); x += tileSize) {
                 canvas->save();
-                canvas->clipRect(SkRect::MakeXYWH(x, y, tile_size, tile_size));
+                canvas->clipRect(SkRect::MakeXYWH(x, y, tileSize, tileSize));
                 canvas->saveLayer(nullptr, &paint);
                 const char* str[] = {
                     "The quick",
@@ -74,7 +73,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory1(void*) { return new ImageBlurTiledGM(3.0f, 3.0f); }
-static GMRegistry reg1(MyFactory1);
+DEF_GM(return new  ImageBlurTiledGM(3.0f, 3.0f);)
 
 }

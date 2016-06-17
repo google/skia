@@ -53,13 +53,6 @@ static inline int32_t SkMulDiv(int32_t numer1, int32_t numer2, int32_t denom) {
 }
 
 /**
- *  Computes (numer1 << shift) / denom in full 64 intermediate precision.
- *  It is an error for denom to be 0. There is no special handling if
- *  the result overflows 32bits.
- */
-int32_t SkDivBits(int32_t numer, int32_t denom, int shift);
-
-/**
  *  Return the integer square root of value, with a bias of bitBias
  */
 int32_t SkSqrtBits(int32_t value, int bitBias);
@@ -72,7 +65,7 @@ int32_t SkSqrtBits(int32_t value, int bitBias);
 int SkCLZ_portable(uint32_t);
 
 #ifndef SkCLZ
-    #if defined(_MSC_VER) && _MSC_VER >= 1400
+    #if defined(_MSC_VER)
         #include <intrin.h>
 
         static inline int SkCLZ(uint32_t mask) {

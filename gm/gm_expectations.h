@@ -11,7 +11,6 @@
 
 #include "gm.h"
 #include "SkBitmap.h"
-#include "SkBitmapHasher.h"
 #include "SkData.h"
 #include "SkJSONCPP.h"
 #include "SkOSFile.h"

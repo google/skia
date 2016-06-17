@@ -263,8 +263,8 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
 }
 
 static void test_discarded_image(skiatest::Reporter* reporter, const SkMatrix& transform,
-                                 SkImage* (*buildImage)()) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
+                                 sk_sp<SkImage> (*buildImage)()) {
+    auto surface(SkSurface::MakeRasterN32Premul(10, 10));
     SkCanvas* canvas = surface->getCanvas();
 
     // SkBitmapCache is global, so other threads could be evicting our bitmaps.  Loop a few times
@@ -273,7 +273,7 @@ static void test_discarded_image(skiatest::Reporter* reporter, const SkMatrix& t
     for (unsigned i = 0; i < kRepeatCount; ++i) {
         SkAutoCanvasRestore acr(canvas, true);
 
-        SkAutoTUnref<SkImage> image(buildImage());
+        sk_sp<SkImage> image(buildImage());
 
         // always use high quality to ensure caching when scaled
         SkPaint paint;
@@ -313,17 +313,17 @@ DEF_TEST(BitmapCache_discarded_image, reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(xforms); ++i) {
         test_discarded_image(reporter, xforms[i], []() {
-            SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
+            auto surface(SkSurface::MakeRasterN32Premul(10, 10));
             surface->getCanvas()->clear(SK_ColorCYAN);
-            return surface->newImageSnapshot();
+            return surface->makeImageSnapshot();
         });
 
         test_discarded_image(reporter, xforms[i], []() {
             SkPictureRecorder recorder;
             SkCanvas* canvas = recorder.beginRecording(10, 10);
             canvas->clear(SK_ColorCYAN);
-            SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-            return SkImage::NewFromPicture(picture, SkISize::Make(10, 10), nullptr, nullptr);
+            return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
+                                            SkISize::Make(10, 10), nullptr, nullptr);
         });
     }
 }

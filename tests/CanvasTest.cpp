@@ -18,6 +18,7 @@
  *      function of the form:
  *
  *          static void MyTestStepFunction(SkCanvas* canvas,
+ *                                         const TestData& d,
  *                                         skiatest::Reporter* reporter,
  *                                         CanvasTestStep* testStep)
  *          {
@@ -46,7 +47,6 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
-#include "SkDevice.h"
 #include "SkDocument.h"
 #include "SkMatrix.h"
 #include "SkNWayCanvas.h"
@@ -56,6 +56,7 @@
 #include "SkPicture.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
+#include "SkRasterClip.h"
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -415,9 +416,8 @@ static void DrawVerticesShaderTestStep(SkCanvas* canvas, const TestData& d,
     pts[2].set(SkIntToScalar(d.fWidth), SkIntToScalar(d.fHeight));
     pts[3].set(0, SkIntToScalar(d.fHeight));
     SkPaint paint;
-    SkShader* shader = SkShader::CreateBitmapShader(d.fBitmap,
-        SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
-    paint.setShader(shader)->unref();
+    paint.setShader(SkShader::MakeBitmapShader(d.fBitmap, SkShader::kClamp_TileMode,
+                                               SkShader::kClamp_TileMode));
     canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, pts, pts,
                          nullptr, nullptr, nullptr, 0, paint);
 }
@@ -432,9 +432,8 @@ static void DrawPictureTestStep(SkCanvas* canvas, const TestData& d,
     testCanvas->scale(SkIntToScalar(2), SkIntToScalar(1));
     testCanvas->clipRect(d.fRect);
     testCanvas->drawRect(d.fRect, d.fPaint);
-    SkAutoTUnref<SkPicture> testPicture(recorder.endRecording());
 
-    canvas->drawPicture(testPicture);
+    canvas->drawPicture(recorder.finishRecordingAsPicture());
 }
 TEST_STEP(DrawPicture, DrawPictureTestStep);
 
@@ -500,6 +499,79 @@ static void NestedSaveRestoreWithFlushTestStep(SkCanvas* canvas, const TestData&
 }
 TEST_STEP(NestedSaveRestoreWithFlush, NestedSaveRestoreWithFlushTestStep);
 
+static void DescribeTopLayerTestStep(SkCanvas* canvas,
+                                     const TestData& d,
+                                     skiatest::Reporter* reporter,
+                                     CanvasTestStep* testStep) {
+    SkMatrix m;
+    SkIRect r;
+    // NOTE: adjustToTopLayer() does *not* reduce the clip size, even if the canvas
+    // is smaller than 10x10!
+
+    canvas->temporary_internal_describeTopLayer(&m, &r);
+    REPORTER_ASSERT_MESSAGE(reporter, m.isIdentity(), testStep->assertMessage());
+    REPORTER_ASSERT_MESSAGE(reporter, r == SkIRect::MakeXYWH(0, 0, 2, 2),
+                            testStep->assertMessage());
+
+    // Putting a full-canvas layer on it should make no change to the results.
+    SkRect layerBounds = SkRect::MakeXYWH(0.f, 0.f, 10.f, 10.f);
+    canvas->saveLayer(layerBounds, nullptr);
+    canvas->temporary_internal_describeTopLayer(&m, &r);
+    REPORTER_ASSERT_MESSAGE(reporter, m.isIdentity(), testStep->assertMessage());
+    REPORTER_ASSERT_MESSAGE(reporter, r == SkIRect::MakeXYWH(0, 0, 2, 2),
+                            testStep->assertMessage());
+    canvas->restore();
+
+    // Adding a translated layer translates the results.
+    // Default canvas is only 2x2, so can't offset our layer by very much at all;
+    // saveLayer() aborts if the bounds don't intersect.
+    layerBounds = SkRect::MakeXYWH(1.f, 1.f, 6.f, 6.f);
+    canvas->saveLayer(layerBounds, nullptr);
+    canvas->temporary_internal_describeTopLayer(&m, &r);
+    REPORTER_ASSERT_MESSAGE(reporter, m == SkMatrix::MakeTrans(-1.f, -1.f),
+                            testStep->assertMessage());
+    REPORTER_ASSERT_MESSAGE(reporter, r == SkIRect::MakeXYWH(0, 0, 1, 1),
+                            testStep->assertMessage());
+    canvas->restore();
+
+}
+TEST_STEP(DescribeTopLayer, DescribeTopLayerTestStep);
+
+
+class CanvasTestingAccess {
+public:
+    static bool SameState(const SkCanvas* canvas1, const SkCanvas* canvas2) {
+        SkCanvas::LayerIter layerIter1(const_cast<SkCanvas*>(canvas1), false);
+        SkCanvas::LayerIter layerIter2(const_cast<SkCanvas*>(canvas2), false);
+        while (!layerIter1.done() && !layerIter2.done()) {
+            if (layerIter1.matrix() != layerIter2.matrix()) {
+                return false;    
+            }
+            if (layerIter1.clip() != layerIter2.clip()) {
+                return false;
+            }
+            if (layerIter1.paint() != layerIter2.paint()) {
+                return false;   
+            }
+            if (layerIter1.x() != layerIter2.x()) {
+                return false;    
+            }
+            if (layerIter1.y() != layerIter2.y()) {
+                return false;
+            }
+            layerIter1.next();
+            layerIter2.next();
+        }
+        if (!layerIter1.done()) {
+            return false;
+        }
+        if (!layerIter2.done()) {
+            return false;
+        }
+        return true;
+    }
+};
+
 static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData& d,
                                     const SkCanvas* canvas1, const SkCanvas* canvas2,
                                     CanvasTestStep* testStep) {
@@ -515,8 +587,11 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData
     REPORTER_ASSERT_MESSAGE(reporter, bounds1 == bounds2,
                             testStep->assertMessage());
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
     REPORTER_ASSERT_MESSAGE(reporter, canvas1->getDrawFilter() ==
         canvas2->getDrawFilter(), testStep->assertMessage());
+#endif
+
     SkIRect deviceBounds1, deviceBounds2;
     REPORTER_ASSERT_MESSAGE(reporter,
         canvas1->getClipDeviceBounds(&deviceBounds1) ==
@@ -527,34 +602,16 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData
         canvas2->getTotalMatrix(), testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, equal_clips(*canvas1, *canvas2), testStep->assertMessage());
 
-    SkCanvas::LayerIter layerIter1(const_cast<SkCanvas*>(canvas1), false);
-    SkCanvas::LayerIter layerIter2(const_cast<SkCanvas*>(canvas2), false);
-    while (!layerIter1.done() && !layerIter2.done()) {
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.matrix() ==
-            layerIter2.matrix(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.clip() ==
-            layerIter2.clip(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.paint() ==
-            layerIter2.paint(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.x() ==
-            layerIter2.x(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.y() ==
-            layerIter2.y(), testStep->assertMessage());
-        layerIter1.next();
-        layerIter2.next();
-    }
-    REPORTER_ASSERT_MESSAGE(reporter, layerIter1.done(),
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, layerIter2.done(),
-        testStep->assertMessage());
-
+    REPORTER_ASSERT_MESSAGE(reporter, 
+                            CanvasTestingAccess::SameState(canvas1, canvas2),
+                            testStep->assertMessage());
 }
 
 static void TestPdfDevice(skiatest::Reporter* reporter,
                           const TestData& d,
                           CanvasTestStep* testStep) {
     SkDynamicMemoryWStream outStream;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
 #if SK_SUPPORT_PDF
     REPORTER_ASSERT(reporter, doc);
 #else
@@ -643,17 +700,16 @@ static void test_newraster(skiatest::Reporter* reporter) {
     SkCanvas* canvas = SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes);
     REPORTER_ASSERT(reporter, canvas);
 
-    SkImageInfo info2;
-    size_t rowBytes;
-    const SkPMColor* addr = (const SkPMColor*)canvas->peekPixels(&info2, &rowBytes);
+    SkPixmap pmap;
+    const SkPMColor* addr = canvas->peekPixels(&pmap) ? pmap.addr32() : nullptr;
     REPORTER_ASSERT(reporter, addr);
-    REPORTER_ASSERT(reporter, info == info2);
-    REPORTER_ASSERT(reporter, minRowBytes == rowBytes);
+    REPORTER_ASSERT(reporter, info == pmap.info());
+    REPORTER_ASSERT(reporter, minRowBytes == pmap.rowBytes());
     for (int y = 0; y < info.height(); ++y) {
         for (int x = 0; x < info.width(); ++x) {
             REPORTER_ASSERT(reporter, 0 == addr[x]);
         }
-        addr = (const SkPMColor*)((const char*)addr + rowBytes);
+        addr = (const SkPMColor*)((const char*)addr + pmap.rowBytes());
     }
     delete canvas;
 
@@ -700,7 +756,7 @@ DEF_TEST(Canvas_SaveState, reporter) {
     n = canvas.saveLayer(nullptr, nullptr);
     REPORTER_ASSERT(reporter, 2 == n);
     REPORTER_ASSERT(reporter, 3 == canvas.getSaveCount());
-    
+
     canvas.restore();
     REPORTER_ASSERT(reporter, 2 == canvas.getSaveCount());
     canvas.restore();

@@ -87,7 +87,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("ConicCoeffs", &v, kHigh_GrSLPrecision);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->fName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!gp.colorIgnored()) {
         this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
@@ -215,12 +215,11 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // TODO should we really be doing this?
     if (gp.coverageScale() != 0xff) {
         const char* coverageScale;
-        fCoverageScaleUniform = uniformHandler->addUniform(
-                                                         GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kFloat_GrSLType,
-                                                         kHigh_GrSLPrecision,
-                                                         "Coverage",
-                                                         &coverageScale);
+        fCoverageScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                           kFloat_GrSLType,
+                                                           kHigh_GrSLPrecision,
+                                                           "Coverage",
+                                                           &coverageScale);
         fragBuilder->codeAppendf("%s = vec4(%s * %s);",
                                  args.fOutputCoverage, coverageScale, edgeAlpha.c_str());
     } else {
@@ -362,7 +361,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("HairQuadEdge", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge()->fName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!gp.colorIgnored()) {
         this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
@@ -433,12 +432,11 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     if (0xff != gp.coverageScale()) {
         const char* coverageScale;
-        fCoverageScaleUniform = uniformHandler->addUniform(
-                                                         GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kFloat_GrSLType,
-                                                         kDefault_GrSLPrecision,
-                                                         "Coverage",
-                                                         &coverageScale);
+        fCoverageScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                           kFloat_GrSLType,
+                                                           kDefault_GrSLPrecision,
+                                                           "Coverage",
+                                                           &coverageScale);
         fragBuilder->codeAppendf("%s = vec4(%s * edgeAlpha);", args.fOutputCoverage, coverageScale);
     } else {
         fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
@@ -566,7 +564,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("CubicCoeffs", &v, kHigh_GrSLPrecision);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inCubicCoeffs()->fName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!gp.colorIgnored()) {
         this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
@@ -729,4 +727,3 @@ const GrGeometryProcessor* GrCubicEffect::TestCreate(GrProcessorTestData* d) {
     } while (nullptr == gp);
     return gp;
 }
-

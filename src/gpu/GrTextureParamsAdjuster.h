@@ -153,6 +153,8 @@ private:
     SkTLazy<SkIRect>    fContentArea;
     GrTexture*          fOriginal;
 
+    GrTexture* refCopy(const CopyParams &copyParams);
+
     typedef GrTextureProducer INHERITED;
 };
 
@@ -183,7 +185,7 @@ protected:
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
      *  caching of the original if desired.
      */
-    virtual GrTexture* refOriginalTexture() = 0;
+    virtual GrTexture* refOriginalTexture(bool willBeMipped) = 0;
 
     /**
      *  Return a new (uncached) texture that is the stretch of the maker's original.
@@ -195,7 +197,7 @@ protected:
      *  Subclass may override this if they can handle creating the texture more directly than
      *  by copying.
      */
-    virtual GrTexture* generateTextureForParams(const CopyParams&);
+    virtual GrTexture* generateTextureForParams(const CopyParams&, bool willBeMipped);
 
     GrContext* context() const { return fContext; }
 

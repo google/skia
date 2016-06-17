@@ -23,10 +23,10 @@ void SkDrawCommandGeometryWidget::resizeEvent(QResizeEvent* event) {
     QRect r = this->contentsRect();
     int dim = std::min(r.width(), r.height());
     if (dim == 0) {
-        fSurface.reset(nullptr);
+        fSurface = nullptr;
     } else {
         SkImageInfo info = SkImageInfo::MakeN32Premul(dim, dim);
-        fSurface.reset(SkSurface::NewRaster(info));
+        fSurface = SkSurface::MakeRaster(info);
         this->updateImage();
     }
 }
@@ -41,27 +41,27 @@ void SkDrawCommandGeometryWidget::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    SkImageInfo info;
-    size_t rowBytes;
-    if (const void* pixels = fSurface->peekPixels(&info, &rowBytes)) {
-        SkASSERT(info.width() > 0);
-        SkASSERT(info.height() > 0);
+    SkPixmap pixmap;
+
+    if (fSurface->peekPixels(&pixmap)) {
+        SkASSERT(pixmap.width() > 0);
+        SkASSERT(pixmap.height() > 0);
 
         QRectF resultRect;
         if (this->width() < this->height()) {
-            float ratio = this->width() / info.width();
-            resultRect = QRectF(0, 0, this->width(), ratio * info.height());
+            float ratio = this->width() / pixmap.width();
+            resultRect = QRectF(0, 0, this->width(), ratio * pixmap.height());
         } else {
-            float ratio = this->height() / info.height();
-            resultRect = QRectF(0, 0, ratio * info.width(), this->height());
+            float ratio = this->height() / pixmap.height();
+            resultRect = QRectF(0, 0, ratio * pixmap.width(), this->height());
         }
 
         resultRect.moveCenter(this->contentsRect().center());
 
-        QImage image(reinterpret_cast<const uchar*>(pixels),
-                     info.width(),
-                     info.height(),
-                     rowBytes,
+        QImage image(reinterpret_cast<const uchar*>(pixmap.addr()),
+                     pixmap.width(),
+                     pixmap.height(),
+                     pixmap.rowBytes(),
                      QImage::Format_ARGB32_Premultiplied);
         painter.drawImage(resultRect, image);
     }

@@ -15,7 +15,6 @@
 #include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkTArray.h"
 #include "SkTypes.h"
 
 /**

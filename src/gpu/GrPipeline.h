@@ -15,7 +15,7 @@
 #include "GrPendingProgramElement.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProgramDesc.h"
-#include "GrStencil.h"
+#include "GrStencilSettings.h"
 #include "GrTypesPriv.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
@@ -25,6 +25,9 @@ class GrDeviceCoordTexture;
 class GrPipelineBuilder;
 
 struct GrBatchToXPOverrides {
+    GrBatchToXPOverrides()
+    : fUsePLSDstRead(false) {}
+
     bool fUsePLSDstRead;
 };
 
@@ -38,7 +41,7 @@ struct GrPipelineOptimizations {
  * Class that holds an optimized version of a GrPipelineBuilder. It is meant to be an immutable
  * class, and contains all data needed to set the state for a gpu draw.
  */
-class GrPipeline : public GrNonAtomicRef {
+class GrPipeline : public GrNonAtomicRef<GrPipeline> {
 public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Creation
@@ -48,6 +51,7 @@ public:
         const GrCaps*               fCaps;
         GrPipelineOptimizations     fOpts;
         const GrScissorState*       fScissor;
+        bool                        fHasStencilClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
 
@@ -142,6 +146,15 @@ public:
 
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
     bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
+    bool getDisableOutputConversionToSRGB() const {
+        return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
+    }
+    bool getAllowSRGBInputs() const {
+        return SkToBool(fFlags & kAllowSRGBInputs_Flag);
+    }
+    bool hasStencilClip() const {
+        return SkToBool(fFlags & kHasStencilClip_Flag);
+    }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
         return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
@@ -157,7 +170,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    bool readsFragPosition() const { return fReadsFragPosition; }
     bool ignoresCoverage() const { return fIgnoresCoverage; }
 
 private:
@@ -182,8 +194,11 @@ private:
                             const GrCaps&);
 
     enum Flags {
-        kHWAA_Flag              = 0x1,
-        kSnapVertices_Flag      = 0x2,
+        kHWAA_Flag                          = 0x1,
+        kSnapVertices_Flag                  = 0x2,
+        kDisableOutputConversionToSRGB_Flag = 0x4,
+        kAllowSRGBInputs_Flag               = 0x8,
+        kHasStencilClip_Flag                = 0x10
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
@@ -197,7 +212,6 @@ private:
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
     FragmentProcessorArray              fFragmentProcessors;
-    bool                                fReadsFragPosition;
     bool                                fIgnoresCoverage;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.

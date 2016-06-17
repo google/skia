@@ -1,0 +1,13 @@
+{
+  'variables': {
+    'files': [
+      '<(CHROME_DIR)/build/find_depot_tools.py',
+      '<(CHROME_DIR)/build/vs_toolchain.py',
+      '<(CHROME_DIR)/build/win_toolchain.json',
+      '<(CHROME_DIR)/tools/gyp/pylib/',
+      '<(DEPOT_TOOLS_DIR)/gclient.py',
+      '<(DEPOT_TOOLS_DIR)/breakpad.py',
+      '<(WIN_TOOLCHAIN_DIR)/',
+    ],
+  },
+}

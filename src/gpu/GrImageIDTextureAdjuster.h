@@ -15,7 +15,7 @@ class SkBitmap;
 class SkImage_Base;
 class SkImageCacherator;
 
-/** Implementation for texture-backed SkBitmaps. The bitmap must stay in scope and unmodified 
+/** Implementation for texture-backed SkBitmaps. The bitmap must stay in scope and unmodified
     while this object exists. */
 class GrBitmapTextureAdjuster : public GrTextureAdjuster {
 public:
@@ -55,7 +55,7 @@ public:
     GrBitmapTextureMaker(GrContext* context, const SkBitmap& bitmap);
 
 protected:
-    GrTexture* refOriginalTexture() override;
+    GrTexture* refOriginalTexture(bool willBeMipped) override;
 
     void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override;
 
@@ -80,7 +80,7 @@ protected:
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
 
-    GrTexture* refOriginalTexture() override;
+    GrTexture* refOriginalTexture(bool willBeMipped) override;
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 

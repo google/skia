@@ -22,27 +22,28 @@ static const int kDetectorGreenValue = 50;
 // kDetectorGreenValue and then the incorrect value is observable by some part of the drawing
 // pipeline, that pixel will remain empty.
 
-static SkColorFilter* make_detector_color_filter() {
+static sk_sp<SkColorFilter> make_detector_color_filter() {
     uint8_t tableA[256] = { 0, };
     uint8_t tableR[256] = { 0, };
     uint8_t tableG[256] = { 0, };
     uint8_t tableB[256] = { 0, };
     tableA[255] = 255;
     tableG[kDetectorGreenValue] = 255;
-    return SkTableColorFilter::CreateARGB(tableA, tableR, tableG, tableB);
+    return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
 }
 
 // This detector detects that color filter phase of the pixel pipeline receives the correct value.
 static void install_detector_color_filter(SkPaint* drawPaint) {
-    drawPaint->setColorFilter(make_detector_color_filter())->unref();
+    drawPaint->setColorFilter(make_detector_color_filter());
 }
 
 // This detector detects that image filter phase of the pixel pipeline receives the correct value.
 static void install_detector_image_filter(SkPaint* drawPaint) {
-    SkAutoTUnref<SkColorFilter> colorFilter(make_detector_color_filter());
-    SkImageFilter* imageFilter =
-            SkColorFilterImageFilter::Create(colorFilter, drawPaint->getImageFilter());
-    drawPaint->setImageFilter(imageFilter)->unref();
+    sk_sp<SkColorFilter> colorFilter(make_detector_color_filter());
+    sk_sp<SkImageFilter> imageFilter(
+        SkColorFilterImageFilter::Make(std::move(colorFilter),
+                                       sk_ref_sp(drawPaint->getImageFilter())));
+    drawPaint->setImageFilter(std::move(imageFilter));
 }
 
 static void no_detector_install(SkPaint*) {
@@ -100,7 +101,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
                                                        InstallDetectorFunc installDetector) {
 
     SkRect targetRect(SkRect::MakeWH(SkIntToScalar(kTestRectSize), SkIntToScalar(kTestRectSize)));
-    SkAutoTUnref<SkPicture> shape;
+    sk_sp<SkPicture> shape;
     {
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kTestRectSize + 2),
@@ -108,7 +109,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
         SkPaint shapePaint;
         shapePaint.setColor(shapeColor);
         canvas->drawRect(targetRect, shapePaint);
-        shape.reset(recorder.endRecordingAsPicture());
+        shape = recorder.finishRecordingAsPicture();
     }
 
     SkPaint layerPaint;
@@ -117,7 +118,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
         canvas->save();
             canvas->clipRect(targetRect);
             SkPaint drawPaint;
-            drawPaint.setImageFilter(SkPictureImageFilter::Create(shape))->unref();
+            drawPaint.setImageFilter(SkPictureImageFilter::Make(shape));
             installDetector(&drawPaint);
             canvas->saveLayer(&targetRect, &drawPaint);
             canvas->restore();
@@ -161,8 +162,7 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
             drawTestSequence(recorder.beginRecording(SkIntToScalar(kTestRectSize),
                                                      SkIntToScalar(kTestRectSize)),
                              shapeColor, no_detector_install);
-            SkAutoTUnref<SkPicture> optimizedPicture(recorder.endRecordingAsPicture());
-            optimizedPicture->playback(canvas);
+            recorder.finishRecordingAsPicture()->playback(canvas);
             canvas->flush();
         }
         canvas->restore();
@@ -203,8 +203,7 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
                     drawTestSequence(recorder.beginRecording(SkIntToScalar(kTestRectSize),
                                                              SkIntToScalar(kTestRectSize)),
                                      shapeColor, detectorInstallFunc);
-                    SkAutoTUnref<SkPicture> optimizedPicture(recorder.endRecordingAsPicture());
-                    optimizedPicture->playback(canvas);
+                    recorder.finishRecordingAsPicture()->playback(canvas);
                     canvas->flush();
                 }
 
@@ -215,4 +214,3 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
         }
     }
 }
-

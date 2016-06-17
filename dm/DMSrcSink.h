@@ -59,13 +59,15 @@ struct SinkFlags {
 };
 
 struct Src {
-    // All Srcs must be thread safe.
     virtual ~Src() {}
     virtual Error SK_WARN_UNUSED_RESULT draw(SkCanvas*) const = 0;
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
     virtual void modifyGrContextOptions(GrContextOptions* options) const {}
     virtual bool veto(SinkFlags) const { return false; }
+
+    // Force Tasks using this Src to run on the main thread?
+    virtual bool serial() const { return false; }
 };
 
 struct Sink {
@@ -73,17 +75,15 @@ struct Sink {
     // You may write to either the bitmap or stream.  If you write to log, we'll print that out.
     virtual Error SK_WARN_UNUSED_RESULT draw(const Src&, SkBitmap*, SkWStream*, SkString* log)
         const = 0;
-    // Sinks in the same enclave (except kAnyThread_Enclave) will run serially on the same thread.
-    virtual int enclave() const = 0;
+
+    // Force Tasks using this Sink to run on the main thread?
+    virtual bool serial() const { return false; }
 
     // File extension for the content draw() outputs, e.g. "png", "pdf".
     virtual const char* fileExtension() const  = 0;
 
     virtual SinkFlags flags() const = 0;
 };
-
-enum { kAnyThread_Enclave, kGPU_Enclave };
-static const int kNumEnclaves = kGPU_Enclave + 1;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -110,46 +110,46 @@ public:
         kCodecZeroInit_Mode,
         kScanline_Mode,
         kStripe_Mode, // Tests the skipping of scanlines
+        kCroppedScanline_Mode, // Tests (jpeg) cropped scanline optimization
         kSubset_Mode, // For codecs that support subsets directly.
     };
     enum DstColorType {
         kGetFromCanvas_DstColorType,
         kIndex8_Always_DstColorType,
         kGrayscale_Always_DstColorType,
+        kNonNative8888_Always_DstColorType,
     };
-    CodecSrc(Path, Mode, DstColorType, float);
+    CodecSrc(Path, Mode, DstColorType, SkAlphaType, float);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
+    bool serial() const override { return fRunSerially; }
 private:
     Path                    fPath;
     Mode                    fMode;
     DstColorType            fDstColorType;
+    SkAlphaType             fDstAlphaType;
     float                   fScale;
+    bool                    fRunSerially;
 };
 
 class AndroidCodecSrc : public Src {
 public:
-    enum Mode {
-        kFullImage_Mode,
-        // Splits the image into multiple subsets using a divisor and decodes the subsets
-        // separately.
-        kDivisor_Mode,
-    };
-
-    AndroidCodecSrc(Path, Mode, CodecSrc::DstColorType, int sampleSize);
+    AndroidCodecSrc(Path, CodecSrc::DstColorType, SkAlphaType, int sampleSize);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
+    bool serial() const override { return fRunSerially; }
 private:
     Path                    fPath;
-    Mode                    fMode;
     CodecSrc::DstColorType  fDstColorType;
+    SkAlphaType             fDstAlphaType;
     int                     fSampleSize;
+    bool                    fRunSerially;
 };
 
 // Allows for testing of various implementations of Android's BitmapRegionDecoder
@@ -165,7 +165,7 @@ public:
         kDivisor_Mode,
     };
 
-    BRDSrc(Path, SkBitmapRegionDecoder::Strategy, Mode, CodecSrc::DstColorType, uint32_t);
+    BRDSrc(Path, Mode, CodecSrc::DstColorType, uint32_t);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -173,22 +173,48 @@ public:
     bool veto(SinkFlags) const override;
 private:
     Path                                     fPath;
-    SkBitmapRegionDecoder::Strategy          fStrategy;
     Mode                                     fMode;
     CodecSrc::DstColorType                   fDstColorType;
     uint32_t                                 fSampleSize;
 };
 
-class ImageSrc : public Src {
+class ImageGenSrc : public Src {
 public:
-    explicit ImageSrc(Path path);
+    enum Mode {
+        kCodec_Mode,    // Use CodecImageGenerator
+        kPlatform_Mode, // Uses CG or WIC
+    };
+    ImageGenSrc(Path, Mode, SkAlphaType, bool);
+
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
+    bool veto(SinkFlags) const override;
+    bool serial() const override { return fRunSerially; }
+private:
+    Path        fPath;
+    Mode        fMode;
+    SkAlphaType fDstAlphaType;
+    bool        fIsGpu;
+    bool        fRunSerially;
+};
+
+class ColorCodecSrc : public Src {
+public:
+    enum Mode {
+        // Mimic legacy behavior and apply no color correction.
+        kBaseline_Mode,
+    };
+
+    ColorCodecSrc(Path, Mode);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
 private:
-    Path fPath;
+    Path                    fPath;
+    Mode                    fMode;
 };
 
 class SKPSrc : public Src {
@@ -209,7 +235,6 @@ public:
     NullSink() {}
 
     Error draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return ""; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kNull, SinkFlags::kDirect }; }
 };
@@ -217,31 +242,32 @@ public:
 
 class GPUSink : public Sink {
 public:
-    GPUSink(GrContextFactory::GLContextType, GrContextFactory::GLContextOptions,
-            int samples, bool diText, bool threaded);
+    GPUSink(sk_gpu_test::GrContextFactory::ContextType,
+            sk_gpu_test::GrContextFactory::ContextOptions,
+            int samples, bool diText, SkColorType colorType, SkColorProfileType profileType,
+            bool threaded);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override;
+    bool serial() const override { return !fThreaded; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
 private:
-    GrContextFactory::GLContextType    fContextType;
-    GrContextFactory::GLContextOptions fContextOptions;
-    int                                fSampleCount;
-    bool                               fUseDIText;
-    bool                               fThreaded;
+    sk_gpu_test::GrContextFactory::ContextType      fContextType;
+    sk_gpu_test::GrContextFactory::ContextOptions   fContextOptions;
+    int                                             fSampleCount;
+    bool                                            fUseDIText;
+    SkColorType                                     fColorType;
+    SkColorProfileType                              fProfileType;
+    bool                                            fThreaded;
 };
 
 class PDFSink : public Sink {
 public:
-    PDFSink(const char* rasterizer);
-
+    PDFSink(bool pdfa = false) : fPDFA(pdfa) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return "pdf"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
-private:
-    const char* fRasterizer;
+    bool fPDFA;
 };
 
 class XPSSink : public Sink {
@@ -249,21 +275,20 @@ public:
     XPSSink();
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return "xps"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 
 class RasterSink : public Sink {
 public:
-    explicit RasterSink(SkColorType);
+    explicit RasterSink(SkColorType, SkColorProfileType=kLinear_SkColorProfileType);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kRaster, SinkFlags::kDirect }; }
 private:
-    SkColorType    fColorType;
+    SkColorType        fColorType;
+    SkColorProfileType fProfileType;
 };
 
 class SKPSink : public Sink {
@@ -271,7 +296,6 @@ public:
     SKPSink();
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return "skp"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
@@ -281,7 +305,6 @@ public:
     SVGSink();
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return "svg"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
@@ -293,7 +316,7 @@ class Via : public Sink {
 public:
     explicit Via(Sink* sink) : fSink(sink) {}
     const char* fileExtension() const override { return fSink->fileExtension(); }
-    int               enclave() const override { return fSink->enclave(); }
+    bool               serial() const override { return fSink->serial(); }
     SinkFlags flags() const override {
         SinkFlags flags = fSink->flags();
         flags.approach = SinkFlags::kIndirect;
@@ -317,14 +340,6 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const SkMatrix fMatrix;
-};
-
-class ViaRemote : public Via {
-public:
-    ViaRemote(bool cache, Sink* sink) : Via(sink), fCache(cache) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-private:
-    bool fCache;
 };
 
 class ViaSerialization : public Via {
@@ -363,6 +378,12 @@ public:
 class ViaTwice : public Via {
 public:
     explicit ViaTwice(Sink* sink) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
+class ViaMojo : public Via {
+public:
+    explicit ViaMojo(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 

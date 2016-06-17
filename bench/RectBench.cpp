@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -86,11 +85,7 @@ private:
 class SrcModeRectBench : public RectBench {
 public:
     SrcModeRectBench() : INHERITED(1, 0) {
-        fMode = SkXfermode::Create(SkXfermode::kSrc_Mode);
-    }
-
-    virtual ~SrcModeRectBench() {
-        SkSafeUnref(fMode);
+        fMode = SkXfermode::Make(SkXfermode::kSrc_Mode);
     }
 
 protected:
@@ -109,7 +104,7 @@ protected:
 
 private:
     SkString fName;
-    SkXfermode* fMode;
+    sk_sp<SkXfermode> fMode;
 
     typedef RectBench INHERITED;
 };
@@ -238,10 +233,8 @@ protected:
             srcBM.allocN32Pixels(10, 1);
             srcBM.eraseColor(0xFF00FF00);
 
-            SkShader* s;
-            s  = SkShader::CreateBitmapShader(srcBM, SkShader::kClamp_TileMode,
-                                              SkShader::kClamp_TileMode);
-            paint.setShader(s)->unref();
+            paint.setShader(SkShader::MakeBitmapShader(srcBM, SkShader::kClamp_TileMode,
+                                                       SkShader::kClamp_TileMode));
         }
         for (int loop = 0; loop < loops; loop++) {
             for (size_t i = 0; i < sizes; i++) {

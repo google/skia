@@ -19,22 +19,22 @@ SkNinePatchIter::SkNinePatchIter(int w, int h, const SkIRect& c, const SkRect& d
     fSrcX[1] = SkIntToScalar(c.fLeft);
     fSrcX[2] = SkIntToScalar(c.fRight);
     fSrcX[3] = SkIntToScalar(w);
-    
+
     fSrcY[0] = 0;
     fSrcY[1] = SkIntToScalar(c.fTop);
     fSrcY[2] = SkIntToScalar(c.fBottom);
     fSrcY[3] = SkIntToScalar(h);
-    
+
     fDstX[0] = dst.fLeft;
     fDstX[1] = dst.fLeft + SkIntToScalar(c.fLeft);
     fDstX[2] = dst.fRight - SkIntToScalar(w - c.fRight);
     fDstX[3] = dst.fRight;
-    
+
     fDstY[0] = dst.fTop;
     fDstY[1] = dst.fTop + SkIntToScalar(c.fTop);
     fDstY[2] = dst.fBottom - SkIntToScalar(h - c.fBottom);
     fDstY[3] = dst.fBottom;
-    
+
     if (fDstX[1] > fDstX[2]) {
         fDstX[1] = fDstX[0] + (fDstX[3] - fDstX[0]) * c.fLeft / (w - c.width());
         fDstX[2] = fDstX[1];

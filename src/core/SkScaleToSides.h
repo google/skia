@@ -12,9 +12,9 @@
 #include "SkScalar.h"
 #include "SkTypes.h"
 
-class ScaleToSides {
+class SkScaleToSides {
 public:
-    // This code assumes that a and b fit in in a float, and therefore the resulting smaller value
+    // This code assumes that a and b fit in a float, and therefore the resulting smaller value
     // of a and b will fit in a float. The side of the rectangle may be larger than a float.
     // Scale must be less than or equal to the ratio limit / (*a + *b).
     // This code assumes that NaN and Inf are never passed in.
@@ -24,8 +24,7 @@ public:
         *a = (float)((double)*a * scale);
         *b = (float)((double)*b * scale);
 
-        // This check is conservative. (double)*a + (double)*b >= (double)(*a + *b)
-        if ((double)*a + (double)*b > limit) {
+        if (*a + *b > limit) {
             float* minRadius = a;
             float* maxRadius = b;
 
@@ -37,25 +36,33 @@ public:
             // newMinRadius must be float in order to give the actual value of the radius.
             // The newMinRadius will always be smaller than limit. The largest that minRadius can be
             // is 1/2 the ratio of minRadius : (minRadius + maxRadius), therefore in the resulting
-            // division, minRadius can be no larger than 1/2 limit + ULP.
+            // division, minRadius can be no larger than 1/2 limit + ULP. The newMinRadius can be
+            // 1/2 a ULP off at this point.
             float newMinRadius = *minRadius;
 
             // Because newMaxRadius is the result of a double to float conversion, it can be larger
             // than limit, but only by one ULP.
             float newMaxRadius = (float)(limit - newMinRadius);
 
-            // If newMaxRadius forces the total over the limit, then it needs to be
-            // reduced by one ULP to be less than limit - newMinRadius.
-            // Note: nexttowardf is a c99 call and should be std::nexttoward, but this is not
-            // implemented in the ARM compiler.
-            if ((double)newMaxRadius + (double)newMinRadius > limit) {
-                newMaxRadius = nexttowardf(newMaxRadius, 0.0);
+            // The total sum of newMinRadius and newMaxRadius can be upto 1.5 ULPs off. If the
+            // sum is greater than the limit then newMaxRadius may have to be reduced twice.
+            // Note: nextafterf is a c99 call and should be std::nextafter, but this is not
+            // implemented in the GCC ARM compiler.
+            if (newMaxRadius + newMinRadius > limit) {
+                newMaxRadius = nextafterf(newMaxRadius, 0.0f);
+                if (newMaxRadius + newMinRadius > limit) {
+                    newMaxRadius = nextafterf(newMaxRadius, 0.0f);
+                }
             }
             *maxRadius = newMaxRadius;
         }
 
-        SkASSERTF(*a >= 0.0f && *b >= 0.0f, "a: %g, b: %g", *a, *b);
-        SkASSERTF((*a + *b) <= limit, "limit: %g, a: %g, b: %g", limit, *a, *b);
+        SkASSERTF(*a >= 0.0f && *b >= 0.0f, "a: %g, b: %g, limit: %g, scale: %g", *a, *b, limit,
+                  scale);
+
+        SkASSERTF(*a + *b <= limit,
+                  "\nlimit: %.17f, sum: %.17f, a: %.10f, b: %.10f, scale: %.20f",
+                  limit, *a + *b, *a, *b, scale);
     }
 };
 #endif // ScaleToSides_DEFINED

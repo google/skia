@@ -519,7 +519,7 @@ public:
     SkXfermode::Mode getXfermode() const { return fXfermode; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*, 
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*,
                                                  const GrCaps&) const override {
         return kNone_OptFlags;
     }
@@ -559,17 +559,8 @@ private:
         GrGLSLBlend::AppendMode(fragBuilder, srcColor, dstColor, outColor, xp.getXfermode());
 
         // Apply coverage.
-        if (xp.dstReadUsesMixedSamples()) {
-            if (srcCoverage) {
-                fragBuilder->codeAppendf("%s *= %s;", outColor, srcCoverage);
-                fragBuilder->codeAppendf("%s = %s;", outColorSecondary, srcCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = vec4(1.0);", outColorSecondary);
-            }
-        } else if (srcCoverage) {
-            fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
-                                     outColor, srcCoverage, outColor, srcCoverage, dstColor);
-        }
+        INHERITED::DefaultCoverageModulation(fragBuilder, srcCoverage, dstColor, outColor,
+                                             outColorSecondary, xp);
     }
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
@@ -748,6 +739,9 @@ GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                              const GrPipelineOptimizations& optimizations,
                                              bool hasMixedSamples,
                                              const DstTexture* dstTexture) const {
+    if (optimizations.fOverrides.fUsePLSDstRead) {
+        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, fXfermode);
+    }
     BlendFormula blendFormula;
     if (optimizations.fCoveragePOI.isFourChannelOutput()) {
         if (SkXfermode::kSrcOver_Mode == fXfermode &&
@@ -761,7 +755,7 @@ GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
         }
         blendFormula = get_lcd_blend_formula(optimizations.fCoveragePOI, fXfermode);
     } else {
-        blendFormula = get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, 
+        blendFormula = get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI,
                                          hasMixedSamples, fXfermode);
     }
 
@@ -804,13 +798,12 @@ void GrPorterDuffXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorP
     }
 }
 
-bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps,
-                                             const GrPipelineOptimizations& optimizations,
-                                             bool hasMixedSamples) const {
+bool GrPorterDuffXPFactory::onWillReadDstColor(const GrCaps& caps,
+                                               const GrPipelineOptimizations& optimizations) const {
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
-    
+
     // When we have four channel coverage we always need to read the dst in order to correctly
     // blend. The one exception is when we are using srcover mode and we know the input color into
     // the XP.
@@ -822,9 +815,12 @@ bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps,
         }
         return get_lcd_blend_formula(optimizations.fCoveragePOI, fXfermode).hasSecondaryOutput();
     }
+
     // We fallback on the shader XP when the blend formula would use dual source blending but we
     // don't have support for it.
-    return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, hasMixedSamples, 
+    static const bool kHasMixedSamples = false;
+    SkASSERT(!caps.usesMixedSamples()); // We never use mixed samples without dual source blending.
+    return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, kHasMixedSamples,
                              fXfermode).hasSecondaryOutput();
 }
 
@@ -863,6 +859,9 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         const GrPipelineOptimizations& optimizations,
         bool hasMixedSamples,
         const GrXferProcessor::DstTexture* dstTexture) {
+    if (optimizations.fOverrides.fUsePLSDstRead) {
+        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, SkXfermode::kSrcOver_Mode);
+    }
     if (!optimizations.fCoveragePOI.isFourChannelOutput() &&
         !(optimizations.fCoveragePOI.isSolidWhite() &&
           !hasMixedSamples &&
@@ -887,7 +886,7 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         }
         blendFormula = get_lcd_blend_formula(optimizations.fCoveragePOI, SkXfermode::kSrcOver_Mode);
     } else {
-        blendFormula = get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, 
+        blendFormula = get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI,
                                          hasMixedSamples, SkXfermode::kSrcOver_Mode);
     }
 
@@ -900,8 +899,7 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
 }
 
 bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
-                                                      const GrPipelineOptimizations& optimizations,
-                                                      bool hasMixedSamples) {
+                                                     const GrPipelineOptimizations& optimizations) {
     if (caps.shaderCaps()->dstReadInShaderSupport() ||
         caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
@@ -915,12 +913,14 @@ bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             return false;
         }
-        return get_lcd_blend_formula(optimizations.fCoveragePOI, 
+        return get_lcd_blend_formula(optimizations.fCoveragePOI,
                                      SkXfermode::kSrcOver_Mode).hasSecondaryOutput();
     }
+
     // We fallback on the shader XP when the blend formula would use dual source blending but we
     // don't have support for it.
+    static const bool kHasMixedSamples = false;
+    SkASSERT(!caps.usesMixedSamples()); // We never use mixed samples without dual source blending.
     return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI,
-                             hasMixedSamples, SkXfermode::kSrcOver_Mode).hasSecondaryOutput();
+                             kHasMixedSamples, SkXfermode::kSrcOver_Mode).hasSecondaryOutput();
 }
-

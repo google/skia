@@ -80,7 +80,7 @@ DEF_TEST(Blend_premul_begets_premul, r) {
         if (mode == SkXfermode::kSrcOver_Mode) {
             return;  // TODO: can't create a SrcOver xfermode.
         }
-        SkAutoTUnref<SkXfermode> xfermode(SkXfermode::Create(mode));
+        auto xfermode(SkXfermode::Make(mode));
         SkASSERT(xfermode);
         // We'll test all alphas and legal color values, assuming all colors work the same.
         // This is not true for non-separable blend modes, but this test still can't hurt.

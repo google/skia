@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkImage_Base.h"
 #include "SkImageGenerator.h"
 #include "SkCanvas.h"
 #include "SkMatrix.h"
@@ -138,10 +139,8 @@ GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIR
     //
     // TODO: respect the usage, by possibly creating a different (pow2) surface
     //
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx,
-                                                               SkSurface::kYes_Budgeted,
-                                                               surfaceInfo));
-    if (!surface.get()) {
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, surfaceInfo));
+    if (!surface) {
         return nullptr;
     }
 
@@ -151,10 +150,10 @@ GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIR
     }
     surface->getCanvas()->clear(0); // does NewRenderTarget promise to do this for us?
     surface->getCanvas()->drawPicture(fPicture, &matrix, fPaint.getMaybeNull());
-    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-    if (!image.get()) {
+    sk_sp<SkImage> image(surface->makeImageSnapshot());
+    if (!image) {
         return nullptr;
     }
-    return SkSafeRef(image->getTexture());
+    return SkSafeRef(as_IB(image)->peekTexture());
 }
 #endif

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -14,16 +13,17 @@
 #include "SkPathEffect.h"
 
 class GrClip;
-class GrDrawTarget;
-class GrPaint;
-class GrPipelineBuilder;
-class GrStrokeInfo;
+class GrDrawBatch;
+class GrStyle;
 
 namespace GrDashingEffect {
-    bool DrawDashLine(GrDrawTarget*, const GrPipelineBuilder&, GrColor,
-                      const SkMatrix& viewMatrix, const SkPoint pts[2], bool useAA,
-                      const GrStrokeInfo& strokeInfo);
-    bool CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
+    GrDrawBatch* CreateDashLineBatch(GrColor,
+                                     const SkMatrix& viewMatrix,
+                                     const SkPoint pts[2],
+                                     bool useAA,
+                                     bool msaaIsEnabled,
+                                     const GrStyle& style);
+    bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style,
                          const SkMatrix& viewMatrix);
 }
 

@@ -43,8 +43,6 @@ endfunction()
 
 # This file is empty and is only used to trick GYP.
 remove_srcs (../src/core/SkForceCPlusPlusLinking.cpp)
-# This file forces linking for all our supported image decoders.  We're more fine-grained.
-remove_srcs (../src/images/SkForceLinking.cpp)
 # Chrome only?
 remove_srcs (../src/ports/SkFontHost_fontconfig.cpp
              ../src/fonts/SkFontMgr_fontconfig.cpp
@@ -57,7 +55,7 @@ remove_srcs (../src/ports/SkFontMgr_custom*.cpp)
 
 # Skia sure ships a lot of code no one uses.
 remove_srcs (../src/animator/* ../src/*nacl* ../src/svg/* ../src/views/* ../src/xml/*)
-foreach (include animator svg svg/parser views views/animated xml)
+foreach (include animator svg svg/parser views xml gpu/vk)
   file (GLOB globed_include ../include/${include})
   list (REMOVE_ITEM public_includes ${globed_include})
 endforeach()
@@ -71,8 +69,8 @@ if (NOT UNIX)
 endif()
 if (APPLE OR NOT UNIX)
     remove_srcs(../src/gpu/gl/glx/*
-                ../src/images/SkImageDecoder_FactoryDefault.cpp
                 ../src/ports/SkFontMgr_fontconfig*.cpp
+                ../src/ports/SkFontMgr_android*.cpp
                 ../src/*FreeType*)
 endif()
 
@@ -90,18 +88,27 @@ remove_srcs(
     ../src/gpu/GrContextFactory.cpp                  # For internal testing only.
     ../src/gpu/gl/GrGLCreateNativeInterface_none.cpp
     ../src/gpu/gl/GrGLDefaultInterface_none.cpp
-    ../src/gpu/gl/SkCreatePlatformGLContext*.cpp     # For internal testing only.
     ../src/gpu/gl/command_buffer/*
     ../src/gpu/gl/egl/*
+    ../src/gpu/gl/glfw/*
     ../src/gpu/gl/iOS/*
+    ../src/gpu/vk/*
     ../src/opts/SkBitmapProcState_opts_none.cpp
     ../src/opts/SkBlitMask_opts_none.cpp
     ../src/opts/SkBlitRow_opts_none.cpp
     ../src/ports/SkFontMgr_empty_factory.cpp
     ../src/ports/SkGlobalInitialization_chromium.cpp
-    ../src/ports/SkImageDecoder_empty.cpp
+    ../src/ports/SkImageEncoder_none.cpp
     ../src/ports/SkImageGenerator_none.cpp
     ../src/ports/SkTLS_none.cpp)
+
+if (NOT APPLE)
+    remove_srcs(../src/ports/SkImageGeneratorCG.cpp)
+endif()
+
+if (NOT WIN32)
+    remove_srcs(../src/ports/SkImageGeneratorWIC.cpp)
+endif()
 
 if (WIN32)
     if(SKIA_GDI)
@@ -111,18 +118,17 @@ if (WIN32)
     endif()
 endif()
 
-remove_srcs(../src/gpu/gl/angle/*)  # TODO
-remove_srcs(../src/codec/* ../src/android/*)  # TODO: Requires Chromium's libjpeg-turbo, and incompatible giflib.
-
 # Certain files must be compiled with support for SSSE3, SSE4.1, AVX, or AVX2 intrinsics.
 file (GLOB_RECURSE ssse3_srcs ../src/*ssse3*.cpp ../src/*SSSE3*.cpp)
 file (GLOB_RECURSE sse41_srcs ../src/*sse4*.cpp ../src/*SSE4*.cpp)
 file (GLOB_RECURSE avx_srcs   ../src/*_avx.cpp)
 file (GLOB_RECURSE avx2_srcs  ../src/*_avx2.cpp)
-set_source_files_properties(${ssse3_srcs} PROPERTIES COMPILE_FLAGS -mssse3)
-set_source_files_properties(${sse41_srcs} PROPERTIES COMPILE_FLAGS -msse4.1)
-set_source_files_properties(${avx_srcs}   PROPERTIES COMPILE_FLAGS -mavx)
-set_source_files_properties(${avx2_srcs}  PROPERTIES COMPILE_FLAGS -mavx2)
+if (NOT WIN32)
+    set_source_files_properties(${ssse3_srcs} PROPERTIES COMPILE_FLAGS -mssse3)
+    set_source_files_properties(${sse41_srcs} PROPERTIES COMPILE_FLAGS -msse4.1)
+    set_source_files_properties(${avx_srcs}   PROPERTIES COMPILE_FLAGS -mavx)
+    set_source_files_properties(${avx2_srcs}  PROPERTIES COMPILE_FLAGS -mavx2)
+endif()
 
 # Detect our optional dependencies.
 # If we can't find them, don't build the parts of Skia that use them.
@@ -145,6 +151,9 @@ if (UNIX AND NOT APPLE)
     find_package (PNG)
 endif()
 
+# Do not compile SkRawCodec.
+remove_srcs(../src/codec/*Raw*.cpp)
+
 # TODO: macro away this if (found) ... else() ... endif() stuff.
 
 if (EXPAT_FOUND)
@@ -157,15 +166,19 @@ endif()
 if (GIF_FOUND)
     list (APPEND private_includes ${GIF_INCLUDE_DIRS})
     list (APPEND libs             ${GIF_LIBRARIES})
+    add_definitions(-DSK_HAS_GIF_LIBRARY)
 else()
-    remove_srcs(../src/images/*gif*)
+    remove_srcs(../src/images/*GIF*)
+    remove_srcs(../src/codec/*Gif*)
 endif()
 
 if (JPEG_FOUND)
     list (APPEND private_includes ${JPEG_INCLUDE_DIRS})
     list (APPEND libs             ${JPEG_LIBRARIES})
+    add_definitions(-DSK_HAS_JPEG_LIBRARY)
 else()
-    remove_srcs(../src/images/*jpeg*)
+    remove_srcs(../src/images/*JPEG*)
+    remove_srcs(../src/codec/*Jpeg*)
 endif()
 
 if (LUA_FOUND)
@@ -178,23 +191,31 @@ endif()
 if (PNG_FOUND)
     list (APPEND private_includes ${PNG_INCLUDE_DIRS})
     list (APPEND libs             ${PNG_LIBRARIES})
+    add_definitions(-DPNG_SKIP_SETJMP_CHECK)
+    add_definitions(-DPNG_SKIP_SKIA_OPTS)
+    add_definitions(-DSK_HAS_PNG_LIBRARY)
 else()
-    remove_srcs(../src/images/*png*)
+    remove_srcs(../src/images/*PNG*)
+    remove_srcs(../src/codec/*Png*)
+    remove_srcs(../src/codec/*Ico*)
 endif()
 
 if (ZLIB_FOUND)
     list (APPEND private_includes ${ZLIB_INCLUDE_DIRS})
     list (APPEND libs             ${ZLIB_LIBRARIES})
-    remove_srcs(../src/doc/SkDocument_PDF_None.cpp)
+    remove_srcs(../src/pdf/SkDocument_PDF_None.cpp)
 else()
-    remove_srcs(../src/pdf/*.cpp ../src/doc/SkDocument_PDF.cpp)
+    remove_srcs(../src/pdf/*.cpp)
+    set (srcs ${srcs} ../src/pdf/SkDocument_PDF_None.cpp)
 endif()
 
 if (WEBP_INCLUDE_DIRS AND WEBP_LIBRARIES)
     list (APPEND private_includes ${WEBP_INCLUDE_DIRS})
     list (APPEND libs             ${WEBP_LIBRARIES})
+    add_definitions(-DSK_HAS_WEBP_LIBRARY)
 else()
-    remove_srcs(../src/images/*webp*)
+    remove_srcs(../src/images/*WEBP*)
+    remove_srcs(../src/codec/*Webp*)
 endif()
 
 if (FREETYPE_FOUND)
@@ -246,6 +267,7 @@ target_link_libraries(skia
     PRIVATE ${libs})
 
 if (MSVC)
+    string(REGEX REPLACE " /W3 " " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set(cc_flags "/w /GR-")
 else()
     set(cc_flags "-w -fno-rtti -fno-exceptions")
@@ -266,6 +288,11 @@ if (CMAKE_BUILD_TYPE STREQUAL Release)
     set (SK_RELEASE 1)
 else()
     set (SK_RELEASE 0)
+endif()
+if (UNIX AND NOT APPLE)
+  set (SK_SAMPLES_FOR_X 1)
+else()
+  set (SK_SAMPLES_FOR_X 0)
 endif()
 configure_file ("SkUserConfig.h.in" "${userconfig_directory}/SkUserConfig.h")
 

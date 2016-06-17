@@ -64,10 +64,10 @@ public:
     */
     void openFile(const QString& filename);
 
-signals:
+Q_SIGNALS:
     void commandChanged(int command);
 
-private slots:
+private Q_SLOTS:
     /**
         Toggles breakpoint view in the list widget.
      */

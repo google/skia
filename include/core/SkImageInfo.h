@@ -73,8 +73,9 @@ enum SkColorType {
     kBGRA_8888_SkColorType,
     kIndex_8_SkColorType,
     kGray_8_SkColorType,
+    kRGBA_F16_SkColorType,
 
-    kLastEnum_SkColorType = kGray_8_SkColorType,
+    kLastEnum_SkColorType = kRGBA_F16_SkColorType,
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     kN32_SkColorType = kBGRA_8888_SkColorType,
@@ -95,12 +96,32 @@ static int SkColorTypeBytesPerPixel(SkColorType ct) {
         4,  // BGRA_8888
         1,  // kIndex_8
         1,  // kGray_8
+        8,  // kRGBA_F16
     };
     static_assert(SK_ARRAY_COUNT(gSize) == (size_t)(kLastEnum_SkColorType + 1),
                   "size_mismatch_with_SkColorType_enum");
 
     SkASSERT((size_t)ct < SK_ARRAY_COUNT(gSize));
     return gSize[ct];
+}
+
+static int SkColorTypeShiftPerPixel(SkColorType ct) {
+    static const uint8_t gShift[] = {
+        0,  // Unknown
+        0,  // Alpha_8
+        1,  // RGB_565
+        1,  // ARGB_4444
+        2,  // RGBA_8888
+        2,  // BGRA_8888
+        0,  // kIndex_8
+        0,  // kGray_8
+        3,  // kRGBA_F16
+    };
+    static_assert(SK_ARRAY_COUNT(gShift) == (size_t)(kLastEnum_SkColorType + 1),
+                  "size_mismatch_with_SkColorType_enum");
+    
+    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gShift));
+    return gShift[ct];
 }
 
 static inline size_t SkColorTypeMinRowBytes(SkColorType ct, int width) {
@@ -112,14 +133,10 @@ static inline bool SkColorTypeIsValid(unsigned value) {
 }
 
 static inline size_t SkColorTypeComputeOffset(SkColorType ct, int x, int y, size_t rowBytes) {
-    int shift = 0;
-    switch (SkColorTypeBytesPerPixel(ct)) {
-        case 4: shift = 2; break;
-        case 2: shift = 1; break;
-        case 1: shift = 0; break;
-        default: return 0;
+    if (kUnknown_SkColorType == ct) {
+        return 0;
     }
-    return y * rowBytes + (x << shift);
+    return y * rowBytes + (x << SkColorTypeShiftPerPixel(ct));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -249,9 +266,9 @@ public:
         return SkImageInfo::Make(fWidth, fHeight, newColorType, fAlphaType, fProfileType);
     }
 
-    int bytesPerPixel() const {
-        return SkColorTypeBytesPerPixel(fColorType);
-    }
+    int bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
+
+    int shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }
 
     uint64_t minRowBytes64() const {
         return sk_64_mul(fWidth, this->bytesPerPixel());
@@ -314,5 +331,15 @@ private:
         , fProfileType(pt)
     {}
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+static inline bool SkColorAndProfileAreGammaCorrect(SkColorType ct, SkColorProfileType pt) {
+    return kSRGB_SkColorProfileType == pt || kRGBA_F16_SkColorType == ct;
+}
+
+static inline bool SkImageInfoIsGammaCorrect(const SkImageInfo& info) {
+    return SkColorAndProfileAreGammaCorrect(info.colorType(), info.profileType());
+}
 
 #endif

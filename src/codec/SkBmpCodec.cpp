@@ -286,6 +286,18 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     switch (compression) {
         case kNone_BmpCompressionMethod:
             inputFormat = kStandard_BmpInputFormat;
+
+            // In addition to more standard pixel compression formats, bmp supports
+            // the use of bit masks to determine pixel components.  The standard
+            // format for representing 16-bit colors is 555 (XRRRRRGGGGGBBBBB),
+            // which does not map well to any Skia color formats.  For this reason,
+            // we will always enable mask mode with 16 bits per pixel.
+            if (16 == bitsPerPixel) {
+                inputMasks.red = 0x7C00;
+                inputMasks.green = 0x03E0;
+                inputMasks.blue = 0x001F;
+                inputFormat = kBitMask_BmpInputFormat;
+            }
             break;
         case k8BitRLE_BmpCompressionMethod:
             if (bitsPerPixel != 8) {
@@ -331,6 +343,27 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                     inputMasks.red = get_int(iBuffer.get(), 36);
                     inputMasks.green = get_int(iBuffer.get(), 40);
                     inputMasks.blue = get_int(iBuffer.get(), 44);
+
+                    if (kInfoV2_BmpHeaderType == headerType ||
+                            (kInfoV3_BmpHeaderType == headerType && !inIco)) {
+                        break;
+                    }
+
+                    // V3+ bmp files introduce an alpha mask and allow the creator of the image
+                    // to use the alpha channels.  However, many of these images leave the
+                    // alpha channel blank and expect to be rendered as opaque.  This is the
+                    // case for almost all V3 images, so we ignore the alpha mask.  For V4+
+                    // images in kMask mode, we will use the alpha mask.  Additionally, V3
+                    // bmp-in-ico expect us to use the alpha mask.
+                    //
+                    // skbug.com/4116: We should perhaps also apply the alpha mask in kStandard
+                    //                 mode.  We just haven't seen any images that expect this
+                    //                 behavior.
+                    //
+                    // Header types are matched based on size.  If the header is
+                    // V3+, we are guaranteed to be able to read at least this size.
+                    SkASSERT(infoBytesRemaining > 52);
+                    inputMasks.alpha = get_int(iBuffer.get(), 48);
                     break;
                 case kOS2VX_BmpHeaderType:
                     // TODO: Decide if we intend to support this.
@@ -366,90 +399,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
             SkCodecPrintf("Error: invalid format for bitmap decoding.\n");
             return false;
     }
-
-    // Most versions of bmps should be rendered as opaque.  Either they do
-    // not have an alpha channel, or they expect the alpha channel to be
-    // ignored.  V3+ bmp files introduce an alpha mask and allow the creator
-    // of the image to use the alpha channels.  However, many of these images
-    // leave the alpha channel blank and expect to be rendered as opaque.  This
-    // is the case for almost all V3 images, so we render these as opaque.  For
-    // V4+, we will use the alpha channel, and fix the image later if it turns
-    // out to be fully transparent.
-    // As an exception, V3 bmp-in-ico may use an alpha mask.
-    SkAlphaType alphaType = kOpaque_SkAlphaType;
-    if ((kInfoV3_BmpHeaderType == headerType && inIco) ||
-            kInfoV4_BmpHeaderType == headerType ||
-            kInfoV5_BmpHeaderType == headerType) {
-        // Header types are matched based on size.  If the header is
-        // V3+, we are guaranteed to be able to read at least this size.
-        SkASSERT(infoBytesRemaining > 52);
-        inputMasks.alpha = get_int(iBuffer.get(), 48);
-        if (inputMasks.alpha != 0) {
-            alphaType = kUnpremul_SkAlphaType;
-        }
-    }
-    iBuffer.free();
-
-    // Additionally, 32 bit bmp-in-icos use the alpha channel.
-    // FIXME (msarett): Don't all bmp-in-icos use the alpha channel?
-    // And, RLE inputs may skip pixels, leaving them as transparent.  This
-    // is uncommon, but we cannot be certain that an RLE bmp will be opaque.
-    if ((inIco && 32 == bitsPerPixel) || (kRLE_BmpInputFormat == inputFormat)) {
-        alphaType = kUnpremul_SkAlphaType;
-    }
-
-    // Check for valid bits per pixel.
-    // At the same time, use this information to choose a suggested color type
-    // and to set default masks.
-    SkColorType colorType = kN32_SkColorType;
-    switch (bitsPerPixel) {
-        // In addition to more standard pixel compression formats, bmp supports
-        // the use of bit masks to determine pixel components.  The standard
-        // format for representing 16-bit colors is 555 (XRRRRRGGGGGBBBBB),
-        // which does not map well to any Skia color formats.  For this reason,
-        // we will always enable mask mode with 16 bits per pixel.
-        case 16:
-            if (kBitMask_BmpInputFormat != inputFormat) {
-                inputMasks.red = 0x7C00;
-                inputMasks.green = 0x03E0;
-                inputMasks.blue = 0x001F;
-                inputFormat = kBitMask_BmpInputFormat;
-            }
-            break;
-        // We want to decode to kIndex_8 for input formats that are already
-        // designed in index format.
-        case 1:
-        case 2:
-        case 4:
-        case 8:
-            // However, we cannot in RLE format since we may need to leave some
-            // pixels as transparent.  Similarly, we also cannot for ICO images
-            // since we may need to apply a transparent mask.
-            if (kRLE_BmpInputFormat != inputFormat && !inIco) {
-                colorType = kIndex_8_SkColorType;
-            }
-        case 24:
-        case 32:
-            break;
-        default:
-            SkCodecPrintf("Error: invalid input value for bits per pixel.\n");
-            return false;
-    }
-
-    // Check that input bit masks are valid and create the masks object
-    SkAutoTDelete<SkMasks>
-            masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
-    if (nullptr == masks) {
-        SkCodecPrintf("Error: invalid input masks.\n");
-        return false;
-    }
-
-    // Check for a valid number of total bytes when in RLE mode
-    if (totalBytes <= offset && kRLE_BmpInputFormat == inputFormat) {
-        SkCodecPrintf("Error: RLE requires valid input size.\n");
-        return false;
-    }
-    const size_t RLEBytes = totalBytes - offset;
+    iBuffer.reset();
 
     // Calculate the number of bytes read so far
     const uint32_t bytesRead = kBmpHeaderBytes + infoBytes + maskBytes;
@@ -461,55 +411,157 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
         return false;
     }
 
-    // Skip to the start of the pixel array.
-    // We can do this here because there is no color table to read
-    // in bit mask mode.
-    if (!inIco && kBitMask_BmpInputFormat == inputFormat) {
-        if (stream->skip(offset - bytesRead) != offset - bytesRead) {
-            SkCodecPrintf("Error: unable to skip to image data.\n");
-            return false;
-        }
-    }
 
-    if (codecOut) {
-        // Set the image info
-        const SkImageInfo& imageInfo = SkImageInfo::Make(width, height,
-                colorType, alphaType);
 
-        // Return the codec
-        switch (inputFormat) {
-            case kStandard_BmpInputFormat:
+    switch (inputFormat) {
+        case kStandard_BmpInputFormat: {
+            // BMPs are generally opaque, however BMPs-in-ICOs may contain
+            // a transparency mask after the image.  Therefore, we mark the
+            // alpha as kBinary if the BMP is contained in an ICO.
+            // We use |isOpaque| to indicate if the BMP itself is opaque.
+            SkEncodedInfo::Alpha alpha = inIco ? SkEncodedInfo::kBinary_Alpha :
+                    SkEncodedInfo::kOpaque_Alpha;
+            bool isOpaque = true;
+
+            SkEncodedInfo::Color color;
+            uint8_t bitsPerComponent;
+            switch (bitsPerPixel) {
+                // Palette formats
+                case 1:
+                case 2:
+                case 4:
+                case 8:
+                    // In the case of ICO, kBGRA is actually the closest match,
+                    // since we will need to apply a transparency mask.
+                    if (inIco) {
+                        color = SkEncodedInfo::kBGRA_Color;
+                        bitsPerComponent = 8;
+                    } else {
+                        color = SkEncodedInfo::kPalette_Color;
+                        bitsPerComponent = (uint8_t) bitsPerPixel;
+                    }
+                    break;
+                case 24:
+                    // In the case of ICO, kBGRA is actually the closest match,
+                    // since we will need to apply a transparency mask.
+                    color = inIco ? SkEncodedInfo::kBGRA_Color : SkEncodedInfo::kBGR_Color;
+                    bitsPerComponent = 8;
+                    break;
+                case 32:
+                    // 32-bit BMP-in-ICOs actually use the alpha channel in place of a
+                    // transparency mask.
+                    if (inIco) {
+                        isOpaque = false;
+                        alpha = SkEncodedInfo::kUnpremul_Alpha;
+                        color = SkEncodedInfo::kBGRA_Color;
+                    } else {
+                        color = SkEncodedInfo::kBGRX_Color;
+                    }
+                    bitsPerComponent = 8;
+                    break;
+                default:
+                    SkCodecPrintf("Error: invalid input value for bits per pixel.\n");
+                    return false;
+            }
+
+            if (codecOut) {
                 // We require streams to have a memory base for Bmp-in-Ico decodes.
                 SkASSERT(!inIco || nullptr != stream->getMemoryBase());
-                *codecOut = new SkBmpStandardCodec(imageInfo, stream, bitsPerPixel, numColors,
-                        bytesPerColor, offset - bytesRead, rowOrder, inIco);
-                return true;
-            case kBitMask_BmpInputFormat:
-                // Bmp-in-Ico must be standard mode
-                if (inIco) {
-                    SkCodecPrintf("Error: Icos may not use bit mask format.\n");
+
+                // Set the image info and create a codec.
+                const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, bitsPerComponent);
+                *codecOut = new SkBmpStandardCodec(width, height, info, stream, bitsPerPixel,
+                        numColors, bytesPerColor, offset - bytesRead, rowOrder, isOpaque, inIco);
+            }
+            return true;
+        }
+
+        case kBitMask_BmpInputFormat: {
+            // Bmp-in-Ico must be standard mode
+            if (inIco) {
+                SkCodecPrintf("Error: Icos may not use bit mask format.\n");
+                return false;
+            }
+
+            switch (bitsPerPixel) {
+                case 16:
+                case 24:
+                case 32:
+                    break;
+                default:
+                    SkCodecPrintf("Error: invalid input value for bits per pixel.\n");
+                    return false;
+            }
+
+            // Skip to the start of the pixel array.
+            // We can do this here because there is no color table to read
+            // in bit mask mode.
+            if (stream->skip(offset - bytesRead) != offset - bytesRead) {
+                SkCodecPrintf("Error: unable to skip to image data.\n");
+                return false;
+            }
+
+            if (codecOut) {
+                // Check that input bit masks are valid and create the masks object
+                SkAutoTDelete<SkMasks> masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
+                if (nullptr == masks) {
+                    SkCodecPrintf("Error: invalid input masks.\n");
                     return false;
                 }
 
-                *codecOut = new SkBmpMaskCodec(imageInfo, stream, bitsPerPixel, masks.detach(),
-                        rowOrder);
-                return true;
-            case kRLE_BmpInputFormat:
-                // Bmp-in-Ico must be standard mode
-                // When inIco is true, this line cannot be reached, since we
-                // require that RLE Bmps have a valid number of totalBytes, and
-                // Icos skip the header that contains totalBytes.
-                SkASSERT(!inIco);
-                *codecOut = new SkBmpRLECodec(imageInfo, stream, bitsPerPixel, numColors,
-                        bytesPerColor, offset - bytesRead, rowOrder, RLEBytes);
-                return true;
-            default:
-                SkASSERT(false);
-                return false;
+                // Masked bmps are not a great fit for SkEncodedInfo, since they have
+                // arbitrary component orderings and bits per component.  Here we choose
+                // somewhat reasonable values - it's ok that we don't match exactly
+                // because SkBmpMaskCodec has its own mask swizzler anyway.
+                SkEncodedInfo::Color color;
+                SkEncodedInfo::Alpha alpha;
+                if (masks->getAlphaMask()) {
+                    color = SkEncodedInfo::kBGRA_Color;
+                    alpha = SkEncodedInfo::kUnpremul_Alpha;
+                } else {
+                    color = SkEncodedInfo::kBGR_Color;
+                    alpha = SkEncodedInfo::kOpaque_Alpha;
+                }
+                const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
+                *codecOut = new SkBmpMaskCodec(width, height, info, stream, bitsPerPixel,
+                        masks.release(), rowOrder);
+            }
+            return true;
         }
-    }
 
-    return true;
+        case kRLE_BmpInputFormat: {
+            // We should not reach this point without a valid value of bitsPerPixel.
+            SkASSERT(4 == bitsPerPixel || 8 == bitsPerPixel || 24 == bitsPerPixel);
+
+            // Check for a valid number of total bytes when in RLE mode
+            if (totalBytes <= offset) {
+                SkCodecPrintf("Error: RLE requires valid input size.\n");
+                return false;
+            }
+            const size_t RLEBytes = totalBytes - offset;
+
+            // Bmp-in-Ico must be standard mode
+            // When inIco is true, this line cannot be reached, since we
+            // require that RLE Bmps have a valid number of totalBytes, and
+            // Icos skip the header that contains totalBytes.
+            SkASSERT(!inIco);
+
+            if (codecOut) {
+                // RLE inputs may skip pixels, leaving them as transparent.  This
+                // is uncommon, but we cannot be certain that an RLE bmp will be
+                // opaque or that we will be able to represent it with a palette.
+                // For that reason, we always indicate that we are kBGRA.
+                const SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kBGRA_Color,
+                        SkEncodedInfo::kBinary_Alpha, 8);
+                *codecOut = new SkBmpRLECodec(width, height, info, stream, bitsPerPixel, numColors,
+                        bytesPerColor, offset - bytesRead, rowOrder, RLEBytes);
+            }
+            return true;
+        }
+        default:
+            SkASSERT(false);
+            return false;
+    }
 }
 
 /*
@@ -523,17 +575,18 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
         // codec has taken ownership of stream, so we do not need to
         // delete it.
         SkASSERT(codec);
-        streamDeleter.detach();
+        streamDeleter.release();
         return codec;
     }
     return nullptr;
 }
 
-SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
+SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
         uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(info, stream)
+    : INHERITED(width, height, info, stream)
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
+    , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
 {}
 
 bool SkBmpCodec::onRewind() {
@@ -564,4 +617,13 @@ int SkBmpCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
 
     // Decode the requested rows
     return this->decodeRows(rowInfo, dst, rowBytes, this->options());
+}
+
+bool SkBmpCodec::skipRows(int count) {
+    const size_t bytesToSkip = count * fSrcRowBytes;
+    return this->stream()->skip(bytesToSkip) == bytesToSkip;
+}
+
+bool SkBmpCodec::onSkipScanlines(int count) {
+    return this->skipRows(count);
 }

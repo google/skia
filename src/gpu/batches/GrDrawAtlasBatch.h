@@ -26,10 +26,10 @@ public:
                                const SkColor* colors) {
         return new GrDrawAtlasBatch(geometry, viewMatrix, spriteCount, xforms, rects, colors);
     }
-    
+
     const char* name() const override { return "DrawAtlasBatch"; }
-    
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
@@ -39,7 +39,6 @@ public:
             color->setKnownFourComponents(fGeoData[0].fColor);
         }
         coverage->setKnownSingleComponent(0xff);
-        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -58,10 +57,10 @@ private:
     bool hasColors() const { return fHasColors; }
     int quadCount() const { return fQuadCount; }
     bool coverageIgnored() const { return fCoverageIgnored; }
-    
+
     bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
     SkSTArray<1, Geometry, true> fGeoData;
-    
+
     SkMatrix fViewMatrix;
     GrColor  fColor;
     int      fQuadCount;

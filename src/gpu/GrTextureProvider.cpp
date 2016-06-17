@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -11,6 +10,7 @@
 #include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "../private/GrSingleOwner.h"
+#include "SkTArray.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
@@ -30,31 +30,63 @@ GrTextureProvider::GrTextureProvider(GrGpu* gpu, GrResourceCache* cache, GrSingl
     {
 }
 
-GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, bool budgeted,
-                                            const void* srcData, size_t rowBytes) {
+GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                     const GrMipLevel* texels, int mipLevelCount) {
     ASSERT_SINGLE_OWNER
+
     if (this->isAbandoned()) {
         return nullptr;
     }
+    if (mipLevelCount && !texels) {
+        return nullptr;
+    }
+    for (int i = 0; i < mipLevelCount; ++i) {
+        if (!texels[i].fPixels) {
+            return nullptr;
+        }
+    }
+
     if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
         !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
-        static const uint32_t kFlags = kExact_ScratchTextureFlag |
-                                       kNoCreate_ScratchTextureFlag;
-        if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
-            if (!srcData || texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                                 srcData, rowBytes)) {
-                if (!budgeted) {
-                    texture->resourcePriv().makeUnbudgeted();
+        if (mipLevelCount < 2) {
+            static const uint32_t kFlags = kExact_ScratchTextureFlag |
+                                           kNoCreate_ScratchTextureFlag;
+            if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
+                if (!mipLevelCount ||
+                    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                         texels[0].fPixels, texels[0].fRowBytes)) {
+                    if (SkBudgeted::kNo == budgeted) {
+                        texture->resourcePriv().makeUnbudgeted();
+                    }
+                    return texture;
                 }
-                return texture;
+                texture->unref();
             }
-            texture->unref();
         }
     }
-    return fGpu->createTexture(desc, budgeted, srcData, rowBytes);
+
+    SkTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
+    for (int i = 0; i < mipLevelCount; ++i) {
+        texelsShallowCopy.push_back(texels[i]);
+    }
+    return fGpu->createTexture(desc, budgeted, texelsShallowCopy);
+}
+
+GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                            const void* srcData, size_t rowBytes) {
+    GrMipLevel tempTexels;
+    GrMipLevel* texels = nullptr;
+    int levelCount = 0;
+    if (srcData) {
+      tempTexels.fPixels = srcData;
+      tempTexels.fRowBytes = rowBytes;
+      texels = &tempTexels;
+      levelCount = 1;
+    }
+    return this->createMipMappedTexture(desc, budgeted, texels, levelCount);
 }
 
 GrTexture* GrTextureProvider::createApproxTexture(const GrSurfaceDesc& desc) {
@@ -117,7 +149,7 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
     }
 
     if (!(kNoCreate_ScratchTextureFlag & flags)) {
-        return fGpu->createTexture(*desc, true, nullptr, 0);
+        return fGpu->createTexture(*desc, SkBudgeted::kYes);
     }
 
     return nullptr;

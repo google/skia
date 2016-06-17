@@ -72,7 +72,7 @@ protected:
     void onDrawImage(const SkImage*, SkScalar, SkScalar, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,
                          SrcRectConstraint) override;
-    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*);
+    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[],
                      const SkColor[], int count, SkXfermode::Mode,
                      const SkRect* cull, const SkPaint*) override;
@@ -87,7 +87,7 @@ protected:
     bool getClipDeviceBounds(SkIRect*) const override;
     bool isClipEmpty() const override;
     bool isClipRect() const override;
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
     bool onPeekPixels(SkPixmap*) override;
     bool onAccessTopLayerPixels(SkPixmap*) override;
     void willSave() override;
@@ -107,4 +107,3 @@ protected:
 };
 
 #endif  // SkAndroidSDKCanvas_DEFINED
-

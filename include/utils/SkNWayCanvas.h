@@ -9,8 +9,8 @@
 #ifndef SkNWayCanvas_DEFINED
 #define SkNWayCanvas_DEFINED
 
+#include "../private/SkTDArray.h"
 #include "SkCanvas.h"
-#include "SkTDArray.h"
 
 class SK_API SkNWayCanvas : public SkCanvas {
 public:
@@ -24,7 +24,9 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // These are forwarded to the N canvases we're referencing
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
     SkDrawFilter* setDrawFilter(SkDrawFilter*) override;
+#endif
 
 protected:
     SkTDArray<SkCanvas*> fList;
@@ -77,6 +79,7 @@ protected:
     void onClipRegion(const SkRegion&, SkRegion::Op) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+    void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
     class Iter;
 

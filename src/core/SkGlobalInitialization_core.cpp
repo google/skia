@@ -14,10 +14,11 @@
 #include "SkFlattenable.h"
 #include "SkImageShader.h"
 #include "SkLocalMatrixShader.h"
+#include "SkMatrixImageFilter.h"
 #include "SkOnce.h"
 #include "SkPathEffect.h"
 #include "SkPictureShader.h"
-#include "SkMatrixImageFilter.h"
+#include "SkRecordedDrawable.h"
 #include "SkXfermode.h"
 
 /*
@@ -31,6 +32,7 @@ void SkFlattenable::PrivateInitializer::InitCore() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapProcShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorShader)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColor4Shader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmptyShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageShader)
@@ -49,11 +51,14 @@ void SkFlattenable::PrivateInitializer::InitCore() {
     // Xfermode
     SkXfermode::InitializeFlattenables();
 
+    // Drawable
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkRecordedDrawable)
+
     // Now initialize any optional/additional effects (implemented in src/ports)
     InitEffects();
 };
 
-SK_DECLARE_STATIC_ONCE(once);
 void SkFlattenable::InitializeFlattenablesIfNeeded() {
-    SkOnce(&once, SkFlattenable::PrivateInitializer::InitCore);
+    static SkOnce once;
+    once(SkFlattenable::PrivateInitializer::InitCore);
 }

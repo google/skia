@@ -6,15 +6,18 @@
  */
 
 #include "SkXfermodeImageFilter.h"
+
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkColorPriv.h"
 #include "SkReadBuffer.h"
+#include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 #include "SkXfermode.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "effects/GrConstColorProcessor.h"
 #include "effects/GrTextureDomain.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "SkGr.h"
@@ -22,77 +25,111 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkXfermodeImageFilter::SkXfermodeImageFilter(SkXfermode* mode,
-                                             SkImageFilter* inputs[2],
+sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(sk_sp<SkXfermode> mode,
+                                                 sk_sp<SkImageFilter> background,
+                                                 sk_sp<SkImageFilter> foreground,
+                                                 const CropRect* cropRect) {
+    sk_sp<SkImageFilter> inputs[2] = { std::move(background), std::move(foreground) };
+    return sk_sp<SkImageFilter>(new SkXfermodeImageFilter(mode, inputs, cropRect));
+}
+
+SkXfermodeImageFilter::SkXfermodeImageFilter(sk_sp<SkXfermode> mode,
+                                             sk_sp<SkImageFilter> inputs[2],
                                              const CropRect* cropRect)
-  : INHERITED(2, inputs, cropRect), fMode(mode) {
-    SkSafeRef(fMode);
+    : INHERITED(inputs, 2, cropRect)
+    , fMode(std::move(mode)) {
 }
 
-SkXfermodeImageFilter::~SkXfermodeImageFilter() {
-    SkSafeUnref(fMode);
-}
-
-SkFlattenable* SkXfermodeImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkXfermodeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
-    SkAutoTUnref<SkXfermode> mode(buffer.readXfermode());
-    return Create(mode, common.getInput(0), common.getInput(1), &common.cropRect());
+    sk_sp<SkXfermode> mode(buffer.readXfermode());
+    return Make(std::move(mode), common.getInput(0), common.getInput(1), &common.cropRect());
 }
 
 void SkXfermodeImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeFlattenable(fMode);
+    buffer.writeFlattenable(fMode.get());
 }
 
-bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
-                                            const SkBitmap& src,
-                                            const Context& ctx,
-                                            SkBitmap* dst,
-                                            SkIPoint* offset) const {
-    SkBitmap background = src, foreground = src;
+sk_sp<SkSpecialImage> SkXfermodeImageFilter::onFilterImage(SkSpecialImage* source,
+                                                           const Context& ctx,
+                                                           SkIPoint* offset) const {
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInput(0, proxy, src, ctx, &background, &backgroundOffset)) {
-        background.reset();
-    }
+    sk_sp<SkSpecialImage> background(this->filterInput(0, source, ctx, &backgroundOffset));
+
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInput(1, proxy, src, ctx, &foreground, &foregroundOffset)) {
-        foreground.reset();
+    sk_sp<SkSpecialImage> foreground(this->filterInput(1, source, ctx, &foregroundOffset));
+
+    SkIRect foregroundBounds = SkIRect::EmptyIRect();
+    if (foreground) {
+        foregroundBounds = SkIRect::MakeXYWH(foregroundOffset.x(), foregroundOffset.y(),
+                                             foreground->width(), foreground->height());
     }
 
-    SkIRect bounds, foregroundBounds;
-    if (!applyCropRect(ctx, foreground, foregroundOffset, &foregroundBounds)) {
-        foregroundBounds.setEmpty();
-        foreground.reset();
+    SkIRect srcBounds = SkIRect::EmptyIRect();
+    if (background) {
+        srcBounds = SkIRect::MakeXYWH(backgroundOffset.x(), backgroundOffset.y(),
+                                       background->width(), background->height());
     }
-    if (!applyCropRect(ctx, background, backgroundOffset, &bounds)) {
-        bounds.setEmpty();
-        background.reset();
-    }
-    bounds.join(foregroundBounds);
-    if (bounds.isEmpty()) {
-        return false;
+        
+    srcBounds.join(foregroundBounds);
+    if (srcBounds.isEmpty()) {
+        return nullptr;
     }
 
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
-    if (nullptr == device.get()) {
-        return false;
+    SkIRect bounds;
+    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
+        return nullptr;
     }
-    SkCanvas canvas(device);
-    canvas.translate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    SkPaint paint;
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    canvas.drawBitmap(background, SkIntToScalar(backgroundOffset.fX),
-                      SkIntToScalar(backgroundOffset.fY), &paint);
-    paint.setXfermode(fMode);
-    canvas.drawBitmap(foreground, SkIntToScalar(foregroundOffset.fX),
-                      SkIntToScalar(foregroundOffset.fY), &paint);
-    canvas.clipRect(SkRect::Make(foregroundBounds), SkRegion::kDifference_Op);
-    paint.setColor(SK_ColorTRANSPARENT);
-    canvas.drawPaint(paint);
-    *dst = device->accessBitmap(false);
+
     offset->fX = bounds.left();
     offset->fY = bounds.top();
-    return true;
+
+#if SK_SUPPORT_GPU
+    if (source->isTextureBacked()) {
+        return this->filterImageGPU(source,
+                                    background, backgroundOffset, 
+                                    foreground, foregroundOffset,
+                                    bounds);
+    }
+#endif
+
+    const SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(),
+                                                  kPremul_SkAlphaType);
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
+    if (!surf) {
+        return nullptr;
+    }
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+
+    canvas->clear(0x0); // can't count on background to fully clear the background
+
+    canvas->translate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
+
+    SkPaint paint;
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+
+    if (background) {
+        background->draw(canvas,
+                         SkIntToScalar(backgroundOffset.fX), SkIntToScalar(backgroundOffset.fY),
+                         &paint);
+    }
+
+    paint.setXfermode(fMode);
+
+    if (foreground) {
+        foreground->draw(canvas,
+                         SkIntToScalar(foregroundOffset.fX), SkIntToScalar(foregroundOffset.fY),
+                         &paint);
+    }
+
+    canvas->clipRect(SkRect::Make(foregroundBounds), SkRegion::kDifference_Op);
+    paint.setColor(SK_ColorTRANSPARENT);
+    canvas->drawPaint(paint);
+
+    return surf->makeImageSnapshot();
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -119,102 +156,104 @@ void SkXfermodeImageFilter::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 
-bool SkXfermodeImageFilter::canFilterImageGPU() const {
-    return fMode && fMode->asFragmentProcessor(nullptr, nullptr) && !cropRectIsSet();
-}
+#include "SkXfermode_proccoeff.h"
 
-bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
-                                           const SkBitmap& src,
-                                           const Context& ctx,
-                                           SkBitmap* result,
-                                           SkIPoint* offset) const {
-    SkBitmap background = src;
-    SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputGPU(0, proxy, src, ctx, &background, &backgroundOffset)) {
-        return false;
+sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* source,
+                                                            sk_sp<SkSpecialImage> background,
+                                                            const SkIPoint& backgroundOffset,
+                                                            sk_sp<SkSpecialImage> foreground,
+                                                            const SkIPoint& foregroundOffset,
+                                                            const SkIRect& bounds) const {
+    SkASSERT(source->isTextureBacked());
+
+    GrContext* context = source->getContext();
+
+    sk_sp<GrTexture> backgroundTex, foregroundTex;
+    
+    if (background) {
+        backgroundTex = background->asTextureRef(context);
     }
 
-    GrTexture* backgroundTex = background.getTexture();
-    if (nullptr == backgroundTex) {
-        SkASSERT(false);
-        return false;
-    }
-
-    SkBitmap foreground = src;
-    SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputGPU(1, proxy, src, ctx, &foreground, &foregroundOffset)) {
-        return false;
-    }
-    GrTexture* foregroundTex = foreground.getTexture();
-    GrContext* context = foregroundTex->getContext();
-    SkIRect bounds = background.bounds().makeOffset(backgroundOffset.x(), backgroundOffset.y());
-    bounds.join(foreground.bounds().makeOffset(foregroundOffset.x(), foregroundOffset.y()));
-    if (bounds.isEmpty()) {
-        return false;
-    }
-
-    const GrFragmentProcessor* xferFP = nullptr;
-
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = bounds.width();
-    desc.fHeight = bounds.height();
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
-    if (!dst) {
-        return false;
+    if (foreground) {
+        foregroundTex = foreground->asTextureRef(context);
     }
 
     GrPaint paint;
-    SkMatrix backgroundMatrix;
-    backgroundMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
-    backgroundMatrix.preTranslate(SkIntToScalar(-backgroundOffset.fX),
-                                  SkIntToScalar(-backgroundOffset.fY));
-    SkAutoTUnref<const GrFragmentProcessor> bgFP(GrTextureDomainEffect::Create(
-        backgroundTex, backgroundMatrix,
-        GrTextureDomain::MakeTexelDomain(backgroundTex, background.bounds()),
-        GrTextureDomain::kDecal_Mode,
-        GrTextureParams::kNone_FilterMode)
-    );
-    if (!fMode || !fMode->asFragmentProcessor(&xferFP, bgFP)) {
-        // canFilterImageGPU() should've taken care of this
-        SkASSERT(false);
-        return false;
+    // SRGBTODO: AllowSRGBInputs?
+    SkAutoTUnref<const GrFragmentProcessor> bgFP;
+
+    if (backgroundTex) {
+        SkMatrix backgroundMatrix;
+        backgroundMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
+        backgroundMatrix.preTranslate(SkIntToScalar(-backgroundOffset.fX),
+                                      SkIntToScalar(-backgroundOffset.fY));
+        bgFP.reset(GrTextureDomainEffect::Create(
+                            backgroundTex.get(), backgroundMatrix,
+                            GrTextureDomain::MakeTexelDomain(backgroundTex.get(),
+                                                             background->subset()),
+                            GrTextureDomain::kDecal_Mode,
+                            GrTextureParams::kNone_FilterMode));
+    } else {
+        bgFP.reset(GrConstColorProcessor::Create(GrColor_TRANSPARENT_BLACK,
+                                                 GrConstColorProcessor::kIgnore_InputMode));
     }
 
-    SkMatrix foregroundMatrix;
-    foregroundMatrix.setIDiv(foregroundTex->width(), foregroundTex->height());
-    foregroundMatrix.preTranslate(SkIntToScalar(-foregroundOffset.fX),
-                                  SkIntToScalar(-foregroundOffset.fY));
+    if (foregroundTex) {
+        SkMatrix foregroundMatrix;
+        foregroundMatrix.setIDiv(foregroundTex->width(), foregroundTex->height());
+        foregroundMatrix.preTranslate(SkIntToScalar(-foregroundOffset.fX),
+                                      SkIntToScalar(-foregroundOffset.fY));
 
+        SkAutoTUnref<const GrFragmentProcessor> foregroundFP;
 
-    SkAutoTUnref<const GrFragmentProcessor> foregroundFP(GrTextureDomainEffect::Create(
-        foregroundTex, foregroundMatrix,
-        GrTextureDomain::MakeTexelDomain(foregroundTex, foreground.bounds()),
-        GrTextureDomain::kDecal_Mode,
-        GrTextureParams::kNone_FilterMode)
-    );
+        foregroundFP.reset(GrTextureDomainEffect::Create(
+                            foregroundTex.get(), foregroundMatrix,
+                            GrTextureDomain::MakeTexelDomain(foregroundTex.get(), 
+                                                             foreground->subset()),
+                            GrTextureDomain::kDecal_Mode,
+                            GrTextureParams::kNone_FilterMode));
 
-    paint.addColorFragmentProcessor(foregroundFP.get());
-    if (xferFP) {
-        paint.addColorFragmentProcessor(xferFP)->unref();
+        paint.addColorFragmentProcessor(foregroundFP.get());
+
+        // A null fMode is interpreted to mean kSrcOver_Mode (to match raster).
+        SkAutoTUnref<SkXfermode> mode(SkSafeRef(fMode.get()));
+        if (!mode) {
+            // It would be awesome to use SkXfermode::Create here but it knows better
+            // than us and won't return a kSrcOver_Mode SkXfermode. That means we
+            // have to get one the hard way.
+            struct ProcCoeff rec;
+            rec.fProc = SkXfermode::GetProc(SkXfermode::kSrcOver_Mode);
+            SkXfermode::ModeAsCoeff(SkXfermode::kSrcOver_Mode, &rec.fSC, &rec.fDC);
+
+            mode.reset(new SkProcCoeffXfermode(rec, SkXfermode::kSrcOver_Mode));
+        }
+
+        sk_sp<const GrFragmentProcessor> xferFP(mode->getFragmentProcessorForImageFilter(bgFP));
+
+        // A null 'xferFP' here means kSrc_Mode was used in which case we can just proceed
+        if (xferFP) {
+            paint.addColorFragmentProcessor(xferFP.get());
+        }
+    } else {
+        paint.addColorFragmentProcessor(bgFP);
     }
+
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
+                                                             bounds.width(), bounds.height(),
+                                                             kSkia8888_GrPixelConfig));
     if (!drawContext) {
-        return false;
+        return nullptr;
     }
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    drawContext->drawRect(GrClip::WideOpen(), paint, matrix, SkRect::Make(bounds));
+    drawContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(bounds));
 
-    offset->fX = bounds.left();
-    offset->fY = bounds.top();
-    GrWrapTextureInBitmap(dst, bounds.width(), bounds.height(), false, result);
-    return true;
+    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
+                                       kNeedNewImageUniqueID_SpecialImage,
+                                       drawContext->asTexture());
 }
 
 #endif
-

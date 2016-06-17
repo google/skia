@@ -481,7 +481,7 @@ bool SkOpCoincidence::apply() {
     return true;
 }
 
-void SkOpCoincidence::detach(SkCoincidentSpans* remove) {
+void SkOpCoincidence::release(SkCoincidentSpans* remove) {
     SkCoincidentSpans* coin = fHead;
     SkCoincidentSpans* prev = nullptr;
     SkCoincidentSpans* next;
@@ -604,28 +604,28 @@ void SkOpCoincidence::fixUp(SkOpPtT* deleted, SkOpPtT* kept) {
     do {
         if (coin->fCoinPtTStart == deleted) {
             if (coin->fCoinPtTEnd->span() == kept->span()) {
-                this->detach(coin);
+                this->release(coin);
                 continue;
             }
             coin->fCoinPtTStart = kept;
         }
         if (coin->fCoinPtTEnd == deleted) {
             if (coin->fCoinPtTStart->span() == kept->span()) {
-                this->detach(coin);
+                this->release(coin);
                 continue;
             }
             coin->fCoinPtTEnd = kept;
         }
         if (coin->fOppPtTStart == deleted) {
             if (coin->fOppPtTEnd->span() == kept->span()) {
-                this->detach(coin);
+                this->release(coin);
                 continue;
             }
             coin->fOppPtTStart = kept;
         }
         if (coin->fOppPtTEnd == deleted) {
             if (coin->fOppPtTStart->span() == kept->span()) {
-                this->detach(coin);
+                this->release(coin);
                 continue;
             }
             coin->fOppPtTEnd = kept;
@@ -634,16 +634,22 @@ void SkOpCoincidence::fixUp(SkOpPtT* deleted, SkOpPtT* kept) {
 }
 
 /* this sets up the coincidence links in the segments when the coincidence crosses multiple spans */
-void SkOpCoincidence::mark() {
+bool SkOpCoincidence::mark() {
     SkCoincidentSpans* coin = fHead;
     if (!coin) {
-        return;
+        return true;
     }
     do {
         SkOpSpanBase* end = coin->fCoinPtTEnd->span();
+        if (end->deleted()) {
+          return false;
+        }
         SkOpSpanBase* oldEnd = end;
         SkOpSpan* start = coin->fCoinPtTStart->span()->starter(&end);
         SkOpSpanBase* oEnd = coin->fOppPtTEnd->span();
+        if (oEnd->deleted()) {
+          return false;
+        }
         SkOpSpanBase* oOldEnd = oEnd;
         SkOpSpanBase* oStart = coin->fOppPtTStart->span()->starter(&oEnd);
         bool flipped = (end == oldEnd) != (oEnd == oOldEnd);
@@ -668,6 +674,7 @@ void SkOpCoincidence::mark() {
             }
         } while (true);
     } while ((coin = coin->fNext));
+    return true;
 }
 
 bool SkOpCoincidence::overlap(const SkOpPtT* coin1s, const SkOpPtT* coin1e, 

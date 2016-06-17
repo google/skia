@@ -72,9 +72,9 @@ public:
      */
     class DeviceManager : public SkRefCnt {
     public:
-        
 
-        virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) = 0;
+
+        virtual void setUpBackend(SampleWindow* win, int msaaSampleCount, bool deepColor) = 0;
 
         virtual void tearDownBackend(SampleWindow* win) = 0;
 
@@ -97,6 +97,10 @@ public:
 
         // return the GrRenderTarget backing gpu devices (nullptr if not built with GPU support)
         virtual GrRenderTarget* getGrRenderTarget() = 0;
+
+        // return the color depth of the output device
+        virtual int getColorBits() = 0;
+
     private:
         typedef SkRefCnt INHERITED;
     };
@@ -118,16 +122,19 @@ public:
     void draw(SkCanvas*) override;
 
     void setDeviceType(DeviceType type);
+    void setDeviceColorType(SkColorType, SkColorProfileType);
     void toggleRendering();
     void toggleSlideshow();
     void toggleFPS();
     void showOverview();
     void toggleDistanceFieldFonts();
+    void setPixelGeometry(int pixelGeometryIndex);
 
     GrContext* getGrContext() const { return fDevManager->getGrContext(); }
 
     void setZoomCenter(float x, float y);
     void changeZoomLevel(float delta);
+    void changeOffset(SkVector delta);
     bool nextSample();
     bool previousSample();
     bool goToSample(int i);
@@ -171,13 +178,14 @@ private:
     SkTouchGesture fGesture;
     SkScalar fZoomLevel;
     SkScalar fZoomScale;
+    SkVector fOffset;
 
     DeviceType fDeviceType;
     DeviceManager* fDevManager;
 
     bool fSaveToPdf;
     bool fSaveToSKP;
-    SkAutoTUnref<SkDocument> fPDFDocument;
+    sk_sp<SkDocument> fPDFDocument;
 
     bool fUseClip;
     bool fUsePicture;
@@ -196,19 +204,20 @@ private:
     int fMouseX, fMouseY;
     int fFatBitsScale;
     // Used by the text showing position and color values.
-    SkTypeface* fTypeface;
+    sk_sp<SkTypeface> fTypeface;
     bool fShowZoomer;
 
     SkOSMenu::TriState fLCDState;
     SkOSMenu::TriState fAAState;
     SkOSMenu::TriState fSubpixelState;
     int fHintingState;
+    int fPixelGeometryIndex;
     int fFilterQualityIndex;
     unsigned   fFlipAxis;
 
     int fMSAASampleCount;
+    bool fDeepColor;
 
-    int fScrollTestX, fScrollTestY;
     SkScalar fZoomCenterX, fZoomCenterY;
 
     //Stores global settings

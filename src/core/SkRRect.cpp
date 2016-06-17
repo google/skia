@@ -158,6 +158,11 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
         return;
     }
 
+    this->scaleRadii();
+}
+
+void SkRRect::scaleRadii() {
+
     // Proportionally scale down all radii to fit. Find the minimum ratio
     // of a side and the radii on that side (for all four sides) and use
     // that to scale down _all_ the radii. This algorithm is from the
@@ -179,10 +184,10 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     scale = compute_min_scale(fRadii[3].fY, fRadii[0].fY, height, scale);
 
     if (scale < 1.0) {
-        ScaleToSides::AdjustRadii(width,  scale, &fRadii[0].fX, &fRadii[1].fX);
-        ScaleToSides::AdjustRadii(height, scale, &fRadii[1].fY, &fRadii[2].fY);
-        ScaleToSides::AdjustRadii(width,  scale, &fRadii[2].fX, &fRadii[3].fX);
-        ScaleToSides::AdjustRadii(height, scale, &fRadii[3].fY, &fRadii[0].fY);
+        SkScaleToSides::AdjustRadii(width,  scale, &fRadii[0].fX, &fRadii[1].fX);
+        SkScaleToSides::AdjustRadii(height, scale, &fRadii[1].fY, &fRadii[2].fY);
+        SkScaleToSides::AdjustRadii(width,  scale, &fRadii[2].fX, &fRadii[3].fX);
+        SkScaleToSides::AdjustRadii(height, scale, &fRadii[3].fY, &fRadii[0].fY);
     }
 
     // At this point we're either oval, simple, or complex (not empty or rect).
@@ -420,7 +425,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         SkTSwap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerRight_Corner]);
     }
 
-    SkDEBUGCODE(dst->validate();)
+    dst->scaleRadii();
 
     return true;
 }

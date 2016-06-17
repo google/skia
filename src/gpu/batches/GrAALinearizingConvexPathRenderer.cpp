@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -18,7 +17,7 @@
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
 #include "GrPipelineBuilder.h"
-#include "GrStrokeInfo.h"
+#include "GrStyle.h"
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
@@ -47,16 +46,20 @@ bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& arg
     if (!args.fPath->isConvex()) {
         return false;
     }
-    if (args.fStroke->getStyle() == SkStrokeRec::kStroke_Style) {
+    if (args.fStyle->pathEffect()) {
+        return false;
+    }
+    const SkStrokeRec& stroke = args.fStyle->strokeRec();
+    if (stroke.getStyle() == SkStrokeRec::kStroke_Style) {
         if (!args.fViewMatrix->isSimilarity()) {
             return false;
         }
-        SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * args.fStroke->getWidth();
-        return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth && !args.fStroke->isDashed() &&
-                SkPathPriv::IsClosedSingleContour(*args.fPath) &&
-                args.fStroke->getJoin() != SkPaint::Join::kRound_Join;
+        SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * stroke.getWidth();
+        return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth &&
+               SkPathPriv::IsClosedSingleContour(*args.fPath) &&
+               stroke.getJoin() != SkPaint::Join::kRound_Join;
     }
-    return args.fStroke->getStyle() == SkStrokeRec::kFill_Style;
+    return stroke.getStyle() == SkStrokeRec::kFill_Style;
 }
 
 // extract the result vertices and indices from the GrAAConvexTessellator
@@ -134,13 +137,12 @@ public:
 
     const char* name() const override { return "AAConvexBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
         coverage->setUnknownSingleComponent();
-        overrides->fUsePLSDstRead = false;
     }
 
 private:
@@ -160,13 +162,13 @@ private:
         fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
     }
 
-    void draw(GrVertexBatch::Target* target, const GrPipeline* pipeline, int vertexCount,
+    void draw(GrVertexBatch::Target* target, const GrGeometryProcessor* gp, int vertexCount,
               size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
-        const GrVertexBuffer* vertexBuffer;
-        GrVertices info;
+        const GrBuffer* vertexBuffer;
+        GrMesh mesh;
         int firstVertex;
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
                                               &firstVertex);
@@ -176,7 +178,7 @@ private:
         }
         memcpy(verts, vertices, vertexCount * vertexStride);
 
-        const GrIndexBuffer* indexBuffer;
+        const GrBuffer* indexBuffer;
         int firstIndex;
         uint16_t* idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
         if (!idxs) {
@@ -184,9 +186,9 @@ private:
             return;
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
-        info.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
-                firstIndex, vertexCount, indexCount);
-        target->draw(info);
+        mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
+                         firstIndex, vertexCount, indexCount);
+        target->draw(gp, mesh);
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -201,8 +203,6 @@ private:
             SkDebugf("Couldn't create a GrGeometryProcessor\n");
             return;
         }
-
-        target->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -231,8 +231,7 @@ private:
             if (indexCount + currentIndices > UINT16_MAX) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->draw(target, this->pipeline(), vertexCount, vertexStride, vertices,
-                           indexCount, indices);
+                this->draw(target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -251,8 +250,7 @@ private:
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
-        this->draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
-                   indices);
+        this->draw(target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
         sk_free(vertices);
         sk_free(indices);
     }
@@ -331,13 +329,13 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     geometry.fColor = args.fColor;
     geometry.fViewMatrix = *args.fViewMatrix;
     geometry.fPath = *args.fPath;
-    geometry.fStrokeWidth = args.fStroke->isFillStyle() ? -1.0f : args.fStroke->getWidth();
-    geometry.fJoin = args.fStroke->isFillStyle() ? SkPaint::Join::kMiter_Join :
-                                                   args.fStroke->getJoin();
-    geometry.fMiterLimit = args.fStroke->getMiter();
+    bool fill = args.fStyle->isSimpleFill();
+    geometry.fStrokeWidth = fill ? -1.0f : args.fStyle->strokeRec().getWidth();
+    geometry.fJoin = fill ? SkPaint::Join::kMiter_Join : args.fStyle->strokeRec().getJoin();
+    geometry.fMiterLimit = args.fStyle->strokeRec().getMiter();
 
     SkAutoTUnref<GrDrawBatch> batch(AAFlatteningConvexPathBatch::Create(geometry));
-    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
+    args.fTarget->drawBatch(*args.fPipelineBuilder, *args.fClip, batch);
 
     return true;
 }

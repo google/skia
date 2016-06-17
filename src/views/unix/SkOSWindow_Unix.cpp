@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -47,7 +46,7 @@ SkOSWindow::~SkOSWindow() {
 
 void SkOSWindow::internalCloseWindow() {
     if (fUnixWindow.fDisplay) {
-        this->detach();
+        this->release();
         SkASSERT(fUnixWindow.fGc);
         XFreeGC(fUnixWindow.fDisplay, fUnixWindow.fGc);
         fUnixWindow.fGc = nullptr;
@@ -349,7 +348,8 @@ static void glXSwapInterval(Display* dsp, GLXDrawable drawable, int interval) {
 
 /////////////////////////////////////////////////////////////////////////
 
-bool SkOSWindow::attach(SkBackEndTypes, int msaaSampleCount, AttachmentInfo* info) {
+bool SkOSWindow::attach(SkBackEndTypes, int msaaSampleCount, bool deepColor,
+                        AttachmentInfo* info) {
     this->initWindow(msaaSampleCount, info);
 
     if (nullptr == fUnixWindow.fDisplay) {
@@ -378,7 +378,7 @@ bool SkOSWindow::attach(SkBackEndTypes, int msaaSampleCount, AttachmentInfo* inf
     return true;
 }
 
-void SkOSWindow::detach() {
+void SkOSWindow::release() {
     if (nullptr == fUnixWindow.fDisplay || nullptr == fUnixWindow.fGLContext) {
         return;
     }

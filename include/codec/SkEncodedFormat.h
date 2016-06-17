@@ -23,5 +23,6 @@ enum SkEncodedFormat {
     kPKM_SkEncodedFormat,
     kKTX_SkEncodedFormat,
     kASTC_SkEncodedFormat,
+    kDNG_SkEncodedFormat,
 };
 #endif  // SkEncodedFormat_DEFINED

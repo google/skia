@@ -1,3 +1,10 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "nanomsg/src/nn.h"
 #include "nanomsg/src/pipeline.h"
 #include "nanomsg/src/reqrep.h"
@@ -53,7 +60,7 @@ static void send_picture(int socket, const PictureHeader& header, const SkData& 
     nn_sendmsg(socket, &msg, 0/*flags*/);
 }
 
-static SkPicture* recv_picture(int socket, PictureHeader* header) {
+static sk_sp<SkPicture> recv_picture(int socket, PictureHeader* header) {
     static const size_t hSize = sizeof(*header);  // It's easy to slip up and use sizeof(header).
 
     void* msg;
@@ -63,7 +70,7 @@ static SkPicture* recv_picture(int socket, PictureHeader* header) {
     // msg is first a fixed-size header, then an .skp.
     memcpy(header, msg, hSize);
     SkMemoryStream stream((uint8_t*)msg + hSize, size - hSize);
-    SkPicture* pic = SkPicture::CreateFromStream(&stream);
+    sk_sp<SkPicture> pic = SkPicture::MakeFromStream(&stream);
 
     SkDebugf(" from proccess %d:", header->pid);
 
@@ -79,7 +86,7 @@ static void client(const char* skpPath, const char* dataEndpoint) {
         exit(1);
     }
     SkMemoryStream stream(skp->data(), skp->size());
-    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&stream));
+    sk_sp<SkPicture> picture(SkPicture::MakeFromStream(&stream));
 
     PictureHeader header;
     SkRandom rand(picture->cullRect().width() * picture->cullRect().height());
@@ -143,7 +150,7 @@ static void server(const char* dataEndpoint, const char* controlEndpoint, SkCanv
 
         // We should have an .skp waiting for us on data socket.
         PictureHeader header;
-        SkAutoTUnref<SkPicture> picture(recv_picture(data, &header));
+        sk_sp<SkPicture> picture(recv_picture(data, &header));
 
         SkPaint paint;
         paint.setAlpha(header.alpha);

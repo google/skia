@@ -107,7 +107,7 @@ bool SkDWriteFontFileStream::move(long offset) {
 SkDWriteFontFileStream* SkDWriteFontFileStream::fork() const {
     SkAutoTDelete<SkDWriteFontFileStream> that(this->duplicate());
     that->seek(fPos);
-    return that.detach();
+    return that.release();
 }
 
 size_t SkDWriteFontFileStream::getLength() const {
@@ -212,7 +212,7 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::ReadFileFragment(
         }
 
         *fragmentStart = streamData.get();
-        *fragmentContext = streamData.detach();
+        *fragmentContext = streamData.release();
     }
     return S_OK;
 }

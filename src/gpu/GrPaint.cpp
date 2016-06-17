@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -15,6 +14,8 @@
 
 GrPaint::GrPaint()
     : fAntiAlias(false)
+    , fDisableOutputConversionToSRGB(false)
+    , fAllowSRGBInputs(false)
     , fColor(GrColor_WHITE) {}
 
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
@@ -56,7 +57,7 @@ bool GrPaint::isConstantBlendedColor(GrColor* color) const {
         GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(colorProcInfo.color(),
                                                             colorProcInfo.validFlags(),
                                                             colorProcInfo.isOpaque(),
-                                                            &blendedColor); 
+                                                            &blendedColor);
     }
 
     if (kRGBA_GrColorComponentFlags == blendedColor.fKnownColorFlags) {

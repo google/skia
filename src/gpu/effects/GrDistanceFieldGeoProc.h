@@ -17,23 +17,27 @@ class GrGLDistanceFieldLCDTextGeoProc;
 class GrInvariantOutput;
 
 enum GrDistanceFieldEffectFlags {
-    kSimilarity_DistanceFieldEffectFlag = 0x01,   // ctm is similarity matrix
-    kRectToRect_DistanceFieldEffectFlag = 0x02,   // ctm maps rects to rects
-    kUseLCD_DistanceFieldEffectFlag     = 0x04,   // use lcd text
-    kBGR_DistanceFieldEffectFlag        = 0x08,   // lcd display has bgr order
-    kPortrait_DistanceFieldEffectFlag   = 0x10,   // lcd display is in portrait mode (not used yet)
+    kSimilarity_DistanceFieldEffectFlag   = 0x01, // ctm is similarity matrix
+    kScaleOnly_DistanceFieldEffectFlag    = 0x02, // ctm has only scale and translate
+    kUseLCD_DistanceFieldEffectFlag       = 0x04, // use lcd text
+    kBGR_DistanceFieldEffectFlag          = 0x08, // lcd display has bgr order
+    kPortrait_DistanceFieldEffectFlag     = 0x10, // lcd display is in portrait mode (not used yet)
+    kGammaCorrect_DistanceFieldEffectFlag = 0x20, // assume gamma-correct output (linear blending)
 
     kInvalid_DistanceFieldEffectFlag    = 0x80,   // invalid state (for initialization)
-    
+
     kUniformScale_DistanceFieldEffectMask = kSimilarity_DistanceFieldEffectFlag |
-                                            kRectToRect_DistanceFieldEffectFlag,
+                                            kScaleOnly_DistanceFieldEffectFlag,
     // The subset of the flags relevant to GrDistanceFieldA8TextGeoProc
-    kNonLCD_DistanceFieldEffectMask       = kSimilarity_DistanceFieldEffectFlag,
+    kNonLCD_DistanceFieldEffectMask       = kSimilarity_DistanceFieldEffectFlag |
+                                            kScaleOnly_DistanceFieldEffectFlag |
+                                            kGammaCorrect_DistanceFieldEffectFlag,
     // The subset of the flags relevant to GrDistanceFieldLCDTextGeoProc
     kLCD_DistanceFieldEffectMask          = kSimilarity_DistanceFieldEffectFlag |
-                                            kRectToRect_DistanceFieldEffectFlag |
+                                            kScaleOnly_DistanceFieldEffectFlag |
                                             kUseLCD_DistanceFieldEffectFlag |
-                                            kBGR_DistanceFieldEffectFlag,
+                                            kBGR_DistanceFieldEffectFlag |
+                                            kGammaCorrect_DistanceFieldEffectFlag,
 };
 
 /**

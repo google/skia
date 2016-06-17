@@ -8,10 +8,12 @@
 # This script will update Skia's dependencies as necessary and run
 # gyp if needed.
 
-# Depends on: Python, and Git.
+# Depends on: Python, Git, and depot_tools.
 #
 # Example usage:
 #
+#   git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+#   export PATH="${PWD}/depot_tools:${PATH}"
 #   git clone https://skia.googlesource.com/skia
 #   cd skia
 #   python bin/sync-and-gyp
@@ -21,10 +23,16 @@
 #
 #   python bin/sync-and-gyp
 
+# To retreive and use all optional deps:
+#
+#   python bin/sync-and-gyp --deps=all
+#   ninja -C out/Debug && out/Debug/dm
+
 import fnmatch
 import hashlib
-import subprocess
 import os
+import subprocess
+import sys
 
 skia_dir = os.path.join(os.path.dirname(__file__), os.pardir)
 
@@ -37,13 +45,9 @@ else:
 
 os.chdir(skia_dir)
 
-if not os.path.isfile('DEPS'):
-  sys.stderr.write('DEPS file missing')
+if 0 != subprocess.call(['python', 'bin/sync'] + sys.argv[1:]):
+  sys.stderr.write('sync failed.')
   exit(1)
-
-env = os.environ.copy()
-env["GIT_SYNC_DEPS_QUIET"] = "1"
-subprocess.call(['python', 'tools/git-sync-deps'], env=env)
 
 hasher = hashlib.sha1()
 
@@ -67,7 +71,24 @@ for filename in sorted(listfiles('gyp', '*')):
   with open(filename, 'r') as f:
     hasher.update(f.read())
 
-for dir in ['bench', 'gm', 'tests']:
+find_dirs = [
+    'bench',
+    'fuzz',
+    'gm',
+    'tests',
+    'third_party/externals/icu/source/common',
+    'third_party/externals/nanomsg/src',
+    'third_party/externals/sfntly/sfntly',
+    'third_party/externals/shaderc2',
+    'tools/VisualBench',
+    'tools/gpu',
+    'tools/kilobench',
+    'tools/skiaserve',
+    'tools/skiaserve/urlhandlers',
+    'tools/vulkan',
+]
+
+for dir in find_dirs:
   for filename in sorted(listfiles(dir, '*.c*')):
     hasher.update(filename + '\n')
 

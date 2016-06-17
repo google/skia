@@ -95,14 +95,14 @@ protected:
         SkPictureRecorder recorder;
         SkCanvas* pictureCanvas = recorder.beginRecording(kPictureSize, kPictureSize);
         draw_scene(pictureCanvas, kPictureSize);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
         SkPoint offset = SkPoint::Make(100, 100);
         pictureCanvas = recorder.beginRecording(SkRect::MakeXYWH(offset.x(), offset.y(),
                                                                  kPictureSize, kPictureSize));
         pictureCanvas->translate(offset.x(), offset.y());
         draw_scene(pictureCanvas, kPictureSize);
-        SkAutoTUnref<SkPicture> offsetPicture(recorder.endRecording());
+        sk_sp<SkPicture> offsetPicture(recorder.finishRecordingAsPicture());
 
         for (unsigned i = 0; i < SK_ARRAY_COUNT(tiles); ++i) {
             SkRect tile = SkRect::MakeXYWH(tiles[i].x * kPictureSize,
@@ -115,20 +115,18 @@ protected:
             localMatrix.postScale(kFillSize / (2 * kPictureSize),
                                   kFillSize / (2 * kPictureSize));
 
-            SkPicture* picturePtr = picture.get();
+            sk_sp<SkPicture> pictureRef = picture;
             SkRect* tilePtr = &tile;
 
             if (tile == SkRect::MakeWH(kPictureSize, kPictureSize)) {
                 // When the tile == picture bounds, exercise the picture + offset path.
-                picturePtr = offsetPicture.get();
+                pictureRef = offsetPicture;
                 tilePtr = nullptr;
             }
 
-            fShaders[i].reset(SkShader::CreatePictureShader(picturePtr,
-                                                            SkShader::kRepeat_TileMode,
-                                                            SkShader::kRepeat_TileMode,
-                                                            &localMatrix,
-                                                            tilePtr));
+            fShaders[i] = SkShader::MakePictureShader(pictureRef, SkShader::kRepeat_TileMode,
+                                                      SkShader::kRepeat_TileMode, &localMatrix,
+                                                      tilePtr);
         }
     }
 
@@ -150,7 +148,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkShader> fShaders[SK_ARRAY_COUNT(tiles)];
+    sk_sp<SkShader> fShaders[SK_ARRAY_COUNT(tiles)];
 
     typedef GM INHERITED;
 };

@@ -18,11 +18,12 @@ SkOSWindow::SkOSWindow(void* hwnd) {
 }
 
 SkOSWindow::~SkOSWindow() {
-    this->detach();
+    this->release();
 }
 
 bool SkOSWindow::attach(SkBackEndTypes attachType,
                         int /*msaaSampleCount*/,
+                        bool /*deepColor*/,
                         AttachmentInfo* info) {
     static const EGLint kEGLContextAttribsForOpenGL[] = {
         EGL_NONE
@@ -149,7 +150,7 @@ bool SkOSWindow::attach(SkBackEndTypes attachType,
     }
 }
 
-void SkOSWindow::detach() {
+void SkOSWindow::release() {
     if (fWindow.fDisplay != EGL_NO_DISPLAY) {
         eglMakeCurrent(fWindow.fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         if (fWindow.fContext != EGL_NO_CONTEXT) {
@@ -186,9 +187,6 @@ void SkOSWindow::onSetTitle(const char title[]) {
 }
 
 void SkOSWindow::onHandleInval(const SkIRect& rect) {
-}
-
-void SkOSWindow::onPDFSaved(const char title[], const char desc[], const char path[]) {
 }
 
 ///////////////////////////////////////////

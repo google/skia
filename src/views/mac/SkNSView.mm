@@ -56,8 +56,7 @@ static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
 #if RETINA_API_AVAILABLE
         size = [self convertSizeToBacking:self.frame.size];
 #endif
-        fWind->resize((int) size.width, (int) size.height,
-                      kN32_SkColorType);
+        fWind->resize((int) size.width, (int) size.height);
         [[self window] setAcceptsMouseMovedEvents:YES];
     }
 }
@@ -338,6 +337,7 @@ static CGLContextObj createGLContext(int msaaSampleCount) {
         kCGLPFAStencilSize, (CGLPixelFormatAttribute) 8,
         kCGLPFAAccelerated,
         kCGLPFADoubleBuffer,
+        kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
         (CGLPixelFormatAttribute)0
     };
     

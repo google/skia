@@ -22,10 +22,6 @@ public:
 
     bool rewind() override;
 
-    bool hasPosition() const override { return true; }
-
-    size_t getPosition() const override { return fOffset; }
-
     bool hasLength() const override { return fHasLength; }
 
     size_t getLength() const override { return fLength; }
@@ -151,7 +147,7 @@ size_t FrontBufferedStream::readDirectlyFromStream(char* dst, size_t size) {
     // If we have read past the end of the buffer, rewinding is no longer
     // supported, so we can go ahead and free the memory.
     if (bytesReadDirectly > 0) {
-        sk_free(fBuffer.detach());
+        sk_free(fBuffer.release());
     }
 
     return bytesReadDirectly;

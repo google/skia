@@ -255,7 +255,7 @@ static void output_font(SkTypeface* face, const char* name, SkTypeface::Style st
         }
     }
     fprintf(out, "\n};\n\n");
-    
+
     // all fonts are now 0x00, 0x20 - 0xFE
     // don't need to generate or output character codes?
     fprintf(out, "const unsigned %sCharCodes[] = {\n", fontname);
@@ -275,7 +275,7 @@ static void output_font(SkTypeface* face, const char* name, SkTypeface::Style st
         }
     }
     fprintf(out, "\n};\n\n");
-    
+
     SkString widthsStr;
     fprintf(out, "const SkFixed %sWidths[] = {\n", fontname);
     for (int index = 0; index < offsetCount; ++index) {
@@ -283,7 +283,7 @@ static void output_font(SkTypeface* face, const char* name, SkTypeface::Style st
     }
     widthsStr = strip_final(widthsStr);
     fprintf(out, "%s\n};\n\n", widthsStr.c_str());
-    
+
     fprintf(out, "const int %sCharCodesCount = (int) SK_ARRAY_COUNT(%sCharCodes);\n\n",
             fontname, fontname);
 

@@ -7,12 +7,14 @@
 
 
 #include "SkGr.h"
+#include "SkGrPriv.h"
 
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrTextureParamsAdjuster.h"
 #include "GrGpuResourcePriv.h"
 #include "GrImageIDTextureAdjuster.h"
+#include "GrTextureParamsAdjuster.h"
+#include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "GrYUVProvider.h"
 
@@ -23,28 +25,29 @@
 #include "SkErrorInternals.h"
 #include "SkGrPixelRef.h"
 #include "SkMessageBus.h"
+#include "SkMipMap.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
-#include "SkTextureCompressor.h"
+#include "SkTemplates.h"
 #include "SkYUVPlanesCache.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrDitherEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
-#include "effects/GrYUVtoRGBEffect.h"
+#include "effects/GrYUVEffect.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
 #  include "ktx.h"
 #  include "etc1.h"
 #endif
 
-GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
+GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& caps) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
-    desc.fConfig = SkImageInfo2GrPixelConfig(info);
+    desc.fConfig = SkImageInfo2GrPixelConfig(info, caps);
     desc.fSampleCnt = 0;
     return desc;
 }
@@ -83,7 +86,7 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
 
         *outStartOfDataToUpload = bytes + ETC_PKM_HEADER_SIZE;
         return kETC1_GrPixelConfig;
-    } else if (SkKTXFile::is_ktx(bytes)) {
+    } else if (SkKTXFile::is_ktx(bytes, data->size())) {
         SkKTXFile ktx(data);
 
         // Is it actually an ETC1 texture?
@@ -118,16 +121,10 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
  * Ganesh wants a full 256 palette entry, even though Skia's ctable is only as big
  * as the colortable.count says it is.
  */
-static void build_index8_data(void* buffer, const SkBitmap& bitmap) {
-    SkASSERT(kIndex_8_SkColorType == bitmap.colorType());
+static void build_index8_data(void* buffer, const SkPixmap& pixmap) {
+    SkASSERT(kIndex_8_SkColorType == pixmap.colorType());
 
-    SkAutoLockPixels alp(bitmap);
-    if (!bitmap.readyToDraw()) {
-        SkDEBUGFAIL("bitmap not ready to draw!");
-        return;
-    }
-
-    SkColorTable* ctable = bitmap.getColorTable();
+    const SkColorTable* ctable = pixmap.ctable();
     char* dst = (char*)buffer;
 
     const int count = ctable->count();
@@ -149,14 +146,14 @@ static void build_index8_data(void* buffer, const SkBitmap& bitmap) {
     // always skip a full 256 number of entries, even if we memcpy'd fewer
     dst += 256 * sizeof(GrColor);
 
-    if ((unsigned)bitmap.width() == bitmap.rowBytes()) {
-        memcpy(dst, bitmap.getPixels(), bitmap.getSize());
+    if ((unsigned)pixmap.width() == pixmap.rowBytes()) {
+        memcpy(dst, pixmap.addr(), pixmap.getSafeSize());
     } else {
         // need to trim off the extra bytes per row
-        size_t width = bitmap.width();
-        size_t rowBytes = bitmap.rowBytes();
-        const char* src = (const char*)bitmap.getPixels();
-        for (int y = 0; y < bitmap.height(); y++) {
+        size_t width = pixmap.width();
+        size_t rowBytes = pixmap.rowBytes();
+        const uint8_t* src = pixmap.addr8();
+        for (int y = 0; y < pixmap.height(); y++) {
             memcpy(dst, src, width);
             src += rowBytes;
             dst += width;
@@ -175,17 +172,16 @@ public:
     PixelRef_GrYUVProvider(SkPixelRef* pr) : fPR(pr) {}
 
     uint32_t onGetID() override { return fPR->getGenerationID(); }
-    bool onGetYUVSizes(SkISize sizes[3]) override {
-        return fPR->getYUV8Planes(sizes, nullptr, nullptr, nullptr);
+    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
+        return fPR->queryYUV8(sizeInfo, colorSpace);
     }
-    bool onGetYUVPlanes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                        SkYUVColorSpace* space) override {
-        return fPR->getYUV8Planes(sizes, planes, rowBytes, space);
+    bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
+        return fPR->getYUV8Planes(sizeInfo, planes);
     }
 };
 
-static GrTexture* create_texture_from_yuv(GrContext* ctx, const SkBitmap& bm,
-                                          const GrSurfaceDesc& desc) {
+static sk_sp<GrTexture> create_texture_from_yuv(GrContext* ctx, const SkBitmap& bm,
+                                                const GrSurfaceDesc& desc) {
     // Subsets are not supported, the whole pixelRef is loaded when using YUV decoding
     SkPixelRef* pixelRef = bm.pixelRef();
     if ((nullptr == pixelRef) ||
@@ -212,61 +208,109 @@ static GrTexture* load_etc1_texture(GrContext* ctx, const SkBitmap &bm, GrSurfac
         return nullptr;
     }
 
-    return ctx->textureProvider()->createTexture(desc, true, startOfTexData, 0);
+    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, startOfTexData, 0);
 }
 
-GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bmp) {
-    SkASSERT(!bmp.getTexture());
-
-    SkBitmap tmpBitmap;
-    const SkBitmap* bitmap = &bmp;
-
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap->info());
-    const GrCaps* caps = ctx->caps();
-
-    if (kIndex_8_SkColorType == bitmap->colorType()) {
-        if (caps->isConfigTexturable(kIndex_8_GrPixelConfig)) {
-            size_t imageSize = GrCompressedFormatDataSize(kIndex_8_GrPixelConfig,
-                                                          bitmap->width(), bitmap->height());
-            SkAutoMalloc storage(imageSize);
-            build_index8_data(storage.get(), bmp);
-
-            // our compressed data will be trimmed, so pass width() for its
-            // "rowBytes", since they are the same now.
-            return ctx->textureProvider()->createTexture(desc, true, storage.get(),
-                                                         bitmap->width());
-        } else {
-            bmp.copyTo(&tmpBitmap, kN32_SkColorType);
-            // now bitmap points to our temp, which has been promoted to 32bits
-            bitmap = &tmpBitmap;
-            desc.fConfig = SkImageInfo2GrPixelConfig(bitmap->info());
-        }
-    } else if (!bitmap->readyToDraw()) {
-        // If the bitmap had compressed data and was then uncompressed, it'll still return
-        // compressed data on 'refEncodedData' and upload it. Probably not good, since if
-        // the bitmap has available pixels, then they might not be what the decompressed
-        // data is.
-
-        // Really?? We aren't doing this with YUV.
-
-        GrTexture *texture = load_etc1_texture(ctx, *bitmap, desc);
-        if (texture) {
-            return texture;
-        }
-    }
-
-    GrTexture *texture = create_texture_from_yuv(ctx, *bitmap, desc);
-    if (texture) {
+GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
+    if (GrTexture *texture = load_etc1_texture(ctx, bitmap, desc)) {
         return texture;
     }
 
-    SkAutoLockPixels alp(*bitmap);
-    if (!bitmap->readyToDraw()) {
-        return nullptr;
+    sk_sp<GrTexture> texture(create_texture_from_yuv(ctx, bitmap, desc));
+    if (texture) {
+        return texture.release();
     }
 
-    return ctx->textureProvider()->createTexture(desc, true, bitmap->getPixels(),
-                                                 bitmap->rowBytes());
+    SkAutoLockPixels alp(bitmap);
+    if (!bitmap.readyToDraw()) {
+        return nullptr;
+    }
+    SkPixmap pixmap;
+    if (!bitmap.peekPixels(&pixmap)) {
+        return nullptr;
+    }
+    return GrUploadPixmapToTexture(ctx, pixmap, SkBudgeted::kYes);
+}
+
+GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBudgeted budgeted) {
+    const SkPixmap* pmap = &pixmap;
+    SkPixmap tmpPixmap;
+    SkBitmap tmpBitmap;
+
+    const GrCaps* caps = ctx->caps();
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *caps);
+
+    if (caps->srgbSupport() && !GrPixelConfigIsSRGB(desc.fConfig) &&
+        kSRGB_SkColorProfileType == pixmap.info().profileType()) {
+        // We were supplied sRGB as the profile type, but we don't have a suitable pixel config.
+        // Convert to 8888 sRGB so we can handle the data correctly. The raster backend doesn't
+        // handle sRGB Index8 -> sRGB 8888 correctly (yet), so lie about both the source and
+        // destination (claim they're linear):
+        SkImageInfo linSrcInfo = SkImageInfo::Make(pixmap.width(), pixmap.height(),
+                                                   pixmap.colorType(), pixmap.alphaType());
+        SkPixmap linSrcPixmap(linSrcInfo, pixmap.addr(), pixmap.rowBytes(), pixmap.ctable());
+
+        SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height(),
+                                                         kSRGB_SkColorProfileType);
+        tmpBitmap.allocPixels(dstInfo);
+
+        SkImageInfo linDstInfo = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
+        if (!linSrcPixmap.readPixels(linDstInfo, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
+            return nullptr;
+        }
+        if (!tmpBitmap.peekPixels(&tmpPixmap)) {
+            return nullptr;
+        }
+        pmap = &tmpPixmap;
+        // must rebuild desc, since we've forced the info to be N32
+        desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
+    } else if (kGray_8_SkColorType == pixmap.colorType()) {
+        // We don't have Gray8 support as a pixel config, so expand to 8888
+
+        // We should have converted sRGB Gray8 above (if we have sRGB support):
+        SkASSERT(!caps->srgbSupport() || kLinear_SkColorProfileType == pixmap.info().profileType());
+
+        SkImageInfo info = SkImageInfo::MakeN32(pixmap.width(), pixmap.height(),
+                                                kOpaque_SkAlphaType);
+        tmpBitmap.allocPixels(info);
+        if (!pixmap.readPixels(info, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
+            return nullptr;
+        }
+        if (!tmpBitmap.peekPixels(&tmpPixmap)) {
+            return nullptr;
+        }
+        pmap = &tmpPixmap;
+        // must rebuild desc, since we've forced the info to be N32
+        desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
+    } else if (kIndex_8_SkColorType == pixmap.colorType()) {
+        if (caps->isConfigTexturable(kIndex_8_GrPixelConfig)) {
+            size_t imageSize = GrCompressedFormatDataSize(kIndex_8_GrPixelConfig,
+                                                          pixmap.width(), pixmap.height());
+            SkAutoMalloc storage(imageSize);
+            build_index8_data(storage.get(), pixmap);
+
+            // our compressed data will be trimmed, so pass width() for its
+            // "rowBytes", since they are the same now.
+            return ctx->textureProvider()->createTexture(desc, budgeted, storage.get(),
+                                                         pixmap.width());
+        } else {
+            SkImageInfo info = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
+            tmpBitmap.allocPixels(info);
+            if (!pixmap.readPixels(info, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
+                return nullptr;
+            }
+            if (!tmpBitmap.peekPixels(&tmpPixmap)) {
+                return nullptr;
+            }
+            pmap = &tmpPixmap;
+            // must rebuild desc, since we've forced the info to be N32
+            desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
+        }
+    }
+
+    return ctx->textureProvider()->createTexture(desc, budgeted, pmap->addr(),
+                                                 pmap->rowBytes());
 }
 
 
@@ -285,6 +329,71 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
     pixelRef->addGenIDChangeListener(new Invalidator(key));
 }
 
+GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& bitmap)
+{
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
+    if (kIndex_8_SkColorType != bitmap.colorType() && !bitmap.readyToDraw()) {
+        GrTexture* texture = load_etc1_texture(ctx, bitmap, desc);
+        if (texture) {
+            return texture;
+        }
+    }
+
+    sk_sp<GrTexture> texture(create_texture_from_yuv(ctx, bitmap, desc));
+    if (texture) {
+        return texture.release();
+    }
+
+    // SkMipMap::Build doesn't handle sRGB data correctly (yet).
+    // Failover to the GL code-path for now.
+    if (kLinear_SkColorProfileType != bitmap.profileType()) {
+        return nullptr;
+    }
+
+    SkASSERT(sizeof(int) <= sizeof(uint32_t));
+    if (bitmap.width() < 0 || bitmap.height() < 0) {
+        return nullptr;
+    }
+
+    SkAutoPixmapUnlock srcUnlocker;
+    if (!bitmap.requestLock(&srcUnlocker)) {
+        return nullptr;
+    }
+    const SkPixmap& pixmap = srcUnlocker.pixmap();
+    // Try to catch where we might have returned nullptr for src crbug.com/492818
+    if (nullptr == pixmap.addr()) {
+        sk_throw();
+    }
+
+    SkAutoTDelete<SkMipMap> mipmaps(SkMipMap::Build(pixmap, nullptr));
+    if (!mipmaps) {
+        return nullptr;
+    }
+
+    const int mipLevelCount = mipmaps->countLevels() + 1;
+    if (mipLevelCount < 1) {
+        return nullptr;
+    }
+
+    const bool isMipMapped = mipLevelCount > 1;
+    desc.fIsMipMapped = isMipMapped;
+
+    SkAutoTDeleteArray<GrMipLevel> texels(new GrMipLevel[mipLevelCount]);
+
+    texels[0].fPixels = pixmap.addr();
+    texels[0].fRowBytes = pixmap.rowBytes();
+
+    for (int i = 1; i < mipLevelCount; ++i) {
+        SkMipMap::Level generatedMipLevel;
+        mipmaps->getLevel(i - 1, &generatedMipLevel);
+        texels[i].fPixels = generatedMipLevel.fPixmap.addr();
+        texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
+    }
+
+    return ctx->textureProvider()->createMipMappedTexture(desc, SkBudgeted::kYes, texels.get(),
+                                                          mipLevelCount);
+}
+
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                     const GrTextureParams& params) {
     if (bitmap.getTexture()) {
@@ -297,7 +406,10 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
 
 // alphatype is ignore for now, but if GrPixelConfig is expanded to encompass
 // alpha info, that will be considered.
-GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProfileType pt) {
+GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProfileType pt,
+                                        const GrCaps& caps) {
+    // We intentionally ignore profile type for non-8888 formats. Anything we can't support
+    // in hardware will be expanded to sRGB 8888 in GrUploadPixmapToTexture.
     switch (ct) {
         case kUnknown_SkColorType:
             return kUnknown_GrPixelConfig;
@@ -308,16 +420,17 @@ GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProf
         case kARGB_4444_SkColorType:
             return kRGBA_4444_GrPixelConfig;
         case kRGBA_8888_SkColorType:
-            //if (kSRGB_SkColorProfileType == pt) {
-            //    return kSRGBA_8888_GrPixelConfig;
-            //}
-            return kRGBA_8888_GrPixelConfig;
+            return (kSRGB_SkColorProfileType == pt && caps.srgbSupport())
+                   ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
         case kBGRA_8888_SkColorType:
-            return kBGRA_8888_GrPixelConfig;
+            return (kSRGB_SkColorProfileType == pt && caps.srgbSupport())
+                   ? kSBGRA_8888_GrPixelConfig : kBGRA_8888_GrPixelConfig;
         case kIndex_8_SkColorType:
             return kIndex_8_GrPixelConfig;
         case kGray_8_SkColorType:
             return kAlpha_8_GrPixelConfig; // TODO: gray8 support on gpu
+        case kRGBA_F16_SkColorType:
+            return kRGBA_half_GrPixelConfig;
     }
     SkASSERT(0);    // shouldn't get here
     return kUnknown_GrPixelConfig;
@@ -350,6 +463,13 @@ bool GrPixelConfig2ColorAndProfileType(GrPixelConfig config, SkColorType* ctOut,
             ct = kRGBA_8888_SkColorType;
             pt = kSRGB_SkColorProfileType;
             break;
+        case kSBGRA_8888_GrPixelConfig:
+            ct = kBGRA_8888_SkColorType;
+            pt = kSRGB_SkColorProfileType;
+            break;
+        case kRGBA_half_GrPixelConfig:
+            ct = kRGBA_F16_SkColorType;
+            break;
         default:
             return false;
     }
@@ -378,8 +498,10 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            const GrFragmentProcessor** shaderProcessor,
                                            SkXfermode::Mode* primColorMode,
                                            bool primitiveIsSrc,
+                                           bool allowSRGBInputs,
                                            GrPaint* grPaint) {
     grPaint->setAntiAlias(skPaint.isAntiAlias());
+    grPaint->setAllowSRGBInputs(allowSRGBInputs);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
@@ -487,10 +609,15 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         }
     }
 
-    SkXfermode* mode = skPaint.getXfermode();
-    GrXPFactory* xpFactory = nullptr;
-    SkXfermode::AsXPFactory(mode, &xpFactory);
-    SkSafeUnref(grPaint->setXPFactory(xpFactory));
+    // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field on
+    // the GrPaint to also be null (also kSrcOver).
+    SkASSERT(!grPaint->getXPFactory());
+    SkXfermode* xfermode = skPaint.getXfermode();
+    if (xfermode) {
+        // SafeUnref in case a new xfermode is added that returns null.
+        // In such cases we will fall back to kSrcOver_Mode.
+        SkSafeUnref(grPaint->setXPFactory(xfermode->asXPFactory()));
+    }
 
 #ifndef SK_IGNORE_GPU_DITHER
     if (skPaint.isDither() && grPaint->numColorFragmentProcessors() > 0) {
@@ -501,31 +628,34 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 }
 
 bool SkPaintToGrPaint(GrContext* context, const SkPaint& skPaint, const SkMatrix& viewM,
-                      GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, skPaint, viewM, nullptr, nullptr, false, grPaint);
+                      bool allowSRGBInputs, GrPaint* grPaint) {
+    return skpaint_to_grpaint_impl(context, skPaint, viewM, nullptr, nullptr, false,
+                                   allowSRGBInputs, grPaint);
 }
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. */
 bool SkPaintToGrPaintReplaceShader(GrContext* context,
                                    const SkPaint& skPaint,
                                    const GrFragmentProcessor* shaderFP,
+                                   bool allowSRGBInputs,
                                    GrPaint* grPaint) {
     if (!shaderFP) {
         return false;
     }
     return skpaint_to_grpaint_impl(context, skPaint, SkMatrix::I(), &shaderFP, nullptr, false,
-                                   grPaint);
+                                   allowSRGBInputs, grPaint);
 }
 
 /** Ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrContext* context,
                               const SkPaint& skPaint,
+                              bool allowSRGBInputs,
                               GrPaint* grPaint) {
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
     static const GrFragmentProcessor* kNullShaderFP = nullptr;
     static const GrFragmentProcessor** kIgnoreShader = &kNullShaderFP;
     return skpaint_to_grpaint_impl(context, skPaint, SkMatrix::I(), kIgnoreShader, nullptr, false,
-                                   grPaint);
+                                   allowSRGBInputs, grPaint);
 }
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
@@ -535,9 +665,10 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   const SkMatrix& viewM,
                                   SkXfermode::Mode primColorMode,
                                   bool primitiveIsSrc,
+                                  bool allowSRGBInputs,
                                   GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context, skPaint, viewM, nullptr, &primColorMode, primitiveIsSrc,
-                                   grPaint);
+                                   allowSRGBInputs, grPaint);
 }
 
 bool SkPaintToGrPaintWithTexture(GrContext* context,
@@ -545,6 +676,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  const SkMatrix& viewM,
                                  const GrFragmentProcessor* fp,
                                  bool textureIsAlphaOnly,
+                                 bool allowSRGBInputs,
                                  GrPaint* grPaint) {
     SkAutoTUnref<const GrFragmentProcessor> shaderFP;
     if (textureIsAlphaOnly) {
@@ -565,7 +697,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
         shaderFP.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
     }
 
-    return SkPaintToGrPaintReplaceShader(context, paint, shaderFP.get(), grPaint);
+    return SkPaintToGrPaintReplaceShader(context, paint, shaderFP.get(), allowSRGBInputs, grPaint);
 }
 
 

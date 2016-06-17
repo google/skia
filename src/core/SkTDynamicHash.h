@@ -127,12 +127,12 @@ public:
         fDeleted = 0;
     }
 
-    void reset() { 
-        fCount = 0; 
-        fDeleted = 0; 
-        fCapacity = 0; 
-        sk_free(fArray); 
-        fArray = nullptr; 
+    void reset() {
+        fCount = 0;
+        fDeleted = 0;
+        fCapacity = 0;
+        sk_free(fArray);
+        fArray = nullptr;
     }
 
 protected:

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -14,24 +13,12 @@
 
 // Ensure that the 'getConservativeBounds' calls are returning bounds clamped
 // to the render target
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
     static const int kXSize = 100;
     static const int kYSize = 100;
 
-    GrSurfaceDesc desc;
-    desc.fFlags     = kRenderTarget_GrSurfaceFlag;
-    desc.fConfig    = kAlpha_8_GrPixelConfig;
-    desc.fWidth     = kXSize;
-    desc.fHeight    = kYSize;
-
-    SkAutoTUnref<GrTexture> texture(
-        context->textureProvider()->createTexture(desc, false, nullptr, 0));
-    if (!texture) {
-        return;
-    }
-
-    SkIRect intScreen = SkIRect::MakeWH(kXSize, kYSize);
-    SkRect screen = SkRect::Make(intScreen);
+    const SkIRect intScreen = SkIRect::MakeWH(kXSize, kYSize);
+    const SkRect screen = SkRect::Make(intScreen);
 
     SkRect clipRect(screen);
     clipRect.outset(10, 10);
@@ -53,11 +40,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, context) {
     REPORTER_ASSERT(reporter, isIntersectionOfRects);
 
     // wrap the SkClipStack in a GrClip
-    GrClip clipData;
-    clipData.setClipStack(&stack);
+    GrClipStackClip clipData(&stack);
 
     SkIRect devGrClipBound;
-    clipData.getConservativeBounds(texture->width(), texture->height(),
+    clipData.getConservativeBounds(kXSize, kYSize,
                                    &devGrClipBound,
                                    &isIntersectionOfRects);
 

@@ -17,6 +17,7 @@
 
 class GrFragmentProcessor;
 class GrGLContextInfo;
+class GrGLProgramDesc;
 class GrGLSLShaderBuilder;
 class GrGLSLCaps;
 
@@ -29,7 +30,10 @@ public:
      * to be used.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(const DrawArgs&, GrGLGpu*);
+    static GrGLProgram* CreateProgram(const GrPipeline&,
+                                      const GrPrimitiveProcessor&,
+                                      const GrGLProgramDesc&,
+                                      GrGLGpu*);
 
     const GrCaps* caps() const override;
     const GrGLSLCaps* glslCaps() const override;
@@ -37,15 +41,13 @@ public:
     GrGLGpu* gpu() const { return fGpu; }
 
 private:
-    GrGLProgramBuilder(GrGLGpu*, const DrawArgs&);
-
-    void emitSamplers(const GrProcessor&,
-                      GrGLSLTextureSampler::TextureSamplerArray* outSamplers) override;
+    GrGLProgramBuilder(GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
+                       const GrGLProgramDesc&);
 
     bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                  GrGLuint programId,
                                  GrGLenum type,
-                                 SkTDArray<GrGLuint>* shaderIds); 
+                                 SkTDArray<GrGLuint>* shaderIds);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID);
@@ -61,13 +63,10 @@ private:
     GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
 
 
-    GrGLGpu* fGpu;
-    typedef GrGLSLUniformHandler::UniformHandle UniformHandle;
-    SkTArray<UniformHandle> fSamplerUniforms;
+    GrGLGpu*              fGpu;
+    GrGLVaryingHandler    fVaryingHandler;
+    GrGLUniformHandler    fUniformHandler;
 
-    GrGLVaryingHandler        fVaryingHandler;
-    GrGLUniformHandler        fUniformHandler;
-
-    typedef GrGLSLProgramBuilder INHERITED; 
+    typedef GrGLSLProgramBuilder INHERITED;
 };
 #endif

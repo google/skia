@@ -74,12 +74,11 @@ public:
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         color->setUnknownFourComponents();
         coverage->setKnownSingleComponent(0xff);
-        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -92,12 +91,10 @@ private:
             return;
         }
 
-        target->initDraw(gp, this->pipeline());
-
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fGeoData.count();
 
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+        SkAutoTUnref<const GrBuffer> indexBuffer(
                 target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
@@ -139,7 +136,7 @@ private:
                 verts += kVertsPerRect * vertexStride;
             }
         }
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {

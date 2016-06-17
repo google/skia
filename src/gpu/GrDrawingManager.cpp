@@ -8,6 +8,7 @@
 #include "GrDrawContext.h"
 #include "GrDrawingManager.h"
 #include "GrDrawTarget.h"
+#include "GrPathRenderingDrawContext.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "SkTTopoSort.h"
@@ -27,16 +28,6 @@ void GrDrawingManager::cleanup() {
     }
 
     fDrawTargets.reset();
-
-    delete fNVPRTextContext;
-    fNVPRTextContext = nullptr;
-
-    for (int i = 0; i < kNumPixelGeometries; ++i) {
-        delete fTextContexts[i][0];
-        fTextContexts[i][0] = nullptr;
-        delete fTextContexts[i][1];
-        fTextContexts[i][1] = nullptr;
-    }
 
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
@@ -67,12 +58,12 @@ void GrDrawingManager::reset() {
 }
 
 void GrDrawingManager::flush() {
-    if (fFlushing) {
+    if (fFlushing || this->wasAbandoned()) {
         return;
     }
     fFlushing = true;
 
-    SkDEBUGCODE(bool result =) 
+    SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrDrawTarget, GrDrawTarget::TopoSortTraits>(&fDrawTargets);
     SkASSERT(result);
 
@@ -93,7 +84,7 @@ void GrDrawingManager::flush() {
         fDrawTargets[i]->drawBatches(&fFlushState);
     }
 
-    SkASSERT(fFlushState.lastFlushedToken() == fFlushState.currentToken());
+    SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
 
     for (int i = 0; i < fDrawTargets.count(); ++i) {
         fDrawTargets[i]->reset();
@@ -118,34 +109,6 @@ void GrDrawingManager::flush() {
     fFlushing = false;
 }
 
-GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props,
-                                             GrRenderTarget* rt) {
-    if (this->abandoned()) {
-        return nullptr;
-    }
-
-    SkASSERT(props.pixelGeometry() < kNumPixelGeometries);
-    bool useDIF = props.isUseDeviceIndependentFonts();
-
-    if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
-        rt->isStencilBufferMultisampled()) {
-        GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt);
-        if (sb) {
-            if (!fNVPRTextContext) {
-                fNVPRTextContext = GrStencilAndCoverTextContext::Create(fContext, props);
-            }
-
-            return fNVPRTextContext;
-        }
-    }
-
-    if (!fTextContexts[props.pixelGeometry()][useDIF]) {
-        fTextContexts[props.pixelGeometry()][useDIF] = GrAtlasTextContext::Create(fContext, props);
-    }
-
-    return fTextContexts[props.pixelGeometry()][useDIF];
-}
-
 GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     SkASSERT(fContext);
 
@@ -166,7 +129,7 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
 
     *fDrawTargets.append() = dt;
 
-    // DrawingManager gets the creation ref - this ref is for the caller 
+    // DrawingManager gets the creation ref - this ref is for the caller
     return SkRef(dt);
 }
 
@@ -196,11 +159,30 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     return pr;
 }
 
-GrDrawContext* GrDrawingManager::drawContext(GrRenderTarget* rt,
-                                             const SkSurfaceProps* surfaceProps) {
-    if (this->abandoned()) {
+sk_sp<GrDrawContext> GrDrawingManager::drawContext(sk_sp<GrRenderTarget> rt,
+                                                   const SkSurfaceProps* surfaceProps) {
+    if (this->wasAbandoned()) {
         return nullptr;
     }
 
-    return new GrDrawContext(this, rt, surfaceProps, fContext->getAuditTrail(), fSingleOwner);
+
+    bool useDIF = false;
+    if (surfaceProps) {
+        useDIF = surfaceProps->isUseDeviceIndependentFonts();
+    }
+
+    if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
+        rt->isStencilBufferMultisampled()) {
+        GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt.get());
+        if (sb) {
+            return sk_sp<GrDrawContext>(new GrPathRenderingDrawContext(
+                                                        fContext, this, std::move(rt), 
+                                                        surfaceProps,
+                                                        fContext->getAuditTrail(), fSingleOwner));
+        }
+    }
+
+    return sk_sp<GrDrawContext>(new GrDrawContext(fContext, this, std::move(rt), surfaceProps,
+                                                  fContext->getAuditTrail(),
+                                                  fSingleOwner));
 }

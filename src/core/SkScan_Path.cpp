@@ -61,14 +61,46 @@ static void backward_insert_edge_based_on_x(SkEdge* edge SkDECLAREPARAM(int, cur
     }
 }
 
-static void insert_new_edges(SkEdge* newEdge, int curr_y) {
-    SkASSERT(newEdge->fFirstY >= curr_y);
-
-    while (newEdge->fFirstY == curr_y) {
-        SkEdge* next = newEdge->fNext;
-        backward_insert_edge_based_on_x(newEdge  SkPARAM(curr_y));
-        newEdge = next;
+// Start from the right side, searching backwards for the point to begin the new edge list
+// insertion, marching forwards from here. The implementation could have started from the left
+// of the prior insertion, and search to the right, or with some additional caching, binary
+// search the starting point. More work could be done to determine optimal new edge insertion.
+static SkEdge* backward_insert_start(SkEdge* prev, SkFixed x) {
+    while (prev->fX > x) {
+        prev = prev->fPrev;
     }
+    return prev;
+}
+
+static void insert_new_edges(SkEdge* newEdge, int curr_y) {
+    if (newEdge->fFirstY != curr_y) {
+        return;
+    }
+    SkEdge* prev = newEdge->fPrev;
+    if (prev->fX <= newEdge->fX) {
+        return;
+    }
+    // find first x pos to insert
+    SkEdge* start = backward_insert_start(prev, newEdge->fX);
+    // insert the lot, fixing up the links as we go
+    do {
+        SkEdge* next = newEdge->fNext;
+        do {
+            if (start->fNext == newEdge) {
+                goto nextEdge;
+            }
+            SkEdge* after = start->fNext;
+            if (after->fX >= newEdge->fX) {
+                break;
+            }
+            start = after;
+        } while (true);
+        remove_edge(newEdge);
+        insert_edge_after(newEdge, start);
+nextEdge:
+        start = newEdge;
+        newEdge = next;
+    } while (newEdge->fFirstY == curr_y);
 }
 
 #ifdef SK_DEBUG
@@ -87,7 +119,7 @@ static void validate_edges_for_y(const SkEdge* edge, int curr_y) {
     #define validate_edges_for_y(edge, curr_y)
 #endif
 
-#if defined _WIN32 && _MSC_VER >= 1300  // disable warning : local variable used without having been initialized
+#if defined _WIN32  // disable warning : local variable used without having been initialized
 #pragma warning ( push )
 #pragma warning ( disable : 4701 )
 #endif
@@ -360,7 +392,7 @@ static void PrePostInverseBlitterProc(SkBlitter* blitter, int y, bool isStart) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined _WIN32 && _MSC_VER >= 1300
+#if defined _WIN32
 #pragma warning ( pop )
 #endif
 
@@ -478,7 +510,7 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
         } else {
             rightEdge = SkScalarRoundToInt(path.getBounds().right()) << shiftEdgesUp;
         }
-        
+
         walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc, rightEdge);
     }
 }

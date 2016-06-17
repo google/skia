@@ -39,18 +39,15 @@ public:
         return GrTexture::kNotAllocated_MipMapsStatus != fTexture->fMipMapsStatus;
     }
 
+    void setMaxMipMapLevel(int maxMipMapLevel) const {
+        fTexture->fMaxMipMapLevel = maxMipMapLevel;
+    }
+
+    int maxMipMapLevel() const {
+        return fTexture->fMaxMipMapLevel;
+    }
+
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
-
-    // TODO: Move this logic and the shift values out of here and to the callers.
-    SkFixed normalizeFixedX(SkFixed x) const {
-        SkASSERT(SkIsPow2(fTexture->fDesc.fWidth));
-        return x >> fTexture->fShiftFixedX;
-    }
-
-    SkFixed normalizeFixedY(SkFixed y) const {
-        SkASSERT(SkIsPow2(fTexture->fDesc.fHeight));
-        return y >> fTexture->fShiftFixedY;
-    }
 
 private:
     GrTexturePriv(GrTexture* texture) : fTexture(texture) { }
@@ -62,7 +59,7 @@ private:
     GrTexturePriv* operator&();
 
     GrTexture* fTexture;
-        
+
     friend class GrTexture; // to construct/copy this type.
 };
 

@@ -11,7 +11,8 @@
 # Fail-fast if anything in the script fails.
 set -e
 
-BUILDTYPE=${BUILDTYPE-Debug}
+BUILDTYPE=${BUILDTYPE-Release_Developer}
+USE_CLANG="true"
 
 while (( "$#" )); do
   if [[ "$1" == "-d" ]]; then
@@ -27,20 +28,29 @@ while (( "$#" )); do
   elif [[ "$1" == "-t" ]]; then
     BUILDTYPE=$2
     shift
+  elif [[ "$1" == "--debug" ]]; then
+    BUILDTYPE=Debug
   elif [[ "$1" == "--release" ]]; then
     BUILDTYPE=Release
+  elif [[ "$1" == "--gcc" ]]; then
+    USE_CLANG="false"
   elif [[ "$1" == "--clang" ]]; then
     USE_CLANG="true"
-    export GYP_DEFINES="skia_clang_build=1 $GYP_DEFINES"
   elif [[ "$1" == "--logcat" ]]; then
     LOGCAT=1
   elif [[ "$1" == "--verbose" ]]; then
     VERBOSE="true"
+  elif [[ "$1" == "--vulkan" ]]; then
+    SKIA_VULKAN="true"
   else
     APP_ARGS=("${APP_ARGS[@]}" "${1}")
   fi
   shift
 done
+
+if [ "$USE_CLANG" == "true" ]; then
+  export GYP_DEFINES="skia_clang_build=1 $GYP_DEFINES"
+fi
 
 function verbose {
   if [[ -n $VERBOSE ]]; then
@@ -75,15 +85,15 @@ if [ -z "$ANDROID_HOME" ]; then
   exportVar ANDROID_HOME $ANDROID_SDK_ROOT
 fi
 
-# check to see that gclient sync ran successfully
-THIRD_PARTY_EXTERNAL_DIR=${SCRIPT_DIR}/../third_party/externals
-if [ ! -d "$THIRD_PARTY_EXTERNAL_DIR" ]; then
-	echo ""
-	echo "ERROR: Unable to find the required third_party dependencies needed to build."
-	echo "       To fix this add the following line to your .gclient file and run 'gclient sync'"
-	echo "        target_os = ['android']"
-	echo ""
-	exit 1;
+if [ "$SKIA_VULKAN" == "true" ]; then
+  export GYP_DEFINES="skia_vulkan=1 $GYP_DEFINES"
+  # add cmake from the SDK to your path if it doesn't exist
+  if [ ! -d "${ANDROID_SDK_ROOT}/cmake" ]; then
+     echo "The Android SDK Tools version of CMake is required to build Vulkan. ${ANDROID_SDK_ROOT}/cmake"
+     exit 1
+  else
+    export PATH=${ANDROID_SDK_ROOT}/cmake/bin:$PATH
+  fi
 fi
 
 # Helper function to configure the GYP defines to the appropriate values
@@ -116,7 +126,7 @@ setup_device() {
       ANDROID_ARCH="arm"
       ;;
     arm_v7 | xoom)
-      DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7"
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_version=7"
       ANDROID_ARCH="arm"
       ;;
     arm_v7_neon | nexus_4 | nexus_5 | nexus_6 | nexus_7 | nexus_10)
@@ -167,10 +177,12 @@ setup_device() {
   verbose "The build is targeting the device: $TARGET_DEVICE"
   exportVar DEVICE_ID $TARGET_DEVICE
 
-  # setup the appropriate cross compiling toolchains
-  source $SCRIPT_DIR/utils/setup_toolchain.sh
+  if [ -z "$SKIP_TOOLCHAIN_SETUP" ]; then
+    # setup the appropriate cross compiling toolchains
+    source $SCRIPT_DIR/utils/setup_toolchain.sh
+  fi
 
-  DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
+  DEFINES="${DEFINES} android_toolchain=${ANDROID_TOOLCHAIN}"
   DEFINES="${DEFINES} android_buildtype=${BUILDTYPE}"
   exportVar GYP_DEFINES "$DEFINES $GYP_DEFINES"
 
@@ -224,6 +236,11 @@ adb_push_if_needed() {
   local HOST_SRC="$1"
   local ANDROID_DST="$2"
 
+  # disable crashing on failed commands since newer (N+) versions of Android
+  # return an error when attempting to run ls on a directory or file that does
+  # not exist.
+  set +e
+
   ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld $ANDROID_DST`
   HOST_LS=`ls -ld $HOST_SRC`
   if [ "${ANDROID_LS:0:1}" == "d" -a "${HOST_LS:0:1}" == "-" ];
@@ -231,12 +248,11 @@ adb_push_if_needed() {
     ANDROID_DST="${ANDROID_DST}/$(basename ${HOST_SRC})"
   fi
 
-
-  ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld $ANDROID_DST`
+  ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld $ANDROID_DST 2> /dev/null`
   if [ "${ANDROID_LS:0:1}" == "-" ]; then
     #get the MD5 for dst and src depending on OS and/or OS revision
-    ANDROID_MD5_SUPPORT=`$ADB $DEVICE_SERIAL shell ls -ld /system/bin/md5`
-    if [ "${ANDROID_MD5_SUPPORT:0:15}" != "/system/bin/md5" ]; then
+    ANDROID_MD5_SUPPORT=`$ADB $DEVICE_SERIAL shell ls -ld /system/bin/md5 2> /dev/null`
+    if [ "${ANDROID_MD5_SUPPORT:0:1}" == "-" ]; then
       ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5 $ANDROID_DST`
     else
       ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5sum $ANDROID_DST`
@@ -267,6 +283,9 @@ adb_push_if_needed() {
       $ADB $DEVICE_SERIAL push $HOST_SRC $ANDROID_DST
     fi
   fi
+
+  # turn error checking back on
+  set -e
 }
 
 setup_device "${DEVICE_ID}"

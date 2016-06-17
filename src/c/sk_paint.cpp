@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
+#include "SkShader.h"
 
 #include "sk_paint.h"
 #include "sk_types_priv.h"
@@ -34,11 +36,11 @@ void sk_paint_set_color(sk_paint_t* cpaint, sk_color_t c) {
 }
 
 void sk_paint_set_shader(sk_paint_t* cpaint, sk_shader_t* cshader) {
-    AsPaint(cpaint)->setShader(AsShader(cshader));
+    AsPaint(cpaint)->setShader(sk_ref_sp(AsShader(cshader)));
 }
 
 void sk_paint_set_maskfilter(sk_paint_t* cpaint, sk_maskfilter_t* cfilter) {
-    AsPaint(cpaint)->setMaskFilter(AsMaskFilter(cfilter));
+    AsPaint(cpaint)->setMaskFilter(sk_ref_sp(AsMaskFilter(cfilter)));
 }
 
 bool sk_paint_is_stroke(const sk_paint_t* cpaint) {

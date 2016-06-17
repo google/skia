@@ -8,8 +8,8 @@
 #ifndef GrProcessorUnitTest_DEFINED
 #define GrProcessorUnitTest_DEFINED
 
+#include "../private/SkTArray.h"
 #include "GrTestUtils.h"
-#include "SkTArray.h"
 #include "SkTypes.h"
 
 class SkMatrix;

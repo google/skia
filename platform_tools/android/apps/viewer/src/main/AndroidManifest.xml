@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BEGIN_INCLUDE(manifest) -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="org.skia.viewer"
+          android:versionCode="1"
+          android:versionName="1.0">
+
+  <application
+      android:allowBackup="false"
+      android:theme="@android:style/Theme.Holo.Light"
+      android:name=".ViewerApplication"
+      android:label="Viewer">
+
+    <activity android:name=".ViewerActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+  </application>
+
+</manifest>
+<!-- END_INCLUDE(manifest) -->

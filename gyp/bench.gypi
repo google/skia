@@ -10,15 +10,18 @@
     '../src/core',
     '../src/effects',
     '../src/gpu',
+    '../src/pdf',
     '../src/utils',
   ],
   'sources': [ '<!@(python find.py ../bench "*.cpp")' ],
 
   'dependencies': [
     'etc1.gyp:libetc1',
+    'pdf.gyp:pdf',
     'skia_lib.gyp:skia_lib',
     'tools.gyp:resources',
     'tools.gyp:sk_tool_utils',
+    'tools.gyp:url_data_manager',
   ],
   'conditions': [
     ['skia_gpu == 1', {

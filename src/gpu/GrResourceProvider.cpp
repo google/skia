@@ -7,15 +7,14 @@
 
 #include "GrResourceProvider.h"
 
+#include "GrBuffer.h"
 #include "GrGpu.h"
-#include "GrIndexBuffer.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
 #include "GrStencilAttachment.h"
-#include "GrVertexBuffer.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
 
@@ -25,16 +24,16 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
     fQuadIndexBufferKey = gQuadIndexBufferKey;
 }
 
-const GrIndexBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* pattern,
-                                                                    int patternSize,
-                                                                    int reps,
-                                                                    int vertCount,
-                                                                    const GrUniqueKey& key) {
+const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* pattern,
+                                                               int patternSize,
+                                                               int reps,
+                                                               int vertCount,
+                                                               const GrUniqueKey& key) {
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
 
     // This is typically used in GrBatchs, so we assume kNoPendingIO.
-    GrIndexBuffer* buffer = this->createIndexBuffer(bufferSize, kStatic_BufferUsage,
-                                                    kNoPendingIO_Flag);
+    GrBuffer* buffer = this->createBuffer(bufferSize, kIndex_GrBufferType, kStatic_GrAccessPattern,
+                                          kNoPendingIO_Flag);
     if (!buffer) {
         return nullptr;
     }
@@ -63,7 +62,7 @@ const GrIndexBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16
     return buffer;
 }
 
-const GrIndexBuffer* GrResourceProvider::createQuadIndexBuffer() {
+const GrBuffer* GrResourceProvider::createQuadIndexBuffer() {
     static const int kMaxQuads = 1 << 12; // max possible: (1 << 14) - 1;
     GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
     static const uint16_t kPattern[] = { 0, 1, 2, 0, 2, 3 };
@@ -71,90 +70,60 @@ const GrIndexBuffer* GrResourceProvider::createQuadIndexBuffer() {
     return this->createInstancedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
 }
 
-GrPath* GrResourceProvider::createPath(const SkPath& path, const GrStrokeInfo& stroke) {
+GrPath* GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
     SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createPath(path, stroke);
+    return this->gpu()->pathRendering()->createPath(path, style);
 }
 
 GrPathRange* GrResourceProvider::createPathRange(GrPathRange::PathGenerator* gen,
-                                                 const GrStrokeInfo& stroke) {
+                                                 const GrStyle& style) {
     SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createPathRange(gen, stroke);
+    return this->gpu()->pathRendering()->createPathRange(gen, style);
 }
 
-GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf, const SkDescriptor* desc,
-                                              const GrStrokeInfo& stroke) {
+GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf,
+                                              const SkScalerContextEffects& effects,
+                                              const SkDescriptor* desc,
+                                              const GrStyle& style) {
 
     SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createGlyphs(tf, desc, stroke);
+    return this->gpu()->pathRendering()->createGlyphs(tf, effects, desc, style);
 }
 
-GrIndexBuffer* GrResourceProvider::createIndexBuffer(size_t size, BufferUsage usage,
-                                                     uint32_t flags) {
+GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedType,
+                                           GrAccessPattern accessPattern, uint32_t flags,
+                                           const void* data) {
     if (this->isAbandoned()) {
         return nullptr;
     }
-
-    bool noPendingIO = SkToBool(flags & kNoPendingIO_Flag);
-    bool dynamic = kDynamic_BufferUsage == usage;
-    if (dynamic) {
-        // bin by pow2 with a reasonable min
-        static const uint32_t MIN_SIZE = 1 << 12;
-        size = SkTMax(MIN_SIZE, GrNextPow2(SkToUInt(size)));
-
-        GrScratchKey key;
-        GrIndexBuffer::ComputeScratchKey(size, true, &key);
-        uint32_t scratchFlags = 0;
-        if (noPendingIO) {
-            scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
-        } else {
-            scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
-        }
-        GrGpuResource* resource = this->cache()->findAndRefScratchResource(key, size, scratchFlags);
-        if (resource) {
-            return static_cast<GrIndexBuffer*>(resource);
-        }
-    }
-    return this->gpu()->createIndexBuffer(size, dynamic);
-}
-
-GrVertexBuffer* GrResourceProvider::createVertexBuffer(size_t size, BufferUsage usage,
-                                                       uint32_t flags) {
-    if (this->isAbandoned()) {
-        return nullptr;
+    if (kDynamic_GrAccessPattern != accessPattern) {
+        return this->gpu()->createBuffer(size, intendedType, accessPattern, data);
     }
 
-    bool noPendingIO = SkToBool(flags & kNoPendingIO_Flag);
-    bool dynamic = kDynamic_BufferUsage == usage;
-    if (dynamic) {
-        // bin by pow2 with a reasonable min
-        static const uint32_t MIN_SIZE = 1 << 12;
-        size = SkTMax(MIN_SIZE, GrNextPow2(SkToUInt(size)));
+    // bin by pow2 with a reasonable min
+    static const uint32_t MIN_SIZE = 1 << 12;
+    size_t allocSize = SkTMax(MIN_SIZE, GrNextPow2(SkToUInt(size)));
 
-        GrScratchKey key;
-        GrVertexBuffer::ComputeScratchKey(size, true, &key);
-        uint32_t scratchFlags = 0;
-        if (noPendingIO) {
-            scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
-        } else {
-            scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
-        }
-        GrGpuResource* resource = this->cache()->findAndRefScratchResource(key, size, scratchFlags);
-        if (resource) {
-            return static_cast<GrVertexBuffer*>(resource);
+    GrScratchKey key;
+    GrBuffer::ComputeScratchKeyForDynamicBuffer(allocSize, intendedType, &key);
+    uint32_t scratchFlags = 0;
+    if (flags & kNoPendingIO_Flag) {
+        scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
+    } else {
+        scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
+    }
+    GrBuffer* buffer = static_cast<GrBuffer*>(
+        this->cache()->findAndRefScratchResource(key, allocSize, scratchFlags));
+    if (!buffer) {
+        buffer = this->gpu()->createBuffer(allocSize, intendedType, kDynamic_GrAccessPattern);
+        if (!buffer) {
+            return nullptr;
         }
     }
-    return this->gpu()->createVertexBuffer(size, dynamic);
-}
-
-GrTransferBuffer* GrResourceProvider::createTransferBuffer(size_t size, TransferType type,
-                                                           uint32_t flags) {
-    if (this->isAbandoned()) {
-        return nullptr;
+    if (data) {
+        buffer->updateData(data, size);
     }
-
-    //bool noPendingIO = SkToBool(flags & kNoPendingIO_Flag);
-    return this->gpu()->createTransferBuffer(size, type);
+    return buffer;
 }
 
 GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
@@ -227,4 +196,10 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
     return rt->renderTargetPriv().getStencilAttachment();
 }
 
-
+GrRenderTarget* GrResourceProvider::wrapBackendTextureAsRenderTarget(
+        const GrBackendTextureDesc& desc) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+    return this->gpu()->wrapBackendTextureAsRenderTarget(desc);
+}

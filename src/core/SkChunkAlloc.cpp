@@ -23,7 +23,7 @@ struct SkChunkAlloc::Block {
     char*   fFreePtr;
     // data[] follows
 
-    size_t blockSize() { 
+    size_t blockSize() {
         char* start = this->startOfData();
         size_t bytes = fFreePtr - start;
         return fFreeSize + bytes;
@@ -232,4 +232,3 @@ void SkChunkAlloc::validate() {
     SkASSERT(totCapacity == totUsed + totLost + totAvailable);
 }
 #endif
-

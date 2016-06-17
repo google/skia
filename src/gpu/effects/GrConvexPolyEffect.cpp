@@ -8,6 +8,7 @@
 #include "GrConvexPolyEffect.h"
 #include "GrInvariantOutput.h"
 #include "SkPathPriv.h"
+#include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -81,9 +82,11 @@ const GrFragmentProcessor* AARectEffect::TestCreate(GrProcessorTestData* d) {
 
 class GLAARectEffect : public GrGLSLFragmentProcessor {
 public:
-    GLAARectEffect(const GrProcessor&);
+    GLAARectEffect() {
+        fPrevRect.fLeft = SK_ScalarNaN;
+    }
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -92,26 +95,23 @@ protected:
 
 private:
     GrGLSLProgramDataManager::UniformHandle fRectUniform;
-    SkRect                                fPrevRect;
+    SkRect                                  fPrevRect;
+
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GLAARectEffect::GLAARectEffect(const GrProcessor& effect) {
-    fPrevRect.fLeft = SK_ScalarNaN;
-}
 
 void GLAARectEffect::emitCode(EmitArgs& args) {
     const AARectEffect& aare = args.fFp.cast<AARectEffect>();
     const char *rectName;
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
-    fRectUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fRectUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec4f_GrSLType,
                                                     kDefault_GrSLPrecision,
                                                     "rect",
                                                     &rectName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     const char* fragmentPos = fragBuilder->fragmentPosition();
     if (GrProcessorEdgeTypeIsAA(aare.getEdgeType())) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
@@ -161,16 +161,18 @@ void AARectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
 }
 
 GrGLSLFragmentProcessor* AARectEffect::onCreateGLSLInstance() const  {
-    return new GLAARectEffect(*this);
+    return new GLAARectEffect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 class GrGLConvexPolyEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLConvexPolyEffect(const GrProcessor&);
+    GrGLConvexPolyEffect() {
+        fPrevEdges[0] = SK_ScalarNaN;
+    }
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -179,25 +181,21 @@ protected:
 
 private:
     GrGLSLProgramDataManager::UniformHandle fEdgeUniform;
-    SkScalar                              fPrevEdges[3 * GrConvexPolyEffect::kMaxEdges];
+    SkScalar                                fPrevEdges[3 * GrConvexPolyEffect::kMaxEdges];
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GrGLConvexPolyEffect::GrGLConvexPolyEffect(const GrProcessor&) {
-    fPrevEdges[0] = SK_ScalarNaN;
-}
 
 void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     const GrConvexPolyEffect& cpe = args.fFp.cast<GrConvexPolyEffect>();
 
     const char *edgeArrayName;
-    fEdgeUniform = args.fUniformHandler->addUniformArray(GrGLSLUniformHandler::kFragment_Visibility,
+    fEdgeUniform = args.fUniformHandler->addUniformArray(kFragment_GrShaderFlag,
                                                          kVec3f_GrSLType,
                                                          kDefault_GrSLPrecision,
                                                          "edges",
                                                          cpe.getEdgeCount(),
                                                          &edgeArrayName);
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     fragBuilder->codeAppend("\t\tfloat alpha = 1.0;\n");
     fragBuilder->codeAppend("\t\tfloat edge;\n");
     const char* fragmentPos = fragBuilder->fragmentPosition();
@@ -257,7 +255,16 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType type, const 
     SkScalar edges[3 * kMaxEdges];
 
     SkPathPriv::FirstDirection dir;
-    SkAssertResult(SkPathPriv::CheapComputeFirstDirection(path, &dir));
+    // The only way this should fail is if the clip is effectively a infinitely thin line. In that
+    // case nothing is inside the clip. It'd be nice to detect this at a higher level and either
+    // skip the draw or omit the clip element.
+    if (!SkPathPriv::CheapComputeFirstDirection(path, &dir)) {
+        if (GrProcessorEdgeTypeIsInverseFill(type)) {
+            return GrConstColorProcessor::Create(0xFFFFFFFF,
+                                                 GrConstColorProcessor::kModulateRGBA_InputMode);
+        }
+        return GrConstColorProcessor::Create(0, GrConstColorProcessor::kIgnore_InputMode);
+    }
 
     SkVector t;
     if (nullptr == offset) {
@@ -309,7 +316,7 @@ void GrConvexPolyEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrConvexPolyEffect::onCreateGLSLInstance() const  {
-    return new GrGLConvexPolyEffect(*this);
+    return new GrGLConvexPolyEffect;
 }
 
 GrConvexPolyEffect::GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[])

@@ -8,6 +8,7 @@
 #ifndef GrGLSLProgramDataManager_DEFINED
 #define GrGLSLProgramDataManager_DEFINED
 
+#include "GrResourceHandle.h"
 #include "SkTypes.h"
 
 class SkMatrix;
@@ -18,28 +19,7 @@ class SkMatrix;
  */
 class GrGLSLProgramDataManager : SkNoncopyable {
 public:
-    // Opaque handle to a resource
-    class ShaderResourceHandle {
-    public:
-        ShaderResourceHandle(int value)
-            : fValue(value) {
-            SkASSERT(this->isValid());
-        }
-
-        ShaderResourceHandle()
-            : fValue(kInvalid_ShaderResourceHandle) {
-        }
-
-        bool operator==(const ShaderResourceHandle& other) const { return other.fValue == fValue; }
-        bool isValid() const { return kInvalid_ShaderResourceHandle != fValue; }
-        int toIndex() const { SkASSERT(this->isValid()); return fValue; }
-
-    private:
-        static const int kInvalid_ShaderResourceHandle = -1;
-        int fValue;
-    };
-
-    typedef ShaderResourceHandle UniformHandle;
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(UniformHandle);
 
     virtual ~GrGLSLProgramDataManager() {}
 
@@ -56,16 +36,18 @@ public:
     virtual void set4fv(UniformHandle, int arrayCount, const float v[]) const = 0;
     // matrices are column-major, the first three upload a single matrix, the latter three upload
     // arrayCount matrices into a uniform array.
+    virtual void setMatrix2f(UniformHandle, const float matrix[]) const = 0;
     virtual void setMatrix3f(UniformHandle, const float matrix[]) const = 0;
     virtual void setMatrix4f(UniformHandle, const float matrix[]) const = 0;
+    virtual void setMatrix2fv(UniformHandle, int arrayCount, const float matrices[]) const = 0;
     virtual void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const = 0;
     virtual void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const = 0;
 
     // convenience method for uploading a SkMatrix to a 3x3 matrix uniform
-    virtual void setSkMatrix(UniformHandle, const SkMatrix&) const = 0;
+    void setSkMatrix(UniformHandle, const SkMatrix&) const;
 
     // for nvpr only
-    typedef ShaderResourceHandle VaryingHandle;
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(VaryingHandle);
     virtual void setPathFragmentInputTransform(VaryingHandle u, int components,
                                                const SkMatrix& matrix) const = 0;
 
@@ -73,7 +55,6 @@ protected:
     GrGLSLProgramDataManager() {}
 
 private:
-
     typedef SkNoncopyable INHERITED;
 };
 

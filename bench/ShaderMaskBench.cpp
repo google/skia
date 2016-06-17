@@ -1,13 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Benchmark.h"
 #include "SkCanvas.h"
-#include "SkColorShader.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
@@ -43,7 +42,7 @@ public:
 
         fPaint.setAntiAlias(kBW != fq);
         fPaint.setLCDRenderText(kLCD == fq);
-        fPaint.setShader(new SkColorShader(isOpaque ? 0xFFFFFFFF : 0x80808080))->unref();
+        fPaint.setShader(SkShader::MakeColorShader(isOpaque ? 0xFFFFFFFF : 0x80808080));
     }
 
 protected:

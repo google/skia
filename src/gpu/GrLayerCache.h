@@ -16,6 +16,7 @@
 #include "SkChecksum.h"
 #include "SkImageFilter.h"
 #include "SkMessageBus.h"
+#include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkTDynamicHash.h"
 
@@ -33,7 +34,7 @@ public:
     static uint32_t Hash(const uint32_t& key) { return SkChecksum::Mix(key); }
 
     // GrPictureInfo proper
-    GrPictureInfo(uint32_t pictureID) 
+    GrPictureInfo(uint32_t pictureID)
         : fPictureID(pictureID)
         , fPlotUsage(kNumPlots) {
 #if !GR_CACHE_HOISTED_LAYERS
@@ -351,7 +352,7 @@ public:
 
     SkDEBUGCODE(void validate() const;)
 
-#ifdef SK_DEVELOPER
+#ifdef SK_DEBUG
     void writeLayersToDisk(const SkString& dirName);
 #endif
 

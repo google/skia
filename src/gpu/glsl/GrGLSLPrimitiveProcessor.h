@@ -11,12 +11,12 @@
 #include "GrPrimitiveProcessor.h"
 #include "glsl/GrGLSLProcessorTypes.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLTextureSampler.h"
+#include "glsl/GrGLSLSampler.h"
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
 class GrGLSLCaps;
-class GrGLSLFragmentBuilder;
+class GrGLSLPPFragmentBuilder;
 class GrGLSLGPBuilder;
 class GrGLSLUniformHandler;
 class GrGLSLVaryingHandler;
@@ -27,7 +27,7 @@ public:
     virtual ~GrGLSLPrimitiveProcessor() {}
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
+    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
 
     typedef SkSTArray<2, const GrCoordTransform*, true> ProcCoords;
     typedef SkSTArray<8, ProcCoords> TransformsIn;
@@ -35,14 +35,15 @@ public:
 
     struct EmitArgs {
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
-                 GrGLSLFragmentBuilder* fragBuilder,
+                 GrGLSLPPFragmentBuilder* fragBuilder,
                  GrGLSLVaryingHandler* varyingHandler,
                  GrGLSLUniformHandler* uniformHandler,
                  const GrGLSLCaps* caps,
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
-                 const TextureSamplerArray& samplers,
+                 const SamplerHandle* texSamplers,
+                 const SamplerHandle* bufferSamplers,
                  const TransformsIn& transformsIn,
                  TransformsOut* transformsOut)
             : fVertBuilder(vertBuilder)
@@ -53,18 +54,20 @@ public:
             , fGP(gp)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
-            , fSamplers(samplers)
+            , fTexSamplers(texSamplers)
+            , fBufferSamplers(bufferSamplers)
             , fTransformsIn(transformsIn)
             , fTransformsOut(transformsOut) {}
         GrGLSLVertexBuilder* fVertBuilder;
-        GrGLSLFragmentBuilder* fFragBuilder;
+        GrGLSLPPFragmentBuilder* fFragBuilder;
         GrGLSLVaryingHandler* fVaryingHandler;
         GrGLSLUniformHandler* fUniformHandler;
         const GrGLSLCaps* fGLSLCaps;
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;
-        const TextureSamplerArray& fSamplers;
+        const SamplerHandle* fTexSamplers;
+        const SamplerHandle* fBufferSamplers;
         const TransformsIn& fTransformsIn;
         TransformsOut* fTransformsOut;
     };
@@ -92,19 +95,16 @@ public:
                                   const SkTArray<const GrCoordTransform*, true>& transforms) = 0;
 
 protected:
-    void setupUniformColor(GrGLSLFragmentBuilder* fragBuilder,
+    void setupUniformColor(GrGLSLPPFragmentBuilder* fragBuilder,
                            GrGLSLUniformHandler* uniformHandler,
                            const char* outputName,
                            UniformHandle* colorUniform);
 
     struct Transform {
         Transform() : fType(kVoid_GrSLType) { fCurrentValue = SkMatrix::InvalidMatrix(); }
-        UniformHandle  fHandle;
         SkMatrix       fCurrentValue;
         GrSLType       fType;
     };
-
-    SkSTArray<8, SkSTArray<2, Transform, true> > fInstalledTransforms;
 };
 
 #endif

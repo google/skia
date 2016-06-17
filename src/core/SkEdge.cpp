@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -326,8 +325,9 @@ static inline int SkFDot6UpShift(SkFDot6 x, int upShift) {
 */
 static SkFDot6 cubic_delta_from_line(SkFDot6 a, SkFDot6 b, SkFDot6 c, SkFDot6 d)
 {
-    SkFDot6 oneThird = ((a << 3) - ((b << 4) - b) + 6*c + d) * 19 >> 9;
-    SkFDot6 twoThird = (a + 6*b - ((c << 4) - c) + (d << 3)) * 19 >> 9;
+    // since our parameters may be negative, we don't use << to avoid ASAN warnings
+    SkFDot6 oneThird = (a*8 - b*15 + 6*c + d) * 19 >> 9;
+    SkFDot6 twoThird = (a + 6*b - c*15 + d*8) * 19 >> 9;
 
     return SkMax32(SkAbs32(oneThird), SkAbs32(twoThird));
 }

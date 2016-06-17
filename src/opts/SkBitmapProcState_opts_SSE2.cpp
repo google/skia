@@ -15,7 +15,7 @@ void S32_opaque_D32_filter_DX_SSE2(const SkBitmapProcState& s,
                                    const uint32_t* xy,
                                    int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != nullptr);
-    SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
+    SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
     SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
     SkASSERT(s.fAlphaScale == 256);
 
@@ -121,7 +121,7 @@ void S32_alpha_D32_filter_DX_SSE2(const SkBitmapProcState& s,
                                   const uint32_t* xy,
                                   int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != nullptr);
-    SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
+    SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
     SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
     SkASSERT(s.fAlphaScale < 256);
 
@@ -252,17 +252,14 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
     const unsigned maxX = s.fPixmap.width() - 1;
     const SkFixed one = s.fFilterOneX;
     const SkFixed dx = s.fInvSx;
-    SkFixed fx;
 
-    SkPoint pt;
-    s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                             SkIntToScalar(y) + SK_ScalarHalf, &pt);
-    const SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
+    const SkFixed fy = mapper.fixedY();
     const unsigned maxY = s.fPixmap.height() - 1;
     // compute our two Y values up front
     *xy++ = ClampX_ClampY_pack_filter(fy, maxY, s.fFilterOneY);
     // now initialize fx
-    fx = SkScalarToFixed(pt.fX) - (one >> 1);
+    SkFixed fx = mapper.fixedX();
 
     // test if we don't need to apply the tile proc
     if (dx > 0 && (unsigned)(fx >> 16) <= maxX &&
@@ -374,14 +371,10 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
 
     // we store y, x, x, x, x, x
     const unsigned maxX = s.fPixmap.width() - 1;
-    SkFixed fx;
-    SkPoint pt;
-    s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                             SkIntToScalar(y) + SK_ScalarHalf, &pt);
-    fx = SkScalarToFixed(pt.fY);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
     const unsigned maxY = s.fPixmap.height() - 1;
-    *xy++ = SkClampMax(fx >> 16, maxY);
-    fx = SkScalarToFixed(pt.fX);
+    *xy++ = SkClampMax(mapper.intY(), maxY);
+    SkFixed fx = mapper.fixedX();
 
     if (0 == maxX) {
         // all of the following X values must be 0
@@ -489,15 +482,12 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
  */
 void ClampX_ClampY_filter_affine_SSE2(const SkBitmapProcState& s,
                                       uint32_t xy[], int count, int x, int y) {
-    SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix,
-               SkIntToScalar(x) + SK_ScalarHalf,
-               SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
 
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
-    SkFixed fx = SkScalarToFixed(srcPt.fX) - (oneX >> 1);
-    SkFixed fy = SkScalarToFixed(srcPt.fY) - (oneY >> 1);
+    SkFixed fx = mapper.fixedX();
+    SkFixed fy = mapper.fixedY();
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
     unsigned maxX = s.fPixmap.width() - 1;
@@ -565,13 +555,10 @@ void ClampX_ClampY_nofilter_affine_SSE2(const SkBitmapProcState& s,
                              SkMatrix::kScale_Mask |
                              SkMatrix::kAffine_Mask)) == 0);
 
-    SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix,
-               SkIntToScalar(x) + SK_ScalarHalf,
-               SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
 
-    SkFixed fx = SkScalarToFixed(srcPt.fX);
-    SkFixed fy = SkScalarToFixed(srcPt.fY);
+    SkFixed fx = mapper.fixedX();
+    SkFixed fy = mapper.fixedY();
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
     int maxX = s.fPixmap.width() - 1;

@@ -195,7 +195,7 @@ void SkTSpan<TCurve, OppCurve>::dumpBounds() const {
     dumpID();
     SkDebugf(" bounds=(%1.9g,%1.9g, %1.9g,%1.9g) boundsMax=%1.9g%s\n",
             fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom, fBoundsMax,
-            fCollapsed ? " collapsed" : ""); 
+            fCollapsed ? " collapsed" : "");
 }
 
 template<typename TCurve, typename OppCurve>

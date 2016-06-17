@@ -21,11 +21,7 @@ class SamplerStressGM : public GM {
 public:
     SamplerStressGM()
     : fTextureCreated(false)
-    , fShader(nullptr)
     , fMaskFilter(nullptr) {
-    }
-
-    virtual ~SamplerStressGM() {
     }
 
 protected:
@@ -69,24 +65,23 @@ protected:
     }
 
     void createShader() {
-        if (fShader.get()) {
+        if (fShader) {
             return;
         }
 
         createTexture();
 
-        fShader.reset(SkShader::CreateBitmapShader(fTexture,
-                                                   SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode));
+        fShader = SkShader::MakeBitmapShader(fTexture, SkShader::kRepeat_TileMode,
+                                             SkShader::kRepeat_TileMode);
     }
 
     void createMaskFilter() {
-        if (fMaskFilter.get()) {
+        if (fMaskFilter) {
             return;
         }
 
         const SkScalar sigma = 1;
-        fMaskFilter.reset(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, sigma));
+        fMaskFilter = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -100,8 +95,8 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(72);
-        paint.setShader(fShader.get());
-        paint.setMaskFilter(fMaskFilter.get());
+        paint.setShader(fShader);
+        paint.setMaskFilter(fMaskFilter);
         sk_tool_utils::set_portable_typeface(&paint);
 
         SkRect temp;
@@ -140,10 +135,10 @@ protected:
     }
 
 private:
-    SkBitmap      fTexture;
-    bool          fTextureCreated;
-    SkAutoTUnref<SkShader>     fShader;
-    SkAutoTUnref<SkMaskFilter> fMaskFilter;
+    SkBitmap        fTexture;
+    bool            fTextureCreated;
+    sk_sp<SkShader> fShader;
+    sk_sp<SkMaskFilter> fMaskFilter;
 
     typedef GM INHERITED;
 };

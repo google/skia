@@ -8,8 +8,8 @@
 #ifndef SkPathMeasure_DEFINED
 #define SkPathMeasure_DEFINED
 
+#include "../private/SkTDArray.h"
 #include "SkPath.h"
-#include "SkTDArray.h"
 
 struct SkConic;
 
@@ -20,8 +20,11 @@ public:
         for the lifetime of the measure object, or until setPath() is called with
         a different path (or null), since the measure object keeps a pointer to the
         path object (does not copy its data).
+
+        resScale controls the precision of the measure. values > 1 increase the
+        precision (and possible slow down the computation).
     */
-    SkPathMeasure(const SkPath& path, bool forceClosed);
+    SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
     ~SkPathMeasure();
 
     /** Reset the pathmeasure with the specified path. The path must remain valid
@@ -60,7 +63,7 @@ public:
 
     /** Given a start and stop distance, return in dst the intervening segment(s).
         If the segment is zero-length, return false, else return true.
-        startD and stopD are pinned to legal values (0..getLength()). If startD <= stopD
+        startD and stopD are pinned to legal values (0..getLength()). If startD > stopD
         then return false (and leave dst untouched).
         Begin the segment with a moveTo if startWithMoveTo is true
     */
@@ -82,6 +85,7 @@ public:
 private:
     SkPath::Iter    fIter;
     const SkPath*   fPath;
+    SkScalar        fTolerance;
     SkScalar        fLength;            // relative to the current contour
     int             fFirstPtIndex;      // relative to the current contour
     bool            fIsClosed;          // relative to the current contour
@@ -90,11 +94,7 @@ private:
     struct Segment {
         SkScalar    fDistance;  // total distance up to this point
         unsigned    fPtIndex; // index into the fPts array
-#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
-        unsigned    fTValue : 15;
-#else
         unsigned    fTValue : 30;
-#endif
         unsigned    fType : 2;
 
         SkScalar getScalarT() const;
@@ -107,10 +107,16 @@ private:
     void     buildSegments();
     SkScalar compute_quad_segs(const SkPoint pts[3], SkScalar distance,
                                 int mint, int maxt, int ptIndex);
-    SkScalar compute_conic_segs(const SkConic&, SkScalar distance, int mint, int maxt, int ptIndex);
+    SkScalar compute_conic_segs(const SkConic&, SkScalar distance,
+                                int mint, const SkPoint& minPt,
+                                int maxt, const SkPoint& maxPt, int ptIndex);
     SkScalar compute_cubic_segs(const SkPoint pts[3], SkScalar distance,
                                 int mint, int maxt, int ptIndex);
     const Segment* distanceToSegment(SkScalar distance, SkScalar* t);
+    bool quad_too_curvy(const SkPoint pts[3]);
+    bool conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,const SkPoint& lastPt);
+    bool cheap_dist_exceeds_limit(const SkPoint& pt, SkScalar x, SkScalar y);
+    bool cubic_too_curvy(const SkPoint pts[4]);
 };
 
 #endif

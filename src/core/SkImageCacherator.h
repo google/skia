@@ -75,7 +75,7 @@ private:
     // Returns the texture. If the cacherator is generating the texture and wants to cache it,
     // it should use the passed in key (if the key is valid).
     GrTexture* lockTexture(GrContext*, const GrUniqueKey& key, const SkImage* client,
-                           SkImage::CachingHint);
+                           SkImage::CachingHint, bool willBeMipped);
 #endif
 
     class ScopedGenerator {

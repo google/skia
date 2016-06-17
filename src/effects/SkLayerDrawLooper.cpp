@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -93,19 +92,19 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
     }
 
     if (bits & kPathEffect_Bit) {
-        dst->setPathEffect(src.getPathEffect());
+        dst->setPathEffect(sk_ref_sp(src.getPathEffect()));
     }
     if (bits & kMaskFilter_Bit) {
-        dst->setMaskFilter(src.getMaskFilter());
+        dst->setMaskFilter(sk_ref_sp(src.getMaskFilter()));
     }
     if (bits & kShader_Bit) {
-        dst->setShader(src.getShader());
+        dst->setShader(sk_ref_sp(src.getShader()));
     }
     if (bits & kColorFilter_Bit) {
-        dst->setColorFilter(src.getColorFilter());
+        dst->setColorFilter(sk_ref_sp(src.getColorFilter()));
     }
     if (bits & kXfermode_Bit) {
-        dst->setXfermode(src.getXfermode());
+        dst->setXfermode(sk_ref_sp(src.getXfermode()));
     }
 
     // we don't override these
@@ -215,7 +214,7 @@ void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-SkFlattenable* SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     int count = buffer.readInt();
 
     Builder builder;
@@ -230,7 +229,7 @@ SkFlattenable* SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
         info.fPostTranslate = buffer.readBool();
         buffer.readPaint(builder.addLayerOnTop(info));
     }
-    return builder.detachLooper();
+    return builder.detach();
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -344,7 +343,7 @@ SkPaint* SkLayerDrawLooper::Builder::addLayerOnTop(const LayerInfo& info) {
     return &rec->fPaint;
 }
 
-SkLayerDrawLooper* SkLayerDrawLooper::Builder::detachLooper() {
+sk_sp<SkDrawLooper> SkLayerDrawLooper::Builder::detach() {
     SkLayerDrawLooper* looper = new SkLayerDrawLooper;
     looper->fCount = fCount;
     looper->fRecs = fRecs;
@@ -353,5 +352,5 @@ SkLayerDrawLooper* SkLayerDrawLooper::Builder::detachLooper() {
     fRecs = nullptr;
     fTopRec = nullptr;
 
-    return looper;
+    return sk_sp<SkDrawLooper>(looper);
 }

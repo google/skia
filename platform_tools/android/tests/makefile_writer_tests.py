@@ -111,6 +111,25 @@ def generate_dummy_makefile(target_dir):
                                    common=common_vars_dict,
                                    deviations_from_common=deviations)
 
+def generate_dummy_static_deps_makefile(target_dir):
+  """Create a dummy makefile that prints out the static dependencies.
+
+  Use dummy values unrelated to any gyp files. Its output should remain the
+  same unless/until makefile_writer.write_static_deps_mk changes.
+
+  Args:
+    target_dir: directory in which to write the resulting file
+  """
+  common_vars_dict = generate_dummy_vars_dict(None)
+
+  deviation_params = [('foo', 'COND'), ('bar', None)]
+  deviations = [generate_dummy_vars_dict_data(name, condition)
+                for (name, condition) in deviation_params]
+
+  makefile_writer.write_static_deps_mk(target_dir=target_dir,
+                                       common=common_vars_dict,
+                                       deviations_from_common=deviations)
+
 def generate_dummy_tool_makefile(target_dir):
   """Create a dummy makefile for a tool.
 
@@ -181,6 +200,14 @@ class MakefileWriterTest(unittest.TestCase):
 
     shutil.rmtree(outdir)
 
+  def test_include_static_deps_writer(self):
+    outdir = tempfile.mkdtemp()
+    generate_dummy_static_deps_makefile(outdir)
+
+    filename = test_variables.STATIC_DEPS_MK
+    utils.compare_to_expectation(os.path.join(outdir, filename),
+                                 filename, self.assertTrue, REBASELINE_MSG)
+
   def test_tool_writer(self):
     outdir = tempfile.mkdtemp()
     tool_dir = os.path.join(outdir, TOOL_DIR)
@@ -208,6 +235,7 @@ def rebaseline():
     with open(os.path.join(utils.EXPECTATIONS_DIR, filename), 'w') as f:
       makefile_writer.write_local_vars(f, vars_dict, append, name)
 
+  generate_dummy_static_deps_makefile(utils.EXPECTATIONS_DIR)
   generate_dummy_tool_makefile(os.path.join(utils.EXPECTATIONS_DIR, TOOL_DIR))
 
 

@@ -1,15 +1,14 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "Resources.h"
 
 #include "SkCanvas.h"
-#include "SkImageDecoder.h"
 #include "SkLightingShader.h"
 #include "SkPoint3.h"
 
@@ -31,29 +30,20 @@ static const SkLightingShader::Lights* create_lights(SkScalar angle, SkScalar bl
 
 class LightingView : public SampleView {
 public:
-    SkAutoTUnref<SkShader> fShader;
-    SkBitmap               fDiffuseBitmap;
-    SkBitmap               fNormalBitmap;
-    SkScalar               fLightAngle;
-    SkScalar               fColorFactor;
+    SkBitmap        fDiffuseBitmap;
+    SkBitmap        fNormalBitmap;
+    SkScalar        fLightAngle;
+    SkScalar        fColorFactor;
 
     LightingView() {
         SkString diffusePath = GetResourcePath("brickwork-texture.jpg");
-        SkImageDecoder::DecodeFile(diffusePath.c_str(), &fDiffuseBitmap);
+        decode_file(diffusePath.c_str(), &fDiffuseBitmap);
         SkString normalPath = GetResourcePath("brickwork_normal-map.jpg");
-        SkImageDecoder::DecodeFile(normalPath.c_str(), &fNormalBitmap);
+        decode_file(normalPath.c_str(), &fNormalBitmap);
 
         fLightAngle = 0.0f;
         fColorFactor = 0.0f;
-
-        SkAutoTUnref<const SkLightingShader::Lights> lights(create_lights(fLightAngle, 1.0f));
-
-        fShader.reset(SkLightingShader::Create(fDiffuseBitmap, fNormalBitmap,
-                                               lights, SkVector::Make(1.0f, 0.0f),
-                                               nullptr, nullptr));
     }
-
-    virtual ~LightingView() {}
 
 protected:
     // overrides from SkEventSink
@@ -74,16 +64,13 @@ protected:
 
         SkAutoTUnref<const SkLightingShader::Lights> lights(create_lights(fLightAngle,
                                                                           fColorFactor));
-
-        fShader.reset(SkLightingShader::Create(fDiffuseBitmap, fNormalBitmap,
+        SkPaint paint;
+        paint.setShader(SkLightingShader::Make(fDiffuseBitmap, fNormalBitmap,
                                                lights, SkVector::Make(1.0f, 0.0f),
                                                nullptr, nullptr));
-
-        SkPaint paint;
-        paint.setShader(fShader);
         paint.setColor(SK_ColorBLACK);
 
-        SkRect r = SkRect::MakeWH((SkScalar)fDiffuseBitmap.width(), 
+        SkRect r = SkRect::MakeWH((SkScalar)fDiffuseBitmap.width(),
                                   (SkScalar)fDiffuseBitmap.height());
         canvas->drawRect(r, paint);
 

@@ -15,7 +15,10 @@
       'SK_INTERNAL',
       'SK_GAMMA_SRGB',
       'SK_GAMMA_APPLY_TO_A8',
-      # 'SK_USE_DISCARDABLE_SCALEDIMAGECACHE',  # TODO(reed): Re-enable when tests don't crash with this.
+      'QT_NO_KEYWORDS',
+      # The discardable resource cache is tested via a special bot. This is 
+      # disabled here so we test the non-discardable use case.
+      # 'SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
     ],
 
     # Validate the 'skia_os' setting against 'OS', because only certain
@@ -23,8 +26,7 @@
     # situations, like building for iOS on a Mac.
     'variables': {
       'conditions': [
-        [ 'skia_os != OS and not ((skia_os == "ios" and OS == "mac") or \
-                                  (skia_os == "chromeos" and OS == "linux"))', {
+        [ 'skia_os != OS and not (skia_os == "ios" and OS == "mac")', {
           'error': '<!(Cannot build with skia_os=<(skia_os) on OS=<(OS))',
         }],
         [ 'skia_mesa and skia_os not in ["mac", "linux"]', {
@@ -32,9 +34,6 @@
         }],
         [ 'skia_angle and not (skia_os == "win" or skia_os == "linux" or skia_os == "mac")', {
           'error': '<!(skia_angle=1 only supported with skia_os="win" or skia_os="linux" or skia_os="mac".)',
-        }],
-        [ 'skia_os == "chromeos" and OS != "linux"', {
-          'error': '<!(Skia ChromeOS build is only supported on Linux.)',
         }],
       ],
     },
@@ -94,11 +93,22 @@
         # one makefile and allow someone to add SK_DEBUG etc for their own
         # debugging purposes.
         'configurations': {
-          'Debug':   { 'defines': [ 'SK_DEVELOPER=1' ] },
+          'Debug':   { 'defines': [ 'SK_DEBUG=1' ] },
           'Release': { 'defines': [ 'NDEBUG' ] },
           'Release_Developer': {
             'inherit_from': ['Release'],
-            'defines': [ 'SK_DEVELOPER=1' ],
+            'defines': [ 'SK_DEBUG=1' ],
+            'conditions': [
+              [ 'skia_clang_build == 0', {
+                # gcc has problems providing useful warnings of these types for
+                # optimized builds.
+                'cflags': [
+                  '-Wno-array-bounds',
+                  '-Wno-maybe-uninitialized',
+                  '-Wno-strict-overflow',
+                ],
+              }],
+            ],
           },
         },
       }],

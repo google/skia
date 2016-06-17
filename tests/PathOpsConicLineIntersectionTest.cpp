@@ -21,7 +21,7 @@ static struct lineConic {
     {
      {{{{30.6499996,25.6499996}, {30.6499996,20.6499996}, {25.6499996,20.6499996}}}, 0.707107008f},
       {{{25.6499996,20.6499996}, {45.6500015,20.6499996}}},
-          1, 
+          1,
        {{25.6499996,20.6499996}, {0,0}}
     },
 };
@@ -100,7 +100,7 @@ DEF_TEST(PathOpsConicLineIntersection, reporter) {
         const SkDLine& line = lineConicTests[index].line;
         SkASSERT(ValidLine(line));
         SkReduceOrder reducer;
-        SkPoint pts[3] = { conic.fPts.fPts[0].asSkPoint(), conic.fPts.fPts[1].asSkPoint(), 
+        SkPoint pts[3] = { conic.fPts.fPts[0].asSkPoint(), conic.fPts.fPts[1].asSkPoint(),
             conic.fPts.fPts[2].asSkPoint() };
         SkPoint reduced[3];
         SkPath::Verb order1 = SkReduceOrder::Conic(pts, conic.fWeight, reduced);

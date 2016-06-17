@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -44,12 +43,12 @@ static SkBitmap make_bmp(int w, int h) {
     SkRect rect = SkRect::MakeWH(wScalar, hScalar);
     SkMatrix mat = SkMatrix::I();
     for (int i = 0; i < 4; ++i) {
-        paint.setShader(SkGradientShader::CreateRadial(
+        paint.setShader(SkGradientShader::MakeRadial(
                         pt, radius,
                         colors, pos,
                         SK_ARRAY_COUNT(colors),
                         SkShader::kRepeat_TileMode,
-                        0, &mat))->unref();
+                        0, &mat));
         canvas.drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.preTranslate(6 * wScalar, 6 * hScalar);

@@ -13,5 +13,4 @@ race:third_party/externals/libwebp
 race:SkGLContextHelper
 
 # Not threadsafe, should be fixed.
-race:RefFCI
 race:SkString

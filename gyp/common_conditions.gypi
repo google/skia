@@ -10,8 +10,25 @@
     'SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=<(skia_static_initializers)',
     'SK_SUPPORT_GPU=<(skia_gpu)',
     'SK_FORCE_DISTANCE_FIELD_TEXT=<(skia_force_distance_field_text)',
+    
+    # Indicate that all dependency libraries are present.  Clients that
+    # are missing some of the required decoding libraries may choose
+    # not to define these.  This will disable some decoder and encoder
+    # features.
+    'SK_HAS_GIF_LIBRARY',
+    'SK_HAS_JPEG_LIBRARY',
+    'SK_HAS_PNG_LIBRARY',
+    'SK_HAS_WEBP_LIBRARY',
   ],
   'conditions' : [
+    [ 'skia_is_bot', {
+      'defines': [ 'SK_IS_BOT' ],
+    }],
+    [ 'skia_codec_decodes_raw', {
+      'defines': [
+        'SK_CODEC_DECODES_RAW',
+      ],
+    }],
     ['skia_pic', {
      'cflags': [
        '-fPIC',
@@ -177,6 +194,8 @@
                 'WarnAsError': 'true',
                 'AdditionalOptions': [
                   '/we4189', # initialized but unused var warning
+                  '/we4238', # taking address of rvalue
+                  '/we4239', # assigning rvalues to non-const lvalues
                 ],
               },
             },
@@ -212,7 +231,7 @@
     ],
 
     # The following section is common to linux + derivatives and android
-    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "android"]',
+    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android"]',
       {
         'cflags': [
           '-g',
@@ -233,26 +252,23 @@
           '-fno-threadsafe-statics',
           '-Wnon-virtual-dtor',
         ],
+        'ldflags': [ '-rdynamic' ],
         'conditions': [
           [ 'skia_fast', { 'cflags': [ '<@(skia_fast_flags)' ] }],
-          [ 'skia_os != "chromeos"', {
-            'conditions': [
-              [ 'skia_arch_type == "x86_64" and not skia_android_framework', {
-                'cflags': [
-                  '-m64',
-                ],
-                'ldflags': [
-                  '-m64',
-                ],
-              }],
-              [ 'skia_arch_type == "x86" and not skia_android_framework', {
-                'cflags': [
-                  '-m32',
-                ],
-                'ldflags': [
-                  '-m32',
-                ],
-              }],
+          [ 'skia_arch_type == "x86_64" and not skia_android_framework', {
+            'cflags': [
+              '-m64',
+            ],
+            'ldflags': [
+              '-m64',
+            ],
+          }],
+          [ 'skia_arch_type == "x86" and not skia_android_framework', {
+            'cflags': [
+              '-m32',
+            ],
+            'ldflags': [
+              '-m32',
             ],
           }],
           [ 'skia_warnings_as_errors', {
@@ -286,12 +302,7 @@
                   '-mfpu=neon',
                 ],
               }],
-              [ 'arm_neon_optional == 1', {
-                'defines': [
-                  'SK_ARM_HAS_OPTIONAL_NEON',
-                ],
-              }],
-              [ 'skia_os != "chromeos" and skia_os != "linux"', {
+              [ 'skia_os != "linux"', {
                 'cflags': [
                   '-mfloat-abi=softfp',
                 ],
@@ -402,7 +413,7 @@
         'defines': [ 'SK_DUMP_STATS'],
     }],
 
-    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]',
+    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]',
       {
         'defines': [
           'SK_SAMPLES_FOR_X',
@@ -449,6 +460,12 @@
             'conditions' : [
               [ 'skia_sanitizer == "thread"', {
                 'defines': [ 'THREAD_SANITIZER' ],
+              }],
+              [ 'skia_sanitizer == "memory"', {
+                'cflags': [
+                    '-O1',
+                    '-fsanitize-memory-track-origins',
+                ],
               }],
             ],
           }],
@@ -529,8 +546,8 @@
           'GCC_ENABLE_CPP_RTTI':                       'NO',   # -fno-rtti
           'GCC_THREADSAFE_STATICS':                    'NO',   # -fno-threadsafe-statics
           'GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS': 'YES',  # -mssse3
-          'GCC_SYMBOLS_PRIVATE_EXTERN':                'NO',   # -fvisibility=hidden
-          'GCC_INLINES_ARE_PRIVATE_EXTERN':            'NO',   # -fvisibility-inlines-hidden
+          'GCC_SYMBOLS_PRIVATE_EXTERN':                'YES',  # -fvisibility=hidden
+          'GCC_INLINES_ARE_PRIVATE_EXTERN':            'YES',  # -fvisibility-inlines-hidden
           'GCC_CW_ASM_SYNTAX':                         'NO',   # remove -fasm-blocks
           'GCC_ENABLE_PASCAL_STRINGS':                 'NO',   # remove -mpascal-strings
           'WARNING_CFLAGS': [
@@ -586,8 +603,8 @@
           'GCC_ENABLE_CPP_EXCEPTIONS':      'NO',   # -fno-exceptions
           'GCC_ENABLE_CPP_RTTI':            'NO',   # -fno-rtti
           'GCC_THREADSAFE_STATICS':         'NO',   # -fno-threadsafe-statics
-          'GCC_SYMBOLS_PRIVATE_EXTERN':     'NO',   # -fvisibility=hidden
-          'GCC_INLINES_ARE_PRIVATE_EXTERN': 'NO',   # -fvisibility-inlines-hidden
+          'GCC_SYMBOLS_PRIVATE_EXTERN':     'YES',  # -fvisibility=hidden
+          'GCC_INLINES_ARE_PRIVATE_EXTERN': 'YES',  # -fvisibility-inlines-hidden
 
           'GCC_THUMB_SUPPORT': 'NO',  # TODO(mtklein): why would we not want thumb?
         },
@@ -608,11 +625,14 @@
           'SK_GAMMA_SRGB',
         ],
         'configurations': {
-          'Debug': {
-            'cflags': ['-g']
-          },
           'Release': {
             'cflags': ['-O2'],
+            'conditions': [
+              [ 'skia_clang_build', {
+                'cflags!': ['-g'],
+                'cflags': [ '-gline-tables-only' ],
+              }],
+            ],
           },
         },
         'libraries': [
@@ -643,6 +663,15 @@
           }],
           [ 'skia_profile_enabled == 1', {
             'cflags': ['-g', '-fno-omit-frame-pointer', '-marm', '-mapcs'],
+          }],
+          [ 'skia_clang_build', {
+            'cflags': [
+                '-Wno-unknown-warning-option', # Allows unknown warnings
+                # These flags that are on by default for only the android
+                # toolchain and no other platforms.
+                '-Wno-tautological-compare',
+                '-Wno-unused-command-line-argument',
+            ],
           }],
         ],
       },

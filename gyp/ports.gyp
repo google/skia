@@ -15,6 +15,7 @@
       ],
       'include_dirs': [
         '../include/effects',
+        '../include/client/android',
         '../include/images',
         '../include/ports',
         '../include/private',
@@ -58,8 +59,6 @@
         '../src/ports/SkOSLibrary_posix.cpp',
         '../src/ports/SkOSLibrary_win.cpp',
         '../src/ports/SkDiscardableMemory_none.cpp',
-        '../src/ports/SkTime_Unix.cpp',
-        '../src/ports/SkTime_win.cpp',
         '../src/ports/SkTLS_pthread.cpp',
         '../src/ports/SkTLS_win.cpp',
 
@@ -75,7 +74,7 @@
         ['exclude', 'SkFontMgr_.+_factory\\.cpp$'],
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "android"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android"]', {
           'sources': [
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/SkFontHost_FreeType_common.cpp',
@@ -87,17 +86,11 @@
             'freetype.gyp:freetype',
           ],
           'conditions': [
-            [ 'skia_os == "android"', {
-              'dependencies': [
-                 'android_deps.gyp:expat',
-              ],
+            [ 'skia_android_framework', {
+              'link_settings': { 'libraries': [ '-lexpat' ] },
             }, {
-              'link_settings': {
-                'libraries': [
-                  '-ldl',
-                  '-lexpat',
-                ],
-              },
+              'link_settings': { 'libraries': [ '-ldl' ] },
+              'dependencies': [ 'expat.gyp:expat' ],
             }],
             [ 'skia_embedded_fonts', {
               'variables': {
@@ -140,7 +133,6 @@
               },
               'sources': [
                 '../src/ports/SkFontMgr_fontconfig.cpp',
-                '../src/ports/SkFontHost_fontconfig.cpp',
                 '../src/ports/SkFontConfigInterface_direct.cpp',
                 '../src/ports/SkFontConfigInterface_direct_factory.cpp',
               ],
@@ -155,6 +147,8 @@
           'sources': [
             '../src/ports/SkFontHost_mac.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
+
+            '../src/ports/SkImageGeneratorCG.cpp',
           ],
         }],
         [ 'skia_os == "ios"', {
@@ -165,6 +159,8 @@
           'sources': [
             '../src/ports/SkFontHost_mac.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
+
+            '../src/ports/SkImageGeneratorCG.cpp',
           ],
         }],
         [ 'skia_os == "win"', {
@@ -176,8 +172,10 @@
             '../src/ports/SkDebug_stdio.cpp',
             '../src/ports/SkOSFile_posix.cpp',
             '../src/ports/SkOSLibrary_posix.cpp',
-            '../src/ports/SkTime_Unix.cpp',
             '../src/ports/SkTLS_pthread.cpp',
+          ],
+          'sources': [
+            '../src/ports/SkImageGeneratorWIC.cpp',
           ],
           'conditions': [
             #    when we build for win, we only want one of these default files
@@ -187,6 +185,11 @@
               'sources/': [['include', '../src/ports/SkFontMgr_win_dw_factory.cpp']],
             }],
           ],
+          'link_settings': {
+            'libraries': [
+              '-lwindowscodecs.lib',
+            ],
+          },
         }, { # else !win
           'sources!': [
             '../src/ports/SkDebug_win.cpp',
@@ -195,7 +198,6 @@
             '../src/ports/SkOSFile_win.cpp',
             '../src/ports/SkOSLibrary_win.cpp',
             '../src/ports/SkRemotableFontMgr_win_dw.cpp',
-            '../src/ports/SkTime_win.cpp',
             '../src/ports/SkTLS_win.cpp',
             '../src/ports/SkScalerContext_win_dw.cpp',
             '../src/ports/SkScalerContext_win_dw.h',

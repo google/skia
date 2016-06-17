@@ -15,6 +15,8 @@
 #include "SkTypeface.h"
 #include "SkTypes.h"
 
+#include "SkFontMgr.h"
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -24,8 +26,9 @@ protected:
     // This value was chosen by eyeballing the result in Firefox and trying to match it.
     static const FT_Pos kBitmapEmboldenStrength = 1 << 6;
 
-    SkScalerContext_FreeType_Base(SkTypeface* typeface, const SkDescriptor *desc)
-    : INHERITED(typeface, desc)
+    SkScalerContext_FreeType_Base(SkTypeface* typeface, const SkScalerContextEffects& effects,
+                                  const SkDescriptor *desc)
+        : INHERITED(typeface, effects, desc)
     {}
 
     void generateGlyphImage(FT_Face face, const SkGlyph& glyph);
@@ -55,6 +58,12 @@ public:
         bool scanFont(SkStream* stream, int ttcIndex,
                       SkString* name, SkFontStyle* style, bool* isFixedPitch,
                       AxisDefinitions* axes) const;
+        static void computeAxisValues(
+            AxisDefinitions axisDefinitions,
+            const SkFontMgr::FontParameters::Axis* requestedAxis, int requestedAxisCount,
+            SkFixed* axisValues,
+            const SkString& name);
+
     private:
         FT_Face openFace(SkStream* stream, int ttcIndex, FT_Stream ftStream) const;
         FT_Library fLibrary;
@@ -64,11 +73,10 @@ public:
 protected:
     SkTypeface_FreeType(const SkFontStyle& style, SkFontID uniqueID, bool isFixedPitch)
         : INHERITED(style, uniqueID, isFixedPitch)
-        , fGlyphCount(-1)
     {}
 
-    virtual SkScalerContext* onCreateScalerContext(
-                                        const SkDescriptor*) const override;
+    virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                                   const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                         PerGlyphInfo, const uint32_t*, uint32_t) const override;
@@ -86,8 +94,6 @@ protected:
                                   size_t length, void* data) const override;
 
 private:
-    mutable int fGlyphCount;
-
     typedef SkTypeface INHERITED;
 };
 

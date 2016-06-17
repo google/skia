@@ -47,7 +47,7 @@ public:
 #endif
     }
     
-    void setUpBackend(SampleWindow* win, int msaaSampleCount) override {
+    void setUpBackend(SampleWindow* win, int msaaSampleCount, bool deepColor) override {
         SkASSERT(SkOSWindow::kNone_BackEndType == fBackend);
         
         fBackend = SkOSWindow::kNone_BackEndType;
@@ -65,7 +65,7 @@ public:
                 break;
         }
         SkOSWindow::AttachmentInfo info;
-        bool result = win->attach(fBackend, msaaSampleCount, &info);
+        bool result = win->attach(fBackend, msaaSampleCount, false, &info);
         if (!result) {
             SkDebugf("Failed to initialize GL");
             return;
@@ -97,7 +97,7 @@ public:
             SkSafeUnref(fCurContext);
             SkSafeUnref(fCurIntf);
             SkDebugf("Failed to setup 3D");
-            win->detach();
+            win->release();
         }
 #endif // SK_SUPPORT_GPU
         // call windowSizeChanged to create the render target
@@ -115,7 +115,7 @@ public:
         SkSafeUnref(fCurRenderTarget);
         fCurRenderTarget = NULL;
 #endif
-        win->detach();
+        win->release();
         fBackend = SampleWindow::kNone_BackEndType;
     }
 
@@ -145,7 +145,7 @@ public:
         if (NULL != fCurContext) {
             SkOSWindow::AttachmentInfo info;
 
-            win->attach(fBackend, fMSAASampleCount, &info);
+            win->attach(fBackend, fMSAASampleCount, false, &info);
             
             glBindFramebuffer(GL_FRAMEBUFFER, fLayerFBO);
             GrBackendRenderTargetDesc desc;
@@ -177,7 +177,11 @@ public:
         return NULL;
 #endif
     }
-    
+
+    int getColorBits() override {
+        return 24;
+    }
+
     bool isUsingGL() const { return SkOSWindow::kNone_BackEndType != fBackend; }
     
 private:
@@ -326,8 +330,7 @@ static FPSState gFPS;
         fDevManager = new SkiOSDeviceManager(fGL.fFramebuffer);
         fWind = new SampleWindow(self, argc, argv, fDevManager);
 
-        fWind->resize(self.frame.size.width, self.frame.size.height,
-                      kN32_SkColorType);
+        fWind->resize(self.frame.size.width, self.frame.size.height);
         
         for (int i = 0; i < argc; ++i) {
             delete [] argv[i];

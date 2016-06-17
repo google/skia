@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -40,9 +39,9 @@ public:
 
     LightType type() const { return fType; }
     const SkColor3f& color() const { return fColor; }
-    const SkVector3& dir() const { 
+    const SkVector3& dir() const {
         SkASSERT(kAmbient_LightType != fType);
-        return fDirection; 
+        return fDirection;
     }
 
 private:

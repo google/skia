@@ -6,7 +6,6 @@
  */
 
 #include "SkOnce.h"
-#include "SkRunnable.h"
 #include "SkSemaphore.h"
 #include "SkSpinlock.h"
 #include "SkTArray.h"
@@ -15,38 +14,31 @@
 #include "SkThreadUtils.h"
 
 #if defined(SK_BUILD_FOR_WIN32)
-    static void query_num_cores(int* num_cores) {
+    static void query_num_cores(int* cores) {
         SYSTEM_INFO sysinfo;
         GetNativeSystemInfo(&sysinfo);
-        *num_cores = sysinfo.dwNumberOfProcessors;
+        *cores = sysinfo.dwNumberOfProcessors;
     }
 #else
     #include <unistd.h>
-    static void query_num_cores(int* num_cores) {
-        *num_cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
+    static void query_num_cores(int* cores) {
+        *cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
     }
 #endif
 
-// We cache sk_num_cores() so we only query the OS once.
-SK_DECLARE_STATIC_ONCE(g_query_num_cores_once);
-int sk_num_cores() {
-    static int num_cores = 0;
-    SkOnce(&g_query_num_cores_once, query_num_cores, &num_cores);
-    SkASSERT(num_cores > 0);
-    return num_cores;
+static int num_cores() {
+    // We cache num_cores() so we only query the OS once.
+    static int cores = 0;
+    static SkOnce once;
+    once(query_num_cores, &cores);
+    SkASSERT(cores > 0);
+    return cores;
 }
 
 namespace {
 
 class ThreadPool : SkNoncopyable {
 public:
-    static void Add(SkRunnable* task, SkAtomic<int32_t>* pending) {
-        if (!gGlobal) {  // If we have no threads, run synchronously.
-            return task->run();
-        }
-        gGlobal->add([task]() { task->run(); }, pending);
-    }
-
     static void Add(std::function<void(void)> fn, SkAtomic<int32_t>* pending) {
         if (!gGlobal) {
             return fn();
@@ -99,8 +91,6 @@ private:
         SkSpinlock* fLock;
     };
 
-    static void CallRunnable(void* arg) { static_cast<SkRunnable*>(arg)->run(); }
-
     struct Work {
         std::function<void(void)> fn; // A function to call
         SkAtomic<int32_t>* pending;   // then decrement pending afterwards.
@@ -108,7 +98,7 @@ private:
 
     explicit ThreadPool(int threads) {
         if (threads == -1) {
-            threads = sk_num_cores();
+            threads = num_cores();
         }
         for (int i = 0; i < threads; i++) {
             fThreads.push(new SkThread(&ThreadPool::Loop, this));
@@ -213,9 +203,7 @@ SkTaskGroup::Enabler::~Enabler() { delete ThreadPool::gGlobal; }
 SkTaskGroup::SkTaskGroup() : fPending(0) {}
 
 void SkTaskGroup::wait()                            { ThreadPool::Wait(&fPending); }
-void SkTaskGroup::add(SkRunnable* task)             { ThreadPool::Add(task, &fPending); }
 void SkTaskGroup::add(std::function<void(void)> fn) { ThreadPool::Add(fn, &fPending); }
 void SkTaskGroup::batch(int N, std::function<void(int)> fn) {
     ThreadPool::Batch(N, fn, &fPending);
 }
-

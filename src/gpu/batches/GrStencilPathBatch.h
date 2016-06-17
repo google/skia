@@ -21,11 +21,14 @@ public:
 
     static GrBatch* Create(const SkMatrix& viewMatrix,
                            bool useHWAA,
-                           const GrStencilSettings& stencil,
+                           GrPathRendering::FillType fillType,
+                           bool hasStencilClip,
+                           int numStencilBits,
                            const GrScissorState& scissor,
                            GrRenderTarget* renderTarget,
                            const GrPath* path) {
-        return new GrStencilPathBatch(viewMatrix, useHWAA, stencil, scissor, renderTarget, path);
+        return new GrStencilPathBatch(viewMatrix, useHWAA, fillType, hasStencilClip,
+                                      numStencilBits, scissor, renderTarget, path);
     }
 
     const char* name() const override { return "StencilPath"; }
@@ -42,14 +45,16 @@ public:
 private:
     GrStencilPathBatch(const SkMatrix& viewMatrix,
                        bool useHWAA,
-                       const GrStencilSettings& stencil,
+                       GrPathRendering::FillType fillType,
+                       bool hasStencilClip,
+                       int numStencilBits,
                        const GrScissorState& scissor,
                        GrRenderTarget* renderTarget,
                        const GrPath* path)
     : INHERITED(ClassID())
     , fViewMatrix(viewMatrix)
     , fUseHWAA(useHWAA)
-    , fStencil(stencil)
+    , fStencil(GrPathRendering::GetStencilPassSettings(fillType), hasStencilClip, numStencilBits)
     , fScissor(scissor)
     , fRenderTarget(renderTarget)
     , fPath(path) {

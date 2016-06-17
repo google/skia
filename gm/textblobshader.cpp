@@ -68,11 +68,11 @@ protected:
         }
 
         SkISize sz = this->onISize();
-        fShader.reset(SkGradientShader::CreateRadial(SkPoint::Make(SkIntToScalar(sz.width() / 2),
-                                                                   SkIntToScalar(sz.height() / 2)),
-                                                     sz.width() * .66f, colors, pos,
-                                                     SK_ARRAY_COUNT(colors),
-                                                     SkShader::kRepeat_TileMode));
+        fShader = SkGradientShader::MakeRadial(SkPoint::Make(SkIntToScalar(sz.width() / 2),
+                                               SkIntToScalar(sz.height() / 2)),
+                                               sz.width() * .66f, colors, pos,
+                                               SK_ARRAY_COUNT(colors),
+                                               SkShader::kRepeat_TileMode);
     }
 
     SkString onShortName() override {
@@ -104,7 +104,7 @@ protected:
 private:
     SkTDArray<uint16_t>            fGlyphs;
     SkAutoTUnref<const SkTextBlob> fBlob;
-    SkAutoTUnref<SkShader>         fShader;
+    sk_sp<SkShader>                fShader;
 
     typedef skiagm::GM INHERITED;
 };

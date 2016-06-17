@@ -11,6 +11,7 @@
 #include "SkPicture.h"
 #include "SkPictureUtils.h"
 #include "SkRecorder.h"
+#include "SkSurface.h"
 
 //#define WRAP_BITMAP_AS_IMAGE
 
@@ -27,7 +28,7 @@ SkBigPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
     for (int i = 0; i < count; ++i) {
         pics[i] = fArray[i]->newPictureSnapshot();
     }
-    return new SkBigPicture::SnapshotArray(pics.detach(), count);
+    return new SkBigPicture::SnapshotArray(pics.release(), count);
 }
 
 void SkDrawableList::append(SkDrawable* drawable) {
@@ -332,6 +333,10 @@ void SkRecorder::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], cons
            this->copy(cull));
 }
 
+void SkRecorder::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+    APPEND(DrawAnnotation, rect, SkString(key), value);
+}
+
 void SkRecorder::willSave() {
     APPEND(Save);
 }
@@ -377,3 +382,6 @@ void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     APPEND(ClipRegion, this->devBounds(), deviceRgn, op);
 }
 
+sk_sp<SkSurface> SkRecorder::onNewSurface(const SkImageInfo&, const SkSurfaceProps&) {
+    return nullptr;
+}

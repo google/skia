@@ -12,8 +12,10 @@
 #include "GrProcessorUnitTest.h"
 #include "GrProgramElement.h"
 #include "GrTextureAccess.h"
+#include "GrBufferAccess.h"
 #include "SkMath.h"
 #include "SkString.h"
+#include "../private/SkAtomics.h"
 
 class GrContext;
 class GrCoordTransform;
@@ -79,8 +81,26 @@ public:
     /** Shortcut for textureAccess(index).texture(); */
     GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
 
-    /** Will this processor read the fragment position? */
-    bool willReadFragmentPosition() const { return fWillReadFragmentPosition; }
+    int numBuffers() const { return fBufferAccesses.count(); }
+
+    /** Returns the access pattern for the buffer at index. index must be valid according to
+        numBuffers(). */
+    const GrBufferAccess& bufferAccess(int index) const {
+        return *fBufferAccesses[index];
+    }
+
+    /**
+     * Platform specific built-in features that a processor can request for the fragment shader.
+     */
+    enum RequiredFeatures {
+        kNone_RequiredFeatures             = 0,
+        kFragmentPosition_RequiredFeature  = 1 << 0,
+        kSampleLocations_RequiredFeature   = 1 << 1
+    };
+
+    GR_DECL_BITFIELD_OPS_FRIENDS(RequiredFeatures);
+
+    RequiredFeatures requiredFeatures() const { return fRequiredFeatures; }
 
     void* operator new(size_t size);
     void operator delete(void* target);
@@ -100,24 +120,31 @@ public:
     uint32_t classID() const { SkASSERT(kIllegalProcessorClassID != fClassID); return fClassID; }
 
 protected:
-    GrProcessor() : fClassID(kIllegalProcessorClassID), fWillReadFragmentPosition(false) {}
+    GrProcessor() : fClassID(kIllegalProcessorClassID), fRequiredFeatures(kNone_RequiredFeatures) {}
 
     /**
-     * Subclasses call this from their constructor to register GrTextureAccesses. The processor
-     * subclass manages the lifetime of the accesses (this function only stores a pointer). The
-     * GrTextureAccess is typically a member field of the GrProcessor subclass. This must only be
-     * called from the constructor because GrProcessors are immutable.
+     * Subclasses call these from their constructor to register sampler sources. The processor
+     * subclass manages the lifetime of the objects (these functions only store pointers). The
+     * GrTextureAccess and/or GrBufferAccess instances are typically member fields of the
+     * GrProcessor subclass. These must only be called from the constructor because GrProcessors
+     * are immutable.
      */
     virtual void addTextureAccess(const GrTextureAccess* textureAccess);
+    virtual void addBufferAccess(const GrBufferAccess* bufferAccess);
 
-    bool hasSameTextureAccesses(const GrProcessor&) const;
+    bool hasSameSamplers(const GrProcessor&) const;
 
     /**
-     * If the prcoessor will generate a backend-specific processor that will read the fragment
-     * position in the FS then it must call this method from its constructor. Otherwise, the
-     * request to access the fragment position will be denied.
+     * If the prcoessor will generate code that uses platform specific built-in features, then it
+     * must call these methods from its constructor. Otherwise, requests to use these features will
+     * be denied.
      */
-    void setWillReadFragmentPosition() { fWillReadFragmentPosition = true; }
+    void setWillReadFragmentPosition() { fRequiredFeatures |= kFragmentPosition_RequiredFeature; }
+    void setWillUseSampleLocations() { fRequiredFeatures |= kSampleLocations_RequiredFeature; }
+
+    void combineRequiredFeatures(const GrProcessor& other) {
+        fRequiredFeatures |= other.fRequiredFeatures;
+    }
 
     template <typename PROC_SUBCLASS> void initClassID() {
          static uint32_t kClassID = GenClassID();
@@ -126,6 +153,7 @@ protected:
 
     uint32_t fClassID;
     SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
+    SkSTArray<2, const GrBufferAccess*, true>    fBufferAccesses;
 
 private:
     static uint32_t GenClassID() {
@@ -145,9 +173,11 @@ private:
     };
     static int32_t gCurrProcessorClassID;
 
-    bool                                         fWillReadFragmentPosition;
+    RequiredFeatures fRequiredFeatures;
 
     typedef GrProgramElement INHERITED;
 };
+
+GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
 
 #endif

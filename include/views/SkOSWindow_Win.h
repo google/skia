@@ -47,8 +47,8 @@ public:
 #endif // SK_SUPPORT_GPU
     };
 
-    bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);
-    void detach();
+    bool attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor, AttachmentInfo*);
+    void release();
     void present();
 
     bool wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -98,10 +98,11 @@ private:
 #if SK_SUPPORT_GPU
     void*               fHGLRC;
 #if SK_ANGLE
-    EGLDisplay          fDisplay;
-    EGLContext          fContext;
-    EGLSurface          fSurface;
-    EGLConfig           fConfig;
+    EGLDisplay                        fDisplay;
+    EGLContext                        fContext;
+    EGLSurface                        fSurface;
+    EGLConfig                         fConfig;
+    SkAutoTUnref<const GrGLInterface> fANGLEInterface;
 #endif // SK_ANGLE
 #if SK_COMMAND_BUFFER
     SkCommandBufferGLContext* fCommandBuffer;
@@ -126,7 +127,7 @@ private:
 
     void updateSize();
 #if SK_SUPPORT_GPU
-    bool attachGL(int msaaSampleCount, AttachmentInfo* info);
+    bool attachGL(int msaaSampleCount, bool deepColor, AttachmentInfo* info);
     void detachGL();
     void presentGL();
 

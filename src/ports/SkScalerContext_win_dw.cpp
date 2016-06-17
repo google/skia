@@ -204,8 +204,9 @@ static bool is_axis_aligned(const SkScalerContext::Rec& rec) {
 }
 
 SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
+                                       const SkScalerContextEffects& effects,
                                        const SkDescriptor* desc)
-        : SkScalerContext(typeface, desc)
+        : SkScalerContext(typeface, effects, desc)
         , fTypeface(SkRef(typeface))
         , fGlyphCount(-1) {
 
@@ -388,8 +389,8 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
         fSkXform.mapVectors(vecs, SK_ARRAY_COUNT(vecs));
     }
 
-    glyph->fAdvanceX = SkScalarToFixed(vecs[0].fX);
-    glyph->fAdvanceY = SkScalarToFixed(vecs[0].fY);
+    glyph->fAdvanceX = SkScalarToFloat(vecs[0].fX);
+    glyph->fAdvanceY = SkScalarToFloat(vecs[0].fY);
 }
 
 HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,

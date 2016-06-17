@@ -29,7 +29,7 @@ void skia_free_func(void*, void* address) { sk_free(address); }
  *  Use the un-deflate compression algorithm to decompress the data in src,
  *  returning the result.  Returns nullptr if an error occurs.
  */
-SkStreamAsset* stream_inflate(SkStream* src) {
+SkStreamAsset* stream_inflate(skiatest::Reporter* reporter, SkStream* src) {
     SkDynamicMemoryWStream decompressedDynamicMemoryWStream;
     SkWStream* dst = &decompressedDynamicMemoryWStream;
 
@@ -46,9 +46,10 @@ SkStreamAsset* stream_inflate(SkStream* src) {
     flateData.avail_out = kBufferSize;
     int rc;
     rc = inflateInit(&flateData);
-    if (rc != Z_OK)
+    if (rc != Z_OK) {
+        ERRORF(reporter, "Zlib: inflateInit failed");
         return nullptr;
-
+    }
     uint8_t* input = (uint8_t*)src->getMemoryBase();
     size_t inputLength = src->getLength();
     if (input == nullptr || inputLength == 0) {
@@ -86,8 +87,10 @@ SkStreamAsset* stream_inflate(SkStream* src) {
     while (rc == Z_OK) {
         rc = inflate(&flateData, Z_FINISH);
         if (flateData.avail_out < kBufferSize) {
-            if (!dst->write(outputBuffer, kBufferSize - flateData.avail_out))
+            if (!dst->write(outputBuffer, kBufferSize - flateData.avail_out)) {
+                ERRORF(reporter, "write failed");
                 return nullptr;
+            }
             flateData.next_out = outputBuffer;
             flateData.avail_out = kBufferSize;
         }
@@ -95,6 +98,7 @@ SkStreamAsset* stream_inflate(SkStream* src) {
 
     inflateEnd(&flateData);
     if (rc != Z_STREAM_END) {
+        ERRORF(reporter, "Zlib: inflateEnd failed");
         return nullptr;
     }
     return decompressedDynamicMemoryWStream.detachAsStream();
@@ -126,8 +130,12 @@ DEF_TEST(SkDeflateWStream, r) {
         }
         SkAutoTDelete<SkStreamAsset> compressed(
                 dynamicMemoryWStream.detachAsStream());
-        SkAutoTDelete<SkStreamAsset> decompressed(stream_inflate(compressed));
+        SkAutoTDelete<SkStreamAsset> decompressed(stream_inflate(r, compressed));
 
+        if (!decompressed) {
+            ERRORF(r, "Decompression failed.");
+            return;
+        }
         if (decompressed->getLength() != size) {
             ERRORF(r, "Decompression failed to get right size [%d]."
                    " %u != %u", i,  (unsigned)(decompressed->getLength()),

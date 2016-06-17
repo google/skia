@@ -52,35 +52,6 @@ static void S32_Blend_BlitRow32(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-static void S32A_Opaque_BlitRow32(SkPMColor* SK_RESTRICT dst,
-                                  const SkPMColor* SK_RESTRICT src,
-                                  int count, U8CPU alpha) {
-    SkASSERT(255 == alpha);
-    if (count > 0) {
-#ifdef UNROLL
-        if (count & 1) {
-            *dst = SkPMSrcOver(*(src++), *dst);
-            dst += 1;
-            count -= 1;
-        }
-
-        const SkPMColor* SK_RESTRICT srcEnd = src + count;
-        while (src != srcEnd) {
-            *dst = SkPMSrcOver(*(src++), *dst);
-            dst += 1;
-            *dst = SkPMSrcOver(*(src++), *dst);
-            dst += 1;
-        }
-#else
-        do {
-            *dst = SkPMSrcOver(*src, *dst);
-            src += 1;
-            dst += 1;
-        } while (--count > 0);
-#endif
-    }
-}
-
 static void S32A_Blend_BlitRow32(SkPMColor* SK_RESTRICT dst,
                                  const SkPMColor* SK_RESTRICT src,
                                  int count, U8CPU alpha) {
@@ -115,7 +86,7 @@ static void S32A_Blend_BlitRow32(SkPMColor* SK_RESTRICT dst,
 static const SkBlitRow::Proc32 gDefault_Procs32[] = {
     S32_Opaque_BlitRow32,
     S32_Blend_BlitRow32,
-    S32A_Opaque_BlitRow32,
+    nullptr,
     S32A_Blend_BlitRow32
 };
 
@@ -123,6 +94,11 @@ SkBlitRow::Proc32 SkBlitRow::Factory32(unsigned flags) {
     SkASSERT(flags < SK_ARRAY_COUNT(gDefault_Procs32));
     // just so we don't crash
     flags &= kFlags32_Mask;
+
+    if (flags == 2) {
+        // S32A_Opaque_BlitRow32 has been ported to SkOpts, but not the others yet.
+        return SkOpts::blit_row_s32a_opaque;
+    }
 
     SkBlitRow::Proc32 proc = PlatformProcs32(flags);
     if (nullptr == proc) {

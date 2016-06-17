@@ -188,8 +188,8 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     REPORTER_ASSERT(r, drawRect->paint.getColor() == 0x03020202);
 
     // saveLayer w/ backdrop should NOT go away
-    SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(3, 3));
-    recorder.saveLayer({ nullptr, nullptr, filter, 0});
+    sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(3, 3, nullptr));
+    recorder.saveLayer({ nullptr, nullptr, filter.get(), 0});
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
     assert_savelayer_draw_restore(r, &record, 18, false);
@@ -224,27 +224,27 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
     xfermodePaint.setXfermodeMode(SkXfermode::kDstIn_Mode);
     SkPaint colorFilterPaint;
     colorFilterPaint.setColorFilter(
-        SkColorFilter::CreateModeFilter(SK_ColorLTGRAY, SkXfermode::kSrcIn_Mode))->unref();
+        SkColorFilter::MakeModeFilter(SK_ColorLTGRAY, SkXfermode::kSrcIn_Mode));
 
     SkPaint opaqueFilterLayerPaint;
     opaqueFilterLayerPaint.setColor(0xFF020202);  // Opaque.
     SkPaint translucentFilterLayerPaint;
     translucentFilterLayerPaint.setColor(0x0F020202);  // Not opaque.
-    SkAutoTUnref<SkPicture> shape;
+    sk_sp<SkPicture> shape;
     {
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(100), SkIntToScalar(100));
         SkPaint shapePaint;
         shapePaint.setColor(SK_ColorWHITE);
         canvas->drawRect(SkRect::MakeWH(SkIntToScalar(50), SkIntToScalar(50)), shapePaint);
-        shape.reset(recorder.endRecordingAsPicture());
+        shape = recorder.finishRecordingAsPicture();
     }
-    translucentFilterLayerPaint.setImageFilter(SkPictureImageFilter::Create(shape))->unref();
+    translucentFilterLayerPaint.setImageFilter(SkPictureImageFilter::Make(shape));
 
     int index = 0;
 
     {
-        SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(3, 3));
+        sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(3, 3, nullptr));
         // first (null) should be optimized, 2nd should not
         SkImageFilter* filters[] = { nullptr, filter.get() };
 

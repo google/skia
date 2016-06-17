@@ -6,8 +6,17 @@
  */
 
 #include "SkImageInfo.h"
+#include "SkImageInfoPriv.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
+
+// Indicate how images and gradients should interpret colors by default.
+bool gDefaultProfileIsSRGB;
+
+SkColorProfileType SkDefaultColorProfile() {
+    return gDefaultProfileIsSRGB ? kSRGB_SkColorProfileType
+                                 : kLinear_SkColorProfileType;
+}
 
 static bool profile_type_is_valid(SkColorProfileType profileType) {
     return (profileType >= 0) && (profileType <= kLastEnum_SkColorProfileType);
@@ -61,6 +70,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
         case kARGB_4444_SkColorType:
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
+        case kRGBA_F16_SkColorType:
             if (kUnknown_SkAlphaType == alphaType) {
                 return false;
             }
@@ -120,4 +130,3 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
 
     return true;
 }
-
