@@ -8,9 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -30,18 +32,21 @@ import java.util.ArrayList;
     Within that LinearLayout, we maintain views ourselves so we can efficiently update its children.
  */
 public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelectedListener {
-    static final String NAME = "name";
-    static final String VALUE = "value";
-    static final String OPTIONS = "options";
+    private static final String NAME = "name";
+    private static final String VALUE = "value";
+    private static final String OPTIONS = "options";
     private static final String BACKEND_STATE_NAME = "Backend";
+    private static final String FPS_STATE_NAME = "FPS";
     private static final int FILTER_LENGTH = 20;
 
-    ViewerActivity mViewerActivity;
-    LinearLayout mLayout;
-    JSONArray mStateJson;
+    private ViewerActivity mViewerActivity;
+    private LinearLayout mLayout;
+    private JSONArray mStateJson;
+    private TextView mFPSFloatText;
 
     public StateAdapter(ViewerActivity viewerActivity) {
         mViewerActivity = viewerActivity;
+        mFPSFloatText = (TextView) viewerActivity.findViewById(R.id.fpsFloatText);
         try {
             mStateJson = new JSONArray("[{\"name\": \"Please\", " +
                     "\"value\": \"Initialize\", \"options\": []}]");
@@ -63,9 +68,11 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
         }
     }
 
+    // The first list item is the mLayout that contains a list of state items
+    // The second list item is the toggle for float FPS
     @Override
     public int getCount() {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -80,21 +87,47 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (mLayout == null) {
-            mLayout = new LinearLayout(mViewerActivity);
-            mLayout.setOrientation(LinearLayout.VERTICAL);
-            updateDrawer();
+        switch (position) {
+            case 0: {
+                if (mLayout == null) {
+                    mLayout = new LinearLayout(mViewerActivity);
+                    mLayout.setOrientation(LinearLayout.VERTICAL);
+                    updateDrawer();
+                }
+                return mLayout;
+            }
+            case 1: {
+                View view = LayoutInflater.from(mViewerActivity).inflate(R.layout.fps_toggle, null);
+                Switch theSwitch = (Switch) view.findViewById(R.id.theSwitch);
+                theSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        mFPSFloatText.setVisibility(isChecked ? View.VISIBLE : View.INVISIBLE);
+                    }
+                });
+                return view;
+            }
+            default: {
+                return null;
+            }
         }
-        return mLayout;
     }
 
     private View inflateItemView(JSONObject item) throws JSONException {
-        LinearLayout itemView = (LinearLayout) LayoutInflater.from(mViewerActivity).inflate(R.layout.state_item, null);
+        LinearLayout itemView = (LinearLayout)
+                LayoutInflater.from(mViewerActivity).inflate(R.layout.state_item, null);
         TextView nameText = (TextView) itemView.findViewById(R.id.nameText);
         TextView valueText = (TextView) itemView.findViewById(R.id.valueText);
         Spinner optionSpinner = (Spinner) itemView.findViewById(R.id.optionSpinner);
         nameText.setText(item.getString(NAME));
         String value = item.getString(VALUE);
+
+        if (nameText.getText().equals(FPS_STATE_NAME) && mFPSFloatText != null) {
+            mFPSFloatText.setText(value);
+            // Don't show FPS in the drawer. We'll show it in the float text.
+            itemView.setVisibility(View.GONE);
+        }
+
         JSONArray options = item.getJSONArray(OPTIONS);
         if (options.length() == 0) {
             valueText.setText(value);
