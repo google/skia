@@ -375,6 +375,7 @@ void Viewer::drawSlide(SkCanvas* canvas, bool inSplitScreen) {
 
     if (inSplitScreen) {
         sk_sp<SkSurface> offscreenSurface = fWindow->getOffscreenSurface(true);
+        offscreenSurface->getCanvas()->getMetaData().setBool(kImageColorXformMetaData, true);
         fSlides[fCurrentSlide]->draw(offscreenSurface->getCanvas());
         sk_sp<SkImage> snapshot = offscreenSurface->makeImageSnapshot();
         canvas->drawImage(snapshot, 0, 0);
