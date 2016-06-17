@@ -78,7 +78,7 @@ protected:
 
         // must be opaque to have a hope of testing LCD text
         const SkImageInfo info = SkImageInfo::MakeN32(W, H, kOpaque_SkAlphaType,
-                                                      canvas->imageInfo().profileType());
+                                                      sk_ref_sp(canvas->imageInfo().colorSpace()));
         SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
         bool gammaCorrect = canvas->getProps(&canvasProps) && canvasProps.isGammaCorrect();
 

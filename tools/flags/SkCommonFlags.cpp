@@ -13,8 +13,6 @@ DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
 DEFINE_bool(dryRun, false,
             "just print the tests that would be run, without actually running them.");
 
-DEFINE_bool(forceSRGB, false, "Force SRGB for imageinfos");
-
 DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
 
 DEFINE_string(images, "", "List of images and/or directories to decode. A directory with no images"
