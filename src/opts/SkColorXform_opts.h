@@ -8,6 +8,7 @@
 #ifndef SkColorXform_opts_DEFINED
 #define SkColorXform_opts_DEFINED
 
+#include "SkNx.h"
 #include "SkColorPriv.h"
 
 namespace SK_OPTS_NS {
@@ -146,103 +147,66 @@ extern const float linear_from_2dot2[256] = {
         0.974300202388861000f, 0.982826255053791000f, 0.991392843592940000f, 1.000000000000000000f,
 };
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+static Sk4f linear_to_2dot2(const Sk4f& x) {
+    // x^(29/64) is a very good approximation of the true value, x^(1/2.2).
+    auto x2  = x.rsqrt(),                            // x^(-1/2)
+         x32 = x2.rsqrt().rsqrt().rsqrt().rsqrt(),   // x^(-1/32)
+         x64 = x32.rsqrt();                          // x^(+1/64)
 
-// x^(29/64) is a very good approximation of the true value, x^(1/2.2).
-static __m128 linear_to_2dot2(__m128 x) {
-    // x^(-1/2)
-    __m128 x2  = _mm_rsqrt_ps(x);
-
-    // x^(-1/32)
-    __m128 x32 = _mm_rsqrt_ps(_mm_rsqrt_ps(_mm_rsqrt_ps(_mm_rsqrt_ps(x2))));
-
-    // x^(+1/64)
-    __m128 x64 = _mm_rsqrt_ps(x32);
-
-    // x^(+29/64) = x^(+1/2) * x^(-1/32) * x^(-1/64)
-    // Note that we also scale to the 0-255 range.
-    // These terms can be combined more minimally with 3 muls and 1 reciprocal.  However, this
-    // is faster, because it allows us to start the muls in parallel with the rsqrts.
-    __m128 scale = _mm_set1_ps(255.0f);
-    return _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(scale, _mm_rcp_ps(x2)), x32), _mm_rcp_ps(x64));
+    // 29 = 32 - 2 - 1
+    return 255.0f * x2.invert() * x32 * x64.invert();
 }
 
-static __m128 clamp_0_to_255(__m128 x) {
+static Sk4f clamp_0_to_255(const Sk4f& x) {
     // The order of the arguments is important here.  We want to make sure that NaN
     // clamps to zero.  Note that max(NaN, 0) = 0, while max(0, NaN) = NaN.
-    return _mm_min_ps(_mm_max_ps(x, _mm_setzero_ps()), _mm_set1_ps(255.0f));
+    return Sk4f::Min(Sk4f::Max(x, 0.0f), 255.0f);
 }
 
 template <const float (&linear_from_curve)[256]>
 static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
                              const float matrix[16]) {
     // Load transformation matrix.
-    __m128 rXgXbX = _mm_loadu_ps(&matrix[0]);
-    __m128 rYgYbY = _mm_loadu_ps(&matrix[4]);
-    __m128 rZgZbZ = _mm_loadu_ps(&matrix[8]);
+    auto rXgXbX = Sk4f::Load(matrix + 0),
+         rYgYbY = Sk4f::Load(matrix + 4),
+         rZgZbZ = Sk4f::Load(matrix + 8);
 
     while (len >= 4) {
         // Convert to linear.  The look-up table has perfect accuracy.
-        __m128 reds   = _mm_setr_ps(linear_from_curve[(src[0] >>  0) & 0xFF],
-                                    linear_from_curve[(src[1] >>  0) & 0xFF],
-                                    linear_from_curve[(src[2] >>  0) & 0xFF],
-                                    linear_from_curve[(src[3] >>  0) & 0xFF]);
-        __m128 greens = _mm_setr_ps(linear_from_curve[(src[0] >>  8) & 0xFF],
-                                    linear_from_curve[(src[1] >>  8) & 0xFF],
-                                    linear_from_curve[(src[2] >>  8) & 0xFF],
-                                    linear_from_curve[(src[3] >>  8) & 0xFF]);
-        __m128 blues  = _mm_setr_ps(linear_from_curve[(src[0] >> 16) & 0xFF],
-                                    linear_from_curve[(src[1] >> 16) & 0xFF],
-                                    linear_from_curve[(src[2] >> 16) & 0xFF],
-                                    linear_from_curve[(src[3] >> 16) & 0xFF]);
+        auto reds   = Sk4f{linear_from_curve[(src[0] >>  0) & 0xFF],
+                           linear_from_curve[(src[1] >>  0) & 0xFF],
+                           linear_from_curve[(src[2] >>  0) & 0xFF],
+                           linear_from_curve[(src[3] >>  0) & 0xFF]};
+        auto greens = Sk4f{linear_from_curve[(src[0] >>  8) & 0xFF],
+                           linear_from_curve[(src[1] >>  8) & 0xFF],
+                           linear_from_curve[(src[2] >>  8) & 0xFF],
+                           linear_from_curve[(src[3] >>  8) & 0xFF]};
+        auto blues  = Sk4f{linear_from_curve[(src[0] >> 16) & 0xFF],
+                           linear_from_curve[(src[1] >> 16) & 0xFF],
+                           linear_from_curve[(src[2] >> 16) & 0xFF],
+                           linear_from_curve[(src[3] >> 16) & 0xFF]};
 
         // Apply the transformation matrix to dst gamut.
-        // Splat rX, rY, and rZ each across a register.
-        __m128 rX = _mm_shuffle_ps(rXgXbX, rXgXbX, 0x00);
-        __m128 rY = _mm_shuffle_ps(rYgYbY, rYgYbY, 0x00);
-        __m128 rZ = _mm_shuffle_ps(rZgZbZ, rZgZbZ, 0x00);
-
-        // dstReds = rX * reds + rY * greens + rZ * blues
-        __m128 dstReds =                     _mm_mul_ps(reds,   rX);
-               dstReds = _mm_add_ps(dstReds, _mm_mul_ps(greens, rY));
-               dstReds = _mm_add_ps(dstReds, _mm_mul_ps(blues,  rZ));
-
-        // Splat gX, gY, and gZ each across a register.
-        __m128 gX = _mm_shuffle_ps(rXgXbX, rXgXbX, 0x55);
-        __m128 gY = _mm_shuffle_ps(rYgYbY, rYgYbY, 0x55);
-        __m128 gZ = _mm_shuffle_ps(rZgZbZ, rZgZbZ, 0x55);
-
-        // dstGreens = gX * reds + gY * greens + gZ * blues
-        __m128 dstGreens =                       _mm_mul_ps(reds,   gX);
-               dstGreens = _mm_add_ps(dstGreens, _mm_mul_ps(greens, gY));
-               dstGreens = _mm_add_ps(dstGreens, _mm_mul_ps(blues,  gZ));
-
-        // Splat bX, bY, and bZ each across a register.
-        __m128 bX = _mm_shuffle_ps(rXgXbX, rXgXbX, 0xAA);
-        __m128 bY = _mm_shuffle_ps(rYgYbY, rYgYbY, 0xAA);
-        __m128 bZ = _mm_shuffle_ps(rZgZbZ, rZgZbZ, 0xAA);
-
-        // dstBlues = bX * reds + bY * greens + bZ * blues
-        __m128 dstBlues =                      _mm_mul_ps(reds,   bX);
-               dstBlues = _mm_add_ps(dstBlues, _mm_mul_ps(greens, bY));
-               dstBlues = _mm_add_ps(dstBlues, _mm_mul_ps(blues,  bZ));
+        auto dstReds   = rXgXbX[0]*reds + rYgYbY[0]*greens + rZgZbZ[0]*blues,
+             dstGreens = rXgXbX[1]*reds + rYgYbY[1]*greens + rZgZbZ[1]*blues,
+             dstBlues  = rXgXbX[2]*reds + rYgYbY[2]*greens + rZgZbZ[2]*blues;
 
         // Convert to dst gamma.
         dstReds   = linear_to_2dot2(dstReds);
         dstGreens = linear_to_2dot2(dstGreens);
         dstBlues  = linear_to_2dot2(dstBlues);
 
-        // Clamp floats.
+        // Clamp floats to byte range.
         dstReds   = clamp_0_to_255(dstReds);
         dstGreens = clamp_0_to_255(dstGreens);
         dstBlues  = clamp_0_to_255(dstBlues);
 
         // Convert to bytes and store to memory.
-        __m128i rgba = _mm_set1_epi32(0xFF000000);
-        rgba = _mm_or_si128(rgba,                _mm_cvtps_epi32(dstReds)       );
-        rgba = _mm_or_si128(rgba, _mm_slli_epi32(_mm_cvtps_epi32(dstGreens),  8));
-        rgba = _mm_or_si128(rgba, _mm_slli_epi32(_mm_cvtps_epi32(dstBlues),  16));
-        _mm_storeu_si128((__m128i*) dst, rgba);
+        auto rgba = (Sk4i{(int)0xFF000000}          )
+                  | (SkNx_cast<int>(dstReds)        )
+                  | (SkNx_cast<int>(dstGreens) <<  8)
+                  | (SkNx_cast<int>(dstBlues)  << 16);
+        rgba.store(dst);
 
         dst += 4;
         src += 4;
@@ -250,84 +214,31 @@ static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
     }
 
     while (len > 0) {
-        // Splat the red, green, and blue components.
-        __m128 r = _mm_set1_ps(linear_from_curve[(src[0] >>  0) & 0xFF]),
-               g = _mm_set1_ps(linear_from_curve[(src[0] >>  8) & 0xFF]),
-               b = _mm_set1_ps(linear_from_curve[(src[0] >> 16) & 0xFF]);
+        // Splat r,g,b across a register each.
+        auto r = Sk4f{linear_from_curve[(*src >>  0) & 0xFF]},
+             g = Sk4f{linear_from_curve[(*src >>  8) & 0xFF]},
+             b = Sk4f{linear_from_curve[(*src >> 16) & 0xFF]};
 
-        // Apply the transformation matrix to dst gamut.
-        __m128 dstPixel =                      _mm_mul_ps(r, rXgXbX);
-               dstPixel = _mm_add_ps(dstPixel, _mm_mul_ps(g, rYgYbY));
-               dstPixel = _mm_add_ps(dstPixel, _mm_mul_ps(b, rZgZbZ));
+        // Apply transformation matrix to dst gamut.
+        auto dstPixel = rXgXbX*r + rYgYbY*g + rZgZbZ*b;
 
         // Convert to dst gamma.
         dstPixel = linear_to_2dot2(dstPixel);
 
-        // Clamp floats to 0-255 range.
+        // Clamp floats to byte range.
         dstPixel = clamp_0_to_255(dstPixel);
 
         // Convert to bytes and store to memory.
-        __m128i dstInts = _mm_cvtps_epi32(dstPixel);
-        __m128i dstBytes = _mm_packus_epi16(_mm_packus_epi16(dstInts, dstInts), dstInts);
-        dstBytes = _mm_or_si128(_mm_set1_epi32(0xFF000000), dstBytes);
-        _mm_store_ss((float*) dst, _mm_castsi128_ps(dstBytes));
+        uint32_t rgba;
+        SkNx_cast<uint8_t>(dstPixel).store(&rgba);
+        rgba |= 0xFF000000;
+        *dst = rgba;
 
         dst += 1;
         src += 1;
         len -= 1;
     }
 }
-
-#else
-
-static uint8_t clamp_float_to_byte(float v) {
-    // The ordering of the logic is a little strange here in order
-    // to make sure we convert NaNs to 0.
-    if (v >= 254.5f) {
-        return 255;
-    } else if (v >= 0.5f) {
-        return (uint8_t) (v + 0.5f);
-    } else {
-        return 0;
-    }
-}
-
-template <const float (&linear_from_curve)[256]>
-static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
-                             const float matrix[16]) {
-    while (len-- > 0) {
-        // Convert to linear.
-        float srcFloats[3];
-        srcFloats[0] = linear_from_curve[(*src >>  0) & 0xFF];
-        srcFloats[1] = linear_from_curve[(*src >>  8) & 0xFF];
-        srcFloats[2] = linear_from_curve[(*src >> 16) & 0xFF];
-
-        // Convert to dst gamut.
-        float dstFloats[3];
-        dstFloats[0] = srcFloats[0] * matrix[0] + srcFloats[1] * matrix[4] +
-                       srcFloats[2] * matrix[8];
-        dstFloats[1] = srcFloats[0] * matrix[1] + srcFloats[1] * matrix[5] +
-                       srcFloats[2] * matrix[9];
-        dstFloats[2] = srcFloats[0] * matrix[2] + srcFloats[1] * matrix[6] +
-                       srcFloats[2] * matrix[10];
-
-        // Convert to dst gamma.
-        // Note: pow is really, really slow.  We will suffer when SSE2 is not supported.
-        dstFloats[0] = powf(dstFloats[0], (1/2.2f)) * 255.0f;
-        dstFloats[1] = powf(dstFloats[1], (1/2.2f)) * 255.0f;
-        dstFloats[2] = powf(dstFloats[2], (1/2.2f)) * 255.0f;
-
-        *dst = (0xFF                              << 24) |
-               (clamp_float_to_byte(dstFloats[2]) << 16) |
-               (clamp_float_to_byte(dstFloats[1]) <<  8) |
-               (clamp_float_to_byte(dstFloats[0]) <<  0);
-
-        dst++;
-        src++;
-    }
-}
-
-#endif
 
 static void color_xform_RGB1_srgb_to_2dot2(uint32_t* dst, const uint32_t* src, int len,
                                            const float matrix[16]) {
@@ -339,6 +250,6 @@ static void color_xform_RGB1_2dot2_to_2dot2(uint32_t* dst, const uint32_t* src, 
     color_xform_RGB1<linear_from_2dot2>(dst, src, len, matrix);
 }
 
-}
+}  // namespace SK_OPTS_NS
 
 #endif // SkColorXform_opts_DEFINED

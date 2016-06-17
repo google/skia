@@ -152,6 +152,8 @@ public:
                                   _mm_shuffle_epi32(mul31, _MM_SHUFFLE(0,0,2,0)));
     }
 
+    SkNx operator | (const SkNx& o) const { return _mm_or_si128(fVec, o.fVec); }
+
     SkNx operator << (int bits) const { return _mm_slli_epi32(fVec, bits); }
     SkNx operator >> (int bits) const { return _mm_srai_epi32(fVec, bits); }
 

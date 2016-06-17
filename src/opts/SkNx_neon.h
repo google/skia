@@ -386,6 +386,8 @@ public:
     SkNx operator - (const SkNx& o) const { return vsubq_s32(fVec, o.fVec); }
     SkNx operator * (const SkNx& o) const { return vmulq_s32(fVec, o.fVec); }
 
+    SkNx operator | (const SkNx& o) const { return vorrq_s32(fVec, o.fVec); }
+
     SkNx operator << (int bits) const { SHIFT32(vshlq_n_s32, fVec, bits); }
     SkNx operator >> (int bits) const { SHIFT32(vshrq_n_s32, fVec, bits); }
 
