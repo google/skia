@@ -394,7 +394,9 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
                                                                             SkBudgeted::kYes,
                                                                             texels.get(),
                                                                             mipLevelCount);
-        texture->texturePriv().setGammaTreatment(gammaTreatment);
+        if (texture) {
+            texture->texturePriv().setGammaTreatment(gammaTreatment);
+        }
         return texture;
     }
 }
