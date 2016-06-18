@@ -133,6 +133,9 @@ bool SkOpCoincidence::addExpanded(SkChunkAlloc* allocator
             }
             if (oTest != oEnd) {
                 oTest = coin->fFlipped ? oTest->prev() : oTest->upCast()->next();
+                if (!oTest) {
+                    return false;
+                }
             }
         }
     } while ((coin = coin->fNext));

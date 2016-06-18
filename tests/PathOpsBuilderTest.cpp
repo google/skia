@@ -301,3 +301,24 @@ DEF_TEST(Issue569540, reporter) {
     SkPath result;
     builder.resolve(&result);
 }
+
+DEF_TEST(SkOpBuilder618991, reporter) {
+    SkPath path0;
+    path0.moveTo(140, 40);
+    path0.lineTo(200, 210);
+    path0.lineTo(40, 100);
+    path0.lineTo(2.22223e+07f, 2.22222e+14f);
+    path0.lineTo(2.22223e+07f, 2.22222e+14f);
+
+    SkPath path1;
+    path1.moveTo(160, 60);
+    path1.lineTo(220, 230);
+    path1.lineTo(60, 120);
+    path1.lineTo(2.22223e+07f, 2.22222e+14f);
+    path1.lineTo(2.22223e+07f, 2.22222e+14f);
+
+    SkOpBuilder builder;
+    builder.add(path0, SkPathOp::kUnion_SkPathOp);
+    builder.add(path1, SkPathOp::kUnion_SkPathOp);
+    builder.resolve(&path0);
+}
