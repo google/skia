@@ -1457,10 +1457,13 @@ public:
     void operator()(const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
         position += rounding;
         // Prevent glyphs from being drawn outside of or straddling the edge of device space.
-        if (position.fX > INT_MAX - (INT16_MAX + UINT16_MAX) ||
-            position.fX < INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/) ||
-            position.fY > INT_MAX - (INT16_MAX + UINT16_MAX) ||
-            position.fY < INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)) {
+        // Comparisons written a little weirdly so that NaN coordinates are treated safely.
+        auto gt = [](float a, int b) { return !(a <= (float)b); };
+        auto lt = [](float a, int b) { return !(a >= (float)b); };
+        if (gt(position.fX, INT_MAX - (INT16_MAX + UINT16_MAX)) ||
+            lt(position.fX, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)) ||
+            gt(position.fY, INT_MAX - (INT16_MAX + UINT16_MAX)) ||
+            lt(position.fY, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/))) {
             return;
         }
 
@@ -1476,6 +1479,7 @@ public:
 
         SkMask mask;
         mask.fBounds.set(left, top, right, bottom);
+        SkASSERT(!mask.fBounds.isEmpty());
 
         if (fUseRegionToDraw) {
             SkRegion::Cliperator clipper(*fClip, mask.fBounds);
