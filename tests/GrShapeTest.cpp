@@ -203,13 +203,21 @@ private:
         }
         SkStrokeRec::InitStyle fillOrHairline;
         if (fBase.style().applyToPath(&postAllStyle, &fillOrHairline, preStyle, scale)) {
-            // run postPathEffect through GrShape to get any reductions that would have occurred
-            // to fAppliedFull.
-            GrShape(postAllStyle, GrStyle(fillOrHairline)).asPath(&postAllStyle);
-
             SkPath testPath;
             fAppliedFull.asPath(&testPath);
-            REPORTER_ASSERT(r, testPath == postAllStyle);
+            if (fBase.style().hasPathEffect()) {
+                // Because GrShape always does two-stage application when there is a path effect
+                // there may be a reduction/canonicalization step between the path effect and
+                // strokerec not reflected in postAllStyle since it applied both the path effect
+                // and strokerec without analyzing the intermediate path.
+                REPORTER_ASSERT(r, paths_fill_same(postAllStyle, testPath));
+            } else {
+                // Make sure that postAllStyle sees any reductions/canonicalizations that GrShape
+                // would apply.
+                GrShape(postAllStyle, GrStyle(fillOrHairline)).asPath(&postAllStyle);
+                REPORTER_ASSERT(r, testPath == postAllStyle);
+            }
+
             if (fillOrHairline == SkStrokeRec::kFill_InitStyle) {
                 REPORTER_ASSERT(r, fAppliedFull.style().isSimpleFill());
             } else {

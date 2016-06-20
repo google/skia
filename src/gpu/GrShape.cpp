@@ -227,36 +227,25 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
         // A path effect has access to change the res scale but we aren't expecting it to and it
         // would mess up our key computation.
         SkASSERT(scale == strokeRec.getResScale());
-        if (GrStyle::Apply::kPathEffectAndStrokeRec == apply) {
-            if (strokeRec.needToApply()) {
-                // The intermediate shape may not be a general path. If we we're just applying
-                // the path effect then attemptToReduceFromPath would catch it. This means that
-                // when we subsequently applied the remaining strokeRec we would have a non-path
-                // parent shape that would be used to determine the the stroked path's key.
-                // We detect that case here and change parentForKey to a temporary that represents
-                // the simpler shape so that applying both path effect and the strokerec all at
-                // once produces the same key.
-                SkRRect rrect;
-                SkPath::Direction dir;
-                unsigned start;
-                bool inverted;
-                Type parentType = AttemptToReduceFromPathImpl(*fPath.get(), &rrect, &dir, &start,
-                                                              &inverted, nullptr, strokeRec);
-                switch (parentType) {
-                    case Type::kEmpty:
-                        tmpParent.init();
-                        parentForKey = tmpParent.get();
-                        break;
-                    case Type::kRRect:
-                        tmpParent.init(rrect, dir, start, inverted, GrStyle(strokeRec, nullptr));
-                        parentForKey = tmpParent.get();
-                    case Type::kPath:
-                        break;
-                }
-                SkAssertResult(strokeRec.applyToPath(fPath.get(), *fPath.get()));
-            } else {
-                fStyle = GrStyle(strokeRec, nullptr);
+        if (GrStyle::Apply::kPathEffectAndStrokeRec == apply && strokeRec.needToApply()) {
+            // The intermediate shape may not be a general path. If we we're just applying
+            // the path effect then attemptToReduceFromPath would catch it. This means that
+            // when we subsequently applied the remaining strokeRec we would have a non-path
+            // parent shape that would be used to determine the the stroked path's key.
+            // We detect that case here and change parentForKey to a temporary that represents
+            // the simpler shape so that applying both path effect and the strokerec all at
+            // once produces the same key.
+            tmpParent.init(*fPath.get(), GrStyle(strokeRec, nullptr));
+            tmpParent.get()->setInheritedKey(parent, GrStyle::Apply::kPathEffectOnly, scale);
+            if (!tmpPath.isValid()) {
+                tmpPath.init();
             }
+            tmpParent.get()->asPath(tmpPath.get());
+            SkStrokeRec::InitStyle fillOrHairline;
+            SkAssertResult(tmpParent.get()->style().applyToPath(fPath.get(), &fillOrHairline,
+                                                                *tmpPath.get(), scale));
+            fStyle.resetToInitStyle(fillOrHairline);
+            parentForKey = tmpParent.get();
         } else {
             fStyle = GrStyle(strokeRec, nullptr);
         }
@@ -275,84 +264,72 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
                                                  scale));
         fStyle.resetToInitStyle(fillOrHairline);
     }
-    this->attemptToReduceFromPath();
+    this->attemptToSimplifyPath();
     this->setInheritedKey(*parentForKey, apply, scale);
 }
 
-static inline bool rrect_path_is_inverse_filled(const SkPath& path, const SkStrokeRec& strokeRec,
-                                                const SkPathEffect* pe) {
-    // This is currently imitating the questionable behavior of the sw-rasterizer. Inverseness is
-    // respected for stroking but not dashing + stroking. (We make no assumptions about arbitrary
-    // path effects and preserve the path's inverseness.)
-    // skbug.com/5421
-    if (pe && pe->asADash(nullptr)) {
-        SkDEBUGCODE(SkStrokeRec::Style style = strokeRec.getStyle();)
-        SkASSERT(SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style);
-        return false;
-    }
-
-    return path.isInverseFillType();
-}
-
-GrShape::Type GrShape::AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* rrect,
-                                                   SkPath::Direction* rrectDir,
-                                                   unsigned* rrectStart,
-                                                   bool* rrectIsInverted,
-                                                   const SkPathEffect* pe,
-                                                   const SkStrokeRec& strokeRec) {
-    if (path.isEmpty()) {
-        return Type::kEmpty;
-    }
-    if (path.isRRect(rrect, rrectDir, rrectStart)) {
-        // Currently SkPath does not acknowledge that empty, rect, or oval subtypes as rrects.
-        SkASSERT(!rrect->isEmpty());
-        SkASSERT(rrect->getType() != SkRRect::kRect_Type);
-        SkASSERT(rrect->getType() != SkRRect::kOval_Type);
-        if (!pe) {
-            *rrectStart = DefaultRRectDirAndStartIndex(*rrect, false, rrectDir);
-        }
-        *rrectIsInverted = rrect_path_is_inverse_filled(path, strokeRec, pe);
-        return Type::kRRect;
-    }
+void GrShape::attemptToSimplifyPath() {
+    SkASSERT(Type::kPath == fType);
     SkRect rect;
-    if (path.isOval(&rect, rrectDir, rrectStart)) {
-        rrect->setOval(rect);
-        if (!pe) {
-            *rrectDir = kDefaultRRectDir;
-            *rrectStart = kDefaultRRectStart;
-        } else {
-            // convert from oval indexing to rrect indexiing.
-            *rrectStart *= 2;
-        }
-        *rrectIsInverted = rrect_path_is_inverse_filled(path, strokeRec, pe);
-        return Type::kRRect;
-    }
-    // When there is a path effect we restrict rect detection to the narrower API that
-    // gives us the starting position. Otherwise, we will retry with the more aggressive isRect().
-    if (SkPathPriv::IsSimpleClosedRect(path, &rect, rrectDir, rrectStart)) {
-        if (!pe) {
-            *rrectDir = kDefaultRRectDir;
-            *rrectStart = kDefaultRRectStart;
-        } else {
-            // convert from rect indexing to rrect indexiing.
-            *rrectStart *= 2;
-        }
-        rrect->setRect(rect);
-        *rrectIsInverted = rrect_path_is_inverse_filled(path, strokeRec, pe);
-        return Type::kRRect;
-    }
-    if (!pe) {
+    if (fPath.get()->isEmpty()) {
+        fType = Type::kEmpty;
+    } else if (fPath.get()->isRRect(&fRRect, &fRRectDir, &fRRectStart)) {
+        // Currently SkPath does not acknowledge that empty, rect, or oval subtypes as rrects.
+        SkASSERT(!fRRect.isEmpty());
+        SkASSERT(fRRect.getType() != SkRRect::kRect_Type);
+        SkASSERT(fRRect.getType() != SkRRect::kOval_Type);
+        fRRectIsInverted = fPath.get()->isInverseFillType();
+        fType = Type::kRRect;
+    } else if (fPath.get()->isOval(&rect, &fRRectDir, &fRRectStart)) {
+        fRRect.setOval(rect);
+        fRRectIsInverted = fPath.get()->isInverseFillType();
+        // convert from oval indexing to rrect indexiing.
+        fRRectStart *= 2;
+        fType = Type::kRRect;
+    } else if (SkPathPriv::IsSimpleClosedRect(*fPath.get(), &rect, &fRRectDir, &fRRectStart)) {
+        // When there is a path effect we restrict rect detection to the narrower API that
+        // gives us the starting position. Otherwise, we will retry with the more aggressive
+        // isRect().
+        fRRect.setRect(rect);
+        fRRectIsInverted = fPath.get()->isInverseFillType();
+        // convert from rect indexing to rrect indexiing.
+        fRRectStart *= 2;
+        fType = Type::kRRect;
+    } else if (!this->style().hasPathEffect()) {
         bool closed;
-        if (path.isRect(&rect, &closed, nullptr)) {
-            if (closed || strokeRec.isFillStyle()) {
-                rrect->setRect(rect);
+        if (fPath.get()->isRect(&rect, &closed, nullptr)) {
+            if (closed || this->style().isSimpleFill()) {
+                fRRect.setRect(rect);
                 // Since there is no path effect the dir and start index is immaterial.
-                *rrectDir = kDefaultRRectDir;
-                *rrectStart = kDefaultRRectStart;
-                *rrectIsInverted = rrect_path_is_inverse_filled(path, strokeRec, pe);
-                return Type::kRRect;
+                fRRectDir = kDefaultRRectDir;
+                fRRectStart = kDefaultRRectStart;
+                // There isn't dashing so we will have to preserver inverseness.
+                fRRectIsInverted = fPath.get()->isInverseFillType();
+                fType = Type::kRRect;
             }
         }
     }
-    return Type::kPath;
+    if (Type::kPath != fType) {
+        fPath.reset();
+        fInheritedKey.reset(0);
+        if (Type::kRRect == fType) {
+            this->attemptToSimplifyRRect();
+        }
+    }
+}
+
+void GrShape::attemptToSimplifyRRect() {
+    SkASSERT(Type::kRRect == fType);
+    SkASSERT(!fInheritedKey.count());
+    if (fRRect.isEmpty()) {
+        fType = Type::kEmpty;
+        return;
+    }
+    if (!this->style().hasPathEffect()) {
+        fRRectDir = kDefaultRRectDir;
+        fRRectStart = kDefaultRRectStart;
+    } else if (fStyle.isDashed()) {
+        // Dashing ignores the inverseness (currently). skbug.com/5421
+        fRRectIsInverted = false;
+    }
 }
