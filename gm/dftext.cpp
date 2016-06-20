@@ -48,8 +48,9 @@ protected:
         // set up offscreen rendering with distance field text
 #if SK_SUPPORT_GPU
         GrContext* ctx = inputCanvas->getGrContext();
-        SkImageInfo info = SkImageInfo::MakeN32Premul(onISize(),
-                                                      inputCanvas->imageInfo().profileType());
+        SkISize size = onISize();
+        SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(), kPremul_SkAlphaType,
+                                                sk_ref_sp(inputCanvas->imageInfo().colorSpace()));
         SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
         uint32_t gammaCorrect = inputCanvas->getProps(&canvasProps)
             ? canvasProps.flags() & SkSurfaceProps::kGammaCorrect_Flag : 0;
