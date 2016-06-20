@@ -319,6 +319,17 @@ static bool safe_add(T arg1, T arg2, size_t* result) {
     return false;
 }
 
+static bool safe_mul(uint32_t arg1, uint32_t arg2, uint32_t* result) {
+    uint64_t product64 = (uint64_t) arg1 * (uint64_t) arg2;
+    uint32_t product32 = (uint32_t) product64;
+    if (product32 != product64) {
+        return false;
+    }
+
+    *result = product32;
+    return true;
+}
+
 struct ICCTag {
     uint32_t fSignature;
     uint32_t fOffset;
@@ -658,10 +669,14 @@ static constexpr uint32_t kTAG_AtoBType = SkSetFourByteTag('m', 'A', 'B', ' ');
 
 bool load_color_lut(SkColorLookUpTable* colorLUT, uint32_t inputChannels, uint32_t outputChannels,
                     const uint8_t* src, size_t len) {
-    if (len < 20) {
+    // 16 bytes reserved for grid points, 2 for precision, 2 for padding.
+    // The color LUT data follows after this header.
+    static constexpr uint32_t kColorLUTHeaderSize = 20;
+    if (len < kColorLUTHeaderSize) {
         SkColorSpacePrintf("Color LUT tag is too small (%d bytes).", len);
         return false;
     }
+    size_t dataLen = len - kColorLUTHeaderSize;
 
     SkASSERT(inputChannels <= SkColorLookUpTable::kMaxChannels && 3 == outputChannels);
     colorLUT->fInputChannels = inputChannels;
@@ -669,9 +684,21 @@ bool load_color_lut(SkColorLookUpTable* colorLUT, uint32_t inputChannels, uint32
     uint32_t numEntries = 1;
     for (uint32_t i = 0; i < inputChannels; i++) {
         colorLUT->fGridPoints[i] = src[i];
-        numEntries *= src[i];
+        if (0 == src[i]) {
+            SkColorSpacePrintf("Each input channel must have at least one grid point.");
+            return false;
+        }
+
+        if (!safe_mul(numEntries, src[i], &numEntries)) {
+            SkColorSpacePrintf("Too many entries in Color LUT.");
+            return false;
+        }
     }
-    numEntries *= outputChannels;
+
+    if (!safe_mul(numEntries, outputChannels, &numEntries)) {
+        SkColorSpacePrintf("Too many entries in Color LUT.");
+        return false;
+    }
 
     // Space is provided for a maximum of the 16 input channels.  Now we determine the precision
     // of the table values.
@@ -681,18 +708,24 @@ bool load_color_lut(SkColorLookUpTable* colorLUT, uint32_t inputChannels, uint32
         case 2: // 16-bit data
             break;
         default:
-            SkColorSpacePrintf("Color LUT precision must be 8-bit or 16-bit.\n", len);
+            SkColorSpacePrintf("Color LUT precision must be 8-bit or 16-bit.\n");
             return false;
     }
 
-    if (len < 20 + numEntries * precision) {
+    uint32_t clutBytes;
+    if (!safe_mul(numEntries, precision, &clutBytes)) {
+        SkColorSpacePrintf("Too many entries in Color LUT.");
+        return false;
+    }
+
+    if (dataLen < clutBytes) {
         SkColorSpacePrintf("Color LUT tag is too small (%d bytes).", len);
         return false;
     }
 
     // Movable struct colorLUT has ownership of fTable.
     colorLUT->fTable = std::unique_ptr<float[]>(new float[numEntries]);
-    const uint8_t* ptr = src + 20;
+    const uint8_t* ptr = src + kColorLUTHeaderSize;
     for (uint32_t i = 0; i < numEntries; i++, ptr += precision) {
         if (1 == precision) {
             colorLUT->fTable[i] = ((float) ptr[i]) / 255.0f;
