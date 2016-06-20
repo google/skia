@@ -112,6 +112,37 @@ private:
     typedef PathBench INHERITED;
 };
 
+class RotatedRectBench : public PathBench {
+public:
+    RotatedRectBench(Flags flags, bool aa, int degrees) : INHERITED(flags) {
+        fAA = aa;
+        fDegrees = degrees;
+    }
+
+    void appendName(SkString* name) override {
+        SkString suffix;
+        suffix.printf("rotated_rect_%s_%d", fAA ? "aa" : "noaa", fDegrees);
+        name->append(suffix);
+    }
+
+    void makePath(SkPath* path) override {
+        SkRect r = { 10, 10, 20, 20 };
+        path->addRect(r);
+        SkMatrix rotateMatrix;
+        rotateMatrix.setRotate((SkScalar)fDegrees);
+        path->transform(rotateMatrix);
+    }
+
+    virtual void setupPaint(SkPaint* paint) override {
+        PathBench::setupPaint(paint);
+        paint->setAntiAlias(fAA);
+    }
+private:
+    typedef PathBench INHERITED;
+    int fDegrees;
+    bool fAA;
+};
+
 class OvalPathBench : public PathBench {
 public:
     OvalPathBench(Flags flags) : INHERITED(flags) {}
@@ -1002,6 +1033,11 @@ DEF_BENCH( return new RectPathBench(FLAGS00); )
 DEF_BENCH( return new RectPathBench(FLAGS01); )
 DEF_BENCH( return new RectPathBench(FLAGS10); )
 DEF_BENCH( return new RectPathBench(FLAGS11); )
+
+DEF_BENCH( return new RotatedRectBench(FLAGS00, false, 45));
+DEF_BENCH( return new RotatedRectBench(FLAGS10, false, 45));
+DEF_BENCH( return new RotatedRectBench(FLAGS00, true, 45));
+DEF_BENCH( return new RotatedRectBench(FLAGS10, true, 45));
 
 DEF_BENCH( return new OvalPathBench(FLAGS00); )
 DEF_BENCH( return new OvalPathBench(FLAGS01); )
