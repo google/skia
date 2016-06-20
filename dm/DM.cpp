@@ -747,6 +747,9 @@ static bool gather_srcs() {
         src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_HPZR30w_Mode);
         push_src("image", "color_codec_HPZR30w", src);
 
+        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_sRGB_Mode);
+        push_src("image", "color_codec_sRGB", src);
+
 #if defined(SK_TEST_QCMS)
         src = new ColorCodecSrc(colorImage, ColorCodecSrc::kQCMS_HPZR30w_Mode);
         push_src("image", "color_codec_QCMS_HPZR30w", src);

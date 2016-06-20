@@ -37,15 +37,35 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
         return nullptr;
     }
 
-    if (SkColorSpace::k2Dot2Curve_GammaNamed == dstSpace->gammaNamed() &&
-        0.0f == srcToDst.getFloat(3, 0) &&
+    if (0.0f == srcToDst.getFloat(3, 0) &&
         0.0f == srcToDst.getFloat(3, 1) &&
         0.0f == srcToDst.getFloat(3, 2))
     {
-        if (SkColorSpace::kSRGB_GammaNamed == srcSpace->gammaNamed()) {
-            return std::unique_ptr<SkColorSpaceXform>(new SkSRGBTo2Dot2Xform(srcToDst));
-        } else if (SkColorSpace::k2Dot2Curve_GammaNamed == srcSpace->gammaNamed()) {
-            return std::unique_ptr<SkColorSpaceXform>(new Sk2Dot2To2Dot2Xform(srcToDst));
+        switch (srcSpace->gammaNamed()) {
+            case SkColorSpace::kSRGB_GammaNamed:
+                if (SkColorSpace::kSRGB_GammaNamed == dstSpace->gammaNamed()) {
+                    return std::unique_ptr<SkColorSpaceXform>(
+                            new SkFastXform<SkColorSpace::kSRGB_GammaNamed,
+                                            SkColorSpace::kSRGB_GammaNamed>(srcToDst));
+                } else if (SkColorSpace::k2Dot2Curve_GammaNamed == dstSpace->gammaNamed()) {
+                    return std::unique_ptr<SkColorSpaceXform>(
+                            new SkFastXform<SkColorSpace::kSRGB_GammaNamed,
+                                            SkColorSpace::k2Dot2Curve_GammaNamed>(srcToDst));
+                }
+                break;
+            case SkColorSpace::k2Dot2Curve_GammaNamed:
+                if (SkColorSpace::kSRGB_GammaNamed == dstSpace->gammaNamed()) {
+                    return std::unique_ptr<SkColorSpaceXform>(
+                            new SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed,
+                                            SkColorSpace::kSRGB_GammaNamed>(srcToDst));
+                } else if (SkColorSpace::k2Dot2Curve_GammaNamed == dstSpace->gammaNamed()) {
+                    return std::unique_ptr<SkColorSpaceXform>(
+                            new SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed,
+                                            SkColorSpace::k2Dot2Curve_GammaNamed>(srcToDst));
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -90,23 +110,37 @@ static void build_src_to_dst(float srcToDstArray[12], const SkMatrix44& srcToDst
 #endif
 }
 
-SkSRGBTo2Dot2Xform::SkSRGBTo2Dot2Xform(const SkMatrix44& srcToDst)
+template <SkColorSpace::GammaNamed Src, SkColorSpace::GammaNamed Dst>
+SkFastXform<Src, Dst>::SkFastXform(const SkMatrix44& srcToDst)
 {
     build_src_to_dst(fSrcToDst, srcToDst);
 }
 
-void SkSRGBTo2Dot2Xform::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const {
+template <>
+void SkFastXform<SkColorSpace::kSRGB_GammaNamed, SkColorSpace::kSRGB_GammaNamed>
+::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
+{
+    SkOpts::color_xform_RGB1_srgb_to_srgb(dst, src, len, fSrcToDst);
+}
+
+template <>
+void SkFastXform<SkColorSpace::kSRGB_GammaNamed, SkColorSpace::k2Dot2Curve_GammaNamed>
+::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
+{
     SkOpts::color_xform_RGB1_srgb_to_2dot2(dst, src, len, fSrcToDst);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-Sk2Dot2To2Dot2Xform::Sk2Dot2To2Dot2Xform(const SkMatrix44& srcToDst)
+template <>
+void SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed, SkColorSpace::kSRGB_GammaNamed>
+::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
 {
-    build_src_to_dst(fSrcToDst, srcToDst);
+    SkOpts::color_xform_RGB1_2dot2_to_srgb(dst, src, len, fSrcToDst);
 }
 
-void Sk2Dot2To2Dot2Xform::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const {
+template <>
+void SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed, SkColorSpace::k2Dot2Curve_GammaNamed>
+::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
+{
     SkOpts::color_xform_RGB1_2dot2_to_2dot2(dst, src, len, fSrcToDst);
 }
 

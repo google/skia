@@ -12,9 +12,10 @@
 #include "SkCommandLineFlags.h"
 
 #if defined(SK_TEST_QCMS)
-DEFINE_bool(qcms, false, "Bench qcms color conversion");
+DEFINE_bool(qcms,       false, "Bench qcms color conversion");
 #endif
 DEFINE_bool(xform_only, false, "Only time the color xform, do not include the decode time");
+DEFINE_bool(srgb,       false, "Convert to srgb dst space");
 
 ColorCodecBench::ColorCodecBench(const char* name, sk_sp<SkData> encoded)
     : fEncoded(std::move(encoded))
@@ -170,7 +171,9 @@ void ColorCodecBench::onDelayedSetup() {
 
 #if defined(SK_TEST_QCMS)
     if (FLAGS_qcms) {
-        fDstSpaceQCMS.reset(qcms_profile_from_memory(dstData->data(), dstData->size()));
+        fDstSpaceQCMS.reset(FLAGS_srgb ?
+                qcms_profile_sRGB() :
+                qcms_profile_from_memory(dstData->data(), dstData->size()));
         SkASSERT(fDstSpaceQCMS);
 
         // This call takes a non-trivial amount of time, but I think it's the most fair to
@@ -179,7 +182,8 @@ void ColorCodecBench::onDelayedSetup() {
     } else
 #endif
     {
-        fDstSpace = SkColorSpace::NewICC(dstData->data(), dstData->size());
+        fDstSpace = FLAGS_srgb ? SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) :
+                                 SkColorSpace::NewICC(dstData->data(), dstData->size());
         SkASSERT(fDstSpace);
     }
 }

@@ -215,9 +215,9 @@ public:
         // monitor, you're in luck!  The unmarked outputs of this test should display
         // correctly on this monitor in the Chrome browser.  If not, it's useful to know
         // that this monitor has a profile that is fairly similar to Adobe RGB.
-        // TODO (msarett): Should we add a new test with a new monitor and verify that outputs
-        //                 look identical on two different dsts?
         kDst_HPZR30w_Mode,
+
+        kDst_sRGB_Mode,
 
 #if defined(SK_TEST_QCMS)
         // Use QCMS for color correction.

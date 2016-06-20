@@ -886,9 +886,12 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         case kBaseline_Mode:
             canvas->drawBitmap(bitmap, 0, 0);
             break;
+        case kDst_sRGB_Mode:
         case kDst_HPZR30w_Mode: {
             sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getColorSpace());
-            sk_sp<SkColorSpace> dstSpace = SkColorSpace::NewICC(dstData->data(), dstData->size());
+            sk_sp<SkColorSpace> dstSpace = (kDst_sRGB_Mode == fMode) ?
+                    SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) :
+                    SkColorSpace::NewICC(dstData->data(), dstData->size());
             SkASSERT(dstSpace);
 
             std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace, dstSpace);

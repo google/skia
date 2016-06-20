@@ -23,5 +23,7 @@ namespace SkOpts {
 
         color_xform_RGB1_srgb_to_2dot2  = sk_sse41::color_xform_RGB1_srgb_to_2dot2;
         color_xform_RGB1_2dot2_to_2dot2 = sk_sse41::color_xform_RGB1_2dot2_to_2dot2;
+        color_xform_RGB1_srgb_to_srgb   = sk_sse41::color_xform_RGB1_srgb_to_srgb;
+        color_xform_RGB1_2dot2_to_srgb  = sk_sse41::color_xform_RGB1_2dot2_to_srgb;
     }
 }

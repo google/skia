@@ -34,26 +34,14 @@ public:
     virtual ~SkColorSpaceXform() {}
 };
 
-class SkSRGBTo2Dot2Xform : public SkColorSpaceXform {
+template <SkColorSpace::GammaNamed Src, SkColorSpace::GammaNamed Dst>
+class SkFastXform : public SkColorSpaceXform {
 public:
 
     void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
 
 private:
-    SkSRGBTo2Dot2Xform(const SkMatrix44& srcToDst);
-
-    float fSrcToDst[12];
-
-    friend class SkColorSpaceXform;
-};
-
-class Sk2Dot2To2Dot2Xform : public SkColorSpaceXform {
-public:
-
-    void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
-
-private:
-    Sk2Dot2To2Dot2Xform(const SkMatrix44& srcToDst);
+    SkFastXform(const SkMatrix44& srcToDst);
 
     float fSrcToDst[12];
 

@@ -157,13 +157,33 @@ static Sk4f linear_to_2dot2(const Sk4f& x) {
     return 255.0f * x2.invert() * x32 * x64.invert();
 }
 
+static Sk4f linear_to_srgb(const Sk4f& x) {
+    // Approximation of the sRGB gamma curve (within 1 when scaled to 8-bit pixels).
+    // For 0.00000f <= x <  0.00349f,    12.92 * x
+    // For 0.00349f <= x <= 1.00000f,    0.679*(x.^0.5) + 0.423*x.^(0.25) - 0.101
+    // Note that 0.00349 was selected because it is a point where both functions produce the
+    // same pixel value when rounded.
+    auto rsqrt = x.rsqrt(),
+         sqrt  = rsqrt.invert(),
+         ftrt  = rsqrt.rsqrt();
+
+    auto hi = (-0.101115084998961f * 255.0f) +
+              (+0.678513029959381f * 255.0f) * sqrt +
+              (+0.422602055039580f * 255.0f) * ftrt;
+
+    auto lo = (12.92f * 255.0f) * x;
+
+    auto mask = (x < 0.00349f);
+    return mask.thenElse(lo, hi);
+}
+
 static Sk4f clamp_0_to_255(const Sk4f& x) {
     // The order of the arguments is important here.  We want to make sure that NaN
     // clamps to zero.  Note that max(NaN, 0) = 0, while max(0, NaN) = NaN.
     return Sk4f::Min(Sk4f::Max(x, 0.0f), 255.0f);
 }
 
-template <const float (&linear_from_curve)[256]>
+template <const float (&linear_from_curve)[256], Sk4f (*linear_to_curve)(const Sk4f&)>
 static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
                              const float matrix[16]) {
     // Load transformation matrix.
@@ -192,9 +212,9 @@ static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
              dstBlues  = rXgXbX[2]*reds + rYgYbY[2]*greens + rZgZbZ[2]*blues;
 
         // Convert to dst gamma.
-        dstReds   = linear_to_2dot2(dstReds);
-        dstGreens = linear_to_2dot2(dstGreens);
-        dstBlues  = linear_to_2dot2(dstBlues);
+        dstReds   = linear_to_curve(dstReds);
+        dstGreens = linear_to_curve(dstGreens);
+        dstBlues  = linear_to_curve(dstBlues);
 
         // Clamp floats to byte range.
         dstReds   = clamp_0_to_255(dstReds);
@@ -223,7 +243,7 @@ static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
         auto dstPixel = rXgXbX*r + rYgYbY*g + rZgZbZ*b;
 
         // Convert to dst gamma.
-        dstPixel = linear_to_2dot2(dstPixel);
+        dstPixel = linear_to_curve(dstPixel);
 
         // Clamp floats to byte range.
         dstPixel = clamp_0_to_255(dstPixel);
@@ -242,12 +262,22 @@ static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
 
 static void color_xform_RGB1_srgb_to_2dot2(uint32_t* dst, const uint32_t* src, int len,
                                            const float matrix[16]) {
-    color_xform_RGB1<linear_from_srgb>(dst, src, len, matrix);
+    color_xform_RGB1<linear_from_srgb, linear_to_2dot2>(dst, src, len, matrix);
 }
 
 static void color_xform_RGB1_2dot2_to_2dot2(uint32_t* dst, const uint32_t* src, int len,
                                            const float matrix[16]) {
-    color_xform_RGB1<linear_from_2dot2>(dst, src, len, matrix);
+    color_xform_RGB1<linear_from_2dot2, linear_to_2dot2>(dst, src, len, matrix);
+}
+
+static void color_xform_RGB1_srgb_to_srgb(uint32_t* dst, const uint32_t* src, int len,
+                                           const float matrix[16]) {
+    color_xform_RGB1<linear_from_srgb, linear_to_srgb>(dst, src, len, matrix);
+}
+
+static void color_xform_RGB1_2dot2_to_srgb(uint32_t* dst, const uint32_t* src, int len,
+                                           const float matrix[16]) {
+    color_xform_RGB1<linear_from_2dot2, linear_to_srgb>(dst, src, len, matrix);
 }
 
 }  // namespace SK_OPTS_NS

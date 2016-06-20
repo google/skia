@@ -74,6 +74,10 @@ namespace SkOpts {
                                                    const float srcToDstMatrix[16]);
     extern void (*color_xform_RGB1_2dot2_to_2dot2)(uint32_t* dst, const uint32_t* src, int len,
                                                    const float srcToDstMatrix[16]);
+    extern void (*color_xform_RGB1_srgb_to_srgb) (uint32_t* dst, const uint32_t* src, int len,
+                                                  const float srcToDstMatrix[16]);
+    extern void (*color_xform_RGB1_2dot2_to_srgb)(uint32_t* dst, const uint32_t* src, int len,
+                                                  const float srcToDstMatrix[16]);
 }
 
 #endif//SkOpts_DEFINED
