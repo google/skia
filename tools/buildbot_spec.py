@@ -260,7 +260,7 @@ cov_skip.extend([lineno(), lineno() + 1])
 def product_board(builder_dict):
   if 'Android' in builder_dict.get('os', ''):
     return {
-      'AndroidOne':    None,  # TODO(borenet,kjlubick)
+      'AndroidOne':    'sprout',
       'GalaxyS3':      'm0',  #'smdk4x12', Detected incorrectly by swarming?
       'GalaxyS4':      None,  # TODO(borenet,kjlubick)
       'NVIDIA_Shield': 'foster',
