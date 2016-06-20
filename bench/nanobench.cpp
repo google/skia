@@ -402,8 +402,16 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         if (!FLAGS_gpu)
             return;
 
-        const auto ctxOptions = gpuConfig->getUseNVPR() ? GrContextFactory::kEnableNVPR_ContextOptions
-                                                        : GrContextFactory::kNone_ContextOptions;
+        auto ctxOptions = GrContextFactory::kNone_ContextOptions;
+        if (gpuConfig->getUseNVPR()) {
+            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
+                ctxOptions | GrContextFactory::kEnableNVPR_ContextOptions);
+        }
+        if (SkColorAndColorSpaceAreGammaCorrect(gpuConfig->getColorType(),
+                                                gpuConfig->getColorSpace())) {
+            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
+                ctxOptions | GrContextFactory::kRequireSRGBSupport_ContextOptions);
+        }
         const auto ctxType = gpuConfig->getContextType();
         const auto sampleCount = gpuConfig->getSamples();
 
@@ -422,9 +430,9 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         Config target = {
             gpuConfig->getTag(),
             Benchmark::kGPU_Backend,
-            kN32_SkColorType,
+            gpuConfig->getColorType(),
             kPremul_SkAlphaType,
-            nullptr,
+            sk_ref_sp(gpuConfig->getColorSpace()),
             sampleCount,
             ctxType,
             ctxOptions,
