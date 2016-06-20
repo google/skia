@@ -162,6 +162,12 @@ def get_args(bot):
       # This GM triggers a SkSmallAllocator assert.
       blacklist.extend('_ gm _ composeshader_bitmap'.split(' '))
 
+  if 'Android' in bot or 'iOS' in bot:
+    # This test crashes the N9 (perhaps because of large malloc/frees). It also
+    # is fairly slow and not platform-specific. So we just disable it on all of
+    # Android and iOS. skia:5438
+    blacklist.extend('_ test _ GrShape'.split(' '))
+ 
   # skia:4095
   for test in ['bleed_image',
                'c_gms',
