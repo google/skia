@@ -97,3 +97,53 @@ DEF_SIMPLE_GM(mipmap_srgb, canvas, 260, 230) {
     show_mips(canvas, simg.get());
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// create a gradient image computed raw, so we can wrap it as a linear or srgb image
+static sk_sp<SkImage> make_g8_gradient(sk_sp<SkColorSpace> cs) {
+    const int N = 100;
+    SkImageInfo info = SkImageInfo::Make(N, N, kGray_8_SkColorType, kOpaque_SkAlphaType, cs);
+    SkBitmap bm;
+    bm.allocPixels(info);
+
+    for (int y = 0; y < N; ++y) {
+        for (int x = 0; x < N; ++x) {
+            *bm.getAddr8(x, y) = static_cast<uint8_t>(255.0f * ((x + y) / (2.0f * (N - 1))));
+        }
+    }
+    bm.setImmutable();
+    return SkImage::MakeFromBitmap(bm);
+}
+
+static void show_mips_only(SkCanvas* canvas, SkImage* img) {
+    SkPaint paint;
+    paint.setFilterQuality(kMedium_SkFilterQuality);
+
+    // Want to ensure we never draw fractional pixels, so we use an IRect
+    SkIRect dst = SkIRect::MakeWH(img->width() / 2, img->height() / 2);
+    while (dst.width() > 5) {
+        canvas->drawImageRect(img, SkRect::Make(dst), &paint);
+        dst.offset(dst.width() + 10, 0);
+        dst.fRight = dst.fLeft + dst.width() / 2;
+        dst.fBottom = dst.fTop + dst.height() / 2;
+    }
+}
+
+/*
+ *  Ensure that in L32 drawing mode, both images/mips look the same as each other, and
+ *  their mips are darker than the original (since the mips should ignore the gamma in L32).
+ *
+ *  Ensure that in S32 drawing mode, all images/mips look the same, and look correct (i.e.
+ *  the mip levels match the original in brightness).
+ *
+ *  This test also verifies handling of Gray_8 data in Ganesh, which is not done natively.
+ */
+DEF_SIMPLE_GM(mipmap_gray8_srgb, canvas, 260, 230) {
+    sk_sp<SkImage> limg = make_g8_gradient(nullptr);
+    sk_sp<SkImage> simg = make_g8_gradient(SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
+
+    canvas->translate(10, 10);
+    show_mips_only(canvas, limg.get());
+    canvas->translate(0, limg->height() + 10.0f);
+    show_mips_only(canvas, simg.get());
+}
