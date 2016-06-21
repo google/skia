@@ -59,7 +59,7 @@ public:
         if (dst.colorType() != src.colorType()) {
             return false;
         }
-        if (dst.info().profileType() != src.info().profileType()) {
+        if (dst.info().gammaCloseToSRGB() != src.info().gammaCloseToSRGB()) {
             return false;
         }
         if (paint.getMaskFilter() || paint.getColorFilter() || paint.getImageFilter()) {
@@ -81,8 +81,7 @@ public:
 
         // At this point memcpy can't be used. The following check for using SrcOver.
 
-        if (dst.colorType() != kN32_SkColorType
-            || dst.info().profileType() != kSRGB_SkColorProfileType) {
+        if (dst.colorType() != kN32_SkColorType || !dst.info().gammaCloseToSRGB()) {
             return false;
         }
 
@@ -109,7 +108,7 @@ public:
 
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(fDst.colorType() == fSource.colorType());
-        SkASSERT(fDst.info().profileType() == fSource.info().profileType());
+        SkASSERT(fDst.info().gammaCloseToSRGB() == fSource.info().gammaCloseToSRGB());
         SkASSERT(width > 0 && height > 0);
 
         if (fUseMemcpy) {
@@ -175,7 +174,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
                 blitter = SkSpriteBlitter::ChooseD16(source, paint, allocator);
                 break;
             case kN32_SkColorType:
-                if (dst.info().isSRGB()) {
+                if (dst.info().gammaCloseToSRGB()) {
                     blitter = SkSpriteBlitter::ChooseS32(source, paint, allocator);
                 } else {
                     blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);

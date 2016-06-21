@@ -26,8 +26,7 @@ static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) 
     SkReadBuffer rb(storage, wb.bytesWritten());
 
     // pick a noisy byte pattern, so we ensure that unflatten sets all of our fields
-    SkImageInfo info2 = SkImageInfo::Make(0xB8, 0xB8, (SkColorType) 0xB8, (SkAlphaType) 0xB8,
-                                          (SkColorProfileType) 0xB8);
+    SkImageInfo info2 = SkImageInfo::Make(0xB8, 0xB8, (SkColorType) 0xB8, (SkAlphaType) 0xB8);
 
     info2.unflatten(rb);
     REPORTER_ASSERT(reporter, rb.offset() == wb.bytesWritten());
@@ -38,13 +37,19 @@ static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) 
 }
 
 DEF_TEST(ImageInfo_flattening, reporter) {
+    sk_sp<SkColorSpace> spaces[] = {
+        nullptr,
+        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named),
+        SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named),
+    };
+
     for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
         for (int at = 0; at <= kLastEnum_SkAlphaType; ++at) {
-            for (int pt = 0; pt <= kLastEnum_SkColorProfileType; ++pt) {
+            for (auto& cs : spaces) {
                 SkImageInfo info = SkImageInfo::Make(100, 200,
                                                      static_cast<SkColorType>(ct),
                                                      static_cast<SkAlphaType>(at),
-                                                     static_cast<SkColorProfileType>(pt));
+                                                     cs);
                 test_flatten(reporter, info);
             }
         }

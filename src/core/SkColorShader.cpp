@@ -286,7 +286,7 @@ static bool choose_blitprocs(const SkPM4f* pm4, const SkImageInfo& info,
     }
     switch (info.colorType()) {
         case kN32_SkColorType:
-            if (info.isSRGB()) {
+            if (info.gammaCloseToSRGB()) {
                 flags |= SkXfermode::kDstIsSRGB_D32Flag;
             }
             state->fStorage[0] = (void*)SkXfermode::GetD32Proc(state->fXfer, flags);

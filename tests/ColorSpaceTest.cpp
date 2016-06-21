@@ -163,6 +163,5 @@ DEF_TEST(ColorSpace_Named, r) {
     }
 
     SkImageInfo info = SkImageInfo::MakeS32(10, 10, kPremul_SkAlphaType);
-    REPORTER_ASSERT(r, kSRGB_SkColorProfileType == info.profileType());
-    REPORTER_ASSERT(r, SkColorSpace::kSRGB_GammaNamed == info.colorSpace()->gammaNamed());
+    REPORTER_ASSERT(r, info.gammaCloseToSRGB());
 }

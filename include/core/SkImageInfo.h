@@ -13,8 +13,6 @@
 #include "SkRect.h"
 #include "SkSize.h"
 
-#define SK_SUPPORT_LEGACY_COLORPROFILETYPE
-
 class SkReadBuffer;
 class SkWriteBuffer;
 
@@ -220,8 +218,8 @@ public:
     /**
      *  Sets colortype to the native ARGB32 type, and the alphatype to premul.
      */
-    static SkImageInfo MakeN32Premul(int width, int height) {
-        return Make(width, height, kN32_SkColorType, kPremul_SkAlphaType, nullptr);
+    static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr) {
+        return Make(width, height, kN32_SkColorType, kPremul_SkAlphaType, cs);
     }
 
     static SkImageInfo MakeN32Premul(const SkISize& size) {

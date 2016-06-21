@@ -304,14 +304,6 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     return sk_64_asS32(size);
 }
 
-static bool treat_like_srgb(const SkImageInfo& info) {
-    if (info.colorSpace()) {
-        return info.colorSpace()->gammaCloseToSRGB();
-    } else {
-        return kSRGB_SkColorProfileType == info.profileType();
-    }
-}
-
 SkMipMap* SkMipMap::Build(const SkPixmap& src, SkSourceGammaTreatment treatment,
                           SkDiscardableFactoryProc fact) {
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
@@ -328,7 +320,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkSourceGammaTreatment treatment,
     const SkColorType ct = src.colorType();
     const SkAlphaType at = src.alphaType();
     const bool srgbGamma = (SkSourceGammaTreatment::kRespect == treatment)
-                            && treat_like_srgb(src.info());
+                            && src.info().gammaCloseToSRGB();
 
     switch (ct) {
         case kRGBA_8888_SkColorType:

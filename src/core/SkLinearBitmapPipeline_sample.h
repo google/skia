@@ -55,14 +55,14 @@ static Sk4s VECTORCALL bilerp4(Sk4s xs, Sk4s ys, Sk4f px00, Sk4f px10,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PixelGetter is the lowest level interface to the source data. There is a PixelGetter for each
 // of the different SkColorTypes.
-template <SkColorType colorType, SkColorProfileType colorProfile> class PixelGetter;
+template <SkColorType, SkGammaType> class PixelGetter;
 
 // Alpha handling:
 //   The alpha from the paint (tintColor) is used in the blend part of the pipeline to modulate
 // the entire bitmap. So, the tint color is given an alpha of 1.0 so that the later alpha can
 // modulate this color later.
 template <>
-class PixelGetter<kAlpha_8_SkColorType, kLinear_SkColorProfileType> {
+class PixelGetter<kAlpha_8_SkColorType, kLinear_SkGammaType> {
 public:
     using Element = uint8_t;
     PixelGetter(const SkPixmap& srcPixmap, SkColor tintColor)
@@ -76,63 +76,63 @@ private:
     const Sk4f fTintColor;
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kRGB_565_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kRGB_565_SkColorType, gammaType> {
 public:
     using Element = uint16_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
 
     Sk4f getPixelAt(const uint16_t* src) {
         SkPMColor pixel = SkPixel16ToPixel32(*src);
-        return colorProfile == kSRGB_SkColorProfileType
+        return gammaType == kSRGB_SkGammaType
                ? Sk4f_fromS32(pixel)
                : Sk4f_fromL32(pixel);
     }
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kARGB_4444_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kARGB_4444_SkColorType, gammaType> {
 public:
     using Element = uint16_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
 
     Sk4f getPixelAt(const uint16_t* src) {
         SkPMColor pixel = SkPixel4444ToPixel32(*src);
-        return colorProfile == kSRGB_SkColorProfileType
+        return gammaType == kSRGB_SkGammaType
                ? Sk4f_fromS32(pixel)
                : Sk4f_fromL32(pixel);
     }
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kRGBA_8888_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kRGBA_8888_SkColorType, gammaType> {
 public:
     using Element = uint32_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
 
     Sk4f getPixelAt(const uint32_t* src) {
-        return colorProfile == kSRGB_SkColorProfileType
+        return gammaType == kSRGB_SkGammaType
                ? Sk4f_fromS32(*src)
                : Sk4f_fromL32(*src);
     }
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kBGRA_8888_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kBGRA_8888_SkColorType, gammaType> {
 public:
     using Element = uint32_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
 
     Sk4f getPixelAt(const uint32_t* src) {
-        Sk4f pixel = colorProfile == kSRGB_SkColorProfileType
+        Sk4f pixel = gammaType == kSRGB_SkGammaType
                      ? Sk4f_fromS32(*src)
                      : Sk4f_fromL32(*src);
         return swizzle_rb(pixel);
     }
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kIndex_8_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kIndex_8_SkColorType, gammaType> {
 public:
     using Element = uint8_t;
     PixelGetter(const SkPixmap& srcPixmap) {
@@ -166,7 +166,7 @@ private:
             float invAlpha = 1.0f / alpha;
             Sk4f normalize = {invAlpha, invAlpha, invAlpha, 1.0f / 255.0f};
             pixel = pixel * normalize;
-            if (colorProfile == kSRGB_SkColorProfileType) {
+            if (gammaType == kSRGB_SkGammaType) {
                 pixel = linear_to_srgb(pixel);
             }
             return pixel;
@@ -178,8 +178,8 @@ private:
     Sk4f*                fColorTable;
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kGray_8_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kGray_8_SkColorType, gammaType> {
 public:
     using Element = uint8_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
@@ -187,14 +187,14 @@ public:
     Sk4f getPixelAt(const uint8_t* src) {
         float gray = *src * (1.0f/255.0f);
         Sk4f pixel = Sk4f{gray, gray, gray, 1.0f};
-        return colorProfile == kSRGB_SkColorProfileType
+        return gammaType == kSRGB_SkGammaType
                ? srgb_to_linear(pixel)
                : pixel;
     }
 };
 
 template <>
-class PixelGetter<kRGBA_F16_SkColorType, kLinear_SkColorProfileType> {
+class PixelGetter<kRGBA_F16_SkColorType, kLinear_SkGammaType> {
 public:
     using Element = uint64_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
@@ -206,9 +206,9 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PixelAccessor handles all the same plumbing for all the PixelGetters.
-template <SkColorType colorType, SkColorProfileType colorProfile>
+template <SkColorType colorType, SkGammaType gammaType>
 class PixelAccessor {
-    using Element = typename PixelGetter<colorType, colorProfile>::Element;
+    using Element = typename PixelGetter<colorType, gammaType>::Element;
 public:
     template <typename... Args>
     PixelAccessor(const SkPixmap& srcPixmap, Args&&... args)
@@ -263,7 +263,7 @@ public:
 private:
     const Element* const                 fSrc;
     const Sk4i                           fWidth;
-    PixelGetter<colorType, colorProfile> fGetter;
+    PixelGetter<colorType, gammaType> fGetter;
 };
 
 // We're moving through source space at a rate of 1 source pixel per 1 dst pixel.
@@ -308,7 +308,7 @@ static void src_strategy_blend(Span span, Next* next, Strategy* strategy) {
 }
 
 // NearestNeighborSampler - use nearest neighbor filtering to create runs of destination pixels.
-template<SkColorType colorType, SkColorProfileType colorProfile, typename Next>
+template<SkColorType colorType, SkGammaType gammaType, typename Next>
 class NearestNeighborSampler : public SkLinearBitmapPipeline::SampleProcessorInterface {
 public:
     template<typename... Args>
@@ -424,13 +424,13 @@ private:
         span_fallback(span, this);
     }
 
-    Next* const                            fNext;
-    PixelAccessor<colorType, colorProfile> fStrategy;
+    Next* const                         fNext;
+    PixelAccessor<colorType, gammaType> fStrategy;
 };
 
 // -- BilerpSampler --------------------------------------------------------------------------------
 // BilerpSampler - use a bilerp filter to create runs of destination pixels.
-template<SkColorType colorType, SkColorProfileType colorProfile, typename Next>
+template<SkColorType colorType, SkGammaType gammaType, typename Next>
 class BilerpSampler : public SkLinearBitmapPipeline::SampleProcessorInterface {
 public:
     template<typename... Args>
@@ -801,8 +801,8 @@ private:
         }
     }
 
-    Next* const                            fNext;
-    PixelAccessor<colorType, colorProfile> fStrategy;
+    Next* const                         fNext;
+    PixelAccessor<colorType, gammaType> fStrategy;
 };
 
 }  // namespace

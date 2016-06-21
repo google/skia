@@ -15,6 +15,11 @@
 
 class SkEmbeddableLinearPipeline;
 
+enum SkGammaType {
+    kLinear_SkGammaType,
+    kSRGB_SkGammaType,
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // SkLinearBitmapPipeline - encapsulates all the machinery for doing floating point pixel
 // processing in a linear color space.

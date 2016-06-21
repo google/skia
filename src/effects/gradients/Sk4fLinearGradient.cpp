@@ -448,7 +448,7 @@ LinearGradient4fContext::D32_BlitBW(BlitState* state, int x, int y, const SkPixm
     const LinearGradient4fContext* ctx =
         static_cast<const LinearGradient4fContext*>(state->fCtx);
 
-    if (dst.info().isLinear()) {
+    if (!dst.info().gammaCloseToSRGB()) {
         if (ctx->fColorsArePremul) {
             ctx->shadePremulSpan<DstType::L32, ApplyPremul::False>(
                 x, y, dst.writable_addr32(x, y), count);

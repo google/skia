@@ -2283,7 +2283,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
             drawAsSprite = false;
         } else{
             // Until imagefilters are updated, they cannot handle any src type but N32...
-            if (bitmap.info().colorType() != kN32_SkColorType || bitmap.info().isSRGB()) {
+            if (bitmap.info().colorType() != kN32_SkColorType || bitmap.info().gammaCloseToSRGB()) {
                 drawAsSprite = false;
             }
         }
@@ -2368,7 +2368,7 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
                                                               *paint);
     if (drawAsSprite && paint->getImageFilter()) {
         // Until imagefilters are updated, they cannot handle any src type but N32...
-        if (bitmap.info().colorType() != kN32_SkColorType || bitmap.info().isSRGB()) {
+        if (bitmap.info().colorType() != kN32_SkColorType || bitmap.info().gammaCloseToSRGB()) {
             drawAsSprite = false;
         }
     }

@@ -567,22 +567,22 @@ private:
 
 using Blender = SkLinearBitmapPipeline::BlendProcessorInterface;
 
-template <SkColorType colorType, template <SkColorType, SkColorProfileType, typename> class Sampler>
+template <SkColorType colorType, template <SkColorType, SkGammaType, typename> class Sampler>
 static void choose_specific_sampler(
     Blender* next,
     const SkPixmap& srcPixmap,
     SkLinearBitmapPipeline::SampleStage* sampleStage)
 {
-    if (srcPixmap.info().profileType() == kSRGB_SkColorProfileType) {
-        using S = Sampler<colorType, kSRGB_SkColorProfileType, Blender>;
+    if (srcPixmap.info().gammaCloseToSRGB()) {
+        using S = Sampler<colorType, kSRGB_SkGammaType, Blender>;
         sampleStage->initStage<S>(next, srcPixmap);
     } else {
-        using S = Sampler<colorType, kLinear_SkColorProfileType, Blender>;
+        using S = Sampler<colorType, kLinear_SkGammaType, Blender>;
         sampleStage->initStage<S>(next, srcPixmap);
     }
 }
 
-template<template <SkColorType, SkColorProfileType, typename> class Sampler>
+template<template <SkColorType, SkGammaType, typename> class Sampler>
 static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_base(
     Blender* next,
     const SkPixmap& srcPixmap,
@@ -592,7 +592,7 @@ static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_ba
     const SkImageInfo& imageInfo = srcPixmap.info();
     switch (imageInfo.colorType()) {
         case kAlpha_8_SkColorType: {
-                using S = Sampler<kAlpha_8_SkColorType, kLinear_SkColorProfileType, Blender>;
+                using S = Sampler<kAlpha_8_SkColorType, kLinear_SkGammaType, Blender>;
                 sampleStage->initStage<S>(next, srcPixmap, A8TintColor);
             }
             break;
@@ -615,7 +615,7 @@ static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_ba
             choose_specific_sampler<kGray_8_SkColorType, Sampler>(next, srcPixmap, sampleStage);
             break;
         case kRGBA_F16_SkColorType: {
-                using S = Sampler<kRGBA_F16_SkColorType, kLinear_SkColorProfileType, Blender>;
+                using S = Sampler<kRGBA_F16_SkColorType, kLinear_SkGammaType, Blender>;
                 sampleStage->initStage<S>(next, srcPixmap);
             }
             break;
@@ -772,8 +772,9 @@ bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
     if (srcPixmap.info().colorType() != kRGBA_8888_SkColorType
         || dstInfo.colorType() != kRGBA_8888_SkColorType) { return false; }
 
-    if (srcPixmap.info().profileType() != kSRGB_SkColorProfileType
-        || dstInfo.profileType() != kSRGB_SkColorProfileType) { return false; }
+    if (!srcPixmap.info().gammaCloseToSRGB() || !dstInfo.gammaCloseToSRGB()) {
+        return false;
+    }
 
     if (xferMode != SkXfermode::kSrc_Mode && xferMode != SkXfermode::kSrcOver_Mode) {
         return false;
