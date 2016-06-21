@@ -188,8 +188,11 @@ public:
             case Type::kRRect:
                 out->reset();
                 out->addRRect(fRRect, fRRectDir, fRRectStart);
+                // Below matches the fill type that attemptToSimplifyPath uses.
                 if (fRRectIsInverted) {
-                    out->setFillType(SkPath::kInverseWinding_FillType);
+                    out->setFillType(SkPath::kInverseEvenOdd_FillType);
+                } else {
+                    out->setFillType(SkPath::kEvenOdd_FillType);
                 }
                 break;
             case Type::kPath:
@@ -279,7 +282,6 @@ private:
     void setInheritedKey(const GrShape& parentShape, GrStyle::Apply, SkScalar scale);
 
     void attemptToSimplifyPath();
-
     void attemptToSimplifyRRect();
 
     static constexpr SkPath::Direction kDefaultRRectDir = SkPath::kCW_Direction;
@@ -333,6 +335,8 @@ private:
     unsigned                    fRRectStart;
     bool                        fRRectIsInverted;
     SkTLazy<SkPath>             fPath;
+    // Gen ID of the original path (fPath may be modified)
+    int32_t                     fPathGenID = 0;
     GrStyle                     fStyle;
     SkAutoSTArray<8, uint32_t>  fInheritedKey;
 };

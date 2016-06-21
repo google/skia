@@ -314,6 +314,12 @@ void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b
         } else {
             REPORTER_ASSERT(r, keyA == keyB);
         }
+        if (a.style().isSimpleFill() != b.style().isSimpleFill()) {
+            // GrShape will close paths with simple fill style. Make the non-filled path closed
+            // so that the comparision will succeed. Make sure both are closed before comparing.
+            pA.close();
+            pB.close();
+        }
         REPORTER_ASSERT(r, pA == pB);
         REPORTER_ASSERT(r, aIsRRect == bIsRRect);
         if (aIsRRect) {
@@ -1347,7 +1353,8 @@ DEF_TEST(GrShape, reporter) {
     }
 
     struct TestPath {
-        TestPath(const SkPath& path, bool isRRectFill, bool isRRectStroke, bool isLine, const SkRRect& rrect)
+        TestPath(const SkPath& path, bool isRRectFill, bool isRRectStroke, bool isLine,
+                 const SkRRect& rrect)
             : fPath(path)
             , fIsRRectForFill(isRRectFill)
             , fIsRRectForStroke(isRRectStroke)

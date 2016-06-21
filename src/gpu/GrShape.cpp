@@ -32,6 +32,7 @@ GrShape& GrShape::operator=(const GrShape& that) {
             } else {
                 fPath.set(*that.fPath.get());
             }
+            fPathGenID = that.fPathGenID;
             break;
     }
     fInheritedKey.reset(that.fInheritedKey.count());
@@ -75,7 +76,7 @@ int GrShape::unstyledKeySize() const {
             // + 1 for the direction, start index, and inverseness.
             return SkRRect::kSizeInMemory / sizeof(uint32_t) + 1;
         case Type::kPath:
-            if (fPath.get()->isVolatile()) {
+            if (0 == fPathGenID) {
                 return -1;
             } else {
                 // The key is the path ID and fill type.
@@ -106,8 +107,8 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
                 SkASSERT(fRRectStart < 8);
                 break;
             case Type::kPath:
-                SkASSERT(!fPath.get()->isVolatile());
-                *key++ = fPath.get()->getGenerationID();
+                SkASSERT(fPathGenID);
+                *key++ = fPathGenID;
                 // We could canonicalize the fill rule for paths that don't differentiate between
                 // even/odd or winding fill (e.g. convex).
                 *key++ = fPath.get()->getFillType();
@@ -133,7 +134,7 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply, SkSca
             parentCnt = parent.unstyledKeySize();
             if (parentCnt < 0) {
                 // The parent's geometry has no key so we will have no key.
-                fPath.get()->setIsVolatile(true);
+                fPathGenID = 0;
                 return;
             }
         }
@@ -143,9 +144,9 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply, SkSca
         }
         int styleCnt = GrStyle::KeySize(parent.fStyle, apply, styleKeyFlags);
         if (styleCnt < 0) {
-            // The style doesn't allow a key, set the path to volatile so that we fail when
+            // The style doesn't allow a key, set the path gen ID to 0 so that we fail when
             // we try to get a key for the shape.
-            fPath.get()->setIsVolatile(true);
+            fPathGenID = 0;
             return;
         }
         fInheritedKey.reset(parentCnt + styleCnt);
@@ -166,20 +167,21 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply, SkSca
 GrShape::GrShape(const GrShape& that) : fType(that.fType), fStyle(that.fStyle) {
     switch (fType) {
         case Type::kEmpty:
-            return;
+            break;
         case Type::kRRect:
             fRRect = that.fRRect;
             fRRectDir = that.fRRectDir;
             fRRectStart = that.fRRectStart;
             fRRectIsInverted = that.fRRectIsInverted;
-            return;
+            break;
         case Type::kPath:
             fPath.set(*that.fPath.get());
-            return;
+            fPathGenID = that.fPathGenID;
+            break;
     }
     fInheritedKey.reset(that.fInheritedKey.count());
-    memcpy(fInheritedKey.get(), that.fInheritedKey.get(),
-           sizeof(uint32_t) * fInheritedKey.count());
+    sk_careful_memcpy(fInheritedKey.get(), that.fInheritedKey.get(),
+                      sizeof(uint32_t) * fInheritedKey.count());
 }
 
 GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
@@ -314,6 +316,44 @@ void GrShape::attemptToSimplifyPath() {
         fInheritedKey.reset(0);
         if (Type::kRRect == fType) {
             this->attemptToSimplifyRRect();
+        }
+    } else {
+        if (fInheritedKey.count() || fPath.get()->isVolatile()) {
+            fPathGenID = 0;
+        } else {
+            fPathGenID = fPath.get()->getGenerationID();
+        }
+        if (this->style().isSimpleFill()) {
+            // Filled paths are treated as though all their contours were closed.
+            // Since SkPath doesn't track individual contours, this will only close the last. :(
+            // There is no point in closing lines, though, since they loose their line-ness.
+            if (!fPath.get()->isLine(nullptr)) {
+                fPath.get()->close();
+                fPath.get()->setIsVolatile(true);
+            }
+        }
+        if (fPath.get()->isConvex()) {
+            // There is no distinction between even/odd and non-zero winding count for convex
+            // paths.
+            if (fPath.get()->isInverseFillType()) {
+               fPath.get()->setFillType(SkPath::kInverseEvenOdd_FillType);
+            } else {
+                fPath.get()->setFillType(SkPath::kEvenOdd_FillType);
+            }
+        }
+        if (this->style().isDashed()) {
+            // Dashing ignores inverseness (skbug.com/5421)
+            switch (fPath.get()->getFillType()) {
+                case SkPath::kWinding_FillType:
+                case SkPath::kEvenOdd_FillType:
+                    break;
+                case SkPath::kInverseWinding_FillType:
+                    fPath.get()->setFillType(SkPath::kWinding_FillType);
+                    break;
+                case SkPath::kInverseEvenOdd_FillType:
+                    fPath.get()->setFillType(SkPath::kEvenOdd_FillType);
+                    break;
+            }
         }
     }
 }
