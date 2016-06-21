@@ -35,8 +35,6 @@ public:
     DebugInterface()
         : fCurrGenericID(0)
         , fCurrTextureUnit(0)
-        , fArrayBuffer(nullptr)
-        , fElementArrayBuffer(nullptr)
         , fVertexArray(nullptr)
         , fPackRowLength(0)
         , fUnpackRowLength(0)
@@ -51,6 +49,7 @@ public:
             fTextureUnits[i]->ref();
             fTextureUnits[i]->setNumber(i);
         }
+        memset(fBoundBuffers, 0, sizeof(fBoundBuffers));
         this->init(kGL_GrGLStandard);
     }
 
@@ -65,8 +64,7 @@ public:
         }
         fObjects.reset();
 
-        fArrayBuffer = nullptr;
-        fElementArrayBuffer = nullptr;
+        memset(fBoundBuffers, 0, sizeof(fBoundBuffers));
         fVertexArray = nullptr;
 
         this->report();
@@ -107,26 +105,12 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     GrGLvoid bufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data,
                         GrGLenum usage) override {
-        GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target ||
-                       GR_GL_ELEMENT_ARRAY_BUFFER == target);
         GrAlwaysAssert(size >= 0);
         GrAlwaysAssert(GR_GL_STREAM_DRAW == usage ||
                        GR_GL_STATIC_DRAW == usage ||
                        GR_GL_DYNAMIC_DRAW == usage);
 
-        GrBufferObj *buffer = nullptr;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                buffer = this->getArrayBuffer();
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                buffer = this->getElementArrayBuffer();
-                break;
-            default:
-                SkFAIL("Unexpected target to glBufferData");
-                break;
-        }
-
+        GrBufferObj *buffer = fBoundBuffers[GetBufferIndex(target)];
         GrAlwaysAssert(buffer);
         GrAlwaysAssert(buffer->getBound());
 
@@ -726,38 +710,25 @@ public:
     }
 
     GrGLvoid bindBuffer(GrGLenum target, GrGLuint bufferID) override {
-        GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target || GR_GL_ELEMENT_ARRAY_BUFFER == target);
-
         GrBufferObj *buffer = FIND(bufferID, GrBufferObj, kBuffer_ObjTypes);
         // 0 is a permissible bufferID - it unbinds the current buffer
 
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                this->setArrayBuffer(buffer);
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                this->setElementArrayBuffer(buffer);
-                break;
-            default:
-                SkFAIL("Unexpected target to glBindBuffer");
-                break;
-        }
+        this->setBuffer(GetBufferIndex(target), buffer);
     }
 
     // deleting a bound buffer has the side effect of binding 0
     GrGLvoid deleteBuffers(GrGLsizei n, const GrGLuint* ids) override {
         // first potentially unbind the buffers
-        for (int i = 0; i < n; ++i) {
-
-            if (this->getArrayBuffer() &&
-                ids[i] == this->getArrayBuffer()->getID()) {
-                // this ID is the current array buffer
-                this->setArrayBuffer(nullptr);
+        for (int buffIdx = 0; buffIdx < kNumBufferTargets; ++buffIdx) {
+            GrBufferObj* buffer = fBoundBuffers[buffIdx];
+            if (!buffer) {
+                continue;
             }
-            if (this->getElementArrayBuffer() &&
-                ids[i] == this->getElementArrayBuffer()->getID()) {
-                // this ID is the current element array buffer
-                this->setElementArrayBuffer(nullptr);
+            for (int i = 0; i < n; ++i) {
+                if (ids[i] == buffer->getID()) {
+                    this->setBuffer(buffIdx, nullptr);
+                    break;
+                }
             }
         }
 
@@ -774,26 +745,11 @@ public:
     // map a buffer to the caller's address space
     GrGLvoid* mapBufferRange(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length,
                              GrGLbitfield access) override {
-        GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target ||
-                       GR_GL_ELEMENT_ARRAY_BUFFER == target);
-
         // We only expect read access and we expect that the buffer or range is always invalidated.
         GrAlwaysAssert(!SkToBool(GR_GL_MAP_READ_BIT & access));
         GrAlwaysAssert((GR_GL_MAP_INVALIDATE_BUFFER_BIT | GR_GL_MAP_INVALIDATE_RANGE_BIT) & access);
 
-        GrBufferObj *buffer = nullptr;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                buffer = this->getArrayBuffer();
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                buffer = this->getElementArrayBuffer();
-                break;
-            default:
-                SkFAIL("Unexpected target to glMapBufferRange");
-                break;
-        }
-
+        GrBufferObj *buffer = fBoundBuffers[GetBufferIndex(target)];
         if (buffer) {
             GrAlwaysAssert(offset >= 0 && offset + length <= buffer->getSize());
             GrAlwaysAssert(!buffer->getMapped());
@@ -807,20 +763,7 @@ public:
 
     GrGLvoid* mapBuffer(GrGLenum target, GrGLenum access) override {
         GrAlwaysAssert(GR_GL_WRITE_ONLY == access);
-
-        GrBufferObj *buffer = nullptr;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                buffer = this->getArrayBuffer();
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                buffer = this->getElementArrayBuffer();
-                break;
-            default:
-                SkFAIL("Unexpected target to glMapBuffer");
-                break;
-        }
-
+        GrBufferObj *buffer = fBoundBuffers[GetBufferIndex(target)];
         return this->mapBufferRange(target, 0, buffer->getSize(),
                                     GR_GL_MAP_WRITE_BIT | GR_GL_MAP_INVALIDATE_BUFFER_BIT);
     }
@@ -828,22 +771,7 @@ public:
     // remove a buffer from the caller's address space
     // TODO: check if the "access" method from "glMapBuffer" was honored
     GrGLboolean unmapBuffer(GrGLenum target) override {
-        GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target ||
-                       GR_GL_ELEMENT_ARRAY_BUFFER == target);
-
-        GrBufferObj *buffer = nullptr;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                buffer = this->getArrayBuffer();
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                buffer = this->getElementArrayBuffer();
-                break;
-            default:
-                SkFAIL("Unexpected target to glUnmapBuffer");
-                break;
-        }
-
+        GrBufferObj *buffer = fBoundBuffers[GetBufferIndex(target)];
         if (buffer) {
             GrAlwaysAssert(buffer->getMapped());
             buffer->resetMapped();
@@ -856,22 +784,7 @@ public:
 
     GrGLvoid flushMappedBufferRange(GrGLenum target, GrGLintptr offset,
                                     GrGLsizeiptr length) override {
-        GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target ||
-                       GR_GL_ELEMENT_ARRAY_BUFFER == target);
-
-        GrBufferObj *buffer = nullptr;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                buffer = this->getArrayBuffer();
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                buffer = this->getElementArrayBuffer();
-                break;
-            default:
-                SkFAIL("Unexpected target to glUnmapBuffer");
-                break;
-        }
-
+        GrBufferObj *buffer = fBoundBuffers[GetBufferIndex(target)];
         if (buffer) {
             GrAlwaysAssert(buffer->getMapped());
             GrAlwaysAssert(offset >= 0 && (offset + length) <= buffer->getMappedLength());
@@ -882,21 +795,10 @@ public:
 
     GrGLvoid getBufferParameteriv(GrGLenum target, GrGLenum value, GrGLint* params) override {
 
-        GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target ||
-                       GR_GL_ELEMENT_ARRAY_BUFFER == target);
         GrAlwaysAssert(GR_GL_BUFFER_SIZE == value ||
                        GR_GL_BUFFER_USAGE == value);
 
-        GrBufferObj *buffer = nullptr;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                buffer = this->getArrayBuffer();
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                buffer = this->getElementArrayBuffer();
-                break;
-        }
-
+        GrBufferObj *buffer = fBoundBuffers[GetBufferIndex(target)];
         GrAlwaysAssert(buffer);
 
         switch (value) {
@@ -922,6 +824,17 @@ public:
     }
 
 private:
+    inline int static GetBufferIndex(GrGLenum glTarget) {
+        switch (glTarget) {
+            default:                           SkFAIL("Unexpected GL target to GetBufferIndex");
+            case GR_GL_ARRAY_BUFFER:           return 0;
+            case GR_GL_ELEMENT_ARRAY_BUFFER:   return 1;
+            case GR_GL_TEXTURE_BUFFER:         return 2;
+            case GR_GL_DRAW_INDIRECT_BUFFER:   return 3;
+        }
+    }
+    constexpr int static kNumBufferTargets = 4;
+
     // the OpenGLES 2.0 spec says this must be >= 128
     static const GrGLint kDefaultMaxVertexUniformVectors = 128;
 
@@ -942,8 +855,7 @@ private:
     GrGLuint                    fCurrGenericID;
     GrGLuint                    fCurrTextureUnit;
     GrTextureUnitObj*           fTextureUnits[kDefaultMaxTextureUnits];
-    GrBufferObj*                fArrayBuffer;
-    GrBufferObj*                fElementArrayBuffer;
+    GrBufferObj*                fBoundBuffers[kNumBufferTargets];
     GrVertexArrayObj*           fVertexArray;
     GrGLint                     fPackRowLength;
     GrGLint                     fUnpackRowLength;
@@ -1072,50 +984,26 @@ private:
         return fTextureUnits[unit];
     }
 
-    void setArrayBuffer(GrBufferObj *arrayBuffer) {
-        if (fArrayBuffer) {
+    GrGLvoid setBuffer(int buffIdx, GrBufferObj* buffer) {
+        if (fBoundBuffers[buffIdx]) {
             // automatically break the binding of the old buffer
-            GrAlwaysAssert(fArrayBuffer->getBound());
-            fArrayBuffer->resetBound();
+            GrAlwaysAssert(fBoundBuffers[buffIdx]->getBound());
+            fBoundBuffers[buffIdx]->resetBound();
 
-            GrAlwaysAssert(!fArrayBuffer->getDeleted());
-            fArrayBuffer->unref();
+            GrAlwaysAssert(!fBoundBuffers[buffIdx]->getDeleted());
+            fBoundBuffers[buffIdx]->unref();
         }
 
-        fArrayBuffer = arrayBuffer;
+        if (buffer) {
+            GrAlwaysAssert(!buffer->getDeleted());
+            buffer->ref();
 
-        if (fArrayBuffer) {
-            GrAlwaysAssert(!fArrayBuffer->getDeleted());
-            fArrayBuffer->ref();
-
-            GrAlwaysAssert(!fArrayBuffer->getBound());
-            fArrayBuffer->setBound();
+            GrAlwaysAssert(!buffer->getBound());
+            buffer->setBound();
         }
+
+        fBoundBuffers[buffIdx] = buffer;
     }
-
-    GrBufferObj* getArrayBuffer() { return fArrayBuffer; }
-    void setElementArrayBuffer(GrBufferObj *elementArrayBuffer) {
-        if (fElementArrayBuffer) {
-            // automatically break the binding of the old buffer
-            GrAlwaysAssert(fElementArrayBuffer->getBound());
-            fElementArrayBuffer->resetBound();
-
-            GrAlwaysAssert(!fElementArrayBuffer->getDeleted());
-            fElementArrayBuffer->unref();
-        }
-
-        fElementArrayBuffer = elementArrayBuffer;
-
-        if (fElementArrayBuffer) {
-            GrAlwaysAssert(!fElementArrayBuffer->getDeleted());
-            fElementArrayBuffer->ref();
-
-            GrAlwaysAssert(!fElementArrayBuffer->getBound());
-            fElementArrayBuffer->setBound();
-        }
-    }
-
-    GrBufferObj *getElementArrayBuffer() { return fElementArrayBuffer; }
 
     void setVertexArray(GrVertexArrayObj* vertexArray) {
         if (vertexArray) {

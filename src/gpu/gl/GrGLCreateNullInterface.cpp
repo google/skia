@@ -113,15 +113,12 @@ private:
 class NullInterface : public GrGLTestInterface {
 public:
     NullInterface(bool enableNVPR)
-        : fCurrArrayBuffer(0)
-        , fCurrElementArrayBuffer(0)
-        , fCurrPixelPackBuffer(0)
-        , fCurrPixelUnpackBuffer(0)
-        , fCurrProgramID(0)
+        : fCurrProgramID(0)
         , fCurrShaderID(0)
         , fCurrGenericID(0)
         , fCurrUniformLocation(0)
         , fCurrPathID(0) {
+        memset(fBoundBuffers, 0, sizeof(fBoundBuffers));
         fExtensions.push_back("GL_ARB_framebuffer_object");
         fExtensions.push_back("GL_ARB_blend_func_extended");
         fExtensions.push_back("GL_ARB_timer_query");
@@ -150,26 +147,7 @@ public:
 
     GrGLvoid bufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data,
                         GrGLenum usage) override {
-        GrGLuint id = 0;
-
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                id = fCurrArrayBuffer;
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                id = fCurrElementArrayBuffer;
-                break;
-            case GR_GL_PIXEL_PACK_BUFFER:
-                id = fCurrPixelPackBuffer;
-                break;
-            case GR_GL_PIXEL_UNPACK_BUFFER:
-                id = fCurrPixelUnpackBuffer;
-                break;
-            default:
-                SkFAIL("Unexpected target to nullGLBufferData");
-                break;
-        }
-
+        GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
         if (id > 0) {
             BufferObj* buffer = fBufferManager.lookUp(id);
             buffer->allocate(size, (const GrGLchar*) data);
@@ -185,38 +163,26 @@ public:
     }
 
     GrGLvoid bindBuffer(GrGLenum target, GrGLuint buffer) override {
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                fCurrArrayBuffer = buffer;
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                fCurrElementArrayBuffer = buffer;
-                break;
-            case GR_GL_PIXEL_PACK_BUFFER:
-                fCurrPixelPackBuffer = buffer;
-                break;
-            case GR_GL_PIXEL_UNPACK_BUFFER:
-                fCurrPixelUnpackBuffer = buffer;
-                break;
-        }
+        fBoundBuffers[GetBufferIndex(target)] = buffer;
     }
 
    // deleting a bound buffer has the side effect of binding 0
-    GrGLvoid deleteBuffers(GrGLsizei n, const GrGLuint* ids) override {
-        for (int i = 0; i < n; ++i) {
-            if (ids[i] == fCurrArrayBuffer) {
-                fCurrArrayBuffer = 0;
+   GrGLvoid deleteBuffers(GrGLsizei n, const GrGLuint* ids) override {
+        // First potentially unbind the buffers.
+        for (int buffIdx = 0; buffIdx < kNumBufferTargets; ++buffIdx) {
+            if (!fBoundBuffers[buffIdx]) {
+                continue;
             }
-            if (ids[i] == fCurrElementArrayBuffer) {
-                fCurrElementArrayBuffer = 0;
+            for (int i = 0; i < n; ++i) {
+                if (ids[i] == fBoundBuffers[buffIdx]) {
+                    fBoundBuffers[buffIdx] = 0;
+                    break;
+                }
             }
-            if (ids[i] == fCurrPixelPackBuffer) {
-                fCurrPixelPackBuffer = 0;
-            }
-            if (ids[i] == fCurrPixelUnpackBuffer) {
-                fCurrPixelUnpackBuffer = 0;
-            }
+        }
 
+        // Then actually "delete" the buffers.
+        for (int i = 0; i < n; ++i) {
             if (ids[i] > 0) {
                 BufferObj* buffer = fBufferManager.lookUp(ids[i]);
                 fBufferManager.free(buffer);
@@ -407,22 +373,7 @@ public:
 
     GrGLvoid* mapBufferRange(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length,
                              GrGLbitfield access) override {
-        GrGLuint id = 0;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                id = fCurrArrayBuffer;
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                id = fCurrElementArrayBuffer;
-                break;
-            case GR_GL_PIXEL_PACK_BUFFER:
-                id = fCurrPixelPackBuffer;
-                break;
-            case GR_GL_PIXEL_UNPACK_BUFFER:
-                id = fCurrPixelUnpackBuffer;
-                break;
-        }
-
+        GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
         if (id > 0) {
             // We just ignore the offset and length here.
             BufferObj* buffer = fBufferManager.lookUp(id);
@@ -434,22 +385,7 @@ public:
     }
 
     GrGLvoid* mapBuffer(GrGLenum target, GrGLenum access) override {
-        GrGLuint id = 0;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                id = fCurrArrayBuffer;
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                id = fCurrElementArrayBuffer;
-                break;
-            case GR_GL_PIXEL_PACK_BUFFER:
-                id = fCurrPixelPackBuffer;
-                break;
-            case GR_GL_PIXEL_UNPACK_BUFFER:
-                id = fCurrPixelUnpackBuffer;
-                break;
-        }
-
+        GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
         if (id > 0) {
             BufferObj* buffer = fBufferManager.lookUp(id);
             SkASSERT(!buffer->mapped());
@@ -462,21 +398,7 @@ public:
     }
 
     GrGLboolean unmapBuffer(GrGLenum target) override {
-        GrGLuint id = 0;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                id = fCurrArrayBuffer;
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                id = fCurrElementArrayBuffer;
-                break;
-            case GR_GL_PIXEL_PACK_BUFFER:
-                id = fCurrPixelPackBuffer;
-                break;
-            case GR_GL_PIXEL_UNPACK_BUFFER:
-                id = fCurrPixelUnpackBuffer;
-                break;
-        }
+        GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
         if (id > 0) {
             BufferObj* buffer = fBufferManager.lookUp(id);
             SkASSERT(buffer->mapped());
@@ -492,21 +414,7 @@ public:
         switch (pname) {
             case GR_GL_BUFFER_MAPPED: {
                 *params = GR_GL_FALSE;
-                GrGLuint id = 0;
-                switch (target) {
-                    case GR_GL_ARRAY_BUFFER:
-                        id = fCurrArrayBuffer;
-                        break;
-                    case GR_GL_ELEMENT_ARRAY_BUFFER:
-                        id = fCurrElementArrayBuffer;
-                        break;
-                    case GR_GL_PIXEL_PACK_BUFFER:
-                        id = fCurrPixelPackBuffer;
-                        break;
-                    case GR_GL_PIXEL_UNPACK_BUFFER:
-                        id = fCurrPixelUnpackBuffer;
-                        break;
-                }
+                GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
                 if (id > 0) {
                     BufferObj* buffer = fBufferManager.lookUp(id);
                     if (buffer->mapped()) {
@@ -527,11 +435,21 @@ public:
 
 
 private:
+    inline int static GetBufferIndex(GrGLenum glTarget) {
+        switch (glTarget) {
+            default:                           SkFAIL("Unexpected GL target to GetBufferIndex");
+            case GR_GL_ARRAY_BUFFER:           return 0;
+            case GR_GL_ELEMENT_ARRAY_BUFFER:   return 1;
+            case GR_GL_TEXTURE_BUFFER:         return 2;
+            case GR_GL_DRAW_INDIRECT_BUFFER:   return 3;
+            case GR_GL_PIXEL_PACK_BUFFER:      return 4;
+            case GR_GL_PIXEL_UNPACK_BUFFER:    return 5;
+        }
+    }
+    constexpr int static kNumBufferTargets = 6;
+
     BufferManager          fBufferManager;
-    GrGLuint               fCurrArrayBuffer;
-    GrGLuint               fCurrElementArrayBuffer;
-    GrGLuint               fCurrPixelPackBuffer;
-    GrGLuint               fCurrPixelUnpackBuffer;
+    GrGLuint               fBoundBuffers[kNumBufferTargets];
     GrGLuint               fCurrProgramID;
     GrGLuint               fCurrShaderID;
     GrGLuint               fCurrGenericID;
