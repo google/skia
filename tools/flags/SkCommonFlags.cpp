@@ -21,6 +21,11 @@ DEFINE_string(images, "", "List of images and/or directories to decode. A direct
 DEFINE_string(colorImages, "", "List of images and/or directories to decode with color correction. "
                                "A directory with no images is treated as a fatal error.");
 
+DEFINE_bool(simpleCodec, false, "Runs of a subset of the codec tests.  "
+                                "For DM, this means no scaling or subsetting, always using the "
+                                "canvas color type.  "
+                                "For nanobench, this means always N32, Premul or Opaque.");
+
 DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of GM name to run.\n"
                "Multiple matches may be separated by spaces.\n"

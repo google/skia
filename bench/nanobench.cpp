@@ -119,7 +119,6 @@ DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json")
 DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
 DEFINE_string(useThermalManager, "0,1,10,1000", "enabled,threshold,sleepTimeMs,TimeoutMs for "
                                                 "thermalManager\n");
-DEFINE_bool(simpleCodec, false, "Only decode images to N32 opaque or premul");
 
 DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
