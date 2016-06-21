@@ -34,18 +34,19 @@ where you installed the SDK and run the following commands
     # You may want to add this export to your shell's .bash_profile or .profile
     export ANDROID_SDK_ROOT=/path/to/android/sdk
 
-    $ ANDROID_SDK_ROOT/tools/android update sdk --no-ui --filter android-19
+    $ANDROID_SDK_ROOT/tools/android update sdk --no-ui --filter android-19
+    $ANDROID_SDK_ROOT/tools/android update sdk --no-ui --filter android-23
+    $ANDROID_SDK_ROOT/tools/android update sdk -a -u -t 8
 
 From here you will need to type 'y' to approve the license agreement and that
-is all.  You will then have downloaded the SDK for API level 19 (Android 4.4
-KitKat) which will be used to build the Skia SampleApp.  You can download as
-many other Android add-ons or APIs as you want, but you only are required to
-have this one in order to complete the Skia build process.
+is all.  You will then have downloaded the SDK for API level 19 and 23(Android 4.4
+KitKat and Android 6.0 Marshmallow) which will be used to build the Skia SampleApp.  
+You can download as many other Android add-ons or APIs as you want, but you only 
+are required to have these two in order to complete the Skia build process.
 
-Also, please make sure that Android SDK Build-tools 22.0.1 is installed. You can
-do that using Android SDK Manager `$ANDROID_SDK_ROOT/tools/android`. In Android
-Studio, it can be opened by clicking the Launch Standalone SDK Manager link in
-Tools > Android > SDK Manger.
+The last line in the script installs Android SDK Build-tools 22.0.1.
+Alternatively you can download the above packages with Android Studio, by clicking 
+the Launch Standalone SDK Manager link in Tools > Android > SDK Manger.
 
 Setup Environment for Android
 -----------------------------
