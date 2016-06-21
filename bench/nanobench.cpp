@@ -119,6 +119,7 @@ DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json")
 DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
 DEFINE_string(useThermalManager, "0,1,10,1000", "enabled,threshold,sleepTimeMs,TimeoutMs for "
                                                 "thermalManager\n");
+DEFINE_bool(simpleCodec, false, "Only decode images to N32 opaque or premul");
 
 DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
@@ -619,13 +620,13 @@ public:
         }
 
         // Choose the candidate color types for image decoding
-        const SkColorType colorTypes[] =
-            { kN32_SkColorType,
-              kRGB_565_SkColorType,
-              kAlpha_8_SkColorType,
-              kIndex_8_SkColorType,
-              kGray_8_SkColorType };
-        fColorTypes.reset(colorTypes, SK_ARRAY_COUNT(colorTypes));
+        fColorTypes.push_back(kN32_SkColorType);
+        if (!FLAGS_simpleCodec) {
+            fColorTypes.push_back(kRGB_565_SkColorType);
+            fColorTypes.push_back(kAlpha_8_SkColorType);
+            fColorTypes.push_back(kIndex_8_SkColorType);
+            fColorTypes.push_back(kGray_8_SkColorType);
+        }
     }
 
     static sk_sp<SkPicture> ReadPicture(const char* path) {
@@ -763,28 +764,36 @@ public:
                 const SkColorType colorType = fColorTypes[fCurrentColorType];
 
                 SkAlphaType alphaType = codec->getInfo().alphaType();
-                switch (alphaType) {
-                    case kOpaque_SkAlphaType:
-                        // We only need to test one alpha type (opaque).
-                        fCurrentColorType++;
-                        break;
-                    case kUnpremul_SkAlphaType:
-                    case kPremul_SkAlphaType:
-                        if (0 == fCurrentAlphaType) {
-                            // Test unpremul first.
-                            alphaType = kUnpremul_SkAlphaType;
-                            fCurrentAlphaType++;
-                        } else {
-                            // Test premul.
-                            alphaType = kPremul_SkAlphaType;
-                            fCurrentAlphaType = 0;
+                if (FLAGS_simpleCodec) {
+                    if (kUnpremul_SkAlphaType == alphaType) {
+                        alphaType = kPremul_SkAlphaType;
+                    }
+
+                    fCurrentColorType++;
+                } else {
+                    switch (alphaType) {
+                        case kOpaque_SkAlphaType:
+                            // We only need to test one alpha type (opaque).
                             fCurrentColorType++;
-                        }
-                        break;
-                    default:
-                        SkASSERT(false);
-                        fCurrentColorType++;
-                        break;
+                            break;
+                        case kUnpremul_SkAlphaType:
+                        case kPremul_SkAlphaType:
+                            if (0 == fCurrentAlphaType) {
+                                // Test unpremul first.
+                                alphaType = kUnpremul_SkAlphaType;
+                                fCurrentAlphaType++;
+                            } else {
+                                // Test premul.
+                                alphaType = kPremul_SkAlphaType;
+                                fCurrentAlphaType = 0;
+                                fCurrentColorType++;
+                            }
+                            break;
+                        default:
+                            SkASSERT(false);
+                            fCurrentColorType++;
+                            break;
+                    }
                 }
 
                 // Make sure we can decode to this color type and alpha type.
