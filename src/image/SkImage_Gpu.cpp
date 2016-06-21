@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrImageIDTextureAdjuster.h"
+#include "GrTexturePriv.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
 #include "SkBitmapCache.h"
@@ -18,6 +19,28 @@
 #include "SkImage_Gpu.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
+
+namespace {
+bool shouldUseMipMaps(const SkImage::DeferredTextureImageUsageParams & param) {
+    bool shouldUseMipMaps = false;
+
+    // Use mipmaps if either
+    // 1.) it is a perspective matrix, or
+    // 2.) the quality is med/high and the scale is < 1
+    if (param.fMatrix.hasPerspective()) {
+        shouldUseMipMaps = true;
+    }
+    if (param.fQuality == kMedium_SkFilterQuality ||
+        param.fQuality == kHigh_SkFilterQuality) {
+        SkScalar minAxisScale = param.fMatrix.getMinScale();
+        if (minAxisScale != -1.f && minAxisScale < 1.f) {
+            shouldUseMipMaps = true;
+        }
+    }
+
+    return shouldUseMipMaps;
+}
+}
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
                          SkBudgeted budgeted)
@@ -353,6 +376,8 @@ public:
 
 private:
     uint32_t fContextUniqueID;
+    // Right now, the gamma treatment is only considered when generating mipmaps
+    SkSourceGammaTreatment fGammaTreatment;
     struct MipMapLevelData {
         void* fPixelData;
         size_t fRowBytes;
@@ -374,15 +399,18 @@ private:
 
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& proxy,
                                             const DeferredTextureImageUsageParams params[],
-                                            int paramCnt, void* buffer) const {
+                                            int paramCnt, void* buffer,
+                                            SkSourceGammaTreatment gammaTreatment) const {
     // Extract relevant min/max values from the params array.
     int lowestPreScaleMipLevel = params[0].fPreScaleMipLevel;
     SkFilterQuality highestFilterQuality = params[0].fQuality;
+    bool useMipMaps = shouldUseMipMaps(params[0]);
     for (int i = 1; i < paramCnt; ++i) {
         if (lowestPreScaleMipLevel > params[i].fPreScaleMipLevel)
             lowestPreScaleMipLevel = params[i].fPreScaleMipLevel;
         if (highestFilterQuality < params[i].fQuality)
             highestFilterQuality = params[i].fQuality;
+        useMipMaps |= shouldUseMipMaps(params[i]);
     }
 
     const bool fillMode = SkToBool(buffer);
@@ -452,7 +480,29 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
             SkASSERT(!pixmap.ctable());
         }
     }
+    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
     int mipMapLevelCount = 1;
+    if (useMipMaps) {
+        // SkMipMap only deals with the mipmap levels it generates, which does
+        // not include the base level.
+        // That means it generates and holds levels 1-x instead of 0-x.
+        // So the total mipmap level count is 1 more than what
+        // SkMipMap::ComputeLevelCount returns.
+        mipMapLevelCount = SkMipMap::ComputeLevelCount(scaledSize.width(), scaledSize.height()) + 1;
+
+        // We already initialized pixelSize to the size of the base level.
+        // SkMipMap will generate the extra mipmap levels. Their sizes need to
+        // be added to the total.
+        // Index 0 here does not refer to the base mipmap level -- it is
+        // SkMipMap's first generated mipmap level (level 1).
+        for (int currentMipMapLevelIndex = mipMapLevelCount - 1; currentMipMapLevelIndex >= 0;
+             currentMipMapLevelIndex--) {
+            SkISize mipSize = SkMipMap::ComputeLevelSize(scaledSize.width(), scaledSize.height(),
+                                                         currentMipMapLevelIndex);
+            SkImageInfo mipInfo = SkImageInfo::MakeN32(mipSize.fWidth, mipSize.fHeight, at);
+            pixelSize += SkAlign8(SkAutoPixmapStorage::AllocSize(mipInfo, nullptr));
+        }
+    }
     size_t size = 0;
     size_t dtiSize = SkAlign8(sizeof(DeferredTextureImage));
     size += dtiSize;
@@ -480,12 +530,39 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size_t rowBytes = pixmap.rowBytes();
     DeferredTextureImage* dti = new (buffer) DeferredTextureImage();
     dti->fContextUniqueID = proxy.fContextUniqueID;
+    dti->fGammaTreatment = gammaTreatment;
     dti->fData.fInfo = info;
     dti->fData.fColorTableCnt = ctCount;
     dti->fData.fColorTableData = ct;
     dti->fData.fMipMapLevelCount = mipMapLevelCount;
     dti->fData.fMipMapLevelData[0].fPixelData = pixels;
     dti->fData.fMipMapLevelData[0].fRowBytes = rowBytes;
+
+    // Fill in the mipmap levels if they exist
+    intptr_t mipLevelPtr = bufferAsInt + pixelOffset + SkAlign8(SkAutoPixmapStorage::AllocSize(
+        info, nullptr));
+    if (useMipMaps) {
+        SkAutoTDelete<SkMipMap> mipmaps(SkMipMap::Build(pixmap, gammaTreatment, nullptr));
+        // SkMipMap holds only the mipmap levels it generates.
+        // A programmer can use the data they provided to SkMipMap::Build as level 0.
+        // So the SkMipMap provides levels 1-x but it stores them in its own
+        // range 0-(x-1).
+        for (int generatedMipLevelIndex = 0; generatedMipLevelIndex < mipMapLevelCount - 1;
+             generatedMipLevelIndex++) {
+            SkISize mipSize = SkMipMap::ComputeLevelSize(scaledSize.width(), scaledSize.height(),
+                                                         generatedMipLevelIndex);
+            SkImageInfo mipInfo = SkImageInfo::MakeN32(mipSize.fWidth, mipSize.fHeight, at);
+            SkMipMap::Level mipLevel;
+            mipmaps->getLevel(generatedMipLevelIndex, &mipLevel);
+            memcpy(reinterpret_cast<void*>(mipLevelPtr), mipLevel.fPixmap.addr(),
+                       mipLevel.fPixmap.getSafeSize());
+            dti->fData.fMipMapLevelData[generatedMipLevelIndex + 1].fPixelData =
+                reinterpret_cast<void*>(mipLevelPtr);
+            dti->fData.fMipMapLevelData[generatedMipLevelIndex + 1].fRowBytes =
+                mipLevel.fPixmap.rowBytes();
+            mipLevelPtr += SkAlign8(mipLevel.fPixmap.getSafeSize());
+        }
+    }
     return size;
 }
 
@@ -504,11 +581,24 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
         SkASSERT(dti->fData.fColorTableData);
         colorTable.reset(new SkColorTable(dti->fData.fColorTableData, dti->fData.fColorTableCnt));
     }
-    SkASSERT(dti->fData.fMipMapLevelCount == 1);
-    SkPixmap pixmap;
-    pixmap.reset(dti->fData.fInfo, dti->fData.fMipMapLevelData[0].fPixelData,
-                 dti->fData.fMipMapLevelData[0].fRowBytes, colorTable.get());
-    return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
+    int mipLevelCount = dti->fData.fMipMapLevelCount;
+    SkASSERT(mipLevelCount >= 1);
+    if (mipLevelCount == 1) {
+        SkPixmap pixmap;
+        pixmap.reset(dti->fData.fInfo, dti->fData.fMipMapLevelData[0].fPixelData,
+                     dti->fData.fMipMapLevelData[0].fRowBytes, colorTable.get());
+        return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
+    } else {
+        SkAutoTDeleteArray<GrMipLevel> texels(new GrMipLevel[mipLevelCount]);
+        for (int i = 0; i < mipLevelCount; i++) {
+            texels[i].fPixels = dti->fData.fMipMapLevelData[i].fPixelData;
+            texels[i].fRowBytes = dti->fData.fMipMapLevelData[i].fRowBytes;
+        }
+
+        return SkImage::MakeTextureFromMipMap(context, dti->fData.fInfo, texels.get(),
+                                              mipLevelCount, SkBudgeted::kYes,
+                                              dti->fGammaTreatment);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -531,7 +621,8 @@ GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted budgeted) {
 
 sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo& info,
                                               const GrMipLevel* texels, int mipLevelCount,
-                                              SkBudgeted budgeted) {
+                                              SkBudgeted budgeted,
+                                              SkSourceGammaTreatment gammaTreatment) {
     if (!ctx) {
         return nullptr;
     }
@@ -539,6 +630,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
     if (!texture) {
         return nullptr;
     }
+    texture->texturePriv().setGammaTreatment(gammaTreatment);
     return sk_make_sp<SkImage_Gpu>(texture->width(), texture->height(), kNeedNewImageUniqueID,
                                    info.alphaType(), texture, budgeted);
 }

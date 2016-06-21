@@ -395,6 +395,11 @@ sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBud
     return nullptr;
 }
 
+sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
+                                     int mipLevelCount, SkBudgeted, SkSourceGammaTreatment) {
+    return nullptr;
+}
+
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType,
                                         TextureReleaseProc, ReleaseContext) {
     return nullptr;
@@ -402,7 +407,8 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext*, const GrBackendTextureDesc&,
 
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy&,
                                             const DeferredTextureImageUsageParams[],
-                                            int paramCnt, void* buffer) const {
+                                            int paramCnt, void* buffer,
+                                            SkSourceGammaTreatment treatment) const {
     return 0;
 }
 
