@@ -55,51 +55,64 @@ static Sk4f clamp_0_to_255(const Sk4f& x) {
 template <const float (&linear_from_curve)[256], Sk4f (*linear_to_curve)(const Sk4f&)>
 static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
                              const float matrix[16]) {
-    // Load transformation matrix.
-    auto rXgXbX = Sk4f::Load(matrix + 0),
+    Sk4f rXgXbX = Sk4f::Load(matrix + 0),
          rYgYbY = Sk4f::Load(matrix + 4),
          rZgZbZ = Sk4f::Load(matrix + 8);
 
-    while (len >= 4) {
-        // Convert to linear.  The look-up table has perfect accuracy.
-        auto reds   = Sk4f{linear_from_curve[(src[0] >>  0) & 0xFF],
-                           linear_from_curve[(src[1] >>  0) & 0xFF],
-                           linear_from_curve[(src[2] >>  0) & 0xFF],
-                           linear_from_curve[(src[3] >>  0) & 0xFF]};
-        auto greens = Sk4f{linear_from_curve[(src[0] >>  8) & 0xFF],
-                           linear_from_curve[(src[1] >>  8) & 0xFF],
-                           linear_from_curve[(src[2] >>  8) & 0xFF],
-                           linear_from_curve[(src[3] >>  8) & 0xFF]};
-        auto blues  = Sk4f{linear_from_curve[(src[0] >> 16) & 0xFF],
-                           linear_from_curve[(src[1] >> 16) & 0xFF],
-                           linear_from_curve[(src[2] >> 16) & 0xFF],
-                           linear_from_curve[(src[3] >> 16) & 0xFF]};
+    if (len >= 4) {
+        Sk4f reds, greens, blues;
+        auto load_next_4 = [&reds, &greens, &blues, &src, &len] {
+            reds   = Sk4f{linear_from_curve[(src[0] >>  0) & 0xFF],
+                          linear_from_curve[(src[1] >>  0) & 0xFF],
+                          linear_from_curve[(src[2] >>  0) & 0xFF],
+                          linear_from_curve[(src[3] >>  0) & 0xFF]};
+            greens = Sk4f{linear_from_curve[(src[0] >>  8) & 0xFF],
+                          linear_from_curve[(src[1] >>  8) & 0xFF],
+                          linear_from_curve[(src[2] >>  8) & 0xFF],
+                          linear_from_curve[(src[3] >>  8) & 0xFF]};
+            blues  = Sk4f{linear_from_curve[(src[0] >> 16) & 0xFF],
+                          linear_from_curve[(src[1] >> 16) & 0xFF],
+                          linear_from_curve[(src[2] >> 16) & 0xFF],
+                          linear_from_curve[(src[3] >> 16) & 0xFF]};
+            src += 4;
+            len -= 4;
+        };
 
-        // Apply the transformation matrix to dst gamut.
-        auto dstReds   = rXgXbX[0]*reds + rYgYbY[0]*greens + rZgZbZ[0]*blues,
-             dstGreens = rXgXbX[1]*reds + rYgYbY[1]*greens + rZgZbZ[1]*blues,
-             dstBlues  = rXgXbX[2]*reds + rYgYbY[2]*greens + rZgZbZ[2]*blues;
+        Sk4f dstReds, dstGreens, dstBlues;
+        auto transform_4 = [&reds, &greens, &blues, &dstReds, &dstGreens, &dstBlues, &rXgXbX,
+                            &rYgYbY, &rZgZbZ] {
+            dstReds   = rXgXbX[0]*reds + rYgYbY[0]*greens + rZgZbZ[0]*blues;
+            dstGreens = rXgXbX[1]*reds + rYgYbY[1]*greens + rZgZbZ[1]*blues;
+            dstBlues  = rXgXbX[2]*reds + rYgYbY[2]*greens + rZgZbZ[2]*blues;
+        };
 
-        // Convert to dst gamma.
-        dstReds   = linear_to_curve(dstReds);
-        dstGreens = linear_to_curve(dstGreens);
-        dstBlues  = linear_to_curve(dstBlues);
+        auto store_4 = [&dstReds, &dstGreens, &dstBlues, &dst] {
+            dstReds   = linear_to_curve(dstReds);
+            dstGreens = linear_to_curve(dstGreens);
+            dstBlues  = linear_to_curve(dstBlues);
 
-        // Clamp floats to byte range.
-        dstReds   = clamp_0_to_255(dstReds);
-        dstGreens = clamp_0_to_255(dstGreens);
-        dstBlues  = clamp_0_to_255(dstBlues);
+            dstReds   = clamp_0_to_255(dstReds);
+            dstGreens = clamp_0_to_255(dstGreens);
+            dstBlues  = clamp_0_to_255(dstBlues);
 
-        // Convert to bytes and store to memory.
-        auto rgba = (Sk4i{(int)0xFF000000}          )
-                  | (SkNx_cast<int>(dstReds)        )
-                  | (SkNx_cast<int>(dstGreens) <<  8)
-                  | (SkNx_cast<int>(dstBlues)  << 16);
-        rgba.store(dst);
+            auto rgba = (Sk4i{(int)0xFF000000}          )
+                      | (SkNx_cast<int>(dstReds)        )
+                      | (SkNx_cast<int>(dstGreens) <<  8)
+                      | (SkNx_cast<int>(dstBlues)  << 16);
+            rgba.store(dst);
+            dst += 4;
+        };
 
-        dst += 4;
-        src += 4;
-        len -= 4;
+        load_next_4();
+
+        while (len >= 4) {
+            transform_4();
+            load_next_4();
+            store_4();
+        }
+
+        transform_4();
+        store_4();
     }
 
     while (len > 0) {
