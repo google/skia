@@ -79,9 +79,6 @@ BASE_SRCS_ALL = struct(
         "third_party/etc1/*.h",
         "third_party/ktx/*.cpp",
         "third_party/ktx/*.h",
-
-        "third_party/libpng/*.c",
-        "third_party/libpng/*.h",
     ],
     exclude = PRIVATE_HDRS_LIST + [
         # Exclude platform-dependent files.
@@ -386,7 +383,6 @@ INCLUDES = [
     "src/utils",
     "third_party/etc1",
     "third_party/ktx",
-    "third_party/libpng",
 ]
 
 ################################################################################
@@ -551,17 +547,15 @@ COPTS_ALL = []
 ################################################################################
 
 DEFINES_UNIX = [
+    "PNG_SKIP_SETJMP_CHECK",
     "SK_BUILD_FOR_UNIX",
     "SK_SAMPLES_FOR_X",
     "SK_SFNTLY_SUBSETTER",
     "SK_CODEC_DECODES_RAW",
     "SK_HAS_GIF_LIBRARY",
     "SK_HAS_JPEG_LIBRARY",
-    "SK_HAS_WEBP_LIBRARY",
     "SK_HAS_PNG_LIBRARY",
-    "PNG_ARM_NEON_OPT=0",
-    "PNG_INTEL_SSE_OPT=0",
-    "PNG_ARM_NEON_IMPLEMENTATION=0",
+    "SK_HAS_WEBP_LIBRARY",
 ]
 
 DEFINES_ANDROID = [
@@ -569,11 +563,8 @@ DEFINES_ANDROID = [
     "SK_CODEC_DECODES_RAW",
     "SK_HAS_GIF_LIBRARY",
     "SK_HAS_JPEG_LIBRARY",
-    "SK_HAS_WEBP_LIBRARY",
     "SK_HAS_PNG_LIBRARY",
-    "PNG_ARM_NEON_OPT=0",
-    "PNG_INTEL_SSE_OPT=0",
-    "PNG_ARM_NEON_IMPLEMENTATION=0",
+    "SK_HAS_WEBP_LIBRARY",
 ]
 
 DEFINES_IOS = [
