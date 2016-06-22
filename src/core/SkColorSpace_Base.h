@@ -81,6 +81,14 @@ struct SkGammaCurve {
         , fE(0.0f)
         , fF(0.0f)
     {}
+
+    bool quickEquals(const SkGammaCurve& that) const {
+        return (this->fNamed == that.fNamed) && (this->fValue == that.fValue) &&
+                (this->fTableSize == that.fTableSize) && (this->fTable == that.fTable) &&
+                (this->fG == that.fG) && (this->fA == that.fA) && (this->fB == that.fB) &&
+                (this->fC == that.fC) && (this->fD == that.fD) && (this->fE == that.fE) &&
+                (this->fF == that.fF);
+    }
 };
 
 struct SkGammas : public SkRefCnt {
@@ -110,7 +118,7 @@ public:
         return SkColorSpace::kNonStandard_GammaNamed;
     }
 
-    const SkGammaCurve& operator[](int i) {
+    const SkGammaCurve& operator[](int i) const {
         SkASSERT(0 <= i && i < 3);
         return (&fRed)[i];
     }
@@ -148,9 +156,9 @@ public:
 
     static sk_sp<SkColorSpace> NewRGB(float gammas[3], const SkMatrix44& toXYZD50);
 
-    const sk_sp<SkGammas>& gammas() const { return fGammas; }
+    const SkGammas* gammas() const { return fGammas.get(); }
 
-    SkColorLookUpTable* colorLUT() const { return fColorLUT.get(); }
+    const SkColorLookUpTable* colorLUT() const { return fColorLUT.get(); }
 
     /**
      *  Writes this object as an ICC profile.
@@ -171,6 +179,7 @@ private:
     sk_sp<SkData>                     fProfileData;
 
     friend class SkColorSpace;
+    friend class ColorSpaceXformTest;
     typedef SkColorSpace INHERITED;
 };
 

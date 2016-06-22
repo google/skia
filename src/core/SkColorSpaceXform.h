@@ -57,15 +57,22 @@ public:
     void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
 
 private:
-    SkDefaultXform(const sk_sp<SkGammas>& srcGammas, const SkMatrix44& srcToDst,
-                   const sk_sp<SkGammas>& dstGammas);
+    SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
+                   const sk_sp<SkColorSpace>& dstSpace);
 
-    sk_sp<SkGammas>  fSrcGammas;
-    const SkMatrix44 fSrcToDst;
-    sk_sp<SkGammas>  fDstGammas;
+    static constexpr int kDstGammaTableSize = 1024;
+
+    // May contain pointers into storage or pointers into precomputed tables.
+    const float*         fSrcGammaTables[3];
+    float                fSrcGammaTableStorage[3 * 256];
+
+    const SkMatrix44     fSrcToDst;
+
+    // May contain pointers into storage or pointers into precomputed tables.
+    const uint8_t*       fDstGammaTables[3];
+    uint8_t              fDstGammaTableStorage[3 * kDstGammaTableSize];
 
     friend class SkColorSpaceXform;
-    friend class ColorSpaceXformTest;
 };
 
 #endif

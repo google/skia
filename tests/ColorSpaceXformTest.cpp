@@ -15,37 +15,49 @@
 
 class ColorSpaceXformTest {
 public:
-    static SkDefaultXform* CreateDefaultXform(const sk_sp<SkGammas>& srcGamma,
+    static std::unique_ptr<SkColorSpaceXform> CreateDefaultXform(const sk_sp<SkGammas>& srcGamma,
             const SkMatrix44& srcToDst, const sk_sp<SkGammas>& dstGamma) {
-        return new SkDefaultXform(srcGamma, srcToDst, dstGamma);
+
+        sk_sp<SkColorSpace> srcSpace(
+                new SkColorSpace_Base(nullptr, srcGamma, SkMatrix::I(), nullptr));
+        sk_sp<SkColorSpace> dstSpace(
+                new SkColorSpace_Base(nullptr, dstGamma, SkMatrix::I(), nullptr));
+
+        return SkColorSpaceXform::New(srcSpace, dstSpace);
     }
 };
+
+static bool almost_equal(int x, int y) {
+    return SkTAbs(x - y) <= 1;
+}
 
 static void test_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& gammas) {
     // Arbitrary set of 10 pixels
     constexpr int width = 10;
     constexpr uint32_t srcPixels[width] = {
             0xFFABCDEF, 0xFF146829, 0xFF382759, 0xFF184968, 0xFFDE8271,
-            0xFF32AB52, 0xFF0383BC, 0xFF000000, 0xFFFFFFFF, 0xFFDDEEFF, };
+            0xFF32AB52, 0xFF0383BC, 0xFF000102, 0xFFFFFFFF, 0xFFDDEEFF, };
     uint32_t dstPixels[width];
 
     // Identity matrix
     SkMatrix44 srcToDst = SkMatrix44::I();
 
     // Create and perform xform
-    std::unique_ptr<SkColorSpaceXform> xform(
-            ColorSpaceXformTest::CreateDefaultXform(gammas, srcToDst, gammas));
+    std::unique_ptr<SkColorSpaceXform> xform =
+            ColorSpaceXformTest::CreateDefaultXform(gammas, srcToDst, gammas);
     xform->xform_RGB1_8888(dstPixels, srcPixels, width);
 
     // Since the matrix is the identity, and the gamma curves match, the pixels
     // should be unchanged.
     for (int i = 0; i < width; i++) {
-        // TODO (msarett):
-        // As the implementation changes, we may want to use a tolerance here.
-        REPORTER_ASSERT(r, ((srcPixels[i] >>  0) & 0xFF) == SkGetPackedR32(dstPixels[i]));
-        REPORTER_ASSERT(r, ((srcPixels[i] >>  8) & 0xFF) == SkGetPackedG32(dstPixels[i]));
-        REPORTER_ASSERT(r, ((srcPixels[i] >> 16) & 0xFF) == SkGetPackedB32(dstPixels[i]));
-        REPORTER_ASSERT(r, ((srcPixels[i] >> 24) & 0xFF) == SkGetPackedA32(dstPixels[i]));
+        REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >>  0) & 0xFF),
+                                        SkGetPackedR32(dstPixels[i])));
+        REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >>  8) & 0xFF),
+                                        SkGetPackedG32(dstPixels[i])));
+        REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 16) & 0xFF),
+                                        SkGetPackedB32(dstPixels[i])));
+        REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 24) & 0xFF),
+                                        SkGetPackedA32(dstPixels[i])));
     }
 }
 
@@ -76,27 +88,27 @@ DEF_TEST(ColorSpaceXform_ParametricGamma, r) {
     // Parametric gamma curves
     SkGammaCurve red, green, blue;
 
-    // Interval, switch xforms at 0.5f
-    red.fD = green.fD = blue.fD = 0.5f;
+    // Interval, switch xforms at 0.0031308f
+    red.fD = green.fD = blue.fD = 0.04045f;
 
-    // First equation, Y = 0.5f * X
-    red.fE = green.fE = blue.fE = 0.5f;
+    // First equation:
+    red.fE = green.fE = blue.fE = 1.0f / 12.92f;
 
-    // Second equation, Y = ((1.0f * X) + 0.0f) ^ 3.0f + 0.125f
-    // Note that the function is continuous:
-    // 0.5f * 0.5f = ((1.0f * 0.5f) + 0.0f) ^ 3.0f + 0.125f = 0.25f
-    red.fA = green.fA = blue.fA = 1.0f;
-    red.fB = green.fB = blue.fB = 0.0f;
-    red.fC = green.fC = blue.fC = 0.125f;
-    red.fG = green.fG = blue.fG = 3.0f;
-    sk_sp<SkGammas> gammas = sk_make_sp<SkGammas>(std::move(red), std::move(green), std::move(blue));
+    // Second equation:
+    // Note that the function is continuous (it's actually sRGB).
+    red.fA = green.fA = blue.fA = 1.0f / 1.055f;
+    red.fB = green.fB = blue.fB = 0.055f / 1.055f;
+    red.fC = green.fC = blue.fC = 0.0f;
+    red.fG = green.fG = blue.fG = 2.4f;
+    sk_sp<SkGammas> gammas =
+            sk_make_sp<SkGammas>(std::move(red), std::move(green), std::move(blue));
     test_xform(r, gammas);
 }
 
 DEF_TEST(ColorSpaceXform_ExponentialGamma, r) {
     // Exponential gamma curves
     SkGammaCurve red, green, blue;
-    red.fValue = green.fValue = blue.fValue = 4.0f;
+    red.fValue = green.fValue = blue.fValue = 1.4f;
     sk_sp<SkGammas> gammas =
             sk_make_sp<SkGammas>(std::move(red), std::move(green), std::move(blue));
     test_xform(r, gammas);
