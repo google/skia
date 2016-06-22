@@ -40,7 +40,7 @@ static void test_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& gammas) {
     uint32_t dstPixels[width];
 
     // Identity matrix
-    SkMatrix44 srcToDst = SkMatrix44::I();
+    SkMatrix44 srcToDst(SkMatrix44::kIdentity_Constructor);
 
     // Create and perform xform
     std::unique_ptr<SkColorSpaceXform> xform =
