@@ -11,6 +11,8 @@
 #include "SkMatrix44.h"
 #include "SkRefCnt.h"
 
+class SkData;
+
 class SK_API SkColorSpace : public SkRefCnt {
 public:
 
@@ -75,10 +77,16 @@ public:
         return kSRGB_GammaNamed == fGammaNamed || k2Dot2Curve_GammaNamed == fGammaNamed;
     }
 
+    /**
+     *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and
+     *  the data is too large to serialize.
+     */
+    sk_sp<SkData> serialize() const;
+
+    static sk_sp<SkColorSpace> Deserialize(const void* data, size_t length);
+
 protected:
     SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50, Named named);
-
-    friend Named sk_deduce_named_from_colorspace(SkColorSpace*);
 
     const GammaNamed fGammaNamed;
     const SkMatrix44 fToXYZD50;

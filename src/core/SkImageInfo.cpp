@@ -9,50 +9,6 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-/*
- *  We store this as a byte in the ImageInfo flatten buffer.
- */
-enum class SkFlattenColorSpaceEnum {
-    kUnspecified,
-    kSRGB,
-    kAdobe1998,
-    // ... add more here
-    kLastEnum = kAdobe1998,
-    // final value means the actual profile data follows the info
-    kICCProfile = 0xFF,
-};
-
-static sk_sp<SkColorSpace> make_from_enum(SkFlattenColorSpaceEnum value) {
-    switch (value) {
-        case SkFlattenColorSpaceEnum::kSRGB:
-            return SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-        case SkFlattenColorSpaceEnum::kAdobe1998:
-            return SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
-        default:
-            return nullptr;
-    }
-}
-
-SkColorSpace::Named sk_deduce_named_from_colorspace(SkColorSpace* cs) {
-    return cs->fNamed;
-}
-
-static SkFlattenColorSpaceEnum deduce_from_colorspace(SkColorSpace* cs) {
-    if (!cs) {
-        return SkFlattenColorSpaceEnum::kUnspecified;
-    }
-    switch (sk_deduce_named_from_colorspace(cs)) {
-        case SkColorSpace::kSRGB_Named:
-            return SkFlattenColorSpaceEnum::kSRGB;
-        case SkColorSpace::kAdobeRGB_Named:
-            return SkFlattenColorSpaceEnum::kAdobe1998;
-        default:
-            return SkFlattenColorSpaceEnum::kICCProfile;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 #ifdef SK_SUPPORT_LEGACY_COLORPROFILETYPE
 SkColorProfileType SkImageInfo::profileType() const {
     return fColorSpace && fColorSpace->gammaCloseToSRGB()
@@ -81,40 +37,31 @@ void SkImageInfo::unflatten(SkReadBuffer& buffer) {
     SkASSERT(0 == (packed >> 24));
     fColorType = (SkColorType)((packed >> 0) & 0xFF);
     fAlphaType = (SkAlphaType)((packed >> 8) & 0xFF);
-    SkFlattenColorSpaceEnum csenum = (SkFlattenColorSpaceEnum)((packed >> 16) & 0xFF);
     buffer.validate(alpha_type_is_valid(fAlphaType) && color_type_is_valid(fColorType));
 
-    if (SkFlattenColorSpaceEnum::kICCProfile == csenum) {
-        SkASSERT(false);    // we shouldn't hit this yet, as we don't write these yet
-        fColorSpace.reset();
-    } else {
-        if (csenum > SkFlattenColorSpaceEnum::kLastEnum) {
-            csenum = SkFlattenColorSpaceEnum::kUnspecified;
-        }
-        fColorSpace = make_from_enum(csenum);
-    }
+    sk_sp<SkData> data = buffer.readByteArrayAsData();
+    fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
 }
 
 void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
     buffer.write32(fWidth);
     buffer.write32(fHeight);
 
-    SkFlattenColorSpaceEnum csenum = deduce_from_colorspace(fColorSpace.get());
-
-    // TODO: when we actually support flattening the colorspace to a profile blob, remove this
-    //       hack (and write the blob after we write packed.
-    if (SkFlattenColorSpaceEnum::kICCProfile == csenum) {
-        csenum = SkFlattenColorSpaceEnum::kUnspecified;
-    }
-
-    SkASSERT(0 == ((int)csenum & ~0xFF));
     SkASSERT(0 == (fAlphaType & ~0xFF));
     SkASSERT(0 == (fColorType & ~0xFF));
-    uint32_t packed = ((int)csenum << 16) | (fAlphaType << 8) | fColorType;
+    uint32_t packed = (fAlphaType << 8) | fColorType;
     buffer.write32(packed);
 
-    if (SkFlattenColorSpaceEnum::kICCProfile == csenum) {
-        // TODO: write the ICCProfile blob
+    if (fColorSpace) {
+        sk_sp<SkData> data = fColorSpace->serialize();
+        if (data) {
+            buffer.writeDataAsByteArray(data.get());
+        } else {
+            buffer.writeByteArray(nullptr, 0);
+        }
+    } else {
+        sk_sp<SkData> data = SkData::MakeEmpty();
+        buffer.writeDataAsByteArray(data.get());
     }
 }
 

@@ -439,6 +439,15 @@ private:
         kAllPublic_Masks = 0xF
     };
 
+    /** Efficiently reads 12 matrix entries, ignoring the last col.
+     *  This is typically useful when we know the last col is (0, 0, 0, 1).
+     */
+    void as4x3ColMajorf(float[]) const;
+
+    /* This sets the top-left of the matrix and clears the
+     * perspective components (with [3][3] set to 1). */
+    void set4x3ColMajorf(const float[]);
+
     SkMScalar transX() const { return fMat[3][0]; }
     SkMScalar transY() const { return fMat[3][1]; }
     SkMScalar transZ() const { return fMat[3][2]; }
@@ -469,6 +478,8 @@ private:
     inline bool isTriviallyIdentity() const {
         return 0 == fTypeMask;
     }
+
+    friend class SkColorSpace;
 };
 
 #endif

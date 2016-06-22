@@ -31,9 +31,7 @@ static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) 
     info2.unflatten(rb);
     REPORTER_ASSERT(reporter, rb.offset() == wb.bytesWritten());
 
-    // FIXME (msarett):
-    // Support flatten/unflatten of SkColorSpace objects.
-    REPORTER_ASSERT(reporter, info.makeColorSpace(nullptr) == info2.makeColorSpace(nullptr));
+    REPORTER_ASSERT(reporter, info == info2);
 }
 
 DEF_TEST(ImageInfo_flattening, reporter) {

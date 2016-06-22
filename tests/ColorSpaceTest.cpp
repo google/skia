@@ -165,3 +165,41 @@ DEF_TEST(ColorSpace_Named, r) {
     SkImageInfo info = SkImageInfo::MakeS32(10, 10, kPremul_SkAlphaType);
     REPORTER_ASSERT(r, info.gammaCloseToSRGB());
 }
+
+static void test_serialize(skiatest::Reporter* r, SkColorSpace* space, bool isNamed) {
+    sk_sp<SkData> data = space->serialize();
+    sk_sp<SkColorSpace> newSpace = SkColorSpace::Deserialize(data->data(), data->size());
+
+    if (isNamed) {
+        REPORTER_ASSERT(r, space == newSpace.get());
+    } else {
+        REPORTER_ASSERT(r, space->gammaNamed() == newSpace->gammaNamed());
+
+        REPORTER_ASSERT(r, space->xyz().getFloat(0, 0) == newSpace->xyz().getFloat(0, 0));
+        REPORTER_ASSERT(r, space->xyz().getFloat(0, 1) == newSpace->xyz().getFloat(0, 1));
+        REPORTER_ASSERT(r, space->xyz().getFloat(0, 2) == newSpace->xyz().getFloat(0, 2));
+        REPORTER_ASSERT(r, space->xyz().getFloat(0, 3) == newSpace->xyz().getFloat(0, 3));
+        REPORTER_ASSERT(r, space->xyz().getFloat(1, 0) == newSpace->xyz().getFloat(1, 0));
+        REPORTER_ASSERT(r, space->xyz().getFloat(1, 1) == newSpace->xyz().getFloat(1, 1));
+        REPORTER_ASSERT(r, space->xyz().getFloat(1, 2) == newSpace->xyz().getFloat(1, 2));
+        REPORTER_ASSERT(r, space->xyz().getFloat(1, 3) == newSpace->xyz().getFloat(1, 3));
+        REPORTER_ASSERT(r, space->xyz().getFloat(2, 0) == newSpace->xyz().getFloat(2, 0));
+        REPORTER_ASSERT(r, space->xyz().getFloat(2, 1) == newSpace->xyz().getFloat(2, 1));
+        REPORTER_ASSERT(r, space->xyz().getFloat(2, 2) == newSpace->xyz().getFloat(2, 2));
+        REPORTER_ASSERT(r, space->xyz().getFloat(2, 3) == newSpace->xyz().getFloat(2, 3));
+        REPORTER_ASSERT(r, space->xyz().getFloat(3, 0) == newSpace->xyz().getFloat(3, 0));
+        REPORTER_ASSERT(r, space->xyz().getFloat(3, 1) == newSpace->xyz().getFloat(3, 1));
+        REPORTER_ASSERT(r, space->xyz().getFloat(3, 2) == newSpace->xyz().getFloat(3, 2));
+        REPORTER_ASSERT(r, space->xyz().getFloat(3, 3) == newSpace->xyz().getFloat(3, 3));
+    }
+}
+
+DEF_TEST(ColorSpace_Serialize, r) {
+    test_serialize(r, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named).get(), true);
+    test_serialize(r, SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named).get(), true);
+
+    sk_sp<SkData> monitorData = SkData::MakeFromFileName(
+            GetResourcePath("monitor_profiles/HP_ZR30w.icc").c_str());
+    test_serialize(r, SkColorSpace::NewICC(monitorData->data(), monitorData->size()).get(), false);
+}
+

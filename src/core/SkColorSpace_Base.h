@@ -159,11 +159,9 @@ public:
 
 private:
 
-    static sk_sp<SkColorSpace> NewRGB(GammaNamed gammaNamed, const SkMatrix44& toXYZD50,
-                                      sk_sp<SkData> profileData);
+    static sk_sp<SkColorSpace> NewRGB(GammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
-    SkColorSpace_Base(GammaNamed gammaNamed, const SkMatrix44& toXYZ, Named named,
-                      sk_sp<SkData> profileData);
+    SkColorSpace_Base(GammaNamed gammaNamed, const SkMatrix44& toXYZ, Named named);
 
     SkColorSpace_Base(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ,
                       sk_sp<SkData> profileData);
