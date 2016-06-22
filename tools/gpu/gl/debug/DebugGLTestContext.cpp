@@ -373,34 +373,6 @@ public:
         }
     }
 
-    GrGLvoid renderbufferStorage(GrGLenum target, GrGLenum internalformat, GrGLsizei width,
-                                 GrGLsizei height) override {
-        GrAlwaysAssert(GR_GL_RENDERBUFFER == target);
-        GrRenderBufferObj* renderBuffer = this->getRenderBuffer();
-        GrAlwaysAssert(renderBuffer);
-        renderBuffer->setNumSamples(1);
-    }
-
-    GrGLvoid renderbufferStorageMultisample(GrGLenum target, GrGLsizei samples,
-                                            GrGLenum internalformat, GrGLsizei width,
-                                            GrGLsizei height) override {
-        GrAlwaysAssert(GR_GL_RENDERBUFFER == target);
-        GrRenderBufferObj* renderBuffer = this->getRenderBuffer();
-        GrAlwaysAssert(renderBuffer);
-        renderBuffer->setNumSamples(samples);
-    }
-
-    GrGLvoid namedRenderbufferStorage(GrGLuint renderbuffer, GrGLenum GrGLinternalformat,
-                                      GrGLsizei width, GrGLsizei height) override {
-        SK_ABORT("Not implemented");
-    }
-
-    GrGLvoid namedRenderbufferStorageMultisample(GrGLuint renderbuffer, GrGLsizei samples,
-                                                 GrGLenum GrGLinternalformat, GrGLsizei width,
-                                                 GrGLsizei height) override {
-        SK_ABORT("Not implemented");
-    }
-
     GrGLvoid framebufferRenderbuffer(GrGLenum target,
                                      GrGLenum attachment,
                                      GrGLenum renderbuffertarget,
@@ -436,12 +408,6 @@ public:
                 break;
         };
 
-    }
-
-    GrGLvoid namedFramebufferRenderbuffer(GrGLuint framebuffer, GrGLenum attachment,
-                                          GrGLenum renderbuffertarget,
-                                          GrGLuint renderbuffer) override {
-        SK_ABORT("Not implemented");
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -482,30 +448,6 @@ public:
                 GrAlwaysAssert(false);
                 break;
         };
-    }
-
-    GrGLvoid framebufferTexture2DMultisample(GrGLenum target, GrGLenum attachment,
-                                             GrGLenum textarget, GrGLuint texture, GrGLint level,
-                                             GrGLsizei samples) override {
-        SK_ABORT("Not implemented");
-    }
-
-    GrGLvoid namedFramebufferTexture1D(GrGLuint framebuffer, GrGLenum attachment,
-                                       GrGLenum textarget, GrGLuint texture,
-                                       GrGLint level) override {
-        SK_ABORT("Not implemented");
-    }
-
-    GrGLvoid namedFramebufferTexture2D(GrGLuint framebuffer, GrGLenum attachment,
-                                       GrGLenum textarget, GrGLuint texture,
-                                       GrGLint level) override {
-        SK_ABORT("Not implemented");
-    }
-
-    GrGLvoid namedFramebufferTexture3D(GrGLuint framebuffer, GrGLenum attachment,
-                                       GrGLenum textarget, GrGLuint texture, GrGLint level,
-                                       GrGLint zoffset) override {
-        SK_ABORT("Not implemented");
     }
 
     GrGLuint createProgram() override {
@@ -588,26 +530,9 @@ public:
             case GR_GL_STENCIL_BITS:
                 *params = 8;
                 break;
-            case GR_GL_SAMPLES: {
-                GrFrameBufferObj* framebuffer = this->getFrameBuffer();
-                GrAlwaysAssert(framebuffer);
-                int numSamples = 0;
-
-                if (GrFBBindableObj* stencil = framebuffer->getStencil()) {
-                    numSamples = stencil->numSamples();
-                }
-                if (GrFBBindableObj* depth = framebuffer->getDepth()) {
-                    GrAlwaysAssert(!numSamples || numSamples == depth->numSamples());
-                    numSamples = depth->numSamples();
-                }
-                if (GrFBBindableObj* color = framebuffer->getColor()) {
-                    GrAlwaysAssert(!numSamples || numSamples == color->numSamples());
-                    numSamples = color->numSamples();
-                }
-                GrAlwaysAssert(numSamples);
-                *params = numSamples;
+            case GR_GL_SAMPLES:
+                *params = 1;
                 break;
-            }
             case GR_GL_FRAMEBUFFER_BINDING:
                 *params = 0;
                 break;
