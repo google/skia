@@ -3588,7 +3588,7 @@ bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) 
 
     GrSurfaceOrigin originForBlitFramebuffer = kDefault_GrSurfaceOrigin;
     if (this->glCaps().blitFramebufferSupport() ==
-	GrGLCaps::kNoScalingNoMirroring_BlitFramebufferSupport) {
+        GrGLCaps::kNoScalingNoMirroring_BlitFramebufferSupport) {
         originForBlitFramebuffer = src->origin();
     }
 
