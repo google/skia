@@ -470,6 +470,21 @@ void SkGlyphCache::invokeAndRemoveAuxProcs() {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+size_t SkGlyphCache_Globals::getTotalMemoryUsed() const {
+    SkAutoExclusive ac(fLock);
+    return fTotalMemoryUsed;
+}
+
+int SkGlyphCache_Globals::getCacheCountUsed() const {
+    SkAutoExclusive ac(fLock);
+    return fCacheCount;
+}
+
+int SkGlyphCache_Globals::getCacheCountLimit() const {
+    SkAutoExclusive ac(fLock);
+    return fCacheCountLimit;
+}
+
 size_t SkGlyphCache_Globals::setCacheSizeLimit(size_t newLimit) {
     static const size_t minLimit = 256 * 1024;
     if (newLimit < minLimit) {
@@ -482,6 +497,11 @@ size_t SkGlyphCache_Globals::setCacheSizeLimit(size_t newLimit) {
     fCacheSizeLimit = newLimit;
     this->internalPurge();
     return prevLimit;
+}
+
+size_t  SkGlyphCache_Globals::getCacheSizeLimit() const {
+    SkAutoExclusive ac(fLock);
+    return fCacheSizeLimit;
 }
 
 int SkGlyphCache_Globals::setCacheCountLimit(int newCount) {
