@@ -30,3 +30,8 @@ third_party/externals
 tools/skp/page_sets/data/*.json
 tools/skp/page_sets/data/*.wpr
 xcodebuild
+
+build
+buildtools
+tools/clang
+third_party/llvm-build

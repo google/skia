@@ -3,6 +3,10 @@ use_relative_paths = True
 # Dependencies on outside packages.
 #
 deps = {
+  "build":  "https://chromium.googlesource.com/chromium/src/build.git@54b609cc558d57003c7a7d657edcc25a3879bf78",
+  "buildtools": "https://chromium.googlesource.com/chromium/buildtools.git@3780bc523aad1d68a5bd00e05c453a80b2ba0b35",
+  "tools/clang": "https://chromium.googlesource.com/chromium/src/tools/clang.git@ea64c667cd841b2c3268bd7dfd223269f3ea23ba",
+
   "common": "https://skia.googlesource.com/common.git@c282fe0b6e392b14f88d647cbd86e1a3ef5498e0",
 
   # There is some duplication here that might be worth cleaning up:
@@ -63,3 +67,54 @@ deps_os = {
 }
 
 recursedeps = [ "common" ]
+
+hooks = [
+  # Download GN.
+  {
+    'name': 'gn_win',
+    'action': [ 'download_from_google_storage',
+                '--quiet',
+                '--no_resume',
+                '--platform=win32',
+                '--no_auth',
+                '--bucket', 'chromium-gn',
+                '-s', 'buildtools/win/gn.exe.sha1',
+    ],
+  },
+  {
+    'name': 'gn_mac',
+    'pattern': '.',
+    'action': [ 'download_from_google_storage',
+                '--quiet',
+                '--no_resume',
+                '--platform=darwin',
+                '--no_auth',
+                '--bucket', 'chromium-gn',
+                '-s', 'buildtools/mac/gn.sha1',
+    ],
+  },
+  {
+    'name': 'gn_linux64',
+    'pattern': '.',
+    'action': [ 'download_from_google_storage',
+                '--quiet',
+                '--no_resume',
+                '--platform=linux*',
+                '--no_auth',
+                '--bucket', 'chromium-gn',
+                '-s', 'buildtools/linux64/gn.sha1',
+    ],
+  },
+  # Download Clang.
+  {
+    'name': 'clang',
+    'pattern': '.',
+    'action': [ 'python', 'tools/clang/scripts/update.py', '--if-needed' ],
+  },
+  # Download Linux sysroot.
+  {
+    'name': 'sysroot',
+    'pattern': '.',
+    'action': [ 'python', 'build/linux/sysroot_scripts/install-sysroot.py', '--arch=amd64' ],
+  },
+]
