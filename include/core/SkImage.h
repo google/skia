@@ -384,9 +384,7 @@ public:
     size_t getDeferredTextureImageData(const GrContextThreadSafeProxy&,
                                        const DeferredTextureImageUsageParams[],
                                        int paramCnt,
-                                       void* buffer,
-                                       SkSourceGammaTreatment treatment =
-                                       SkSourceGammaTreatment::kIgnore) const;
+                                       void* buffer) const;
 
     /**
      * Returns a texture-backed image from data produced in SkImage::getDeferredTextureImageData.
@@ -461,7 +459,7 @@ protected:
 private:
     static sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&,
                                                 const GrMipLevel* texels, int mipLevelCount,
-                                                SkBudgeted, SkSourceGammaTreatment);
+                                                SkBudgeted);
 
     const int       fWidth;
     const int       fHeight;

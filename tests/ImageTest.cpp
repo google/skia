@@ -894,7 +894,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
         sk_sp<SkImage> image(testCase.fImageFactory());
         size_t size = image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                          static_cast<int>(testCase.fParams.size()),
-                                                         nullptr, SkSourceGammaTreatment::kIgnore);
+                                                         nullptr);
+
         static const char *const kFS[] = { "fail", "succeed" };
         if (SkToBool(size) != testCase.fExpectation) {
             ERRORF(reporter,  "This image was expected to %s but did not.",
@@ -905,12 +906,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             void* misaligned = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(buffer) + 3);
             if (image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                    static_cast<int>(testCase.fParams.size()),
-                                                   misaligned, SkSourceGammaTreatment::kIgnore)) {
+                                                   misaligned)) {
                 ERRORF(reporter, "Should fail when buffer is misaligned.");
             }
             if (!image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                     static_cast<int>(testCase.fParams.size()),
-                                                    buffer, SkSourceGammaTreatment::kIgnore)) {
+                                                    buffer)) {
                 ERRORF(reporter, "deferred image size succeeded but creation failed.");
             } else {
                 for (auto budgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
