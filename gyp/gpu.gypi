@@ -101,6 +101,7 @@
       '<(skia_src_path)/gpu/GrGpu.cpp',
       '<(skia_src_path)/gpu/GrGpu.h',
       '<(skia_src_path)/gpu/GrGpuResourceCacheAccess.h',
+      '<(skia_src_path)/gpu/GrGpuCommandBuffer.cpp',
       '<(skia_src_path)/gpu/GrGpuCommandBuffer.h',
       '<(skia_src_path)/gpu/GrGpuResourcePriv.h',
       '<(skia_src_path)/gpu/GrGpuResource.cpp',

@@ -48,8 +48,8 @@ bool does_full_buffer_contain_correct_color(GrColor* buffer,
 }
 
 void basic_clear_test(skiatest::Reporter* reporter, GrContext* context, GrPixelConfig config) {
+#if 0
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
-    gpu->discard(NULL);
     SkAutoTMalloc<GrColor> buffer(25);
 
     GrSurfaceDesc surfDesc;
@@ -95,15 +95,16 @@ void basic_clear_test(skiatest::Reporter* reporter, GrContext* context, GrPixelC
                                                                      config,
                                                                      5,
                                                                      5));
+#endif
 }
 
 void sub_clear_test(skiatest::Reporter* reporter, GrContext* context, GrPixelConfig config) {
+#if 0
     const int width = 10;
     const int height = 10;
     const int subWidth = width/2;
     const int subHeight = height/2;
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
-    gpu->discard(NULL);
     SkAutoTMalloc<GrColor> buffer(width * height);
     SkAutoTMalloc<GrColor> subBuffer(subWidth * subHeight);
 
@@ -194,6 +195,7 @@ void sub_clear_test(skiatest::Reporter* reporter, GrContext* context, GrPixelCon
                                                                      config,
                                                                      subWidth,
                                                                      subHeight));
+#endif
 }
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkClearTests, reporter, ctxInfo) {

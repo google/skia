@@ -174,13 +174,12 @@ GrVkGpu::~GrVkGpu() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(const GrRenderTarget& target,
-                                                 GrGpuCommandBuffer::LoadAndStoreOp colorOp,
-                                                 GrColor colorClear,
-                                                 GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
-                                                 GrColor stencilClear) {
-    const GrVkRenderTarget& vkRT = static_cast<const GrVkRenderTarget&>(target);
-    return new GrVkGpuCommandBuffer(this, vkRT, colorOp, colorClear, stencilOp, stencilClear);
+GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(
+            GrRenderTarget* target,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) {
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
+    return new GrVkGpuCommandBuffer(this, vkRT, colorInfo, stencilInfo);
 }
 
 void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
@@ -819,31 +818,6 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
     oldResource->unref(this);
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-
-void GrVkGpu::bindGeometry(const GrPrimitiveProcessor& primProc,
-                           const GrNonInstancedMesh& mesh) {
-    // There is no need to put any memory barriers to make sure host writes have finished here.
-    // When a command buffer is submitted to a queue, there is an implicit memory barrier that
-    // occurs for all host writes. Additionally, BufferMemoryBarriers are not allowed inside of
-    // an active RenderPass.
-    GrVkVertexBuffer* vbuf;
-    vbuf = (GrVkVertexBuffer*)mesh.vertexBuffer();
-    SkASSERT(vbuf);
-    SkASSERT(!vbuf->isMapped());
-
-    fCurrentCmdBuffer->bindVertexBuffer(this, vbuf);
-
-    if (mesh.isIndexed()) {
-        GrVkIndexBuffer* ibuf = (GrVkIndexBuffer*)mesh.indexBuffer();
-        SkASSERT(ibuf);
-        SkASSERT(!ibuf->isMapped());
-
-        fCurrentCmdBuffer->bindIndexBuffer(this, ibuf);
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
@@ -1085,157 +1059,6 @@ void GrVkGpu::clearStencil(GrRenderTarget* target) {
     // draw. Thus we should look into using the load op functions on the render pass to clear out
     // the stencil there.
     fCurrentCmdBuffer->clearDepthStencilImage(this, vkStencil, &vkStencilColor, 1, &subRange);
-}
-
-void GrVkGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bool insideClip) {
-    SkASSERT(target);
-
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
-    GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
-    GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)sb;
-
-    // this should only be called internally when we know we have a
-    // stencil buffer.
-    SkASSERT(sb);
-    int stencilBitCount = sb->bits();
-
-    // The contract with the callers does not guarantee that we preserve all bits in the stencil
-    // during this clear. Thus we will clear the entire stencil to the desired value.
-
-    VkClearDepthStencilValue vkStencilColor;
-    memset(&vkStencilColor, 0, sizeof(VkClearDepthStencilValue));
-    if (insideClip) {
-        vkStencilColor.stencil = (1 << (stencilBitCount - 1));
-    } else {
-        vkStencilColor.stencil = 0;
-    }
-
-    vkStencil->setImageLayout(this,
-                              VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                              VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                              false);
-
-    // Change layout of our render target so it can be used as the color attachment. This is what
-    // the render pass expects when it begins.
-    vkRT->setImageLayout(this,
-                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                         VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                         false);
-
-    VkClearRect clearRect;
-    // Flip rect if necessary
-    SkIRect vkRect = rect;
-
-    if (kBottomLeft_GrSurfaceOrigin == vkRT->origin()) {
-        vkRect.fTop = vkRT->height() - rect.fBottom;
-        vkRect.fBottom = vkRT->height() - rect.fTop;
-    }
-
-    clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
-    clearRect.rect.extent = { (uint32_t)vkRect.width(), (uint32_t)vkRect.height() };
-
-    clearRect.baseArrayLayer = 0;
-    clearRect.layerCount = 1;
-
-    const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
-    SkASSERT(renderPass);
-    fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
-
-    uint32_t stencilIndex;
-    SkAssertResult(renderPass->stencilAttachmentIndex(&stencilIndex));
-
-    VkClearAttachment attachment;
-    attachment.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
-    attachment.colorAttachment = 0; // this value shouldn't matter
-    attachment.clearValue.depthStencil = vkStencilColor;
-
-    fCurrentCmdBuffer->clearAttachments(this, 1, &attachment, 1, &clearRect);
-    fCurrentCmdBuffer->endRenderPass(this);
-
-    return;
-}
-
-void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color) {
-    // parent class should never let us get here with no RT
-    SkASSERT(target);
-
-    VkClearColorValue vkColor;
-    GrColorToRGBAFloat(color, vkColor.float32);
-
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
-
-    if (rect.width() != target->width() || rect.height() != target->height()) {
-        vkRT->setImageLayout(this,
-                             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                             VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                             false);
-
-        // If we are using a stencil attachment we also need to change its layout to what the render
-        // pass is expecting.
-        if (GrStencilAttachment* stencil = vkRT->renderTargetPriv().getStencilAttachment()) {
-            GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
-            vkStencil->setImageLayout(this,
-                                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                      false);
-        }
-
-        VkClearRect clearRect;
-        // Flip rect if necessary
-        SkIRect vkRect = rect;
-        if (kBottomLeft_GrSurfaceOrigin == vkRT->origin()) {
-            vkRect.fTop = vkRT->height() - rect.fBottom;
-            vkRect.fBottom = vkRT->height() - rect.fTop;
-        }
-        clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
-        clearRect.rect.extent = { (uint32_t)vkRect.width(), (uint32_t)vkRect.height() };
-        clearRect.baseArrayLayer = 0;
-        clearRect.layerCount = 1;
-
-        const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
-        SkASSERT(renderPass);
-        fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
-
-        uint32_t colorIndex;
-        SkAssertResult(renderPass->colorAttachmentIndex(&colorIndex));
-
-        VkClearAttachment attachment;
-        attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        attachment.colorAttachment = colorIndex;
-        attachment.clearValue.color = vkColor;
-
-        fCurrentCmdBuffer->clearAttachments(this, 1, &attachment, 1, &clearRect);
-        fCurrentCmdBuffer->endRenderPass(this);
-        return;
-    }
-
-    vkRT->setImageLayout(this,
-                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                         VK_ACCESS_TRANSFER_WRITE_BIT,
-                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                         false);
-
-    VkImageSubresourceRange subRange;
-    memset(&subRange, 0, sizeof(VkImageSubresourceRange));
-    subRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    subRange.baseMipLevel = 0;
-    subRange.levelCount = 1;
-    subRange.baseArrayLayer = 0;
-    subRange.layerCount = 1;
-
-    // In the future we may not actually be doing this type of clear at all. If we are inside a
-    // render pass or doing a non full clear then we will use CmdClearColorAttachment. The more
-    // common use case will be clearing an attachment at the start of a render pass, in which case
-    // we will use the clear load ops.
-    fCurrentCmdBuffer->clearColorImage(this,
-                                       vkRT,
-                                       &vkColor,
-                                       1, &subRange);
 }
 
 inline bool can_copy_image(const GrSurface* dst,
@@ -1587,132 +1410,16 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     return true;
 }
 
-void GrVkGpu::submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer* buffer) {
+void GrVkGpu::submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer* buffer,
+                                           const GrVkRenderPass* renderPass,
+                                           const VkClearValue* colorClear,
+                                           GrVkRenderTarget* target,
+                                           const SkIRect& bounds) {
+    // Currently it is fine for us to always pass in 1 for the clear count even if no attachment
+    // uses it. In the current state, we also only use the LOAD_OP_CLEAR for the color attachment
+    // which is always at the first attachment.
+    fCurrentCmdBuffer->beginRenderPass(this, renderPass, 1, colorClear, *target, bounds, true);
     fCurrentCmdBuffer->executeCommands(this, buffer);
-}
-
-sk_sp<GrVkPipelineState> GrVkGpu::prepareDrawState(const GrPipeline& pipeline,
-                                                   const GrPrimitiveProcessor& primProc,
-                                                   GrPrimitiveType primitiveType,
-                                                   const GrVkRenderPass& renderPass) {
-    sk_sp<GrVkPipelineState> pipelineState =
-        fResourceProvider.findOrCreateCompatiblePipelineState(pipeline,
-                                                              primProc,
-                                                              primitiveType,
-                                                              renderPass);
-    if (!pipelineState) {
-        return pipelineState;
-    }
-
-    pipelineState->setData(this, primProc, pipeline);
-
-    pipelineState->bind(this, fCurrentCmdBuffer);
-
-    GrVkPipeline::SetDynamicState(this, fCurrentCmdBuffer, pipeline);
-
-    return pipelineState;
-}
-
-void GrVkGpu::onDraw(const GrPipeline& pipeline,
-                     const GrPrimitiveProcessor& primProc,
-                     const GrMesh* meshes,
-                     int meshCount) {
-    if (!meshCount) {
-        return;
-    }
-    GrRenderTarget* rt = pipeline.getRenderTarget();
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
-    const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
-    SkASSERT(renderPass);
-
-    GrPrimitiveType primitiveType = meshes[0].primitiveType();
-    sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
-                                                                    primProc,
-                                                                    primitiveType,
-                                                                    *renderPass);
-    if (!pipelineState) {
-        return;
-    }
-
-    // Change layout of our render target so it can be used as the color attachment
-    vkRT->setImageLayout(this,
-                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                         VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                         false);
-
-    // If we are using a stencil attachment we also need to update its layout
-    if (GrStencilAttachment* stencil = vkRT->renderTargetPriv().getStencilAttachment()) {
-        GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
-        vkStencil->setImageLayout(this,
-                                  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                  false);
-    }
-
-    fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
-
-    for (int i = 0; i < meshCount; ++i) {
-        const GrMesh& mesh = meshes[i];
-        GrMesh::Iterator iter;
-        const GrNonInstancedMesh* nonIdxMesh = iter.init(mesh);
-        do {
-            if (nonIdxMesh->primitiveType() != primitiveType) {
-                // Technically we don't have to call this here (since there is a safety check in
-                // pipelineState:setData but this will allow for quicker freeing of resources if the
-                // pipelineState sits in a cache for a while.
-                pipelineState->freeTempResources(this);
-                SkDEBUGCODE(pipelineState = nullptr);
-                primitiveType = nonIdxMesh->primitiveType();
-                pipelineState = this->prepareDrawState(pipeline,
-                                                       primProc,
-                                                       primitiveType,
-                                                       *renderPass);
-                if (!pipelineState) {
-                    return;
-                }
-            }
-            SkASSERT(pipelineState);
-            this->bindGeometry(primProc, *nonIdxMesh);
-
-            if (nonIdxMesh->isIndexed()) {
-                fCurrentCmdBuffer->drawIndexed(this,
-                                               nonIdxMesh->indexCount(),
-                                               1,
-                                               nonIdxMesh->startIndex(),
-                                               nonIdxMesh->startVertex(),
-                                               0);
-            } else {
-                fCurrentCmdBuffer->draw(this,
-                                        nonIdxMesh->vertexCount(),
-                                        1,
-                                        nonIdxMesh->startVertex(),
-                                        0);
-            }
-
-            fStats.incNumDraws();
-        } while ((nonIdxMesh = iter.next()));
-    }
-
     fCurrentCmdBuffer->endRenderPass(this);
-
-    // Technically we don't have to call this here (since there is a safety check in
-    // pipelineState:setData but this will allow for quicker freeing of resources if the
-    // pipelineState sits in a cache for a while.
-    pipelineState->freeTempResources(this);
-
-#if SWAP_PER_DRAW
-    glFlush();
-#if defined(SK_BUILD_FOR_MAC)
-    aglSwapBuffers(aglGetCurrentContext());
-    int set_a_break_pt_here = 9;
-    aglSwapBuffers(aglGetCurrentContext());
-#elif defined(SK_BUILD_FOR_WIN32)
-    SwapBuf();
-    int set_a_break_pt_here = 9;
-    SwapBuf();
-#endif
-#endif
 }
+

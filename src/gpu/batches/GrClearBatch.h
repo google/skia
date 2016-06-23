@@ -11,6 +11,7 @@
 #include "GrBatch.h"
 #include "GrBatchFlushState.h"
 #include "GrGpu.h"
+#include "GrGpuCommandBuffer.h"
 #include "GrRenderTarget.h"
 
 class GrClearBatch final : public GrBatch {
@@ -59,7 +60,7 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override {
-        state->gpu()->clear(fRect, fColor, fRenderTarget.get());
+        state->commandBuffer()->clear(fRect, fColor, fRenderTarget.get());
     }
 
     SkIRect                                                 fRect;
@@ -100,7 +101,7 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override {
-        state->gpu()->clearStencilClip(fRect, fInsideClip, fRenderTarget.get());
+        state->commandBuffer()->clearStencilClip(fRect, fInsideClip, fRenderTarget.get());
     }
 
     SkIRect                                                 fRect;

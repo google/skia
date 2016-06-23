@@ -31,7 +31,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fCompressedTexSubImageSupport = false; //TODO: figure this out
     fOversizedStencilSupport = false; //TODO: figure this out
 
-    fUseDrawInsteadOfClear = false; //TODO: figure this out
+    fUseDrawInsteadOfClear = false;
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
     fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out

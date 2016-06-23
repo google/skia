@@ -294,12 +294,6 @@ void GrVkPipelineState::writeSamplers(GrVkGpu* gpu,
         const GrTextureParams& params = textureBindings[i]->getParams();
 
         GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->getTexture());
-        if (GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
-            if (texture->texturePriv().mipMapsAreDirty()) {
-                gpu->generateMipmap(texture);
-                texture->texturePriv().dirtyMipMaps(false);
-            }
-        }
 
         fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(params,
                                                           texture->texturePriv().maxMipMapLevel()));
@@ -311,13 +305,6 @@ void GrVkPipelineState::writeSamplers(GrVkGpu* gpu,
         const GrVkImageView* textureView = texture->textureView(allowSRGBInputs);
         textureView->ref();
         fTextureViews.push(textureView);
-
-        // Change texture layout so it can be read in shader
-        texture->setImageLayout(gpu,
-                                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                VK_ACCESS_SHADER_READ_BIT,
-                                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                false);
 
         VkDescriptorImageInfo imageInfo;
         memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));

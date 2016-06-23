@@ -11,6 +11,7 @@
 #include "GrCaps.h"
 #include "GrDrawContext.h"
 #include "GrGpu.h"
+#include "GrGpuCommandBuffer.h"
 #include "GrPath.h"
 #include "GrPipeline.h"
 #include "GrMemoryPool.h"
@@ -209,9 +210,31 @@ void GrDrawTarget::prepareBatches(GrBatchFlushState* flushState) {
 void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
     // Draw all the generated geometry.
     SkRandom random;
+    GrRenderTarget* currentRT = nullptr;
+    SkAutoTDelete<GrGpuCommandBuffer> commandBuffer;
     for (int i = 0; i < fBatches.count(); ++i) {
         if (!fBatches[i]) {
             continue;
+        }
+        if (fBatches[i]->renderTarget() != currentRT) {
+            if (commandBuffer) {
+                commandBuffer->end();
+                // For now just use size of whole render target, but this should be updated to
+                // only be the actual bounds of the various draws.
+                SkIRect bounds = SkIRect::MakeWH(currentRT->width(), currentRT->height());
+                commandBuffer->submit(bounds);
+                commandBuffer.reset();
+            }
+            currentRT = fBatches[i]->renderTarget();
+            if (currentRT) {
+                static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo
+                    { GrGpuCommandBuffer::LoadOp::kLoad,GrGpuCommandBuffer::StoreOp::kStore,
+                      GrColor_ILLEGAL };
+                commandBuffer.reset(fGpu->createCommandBuffer(currentRT,
+                                                              kBasicLoadStoreInfo,   // Color
+                                                              kBasicLoadStoreInfo)); // Stencil
+            }
+            flushState->setCommandBuffer(commandBuffer);
         }
         if (fDrawBatchBounds) {
             const SkRect& bounds = fBatches[i]->bounds();
@@ -224,6 +247,14 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
             }
         }
         fBatches[i]->draw(flushState);
+    }
+    if (commandBuffer) {
+        commandBuffer->end();
+        // For now just use size of whole render target, but this should be updated to
+        // only be the actual bounds of the various draws.
+        SkIRect bounds = SkIRect::MakeWH(currentRT->width(), currentRT->height());
+        commandBuffer->submit(bounds);
+        flushState->setCommandBuffer(nullptr);
     }
 
     fGpu->finishDrawTarget();

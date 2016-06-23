@@ -339,7 +339,7 @@ GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
             return fRenderPasses[idx];
         }
     }
-    GrVkRenderPass* renderPass = fRenderPasses.push_back();
+    GrVkRenderPass* renderPass = fRenderPasses.emplace_back(new GrVkRenderPass());
     renderPass->init(gpu, *this->getCompatibleRenderPass(), colorOps, resolveOps, stencilOps);
     fLastReturnedIndex = fRenderPasses.count() - 1;
     return renderPass;

@@ -300,20 +300,6 @@ public:
                         size_t offset, size_t rowBytes);
 
     /**
-     * Clear the passed in render target. Ignores the draw state and clip.
-     */
-    void clear(const SkIRect& rect, GrColor color, GrRenderTarget* renderTarget);
-
-
-    void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* renderTarget);
-
-    /**
-     * Discards the contents render target. nullptr indicates that the current render target should
-     * be discarded.
-     **/
-    virtual void discard(GrRenderTarget* = nullptr) = 0;
-
-    /**
      * This is can be called before allocating a texture to be a dst for copySurface. It will
      * populate the origin, config, and flags fields of the desc such that copySurface can
      * efficiently succeed. It should only succeed if it can allow copySurface to perform a copy
@@ -363,20 +349,10 @@ public:
 
     // Creates a GrGpuCommandBuffer in which the GrDrawTarget can send draw commands to instead of
     // directly to the Gpu object.
-    virtual GrGpuCommandBuffer* createCommandBuffer(const GrRenderTarget& target,
-                                                    GrGpuCommandBuffer::LoadAndStoreOp colorOp,
-                                                    GrColor colorClear,
-                                                    GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
-                                                    GrColor stencilClear) = 0;
-
-    // We pass in an array of meshCount GrMesh to the draw. The backend should loop over each
-    // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and
-    // GrPrimitiveProcessor. This may fail if the draw would exceed any resource limits (e.g.
-    // number of vertex attributes is too large).
-    bool draw(const GrPipeline&,
-              const GrPrimitiveProcessor&,
-              const GrMesh*,
-              int meshCount);
+    virtual GrGpuCommandBuffer* createCommandBuffer(
+            GrRenderTarget* target,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) = 0;
 
     // Called by drawtarget when flushing.
     // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
@@ -493,6 +469,12 @@ public:
     // This is only to be used by testing code
     virtual void resetShaderCacheForTesting() const {}
 
+    void handleDirtyContext() {
+        if (fResetBits) {
+            this->resetContext();
+        }
+    }
+
 protected:
     static void ElevateDrawPreference(GrGpu::DrawPreference* preference,
                                       GrGpu::DrawPreference elevation) {
@@ -502,12 +484,6 @@ protected:
         GR_STATIC_ASSERT(GrGpu::kRequireDraw_DrawPreference >
                          GrGpu::kGpuPrefersDraw_DrawPreference);
         *preference = SkTMax(*preference, elevation);
-    }
-
-    void handleDirtyContext() {
-        if (fResetBits) {
-            this->resetContext();
-        }
     }
 
     // Handles cases where a surface will be updated without a call to flushRenderTarget
@@ -542,19 +518,6 @@ private:
     virtual GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) = 0;
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
-
-    // overridden by backend-specific derived class to perform the clear.
-    virtual void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) = 0;
-
-    // Overridden by backend specific classes to perform a clear of the stencil clip bits.  This is
-    // ONLY used by the the clip target
-    virtual void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) = 0;
-
-    // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const GrPipeline&,
-                        const GrPrimitiveProcessor&,
-                        const GrMesh*,
-                        int meshCount) = 0;
 
     virtual bool onMakeCopyForTextureParams(GrTexture* texture, const GrTextureParams&,
                                             GrTextureProducer::CopyParams*) const { return false; }

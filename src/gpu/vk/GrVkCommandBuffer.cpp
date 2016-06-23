@@ -15,12 +15,7 @@
 #include "GrVkPipelineState.h"
 #include "GrVkTransferBuffer.h"
 #include "GrVkUtil.h"
-
-
-GrVkCommandBuffer::~GrVkCommandBuffer() {
-    // Should have ended any render pass we're in the middle of
-    SkASSERT(!fActiveRenderPass);
-}
+#include "SkRect.h"
 
 void GrVkCommandBuffer::invalidateState() {
     fBoundVertexBuffer = VK_NULL_HANDLE;
@@ -41,18 +36,14 @@ void GrVkCommandBuffer::invalidateState() {
 
 void GrVkCommandBuffer::freeGPUData(const GrVkGpu* gpu) const {
     SkASSERT(!fIsActive);
-    SkASSERT(!fActiveRenderPass);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->unref(gpu);
     }
 
-    // Destroy the fence, if any
-    if (VK_NULL_HANDLE != fSubmitFence) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
-    }
-
     GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(), gpu->cmdPool(),
                                                       1, &fCmdBuffer));
+
+    this->onFreeGPUData(gpu);
 }
 
 void GrVkCommandBuffer::abandonSubResources() const {
@@ -240,6 +231,11 @@ void GrVkCommandBuffer::setBlendConstants(const GrVkGpu* gpu,
 ///////////////////////////////////////////////////////////////////////////////
 // PrimaryCommandBuffer
 ////////////////////////////////////////////////////////////////////////////////
+GrVkPrimaryCommandBuffer::~GrVkPrimaryCommandBuffer() {
+    // Should have ended any render pass we're in the middle of
+    SkASSERT(!fActiveRenderPass);
+}
+
 GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(const GrVkGpu* gpu,
                                                            VkCommandPool cmdPool) {
     const VkCommandBufferAllocateInfo cmdInfo = {
@@ -283,13 +279,33 @@ void GrVkPrimaryCommandBuffer::end(const GrVkGpu* gpu) {
 }
 
 void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
-                                        const GrVkRenderPass* renderPass,
-                                        const GrVkRenderTarget& target) {
+                                               const GrVkRenderPass* renderPass,
+                                               uint32_t clearCount,
+                                               const VkClearValue* clearValues,
+                                               const GrVkRenderTarget& target,
+                                               const SkIRect& bounds,
+                                               bool forSecondaryCB) {
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
+    SkASSERT(renderPass->isCompatible(target));
+
     VkRenderPassBeginInfo beginInfo;
-    VkSubpassContents contents;
-    renderPass->getBeginInfo(target, &beginInfo, &contents);
+    VkRect2D renderArea;
+    renderArea.offset = { bounds.fLeft , bounds.fTop };
+    renderArea.extent = { (uint32_t)bounds.width(), (uint32_t)bounds.height() };
+
+    memset(&beginInfo, 0, sizeof(VkRenderPassBeginInfo));
+    beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    beginInfo.pNext = nullptr;
+    beginInfo.renderPass = renderPass->vkRenderPass();
+    beginInfo.framebuffer = target.framebuffer()->framebuffer();
+    beginInfo.renderArea = renderArea;
+    beginInfo.clearValueCount = clearCount;
+    beginInfo.pClearValues = clearValues;
+
+    VkSubpassContents contents = forSecondaryCB ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
+                                                : VK_SUBPASS_CONTENTS_INLINE;
+
     GR_VK_CALL(gpu->vkInterface(), CmdBeginRenderPass(fCmdBuffer, &beginInfo, contents));
     fActiveRenderPass = renderPass;
     this->addResource(renderPass);
@@ -489,6 +505,14 @@ void GrVkPrimaryCommandBuffer::clearDepthStencilImage(const GrVkGpu* gpu,
                                                              color,
                                                              subRangeCount,
                                                              subRanges));
+}
+
+void GrVkPrimaryCommandBuffer::onFreeGPUData(const GrVkGpu* gpu) const {
+    SkASSERT(!fActiveRenderPass);
+    // Destroy the fence, if any
+    if (VK_NULL_HANDLE != fSubmitFence) {
+        GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

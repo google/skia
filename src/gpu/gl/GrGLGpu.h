@@ -54,7 +54,7 @@ public:
         return static_cast<GrGLPathRendering*>(pathRendering());
     }
 
-    void discard(GrRenderTarget*) override;
+    void discard(GrRenderTarget*);
 
     // Used by GrGLProgram to configure OpenGL state.
     void bindTexture(int unitIdx, const GrTextureParams& params, bool allowSRGBInputs,
@@ -95,17 +95,34 @@ public:
     // Called by GrGLBuffer after its buffer object has been destroyed.
     void notifyBufferReleased(const GrGLBuffer*);
 
+    // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // Thus this is the implementation of the draw call for the corresponding passthrough function
+    // on GrGLGpuCommandBuffer.
+    void draw(const GrPipeline&,
+              const GrPrimitiveProcessor&,
+              const GrMesh*,
+              int meshCount);
+
+    // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // Thus this is the implementation of the clear call for the corresponding passthrough function
+    // on GrGLGpuCommandBuffer.
+    void clear(const SkIRect& rect, GrColor color, GrRenderTarget* renderTarget);
+
+    // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // Thus this is the implementation of the clearStencil call for the corresponding passthrough
+    // function on GrGLGpuCommandBuffer.
+    void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* renderTarget);
+
     const GrGLContext* glContextForTesting() const override {
         return &this->glContext();
     }
 
     void clearStencil(GrRenderTarget*) override;
 
-    GrGpuCommandBuffer* createCommandBuffer(const GrRenderTarget& target,
-                                            GrGpuCommandBuffer::LoadAndStoreOp colorOp,
-                                            GrColor colorClear,
-                                            GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
-                                            GrColor stencilClear) override;
+    GrGpuCommandBuffer* createCommandBuffer(
+            GrRenderTarget* target,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) override;
 
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
@@ -159,10 +176,6 @@ private:
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                            const SkTArray<GrMipLevel>& texels);
 
-    void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
-
-    void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override;
-
     bool onMakeCopyForTextureParams(GrTexture*, const GrTextureParams&,
                                     GrTextureProducer::CopyParams*) const override;
 
@@ -198,11 +211,6 @@ private:
                           size_t offset, size_t rowBytes) override;
 
     void onResolveRenderTarget(GrRenderTarget* target) override;
-
-    void onDraw(const GrPipeline&,
-                const GrPrimitiveProcessor&,
-                const GrMesh*,
-                int meshCount) override;
 
     bool onCopySurface(GrSurface* dst,
                        GrSurface* src,

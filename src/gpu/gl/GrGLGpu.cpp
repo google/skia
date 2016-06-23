@@ -2150,7 +2150,9 @@ void GrGLGpu::disableScissor() {
     }
 }
 
-void GrGLGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color) {
+void GrGLGpu::clear(const SkIRect& rect, GrColor color, GrRenderTarget* target) {
+    this->handleDirtyContext();
+
     // parent class should never let us get here with no RT
     SkASSERT(target);
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
@@ -2238,8 +2240,9 @@ void GrGLGpu::clearStencil(GrRenderTarget* target) {
     fHWStencilSettings.invalidate();
 }
 
-void GrGLGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bool insideClip) {
+void GrGLGpu::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* target) {
     SkASSERT(target);
+    this->handleDirtyContext();
 
     GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
     // this should only be called internally when we know we have a
@@ -2624,11 +2627,10 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     return true;
 }
 
-GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(const GrRenderTarget& target,
-                                                 GrGpuCommandBuffer::LoadAndStoreOp colorOp,
-                                                 GrColor colorClear,
-                                                 GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
-                                                 GrColor stencilClear) {
+GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(
+        GrRenderTarget* target,
+        const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
+        const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) {
     return new GrGLGpuCommandBuffer(this);
 }
 
@@ -2729,10 +2731,12 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGLGpu::onDraw(const GrPipeline& pipeline,
-                     const GrPrimitiveProcessor& primProc,
-                     const GrMesh* meshes,
-                     int meshCount) {
+void GrGLGpu::draw(const GrPipeline& pipeline,
+                   const GrPrimitiveProcessor& primProc,
+                   const GrMesh* meshes,
+                   int meshCount) {
+    this->handleDirtyContext();
+
     if (!this->flushGLState(pipeline, primProc)) {
         return;
     }

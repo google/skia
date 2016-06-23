@@ -16,6 +16,7 @@
 #include <new>
 
 class GrCaps;
+class GrGpuCommandBuffer;
 class GrBatchFlushState;
 class GrRenderTarget;
 

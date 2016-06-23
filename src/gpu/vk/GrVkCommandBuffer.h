@@ -21,8 +21,6 @@ class GrVkTransferBuffer;
 
 class GrVkCommandBuffer : public GrVkResource {
 public:
-    ~GrVkCommandBuffer() override;
-
     void invalidateState();
 
     ////////////////////////////////////////////////////////////////////////////
@@ -125,7 +123,6 @@ protected:
             , fIsActive(false)
             , fActiveRenderPass(rp)
             , fCmdBuffer(cmdBuffer)
-            , fSubmitFence(VK_NULL_HANDLE)
             , fBoundVertexBufferIsValid(false)
             , fBoundIndexBufferIsValid(false) {
             this->invalidateState();
@@ -142,12 +139,12 @@ protected:
         const GrVkRenderPass*     fActiveRenderPass;
 
         VkCommandBuffer           fCmdBuffer;
-        VkFence                   fSubmitFence;
 
 private:
     static const int kInitialTrackedResourcesCount = 32;
 
     void freeGPUData(const GrVkGpu* gpu) const override;
+    virtual void onFreeGPUData(const GrVkGpu* gpu) const = 0;
     void abandonSubResources() const override;
 
     VkBuffer                                fBoundVertexBuffer;
@@ -166,6 +163,8 @@ class GrVkSecondaryCommandBuffer;
 
 class GrVkPrimaryCommandBuffer : public GrVkCommandBuffer {
 public:
+    ~GrVkPrimaryCommandBuffer() override;
+
     static GrVkPrimaryCommandBuffer* Create(const GrVkGpu* gpu, VkCommandPool cmdPool);
 
     void begin(const GrVkGpu* gpu);
@@ -175,7 +174,11 @@ public:
     // in the render pass.
     void beginRenderPass(const GrVkGpu* gpu,
                          const GrVkRenderPass* renderPass,
-                         const GrVkRenderTarget& target);
+                         uint32_t clearCount,
+                         const VkClearValue* clearValues,
+                         const GrVkRenderTarget& target,
+                         const SkIRect& bounds,
+                         bool forSecondaryCB);
     void endRenderPass(const GrVkGpu* gpu);
 
     // Submits the SecondaryCommandBuffer into this command buffer. It is required that we are
@@ -252,7 +255,13 @@ public:
     bool finished(const GrVkGpu* gpu) const;
 
 private:
-    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer) : INHERITED(cmdBuffer) {}
+    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer)
+        : INHERITED(cmdBuffer)
+        , fSubmitFence(VK_NULL_HANDLE) {}
+
+    void onFreeGPUData(const GrVkGpu* gpu) const override;
+
+    VkFence                   fSubmitFence;
 
     typedef GrVkCommandBuffer INHERITED;
 };
@@ -270,6 +279,8 @@ private:
                                         const GrVkRenderPass* compatibleRenderPass)
         : INHERITED(cmdBuffer, compatibleRenderPass) {
     }
+
+    void onFreeGPUData(const GrVkGpu* gpu) const override {}
 
     friend class GrVkPrimaryCommandBuffer;
 

@@ -284,8 +284,6 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override { return false; }
 
-    void discard(GrRenderTarget*) override {}
-
     bool onCopySurface(GrSurface* dst,
                        GrSurface* src,
                        const SkIRect& srcRect,
@@ -302,11 +300,9 @@ public:
         return false;
     }
 
-    GrGpuCommandBuffer* createCommandBuffer(const GrRenderTarget& target,
-                                            GrGpuCommandBuffer::LoadAndStoreOp colorOp,
-                                            GrColor colorClear,
-                                            GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
-                                            GrColor stencilClear) override {
+    GrGpuCommandBuffer* createCommandBuffer(GrRenderTarget* target,
+                                            const GrGpuCommandBuffer::LoadAndStoreInfo&,
+                                            const GrGpuCommandBuffer::LoadAndStoreInfo&) override {
         return nullptr;
     }
 
@@ -342,15 +338,6 @@ private:
     GrBuffer* onCreateBuffer(size_t, GrBufferType, GrAccessPattern, const void*) override {
         return nullptr;
     }
-
-    void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override {}
-
-    void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override {}
-
-    void onDraw(const GrPipeline&,
-                const GrPrimitiveProcessor&,
-                const GrMesh*,
-                int meshCount) override {}
 
     bool onReadPixels(GrSurface* surface,
                       int left, int top, int width, int height,

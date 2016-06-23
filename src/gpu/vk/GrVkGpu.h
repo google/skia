@@ -65,8 +65,6 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
-    void discard(GrRenderTarget*) override {}
-
     bool onCopySurface(GrSurface* dst,
                        GrSurface* src,
                        const SkIRect& srcRect,
@@ -92,11 +90,10 @@ public:
 
     void clearStencil(GrRenderTarget* target) override;
 
-    GrGpuCommandBuffer* createCommandBuffer(const GrRenderTarget& target,
-                                            GrGpuCommandBuffer::LoadAndStoreOp colorOp,
-                                            GrColor colorClear,
-                                            GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
-                                            GrColor stencilClear) override;
+    GrGpuCommandBuffer* createCommandBuffer(
+            GrRenderTarget* target,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) override;
 
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {}
 
@@ -117,7 +114,11 @@ public:
         return fCompiler;
     }
 
-    void submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer*);
+    void submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer*,
+                                      const GrVkRenderPass*,
+                                      const VkClearValue*,
+                                      GrVkRenderTarget*,
+                                      const SkIRect& bounds);
 
     void finishDrawTarget() override;
 
@@ -165,15 +166,6 @@ private:
     GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
                              const void* data) override;
 
-    void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
-
-    void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override;
-
-    void onDraw(const GrPipeline&,
-                const GrPrimitiveProcessor&,
-                const GrMesh*,
-                int meshCount) override;
-
     bool onReadPixels(GrSurface* surface,
                       int left, int top, int width, int height,
                       GrPixelConfig,
@@ -190,14 +182,6 @@ private:
                           size_t offset, size_t rowBytes) override { return false; }
 
     void onResolveRenderTarget(GrRenderTarget* target) override {}
-
-    sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&,
-                                              const GrPrimitiveProcessor&,
-                                              GrPrimitiveType,
-                                              const GrVkRenderPass&);
-
-    // Bind vertex and index buffers
-    void bindGeometry(const GrPrimitiveProcessor&, const GrNonInstancedMesh&);
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all

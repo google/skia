@@ -11,6 +11,7 @@
 #include "GrBufferAllocPool.h"
 #include "batches/GrVertexBatch.h"
 
+class GrGpuCommandBuffer;
 class GrResourceProvider;
 
 /** Tracks the state across all the GrBatches in a GrDrawTarget flush. */
@@ -84,6 +85,9 @@ public:
 
     void putBackVertexSpace(size_t sizeInBytes) { fVertexPool.putBack(sizeInBytes); }
 
+    GrGpuCommandBuffer* commandBuffer() { return fCommandBuffer; }
+    void setCommandBuffer(GrGpuCommandBuffer* buffer) { fCommandBuffer = buffer; }
+
     GrGpu* gpu() { return fGpu; }
 
     void reset() {
@@ -96,6 +100,8 @@ private:
     GrGpu*                                              fGpu;
 
     GrResourceProvider*                                 fResourceProvider;
+
+    GrGpuCommandBuffer*                                 fCommandBuffer;
 
     GrVertexBufferAllocPool                             fVertexPool;
     GrIndexBufferAllocPool                              fIndexPool;
