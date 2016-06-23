@@ -1,0 +1,149 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+# Most third_party code should disable warnings: if we don't maintain the code, warnings are noise.
+config("no_warnings") {
+  cflags = [ "-w" ]
+}
+third_party_configs = [ ":no_warnings" ]
+
+# Chrome's GN environment sets up a bunch of default configs we don't need/want here.
+unwanted_configs = [
+  "//build/config/clang:extra_warnings",
+  "//build/config/clang:find_bad_constructs",
+  "//build/config/compiler:chromium_code",
+  "//build/config:feature_flags",
+]
+
+config("zlib_public") {
+  include_dirs = [ "externals/zlib" ]
+}
+source_set("zlib") {
+  public_configs = [ ":zlib_public" ]
+  configs += third_party_configs
+  configs -= unwanted_configs
+
+  sources = [
+    "externals/zlib/adler32.c",
+    "externals/zlib/compress.c",
+    "externals/zlib/crc32.c",
+    "externals/zlib/deflate.c",
+    "externals/zlib/gzclose.c",
+    "externals/zlib/gzlib.c",
+    "externals/zlib/gzread.c",
+    "externals/zlib/gzwrite.c",
+    "externals/zlib/infback.c",
+    "externals/zlib/inffast.c",
+    "externals/zlib/inflate.c",
+    "externals/zlib/inftrees.c",
+    "externals/zlib/simd_stub.c",
+    "externals/zlib/trees.c",
+    "externals/zlib/uncompr.c",
+    "externals/zlib/zutil.c",
+  ]
+}
+
+config("libpng_public") {
+  include_dirs = [ "libpng" ]
+}
+source_set("libpng") {
+  public_configs = [ ":libpng_public" ]
+  configs += third_party_configs
+  configs -= unwanted_configs
+
+  deps = [
+    ":zlib",
+  ]
+  sources = [
+    "libpng/png.c",
+    "libpng/pngerror.c",
+    "libpng/pngget.c",
+    "libpng/pngmem.c",
+    "libpng/pngpread.c",
+    "libpng/pngread.c",
+    "libpng/pngrio.c",
+    "libpng/pngrtran.c",
+    "libpng/pngrutil.c",
+    "libpng/pngset.c",
+    "libpng/pngtrans.c",
+    "libpng/pngwio.c",
+    "libpng/pngwrite.c",
+    "libpng/pngwtran.c",
+    "libpng/pngwutil.c",
+  ]
+}
+
+config("libjpeg-turbo_config") {
+  include_dirs = [ "externals/libjpeg-turbo" ]
+}
+source_set("libjpeg-turbo") {
+  public_configs = [ ":libjpeg-turbo_config" ]
+  configs += third_party_configs
+  configs -= unwanted_configs
+
+  sources = [
+    "externals/libjpeg-turbo/jcapimin.c",
+    "externals/libjpeg-turbo/jcapistd.c",
+    "externals/libjpeg-turbo/jccoefct.c",
+    "externals/libjpeg-turbo/jccolor.c",
+    "externals/libjpeg-turbo/jcdctmgr.c",
+    "externals/libjpeg-turbo/jchuff.c",
+    "externals/libjpeg-turbo/jcinit.c",
+    "externals/libjpeg-turbo/jcmainct.c",
+    "externals/libjpeg-turbo/jcmarker.c",
+    "externals/libjpeg-turbo/jcmaster.c",
+    "externals/libjpeg-turbo/jcomapi.c",
+    "externals/libjpeg-turbo/jcparam.c",
+    "externals/libjpeg-turbo/jcphuff.c",
+    "externals/libjpeg-turbo/jcprepct.c",
+    "externals/libjpeg-turbo/jcsample.c",
+    "externals/libjpeg-turbo/jdapimin.c",
+    "externals/libjpeg-turbo/jdapistd.c",
+    "externals/libjpeg-turbo/jdcoefct.c",
+    "externals/libjpeg-turbo/jdcolor.c",
+    "externals/libjpeg-turbo/jddctmgr.c",
+    "externals/libjpeg-turbo/jdhuff.c",
+    "externals/libjpeg-turbo/jdinput.c",
+    "externals/libjpeg-turbo/jdmainct.c",
+    "externals/libjpeg-turbo/jdmarker.c",
+    "externals/libjpeg-turbo/jdmaster.c",
+    "externals/libjpeg-turbo/jdmerge.c",
+    "externals/libjpeg-turbo/jdphuff.c",
+    "externals/libjpeg-turbo/jdpostct.c",
+    "externals/libjpeg-turbo/jdsample.c",
+    "externals/libjpeg-turbo/jerror.c",
+    "externals/libjpeg-turbo/jfdctflt.c",
+    "externals/libjpeg-turbo/jfdctfst.c",
+    "externals/libjpeg-turbo/jfdctint.c",
+    "externals/libjpeg-turbo/jidctflt.c",
+    "externals/libjpeg-turbo/jidctfst.c",
+    "externals/libjpeg-turbo/jidctint.c",
+    "externals/libjpeg-turbo/jidctred.c",
+    "externals/libjpeg-turbo/jmemmgr.c",
+    "externals/libjpeg-turbo/jmemnobs.c",
+    "externals/libjpeg-turbo/jquant1.c",
+    "externals/libjpeg-turbo/jquant2.c",
+    "externals/libjpeg-turbo/jsimd_none.c",
+    "externals/libjpeg-turbo/jutils.c",
+  ]
+}
+
+config("system_freetype2") {
+  include_dirs = [ "/usr/include/freetype2" ]
+  libs = [ "freetype" ]
+}
+group("freetype2") {
+  public_configs = [ ":system_freetype2" ]
+}
+
+config("system_fontconfig") {
+  libs = [ "fontconfig" ]
+}
+group("fontconfig") {
+  public_configs = [ ":system_fontconfig" ]
+}
