@@ -9,7 +9,6 @@
 #define GrGpu_DEFINED
 
 #include "GrGpuCommandBuffer.h"
-#include "GrPipelineBuilder.h"
 #include "GrProgramDesc.h"
 #include "GrSwizzle.h"
 #include "GrAllocator.h"
@@ -22,6 +21,7 @@
 class GrBatchTracker;
 class GrBuffer;
 class GrContext;
+struct GrContextOptions;
 class GrGLContext;
 class GrMesh;
 class GrNonInstancedVertices;

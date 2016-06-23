@@ -20,6 +20,7 @@
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #include "effects/GrBicubicEffect.h"
+#include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
 
 typedef GrTextureProducer::CopyParams CopyParams;

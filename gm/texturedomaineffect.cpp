@@ -112,9 +112,8 @@ protected:
                 SkScalar x = kDrawPad + kTestPad;
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
-                    GrPipelineBuilder pipelineBuilder;
-                    pipelineBuilder.setXPFactory(
-                        GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                    GrPaint grPaint;
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
                     sk_sp<GrFragmentProcessor> fp(
                         GrTextureDomainEffect::Make(texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
@@ -125,12 +124,12 @@ protected:
                         continue;
                     }
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
-                    pipelineBuilder.addColorFragmentProcessor(std::move(fp));
+                    grPaint.addColorFragmentProcessor(std::move(fp));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

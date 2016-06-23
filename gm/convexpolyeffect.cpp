@@ -178,13 +178,13 @@ protected:
                     continue;
                 }
 
-                GrPipelineBuilder pipelineBuilder;
-                pipelineBuilder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
-                pipelineBuilder.addCoverageFragmentProcessor(std::move(fp));
+                GrPaint grPaint;
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                 SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
 
-                drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -217,13 +217,13 @@ protected:
                     continue;
                 }
 
-                GrPipelineBuilder pipelineBuilder;
-                pipelineBuilder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
-                pipelineBuilder.addCoverageFragmentProcessor(std::move(fp));
+                GrPaint grPaint;
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                 SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(rect, 0xff000000));
 
-                drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }

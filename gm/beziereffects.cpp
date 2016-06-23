@@ -188,14 +188,13 @@ protected:
                     boundsPaint.setStyle(SkPaint::kStroke_Style);
                     canvas->drawRect(bounds, boundsPaint);
 
-                    GrPipelineBuilder pipelineBuilder;
-                    pipelineBuilder.setXPFactory(
-                        GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                    GrPaint grPaint;
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, klmSigns[c]));
 
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -320,14 +319,13 @@ protected:
                     boundsPaint.setStyle(SkPaint::kStroke_Style);
                     canvas->drawRect(bounds, boundsPaint);
 
-                    GrPipelineBuilder pipelineBuilder;
-                    pipelineBuilder.setXPFactory(
-                        GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                    GrPaint grPaint;
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, 1.f));
 
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -527,16 +525,15 @@ protected:
                     boundsPaint.setStyle(SkPaint::kStroke_Style);
                     canvas->drawRect(bounds, boundsPaint);
 
-                    GrPipelineBuilder pipelineBuilder;
-                    pipelineBuilder.setXPFactory(
-                        GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                    GrPaint grPaint;
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierQuadTestBatch(gp, bounds, color, DevToUV));
 
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
                 }
                 ++col;
                 if (numCols == col) {

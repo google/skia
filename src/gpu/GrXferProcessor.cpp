@@ -7,7 +7,6 @@
 
 #include "GrXferProcessor.h"
 #include "GrPipeline.h"
-#include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
 #include "gl/GrGLCaps.h"
 

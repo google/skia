@@ -13,7 +13,6 @@
 #include "GrPathProcessor.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrPathRendering.h"
-#include "GrPipelineBuilder.h"
 #include "GrXferProcessor.h"
 
 #include "batches/GrDrawBatch.h"
@@ -36,6 +35,7 @@ class GrClip;
 class GrCaps;
 class GrPath;
 class GrDrawPathBatchBase;
+class GrPipelineBuilder;
 
 class GrDrawTarget final : public SkRefCnt {
 public:

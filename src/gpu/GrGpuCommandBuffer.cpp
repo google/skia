@@ -7,6 +7,7 @@
 
 #include "GrGpuCommandBuffer.h"
 
+#include "GrCaps.h"
 #include "GrGpu.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrRenderTarget.h"

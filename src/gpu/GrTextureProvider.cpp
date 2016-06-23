@@ -6,6 +6,8 @@
  */
 
 #include "GrTextureProvider.h"
+
+#include "GrCaps.h"
 #include "GrTexturePriv.h"
 #include "GrResourceCache.h"
 #include "GrGpu.h"

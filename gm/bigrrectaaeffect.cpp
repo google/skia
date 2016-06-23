@@ -9,7 +9,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContextPriv.h"
-#include "GrPipelineBuilder.h"
 #include "SkRRect.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
@@ -74,15 +73,15 @@ protected:
                 paint.setColor(SK_ColorWHITE);
                 canvas->drawRect(testBounds, paint);
 
-                GrPipelineBuilder pipelineBuilder;
-                pipelineBuilder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                GrPaint grPaint;
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                 SkRRect rrect = fRRect;
                 rrect.offset(SkIntToScalar(x + kGap), SkIntToScalar(y + kGap));
                 sk_sp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
                 SkASSERT(fp);
                 if (fp) {
-                    pipelineBuilder.addCoverageFragmentProcessor(std::move(fp));
+                    grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
@@ -90,7 +89,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(), bounds,
                                                                 nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
                 }
             canvas->restore();
             x = x + fTestOffsetX;

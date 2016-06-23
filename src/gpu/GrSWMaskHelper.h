@@ -10,7 +10,6 @@
 
 #include "SkAutoPixmapStorage.h"
 #include "GrColor.h"
-#include "GrPipelineBuilder.h"
 #include "SkBitmap.h"
 #include "SkDraw.h"
 #include "SkMatrix.h"
@@ -19,10 +18,13 @@
 #include "SkTypes.h"
 
 class GrClip;
+class GrPaint;
 class GrTextureProvider;
+class GrStyle;
 class GrTexture;
 class SkPath;
 class SkStrokeRec;
+struct GrUserStencilSettings;
 
 /**
  * The GrSWMaskHelper helps generate clip masks using the software rendering

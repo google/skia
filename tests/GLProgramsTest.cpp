@@ -184,10 +184,10 @@ static sk_sp<GrDrawContext> random_draw_context(GrContext* context,
     return drawContext;
 }
 
-static void set_random_xpf(GrPipelineBuilder* pipelineBuilder, GrProcessorTestData* d) {
+static void set_random_xpf(GrPaint* paint, GrProcessorTestData* d) {
     sk_sp<GrXPFactory> xpf(GrProcessorTestFactory<GrXPFactory>::Make(d));
     SkASSERT(xpf);
-    pipelineBuilder->setXPFactory(std::move(xpf));
+    paint->setXPFactory(std::move(xpf));
 }
 
 static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d,
@@ -236,8 +236,9 @@ static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d
     return fp;
 }
 
-static void set_random_color_coverage_stages(GrPipelineBuilder* pipelineBuilder,
-                                             GrProcessorTestData* d, int maxStages) {
+static void set_random_color_coverage_stages(GrPaint* paint,
+                                             GrProcessorTestData* d,
+                                             int maxStages) {
     // Randomly choose to either create a linear pipeline of procs or create one proc tree
     const float procTreeProbability = 0.5f;
     if (d->fRandom->nextF() < procTreeProbability) {
@@ -245,7 +246,7 @@ static void set_random_color_coverage_stages(GrPipelineBuilder* pipelineBuilder,
         // processor key; maxTreeLevels should be a number from 1 to 4 inclusive.
         const int maxTreeLevels = 4;
         sk_sp<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
-        pipelineBuilder->addColorFragmentProcessor(std::move(fp));
+        paint->addColorFragmentProcessor(std::move(fp));
     } else {
         int numProcs = d->fRandom->nextULessThan(maxStages + 1);
         int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);
@@ -256,32 +257,30 @@ static void set_random_color_coverage_stages(GrPipelineBuilder* pipelineBuilder,
 
             // finally add the stage to the correct pipeline in the drawstate
             if (s < numColorProcs) {
-                pipelineBuilder->addColorFragmentProcessor(std::move(fp));
+                paint->addColorFragmentProcessor(std::move(fp));
             } else {
-                pipelineBuilder->addCoverageFragmentProcessor(std::move(fp));
+                paint->addCoverageFragmentProcessor(std::move(fp));
             }
             ++s;
         }
     }
 }
 
-static void set_random_state(GrPipelineBuilder* pipelineBuilder,
-                             GrDrawContext* drawContext,
-                             SkRandom* random) {
-    int state = 0;
-    for (int i = 1; i <= GrPipelineBuilder::kLast_Flag; i <<= 1) {
-        state |= random->nextBool() * i;
+static bool set_random_state(GrPaint* paint, SkRandom* random) {
+    if (random->nextBool()) {
+        paint->setDisableOutputConversionToSRGB(true);
     }
-
-    // If we don't have an MSAA rendertarget then we have to disable useHWAA
-    if ((state | GrPipelineBuilder::kHWAntialias_Flag) && !drawContext->isUnifiedMultisampled()) {
-        state &= ~GrPipelineBuilder::kHWAntialias_Flag;
+    if (random->nextBool()) {
+        paint->setAllowSRGBInputs(true);
     }
-    pipelineBuilder->enableState(state);
+    if (random->nextBool()) {
+        paint->setAntiAlias(true);
+    }
+    return random->nextBool();
 }
 
 // right now, the only thing we seem to care about in drawState's stencil is 'doesWrite()'
-static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* random) {
+static const GrUserStencilSettings* get_random_stencil(SkRandom* random) {
     static constexpr GrUserStencilSettings kDoesWriteStencil(
         GrUserStencilSettings::StaticInit<
             0xffff,
@@ -302,9 +301,9 @@ static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* ran
     );
 
     if (random->nextBool()) {
-        pipelineBuilder->setUserStencil(&kDoesWriteStencil);
+        return &kDoesWriteStencil;
     } else {
-        pipelineBuilder->setUserStencil(&kDoesNotWriteStencil);
+        return &kDoesNotWriteStencil;
     }
 }
 
@@ -346,19 +345,19 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
             return false;
         }
 
-        GrPipelineBuilder pipelineBuilder;
+        GrPaint grPaint;
 
         SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
         SkASSERT(batch);
 
         GrProcessorTestData ptd(&random, context, context->caps(),
                                 drawContext.get(), dummyTextures);
-        set_random_color_coverage_stages(&pipelineBuilder, &ptd, maxStages);
-        set_random_xpf(&pipelineBuilder, &ptd);
-        set_random_state(&pipelineBuilder, drawContext.get(), &random);
-        set_random_stencil(&pipelineBuilder, &random);
+        set_random_color_coverage_stages(&grPaint, &ptd, maxStages);
+        set_random_xpf(&grPaint, &ptd);
+        bool snapToCenters = set_random_state(&grPaint, &random);
+        const GrUserStencilSettings* uss = get_random_stencil(&random);
 
-        drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+        drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch, uss, snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
@@ -381,16 +380,16 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
             SkASSERT(batch);
             GrProcessorTestData ptd(&random, context, context->caps(),
                                     drawContext.get(), dummyTextures);
-            GrPipelineBuilder builder;
-            builder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+            GrPaint grPaint;
+            grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
             sk_sp<GrFragmentProcessor> fp(
                 GrProcessorTestFactory<GrFragmentProcessor>::MakeIdx(i, &ptd));
             sk_sp<GrFragmentProcessor> blockFP(
                 BlockInputFragmentProcessor::Make(std::move(fp)));
-            builder.addColorFragmentProcessor(std::move(blockFP));
+            grPaint.addColorFragmentProcessor(std::move(blockFP));
 
-            drawContext->drawContextPriv().testingOnly_drawBatch(builder, batch);
+            drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
             drawingManager->flush();
         }
     }

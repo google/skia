@@ -7,6 +7,8 @@
 
 
 #include "GrResourceCache.h"
+
+#include "GrCaps.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrTracing.h"
 #include "SkChecksum.h"

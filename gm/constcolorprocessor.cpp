@@ -13,7 +13,6 @@
 
 #include "GrContext.h"
 #include "GrDrawContextPriv.h"
-#include "GrPipelineBuilder.h"
 #include "SkGrPriv.h"
 #include "SkGradientShader.h"
 #include "batches/GrDrawBatch.h"
@@ -107,13 +106,12 @@ protected:
                     GrColor color = kColors[procColor];
                     sk_sp<GrFragmentProcessor> fp(GrConstColorProcessor::Make(color, mode));
 
-                    GrPipelineBuilder pipelineBuilder(grPaint, drawContext->mustUseHWAA(grPaint));
-                    pipelineBuilder.addColorFragmentProcessor(std::move(fp));
+                    grPaint.addColorFragmentProcessor(std::move(fp));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.

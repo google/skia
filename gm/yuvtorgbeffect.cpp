@@ -13,7 +13,6 @@
 
 #include "GrContext.h"
 #include "GrDrawContextPriv.h"
-#include "GrPipelineBuilder.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
@@ -113,19 +112,19 @@ protected:
                                        {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
 
             for (int i = 0; i < 6; ++i) {
-                GrPipelineBuilder pipelineBuilder;
-                pipelineBuilder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                GrPaint grPaint;
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
                 sk_sp<GrFragmentProcessor> fp(GrYUVEffect::MakeYUVToRGB(
                     texture[indices[i][0]], texture[indices[i][1]], texture[indices[i][2]], sizes,
                     static_cast<SkYUVColorSpace>(space), false));
                 if (fp) {
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    pipelineBuilder.addColorFragmentProcessor(std::move(fp));
+                    grPaint.addColorFragmentProcessor(std::move(fp));
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
                 }
                 x += renderRect.width() + kTestPad;
             }
@@ -225,18 +224,18 @@ protected:
             SkScalar y = kDrawPad + kTestPad + space * kColorSpaceOffset;
             SkScalar x = kDrawPad + kTestPad;
 
-            GrPipelineBuilder pipelineBuilder;
-            pipelineBuilder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+            GrPaint grPaint;
+            grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
             sk_sp<GrFragmentProcessor> fp(
                 GrYUVEffect::MakeYUVToRGB(texture[0], texture[1], texture[2], sizes,
                                           static_cast<SkYUVColorSpace>(space), true));
             if (fp) {
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
-                pipelineBuilder.addColorFragmentProcessor(fp);
+                grPaint.addColorFragmentProcessor(fp);
                 SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(
                     GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
             }
         }
     }

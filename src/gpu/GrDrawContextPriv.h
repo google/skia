@@ -50,9 +50,10 @@ public:
                             const SkMatrix& viewMatrix,
                             const SkPath&);
 
-    void testingOnly_drawBatch(const GrPipelineBuilder& pipelineBuilder,
+    void testingOnly_drawBatch(const GrPaint&,
                                GrDrawBatch* batch,
-                               const GrClip* = nullptr);
+                               const GrUserStencilSettings* = nullptr,
+                               bool snapToCenters = false);
 
 private:
     explicit GrDrawContextPriv(GrDrawContext* drawContext) : fDrawContext(drawContext) {}

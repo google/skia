@@ -7,20 +7,24 @@
 #ifndef GrClipMaskManager_DEFINED
 #define GrClipMaskManager_DEFINED
 
-#include "GrPipelineBuilder.h"
 #include "GrReducedClip.h"
 #include "SkClipStack.h"
 #include "SkTypes.h"
 
 class GrAppliedClip;
 class GrClipStackClip;
+class GrContext;
 class GrDrawContext;
 class GrFixedClip;
 class GrPathRenderer;
 class GrPathRendererChain;
+class GrPipelineBuilder;
 class GrResourceProvider;
 class GrTexture;
 class GrTextureProvider;
+class GrUniqueKey;
+struct GrUserStencilSettings;
+
 
 /**
  * The clip mask creator handles the generation of the clip mask. If anti

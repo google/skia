@@ -122,10 +122,10 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
 #endif
     SkAutoTUnref<GrDrawBatch> batch;
-    GrPipelineBuilder pb;
+    GrPaint grPaint;
     // This one should succeed.
     batch.reset(new Batch(attribCnt));
-    drawContext->drawContextPriv().testingOnly_drawBatch(pb, batch);
+    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 1);
@@ -134,7 +134,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     context->resetGpuStats();
     // This one should fail.
     batch.reset(new Batch(attribCnt+1));
-    drawContext->drawContextPriv().testingOnly_drawBatch(pb, batch);
+    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);

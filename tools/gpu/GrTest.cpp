@@ -234,19 +234,24 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fDrawContext->fSingleOwner);)
 #define RETURN_IF_ABANDONED        if (fDrawContext->fDrawingManager->wasAbandoned()) { return; }
 
-void GrDrawContextPriv::testingOnly_drawBatch(const GrPipelineBuilder& pipelineBuilder,
+void GrDrawContextPriv::testingOnly_drawBatch(const GrPaint& paint,
                                               GrDrawBatch* batch,
-                                              const GrClip* clip) {
+                                              const GrUserStencilSettings* uss,
+                                              bool snapToCenters) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(fDrawContext->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContext::testingOnly_drawBatch");
 
-    if (clip) {
-        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, *clip, batch);
-    } else {
-        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, GrNoClip(), batch);
+    GrPipelineBuilder pipelineBuilder(paint, fDrawContext->mustUseHWAA(paint));
+    if (uss) {
+        pipelineBuilder.setUserStencil(uss);
     }
+    if (snapToCenters) {
+        pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag, true);
+    }
+
+    fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, GrNoClip(), batch);
 }
 
 #undef ASSERT_SINGLE_OWNER
