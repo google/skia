@@ -30,6 +30,11 @@ public:
         this->INHERITED::deleteAction();
     }
 
+    void setNumSamples(int numSamples) {
+        GrAlwaysAssert(numSamples > 0);
+        fNumSamples = numSamples;
+    }
+
 protected:
 private:
     bool fBound;           // is this render buffer currently bound via "glBindRenderbuffer"?

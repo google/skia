@@ -18,7 +18,8 @@ class GrFBBindableObj : public GrFakeRefObj {
 
 public:
     GrFBBindableObj()
-        : GrFakeRefObj() {
+        : GrFakeRefObj()
+        , fNumSamples(1) {
     }
 
     virtual ~GrFBBindableObj() {
@@ -75,8 +76,11 @@ public:
         return 0 != fStencilReferees.count();
     }
 
+    int numSamples() { return fNumSamples; }
 
 protected:
+    int fNumSamples;
+
 private:
     SkTDArray<GrFakeRefObj *> fColorReferees;   // frame buffers that use this as a color buffer (via "glFramebufferRenderbuffer" or "glFramebufferTexture2D")
     SkTDArray<GrFakeRefObj *> fDepthReferees;   // frame buffers that use this as a depth buffer (via "glFramebufferRenderbuffer" or "glFramebufferTexture2D")
