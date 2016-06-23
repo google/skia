@@ -15,6 +15,10 @@ ninja -C out/Release dm nanobench ; and ./out/Release/dm --match Blend_opts ; an
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #include <immintrin.h>
+#endif
+
 namespace SK_OPTS_NS {
 
 // An implementation of SrcOver from bytes to bytes in linear space that takes advantage of the
