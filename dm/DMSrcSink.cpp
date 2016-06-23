@@ -896,10 +896,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
             std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace, dstSpace);
             if (!xform) {
-                // FIXME (msarett):
-                // I haven't implemented conversions for all of the images that I've uploaded for
-                // testing.  Once we support all of them, this should be a fatal error.
-                return Error::Nonfatal("Unimplemented color conversion.");
+                return "Unimplemented color conversion.";
             }
 
             uint32_t* row = (uint32_t*) bitmap.getPixels();

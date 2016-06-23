@@ -32,10 +32,10 @@ SkColorSpace_Base::SkColorSpace_Base(GammaNamed gammaNamed, const SkMatrix44& to
     , fProfileData(nullptr)
 {}
 
-SkColorSpace_Base::SkColorSpace_Base(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas,
+SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, sk_sp<SkGammas> gammas,
                                      const SkMatrix44& toXYZD50, sk_sp<SkData> profileData)
     : INHERITED(kNonStandard_GammaNamed, toXYZD50, kUnknown_Named)
-    , fColorLUT(colorLUT)
+    , fColorLUT(std::move(colorLUT))
     , fGammas(std::move(gammas))
     , fProfileData(std::move(profileData))
 {}
@@ -677,7 +677,7 @@ bool load_color_lut(SkColorLookUpTable* colorLUT, uint32_t inputChannels, uint32
     }
     size_t dataLen = len - kColorLUTHeaderSize;
 
-    SkASSERT(inputChannels <= SkColorLookUpTable::kMaxChannels && 3 == outputChannels);
+    SkASSERT(3 == inputChannels && 3 == outputChannels);
     colorLUT->fInputChannels = inputChannels;
     colorLUT->fOutputChannels = outputChannels;
     uint32_t numEntries = 1;
@@ -783,11 +783,10 @@ bool load_a2b0(SkColorLookUpTable* colorLUT, SkGammaCurve* gammas, SkMatrix44* t
     // must be zero.
     uint8_t inputChannels = src[8];
     uint8_t outputChannels = src[9];
-    if (0 == inputChannels || inputChannels > SkColorLookUpTable::kMaxChannels ||
-            3 != outputChannels) {
-        // The color LUT assumes that there are at most 16 input channels.  For RGB
-        // profiles, output channels should be 3.
-        SkColorSpacePrintf("Too many input or output channels in A to B tag.\n");
+    if (3 != inputChannels || 3 != outputChannels) {
+        // We only handle (supposedly) RGB inputs and RGB outputs.  The numbers of input
+        // channels and output channels both must be 3.
+        SkColorSpacePrintf("Input and output channels must equal 3 in A to B tag.\n");
         return false;
     }
 
@@ -936,21 +935,22 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
             // Recognize color profile specified by A2B0 tag.
             const ICCTag* a2b0 = ICCTag::Find(tags.get(), tagCount, kTAG_A2B0);
             if (a2b0) {
-                SkAutoTDelete<SkColorLookUpTable> colorLUT(new SkColorLookUpTable());
+                sk_sp<SkColorLookUpTable> colorLUT = sk_make_sp<SkColorLookUpTable>();
                 SkGammaCurve curves[3];
                 SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
-                if (!load_a2b0(colorLUT, curves, &toXYZ, a2b0->addr((const uint8_t*) base),
+                if (!load_a2b0(colorLUT.get(), curves, &toXYZ, a2b0->addr((const uint8_t*) base),
                                a2b0->fLength)) {
                     return_null("Failed to parse A2B0 tag");
                 }
 
                 GammaNamed gammaNamed = SkGammas::Named(curves);
-                if (colorLUT->fTable || kNonStandard_GammaNamed == gammaNamed) {
+                colorLUT = colorLUT->fTable ? colorLUT : nullptr;
+                if (colorLUT || kNonStandard_GammaNamed == gammaNamed) {
                     sk_sp<SkGammas> gammas = sk_make_sp<SkGammas>(std::move(curves[0]),
                                                                   std::move(curves[1]),
                                                                   std::move(curves[2]));
 
-                    return sk_sp<SkColorSpace>(new SkColorSpace_Base(colorLUT.release(),
+                    return sk_sp<SkColorSpace>(new SkColorSpace_Base(std::move(colorLUT),
                                                                      std::move(gammas), toXYZ,
                                                                      std::move(data)));
                 } else {

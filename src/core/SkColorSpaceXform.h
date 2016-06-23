@@ -60,17 +60,19 @@ private:
     SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
                    const sk_sp<SkColorSpace>& dstSpace);
 
-    static constexpr int kDstGammaTableSize = 1024;
+    static constexpr int      kDstGammaTableSize = 1024;
+
+    sk_sp<SkColorLookUpTable> fColorLUT;
 
     // May contain pointers into storage or pointers into precomputed tables.
-    const float*         fSrcGammaTables[3];
-    float                fSrcGammaTableStorage[3 * 256];
+    const float*              fSrcGammaTables[3];
+    float                     fSrcGammaTableStorage[3 * 256];
 
-    const SkMatrix44     fSrcToDst;
+    const SkMatrix44          fSrcToDst;
 
     // May contain pointers into storage or pointers into precomputed tables.
-    const uint8_t*       fDstGammaTables[3];
-    uint8_t              fDstGammaTableStorage[3 * kDstGammaTableSize];
+    const uint8_t*            fDstGammaTables[3];
+    uint8_t                   fDstGammaTableStorage[3 * kDstGammaTableSize];
 
     friend class SkColorSpaceXform;
 };

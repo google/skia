@@ -138,16 +138,18 @@ public:
     friend class SkColorSpace;
 };
 
-struct SkColorLookUpTable {
-    static const uint8_t kMaxChannels = 16;
-
+struct SkColorLookUpTable : public SkRefCnt {
     uint8_t                  fInputChannels;
     uint8_t                  fOutputChannels;
-    uint8_t                  fGridPoints[kMaxChannels];
+    uint8_t                  fGridPoints[3];
     std::unique_ptr<float[]> fTable;
 
-    SkColorLookUpTable() {
-        memset(this, 0, sizeof(struct SkColorLookUpTable));
+    SkColorLookUpTable()
+        : fInputChannels(0)
+        , fOutputChannels(0)
+        , fTable(nullptr)
+    {
+        fGridPoints[0] = fGridPoints[1] = fGridPoints[2] = 0;
     }
 };
 
@@ -171,12 +173,12 @@ private:
 
     SkColorSpace_Base(GammaNamed gammaNamed, const SkMatrix44& toXYZ, Named named);
 
-    SkColorSpace_Base(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ,
-                      sk_sp<SkData> profileData);
+    SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, sk_sp<SkGammas> gammas,
+                      const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
 
-    SkAutoTDelete<SkColorLookUpTable> fColorLUT;
-    sk_sp<SkGammas>                   fGammas;
-    sk_sp<SkData>                     fProfileData;
+    sk_sp<SkColorLookUpTable> fColorLUT;
+    sk_sp<SkGammas>           fGammas;
+    sk_sp<SkData>             fProfileData;
 
     friend class SkColorSpace;
     friend class ColorSpaceXformTest;

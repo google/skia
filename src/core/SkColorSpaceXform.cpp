@@ -27,8 +27,9 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
         return nullptr;
     }
 
-    if (as_CSB(srcSpace)->colorLUT() || as_CSB(dstSpace)->colorLUT()) {
-        // Unimplemented
+    if (as_CSB(dstSpace)->colorLUT()) {
+        // It would be really weird for a dst profile to have a color LUT.  I don't think
+        // we need to support this.
         return nullptr;
     }
 
@@ -39,7 +40,8 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
 
     if (0.0f == srcToDst.getFloat(3, 0) &&
         0.0f == srcToDst.getFloat(3, 1) &&
-        0.0f == srcToDst.getFloat(3, 2))
+        0.0f == srcToDst.getFloat(3, 2) &&
+        !as_CSB(srcSpace)->colorLUT())
     {
         switch (srcSpace->gammaNamed()) {
             case SkColorSpace::kSRGB_GammaNamed:
@@ -69,8 +71,7 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
         }
     }
 
-    return std::unique_ptr<SkColorSpaceXform>(
-            new SkDefaultXform(srcSpace, srcToDst, dstSpace));
+    return std::unique_ptr<SkColorSpaceXform>(new SkDefaultXform(srcSpace, srcToDst, dstSpace));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -540,7 +541,8 @@ static void build_table_linear_to_gamma(uint8_t* outTable, int outTableSize, flo
 
 SkDefaultXform::SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
                                const sk_sp<SkColorSpace>& dstSpace)
-    : fSrcToDst(srcToDst)
+    : fColorLUT(sk_ref_sp((SkColorLookUpTable*) as_CSB(srcSpace)->colorLUT()))
+    , fSrcToDst(srcToDst)
 {
     // Build tables to transform src gamma to linear.
     switch (srcSpace->gammaNamed()) {
@@ -687,6 +689,10 @@ SkDefaultXform::SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatr
     }
 }
 
+static float byte_to_float(uint8_t byte) {
+    return ((float) byte) * (1.0f / 255.0f);
+}
+
 // Clamp to the 0-1 range.
 static float clamp_normalized_float(float v) {
     if (v > 1.0f) {
@@ -698,13 +704,124 @@ static float clamp_normalized_float(float v) {
     }
 }
 
+static void interp_3d_clut(float dst[3], float src[3], const SkColorLookUpTable* colorLUT) {
+    // Call the src components x, y, and z.
+    uint8_t maxX = colorLUT->fGridPoints[0] - 1;
+    uint8_t maxY = colorLUT->fGridPoints[1] - 1;
+    uint8_t maxZ = colorLUT->fGridPoints[2] - 1;
+
+    // An approximate index into each of the three dimensions of the table.
+    float x = src[0] * maxX;
+    float y = src[1] * maxY;
+    float z = src[2] * maxZ;
+
+    // This gives us the low index for our interpolation.
+    int ix = sk_float_floor2int(x);
+    int iy = sk_float_floor2int(y);
+    int iz = sk_float_floor2int(z);
+
+    // Make sure the low index is not also the max index.
+    ix = (maxX == ix) ? ix - 1 : ix;
+    iy = (maxY == iy) ? iy - 1 : iy;
+    iz = (maxZ == iz) ? iz - 1 : iz;
+
+    // Weighting factors for the interpolation.
+    float diffX = x - ix;
+    float diffY = y - iy;
+    float diffZ = z - iz;
+
+    // Constants to help us navigate the 3D table.
+    // Ex: Assume x = a, y = b, z = c.
+    //     table[a * n001 + b * n010 + c * n100] logically equals table[a][b][c].
+    const int n000 = 0;
+    const int n001 = 3 * colorLUT->fGridPoints[1] * colorLUT->fGridPoints[2];
+    const int n010 = 3 * colorLUT->fGridPoints[2];
+    const int n011 = n001 + n010;
+    const int n100 = 3;
+    const int n101 = n100 + n001;
+    const int n110 = n100 + n010;
+    const int n111 = n110 + n001;
+
+    // Base ptr into the table.
+    float* ptr = &colorLUT->fTable[ix*n001 + iy*n010 + iz*n100];
+
+    // The code below performs a tetrahedral interpolation for each of the three
+    // dst components.  Once the tetrahedron containing the interpolation point is
+    // identified, the interpolation is a weighted sum of grid values at the
+    // vertices of the tetrahedron.  The claim is that tetrahedral interpolation
+    // provides a more accurate color conversion.
+    // blogs.mathworks.com/steve/2006/11/24/tetrahedral-interpolation-for-colorspace-conversion/
+    //
+    // I have one test image, and visually I can't tell the difference between
+    // tetrahedral and trilinear interpolation.  In terms of computation, the
+    // tetrahedral code requires more branches but less computation.  The
+    // SampleICC library provides an option for the client to choose either
+    // tetrahedral or trilinear.
+    for (int i = 0; i < 3; i++) {
+        if (diffZ < diffY) {
+            if (diffZ < diffX) {
+                dst[i] = (ptr[n000] + diffZ * (ptr[n110] - ptr[n010]) +
+                                      diffY * (ptr[n010] - ptr[n000]) +
+                                      diffX * (ptr[n111] - ptr[n110]));
+            } else if (diffY < diffX) {
+                dst[i] = (ptr[n000] + diffZ * (ptr[n111] - ptr[n011]) +
+                                      diffY * (ptr[n011] - ptr[n001]) +
+                                      diffX * (ptr[n001] - ptr[n000]));
+            } else {
+                dst[i] = (ptr[n000] + diffZ * (ptr[n111] - ptr[n011]) +
+                                      diffY * (ptr[n010] - ptr[n000]) +
+                                      diffX * (ptr[n011] - ptr[n010]));
+            }
+        } else {
+            if (diffZ < diffX) {
+                dst[i] = (ptr[n000] + diffZ * (ptr[n101] - ptr[n001]) +
+                                      diffY * (ptr[n111] - ptr[n101]) +
+                                      diffX * (ptr[n001] - ptr[n000]));
+            } else if (diffY < diffX) {
+                dst[i] = (ptr[n000] + diffZ * (ptr[n100] - ptr[n000]) +
+                                      diffY * (ptr[n111] - ptr[n101]) +
+                                      diffX * (ptr[n101] - ptr[n100]));
+            } else {
+                dst[i] = (ptr[n000] + diffZ * (ptr[n100] - ptr[n000]) +
+                                      diffY * (ptr[n110] - ptr[n100]) +
+                                      diffX * (ptr[n111] - ptr[n110]));
+            }
+        }
+
+        // Increment the table ptr in order to handle the next component.
+        // Note that this is the how table is designed: all of nXXX
+        // variables are multiples of 3 because there are 3 output
+        // components.
+        ptr++;
+    }
+}
+
 void SkDefaultXform::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const {
     while (len-- > 0) {
+        uint8_t r = (*src >>  0) & 0xFF,
+                g = (*src >>  8) & 0xFF,
+                b = (*src >> 16) & 0xFF;
+
+        if (fColorLUT) {
+            float in[3];
+            float out[3];
+
+            in[0] = byte_to_float(r);
+            in[1] = byte_to_float(g);
+            in[2] = byte_to_float(b);
+
+            interp_3d_clut(out, in, fColorLUT.get());
+
+            r = sk_float_round2int(255.0f * clamp_normalized_float(out[0]));
+            g = sk_float_round2int(255.0f * clamp_normalized_float(out[1]));
+            b = sk_float_round2int(255.0f * clamp_normalized_float(out[2]));
+        }
+
         // Convert to linear.
         float srcFloats[3];
-        srcFloats[0] = fSrcGammaTables[0][(*src >>  0) & 0xFF];
-        srcFloats[1] = fSrcGammaTables[1][(*src >>  8) & 0xFF];
-        srcFloats[2] = fSrcGammaTables[2][(*src >> 16) & 0xFF];
+        srcFloats[0] = fSrcGammaTables[0][r];
+        srcFloats[1] = fSrcGammaTables[1][g];
+        srcFloats[2] = fSrcGammaTables[2][b];
 
         // Convert to dst gamut.
         float dstFloats[3];
@@ -724,9 +841,9 @@ void SkDefaultXform::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_
         dstFloats[2] = clamp_normalized_float(dstFloats[2]);
 
         // Convert to dst gamma.
-        uint8_t r = fDstGammaTables[0][sk_float_round2int((kDstGammaTableSize - 1) * dstFloats[0])];
-        uint8_t g = fDstGammaTables[1][sk_float_round2int((kDstGammaTableSize - 1) * dstFloats[1])];
-        uint8_t b = fDstGammaTables[2][sk_float_round2int((kDstGammaTableSize - 1) * dstFloats[2])];
+        r = fDstGammaTables[0][sk_float_round2int((kDstGammaTableSize - 1) * dstFloats[0])];
+        g = fDstGammaTables[1][sk_float_round2int((kDstGammaTableSize - 1) * dstFloats[1])];
+        b = fDstGammaTables[2][sk_float_round2int((kDstGammaTableSize - 1) * dstFloats[2])];
 
         *dst = SkPackARGB32NoCheck(0xFF, r, g, b);
 
