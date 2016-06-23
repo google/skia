@@ -332,27 +332,25 @@ void GrShape::attemptToSimplifyPath() {
                 fPath.get()->setIsVolatile(true);
             }
         }
-        if (fPath.get()->isConvex()) {
-            // There is no distinction between even/odd and non-zero winding count for convex
-            // paths.
-            if (fPath.get()->isInverseFillType()) {
-               fPath.get()->setFillType(SkPath::kInverseEvenOdd_FillType);
-            } else {
-                fPath.get()->setFillType(SkPath::kEvenOdd_FillType);
-            }
-        }
-        if (this->style().isDashed()) {
-            // Dashing ignores inverseness (skbug.com/5421)
-            switch (fPath.get()->getFillType()) {
-                case SkPath::kWinding_FillType:
-                case SkPath::kEvenOdd_FillType:
-                    break;
-                case SkPath::kInverseWinding_FillType:
-                    fPath.get()->setFillType(SkPath::kWinding_FillType);
-                    break;
-                case SkPath::kInverseEvenOdd_FillType:
-                    fPath.get()->setFillType(SkPath::kEvenOdd_FillType);
-                    break;
+        if (!this->style().hasNonDashPathEffect()) {
+            if (this->style().strokeRec().getStyle() == SkStrokeRec::kStroke_Style ||
+                this->style().strokeRec().getStyle() == SkStrokeRec::kHairline_Style) {
+                // Stroke styles don't differentiate between winding and even/odd.
+                // Moreover, dashing ignores inverseness (skbug.com/5421)
+                bool inverse = !this->fStyle.isDashed() && fPath.get()->isInverseFillType();
+                if (inverse) {
+                    fPath.get()->setFillType(kDefaultPathInverseFillType);
+                } else {
+                    fPath.get()->setFillType(kDefaultPathFillType);
+                }
+            } else if (fPath.get()->isConvex()) {
+                // There is no distinction between even/odd and non-zero winding count for convex
+                // paths.
+                if (fPath.get()->isInverseFillType()) {
+                    fPath.get()->setFillType(kDefaultPathInverseFillType);
+                } else {
+                    fPath.get()->setFillType(kDefaultPathFillType);
+                }
             }
         }
     }

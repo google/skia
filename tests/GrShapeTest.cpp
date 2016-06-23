@@ -299,7 +299,23 @@ void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b
         bool canDropInverse2 = s2->style().isDashed();
         ignoreInversenessDifference = (canDropInverse1 != canDropInverse2);
     }
-
+    bool ignoreWindingVsEvenOdd = false;
+    if (SkPath::ConvertToNonInverseFillType(pathA.getFillType()) !=
+        SkPath::ConvertToNonInverseFillType(pathB.getFillType())) {
+        const SkStrokeRec::Style  strokeRecStyleA = a.style().strokeRec().getStyle();
+        const SkStrokeRec::Style  strokeRecStyleB = b.style().strokeRec().getStyle();
+        bool aCanChange = !a.style().hasNonDashPathEffect() &&
+                          (strokeRecStyleA == SkStrokeRec::kStroke_Style ||
+                           strokeRecStyleA == SkStrokeRec::kHairline_Style ||
+                           (a.style().isSimpleFill() && pathA.isConvex()));
+        bool bCanChange = !b.style().hasNonDashPathEffect() &&
+                          (strokeRecStyleB == SkStrokeRec::kStroke_Style ||
+                           strokeRecStyleB == SkStrokeRec::kHairline_Style ||
+                           (b.style().isSimpleFill() && pathB.isConvex()));
+        if (aCanChange != bCanChange) {
+            ignoreWindingVsEvenOdd = true;
+        }
+    }
     if (allowSameRRectButDiffStartAndDir) {
         REPORTER_ASSERT(r, rrectA == rrectB);
         REPORTER_ASSERT(r, paths_fill_same(pathA, pathB));
@@ -310,9 +326,17 @@ void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b
         if (ignoreInversenessDifference) {
             pA.setFillType(SkPath::ConvertToNonInverseFillType(pathA.getFillType()));
             pB.setFillType(SkPath::ConvertToNonInverseFillType(pathB.getFillType()));
-            REPORTER_ASSERT(r, keyA != keyB);
-        } else {
+        }
+        if (ignoreWindingVsEvenOdd) {
+            pA.setFillType(pA.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
+                                                  : SkPath::kEvenOdd_FillType);
+            pB.setFillType(pB.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
+                                                  : SkPath::kEvenOdd_FillType);
+        }
+        if (!ignoreInversenessDifference && !ignoreWindingVsEvenOdd) {
             REPORTER_ASSERT(r, keyA == keyB);
+        } else {
+            REPORTER_ASSERT(r, keyA != keyB);
         }
         if (a.style().isSimpleFill() != b.style().isSimpleFill()) {
             // GrShape will close paths with simple fill style. Make the non-filled path closed
@@ -842,6 +866,11 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const GEO& geo
         REPORTER_ASSERT(reporter, paths_fill_same(a, b));
         REPORTER_ASSERT(reporter, paths_fill_same(a, c));
     } else {
+        // The base shape cannot perform canonicalization on the path's fill type because of an
+        // unknown path effect. However, after the path effect is applied the resulting hairline
+        // shape will canonicalize the path fill type since hairlines (and stroking in general)
+        // don't distinguish between even/odd and non-zero winding.
+        a.setFillType(b.getFillType());
         REPORTER_ASSERT(reporter, a == b);
         REPORTER_ASSERT(reporter, a == c);
         REPORTER_ASSERT(reporter, peCase.appliedPathEffectKey().empty());

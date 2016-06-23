@@ -190,9 +190,9 @@ public:
                 out->addRRect(fRRect, fRRectDir, fRRectStart);
                 // Below matches the fill type that attemptToSimplifyPath uses.
                 if (fRRectIsInverted) {
-                    out->setFillType(SkPath::kInverseEvenOdd_FillType);
+                    out->setFillType(kDefaultPathInverseFillType);
                 } else {
-                    out->setFillType(SkPath::kEvenOdd_FillType);
+                    out->setFillType(kDefaultPathFillType);
                 }
                 break;
             case Type::kPath:
@@ -283,6 +283,11 @@ private:
 
     void attemptToSimplifyPath();
     void attemptToSimplifyRRect();
+
+    // Defaults to use when there is no distinction between even/odd and winding fills.
+    static constexpr SkPath::FillType kDefaultPathFillType = SkPath::kEvenOdd_FillType;
+    static constexpr SkPath::FillType kDefaultPathInverseFillType =
+            SkPath::kInverseEvenOdd_FillType;
 
     static constexpr SkPath::Direction kDefaultRRectDir = SkPath::kCW_Direction;
     static constexpr unsigned kDefaultRRectStart = 0;
