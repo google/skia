@@ -189,7 +189,7 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const SkIRect& rect, 
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
 
-    if (fIsEmpty) {
+    if (fIsEmpty && rect.width() == target->width() && rect.height() == target->height()) {
         // We will change the render pass to do a clear load instead
         GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_CLEAR,
                                                 VK_ATTACHMENT_STORE_OP_STORE);
