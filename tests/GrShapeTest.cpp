@@ -296,7 +296,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
     bool aHasPE = a.style().hasPathEffect();
     bool bHasPE = b.style().hasPathEffect();
     bool allowSameRRectButDiffStartAndDir = (aIsRRect && bIsRRect) && (aHasPE != bHasPE);
-
+    // GrShape will close paths with simple fill style.
+    bool allowedClosednessDiff = (a.style().isSimpleFill() != b.style().isSimpleFill());
     SkPath pathA, pathB;
     a.asPath(&pathA);
     b.asPath(&pathB);
@@ -327,6 +328,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
     } else {
         SkPath pA = pathA;
         SkPath pB = pathB;
+        REPORTER_ASSERT(r, a.inverseFilled() == pA.isInverseFillType());
+        REPORTER_ASSERT(r, b.inverseFilled() == pB.isInverseFillType());
         if (ignoreInversenessDifference) {
             pA.setFillType(SkPath::ConvertToNonInverseFillType(pathA.getFillType()));
             pB.setFillType(SkPath::ConvertToNonInverseFillType(pathB.getFillType()));
@@ -342,7 +345,7 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
         } else {
             REPORTER_ASSERT(r, keyA != keyB);
         }
-        if (a.style().isSimpleFill() != b.style().isSimpleFill()) {
+        if (allowedClosednessDiff) {
             // GrShape will close paths with simple fill style. Make the non-filled path closed
             // so that the comparision will succeed. Make sure both are closed before comparing.
             pA.close();
@@ -358,14 +361,32 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
         }
     }
     REPORTER_ASSERT(r, a.isEmpty() == b.isEmpty());
-    REPORTER_ASSERT(r, a.knownToBeClosed() == b.knownToBeClosed());
+    REPORTER_ASSERT(r, allowedClosednessDiff || a.knownToBeClosed() == b.knownToBeClosed());
+    // closedness can affect convexity.
+    REPORTER_ASSERT(r, allowedClosednessDiff || a.knownToBeConvex() == b.knownToBeConvex());
+    if (a.knownToBeConvex()) {
+        REPORTER_ASSERT(r, pathA.isConvex());
+    }
+    if (b.knownToBeConvex()) {
+        REPORTER_ASSERT(r, pathB.isConvex());
+    }
     REPORTER_ASSERT(r, a.bounds() == b.bounds());
     REPORTER_ASSERT(r, a.segmentMask() == b.segmentMask());
     SkPoint pts[4];
     REPORTER_ASSERT(r, a.asLine(pts) == b.asLine(pts + 2));
+    // mayBeInverseFilledAfterStyling() is allowed to differ if one has a arbitrary PE and the other
+    // doesn't (since the PE can set any fill type on its output path).
+    // Moreover, dash style explicitly ignores inverseness. So if one is dashed but not the other
+    // then they may disagree about inverseness.
+    if (a.style().hasNonDashPathEffect() == b.style().hasNonDashPathEffect() &&
+        a.style().isDashed() == b.style().isDashed()) {
+        REPORTER_ASSERT(r, a.mayBeInverseFilledAfterStyling() ==
+                           b.mayBeInverseFilledAfterStyling());
+    }
     if (a.asLine(pts)) {
         REPORTER_ASSERT(r, pts[2] == pts[0] && pts[3] == pts[1]);
     }
+    REPORTER_ASSERT(r, ignoreInversenessDifference || a.inverseFilled() == b.inverseFilled());
 }
 
 void TestCase::compare(skiatest::Reporter* r, const TestCase& that,

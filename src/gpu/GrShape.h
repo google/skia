@@ -144,7 +144,7 @@ public:
      * information from this shape's style to its geometry. Scale is used when approximating the
      * output geometry and typically is computed from the view matrix
      */
-    GrShape applyStyle(GrStyle::Apply apply, SkScalar scale) {
+    GrShape applyStyle(GrStyle::Apply apply, SkScalar scale) const {
         return GrShape(*this, apply, scale);
     }
 
@@ -220,6 +220,61 @@ public:
     void styledBounds(SkRect* bounds) const;
 
     /**
+     * Is this shape known to be convex, before styling is applied. An unclosed but otherwise
+     * convex path is considered to be closed if they styling reflects a fill and not otherwise.
+     * This is because filling closes all contours in the path.
+     */
+    bool knownToBeConvex() const {
+        switch (fType) {
+            case Type::kEmpty:
+                return true;
+            case Type::kRRect:
+                return true;
+            case Type::kPath:
+                // SkPath.isConvex() really means "is this path convex were it to be closed" and
+                // thus doesn't give the correct answer for stroked paths, hence we also check
+                // whether the path is either filled or closed. Convex paths may only have one
+                // contour hence isLastContourClosed() is a sufficient for a convex path.
+                return (this->style().isSimpleFill() || fPath.get()->isLastContourClosed()) &&
+                       fPath.get()->isConvex();
+        }
+        return false;
+    }
+
+    /** Is the pre-styled geometry inverse filled? */
+    bool inverseFilled() const {
+        bool ret = false;
+        switch (fType) {
+            case Type::kEmpty:
+                ret = false;
+                break;
+            case Type::kRRect:
+                ret = fRRectIsInverted;
+                break;
+            case Type::kPath:
+                ret = this->fPath.get()->isInverseFillType();
+                break;
+        }
+        // Dashing ignores inverseness. We should have caught this earlier. skbug.com/5421
+        SkASSERT(!(ret && this->style().isDashed()));
+        return ret;
+    }
+
+    /**
+     * Might applying the styling to the geometry produce an inverse fill. The "may" part comes in
+     * because an arbitrary path effect could produce an inverse filled path. In other cases this
+     * can be thought of as "inverseFilledAfterStyling()".
+     */
+    bool mayBeInverseFilledAfterStyling() const {
+         // An arbitrary path effect can produce an arbitrary output path, which may be inverse
+         // filled.
+        if (this->style().hasNonDashPathEffect()) {
+            return true;
+        }
+        return this->inverseFilled();
+    }
+
+    /**
      * Is it known that the unstyled geometry has no unclosed contours. This means that it will
      * not have any caps if stroked (modulo the effect of any path effect).
      */
@@ -230,7 +285,8 @@ public:
             case Type::kRRect:
                 return true;
             case Type::kPath:
-                return false;
+                // SkPath doesn't keep track of the closed status of each contour.
+                return SkPathPriv::IsClosedSingleContour(*fPath.get());
         }
         return false;
     }
@@ -257,6 +313,8 @@ public:
      * A negative value is returned if the shape has no key (shouldn't be cached).
      */
     int unstyledKeySize() const;
+
+    bool hasUnstyledKey() const { return this->unstyledKeySize() >= 0; }
 
     /**
      * Writes unstyledKeySize() bytes into the provided pointer. Assumes that there is enough
