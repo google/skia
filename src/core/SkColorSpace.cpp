@@ -142,7 +142,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
         case kSRGB_Named: {
             sRGBOnce([] {
                 SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
-                srgbToxyzD50.set3x3ColMajorf(gSRGB_toXYZD50);
+                srgbToxyzD50.set3x3RowMajorf(gSRGB_toXYZD50);
                 sRGB = new SkColorSpace_Base(kSRGB_GammaNamed, srgbToxyzD50, kSRGB_Named);
             });
             return sk_ref_sp(sRGB);
@@ -150,7 +150,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
         case kAdobeRGB_Named: {
             adobeRGBOnce([] {
                 SkMatrix44 adobergbToxyzD50(SkMatrix44::kUninitialized_Constructor);
-                adobergbToxyzD50.set3x3ColMajorf(gAdobeRGB_toXYZD50);
+                adobergbToxyzD50.set3x3RowMajorf(gAdobeRGB_toXYZD50);
                 adobeRGB = new SkColorSpace_Base(k2Dot2Curve_GammaNamed, adobergbToxyzD50,
                                                  kAdobeRGB_Named);
             });
@@ -897,7 +897,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                     return_null("Need valid rgb tags for XYZ space");
                 }
                 SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
-                mat.set3x3ColMajorf(toXYZ);
+                mat.set3x3RowMajorf(toXYZ);
 
                 // It is not uncommon to see missing or empty gamma tags.  This indicates
                 // that we should use unit gamma.

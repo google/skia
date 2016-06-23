@@ -230,7 +230,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
             toXYZD50[i] = png_fixed_point_to_float(XYZ[i]);
         }
         SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
-        mat.set3x3ColMajorf(toXYZD50);
+        mat.set3x3RowMajorf(toXYZD50);
 
         if (PNG_INFO_gAMA == png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
             float value = png_inverted_fixed_point_to_float(gamma);
@@ -257,7 +257,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
         // Since there is no cHRM, we will guess sRGB gamut.
         SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
-        mat.set3x3ColMajorf(gSRGB_toXYZD50);
+        mat.set3x3RowMajorf(gSRGB_toXYZD50);
 
         return SkColorSpace_Base::NewRGB(gammas, mat);
     }

@@ -136,8 +136,15 @@ public:
         kIdentity_Constructor
     };
 
-    SkMatrix44(Uninitialized_Constructor) { }
-    SkMatrix44(Identity_Constructor) { this->setIdentity(); }
+    SkMatrix44(Uninitialized_Constructor) {}
+
+    constexpr SkMatrix44(Identity_Constructor)
+        : fMat{{ 1, 0, 0, 0, },
+               { 0, 1, 0, 0, },
+               { 0, 0, 1, 0, },
+               { 0, 0, 0, 1, }}
+        , fTypeMask(kIdentity_Mask)
+    {}
 
     SK_ATTR_DEPRECATED("use the constructors that take an enum")
     SkMatrix44() { this->setIdentity(); }
@@ -281,6 +288,10 @@ public:
      *  array. The given array must have room for exactly 16 entries. Whenever
      *  possible, they will try to use memcpy rather than an entry-by-entry
      *  copy.
+     *
+     *  Col major indicates that consecutive elements of columns will be stored
+     *  contiguously in memory.  Row major indicates that consecutive elements
+     *  of rows will be stored contiguously in memory.
      */
     void asColMajorf(float[]) const;
     void asColMajord(double[]) const;
@@ -291,6 +302,11 @@ public:
      *  array. The given array must have room for exactly 16 entries. Whenever
      *  possible, they will try to use memcpy rather than an entry-by-entry
      *  copy.
+     *
+     *  Col major indicates that input memory will be treated as if consecutive
+     *  elements of columns are stored contiguously in memory.  Row major
+     *  indicates that input memory will be treated as if consecutive elements
+     *  of rows are stored contiguously in memory.
      */
     void setColMajorf(const float[]);
     void setColMajord(const double[]);
@@ -306,11 +322,12 @@ public:
 #endif
 
     /* This sets the top-left of the matrix and clears the translation and
-     * perspective components (with [3][3] set to 1). */
+     * perspective components (with [3][3] set to 1).  mXY is interpreted
+     * as the matrix entry at col = X, row = Y. */
     void set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
                 SkMScalar m10, SkMScalar m11, SkMScalar m12,
                 SkMScalar m20, SkMScalar m21, SkMScalar m22);
-    void set3x3ColMajorf(const float[]);
+    void set3x3RowMajorf(const float[]);
 
     void setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
     void preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
@@ -430,6 +447,7 @@ public:
     double determinant() const;
 
 private:
+    /* This is indexed by [col][row]. */
     SkMScalar           fMat[4][4];
     mutable unsigned    fTypeMask;
 
@@ -439,13 +457,7 @@ private:
         kAllPublic_Masks = 0xF
     };
 
-    /** Efficiently reads 12 matrix entries, ignoring the last col.
-     *  This is typically useful when we know the last col is (0, 0, 0, 1).
-     */
     void as4x3ColMajorf(float[]) const;
-
-    /* This sets the top-left of the matrix and clears the
-     * perspective components (with [3][3] set to 1). */
     void set4x3ColMajorf(const float[]);
 
     SkMScalar transX() const { return fMat[3][0]; }

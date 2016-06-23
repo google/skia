@@ -186,7 +186,7 @@ void SkMatrix44::setRowMajord(const double src[]) {
 ///////////////////////////////////////////////////////////////////////////////
 
 const SkMatrix44& SkMatrix44::I() {
-    static const SkMatrix44 gIdentity44(kIdentity_Constructor);
+    static constexpr SkMatrix44 gIdentity44(kIdentity_Constructor);
     return gIdentity44;
 }
 
@@ -220,7 +220,7 @@ void SkMatrix44::set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
     this->dirtyTypeMask();
 }
 
-void SkMatrix44::set3x3ColMajorf(const float src[]) {
+void SkMatrix44::set3x3RowMajorf(const float src[]) {
     fMat[0][0] = src[0]; fMat[0][1] = src[3]; fMat[0][2] = src[6]; fMat[0][3] = 0;
     fMat[1][0] = src[1]; fMat[1][1] = src[4]; fMat[1][2] = src[7]; fMat[1][3] = 0;
     fMat[2][0] = src[2]; fMat[2][1] = src[5]; fMat[2][2] = src[8]; fMat[2][3] = 0;

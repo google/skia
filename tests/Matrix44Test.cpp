@@ -484,6 +484,23 @@ static void test_get_set_double(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_set_3x3(skiatest::Reporter* r) {
+    static float vals[9] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, };
+
+    SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
+    mat.set3x3RowMajorf(vals);
+
+    REPORTER_ASSERT(r, 1.0f == mat.getFloat(0, 0));
+    REPORTER_ASSERT(r, 2.0f == mat.getFloat(0, 1));
+    REPORTER_ASSERT(r, 3.0f == mat.getFloat(0, 2));
+    REPORTER_ASSERT(r, 4.0f == mat.getFloat(1, 0));
+    REPORTER_ASSERT(r, 5.0f == mat.getFloat(1, 1));
+    REPORTER_ASSERT(r, 6.0f == mat.getFloat(1, 2));
+    REPORTER_ASSERT(r, 7.0f == mat.getFloat(2, 0));
+    REPORTER_ASSERT(r, 8.0f == mat.getFloat(2, 1));
+    REPORTER_ASSERT(r, 9.0f == mat.getFloat(2, 2));
+}
+
 static void test_set_row_col_major(skiatest::Reporter* reporter) {
     SkMatrix44 a(SkMatrix44::kUninitialized_Constructor);
     SkMatrix44 b(SkMatrix44::kUninitialized_Constructor);
@@ -916,6 +933,7 @@ DEF_TEST(Matrix44, reporter) {
     test_transpose(reporter);
     test_get_set_double(reporter);
     test_set_row_col_major(reporter);
+    test_set_3x3(reporter);
     test_translate(reporter);
     test_scale(reporter);
     test_map2(reporter);
