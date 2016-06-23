@@ -337,7 +337,7 @@ void GrShape::attemptToSimplifyPath() {
                 this->style().strokeRec().getStyle() == SkStrokeRec::kHairline_Style) {
                 // Stroke styles don't differentiate between winding and even/odd.
                 // Moreover, dashing ignores inverseness (skbug.com/5421)
-                bool inverse = !this->fStyle.isDashed() && fPath.get()->isInverseFillType();
+                bool inverse = !this->style().isDashed() && fPath.get()->isInverseFillType();
                 if (inverse) {
                     fPath.get()->setFillType(kDefaultPathInverseFillType);
                 } else {

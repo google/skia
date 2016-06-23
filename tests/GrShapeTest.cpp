@@ -263,8 +263,20 @@ void TestCase::testExpectations(skiatest::Reporter* reporter, SelfExpectations e
     }
 }
 
-void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b,
-                       const Key& keyA, const Key& keyB) {
+static bool can_interchange_winding_and_even_odd_fill(const GrShape& shape) {
+    SkPath path;
+    shape.asPath(&path);
+    if (shape.style().hasNonDashPathEffect()) {
+        return false;
+    }
+    const SkStrokeRec::Style strokeRecStyle = shape.style().strokeRec().getStyle();
+    return strokeRecStyle == SkStrokeRec::kStroke_Style ||
+           strokeRecStyle == SkStrokeRec::kHairline_Style ||
+           (shape.style().isSimpleFill() && path.isConvex());
+}
+
+static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b,
+                              const Key& keyA, const Key& keyB) {
     // GrShape only respects the input winding direction and start point for rrect shapes
     // when there is a path effect. Thus, if there are two GrShapes representing the same rrect
     // but one has a path effect in its style and the other doesn't then asPath() and the unstyled
@@ -302,16 +314,8 @@ void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b
     bool ignoreWindingVsEvenOdd = false;
     if (SkPath::ConvertToNonInverseFillType(pathA.getFillType()) !=
         SkPath::ConvertToNonInverseFillType(pathB.getFillType())) {
-        const SkStrokeRec::Style  strokeRecStyleA = a.style().strokeRec().getStyle();
-        const SkStrokeRec::Style  strokeRecStyleB = b.style().strokeRec().getStyle();
-        bool aCanChange = !a.style().hasNonDashPathEffect() &&
-                          (strokeRecStyleA == SkStrokeRec::kStroke_Style ||
-                           strokeRecStyleA == SkStrokeRec::kHairline_Style ||
-                           (a.style().isSimpleFill() && pathA.isConvex()));
-        bool bCanChange = !b.style().hasNonDashPathEffect() &&
-                          (strokeRecStyleB == SkStrokeRec::kStroke_Style ||
-                           strokeRecStyleB == SkStrokeRec::kHairline_Style ||
-                           (b.style().isSimpleFill() && pathB.isConvex()));
+        bool aCanChange = can_interchange_winding_and_even_odd_fill(a);
+        bool bCanChange = can_interchange_winding_and_even_odd_fill(b);
         if (aCanChange != bCanChange) {
             ignoreWindingVsEvenOdd = true;
         }
