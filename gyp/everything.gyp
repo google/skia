@@ -31,7 +31,7 @@
         }],
         ['skia_os == "android"', {
           'dependencies': [
-            'android_system.gyp:SampleApp_APK',
+            'android_system.gyp:Viewer_APK',
           ],
         }],
       ],
