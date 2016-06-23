@@ -143,6 +143,14 @@
     ['skia_os != "linux"', {
       'sources': ['<@(headers)'],
     }],
+    ['skia_arch_type == "arm" and skia_clang_build', {
+      # DNG SDK uses __builtin_smulll_overflow() to detect 64x64 bit multiply overflow.
+      # On ARMv7, Clang implements this with __mulodi4() in libclang_rt.
+      # I can't quite figure out how to link that here, so instead here's a shim for
+      # __builtin_smulll_overflow() that multiplies normally assuming no overflow.
+      # Tracked in b/29412086.
+      'defines': [ '__builtin_smulll_overflow(x,y,p)=(*(p)=(x)*(y), false)' ],
+    }],
   ],
   'dependencies': [
     'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
