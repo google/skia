@@ -192,6 +192,7 @@ public:
             (--iter)->~T();
         }
 
+        SkASSERT(count >= 0);
         if (fCount != count) {
             if (fCount > kCount) {
                 // 'fArray' was allocated last time so free it now
@@ -267,7 +268,7 @@ public:
 
     /** Allocates space for 'count' Ts. */
     explicit SkAutoTMalloc(size_t count) {
-        fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW);
+        fPtr = count ? (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW) : nullptr;
     }
 
     ~SkAutoTMalloc() {
@@ -276,7 +277,11 @@ public:
 
     /** Resize the memory area pointed to by the current ptr preserving contents. */
     void realloc(size_t count) {
-        fPtr = reinterpret_cast<T*>(sk_realloc_throw(fPtr, count * sizeof(T)));
+        if (count) {
+            fPtr = reinterpret_cast<T*>(sk_realloc_throw(fPtr, count * sizeof(T)));
+        } else {
+            this->reset(0);
+        }
     }
 
     /** Resize the memory area pointed to by the current ptr without preserving contents. */
@@ -326,8 +331,10 @@ public:
     SkAutoSTMalloc(size_t count) {
         if (count > kCount) {
             fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
-        } else {
+        } else if (count) {
             fPtr = fTStorage;
+        } else {
+            fPtr = nullptr;
         }
     }
 
@@ -344,8 +351,10 @@ public:
         }
         if (count > kCount) {
             fPtr = (T*)sk_malloc_throw(count * sizeof(T));
-        } else {
+        } else if (count) {
             fPtr = fTStorage;
+        } else {
+            fPtr = nullptr;
         }
         return fPtr;
     }
@@ -377,8 +386,12 @@ public:
             } else {
                 fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
             }
-        } else if (fPtr != fTStorage) {
-            fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
+        } else if (count) {
+            if (fPtr != fTStorage) {
+                fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
+            }
+        } else {
+            this->reset(0);
         }
     }
 
