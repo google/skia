@@ -36,6 +36,7 @@ static int fuzz_api(SkData*);
 static int fuzz_img(SkData*, uint8_t, uint8_t);
 static int fuzz_skp(SkData*);
 static int fuzz_icc(SkData*);
+static int fuzz_color_deserialize(SkData*);
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
@@ -52,6 +53,8 @@ int main(int argc, char** argv) {
     if (!FLAGS_type.isEmpty()) {
         switch (FLAGS_type[0][0]) {
             case 'a': return fuzz_api(bytes);
+
+            case 'c': return fuzz_color_deserialize(bytes);
 
             case 'i':
                 if (FLAGS_type[0][1] == 'c') { //icc
@@ -383,6 +386,16 @@ int fuzz_icc(SkData* bytes) {
         return 1;
     }
     SkDebugf("[terminated] Success! Decoded ICC.\n");
+    return 0;
+}
+
+int fuzz_color_deserialize(SkData* bytes) {
+    sk_sp<SkColorSpace> space(SkColorSpace::Deserialize(bytes->data(), bytes->size()));
+    if (!space) {
+        SkDebugf("[terminated] Couldn't deserialize Colorspace.\n");
+        return 1;
+    }
+    SkDebugf("[terminated] Success! deserialized Colorspace.\n");
     return 0;
 }
 
