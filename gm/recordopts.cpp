@@ -190,7 +190,7 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(shapeColors); ++i) {
         shapeColor = shapeColors[i];
-        for (size_t j = 0; j < SK_ARRAY_COUNT(shapeColors); ++j) {
+        for (size_t j = 0; j < SK_ARRAY_COUNT(detectorInstallFuncs); ++j) {
             InstallDetectorFunc detectorInstallFunc = detectorInstallFuncs[j];
             for (size_t k = 0; k < SK_ARRAY_COUNT(funcs); ++k) {
                 TestVariantSequence drawTestSequence = funcs[k];
