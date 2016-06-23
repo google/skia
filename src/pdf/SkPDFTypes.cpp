@@ -110,18 +110,6 @@ static void write_name_escaped(SkWStream* o, const char* name) {
     }
 }
 
-static void write_string(SkWStream* o, const SkString& s) {
-    o->write(s.c_str(), s.size());
-}
-
-static SkString format_string(const SkString& s) {
-    return SkPDFUtils::FormatString(s.c_str(), s.size());
-}
-
-static SkString format_string(const char* s) {
-    return SkPDFUtils::FormatString(s, strlen(s));
-}
-
 void SkPDFUnion::emitObject(SkWStream* stream,
                             const SkPDFObjNumMap& objNumMap,
                             const SkPDFSubstituteMap& substitutes) const {
@@ -142,14 +130,16 @@ void SkPDFUnion::emitObject(SkWStream* stream,
             return;
         case Type::kString:
             SkASSERT(fStaticString);
-            write_string(stream, format_string(fStaticString));
+            SkPDFUtils::WriteString(stream, fStaticString,
+                                    strlen(fStaticString));
             return;
         case Type::kNameSkS:
             stream->writeText("/");
             write_name_escaped(stream, pun(fSkString)->c_str());
             return;
         case Type::kStringSkS:
-            write_string(stream, format_string(*pun(fSkString)));
+            SkPDFUtils::WriteString(stream, pun(fSkString)->c_str(),
+                                    pun(fSkString)->size());
             return;
         case Type::kObjRef:
             stream->writeDecAsText(objNumMap.getObjectNumber(

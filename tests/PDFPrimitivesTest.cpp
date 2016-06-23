@@ -217,9 +217,11 @@ static void TestPDFUnion(skiatest::Reporter* reporter) {
 
     SkString stringComplexInput("\ttest ) string ( foo");
     SkPDFUnion stringComplex = SkPDFUnion::String(stringComplexInput);
-    ASSERT_EMIT_EQ(reporter,
-                   stringComplex,
-                   "<0974657374202920737472696E67202820666F6F>");
+    ASSERT_EMIT_EQ(reporter, stringComplex, "(\\011test \\) string \\( foo)");
+
+    SkString binaryStringInput("\1\2\3\4\5\6\7\10\11\12\13\14\15\16\17\20");
+    SkPDFUnion binaryString = SkPDFUnion::String(binaryStringInput);
+    ASSERT_EMIT_EQ(reporter, binaryString, "<0102030405060708090A0B0C0D0E0F10>");
 
     SkString nameInput("Test name\twith#tab");
     SkPDFUnion name = SkPDFUnion::Name(nameInput);

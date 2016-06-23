@@ -208,6 +208,25 @@ struct WStreamWriteTextBenchmark : public Benchmark {
     }
 };
 
+struct WritePDFTextBenchmark : public Benchmark {
+    std::unique_ptr<SkWStream> fWStream;
+    WritePDFTextBenchmark() : fWStream(new NullWStream) {}
+    const char* onGetName() override { return "WritePDFText"; }
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+    void onDraw(int loops, SkCanvas*) override {
+        static const char kHello[] = "HELLO SKIA!\n";
+        static const char kBinary[] = "\001\002\003\004\005\006";
+        while (loops-- > 0) {
+            for (int i = 1000; i-- > 0;) {
+                SkPDFUtils::WriteString(fWStream.get(), kHello, strlen(kHello));
+                SkPDFUtils::WriteString(fWStream.get(), kBinary, strlen(kBinary));
+            }
+        }
+    }
+};
+
 }  // namespace
 DEF_BENCH(return new PDFImageBench;)
 DEF_BENCH(return new PDFJpegImageBench;)
@@ -215,3 +234,4 @@ DEF_BENCH(return new PDFCompressionBench;)
 DEF_BENCH(return new PDFScalarBench;)
 DEF_BENCH(return new PDFShaderBench;)
 DEF_BENCH(return new WStreamWriteTextBenchmark;)
+DEF_BENCH(return new WritePDFTextBenchmark;)

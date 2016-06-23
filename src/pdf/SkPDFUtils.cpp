@@ -370,46 +370,48 @@ size_t SkPDFUtils::FloatToDecimal(float value,
     return output - result;
 }
 
-SkString SkPDFUtils::FormatString(const char* cin, size_t len) {
+void SkPDFUtils::WriteString(SkWStream* wStream, const char* cin, size_t len) {
     SkDEBUGCODE(static const size_t kMaxLen = 65535;)
     SkASSERT(len <= kMaxLen);
 
-    // 7-bit clean is a heuristic to decide what string format to use;
-    // a 7-bit clean string should require little escaping.
-    bool sevenBitClean = true;
-    size_t characterCount = 2 + len;
+    size_t extraCharacterCount = 0;
     for (size_t i = 0; i < len; i++) {
         if (cin[i] > '~' || cin[i] < ' ') {
-            sevenBitClean = false;
-            break;
+            extraCharacterCount += 3;
         }
         if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
-            ++characterCount;
+            ++extraCharacterCount;
         }
     }
-    SkString result;
-    if (sevenBitClean) {
-        result.resize(characterCount);
-        char* str = result.writable_str();
-        *str++ = '(';
+    if (extraCharacterCount <= len) {
+        wStream->writeText("(");
         for (size_t i = 0; i < len; i++) {
-            if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
-                *str++ = '\\';
+            if (cin[i] > '~' || cin[i] < ' ') {
+                uint8_t c = static_cast<uint8_t>(cin[i]);
+                uint8_t octal[4];
+                octal[0] = '\\';
+                octal[1] = '0' + ( c >> 6        );
+                octal[2] = '0' + ((c >> 3) & 0x07);
+                octal[3] = '0' + ( c       & 0x07);
+                wStream->write(octal, 4);
+            } else {
+                if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
+                    wStream->writeText("\\");
+                }
+                wStream->write(&cin[i], 1);
             }
-            *str++ = cin[i];
         }
-        *str++ = ')';
+        wStream->writeText(")");
     } else {
-        result.resize(2 * len + 2);
-        char* str = result.writable_str();
-        *str++ = '<';
+        wStream->writeText("<");
         for (size_t i = 0; i < len; i++) {
             uint8_t c = static_cast<uint8_t>(cin[i]);
             static const char gHex[] = "0123456789ABCDEF";
-            *str++ = gHex[(c >> 4) & 0xF];
-            *str++ = gHex[(c     ) & 0xF];
+            char hexValue[2];
+            hexValue[0] = gHex[(c >> 4) & 0xF];
+            hexValue[1] = gHex[ c       & 0xF];
+            wStream->write(hexValue, 2);
         }
-        *str++ = '>';
+        wStream->writeText(">");
     }
-    return result;
 }

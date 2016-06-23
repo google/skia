@@ -1067,30 +1067,32 @@ void SkPDFDevice::drawImageRect(const SkDraw& draw,
 //                   discarded.  If true, the upper byte is encoded
 //                   first.  Otherwise, we assert the upper byte is
 //                   zero.
-static SkString format_wide_string(const uint16_t* input,
-                                   size_t len,
-                                   bool wideChars) {
+static void write_wide_string(SkDynamicMemoryWStream* wStream,
+                              const uint16_t* input,
+                              size_t len,
+                              bool wideChars) {
     if (wideChars) {
         SkASSERT(2 * len < 65535);
         static const char gHex[] = "0123456789ABCDEF";
-        SkString result(4 * len + 2);
-        result[0] = '<';
+        wStream->writeText("<");
         for (size_t i = 0; i < len; i++) {
-            result[4 * i + 1] = gHex[(input[i] >> 12) & 0xF];
-            result[4 * i + 2] = gHex[(input[i] >>  8) & 0xF];
-            result[4 * i + 3] = gHex[(input[i] >>  4) & 0xF];
-            result[4 * i + 4] = gHex[(input[i]      ) & 0xF];
+            char result[4];  // Big-endian
+            result[0] = gHex[(input[i] >> 12) & 0xF];
+            result[1] = gHex[(input[i] >> 8) & 0xF];
+            result[2] = gHex[(input[i] >> 4) & 0xF];
+            result[3] = gHex[(input[i]) & 0xF];
+            wStream->write(result, 4);
         }
-        result[4 * len + 1] = '>';
-        return result;
+        wStream->writeText(">");
     } else {
         SkASSERT(len <= 65535);
-        SkString tmp(len);
+        SkAutoMalloc buffer(len);  // Remove every other byte.
+        uint8_t* ptr = (uint8_t*)buffer.get();
         for (size_t i = 0; i < len; i++) {
             SkASSERT(0 == input[i] >> 8);
-            tmp[i] = static_cast<uint8_t>(input[i]);
+            ptr[i] = static_cast<uint8_t>(input[i]);
         }
-        return SkPDFUtils::FormatString(tmp.c_str(), tmp.size());
+        SkPDFUtils::WriteString(wStream, (char*)buffer.get(), len);
     }
 }
 
@@ -1184,10 +1186,9 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
         fFontGlyphUsage->noteGlyphUsage(
                 font,  glyphIDsCopy.begin() + consumedGlyphCount,
                 availableGlyphs);
-        SkString encodedString =
-                format_wide_string(glyphIDsCopy.begin() + consumedGlyphCount,
-                                   availableGlyphs, font->multiByteGlyphs());
-        content.entry()->fContent.writeText(encodedString.c_str());
+        write_wide_string(&content.entry()->fContent,
+                          glyphIDsCopy.begin() + consumedGlyphCount,
+                          availableGlyphs, font->multiByteGlyphs());
         consumedGlyphCount += availableGlyphs;
         content.entry()->fContent.writeText(" Tj\n");
     }
@@ -1264,9 +1265,8 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
 
         align_text(glyphCacheProc, textPaint, glyphIDs + i, 1, &x, &y);
         set_text_transform(x, y, textPaint.getTextSkewX(), &content.entry()->fContent);
-        SkString encodedString =
-                format_wide_string(&encodedValue, 1, font->multiByteGlyphs());
-        content.entry()->fContent.writeText(encodedString.c_str());
+        write_wide_string(&content.entry()->fContent, &encodedValue, 1,
+                          font->multiByteGlyphs());
         content.entry()->fContent.writeText(" Tj\n");
     }
     content.entry()->fContent.writeText("ET\n");
