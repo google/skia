@@ -129,7 +129,7 @@ private:
 #elif defined(SK_BUILD_FOR_WIN)
     #include "SkOSWindow_Win.h"
 #elif defined(SK_BUILD_FOR_ANDROID)
-    #error Android does not support SkOSWindow and SampleApp. Please use Viewer instead.
+    #include "SkOSWindow_Android.h"
 #elif defined(SK_BUILD_FOR_UNIX)
     #include "SkOSWindow_Unix.h"
 #elif defined(SK_BUILD_FOR_IOS)

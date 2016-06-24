@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2011 Google Inc.
+
+     Use of this source code is governed by a BSD-style license that can be
+     found in the LICENSE file.
+-->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/fps"
+        android:title="@string/fps"
+        android:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/toggle_rendering"
+        android:title="@string/toggle_rendering"
+        android:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/prev"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_btn_find_prev"
+        />
+    <item
+        android:id="@+id/next"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_btn_find_next"
+        />
+    <item
+        android:id="@+id/overview"
+        android:title="@string/overview"
+        />
+    <item
+        android:id="@+id/slideshow"
+        android:title="@string/slideshow"
+        />
+    <item
+        android:id="@+id/tiling"
+        android:title="@string/tiling"
+        />
+    <item
+        android:id="@+id/bbox"
+        android:title="@string/bbox"
+        />
+    <item
+        android:id="@+id/glcontext_menu"
+        android:title="@string/glcontext_menu">
+        <menu>
+            <item
+                android:id="@+id/glcontext_opengles"
+                android:title="@string/glcontext_opengles"
+                android:checkable="true"
+                />
+            <item
+                android:id="@+id/glcontext_msaa4_opengles"
+                android:title="@string/glcontext_msaa4_opengles"
+                android:checkable="true"
+                />
+            <item
+                android:id="@+id/glcontext_opengl"
+                android:title="@string/glcontext_opengl"
+                android:checkable="true"
+                />
+            <item
+                android:id="@+id/glcontext_msaa4_opengl"
+                android:title="@string/glcontext_msaa4_opengl"
+                android:checkable="true"
+                />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/save_to_pdf"
+        android:title="@string/save_to_pdf"
+        />
+</menu>

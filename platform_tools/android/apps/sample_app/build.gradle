@@ -1,0 +1,30 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "com.skia.sample_app"
+        minSdkVersion 9
+        targetSdkVersion 19
+        versionCode 1
+        versionName "1.0"
+        signingConfig signingConfigs.debug
+    }
+
+    sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
+    sourceSets.main.jniLibs.srcDir "src/main/libs"
+
+    productFlavors {
+        arm {}
+        arm64 {}
+        x86 {}
+        x86_64 {}
+        mips {}
+        mips64 {}
+    }
+
+    // make sure that app is built and shared libraries are copied to correct directories
+    setupSkiaLibraryBuild(project, applicationVariants, "CopySampleAppDeps")
+}

@@ -496,6 +496,7 @@
           '<(skia_include_path)/utils/win',
           '<(skia_include_path)/utils/SkDebugUtils.h',
           '<(skia_include_path)/utils/SkJSONCPP.h',
+          '<(skia_include_path)/views/SkOSWindow_Android.h',
           '<(skia_include_path)/views/SkOSWindow_iOS.h',
           '<(skia_include_path)/views/SkOSWindow_Mac.h',
           '<(skia_include_path)/views/SkOSWindow_SDL.h',

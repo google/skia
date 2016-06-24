@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Skia Samples</string>
+    <string name="overview">Overview</string>
+    <string name="toggle_rendering">Toggle Rendering</string>
+    <string name="slideshow">Slideshow</string>
+    <string name="fps">FPS</string>
+    <string name="tiling">Toggle Tiling</string>
+    <string name="bbox">Toggle SKP BBox</string>
+    <string name="save_to_pdf">Save to PDF</string>
+    <string name="pdf_save_info">View saved as PDF to directory \"/sdcard\"</string>
+    <string name="glcontext_menu">Set OpenGL Context Type</string>
+    <string name="glcontext_opengles">OpenGL ES</string>
+    <string name="glcontext_msaa4_opengles">OpenGL ES, MSAA4</string>
+    <string name="glcontext_opengl">OpenGL</string>
+    <string name="glcontext_msaa4_opengl">OpenGL, MSAA4</string>
+</resources>

@@ -51,4 +51,72 @@
       'canvasproof.gypi',
       'viewer.gypi',
   ],
+  'targets': [
+    {
+      'target_name': 'CopySampleAppDeps',
+      'type': 'none',
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'SampleApp.gyp:SampleApp',
+      ],
+      'copies': [
+        # Copy all shared libraries into the Android app's libs folder.  Note
+        # that this copy requires us to build SkiaAndroidApp after those
+        # libraries, so that they exist by the time it occurs.  If there are no
+        # libraries to copy, this will cause an error in Make, but the app will
+        # still build.
+        {
+          'destination': '<(android_base)/apps/sample_app/src/main/libs/<(android_arch)',
+          'conditions': [
+            [ 'skia_shared_lib', {
+              'files': [
+                '<(SHARED_LIB_DIR)/libSampleApp.so',
+                '<(SHARED_LIB_DIR)/libskia_android.so',
+              ]}, {
+              'files': [
+                '<(SHARED_LIB_DIR)/libSampleApp.so',
+             ]}
+           ],
+          ],
+        },
+      ],
+    },
+    {
+      'target_name': 'SampleApp_APK',
+      'type': 'none',
+      'dependencies': [
+        'CopySampleAppDeps',
+      ],
+      'actions': [
+        {
+          'action_name': 'SampleApp_apk',
+          'inputs': [
+            '<(android_base)/apps/sample_app/src/main/AndroidManifest.xml',
+            '<(android_base)/apps/sample_app/src/main/jni/com_skia_SkiaSampleRenderer.h',
+            '<(android_base)/apps/sample_app/src/main/jni/com_skia_SkiaSampleRenderer.cpp',
+            '<(android_base)/apps/sample_app/src/main/java/com/skia/SkiaSampleActivity.java',
+            '<(android_base)/apps/sample_app/src/main/java/com/skia/SkiaSampleRenderer.java',
+            '<(android_base)/apps/sample_app/src/main/java/com/skia/SkiaSampleView.java',
+            '<(android_base)/apps/sample_app/src/main/libs/<(android_arch)/libSampleApp.so',
+          ],
+          'conditions': [
+            [ 'skia_shared_lib', {
+              'inputs': [
+                '<(android_base)/apps/sample_app/src/main/libs/<(android_arch)/libskia_android.so',
+              ],
+            }],
+          ],
+          'outputs': [
+            '<(android_base)/apps/sample_app/build/outputs/apk/sample_app-<(android_variant)-<(android_apk_suffix)',
+          ],
+          'action': [
+            '<(android_base)/apps/gradlew',
+            ':sample_app:assemble<(android_variant)<(android_buildtype)',
+            '-p<(android_base)/apps/sample_app',
+            '-PsuppressNativeBuild',
+          ],
+        },
+      ],
+    },
+  ],
 }

@@ -39,12 +39,9 @@
             'example.gyp:HelloWorld',
           ],
         }],
-        ['skia_os == "android"', {
+        ['skia_os == "android" and skia_vulkan == 1', {
           'dependencies': [
             'android_system.gyp:Viewer_APK',
-          ],
-          'dependencies!': [
-            'SampleApp.gyp:SampleApp',
           ],
         }],
         ['skia_os == "ios"', {
