@@ -225,7 +225,7 @@ VkAccessFlags GrVkMemory::LayoutToSrcAccessMask(const VkImageLayout layout) {
             VK_ACCESS_TRANSFER_WRITE_BIT |
             VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_HOST_READ_BIT;
     } else if (VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
-        flags = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_HOST_READ_BIT;
+        flags = VK_ACCESS_HOST_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout) {
         flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout) {
