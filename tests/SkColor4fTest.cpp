@@ -37,13 +37,13 @@ DEF_TEST(SkColor4f_FromColor, reporter) {
         SkColor     fC;
         SkColor4f   fC4;
     } recs[] = {
-        { SK_ColorBLACK, { 1, 0, 0, 0 } },
+        { SK_ColorBLACK, { 0, 0, 0, 1 } },
         { SK_ColorWHITE, { 1, 1, 1, 1 } },
-        { SK_ColorRED,   { 1, 1, 0, 0 } },
-        { SK_ColorGREEN, { 1, 0, 1, 0 } },
-        { SK_ColorBLUE,  { 1, 0, 0, 1 } },
+        { SK_ColorRED,   { 1, 0, 0, 1 } },
+        { SK_ColorGREEN, { 0, 1, 0, 1 } },
+        { SK_ColorBLUE,  { 0, 0, 1, 1 } },
         { 0,             { 0, 0, 0, 0 } },
-        { 0x55AAFF00,    { 1/3.0f, 2/3.0f, 1, 0 } },
+        { 0x55AAFF00,    { 2/3.0f, 1, 0, 1 / 3.0f } },
     };
 
     for (const auto& r : recs) {
@@ -58,7 +58,7 @@ DEF_TEST(Color4f_premul, reporter) {
     for (int i = 0; i < 1000000; ++i) {
         // First just test opaque colors, so that the premul should be exact
         SkColor4f c4 {
-            1, rand.nextUScalar1(), rand.nextUScalar1(), rand.nextUScalar1()
+            rand.nextUScalar1(), rand.nextUScalar1(), rand.nextUScalar1(), 1
         };
         SkPM4f pm4 = c4.premul();
         REPORTER_ASSERT(reporter, pm4.a() == c4.fA);

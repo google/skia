@@ -120,7 +120,7 @@ SkColor4f SkPM4f::unpremul() const {
         return { 0, 0, 0, 0 };
     } else {
         float invAlpha = 1 / alpha;
-        return { alpha, fVec[R] * invAlpha, fVec[G] * invAlpha, fVec[B] * invAlpha };
+        return { fVec[R] * invAlpha, fVec[G] * invAlpha, fVec[B] * invAlpha, alpha };
     }
 }
 
@@ -155,7 +155,7 @@ void SkPM4f::assertIsUnit() const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkColor4f SkColor4f::FromColor(SkColor c) {
-    Sk4f value = SkNx_shuffle<3,2,1,0>(SkNx_cast<float>(Sk4b::Load(&c)));
+    Sk4f value = SkNx_shuffle<2,1,0,3>(SkNx_cast<float>(Sk4b::Load(&c)));
     SkColor4f c4;
     (value * Sk4f(1.0f / 255)).store(&c4);
     if (gTreatSkColorAsSRGB) {
@@ -166,19 +166,23 @@ SkColor4f SkColor4f::FromColor(SkColor c) {
     return c4;
 }
 
-SkColor4f SkColor4f::Pin(float a, float r, float g, float b) {
+SkColor SkColor4f::toSkColor() const {
+    SkColor result;
+    Sk4f value = SkNx_shuffle<2, 1, 0, 3>(Sk4f::Load(this->vec()));
+    SkNx_cast<uint8_t>(value * Sk4f(255) + Sk4f(0.5f)).store(&result);
+    return result;
+}
+
+SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
     SkColor4f c4;
-    Sk4f::Min(Sk4f::Max(Sk4f(a, r, g, b), Sk4f(0)), Sk4f(1)).store(c4.vec());
+    Sk4f::Min(Sk4f::Max(Sk4f(r, g, b, a), Sk4f(0)), Sk4f(1)).store(c4.vec());
     return c4;
 }
 
 SkPM4f SkColor4f::premul() const {
     auto src = Sk4f::Load(this->pin().vec());
-    float srcAlpha = src[0];  // need the pinned version of our alpha
-    src = src * Sk4f(1, srcAlpha, srcAlpha, srcAlpha);
+    float srcAlpha = src[3];  // need the pinned version of our alpha
+    src = src * Sk4f(srcAlpha, srcAlpha, srcAlpha, 1);
 
-    // ARGB -> RGBA
-    Sk4f dst = SkNx_shuffle<1,2,3,0>(src);
-
-    return SkPM4f::From4f(dst);
+    return SkPM4f::From4f(src);
 }

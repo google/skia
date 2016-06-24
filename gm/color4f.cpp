@@ -99,10 +99,10 @@ DEF_SIMPLE_GM(color4shader, canvas, 1024, 260) {
     mat.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
 
     const SkColor4f colors[] {
-        { 1, 1, 0, 0 },
-        { 1, 0, 1, 0 },
         { 1, 0, 0, 1 },
-        { 1, 0.5, 0.5, 0.5 },
+        { 0, 1, 0, 1 },
+        { 0, 0, 1, 1 },
+        { 0.5, 0.5, 0.5, 1 },
     };
 
     SkPaint paint;
