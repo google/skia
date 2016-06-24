@@ -48,8 +48,13 @@ public:
     /**
      * The initial color of the drawn primitive. Defaults to solid white.
      */
-    void setColor(GrColor color) { fColor = color; }
-    GrColor getColor() const { return fColor; }
+    void setColor4f(const GrColor4f& color) { fColor = color; }
+    const GrColor4f& getColor4f() const { return fColor; }
+
+    /**
+     * Legacy getter, until all code handles 4f directly.
+     */
+    GrColor getColor() const { return fColor.toGrColor(); }
 
     /**
      * Should primitives be anti-aliased or not. Defaults to false.
@@ -162,7 +167,7 @@ private:
     bool                                      fDisableOutputConversionToSRGB;
     bool                                      fAllowSRGBInputs;
 
-    GrColor                                   fColor;
+    GrColor4f                                 fColor;
 };
 
 #endif

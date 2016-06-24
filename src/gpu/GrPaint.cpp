@@ -16,7 +16,7 @@ GrPaint::GrPaint()
     : fAntiAlias(false)
     , fDisableOutputConversionToSRGB(false)
     , fAllowSRGBInputs(false)
-    , fColor(GrColor_WHITE) {}
+    , fColor(GrColor4f::FromGrColor(GrColor_WHITE)) {}
 
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
     fXPFactory = GrCoverageSetOpXPFactory::Make(regionOp, invertCoverage);
@@ -46,7 +46,7 @@ bool GrPaint::isConstantBlendedColor(GrColor* color) const {
     GrProcOptInfo colorProcInfo;
     colorProcInfo.calcWithInitialValues(
         sk_sp_address_as_pointer_address(fColorFragmentProcessors.begin()),
-        this->numColorFragmentProcessors(), fColor, kRGBA_GrColorComponentFlags, false);
+        this->numColorFragmentProcessors(), this->getColor(), kRGBA_GrColorComponentFlags, false);
 
     GrXPFactory::InvariantBlendedColor blendedColor;
     if (fXPFactory) {

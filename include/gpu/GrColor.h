@@ -169,6 +169,54 @@ static inline GrColor GrUnpremulColor(GrColor color) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
+
+/**
+* Similarly, GrColor4f is 4 floats for R, G, B, A, in that order. And like GrColor, whether
+* the color is premultiplied or not depends on the context.
+*/
+struct GrColor4f {
+    float fRGBA[4];
+
+    GrColor4f() {}
+    GrColor4f(float r, float g, float b, float a) {
+        fRGBA[0] = r;
+        fRGBA[1] = g;
+        fRGBA[2] = b;
+        fRGBA[3] = a;
+    }
+
+    static GrColor4f FromGrColor(GrColor color) {
+        GrColor4f result;
+        GrColorToRGBAFloat(color, result.fRGBA);
+        return result;
+    }
+
+    static GrColor4f FromSkColor4f(const SkColor4f& color) {
+        return GrColor4f(color.fR, color.fG, color.fB, color.fA);
+    }
+
+    GrColor toGrColor() const {
+        return GrColorPackRGBA(
+            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[0] * 255.0f + 0.5f), 0, 255),
+            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[1] * 255.0f + 0.5f), 0, 255),
+            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[2] * 255.0f + 0.5f), 0, 255),
+            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[3] * 255.0f + 0.5f), 0, 255));
+    }
+
+    SkColor4f toSkColor4f() const {
+        return SkColor4f { fRGBA[0], fRGBA[1], fRGBA[2], fRGBA[3] };
+    }
+
+    GrColor4f opaque() const {
+        return GrColor4f(fRGBA[0], fRGBA[1], fRGBA[2], 1.0f);
+    }
+
+    GrColor4f premul() const {
+        float a = fRGBA[3];
+        return GrColor4f(fRGBA[0] * a, fRGBA[1] * a, fRGBA[2] * a, a);
+    }
+};
+
 /**
  * Flags used for bitfields of color components. They are defined so that the bit order reflects the
  * GrColor shift order.
