@@ -158,7 +158,7 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
                 cy += 1;
             }
         } else {
-            // Bits is calculated as the offset into the mask at the point {cx, cy} therfore, all
+            // Bits is calculated as the offset into the mask at the point {cx, cy} therefore, all
             // addressing into the bit mask is relative to that point. Since this is an address
             // calculated from a arbitrary bit in that byte, calculate the left most bit.
             int bitsLeft = cx - ((cx - maskLeft) & 7);

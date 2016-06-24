@@ -174,10 +174,15 @@ void SkARGB32_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         return;
     }
 
-    if (mask.fFormat == SkMask::kBW_Format) {
-        SkARGB32_BlendBW(fDevice, mask, clip, fPMColor, SkAlpha255To256(255 - fSrcA));
-    } else if (SkMask::kARGB32_Format == mask.fFormat) {
-        SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+    switch (mask.fFormat) {
+        case SkMask::kBW_Format:
+            SkARGB32_BlendBW(fDevice, mask, clip, fPMColor, SkAlpha255To256(255 - fSrcA));
+            break;
+        case SkMask::kARGB32_Format:
+            SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+            break;
+        default:
+            SkFAIL("Mask format not handled.");
     }
 }
 
@@ -189,10 +194,15 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
         return;
     }
 
-    if (mask.fFormat == SkMask::kBW_Format) {
-        SkARGB32_BlitBW(fDevice, mask, clip, fPMColor);
-    } else if (SkMask::kARGB32_Format == mask.fFormat) {
-        SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+    switch (mask.fFormat) {
+        case SkMask::kBW_Format:
+            SkARGB32_BlitBW(fDevice, mask, clip, fPMColor);
+            break;
+        case SkMask::kARGB32_Format:
+            SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+            break;
+        default:
+            SkFAIL("Mask format not handled.");
     }
 }
 
