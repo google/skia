@@ -4532,7 +4532,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 }
 
 GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                         GrPixelConfig config) {
+                                                         GrPixelConfig config, bool /*isRT*/) {
     if (!this->caps()->isConfigTexturable(config)) {
         return false;
     }

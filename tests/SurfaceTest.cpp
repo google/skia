@@ -360,7 +360,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
 
         // Test again with a "direct" render target;
         GrBackendObject textureObject = context->getGpu()->createTestingOnlyBackendTexture(nullptr,
-            10, 10, kRGBA_8888_GrPixelConfig);
+            10, 10, kRGBA_8888_GrPixelConfig, true);
         GrBackendTextureDesc desc;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fWidth = 10;
@@ -764,7 +764,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     desc.fHeight = kHeight;
     desc.fFlags = kRenderTarget_GrBackendTextureFlag;
     desc.fTextureHandle = context->getGpu()->createTestingOnlyBackendTexture(
-        pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig);
+        pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true);
     desc.fSampleCnt = sampleCnt;
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(context, desc, nullptr);
     if (!surface) {
@@ -787,7 +787,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     desc.fHeight = kHeight;
     desc.fFlags = kRenderTarget_GrBackendTextureFlag;
     desc.fTextureHandle = context->getGpu()->createTestingOnlyBackendTexture(
-        pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig);
+        pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true);
     desc.fSampleCnt = sampleCnt;
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(context, desc,
                                                                                nullptr);

@@ -540,6 +540,10 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
         return nullptr;
     }
 
+    if (renderTarget && !fVkCaps->isConfigRenderable(desc.fConfig, false)) {
+        return nullptr;
+    }
+
     bool linearTiling = false;
     if (SkToBool(desc.fFlags & kZeroCopy_GrSurfaceFlag)) {
         // we can't have a linear texture with a mipmap
@@ -842,7 +846,8 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 ////////////////////////////////////////////////////////////////////////////////
 
 GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, int h,
-                                                         GrPixelConfig config) {
+                                                         GrPixelConfig config,
+                                                         bool isRenderTarget) {
 
     VkFormat pixelFormat;
     if (!GrPixelConfigToVkFormat(config, &pixelFormat)) {
@@ -854,7 +859,12 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
         return 0;
     }
 
-    if (fVkCaps->isConfigTexurableLinearly(config)) {
+    if (isRenderTarget && !fVkCaps->isConfigRenderable(config, false)) {
+        return 0;
+    }
+
+    if (fVkCaps->isConfigTexurableLinearly(config) &&
+        (!isRenderTarget || fVkCaps->isConfigRenderableLinearly(config, false))) {
         linearTiling = true;
     }
 
@@ -866,6 +876,9 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    if (isRenderTarget) {
+        usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    }
 
     VkImage image = VK_NULL_HANDLE;
     GrVkAlloc alloc = { VK_NULL_HANDLE, 0, 0 };

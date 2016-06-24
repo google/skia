@@ -29,7 +29,8 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
 
-    GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig);
+    GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig,
+                                                                      false);
     const GrVkImageInfo* backendTex = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
     // check basic borrowed creation
@@ -71,7 +72,8 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
 
-    GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig);
+    GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig,
+                                                                      true);
     const GrVkImageInfo* backendTex = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
     // check basic borrowed creation
@@ -118,7 +120,8 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
 void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
 
-    GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig);
+    GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig,
+                                                                      true);
     const GrVkImageInfo* backendTex = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
     // check basic borrowed creation

@@ -80,7 +80,8 @@ public:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config) override;
+                                                    GrPixelConfig config,
+                                                    bool isRenderTarget) override;
     bool isTestingOnlyBackendTexture(GrBackendObject id) const override;
     void deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandonTexture) override;
 
