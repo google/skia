@@ -43,7 +43,7 @@ void SkColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f result[])
     while (count > 0) {
         int n = SkTMin(count, N);
         for (int i = 0; i < n; ++i) {
-            SkNx_cast<uint8_t>(Sk4f::Load(src[i].fVec) * Sk4f(255) + Sk4f(0.5f)).store(&tmp[i]);
+            tmp[i] = src[i].toPMColor();
         }
         this->filterSpan(tmp, n, tmp);
         for (int i = 0; i < n; ++i) {
