@@ -31,16 +31,15 @@ static const float kTolerance = 0.5f;
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for drawPath
 
-static inline bool single_pass_path(const SkPath& path) {
-    if (!path.isInverseFillType()) {
-        return path.isConvex();
+static inline bool single_pass_shape(const GrShape& shape) {
+    if (!shape.inverseFilled()) {
+        return shape.knownToBeConvex();
     }
     return false;
 }
 
-GrPathRenderer::StencilSupport
-GrMSAAPathRenderer::onGetStencilSupport(const SkPath& path) const {
-    if (single_pass_path(path)) {
+GrPathRenderer::StencilSupport GrMSAAPathRenderer::onGetStencilSupport(const GrShape& shape) const {
+    if (single_pass_shape(shape)) {
         return GrPathRenderer::kNoRestriction_StencilSupport;
     } else {
         return GrPathRenderer::kStencilOnly_StencilSupport;
@@ -574,15 +573,19 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                           const GrClip& clip,
                                           GrColor color,
                                           const SkMatrix& viewMatrix,
-                                          const SkPath& path,
+                                          const GrShape& shape,
                                           bool stencilOnly) {
+    SkASSERT(shape.style().isSimpleFill());
+    SkPath path;
+    shape.asPath(&path);
+
     int                          passCount = 0;
     const GrUserStencilSettings* passes[3];
     GrPipelineBuilder::DrawFace  drawFace[3];
     bool                         reverse = false;
     bool                         lastPassIsBounds;
 
-    if (single_pass_path(path)) {
+    if (single_pass_shape(shape)) {
         passCount = 1;
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
@@ -709,28 +712,19 @@ bool GrMSAAPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This path renderer does not support hairlines. We defer on anything that could be handled
     // as a hairline by another path renderer. Also, arbitrary path effects could produce
     // a hairline result.
-    return !IsStrokeHairlineOrEquivalent(*args.fStyle, *args.fViewMatrix, nullptr) &&
-           !args.fStyle->strokeRec().isHairlineStyle() &&
-           !args.fStyle->hasNonDashPathEffect() && !args.fAntiAlias;
+    return !IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr) &&
+           !args.fShape->style().couldBeHairline() && !args.fAntiAlias;
 }
 
 bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrMSAAPathRenderer::onDrawPath");
-    SkPath tmpPath;
-    const SkPath* path;
-    if (args.fStyle->applies()) {
-        SkStrokeRec::InitStyle fill;
+    SkTLazy<GrShape> tmpShape;
+    const GrShape* shape = args.fShape;
+    if (shape->style().applies()) {
         SkScalar styleScale = GrStyle::MatrixToScaleFactor(*args.fViewMatrix);
-        if (!args.fStyle->applyToPath(&tmpPath, &fill, *args.fPath, styleScale)) {
-            return false;
-        }
-        // We don't accept styles that are hairlines or have path effects that could produce
-        // hairlines.
-        SkASSERT(SkStrokeRec::kFill_InitStyle == fill);
-        path = &tmpPath;
-    } else {
-        path = args.fPath;
+        tmpShape.init(args.fShape->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale));
+        shape = tmpShape.get();
     }
     return this->internalDrawPath(args.fDrawContext,
                                   *args.fPaint,
@@ -738,28 +732,22 @@ bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                   *args.fClip,
                                   args.fColor,
                                   *args.fViewMatrix,
-                                  *path,
+                                  *shape,
                                   false);
 }
 
 void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrMSAAPathRenderer::onStencilPath");
-    SkASSERT(SkPath::kInverseEvenOdd_FillType != args.fPath->getFillType());
-    SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
+    SkASSERT(args.fShape->style().isSimpleFill());
+    SkASSERT(!args.fShape->mayBeInverseFilledAfterStyling());
 
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Make());
     paint.setAntiAlias(args.fIsAA);
 
-    this->internalDrawPath(args.fDrawContext,
-                           paint,
-                           &GrUserStencilSettings::kUnused,
-                           *args.fClip,
-                           GrColor_WHITE,
-                           *args.fViewMatrix,
-                           *args.fPath,
-                           true);
+    this->internalDrawPath(args.fDrawContext, paint, &GrUserStencilSettings::kUnused, *args.fClip,
+                           GrColor_WHITE, *args.fViewMatrix, *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

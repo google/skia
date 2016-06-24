@@ -79,7 +79,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
     }
     if (minStencilSupport != GrPathRenderer::kNoSupport_StencilSupport) {
         // We don't support (and shouldn't need) stenciling of non-fill paths.
-        if (!args.fStyle->isSimpleFill()) {
+        if (!args.fShape->style().isSimpleFill()) {
             return nullptr;
         }
     }
@@ -87,8 +87,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
     for (int i = 0; i < fChain.count(); ++i) {
         if (fChain[i]->canDrawPath(args)) {
             if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
-                GrPathRenderer::StencilSupport support =
-                                        fChain[i]->getStencilSupport(*args.fPath);
+                GrPathRenderer::StencilSupport support = fChain[i]->getStencilSupport(*args.fShape);
                 if (support < minStencilSupport) {
                     continue;
                 } else if (stencilSupport) {

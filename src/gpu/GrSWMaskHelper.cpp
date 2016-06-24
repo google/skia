@@ -11,13 +11,10 @@
 #include "GrContext.h"
 #include "batches/GrDrawBatch.h"
 #include "GrDrawContext.h"
-#include "GrGpu.h"
 #include "GrPipelineBuilder.h"
-#include "GrStyle.h"
+#include "GrShape.h"
 
-#include "SkData.h"
 #include "SkDistanceFieldGen.h"
-#include "SkStrokeRec.h"
 
 #include "batches/GrRectBatchFactory.h"
 
@@ -55,13 +52,15 @@ void GrSWMaskHelper::drawRect(const SkRect& rect, SkRegion::Op op,
 /**
  * Draw a single path element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::drawPath(const SkPath& path, const GrStyle& style, SkRegion::Op op,
-                              bool antiAlias, uint8_t alpha) {
+void GrSWMaskHelper::drawShape(const GrShape& shape, SkRegion::Op op, bool antiAlias,
+                               uint8_t alpha) {
     SkPaint paint;
-    paint.setPathEffect(sk_ref_sp(style.pathEffect()));
-    style.strokeRec().applyToPaint(&paint);
+    paint.setPathEffect(sk_ref_sp(shape.style().pathEffect()));
+    shape.style().strokeRec().applyToPaint(&paint);
     paint.setAntiAlias(antiAlias);
 
+    SkPath path;
+    shape.asPath(&path);
     if (SkRegion::kReplace_Op == op && 0xFF == alpha) {
         SkASSERT(0xFF == paint.getAlpha());
         fDraw.drawPathCoverage(path, paint);
@@ -132,23 +131,21 @@ void GrSWMaskHelper::toSDF(unsigned char* sdf) {
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
- * Software rasterizes path to A8 mask (possibly using the context's matrix)
- * and uploads the result to a scratch texture. Returns the resulting
- * texture on success; nullptr on failure.
+ * Software rasterizes shape to A8 mask and uploads the result to a scratch texture. Returns the
+ * resulting texture on success; nullptr on failure.
  */
-GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrTextureProvider* texProvider,
-                                                 const SkPath& path,
-                                                 const GrStyle& style,
-                                                 const SkIRect& resultBounds,
-                                                 bool antiAlias,
-                                                 const SkMatrix* matrix) {
+GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider,
+                                                  const GrShape& shape,
+                                                  const SkIRect& resultBounds,
+                                                  bool antiAlias,
+                                                  const SkMatrix* matrix) {
     GrSWMaskHelper helper(texProvider);
 
     if (!helper.init(resultBounds, matrix)) {
         return nullptr;
     }
 
-    helper.drawPath(path, style, SkRegion::kReplace_Op, antiAlias, 0xFF);
+    helper.drawShape(shape, SkRegion::kReplace_Op, antiAlias, 0xFF);
 
     GrTexture* texture(helper.createTexture());
     if (!texture) {
@@ -160,14 +157,14 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrTextureProvider* texProvider,
     return texture;
 }
 
-void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
-                                              GrDrawContext* drawContext,
-                                              const GrPaint* paint,
-                                              const GrUserStencilSettings* userStencilSettings,
-                                              const GrClip& clip,
-                                              GrColor color,
-                                              const SkMatrix& viewMatrix,
-                                              const SkIRect& rect) {
+void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
+                                               GrDrawContext* drawContext,
+                                               const GrPaint* paint,
+                                               const GrUserStencilSettings* userStencilSettings,
+                                               const GrClip& clip,
+                                               GrColor color,
+                                               const SkMatrix& viewMatrix,
+                                               const SkIRect& rect) {
     SkMatrix invert;
     if (!viewMatrix.invert(&invert)) {
         return;

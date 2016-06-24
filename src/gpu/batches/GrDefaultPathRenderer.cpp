@@ -34,20 +34,20 @@ GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
 
 #define STENCIL_OFF     0   // Always disable stencil (even when needed)
 
-static inline bool single_pass_path(const SkPath& path, const SkStrokeRec& stroke) {
+static inline bool single_pass_shape(const GrShape& shape) {
 #if STENCIL_OFF
     return true;
 #else
-    if (!stroke.isHairlineStyle() && !path.isInverseFillType()) {
-        return path.isConvex();
+    if (!shape.style().couldBeHairline() && !shape.inverseFilled()) {
+        return shape.knownToBeConvex();
     }
     return false;
 #endif
 }
 
 GrPathRenderer::StencilSupport
-GrDefaultPathRenderer::onGetStencilSupport(const SkPath& path) const {
-    if (single_pass_path(path, SkStrokeRec(SkStrokeRec::kFill_InitStyle))) {
+GrDefaultPathRenderer::onGetStencilSupport(const GrShape& shape) const {
+    if (single_pass_shape(shape)) {
         return GrPathRenderer::kNoRestriction_StencilSupport;
     } else {
         return GrPathRenderer::kStencilOnly_StencilSupport;
@@ -422,20 +422,19 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                              const GrClip& clip,
                                              GrColor color,
                                              const SkMatrix& viewMatrix,
-                                             const SkPath& path,
-                                             const GrStyle& origStyle,
+                                             const GrShape& shape,
                                              bool stencilOnly) {
-    const GrStyle* style = &origStyle;
+    SkPath path;
+    shape.asPath(&path);
 
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
     bool isHairline = false;
-    if (IsStrokeHairlineOrEquivalent(*style, viewMatrix, &hairlineCoverage)) {
+    if (IsStrokeHairlineOrEquivalent(shape.style(), viewMatrix, &hairlineCoverage)) {
         newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
-        style = &GrStyle::SimpleHairline();
         isHairline = true;
     } else {
-        SkASSERT(style->isSimpleFill());
+        SkASSERT(shape.style().isSimpleFill());
     }
 
     int                          passCount = 0;
@@ -454,7 +453,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
         lastPassIsBounds = false;
         drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
     } else {
-        if (single_pass_path(path, style->strokeRec())) {
+        if (single_pass_shape(shape)) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
@@ -600,9 +599,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 bool GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // this class can draw any path with any simple fill style but doesn't do any anti-aliasing.
     return !args.fAntiAlias &&
-           (args.fStyle->isSimpleFill() || IsStrokeHairlineOrEquivalent(*args.fStyle,
-                                                                        *args.fViewMatrix,
-                                                                        nullptr));
+           (args.fShape->style().isSimpleFill() ||
+            IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr));
 }
 
 bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -614,30 +612,21 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                   *args.fClip,
                                   args.fColor,
                                   *args.fViewMatrix,
-                                  *args.fPath,
-                                  *args.fStyle,
+                                  *args.fShape,
                                   false);
 }
 
 void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrDefaultPathRenderer::onStencilPath");
-    SkASSERT(SkPath::kInverseEvenOdd_FillType != args.fPath->getFillType());
-    SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
+    SkASSERT(!args.fShape->inverseFilled());
 
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Make());
     paint.setAntiAlias(args.fIsAA);
 
-    this->internalDrawPath(args.fDrawContext,
-                           paint,
-                           &GrUserStencilSettings::kUnused,
-                           *args.fClip,
-                           GrColor_WHITE,
-                           *args.fViewMatrix,
-                           *args.fPath,
-                           GrStyle::SimpleFill(),
-                           true);
+    this->internalDrawPath(args.fDrawContext, paint, &GrUserStencilSettings::kUnused, *args.fClip,
+                           GrColor_WHITE, *args.fViewMatrix, *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

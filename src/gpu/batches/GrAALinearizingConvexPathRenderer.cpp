@@ -40,23 +40,23 @@ bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& arg
     if (!args.fAntiAlias) {
         return false;
     }
-    if (args.fPath->isInverseFillType()) {
+    if (!args.fShape->knownToBeConvex()) {
         return false;
     }
-    if (!args.fPath->isConvex()) {
+    if (args.fShape->style().pathEffect()) {
         return false;
     }
-    if (args.fStyle->pathEffect()) {
+    if (args.fShape->inverseFilled()) {
         return false;
     }
-    const SkStrokeRec& stroke = args.fStyle->strokeRec();
+    const SkStrokeRec& stroke = args.fShape->style().strokeRec();
     if (stroke.getStyle() == SkStrokeRec::kStroke_Style) {
         if (!args.fViewMatrix->isSimilarity()) {
             return false;
         }
         SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * stroke.getWidth();
         return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth &&
-               SkPathPriv::IsClosedSingleContour(*args.fPath) &&
+               args.fShape->knownToBeClosed() &&
                stroke.getJoin() != SkPaint::Join::kRound_Join;
     }
     return stroke.getStyle() == SkStrokeRec::kFill_Style;
@@ -324,18 +324,17 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrAALinearizingConvexPathRenderer::onDrawPath");
     SkASSERT(!args.fDrawContext->isUnifiedMultisampled());
+    SkASSERT(!args.fShape->isEmpty());
 
-    if (args.fPath->isEmpty()) {
-        return true;
-    }
     AAFlatteningConvexPathBatch::Geometry geometry;
     geometry.fColor = args.fColor;
     geometry.fViewMatrix = *args.fViewMatrix;
-    geometry.fPath = *args.fPath;
-    bool fill = args.fStyle->isSimpleFill();
-    geometry.fStrokeWidth = fill ? -1.0f : args.fStyle->strokeRec().getWidth();
-    geometry.fJoin = fill ? SkPaint::Join::kMiter_Join : args.fStyle->strokeRec().getJoin();
-    geometry.fMiterLimit = args.fStyle->strokeRec().getMiter();
+    args.fShape->asPath(&geometry.fPath);
+    bool fill = args.fShape->style().isSimpleFill();
+    const SkStrokeRec& stroke = args.fShape->style().strokeRec();
+    geometry.fStrokeWidth = fill ? -1.0f : stroke.getWidth();
+    geometry.fJoin = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
+    geometry.fMiterLimit = stroke.getMiter();
 
     SkAutoTUnref<GrDrawBatch> batch(AAFlatteningConvexPathBatch::Create(geometry));
 

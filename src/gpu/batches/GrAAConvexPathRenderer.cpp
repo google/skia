@@ -681,8 +681,8 @@ sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
 
 bool GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     return (args.fShaderCaps->shaderDerivativeSupport() && args.fAntiAlias &&
-            args.fStyle->isSimpleFill() && !args.fPath->isInverseFillType() &&
-            args.fPath->isConvex());
+            args.fShape->style().isSimpleFill() && !args.fShape->inverseFilled() &&
+            args.fShape->knownToBeConvex());
 }
 
 // extract the result vertices and indices from the GrAAConvexTessellator
@@ -998,15 +998,12 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrAAConvexPathRenderer::onDrawPath");
     SkASSERT(!args.fDrawContext->isUnifiedMultisampled());
-
-    if (args.fPath->isEmpty()) {
-        return true;
-    }
+    SkASSERT(!args.fShape->isEmpty());
 
     AAConvexPathBatch::Geometry geometry;
     geometry.fColor = args.fColor;
     geometry.fViewMatrix = *args.fViewMatrix;
-    geometry.fPath = *args.fPath;
+    args.fShape->asPath(&geometry.fPath);
 
     SkAutoTUnref<GrDrawBatch> batch(AAConvexPathBatch::Create(geometry));
 

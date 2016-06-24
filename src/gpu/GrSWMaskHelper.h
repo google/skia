@@ -19,11 +19,10 @@
 
 class GrClip;
 class GrPaint;
+class GrShape;
 class GrTextureProvider;
 class GrStyle;
 class GrTexture;
-class SkPath;
-class SkStrokeRec;
 struct GrUserStencilSettings;
 
 /**
@@ -54,8 +53,7 @@ public:
     void drawRect(const SkRect& rect, SkRegion::Op op, bool antiAlias, uint8_t alpha);
 
     // Draw a single path into the accumuation bitmap using the specified op
-    void drawPath(const SkPath& path, const GrStyle& style, SkRegion::Op op,
-                  bool antiAlias, uint8_t alpha);
+    void drawShape(const GrShape&, SkRegion::Op op, bool antiAlias, uint8_t alpha);
 
     // Move the mask generation results from the internal bitmap to the gpu.
     void toTexture(GrTexture* texture);
@@ -70,14 +68,13 @@ public:
 
     // Canonical usage utility that draws a single path and uploads it
     // to the GPU. The result is returned.
-    static GrTexture* DrawPathMaskToTexture(GrTextureProvider*,
-                                            const SkPath& path,
-                                            const GrStyle& style,
-                                            const SkIRect& resultBounds,
-                                            bool antiAlias,
-                                            const SkMatrix* matrix);
+    static GrTexture* DrawShapeMaskToTexture(GrTextureProvider*,
+                                             const GrShape&,
+                                             const SkIRect& resultBounds,
+                                             bool antiAlias,
+                                             const SkMatrix* matrix);
 
-    // This utility routine is used to add a path's mask to some other draw.
+    // This utility routine is used to add a shape's mask to some other draw.
     // The ClipMaskManager uses it to accumulate clip masks while the
     // GrSoftwarePathRenderer uses it to fulfill a drawPath call.
     // It draws with "texture" as a path mask into "target" using "rect" as
@@ -87,14 +84,14 @@ public:
     // the draw state can be used to hold the mask texture stage.
     // This method is really only intended to be used with the
     // output of DrawPathMaskToTexture.
-    static void DrawToTargetWithPathMask(GrTexture* texture,
-                                         GrDrawContext*,
-                                         const GrPaint* paint,
-                                         const GrUserStencilSettings* userStencilSettings,
-                                         const GrClip&,
-                                         GrColor,
-                                         const SkMatrix& viewMatrix,
-                                         const SkIRect& rect);
+    static void DrawToTargetWithShapeMask(GrTexture* texture,
+                                          GrDrawContext*,
+                                          const GrPaint* paint,
+                                          const GrUserStencilSettings* userStencilSettings,
+                                          const GrClip&,
+                                          GrColor,
+                                          const SkMatrix& viewMatrix,
+                                          const SkIRect& rect);
 
 private:
     // Helper function to get a scratch texture suitable for capturing the

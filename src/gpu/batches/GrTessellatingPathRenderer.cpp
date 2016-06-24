@@ -109,9 +109,10 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
     // not do antialiasing. It can do convex and concave paths, but we'll leave the convex ones to
     // simpler algorithms. Similary, we skip the non-hairlines that can be treated as hairline.
     // An arbitrary path effect could produce a hairline result so we pass on those.
-    return !IsStrokeHairlineOrEquivalent(*args.fStyle, *args.fViewMatrix, nullptr) &&
-           !args.fStyle->strokeRec().isHairlineStyle() &&
-           !args.fStyle->hasNonDashPathEffect() && !args.fAntiAlias && !args.fPath->isConvex();
+    return !IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr) &&
+           !args.fShape->style().strokeRec().isHairlineStyle() &&
+           !args.fShape->style().hasNonDashPathEffect() && !args.fAntiAlias &&
+           !args.fShape->knownToBeConvex();
 }
 
 class TessellatingPathBatch : public GrVertexBatch {
@@ -292,8 +293,11 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
         return false;
     }
     vmi.mapRect(&clipBounds);
-    SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fPath,
-                                                                  *args.fStyle, *args.fViewMatrix,
+    SkPath path;
+    args.fShape->asPath(&path);
+    SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fColor, path,
+                                                                  args.fShape->style(),
+                                                                  *args.fViewMatrix,
                                                                   clipBounds));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->mustUseHWAA(*args.fPaint));

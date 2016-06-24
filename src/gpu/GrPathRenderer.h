@@ -11,7 +11,7 @@
 #include "GrDrawContext.h"
 #include "GrPaint.h"
 #include "GrResourceProvider.h"
-#include "GrStyle.h"
+#include "GrShape.h"
 
 #include "SkDrawProcs.h"
 #include "SkTArray.h"
@@ -60,11 +60,15 @@ public:
      * This function is to get the stencil support for a particular path. The path's fill must
      * not be an inverse type. The path will always be filled and not stroked.
      *
-     * @param path      the path that will be drawn
+     * @param shape   the shape that will be drawn. Must be simple fill styled and non-inverse
+     *                filled.
      */
-    StencilSupport getStencilSupport(const SkPath& path) const {
+    StencilSupport getStencilSupport(const GrShape& shape) const {
+        SkDEBUGCODE(SkPath path;)
+        SkDEBUGCODE(shape.asPath(&path);)
+        SkASSERT(shape.style().isSimpleFill());
         SkASSERT(!path.isInverseFillType());
-        return this->onGetStencilSupport(path);
+        return this->onGetStencilSupport(shape);
     }
 
     /** Args to canDrawPath()
@@ -72,28 +76,26 @@ public:
      * fShaderCaps       The shader caps
      * fPipelineBuilder  The pipelineBuilder
      * fViewMatrix       The viewMatrix
-     * fPath             The path to draw
-     * fStyle            The styling info (path effect, stroking info)
+     * fShape            The shape to draw
      * fAntiAlias        True if anti-aliasing is required.
      */
     struct CanDrawPathArgs {
         const GrShaderCaps*         fShaderCaps;
         const SkMatrix*             fViewMatrix;
-        const SkPath*               fPath;
-        const GrStyle*              fStyle;
+        const GrShape*              fShape;
         bool                        fAntiAlias;
 
         // These next two are only used by GrStencilAndCoverPathRenderer
         bool                        fHasUserStencilSettings;
         bool                        fIsStencilBufferMSAA;
 
+#ifdef SK_DEBUG
         void validate() const {
             SkASSERT(fShaderCaps);
             SkASSERT(fViewMatrix);
-            SkASSERT(fPath);
-            SkASSERT(fStyle);
-            SkASSERT(!fPath->isEmpty());
+            SkASSERT(fShape);
         }
+#endif
     };
 
     /**
@@ -117,8 +119,7 @@ public:
      * fClip                  The clip
      * fColor                 Color to render with
      * fViewMatrix            The viewMatrix
-     * fPath                  the path to draw.
-     * fStyle                 the style information (path effect, stroke info)
+     * fShape                 The shape to draw
      * fAntiAlias             true if anti-aliasing is required.
      * fGammaCorrect          true if gamma-correct rendering is to be used.
      */
@@ -131,11 +132,10 @@ public:
         const GrClip*               fClip;
         GrColor                     fColor;
         const SkMatrix*             fViewMatrix;
-        const SkPath*               fPath;
-        const GrStyle*              fStyle;
+        const GrShape*              fShape;
         bool                        fAntiAlias;
         bool                        fGammaCorrect;
-
+#ifdef SK_DEBUG
         void validate() const {
             SkASSERT(fResourceProvider);
             SkASSERT(fPaint);
@@ -143,10 +143,9 @@ public:
             SkASSERT(fDrawContext);
             SkASSERT(fClip);
             SkASSERT(fViewMatrix);
-            SkASSERT(fPath);
-            SkASSERT(fStyle);
-            SkASSERT(!fPath->isEmpty());
+            SkASSERT(fShape);
         }
+#endif
     };
 
     /**
@@ -159,16 +158,17 @@ public:
         CanDrawPathArgs canArgs;
         canArgs.fShaderCaps = args.fResourceProvider->caps()->shaderCaps();
         canArgs.fViewMatrix = args.fViewMatrix;
-        canArgs.fPath = args.fPath;
-        canArgs.fStyle = args.fStyle;
+        canArgs.fShape = args.fShape;
         canArgs.fAntiAlias = args.fAntiAlias;
 
         canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
         canArgs.fIsStencilBufferMSAA = args.fDrawContext->isStencilBufferMultisampled();
         SkASSERT(this->canDrawPath(canArgs));
         if (!args.fUserStencilSettings->isUnused()) {
-            SkASSERT(kNoRestriction_StencilSupport == this->getStencilSupport(*args.fPath));
-            SkASSERT(args.fStyle->isSimpleFill());
+            SkPath path;
+            args.fShape->asPath(&path);
+            SkASSERT(args.fShape->style().isSimpleFill());
+            SkASSERT(kNoRestriction_StencilSupport == this->getStencilSupport(*args.fShape));
         }
 #endif
         return this->onDrawPath(args);
@@ -187,16 +187,21 @@ public:
         GrDrawContext*      fDrawContext;
         const GrFixedClip*  fClip;
         const SkMatrix*     fViewMatrix;
-        const SkPath*       fPath;
         bool                fIsAA;
+        const GrShape*      fShape;
 
+#ifdef SK_DEBUG
         void validate() const {
             SkASSERT(fResourceProvider);
             SkASSERT(fDrawContext);
             SkASSERT(fViewMatrix);
-            SkASSERT(fPath);
-            SkASSERT(!fPath->isEmpty());
+            SkASSERT(fShape);
+            SkASSERT(fShape->style().isSimpleFill())
+            SkPath path;
+            fShape->asPath(&path);
+            SkASSERT(!path.isInverseFillType());
         }
+#endif
     };
 
     /**
@@ -205,7 +210,7 @@ public:
      */
     void stencilPath(const StencilPathArgs& args) {
         SkDEBUGCODE(args.validate();)
-        SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(*args.fPath));
+        SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(*args.fShape));
         this->onStencilPath(args);
     }
 
@@ -240,7 +245,7 @@ private:
     /**
      * Subclass overrides if it has any limitations of stenciling support.
      */
-    virtual StencilSupport onGetStencilSupport(const SkPath&) const {
+    virtual StencilSupport onGetStencilSupport(const GrShape&) const {
         return kNoRestriction_StencilSupport;
     }
 
@@ -278,8 +283,7 @@ private:
         drawArgs.fDrawContext = args.fDrawContext;
         drawArgs.fColor = GrColor_WHITE;
         drawArgs.fViewMatrix = args.fViewMatrix;
-        drawArgs.fPath = args.fPath;
-        drawArgs.fStyle = &GrStyle::SimpleFill();
+        drawArgs.fShape = args.fShape;
         drawArgs.fAntiAlias = false;  // In this case the MSAA handles the AA so we want to draw BW
         drawArgs.fGammaCorrect = false;
         this->drawPath(drawArgs);

@@ -33,9 +33,8 @@ GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider*
 }
 
 bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // GrPath doesn't support hairline paths. Also, an arbitrary path effect could change
-    // the style type to hairline.
-    if (args.fStyle->hasNonDashPathEffect() || args.fStyle->strokeRec().isHairlineStyle()) {
+    // GrPath doesn't support hairline paths.
+    if (args.fShape->style().couldBeHairline()) {
         return false;
     }
     if (args.fHasUserStencilSettings) {
@@ -70,6 +69,8 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrStencilAndCoverPathRenderer::onStencilPath");
     SkASSERT(!args.fIsAA || args.fDrawContext->isStencilBufferMultisampled());
+    SkPath path;
+    args.fShape->asPath(&path);
 
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Make());
@@ -77,24 +78,23 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
     const GrPipelineBuilder pipelineBuilder(paint, args.fIsAA);
 
-    SkASSERT(!args.fPath->isInverseFillType());
-    SkAutoTUnref<GrPath> path(get_gr_path(fResourceProvider, *args.fPath, GrStyle::SimpleFill()));
-    args.fDrawContext->drawContextPriv().stencilPath(pipelineBuilder,
-                                                     *args.fClip,
-                                                     *args.fViewMatrix,
-                                                     path,
-                                                     path->getFillType());
+    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, GrStyle::SimpleFill()));
+    args.fDrawContext->drawContextPriv().stencilPath(pipelineBuilder, *args.fClip,
+                                                     *args.fViewMatrix, p, p->getFillType());
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrStencilAndCoverPathRenderer::onDrawPath");
     SkASSERT(!args.fPaint->isAntiAlias() || args.fDrawContext->isStencilBufferMultisampled());
-    SkASSERT(!args.fStyle->strokeRec().isHairlineStyle());
-    const SkPath& path = *args.fPath;
+    SkASSERT(!args.fShape->style().strokeRec().isHairlineStyle());
+
     const SkMatrix& viewMatrix = *args.fViewMatrix;
 
-    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, *args.fStyle));
+    SkPath path;
+    args.fShape->asPath(&path);
+
+    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, args.fShape->style()));
 
     if (path.isInverseFillType()) {
         static constexpr GrUserStencilSettings kInvertedCoverPass(

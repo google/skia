@@ -91,11 +91,11 @@ bool GrClipMaskManager::PathNeedsSWRenderer(GrContext* context,
                             : GrPathRendererChain::kColor_DrawType;
         }
 
+        GrShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;
         canDrawArgs.fShaderCaps = context->caps()->shaderCaps();
         canDrawArgs.fViewMatrix = &viewMatrix;
-        canDrawArgs.fPath = &path;
-        canDrawArgs.fStyle = &GrStyle::SimpleFill();
+        canDrawArgs.fShape = &shape;
         canDrawArgs.fAntiAlias = element->isAA();
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
         canDrawArgs.fIsStencilBufferMSAA = drawContext->isStencilBufferMultisampled();
@@ -615,11 +615,11 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                     clipPath.toggleInverseFillType();
                 }
 
+                GrShape shape(clipPath, GrStyle::SimpleFill());
                 GrPathRenderer::CanDrawPathArgs canDrawArgs;
                 canDrawArgs.fShaderCaps = context->caps()->shaderCaps();
                 canDrawArgs.fViewMatrix = &viewMatrix;
-                canDrawArgs.fPath = &clipPath;
-                canDrawArgs.fStyle = &GrStyle::SimpleFill();
+                canDrawArgs.fShape = &shape;
                 canDrawArgs.fAntiAlias = false;
                 canDrawArgs.fHasUserStencilSettings = false;
                 canDrawArgs.fIsStencilBufferMSAA = drawContext->isStencilBufferMultisampled();
@@ -658,6 +658,7 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                                                                viewMatrix, element->getRect());
                 } else {
                     if (!clipPath.isEmpty()) {
+                        GrShape shape(clipPath, GrStyle::SimpleFill());
                         if (canRenderDirectToStencil) {
                             GrPaint paint;
                             paint.setXPFactory(GrDisableColorXPFactory::Make());
@@ -671,8 +672,7 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                             args.fClip = &clip;
                             args.fColor = GrColor_WHITE;
                             args.fViewMatrix = &viewMatrix;
-                            args.fPath = &clipPath;
-                            args.fStyle = &GrStyle::SimpleFill();
+                            args.fShape = &shape;
                             args.fAntiAlias = false;
                             args.fGammaCorrect = false;
                             pr->drawPath(args);
@@ -682,8 +682,8 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                             args.fDrawContext = drawContext;
                             args.fClip = &clip;
                             args.fViewMatrix = &viewMatrix;
-                            args.fPath = &clipPath;
                             args.fIsAA = element->isAA();
+                            args.fShape = &shape;
                             pr->stencilPath(args);
                         }
                     }
@@ -700,10 +700,10 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                         drawContext->drawContextPriv().stencilRect(clip, *pass, useHWAA, viewMatrix,
                                                                    element->getRect());
                     } else {
+                        GrShape shape(clipPath, GrStyle::SimpleFill());
                         GrPaint paint;
                         paint.setXPFactory(GrDisableColorXPFactory::Make());
                         paint.setAntiAlias(element->isAA());
-
                         GrPathRenderer::DrawPathArgs args;
                         args.fResourceProvider = context->resourceProvider();
                         args.fPaint = &paint;
@@ -712,8 +712,7 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                         args.fClip = &clip;
                         args.fColor = GrColor_WHITE;
                         args.fViewMatrix = &viewMatrix;
-                        args.fPath = &clipPath;
-                        args.fStyle = &GrStyle::SimpleFill();
+                        args.fShape = &shape;
                         args.fAntiAlias = false;
                         args.fGammaCorrect = false;
                         pr->drawPath(args);
@@ -775,8 +774,8 @@ sk_sp<GrTexture> GrClipMaskManager::CreateSoftwareClipMask(
             SkPath clipPath;
             element->asPath(&clipPath);
             clipPath.toggleInverseFillType();
-            helper.drawPath(clipPath, GrStyle::SimpleFill(), SkRegion::kReplace_Op,
-                            element->isAA(), 0x00);
+            GrShape shape(clipPath, GrStyle::SimpleFill());
+            helper.drawShape(shape, SkRegion::kReplace_Op, element->isAA(), 0x00);
             continue;
         }
 
@@ -787,7 +786,8 @@ sk_sp<GrTexture> GrClipMaskManager::CreateSoftwareClipMask(
         } else {
             SkPath path;
             element->asPath(&path);
-            helper.drawPath(path, GrStyle::SimpleFill(), op, element->isAA(), 0xFF);
+            GrShape shape(path, GrStyle::SimpleFill());
+            helper.drawShape(shape, op, element->isAA(), 0xFF);
         }
     }
 

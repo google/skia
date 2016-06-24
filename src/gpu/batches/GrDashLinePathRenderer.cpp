@@ -13,8 +13,8 @@
 
 bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPoint pts[2];
-    if (args.fStyle->isDashed() && args.fPath->isLine(pts)) {
-        return GrDashingEffect::CanDrawDashLine(pts, *args.fStyle, *args.fViewMatrix);
+    if (args.fShape->style().isDashed() && args.fShape->asLine(pts)) {
+        return GrDashingEffect::CanDrawDashLine(pts, args.fShape->style(), *args.fViewMatrix);
     }
     return false;
 }
@@ -34,12 +34,12 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
         aaMode = GrDashingEffect::AAMode::kNone;
     }
     SkPoint pts[2];
-    SkAssertResult(args.fPath->isLine(pts));
+    SkAssertResult(args.fShape->asLine(pts));
     SkAutoTUnref<GrDrawBatch> batch(GrDashingEffect::CreateDashLineBatch(args.fColor,
                                                                          *args.fViewMatrix,
                                                                          pts,
                                                                          aaMode,
-                                                                         *args.fStyle));
+                                                                         args.fShape->style()));
     if (!batch) {
         return false;
     }

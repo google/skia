@@ -777,9 +777,11 @@ private:
 bool GrPLSPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // We have support for even-odd rendering, but are having some troublesome
     // seams. Disable in the presence of even-odd for now.
+    SkPath path;
+    args.fShape->asPath(&path);
     return args.fShaderCaps->shaderDerivativeSupport() && args.fAntiAlias &&
-            args.fStyle->isSimpleFill() && !args.fPath->isInverseFillType() &&
-            args.fPath->getFillType() == SkPath::FillType::kWinding_FillType;
+            args.fShape->style().isSimpleFill() && !path.isInverseFillType() &&
+            path.getFillType() == SkPath::FillType::kWinding_FillType;
 }
 
 class PLSPathBatch : public GrVertexBatch {
@@ -974,15 +976,13 @@ private:
 
 SkDEBUGCODE(bool inPLSDraw = false;)
 bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    if (args.fPath->isEmpty()) {
-        return true;
-    }
+    SkASSERT(!args.fShape->isEmpty())
     SkASSERT(!inPLSDraw);
     SkDEBUGCODE(inPLSDraw = true;)
     PLSPathBatch::Geometry geometry;
     geometry.fColor = args.fColor;
     geometry.fViewMatrix = *args.fViewMatrix;
-    geometry.fPath = *args.fPath;
+    args.fShape->asPath(&geometry.fPath);
 
     SkAutoTUnref<GrDrawBatch> batch(PLSPathBatch::Create(geometry));
 

@@ -22,7 +22,7 @@ public:
 
 private:
 
-    StencilSupport onGetStencilSupport(const SkPath&) const override;
+    StencilSupport onGetStencilSupport(const GrShape&) const override;
 
     bool onCanDrawPath(const CanDrawPathArgs&) const override;
 
@@ -36,8 +36,7 @@ private:
                           const GrClip&,
                           GrColor,
                           const SkMatrix& viewMatrix,
-                          const SkPath&,
-                          const GrStyle&,
+                          const GrShape&,
                           bool stencilOnly);
 
     bool    fSeparateStencil;

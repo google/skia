@@ -82,13 +82,13 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
 ////////////////////////////////////////////////////////////////////////////////
 bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // We don't currently apply the dash or factor it into the DF key. (skbug.com/5082)
-    if (args.fStyle->pathEffect()) {
+    if (args.fShape->style().pathEffect()) {
         return false;
     }
     // TODO: Support inverse fill
     if (!args.fShaderCaps->shaderDerivativeSupport() || !args.fAntiAlias ||
-        args.fStyle->isSimpleHairline() || args.fPath->isInverseFillType() ||
-        args.fPath->isVolatile()) {
+        args.fShape->style().isSimpleHairline() || args.fShape->mayBeInverseFilledAfterStyling() ||
+        !args.fShape->hasUnstyledKey()) {
         return false;
     }
 
@@ -102,7 +102,7 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     // the goal is to accelerate rendering of lots of small paths that may be scaling
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
     SkRect bounds;
-    args.fStyle->adjustBounds(&bounds, args.fPath->getBounds());
+    args.fShape->styledBounds(&bounds);
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
 
     return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;
@@ -532,9 +532,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fDrawContext->isUnifiedMultisampled());
 
     // we've already bailed on inverse filled paths, so this is safe
-    if (args.fPath->isEmpty()) {
-        return true;
-    }
+    SkASSERT(!args.fShape->isEmpty());
 
     if (!fAtlas) {
         fAtlas = args.fResourceProvider->createAtlas(kAlpha_8_GrPixelConfig,
@@ -547,19 +545,19 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
+    const GrStyle& style = args.fShape->style();
     // It's ok to ignore style's path effect because canDrawPath filtered out path effects.
-    AADistanceFieldPathBatch::Geometry geometry(args.fStyle->strokeRec());
-    if (args.fStyle->isSimpleFill()) {
-        geometry.fPath = *args.fPath;
-    } else {
-        args.fStyle->strokeRec().applyToPath(&geometry.fPath, *args.fPath);
-    }
-    geometry.fColor = args.fColor;
-    geometry.fAntiAlias = args.fAntiAlias;
+    AADistanceFieldPathBatch::Geometry geometry(style.strokeRec());
+    args.fShape->asPath(&geometry.fPath);
     // Note: this is the generation ID of the _original_ path. When a new path is
     // generated due to stroking it is important that the original path's id is used
     // for caching.
-    geometry.fGenID = args.fPath->getGenerationID();
+    geometry.fGenID = geometry.fPath.getGenerationID();
+    if (!style.isSimpleFill()) {
+        style.strokeRec().applyToPath(&geometry.fPath, geometry.fPath);
+    }
+    geometry.fColor = args.fColor;
+    geometry.fAntiAlias = args.fAntiAlias;
 
     SkAutoTUnref<GrDrawBatch> batch(AADistanceFieldPathBatch::Create(geometry,
                                                                      *args.fViewMatrix, fAtlas,

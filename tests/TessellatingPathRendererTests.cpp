@@ -248,8 +248,8 @@ static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const 
     args.fResourceProvider = rp;
     args.fColor = GrColor_WHITE;
     args.fViewMatrix = &SkMatrix::I();
-    args.fPath = &path;
-    args.fStyle = &style;
+    GrShape shape(path, style);
+    args.fShape = &shape;
     args.fAntiAlias = false;
     tess.drawPath(args);
 }

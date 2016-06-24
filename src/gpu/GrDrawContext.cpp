@@ -925,11 +925,11 @@ bool GrDrawContextPriv::drawAndStencilPath(const GrFixedClip& clip,
         useCoverageAA ? GrPathRendererChain::kColorAntiAlias_DrawType
                       : GrPathRendererChain::kColor_DrawType;
 
+    GrShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fShaderCaps = fDrawContext->fDrawingManager->getContext()->caps()->shaderCaps();
     canDrawArgs.fViewMatrix = &viewMatrix;
-    canDrawArgs.fPath = &path;
-    canDrawArgs.fStyle = &GrStyle::SimpleFill();
+    canDrawArgs.fShape = &shape;
     canDrawArgs.fAntiAlias = useCoverageAA;
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
     canDrawArgs.fIsStencilBufferMSAA = isStencilBufferMSAA;
@@ -951,8 +951,7 @@ bool GrDrawContextPriv::drawAndStencilPath(const GrFixedClip& clip,
     args.fClip = &clip;
     args.fColor = GrColor_WHITE;
     args.fViewMatrix = &viewMatrix;
-    args.fPath = &path;
-    args.fStyle = &GrStyle::SimpleFill();
+    args.fShape = &shape;
     args.fAntiAlias = useCoverageAA;
     args.fGammaCorrect = fDrawContext->isGammaCorrect();
     pr->drawPath(args);
@@ -962,11 +961,11 @@ bool GrDrawContextPriv::drawAndStencilPath(const GrFixedClip& clip,
 void GrDrawContext::internalDrawPath(const GrClip& clip,
                                      const GrPaint& paint,
                                      const SkMatrix& viewMatrix,
-                                     const SkPath& origPath,
-                                     const GrStyle& origStyle) {
+                                     const SkPath& path,
+                                     const GrStyle& style) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
-    SkASSERT(!origPath.isEmpty());
+    SkASSERT(!path.isEmpty());
 
     bool useCoverageAA = should_apply_coverage_aa(paint, fRenderTarget.get());
     constexpr bool kHasUserStencilSettings = false;
@@ -976,14 +975,11 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
         useCoverageAA ? GrPathRendererChain::kColorAntiAlias_DrawType
                       : GrPathRendererChain::kColor_DrawType;
 
-    SkTLazy<SkPath> tmpPath;
-    SkTLazy<GrStyle> tmpStyle;
-
+    GrShape shape(path, style);
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fShaderCaps = fDrawingManager->getContext()->caps()->shaderCaps();
     canDrawArgs.fViewMatrix = &viewMatrix;
-    canDrawArgs.fPath = &origPath;
-    canDrawArgs.fStyle = &origStyle;
+    canDrawArgs.fShape = &shape;
     canDrawArgs.fAntiAlias = useCoverageAA;
     canDrawArgs.fHasUserStencilSettings = kHasUserStencilSettings;
     canDrawArgs.fIsStencilBufferMSAA = isStencilBufferMSAA;
@@ -992,55 +988,26 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     GrPathRenderer* pr = fDrawingManager->getPathRenderer(canDrawArgs, false, type);
     SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
 
-    if (!pr && canDrawArgs.fStyle->pathEffect()) {
+    if (!pr && shape.style().pathEffect()) {
         // It didn't work above, so try again with the path effect applied.
-        SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
-        if (!canDrawArgs.fStyle->applyPathEffectToPath(tmpPath.init(), &rec, *canDrawArgs.fPath,
-                                                       styleScale)) {
-            GrStyle noPathEffect(canDrawArgs.fStyle->strokeRec(), nullptr);
-            this->internalDrawPath(clip, paint, viewMatrix, *canDrawArgs.fPath, noPathEffect);
+        shape = shape.applyStyle(GrStyle::Apply::kPathEffectOnly, styleScale);
+        if (shape.isEmpty()) {
             return;
         }
-        tmpStyle.init(rec, nullptr);
-        canDrawArgs.fPath = tmpPath.get();
-        canDrawArgs.fStyle = tmpStyle.get();
-        if (canDrawArgs.fPath->isEmpty()) {
-            return;
-        }
-
         pr = fDrawingManager->getPathRenderer(canDrawArgs, false, type);
     }
     if (!pr) {
-        SkASSERT(!canDrawArgs.fStyle->pathEffect());
-        if (canDrawArgs.fStyle->strokeRec().needToApply()) {
-            if (!tmpPath.isValid()) {
-                tmpPath.init();
-            }
-            // It didn't work above, so try again by applying the stroke to the geometry.
-            SkStrokeRec::InitStyle fillOrHairline;
-            if (!canDrawArgs.fStyle->applyToPath(tmpPath.get(), &fillOrHairline,
-                                                 *canDrawArgs.fPath, styleScale)) {
+        if (shape.style().applies()) {
+            shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale);
+            if (shape.isEmpty()) {
                 return;
             }
-            if (!tmpStyle.isValid()) {
-                tmpStyle.init(fillOrHairline);
-            } else {
-                tmpStyle.get()->resetToInitStyle(fillOrHairline);
-            }
-            canDrawArgs.fPath = tmpPath.get();
-            canDrawArgs.fStyle = tmpStyle.get();
-            if (canDrawArgs.fPath->isEmpty()) {
-                return;
-            }
-
-            pr = fDrawingManager->getPathRenderer(canDrawArgs, false, type);
         }
-
         // This time, allow SW renderer
         pr = fDrawingManager->getPathRenderer(canDrawArgs, true, type);
     }
 
-    if (nullptr == pr) {
+    if (!pr) {
 #ifdef SK_DEBUG
         SkDebugf("Unable to find path renderer compatible with path.\n");
 #endif
@@ -1055,8 +1022,7 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     args.fClip = &clip;
     args.fColor = paint.getColor();
     args.fViewMatrix = &viewMatrix;
-    args.fPath = canDrawArgs.fPath;
-    args.fStyle = canDrawArgs.fStyle;
+    args.fShape = canDrawArgs.fShape;
     args.fAntiAlias = useCoverageAA;
     args.fGammaCorrect = this->isGammaCorrect();
     pr->drawPath(args);

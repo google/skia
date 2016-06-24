@@ -618,19 +618,20 @@ bool GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
         return false;
     }
 
-    if (!IsStrokeHairlineOrEquivalent(*args.fStyle, *args.fViewMatrix, nullptr)) {
+    if (!IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr)) {
         return false;
     }
 
     // We don't currently handle dashing in this class though perhaps we should.
-    if (args.fStyle->pathEffect()) {
+    if (args.fShape->style().pathEffect()) {
         return false;
     }
 
-    if (SkPath::kLine_SegmentMask == args.fPath->getSegmentMasks() ||
+    if (SkPath::kLine_SegmentMask == args.fShape->segmentMask() ||
         args.fShaderCaps->shaderDerivativeSupport()) {
         return true;
     }
+
     return false;
 }
 
@@ -971,12 +972,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fDrawContext->width(), args.fDrawContext->height(),
                                       &devClipBounds);
 
-    SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, *args.fPath,
-                                                          *args.fStyle, devClipBounds));
+    SkPath path;
+    args.fShape->asPath(&path);
+    SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, path,
+                                                          args.fShape->style(), devClipBounds));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-
     args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
 
     return true;
