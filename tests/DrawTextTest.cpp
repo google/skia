@@ -11,8 +11,10 @@
 #include "SkPaint.h"
 #include "SkPoint.h"
 #include "SkRect.h"
+#include "SkSurface.h"
 #include "SkTypes.h"
 #include "Test.h"
+#include <math.h>
 
 static const SkColor bgColor = SK_ColorWHITE;
 
@@ -109,5 +111,23 @@ DEF_TEST(DrawText, reporter) {
                 }
             }
         }
+    }
+}
+
+// Test drawing text at some unusual coordinates.
+// We measure success by not crashing or asserting.
+DEF_TEST(DrawText_weirdCoordinates, r) {
+    auto surface = SkSurface::MakeRasterN32Premul(10,10);
+    auto canvas = surface->getCanvas();
+
+    SkScalar oddballs[] = { 0.0f, (float)INFINITY, (float)NAN, 34359738368.0f };
+
+    for (auto x : oddballs) {
+        canvas->drawText("a", 1, +x, 0.0f, SkPaint());
+        canvas->drawText("a", 1, -x, 0.0f, SkPaint());
+    }
+    for (auto y : oddballs) {
+        canvas->drawText("a", 1, 0.0f, +y, SkPaint());
+        canvas->drawText("a", 1, 0.0f, -y, SkPaint());
     }
 }
