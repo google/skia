@@ -9,8 +9,6 @@
 #include "SkColorPriv.h"
 #include "SkFixed.h"
 
-bool gTreatSkColorAsSRGB;
-
 SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkPremultiplyARGBInline(a, r, g, b);
 }
@@ -158,17 +156,15 @@ SkColor4f SkColor4f::FromColor(SkColor c) {
     Sk4f value = SkNx_shuffle<2,1,0,3>(SkNx_cast<float>(Sk4b::Load(&c)));
     SkColor4f c4;
     (value * Sk4f(1.0f / 255)).store(&c4);
-    if (gTreatSkColorAsSRGB) {
-        c4.fR = srgb_to_linear(c4.fR);
-        c4.fG = srgb_to_linear(c4.fG);
-        c4.fB = srgb_to_linear(c4.fB);
-    }
+    c4.fR = srgb_to_linear(c4.fR);
+    c4.fG = srgb_to_linear(c4.fG);
+    c4.fB = srgb_to_linear(c4.fB);
     return c4;
 }
 
 SkColor SkColor4f::toSkColor() const {
     SkColor result;
-    Sk4f value = SkNx_shuffle<2, 1, 0, 3>(Sk4f::Load(this->vec()));
+    Sk4f value = Sk4f(linear_to_srgb(fB), linear_to_srgb(fG), linear_to_srgb(fR), fA);
     SkNx_cast<uint8_t>(value * Sk4f(255) + Sk4f(0.5f)).store(&result);
     return result;
 }

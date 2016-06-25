@@ -45,7 +45,6 @@ public:
         fHandlers.push_back(new BatchesHandler);
         fHandlers.push_back(new BatchBoundsHandler);
         fHandlers.push_back(new ColorModeHandler);
-        fHandlers.push_back(new SRGBModeHandler);
         fHandlers.push_back(new QuitHandler);
     }
 

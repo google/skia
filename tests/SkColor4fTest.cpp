@@ -43,7 +43,6 @@ DEF_TEST(SkColor4f_FromColor, reporter) {
         { SK_ColorGREEN, { 0, 1, 0, 1 } },
         { SK_ColorBLUE,  { 0, 0, 1, 1 } },
         { 0,             { 0, 0, 0, 0 } },
-        { 0x55AAFF00,    { 2/3.0f, 1, 0, 1 / 3.0f } },
     };
 
     for (const auto& r : recs) {
@@ -97,35 +96,6 @@ static sk_sp<SkColorFilter> make_compose_cf() {
     return SkColorFilter::MakeComposeFilter(make_mode_cf(), make_mx_cf());
 }
 
-static sk_sp<SkShader> make_color_sh() { return SkShader::MakeColorShader(0xFFBB8855); }
-
-static sk_sp<SkShader> make_image_sh() {
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);
-    const SkPMColor pixels[] {
-        SkPackARGB32(0xFF, 0xBB, 0x88, 0x55),
-        SkPackARGB32(0xFF, 0xBB, 0x88, 0x55),
-        SkPackARGB32(0xFF, 0xBB, 0x88, 0x55),
-        SkPackARGB32(0xFF, 0xBB, 0x88, 0x55),
-    };
-    sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, pixels, sizeof(SkPMColor) * 2)));
-    return image->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
-}
-
-static sk_sp<SkShader> make_grad_sh() {
-#if 0
-    const SkPoint pts[] {{ 0, 0 }, { 100, 100 }};
-    const SkColor colors[] { SK_ColorRED, SK_ColorBLUE };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
-#else
-    // TODO: need to convert new gradient code to enforce PM4f --> RGBA order
-    return make_color_sh();
-#endif
-}
-
-static sk_sp<SkShader> make_cf_sh() {
-    return make_color_sh()->makeWithColorFilter(make_mx_cf());
-}
-
 static bool compare_spans(const SkPM4f span4f[], const SkPMColor span4b[], int count,
                           float tolerance = 1.0f/255) {
     for (int i = 0; i < count; ++i) {
@@ -136,42 +106,6 @@ static bool compare_spans(const SkPM4f span4f[], const SkPMColor span4b[], int c
         }
     }
     return true;
-}
-
-DEF_TEST(Color4f_shader, reporter) {
-    struct {
-        sk_sp<SkShader> (*fFact)();
-        bool            fSupports4f;
-        float           fTolerance;
-    } recs[] = {
-        { make_color_sh, true,  1.0f/255   },
-        // PMColor 4f gradients are interpolated in 255-multiplied values, so we need a
-        // slightly relaxed tolerance to accommodate the cumulative precision deviation.
-        { make_grad_sh,  true,  1.001f/255 },
-        { make_image_sh, false, 1.0f/255   },
-        { make_cf_sh,    true,  1.0f/255   },
-    };
-
-    SkPaint paint;
-    for (const auto& rec : recs) {
-        uint32_t storage[kSkBlitterContextSize];
-        paint.setShader(rec.fFact());
-        // Encourage 4f context selection. At some point we may need
-        // to instantiate two separate contexts for optimal 4b/4f selection.
-        const SkShader::ContextRec contextRec(paint, SkMatrix::I(), nullptr,
-                                              SkShader::ContextRec::kPM4f_DstType);
-        SkASSERT(paint.getShader()->contextSize(contextRec) <= sizeof(storage));
-        SkShader::Context* ctx = paint.getShader()->createContext(contextRec, storage);
-        if (rec.fSupports4f) {
-            const int N = 100;
-            SkPM4f buffer4f[N];
-            ctx->shadeSpan4f(0, 0, buffer4f, N);
-            SkPMColor buffer4b[N];
-            ctx->shadeSpan(0, 0, buffer4b, N);
-            REPORTER_ASSERT(reporter, compare_spans(buffer4f, buffer4b, N, rec.fTolerance));
-        }
-        ctx->~Context();
-    }
 }
 
 DEF_TEST(Color4f_colorfilter, reporter) {

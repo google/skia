@@ -11,8 +11,6 @@
 #include "SkColorPriv.h"
 #include "SkPM4f.h"
 
-extern bool gTreatSkColorAsSRGB;
-
 static inline float get_alpha(const Sk4f& f4) {
     return f4[SkPM4f::A];
 }
@@ -108,7 +106,7 @@ static inline Sk4f Sk4f_fromS32(uint32_t src) {
 //   SkColor has an ordering of (b, g, r, a) if cast to an Sk4f, so the code swizzles r and b to
 // produce the needed (r, g, b, a) ordering.
 static inline Sk4f Sk4f_from_SkColor(SkColor color) {
-    return swizzle_rb(gTreatSkColorAsSRGB ? Sk4f_fromS32(color) : Sk4f_fromL32(color));
+    return swizzle_rb(Sk4f_fromS32(color));
 }
 
 static inline uint32_t Sk4f_toL32(const Sk4f& x4) {

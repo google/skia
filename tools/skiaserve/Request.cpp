@@ -201,11 +201,6 @@ bool Request::setColorMode(int mode) {
     return enableGPU(fGPUEnabled);
 }
 
-bool Request::setSRGBMode(bool enable) {
-    gTreatSkColorAsSRGB = enable;
-    return true;
-}
-
 bool Request::enableGPU(bool enable) {
     if (enable) {
         SkSurface* surface = this->createGPUSurface();
@@ -258,7 +253,6 @@ SkData* Request::getJsonOps(int n) {
     root["mode"] = Json::Value(fGPUEnabled ? "gpu" : "cpu");
     root["drawGpuBatchBounds"] = Json::Value(fDebugCanvas->getDrawGpuBatchBounds());
     root["colorMode"] = Json::Value(fColorMode);
-    root["srgbMode"] = Json::Value(gTreatSkColorAsSRGB);
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(root).c_str());
 
