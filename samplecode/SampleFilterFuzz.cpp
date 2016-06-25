@@ -41,7 +41,6 @@
 #include "SkPoint3.h"
 #include "SkRandom.h"
 #include "SkTableColorFilter.h"
-#include "SkTestImageFilters.h"
 #include "SkTileImageFilter.h"
 #include "SkTypeface.h"
 #include "SkView.h"
@@ -545,7 +544,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     }
 
     enum { ALPHA_THRESHOLD, MERGE, COLOR, LUT3D, BLUR, MAGNIFIER,
-           DOWN_SAMPLE, XFERMODE, OFFSET, MATRIX, MATRIX_CONVOLUTION, COMPOSE,
+           XFERMODE, OFFSET, MATRIX, MATRIX_CONVOLUTION, COMPOSE,
            DISTANT_LIGHT, POINT_LIGHT, SPOT_LIGHT, NOISE, DROP_SHADOW,
            MORPHOLOGY, BITMAP, DISPLACE, TILE, PICTURE, PAINT, NUM_FILTERS };
 
@@ -584,9 +583,6 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         filter = SkMagnifierImageFilter::Make(make_rect(),
                                               make_scalar(true),
                                               make_image_filter());
-        break;
-    case DOWN_SAMPLE:
-        filter = SkDownSampleImageFilter::Make(make_scalar(), make_image_filter());
         break;
     case XFERMODE:
         filter = SkXfermodeImageFilter::Make(SkXfermode::Make(make_xfermode()),

@@ -41,7 +41,6 @@
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
 #include "SkTableColorFilter.h"
-#include "SkTestImageFilters.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 
@@ -119,6 +118,5 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMergeImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDownSampleImageFilter)
     SkLightingImageFilter::InitializeFlattenables();
 }
