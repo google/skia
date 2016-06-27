@@ -252,18 +252,42 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
         return false;
     }
 
-    // Currently we don't handle draws, so if the caller wants/needs to do a draw we need to fail
-    if (kNoDraw_DrawPreference != *drawPreference) {
-        return false;
+    if (dstSurface->config() == srcConfig) {
+        return true;
     }
 
-    if (dstSurface->config() != srcConfig) {
-        // TODO: This should fall back to drawing or copying to change config of dstSurface to
-        // match that of srcConfig.
-        return false;
+    GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
+
+    // Start off assuming no swizzling
+    tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
+    tempDrawInfo->fWriteConfig = srcConfig;
+
+    // These settings we will always want if a temp draw is performed. Initially set the config
+    // to srcConfig, though that may be modified if we decide to do a R/B swap
+    tempDrawInfo->fTempSurfaceDesc.fFlags = kNone_GrSurfaceFlags;
+    tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
+    tempDrawInfo->fTempSurfaceDesc.fWidth = width;
+    tempDrawInfo->fTempSurfaceDesc.fHeight = height;
+    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
+    tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
+
+    if (renderTarget && this->vkCaps().isConfigRenderable(renderTarget->config(), false)) {
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+
+        bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
+
+        if (!this->vkCaps().isConfigTexturable(srcConfig) && configsAreRBSwaps) {
+            if (!this->vkCaps().isConfigTexturable(dstSurface->config())) {
+                return false;
+            }
+            tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
+            tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
+            tempDrawInfo->fWriteConfig = dstSurface->config();
+        }
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 bool GrVkGpu::onWritePixels(GrSurface* surface,
@@ -324,7 +348,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
             success = this->uploadTexDataOptimal(vkTex, left, top, width, height, config, texels);
         }
     }
-    
+
     return success;
 }
 
@@ -502,7 +526,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
         region.imageOffset = { left, flipY ? tex->height() - top - currentHeight : top, 0 };
         region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
-        
+
         currentWidth = SkTMax(1, currentWidth/2);
         currentHeight = SkTMax(1, currentHeight/2);
     }
@@ -1332,18 +1356,18 @@ void GrVkGpu::onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&
 bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,
                                   GrPixelConfig readConfig, DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
-    // Currently we don't handle draws, so if the caller wants/needs to do a draw we need to fail
-    if (kNoDraw_DrawPreference != *drawPreference) {
-        return false;
+    if (srcSurface->config() == readConfig) {
+        return true;
     }
 
-    if (srcSurface->config() != readConfig) {
-        // TODO: This should fall back to drawing or copying to change config of srcSurface to match
-        // that of readConfig.
-        return false;
+    if (this->vkCaps().isConfigRenderable(readConfig, false)) {
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
+        tempDrawInfo->fReadConfig = readConfig;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 bool GrVkGpu::onReadPixels(GrSurface* surface,
