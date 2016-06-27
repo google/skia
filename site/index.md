@@ -62,10 +62,6 @@ Click on any image below to see the source code that generated the image.
 Roadmap
 -------
 For a look at high level items we have on tap the next 6-12 months, view our
-roadmap [here](https://docs.google.com/document/d/1jb9XcGpi0EpvJcxttHjo5OkIHljRRxAEfIhoxRUut4I).
+roadmap [here](https://docs.google.com/document/d/1C9w8qpPpdgNGThqmgNnTToLZ5UYK4TsUGl5X3B_q6oM/edit?usp=sharing).
 Note it is a living document that changes based on the requirements of our users.
-
-Recent Highlights
------------------
-See a summary of recent changes to the library [here](https://docs.google.com/a/skia.org/document/d/1Q4-YN8wDY9Q3L7gkqOJmmCLM73dj3tr9epUHL1vMZm4).
 
