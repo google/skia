@@ -67,8 +67,7 @@ public:
     bool filterMaskGPU(GrTexture* src,
                        const SkMatrix& ctm,
                        const SkIRect& maskRect,
-                       GrTexture** result,
-                       bool canOverwriteSrc) const override;
+                       GrTexture** result) const override;
 #endif
 
     void computeFastBounds(const SkRect&, SkRect*) const override;
@@ -1235,8 +1234,7 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
 bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
                                          const SkMatrix& ctm,
                                          const SkIRect& maskRect,
-                                         GrTexture** result,
-                                         bool canOverwriteSrc) const {
+                                         GrTexture** result) const {
     // 'maskRect' isn't snapped to the UL corner but the mask in 'src' is.
     const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
 
@@ -1247,9 +1245,10 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
 
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
+    static const bool kIsGammaCorrect = false;
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
     sk_sp<GrDrawContext> drawContext(SkGpuBlurUtils::GaussianBlur(context, src,
-                                                                  isNormalBlur && canOverwriteSrc,
+                                                                  kIsGammaCorrect,
                                                                   clipRect, nullptr,
                                                                   xformedSigma, xformedSigma));
     if (!drawContext) {

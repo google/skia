@@ -133,16 +133,14 @@ public:
     /**
      * This function is used to implement filters that require an explicit src mask. It should only
      * be called if canFilterMaskGPU returned true and the maskRect param should be the output from
-     * that call. canOverwriteSrc indicates whether the implementation may treat src as a scratch
-     * texture and overwrite its contents. When true it is also legal to return src as the result.
+     * that call.
      * Implementations are free to get the GrContext from the src texture in order to create
      * additional textures and perform multiple passes.
      */
     virtual bool filterMaskGPU(GrTexture* src,
                                const SkMatrix& ctm,
                                const SkIRect& maskRect,
-                               GrTexture** result,
-                               bool canOverwriteSrc) const;
+                               GrTexture** result) const;
 #endif
 
     /**
