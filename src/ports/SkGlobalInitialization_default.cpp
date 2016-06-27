@@ -36,6 +36,7 @@
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
+#include "SkNormalSource.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
@@ -87,7 +88,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPerlinNoiseShader)
     SkGradientShader::InitializeFlattenables();
     SkLightingShader::InitializeFlattenables();
-    SkLightingShader::NormalSource::InitializeFlattenables();
+    SkNormalSource::InitializeFlattenables();
 
 
     // PathEffect

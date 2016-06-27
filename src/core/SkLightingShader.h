@@ -16,55 +16,6 @@ class SkMatrix;
 
 class SK_API SkLightingShader {
 public:
-    /** Abstract class that generates or reads in normals for use by SkLightingShader. Currently
-        implements the GPU side only. Not to be used as part of the API yet. Used internally by
-        SkLightingShader.
-    */
-    class SK_API NormalSource : public SkFlattenable {
-    public:
-        virtual ~NormalSource();
-
-#if SK_SUPPORT_GPU
-        /** Returns a fragment processor that takes no input and outputs a normal (already rotated)
-            as its output color. To be used as a child fragment processor.
-        */
-        virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(
-                GrContext* context,
-                const SkMatrix& viewM,
-                const SkMatrix* localMatrix,
-                SkFilterQuality filterQuality,
-                SkSourceGammaTreatment gammaTreatment) const = 0;
-#endif
-
-        /** Returns a normal source that provides normals sourced from the the normal map argument.
-              Not to be used as part of the API yet. Used internally by SkLightingShader.
-
-              @param  normal                the normal map
-              @param  invNormRotation       rotation applied to the normal map's normals
-              @param  normLocalM            the local matrix for the normal map
-
-              nullptr will be returned if
-                  'normal' is empty
-                  'normal' too big (> 65535 on either side)
-
-              The normal map is currently assumed to be an 8888 image where the normal at a texel
-              is retrieved by:
-                  N.x = R-127;
-                  N.y = G-127;
-                  N.z = B-127;
-                  N.normalize();
-              The +Z axis is thus encoded in RGB as (127, 127, 255) while the -Z axis is
-              (127, 127, 0).
-        */
-        static sk_sp<NormalSource> MakeMap(const SkBitmap& normal, const SkVector& invNormRotation,
-                                           const SkMatrix* normLocalM);
-
-        SK_DEFINE_FLATTENABLE_TYPE(NormalSource)
-        SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
-    };
-
-
-
     /** Returns a shader that lights the diffuse and normal maps with a set of lights.
 
         It returns a shader with a reference count of 1.
@@ -74,8 +25,12 @@ public:
         @param  normal      the normal map
         @param  lights       the lights applied to the normal map
         @param  invNormRotation rotation applied to the normal map's normals
-        @param  diffLocalMatrix the local matrix for the diffuse texture
-        @param  normLocalMatrix the local matrix for the normal map
+        @param  diffLocalMatrix the local matrix for the diffuse map (transform from
+                                texture coordinates to shape source coordinates). nullptr is
+                                interpreted as an identity matrix.
+        @param  normLocalMatrix the local matrix for the normal map (transform from
+                                texture coordinates to shape source coordinates). nullptr is
+                                interpreted as an identity matrix.
 
         nullptr will be returned if:
             either 'diffuse' or 'normal' are empty
