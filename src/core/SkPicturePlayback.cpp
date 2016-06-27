@@ -267,11 +267,13 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             canvas->drawDrawable(drawable, &matrix);
         } break;
         case DRAW_DRRECT: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             SkRRect outer, inner;
             reader->readRRect(&outer);
             reader->readRRect(&inner);
-            canvas->drawDRRect(outer, inner, paint);
+            if (paint) {
+                canvas->drawDRRect(outer, inner, *paint);
+            }
         } break;
         case BEGIN_COMMENT_GROUP: {
             SkString tmp;
@@ -322,16 +324,21 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             canvas->legacy_drawImageRect(image, src, dst, paint, constraint);
         } break;
         case DRAW_OVAL: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             SkRect rect;
             reader->readRect(&rect);
-            canvas->drawOval(rect, paint);
+            if (paint) {
+                canvas->drawOval(rect, *paint);
+            }
         } break;
-        case DRAW_PAINT:
-            canvas->drawPaint(*fPictureData->getPaint(reader));
-            break;
+        case DRAW_PAINT: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            if (paint) {
+                canvas->drawPaint(*paint);
+            }
+        } break;
         case DRAW_PATCH: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
 
             const SkPoint* cubics = (const SkPoint*)reader->skip(SkPatchUtils::kNumCtrlPts *
                                                                  sizeof(SkPoint));
@@ -353,11 +360,15 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 }
                 xfer = SkXfermode::Make((SkXfermode::Mode)mode);
             }
-            canvas->drawPatch(cubics, colors, texCoords, std::move(xfer), paint);
+            if (paint) {
+                canvas->drawPatch(cubics, colors, texCoords, std::move(xfer), *paint);
+            }
         } break;
         case DRAW_PATH: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
-            canvas->drawPath(fPictureData->getPath(reader), paint);
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            if (paint) {
+                canvas->drawPath(fPictureData->getPath(reader), *paint);
+            }
         } break;
         case DRAW_PICTURE:
             canvas->drawPicture(fPictureData->getPicture(reader));
@@ -370,43 +381,49 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             canvas->drawPicture(pic, &matrix, paint);
         } break;
         case DRAW_POINTS: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             SkCanvas::PointMode mode = (SkCanvas::PointMode)reader->readInt();
             size_t count = reader->readInt();
             const SkPoint* pts = (const SkPoint*)reader->skip(sizeof(SkPoint)* count);
-            canvas->drawPoints(mode, count, pts, paint);
+            if (paint) {
+                canvas->drawPoints(mode, count, pts, *paint);
+            }
         } break;
         case DRAW_POS_TEXT: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text;
             get_text(reader, &text);
             size_t points = reader->readInt();
             const SkPoint* pos = (const SkPoint*)reader->skip(points * sizeof(SkPoint));
-            canvas->drawPosText(text.text(), text.length(), pos, paint);
+            if (paint) {
+                canvas->drawPosText(text.text(), text.length(), pos, *paint);
+            }
         } break;
         case DRAW_POS_TEXT_TOP_BOTTOM: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text;
             get_text(reader, &text);
             size_t points = reader->readInt();
             const SkPoint* pos = (const SkPoint*)reader->skip(points * sizeof(SkPoint));
             const SkScalar top = reader->readScalar();
             const SkScalar bottom = reader->readScalar();
-            if (!canvas->quickRejectY(top, bottom)) {
-                canvas->drawPosText(text.text(), text.length(), pos, paint);
+            if (!canvas->quickRejectY(top, bottom) && paint) {
+                canvas->drawPosText(text.text(), text.length(), pos, *paint);
             }
         } break;
         case DRAW_POS_TEXT_H: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text;
             get_text(reader, &text);
             size_t xCount = reader->readInt();
             const SkScalar constY = reader->readScalar();
             const SkScalar* xpos = (const SkScalar*)reader->skip(xCount * sizeof(SkScalar));
-            canvas->drawPosTextH(text.text(), text.length(), xpos, constY, paint);
+            if (paint) {
+                canvas->drawPosTextH(text.text(), text.length(), xpos, constY, *paint);
+            }
         } break;
         case DRAW_POS_TEXT_H_TOP_BOTTOM: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text;
             get_text(reader, &text);
             size_t xCount = reader->readInt();
@@ -414,21 +431,25 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkScalar top = *xpos++;
             const SkScalar bottom = *xpos++;
             const SkScalar constY = *xpos++;
-            if (!canvas->quickRejectY(top, bottom)) {
-                canvas->drawPosTextH(text.text(), text.length(), xpos, constY, paint);
+            if (!canvas->quickRejectY(top, bottom) && paint) {
+                canvas->drawPosTextH(text.text(), text.length(), xpos, constY, *paint);
             }
         } break;
         case DRAW_RECT: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             SkRect rect;
             reader->readRect(&rect);
-            canvas->drawRect(rect, paint);
+            if (paint) {
+                canvas->drawRect(rect, *paint);
+            }
         } break;
         case DRAW_RRECT: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             SkRRect rrect;
             reader->readRRect(&rrect);
-            canvas->drawRRect(rrect, paint);
+            if (paint) {
+                canvas->drawRRect(rrect, *paint);
+            }
         } break;
         case DRAW_SPRITE: {
             /* const SkPaint* paint = */ fPictureData->getPaint(reader);
@@ -438,22 +459,26 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             // drawSprite removed dec-2015
         } break;
         case DRAW_TEXT: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text;
             get_text(reader, &text);
             SkScalar x = reader->readScalar();
             SkScalar y = reader->readScalar();
-            canvas->drawText(text.text(), text.length(), x, y, paint);
+            if (paint) {
+                canvas->drawText(text.text(), text.length(), x, y, *paint);
+            }
         } break;
         case DRAW_TEXT_BLOB: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             const SkTextBlob* blob = fPictureData->getTextBlob(reader);
             SkScalar x = reader->readScalar();
             SkScalar y = reader->readScalar();
-            canvas->drawTextBlob(blob, x, y, paint);
+            if (paint) {
+                canvas->drawTextBlob(blob, x, y, *paint);
+            }
         } break;
         case DRAW_TEXT_TOP_BOTTOM: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text;
             get_text(reader, &text);
             const SkScalar* ptr = (const SkScalar*)reader->skip(4 * sizeof(SkScalar));
@@ -461,22 +486,24 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             // ptr[1] == y
             // ptr[2] == top
             // ptr[3] == bottom
-            if (!canvas->quickRejectY(ptr[2], ptr[3])) {
-                canvas->drawText(text.text(), text.length(), ptr[0], ptr[1], paint);
+            if (!canvas->quickRejectY(ptr[2], ptr[3]) && paint) {
+                canvas->drawText(text.text(), text.length(), ptr[0], ptr[1], *paint);
             }
         } break;
         case DRAW_TEXT_ON_PATH: {
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text;
             get_text(reader, &text);
             const SkPath& path = fPictureData->getPath(reader);
             SkMatrix matrix;
             reader->readMatrix(&matrix);
-            canvas->drawTextOnPath(text.text(), text.length(), path, &matrix, paint);
+            if (paint) {
+                canvas->drawTextOnPath(text.text(), text.length(), path, &matrix, *paint);
+            }
         } break;
         case DRAW_VERTICES: {
             sk_sp<SkXfermode> xfer;
-            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             DrawVertexFlags flags = (DrawVertexFlags)reader->readInt();
             SkCanvas::VertexMode vmode = (SkCanvas::VertexMode)reader->readInt();
             int vCount = reader->readInt();
@@ -502,7 +529,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 }
                 xfer = SkXfermode::Make((SkXfermode::Mode)mode);
             }
-            canvas->drawVertices(vmode, vCount, verts, texs, colors, xfer, indices, iCount, paint);
+            if (paint) {
+                canvas->drawVertices(vmode, vCount, verts, texs, colors,
+                                     xfer, indices, iCount, *paint);
+            }
         } break;
         case RESTORE:
             canvas->restore();
