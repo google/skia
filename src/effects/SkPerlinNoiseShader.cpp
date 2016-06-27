@@ -275,12 +275,12 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkPerlinNoiseShader::Type type,
   : fType(type)
   , fBaseFrequencyX(baseFrequencyX)
   , fBaseFrequencyY(baseFrequencyY)
-  , fNumOctaves(numOctaves > 255 ? 255 : numOctaves/*[0,255] octaves allowed*/)
+  , fNumOctaves(SkTPin<int>(numOctaves, 0, 255)) // [0,255] octaves allowed
   , fSeed(seed)
   , fTileSize(nullptr == tileSize ? SkISize::Make(0, 0) : *tileSize)
   , fStitchTiles(!fTileSize.isEmpty())
 {
-    SkASSERT(numOctaves >= 0 && numOctaves < 256);
+    SkASSERT(fNumOctaves >= 0 && fNumOctaves < 256);
 }
 
 SkPerlinNoiseShader::~SkPerlinNoiseShader() {
