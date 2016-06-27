@@ -97,7 +97,7 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
         return false;
     }
     // TODO: Support inverse fill
-    if (!args.fShape->inverseFilled()) {
+    if (args.fShape->inverseFilled()) {
         return false;
     }
     // currently don't support perspective
