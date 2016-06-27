@@ -178,6 +178,7 @@ bool GrStyle::applyToPath(SkPath* dst, SkStrokeRec::InitStyle* style, const SkPa
         if (!strokeRec.applyToPath(dst, *pathForStrokeRec)) {
             return false;
         }
+        dst->setIsVolatile(true);
         *style = SkStrokeRec::kFill_InitStyle;
     } else if (!fPathEffect) {
         // Nothing to do for path effect or stroke, fail.
