@@ -34,108 +34,88 @@
  */
 class GrShape {
 public:
-    GrShape() : fType(Type::kEmpty) {}
+    GrShape() { this->initType(Type::kEmpty); }
 
-    explicit GrShape(const SkPath& path)
-        : fType(Type::kPath)
-        , fPath(&path) {
-        this->attemptToSimplifyPath();
-    }
+    explicit GrShape(const SkPath& path) : GrShape(path, GrStyle::SimpleFill()) {}
 
-    explicit GrShape(const SkRRect& rrect)
-        : fType(Type::kRRect)
-        , fRRect(rrect)
-        , fRRectIsInverted(false) {
-        fRRectStart = DefaultRRectDirAndStartIndex(rrect, false, &fRRectDir);
-        this->attemptToSimplifyRRect();
-    }
+    explicit GrShape(const SkRRect& rrect) : GrShape(rrect, GrStyle::SimpleFill()) {}
 
-    explicit GrShape(const SkRect& rect)
-        : fType(Type::kRRect)
-        , fRRect(SkRRect::MakeRect(rect))
-        , fRRectIsInverted(false) {
-        fRRectStart = DefaultRectDirAndStartIndex(rect, false, &fRRectDir);
-        this->attemptToSimplifyRRect();
-    }
+    explicit GrShape(const SkRect& rect) : GrShape(rect, GrStyle::SimpleFill()) {}
 
-    GrShape(const SkPath& path, const GrStyle& style)
-        : fType(Type::kPath)
-        , fPath(&path)
-        , fStyle(style) {
+    GrShape(const SkPath& path, const GrStyle& style) : fStyle(style) {
+        this->initType(Type::kPath, &path);
         this->attemptToSimplifyPath();
     }
 
     GrShape(const SkRRect& rrect, const GrStyle& style)
-        : fType(Type::kRRect)
-        , fRRect(rrect)
-        , fRRectIsInverted(false)
-        , fStyle(style) {
-        fRRectStart = DefaultRRectDirAndStartIndex(rrect, style.hasPathEffect(), &fRRectDir);
+        : fStyle(style) {
+        this->initType(Type::kRRect);
+        fRRectData.fRRect = rrect;
+        fRRectData.fInverted = false;
+        fRRectData.fStart = DefaultRRectDirAndStartIndex(rrect, style.hasPathEffect(),
+                                                         &fRRectData.fDir);
         this->attemptToSimplifyRRect();
     }
 
     GrShape(const SkRRect& rrect, SkPath::Direction dir, unsigned start, bool inverted,
             const GrStyle& style)
-        : fType(Type::kRRect)
-        , fRRect(rrect)
-        , fRRectIsInverted(inverted)
-        , fStyle(style) {
+        : fStyle(style) {
+        this->initType(Type::kRRect);
+        fRRectData.fRRect = rrect;
+        fRRectData.fInverted = inverted;
         if (style.pathEffect()) {
-            fRRectDir = dir;
-            fRRectStart = start;
-            if (fRRect.getType() == SkRRect::kRect_Type) {
-                fRRectStart = (fRRectStart + 1) & 0b110;
-            } else if (fRRect.getType() == SkRRect::kOval_Type) {
-                fRRectStart &= 0b110;
+            fRRectData.fDir = dir;
+            fRRectData.fStart = start;
+            if (fRRectData.fRRect.getType() == SkRRect::kRect_Type) {
+                fRRectData.fStart = (fRRectData.fStart + 1) & 0b110;
+            } else if (fRRectData.fRRect.getType() == SkRRect::kOval_Type) {
+                fRRectData.fStart &= 0b110;
             }
         } else {
-            fRRectStart = DefaultRRectDirAndStartIndex(rrect, false, &fRRectDir);
+            fRRectData.fStart = DefaultRRectDirAndStartIndex(rrect, false, &fRRectData.fDir);
         }
         this->attemptToSimplifyRRect();
     }
 
     GrShape(const SkRect& rect, const GrStyle& style)
-        : fType(Type::kRRect)
-        , fRRect(SkRRect::MakeRect(rect))
-        , fRRectIsInverted(false)
-        , fStyle(style) {
-        fRRectStart = DefaultRectDirAndStartIndex(rect, style.hasPathEffect(), &fRRectDir);
+        : fStyle(style) {
+        this->initType(Type::kRRect);
+        fRRectData.fRRect = SkRRect::MakeRect(rect);
+        fRRectData.fInverted = false;
+        fRRectData.fStart = DefaultRectDirAndStartIndex(rect, style.hasPathEffect(),
+                                                        &fRRectData.fDir);
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkPath& path, const SkPaint& paint)
-        : fType(Type::kPath)
-        , fPath(&path)
-        , fStyle(paint) {
+    GrShape(const SkPath& path, const SkPaint& paint) : fStyle(paint) {
+        this->initType(Type::kPath, &path);
         this->attemptToSimplifyPath();
     }
 
     GrShape(const SkRRect& rrect, const SkPaint& paint)
-        : fType(Type::kRRect)
-        , fRRect(rrect)
-        , fRRectIsInverted(false)
-        , fStyle(paint) {
-        fRRectStart = DefaultRRectDirAndStartIndex(rrect, fStyle.hasPathEffect(), &fRRectDir);
+        : fStyle(paint) {
+        this->initType(Type::kRRect);
+        fRRectData.fRRect = rrect;
+        fRRectData.fInverted = false;
+        fRRectData.fStart = DefaultRRectDirAndStartIndex(rrect, fStyle.hasPathEffect(),
+                                                         &fRRectData.fDir);
         this->attemptToSimplifyRRect();
     }
 
     GrShape(const SkRect& rect, const SkPaint& paint)
-        : fType(Type::kRRect)
-        , fRRect(SkRRect::MakeRect(rect))
-        , fRRectIsInverted(false)
-        , fStyle(paint) {
-        fRRectStart = DefaultRectDirAndStartIndex(rect, fStyle.hasPathEffect(), &fRRectDir);
+        : fStyle(paint) {
+        this->initType(Type::kRRect);
+        fRRectData.fRRect = SkRRect::MakeRect(rect);
+        fRRectData.fInverted = false;
+        fRRectData.fStart = DefaultRectDirAndStartIndex(rect, fStyle.hasPathEffect(),
+                                                        &fRRectData.fDir);
         this->attemptToSimplifyRRect();
     }
 
     GrShape(const GrShape&);
     GrShape& operator=(const GrShape& that);
 
-    ~GrShape() {
-        if (Type::kPath == fType) {
-            fPath.reset();
-        }
-    }
+    ~GrShape() { this->changeType(Type::kEmpty); }
 
     const GrStyle& style() const { return fStyle; }
 
@@ -154,16 +134,16 @@ public:
             return false;
         }
         if (rrect) {
-            *rrect = fRRect;
+            *rrect = fRRectData.fRRect;
         }
         if (dir) {
-            *dir = fRRectDir;
+            *dir = fRRectData.fDir;
         }
         if (start) {
-            *start = fRRectStart;
+            *start = fRRectData.fStart;
         }
         if (inverted) {
-            *inverted = fRRectIsInverted;
+            *inverted = fRRectData.fInverted;
         }
         return true;
     }
@@ -176,7 +156,7 @@ public:
          if (fType != Type::kPath) {
              return false;
          }
-         return fPath.get()->isLine(pts);
+         return this->path().isLine(pts);
      }
 
     /** Returns the unstyled geometry as a path. */
@@ -187,16 +167,16 @@ public:
                 break;
             case Type::kRRect:
                 out->reset();
-                out->addRRect(fRRect, fRRectDir, fRRectStart);
+                out->addRRect(fRRectData.fRRect, fRRectData.fDir, fRRectData.fStart);
                 // Below matches the fill type that attemptToSimplifyPath uses.
-                if (fRRectIsInverted) {
+                if (fRRectData.fInverted) {
                     out->setFillType(kDefaultPathInverseFillType);
                 } else {
                     out->setFillType(kDefaultPathFillType);
                 }
                 break;
             case Type::kPath:
-                *out = *fPath.get();
+                *out = this->path();
                 break;
         }
     }
@@ -235,8 +215,8 @@ public:
                 // thus doesn't give the correct answer for stroked paths, hence we also check
                 // whether the path is either filled or closed. Convex paths may only have one
                 // contour hence isLastContourClosed() is a sufficient for a convex path.
-                return (this->style().isSimpleFill() || fPath.get()->isLastContourClosed()) &&
-                       fPath.get()->isConvex();
+                return (this->style().isSimpleFill() || this->path().isLastContourClosed()) &&
+                        this->path().isConvex();
         }
         return false;
     }
@@ -249,10 +229,10 @@ public:
                 ret = false;
                 break;
             case Type::kRRect:
-                ret = fRRectIsInverted;
+                ret = fRRectData.fInverted;
                 break;
             case Type::kPath:
-                ret = this->fPath.get()->isInverseFillType();
+                ret = this->path().isInverseFillType();
                 break;
         }
         // Dashing ignores inverseness. We should have caught this earlier. skbug.com/5421
@@ -286,7 +266,7 @@ public:
                 return true;
             case Type::kPath:
                 // SkPath doesn't keep track of the closed status of each contour.
-                return SkPathPriv::IsClosedSingleContour(*fPath.get());
+                return SkPathPriv::IsClosedSingleContour(this->path());
         }
         return false;
     }
@@ -296,14 +276,14 @@ public:
             case Type::kEmpty:
                 return 0;
             case Type::kRRect:
-                if (fRRect.getType() == SkRRect::kOval_Type) {
+                if (fRRectData.fRRect.getType() == SkRRect::kOval_Type) {
                     return SkPath::kConic_SegmentMask;
-                } else if (fRRect.getType() == SkRRect::kRect_Type) {
+                } else if (fRRectData.fRRect.getType() == SkRRect::kRect_Type) {
                     return SkPath::kLine_SegmentMask;
                 }
                 return SkPath::kLine_SegmentMask | SkPath::kConic_SegmentMask;
             case Type::kPath:
-                return fPath.get()->getSegmentMasks();
+                return this->path().getSegmentMasks();
         }
         return 0;
     }
@@ -329,6 +309,41 @@ private:
         kRRect,
         kPath,
     };
+
+    void initType(Type type, const SkPath* path = nullptr) {
+        fType = Type::kEmpty;
+        this->changeType(type, path);
+    }
+
+    void changeType(Type type, const SkPath* path = nullptr) {
+        bool wasPath = Type::kPath == fType;
+        fType = type;
+        bool isPath = Type::kPath == type;
+        SkASSERT(!path || isPath);
+        if (wasPath && !isPath) {
+            fPathData.fPath.~SkPath();
+        } else if (!wasPath && isPath) {
+            if (path) {
+                new (&fPathData.fPath) SkPath(*path);
+            } else {
+                new (&fPathData.fPath) SkPath();
+            }
+        } else if (isPath && path) {
+            fPathData.fPath = *path;
+        }
+        // Whether or not we use the path's gen ID is decided in attemptToSimplifyPath.
+        fPathData.fGenID = 0;
+    }
+
+    SkPath& path() {
+        SkASSERT(Type::kPath == fType);
+        return fPathData.fPath;
+    }
+
+    const SkPath& path() const {
+        SkASSERT(Type::kPath == fType);
+        return fPathData.fPath;
+    }
 
     /** Constructor used by the applyStyle() function */
     GrShape(const GrShape& parentShape, GrStyle::Apply, SkScalar scale);
@@ -393,13 +408,19 @@ private:
     }
 
     Type                        fType;
-    SkRRect                     fRRect;
-    SkPath::Direction           fRRectDir;
-    unsigned                    fRRectStart;
-    bool                        fRRectIsInverted;
-    SkTLazy<SkPath>             fPath;
-    // Gen ID of the original path (fPath may be modified)
-    int32_t                     fPathGenID = 0;
+    union {
+        struct {
+            SkRRect                     fRRect;
+            SkPath::Direction           fDir;
+            unsigned                    fStart;
+            bool                        fInverted;
+        } fRRectData;
+        struct {
+            SkPath                      fPath;
+            // Gen ID of the original path (fPath may be modified)
+            int32_t                     fGenID;
+        } fPathData;
+    };
     GrStyle                     fStyle;
     SkAutoSTArray<8, uint32_t>  fInheritedKey;
 };
