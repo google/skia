@@ -38,10 +38,17 @@ static inline bool single_pass_shape(const GrShape& shape) {
 #if STENCIL_OFF
     return true;
 #else
-    if (!shape.style().couldBeHairline() && !shape.inverseFilled()) {
+    // Inverse fill is always two pass.
+    if (shape.inverseFilled()) {
+        return false;
+    }
+    // This path renderer only accepts simple fill paths or stroke paths that are either hairline
+    // or have a stroke width small enough to treat as hairline. Hairline paths are always single
+    // pass. Filled paths are single pass if they're convex.
+    if (shape.style().isSimpleFill()) {
         return shape.knownToBeConvex();
     }
-    return false;
+    return true;
 #endif
 }
 

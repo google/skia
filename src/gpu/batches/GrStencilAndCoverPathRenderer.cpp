@@ -33,8 +33,10 @@ GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider*
 }
 
 bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // GrPath doesn't support hairline paths.
-    if (args.fShape->style().couldBeHairline()) {
+    // GrPath doesn't support hairline paths. An arbitrary path effect could produce a hairline
+    // path.
+    if (args.fShape->style().strokeRec().isHairlineStyle() ||
+        args.fShape->style().hasNonDashPathEffect()) {
         return false;
     }
     if (args.fHasUserStencilSettings) {

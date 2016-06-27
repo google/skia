@@ -709,11 +709,10 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 }
 
 bool GrMSAAPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // This path renderer does not support hairlines. We defer on anything that could be handled
-    // as a hairline by another path renderer. Also, arbitrary path effects could produce
-    // a hairline result.
-    return !IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr) &&
-           !args.fShape->style().couldBeHairline() && !args.fAntiAlias;
+    // This path renderer only fills and relies on MSAA for antialiasing. Stroked shapes are
+    // handled by passing on the original shape and letting the caller compute the stroked shape
+    // which will have a fill style.
+    return args.fShape->style().isSimpleFill() && !args.fAntiAlias;
 }
 
 bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {

@@ -113,13 +113,6 @@ public:
     /** Is this style a hairline with no path effect? */
     bool isSimpleHairline() const { return fStrokeRec.isHairlineStyle() && !fPathEffect; }
 
-    bool couldBeHairline() const {
-        // If the original stroke rec has hairline style then either a null or dash patheffect
-        // would preserve the hairline status. An arbitrary path effect could introduce hairline
-        // style.
-        return this->strokeRec().isHairlineStyle() || this->hasNonDashPathEffect();
-    }
-
     SkPathEffect* pathEffect() const { return fPathEffect.get(); }
 
     bool hasPathEffect() const { return SkToBool(fPathEffect.get()); }
