@@ -414,8 +414,8 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
         if (trimRowBytes == rowBytes && trimRowBytes == layout.rowPitch) {
             memcpy(mapPtr, data, trimRowBytes * height);
         } else {
-            SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes,
-                            trimRowBytes, height);
+            SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
+                         height);
         }
     }
 
@@ -1356,6 +1356,24 @@ void GrVkGpu::onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&
 bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,
                                   GrPixelConfig readConfig, DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
+    // These settings we will always want if a temp draw is performed.
+    tempDrawInfo->fTempSurfaceDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    tempDrawInfo->fTempSurfaceDesc.fWidth = width;
+    tempDrawInfo->fTempSurfaceDesc.fHeight = height;
+    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
+    tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
+    tempDrawInfo->fUseExactScratch = false;
+
+    // For now assume no swizzling, we may change that below.
+    tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
+
+    // Depends on why we need/want a temp draw. Start off assuming no change, the surface we read
+    // from will be srcConfig and we will read readConfig pixels from it.
+    // Not that if we require a draw and return a non-renderable format for the temp surface the
+    // base class will fail for us.
+    tempDrawInfo->fTempSurfaceDesc.fConfig = srcSurface->config();
+    tempDrawInfo->fReadConfig = readConfig;
+
     if (srcSurface->config() == readConfig) {
         return true;
     }
@@ -1408,7 +1426,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     VkBufferImageCopy region;
     memset(&region, 0, sizeof(VkBufferImageCopy));
     region.bufferOffset = 0;
-    region.bufferRowLength = 0; // Forces RowLength to be imageExtent.width
+    region.bufferRowLength = 0; // Forces RowLength to be width. We handle the rowBytes below.
     region.bufferImageHeight = 0; // Forces height to be tightly packed. Only useful for 3d images.
     region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     region.imageOffset = offset;
@@ -1435,28 +1453,25 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
 
     void* mappedMemory = transferBuffer->map();
 
-    memcpy(buffer, mappedMemory, rowBytes*height);
+    size_t tightRowBytes = GrBytesPerPixel(config) * width;
+    if (flipY) {
+        const char* srcRow = reinterpret_cast<const char*>(mappedMemory);
+        char* dstRow = reinterpret_cast<char*>(buffer)+(height - 1) * rowBytes;
+        for (int y = 0; y < height; y++) {
+            memcpy(dstRow, srcRow, tightRowBytes);
+            srcRow += tightRowBytes;
+            dstRow -= rowBytes;
+        }
+    } else {
+        if (tightRowBytes == rowBytes) {
+            memcpy(buffer, mappedMemory, rowBytes*height);
+        } else {
+            SkRectMemcpy(buffer, rowBytes, mappedMemory, tightRowBytes, tightRowBytes, height);
+        }
+    }
 
     transferBuffer->unmap();
     transferBuffer->unref();
-
-    if (flipY) {
-        SkAutoSMalloc<32 * sizeof(GrColor)> scratch;
-        size_t tightRowBytes = GrBytesPerPixel(config) * width;
-        scratch.reset(tightRowBytes);
-        void* tmpRow = scratch.get();
-        // flip y in-place by rows
-        const int halfY = height >> 1;
-        char* top = reinterpret_cast<char*>(buffer);
-        char* bottom = top + (height - 1) * rowBytes;
-        for (int y = 0; y < halfY; y++) {
-            memcpy(tmpRow, top, tightRowBytes);
-            memcpy(top, bottom, tightRowBytes);
-            memcpy(bottom, tmpRow, tightRowBytes);
-            top += rowBytes;
-            bottom -= rowBytes;
-        }
-    }
 
     return true;
 }

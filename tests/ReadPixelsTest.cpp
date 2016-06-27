@@ -200,8 +200,8 @@ static bool check_read(skiatest::Reporter* reporter,
                     bool didPremul;
                     SkPMColor pmPixel = convert_to_pmcolor(ct, at, pixel, &didPremul);
                     if (!check_read_pixel(pmPixel, canvasPixel, didPremul)) {
-                        ERRORF(reporter, "Expected readback pixel value 0x%08x, got 0x%08x. "
-                               "Readback was unpremul: %d", canvasPixel, pmPixel, didPremul);
+                        ERRORF(reporter, "Expected readback pixel (%d, %d) value 0x%08x, got 0x%08x. "
+                               "Readback was unpremul: %d", bx, by, canvasPixel, pmPixel, didPremul);
                         return false;
                     }
                 }
@@ -387,7 +387,7 @@ DEF_TEST(ReadPixels, reporter) {
     test_readpixels(reporter, surface, kLastAligned_BitmapInit);
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
     for (auto& origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         GrSurfaceDesc desc;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -442,7 +442,7 @@ static void test_readpixels_texture(skiatest::Reporter* reporter, GrTexture* tex
         }
     }
 }
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
     // On the GPU we will also try reading back from a non-renderable texture.
     for (auto& origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         SkAutoTUnref<GrTexture> texture;
@@ -577,7 +577,7 @@ static void dump_to_file(const char name[], SkData* data) {
  *
  *  https://bug.skia.org/4351
  */
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, ctxInfo) {
     SkBitmap bitmap;
     make_ringed_bitmap(&bitmap, 6, 6);
     const SkIRect subset = SkIRect::MakeLTRB(2, 2, 4, 4);
