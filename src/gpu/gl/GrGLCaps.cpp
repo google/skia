@@ -40,6 +40,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDrawIndirectSupport = false;
     fMultiDrawIndirectSupport = false;
     fBaseInstanceSupport = false;
+    fCanDrawIndirectToFloat = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
@@ -529,6 +530,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fMultiDrawIndirectSupport = ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
         fBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
     }
+
+    // OS X doesn't seem to write correctly to floating point textures when using glDraw*Indirect,
+    // regardless of the underlying GPU.
+#ifndef SK_BUILD_FOR_MAC
+    if (fDrawIndirectSupport) {
+        fCanDrawIndirectToFloat = true;
+    }
+#endif
 
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
 
@@ -1112,6 +1121,7 @@ SkString GrGLCaps::dump() const {
     r.appendf("Draw indirect support: %s\n", (fDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));
+    r.appendf("Can draw indirect to float: %s\n", (fCanDrawIndirectToFloat ? "YES" : "NO"));
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));

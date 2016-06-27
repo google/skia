@@ -385,6 +385,17 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
     }
 }
 
+static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
+    switch (config) {
+        case kRGBA_float_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return true;
+        default:
+            return false;
+    }
+}
+
 /**
  * Optional bitfield flags that can be set on GrSurfaceDesc (below).
  */
