@@ -61,7 +61,9 @@ The following will work only if you have a google.com account.
 * Run in your terminal:
 
     $ SKP\_DEST=...<br/>
-    $ REPO\_TYPE=... (Either All, Mobile10k, 10k, Dummy1k)<br/>
-    $ CHROMIUM\_BUILD=... (Eg: 57259e0-05dcb4c)<br/>
-    $ SLAVE\_NUM=... (There are 100 available slaves)<br/>
-    $ gsutil -m cp gs://cluster-telemetry/skps/${REPO\_TYPE}/${CHROMIUM\_BUILD}/slave${SLAVE\_NUM}/*.skp ${SKP\_DEST}
+    $ REPO\_TYPE=... (Either All, 100k, Mobile10k, 10k, Dummy1k)<br/>
+    $ CHROMIUM\_BUILD=... (Eg: fad657e-276e633)<br/>
+    $ gsutil -m cp gs://cluster-telemetry/swarming/skps/${REPO\_TYPE}/${CHROMIUM\_BUILD}/{1..10}/*.skp ${SKP\_DEST}
+
+* Substitute the 1 and 10 above with the start and end ranks of the SKPs you want to copy locally.
+* If you are trying to find a particular SKP. Look for it in the CSV [here](https://pantheon.corp.google.com/m/cloudstorage/b/cluster-telemetry/o/csv/top-1m.csv) and then use that rank in the copy command.
