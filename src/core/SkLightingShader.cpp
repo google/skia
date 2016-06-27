@@ -12,6 +12,7 @@
 #include "SkErrorInternals.h"
 #include "SkLightingShader.h"
 #include "SkMathPriv.h"
+#include "SkNormalSource.h"
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -55,7 +56,7 @@ public:
                          const sk_sp<SkLights> lights,
                          const SkVector& invNormRotation,
                          const SkMatrix* diffLocalM, const SkMatrix* normLocalM,
-                         sk_sp<SkLightingShader::NormalSource> normalSource)
+                         sk_sp<SkNormalSource> normalSource)
         : INHERITED(diffLocalM)
         , fDiffuseMap(diffuse)
         , fNormalMap(normal)
@@ -88,7 +89,8 @@ public:
         // The context takes ownership of the states. It will call their destructors
         // but will NOT free the memory.
         LightingShaderContext(const SkLightingShaderImpl&, const ContextRec&,
-                              SkBitmapProcState* diffuseState, SkBitmapProcState* normalState);
+                              SkBitmapProcState* diffuseState, SkNormalSource::Provider*,
+                              void* heapAllocated);
         ~LightingShaderContext() override;
 
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
@@ -96,9 +98,11 @@ public:
         uint32_t getFlags() const override { return fFlags; }
 
     private:
-        SkBitmapProcState* fDiffuseState;
-        SkBitmapProcState* fNormalState;
-        uint32_t           fFlags;
+        SkBitmapProcState*        fDiffuseState;
+        SkNormalSource::Provider* fNormalProvider;
+        uint32_t                  fFlags;
+
+        void* fHeapAllocated;
 
         typedef SkShader::Context INHERITED;
     };
@@ -110,7 +114,6 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void*) const override;
-    bool computeNormTotalInverse(const ContextRec& rec, SkMatrix* normTotalInverse) const;
 
 private:
     SkBitmap        fDiffuseMap;
@@ -121,7 +124,7 @@ private:
     SkMatrix        fNormLocalMatrix;
     SkVector        fInvNormRotation;
 
-    sk_sp<SkLightingShader::NormalSource> fNormalSource;
+    sk_sp<SkNormalSource> fNormalSource;
 
     friend class SkLightingShader;
 
@@ -367,13 +370,12 @@ bool SkLightingShaderImpl::isOpaque() const {
 }
 
 SkLightingShaderImpl::LightingShaderContext::LightingShaderContext(
-                                                                const SkLightingShaderImpl& shader,
-                                                                const ContextRec& rec,
-                                                                SkBitmapProcState* diffuseState,
-                                                                SkBitmapProcState* normalState)
+        const SkLightingShaderImpl& shader, const ContextRec& rec, SkBitmapProcState* diffuseState,
+        SkNormalSource::Provider* normalProvider, void* heapAllocated)
     : INHERITED(shader, rec)
     , fDiffuseState(diffuseState)
-    , fNormalState(normalState) {
+    , fNormalProvider(normalProvider)
+    , fHeapAllocated(heapAllocated) {
     const SkPixmap& pixmap = fDiffuseState->fPixmap;
     bool isOpaque = pixmap.isOpaque();
 
@@ -390,7 +392,9 @@ SkLightingShaderImpl::LightingShaderContext::~LightingShaderContext() {
     // The bitmap proc states have been created outside of the context on memory that will be freed
     // elsewhere. Call the destructors but leave the freeing of the memory to the caller.
     fDiffuseState->~SkBitmapProcState();
-    fNormalState->~SkBitmapProcState();
+    fNormalProvider->~Provider();
+
+    sk_free(fHeapAllocated);
 }
 
 static inline SkPMColor convert(SkColor3f color, U8CPU a) {
@@ -417,29 +421,24 @@ static inline SkPMColor convert(SkColor3f color, U8CPU a) {
 
 // larger is better (fewer times we have to loop), but we shouldn't
 // take up too much stack-space (each one here costs 16 bytes)
-#define TMP_COUNT     16
-
+#define TMP_COUNT 16
+#define BUFFER_MAX ((int)(TMP_COUNT * sizeof(uint32_t)))
 void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
                                                             SkPMColor result[], int count) {
     const SkLightingShaderImpl& lightShader = static_cast<const SkLightingShaderImpl&>(fShader);
 
-    uint32_t  tmpColor[TMP_COUNT], tmpNormal[TMP_COUNT];
-    SkPMColor tmpColor2[2*TMP_COUNT], tmpNormal2[2*TMP_COUNT];
+    uint32_t  tmpColor[TMP_COUNT];
+    SkPMColor tmpColor2[2*TMP_COUNT];
 
     SkBitmapProcState::MatrixProc   diffMProc = fDiffuseState->getMatrixProc();
     SkBitmapProcState::SampleProc32 diffSProc = fDiffuseState->getSampleProc32();
 
-    SkBitmapProcState::MatrixProc   normalMProc = fNormalState->getMatrixProc();
-    SkBitmapProcState::SampleProc32 normalSProc = fNormalState->getSampleProc32();
-
-    int diffMax = fDiffuseState->maxCountForBufferSize(sizeof(tmpColor[0]) * TMP_COUNT);
-    int normMax = fNormalState->maxCountForBufferSize(sizeof(tmpNormal[0]) * TMP_COUNT);
-    int max = SkTMin(diffMax, normMax);
+    int max = fDiffuseState->maxCountForBufferSize(BUFFER_MAX);
 
     SkASSERT(fDiffuseState->fPixmap.addr());
-    SkASSERT(fNormalState->fPixmap.addr());
 
-    SkPoint3 norm, xformedNorm;
+    SkASSERT(max <= BUFFER_MAX);
+    SkPoint3 normals[BUFFER_MAX];
 
     do {
         int n = count;
@@ -450,21 +449,9 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
         diffMProc(*fDiffuseState, tmpColor, n, x, y);
         diffSProc(*fDiffuseState, tmpColor, n, tmpColor2);
 
-        normalMProc(*fNormalState, tmpNormal, n, x, y);
-        normalSProc(*fNormalState, tmpNormal, n, tmpNormal2);
+        fNormalProvider->fillScanLine(x, y, normals, n);
 
         for (int i = 0; i < n; ++i) {
-            SkASSERT(0xFF == SkColorGetA(tmpNormal2[i]));  // opaque -> unpremul
-            norm.set(SkIntToScalar(SkGetPackedR32(tmpNormal2[i]))-127.0f,
-                     SkIntToScalar(SkGetPackedG32(tmpNormal2[i]))-127.0f,
-                     SkIntToScalar(SkGetPackedB32(tmpNormal2[i]))-127.0f);
-            norm.normalize();
-
-            xformedNorm.fX = lightShader.fInvNormRotation.fX * norm.fX +
-                             lightShader.fInvNormRotation.fY * norm.fY;
-            xformedNorm.fY = -lightShader.fInvNormRotation.fY * norm.fX +
-                             lightShader.fInvNormRotation.fX * norm.fY;
-            xformedNorm.fZ = norm.fZ;
 
             SkColor diffColor = SkUnPreMultiply::PMColorToColor(tmpColor2[i]);
 
@@ -476,7 +463,7 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
                 if (SkLights::Light::kAmbient_LightType == light.type()) {
                     accum += light.color().makeScale(255.0f);
                 } else {
-                    SkScalar NdotL = xformedNorm.dot(light.dir());
+                    SkScalar NdotL = normals[i].dot(light.dir());
                     if (NdotL < 0.0f) {
                         NdotL = 0.0f;
                     }
@@ -563,8 +550,7 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
         invNormRotation = buf.readPoint();
     }
 
-    sk_sp<SkLightingShader::NormalSource> normalSource(
-            buf.readFlattenable<SkLightingShader::NormalSource>());
+    sk_sp<SkNormalSource> normalSource(buf.readFlattenable<SkNormalSource>());
 
     return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, std::move(lights), invNormRotation,
                                             &diffLocalM, &normLocalM, std::move(normalSource));
@@ -599,21 +585,8 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
     buf.writeFlattenable(fNormalSource.get());
 }
 
-bool SkLightingShaderImpl::computeNormTotalInverse(const ContextRec& rec,
-                                                   SkMatrix* normTotalInverse) const {
-    SkMatrix total;
-    total.setConcat(*rec.fMatrix, fNormLocalMatrix);
-
-    const SkMatrix* m = &total;
-    if (rec.fLocalMatrix) {
-        total.setConcat(*m, *rec.fLocalMatrix);
-        m = &total;
-    }
-    return m->invert(normTotalInverse);
-}
-
-size_t SkLightingShaderImpl::onContextSize(const ContextRec&) const {
-    return 2 * sizeof(SkBitmapProcState) + sizeof(LightingShaderContext);
+size_t SkLightingShaderImpl::onContextSize(const ContextRec& rec) const {
+    return sizeof(LightingShaderContext);
 }
 
 SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
@@ -623,35 +596,31 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
     // computeTotalInverse was called in SkShader::createContext so we know it will succeed
     SkAssertResult(this->computeTotalInverse(rec, &diffTotalInv));
 
-    SkMatrix normTotalInv;
-    if (!this->computeNormTotalInverse(rec, &normTotalInv)) {
-        return nullptr;
-    }
+    size_t heapRequired = sizeof(SkBitmapProcState) + fNormalSource->providerSize(rec);
+    void* heapAllocated = sk_malloc_throw(heapRequired);
 
-    void* diffuseStateStorage = (char*)storage + sizeof(LightingShaderContext);
+    void* diffuseStateStorage = heapAllocated;
     SkBitmapProcState* diffuseState = new (diffuseStateStorage) SkBitmapProcState(fDiffuseMap,
                                               SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
                                                                     SkMipMap::DeduceTreatment(rec));
     SkASSERT(diffuseState);
     if (!diffuseState->setup(diffTotalInv, *rec.fPaint)) {
         diffuseState->~SkBitmapProcState();
+        sk_free(heapAllocated);
         return nullptr;
     }
+    void* normalProviderStorage = (char*)heapAllocated + sizeof(SkBitmapProcState);
 
-    void* normalStateStorage = (char*)storage +
-                                sizeof(LightingShaderContext) +
-                                sizeof(SkBitmapProcState);
-    SkBitmapProcState* normalState = new (normalStateStorage) SkBitmapProcState(fNormalMap,
-                                            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
-                                                                    SkMipMap::DeduceTreatment(rec));
-    SkASSERT(normalState);
-    if (!normalState->setup(normTotalInv, *rec.fPaint)) {
+    SkNormalSource::Provider* normalProvider = fNormalSource->asProvider(rec,
+                                                                         normalProviderStorage);
+    if (!normalProvider) {
         diffuseState->~SkBitmapProcState();
-        normalState->~SkBitmapProcState();
+        sk_free(heapAllocated);
         return nullptr;
     }
 
-    return new (storage) LightingShaderContext(*this, rec, diffuseState, normalState);
+    return new (storage) LightingShaderContext(*this, rec, diffuseState, normalProvider,
+                                               heapAllocated);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -668,8 +637,12 @@ sk_sp<SkShader> SkLightingShader::Make(const SkBitmap& diffuse, const SkBitmap& 
     }
     SkASSERT(SkScalarNearlyEqual(invNormRotation.lengthSqd(), SK_Scalar1));
 
-    sk_sp<SkLightingShader::NormalSource> normalSource =
-            SkLightingShader::NormalSource::MakeMap(normal, invNormRotation, normLocalM);
+    // TODO: support other tile modes
+    sk_sp<SkShader> mapShader = SkMakeBitmapShader(normal, SkShader::kClamp_TileMode,
+                                                   SkShader::kClamp_TileMode, normLocalM, nullptr);
+
+    sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(mapShader,
+                                                                           invNormRotation);
 
     return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, std::move(lights),
             invNormRotation, diffLocalM, normLocalM, std::move(normalSource));
