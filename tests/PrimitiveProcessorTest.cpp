@@ -101,7 +101,7 @@ private:
 };
 }
 
-DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
     sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,

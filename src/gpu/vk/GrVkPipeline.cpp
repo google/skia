@@ -41,8 +41,7 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
                                      VkPipelineVertexInputStateCreateInfo* vertexInputInfo,
                                      VkVertexInputBindingDescription* bindingDesc,
                                      int maxBindingDescCount,
-                                     VkVertexInputAttributeDescription* attributeDesc,
-                                     int maxAttributeDescCount) {
+                                     VkVertexInputAttributeDescription* attributeDesc) {
     // for now we have only one vertex buffer and one binding
     memset(bindingDesc, 0, sizeof(VkVertexInputBindingDescription));
     bindingDesc->binding = 0;
@@ -51,7 +50,6 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
 
     // setup attribute descriptions
     int vaCount = primProc.numAttribs();
-    SkASSERT(vaCount < maxAttributeDescCount);
     if (vaCount > 0) {
         size_t offset = 0;
         for (int attribIndex = 0; attribIndex < vaCount; attribIndex++) {
@@ -417,11 +415,10 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
                                    VkPipelineCache cache) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     VkVertexInputBindingDescription bindingDesc;
-    // TODO: allocate this based on VkPhysicalDeviceLimits::maxVertexInputAttributes
-    static const int kMaxVertexAttributes = 16;
-    static VkVertexInputAttributeDescription attributeDesc[kMaxVertexAttributes];
-    setup_vertex_input_state(primProc, &vertexInputInfo, &bindingDesc, 1,
-                             attributeDesc, kMaxVertexAttributes);
+    SkSTArray<16, VkVertexInputAttributeDescription> attributeDesc;
+    SkASSERT(primProc.numAttribs() <= gpu->vkCaps().maxVertexAttributes());
+    VkVertexInputAttributeDescription* pAttribs = attributeDesc.push_back_n(primProc.numAttribs());
+    setup_vertex_input_state(primProc, &vertexInputInfo, &bindingDesc, 1, pAttribs);
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
     setup_input_assembly_state(primitiveType, &inputAssemblyInfo);
