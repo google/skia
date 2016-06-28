@@ -252,10 +252,6 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
         return false;
     }
 
-    if (dstSurface->config() == srcConfig) {
-        return true;
-    }
-
     GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
 
     // Start off assuming no swizzling
@@ -270,6 +266,10 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
+
+    if (dstSurface->config() == srcConfig) {
+        return true;
+    }
 
     if (renderTarget && this->vkCaps().isConfigRenderable(renderTarget->config(), false)) {
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
