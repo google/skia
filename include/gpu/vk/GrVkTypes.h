@@ -27,7 +27,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * Types for interacting with Vulkan resources created externally to Skia. GrBackendObjects for 
+ * Types for interacting with Vulkan resources created externally to Skia. GrBackendObjects for
  * Vulkan textures are really const GrVkImageInfo*
  */
 struct GrVkAlloc {

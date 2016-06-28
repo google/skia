@@ -76,7 +76,7 @@ DEF_TEST(SurfaceEmpty, reporter) {
 
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceEmpty_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceEmpty_Gpu, reporter, ctxInfo) {
     const SkImageInfo info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
     REPORTER_ASSERT(reporter, nullptr ==
                     SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info, 0,
@@ -119,7 +119,7 @@ DEF_TEST(SurfaceCanvasPeek, reporter) {
     }
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceCanvasPeek_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCanvasPeek_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         SkImageInfo requestInfo;
         auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, &requestInfo));
@@ -152,7 +152,7 @@ DEF_TEST(SurfaceAccessPixels, reporter) {
     }
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAccessPixels_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAccessPixels_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         test_access_pixels(reporter, surface);
@@ -181,7 +181,7 @@ DEF_TEST(SurfaceSnapshotAlphaType, reporter) {
     }
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceSnapshotAlphaType_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceSnapshotAlphaType_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         for (auto& isOpaque : { true, false }) {
             SkAlphaType alphaType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
@@ -526,7 +526,7 @@ DEF_TEST(SurfaceCopyOnWrite, reporter) {
     test_copy_on_write(reporter, create_surface().get());
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceCopyOnWrite_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCopyOnWrite_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         test_copy_on_write(reporter, surface.get());
@@ -548,7 +548,7 @@ DEF_TEST(SurfaceWriteableAfterSnapshotRelease, reporter) {
     test_writable_after_snapshot_release(reporter, create_surface().get());
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceWriteableAfterSnapshotRelease_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWriteableAfterSnapshotRelease_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         test_writable_after_snapshot_release(reporter, surface.get());
@@ -589,7 +589,7 @@ static void test_crbug263329(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, as_IB(image3)->peekTexture() != as_IB(image1)->peekTexture());
     REPORTER_ASSERT(reporter, as_IB(image2)->peekTexture() != as_IB(image1)->peekTexture());
 }
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         auto surface1(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         auto surface2(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
@@ -606,7 +606,7 @@ DEF_TEST(SurfaceGetTexture, reporter) {
     REPORTER_ASSERT(reporter, as_IB(image)->peekTexture() == nullptr);
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         sk_sp<SkImage> image(surface->makeImageSnapshot());
@@ -638,7 +638,7 @@ static SkBudgeted is_budgeted(const sk_sp<SkImage> image) {
     return is_budgeted(image.get());
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceBudget, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBudget, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(8,8);
     for (auto sbudgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
         for (auto ibudgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
@@ -700,7 +700,7 @@ DEF_TEST(SurfaceNoCanvas, reporter) {
     }
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceNoCanvas_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceNoCanvas_Gpu, reporter, ctxInfo) {
     SkSurface::ContentChangeMode modes[] =
             { SkSurface::kDiscard_ContentChangeMode, SkSurface::kRetain_ContentChangeMode};
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
@@ -841,7 +841,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
     std::function<GrSurface*(SkSurface*)> grSurfaceGetters[] = {
-        [] (SkSurface* s){ 
+        [] (SkSurface* s){
             GrDrawContext* dc = s->getCanvas()->internal_private_accessTopLayerDrawContext();
             return dc->accessRenderTarget(); },
         [] (SkSurface* s){
@@ -913,7 +913,7 @@ static void test_surface_draw_partially(
     }
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
     GrGpu* gpu = ctxInfo.grContext()->getGpu();
     if (!gpu) {
         return;

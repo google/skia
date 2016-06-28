@@ -34,7 +34,7 @@ static void validate_alpha_data(skiatest::Reporter* reporter, int w, int h, cons
     }
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     unsigned char alphaData[X_SIZE * Y_SIZE];
 
     static const int kClearValue = 0x2;

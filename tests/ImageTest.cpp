@@ -597,7 +597,7 @@ DEF_TEST(ImageReadPixels, reporter) {
     test_read_pixels(reporter, image.get());
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, ctxInfo) {
     test_read_pixels(reporter, create_gpu_image(ctxInfo.grContext()).get());
 }
 #endif
@@ -704,7 +704,7 @@ DEF_TEST(ImagePeek, reporter) {
     test_peek(reporter, image.get(), false);
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImagePeek_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImagePeek_Gpu, reporter, ctxInfo) {
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
     test_peek(reporter, image.get(), false);
 }
@@ -819,7 +819,7 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
     }
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
     for (auto create : {&create_image,
                         &create_image_565,
                         &create_image_ct}) {

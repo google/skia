@@ -61,6 +61,9 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
 }
 
 bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo* info) {
+    if (0 == imageDesc.fWidth || 0 == imageDesc.fHeight) {
+        return false;
+    }
     VkImage image = 0;
     GrVkAlloc alloc;
 
