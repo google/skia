@@ -9,13 +9,6 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-#ifdef SK_SUPPORT_LEGACY_COLORPROFILETYPE
-SkColorProfileType SkImageInfo::profileType() const {
-    return fColorSpace && fColorSpace->gammaCloseToSRGB()
-            ? kSRGB_SkColorProfileType : kLinear_SkColorProfileType;
-}
-#endif
-
 static bool alpha_type_is_valid(SkAlphaType alphaType) {
     return (alphaType >= 0) && (alphaType <= kLastEnum_SkAlphaType);
 }

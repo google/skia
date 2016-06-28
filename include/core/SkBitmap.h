@@ -86,9 +86,6 @@ public:
     SkColorType colorType() const { return fInfo.colorType(); }
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
     SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
-#ifdef SK_SUPPORT_LEGACY_COLORPROFILETYPE
-    SkColorProfileType profileType() const { return fInfo.profileType(); }
-#endif
 
     /**
      *  Return the number of bytes per pixel based on the colortype. If the colortype is

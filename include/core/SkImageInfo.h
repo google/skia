@@ -169,15 +169,6 @@ enum SkYUVColorSpace {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_COLORPROFILETYPE
-enum SkColorProfileType {
-    kLinear_SkColorProfileType,
-    kSRGB_SkColorProfileType,
-
-    kLastEnum_SkColorProfileType = kSRGB_SkColorProfileType
-};
-#endif
-
 enum class SkSourceGammaTreatment {
     kRespect,
     kIgnore,
@@ -238,41 +229,6 @@ public:
         return MakeUnknown(0, 0);
     }
     
-#ifdef SK_SUPPORT_LEGACY_COLORPROFILETYPE
-    static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
-                            SkColorProfileType pt) {
-        sk_sp<SkColorSpace> cs = (kSRGB_SkColorProfileType == pt) ?
-        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
-        return Make(width, height, ct, at, cs);
-    }
-
-    static SkImageInfo MakeN32(int width, int height, SkAlphaType at, SkColorProfileType pt) {
-        sk_sp<SkColorSpace> cs = (kSRGB_SkColorProfileType == pt) ?
-                                 SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
-        return SkImageInfo(width, height, kN32_SkColorType, at, cs);
-    }
-
-    /**
-     *  Sets colortype to the native ARGB32 type, and the alphatype to premul.
-     */
-    static SkImageInfo MakeN32Premul(int width, int height, SkColorProfileType pt) {
-        sk_sp<SkColorSpace> cs = (kSRGB_SkColorProfileType == pt) ?
-                                 SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
-        return Make(width, height, kN32_SkColorType, kPremul_SkAlphaType, cs);
-    }
-
-    /**
-     *  Sets colortype to the native ARGB32 type, and the alphatype to premul.
-     */
-    static SkImageInfo MakeN32Premul(const SkISize& size, SkColorProfileType pt) {
-        return MakeN32Premul(size.width(), size.height(), pt);
-    }
-
-    SkColorProfileType profileType() const;
-    bool isLinear() const { return kLinear_SkColorProfileType == this->profileType(); }
-    bool isSRGB() const { return kSRGB_SkColorProfileType == this->profileType(); }
-#endif
-
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     SkColorType colorType() const { return fColorType; }
