@@ -13,7 +13,10 @@
 
 bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPoint pts[2];
-    if (args.fShape->style().isDashed() && args.fShape->asLine(pts)) {
+    bool inverted;
+    if (args.fShape->style().isDashed() && args.fShape->asLine(pts, &inverted)) {
+        // We should never have an inverse dashed case.
+        SkASSERT(!inverted);
         return GrDashingEffect::CanDrawDashLine(pts, args.fShape->style(), *args.fViewMatrix);
     }
     return false;
@@ -34,7 +37,7 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
         aaMode = GrDashingEffect::AAMode::kNone;
     }
     SkPoint pts[2];
-    SkAssertResult(args.fShape->asLine(pts));
+    SkAssertResult(args.fShape->asLine(pts, nullptr));
     SkAutoTUnref<GrDrawBatch> batch(GrDashingEffect::CreateDashLineBatch(args.fColor,
                                                                          *args.fViewMatrix,
                                                                          pts,

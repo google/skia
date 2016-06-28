@@ -14,10 +14,10 @@ GrShape& GrShape::operator=(const GrShape& that) {
         case Type::kEmpty:
             break;
         case Type::kRRect:
-            fRRectData.fRRect = that.fRRectData.fRRect;
-            fRRectData.fDir = that.fRRectData.fDir;
-            fRRectData.fStart = that.fRRectData.fStart;
-            fRRectData.fInverted = that.fRRectData.fInverted;
+            fRRectData = that.fRRectData;
+            break;
+        case Type::kLine:
+            fLineData = that.fLineData;
             break;
         case Type::kPath:
             fPathData.fGenID = that.fPathData.fGenID;
@@ -29,11 +29,29 @@ GrShape& GrShape::operator=(const GrShape& that) {
     return *this;
 }
 
-const SkRect& GrShape::bounds() const {
+SkRect GrShape::bounds() const {
     static constexpr SkRect kEmpty = SkRect::MakeEmpty();
     switch (fType) {
         case Type::kEmpty:
             return kEmpty;
+        case Type::kLine: {
+            SkRect bounds;
+            if (fLineData.fPts[0].fX < fLineData.fPts[1].fX) {
+                bounds.fLeft = fLineData.fPts[0].fX;
+                bounds.fRight = fLineData.fPts[1].fX;
+            } else {
+                bounds.fLeft = fLineData.fPts[1].fX;
+                bounds.fRight = fLineData.fPts[0].fX;
+            }
+            if (fLineData.fPts[0].fY < fLineData.fPts[1].fY) {
+                bounds.fTop = fLineData.fPts[0].fY;
+                bounds.fBottom = fLineData.fPts[1].fY;
+            } else {
+                bounds.fTop = fLineData.fPts[1].fY;
+                bounds.fBottom = fLineData.fPts[0].fY;
+            }
+            return bounds;
+        }
         case Type::kRRect:
             return fRRectData.fRRect.getBounds();
         case Type::kPath:
@@ -43,12 +61,13 @@ const SkRect& GrShape::bounds() const {
     return kEmpty;
 }
 
-void GrShape::styledBounds(SkRect* bounds) const {
+SkRect GrShape::styledBounds() const {
     if (Type::kEmpty == fType && !fStyle.hasNonDashPathEffect()) {
-        *bounds = SkRect::MakeEmpty();
-    } else {
-        fStyle.adjustBounds(bounds, this->bounds());
+        return SkRect::MakeEmpty();
     }
+    SkRect bounds;
+    fStyle.adjustBounds(&bounds, this->bounds());
+    return bounds;
 }
 
 int GrShape::unstyledKeySize() const {
@@ -63,6 +82,10 @@ int GrShape::unstyledKeySize() const {
             SkASSERT(0 == SkRRect::kSizeInMemory % sizeof(uint32_t));
             // + 1 for the direction, start index, and inverseness.
             return SkRRect::kSizeInMemory / sizeof(uint32_t) + 1;
+        case Type::kLine:
+            GR_STATIC_ASSERT(2 * sizeof(uint32_t) == sizeof(SkPoint));
+            // 4 for the end points and 1 for the inverseness
+            return 5;
         case Type::kPath:
             if (0 == fPathData.fGenID) {
                 return -1;
@@ -93,6 +116,11 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
                 *key |= fRRectData.fInverted ? (1 << 30) : 0;
                 *key++ |= fRRectData.fStart;
                 SkASSERT(fRRectData.fStart < 8);
+                break;
+            case Type::kLine:
+                memcpy(key, fLineData.fPts, 2 * sizeof(SkPoint));
+                key += 4;
+                *key++ = fLineData.fInverted ? 1 : 0;
                 break;
             case Type::kPath:
                 SkASSERT(fPathData.fGenID);
@@ -159,10 +187,10 @@ GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle) {
         case Type::kEmpty:
             break;
         case Type::kRRect:
-            fRRectData.fRRect = that.fRRectData.fRRect;
-            fRRectData.fDir = that.fRRectData.fDir;
-            fRRectData.fStart = that.fRRectData.fStart;
-            fRRectData.fInverted = that.fRRectData.fInverted;
+            fRRectData = that.fRRectData;
+            break;
+        case Type::kLine:
+            fLineData = that.fLineData;
             break;
         case Type::kPath:
             fPathData.fGenID = that.fPathData.fGenID;
@@ -266,8 +294,14 @@ void GrShape::attemptToSimplifyPath() {
     SkPath::Direction rrectDir;
     unsigned rrectStart;
     bool inverted = this->path().isInverseFillType();
+    SkPoint pts[2];
     if (this->path().isEmpty()) {
         this->changeType(Type::kEmpty);
+    } else if (this->path().isLine(pts)) {
+        this->changeType(Type::kLine);
+        fLineData.fPts[0] = pts[0];
+        fLineData.fPts[1] = pts[1];
+        fLineData.fInverted = inverted;
     } else if (this->path().isRRect(&rrect, &rrectDir, &rrectStart)) {
         this->changeType(Type::kRRect);
         fRRectData.fRRect = rrect;
@@ -313,6 +347,8 @@ void GrShape::attemptToSimplifyPath() {
         fInheritedKey.reset(0);
         if (Type::kRRect == fType) {
             this->attemptToSimplifyRRect();
+        } else if (Type::kLine == fType) {
+            this->attemptToSimplifyLine();
         }
     } else {
         if (fInheritedKey.count() || this->path().isVolatile()) {
@@ -321,13 +357,8 @@ void GrShape::attemptToSimplifyPath() {
             fPathData.fGenID = this->path().getGenerationID();
         }
         if (this->style().isSimpleFill()) {
-            // Filled paths are treated as though all their contours were closed.
-            // Since SkPath doesn't track individual contours, this will only close the last. :(
-            // There is no point in closing lines, though, since they loose their line-ness.
-            if (!this->path().isLine(nullptr)) {
-                this->path().close();
-                this->path().setIsVolatile(true);
-            }
+            this->path().close();
+            this->path().setIsVolatile(true);
         }
         if (!this->style().hasNonDashPathEffect()) {
             if (this->style().strokeRec().getStyle() == SkStrokeRec::kStroke_Style ||
@@ -366,5 +397,23 @@ void GrShape::attemptToSimplifyRRect() {
     } else if (fStyle.isDashed()) {
         // Dashing ignores the inverseness (currently). skbug.com/5421
         fRRectData.fInverted = false;
+    }
+}
+
+void GrShape::attemptToSimplifyLine() {
+    if (fStyle.isSimpleFill() && !fLineData.fInverted) {
+        this->changeType(Type::kEmpty);
+    } else {
+        // Only path effects could care about the order of the points. Otherwise canonicalize
+        // the point order
+        if (!fStyle.hasPathEffect()) {
+            SkPoint* pts = fLineData.fPts;
+            if (pts[1].fY < pts[0].fY || (pts[1].fY == pts[0].fY && pts[1].fX < pts[0].fX)) {
+                SkTSwap(pts[0], pts[1]);
+            }
+        } else if (fStyle.isDashed()) {
+            // Dashing ignores inverseness.
+            fLineData.fInverted = false;
+        }
     }
 }

@@ -976,6 +976,9 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
                       : GrPathRendererChain::kColor_DrawType;
 
     GrShape shape(path, style);
+    if (shape.isEmpty()) {
+        return;
+    }
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fShaderCaps = fDrawingManager->getContext()->caps()->shaderCaps();
     canDrawArgs.fViewMatrix = &viewMatrix;
