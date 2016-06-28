@@ -2058,7 +2058,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     }
 
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
-    fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
+    fFillType = (packed >> kFillType_SerializationShift) & 0x3;
     uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;
     fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
     SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
