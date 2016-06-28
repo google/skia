@@ -25,23 +25,23 @@ import utils
 
 def add(args):
   """Add a new asset."""
-  asset_utils.Asset.add(args.asset_name)
+  asset_utils.Asset.add(args.asset_name, asset_utils.MultiStore())
 
 
 def remove(args):
   """Remove an asset."""
-  asset_utils.Asset(args.asset_name).remove()
+  asset_utils.Asset(args.asset_name, asset_utils.MultiStore()).remove()
 
 
 def download(args):
   """Download the current version of an asset."""
-  asset = asset_utils.Asset(args.asset_name, gsutil=args.gsutil)
+  asset = asset_utils.Asset(args.asset_name, asset_utils.MultiStore())
   asset.download_current_version(args.target_dir)
 
 
 def upload(args):
   """Upload a new version of the asset."""
-  asset = asset_utils.Asset(args.asset_name, gsutil=args.gsutil)
+  asset = asset_utils.Asset(args.asset_name, asset_utils.MultiStore())
   asset.upload_new_version(args.target_dir, commit=args.commit)
 
 
