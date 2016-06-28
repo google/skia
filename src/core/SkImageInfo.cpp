@@ -22,14 +22,16 @@ SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
                        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
 }
 
+static const int kColorTypeMask = 0x0F;
+static const int kAlphaTypeMask = 0x03;
+
 void SkImageInfo::unflatten(SkReadBuffer& buffer) {
     fWidth = buffer.read32();
     fHeight = buffer.read32();
 
     uint32_t packed = buffer.read32();
-    SkASSERT(0 == (packed >> 24));
-    fColorType = (SkColorType)((packed >> 0) & 0xFF);
-    fAlphaType = (SkAlphaType)((packed >> 8) & 0xFF);
+    fColorType = (SkColorType)((packed >> 0) & kColorTypeMask);
+    fAlphaType = (SkAlphaType)((packed >> 8) & kAlphaTypeMask);
     buffer.validate(alpha_type_is_valid(fAlphaType) && color_type_is_valid(fColorType));
 
     sk_sp<SkData> data = buffer.readByteArrayAsData();
@@ -40,8 +42,8 @@ void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
     buffer.write32(fWidth);
     buffer.write32(fHeight);
 
-    SkASSERT(0 == (fAlphaType & ~0xFF));
-    SkASSERT(0 == (fColorType & ~0xFF));
+    SkASSERT(0 == (fAlphaType & ~kAlphaTypeMask));
+    SkASSERT(0 == (fColorType & ~kColorTypeMask));
     uint32_t packed = (fAlphaType << 8) | fColorType;
     buffer.write32(packed);
 
