@@ -76,6 +76,7 @@
         '<(skia_src_path)/core/SkColorShader.cpp',
         '<(skia_src_path)/core/SkColorShader.h',
         '<(skia_src_path)/core/SkColorSpace.cpp',
+        '<(skia_src_path)/core/SkColorSpace_ICC.cpp',
         '<(skia_src_path)/core/SkColorSpaceXform.cpp',
         '<(skia_src_path)/core/SkColorTable.cpp',
         '<(skia_src_path)/core/SkComposeShader.cpp',
