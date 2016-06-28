@@ -543,8 +543,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case SAVE:
             // SKPs with version < 29 also store a SaveFlags param.
             if (size > 4) {
-                SkASSERT(8 == size);
-                reader->readInt();
+                if (reader->validate(8 == size)) {
+                    reader->readInt();
+                }
             }
             canvas->save();
             break;
