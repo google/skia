@@ -1268,24 +1268,37 @@ static int lshader_asAGradient(lua_State* L) {
         SkShader::GradientInfo info;
         sk_bzero(&info, sizeof(info));
 
-        SkColor colors[3];  // hacked in for extracting info on 3 color case.
-        SkScalar pos[3];
-
-        info.fColorCount = 3;
-        info.fColors = &colors[0];
-        info.fColorOffsets = &pos[0];
-
         SkShader::GradientType t = shader->asAGradient(&info);
 
         if (SkShader::kNone_GradientType != t) {
-            lua_newtable(L);
-            setfield_string(L, "type", gradtype2string(t));
-            setfield_number(L, "colorCount", info.fColorCount);
-            setfield_string(L, "tile", mode2string(info.fTileMode));
+            SkAutoTArray<SkScalar> pos(info.fColorCount);
+            info.fColorOffsets = pos.get();
+            shader->asAGradient(&info);
 
-            if (info.fColorCount == 3){
-                setfield_number(L, "midPos", pos[1]);
+            bool containsHardStops = false;
+            bool isEvenlySpaced    = true;
+            for (int i = 1; i < info.fColorCount; i++) {
+                if (SkScalarNearlyEqual(info.fColorOffsets[i], info.fColorOffsets[i-1])) {
+                    containsHardStops = true;
+                }
+                if (!SkScalarNearlyEqual(info.fColorOffsets[i], i/(info.fColorCount - 1.0f))) {
+                    isEvenlySpaced = false;
+                }
             }
+
+            lua_newtable(L);
+            setfield_string(L,  "type",               gradtype2string(t));
+            setfield_string(L,  "tile",               mode2string(info.fTileMode));
+            setfield_number(L,  "colorCount",         info.fColorCount);
+            setfield_boolean(L, "containsHardStops",  containsHardStops);
+            setfield_boolean(L, "isEvenlySpaced",     isEvenlySpaced);
+
+            lua_newtable(L);
+            for (int i = 0; i < info.fColorCount; i++) {
+                // Lua uses 1-based indexing
+                setarray_scalar(L, i+1, pos[i]);
+            }
+            lua_setfield(L, -2, "positions");
 
             return 1;
         }
