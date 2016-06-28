@@ -466,7 +466,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     DEBUG_COINCIDENCE_HEALTH(contourList, "moveNearby");
     align(contourList);  // give all span members common values
     DEBUG_COINCIDENCE_HEALTH(contourList, "align");
-    coincidence->fixAligned();  // aligning may have marked a coincidence pt-t deleted
+    if (!coincidence->fixAligned()) { // aligning may have marked a coincidence pt-t deleted
+        return false;
+    }
     DEBUG_COINCIDENCE_HEALTH(contourList, "fixAligned");
 #if DEBUG_VALIDATE
     globalState->setPhase(SkOpGlobalState::kIntersecting);
@@ -480,7 +482,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
         DEBUG_COINCIDENCE_HEALTH(contourList, "moveNearby2");
         align(contourList);  // give all span members common values
         DEBUG_COINCIDENCE_HEALTH(contourList, "align2");
-        coincidence->fixAligned();  // aligning may have marked a coincidence pt-t deleted
+        if (!coincidence->fixAligned()) {  // aligning may have marked a coincidence pt-t deleted
+            return false;
+        }
         DEBUG_COINCIDENCE_HEALTH(contourList, "fixAligned2");
     }
 #if DEBUG_VALIDATE
@@ -520,7 +524,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
         DEBUG_COINCIDENCE_HEALTH(contourList, "pairs->apply");
         // For each coincident pair that overlaps another, when the receivers (the 1st of the pair)
         // are different, construct a new pair to resolve their mutual span
-        pairs->findOverlaps(&overlaps, allocator);
+        if (!pairs->findOverlaps(&overlaps, allocator)) {
+            return false;
+        }
         DEBUG_COINCIDENCE_HEALTH(contourList, "pairs->findOverlaps");
     } while (!overlaps.isEmpty());
     calcAngles(contourList, allocator);

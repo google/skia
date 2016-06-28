@@ -25,8 +25,8 @@ SkOpSegment* FindUndone(SkOpContourHead* , SkOpSpanBase** startPtr,
 bool FixWinding(SkPath* path);
 bool SortContourList(SkOpContourHead** , bool evenOdd, bool oppEvenOdd);
 bool HandleCoincidence(SkOpContourHead* , SkOpCoincidence* , SkChunkAlloc* );
-bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
-             bool expectSuccess  SkDEBUGPARAMS(bool skipAssert)
+bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
+             SkDEBUGPARAMS(bool skipAssert)
              SkDEBUGPARAMS(const char* testName));
 #if DEBUG_ACTIVE_SPANS
 void DebugShowActiveSpans(SkOpContourHead* );

@@ -44,6 +44,8 @@ extern bool testPathOpFailCheck(skiatest::Reporter* reporter, const SkPath& a, c
                                 const SkPathOp , const char* testName);
 extern bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                            const SkPathOp , const char* testName);
+extern bool testPathFailSkipAssertOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                                 const SkPathOp , const char* testName);
 extern bool testPathSkipAssertOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                                  const SkPathOp , const char* testName);
 extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
