@@ -109,7 +109,8 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     // scaled to have bounds within 2.0f*kLargeMIP by 2.0f*kLargeMIP
     // the goal is to accelerate rendering of lots of small paths that may be scaling
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
-    SkRect bounds = args.fShape->styledBounds();
+    SkRect bounds;
+    args.fShape->styledBounds(&bounds);
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
 
     return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;

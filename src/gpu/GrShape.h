@@ -152,19 +152,12 @@ public:
      * If the unstyled shape is a straight line segment, returns true and sets pts to the endpoints.
      * An inverse filled line path is still considered a line.
      */
-    bool asLine(SkPoint pts[2], bool* inverted) const {
-        if (fType != Type::kLine) {
-            return false;
-        }
-        if (pts) {
-            pts[0] = fLineData.fPts[0];
-            pts[1] = fLineData.fPts[1];
-        }
-        if (inverted) {
-            *inverted = fLineData.fInverted;
-        }
-        return true;
-    }
+     bool asLine(SkPoint pts[2]) const {
+         if (fType != Type::kPath) {
+             return false;
+         }
+         return this->path().isLine(pts);
+     }
 
     /** Returns the unstyled geometry as a path. */
     void asPath(SkPath* out) const {
@@ -177,16 +170,6 @@ public:
                 out->addRRect(fRRectData.fRRect, fRRectData.fDir, fRRectData.fStart);
                 // Below matches the fill type that attemptToSimplifyPath uses.
                 if (fRRectData.fInverted) {
-                    out->setFillType(kDefaultPathInverseFillType);
-                } else {
-                    out->setFillType(kDefaultPathFillType);
-                }
-                break;
-            case Type::kLine:
-                out->reset();
-                out->moveTo(fLineData.fPts[0]);
-                out->lineTo(fLineData.fPts[1]);
-                if (fLineData.fInverted) {
                     out->setFillType(kDefaultPathInverseFillType);
                 } else {
                     out->setFillType(kDefaultPathFillType);
@@ -208,13 +191,13 @@ public:
      * Gets the bounds of the geometry without reflecting the shape's styling. This ignores
      * the inverse fill nature of the geometry.
      */
-    SkRect bounds() const;
+    const SkRect& bounds() const;
 
     /**
      * Gets the bounds of the geometry reflecting the shape's styling (ignoring inverse fill
      * status).
      */
-    SkRect styledBounds() const;
+    void styledBounds(SkRect* bounds) const;
 
     /**
      * Is this shape known to be convex, before styling is applied. An unclosed but otherwise
@@ -226,8 +209,6 @@ public:
             case Type::kEmpty:
                 return true;
             case Type::kRRect:
-                return true;
-            case Type::kLine:
                 return true;
             case Type::kPath:
                 // SkPath.isConvex() really means "is this path convex were it to be closed" and
@@ -249,9 +230,6 @@ public:
                 break;
             case Type::kRRect:
                 ret = fRRectData.fInverted;
-                break;
-            case Type::kLine:
-                ret = fLineData.fInverted;
                 break;
             case Type::kPath:
                 ret = this->path().isInverseFillType();
@@ -286,8 +264,6 @@ public:
                 return true;
             case Type::kRRect:
                 return true;
-            case Type::kLine:
-                return false;
             case Type::kPath:
                 // SkPath doesn't keep track of the closed status of each contour.
                 return SkPathPriv::IsClosedSingleContour(this->path());
@@ -306,8 +282,6 @@ public:
                     return SkPath::kLine_SegmentMask;
                 }
                 return SkPath::kLine_SegmentMask | SkPath::kConic_SegmentMask;
-            case Type::kLine:
-                return SkPath::kLine_SegmentMask;
             case Type::kPath:
                 return this->path().getSegmentMasks();
         }
@@ -333,7 +307,6 @@ private:
     enum class Type {
         kEmpty,
         kRRect,
-        kLine,
         kPath,
     };
 
@@ -383,7 +356,6 @@ private:
 
     void attemptToSimplifyPath();
     void attemptToSimplifyRRect();
-    void attemptToSimplifyLine();
 
     // Defaults to use when there is no distinction between even/odd and winding fills.
     static constexpr SkPath::FillType kDefaultPathFillType = SkPath::kEvenOdd_FillType;
@@ -448,10 +420,6 @@ private:
             // Gen ID of the original path (fPath may be modified)
             int32_t                     fGenID;
         } fPathData;
-        struct {
-            SkPoint                     fPts[2];
-            bool                        fInverted;
-        } fLineData;
     };
     GrStyle                     fStyle;
     SkAutoSTArray<8, uint32_t>  fInheritedKey;

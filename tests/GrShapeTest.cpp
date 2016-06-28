@@ -177,9 +177,10 @@ private:
         CheckBounds(r, fAppliedPE, fAppliedPE.bounds());
         CheckBounds(r, fAppliedPEThenStroke, fAppliedPEThenStroke.bounds());
         CheckBounds(r, fAppliedFull, fAppliedFull.bounds());
-        SkRect styledBounds = fBase.styledBounds();
+        SkRect styledBounds;
+        fBase.styledBounds(&styledBounds);
         CheckBounds(r, fAppliedFull, styledBounds);
-        styledBounds = fAppliedPE.styledBounds();
+        fAppliedPE.styledBounds(&styledBounds);
         CheckBounds(r, fAppliedFull, styledBounds);
 
         // Check that the same path is produced when style is applied by GrShape and GrStyle.
@@ -371,10 +372,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
     }
     REPORTER_ASSERT(r, a.bounds() == b.bounds());
     REPORTER_ASSERT(r, a.segmentMask() == b.segmentMask());
-    // Init these to suppress warnings.
-    SkPoint pts[4] {{0, 0,}, {0, 0}, {0, 0}, {0, 0}} ;
-    bool invertedLine[2] {true, true};
-    REPORTER_ASSERT(r, a.asLine(pts, &invertedLine[0]) == b.asLine(pts + 2, &invertedLine[1]));
+    SkPoint pts[4];
+    REPORTER_ASSERT(r, a.asLine(pts) == b.asLine(pts + 2));
     // mayBeInverseFilledAfterStyling() is allowed to differ if one has a arbitrary PE and the other
     // doesn't (since the PE can set any fill type on its output path).
     // Moreover, dash style explicitly ignores inverseness. So if one is dashed but not the other
@@ -384,11 +383,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
         REPORTER_ASSERT(r, a.mayBeInverseFilledAfterStyling() ==
                            b.mayBeInverseFilledAfterStyling());
     }
-    if (a.asLine(nullptr, nullptr)) {
+    if (a.asLine(pts)) {
         REPORTER_ASSERT(r, pts[2] == pts[0] && pts[3] == pts[1]);
-        REPORTER_ASSERT(r, ignoreInversenessDifference || invertedLine[0] == invertedLine[1]);
-        REPORTER_ASSERT(r, invertedLine[0] == a.inverseFilled());
-        REPORTER_ASSERT(r, invertedLine[1] == b.inverseFilled());
     }
     REPORTER_ASSERT(r, ignoreInversenessDifference || a.inverseFilled() == b.inverseFilled());
 }
@@ -1353,114 +1349,6 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     }
 }
 
-void test_lines(skiatest::Reporter* r) {
-    static constexpr SkPoint kA { 1,  1};
-    static constexpr SkPoint kB { 5, -9};
-    static constexpr SkPoint kC {-3, 17};
-
-    SkPath lineAB;
-    lineAB.moveTo(kA);
-    lineAB.lineTo(kB);
-
-    SkPath lineBA;
-    lineBA.moveTo(kB);
-    lineBA.lineTo(kA);
-
-    SkPath lineAC;
-    lineAC.moveTo(kB);
-    lineAC.lineTo(kC);
-
-    SkPath invLineAB = lineAB;
-    invLineAB.setFillType(SkPath::kInverseEvenOdd_FillType);
-
-    SkPaint fill;
-    SkPaint stroke;
-    stroke.setStyle(SkPaint::kStroke_Style);
-    stroke.setStrokeWidth(2.f);
-    SkPaint hairline;
-    hairline.setStyle(SkPaint::kStroke_Style);
-    hairline.setStrokeWidth(0.f);
-    SkPaint dash = stroke;
-    dash.setPathEffect(make_dash());
-
-    TestCase fillAB(lineAB, fill, r);
-    TestCase fillEmpty(SkPath(), fill, r);
-    fillAB.compare(r, fillEmpty, TestCase::kAllSame_ComparisonExpecation);
-    REPORTER_ASSERT(r, !fillAB.baseShape().asLine(nullptr, nullptr));
-
-    TestCase strokeAB(lineAB, stroke, r);
-    TestCase strokeBA(lineBA, stroke, r);
-    TestCase strokeAC(lineAC, stroke, r);
-
-    TestCase hairlineAB(lineAB, hairline, r);
-    TestCase hairlineBA(lineBA, hairline, r);
-    TestCase hairlineAC(lineAC, hairline, r);
-
-    TestCase dashAB(lineAB, dash, r);
-    TestCase dashBA(lineBA, dash, r);
-    TestCase dashAC(lineAC, dash, r);
-
-    strokeAB.compare(r, fillAB, TestCase::kAllDifferent_ComparisonExpecation);
-
-    strokeAB.compare(r, strokeBA, TestCase::kAllSame_ComparisonExpecation);
-    strokeAB.compare(r, strokeAC, TestCase::kAllDifferent_ComparisonExpecation);
-
-    hairlineAB.compare(r, hairlineBA, TestCase::kAllSame_ComparisonExpecation);
-    hairlineAB.compare(r, hairlineAC, TestCase::kAllDifferent_ComparisonExpecation);
-
-    dashAB.compare(r, dashBA, TestCase::kAllDifferent_ComparisonExpecation);
-    dashAB.compare(r, dashAC, TestCase::kAllDifferent_ComparisonExpecation);
-
-    strokeAB.compare(r, hairlineAB, TestCase::kSameUpToStroke_ComparisonExpecation);
-
-    // One of dashAB or dashBA should have the same line as strokeAB. It depends upon how
-    // GrShape canonicalizes line endpoints (when it can, i.e. when not dashed).
-    bool canonicalizeAsAB;
-    SkPoint canonicalPts[2] {kA, kB};
-    // Init these to suppress warnings.
-    bool inverted = true;
-    SkPoint pts[2] {{0, 0}, {0, 0}};
-    REPORTER_ASSERT(r, strokeAB.baseShape().asLine(pts, &inverted) && !inverted);
-    if (pts[0] == kA && pts[1] == kB) {
-        canonicalizeAsAB = true;
-    } else if (pts[1] == kA && pts[0] == kB) {
-        canonicalizeAsAB = false;
-        SkTSwap(canonicalPts[0], canonicalPts[1]);
-    } else {
-        ERRORF(r, "Should return pts (a,b) or (b, a)");
-        return;
-    };
-
-    strokeAB.compare(r, canonicalizeAsAB ? dashAB : dashBA,
-                     TestCase::kSameUpToPE_ComparisonExpecation);
-    REPORTER_ASSERT(r, strokeAB.baseShape().asLine(pts, &inverted) && !inverted &&
-                       pts[0] == canonicalPts[0] && pts[1] == canonicalPts[1]);
-    REPORTER_ASSERT(r, hairlineAB.baseShape().asLine(pts, &inverted) && !inverted &&
-                       pts[0] == canonicalPts[0] && pts[1] == canonicalPts[1]);
-    REPORTER_ASSERT(r, dashAB.baseShape().asLine(pts, &inverted) && !inverted &&
-                       pts[0] == kA && pts[1] == kB);
-    REPORTER_ASSERT(r, dashBA.baseShape().asLine(pts, &inverted) && !inverted &&
-                       pts[0] == kB && pts[1] == kA);
-
-
-    TestCase strokeInvAB(invLineAB, stroke, r);
-    TestCase hairlineInvAB(invLineAB, hairline, r);
-    TestCase dashInvAB(invLineAB, dash, r);
-    strokeInvAB.compare(r, strokeAB, TestCase::kAllDifferent_ComparisonExpecation);
-    hairlineInvAB.compare(r, hairlineAB, TestCase::kAllDifferent_ComparisonExpecation);
-    // Dashing ignores inverse.
-    dashInvAB.compare(r, dashAB, TestCase::kAllSame_ComparisonExpecation);
-
-    REPORTER_ASSERT(r, strokeInvAB.baseShape().asLine(pts, &inverted) && inverted &&
-                       pts[0] == canonicalPts[0] && pts[1] == canonicalPts[1]);
-    REPORTER_ASSERT(r, hairlineInvAB.baseShape().asLine(pts, &inverted) && inverted &&
-                       pts[0] == canonicalPts[0] && pts[1] == canonicalPts[1]);
-    // Dashing ignores inverse.
-    REPORTER_ASSERT(r, dashInvAB.baseShape().asLine(pts, &inverted) && !inverted &&
-                       pts[0] == kA && pts[1] == kB);
-
-}
-
 DEF_TEST(GrShape, reporter) {
     for (auto r : { SkRect::MakeWH(10, 20),
                     SkRect::MakeWH(-10, -20),
@@ -1487,7 +1375,7 @@ DEF_TEST(GrShape, reporter) {
         test_path_effect_fails(reporter, r);
         test_make_hairline_path_effect(reporter, r, true);
         GrShape shape(r);
-        REPORTER_ASSERT(reporter, !shape.asLine(nullptr, nullptr));
+        REPORTER_ASSERT(reporter, !shape.asLine(nullptr));
     }
 
     for (auto rr : { SkRRect::MakeRect(SkRect::MakeWH(10, 10)),
@@ -1515,7 +1403,7 @@ DEF_TEST(GrShape, reporter) {
         test_path_effect_fails(reporter, rr);
         test_make_hairline_path_effect(reporter, rr, true);
         GrShape shape(rr);
-        REPORTER_ASSERT(reporter, !shape.asLine(nullptr, nullptr));
+        REPORTER_ASSERT(reporter, !shape.asLine(nullptr));
     }
 
     struct TestPath {
@@ -1571,16 +1459,15 @@ DEF_TEST(GrShape, reporter) {
             // These tests all assume that the original GrShape for fill and stroke will be the
             // same.
             // However, that is not the case in special cases (e.g. an unclosed rect becomes a RRect
-            // GrShape with a fill style but becomes a Path GrShape when stroked). Similarly, a path
-            // that is a line becomes empty when filled but is special-cased as a line when stroked.
-            if (testPath.fIsRRectForFill == testPath.fIsRRectForStroke && !testPath.fIsLine) {
+            // GrShape with a fill style but becomes a Path GrShape when stroked).
+            if (testPath.fIsRRectForFill == testPath.fIsRRectForStroke) {
                 test_basic(reporter, path);
                 test_null_dash(reporter, path);
                 test_path_effect_makes_rrect(reporter, path);
             }
             test_scale(reporter, path);
             // This test uses a stroking paint, hence use of fIsRRectForStroke
-            test_volatile_path(reporter, path, testPath.fIsRRectForStroke || testPath.fIsLine);
+            test_volatile_path(reporter, path, testPath.fIsRRectForStroke);
             test_dash_fill(reporter, path);
             // Test modifying various stroke params.
             test_stroke_param<SkPath, SkScalar>(
@@ -1596,8 +1483,7 @@ DEF_TEST(GrShape, reporter) {
             test_unknown_path_effect(reporter, path);
             test_path_effect_makes_empty_shape(reporter, path);
             test_path_effect_fails(reporter, path);
-            test_make_hairline_path_effect(reporter, path, testPath.fIsRRectForStroke ||
-                                                           testPath.fIsLine);
+            test_make_hairline_path_effect(reporter, path, testPath.fIsRRectForStroke);
         }
     }
 
@@ -1630,14 +1516,14 @@ DEF_TEST(GrShape, reporter) {
             strokePathCase.compare(reporter, strokeRRectCase,
                                    TestCase::kAllSame_ComparisonExpecation);
         }
+        REPORTER_ASSERT(reporter, testPath.fIsLine == fillPathCase.baseShape().asLine(nullptr));
+        REPORTER_ASSERT(reporter, testPath.fIsLine == strokePathCase.baseShape().asLine(nullptr));
     }
 
     // Test a volatile empty path.
     test_volatile_path(reporter, SkPath(), true);
 
     test_empty_shape(reporter);
-
-    test_lines(reporter);
 }
 
 #endif

@@ -38,7 +38,8 @@ bool get_shape_and_clip_bounds(int width, int height,
         *devShapeBounds = SkIRect::MakeWH(width, height);
         return false;
     }
-    SkRect shapeBounds = shape.styledBounds();
+    SkRect shapeBounds;
+    shape.styledBounds(&shapeBounds);
     if (!shapeBounds.isEmpty()) {
         SkRect shapeSBounds;
         matrix.mapRect(&shapeSBounds, shapeBounds);
