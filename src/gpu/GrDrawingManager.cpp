@@ -67,6 +67,7 @@ void GrDrawingManager::flush() {
                         SkTTopoSort<GrDrawTarget, GrDrawTarget::TopoSortTraits>(&fDrawTargets);
     SkASSERT(result);
 
+    // Enable this to print out verbose batching information
 #if 0
     for (int i = 0; i < fDrawTargets.count(); ++i) {
         SkDEBUGCODE(fDrawTargets[i]->dump();)

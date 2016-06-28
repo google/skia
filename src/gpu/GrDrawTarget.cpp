@@ -114,17 +114,13 @@ void GrDrawTarget::dump() const {
     SkDebugf("\n");
     SkDebugf("batches (%d):\n", fBatches.count());
     for (int i = 0; i < fBatches.count(); ++i) {
-#if 0
         SkDebugf("*******************************\n");
-#endif
-        if (fBatches[i]) {
+        if (!fBatches[i]) {
             SkDebugf("%d: <combined forward>\n", i);
         } else {
             SkDebugf("%d: %s\n", i, fBatches[i]->name());
-#if 0
             SkString str = fBatches[i]->dumpInfo();
             SkDebugf("%s\n", str.c_str());
-#endif
         }
     }
 }
