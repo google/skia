@@ -44,6 +44,25 @@ void sk_matrix_pre_scale(sk_matrix_t*, float sx, float sy);
 */
 void sk_matrix_post_scale(sk_matrix_t*, float sx, float sy);
 
+/**
+    Returns the matrix type
+ */
+SK_API int sk_matrix_try_invert (sk_matrix_t *matrix, sk_matrix_t *result);
+
+/**
+    Sets a matrix to the concatenation of the other two.
+ */
+SK_API void sk_matrix_concat (sk_matrix_t *result, sk_matrix_t *first, sk_matrix_t *second);
+
+/**
+    Preconcatenates the matrix
+ */
+SK_API void sk_matrix_pre_concat (sk_matrix_t *result, sk_matrix_t *matrix);
+/**
+    Sets a matrix to the concatenation of the other two.
+ */
+SK_API void sk_matrix_post_concat (sk_matrix_t *result, sk_matrix_t *matrix);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
