@@ -27,6 +27,9 @@ const SkOpAngle* AngleWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* windi
     int winding = SK_MinS32;
     do {
         angle = angle->next();
+        if (!angle) {
+            return nullptr;
+        }
         unorderable |= angle->unorderable();
         if ((computeWinding = unorderable || (angle == firstAngle && loop))) {
             break;    // if we get here, there's no winding, loop is unorderable

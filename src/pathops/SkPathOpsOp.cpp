@@ -36,6 +36,9 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
         int winding;
         bool sortable;
         const SkOpAngle* angle = AngleWinding(*startPtr, *endPtr, &winding, &sortable);
+        if (!angle) {
+            return nullptr;
+        }
         if (winding == SK_MinS32) {
             continue;
         }
