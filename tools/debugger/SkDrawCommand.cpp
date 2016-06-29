@@ -177,7 +177,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kClipRect_OpType: return "ClipRect";
         case kClipRRect_OpType: return "ClipRRect";
         case kConcat_OpType: return "Concat";
-        case kDrawAnnotation_OpType: return "drawAnnotation";
+        case kDrawAnnotation_OpType: return "DrawAnnotation";
         case kDrawBitmap_OpType: return "DrawBitmap";
         case kDrawBitmapNine_OpType: return "DrawBitmapNine";
         case kDrawBitmapRect_OpType: return "DrawBitmapRect";
@@ -1722,7 +1722,17 @@ SkDrawAnnotationCommand::SkDrawAnnotationCommand(const SkRect& rect, const char 
     , fRect(rect)
     , fKey(key)
     , fValue(std::move(value))
-{}
+{
+    SkString str;
+    str.appendf("Key: %s Value: ", key);
+    if (fValue && fValue->size()) {
+        str.append((const char*) fValue->bytes(), fValue->size());
+    } else {
+        str.appendf("no value");
+    }
+    str.appendf("\n");
+    fInfo.push(new SkString(str));
+}
 
 void SkDrawAnnotationCommand::execute(SkCanvas* canvas) const {
     canvas->drawAnnotation(fRect, fKey.c_str(), fValue);
