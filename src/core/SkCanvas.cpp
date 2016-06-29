@@ -46,6 +46,8 @@
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
+//#define SK_SUPPORT_PRECHECK_CLIPRECT
+
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
  *
@@ -1522,6 +1524,29 @@ void SkCanvas::resetMatrix() {
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+    if (!fAllowSoftClip) {
+        doAA = false;
+    }
+
+#ifdef SK_SUPPORT_PRECHECK_CLIPRECT
+    // Check if we can quick-accept the clip call (and do nothing)
+    //
+    if (SkRegion::kIntersect_Op == op && !doAA && fMCRec->fMatrix.rectStaysRect()) {
+        SkRect devR;
+        fMCRec->fMatrix.mapRect(&devR, rect);
+        // NOTE: this check is CTM specific, since we might round differently with a different
+        //       CTM. Thus this is only 100% reliable if there is not global CTM scale to be
+        //       applied later (i.e. if this is going into a picture).
+        if (devR.round().contains(fMCRec->fRasterClip.getBounds())) {
+#if 0
+            SkDebugf("ignored clipRect [%g %g %g %g]\n",
+                     rect.left(), rect.top(), rect.right(), rect.bottom());
+#endif
+            return;
+        }
+    }
+#endif
+
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     this->onClipRect(rect, op, edgeStyle);
@@ -1531,7 +1556,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
 #ifdef SK_ENABLE_CLIP_QUICKREJECT
     if (SkRegion::kIntersect_Op == op) {
         if (fMCRec->fRasterClip.isEmpty()) {
-            return false;
+            return;
         }
 
         if (this->quickReject(rect)) {
@@ -1539,14 +1564,11 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
             fCachedLocalClipBoundsDirty = true;
 
             fClipStack->clipEmpty();
-            return fMCRec->fRasterClip.setEmpty();
+            (void)fMCRec->fRasterClip.setEmpty();
+            return;
         }
     }
 #endif
-
-    if (!fAllowSoftClip) {
-        edgeStyle = kHard_ClipEdgeStyle;
-    }
 
     const bool rectStaysRect = fMCRec->fMatrix.rectStaysRect();
     SkRect devR;
@@ -1554,12 +1576,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
         fMCRec->fMatrix.mapRect(&devR, rect);
     }
 
-    // Check if we can quick-accept the clip call (and do nothing)
-    //
-    // TODO: investigate if a (conservative) version of this could be done in ::clipRect,
-    //       so that subclasses (like PictureRecording) didn't see unnecessary clips, which in turn
-    //       might allow lazy save/restores to eliminate entire save/restore blocks.
-    //
+#ifndef SK_SUPPORT_PRECHECK_CLIPRECT
     if (SkRegion::kIntersect_Op == op &&
         kHard_ClipEdgeStyle == edgeStyle
         && rectStaysRect)
@@ -1572,6 +1589,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
             return;
         }
     }
+#endif
 
     AutoValidateClip avc(this);
 
@@ -1657,7 +1675,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
 #ifdef SK_ENABLE_CLIP_QUICKREJECT
     if (SkRegion::kIntersect_Op == op && !path.isInverseFillType()) {
         if (fMCRec->fRasterClip.isEmpty()) {
-            return false;
+            return;
         }
 
         if (this->quickReject(path.getBounds())) {
@@ -1665,7 +1683,8 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
             fCachedLocalClipBoundsDirty = true;
 
             fClipStack->clipEmpty();
-            return fMCRec->fRasterClip.setEmpty();
+            (void)fMCRec->fRasterClip.setEmpty();
+            return;
         }
     }
 #endif
