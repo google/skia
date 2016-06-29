@@ -177,6 +177,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kClipRect_OpType: return "ClipRect";
         case kClipRRect_OpType: return "ClipRRect";
         case kConcat_OpType: return "Concat";
+        case kDrawAnnotation_OpType: return "drawAnnotation";
         case kDrawBitmap_OpType: return "DrawBitmap";
         case kDrawBitmapNine_OpType: return "DrawBitmapNine";
         case kDrawBitmapRect_OpType: return "DrawBitmapRect";
@@ -235,6 +236,7 @@ SkDrawCommand* SkDrawCommand::fromJSON(Json::Value& command, UrlDataManager& url
         INSTALL_FACTORY(ClipRect);
         INSTALL_FACTORY(ClipRRect);
         INSTALL_FACTORY(Concat);
+        INSTALL_FACTORY(DrawAnnotation);
         INSTALL_FACTORY(DrawBitmap);
         INSTALL_FACTORY(DrawBitmapRect);
         INSTALL_FACTORY(DrawBitmapNine);
@@ -1711,6 +1713,41 @@ SkConcatCommand* SkConcatCommand::fromJSON(Json::Value& command, UrlDataManager&
     extract_json_matrix(command[SKDEBUGCANVAS_ATTRIBUTE_MATRIX], &matrix);
     return new SkConcatCommand(matrix);
 }
+
+////
+
+SkDrawAnnotationCommand::SkDrawAnnotationCommand(const SkRect& rect, const char key[],
+                                                 sk_sp<SkData> value)
+    : INHERITED(kDrawAnnotation_OpType)
+    , fRect(rect)
+    , fKey(key)
+    , fValue(std::move(value))
+{}
+
+void SkDrawAnnotationCommand::execute(SkCanvas* canvas) const {
+    canvas->drawAnnotation(fRect, fKey.c_str(), fValue);
+}
+
+Json::Value SkDrawAnnotationCommand::toJSON(UrlDataManager& urlDataManager) const {
+    Json::Value result = INHERITED::toJSON(urlDataManager);
+
+    result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonRect(fRect);
+    result["key"] = Json::Value(fKey.c_str());
+    if (fValue.get()) {
+        // TODO: dump out the "value"
+    }
+    return result;
+}
+
+SkDrawAnnotationCommand* SkDrawAnnotationCommand::fromJSON(Json::Value& command,
+                                                           UrlDataManager& urlDataManager) {
+    SkRect rect;
+    extract_json_rect(command[SKDEBUGCANVAS_ATTRIBUTE_COORDS], &rect);
+    sk_sp<SkData> data(nullptr); // TODO: extract "value" from the Json
+    return new SkDrawAnnotationCommand(rect, command["key"].asCString(), data);
+}
+
+////
 
 SkDrawBitmapCommand::SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                                          const SkPaint* paint)

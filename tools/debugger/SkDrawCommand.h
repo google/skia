@@ -28,6 +28,7 @@ public:
         kClipRect_OpType,
         kClipRRect_OpType,
         kConcat_OpType,
+        kDrawAnnotation_OpType,
         kDrawBitmap_OpType,
         kDrawBitmapNine_OpType,
         kDrawBitmapRect_OpType,
@@ -243,6 +244,21 @@ public:
 
 private:
     SkMatrix fMatrix;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawAnnotationCommand : public SkDrawCommand {
+public:
+    SkDrawAnnotationCommand(const SkRect&, const char key[], sk_sp<SkData> value);
+    void execute(SkCanvas* canvas) const override;
+    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
+    static SkDrawAnnotationCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
+
+private:
+    SkRect          fRect;
+    SkString        fKey;
+    sk_sp<SkData>   fValue;
 
     typedef SkDrawCommand INHERITED;
 };
