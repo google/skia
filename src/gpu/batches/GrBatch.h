@@ -118,7 +118,12 @@ public:
     virtual uint32_t renderTargetUniqueID() const = 0;
 
     /** Used for spewing information about batches when debugging. */
-    virtual SkString dumpInfo() const = 0;
+    virtual SkString dumpInfo() const {
+        SkString string;
+        string.appendf("BatchBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                       fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
+        return string;
+    }
 
     /** Can remove this when multi-draw-buffer lands */
     virtual GrRenderTarget* renderTarget() const = 0;

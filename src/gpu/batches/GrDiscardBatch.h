@@ -31,6 +31,7 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         string.printf("RT: %d", fRenderTarget.get()->getUniqueID());
+        string.append(INHERITED::dumpInfo());
         return string;
     }
 

@@ -39,6 +39,7 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         string.printf("PATH: 0x%p, AA:%d", fPath.get(), fUseHWAA);
+        string.append(INHERITED::dumpInfo());
         return string;
     }
 

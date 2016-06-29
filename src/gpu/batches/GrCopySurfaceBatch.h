@@ -44,6 +44,7 @@ public:
                       "DPT:[X: %d, Y: %d]",
                       fDst.get(), fSrc.get(), fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight,
                       fSrcRect.fBottom, fDstPoint.fX, fDstPoint.fY);
+        string.append(INHERITED::dumpInfo());
         return string;
     }
 
