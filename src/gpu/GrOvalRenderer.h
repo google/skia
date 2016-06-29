@@ -35,6 +35,19 @@ public:
 
 private:
     GrOvalRenderer();
+
+    static GrDrawBatch* CreateEllipseBatch(GrColor,
+                                           const SkMatrix& viewMatrix,
+                                           const SkRect& ellipse,
+                                           const SkStrokeRec& stroke);
+    static GrDrawBatch* CreateDIEllipseBatch(GrColor,
+                                             const SkMatrix& viewMatrix,
+                                             const SkRect& ellipse,
+                                             const SkStrokeRec& stroke);
+    static GrDrawBatch* CreateCircleBatch(GrColor,
+                                          const SkMatrix& viewMatrix,
+                                          const SkRect& circle,
+                                          const SkStrokeRec& stroke);
 };
 
 #endif // GrOvalRenderer_DEFINED
