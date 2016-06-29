@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkDrawCommand.h"
 
 #include "SkBlurMaskFilter.h"
@@ -92,6 +91,8 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_TEXTURECOORDS     "textureCoords"
 #define SKDEBUGCANVAS_ATTRIBUTE_FILTERQUALITY     "filterQuality"
 
+#define SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC         "short-desc"
+
 #define SKDEBUGCANVAS_VERB_MOVE                   "move"
 #define SKDEBUGCANVAS_VERB_LINE                   "line"
 #define SKDEBUGCANVAS_VERB_QUAD                   "quad"
@@ -157,6 +158,11 @@
 #define SKDEBUGCANVAS_FILTERQUALITY_HIGH          "high"
 
 typedef SkDrawCommand* (*FROM_JSON)(Json::Value&, UrlDataManager&);
+
+static SkString* str_append(SkString* str, const SkRect& r) {
+    str->appendf(" [%g %g %g %g]", r.left(), r.top(), r.right(), r.bottom());
+    return str;
+}
 
 // TODO(chudy): Refactor into non subclass model.
 
@@ -1643,6 +1649,10 @@ Json::Value SkClipRectCommand::toJSON(UrlDataManager& urlDataManager) const {
     result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonRect(fRect);
     result[SKDEBUGCANVAS_ATTRIBUTE_REGIONOP] = make_json_regionop(fOp);
     result[SKDEBUGCANVAS_ATTRIBUTE_ANTIALIAS] = Json::Value(fDoAA);
+
+    SkString desc;
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fRect)->c_str());
+
     return result;
 }
 
@@ -1746,6 +1756,11 @@ Json::Value SkDrawAnnotationCommand::toJSON(UrlDataManager& urlDataManager) cons
     if (fValue.get()) {
         // TODO: dump out the "value"
     }
+
+    SkString desc;
+    str_append(&desc, fRect)->appendf(" %s", fKey.c_str());
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(desc.c_str());
+
     return result;
 }
 
@@ -1950,6 +1965,10 @@ Json::Value SkDrawBitmapRectCommand::toJSON(UrlDataManager& urlDataManager) cons
             result[SKDEBUGCANVAS_ATTRIBUTE_STRICT] = Json::Value(true);
         }
     }
+
+    SkString desc;
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fDst)->c_str());
+
     return result;
 }
 
@@ -2117,6 +2136,10 @@ Json::Value SkDrawImageRectCommand::toJSON(UrlDataManager& urlDataManager) const
             result[SKDEBUGCANVAS_ATTRIBUTE_STRICT] = Json::Value(true);
         }
     }
+
+    SkString desc;
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fDst)->c_str());
+
     return result;
 }
 
@@ -2791,6 +2814,10 @@ Json::Value SkDrawRectCommand::toJSON(UrlDataManager& urlDataManager) const {
     Json::Value result = INHERITED::toJSON(urlDataManager);
     result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonRect(fRect);
     result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
+
+    SkString desc;
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fRect)->c_str());
+
     return result;
 }
 
