@@ -337,6 +337,9 @@ public:
     void setUpWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* maxWinding, int* sumWinding) {
         int deltaSum = SpanSign(start, end);
         *maxWinding = *sumWinding;
+        if (*sumWinding == SK_MinS32) {
+          return;
+        }
         *sumWinding -= deltaSum;
     }
 
