@@ -591,7 +591,7 @@ static size_t get_subset_font_stream(const char* fontName,
                                      const SkTDArray<uint32_t>& subset,
                                      SkPDFStream** fontStream) {
     int ttcIndex;
-    std::unique_ptr<SkStream> fontData(typeface->openStream(&ttcIndex));
+    std::unique_ptr<SkStreamAsset> fontData(typeface->openStream(&ttcIndex));
     SkASSERT(fontData);
     if (!fontData) {
         return 0;

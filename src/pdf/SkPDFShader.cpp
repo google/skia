@@ -672,7 +672,7 @@ static void populate_tiling_pattern_dict(SkPDFDict* pattern,
  * @param gsIndex A graphics state resource index to apply, or <0 if no
  * graphics state to apply.
  */
-static SkStream* create_pattern_fill_content(int gsIndex, SkRect& bounds) {
+static SkStreamAsset* create_pattern_fill_content(int gsIndex, SkRect& bounds) {
     SkDynamicMemoryWStream content;
     if (gsIndex >= 0) {
         SkPDFUtils::ApplyGraphicState(gsIndex, &content);
@@ -699,7 +699,7 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(
     sk_sp<SkPDFObject> luminosityShader(
             get_pdf_shader_by_state(doc, dpi, &alphaToLuminosityState));
 
-    std::unique_ptr<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
+    std::unique_ptr<SkStreamAsset> alphaStream(create_pattern_fill_content(-1, bbox));
 
     auto resources =
         get_gradient_resource_dict(luminosityShader.get(), nullptr);
@@ -738,7 +738,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
     auto resourceDict =
             get_gradient_resource_dict(colorShader.get(), alphaGs.get());
 
-    std::unique_ptr<SkStream> colorStream(
+    std::unique_ptr<SkStreamAsset> colorStream(
             create_pattern_fill_content(0, bbox));
     alphaFunctionShader->setData(colorStream.get());
 

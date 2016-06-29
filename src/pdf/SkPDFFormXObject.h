@@ -37,7 +37,7 @@ public:
      * Create a PDF form XObject from a raw content stream and associated
      * resources.
      */
-    explicit SkPDFFormXObject(SkStream* content,
+    explicit SkPDFFormXObject(SkStreamAsset* content,
                               SkRect bbox,
                               SkPDFDict* resourceDict);
     virtual ~SkPDFFormXObject();

@@ -24,7 +24,7 @@ void SkPDFStream::emitObject(SkWStream* stream,
     SkASSERT(fCompressedData);
     this->INHERITED::emitObject(stream, objNumMap, substitutes);
     // duplicate (a cheap operation) preserves const on fCompressedData.
-    std::unique_ptr<SkStreamRewindable> dup(fCompressedData->duplicate());
+    std::unique_ptr<SkStreamAsset> dup(fCompressedData->duplicate());
     SkASSERT(dup);
     SkASSERT(dup->hasLength());
     stream->writeText(" stream\n");
@@ -33,13 +33,14 @@ void SkPDFStream::emitObject(SkWStream* stream,
 }
 
 
-void SkPDFStream::setData(SkStream* stream) {
+void SkPDFStream::setData(SkStreamAsset* stream) {
     SkASSERT(!fCompressedData);  // Only call this function once.
     SkASSERT(stream);
     // Code assumes that the stream starts at the beginning.
 
     #ifdef SK_PDF_LESS_COMPRESSION
-    std::unique_ptr<SkStreamRewindable> duplicate(stream->duplicate());
+    std::unique_ptr<SkStreamAsset> duplicate(stream->duplicate());
+    SkASSERT(duplicate && duplicate->hasLength());
     if (duplicate && duplicate->hasLength()) {
         this->insertInt("Length", duplicate->getLength());
         fCompressedData.reset(duplicate.release());
@@ -53,8 +54,12 @@ void SkPDFStream::setData(SkStream* stream) {
     deflateWStream.finalize();
     size_t length = compressedData.bytesWritten();
 
+    SkASSERT(stream->hasLength());
     if (stream->hasLength()) {
-        std::unique_ptr<SkStreamRewindable> dup(stream->duplicate());
+        std::unique_ptr<SkStreamAsset> dup(stream->duplicate());
+        SkASSERT(stream->hasLength());
+        SkASSERT(stream->getLength() == dup->getLength());
+        SkASSERT(dup && dup->hasLength());
         if (dup && dup->hasLength() &&
             dup->getLength() <= length + strlen("/Filter_/FlateDecode_")) {
             this->insertInt("Length", dup->getLength());
