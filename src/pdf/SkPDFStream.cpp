@@ -9,7 +9,6 @@
 #include "SkData.h"
 #include "SkDeflate.h"
 #include "SkPDFStream.h"
-#include "SkStream.h"
 #include "SkStreamPriv.h"
 
 SkPDFStream::~SkPDFStream() {}

@@ -8,9 +8,11 @@
 #ifndef SkPDFResourceDict_DEFINED
 #define SkPDFResourceDict_DEFINED
 
-#include "SkPDFTypes.h"
+#include "SkRefCnt.h"
 #include "SkTDArray.h"
-#include "SkTypes.h"
+
+class SkPDFDict;
+class SkPDFObject;
 
 /** \class SkPDFResourceDict
 

@@ -13,7 +13,6 @@
 #include "SkPath.h"
 
 class SkMatrix;
-class SkPath;
 class SkPDFArray;
 struct SkRect;
 class SkWStream;

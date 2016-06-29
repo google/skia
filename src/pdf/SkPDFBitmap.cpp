@@ -12,6 +12,7 @@
 #include "SkJpegInfo.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
+#include "SkPDFTypes.h"
 #include "SkStream.h"
 #include "SkUnPreMultiply.h"
 

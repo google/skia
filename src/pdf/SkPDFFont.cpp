@@ -15,7 +15,6 @@
 #include "SkPDFFont.h"
 #include "SkPDFFontImpl.h"
 #include "SkPDFStream.h"
-#include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"

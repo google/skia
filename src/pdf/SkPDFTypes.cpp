@@ -8,6 +8,7 @@
 #include "SkDeflate.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
+#include "SkStream.h"
 #include "SkStreamPriv.h"
 
 ////////////////////////////////////////////////////////////////////////////////

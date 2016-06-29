@@ -8,7 +8,6 @@
 
 #include "SkData.h"
 #include "SkDeflate.h"
-#include "SkStream.h"
 
 #ifdef ZLIB_INCLUDE
     #include ZLIB_INCLUDE

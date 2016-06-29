@@ -10,14 +10,11 @@
 #define SkPDFFormXObject_DEFINED
 
 #include "SkPDFStream.h"
-#include "SkPDFTypes.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
 
-class SkMatrix;
+class SkPDFArray;
 class SkPDFDevice;
-class SkPDFObjNumMap;
+class SkPDFDict;
+struct SkRect;
 
 /** \class SkPDFFormXObject
 

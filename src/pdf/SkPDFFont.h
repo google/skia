@@ -15,9 +15,7 @@
 #include "SkTDArray.h"
 #include "SkTypeface.h"
 
-class SkPaint;
 class SkPDFCanon;
-class SkPDFObjNumMap;
 class SkPDFFont;
 
 class SkPDFGlyphSet : SkNoncopyable {

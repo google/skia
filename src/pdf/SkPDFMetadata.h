@@ -9,7 +9,6 @@
 #define SkPDFMetadata_DEFINED
 
 #include "SkDocument.h"
-#include "SkTime.h"
 
 class SkPDFObject;
 

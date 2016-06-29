@@ -8,8 +8,6 @@
 
 #include "SkData.h"
 #include "SkGeometry.h"
-#include "SkPaint.h"
-#include "SkPath.h"
 #include "SkPDFResourceDict.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"

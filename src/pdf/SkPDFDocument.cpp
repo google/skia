@@ -6,11 +6,9 @@
  */
 
 #include "SkColorSpace_Base.h"
-#include "SkPDFCanon.h"
 #include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
-#include "SkPDFFont.h"
 #include "SkPDFStream.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"

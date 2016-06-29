@@ -6,6 +6,7 @@
  */
 
 #include "SkData.h"
+#include "SkPaint.h"
 #include "SkPDFCanon.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"

@@ -10,11 +10,7 @@
 #define SkPDFStream_DEFINED
 
 #include "SkPDFTypes.h"
-#include "SkRefCnt.h"
 #include "SkStream.h"
-#include "SkTemplates.h"
-
-class SkPDFObjNumMap;
 
 /** \class SkPDFStream
 

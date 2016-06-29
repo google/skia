@@ -9,22 +9,20 @@
 #define SkPDFDevice_DEFINED
 
 #include "SkBitmap.h"
-#include "SkBitmapKey.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
 #include "SkData.h"
 #include "SkDevice.h"
 #include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPicture.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
-#include "SkTemplates.h"
 
 #include "SkSinglyLinkedList.h"
 
+class SkImageBitmap;
+class SkPath;
 class SkPDFArray;
 class SkPDFCanon;
 class SkPDFDevice;
@@ -33,10 +31,7 @@ class SkPDFDict;
 class SkPDFFont;
 class SkPDFFormXObject;
 class SkPDFGlyphSetMap;
-class SkPDFGraphicState;
 class SkPDFObject;
-class SkPDFShader;
-class SkPDFStream;
 class SkRRect;
 
 /** \class SkPDFDevice
