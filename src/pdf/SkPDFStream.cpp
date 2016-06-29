@@ -32,42 +32,32 @@ void SkPDFStream::emitObject(SkWStream* stream,
     stream->writeText("\nendstream");
 }
 
-
 void SkPDFStream::setData(SkStreamAsset* stream) {
     SkASSERT(!fCompressedData);  // Only call this function once.
     SkASSERT(stream);
     // Code assumes that the stream starts at the beginning.
 
     #ifdef SK_PDF_LESS_COMPRESSION
-    std::unique_ptr<SkStreamAsset> duplicate(stream->duplicate());
-    SkASSERT(duplicate && duplicate->hasLength());
-    if (duplicate && duplicate->hasLength()) {
-        this->insertInt("Length", duplicate->getLength());
-        fCompressedData.reset(duplicate.release());
-        return;
-    }
-    #endif
+    fCompressedData.reset(stream->duplicate());
+    SkASSERT(fCompressedData && fCompressedData->hasLength());
+    this->insertInt("Length", fCompressedData->getLength());
+    #else
 
+    SkASSERT(stream->hasLength());
     SkDynamicMemoryWStream compressedData;
     SkDeflateWStream deflateWStream(&compressedData);
     SkStreamCopy(&deflateWStream, stream);
     deflateWStream.finalize();
-    size_t length = compressedData.bytesWritten();
+    size_t compressedLength = compressedData.bytesWritten();
+    size_t originalLength = stream->getLength();
 
-    SkASSERT(stream->hasLength());
-    if (stream->hasLength()) {
-        std::unique_ptr<SkStreamAsset> dup(stream->duplicate());
-        SkASSERT(stream->hasLength());
-        SkASSERT(stream->getLength() == dup->getLength());
-        SkASSERT(dup && dup->hasLength());
-        if (dup && dup->hasLength() &&
-            dup->getLength() <= length + strlen("/Filter_/FlateDecode_")) {
-            this->insertInt("Length", dup->getLength());
-            fCompressedData.reset(dup.release());
-            return;
-        }
+    if (originalLength <= compressedLength + strlen("/Filter_/FlateDecode_")) {
+        fCompressedData.reset(stream->duplicate());
+        this->insertInt("Length", originalLength);
+        return;
     }
     fCompressedData.reset(compressedData.detachAsStream());
     this->insertName("Filter", "FlateDecode");
-    this->insertInt("Length", length);
+    this->insertInt("Length", compressedLength);
+    #endif
 }
