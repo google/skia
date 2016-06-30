@@ -21,10 +21,10 @@ class SkPDFFont;
 class SkPDFGlyphSet : SkNoncopyable {
 public:
     SkPDFGlyphSet();
+    SkPDFGlyphSet(SkPDFGlyphSet&& o) : fBitSet(std::move(o.fBitSet)) {}
 
     void set(const uint16_t* glyphIDs, int numGlyphs);
     bool has(uint16_t glyphID) const;
-    void merge(const SkPDFGlyphSet& usage);
     void exportTo(SkTDArray<uint32_t>* glyphIDs) const;
 
 private:
@@ -33,11 +33,15 @@ private:
 
 class SkPDFGlyphSetMap : SkNoncopyable {
 public:
-    struct FontGlyphSetPair {
-        FontGlyphSetPair(SkPDFFont* font, SkPDFGlyphSet* glyphSet);
-
+    struct FontGlyphSetPair : SkNoncopyable {
+        FontGlyphSetPair() : fFont(nullptr) {}
+        FontGlyphSetPair(FontGlyphSetPair&& o)
+            : fFont(o.fFont)
+            , fGlyphSet(std::move(o.fGlyphSet)) {
+            o.fFont = nullptr;
+        }
         SkPDFFont* fFont;
-        SkPDFGlyphSet* fGlyphSet;
+        SkPDFGlyphSet fGlyphSet;
     };
 
     SkPDFGlyphSetMap();
@@ -46,16 +50,13 @@ public:
     const FontGlyphSetPair* begin() const { return fMap.begin(); }
     const FontGlyphSetPair* end() const { return fMap.end(); }
 
-    void merge(const SkPDFGlyphSetMap& usage);
-    void reset();
-
     void noteGlyphUsage(SkPDFFont* font, const uint16_t* glyphIDs,
                         int numGlyphs);
 
 private:
     SkPDFGlyphSet* getGlyphSetForFont(SkPDFFont* font);
 
-    SkTDArray<FontGlyphSetPair> fMap;
+    SkTArray<FontGlyphSetPair> fMap;
 };
 
 

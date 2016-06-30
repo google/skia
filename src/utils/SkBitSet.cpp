@@ -21,6 +21,14 @@ SkBitSet::SkBitSet(const SkBitSet& source)
     *this = source;
 }
 
+SkBitSet::SkBitSet(SkBitSet&& source)
+    : fBitData(source.fBitData.release())
+    , fDwordCount(source.fDwordCount)
+    , fBitCount(source.fBitCount) {
+    source.fDwordCount = 0;
+    source.fBitCount = 0;
+}
+
 SkBitSet& SkBitSet::operator=(const SkBitSet& rhs) {
     if (this == &rhs) {
         return *this;

@@ -652,41 +652,17 @@ bool SkPDFGlyphSet::has(uint16_t glyphID) const {
     return fBitSet.isBitSet(glyphID);
 }
 
-void SkPDFGlyphSet::merge(const SkPDFGlyphSet& usage) {
-    fBitSet.orBits(usage.fBitSet);
-}
-
 void SkPDFGlyphSet::exportTo(SkTDArray<unsigned int>* glyphIDs) const {
     fBitSet.exportTo(glyphIDs);
 }
-
+ 
 ///////////////////////////////////////////////////////////////////////////////
 // class SkPDFGlyphSetMap
 ///////////////////////////////////////////////////////////////////////////////
-SkPDFGlyphSetMap::FontGlyphSetPair::FontGlyphSetPair(SkPDFFont* font,
-                                                     SkPDFGlyphSet* glyphSet)
-        : fFont(font),
-          fGlyphSet(glyphSet) {
-}
 
-SkPDFGlyphSetMap::SkPDFGlyphSetMap() {
-}
+SkPDFGlyphSetMap::SkPDFGlyphSetMap() {}
 
 SkPDFGlyphSetMap::~SkPDFGlyphSetMap() {
-    reset();
-}
-
-void SkPDFGlyphSetMap::merge(const SkPDFGlyphSetMap& usage) {
-    for (int i = 0; i < usage.fMap.count(); ++i) {
-        SkPDFGlyphSet* myUsage = getGlyphSetForFont(usage.fMap[i].fFont);
-        myUsage->merge(*(usage.fMap[i].fGlyphSet));
-    }
-}
-
-void SkPDFGlyphSetMap::reset() {
-    for (int i = 0; i < fMap.count(); ++i) {
-        delete fMap[i].fGlyphSet;  // Should not be nullptr.
-    }
     fMap.reset();
 }
 
@@ -702,14 +678,12 @@ SkPDFGlyphSet* SkPDFGlyphSetMap::getGlyphSetForFont(SkPDFFont* font) {
     int index = fMap.count();
     for (int i = 0; i < index; ++i) {
         if (fMap[i].fFont == font) {
-            return fMap[i].fGlyphSet;
+            return &fMap[i].fGlyphSet;
         }
     }
-    fMap.append();
-    index = fMap.count() - 1;
-    fMap[index].fFont = font;
-    fMap[index].fGlyphSet = new SkPDFGlyphSet();
-    return fMap[index].fGlyphSet;
+    FontGlyphSetPair& pair = fMap.push_back();
+    pair.fFont = font;
+    return &pair.fGlyphSet;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

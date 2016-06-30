@@ -30,7 +30,6 @@ class SkPDFDocument;
 class SkPDFDict;
 class SkPDFFont;
 class SkPDFFormXObject;
-class SkPDFGlyphSetMap;
 class SkPDFObject;
 class SkRRect;
 
@@ -159,13 +158,6 @@ public:
         return fInitialTransform;
     }
 
-    /** Returns a SkPDFGlyphSetMap which represents glyph usage of every font
-     *  that shows on this device.
-     */
-    const SkPDFGlyphSetMap& getFontGlyphUsage() const {
-        return *(fFontGlyphUsage.get());
-    }
-
     SkPDFCanon* getCanon() const;
 
     // It is important to not confuse GraphicStateEntry with SkPDFGraphicState, the
@@ -265,9 +257,6 @@ private:
 
     const SkClipStack* fClipStack;
 
-    // Glyph ids used for each font on this device.
-    std::unique_ptr<SkPDFGlyphSetMap> fFontGlyphUsage;
-
     SkScalar fRasterDpi;
 
     SkBitmap fLegacyBitmap;
@@ -283,7 +272,7 @@ private:
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     void init();
-    void cleanUp(bool clearFontUsage);
+    void cleanUp();
     SkPDFFormXObject* createFormXObjectFromDevice();
 
     void drawFormXObjectWithMask(int xObjectIndex,

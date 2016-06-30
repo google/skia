@@ -270,7 +270,6 @@ void SkPDFDocument::onEndPage() {
     fCanvas->flush();
     fCanvas.reset(nullptr);
     SkASSERT(fPageDevice);
-    fGlyphUsage.merge(fPageDevice->getFontGlyphUsage());
     auto page = sk_make_sp<SkPDFDict>("Page");
     page->insertObject("Resources", fPageDevice->makeResourceDict());
     page->insertObject("MediaBox", fPageDevice->copyMediaBox());
@@ -293,6 +292,7 @@ void SkPDFDocument::onAbort() {
     fPages.reset();
     fCanon.reset();
     renew(&fObjectSerializer);
+    renew(&fGlyphUsage);
 }
 
 #ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
@@ -356,6 +356,7 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
         fPages.reset();
         fCanon.reset();
         renew(&fObjectSerializer);
+        renew(&fGlyphUsage);
         return false;
     }
     auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
@@ -377,7 +378,7 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
     // Build font subsetting info before calling addObjectRecursively().
     for (const auto& entry : fGlyphUsage) {
         sk_sp<SkPDFFont> subsetFont(
-                entry.fFont->getFontSubset(entry.fGlyphSet));
+                entry.fFont->getFontSubset(&entry.fGlyphSet));
         if (subsetFont) {
             fObjectSerializer.fSubstituteMap.setSubstitute(
                     entry.fFont, subsetFont.get());
@@ -389,6 +390,7 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
     fObjectSerializer.serializeFooter(this->getStream(), docCatalog, fID);
     fCanon.reset();
     renew(&fObjectSerializer);
+    renew(&fGlyphUsage);
     return true;
 }
 

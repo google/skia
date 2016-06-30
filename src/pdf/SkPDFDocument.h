@@ -75,6 +75,7 @@ public:
      */
     void serialize(const sk_sp<SkPDFObject>&);
     SkPDFCanon* canon() { return &fCanon; }
+    SkPDFGlyphSetMap* getGlyphUsage() { return &fGlyphUsage; }
 
 private:
     SkPDFObjectSerializer fObjectSerializer;
