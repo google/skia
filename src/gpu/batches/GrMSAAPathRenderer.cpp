@@ -225,15 +225,17 @@ class MSAAPathBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    struct Geometry {
-        GrColor fColor;
-        SkPath fPath;
-        SkScalar fTolerance;
-    };
-
-    static MSAAPathBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
-                               const SkRect& devBounds) {
-        return new MSAAPathBatch(geometry, viewMatrix, devBounds);
+    MSAAPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix,
+                  const SkRect& devBounds)
+            : INHERITED(ClassID())
+            , fViewMatrix(viewMatrix) {
+        fPaths.emplace_back(PathInfo{color, path});
+        this->setBounds(devBounds);
+        int contourCount;
+        this->computeWorstCasePointCount(path, &contourCount, &fMaxLineVertices, &fMaxQuadVertices);
+        fMaxLineIndices = fMaxLineVertices * 3;
+        fMaxQuadIndices = fMaxQuadVertices * 3;
+        fIsIndexed = contourCount > 1;
     }
 
     const char* name() const override { return "MSAAPathBatch"; }
@@ -241,8 +243,8 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fGeoData[0].fColor);
+        // When this is called on a batch, there is only one path
+        color->setKnownFourComponents(fPaths[0].fColor);
         coverage->setKnownSingleComponent(0xff);
     }
 
@@ -254,13 +256,13 @@ private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
         if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
+            fPaths[0].fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fPaths[0].fColor);
     }
 
-    void computeWorstCasePointCount(const SkPath& path, int* subpaths, SkScalar tol,
-                                    int* outLinePointCount, int* outQuadPointCount) const {
+    void computeWorstCasePointCount(const SkPath& path, int* subpaths, int* outLinePointCount,
+                                    int* outQuadPointCount) const {
         int linePointCount = 0;
         int quadPointCount = 0;
         *subpaths = 1;
@@ -370,15 +372,14 @@ private:
         }
 
         // fill buffers
-        for (int i = 0; i < fGeoData.count(); i++) {
-            const Geometry& args = fGeoData[i];
+        for (int i = 0; i < fPaths.count(); i++) {
+            const PathInfo& pathInfo = fPaths[i];
 
             if (!this->createGeom(lines,
                                   quads,
-                                  args.fPath,
-                                  args.fTolerance,
+                                  pathInfo.fPath,
                                   fViewMatrix,
-                                  args.fColor,
+                                  pathInfo.fColor,
                                   fIsIndexed)) {
                 return;
             }
@@ -442,21 +443,6 @@ private:
         }
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    MSAAPathBatch(const Geometry& geometry, const SkMatrix& viewMatrix, const SkRect& devBounds)
-        : INHERITED(ClassID())
-        , fViewMatrix(viewMatrix) {
-        fGeoData.push_back(geometry);
-        this->setBounds(devBounds);
-        int contourCount;
-        this->computeWorstCasePointCount(geometry.fPath, &contourCount, kTolerance,
-                                         &fMaxLineVertices, &fMaxQuadVertices);
-        fMaxLineIndices = fMaxLineVertices * 3;
-        fMaxQuadIndices = fMaxQuadVertices * 3;
-        fIsIndexed = contourCount > 1;
-    }
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         MSAAPathBatch* that = t->cast<MSAAPathBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -473,7 +459,7 @@ private:
             return false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         this->joinBounds(that->bounds());
         fIsIndexed = true;
         fMaxLineVertices += that->fMaxLineVertices;
@@ -486,7 +472,6 @@ private:
     bool createGeom(MSAALineVertices& lines,
                     MSAAQuadVertices& quads,
                     const SkPath& path,
-                    SkScalar srcSpaceTol,
                     const SkMatrix& m,
                     SkColor color,
                     bool isIndexed) const {
@@ -523,8 +508,7 @@ private:
                     case SkPath::kConic_Verb: {
                         SkScalar weight = iter.conicWeight();
                         SkAutoConicToQuads converter;
-                        const SkPoint* quadPts = converter.computeQuads(pts, weight,
-                                                                        kTolerance);
+                        const SkPoint* quadPts = converter.computeQuads(pts, weight, kTolerance);
                         for (int i = 0; i < converter.countQuads(); ++i) {
                             add_quad(lines, quads, quadPts + i * 2, color, isIndexed,
                                      subpathIdxStart);
@@ -555,7 +539,12 @@ private:
         return true;
     }
 
-    SkSTArray<1, Geometry, true> fGeoData;
+    struct PathInfo {
+        GrColor  fColor;
+        SkPath   fPath;
+    };
+
+    SkSTArray<1, PathInfo, true> fPaths;
 
     SkMatrix fViewMatrix;
     int fMaxLineVertices;
@@ -680,13 +669,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 
             drawContext->drawBatch(pipelineBuilder, clip, batch);
         } else {
-            MSAAPathBatch::Geometry geometry;
-            geometry.fColor = color;
-            geometry.fPath = path;
-            geometry.fTolerance = kTolerance;
-
-            SkAutoTUnref<MSAAPathBatch> batch(MSAAPathBatch::Create(geometry, viewMatrix,
-                                                                    devBounds));
+            SkAutoTUnref<MSAAPathBatch> batch(new MSAAPathBatch(color, path, viewMatrix,
+                                                                devBounds));
             if (!batch->isValid()) {
                 return false;
             }
