@@ -260,7 +260,6 @@
       '<(skia_src_path)/gpu/batches/GrStencilPathBatch.h',
       '<(skia_src_path)/gpu/batches/GrTessellatingPathRenderer.cpp',
       '<(skia_src_path)/gpu/batches/GrTessellatingPathRenderer.h',
-      '<(skia_src_path)/gpu/batches/GrTInstanceBatch.h',
       '<(skia_src_path)/gpu/batches/GrVertexBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrVertexBatch.h',
 
