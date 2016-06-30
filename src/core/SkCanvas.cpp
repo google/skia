@@ -75,12 +75,12 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
     }
 
     if (rect) {
-        if (!this->getTotalMatrix().rectStaysRect()) {
+        if (!this->getTotalMatrix().isScaleTranslate()) {
             return false; // conservative
         }
 
         SkRect devRect;
-        this->getTotalMatrix().mapRect(&devRect, *rect);
+        this->getTotalMatrix().mapRectScaleTranslate(&devRect, *rect);
         if (!devRect.contains(bounds)) {
             return false;
         }
@@ -1531,9 +1531,9 @@ void SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 #ifdef SK_SUPPORT_PRECHECK_CLIPRECT
     // Check if we can quick-accept the clip call (and do nothing)
     //
-    if (SkRegion::kIntersect_Op == op && !doAA && fMCRec->fMatrix.rectStaysRect()) {
+    if (SkRegion::kIntersect_Op == op && !doAA && fMCRec->fMatrix.isScaleTranslate()) {
         SkRect devR;
-        fMCRec->fMatrix.mapRect(&devR, rect);
+        fMCRec->fMatrix.mapRectScaleTranslate(&devR, rect);
         // NOTE: this check is CTM specific, since we might round differently with a different
         //       CTM. Thus this is only 100% reliable if there is not global CTM scale to be
         //       applied later (i.e. if this is going into a picture).
@@ -1570,16 +1570,16 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
     }
 #endif
 
-    const bool rectStaysRect = fMCRec->fMatrix.rectStaysRect();
+    const bool isScaleTrans = fMCRec->fMatrix.isScaleTranslate();
     SkRect devR;
-    if (rectStaysRect) {
-        fMCRec->fMatrix.mapRect(&devR, rect);
+    if (isScaleTrans) {
+        fMCRec->fMatrix.mapRectScaleTranslate(&devR, rect);
     }
 
 #ifndef SK_SUPPORT_PRECHECK_CLIPRECT
     if (SkRegion::kIntersect_Op == op &&
         kHard_ClipEdgeStyle == edgeStyle
-        && rectStaysRect)
+        && isScaleTrans)
     {
         if (devR.round().contains(fMCRec->fRasterClip.getBounds())) {
 #if 0
@@ -1596,7 +1596,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
 
-    if (rectStaysRect) {
+    if (isScaleTrans) {
         const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
         fClipStack->clipDevRect(devR, op, isAA);
         fMCRec->fRasterClip.op(devR, this->getTopLayerBounds(), op, isAA);
