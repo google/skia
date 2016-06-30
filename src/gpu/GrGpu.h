@@ -38,6 +38,8 @@ class GrStencilSettings;
 class GrSurface;
 class GrTexture;
 
+namespace gr_instanced { class InstancedRendering; }
+
 class GrGpu : public SkRefCnt {
 public:
     /**
@@ -145,6 +147,13 @@ public:
      */
     GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern accessPattern,
                            const void* data = nullptr);
+
+    /**
+     * Creates an instanced rendering object if it is supported on this platform.
+     */
+    virtual gr_instanced::InstancedRendering* createInstancedRenderingIfSupported() {
+        return nullptr;
+    }
 
     /**
      * Resolves MSAA.
@@ -579,6 +588,7 @@ private:
     GrContext*                                                          fContext;
 
     friend class GrPathRendering;
+    friend class gr_instanced::InstancedRendering;
     typedef SkRefCnt INHERITED;
 };
 

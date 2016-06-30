@@ -60,6 +60,7 @@
 
       # Private includes
       '<(skia_include_path)/private/GrAuditTrail.h',
+      '<(skia_include_path)/private/GrInstancedPipelineInfo.h',
       '<(skia_include_path)/private/GrSingleOwner.h',
       '<(skia_include_path)/private/GrRenderTargetProxy.h',
       '<(skia_include_path)/private/GrSurfaceProxy.h',
@@ -307,6 +308,14 @@
       '<(skia_src_path)/gpu/effects/GrXfermodeFragmentProcessor.cpp',
       '<(skia_src_path)/gpu/effects/GrYUVEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrYUVEffect.h',
+
+      '<(skia_src_path)/gpu/instanced/InstancedRendering.cpp',
+      '<(skia_src_path)/gpu/instanced/InstancedRendering.h',
+      '<(skia_src_path)/gpu/instanced/InstancedRenderingTypes.h',
+      '<(skia_src_path)/gpu/instanced/InstanceProcessor.cpp',
+      '<(skia_src_path)/gpu/instanced/InstanceProcessor.h',
+      '<(skia_src_path)/gpu/instanced/GLInstancedRendering.cpp',
+      '<(skia_src_path)/gpu/instanced/GLInstancedRendering.h',
 
       # text
       '<(skia_src_path)/gpu/text/GrAtlasTextBlob.cpp',
