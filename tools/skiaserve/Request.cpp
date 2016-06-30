@@ -16,6 +16,8 @@ using namespace sk_gpu_test;
 
 static int kDefaultWidth = 1920;
 static int kDefaultHeight = 1080;
+static int kMaxWidth = 8192;
+static int kMaxHeight = 8192;
 
 
 Request::Request(SkString rootUrl)
@@ -126,7 +128,7 @@ GrContext* Request::getContext() {
     if (!result) {
         result = fContextFactory->get(GrContextFactory::kMESA_ContextType,
                                       GrContextFactory::kNone_ContextOptions);
-    } 
+    }
     return result;
 #else
     return nullptr;
@@ -148,10 +150,10 @@ SkIRect Request::getBounds() {
         bounds = SkIRect::MakeWH(kDefaultWidth, kDefaultHeight);
     }
 
-    // We clip to kDefaultWidth / kDefaultHeight for performance reasons
+    // We clip to kMaxWidth / kMaxHeight for performance reasons.
     // TODO make this configurable
-    bounds = SkIRect::MakeWH(SkTMin(bounds.width(), kDefaultWidth),
-                             SkTMin(bounds.height(), kDefaultHeight));
+    bounds = SkIRect::MakeWH(SkTMin(bounds.width(), kMaxWidth),
+                             SkTMin(bounds.height(), kMaxHeight));
     return bounds;
 }
 
