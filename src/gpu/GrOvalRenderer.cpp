@@ -819,28 +819,32 @@ private:
 
             const SkRect& bounds = geom.fDevBounds;
 
+            // fOffsets are expanded from xyRadii to include the half-pixel antialiasing width.
+            SkScalar xMaxOffset = xRadius + SK_ScalarHalf;
+            SkScalar yMaxOffset = yRadius + SK_ScalarHalf;
+
             // The inner radius in the vertex data must be specified in normalized space.
             verts[0].fPos = SkPoint::Make(bounds.fLeft,  bounds.fTop);
             verts[0].fColor = color;
-            verts[0].fOffset = SkPoint::Make(-xRadius, -yRadius);
+            verts[0].fOffset = SkPoint::Make(-xMaxOffset, -yMaxOffset);
             verts[0].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[0].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
             verts[1].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
             verts[1].fColor = color;
-            verts[1].fOffset = SkPoint::Make(-xRadius, yRadius);
+            verts[1].fOffset = SkPoint::Make(-xMaxOffset, yMaxOffset);
             verts[1].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[1].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
             verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
             verts[2].fColor = color;
-            verts[2].fOffset = SkPoint::Make(xRadius, yRadius);
+            verts[2].fOffset = SkPoint::Make(xMaxOffset, yMaxOffset);
             verts[2].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[2].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
             verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
             verts[3].fColor = color;
-            verts[3].fOffset = SkPoint::Make(xRadius, -yRadius);
+            verts[3].fOffset = SkPoint::Make(xMaxOffset, -yMaxOffset);
             verts[3].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
@@ -938,12 +942,6 @@ static GrDrawBatch* create_ellipse_batch(GrColor color,
         yRadius += scaledStroke.fY;
     }
 
-    // We've extended the outer x radius out half a pixel to antialias.
-    // This will also expand the rect so all the pixels will be captured.
-    // TODO: Consider if we should use sqrt(2)/2 instead
-    xRadius += SK_ScalarHalf;
-    yRadius += SK_ScalarHalf;
-
     EllipseBatch::Geometry geometry;
     geometry.fColor = color;
     geometry.fXRadius = xRadius;
@@ -952,6 +950,9 @@ static GrDrawBatch* create_ellipse_batch(GrColor color,
     geometry.fInnerYRadius = innerYRadius;
     geometry.fDevBounds = SkRect::MakeLTRB(center.fX - xRadius, center.fY - yRadius,
                                            center.fX + xRadius, center.fY + yRadius);
+
+    // outset bounds to include half-pixel width antialiasing. 
+    geometry.fDevBounds.outset(SK_ScalarHalf, SK_ScalarHalf);
 
     return new EllipseBatch(geometry, viewMatrix,
                             isStrokeOnly && innerXRadius > 0 && innerYRadius > 0);
