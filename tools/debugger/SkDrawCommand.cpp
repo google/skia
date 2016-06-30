@@ -23,6 +23,7 @@
 #include "SkTypeface.h"
 #include "SkValidatingReadBuffer.h"
 #include "SkWriteBuffer.h"
+#include "picture_utils.h"
 
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMAND           "command"
 #define SKDEBUGCANVAS_ATTRIBUTE_VISIBLE           "visible"
@@ -625,7 +626,7 @@ static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t l
 }
 
 void SkDrawCommand::WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_32 height,
-                             SkWStream& out) {
+                             SkWStream& out, bool isOpaque) {
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     SkASSERT(png != nullptr);
     png_infop info_ptr = png_create_info_struct(png);
@@ -633,25 +634,29 @@ void SkDrawCommand::WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_3
     if (setjmp(png_jmpbuf(png))) {
         SkFAIL("png encode error");
     }
-    png_set_IHDR(png, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+    png_set_write_fn(png, &out, write_png_callback, NULL);
+    int colorType = isOpaque ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGBA;
+    png_set_IHDR(png, info_ptr, width, height, 8, colorType, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_set_compression_level(png, 1);
     png_bytepp rows = (png_bytepp) sk_malloc_throw(height * sizeof(png_byte*));
-    png_bytep pixels = (png_bytep) sk_malloc_throw(width * height * 3);
+    png_bytep pixels = (png_bytep) sk_malloc_throw(width * height * 4);
     for (png_size_t y = 0; y < height; ++y) {
         const png_bytep src = rgba + y * width * 4;
-        rows[y] = pixels + y * width * 3;
-        // convert from RGBA to RGB
+        rows[y] = pixels + y * width * 4;
         for (png_size_t x = 0; x < width; ++x) {
-            rows[y][x * 3] = src[x * 4];
-            rows[y][x * 3 + 1] = src[x * 4 + 1];
-            rows[y][x * 3 + 2] = src[x * 4 + 2];
+            rows[y][x * 4] = src[x * 4];
+            rows[y][x * 4 + 1] = src[x * 4 + 1];
+            rows[y][x * 4 + 2] = src[x * 4 + 2];
+            rows[y][x * 4 + 3] = src[x * 4 + 3];
         }
     }
+    png_write_info(png, info_ptr);
+    if (isOpaque) {
+        png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+    }
     png_set_filter(png, 0, PNG_NO_FILTERS);
-    png_set_rows(png, info_ptr, &rows[0]);
-    png_set_write_fn(png, &out, write_png_callback, NULL);
-    png_write_png(png, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    png_write_image(png, &rows[0]);
     png_destroy_write_struct(&png, NULL);
     sk_free(rows);
     sk_free(pixels);
@@ -667,8 +672,14 @@ bool SkDrawCommand::flatten(const SkImage& image, Json::Value* target,
         SkDebugf("readPixels failed\n");
         return false;
     }
+
+    SkBitmap bm;
+    bm.installPixels(dstInfo, buffer.get(), rowBytes);
+    sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(bm);
+
     SkDynamicMemoryWStream out;
-    SkDrawCommand::WritePNG((png_bytep) buffer.get(), image.width(), image.height(), out);
+    SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->bytes(), image.width(), image.height(),
+                            out, false);
     SkData* encoded = out.copyToData();
     Json::Value jsonData;
     encode_data(encoded->data(), encoded->size(), "image/png", urlDataManager, &jsonData);

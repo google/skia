@@ -36,6 +36,7 @@
       ],
       'dependencies': [
         'libpng.gyp:libpng',
+        'tools.gyp:picture_utils',
       ]
     }],
   ],

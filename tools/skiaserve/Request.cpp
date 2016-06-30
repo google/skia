@@ -61,11 +61,10 @@ SkData* Request::writeCanvasToPng(SkCanvas* canvas) {
     sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(*bmp);
     SkASSERT(encodedBitmap.get());
 
-    // write to png
+    // write to an opaque png (black background)
     SkDynamicMemoryWStream buffer;
-    SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->writable_data(),
-                            bmp->width(), bmp->height(),
-                            buffer);
+    SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->bytes(), bmp->width(), bmp->height(),
+                            buffer, true);
     return buffer.copyToData();
 }
 
