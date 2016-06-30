@@ -91,7 +91,7 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_TEXTURECOORDS     "textureCoords"
 #define SKDEBUGCANVAS_ATTRIBUTE_FILTERQUALITY     "filterQuality"
 
-#define SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC         "short-desc"
+#define SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC         "shortDesc"
 
 #define SKDEBUGCANVAS_VERB_MOVE                   "move"
 #define SKDEBUGCANVAS_VERB_LINE                   "line"
