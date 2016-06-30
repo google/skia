@@ -47,12 +47,42 @@ public:
      *  Optional metadata to be passed into the PDF factory function.
      */
     struct PDFMetadata {
+        /**
+         * The document’s title.
+         */
         SkString fTitle;
+        /**
+         * The name of the person who created the document.
+         */
         SkString fAuthor;
+        /**
+         * The subject of the document.
+         */
         SkString fSubject;
+        /**
+         * Keywords associated with the document.  Commas may be used
+         * to delineate keywords within the string.
+         */
         SkString fKeywords;
+        /**
+         * If the document was converted to PDF from another format,
+         * the name of the conforming product that created the
+         * original document from which it was converted.
+         */
         SkString fCreator;
+        /**
+         * The product that is converting this document to PDF.
+         *
+         * Leave fProducer empty to get the default, correct value.
+         */
+        SkString fProducer;
+        /**
+         * The date and time the document was created.
+         */
         OptionalTimestamp fCreation;
+        /**
+         * The date and time the document was most recently modified.
+         */
         OptionalTimestamp fModified;
     };
 

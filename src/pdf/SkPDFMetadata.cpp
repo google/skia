@@ -11,6 +11,11 @@
 #include "SkPDFTypes.h"
 #include <utility>
 
+#define SKPDF_STRING(X) SKPDF_STRING_IMPL(X)
+#define SKPDF_STRING_IMPL(X) #X
+#define SKPDF_PRODUCER "Skia/PDF m" SKPDF_STRING(SK_MILESTONE)
+#define SKPDF_CUSTOM_PRODUCER_KEY "ProductionLibrary"
+
 static SkString pdf_date(const SkTime::DateTime& dt) {
     int timeZoneMinutes = SkToInt(dt.fTimeZoneMinutes);
     char timezoneSign = timeZoneMinutes >= 0 ? '+' : '-';
@@ -24,9 +29,6 @@ static SkString pdf_date(const SkTime::DateTime& dt) {
             static_cast<unsigned>(dt.fSecond), timezoneSign, timeZoneHours,
             timeZoneMinutes);
 }
-
-#define SKPDF_STRING(X) SKPDF_STRING_IMPL(X)
-#define SKPDF_STRING_IMPL(X) #X
 
 namespace {
 static const struct {
@@ -63,7 +65,12 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
             dict->insertString(keyValuePtr.key, value);
         }
     }
-    dict->insertString("Producer", "Skia/PDF m" SKPDF_STRING(SK_MILESTONE));
+    if (metadata.fProducer.isEmpty()) {
+        dict->insertString("Producer", SKPDF_PRODUCER);
+    } else {
+        dict->insertString("Producer", metadata.fProducer);
+        dict->insertString(SKPDF_CUSTOM_PRODUCER_KEY, SKPDF_PRODUCER);
+    }
     if (metadata.fCreation.fEnabled) {
         dict->insertString("CreationDate",
                            pdf_date(metadata.fCreation.fDateTime));
@@ -264,7 +271,7 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakeXMPObject(
             "%s"  // keywords
             "<xmpMM:DocumentID>uuid:%s</xmpMM:DocumentID>\n"
             "<xmpMM:InstanceID>uuid:%s</xmpMM:InstanceID>\n"
-            "<pdf:Producer>Skia/PDF m" SKPDF_STRING(SK_MILESTONE) "</pdf:Producer>\n"
+            "%s"  // pdf:Producer
             "%s"  // pdf:Keywords
             "</rdf:Description>\n"
             "</rdf:RDF>\n"
@@ -305,8 +312,18 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakeXMPObject(
                        "</rdf:li></rdf:Bag></dc:subject>\n");
     SkString keywords2 = escape_xml(metadata.fKeywords, "<pdf:Keywords>",
                                     "</pdf:Keywords>\n");
-
     // TODO: in theory, keywords can be a list too.
+
+    SkString producer("<pdf:Producer>SKPDF_PRODUCER</pdf:Producer>\n");
+    if (!metadata.fProducer.isEmpty()) {
+        // TODO: register a developer prefix to make
+        // <skia:SKPDF_CUSTOM_PRODUCER_KEY> a real XML tag.
+        producer = escape_xml(
+                metadata.fProducer, "<pdf:Producer>",
+                "</pdf:Producer>\n<!-- <skia:" SKPDF_CUSTOM_PRODUCER_KEY ">"
+                SKPDF_PRODUCER "</skia:" SKPDF_CUSTOM_PRODUCER_KEY "> -->\n");
+    }
+
     SkString creator = escape_xml(metadata.fCreator, "<xmp:CreatorTool>",
                                   "</xmp:CreatorTool>\n");
     SkString documentID = uuid_to_string(doc);  // no need to escape
@@ -317,8 +334,10 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakeXMPObject(
             templateString, modificationDate.c_str(), creationDate.c_str(),
             creator.c_str(), title.c_str(), subject.c_str(), author.c_str(),
             keywords1.c_str(), documentID.c_str(), instanceID.c_str(),
-            keywords2.c_str()));
+            producer.c_str(), keywords2.c_str()));
 }
 
+#undef SKPDF_CUSTOM_PRODUCER_KEY
+#undef SKPDF_PRODUCER
 #undef SKPDF_STRING
 #undef SKPDF_STRING_IMPL
