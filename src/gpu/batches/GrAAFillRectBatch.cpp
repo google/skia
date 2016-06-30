@@ -526,27 +526,6 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-inline static void append_to_batch(AAFillRectNoLocalMatrixBatch* batch, GrColor color,
-                                   const SkMatrix& viewMatrix, const SkRect& rect,
-                                   const SkRect& devRect) {
-    AAFillRectNoLocalMatrixBatch::Geometry& geo = batch->geoData()->push_back();
-    geo.fColor = color;
-    geo.fViewMatrix = viewMatrix;
-    geo.fRect = rect;
-    geo.fDevRect = devRect;
-}
-
-inline static void append_to_batch(AAFillRectLocalMatrixBatch* batch, GrColor color,
-                                   const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
-                                   const SkRect& rect, const SkRect& devRect) {
-    AAFillRectLocalMatrixBatch::Geometry& geo = batch->geoData()->push_back();
-    geo.fColor = color;
-    geo.fViewMatrix = viewMatrix;
-    geo.fLocalMatrix = localMatrix;
-    geo.fRect = rect;
-    geo.fDevRect = devRect;
-}
-
 namespace GrAAFillRectBatch {
 
 GrDrawBatch* Create(GrColor color,
@@ -554,7 +533,11 @@ GrDrawBatch* Create(GrColor color,
                     const SkRect& rect,
                     const SkRect& devRect) {
     AAFillRectNoLocalMatrixBatch* batch = AAFillRectNoLocalMatrixBatch::Create();
-    append_to_batch(batch, color, viewMatrix, rect, devRect);
+    AAFillRectNoLocalMatrixBatch::Geometry& geo = batch->geoData()->push_back();
+    geo.fColor = color;
+    geo.fViewMatrix = viewMatrix;
+    geo.fRect = rect;
+    geo.fDevRect = devRect;
     batch->init();
     return batch;
 }
@@ -565,7 +548,12 @@ GrDrawBatch* Create(GrColor color,
                     const SkRect& rect,
                     const SkRect& devRect) {
     AAFillRectLocalMatrixBatch* batch = AAFillRectLocalMatrixBatch::Create();
-    append_to_batch(batch, color, viewMatrix, localMatrix, rect, devRect);
+    AAFillRectLocalMatrixBatch::Geometry& geo = batch->geoData()->push_back();
+    geo.fColor = color;
+    geo.fViewMatrix = viewMatrix;
+    geo.fLocalMatrix = localMatrix;
+    geo.fRect = rect;
+    geo.fDevRect = devRect;
     batch->init();
     return batch;
 }
@@ -590,27 +578,6 @@ GrDrawBatch* CreateWithLocalRect(GrColor color,
         return nullptr;
     }
     return Create(color, viewMatrix, localMatrix, rect, devRect);
-}
-
-void Append(GrBatch* origBatch,
-            GrColor color,
-            const SkMatrix& viewMatrix,
-            const SkRect& rect,
-            const SkRect& devRect) {
-    AAFillRectNoLocalMatrixBatch* batch = origBatch->cast<AAFillRectNoLocalMatrixBatch>();
-    append_to_batch(batch, color, viewMatrix, rect, devRect);
-    batch->updateBoundsAfterAppend();
-}
-
-void Append(GrBatch* origBatch,
-            GrColor color,
-            const SkMatrix& viewMatrix,
-            const SkMatrix& localMatrix,
-            const SkRect& rect,
-            const SkRect& devRect) {
-    AAFillRectLocalMatrixBatch* batch = origBatch->cast<AAFillRectLocalMatrixBatch>();
-    append_to_batch(batch, color, viewMatrix, localMatrix, rect, devRect);
-    batch->updateBoundsAfterAppend();
 }
 
 };

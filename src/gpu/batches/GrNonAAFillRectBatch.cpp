@@ -424,9 +424,14 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-inline static void append_to_batch(NonAAFillRectBatch* batch, GrColor color,
-                                   const SkMatrix& viewMatrix, const SkRect& rect,
-                                   const SkRect* localRect, const SkMatrix* localMatrix) {
+namespace GrNonAAFillRectBatch {
+
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkRect& rect,
+                    const SkRect* localRect,
+                    const SkMatrix* localMatrix) {
+    NonAAFillRectBatch* batch = NonAAFillRectBatch::Create();
     SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective()));
     NonAAFillRectBatch::Geometry& geo = batch->geoData()->push_back();
 
@@ -443,11 +448,16 @@ inline static void append_to_batch(NonAAFillRectBatch* batch, GrColor color,
     } else {
         geo.fLocalQuad.set(rect);
     }
+    batch->init();
+    return batch;
 }
 
-inline static void append_to_batch(NonAAFillRectPerspectiveBatch* batch, GrColor color,
-                                   const SkMatrix& viewMatrix, const SkRect& rect,
-                                   const SkRect* localRect, const SkMatrix* localMatrix) {
+GrDrawBatch* CreateWithPerspective(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRect& rect,
+                                   const SkRect* localRect,
+                                   const SkMatrix* localMatrix) {
+    NonAAFillRectPerspectiveBatch* batch = NonAAFillRectPerspectiveBatch::Create();
     SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
     NonAAFillRectPerspectiveBatch::Geometry& geo = batch->geoData()->push_back();
 
@@ -462,66 +472,8 @@ inline static void append_to_batch(NonAAFillRectPerspectiveBatch* batch, GrColor
     if (localRect) {
         geo.fLocalRect = *localRect;
     }
-
-}
-
-namespace GrNonAAFillRectBatch {
-
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect* localRect,
-                    const SkMatrix* localMatrix) {
-    NonAAFillRectBatch* batch = NonAAFillRectBatch::Create();
-    append_to_batch(batch, color, viewMatrix, rect, localRect, localMatrix);
     batch->init();
     return batch;
-}
-
-GrDrawBatch* CreateWithPerspective(GrColor color,
-                                   const SkMatrix& viewMatrix,
-                                   const SkRect& rect,
-                                   const SkRect* localRect,
-                                   const SkMatrix* localMatrix) {
-    NonAAFillRectPerspectiveBatch* batch = NonAAFillRectPerspectiveBatch::Create();
-    append_to_batch(batch, color, viewMatrix, rect, localRect, localMatrix);
-    batch->init();
-    return batch;
-}
-
-bool Append(GrBatch* origBatch,
-            GrColor color,
-            const SkMatrix& viewMatrix,
-            const SkRect& rect,
-            const SkRect* localRect,
-            const SkMatrix* localMatrix) {
-    bool usePerspective = viewMatrix.hasPerspective() ||
-                          (localMatrix && localMatrix->hasPerspective());
-
-    if (usePerspective && origBatch->classID() != NonAAFillRectPerspectiveBatch::ClassID()) {
-        return false;
-    }
-
-    if (!usePerspective) {
-        NonAAFillRectBatch* batch = origBatch->cast<NonAAFillRectBatch>();
-        append_to_batch(batch, color, viewMatrix, rect, localRect, localMatrix);
-        batch->updateBoundsAfterAppend();
-    } else {
-        NonAAFillRectPerspectiveBatch* batch = origBatch->cast<NonAAFillRectPerspectiveBatch>();
-        const NonAAFillRectPerspectiveBatch::Geometry& geo = batch->geoData()->back();
-
-        if (!geo.fViewMatrix.cheapEqualTo(viewMatrix) ||
-            geo.fHasLocalRect != SkToBool(localRect) ||
-            geo.fHasLocalMatrix != SkToBool(localMatrix) ||
-            (geo.fHasLocalMatrix && !geo.fLocalMatrix.cheapEqualTo(*localMatrix))) {
-            return false;
-        }
-
-        append_to_batch(batch, color, viewMatrix, rect, localRect, localMatrix);
-        batch->updateBoundsAfterAppend();
-    }
-
-    return true;
 }
 
 };
