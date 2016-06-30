@@ -23,7 +23,7 @@ static inline VkSamplerAddressMode tile_to_vk_sampler_address(SkShader::TileMode
     return gWrapModes[tm];
 }
 
-GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& params, 
+GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& params,
                                  uint32_t mipLevels) {
 
     static VkFilter vkMinFilterModes[] = {
