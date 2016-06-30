@@ -558,12 +558,10 @@ void GrDrawContext::drawVertices(const GrClip& clip,
         bounds.outset(0.5f, 0.5f);
     }
 
-    GrDrawVerticesBatch::Geometry geometry;
-    geometry.fColor = paint.getColor();
-    SkAutoTUnref<GrDrawBatch> batch(GrDrawVerticesBatch::Create(geometry, primitiveType, viewMatrix,
-                                                                positions, vertexCount, indices,
-                                                                indexCount, colors, texCoords,
-                                                                bounds));
+    SkAutoTUnref<GrDrawBatch> batch(new GrDrawVerticesBatch(paint.getColor(),
+                                                            primitiveType, viewMatrix, positions,
+                                                            vertexCount, indices, indexCount,
+                                                            colors, texCoords, bounds));
 
     GrPipelineBuilder pipelineBuilder(paint, this->mustUseHWAA(paint));
     this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
