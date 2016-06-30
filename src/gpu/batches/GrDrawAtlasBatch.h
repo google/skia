@@ -16,16 +16,8 @@ class GrDrawAtlasBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    struct Geometry {
-        GrColor                 fColor;
-        SkTArray<uint8_t, true> fVerts;
-    };
-
-    static GrDrawBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
-                               int spriteCount, const SkRSXform* xforms, const SkRect* rects,
-                               const SkColor* colors) {
-        return new GrDrawAtlasBatch(geometry, viewMatrix, spriteCount, xforms, rects, colors);
-    }
+    GrDrawAtlasBatch(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
+                     const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
 
     const char* name() const override { return "DrawAtlasBatch"; }
 
@@ -41,15 +33,10 @@ public:
         coverage->setKnownSingleComponent(0xff);
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
 private:
     void onPrepareDraws(Target*) const override;
 
     void initBatchTracker(const GrXPOverridesForBatch&) override;
-
-    GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix, int spriteCount,
-                     const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
 
     GrColor color() const { return fColor; }
     bool colorIgnored() const { return fColorIgnored; }
@@ -59,6 +46,12 @@ private:
     bool coverageIgnored() const { return fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
+
+    struct Geometry {
+        GrColor                 fColor;
+        SkTArray<uint8_t, true> fVerts;
+    };
+
     SkSTArray<1, Geometry, true> fGeoData;
 
     SkMatrix fViewMatrix;

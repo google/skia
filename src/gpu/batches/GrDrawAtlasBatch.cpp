@@ -82,15 +82,16 @@ void GrDrawAtlasBatch::onPrepareDraws(Target* target) const {
     helper.recordDraw(target, gp.get());
 }
 
-GrDrawAtlasBatch::GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix,
-                                   int spriteCount, const SkRSXform* xforms, const SkRect* rects,
+GrDrawAtlasBatch::GrDrawAtlasBatch(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
+                                   const SkRSXform* xforms, const SkRect* rects,
                                    const SkColor* colors)
-    : INHERITED(ClassID()) {
+        : INHERITED(ClassID()) {
     SkASSERT(xforms);
     SkASSERT(rects);
 
     fViewMatrix = viewMatrix;
-    Geometry& installedGeo = fGeoData.push_back(geometry);
+    Geometry& installedGeo = fGeoData.push_back();
+    installedGeo.fColor = color;
 
     // Figure out stride and offsets
     // Order within the vertex is: position [color] texCoord
@@ -188,7 +189,7 @@ bool GrDrawAtlasBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     if (this->color() != that->color()) {
         fColor = GrColor_ILLEGAL;
     }
-    fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+    fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
     fQuadCount += that->quadCount();
 
     this->joinBounds(that->bounds());
@@ -256,10 +257,9 @@ DRAW_BATCH_TEST_DEFINE(GrDrawAtlasBatch) {
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
 
-    GrDrawAtlasBatch::Geometry geometry;
-    geometry.fColor = GrRandomColor(random);
-    return GrDrawAtlasBatch::Create(geometry, viewMatrix, spriteCount, xforms.begin(),
-                                    texRects.begin(), hasColors ? colors.begin() : nullptr);
+    GrColor color = GrRandomColor(random);
+    return new GrDrawAtlasBatch(color, viewMatrix, spriteCount, xforms.begin(), texRects.begin(),
+                                hasColors ? colors.begin() : nullptr);
 }
 
 #endif

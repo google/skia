@@ -585,10 +585,8 @@ void GrDrawContext::drawAtlas(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    GrDrawAtlasBatch::Geometry geometry;
-    geometry.fColor = paint.getColor();
-    SkAutoTUnref<GrDrawBatch> batch(GrDrawAtlasBatch::Create(geometry, viewMatrix, spriteCount,
-                                                             xform, texRect, colors));
+    SkAutoTUnref<GrDrawBatch> batch(new GrDrawAtlasBatch(paint.getColor(), viewMatrix, spriteCount,
+                                                         xform, texRect, colors));
 
     GrPipelineBuilder pipelineBuilder(paint, this->mustUseHWAA(paint));
     this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);

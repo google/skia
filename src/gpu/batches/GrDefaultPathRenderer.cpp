@@ -97,16 +97,22 @@ class DefaultPathBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    struct Geometry {
-        GrColor fColor;
-        SkPath fPath;
-        SkScalar fTolerance;
-    };
+    DefaultPathBatch(GrColor color, const SkPath& path, SkScalar tolerance,
+                     uint8_t coverage, const SkMatrix& viewMatrix, bool isHairline,
+                     const SkRect& devBounds)
+            : INHERITED(ClassID()) {
+        fBatch.fCoverage = coverage;
+        fBatch.fIsHairline = isHairline;
+        fBatch.fViewMatrix = viewMatrix;
+        fGeoData.emplace_back(Geometry{color, path, tolerance});
 
-    static GrDrawBatch* Create(const Geometry& geometry, uint8_t coverage,
-                               const SkMatrix& viewMatrix, bool isHairline,
-                               const SkRect& devBounds) {
-        return new DefaultPathBatch(geometry, coverage, viewMatrix, isHairline, devBounds);
+        this->setBounds(devBounds);
+
+        // This is b.c. hairlines are notionally infinitely thin so without expansion
+        // two overlapping lines could be reordered even though they hit the same pixels.
+        if (isHairline) {
+            fBounds.outset(0.5f, 0.5f);
+        }
     }
 
     const char* name() const override { return "DefaultPathBatch"; }
@@ -256,25 +262,6 @@ private:
         target->putBackVertices((size_t)(maxVertices - vertexOffset), (size_t)vertexStride);
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    DefaultPathBatch(const Geometry& geometry, uint8_t coverage, const SkMatrix& viewMatrix,
-                     bool isHairline, const SkRect& devBounds)
-        : INHERITED(ClassID()) {
-        fBatch.fCoverage = coverage;
-        fBatch.fIsHairline = isHairline;
-        fBatch.fViewMatrix = viewMatrix;
-        fGeoData.push_back(geometry);
-
-        this->setBounds(devBounds);
-
-        // This is b.c. hairlines are notionally infinitely thin so without expansion
-        // two overlapping lines could be reordered even though they hit the same pixels.
-        if (isHairline) {
-            fBounds.outset(0.5f, 0.5f);
-        }
-    }
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         DefaultPathBatch* that = t->cast<DefaultPathBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -298,7 +285,7 @@ private:
             return false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(that->bounds());
         return true;
     }
@@ -415,6 +402,12 @@ private:
         bool fColorIgnored;
         bool fCoverageIgnored;
         bool fIsHairline;
+    };
+
+    struct Geometry {
+        GrColor fColor;
+        SkPath fPath;
+        SkScalar fTolerance;
     };
 
     BatchTracker fBatch;
@@ -577,14 +570,9 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 
             drawContext->drawBatch(pipelineBuilder, clip, batch);
         } else {
-            DefaultPathBatch::Geometry geometry;
-            geometry.fColor = color;
-            geometry.fPath = path;
-            geometry.fTolerance = srcSpaceTol;
-
-            SkAutoTUnref<GrDrawBatch> batch(DefaultPathBatch::Create(geometry, newCoverage,
-                                                                     viewMatrix, isHairline,
-                                                                     devBounds));
+            SkAutoTUnref<GrDrawBatch> batch(new DefaultPathBatch(color, path, srcSpaceTol,
+                                                                 newCoverage, viewMatrix,
+                                                                 isHairline, devBounds));
 
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
@@ -654,14 +642,9 @@ DRAW_BATCH_TEST_DEFINE(DefaultPathBatch) {
     SkScalar tol = GrPathUtils::kDefaultTolerance;
     SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, bounds);
 
-    DefaultPathBatch::Geometry geometry;
-    geometry.fColor = color;
-    geometry.fPath = path;
-    geometry.fTolerance = srcSpaceTol;
-
     viewMatrix.mapRect(&bounds);
     uint8_t coverage = GrRandomCoverage(random);
-    return DefaultPathBatch::Create(geometry, coverage, viewMatrix, true, bounds);
+    return new DefaultPathBatch(color, path, srcSpaceTol, coverage, viewMatrix, true, bounds);
 }
 
 #endif
