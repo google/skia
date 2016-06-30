@@ -953,3 +953,29 @@ DEF_TEST(Matrix_Concat, r) {
 
     REPORTER_ASSERT(r, expected == SkMatrix::Concat(a, b));
 }
+
+// Test that all variants of maprect are correct.
+DEF_TEST(Matrix_maprects, r) {
+    const SkScalar scale = 1000;
+    
+    SkMatrix mat;
+    mat.setScale(2, 3);
+    mat.postTranslate(1, 4);
+
+    SkRandom rand;
+    for (int i = 0; i < 10000; ++i) {
+        SkRect src = SkRect::MakeLTRB(rand.nextSScalar1() * scale,
+                                      rand.nextSScalar1() * scale,
+                                      rand.nextSScalar1() * scale,
+                                      rand.nextSScalar1() * scale);
+        SkRect dst[3];
+        
+        mat.mapPoints((SkPoint*)&dst[0].fLeft, (SkPoint*)&src.fLeft, 2);
+        dst[0].sort();
+        mat.mapRect(&dst[1], src);
+        mat.mapRectScaleTranslate(&dst[2], src);
+
+        REPORTER_ASSERT(r, dst[0] == dst[1]);
+        REPORTER_ASSERT(r, dst[0] == dst[2]);
+    }
+}
