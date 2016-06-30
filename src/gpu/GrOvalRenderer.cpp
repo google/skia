@@ -524,58 +524,49 @@ sk_sp<GrGeometryProcessor> DIEllipseGeometryProcessor::TestCreate(GrProcessorTes
 
 ///////////////////////////////////////////////////////////////////////////////
 
+GrDrawBatch* GrOvalRenderer::CreateOvalBatch(GrColor color,
+                                             const SkMatrix& viewMatrix,
+                                             const SkRect& oval,
+                                             const SkStrokeRec& stroke,
+                                             GrShaderCaps* shaderCaps) {
+    // we can draw circles
+    if (SkScalarNearlyEqual(oval.width(), oval.height()) && circle_stays_circle(viewMatrix)) {
+        return CreateCircleBatch(color, viewMatrix, oval, stroke);
+    }
+
+    // if we have shader derivative support, render as device-independent
+    if (shaderCaps->shaderDerivativeSupport()) {
+        return CreateDIEllipseBatch(color, viewMatrix, oval, stroke);
+    }
+
+    // otherwise axis-aligned ellipses only
+    if (viewMatrix.rectStaysRect()) {
+        return CreateEllipseBatch(color, viewMatrix, oval, stroke);
+    }
+
+    return nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 class CircleBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    CircleBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& circle,
-                const SkStrokeRec& stroke)
-            : INHERITED(ClassID())
-            , fViewMatrixIfUsingLocalCoords(viewMatrix) {
-        SkPoint center = SkPoint::Make(circle.centerX(), circle.centerY());
-        viewMatrix.mapPoints(&center, 1);
-        SkScalar radius = viewMatrix.mapRadius(SkScalarHalf(circle.width()));
-        SkScalar strokeWidth = viewMatrix.mapRadius(stroke.getWidth());
+    struct Geometry {
+        SkRect fDevBounds;
+        SkScalar fInnerRadius;
+        SkScalar fOuterRadius;
+        GrColor fColor;
+    };
 
-        SkStrokeRec::Style style = stroke.getStyle();
-        bool isStrokeOnly = SkStrokeRec::kStroke_Style == style ||
-                            SkStrokeRec::kHairline_Style == style;
-        bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == style;
-
-        SkScalar innerRadius = 0.0f;
-        SkScalar outerRadius = radius;
-        SkScalar halfWidth = 0;
-        if (hasStroke) {
-            if (SkScalarNearlyZero(strokeWidth)) {
-                halfWidth = SK_ScalarHalf;
-            } else {
-                halfWidth = SkScalarHalf(strokeWidth);
-            }
-
-            outerRadius += halfWidth;
-            if (isStrokeOnly) {
-                innerRadius = radius - halfWidth;
-            }
-        }
-
-        // The radii are outset for two reasons. First, it allows the shader to simply perform
-        // simpler computation because the computed alpha is zero, rather than 50%, at the radius.
-        // Second, the outer radius is used to compute the verts of the bounding box that is
-        // rendered and the outset ensures the box will cover all partially covered by the circle.
-        outerRadius += SK_ScalarHalf;
-        innerRadius -= SK_ScalarHalf;
-
-        fGeoData.emplace_back(Geometry {
-            color,
-            innerRadius,
-            outerRadius,
-            SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
-                             center.fX + outerRadius, center.fY + outerRadius)
-        });
-        this->setBounds(fGeoData.back().fDevBounds);
-        fStroked = isStrokeOnly && innerRadius > 0;
+    CircleBatch(const Geometry& geometry, const SkMatrix& viewMatrix, bool stroked)
+        : INHERITED(ClassID())
+        , fStroked(stroked)
+        , fViewMatrixIfUsingLocalCoords(viewMatrix) {
+        fGeoData.push_back(geometry);
+        this->setBounds(geometry.fDevBounds);
     }
-
     const char* name() const override { return "CircleBatch"; }
 
     SkString dumpInfo() const override {
@@ -689,13 +680,6 @@ private:
         return true;
     }
 
-    struct Geometry {
-        GrColor fColor;
-        SkScalar fInnerRadius;
-        SkScalar fOuterRadius;
-        SkRect fDevBounds;
-    };
-
     bool                         fStroked;
     SkMatrix                     fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
@@ -703,89 +687,81 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
+static GrDrawBatch* create_circle_batch(GrColor color,
+                                        const SkMatrix& viewMatrix,
+                                        const SkRect& circle,
+                                        const SkStrokeRec& stroke) {
+    SkPoint center = SkPoint::Make(circle.centerX(), circle.centerY());
+    viewMatrix.mapPoints(&center, 1);
+    SkScalar radius = viewMatrix.mapRadius(SkScalarHalf(circle.width()));
+    SkScalar strokeWidth = viewMatrix.mapRadius(stroke.getWidth());
+
+    SkStrokeRec::Style style = stroke.getStyle();
+    bool isStrokeOnly = SkStrokeRec::kStroke_Style == style ||
+                        SkStrokeRec::kHairline_Style == style;
+    bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == style;
+
+    SkScalar innerRadius = 0.0f;
+    SkScalar outerRadius = radius;
+    SkScalar halfWidth = 0;
+    if (hasStroke) {
+        if (SkScalarNearlyZero(strokeWidth)) {
+            halfWidth = SK_ScalarHalf;
+        } else {
+            halfWidth = SkScalarHalf(strokeWidth);
+        }
+
+        outerRadius += halfWidth;
+        if (isStrokeOnly) {
+            innerRadius = radius - halfWidth;
+        }
+    }
+
+    // The radii are outset for two reasons. First, it allows the shader to simply perform simpler
+    // computation because the computed alpha is zero, rather than 50%, at the radius.
+    // Second, the outer radius is used to compute the verts of the bounding box that is rendered
+    // and the outset ensures the box will cover all partially covered by the circle.
+    outerRadius += SK_ScalarHalf;
+    innerRadius -= SK_ScalarHalf;
+
+    CircleBatch::Geometry geometry;
+    geometry.fColor = color;
+    geometry.fInnerRadius = innerRadius;
+    geometry.fOuterRadius = outerRadius;
+    geometry.fDevBounds = SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
+                                           center.fX + outerRadius, center.fY + outerRadius);
+
+    return new CircleBatch(geometry, viewMatrix, isStrokeOnly && innerRadius > 0);
+}
+
+GrDrawBatch* GrOvalRenderer::CreateCircleBatch(GrColor color,
+                                               const SkMatrix& viewMatrix,
+                                               const SkRect& circle,
+                                               const SkStrokeRec& stroke) {
+    return create_circle_batch(color, viewMatrix, circle, stroke);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class EllipseBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
-    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& ellipse,
-                               const SkStrokeRec& stroke) {
-        SkASSERT(viewMatrix.rectStaysRect());
 
-        // do any matrix crunching before we reset the draw state for device coords
-        SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
-        viewMatrix.mapPoints(&center, 1);
-        SkScalar ellipseXRadius = SkScalarHalf(ellipse.width());
-        SkScalar ellipseYRadius = SkScalarHalf(ellipse.height());
-        SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX]*ellipseXRadius +
-                                       viewMatrix[SkMatrix::kMSkewY]*ellipseYRadius);
-        SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewX]*ellipseXRadius +
-                                       viewMatrix[SkMatrix::kMScaleY]*ellipseYRadius);
+    struct Geometry {
+        SkRect fDevBounds;
+        SkScalar fXRadius;
+        SkScalar fYRadius;
+        SkScalar fInnerXRadius;
+        SkScalar fInnerYRadius;
+        GrColor fColor;
+    };
 
-        // do (potentially) anisotropic mapping of stroke
-        SkVector scaledStroke;
-        SkScalar strokeWidth = stroke.getWidth();
-        scaledStroke.fX = SkScalarAbs(strokeWidth*(viewMatrix[SkMatrix::kMScaleX] +
-                                                   viewMatrix[SkMatrix::kMSkewY]));
-        scaledStroke.fY = SkScalarAbs(strokeWidth*(viewMatrix[SkMatrix::kMSkewX] +
-                                                   viewMatrix[SkMatrix::kMScaleY]));
-
-        SkStrokeRec::Style style = stroke.getStyle();
-        bool isStrokeOnly = SkStrokeRec::kStroke_Style == style ||
-                            SkStrokeRec::kHairline_Style == style;
-        bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == style;
-
-        SkScalar innerXRadius = 0;
-        SkScalar innerYRadius = 0;
-        if (hasStroke) {
-            if (SkScalarNearlyZero(scaledStroke.length())) {
-                scaledStroke.set(SK_ScalarHalf, SK_ScalarHalf);
-            } else {
-                scaledStroke.scale(SK_ScalarHalf);
-            }
-
-            // we only handle thick strokes for near-circular ellipses
-            if (scaledStroke.length() > SK_ScalarHalf &&
-                (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
-                return nullptr;
-            }
-
-            // we don't handle it if curvature of the stroke is less than curvature of the ellipse
-            if (scaledStroke.fX*(yRadius*yRadius) < (scaledStroke.fY*scaledStroke.fY)*xRadius ||
-                scaledStroke.fY*(xRadius*xRadius) < (scaledStroke.fX*scaledStroke.fX)*yRadius) {
-                return nullptr;
-            }
-
-            // this is legit only if scale & translation (which should be the case at the moment)
-            if (isStrokeOnly) {
-                innerXRadius = xRadius - scaledStroke.fX;
-                innerYRadius = yRadius - scaledStroke.fY;
-            }
-
-            xRadius += scaledStroke.fX;
-            yRadius += scaledStroke.fY;
-        }
-
-        // We've extended the outer x radius out half a pixel to antialias.
-        // This will also expand the rect so all the pixels will be captured.
-        // TODO: Consider if we should use sqrt(2)/2 instead
-        xRadius += SK_ScalarHalf;
-        yRadius += SK_ScalarHalf;
-
-        EllipseBatch* batch = new EllipseBatch();
-        batch->fGeoData.emplace_back(Geometry {
-            color,
-            xRadius,
-            yRadius,
-            innerXRadius,
-            innerYRadius,
-            SkRect::MakeLTRB(center.fX - xRadius, center.fY - yRadius,
-                             center.fX + xRadius, center.fY + yRadius)
-        });
-        batch->fStroked = isStrokeOnly && innerXRadius > 0 && innerYRadius > 0;
-        batch->fViewMatrixIfUsingLocalCoords = viewMatrix;
-        batch->setBounds(batch->fGeoData.back().fDevBounds);
-        return batch;
+    EllipseBatch(const Geometry& geometry, const SkMatrix& viewMatrix, bool stroked)
+        : INHERITED(ClassID())
+        , fStroked(stroked)
+        , fViewMatrixIfUsingLocalCoords(viewMatrix) {
+        fGeoData.push_back(geometry);
+        this->setBounds(geometry.fDevBounds);
     }
 
     const char* name() const override { return "EllipseBatch"; }
@@ -799,8 +775,6 @@ public:
     }
 
 private:
-    EllipseBatch() : INHERITED(ClassID()) {}
-
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any overrides that affect our GP.
         if (!overrides.readsCoverage()) {
@@ -896,14 +870,6 @@ private:
         return true;
     }
 
-    struct Geometry {
-        GrColor fColor;
-        SkScalar fXRadius;
-        SkScalar fYRadius;
-        SkScalar fInnerXRadius;
-        SkScalar fInnerYRadius;
-        SkRect fDevBounds;
-    };
 
     bool                         fStroked;
     SkMatrix                     fViewMatrixIfUsingLocalCoords;
@@ -912,89 +878,113 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
+static GrDrawBatch* create_ellipse_batch(GrColor color,
+                                         const SkMatrix& viewMatrix,
+                                         const SkRect& ellipse,
+                                         const SkStrokeRec& stroke) {
+    SkASSERT(viewMatrix.rectStaysRect());
+
+    // do any matrix crunching before we reset the draw state for device coords
+    SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
+    viewMatrix.mapPoints(&center, 1);
+    SkScalar ellipseXRadius = SkScalarHalf(ellipse.width());
+    SkScalar ellipseYRadius = SkScalarHalf(ellipse.height());
+    SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX]*ellipseXRadius +
+                                   viewMatrix[SkMatrix::kMSkewY]*ellipseYRadius);
+    SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewX]*ellipseXRadius +
+                                   viewMatrix[SkMatrix::kMScaleY]*ellipseYRadius);
+
+    // do (potentially) anisotropic mapping of stroke
+    SkVector scaledStroke;
+    SkScalar strokeWidth = stroke.getWidth();
+    scaledStroke.fX = SkScalarAbs(strokeWidth*(viewMatrix[SkMatrix::kMScaleX] +
+                                               viewMatrix[SkMatrix::kMSkewY]));
+    scaledStroke.fY = SkScalarAbs(strokeWidth*(viewMatrix[SkMatrix::kMSkewX] +
+                                               viewMatrix[SkMatrix::kMScaleY]));
+
+    SkStrokeRec::Style style = stroke.getStyle();
+    bool isStrokeOnly = SkStrokeRec::kStroke_Style == style ||
+                        SkStrokeRec::kHairline_Style == style;
+    bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == style;
+
+    SkScalar innerXRadius = 0;
+    SkScalar innerYRadius = 0;
+    if (hasStroke) {
+        if (SkScalarNearlyZero(scaledStroke.length())) {
+            scaledStroke.set(SK_ScalarHalf, SK_ScalarHalf);
+        } else {
+            scaledStroke.scale(SK_ScalarHalf);
+        }
+
+        // we only handle thick strokes for near-circular ellipses
+        if (scaledStroke.length() > SK_ScalarHalf &&
+            (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
+            return nullptr;
+        }
+
+        // we don't handle it if curvature of the stroke is less than curvature of the ellipse
+        if (scaledStroke.fX*(yRadius*yRadius) < (scaledStroke.fY*scaledStroke.fY)*xRadius ||
+            scaledStroke.fY*(xRadius*xRadius) < (scaledStroke.fX*scaledStroke.fX)*yRadius) {
+            return nullptr;
+        }
+
+        // this is legit only if scale & translation (which should be the case at the moment)
+        if (isStrokeOnly) {
+            innerXRadius = xRadius - scaledStroke.fX;
+            innerYRadius = yRadius - scaledStroke.fY;
+        }
+
+        xRadius += scaledStroke.fX;
+        yRadius += scaledStroke.fY;
+    }
+
+    // We've extended the outer x radius out half a pixel to antialias.
+    // This will also expand the rect so all the pixels will be captured.
+    // TODO: Consider if we should use sqrt(2)/2 instead
+    xRadius += SK_ScalarHalf;
+    yRadius += SK_ScalarHalf;
+
+    EllipseBatch::Geometry geometry;
+    geometry.fColor = color;
+    geometry.fXRadius = xRadius;
+    geometry.fYRadius = yRadius;
+    geometry.fInnerXRadius = innerXRadius;
+    geometry.fInnerYRadius = innerYRadius;
+    geometry.fDevBounds = SkRect::MakeLTRB(center.fX - xRadius, center.fY - yRadius,
+                                           center.fX + xRadius, center.fY + yRadius);
+
+    return new EllipseBatch(geometry, viewMatrix,
+                            isStrokeOnly && innerXRadius > 0 && innerYRadius > 0);
+}
+
+GrDrawBatch* GrOvalRenderer::CreateEllipseBatch(GrColor color,
+                                                const SkMatrix& viewMatrix,
+                                                const SkRect& ellipse,
+                                                const SkStrokeRec& stroke) {
+    return create_ellipse_batch(color, viewMatrix, ellipse, stroke);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 class DIEllipseBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    static GrDrawBatch* Create(GrColor color,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& ellipse,
-                               const SkStrokeRec& stroke) {
-        SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
-        SkScalar xRadius = SkScalarHalf(ellipse.width());
-        SkScalar yRadius = SkScalarHalf(ellipse.height());
+    struct Geometry {
+        SkMatrix fViewMatrix;
+        SkRect fBounds;
+        SkScalar fXRadius;
+        SkScalar fYRadius;
+        SkScalar fInnerXRadius;
+        SkScalar fInnerYRadius;
+        SkScalar fGeoDx;
+        SkScalar fGeoDy;
+        GrColor fColor;
+        DIEllipseStyle fStyle;
+    };
 
-        SkStrokeRec::Style style = stroke.getStyle();
-        DIEllipseStyle dieStyle = (SkStrokeRec::kStroke_Style == style) ?
-                                  DIEllipseStyle::kStroke :
-                                  (SkStrokeRec::kHairline_Style == style) ?
-                                  DIEllipseStyle::kHairline : DIEllipseStyle::kFill;
-
-        SkScalar innerXRadius = 0;
-        SkScalar innerYRadius = 0;
-        if (SkStrokeRec::kFill_Style != style && SkStrokeRec::kHairline_Style != style) {
-            SkScalar strokeWidth = stroke.getWidth();
-
-            if (SkScalarNearlyZero(strokeWidth)) {
-                strokeWidth = SK_ScalarHalf;
-            } else {
-                strokeWidth *= SK_ScalarHalf;
-            }
-
-            // we only handle thick strokes for near-circular ellipses
-            if (strokeWidth > SK_ScalarHalf &&
-                (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
-                return nullptr;
-            }
-
-            // we don't handle it if curvature of the stroke is less than curvature of the ellipse
-            if (strokeWidth*(yRadius*yRadius) < (strokeWidth*strokeWidth)*xRadius ||
-                strokeWidth*(xRadius*xRadius) < (strokeWidth*strokeWidth)*yRadius) {
-                return nullptr;
-            }
-
-            // set inner radius (if needed)
-            if (SkStrokeRec::kStroke_Style == style) {
-                innerXRadius = xRadius - strokeWidth;
-                innerYRadius = yRadius - strokeWidth;
-            }
-
-            xRadius += strokeWidth;
-            yRadius += strokeWidth;
-        }
-        if (DIEllipseStyle::kStroke == dieStyle) {
-            dieStyle = (innerXRadius > 0 && innerYRadius > 0) ? DIEllipseStyle ::kStroke :
-                       DIEllipseStyle ::kFill;
-        }
-
-        // This expands the outer rect so that after CTM we end up with a half-pixel border
-        SkScalar a = viewMatrix[SkMatrix::kMScaleX];
-        SkScalar b = viewMatrix[SkMatrix::kMSkewX];
-        SkScalar c = viewMatrix[SkMatrix::kMSkewY];
-        SkScalar d = viewMatrix[SkMatrix::kMScaleY];
-        SkScalar geoDx = SK_ScalarHalf / SkScalarSqrt(a*a + c*c);
-        SkScalar geoDy = SK_ScalarHalf / SkScalarSqrt(b*b + d*d);
-
-        DIEllipseBatch* batch = new DIEllipseBatch();
-        batch->fGeoData.emplace_back(Geometry {
-            viewMatrix,
-            color,
-            xRadius,
-            yRadius,
-            innerXRadius,
-            innerYRadius,
-            geoDx,
-            geoDy,
-            dieStyle,
-            SkRect::MakeLTRB(center.fX - xRadius - geoDx, center.fY - yRadius - geoDy,
-                             center.fX + xRadius + geoDx, center.fY + yRadius + geoDy)
-        });
-        SkRect devBounds = batch->fGeoData.back().fBounds;
-        viewMatrix.mapRect(&devBounds);
-        batch->setBounds(devBounds);
-        return batch;
+    static GrDrawBatch* Create(const Geometry& geometry, const SkRect& bounds) {
+        return new DIEllipseBatch(geometry, bounds);
     }
 
     const char* name() const override { return "DIEllipseBatch"; }
@@ -1008,8 +998,6 @@ public:
     }
 
 private:
-
-    DIEllipseBatch() : INHERITED(ClassID()) {}
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any overrides that affect our GP.
@@ -1073,6 +1061,12 @@ private:
         helper.recordDraw(target, gp);
     }
 
+    DIEllipseBatch(const Geometry& geometry, const SkRect& bounds) : INHERITED(ClassID()) {
+        fGeoData.push_back(geometry);
+
+        this->setBounds(bounds);
+    }
+
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         DIEllipseBatch* that = t->cast<DIEllipseBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -1097,24 +1091,95 @@ private:
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
     DIEllipseStyle style() const { return fGeoData[0].fStyle; }
 
-    struct Geometry {
-        SkMatrix fViewMatrix;
-        GrColor fColor;
-        SkScalar fXRadius;
-        SkScalar fYRadius;
-        SkScalar fInnerXRadius;
-        SkScalar fInnerYRadius;
-        SkScalar fGeoDx;
-        SkScalar fGeoDy;
-        DIEllipseStyle fStyle;
-        SkRect fBounds;
-    };
-
     bool                         fUsesLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
     typedef GrVertexBatch INHERITED;
 };
+
+static GrDrawBatch* create_diellipse_batch(GrColor color,
+                                           const SkMatrix& viewMatrix,
+                                           const SkRect& ellipse,
+                                           const SkStrokeRec& stroke) {
+    SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
+    SkScalar xRadius = SkScalarHalf(ellipse.width());
+    SkScalar yRadius = SkScalarHalf(ellipse.height());
+
+    SkStrokeRec::Style style = stroke.getStyle();
+    DIEllipseStyle dieStyle = (SkStrokeRec::kStroke_Style == style) ?
+                                DIEllipseStyle::kStroke :
+                                (SkStrokeRec::kHairline_Style == style) ?
+                                        DIEllipseStyle::kHairline : DIEllipseStyle::kFill;
+
+    SkScalar innerXRadius = 0;
+    SkScalar innerYRadius = 0;
+    if (SkStrokeRec::kFill_Style != style && SkStrokeRec::kHairline_Style != style) {
+        SkScalar strokeWidth = stroke.getWidth();
+
+        if (SkScalarNearlyZero(strokeWidth)) {
+            strokeWidth = SK_ScalarHalf;
+        } else {
+            strokeWidth *= SK_ScalarHalf;
+        }
+
+        // we only handle thick strokes for near-circular ellipses
+        if (strokeWidth > SK_ScalarHalf &&
+            (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
+            return nullptr;
+        }
+
+        // we don't handle it if curvature of the stroke is less than curvature of the ellipse
+        if (strokeWidth*(yRadius*yRadius) < (strokeWidth*strokeWidth)*xRadius ||
+            strokeWidth*(xRadius*xRadius) < (strokeWidth*strokeWidth)*yRadius) {
+            return nullptr;
+        }
+
+        // set inner radius (if needed)
+        if (SkStrokeRec::kStroke_Style == style) {
+            innerXRadius = xRadius - strokeWidth;
+            innerYRadius = yRadius - strokeWidth;
+        }
+
+        xRadius += strokeWidth;
+        yRadius += strokeWidth;
+    }
+    if (DIEllipseStyle::kStroke == dieStyle) {
+        dieStyle = (innerXRadius > 0 && innerYRadius > 0) ? DIEllipseStyle ::kStroke :
+                                                            DIEllipseStyle ::kFill;
+    }
+
+    // This expands the outer rect so that after CTM we end up with a half-pixel border
+    SkScalar a = viewMatrix[SkMatrix::kMScaleX];
+    SkScalar b = viewMatrix[SkMatrix::kMSkewX];
+    SkScalar c = viewMatrix[SkMatrix::kMSkewY];
+    SkScalar d = viewMatrix[SkMatrix::kMScaleY];
+    SkScalar geoDx = SK_ScalarHalf / SkScalarSqrt(a*a + c*c);
+    SkScalar geoDy = SK_ScalarHalf / SkScalarSqrt(b*b + d*d);
+
+    DIEllipseBatch::Geometry geometry;
+    geometry.fViewMatrix = viewMatrix;
+    geometry.fColor = color;
+    geometry.fXRadius = xRadius;
+    geometry.fYRadius = yRadius;
+    geometry.fInnerXRadius = innerXRadius;
+    geometry.fInnerYRadius = innerYRadius;
+    geometry.fGeoDx = geoDx;
+    geometry.fGeoDy = geoDy;
+    geometry.fStyle = dieStyle;
+    geometry.fBounds = SkRect::MakeLTRB(center.fX - xRadius - geoDx, center.fY - yRadius - geoDy,
+                                        center.fX + xRadius + geoDx, center.fY + yRadius + geoDy);
+
+    SkRect devBounds = geometry.fBounds;
+    viewMatrix.mapRect(&devBounds);
+    return DIEllipseBatch::Create(geometry, devBounds);
+}
+
+GrDrawBatch* GrOvalRenderer::CreateDIEllipseBatch(GrColor color,
+                                                  const SkMatrix& viewMatrix,
+                                                  const SkRect& ellipse,
+                                                  const SkStrokeRec& stroke) {
+    return create_diellipse_batch(color, viewMatrix, ellipse, stroke);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1165,46 +1230,20 @@ class RRectCircleRendererBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    // A devStrokeWidth <= 0 indicates a fill only. If devStrokeWidth > 0 then strokeOnly indicates
-    // whether the rrect is only stroked or stroked and filled.
-    RRectCircleRendererBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& devRect,
-                             float devRadius, float devStrokeWidth, bool strokeOnly)
-            : INHERITED(ClassID())
-            , fViewMatrixIfUsingLocalCoords(viewMatrix) {
-        SkRect bounds = devRect;
-        SkASSERT(!(devStrokeWidth <= 0 && strokeOnly));
-        SkScalar innerRadius = 0.0f;
-        SkScalar outerRadius = devRadius;
-        SkScalar halfWidth = 0;
-        fStroked = false;
-        if (devStrokeWidth > 0) {
-            if (SkScalarNearlyZero(devStrokeWidth)) {
-                halfWidth = SK_ScalarHalf;
-            } else {
-                halfWidth = SkScalarHalf(devStrokeWidth);
-            }
+    struct Geometry {
+        SkRect fDevBounds;
+        SkScalar fInnerRadius;
+        SkScalar fOuterRadius;
+        GrColor  fColor;
+    };
 
-            if (strokeOnly) {
-                innerRadius = devRadius - halfWidth;
-                fStroked = innerRadius >= 0;
-            }
-            outerRadius += halfWidth;
-            bounds.outset(halfWidth, halfWidth);
-        }
+    RRectCircleRendererBatch(const Geometry& geometry, const SkMatrix& viewMatrix, bool stroked)
+        : INHERITED(ClassID())
+        , fStroked(stroked)
+        , fViewMatrixIfUsingLocalCoords(viewMatrix) {
+        fGeoData.push_back(geometry);
 
-        // The radii are outset for two reasons. First, it allows the shader to simply perform
-        // simpler computation because the computed alpha is zero, rather than 50%, at the radius.
-        // Second, the outer radius is used to compute the verts of the bounding box that is
-        // rendered and the outset ensures the box will cover all partially covered by the rrect
-        // corners.
-        outerRadius += SK_ScalarHalf;
-        innerRadius -= SK_ScalarHalf;
-
-        // Expand the rect so all the pixels will be captured.
-        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
-
-        fGeoData.emplace_back(Geometry { color, innerRadius, outerRadius, bounds });
-        this->setBounds(bounds);
+        this->setBounds(geometry.fDevBounds);
     }
 
     const char* name() const override { return "RRectCircleBatch"; }
@@ -1326,13 +1365,6 @@ private:
         return true;
     }
 
-    struct Geometry {
-        GrColor  fColor;
-        SkScalar fInnerRadius;
-        SkScalar fOuterRadius;
-        SkRect fDevBounds;
-    };
-
     bool                         fStroked;
     SkMatrix                     fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
@@ -1344,64 +1376,21 @@ class RRectEllipseRendererBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    // If devStrokeWidths values are <= 0 indicates then fill only. Otherwise, strokeOnly indicates
-    // whether the rrect is only stroked or stroked and filled.
-    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& devRect,
-                               float devXRadius, float devYRadius, SkVector devStrokeWidths,
-                               bool strokeOnly) {
-        SkASSERT(devXRadius > 0.5);
-        SkASSERT(devYRadius > 0.5);
-        SkASSERT((devStrokeWidths.fX > 0) == (devStrokeWidths.fY > 0));
-        SkASSERT(!(strokeOnly && devStrokeWidths.fX <= 0));
-        SkScalar innerXRadius = 0.0f;
-        SkScalar innerYRadius = 0.0f;
-        SkRect bounds = devRect;
-        bool stroked = false;
-        if (devStrokeWidths.fX > 0) {
-            if (SkScalarNearlyZero(devStrokeWidths.length())) {
-                devStrokeWidths.set(SK_ScalarHalf, SK_ScalarHalf);
-            } else {
-                devStrokeWidths.scale(SK_ScalarHalf);
-            }
+    struct Geometry {
+        SkRect fDevBounds;
+        SkScalar fXRadius;
+        SkScalar fYRadius;
+        SkScalar fInnerXRadius;
+        SkScalar fInnerYRadius;
+        GrColor fColor;
+    };
 
-            // we only handle thick strokes for near-circular ellipses
-            if (devStrokeWidths.length() > SK_ScalarHalf &&
-                (SK_ScalarHalf*devXRadius > devYRadius || SK_ScalarHalf*devYRadius > devXRadius)) {
-                return nullptr;
-            }
-
-            // we don't handle it if curvature of the stroke is less than curvature of the ellipse
-            if (devStrokeWidths.fX*(devYRadius*devYRadius) <
-                (devStrokeWidths.fY*devStrokeWidths.fY)*devXRadius) {
-                return nullptr;
-            }
-            if (devStrokeWidths.fY*(devXRadius*devXRadius) <
-                (devStrokeWidths.fX*devStrokeWidths.fX)*devYRadius) {
-                return nullptr;
-            }
-
-            // this is legit only if scale & translation (which should be the case at the moment)
-            if (strokeOnly) {
-                innerXRadius = devXRadius - devStrokeWidths.fX;
-                innerYRadius = devYRadius - devStrokeWidths.fY;
-                stroked = (innerXRadius >= 0 && innerYRadius >= 0);
-            }
-
-            devXRadius += devStrokeWidths.fX;
-            devYRadius += devStrokeWidths.fY;
-            bounds.outset(devStrokeWidths.fX, devStrokeWidths.fY);
-        }
-
-        // Expand the rect so all the pixels will be captured.
-        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
-
-        RRectEllipseRendererBatch* batch = new RRectEllipseRendererBatch();
-        batch->fStroked = stroked;
-        batch->fViewMatrixIfUsingLocalCoords = viewMatrix;
-        batch->fGeoData.emplace_back(
-            Geometry {color, devXRadius, devYRadius, innerXRadius, innerYRadius, bounds});
-        batch->setBounds(bounds);
-        return batch;
+    RRectEllipseRendererBatch(const Geometry& geometry, const SkMatrix& viewMatrix, bool stroked)
+        : INHERITED(ClassID())
+        , fStroked(stroked)
+        , fViewMatrixIfUsingLocalCoords(viewMatrix) {
+        fGeoData.push_back(geometry);
+        this->setBounds(geometry.fDevBounds);
     }
 
     const char* name() const override { return "RRectEllipseRendererBatch"; }
@@ -1415,8 +1404,6 @@ public:
     }
 
 private:
-    RRectEllipseRendererBatch() : INHERITED(ClassID()) {}
-
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle overrides that affect our GP.
         overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
@@ -1536,15 +1523,6 @@ private:
         return true;
     }
 
-    struct Geometry {
-        GrColor fColor;
-        SkScalar fXRadius;
-        SkScalar fYRadius;
-        SkScalar fInnerXRadius;
-        SkScalar fInnerYRadius;
-        SkRect fDevBounds;
-    };
-
     bool                            fStroked;
     SkMatrix                        fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true>    fGeoData;
@@ -1574,8 +1552,8 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
 
     SkStrokeRec::Style style = stroke.getStyle();
 
-    // Do (potentially) anisotropic mapping of stroke. Use -1s to indicate fill-only draws.
-    SkVector scaledStroke = {-1, -1};
+    // do (potentially) anisotropic mapping of stroke
+    SkVector scaledStroke;
     SkScalar strokeWidth = stroke.getWidth();
 
     bool isStrokeOnly = SkStrokeRec::kStroke_Style == style ||
@@ -1609,13 +1587,91 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
 
     // if the corners are circles, use the circle renderer
     if ((!hasStroke || scaledStroke.fX == scaledStroke.fY) && xRadius == yRadius) {
-        return new RRectCircleRendererBatch(color, viewMatrix, bounds, xRadius, scaledStroke.fX,
-                                            isStrokeOnly);
+        SkScalar innerRadius = 0.0f;
+        SkScalar outerRadius = xRadius;
+        SkScalar halfWidth = 0;
+        if (hasStroke) {
+            if (SkScalarNearlyZero(scaledStroke.fX)) {
+                halfWidth = SK_ScalarHalf;
+            } else {
+                halfWidth = SkScalarHalf(scaledStroke.fX);
+            }
+
+            if (isStrokeOnly) {
+                innerRadius = xRadius - halfWidth;
+            }
+            outerRadius += halfWidth;
+            bounds.outset(halfWidth, halfWidth);
+        }
+
+        isStrokeOnly = (isStrokeOnly && innerRadius >= 0);
+
+        // The radii are outset for two reasons. First, it allows the shader to simply perform
+        // simpler computation because the computed alpha is zero, rather than 50%, at the radius.
+        // Second, the outer radius is used to compute the verts of the bounding box that is
+        // rendered and the outset ensures the box will cover all partially covered by the rrect
+        // corners.
+        outerRadius += SK_ScalarHalf;
+        innerRadius -= SK_ScalarHalf;
+
+        // Expand the rect so all the pixels will be captured.
+        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
+
+        RRectCircleRendererBatch::Geometry geometry;
+        geometry.fColor = color;
+        geometry.fInnerRadius = innerRadius;
+        geometry.fOuterRadius = outerRadius;
+        geometry.fDevBounds = bounds;
+
+        return new RRectCircleRendererBatch(geometry, viewMatrix, isStrokeOnly);
     // otherwise we use the ellipse renderer
     } else {
-        return RRectEllipseRendererBatch::Create(color, viewMatrix, bounds, xRadius, yRadius,
-                                                 scaledStroke, isStrokeOnly);
+        SkScalar innerXRadius = 0.0f;
+        SkScalar innerYRadius = 0.0f;
+        if (hasStroke) {
+            if (SkScalarNearlyZero(scaledStroke.length())) {
+                scaledStroke.set(SK_ScalarHalf, SK_ScalarHalf);
+            } else {
+                scaledStroke.scale(SK_ScalarHalf);
+            }
 
+            // we only handle thick strokes for near-circular ellipses
+            if (scaledStroke.length() > SK_ScalarHalf &&
+                (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
+                return nullptr;
+            }
+
+            // we don't handle it if curvature of the stroke is less than curvature of the ellipse
+            if (scaledStroke.fX*(yRadius*yRadius) < (scaledStroke.fY*scaledStroke.fY)*xRadius ||
+                scaledStroke.fY*(xRadius*xRadius) < (scaledStroke.fX*scaledStroke.fX)*yRadius) {
+                return nullptr;
+            }
+
+            // this is legit only if scale & translation (which should be the case at the moment)
+            if (isStrokeOnly) {
+                innerXRadius = xRadius - scaledStroke.fX;
+                innerYRadius = yRadius - scaledStroke.fY;
+            }
+
+            xRadius += scaledStroke.fX;
+            yRadius += scaledStroke.fY;
+            bounds.outset(scaledStroke.fX, scaledStroke.fY);
+        }
+
+        isStrokeOnly = (isStrokeOnly && innerXRadius >= 0 && innerYRadius >= 0);
+
+        // Expand the rect so all the pixels will be captured.
+        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
+
+        RRectEllipseRendererBatch::Geometry geometry;
+        geometry.fColor = color;
+        geometry.fXRadius = xRadius;
+        geometry.fYRadius = yRadius;
+        geometry.fInnerXRadius = innerXRadius;
+        geometry.fInnerYRadius = innerYRadius;
+        geometry.fDevBounds = bounds;
+
+        return new RRectEllipseRendererBatch(geometry, viewMatrix, isStrokeOnly);
     }
 }
 
@@ -1635,32 +1691,7 @@ GrDrawBatch* GrOvalRenderer::CreateRRectBatch(GrColor color,
     return create_rrect_batch(color, viewMatrix, rrect, stroke);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-GrDrawBatch* GrOvalRenderer::CreateOvalBatch(GrColor color,
-                                             const SkMatrix& viewMatrix,
-                                             const SkRect& oval,
-                                             const SkStrokeRec& stroke,
-                                             GrShaderCaps* shaderCaps) {
-    // we can draw circles
-    if (SkScalarNearlyEqual(oval.width(), oval.height()) && circle_stays_circle(viewMatrix)) {
-        return new CircleBatch(color, viewMatrix, oval, stroke);
-    }
-
-    // if we have shader derivative support, render as device-independent
-    if (shaderCaps->shaderDerivativeSupport()) {
-        return DIEllipseBatch::Create(color, viewMatrix, oval, stroke);
-    }
-
-    // otherwise axis-aligned ellipses only
-    if (viewMatrix.rectStaysRect()) {
-        return EllipseBatch::Create(color, viewMatrix, oval, stroke);
-    }
-
-    return nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef GR_TEST_UTILS
 
@@ -1668,21 +1699,21 @@ DRAW_BATCH_TEST_DEFINE(CircleBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     SkRect circle = GrTest::TestSquare(random);
-    return new CircleBatch(color, viewMatrix, circle, GrTest::TestStrokeRec(random));
+    return create_circle_batch(color, viewMatrix, circle, GrTest::TestStrokeRec(random));
 }
 
 DRAW_BATCH_TEST_DEFINE(EllipseBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     SkRect ellipse = GrTest::TestSquare(random);
-    return EllipseBatch::Create(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random));
+    return create_ellipse_batch(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random));
 }
 
 DRAW_BATCH_TEST_DEFINE(DIEllipseBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     SkRect ellipse = GrTest::TestSquare(random);
-    return DIEllipseBatch::Create(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random));
+    return create_diellipse_batch(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random));
 }
 
 DRAW_BATCH_TEST_DEFINE(RRectBatch) {
