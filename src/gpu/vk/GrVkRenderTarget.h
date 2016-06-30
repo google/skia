@@ -48,6 +48,7 @@ public:
         }
         return nullptr;
     }
+    GrVkImage* msaaImage() { return fMSAAImage; }
     const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView; }
     const GrVkResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;

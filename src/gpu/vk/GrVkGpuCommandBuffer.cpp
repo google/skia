@@ -118,6 +118,14 @@ void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
                                   false);
     }
 
+    if (GrVkImage* msaaImage = fRenderTarget->msaaImage()) {
+        msaaImage->setImageLayout(fGpu,
+                                  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                  false);
+    }
+
     for (int i = 0; i < fSampledImages.count(); ++i) {
         fSampledImages[i]->setImageLayout(fGpu,
                                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -128,6 +136,38 @@ void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
 
     fGpu->submitSecondaryCommandBuffer(fCommandBuffer, fRenderPass, &fColorClearValue,
                                        fRenderTarget, bounds);
+}
+
+void GrVkGpuCommandBuffer::discard(GrRenderTarget* target) {
+    if (fIsEmpty) {
+        // We will change the render pass to do a clear load instead
+        GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                                                VK_ATTACHMENT_STORE_OP_STORE);
+        GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                                                  VK_ATTACHMENT_STORE_OP_STORE);
+        GrVkRenderPass::LoadStoreOps vkResolveOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                                                  VK_ATTACHMENT_STORE_OP_STORE);
+
+        const GrVkRenderPass* oldRP = fRenderPass;
+
+        GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
+        const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
+            vkRT->compatibleRenderPassHandle();
+        if (rpHandle.isValid()) {
+            fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
+                                                                  vkColorOps,
+                                                                  vkResolveOps,
+                                                                  vkStencilOps);
+        } else {
+            fRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
+                                                                  vkColorOps,
+                                                                  vkResolveOps,
+                                                                  vkStencilOps);
+        }
+
+        SkASSERT(fRenderPass->isCompatible(*oldRP));
+        oldRP->unref(fGpu);
+    }
 }
 
 void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,

@@ -25,7 +25,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fNPOTTextureTileSupport = true;  // always available in Vulkan
     fTwoSidedStencilSupport = true;  // always available in Vulkan
     fStencilWrapOpsSupport = true; // always available in Vulkan
-    fDiscardRenderTargetSupport = false; //TODO: figure this out
+    fDiscardRenderTargetSupport = true;
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
     fCompressedTexSubImageSupport = false; //TODO: figure this out
