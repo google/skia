@@ -743,13 +743,13 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
 class AAConvexPathBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
-    struct Geometry {
-        GrColor fColor;
-        SkMatrix fViewMatrix;
-        SkPath fPath;
-    };
-
-    static GrDrawBatch* Create(const Geometry& geometry) { return new AAConvexPathBatch(geometry); }
+    AAConvexPathBatch(GrColor color, const SkMatrix& viewMatrix, const SkPath& path)
+        : INHERITED(ClassID()) {
+        fGeoData.emplace_back(Geometry{color, viewMatrix, path});
+        // compute bounds
+        fBounds = path.getBounds();
+        viewMatrix.mapRect(&fBounds);
+    }
 
     const char* name() const override { return "AAConvexBatch"; }
 
@@ -931,16 +931,6 @@ private:
         }
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    AAConvexPathBatch(const Geometry& geometry) : INHERITED(ClassID()) {
-        fGeoData.push_back(geometry);
-
-        // compute bounds
-        fBounds = geometry.fPath.getBounds();
-        geometry.fViewMatrix.mapRect(&fBounds);
-    }
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         AAConvexPathBatch* that = t->cast<AAConvexPathBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -967,7 +957,7 @@ private:
             fBatch.fCanTweakAlphaForCoverage = false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(that->bounds());
         return true;
     }
@@ -988,6 +978,12 @@ private:
         bool fCanTweakAlphaForCoverage;
     };
 
+    struct Geometry {
+        GrColor fColor;
+        SkMatrix fViewMatrix;
+        SkPath fPath;
+    };
+
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 
@@ -1000,12 +996,10 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fDrawContext->isUnifiedMultisampled());
     SkASSERT(!args.fShape->isEmpty());
 
-    AAConvexPathBatch::Geometry geometry;
-    geometry.fColor = args.fColor;
-    geometry.fViewMatrix = *args.fViewMatrix;
-    args.fShape->asPath(&geometry.fPath);
+    SkPath path;
+    args.fShape->asPath(&path);
 
-    SkAutoTUnref<GrDrawBatch> batch(AAConvexPathBatch::Create(geometry));
+    SkAutoTUnref<GrDrawBatch> batch(new AAConvexPathBatch(args.fColor, *args.fViewMatrix, path));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
@@ -1021,12 +1015,11 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 #ifdef GR_TEST_UTILS
 
 DRAW_BATCH_TEST_DEFINE(AAConvexPathBatch) {
-    AAConvexPathBatch::Geometry geometry;
-    geometry.fColor = GrRandomColor(random);
-    geometry.fViewMatrix = GrTest::TestMatrixInvertible(random);
-    geometry.fPath = GrTest::TestPathConvex(random);
+    GrColor color = GrRandomColor(random);
+    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
+    SkPath path = GrTest::TestPathConvex(random);
 
-    return AAConvexPathBatch::Create(geometry);
+    return new AAConvexPathBatch(color, viewMatrix, path);
 }
 
 #endif

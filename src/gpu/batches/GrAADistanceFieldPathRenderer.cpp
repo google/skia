@@ -128,17 +128,26 @@ public:
     typedef SkTDynamicHash<ShapeData, ShapeData::Key> ShapeCache;
     typedef GrAADistanceFieldPathRenderer::ShapeDataList ShapeDataList;
 
-    struct Geometry {
-        GrShape fShape;
-        GrColor fColor;
-        bool fAntiAlias;
-    };
+    AADistanceFieldPathBatch(GrColor color,
+                             const GrShape& shape,
+                             bool antiAlias,
+                             const SkMatrix& viewMatrix,
+                             GrBatchAtlas* atlas,
+                             ShapeCache* shapeCache, ShapeDataList* shapeList,
+                             bool gammaCorrect)
+            : INHERITED(ClassID()) {
+        SkASSERT(shape.hasUnstyledKey());
+        fBatch.fViewMatrix = viewMatrix;
+        fGeoData.emplace_back(Geometry{color, shape, antiAlias});
 
-    static GrDrawBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
-                               GrBatchAtlas* atlas, ShapeCache* shapeCache,
-                               ShapeDataList* shapeList, bool gammaCorrect) {
-        return new AADistanceFieldPathBatch(geometry, viewMatrix, atlas, shapeCache, shapeList,
-                                            gammaCorrect);
+        fAtlas = atlas;
+        fShapeCache = shapeCache;
+        fShapeList = shapeList;
+        fGammaCorrect = gammaCorrect;
+
+        // Compute bounds
+        fBounds = shape.bounds();
+        viewMatrix.mapRect(&fBounds);
     }
 
     const char* name() const override { return "AADistanceFieldPathBatch"; }
@@ -276,27 +285,6 @@ private:
         }
 
         this->flush(target, &flushInfo);
-    }
-
-    AADistanceFieldPathBatch(const Geometry& geometry,
-                             const SkMatrix& viewMatrix,
-                             GrBatchAtlas* atlas,
-                             ShapeCache* shapeCache, ShapeDataList* shapeList,
-                             bool gammaCorrect)
-        : INHERITED(ClassID()) {
-        SkASSERT(geometry.fShape.hasUnstyledKey());
-        fBatch.fViewMatrix = viewMatrix;
-        fGeoData.push_back(geometry);
-        SkASSERT(fGeoData[0].fShape.hasUnstyledKey());
-
-        fAtlas = atlas;
-        fShapeCache = shapeCache;
-        fShapeList = shapeList;
-        fGammaCorrect = gammaCorrect;
-
-        // Compute bounds
-        fBounds = geometry.fShape.bounds();
-        viewMatrix.mapRect(&fBounds);
     }
 
     bool addPathToAtlas(GrVertexBatch::Target* target,
@@ -507,6 +495,12 @@ private:
         bool fCoverageIgnored;
     };
 
+    struct Geometry {
+        GrColor fColor;
+        GrShape fShape;
+        bool fAntiAlias;
+    };
+
     BatchTracker fBatch;
     SkSTArray<1, Geometry> fGeoData;
     GrBatchAtlas* fAtlas;
@@ -537,15 +531,10 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
-    AADistanceFieldPathBatch::Geometry geometry;
-    geometry.fShape = *args.fShape;
-    geometry.fColor = args.fColor;
-    geometry.fAntiAlias = args.fAntiAlias;
-
-    SkAutoTUnref<GrDrawBatch> batch(AADistanceFieldPathBatch::Create(geometry,
-                                                                     *args.fViewMatrix, fAtlas,
-                                                                     &fShapeCache, &fShapeList,
-                                                                     args.fGammaCorrect));
+    SkAutoTUnref<GrDrawBatch> batch(new AADistanceFieldPathBatch(args.fColor, *args.fShape,
+                                                                 args.fAntiAlias, *args.fViewMatrix,
+                                                                 fAtlas, &fShapeCache, &fShapeList,
+                                                                 args.fGammaCorrect));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
@@ -619,18 +608,18 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
     GrColor color = GrRandomColor(random);
     bool gammaCorrect = random->nextBool();
 
-    AADistanceFieldPathBatch::Geometry geometry;
     // This path renderer only allows fill styles.
     GrShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
-    geometry.fShape = shape;
-    geometry.fColor = color;
-    geometry.fAntiAlias = random->nextBool();
+    bool antiAlias = random->nextBool();
 
-    return AADistanceFieldPathBatch::Create(geometry, viewMatrix,
-                                            gTestStruct.fAtlas,
-                                            &gTestStruct.fShapeCache,
-                                            &gTestStruct.fShapeList,
-                                            gammaCorrect);
+    return new AADistanceFieldPathBatch(color,
+                                        shape,
+                                        antiAlias,
+                                        viewMatrix,
+                                        gTestStruct.fAtlas,
+                                        &gTestStruct.fShapeCache,
+                                        &gTestStruct.fShapeList,
+                                        gammaCorrect);
 }
 
 #endif

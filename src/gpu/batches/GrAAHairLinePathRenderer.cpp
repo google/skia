@@ -676,15 +676,21 @@ class AAHairlineBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    struct Geometry {
-        GrColor fColor;
-        uint8_t fCoverage;
-        SkMatrix fViewMatrix;
-        SkPath fPath;
-        SkIRect fDevClipBounds;
-    };
+    AAHairlineBatch(GrColor color,
+                    uint8_t coverage,
+                    const SkMatrix& viewMatrix,
+                    const SkPath& path,
+                    SkIRect devClipBounds) : INHERITED(ClassID()) {
+        fGeoData.emplace_back(Geometry{color, coverage, viewMatrix, path, devClipBounds});
 
-    static GrDrawBatch* Create(const Geometry& geometry) { return new AAHairlineBatch(geometry); }
+        // compute bounds
+        fBounds = path.getBounds();
+        viewMatrix.mapRect(&fBounds);
+
+        // This is b.c. hairlines are notionally infinitely thin so without expansion
+        // two overlapping lines could be reordered even though they hit the same pixels.
+        fBounds.outset(0.5f, 0.5f);
+    }
 
     const char* name() const override { return "AAHairlineBatch"; }
 
@@ -712,25 +718,11 @@ private:
         fBatch.fCoverage = fGeoData[0].fCoverage;
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
     void onPrepareDraws(Target*) const override;
 
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
     typedef SkTArray<float, true> FloatArray;
-
-    AAHairlineBatch(const Geometry& geometry) : INHERITED(ClassID()) {
-        fGeoData.push_back(geometry);
-
-        // compute bounds
-        fBounds = geometry.fPath.getBounds();
-        geometry.fViewMatrix.mapRect(&fBounds);
-
-        // This is b.c. hairlines are notionally infinitely thin so without expansion
-        // two overlapping lines could be reordered even though they hit the same pixels.
-        fBounds.outset(0.5f, 0.5f);
-    }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         AAHairlineBatch* that = t->cast<AAHairlineBatch>();
@@ -766,7 +758,7 @@ private:
             return false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(that->bounds());
         return true;
     }
@@ -776,6 +768,15 @@ private:
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
+
+
+    struct Geometry {
+        GrColor fColor;
+        uint8_t fCoverage;
+        SkMatrix fViewMatrix;
+        SkPath fPath;
+        SkIRect fDevClipBounds;
+    };
 
     struct BatchTracker {
         GrColor fColor;
@@ -953,14 +954,7 @@ static GrDrawBatch* create_hairline_batch(GrColor color,
         newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
     }
 
-    AAHairlineBatch::Geometry geometry;
-    geometry.fColor = color;
-    geometry.fCoverage = newCoverage;
-    geometry.fViewMatrix = viewMatrix;
-    geometry.fPath = path;
-    geometry.fDevClipBounds = devClipBounds;
-
-    return AAHairlineBatch::Create(geometry);
+    return new AAHairlineBatch(color, newCoverage, viewMatrix, path, devClipBounds);
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
