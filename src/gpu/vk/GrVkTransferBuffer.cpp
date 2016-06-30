@@ -12,7 +12,7 @@
 
 GrVkTransferBuffer* GrVkTransferBuffer::Create(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type) {
     GrVkBuffer::Desc desc;
-    desc.fDynamic = false;
+    desc.fDynamic = true;
     SkASSERT(GrVkBuffer::kCopyRead_Type == type || GrVkBuffer::kCopyWrite_Type == type);
     desc.fType = type;
     desc.fSizeInBytes = size;

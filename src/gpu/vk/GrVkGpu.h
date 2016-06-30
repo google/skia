@@ -125,6 +125,8 @@ public:
 
     void generateMipmap(GrVkTexture* tex) const;
 
+    bool updateBuffer(GrVkBuffer* buffer, const void* src, size_t srcSizeInBytes);
+
     // Heaps
     enum Heap {
         kLinearImage_Heap = 0,

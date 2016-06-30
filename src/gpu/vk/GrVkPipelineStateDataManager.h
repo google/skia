@@ -50,7 +50,7 @@ public:
     // Returns true if either the vertex or fragment buffer needed to generate a new underlying
     // VkBuffer object in order upload data. If true is returned, this is a signal to the caller
     // that they will need to update the descriptor set that is using these buffers.
-    bool uploadUniformBuffers(const GrVkGpu* gpu,
+    bool uploadUniformBuffers(GrVkGpu* gpu,
                               GrVkUniformBuffer* vertexBuffer,
                               GrVkUniformBuffer* fragmentBuffer) const;
 private:

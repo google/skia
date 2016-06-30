@@ -24,6 +24,7 @@ namespace GrVkMemory {
     bool AllocAndBindBufferMemory(const GrVkGpu* gpu,
                                   VkBuffer buffer,
                                   GrVkBuffer::Type type,
+                                  bool dynamic,
                                   GrVkAlloc* alloc);
     void FreeBufferMemory(const GrVkGpu* gpu, GrVkBuffer::Type type, const GrVkAlloc& alloc);
 

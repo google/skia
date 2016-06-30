@@ -25,7 +25,7 @@ public:
     }
     // The output variable createdNewBuffer must be set to true if a new VkBuffer is created in
     // order to upload the data
-    bool updateData(const GrVkGpu* gpu, const void* src, size_t srcSizeInBytes,
+    bool updateData(GrVkGpu* gpu, const void* src, size_t srcSizeInBytes,
                     bool* createdNewBuffer) {
         return this->vkUpdateData(gpu, src, srcSizeInBytes, createdNewBuffer);
     }

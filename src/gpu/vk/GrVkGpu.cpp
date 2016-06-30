@@ -425,9 +425,9 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
 }
 
 bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
-                                    int left, int top, int width, int height,
-                                    GrPixelConfig dataConfig,
-                                    const SkTArray<GrMipLevel>& texels) {
+                                   int left, int top, int width, int height,
+                                   GrPixelConfig dataConfig,
+                                   const SkTArray<GrMipLevel>& texels) {
     SkASSERT(!tex->isLinearTiled());
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
     SkASSERT(1 == texels.count() ||
@@ -555,10 +555,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                          regions.count(),
                                          regions.begin());
-
-    // Submit the current command buffer to the Queue
-    this->submitCommandBuffer(kSkip_SyncQueue);
-
     transferBuffer->unref();
 
     return true;
@@ -657,6 +653,16 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
     }
 
     return tex;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src, size_t srcSizeInBytes) {
+
+    // Update the buffer
+    fCurrentCmdBuffer->updateBuffer(this, buffer, 0, srcSizeInBytes, src);
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

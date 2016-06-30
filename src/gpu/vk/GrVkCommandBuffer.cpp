@@ -475,6 +475,25 @@ void GrVkPrimaryCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
                                                         copyRegions));
 }
 
+void GrVkPrimaryCommandBuffer::updateBuffer(GrVkGpu* gpu,
+                                            GrVkBuffer* dstBuffer,
+                                            VkDeviceSize dstOffset,
+                                            VkDeviceSize dataSize,
+                                            const void* data) {
+    SkASSERT(fIsActive);
+    SkASSERT(!fActiveRenderPass);
+    SkASSERT(0 == (dstOffset & 0x03));   // four byte aligned
+    // TODO: handle larger transfer sizes
+    SkASSERT(dataSize <= 65536);
+    SkASSERT(0 == (dataSize & 0x03));    // four byte aligned
+    this->addResource(dstBuffer->resource());
+    GR_VK_CALL(gpu->vkInterface(), CmdUpdateBuffer(fCmdBuffer,
+                                                   dstBuffer->buffer(),
+                                                   dstOffset,
+                                                   dataSize,
+                                                   (const uint32_t*) data));
+}
+
 void GrVkPrimaryCommandBuffer::clearColorImage(const GrVkGpu* gpu,
                                                GrVkImage* image,
                                                const VkClearColorValue* color,

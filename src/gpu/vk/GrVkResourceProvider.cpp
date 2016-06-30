@@ -261,10 +261,6 @@ void GrVkResourceProvider::destroyResources() {
 
     fPipelineStateCache->release();
 
-#ifdef SK_TRACE_VK_RESOURCES
-    SkASSERT(0 == GrVkResource::fTrace.count());
-#endif
-
     GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineCache(fGpu->device(), fPipelineCache, nullptr));
     fPipelineCache = VK_NULL_HANDLE;
 
@@ -275,6 +271,10 @@ void GrVkResourceProvider::destroyResources() {
         fUniformDescLayout = VK_NULL_HANDLE;
     }
     fUniformDescPool->unref(fGpu);
+
+#ifdef SK_TRACE_VK_RESOURCES
+    SkASSERT(0 == GrVkResource::fTrace.count());
+#endif
 }
 
 void GrVkResourceProvider::abandonResources() {
@@ -300,13 +300,14 @@ void GrVkResourceProvider::abandonResources() {
 
     fPipelineStateCache->abandon();
 
-#ifdef SK_TRACE_VK_RESOURCES
-    SkASSERT(0 == GrVkResource::fTrace.count());
-#endif
     fPipelineCache = VK_NULL_HANDLE;
 
     fUniformDescLayout = VK_NULL_HANDLE;
     fUniformDescPool->unrefAndAbandon();
+
+#ifdef SK_TRACE_VK_RESOURCES
+    SkASSERT(0 == GrVkResource::fTrace.count());
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

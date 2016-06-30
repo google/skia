@@ -49,6 +49,7 @@ static GrVkGpu::Heap buffer_type_to_heap(GrVkBuffer::Type type) {
 bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
                                           VkBuffer buffer,
                                           GrVkBuffer::Type type,
+                                          bool dynamic,
                                           GrVkAlloc* alloc) {
     const GrVkInterface* iface = gpu->vkInterface();
     VkDevice device = gpu->device();
@@ -56,9 +57,10 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
     VkMemoryRequirements memReqs;
     GR_VK_CALL(iface, GetBufferMemoryRequirements(device, buffer, &memReqs));
 
-    VkMemoryPropertyFlags desiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                                            VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    VkMemoryPropertyFlags desiredMemProps = dynamic ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+                                                      VK_MEMORY_PROPERTY_HOST_CACHED_BIT
+                                                    : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     uint32_t typeIndex = 0;
     if (!get_valid_memory_type_index(gpu->physicalDeviceMemoryProperties(),
                                      memReqs.memoryTypeBits,

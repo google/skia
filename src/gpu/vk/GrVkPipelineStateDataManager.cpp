@@ -251,7 +251,7 @@ template<> struct set_uniform_matrix<4> {
     }
 };
 
-bool GrVkPipelineStateDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
+bool GrVkPipelineStateDataManager::uploadUniformBuffers(GrVkGpu* gpu,
                                                         GrVkUniformBuffer* vertexBuffer,
                                                         GrVkUniformBuffer* fragmentBuffer) const {
     bool updatedBuffer = false;
