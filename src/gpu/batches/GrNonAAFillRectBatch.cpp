@@ -26,10 +26,12 @@ static const int kIndicesPerInstance = 6;
 
     The vertex attrib order is always pos, color, [local coords].
  */
-static sk_sp<GrGeometryProcessor> make_gp(const SkMatrix& viewMatrix,
-                                          bool readsCoverage,
-                                          bool hasExplicitLocalCoords,
-                                          const SkMatrix* localMatrix) {
+static sk_sp<GrGeometryProcessor> make_persp_gp(const SkMatrix& viewMatrix,
+                                                bool readsCoverage,
+                                                bool hasExplicitLocalCoords,
+                                                const SkMatrix* localMatrix) {
+    SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
+
     using namespace GrDefaultGeoProcFactory;
     Color color(Color::kAttribute_Type);
     Coverage coverage(readsCoverage ? Coverage::kSolid_Type : Coverage::kNone_Type);
@@ -44,7 +46,7 @@ static sk_sp<GrGeometryProcessor> make_gp(const SkMatrix& viewMatrix,
                                 localMatrix);
         return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, viewMatrix);
     } else if (hasExplicitLocalCoords) {
-        LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
+        LocalCoords localCoords(LocalCoords::kHasExplicit_Type, localMatrix);
         return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
     } else {
         LocalCoords localCoords(LocalCoords::kUsePosition_Type, localMatrix);
@@ -53,10 +55,19 @@ static sk_sp<GrGeometryProcessor> make_gp(const SkMatrix& viewMatrix,
     }
 }
 
+static sk_sp<GrGeometryProcessor> make_gp(bool readsCoverage) {
+    using namespace GrDefaultGeoProcFactory;
+    Color color(Color::kAttribute_Type);
+    Coverage coverage(readsCoverage ? Coverage::kSolid_Type : Coverage::kNone_Type);
+
+    LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
+    return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
+}
+
 static void tesselate(intptr_t vertices,
                       size_t vertexStride,
                       GrColor color,
-                      const SkMatrix& viewMatrix,
+                      const SkMatrix* viewMatrix,
                       const SkRect& rect,
                       const GrQuad* localQuad) {
     SkPoint* positions = reinterpret_cast<SkPoint*>(vertices);
@@ -64,8 +75,8 @@ static void tesselate(intptr_t vertices,
     positions->setRectFan(rect.fLeft, rect.fTop,
                           rect.fRight, rect.fBottom, vertexStride);
 
-    if (!viewMatrix.hasPerspective()) {
-        viewMatrix.mapPointsWithStride(positions, vertexStride, kVertsPerInstance);
+    if (viewMatrix) {
+        viewMatrix->mapPointsWithStride(positions, vertexStride, kVertsPerInstance);
     }
 
     // Setup local coords
@@ -144,8 +155,7 @@ private:
     NonAAFillRectBatch() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(fRects[0].fViewMatrix, fOverrides.readsCoverage(),
-                                                true, nullptr);
+        sk_sp<GrGeometryProcessor> gp = make_gp(fOverrides.readsCoverage());
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -169,7 +179,7 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
                              i * kVertsPerInstance * vertexStride;
-            tesselate(verts, vertexStride, fRects[i].fColor, fRects[i].fViewMatrix,
+            tesselate(verts, vertexStride, fRects[i].fColor, &fRects[i].fViewMatrix,
                       fRects[i].fRect, &fRects[i].fLocalQuad);
         }
         helper.recordDraw(target, gp.get());
@@ -263,9 +273,10 @@ private:
     NonAAFillRectPerspectiveBatch() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(fViewMatrix, fOverrides.readsCoverage(),
-                                                fHasLocalRect,
-                                                fHasLocalMatrix ? &fLocalMatrix : nullptr);
+        sk_sp<GrGeometryProcessor> gp = make_persp_gp(fViewMatrix,
+                                                      fOverrides.readsCoverage(),
+                                                      fHasLocalRect,
+                                                      fHasLocalMatrix ? &fLocalMatrix : nullptr);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -294,9 +305,9 @@ private:
                              i * kVertsPerInstance * vertexStride;
             if (fHasLocalRect) {
                 GrQuad quad(info.fLocalRect);
-                tesselate(verts, vertexStride, info.fColor, fViewMatrix, info.fRect, &quad);
+                tesselate(verts, vertexStride, info.fColor, nullptr, info.fRect, &quad);
             } else {
-                tesselate(verts, vertexStride, info.fColor, fViewMatrix, info.fRect, nullptr);
+                tesselate(verts, vertexStride, info.fColor, nullptr, info.fRect, nullptr);
             }
         }
         helper.recordDraw(target, gp.get());
