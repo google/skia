@@ -8,6 +8,8 @@
 #ifndef GrVkGpu_DEFINED
 #define GrVkGpu_DEFINED
 
+#define USE_SKSL 1
+
 #include "GrGpu.h"
 #include "GrGpuFactory.h"
 #include "vk/GrVkBackendContext.h"
@@ -18,7 +20,14 @@
 #include "GrVkVertexBuffer.h"
 #include "GrVkUtil.h"
 
+#if USE_SKSL
+namespace SkSL {
+    class Compiler;
+}
+#else
 #include "shaderc/shaderc.h"
+#endif
+
 #include "vk/GrVkDefines.h"
 
 class GrPipeline;
@@ -111,9 +120,15 @@ public:
                                bool byRegion,
                                VkImageMemoryBarrier* barrier) const;
 
+#if USE_SKSL
+    SkSL::Compiler* shaderCompiler() const {
+        return fCompiler;
+    }
+#else
     shaderc_compiler_t shadercCompiler() const {
         return fCompiler;
     }
+#endif
 
     void submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer*,
                                       const GrVkRenderPass*,
@@ -242,10 +257,13 @@ private:
     VkDebugReportCallbackEXT               fCallback;
 #endif
 
+#if USE_SKSL
+    SkSL::Compiler* fCompiler;
+#else
     // Shaderc compiler used for compiling glsl in spirv. We only want to create the compiler once
     // since there is significant overhead to the first compile of any compiler.
     shaderc_compiler_t fCompiler;
-
+#endif
 
     typedef GrGpu INHERITED;
 };

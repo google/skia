@@ -88,6 +88,7 @@
         'utils.gyp:utils',
         'etc1.gyp:libetc1',
         'ktx.gyp:libSkKTX',
+        'sksl.gyp:sksl',
       ],
       'includes': [
         'gpu.gypi',
@@ -98,6 +99,7 @@
         '../src/core',
         '../src/gpu',
         '../src/image/',
+        '../src/sksl',
       ],
       'sources': [
         '<@(skgpu_sources)',

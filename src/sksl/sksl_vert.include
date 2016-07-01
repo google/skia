@@ -1,0 +1,10 @@
+STRINGIFY(
+
+// defines built-in interfaces supported by SkiaSL vertex shaders
+
+out gl_PerVertex {
+  	layout(builtin=0) vec4 gl_Position;
+  	layout(builtin=1) float gl_PointSize;
+};
+
+)

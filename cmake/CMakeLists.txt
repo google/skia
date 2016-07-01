@@ -59,6 +59,9 @@ remove_srcs (../src/ports/SkFontHost_fontconfig.cpp
              ../src/ports/SkFontConfigInterface_direct_google3_factory.cpp)
 # Alternative font managers.
 remove_srcs (../src/ports/SkFontMgr_custom*.cpp)
+# skslc main()
+remove_srcs (../src/sksl/SkSLMain.cpp)
+
 
 # Skia sure ships a lot of code no one uses.
 remove_srcs (../src/animator/* ../src/*nacl* ../src/svg/* ../src/views/* ../src/xml/*)

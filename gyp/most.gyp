@@ -27,6 +27,7 @@
         'pathops_skpclip.gyp:*',
         'dm.gyp:dm',
         'fuzz.gyp:fuzz',
+        'skslc.gyp:skslc',
       ],
       'conditions': [
         [ 'skia_gpu == 0', {
