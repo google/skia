@@ -215,6 +215,7 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
     SkRandom random;
     GrRenderTarget* currentRT = nullptr;
     SkAutoTDelete<GrGpuCommandBuffer> commandBuffer;
+    SkRect bounds = SkRect::MakeEmpty();
     for (int i = 0; i < fBatches.count(); ++i) {
         if (!fBatches[i]) {
             continue;
@@ -222,12 +223,16 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
         if (fBatches[i]->renderTarget() != currentRT) {
             if (commandBuffer) {
                 commandBuffer->end();
-                // For now just use size of whole render target, but this should be updated to
-                // only be the actual bounds of the various draws.
-                SkIRect bounds = SkIRect::MakeWH(currentRT->width(), currentRT->height());
-                commandBuffer->submit(bounds);
+                if (bounds.intersect(0, 0,
+                                     SkIntToScalar(currentRT->width()),
+                                     SkIntToScalar(currentRT->height()))) {
+                    SkIRect iBounds;
+                    bounds.roundOut(&iBounds);
+                    commandBuffer->submit(iBounds);
+                }
                 commandBuffer.reset();
             }
+            bounds.setEmpty();
             currentRT = fBatches[i]->renderTarget();
             if (currentRT) {
                 static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo
@@ -239,24 +244,30 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
             }
             flushState->setCommandBuffer(commandBuffer);
         }
+        if (commandBuffer) {
+            bounds.join(fBatches[i]->bounds());
+        }
         if (fDrawBatchBounds) {
-            const SkRect& bounds = fBatches[i]->bounds();
-            SkIRect ibounds;
-            bounds.roundOut(&ibounds);
+            const SkRect& batchBounds = fBatches[i]->bounds();
+            SkIRect iBatchBounds;
+            batchBounds.roundOut(&iBatchBounds);
             // In multi-draw buffer all the batches use the same render target and we won't need to
             // get the batchs bounds.
             if (GrRenderTarget* rt = fBatches[i]->renderTarget()) {
-                fGpu->drawDebugWireRect(rt, ibounds, 0xFF000000 | random.nextU());
+                fGpu->drawDebugWireRect(rt, iBatchBounds, 0xFF000000 | random.nextU());
             }
         }
         fBatches[i]->draw(flushState);
     }
     if (commandBuffer) {
         commandBuffer->end();
-        // For now just use size of whole render target, but this should be updated to
-        // only be the actual bounds of the various draws.
-        SkIRect bounds = SkIRect::MakeWH(currentRT->width(), currentRT->height());
-        commandBuffer->submit(bounds);
+        if (bounds.intersect(0, 0,
+                             SkIntToScalar(currentRT->width()),
+                             SkIntToScalar(currentRT->height()))) {
+            SkIRect iBounds;
+            bounds.roundOut(&iBounds);
+            commandBuffer->submit(iBounds);
+        }
         flushState->setCommandBuffer(nullptr);
     }
 

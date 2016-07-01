@@ -1487,10 +1487,19 @@ void GrVkGpu::submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer* buf
                                            const VkClearValue* colorClear,
                                            GrVkRenderTarget* target,
                                            const SkIRect& bounds) {
+    const SkIRect* pBounds = &bounds;
+    SkIRect flippedBounds;
+    if (kBottomLeft_GrSurfaceOrigin == target->origin()) {
+        flippedBounds = bounds;
+        flippedBounds.fTop = target->height() - bounds.fBottom;
+        flippedBounds.fBottom = target->height() - bounds.fTop;
+        pBounds = &flippedBounds;
+    }
+
     // Currently it is fine for us to always pass in 1 for the clear count even if no attachment
     // uses it. In the current state, we also only use the LOAD_OP_CLEAR for the color attachment
     // which is always at the first attachment.
-    fCurrentCmdBuffer->beginRenderPass(this, renderPass, 1, colorClear, *target, bounds, true);
+    fCurrentCmdBuffer->beginRenderPass(this, renderPass, 1, colorClear, *target, *pBounds, true);
     fCurrentCmdBuffer->executeCommands(this, buffer);
     fCurrentCmdBuffer->endRenderPass(this);
 }
