@@ -86,7 +86,7 @@ struct Config {
   SkStringOption *subject = new SkStringOption("-k", "PDF subject", SkString("---"));
   SkStringOption *keywords = new SkStringOption("-c", "PDF keywords", SkString("---"));
   SkStringOption *creator = new SkStringOption("-t", "PDF creator", SkString("---"));
-  StdStringOption *font_file = new StdStringOption("-f", ".ttf font file", "fonts/DejaVuSans.ttf");
+  StdStringOption *font_file = new StdStringOption("-f", ".ttf font file", "");
   DoubleOption *font_size = new DoubleOption("-z", "Font size", 8.0f);
   DoubleOption *left_margin = new DoubleOption("-m", "Left margin", 20.0f);
   DoubleOption *line_spacing_ratio = new DoubleOption("-h", "Line spacing ratio", 1.5f);
@@ -141,6 +141,31 @@ struct Face {
   std::unique_ptr<hb_face_t, HBFDel> fHarfBuzzFace;
   sk_sp<SkTypeface> fSkiaTypeface;
 
+  Face(sk_sp<SkTypeface> skiaTypeface) : fSkiaTypeface(std::move(skiaTypeface)) {
+    int index;
+    std::unique_ptr<SkStreamAsset> asset(fSkiaTypeface->openStream(&index));
+    size_t size = asset->getLength();
+    // TODO(halcanary): avoid this malloc and copy.
+    char* buffer = (char*)malloc(size);
+    asset->read(buffer, size);
+    hb_blob_t* blob = hb_blob_create(buffer,
+                                     size,
+                                     HB_MEMORY_MODE_READONLY,
+                                     nullptr,
+                                     free);
+    assert(blob);
+    hb_blob_make_immutable(blob);
+    hb_face_t* face = hb_face_create(blob, (unsigned)index);
+    hb_blob_destroy(blob);
+    assert(face);
+    if (!face) {
+        fSkiaTypeface.reset();
+        return;
+    }
+    hb_face_set_index(face, (unsigned)index);
+    hb_face_set_upem(face, fSkiaTypeface->getUnitsPerEm());
+    fHarfBuzzFace.reset(face);
+  }
   Face(const char* path, int index) {
     // fairly portable mmap impl
     auto data = SkData::MakeFromFileName(path);
@@ -175,7 +200,12 @@ struct Face {
 class Placement {
  public:
   Placement(Config &_config, SkWStream* outputStream) : config(_config) {
-    face = new Face(config.font_file->value.c_str(), 0 /* index */);
+    const std::string& font_file = config.font_file->value;
+    if (font_file.size() > 0) {
+      face = new Face(font_file.c_str(), 0 /* index */);
+    } else {
+      face = new Face(SkTypeface::MakeDefault());
+    }
     hb_font = hb_font_create(face->fHarfBuzzFace.get());
 
     hb_font_set_scale(hb_font,
