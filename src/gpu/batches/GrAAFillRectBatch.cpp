@@ -200,13 +200,16 @@ public:
 
     static AAFillRectNoLocalMatrixBatch* Create() { return new AAFillRectNoLocalMatrixBatch; }
 
-    const char* name() const override { return Name(); }
+    const char* name() const override { return "AAFillRectBatchNoLocalMatrix"; }
 
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# batched: %d\n", fGeoData.count());
         for (int i = 0; i < fGeoData.count(); ++i) {
-            str.append(DumpInfo(fGeoData[i], i));
+            const Geometry& geo = fGeoData[i];
+            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                        i, geo.fColor,
+                        geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
         }
         str.append(INHERITED::dumpInfo());
         return str;
@@ -217,7 +220,7 @@ public:
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
-        InitInvariantOutputCoverage(coverage);
+        coverage->setUnknownSingleComponent();
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
@@ -228,92 +231,32 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
     // After seeding, the client should call init() so the Batch can initialize itself
-    void init() {
-        const Geometry& geo = fGeoData[0];
-        SetBounds(geo, &fBounds);
-    }
-
-    void updateBoundsAfterAppend() {
-        const Geometry& geo = fGeoData.back();
-        UpdateBoundsAfterAppend(geo, &fBounds);
-    }
+    void init() { fBounds = fGeoData[0].fDevRect; }
 
 private:
-    static const int kVertsPerInstance = kVertsPerAAFillRect;
-    static const int kIndicesPerInstance = kIndicesPerAAFillRect;
-
-    static void InitInvariantOutputCoverage(GrInitInvariantOutput* out) {
-        out->setUnknownSingleComponent();
-    }
-
-    static const GrBuffer* GetIndexBuffer(GrResourceProvider* rp) {
-        return get_index_buffer(rp);
-    }
-
-    static void SetBounds(const Geometry& geo, SkRect* outBounds) {
-        *outBounds = geo.fDevRect;
-    }
-
-    static void UpdateBoundsAfterAppend(const Geometry& geo, SkRect* outBounds) {
-        outBounds->join(geo.fDevRect);
-    }
-
-    static const char* Name() { return "AAFillRectBatchNoLocalMatrix"; }
-
-    static SkString DumpInfo(const Geometry& geo, int index) {
-        SkString str;
-        str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                    index,
-                    geo.fColor,
-                    geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
-        return str;
-    }
-
-    static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                           const GrXPOverridesForBatch& overrides) {
-        // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
-        // local coords then we won't be able to batch.  We could actually upload the viewmatrix
-        // using vertex attributes in these cases, but haven't investigated that
-        return !overrides.readsLocalCoords() || mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix);
-    }
-
-    static sk_sp<GrGeometryProcessor> MakeGP(const Geometry& geo,
-                                             const GrXPOverridesForBatch& overrides) {
-        sk_sp<GrGeometryProcessor> gp =
-                create_fill_rect_gp(geo.fViewMatrix, overrides,
-                                    GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type);
-
-        SkASSERT(overrides.canTweakAlphaForCoverage() ?
-                 gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
-                 gp->getVertexStride() ==
-                         sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
-        return gp;
-    }
-
-    static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                          const GrXPOverridesForBatch& overrides) {
-        generate_aa_fill_rect_geometry(vertices, vertexStride,
-                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect,
-                                       overrides, nullptr);
-    }
-
     AAFillRectNoLocalMatrixBatch() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp(MakeGP(this->seedGeometry(), fOverrides));
+        sk_sp<GrGeometryProcessor> gp =
+                create_fill_rect_gp(fGeoData[0].fViewMatrix, fOverrides,
+                                    GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
+        SkASSERT(fOverrides.canTweakAlphaForCoverage() ?
+                     gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
+                     gp->getVertexStride() ==
+                         sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
 
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fGeoData.count();
 
-        SkAutoTUnref<const GrBuffer> indexBuffer(GetIndexBuffer(target->resourceProvider()));
+        SkAutoTUnref<const GrBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer, kVertsPerInstance,
-                                     kIndicesPerInstance, instanceCount);
+                                     indexBuffer, kVertsPerAAFillRect,
+                                     kIndicesPerAAFillRect, instanceCount);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -321,13 +264,14 @@ private:
 
         for (int i = 0; i < instanceCount; i++) {
             intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
-                             i * kVertsPerInstance * vertexStride;
-            Tesselate(verts, vertexStride, fGeoData[i], fOverrides);
+                             i * kVertsPerAAFillRect * vertexStride;
+            generate_aa_fill_rect_geometry(verts, vertexStride,
+                                           fGeoData[i].fColor, fGeoData[i].fViewMatrix,
+                                           fGeoData[i].fRect, fGeoData[i].fDevRect, fOverrides,
+                                           nullptr);
         }
         helper.recordDraw(target, gp.get());
     }
-
-    const Geometry& seedGeometry() const { return fGeoData[0]; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         AAFillRectNoLocalMatrixBatch* that = t->cast<AAFillRectNoLocalMatrixBatch>();
@@ -336,7 +280,11 @@ private:
             return false;
         }
 
-        if (!CanCombine(this->seedGeometry(), that->seedGeometry(), fOverrides)) {
+        // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
+        // local coords then we won't be able to batch.  We could actually upload the viewmatrix
+        // using vertex attributes in these cases, but haven't investigated that
+        if (fOverrides.readsLocalCoords() &&
+            !fGeoData[0].fViewMatrix.cheapEqualTo(that->fGeoData[0].fViewMatrix)) {
             return false;
         }
 
@@ -371,13 +319,16 @@ public:
 
     static AAFillRectLocalMatrixBatch* Create() { return new AAFillRectLocalMatrixBatch; }
 
-    const char* name() const override { return Name(); }
+    const char* name() const override { return "AAFillRectBatchLocalMatrix"; }
 
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# batched: %d\n", fGeoData.count());
         for (int i = 0; i < fGeoData.count(); ++i) {
-            str.append(DumpInfo(fGeoData[i], i));
+            const Geometry& geo = fGeoData[i];
+            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                        i, geo.fColor,
+                        geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
         }
         str.append(INHERITED::dumpInfo());
         return str;
@@ -388,7 +339,7 @@ public:
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
-        InitInvariantOutputCoverage(coverage);
+        coverage->setUnknownSingleComponent();
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
@@ -399,90 +350,33 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
     // After seeding, the client should call init() so the Batch can initialize itself
-    void init() {
-        const Geometry& geo = fGeoData[0];
-        SetBounds(geo, &fBounds);
-    }
-
-    void updateBoundsAfterAppend() {
-        const Geometry& geo = fGeoData.back();
-        UpdateBoundsAfterAppend(geo, &fBounds);
-    }
+    void init() { fBounds = fGeoData[0].fDevRect; }
 
 private:
-    static const int kVertsPerInstance = kVertsPerAAFillRect;
-    static const int kIndicesPerInstance = kIndicesPerAAFillRect;
-
-    static void InitInvariantOutputCoverage(GrInitInvariantOutput* out) {
-        out->setUnknownSingleComponent();
-    }
-
-    static const GrBuffer* GetIndexBuffer(GrResourceProvider* rp) {
-        return get_index_buffer(rp);
-    }
-
-    static void SetBounds(const Geometry& geo, SkRect* outBounds) {
-        *outBounds = geo.fDevRect;
-    }
-
-    static void UpdateBoundsAfterAppend(const Geometry& geo, SkRect* outBounds) {
-        outBounds->join(geo.fDevRect);
-    }
-
-    static const char* Name() { return "AAFillRectBatchLocalMatrix"; }
-
-    static SkString DumpInfo(const Geometry& geo, int index) {
-        SkString str;
-        str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                    index,
-                    geo.fColor,
-                    geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
-        return str;
-    }
-
-    static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                           const GrXPOverridesForBatch& overrides) {
-        return true;
-    }
-
-    static sk_sp<GrGeometryProcessor> MakeGP(const Geometry& geo,
-                                               const GrXPOverridesForBatch& overrides) {
-        sk_sp<GrGeometryProcessor> gp =
-                create_fill_rect_gp(geo.fViewMatrix, overrides,
-                                    GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type);
-
-        SkASSERT(overrides.canTweakAlphaForCoverage() ?
-                 gp->getVertexStride() ==
-                         sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
-                 gp->getVertexStride() ==
-                         sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordCoverage));
-        return gp;
-    }
-
-    static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                          const GrXPOverridesForBatch& overrides) {
-        generate_aa_fill_rect_geometry(vertices, vertexStride,
-                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect,
-                                       overrides, &geo.fLocalMatrix);
-    }
-
     AAFillRectLocalMatrixBatch() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp(MakeGP(this->seedGeometry(), fOverrides));
+        sk_sp<GrGeometryProcessor> gp =
+                create_fill_rect_gp(fGeoData[0].fViewMatrix, fOverrides,
+                                    GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
+        SkASSERT(fOverrides.canTweakAlphaForCoverage() ?
+                 gp->getVertexStride() ==
+                 sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
+                 gp->getVertexStride() ==
+                 sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordCoverage));
 
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fGeoData.count();
 
-        SkAutoTUnref<const GrBuffer> indexBuffer(GetIndexBuffer(target->resourceProvider()));
+        SkAutoTUnref<const GrBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer, kVertsPerInstance,
-                                     kIndicesPerInstance, instanceCount);
+                                     indexBuffer, kVertsPerAAFillRect,
+                                     kIndicesPerAAFillRect, instanceCount);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -490,22 +384,19 @@ private:
 
         for (int i = 0; i < instanceCount; i++) {
             intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
-                             i * kVertsPerInstance * vertexStride;
-            Tesselate(verts, vertexStride, fGeoData[i], fOverrides);
+                             i * kVertsPerAAFillRect * vertexStride;
+            generate_aa_fill_rect_geometry(verts, vertexStride, fGeoData[i].fColor,
+                                           fGeoData[i].fViewMatrix, fGeoData[i].fRect,
+                                           fGeoData[i].fDevRect, fOverrides,
+                                           &fGeoData[i].fLocalMatrix);
         }
         helper.recordDraw(target, gp.get());
     }
-
-    const Geometry& seedGeometry() const { return fGeoData[0]; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         AAFillRectLocalMatrixBatch* that = t->cast<AAFillRectLocalMatrixBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
-            return false;
-        }
-
-        if (!CanCombine(this->seedGeometry(), that->seedGeometry(), fOverrides)) {
             return false;
         }
 
