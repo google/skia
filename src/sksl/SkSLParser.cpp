@@ -70,6 +70,7 @@ Parser::Parser(std::string text, SymbolTable& types, ErrorReporter& errors)
 
 Parser::~Parser() {
     sksl_delete_buffer(fBuffer, fScanner);
+    sksllex_destroy(fScanner);
 }
 
 /* (precision | directive | declaration)* END_OF_FILE */
