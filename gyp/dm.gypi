@@ -22,6 +22,7 @@
     'jsoncpp.gyp:jsoncpp',
     'libpng.gyp:libpng',
     'skia_lib.gyp:skia_lib',
+    'sksl.gyp:sksl',
     'svg.gyp:svg',
     'tools.gyp:crash_handler',
     'tools.gyp:picture_utils',
