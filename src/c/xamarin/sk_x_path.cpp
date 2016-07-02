@@ -74,3 +74,12 @@ sk_path_t* sk_path_clone(const sk_path_t* cpath)
     return (sk_path_t*)new SkPath(AsPath(*cpath));
 }
 
+void sk_path_rewind (sk_path_t* cpath)
+{
+    as_path (cpath)->rewind ();
+}
+
+void sk_path_reset (sk_path_t* cpath)
+{
+    as_path (cpath)->reset ();
+}
