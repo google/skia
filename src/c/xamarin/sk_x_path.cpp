@@ -83,3 +83,42 @@ void sk_path_reset (sk_path_t* cpath)
 {
     as_path (cpath)->reset ();
 }
+
+sk_path_iterator_t* sk_path_create_iter (sk_path_t *cpath, int forceClose)
+{
+    SkPath::Iter* iter = new SkPath::Iter(AsPath(*cpath), forceClose);
+    return ToPathIter(iter);
+}
+
+#if __cplusplus >= 199711L
+static_assert (SkPath::kMove_Verb == MOVE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert (SkPath::kLine_Verb == LINE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert (SkPath::kQuad_Verb == QUAD_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert (SkPath::kConic_Verb == CONIC_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert (SkPath::kCubic_Verb == CUBIC_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert (SkPath::kClose_Verb == CLOSE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert (SkPath::kDone_Verb == DONE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+#endif
+
+sk_path_verb_t sk_path_iter_next (sk_path_iterator_t *iterator, sk_point_t points [4], int doConsumeDegenerates, int exact)
+{
+    SkPath::Iter *iter = AsPathIter(iterator);
+    SkPoint *pts = AsPoint(points);
+    SkPath::Verb verb = iter->next(pts, doConsumeDegenerates, exact);
+    return (sk_path_verb_t)verb;
+}
+
+float sk_path_iter_conic_weight (sk_path_iterator_t *iterator)
+{
+    return AsPathIter(iterator)->conicWeight ();
+}
+
+int sk_path_iter_is_close_line (sk_path_iterator_t *iterator)
+{
+    return AsPathIter(iterator)->isCloseLine ();
+}
+
+int sk_path_iter_is_closed_contour (sk_path_iterator_t *iterator)
+{
+    return AsPathIter(iterator)->isClosedContour ();
+}

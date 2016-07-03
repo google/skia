@@ -650,6 +650,14 @@ static inline const SkPoint* AsPoint(const sk_point_t* p) {
     return reinterpret_cast<const SkPoint*>(p);
 }
 
+static inline SkPoint* AsPoint(sk_point_t* p) {
+    return reinterpret_cast<SkPoint*>(p);
+}
+
+static inline sk_point_t* ToPoint(SkPoint *p) {
+    return reinterpret_cast<sk_point_t*>(p);
+}
+
 static inline const SkIPoint& AsIPoint(const sk_ipoint_t& p) {
     return reinterpret_cast<const SkIPoint&>(p);
 }
@@ -714,5 +722,11 @@ static inline sk_document_t* ToDocument(SkDocument* document) {
     return reinterpret_cast<sk_document_t*>(document);
 }
 
+static inline SkPath::Iter* AsPathIter(sk_path_iterator_t* iter) {
+    return reinterpret_cast<SkPath::Iter*>(iter);
+}
 
+static inline sk_path_iterator_t* ToPathIter(SkPath::Iter* iter) {
+    return reinterpret_cast<sk_path_iterator_t*>(iter);
+}
 #endif

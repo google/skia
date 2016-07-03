@@ -75,6 +75,17 @@ SK_API void sk_path_transform(sk_path_t* cpath, const sk_matrix_t* cmatrix);
     Creates a copy of the path
 */
 SK_API sk_path_t* sk_path_clone(const sk_path_t* cpath);
+
+SK_API sk_path_iterator_t* sk_path_create_iter (sk_path_t *cpath, int forceClose);
+
+SK_API sk_path_verb_t sk_path_iter_next (sk_path_iterator_t *iterator, sk_point_t points [4], int doConsumeDegenerates, int exact);
+
+SK_API float sk_path_iter_conic_weight (sk_path_iterator_t *iterator);
+
+SK_API int sk_path_iter_is_close_line (sk_path_iterator_t *iterator);
+
+SK_API int sk_path_iter_is_closed_contour (sk_path_iterator_t *iterator);
+       
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

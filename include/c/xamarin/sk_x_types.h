@@ -222,6 +222,19 @@ typedef enum {
     REPLACE_SK_REGION_OP,             //!< replace the dst region with the op region
 } sk_region_op_t;
 
+// The verbs that can be foudn on a path
+typedef enum {
+	MOVE_PATH_VERB,
+	LINE_PATH_VERB,
+	QUAD_PATH_VERB,
+	CONIC_PATH_VERB,
+	CUBIC_PATH_VERB,
+	CLOSE_PATH_VERB,
+	DONE_PATH_VERB
+} sk_path_verb_t;
+
+typedef struct sk_path_iterator_t sk_path_iterator_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
