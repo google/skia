@@ -122,3 +122,32 @@ int sk_path_iter_is_closed_contour (sk_path_iterator_t *iterator)
 {
     return AsPathIter(iterator)->isClosedContour ();
 }
+
+#if __cplusplus >= 199711L
+static_assert (SkPath::kAppend_AddPathMode == APPEND_ADD_MODE, "ABI changed, you must write a enumeration mapper for SkPath::AddPathMode to sk_path_add_mode_t");
+static_assert (SkPath::kExtend_AddPathMode == EXTEND_ADD_MODE, "ABI changed, you must write a enumeration mapper for SkPath::AddPathMode to sk_path_add_mode_t");
+#endif
+
+void sk_path_add_path_offset (sk_path_t* cpath, sk_path_t* other, float dx, float dy, sk_path_add_mode_t add_mode)
+{
+    as_path (cpath)->addPath (AsPath (*other), dx, dy, (SkPath::AddPathMode) add_mode);
+}
+
+void sk_path_add_path_matrix (sk_path_t* cpath, sk_path_t* other, sk_matrix_t *matrix, sk_path_add_mode_t add_mode)
+{
+    SkMatrix skmatrix;
+    from_c(matrix, &skmatrix);
+    as_path (cpath)->addPath (AsPath (*other), skmatrix, (SkPath::AddPathMode) add_mode);
+}
+
+void sk_path_add_path (sk_path_t* cpath, sk_path_t* other, sk_path_add_mode_t add_mode)
+{
+    as_path (cpath)->addPath (AsPath (*other), (SkPath::AddPathMode) add_mode);
+}
+
+void sk_path_add_path_reverse (sk_path_t* cpath, sk_path_t* other)
+{
+    as_path (cpath)->reverseAddPath (AsPath (*other));
+}
+
+

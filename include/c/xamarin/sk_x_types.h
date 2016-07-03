@@ -235,6 +235,11 @@ typedef enum {
 
 typedef struct sk_path_iterator_t sk_path_iterator_t;
 
+typedef enum {
+	APPEND_ADD_MODE,
+	EXTEND_ADD_MODE,
+} sk_path_add_mode_t;
+	
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

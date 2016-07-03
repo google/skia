@@ -85,7 +85,15 @@ SK_API float sk_path_iter_conic_weight (sk_path_iterator_t *iterator);
 SK_API int sk_path_iter_is_close_line (sk_path_iterator_t *iterator);
 
 SK_API int sk_path_iter_is_closed_contour (sk_path_iterator_t *iterator);
-       
+
+
+/* Paths */
+
+SK_API void sk_path_add_path_offset  (sk_path_t* cpath, sk_path_t* other, float dx, float dy, sk_path_add_mode_t add_mode);
+SK_API void sk_path_add_path_matrix  (sk_path_t* cpath, sk_path_t* other, sk_matrix_t *matrix, sk_path_add_mode_t add_mode);
+SK_API void sk_path_add_path         (sk_path_t* cpath, sk_path_t* other, sk_path_add_mode_t add_mode);
+SK_API void sk_path_add_path_reverse (sk_path_t* cpath, sk_path_t* other);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
