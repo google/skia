@@ -163,6 +163,7 @@ protected:
                    SampleConfig sampleConfig, GrStencilAttachment* stencil = nullptr)
         : INHERITED(gpu, desc)
         , fStencilAttachment(stencil)
+        , fMultisampleSpecsID(0)
         , fSampleConfig(sampleConfig)
         , fLastDrawTarget(nullptr) {
         fResolveRect.setLargestInverted();
@@ -184,6 +185,7 @@ private:
     friend class GrRenderTargetPriv;
 
     GrStencilAttachment*  fStencilAttachment;
+    uint8_t               fMultisampleSpecsID;
     SampleConfig          fSampleConfig;
 
     SkIRect               fResolveRect;

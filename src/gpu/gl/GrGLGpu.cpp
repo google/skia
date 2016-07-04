@@ -4432,10 +4432,8 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
     return true;
 }
 
-void GrGLGpu::onGetMultisampleSpecs(GrRenderTarget* rt,
-                                    const GrStencilSettings& stencil,
-                                    int* effectiveSampleCnt,
-                                    SkAutoTDeleteArray<SkPoint>* sampleLocations) {
+void GrGLGpu::onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings& stencil,
+                                    int* effectiveSampleCnt, SamplePattern* samplePattern) {
     SkASSERT(!rt->hasMixedSamples() || rt->renderTargetPriv().getStencilAttachment() ||
              stencil.isDisabled());
 
@@ -4452,14 +4450,14 @@ void GrGLGpu::onGetMultisampleSpecs(GrRenderTarget* rt,
     SkASSERT(*effectiveSampleCnt >= rt->desc().fSampleCnt);
 
     if (this->caps()->sampleLocationsSupport()) {
-        sampleLocations->reset(new SkPoint[*effectiveSampleCnt]);
+        samplePattern->reset(*effectiveSampleCnt);
         for (int i = 0; i < *effectiveSampleCnt; ++i) {
             GrGLfloat pos[2];
             GL_CALL(GetMultisamplefv(GR_GL_SAMPLE_POSITION, i, pos));
             if (kTopLeft_GrSurfaceOrigin == rt->origin()) {
-                (*sampleLocations)[i].set(pos[0], pos[1]);
+                (*samplePattern)[i].set(pos[0], pos[1]);
             } else {
-                (*sampleLocations)[i].set(pos[0], 1 - pos[1]);
+                (*samplePattern)[i].set(pos[0], 1 - pos[1]);
             }
         }
     }
