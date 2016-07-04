@@ -10,6 +10,7 @@
 #include "../include/core/SkSurface.h"
 #include "../include/effects/SkGradientShader.h"
 #include "../include/gpu/GrContext.h"
+#include "../include/images/SkForceLinking.h"
 
 // These headers are just handy for writing this example file.  Nothing Skia specific.
 #include <cstdlib>
@@ -59,6 +60,9 @@ static std::shared_ptr<SkSurface> create_opengl_surface(int w, int h) {
 }
 
 int main(int, char**) {
+
+    __SK_FORCE_IMAGE_DECODER_LINKING;
+
     bool gl_ok = setup_gl_context();
     srand((unsigned)time(nullptr));
     std::shared_ptr<SkSurface> surface = (gl_ok && rand() % 2) ? create_opengl_surface(320, 240)
