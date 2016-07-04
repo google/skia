@@ -13,9 +13,9 @@
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
 #include "GrTypes.h"
-#include "GrVertexBatch.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
+#include "GrVertexBatch.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 
@@ -43,6 +43,35 @@ const GrBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
     return resourceProvider->findOrCreateInstancedIndexBuffer(gFillAARectIdx,
         kIndicesPerAAFillRect, kNumAAFillRectsInIndexBuffer, kVertsPerAAFillRect,
         gAAFillRectIndexBufferKey);
+}
+
+static sk_sp<GrGeometryProcessor> create_fill_rect_gp(
+                                       const SkMatrix& viewMatrix,
+                                       const GrXPOverridesForBatch& overrides,
+                                       GrDefaultGeoProcFactory::LocalCoords::Type localCoordsType) {
+    using namespace GrDefaultGeoProcFactory;
+
+    Color color(Color::kAttribute_Type);
+    Coverage::Type coverageType;
+    // TODO remove coverage if coverage is ignored
+    /*if (coverageIgnored) {
+        coverageType = Coverage::kNone_Type;
+    } else*/ if (overrides.canTweakAlphaForCoverage()) {
+        coverageType = Coverage::kSolid_Type;
+    } else {
+        coverageType = Coverage::kAttribute_Type;
+    }
+    Coverage coverage(coverageType);
+
+    // We assume the caller has inverted the viewmatrix
+    if (LocalCoords::kHasExplicit_Type == localCoordsType) {
+        LocalCoords localCoords(localCoordsType);
+        return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
+    } else {
+        LocalCoords localCoords(overrides.readsLocalCoords() ? localCoordsType :
+                                                               LocalCoords::kUnused_Type);
+        return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
+    }
 }
 
 static void generate_aa_fill_rect_geometry(intptr_t verts,
@@ -108,7 +137,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
     if (localMatrix) {
         SkMatrix invViewMatrix;
         if (!viewMatrix.invert(&invViewMatrix)) {
-            SkDebugf("View matrix is non-invertible, local coords will be wrong.");
+            SkASSERT(false);
             invViewMatrix = SkMatrix::I();
         }
         SkMatrix localCoordMatrix;
@@ -157,37 +186,28 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
         }
     }
 }
-class AAFillRectBatch : public GrVertexBatch {
+
+class AAFillRectNoLocalMatrixBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
-
-    AAFillRectBatch(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect& devRect,
-                    const SkMatrix* localMatrix) : INHERITED(ClassID()) {
-        if (localMatrix) {
-            void* mem = fRectData.push_back_n(sizeof(RectWithLocalMatrixInfo));
-            new (mem) RectWithLocalMatrixInfo(color, viewMatrix, rect, devRect, *localMatrix);
-        } else {
-            void* mem = fRectData.push_back_n(sizeof(RectInfo));
-            new (mem) RectInfo(color, viewMatrix, rect, devRect);
-        }
+    AAFillRectNoLocalMatrixBatch(GrColor color,
+                                 const SkMatrix& viewMatrix,
+                                 const SkRect& rect,
+                                 const SkRect& devRect) : INHERITED(ClassID()) {
+        fRects.emplace_back(RectInfo{color, viewMatrix, rect, devRect});
         fBounds = devRect;
-        fRectCnt = 1;
     }
 
-    const char* name() const override { return "AAFillRectBatch"; }
+    const char* name() const override { return "AAFillRectBatchNoLocalMatrix"; }
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("# batched: %d\n", fRectCnt);
-        const RectInfo* info = this->first();
-        for (int i = 0; i < fRectCnt; ++i) {
-            const SkRect& rect = info->rect();
+        str.appendf("# batched: %d\n", fRects.count());
+        for (int i = 0; i < fRects.count(); ++i) {
+            const RectInfo& info = fRects[i];
             str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                        i, info->color(), rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
-            info = this->next(info);
+                        i, info.fColor,
+                        info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight, info.fRect.fBottom);
         }
         str.append(INHERITED::dumpInfo());
         return str;
@@ -197,39 +217,30 @@ public:
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one rect
-        color->setKnownFourComponents(this->first()->color());
+        color->setKnownFourComponents(fRects[0].fColor);
         coverage->setUnknownSingleComponent();
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        GrColor color;
-        if (overrides.getOverrideColorIfSet(&color)) {
-            this->first()->setColor(color);
-        }
+        overrides.getOverrideColorIfSet(&fRects[0].fColor);
         fOverrides = overrides;
     }
 
 private:
-    void onPrepareDraws(Target* target) const override {
-        bool needLocalCoords = fOverrides.readsLocalCoords();
-        using namespace GrDefaultGeoProcFactory;
+    AAFillRectNoLocalMatrixBatch() : INHERITED(ClassID()) {}
 
-        Color color(Color::kAttribute_Type);
-        Coverage::Type coverageType;
-        if (fOverrides.canTweakAlphaForCoverage()) {
-            coverageType = Coverage::kSolid_Type;
-        } else {
-            coverageType = Coverage::kAttribute_Type;
-        }
-        Coverage coverage(coverageType);
-        LocalCoords lc = needLocalCoords ? LocalCoords::kHasExplicit_Type
-                                         : LocalCoords::kUnused_Type;
-        sk_sp<GrGeometryProcessor> gp = GrDefaultGeoProcFactory::Make(color, coverage, lc,
-                                                                      SkMatrix::I());
+    void onPrepareDraws(Target* target) const override {
+        sk_sp<GrGeometryProcessor> gp =
+                create_fill_rect_gp(fRects[0].fViewMatrix, fOverrides,
+                                    GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
+        SkASSERT(fOverrides.canTweakAlphaForCoverage() ?
+                     gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
+                     gp->getVertexStride() ==
+                         sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -237,34 +248,145 @@ private:
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
                                      indexBuffer, kVertsPerAAFillRect,
-                                     kIndicesPerAAFillRect, fRectCnt);
+                                     kIndicesPerAAFillRect, fRects.count());
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
-        const RectInfo* info = this->first();
-        const SkMatrix* localMatrix = nullptr;
-        for (int i = 0; i < fRectCnt; i++) {
+        for (int i = 0; i < fRects.count(); i++) {
             intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
                              i * kVertsPerAAFillRect * vertexStride;
-            if (needLocalCoords) {
-                if (info->hasLocalMatrix()) {
-                    localMatrix = &static_cast<const RectWithLocalMatrixInfo*>(info)->localMatrix();
-                } else {
-                    localMatrix = &SkMatrix::I();
-                }
-            }
-            generate_aa_fill_rect_geometry(verts, vertexStride, info->color(),
-                                           info->viewMatrix(), info->rect(),
-                                           info->devRect(), fOverrides, localMatrix);
-            info = this->next(info);
+            generate_aa_fill_rect_geometry(verts, vertexStride,
+                                           fRects[i].fColor, fRects[i].fViewMatrix,
+                                           fRects[i].fRect, fRects[i].fDevRect, fOverrides,
+                                           nullptr);
         }
         helper.recordDraw(target, gp.get());
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        AAFillRectBatch* that = t->cast<AAFillRectBatch>();
+        AAFillRectNoLocalMatrixBatch* that = t->cast<AAFillRectNoLocalMatrixBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
+            return false;
+        }
+
+        // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
+        // local coords then we won't be able to batch.  We could actually upload the viewmatrix
+        // using vertex attributes in these cases, but haven't investigated that
+        if (fOverrides.readsLocalCoords() &&
+            !fRects[0].fViewMatrix.cheapEqualTo(that->fRects[0].fViewMatrix)) {
+            return false;
+        }
+
+        // In the event of two batches, one who can tweak, one who cannot, we just fall back to
+        // not tweaking
+        if (fOverrides.canTweakAlphaForCoverage() && !that->fOverrides.canTweakAlphaForCoverage()) {
+            fOverrides = that->fOverrides;
+        }
+
+        fRects.push_back_n(that->fRects.count(), that->fRects.begin());
+        this->joinBounds(that->bounds());
+        return true;
+    }
+
+    struct RectInfo {
+        GrColor fColor;
+        SkMatrix fViewMatrix;
+        SkRect fRect;
+        SkRect fDevRect;
+    };
+
+    GrXPOverridesForBatch fOverrides;
+    SkSTArray<1, RectInfo, true> fRects;
+
+    typedef GrVertexBatch INHERITED;
+};
+
+class AAFillRectLocalMatrixBatch : public GrVertexBatch {
+public:
+    DEFINE_BATCH_CLASS_ID
+
+    AAFillRectLocalMatrixBatch(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkMatrix& localMatrix,
+                               const SkRect& rect,
+                               const SkRect& devRect) : INHERITED(ClassID()) {
+        fRects.emplace_back(RectInfo{color, viewMatrix, localMatrix, rect, devRect});
+        fBounds = devRect;
+    }
+
+    const char* name() const override { return "AAFillRectBatchLocalMatrix"; }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("# batched: %d\n", fRects.count());
+        for (int i = 0; i < fRects.count(); ++i) {
+            const RectInfo& info = fRects[i];
+            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                        i, info.fColor,
+                        info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight, info.fRect.fBottom);
+        }
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
+
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
+        // When this is called on a batch, there is only one rect
+        color->setKnownFourComponents(fRects[0].fColor);
+        coverage->setUnknownSingleComponent();
+    }
+
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
+        overrides.getOverrideColorIfSet(&fRects[0].fColor);
+        fOverrides = overrides;
+    }
+
+private:
+    AAFillRectLocalMatrixBatch() : INHERITED(ClassID()) {}
+
+    void onPrepareDraws(Target* target) const override {
+        sk_sp<GrGeometryProcessor> gp =
+                create_fill_rect_gp(fRects[0].fViewMatrix, fOverrides,
+                                    GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type);
+        if (!gp) {
+            SkDebugf("Couldn't create GrGeometryProcessor\n");
+            return;
+        }
+        SkASSERT(fOverrides.canTweakAlphaForCoverage() ?
+                 gp->getVertexStride() ==
+                 sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
+                 gp->getVertexStride() ==
+                 sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordCoverage));
+
+        size_t vertexStride = gp->getVertexStride();
+
+        SkAutoTUnref<const GrBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
+        InstancedHelper helper;
+        void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
+                                     indexBuffer, kVertsPerAAFillRect,
+                                     kIndicesPerAAFillRect, fRects.count());
+        if (!vertices || !indexBuffer) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
+        for (int i = 0; i < fRects.count(); i++) {
+            intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
+                             i * kVertsPerAAFillRect * vertexStride;
+            generate_aa_fill_rect_geometry(verts, vertexStride, fRects[i].fColor,
+                                           fRects[i].fViewMatrix, fRects[i].fRect,
+                                           fRects[i].fDevRect, fOverrides,
+                                           &fRects[i].fLocalMatrix);
+        }
+        helper.recordDraw(target, gp.get());
+    }
+
+    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+        AAFillRectLocalMatrixBatch* that = t->cast<AAFillRectLocalMatrixBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -276,65 +398,21 @@ private:
             fOverrides = that->fOverrides;
         }
 
-        fRectData.push_back_n(that->fRectData.count(), that->fRectData.begin());
-        fRectCnt += that->fRectCnt;
+        fRects.push_back_n(that->fRects.count(), that->fRects.begin());
         this->joinBounds(that->bounds());
         return true;
     }
 
     struct RectInfo {
-    public:
-        RectInfo(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                 const SkRect& devRect)
-            : RectInfo(color, viewMatrix, rect, devRect, HasLocalMatrix::kNo) {}
-        bool hasLocalMatrix() const { return HasLocalMatrix::kYes == fHasLocalMatrix; }
-        GrColor color() const { return fColor; }
-        const SkMatrix& viewMatrix() const { return fViewMatrix; }
-        const SkRect& rect() const { return fRect; }
-        const SkRect& devRect() const { return fDevRect; }
-
-        void setColor(GrColor color) { fColor = color; }
-    protected:
-        enum class HasLocalMatrix : uint32_t { kNo, kYes };
-
-        RectInfo(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                 const SkRect& devRect, HasLocalMatrix hasLM)
-                : fHasLocalMatrix(hasLM)
-                , fColor(color)
-                , fViewMatrix(viewMatrix)
-                , fRect(rect)
-                , fDevRect(devRect) {}
-
-        HasLocalMatrix fHasLocalMatrix;
         GrColor fColor;
         SkMatrix fViewMatrix;
+        SkMatrix fLocalMatrix;
         SkRect fRect;
         SkRect fDevRect;
     };
 
-    struct RectWithLocalMatrixInfo : public RectInfo {
-    public:
-        RectWithLocalMatrixInfo(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                                const SkRect& devRect, const SkMatrix& localMatrix)
-            : RectInfo(color, viewMatrix, rect, devRect, HasLocalMatrix::kYes)
-            , fLocalMatrix(localMatrix) {}
-        const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    private:
-        SkMatrix fLocalMatrix;
-    };
-
-    RectInfo* first() { return reinterpret_cast<RectInfo*>(fRectData.begin()); }
-    const RectInfo* first() const { return reinterpret_cast<const RectInfo*>(fRectData.begin()); }
-    const RectInfo* next(const RectInfo* prev) const {
-        intptr_t next = reinterpret_cast<intptr_t>(prev) +
-                (prev->hasLocalMatrix() ? sizeof(RectWithLocalMatrixInfo)
-                                        : sizeof(RectInfo));
-        return reinterpret_cast<const RectInfo*>(next);
-    }
-
     GrXPOverridesForBatch fOverrides;
-    SkSTArray<4 * sizeof(RectWithLocalMatrixInfo), uint8_t, true> fRectData;
-    int fRectCnt;
+    SkSTArray<1, RectInfo, true> fRects;
 
     typedef GrVertexBatch INHERITED;
 };
@@ -345,7 +423,7 @@ GrDrawBatch* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkRect& devRect) {
-    return new AAFillRectBatch(color, viewMatrix, rect, devRect, nullptr);
+    return new AAFillRectNoLocalMatrixBatch(color, viewMatrix, rect, devRect);
 }
 
 GrDrawBatch* Create(GrColor color,
@@ -353,7 +431,7 @@ GrDrawBatch* Create(GrColor color,
                     const SkMatrix& localMatrix,
                     const SkRect& rect,
                     const SkRect& devRect) {
-    return new AAFillRectBatch(color, viewMatrix, rect, devRect, &localMatrix);
+    return new AAFillRectLocalMatrixBatch(color, viewMatrix, localMatrix, rect, devRect);
 }
 
 GrDrawBatch* Create(GrColor color,
