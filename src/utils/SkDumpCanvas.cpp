@@ -5,10 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkDumpCanvas.h"
-
-#ifdef SK_DEBUG
 #include "SkData.h"
+#include "SkDumpCanvas.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkPixelRef.h"
@@ -553,5 +551,3 @@ static void dumpToDebugf(const char text[], void*) {
 }
 
 SkDebugfDumper::SkDebugfDumper() : INHERITED(dumpToDebugf, nullptr) {}
-
-#endif
