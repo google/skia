@@ -46,8 +46,8 @@ GrMesh& GrMesh::operator =(const GrMesh& di) {
 GrGpu::GrGpu(GrContext* context)
     : fResetTimestamp(kExpiredTimestamp+1)
     , fResetBits(kAll_GrBackendState)
+    , fMultisampleSpecsAllocator(1)
     , fContext(context) {
-    fMultisampleSpecs.emplace_back(0, 0, nullptr); // Index 0 is an invalid unique id.
 }
 
 GrGpu::~GrGpu() {}
@@ -425,63 +425,58 @@ void GrGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_
     }
 }
 
+inline static uint8_t multisample_specs_id(uint8_t numSamples, GrSurfaceOrigin origin,
+                                           const GrCaps& caps) {
+    if (!caps.sampleLocationsSupport()) {
+        return numSamples;
+    }
+
+    SkASSERT(numSamples < 128);
+    SkASSERT(kTopLeft_GrSurfaceOrigin == origin || kBottomLeft_GrSurfaceOrigin == origin);
+    return (numSamples << 1) | (origin - 1);
+
+    GR_STATIC_ASSERT(1 == kTopLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(2 == kBottomLeft_GrSurfaceOrigin);
+}
+
 const GrGpu::MultisampleSpecs& GrGpu::getMultisampleSpecs(GrRenderTarget* rt,
                                                           const GrStencilSettings& stencil) {
-    SkASSERT(rt->desc().fSampleCnt > 1);
-
-#ifndef SK_DEBUG
-    // In debug mode we query the multisample info every time to verify the caching is correct.
-    if (uint8_t id = rt->renderTargetPriv().accessMultisampleSpecsID()) {
-        SkASSERT(id > 0 && id < fMultisampleSpecs.count());
-        return fMultisampleSpecs[id];
-    }
+    const GrSurfaceDesc& desc = rt->desc();
+    uint8_t surfDescKey = multisample_specs_id(desc.fSampleCnt, desc.fOrigin, *this->caps());
+    if (fMultisampleSpecsMap.count() > surfDescKey && fMultisampleSpecsMap[surfDescKey]) {
+#if !defined(SK_DEBUG)
+        // In debug mode we query the multisample info every time and verify the caching is correct.
+        return *fMultisampleSpecsMap[surfDescKey];
 #endif
-
+    }
     int effectiveSampleCnt;
-    SkSTArray<16, SkPoint, true> pattern;
-    this->onGetMultisampleSpecs(rt, stencil, &effectiveSampleCnt, &pattern);
-    SkASSERT(effectiveSampleCnt >= rt->desc().fSampleCnt);
-
-    uint8_t id;
-    if (this->caps()->sampleLocationsSupport()) {
-        SkASSERT(pattern.count() == effectiveSampleCnt);
-        const auto& emplaceResult =
-            fMultisampleSpecsIdMap.emplace(pattern, SkTMin(fMultisampleSpecs.count(), 255));
-        id = emplaceResult.first->second;
-        if (emplaceResult.second) {
-            // This means the emplace did not find the pattern in the map already, and therefore an
-            // actual insertion took place. (We don't expect to see many unique sample patterns.)
-            const SkPoint* sampleLocations = emplaceResult.first->first.begin();
-            SkASSERT(id == fMultisampleSpecs.count());
-            fMultisampleSpecs.emplace_back(id, effectiveSampleCnt, sampleLocations);
-        }
-    } else {
-        id = effectiveSampleCnt;
-        for (int i = fMultisampleSpecs.count(); i <= id; ++i) {
-            fMultisampleSpecs.emplace_back(i, i, nullptr);
-        }
+    SkAutoTDeleteArray<SkPoint> locations(nullptr);
+    this->onGetMultisampleSpecs(rt, stencil, &effectiveSampleCnt, &locations);
+    SkASSERT(effectiveSampleCnt && effectiveSampleCnt >= desc.fSampleCnt);
+    uint8_t effectiveKey = multisample_specs_id(effectiveSampleCnt, desc.fOrigin, *this->caps());
+    if (fMultisampleSpecsMap.count() > effectiveKey && fMultisampleSpecsMap[effectiveKey]) {
+        const MultisampleSpecs& specs = *fMultisampleSpecsMap[effectiveKey];
+        SkASSERT(effectiveKey == specs.fUniqueID);
+        SkASSERT(effectiveSampleCnt == specs.fEffectiveSampleCnt);
+        SkASSERT(!this->caps()->sampleLocationsSupport() ||
+                 !memcmp(locations.get(), specs.fSampleLocations.get(),
+                         effectiveSampleCnt * sizeof(SkPoint)));
+        SkASSERT(surfDescKey <= effectiveKey);
+        SkASSERT(!fMultisampleSpecsMap[surfDescKey] || fMultisampleSpecsMap[surfDescKey] == &specs);
+        fMultisampleSpecsMap[surfDescKey] = &specs;
+        return specs;
     }
-    SkASSERT(id > 0);
-    SkASSERT(!rt->renderTargetPriv().accessMultisampleSpecsID() ||
-             rt->renderTargetPriv().accessMultisampleSpecsID() == id);
-
-    rt->renderTargetPriv().accessMultisampleSpecsID() = id;
-    return fMultisampleSpecs[id];
+    const MultisampleSpecs& specs = *new (&fMultisampleSpecsAllocator)
+        MultisampleSpecs{effectiveKey, effectiveSampleCnt, locations.release()};
+    if (fMultisampleSpecsMap.count() <= effectiveKey) {
+        int n = 1 + effectiveKey - fMultisampleSpecsMap.count();
+        fMultisampleSpecsMap.push_back_n(n, (const MultisampleSpecs*) nullptr);
+    }
+    fMultisampleSpecsMap[effectiveKey] = &specs;
+    if (effectiveSampleCnt != desc.fSampleCnt) {
+        SkASSERT(surfDescKey < effectiveKey);
+        fMultisampleSpecsMap[surfDescKey] = &specs;
+    }
+    return specs;
 }
 
-bool GrGpu::SamplePatternComparator::operator()(const SamplePattern& a,
-                                                const SamplePattern& b) const {
-    if (a.count() != b.count()) {
-        return a.count() < b.count();
-    }
-    for (int i = 0; i < a.count(); ++i) {
-        // This doesn't have geometric meaning. We just need to define an ordering for std::map.
-        if (a[i].x() != b[i].x()) {
-            return a[i].x() < b[i].x();
-        }
-        if (a[i].y() != b[i].y()) {
-            return a[i].y() < b[i].y();
-        }
-    }
-    return false; // Equal.
-}

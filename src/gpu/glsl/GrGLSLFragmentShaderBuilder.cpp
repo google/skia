@@ -365,7 +365,7 @@ void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(const char* name, cons
     const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline.getStencil());
     SkSTArray<16, SkPoint, true> offsets;
     offsets.push_back_n(specs.fEffectiveSampleCnt);
-    m.mapPoints(offsets.begin(), specs.fSampleLocations, specs.fEffectiveSampleCnt);
+    m.mapPoints(offsets.begin(), specs.fSampleLocations.get(), specs.fEffectiveSampleCnt);
     this->definitions().append("const ");
     if (fProgramBuilder->glslCaps()->usesPrecisionModifiers()) {
         this->definitions().append("highp ");

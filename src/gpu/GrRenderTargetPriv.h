@@ -33,7 +33,6 @@ public:
     int numStencilBits() const;
 
     const GrGpu::MultisampleSpecs& getMultisampleSpecs(const GrStencilSettings& stencil) const;
-    uint8_t& accessMultisampleSpecsID() { return fRenderTarget->fMultisampleSpecsID; }
 
     GrRenderTarget::SampleConfig sampleConfig() const { return fRenderTarget->fSampleConfig; }
 
