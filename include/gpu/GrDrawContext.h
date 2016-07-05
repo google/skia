@@ -14,7 +14,6 @@
 #include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkSurfaceProps.h"
-#include "../private/GrInstancedPipelineInfo.h"
 #include "../private/GrSingleOwner.h"
 
 class GrAtlasTextContext;
@@ -347,7 +346,6 @@ private:
     GrDrawTarget*                     fDrawTarget;
     SkAutoTDelete<GrAtlasTextContext> fAtlasTextContext;
     GrContext*                        fContext;
-    GrInstancedPipelineInfo           fInstancedPipelineInfo;
 
     SkSurfaceProps                    fSurfaceProps;
     GrAuditTrail*                     fAuditTrail;

@@ -144,11 +144,6 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
-    /**
-     * Gets the shape rendering object if it is supported on this platform.
-     */
-    gr_instanced::InstancedRendering* instancedRendering() const { return fInstancedRendering; }
-
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
     friend class GrDrawContextPriv; // for clearStencilClip
@@ -214,26 +209,24 @@ private:
     // Used only by drawContextPriv.
     void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
 
-    SkSTArray<256, SkAutoTUnref<GrBatch>, true>     fBatches;
+    SkSTArray<256, SkAutoTUnref<GrBatch>, true> fBatches;
     // The context is only in service of the clip mask manager, remove once CMM doesn't need this.
-    GrContext*                                      fContext;
-    GrGpu*                                          fGpu;
-    GrResourceProvider*                             fResourceProvider;
-    GrAuditTrail*                                   fAuditTrail;
+    GrContext*                                  fContext;
+    GrGpu*                                      fGpu;
+    GrResourceProvider*                         fResourceProvider;
+    GrAuditTrail*                               fAuditTrail;
 
-    SkDEBUGCODE(int                                 fDebugID;)
-    uint32_t                                        fFlags;
+    SkDEBUGCODE(int                             fDebugID;)
+    uint32_t                                    fFlags;
 
     // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
-    SkTDArray<GrDrawTarget*>                        fDependencies;
-    GrRenderTarget*                                 fRenderTarget;
+    SkTDArray<GrDrawTarget*>                    fDependencies;
+    GrRenderTarget*                             fRenderTarget;
 
-    bool                                            fClipBatchToBounds;
-    bool                                            fDrawBatchBounds;
-    int                                             fMaxBatchLookback;
-    int                                             fMaxBatchLookahead;
-
-    SkAutoTDelete<gr_instanced::InstancedRendering> fInstancedRendering;
+    bool                                        fClipBatchToBounds;
+    bool                                        fDrawBatchBounds;
+    int                                         fMaxBatchLookback;
+    int                                         fMaxBatchLookahead;
 
     typedef SkRefCnt INHERITED;
 };

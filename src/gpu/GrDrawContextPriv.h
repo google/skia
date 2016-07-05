@@ -9,7 +9,6 @@
 #define GrDrawContextPriv_DEFINED
 
 #include "GrDrawContext.h"
-#include "GrDrawTarget.h"
 #include "GrPathRendering.h"
 
 class GrFixedClip;
@@ -21,10 +20,6 @@ struct GrUserStencilSettings;
     data members or virtual methods. */
 class GrDrawContextPriv {
 public:
-    gr_instanced::InstancedRendering* accessInstancedRendering() const {
-        return fDrawContext->getDrawTarget()->instancedRendering();
-    }
-
     void clearStencilClip(const SkIRect& rect, bool insideClip);
 
     void stencilRect(const GrFixedClip& clip,

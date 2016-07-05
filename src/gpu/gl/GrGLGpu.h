@@ -28,8 +28,6 @@ class GrPipeline;
 class GrNonInstancedMesh;
 class GrSwizzle;
 
-namespace gr_instanced { class GLInstancedRendering; }
-
 #ifdef SK_DEBUG
 #define PROGRAM_CACHE_STATS
 #endif
@@ -55,8 +53,6 @@ public:
         SkASSERT(glCaps().shaderCaps()->pathRenderingSupport());
         return static_cast<GrGLPathRendering*>(pathRendering());
     }
-
-    gr_instanced::InstancedRendering* createInstancedRenderingIfSupported() override;
 
     // Used by GrGLProgram to configure OpenGL state.
     void bindTexture(int unitIdx, const GrTextureParams& params, bool allowSRGBInputs,
@@ -601,7 +597,6 @@ private:
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.
-    friend class gr_instanced::GLInstancedRendering; // For accessing flushGLState.
 };
 
 #endif

@@ -33,8 +33,6 @@
 #include "batches/GrRectBatchFactory.h"
 #include "batches/GrStencilPathBatch.h"
 
-#include "instanced/InstancedRendering.h"
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // Experimentally we have found that most batching occurs within the first 10 comparisons.
@@ -47,8 +45,7 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
     , fResourceProvider(resourceProvider)
     , fAuditTrail(auditTrail)
     , fFlags(0)
-    , fRenderTarget(rt)
-    , fInstancedRendering(fGpu->createInstancedRenderingIfSupported()) {
+    , fRenderTarget(rt) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
 
@@ -204,10 +201,6 @@ void GrDrawTarget::prepareBatches(GrBatchFlushState* flushState) {
             fBatches[i]->prepare(flushState);
         }
     }
-
-    if (fInstancedRendering) {
-        fInstancedRendering->beginFlush(flushState->resourceProvider());
-    }
 }
 
 void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
@@ -276,9 +269,6 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
 
 void GrDrawTarget::reset() {
     fBatches.reset();
-    if (fInstancedRendering) {
-        fInstancedRendering->endFlush();
-    }
 }
 
 void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,

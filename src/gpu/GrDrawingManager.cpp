@@ -13,12 +13,8 @@
 #include "GrSoftwarePathRenderer.h"
 #include "SkTTopoSort.h"
 
-#include "instanced/InstancedRendering.h"
-
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
-
-using gr_instanced::InstancedRendering;
 
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fDrawTargets.count(); ++i) {
@@ -44,11 +40,6 @@ GrDrawingManager::~GrDrawingManager() {
 
 void GrDrawingManager::abandon() {
     fAbandoned = true;
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        if (InstancedRendering* ir = fDrawTargets[i]->instancedRendering()) {
-            ir->resetGpuResources(InstancedRendering::ResetType::kAbandon);
-        }
-    }
     this->cleanup();
 }
 
@@ -57,11 +48,6 @@ void GrDrawingManager::freeGpuResources() {
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        if (InstancedRendering* ir = fDrawTargets[i]->instancedRendering()) {
-            ir->resetGpuResources(InstancedRendering::ResetType::kDestroy);
-        }
-    }
 }
 
 void GrDrawingManager::reset() {
