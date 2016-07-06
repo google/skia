@@ -123,6 +123,40 @@ int sk_path_iter_is_closed_contour (sk_path_iterator_t *iterator)
     return AsPathIter(iterator)->isClosedContour ();
 }
 
+void sk_path_iter_destroy (sk_path_iterator_t *iterator)
+{
+    delete AsPathIter (iterator);
+}
+
+sk_path_rawiterator_t* sk_path_create_rawiter (sk_path_t *cpath)
+{
+    SkPath::RawIter* iter = new SkPath::RawIter(AsPath(*cpath));
+    return ToPathRawIter(iter);
+}
+
+sk_path_verb_t sk_path_rawiter_next (sk_path_rawiterator_t *iterator, sk_point_t points [4])
+{
+    SkPath::RawIter *iter = AsPathRawIter(iterator);
+    SkPoint *pts = AsPoint(points);
+    SkPath::Verb verb = iter->next(pts);
+    return (sk_path_verb_t)verb;
+}
+
+sk_path_verb_t sk_path_rawiter_peek (sk_path_rawiterator_t *iterator)
+{
+    return (sk_path_verb_t) AsPathRawIter(iterator)->peek ();
+}
+
+float sk_path_rawiter_conic_weight (sk_path_rawiterator_t *iterator)
+{
+    return AsPathRawIter(iterator)->conicWeight ();
+}
+
+void sk_path_rawiter_destroy (sk_path_rawiterator_t *iterator)
+{
+    delete AsPathRawIter (iterator);
+}
+
 #if __cplusplus >= 199711L
 static_assert (SkPath::kAppend_AddPathMode == APPEND_ADD_MODE, "ABI changed, you must write a enumeration mapper for SkPath::AddPathMode to sk_path_add_mode_t");
 static_assert (SkPath::kExtend_AddPathMode == EXTEND_ADD_MODE, "ABI changed, you must write a enumeration mapper for SkPath::AddPathMode to sk_path_add_mode_t");

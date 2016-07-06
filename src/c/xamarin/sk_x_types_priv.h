@@ -729,4 +729,12 @@ static inline SkPath::Iter* AsPathIter(sk_path_iterator_t* iter) {
 static inline sk_path_iterator_t* ToPathIter(SkPath::Iter* iter) {
     return reinterpret_cast<sk_path_iterator_t*>(iter);
 }
+
+static inline SkPath::RawIter* AsPathRawIter(sk_path_rawiterator_t* iter) {
+    return reinterpret_cast<SkPath::RawIter*>(iter);
+}
+
+static inline sk_path_rawiterator_t* ToPathRawIter(SkPath::RawIter* iter) {
+    return reinterpret_cast<sk_path_rawiterator_t*>(iter);
+}
 #endif
