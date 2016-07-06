@@ -939,6 +939,11 @@ DEF_TEST(Matrix, reporter) {
     test_set9(reporter);
 
     test_decompScale(reporter);
+
+    mat.setScaleTranslate(2, 3, 1, 4);
+    mat2.setScale(2, 3);
+    mat2.postTranslate(1, 4);
+    REPORTER_ASSERT(reporter, mat == mat2);
 }
 
 DEF_TEST(Matrix_Concat, r) {
