@@ -228,7 +228,8 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
         a.fScissorState != b.fScissorState ||
         a.fFlags != b.fFlags ||
         a.fStencilSettings != b.fStencilSettings ||
-        a.fDrawFace != b.fDrawFace) {
+        a.fDrawFace != b.fDrawFace ||
+        a.fIgnoresCoverage != b.fIgnoresCoverage) {
         return false;
     }
 
