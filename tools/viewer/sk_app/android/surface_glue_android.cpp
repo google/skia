@@ -22,7 +22,6 @@
 #include "SkTypes.h"
 #include "SkUtils.h"
 #include "Window_android.h"
-#include "SkTime.h"
 
 namespace sk_app {
 
@@ -167,8 +166,6 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
     return 1;  // continue receiving callbacks
 }
 
-static double now_ms() { return SkTime::GetMSecs(); }
-
 void* SkiaAndroidApp::pthread_main(void* arg) {
     SkDebugf("pthread_main begins");
 
@@ -184,17 +181,13 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
 
     skiaAndroidApp->fApp = Application::Create(0, nullptr, skiaAndroidApp);
 
-    double currentTime = 0.0;
-    double previousTime = 0.0;
     while (true) {
         const int ident = ALooper_pollAll(0, nullptr, nullptr, nullptr);
 
         if (ident >= 0) {
             SkDebugf("Unhandled ALooper_pollAll ident=%d !", ident);
         } else {
-            previousTime = currentTime;
-            currentTime = now_ms();
-            skiaAndroidApp->fApp->onIdle(currentTime - previousTime);
+            skiaAndroidApp->fApp->onIdle();
         }
     }
 

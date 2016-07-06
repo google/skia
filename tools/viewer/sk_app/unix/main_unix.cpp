@@ -13,8 +13,6 @@
 
 using sk_app::Application;
 
-static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
-
 void finishWindow(sk_app::Window_unix* win) {
     win->finishResize();
     win->finishPaint();
@@ -25,9 +23,6 @@ int main(int argc, char**argv) {
     Display* display = XOpenDisplay(nullptr);
 
     Application* app = Application::Create(argc, argv, (void*)display);
-
-    double currentTime = 0.0;
-    double previousTime = 0.0;
 
     // Get the file descriptor for the X display
     int x11_fd = ConnectionNumber(display);
@@ -75,9 +70,7 @@ int main(int argc, char**argv) {
         
         pendingWindows.foreach(finishWindow);
         if (pendingWindows.count() > 0) {
-            previousTime = currentTime;
-            currentTime = now_ms();
-            app->onIdle(currentTime - previousTime);        
+            app->onIdle();
         }
         pendingWindows.reset();
     }
