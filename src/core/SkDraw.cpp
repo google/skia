@@ -1006,7 +1006,10 @@ SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
         SkScalar sx = SkPoint::Length(matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewY]);
         SkScalar sy = SkPoint::Length(matrix[SkMatrix::kMSkewX],  matrix[SkMatrix::kMScaleY]);
         if (SkScalarsAreFinite(sx, sy)) {
-            return SkTMax(sx, sy);
+            SkScalar scale = SkTMax(sx, sy);
+            if (scale > 0) {
+                return scale;
+            }
         }
     }
     return 1;
