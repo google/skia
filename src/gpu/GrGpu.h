@@ -17,6 +17,7 @@
 #include "GrXferProcessor.h"
 #include "SkPath.h"
 #include "SkTArray.h"
+#include <map>
 
 class GrBatchTracker;
 class GrBuffer;
@@ -332,14 +333,19 @@ public:
                      const SkIPoint& dstPoint);
 
     struct MultisampleSpecs {
+        MultisampleSpecs(uint8_t uniqueID, int effectiveSampleCnt, const SkPoint* locations)
+            : fUniqueID(uniqueID),
+              fEffectiveSampleCnt(effectiveSampleCnt),
+              fSampleLocations(locations) {}
+
         // Nonzero ID that uniquely identifies these multisample specs.
-        uint8_t                            fUniqueID;
+        uint8_t          fUniqueID;
         // The actual number of samples the GPU will run. NOTE: this value can be greater than the
         // the render target's sample count.
-        int                                fEffectiveSampleCnt;
-        // If sample locations are supported, contains the subpixel locations at which the GPU will
-        // sample. Pixel center is at (.5, .5) and (0, 0) indicates the top left corner.
-        SkAutoTDeleteArray<const SkPoint>  fSampleLocations;
+        int              fEffectiveSampleCnt;
+        // If sample locations are supported, points to the subpixel locations at which the GPU will
+        // sample. Pixel center is at (.5, .5), and (0, 0) indicates the top left corner.
+        const SkPoint*   fSampleLocations;
     };
 
     // Finds a render target's multisample specs. The stencil settings are only needed to flush the
@@ -495,6 +501,8 @@ protected:
     // Subclass must initialize this in its constructor.
     SkAutoTUnref<const GrCaps>    fCaps;
 
+    typedef SkTArray<SkPoint, true> SamplePattern;
+
 private:
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
@@ -560,10 +568,8 @@ private:
                                const SkIPoint& dstPoint) = 0;
 
     // overridden by backend specific derived class to perform the multisample queries
-    virtual void onGetMultisampleSpecs(GrRenderTarget*,
-                                       const GrStencilSettings&,
-                                       int* effectiveSampleCnt,
-                                       SkAutoTDeleteArray<SkPoint>* sampleLocations) = 0;
+    virtual void onGetMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&,
+                                       int* effectiveSampleCnt, SamplePattern*) = 0;
 
     void resetContext() {
         this->onResetContext(fResetBits);
@@ -571,12 +577,18 @@ private:
         ++fResetTimestamp;
     }
 
-    ResetTimestamp                                                      fResetTimestamp;
-    uint32_t                                                            fResetBits;
-    SkTArray<const MultisampleSpecs*, true>                             fMultisampleSpecsMap;
-    GrTAllocator<MultisampleSpecs>                                      fMultisampleSpecsAllocator;
+    struct SamplePatternComparator {
+        bool operator()(const SamplePattern&, const SamplePattern&) const;
+    };
+
+    typedef std::map<SamplePattern, uint8_t, SamplePatternComparator> MultisampleSpecsIdMap;
+
+    ResetTimestamp                         fResetTimestamp;
+    uint32_t                               fResetBits;
+    MultisampleSpecsIdMap                  fMultisampleSpecsIdMap;
+    SkSTArray<1, MultisampleSpecs, true>   fMultisampleSpecs;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
-    GrContext*                                                          fContext;
+    GrContext*                             fContext;
 
     friend class GrPathRendering;
     typedef SkRefCnt INHERITED;

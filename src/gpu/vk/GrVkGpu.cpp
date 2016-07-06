@@ -1367,7 +1367,7 @@ bool GrVkGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) 
 }
 
 void GrVkGpu::onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
-                                    int* effectiveSampleCnt, SkAutoTDeleteArray<SkPoint>*) {
+                                    int* effectiveSampleCnt, SamplePattern*) {
     // TODO: stub.
     SkASSERT(!this->caps()->sampleLocationsSupport());
     *effectiveSampleCnt = rt->desc().fSampleCnt;
