@@ -181,6 +181,12 @@
           },
         }],
         [ 'skia_vulkan', {
+          'link_settings': {
+            'libraries': [ '<(vulkan_lib_name)', ],
+          },
+          'dependencies': [
+            'shaderc.gyp:shaderc_combined',
+          ],
           'conditions': [
             [ 'skia_os == "win"', {
              'variables': {
@@ -225,21 +231,32 @@
                 'library_dirs': [ '<(vulkan_sdk_path)/lib', ],
               },
             }],
+            [ 'skia_android_framework', {
+              'include_dirs': [
+                'frameworks/native/vulkan/include',
+                '../tools/viewer/sk_app',
+                '../tools/viewer/sk_app/android',
+              ],
+              'direct_dependent_settings': {
+                'include_dirs': [
+                  'frameworks/native/vulkan/include',
+                  '../tools/viewer/sk_app',
+                  '../tools/viewer/sk_app/android',
+                ],
+              },
+              'dependencies!': [
+                'shaderc.gyp:shaderc_combined',
+              ],
+              'sources': [
+                # the gyp -> android.mk generator doesn't seem to like cpp files
+                # in directories outside of src, bench, or dm.  Until this gets fixed
+                # I just start the path in the src directory.
+                '<(skia_src_path)/../tools/viewer/sk_app/WindowContext.cpp', 
+                '<(skia_src_path)/../tools/viewer/sk_app/VulkanWindowContext.cpp',
+                '<(skia_src_path)/../tools/viewer/sk_app/android/VulkanWindowContext_android.cpp'
+              ],
+            }],
           ],
-          'dependencies': [
-            'shaderc.gyp:shaderc_combined',
-          ],
-          'include_dirs': [
-            '../third_party/externals/shaderc2/libshaderc/include',
-          ],
-          'direct_dependent_settings': {
-            'include_dirs': [
-              '../third_party/externals/shaderc2/libshaderc/include',
-            ],
-          },
-          'link_settings': {
-            'libraries': [ '<(vulkan_lib_name)', ],
-          },
         }, {
           'sources!': [
             '<@(skgpu_vk_sources)',

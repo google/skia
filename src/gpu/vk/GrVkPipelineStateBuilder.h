@@ -15,7 +15,6 @@
 #include "GrVkUniformHandler.h"
 #include "GrVkVaryingHandler.h"
 
-#include "shaderc/shaderc.h"
 #include "vk/GrVkDefines.h"
 
 class GrVkGpu;

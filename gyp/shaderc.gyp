@@ -17,6 +17,11 @@
         'libglslangosdependent',
         'libglslang',
       ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../third_party/externals/shaderc2/libshaderc/include',
+        ],
+      },
     },
     {
       'target_name': 'libshaderc',

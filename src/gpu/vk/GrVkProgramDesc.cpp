@@ -17,8 +17,6 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 
-#include "shaderc/shaderc.h"
-
 static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
                             const GrGLSLCaps& caps) {
     int numTextures = proc.numTextures();

@@ -82,6 +82,7 @@
           'skia_chrome_utils%': 0,
           'skia_use_android_framework_defines%': 1,
           'skia_use_system_json%': 1,
+          'skia_vulkan%': 1,
         }, {
           'skia_os%': '<(skia_os)',
           'skia_chrome_utils%': 1,
