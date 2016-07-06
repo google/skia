@@ -32,6 +32,7 @@ const SkMatrix& TestMatrix(SkRandom*);
 const SkMatrix& TestMatrixPreservesRightAngles(SkRandom*);
 const SkMatrix& TestMatrixRectStaysRect(SkRandom*);
 const SkMatrix& TestMatrixInvertible(SkRandom*);
+const SkMatrix& TestMatrixPerspective(SkRandom*);
 const SkRect& TestRect(SkRandom*);
 const SkRect& TestSquare(SkRandom*);
 const SkRRect& TestRRectSimple(SkRandom*);

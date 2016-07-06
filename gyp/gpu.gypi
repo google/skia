@@ -246,6 +246,7 @@
       '<(skia_src_path)/gpu/batches/GrMSAAPathRenderer.h',
       '<(skia_src_path)/gpu/batches/GrNonAAFillRectBatch.h',
       '<(skia_src_path)/gpu/batches/GrNonAAFillRectBatch.cpp',
+      '<(skia_src_path)/gpu/batches/GrNonAAFillRectPerspectiveBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrNonAAStrokeRectBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrNonAAStrokeRectBatch.h',
       '<(skia_src_path)/gpu/batches/GrNinePatch.cpp',

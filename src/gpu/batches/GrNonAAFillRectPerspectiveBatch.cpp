@@ -26,13 +26,33 @@ static const int kIndicesPerInstance = 6;
 
     The vertex attrib order is always pos, color, [local coords].
  */
-static sk_sp<GrGeometryProcessor> make_gp(bool readsCoverage) {
+static sk_sp<GrGeometryProcessor> make_persp_gp(const SkMatrix& viewMatrix,
+                                                bool readsCoverage,
+                                                bool hasExplicitLocalCoords,
+                                                const SkMatrix* localMatrix) {
+    SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
+
     using namespace GrDefaultGeoProcFactory;
     Color color(Color::kAttribute_Type);
     Coverage coverage(readsCoverage ? Coverage::kSolid_Type : Coverage::kNone_Type);
 
-    LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
-    return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
+    // If we have perspective on the viewMatrix then we won't map on the CPU, nor will we map
+    // the local rect on the cpu (in case the localMatrix also has perspective).
+    // Otherwise, if we have a local rect, then we apply the localMatrix directly to the localRect
+    // to generate vertex local coords
+    if (viewMatrix.hasPerspective()) {
+        LocalCoords localCoords(hasExplicitLocalCoords ? LocalCoords::kHasExplicit_Type :
+                                                         LocalCoords::kUsePosition_Type,
+                                localMatrix);
+        return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, viewMatrix);
+    } else if (hasExplicitLocalCoords) {
+        LocalCoords localCoords(LocalCoords::kHasExplicit_Type, localMatrix);
+        return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
+    } else {
+        LocalCoords localCoords(LocalCoords::kUsePosition_Type, localMatrix);
+        return GrDefaultGeoProcFactory::MakeForDeviceSpace(color, coverage, localCoords,
+                                                           viewMatrix);
+    }
 }
 
 static void tesselate(intptr_t vertices,
@@ -69,41 +89,41 @@ static void tesselate(intptr_t vertices,
     }
 }
 
-class NonAAFillRectBatch : public GrVertexBatch {
+// We handle perspective in the local matrix or viewmatrix with special batches
+class GrNonAAFillRectPerspectiveBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    NonAAFillRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                       const SkRect* localRect, const SkMatrix* localMatrix)
-            : INHERITED(ClassID()) {
-        SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix ||
-                                                  !localMatrix->hasPerspective()));
+    GrNonAAFillRectPerspectiveBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                                    const SkRect* localRect, const SkMatrix* localMatrix)
+            : INHERITED(ClassID())
+            , fViewMatrix(viewMatrix) {
+        SkASSERT(viewMatrix.hasPerspective() || (localMatrix &&
+                                                 localMatrix->hasPerspective()));
         RectInfo& info = fRects.push_back();
         info.fColor = color;
-        info.fViewMatrix = viewMatrix;
         info.fRect = rect;
-        if (localRect && localMatrix) {
-            info.fLocalQuad.setFromMappedRect(*localRect, *localMatrix);
-        } else if (localRect) {
-            info.fLocalQuad.set(*localRect);
-        } else if (localMatrix) {
-            info.fLocalQuad.setFromMappedRect(rect, *localMatrix);
-        } else {
-            info.fLocalQuad.set(rect);
+        fHasLocalRect = SkToBool(localRect);
+        fHasLocalMatrix = SkToBool(localMatrix);
+        if (fHasLocalMatrix) {
+            fLocalMatrix = *localMatrix;
         }
-        viewMatrix.mapRect(&fBounds, fRects[0].fRect);
+        if (fHasLocalRect) {
+            info.fLocalRect = *localRect;
+        }
+        viewMatrix.mapRect(&fBounds, rect);
     }
 
-    const char* name() const override { return "NonAAFillRectBatch"; }
+    const char* name() const override { return "NonAAFillRectPerspectiveBatch"; }
 
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# batched: %d\n", fRects.count());
         for (int i = 0; i < fRects.count(); ++i) {
-            const RectInfo& info = fRects[i];
+            const RectInfo& geo = fRects[0];
             str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                        i, info.fColor,
-                        info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight, info.fRect.fBottom);
+                        i, geo.fColor,
+                        geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
         }
         str.append(INHERITED::dumpInfo());
         return str;
@@ -123,16 +143,21 @@ public:
     }
 
 private:
-    NonAAFillRectBatch() : INHERITED(ClassID()) {}
+    GrNonAAFillRectPerspectiveBatch() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(fOverrides.readsCoverage());
+        sk_sp<GrGeometryProcessor> gp = make_persp_gp(fViewMatrix,
+                                                      fOverrides.readsCoverage(),
+                                                      fHasLocalRect,
+                                                      fHasLocalMatrix ? &fLocalMatrix : nullptr);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
-        SkASSERT(gp->getVertexStride() ==
-                 sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr));
+        SkASSERT(fHasLocalRect
+                     ? gp->getVertexStride() ==
+                         sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr)
+                     : gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
 
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fRects.count();
@@ -148,18 +173,34 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
+            const RectInfo& info = fRects[i];
             intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
                              i * kVertsPerInstance * vertexStride;
-            tesselate(verts, vertexStride, fRects[i].fColor, &fRects[i].fViewMatrix,
-                      fRects[i].fRect, &fRects[i].fLocalQuad);
+            if (fHasLocalRect) {
+                GrQuad quad(info.fLocalRect);
+                tesselate(verts, vertexStride, info.fColor, nullptr, info.fRect, &quad);
+            } else {
+                tesselate(verts, vertexStride, info.fColor, nullptr, info.fRect, nullptr);
+            }
         }
         helper.recordDraw(target, gp.get());
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        NonAAFillRectBatch* that = t->cast<NonAAFillRectBatch>();
+        GrNonAAFillRectPerspectiveBatch* that = t->cast<GrNonAAFillRectPerspectiveBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
+            return false;
+        }
+
+        // We could batch across perspective vm changes if we really wanted to
+        if (!fViewMatrix.cheapEqualTo(that->fViewMatrix)) {
+            return false;
+        }
+        if (fHasLocalRect != that->fHasLocalRect) {
+            return false;
+        }
+        if (fHasLocalMatrix && !fLocalMatrix.cheapEqualTo(that->fLocalMatrix)) {
             return false;
         }
 
@@ -175,26 +216,29 @@ private:
     }
 
     struct RectInfo {
-        GrColor fColor;
-        SkMatrix fViewMatrix;
         SkRect fRect;
-        GrQuad fLocalQuad;
+        GrColor fColor;
+        SkRect fLocalRect;
     };
 
     GrXPOverridesForBatch fOverrides;
     SkSTArray<1, RectInfo, true> fRects;
+    bool fHasLocalMatrix;
+    bool fHasLocalRect;
+    SkMatrix fLocalMatrix;
+    SkMatrix fViewMatrix;
 
     typedef GrVertexBatch INHERITED;
 };
 
 namespace GrNonAAFillRectBatch {
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect* localRect,
-                    const SkMatrix* localMatrix) {
-    return new NonAAFillRectBatch(color, viewMatrix, rect, localRect, localMatrix);
+GrDrawBatch* CreateWithPerspective(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRect& rect,
+                                   const SkRect* localRect,
+                                   const SkMatrix* localMatrix) {
+    return new GrNonAAFillRectPerspectiveBatch(color, viewMatrix, rect, localRect, localMatrix);
 }
 
 };
@@ -205,18 +249,22 @@ GrDrawBatch* Create(GrColor color,
 
 #include "GrBatchTest.h"
 
-DRAW_BATCH_TEST_DEFINE(RectBatch) {
+DRAW_BATCH_TEST_DEFINE(PerspRectBatch) {
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestRect(random);
     SkRect localRect = GrTest::TestRect(random);
-    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
-    SkMatrix localMatrix = GrTest::TestMatrix(random);
+    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    bool hasLocalMatrix = random->nextBool();
+    SkMatrix localMatrix;
+    if (!viewMatrix.hasPerspective()) {
+        localMatrix = GrTest::TestMatrixPerspective(random);
+        hasLocalMatrix = true;
+    }
 
     bool hasLocalRect = random->nextBool();
-    bool hasLocalMatrix = random->nextBool();
-    return GrNonAAFillRectBatch::Create(color, viewMatrix, rect,
-                                        hasLocalRect ? &localRect : nullptr,
-                                        hasLocalMatrix ? &localMatrix : nullptr);
+    return GrNonAAFillRectBatch::CreateWithPerspective(color, viewMatrix, rect,
+                                                       hasLocalRect ? &localRect : nullptr,
+                                                       hasLocalMatrix ? &localMatrix : nullptr);
 }
 
 #endif

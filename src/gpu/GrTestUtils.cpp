@@ -14,7 +14,9 @@
 
 #ifdef GR_TEST_UTILS
 
-static const SkMatrix& test_matrix(SkRandom* random, bool includePerspective) {
+static const SkMatrix& test_matrix(SkRandom* random,
+                                   bool includeNonPerspective,
+                                   bool includePerspective) {
     static SkMatrix gMatrices[5];
     static const int kPerspectiveCount = 1;
     static bool gOnce;
@@ -34,15 +36,18 @@ static const SkMatrix& test_matrix(SkRandom* random, bool includePerspective) {
     }
 
     uint32_t count = static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices));
-    if (includePerspective) {
+    if (includeNonPerspective && includePerspective) {
         return gMatrices[random->nextULessThan(count)];
+    } else if (!includeNonPerspective) {
+        return gMatrices[count - 1 - random->nextULessThan(kPerspectiveCount)];
     } else {
+        SkASSERT(includeNonPerspective && !includePerspective);
         return gMatrices[random->nextULessThan(count - kPerspectiveCount)];
     }
 }
 
 namespace GrTest {
-const SkMatrix& TestMatrix(SkRandom* random) { return test_matrix(random, true); }
+const SkMatrix& TestMatrix(SkRandom* random) { return test_matrix(random, true, true); }
 
 const SkMatrix& TestMatrixPreservesRightAngles(SkRandom* random) {
     static SkMatrix gMatrices[5];
@@ -96,7 +101,8 @@ const SkMatrix& TestMatrixRectStaysRect(SkRandom* random) {
     return gMatrices[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices)))];
 }
 
-const SkMatrix& TestMatrixInvertible(SkRandom* random) { return test_matrix(random, false); }
+const SkMatrix& TestMatrixInvertible(SkRandom* random) { return test_matrix(random, true, false); }
+const SkMatrix& TestMatrixPerspective(SkRandom* random) { return test_matrix(random, false, true); }
 
 const SkRect& TestRect(SkRandom* random) {
     static SkRect gRects[7];
