@@ -310,9 +310,11 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 void emitCode(EmitArgs& args) override {
-                    SkString input(args.fInputColor);
-                    for (int i = 0; i < this->numChildProcessors() - 1; ++i) {
-                        SkString temp;
+                    // First guy's input might be nil.
+                    SkString temp("out0");
+                    this->emitChild(0, args.fInputColor, &temp, args);
+                    SkString input = temp;
+                    for (int i = 1; i < this->numChildProcessors() - 1; ++i) {
                         temp.printf("out%d", i);
                         this->emitChild(i, input.c_str(), &temp, args);
                         input = temp;
