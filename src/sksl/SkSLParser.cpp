@@ -13,6 +13,7 @@
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunneeded-internal-declaration"
+#pragma clang diagnostic ignored "-Wnull-conversion"
 #endif
 #include "lex.sksl.c"
 #ifdef __clang__
