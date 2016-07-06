@@ -114,23 +114,6 @@
             '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
           ],
         }],
-        [ 'skia_os == "android"', {
-          'conditions': [
-            ['skia_android_framework == 0', {
-              'dependencies': [
-                'android_deps.gyp:Android_EntryPoint',
-                'skia_launcher.gyp:skia_launcher',
-              ],
-            }],
-          ],
-          'dependencies!': [
-            'experimental.gyp:experimental',
-          ],
-          'dependencies': [
-            'android_output.gyp:android_output',
-            'android_deps.gyp:Android_SampleApp',
-          ],
-        }],
         [ 'skia_gpu == 1', {
           'dependencies': [
             'gputest.gyp:skgputest',

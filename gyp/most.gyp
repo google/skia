@@ -45,6 +45,11 @@
             'android_system.gyp:Viewer_APK',
           ],
         }],
+        ['skia_os == "android"', {
+          'dependencies!': [
+            'SampleApp.gyp:SampleApp',
+          ],
+        }],
         ['skia_os == "ios"', {
           'dependencies!': [
             'example.gyp:HelloWorld',
