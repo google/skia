@@ -91,13 +91,13 @@ sk_path_iterator_t* sk_path_create_iter (sk_path_t *cpath, int forceClose)
 }
 
 #if __cplusplus >= 199711L
-static_assert (SkPath::kMove_Verb == MOVE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
-static_assert (SkPath::kLine_Verb == LINE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
-static_assert (SkPath::kQuad_Verb == QUAD_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
-static_assert (SkPath::kConic_Verb == CONIC_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
-static_assert (SkPath::kCubic_Verb == CUBIC_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
-static_assert (SkPath::kClose_Verb == CLOSE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
-static_assert (SkPath::kDone_Verb == DONE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kMove_Verb  == (int)MOVE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kLine_Verb  == (int)LINE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kQuad_Verb  == (int)QUAD_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kConic_Verb == (int)CONIC_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kCubic_Verb == (int)CUBIC_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kClose_Verb == (int)CLOSE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kDone_Verb  == (int)DONE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
 #endif
 
 sk_path_verb_t sk_path_iter_next (sk_path_iterator_t *iterator, sk_point_t points [4], int doConsumeDegenerates, int exact)
@@ -158,8 +158,8 @@ void sk_path_rawiter_destroy (sk_path_rawiterator_t *iterator)
 }
 
 #if __cplusplus >= 199711L
-static_assert (SkPath::kAppend_AddPathMode == APPEND_ADD_MODE, "ABI changed, you must write a enumeration mapper for SkPath::AddPathMode to sk_path_add_mode_t");
-static_assert (SkPath::kExtend_AddPathMode == EXTEND_ADD_MODE, "ABI changed, you must write a enumeration mapper for SkPath::AddPathMode to sk_path_add_mode_t");
+static_assert ((int)SkPath::kAppend_AddPathMode == (int)APPEND_ADD_MODE, "ABI changed, you must write a enumeration mapper for SkPath::AddPathMode to sk_path_add_mode_t");
+static_assert ((int)SkPath::kExtend_AddPathMode == (int)EXTEND_ADD_MODE, "ABI changed, you must write a enumeration mapper for SkPath::AddPathMode to sk_path_add_mode_t");
 #endif
 
 void sk_path_add_path_offset (sk_path_t* cpath, sk_path_t* other, float dx, float dy, sk_path_add_mode_t add_mode)
