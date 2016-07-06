@@ -398,8 +398,9 @@ void GrVkPipelineState::addUniformResources(GrVkCommandBuffer& commandBuffer) {
 void GrVkPipelineState::DescriptorPoolManager::getNewPool(GrVkGpu* gpu) {
     if (fPool) {
         fPool->unref(gpu);
-        if (fMaxDescriptors < kMaxDescLimit >> 1) {
-            fMaxDescriptors = fMaxDescriptors << 1;
+        uint32_t newPoolSize = fMaxDescriptors + ((fMaxDescriptors + 1) >> 1);
+        if (newPoolSize < kMaxDescLimit) {
+            fMaxDescriptors = newPoolSize;
         } else {
             fMaxDescriptors = kMaxDescLimit;
         }

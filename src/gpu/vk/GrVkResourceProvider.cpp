@@ -196,8 +196,9 @@ void GrVkResourceProvider::getUniformDescriptorSet(VkDescriptorSet* ds,
     fCurrentUniformDescCount += kNumUniformDescPerSet;
     if (fCurrentUniformDescCount > fCurrMaxUniDescriptors) {
         fUniformDescPool->unref(fGpu);
-        if (fCurrMaxUniDescriptors < kMaxUniformDescriptors >> 1) {
-            fCurrMaxUniDescriptors = fCurrMaxUniDescriptors << 1;
+        uint32_t newPoolSize = fCurrMaxUniDescriptors + ((fCurrMaxUniDescriptors + 1) >> 1);
+        if (newPoolSize < kMaxUniformDescriptors) {
+            fCurrMaxUniDescriptors = newPoolSize;
         } else {
             fCurrMaxUniDescriptors = kMaxUniformDescriptors;
         }
