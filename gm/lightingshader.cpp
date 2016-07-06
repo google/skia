@@ -7,7 +7,9 @@
 
 #include "gm.h"
 
+#include "SkBitmapProcShader.h"
 #include "SkLightingShader.h"
+#include "SkNormalSource.h"
 #include "SkPoint3.h"
 #include "SkShader.h"
 
@@ -49,7 +51,9 @@ public:
         SkLights::Builder builder;
 
         builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                    SkVector3::Make(1.0f, 0.0f, 0.0f)));
+                                    SkVector3::Make(SK_ScalarRoot2Over2,
+                                                    0.0f,
+                                                    SK_ScalarRoot2Over2)));
         builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
 
         fLights = builder.finish();
@@ -95,12 +99,13 @@ protected:
 
         const SkMatrix& ctm = canvas->getTotalMatrix();
 
-        // TODO: correctly pull out the pure rotation
-        SkVector invNormRotation = { ctm[SkMatrix::kMScaleX], ctm[SkMatrix::kMSkewY] };
-
         SkPaint paint;
-        paint.setShader(SkLightingShader::Make(fDiffuse, fNormalMaps[mapType], fLights,
-                                               invNormRotation, &matrix, &matrix));
+        sk_sp<SkShader> normalMap = SkMakeBitmapShader(fNormalMaps[mapType],
+                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix, nullptr);
+        sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
+                                                                               ctm);
+        paint.setShader(SkLightingShader::Make(fDiffuse, fLights, &matrix,
+                                               std::move(normalSource)));
 
         canvas->drawRect(r, paint);
     }

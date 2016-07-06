@@ -45,34 +45,18 @@ public:
     /** Create a new lighting shader that uses the provided normal map and
         lights to light the diffuse bitmap.
         @param diffuse           the diffuse bitmap
-        @param normal            the normal map
         @param lights            the lights applied to the normal map
-        @param invNormRotation   rotation applied to the normal map's normals
         @param diffLocalM        the local matrix for the diffuse coordinates
-        @param normLocalM        the local matrix for the normal coordinates
-        @param normalSource      the normal source for GPU computations
+        @param normalSource      the source of normals for lighting computation
     */
-    SkLightingShaderImpl(const SkBitmap& diffuse, const SkBitmap& normal,
+    SkLightingShaderImpl(const SkBitmap& diffuse,
                          const sk_sp<SkLights> lights,
-                         const SkVector& invNormRotation,
-                         const SkMatrix* diffLocalM, const SkMatrix* normLocalM,
+                         const SkMatrix* diffLocalM,
                          sk_sp<SkNormalSource> normalSource)
         : INHERITED(diffLocalM)
         , fDiffuseMap(diffuse)
-        , fNormalMap(normal)
         , fLights(std::move(lights))
-        , fInvNormRotation(invNormRotation) {
-
-        if (normLocalM) {
-            fNormLocalMatrix = *normLocalM;
-        } else {
-            fNormLocalMatrix.reset();
-        }
-        // Pre-cache so future calls to fNormLocalMatrix.getType() are threadsafe.
-        (void)fNormLocalMatrix.getType();
-
-        fNormalSource = std::move(normalSource);
-    }
+        , fNormalSource(std::move(normalSource)) {}
 
     bool isOpaque() const override;
 
@@ -117,12 +101,7 @@ protected:
 
 private:
     SkBitmap        fDiffuseMap;
-    SkBitmap        fNormalMap;
-
     sk_sp<SkLights> fLights;
-
-    SkMatrix        fNormLocalMatrix;
-    SkVector        fInvNormRotation;
 
     sk_sp<SkNormalSource> fNormalSource;
 
@@ -327,8 +306,6 @@ sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(
     // we assume diffuse and normal maps have same width and height
     // TODO: support different sizes, will be addressed when diffuse maps are factored out of
     //       SkLightingShader in a future CL
-    SkASSERT(fDiffuseMap.width() == fNormalMap.width() &&
-             fDiffuseMap.height() == fNormalMap.height());
     SkMatrix diffM;
 
     if (!make_mat(fDiffuseMap, this->getLocalMatrix(), localMatrix, &diffM)) {
@@ -500,25 +477,11 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
         diffLocalM.reset();
     }
 
-    SkMatrix normLocalM;
-    bool hasNormLocalM = buf.readBool();
-    if (hasNormLocalM) {
-        buf.readMatrix(&normLocalM);
-    } else {
-        normLocalM.reset();
-    }
-
     SkBitmap diffuse;
     if (!buf.readBitmap(&diffuse)) {
         return nullptr;
     }
     diffuse.setImmutable();
-
-    SkBitmap normal;
-    if (!buf.readBitmap(&normal)) {
-        return nullptr;
-    }
-    normal.setImmutable();
 
     int numLights = buf.readInt();
 
@@ -545,28 +508,16 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 
     sk_sp<SkLights> lights(builder.finish());
 
-    SkVector invNormRotation = {1,0};
-    if (!buf.isVersionLT(SkReadBuffer::kLightingShaderWritesInvNormRotation)) {
-        invNormRotation = buf.readPoint();
-    }
-
     sk_sp<SkNormalSource> normalSource(buf.readFlattenable<SkNormalSource>());
 
-    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, std::move(lights), invNormRotation,
-                                            &diffLocalM, &normLocalM, std::move(normalSource));
+    return sk_make_sp<SkLightingShaderImpl>(diffuse, std::move(lights), &diffLocalM,
+                                            std::move(normalSource));
 }
 
 void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
     this->INHERITED::flatten(buf);
 
-    bool hasNormLocalM = !fNormLocalMatrix.isIdentity();
-    buf.writeBool(hasNormLocalM);
-    if (hasNormLocalM) {
-        buf.writeMatrix(fNormLocalMatrix);
-    }
-
     buf.writeBitmap(fDiffuseMap);
-    buf.writeBitmap(fNormalMap);
 
     buf.writeInt(fLights->numLights());
     for (int l = 0; l < fLights->numLights(); ++l) {
@@ -580,7 +531,6 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
             buf.writeScalarArray(&light.dir().fX, 3);
         }
     }
-    buf.writePoint(fInvNormRotation);
 
     buf.writeFlattenable(fNormalSource.get());
 }
@@ -625,27 +575,21 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkShader> SkLightingShader::Make(const SkBitmap& diffuse, const SkBitmap& normal,
+sk_sp<SkShader> SkLightingShader::Make(const SkBitmap& diffuse,
                                        sk_sp<SkLights> lights,
-                                       const SkVector& invNormRotation,
-                                       const SkMatrix* diffLocalM, const SkMatrix* normLocalM) {
-    if (diffuse.isNull() || SkBitmapProcShader::BitmapIsTooBig(diffuse) ||
-        normal.isNull()  || SkBitmapProcShader::BitmapIsTooBig(normal) ||
-        diffuse.width()  != normal.width() ||
-        diffuse.height() != normal.height()) {
+                                       const SkMatrix* diffLocalM,
+                                       sk_sp<SkNormalSource> normalSource) {
+    if (diffuse.isNull() || SkBitmapProcShader::BitmapIsTooBig(diffuse)) {
         return nullptr;
     }
-    SkASSERT(SkScalarNearlyEqual(invNormRotation.lengthSqd(), SK_Scalar1));
 
-    // TODO: support other tile modes
-    sk_sp<SkShader> mapShader = SkMakeBitmapShader(normal, SkShader::kClamp_TileMode,
-                                                   SkShader::kClamp_TileMode, normLocalM, nullptr);
+    if (!normalSource) {
+        // TODO: Use a default implementation of normalSource instead
+        return nullptr;
+    }
 
-    sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(mapShader,
-                                                                           invNormRotation);
-
-    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, std::move(lights),
-            invNormRotation, diffLocalM, normLocalM, std::move(normalSource));
+    return sk_make_sp<SkLightingShaderImpl>(diffuse, std::move(lights), diffLocalM,
+                                            std::move(normalSource));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

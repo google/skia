@@ -7,6 +7,7 @@
 
 #include "Resources.h"
 #include "SkAnnotationKeys.h"
+#include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
@@ -14,6 +15,7 @@
 #include "SkImageSource.h"
 #include "SkLightingShader.h"
 #include "SkMallocPixelRef.h"
+#include "SkNormalSource.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkTableColorFilter.h"
@@ -573,13 +575,18 @@ DEF_TEST(Serialization, reporter) {
         SkRect r = SkRect::MakeWH(SkIntToScalar(kTexSize), SkIntToScalar(kTexSize));
         matrix.setRectToRect(bitmapBounds, r, SkMatrix::kFill_ScaleToFit);
 
-        SkVector invNormRotation = { SkScalarSqrt(0.3f), SkScalarSqrt(0.7f) };
+        SkMatrix ctm;
+        ctm.setRotate(45);
         SkBitmap normals;
         normals.allocN32Pixels(kTexSize, kTexSize);
 
         sk_tool_utils::create_frustum_normal_map(&normals, SkIRect::MakeWH(kTexSize, kTexSize));
-        sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuse, normals, fLights,
-                invNormRotation, &matrix, &matrix);
+        sk_sp<SkShader> normalMap = SkMakeBitmapShader(normals, SkShader::kClamp_TileMode,
+                                                       SkShader::kClamp_TileMode, &matrix, nullptr);
+        sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
+                                                                               ctm);
+        sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuse, fLights, &matrix,
+                                                                std::move(normalSource));
 
         SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
         // TODO test equality?

@@ -8,6 +8,7 @@
 #include "SkError.h"
 #include "SkErrorInternals.h"
 #include "SkLightingShader.h"
+#include "SkMatrix.h"
 #include "SkNormalSource.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -19,9 +20,9 @@ SkNormalSource::~SkNormalSource() {}
 
 class NormalMapSourceImpl : public SkNormalSource {
 public:
-    NormalMapSourceImpl(sk_sp<SkShader> mapShader, const SkVector &normRotation)
+    NormalMapSourceImpl(sk_sp<SkShader> mapShader, const SkMatrix& invCTM)
         : fMapShader(std::move(mapShader))
-        , fNormRotation(normRotation) {}
+        , fInvCTM(invCTM) {}
 
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
@@ -58,7 +59,7 @@ private:
     };
 
     sk_sp<SkShader> fMapShader;
-    SkVector        fNormRotation;
+    SkMatrix        fInvCTM; // Inverse of the canvas total matrix, used for rotating normals.
 
     friend class SkNormalSource;
 
@@ -78,8 +79,8 @@ private:
 
 class NormalMapFP : public GrFragmentProcessor {
 public:
-    NormalMapFP(sk_sp<GrFragmentProcessor> mapFP, const SkVector& normRotation)
-        : fNormRotation(normRotation) {
+    NormalMapFP(sk_sp<GrFragmentProcessor> mapFP, const SkMatrix& invCTM)
+        : fInvCTM(invCTM) {
         this->registerChildProcessor(mapFP);
 
         this->initClassID<NormalMapFP>();
@@ -87,34 +88,46 @@ public:
 
     class GLSLNormalMapFP : public GrGLSLFragmentProcessor {
     public:
-        GLSLNormalMapFP() {
-            fNormRotation.set(0.0f, 0.0f);
-        }
+        GLSLNormalMapFP()
+            : fColumnMajorInvCTM22{0.0f} {}
 
         void emitCode(EmitArgs& args) override {
-
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // add uniform
             const char* xformUniName = nullptr;
-            fXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                                   "Xform", &xformUniName);
+            fXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kMat22f_GrSLType,
+                                                   kDefault_GrSLPrecision, "Xform", &xformUniName);
 
             SkString dstNormalColorName("dstNormalColor");
             this->emitChild(0, nullptr, &dstNormalColorName, args);
-            fragBuilder->codeAppendf("vec3 normal = %s.rgb - vec3(0.5);",
+            fragBuilder->codeAppendf("vec3 normal = normalize(%s.rgb - vec3(0.5));",
                                      dstNormalColorName.c_str());
 
             // TODO: inverse map the light direction vectors in the vertex shader rather than
             // transforming all the normals here!
-            fragBuilder->codeAppendf(
-                    "mat3 m = mat3(%s.x, -%s.y, 0.0, %s.y, %s.x, 0.0, 0.0, 0.0, 1.0);",
-                    xformUniName, xformUniName, xformUniName, xformUniName);
 
-            fragBuilder->codeAppend("normal = normalize(m*normal);");
-            fragBuilder->codeAppendf("%s = vec4(normal, 0);", args.fOutputColor);
+            // If there's no x & y components, return (0, 0, +/- 1) instead to avoid division by 0
+            fragBuilder->codeAppend( "if (abs(normal.z) > 0.9999) {");
+            fragBuilder->codeAppendf("    %s = normalize(vec4(0.0, 0.0, normal.z, 0.0));",
+                    args.fOutputColor);
+            // Else, Normalizing the transformed X and Y, while keeping constant both Z and the
+            // vector's angle in the XY plane. This maintains the "slope" for the surface while
+            // appropriately rotating the normal for any anisotropic scaling that occurs.
+            // Here, we call scaling factor the number that must divide the transformed X and Y so
+            // that the normal's length remains equal to 1.
+            fragBuilder->codeAppend( "} else {");
+            fragBuilder->codeAppendf("    vec2 transformed = %s * normal.xy;",
+                    xformUniName);
+            fragBuilder->codeAppend( "    float scalingFactorSquared = "
+                                                 "( (transformed.x * transformed.x) "
+                                                   "+ (transformed.y * transformed.y) )"
+                                                 "/(1.0 - (normal.z * normal.z));");
+            fragBuilder->codeAppendf("    %s = vec4(transformed*inversesqrt(scalingFactorSquared),"
+                                                   "normal.z, 0.0);",
+                    args.fOutputColor);
+            fragBuilder->codeAppend( "}");
         }
 
         static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
@@ -126,15 +139,16 @@ public:
         void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
             const NormalMapFP& normalMapFP = proc.cast<NormalMapFP>();
 
-            const SkVector& normRotation = normalMapFP.normRotation();
-            if (normRotation != fNormRotation) {
-                pdman.set2fv(fXformUni, 1, &normRotation.fX);
-                fNormRotation = normRotation;
-            }
+            const SkMatrix& invCTM = normalMapFP.invCTM();
+            fColumnMajorInvCTM22[0] = invCTM.get(SkMatrix::kMScaleX);
+            fColumnMajorInvCTM22[1] = invCTM.get(SkMatrix::kMSkewY);
+            fColumnMajorInvCTM22[2] = invCTM.get(SkMatrix::kMSkewX);
+            fColumnMajorInvCTM22[3] = invCTM.get(SkMatrix::kMScaleY);
+            pdman.setMatrix2f(fXformUni, fColumnMajorInvCTM22);
         }
 
     private:
-        SkVector fNormRotation;
+        float fColumnMajorInvCTM22[4];
         GrGLSLProgramDataManager::UniformHandle fXformUni;
     };
 
@@ -148,17 +162,17 @@ public:
         inout->setToUnknown(GrInvariantOutput::ReadInput::kWillNot_ReadInput);
     }
 
-    const SkVector& normRotation() const { return fNormRotation; }
+    const SkMatrix& invCTM() const { return fInvCTM; }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalMapFP; }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override {
         const NormalMapFP& normalMapFP = proc.cast<NormalMapFP>();
-        return fNormRotation == normalMapFP.fNormRotation;
+        return fInvCTM == normalMapFP.fInvCTM;
     }
 
-    SkVector fNormRotation;
+    SkMatrix fInvCTM;
 };
 
 sk_sp<GrFragmentProcessor> NormalMapSourceImpl::asFragmentProcessor(
@@ -171,7 +185,7 @@ sk_sp<GrFragmentProcessor> NormalMapSourceImpl::asFragmentProcessor(
     sk_sp<GrFragmentProcessor> mapFP = fMapShader->asFragmentProcessor(context, viewM,
             localMatrix, filterQuality, gammaTreatment);
 
-    return sk_make_sp<NormalMapFP>(std::move(mapFP), fNormRotation);
+    return sk_make_sp<NormalMapFP>(std::move(mapFP), fInvCTM);
 }
 
 #endif // SK_SUPPORT_GPU
@@ -239,11 +253,28 @@ void NormalMapSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output[]
                          SkIntToScalar(SkGetPackedB32(tmpNormalColors[i])) - 127.0f);
             tempNorm.normalize();
 
-            output[i].fX = fSource.fNormRotation.fX * tempNorm.fX +
-                           fSource.fNormRotation.fY * tempNorm.fY;
-            output[i].fY = -fSource.fNormRotation.fY * tempNorm.fX +
-                           fSource.fNormRotation.fX * tempNorm.fY;
-            output[i].fZ = tempNorm.fZ;
+            if (!SkScalarNearlyEqual(SkScalarAbs(tempNorm.fZ), 1.0f)) {
+                SkVector transformed = fSource.fInvCTM.mapVector(tempNorm.fX, tempNorm.fY);
+
+                // Normalizing the transformed X and Y, while keeping constant both Z and the
+                // vector's angle in the XY plane. This maintains the "slope" for the surface while
+                // appropriately rotating the normal for any anisotropic scaling that occurs.
+                // Here, we call scaling factor the number that must divide the transformed X and Y
+                // so that the normal's length remains equal to 1.
+                SkScalar scalingFactorSquared =
+                        (SkScalarSquare(transformed.fX) + SkScalarSquare(transformed.fY))
+                        / (1.0f - SkScalarSquare(tempNorm.fZ));
+                SkScalar invScalingFactor = SkScalarInvert(SkScalarSqrt(scalingFactorSquared));
+
+                output[i].fX = transformed.fX * invScalingFactor;
+                output[i].fY = transformed.fY * invScalingFactor;
+                output[i].fZ = tempNorm.fZ;
+            } else {
+                output[i] = {0.0f, 0.0f, tempNorm.fZ};
+                output[i].normalize();
+            }
+
+            SkASSERT(SkScalarNearlyEqual(output[i].length(), 1.0f))
         }
 
         output += n;
@@ -258,31 +289,29 @@ sk_sp<SkFlattenable> NormalMapSourceImpl::CreateProc(SkReadBuffer& buf) {
 
     sk_sp<SkShader> mapShader = buf.readFlattenable<SkShader>();
 
-    SkVector normRotation = {1,0};
-    if (!buf.isVersionLT(SkReadBuffer::kLightingShaderWritesInvNormRotation)) {
-        normRotation = buf.readPoint();
-    }
+    SkMatrix invCTM;
+    buf.readMatrix(&invCTM);
 
-    return sk_make_sp<NormalMapSourceImpl>(std::move(mapShader), normRotation);
+    return sk_make_sp<NormalMapSourceImpl>(std::move(mapShader), invCTM);
 }
 
 void NormalMapSourceImpl::flatten(SkWriteBuffer& buf) const {
     this->INHERITED::flatten(buf);
 
     buf.writeFlattenable(fMapShader.get());
-    buf.writePoint(fNormRotation);
+    buf.writeMatrix(fInvCTM);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkNormalSource> SkNormalSource::MakeFromNormalMap(sk_sp<SkShader> map,
-                                                        const SkVector &normRotation) {
-    SkASSERT(SkScalarNearlyEqual(normRotation.lengthSqd(), SK_Scalar1));
-    if (!map) {
+sk_sp<SkNormalSource> SkNormalSource::MakeFromNormalMap(sk_sp<SkShader> map, const SkMatrix& ctm) {
+    SkMatrix invCTM;
+
+    if (!ctm.invert(&invCTM) || !map) {
         return nullptr;
     }
 
-    return sk_make_sp<NormalMapSourceImpl>(std::move(map), normRotation);
+    return sk_make_sp<NormalMapSourceImpl>(std::move(map), invCTM);
 }
 
 ////////////////////////////////////////////////////////////////////////////

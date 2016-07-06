@@ -10,8 +10,7 @@
 
 #include "SkFlattenable.h"
 
-/** Abstract class that generates or reads in normals for use by SkLightingShader. Not to be
-    used as part of the API yet. Used internally by SkLightingShader.
+/** Abstract class that generates or reads in normals for use by SkLightingShader.
 */
 class SK_API SkNormalSource : public SkFlattenable {
 public:
@@ -49,11 +48,9 @@ public:
     virtual size_t providerSize(const SkShader::ContextRec&) const = 0;
 
     /** Returns a normal source that provides normals sourced from the the normal map argument.
-        Not to be used as part of the API yet. Used internally by SkLightingShader.
 
-        @param  map              a shader that outputs the normal map
-        @param  normRotation     rotation applied to the normal map's normals, in the
-                                 [cos a, sin a] form.
+        @param  map  a shader that outputs the normal map
+        @param  ctm  the current canvas' total matrix, used to rotate normals when necessary.
 
         nullptr will be returned if 'map' is null
 
@@ -66,8 +63,7 @@ public:
         The +Z axis is thus encoded in RGB as (127, 127, 255) while the -Z axis is
         (127, 127, 0).
     */
-    static sk_sp<SkNormalSource> MakeFromNormalMap(sk_sp<SkShader> map,
-                                                   const SkVector& normRotation);
+    static sk_sp<SkNormalSource> MakeFromNormalMap(sk_sp<SkShader> map, const SkMatrix& ctm);
 
     SK_DEFINE_FLATTENABLE_TYPE(SkNormalSource)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

@@ -8,8 +8,10 @@
 #include "SampleCode.h"
 #include "Resources.h"
 
+#include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkLightingShader.h"
+#include "SkNormalSource.h"
 #include "SkPoint3.h"
 
 static sk_sp<SkLights> create_lights(SkScalar angle, SkScalar blue) {
@@ -64,9 +66,12 @@ protected:
 
         sk_sp<SkLights> lights(create_lights(fLightAngle, fColorFactor));
         SkPaint paint;
-        paint.setShader(SkLightingShader::Make(fDiffuseBitmap, fNormalBitmap,
-                                               std::move(lights), SkVector::Make(1.0f, 0.0f),
-                                               nullptr, nullptr));
+        sk_sp<SkShader> normalMap = SkMakeBitmapShader(fNormalBitmap,
+            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr, nullptr);
+        sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(
+                std::move(normalMap), SkMatrix::I());
+        paint.setShader(SkLightingShader::Make(fDiffuseBitmap, std::move(lights), nullptr,
+                                               std::move(normalSource)));
         paint.setColor(SK_ColorBLACK);
 
         SkRect r = SkRect::MakeWH((SkScalar)fDiffuseBitmap.width(),

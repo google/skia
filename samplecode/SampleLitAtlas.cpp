@@ -7,13 +7,15 @@
 
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
-#include "SkView.h"
+#include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkLightingShader.h"
 #include "SkLights.h"
+#include "SkNormalSource.h"
 #include "SkRandom.h"
 #include "SkRSXform.h"
+#include "SkView.h"
 
 #include "sk_tool_utils.h"
 
@@ -128,12 +130,12 @@ protected:
             SkMatrix m;
             m.setRSXform(xforms[i]);
 
-            // TODO: correctly pull out the pure rotation
-            SkVector invNormRotation = { m[SkMatrix::kMScaleX], m[SkMatrix::kMSkewY] };
-            SkASSERT(SkScalarNearlyEqual(invNormRotation.lengthSqd(), SK_Scalar1));
-
-            paint.setShader(SkLightingShader::Make(fAtlas, fAtlas, fLights,
-                                                   invNormRotation, &diffMat, &normalMat));
+            sk_sp<SkShader> normalMap = SkMakeBitmapShader(fAtlas, SkShader::kClamp_TileMode,
+                    SkShader::kClamp_TileMode, &normalMat, nullptr);
+            sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(
+                    std::move(normalMap), m);
+            paint.setShader(SkLightingShader::Make(fAtlas, fLights, &diffMat,
+                                                   std::move(normalSource)));
 
             canvas->save();
                 canvas->setMatrix(m);
