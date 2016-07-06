@@ -36,6 +36,8 @@ public:
      *
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
+     *
+     *  Callers are responsible for initialiazing the surface pixels.
      */
     static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes,
                                              const SkSurfaceProps* = nullptr);
@@ -49,10 +51,10 @@ public:
                                                  void* context, const SkSurfaceProps* = nullptr);
 
     /**
-     *  Return a new surface, with the memory for the pixels automatically allocated, but respecting
-     *  the specified rowBytes. If rowBytes==0, then a default value will be chosen. If a non-zero
-     *  rowBytes is specified, then any images snapped off of this surface (via newImageSnapshot())
-     *  are guaranteed to have the same rowBytes.
+     *  Return a new surface, with the memory for the pixels automatically allocated and
+     *  zero-initialized, but respecting the specified rowBytes. If rowBytes==0, then a default
+     *  value will be chosen. If a non-zero rowBytes is specified, then any images snapped off of
+     *  this surface (via makeImageSnapshot()) are guaranteed to have the same rowBytes.
      *
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
@@ -62,7 +64,10 @@ public:
     /**
      *  Allocate a new surface, automatically computing the rowBytes.
      */
-    static sk_sp<SkSurface> MakeRaster(const SkImageInfo&, const SkSurfaceProps* = nullptr);
+    static sk_sp<SkSurface> MakeRaster(const SkImageInfo& info,
+                                       const SkSurfaceProps* props = nullptr) {
+        return MakeRaster(info, 0, props);
+    }
 
     /**
      *  Helper version of NewRaster. It creates a SkImageInfo with the

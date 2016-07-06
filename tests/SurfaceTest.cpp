@@ -751,6 +751,18 @@ DEF_TEST(surface_rowbytes, reporter) {
     REPORTER_ASSERT(reporter, nullptr == s);
 }
 
+DEF_TEST(surface_raster_zeroinitialized, reporter) {
+    sk_sp<SkSurface> s(SkSurface::MakeRasterN32Premul(100, 100));
+    SkPixmap pixmap;
+    REPORTER_ASSERT(reporter, s->peekPixels(&pixmap));
+
+    for (int i = 0; i < pixmap.info().width(); ++i) {
+        for (int j = 0; j < pixmap.info().height(); ++j) {
+            REPORTER_ASSERT(reporter, *pixmap.addr32(i, j) == 0);
+        }
+    }
+}
+
 #if SK_SUPPORT_GPU
 static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendObject* outTexture) {

@@ -205,7 +205,3 @@ sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
     }
     return sk_make_sp<SkSurface_Raster>(pr, props);
 }
-
-sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, const SkSurfaceProps* props) {
-    return MakeRaster(info, 0, props);
-}
