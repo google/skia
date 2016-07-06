@@ -20,7 +20,7 @@ public:
     void* map(const GrVkGpu* gpu) {
         return this->vkMap(gpu);
     }
-    void unmap(const GrVkGpu* gpu) {
+    void unmap(GrVkGpu* gpu) {
         this->vkUnmap(gpu);
     }
     // The output variable createdNewBuffer must be set to true if a new VkBuffer is created in

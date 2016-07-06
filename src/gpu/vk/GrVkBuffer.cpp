@@ -124,33 +124,37 @@ void GrVkBuffer::vkAbandon() {
 void* GrVkBuffer::vkMap(const GrVkGpu* gpu) {
     VALIDATE();
     SkASSERT(!this->vkIsMapped());
-    if (!fDesc.fDynamic) {
-        return nullptr;
-    }
-
     if (!fResource->unique()) {
         // in use by the command buffer, so we need to create a new one
         fResource->unref(gpu);
         fResource = Create(gpu, fDesc);
     }
 
-    const GrVkAlloc& alloc = this->alloc();
-    VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory, alloc.fOffset,
-                                          VK_WHOLE_SIZE, 0, &fMapPtr));
-    if (err) {
-        fMapPtr = nullptr;
+    if (fDesc.fDynamic) {
+        const GrVkAlloc& alloc = this->alloc();
+        VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory, alloc.fOffset,
+                                              VK_WHOLE_SIZE, 0, &fMapPtr));
+        if (err) {
+            fMapPtr = nullptr;
+        }
+    } else {
+        fMapPtr = new unsigned char[this->size()];
     }
 
     VALIDATE();
     return fMapPtr;
 }
 
-void GrVkBuffer::vkUnmap(const GrVkGpu* gpu) {
+void GrVkBuffer::vkUnmap(GrVkGpu* gpu) {
     VALIDATE();
     SkASSERT(this->vkIsMapped());
-    SkASSERT(fDesc.fDynamic);
 
-    VK_CALL(gpu, UnmapMemory(gpu->device(), this->alloc().fMemory));
+    if (fDesc.fDynamic) {
+        VK_CALL(gpu, UnmapMemory(gpu->device(), this->alloc().fMemory));
+    } else {
+        gpu->updateBuffer(this, fMapPtr, this->size());
+        delete fMapPtr;
+    }
 
     fMapPtr = nullptr;
 }

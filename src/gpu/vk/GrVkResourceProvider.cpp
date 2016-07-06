@@ -270,6 +270,7 @@ void GrVkResourceProvider::destroyResources() {
     for (int i = 0; i < fActiveCommandBuffers.count(); ++i) {
         SkASSERT(fActiveCommandBuffers[i]->finished(fGpu));
         SkASSERT(fActiveCommandBuffers[i]->unique());
+        fActiveCommandBuffers[i]->reset(fGpu);
         fActiveCommandBuffers[i]->unref(fGpu);
     }
     fActiveCommandBuffers.reset();

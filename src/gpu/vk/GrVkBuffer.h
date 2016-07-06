@@ -81,7 +81,7 @@ protected:
     }
 
     void* vkMap(const GrVkGpu* gpu);
-    void vkUnmap(const GrVkGpu* gpu);
+    void vkUnmap(GrVkGpu* gpu);
     // If the caller passes in a non null createdNewBuffer, this function will set the bool to true
     // if it creates a new VkBuffer to upload the data to.
     bool vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInBytes,
