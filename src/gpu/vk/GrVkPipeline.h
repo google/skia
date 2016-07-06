@@ -37,6 +37,11 @@ public:
 
     static void SetDynamicState(GrVkGpu*, GrVkCommandBuffer*, const GrPipeline&);
 
+#ifdef SK_TRACE_VK_RESOURCES
+    void dumpInfo() const override {
+        SkDebugf("GrVkPipeline: %d (%d refs)\n", fPipeline, this->getRefCnt());
+    }
+#endif
 
 private:
     GrVkPipeline(VkPipeline pipeline) : INHERITED(), fPipeline(pipeline) {}

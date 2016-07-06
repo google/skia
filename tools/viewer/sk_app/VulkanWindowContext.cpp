@@ -410,7 +410,6 @@ void VulkanWindowContext::destroyContext() {
         fSurface = VK_NULL_HANDLE;
     }
 
-    fContext->abandonContext();
     fContext->unref();
 
     fBackendContext.reset(nullptr);

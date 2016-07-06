@@ -57,6 +57,11 @@ protected:
         Resource(VkBuffer buf, const GrVkAlloc& alloc, Type type)
             : INHERITED(), fBuffer(buf), fAlloc(alloc), fType(type) {}
 
+#ifdef SK_TRACE_VK_RESOURCES
+        void dumpInfo() const override {
+            SkDebugf("GrVkBuffer: %d (%d refs)\n", fBuffer, this->getRefCnt());
+        }
+#endif
         VkBuffer           fBuffer;
         GrVkAlloc          fAlloc;
         Type               fType;

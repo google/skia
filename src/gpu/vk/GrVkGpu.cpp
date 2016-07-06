@@ -127,17 +127,18 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     VK_CALL(GetPhysicalDeviceMemoryProperties(backendCtx->fPhysicalDevice, &fPhysDevMemProps));
 
     const VkCommandPoolCreateInfo cmdPoolInfo = {
-        VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, // sType
-        nullptr,                                    // pNext
-        VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,       // CmdPoolCreateFlags
-        backendCtx->fGraphicsQueueIndex,            // queueFamilyIndex
+        VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,      // sType
+        nullptr,                                         // pNext
+        VK_COMMAND_POOL_CREATE_TRANSIENT_BIT |
+        VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // CmdPoolCreateFlags
+        backendCtx->fGraphicsQueueIndex,                 // queueFamilyIndex
     };
     GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateCommandPool(fDevice, &cmdPoolInfo, nullptr,
                                                                &fCmdPool));
 
     // must call this after creating the CommandPool
     fResourceProvider.init();
-    fCurrentCmdBuffer = fResourceProvider.createPrimaryCommandBuffer();
+    fCurrentCmdBuffer = fResourceProvider.findOrCreatePrimaryCommandBuffer();
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->begin(this);
 
@@ -217,7 +218,7 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 
     // Release old command buffer and create a new one
     fCurrentCmdBuffer->unref(this);
-    fCurrentCmdBuffer = fResourceProvider.createPrimaryCommandBuffer();
+    fCurrentCmdBuffer = fResourceProvider.findOrCreatePrimaryCommandBuffer();
     SkASSERT(fCurrentCmdBuffer);
 
     fCurrentCmdBuffer->begin(this);
@@ -1495,7 +1496,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     return true;
 }
 
-void GrVkGpu::submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer* buffer,
+void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
                                            const GrVkRenderPass* renderPass,
                                            const VkClearValue* colorClear,
                                            GrVkRenderTarget* target,

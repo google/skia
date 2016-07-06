@@ -84,8 +84,8 @@ GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu,
 
     GrColorToRGBAFloat(colorInfo.fClearColor, fColorClearValue.color.float32);
 
-    fCommandBuffer = GrVkSecondaryCommandBuffer::Create(gpu, gpu->cmdPool(), fRenderPass);
-    fCommandBuffer->begin(gpu, target->framebuffer());
+    fCommandBuffer = gpu->resourceProvider().findOrCreateSecondaryCommandBuffer();
+    fCommandBuffer->begin(gpu, target->framebuffer(), fRenderPass);
 }
 
 GrVkGpuCommandBuffer::~GrVkGpuCommandBuffer() {

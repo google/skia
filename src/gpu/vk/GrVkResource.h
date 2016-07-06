@@ -15,9 +15,9 @@
 class GrVkGpu;
 
 // uncomment to enable tracing of resource refs
-//#ifdef SK_DEBUG
-//#define SK_TRACE_VK_RESOURCES
-//#endif
+#ifdef SK_DEBUG
+#define SK_TRACE_VK_RESOURCES
+#endif
 
 /** \class GrVkResource
 
@@ -119,6 +119,12 @@ public:
     void validate() const {
         SkASSERT(fRefCnt > 0);
     }
+#endif
+
+#ifdef SK_TRACE_VK_RESOURCES
+    /** Output a human-readable dump of this resource's information
+     */
+    virtual void dumpInfo() const = 0;
 #endif
 
 private:

@@ -26,6 +26,12 @@ public:
 
     VkImageView imageView() const { return fImageView; }
 
+#ifdef SK_TRACE_VK_RESOURCES
+    void dumpInfo() const override {
+        SkDebugf("GrVkImageView: %d (%d refs)\n", fImageView, this->getRefCnt());
+    }
+#endif
+
 private:
     GrVkImageView(VkImageView imageView) : INHERITED(), fImageView(imageView) {}
 

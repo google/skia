@@ -120,6 +120,12 @@ public:
 
     void genKey(GrProcessorKeyBuilder* b) const;
 
+#ifdef SK_TRACE_VK_RESOURCES
+    void dumpInfo() const override {
+        SkDebugf("GrVkRenderPass: %d (%d refs)\n", fRenderPass, this->getRefCnt());
+    }
+#endif
+
 private:
     GrVkRenderPass(const GrVkRenderPass&);
 

@@ -25,11 +25,12 @@
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrTextureParams;
-class GrVkPrimaryCommandBuffer;
 class GrVkGpu;
 class GrVkPipeline;
+class GrVkPrimaryCommandBuffer;
 class GrVkRenderTarget;
 class GrVkSampler;
+class GrVkSecondaryCommandBuffer;
 
 class GrVkResourceProvider {
 public:
@@ -76,9 +77,11 @@ public:
                                          const GrVkRenderPass::LoadStoreOps& resolveOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps);
 
-
-    GrVkPrimaryCommandBuffer* createPrimaryCommandBuffer();
+    GrVkPrimaryCommandBuffer* findOrCreatePrimaryCommandBuffer();
     void checkCommandBuffers();
+
+    GrVkSecondaryCommandBuffer* findOrCreateSecondaryCommandBuffer();
+    void recycleSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* cb);
 
     // Finds or creates a compatible GrVkDescriptorPool for the requested type and count.
     // The refcount is incremented and a pointer returned.
@@ -200,8 +203,13 @@ private:
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 
-    // Array of CommandBuffers that are currently in flight
+    // Array of PrimaryCommandBuffers that are currently in flight
     SkSTArray<4, GrVkPrimaryCommandBuffer*> fActiveCommandBuffers;
+    // Array of available primary command buffers that are not in flight
+    SkSTArray<4, GrVkPrimaryCommandBuffer*> fAvailableCommandBuffers;
+
+    // Array of available secondary command buffers
+    SkSTArray<16, GrVkSecondaryCommandBuffer*> fAvailableSecondaryCommandBuffers;
 
     // Stores GrVkSampler objects that we've already created so we can reuse them across multiple
     // GrVkPipelineStates

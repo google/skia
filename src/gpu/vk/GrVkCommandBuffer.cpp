@@ -52,6 +52,22 @@ void GrVkCommandBuffer::abandonSubResources() const {
     }
 }
 
+void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
+    SkASSERT(!fIsActive);
+    for (int i = 0; i < fTrackedResources.count(); ++i) {
+        fTrackedResources[i]->unref(gpu);
+    }
+    fTrackedResources.reset();
+
+    this->invalidateState();
+
+    // we will retain resources for later use
+    VkCommandBufferResetFlags flags = 0;
+    GR_VK_CALL(gpu->vkInterface(), ResetCommandBuffer(fCmdBuffer, flags));
+
+    this->onReset(gpu);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // CommandBuffer commands
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,13 +336,14 @@ void GrVkPrimaryCommandBuffer::endRenderPass(const GrVkGpu* gpu) {
 }
 
 void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
-                                               const GrVkSecondaryCommandBuffer* buffer) {
+                                               GrVkSecondaryCommandBuffer* buffer) {
     SkASSERT(fIsActive);
     SkASSERT(fActiveRenderPass);
     SkASSERT(fActiveRenderPass->isCompatible(*buffer->fActiveRenderPass));
 
     GR_VK_CALL(gpu->vkInterface(), CmdExecuteCommands(fCmdBuffer, 1, &buffer->fCmdBuffer));
-    this->addResource(buffer);
+    buffer->ref();
+    fSecondaryCommandBuffers.push_back(buffer);
     // When executing a secondary command buffer all state (besides render pass state) becomes
     // invalidated and must be reset. This includes bound buffers, pipelines, dynamic state, etc.
     this->invalidateState();
@@ -338,12 +355,16 @@ void GrVkPrimaryCommandBuffer::submitToQueue(const GrVkGpu* gpu,
     SkASSERT(!fIsActive);
 
     VkResult err;
-    VkFenceCreateInfo fenceInfo;
-    memset(&fenceInfo, 0, sizeof(VkFenceCreateInfo));
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    err = GR_VK_CALL(gpu->vkInterface(), CreateFence(gpu->device(), &fenceInfo, nullptr,
-                                                     &fSubmitFence));
-    SkASSERT(!err);
+    if (VK_NULL_HANDLE == fSubmitFence) {
+        VkFenceCreateInfo fenceInfo;
+        memset(&fenceInfo, 0, sizeof(VkFenceCreateInfo));
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        err = GR_VK_CALL(gpu->vkInterface(), CreateFence(gpu->device(), &fenceInfo, nullptr,
+                                                         &fSubmitFence));
+        SkASSERT(!err);
+    } else {
+        GR_VK_CALL(gpu->vkInterface(), ResetFences(gpu->device(), 1, &fSubmitFence));
+    }
 
     VkSubmitInfo submitInfo;
     memset(&submitInfo, 0, sizeof(VkSubmitInfo));
@@ -393,6 +414,13 @@ bool GrVkPrimaryCommandBuffer::finished(const GrVkGpu* gpu) const {
     }
 
     return false;
+}
+
+void GrVkPrimaryCommandBuffer::onReset(GrVkGpu* gpu) {
+    for (int i = 0; i < fSecondaryCommandBuffers.count(); ++i) {
+        gpu->resourceProvider().recycleSecondaryCommandBuffer(fSecondaryCommandBuffers[i]);
+    }
+    fSecondaryCommandBuffers.reset();
 }
 
 void GrVkPrimaryCommandBuffer::copyImage(const GrVkGpu* gpu,
@@ -538,10 +566,8 @@ void GrVkPrimaryCommandBuffer::onFreeGPUData(const GrVkGpu* gpu) const {
 // SecondaryCommandBuffer
 ////////////////////////////////////////////////////////////////////////////////
 
-GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(
-                                                       const GrVkGpu* gpu,
-                                                       VkCommandPool cmdPool,
-                                                       const GrVkRenderPass* compatibleRenderPass) {
+GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(const GrVkGpu* gpu,
+                                                               VkCommandPool cmdPool) {
     const VkCommandBufferAllocateInfo cmdInfo = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
         NULL,                                             // pNext
@@ -557,13 +583,15 @@ GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(
     if (err) {
         return nullptr;
     }
-    return new GrVkSecondaryCommandBuffer(cmdBuffer, compatibleRenderPass);
+    return new GrVkSecondaryCommandBuffer(cmdBuffer);
 }
 
 
-void GrVkSecondaryCommandBuffer::begin(const GrVkGpu* gpu, const GrVkFramebuffer* framebuffer) {
+void GrVkSecondaryCommandBuffer::begin(const GrVkGpu* gpu, const GrVkFramebuffer* framebuffer,
+                                       const GrVkRenderPass* compatibleRenderPass) {
     SkASSERT(!fIsActive);
-    SkASSERT(fActiveRenderPass);
+    SkASSERT(compatibleRenderPass);
+    fActiveRenderPass = compatibleRenderPass;
 
     VkCommandBufferInheritanceInfo inheritanceInfo;
     memset(&inheritanceInfo, 0, sizeof(VkCommandBufferInheritanceInfo));

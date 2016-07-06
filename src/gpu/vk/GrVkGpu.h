@@ -130,7 +130,7 @@ public:
     }
 #endif
 
-    void submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer*,
+    void submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer*,
                                       const GrVkRenderPass*,
                                       const VkClearValue*,
                                       GrVkRenderTarget*,
