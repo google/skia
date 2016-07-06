@@ -21,6 +21,79 @@ static void set_inset_fan(SkPoint* pts, size_t stride,
                     r.fRight - dx, r.fBottom - dy, stride);
 }
 
+// We support all hairlines, bevels, and miters, but not round joins. Also, check whether the miter
+// limit makes a miter join effectively beveled.
+inline static bool allowed_stroke(const SkStrokeRec& stroke, bool* isMiter) {
+    SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style ||
+             stroke.getStyle() == SkStrokeRec::kHairline_Style);
+    // For hairlines, make bevel and round joins appear the same as mitered ones.
+    if (!stroke.getWidth()) {
+        *isMiter = true;
+        return true;
+    }
+    if (stroke.getJoin() == SkPaint::kBevel_Join) {
+        *isMiter = false;
+        return true;
+    }
+    if (stroke.getJoin() == SkPaint::kMiter_Join) {
+        *isMiter = stroke.getMiter() >= SK_ScalarSqrt2;
+        return true;
+    }
+    return false;
+}
+
+static void compute_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRect* devInside,
+                          bool* isDegenerate, const SkMatrix& viewMatrix, const SkRect& rect,
+                          SkScalar strokeWidth, bool miterStroke) {
+    SkRect devRect;
+    viewMatrix.mapRect(&devRect, rect);
+
+    SkVector devStrokeSize;
+    if (strokeWidth > 0) {
+        devStrokeSize.set(strokeWidth, strokeWidth);
+        viewMatrix.mapVectors(&devStrokeSize, 1);
+        devStrokeSize.setAbs(devStrokeSize);
+    } else {
+        devStrokeSize.set(SK_Scalar1, SK_Scalar1);
+    }
+
+    const SkScalar dx = devStrokeSize.fX;
+    const SkScalar dy = devStrokeSize.fY;
+    const SkScalar rx = SkScalarMul(dx, SK_ScalarHalf);
+    const SkScalar ry = SkScalarMul(dy, SK_ScalarHalf);
+
+    *devOutside = devRect;
+    *devOutsideAssist = devRect;
+    *devInside = devRect;
+
+    devOutside->outset(rx, ry);
+    devInside->inset(rx, ry);
+
+    // If we have a degenerate stroking rect(ie the stroke is larger than inner rect) then we
+    // make a degenerate inside rect to avoid double hitting.  We will also jam all of the points
+    // together when we render these rects.
+    SkScalar spare;
+    {
+        SkScalar w = devRect.width() - dx;
+        SkScalar h = devRect.height() - dy;
+        spare = SkTMin(w, h);
+    }
+
+    *isDegenerate = spare <= 0;
+    if (*isDegenerate) {
+        devInside->fLeft = devInside->fRight = devRect.centerX();
+        devInside->fTop = devInside->fBottom = devRect.centerY();
+    }
+
+    // For bevel-stroke, use 2 SkRect instances(devOutside and devOutsideAssist)
+    // to draw the outside of the octagon. Because there are 8 vertices on the outer
+    // edge, while vertex number of inner edge is 4, the same as miter-stroke.
+    if (!miterStroke) {
+        devOutside->inset(0, ry);
+        devOutsideAssist->outset(0, ry);
+    }
+}
+
 static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(bool tweakAlphaForCoverage,
                                                         const SkMatrix& viewMatrix,
                                                         bool usesLocalCoords,
@@ -47,17 +120,36 @@ class AAStrokeRectBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    // TODO support AA rotated stroke rects by copying around view matrices
-    struct Geometry {
-        SkRect fDevOutside;
-        SkRect fDevOutsideAssist;
-        SkRect fDevInside;
-        GrColor fColor;
-        bool fDegenerate;
-    };
+    AAStrokeRectBatch(GrColor color, const SkMatrix& viewMatrix,
+                      const SkRect& devOutside, const SkRect& devInside)
+            : INHERITED(ClassID())
+            , fViewMatrix(viewMatrix) {
+        SkASSERT(!devOutside.isEmpty())
+        SkASSERT(!devInside.isEmpty())
 
-    static AAStrokeRectBatch* Create(const SkMatrix& viewMatrix, bool miterStroke) {
-        return new AAStrokeRectBatch(viewMatrix, miterStroke);
+        fGeoData.emplace_back(Geometry{color, devOutside, devOutside, devInside, false});
+        fBounds = devOutside;
+        fMiterStroke = true;
+    }
+
+
+    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                               const SkStrokeRec& stroke) {
+        bool isMiter;
+        if (!allowed_stroke(stroke, &isMiter)) {
+            return nullptr;
+        }
+
+        AAStrokeRectBatch* batch = new AAStrokeRectBatch();
+        batch->fMiterStroke = isMiter;
+        Geometry& geo = batch->fGeoData.push_back();
+        compute_rects(&geo.fDevOutside, &geo.fDevOutsideAssist, &geo.fDevInside, &geo.fDegenerate,
+                      viewMatrix, rect, stroke.getWidth(), isMiter);
+        geo.fColor = color;
+        batch->fBounds = geo.fDevOutside;
+        batch->fBounds.join(geo.fDevOutsideAssist);
+        batch->fViewMatrix = viewMatrix;
+        return batch;
     }
 
     const char* name() const override { return "AAStrokeRect"; }
@@ -70,50 +162,11 @@ public:
         coverage->setUnknownSingleComponent();
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    bool canAppend(const SkMatrix& viewMatrix, bool miterStroke) {
-        return fViewMatrix.cheapEqualTo(viewMatrix) && fMiterStroke == miterStroke;
-    }
-
-    void append(GrColor color, const SkRect& devOutside, const SkRect& devOutsideAssist,
-                const SkRect& devInside, bool degenerate) {
-        Geometry& geometry = fGeoData.push_back();
-        geometry.fColor = color;
-        geometry.fDevOutside = devOutside;
-        geometry.fDevOutsideAssist = devOutsideAssist;
-        geometry.fDevInside = devInside;
-        geometry.fDegenerate = degenerate;
-    }
-
-    void appendAndUpdateBounds(GrColor color, const SkRect& devOutside,
-                               const SkRect& devOutsideAssist, const SkRect& devInside,
-                               bool degenerate) {
-        this->append(color, devOutside, devOutsideAssist, devInside, degenerate);
-
-        SkRect bounds;
-        this->updateBounds(&bounds, fGeoData.back());
-        this->joinBounds(bounds);
-    }
-
-    void init() { this->updateBounds(&fBounds, fGeoData[0]); }
-
 private:
-    void updateBounds(SkRect* bounds, const Geometry& geo) {
-        // If we have miterstroke then we inset devOutside and outset devOutsideAssist, so we need
-        // the join for proper bounds
-        *bounds = geo.fDevOutside;
-        bounds->join(geo.fDevOutsideAssist);
-    }
+    AAStrokeRectBatch() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target*) const override;
     void initBatchTracker(const GrXPOverridesForBatch&) override;
-
-    AAStrokeRectBatch(const SkMatrix& viewMatrix,bool miterStroke)
-        : INHERITED(ClassID()) {
-        fViewMatrix = viewMatrix;
-        fMiterStroke = miterStroke;
-    }
 
     static const int kMiterIndexCnt = 3 * 24;
     static const int kMiterVertexCnt = 16;
@@ -130,7 +183,6 @@ private:
     bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
     bool colorIgnored() const { return fBatch.fColorIgnored; }
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
-    const Geometry& geometry() const { return fGeoData[0]; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool miterStroke() const { return fMiterStroke; }
 
@@ -155,6 +207,15 @@ private:
         bool fColorIgnored;
         bool fCoverageIgnored;
         bool fCanTweakAlphaForCoverage;
+    };
+
+    // TODO support AA rotated stroke rects by copying around view matrices
+    struct Geometry {
+        GrColor fColor;
+        SkRect fDevOutside;
+        SkRect fDevOutsideAssist;
+        SkRect fDevInside;
+        bool fDegenerate;
     };
 
     BatchTracker fBatch;
@@ -352,7 +413,7 @@ bool AAStrokeRectBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     if (this->color() != that->color()) {
         fBatch.fColor = GrColor_ILLEGAL;
     }
-    fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+    fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
     this->joinBounds(that->bounds());
     return true;
 }
@@ -516,114 +577,23 @@ void AAStrokeRectBatch::generateAAStrokeRectGeometry(void* vertices,
     }
 }
 
-// We support all hairlines, bevels, and miters, but not round joins. Also, check whether the miter
-// limit makes a miter join effectively beveled.
-inline static bool allowed_stroke(const SkStrokeRec& stroke, bool* isMiter) {
-    SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style ||
-             stroke.getStyle() == SkStrokeRec::kHairline_Style);
-    // For hairlines, make bevel and round joins appear the same as mitered ones.
-    if (!stroke.getWidth()) {
-        *isMiter = true;
-        return true;
-    }
-    if (stroke.getJoin() == SkPaint::kBevel_Join) {
-        *isMiter = false;
-        return true;
-    }
-    if (stroke.getJoin() == SkPaint::kMiter_Join) {
-        *isMiter = stroke.getMiter() >= SK_ScalarSqrt2;
-        return true;
-    }
-    return false;
-}
-
-static void compute_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRect* devInside,
-                          bool* isDegenerate, const SkMatrix& viewMatrix, const SkRect& rect,
-                          SkScalar strokeWidth, bool miterStroke) {
-    SkRect devRect;
-    viewMatrix.mapRect(&devRect, rect);
-
-    SkVector devStrokeSize;
-    if (strokeWidth > 0) {
-        devStrokeSize.set(strokeWidth, strokeWidth);
-        viewMatrix.mapVectors(&devStrokeSize, 1);
-        devStrokeSize.setAbs(devStrokeSize);
-    } else {
-        devStrokeSize.set(SK_Scalar1, SK_Scalar1);
-    }
-
-    const SkScalar dx = devStrokeSize.fX;
-    const SkScalar dy = devStrokeSize.fY;
-    const SkScalar rx = SkScalarMul(dx, SK_ScalarHalf);
-    const SkScalar ry = SkScalarMul(dy, SK_ScalarHalf);
-
-    *devOutside = devRect;
-    *devOutsideAssist = devRect;
-    *devInside = devRect;
-
-    devOutside->outset(rx, ry);
-    devInside->inset(rx, ry);
-
-    // If we have a degenerate stroking rect(ie the stroke is larger than inner rect) then we
-    // make a degenerate inside rect to avoid double hitting.  We will also jam all of the points
-    // together when we render these rects.
-    SkScalar spare;
-    {
-        SkScalar w = devRect.width() - dx;
-        SkScalar h = devRect.height() - dy;
-        spare = SkTMin(w, h);
-    }
-
-    *isDegenerate = spare <= 0;
-    if (*isDegenerate) {
-        devInside->fLeft = devInside->fRight = devRect.centerX();
-        devInside->fTop = devInside->fBottom = devRect.centerY();
-    }
-
-    // For bevel-stroke, use 2 SkRect instances(devOutside and devOutsideAssist)
-    // to draw the outside of the octagon. Because there are 8 vertices on the outer
-    // edge, while vertex number of inner edge is 4, the same as miter-stroke.
-    if (!miterStroke) {
-        devOutside->inset(0, ry);
-        devOutsideAssist->outset(0, ry);
-    }
-}
-
 namespace GrAAStrokeRectBatch {
 
 GrDrawBatch* CreateFillBetweenRects(GrColor color,
                                     const SkMatrix& viewMatrix,
                                     const SkRect& devOutside,
                                     const SkRect& devInside) {
-    SkASSERT(!devOutside.isEmpty())
-    SkASSERT(!devInside.isEmpty())
-    AAStrokeRectBatch* batch = AAStrokeRectBatch::Create(viewMatrix, true);
-    batch->append(color, devOutside, devOutside, devInside, false);
-    batch->init();
-    return batch;
+    return new AAStrokeRectBatch(color, viewMatrix, devOutside, devInside);
 }
 
 GrDrawBatch* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkStrokeRec& stroke) {
-    bool isMiterStroke;
-    if (!allowed_stroke(stroke, &isMiterStroke)) {
-        return nullptr;
-    }
-    AAStrokeRectBatch* batch = AAStrokeRectBatch::Create(viewMatrix, isMiterStroke);
-
-    SkRect devOutside, devOutsideAssist, devInside;
-    bool isDegenerate;
-    compute_rects(&devOutside, &devOutsideAssist, &devInside, &isDegenerate, viewMatrix,
-                  rect, stroke.getWidth(), isMiterStroke);
-
-    batch->append(color, devOutside, devOutsideAssist, devInside, isDegenerate);
-    batch->init();
-    return batch;
+    return AAStrokeRectBatch::Create(color, viewMatrix, rect, stroke);
 }
 
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
