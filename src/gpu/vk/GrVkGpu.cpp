@@ -784,7 +784,8 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
     // determine if we can blit to and from this format
     const GrVkCaps& caps = this->vkCaps();
     if (!caps.configCanBeDstofBlit(tex->config(), false) ||
-        !caps.configCanBeSrcofBlit(tex->config(), false)) {
+        !caps.configCanBeSrcofBlit(tex->config(), false) ||
+        !caps.mipMapSupport()) {
         return;
     }
 

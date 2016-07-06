@@ -371,6 +371,12 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
     SkASSERT(renderPass);
 
+    append_sampled_images(primProc, fGpu, &fSampledImages);
+    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
+        append_sampled_images(pipeline.getFragmentProcessor(i), fGpu, &fSampledImages);
+    }
+    append_sampled_images(pipeline.getXferProcessor(), fGpu, &fSampledImages);
+
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
                                                                     primProc,
@@ -379,12 +385,6 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     if (!pipelineState) {
         return;
     }
-
-    append_sampled_images(primProc, fGpu, &fSampledImages);
-    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        append_sampled_images(pipeline.getFragmentProcessor(i), fGpu, &fSampledImages);
-    }
-    append_sampled_images(pipeline.getXferProcessor(), fGpu, &fSampledImages);
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
