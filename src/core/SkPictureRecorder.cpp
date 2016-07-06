@@ -51,16 +51,25 @@ SkCanvas* SkPictureRecorder::getRecordingCanvas() {
     return fActivelyRecording ? fRecorder.get() : nullptr;
 }
 
-sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture() {
+sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlags) {
     fActivelyRecording = false;
     fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
 
     if (fRecord->count() == 0) {
+        if (finishFlags & kReturnNullForEmpty_FinishFlag) {
+            return nullptr;
+        }
         return fMiniRecorder.detachAsPicture(fCullRect);
     }
 
     // TODO: delay as much of this work until just before first playback?
     SkRecordOptimize(fRecord);
+
+    if (fRecord->count() == 0) {
+        if (finishFlags & kReturnNullForEmpty_FinishFlag) {
+            return nullptr;
+        }
+    }
 
     SkAutoTUnref<SkLayerInfo> saveLayerData;
 
@@ -97,9 +106,10 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture() {
                             saveLayerData.release(), subPictureBytes);
 }
 
-sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPictureWithCull(const SkRect& cullRect) {
+sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPictureWithCull(const SkRect& cullRect,
+                                                                     uint32_t finishFlags) {
     fCullRect = cullRect;
-    return this->finishRecordingAsPicture();
+    return this->finishRecordingAsPicture(finishFlags);
 }
 
 
@@ -118,13 +128,18 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
     SkRecordDraw(*fRecord, canvas, nullptr, drawables, drawableCount, nullptr/*bbh*/, nullptr/*callback*/);
 }
 
-sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable() {
+sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFlags) {
     fActivelyRecording = false;
     fRecorder->flushMiniRecorder();
     fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
 
-    // TODO: delay as much of this work until just before first playback?
     SkRecordOptimize(fRecord);
+
+    if (fRecord->count() == 0) {
+        if (finishFlags & kReturnNullForEmpty_FinishFlag) {
+            return nullptr;
+        }
+    }
 
     if (fBBH.get()) {
         SkAutoTMalloc<SkRect> bounds(fRecord->count());

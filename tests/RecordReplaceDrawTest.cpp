@@ -78,6 +78,11 @@ DEF_TEST(RecordReplaceDraw_Unbalanced, r) {
         canvas->save();
         canvas->scale(2, 2);
         pic = recorder.finishRecordingAsPicture();
+
+        // we may have optimized everything away. If so, just return
+        if (pic->approximateOpCount() == 0) {
+            return;
+        }
     }
 
     SkRecord rerecord;
