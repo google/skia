@@ -409,9 +409,10 @@ public:
         kRound_Cap,     //!< begin/end contours with a semi-circle extension
         kSquare_Cap,    //!< begin/end contours with a half square extension
 
-        kCapCount,
+        kLast_Cap = kSquare_Cap,
         kDefault_Cap = kButt_Cap
     };
+    static constexpr int kCapCount = kLast_Cap + 1;
 
     /** Join enum specifies the settings for the paint's strokejoin. This is
         the treatment that is applied to corners in paths and rectangles.
@@ -421,9 +422,10 @@ public:
         kRound_Join,    //!< connect path segments with a round join
         kBevel_Join,    //!< connect path segments with a flat bevel join
 
-        kJoinCount,
+        kLast_Join = kBevel_Join,
         kDefault_Join = kMiter_Join
     };
+    static constexpr int kJoinCount = kLast_Join + 1;
 
     /** Return the paint's stroke cap type, controlling how the start and end
         of stroked lines and paths are treated.

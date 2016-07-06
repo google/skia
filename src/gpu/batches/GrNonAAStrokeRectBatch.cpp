@@ -211,27 +211,28 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
+// Allow all hairlines and all miters, so long as the miter limit doesn't produce beveled corners.
+inline static bool allowed_stroke(const SkStrokeRec& stroke) {
+    SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style ||
+             stroke.getStyle() == SkStrokeRec::kHairline_Style);
+    return !stroke.getWidth() ||
+            (stroke.getJoin() == SkPaint::kMiter_Join && stroke.getMiter() > SK_ScalarSqrt2);
+}
+
 namespace GrNonAAStrokeRectBatch {
 
 GrDrawBatch* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
-                    SkScalar strokeWidth,
+                    const SkStrokeRec& stroke,
                     bool snapToPixelCenters) {
+    if (!allowed_stroke(stroke)) {
+        return nullptr;
+    }
     NonAAStrokeRectBatch* batch = NonAAStrokeRectBatch::Create();
-    batch->append(color, viewMatrix, rect, strokeWidth);
+    batch->append(color, viewMatrix, rect, stroke.getWidth());
     batch->init(snapToPixelCenters);
     return batch;
-}
-
-void Append(GrBatch* origBatch,
-            GrColor color,
-            const SkMatrix& viewMatrix,
-            const SkRect& rect,
-            SkScalar strokeWidth,
-            bool snapToPixelCenters) {
-    NonAAStrokeRectBatch* batch = origBatch->cast<NonAAStrokeRectBatch>();
-    batch->appendAndUpdateBounds(color, viewMatrix, rect, strokeWidth, snapToPixelCenters);
 }
 
 };
@@ -242,9 +243,13 @@ DRAW_BATCH_TEST_DEFINE(NonAAStrokeRectBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestRect(random);
-    SkScalar strokeWidth = random->nextBool() ? 0.0f : 1.0f;
-
-    return GrNonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeWidth, random->nextBool());
+    SkScalar strokeWidth = random->nextBool() ? 0.0f : 2.0f;
+    SkPaint paint;
+    paint.setStrokeWidth(strokeWidth);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeJoin(SkPaint::kMiter_Join);
+    SkStrokeRec strokeRec(paint);
+    return GrNonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeRec, random->nextBool());
 }
 
 #endif

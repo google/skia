@@ -516,14 +516,25 @@ void AAStrokeRectBatch::generateAAStrokeRectGeometry(void* vertices,
     }
 }
 
-inline static bool is_miter(const SkStrokeRec& stroke) {
+// We support all hairlines, bevels, and miters, but not round joins. Also, check whether the miter
+// limit makes a miter join effectively beveled.
+inline static bool allowed_stroke(const SkStrokeRec& stroke, bool* isMiter) {
+    SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style ||
+             stroke.getStyle() == SkStrokeRec::kHairline_Style);
     // For hairlines, make bevel and round joins appear the same as mitered ones.
-    // small miter limit means right angles show bevel...
-    if ((stroke.getWidth() > 0) && (stroke.getJoin() != SkPaint::kMiter_Join ||
-                                    stroke.getMiter() < SK_ScalarSqrt2)) {
-        return false;
+    if (!stroke.getWidth()) {
+        *isMiter = true;
+        return true;
     }
-    return true;
+    if (stroke.getJoin() == SkPaint::kBevel_Join) {
+        *isMiter = false;
+        return true;
+    }
+    if (stroke.getJoin() == SkPaint::kMiter_Join) {
+        *isMiter = stroke.getMiter() >= SK_ScalarSqrt2;
+        return true;
+    }
+    return false;
 }
 
 static void compute_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRect* devInside,
@@ -596,7 +607,10 @@ GrDrawBatch* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkStrokeRec& stroke) {
-    bool isMiterStroke = is_miter(stroke);
+    bool isMiterStroke;
+    if (!allowed_stroke(stroke, &isMiterStroke)) {
+        return nullptr;
+    }
     AAStrokeRectBatch* batch = AAStrokeRectBatch::Create(viewMatrix, isMiterStroke);
 
     SkRect devOutside, devOutsideAssist, devInside;
@@ -607,28 +621,6 @@ GrDrawBatch* Create(GrColor color,
     batch->append(color, devOutside, devOutsideAssist, devInside, isDegenerate);
     batch->init();
     return batch;
-}
-
-bool Append(GrBatch* origBatch,
-            GrColor color,
-            const SkMatrix& viewMatrix,
-            const SkRect& rect,
-            const SkStrokeRec& stroke) {
-    AAStrokeRectBatch* batch = origBatch->cast<AAStrokeRectBatch>();
-
-    // we can't batch across vm changes
-    bool isMiterStroke = is_miter(stroke);
-    if (!batch->canAppend(viewMatrix, isMiterStroke)) {
-        return false;
-    }
-
-    SkRect devOutside, devOutsideAssist, devInside;
-    bool isDegenerate;
-    compute_rects(&devOutside, &devOutsideAssist, &devInside, &isDegenerate, viewMatrix,
-                  rect, stroke.getWidth(), isMiterStroke);
-
-    batch->appendAndUpdateBounds(color, devOutside, devOutsideAssist, devInside, isDegenerate);
-    return true;
 }
 
 };

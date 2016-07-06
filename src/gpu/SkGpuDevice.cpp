@@ -516,24 +516,9 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRect", fContext);
     CHECK_SHOULD_DRAW(draw);
 
-    bool doStroke = paint.getStyle() != SkPaint::kFill_Style;
-    SkScalar width = paint.getStrokeWidth();
 
-    /*
-        We have special code for hairline strokes, miter-strokes, bevel-stroke
-        and fills. Anything else we just call our path code.
-     */
-    bool usePath = doStroke && width > 0 &&
-                   (paint.getStrokeJoin() == SkPaint::kRound_Join ||
-                    (paint.getStrokeJoin() == SkPaint::kBevel_Join && rect.isEmpty()));
-
-    // a few other reasons we might need to call drawPath...
-    if (paint.getMaskFilter() || paint.getPathEffect() ||
-        paint.getStyle() == SkPaint::kStrokeAndFill_Style) { // we can't both stroke and fill rects
-        usePath = true;
-    }
-
-    if (usePath) {
+    // A couple reasons we might need to call drawPath.
+    if (paint.getMaskFilter() || paint.getPathEffect()) {
         SkPath path;
         path.setIsVolatile(true);
         path.addRect(rect);

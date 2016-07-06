@@ -29,12 +29,6 @@ GrDrawBatch* Create(GrColor color,
                     const SkRect& rect,
                     const SkStrokeRec& stroke);
 
-bool Append(GrBatch*,
-            GrColor color,
-            const SkMatrix& viewMatrix,
-            const SkRect& rect,
-            const SkStrokeRec& stroke);
-
-};
+}
 
 #endif

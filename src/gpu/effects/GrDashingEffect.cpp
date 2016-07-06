@@ -1240,7 +1240,7 @@ DRAW_BATCH_TEST_DEFINE(DashBatch) {
     }
 
     // pick random cap
-    SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::Cap::kCapCount));
+    SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::kCapCount));
 
     SkScalar intervals[2];
 

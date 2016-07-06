@@ -55,9 +55,9 @@ inline GrDrawBatch* CreateAAFill(GrColor color,
 inline GrDrawBatch* CreateNonAAStroke(GrColor color,
                                       const SkMatrix& viewMatrix,
                                       const SkRect& rect,
-                                      SkScalar strokeWidth,
+                                      const SkStrokeRec& strokeRec,
                                       bool snapToPixelCenters) {
-    return GrNonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeWidth, snapToPixelCenters);
+    return GrNonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeRec, snapToPixelCenters);
 }
 
 inline GrDrawBatch* CreateAAStroke(GrColor color,
