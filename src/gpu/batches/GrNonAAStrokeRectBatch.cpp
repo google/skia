@@ -100,6 +100,16 @@ private:
 
         // If our caller snaps to pixel centers then we have to round out the bounds
         if (snapToPixelCenters) {
+            // We want to be consistent with how we snap non-aa lines. To match what we do in
+            // GrGLSLVertexShaderBuilder, we first floor all the vertex values and then add half a
+            // pixel to force us to pixel centers.
+            bounds->set(SkScalarFloorToScalar(bounds->fLeft),
+                        SkScalarFloorToScalar(bounds->fTop),
+                        SkScalarFloorToScalar(bounds->fRight),
+                        SkScalarFloorToScalar(bounds->fBottom));
+            bounds->offset(0.5f, 0.5f);
+
+            // Round out the bounds to integer values
             bounds->roundOut();
         }
     }
