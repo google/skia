@@ -204,6 +204,15 @@ void SkPaintFilterCanvas::onDrawTextOnPath(const void* text, size_t byteLength, 
     }
 }
 
+void SkPaintFilterCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
+                                            const SkRSXform xform[], const SkRect* cull,
+                                            const SkPaint& paint) {
+    AutoPaintFilter apf(this, kText_Type, paint);
+    if (apf.shouldDraw()) {
+        this->INHERITED::onDrawTextRSXform(text, byteLength, xform, cull, *apf.paint());
+    }
+}
+
 void SkPaintFilterCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                          const SkPaint& paint) {
     AutoPaintFilter apf(this, kTextBlob_Type, paint);

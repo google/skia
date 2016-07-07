@@ -204,6 +204,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawText_OpType: return "DrawText";
         case kDrawTextBlob_OpType: return "DrawTextBlob";
         case kDrawTextOnPath_OpType: return "DrawTextOnPath";
+        case kDrawTextRSXform_OpType: return "drawTextRSXform";
         case kDrawVertices_OpType: return "DrawVertices";
         case kEndDrawPicture_OpType: return "EndDrawPicture";
         case kRestore_OpType: return "Restore";
@@ -257,6 +258,7 @@ SkDrawCommand* SkDrawCommand::fromJSON(Json::Value& command, UrlDataManager& url
         INSTALL_FACTORY(DrawPosText);
         INSTALL_FACTORY(DrawPosTextH);
         INSTALL_FACTORY(DrawTextOnPath);
+        INSTALL_FACTORY(DrawTextRSXform);
         INSTALL_FACTORY(DrawTextBlob);
 
         INSTALL_FACTORY(DrawRect);
@@ -2956,6 +2958,8 @@ SkDrawTextCommand* SkDrawTextCommand::fromJSON(Json::Value& command,
                                  paint);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 SkDrawTextOnPathCommand::SkDrawTextOnPathCommand(const void* text, size_t byteLength,
                                                  const SkPath& path, const SkMatrix* matrix,
                                                  const SkPaint& paint)
@@ -3016,6 +3020,62 @@ SkDrawTextOnPathCommand* SkDrawTextOnPathCommand::fromJSON(Json::Value& command,
     }
     return new SkDrawTextOnPathCommand(text, strlen(text), path, matrixPtr, paint);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkDrawTextRSXformCommand::SkDrawTextRSXformCommand(const void* text, size_t byteLength,
+                                                   const SkRSXform xform[], const SkRect* cull,
+                                                   const SkPaint& paint)
+    : INHERITED(kDrawTextOnPath_OpType)
+{
+    fText = new char[byteLength];
+    memcpy(fText, text, byteLength);
+    fByteLength = byteLength;
+    int count = paint.countText(text, byteLength);
+    fXform = new SkRSXform[count];
+    memcpy(fXform, xform, count * sizeof(SkRSXform));
+    if (cull) {
+        fCullStorage = *cull;
+        fCull = &fCullStorage;
+    } else {
+        fCull = nullptr;
+    }
+    fPaint = paint;
+
+    fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
+    fInfo.push(SkObjectParser::PaintToString(paint));
+}
+
+void SkDrawTextRSXformCommand::execute(SkCanvas* canvas) const {
+    canvas->drawTextRSXform(fText, fByteLength, fXform, fCull, fPaint);
+}
+
+Json::Value SkDrawTextRSXformCommand::toJSON(UrlDataManager& urlDataManager) const {
+    Json::Value result = INHERITED::toJSON(urlDataManager);
+    result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = Json::Value((const char*) fText,
+                                                       ((const char*) fText) + fByteLength);
+    result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
+    return result;
+}
+
+SkDrawTextRSXformCommand* SkDrawTextRSXformCommand::fromJSON(Json::Value& command,
+                                                             UrlDataManager& urlDataManager) {
+    const char* text = command[SKDEBUGCANVAS_ATTRIBUTE_TEXT].asCString();
+    size_t byteLength = strlen(text);
+    SkPaint paint;
+    extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
+
+    // TODO: handle xform and cull
+    int count = paint.countText(text, byteLength);
+    SkAutoTArray<SkRSXform> xform(count);
+    for (int i = 0; i < count; ++i) {
+        xform[i].fSCos = 1;
+        xform[i].fSSin = xform[i].fTx = xform[i].fTy = 0;
+    }
+    return new SkDrawTextRSXformCommand(text, byteLength, &xform[0], nullptr, paint);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkDrawVerticesCommand::SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int vertexCount,
                                              const SkPoint vertices[], const SkPoint texs[],

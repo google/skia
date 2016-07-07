@@ -100,3 +100,68 @@ private:
     typedef GM INHERITED;
 };
 DEF_GM( return new DrawAtlasGM; )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkPath.h"
+#include "SkPathMeasure.h"
+
+static void draw_text_on_path_rigid(SkCanvas* canvas, const void* text, size_t length,
+                                    const SkPoint xy[], const SkPath& path, const SkPaint& paint) {
+    SkPathMeasure meas(path, false);
+
+    int count = paint.countText(text, length);
+    SkAutoSTArray<100, SkRSXform> xform(count);
+
+    for (int i = 0; i < count; ++i) {
+        SkPoint pos;
+        SkVector tan;
+        if (!meas.getPosTan(xy[i].x(), &pos, &tan)) {
+            pos = xy[i];
+            tan.set(1, 0);
+        }
+        xform[i].fSCos = tan.x();
+        xform[i].fSSin = tan.y();
+        xform[i].fTx   = pos.x();
+        xform[i].fTy   = pos.y();
+    }
+
+    canvas->drawTextRSXform(text, length, &xform[0], nullptr, paint);
+}
+
+DEF_SIMPLE_GM(drawTextRSXform, canvas, 510, 310) {
+    const char text[] = "ABCDFGHJKLMNOPQRSTUVWXYZ";
+    const int N = sizeof(text) - 1;
+    SkPoint pos[N];
+    SkRSXform xform[N];
+
+    canvas->translate(0, 30);
+
+    SkScalar x = 20;
+    SkScalar dx = 20;
+    SkScalar rad = 0;
+    SkScalar drad = 2 * SK_ScalarPI / (N - 1);
+    for (int i = 0; i < N; ++i) {
+        xform[i].fSCos = SkScalarCos(rad);
+        xform[i].fSSin = SkScalarSin(rad);
+        xform[i].fTx = x;
+        xform[i].fTy = 0;
+        pos[i].set(x, 0);
+        x += dx;
+        rad += drad;
+    }
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(20);
+    canvas->drawTextRSXform(text, N, xform, nullptr, paint);
+
+    SkPath path;
+    path.addOval(SkRect::MakeXYWH(150, 50, 200, 200));
+
+    draw_text_on_path_rigid(canvas, text, N, pos, path, paint);
+
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawPath(path, paint);
+}
+
+

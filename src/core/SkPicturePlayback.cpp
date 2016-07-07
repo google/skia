@@ -501,6 +501,19 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawTextOnPath(text.text(), text.length(), path, &matrix, *paint);
             }
         } break;
+        case DRAW_TEXT_RSXFORM: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            int count = reader->readInt();
+            uint32_t flags = reader->read32();
+            TextContainer text;
+            get_text(reader, &text);
+            const SkRSXform* xform = (const SkRSXform*)reader->skip(count * sizeof(SkRSXform));
+            const SkRect* cull = nullptr;
+            if (flags & DRAW_TEXT_RSXFORM_HAS_CULL) {
+                cull = (const SkRect*)reader->skip(sizeof(SkRect));
+            }
+            canvas->drawTextRSXform(text.text(), text.length(), xform, cull, *paint);
+        } break;
         case DRAW_VERTICES: {
             sk_sp<SkXfermode> xfer;
             const SkPaint* paint = fPictureData->getPaint(reader);

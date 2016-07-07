@@ -273,6 +273,8 @@ protected:
 
     virtual void drawTextOnPath(const SkDraw&, const void* text, size_t len, const SkPath&,
                                 const SkMatrix*, const SkPaint&);
+    virtual void drawTextRSXform(const SkDraw&, const void* text, size_t len, const SkRSXform[],
+                                 const SkPaint&);
 
     bool readPixels(const SkImageInfo&, void* dst, size_t rowBytes, int x, int y);
 

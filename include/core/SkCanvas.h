@@ -989,6 +989,14 @@ public:
     void drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                         const SkMatrix* matrix, const SkPaint& paint);
 
+    /**
+     *  Draw the text with each character/glyph individually transformed by its xform.
+     *  If cullRect is not null, it is a conservative bounds of what will be drawn
+     *  taking into account the xforms and the paint) and will be used to accelerate culling.
+     */
+    void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform[],
+                         const SkRect* cullRect, const SkPaint& paint);
+
     /** Draw the text blob, offset by (x,y), using the specified paint.
         @param blob     The text blob to be drawn
         @param x        The x-offset of the text being drawn
@@ -1324,6 +1332,8 @@ protected:
     virtual void onDrawTextOnPath(const void* text, size_t byteLength,
                                   const SkPath& path, const SkMatrix* matrix,
                                   const SkPaint& paint);
+    virtual void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform[],
+                                   const SkRect* cullRect, const SkPaint& paint);
 
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint);

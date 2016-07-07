@@ -200,12 +200,18 @@ void SkAndroidSDKCanvas::onDrawPosTextH(const void* text,
     fProxyTarget->drawPosTextH(text, byteLength, xpos, constY, filteredPaint);
 }
 void SkAndroidSDKCanvas::onDrawTextOnPath(const void* text,
-                                                   size_t byteLength,
-                                                   const SkPath& path,
-                                                   const SkMatrix* matrix,
-                                                   const SkPaint& paint) {
+                                          size_t byteLength,
+                                          const SkPath& path,
+                                          const SkMatrix* matrix,
+                                          const SkPaint& paint) {
     FILTER(paint);
     fProxyTarget->drawTextOnPath(text, byteLength, path, matrix, filteredPaint);
+}
+void SkAndroidSDKCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
+                                           const SkRSXform xform[], const SkRect* cull,
+                                           const SkPaint& paint) {
+    FILTER(paint);
+    fProxyTarget->drawTextRSXform(text, byteLength, xform, cull, filteredPaint);
 }
 void SkAndroidSDKCanvas::onDrawTextBlob(const SkTextBlob* blob,
                                                  SkScalar x,

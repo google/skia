@@ -2647,6 +2647,21 @@ void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPat
     LOOPER_END
 }
 
+void SkCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                                 const SkRect* cullRect, const SkPaint& paint) {
+    if (cullRect && this->quickReject(*cullRect)) {
+        return;
+    }
+
+    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
+
+    while (iter.next()) {
+        iter.fDevice->drawTextRSXform(iter, text, byteLength, xform, looper.paint());
+    }
+
+    LOOPER_END
+}
+
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
 
@@ -2698,6 +2713,13 @@ void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath&
                               const SkMatrix* matrix, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawTextOnPath()");
     this->onDrawTextOnPath(text, byteLength, path, matrix, paint);
+}
+void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                               const SkRect* cullRect, const SkPaint& paint) {
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawTextRSXform()");
+    if (byteLength) {
+        this->onDrawTextRSXform(text, byteLength, xform, cullRect, paint);
+    }
 }
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {

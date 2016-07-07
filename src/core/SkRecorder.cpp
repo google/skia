@@ -278,6 +278,16 @@ void SkRecorder::onDrawTextOnPath(const void* text, size_t byteLength, const SkP
            matrix ? *matrix : SkMatrix::I());
 }
 
+void SkRecorder::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                                   const SkRect* cull, const SkPaint& paint) {
+    APPEND(DrawTextRSXform,
+           paint,
+           this->copy((const char*)text, byteLength),
+           byteLength,
+           this->copy(xform, paint.countText(text, byteLength)),
+           this->copy(cull));
+}
+
 void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) {
     TRY_MINIRECORDER(drawTextBlob, blob, x, y, paint);

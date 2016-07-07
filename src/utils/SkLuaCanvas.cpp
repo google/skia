@@ -273,6 +273,14 @@ void SkLuaCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const Sk
     lua.pushPaint(paint, "paint");
 }
 
+void SkLuaCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                                    const SkRect* cull, const SkPaint& paint) {
+    AUTO_LUA("drawTextRSXform");
+    lua.pushEncodedText(paint.getTextEncoding(), text, byteLength);
+    // TODO: export other params
+    lua.pushPaint(paint, "paint");
+}
+
 void SkLuaCanvas::onDrawTextBlob(const SkTextBlob *blob, SkScalar x, SkScalar y,
                                  const SkPaint &paint) {
     AUTO_LUA("drawTextBlob");

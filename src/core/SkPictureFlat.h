@@ -79,6 +79,7 @@ enum DrawType {
     DRAW_ANNOTATION,
     DRAW_DRAWABLE,
     DRAW_DRAWABLE_MATRIX,
+    DRAW_TEXT_RSXFORM,
 
     LAST_DRAWTYPE_ENUM = DRAW_DRAWABLE_MATRIX,
 };
@@ -96,6 +97,10 @@ enum DrawVertexFlags {
 enum DrawAtlasFlags {
     DRAW_ATLAS_HAS_COLORS   = 1 << 0,
     DRAW_ATLAS_HAS_CULL     = 1 << 1,
+};
+
+enum DrawTextRSXformFlags {
+    DRAW_TEXT_RSXFORM_HAS_CULL  = 1 << 0,
 };
 
 enum SaveLayerRecFlatFlags {

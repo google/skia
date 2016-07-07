@@ -14,6 +14,7 @@
 #include "SkTLazy.h"
 #include "SkPath.h"
 #include "SkRRect.h"
+#include "SkRSXform.h"
 #include "SkString.h"
 #include "SkTDArray.h"
 #include "SkJSONCPP.h"
@@ -48,6 +49,7 @@ public:
         kDrawText_OpType,
         kDrawTextBlob_OpType,
         kDrawTextOnPath_OpType,
+        kDrawTextRSXform_OpType,
         kDrawVertices_OpType,
         kEndDrawPicture_OpType,
         kRestore_OpType,
@@ -522,6 +524,26 @@ private:
     SkPath   fPath;
     SkMatrix fMatrix;
     SkPaint  fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawTextRSXformCommand : public SkDrawCommand {
+public:
+    SkDrawTextRSXformCommand(const void* text, size_t byteLength, const SkRSXform[],
+                             const SkRect*, const SkPaint& paint);
+    ~SkDrawTextRSXformCommand() override { delete[] fText; delete[] fXform; }
+    void execute(SkCanvas* canvas) const override;
+    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
+    static SkDrawTextRSXformCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
+
+private:
+    char*       fText;
+    size_t      fByteLength;
+    SkRSXform*  fXform;
+    SkRect*     fCull;
+    SkRect      fCullStorage;
+    SkPaint     fPaint;
 
     typedef SkDrawCommand INHERITED;
 };

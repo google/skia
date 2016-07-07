@@ -403,6 +403,47 @@ void SkBaseDevice::drawTextOnPath(const SkDraw& draw, const void* text, size_t b
     }
 }
 
+#include "SkUtils.h"
+typedef int (*CountTextProc)(const char* text);
+static int count_utf16(const char* text) {
+    const uint16_t* prev = (uint16_t*)text;
+    (void)SkUTF16_NextUnichar(&prev);
+    return SkToInt((const char*)prev - text);
+}
+static int return_4(const char* text) { return 4; }
+static int return_2(const char* text) { return 2; }
+
+void SkBaseDevice::drawTextRSXform(const SkDraw& draw, const void* text, size_t len,
+                                   const SkRSXform xform[], const SkPaint& paint) {
+    CountTextProc proc = nullptr;
+    switch (paint.getTextEncoding()) {
+        case SkPaint::kUTF8_TextEncoding:
+            proc = SkUTF8_CountUTF8Bytes;
+            break;
+        case SkPaint::kUTF16_TextEncoding:
+            proc = count_utf16;
+            break;
+        case SkPaint::kUTF32_TextEncoding:
+            proc = return_4;
+            break;
+        case SkPaint::kGlyphID_TextEncoding:
+            proc = return_2;
+            break;
+    }
+
+    SkDraw localD(draw);
+    SkMatrix localM, currM;
+    const void* stopText = (const char*)text + len;
+    while ((const char*)text < (const char*)stopText) {
+        localM.setRSXform(*xform++);
+        currM.setConcat(*draw.fMatrix, localM);
+        localD.fMatrix = &currM;
+        int subLen = proc((const char*)text);
+        this->drawText(localD, text, subLen, 0, 0, paint);
+        text = (const char*)text + subLen;
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
 void SkBaseDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitmap,
