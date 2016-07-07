@@ -71,7 +71,7 @@ ordered and unordered lists:
 
 Incorporate images:
 
-![image](image.png)
+![image](/dev/tools/image.png)
 
 Or go old school and use [ASCII art](http://asciiflow.com/):
 

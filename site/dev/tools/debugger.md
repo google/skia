@@ -26,4 +26,4 @@ Begin by following the instructions to
 After running `skiaserve`, follow the instructions to open the debugger in your
 local browser. By default the address will be `http://127.0.0.1:8888`.
 
-![Debugger interface](onlinedebugger.png)
+![Debugger interface](/dev/tools/onlinedebugger.png)

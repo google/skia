@@ -115,6 +115,6 @@ down below.
  ctrl-shift-s | Saves the skp under the new specified name
  ctrl-q       | Quits
 
-![Debugger interface](debugger.png)
+![Debugger interface](/dev/tools/debugger.png)
 
 
