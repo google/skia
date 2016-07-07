@@ -2658,10 +2658,18 @@ Json::Value SkDrawTextBlobCommand::toJSON(UrlDataManager& urlDataManager) const 
         runs.append(run);
         iter.next();
     }
+    SkRect bounds = fBlob->bounds();
     result[SKDEBUGCANVAS_ATTRIBUTE_RUNS] = runs;
     result[SKDEBUGCANVAS_ATTRIBUTE_X] = Json::Value(fXPos);
     result[SKDEBUGCANVAS_ATTRIBUTE_Y] = Json::Value(fYPos);
+    result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonRect(bounds);
     result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
+
+    SkString desc;
+    // make the bounds local by applying the x,y
+    bounds.offset(fXPos, fYPos);
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, bounds)->c_str());
+
     return result;
 }
 
@@ -2679,17 +2687,20 @@ SkDrawTextBlobCommand* SkDrawTextBlobCommand::fromJSON(Json::Value& command,
         Json::Value coords = run[SKDEBUGCANVAS_ATTRIBUTE_COORDS];
         SkScalar x = coords[0].asFloat();
         SkScalar y = coords[1].asFloat();
+        SkRect bounds;
+        extract_json_rect(command[SKDEBUGCANVAS_ATTRIBUTE_COORDS], &bounds);
+
         if (run.isMember(SKDEBUGCANVAS_ATTRIBUTE_POSITIONS)) {
             Json::Value positions = run[SKDEBUGCANVAS_ATTRIBUTE_POSITIONS];
             if (positions.size() > 0 && positions[0].isNumeric()) {
-                SkTextBlobBuilder::RunBuffer buffer = builder.allocRunPosH(font, count, y);
+                SkTextBlobBuilder::RunBuffer buffer = builder.allocRunPosH(font, count, y, &bounds);
                 for (int j = 0; j < count; j++) {
                     buffer.glyphs[j] = glyphs[j].asUInt();
                     buffer.pos[j] = positions[j].asFloat();
                 }
             }
             else {
-                SkTextBlobBuilder::RunBuffer buffer = builder.allocRunPos(font, count);
+                SkTextBlobBuilder::RunBuffer buffer = builder.allocRunPos(font, count, &bounds);
                 for (int j = 0; j < count; j++) {
                     buffer.glyphs[j] = glyphs[j].asUInt();
                     buffer.pos[j * 2] = positions[j][0].asFloat();
@@ -2698,7 +2709,7 @@ SkDrawTextBlobCommand* SkDrawTextBlobCommand::fromJSON(Json::Value& command,
             }
         }
         else {
-            SkTextBlobBuilder::RunBuffer buffer = builder.allocRun(font, count, x, y);
+            SkTextBlobBuilder::RunBuffer buffer = builder.allocRun(font, count, x, y, &bounds);
             for (int j = 0; j < count; j++) {
                 buffer.glyphs[j] = glyphs[j].asUInt();
             }
