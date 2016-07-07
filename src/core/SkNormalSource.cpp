@@ -181,7 +181,6 @@ sk_sp<GrFragmentProcessor> NormalMapSourceImpl::asFragmentProcessor(
                                                      const SkMatrix *localMatrix,
                                                      SkFilterQuality filterQuality,
                                                      SkSourceGammaTreatment gammaTreatment) const {
-
     sk_sp<GrFragmentProcessor> mapFP = fMapShader->asFragmentProcessor(context, viewM,
             localMatrix, filterQuality, gammaTreatment);
 
