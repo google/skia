@@ -1497,6 +1497,40 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     return true;
 }
 
+// The RenderArea bounds we pass into BeginRenderPass must have a start x value that is a multiple
+// of the granularity. The width must also be a multiple of the granularity or eaqual to the width
+// the the entire attachment. Similar requirements for the y and height components.
+void adjust_bounds_to_granularity(SkIRect* dstBounds, const SkIRect& srcBounds,
+                                  const VkExtent2D& granularity, int maxWidth, int maxHeight) {
+    // Adjust Width
+    // Start with the right side of rect so we know if we end up going pass the maxWidth.
+    int rightAdj = srcBounds.fRight % granularity.width;
+    if (rightAdj != 0) {
+        rightAdj = granularity.width - rightAdj;
+    }
+    dstBounds->fRight = srcBounds.fRight + rightAdj;
+    if (dstBounds->fRight > maxWidth) {
+        dstBounds->fRight = maxWidth;
+        dstBounds->fLeft = 0;
+    } else {
+       dstBounds->fLeft = srcBounds.fLeft - srcBounds.fLeft % granularity.width;
+    }
+
+    // Adjust height
+    // Start with the bottom side of rect so we know if we end up going pass the maxHeight.
+    int bottomAdj = srcBounds.fBottom % granularity.height;
+    if (bottomAdj != 0) {
+        bottomAdj = granularity.height - bottomAdj;
+    }
+    dstBounds->fBottom = srcBounds.fBottom + bottomAdj;
+    if (dstBounds->fBottom > maxHeight) {
+        dstBounds->fBottom = maxHeight;
+        dstBounds->fTop = 0;
+    } else {
+       dstBounds->fTop = srcBounds.fTop - srcBounds.fTop % granularity.height;
+    }
+}
+
 void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
                                            const GrVkRenderPass* renderPass,
                                            const VkClearValue* colorClear,
@@ -1509,6 +1543,17 @@ void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
         flippedBounds.fTop = target->height() - bounds.fBottom;
         flippedBounds.fBottom = target->height() - bounds.fTop;
         pBounds = &flippedBounds;
+    }
+
+    // The bounds we use for the render pass should be of the granularity supported
+    // by the device.
+    const VkExtent2D& granularity = renderPass->granularity();
+    SkIRect adjustedBounds;
+    if ((0 != granularity.width && 1 != granularity.width) ||
+        (0 != granularity.height && 1 != granularity.height)) {
+        adjust_bounds_to_granularity(&adjustedBounds, *pBounds, granularity,
+                                     target->width(), target->height());
+        pBounds = &adjustedBounds;
     }
 
     // Currently it is fine for us to always pass in 1 for the clear count even if no attachment
