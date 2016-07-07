@@ -153,7 +153,7 @@ void GrVkBuffer::vkUnmap(GrVkGpu* gpu) {
         VK_CALL(gpu, UnmapMemory(gpu->device(), this->alloc().fMemory));
     } else {
         gpu->updateBuffer(this, fMapPtr, this->size());
-        delete (unsigned char*) fMapPtr;
+        delete [] (unsigned char*)fMapPtr;
     }
 
     fMapPtr = nullptr;

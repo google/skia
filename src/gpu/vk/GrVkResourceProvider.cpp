@@ -15,7 +15,7 @@
 #include "GrVkUtil.h"
 
 #ifdef SK_TRACE_VK_RESOURCES
-SkTDynamicHash<GrVkResource, uint32_t> GrVkResource::fTrace;
+GrVkResource::Trace GrVkResource::fTrace;
 SkRandom GrVkResource::fRandom;
 #endif
 
@@ -314,16 +314,6 @@ void GrVkResourceProvider::destroyResources() {
         fUniformDescLayout = VK_NULL_HANDLE;
     }
     fUniformDescPool->unref(fGpu);
-
-#ifdef SK_TRACE_VK_RESOURCES
-    if (GrVkResource::fTrace.count()) {
-        SkTDynamicHash<GrVkResource, uint32_t>::Iter iter(&GrVkResource::fTrace);
-        for (; !iter.done(); ++iter) {
-            (*iter).dumpInfo();
-        }
-    }
-    SkASSERT(0 == GrVkResource::fTrace.count());
-#endif
 }
 
 void GrVkResourceProvider::abandonResources() {
@@ -368,16 +358,6 @@ void GrVkResourceProvider::abandonResources() {
 
     fUniformDescLayout = VK_NULL_HANDLE;
     fUniformDescPool->unrefAndAbandon();
-
-#ifdef SK_TRACE_VK_RESOURCES
-    if (GrVkResource::fTrace.count()) {
-        SkTDynamicHash<GrVkResource, uint32_t>::Iter iter(&GrVkResource::fTrace);
-        for (; !iter.done(); ++iter) {
-            (*iter).dumpInfo();
-        }
-    }
-    SkASSERT(0 == GrVkResource::fTrace.count());
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

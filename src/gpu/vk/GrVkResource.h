@@ -40,7 +40,26 @@ public:
 #ifdef SK_TRACE_VK_RESOURCES
     static const uint32_t& GetKey(const GrVkResource& r) { return r.fKey; }
     static uint32_t Hash(const uint32_t& k) { return k; }
-    static SkTDynamicHash<GrVkResource, uint32_t> fTrace;
+
+    class Trace {
+    public:
+        ~Trace() {
+            if (fHash.count()) {
+                SkTDynamicHash<GrVkResource, uint32_t>::Iter iter(&fHash);
+                for (; !iter.done(); ++iter) {
+                    (*iter).dumpInfo();
+                }
+            }
+            SkASSERT(0 == fHash.count());
+        }
+        void add(GrVkResource* r) { fHash.add(r); }
+        void remove(const GrVkResource* r) { fHash.remove(GetKey(*r)); }
+
+    private:
+        SkTDynamicHash<GrVkResource, uint32_t> fHash;
+    };
+    static Trace  fTrace;
+
     static SkRandom fRandom;
 #endif
 
@@ -144,7 +163,7 @@ private:
     void internal_dispose(const GrVkGpu* gpu) const {
         this->freeGPUData(gpu);
 #ifdef SK_TRACE_VK_RESOURCES
-        fTrace.remove(GetKey(*this));
+        fTrace.remove(this);
 #endif
         SkASSERT(0 == fRefCnt);
         fRefCnt = 1;
@@ -157,7 +176,7 @@ private:
     void internal_dispose() const {
         this->abandonSubResources();
 #ifdef SK_TRACE_VK_RESOURCES
-        fTrace.remove(GetKey(*this));
+        fTrace.remove(this);
 #endif
         SkASSERT(0 == fRefCnt);
         fRefCnt = 1;
