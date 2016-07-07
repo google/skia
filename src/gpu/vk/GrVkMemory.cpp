@@ -320,7 +320,7 @@ bool GrVkFreeListAlloc::alloc(VkDeviceSize requestedSize,
 #endif
         }
         fFreeSize -= alignedSize;
-        SkASSERT(allocSize > 0);
+        SkASSERT(*allocSize > 0);
 
         return true;
     }
