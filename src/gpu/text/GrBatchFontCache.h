@@ -186,11 +186,11 @@ public:
     void setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]);
 
 private:
-    static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format) {
+    static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format, const GrCaps& caps) {
         static const GrPixelConfig kPixelConfigs[] = {
             kAlpha_8_GrPixelConfig,
             kRGB_565_GrPixelConfig,
-            kSkia8888_GrPixelConfig
+            caps.srgbSupport() ? kSkiaGamma8888_GrPixelConfig : kSkia8888_GrPixelConfig
         };
         static_assert(SK_ARRAY_COUNT(kPixelConfigs) == kMaskFormatCount, "array_size_mismatch");
 
