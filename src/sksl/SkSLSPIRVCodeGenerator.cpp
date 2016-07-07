@@ -775,6 +775,7 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, std::ostream& ou
     switch (opCode) {
         case SpvOpReturn:      // fall through
         case SpvOpReturnValue: // fall through
+        case SpvOpKill:        // fall through
         case SpvOpBranch:      // fall through
         case SpvOpBranchConditional:
             ASSERT(fCurrentBlock);
