@@ -23,6 +23,7 @@
 #include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLPLSPathRendering.h"
+#include "instanced/GLInstancedRendering.h"
 #include "SkMipMap.h"
 #include "SkPixmap.h"
 #include "SkStrokeRec.h"
@@ -46,6 +47,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+using gr_instanced::InstancedRendering;
+using gr_instanced::GLInstancedRendering;
 
 static const GrGLenum gXfermodeEquation2Blend[] = {
     // Basic OpenGL blend equations.
@@ -474,6 +477,10 @@ void GrGLGpu::disconnect(DisconnectType type) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+InstancedRendering* GrGLGpu::createInstancedRenderingIfSupported() {
+    return GLInstancedRendering::CreateIfSupported(this);
+}
 
 void GrGLGpu::onResetContext(uint32_t resetBits) {
     // we don't use the zb at all

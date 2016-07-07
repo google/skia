@@ -25,6 +25,8 @@
 
 #include "effects/GrRRectEffect.h"
 
+#include "instanced/InstancedRendering.h"
+
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 
@@ -40,6 +42,8 @@
 #define RETURN_FALSE_IF_ABANDONED  if (fDrawingManager->wasAbandoned()) { return false; }
 #define RETURN_FALSE_IF_ABANDONED_PRIV  if (fDrawContext->fDrawingManager->wasAbandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED   if (fDrawingManager->wasAbandoned()) { return nullptr; }
+
+using gr_instanced::InstancedRendering;
 
 class AutoCheckFlush {
 public:
@@ -70,6 +74,7 @@ GrDrawContext::GrDrawContext(GrContext* context,
     , fRenderTarget(std::move(rt))
     , fDrawTarget(SkSafeRef(fRenderTarget->getLastDrawTarget()))
     , fContext(context)
+    , fInstancedPipelineInfo(fRenderTarget.get())
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
     , fAuditTrail(auditTrail)
 #ifdef SK_DEBUG
@@ -273,23 +278,29 @@ GrDrawBatch* GrDrawContext::getFillRectBatch(const GrPaint& paint,
                                              const SkMatrix& viewMatrix,
                                              const SkRect& rect,
                                              bool* useHWAA) {
+    if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
+        if (GrDrawBatch* batch = ir->recordRect(rect, viewMatrix, paint.getColor(),
+                                                paint.isAntiAlias(), fInstancedPipelineInfo,
+                                                useHWAA)) {
+            return batch;
+        }
+    }
 
-    GrDrawBatch* batch = nullptr;
     if (should_apply_coverage_aa(paint, fRenderTarget.get(), useHWAA)) {
         // The fill path can handle rotation but not skew.
         if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
             SkRect devBoundRect;
             viewMatrix.mapRect(&devBoundRect, rect);
-            batch = GrRectBatchFactory::CreateAAFill(paint.getColor(), viewMatrix,
-                                                     rect, devBoundRect);
+            return GrRectBatchFactory::CreateAAFill(paint.getColor(), viewMatrix,
+                                                    rect, devBoundRect);
         }
     } else {
         // filled BW rect
-        batch = GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewMatrix, rect,
-                                                    nullptr, nullptr);
+        return GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewMatrix, rect,
+                                                   nullptr, nullptr);
     }
 
-    return batch;
+    return nullptr;
 }
 
 void GrDrawContext::drawRect(const GrClip& clip,
@@ -502,9 +513,19 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::fillRectToRect");
 
     AutoCheckFlush acf(fDrawingManager);
-
-    bool useHWAA;
     SkAutoTUnref<GrDrawBatch> batch;
+    bool useHWAA;
+
+    if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
+        batch.reset(ir->recordRect(rectToDraw, viewMatrix, paint.getColor(), localRect,
+                                   paint.isAntiAlias(), fInstancedPipelineInfo, &useHWAA));
+        if (batch) {
+            GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
+            return;
+        }
+    }
+
     if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA) &&
         view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
         batch.reset(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(), viewMatrix, rectToDraw,
@@ -531,9 +552,19 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::fillRectWithLocalMatrix");
 
     AutoCheckFlush acf(fDrawingManager);
-
-    bool useHWAA;
     SkAutoTUnref<GrDrawBatch> batch;
+    bool useHWAA;
+
+    if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
+        batch.reset(ir->recordRect(rectToDraw, viewMatrix, paint.getColor(), localMatrix,
+                                   paint.isAntiAlias(), fInstancedPipelineInfo, &useHWAA));
+        if (batch) {
+            GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
+            return;
+        }
+    }
+
     if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA) &&
         view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
         batch.reset(GrAAFillRectBatch::Create(paint.getColor(), viewMatrix, localMatrix,
@@ -630,13 +661,25 @@ void GrDrawContext::drawRRect(const GrClip& clip,
     }
 
     SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
-    const SkStrokeRec stroke = style.strokeRec();
-    AutoCheckFlush acf(fDrawingManager);
 
+    AutoCheckFlush acf(fDrawingManager);
+    const SkStrokeRec stroke = style.strokeRec();
     bool useHWAA;
+
+    if (this->getDrawTarget()->instancedRendering() && stroke.isFillStyle()) {
+        InstancedRendering* ir = this->getDrawTarget()->instancedRendering();
+        SkAutoTUnref<GrDrawBatch> batch(ir->recordRRect(rrect, viewMatrix, paint.getColor(),
+                                                        paint.isAntiAlias(), fInstancedPipelineInfo,
+                                                        &useHWAA));
+        if (batch) {
+            GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
+            return;
+        }
+    }
+
     if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
         GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-
         SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(paint.getColor(),
                                                                          viewMatrix,
                                                                          rrect,
@@ -662,6 +705,18 @@ bool GrDrawContext::drawFilledDRRect(const GrClip& clip,
                                      const SkRRect& origInner) {
     SkASSERT(!origInner.isEmpty());
     SkASSERT(!origOuter.isEmpty());
+
+    if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
+        bool useHWAA;
+        SkAutoTUnref<GrDrawBatch> batch(ir->recordDRRect(origOuter, origInner, viewMatrix,
+                                                         paintIn.getColor(), paintIn.isAntiAlias(),
+                                                         fInstancedPipelineInfo, &useHWAA));
+        if (batch) {
+            GrPipelineBuilder pipelineBuilder(paintIn, useHWAA);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
+            return true;
+        }
+    }
 
     bool applyAA = paintIn.isAntiAlias() && !fRenderTarget->isUnifiedMultisampled();
 
@@ -761,6 +816,19 @@ void GrDrawContext::drawOval(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
     const SkStrokeRec& stroke = style.strokeRec();
     bool useHWAA;
+
+    if (this->getDrawTarget()->instancedRendering() && stroke.isFillStyle()) {
+        InstancedRendering* ir = this->getDrawTarget()->instancedRendering();
+        SkAutoTUnref<GrDrawBatch> batch(ir->recordOval(oval, viewMatrix, paint.getColor(),
+                                                       paint.isAntiAlias(), fInstancedPipelineInfo,
+                                                       &useHWAA));
+        if (batch) {
+            GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
+            return;
+        }
+    }
+
     if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
         GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
         SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateOvalBatch(paint.getColor(),
