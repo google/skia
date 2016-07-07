@@ -242,50 +242,9 @@ VkAccessFlags GrVkMemory::LayoutToSrcAccessMask(const VkImageLayout layout) {
     return flags;
 }
 
-GrVkSubHeap::GrVkSubHeap(const GrVkGpu* gpu, uint32_t memoryTypeIndex, 
-                         VkDeviceSize size, VkDeviceSize alignment)
-    : fGpu(gpu)
-    , fMemoryTypeIndex(memoryTypeIndex) {
-
-    VkMemoryAllocateInfo allocInfo = {
-        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,      // sType
-        NULL,                                        // pNext
-        size,                                        // allocationSize
-        memoryTypeIndex,                             // memoryTypeIndex
-    };
-
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), AllocateMemory(gpu->device(),
-                                                                 &allocInfo,
-                                                                 nullptr,
-                                                                 &fAlloc));
-
-    if (VK_SUCCESS == err) {
-        fSize = size;
-        fAlignment = alignment;
-        fFreeSize = size;
-        fLargestBlockSize = size;
-        fLargestBlockOffset = 0;
-
-        Block* block = fFreeList.addToTail();
-        block->fOffset = 0;
-        block->fSize = fSize;
-    } else {
-        fSize = 0;
-        fAlignment = 0;
-        fFreeSize = 0;
-        fLargestBlockSize = 0;
-    }
-}
-
-GrVkSubHeap::~GrVkSubHeap() {
-    const GrVkInterface* iface = fGpu->vkInterface();
-    GR_VK_CALL(iface, FreeMemory(fGpu->device(), fAlloc, nullptr));
-
-    fFreeList.reset();
-}
-
-bool GrVkSubHeap::alloc(VkDeviceSize size, GrVkAlloc* alloc) {
-    VkDeviceSize alignedSize = align_size(size, fAlignment);
+bool GrVkFreeListAlloc::alloc(VkDeviceSize requestedSize,
+                              VkDeviceSize* allocOffset, VkDeviceSize* allocSize) {
+    VkDeviceSize alignedSize = align_size(requestedSize, fAlignment);
 
     // find the smallest block big enough for our allocation
     FreeList::Iter iter = fFreeList.headIter();
@@ -311,10 +270,9 @@ bool GrVkSubHeap::alloc(VkDeviceSize size, GrVkAlloc* alloc) {
 
     Block* bestFit = bestFitIter.get();
     if (bestFit) {
-        alloc->fMemory = fAlloc;
         SkASSERT(align_size(bestFit->fOffset, fAlignment) == bestFit->fOffset);
-        alloc->fOffset = bestFit->fOffset;
-        alloc->fSize = alignedSize;
+        *allocOffset = bestFit->fOffset;
+        *allocSize = alignedSize;
         // adjust or remove current block
         VkDeviceSize originalBestFitOffset = bestFit->fOffset;
         if (bestFit->fSize > alignedSize) {
@@ -362,38 +320,35 @@ bool GrVkSubHeap::alloc(VkDeviceSize size, GrVkAlloc* alloc) {
 #endif
         }
         fFreeSize -= alignedSize;
-        SkASSERT(alloc->fSize > 0);
+        SkASSERT(allocSize > 0);
 
         return true;
     }
-    
+
     SkDebugf("Can't allocate %d bytes, %d bytes available, largest free block %d\n", alignedSize, fFreeSize, fLargestBlockSize);
 
     return false;
 }
 
-
-void GrVkSubHeap::free(const GrVkAlloc& alloc) {
-    SkASSERT(alloc.fMemory == fAlloc);
-
+void GrVkFreeListAlloc::free(VkDeviceSize allocOffset, VkDeviceSize allocSize) {
     // find the block right after this allocation
     FreeList::Iter iter = fFreeList.headIter();
     FreeList::Iter prev;
-    while (iter.get() && iter.get()->fOffset < alloc.fOffset) {
+    while (iter.get() && iter.get()->fOffset < allocOffset) {
         prev = iter;
         iter.next();
-    } 
+    }
     // we have four cases:
     // we exactly follow the previous one
     Block* block;
-    if (prev.get() && prev.get()->fOffset + prev.get()->fSize == alloc.fOffset) {
+    if (prev.get() && prev.get()->fOffset + prev.get()->fSize == allocOffset) {
         block = prev.get();
-        block->fSize += alloc.fSize;
+        block->fSize += allocSize;
         if (block->fOffset == fLargestBlockOffset) {
             fLargestBlockSize = block->fSize;
         }
         // and additionally we may exactly precede the next one
-        if (iter.get() && iter.get()->fOffset == alloc.fOffset + alloc.fSize) {
+        if (iter.get() && iter.get()->fOffset == allocOffset + allocSize) {
             block->fSize += iter.get()->fSize;
             if (iter.get()->fOffset == fLargestBlockOffset) {
                 fLargestBlockOffset = block->fOffset;
@@ -402,21 +357,21 @@ void GrVkSubHeap::free(const GrVkAlloc& alloc) {
             fFreeList.remove(iter.get());
         }
     // or we only exactly proceed the next one
-    } else if (iter.get() && iter.get()->fOffset == alloc.fOffset + alloc.fSize) {
+    } else if (iter.get() && iter.get()->fOffset == allocOffset + allocSize) {
         block = iter.get();
-        block->fSize += alloc.fSize;
+        block->fSize += allocSize;
         if (block->fOffset == fLargestBlockOffset) {
-            fLargestBlockOffset = alloc.fOffset;
+            fLargestBlockOffset = allocOffset;
             fLargestBlockSize = block->fSize;
         }
-        block->fOffset = alloc.fOffset;
+        block->fOffset = allocOffset;
     // or we fall somewhere in between, with gaps
     } else {
         block = fFreeList.addBefore(iter);
-        block->fOffset = alloc.fOffset;
-        block->fSize = alloc.fSize;
+        block->fOffset = allocOffset;
+        block->fSize = allocSize;
     }
-    fFreeSize += alloc.fSize;
+    fFreeSize += allocSize;
     if (block->fSize > fLargestBlockSize) {
         fLargestBlockSize = block->fSize;
         fLargestBlockOffset = block->fOffset;
@@ -436,7 +391,42 @@ void GrVkSubHeap::free(const GrVkAlloc& alloc) {
 #endif
 }
 
-GrVkHeap::~GrVkHeap() {
+GrVkSubHeap::GrVkSubHeap(const GrVkGpu* gpu, uint32_t memoryTypeIndex,
+                         VkDeviceSize size, VkDeviceSize alignment)
+    : INHERITED(size, alignment)
+    , fGpu(gpu)
+    , fMemoryTypeIndex(memoryTypeIndex) {
+
+    VkMemoryAllocateInfo allocInfo = {
+        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,      // sType
+        NULL,                                        // pNext
+        size,                                        // allocationSize
+        memoryTypeIndex,                             // memoryTypeIndex
+    };
+
+    VkResult err = GR_VK_CALL(gpu->vkInterface(), AllocateMemory(gpu->device(),
+                                                                 &allocInfo,
+                                                                 nullptr,
+                                                                 &fAlloc));
+    if (VK_SUCCESS != err) {
+        this->reset();
+    }
+}
+
+GrVkSubHeap::~GrVkSubHeap() {
+    const GrVkInterface* iface = fGpu->vkInterface();
+    GR_VK_CALL(iface, FreeMemory(fGpu->device(), fAlloc, nullptr));
+}
+
+bool GrVkSubHeap::alloc(VkDeviceSize size, GrVkAlloc* alloc) {
+    alloc->fMemory = fAlloc;
+    return INHERITED::alloc(size, &alloc->fOffset, &alloc->fSize);
+}
+
+void GrVkSubHeap::free(const GrVkAlloc& alloc) {
+    SkASSERT(alloc.fMemory == fAlloc);
+
+    INHERITED::free(alloc.fOffset, alloc.fSize);
 }
 
 bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment, 

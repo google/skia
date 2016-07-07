@@ -39,40 +39,73 @@ namespace GrVkMemory {
     VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
 }
 
-class GrVkSubHeap {
+class GrVkFreeListAlloc {
 public:
-    GrVkSubHeap(const GrVkGpu* gpu, uint32_t memoryTypeIndex, 
-                VkDeviceSize size, VkDeviceSize alignment);
-    ~GrVkSubHeap();
+    GrVkFreeListAlloc(VkDeviceSize size, VkDeviceSize alignment)
+        : fSize(size)
+        , fAlignment(alignment)
+        , fFreeSize(size)
+        , fLargestBlockSize(size)
+        , fLargestBlockOffset(0) {
+        Block* block = fFreeList.addToTail();
+        block->fOffset = 0;
+        block->fSize = fSize;
+    }
+    ~GrVkFreeListAlloc() {
+        this->reset();
+    }
 
-    uint32_t  memoryTypeIndex() const { return fMemoryTypeIndex;  }
     VkDeviceSize size() const { return fSize; }
     VkDeviceSize alignment() const { return fAlignment; }
     VkDeviceSize freeSize() const { return fFreeSize; }
     VkDeviceSize largestBlockSize() const { return fLargestBlockSize; }
-    VkDeviceMemory memory() { return fAlloc; }
 
     bool unallocated() const { return fSize == fFreeSize; }
 
-    bool alloc(VkDeviceSize size, GrVkAlloc* alloc);
-    void free(const GrVkAlloc& alloc);
+protected:
+    bool alloc(VkDeviceSize requestedSize, VkDeviceSize* allocOffset, VkDeviceSize* allocSize);
+    void free(VkDeviceSize allocOffset, VkDeviceSize allocSize);
 
-private:
+    void reset() {
+        fSize = 0;
+        fAlignment = 0;
+        fFreeSize = 0;
+        fLargestBlockSize = 0;
+        fFreeList.reset();
+    }
+
     struct Block {
         VkDeviceSize fOffset;
         VkDeviceSize fSize;
     };
     typedef SkTLList<Block, 16> FreeList;
 
-    const GrVkGpu* fGpu;
-    uint32_t       fMemoryTypeIndex;
     VkDeviceSize   fSize;
     VkDeviceSize   fAlignment;
     VkDeviceSize   fFreeSize;
     VkDeviceSize   fLargestBlockSize;
     VkDeviceSize   fLargestBlockOffset;
-    VkDeviceMemory fAlloc;
     FreeList       fFreeList;
+};
+
+class GrVkSubHeap : public GrVkFreeListAlloc {
+public:
+    GrVkSubHeap(const GrVkGpu* gpu, uint32_t memoryTypeIndex,
+                VkDeviceSize size, VkDeviceSize alignment);
+    ~GrVkSubHeap();
+
+    uint32_t memoryTypeIndex() const { return fMemoryTypeIndex; }
+    VkDeviceMemory memory() { return fAlloc; }
+
+    bool alloc(VkDeviceSize requestedSize, GrVkAlloc* alloc);
+    void free(const GrVkAlloc& alloc);
+
+private:
+    const GrVkGpu* fGpu;
+    uint32_t       fMemoryTypeIndex;
+    VkDeviceMemory fAlloc;
+
+    typedef GrVkFreeListAlloc INHERITED;
 };
 
 class GrVkHeap {
@@ -94,7 +127,7 @@ public:
         }
     }
 
-    ~GrVkHeap();
+    ~GrVkHeap() {}
 
     VkDeviceSize allocSize() const { return fAllocSize; }
     VkDeviceSize usedSize() const { return fUsedSize; }
