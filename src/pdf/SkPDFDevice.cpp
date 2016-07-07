@@ -1063,15 +1063,9 @@ static void write_wide_string(SkDynamicMemoryWStream* wStream,
                               bool wideChars) {
     if (wideChars) {
         SkASSERT(2 * len < 65535);
-        static const char gHex[] = "0123456789ABCDEF";
         wStream->writeText("<");
         for (size_t i = 0; i < len; i++) {
-            char result[4];  // Big-endian
-            result[0] = gHex[(input[i] >> 12) & 0xF];
-            result[1] = gHex[(input[i] >> 8) & 0xF];
-            result[2] = gHex[(input[i] >> 4) & 0xF];
-            result[3] = gHex[(input[i]) & 0xF];
-            wStream->write(result, 4);
+            SkPDFUtils::WriteUInt16BE(wStream, input[i]);
         }
         wStream->writeText(">");
     } else {

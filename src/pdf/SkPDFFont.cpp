@@ -421,6 +421,16 @@ struct BFRange {
     SkUnichar fUnicode;
 };
 
+static void write_utf16be(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
+    uint16_t utf16[2] = {0, 0};
+    size_t len = SkUTF16_FromUnichar(utf32, utf16);
+    SkASSERT(len == 1 || len == 2);
+    SkPDFUtils::WriteUInt16BE(wStream, utf16[0]);
+    if (len == 2) {
+        SkPDFUtils::WriteUInt16BE(wStream, utf16[1]);
+    }
+}
+
 static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
                                   SkDynamicMemoryWStream* cmap) {
     // PDF spec defines that every bf* list can have at most 100 entries.
@@ -431,9 +441,9 @@ static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
         cmap->writeText(" beginbfchar\n");
         for (int j = 0; j < count; ++j) {
             cmap->writeText("<");
-            cmap->writeHexAsText(bfchar[i + j].fGlyphId, 4);
+            SkPDFUtils::WriteUInt16BE(cmap, bfchar[i + j].fGlyphId);
             cmap->writeText("> <");
-            cmap->writeHexAsText(bfchar[i + j].fUnicode, 4);
+            write_utf16be(cmap, bfchar[i + j].fUnicode);
             cmap->writeText(">\n");
         }
         cmap->writeText("endbfchar\n");
@@ -450,11 +460,11 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
         cmap->writeText(" beginbfrange\n");
         for (int j = 0; j < count; ++j) {
             cmap->writeText("<");
-            cmap->writeHexAsText(bfrange[i + j].fStart, 4);
+            SkPDFUtils::WriteUInt16BE(cmap, bfrange[i + j].fStart);
             cmap->writeText("> <");
-            cmap->writeHexAsText(bfrange[i + j].fEnd, 4);
+            SkPDFUtils::WriteUInt16BE(cmap, bfrange[i + j].fEnd);
             cmap->writeText("> <");
-            cmap->writeHexAsText(bfrange[i + j].fUnicode, 4);
+            write_utf16be(cmap, bfrange[i + j].fUnicode);
             cmap->writeText(">\n");
         }
         cmap->writeText("endbfrange\n");

@@ -11,11 +11,11 @@
 
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkStream.h"
 
 class SkMatrix;
 class SkPDFArray;
 struct SkRect;
-class SkWStream;
 
 #if 0
 #define PRINT_NOT_IMPL(str) fprintf(stderr, str)
@@ -31,41 +31,52 @@ class SkWStream;
         }                                                          \
     } while (0)
 
-class SkPDFUtils {
-public:
-    static sk_sp<SkPDFArray> RectToArray(const SkRect& rect);
-    static sk_sp<SkPDFArray> MatrixToArray(const SkMatrix& matrix);
-    static void AppendTransform(const SkMatrix& matrix, SkWStream* content);
+namespace SkPDFUtils {
 
-    static void MoveTo(SkScalar x, SkScalar y, SkWStream* content);
-    static void AppendLine(SkScalar x, SkScalar y, SkWStream* content);
-    static void AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
-                            SkScalar ctl2X, SkScalar ctl2Y,
-                            SkScalar dstX, SkScalar dstY, SkWStream* content);
-    static void AppendRectangle(const SkRect& rect, SkWStream* content);
-    static void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
-                         bool doConsumeDegerates, SkWStream* content);
-    static void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
-                         SkWStream* content) {
-        SkPDFUtils::EmitPath(path, paintStyle, true, content);
-    }
-    static void ClosePath(SkWStream* content);
-    static void PaintPath(SkPaint::Style style, SkPath::FillType fill,
-                          SkWStream* content);
-    static void StrokePath(SkWStream* content);
-    static void DrawFormXObject(int objectIndex, SkWStream* content);
-    static void ApplyGraphicState(int objectIndex, SkWStream* content);
-    static void ApplyPattern(int objectIndex, SkWStream* content);
+sk_sp<SkPDFArray> RectToArray(const SkRect& rect);
+sk_sp<SkPDFArray> MatrixToArray(const SkMatrix& matrix);
+void AppendTransform(const SkMatrix& matrix, SkWStream* content);
 
-    // 3 = '-', '.', and '\0' characters.
-    // 9 = number of significant digits
-    // abs(FLT_MIN_10_EXP) = number of zeros in FLT_MIN
-    static const size_t kMaximumFloatDecimalLength = 3 + 9 - FLT_MIN_10_EXP;
-    // FloatToDecimal is exposed for unit tests.
-    static size_t FloatToDecimal(float value,
-                                 char output[kMaximumFloatDecimalLength]);
-    static void AppendScalar(SkScalar value, SkWStream* stream);
-    static void WriteString(SkWStream* wStream, const char* input, size_t len);
-};
+void MoveTo(SkScalar x, SkScalar y, SkWStream* content);
+void AppendLine(SkScalar x, SkScalar y, SkWStream* content);
+void AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
+                 SkScalar ctl2X, SkScalar ctl2Y,
+                 SkScalar dstX, SkScalar dstY, SkWStream* content);
+void AppendRectangle(const SkRect& rect, SkWStream* content);
+void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
+                     bool doConsumeDegerates, SkWStream* content);
+inline void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
+                     SkWStream* content) {
+    SkPDFUtils::EmitPath(path, paintStyle, true, content);
+}
+void ClosePath(SkWStream* content);
+void PaintPath(SkPaint::Style style, SkPath::FillType fill,
+                      SkWStream* content);
+void StrokePath(SkWStream* content);
+void DrawFormXObject(int objectIndex, SkWStream* content);
+void ApplyGraphicState(int objectIndex, SkWStream* content);
+void ApplyPattern(int objectIndex, SkWStream* content);
+
+// 3 = '-', '.', and '\0' characters.
+// 9 = number of significant digits
+// abs(FLT_MIN_10_EXP) = number of zeros in FLT_MIN
+const size_t kMaximumFloatDecimalLength = 3 + 9 - FLT_MIN_10_EXP;
+// FloatToDecimal is exposed for unit tests.
+size_t FloatToDecimal(float value,
+                      char output[kMaximumFloatDecimalLength]);
+void AppendScalar(SkScalar value, SkWStream* stream);
+void WriteString(SkWStream* wStream, const char* input, size_t len);
+
+inline void WriteUInt16BE(SkDynamicMemoryWStream* wStream, uint16_t value) {
+    static const char gHex[] = "0123456789ABCDEF";
+    char result[4];
+    result[0] = gHex[       value >> 12 ];
+    result[1] = gHex[0xF & (value >> 8 )];
+    result[2] = gHex[0xF & (value >> 4 )];
+    result[3] = gHex[0xF & (value      )];
+    wStream->write(result, 4);
+}
+
+}  // namespace SkPDFUtils
 
 #endif
