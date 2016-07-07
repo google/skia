@@ -37,103 +37,84 @@ static void init_stroke_rect_strip(SkPoint verts[10], const SkRect& rect, SkScal
     verts[9] = verts[1];
 }
 
+// Allow all hairlines and all miters, so long as the miter limit doesn't produce beveled corners.
+inline static bool allowed_stroke(const SkStrokeRec& stroke) {
+    SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style ||
+             stroke.getStyle() == SkStrokeRec::kHairline_Style);
+    return !stroke.getWidth() ||
+           (stroke.getJoin() == SkPaint::kMiter_Join && stroke.getMiter() > SK_ScalarSqrt2);
+}
+
 class NonAAStrokeRectBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    struct Geometry {
-        SkMatrix fViewMatrix;
-        SkRect fRect;
-        SkScalar fStrokeWidth;
-        GrColor fColor;
-    };
-
-    static NonAAStrokeRectBatch* Create() {
-        return new NonAAStrokeRectBatch;
-    }
-
-    const char* name() const override { return "GrStrokeRectBatch"; }
+    const char* name() const override { return "NonAAStrokeRectBatch"; }
 
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fGeoData[0].fColor);
+        color->setKnownFourComponents(fColor);
         coverage->setKnownSingleComponent(0xff);
     }
 
-    void append(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                SkScalar strokeWidth) {
-        Geometry& geometry = fGeoData.push_back();
-        geometry.fViewMatrix = viewMatrix;
-        geometry.fRect = rect;
-        geometry.fStrokeWidth = strokeWidth;
-        geometry.fColor = color;
-
+    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                               const SkStrokeRec& stroke, bool snapToPixelCenters) {
+        if (!allowed_stroke(stroke)) {
+            return nullptr;
+        }
+        NonAAStrokeRectBatch* batch = new NonAAStrokeRectBatch();
+        batch->fColor = color;
+        batch->fViewMatrix = viewMatrix;
+        batch->fRect = rect;
         // Sort the rect for hairlines
-        geometry.fRect.sort();
-    }
+        batch->fRect.sort();
+        batch->fStrokeWidth = stroke.getWidth();
 
-    void appendAndUpdateBounds(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                               SkScalar strokeWidth, bool snapToPixelCenters) {
-        this->append(color, viewMatrix, rect, strokeWidth);
-
-        SkRect bounds;
-        this->setupBounds(&bounds, fGeoData.back(), snapToPixelCenters);
-        this->joinBounds(bounds);
-    }
-
-    void init(bool snapToPixelCenters) {
-        const Geometry& geo = fGeoData[0];
-        fBatch.fHairline = geo.fStrokeWidth == 0;
-
-        // setup bounds
-        this->setupBounds(&fBounds, geo, snapToPixelCenters);
-    }
-
-private:
-    void setupBounds(SkRect* bounds, const Geometry& geo, bool snapToPixelCenters) {
-        *bounds = geo.fRect;
-        SkScalar rad = SkScalarHalf(geo.fStrokeWidth);
-        bounds->outset(rad, rad);
-        geo.fViewMatrix.mapRect(&fBounds);
+        batch->fBounds = batch->fRect;
+        SkScalar rad = SkScalarHalf(batch->fStrokeWidth);
+        batch->fBounds.outset(rad, rad);
+        batch->fViewMatrix.mapRect(&batch->fBounds);
 
         // If our caller snaps to pixel centers then we have to round out the bounds
         if (snapToPixelCenters) {
             // We want to be consistent with how we snap non-aa lines. To match what we do in
             // GrGLSLVertexShaderBuilder, we first floor all the vertex values and then add half a
             // pixel to force us to pixel centers.
-            bounds->set(SkScalarFloorToScalar(bounds->fLeft),
-                        SkScalarFloorToScalar(bounds->fTop),
-                        SkScalarFloorToScalar(bounds->fRight),
-                        SkScalarFloorToScalar(bounds->fBottom));
-            bounds->offset(0.5f, 0.5f);
+            batch->fBounds.set(SkScalarFloorToScalar(batch->fBounds.fLeft),
+                               SkScalarFloorToScalar(batch->fBounds.fTop),
+                               SkScalarFloorToScalar(batch->fBounds.fRight),
+                               SkScalarFloorToScalar(batch->fBounds.fBottom));
+            batch->fBounds.offset(0.5f, 0.5f);
 
             // Round out the bounds to integer values
-            bounds->roundOut();
+            batch->fBounds.roundOut();
         }
+        return batch;
     }
+
+private:
+    NonAAStrokeRectBatch() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
-            Color color(this->color());
-            Coverage coverage(this->coverageIgnored() ? Coverage::kSolid_Type :
-                                                        Coverage::kNone_Type);
-            LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
-                                                              LocalCoords::kUnused_Type);
-            gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, this->viewMatrix());
+            Color color(fColor);
+            Coverage coverage(fOverrides.readsCoverage() ? Coverage::kSolid_Type
+                                                         : Coverage::kNone_Type);
+            LocalCoords localCoords(fOverrides.readsLocalCoords() ? LocalCoords::kUsePosition_Type :
+                                                                    LocalCoords::kUnused_Type);
+            gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, fViewMatrix);
         }
 
         size_t vertexStride = gp->getVertexStride();
 
         SkASSERT(vertexStride == sizeof(GrDefaultGeoProcFactory::PositionAttr));
 
-        const Geometry& args = fGeoData[0];
-
         int vertexCount = kVertsPerHairlineRect;
-        if (args.fStrokeWidth > 0) {
+        if (fStrokeWidth > 0) {
             vertexCount = kVertsPerStrokeRect;
         }
 
@@ -151,17 +132,17 @@ private:
         SkPoint* vertex = reinterpret_cast<SkPoint*>(verts);
 
         GrPrimitiveType primType;
-        if (args.fStrokeWidth > 0) {
+        if (fStrokeWidth > 0) {
             primType = kTriangleStrip_GrPrimitiveType;
-            init_stroke_rect_strip(vertex, args.fRect, args.fStrokeWidth);
+            init_stroke_rect_strip(vertex, fRect, fStrokeWidth);
         } else {
             // hairline
             primType = kLineStrip_GrPrimitiveType;
-            vertex[0].set(args.fRect.fLeft, args.fRect.fTop);
-            vertex[1].set(args.fRect.fRight, args.fRect.fTop);
-            vertex[2].set(args.fRect.fRight, args.fRect.fBottom);
-            vertex[3].set(args.fRect.fLeft, args.fRect.fBottom);
-            vertex[4].set(args.fRect.fLeft, args.fRect.fTop);
+            vertex[0].set(fRect.fLeft, fRect.fTop);
+            vertex[1].set(fRect.fRight, fRect.fTop);
+            vertex[2].set(fRect.fRight, fRect.fBottom);
+            vertex[3].set(fRect.fLeft, fRect.fBottom);
+            vertex[4].set(fRect.fLeft, fRect.fTop);
         }
 
         GrMesh mesh;
@@ -170,64 +151,29 @@ private:
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
-        }
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
+        overrides.getOverrideColorIfSet(&fColor);
+        fOverrides = overrides;
     }
 
-    NonAAStrokeRectBatch() : INHERITED(ClassID()) {}
-
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    bool colorIgnored() const { return fBatch.fColorIgnored; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool hairline() const { return fBatch.fHairline; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps&) override {
-        // if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(),
-        //     t->bounds(), caps)) {
-        //     return false;
-        // }
-        // GrStrokeRectBatch* that = t->cast<StrokeRectBatch>();
-
         // NonAA stroke rects cannot batch right now
         // TODO make these batchable
         return false;
     }
 
-    struct BatchTracker {
-        GrColor fColor;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-        bool fHairline;
-    };
+    GrColor fColor;
+    SkMatrix fViewMatrix;
+    SkRect fRect;
+    SkScalar fStrokeWidth;
+
+    GrXPOverridesForBatch fOverrides;
 
     const static int kVertsPerHairlineRect = 5;
     const static int kVertsPerStrokeRect = 10;
 
-    BatchTracker fBatch;
-    SkSTArray<1, Geometry, true> fGeoData;
 
     typedef GrVertexBatch INHERITED;
 };
-
-// Allow all hairlines and all miters, so long as the miter limit doesn't produce beveled corners.
-inline static bool allowed_stroke(const SkStrokeRec& stroke) {
-    SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style ||
-             stroke.getStyle() == SkStrokeRec::kHairline_Style);
-    return !stroke.getWidth() ||
-            (stroke.getJoin() == SkPaint::kMiter_Join && stroke.getMiter() > SK_ScalarSqrt2);
-}
 
 namespace GrNonAAStrokeRectBatch {
 
@@ -236,16 +182,10 @@ GrDrawBatch* Create(GrColor color,
                     const SkRect& rect,
                     const SkStrokeRec& stroke,
                     bool snapToPixelCenters) {
-    if (!allowed_stroke(stroke)) {
-        return nullptr;
-    }
-    NonAAStrokeRectBatch* batch = NonAAStrokeRectBatch::Create();
-    batch->append(color, viewMatrix, rect, stroke.getWidth());
-    batch->init(snapToPixelCenters);
-    return batch;
+    return NonAAStrokeRectBatch::Create(color, viewMatrix, rect, stroke, snapToPixelCenters);
 }
 
-};
+}
 
 #ifdef GR_TEST_UTILS
 

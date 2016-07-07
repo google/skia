@@ -132,7 +132,6 @@ public:
         fMiterStroke = true;
     }
 
-
     static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                                const SkStrokeRec& stroke) {
         bool isMiter;
