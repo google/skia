@@ -18,7 +18,7 @@
 bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (!fAtlases[index]) {
-        GrPixelConfig config = MaskFormatToPixelConfig(format, *fContext->caps());
+        GrPixelConfig config = MaskFormatToPixelConfig(format);
         int width = fAtlasConfigs[index].fWidth;
         int height = fAtlasConfigs[index].fHeight;
         int numPlotsX = fAtlasConfigs[index].numPlotsX();
