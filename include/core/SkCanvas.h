@@ -1297,6 +1297,9 @@ protected:
     // default impl defers to its device
     virtual bool onPeekPixels(SkPixmap*);
     virtual bool onAccessTopLayerPixels(SkPixmap*);
+    virtual SkImageInfo onImageInfo() const;
+    virtual bool onGetProps(SkSurfaceProps*) const;
+    virtual void onFlush();
 
     // Subclass save/restore notifiers.
     // Overriders should call the corresponding INHERITED method up the inheritance chain.

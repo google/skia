@@ -812,6 +812,10 @@ SkMetaData& SkCanvas::getMetaData() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::flush() {
+    this->onFlush();
+}
+
+void SkCanvas::onFlush() {
     SkBaseDevice* device = this->getDevice();
     if (device) {
         device->flush();
@@ -1371,6 +1375,10 @@ sk_sp<SkSurface> SkCanvas::onNewSurface(const SkImageInfo& info, const SkSurface
 }
 
 SkImageInfo SkCanvas::imageInfo() const {
+    return this->onImageInfo();
+}
+
+SkImageInfo SkCanvas::onImageInfo() const {
     SkBaseDevice* dev = this->getDevice();
     if (dev) {
         return dev->imageInfo();
@@ -1380,6 +1388,10 @@ SkImageInfo SkCanvas::imageInfo() const {
 }
 
 bool SkCanvas::getProps(SkSurfaceProps* props) const {
+    return this->onGetProps(props);
+}
+
+bool SkCanvas::onGetProps(SkSurfaceProps* props) const {
     SkBaseDevice* dev = this->getDevice();
     if (dev) {
         if (props) {
@@ -2916,12 +2928,6 @@ void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
                              const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRoundRect()");
     if (rx > 0 && ry > 0) {
-        if (paint.canComputeFastBounds()) {
-            SkRect storage;
-            if (this->quickReject(paint.computeFastBounds(r, &storage))) {
-                return;
-            }
-        }
         SkRRect rrect;
         rrect.setRectXY(r, rx, ry);
         this->drawRRect(rrect, paint);
