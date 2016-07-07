@@ -39,7 +39,7 @@ namespace {
 // * px01 -> (1 - x)y = y - xy
 // * px11 -> xy
 // So x * y is calculated first and then used to calculate all the other factors.
-static Sk4s VECTORCALL bilerp4(Sk4s xs, Sk4s ys, Sk4f px00, Sk4f px10,
+static Sk4s SK_VECTORCALL bilerp4(Sk4s xs, Sk4s ys, Sk4f px00, Sk4f px10,
                                Sk4f px01, Sk4f px11) {
     // Calculate fractional xs and ys.
     Sk4s fxs = xs - xs.floor();
@@ -216,7 +216,7 @@ public:
         , fWidth{srcPixmap.rowBytesAsPixels()}
         , fGetter{srcPixmap, std::move<Args>(args)...} { }
 
-    void VECTORCALL getFewPixels(int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) {
+    void SK_VECTORCALL getFewPixels(int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) {
         Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
         Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
         Sk4i bufferLoc = YIs * fWidth + XIs;
@@ -232,7 +232,7 @@ public:
         }
     }
 
-    void VECTORCALL get4Pixels(Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
+    void SK_VECTORCALL get4Pixels(Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
         Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
         Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
         Sk4i bufferLoc = YIs * fWidth + XIs;
@@ -319,7 +319,7 @@ public:
     const NearestNeighborSampler& sampler)
     : fNext{next}, fStrategy{sampler.fStrategy} { }
 
-    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         SkASSERT(0 < n && n < 4);
         Sk4f px0, px1, px2;
         fStrategy.getFewPixels(n, xs, ys, &px0, &px1, &px2);
@@ -328,7 +328,7 @@ public:
         if (n >= 3) fNext->blendPixel(px2);
     }
 
-    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         Sk4f px0, px1, px2, px3;
         fStrategy.get4Pixels(xs, ys, &px0, &px1, &px2, &px3);
         fNext->blend4Pixels(px0, px1, px2, px3);
@@ -357,7 +357,7 @@ public:
         }
     }
 
-    void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override {
         SkFAIL("Using nearest neighbor sampler, but calling a bilerpEdge.");
     }
 
@@ -453,7 +453,7 @@ public:
         return bilerp4(xs, ys, px00, px10, px01, px11);
     }
 
-    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         SkASSERT(0 < n && n < 4);
         auto bilerpPixel = [&](int index) {
             return this->bilerpNonEdgePixel(xs[index], ys[index]);
@@ -464,7 +464,7 @@ public:
         if (n >= 3) fNext->blendPixel(bilerpPixel(2));
     }
 
-    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         auto bilerpPixel = [&](int index) {
             return this->bilerpNonEdgePixel(xs[index], ys[index]);
         };
@@ -482,7 +482,7 @@ public:
         }
     }
 
-    void VECTORCALL bilerpEdge(Sk4s sampleXs, Sk4s sampleYs) override {
+    void SK_VECTORCALL bilerpEdge(Sk4s sampleXs, Sk4s sampleYs) override {
         Sk4f px00, px10, px01, px11;
         Sk4f xs = Sk4f{sampleXs[0]};
         Sk4f ys = Sk4f{sampleYs[0]};

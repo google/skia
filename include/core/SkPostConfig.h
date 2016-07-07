@@ -78,6 +78,14 @@
     #endif
 #endif
 
+#if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #define SK_VECTORCALL __vectorcall
+#elif defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON)
+    #define SK_VECTORCALL __attribute__((pcs("aapcs-vfp")))
+#else
+    #define SK_VECTORCALL
+#endif
+
 #if !defined(SK_SUPPORT_GPU)
 #  define SK_SUPPORT_GPU 1
 #endif

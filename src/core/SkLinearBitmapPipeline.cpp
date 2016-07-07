@@ -92,12 +92,12 @@ public:
         : fNext{next}
         , fStrategy{stage.fStrategy} { }
 
-    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fStrategy.processPoints(&xs, &ys);
         fNext->pointListFew(n, xs, ys);
     }
 
-    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         fStrategy.processPoints(&xs, &ys);
         fNext->pointList4(xs, ys);
     }
@@ -178,13 +178,13 @@ public:
         , fXStrategy{stage.fXStrategy}
         , fYStrategy{stage.fYStrategy} { }
 
-    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fXStrategy.tileXPoints(&xs);
         fYStrategy.tileYPoints(&ys);
         fNext->pointListFew(n, xs, ys);
     }
 
-    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         fXStrategy.tileXPoints(&xs);
         fYStrategy.tileYPoints(&ys);
         fNext->pointList4(xs, ys);
@@ -227,7 +227,7 @@ public:
         , fXStrategy{stage.fXStrategy}
         , fYStrategy{stage.fYStrategy} { }
 
-    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fXStrategy.tileXPoints(&xs);
         fYStrategy.tileYPoints(&ys);
         // TODO: check to see if xs and ys are in range then just call pointListFew on next.
@@ -236,7 +236,7 @@ public:
         if (n >= 3) this->bilerpPoint(xs[2], ys[2]);
     }
 
-    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         fXStrategy.tileXPoints(&xs);
         fYStrategy.tileYPoints(&ys);
         // TODO: check to see if xs and ys are in range then just call pointList4 on next.
@@ -421,7 +421,7 @@ public:
     RGBA8888UnitRepeatSrc(const uint32_t* src, int32_t width)
         : fSrc{src}, fWidth{width} { }
 
-    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         SkASSERT(fDest + n <= fEnd);
         // At this point xs and ys should be >= 0, so trunc is the same as floor.
         Sk4i iXs = SkNx_cast<int>(xs);
@@ -432,7 +432,7 @@ public:
         if (n >= 3) *fDest++ = *this->pixelAddress(iXs[2], iYs[2]);
     }
 
-    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         SkASSERT(fDest + 4 <= fEnd);
         Sk4i iXs = SkNx_cast<int>(xs);
         Sk4i iYs = SkNx_cast<int>(ys);
@@ -467,7 +467,7 @@ public:
         fDest = dest;
     }
 
-    void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override { SkFAIL("Not Implemented"); }
+    void SK_VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override { SkFAIL("Not Implemented"); }
 
     void bilerpSpan(Span span, SkScalar y) override { SkFAIL("Not Implemented"); }
 
@@ -495,7 +495,7 @@ public:
     RGBA8888UnitRepeatSrcOver(const uint32_t* src, int32_t width)
         : fSrc{src}, fWidth{width} { }
 
-    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         SkASSERT(fDest + n <= fEnd);
         // At this point xs and ys should be >= 0, so trunc is the same as floor.
         Sk4i iXs = SkNx_cast<int>(xs);
@@ -506,7 +506,7 @@ public:
         if (n >= 3) blendPixelAt(iXs[2], iYs[2]);
     }
 
-    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
+    void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         SkASSERT(fDest + 4 <= fEnd);
         Sk4i iXs = SkNx_cast<int>(xs);
         Sk4i iYs = SkNx_cast<int>(ys);
@@ -538,7 +538,7 @@ public:
         SkASSERT(fDest <= fEnd);
     }
 
-    void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override { SkFAIL("Not Implemented"); }
+    void SK_VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override { SkFAIL("Not Implemented"); }
 
     void bilerpSpan(Span span, SkScalar y) override { SkFAIL("Not Implemented"); }
 
@@ -648,13 +648,13 @@ class SrcFPPixel final : public SkLinearBitmapPipeline::BlendProcessorInterface 
 public:
     SrcFPPixel(float postAlpha) : fPostAlpha{postAlpha} { }
     SrcFPPixel(const SrcFPPixel& Blender) : fPostAlpha(Blender.fPostAlpha) {}
-    void VECTORCALL blendPixel(Sk4f pixel) override {
+    void SK_VECTORCALL blendPixel(Sk4f pixel) override {
         SkASSERT(fDst + 1 <= fEnd );
         SrcPixel(fDst, pixel, 0);
         fDst += 1;
     }
 
-    void VECTORCALL blend4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) override {
+    void SK_VECTORCALL blend4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) override {
         SkASSERT(fDst + 4 <= fEnd);
         SkPM4f* dst = fDst;
         SrcPixel(dst, p0, 0);
@@ -670,7 +670,7 @@ public:
     }
 
 private:
-    void VECTORCALL SrcPixel(SkPM4f* dst, Sk4f pixel, int index) {
+    void SK_VECTORCALL SrcPixel(SkPM4f* dst, Sk4f pixel, int index) {
         Sk4f newPixel = pixel;
         if (alphaType == kUnpremul_SkAlphaType) {
             newPixel = Premultiply(pixel);
@@ -678,7 +678,7 @@ private:
         newPixel = newPixel * fPostAlpha;
         newPixel.store(dst + index);
     }
-    static Sk4f VECTORCALL Premultiply(Sk4f pixel) {
+    static Sk4f SK_VECTORCALL Premultiply(Sk4f pixel) {
         float alpha = pixel[3];
         return pixel * Sk4f{alpha, alpha, alpha, 1.0f};
     }

@@ -115,14 +115,14 @@ static bool compare_tiler_case(
     std::vector<SkPoint> listPoints;
     std::vector<SkPoint> spanPoints;
     struct Sink {
-        void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) {
+        void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) {
             SkASSERT(0 < n && n < 4);
             if (n >= 1) storePoint({xs[0], ys[0]});
             if (n >= 2) storePoint({xs[1], ys[1]});
             if (n >= 3) storePoint({xs[2], ys[2]});
         }
 
-        void VECTORCALL pointList4(Sk4s xs, Sk4s ys) {
+        void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) {
             storePoint({xs[0], ys[0]});
             storePoint({xs[1], ys[1]});
             storePoint({xs[2], ys[2]});

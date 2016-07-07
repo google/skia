@@ -21,15 +21,6 @@
 //  - introduce new point API
 //  - Add tile for new api.
 
-// Tweak ABI of functions that pass Sk4f by value to pass them via registers.
-#if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #define VECTORCALL __vectorcall
-#elif defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON)
-    #define VECTORCALL __attribute__((pcs("aapcs-vfp")))
-#else
-    #define VECTORCALL
-#endif
-
 namespace {
 struct X {
     explicit X(SkScalar val) : fVal{val} { }
@@ -194,9 +185,9 @@ public:
     // Take the first n (where 0 < n && n < 4) items from xs and ys and sample those points. For
     // nearest neighbor, that means just taking the floor xs and ys. For bilerp, this means
     // to expand the bilerp filter around the point and sample using that filter.
-    virtual void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) = 0;
+    virtual void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) = 0;
     // Same as pointListFew, but n = 4.
-    virtual void VECTORCALL pointList4(Sk4s xs, Sk4s ys) = 0;
+    virtual void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) = 0;
     // A span is a compact form of sample points that are obtained by mapping points from
     // destination space to source space. This is used for horizontal lines only, and is mainly
     // used to take advantage of memory coherence for horizontal spans.
@@ -222,7 +213,7 @@ public:
     // +--------+--------+
     // These pixels coordinates are arranged in the following order in xs and ys:
     // px00  px10  px01  px11
-    virtual void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) = 0;
+    virtual void SK_VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) = 0;
 
     // A span represents sample points that have been mapped from destination space to source
     // space. Each sample point is then expanded to the four bilerp points by add +/- 0.5. The
@@ -243,8 +234,8 @@ public:
 class SkLinearBitmapPipeline::BlendProcessorInterface
     : public SkLinearBitmapPipeline::DestinationInterface {
 public:
-    virtual void VECTORCALL blendPixel(Sk4f pixel0) = 0;
-    virtual void VECTORCALL blend4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) = 0;
+    virtual void SK_VECTORCALL blendPixel(Sk4f pixel0) = 0;
+    virtual void SK_VECTORCALL blend4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) = 0;
 };
 
 #endif // SkLinearBitmapPipeline_core_DEFINED
