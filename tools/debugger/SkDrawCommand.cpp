@@ -204,7 +204,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawText_OpType: return "DrawText";
         case kDrawTextBlob_OpType: return "DrawTextBlob";
         case kDrawTextOnPath_OpType: return "DrawTextOnPath";
-        case kDrawTextRSXform_OpType: return "drawTextRSXform";
+        case kDrawTextRSXform_OpType: return "DrawTextRSXform";
         case kDrawVertices_OpType: return "DrawVertices";
         case kEndDrawPicture_OpType: return "EndDrawPicture";
         case kRestore_OpType: return "Restore";
@@ -3037,7 +3037,7 @@ SkDrawTextOnPathCommand* SkDrawTextOnPathCommand::fromJSON(Json::Value& command,
 SkDrawTextRSXformCommand::SkDrawTextRSXformCommand(const void* text, size_t byteLength,
                                                    const SkRSXform xform[], const SkRect* cull,
                                                    const SkPaint& paint)
-    : INHERITED(kDrawTextOnPath_OpType)
+    : INHERITED(kDrawTextRSXform_OpType)
 {
     fText = new char[byteLength];
     memcpy(fText, text, byteLength);

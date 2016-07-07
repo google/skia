@@ -992,7 +992,7 @@ public:
     /**
      *  Draw the text with each character/glyph individually transformed by its xform.
      *  If cullRect is not null, it is a conservative bounds of what will be drawn
-     *  taking into account the xforms and the paint) and will be used to accelerate culling.
+     *  taking into account the xforms and the paint, and will be used to accelerate culling.
      */
     void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform[],
                          const SkRect* cullRect, const SkPaint& paint);
