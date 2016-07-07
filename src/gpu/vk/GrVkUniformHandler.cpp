@@ -53,10 +53,10 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
 }
 
 /** Returns the size in bytes taken up in vulkanbuffers for floating point GrSLTypes.
-    For non floating point type returns 0 */
+    For non floating point type returns 0. Currently this reflects the std140 alignment
+    so a mat22 takes up 8 floats. */
 static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     SkASSERT(GrSLTypeIsFloatType(type));
-    SkASSERT(kMat22f_GrSLType != type); // TODO: handle mat2 differences between std140 and std430.
     static const uint32_t kSizes[] = {
         0,                        // kVoid_GrSLType
         sizeof(float),            // kFloat_GrSLType
@@ -104,8 +104,7 @@ void get_ubo_aligned_offset(uint32_t* uniformOffset,
                             int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
     // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
-    SkASSERT(type != kMat22f_GrSLType); // TODO: support mat2.
-    if (arrayCount) {
+    if (arrayCount || type == kMat22f_GrSLType) {
         alignmentMask = 0xF;
     }
     uint32_t offsetDiff = *currentOffset & alignmentMask;
