@@ -314,7 +314,7 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakeXMPObject(
                                     "</pdf:Keywords>\n");
     // TODO: in theory, keywords can be a list too.
 
-    SkString producer("<pdf:Producer>SKPDF_PRODUCER</pdf:Producer>\n");
+    SkString producer("<pdf:Producer>" SKPDF_PRODUCER "</pdf:Producer>\n");
     if (!metadata.fProducer.isEmpty()) {
         // TODO: register a developer prefix to make
         // <skia:SKPDF_CUSTOM_PRODUCER_KEY> a real XML tag.
