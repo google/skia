@@ -25,10 +25,11 @@ public:
         SkASSERT(!fResource);
     }
 
-    VkBuffer buffer() const { return fResource->fBuffer; }
-    const GrVkAlloc& alloc() const { return fResource->fAlloc; }
+    VkBuffer            buffer() const { return fResource->fBuffer; }
+    const GrVkAlloc&    alloc() const { return fResource->fAlloc; }
     const GrVkResource* resource() const { return fResource; }
-    size_t         size() const { return fDesc.fSizeInBytes; }
+    size_t              size() const { return fDesc.fSizeInBytes; }
+    VkDeviceSize        offset() const { return fOffset;  }
 
     void addMemoryBarrier(const GrVkGpu* gpu,
                           VkAccessFlags srcAccessMask,
@@ -77,7 +78,7 @@ protected:
                                   const Desc& descriptor);
 
     GrVkBuffer(const Desc& desc, const GrVkBuffer::Resource* resource)
-        : fDesc(desc), fResource(resource), fMapPtr(nullptr) {
+        : fDesc(desc), fResource(resource), fOffset(0), fMapPtr(nullptr) {
     }
 
     void* vkMap(const GrVkGpu* gpu);
@@ -96,6 +97,7 @@ private:
 
     Desc                    fDesc;
     const Resource*         fResource;
+    VkDeviceSize            fOffset;
     void*                   fMapPtr;
 
     typedef SkNoncopyable INHERITED;

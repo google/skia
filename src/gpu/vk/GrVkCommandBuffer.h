@@ -42,7 +42,7 @@ public:
     void bindVertexBuffer(GrVkGpu* gpu, GrVkVertexBuffer* vbuffer) {
         VkBuffer vkBuffer = vbuffer->buffer();
         if (!fBoundVertexBufferIsValid || vkBuffer != fBoundVertexBuffer) {
-            VkDeviceSize offset = 0;
+            VkDeviceSize offset = vbuffer->offset();
             GR_VK_CALL(gpu->vkInterface(), CmdBindVertexBuffers(fCmdBuffer,
                                                                 0,
                                                                 1,
@@ -59,7 +59,7 @@ public:
         if (!fBoundIndexBufferIsValid || vkBuffer != fBoundIndexBuffer) {
             GR_VK_CALL(gpu->vkInterface(), CmdBindIndexBuffer(fCmdBuffer,
                                                               vkBuffer,
-                                                              0,
+                                                              ibuffer->offset(),
                                                               VK_INDEX_TYPE_UINT16));
             fBoundIndexBufferIsValid = true;
             fBoundIndexBuffer = vkBuffer;

@@ -238,7 +238,7 @@ void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
         ++uniformBindingUpdateCount;
         memset(&vertBufferInfo, 0, sizeof(VkDescriptorBufferInfo));
         vertBufferInfo.buffer = fVertexUniformBuffer->buffer();
-        vertBufferInfo.offset = 0;
+        vertBufferInfo.offset = fVertexUniformBuffer->offset();
         vertBufferInfo.range = fVertexUniformBuffer->size();
 
         descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -262,7 +262,7 @@ void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
         ++uniformBindingUpdateCount;
         memset(&fragBufferInfo, 0, sizeof(VkDescriptorBufferInfo));
         fragBufferInfo.buffer = fFragmentUniformBuffer->buffer();
-        fragBufferInfo.offset = 0;
+        fragBufferInfo.offset = fFragmentUniformBuffer->offset();
         fragBufferInfo.range = fFragmentUniformBuffer->size();
 
         descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

@@ -533,7 +533,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
 
         VkBufferImageCopy& region = regions.push_back();
         memset(&region, 0, sizeof(VkBufferImageCopy));
-        region.bufferOffset = individualMipOffsets[currentMipLevel];
+        region.bufferOffset = transferBuffer->offset() + individualMipOffsets[currentMipLevel];
         region.bufferRowLength = currentWidth;
         region.bufferImageHeight = currentHeight;
         region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
@@ -670,10 +670,11 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src, size_t srcSizeInBytes) {
+bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
+                           VkDeviceSize offset, VkDeviceSize size) {
 
     // Update the buffer
-    fCurrentCmdBuffer->updateBuffer(this, buffer, 0, srcSizeInBytes, src);
+    fCurrentCmdBuffer->updateBuffer(this, buffer, offset, size, src);
 
     return true;
 }
@@ -1445,7 +1446,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     // Copy the image to a buffer so we can map it to cpu memory
     VkBufferImageCopy region;
     memset(&region, 0, sizeof(VkBufferImageCopy));
-    region.bufferOffset = 0;
+    region.bufferOffset = transferBuffer->offset();
     region.bufferRowLength = 0; // Forces RowLength to be width. We handle the rowBytes below.
     region.bufferImageHeight = 0; // Forces height to be tightly packed. Only useful for 3d images.
     region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };

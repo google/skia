@@ -132,8 +132,9 @@ void* GrVkBuffer::vkMap(const GrVkGpu* gpu) {
 
     if (fDesc.fDynamic) {
         const GrVkAlloc& alloc = this->alloc();
-        VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory, alloc.fOffset,
-                                              VK_WHOLE_SIZE, 0, &fMapPtr));
+        VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory,
+                                              alloc.fOffset + fOffset,
+                                              fDesc.fSizeInBytes, 0, &fMapPtr));
         if (err) {
             fMapPtr = nullptr;
         }
@@ -152,7 +153,7 @@ void GrVkBuffer::vkUnmap(GrVkGpu* gpu) {
     if (fDesc.fDynamic) {
         VK_CALL(gpu, UnmapMemory(gpu->device(), this->alloc().fMemory));
     } else {
-        gpu->updateBuffer(this, fMapPtr, this->size());
+        gpu->updateBuffer(this, fMapPtr, this->offset(), this->size());
         delete [] (unsigned char*)fMapPtr;
     }
 
@@ -172,8 +173,9 @@ bool GrVkBuffer::vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInByt
         return false;
     }
 
+    // TODO: update data based on buffer offset
     if (!fDesc.fDynamic) {
-        return gpu->updateBuffer(this, src, srcSizeInBytes);
+        return gpu->updateBuffer(this, src, fOffset, srcSizeInBytes);
     }
 
     if (!fResource->unique()) {
@@ -187,7 +189,8 @@ bool GrVkBuffer::vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInByt
 
     void* mapPtr;
     const GrVkAlloc& alloc = this->alloc();
-    VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory, alloc.fOffset,
+    VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory,
+                                          alloc.fOffset + fOffset,
                                           srcSizeInBytes, 0, &mapPtr));
 
     if (VK_SUCCESS != err) {
