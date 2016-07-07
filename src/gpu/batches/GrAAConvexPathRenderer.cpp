@@ -999,7 +999,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    SkAutoTUnref<GrDrawBatch> batch(new AAConvexPathBatch(args.fColor, *args.fViewMatrix, path));
+    SkAutoTUnref<GrDrawBatch> batch(new AAConvexPathBatch(args.fPaint->getColor(),
+                                                          *args.fViewMatrix, path));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);

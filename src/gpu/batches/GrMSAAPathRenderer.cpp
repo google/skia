@@ -560,7 +560,6 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                           const GrPaint& paint,
                                           const GrUserStencilSettings* userStencilSettings,
                                           const GrClip& clip,
-                                          GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const GrShape& shape,
                                           bool stencilOnly) {
@@ -656,7 +655,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
             SkAutoTUnref<GrDrawBatch> batch(
-                    GrRectBatchFactory::CreateNonAAFill(color, viewM, bounds, nullptr,
+                    GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
                                                         &localMatrix));
 
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
@@ -669,7 +668,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 
             drawContext->drawBatch(pipelineBuilder, clip, batch);
         } else {
-            SkAutoTUnref<MSAAPathBatch> batch(new MSAAPathBatch(color, path, viewMatrix,
+            SkAutoTUnref<MSAAPathBatch> batch(new MSAAPathBatch(paint.getColor(), path, viewMatrix,
                                                                 devBounds));
             if (!batch->isValid()) {
                 return false;
@@ -713,7 +712,6 @@ bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                   *args.fPaint,
                                   args.fUserStencilSettings,
                                   *args.fClip,
-                                  args.fColor,
                                   *args.fViewMatrix,
                                   *shape,
                                   false);
@@ -730,7 +728,7 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     paint.setAntiAlias(args.fIsAA);
 
     this->internalDrawPath(args.fDrawContext, paint, &GrUserStencilSettings::kUnused, *args.fClip,
-                           GrColor_WHITE, *args.fViewMatrix, *args.fShape, true);
+                           *args.fViewMatrix, *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

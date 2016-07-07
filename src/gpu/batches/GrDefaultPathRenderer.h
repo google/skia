@@ -34,7 +34,6 @@ private:
                           const GrPaint&,
                           const GrUserStencilSettings*,
                           const GrClip&,
-                          GrColor,
                           const SkMatrix& viewMatrix,
                           const GrShape&,
                           bool stencilOnly);

@@ -21,18 +21,16 @@ public:
     GrSoftwarePathRenderer(GrTextureProvider* texProvider) : fTexProvider(texProvider) { }
 private:
     static void DrawNonAARect(GrDrawContext* drawContext,
-                              const GrPaint* paint,
+                              const GrPaint& paint,
                               const GrUserStencilSettings* userStencilSettings,
                               const GrClip& clip,
-                              GrColor color,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkMatrix& localMatrix);
     static void DrawAroundInvPath(GrDrawContext* drawContext,
-                                  const GrPaint* paint,
+                                  const GrPaint& paint,
                                   const GrUserStencilSettings* userStencilSettings,
                                   const GrClip& clip,
-                                  GrColor color,
                                   const SkMatrix& viewMatrix,
                                   const SkIRect& devClipBounds,
                                   const SkIRect& devPathBounds);

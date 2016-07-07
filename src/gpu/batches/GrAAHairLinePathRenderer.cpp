@@ -968,7 +968,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     SkPath path;
     args.fShape->asPath(&path);
-    SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, path,
+    SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fPaint->getColor(),
+                                                          *args.fViewMatrix, path,
                                                           args.fShape->style(), devClipBounds));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint);

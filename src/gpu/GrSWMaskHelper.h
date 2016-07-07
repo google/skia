@@ -86,10 +86,9 @@ public:
     // output of DrawPathMaskToTexture.
     static void DrawToTargetWithShapeMask(GrTexture* texture,
                                           GrDrawContext*,
-                                          const GrPaint* paint,
+                                          const GrPaint& paint,
                                           const GrUserStencilSettings* userStencilSettings,
                                           const GrClip&,
-                                          GrColor,
                                           const SkMatrix& viewMatrix,
                                           const SkIRect& rect);
 

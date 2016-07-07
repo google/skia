@@ -531,7 +531,8 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
-    SkAutoTUnref<GrDrawBatch> batch(new AADistanceFieldPathBatch(args.fColor, *args.fShape,
+    SkAutoTUnref<GrDrawBatch> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
+                                                                 *args.fShape,
                                                                  args.fAntiAlias, *args.fViewMatrix,
                                                                  fAtlas, &fShapeCache, &fShapeList,
                                                                  args.fGammaCorrect));

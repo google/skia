@@ -420,7 +420,6 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                              const GrPaint& paint,
                                              const GrUserStencilSettings* userStencilSettings,
                                              const GrClip& clip,
-                                             GrColor color,
                                              const SkMatrix& viewMatrix,
                                              const GrShape& shape,
                                              bool stencilOnly) {
@@ -557,7 +556,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
             SkAutoTUnref<GrDrawBatch> batch(
-                    GrRectBatchFactory::CreateNonAAFill(color, viewM, bounds, nullptr,
+                    GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
                                                         &localMatrix));
 
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
@@ -570,7 +569,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 
             drawContext->drawBatch(pipelineBuilder, clip, batch);
         } else {
-            SkAutoTUnref<GrDrawBatch> batch(new DefaultPathBatch(color, path, srcSpaceTol,
+            SkAutoTUnref<GrDrawBatch> batch(new DefaultPathBatch(paint.getColor(), path,
+                                                                 srcSpaceTol,
                                                                  newCoverage, viewMatrix,
                                                                  isHairline, devBounds));
 
@@ -605,7 +605,6 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                   *args.fPaint,
                                   args.fUserStencilSettings,
                                   *args.fClip,
-                                  args.fColor,
                                   *args.fViewMatrix,
                                   *args.fShape,
                                   false);
@@ -621,7 +620,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     paint.setAntiAlias(args.fIsAA);
 
     this->internalDrawPath(args.fDrawContext, paint, &GrUserStencilSettings::kUnused, *args.fClip,
-                           GrColor_WHITE, *args.fViewMatrix, *args.fShape, true);
+                           *args.fViewMatrix, *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

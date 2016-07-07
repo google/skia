@@ -246,7 +246,6 @@ static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const 
     args.fDrawContext = drawContext;
     args.fClip = &noClip;
     args.fResourceProvider = rp;
-    args.fColor = GrColor_WHITE;
     args.fViewMatrix = &SkMatrix::I();
     GrShape shape(path, style);
     args.fShape = &shape;

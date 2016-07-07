@@ -968,7 +968,6 @@ bool GrDrawContextPriv::drawAndStencilPath(const GrFixedClip& clip,
     args.fUserStencilSettings = ss;
     args.fDrawContext = fDrawContext;
     args.fClip = &clip;
-    args.fColor = GrColor_WHITE;
     args.fViewMatrix = &viewMatrix;
     args.fShape = &shape;
     args.fAntiAlias = useCoverageAA;
@@ -1042,7 +1041,6 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
     args.fDrawContext = this;
     args.fClip = &clip;
-    args.fColor = paint.getColor();
     args.fViewMatrix = &viewMatrix;
     args.fShape = canDrawArgs.fShape;
     args.fAntiAlias = useCoverageAA;

@@ -948,7 +948,8 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    SkAutoTUnref<GrDrawBatch> batch(new PLSPathBatch(args.fColor, path, *args.fViewMatrix));
+    SkAutoTUnref<GrDrawBatch> batch(new PLSPathBatch(args.fPaint->getColor(),
+                                                     path, *args.fViewMatrix));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->mustUseHWAA(*args.fPaint));
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);

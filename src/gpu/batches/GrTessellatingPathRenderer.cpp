@@ -271,7 +271,8 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     vmi.mapRect(&clipBounds);
     SkPath path;
     args.fShape->asPath(&path);
-    SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fShape,
+    SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fPaint->getColor(),
+                                                                  *args.fShape,
                                                                   *args.fViewMatrix, clipBounds));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->mustUseHWAA(*args.fPaint));

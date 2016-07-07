@@ -670,7 +670,6 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                             args.fUserStencilSettings = &kDrawToStencil;
                             args.fDrawContext = drawContext;
                             args.fClip = &clip;
-                            args.fColor = GrColor_WHITE;
                             args.fViewMatrix = &viewMatrix;
                             args.fShape = &shape;
                             args.fAntiAlias = false;
@@ -710,7 +709,6 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                         args.fUserStencilSettings = *pass;
                         args.fDrawContext = drawContext;
                         args.fClip = &clip;
-                        args.fColor = GrColor_WHITE;
                         args.fViewMatrix = &viewMatrix;
                         args.fShape = &shape;
                         args.fAntiAlias = false;

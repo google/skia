@@ -159,10 +159,9 @@ GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider
 
 void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                                                GrDrawContext* drawContext,
-                                               const GrPaint* paint,
+                                               const GrPaint& paint,
                                                const GrUserStencilSettings* userStencilSettings,
                                                const GrClip& clip,
-                                               GrColor color,
                                                const SkMatrix& viewMatrix,
                                                const SkIRect& rect) {
     SkMatrix invert;
@@ -182,7 +181,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     maskMatrix.setIDiv(texture->width(), texture->height());
     maskMatrix.preTranslate(SkIntToScalar(-rect.fLeft), SkIntToScalar(-rect.fTop));
 
-    GrPipelineBuilder pipelineBuilder(*paint, drawContext->mustUseHWAA(*paint));
+    GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
     pipelineBuilder.setUserStencil(userStencilSettings);
 
     pipelineBuilder.addCoverageFragmentProcessor(
@@ -191,7 +190,8 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                                                      GrTextureParams::kNone_FilterMode,
                                                      kDevice_GrCoordSet));
 
-    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(),
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
+                                                                        SkMatrix::I(),
                                                                         dstRect, nullptr, &invert));
     drawContext->drawBatch(pipelineBuilder, clip, batch);
 }
