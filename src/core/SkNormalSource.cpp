@@ -109,7 +109,7 @@ public:
             // transforming all the normals here!
 
             // If there's no x & y components, return (0, 0, +/- 1) instead to avoid division by 0
-            fragBuilder->codeAppend( "if (abs(normal.z) > 0.9999) {");
+            fragBuilder->codeAppend( "if (abs(normal.z) > 0.999) {");
             fragBuilder->codeAppendf("    %s = normalize(vec4(0.0, 0.0, normal.z, 0.0));",
                     args.fOutputColor);
             // Else, Normalizing the transformed X and Y, while keeping constant both Z and the
