@@ -10,8 +10,8 @@
 
 #include "SkNx.h"
 #include "SkColorPriv.h"
-#include "SkSRGB.h"
 
+extern const float sk_linear_from_srgb[256];
 extern const float sk_linear_from_2dot2[256];
 
 namespace SK_OPTS_NS {
@@ -24,6 +24,26 @@ static Sk4f linear_to_2dot2(const Sk4f& x) {
 
     // 29 = 32 - 2 - 1
     return 255.0f * x2.invert() * x32 * x64.invert();
+}
+
+static Sk4f linear_to_srgb(const Sk4f& x) {
+    // Approximation of the sRGB gamma curve (within 1 when scaled to 8-bit pixels).
+    // For 0.00000f <= x <  0.00349f,    12.92 * x
+    // For 0.00349f <= x <= 1.00000f,    0.679*(x.^0.5) + 0.423*x.^(0.25) - 0.101
+    // Note that 0.00349 was selected because it is a point where both functions produce the
+    // same pixel value when rounded.
+    auto rsqrt = x.rsqrt(),
+         sqrt  = rsqrt.invert(),
+         ftrt  = rsqrt.rsqrt();
+
+    auto hi = (-0.101115084998961f * 255.0f) +
+              (+0.678513029959381f * 255.0f) * sqrt +
+              (+0.422602055039580f * 255.0f) * ftrt;
+
+    auto lo = (12.92f * 255.0f) * x;
+
+    auto mask = (x < 0.00349f);
+    return mask.thenElse(lo, hi);
 }
 
 static Sk4f clamp_0_to_255(const Sk4f& x) {
@@ -134,12 +154,12 @@ static void color_xform_RGB1_2dot2_to_2dot2(uint32_t* dst, const uint32_t* src, 
 
 static void color_xform_RGB1_srgb_to_srgb(uint32_t* dst, const uint32_t* src, int len,
                                            const float matrix[16]) {
-    color_xform_RGB1<sk_linear_from_srgb, sk_linear_to_srgb>(dst, src, len, matrix);
+    color_xform_RGB1<sk_linear_from_srgb, linear_to_srgb>(dst, src, len, matrix);
 }
 
 static void color_xform_RGB1_2dot2_to_srgb(uint32_t* dst, const uint32_t* src, int len,
                                            const float matrix[16]) {
-    color_xform_RGB1<sk_linear_from_2dot2, sk_linear_to_srgb>(dst, src, len, matrix);
+    color_xform_RGB1<sk_linear_from_2dot2, linear_to_srgb>(dst, src, len, matrix);
 }
 
 }  // namespace SK_OPTS_NS

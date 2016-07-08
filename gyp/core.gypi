@@ -291,7 +291,6 @@
         '<(skia_src_path)/core/SkStrokerPriv.h',
         '<(skia_src_path)/core/SkSurfacePriv.h',
         '<(skia_src_path)/core/SkSwizzle.cpp',
-        '<(skia_src_path)/core/SkSRGB.cpp',
         '<(skia_src_path)/core/SkTaskGroup.cpp',
         '<(skia_src_path)/core/SkTaskGroup.h',
         '<(skia_src_path)/core/SkTDPQueue.h',
