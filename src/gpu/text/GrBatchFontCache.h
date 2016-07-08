@@ -186,15 +186,18 @@ public:
     void setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]);
 
 private:
-    static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format) {
-        static const GrPixelConfig kPixelConfigs[] = {
-            kAlpha_8_GrPixelConfig,
-            kRGB_565_GrPixelConfig,
-            kSkia8888_GrPixelConfig
-        };
-        static_assert(SK_ARRAY_COUNT(kPixelConfigs) == kMaskFormatCount, "array_size_mismatch");
-
-        return kPixelConfigs[format];
+    static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format, const GrCaps& caps) {
+        switch (format) {
+            case kA8_GrMaskFormat:
+                return kAlpha_8_GrPixelConfig;
+            case kA565_GrMaskFormat:
+                return kRGB_565_GrPixelConfig;
+            case kARGB_GrMaskFormat:
+                return caps.srgbSupport() ? kSkiaGamma8888_GrPixelConfig : kSkia8888_GrPixelConfig;
+            default:
+                SkDEBUGFAIL("unsupported GrMaskFormat");
+                return kAlpha_8_GrPixelConfig;
+        }
     }
 
     // There is a 1:1 mapping between GrMaskFormats and atlas indices
