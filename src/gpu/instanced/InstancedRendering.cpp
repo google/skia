@@ -123,6 +123,12 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
     Instance& instance = batch->getSingleInstance();
     instance.fInfo = (int)type << kShapeType_InfoBit;
 
+    Batch::HasAABloat aaBloat = (antialiasMode == AntialiasMode::kCoverage)
+                                ? Batch::HasAABloat::kYes
+                                : Batch::HasAABloat::kNo;
+    Batch::IsZeroArea zeroArea = (bounds.isEmpty()) ? Batch::IsZeroArea::kYes
+                                                    : Batch::IsZeroArea::kNo;
+
     // The instanced shape renderer draws rectangles of [-1, -1, +1, +1], so we find the matrix that
     // will map this rectangle to the same device coordinates as "viewMatrix * bounds".
     float sx = 0.5f * bounds.width();
@@ -145,10 +151,12 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
         // it's quite simple to find the bounding rectangle:
         float devBoundsHalfWidth = fabsf(m[0]) + fabsf(m[1]);
         float devBoundsHalfHeight = fabsf(m[3]) + fabsf(m[4]);
-        batch->fBounds.fLeft = m[2] - devBoundsHalfWidth;
-        batch->fBounds.fRight = m[2] + devBoundsHalfWidth;
-        batch->fBounds.fTop = m[5] - devBoundsHalfHeight;
-        batch->fBounds.fBottom = m[5] + devBoundsHalfHeight;
+        SkRect batchBounds;
+        batchBounds.fLeft = m[2] - devBoundsHalfWidth;
+        batchBounds.fRight = m[2] + devBoundsHalfWidth;
+        batchBounds.fTop = m[5] - devBoundsHalfHeight;
+        batchBounds.fBottom = m[5] + devBoundsHalfHeight;
+        batch->setBounds(batchBounds, aaBloat, zeroArea);
 
         // TODO: Is this worth the CPU overhead?
         batch->fInfo.fNonSquare =
@@ -174,8 +182,7 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
                                  shapeMatrix[SkMatrix::kMPersp2]);
         batch->fInfo.fHasPerspective = true;
 
-        viewMatrix.mapRect(&batch->fBounds, bounds);
-
+        batch->setBounds(bounds, aaBloat, zeroArea);
         batch->fInfo.fNonSquare = true;
     }
 
@@ -184,7 +191,7 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
     const float* rectAsFloats = localRect.asScalars(); // Ensure SkScalar == float.
     memcpy(&instance.fLocalRect, rectAsFloats, 4 * sizeof(float));
 
-    batch->fPixelLoad = batch->fBounds.height() * batch->fBounds.width();
+    batch->fPixelLoad = batch->bounds().height() * batch->bounds().width();
     return batch;
 }
 
@@ -352,7 +359,8 @@ void InstancedRendering::Batch::initBatchTracker(const GrXPOverridesForBatch& ov
     if (kRect_ShapeFlag == fInfo.fShapeTypes) {
         draw.fGeometry = InstanceProcessor::GetIndexRangeForRect(fInfo.fAntialiasMode);
     } else if (kOval_ShapeFlag == fInfo.fShapeTypes) {
-        draw.fGeometry = InstanceProcessor::GetIndexRangeForOval(fInfo.fAntialiasMode, fBounds);
+        draw.fGeometry = InstanceProcessor::GetIndexRangeForOval(fInfo.fAntialiasMode,
+                                                                 this->bounds());
     } else {
         draw.fGeometry = InstanceProcessor::GetIndexRangeForRRect(fInfo.fAntialiasMode);
     }
@@ -401,7 +409,7 @@ bool InstancedRendering::Batch::onCombineIfPossible(GrBatch* other, const GrCaps
         }
     }
 
-    fBounds.join(that->fBounds);
+    this->joinBounds(*that);
     fInfo = combinedInfo;
     fPixelLoad += that->fPixelLoad;
 

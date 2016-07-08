@@ -282,13 +282,17 @@ private:
         // compute bounds
         SkScalar halfStrokeWidth = 0.5f * geometry.fSrcStrokeWidth;
         SkScalar xBloat = SkPaint::kButt_Cap == cap ? 0 : halfStrokeWidth;
-        fBounds.set(geometry.fPtsRot[0], geometry.fPtsRot[1]);
-        fBounds.outset(xBloat, halfStrokeWidth);
+        SkRect bounds;
+        bounds.set(geometry.fPtsRot[0], geometry.fPtsRot[1]);
+        bounds.outset(xBloat, halfStrokeWidth);
 
         // Note, we actually create the combined matrix here, and save the work
         SkMatrix& combinedMatrix = fGeoData[0].fSrcRotInv;
         combinedMatrix.postConcat(geometry.fViewMatrix);
-        combinedMatrix.mapRect(&fBounds);
+
+        IsZeroArea zeroArea = geometry.fSrcStrokeWidth ? IsZeroArea::kNo : IsZeroArea::kYes;
+        HasAABloat aaBloat = (aaMode == AAMode::kNone) ? HasAABloat ::kNo : HasAABloat::kYes;
+        this->setTransformedBounds(bounds, combinedMatrix, aaBloat, zeroArea);
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
@@ -655,7 +659,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 

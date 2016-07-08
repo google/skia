@@ -44,7 +44,7 @@ public:
         fImageHeight = imageHeight;
 
         // setup bounds
-        patch.fViewMatrix.mapRect(&fBounds, patch.fDst);
+        this->setTransformedBounds(patch.fDst, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "NonAANinePatchBatch"; }
@@ -152,7 +152,7 @@ private:
         }
 
         fPatches.push_back_n(that->fPatches.count(), that->fPatches.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 

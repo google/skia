@@ -281,13 +281,41 @@ void GrDrawTarget::reset() {
     }
 }
 
+static void batch_bounds(SkRect* bounds, const GrBatch* batch) {
+    *bounds = batch->bounds();
+    if (batch->hasZeroArea()) {
+        if (batch->hasAABloat()) {
+            bounds->outset(0.5f, 0.5f);
+        } else {
+            // We don't know which way the particular GPU will snap lines or points at integer
+            // coords. So we ensure that the bounds is large enough for either snap.
+            SkRect before = *bounds;
+            bounds->roundOut(bounds);
+            if (bounds->fLeft == before.fLeft) {
+                bounds->fLeft -= 1;
+            }
+            if (bounds->fTop == before.fTop) {
+                bounds->fTop -= 1;
+            }
+            if (bounds->fRight == before.fRight) {
+                bounds->fRight += 1;
+            }
+            if (bounds->fBottom == before.fBottom) {
+                bounds->fBottom += 1;
+            }
+        }
+    }
+}
+
 void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
                              GrDrawContext* drawContext,
                              const GrClip& clip,
                              GrDrawBatch* batch) {
     // Setup clip
     GrAppliedClip appliedClip;
-    if (!clip.apply(fContext, pipelineBuilder, drawContext, &batch->bounds(), &appliedClip)) {
+    SkRect bounds;
+    batch_bounds(&bounds, batch);
+    if (!clip.apply(fContext, pipelineBuilder, drawContext, &bounds, &appliedClip)) {
         return;
     }
 
@@ -469,10 +497,17 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
     return true;
 }
 
-template <class Left, class Right> static bool intersect(const Left& a, const Right& b) {
-    SkASSERT(a.fLeft <= a.fRight && a.fTop <= a.fBottom &&
-             b.fLeft <= b.fRight && b.fTop <= b.fBottom);
-    return a.fLeft < b.fRight && b.fLeft < a.fRight && a.fTop < b.fBottom && b.fTop < a.fBottom;
+static inline bool exclusive_no_intersection(const SkRect& a, const SkRect& b) {
+    return a.fRight <= b.fLeft || a.fBottom <= b.fTop ||
+           b.fRight <= a.fLeft || b.fBottom <= a.fTop;
+}
+
+static inline bool can_reorder(const GrBatch* a, const GrBatch* b) {
+    SkRect ra;
+    SkRect rb;
+    batch_bounds(&ra, a);
+    batch_bounds(&rb, a);
+    return exclusive_no_intersection(ra, rb);
 }
 
 void GrDrawTarget::recordBatch(GrBatch* batch) {
@@ -512,7 +547,7 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
             // Stop going backwards if we would cause a painter's order violation.
             // TODO: The bounds used here do not fully consider the clip. It may be advantageous
             // to clip each batch's bounds to the clip.
-            if (intersect(candidate->bounds(), batch->bounds())) {
+            if (!can_reorder(candidate, batch)) {
                 GrBATCH_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
                     candidate->uniqueID());
                 break;
@@ -558,7 +593,7 @@ void GrDrawTarget::forwardCombine() {
             // Stop going traversing if we would cause a painter's order violation.
             // TODO: The bounds used here do not fully consider the clip. It may be advantageous
             // to clip each batch's bounds to the clip.
-            if (intersect(candidate->bounds(), batch->bounds())) {
+            if (!can_reorder(candidate, batch)) {
                 GrBATCH_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
                              candidate->uniqueID());
                 break;

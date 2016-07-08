@@ -10,6 +10,7 @@
 
 #include "../private/SkAtomics.h"
 #include "GrNonAtomicRef.h"
+#include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkString.h"
 
@@ -70,7 +71,20 @@ public:
         return this->onCombineIfPossible(that, caps);
     }
 
-    const SkRect& bounds() const { return fBounds; }
+    const SkRect& bounds() const {
+        SkASSERT(kUninitialized_BoundsFlag != fBoundsFlags);
+        return fBounds;
+    }
+
+    bool hasAABloat() const {
+        SkASSERT(fBoundsFlags != kUninitialized_BoundsFlag);
+        return SkToBool(fBoundsFlags & kAABloat_BoundsFlag);
+    }
+
+    bool hasZeroArea() const {
+        SkASSERT(fBoundsFlags != kUninitialized_BoundsFlag);
+        return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
+    }
 
     void* operator new(size_t size);
     void operator delete(void* target);
@@ -129,17 +143,49 @@ public:
     virtual GrRenderTarget* renderTarget() const = 0;
 
 protected:
-    // NOTE, compute some bounds, even if extremely conservative.  Do *NOT* setLargest on the bounds
-    // rect because we outset it for dst copy textures
-    void setBounds(const SkRect& newBounds) { fBounds = newBounds; }
+    /**
+     * Indicates that the batch will produce geometry that extends beyond its bounds for the
+     * purpose of ensuring that the fragment shader runs on partially covered pixels for
+     * non-MSAA antialiasing.
+     */
+    enum class HasAABloat {
+        kYes,
+        kNo
+    };
+    /**
+     * Indicates that the geometry represented by the batch has zero area (i.e. it is hairline
+     * or points).
+     */
+    enum class IsZeroArea {
+        kYes,
+        kNo
+    };
+    void setBounds(const SkRect& newBounds, HasAABloat aabloat, IsZeroArea zeroArea) {
+        fBounds = newBounds;
+        this->setBoundsFlags(aabloat, zeroArea);
+    }
+    void setTransformedBounds(const SkRect& srcBounds, const SkMatrix& m,
+                              HasAABloat aabloat, IsZeroArea zeroArea) {
+        m.mapRect(&fBounds, srcBounds);
+        this->setBoundsFlags(aabloat, zeroArea);
+    }
 
-    void joinBounds(const SkRect& otherBounds) {
-        return fBounds.joinPossiblyEmptyRect(otherBounds);
+    void joinBounds(const GrBatch& that) {
+        if (that.hasAABloat()) {
+            fBoundsFlags |= kAABloat_BoundsFlag;
+        }
+        if (that.hasZeroArea()) {
+            fBoundsFlags |= kZeroArea_BoundsFlag;
+        }
+        return fBounds.joinPossiblyEmptyRect(that.fBounds);
+    }
+
+    void replaceBounds(const GrBatch& that) {
+        fBounds = that.fBounds;
+        fBoundsFlags = that.fBoundsFlags;
     }
 
     static uint32_t GenBatchClassID() { return GenID(&gCurrBatchClassID); }
-
-    SkRect                              fBounds;
 
 private:
     virtual bool onCombineIfPossible(GrBatch*, const GrCaps& caps) = 0;
@@ -158,14 +204,30 @@ private:
         return id;
     }
 
+    void setBoundsFlags(HasAABloat aabloat, IsZeroArea zeroArea) {
+        fBoundsFlags = 0;
+        fBoundsFlags |= (HasAABloat::kYes == aabloat) ? kAABloat_BoundsFlag : 0;
+        fBoundsFlags |= (IsZeroArea ::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
+    }
+
     enum {
         kIllegalBatchID = 0,
     };
 
+    enum BoundsFlags {
+        kAABloat_BoundsFlag                     = 0x1,
+        kZeroArea_BoundsFlag                    = 0x2,
+        SkDEBUGCODE(kUninitialized_BoundsFlag   = 0x4)
+    };
+
     SkDEBUGCODE(bool                    fUsed;)
-    const uint32_t                      fClassID;
+    const uint16_t                      fClassID;
+    uint16_t                            fBoundsFlags;
+
     static uint32_t GenBatchID() { return GenID(&gCurrBatchUniqueID); }
     mutable uint32_t                    fUniqueID;
+    SkRect                              fBounds;
+
     static int32_t                      gCurrBatchUniqueID;
     static int32_t                      gCurrBatchClassID;
 };

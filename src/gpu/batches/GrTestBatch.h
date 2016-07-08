@@ -41,7 +41,8 @@ protected:
     GrTestBatch(uint32_t classID, const SkRect& bounds, GrColor color)
         : INHERITED(classID)
         , fColor(color) {
-        this->setBounds(bounds);
+        // Choose some conservative values for aa bloat and zero area.
+        this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kYes);
     }
 
     struct Optimizations {

@@ -128,7 +128,7 @@ public:
         SkASSERT(!devInside.isEmpty())
 
         fGeoData.emplace_back(Geometry{color, devOutside, devOutside, devInside, false});
-        fBounds = devOutside;
+        this->setBounds(devOutside, HasAABloat::kYes, IsZeroArea::kNo);
         fMiterStroke = true;
     }
 
@@ -145,8 +145,7 @@ public:
         compute_rects(&geo.fDevOutside, &geo.fDevOutsideAssist, &geo.fDevInside, &geo.fDegenerate,
                       viewMatrix, rect, stroke.getWidth(), isMiter);
         geo.fColor = color;
-        batch->fBounds = geo.fDevOutside;
-        batch->fBounds.join(geo.fDevOutsideAssist);
+        batch->setBounds(geo.fDevOutside, HasAABloat::kYes, IsZeroArea::kNo);
         batch->fViewMatrix = viewMatrix;
         return batch;
     }
@@ -413,7 +412,7 @@ bool AAStrokeRectBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
         fBatch.fColor = GrColor_ILLEGAL;
     }
     fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-    this->joinBounds(that->bounds());
+    this->joinBounds(*that);
     return true;
 }
 

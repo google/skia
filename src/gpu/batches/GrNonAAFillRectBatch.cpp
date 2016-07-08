@@ -91,7 +91,7 @@ public:
         } else {
             info.fLocalQuad.set(rect);
         }
-        viewMatrix.mapRect(&fBounds, fRects[0].fRect);
+        this->setTransformedBounds(fRects[0].fRect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "NonAAFillRectBatch"; }
@@ -170,7 +170,7 @@ private:
         }
 
         fRects.push_back_n(that->fRects.count(), that->fRects.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 

@@ -173,7 +173,9 @@ public:
             void* mem = fRectData.push_back_n(sizeof(RectInfo));
             new (mem) RectInfo(color, viewMatrix, rect, devRect);
         }
-        fBounds = devRect;
+        IsZeroArea zeroArea = (!rect.width() || !rect.height()) ? IsZeroArea::kYes
+                                                                : IsZeroArea::kNo;
+        this->setBounds(devRect, HasAABloat::kYes, zeroArea);
         fRectCnt = 1;
     }
 
@@ -278,7 +280,7 @@ private:
 
         fRectData.push_back_n(that->fRectData.count(), that->fRectData.begin());
         fRectCnt += that->fRectCnt;
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 

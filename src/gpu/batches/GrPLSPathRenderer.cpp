@@ -793,8 +793,8 @@ public:
             , fPath(path)
             , fViewMatrix(viewMatrix) {
         // compute bounds
-        fBounds = path.getBounds();
-        fViewMatrix.mapRect(&fBounds);
+        this->setTransformedBounds(path.getBounds(), fViewMatrix, HasAABloat::kYes,
+                                   IsZeroArea::kNo);
     }
 
     const char* name() const override { return "PLSBatch"; }

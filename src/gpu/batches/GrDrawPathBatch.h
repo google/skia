@@ -78,8 +78,7 @@ private:
                     const GrPath* path)
         : INHERITED(ClassID(), viewMatrix, color, fill)
         , fPath(path) {
-        fBounds = path->getBounds();
-        viewMatrix.mapRect(&fBounds);
+        this->setTransformedBounds(path->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }

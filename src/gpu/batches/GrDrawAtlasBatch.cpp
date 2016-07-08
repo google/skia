@@ -159,10 +159,7 @@ GrDrawAtlasBatch::GrDrawAtlasBatch(GrColor color, const SkMatrix& viewMatrix, in
         currVertex += vertexStride;
     }
 
-    viewMatrix.mapRect(&bounds);
-    // Outset for a half pixel in each direction to account for snapping in non-AA case
-    bounds.outset(0.5f, 0.5f);
-    this->setBounds(bounds);
+    this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
 bool GrDrawAtlasBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
@@ -192,7 +189,7 @@ bool GrDrawAtlasBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
     fQuadCount += that->quadCount();
 
-    this->joinBounds(that->bounds());
+    this->joinBounds(*that);
     return true;
 }
 

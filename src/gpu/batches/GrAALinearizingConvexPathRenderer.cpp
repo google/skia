@@ -131,7 +131,7 @@ public:
         fGeoData.emplace_back(Geometry{color, viewMatrix, path, strokeWidth, join, miterLimit});
 
         // compute bounds
-        fBounds = path.getBounds();
+        SkRect bounds = path.getBounds();
         SkScalar w = strokeWidth;
         if (w > 0) {
             w /= 2;
@@ -139,9 +139,9 @@ public:
             if (SkPaint::kMiter_Join == join && w > 1.f) {
                 w *= miterLimit;
             }
-            fBounds.outset(w, w);
+            bounds.outset(w, w);
         }
-        viewMatrix.mapRect(&fBounds);
+        this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "AAConvexBatch"; }
@@ -284,7 +284,7 @@ private:
         }
 
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 

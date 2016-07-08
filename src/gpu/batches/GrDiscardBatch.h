@@ -20,7 +20,8 @@ public:
     GrDiscardBatch(GrRenderTarget* rt)
         : INHERITED(ClassID())
         , fRenderTarget(rt) {
-        fBounds = SkRect::MakeWH(SkIntToScalar(rt->width()), SkIntToScalar(rt->height()));
+        this->setBounds(SkRect::MakeIWH(rt->width(), rt->height()), HasAABloat::kNo,
+                        IsZeroArea::kNo);
     }
 
     const char* name() const override { return "Discard"; }

@@ -225,12 +225,11 @@ class MSAAPathBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    MSAAPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix,
-                  const SkRect& devBounds)
+    MSAAPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix)
             : INHERITED(ClassID())
             , fViewMatrix(viewMatrix) {
         fPaths.emplace_back(PathInfo{color, path});
-        this->setBounds(devBounds);
+        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
         int contourCount;
         this->computeWorstCasePointCount(path, &contourCount, &fMaxLineVertices, &fMaxQuadVertices);
         fMaxLineIndices = fMaxLineVertices * 3;
@@ -460,7 +459,7 @@ private:
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         fIsIndexed = true;
         fMaxLineVertices += that->fMaxLineVertices;
         fMaxQuadVertices += that->fMaxQuadVertices;
@@ -668,8 +667,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 
             drawContext->drawBatch(pipelineBuilder, clip, batch);
         } else {
-            SkAutoTUnref<MSAAPathBatch> batch(new MSAAPathBatch(paint.getColor(), path, viewMatrix,
-                                                                devBounds));
+            SkAutoTUnref<MSAAPathBatch> batch(new MSAAPathBatch(paint.getColor(), path,
+                                                                viewMatrix));
             if (!batch->isValid()) {
                 return false;
             }

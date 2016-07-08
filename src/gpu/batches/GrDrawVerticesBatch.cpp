@@ -63,7 +63,13 @@ GrDrawVerticesBatch::GrDrawVerticesBatch(GrColor color, GrPrimitiveType primitiv
     fIndexCount = indexCount;
     fPrimitiveType = primitiveType;
 
-    this->setBounds(bounds);
+    IsZeroArea zeroArea;
+    if (GrIsPrimTypeLines(primitiveType) || kPoints_GrPrimitiveType == primitiveType) {
+        zeroArea = IsZeroArea::kYes;
+    } else {
+        zeroArea = IsZeroArea::kNo;
+    }
+    this->setBounds(bounds, HasAABloat::kNo, zeroArea);
 }
 
 void GrDrawVerticesBatch::computePipelineOptimizations(GrInitInvariantOutput* color,
@@ -200,7 +206,7 @@ bool GrDrawVerticesBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     fVertexCount += that->fVertexCount;
     fIndexCount += that->fIndexCount;
 
-    this->joinBounds(that->bounds());
+    this->joinBounds(*that);
     return true;
 }
 

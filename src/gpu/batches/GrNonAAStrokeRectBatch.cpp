@@ -72,24 +72,25 @@ public:
         batch->fRect.sort();
         batch->fStrokeWidth = stroke.getWidth();
 
-        batch->fBounds = batch->fRect;
         SkScalar rad = SkScalarHalf(batch->fStrokeWidth);
-        batch->fBounds.outset(rad, rad);
-        batch->fViewMatrix.mapRect(&batch->fBounds);
+        SkRect bounds = rect;
+        bounds.outset(rad, rad);
 
         // If our caller snaps to pixel centers then we have to round out the bounds
         if (snapToPixelCenters) {
+            viewMatrix.mapRect(&bounds);
             // We want to be consistent with how we snap non-aa lines. To match what we do in
             // GrGLSLVertexShaderBuilder, we first floor all the vertex values and then add half a
             // pixel to force us to pixel centers.
-            batch->fBounds.set(SkScalarFloorToScalar(batch->fBounds.fLeft),
-                               SkScalarFloorToScalar(batch->fBounds.fTop),
-                               SkScalarFloorToScalar(batch->fBounds.fRight),
-                               SkScalarFloorToScalar(batch->fBounds.fBottom));
-            batch->fBounds.offset(0.5f, 0.5f);
-
-            // Round out the bounds to integer values
-            batch->fBounds.roundOut();
+            bounds.set(SkScalarFloorToScalar(bounds.fLeft),
+                       SkScalarFloorToScalar(bounds.fTop),
+                       SkScalarFloorToScalar(bounds.fRight),
+                       SkScalarFloorToScalar(bounds.fBottom));
+            bounds.offset(0.5f, 0.5f);
+            batch->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+        } else {
+            batch->setTransformedBounds(bounds, batch->fViewMatrix, HasAABloat ::kNo,
+                                        IsZeroArea::kNo);
         }
         return batch;
     }

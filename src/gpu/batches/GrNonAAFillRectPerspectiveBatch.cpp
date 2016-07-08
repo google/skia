@@ -111,7 +111,7 @@ public:
         if (fHasLocalRect) {
             info.fLocalRect = *localRect;
         }
-        viewMatrix.mapRect(&fBounds, rect);
+        this->setTransformedBounds(rect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "NonAAFillRectPerspectiveBatch"; }
@@ -211,7 +211,7 @@ private:
         }
 
         fRects.push_back_n(that->fRects.count(), that->fRects.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 

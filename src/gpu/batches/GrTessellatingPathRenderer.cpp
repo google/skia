@@ -238,12 +238,8 @@ private:
         // Because the clip bounds are used to add a contour for inverse fills, they must also
         // include the path bounds.
         fClipBounds.join(pathBounds);
-        if (shape.inverseFilled()) {
-            fBounds = fClipBounds;
-        } else {
-            fBounds = pathBounds;
-        }
-        viewMatrix.mapRect(&fBounds);
+        const SkRect& srcBounds = shape.inverseFilled() ? fClipBounds : pathBounds;
+        this->setTransformedBounds(srcBounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     GrColor                 fColor;

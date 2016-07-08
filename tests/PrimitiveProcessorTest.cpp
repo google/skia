@@ -41,7 +41,7 @@ public:
     Batch(int numAttribs)
         : INHERITED(ClassID())
         , fNumAttribs(numAttribs) {
-        this->setBounds(SkRect::MakeWH(1.f, 1.f));
+        this->setBounds(SkRect::MakeWH(1.f, 1.f), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
 private:

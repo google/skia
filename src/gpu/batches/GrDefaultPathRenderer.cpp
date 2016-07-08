@@ -106,13 +106,8 @@ public:
         fBatch.fViewMatrix = viewMatrix;
         fGeoData.emplace_back(Geometry{color, path, tolerance});
 
-        this->setBounds(devBounds);
-
-        // This is b.c. hairlines are notionally infinitely thin so without expansion
-        // two overlapping lines could be reordered even though they hit the same pixels.
-        if (isHairline) {
-            fBounds.outset(0.5f, 0.5f);
-        }
+        this->setBounds(devBounds, HasAABloat::kNo,
+                        isHairline ? IsZeroArea::kYes : IsZeroArea::kNo);
     }
 
     const char* name() const override { return "DefaultPathBatch"; }
@@ -286,7 +281,7 @@ private:
         }
 
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 

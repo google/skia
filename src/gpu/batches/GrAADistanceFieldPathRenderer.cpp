@@ -146,8 +146,7 @@ public:
         fGammaCorrect = gammaCorrect;
 
         // Compute bounds
-        fBounds = shape.bounds();
-        viewMatrix.mapRect(&fBounds);
+        this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "AADistanceFieldPathBatch"; }
@@ -484,7 +483,7 @@ private:
         }
 
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 

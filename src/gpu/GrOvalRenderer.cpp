@@ -572,7 +572,12 @@ public:
             SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
                              center.fX + outerRadius, center.fY + outerRadius)
         });
-        this->setBounds(fGeoData.back().fDevBounds);
+        // Use the original radius and stroke radius for the bounds so that it does not include the
+        // AA bloat.
+        radius += halfWidth;
+        this->setBounds({center.fX - radius, center.fY - radius,
+                         center.fX + radius, center.fY + radius},
+                        HasAABloat::kYes, IsZeroArea::kNo);
         fStroked = isStrokeOnly && innerRadius > 0;
     }
 
@@ -685,7 +690,7 @@ private:
         }
 
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 
@@ -777,12 +782,13 @@ public:
                              center.fX + xRadius, center.fY + yRadius)
         });
 
+        batch->setBounds(batch->fGeoData.back().fDevBounds, HasAABloat::kYes, IsZeroArea::kNo);
+
         // Outset bounds to include half-pixel width antialiasing.
         batch->fGeoData[0].fDevBounds.outset(SK_ScalarHalf, SK_ScalarHalf);
 
         batch->fStroked = isStrokeOnly && innerXRadius > 0 && innerYRadius > 0;
         batch->fViewMatrixIfUsingLocalCoords = viewMatrix;
-        batch->setBounds(batch->fGeoData.back().fDevBounds);
         return batch;
     }
 
@@ -894,7 +900,7 @@ private:
         }
 
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 
@@ -993,9 +999,8 @@ public:
             SkRect::MakeLTRB(center.fX - xRadius - geoDx, center.fY - yRadius - geoDy,
                              center.fX + xRadius + geoDx, center.fY + yRadius + geoDy)
         });
-        SkRect devBounds = batch->fGeoData.back().fBounds;
-        viewMatrix.mapRect(&devBounds);
-        batch->setBounds(devBounds);
+        batch->setTransformedBounds(batch->fGeoData[0].fBounds, viewMatrix, HasAABloat::kYes,
+                                    IsZeroArea::kNo);
         return batch;
     }
 
@@ -1092,7 +1097,7 @@ private:
         }
 
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 
@@ -1202,11 +1207,12 @@ public:
         outerRadius += SK_ScalarHalf;
         innerRadius -= SK_ScalarHalf;
 
-        // Expand the rect so all the pixels will be captured.
+        this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
+
+        // Expand the rect for aa to generate correct vertices.
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
 
         fGeoData.emplace_back(Geometry { color, innerRadius, outerRadius, bounds });
-        this->setBounds(bounds);
     }
 
     const char* name() const override { return "RRectCircleBatch"; }
@@ -1324,7 +1330,7 @@ private:
         }
 
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 
@@ -1394,15 +1400,14 @@ public:
             bounds.outset(devStrokeWidths.fX, devStrokeWidths.fY);
         }
 
-        // Expand the rect so all the pixels will be captured.
-        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
-
         RRectEllipseRendererBatch* batch = new RRectEllipseRendererBatch();
         batch->fStroked = stroked;
         batch->fViewMatrixIfUsingLocalCoords = viewMatrix;
+        batch->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
+        // Expand the rect for aa in order to generate the correct vertices.
+        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
         batch->fGeoData.emplace_back(
             Geometry {color, devXRadius, devYRadius, innerXRadius, innerYRadius, bounds});
-        batch->setBounds(bounds);
         return batch;
     }
 
@@ -1534,7 +1539,7 @@ private:
         }
 
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 

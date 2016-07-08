@@ -23,7 +23,7 @@ public:
         , fRect(rect)
         , fColor(color)
         , fRenderTarget(rt) {
-        fBounds = SkRect::Make(rect);
+        this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "Clear"; }
@@ -49,7 +49,7 @@ private:
         SkASSERT(cb->fRenderTarget == fRenderTarget);
         if (cb->fRect.contains(fRect)) {
             fRect = cb->fRect;
-            fBounds = cb->fBounds;
+            this->replaceBounds(*t);
             fColor = cb->fColor;
             return true;
         } else if (cb->fColor == fColor && fRect.contains(cb->fRect)) {
@@ -80,7 +80,7 @@ public:
         , fRect(rect)
         , fInsideClip(insideClip)
         , fRenderTarget(rt) {
-        fBounds = SkRect::Make(rect);
+        this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "ClearStencilClip"; }
