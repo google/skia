@@ -47,13 +47,6 @@ public:
                               const GrClipStackClip&, const SkRect* devBounds, GrAppliedClip*);
 
 private:
-    static void DrawNonAARect(GrDrawContext* drawContext,
-                              const GrFixedClip& clip,
-                              const SkMatrix& viewMatrix,
-                              const SkRect& rect,
-                              bool isAA,
-                              const GrUserStencilSettings* stencilSettings);
-
     static bool PathNeedsSWRenderer(GrContext* context,
                                     bool hasUserStencilSettings,
                                     const GrDrawContext*,

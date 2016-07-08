@@ -32,6 +32,7 @@ class GrPipelineBuilder;
 class GrRenderTarget;
 class GrStyle;
 class GrSurface;
+struct GrUserStencilSettings;
 class SkDrawFilter;
 struct SkIPoint;
 struct SkIRect;
@@ -322,10 +323,19 @@ private:
                           const SkRRect& origOuter,
                           const SkRRect& origInner);
 
-    GrDrawBatch* getFillRectBatch(const GrPaint& paint,
-                                  const SkMatrix& viewMatrix,
-                                  const SkRect& rect,
-                                  bool* useHWAA);
+    bool drawFilledRect(const GrClip& clip,
+                        const GrPaint& paint,
+                        const SkMatrix& viewMatrix,
+                        const SkRect& rect,
+                        const GrUserStencilSettings* ss);
+
+    void drawNonAAFilledRect(const GrClip&,
+                             const GrPaint&,
+                             const SkMatrix& viewMatrix,
+                             const SkRect& rect,
+                             const SkRect* localRect,
+                             const SkMatrix* localMatrix,
+                             const GrUserStencilSettings* ss);
 
     void internalDrawPath(const GrClip& clip,
                           const GrPaint& paint,
