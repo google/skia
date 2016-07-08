@@ -44,6 +44,7 @@ void GrFixedClip::getConservativeBounds(int width, int height, SkIRect* devResul
 bool GrFixedClip::apply(GrContext*, const GrPipelineBuilder& pipelineBuilder,
                         GrDrawContext* drawContext,
                         const SkRect* devBounds, GrAppliedClip* out) const {
+    SkASSERT(!fDeviceBounds.isLargest());
     if (fScissorState.enabled()) {
         SkIRect tightScissor;
         if (!tightScissor.intersect(fScissorState.rect(),
@@ -53,11 +54,15 @@ bool GrFixedClip::apply(GrContext*, const GrPipelineBuilder& pipelineBuilder,
         if (devBounds && !devBounds->intersects(SkRect::Make(tightScissor))) {
             return false;
         }
-        out->makeScissoredStencil(fHasStencilClip, tightScissor);
+        if (fHasStencilClip) {
+            out->makeScissoredStencil(tightScissor, &fDeviceBounds);
+        } else {
+            out->makeScissored(tightScissor);
+        }
         return true;
     }
 
-    out->makeStencil(fHasStencilClip);
+    out->makeStencil(fHasStencilClip, fDeviceBounds);
     return true;
 }
 

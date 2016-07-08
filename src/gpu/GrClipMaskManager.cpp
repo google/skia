@@ -306,7 +306,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
                 out->makeScissoredFPBased(std::move(clipFP), scissorSpaceIBounds);
                 return true;
             }
-            out->makeFPBased(std::move(clipFP));
+            out->makeFPBased(std::move(clipFP), SkRect::Make(scissorSpaceIBounds));
             return true;
         }
     }
@@ -347,7 +347,8 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
             // clipSpace bounds. We determine the mask's position WRT to the render target here.
             SkIRect rtSpaceMaskBounds = clipSpaceIBounds;
             rtSpaceMaskBounds.offset(-clip.origin());
-            out->makeFPBased(create_fp_for_mask(result.get(), rtSpaceMaskBounds));
+            out->makeFPBased(create_fp_for_mask(result.get(), rtSpaceMaskBounds),
+                             SkRect::Make(rtSpaceMaskBounds));
             return true;
         }
         // if alpha clip mask creation fails fall through to the non-AA code paths
@@ -368,7 +369,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
     // use both stencil and scissor test to the bounds for the final draw.
     SkIRect scissorSpaceIBounds(clipSpaceIBounds);
     scissorSpaceIBounds.offset(clipSpaceToStencilSpaceOffset);
-    out->makeScissoredStencil(true, scissorSpaceIBounds);
+    out->makeScissoredStencil(scissorSpaceIBounds);
     return true;
 }
 
@@ -594,7 +595,7 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
 
             bool fillInverted = false;
             // enabled at bottom of loop
-            clip.enableStencilClip(false);
+            clip.disableStencilClip();
 
             // This will be used to determine whether the clip shape can be rendered into the
             // stencil with arbitrary stencil settings.
@@ -690,16 +691,20 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
 
             // now we modify the clip bit by rendering either the clip
             // element directly or a bounding rect of the entire clip.
-            clip.enableStencilClip(true);
             for (GrUserStencilSettings const* const* pass = stencilPasses; *pass; ++pass) {
 
                 if (drawDirectToClip) {
                     if (Element::kRect_Type == element->getType()) {
+                        clip.enableStencilClip(element->getRect().makeOffset(translate.fX,
+                                                                             translate.fY));
                         drawContext->drawContextPriv().stencilRect(clip, *pass, useHWAA, viewMatrix,
                                                                    element->getRect());
                     } else {
                         GrShape shape(clipPath, GrStyle::SimpleFill());
                         GrPaint paint;
+                        SkRect bounds = clipPath.getBounds();
+                        bounds.offset(translate.fX, translate.fY);
+                        clip.enableStencilClip(bounds);
                         paint.setXPFactory(GrDisableColorXPFactory::Make());
                         paint.setAntiAlias(element->isAA());
                         GrPathRenderer::DrawPathArgs args;
@@ -717,6 +722,9 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                 } else {
                     // The view matrix is setup to do clip space -> stencil space translation, so
                     // draw rect in clip space.
+                    SkRect bounds = SkRect::Make(clipSpaceIBounds);
+                    bounds.offset(translate.fX, translate.fY);
+                    clip.enableStencilClip(bounds);
                     drawContext->drawContextPriv().stencilRect(clip, *pass, false, viewMatrix,
                                                                SkRect::Make(clipSpaceIBounds));
                 }

@@ -196,7 +196,7 @@ private:
         }
     };
 
-    void recordBatch(GrBatch*);
+    void recordBatch(GrBatch*, const SkRect& clippedBounds);
     void forwardCombine();
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
@@ -214,7 +214,11 @@ private:
     // Used only by drawContextPriv.
     void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
 
-    SkSTArray<256, SkAutoTUnref<GrBatch>, true>     fBatches;
+    struct RecordedBatch {
+        sk_sp<GrBatch> fBatch;
+        SkRect         fClippedBounds;
+    };
+    SkSTArray<256, RecordedBatch, true>             fRecordedBatches;
     // The context is only in service of the clip mask manager, remove once CMM doesn't need this.
     GrContext*                                      fContext;
     GrGpu*                                          fGpu;

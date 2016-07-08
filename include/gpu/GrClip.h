@@ -21,48 +21,78 @@ class GrPipelineBuilder;
  */
 class GrAppliedClip : public SkNoncopyable {
 public:
-    GrAppliedClip() : fHasStencilClip(false) {}
+    GrAppliedClip() : fHasStencilClip(false), fDeviceBounds(SkRect::MakeLargest()) {}
     GrFragmentProcessor* getClipCoverageFragmentProcessor() const {
         return fClipCoverageFP.get();
     }
     const GrScissorState& scissorState() const { return fScissorState; }
     bool hasStencilClip() const { return fHasStencilClip; }
 
-    void makeStencil(bool hasStencil) {
+    void makeStencil(bool hasStencil, const SkRect& deviceBounds) {
         fClipCoverageFP = nullptr;
         fScissorState.setDisabled();
         fHasStencilClip = hasStencil;
+        fDeviceBounds = deviceBounds;
     }
 
-    void makeScissoredStencil(bool hasStencil, const SkIRect& scissor) {
+    /**
+     * The device bounds of the clip defaults to the scissor rect, but a tighter bounds (based
+     * on the known effect of the stencil values) can be provided.
+     */
+    void makeScissoredStencil(const SkIRect& scissor, const SkRect* deviceBounds = nullptr) {
         fClipCoverageFP = nullptr;
         fScissorState.set(scissor);
-        fHasStencilClip = hasStencil;
+        fHasStencilClip = true;
+        if (deviceBounds) {
+            fDeviceBounds = *deviceBounds;
+            SkASSERT(scissor.contains(*deviceBounds))
+        } else {
+            fDeviceBounds = SkRect::Make(scissor);
+        }
     }
 
-    void makeFPBased(sk_sp<GrFragmentProcessor> fp) {
+    void makeFPBased(sk_sp<GrFragmentProcessor> fp, const SkRect& deviceBounds) {
         fClipCoverageFP = fp;
         fScissorState.setDisabled();
         fHasStencilClip = false;
+        fDeviceBounds = deviceBounds;
     }
 
     void makeScissored(SkIRect& scissor) {
         fClipCoverageFP.reset();
         fScissorState.set(scissor);
         fHasStencilClip = false;
+        fDeviceBounds = SkRect::Make(scissor);
     }
 
-    void makeScissoredFPBased(sk_sp<GrFragmentProcessor> fp, SkIRect& scissor) {
+    /**
+     * The device bounds of the clip defaults to the scissor rect, but a tighter bounds (based
+     * on the known effect of the fragment processor) can be provided.
+     */
+    void makeScissoredFPBased(sk_sp<GrFragmentProcessor> fp, const SkIRect& scissor,
+                              const SkRect* deviceBounds = nullptr) {
         fClipCoverageFP = fp;
         fScissorState.set(scissor);
         fHasStencilClip = false;
+        if (deviceBounds) {
+            fDeviceBounds = *deviceBounds;
+            SkASSERT(scissor.contains(*deviceBounds))
+        } else {
+            fDeviceBounds = SkRect::Make(scissor);
+        }
     }
+
+    /**
+     * Returns the device bounds of the applied clip. Ideally this considers the combined effect of
+     * all clipping techniques in play (scissor, stencil, and/or coverage fp).
+     */
+    const SkRect& deviceBounds() const { return fDeviceBounds; }
 
 private:
     sk_sp<GrFragmentProcessor> fClipCoverageFP;
     GrScissorState             fScissorState;
     bool                       fHasStencilClip;
-
+    SkRect                     fDeviceBounds;
     typedef SkNoncopyable INHERITED;
 };
 
@@ -99,20 +129,48 @@ private:
  */
 class GrFixedClip final : public GrClip {
 public:
-    GrFixedClip() : fHasStencilClip(false) {}
-    GrFixedClip(const SkIRect& scissorRect) : fScissorState(scissorRect), fHasStencilClip(false) {}
+    GrFixedClip() : fDeviceBounds(SkRect::MakeLargest()), fHasStencilClip(false) {}
+    GrFixedClip(const SkIRect& scissorRect)
+        : fScissorState(scissorRect)
+        , fDeviceBounds(SkRect::Make(scissorRect))
+        , fHasStencilClip(false) {}
 
     void reset() {
         fScissorState.setDisabled();
+        fDeviceBounds.setLargest();
         fHasStencilClip = false;
     }
 
     void reset(const SkIRect& scissorRect) {
         fScissorState.set(scissorRect);
+        fDeviceBounds = SkRect::Make(scissorRect);
         fHasStencilClip = false;
     }
 
-    void enableStencilClip(bool enable) { fHasStencilClip = enable; }
+    /**
+     * Enables stenciling. The stencil bounds is the device space bounds where the stencil test
+     * may pass.
+     */
+    void enableStencilClip(const SkRect& stencilBounds) {
+        fHasStencilClip = true;
+        fDeviceBounds = stencilBounds;
+        if (fScissorState.enabled()) {
+            const SkIRect& s = fScissorState.rect();
+            fDeviceBounds.fLeft   = SkTMax(fDeviceBounds.fLeft,   SkIntToScalar(s.fLeft));
+            fDeviceBounds.fTop    = SkTMax(fDeviceBounds.fTop,    SkIntToScalar(s.fTop));
+            fDeviceBounds.fRight  = SkTMin(fDeviceBounds.fRight,  SkIntToScalar(s.fRight));
+            fDeviceBounds.fBottom = SkTMin(fDeviceBounds.fBottom, SkIntToScalar(s.fBottom));
+        }
+    }
+
+    void disableStencilClip() {
+        fHasStencilClip = false;
+        if (fScissorState.enabled()) {
+            fDeviceBounds = SkRect::Make(fScissorState.rect());
+        } else {
+            fDeviceBounds.setLargest();
+        }
+    }
 
     const GrScissorState& scissorState() const { return fScissorState; }
     bool hasStencilClip() const { return fHasStencilClip; }
@@ -126,6 +184,7 @@ private:
                const SkRect* devBounds, GrAppliedClip* out) const final;
 
     GrScissorState   fScissorState;
+    SkRect           fDeviceBounds;
     bool             fHasStencilClip;
 };
 
