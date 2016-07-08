@@ -469,13 +469,15 @@ void GrDrawTarget::clear(const SkIRect* rect,
             drawContext->discard();
         }
 
+        // TODO: flip this into real draw!
+        GrPipelineBuilder pipelineBuilder;
+        pipelineBuilder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+
         SkRect scalarRect = SkRect::Make(*rect);
-
-        GrPaint paint;
-        paint.setColor4f(GrColor4f::FromGrColor(color));
-        paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
-
-        drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), scalarRect);
+        SkAutoTUnref<GrDrawBatch> batch(
+                GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(), scalarRect,
+                                                    nullptr, nullptr));
+        this->drawBatch(pipelineBuilder, drawContext, GrNoClip(), batch);
     } else {
         GrBatch* batch = new GrClearBatch(*rect, color, drawContext->accessRenderTarget());
         this->recordBatch(batch, batch->bounds());

@@ -658,7 +658,6 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                     GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
                                                         &localMatrix));
 
-            SkASSERT(GrPipelineBuilder::kBoth_DrawFace == drawFace[p]);
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
             if (passes[p]) {
