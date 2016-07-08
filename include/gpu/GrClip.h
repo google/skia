@@ -46,6 +46,12 @@ public:
         fHasStencilClip = false;
     }
 
+    void makeScissored(SkIRect& scissor) {
+        fClipCoverageFP.reset();
+        fScissorState.set(scissor);
+        fHasStencilClip = false;
+    }
+
     void makeScissoredFPBased(sk_sp<GrFragmentProcessor> fp, SkIRect& scissor) {
         fClipCoverageFP = fp;
         fScissorState.set(scissor);

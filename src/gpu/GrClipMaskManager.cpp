@@ -146,13 +146,10 @@ bool GrClipMaskManager::UseSWOnlyPath(GrContext* context,
 static bool get_analytic_clip_processor(const GrReducedClip::ElementList& elements,
                                         bool abortIfAA,
                                         SkVector& clipToRTOffset,
-                                        const SkRect* drawBounds,
+                                        const SkRect& drawBounds,
                                         sk_sp<GrFragmentProcessor>* resultFP) {
     SkRect boundsInClipSpace;
-    if (drawBounds) {
-        boundsInClipSpace = *drawBounds;
-        boundsInClipSpace.offset(-clipToRTOffset.fX, -clipToRTOffset.fY);
-    }
+    boundsInClipSpace = drawBounds.makeOffset(-clipToRTOffset.fX, -clipToRTOffset.fY);
     SkASSERT(elements.count() <= kMaxAnalyticElements);
     SkSTArray<kMaxAnalyticElements, sk_sp<GrFragmentProcessor>> fps;
     GrReducedClip::ElementList::Iter iter(elements);
@@ -166,7 +163,7 @@ static bool get_analytic_clip_processor(const GrReducedClip::ElementList& elemen
                 // Fallthrough, handled same as intersect.
             case SkRegion::kIntersect_Op:
                 invert = false;
-                if (drawBounds && iter.get()->contains(boundsInClipSpace)) {
+                if (iter.get()->contains(boundsInClipSpace)) {
                     skip = true;
                 }
                 break;
@@ -232,7 +229,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
                                       const GrPipelineBuilder& pipelineBuilder,
                                       GrDrawContext* drawContext,
                                       const GrClipStackClip& clip,
-                                      const SkRect* devBounds,
+                                      const SkRect* origDevBounds,
                                       GrAppliedClip* out) {
     if (!clip.clipStack() || clip.clipStack()->isWideOpen()) {
         return true;
@@ -244,19 +241,19 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
     SkIRect clipSpaceIBounds;
     bool requiresAA = false;
 
-    SkIRect clipSpaceRTIBounds = SkIRect::MakeWH(drawContext->width(), drawContext->height());
-    clipSpaceRTIBounds.offset(clip.origin());
-
     SkIRect clipSpaceReduceQueryBounds;
-#define DISABLE_DEV_BOUNDS_FOR_CLIP_REDUCTION 0
-    if (devBounds && !DISABLE_DEV_BOUNDS_FOR_CLIP_REDUCTION) {
-        SkIRect devIBounds = devBounds->roundOut();
-        devIBounds.offset(clip.origin());
-        if (!clipSpaceReduceQueryBounds.intersect(clipSpaceRTIBounds, devIBounds)) {
+    SkRect devBounds;
+    if (origDevBounds) {
+        if (!devBounds.intersect(SkRect::MakeIWH(drawContext->width(), drawContext->height()),
+                                 *origDevBounds)) {
             return false;
         }
+        devBounds.roundOut(&clipSpaceReduceQueryBounds);
+        clipSpaceReduceQueryBounds.offset(clip.origin());
     } else {
-        clipSpaceReduceQueryBounds = clipSpaceRTIBounds;
+        devBounds = SkRect::MakeIWH(drawContext->width(), drawContext->height());
+        clipSpaceReduceQueryBounds.setXYWH(0, 0, drawContext->width(), drawContext->height());
+        clipSpaceReduceQueryBounds.offset(clip.origin());
     }
     GrReducedClip::ReduceClipStack(*clip.clipStack(),
                                     clipSpaceReduceQueryBounds,
@@ -266,12 +263,15 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
                                     &clipSpaceIBounds,
                                     &requiresAA);
     if (elements.isEmpty()) {
-        if (GrReducedClip::kAllIn_InitialState == initialState) {
-            if (clipSpaceIBounds == clipSpaceRTIBounds) {
-                return true;
-            }
-        } else {
+        if (GrReducedClip::kAllOut_InitialState == initialState) {
             return false;
+        } else {
+            SkIRect scissorSpaceIBounds(clipSpaceIBounds);
+            scissorSpaceIBounds.offset(-clip.origin());
+            if (!SkRect::Make(scissorSpaceIBounds).contains(devBounds)) {
+                out->makeScissored(scissorSpaceIBounds);
+            }
+            return true;
         }
     }
 
@@ -297,13 +297,12 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
                                  pipelineBuilder.hasUserStencilSettings();
         }
         sk_sp<GrFragmentProcessor> clipFP;
-        if (elements.isEmpty() ||
-            (requiresAA &&
-             get_analytic_clip_processor(elements, disallowAnalyticAA, clipToRTOffset, devBounds,
-                                         &clipFP))) {
+        if (requiresAA &&
+            get_analytic_clip_processor(elements, disallowAnalyticAA, clipToRTOffset, devBounds,
+                                        &clipFP)) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
-            if (!devBounds || !SkRect::Make(scissorSpaceIBounds).contains(*devBounds)) {
+            if (!SkRect::Make(scissorSpaceIBounds).contains(devBounds)) {
                 out->makeScissoredFPBased(std::move(clipFP), scissorSpaceIBounds);
                 return true;
             }
