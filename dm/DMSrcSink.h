@@ -391,6 +391,12 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
+class ViaDefer : public Via {
+public:
+    explicit ViaDefer(Sink* sink) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
 class ViaTiles : public Via {
 public:
     ViaTiles(int w, int h, SkBBHFactory*, Sink*);

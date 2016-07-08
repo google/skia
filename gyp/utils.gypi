@@ -46,6 +46,7 @@
         '<(skia_src_path)/utils/SkCanvasStateUtils.cpp',
         '<(skia_src_path)/utils/SkDashPath.cpp',
         '<(skia_src_path)/utils/SkDashPathPriv.h',
+        '<(skia_src_path)/utils/SkDeferredCanvas.cpp',
         '<(skia_src_path)/utils/SkDumpCanvas.cpp',
         '<(skia_src_path)/utils/SkEventTracer.cpp',
         '<(skia_src_path)/utils/SkFloatUtils.h',

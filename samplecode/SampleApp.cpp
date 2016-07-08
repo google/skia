@@ -804,6 +804,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fRequestGrabImage = false;
     fTilingMode = kNo_Tiling;
     fMeasureFPS = false;
+    fUseDeferredCanvas = false;
     fLCDState = SkOSMenu::kMixedState;
     fAAState = SkOSMenu::kMixedState;
     fSubpixelState = SkOSMenu::kMixedState;
@@ -987,6 +988,9 @@ static void drawText(SkCanvas* canvas, SkString str, SkScalar left, SkScalar top
 #define XCLIP_N  8
 #define YCLIP_N  8
 
+#include "SkDeferredCanvas.h"
+#include "SkDumpCanvas.h"
+
 void SampleWindow::draw(SkCanvas* canvas) {
     gAnimTimer.updateTime();
 
@@ -1001,7 +1005,11 @@ void SampleWindow::draw(SkCanvas* canvas) {
     SkSize tile = this->tileSize();
 
     if (kNo_Tiling == fTilingMode) {
-        this->INHERITED::draw(canvas); // no looping or surfaces needed
+        SkDebugfDumper dumper;
+        SkDumpCanvas dump(&dumper);
+        SkDeferredCanvas deferred(canvas);
+        SkCanvas* c = fUseDeferredCanvas ? &deferred : canvas;
+        this->INHERITED::draw(c); // no looping or surfaces needed
     } else {
         const SkScalar w = SkScalarCeilToScalar(tile.width());
         const SkScalar h = SkScalarCeilToScalar(tile.height());
@@ -1667,6 +1675,10 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case 'D':
             toggleDistanceFieldFonts();
             break;
+        case 'E':
+            fUseDeferredCanvas = !fUseDeferredCanvas;
+            this->inval(nullptr);
+            break;
         case 'f':
             // only
             toggleFPS();
@@ -2019,6 +2031,9 @@ void SampleWindow::updateTitle() {
     }
     if (fUsePicture) {
         title.prepend("<P> ");
+    }
+    if (fUseDeferredCanvas) {
+        title.prepend("<E> ");
     }
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));

@@ -813,3 +813,25 @@ DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
     REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
     REPORTER_ASSERT(reporter, clip1 == clip2);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkDeferredCanvas.h"
+#include "SkDumpCanvas.h"
+
+DEF_TEST(DeferredCanvas, r) {
+    SkDebugfDumper dumper;
+    SkDumpCanvas dumpC(&dumper);
+
+    SkDeferredCanvas canvas(&dumpC);
+
+    SkPaint paint;
+//    paint.setShader(SkShader::MakeColorShader(SK_ColorRED));
+
+    canvas.save();
+    canvas.clipRect(SkRect::MakeWH(55, 55));
+    canvas.translate(10, 20);
+    canvas.drawRect(SkRect::MakeWH(50, 50), paint);
+    canvas.restore();
+}
+

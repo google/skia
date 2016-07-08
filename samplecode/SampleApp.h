@@ -188,6 +188,7 @@ private:
     bool fPerspAnim;
     bool fRequestGrabImage;
     bool fMeasureFPS;
+    bool fUseDeferredCanvas;
     WallTimer fTimer;
     double fMeasureFPS_Time;
     bool fMagnify;

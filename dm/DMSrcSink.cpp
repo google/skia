@@ -15,6 +15,7 @@
 #include "SkColorSpaceXform.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
+#include "SkDeferredCanvas.h"
 #include "SkDocument.h"
 #include "SkError.h"
 #include "SkImageGenerator.h"
@@ -1434,6 +1435,16 @@ Error ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
         pic = recorder.finishRecordingAsPicture();
         canvas->drawPicture(pic);
         return check_against_reference(bitmap, src, fSink);
+    });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+Error ViaDefer::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    auto size = src.size();
+    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+        SkDeferredCanvas deferred(canvas);
+        return src.draw(&deferred);
     });
 }
 
