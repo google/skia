@@ -121,16 +121,17 @@ static void draw_text_on_path_rigid(SkCanvas* canvas, const void* text, size_t l
         }
         xform[i].fSCos = tan.x();
         xform[i].fSSin = tan.y();
-        xform[i].fTx   = pos.x();
-        xform[i].fTy   = pos.y();
+        xform[i].fTx   = pos.x() - tan.y() * xy[i].y();
+        xform[i].fTy   = pos.y() + tan.x() * xy[i].y();
     }
 
     canvas->drawTextRSXform(text, length, &xform[0], nullptr, paint);
 }
 
-DEF_SIMPLE_GM(drawTextRSXform, canvas, 510, 310) {
-    const char text[] = "ABCDFGHJKLMNOPQRSTUVWXYZ";
-    const int N = sizeof(text) - 1;
+DEF_SIMPLE_GM(drawTextRSXform, canvas, 510, 370) {
+    const char text0[] = "ABCDFGHJKLMNOPQRSTUVWXYZ";
+    const char text1[] = "AAAAAAAAAAAAAAAAAAAAAAAAAA";
+    const int N = sizeof(text0) - 1;
     SkPoint pos[N];
     SkRSXform xform[N];
 
@@ -145,7 +146,7 @@ DEF_SIMPLE_GM(drawTextRSXform, canvas, 510, 310) {
         xform[i].fSSin = SkScalarSin(rad);
         xform[i].fTx = x;
         xform[i].fTy = 0;
-        pos[i].set(x, 0);
+        pos[i].set(x, -10);
         x += dx;
         rad += drad;
     }
@@ -153,12 +154,12 @@ DEF_SIMPLE_GM(drawTextRSXform, canvas, 510, 310) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(20);
-    canvas->drawTextRSXform(text, N, xform, nullptr, paint);
+    canvas->drawTextRSXform(text0, N, xform, nullptr, paint);
 
     SkPath path;
-    path.addOval(SkRect::MakeXYWH(150, 50, 200, 200));
+    path.addOval(SkRect::MakeXYWH(150, 100, 200, 200));
 
-    draw_text_on_path_rigid(canvas, text, N, pos, path, paint);
+    draw_text_on_path_rigid(canvas, text1, N, pos, path, paint);
 
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawPath(path, paint);
