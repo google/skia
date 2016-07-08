@@ -302,9 +302,7 @@ static void reduced_stack_walker(const SkClipStack& stack,
             }
         }
     }
-    if (requiresAA) {
-        *requiresAA = numAAElements > 0;
-    }
+    *requiresAA = numAAElements > 0;
 
     if (0 == result->count()) {
         if (*initialState == GrReducedClip::kAllIn_InitialState) {
@@ -329,6 +327,8 @@ void GrReducedClip::ReduceClipStack(const SkClipStack& stack,
                                     InitialState* initialState,
                                     SkIRect* tighterBounds,
                                     bool* requiresAA) {
+    SkASSERT(tighterBounds);
+    SkASSERT(requiresAA);
     result->reset();
 
     // The clip established by the element list might be cached based on the last
@@ -359,60 +359,44 @@ void GrReducedClip::ReduceClipStack(const SkClipStack& stack,
         SkRect isectRect;
         if (stackBounds.contains(scalarQueryBounds)) {
             *initialState = GrReducedClip::kAllIn_InitialState;
-            if (tighterBounds) {
-                *tighterBounds = queryBounds;
-            }
-            if (requiresAA) {
-               *requiresAA = false;
-            }
+            *tighterBounds = queryBounds;
+            *requiresAA = false;
         } else if (isectRect.intersect(stackBounds, scalarQueryBounds)) {
             // If the caller asked for tighter integer bounds we may be able to
             // return kAllIn and give the bounds with no elements
-            if (tighterBounds) {
-                isectRect.roundOut(tighterBounds);
-                SkRect scalarTighterBounds = SkRect::Make(*tighterBounds);
-                if (scalarTighterBounds == isectRect) {
-                    // the round-out didn't add any area outside the clip rect.
-                    if (requiresAA) {
-                        *requiresAA = false;
-                    }
-                    *initialState = GrReducedClip::kAllIn_InitialState;
-                    return;
-                }
+            isectRect.roundOut(tighterBounds);
+            SkRect scalarTighterBounds = SkRect::Make(*tighterBounds);
+            if (scalarTighterBounds == isectRect) {
+                // the round-out didn't add any area outside the clip rect.
+                *requiresAA = false;
+                *initialState = GrReducedClip::kAllIn_InitialState;
+                return;
             }
             *initialState = kAllOut_InitialState;
             // iior should only be true if aa/non-aa status matches among all elements.
             SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
             bool doAA = iter.prev()->isAA();
             result->addToHead(isectRect, SkRegion::kReplace_Op, doAA);
-            if (requiresAA) {
-                *requiresAA = doAA;
-            }
+            *requiresAA = doAA;
         } else {
             *initialState = kAllOut_InitialState;
-             if (requiresAA) {
-                *requiresAA = false;
-             }
+            *requiresAA = false;
         }
         return;
     } else {
         if (SkClipStack::kNormal_BoundsType == stackBoundsType) {
             if (!SkRect::Intersects(stackBounds, scalarQueryBounds)) {
                 *initialState = kAllOut_InitialState;
-                if (requiresAA) {
-                   *requiresAA = false;
-                }
+               *requiresAA = false;
                 return;
             }
-            if (tighterBounds) {
-                SkIRect stackIBounds;
-                stackBounds.roundOut(&stackIBounds);
-                if (!tighterBounds->intersect(queryBounds, stackIBounds)) {
-                    SkASSERT(0);
-                    tighterBounds->setEmpty();
-                }
-                bounds = tighterBounds;
+            SkIRect stackIBounds;
+            stackBounds.roundOut(&stackIBounds);
+            if (!tighterBounds->intersect(queryBounds, stackIBounds)) {
+                SkASSERT(0);
+                tighterBounds->setEmpty();
             }
+            bounds = tighterBounds;
         } else {
             if (stackBounds.contains(scalarQueryBounds)) {
                 *initialState = kAllOut_InitialState;
@@ -420,9 +404,7 @@ void GrReducedClip::ReduceClipStack(const SkClipStack& stack,
                 // but we don't know that *all* the pixels in the box are outside the clip. So
                 // proceed to walking the stack.
             }
-            if (tighterBounds) {
-                *tighterBounds = queryBounds;
-            }
+            *tighterBounds = queryBounds;
         }
     }
 
