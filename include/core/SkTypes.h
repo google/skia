@@ -17,9 +17,10 @@
 // before #including <memory>. This makes no sense.  I'm not very interested in
 // understanding why... these are old, bizarre platform configuration that we
 // should just let die.
+// See https://llvm.org/bugs/show_bug.cgi?id=25608 .
 #include <ciso646>  // Include something innocuous to define _LIBCPP_VERISON if it's libc++.
 #if defined(__GNUC__) && __GNUC__ == 4 \
- && ((defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON)) || defined(SK_CPU_ARM64)) \
+ && ((defined(__arm__) && (defined(__ARM_NEON__) || defined(__ARM_NEON))) || defined(__aarch64__)) \
  && defined(_LIBCPP_VERSION)
     typedef float float32_t;
     #include <memory>
