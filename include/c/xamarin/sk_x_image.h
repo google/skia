@@ -26,6 +26,8 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
  */
 SK_API sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_image_encoder_t encoder, int quality);
 
+SK_API sk_image_t* sk_image_new_from_bitmap (const sk_bitmap_t *cbitmap);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
