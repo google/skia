@@ -337,30 +337,32 @@ void GrDrawContext::drawRect(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
 
     const SkStrokeRec& stroke = style->strokeRec();
-    if (stroke.getStyle() == SkStrokeRec::kFill_Style &&
-        !fContext->caps()->useDrawInsteadOfClear()) {
-        // Check if this is a full RT draw and can be replaced with a clear. We don't bother
-        // checking cases where the RT is fully inside a stroke.
-        SkRect rtRect;
-        fRenderTarget->getBoundsRect(&rtRect);
-        // Does the clip contain the entire RT?
-        if (clip.quickContains(rtRect)) {
-            SkMatrix invM;
-            if (!viewMatrix.invert(&invM)) {
-                return;
-            }
-            // Does the rect bound the RT?
-            SkPoint srcSpaceRTQuad[4];
-            invM.mapRectToQuad(srcSpaceRTQuad, rtRect);
-            if (rect_contains_inclusive(rect, srcSpaceRTQuad[0]) &&
-                rect_contains_inclusive(rect, srcSpaceRTQuad[1]) &&
-                rect_contains_inclusive(rect, srcSpaceRTQuad[2]) &&
-                rect_contains_inclusive(rect, srcSpaceRTQuad[3])) {
-                // Will it blend?
-                GrColor clearColor;
-                if (paint.isConstantBlendedColor(&clearColor)) {
-                    this->getDrawTarget()->clear(nullptr, clearColor, true, this);
+    if (stroke.getStyle() == SkStrokeRec::kFill_Style) {
+        
+        if (!fContext->caps()->useDrawInsteadOfClear()) {
+            // Check if this is a full RT draw and can be replaced with a clear. We don't bother
+            // checking cases where the RT is fully inside a stroke.
+            SkRect rtRect;
+            fRenderTarget->getBoundsRect(&rtRect);
+            // Does the clip contain the entire RT?
+            if (clip.quickContains(rtRect)) {
+                SkMatrix invM;
+                if (!viewMatrix.invert(&invM)) {
                     return;
+                }
+                // Does the rect bound the RT?
+                SkPoint srcSpaceRTQuad[4];
+                invM.mapRectToQuad(srcSpaceRTQuad, rtRect);
+                if (rect_contains_inclusive(rect, srcSpaceRTQuad[0]) &&
+                    rect_contains_inclusive(rect, srcSpaceRTQuad[1]) &&
+                    rect_contains_inclusive(rect, srcSpaceRTQuad[2]) &&
+                    rect_contains_inclusive(rect, srcSpaceRTQuad[3])) {
+                    // Will it blend?
+                    GrColor clearColor;
+                    if (paint.isConstantBlendedColor(&clearColor)) {
+                        this->getDrawTarget()->clear(nullptr, clearColor, true, this);
+                        return;
+                    }
                 }
             }
         }
