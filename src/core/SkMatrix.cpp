@@ -1097,8 +1097,7 @@ void SkMatrix::mapVectors(SkPoint dst[], const SkPoint src[], int count) const {
     }
 }
 
-void SkMatrix::mapRectScaleTranslate(SkRect* dst, const SkRect& src) const {
-    SkASSERT(dst);
+SkRect SkMatrix::mapRectScaleTranslate(SkRect src) const {
     SkASSERT(this->isScaleTranslate());
     
     SkScalar sx = fMat[kMScaleX];
@@ -1107,7 +1106,7 @@ void SkMatrix::mapRectScaleTranslate(SkRect* dst, const SkRect& src) const {
     SkScalar ty = fMat[kMTransY];
     Sk4f scale(sx, sy, sx, sy);
     Sk4f trans(tx, ty, tx, ty);
-
+    
     Sk4f ltrb = Sk4f::Load(&src.fLeft) * scale + trans;
     // need to sort so we're not inverted
     Sk4f rblt(ltrb[2], ltrb[3], ltrb[0], ltrb[1]);
@@ -1115,14 +1114,16 @@ void SkMatrix::mapRectScaleTranslate(SkRect* dst, const SkRect& src) const {
     Sk4f max = Sk4f::Max(ltrb, rblt);
     // We can extract either pair [0,1] or [2,3] from min and max and be correct, but on
     // ARM this sequence generates the fastest (a single instruction).
-    Sk4f(min[2], min[3], max[0], max[1]).store(&dst->fLeft);
+    SkRect dst;
+    Sk4f(min[0], min[1], max[0], max[1]).store(&dst.fLeft);
+    return dst;
 }
 
 bool SkMatrix::mapRect(SkRect* dst, const SkRect& src) const {
     SkASSERT(dst);
 
     if (this->isScaleTranslate()) {
-        this->mapRectScaleTranslate(dst, src);
+        *dst = this->mapRectScaleTranslate(src);
         return true;
     } else {
         SkPoint quad[4];

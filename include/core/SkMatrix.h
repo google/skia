@@ -565,7 +565,7 @@ public:
      *  Maps a rect to another rect, asserting (in debug mode) that the matrix only contains
      *  scale and translate elements. If it contains other elements, the results are undefined.
      */
-    void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const;
+    SkRect mapRectScaleTranslate(SkRect src) const;
     
     /** Return the mean radius of a circle after it has been mapped by
         this matrix. NOTE: in perspective this value assumes the circle

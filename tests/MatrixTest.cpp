@@ -978,7 +978,7 @@ DEF_TEST(Matrix_maprects, r) {
         mat.mapPoints((SkPoint*)&dst[0].fLeft, (SkPoint*)&src.fLeft, 2);
         dst[0].sort();
         mat.mapRect(&dst[1], src);
-        mat.mapRectScaleTranslate(&dst[2], src);
+        dst[2] = mat.mapRectScaleTranslate(src);
 
         REPORTER_ASSERT(r, dst[0] == dst[1]);
         REPORTER_ASSERT(r, dst[0] == dst[2]);
