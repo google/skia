@@ -437,8 +437,8 @@ def PostUploadHook(cl, change, output_api):
             output_api.PresubmitNotifyResult(
                 'Branch changes do not run the presubmit checks.'))
 
-    # Automatically set CQ_EXTRA_TRYBOTS if any of the changed files here begin
-    # with the paths of interest.
+    # Automatically set CQ_INCLUDE_TRYBOTS if any of the changed files here
+    # begin with the paths of interest.
     cq_master_to_trybots = collections.defaultdict(set)
     for affected_file in change.AffectedFiles():
       affected_file_path = affected_file.LocalPath()
@@ -462,14 +462,14 @@ def PostUploadHook(cl, change, output_api):
 
 
 def _AddCQExtraTrybotsToDesc(cq_master_to_trybots, description):
-  """Adds the specified master and trybots to the CQ_EXTRA_TRYBOTS keyword.
+  """Adds the specified master and trybots to the CQ_INCLUDE_TRYBOTS keyword.
 
   If the keyword already exists in the description then it appends to it only
   if the specified values do not already exist.
   If the keyword does not exist then it creates a new section in the
   description.
   """
-  match = re.search(r'^CQ_EXTRA_TRYBOTS=(.*)$', description, re.M | re.I)
+  match = re.search(r'^CQ_INCLUDE_TRYBOTS=(.*)$', description, re.M | re.I)
   if match:
     original_trybots_map = _GetCQExtraTrybotsMap(match.group(1))
     _MergeCQExtraTrybotsMaps(cq_master_to_trybots, original_trybots_map)
@@ -489,7 +489,7 @@ def _MergeCQExtraTrybotsMaps(dest_map, map_to_be_consumed):
 
 
 def _GetCQExtraTrybotsMap(cq_extra_trybots_str):
-  """Parses the CQ_EXTRA_TRYBOTS str and returns a map of masters to trybots."""
+  """Parses CQ_INCLUDE_TRYBOTS str and returns a map of masters to trybots."""
   cq_master_to_trybots = collections.defaultdict(set)
   for section in cq_extra_trybots_str.split(';'):
     if section:
@@ -499,11 +499,11 @@ def _GetCQExtraTrybotsMap(cq_extra_trybots_str):
 
 
 def _GetCQExtraTrybotsStr(cq_master_to_trybots):
-  """Constructs the CQ_EXTRA_TRYBOTS str from a map of masters to trybots."""
+  """Constructs the CQ_INCLUDE_TRYBOTS str from a map of masters to trybots."""
   sections = []
   for master, trybots in cq_master_to_trybots.iteritems():
     sections.append('%s:%s' % (master, ','.join(trybots)))
-  return 'CQ_EXTRA_TRYBOTS=%s' % ';'.join(sections)
+  return 'CQ_INCLUDE_TRYBOTS=%s' % ';'.join(sections)
 
 
 def CheckChangeOnCommit(input_api, output_api):
