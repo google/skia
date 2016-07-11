@@ -488,22 +488,14 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkShader> SkLightingShader::Make(const SkBitmap& diffuse,
-                                       sk_sp<SkLights> lights,
-                                       const SkMatrix* diffLocalM,
-                                       sk_sp<SkNormalSource> normalSource) {
-    if (diffuse.isNull() || SkBitmapProcShader::BitmapIsTooBig(diffuse)) {
-        return nullptr;
-    }
-
-    if (!normalSource) {
+sk_sp<SkShader> SkLightingShader::Make(sk_sp<SkShader> diffuseShader,
+                                       sk_sp<SkNormalSource> normalSource,
+                                       sk_sp<SkLights> lights) {
+    if (!diffuseShader || !normalSource) {
+        // TODO: Use paint's color in absence of a diffuseShader
         // TODO: Use a default implementation of normalSource instead
         return nullptr;
     }
-
-    // TODO: support other tile modes
-    sk_sp<SkShader> diffuseShader = SkBitmapProcShader::MakeBitmapShader(diffuse,
-            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, diffLocalM);
 
     return sk_make_sp<SkLightingShaderImpl>(std::move(diffuseShader), std::move(normalSource),
                                             std::move(lights));
