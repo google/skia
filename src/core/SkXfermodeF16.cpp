@@ -135,12 +135,12 @@ static void srcover_n(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int
                       const SkAlpha aa[]) {
     for (int i = 0; i < count; ++i) {
         Sk4f s = Sk4f::Load(src+i),
-             d = SkHalfToFloat_01(dst+i),
+             d = SkHalfToFloat_01(dst[i]),
              r = s + d*(1.0f - SkNx_shuffle<3,3,3,3>(s));
         if (aa) {
             r = lerp_by_coverage(r, d, aa[i]);
         }
-        SkFloatToHalf_01(r, dst+i);
+        dst[i] = SkFloatToHalf_01(r);
     }
 }
 

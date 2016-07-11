@@ -32,11 +32,7 @@ struct SkCpu {
     static void CacheRuntimeFeatures();
     static bool Supports(uint32_t);
 private:
-#if defined(_MSC_VER) || !defined(SkCpu_IMPL)
-    static const uint32_t gCachedFeatures;
-#else
-    static       uint32_t gCachedFeatures;
-#endif
+    static uint32_t gCachedFeatures;
 };
 
 inline bool SkCpu::Supports(uint32_t mask) {

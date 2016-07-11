@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#define SkCpu_IMPL
 #include "SkCpu.h"
 #include "SkOnce.h"
 
@@ -79,17 +78,9 @@
 
 #endif
 
-#if defined(_MSC_VER)
-    const uint32_t SkCpu::gCachedFeatures = read_cpu_features();
+uint32_t SkCpu::gCachedFeatures = 0;
 
-    void SkCpu::CacheRuntimeFeatures() {}
-
-#else
-    uint32_t SkCpu::gCachedFeatures = 0;
-
-    void SkCpu::CacheRuntimeFeatures() {
-        static SkOnce once;
-        once([] { gCachedFeatures = read_cpu_features(); });
-    }
-
-#endif
+void SkCpu::CacheRuntimeFeatures() {
+    static SkOnce once;
+    once([] { gCachedFeatures = read_cpu_features(); });
+}

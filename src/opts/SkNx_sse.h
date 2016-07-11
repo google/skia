@@ -8,7 +8,6 @@
 #ifndef SkNx_sse_DEFINED
 #define SkNx_sse_DEFINED
 
-#include "SkCpu.h"
 #include <immintrin.h>
 
 // This file may assume <= SSE2, but must check SK_CPU_SSE_LEVEL for anything more recent.
@@ -91,15 +90,9 @@ public:
 
     SkNx abs() const { return _mm_andnot_ps(_mm_set1_ps(-0.0f), fVec); }
     SkNx floor() const {
-        if (SkCpu::Supports(SkCpu::SSE41)) {
-            __m128 r;
-        #if defined(__GNUC__) || defined(__clang__)
-            asm("roundps $0x1, %[fVec], %[r]" : [r]"=x"(r) : [fVec]"x"(fVec));
-        #else
-            r = _mm_floor_ps(fVec);
-        #endif
-            return r;
-        }
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+        return _mm_floor_ps(fVec);
+    #else
         // Emulate _mm_floor_ps() with SSE2:
         //   - roundtrip through integers via truncation
         //   - subtract 1 if that's too big (possible for negative values).
@@ -108,6 +101,7 @@ public:
         __m128 roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(fVec));
         __m128 too_big = _mm_cmpgt_ps(roundtrip, fVec);
         return _mm_sub_ps(roundtrip, _mm_and_ps(too_big, _mm_set1_ps(1.0f)));
+    #endif
     }
 
     SkNx   sqrt() const { return _mm_sqrt_ps (fVec);  }
@@ -124,12 +118,12 @@ public:
     bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(_mm_castps_si128(fVec)); }
 
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
         return _mm_blendv_ps(e.fVec, t.fVec, fVec);
-#else
+    #else
         return _mm_or_ps(_mm_and_ps   (fVec, t.fVec),
                          _mm_andnot_ps(fVec, e.fVec));
-#endif
+    #endif
     }
 
     __m128 fVec;
