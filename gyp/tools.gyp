@@ -387,6 +387,7 @@
         '../tools/picture_utils.h',
       ],
       'include_dirs': [
+          '../include/private',
           '../src/core/',
       ],
       'dependencies': [
