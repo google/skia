@@ -445,7 +445,10 @@
     {
       'target_name': 'using_skia_and_harfbuzz',
       'type': 'executable',
-      'sources': [ '../tools/using_skia_and_harfbuzz.cpp' ],
+      'sources': [
+        '../tools/using_skia_and_harfbuzz.cpp',
+        '../tools/SkShaper.cpp',
+      ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
         'pdf.gyp:pdf',
