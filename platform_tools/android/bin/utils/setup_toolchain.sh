@@ -144,6 +144,15 @@ else
   exportVar STRIP "$ANDROID_TOOLCHAIN_PREFIX-strip"
 fi
 
+# GCC doesn't seem to put this on its include path when setting -march=mips32r2.
+# Oddly, it does for mips32, mips32r3, and mips32r5, but it's gone again for mips32r6.
+# Clang's fine.
+if [ "$USE_CLANG" != "true" ]; then
+    if [ "$ANDROID_ARCH" == "mips" ]; then
+        exportVar CXX_target "$CXX_target -isystem $ANDROID_TOOLCHAIN/include/c++/4.9.x/mipsel-linux-android"
+    fi
+fi
+
 # Create symlinks for nm & readelf and add them to the path so that the ninja
 # build uses them instead of attempting to use the one on the system.
 # This is required to build using ninja on a Mac.
