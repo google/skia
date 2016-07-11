@@ -90,6 +90,38 @@
          ],
     },
     {
+        'target_name': 'monobench',
+        'type': 'executable',
+        'dependencies': [
+            'flags.gyp:flags',
+            'flags.gyp:flags_common',
+            'resources',
+            'skia_lib.gyp:skia_lib',
+            'timer',
+            'pdf.gyp:pdf',
+            'tools.gyp:sk_tool_utils',
+        ],
+        'include_dirs': [
+            '../bench',
+            '../include/private',
+            '../src/core',
+            '../src/effects',
+            '../src/effects/gradients',
+            '../src/image',
+            '../src/gpu',
+            '../src/pdf',
+            '../src/utils',
+        ],
+        'sources': [
+            '../tools/monobench.cpp',
+            '../bench/Benchmark.cpp',
+            '<!@(python find.py ../bench "*Bench.cpp")',
+        ],
+        'sources!': [
+            '../bench/GMBench.cpp',
+        ],
+    },
+    {
       'target_name': 'chrome_fuzz',
       'type': 'executable',
       'sources': [

@@ -19,6 +19,7 @@
       'dependencies': [
         'most.gyp:most',
         'skiaserve.gyp:skiaserve',
+        'tools.gyp:monobench',
       ],
       'conditions': [
         ['skia_os in ("ios", "android")', {
