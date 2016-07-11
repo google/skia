@@ -69,15 +69,18 @@ namespace SkOpts {
     // If nsrc < ndst, we loop over src to create a pattern.
     extern void (*srcover_srgb_srgb)(uint32_t* dst, const uint32_t* src, int ndst, int nsrc);
 
-    // Color xform RGB1 pixels.  Does not change byte ordering.
-    extern void (*color_xform_RGB1_srgb_to_2dot2) (uint32_t* dst, const uint32_t* src, int len,
-                                                   const float srcToDstMatrix[16]);
-    extern void (*color_xform_RGB1_2dot2_to_2dot2)(uint32_t* dst, const uint32_t* src, int len,
-                                                   const float srcToDstMatrix[16]);
-    extern void (*color_xform_RGB1_srgb_to_srgb) (uint32_t* dst, const uint32_t* src, int len,
-                                                  const float srcToDstMatrix[16]);
-    extern void (*color_xform_RGB1_2dot2_to_srgb)(uint32_t* dst, const uint32_t* src, int len,
-                                                  const float srcToDstMatrix[16]);
+    // Color xform RGB1 pixels into SkPMColor order.
+    extern void (*color_xform_RGB1_to_2dot2) (uint32_t* dst, const uint32_t* src, int len,
+                                              const float* const srcTables[3],
+                                              const float srcToDstMatrix[12]);
+    extern void (*color_xform_RGB1_to_srgb)(uint32_t* dst, const uint32_t* src, int len,
+                                            const float* const srcTables[3],
+                                            const float srcToDstMatrix[12]);
+    extern void (*color_xform_RGB1_to_table)(uint32_t* dst, const uint32_t* src, int len,
+                                             const float* const srcTables[3],
+                                             const float srcToDstMatrix[12],
+                                             const uint8_t* const dstTables[3]);
+
 }
 
 #endif//SkOpts_DEFINED

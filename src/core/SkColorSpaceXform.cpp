@@ -11,144 +11,7 @@
 #include "SkOpts.h"
 #include "SkSRGB.h"
 
-static inline bool compute_gamut_xform(SkMatrix44* srcToDst, const SkMatrix44& srcToXYZ,
-                                       const SkMatrix44& dstToXYZ) {
-    if (!dstToXYZ.invert(srcToDst)) {
-        return false;
-    }
-
-    srcToDst->postConcat(srcToXYZ);
-    return true;
-}
-
-std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpace>& srcSpace,
-                                                          const sk_sp<SkColorSpace>& dstSpace) {
-    if (!srcSpace || !dstSpace) {
-        // Invalid input
-        return nullptr;
-    }
-
-    if (as_CSB(dstSpace)->colorLUT()) {
-        // It would be really weird for a dst profile to have a color LUT.  I don't think
-        // we need to support this.
-        return nullptr;
-    }
-
-    SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
-    if (!compute_gamut_xform(&srcToDst, srcSpace->xyz(), dstSpace->xyz())) {
-        return nullptr;
-    }
-
-    if (0.0f == srcToDst.getFloat(3, 0) &&
-        0.0f == srcToDst.getFloat(3, 1) &&
-        0.0f == srcToDst.getFloat(3, 2) &&
-        !as_CSB(srcSpace)->colorLUT())
-    {
-        switch (srcSpace->gammaNamed()) {
-            case SkColorSpace::kSRGB_GammaNamed:
-                if (SkColorSpace::kSRGB_GammaNamed == dstSpace->gammaNamed()) {
-                    return std::unique_ptr<SkColorSpaceXform>(
-                            new SkFastXform<SkColorSpace::kSRGB_GammaNamed,
-                                            SkColorSpace::kSRGB_GammaNamed>(srcToDst));
-                } else if (SkColorSpace::k2Dot2Curve_GammaNamed == dstSpace->gammaNamed()) {
-                    return std::unique_ptr<SkColorSpaceXform>(
-                            new SkFastXform<SkColorSpace::kSRGB_GammaNamed,
-                                            SkColorSpace::k2Dot2Curve_GammaNamed>(srcToDst));
-                }
-                break;
-            case SkColorSpace::k2Dot2Curve_GammaNamed:
-                if (SkColorSpace::kSRGB_GammaNamed == dstSpace->gammaNamed()) {
-                    return std::unique_ptr<SkColorSpaceXform>(
-                            new SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed,
-                                            SkColorSpace::kSRGB_GammaNamed>(srcToDst));
-                } else if (SkColorSpace::k2Dot2Curve_GammaNamed == dstSpace->gammaNamed()) {
-                    return std::unique_ptr<SkColorSpaceXform>(
-                            new SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed,
-                                            SkColorSpace::k2Dot2Curve_GammaNamed>(srcToDst));
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    return std::unique_ptr<SkColorSpaceXform>(new SkDefaultXform(srcSpace, srcToDst, dstSpace));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-static void build_src_to_dst(float srcToDstArray[12], const SkMatrix44& srcToDstMatrix) {
-    // Build the following row major matrix:
-    //   rX gX bX 0
-    //   rY gY bY 0
-    //   rZ gZ bZ 0
-    // Swap R and B if necessary to make sure that we output SkPMColor order.
-#ifdef SK_PMCOLOR_IS_BGRA
-    srcToDstArray[0] = srcToDstMatrix.getFloat(0, 2);
-    srcToDstArray[1] = srcToDstMatrix.getFloat(0, 1);
-    srcToDstArray[2] = srcToDstMatrix.getFloat(0, 0);
-    srcToDstArray[3] = 0.0f;
-    srcToDstArray[4] = srcToDstMatrix.getFloat(1, 2);
-    srcToDstArray[5] = srcToDstMatrix.getFloat(1, 1);
-    srcToDstArray[6] = srcToDstMatrix.getFloat(1, 0);
-    srcToDstArray[7] = 0.0f;
-    srcToDstArray[8] = srcToDstMatrix.getFloat(2, 2);
-    srcToDstArray[9] = srcToDstMatrix.getFloat(2, 1);
-    srcToDstArray[10] = srcToDstMatrix.getFloat(2, 0);
-    srcToDstArray[11] = 0.0f;
-#else
-    srcToDstArray[0] = srcToDstMatrix.getFloat(0, 0);
-    srcToDstArray[1] = srcToDstMatrix.getFloat(0, 1);
-    srcToDstArray[2] = srcToDstMatrix.getFloat(0, 2);
-    srcToDstArray[3] = 0.0f;
-    srcToDstArray[4] = srcToDstMatrix.getFloat(1, 0);
-    srcToDstArray[5] = srcToDstMatrix.getFloat(1, 1);
-    srcToDstArray[6] = srcToDstMatrix.getFloat(1, 2);
-    srcToDstArray[7] = 0.0f;
-    srcToDstArray[8] = srcToDstMatrix.getFloat(2, 0);
-    srcToDstArray[9] = srcToDstMatrix.getFloat(2, 1);
-    srcToDstArray[10] = srcToDstMatrix.getFloat(2, 2);
-    srcToDstArray[11] = 0.0f;
-#endif
-}
-
-template <SkColorSpace::GammaNamed Src, SkColorSpace::GammaNamed Dst>
-SkFastXform<Src, Dst>::SkFastXform(const SkMatrix44& srcToDst)
-{
-    build_src_to_dst(fSrcToDst, srcToDst);
-}
-
-template <>
-void SkFastXform<SkColorSpace::kSRGB_GammaNamed, SkColorSpace::kSRGB_GammaNamed>
-::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
-{
-    SkOpts::color_xform_RGB1_srgb_to_srgb(dst, src, len, fSrcToDst);
-}
-
-template <>
-void SkFastXform<SkColorSpace::kSRGB_GammaNamed, SkColorSpace::k2Dot2Curve_GammaNamed>
-::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
-{
-    SkOpts::color_xform_RGB1_srgb_to_2dot2(dst, src, len, fSrcToDst);
-}
-
-template <>
-void SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed, SkColorSpace::kSRGB_GammaNamed>
-::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
-{
-    SkOpts::color_xform_RGB1_2dot2_to_srgb(dst, src, len, fSrcToDst);
-}
-
-template <>
-void SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed, SkColorSpace::k2Dot2Curve_GammaNamed>
-::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
-{
-    SkOpts::color_xform_RGB1_2dot2_to_2dot2(dst, src, len, fSrcToDst);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-extern const float sk_linear_from_2dot2[256] = {
+static constexpr float sk_linear_from_2dot2[256] = {
         0.000000000000000000f, 0.000005077051900662f, 0.000023328004666099f, 0.000056921765712193f,
         0.000107187362341244f, 0.000175123977503027f, 0.000261543754548491f, 0.000367136269815943f,
         0.000492503787191433f, 0.000638182842167022f, 0.000804658499513058f, 0.000992374304074325f,
@@ -254,6 +117,18 @@ static void build_table_linear_from_gamma(float* outTable, float g, float a, flo
         }
     }
 }
+
+static inline bool compute_gamut_xform(SkMatrix44* srcToDst, const SkMatrix44& srcToXYZ,
+                                       const SkMatrix44& dstToXYZ) {
+    if (!dstToXYZ.invert(srcToDst)) {
+        return false;
+    }
+
+    srcToDst->postConcat(srcToXYZ);
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static constexpr uint8_t linear_to_srgb[1024] = {
           0,   3,   6,  10,  13,  15,  18,  20,  22,  23,  25,  27,  28,  30,  31,  32,  34,  35,
@@ -472,6 +347,258 @@ static void build_table_linear_to_gamma(uint8_t* outTable, int outTableSize, flo
         outTable[i] = clamp_normalized_float_to_byte(y);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpace>& srcSpace,
+                                                          const sk_sp<SkColorSpace>& dstSpace) {
+    if (!srcSpace || !dstSpace) {
+        // Invalid input
+        return nullptr;
+    }
+
+    if (as_CSB(dstSpace)->colorLUT()) {
+        // It would be really weird for a dst profile to have a color LUT.  I don't think
+        // we need to support this.
+        return nullptr;
+    }
+
+    SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
+    if (!compute_gamut_xform(&srcToDst, srcSpace->xyz(), dstSpace->xyz())) {
+        return nullptr;
+    }
+
+    if (0.0f == srcToDst.getFloat(3, 0) &&
+        0.0f == srcToDst.getFloat(3, 1) &&
+        0.0f == srcToDst.getFloat(3, 2) &&
+        !as_CSB(srcSpace)->colorLUT())
+    {
+        switch (dstSpace->gammaNamed()) {
+            case SkColorSpace::kSRGB_GammaNamed:
+                return std::unique_ptr<SkColorSpaceXform>(
+                        new SkFastXform<SkColorSpace::kSRGB_GammaNamed>(srcSpace, srcToDst,
+                                                                        dstSpace));
+            case SkColorSpace::k2Dot2Curve_GammaNamed:
+                return std::unique_ptr<SkColorSpaceXform>(
+                        new SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed>(srcSpace, srcToDst,
+                                                                              dstSpace));
+            default:
+                return std::unique_ptr<SkColorSpaceXform>(
+                        new SkFastXform<SkColorSpace::kNonStandard_GammaNamed>(srcSpace, srcToDst,
+                                                                               dstSpace));
+        }
+    }
+
+    return std::unique_ptr<SkColorSpaceXform>(new SkDefaultXform(srcSpace, srcToDst, dstSpace));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void build_src_to_dst(float srcToDstArray[12], const SkMatrix44& srcToDstMatrix) {
+    // Build the following row major matrix:
+    //   rX gX bX 0
+    //   rY gY bY 0
+    //   rZ gZ bZ 0
+    // Swap R and B if necessary to make sure that we output SkPMColor order.
+#ifdef SK_PMCOLOR_IS_BGRA
+    srcToDstArray[0] = srcToDstMatrix.getFloat(0, 2);
+    srcToDstArray[1] = srcToDstMatrix.getFloat(0, 1);
+    srcToDstArray[2] = srcToDstMatrix.getFloat(0, 0);
+    srcToDstArray[3] = 0.0f;
+    srcToDstArray[4] = srcToDstMatrix.getFloat(1, 2);
+    srcToDstArray[5] = srcToDstMatrix.getFloat(1, 1);
+    srcToDstArray[6] = srcToDstMatrix.getFloat(1, 0);
+    srcToDstArray[7] = 0.0f;
+    srcToDstArray[8] = srcToDstMatrix.getFloat(2, 2);
+    srcToDstArray[9] = srcToDstMatrix.getFloat(2, 1);
+    srcToDstArray[10] = srcToDstMatrix.getFloat(2, 0);
+    srcToDstArray[11] = 0.0f;
+#else
+    srcToDstArray[0] = srcToDstMatrix.getFloat(0, 0);
+    srcToDstArray[1] = srcToDstMatrix.getFloat(0, 1);
+    srcToDstArray[2] = srcToDstMatrix.getFloat(0, 2);
+    srcToDstArray[3] = 0.0f;
+    srcToDstArray[4] = srcToDstMatrix.getFloat(1, 0);
+    srcToDstArray[5] = srcToDstMatrix.getFloat(1, 1);
+    srcToDstArray[6] = srcToDstMatrix.getFloat(1, 2);
+    srcToDstArray[7] = 0.0f;
+    srcToDstArray[8] = srcToDstMatrix.getFloat(2, 0);
+    srcToDstArray[9] = srcToDstMatrix.getFloat(2, 1);
+    srcToDstArray[10] = srcToDstMatrix.getFloat(2, 2);
+    srcToDstArray[11] = 0.0f;
+#endif
+}
+
+template <SkColorSpace::GammaNamed Dst>
+SkFastXform<Dst>::SkFastXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
+                              const sk_sp<SkColorSpace>& dstSpace)
+{
+    build_src_to_dst(fSrcToDst, srcToDst);
+
+    // Build tables to transform src gamma to linear.
+    switch (srcSpace->gammaNamed()) {
+        case SkColorSpace::kSRGB_GammaNamed:
+            fSrcGammaTables[0] = fSrcGammaTables[1] = fSrcGammaTables[2] = sk_linear_from_srgb;
+            break;
+        case SkColorSpace::k2Dot2Curve_GammaNamed:
+            fSrcGammaTables[0] = fSrcGammaTables[1] = fSrcGammaTables[2] = sk_linear_from_2dot2;
+            break;
+        case SkColorSpace::kLinear_GammaNamed:
+            build_table_linear_from_gamma(fSrcGammaTableStorage, 1.0f);
+            fSrcGammaTables[0] = fSrcGammaTables[1] = fSrcGammaTables[2] = fSrcGammaTableStorage;
+            break;
+        default: {
+            const SkGammas* gammas = as_CSB(srcSpace)->gammas();
+            SkASSERT(gammas);
+
+            for (int i = 0; i < 3; i++) {
+                const SkGammaCurve& curve = (*gammas)[i];
+
+                if (i > 0) {
+                    // Check if this curve matches the first curve.  In this case, we can
+                    // share the same table pointer.  Logically, this should almost always
+                    // be true.  I've never seen a profile where all three gamma curves
+                    // didn't match.  But it is possible that they won't.
+                    // TODO (msarett):
+                    // This comparison won't catch the case where each gamma curve has a
+                    // pointer to its own look-up table, but the tables actually match.
+                    // Should we perform a deep compare of gamma tables here?  Or should
+                    // we catch this when parsing the profile?  Or should we not worry
+                    // about a bit of redundant work?
+                    if (curve.quickEquals((*gammas)[0])) {
+                        fSrcGammaTables[i] = fSrcGammaTables[0];
+                        continue;
+                    }
+                }
+
+                if (curve.isNamed()) {
+                    switch (curve.fNamed) {
+                        case SkColorSpace::kSRGB_GammaNamed:
+                            fSrcGammaTables[i] = sk_linear_from_srgb;
+                            break;
+                        case SkColorSpace::k2Dot2Curve_GammaNamed:
+                            fSrcGammaTables[i] = sk_linear_from_2dot2;
+                            break;
+                        case SkColorSpace::kLinear_GammaNamed:
+                            build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256], 1.0f);
+                            fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
+                            break;
+                        default:
+                            SkASSERT(false);
+                            break;
+                    }
+                } else if (curve.isValue()) {
+                    build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256], curve.fValue);
+                    fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
+                } else if (curve.isTable()) {
+                    build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256],
+                                                  curve.fTable.get(), curve.fTableSize);
+                    fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
+                } else {
+                    SkASSERT(curve.isParametric());
+                    build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256], curve.fG,
+                                                  curve.fA, curve.fB, curve.fC, curve.fD, curve.fE,
+                                                  curve.fF);
+                    fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
+                }
+            }
+        }
+    }
+
+    // Build tables to transform linear to dst gamma.
+    switch (dstSpace->gammaNamed()) {
+        case SkColorSpace::kSRGB_GammaNamed:
+        case SkColorSpace::k2Dot2Curve_GammaNamed:
+            break;
+        case SkColorSpace::kLinear_GammaNamed:
+            build_table_linear_to_gamma(fDstGammaTableStorage, kDstGammaTableSize, 1.0f);
+            fDstGammaTables[0] = fDstGammaTables[1] = fDstGammaTables[2] = fDstGammaTableStorage;
+            break;
+        default: {
+            const SkGammas* gammas = as_CSB(dstSpace)->gammas();
+            SkASSERT(gammas);
+
+            for (int i = 0; i < 3; i++) {
+                const SkGammaCurve& curve = (*gammas)[i];
+
+                if (i > 0) {
+                    // Check if this curve matches the first curve.  In this case, we can
+                    // share the same table pointer.  Logically, this should almost always
+                    // be true.  I've never seen a profile where all three gamma curves
+                    // didn't match.  But it is possible that they won't.
+                    // TODO (msarett):
+                    // This comparison won't catch the case where each gamma curve has a
+                    // pointer to its own look-up table (but the tables actually match).
+                    // Should we perform a deep compare of gamma tables here?  Or should
+                    // we catch this when parsing the profile?  Or should we not worry
+                    // about a bit of redundant work?
+                    if (curve.quickEquals((*gammas)[0])) {
+                        fDstGammaTables[i] = fDstGammaTables[0];
+                        continue;
+                    }
+                }
+
+                if (curve.isNamed()) {
+                    switch (curve.fNamed) {
+                        case SkColorSpace::kSRGB_GammaNamed:
+                            fDstGammaTables[i] = linear_to_srgb;
+                            break;
+                        case SkColorSpace::k2Dot2Curve_GammaNamed:
+                            fDstGammaTables[i] = linear_to_2dot2;
+                            break;
+                        case SkColorSpace::kLinear_GammaNamed:
+                            build_table_linear_to_gamma(
+                                    &fDstGammaTableStorage[i * kDstGammaTableSize],
+                                    kDstGammaTableSize, 1.0f);
+                            fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
+                            break;
+                        default:
+                            SkASSERT(false);
+                            break;
+                    }
+                } else if (curve.isValue()) {
+                    build_table_linear_to_gamma(&fDstGammaTableStorage[i * kDstGammaTableSize],
+                                                kDstGammaTableSize, curve.fValue);
+                    fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
+                } else if (curve.isTable()) {
+                    build_table_linear_to_gamma(&fDstGammaTableStorage[i * kDstGammaTableSize],
+                                                kDstGammaTableSize, curve.fTable.get(),
+                                                curve.fTableSize);
+                    fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
+                } else {
+                    SkASSERT(curve.isParametric());
+                    build_table_linear_to_gamma(&fDstGammaTableStorage[i * kDstGammaTableSize],
+                                                kDstGammaTableSize, curve.fG, curve.fA, curve.fB,
+                                                curve.fC, curve.fD, curve.fE, curve.fF);
+                    fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
+                }
+            }
+        }
+    }
+}
+
+template <>
+void SkFastXform<SkColorSpace::kSRGB_GammaNamed>
+::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
+{
+    SkOpts::color_xform_RGB1_to_srgb(dst, src, len, fSrcGammaTables, fSrcToDst);
+}
+
+template <>
+void SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed>
+::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
+{
+    SkOpts::color_xform_RGB1_to_2dot2(dst, src, len, fSrcGammaTables, fSrcToDst);
+}
+
+template <>
+void SkFastXform<SkColorSpace::kNonStandard_GammaNamed>
+::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
+{
+    SkOpts::color_xform_RGB1_to_table(dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkDefaultXform::SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
                                const sk_sp<SkColorSpace>& dstSpace)

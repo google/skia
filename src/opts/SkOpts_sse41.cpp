@@ -21,9 +21,8 @@ namespace SkOpts {
         srcover_srgb_srgb    = sk_sse41::srcover_srgb_srgb;
         blit_row_s32a_opaque = sk_sse41::blit_row_s32a_opaque;
 
-        color_xform_RGB1_srgb_to_2dot2  = sk_sse41::color_xform_RGB1_srgb_to_2dot2;
-        color_xform_RGB1_2dot2_to_2dot2 = sk_sse41::color_xform_RGB1_2dot2_to_2dot2;
-        color_xform_RGB1_srgb_to_srgb   = sk_sse41::color_xform_RGB1_srgb_to_srgb;
-        color_xform_RGB1_2dot2_to_srgb  = sk_sse41::color_xform_RGB1_2dot2_to_srgb;
+        color_xform_RGB1_to_2dot2  = sk_sse41::color_xform_RGB1_to_2dot2;
+        color_xform_RGB1_to_srgb   = sk_sse41::color_xform_RGB1_to_srgb;
+        color_xform_RGB1_to_table  = sk_sse41::color_xform_RGB1_to_table;
     }
 }
