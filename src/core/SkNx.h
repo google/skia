@@ -296,9 +296,9 @@ typedef SkNx<4,       int> Sk4i;
 
 // Include platform specific specializations if available.
 #if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #include "SkNx_sse.h"
+    #include "../opts/SkNx_sse.h"
 #elif !defined(SKNX_NO_SIMD) && defined(SK_ARM_HAS_NEON)
-    #include "SkNx_neon.h"
+    #include "../opts/SkNx_neon.h"
 #endif
 
 SI void Sk4f_ToBytes(uint8_t p[16], const Sk4f& a, const Sk4f& b, const Sk4f& c, const Sk4f& d) {

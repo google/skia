@@ -10,7 +10,6 @@
 
 #include "SkPoint.h"
 #include "SkSize.h"
-#include "../private/SkNx.h"
 
 struct SkRect;
 
@@ -870,28 +869,7 @@ public:
         this->roundOut(&ir);
         return ir;
     }
-
-    /**
-     *  Round the rect's values and return the result as a new SkIRect.
-     *  This follows the same semantics as SkScalarRoundToInt().
-     */
-    SkIRect round2i() const {
-        SkIRect dst;
-        Sk4s rd = (Sk4s::Load(&fLeft) + Sk4s(0.5)).floor();
-        SkNx_cast<int32_t>(rd).store(&dst.fLeft);
-        return dst;
-    }
-
-    /**
-     *  Round the rect's values and return the result as a new SkRect.
-     *  This follows the same semantics as SkScalarRoundToScalar().
-     */
-    SkRect round2s() const {
-        SkRect dst;
-        (Sk4s::Load(&fLeft) + Sk4s(0.5)).floor().store(&dst.fLeft);
-        return dst;
-    }
-
+    
     /**
      *  Swap top/bottom or left/right if there are flipped (i.e. if width()
      *  or height() would have returned a negative value.) This should be called

@@ -88,35 +88,3 @@ DEF_TEST(Rect, reporter) {
     test_stroke_width_clipping(reporter);
     test_skbug4406(reporter);
 }
-
-DEF_TEST(Rect_round, reporter) {
-    SkRandom rand;
-
-    for (int i = 0; i < 100000; ++i) {
-        SkRect src = SkRect::MakeXYWH(rand.nextSScalar1() * 1000,
-                                      rand.nextSScalar1() * 1000,
-                                      rand.nextUScalar1() * 1000,
-                                      rand.nextUScalar1() * 1000);
-        SkRect rd0 = {
-            SkScalarRoundToScalar(src.fLeft),
-            SkScalarRoundToScalar(src.fTop),
-            SkScalarRoundToScalar(src.fRight),
-            SkScalarRoundToScalar(src.fBottom)
-        };
-        SkRect rd1 = src.round2s();
-
-        REPORTER_ASSERT(reporter, rd0 == rd1);
-
-        SkIRect ir0 = {
-            SkScalarRoundToInt(src.fLeft),
-            SkScalarRoundToInt(src.fTop),
-            SkScalarRoundToInt(src.fRight),
-            SkScalarRoundToInt(src.fBottom)
-        };
-        SkIRect ir1 = src.round();
-        SkIRect ir2 = src.round2i();
-
-        REPORTER_ASSERT(reporter, ir0 == ir1);
-        REPORTER_ASSERT(reporter, ir0 == ir2);
-    }
-}
