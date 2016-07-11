@@ -268,7 +268,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
         } else {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
-            if (!SkRect::Make(scissorSpaceIBounds).contains(devBounds)) {
+            if (!GrClip::CanIgnoreScissor(scissorSpaceIBounds, devBounds)) {
                 out->makeScissored(scissorSpaceIBounds);
             }
             return true;
@@ -302,11 +302,11 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
                                         &clipFP)) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
-            if (!SkRect::Make(scissorSpaceIBounds).contains(devBounds)) {
+            if (GrClip::CanIgnoreScissor(scissorSpaceIBounds, devBounds)) {
+                out->makeFPBased(std::move(clipFP), SkRect::Make(scissorSpaceIBounds));
+            } else {
                 out->makeScissoredFPBased(std::move(clipFP), scissorSpaceIBounds);
-                return true;
             }
-            out->makeFPBased(std::move(clipFP), SkRect::Make(scissorSpaceIBounds));
             return true;
         }
     }
@@ -369,7 +369,11 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
     // use both stencil and scissor test to the bounds for the final draw.
     SkIRect scissorSpaceIBounds(clipSpaceIBounds);
     scissorSpaceIBounds.offset(clipSpaceToStencilSpaceOffset);
-    out->makeScissoredStencil(scissorSpaceIBounds);
+    if (GrClip::CanIgnoreScissor(scissorSpaceIBounds, devBounds)) {
+        out->makeStencil(true, devBounds);
+    } else {
+        out->makeScissoredStencil(scissorSpaceIBounds);
+    }
     return true;
 }
 

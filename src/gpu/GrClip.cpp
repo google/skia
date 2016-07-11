@@ -54,12 +54,14 @@ bool GrFixedClip::apply(GrContext*, const GrPipelineBuilder& pipelineBuilder,
         if (devBounds && !devBounds->intersects(SkRect::Make(tightScissor))) {
             return false;
         }
-        if (fHasStencilClip) {
-            out->makeScissoredStencil(tightScissor, &fDeviceBounds);
-        } else {
-            out->makeScissored(tightScissor);
+        if (!devBounds || !CanIgnoreScissor(fScissorState.rect(), *devBounds)) {
+            if (fHasStencilClip) {
+                out->makeScissoredStencil(tightScissor, &fDeviceBounds);
+            } else {
+                out->makeScissored(tightScissor);
+            }
+            return true;
         }
-        return true;
     }
 
     out->makeStencil(fHasStencilClip, fDeviceBounds);
