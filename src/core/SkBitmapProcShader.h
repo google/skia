@@ -56,7 +56,7 @@ private:
     typedef SkShader INHERITED;
 };
 
-enum {kSkBlitterContextSize = 3100};
+enum {kSkBlitterContextSize = 3200};
 
 // Commonly used allocator. It currently is only used to allocate up to 3 objects. The total
 // bytes requested is calculated using one of our large shaders, its context size plus the size of

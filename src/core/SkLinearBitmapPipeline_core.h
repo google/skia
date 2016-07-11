@@ -8,6 +8,7 @@
 #ifndef SkLinearBitmapPipeline_core_DEFINED
 #define SkLinearBitmapPipeline_core_DEFINED
 
+#include <algorithm>
 #include <cmath>
 #include "SkNx.h"
 
@@ -236,6 +237,25 @@ class SkLinearBitmapPipeline::BlendProcessorInterface
 public:
     virtual void SK_VECTORCALL blendPixel(Sk4f pixel0) = 0;
     virtual void SK_VECTORCALL blend4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) = 0;
+};
+
+class SkLinearBitmapPipeline::PixelAccessorInterface {
+public:
+    virtual ~PixelAccessorInterface() { }
+    virtual void SK_VECTORCALL getFewPixels(
+        int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) const = 0;
+
+    virtual void SK_VECTORCALL get4Pixels(
+        Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const = 0;
+
+    virtual void get4Pixels(
+        const void* src, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const = 0;
+
+    virtual Sk4f getPixelFromRow(const void* row, int index) const = 0;
+
+    virtual Sk4f getPixelAt(int index) const = 0;
+
+    virtual const void* row(int y) const = 0;
 };
 
 #endif // SkLinearBitmapPipeline_core_DEFINED
