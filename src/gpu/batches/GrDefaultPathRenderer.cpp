@@ -442,7 +442,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
         } else {
-            passes[0] = nullptr;
+            passes[0] = userStencilSettings;
         }
         lastPassIsBounds = false;
         drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
@@ -452,7 +452,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
             } else {
-                passes[0] = nullptr;
+                passes[0] = userStencilSettings;
             }
             drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
             lastPassIsBounds = false;
@@ -557,11 +557,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             SkASSERT(GrPipelineBuilder::kBoth_DrawFace == drawFace[p]);
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
-            if (passes[p]) {
-                pipelineBuilder.setUserStencil(passes[p]);
-            } else {
-                pipelineBuilder.setUserStencil(userStencilSettings);
-            }
+            pipelineBuilder.setUserStencil(passes[p]);
 
             drawContext->drawBatch(pipelineBuilder, clip, batch);
         } else {
@@ -572,11 +568,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
-            if (passes[p]) {
-                pipelineBuilder.setUserStencil(passes[p]);
-            } else {
-                pipelineBuilder.setUserStencil(userStencilSettings);
-            }
+            pipelineBuilder.setUserStencil(passes[p]);
             if (passCount > 1) {
                 pipelineBuilder.setDisableColorXPFactory();
             }
