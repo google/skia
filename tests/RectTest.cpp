@@ -7,7 +7,6 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkRandom.h"
 #include "SkRect.h"
 #include "Test.h"
 
