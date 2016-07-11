@@ -35,14 +35,14 @@ function default_toolchain() {
   TOOLCHAINS=${SCRIPT_DIR}/../toolchains
 
   ANDROID_ARCH=${ANDROID_ARCH-arm}
-  NDK=r11c
+  NDK=r12b
 
   if [[ $ANDROID_ARCH == *64* ]]; then
       API=21  # Android 5.0
   else
       API=14  # Android 4.0
   fi
-  
+
   if [ "$SKIA_VULKAN" == "true" ]; then
       API=24  # Android N Preview
   fi
