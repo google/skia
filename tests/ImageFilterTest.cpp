@@ -856,6 +856,64 @@ DEF_TEST(ImageFilterDilateThenBlurBounds, reporter) {
     REPORTER_ASSERT(reporter, bounds == expectedBounds);
 }
 
+DEF_TEST(ImageFilterScaledBlurRadius, reporter) {
+    // Each blur should spread 3*sigma, so 3 for the blur and 30 for the shadow
+    // (before the CTM). Bounds should be computed correctly in the presence of
+    // a (possibly negative) scale.
+    sk_sp<SkImageFilter> blur(make_blur(nullptr));
+    sk_sp<SkImageFilter> dropShadow(make_drop_shadow(nullptr));
+    {
+        // Uniform scale by 2.
+        SkMatrix scaleMatrix;
+        scaleMatrix.setScale(2, 2);
+        SkIRect bounds = SkIRect::MakeLTRB(0, 0, 200, 200);
+
+        SkIRect expectedBlurBounds = SkIRect::MakeLTRB(-6, -6, 206, 206);
+        SkIRect blurBounds = blur->filterBounds(
+            bounds, scaleMatrix, SkImageFilter::kForward_MapDirection);
+        REPORTER_ASSERT(reporter, blurBounds == expectedBlurBounds);
+        SkIRect reverseBlurBounds = blur->filterBounds(
+            bounds, scaleMatrix, SkImageFilter::kReverse_MapDirection);
+        REPORTER_ASSERT(reporter, reverseBlurBounds == expectedBlurBounds);
+
+        SkIRect expectedShadowBounds = SkIRect::MakeLTRB(0, 0, 460, 460);
+        SkIRect shadowBounds = dropShadow->filterBounds(
+            bounds, scaleMatrix, SkImageFilter::kForward_MapDirection);
+        REPORTER_ASSERT(reporter, shadowBounds == expectedShadowBounds);
+        SkIRect expectedReverseShadowBounds =
+            SkIRect::MakeLTRB(-260, -260, 200, 200);
+        SkIRect reverseShadowBounds = dropShadow->filterBounds(
+            bounds, scaleMatrix, SkImageFilter::kReverse_MapDirection);
+        REPORTER_ASSERT(reporter,
+            reverseShadowBounds == expectedReverseShadowBounds);
+    }
+    {
+        // Vertical flip.
+        SkMatrix scaleMatrix;
+        scaleMatrix.setScale(1, -1);
+        SkIRect bounds = SkIRect::MakeLTRB(0, -100, 100, 0);
+
+        SkIRect expectedBlurBounds = SkIRect::MakeLTRB(-3, -103, 103, 3);
+        SkIRect blurBounds = blur->filterBounds(
+            bounds, scaleMatrix, SkImageFilter::kForward_MapDirection);
+        REPORTER_ASSERT(reporter, blurBounds == expectedBlurBounds);
+        SkIRect reverseBlurBounds = blur->filterBounds(
+            bounds, scaleMatrix, SkImageFilter::kReverse_MapDirection);
+        REPORTER_ASSERT(reporter, reverseBlurBounds == expectedBlurBounds);
+
+        SkIRect expectedShadowBounds = SkIRect::MakeLTRB(0, -230, 230, 0);
+        SkIRect shadowBounds = dropShadow->filterBounds(
+            bounds, scaleMatrix, SkImageFilter::kForward_MapDirection);
+        REPORTER_ASSERT(reporter, shadowBounds == expectedShadowBounds);
+        SkIRect expectedReverseShadowBounds =
+            SkIRect::MakeLTRB(-130, -100, 100, 130);
+        SkIRect reverseShadowBounds = dropShadow->filterBounds(
+            bounds, scaleMatrix, SkImageFilter::kReverse_MapDirection);
+        REPORTER_ASSERT(reporter,
+            reverseShadowBounds == expectedReverseShadowBounds);
+    }
+}
+
 DEF_TEST(ImageFilterComposedBlurFastBounds, reporter) {
     sk_sp<SkImageFilter> filter1(make_blur(nullptr));
     sk_sp<SkImageFilter> filter2(make_blur(nullptr));

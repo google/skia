@@ -139,8 +139,9 @@ SkIRect SkDropShadowImageFilter::onFilterNodeBounds(const SkIRect& src, const Sk
                                  SkScalarCeilToInt(offsetVec.y()));
     SkVector sigma = SkVector::Make(fSigmaX, fSigmaY);
     ctm.mapVectors(&sigma, 1);
-    dst.outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
-                SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
+    dst.outset(
+        SkScalarCeilToInt(SkScalarAbs(SkScalarMul(sigma.x(), SkIntToScalar(3)))),
+        SkScalarCeilToInt(SkScalarAbs(SkScalarMul(sigma.y(), SkIntToScalar(3)))));
     if (fShadowMode == kDrawShadowAndForeground_ShadowMode) {
         dst.join(src);
     }
