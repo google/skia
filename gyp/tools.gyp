@@ -20,6 +20,7 @@
         'chrome_fuzz',
         'dump_record',
         'get_images_from_skps',
+        'get_current_monitor_profile',
         'gpuveto',
         'imgblur',
         'imgslice',
@@ -313,6 +314,21 @@
       'dependencies': [
         'flags.gyp:flags',
         'jsoncpp.gyp:jsoncpp',
+        'skia_lib.gyp:skia_lib',
+      ],
+    },
+    {
+      'target_name': 'get_current_monitor_profile',
+      'type': 'executable',
+      'sources': [
+        '../tools/get_current_monitor_profile.cpp',
+      ],
+      'include_dirs': [
+        '../src/core',
+        '../include/private',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
       ],
     },
