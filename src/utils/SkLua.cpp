@@ -1275,23 +1275,10 @@ static int lshader_asAGradient(lua_State* L) {
             info.fColorOffsets = pos.get();
             shader->asAGradient(&info);
 
-            bool containsHardStops = false;
-            bool isEvenlySpaced    = true;
-            for (int i = 1; i < info.fColorCount; i++) {
-                if (SkScalarNearlyEqual(info.fColorOffsets[i], info.fColorOffsets[i-1])) {
-                    containsHardStops = true;
-                }
-                if (!SkScalarNearlyEqual(info.fColorOffsets[i], i/(info.fColorCount - 1.0f))) {
-                    isEvenlySpaced = false;
-                }
-            }
-
             lua_newtable(L);
-            setfield_string(L,  "type",               gradtype2string(t));
-            setfield_string(L,  "tile",               mode2string(info.fTileMode));
-            setfield_number(L,  "colorCount",         info.fColorCount);
-            setfield_boolean(L, "containsHardStops",  containsHardStops);
-            setfield_boolean(L, "isEvenlySpaced",     isEvenlySpaced);
+            setfield_string(L,  "type",           gradtype2string(t));
+            setfield_string(L,  "tile",           mode2string(info.fTileMode));
+            setfield_number(L,  "colorCount",     info.fColorCount);
 
             lua_newtable(L);
             for (int i = 0; i < info.fColorCount; i++) {
