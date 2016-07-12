@@ -1,10 +1,10 @@
 function sk_scrape_startcanvas(c, fileName) end
 function sk_scrape_endcanvas(c, fileName) end
 
-SkScalarNearlyZero = 1.0 / bit32.lshift(1.0, 12)
+LuaDoubleNearlyZero = 1.0 / bit32.lshift(1.0, 12)
 
-function SkScalarNearlyEqual(a, b)
-    return math.abs(a,b) <= SkScalarNearlyZero
+function LuaDoubleNearlyEqual(a, b)
+    return math.abs(a-b) <= LuaDoubleNearlyZero
 end
 
 gradients = {}
@@ -24,20 +24,21 @@ function sk_scrape_accumulate(t)
                 gradients[i].type       = g.type
                 gradients[i].tile       = g.tile
 
-                numHardStops   = 0
                 isEvenlySpaced = true
-                for j = 2, g.colorCount, 1 do
-                    if not SkScalarNearlyEqual(g.positions[j], j/(g.colorCount-1)) then
+                for j = 1, g.colorCount, 1 do
+                    if not LuaDoubleNearlyEqual(g.positions[j], (j-1)/(g.colorCount-1)) then
                         isEvenlySpaced = false
                     end
+                end
+                gradients[i].isEvenlySpaced = isEvenlySpaced
 
-                    if SkScalarNearlyEqual(g.positions[j], g.positions[j-1]) then
+                numHardStops = 0
+                for j = 2, g.colorCount, 1 do
+                    if LuaDoubleNearlyEqual(g.positions[j], g.positions[j-1]) then
                         numHardStops = numHardStops + 1
                     end
                 end
-
-                gradients[i].isEvenlySpaced = isEvenlySpaced
-                gradients[i].numHardStops   = numHardStops;
+                gradients[i].numHardStops = numHardStops;
 
                 gradients[i].positions = {}
                 for j = 1, g.colorCount, 1 do
