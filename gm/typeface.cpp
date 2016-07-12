@@ -180,7 +180,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(640, 480);
+        return SkISize::Make(640, 680);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -204,7 +204,8 @@ protected:
         // GASP_DOGRAY|GASP_GRIDFIT                         0x0003  13<=ppem<=14
         // GASP_SYMMETRIC_SMOOTHING|GASP_SYMMETRIC_GRIDFIT  0x000C  13<=ppem<=14
         // (neither)                                        0x0000  15<=ppem
-        constexpr SkScalar textSizes[] = { 10, 12, 14, 16 };
+        // Odd sizes have embedded bitmaps.
+        constexpr SkScalar textSizes[] = { 9, 10, 11, 12, 13, 14, 15, 16 };
 
         constexpr SkPaint::Hinting hintingTypes[] = { SkPaint::kNo_Hinting,
                                                       SkPaint::kSlight_Hinting,
@@ -224,6 +225,9 @@ protected:
         constexpr bool rotateABitTypes[] = { false, true };
 
         SkPaint paint;
+        paint.setTypeface(fFace);
+        paint.setEmbeddedBitmapText(true);
+
         SkScalar x = 0;
         SkScalar xMax = x;
         SkScalar xBase = 0;
