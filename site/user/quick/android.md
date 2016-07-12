@@ -151,7 +151,7 @@ line.  The command line option allows you to pass additional details to the
 application (similar to other operating system) that specify where to find
 skp files and other resources. For example:
 
-    ./platform_tools/android/bin/android_launch_app --resources /data/local/tmp/skia
+    ./platform_tools/android/bin/android_launch_app --resourcePath /data/local/tmp/skia
 
 By default if no additional parameters are specified the app will also have the following
 default parameters:
