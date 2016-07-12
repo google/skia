@@ -33,14 +33,6 @@ protected:
         return SkISize::Make(1024, 768);
     }
 
-    static void rotate_about(SkCanvas* canvas,
-        SkScalar degrees,
-        SkScalar px, SkScalar py) {
-        canvas->translate(px, py);
-        canvas->rotate(degrees);
-        canvas->translate(-px, -py);
-    }
-
     virtual void onDraw(SkCanvas* inputCanvas) override {
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
         SkScalar scales[] = { 2.0f*5.0f, 5.0f, 2.0f, 1.0f };
@@ -95,7 +87,7 @@ protected:
 
             SkAutoCanvasRestore acr(canvas, true);
             canvas->translate(SkIntToScalar(10 + i * 200), -80);
-            rotate_about(canvas, SkIntToScalar(i * 5), rotX, rotY);
+            canvas->rotate(SkIntToScalar(i * 5), rotX, rotY);
             for (int ps = 6; ps <= 32; ps += 3) {
                 paint.setTextSize(SkIntToScalar(ps));
                 canvas->drawText(text, textLen, rotX, rotY, paint);

@@ -419,10 +419,17 @@ public:
     */
     void scale(SkScalar sx, SkScalar sy);
 
-    /** Preconcat the current matrix with the specified rotation.
+    /** Preconcat the current matrix with the specified rotation about the origin.
         @param degrees  The amount to rotate, in degrees
     */
     void rotate(SkScalar degrees);
+
+    /** Preconcat the current matrix with the specified rotation about a given point.
+        @param degrees  The amount to rotate, in degrees
+        @param px  The x coordinate of the point to rotate about.
+        @param py  The y coordinate of the point to rotate about.
+    */
+    void rotate(SkScalar degrees, SkScalar px, SkScalar py);
 
     /** Preconcat the current matrix with the specified skew.
         @param sx   The amount to skew in X

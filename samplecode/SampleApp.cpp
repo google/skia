@@ -1372,9 +1372,7 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     if (fRotate) {
         SkScalar cx = this->width() / 2;
         SkScalar cy = this->height() / 2;
-        canvas->translate(cx, cy);
-        canvas->rotate(gAnimTimer.scaled(10));
-        canvas->translate(-cx, -cy);
+        canvas->rotate(gAnimTimer.scaled(10), cx, cy);
     }
 
     if (fPerspAnim) {

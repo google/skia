@@ -154,19 +154,8 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-static void rotate_about(SkCanvas* canvas,
-                         SkScalar degrees,
-                         SkScalar px, SkScalar py) {
-    canvas->translate(px, py);
-    canvas->rotate(degrees);
-    canvas->translate(-px, -py);
-}
-
 class TypefaceRenderingGM : public skiagm::GM {
     sk_sp<SkTypeface> fFace;
-
-public:
-    TypefaceRenderingGM() { }
 
 protected:
     void onOnceBeforeDraw() override {
@@ -256,8 +245,8 @@ protected:
                         for (const bool& rotateABit : rotateABitTypes) {
                             SkAutoCanvasRestore acr(canvas, true);
                             if (rotateABit) {
-                                rotate_about(canvas, 2, x + subpixel.offset.x(),
-                                                        y + subpixel.offset.y());
+                                canvas->rotate(2, x + subpixel.offset.x(),
+                                                  y + subpixel.offset.y());
                             }
                             canvas->drawText("A", 1, x + subpixel.offset.x(),
                                                      y + subpixel.offset.y(), paint);

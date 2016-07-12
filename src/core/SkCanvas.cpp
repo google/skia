@@ -1503,6 +1503,12 @@ void SkCanvas::rotate(SkScalar degrees) {
     this->concat(m);
 }
 
+void SkCanvas::rotate(SkScalar degrees, SkScalar px, SkScalar py) {
+    SkMatrix m;
+    m.setRotate(degrees, px, py);
+    this->concat(m);
+}
+
 void SkCanvas::skew(SkScalar sx, SkScalar sy) {
     SkMatrix m;
     m.setSkew(sx, sy);

@@ -44,7 +44,6 @@ public:
             fFaces[i] = SkTypeface::MakeFromName(
                 gFaces[i].fName, SkFontStyle::FromOldStyle(gFaces[i].fStyle));
         }
-//        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -55,12 +54,6 @@ protected:
             return true;
         }
         return this->INHERITED::onQuery(evt);
-    }
-
-    static void rotate_about(SkCanvas* canvas, SkScalar degrees, SkScalar px, SkScalar py) {
-        canvas->translate(px, py);
-        canvas->rotate(degrees);
-        canvas->translate(-px, -py);
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
@@ -100,7 +93,7 @@ protected:
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(50 + i * 230),
                                   SkIntToScalar(20));
-                rotate_about(canvas, SkIntToScalar(i * 5), x, y * 10);
+                canvas->rotate(SkIntToScalar(i * 5), x, y * 10);
 
                 {
                     SkPaint p;
