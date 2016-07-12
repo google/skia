@@ -36,30 +36,32 @@ def get_args(bot):
   if 'Android' in bot and 'GPU' in bot:
     args.extend(['--useThermalManager', '1,1,10,1000'])
 
-  if 'Appurify' not in bot:
-    args.extend(['--scales', '1.0', '1.1'])
+  args.extend(['--scales', '1.0', '1.1'])
 
   if 'iOS' in bot:
     args.extend(['--skps', 'ignore_skps'])
 
-  if 'Appurify' not in bot:
-    config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui']
-    # The S4 crashes and the NP produces a long error stream when we run with
-    # MSAA.
-    if ('GalaxyS4'    not in bot and
-        'NexusPlayer' not in bot):
-      if 'Android' in bot:
-        # The TegraX1 has a regular OpenGL implementation. We bench that instead
-        # of ES.
-        if 'TegraX1' in bot:
-          config.remove('gpu')
-          config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
-        else:
-          config.extend(['msaa4', 'nvpr4', 'nvprdit4'])
+  config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui']
+  # The S4 crashes and the NP produces a long error stream when we run with
+  # MSAA.
+  if ('GalaxyS4'    not in bot and
+      'NexusPlayer' not in bot):
+    if 'Android' in bot:
+      # The TegraX1 has a regular OpenGL implementation. We bench that instead
+      # of ES.
+      if 'TegraX1' in bot:
+        config.remove('gpu')
+        config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
       else:
-        config.extend(['msaa16', 'nvpr16', 'nvprdit16'])
-    args.append('--config')
-    args.extend(config)
+        config.extend(['msaa4', 'nvpr4', 'nvprdit4'])
+    else:
+      config.extend(['msaa16', 'nvpr16', 'nvprdit16'])
+
+  if 'Vulkan' in bot:
+    config = ['vk']
+
+  args.append('--config')
+  args.extend(config)
 
   if 'Valgrind' in bot:
     # Don't care about Valgrind performance.
@@ -158,6 +160,7 @@ def self_test():
     'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot',
     'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Release',
+    'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Release-Vulkan',
     'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Release',
   ]
 
