@@ -13,24 +13,25 @@
 #include "SkImage.h"
 #include "SkImage_Base.h"
 #include "SkOpts.h"
+#include "SkPM4fPriv.h"
 #include "SkNx.h"
 #include "Test.h"
-#include "../include/core/SkImageInfo.h"
 
 typedef void (*Blender)(uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
 
-namespace sk_default {
-extern void brute_force_srcover_srgb_srgb(
-    uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
+static void brute_force_srcover_srgb_srgb(
+    uint32_t* dst, const uint32_t* const src, int ndst, const int nsrc) {
+    while (ndst > 0) {
+        int n = SkTMin(ndst, nsrc);
+
+        for (int i = 0; i < n; i++) {
+            srcover_blend_srgb8888_srgb_1(dst++, srgb_to_linear(to_4f(src[i])));
+        }
+        ndst -= n;
+    }
 }
 
 namespace sk_default {
-extern void trivial_srcover_srgb_srgb(
-    uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
-
-extern void best_non_simd_srcover_srgb_srgb(
-    uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
-
 extern void srcover_srgb_srgb(
     uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
 }
@@ -84,9 +85,9 @@ static void test_blender(
     SkAutoTArray<uint32_t> testDst(width);
 
     for (int y = 0; y < pixmap.height(); y++) {
-        memset(correctDst.get(), 0, width * sizeof(uint32_t));
-        memset(testDst.get(), 0, width * sizeof(uint32_t));
-        sk_default::brute_force_srcover_srgb_srgb(correctDst.get(), src, width, width);
+        sk_bzero(correctDst.get(), width * sizeof(uint32_t));
+        sk_bzero(testDst.get(), width * sizeof(uint32_t));
+        brute_force_srcover_srgb_srgb(correctDst.get(), src, width, width);
         blender(testDst.get(), src, width, width);
         for (int x = 0; x < width; x++) {
             REPORTER_ASSERT_MESSAGE(
@@ -100,8 +101,6 @@ static void test_blender(
 
 DEF_TEST(SkBlend_optsCheck, reporter) {
     std::vector<Spec> specs = {
-        Spec{sk_default::trivial_srcover_srgb_srgb,       "trivial"},
-        Spec{sk_default::best_non_simd_srcover_srgb_srgb, "best_non_simd"},
         Spec{sk_default::srcover_srgb_srgb,               "default"},
     };
     #if defined(SK_CPU_X86) && !defined(SK_BUILD_NO_OPTS)
@@ -120,8 +119,6 @@ DEF_TEST(SkBlend_optsCheck, reporter) {
         }
     }
 }
-
-
 
 DEF_TEST(SkBlend_optsSqrtCheck, reporter) {
     for (int c = 0; c < 256; c++) {

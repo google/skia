@@ -124,4 +124,28 @@ static inline uint32_t exact_Sk4f_toS32(const Sk4f& x4) {
     return to_4b(exact_linear_to_srgb(x4) * Sk4f(255) + Sk4f(0.5f));
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// An implementation of SrcOver from bytes to bytes in linear space that takes advantage of the
+// observation that the 255's cancel.
+//    invA = 1 - (As / 255);
+//
+//    R = 255 * sqrt((Rs/255)^2 + (Rd/255)^2 * invA)
+// => R = 255 * sqrt((Rs^2 + Rd^2 * invA)/255^2)
+// => R = sqrt(Rs^2 + Rd^2 * invA)
+// Note: src is assumed to be linear.
+static inline void srcover_blend_srgb8888_srgb_1(uint32_t* dst, const Sk4f& src) {
+    Sk4f d = srgb_to_linear(to_4f(*dst));
+    Sk4f invAlpha = 1.0f - Sk4f{src[SkPM4f::A]} * (1.0f / 255.0f);
+    Sk4f r = linear_to_srgb(src + d * invAlpha) + 0.5f;
+    *dst = to_4b(r);
+}
+
+static inline void srcover_srgb8888_srgb_1(uint32_t* dst, const uint32_t pixel) {
+    if ((~pixel & 0xFF000000) == 0) {
+        *dst = pixel;
+    } else if ((pixel & 0xFF000000) != 0) {
+        srcover_blend_srgb8888_srgb_1(dst, srgb_to_linear(to_4f(pixel)));
+    }
+}
+
 #endif
