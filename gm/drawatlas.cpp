@@ -110,56 +110,62 @@ static void draw_text_on_path_rigid(SkCanvas* canvas, const void* text, size_t l
     SkPathMeasure meas(path, false);
 
     int count = paint.countText(text, length);
-    SkAutoSTArray<100, SkRSXform> xform(count);
+    size_t size = count * (sizeof(SkRSXform) + sizeof(SkScalar));
+    SkAutoSMalloc<512> storage(size);
+    SkRSXform* xform = (SkRSXform*)storage.get();
+    SkScalar* widths = (SkScalar*)(xform + count);
+
+    paint.getTextWidths(text, length, widths);
 
     for (int i = 0; i < count; ++i) {
+        // we want to position each character on the center of its advance
+        const SkScalar offset = SkScalarHalf(widths[i]);
         SkPoint pos;
         SkVector tan;
-        if (!meas.getPosTan(xy[i].x(), &pos, &tan)) {
+        if (!meas.getPosTan(xy[i].x() + offset, &pos, &tan)) {
             pos = xy[i];
             tan.set(1, 0);
         }
         xform[i].fSCos = tan.x();
         xform[i].fSSin = tan.y();
-        xform[i].fTx   = pos.x() - tan.y() * xy[i].y();
-        xform[i].fTy   = pos.y() + tan.x() * xy[i].y();
+        xform[i].fTx   = pos.x() - tan.y() * xy[i].y() - tan.x() * offset;
+        xform[i].fTy   = pos.y() + tan.x() * xy[i].y() - tan.y() * offset;
     }
 
-    canvas->drawTextRSXform(text, length, &xform[0], nullptr, paint);
+    // Compute a conservative bounds so we can cull the draw
+    const SkRect font = paint.getFontBounds();
+    const SkScalar max = SkTMax(SkTMax(SkScalarAbs(font.fLeft), SkScalarAbs(font.fRight)),
+                                SkTMax(SkScalarAbs(font.fTop), SkScalarAbs(font.fBottom)));
+    const SkRect bounds = path.getBounds().makeOutset(max, max);
+
+    canvas->drawTextRSXform(text, length, &xform[0], &bounds, paint);
+
+    if (true) {
+        SkPaint p;
+        p.setStyle(SkPaint::kStroke_Style);
+        canvas->drawRect(bounds, p);
+    }
 }
 
-DEF_SIMPLE_GM(drawTextRSXform, canvas, 510, 370) {
+DEF_SIMPLE_GM(drawTextRSXform, canvas, 860, 860) {
     const char text0[] = "ABCDFGHJKLMNOPQRSTUVWXYZ";
-    const char text1[] = "AAAAAAAAAAAAAAAAAAAAAAAAAA";
     const int N = sizeof(text0) - 1;
     SkPoint pos[N];
-    SkRSXform xform[N];
-
-    canvas->translate(0, 30);
-
-    SkScalar x = 20;
-    SkScalar dx = 20;
-    SkScalar rad = 0;
-    SkScalar drad = 2 * SK_ScalarPI / (N - 1);
-    for (int i = 0; i < N; ++i) {
-        xform[i].fSCos = SkScalarCos(rad);
-        xform[i].fSSin = SkScalarSin(rad);
-        xform[i].fTx = x;
-        xform[i].fTy = 0;
-        pos[i].set(x, -10);
-        x += dx;
-        rad += drad;
-    }
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(20);
-    canvas->drawTextRSXform(text0, N, xform, nullptr, paint);
+    paint.setTextSize(100);
+
+    SkScalar x = 0;
+    for (int i = 0; i < N; ++i) {
+        pos[i].set(x, 0);
+        x += paint.measureText(&text0[i], 1);
+    }
 
     SkPath path;
-    path.addOval(SkRect::MakeXYWH(150, 100, 200, 200));
+    path.addOval(SkRect::MakeXYWH(160, 160, 540, 540));
 
-    draw_text_on_path_rigid(canvas, text1, N, pos, path, paint);
+    draw_text_on_path_rigid(canvas, text0, N, pos, path, paint);
 
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawPath(path, paint);
