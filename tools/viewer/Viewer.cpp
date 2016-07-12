@@ -218,7 +218,9 @@ void Viewer::initSlides() {
     const SkViewRegister* reg = SkViewRegister::Head();
     while (reg) {
         sk_sp<Slide> slide(new SampleSlide(reg->factory()));
-        fSlides.push_back(slide);
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
+            fSlides.push_back(slide);
+        }
         reg = reg->next();
     }
 
@@ -256,6 +258,10 @@ void Viewer::initSlides() {
         SkOSFile::Iter it(FLAGS_jpgs[i], ".jpg");
         SkString jpgName;
         while (it.next(&jpgName)) {
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, jpgName.c_str())) {
+                continue;
+            }
+
             SkString path = SkOSPath::Join(FLAGS_jpgs[i], jpgName.c_str());
             sk_sp<ImageSlide> slide(new ImageSlide(jpgName, path));
             if (slide) {
