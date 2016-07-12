@@ -450,4 +450,13 @@ template<> inline Sk4b SkNx_cast<uint8_t, uint16_t>(const Sk4h& src) {
     return vmovn_u16(vcombine_u16(src.fVec, src.fVec));
 }
 
+template<> inline Sk4b SkNx_cast<uint8_t, int>(const Sk4i& src) {
+    uint16x4_t _16 = vqmovun_s32(src.fVec);
+    return vqmovn_u16(vcombine_u16(_16, _16));
+}
+
+static inline Sk4i Sk4f_round(const Sk4f& x) {
+    return vcvtq_s32_f32((x + 0.5f).fVec);
+}
+
 #endif//SkNx_neon_DEFINED

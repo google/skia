@@ -84,19 +84,19 @@ static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
                 dstGreens = clamp_0_to_255(dstGreens);
                 dstBlues  = clamp_0_to_255(dstBlues);
 
-                auto rgba = (SkNx_cast<int>(dstReds)        )
-                          | (SkNx_cast<int>(dstGreens) <<  8)
-                          | (SkNx_cast<int>(dstBlues)  << 16)
-                          | (Sk4i{          0xFF       << 24});
+                auto rgba = (Sk4f_round(dstReds)        )
+                          | (Sk4f_round(dstGreens) <<  8)
+                          | (Sk4f_round(dstBlues)  << 16)
+                          | (Sk4i{      0xFF       << 24});
                 rgba.store(dst);
             } else {
                 Sk4f scaledReds   = Sk4f::Min(Sk4f::Max(1023.0f * dstReds,   0.0f), 1023.0f);
                 Sk4f scaledGreens = Sk4f::Min(Sk4f::Max(1023.0f * dstGreens, 0.0f), 1023.0f);
                 Sk4f scaledBlues  = Sk4f::Min(Sk4f::Max(1023.0f * dstBlues,  0.0f), 1023.0f);
 
-                Sk4i indicesReds   = SkNx_cast<int>(scaledReds + 0.5f);
-                Sk4i indicesGreens = SkNx_cast<int>(scaledGreens + 0.5f);
-                Sk4i indicesBlues  = SkNx_cast<int>(scaledBlues + 0.5f);
+                Sk4i indicesReds   = Sk4f_round(scaledReds);
+                Sk4i indicesGreens = Sk4f_round(scaledGreens);
+                Sk4i indicesBlues  = Sk4f_round(scaledBlues);
 
                 dst[0] = dstTables[0][indicesReds  [0]]
                        | dstTables[1][indicesGreens[0]] <<  8
@@ -149,13 +149,13 @@ static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
             dstPixel = clamp_0_to_255(dstPixel);
 
             uint32_t rgba;
-            SkNx_cast<uint8_t>(dstPixel).store(&rgba);
+            SkNx_cast<uint8_t>(Sk4f_round(dstPixel)).store(&rgba);
             rgba |= 0xFF000000;
             *dst = rgba;
         } else {
             Sk4f scaledPixel = Sk4f::Min(Sk4f::Max(1023.0f * dstPixel, 0.0f), 1023.0f);
 
-            Sk4i indices = SkNx_cast<int>(scaledPixel + 0.5f);
+            Sk4i indices = Sk4f_round(scaledPixel);
 
             *dst = dstTables[0][indices[0]]
                  | dstTables[1][indices[1]] <<  8

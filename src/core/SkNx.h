@@ -300,6 +300,15 @@ typedef SkNx<4,       int> Sk4i;
     #include "../opts/SkNx_sse.h"
 #elif !defined(SKNX_NO_SIMD) && defined(SK_ARM_HAS_NEON)
     #include "../opts/SkNx_neon.h"
+#else
+
+SI Sk4i Sk4f_round(const Sk4f& x) {
+    return { (int) lrintf (x[0]),
+             (int) lrintf (x[1]),
+             (int) lrintf (x[2]),
+             (int) lrintf (x[3]), };
+}
+
 #endif
 
 SI void Sk4f_ToBytes(uint8_t p[16], const Sk4f& a, const Sk4f& b, const Sk4f& c, const Sk4f& d) {
