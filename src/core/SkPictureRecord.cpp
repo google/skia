@@ -218,6 +218,15 @@ void SkPictureRecord::didSetMatrix(const SkMatrix& matrix) {
     this->INHERITED::didSetMatrix(matrix);
 }
 
+void SkPictureRecord::didTranslateZ(SkScalar z) {
+    this->validate(fWriter.bytesWritten(), 0);
+    // set Z
+    size_t size = sizeof(SkScalar);
+    size_t initialOffset = this->addDraw(TRANSLATE_Z, &size);
+
+    this->validate(initialOffset, size);
+}
+
 static bool regionOpExpands(SkRegion::Op op) {
     switch (op) {
         case SkRegion::kUnion_Op:
