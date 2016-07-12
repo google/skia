@@ -110,7 +110,8 @@ struct SkNx<1,T> {
     SkNx() = default;
     SkNx(T v) : fVal(v) {}
 
-    T operator[](int k) const {
+    // Android complains against unused parameters, so we guard it
+    T operator[](int SkDEBUGCODE(k)) const {
         SkASSERT(k == 0);
         return fVal;
     }
