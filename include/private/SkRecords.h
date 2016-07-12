@@ -47,7 +47,6 @@ namespace SkRecords {
     M(Save)                                                         \
     M(SaveLayer)                                                    \
     M(SetMatrix)                                                    \
-    M(TranslateZ)                                                   \
     M(Concat)                                                       \
     M(ClipPath)                                                     \
     M(ClipRRect)                                                    \
@@ -218,8 +217,6 @@ RECORD(SetMatrix, 0,
         TypedMatrix matrix);
 RECORD(Concat, 0,
         TypedMatrix matrix);
-
-RECORD(TranslateZ, 0, SkScalar z);
 
 struct RegionOpAndAA {
     RegionOpAndAA() {}

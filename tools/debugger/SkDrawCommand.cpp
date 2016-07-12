@@ -28,7 +28,6 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMAND           "command"
 #define SKDEBUGCANVAS_ATTRIBUTE_VISIBLE           "visible"
 #define SKDEBUGCANVAS_ATTRIBUTE_MATRIX            "matrix"
-#define SKDEBUGCANVAS_ATTRIBUTE_DRAWDEPTHTRANS    "drawDepthTranslation"
 #define SKDEBUGCANVAS_ATTRIBUTE_COORDS            "coords"
 #define SKDEBUGCANVAS_ATTRIBUTE_BOUNDS            "bounds"
 #define SKDEBUGCANVAS_ATTRIBUTE_PAINT             "paint"
@@ -212,7 +211,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kSave_OpType: return "Save";
         case kSaveLayer_OpType: return "SaveLayer";
         case kSetMatrix_OpType: return "SetMatrix";
-        case kTranslateZ_OpType: return "TranslateZ";
         default:
             SkDebugf("OpType error 0x%08x\n", type);
             SkASSERT(0);
@@ -270,8 +268,6 @@ SkDrawCommand* SkDrawCommand::fromJSON(Json::Value& command, UrlDataManager& url
         INSTALL_FACTORY(Save);
         INSTALL_FACTORY(SaveLayer);
         INSTALL_FACTORY(SetMatrix);
-
-        INSTALL_FACTORY(TranslateZ);
     }
     SkString name = SkString(command[SKDEBUGCANVAS_ATTRIBUTE_COMMAND].asCString());
     FROM_JSON* factory = factories.find(name);
@@ -471,11 +467,6 @@ Json::Value SkDrawCommand::MakeJsonMatrix(const SkMatrix& matrix) {
     row3.append(Json::Value(matrix[7]));
     row3.append(Json::Value(matrix[8]));
     result.append(row3);
-    return result;
-}
-
-Json::Value SkDrawCommand::MakeJsonScalar(SkScalar z) {
-    Json::Value result(z);
     return result;
 }
 
@@ -1489,11 +1480,6 @@ static void extract_json_matrix(Json::Value& matrix, SkMatrix* result) {
         matrix[2][0].asFloat(), matrix[2][1].asFloat(), matrix[2][2].asFloat()
     };
     result->set9(values);
-}
-
-static void extract_json_scalar(Json::Value& scalar, SkScalar* result) {
-    SkScalar value = scalar.asFloat();
-    *result = value;
 }
 
 static void extract_json_path(Json::Value& path, SkPath* result) {
@@ -3308,27 +3294,4 @@ SkSetMatrixCommand* SkSetMatrixCommand::fromJSON(Json::Value& command,
     SkMatrix matrix;
     extract_json_matrix(command[SKDEBUGCANVAS_ATTRIBUTE_MATRIX], &matrix);
     return new SkSetMatrixCommand(matrix);
-}
-
-SkTranslateZCommand::SkTranslateZCommand(SkScalar z)
-    : INHERITED(kTranslateZ_OpType) {
-    fZTranslate = z;
-    fInfo.push(SkObjectParser::ScalarToString(fZTranslate, "drawDepthTranslation"));
-}
-
-void SkTranslateZCommand::execute(SkCanvas* canvas) const {
-    canvas->translateZ(fZTranslate);
-}
-
-Json::Value SkTranslateZCommand::toJSON(UrlDataManager& urlDataManager) const {
-    Json::Value result = INHERITED::toJSON(urlDataManager);
-    result[SKDEBUGCANVAS_ATTRIBUTE_DRAWDEPTHTRANS] = MakeJsonScalar(fZTranslate);
-    return result;
-}
-
-SkTranslateZCommand* SkTranslateZCommand::fromJSON(Json::Value& command,
-                                       UrlDataManager& urlDataManager) {
-    SkScalar z;
-    extract_json_scalar(command[SKDEBUGCANVAS_ATTRIBUTE_DRAWDEPTHTRANS], &z);
-    return new SkTranslateZCommand(z);
 }

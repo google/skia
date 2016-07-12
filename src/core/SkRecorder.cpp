@@ -369,10 +369,6 @@ void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
     APPEND(SetMatrix, matrix);
 }
 
-void SkRecorder::didTranslateZ(SkScalar z)  {
-    APPEND(TranslateZ, z);
-}
-
 void SkRecorder::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipRect, rect, op, edgeStyle);
     SkRecords::RegionOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);

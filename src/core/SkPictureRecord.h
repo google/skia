@@ -159,8 +159,6 @@ protected:
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
 
-    void didTranslateZ(SkScalar) override;
-
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
 
     void onDrawText(const void* text, size_t, SkScalar x, SkScalar y, const SkPaint&) override;

@@ -52,7 +52,6 @@ enum DrawType {
     SAVE_LAYER_SAVEFLAGS_DEPRECATED,
     SCALE,
     SET_MATRIX,
-    TRANSLATE_Z,
     SKEW,
     TRANSLATE,
     NOOP,

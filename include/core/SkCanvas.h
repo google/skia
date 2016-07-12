@@ -451,13 +451,6 @@ public:
     */
     void resetMatrix();
 
-    /** Set the current draw depth of the canvas.
-        @param z    The SkScalar depth; it's tracked in the save/restore stack.
-                    Negative into screen, positive out of screen.
-                    Defaults to 0.
-    */
-    void translateZ(SkScalar z);
-
     /**
      *  Modify the current clip with the specified rectangle.
      *  @param rect The rect to combine with the current clip
@@ -1267,10 +1260,6 @@ public:
     void temporary_internal_describeTopLayer(SkMatrix* matrix, SkIRect* clip_bounds);
 
 protected:
-    /** Returns the current (cumulative) draw depth of the canvas.
-      */
-    SkScalar getZ() const;
-
     /** After calling saveLayer(), there can be any number of devices that make
         up the top-most drawing area. LayerIter can be used to iterate through
         those devices. Note that the iterator is only valid until the next API
@@ -1336,7 +1325,6 @@ protected:
     virtual void didRestore() {}
     virtual void didConcat(const SkMatrix&) {}
     virtual void didSetMatrix(const SkMatrix&) {}
-    virtual void didTranslateZ(SkScalar) {}
 
     virtual void onDrawAnnotation(const SkRect&, const char key[], SkData* value);
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
