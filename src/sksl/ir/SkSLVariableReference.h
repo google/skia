@@ -20,15 +20,15 @@ namespace SkSL {
  * there is only one Variable 'x', but two VariableReferences to it.
  */
 struct VariableReference : public Expression {
-    VariableReference(Position position, std::shared_ptr<Variable> variable)
-    : INHERITED(position, kVariableReference_Kind, variable->fType)
-    , fVariable(std::move(variable)) {}
+    VariableReference(Position position, const Variable& variable)
+    : INHERITED(position, kVariableReference_Kind, variable.fType)
+    , fVariable(variable) {}
 
     std::string description() const override {
-        return fVariable->fName;
+        return fVariable.fName;
     }
 
-    const std::shared_ptr<Variable> fVariable;
+    const Variable& fVariable;
 
     typedef Expression INHERITED;
 };

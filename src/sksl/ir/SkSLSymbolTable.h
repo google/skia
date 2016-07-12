@@ -10,11 +10,13 @@
 
 #include <memory>
 #include <unordered_map>
+#include <vector>
 #include "SkSLErrorReporter.h"
 #include "SkSLSymbol.h"
-#include "SkSLUnresolvedFunction.h"
 
 namespace SkSL {
+
+struct FunctionDeclaration;
 
 /**
  * Maps identifiers to symbols. Functions, in particular, are mapped to either FunctionDeclaration
@@ -29,17 +31,22 @@ public:
     : fParent(parent)
     , fErrorReporter(errorReporter) {}
 
-    std::shared_ptr<Symbol> operator[](const std::string& name);
+    const Symbol* operator[](const std::string& name);
 
-    void add(const std::string& name, std::shared_ptr<Symbol> symbol);
+    void add(const std::string& name, std::unique_ptr<Symbol> symbol);
+
+    void addWithoutOwnership(const std::string& name, const Symbol* symbol);
+
+    Symbol* takeOwnership(Symbol* s);
 
     const std::shared_ptr<SymbolTable> fParent;
 
 private:
-    static std::vector<std::shared_ptr<FunctionDeclaration>> GetFunctions(
-                                                                  const std::shared_ptr<Symbol>& s);
+    static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
-    std::unordered_map<std::string, std::shared_ptr<Symbol>> fSymbols;
+    std::vector<std::unique_ptr<Symbol>> fOwnedPointers;
+
+    std::unordered_map<std::string, const Symbol*> fSymbols;
 
     ErrorReporter& fErrorReporter;
 };

@@ -17,16 +17,16 @@ namespace SkSL {
  * always eventually replaced by Constructors in valid programs.
  */
 struct TypeReference : public Expression {
-    TypeReference(Position position, std::shared_ptr<Type> type)
-    : INHERITED(position, kTypeReference_Kind, kInvalid_Type)
-    , fValue(std::move(type)) {}
+    TypeReference(Position position, const Type& type)
+    : INHERITED(position, kTypeReference_Kind, *kInvalid_Type)
+    , fValue(type) {}
 
     std::string description() const override {
     	ASSERT(false);
     	return "<type>";
     }
 
-    const std::shared_ptr<Type> fValue;
+    const Type& fValue;
 
     typedef Expression INHERITED;
 };

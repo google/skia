@@ -16,21 +16,21 @@ namespace SkSL {
 /**
  * Given a type, returns the type that will result from extracting an array value from it.
  */
-static std::shared_ptr<Type> index_type(const Type& type) {
+static const Type& index_type(const Type& type) {
     if (type.kind() == Type::kMatrix_Kind) {
-        if (type.componentType() == kFloat_Type) {
+        if (type.componentType() == *kFloat_Type) {
             switch (type.columns()) {
-                case 2: return kVec2_Type;
-                case 3: return kVec3_Type;
-                case 4: return kVec4_Type;
+                case 2: return *kVec2_Type;
+                case 3: return *kVec3_Type;
+                case 4: return *kVec4_Type;
                 default: ASSERT(false);
             }
         } else {
-            ASSERT(type.componentType() == kDouble_Type);
+            ASSERT(type.componentType() == *kDouble_Type);
             switch (type.columns()) {
-                case 2: return kDVec2_Type;
-                case 3: return kDVec3_Type;
-                case 4: return kDVec4_Type;
+                case 2: return *kDVec2_Type;
+                case 3: return *kDVec3_Type;
+                case 4: return *kDVec4_Type;
                 default: ASSERT(false);
             }
         }
@@ -43,10 +43,10 @@ static std::shared_ptr<Type> index_type(const Type& type) {
  */
 struct IndexExpression : public Expression {
     IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index)
-    : INHERITED(base->fPosition, kIndex_Kind, index_type(*base->fType))
+    : INHERITED(base->fPosition, kIndex_Kind, index_type(base->fType))
     , fBase(std::move(base))
     , fIndex(std::move(index)) {
-        ASSERT(fIndex->fType == kInt_Type);
+        ASSERT(fIndex->fType == *kInt_Type);
     }
 
     std::string description() const override {

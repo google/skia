@@ -27,7 +27,7 @@ struct Variable : public Symbol {
         kParameter_Storage
     };
 
-    Variable(Position position, Modifiers modifiers, std::string name, std::shared_ptr<Type> type,
+    Variable(Position position, Modifiers modifiers, std::string name, const Type& type,
              Storage storage)
     : INHERITED(position, kVariable_Kind, std::move(name))
     , fModifiers(modifiers)
@@ -37,12 +37,11 @@ struct Variable : public Symbol {
     , fIsWrittenTo(false) {}
 
     virtual std::string description() const override {
-        return fModifiers.description() + fType->fName + " " + fName;
+        return fModifiers.description() + fType.fName + " " + fName;
     }
 
     const Modifiers fModifiers;
-    const std::string fValue;
-    const std::shared_ptr<Type> fType;
+    const Type& fType;
     const Storage fStorage;
 
     mutable bool fIsReadFrom;
@@ -52,15 +51,5 @@ struct Variable : public Symbol {
 };
 
 } // namespace SkSL
-
-namespace std {
-    template <>
-        struct hash<SkSL::Variable> {
-        public :
-        size_t operator()(const SkSL::Variable &var) const{
-            return hash<std::string>()(var.fName) ^ hash<std::string>()(var.fType->description());
-        }
-    };
-} // namespace std
 
 #endif

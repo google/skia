@@ -17,7 +17,7 @@ namespace SkSL {
  */
 struct FloatLiteral : public Expression {
     FloatLiteral(Position position, double value)
-    : INHERITED(position, kFloatLiteral_Kind, kFloat_Type)
+    : INHERITED(position, kFloatLiteral_Kind, *kFloat_Type)
     , fValue(value) {}
 
     virtual std::string description() const override {

@@ -10,6 +10,7 @@
 
 #include "SkSLModifiers.h"
 #include "SkSLSymbol.h"
+#include "SkSLSymbolTable.h"
 #include "SkSLType.h"
 #include "SkSLVariable.h"
 
@@ -20,15 +21,14 @@ namespace SkSL {
  */
 struct FunctionDeclaration : public Symbol {
     FunctionDeclaration(Position position, std::string name, 
-                        std::vector<std::shared_ptr<Variable>> parameters, 
-                        std::shared_ptr<Type> returnType)
+                        std::vector<const Variable*> parameters, const Type& returnType)
     : INHERITED(position, kFunctionDeclaration_Kind, std::move(name))
     , fDefined(false)
-    , fParameters(parameters)
+    , fParameters(std::move(parameters))
     , fReturnType(returnType) {}
 
     std::string description() const override {
-        std::string result = fReturnType->description() + " " + fName + "(";
+        std::string result = fReturnType.description() + " " + fName + "(";
         std::string separator = "";
         for (auto p : fParameters) {
             result += separator;
@@ -39,13 +39,24 @@ struct FunctionDeclaration : public Symbol {
         return result;
     }
 
-    bool matches(FunctionDeclaration& f) {
-        return fName == f.fName && fParameters == f.fParameters;
+    bool matches(const FunctionDeclaration& f) const {
+        if (fName != f.fName) {
+            return false;
+        }
+        if (fParameters.size() != f.fParameters.size()) {
+            return false;
+        }
+        for (size_t i = 0; i < fParameters.size(); i++) {
+            if (fParameters[i]->fType != f.fParameters[i]->fType) {
+                return false;
+            }
+        }
+        return true;
     }
 
     mutable bool fDefined;
-    const std::vector<std::shared_ptr<Variable>> fParameters;
-    const std::shared_ptr<Type> fReturnType;
+    const std::vector<const Variable*> fParameters;
+    const Type& fReturnType;
 
     typedef Symbol INHERITED;
 };

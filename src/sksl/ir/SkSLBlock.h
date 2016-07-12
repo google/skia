@@ -9,6 +9,7 @@
 #define SKSL_BLOCK
 
 #include "SkSLStatement.h"
+#include "SkSLSymbolTable.h"
 
 namespace SkSL {
 
@@ -16,9 +17,11 @@ namespace SkSL {
  * A block of multiple statements functioning as a single statement.
  */
 struct Block : public Statement {
-    Block(Position position, std::vector<std::unique_ptr<Statement>> statements)
+    Block(Position position, std::vector<std::unique_ptr<Statement>> statements,
+          const std::shared_ptr<SymbolTable> symbols)
     : INHERITED(position, kBlock_Kind)
-    , fStatements(std::move(statements)) {}
+    , fStatements(std::move(statements))
+    , fSymbols(std::move(symbols)) {}
 
     std::string description() const override {
         std::string result = "{";
@@ -31,6 +34,7 @@ struct Block : public Statement {
     }
 
     const std::vector<std::unique_ptr<Statement>> fStatements;
+    const std::shared_ptr<SymbolTable> fSymbols;
 
     typedef Statement INHERITED;
 };

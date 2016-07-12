@@ -92,9 +92,9 @@ private:
 
     SpvId getType(const Type& type);
 
-    SpvId getFunctionType(std::shared_ptr<FunctionDeclaration> function);
+    SpvId getFunctionType(const FunctionDeclaration& function);
 
-    SpvId getPointerType(std::shared_ptr<Type> type, SpvStorageClass_ storageClass);
+    SpvId getPointerType(const Type& type, SpvStorageClass_ storageClass);
 
     std::vector<SpvId> getAccessChain(Expression& expr, std::ostream& out);
 
@@ -108,11 +108,11 @@ private:
 
     SpvId writeInterfaceBlock(InterfaceBlock& intf);
 
-    SpvId writeFunctionStart(std::shared_ptr<FunctionDeclaration> f, std::ostream& out);
+    SpvId writeFunctionStart(const FunctionDeclaration& f, std::ostream& out);
     
-    SpvId writeFunctionDeclaration(std::shared_ptr<FunctionDeclaration> f, std::ostream& out);
+    SpvId writeFunctionDeclaration(const FunctionDeclaration& f, std::ostream& out);
 
-    SpvId writeFunction(FunctionDefinition& f, std::ostream& out);
+    SpvId writeFunction(const FunctionDefinition& f, std::ostream& out);
 
     void writeGlobalVars(VarDeclaration& v, std::ostream& out);
 
@@ -232,9 +232,9 @@ private:
     SpvId fGLSLExtendedInstructions;
     typedef std::tuple<IntrinsicKind, int32_t, int32_t, int32_t, int32_t> Intrinsic;
     std::unordered_map<std::string, Intrinsic> fIntrinsicMap;
-    std::unordered_map<std::shared_ptr<FunctionDeclaration>, SpvId> fFunctionMap;
-    std::unordered_map<std::shared_ptr<Variable>, SpvId> fVariableMap;
-    std::unordered_map<std::shared_ptr<Variable>, int32_t> fInterfaceBlockMap;
+    std::unordered_map<const FunctionDeclaration*, SpvId> fFunctionMap;
+    std::unordered_map<const Variable*, SpvId> fVariableMap;
+    std::unordered_map<const Variable*, int32_t> fInterfaceBlockMap;
     std::unordered_map<std::string, SpvId> fTypeMap;
     std::stringstream fCapabilitiesBuffer;
     std::stringstream fGlobalInitializersBuffer;
