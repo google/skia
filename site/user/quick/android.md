@@ -15,10 +15,10 @@ The following libraries/utilities are required in addition to those needed for a
 Check out the source code
 -------------------------
 
-Follow the instructions [here](../download) for downloading the Skia source. 
+Follow the instructions [here](../download) for downloading the Skia source.
 
 Inside your Skia checkout, `platform_tools/android` contains the Android setup
-scripts, Android specific dependencies, and the Android Sample App.
+scripts, Android specific dependencies, and the Android Viewer App.
 
 You may need to [install other dependencies](./linux#prerequisites):
 
@@ -40,12 +40,12 @@ where you installed the SDK and run the following commands
 
 From here you will need to type 'y' to approve the license agreement and that
 is all.  You will then have downloaded the SDK for API level 19 and 23(Android 4.4
-KitKat and Android 6.0 Marshmallow) which will be used to build the Skia SampleApp.  
-You can download as many other Android add-ons or APIs as you want, but you only 
+KitKat and Android 6.0 Marshmallow) which will be used to build the Skia Viewer app.
+You can download as many other Android add-ons or APIs as you want, but you only
 are required to have these two in order to complete the Skia build process.
 
 The last line in the script installs Android SDK Build-tools 22.0.1.
-Alternatively you can download the above packages with Android Studio, by clicking 
+Alternatively you can download the above packages with Android Studio, by clicking
 the Launch Standalone SDK Manager link in Tools > Android > SDK Manger.
 
 Setup Environment for Android
@@ -134,51 +134,51 @@ approach will also produce the noisiest results.
     # <input> is file/dir on device
     ./platform_tools/android/bin/android_run_skia --release nanobench --skps <input>
 
-Build and run SampleApp
+Build and run Viewer App
 -----------------------
 
-The SampleApp on Android provides a simple UI for viewing sample slides and gm images.
+The Viewer App on Android provides a simple UI for viewing sample slides and gm images.
 
-    BUILDTYPE=Debug ./platform_tools/android/bin/android_ninja -d $TARGET_DEVICE SampleApp_APK
+    BUILDTYPE=Debug ./platform_tools/android/bin/android_ninja -d $TARGET_DEVICE Viewer_APK
 
 Then, install the app onto the device:
 
     ./platform_tools/android/bin/android_install_app
 
-Finally to run the application you can either navigate to the Skia Samples
+Finally to run the application you can either navigate to the Skia Viewer
 application using the application launcher on your device or from the command
 line.  The command line option allows you to pass additional details to the
 application (similar to other operating system) that specify where to find
-skp files and other resources.
+skp files and other resources. For example:
 
-    ./platform_tools/android/bin/android_launch_app --resourcePath /data/local/tmp/resources
+    ./platform_tools/android/bin/android_launch_app --resources /data/local/tmp/skia
 
-By default if no additional parameters are specified the app will use the default
-parameters...
+By default if no additional parameters are specified the app will also have the following
+default parameters:
 
-    --resourcePath /data/local/tmp/skia_resoures 
-    --pictureDir /data/local/tmp/skia_skp
+    --skps /data/local/tmp/skia
+    --jpgs /data/local/tmp/skia
 
 
 Android Studio Support
 -----------------------
 
-You can also build and run SampleApp (and some other experimental apps) using Android
+You can also build and run Viewer App (and some other experimental apps) using Android
 Studio.  To create the project either select "import project" from the quickstart
 screen or use File -> Open.  In both cases you'll need to select ./platform_tools/android/apps
 as the root directory of your project.
 
-Finally to be able to build within Android studio it needs to know the path to 
+Finally to be able to build within Android studio it needs to know the path to
 ninja so you will need to add a properties file and populate it with the path
 to depot_tools.  The syntax and location of that file is...
- 
-    # 
+
+    #
     # file location: ./platform_tools/android/apps/gradle.properties
     #
     depot_tools.dir=<path_to_depot_tools>
-    
+
 That should be all the setup you need.  You should now be able to build and deploy
-SampleApp on ARM, Intel, and MIPS devices.
+Viewer App on ARM, Intel, and MIPS devices.
 
 
 Build tools
@@ -204,8 +204,8 @@ Note: The debugging scripts do not build the app - you'll have to do that first.
     # COMMAND LINE APPS
     # include additional arguments in quotes (e.g. "dm --nopdf")
     ./platform_tools/android/bin/android_gdb_native dm
-    
-    # SAMPLE APP
+
+    # VIEWER APP
     # make sure you've installed the app on the device first
     ./platform_tools/android/bin/android_gdb_app [-d device_id]
 

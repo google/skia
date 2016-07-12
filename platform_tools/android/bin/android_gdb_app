@@ -1,30 +1,17 @@
 #!/bin/bash
 #
-# android_gdb_app: Pushes gdbserver, launches sampleApp, and connects
+# android_gdb_app: Pushes gdbserver, launches Viewer, and connects
 # the debugging environment.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh "$@"
 source $SCRIPT_DIR/utils/setup_adb.sh
 
-app=${APP_ARGS[0]}
-if [[ ${app} == '-'* ]]; then
-    echo "Defaulting to running SampleApp."
-    app="SampleApp"
-    APP_ARGS=( "SampleApp" ${APP_ARGS[*]} )
-fi
+APP_ARGS=( "Viewer" ${APP_ARGS[*]} )
 PORT=5039
 
-if [[ ${app} == 'SampleApp' ]]; then
-    activity="com.skia.sample_app/com.skia.SkiaSampleActivity"
-    activityShort="com.skia.sample_app"
-elif [[ ${app} == "Viewer" ]] ; then
-    activity="org.skia.viewer/org.skia.viewer.ViewerActivity"
-    activityShort="org.skia.viewer"
-else
-    echo "ERROR: supports either 'SampleApp' or 'Viewer' as valid apps"
-    exit 1
-fi
+activity="org.skia.viewer/org.skia.viewer.ViewerActivity"
+activityShort="org.skia.viewer"
 
 # Forward local to remote socket connection.
 $ADB $DEVICE_SERIAL forward "tcp:$PORT" "tcp:$PORT"
