@@ -14,6 +14,32 @@
 
 static const int FONT_SIZE_SCALE = 512;
 
+namespace {
+struct HBFBlobDel {
+    void operator()(hb_blob_t* b) { hb_blob_destroy(b); }
+};
+
+std::unique_ptr<hb_blob_t, HBFBlobDel> stream_to_blob(std::unique_ptr<SkStreamAsset> asset) {
+    size_t size = asset->getLength();
+    std::unique_ptr<hb_blob_t, HBFBlobDel> blob;
+    if (const void* base = asset->getMemoryBase()) {
+        blob.reset(hb_blob_create((char*)base, size,
+                                  HB_MEMORY_MODE_READONLY, asset.release(),
+                                  [](void* p) { delete (SkStreamAsset*)p; }));
+    } else {
+        // SkDebugf("Extra SkStreamAsset copy\n");
+        SkAutoMalloc autoMalloc(size);
+        asset->read(autoMalloc.get(), size);
+        void* ptr = autoMalloc.get();
+        blob.reset(hb_blob_create((char*)autoMalloc.release(), size,
+                                  HB_MEMORY_MODE_READONLY, ptr, sk_free));
+    }
+    SkASSERT(blob);
+    hb_blob_make_immutable(blob.get());
+    return blob;
+}
+}  // namespace
+
 struct SkShaper::Impl {
     struct HBFontDel {
         void operator()(hb_font_t* f) { hb_font_destroy(f); }
@@ -29,22 +55,14 @@ struct SkShaper::Impl {
 SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
     fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
     int index;
-    std::unique_ptr<SkStreamAsset> asset(fImpl->fTypeface->openStream(&index));
-    size_t size = asset->getLength();
-    SkAutoMalloc autoMalloc(size);  // TODO(halcanary): Avoid this malloc+copy.
-    asset->read(autoMalloc.get(), size);
-    asset = nullptr;
-    void* ptr = autoMalloc.get();
-    hb_blob_t* blob = hb_blob_create((char*)autoMalloc.release(), size,
-                                     HB_MEMORY_MODE_READONLY, ptr, sk_free);
-    SkASSERT(blob);
-    hb_blob_make_immutable(blob);
-
+    std::unique_ptr<hb_blob_t, HBFBlobDel> blob(
+            stream_to_blob(std::unique_ptr<SkStreamAsset>(
+                                   fImpl->fTypeface->openStream(&index))));
     struct HBFaceDel {
         void operator()(hb_face_t* f) { hb_face_destroy(f); }
     };
-    std::unique_ptr<hb_face_t, HBFaceDel> face(hb_face_create(blob, (unsigned)index));
-    hb_blob_destroy(blob);
+    std::unique_ptr<hb_face_t, HBFaceDel> face(
+            hb_face_create(blob.get(), (unsigned)index));
     SkASSERT(face);
     if (!face) {
         return;
