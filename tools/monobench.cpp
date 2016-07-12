@@ -7,6 +7,7 @@
 
 #include "Benchmark.h"
 #include "SkGraphics.h"
+#include "SkTaskGroup.h"
 #include <algorithm>
 #include <chrono>
 #include <regex>
@@ -16,6 +17,7 @@
 
 int main(int argc, char** argv) {
     SkGraphics::Init();
+    SkTaskGroup::Enabler enabled;
 
     using clock = std::chrono::high_resolution_clock;
     using ns = std::chrono::duration<double, std::nano>;
