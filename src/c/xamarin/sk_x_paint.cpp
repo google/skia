@@ -183,3 +183,11 @@ float sk_paint_get_fontmetrics(sk_paint_t* cpaint, sk_fontmetrics_t* cfontmetric
     SkPaint *paint = AsPaint(cpaint);
     return paint->getFontMetrics(AsFontMetrics(cfontmetrics), scale);
 }
+
+sk_path_effect_t* sk_paint_get_path_effect(sk_paint_t* cpaint) {
+    return ToPathEffect(AsPaint(cpaint)->getPathEffect());
+}
+
+void sk_paint_set_path_effect(sk_paint_t* cpaint, sk_path_effect_t* effect) {
+    AsPaint(cpaint)->setPathEffect(AsPathEffect(effect));
+}

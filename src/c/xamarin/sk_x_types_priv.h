@@ -417,6 +417,19 @@ const struct {
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_codec_zero_initialized_t)
 #include "../sk_c_from_to.h"
 
+const struct {
+    sk_path_effect_1d_style_t fC;
+    SkPath1DPathEffect::Style fSK;
+} MAKE_FROM_TO_NAME(sk_path_effect_1d_style_t)[] = {
+    { TRANSLATE_SK_PATH_EFFECT_1D_STYLE, SkPath1DPathEffect::kTranslate_Style },
+    { ROTATE_SK_PATH_EFFECT_1D_STYLE,    SkPath1DPathEffect::kRotate_Style    },
+    { MORPH_SK_PATH_EFFECT_1D_STYLE,     SkPath1DPathEffect::kMorph_Style     },
+};
+#define CType           sk_path_effect_1d_style_t
+#define SKType          SkPath1DPathEffect::Style
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_path_effect_1d_style_t)
+#include "../sk_c_from_to.h"
+
 static inline SkRect* AsRect(sk_rect_t* crect) {
     return reinterpret_cast<SkRect*>(crect);
 }
@@ -671,6 +684,14 @@ static inline const SkPoint* AsPoint(const sk_point_t* p) {
     return reinterpret_cast<const SkPoint*>(p);
 }
 
+static inline SkPoint* AsPoint(sk_point_t* p) {
+    return reinterpret_cast<SkPoint*>(p);
+}
+
+static inline sk_point_t* ToPoint(SkPoint *p) {
+    return reinterpret_cast<sk_point_t*>(p);
+}
+
 static inline const SkIPoint& AsIPoint(const sk_ipoint_t& p) {
     return reinterpret_cast<const SkIPoint&>(p);
 }
@@ -750,6 +771,9 @@ static inline sk_document_t* ToDocument(SkDocument* document) {
 static inline SkImageInfo* AsImageInfo(sk_imageinfo_t* cinfo) {
     return reinterpret_cast<SkImageInfo*>(cinfo);
 }
+static inline SkPath::Iter* AsPathIter(sk_path_iterator_t* iter) {
+    return reinterpret_cast<SkPath::Iter*>(iter);
+}
 
 static inline const SkImageInfo* AsImageInfo(const sk_imageinfo_t* cinfo) {
     return reinterpret_cast<const SkImageInfo*>(cinfo);
@@ -789,5 +813,33 @@ static inline bool find_sk(const sk_codec_options_t& coptions, SkCodec::Options*
     return true;
 }
 
+
+static inline sk_path_iterator_t* ToPathIter(SkPath::Iter* iter) {
+    return reinterpret_cast<sk_path_iterator_t*>(iter);
+}
+
+static inline SkPath::RawIter* AsPathRawIter(sk_path_rawiterator_t* iter) {
+    return reinterpret_cast<SkPath::RawIter*>(iter);
+}
+
+static inline sk_path_rawiterator_t* ToPathRawIter(SkPath::RawIter* iter) {
+    return reinterpret_cast<sk_path_rawiterator_t*>(iter);
+}
+
+static inline const SkPathEffect* AsPathEffect(const sk_path_effect_t* p) {
+    return reinterpret_cast<const SkPathEffect*>(p);
+}
+
+static inline SkPathEffect* AsPathEffect(sk_path_effect_t* p) {
+    return reinterpret_cast<SkPathEffect*>(p);
+}
+
+static inline sk_path_effect_t* ToPathEffect(SkPathEffect* p) {
+    return reinterpret_cast<sk_path_effect_t*>(p);
+}
+
+static inline const sk_path_effect_t* ToPathEffect(const SkPathEffect* p) {
+    return reinterpret_cast<const sk_path_effect_t*>(p);
+}
 
 #endif

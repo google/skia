@@ -115,6 +115,14 @@ SK_API sk_path_t* sk_paint_get_pos_text_path(sk_paint_t* cpaint, const void* tex
  * Also get the font metrics for the current typeface and type size if cfontmetrics is not null.
  */
 SK_API float sk_paint_get_fontmetrics(sk_paint_t* cpaint, sk_fontmetrics_t* cfontmetrics, float scale);
+/**  
+ *  Return the paint's patheffect object  
+ */  
+SK_API sk_path_effect_t* sk_paint_get_path_effect(sk_paint_t* cpaint);  
+/**  
+ *  Sets the paint's patheffect object  
+ */  
+SK_API void sk_paint_set_path_effect(sk_paint_t* cpaint, sk_path_effect_t* effect);  
 
 SK_C_PLUS_PLUS_END_GUARD
 

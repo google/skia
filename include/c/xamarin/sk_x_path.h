@@ -75,6 +75,47 @@ SK_API void sk_path_transform(sk_path_t* cpath, const sk_matrix_t* cmatrix);
     Creates a copy of the path
 */
 SK_API sk_path_t* sk_path_clone(const sk_path_t* cpath);
+
+/* Iterators */
+SK_API sk_path_iterator_t* sk_path_create_iter (sk_path_t *cpath, int forceClose);
+
+SK_API sk_path_verb_t sk_path_iter_next (sk_path_iterator_t *iterator, sk_point_t points [4], int doConsumeDegenerates, int exact);
+
+SK_API float sk_path_iter_conic_weight (sk_path_iterator_t *iterator);
+
+SK_API int sk_path_iter_is_close_line (sk_path_iterator_t *iterator);
+
+SK_API int sk_path_iter_is_closed_contour (sk_path_iterator_t *iterator);
+
+SK_API void sk_path_iter_destroy (sk_path_iterator_t *iterator);
+
+/* Raw iterators */
+SK_API sk_path_rawiterator_t* sk_path_create_rawiter (sk_path_t *cpath);
+
+SK_API sk_path_verb_t sk_path_rawiter_peek (sk_path_rawiterator_t *iterator);
+
+SK_API sk_path_verb_t sk_path_rawiter_next (sk_path_rawiterator_t *iterator);
+
+SK_API float sk_path_rawiter_conic_weight (sk_path_rawiterator_t *iterator);
+
+SK_API void sk_path_rawiter_destroy (sk_path_rawiterator_t *iterator);
+
+/* Paths */
+
+/**
+   Adds the @other path to the @cpath by appending a @dx, @dy offset to each node, using the specified adding mode in @add_mode
+ */ 
+SK_API void sk_path_add_path_offset  (sk_path_t* cpath, sk_path_t* other, float dx, float dy, sk_path_add_mode_t add_mode);
+/**
+   Adds the @other path to the @cpath by applying the @matrix transformation on the @other, using the specified adding mode in @add_mode
+ */ 
+SK_API void sk_path_add_path_matrix  (sk_path_t* cpath, sk_path_t* other, sk_matrix_t *matrix, sk_path_add_mode_t add_mode);
+/**
+   Adds the @other path to the @cpath using the specified adding mode in @add_mode
+ */ 
+SK_API void sk_path_add_path         (sk_path_t* cpath, sk_path_t* other, sk_path_add_mode_t add_mode);
+SK_API void sk_path_add_path_reverse (sk_path_t* cpath, sk_path_t* other);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

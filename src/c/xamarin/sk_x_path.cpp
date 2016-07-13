@@ -74,3 +74,112 @@ sk_path_t* sk_path_clone(const sk_path_t* cpath)
     return (sk_path_t*)new SkPath(AsPath(*cpath));
 }
 
+void sk_path_rewind (sk_path_t* cpath)
+{
+    as_path (cpath)->rewind ();
+}
+
+void sk_path_reset (sk_path_t* cpath)
+{
+    as_path (cpath)->reset ();
+}
+
+sk_path_iterator_t* sk_path_create_iter (sk_path_t *cpath, int forceClose)
+{
+    SkPath::Iter* iter = new SkPath::Iter(AsPath(*cpath), forceClose);
+    return ToPathIter(iter);
+}
+
+#if __cplusplus >= 199711L
+static_assert ((int)SkPath::kMove_Verb  == (int)MOVE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kLine_Verb  == (int)LINE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kQuad_Verb  == (int)QUAD_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kConic_Verb == (int)CONIC_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kCubic_Verb == (int)CUBIC_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kClose_Verb == (int)CLOSE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+static_assert ((int)SkPath::kDone_Verb  == (int)DONE_PATH_VERB, "ABI changed, you must write a enumeration mapper for SkPath::Verb to sk_path_verb_t");
+#endif
+
+sk_path_verb_t sk_path_iter_next (sk_path_iterator_t *iterator, sk_point_t points [4], int doConsumeDegenerates, int exact)
+{
+    SkPath::Iter *iter = AsPathIter(iterator);
+    SkPoint *pts = AsPoint(points);
+    SkPath::Verb verb = iter->next(pts, doConsumeDegenerates, exact);
+    return (sk_path_verb_t)verb;
+}
+
+float sk_path_iter_conic_weight (sk_path_iterator_t *iterator)
+{
+    return AsPathIter(iterator)->conicWeight ();
+}
+
+int sk_path_iter_is_close_line (sk_path_iterator_t *iterator)
+{
+    return AsPathIter(iterator)->isCloseLine ();
+}
+
+int sk_path_iter_is_closed_contour (sk_path_iterator_t *iterator)
+{
+    return AsPathIter(iterator)->isClosedContour ();
+}
+
+void sk_path_iter_destroy (sk_path_iterator_t *iterator)
+{
+    delete AsPathIter (iterator);
+}
+
+sk_path_rawiterator_t* sk_path_create_rawiter (sk_path_t *cpath)
+{
+    SkPath::RawIter* iter = new SkPath::RawIter(AsPath(*cpath));
+    return ToPathRawIter(iter);
+}
+
+sk_path_verb_t sk_path_rawiter_next (sk_path_rawiterator_t *iterator, sk_point_t points [4])
+{
+    SkPath::RawIter *iter = AsPathRawIter(iterator);
+    SkPoint *pts = AsPoint(points);
+    SkPath::Verb verb = iter->next(pts);
+    return (sk_path_verb_t)verb;
+}
+
+sk_path_verb_t sk_path_rawiter_peek (sk_path_rawiterator_t *iterator)
+{
+    return (sk_path_verb_t) AsPathRawIter(iterator)->peek ();
+}
+
+float sk_path_rawiter_conic_weight (sk_path_rawiterator_t *iterator)
+{
+    return AsPathRawIter(iterator)->conicWeight ();
+}
+
+void sk_path_rawiter_destroy (sk_path_rawiterator_t *iterator)
+{
+    delete AsPathRawIter (iterator);
+}
+
+#if __cplusplus >= 199711L
+static_assert ((int)SkPath::kAppend_AddPathMode == (int)APPEND_ADD_MODE, "ABI changed, you must write a enumeration mapper for SkPath::AddPathMode to sk_path_add_mode_t");
+static_assert ((int)SkPath::kExtend_AddPathMode == (int)EXTEND_ADD_MODE, "ABI changed, you must write a enumeration mapper for SkPath::AddPathMode to sk_path_add_mode_t");
+#endif
+
+void sk_path_add_path_offset (sk_path_t* cpath, sk_path_t* other, float dx, float dy, sk_path_add_mode_t add_mode)
+{
+    as_path (cpath)->addPath (AsPath (*other), dx, dy, (SkPath::AddPathMode) add_mode);
+}
+
+void sk_path_add_path_matrix (sk_path_t* cpath, sk_path_t* other, sk_matrix_t *matrix, sk_path_add_mode_t add_mode)
+{
+    SkMatrix skmatrix;
+    from_c(matrix, &skmatrix);
+    as_path (cpath)->addPath (AsPath (*other), skmatrix, (SkPath::AddPathMode) add_mode);
+}
+
+void sk_path_add_path (sk_path_t* cpath, sk_path_t* other, sk_path_add_mode_t add_mode)
+{
+    as_path (cpath)->addPath (AsPath (*other), (SkPath::AddPathMode) add_mode);
+}
+
+void sk_path_add_path_reverse (sk_path_t* cpath, sk_path_t* other)
+{
+    as_path (cpath)->reverseAddPath (AsPath (*other));
+}
