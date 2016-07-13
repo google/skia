@@ -60,6 +60,7 @@ public:
 
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
+    void didTranslateZ(SkScalar) override;
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
