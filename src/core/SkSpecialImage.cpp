@@ -473,12 +473,11 @@ public:
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
-        SkBitmap bm;
+        auto img = sk_sp<SkImage>(new SkImage_Gpu(fTexture->width(), fTexture->height(),
+                                                  this->uniqueID(), fAlphaType, fTexture.get(),
+                                                  SkBudgeted::kNo));
 
-        GrWrapTextureInBitmap(fTexture.get(),
-                              fTexture->width(), fTexture->height(), this->isOpaque(), &bm);
-
-        canvas->drawBitmapRect(bm, this->subset(),
+        canvas->drawImageRect(img, this->subset(),
                                dst, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
