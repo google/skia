@@ -585,7 +585,7 @@ private:
 void GLSLInstanceProcessor::BackendNonAA::onInit(GrGLSLVaryingHandler* varyingHandler,
                                                  GrGLSLVertexBuilder*) {
     if (kRect_ShapeFlag != fBatchInfo.fShapeTypes) {
-        varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kHigh_GrSLPrecision);
+        varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kLow_GrSLPrecision);
         varyingHandler->addVarying("arcCoords", &fArcCoords, kMedium_GrSLPrecision);
     }
 }
@@ -762,9 +762,9 @@ void GLSLInstanceProcessor::BackendCoverage::onInit(GrGLSLVaryingHandler* varyin
         v->codeAppend("float rectCoverage = 0.0;");
     }
     if (kRect_ShapeFlag != fBatchInfo.fShapeTypes) {
-        varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kHigh_GrSLPrecision);
+        varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kLow_GrSLPrecision);
         if (!fShapeIsCircle) {
-            varyingHandler->addVarying("ellipseCoords", &fEllipseCoords, kHigh_GrSLPrecision);
+            varyingHandler->addVarying("ellipseCoords", &fEllipseCoords, kMedium_GrSLPrecision);
             varyingHandler->addFlatVarying("ellipseName", &fEllipseName, kHigh_GrSLPrecision);
         } else {
             varyingHandler->addVarying("circleCoords", &fEllipseCoords, kMedium_GrSLPrecision);
@@ -869,18 +869,18 @@ void GLSLInstanceProcessor::BackendCoverage::onInitInnerShape(GrGLSLVaryingHandl
     if (kOval_ShapeFlag == fBatchInfo.fInnerShapeTypes) {
         varyingHandler->addVarying("innerEllipseCoords", &fInnerEllipseCoords,
                                    kMedium_GrSLPrecision);
-        varyingHandler->addFlatVarying("innerEllipseName", &fInnerEllipseName,
-                                       kMedium_GrSLPrecision);
+        varyingHandler->addFlatVarying("innerEllipseName", &fInnerEllipseName, kHigh_GrSLPrecision);
     } else {
         varyingHandler->addVarying("distanceToInnerEdge", &fDistanceToInnerEdge,
                                    kMedium_GrSLPrecision);
         varyingHandler->addFlatVarying("innerShapeBloatedHalfSize", &fInnerShapeBloatedHalfSize,
                                        kMedium_GrSLPrecision);
         if (kRect_ShapeFlag != fBatchInfo.fInnerShapeTypes) {
-            varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords, kHigh_GrSLPrecision);
+            varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords,
+                                       kMedium_GrSLPrecision);
             varyingHandler->addFlatVarying("innerEllipseName", &fInnerEllipseName,
-                                           kMedium_GrSLPrecision);
-            varyingHandler->addFlatVarying("innerRRect", &fInnerRRect, kHigh_GrSLPrecision);
+                                           kHigh_GrSLPrecision);
+            varyingHandler->addFlatVarying("innerRRect", &fInnerRRect, kMedium_GrSLPrecision);
         }
     }
 }
@@ -976,11 +976,13 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
                 this->emitInnerRect(f, innerCoverageDecl.c_str());
             } else {
                 f->codeAppendf("%s = 0.0;", innerCoverageDecl.c_str());
+                f->appendPrecisionModifier(kMedium_GrSLPrecision);
                 f->codeAppendf("vec2 distanceToArcEdge = abs(%s) - %s.xy;",
                                fInnerShapeCoords.fsIn(), fInnerRRect.fsIn());
                 f->codeAppend ("if (any(lessThan(distanceToArcEdge, vec2(1e-5)))) {");
                 this->emitInnerRect(f, "innerCoverage");
                 f->codeAppend ("} else {");
+                f->appendPrecisionModifier(kMedium_GrSLPrecision);
                 f->codeAppendf(    "vec2 ellipseCoords = distanceToArcEdge * %s.zw;",
                                    fInnerRRect.fsIn());
                 this->emitArc(f, "ellipseCoords", fInnerEllipseName.fsIn(),
@@ -1014,6 +1016,7 @@ void GLSLInstanceProcessor::BackendCoverage::emitCircle(GrGLSLPPFragmentBuilder*
                                                         const char* outCoverage) {
     // TODO: circleCoords = max(circleCoords, 0) if we decide to do this optimization on rrects.
     SkASSERT(!(kRRect_ShapesMask & fBatchInfo.fShapeTypes));
+    f->appendPrecisionModifier(kLow_GrSLPrecision);
     f->codeAppendf("float distanceToEdge = %s - length(%s);",
                    fBloatedRadius.fsIn(), fEllipseCoords.fsIn());
     f->codeAppendf("%s = clamp(distanceToEdge, 0.0, 1.0);", outCoverage);
@@ -1030,6 +1033,7 @@ void GLSLInstanceProcessor::BackendCoverage::emitArc(GrGLSLPPFragmentBuilder* f,
         // This serves two purposes:
         //  - To restrict the arcs of rounded rects to their positive quadrants.
         //  - To avoid inversesqrt(0) in the ellipse formula.
+        f->appendPrecisionModifier(kMedium_GrSLPrecision);
         if (ellipseCoordsMayBeNegative) {
             f->codeAppendf("vec2 ellipseClampedCoords = max(abs(%s), vec2(1e-4));", ellipseCoords);
         } else {
@@ -1038,12 +1042,15 @@ void GLSLInstanceProcessor::BackendCoverage::emitArc(GrGLSLPPFragmentBuilder* f,
         ellipseCoords = "ellipseClampedCoords";
     }
     // ellipseCoords are in pixel space and ellipseName is 1 / rx^2, 1 / ry^2.
+    f->appendPrecisionModifier(kHigh_GrSLPrecision);
     f->codeAppendf("vec2 Z = %s * %s;", ellipseCoords, ellipseName);
     // implicit is the evaluation of (x/rx)^2 + (y/ry)^2 - 1.
+    f->appendPrecisionModifier(kHigh_GrSLPrecision);
     f->codeAppendf("float implicit = dot(Z, %s) - 1.0;", ellipseCoords);
     // gradDot is the squared length of the gradient of the implicit.
+    f->appendPrecisionModifier(kHigh_GrSLPrecision);
     f->codeAppendf("float gradDot = 4.0 * dot(Z, Z);");
-    f->appendPrecisionModifier(kLow_GrSLPrecision);
+    f->appendPrecisionModifier(kMedium_GrSLPrecision);
     f->codeAppend ("float approxDist = implicit * inversesqrt(gradDot);");
     f->codeAppendf("%s = clamp(0.5 - approxDist, 0.0, 1.0);", outCoverage);
 }
@@ -1136,8 +1143,7 @@ void GLSLInstanceProcessor::BackendMultisample::onInit(GrGLSLVaryingHandler* var
                                                        GrGLSLVertexBuilder* v) {
     if (!this->isMixedSampled()) {
         if (kRect_ShapeFlag != fBatchInfo.fShapeTypes) {
-            varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc,
-                                           kHigh_GrSLPrecision);
+            varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kLow_GrSLPrecision);
             varyingHandler->addVarying("arcCoords", &fArcCoords, kHigh_GrSLPrecision);
             if (!fBatchInfo.fHasPerspective) {
                 varyingHandler->addFlatVarying("arcInverseMatrix", &fArcInverseMatrix,
@@ -1171,7 +1177,7 @@ void GLSLInstanceProcessor::BackendMultisample::onInit(GrGLSLVaryingHandler* var
             fFragArcHalfSpan = fFragShapeHalfSpan;
             if (fBatchInfo.fShapeTypes & kRect_ShapeFlag) {
                 varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc,
-                                               kHigh_GrSLPrecision);
+                                               kLow_GrSLPrecision);
             }
         }
         if (kRect_ShapeFlag != fBatchInfo.fShapeTypes) {
