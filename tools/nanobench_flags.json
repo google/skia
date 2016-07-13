@@ -339,24 +339,6 @@
     "~inc0.webp", 
     "~inc1.webp"
   ], 
-  "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot": [
-    "--pre_log", 
-    "--scales", 
-    "1.0", 
-    "1.1", 
-    "--config", 
-    "565", 
-    "8888", 
-    "gpu", 
-    "nonrendering", 
-    "angle", 
-    "hwui", 
-    "msaa16", 
-    "nvpr16", 
-    "nvprdit16", 
-    "--match", 
-    "nothing_will_match_this"
-  ], 
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": [
     "--pre_log", 
     "--images", 

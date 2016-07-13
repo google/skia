@@ -134,10 +134,6 @@ def get_args(bot):
   match.append('~inc0.webp')
   match.append('~inc1.webp')
 
-  # As an experiment, skip nanobench on Debug trybots.
-  if 'Debug' in bot and 'CPU' in bot and 'Trybot' in bot:
-    match = ['nothing_will_match_this']
-
   if match:
     args.append('--match')
     args.extend(match)
@@ -158,7 +154,6 @@ def self_test():
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
     'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
     'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
-    'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot',
     'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Release',
     'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Release-Vulkan',
     'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Release',
