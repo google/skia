@@ -225,6 +225,8 @@ private:
         }
 
         flushInfo.fInstancesToFlush = 0;
+        // Pointer to the next set of vertices to write.
+        intptr_t offset = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& args = fGeoData[i];
 
@@ -263,23 +265,20 @@ private:
                                           desiredDimension,
                                           scale)) {
                     SkDebugf("Can't rasterize path\n");
-                    return;
+                    continue;
                 }
             }
 
             atlas->setLastUseToken(shapeData->fID, target->nextDrawToken());
 
-            // Now set vertices
-            intptr_t offset = reinterpret_cast<intptr_t>(vertices);
-            offset += i * kVerticesPerQuad * vertexStride;
             this->writePathVertices(target,
                                     atlas,
                                     offset,
                                     args.fColor,
                                     vertexStride,
                                     this->viewMatrix(),
-                                    args.fShape,
                                     shapeData);
+            offset += kVerticesPerQuad * vertexStride;
             flushInfo.fInstancesToFlush++;
         }
 
@@ -370,15 +369,11 @@ private:
         // add to atlas
         SkIPoint16 atlasLocation;
         GrBatchAtlas::AtlasID id;
-        bool success = atlas->addToAtlas(&id, target, width, height, dfStorage.get(),
-                                         &atlasLocation);
-        if (!success) {
+       if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
             this->flush(target, flushInfo);
-
-            SkDEBUGCODE(success =) atlas->addToAtlas(&id, target, width, height,
-                                                     dfStorage.get(), &atlasLocation);
-            SkASSERT(success);
-
+            if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
+                return false;
+            }
         }
 
         // add to cache
@@ -414,7 +409,6 @@ private:
                            GrColor color,
                            size_t vertexStride,
                            const SkMatrix& viewMatrix,
-                           const GrShape& shape,
                            const ShapeData* shapeData) const {
         GrTexture* texture = atlas->getTexture();
 
@@ -455,15 +449,17 @@ private:
     }
 
     void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const {
-        GrMesh mesh;
-        int maxInstancesPerDraw =
-            static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-        mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
-            flushInfo->fIndexBuffer, flushInfo->fVertexOffset, kVerticesPerQuad,
-            kIndicesPerQuad, flushInfo->fInstancesToFlush, maxInstancesPerDraw);
-        target->draw(flushInfo->fGeometryProcessor.get(), mesh);
-        flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
-        flushInfo->fInstancesToFlush = 0;
+        if (flushInfo->fInstancesToFlush) {
+            GrMesh mesh;
+            int maxInstancesPerDraw =
+                static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
+            mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
+                flushInfo->fIndexBuffer, flushInfo->fVertexOffset, kVerticesPerQuad,
+                kIndicesPerQuad, flushInfo->fInstancesToFlush, maxInstancesPerDraw);
+            target->draw(flushInfo->fGeometryProcessor.get(), mesh);
+            flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
+            flushInfo->fInstancesToFlush = 0;
+        }
     }
 
     GrColor color() const { return fGeoData[0].fColor; }

@@ -116,11 +116,11 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
     : fTexture(texture)
     , fAtlasGeneration(kInvalidAtlasGeneration + 1) {
 
-    int plotWidth = texture->width() / numPlotsX;
-    int plotHeight = texture->height() / numPlotsY;
+    fPlotWidth = texture->width() / numPlotsX;
+    fPlotHeight = texture->height() / numPlotsY;
     SkASSERT(numPlotsX * numPlotsY <= BulkUseTokenUpdater::kMaxPlots);
-    SkASSERT(plotWidth * numPlotsX == texture->width());
-    SkASSERT(plotHeight * numPlotsY == texture->height());
+    SkASSERT(fPlotWidth * numPlotsX == texture->width());
+    SkASSERT(fPlotHeight * numPlotsY == texture->height());
 
     SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
 
@@ -134,7 +134,7 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
     for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
         for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
             uint32_t index = r * numPlotsX + c;
-            currPlot->reset(new BatchPlot(index, 1, x, y, plotWidth, plotHeight,
+            currPlot->reset(new BatchPlot(index, 1, x, y, fPlotWidth, fPlotHeight,
                                           texture->desc().fConfig));
 
             // build LRU list
@@ -179,6 +179,9 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* target,
                               int width, int height, const void* image, SkIPoint16* loc) {
     // We should already have a texture, TODO clean this up
     SkASSERT(fTexture);
+    if (width > fPlotWidth || height > fPlotHeight) {
+        return false;
+    }
 
     // now look through all allocated plots for one we can share, in Most Recently Refed order
     GrBatchPlotList::Iter plotIter;
