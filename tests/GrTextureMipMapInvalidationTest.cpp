@@ -13,7 +13,7 @@
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "SkCanvas.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkSurface.h"
 #include "Test.h"
 

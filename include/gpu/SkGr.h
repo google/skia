@@ -88,8 +88,4 @@ GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
 
 SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque);
 
-// Using the dreaded SkGrPixelRef ...
-SK_API void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque,
-                                  SkBitmap* dst);
-
 #endif

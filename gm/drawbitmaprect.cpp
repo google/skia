@@ -17,7 +17,7 @@
 #include "SkSurface.h"
 
 #if SK_SUPPORT_GPU
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #endif
 
 static SkBitmap make_chessbm(int w, int h) {

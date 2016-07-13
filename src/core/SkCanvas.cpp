@@ -41,7 +41,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrRenderTarget.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #endif
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)

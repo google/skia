@@ -100,6 +100,13 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
 
 //////////////////////////////////////////////////////////////////////////////
 
+// Using the dreaded SkGrPixelRef ...
+void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque,
+                           SkBitmap* dst);
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&, const GrCaps&);
 
 bool GrPixelConfigToColorAndColorSpace(GrPixelConfig, SkColorType*, sk_sp<SkColorSpace>*);
