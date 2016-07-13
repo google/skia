@@ -31,36 +31,14 @@ static void brute_force_srcover_srgb_srgb(
     }
 }
 
-namespace sk_default {
-extern void srcover_srgb_srgb(
-    uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
-}
-
-#if defined(SK_CPU_X86) && !defined(SK_BUILD_NO_OPTS)
-namespace sk_sse41 {
-extern void srcover_srgb_srgb(
-    uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
-}
-#endif
-
-static SkString missmatch_message(std::string resourceName, std::string name, int x, int y,
+static SkString mismatch_message(std::string resourceName, int x, int y,
                                   uint32_t src, uint32_t good, uint32_t bad) {
     return SkStringPrintf(
-        "%s - %s missmatch at %d, %d src: %08x good: %08x bad: %08x",
-        resourceName.c_str(), name.c_str(), x, y, src, good, bad);
+        "%s - missmatch at %d, %d src: %08x good: %08x bad: %08x",
+        resourceName.c_str(), x, y, src, good, bad);
 }
 
-using Spec = std::tuple<Blender, std::string>;
-
-static void test_blender(
-    Spec spec,
-    std::string resourceName,
-    skiatest::Reporter* reporter)
-{
-    Blender blender;
-    std::string name;
-    std::tie(blender, name) = spec;
-
+static void test_blender(std::string resourceName, skiatest::Reporter* reporter) {
     std::string fileName = resourceName + ".png";
     sk_sp<SkImage> image = GetResourceAsImage(fileName.c_str());
     if (image == nullptr) {
@@ -88,11 +66,11 @@ static void test_blender(
         sk_bzero(correctDst.get(), width * sizeof(uint32_t));
         sk_bzero(testDst.get(), width * sizeof(uint32_t));
         brute_force_srcover_srgb_srgb(correctDst.get(), src, width, width);
-        blender(testDst.get(), src, width, width);
+        SkOpts::    srcover_srgb_srgb(   testDst.get(), src, width, width);
         for (int x = 0; x < width; x++) {
             REPORTER_ASSERT_MESSAGE(
                 reporter, correctDst[x] == testDst[x],
-                missmatch_message(resourceName, name, x, y, src[x], correctDst[x], testDst[x]));
+                mismatch_message(resourceName, x, y, src[x], correctDst[x], testDst[x]));
             if (correctDst[x] != testDst[x]) break;
         }
         src += width;
@@ -100,23 +78,12 @@ static void test_blender(
 }
 
 DEF_TEST(SkBlend_optsCheck, reporter) {
-    std::vector<Spec> specs = {
-        Spec{sk_default::srcover_srgb_srgb,               "default"},
-    };
-    #if defined(SK_CPU_X86) && !defined(SK_BUILD_NO_OPTS)
-    if (SkCpu::Supports(SkCpu::SSE41)) {
-        specs.push_back(Spec{sk_sse41::srcover_srgb_srgb, "sse41", });
-    }
-    #endif
-
     std::vector<std::string> testResources = {
         "yellow_rose", "baby_tux", "plane", "mandrill_512", "iconstrip"
     };
 
-    for (auto& spec : specs) {
-        for (auto& resourceName : testResources) {
-            test_blender(spec, resourceName, reporter);
-        }
+    for (auto& resourceName : testResources) {
+        test_blender(resourceName, reporter);
     }
 }
 

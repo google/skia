@@ -7,8 +7,7 @@
 
 #include "SkOpts.h"
 
-#define SK_OPTS_NS sk_avx
-#include "SkBlend_opts.h"
+#define SK_OPTS_NS avx
 
 namespace SkOpts {
     void Init_avx() { }

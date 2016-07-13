@@ -83,7 +83,6 @@ static void trivial_srcover_srgb_srgb(
 class SrcOverVSkOptsBruteForce {
 public:
     static SkString Name() { return SkString{"VSkOptsBruteForce"}; }
-    static bool WorksOnCpu() { return true; }
     static void BlendN(uint32_t* dst, const uint32_t* src, int count) {
         brute_force_srcover_srgb_srgb(dst, src, count, count);
     }
@@ -92,7 +91,6 @@ public:
 class SrcOverVSkOptsTrivial {
 public:
     static SkString Name() { return SkString{"VSkOptsTrivial"}; }
-    static bool WorksOnCpu() { return true; }
     static void BlendN(uint32_t* dst, const uint32_t* src, int count) {
         trivial_srcover_srgb_srgb(dst, src, count, count);
     }
@@ -101,37 +99,16 @@ public:
 class SrcOverVSkOptsNonSimdCore {
 public:
     static SkString Name() { return SkString{"VSkOptsNonSimdCore"}; }
-    static bool WorksOnCpu() { return true; }
     static void BlendN(uint32_t* dst, const uint32_t* src, int count) {
         best_non_simd_srcover_srgb_srgb(dst, src, count, count);
     }
 };
 
-namespace sk_default {
-extern void srcover_srgb_srgb(
-    uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
-}
-
 class SrcOverVSkOptsDefault {
 public:
     static SkString Name() { return SkString{"VSkOptsDefault"}; }
-    static bool WorksOnCpu() { return true; }
     static void BlendN(uint32_t* dst, const uint32_t* src, int count) {
-        sk_default::srcover_srgb_srgb(dst, src, count, count);
-    }
-};
-
-namespace sk_sse41 {
-   extern void srcover_srgb_srgb(
-       uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
-}
-
-class SrcOverVSkOptsSSE41 {
-public:
-    static SkString Name() { return SkString{"VSkOptsSSE41"}; }
-    static bool WorksOnCpu() { return SkCpu::Supports(SkCpu::SSE41); }
-    static void BlendN(uint32_t* dst, const uint32_t* src, int count) {
-        sk_sse41::srcover_srgb_srgb(dst, src, count, count);
+        SkOpts::srcover_srgb_srgb(dst, src, count, count);
     }
 };
 
@@ -147,9 +124,7 @@ public:
     }
 
 protected:
-    bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend && Blender::WorksOnCpu();
-    }
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
     const char* onGetName() override { return fName.c_str(); }
 
     void onPreDraw(SkCanvas*) override {
@@ -198,20 +173,11 @@ private:
     typedef Benchmark INHERITED;
 };
 
-#if defined(SK_CPU_X86) && !defined(SK_BUILD_NO_OPTS)
-#define BENCHES(fileName)                                                        \
-DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsBruteForce>(fileName); )  \
-DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsTrivial>(fileName); )     \
-DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsNonSimdCore>(fileName); ) \
-DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsDefault>(fileName); )     \
-DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsSSE41>(fileName); )
-#else
-#define BENCHES(fileName)                                                        \
-DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsBruteForce>(fileName); )  \
-DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsTrivial>(fileName); )     \
-DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsNonSimdCore>(fileName); ) \
-DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsDefault>(fileName); )
-#endif
+#define BENCHES(fileName)                                                            \
+    DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsBruteForce>(fileName); )  \
+    DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsTrivial>(fileName); )     \
+    DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsNonSimdCore>(fileName); ) \
+    DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsDefault>(fileName); )
 
 BENCHES("yellow_rose.png")
 BENCHES("baby_tux.png")

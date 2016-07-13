@@ -10,7 +10,18 @@
 #include "SkOnce.h"
 #include "SkOpts.h"
 
-#define SK_OPTS_NS sk_default
+#if defined(SK_ARM_HAS_NEON)
+    #define SK_OPTS_NS neon
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+    #define SK_OPTS_NS ssse3
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE3
+    #define SK_OPTS_NS sse3
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #define SK_OPTS_NS sse2
+#else
+    #define SK_OPTS_NS portable
+#endif
+
 #include "SkBlend_opts.h"
 #include "SkBlitMask_opts.h"
 #include "SkBlitRow_opts.h"
@@ -36,53 +47,51 @@ namespace SK_OPTS_NS {
 }
 
 namespace SkOpts {
-
     // Define default function pointer values here...
     // If our global compile options are set high enough, these defaults might even be
     // CPU-specialized, e.g. a typical x86-64 machine might start with SSE2 defaults.
     // They'll still get a chance to be replaced with even better ones, e.g. using SSE4.1.
-    decltype(create_xfermode) create_xfermode = sk_default::create_xfermode;
-    decltype(color_cube_filter_span) color_cube_filter_span = sk_default::color_cube_filter_span;
+#define DEFINE_DEFAULT(name) decltype(name) name = SK_OPTS_NS::name
+    DEFINE_DEFAULT(create_xfermode);
+    DEFINE_DEFAULT(color_cube_filter_span);
 
-    decltype(box_blur_xx) box_blur_xx = sk_default::box_blur_xx;
-    decltype(box_blur_xy) box_blur_xy = sk_default::box_blur_xy;
-    decltype(box_blur_yx) box_blur_yx = sk_default::box_blur_yx;
+    DEFINE_DEFAULT(box_blur_xx);
+    DEFINE_DEFAULT(box_blur_xy);
+    DEFINE_DEFAULT(box_blur_yx);
 
-    decltype(dilate_x) dilate_x = sk_default::dilate_x;
-    decltype(dilate_y) dilate_y = sk_default::dilate_y;
-    decltype( erode_x)  erode_x = sk_default::erode_x;
-    decltype( erode_y)  erode_y = sk_default::erode_y;
+    DEFINE_DEFAULT(dilate_x);
+    DEFINE_DEFAULT(dilate_y);
+    DEFINE_DEFAULT( erode_x);
+    DEFINE_DEFAULT( erode_y);
 
-    decltype(texture_compressor)       texture_compressor = sk_default::texture_compressor;
-    decltype(fill_block_dimensions) fill_block_dimensions = sk_default::fill_block_dimensions;
+    DEFINE_DEFAULT(texture_compressor);
+    DEFINE_DEFAULT(fill_block_dimensions);
 
-    decltype(blit_mask_d32_a8) blit_mask_d32_a8 = sk_default::blit_mask_d32_a8;
+    DEFINE_DEFAULT(blit_mask_d32_a8);
 
-    decltype(blit_row_color32)     blit_row_color32     = sk_default::blit_row_color32;
-    decltype(blit_row_s32a_opaque) blit_row_s32a_opaque = sk_default::blit_row_s32a_opaque;
+    DEFINE_DEFAULT(blit_row_color32);
+    DEFINE_DEFAULT(blit_row_s32a_opaque);
 
-    decltype(RGBA_to_BGRA)          RGBA_to_BGRA          = sk_default::RGBA_to_BGRA;
-    decltype(RGBA_to_rgbA)          RGBA_to_rgbA          = sk_default::RGBA_to_rgbA;
-    decltype(RGBA_to_bgrA)          RGBA_to_bgrA          = sk_default::RGBA_to_bgrA;
-    decltype(RGB_to_RGB1)           RGB_to_RGB1           = sk_default::RGB_to_RGB1;
-    decltype(RGB_to_BGR1)           RGB_to_BGR1           = sk_default::RGB_to_BGR1;
-    decltype(gray_to_RGB1)          gray_to_RGB1          = sk_default::gray_to_RGB1;
-    decltype(grayA_to_RGBA)         grayA_to_RGBA         = sk_default::grayA_to_RGBA;
-    decltype(grayA_to_rgbA)         grayA_to_rgbA         = sk_default::grayA_to_rgbA;
-    decltype(inverted_CMYK_to_RGB1) inverted_CMYK_to_RGB1 = sk_default::inverted_CMYK_to_RGB1;
-    decltype(inverted_CMYK_to_BGR1) inverted_CMYK_to_BGR1 = sk_default::inverted_CMYK_to_BGR1;
+    DEFINE_DEFAULT(RGBA_to_BGRA);
+    DEFINE_DEFAULT(RGBA_to_rgbA);
+    DEFINE_DEFAULT(RGBA_to_bgrA);
+    DEFINE_DEFAULT(RGB_to_RGB1);
+    DEFINE_DEFAULT(RGB_to_BGR1);
+    DEFINE_DEFAULT(gray_to_RGB1);
+    DEFINE_DEFAULT(grayA_to_RGBA);
+    DEFINE_DEFAULT(grayA_to_rgbA);
+    DEFINE_DEFAULT(inverted_CMYK_to_RGB1);
+    DEFINE_DEFAULT(inverted_CMYK_to_BGR1);
 
-    decltype(half_to_float) half_to_float = sk_default::half_to_float;
-    decltype(float_to_half) float_to_half = sk_default::float_to_half;
+    DEFINE_DEFAULT(half_to_float);
+    DEFINE_DEFAULT(float_to_half);
 
-    decltype(srcover_srgb_srgb) srcover_srgb_srgb = sk_default::srcover_srgb_srgb;
+    DEFINE_DEFAULT(srcover_srgb_srgb);
 
-    decltype(color_xform_RGB1_to_2dot2) color_xform_RGB1_to_2dot2 =
-            sk_default::color_xform_RGB1_to_2dot2;
-    decltype(color_xform_RGB1_to_srgb)   color_xform_RGB1_to_srgb =
-            sk_default::color_xform_RGB1_to_srgb;
-    decltype(color_xform_RGB1_to_table) color_xform_RGB1_to_table =
-            sk_default::color_xform_RGB1_to_table;
+    DEFINE_DEFAULT(color_xform_RGB1_to_2dot2);
+    DEFINE_DEFAULT(color_xform_RGB1_to_srgb);
+    DEFINE_DEFAULT(color_xform_RGB1_to_table);
+#undef DEFINE_DEFAULT
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();

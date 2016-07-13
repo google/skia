@@ -48,7 +48,7 @@ static inline void srcover_srgb_srgb_4(uint32_t* dst, const uint32_t* src) {
 
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
 
-        void srcover_srgb_srgb(
+        static void srcover_srgb_srgb(
             uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc) {
             const __m128i alphaMask = _mm_set1_epi32(0xFF000000);
             while (ndst > 0) {
@@ -123,7 +123,7 @@ static inline void srcover_srgb_srgb_4(uint32_t* dst, const uint32_t* src) {
             return mask == 0;
         }
 
-        void srcover_srgb_srgb(
+        static void srcover_srgb_srgb(
             uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc) {
             while (ndst > 0) {
                 int count = SkTMin(ndst, nsrc);
@@ -166,7 +166,7 @@ static inline void srcover_srgb_srgb_4(uint32_t* dst, const uint32_t* src) {
     #endif
 #else
 
-    void srcover_srgb_srgb(
+    static void srcover_srgb_srgb(
         uint32_t* dst, const uint32_t* const src, int ndst, const int nsrc) {
         while (ndst > 0) {
             int n = SkTMin(ndst, nsrc);
