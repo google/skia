@@ -336,7 +336,8 @@ bool GrGLGpu::createPLSSetupProgram() {
     GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
                                    GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar uTexture("u_texture", kSampler2D_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar uTexture("u_texture", kTexture2DSampler_GrSLType,
+                             GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
 
     SkString vshaderTxt(version);
@@ -3631,13 +3632,14 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 
 bool GrGLGpu::createCopyProgram(int progIdx) {
     const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
-    static const GrSLType kSamplerTypes[3] = { kSampler2D_GrSLType, kSamplerExternal_GrSLType,
-                                               kSampler2DRect_GrSLType };
-    if (kSamplerExternal_GrSLType == kSamplerTypes[progIdx] &&
+    static const GrSLType kSamplerTypes[3] = { kTexture2DSampler_GrSLType,
+                                               kTextureExternalSampler_GrSLType,
+                                               kTexture2DRectSampler_GrSLType };
+    if (kTextureExternalSampler_GrSLType == kSamplerTypes[progIdx] &&
         !this->glCaps().glslCaps()->externalTextureSupport()) {
         return false;
     }
-    if (kSampler2DRect_GrSLType == kSamplerTypes[progIdx] &&
+    if (kTexture2DRectSampler_GrSLType == kSamplerTypes[progIdx] &&
         !this->glCaps().rectangleTextureSupport()) {
         return false;
     }
@@ -3707,7 +3709,7 @@ bool GrGLGpu::createCopyProgram(int progIdx) {
             fshaderTxt.appendf("#extension %s : require\n", extension);
         }
     }
-    if (kSamplerTypes[progIdx] == kSamplerExternal_GrSLType) {
+    if (kSamplerTypes[progIdx] == kTextureExternalSampler_GrSLType) {
         fshaderTxt.appendf("#extension %s : require\n",
                            glslCaps->externalTextureExtensionString());
     }
@@ -3784,7 +3786,8 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
     GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
                                    GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar uTexture("u_texture", kSampler2D_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar uTexture("u_texture", kTexture2DSampler_GrSLType,
+                             GrShaderVar::kUniform_TypeModifier);
     // We need 1, 2, or 4 texture coordinates (depending on parity of each dimension):
     GrGLSLShaderVar vTexCoords[] = {
         GrGLSLShaderVar("v_texCoord0", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier),
@@ -3871,7 +3874,8 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     } else {
         fsOutName = "gl_FragColor";
     }
-    const char* sampleFunction = GrGLSLTexture2DFunctionName(kVec2f_GrSLType, kSampler2D_GrSLType,
+    const char* sampleFunction = GrGLSLTexture2DFunctionName(kVec2f_GrSLType,
+                                                             kTexture2DSampler_GrSLType,
                                                              this->glslGeneration());
     fshaderTxt.append(
         "// Mipmap Program FS\n"

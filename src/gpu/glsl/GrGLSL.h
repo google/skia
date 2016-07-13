@@ -58,7 +58,7 @@ bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration);
  */
 inline const char* GrGLSLTexture2DFunctionName(GrSLType coordType, GrSLType samplerType,
                                                GrGLSLGeneration glslGen) {
-    SkASSERT(GrSLTypeIs2DTextureType(samplerType));
+    SkASSERT(GrSLTypeIs2DCombinedSamplerType(samplerType));
     SkASSERT(kVec2f_GrSLType == coordType || kVec3f_GrSLType == coordType);
     // GL_TEXTURE_RECTANGLE_ARB is written against OpenGL 2.0/GLSL 1.10. At that time there were
     // separate texture*() functions. In OpenGL 3.0/GLSL 1.30 the different texture*() functions
@@ -70,9 +70,10 @@ inline const char* GrGLSLTexture2DFunctionName(GrSLType coordType, GrSLType samp
         return (kVec2f_GrSLType == coordType) ? "texture" : "textureProj";
     }
     if (kVec2f_GrSLType == coordType) {
-        return (samplerType == kSampler2DRect_GrSLType) ? "texture2DRect" : "texture2D";
+        return (samplerType == kTexture2DRectSampler_GrSLType) ? "texture2DRect" : "texture2D";
     } else {
-        return (samplerType == kSampler2DRect_GrSLType) ? "texture2DRectProj" : "texture2DProj";
+        return (samplerType == kTexture2DRectSampler_GrSLType) ? "texture2DRectProj"
+                                                               : "texture2DProj";
     }
 }
 
@@ -121,13 +122,13 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "mat3";
         case kMat44f_GrSLType:
             return "mat4";
-        case kSampler2D_GrSLType:
+        case kTexture2DSampler_GrSLType:
             return "sampler2D";
-        case kSamplerExternal_GrSLType:
+        case kTextureExternalSampler_GrSLType:
             return "samplerExternalOES";
-        case kSampler2DRect_GrSLType:
+        case kTexture2DRectSampler_GrSLType:
             return "sampler2DRect";
-        case kSamplerBuffer_GrSLType:
+        case kTextureBufferSampler_GrSLType:
             return "samplerBuffer";
         case kBool_GrSLType:
             return "bool";
@@ -135,6 +136,10 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "int";
         case kUint_GrSLType:
             return "uint";
+        case kTexture2D_GrSLType:
+            return "texture2D";
+        case kSampler_GrSLType:
+            return "sampler";
         default:
             SkFAIL("Unknown shader var type.");
             return ""; // suppress warning

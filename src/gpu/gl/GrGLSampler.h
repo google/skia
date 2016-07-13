@@ -20,7 +20,7 @@ public:
                 GrSLType type,
                 GrSLPrecision precision,
                 const char* name) : INHERITED(visibility, config) {
-        SkASSERT(GrSLTypeIsSamplerType(type));
+        SkASSERT(GrSLTypeIsCombinedSamplerType(type));
         fShaderVar.setType(type);
         fShaderVar.setTypeModifier(GrGLSLShaderVar::kUniform_TypeModifier);
         fShaderVar.setPrecision(precision);

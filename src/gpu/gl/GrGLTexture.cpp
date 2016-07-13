@@ -15,13 +15,13 @@
 inline static GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, const GrGLGpu* gpu) {
     if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
         SkASSERT(gpu->glCaps().glslCaps()->externalTextureSupport());
-        return kSamplerExternal_GrSLType;
+        return kTextureExternalSampler_GrSLType;
     } else if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE) {
         SkASSERT(gpu->glCaps().rectangleTextureSupport());
-        return kSampler2DRect_GrSLType;
+        return kTexture2DRectSampler_GrSLType;
     } else {
         SkASSERT(idDesc.fInfo.fTarget == GR_GL_TEXTURE_2D);
-        return kSampler2D_GrSLType;
+        return kTexture2DSampler_GrSLType;
     }
 }
 

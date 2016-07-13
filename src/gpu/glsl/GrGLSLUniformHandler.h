@@ -32,7 +32,7 @@ public:
                              GrSLPrecision precision,
                              const char* name,
                              const char** outName = nullptr) {
-        SkASSERT(!GrSLTypeIsSamplerType(type));
+        SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
         return this->addUniformArray(visibility, type, precision, name, 0, outName);
     }
 
@@ -42,7 +42,7 @@ public:
                                   const char* name,
                                   int arrayCount,
                                   const char** outName = nullptr) {
-        SkASSERT(!GrSLTypeIsSamplerType(type));
+        SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
         return this->internalAddUniformArray(visibility, type, precision, name, true, arrayCount,
                                              outName);
     }

@@ -227,7 +227,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
     for (int t = 0; t < numTextures; ++t) {
         const GrTextureAccess& access = processor.textureAccess(t);
         GrSLType samplerType = access.getTexture()->samplerType();
-        if (kSamplerExternal_GrSLType == samplerType) {
+        if (kTextureExternalSampler_GrSLType == samplerType) {
             const char* externalFeatureString = this->glslCaps()->externalTextureExtensionString();
             // We shouldn't ever create a GrGLTexture that requires external sampler type
             SkASSERT(externalFeatureString);
@@ -247,7 +247,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
         for (int b = 0; b < numBuffers; ++b) {
             const GrBufferAccess& access = processor.bufferAccess(b);
             name.printf("BufferSampler%d", b);
-            this->emitSampler(kSamplerBuffer_GrSLType, access.texelConfig(), name.c_str(),
+            this->emitSampler(kTextureBufferSampler_GrSLType, access.texelConfig(), name.c_str(),
                               access.visibility(), outBufferSamplers);
             texelBufferVisibility |= access.visibility();
         }
