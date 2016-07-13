@@ -13,12 +13,11 @@
 class SkRecordedDrawable : public SkDrawable {
 public:
     SkRecordedDrawable(SkRecord* record, SkBBoxHierarchy* bbh, SkDrawableList* drawableList,
-                       const SkRect& bounds, bool doSaveLayerInfo)
+                       const SkRect& bounds)
         : fRecord(SkRef(record))
         , fBBH(SkSafeRef(bbh))
         , fDrawableList(drawableList)   // we take ownership
         , fBounds(bounds)
-        , fDoSaveLayerInfo(doSaveLayerInfo)
     {}
 
     void flatten(SkWriteBuffer& buffer) const override;
@@ -39,5 +38,4 @@ private:
     SkAutoTUnref<SkBBoxHierarchy>   fBBH;
     SkAutoTDelete<SkDrawableList>   fDrawableList;
     const SkRect                    fBounds;
-    const bool                      fDoSaveLayerInfo;
 };

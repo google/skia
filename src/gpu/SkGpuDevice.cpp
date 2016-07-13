@@ -13,8 +13,6 @@
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrImageIDTextureAdjuster.h"
-#include "GrLayerHoister.h"
-#include "GrRecordReplaceDraw.h"
 #include "GrStyle.h"
 #include "GrTracing.h"
 #include "SkCanvasPriv.h"
@@ -27,7 +25,6 @@
 #include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
-#include "SkLayerInfo.h"
 #include "SkMaskFilter.h"
 #include "SkNinePatchIter.h"
 #include "SkPathEffect.h"
@@ -1835,79 +1832,6 @@ sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfa
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
     return SkSurface::MakeRenderTarget(fContext, kBudgeted, info, fDrawContext->desc().fSampleCnt,
                                        &props);
-}
-
-bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* mainPicture,
-                                           const SkMatrix* matrix, const SkPaint* paint) {
-    ASSERT_SINGLE_OWNER
-#ifndef SK_IGNORE_GPU_LAYER_HOISTING
-    // todo: should handle this natively
-    if (paint ||
-        (kRGBA_8888_SkColorType != mainCanvas->imageInfo().colorType() &&
-         kBGRA_8888_SkColorType != mainCanvas->imageInfo().colorType())) {
-        return false;
-    }
-
-    const SkBigPicture::AccelData* data = nullptr;
-    if (const SkBigPicture* bp = mainPicture->asSkBigPicture()) {
-        data = bp->accelData();
-    }
-    if (!data) {
-        return false;
-    }
-
-    const SkLayerInfo *gpuData = static_cast<const SkLayerInfo*>(data);
-    if (0 == gpuData->numBlocks()) {
-        return false;
-    }
-
-    SkTDArray<GrHoistedLayer> atlasedNeedRendering, atlasedRecycled;
-
-    SkIRect iBounds;
-    if (!mainCanvas->getClipDeviceBounds(&iBounds)) {
-        return false;
-    }
-
-    SkRect clipBounds = SkRect::Make(iBounds);
-
-    SkMatrix initialMatrix = mainCanvas->getTotalMatrix();
-
-    GrLayerHoister::Begin(fContext);
-
-    GrLayerHoister::FindLayersToAtlas(fContext, mainPicture,
-                                      initialMatrix,
-                                      clipBounds,
-                                      &atlasedNeedRendering, &atlasedRecycled,
-                                      fDrawContext->numColorSamples());
-
-    GrLayerHoister::DrawLayersToAtlas(fContext, atlasedNeedRendering);
-
-    SkTDArray<GrHoistedLayer> needRendering, recycled;
-
-    SkAutoCanvasMatrixPaint acmp(mainCanvas, matrix, paint, mainPicture->cullRect());
-
-    GrLayerHoister::FindLayersToHoist(fContext, mainPicture,
-                                      initialMatrix,
-                                      clipBounds,
-                                      &needRendering, &recycled,
-                                      fDrawContext->numColorSamples());
-
-    GrLayerHoister::DrawLayers(fContext, needRendering);
-
-    // Render the entire picture using new layers
-    GrRecordReplaceDraw(mainPicture, mainCanvas, fContext->getLayerCache(),
-                        initialMatrix, nullptr);
-
-    GrLayerHoister::UnlockLayers(fContext, needRendering);
-    GrLayerHoister::UnlockLayers(fContext, recycled);
-    GrLayerHoister::UnlockLayers(fContext, atlasedNeedRendering);
-    GrLayerHoister::UnlockLayers(fContext, atlasedRecycled);
-    GrLayerHoister::End(fContext);
-
-    return true;
-#else
-    return false;
-#endif
 }
 
 SkImageFilterCache* SkGpuDevice::getImageFilterCache() {

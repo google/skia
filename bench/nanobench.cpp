@@ -705,11 +705,10 @@ public:
                         // The SKP we read off disk doesn't have a BBH.  Re-record so it grows one.
                         SkRTreeFactory factory;
                         SkPictureRecorder recorder;
-                        static const int kFlags = SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag;
                         pic->playback(recorder.beginRecording(pic->cullRect().width(),
                                                               pic->cullRect().height(),
                                                               &factory,
-                                                              fUseMPDs[fCurrentUseMPD] ? kFlags : 0));
+                                                              0));
                         pic = recorder.finishRecordingAsPicture();
                     }
                     SkString name = SkOSPath::Basename(path.c_str());

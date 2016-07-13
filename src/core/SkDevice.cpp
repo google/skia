@@ -258,12 +258,6 @@ bool SkBaseDevice::onReadPixels(const SkImageInfo&, void*, size_t, int x, int y)
     return false;
 }
 
-bool SkBaseDevice::EXPERIMENTAL_drawPicture(SkCanvas*, const SkPicture*, const SkMatrix*,
-                                            const SkPaint*) {
-    // The base class doesn't perform any accelerated picture rendering
-    return false;
-}
-
 bool SkBaseDevice::accessPixels(SkPixmap* pmap) {
     SkPixmap tempStorage;
     if (nullptr == pmap) {

@@ -152,7 +152,6 @@
         '<(skia_src_path)/core/SkImageCacherator.cpp',
         '<(skia_src_path)/core/SkImageGenerator.cpp',
         '<(skia_src_path)/core/SkImageGeneratorPriv.h',
-        '<(skia_src_path)/core/SkLayerInfo.h',
         '<(skia_src_path)/core/SkLightingShader.h',
         '<(skia_src_path)/core/SkLightingShader.cpp',
         '<(skia_src_path)/core/SkLinearBitmapPipeline.cpp',

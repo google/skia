@@ -30,7 +30,6 @@ class GrDrawContext;
 class GrFragmentProcessor;
 class GrGpu;
 class GrIndexBuffer;
-class GrLayerCache;
 class GrOvalRenderer;
 class GrPath;
 class GrPipelineBuilder;
@@ -346,7 +345,6 @@ public:
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
     GrBatchFontCache* getBatchFontCache() { return fBatchFontCache; }
-    GrLayerCache* getLayerCache() { return fLayerCache.get(); }
     GrTextBlobCache* getTextBlobCache() { return fTextBlobCache; }
     bool abandoned() const;
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
@@ -402,7 +400,6 @@ private:
     SkAutoTUnref<GrContextThreadSafeProxy>  fThreadSafeProxy;
 
     GrBatchFontCache*                       fBatchFontCache;
-    SkAutoTDelete<GrLayerCache>             fLayerCache;
     SkAutoTDelete<GrTextBlobCache>          fTextBlobCache;
 
     // Set by OverbudgetCB() to request that GrContext flush before exiting a draw.

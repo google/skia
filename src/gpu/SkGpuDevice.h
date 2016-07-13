@@ -145,10 +145,6 @@ protected:
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
     bool onShouldDisableLCD(const SkPaint&) const final;
 
-    /**  PRIVATE / EXPERIMENTAL -- do not call */
-    virtual bool EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture,
-                                          const SkMatrix*, const SkPaint*) override;
-
 private:
     // We want these unreffed in DrawContext, RenderTarget, GrContext order.
     SkAutoTUnref<GrContext>         fContext;

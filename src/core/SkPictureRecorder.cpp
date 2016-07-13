@@ -8,7 +8,6 @@
 #include "SkBigPicture.h"
 #include "SkData.h"
 #include "SkDrawable.h"
-#include "SkLayerInfo.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
 #include "SkRecord.h"
@@ -71,23 +70,13 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
         }
     }
 
-    SkAutoTUnref<SkLayerInfo> saveLayerData;
-
-    if (fBBH && (fFlags & kComputeSaveLayerInfo_RecordFlag)) {
-        saveLayerData.reset(new SkLayerInfo);
-    }
-
     SkDrawableList* drawableList = fRecorder->getDrawableList();
     SkBigPicture::SnapshotArray* pictList =
         drawableList ? drawableList->newDrawableSnapshot() : nullptr;
 
     if (fBBH.get()) {
         SkAutoTMalloc<SkRect> bounds(fRecord->count());
-        if (saveLayerData) {
-            SkRecordComputeLayers(fCullRect, *fRecord, bounds, pictList, saveLayerData);
-        } else {
-            SkRecordFillBounds(fCullRect, *fRecord, bounds);
-        }
+        SkRecordFillBounds(fCullRect, *fRecord, bounds);
         fBBH->insert(bounds, fRecord->count());
 
         // Now that we've calculated content bounds, we can update fCullRect, often trimming it.
@@ -103,7 +92,7 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
         subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
     }
     return sk_make_sp<SkBigPicture>(fCullRect, fRecord.release(), pictList, fBBH.release(),
-                            saveLayerData.release(), subPictureBytes);
+                                    subPictureBytes);
 }
 
 sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPictureWithCull(const SkRect& cullRect,
@@ -148,8 +137,7 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFl
     }
 
     sk_sp<SkDrawable> drawable =
-           sk_make_sp<SkRecordedDrawable>(fRecord, fBBH, fRecorder->detachDrawableList(), fCullRect,
-                                   SkToBool(fFlags & kComputeSaveLayerInfo_RecordFlag));
+         sk_make_sp<SkRecordedDrawable>(fRecord, fBBH, fRecorder->detachDrawableList(), fCullRect);
 
     // release our refs now, so only the drawable will be the owner.
     fRecord.reset(nullptr);

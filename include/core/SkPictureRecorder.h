@@ -31,9 +31,9 @@ public:
     ~SkPictureRecorder();
 
     enum RecordFlags {
-        // This flag indicates that, if some BHH is being computed, saveLayer
-        // information should also be extracted at the same time.
+#ifdef SK_SUPPORT_LEGACY_COMPUTESAVELAYER_FLAG
         kComputeSaveLayerInfo_RecordFlag    = 1 << 0,
+#endif
 
         // If you call drawPicture() or drawDrawable() on the recording canvas, this flag forces
         // that object to playback its contents immediately rather than reffing the object.

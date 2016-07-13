@@ -3012,15 +3012,6 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
         }
     }
 
-    SkBaseDevice* device = this->getTopDevice();
-    if (device) {
-        // Canvas has to first give the device the opportunity to render
-        // the picture itself.
-        if (device->EXPERIMENTAL_drawPicture(this, picture, matrix, paint)) {
-            return; // the device has rendered the entire picture
-        }
-    }
-
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
     picture->playback(this);
 }

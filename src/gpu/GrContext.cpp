@@ -9,7 +9,6 @@
 #include "GrContextOptions.h"
 #include "GrDrawingManager.h"
 #include "GrDrawContext.h"
-#include "GrLayerCache.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
@@ -88,8 +87,6 @@ void GrContext::initCommon(const GrContextOptions& options) {
     fResourceCache->setOverBudgetCallback(OverBudgetCB, this);
     fResourceProvider = new GrResourceProvider(fGpu, fResourceCache, &fSingleOwner);
 
-    fLayerCache.reset(new GrLayerCache(this));
-
     fDidTestPMConversions = false;
 
     GrDrawTarget::Options dtOptions;
@@ -152,7 +149,6 @@ void GrContext::abandonContext() {
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
 
     fBatchFontCache->freeAll();
-    fLayerCache->freeAll();
     fTextBlobCache->freeAll();
 }
 
@@ -171,7 +167,6 @@ void GrContext::releaseResourcesAndAbandonContext() {
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
 
     fBatchFontCache->freeAll();
-    fLayerCache->freeAll();
     fTextBlobCache->freeAll();
 }
 
@@ -186,7 +181,6 @@ void GrContext::freeGpuResources() {
     this->flush();
 
     fBatchFontCache->freeAll();
-    fLayerCache->freeAll();
 
     fDrawingManager->freeGpuResources();
 
