@@ -779,27 +779,6 @@ DEF_TEST(Canvas_ClipEmptyPath, reporter) {
     canvas.restore();
 }
 
-class SkTestCanvas : public SkCanvas {
-public:
-    void testUpdateDepth(skiatest::Reporter* reporter) {
-        // set some depths (with picture enabled), then check them as they get set
-
-        REPORTER_ASSERT(reporter, this->getZ() == 0);
-        this->translateZ(-10);
-        REPORTER_ASSERT(reporter, this->getZ() == -10);
-
-        this->save();
-        this->translateZ(20);
-        REPORTER_ASSERT(reporter, this->getZ() == 10);
-
-        this->restore();
-        REPORTER_ASSERT(reporter, this->getZ() == -10);
-
-        this->translateZ(13.14f);
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(this->getZ(),3.14f));
-    }
-};
-
 namespace {
 
 class MockFilterCanvas : public SkPaintFilterCanvas {
@@ -833,11 +812,6 @@ DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
     REPORTER_ASSERT(reporter, canvas.getTotalMatrix() == filterCanvas.getTotalMatrix());
     REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
     REPORTER_ASSERT(reporter, clip1 == clip2);
-
-    SkTestCanvas* tCanvas;
-
-    tCanvas = (SkTestCanvas*) new SkCanvas(100,100);
-    tCanvas->testUpdateDepth(reporter);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

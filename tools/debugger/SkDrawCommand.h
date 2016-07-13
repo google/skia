@@ -56,9 +56,8 @@ public:
         kSave_OpType,
         kSaveLayer_OpType,
         kSetMatrix_OpType,
-        kTranslateZ_OpType,
 
-        kLast_OpType = kTranslateZ_OpType
+        kLast_OpType = kSetMatrix_OpType
     };
 
     static const int kOpTypeCount = kLast_OpType + 1;
@@ -126,7 +125,6 @@ public:
     static Json::Value MakeJsonRect(const SkRect& rect);
     static Json::Value MakeJsonIRect(const SkIRect&);
     static Json::Value MakeJsonMatrix(const SkMatrix&);
-    static Json::Value MakeJsonScalar(SkScalar);
     static Json::Value MakeJsonPath(const SkPath& path);
     static Json::Value MakeJsonRegion(const SkRegion& region);
     static Json::Value MakeJsonPaint(const SkPaint& paint, UrlDataManager& urlDataManager);
@@ -733,16 +731,4 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
-class SkTranslateZCommand : public SkDrawCommand {
-public:
-    SkTranslateZCommand(SkScalar);
-    void execute(SkCanvas* canvas) const override;
-    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
-    static SkTranslateZCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
-
-private:
-    SkScalar fZTranslate;
-
-    typedef SkDrawCommand INHERITED;
-};
 #endif

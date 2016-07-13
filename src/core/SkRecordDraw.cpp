@@ -87,8 +87,6 @@ DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op, r.opAA.aa));
 DRAW(ClipRect, clipRect(r.rect, r.opAA.op, r.opAA.aa));
 DRAW(ClipRegion, clipRegion(r.region, r.op));
 
-DRAW(TranslateZ, SkCanvas::translateZ(r.z));
-
 DRAW(DrawBitmap, drawBitmap(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
 DRAW(DrawBitmapNine, drawBitmapNine(r.bitmap.shallowCopy(), r.center, r.dst, r.paint));
 DRAW(DrawBitmapRect,
@@ -289,8 +287,6 @@ private:
     void trackBounds(const ClipRRect&)         { this->pushControl(); }
     void trackBounds(const ClipPath&)          { this->pushControl(); }
     void trackBounds(const ClipRegion&)        { this->pushControl(); }
-
-    void trackBounds(const TranslateZ&)              { this->pushControl(); }
 
     // For all other ops, we can calculate and store the bounds directly now.
     template <typename T> void trackBounds(const T& op) {

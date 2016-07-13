@@ -451,13 +451,6 @@ public:
     */
     void resetMatrix();
 
-    /** Add the specified translation to the current draw depth of the canvas.
-        @param z    The distance to translate in Z.
-                    Negative into screen, positive out of screen.
-                    Without translation, the draw depth defaults to 0.
-    */
-    void translateZ(SkScalar z);
-
     /**
      *  Modify the current clip with the specified rectangle.
      *  @param rect The rect to combine with the current clip
@@ -508,8 +501,7 @@ public:
         matrix, clipRegion() assumes its argument is already in device
         coordinates, and so no transformation is performed.
         @param deviceRgn    The region to apply to the current clip
-        @param op The regio
-        n op to apply to the current clip
+        @param op The region op to apply to the current clip
     */
     void clipRegion(const SkRegion& deviceRgn,
                     SkRegion::Op op = SkRegion::kIntersect_Op);
@@ -1268,10 +1260,6 @@ public:
     void temporary_internal_describeTopLayer(SkMatrix* matrix, SkIRect* clip_bounds);
 
 protected:
-    /** Returns the current (cumulative) draw depth of the canvas.
-      */
-    SkScalar getZ() const;
-
     /** After calling saveLayer(), there can be any number of devices that make
         up the top-most drawing area. LayerIter can be used to iterate through
         those devices. Note that the iterator is only valid until the next API
@@ -1337,7 +1325,6 @@ protected:
     virtual void didRestore() {}
     virtual void didConcat(const SkMatrix&) {}
     virtual void didSetMatrix(const SkMatrix&) {}
-    virtual void didTranslateZ(SkScalar) {}
 
     virtual void onDrawAnnotation(const SkRect&, const char key[], SkData* value);
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
