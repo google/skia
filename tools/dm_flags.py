@@ -221,6 +221,10 @@ def get_args(bot):
     for raw_ext in r:
       blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
 
+  if 'Nexus9' in bot:
+    for raw_ext in r:
+      blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
+
   # Large image that overwhelms older Mac bots
   if 'MacMini4.1-GPU' in bot:
     blacklist.extend('_ image _ abnormal.wbmp'.split(' '))
