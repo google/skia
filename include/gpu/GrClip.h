@@ -112,6 +112,26 @@ public:
                        GrAppliedClip* out) const = 0;
 
     virtual ~GrClip() {}
+
+protected:
+    /**
+     * Returns true if a clip can safely disable its scissor test for a particular draw.
+     */
+    static bool CanIgnoreScissor(const SkIRect& scissorRect, const SkRect& drawBounds) {
+        // This is the maximum distance that a draw may extend beyond a clip's scissor and still
+        // count as inside. We use a sloppy compare because the draw may have chosen its bounds in a
+        // different coord system. The rationale for 1e-3 is that in the coverage case (and barring
+        // unexpected rounding), as long as coverage stays below 0.5 * 1/256 we ought to be OK.
+        constexpr SkScalar fuzz = 1e-3f;
+        SkASSERT(!scissorRect.isEmpty());
+        SkASSERT(!drawBounds.isEmpty());
+        return scissorRect.fLeft <= drawBounds.fLeft + fuzz &&
+               scissorRect.fTop <= drawBounds.fTop + fuzz &&
+               scissorRect.fRight >= drawBounds.fRight - fuzz &&
+               scissorRect.fBottom >= drawBounds.fBottom - fuzz;
+    }
+
+    friend class GrClipMaskManager;
 };
 
 /**

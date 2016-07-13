@@ -302,17 +302,70 @@ static bool should_apply_coverage_aa(const GrPaint& paint, GrRenderTarget* rt,
     }
 }
 
+// Attempts to crop a rect and optional local rect to the clip boundaries.
+// Returns false if the draw can be skipped entirely.
+static bool crop_filled_rect(const GrRenderTarget* rt, const GrClip& clip,
+                             const SkMatrix& viewMatrix, SkRect* rect,
+                             SkRect* localRect = nullptr) {
+    if (!viewMatrix.rectStaysRect()) {
+        return true;
+    }
+
+    SkMatrix inverseViewMatrix;
+    if (!viewMatrix.invert(&inverseViewMatrix)) {
+        return false;
+    }
+
+    SkIRect clipDevBounds;
+    SkRect clipBounds;
+    SkASSERT(inverseViewMatrix.rectStaysRect());
+
+    clip.getConservativeBounds(rt->width(), rt->height(), &clipDevBounds);
+    inverseViewMatrix.mapRect(&clipBounds, SkRect::Make(clipDevBounds));
+
+    if (localRect) {
+        if (!rect->intersects(clipBounds)) {
+            return false;
+        }
+        const SkScalar dx = localRect->width() / rect->width();
+        const SkScalar dy = localRect->height() / rect->height();
+        if (clipBounds.fLeft > rect->fLeft) {
+            localRect->fLeft += (clipBounds.fLeft - rect->fLeft) * dx;
+            rect->fLeft = clipBounds.fLeft;
+        }
+        if (clipBounds.fTop > rect->fTop) {
+            localRect->fTop += (clipBounds.fTop - rect->fTop) * dy;
+            rect->fTop = clipBounds.fTop;
+        }
+        if (clipBounds.fRight < rect->fRight) {
+            localRect->fRight -= (rect->fRight - clipBounds.fRight) * dx;
+            rect->fRight = clipBounds.fRight;
+        }
+        if (clipBounds.fBottom < rect->fBottom) {
+            localRect->fBottom -= (rect->fBottom - clipBounds.fBottom) * dy;
+            rect->fBottom = clipBounds.fBottom;
+        }
+        return true;
+    }
+
+    return rect->intersect(clipBounds);
+}
+
 bool GrDrawContext::drawFilledRect(const GrClip& clip,
                                    const GrPaint& paint,
                                    const SkMatrix& viewMatrix,
                                    const SkRect& rect,
                                    const GrUserStencilSettings* ss) {
+    SkRect croppedRect = rect;
+    if (!crop_filled_rect(fRenderTarget.get(), clip, viewMatrix, &croppedRect)) {
+        return true;
+    }
 
     SkAutoTUnref<GrDrawBatch> batch;
     bool useHWAA;
 
     if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
-        batch.reset(ir->recordRect(rect, viewMatrix, paint.getColor(),
+        batch.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
                                    paint.isAntiAlias(), fInstancedPipelineInfo,
                                    &useHWAA));
         if (batch) {
@@ -329,10 +382,10 @@ bool GrDrawContext::drawFilledRect(const GrClip& clip,
         // The fill path can handle rotation but not skew.
         if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
             SkRect devBoundRect;
-            viewMatrix.mapRect(&devBoundRect, rect);
+            viewMatrix.mapRect(&devBoundRect, croppedRect);
 
             batch.reset(GrRectBatchFactory::CreateAAFill(paint.getColor(), viewMatrix,
-                                                         rect, devBoundRect));
+                                                         croppedRect, devBoundRect));
             if (batch) {
                 GrPipelineBuilder pipelineBuilder(paint, useHWAA);
                 if (ss) {
@@ -343,7 +396,7 @@ bool GrDrawContext::drawFilledRect(const GrClip& clip,
             }
         }
     } else {
-        this->drawNonAAFilledRect(clip, paint, viewMatrix, rect, nullptr, nullptr, ss);
+        this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, nullptr, nullptr, ss);
         return true;
     }
 
@@ -553,12 +606,18 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::fillRectToRect");
 
+    SkRect croppedRect = rectToDraw;
+    SkRect croppedLocalRect = localRect;
+    if (!crop_filled_rect(fRenderTarget.get(), clip, viewMatrix, &croppedRect, &croppedLocalRect)) {
+        return;
+    }
+
     AutoCheckFlush acf(fDrawingManager);
     SkAutoTUnref<GrDrawBatch> batch;
     bool useHWAA;
 
     if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
-        batch.reset(ir->recordRect(rectToDraw, viewMatrix, paint.getColor(), localRect,
+        batch.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(), croppedLocalRect,
                                    paint.isAntiAlias(), fInstancedPipelineInfo, &useHWAA));
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
@@ -569,15 +628,15 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
 
     if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA) &&
         view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        batch.reset(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(), viewMatrix, rectToDraw,
-                                                           localRect));
+        batch.reset(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(), viewMatrix,
+                                                           croppedRect, croppedLocalRect));
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
             this->drawBatch(pipelineBuilder, clip, batch);
             return;
         }
     } else {
-        this->drawNonAAFilledRect(clip, paint, viewMatrix, rectToDraw, &localRect,
+        this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, &croppedLocalRect,
                                   nullptr, nullptr);
     }
 
@@ -593,12 +652,17 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::fillRectWithLocalMatrix");
 
+    SkRect croppedRect = rectToDraw;
+    if (!crop_filled_rect(fRenderTarget.get(), clip, viewMatrix, &croppedRect)) {
+        return;
+    }
+
     AutoCheckFlush acf(fDrawingManager);
     SkAutoTUnref<GrDrawBatch> batch;
     bool useHWAA;
 
     if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
-        batch.reset(ir->recordRect(rectToDraw, viewMatrix, paint.getColor(), localMatrix,
+        batch.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(), localMatrix,
                                    paint.isAntiAlias(), fInstancedPipelineInfo, &useHWAA));
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
@@ -610,11 +674,11 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
     if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA) &&
         view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
         batch.reset(GrAAFillRectBatch::Create(paint.getColor(), viewMatrix, localMatrix,
-                                              rectToDraw));
+                                              croppedRect));
         GrPipelineBuilder pipelineBuilder(paint, useHWAA);
         this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
     } else {
-        this->drawNonAAFilledRect(clip, paint, viewMatrix, rectToDraw, nullptr,
+        this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, nullptr,
                                   &localMatrix, nullptr);
     }
 
