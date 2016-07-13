@@ -655,7 +655,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     }
 
 #ifndef SK_IGNORE_GPU_DITHER
-    if (skPaint.isDither() && grPaint->numColorFragmentProcessors() > 0) {
+    if (skPaint.isDither() && grPaint->numColorFragmentProcessors() > 0 && !allowSRGBInputs) {
         grPaint->addColorFragmentProcessor(GrDitherEffect::Make());
     }
 #endif
