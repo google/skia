@@ -129,8 +129,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->skip(size - 4);
         } break;
         case CLIP_PATH: {
-            const SkPath& path = fPictureData->getPath(reader);
-            uint32_t packed = reader->readInt();
+            const SkPath& path = fPictureData->getPath(reader); 
+            uint32_t packed = reader->readInt(); 
             SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
@@ -616,6 +616,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkScalar dy = reader->readScalar();
             canvas->translate(dx, dy);
         } break;
+        case TRANSLATE_Z: {
+            SkScalar dz = reader->readScalar();
+            canvas->translateZ(dz);
+        }
         default:
             SkASSERTF(false, "Unknown draw type: %d", op);
     }

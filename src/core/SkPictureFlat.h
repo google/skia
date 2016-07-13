@@ -81,7 +81,9 @@ enum DrawType {
     DRAW_DRAWABLE_MATRIX,
     DRAW_TEXT_RSXFORM,
 
-    LAST_DRAWTYPE_ENUM = DRAW_DRAWABLE_MATRIX,
+    TRANSLATE_Z,
+
+    LAST_DRAWTYPE_ENUM = TRANSLATE_Z
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

@@ -690,6 +690,11 @@ void SkDebugCanvas::didSetMatrix(const SkMatrix& matrix) {
     this->INHERITED::didSetMatrix(matrix);
 }
 
+void SkDebugCanvas::didTranslateZ(SkScalar z) {
+    this->addDrawCommand(new SkTranslateZCommand(z));
+    this->INHERITED::didTranslateZ(z);
+}
+
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {
     SkASSERT(index < fCommandVector.count());
     fCommandVector[index]->setVisible(toggle);
