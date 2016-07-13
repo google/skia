@@ -9,6 +9,7 @@
 #include "GrVkGpu.h"
 #include "GrVkImageView.h"
 #include "GrTexturePriv.h"
+#include "GrVkTextureRenderTarget.h"
 #include "GrVkUtil.h"
 
 #include "vk/GrVkTypes.h"
@@ -161,7 +162,7 @@ const GrVkImageView* GrVkTexture::textureView(bool allowSRGB) {
     return fLinearTextureView;
 }
 
-bool GrVkTexture::reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels) {
+bool GrVkTexture::reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels) {
     if (mipLevels == 1) {
         // don't need to do anything for a 1x1 texture
         return false;
@@ -174,7 +175,6 @@ bool GrVkTexture::reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels) {
         return false;
     }
 
-    // Does this even make sense for rendertargets?
     bool renderTarget = SkToBool(fDesc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -207,6 +207,14 @@ bool GrVkTexture::reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels) {
     if (!textureView) {
         GrVkImage::DestroyImageInfo(gpu, &info);
         return false;
+    }
+
+    if (renderTarget) {
+        GrVkTextureRenderTarget* texRT = static_cast<GrVkTextureRenderTarget*>(this);
+        if (!texRT->updateForMipmap(gpu, info)) {
+            GrVkImage::DestroyImageInfo(gpu, &info);
+            return false;
+        }
     }
 
     oldResource->unref(gpu);

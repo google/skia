@@ -60,14 +60,14 @@ public:
     };
     static Trace  fTrace;
 
-    static SkRandom fRandom;
+    static uint32_t fKeyCounter;
 #endif
 
     /** Default construct, initializing the reference count to 1.
      */
     GrVkResource() : fRefCnt(1) {
 #ifdef SK_TRACE_VK_RESOURCES
-        fKey = fRandom.nextU();
+        fKey = sk_atomic_fetch_add(&fKeyCounter, 1u, sk_memory_order_relaxed);
         fTrace.add(this);
 #endif
     }

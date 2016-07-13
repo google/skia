@@ -770,7 +770,7 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     return tgt;
 }
 
-void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
+void GrVkGpu::generateMipmap(GrVkTexture* tex) {
     // don't do anything for linearly tiled textures (can't have mipmaps)
     if (tex->isLinearTiled()) {
         SkDebugf("Trying to create mipmap for linear tiled texture");

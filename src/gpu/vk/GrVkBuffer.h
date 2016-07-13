@@ -68,7 +68,7 @@ protected:
         Type               fType;
 
     private:
-        void freeGPUData(const GrVkGpu* gpu) const;
+        void freeGPUData(const GrVkGpu* gpu) const override;
 
         typedef GrVkResource INHERITED;
     };

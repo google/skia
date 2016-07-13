@@ -337,7 +337,7 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
 }
 
 static void append_sampled_images(const GrProcessor& processor,
-                                  const GrVkGpu* gpu,
+                                  GrVkGpu* gpu,
                                   SkTArray<GrVkImage*>* sampledImages) {
     if (int numTextures = processor.numTextures()) {
         GrVkImage** images = sampledImages->push_back_n(numTextures);

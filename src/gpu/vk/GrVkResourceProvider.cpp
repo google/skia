@@ -16,7 +16,7 @@
 
 #ifdef SK_TRACE_VK_RESOURCES
 GrVkResource::Trace GrVkResource::fTrace;
-SkRandom GrVkResource::fRandom;
+uint32_t GrVkResource::fKeyCounter = 0;
 #endif
 
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)

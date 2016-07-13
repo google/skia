@@ -136,7 +136,7 @@ public:
 
     void finishDrawTarget() override;
 
-    void generateMipmap(GrVkTexture* tex) const;
+    void generateMipmap(GrVkTexture* tex);
 
     bool updateBuffer(GrVkBuffer* buffer, const void* src, VkDeviceSize offset, VkDeviceSize size);
 
