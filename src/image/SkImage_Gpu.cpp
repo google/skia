@@ -332,6 +332,31 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context) const {
     return create_image_from_maker(&maker, at, this->uniqueID());
 }
 
+sk_sp<SkImage> SkImage::makeNonTextureImage() const {
+    GrTexture* texture = as_IB(this)->peekTexture();
+    if (!texture) {
+        return sk_ref_sp(const_cast<SkImage*>(this));
+    }
+    SkColorType ct;
+    sk_sp<SkColorSpace> cs;
+    if (!GrPixelConfigToColorAndColorSpace(texture->config(), &ct, &cs)) {
+        return nullptr;
+    }
+    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    auto info = SkImageInfo::Make(this->width(), this->height(), ct, at, cs);
+    size_t rowBytes = info.minRowBytes();
+    size_t size = info.getSafeSize(rowBytes);
+    auto data = SkData::MakeUninitialized(size);
+    if (!data) {
+        return nullptr;
+    }
+    SkPixmap pm(info, data->writable_data(), rowBytes);
+    if (!this->readPixels(pm, 0, 0, kDisallow_CachingHint)) {
+        return nullptr;
+    }
+    return MakeRasterData(info, data, rowBytes);
+}
+
 sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext* ctx, const SkPixmap& pixmap,
                                               SkBudgeted budgeted) {
     if (!ctx) {

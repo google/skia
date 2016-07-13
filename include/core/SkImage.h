@@ -330,6 +330,11 @@ public:
     sk_sp<SkImage> makeTextureImage(GrContext*) const;
 
     /**
+     * If the image is texture-backed this will make a raster copy of it (or nullptr if reading back
+     * the pixels fails). Otherwise, it returns the original image.
+     */
+    sk_sp<SkImage> makeNonTextureImage() const;
+    /**
      *  Apply a given image filter to this image, and return the filtered result.
      *
      *  The subset represents the active portion of this image. The return value is similarly an

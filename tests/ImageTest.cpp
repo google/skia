@@ -475,6 +475,33 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, contextInf
     }
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contextInfo) {
+    GrContext* context = contextInfo.grContext();
+
+    std::function<sk_sp<SkImage>()> imageFactories[] = {
+        create_image,
+        create_codec_image,
+        create_data_image,
+        create_picture_image,
+        [context] { return create_gpu_image(context); },
+    };
+    for (auto factory : imageFactories) {
+        sk_sp<SkImage> image = factory();
+        if (!image->isTextureBacked()) {
+            REPORTER_ASSERT(reporter, image->makeNonTextureImage().get() == image.get());
+            if (!(image = image->makeTextureImage(context))) {
+                continue;
+            }
+        }
+        auto rasterImage = image->makeNonTextureImage();
+        if (!rasterImage) {
+            ERRORF(reporter, "makeNonTextureImage failed for texture-backed image.");
+        }
+        REPORTER_ASSERT(reporter, !rasterImage->isTextureBacked());
+        assert_equal(reporter, image.get(), nullptr, rasterImage.get());
+    }
+}
+
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, contextInfo) {
     auto context = contextInfo.grContext();
     auto image = create_gpu_image(context);
