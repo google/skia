@@ -163,7 +163,7 @@ static void test_this_conic_to_quad(skiatest::Reporter* r, const SkPoint pts[3],
 static void test_conic_to_quads(skiatest::Reporter* reporter) {
     const SkPoint triples[] = {
         { 0, 0 }, { 1, 0 }, { 1, 1 },
-        { 3.58732e-43f, 2.72084f }, { 3.00392f, 3.00392f },
+        { 0, 0 }, { 3.58732e-43f, 2.72084f }, { 3.00392f, 3.00392f },
         { 0, 0 }, { 100000, 0 }, { 100000, 100000 },
         { 0, 0 }, { 1e30f, 0 }, { 1e30f, 1e30f },
     };
