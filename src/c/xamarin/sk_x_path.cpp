@@ -183,5 +183,3 @@ void sk_path_add_path_reverse (sk_path_t* cpath, sk_path_t* other)
 {
     as_path (cpath)->reverseAddPath (AsPath (*other));
 }
-
-

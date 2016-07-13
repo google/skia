@@ -240,7 +240,15 @@ typedef enum {
 	APPEND_ADD_MODE,
 	EXTEND_ADD_MODE,
 } sk_path_add_mode_t;
-	
+
+typedef enum {
+	TRANSLATE_SK_PATH_EFFECT_1D_STYLE,
+	ROTATE_SK_PATH_EFFECT_1D_STYLE,
+	MORPH_SK_PATH_EFFECT_1D_STYLE,
+} sk_path_effect_1d_style_t;
+
+typedef struct sk_path_effect_t sk_path_effect_t;  
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

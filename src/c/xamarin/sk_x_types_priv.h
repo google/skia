@@ -25,6 +25,7 @@
 #include "../../include/effects/SkDisplacementMapEffect.h"
 #include "../../include/effects/SkDropShadowImageFilter.h"
 #include "../../include/effects/SkMatrixConvolutionImageFilter.h"
+#include "../../include/effects/Sk1DPathEffect.h"
 
 #include "sk_path.h"
 #include "sk_paint.h"
@@ -375,6 +376,19 @@ const struct {
 #define CType           sk_region_op_t
 #define SKType          SkRegion::Op
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_region_op_t)
+#include "../sk_c_from_to.h"
+
+const struct {
+    sk_path_effect_1d_style_t fC;
+    SkPath1DPathEffect::Style fSK;
+} MAKE_FROM_TO_NAME(sk_path_effect_1d_style_t)[] = {
+    { TRANSLATE_SK_PATH_EFFECT_1D_STYLE, SkPath1DPathEffect::kTranslate_Style },
+    { ROTATE_SK_PATH_EFFECT_1D_STYLE,    SkPath1DPathEffect::kRotate_Style    },
+    { MORPH_SK_PATH_EFFECT_1D_STYLE,     SkPath1DPathEffect::kMorph_Style     },
+};
+#define CType           sk_path_effect_1d_style_t
+#define SKType          SkPath1DPathEffect::Style
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_path_effect_1d_style_t)
 #include "../sk_c_from_to.h"
 
 static inline SkRect* AsRect(sk_rect_t* crect) {
@@ -737,4 +751,21 @@ static inline SkPath::RawIter* AsPathRawIter(sk_path_rawiterator_t* iter) {
 static inline sk_path_rawiterator_t* ToPathRawIter(SkPath::RawIter* iter) {
     return reinterpret_cast<sk_path_rawiterator_t*>(iter);
 }
+
+static inline const SkPathEffect* AsPathEffect(const sk_path_effect_t* p) {
+    return reinterpret_cast<const SkPathEffect*>(p);
+}
+
+static inline SkPathEffect* AsPathEffect(sk_path_effect_t* p) {
+    return reinterpret_cast<SkPathEffect*>(p);
+}
+
+static inline sk_path_effect_t* ToPathEffect(SkPathEffect* p) {
+    return reinterpret_cast<sk_path_effect_t*>(p);
+}
+
+static inline const sk_path_effect_t* ToPathEffect(const SkPathEffect* p) {
+    return reinterpret_cast<const sk_path_effect_t*>(p);
+}
+
 #endif
