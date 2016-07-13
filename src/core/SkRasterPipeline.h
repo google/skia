@@ -96,9 +96,16 @@ public:
 private:
     using Stages = SkSTArray<10, Stage, /*MEM_COPY=*/true>;
 
+    // This no-op default makes fBodyStart and fTailStart unconditionally safe to call,
+    // and is always the last stage's fNext as a sort of safety net to make sure even a
+    // buggy pipeline can't walk off its own end.
+    static void SK_VECTORCALL JustReturn(Stage*, size_t, Sk4f,Sk4f,Sk4f,Sk4f,
+                                                         Sk4f,Sk4f,Sk4f,Sk4f);
+
     Stages fBody,
            fTail;
-    bool   fReadyToRun = false;
+    Fn fBodyStart = &JustReturn,
+       fTailStart = &JustReturn;
 };
 
 #endif//SkRasterPipeline_DEFINED

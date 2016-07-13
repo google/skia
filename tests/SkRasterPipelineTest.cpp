@@ -85,3 +85,17 @@ DEF_TEST(SkRasterPipeline, r) {
     REPORTER_ASSERT(r, dst_vals[3] == 16);
     REPORTER_ASSERT(r, dst_vals[4] == 25);
 }
+
+DEF_TEST(SkRasterPipeline_empty, r) {
+    // No asserts... just a test that this is safe to run.
+    SkRasterPipeline p;
+    p.run(20);
+}
+
+DEF_TEST(SkRasterPipeline_nonsense, r) {
+    // No asserts... just a test that this is safe to run and terminates.
+    // square() always calls st->next(); this makes sure we've always got something there to call.
+    SkRasterPipeline p;
+    p.append(square);
+    p.run(20);
+}
