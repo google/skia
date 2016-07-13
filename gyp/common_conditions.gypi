@@ -19,6 +19,8 @@
     'SK_HAS_JPEG_LIBRARY',
     'SK_HAS_PNG_LIBRARY',
     'SK_HAS_WEBP_LIBRARY',
+    'SKIA_DLL',
+    'SKIA_IMPLEMENTATION=1',
   ],
   'conditions' : [
     [ 'skia_is_bot', {
@@ -63,8 +65,6 @@
           '_CRT_SECURE_NO_WARNINGS',
           'GR_GL_FUNCTION_TYPE=__stdcall',
           '_HAS_EXCEPTIONS=0',
-          'SKIA_DLL',
-          'SKIA_IMPLEMENTATION=1',
         ],
         'msvs_disabled_warnings': [
             4251,  # An exported class member was of a type that was not exported
@@ -567,7 +567,6 @@
       {
         'defines': [
           'SK_BUILD_FOR_IOS',
-          'SKIA_DLL',
         ],
         'conditions' : [
           [ 'skia_warnings_as_errors', {
