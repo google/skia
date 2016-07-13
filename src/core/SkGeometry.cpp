@@ -1170,9 +1170,18 @@ static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
 
 int SkConic::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
     SkASSERT(pow2 >= 0);
+    const int quadCount = 1 << pow2;
+    const int ptCount = 2 * quadCount + 1;
     *pts = fPts[0];
     SkDEBUGCODE(SkPoint* endPts =) subdivide(*this, pts + 1, pow2);
-    SkASSERT(endPts - pts == (2 * (1 << pow2) + 1));
+    SkASSERT(endPts - pts == ptCount);
+    if (!SkPointsAreFinite(pts, ptCount)) {
+        // if we generated a non-finite, pin ourselves to the middle of the hull,
+        // as our first and last are already on the first/last pts of the hull.
+        for (int i = 1; i < ptCount - 1; ++i) {
+            pts[i] = fPts[1];
+        }
+    }
     return 1 << pow2;
 }
 

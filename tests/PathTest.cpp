@@ -619,6 +619,19 @@ static void test_bounds_crbug_513799(skiatest::Reporter* reporter) {
 #endif
 }
 
+#include "SkSurface.h"
+static void test_fuzz_crbug_627414(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.conicTo(3.58732e-43f, 2.72084f, 3.00392f, 3.00392f, 8.46e+37f);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    auto surf = SkSurface::MakeRasterN32Premul(100, 100);
+    surf->getCanvas()->drawPath(path, paint);
+}
+
 // Inspired by http://ie.microsoft.com/testdrive/Performance/Chalkboard/
 // which triggered an assert, from a tricky cubic. This test replicates that
 // example, so we can ensure that we handle it (in SkEdge.cpp), and don't
@@ -4164,6 +4177,7 @@ DEF_TEST(PathContains, reporter) {
 }
 
 DEF_TEST(Paths, reporter) {
+    test_fuzz_crbug_627414(reporter);
     test_path_crbug364224();
 
     SkTSize<SkScalar>::Make(3,4);
