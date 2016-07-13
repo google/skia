@@ -435,7 +435,6 @@ struct Poly {
                 m->fPrev = fTail;
                 fTail->fNext = m;
                 fTail = m;
-                fCount += 2;
             }
         }
         return poly;
