@@ -18,17 +18,17 @@ namespace SkSL {
  * A function definition (a declaration plus an associated block of code).
  */
 struct FunctionDefinition : public ProgramElement {
-    FunctionDefinition(Position position, const FunctionDeclaration& declaration, 
+    FunctionDefinition(Position position, std::shared_ptr<FunctionDeclaration> declaration,
                        std::unique_ptr<Block> body)
     : INHERITED(position, kFunction_Kind)
-    , fDeclaration(declaration)
+    , fDeclaration(std::move(declaration))
     , fBody(std::move(body)) {}
 
     std::string description() const override {
-        return fDeclaration.description() + " " + fBody->description();
+        return fDeclaration->description() + " " + fBody->description();
     }
 
-    const FunctionDeclaration& fDeclaration;
+    const std::shared_ptr<FunctionDeclaration> fDeclaration;
     const std::unique_ptr<Block> fBody;
 
     typedef ProgramElement INHERITED;

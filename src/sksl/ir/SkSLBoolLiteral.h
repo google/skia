@@ -17,7 +17,7 @@ namespace SkSL {
  */
 struct BoolLiteral : public Expression {
     BoolLiteral(Position position, bool value)
-    : INHERITED(position, kBoolLiteral_Kind, *kBool_Type)
+    : INHERITED(position, kBoolLiteral_Kind, kBool_Type)
     , fValue(value) {}
 
     std::string description() const override {

@@ -12,7 +12,6 @@
 #include <memory>
 
 #include "SkSLProgramElement.h"
-#include "SkSLSymbolTable.h"
 
 namespace SkSL {
 
@@ -25,16 +24,13 @@ struct Program {
         kVertex_Kind
     };
 
-    Program(Kind kind, std::vector<std::unique_ptr<ProgramElement>> elements, 
-            std::shared_ptr<SymbolTable> symbols)
+    Program(Kind kind, std::vector<std::unique_ptr<ProgramElement>> elements)
     : fKind(kind) 
-    , fElements(std::move(elements))
-    , fSymbols(symbols) {}
+    , fElements(std::move(elements)) {}
 
     Kind fKind;
 
     std::vector<std::unique_ptr<ProgramElement>> fElements;
-    std::shared_ptr<SymbolTable> fSymbols;
 };
 
 } // namespace

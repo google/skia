@@ -10,7 +10,6 @@
 
 #include "SkSLExpression.h"
 #include "SkSLStatement.h"
-#include "SkSLSymbolTable.h"
 
 namespace SkSL {
 
@@ -20,13 +19,12 @@ namespace SkSL {
 struct ForStatement : public Statement {
     ForStatement(Position position, std::unique_ptr<Statement> initializer, 
                  std::unique_ptr<Expression> test, std::unique_ptr<Expression> next, 
-                 std::unique_ptr<Statement> statement, std::shared_ptr<SymbolTable> symbols)
+                 std::unique_ptr<Statement> statement)
     : INHERITED(position, kFor_Kind)
     , fInitializer(std::move(initializer))
     , fTest(std::move(test))
     , fNext(std::move(next))
-    , fStatement(std::move(statement))
-    , fSymbols(symbols) {}
+    , fStatement(std::move(statement)) {}
 
     std::string description() const override {
         std::string result = "for (";
@@ -49,7 +47,6 @@ struct ForStatement : public Statement {
     const std::unique_ptr<Expression> fTest;
     const std::unique_ptr<Expression> fNext;
     const std::unique_ptr<Statement> fStatement;
-    const std::shared_ptr<SymbolTable> fSymbols;
 
     typedef Statement INHERITED;
 };

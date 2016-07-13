@@ -19,7 +19,7 @@ struct IntLiteral : public Expression {
     // FIXME: we will need to revisit this if/when we add full support for both signed and unsigned
     // 64-bit integers, but for right now an int64_t will hold every value we care about
     IntLiteral(Position position, int64_t value)
-    : INHERITED(position, kIntLiteral_Kind, *kInt_Type)
+    : INHERITED(position, kIntLiteral_Kind, kInt_Type)
     , fValue(value) {}
 
     virtual std::string description() const override {

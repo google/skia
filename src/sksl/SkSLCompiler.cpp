@@ -43,7 +43,7 @@ Compiler::Compiler()
     auto symbols = std::shared_ptr<SymbolTable>(new SymbolTable(types, *this));
     fIRGenerator = new IRGenerator(symbols, *this);
     fTypes = types;
-    #define ADD_TYPE(t) types->addWithoutOwnership(k ## t ## _Type->fName, k ## t ## _Type)
+    #define ADD_TYPE(t) types->add(k ## t ## _Type->fName, k ## t ## _Type)
     ADD_TYPE(Void);
     ADD_TYPE(Float);
     ADD_TYPE(Vec2);
@@ -185,21 +185,19 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, std::strin
     fErrorText = "";
     fErrorCount = 0;
     fIRGenerator->pushSymbolTable();
-    std::vector<std::unique_ptr<ProgramElement>> elements;
+    std::vector<std::unique_ptr<ProgramElement>> result;
     switch (kind) {
         case Program::kVertex_Kind:
-            this->internalConvertProgram(SKSL_VERT_INCLUDE, &elements);
+            this->internalConvertProgram(SKSL_VERT_INCLUDE, &result);
             break;
         case Program::kFragment_Kind:
-            this->internalConvertProgram(SKSL_FRAG_INCLUDE, &elements);
+            this->internalConvertProgram(SKSL_FRAG_INCLUDE, &result);
             break;
     }
-    this->internalConvertProgram(text, &elements);
-    auto result = std::unique_ptr<Program>(new Program(kind, std::move(elements), 
-                                                       fIRGenerator->fSymbolTable));;
+    this->internalConvertProgram(text, &result);
     fIRGenerator->popSymbolTable();
     this->writeErrorCount();
-    return result;
+    return std::unique_ptr<Program>(new Program(kind, std::move(result)));;
 }
 
 void Compiler::error(Position position, std::string msg) {

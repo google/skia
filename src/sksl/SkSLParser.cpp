@@ -52,7 +52,6 @@
 #include "ast/SkSLASTVarDeclarationStatement.h"
 #include "ast/SkSLASTWhileStatement.h"
 #include "ir/SkSLSymbolTable.h"
-#include "ir/SkSLType.h"
 
 namespace SkSL {
 
@@ -291,17 +290,17 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
             return nullptr;
         }
         for (size_t i = 0; i < decl->fNames.size(); i++) {
-            auto type = (const Type*) fTypes[decl->fType->fName];
+            auto type = std::static_pointer_cast<Type>(fTypes[decl->fType->fName]);
             for (int j = (int) decl->fSizes[i].size() - 1; j >= 0; j--) {
-                if (decl->fSizes[i][j]->fKind != ASTExpression::kInt_Kind) {
+                if (decl->fSizes[i][j]->fKind == ASTExpression::kInt_Kind) {
                     this->error(decl->fPosition, "array size in struct field must be a constant");
                 }
                 uint64_t columns = ((ASTIntLiteral&) *decl->fSizes[i][j]).fValue;
                 std::string name = type->name() + "[" + to_string(columns) + "]";
-                type = new Type(name, Type::kArray_Kind, *type, (int) columns);
-                fTypes.takeOwnership((Type*) type);
+                type = std::shared_ptr<Type>(new Type(name, Type::kArray_Kind, std::move(type), 
+                                                      (int) columns));
             }
-            fields.push_back(Type::Field(decl->fModifiers, decl->fNames[i], *type));
+            fields.push_back(Type::Field(decl->fModifiers, decl->fNames[i], std::move(type)));
             if (decl->fValues[i]) {
                 this->error(decl->fPosition, "initializers are not permitted on struct fields");
             }
@@ -310,8 +309,9 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
     if (!this->expect(Token::RBRACE, "'}'")) {
         return nullptr;
     }
-    fTypes.add(name.fText, std::unique_ptr<Type>(new Type(name.fText, fields)));
-    return std::unique_ptr<ASTType>(new ASTType(name.fPosition, name.fText, 
+    std::shared_ptr<Type> type(new Type(name.fText, fields));
+    fTypes.add(type->fName, type);
+    return std::unique_ptr<ASTType>(new ASTType(name.fPosition, type->fName, 
                                                 ASTType::kStruct_Kind));
 }
 

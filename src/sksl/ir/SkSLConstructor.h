@@ -16,13 +16,13 @@ namespace SkSL {
  * Represents the construction of a compound type, such as "vec2(x, y)".
  */
 struct Constructor : public Expression {
-    Constructor(Position position, const Type& type, 
+    Constructor(Position position, std::shared_ptr<Type> type, 
                 std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(position, kConstructor_Kind, type)
+    : INHERITED(position, kConstructor_Kind, std::move(type))
     , fArguments(std::move(arguments)) {}
 
     std::string description() const override {
-        std::string result = fType.description() + "(";
+        std::string result = fType->description() + "(";
         std::string separator = "";
         for (size_t i = 0; i < fArguments.size(); i++) {
             result += separator;
