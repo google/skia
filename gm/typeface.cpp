@@ -194,7 +194,21 @@ protected:
         // GASP_SYMMETRIC_SMOOTHING|GASP_SYMMETRIC_GRIDFIT  0x000C  13<=ppem<=14
         // (neither)                                        0x0000  15<=ppem
         // Odd sizes have embedded bitmaps.
+#ifdef SK_BUILD_FOR_IOS
+        // This gm crashes on iOS when drawing an embedded bitmap when requesting aliased rendering.
+        // The crash looks like
+        //   libTrueTypeScaler.dylib`<redacted> + 80
+        //   stop reason = EXC_BAD_ACCESS (code=EXC_ARM_DA_ALIGN, address=...)
+        //   ->  0x330b19d0 <+80>: strd   r2, r3, [r5, #36]
+        //       0x330b19d4 <+84>: movs   r3, #0x0
+        //       0x330b19d6 <+86>: add    r2, sp, #0x28
+        //       0x330b19d8 <+88>: ldr    r0, [r4, #0x4]
+        // Disable testing embedded bitmaps on iOS for now.
+        // See https://bug.skia.org/5530 .
+        constexpr SkScalar textSizes[] = { 10, 12, 14, 16 };
+#else
         constexpr SkScalar textSizes[] = { 9, 10, 11, 12, 13, 14, 15, 16 };
+#endif
 
         constexpr SkPaint::Hinting hintingTypes[] = { SkPaint::kNo_Hinting,
                                                       SkPaint::kSlight_Hinting,
