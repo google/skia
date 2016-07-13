@@ -486,13 +486,12 @@ void GrDrawContextPriv::clearStencilClip(const SkIRect& rect, bool insideClip) {
                                                     fDrawContext->accessRenderTarget());
 }
 
-void GrDrawContextPriv::stencilPath(const GrPipelineBuilder& pipelineBuilder,
-                                    const GrClip& clip, 
+void GrDrawContextPriv::stencilPath(const GrClip& clip, 
+                                    const GrUserStencilSettings* ss,
+                                    bool useHWAA,
                                     const SkMatrix& viewMatrix,
-                                    const GrPath* path,
-                                    GrPathRendering::FillType fill) {
-    fDrawContext->getDrawTarget()->stencilPath(pipelineBuilder, fDrawContext,
-                                               clip, viewMatrix, path, fill);
+                                    const GrPath* path) {
+    fDrawContext->getDrawTarget()->stencilPath(fDrawContext, clip, ss, useHWAA, viewMatrix, path);
 }
 
 void GrDrawContextPriv::stencilRect(const GrFixedClip& clip,

@@ -15,15 +15,10 @@ class GrAppliedClip;
 class GrClipStackClip;
 class GrContext;
 class GrDrawContext;
-class GrFixedClip;
 class GrPathRenderer;
-class GrPathRendererChain;
-class GrPipelineBuilder;
-class GrResourceProvider;
 class GrTexture;
 class GrTextureProvider;
 class GrUniqueKey;
-struct GrUserStencilSettings;
 
 
 /**
@@ -43,8 +38,13 @@ public:
      * then the draw can be skipped. devBounds is optional but can help optimize
      * clipping.
      */
-    static bool SetupClipping(GrContext*, const GrPipelineBuilder&, GrDrawContext*,
-                              const GrClipStackClip&, const SkRect* devBounds, GrAppliedClip*);
+    static bool SetupClipping(GrContext*,
+                              GrDrawContext*,
+                              const GrClipStackClip&,
+                              const SkRect* devBounds,
+                              bool useHWAA,
+                              bool hasUserStencilSettings,
+                              GrAppliedClip* out);
 
 private:
     static bool PathNeedsSWRenderer(GrContext* context,
@@ -82,7 +82,7 @@ private:
                                                    const SkIRect& clipSpaceIBounds);
 
    static bool UseSWOnlyPath(GrContext*,
-                             const GrPipelineBuilder&,
+                             bool hasUserStencilSettings,
                              const GrDrawContext*,
                              const SkVector& clipToMaskOffset,
                              const GrReducedClip::ElementList& elements);

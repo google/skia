@@ -13,7 +13,6 @@
 #include "SkClipStack.h"
 
 class GrDrawContext;
-class GrPipelineBuilder;
 
 /**
  * Produced by GrClip. It provides a set of modifications to the drawing state that are used to
@@ -105,8 +104,12 @@ public:
     virtual bool quickContains(const SkRect&) const = 0;
     virtual void getConservativeBounds(int width, int height, SkIRect* devResult,
                                        bool* isIntersectionOfRects = nullptr) const = 0;
-    virtual bool apply(GrContext*, const GrPipelineBuilder&, GrDrawContext*,
-                       const SkRect* devBounds, GrAppliedClip*) const = 0;
+    virtual bool apply(GrContext*,
+                       GrDrawContext*,
+                       const SkRect* devBounds,
+                       bool useHWAA,
+                       bool hasUserStencilSettings,
+                       GrAppliedClip* out) const = 0;
 
     virtual ~GrClip() {}
 };
@@ -119,8 +122,12 @@ private:
     bool quickContains(const SkRect&) const final { return true; }
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final;
-    bool apply(GrContext*, const GrPipelineBuilder&, GrDrawContext*,
-               const SkRect*, GrAppliedClip*) const final { return true; }
+    bool apply(GrContext*,
+               GrDrawContext*,
+               const SkRect* /* devBounds */,
+               bool /* useHWAA */,
+               bool /* hasUserStencilSettings */,
+               GrAppliedClip* /* out */) const final { return true; }
 };
 
 /**
@@ -180,8 +187,12 @@ public:
                                bool* isIntersectionOfRects) const final;
 
 private:
-    bool apply(GrContext*, const GrPipelineBuilder&, GrDrawContext*,
-               const SkRect* devBounds, GrAppliedClip* out) const final;
+    bool apply(GrContext*,
+               GrDrawContext*,
+               const SkRect* devBounds,
+               bool useHWAA,
+               bool hasUserStencilSettings,
+               GrAppliedClip* out) const final;
 
     GrScissorState   fScissorState;
     SkRect           fDeviceBounds;
@@ -209,8 +220,12 @@ public:
     bool quickContains(const SkRect&) const final;
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final;
-    bool apply(GrContext*, const GrPipelineBuilder&, GrDrawContext*,
-               const SkRect* devBounds, GrAppliedClip*) const final;
+    bool apply(GrContext*,
+               GrDrawContext*,
+               const SkRect* devBounds,
+               bool useHWAA,
+               bool hasUserStencilSettings,
+               GrAppliedClip* out) const final;
 
 private:
     SkIPoint                          fOrigin;

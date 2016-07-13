@@ -329,7 +329,9 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     GrAppliedClip appliedClip;
     SkRect bounds;
     batch_bounds(&bounds, batch);
-    if (!clip.apply(fContext, pipelineBuilder, drawContext, &bounds, &appliedClip)) {
+    if (!clip.apply(fContext, drawContext, &bounds,
+                    pipelineBuilder.isHWAntialias(), pipelineBuilder.hasUserStencilSettings(),
+                    &appliedClip)) {
         return;
     }
 
@@ -403,19 +405,19 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     this->recordBatch(batch, clippedBounds);
 }
 
-void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
-                               GrDrawContext* drawContext,
+void GrDrawTarget::stencilPath(GrDrawContext* drawContext,
                                const GrClip& clip,
+                               const GrUserStencilSettings* ss,
+                               bool useHWAA,
                                const SkMatrix& viewMatrix,
-                               const GrPath* path,
-                               GrPathRendering::FillType fill) {
+                               const GrPath* path) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(path);
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
 
     // Setup clip
     GrAppliedClip appliedClip;
-    if (!clip.apply(fContext, pipelineBuilder, drawContext, nullptr, &appliedClip)) {
+    if (!clip.apply(fContext, drawContext, nullptr, useHWAA, SkToBool(ss), &appliedClip)) {
         return;
     }
     // TODO: respect fClipBatchToBounds if we ever start computing bounds here.
@@ -432,8 +434,8 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     }
 
     GrBatch* batch = GrStencilPathBatch::Create(viewMatrix,
-                                                pipelineBuilder.isHWAntialias(),
-                                                fill,
+                                                useHWAA,
+                                                path->getFillType(),
                                                 appliedClip.hasStencilClip(),
                                                 stencilAttachment->bits(),
                                                 appliedClip.scissorState(),

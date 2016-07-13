@@ -115,7 +115,7 @@ bool GrClipMaskManager::PathNeedsSWRenderer(GrContext* context,
  * entire clip should be rendered in SW and then uploaded en masse to the gpu.
  */
 bool GrClipMaskManager::UseSWOnlyPath(GrContext* context,
-                                      const GrPipelineBuilder& pipelineBuilder,
+                                      bool hasUserStencilSettings,
                                       const GrDrawContext* drawContext,
                                       const SkVector& clipToMaskOffset,
                                       const GrReducedClip::ElementList& elements) {
@@ -135,7 +135,7 @@ bool GrClipMaskManager::UseSWOnlyPath(GrContext* context,
         bool needsStencil = invert ||
                             SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op;
 
-        if (PathNeedsSWRenderer(context, pipelineBuilder.hasUserStencilSettings(),
+        if (PathNeedsSWRenderer(context, hasUserStencilSettings,
                                 drawContext, translate, element, nullptr, needsStencil)) {
             return true;
         }
@@ -226,10 +226,11 @@ static bool get_analytic_clip_processor(const GrReducedClip::ElementList& elemen
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
 bool GrClipMaskManager::SetupClipping(GrContext* context,
-                                      const GrPipelineBuilder& pipelineBuilder,
                                       GrDrawContext* drawContext,
                                       const GrClipStackClip& clip,
                                       const SkRect* origDevBounds,
+                                      bool useHWAA,
+                                      bool hasUserStencilSettings,
                                       GrAppliedClip* out) {
     if (!clip.clipStack() || clip.clipStack()->isWideOpen()) {
         return true;
@@ -293,8 +294,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
             // With a single color sample, any coverage info is lost from color once it hits the
             // color buffer anyway, so we may as well use coverage AA if nothing else in the pipe
             // is multisampled.
-            disallowAnalyticAA = pipelineBuilder.isHWAntialias() ||
-                                 pipelineBuilder.hasUserStencilSettings();
+            disallowAnalyticAA = useHWAA || hasUserStencilSettings;
         }
         sk_sp<GrFragmentProcessor> clipFP;
         if (requiresAA &&
@@ -321,7 +321,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
             SkIntToScalar(-clipSpaceIBounds.fTop)
         };
 
-        if (UseSWOnlyPath(context, pipelineBuilder, drawContext,
+        if (UseSWOnlyPath(context, hasUserStencilSettings, drawContext,
                           clipToMaskOffset, elements)) {
             // The clip geometry is complex enough that it will be more efficient to create it
             // entirely in software

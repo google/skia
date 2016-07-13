@@ -33,11 +33,11 @@ public:
                      const SkMatrix& viewMatrix,
                      const SkRect& rect);
 
-    void stencilPath(const GrPipelineBuilder&,
-                     const GrClip&,
+    void stencilPath(const GrClip&,
+                     const GrUserStencilSettings* ss,
+                     bool useHWAA,
                      const SkMatrix& viewMatrix,
-                     const GrPath*,
-                     GrPathRendering::FillType);
+                     const GrPath*);
 
     bool drawAndStencilRect(const GrFixedClip&,
                             const GrUserStencilSettings*,

@@ -41,9 +41,12 @@ void GrFixedClip::getConservativeBounds(int width, int height, SkIRect* devResul
     }
 }
 
-bool GrFixedClip::apply(GrContext*, const GrPipelineBuilder& pipelineBuilder,
+bool GrFixedClip::apply(GrContext*,
                         GrDrawContext* drawContext,
-                        const SkRect* devBounds, GrAppliedClip* out) const {
+                        const SkRect* devBounds,
+                        bool isHWAntiAlias,
+                        bool hasUserStencilSettings,
+                        GrAppliedClip* out) const {
     SkASSERT(!fDeviceBounds.isLargest());
     if (fScissorState.enabled()) {
         SkIRect tightScissor;
@@ -90,8 +93,11 @@ void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devR
 }
 
 bool GrClipStackClip::apply(GrContext* context,
-                            const GrPipelineBuilder& pipelineBuilder, GrDrawContext* drawContext,
-                            const SkRect* devBounds, GrAppliedClip* out) const {
-    return GrClipMaskManager::SetupClipping(context, pipelineBuilder, drawContext,
-                                            *this, devBounds, out);
+                            GrDrawContext* drawContext,
+                            const SkRect* devBounds,
+                            bool useHWAA,
+                            bool hasUserStencilSettings,
+                            GrAppliedClip* out) const {
+    return GrClipMaskManager::SetupClipping(context, drawContext, *this, devBounds,
+                                            useHWAA, hasUserStencilSettings, out);
 }
