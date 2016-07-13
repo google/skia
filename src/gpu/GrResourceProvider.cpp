@@ -100,13 +100,19 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     if (kDynamic_GrAccessPattern != accessPattern) {
         return this->gpu()->createBuffer(size, intendedType, accessPattern, data);
     }
+    if (!(flags & kRequireGpuMemory_Flag) &&
+        this->gpu()->caps()->preferClientSideDynamicBuffers() &&
+        GrBufferTypeIsVertexOrIndex(intendedType) &&
+        kDynamic_GrAccessPattern == accessPattern) {
+        return GrBuffer::CreateCPUBacked(this->gpu(), size, intendedType, data);
+    }
 
     // bin by pow2 with a reasonable min
     static const uint32_t MIN_SIZE = 1 << 12;
     size_t allocSize = SkTMax(MIN_SIZE, GrNextPow2(SkToUInt(size)));
 
     GrScratchKey key;
-    GrBuffer::ComputeScratchKeyForDynamicBuffer(allocSize, intendedType, &key);
+    GrBuffer::ComputeScratchKeyForDynamicVBO(allocSize, intendedType, &key);
     uint32_t scratchFlags = 0;
     if (flags & kNoPendingIO_Flag) {
         scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
@@ -124,6 +130,7 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     if (data) {
         buffer->updateData(data, size);
     }
+    SkASSERT(!buffer->isCPUBacked()); // We should only cache real VBOs.
     return buffer;
 }
 

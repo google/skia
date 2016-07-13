@@ -137,7 +137,7 @@ public:
     GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&);
 
     /**
-     * Creates a buffer.
+     * Creates a buffer in GPU memory. For a client-side buffer use GrBuffer::CreateCPUBacked.
      *
      * @param size            size of buffer to create.
      * @param intendedType    hint to the graphics subsystem about what the buffer will be used for.

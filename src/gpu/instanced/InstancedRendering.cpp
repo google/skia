@@ -452,7 +452,8 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     if (!fParams.empty()) {
         fParamsBuffer.reset(rp->createBuffer(fParams.count() * sizeof(ParamsTexel),
                                              kTexel_GrBufferType, kDynamic_GrAccessPattern,
-                                             GrResourceProvider::kNoPendingIO_Flag,
+                                             GrResourceProvider::kNoPendingIO_Flag |
+                                             GrResourceProvider::kRequireGpuMemory_Flag,
                                              fParams.begin()));
         if (!fParamsBuffer) {
             return;

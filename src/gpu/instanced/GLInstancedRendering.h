@@ -44,8 +44,8 @@ private:
     };
 
     GrGLuint                              fVertexArrayID;
-    SkAutoTUnref<GrGLBuffer>              fInstanceBuffer;
-    SkAutoTUnref<GrGLBuffer>              fDrawIndirectBuffer;
+    SkAutoTUnref<GrBuffer>                fInstanceBuffer;
+    SkAutoTUnref<GrBuffer>                fDrawIndirectBuffer;
     SkAutoSTMalloc<1024, GLDrawCmdInfo>   fGLDrawCmdsInfo;
     uint32_t                              fInstanceAttribsBufferUniqueId;
     int                                   fInstanceAttribsBaseInstance;

@@ -78,6 +78,7 @@
       '<(skia_src_path)/gpu/GrBlend.cpp',
       '<(skia_src_path)/gpu/GrBlurUtils.cpp',
       '<(skia_src_path)/gpu/GrBlurUtils.h',
+      '<(skia_src_path)/gpu/GrBuffer.cpp',
       '<(skia_src_path)/gpu/GrBufferAllocPool.cpp',
       '<(skia_src_path)/gpu/GrBufferAllocPool.h',
       '<(skia_src_path)/gpu/GrCaps.cpp',

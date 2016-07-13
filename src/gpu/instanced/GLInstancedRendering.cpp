@@ -96,12 +96,12 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
         this->glGpu()->bindVertexArray(fVertexArrayID);
 
         // Attach our index buffer to the vertex array.
+        SkASSERT(!this->indexBuffer()->isCPUBacked());
         GL_CALL(BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER,
                            static_cast<const GrGLBuffer*>(this->indexBuffer())->bufferID()));
 
         // Set up the non-instanced attribs.
-        this->glGpu()->bindBuffer(kVertex_GrBufferType,
-                                  static_cast<const GrGLBuffer*>(this->vertexBuffer()));
+        this->glGpu()->bindBuffer(kVertex_GrBufferType, this->vertexBuffer());
         GL_CALL(EnableVertexAttribArray((int)Attrib::kShapeCoords));
         GL_CALL(VertexAttribPointer((int)Attrib::kShapeCoords, 2, GR_GL_FLOAT, GR_GL_FALSE,
                                     sizeof(ShapeVertex), (void*) offsetof(ShapeVertex, fX)));
@@ -114,18 +114,21 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
 
     // Create and map instance and draw-indirect buffers.
     SkASSERT(!fInstanceBuffer);
-    fInstanceBuffer.reset(static_cast<GrGLBuffer*>(
+    fInstanceBuffer.reset(
         rp->createBuffer(sizeof(Instance) * numGLInstances, kVertex_GrBufferType,
-                         kDynamic_GrAccessPattern, GrResourceProvider::kNoPendingIO_Flag)));
+                         kDynamic_GrAccessPattern,
+                         GrResourceProvider::kNoPendingIO_Flag |
+                         GrResourceProvider::kRequireGpuMemory_Flag));
     if (!fInstanceBuffer) {
         return;
     }
 
     SkASSERT(!fDrawIndirectBuffer);
-    fDrawIndirectBuffer.reset(static_cast<GrGLBuffer*>(
+    fDrawIndirectBuffer.reset(
         rp->createBuffer(sizeof(GrGLDrawElementsIndirectCommand) * numGLDrawCmds,
                          kDrawIndirect_GrBufferType, kDynamic_GrAccessPattern,
-                         GrResourceProvider::kNoPendingIO_Flag)));
+                         GrResourceProvider::kNoPendingIO_Flag |
+                         GrResourceProvider::kRequireGpuMemory_Flag));
     if (!fDrawIndirectBuffer) {
         return;
     }

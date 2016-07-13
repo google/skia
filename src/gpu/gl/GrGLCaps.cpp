@@ -41,7 +41,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMultiDrawIndirectSupport = false;
     fBaseInstanceSupport = false;
     fCanDrawIndirectToFloat = false;
-    fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
     fRectangleTextureSupport = false;
@@ -131,18 +130,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
     fImagingSupport = kGL_GrGLStandard == standard &&
                       ctxInfo.hasExtension("GL_ARB_imaging");
-
-    // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
-    // frequently changing VBOs. We've measured a performance increase using non-VBO vertex
-    // data for dynamic content on these GPUs. Perhaps we should read the renderer string and
-    // limit this decision to specific GPU families rather than basing it on the vendor alone.
-    if (!GR_GL_MUST_USE_VBO &&
-        !fIsCoreProfile &&
-        (kARM_GrGLVendor == ctxInfo.vendor() ||
-         kImagination_GrGLVendor == ctxInfo.vendor() ||
-         kQualcomm_GrGLVendor == ctxInfo.vendor())) {
-        fUseNonVBOVertexAndIndexDynamicData = true;
-    }
 
     // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are blacklisting this extension for now on Adreno4xx devices.
@@ -342,6 +329,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             fDiscardRenderTargetSupport = false;
             fInvalidateFBType = kNone_InvalidateFBType;
         }
+    }
+
+    // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
+    // frequently changing VBOs. We've measured a performance increase using non-VBO vertex
+    // data for dynamic content on these GPUs. Perhaps we should read the renderer string and
+    // limit this decision to specific GPU families rather than basing it on the vendor alone.
+    if (!GR_GL_MUST_USE_VBO &&
+        !fIsCoreProfile &&
+        (kARM_GrGLVendor == ctxInfo.vendor() ||
+         kImagination_GrGLVendor == ctxInfo.vendor() ||
+         kQualcomm_GrGLVendor == ctxInfo.vendor())) {
+        fPreferClientSideDynamicBuffers = true;
     }
 
     // fUsesMixedSamples must be set before calling initFSAASupport.
@@ -1122,8 +1121,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));
     r.appendf("Can draw indirect to float: %s\n", (fCanDrawIndirectToFloat ? "YES" : "NO"));
-    r.appendf("Use non-VBO for dynamic data: %s\n",
-             (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
     r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow ? "YES" : "NO"));
     r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));

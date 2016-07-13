@@ -2053,9 +2053,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
 void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
                             const GrNonInstancedMesh& mesh,
                             size_t* indexOffsetInBytes) {
-    const GrGLBuffer* vbuf;
-    vbuf = static_cast<const GrGLBuffer*>(mesh.vertexBuffer());
-
+    const GrBuffer* vbuf = mesh.vertexBuffer();
     SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
 
@@ -2064,8 +2062,7 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
         SkASSERT(indexOffsetInBytes);
 
         *indexOffsetInBytes = 0;
-        const GrGLBuffer* ibuf = static_cast<const GrGLBuffer*>(mesh.indexBuffer());
-
+        const GrBuffer* ibuf = mesh.indexBuffer();
         SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());
         *indexOffsetInBytes += ibuf->baseOffset();
@@ -2102,7 +2099,7 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
     }
 }
 
-GrGLenum GrGLGpu::bindBuffer(GrBufferType type, const GrGLBuffer* buffer) {
+GrGLenum GrGLGpu::bindBuffer(GrBufferType type, const GrBuffer* buffer) {
     this->handleDirtyContext();
 
     // Index buffer state is tied to the vertex array.
@@ -2114,10 +2111,15 @@ GrGLenum GrGLGpu::bindBuffer(GrBufferType type, const GrGLBuffer* buffer) {
     auto& bufferState = fHWBufferState[type];
 
     if (buffer->getUniqueID() != bufferState.fBoundBufferUniqueID) {
-        if (!buffer->isCPUBacked() || !bufferState.fBufferZeroKnownBound) {
-            GL_CALL(BindBuffer(bufferState.fGLTarget, buffer->bufferID()));
-            bufferState.fBufferZeroKnownBound = buffer->isCPUBacked();
+        if (buffer->isCPUBacked()) {
+            if (!bufferState.fBufferZeroKnownBound) {
+                GL_CALL(BindBuffer(bufferState.fGLTarget, 0));
+            }
+        } else {
+            const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(buffer);
+            GL_CALL(BindBuffer(bufferState.fGLTarget, glBuffer->bufferID()));
         }
+        bufferState.fBufferZeroKnownBound = buffer->isCPUBacked();
         bufferState.fBoundBufferUniqueID = buffer->getUniqueID();
     }
 
@@ -4568,7 +4570,7 @@ void GrGLGpu::resetShaderCacheForTesting() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLGpu* gpu,
-                                                                           const GrGLBuffer* ibuf) {
+                                                                           const GrBuffer* ibuf) {
     GrGLAttribArrayState* attribState;
 
     if (gpu->glCaps().isCoreProfile()) {

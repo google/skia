@@ -295,6 +295,7 @@ void GrVkGpuCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
     // When a command buffer is submitted to a queue, there is an implicit memory barrier that
     // occurs for all host writes. Additionally, BufferMemoryBarriers are not allowed inside of
     // an active RenderPass.
+    SkASSERT(!mesh.vertexBuffer()->isCPUBacked());
     GrVkVertexBuffer* vbuf;
     vbuf = (GrVkVertexBuffer*)mesh.vertexBuffer();
     SkASSERT(vbuf);
@@ -303,6 +304,7 @@ void GrVkGpuCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
     fCommandBuffer->bindVertexBuffer(fGpu, vbuf);
 
     if (mesh.isIndexed()) {
+        SkASSERT(!mesh.indexBuffer()->isCPUBacked());
         GrVkIndexBuffer* ibuf = (GrVkIndexBuffer*)mesh.indexBuffer();
         SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());
