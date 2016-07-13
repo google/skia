@@ -147,12 +147,12 @@ public:
     void init(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*);
     virtual void setupRect(GrGLSLVertexBuilder*) = 0;
     virtual void setupOval(GrGLSLVertexBuilder*) = 0;
-    void setupRRect(GrGLSLVertexBuilder*);
+    void setupRRect(GrGLSLVertexBuilder*, int* usedShapeDefinitions);
 
     void initInnerShape(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*);
     virtual void setupInnerRect(GrGLSLVertexBuilder*) = 0;
     virtual void setupInnerOval(GrGLSLVertexBuilder*) = 0;
-    void setupInnerRRect(GrGLSLVertexBuilder*);
+    void setupInnerSimpleRRect(GrGLSLVertexBuilder*);
 
     const char* outShapeCoords() {
         return fModifiedShapeCoords ? fModifiedShapeCoords : fInputs.attr(Attrib::kShapeCoords);
@@ -184,7 +184,7 @@ protected:
     virtual void onSetupRRect(GrGLSLVertexBuilder*) {}
 
     virtual void onInitInnerShape(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*) = 0;
-    virtual void onSetupInnerRRect(GrGLSLVertexBuilder*) = 0;
+    virtual void onSetupInnerSimpleRRect(GrGLSLVertexBuilder*) = 0;
 
     virtual void onEmitCode(GrGLSLVertexBuilder*, GrGLSLPPFragmentBuilder*,
                             const char* outCoverage, const char* outColor) = 0;
@@ -237,11 +237,8 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         v->codeAppend ("}");
     }
 
-    int usedShapeTypes = 0;
-
     bool hasSingleShapeType = SkIsPow2(ip.batchInfo().fShapeTypes);
     if (!hasSingleShapeType) {
-        usedShapeTypes |= ip.batchInfo().fShapeTypes;
         v->define("SHAPE_TYPE_BIT", kShapeType_InfoBit);
         v->codeAppendf("uint shapeType = %s >> SHAPE_TYPE_BIT;",
                        inputs.attr(Attrib::kInstanceInfo));
@@ -250,38 +247,46 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     SkAutoTDelete<Backend> backend(Backend::Create(pipeline, ip.batchInfo(), inputs));
     backend->init(varyingHandler, v);
 
-    if (hasSingleShapeType) {
+    int usedShapeDefinitions = 0;
+
+    if (hasSingleShapeType || !(ip.batchInfo().fShapeTypes & ~kRRect_ShapesMask)) {
         if (kRect_ShapeFlag == ip.batchInfo().fShapeTypes) {
             backend->setupRect(v);
         } else if (kOval_ShapeFlag == ip.batchInfo().fShapeTypes) {
             backend->setupOval(v);
         } else {
-            backend->setupRRect(v);
+            backend->setupRRect(v, &usedShapeDefinitions);
         }
     } else {
-        v->codeAppend ("switch (shapeType) {");
-        if (ip.batchInfo().fShapeTypes & kRect_ShapeFlag) {
-            v->codeAppend ("case RECT_SHAPE_TYPE: {");
-            backend->setupRect(v);
-            v->codeAppend ("} break;");
+        if (ip.batchInfo().fShapeTypes & kRRect_ShapesMask) {
+            v->codeAppend ("if (shapeType >= SIMPLE_R_RECT_SHAPE_TYPE) {");
+            backend->setupRRect(v, &usedShapeDefinitions);
+            v->codeAppend ("}");
+            usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
         }
         if (ip.batchInfo().fShapeTypes & kOval_ShapeFlag) {
-            v->codeAppend ("case OVAL_SHAPE_TYPE: {");
+            if (ip.batchInfo().fShapeTypes & kRect_ShapeFlag) {
+                if (ip.batchInfo().fShapeTypes & kRRect_ShapesMask) {
+                    v->codeAppend ("else ");
+                }
+                v->codeAppend ("if (OVAL_SHAPE_TYPE == shapeType) {");
+                usedShapeDefinitions |= kOval_ShapeFlag;
+            } else {
+                v->codeAppend ("else {");
+            }
             backend->setupOval(v);
-            v->codeAppend ("} break;");
+            v->codeAppend ("}");
         }
-        if (ip.batchInfo().fShapeTypes & kRRect_ShapesMask) {
-            v->codeAppend ("default: {");
-            backend->setupRRect(v);
-            v->codeAppend ("} break;");
+        if (ip.batchInfo().fShapeTypes & kRect_ShapeFlag) {
+            v->codeAppend ("else {");
+            backend->setupRect(v);
+            v->codeAppend ("}");
         }
-        v->codeAppend ("}");
     }
 
     if (ip.batchInfo().fInnerShapeTypes) {
         bool hasSingleInnerShapeType = SkIsPow2(ip.batchInfo().fInnerShapeTypes);
         if (!hasSingleInnerShapeType) {
-            usedShapeTypes |= ip.batchInfo().fInnerShapeTypes;
             v->definef("INNER_SHAPE_TYPE_MASK", "0x%xu", kInnerShapeType_InfoMask);
             v->define("INNER_SHAPE_TYPE_BIT", kInnerShapeType_InfoBit);
             v->codeAppendf("uint innerShapeType = ((%s & INNER_SHAPE_TYPE_MASK) >> "
@@ -303,41 +308,55 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
         backend->initInnerShape(varyingHandler, v);
 
+        SkASSERT(0 == (ip.batchInfo().fInnerShapeTypes & kRRect_ShapesMask) ||
+                 kSimpleRRect_ShapeFlag == (ip.batchInfo().fInnerShapeTypes & kRRect_ShapesMask));
+
         if (hasSingleInnerShapeType) {
             if (kRect_ShapeFlag == ip.batchInfo().fInnerShapeTypes) {
                 backend->setupInnerRect(v);
             } else if (kOval_ShapeFlag == ip.batchInfo().fInnerShapeTypes) {
                 backend->setupInnerOval(v);
             } else {
-                backend->setupInnerRRect(v);
+                backend->setupInnerSimpleRRect(v);
             }
         } else {
-            v->codeAppend("switch (innerShapeType) {");
-            if (ip.batchInfo().fInnerShapeTypes & kRect_ShapeFlag) {
-                v->codeAppend("case RECT_SHAPE_TYPE: {");
-                backend->setupInnerRect(v);
-                v->codeAppend("} break;");
+            if (ip.batchInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
+                v->codeAppend ("if (SIMPLE_R_RECT_SHAPE_TYPE == innerShapeType) {");
+                backend->setupInnerSimpleRRect(v);
+                v->codeAppend("}");
+                usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
             }
             if (ip.batchInfo().fInnerShapeTypes & kOval_ShapeFlag) {
-                v->codeAppend("case OVAL_SHAPE_TYPE: {");
+                if (ip.batchInfo().fInnerShapeTypes & kRect_ShapeFlag) {
+                    if (ip.batchInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
+                        v->codeAppend ("else ");
+                    }
+                    v->codeAppend ("if (OVAL_SHAPE_TYPE == innerShapeType) {");
+                    usedShapeDefinitions |= kOval_ShapeFlag;
+                } else {
+                    v->codeAppend ("else {");
+                }
                 backend->setupInnerOval(v);
-                v->codeAppend("} break;");
+                v->codeAppend("}");
             }
-            if (ip.batchInfo().fInnerShapeTypes & kRRect_ShapesMask) {
-                v->codeAppend("default: {");
-                backend->setupInnerRRect(v);
-                v->codeAppend("} break;");
+            if (ip.batchInfo().fInnerShapeTypes & kRect_ShapeFlag) {
+                v->codeAppend("else {");
+                backend->setupInnerRect(v);
+                v->codeAppend("}");
             }
-            v->codeAppend("}");
         }
     }
 
-    if (usedShapeTypes & kRect_ShapeFlag) {
-        v->definef("RECT_SHAPE_TYPE", "%du", (int)ShapeType::kRect);
-    }
-    if (usedShapeTypes & kOval_ShapeFlag) {
+    if (usedShapeDefinitions & kOval_ShapeFlag) {
         v->definef("OVAL_SHAPE_TYPE", "%du", (int)ShapeType::kOval);
     }
+    if (usedShapeDefinitions & kSimpleRRect_ShapeFlag) {
+        v->definef("SIMPLE_R_RECT_SHAPE_TYPE", "%du", (int)ShapeType::kSimpleRRect);
+    }
+    if (usedShapeDefinitions & kNinePatch_ShapeFlag) {
+        v->definef("NINE_PATCH_SHAPE_TYPE", "%du", (int)ShapeType::kNinePatch);
+    }
+    SkASSERT(!(usedShapeDefinitions & (kRect_ShapeFlag | kComplexRRect_ShapeFlag)));
 
     backend->emitCode(v, f, pipeline.ignoresCoverage() ? nullptr : args.fOutputCoverage,
                       args.fOutputColor);
@@ -393,7 +412,7 @@ void GLSLInstanceProcessor::Backend::init(GrGLSLVaryingHandler* varyingHandler,
     }
 }
 
-void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v) {
+void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v, int* usedShapeDefinitions) {
     v->codeAppendf("uvec2 corner = uvec2(%s & 1, (%s >> 1) & 1);",
                    fInputs.attr(Attrib::kVertexAttrs), fInputs.attr(Attrib::kVertexAttrs));
     v->codeAppend ("vec2 cornerSign = vec2(corner) * 2.0 - 1.0;");
@@ -411,25 +430,30 @@ void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v) {
             this->setupComplexRadii(v);
         }
     } else {
-        v->codeAppend("switch (shapeType) {");
         if (types & kSimpleRRect_ShapeFlag) {
-            v->definef("SIMPLE_R_RECT_SHAPE_TYPE", "%du", (int)ShapeType::kSimpleRRect);
-            v->codeAppend ("case SIMPLE_R_RECT_SHAPE_TYPE: {");
+            v->codeAppend ("if (SIMPLE_R_RECT_SHAPE_TYPE == shapeType) {");
             this->setupSimpleRadii(v);
-            v->codeAppend ("} break;");
+            v->codeAppend ("}");
+            *usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
         }
         if (types & kNinePatch_ShapeFlag) {
-            v->definef("NINE_PATCH_SHAPE_TYPE", "%du", (int)ShapeType::kNinePatch);
-            v->codeAppend ("case NINE_PATCH_SHAPE_TYPE: {");
+            if (types & kComplexRRect_ShapeFlag) {
+                if (types & kSimpleRRect_ShapeFlag) {
+                    v->codeAppend ("else ");
+                }
+                v->codeAppend ("if (NINE_PATCH_SHAPE_TYPE == shapeType) {");
+                *usedShapeDefinitions |= kNinePatch_ShapeFlag;
+            } else {
+                v->codeAppend ("else {");
+            }
             this->setupNinePatchRadii(v);
-            v->codeAppend ("} break;");
+            v->codeAppend ("}");
         }
         if (types & kComplexRRect_ShapeFlag) {
-            v->codeAppend ("default: {");
+            v->codeAppend ("else {");
             this->setupComplexRadii(v);
-            v->codeAppend ("} break;");
+            v->codeAppend ("}");
         }
-        v->codeAppend("}");
     }
 
     this->adjustRRectVertices(v);
@@ -507,12 +531,12 @@ void GLSLInstanceProcessor::Backend::initInnerShape(GrGLSLVaryingHandler* varyin
     }
 }
 
-void GLSLInstanceProcessor::Backend::setupInnerRRect(GrGLSLVertexBuilder* v) {
+void GLSLInstanceProcessor::Backend::setupInnerSimpleRRect(GrGLSLVertexBuilder* v) {
     v->codeAppend("mat2 innerP = ");
     fInputs.fetchNextParam(kMat22f_GrSLType);
     v->codeAppend(";");
     v->codeAppend("vec2 innerRadii = innerP[0] * 2.0 / innerP[1];");
-    this->onSetupInnerRRect(v);
+    this->onSetupInnerSimpleRRect(v);
 }
 
 void GLSLInstanceProcessor::Backend::emitCode(GrGLSLVertexBuilder* v, GrGLSLPPFragmentBuilder* f,
@@ -550,7 +574,7 @@ private:
     void onInitInnerShape(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*) override;
     void setupInnerRect(GrGLSLVertexBuilder*) override;
     void setupInnerOval(GrGLSLVertexBuilder*) override;
-    void onSetupInnerRRect(GrGLSLVertexBuilder*) override;
+    void onSetupInnerSimpleRRect(GrGLSLVertexBuilder*) override;
 
     void onEmitCode(GrGLSLVertexBuilder*, GrGLSLPPFragmentBuilder*, const char*,
                     const char*) override;
@@ -600,7 +624,7 @@ void GLSLInstanceProcessor::BackendNonAA::setupInnerOval(GrGLSLVertexBuilder* v)
     }
 }
 
-void GLSLInstanceProcessor::BackendNonAA::onSetupInnerRRect(GrGLSLVertexBuilder* v) {
+void GLSLInstanceProcessor::BackendNonAA::onSetupInnerSimpleRRect(GrGLSLVertexBuilder* v) {
     v->codeAppendf("%s = vec4(1.0 - innerRadii, 1.0 / innerRadii);", fInnerRRect.vsOut());
 }
 
@@ -690,7 +714,7 @@ private:
     void onInitInnerShape(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*) override;
     void setupInnerRect(GrGLSLVertexBuilder*) override;
     void setupInnerOval(GrGLSLVertexBuilder*) override;
-    void onSetupInnerRRect(GrGLSLVertexBuilder*) override;
+    void onSetupInnerSimpleRRect(GrGLSLVertexBuilder*) override;
 
     void onEmitCode(GrGLSLVertexBuilder*, GrGLSLPPFragmentBuilder*, const char* outCoverage,
                     const char* outColor) override;
@@ -882,7 +906,7 @@ void GLSLInstanceProcessor::BackendCoverage::setupInnerOval(GrGLSLVertexBuilder*
     }
 }
 
-void GLSLInstanceProcessor::BackendCoverage::onSetupInnerRRect(GrGLSLVertexBuilder* v) {
+void GLSLInstanceProcessor::BackendCoverage::onSetupInnerSimpleRRect(GrGLSLVertexBuilder* v) {
     // The distance to ellipse formula doesn't work well when the radii are less than half a pixel.
     v->codeAppend ("innerRadii = max(innerRadii, bloat);");
     v->codeAppendf("%s = 1.0 / (innerRadii * innerRadii * innerShapeHalfSize * "
@@ -1064,7 +1088,7 @@ private:
     void onInitInnerShape(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*) override;
     void setupInnerRect(GrGLSLVertexBuilder*) override;
     void setupInnerOval(GrGLSLVertexBuilder*) override;
-    void onSetupInnerRRect(GrGLSLVertexBuilder*) override;
+    void onSetupInnerSimpleRRect(GrGLSLVertexBuilder*) override;
 
     void onEmitCode(GrGLSLVertexBuilder*, GrGLSLPPFragmentBuilder*, const char*,
                     const char*) override;
@@ -1319,7 +1343,7 @@ void GLSLInstanceProcessor::BackendMultisample::setupInnerOval(GrGLSLVertexBuild
     }
 }
 
-void GLSLInstanceProcessor::BackendMultisample::onSetupInnerRRect(GrGLSLVertexBuilder* v) {
+void GLSLInstanceProcessor::BackendMultisample::onSetupInnerSimpleRRect(GrGLSLVertexBuilder* v) {
     // Avoid numeric instability by not allowing the inner radii to get smaller than 1/10th pixel.
     if (fFragInnerShapeHalfSpan.vsOut()) {
         v->codeAppendf("innerRadii = max(innerRadii, 2e-1 * %s);", fFragInnerShapeHalfSpan.vsOut());
