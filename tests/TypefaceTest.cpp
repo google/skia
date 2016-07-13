@@ -31,9 +31,9 @@ namespace {
 
 class SkEmptyTypeface : public SkTypeface {
 public:
-    static sk_sp<SkTypeface> Create(SkFontID id) { return sk_sp<SkTypeface>(new SkEmptyTypeface(id)); }
+    static sk_sp<SkTypeface> Create() { return sk_sp<SkTypeface>(new SkEmptyTypeface()); }
 protected:
-    SkEmptyTypeface(SkFontID id) : SkTypeface(SkFontStyle(), id, true) { }
+    SkEmptyTypeface() : SkTypeface(SkFontStyle(), true) { }
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
@@ -76,12 +76,12 @@ static int count(skiatest::Reporter* reporter, const SkTypefaceCache& cache) {
 }
 
 DEF_TEST(TypefaceCache, reporter) {
-    sk_sp<SkTypeface> t1(SkEmptyTypeface::Create(1));
+    sk_sp<SkTypeface> t1(SkEmptyTypeface::Create());
     {
         SkTypefaceCache cache;
         REPORTER_ASSERT(reporter, count(reporter, cache) == 0);
         {
-            sk_sp<SkTypeface> t0(SkEmptyTypeface::Create(0));
+            sk_sp<SkTypeface> t0(SkEmptyTypeface::Create());
             cache.add(t0.get());
             REPORTER_ASSERT(reporter, count(reporter, cache) == 1);
             cache.add(t1.get());

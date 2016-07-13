@@ -35,7 +35,7 @@ public:
     SkTypeface_Android(const SkFontStyle& style,
                        bool isFixedPitch,
                        const SkString& familyName)
-        : INHERITED(style, SkTypefaceCache::NewFontID(), isFixedPitch)
+        : INHERITED(style, isFixedPitch)
         , fFamilyName(familyName)
         { }
 

@@ -405,7 +405,7 @@ class SkTypeface_stream : public SkTypeface_FreeType {
 public:
     /** @param data takes ownership of the font data.*/
     SkTypeface_stream(SkFontData* data, const SkFontStyle& style, bool fixedWidth)
-        : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth)
+        : INHERITED(style, fixedWidth)
         , fData(data)
     { };
 
@@ -493,7 +493,6 @@ private:
     /** @param pattern takes ownership of the reference. */
     SkTypeface_fontconfig(FcPattern* pattern)
         : INHERITED(skfontstyle_from_fcpattern(pattern),
-                    SkTypefaceCache::NewFontID(),
                     FC_PROPORTIONAL != get_int(pattern, FC_SPACING, FC_PROPORTIONAL))
         , fPattern(pattern)
     { };

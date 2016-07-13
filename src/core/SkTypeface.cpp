@@ -14,9 +14,10 @@
 #include "SkOnce.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
+#include "SkTypefaceCache.h"
 
-SkTypeface::SkTypeface(const SkFontStyle& style, SkFontID fontID, bool isFixedPitch)
-    : fUniqueID(fontID), fStyle(style), fIsFixedPitch(isFixedPitch) { }
+SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
+    : fUniqueID(SkTypefaceCache::NewFontID()), fStyle(style), fIsFixedPitch(isFixedPitch) { }
 
 SkTypeface::~SkTypeface() { }
 
@@ -40,7 +41,7 @@ class SkEmptyTypeface : public SkTypeface {
 public:
     static SkEmptyTypeface* Create() { return new SkEmptyTypeface; }
 protected:
-    SkEmptyTypeface() : SkTypeface(SkFontStyle(), 0, true) { }
+    SkEmptyTypeface() : SkTypeface(SkFontStyle(), true) { }
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,

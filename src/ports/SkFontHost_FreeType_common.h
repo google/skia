@@ -71,8 +71,8 @@ public:
     };
 
 protected:
-    SkTypeface_FreeType(const SkFontStyle& style, SkFontID uniqueID, bool isFixedPitch)
-        : INHERITED(style, uniqueID, isFixedPitch)
+    SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch)
+        : INHERITED(style, isFixedPitch)
     {}
 
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,

@@ -341,7 +341,7 @@ protected:
 
     /** uniqueID must be unique and non-zero
     */
-    SkTypeface(const SkFontStyle& style, SkFontID uniqueID, bool isFixedPitch = false);
+    SkTypeface(const SkFontStyle& style, bool isFixedPitch = false);
     virtual ~SkTypeface();
 
     /** Sets the fixedPitch bit. If used, must be called in the constructor. */

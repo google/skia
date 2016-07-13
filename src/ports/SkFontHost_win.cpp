@@ -206,7 +206,7 @@ static unsigned calculateUPEM(HDC hdc, const LOGFONT& lf) {
 class LogFontTypeface : public SkTypeface {
 public:
     LogFontTypeface(const SkFontStyle& style, const LOGFONT& lf, bool serializeAsStream)
-        : SkTypeface(style, SkTypefaceCache::NewFontID(), false)
+        : SkTypeface(style, false)
         , fLogFont(lf)
         , fSerializeAsStream(serializeAsStream)
     {

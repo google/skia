@@ -436,7 +436,7 @@ public:
     SkTypeface_Mac(CTFontRef fontRef, CFTypeRef resourceRef,
                    const SkFontStyle& fs, bool isFixedPitch,
                    bool isLocalStream)
-        : SkTypeface(fs, SkTypefaceCache::NewFontID(), isFixedPitch)
+        : SkTypeface(fs, isFixedPitch)
         , fFontRef(fontRef) // caller has already called CFRetain for us
         , fOriginatingCFTypeRef(resourceRef) // caller has already called CFRetain for us
         , fHasColorGlyphs(SkToBool(CTFontGetSymbolicTraits(fFontRef) & SkCTFontColorGlyphsTrait))
