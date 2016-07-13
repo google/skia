@@ -25,7 +25,7 @@
 
 #include "SkStrokeRec.h"
 
-#include "batches/GrClearBatch.h"
+#include "batches/GrClearStencilClipBatch.h"
 #include "batches/GrCopySurfaceBatch.h"
 #include "batches/GrDiscardBatch.h"
 #include "batches/GrDrawBatch.h"
@@ -443,44 +443,8 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     batch->unref();
 }
 
-void GrDrawTarget::clear(const SkIRect* rect,
-                         GrColor color,
-                         bool canIgnoreRect,
-                         GrDrawContext* drawContext) {
-    SkIRect rtRect = SkIRect::MakeWH(drawContext->width(), drawContext->height());
-    SkIRect clippedRect;
-    if (!rect ||
-        (canIgnoreRect && this->caps()->fullClearIsFree()) ||
-        rect->contains(rtRect)) {
-        rect = &rtRect;
-    } else {
-        clippedRect = *rect;
-        if (!clippedRect.intersect(rtRect)) {
-            return;
-        }
-        rect = &clippedRect;
-    }
-
-    if (this->caps()->useDrawInsteadOfClear()) {
-        // This works around a driver bug with clear by drawing a rect instead.
-        // The driver will ignore a clear if it is the only thing rendered to a
-        // target before the target is read.
-        if (rect == &rtRect) {
-            drawContext->discard();
-        }
-
-        SkRect scalarRect = SkRect::Make(*rect);
-
-        GrPaint paint;
-        paint.setColor4f(GrColor4f::FromGrColor(color));
-        paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
-
-        drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), scalarRect);
-    } else {
-        GrBatch* batch = new GrClearBatch(*rect, color, drawContext->accessRenderTarget());
-        this->recordBatch(batch, batch->bounds());
-        batch->unref();
-    }
+void GrDrawTarget::addBatch(sk_sp<GrBatch> batch) {
+    this->recordBatch(batch.get(), batch->bounds());
 }
 
 void GrDrawTarget::discard(GrRenderTarget* renderTarget) {

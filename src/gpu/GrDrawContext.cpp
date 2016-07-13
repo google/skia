@@ -18,6 +18,7 @@
 #include "SkSurfacePriv.h"
 
 #include "batches/GrBatch.h"
+#include "batches/GrClearBatch.h"
 #include "batches/GrDrawAtlasBatch.h"
 #include "batches/GrDrawVerticesBatch.h"
 #include "batches/GrRectBatchFactory.h"
@@ -195,7 +196,38 @@ void GrDrawContext::clear(const SkIRect* rect,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::clear");
 
     AutoCheckFlush acf(fDrawingManager);
-    this->getDrawTarget()->clear(rect, color, canIgnoreRect, this);
+
+    const SkIRect rtRect = SkIRect::MakeWH(this->width(), this->height());
+    SkIRect clippedRect;
+    if (!rect ||
+        (canIgnoreRect && fContext->caps()->fullClearIsFree()) ||
+        rect->contains(rtRect)) {
+        rect = &rtRect;
+    } else {
+        clippedRect = *rect;
+        if (!clippedRect.intersect(rtRect)) {
+            return;
+        }
+        rect = &clippedRect;
+    }
+
+    if (fContext->caps()->useDrawInsteadOfClear()) {
+        // This works around a driver bug with clear by drawing a rect instead.
+        // The driver will ignore a clear if it is the only thing rendered to a
+        // target before the target is read.
+        if (rect == &rtRect) {
+            this->discard();
+        }
+
+        GrPaint paint;
+        paint.setColor4f(GrColor4f::FromGrColor(color));
+        paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+
+        this->drawRect(GrNoClip(), paint, SkMatrix::I(), SkRect::Make(*rect));
+    } else {
+        sk_sp<GrBatch> batch = GrClearBatch::Make(*rect, color, this->accessRenderTarget());
+        this->getDrawTarget()->addBatch(std::move(batch));
+    }
 }
 
 
@@ -360,7 +392,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
                     // Will it blend?
                     GrColor clearColor;
                     if (paint.isConstantBlendedColor(&clearColor)) {
-                        this->getDrawTarget()->clear(nullptr, clearColor, true, this);
+                        this->clear(nullptr, clearColor, true);
                         return;
                     }
                 }

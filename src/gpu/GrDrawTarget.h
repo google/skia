@@ -106,6 +106,8 @@ public:
 
     void drawBatch(const GrPipelineBuilder&, GrDrawContext*, const GrClip&, GrDrawBatch*);
 
+    void addBatch(sk_sp<GrBatch>);
+
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
      * winding (not inverse or hairline). It will respect the HW antialias flag
@@ -115,16 +117,6 @@ public:
     void stencilPath(const GrPipelineBuilder&, GrDrawContext*,
                      const GrClip&, const SkMatrix& viewMatrix,
                      const GrPath*, GrPathRendering::FillType);
-
-    /**
-     * Clear the passed in drawContext. Ignores the GrPipelineBuilder and clip. Clears the whole
-     * thing if rect is nullptr, otherwise just the rect. If canIgnoreRect is set then the entire
-     * drawContext can be optionally cleared.
-     */
-    void clear(const SkIRect* rect,
-               GrColor color,
-               bool canIgnoreRect,
-               GrDrawContext*);
 
     /** Discards the contents render target. */
     void discard(GrRenderTarget*);
