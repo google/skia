@@ -17,6 +17,8 @@
 SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false,
                 "Print the source code for all shaders generated.");
 
+static void print_shader_source(const char** strings, int* lengths, int count);
+
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
@@ -71,8 +73,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                 // buffer param validation.
                 GrGLsizei length = GR_GL_INIT_ZERO;
                 GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1, &length, (char*)log.get()));
-                SkDebugf("%s", GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, true).c_str());
-                SkDebugf("\n%s", log.get());
+                print_shader_source(strings, lengths, count);
             }
             SkDEBUGFAIL("Shader compilation failed!");
             GR_GL_CALL(gli, DeleteShader(shaderId));
@@ -81,8 +82,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     }
 
     if (c_PrintShaders) {
-        SkDebugf("%s", GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, true).c_str());
-        SkDebugf("\n");
+        print_shader_source(strings, lengths, count);
     }
 
     // Attach the shader, but defer deletion until after we have linked the program.
@@ -92,4 +92,14 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     GR_GL_CALL(gli, AttachShader(programId, shaderId));
 
     return shaderId;
+}
+
+static void print_shader_source(const char** strings, int* lengths, int count) {
+    const SkString& pretty = GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, true);
+    SkTArray<SkString> lines;
+    SkStrSplit(pretty.c_str(), "\n", &lines);
+    for (const SkString& line : lines) {
+        // Print the shader one line at the time so it doesn't get truncated by the adb log.
+        SkDebugf("%s\n", line.c_str());
+    }
 }
