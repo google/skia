@@ -37,7 +37,7 @@ struct TestPixels {
     logically where each check has as many pixels as is necessary to fill the interior. The rect
     to draw is set to the checkerboard portion. */
 template<typename PIXEL_TYPE>
-bool make_ringed_bitmap(GrContext*, TestPixels* result, int width, int height,
+bool make_ringed_bitmap(TestPixels* result, int width, int height,
                         SkColorType ct, SkAlphaType at,
                         PIXEL_TYPE outerRingColor, PIXEL_TYPE innerRingColor,
                         PIXEL_TYPE checkColor1, PIXEL_TYPE checkColor2) {
@@ -104,26 +104,26 @@ bool make_ringed_bitmap(GrContext*, TestPixels* result, int width, int height,
     return true;
 }
 
-/** Create a black and white checked texture with 2 1-pixel rings around the outside edge.
+/** Create a black and white checked bitmap with 2 1-pixel rings around the outside edge.
     The inner ring is red and the outer ring is blue. */
-static bool make_ringed_color_bitmap(GrContext* ctx, TestPixels* result, int width, int height) {
+static bool make_ringed_color_bitmap(TestPixels* result, int width, int height) {
     static const SkPMColor kBlue  = SkPreMultiplyColor(SK_ColorBLUE);
     static const SkPMColor kRed   = SkPreMultiplyColor(SK_ColorRED);
     static const SkPMColor kBlack = SkPreMultiplyColor(SK_ColorBLACK);
     static const SkPMColor kWhite = SkPreMultiplyColor(SK_ColorWHITE);
-    return make_ringed_bitmap<SkPMColor>(ctx, result, width, height, kBGRA_8888_SkColorType,
+    return make_ringed_bitmap<SkPMColor>(result, width, height, kBGRA_8888_SkColorType,
                                          kPremul_SkAlphaType, kBlue, kRed, kBlack, kWhite);
 }
 
 /** Makes a alpha bitmap with 1 wide rect/ring of 0s, an inset of 1s, and the interior is a 2x2
     checker board of 3/4 and 1/2. The inner checkers are large enough to fill the interior with
     the 2x2 checker grid. */
-static bool make_ringed_alpha_bitmap(GrContext* ctx, TestPixels* result, int width, int height) {
+static bool make_ringed_alpha_bitmap(TestPixels* result, int width, int height) {
     static const uint8_t kZero = 0x00;
     static const uint8_t kHalf = 0x80;
     static const uint8_t k3Q   = 0xC0;
     static const uint8_t kOne  = 0xFF;
-    return make_ringed_bitmap<uint8_t>(ctx, result, width, height, kAlpha_8_SkColorType,
+    return make_ringed_bitmap<uint8_t>(result, width, height, kAlpha_8_SkColorType,
                                        kPremul_SkAlphaType, kZero, kOne, k3Q, kHalf);
 }
 
@@ -137,8 +137,8 @@ static void bmp_to_image(TestPixels* result) {
 }
 
 /** Color image case. */
-bool make_ringed_color_image(GrContext* ctx, TestPixels* result, int width, int height) {
-    if (make_ringed_color_bitmap(ctx, result, width, height)) {
+bool make_ringed_color_image(TestPixels* result, int width, int height) {
+    if (make_ringed_color_bitmap(result, width, height)) {
         bmp_to_image(result);
         return true;
     }
@@ -146,135 +146,12 @@ bool make_ringed_color_image(GrContext* ctx, TestPixels* result, int width, int 
 }
 
 /** Alpha image case. */
-bool make_ringed_alpha_image(GrContext* ctx, TestPixels* result, int width, int height) {
-    if (make_ringed_alpha_bitmap(ctx, result, width, height)) {
+bool make_ringed_alpha_image(TestPixels* result, int width, int height) {
+    if (make_ringed_alpha_bitmap(result, width, height)) {
         bmp_to_image(result);
         return true;
     }
     return false;
-}
-
-/** Similar to make_ringed_bitmap with these modifications:
-        - The backing store is a texture.
-        - The texture is larger than the bitmap dimensions (it is surrounded by non-content
-          padding on the right/bottom of the contents.)
-        - The right/bottom sides of the rings are omitted so that the rect to draw is adjacent to
-          the texture padding.
- */
-template <typename PIXEL_TYPE>
-bool make_oversized_texture_bitmap(GrContext* ctx, TestPixels* result, int width, int height,
-                                   GrPixelConfig config, PIXEL_TYPE outerRingColor,
-                                   PIXEL_TYPE innerRingColor, PIXEL_TYPE checkColor1,
-                                   PIXEL_TYPE checkColor2, PIXEL_TYPE padColor) {
-    SkASSERT(0 == width % 2 && 0 == height % 2);
-    SkASSERT(width >= 6 && height >= 6);
-#if SK_SUPPORT_GPU
-    if (!ctx) {
-        return false;
-    }
-    /** Put arbitrary pad to the right and below the bitmap content. */
-    static const int kXPad = 10;
-    static const int kYPad = 17;
-    size_t rowBytes = (width + kXPad) * sizeof(PIXEL_TYPE);
-    SkAutoTMalloc<PIXEL_TYPE> pixels(rowBytes*(height + kYPad));
-
-    PIXEL_TYPE* scanline = pixels.get();
-    for (int x = 0; x < width; ++x) {
-        scanline[x] = outerRingColor;
-    }
-    for (int x = width; x < width + kXPad; ++x) {
-        scanline[x] = padColor;
-    }
-
-    scanline = (PIXEL_TYPE*)((char*)scanline + rowBytes);
-    scanline[0] = outerRingColor;
-    for (int x = 1; x < width; ++x) {
-        scanline[x] = innerRingColor;
-    }
-    for (int x = width; x < width + kXPad; ++x) {
-        scanline[x] = padColor;
-    }
-
-    for (int y = 2; y < height / 2 + 1; ++y) {
-        scanline = (PIXEL_TYPE*)((char*)scanline + rowBytes);
-        scanline[0] = outerRingColor;
-        scanline[1] = innerRingColor;
-        for (int x = 2; x < width / 2 + 1; ++x) {
-            scanline[x] = checkColor1;
-        }
-        for (int x = width / 2 + 1; x < width; ++x) {
-            scanline[x] = checkColor2;
-        }
-        for (int x = width; x < width + kXPad; ++x) {
-            scanline[x] = padColor;
-        }
-    }
-
-    for (int y = height / 2 + 1; y < height; ++y) {
-        scanline = (PIXEL_TYPE*)((char*)scanline + rowBytes);
-        scanline[0] = outerRingColor;
-        scanline[1] = innerRingColor;
-        for (int x = 2; x < width / 2 + 1; ++x) {
-            scanline[x] = checkColor2;
-        }
-        for (int x = width / 2 + 1; x < width; ++x) {
-            scanline[x] = checkColor1;
-        }
-        for (int x = width; x < width + kXPad; ++x) {
-            scanline[x] = padColor;
-        }
-    }
-
-    for (int y = height; y < height + kYPad; ++y) {
-        scanline = (PIXEL_TYPE*)((char*)scanline + rowBytes);
-        for (int x = 0; x < width + kXPad; ++x) {
-            scanline[x] = padColor;
-        }
-    }
-
-    GrSurfaceDesc desc;
-    desc.fConfig = config;
-    desc.fWidth = width + kXPad;
-    desc.fHeight = height + kYPad;
-    SkAutoTUnref<GrTexture> texture(ctx->textureProvider()->createTexture(
-            desc, SkBudgeted::kYes, pixels.get(), rowBytes));
-
-    if (!texture) {
-        return false;
-    }
-
-    GrWrapTextureInBitmap(texture, width, height, true, &result->fBitmap);
-    result->fType = TestPixels::kBitmap;
-    result->fBitmap.setImmutable();
-    result->fRect.set(2, 2, width, height);
-    return true;
-#else
-    return false;
-#endif
-}
-
-/** Make the color version of the oversized texture-backed bitmap */
-static bool make_ringed_oversized_color_texture_bitmap(GrContext* ctx, TestPixels* result,
-                                                       int width, int height) {
-    static const SkPMColor kBlue = SkPreMultiplyColor(SK_ColorBLUE);
-    static const SkPMColor kRed = SkPreMultiplyColor(SK_ColorRED);
-    static const SkPMColor kBlack = SkPreMultiplyColor(SK_ColorBLACK);
-    static const SkPMColor kWhite = SkPreMultiplyColor(SK_ColorWHITE);
-    static const SkPMColor kGreen = SkPreMultiplyColor(SK_ColorGREEN);
-    return make_oversized_texture_bitmap<SkPMColor>(
-        ctx, result, width, height, kSkia8888_GrPixelConfig, kBlue, kRed, kBlack, kWhite, kGreen);
-}
-
-/** Make the alpha version of the oversized texture-backed bitmap */
-static bool make_ringed_oversized_alpha_texture_bitmap(GrContext* ctx, TestPixels* result,
-                                                       int width, int height) {
-    static const uint8_t kZero = 0x00;
-    static const uint8_t kHalf = 0x80;
-    static const uint8_t k3Q   = 0xC0;
-    static const uint8_t kOne  = 0xFF;
-    static const uint8_t k1Q   = 0x40;
-    return make_oversized_texture_bitmap<uint8_t>(
-        ctx, result, width, height, kAlpha_8_GrPixelConfig, kZero, kOne, k3Q, kHalf, k1Q);
 }
 
 static sk_sp<SkShader> make_shader() {
@@ -287,29 +164,23 @@ static sk_sp<SkShader> make_null_shader() { return nullptr; }
 
 enum BleedTest {
     kUseBitmap_BleedTest,
-    kUseTextureBitmap_BleedTest,
     kUseImage_BleedTest,
     kUseAlphaBitmap_BleedTest,
-    kUseAlphaTextureBitmap_BleedTest,
     kUseAlphaImage_BleedTest,
     kUseAlphaBitmapShader_BleedTest,
-    kUseAlphaTextureBitmapShader_BleedTest,
     kUseAlphaImageShader_BleedTest,
 };
 
 const struct {
     const char* fName;
-    bool (*fPixelMaker)(GrContext*, TestPixels* result, int width, int height);
+    bool (*fPixelMaker)(TestPixels* result, int width, int height);
     sk_sp<SkShader> (*fShaderMaker)();
 } gBleedRec[] = {
     { "bleed",                          make_ringed_color_bitmap,                   make_null_shader },
-    { "bleed_texture_bmp",              make_ringed_oversized_color_texture_bitmap, make_null_shader },
     { "bleed_image",                    make_ringed_color_image,                    make_null_shader },
     { "bleed_alpha_bmp",                make_ringed_alpha_bitmap,                   make_null_shader },
-    { "bleed_alpha_texture_bmp",        make_ringed_oversized_alpha_texture_bitmap, make_null_shader },
     { "bleed_alpha_image",              make_ringed_alpha_image,                    make_null_shader },
     { "bleed_alpha_bmp_shader",         make_ringed_alpha_bitmap,                   make_shader      },
-    { "bleed_alpha_texture_bmp_shader", make_ringed_oversized_alpha_texture_bitmap, make_shader      },
     { "bleed_alpha_image_shader",       make_ringed_alpha_image,                    make_shader      },
 };
 
@@ -318,8 +189,6 @@ const struct {
      - SrcRectConstraint(bleed vs.no - bleed)
      - handling of the sub - region feature(area - of - interest) of drawBitmap*
      - handling of 8888 vs. A8 (including presence of a shader in the A8 case).
-     - (gpu - only) handling of tiled vs.non - tiled drawing)
-     - (gpu - only) texture's backing a bmp where the texture is larger than the bmp.
     In particular, we should never see the padding outside of an SkBitmap's sub - region (green for
     8888, 1/4 for alpha). In some instances we can see the two outer rings outside of the area o
     interest (i.e., the inner four checks) due to AA or filtering if allowed by the
@@ -327,7 +196,7 @@ const struct {
 */
 class BleedGM : public skiagm::GM {
 public:
-    BleedGM(BleedTest bt) : fCreatedPixels(false), fBT(bt){}
+    BleedGM(BleedTest bt) : fBT(bt){}
 
 protected:
 
@@ -437,35 +306,13 @@ protected:
         this->drawPixels(canvas, fSmallTestPixels, src, dst, &paint, constraint);
     }
 
+    void onOnceBeforeDraw() override {
+        SkAssertResult(gBleedRec[fBT].fPixelMaker(&fSmallTestPixels, kSmallSize, kSmallSize));
+        SkAssertResult(gBleedRec[fBT].fPixelMaker(&fBigTestPixels, 2 * kMaxTileSize,
+                                                 2 * kMaxTileSize));
+    }
+
     void onDraw(SkCanvas* canvas) override {
-        // We don't create pixels in an onOnceBeforeDraw() override because we want access to
-        // GrContext.
-        GrContext* context = canvas->getGrContext();
-#if SK_SUPPORT_GPU
-        // Workaround for SampleApp.
-        if (GrTexture* tex = fBigTestPixels.fBitmap.getTexture()) {
-            if (tex->wasDestroyed()) {
-                fCreatedPixels = false;
-            }
-        }
-#endif
-        bool madePixels = fCreatedPixels;
-
-        if (!madePixels) {
-            madePixels =  gBleedRec[fBT].fPixelMaker(context, &fSmallTestPixels, kSmallTextureSize,
-                                                     kSmallTextureSize);
-            madePixels &= gBleedRec[fBT].fPixelMaker(context, &fBigTestPixels, 2 * kMaxTileSize,
-                                                     2 * kMaxTileSize);
-            fCreatedPixels = madePixels;
-        }
-
-        // Assume that if we coulnd't make the bitmap/image it's because it's a GPU test on a
-        // non-GPU backend.
-        if (!madePixels) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
         fShader = gBleedRec[fBT].fShaderMaker();
 
         canvas->clear(SK_ColorGRAY);
@@ -577,10 +424,9 @@ private:
     static const int kRow3Y = 4*kBlockSpacing + 3*kBlockSize;
     static const int kRow4Y = 5*kBlockSpacing + 4*kBlockSize;
 
-    static const int kSmallTextureSize = 6;
+    static const int kSmallSize = 6;
     static const int kMaxTileSize = 32;
 
-    bool            fCreatedPixels;
     TestPixels      fBigTestPixels;
     TestPixels      fSmallTestPixels;
 
@@ -593,11 +439,8 @@ private:
 
 
 DEF_GM( return new BleedGM(kUseBitmap_BleedTest); )
-DEF_GM( return new BleedGM(kUseTextureBitmap_BleedTest); )
 DEF_GM( return new BleedGM(kUseImage_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaBitmap_BleedTest); )
-DEF_GM( return new BleedGM(kUseAlphaTextureBitmap_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaImage_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaBitmapShader_BleedTest); )
-DEF_GM( return new BleedGM(kUseAlphaTextureBitmapShader_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaImageShader_BleedTest); )
