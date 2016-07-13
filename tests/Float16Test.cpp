@@ -55,19 +55,6 @@ DEF_TEST(color_half_float, reporter) {
     }
 }
 
-DEF_TEST(float_to_half, reporter) {
-    const float    fs[] = {    1.0,    2.0,    3.0,    4.0,    5.0,    6.0,    7.0 };
-    const uint16_t hs[] = { 0x3c00, 0x4000, 0x4200, 0x4400, 0x4500, 0x4600, 0x4700 };
-
-    uint16_t hscratch[7];
-    SkOpts::float_to_half(hscratch, fs, 7);
-    REPORTER_ASSERT(reporter, 0 == memcmp(hscratch, hs, sizeof(hs)));
-
-    float fscratch[7];
-    SkOpts::half_to_float(fscratch, hs, 7);
-    REPORTER_ASSERT(reporter, 0 == memcmp(fscratch, fs, sizeof(fs)));
-}
-
 static uint32_t u(float f) {
     uint32_t x;
     memcpy(&x, &f, 4);

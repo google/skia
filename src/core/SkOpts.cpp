@@ -33,19 +33,6 @@
 #include "SkTextureCompressor_opts.h"
 #include "SkXfermode_opts.h"
 
-namespace SK_OPTS_NS {
-    static void float_to_half(uint16_t dst[], const float src[], int n) {
-        while (n-->0) {
-            *dst++ = SkFloatToHalf(*src++);
-        }
-    }
-    static void half_to_float(float dst[], const uint16_t src[], int n) {
-        while (n-->0) {
-            *dst++ = SkHalfToFloat(*src++);
-        }
-    }
-}
-
 namespace SkOpts {
     // Define default function pointer values here...
     // If our global compile options are set high enough, these defaults might even be
@@ -82,9 +69,6 @@ namespace SkOpts {
     DEFINE_DEFAULT(grayA_to_rgbA);
     DEFINE_DEFAULT(inverted_CMYK_to_RGB1);
     DEFINE_DEFAULT(inverted_CMYK_to_BGR1);
-
-    DEFINE_DEFAULT(half_to_float);
-    DEFINE_DEFAULT(float_to_half);
 
     DEFINE_DEFAULT(srcover_srgb_srgb);
 
