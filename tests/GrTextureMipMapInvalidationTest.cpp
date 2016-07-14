@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -13,52 +13,47 @@
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "SkCanvas.h"
-#include "SkGrPriv.h"
+#include "SkImage_Base.h"
 #include "SkSurface.h"
 #include "Test.h"
 
-// Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
-// and render targets to GrSurface all work as expected.
+// Tests that MIP maps are created and invalidated as expected when drawing to and from GrTextures.
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInfo) {
+    auto isMipped = [] (SkSurface* surf) {
+        return as_IB(surf->makeImageSnapshot(SkBudgeted::kYes))->
+                peekTexture()->texturePriv().hasMipMaps();
+    };
+
+    auto mipsAreDirty = [] (SkSurface* surf) {
+        return as_IB(surf->makeImageSnapshot(SkBudgeted::kYes))->
+                peekTexture()->texturePriv().mipMapsAreDirty();
+    };
+
     GrContext* context = ctxInfo.grContext();
-    GrSurfaceDesc desc;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = 256;
-    desc.fHeight = 256;
-    desc.fSampleCnt = 0;
-    GrSurface* texRT1 = context->textureProvider()->createTexture(
-        desc, SkBudgeted::kNo, nullptr, 0);
-    GrSurface* texRT2 = context->textureProvider()->createTexture(
-        desc, SkBudgeted::kNo, nullptr, 0);
-    REPORTER_ASSERT(reporter, nullptr != texRT1);
-    REPORTER_ASSERT(reporter, nullptr != texRT2);
-    GrTexture* tex = texRT1->asTexture();
-    REPORTER_ASSERT(reporter, nullptr != tex);
-    SkBitmap bitmap;
-    GrWrapTextureInBitmap(tex, 256, 256, false, &bitmap);
+    auto info = SkImageInfo::MakeN32Premul(256, 256);
+    auto surf1 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
+    auto surf2 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
+    // Draw something just in case we ever had a solid color optimization
+    surf1->getCanvas()->drawCircle(128, 128, 50, SkPaint());
+    surf1->getCanvas()->flush();
 
     // No mipmaps initially
-    REPORTER_ASSERT(reporter, false == tex->texturePriv().hasMipMaps());
+    REPORTER_ASSERT(reporter, !isMipped(surf1.get()));
 
     // Painting with downscale and medium filter quality should result in mipmap creation
-    auto surface = SkSurface::MakeRenderTargetDirect(texRT2->asRenderTarget());
     SkPaint paint;
     paint.setFilterQuality(kMedium_SkFilterQuality);
-    surface->getCanvas()->scale(0.2f, 0.2f);
-    surface->getCanvas()->drawBitmap(bitmap, 0, 0, &paint);
-    context->flush();
+    surf2->getCanvas()->scale(0.2f, 0.2f);
+    surf2->getCanvas()->drawImage(surf1->makeImageSnapshot(SkBudgeted::kYes), 0, 0, &paint);
+    surf2->getCanvas()->flush();
+    REPORTER_ASSERT(reporter, isMipped(surf1.get()));
+    REPORTER_ASSERT(reporter, !mipsAreDirty(surf1.get()));
 
-    REPORTER_ASSERT(reporter, true == tex->texturePriv().hasMipMaps());
-    REPORTER_ASSERT(reporter, false == tex->texturePriv().mipMapsAreDirty());
-
-    // Invalidating the contents of the bitmap should invalidate the mipmap, but not de-allocate
-    bitmap.notifyPixelsChanged();
-    REPORTER_ASSERT(reporter, true == tex->texturePriv().hasMipMaps());
-    REPORTER_ASSERT(reporter, true == tex->texturePriv().mipMapsAreDirty());
-
-    texRT1->unref();
-    texRT2->unref();
+    // Changing the contents of the surface should invalidate the mipmap, but not de-allocate
+    surf1->getCanvas()->drawCircle(128, 128, 100, SkPaint());
+    surf1->getCanvas()->flush();
+    REPORTER_ASSERT(reporter, isMipped(surf1.get()));
+    REPORTER_ASSERT(reporter, mipsAreDirty(surf1.get()));
 }
 
 #endif
