@@ -6,11 +6,11 @@
  */
 
 #include "SkPathEffect.h"
-#include "../../include/effects/SkDiscretePathEffect.h"
-#include "../../include/effects/SkCornerPathEffect.h"
-#include "../../include/effects/Sk1DPathEffect.h"
-#include "../../include/effects/Sk2DPathEffect.h"
-#include "../../include/effects/SkDashPathEffect.h"
+#include "SkDiscretePathEffect.h"
+#include "SkCornerPathEffect.h"
+#include "Sk1DPathEffect.h"
+#include "Sk2DPathEffect.h"
+#include "SkDashPathEffect.h"
 #include "SkPath.h"
 
 #include "xamarin/sk_x_patheffect.h"
@@ -20,27 +20,27 @@
 
 sk_path_effect_t* sk_path_effect_create_compose(sk_path_effect_t* outer, sk_path_effect_t* inner)
 {
-    return ToPathEffect(SkComposePathEffect::Create(AsPathEffect(outer), AsPathEffect(inner)));
+    return ToPathEffect(SkComposePathEffect::Make(sk_ref_sp(AsPathEffect(outer)), sk_ref_sp(AsPathEffect(inner))).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_sum(sk_path_effect_t* first, sk_path_effect_t* second)
 {
-    return ToPathEffect(SkSumPathEffect::Create(AsPathEffect(first), AsPathEffect(second)));
+    return ToPathEffect(SkSumPathEffect::Make(sk_ref_sp(AsPathEffect(first)), sk_ref_sp(AsPathEffect(second))).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_discrete(float segLength, float deviation, uint32_t seedAssist /*0*/)
 {
-    return ToPathEffect(SkDiscretePathEffect::Create(segLength, deviation, seedAssist));
+    return ToPathEffect(SkDiscretePathEffect::Make(segLength, deviation, seedAssist).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_corner(float radius)
 {
-    return ToPathEffect(SkCornerPathEffect::Create(radius));
+    return ToPathEffect(SkCornerPathEffect::Make(radius).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_1d_path(const sk_path_t* path, float advance, float phase, sk_path_effect_1d_style_t style)
 {
-    return ToPathEffect(SkPath1DPathEffect::Create(AsPath(*path), advance, phase, find_sk_default(style, SkPath1DPathEffect::kTranslate_Style)));
+    return ToPathEffect(SkPath1DPathEffect::Make(AsPath(*path), advance, phase, find_sk_default(style, SkPath1DPathEffect::kTranslate_Style)).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_2d_line(float width, const sk_matrix_t* cmatrix)
@@ -49,7 +49,7 @@ sk_path_effect_t* sk_path_effect_create_2d_line(float width, const sk_matrix_t* 
     if (cmatrix) {
         from_c(cmatrix, &matrix);
     }
-    return ToPathEffect(SkLine2DPathEffect::Create(width, matrix));
+    return ToPathEffect(SkLine2DPathEffect::Make(width, matrix).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_2d_path(const sk_matrix_t* cmatrix, const sk_path_t* path)
@@ -58,10 +58,10 @@ sk_path_effect_t* sk_path_effect_create_2d_path(const sk_matrix_t* cmatrix, cons
     if (cmatrix) {
         from_c(cmatrix, &matrix);
     }
-    return ToPathEffect(SkPath2DPathEffect::Create(matrix, AsPath(*path)));
+    return ToPathEffect(SkPath2DPathEffect::Make(matrix, AsPath(*path)).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_dash(const float intervals[], int count, float phase)
 {
-    return ToPathEffect(SkDashPathEffect::Create(intervals, count, phase));
+    return ToPathEffect(SkDashPathEffect::Make(intervals, count, phase).release());
 }

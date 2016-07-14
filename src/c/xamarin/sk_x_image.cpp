@@ -22,5 +22,5 @@ sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_image_encoder_t
 
 sk_image_t* sk_image_new_from_bitmap (const sk_bitmap_t* cbitmap)
 {
-	return (sk_image_t*) SkImage::NewFromBitmap (*AsBitmap(cbitmap));
+    return ToImage(SkImage::MakeFromBitmap(*AsBitmap(cbitmap)).release());
 }

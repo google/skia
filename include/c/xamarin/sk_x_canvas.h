@@ -131,11 +131,6 @@ SK_API bool sk_canvas_get_clip_bounds(sk_canvas_t* t, sk_rect_t* cbounds);
 */
 SK_API bool sk_canvas_get_clip_device_bounds(sk_canvas_t* t, sk_irect_t* cbounds);
 
-/**
-   Draws a circle at cx, cy, with the specified radius and paint
-*/
-void sk_canvas_draw_circle (sk_canvas_t* ccanvas, float cx, float cy, float radius, const sk_paint_t* cpaint);
-
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

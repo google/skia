@@ -63,11 +63,6 @@ void sk_canvas_draw_text (sk_canvas_t* ccanvas, const char *text, size_t byteLen
     AsCanvas(ccanvas)->drawText(text, byteLength, x, y, *AsPaint(cpaint));
 }
 
-void sk_canvas_draw_circle (sk_canvas_t* ccanvas, float cx, float cy, float radius, const sk_paint_t* cpaint)
-{
-    AsCanvas(ccanvas)->drawCircle(cx, cy, radius, *AsPaint(cpaint));
-}
-
 void sk_canvas_draw_pos_text (sk_canvas_t* ccanvas, const char *text, size_t byteLength, const sk_point_t pos[], const sk_paint_t* cpaint)
 {
     AsCanvas(ccanvas)->drawPosText(text, byteLength, AsPoint(pos), *AsPaint(cpaint));

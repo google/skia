@@ -189,5 +189,5 @@ sk_path_effect_t* sk_paint_get_path_effect(sk_paint_t* cpaint) {
 }
 
 void sk_paint_set_path_effect(sk_paint_t* cpaint, sk_path_effect_t* effect) {
-    AsPaint(cpaint)->setPathEffect(AsPathEffect(effect));
+    AsPaint(cpaint)->setPathEffect(sk_ref_sp(AsPathEffect(effect)));
 }
