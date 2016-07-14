@@ -33,6 +33,7 @@
 #include "SkRasterClip.h"
 #include "SkRRect.h"
 #include "SkRecord.h"
+#include "SkSpecialImage.h"
 #include "SkStroke.h"
 #include "SkSurface.h"
 #include "SkSurface_Gpu.h"
@@ -230,47 +231,34 @@ sk_sp<GrDrawContext> SkGpuDevice::CreateDrawContext(GrContext* context,
                                    origInfo.width(), origInfo.height(),
                                    config, sampleCount,
                                    kDefault_GrSurfaceOrigin, surfaceProps, budgeted);
-
 }
 
-// This method ensures that we always have a texture-backed "bitmap" when we finally
-// call through to the base impl so that the image filtering code will take the
-// gpu-specific paths. This mirrors SkCanvas::internalDrawDevice (the other
-// use of SkImageFilter::filterImage) in that the source and dest will have
-// homogenous backing (e.g., raster or gpu).
+sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(const SkDraw& draw,
+                                                 SkSpecialImage* srcImg,
+                                                 int left, int top,
+                                                 SkIPoint* offset,
+                                                 const SkImageFilter* filter) {
+    SkASSERT(srcImg->isTextureBacked());
+    SkASSERT(filter);
+
+    SkMatrix matrix = *draw.fMatrix;
+    matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
+    const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-left, -top);
+    SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
+    SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
+
+    return filter->filterImage(srcImg, ctx, offset);
+}
+
+
 void SkGpuDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitmap,
-                                       int x, int y, const SkPaint& paint) {
+                                       int left, int top, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
+    CHECK_SHOULD_DRAW(draw);
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpriteWithFilter", fContext);
 
-    if (fContext->abandoned()) {
-        return;
-    }
-
-    if (bitmap.getTexture()) {
-        INHERITED::drawSpriteWithFilter(draw, bitmap, x, y, paint);
-        return;
-    }
-
-    SkAutoLockPixels alp(bitmap, !bitmap.getTexture());
-    if (!bitmap.getTexture() && !bitmap.readyToDraw()) {
-        return;
-    }
-
-    GrTexture* texture;
-    // draw sprite neither filters nor tiles.
-    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(),
-                          SkSourceGammaTreatment::kRespect, &texture);
-    if (!texture) {
-        return;
-    }
-
-    SkBitmap newBitmap;
-
-    GrWrapTextureInBitmap(texture, texture->width(), texture->height(),
-                          bitmap.isOpaque(), &newBitmap);
-
-    INHERITED::drawSpriteWithFilter(draw, newBitmap, x, y, paint);
+    SkASSERT(paint.getImageFilter());
+    this->drawSprite(draw, bitmap, left, top, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1233,54 +1221,93 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                              int left, int top, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    // drawSprite is defined to be in device coords.
     CHECK_SHOULD_DRAW(draw);
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSprite", fContext);
 
-    SkAutoLockPixels alp(bitmap, !bitmap.getTexture());
-    if (!bitmap.getTexture() && !bitmap.readyToDraw()) {
+    if (fContext->abandoned()) {
         return;
     }
 
-    int offX = bitmap.pixelRefOrigin().fX;
-    int offY = bitmap.pixelRefOrigin().fY;
-    int w = bitmap.width();
-    int h = bitmap.height();
-
-    GrTexture* texture;
-    // draw sprite neither filters nor tiles.
-    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(),
-                          SkSourceGammaTreatment::kRespect, &texture);
+    sk_sp<GrTexture> texture = sk_ref_sp(bitmap.getTexture());
     if (!texture) {
-        return;
+        SkAutoLockPixels alp(bitmap, true);
+        if (!bitmap.readyToDraw()) {
+            return;
+        }
+
+        // draw sprite neither filters nor tiles.
+        texture.reset(GrRefCachedBitmapTexture(fContext, bitmap,
+                                               GrTextureParams::ClampNoFilter(),
+                                               SkSourceGammaTreatment::kRespect));
+        if (!texture) {
+            return;
+        }
     }
 
-    bool alphaOnly = kAlpha_8_SkColorType == bitmap.colorType();
+    SkIRect srcRect = SkIRect::MakeXYWH(bitmap.pixelRefOrigin().fX,
+                                        bitmap.pixelRefOrigin().fY,
+                                        bitmap.width(),
+                                        bitmap.height());
 
-    SkASSERT(!paint.getImageFilter());
+    sk_sp<SkSpecialImage> srcImg(SkSpecialImage::MakeFromGpu(srcRect,
+                                                             bitmap.getGenerationID(),
+                                                             std::move(texture), 
+                                                             &fDrawContext->surfaceProps()));
+
+    this->drawSpecial(draw, srcImg.get(), left, top, paint);
+}
+
+
+void SkGpuDevice::drawSpecial(const SkDraw& draw, 
+                              SkSpecialImage* special1,
+                              int left, int top,
+                              const SkPaint& paint) {
+
+    SkIPoint offset = { 0, 0 };
+
+    sk_sp<SkSpecialImage> result;
+    if (paint.getImageFilter()) {
+        result = this->filterTexture(draw, special1, left, top,
+                                      &offset,
+                                      paint.getImageFilter());
+        if (!result) {
+            return;
+        }
+    } else {
+        result = sk_ref_sp(special1);
+    }
+
+    SkASSERT(result->isTextureBacked());
+    sk_sp<GrTexture> texture = result->asTextureRef(fContext);
+
+    SkPaint tmpUnfiltered(paint);
+    tmpUnfiltered.setImageFilter(nullptr);
+
+    bool alphaOnly = kAlpha_8_GrPixelConfig == texture->config();
 
     GrPaint grPaint;
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture, SkMatrix::I()));
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), SkMatrix::I()));
     if (alphaOnly) {
         fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
     } else {
         fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
     }
-    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, std::move(fp),
+    if (!SkPaintToGrPaintReplaceShader(this->context(), tmpUnfiltered, std::move(fp),
                                        this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
+    const SkIRect& subset = result->subset();
+
     fDrawContext->fillRectToRect(fClip,
                                  grPaint,
                                  SkMatrix::I(),
-                                 SkRect::MakeXYWH(SkIntToScalar(left),
-                                                  SkIntToScalar(top),
-                                                  SkIntToScalar(w),
-                                                  SkIntToScalar(h)),
-                                 SkRect::MakeXYWH(SkIntToScalar(offX) / texture->width(),
-                                                  SkIntToScalar(offY) / texture->height(),
-                                                  SkIntToScalar(w) / texture->width(),
-                                                  SkIntToScalar(h) / texture->height()));
+                                 SkRect::Make(SkIRect::MakeXYWH(left + offset.fX, top + offset.fY,
+                                                                subset.width(), subset.height())),
+                                 SkRect::MakeXYWH(SkIntToScalar(subset.fLeft) / texture->width(),
+                                                  SkIntToScalar(subset.fTop) / texture->height(),
+                                                  SkIntToScalar(subset.width()) / texture->width(),
+                                                  SkIntToScalar(subset.height()) / texture->height()));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
