@@ -281,7 +281,7 @@ void* GrBufferAllocPool::resetCpuData(size_t newSize) {
     sk_free(fCpuData);
     if (newSize) {
         if (fGpu->caps()->mustClearUploadedBufferData()) {
-            fCpuData = sk_calloc(newSize);
+            fCpuData = sk_calloc_throw(newSize);
         } else {
             fCpuData = sk_malloc_throw(newSize);
         }
