@@ -601,7 +601,7 @@ SkColor SkBitmap::getColor(int x, int y) const {
         }
         case kRGBA_F16_SkColorType: {
             const uint64_t* addr = (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
-            Sk4f p4 = SkHalfToFloat_finite(addr[0]);
+            Sk4f p4 = SkHalfToFloat_01(addr[0]);
             if (p4[3]) {
                 float inva = 1 / p4[3];
                 p4 = p4 * Sk4f(inva, inva, inva, 1);
@@ -1145,7 +1145,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     SkImageInfo info;
     info.unflatten(*buffer);
 
-    // If there was an error reading "info" or if it is bogus,
+    // If there was an error reading "info" or if it is bogus, 
     // don't use it to compute minRowBytes()
     if (!buffer->validate(SkColorTypeValidateAlphaType(info.colorType(),
                                                        info.alphaType()))) {

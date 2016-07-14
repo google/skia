@@ -288,22 +288,3 @@ DEF_TEST(SkNx_u16_float, r) {
         REPORTER_ASSERT(r, !memcmp(s16, d16, sizeof(s16)));
     }
 }
-
-// The SSE2 implementation of SkNx_cast<uint16_t>(Sk4i) is non-trivial, so worth a test.
-DEF_TEST(SkNx_int_u16, r) {
-    // These are pretty hard to get wrong.
-    for (int i = 0; i <= 0x7fff; i++) {
-        uint16_t expected = (uint16_t)i;
-        uint16_t actual = SkNx_cast<uint16_t>(Sk4i(i))[0];
-
-        REPORTER_ASSERT(r, expected == actual);
-    }
-
-    // A naive implementation with _mm_packs_epi32 would succeed up to 0x7fff but fail here:
-    for (int i = 0x8000; (1) && i <= 0xffff; i++) {
-        uint16_t expected = (uint16_t)i;
-        uint16_t actual = SkNx_cast<uint16_t>(Sk4i(i))[0];
-
-        REPORTER_ASSERT(r, expected == actual);
-    }
-}

@@ -61,26 +61,26 @@ static uint32_t u(float f) {
     return x;
 }
 
-DEF_TEST(HalfToFloat_finite, r) {
-    for (uint32_t h = 0; h <= 0xffff; h++) {
+DEF_TEST(HalfToFloat_01, r) {
+    for (uint16_t h = 0; h < 0x8000; h++) {
         float f = SkHalfToFloat(h);
-        if (isfinite(f)) {
-            float got = SkHalfToFloat_finite(h)[0];
+        if (f >= 0 && f <= 1) {
+            float got = SkHalfToFloat_01(h)[0];
             if (got != f) {
                 SkDebugf("0x%04x -> 0x%08x (%g), want 0x%08x (%g)\n",
                         h,
                         u(got), got,
                         u(f), f);
             }
-            REPORTER_ASSERT(r, SkHalfToFloat_finite(h)[0] == f);
-            REPORTER_ASSERT(r, SkFloatToHalf_finite(SkHalfToFloat_finite(h)) == h);
+            REPORTER_ASSERT(r, SkHalfToFloat_01(h)[0] == f);
+            REPORTER_ASSERT(r, SkFloatToHalf_01(SkHalfToFloat_01(h)) == h);
         }
     }
 }
 
-DEF_TEST(FloatToHalf_finite, r) {
+DEF_TEST(FloatToHalf_01, r) {
 #if 0
-    for (uint64_t bits = 0; bits <= 0xffffffff; bits++) {
+    for (uint32_t bits = 0; bits < 0x80000000; bits++) {
 #else
     SkRandom rand;
     for (int i = 0; i < 1000000; i++) {
@@ -88,14 +88,14 @@ DEF_TEST(FloatToHalf_finite, r) {
 #endif
         float f;
         memcpy(&f, &bits, 4);
-        if (isfinite(f) && isfinite(SkHalfToFloat(SkFloatToHalf(f)))) {
-            uint16_t h1 = (uint16_t)SkFloatToHalf_finite(Sk4f(f,0,0,0)),
+        if (f >= 0 && f <= 1) {
+            uint16_t h1 = (uint16_t)SkFloatToHalf_01(Sk4f(f,0,0,0)),
                      h2 = SkFloatToHalf(f);
             bool ok = (h1 == h2 || h1 == h2-1);
             REPORTER_ASSERT(r, ok);
             if (!ok) {
-                SkDebugf("%08x (%g) -> %04x, want %04x (%g)\n",
-                         bits, f, h1, h2, SkHalfToFloat(h2));
+                SkDebugf("%08x (%d) -> %04x (%d), want %04x (%d)\n",
+                         bits, bits>>23, h1, h1>>10, h2, h2>>10);
                 break;
             }
         }

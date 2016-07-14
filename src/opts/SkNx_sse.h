@@ -152,28 +152,14 @@ public:
 
     SkNx operator & (const SkNx& o) const { return _mm_and_si128(fVec, o.fVec); }
     SkNx operator | (const SkNx& o) const { return _mm_or_si128(fVec, o.fVec); }
-    SkNx operator ^ (const SkNx& o) const { return _mm_xor_si128(fVec, o.fVec); }
 
     SkNx operator << (int bits) const { return _mm_slli_epi32(fVec, bits); }
     SkNx operator >> (int bits) const { return _mm_srai_epi32(fVec, bits); }
-
-    SkNx operator == (const SkNx& o) const { return _mm_cmpeq_epi32 (fVec, o.fVec); }
-    SkNx operator  < (const SkNx& o) const { return _mm_cmplt_epi32 (fVec, o.fVec); }
-    SkNx operator  > (const SkNx& o) const { return _mm_cmpgt_epi32 (fVec, o.fVec); }
 
     int operator[](int k) const {
         SkASSERT(0 <= k && k < 4);
         union { __m128i v; int is[4]; } pun = {fVec};
         return pun.is[k&3];
-    }
-
-    SkNx thenElse(const SkNx& t, const SkNx& e) const {
-    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
-        return _mm_blendv_epi8(e.fVec, t.fVec, fVec);
-    #else
-        return _mm_or_si128(_mm_and_si128   (fVec, t.fVec),
-                            _mm_andnot_si128(fVec, e.fVec));
-    #endif
     }
 
     __m128i fVec;
@@ -386,21 +372,7 @@ template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, uint16_t>(const Sk4h& src) 
     return _mm_packus_epi16(src.fVec, src.fVec);
 }
 
-template<> /*static*/ inline Sk4i SkNx_cast<int, uint16_t>(const Sk4h& src) {
-    return _mm_unpacklo_epi16(src.fVec, _mm_setzero_si128());
-}
-
-template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, int>(const Sk4i& src) {
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
-    return _mm_packus_epi32(src.fVec, src.fVec);
-#else
-    // Sign extend to trick _mm_packs_epi32() into doing the pack we want.
-    __m128i x = _mm_srai_epi32(_mm_slli_epi32(src.fVec, 16), 16);
-    return _mm_packs_epi32(x,x);
-#endif
-}
-
-template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, int>(const Sk4i& src) {
+template<> inline Sk4b SkNx_cast<uint8_t, int>(const Sk4i& src) {
     return _mm_packus_epi16(_mm_packus_epi16(src.fVec, src.fVec), src.fVec);
 }
 

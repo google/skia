@@ -85,10 +85,10 @@ struct ColorTypeFilter_8 {
 struct ColorTypeFilter_F16 {
     typedef uint64_t Type; // SkHalf x4
     static Sk4f Expand(uint64_t x) {
-        return SkHalfToFloat_finite(x);
+        return SkHalfToFloat_01(x);
     }
     static uint64_t Compact(const Sk4f& x) {
-        return SkFloatToHalf_finite(x);
+        return SkFloatToHalf_01(x);
     }
 };
 

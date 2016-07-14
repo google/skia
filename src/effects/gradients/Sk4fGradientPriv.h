@@ -143,11 +143,11 @@ struct DstTraits<DstType::F16, premul> {
     }
 
     static void store(const Sk4f& c, Type* dst) {
-        *dst = SkFloatToHalf_finite(PM::apply(c));
+        *dst = SkFloatToHalf_01(PM::apply(c));
     }
 
     static void store(const Sk4f& c, Type* dst, int n) {
-        sk_memset64(dst, SkFloatToHalf_finite(PM::apply(c)), n);
+        sk_memset64(dst, SkFloatToHalf_01(PM::apply(c)), n);
     }
 
     static void store4x(const Sk4f& c0, const Sk4f& c1,
