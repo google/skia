@@ -16,9 +16,6 @@
 #include "SkShader.h"
 #include "SkSurface.h"
 
-#if SK_SUPPORT_GPU
-#include "SkGrPriv.h"
-#endif
 
 static SkBitmap make_chessbm(int w, int h) {
     SkBitmap bm;
@@ -34,6 +31,7 @@ static SkBitmap make_chessbm(int w, int h) {
     return bm;
 }
 
+// Creates a bitmap and a matching image.
 static sk_sp<SkImage> makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
 
@@ -86,14 +84,7 @@ static sk_sp<SkImage> makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, in
 
     SkBitmap tempBM;
 
-#if SK_SUPPORT_GPU
-    if (GrTexture* texture = as_IB(image)->peekTexture()) {
-        GrWrapTextureInBitmap(texture, image->width(), image->height(), image->isOpaque(), &tempBM);
-    } else
-#endif
-    {
-        image->asLegacyBitmap(&tempBM, SkImage::kRO_LegacyBitmapMode);
-    }
+    image->asLegacyBitmap(&tempBM, SkImage::kRO_LegacyBitmapMode);
 
     // Let backends know we won't change this, so they don't have to deep copy it defensively.
     tempBM.setImmutable();
@@ -152,7 +143,7 @@ protected:
         static const int kPadY = 40;
         SkPaint paint;
         paint.setAlpha(0x20);
-        canvas->drawBitmapRect(fLargeBitmap, SkRect::MakeIWH(gSize, gSize), &paint);
+        canvas->drawImageRect(fImage, SkRect::MakeIWH(gSize, gSize), &paint);
         canvas->translate(SK_Scalar1 * kPadX / 2,
                           SK_Scalar1 * kPadY / 2);
         SkPaint blackPaint;
