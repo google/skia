@@ -22,16 +22,16 @@ static void xfer_1(const SkXfermode* xfer, uint64_t dst[], const SkPM4f* src, in
     SkPM4f d;
     if (aa) {
         for (int i = 0; i < count; ++i) {
-            Sk4f d4 = SkHalfToFloat_01(dst[i]);
+            Sk4f d4 = SkHalfToFloat_finite(dst[i]);
             d4.store(d.fVec);
             Sk4f r4 = Sk4f::Load(proc(*src, d).fVec);
-            dst[i] = SkFloatToHalf_01(lerp_by_coverage(r4, d4, aa[i]));
+            dst[i] = SkFloatToHalf_finite(lerp_by_coverage(r4, d4, aa[i]));
         }
     } else {
         for (int i = 0; i < count; ++i) {
-            SkHalfToFloat_01(dst[i]).store(d.fVec);
+            SkHalfToFloat_finite(dst[i]).store(d.fVec);
             Sk4f r4 = Sk4f::Load(proc(*src, d).fVec);
-            dst[i] = SkFloatToHalf_01(r4);
+            dst[i] = SkFloatToHalf_finite(r4);
         }
     }
 }
@@ -42,16 +42,16 @@ static void xfer_n(const SkXfermode* xfer, uint64_t dst[], const SkPM4f src[], i
     SkPM4f d;
     if (aa) {
         for (int i = 0; i < count; ++i) {
-            Sk4f d4 = SkHalfToFloat_01(dst[i]);
+            Sk4f d4 = SkHalfToFloat_finite(dst[i]);
             d4.store(d.fVec);
             Sk4f r4 = Sk4f::Load(proc(src[i], d).fVec);
-            dst[i] = SkFloatToHalf_01(lerp_by_coverage(r4, d4, aa[i]));
+            dst[i] = SkFloatToHalf_finite(lerp_by_coverage(r4, d4, aa[i]));
         }
     } else {
         for (int i = 0; i < count; ++i) {
-            SkHalfToFloat_01(dst[i]).store(d.fVec);
+            SkHalfToFloat_finite(dst[i]).store(d.fVec);
             Sk4f r4 = Sk4f::Load(proc(src[i], d).fVec);
-            dst[i] = SkFloatToHalf_01(r4);
+            dst[i] = SkFloatToHalf_finite(r4);
         }
     }
 }
@@ -64,8 +64,8 @@ static void clear(const SkXfermode*, uint64_t dst[], const SkPM4f*, int count, c
     if (aa) {
         for (int i = 0; i < count; ++i) {
             if (aa[i]) {
-                const Sk4f d4 = SkHalfToFloat_01(dst[i]);
-                dst[i] = SkFloatToHalf_01(d4 * Sk4f((255 - aa[i]) * 1.0f/255));
+                const Sk4f d4 = SkHalfToFloat_finite(dst[i]);
+                dst[i] = SkFloatToHalf_finite(d4 * Sk4f((255 - aa[i]) * 1.0f/255));
             }
         }
     } else {
@@ -82,11 +82,11 @@ static void src_1(const SkXfermode*, uint64_t dst[], const SkPM4f* src, int coun
     const Sk4f s4 = Sk4f::Load(src->fVec);
     if (aa) {
         for (int i = 0; i < count; ++i) {
-            const Sk4f d4 = SkHalfToFloat_01(dst[i]);
-            dst[i] = SkFloatToHalf_01(lerp_by_coverage(s4, d4, aa[i]));
+            const Sk4f d4 = SkHalfToFloat_finite(dst[i]);
+            dst[i] = SkFloatToHalf_finite(lerp_by_coverage(s4, d4, aa[i]));
         }
     } else {
-        sk_memset64(dst, SkFloatToHalf_01(s4), count);
+        sk_memset64(dst, SkFloatToHalf_finite(s4), count);
     }
 }
 
@@ -95,13 +95,13 @@ static void src_n(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int cou
     if (aa) {
         for (int i = 0; i < count; ++i) {
             const Sk4f s4 = Sk4f::Load(src[i].fVec);
-            const Sk4f d4 = SkHalfToFloat_01(dst[i]);
-            dst[i] = SkFloatToHalf_01(lerp_by_coverage(s4, d4, aa[i]));
+            const Sk4f d4 = SkHalfToFloat_finite(dst[i]);
+            dst[i] = SkFloatToHalf_finite(lerp_by_coverage(s4, d4, aa[i]));
         }
     } else {
         for (int i = 0; i < count; ++i) {
             const Sk4f s4 = Sk4f::Load(src[i].fVec);
-            dst[i] = SkFloatToHalf_01(s4);
+            dst[i] = SkFloatToHalf_finite(s4);
         }
     }
 }
@@ -121,12 +121,12 @@ static void srcover_1(const SkXfermode*, uint64_t dst[], const SkPM4f* src, int 
     const Sk4f s4 = Sk4f::Load(src->fVec);
     const Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
     for (int i = 0; i < count; ++i) {
-        const Sk4f d4 = SkHalfToFloat_01(dst[i]);
+        const Sk4f d4 = SkHalfToFloat_finite(dst[i]);
         const Sk4f r4 = s4 + d4 * dst_scale;
         if (aa) {
-            dst[i] = SkFloatToHalf_01(lerp_by_coverage(r4, d4, aa[i]));
+            dst[i] = SkFloatToHalf_finite(lerp_by_coverage(r4, d4, aa[i]));
         } else {
-            dst[i] = SkFloatToHalf_01(r4);
+            dst[i] = SkFloatToHalf_finite(r4);
         }
     }
 }
@@ -135,12 +135,12 @@ static void srcover_n(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int
                       const SkAlpha aa[]) {
     for (int i = 0; i < count; ++i) {
         Sk4f s = Sk4f::Load(src+i),
-             d = SkHalfToFloat_01(dst[i]),
+             d = SkHalfToFloat_finite(dst[i]),
              r = s + d*(1.0f - SkNx_shuffle<3,3,3,3>(s));
         if (aa) {
             r = lerp_by_coverage(r, d, aa[i]);
         }
-        dst[i] = SkFloatToHalf_01(r);
+        dst[i] = SkFloatToHalf_finite(r);
     }
 }
 
