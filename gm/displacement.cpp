@@ -160,13 +160,6 @@ protected:
             -40.0f, displ, nullptr));
         this->drawClippedBitmap(canvas, 500, 0, paint);
 
-        // Test for negative scale.
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
-            SkDisplacementMapEffect::kG_ChannelSelectorType,
-            SkDisplacementMapEffect::kA_ChannelSelectorType,
-            -40.0f, displ))->unref();
-        this->drawClippedBitmap(canvas, 500, 0, paint);
-
         // Tests for images of different sizes
         displ = SkImageSource::Make(fSmall);
         paint.setImageFilter(SkDisplacementMapEffect::Make(
