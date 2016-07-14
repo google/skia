@@ -264,6 +264,7 @@ private:
                                           args.fAntiAlias,
                                           desiredDimension,
                                           scale)) {
+                    delete shapeData;
                     SkDebugf("Can't rasterize path\n");
                     continue;
                 }
