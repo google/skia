@@ -31,7 +31,7 @@ deps = {
   "third_party/externals/yasm/source/patched-yasm/" : "https://chromium.googlesource.com/chromium/deps/yasm/patched-yasm.git@4671120cd8558ce62ee8672ebf3eb6f5216f909b",
   "third_party/externals/yasm/binaries"             : "https://chromium.googlesource.com/chromium/deps/yasm/binaries.git@52f9b3f4b0aa06da24ef8b123058bb61ee468881",
 
-  "third_party/externals/expat" : "https://android.googlesource.com/platform/external/expat.git@android-5.1.0_r3",
+  "third_party/externals/expat" : "https://android.googlesource.com/platform/external/expat.git@android-6.0.1_r55",
 
 
   # The line below is needed for compiling SkV8Example. Do not delete.

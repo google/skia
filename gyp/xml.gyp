@@ -11,6 +11,7 @@
       'standalone_static_library': 1,
       'dependencies': [
         'skia_lib.gyp:skia_lib',
+        'expat.gyp:expat',
       ],
       'include_dirs': [
         '../include/private',

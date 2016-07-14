@@ -4,15 +4,18 @@
 # found in the LICENSE file.
 
 # Build expat from source.
-# Used on Linux bots for testing the Android FontMgr xml parsing.
-# This is mostly important for the MSAN bot's instrumentation.
 
 {
     'targets': [{
         'target_name': 'expat',
         'type': 'static_library',
-        'cflags': [ '-w' ],
-        'defines': [ 'HAVE_MEMMOVE' ],
+        'cflags': [ '-Wno-missing-field-initializers' ],
+        'xcode_settings': { 'WARNING_CFLAGS': [ '-Wno-missing-field-initializers', ], },
+        'msvs_disabled_warnings': [4244],
+        'defines': [ 'HAVE_EXPAT_CONFIG_H' ],
+        'include_dirs': [
+             '../third_party/externals/expat',
+        ],
         'sources': [
             '../third_party/externals/expat/lib/xmlparse.c',
             '../third_party/externals/expat/lib/xmlrole.c',
