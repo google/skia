@@ -7,6 +7,7 @@ function LuaDoubleNearlyEqual(a, b)
     return math.abs(a-b) <= LuaDoubleNearlyZero
 end
 
+verbs = {}
 gradients = {}
 
 i = 1
@@ -18,6 +19,12 @@ function sk_scrape_accumulate(t)
         if s then
             local g = s:asAGradient()
             if g then
+                if verbs[t.verb] then
+                    verbs[t.verb] = verbs[t.verb] + 1
+                else
+                    verbs[t.verb] = 1
+                end
+
                 gradients[i] = {}
 
                 gradients[i].colorCount = g.colorCount
@@ -38,8 +45,10 @@ function sk_scrape_accumulate(t)
                         numHardStops = numHardStops + 1
                     end
                 end
-                gradients[i].numHardStops = numHardStops;
+                gradients[i].numHardStops = numHardStops
 
+                gradients[i].verb = t.verb
+                
                 gradients[i].positions = {}
                 for j = 1, g.colorCount, 1 do
                     gradients[i].positions[j] = g.positions[j]
@@ -61,12 +70,13 @@ function sk_scrape_summarize()
             end
         end
 
-        io.write(string.format("%d %s %s %d %d %s\n",
+        io.write(string.format("%d %s %s %d %d %s %s\n",
                                 v.colorCount,
                                 v.type,
                                 v.tile,
                                 tonumber(v.isEvenlySpaced and 1 or 0),
                                 v.numHardStops,
+                                v.verb,
                                 pos))
     end
 end

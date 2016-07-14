@@ -17,6 +17,7 @@ def create_database(inpath, outpath):
                         TileMode      TEXT,
                         EvenlySpaced  INTEGER,
                         HardStopCount INTEGER,
+                        Verb          TEXT,
                         Positions     TEXT
                      )''');
         c.execute("DELETE FROM gradients");
@@ -26,7 +27,7 @@ def create_database(inpath, outpath):
             for line in [line.strip() for line in results]:
                 gradients.append(line.split());
 
-            c.executemany("INSERT INTO gradients VALUES (?, ?, ?, ?, ?, ?)",
+            c.executemany("INSERT INTO gradients VALUES (?, ?, ?, ?, ?, ?, ?)",
                           gradients);
 
             conn.commit();
