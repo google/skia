@@ -197,6 +197,18 @@ public:
         SkDEBUGCODE(this->validate());
     }
 
+    void premulFourChannelColor() {
+        SkDEBUGCODE(this->validate());
+        SkASSERT(!fIsSingleComponent);
+        fNonMulStageFound = true;
+        if (!(fValidFlags & kA_GrColorComponentFlag)) {
+            fValidFlags = kNone_GrColorComponentFlags;
+        } else {
+            fColor = GrPremulColor(fColor);
+        }
+        SkDEBUGCODE(this->validate());
+    }
+
     void invalidateComponents(GrColorComponentFlags invalidateFlags, ReadInput readsInput) {
         SkDEBUGCODE(this->validate());
         fValidFlags = (fValidFlags & ~invalidateFlags);
