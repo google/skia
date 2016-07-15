@@ -114,7 +114,8 @@ BASE_SRCS_ALL = struct(
 
         # Exclude files that don't compile with the current DEFINES.
         "src/gpu/gl/mesa/*",  # Requires SK_MESA define.
-        "src/svg/parser/*",  # Missing SkSVG.h.
+        "src/svg/**/*",  # Depends on XML.
+        "src/xml/**/*",
 
         # Conflicting dependencies among Lua versions. See cl/107087297.
         "src/utils/SkLua*",
@@ -122,9 +123,6 @@ BASE_SRCS_ALL = struct(
         # Not used.
         "src/animator/**/*",
         "src/views/**/*",
-        "src/xml/SkBML_Verbs.h",
-        "src/xml/SkBML_XMLParser.cpp",
-        "src/xml/SkXMLPullParser.cpp",
 
         # Currently exclude all vulkan specific files
         "src/gpu/vk/*",
@@ -326,8 +324,6 @@ BASE_HDRS = struct(
         # Not used.
         "include/animator/**/*",
         "include/views/**/*",
-        "include/xml/SkBML_WXMLParser.h",
-        "include/xml/SkBML_XMLParser.h",
     ],
 )
 
@@ -425,6 +421,7 @@ DM_SRCS_ALL = struct(
         "tests/skia_test.cpp",  # Old main.
         "tests/SkpSkGrTest.cpp",  # Alternate main.
         "tests/SkSLErrorTest.cpp",  # Excluded along with Vulkan.
+        "tests/SVGDeviceTest.cpp",
         "tools/gpu/gl/angle/*",
         "tools/gpu/gl/command_buffer/*",
         "tools/gpu/gl/egl/*",
