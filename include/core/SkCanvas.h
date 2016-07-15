@@ -1513,7 +1513,7 @@ private:
                                 SrcRectConstraint);
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
-    void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*, bool isBitmapDevice);
+    void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*);
 
     // shared by save() and saveLayer()
     void internalSave();

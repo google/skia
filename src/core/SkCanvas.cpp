@@ -200,14 +200,12 @@ struct DeviceCM {
     const SkMatrix*     fMatrix;
     SkMatrix            fMatrixStorage;
     SkMatrix            fStashedMatrix; // original CTM; used by imagefilter in saveLayer
-    const bool          fDeviceIsBitmapDevice;
 
     DeviceCM(SkBaseDevice* device, const SkPaint* paint, SkCanvas* canvas,
-             bool conservativeRasterClip, bool deviceIsBitmapDevice, const SkMatrix& stashed)
+             bool conservativeRasterClip, const SkMatrix& stashed)
         : fNext(nullptr)
         , fClip(conservativeRasterClip)
         , fStashedMatrix(stashed)
-        , fDeviceIsBitmapDevice(deviceIsBitmapDevice)
     {
         if (nullptr != device) {
             device->ref();
@@ -673,7 +671,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
     fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
-    new (fDeviceCMStorage) DeviceCM(nullptr, nullptr, nullptr, fConservativeRasterClip, false,
+    new (fDeviceCMStorage) DeviceCM(nullptr, nullptr, nullptr, fConservativeRasterClip,
                                     fMCRec->fMatrix);
 
     fMCRec->fTopLayer = fMCRec->fLayer;
@@ -1280,7 +1278,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SkImageInfo info = make_layer_info(device->imageInfo(), ir.width(), ir.height(), isOpaque,
                                        paint);
 
-    bool forceSpriteOnRestore = false;
     {
         const bool preserveLCDText = kOpaque_SkAlphaType == info.alphaType() ||
                                      (saveLayerFlags & kPreserveLCDText_SaveLayerFlag);
@@ -1289,15 +1286,9 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
                                                                              preserveLCDText);
         SkBaseDevice* newDev = device->onCreateDevice(createInfo, paint);
         if (nullptr == newDev) {
-            // If onCreateDevice didn't succeed, try raster (e.g. PDF couldn't handle the paint)
-            const SkSurfaceProps surfaceProps(fProps.flags(), createInfo.fPixelGeometry);
-            newDev = SkBitmapDevice::Create(createInfo.fInfo, surfaceProps);
-            if (nullptr == newDev) {
-                SkErrorInternals::SetError(kInternalError_SkError,
-                                           "Unable to create device for layer.");
-                return;
-            }
-            forceSpriteOnRestore = true;
+            SkErrorInternals::SetError(kInternalError_SkError,
+                                       "Unable to create device for layer.");
+            return;
         }
         device = newDev;
     }
@@ -1307,8 +1298,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         draw_filter_into_device(fMCRec->fTopLayer->fDevice, rec.fBackdrop, device, fMCRec->fMatrix);
     }
 
-    DeviceCM* layer = new DeviceCM(device, paint, this, fConservativeRasterClip,
-                                   forceSpriteOnRestore, stashedMatrix);
+    DeviceCM* layer = new DeviceCM(device, paint, this, fConservativeRasterClip, stashedMatrix);
     device->unref();
 
     layer->fNext = fMCRec->fTopLayer;
@@ -1351,8 +1341,7 @@ void SkCanvas::internalRestore() {
     if (layer) {
         if (layer->fNext) {
             const SkIPoint& origin = layer->fDevice->getOrigin();
-            this->internalDrawDevice(layer->fDevice, origin.x(), origin.y(),
-                                     layer->fPaint, layer->fDeviceIsBitmapDevice);
+            this->internalDrawDevice(layer->fDevice, origin.x(), origin.y(), layer->fPaint);
             // restore what we smashed in internalSaveLayer
             fMCRec->fMatrix = layer->fStashedMatrix;
             // reset this, since internalDrawDevice will have set it to true
@@ -1457,8 +1446,7 @@ bool SkCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
-                                  const SkPaint* paint, bool deviceIsBitmapDevice) {
+void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPaint* paint) {
     SkPaint tmp;
     if (nullptr == paint) {
         paint = &tmp;
@@ -1473,9 +1461,6 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
         if (filter) {
             const SkBitmap& srcBM = srcDev->accessBitmap(false);
             dstDev->drawSpriteWithFilter(iter, srcBM, pos.x(), pos.y(), *paint);
-        } else if (deviceIsBitmapDevice) {
-            const SkBitmap& src = static_cast<SkBitmapDevice*>(srcDev)->fBitmap;
-            dstDev->drawSprite(iter, src, pos.x(), pos.y(), *paint);
         } else {
             dstDev->drawDevice(iter, srcDev, pos.x(), pos.y(), *paint);
         }

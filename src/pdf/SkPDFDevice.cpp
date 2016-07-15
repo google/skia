@@ -6,8 +6,8 @@
  */
 
 #include "SkPDFDevice.h"
-
 #include "SkAnnotationKeys.h"
+#include "SkBitmapDevice.h"
 #include "SkBitmapKey.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
@@ -543,7 +543,8 @@ static bool not_supported_for_layers(const SkPaint& layerPaint) {
 
 SkBaseDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
     if (layerPaint && not_supported_for_layers(*layerPaint)) {
-        return nullptr;
+        // need to return a raster device, which we will detect in drawDevice()
+        return SkBitmapDevice::Create(cinfo.fInfo, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
     }
     SkISize size = SkISize::Make(cinfo.fInfo.width(), cinfo.fInfo.height());
     return SkPDFDevice::Create(size, fRasterDpi, fDocument);
@@ -1340,6 +1341,20 @@ void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
 
 void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
                              int x, int y, const SkPaint& paint) {
+    // Check if the source device is really a bitmapdevice (because that's what we returned
+    // from createDevice (likely due to an imagefilter)
+    SkPixmap pmap;
+    if (device->peekPixels(&pmap)) {
+        SkBitmap bitmap;
+        bitmap.installPixels(pmap);
+        if (paint.getImageFilter()) {
+            this->drawSpriteWithFilter(d, bitmap, x, y, paint);
+        } else {
+            this->drawSprite(d, bitmap, x, y, paint);
+        }
+        return;
+    }
+
     // our onCreateCompatibleDevice() always creates SkPDFDevice subclasses.
     SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
 
