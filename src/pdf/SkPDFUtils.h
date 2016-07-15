@@ -76,6 +76,13 @@ inline void WriteUInt16BE(SkDynamicMemoryWStream* wStream, uint16_t value) {
     result[3] = gHex[0xF & (value      )];
     wStream->write(result, 4);
 }
+inline void WriteUInt8(SkDynamicMemoryWStream* wStream, uint8_t value) {
+    static const char gHex[] = "0123456789ABCDEF";
+    char result[2];
+    result[0] = gHex[value >> 4 ];
+    result[1] = gHex[0xF & value];
+    wStream->write(result, 2);
+}
 
 }  // namespace SkPDFUtils
 
