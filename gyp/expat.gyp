@@ -12,8 +12,8 @@
       'type': 'none',
       'conditions': [
         [ 'skia_android_framework', {
-            'dependencies':              [ 'android_deps.gyp:expat' ],
-            'export_dependent_settings': [ 'android_deps.gyp:expat' ],
+            'dependencies':              [ 'android_deps.gyp:expat_android' ],
+            'export_dependent_settings': [ 'android_deps.gyp:expat_android' ],
         },{
             'dependencies':              [ 'expat.gyp:expat_static' ],
             'export_dependent_settings': [ 'expat.gyp:expat_static' ],
