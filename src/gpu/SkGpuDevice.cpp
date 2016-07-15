@@ -1402,7 +1402,19 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
 sk_sp<SkSpecialImage> SkGpuDevice::asSpecial() {
     sk_sp<GrTexture> texture(this->accessDrawContext()->asTexture());
     if (!texture) {
-        return nullptr;
+        // When the device doesn't have a texture, we create a temporary texture.
+        // TODO: we should actually only copy the portion of the source needed to apply the image
+        // filter
+        texture.reset(fContext->textureProvider()->createTexture(this->accessDrawContext()->desc(),
+                                                                 SkBudgeted::kYes));
+        if (!texture) {
+            return nullptr;
+        }
+
+        if (!fContext->copySurface(this->accessDrawContext()->accessRenderTarget(),
+                                   texture.get())) {
+            return nullptr;
+        }
     }
 
     const SkImageInfo ii = this->imageInfo();
