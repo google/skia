@@ -45,7 +45,7 @@ static void test_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& gammas) {
     // Create and perform xform
     std::unique_ptr<SkColorSpaceXform> xform =
             ColorSpaceXformTest::CreateDefaultXform(gammas, srcToDst, gammas);
-    xform->xform_RGB1_8888(dstPixels, srcPixels, width);
+    xform->applyTo8888(dstPixels, srcPixels, width);
 
     // Since the matrix is the identity, and the gamma curves match, the pixels
     // should be unchanged.

@@ -837,9 +837,10 @@ Name ImageGenSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ColorCodecSrc::ColorCodecSrc(Path path, Mode mode)
+ColorCodecSrc::ColorCodecSrc(Path path, Mode mode, SkColorType colorType)
     : fPath(path)
     , fMode(mode)
+    , fColorType(colorType)
 {}
 
 bool ColorCodecSrc::veto(SinkFlags flags) const {
@@ -852,6 +853,10 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return Error::Nonfatal("No need to test color correction to 565 backend.");
     }
 
+    if (nullptr == canvas->imageInfo().colorSpace() && kRGBA_F16_SkColorType == fColorType) {
+        return Error::Nonfatal("F16 does not draw in legacy mode.");
+    }
+
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
@@ -862,7 +867,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkImageInfo info = codec->getInfo().makeColorType(fColorType);
     SkBitmap bitmap;
     if (!bitmap.tryAllocPixels(info)) {
         return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
@@ -870,11 +875,16 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     }
 
     SkImageInfo decodeInfo = info;
-    if (kBaseline_Mode != fMode) {
+    size_t srcRowBytes = sizeof(SkPMColor) * info.width();
+    SkAutoMalloc src(srcRowBytes * info.height());
+    void* srcPixels = src.get();
+    if (kBaseline_Mode == fMode) {
+        srcPixels = bitmap.getPixels();
+    } else {
         decodeInfo = decodeInfo.makeColorType(kRGBA_8888_SkColorType);
     }
 
-    SkCodec::Result r = codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes());
+    SkCodec::Result r = codec->getPixels(decodeInfo, srcPixels, srcRowBytes);
     if (SkCodec::kSuccess != r) {
         return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
     }
@@ -903,10 +913,24 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
                 return "Unimplemented color conversion.";
             }
 
-            uint32_t* row = (uint32_t*) bitmap.getPixels();
-            for (int y = 0; y < info.height(); y++) {
-                xform->xform_RGB1_8888(row, row, info.width());
-                row = SkTAddOffset<uint32_t>(row, bitmap.rowBytes());
+            if (kN32_SkColorType == fColorType) {
+                uint32_t* srcRow = (uint32_t*) srcPixels;
+                uint32_t* dstRow = (uint32_t*) bitmap.getPixels();
+                for (int y = 0; y < info.height(); y++) {
+                    xform->applyTo8888(dstRow, srcRow, info.width());
+                    srcRow = SkTAddOffset<uint32_t>(srcRow, srcRowBytes);
+                    dstRow = SkTAddOffset<uint32_t>(dstRow, bitmap.rowBytes());
+                }
+            } else {
+                SkASSERT(kRGBA_F16_SkColorType == fColorType);
+
+                uint32_t* srcRow = (uint32_t*) srcPixels;
+                uint64_t* dstRow = (uint64_t*) bitmap.getPixels();
+                for (int y = 0; y < info.height(); y++) {
+                    xform->applyToF16(dstRow, srcRow, info.width());
+                    srcRow = SkTAddOffset<uint32_t>(srcRow, srcRowBytes);
+                    dstRow = SkTAddOffset<uint64_t>(dstRow, bitmap.rowBytes());
+                }
             }
 
             canvas->drawBitmap(bitmap, 0, 0);
@@ -943,10 +967,12 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 #endif
 
             // Perform color correction.
-            uint32_t* row = (uint32_t*) bitmap.getPixels();
+            uint32_t* srcRow = (uint32_t*) srcPixels;
+            uint32_t* dstRow = (uint32_t*) bitmap.getPixels();
             for (int y = 0; y < info.height(); y++) {
-                qcms_transform_data_type(transform, row, row, info.width(), outType);
-                row = SkTAddOffset<uint32_t>(row, bitmap.rowBytes());
+                qcms_transform_data_type(transform, srcRow, dstRow, info.width(), outType);
+                srcRow = SkTAddOffset<uint32_t>(srcRow, srcRowBytes);
+                dstRow = SkTAddOffset<uint32_t>(dstRow, bitmap.rowBytes());
             }
 
             canvas->drawBitmap(bitmap, 0, 0);

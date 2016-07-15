@@ -24,5 +24,6 @@ namespace SkOpts {
         color_xform_RGB1_to_2dot2  = sse41::color_xform_RGB1_to_2dot2;
         color_xform_RGB1_to_srgb   = sse41::color_xform_RGB1_to_srgb;
         color_xform_RGB1_to_table  = sse41::color_xform_RGB1_to_table;
+        color_xform_RGB1_to_linear = sse41::color_xform_RGB1_to_linear;
     }
 }

@@ -14,6 +14,9 @@
 class SkColorSpaceXform : SkNoncopyable {
 public:
 
+    typedef uint32_t RGBA32;
+    typedef uint64_t RGBAF16;
+
     /**
      *  Create an object to handle color space conversions.
      *
@@ -26,10 +29,11 @@ public:
 
     /**
      *  Apply the color conversion to a src buffer, storing the output in the dst buffer.
-     *  The src is opaque and stored in RGBA_8888, and the dst is also opaque and stored
-     *  in 8888 platform format.
+     *  The src is stored as RGBA (8888) and is treated as opaque.
+     *  TODO (msarett): Support non-opaque srcs.
      */
-    virtual void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const = 0;
+    virtual void applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const = 0;
+    virtual void applyToF16(RGBAF16* dst, const RGBA32* src, int len) const = 0;
 
     virtual ~SkColorSpaceXform() {}
 };
@@ -38,7 +42,8 @@ template <SkColorSpace::GammaNamed Dst>
 class SkFastXform : public SkColorSpaceXform {
 public:
 
-    void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
+    void applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const override;
+    void applyToF16(RGBAF16* dst, const RGBA32* src, int len) const override;
 
 private:
     SkFastXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
@@ -62,10 +67,14 @@ private:
 /**
  *  Works for any valid src and dst profiles.
  */
+// TODO (msarett):
+// Merge with SkFastXform and delete this.  SkFastXform can almost do everything that
+// this does.
 class SkDefaultXform : public SkColorSpaceXform {
 public:
 
-    void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
+    void applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const override;
+    void applyToF16(RGBAF16* dst, const RGBA32* src, int len) const override;
 
 private:
     SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,

@@ -394,26 +394,13 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO (msarett):
+// Once SkFastXform supports translation, delete this function and use asRowMajorf().
 static void build_src_to_dst(float srcToDstArray[12], const SkMatrix44& srcToDstMatrix) {
     // Build the following row major matrix:
     //   rX gX bX 0
     //   rY gY bY 0
     //   rZ gZ bZ 0
-    // Swap R and B if necessary to make sure that we output SkPMColor order.
-#ifdef SK_PMCOLOR_IS_BGRA
-    srcToDstArray[0] = srcToDstMatrix.getFloat(0, 2);
-    srcToDstArray[1] = srcToDstMatrix.getFloat(0, 1);
-    srcToDstArray[2] = srcToDstMatrix.getFloat(0, 0);
-    srcToDstArray[3] = 0.0f;
-    srcToDstArray[4] = srcToDstMatrix.getFloat(1, 2);
-    srcToDstArray[5] = srcToDstMatrix.getFloat(1, 1);
-    srcToDstArray[6] = srcToDstMatrix.getFloat(1, 0);
-    srcToDstArray[7] = 0.0f;
-    srcToDstArray[8] = srcToDstMatrix.getFloat(2, 2);
-    srcToDstArray[9] = srcToDstMatrix.getFloat(2, 1);
-    srcToDstArray[10] = srcToDstMatrix.getFloat(2, 0);
-    srcToDstArray[11] = 0.0f;
-#else
     srcToDstArray[0] = srcToDstMatrix.getFloat(0, 0);
     srcToDstArray[1] = srcToDstMatrix.getFloat(0, 1);
     srcToDstArray[2] = srcToDstMatrix.getFloat(0, 2);
@@ -426,7 +413,6 @@ static void build_src_to_dst(float srcToDstArray[12], const SkMatrix44& srcToDst
     srcToDstArray[9] = srcToDstMatrix.getFloat(2, 1);
     srcToDstArray[10] = srcToDstMatrix.getFloat(2, 2);
     srcToDstArray[11] = 0.0f;
-#endif
 }
 
 template <SkColorSpace::GammaNamed Dst>
@@ -506,6 +492,9 @@ SkFastXform<Dst>::SkFastXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatri
     }
 
     // Build tables to transform linear to dst gamma.
+    // FIXME (msarett):
+    // Should we spend all of this time bulding the dst gamma tables when the client only
+    // wants to convert to F16?
     switch (dstSpace->gammaNamed()) {
         case SkColorSpace::kSRGB_GammaNamed:
         case SkColorSpace::k2Dot2Curve_GammaNamed:
@@ -579,23 +568,30 @@ SkFastXform<Dst>::SkFastXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatri
 
 template <>
 void SkFastXform<SkColorSpace::kSRGB_GammaNamed>
-::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
+::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
 {
     SkOpts::color_xform_RGB1_to_srgb(dst, src, len, fSrcGammaTables, fSrcToDst);
 }
 
 template <>
 void SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed>
-::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
+::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
 {
     SkOpts::color_xform_RGB1_to_2dot2(dst, src, len, fSrcGammaTables, fSrcToDst);
 }
 
 template <>
 void SkFastXform<SkColorSpace::kNonStandard_GammaNamed>
-::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const
+::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
 {
     SkOpts::color_xform_RGB1_to_table(dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+}
+
+template <SkColorSpace::GammaNamed T>
+void SkFastXform<T>
+::applyToF16(RGBAF16* dst, const RGBA32* src, int len) const
+{
+    SkOpts::color_xform_RGB1_to_linear(dst, src, len, fSrcGammaTables, fSrcToDst);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -857,7 +853,7 @@ static void interp_3d_clut(float dst[3], float src[3], const SkColorLookUpTable*
     }
 }
 
-void SkDefaultXform::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const {
+void SkDefaultXform::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const {
     while (len-- > 0) {
         uint8_t r = (*src >>  0) & 0xFF,
                 g = (*src >>  8) & 0xFF,
@@ -911,4 +907,10 @@ void SkDefaultXform::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_
         dst++;
         src++;
     }
+}
+
+void SkDefaultXform::applyToF16(RGBAF16* dst, const RGBA32* src, int len) const {
+    // FIXME (msarett):
+    // Planning to delete SkDefaultXform.  Not going to bother to implement this.
+    memset(dst, 0, len * sizeof(RGBAF16));
 }
