@@ -388,12 +388,27 @@ public:
 
     SkNx operator & (const SkNx& o) const { return vandq_s32(fVec, o.fVec); }
     SkNx operator | (const SkNx& o) const { return vorrq_s32(fVec, o.fVec); }
+    SkNx operator ^ (const SkNx& o) const { return veorq_s32(fVec, o.fVec); }
 
     SkNx operator << (int bits) const { SHIFT32(vshlq_n_s32, fVec, bits); }
     SkNx operator >> (int bits) const { SHIFT32(vshrq_n_s32, fVec, bits); }
 
+    SkNx operator == (const SkNx& o) const {
+        return vreinterpretq_s32_u32(vceqq_s32(fVec, o.fVec));
+    }
+    SkNx operator <  (const SkNx& o) const {
+        return vreinterpretq_s32_u32(vcltq_s32(fVec, o.fVec));
+    }
+    SkNx operator >  (const SkNx& o) const {
+        return vreinterpretq_s32_u32(vcgtq_s32(fVec, o.fVec));
+    }
+
     static SkNx Min(const SkNx& a, const SkNx& b) { return vminq_s32(a.fVec, b.fVec); }
     // TODO as needed
+
+    SkNx thenElse(const SkNx& t, const SkNx& e) const {
+        return vbslq_s32(vreinterpretq_u32_s32(fVec), t.fVec, e.fVec);
+    }
 
     int32x4_t fVec;
 };
@@ -454,6 +469,14 @@ template<> inline Sk4b SkNx_cast<uint8_t, uint16_t>(const Sk4h& src) {
 template<> inline Sk4b SkNx_cast<uint8_t, int>(const Sk4i& src) {
     uint16x4_t _16 = vqmovun_s32(src.fVec);
     return vqmovn_u16(vcombine_u16(_16, _16));
+}
+
+template<> inline Sk4i SkNx_cast<int, uint16_t>(const Sk4h& src) {
+    return vreinterpretq_s32_u32(vmovl_u16(src.fVec));
+}
+
+template<> inline Sk4h SkNx_cast<uint16_t, int>(const Sk4i& src) {
+    return vmovn_u32(vreinterpretq_u32_s32(src.fVec));
 }
 
 static inline Sk4i Sk4f_round(const Sk4f& x) {
