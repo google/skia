@@ -1137,13 +1137,11 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
         sk_sp<SkPDFArray> widths(composeAdvanceData(
                 fontInfo()->fGlyphWidths, fontInfo()->fEmSize, &appendWidth,
                 &defaultWidth));
-        if (widths->size())
+        if (widths->size()) {
             this->insertObject("W", std::move(widths));
-        if (defaultWidth != 0) {
-            this->insertScalar(
-                    "DW",
-                    scaleFromFontUnits(defaultWidth, fontInfo()->fEmSize));
         }
+        this->insertScalar(
+                "DW", scaleFromFontUnits(defaultWidth, fontInfo()->fEmSize));
     }
     if (!fontInfo()->fVerticalMetrics.empty()) {
         struct SkAdvancedTypefaceMetrics::VerticalMetric defaultAdvance;
