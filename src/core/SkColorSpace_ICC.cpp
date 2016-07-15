@@ -46,12 +46,13 @@ static constexpr size_t kICCHeaderSize = 132;
 // Contains a signature (4), offset (4), and size (4).
 static constexpr size_t kICCTagTableEntrySize = 12;
 
-static constexpr uint32_t kRGB_ColorSpace  = SkSetFourByteTag('R', 'G', 'B', ' ');
-static constexpr uint32_t kDisplay_Profile = SkSetFourByteTag('m', 'n', 't', 'r');
-static constexpr uint32_t kInput_Profile   = SkSetFourByteTag('s', 'c', 'n', 'r');
-static constexpr uint32_t kOutput_Profile  = SkSetFourByteTag('p', 'r', 't', 'r');
-static constexpr uint32_t kXYZ_PCSSpace    = SkSetFourByteTag('X', 'Y', 'Z', ' ');
-static constexpr uint32_t kACSP_Signature  = SkSetFourByteTag('a', 'c', 's', 'p');
+static constexpr uint32_t kRGB_ColorSpace     = SkSetFourByteTag('R', 'G', 'B', ' ');
+static constexpr uint32_t kDisplay_Profile    = SkSetFourByteTag('m', 'n', 't', 'r');
+static constexpr uint32_t kInput_Profile      = SkSetFourByteTag('s', 'c', 'n', 'r');
+static constexpr uint32_t kOutput_Profile     = SkSetFourByteTag('p', 'r', 't', 'r');
+static constexpr uint32_t kColorSpace_Profile = SkSetFourByteTag('s', 'p', 'a', 'c');
+static constexpr uint32_t kXYZ_PCSSpace       = SkSetFourByteTag('X', 'Y', 'Z', ' ');
+static constexpr uint32_t kACSP_Signature     = SkSetFourByteTag('a', 'c', 's', 'p');
 
 struct ICCProfileHeader {
     uint32_t fSize;
@@ -114,12 +115,13 @@ struct ICCProfileHeader {
         uint8_t majorVersion = fVersion >> 24;
         return_if_false(majorVersion <= 4, "Unsupported version");
 
-        // These are the three basic classes of profiles that we might expect to see embedded
-        // in images.  Four additional classes exist, but they generally are used as a convenient
+        // These are the four basic classes of profiles that we might expect to see embedded
+        // in images.  Additional classes exist, but they generally are used as a convenient
         // way for CMMs to store calculated transforms.
         return_if_false(fProfileClass == kDisplay_Profile ||
                         fProfileClass == kInput_Profile ||
-                        fProfileClass == kOutput_Profile,
+                        fProfileClass == kOutput_Profile ||
+                        fProfileClass == kColorSpace_Profile,
                         "Unsupported profile");
 
         // TODO (msarett):
@@ -136,7 +138,11 @@ struct ICCProfileHeader {
         // Should we treat different rendering intents differently?
         // Valid rendering intents include kPerceptual (0), kRelative (1),
         // kSaturation (2), and kAbsolute (3).
-        return_if_false(fRenderingIntent <= 3, "Bad rendering intent");
+        if (fRenderingIntent <= 3) {
+            // Warn rather than fail here.  Occasionally, we see perfectly
+            // normal profiles with wacky rendering intents.
+            SkColorSpacePrintf("Warning, bad rendering intent.\n");
+        }
 
         return_if_false(color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[0]), 0.96420f) &&
                         color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[1]), 1.00000f) &&
