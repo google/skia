@@ -1,0 +1,35 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+config("zlib_public") {
+  include_dirs = [ "../externals/zlib" ]
+}
+source_set("zlib") {
+  public_configs = [ ":zlib_public" ]
+  configs -= unwanted_configs
+
+  cflags = [ "-w" ]
+
+  sources = [
+    "../externals/zlib/adler32.c",
+    "../externals/zlib/compress.c",
+    "../externals/zlib/crc32.c",
+    "../externals/zlib/deflate.c",
+    "../externals/zlib/gzclose.c",
+    "../externals/zlib/gzlib.c",
+    "../externals/zlib/gzread.c",
+    "../externals/zlib/gzwrite.c",
+    "../externals/zlib/infback.c",
+    "../externals/zlib/inffast.c",
+    "../externals/zlib/inflate.c",
+    "../externals/zlib/inftrees.c",
+    "../externals/zlib/simd_stub.c",
+    "../externals/zlib/trees.c",
+    "../externals/zlib/uncompr.c",
+    "../externals/zlib/zutil.c",
+  ]
+}

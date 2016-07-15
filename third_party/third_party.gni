@@ -1,0 +1,15 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+# Chrome's GN environment sets up a bunch of default configs we don't need/want here.
+unwanted_configs = [
+  "//build/config/clang:extra_warnings",
+  "//build/config/clang:find_bad_constructs",
+  "//build/config/compiler:chromium_code",
+  "//build/config:feature_flags",
+]
