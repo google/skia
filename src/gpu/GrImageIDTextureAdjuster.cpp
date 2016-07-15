@@ -41,6 +41,10 @@ void GrBitmapTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey) {
     GrInstallBitmapUniqueKeyInvalidator(copyKey, fBmp->pixelRef());
 }
 
+SkColorSpace* GrBitmapTextureAdjuster::getColorSpace() {
+    return fBmp->colorSpace();
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 // SkImage's don't have a way of communicating whether they're alpha-only. So we fallback to
@@ -65,6 +69,10 @@ void GrImageTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* 
 
 void GrImageTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey) {
     // We don't currently have a mechanism for notifications on Images!
+}
+
+SkColorSpace* GrImageTextureAdjuster::getColorSpace() {
+    return fImageBase->onImageInfo().colorSpace();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -114,6 +122,10 @@ void GrBitmapTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
     GrInstallBitmapUniqueKeyInvalidator(copyKey, fBitmap.pixelRef());
 }
 
+SkColorSpace* GrBitmapTextureMaker::getColorSpace() {
+    return fBitmap.colorSpace();
+}
+
 //////////////////////////////////////////////////////////////////////////////
 static bool cacher_is_alpha_only(const SkImageCacherator& cacher) {
     return kAlpha_8_SkColorType == cacher.info().colorType();
@@ -147,4 +159,8 @@ void GrImageTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
     if (fClient) {
         as_IB(fClient)->notifyAddedToCache();
     }
+}
+
+SkColorSpace* GrImageTextureMaker::getColorSpace() {
+    return fCacher->info().colorSpace();
 }

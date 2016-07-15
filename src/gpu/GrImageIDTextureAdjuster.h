@@ -21,6 +21,9 @@ class GrBitmapTextureAdjuster : public GrTextureAdjuster {
 public:
     explicit GrBitmapTextureAdjuster(const SkBitmap* bmp);
 
+protected:
+    SkColorSpace* getColorSpace() override;
+
 private:
     void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
 
@@ -36,6 +39,9 @@ private:
 class GrImageTextureAdjuster : public GrTextureAdjuster {
 public:
     explicit GrImageTextureAdjuster(const SkImage_Base* img);
+
+protected:
+    SkColorSpace* getColorSpace() override;
 
 private:
     void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
@@ -61,6 +67,8 @@ protected:
 
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 
+    SkColorSpace* getColorSpace() override;
+
 private:
     const SkBitmap  fBitmap;
     GrUniqueKey     fOriginalKey;
@@ -83,6 +91,8 @@ protected:
     GrTexture* refOriginalTexture(bool willBeMipped, SkSourceGammaTreatment) override;
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;
+
+    SkColorSpace* getColorSpace() override;
 
 private:
     SkImageCacherator*      fCacher;

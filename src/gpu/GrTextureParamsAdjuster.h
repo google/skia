@@ -108,6 +108,8 @@ protected:
     */
     virtual void didCacheCopy(const GrUniqueKey& copyKey) = 0;
 
+    virtual SkColorSpace* getColorSpace() = 0;
+
 private:
     const int   fWidth;
     const int   fHeight;
