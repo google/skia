@@ -61,7 +61,6 @@
     '<(skia_src_path)/effects/SkPerlinNoiseShader.cpp',
     '<(skia_src_path)/effects/SkPictureImageFilter.cpp',
     '<(skia_src_path)/effects/SkTableColorFilter.cpp',
-    '<(skia_src_path)/effects/SkTableMaskFilter.cpp',
     '<(skia_src_path)/effects/SkTileImageFilter.cpp',
     '<(skia_src_path)/effects/SkXfermodeImageFilter.cpp',
 
@@ -117,7 +116,6 @@
     '<(skia_include_path)/effects/SkPaintImageFilter.h',
     '<(skia_include_path)/effects/SkPerlinNoiseShader.h',
     '<(skia_include_path)/effects/SkTableColorFilter.h',
-    '<(skia_include_path)/effects/SkTableMaskFilter.h',
     '<(skia_include_path)/effects/SkTileImageFilter.h',
     '<(skia_include_path)/effects/SkXfermodeImageFilter.h',
   ],
