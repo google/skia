@@ -491,3 +491,16 @@ DEF_TEST(PDFPrimitives_Scalar, reporter) {
         check_pdf_scalar_serialization(reporter, inputFloat);
     }
 }
+
+// Test SkPDFUtils:: for accuracy.
+DEF_TEST(PDFPrimitives_Color, reporter) {
+    char buffer[5];
+    for (int i = 0; i < 256; ++i) {
+        size_t len = SkPDFUtils::ColorToDecimal(i, buffer);
+        REPORTER_ASSERT(reporter, len == strlen(buffer));
+        float f;
+        REPORTER_ASSERT(reporter, 1 == sscanf(buffer, "%f", &f));
+        int roundTrip = (int)(0.5 + f * 255);
+        REPORTER_ASSERT(reporter, roundTrip == i);
+    }
+}

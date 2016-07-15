@@ -118,6 +118,9 @@ void SkPDFUnion::emitObject(SkWStream* stream,
         case Type::kInt:
             stream->writeDecAsText(fIntValue);
             return;
+        case Type::kColorComponent:
+            SkPDFUtils::AppendColorComponent(SkToU8(fIntValue), stream);
+            return;
         case Type::kBool:
             stream->writeText(fBoolValue ? "true" : "false");
             return;
@@ -159,6 +162,7 @@ void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap,
                               const SkPDFSubstituteMap& substituteMap) const {
     switch (fType) {
         case Type::kInt:
+        case Type::kColorComponent:
         case Type::kBool:
         case Type::kScalar:
         case Type::kName:
@@ -181,6 +185,12 @@ void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap,
 
 SkPDFUnion SkPDFUnion::Int(int32_t value) {
     SkPDFUnion u(Type::kInt);
+    u.fIntValue = value;
+    return u;
+}
+
+SkPDFUnion SkPDFUnion::ColorComponent(uint8_t value) {
+    SkPDFUnion u(Type::kColorComponent);
     u.fIntValue = value;
     return u;
 }
@@ -298,6 +308,10 @@ void SkPDFArray::append(SkPDFUnion&& value) {
 
 void SkPDFArray::appendInt(int32_t value) {
     this->append(SkPDFUnion::Int(value));
+}
+
+void SkPDFArray::appendColorComponent(uint8_t value) {
+    this->append(SkPDFUnion::ColorComponent(value));
 }
 
 void SkPDFArray::appendBool(bool value) {

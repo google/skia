@@ -51,12 +51,11 @@ static void replace_srcmode_on_opaque_paint(SkPaint* paint) {
 
 static void emit_pdf_color(SkColor color, SkWStream* result) {
     SkASSERT(SkColorGetA(color) == 0xFF);  // We handle alpha elsewhere.
-    SkScalar colorScale = SkScalarInvert(0xFF);
-    SkPDFUtils::AppendScalar(SkColorGetR(color) * colorScale, result);
+    SkPDFUtils::AppendColorComponent(SkColorGetR(color), result);
     result->writeText(" ");
-    SkPDFUtils::AppendScalar(SkColorGetG(color) * colorScale, result);
+    SkPDFUtils::AppendColorComponent(SkColorGetG(color), result);
     result->writeText(" ");
-    SkPDFUtils::AppendScalar(SkColorGetB(color) * colorScale, result);
+    SkPDFUtils::AppendColorComponent(SkColorGetB(color), result);
     result->writeText(" ");
 }
 

@@ -90,6 +90,8 @@ public:
 
     static SkPDFUnion Scalar(SkScalar);
 
+    static SkPDFUnion ColorComponent(uint8_t);
+
     /** These two functions do NOT take ownership of char*, and do NOT
         copy the string.  Suitable for passing in static const
         strings. For example:
@@ -139,6 +141,7 @@ private:
             kDestroyed object. */
         kDestroyed = 0,
         kInt,
+        kColorComponent,
         kBool,
         kScalar,
         kName,
@@ -212,6 +215,7 @@ public:
      *  @param value The value to add to the array.
      */
     void appendInt(int32_t);
+    void appendColorComponent(uint8_t);
     void appendBool(bool);
     void appendScalar(SkScalar);
     void appendName(const char[]);

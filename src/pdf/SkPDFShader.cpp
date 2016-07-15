@@ -40,6 +40,9 @@ static void unitToPointsMatrix(const SkPoint pts[2], SkMatrix* matrix) {
     matrix->postTranslate(pts[0].fX, pts[0].fY);
 }
 
+static const int kColorComponents = 3;
+typedef uint8_t ColorTuple[kColorComponents];
+
 /* Assumes t + startOffset is on the stack and does a linear interpolation on t
    between startOffset and endOffset from prevColor to curColor (for each color
    component), leaving the result in component order on the stack. It assumes
@@ -49,16 +52,16 @@ static void unitToPointsMatrix(const SkPoint pts[2], SkMatrix* matrix) {
    @param prevColor[components]  The previous color components.
    @param result                 The result ps function.
  */
-static void interpolateColorCode(SkScalar range, SkScalar* curColor,
-                                 SkScalar* prevColor,
+static void interpolateColorCode(SkScalar range, const ColorTuple& curColor,
+                                 const ColorTuple& prevColor,
                                  SkDynamicMemoryWStream* result) {
     SkASSERT(range != SkIntToScalar(0));
-    static const int kColorComponents = 3;
 
     // Figure out how to scale each color component.
     SkScalar multiplier[kColorComponents];
     for (int i = 0; i < kColorComponents; i++) {
-        multiplier[i] = (curColor[i] - prevColor[i]) / range;
+        static const SkScalar kColorScale = SkScalarInvert(255);
+        multiplier[i] = kColorScale * (curColor[i] - prevColor[i]) / range;
     }
 
     // Calculate when we no longer need to keep a copy of the input parameter t.
@@ -82,7 +85,7 @@ static void interpolateColorCode(SkScalar range, SkScalar* curColor,
         }
 
         if (multiplier[i] == 0) {
-            SkPDFUtils::AppendScalar(prevColor[i], result);
+            SkPDFUtils::AppendColorComponent(prevColor[i], result);
             result->writeText(" ");
         } else {
             if (multiplier[i] != 1) {
@@ -90,7 +93,7 @@ static void interpolateColorCode(SkScalar range, SkScalar* curColor,
                 result->writeText(" mul ");
             }
             if (prevColor[i] != 0) {
-                SkPDFUtils::AppendScalar(prevColor[i], result);
+                SkPDFUtils::AppendColorComponent(prevColor[i], result);
                 result->writeText(" add ");
             }
         }
@@ -122,8 +125,6 @@ static void interpolateColorCode(SkScalar range, SkScalar* curColor,
            }
        }
  */
-static const int kColorComponents = 3;
-typedef SkScalar ColorTuple[kColorComponents];
 static void gradientFunctionCode(const SkShader::GradientInfo& info,
                                  SkDynamicMemoryWStream* result) {
     /* We want to linearly interpolate from the previous color to the next.
@@ -134,20 +135,19 @@ static void gradientFunctionCode(const SkShader::GradientInfo& info,
 
     SkAutoSTMalloc<4, ColorTuple> colorDataAlloc(info.fColorCount);
     ColorTuple *colorData = colorDataAlloc.get();
-    const SkScalar scale = SkScalarInvert(SkIntToScalar(255));
     for (int i = 0; i < info.fColorCount; i++) {
-        colorData[i][0] = SkScalarMul(SkColorGetR(info.fColors[i]), scale);
-        colorData[i][1] = SkScalarMul(SkColorGetG(info.fColors[i]), scale);
-        colorData[i][2] = SkScalarMul(SkColorGetB(info.fColors[i]), scale);
+        colorData[i][0] = SkColorGetR(info.fColors[i]);
+        colorData[i][1] = SkColorGetG(info.fColors[i]);
+        colorData[i][2] = SkColorGetB(info.fColors[i]);
     }
 
     // Clamp the initial color.
     result->writeText("dup 0 le {pop ");
-    SkPDFUtils::AppendScalar(colorData[0][0], result);
+    SkPDFUtils::AppendColorComponent(colorData[0][0], result);
     result->writeText(" ");
-    SkPDFUtils::AppendScalar(colorData[0][1], result);
+    SkPDFUtils::AppendColorComponent(colorData[0][1], result);
     result->writeText(" ");
-    SkPDFUtils::AppendScalar(colorData[0][2], result);
+    SkPDFUtils::AppendColorComponent(colorData[0][2], result);
     result->writeText(" }\n");
 
     // The gradient colors.
@@ -173,11 +173,11 @@ static void gradientFunctionCode(const SkShader::GradientInfo& info,
 
     // Clamp the final color.
     result->writeText("{pop ");
-    SkPDFUtils::AppendScalar(colorData[info.fColorCount - 1][0], result);
+    SkPDFUtils::AppendColorComponent(colorData[info.fColorCount - 1][0], result);
     result->writeText(" ");
-    SkPDFUtils::AppendScalar(colorData[info.fColorCount - 1][1], result);
+    SkPDFUtils::AppendColorComponent(colorData[info.fColorCount - 1][1], result);
     result->writeText(" ");
-    SkPDFUtils::AppendScalar(colorData[info.fColorCount - 1][2], result);
+    SkPDFUtils::AppendColorComponent(colorData[info.fColorCount - 1][2], result);
 
     for (int i = 0 ; i < gradients + 1; i++) {
         result->writeText("} ifelse\n");
@@ -189,15 +189,15 @@ static sk_sp<SkPDFDict> createInterpolationFunction(const ColorTuple& color1,
     auto retval = sk_make_sp<SkPDFDict>();
 
     auto c0 = sk_make_sp<SkPDFArray>();
-    c0->appendScalar(color1[0]);
-    c0->appendScalar(color1[1]);
-    c0->appendScalar(color1[2]);
+    c0->appendColorComponent(color1[0]);
+    c0->appendColorComponent(color1[1]);
+    c0->appendColorComponent(color1[2]);
     retval->insertObject("C0", std::move(c0));
 
     auto c1 = sk_make_sp<SkPDFArray>();
-    c1->appendScalar(color2[0]);
-    c1->appendScalar(color2[1]);
-    c1->appendScalar(color2[2]);
+    c1->appendColorComponent(color2[0]);
+    c1->appendColorComponent(color2[1]);
+    c1->appendColorComponent(color2[2]);
     retval->insertObject("C1", std::move(c1));
 
     auto domain = sk_make_sp<SkPDFArray>();
@@ -248,11 +248,10 @@ static sk_sp<SkPDFDict> gradientStitchCode(const SkShader::GradientInfo& info) {
 
     SkAutoSTMalloc<4, ColorTuple> colorDataAlloc(colorCount);
     ColorTuple *colorData = colorDataAlloc.get();
-    const SkScalar scale = SkScalarInvert(SkIntToScalar(255));
     for (int i = 0; i < colorCount; i++) {
-        colorData[i][0] = SkScalarMul(SkColorGetR(colors[i]), scale);
-        colorData[i][1] = SkScalarMul(SkColorGetG(colors[i]), scale);
-        colorData[i][2] = SkScalarMul(SkColorGetB(colors[i]), scale);
+        colorData[i][0] = SkColorGetR(colors[i]);
+        colorData[i][1] = SkColorGetG(colors[i]);
+        colorData[i][2] = SkColorGetB(colors[i]);
     }
 
     // no need for a stitch function if there are only 2 stops.

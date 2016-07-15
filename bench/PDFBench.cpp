@@ -164,6 +164,21 @@ struct PDFScalarBench : public Benchmark {
     }
 };
 
+struct PDFColorComponentBench : public Benchmark {
+    bool isSuitableFor(Backend b) override {
+        return b == kNonRendering_Backend;
+    }
+    const char* onGetName() override { return "PDFColorComponent"; }
+    void onDraw(int loops, SkCanvas*) override {
+        char dst[5];
+        while (loops-- > 0) {
+            for (int i = 0; i < 256; ++i) {
+                (void)SkPDFUtils::ColorToDecimal(SkToU8(i), dst);
+            }
+        }
+    }
+};
+
 struct PDFShaderBench : public Benchmark {
     sk_sp<SkShader> fShader;
     const char* onGetName() final { return "PDFShader"; }
@@ -232,6 +247,7 @@ DEF_BENCH(return new PDFImageBench;)
 DEF_BENCH(return new PDFJpegImageBench;)
 DEF_BENCH(return new PDFCompressionBench;)
 DEF_BENCH(return new PDFScalarBench;)
+DEF_BENCH(return new PDFColorComponentBench;)
 DEF_BENCH(return new PDFShaderBench;)
 DEF_BENCH(return new WStreamWriteTextBenchmark;)
 DEF_BENCH(return new WritePDFTextBenchmark;)

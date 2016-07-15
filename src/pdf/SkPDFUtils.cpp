@@ -7,6 +7,7 @@
 
 
 #include "SkData.h"
+#include "SkFixed.h"
 #include "SkGeometry.h"
 #include "SkPDFResourceDict.h"
 #include "SkPDFUtils.h"
@@ -249,6 +250,29 @@ void SkPDFUtils::ApplyPattern(int objectIndex, SkWStream* content) {
     content->writeText(" SCN/");
     content->writeText(resourceName.c_str());
     content->writeText(" scn\n");
+}
+
+size_t SkPDFUtils::ColorToDecimal(uint8_t value, char result[5]) {
+    if (value == 255 || value == 0) {
+        result[0] = value ? '1' : '0';
+        result[1] = '\0';
+        return 1;
+    }
+    // int x = 0.5 + (1000.0 / 255.0) * value;
+    int x = SkFixedRoundToInt((SK_Fixed1 * 1000 / 255) * value);
+    result[0] = '.';
+    for (int i = 3; i > 0; --i) {
+        result[i] = '0' + x % 10;
+        x /= 10;
+    }
+    int j;
+    for (j = 3; j > 1; --j) {
+        if (result[j] != '0') {
+            break;
+        }
+    }
+    result[j + 1] = '\0';
+    return j + 1;
 }
 
 void SkPDFUtils::AppendScalar(SkScalar value, SkWStream* stream) {
