@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkDOM.h"
 #include "Test.h"
+
+#if defined(SK_XML)
+
+#include "SkDOM.h"
 
 DEF_TEST(SkDOM_test, r) {
     static const char gDoc[] =
@@ -37,3 +40,5 @@ DEF_TEST(SkDOM_test, r) {
     REPORTER_ASSERT(r, dom.getFirstChild(root, "elem1"));
     REPORTER_ASSERT(r, !dom.getFirstChild(root, "subelem1"));
 }
+
+#endif // SK_XML

@@ -35,6 +35,9 @@
         'include_dirs': [
           '../include/xml',
         ],
+        'defines' : [
+          'SK_XML',
+        ],
       },
     },
   ],

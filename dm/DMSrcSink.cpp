@@ -34,7 +34,6 @@
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
 #include "SkTLogic.h"
-#include "SkXMLWriter.h"
 #include "SkSwizzler.h"
 #include <functional>
 
@@ -44,6 +43,10 @@
 
 #if defined(SK_TEST_QCMS)
     #include "qcms.h"
+#endif
+
+#if defined(SK_XML)
+    #include "SkXMLWriter.h"
 #endif
 
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
@@ -1205,11 +1208,15 @@ Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 SVGSink::SVGSink() {}
 
 Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
+#if defined(SK_XML)
     SkAutoTDelete<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
     SkAutoTUnref<SkCanvas> canvas(SkSVGCanvas::Create(
         SkRect::MakeWH(SkIntToScalar(src.size().width()), SkIntToScalar(src.size().height())),
         xmlWriter));
     return src.draw(canvas);
+#else
+    return Error("SVG sink is disabled.");
+#endif // SK_XML
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
