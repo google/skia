@@ -321,22 +321,20 @@ protected:
             : fInfo(info)
             , fTileUsage(tileUsage)
             , fPixelGeometry(AdjustGeometry(info, tileUsage, geo, false))
-            , fForImageFilter(false) {}
+        {}
 
         CreateInfo(const SkImageInfo& info,
                    TileUsage tileUsage,
                    SkPixelGeometry geo,
-                   bool preserveLCDText,
-                   bool forImageFilter)
+                   bool preserveLCDText)
             : fInfo(info)
             , fTileUsage(tileUsage)
             , fPixelGeometry(AdjustGeometry(info, tileUsage, geo, preserveLCDText))
-            , fForImageFilter(forImageFilter) {}
+        {}
 
         const SkImageInfo       fInfo;
         const TileUsage         fTileUsage;
         const SkPixelGeometry   fPixelGeometry;
-        const bool              fForImageFilter;
     };
 
     /**
