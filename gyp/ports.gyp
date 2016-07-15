@@ -86,13 +86,11 @@
           ],
           'dependencies': [
             'freetype.gyp:freetype',
+            'expat.gyp:expat',
           ],
           'conditions': [
-            [ 'skia_android_framework', {
-              'link_settings': { 'libraries': [ '-lexpat' ] },
-            }, {
+            [ 'skia_android_framework == 0', {
               'link_settings': { 'libraries': [ '-ldl' ] },
-              'dependencies': [ 'expat.gyp:expat' ],
             }],
             [ 'skia_embedded_fonts', {
               'variables': {

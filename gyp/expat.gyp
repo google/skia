@@ -6,8 +6,22 @@
 # Build expat from source.
 
 {
-    'targets': [{
-        'target_name': 'expat',
+    'targets': [
+    {
+      'target_name': 'expat',
+      'type': 'none',
+      'conditions': [
+        [ 'skia_android_framework', {
+            'dependencies':              [ 'android_deps.gyp:expat' ],
+            'export_dependent_settings': [ 'android_deps.gyp:expat' ],
+        },{
+            'dependencies':              [ 'expat.gyp:expat_static' ],
+            'export_dependent_settings': [ 'expat.gyp:expat_static' ],
+        }]
+      ]
+    },
+    {
+        'target_name': 'expat_static',
         'type': 'static_library',
         'cflags': [ '-Wno-missing-field-initializers' ],
         'xcode_settings': { 'WARNING_CFLAGS': [ '-Wno-missing-field-initializers', ], },
