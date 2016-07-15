@@ -1252,7 +1252,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     sk_sp<SkSpecialImage> srcImg(SkSpecialImage::MakeFromGpu(srcRect,
                                                              bitmap.getGenerationID(),
                                                              std::move(texture), 
-                                                             &fDrawContext->surfaceProps()));
+                                                             &this->surfaceProps()));
 
     this->drawSpecial(draw, srcImg.get(), left, top, paint);
 }
@@ -1262,6 +1262,9 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
                               SkSpecialImage* special1,
                               int left, int top,
                               const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    CHECK_SHOULD_DRAW(draw);
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext);
 
     SkIPoint offset = { 0, 0 };
 
@@ -1283,11 +1286,9 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
     SkPaint tmpUnfiltered(paint);
     tmpUnfiltered.setImageFilter(nullptr);
 
-    bool alphaOnly = kAlpha_8_GrPixelConfig == texture->config();
-
     GrPaint grPaint;
     sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), SkMatrix::I()));
-    if (alphaOnly) {
+    if (GrPixelConfigIsAlphaOnly(texture->config())) {
         fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
     } else {
         fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
@@ -1398,52 +1399,37 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
     this->drawTextureProducer(&maker, src, dst, constraint, *draw.fMatrix, fClip, paint);
 }
 
+sk_sp<SkSpecialImage> SkGpuDevice::asSpecial() {
+    sk_sp<GrTexture> texture(this->accessDrawContext()->asTexture());
+    if (!texture) {
+        return nullptr;
+    }
+
+    const SkImageInfo ii = this->imageInfo();
+    const SkIRect srcRect = SkIRect::MakeWH(ii.width(), ii.height());
+
+    return SkSpecialImage::MakeFromGpu(srcRect,
+                                       kNeedNewImageUniqueID_SpecialImage,
+                                       std::move(texture), 
+                                       &this->surfaceProps());
+}
+
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
-                             int x, int y, const SkPaint& paint) {
+                             int left, int top, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     // clear of the source device must occur before CHECK_SHOULD_DRAW
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawDevice", fContext);
-    SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
 
     // drawDevice is defined to be in device coords.
     CHECK_SHOULD_DRAW(draw);
 
-    sk_sp<GrTexture> devTex(dev->accessDrawContext()->asTexture());
-    if (!devTex) {
+    SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
+    sk_sp<SkSpecialImage> srcImg(dev->asSpecial());
+    if (!srcImg) {
         return;
     }
 
-    const SkImageInfo ii = dev->imageInfo();
-    int w = ii.width();
-    int h = ii.height();
-
-    SkASSERT(!paint.getImageFilter());
-
-    GrPaint grPaint;
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(devTex.get(), SkMatrix::I()));
-    if (GrPixelConfigIsAlphaOnly(devTex->config())) {
-        // Can this happen?
-        fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
-   } else {
-        fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
-    }
-
-    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, std::move(fp),
-                                       this->surfaceProps().isGammaCorrect(), &grPaint)) {
-        return;
-    }
-
-    SkRect dstRect = SkRect::MakeXYWH(SkIntToScalar(x),
-                                      SkIntToScalar(y),
-                                      SkIntToScalar(w),
-                                      SkIntToScalar(h));
-
-    // The device being drawn may not fill up its texture (e.g. saveLayer uses approximate
-    // scratch texture).
-    SkRect srcRect = SkRect::MakeWH(SK_Scalar1 * w / devTex->width(),
-                                    SK_Scalar1 * h / devTex->height());
-
-    fDrawContext->fillRectToRect(fClip, grPaint, SkMatrix::I(), dstRect, srcRect);
+    this->drawSpecial(draw, srcImg.get(), left, top, paint);
 }
 
 void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,

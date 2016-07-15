@@ -131,6 +131,7 @@ public:
     void drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
                         const SkRect& dst, const SkPaint& paint) override;
 
+    sk_sp<SkSpecialImage> asSpecial();
     void drawSpecial(const SkDraw& draw, SkSpecialImage*,
                      int left, int top, const SkPaint& paint);
 
