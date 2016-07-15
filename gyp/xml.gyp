@@ -14,21 +14,22 @@
         'expat.gyp:expat',
       ],
       'include_dirs': [
-        '../include/private',
-        '../include/xml',
+        '<(skia_include_path)/private',
+        '<(skia_include_path)/xml',
       ],
       'sources': [
-        '../include/xml/SkDOM.h',
-        '../include/xml/SkXMLParser.h',
-        '../include/xml/SkXMLWriter.h',
+        '<(skia_include_path)/xml/SkDOM.h',
+        '<(skia_include_path)/xml/SkXMLParser.h',
+        '<(skia_include_path)/xml/SkXMLWriter.h',
 
-        '../src/xml/SkDOM.cpp',
-        '../src/xml/SkXMLParser.cpp',
-        '../src/xml/SkXMLPullParser.cpp',
-        '../src/xml/SkXMLWriter.cpp',
+        '<(skia_src_path)/xml/SkDOM.cpp',
+        '<(skia_src_path)/xml/SkXMLParser.cpp',
+        '<(skia_src_path)/xml/SkXMLPullParser.cpp',
+        '<(skia_src_path)/xml/SkXMLWriter.cpp',
       ],
       'sources!': [
-          '../src/xml/SkXMLPullParser.cpp', #if 0 around class decl in header
+          # time to kill this?
+          '<(skia_src_path)/xml/SkXMLPullParser.cpp', #if 0 around class decl in header
       ],
       'direct_dependent_settings': {
         'include_dirs': [

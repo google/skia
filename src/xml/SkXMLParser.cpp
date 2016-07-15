@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "expat.h"
 
+#include "SkStream.h"
 #include "SkXMLParser.h"
 
 static char const* const gErrorStrings[] = {
@@ -47,8 +49,31 @@ void SkXMLParserError::reset() {
     fNativeCode = -1;
 }
 
-
 ////////////////
+
+namespace {
+
+const XML_Memory_Handling_Suite sk_XML_alloc = {
+    sk_malloc_throw,
+    sk_realloc_throw,
+    sk_free
+};
+
+void XMLCALL start_element_handler(void *data, const char* tag, const char** attributes) {
+    SkXMLParser* parser = static_cast<SkXMLParser*>(data);
+
+    parser->startElement(tag);
+
+    for (size_t i = 0; attributes[i]; i += 2) {
+        parser->addAttribute(attributes[i], attributes[i + 1]);
+    }
+}
+
+void XMLCALL end_element_handler(void* data, const char* tag) {
+    static_cast<SkXMLParser*>(data)->endElement(tag);
+}
+
+} // anonymous namespace
 
 SkXMLParser::SkXMLParser(SkXMLParserError* parserError) : fParser(nullptr), fError(parserError)
 {
@@ -60,12 +85,45 @@ SkXMLParser::~SkXMLParser()
 
 bool SkXMLParser::parse(SkStream& docStream)
 {
-    return false;
+    SkAutoTCallVProc<skstd::remove_pointer_t<XML_Parser>, XML_ParserFree>
+    parser(XML_ParserCreate_MM(nullptr, &sk_XML_alloc, nullptr));
+    if (!parser) {
+        SkDebugf("could not create XML parser\n");
+        return false;
+    }
+
+    XML_SetUserData(parser, this);
+    XML_SetElementHandler(parser, start_element_handler, end_element_handler);
+
+    static const int kBufferSize = 512 SkDEBUGCODE( - 507);
+    bool done = false;
+    do {
+        void* buffer = XML_GetBuffer(parser, kBufferSize);
+        if (!buffer) {
+            SkDebugf("could not buffer enough to continue\n");
+            return false;
+        }
+
+        size_t len = docStream.read(buffer, kBufferSize);
+        done = docStream.isAtEnd();
+        XML_Status status = XML_ParseBuffer(parser, SkToS32(len), done);
+        if (XML_STATUS_ERROR == status) {
+            XML_Error error = XML_GetErrorCode(parser);
+            int line = XML_GetCurrentLineNumber(parser);
+            int column = XML_GetCurrentColumnNumber(parser);
+            const XML_LChar* errorString = XML_ErrorString(error);
+            SkDebugf("parse error @%d:%d: %d (%s).\n", line, column, error, errorString);
+            return false;
+        }
+    } while (!done);
+
+    return true;
 }
 
 bool SkXMLParser::parse(const char doc[], size_t len)
 {
-    return false;
+    SkMemoryStream docStream(doc, len);
+    return this->parse(docStream);
 }
 
 void SkXMLParser::GetNativeErrorString(int error, SkString* str)
