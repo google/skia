@@ -43,6 +43,7 @@ public:
     VkImage image() const { return fInfo.fImage; }
     const GrVkAlloc& alloc() const { return fInfo.fAlloc; }
     VkFormat imageFormat() const { return fInfo.fFormat; }
+    uint32_t mipLevels() const { return fInfo.fLevelCount; }
     const Resource* resource() const { return fResource; }
     bool isLinearTiled() const {
         return SkToBool(VK_IMAGE_TILING_LINEAR == fInfo.fImageTiling);

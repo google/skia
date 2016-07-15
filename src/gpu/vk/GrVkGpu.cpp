@@ -777,8 +777,8 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) {
         return;
     }
 
-    // We cannot generate mipmaps for images that are multisampled.
-    // TODO: does it even make sense for rendertargets in general?
+    // We currently don't support generating mipmaps for images that are multisampled.
+    // TODO: Add support for mipmapping the resolve target of a multisampled image
     if (tex->asRenderTarget() && tex->asRenderTarget()->numColorSamples() > 1) {
         return;
     }
@@ -791,49 +791,56 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) {
         return;
     }
 
-    // change the original image's layout
-    tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        VK_ACCESS_TRANSFER_READ_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
-
-    // grab handle to the original image resource
-    const GrVkResource* oldResource = tex->resource();
-    oldResource->ref();
-    VkImage oldImage = tex->image();
+    int width = tex->width();
+    int height = tex->height();
+    VkImageBlit blitRegion;
+    memset(&blitRegion, 0, sizeof(VkImageBlit));
 
     // SkMipMap doesn't include the base level in the level count so we have to add 1
     uint32_t levelCount = SkMipMap::ComputeLevelCount(tex->width(), tex->height()) + 1;
-    if (!tex->reallocForMipmap(this, levelCount)) {
+    if (levelCount != tex->mipLevels()) {
+        const GrVkResource* oldResource = tex->resource();
+        oldResource->ref();
+        // grab handle to the original image resource
+        VkImage oldImage = tex->image();
+
+        // change the original image's layout so we can copy from it
+        tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                            VK_ACCESS_TRANSFER_READ_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
+
+        if (!tex->reallocForMipmap(this, levelCount)) {
+            oldResource->unref(this);
+            return;
+        }
+        // change the new image's layout so we can blit to it
+        tex->setImageLayout(this, VK_IMAGE_LAYOUT_GENERAL,
+                            VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
+
+        // Blit original image to top level of new image
+        blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+        blitRegion.srcOffsets[0] = { 0, 0, 0 };
+        blitRegion.srcOffsets[1] = { width, height, 1 };
+        blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+        blitRegion.dstOffsets[0] = { 0, 0, 0 };
+        blitRegion.dstOffsets[1] = { width, height, 1 };
+
+        fCurrentCmdBuffer->blitImage(this,
+                                     oldResource,
+                                     oldImage,
+                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                     tex->resource(),
+                                     tex->image(),
+                                     VK_IMAGE_LAYOUT_GENERAL,
+                                     1,
+                                     &blitRegion,
+                                     VK_FILTER_LINEAR);
+
         oldResource->unref(this);
-        return;
+    } else {
+        // change layout of the layers so we can write to them.
+        tex->setImageLayout(this, VK_IMAGE_LAYOUT_GENERAL,
+                            VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
     }
-
-    // change the new image's layout
-    tex->setImageLayout(this, VK_IMAGE_LAYOUT_GENERAL,
-                        VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
-
-    // Blit original image
-    int width = tex->width();
-    int height = tex->height();
-
-    VkImageBlit blitRegion;
-    memset(&blitRegion, 0, sizeof(VkImageBlit));
-    blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-    blitRegion.srcOffsets[0] = { 0, 0, 0 };
-    blitRegion.srcOffsets[1] = { width, height, 1 };
-    blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-    blitRegion.dstOffsets[0] = { 0, 0, 0 };
-    blitRegion.dstOffsets[1] = { width, height, 1 };
-
-    fCurrentCmdBuffer->blitImage(this,
-                                 oldResource,
-                                 oldImage,
-                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                 tex->resource(),
-                                 tex->image(),
-                                 VK_IMAGE_LAYOUT_GENERAL,
-                                 1,
-                                 &blitRegion,
-                                 VK_FILTER_LINEAR);
 
     // setup memory barrier
     SkASSERT(GrVkFormatToPixelConfig(tex->imageFormat(), nullptr));
@@ -841,8 +848,8 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) {
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
         NULL,                                            // pNext
-        VK_ACCESS_TRANSFER_WRITE_BIT,                    // outputMask
-        VK_ACCESS_TRANSFER_READ_BIT,                     // inputMask
+        VK_ACCESS_TRANSFER_WRITE_BIT,                    // srcAccessMask
+        VK_ACCESS_TRANSFER_READ_BIT,                     // dstAccessMask
         VK_IMAGE_LAYOUT_GENERAL,                         // oldLayout
         VK_IMAGE_LAYOUT_GENERAL,                         // newLayout
         VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
@@ -877,8 +884,6 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) {
                                      VK_FILTER_LINEAR);
         ++mipLevel;
     }
-
-    oldResource->unref(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
