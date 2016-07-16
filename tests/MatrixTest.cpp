@@ -213,10 +213,16 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
     big.setAll(2.39394089e+36f, 8.85347779e+36f, 9.26526204e+36f,
                3.9159619e+36f, 1.44823453e+37f, 1.51559342e+37f,
                0.f, 0.f, 1.f);
-    REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMinScale());
-    REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMaxScale());
     success = big.getMinMaxScales(scales);
     REPORTER_ASSERT(reporter, !success);
+
+    // skbug.com/4718
+    SkMatrix givingNegativeNearlyZeros;
+    givingNegativeNearlyZeros.setAll(0.00436534f, 0.114138f, 0.37141f,
+                                     0.00358857f, 0.0936228f, -0.0174198f,
+                                     0.f, 0.f, 1.f);
+    success = givingNegativeNearlyZeros.getMinMaxScales(scales);
+    REPORTER_ASSERT(reporter, success && 0 == scales[0]);
 
     SkMatrix perspY;
     perspY.reset();
