@@ -197,23 +197,18 @@ protected:
     SkUnichar generateGlyphToChar(uint16_t glyph) override;
 
 private:
-    FT_Face   fFace;  // Shared face from gFaceRecHead.
-    FT_Size   fFTSize;  // The size on the fFace for this scaler.
-    FT_Int    fStrikeIndex;
+    FT_Face     fFace;              // reference to shared face in gFaceRecHead
+    FT_Size     fFTSize;            // our own copy
+    FT_Int      fStrikeIndex;
+    FT_F26Dot6  fScaleX, fScaleY;
+    FT_Matrix   fMatrix22;
+    uint32_t    fLoadGlyphFlags;
+    bool        fDoLinearMetrics;
+    bool        fLCDIsVert;
 
-    /** The rest of the matrix after FreeType handles the size.
-     *  With outline font rasterization this is handled by FreeType with FT_Set_Transform.
-     *  With bitmap only fonts this matrix must be applied to scale the bitmap.
-     */
-    SkMatrix  fMatrix22Scalar;
-    /** Same as fMatrix22Scalar, but in FreeType units and space. */
-    FT_Matrix fMatrix22;
-    /** The actual size requested. */
-    SkVector  fScale;
-
-    uint32_t  fLoadGlyphFlags;
-    bool      fDoLinearMetrics;
-    bool      fLCDIsVert;
+    // Need scalar versions for generateFontMetrics
+    SkVector    fScale;
+    SkMatrix    fMatrix22Scalar;
 
     FT_Error setupSize();
     void getBBoxForCurrentGlyph(SkGlyph* glyph, FT_BBox* bbox,
@@ -224,7 +219,6 @@ private:
     // Caller must lock gFTMutex before calling this function.
     // update FreeType2 glyph slot with glyph emboldened
     void emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph);
-    bool shouldSubpixelBitmap(const SkGlyph&, const SkMatrix&);
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -753,33 +747,45 @@ bool SkTypeface_FreeType::onGetKerningPairAdjustments(const uint16_t glyphs[],
     return true;
 }
 
-/** Returns the bitmap strike equal to or just larger than the requested size. */
 static FT_Int chooseBitmapStrike(FT_Face face, FT_F26Dot6 scaleY) {
+    // early out if face is bad
     if (face == nullptr) {
-        SkDEBUGF(("chooseBitmapStrike aborted due to nullptr face.\n"));
+        SkDEBUGF(("chooseBitmapStrike aborted due to nullptr face\n"));
         return -1;
     }
-
-    FT_Pos requestedPPEM = scaleY;  // FT_Bitmap_Size::y_ppem is in 26.6 format.
+    // determine target ppem
+    FT_Pos targetPPEM = scaleY;
+    // find a bitmap strike equal to or just larger than the requested size
     FT_Int chosenStrikeIndex = -1;
     FT_Pos chosenPPEM = 0;
     for (FT_Int strikeIndex = 0; strikeIndex < face->num_fixed_sizes; ++strikeIndex) {
-        FT_Pos strikePPEM = face->available_sizes[strikeIndex].y_ppem;
-        if (strikePPEM == requestedPPEM) {
+        FT_Pos thisPPEM = face->available_sizes[strikeIndex].y_ppem;
+        if (thisPPEM == targetPPEM) {
             // exact match - our search stops here
-            return strikeIndex;
-        } else if (chosenPPEM < requestedPPEM) {
+            chosenPPEM = thisPPEM;
+            chosenStrikeIndex = strikeIndex;
+            break;
+        } else if (chosenPPEM < targetPPEM) {
             // attempt to increase chosenPPEM
-            if (chosenPPEM < strikePPEM) {
-                chosenPPEM = strikePPEM;
+            if (thisPPEM > chosenPPEM) {
+                chosenPPEM = thisPPEM;
                 chosenStrikeIndex = strikeIndex;
             }
         } else {
-            // attempt to decrease chosenPPEM, but not below requestedPPEM
-            if (requestedPPEM < strikePPEM && strikePPEM < chosenPPEM) {
-                chosenPPEM = strikePPEM;
+            // attempt to decrease chosenPPEM, but not below targetPPEM
+            if (thisPPEM < chosenPPEM && thisPPEM > targetPPEM) {
+                chosenPPEM = thisPPEM;
                 chosenStrikeIndex = strikeIndex;
             }
+        }
+    }
+    if (chosenStrikeIndex != -1) {
+        // use the chosen strike
+        FT_Error err = FT_Select_Size(face, chosenStrikeIndex);
+        if (err != 0) {
+            SkDEBUGF(("FT_Select_Size(%s, %d) returned 0x%x\n", face->family_name,
+                      chosenStrikeIndex, err));
+            chosenStrikeIndex = -1;
         }
     }
     return chosenStrikeIndex;
@@ -808,12 +814,14 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
     }
 
     fRec.computeMatrices(SkScalerContextRec::kFull_PreMatrixScale, &fScale, &fMatrix22Scalar);
+    fMatrix22Scalar.setSkewX(-fMatrix22Scalar.getSkewX());
+    fMatrix22Scalar.setSkewY(-fMatrix22Scalar.getSkewY());
 
-    FT_F26Dot6 scaleX = SkScalarToFDot6(fScale.fX);
-    FT_F26Dot6 scaleY = SkScalarToFDot6(fScale.fY);
+    fScaleX = SkScalarToFDot6(fScale.fX);
+    fScaleY = SkScalarToFDot6(fScale.fY);
     fMatrix22.xx = SkScalarToFixed(fMatrix22Scalar.getScaleX());
-    fMatrix22.xy = SkScalarToFixed(-fMatrix22Scalar.getSkewX());
-    fMatrix22.yx = SkScalarToFixed(-fMatrix22Scalar.getSkewY());
+    fMatrix22.xy = SkScalarToFixed(fMatrix22Scalar.getSkewX());
+    fMatrix22.yx = SkScalarToFixed(fMatrix22Scalar.getSkewY());
     fMatrix22.yy = SkScalarToFixed(fMatrix22Scalar.getScaleY());
 
     fLCDIsVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
@@ -892,7 +900,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
         FT_Size size;
         FT_Error err = FT_New_Size(ftFace.get(), &size);
         if (err != 0) {
-            SkDEBUGF(("FT_New_Size(%s) returned 0x%x.\n", ftFace->family_name, err));
+            SkDEBUGF(("FT_New_Size returned %x for face %s\n", err, ftFace->family_name));
             return nullptr;
         }
         return size;
@@ -904,54 +912,39 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
 
     FT_Error err = FT_Activate_Size(ftSize.get());
     if (err != 0) {
-        SkDEBUGF(("FT_Activate_Size(%s) returned 0x%x.\n", ftFace->family_name, err));
+        SkDEBUGF(("FT_Activate_Size(%08x, 0x%x, 0x%x) returned 0x%x\n",
+                         ftFace.get(), fScaleX,   fScaleY,       err));
         return;
     }
 
     if (FT_IS_SCALABLE(ftFace)) {
-        err = FT_Set_Char_Size(ftFace.get(), scaleX, scaleY, 72, 72);
+        err = FT_Set_Char_Size(ftFace.get(), fScaleX, fScaleY, 72, 72);
         if (err != 0) {
-            SkDEBUGF(("FT_Set_CharSize(%s, %f, %f) returned 0x%x.\n",
-                      ftFace->family_name, fScale.fX, fScale.fY, err));
+            SkDEBUGF(("FT_Set_CharSize(%08x, 0x%x, 0x%x) returned 0x%x\n",
+                               ftFace.get(), fScaleX, fScaleY,      err));
             return;
         }
+        FT_Set_Transform(ftFace.get(), &fMatrix22, nullptr);
     } else if (FT_HAS_FIXED_SIZES(ftFace)) {
-        fStrikeIndex = chooseBitmapStrike(ftFace.get(), scaleY);
+        fStrikeIndex = chooseBitmapStrike(ftFace.get(), fScaleY);
         if (fStrikeIndex == -1) {
-            SkDEBUGF(("No glyphs for font \"%s\" size %f.\n", ftFace->family_name, fScale.fY));
-            return;
+            SkDEBUGF(("no glyphs for font \"%s\" size %f?\n",
+                            ftFace->family_name,      SkFDot6ToScalar(fScaleY)));
+        } else {
+            // FreeType does no provide linear metrics for bitmap fonts.
+            linearMetrics = false;
+
+            // FreeType documentation says:
+            // FT_LOAD_NO_BITMAP -- Ignore bitmap strikes when loading.
+            // Bitmap-only fonts ignore this flag.
+            //
+            // However, in FreeType 2.5.1 color bitmap only fonts do not ignore this flag.
+            // Force this flag off for bitmap only fonts.
+            fLoadGlyphFlags &= ~FT_LOAD_NO_BITMAP;
         }
-
-        err = FT_Select_Size(ftFace.get(), fStrikeIndex);
-        if (err != 0) {
-            SkDEBUGF(("FT_Select_Size(%s, %d) returned 0x%x.\n",
-                      ftFace->family_name, fStrikeIndex, err));
-            fStrikeIndex = -1;
-            return;
-        }
-
-        // A non-ideal size was picked, so recompute the matrix.
-        // This adjusts for the difference between FT_Set_Char_Size and FT_Select_Size.
-        fMatrix22Scalar.preScale(fScale.x() / ftFace->size->metrics.x_ppem,
-                                 fScale.y() / ftFace->size->metrics.y_ppem);
-        fMatrix22.xx = SkScalarToFixed(fMatrix22Scalar.getScaleX());
-        fMatrix22.xy = SkScalarToFixed(-fMatrix22Scalar.getSkewX());
-        fMatrix22.yx = SkScalarToFixed(-fMatrix22Scalar.getSkewY());
-        fMatrix22.yy = SkScalarToFixed(fMatrix22Scalar.getScaleY());
-
-        // FreeType does not provide linear metrics for bitmap fonts.
-        linearMetrics = false;
-
-        // FreeType documentation says:
-        // FT_LOAD_NO_BITMAP -- Ignore bitmap strikes when loading.
-        // Bitmap-only fonts ignore this flag.
-        //
-        // However, in FreeType 2.5.1 color bitmap only fonts do not ignore this flag.
-        // Force this flag off for bitmap only fonts.
-        fLoadGlyphFlags &= ~FT_LOAD_NO_BITMAP;
     } else {
-        SkDEBUGF(("Unknown kind of font \"%s\" size %f.\n", fFace->family_name, fScale.fY));
-        return;
+        SkDEBUGF(("unknown kind of font \"%s\" size %f?\n",
+                            fFace->family_name,     SkFDot6ToScalar(fScaleY)));
     }
 
     fFTSize = ftSize.release();
@@ -980,8 +973,14 @@ FT_Error SkScalerContext_FreeType::setupSize() {
     gFTMutex.assertHeld();
     FT_Error err = FT_Activate_Size(fFTSize);
     if (err != 0) {
+        SkDEBUGF(("SkScalerContext_FreeType::FT_Activate_Size(%s %s, 0x%x, 0x%x) returned 0x%x\n",
+                  fFace->family_name, fFace->style_name, fScaleX, fScaleY, err));
+        fFTSize = nullptr;
         return err;
     }
+
+    // seems we need to reset this every time (not sure why, but without it
+    // I get random italics from some other fFTSize)
     FT_Set_Transform(fFace, &fMatrix22, nullptr);
     return 0;
 }
@@ -1038,7 +1037,7 @@ void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
             glyph->fLsbDelta = 0;
             const SkScalar advanceScalar = SkFT_FixedToScalar(advance);
             glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
-            glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
+            glyph->fAdvanceY = -SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
             return;
         }
     }
@@ -1112,20 +1111,15 @@ void SkScalerContext_FreeType::updateGlyphIfLCD(SkGlyph* glyph) {
     }
 }
 
-bool SkScalerContext_FreeType::shouldSubpixelBitmap(const SkGlyph& glyph, const SkMatrix& matrix) {
-    // If subpixel rendering of a bitmap *can* be done.
-    bool mechanism = fFace->glyph->format == FT_GLYPH_FORMAT_BITMAP &&
-                     fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag &&
-                     (glyph.getSubXFixed() || glyph.getSubYFixed());
+inline void scaleGlyphMetrics(SkGlyph& glyph, SkScalar scale) {
+    glyph.fWidth *= scale;
+    glyph.fHeight *= scale;
+    glyph.fTop *= scale;
+    glyph.fLeft *= scale;
 
-    // If subpixel rendering of a bitmap *should* be done.
-    // 1. If the face is not scalable then always allow subpixel rendering.
-    //    Otherwise, if the font has an 8ppem strike 7 will subpixel render but 8 won't.
-    // 2. If the matrix is already not identity the bitmap will already be resampled,
-    //    so resampling slightly differently shouldn't make much difference.
-    bool policy = !FT_IS_SCALABLE(fFace) || !matrix.isIdentity();
-
-    return mechanism && policy;
+    float floatScale = SkScalarToFloat(scale);
+    glyph.fAdvanceX *= floatScale;
+    glyph.fAdvanceY *= floatScale;
 }
 
 void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
@@ -1182,22 +1176,10 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
             glyph->fMaskFormat = SkMask::kARGB32_Format;
         }
 
-        {
-            SkRect rect = SkRect::MakeXYWH(SkIntToScalar(fFace->glyph->bitmap_left),
-                                          -SkIntToScalar(fFace->glyph->bitmap_top),
-                                           SkIntToScalar(fFace->glyph->bitmap.width),
-                                           SkIntToScalar(fFace->glyph->bitmap.rows));
-            fMatrix22Scalar.mapRect(&rect);
-            if (this->shouldSubpixelBitmap(*glyph, fMatrix22Scalar)) {
-                rect.offset(SkFixedToScalar(glyph->getSubXFixed()),
-                            SkFixedToScalar(glyph->getSubYFixed()));
-            }
-            SkIRect irect = rect.roundOut();
-            glyph->fWidth   = SkToU16(irect.width());
-            glyph->fHeight  = SkToU16(irect.height());
-            glyph->fTop     = SkToS16(irect.top());
-            glyph->fLeft    = SkToS16(irect.left());
-        }
+        glyph->fWidth   = SkToU16(fFace->glyph->bitmap.width);
+        glyph->fHeight  = SkToU16(fFace->glyph->bitmap.rows);
+        glyph->fTop     = -SkToS16(fFace->glyph->bitmap_top);
+        glyph->fLeft    = SkToS16(fFace->glyph->bitmap_left);
         break;
 
       default:
@@ -1209,7 +1191,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
         if (fDoLinearMetrics) {
             const SkScalar advanceScalar = SkFT_FixedToScalar(fFace->glyph->linearVertAdvance);
-            glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getSkewX() * advanceScalar);
+            glyph->fAdvanceX = -SkScalarToFloat(fMatrix22Scalar.getSkewX() * advanceScalar);
             glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getScaleY() * advanceScalar);
         } else {
             glyph->fAdvanceX = -SkFDot6ToFloat(fFace->glyph->advance.x);
@@ -1219,7 +1201,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         if (fDoLinearMetrics) {
             const SkScalar advanceScalar = SkFT_FixedToScalar(fFace->glyph->linearHoriAdvance);
             glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
-            glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
+            glyph->fAdvanceY = -SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
         } else {
             glyph->fAdvanceX = SkFDot6ToFloat(fFace->glyph->advance.x);
             glyph->fAdvanceY = -SkFDot6ToFloat(fFace->glyph->advance.y);
@@ -1231,7 +1213,15 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         }
     }
 
+    // If the font isn't scalable, scale the metrics from the non-scalable strike.
+    // This means do not try to scale embedded bitmaps; only scale bitmaps in bitmap only fonts.
+    if (!FT_IS_SCALABLE(fFace) && !SkScalarNearlyZero(fScale.fY) && fFace->size->metrics.y_ppem) {
+        // NOTE: both dimensions are scaled by y_ppem. this is WAI.
+        scaleGlyphMetrics(*glyph, fScale.fY / fFace->size->metrics.y_ppem);
+    }
+
 #ifdef ENABLE_GLYPH_SPEW
+    SkDEBUGF(("FT_Set_Char_Size(this:%p sx:%x sy:%x ", this, fScaleX, fScaleY));
     SkDEBUGF(("Metrics(glyph:%d flags:0x%x) w:%d\n", glyph->getGlyphID(), fLoadGlyphFlags, glyph->fWidth));
 #endif
 }
@@ -1257,15 +1247,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     }
 
     emboldenIfNeeded(fFace, fFace->glyph);
-    SkMatrix* bitmapMatrix = &fMatrix22Scalar;
-    SkMatrix subpixelBitmapMatrix;
-    if (this->shouldSubpixelBitmap(glyph, *bitmapMatrix)) {
-        subpixelBitmapMatrix = fMatrix22Scalar;
-        subpixelBitmapMatrix.postTranslate(SkFixedToScalar(glyph.getSubXFixed()),
-                                           SkFixedToScalar(glyph.getSubYFixed()));
-        bitmapMatrix = &subpixelBitmapMatrix;
-    }
-    generateGlyphImage(fFace, glyph, *bitmapMatrix);
+    generateGlyphImage(fFace, glyph);
 }
 
 
@@ -1321,7 +1303,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
     FT_Face face = fFace;
     SkScalar scaleX = fScale.x();
     SkScalar scaleY = fScale.y();
-    SkScalar mxy = -fMatrix22Scalar.getSkewX() * scaleY;
+    SkScalar mxy = fMatrix22Scalar.getSkewX() * scaleY;
     SkScalar myy = fMatrix22Scalar.getScaleY() * scaleY;
 
     // fetch units/EM from "head" table if needed (ie for bitmap fonts)

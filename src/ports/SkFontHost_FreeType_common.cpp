@@ -334,11 +334,7 @@ inline SkColorType SkColorType_for_SkMaskFormat(SkMask::Format format) {
     }
 }
 
-void SkScalerContext_FreeType_Base::generateGlyphImage(
-    FT_Face face,
-    const SkGlyph& glyph,
-    const SkMatrix& bitmapTransform)
-{
+void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face, const SkGlyph& glyph) {
     const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
     const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
 
@@ -415,7 +411,11 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
             }
 
             // If no scaling needed, directly copy glyph bitmap.
-            if (bitmapTransform.isIdentity()) {
+            if (glyph.fWidth == face->glyph->bitmap.width &&
+                glyph.fHeight == face->glyph->bitmap.rows &&
+                glyph.fTop == -face->glyph->bitmap_top &&
+                glyph.fLeft == face->glyph->bitmap_left)
+            {
                 SkMask dstMask;
                 glyph.toMask(&dstMask);
                 copyFTBitmap(face->glyph->bitmap, dstMask);
@@ -426,7 +426,6 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
             // Copy the FT_Bitmap into an SkBitmap (either A8 or ARGB)
             SkBitmap unscaledBitmap;
-            // TODO: mark this as sRGB when the blits will be sRGB.
             unscaledBitmap.allocPixels(SkImageInfo::Make(face->glyph->bitmap.width,
                                                          face->glyph->bitmap.rows,
                                                          SkColorType_for_FTPixelMode(pixel_mode),
@@ -448,7 +447,6 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 bitmapRowBytes = glyph.rowBytes();
             }
             SkBitmap dstBitmap;
-            // TODO: mark this as sRGB when the blits will be sRGB.
             dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
                                                 SkColorType_for_SkMaskFormat(maskFormat),
                                                 kPremul_SkAlphaType),
@@ -461,15 +459,9 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
             // Scale unscaledBitmap into dstBitmap.
             SkCanvas canvas(dstBitmap);
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-            canvas.clear(0x33FF0000);
-#else
             canvas.clear(SK_ColorTRANSPARENT);
-#endif
-            canvas.translate(-glyph.fLeft, -glyph.fTop);
-            canvas.concat(bitmapTransform);
-            canvas.translate(face->glyph->bitmap_left, -face->glyph->bitmap_top);
-
+            canvas.scale(SkIntToScalar(glyph.fWidth) / SkIntToScalar(face->glyph->bitmap.width),
+                         SkIntToScalar(glyph.fHeight) / SkIntToScalar(face->glyph->bitmap.rows));
             SkPaint paint;
             paint.setFilterQuality(kMedium_SkFilterQuality);
             canvas.drawBitmap(unscaledBitmap, 0, 0, &paint);
