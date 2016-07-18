@@ -54,7 +54,7 @@ static void test_far_from_origin(GrDrawContext* drawContext, GrPathRenderer* pr,
     args.fViewMatrix = &matrix;
     args.fShape = &shape;
     args.fAntiAlias = true;
-
+    args.fGammaCorrect = false;
     pr->drawPath(args);
 }
 
