@@ -75,25 +75,30 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScala
         GR_STATIC_ASSERT(SkPaint::kCapCount <= (1 << kCapBits));
         // The cap type only matters for unclosed shapes. However, a path effect could unclose
         // the shape before it is stroked.
-        SkPaint::Cap cap;
-        if ((flags & kClosed_KeyFlag) && !style.pathEffect()) {
-            cap = SkPaint::kButt_Cap;
-        } else {
+        SkPaint::Cap cap = SkPaint::kDefault_Cap;
+        if (!(flags & kClosed_KeyFlag) || style.pathEffect()) {
             cap = style.strokeRec().getCap();
         }
+        SkScalar miter = -1.f;
+        SkPaint::Join join = SkPaint::kDefault_Join;
+
+        // Dashing will not insert joins but other path effects may.
+        if (!(flags & kNoJoins_KeyFlag) || style.hasNonDashPathEffect()) {
+            join = style.strokeRec().getJoin();
+            // Miter limit only affects miter joins
+            if (SkPaint::kMiter_Join == join) {
+                miter = style.strokeRec().getMiter();
+            }
+        }
+
         key[i++] = style.strokeRec().getStyle() |
-                   style.strokeRec().getJoin() << kJoinShift |
+                   join << kJoinShift |
                    cap << kCapShift;
 
-        SkScalar scalar;
-        // Miter limit only affects miter joins
-        scalar = SkPaint::kMiter_Join == style.strokeRec().getJoin()
-                 ? style.strokeRec().getMiter()
-                 : -1.f;
-        memcpy(&key[i++], &scalar, sizeof(scalar));
+        memcpy(&key[i++], &miter, sizeof(miter));
 
-        scalar = style.strokeRec().getWidth();
-        memcpy(&key[i++], &scalar, sizeof(scalar));
+        SkScalar width = style.strokeRec().getWidth();
+        memcpy(&key[i++], &width, sizeof(width));
     }
     SkASSERT(KeySize(style, apply) == i);
 }

@@ -119,7 +119,7 @@ private:
         SkPath path;
         shape.asPath(&path);
         // If the bounds are empty, the path ought to be as well.
-        if (bounds.isEmpty()) {
+        if (bounds.fLeft > bounds.fRight || bounds.fTop > bounds.fBottom) {
             REPORTER_ASSERT(r, path.isEmpty());
             return;
         }
@@ -513,6 +513,13 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     REPORTER_ASSERT(reporter, hairlineCase.appliedPathEffectShape().style().isSimpleHairline());
 }
 
+// Was the shape pre-style geometry stored as something other than a general path. This somewhat
+// relies on knowing the internals of GrShape to know that this combination of tests is sufficient.
+static bool is_non_path(const GrShape& shape) {
+    return shape.asRRect(nullptr, nullptr, nullptr, nullptr) || shape.asLine(nullptr, nullptr) ||
+           shape.isEmpty();
+}
+
 template<typename GEO>
 static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     sk_sp<SkPathEffect> dashPE = make_dash();
@@ -520,6 +527,15 @@ static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     static const SkScalar kS1 = 1.f;
     static const SkScalar kS2 = 2.f;
 
+    // Scale may affect the key for stroked results. However, there are two ways in which that may
+    // not occur. The base shape may instantly recognized that the geo + stroke is equivalent to
+    // a simple filled geometry. An example is a stroked line may become a filled rrect.
+    // Alternatively, after applying the style the output path may be recognized as a simpler shape
+    // causing the shape with style applied to have a purely geometric key rather than a key derived
+    // from the base geometry and the style params (and scale factor).
+    auto wasSimplified = [](const TestCase& c) {
+        return !c.baseShape().style().applies() || is_non_path(c.appliedFullStyleShape());
+    };
     SkPaint fill;
     TestCase fillCase1(geo, fill, reporter, kS1);
     TestCase fillCase2(geo, fill, reporter, kS2);
@@ -539,15 +555,27 @@ static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     stroke.setStrokeWidth(2.f);
     TestCase strokeCase1(geo, stroke, reporter, kS1);
     TestCase strokeCase2(geo, stroke, reporter, kS2);
-    // Scale affects the stroke.
-    strokeCase1.compare(reporter, strokeCase2, TestCase::kSameUpToStroke_ComparisonExpecation);
+    // Scale affects the stroke
+    if (wasSimplified(strokeCase1)) {
+        REPORTER_ASSERT(reporter, wasSimplified(strokeCase2));
+        strokeCase1.compare(reporter, strokeCase2, TestCase::kAllSame_ComparisonExpecation);
+    } else {
+        strokeCase1.compare(reporter, strokeCase2, TestCase::kSameUpToStroke_ComparisonExpecation);
+    }
 
     SkPaint strokeDash = stroke;
     strokeDash.setPathEffect(make_dash());
     TestCase strokeDashCase1(geo, strokeDash, reporter, kS1);
     TestCase strokeDashCase2(geo, strokeDash, reporter, kS2);
     // Scale affects the dash and the stroke.
-    strokeDashCase1.compare(reporter, strokeDashCase2,  TestCase::kSameUpToPE_ComparisonExpecation);
+    if (wasSimplified(strokeDashCase1)) {
+        REPORTER_ASSERT(reporter, wasSimplified(strokeDashCase2));
+        strokeDashCase1.compare(reporter, strokeDashCase2,
+                                TestCase::kAllSame_ComparisonExpecation);
+    } else {
+        strokeDashCase1.compare(reporter, strokeDashCase2,
+                                TestCase::kSameUpToPE_ComparisonExpecation);
+    }
 
     // Stroke and fill cases
     SkPaint strokeAndFill = stroke;
@@ -559,22 +587,20 @@ static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     // Dash is ignored for stroke and fill
     TestCase strokeAndFillDashCase1(geo, strokeAndFillDash, reporter, kS1);
     TestCase strokeAndFillDashCase2(geo, strokeAndFillDash, reporter, kS2);
-    // Scale affects the stroke. Though, this can wind up creating a rect when the input is a rect.
-    // In that case we wind up with a pure geometry key and the geometries are the same.
-    SkRRect rrect;
-    if (strokeAndFillCase1.appliedFullStyleShape().asRRect(&rrect, nullptr, nullptr, nullptr)) {
-        // We currently only expect to get here in the rect->rect case.
-        REPORTER_ASSERT(reporter, rrect.isRect());
-        REPORTER_ASSERT(reporter,
-                        strokeAndFillCase1.baseShape().asRRect(&rrect, nullptr, nullptr, nullptr) &&
-                        rrect.isRect());
+    // Scale affects the stroke. Scale affects the stroke, but check to make sure this didn't
+    // become a simpler shape (e.g. stroke-and-filled rect can become a rect), in which case the
+    // scale shouldn't matter and the geometries should agree.
+    if (wasSimplified(strokeAndFillCase1)) {
+        REPORTER_ASSERT(reporter, wasSimplified(strokeAndFillCase1));
+        REPORTER_ASSERT(reporter, wasSimplified(strokeAndFillDashCase1));
+        REPORTER_ASSERT(reporter, wasSimplified(strokeAndFillDashCase2));
         strokeAndFillCase1.compare(reporter, strokeAndFillCase2,
                                    TestCase::kAllSame_ComparisonExpecation);
+        strokeAndFillDashCase1.compare(reporter, strokeAndFillDashCase2,
+                                       TestCase::kAllSame_ComparisonExpecation);
     } else {
         strokeAndFillCase1.compare(reporter, strokeAndFillCase2,
                                    TestCase::kSameUpToStroke_ComparisonExpecation);
-        strokeAndFillDashCase1.compare(reporter, strokeAndFillDashCase2,
-                                       TestCase::kSameUpToStroke_ComparisonExpecation);
     }
     strokeAndFillDashCase1.compare(reporter, strokeAndFillCase1,
                                    TestCase::kAllSame_ComparisonExpecation);
@@ -601,7 +627,15 @@ static void test_stroke_param_impl(skiatest::Reporter* reporter, const GEO& geo,
     TestCase strokeACase(geo, strokeA, reporter);
     TestCase strokeBCase(geo, strokeB, reporter);
     if (paramAffectsStroke) {
-        strokeACase.compare(reporter, strokeBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
+        // If stroking is immediately incorporated into a geometric transformation then the base
+        // shapes will differ.
+        if (strokeACase.baseShape().style().applies()) {
+            strokeACase.compare(reporter, strokeBCase,
+                                TestCase::kSameUpToStroke_ComparisonExpecation);
+        } else {
+            strokeACase.compare(reporter, strokeBCase,
+                                TestCase::kAllDifferent_ComparisonExpecation);
+        }
     } else {
         strokeACase.compare(reporter, strokeBCase, TestCase::kAllSame_ComparisonExpecation);
     }
@@ -613,8 +647,15 @@ static void test_stroke_param_impl(skiatest::Reporter* reporter, const GEO& geo,
     TestCase strokeAndFillACase(geo, strokeAndFillA, reporter);
     TestCase strokeAndFillBCase(geo, strokeAndFillB, reporter);
     if (paramAffectsStroke) {
-        strokeAndFillACase.compare(reporter, strokeAndFillBCase,
-                                   TestCase::kSameUpToStroke_ComparisonExpecation);
+        // If stroking is immediately incorporated into a geometric transformation then the base
+        // shapes will differ.
+        if (strokeAndFillACase.baseShape().style().applies()) {
+            strokeAndFillACase.compare(reporter, strokeAndFillBCase,
+                                TestCase::kSameUpToStroke_ComparisonExpecation);
+        } else {
+            strokeAndFillACase.compare(reporter, strokeAndFillBCase,
+                                TestCase::kAllDifferent_ComparisonExpecation);
+        }
     } else {
         strokeAndFillACase.compare(reporter, strokeAndFillBCase,
                                    TestCase::kAllSame_ComparisonExpecation);
@@ -636,7 +677,13 @@ static void test_stroke_param_impl(skiatest::Reporter* reporter, const GEO& geo,
     TestCase dashACase(geo, dashA, reporter);
     TestCase dashBCase(geo, dashB, reporter);
     if (paramAffectsDashAndStroke) {
-        dashACase.compare(reporter, dashBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
+        // If stroking is immediately incorporated into a geometric transformation then the base
+        // shapes will differ.
+        if (dashACase.baseShape().style().applies()) {
+            dashACase.compare(reporter, dashBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
+        } else {
+            dashACase.compare(reporter, dashBCase, TestCase::kAllDifferent_ComparisonExpecation);
+        }
     } else {
         dashACase.compare(reporter, dashBCase, TestCase::kAllSame_ComparisonExpecation);
     }
@@ -664,6 +711,26 @@ static void test_stroke_cap(skiatest::Reporter* reporter, const GEO& geo) {
         affectsDashAndStroke);
 };
 
+static bool shape_known_not_to_have_joins(const GrShape& shape) {
+    return shape.asLine(nullptr, nullptr) || shape.isEmpty();
+}
+
+template <typename GEO>
+static void test_stroke_join(skiatest::Reporter* reporter, const GEO& geo) {
+    GrShape shape(geo, GrStyle(SkStrokeRec::kHairline_InitStyle));
+    // GrShape recognizes certain types don't have joins and will prevent the join type from
+    // affecting the style key.
+    // Dashing doesn't add additional joins. However, GrShape currently loses track of this
+    // after applying the dash.
+    bool affectsStroke = !shape_known_not_to_have_joins(shape);
+    test_stroke_param_impl<GEO, SkPaint::Join>(
+            reporter,
+            geo,
+            [](SkPaint* p, SkPaint::Join j) { p->setStrokeJoin(j);},
+            SkPaint::kRound_Join, SkPaint::kBevel_Join,
+            affectsStroke, true);
+};
+
 template <typename GEO>
 static void test_miter_limit(skiatest::Reporter* reporter, const GEO& geo) {
     auto setMiterJoinAndLimit = [](SkPaint* p, SkScalar miter) {
@@ -676,6 +743,9 @@ static void test_miter_limit(skiatest::Reporter* reporter, const GEO& geo) {
         p->setStrokeMiter(miter);
     };
 
+    GrShape shape(geo, GrStyle(SkStrokeRec::kHairline_InitStyle));
+    bool mayHaveJoins = !shape_known_not_to_have_joins(shape);
+
     // The miter limit should affect stroked and dashed-stroked cases when the join type is
     // miter.
     test_stroke_param_impl<GEO, SkScalar>(
@@ -683,7 +753,7 @@ static void test_miter_limit(skiatest::Reporter* reporter, const GEO& geo) {
         geo,
         setMiterJoinAndLimit,
         0.5f, 0.75f,
-        true,
+        mayHaveJoins,
         true);
 
     // The miter limit should not affect stroked and dashed-stroked cases when the join type is
@@ -991,7 +1061,7 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const GEO&
 template <typename GEO>
 void test_path_effect_fails(skiatest::Reporter* reporter, const GEO& geo) {
     /**
-     * This path effect returns an empty path.
+     * This path effect always fails to apply.
      */
     class FailurePathEffect : SkPathEffect {
     public:
@@ -1461,6 +1531,63 @@ void test_lines(skiatest::Reporter* r) {
 
 }
 
+static void test_stroked_lines(skiatest::Reporter* r) {
+    // Paints to try
+    SkPaint buttCap;
+    buttCap.setStyle(SkPaint::kStroke_Style);
+    buttCap.setStrokeWidth(4);
+    buttCap.setStrokeCap(SkPaint::kButt_Cap);
+
+    SkPaint squareCap = buttCap;
+    squareCap.setStrokeCap(SkPaint::kSquare_Cap);
+
+    SkPaint roundCap = buttCap;
+    roundCap.setStrokeCap(SkPaint::kRound_Cap);
+
+    // vertical
+    SkPath linePath;
+    linePath.moveTo(4, 4);
+    linePath.lineTo(4, 5);
+
+    SkPaint fill;
+
+    TestCase(linePath, buttCap, r).compare(r, TestCase(SkRect::MakeLTRB(2, 4, 6, 5), fill, r),
+                                           TestCase::kAllSame_ComparisonExpecation);
+
+    TestCase(linePath, squareCap, r).compare(r, TestCase(SkRect::MakeLTRB(2, 2, 6, 7), fill, r),
+                                             TestCase::kAllSame_ComparisonExpecation);
+
+    TestCase(linePath, roundCap, r).compare(r,
+        TestCase(SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 7), 2, 2), fill, r),
+        TestCase::kAllSame_ComparisonExpecation);
+
+    // horizontal
+    linePath.reset();
+    linePath.moveTo(4, 4);
+    linePath.lineTo(5, 4);
+
+    TestCase(linePath, buttCap, r).compare(r, TestCase(SkRect::MakeLTRB(4, 2, 5, 6), fill, r),
+                                           TestCase::kAllSame_ComparisonExpecation);
+    TestCase(linePath, squareCap, r).compare(r, TestCase(SkRect::MakeLTRB(2, 2, 7, 6), fill, r),
+                                             TestCase::kAllSame_ComparisonExpecation);
+    TestCase(linePath, roundCap, r).compare(r,
+         TestCase(SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 7, 6), 2, 2), fill, r),
+         TestCase::kAllSame_ComparisonExpecation);
+
+    // point
+    linePath.reset();
+    linePath.moveTo(4, 4);
+    linePath.lineTo(4, 4);
+
+    TestCase(linePath, buttCap, r).compare(r, TestCase(SkRect::MakeEmpty(), fill, r),
+                                           TestCase::kAllSame_ComparisonExpecation);
+    TestCase(linePath, squareCap, r).compare(r, TestCase(SkRect::MakeLTRB(2, 2, 6, 6), fill, r),
+                                             TestCase::kAllSame_ComparisonExpecation);
+    TestCase(linePath, roundCap, r).compare(r,
+        TestCase(SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 6), 2, 2), fill, r),
+        TestCase::kAllSame_ComparisonExpecation);
+}
+
 DEF_TEST(GrShape, reporter) {
     for (auto r : { SkRect::MakeWH(10, 20),
                     SkRect::MakeWH(-10, -20),
@@ -1475,10 +1602,7 @@ DEF_TEST(GrShape, reporter) {
                 reporter, r,
                 [](SkPaint* p, SkScalar w) { p->setStrokeWidth(w);},
                 SkIntToScalar(2), SkIntToScalar(4));
-        test_stroke_param<SkRect, SkPaint::Join>(
-                reporter, r,
-                [](SkPaint* p, SkPaint::Join j) { p->setStrokeJoin(j);},
-                SkPaint::kMiter_Join, SkPaint::kRound_Join);
+        test_stroke_join(reporter, r);
         test_stroke_cap(reporter, r);
         test_miter_limit(reporter, r);
         test_path_effect_makes_rrect(reporter, r);
@@ -1503,10 +1627,7 @@ DEF_TEST(GrShape, reporter) {
                           reporter, rr,
                           [](SkPaint* p, SkScalar w) { p->setStrokeWidth(w);},
                           SkIntToScalar(2), SkIntToScalar(4));
-        test_stroke_param<SkRRect, SkPaint::Join>(
-                          reporter, rr,
-                          [](SkPaint* p, SkPaint::Join j) { p->setStrokeJoin(j);},
-                          SkPaint::kMiter_Join, SkPaint::kRound_Join);
+        test_stroke_join(reporter, rr);
         test_stroke_cap(reporter, rr);
         test_miter_limit(reporter, rr);
         test_path_effect_makes_rrect(reporter, rr);
@@ -1557,6 +1678,15 @@ DEF_TEST(GrShape, reporter) {
     linePath.lineTo(10, 10);
     paths.emplace_back(linePath, false, false, true, SkRRect());
 
+    // Horizontal and vertical paths become rrects when stroked.
+    SkPath vLinePath;
+    vLinePath.lineTo(0, 10);
+    paths.emplace_back(vLinePath, false, false, true, SkRRect());
+
+    SkPath hLinePath;
+    hLinePath.lineTo(10, 0);
+    paths.emplace_back(hLinePath, false, false, true, SkRRect());
+
     for (auto testPath : paths) {
         for (bool inverseFill : {false, true}) {
             if (inverseFill) {
@@ -1587,10 +1717,7 @@ DEF_TEST(GrShape, reporter) {
                 reporter, path,
                 [](SkPaint* p, SkScalar w) { p->setStrokeWidth(w);},
                 SkIntToScalar(2), SkIntToScalar(4));
-            test_stroke_param<SkPath, SkPaint::Join>(
-                reporter, path,
-                [](SkPaint* p, SkPaint::Join j) { p->setStrokeJoin(j);},
-                SkPaint::kMiter_Join, SkPaint::kRound_Join);
+            test_stroke_join(reporter, path);
             test_stroke_cap(reporter, path);
             test_miter_limit(reporter, path);
             test_unknown_path_effect(reporter, path);
@@ -1621,9 +1748,11 @@ DEF_TEST(GrShape, reporter) {
         strokePaint.setStrokeWidth(3.f);
         strokePaint.setStyle(SkPaint::kStroke_Style);
         TestCase strokePathCase(path, strokePaint, reporter);
-        REPORTER_ASSERT(reporter, testPath.fIsRRectForStroke ==
-                                  strokePathCase.baseShape().asRRect(&rrect, nullptr, nullptr,
-                                                                     nullptr));
+        if (testPath.fIsRRectForStroke) {
+            REPORTER_ASSERT(reporter, strokePathCase.baseShape().asRRect(&rrect, nullptr, nullptr,
+                                                                         nullptr));
+        }
+
         if (testPath.fIsRRectForStroke) {
             REPORTER_ASSERT(reporter, rrect == testPath.fRRect);
             TestCase strokeRRectCase(rrect, strokePaint, reporter);
@@ -1638,6 +1767,8 @@ DEF_TEST(GrShape, reporter) {
     test_empty_shape(reporter);
 
     test_lines(reporter);
+
+    test_stroked_lines(reporter);
 }
 
 #endif

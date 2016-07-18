@@ -30,10 +30,12 @@ GrShape& GrShape::operator=(const GrShape& that) {
 }
 
 SkRect GrShape::bounds() const {
-    static constexpr SkRect kEmpty = SkRect::MakeEmpty();
+    // Bounds where left == bottom or top == right can indicate a line or point shape. We return
+    // inverted bounds for a truly empty shape.
+    static constexpr SkRect kInverted = SkRect::MakeLTRB(1, 1, -1, -1);
     switch (fType) {
         case Type::kEmpty:
-            return kEmpty;
+            return kInverted;
         case Type::kLine: {
             SkRect bounds;
             if (fLineData.fPts[0].fX < fLineData.fPts[1].fX) {
@@ -58,7 +60,7 @@ SkRect GrShape::bounds() const {
             return this->path().getBounds();
     }
     SkFAIL("Unknown shape type");
-    return kEmpty;
+    return kInverted;
 }
 
 SkRect GrShape::styledBounds() const {
@@ -158,6 +160,9 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply, SkSca
         if (parent.knownToBeClosed()) {
             styleKeyFlags |= GrStyle::kClosed_KeyFlag;
         }
+        if (parent.asLine(nullptr, nullptr)) {
+            styleKeyFlags |= GrStyle::kNoJoins_KeyFlag;
+        }
         int styleCnt = GrStyle::KeySize(parent.fStyle, apply, styleKeyFlags);
         if (styleCnt < 0) {
             // The style doesn't allow a key, set the path gen ID to 0 so that we fail when
@@ -232,17 +237,9 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
         SkStrokeRec strokeRec = parent.fStyle.strokeRec();
         if (!parent.fStyle.applyPathEffectToPath(&this->path(), &strokeRec, *srcForPathEffect,
                                                  scale)) {
-            // If the path effect fails then we continue as though there was no path effect.
-            // If the original was a rrect that we couldn't canonicalize because of the path
-            // effect, then do so now.
-            if (parent.fType == Type::kRRect && (parent.fRRectData.fDir != kDefaultRRectDir ||
-                                                 parent.fRRectData.fStart != kDefaultRRectStart)) {
-                SkASSERT(srcForPathEffect == tmpPath.get());
-                tmpPath.get()->reset();
-                tmpPath.get()->addRRect(parent.fRRectData.fRRect, kDefaultRRectDir,
-                                        kDefaultRRectDir);
-            }
-            this->path() = *srcForPathEffect;
+            tmpParent.init(*srcForPathEffect, GrStyle(strokeRec, nullptr));
+            *this = tmpParent.get()->applyStyle(apply, scale);
+            return;
         }
         // A path effect has access to change the res scale but we aren't expecting it to and it
         // would mess up our key computation.
@@ -262,8 +259,16 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
             }
             tmpParent.get()->asPath(tmpPath.get());
             SkStrokeRec::InitStyle fillOrHairline;
-            SkAssertResult(tmpParent.get()->style().applyToPath(&this->path(), &fillOrHairline,
-                                                                *tmpPath.get(), scale));
+            // The parent shape may have simplified away the strokeRec, check for that here.
+            if (tmpParent.get()->style().applies()) {
+                SkAssertResult(tmpParent.get()->style().applyToPath(&this->path(), &fillOrHairline,
+                                                                    *tmpPath.get(), scale));
+            } else if (tmpParent.get()->style().isSimpleFill()) {
+                fillOrHairline = SkStrokeRec::kFill_InitStyle;
+            } else {
+                SkASSERT(tmpParent.get()->style().isSimpleHairline());
+                fillOrHairline = SkStrokeRec::kHairline_InitStyle;
+            }
             fStyle.resetToInitStyle(fillOrHairline);
             parentForKey = tmpParent.get();
         } else {
@@ -401,19 +406,76 @@ void GrShape::attemptToSimplifyRRect() {
 }
 
 void GrShape::attemptToSimplifyLine() {
+    SkASSERT(Type::kLine == fType);
+    SkASSERT(!fInheritedKey.count());
+    if (fStyle.isDashed()) {
+        // Dashing ignores inverseness.
+        fLineData.fInverted = false;
+        return;
+    } else if (fStyle.hasPathEffect()) {
+        return;
+    }
+    if (fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
+        // Make stroke + fill be stroke since the fill is empty.
+        SkStrokeRec rec = fStyle.strokeRec();
+        rec.setStrokeStyle(fStyle.strokeRec().getWidth(), false);
+        fStyle = GrStyle(rec, nullptr);
+    }
     if (fStyle.isSimpleFill() && !fLineData.fInverted) {
         this->changeType(Type::kEmpty);
-    } else {
-        // Only path effects could care about the order of the points. Otherwise canonicalize
-        // the point order
-        if (!fStyle.hasPathEffect()) {
-            SkPoint* pts = fLineData.fPts;
-            if (pts[1].fY < pts[0].fY || (pts[1].fY == pts[0].fY && pts[1].fX < pts[0].fX)) {
-                SkTSwap(pts[0], pts[1]);
+        return;
+    }
+    SkPoint* pts = fLineData.fPts;
+    if (fStyle.strokeRec().getStyle() == SkStrokeRec::kStroke_Style) {
+        // If it is horizontal or vertical we will turn it into a filled rrect.
+        SkRect rect;
+        rect.fLeft = SkTMin(pts[0].fX, pts[1].fX);
+        rect.fRight = SkTMax(pts[0].fX, pts[1].fX);
+        rect.fTop = SkTMin(pts[0].fY, pts[1].fY);
+        rect.fBottom = SkTMax(pts[0].fY, pts[1].fY);
+        bool eqX = rect.fLeft == rect.fRight;
+        bool eqY = rect.fTop == rect.fBottom;
+        if (eqX || eqY) {
+            SkScalar r = fStyle.strokeRec().getWidth() / 2;
+            bool inverted = fLineData.fInverted;
+            this->changeType(Type::kRRect);
+            switch (fStyle.strokeRec().getCap()) {
+                case SkPaint::kButt_Cap:
+                    if (eqX && eqY) {
+                        this->changeType(Type::kEmpty);
+                        return;
+                    }
+                    if (eqX) {
+                        rect.outset(r, 0);
+                    } else {
+                        rect.outset(0, r);
+                    }
+                    fRRectData.fRRect = SkRRect::MakeRect(rect);
+                    break;
+                case SkPaint::kSquare_Cap:
+                    rect.outset(r, r);
+                    fRRectData.fRRect = SkRRect::MakeRect(rect);
+                    break;
+                case SkPaint::kRound_Cap:
+                    rect.outset(r, r);
+                    fRRectData.fRRect = SkRRect::MakeRectXY(rect, r, r);
+                    break;
             }
-        } else if (fStyle.isDashed()) {
-            // Dashing ignores inverseness.
-            fLineData.fInverted = false;
+            fRRectData.fInverted = inverted;
+            fRRectData.fDir = kDefaultRRectDir;
+            fRRectData.fStart = kDefaultRRectStart;
+            if (fRRectData.fRRect.isEmpty()) {
+                // This can happen when r is very small relative to the rect edges.
+                this->changeType(Type::kEmpty);
+                return;
+            }
+            fStyle = GrStyle::SimpleFill();
+            return;
         }
+    }
+    // Only path effects could care about the order of the points. Otherwise canonicalize
+    // the point order.
+    if (pts[1].fY < pts[0].fY || (pts[1].fY == pts[0].fY && pts[1].fX < pts[0].fX)) {
+        SkTSwap(pts[0], pts[1]);
     }
 }

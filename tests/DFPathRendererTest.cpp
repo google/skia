@@ -21,6 +21,9 @@ static void test_far_from_origin(GrDrawContext* drawContext, GrPathRenderer* pr,
                                  GrResourceProvider* rp) {
     SkPath path;
     path.lineTo(49.0255089839f, 0.473541f);
+    // This extra line wasn't in the original bug but was added to fake out GrShape's special
+    // handling of single line segments.
+    path.rLineTo(0.015f, 0.015f);
     static constexpr SkScalar mvals[] = {14.0348252854f, 2.13026182736f,
                                          13.6122547187f, 118.309922702f,
                                          1912337682.09f, 2105391889.87f};
