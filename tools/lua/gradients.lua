@@ -1,5 +1,12 @@
-function sk_scrape_startcanvas(c, fileName) end
-function sk_scrape_endcanvas(c, fileName) end
+filename = ""
+
+function sk_scrape_startcanvas(c, fileName)
+    filename = fileName
+end
+
+function sk_scrape_endcanvas(c, fileName)
+
+end
 
 LuaDoubleNearlyZero = 1.0 / bit32.lshift(1.0, 12)
 
@@ -26,6 +33,8 @@ function sk_scrape_accumulate(t)
                 end
 
                 gradients[i] = {}
+
+                gradients[i].filename = filename
 
                 gradients[i].colorCount = g.colorCount
                 gradients[i].type       = g.type
@@ -70,7 +79,8 @@ function sk_scrape_summarize()
             end
         end
 
-        io.write(string.format("%d %s %s %d %d %s %s\n",
+        io.write(string.format("%s %d %s %s %d %d %s %s\n",
+                                v.filename,
                                 v.colorCount,
                                 v.type,
                                 v.tile,
