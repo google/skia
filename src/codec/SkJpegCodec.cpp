@@ -263,6 +263,7 @@ SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStr
     : INHERITED(width, height, info, stream, std::move(colorSpace), origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
+    , fSrcRow(nullptr)
     , fSwizzlerSubset(SkIRect::MakeEmpty())
     , fICCData(std::move(iccData))
 {}
@@ -339,6 +340,11 @@ bool SkJpegCodec::onRewind() {
     }
     SkASSERT(nullptr != decoderMgr);
     fDecoderMgr.reset(decoderMgr);
+
+    fSwizzler.reset(nullptr);
+    fSrcRow = nullptr;
+    fStorage.reset();
+
     return true;
 }
 
@@ -587,11 +593,6 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     if (!this->setOutputColorSpace(dstInfo)) {
         return kInvalidConversion;
     }
-
-    // Remove objects used for sampling.
-    fSwizzler.reset(nullptr);
-    fSrcRow = nullptr;
-    fStorage.reset();
 
     // Now, given valid output dimensions, we can start the decompress
     if (!jpeg_start_decompress(fDecoderMgr->dinfo())) {
