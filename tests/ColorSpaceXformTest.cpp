@@ -15,15 +15,10 @@
 
 class ColorSpaceXformTest {
 public:
-    static std::unique_ptr<SkColorSpaceXform> CreateDefaultXform(const sk_sp<SkGammas>& srcGamma,
-            const SkMatrix44& srcToDst, const sk_sp<SkGammas>& dstGamma) {
-
-        sk_sp<SkColorSpace> srcSpace(
-                new SkColorSpace_Base(nullptr, srcGamma, SkMatrix::I(), nullptr));
-        sk_sp<SkColorSpace> dstSpace(
-                new SkColorSpace_Base(nullptr, dstGamma, SkMatrix::I(), nullptr));
-
-        return SkColorSpaceXform::New(srcSpace, dstSpace);
+    static std::unique_ptr<SkColorSpaceXform> CreateIdentityXform(const sk_sp<SkGammas>& gammas) {
+        // Logically we can pass any matrix here.  For simplicty, pass I(), i.e. D50 XYZ gamut.
+        sk_sp<SkColorSpace> space(new SkColorSpace_Base(nullptr, gammas, SkMatrix::I(), nullptr));
+        return SkColorSpaceXform::New(space, space);
     }
 };
 
@@ -31,7 +26,7 @@ static bool almost_equal(int x, int y) {
     return SkTAbs(x - y) <= 1;
 }
 
-static void test_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& gammas) {
+static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& gammas) {
     // Arbitrary set of 10 pixels
     constexpr int width = 10;
     constexpr uint32_t srcPixels[width] = {
@@ -39,16 +34,12 @@ static void test_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& gammas) {
             0xFF32AB52, 0xFF0383BC, 0xFF000102, 0xFFFFFFFF, 0xFFDDEEFF, };
     uint32_t dstPixels[width];
 
-    // Identity matrix
-    SkMatrix44 srcToDst = SkMatrix44::I();
-
-    // Create and perform xform
-    std::unique_ptr<SkColorSpaceXform> xform =
-            ColorSpaceXformTest::CreateDefaultXform(gammas, srcToDst, gammas);
+    // Create and perform an identity xform.
+    std::unique_ptr<SkColorSpaceXform> xform = ColorSpaceXformTest::CreateIdentityXform(gammas);
     xform->applyTo8888(dstPixels, srcPixels, width);
 
-    // Since the matrix is the identity, and the gamma curves match, the pixels
-    // should be unchanged.
+    // Since the src->dst matrix is the identity, and the gamma curves match,
+    // the pixels should be unchanged.
     for (int i = 0; i < width; i++) {
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >>  0) & 0xFF),
                                         SkGetPackedR32(dstPixels[i])));
@@ -81,7 +72,7 @@ DEF_TEST(ColorSpaceXform_TableGamma, r) {
     red.fTable[9] = green.fTable[9] = blue.fTable[9] = 1.00f;
     sk_sp<SkGammas> gammas =
             sk_make_sp<SkGammas>(std::move(red), std::move(green), std::move(blue));
-    test_xform(r, gammas);
+    test_identity_xform(r, gammas);
 }
 
 DEF_TEST(ColorSpaceXform_ParametricGamma, r) {
@@ -102,7 +93,7 @@ DEF_TEST(ColorSpaceXform_ParametricGamma, r) {
     red.fG = green.fG = blue.fG = 2.4f;
     sk_sp<SkGammas> gammas =
             sk_make_sp<SkGammas>(std::move(red), std::move(green), std::move(blue));
-    test_xform(r, gammas);
+    test_identity_xform(r, gammas);
 }
 
 DEF_TEST(ColorSpaceXform_ExponentialGamma, r) {
@@ -111,5 +102,5 @@ DEF_TEST(ColorSpaceXform_ExponentialGamma, r) {
     red.fValue = green.fValue = blue.fValue = 1.4f;
     sk_sp<SkGammas> gammas =
             sk_make_sp<SkGammas>(std::move(red), std::move(green), std::move(blue));
-    test_xform(r, gammas);
+    test_identity_xform(r, gammas);
 }
