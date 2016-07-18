@@ -14,7 +14,13 @@ function LuaDoubleNearlyEqual(a, b)
     return math.abs(a-b) <= LuaDoubleNearlyZero
 end
 
-verbs = {}
+function bounds(rect)
+    local width  = rect.right  - rect.left
+    local height = rect.bottom - rect.top
+
+    return width, height
+end
+
 gradients = {}
 
 i = 1
@@ -26,15 +32,20 @@ function sk_scrape_accumulate(t)
         if s then
             local g = s:asAGradient()
             if g then
-                if verbs[t.verb] then
-                    verbs[t.verb] = verbs[t.verb] + 1
-                else
-                    verbs[t.verb] = 1
-                end
-
                 gradients[i] = {}
 
                 gradients[i].filename = filename
+
+                local width, height = -1, -1
+                if t.rect then
+                    width, height = bounds(t.rect)
+                elseif t.rrect then
+                    width, height = bounds(t.rrect:rect())
+                elseif t.path then
+                    width, height = bounds(t.path:getBounds())
+                end
+                gradients[i].boundsWidth  = width
+                gradients[i].boundsHeight = height
 
                 gradients[i].colorCount = g.colorCount
                 gradients[i].type       = g.type
@@ -79,7 +90,7 @@ function sk_scrape_summarize()
             end
         end
 
-        io.write(string.format("%s %d %s %s %d %d %s %s\n",
+        io.write(string.format("%s %d %s %s %d %d %s %d %d %s\n",
                                 v.filename,
                                 v.colorCount,
                                 v.type,
@@ -87,6 +98,8 @@ function sk_scrape_summarize()
                                 tonumber(v.isEvenlySpaced and 1 or 0),
                                 v.numHardStops,
                                 v.verb,
+                                v.boundsWidth,
+                                v.boundsHeight,
                                 pos))
     end
 end
