@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkStream.h"
 #include "Test.h"
 
 #if defined(SK_XML)
@@ -24,10 +25,12 @@ DEF_TEST(SkDOM_test, r) {
         "</root>"
         ;
 
+    SkMemoryStream docStream(gDoc, sizeof(gDoc) - 1);
+
     SkDOM   dom;
     REPORTER_ASSERT(r, !dom.getRootNode());
 
-    const SkDOM::Node* root = dom.build(gDoc, sizeof(gDoc) - 1);
+    const SkDOM::Node* root = dom.build(docStream);
     REPORTER_ASSERT(r, root && dom.getRootNode() == root);
 
     const char* v = dom.findAttr(root, "a");

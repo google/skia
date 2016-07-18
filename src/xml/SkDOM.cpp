@@ -323,11 +323,6 @@ const SkDOM::Node* SkDOM::build(SkStream& docStream) {
     return fRoot;
 }
 
-const SkDOM::Node* SkDOM::build(const char doc[], size_t len) {
-    SkMemoryStream docStream(doc, len);
-    return this->build(docStream);
-}
-
 ///////////////////////////////////////////////////////////////////////////
 
 static void walk_dom(const SkDOM& dom, const SkDOM::Node* node, SkXMLParser* parser)

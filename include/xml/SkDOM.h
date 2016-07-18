@@ -32,7 +32,6 @@ public:
 
     /** Returns null on failure
     */
-    const Node* build(const char doc[], size_t len);
     const Node* build(SkStream&);
     const Node* copy(const SkDOM& dom, const Node* node);
 
