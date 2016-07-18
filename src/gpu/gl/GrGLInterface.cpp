@@ -319,12 +319,9 @@ bool GrGLInterface::validate() const {
     }
 
     if (fExtensions.has("GL_EXT_discard_framebuffer")) {
-// FIXME: Remove this once Chromium is updated to provide this function
-#if 0
         if (nullptr == fFunctions.fDiscardFramebuffer) {
             RETURN_FALSE_INTERFACE
         }
-#endif
     }
 
     // FBO MSAA
@@ -510,11 +507,9 @@ bool GrGLInterface::validate() const {
 
     if (kGLES_GrGLStandard == fStandard || glVer >= GR_GL_VER(4,1) ||
         fExtensions.has("GL_ARB_ES2_compatibility")) {
-#if 0 // Enable this once Chrome gives us the function ptr
         if (nullptr == fFunctions.fGetShaderPrecisionFormat) {
             RETURN_FALSE_INTERFACE
         }
-#endif
     }
 
     if (fExtensions.has("GL_NV_path_rendering") || fExtensions.has("GL_CHROMIUM_path_rendering")) {
