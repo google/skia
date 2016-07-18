@@ -1,6 +1,5 @@
 You can modify this file to create no-op changelists (like this one).
 I LOVE WHITESPACE!
-sclnafjkds
 Lithp.
 Use the Forth.
 Life is a mistry.  Everyone must WAKA WAKA WAKA
