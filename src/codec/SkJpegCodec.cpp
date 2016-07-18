@@ -339,6 +339,11 @@ bool SkJpegCodec::onRewind() {
     }
     SkASSERT(nullptr != decoderMgr);
     fDecoderMgr.reset(decoderMgr);
+
+    fSwizzler.reset(nullptr);
+    fSrcRow = nullptr;
+    fStorage.reset();
+
     return true;
 }
 
@@ -587,11 +592,6 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     if (!this->setOutputColorSpace(dstInfo)) {
         return kInvalidConversion;
     }
-
-    // Remove objects used for sampling.
-    fSwizzler.reset(nullptr);
-    fSrcRow = nullptr;
-    fStorage.reset();
 
     // Now, given valid output dimensions, we can start the decompress
     if (!jpeg_start_decompress(fDecoderMgr->dinfo())) {
