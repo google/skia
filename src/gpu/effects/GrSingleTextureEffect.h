@@ -9,6 +9,7 @@
 #define GrSingleTextureEffect_DEFINED
 
 #include "GrFragmentProcessor.h"
+#include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
 #include "SkMatrix.h"
@@ -31,11 +32,13 @@ public:
 
 protected:
     /** unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&, GrCoordSet = kLocal_GrCoordSet);
-    /** clamp mode */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&, GrTextureParams::FilterMode filterMode,
+    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
                           GrCoordSet = kLocal_GrCoordSet);
+    /** clamp mode */
+    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
+                          GrTextureParams::FilterMode filterMode, GrCoordSet = kLocal_GrCoordSet);
     GrSingleTextureEffect(GrTexture*,
+                          sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
                           const GrTextureParams&,
                           GrCoordSet = kLocal_GrCoordSet);
@@ -58,6 +61,7 @@ protected:
 private:
     GrCoordTransform fCoordTransform;
     GrTextureAccess  fTextureAccess;
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     typedef GrFragmentProcessor INHERITED;
 };

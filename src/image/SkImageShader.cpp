@@ -122,9 +122,9 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 
     sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner = GrBicubicEffect::Make(texture, matrix, tm);
+        inner = GrBicubicEffect::Make(texture, nullptr, matrix, tm);
     } else {
-        inner = GrSimpleTextureEffect::Make(texture, matrix, params);
+        inner = GrSimpleTextureEffect::Make(texture, nullptr, matrix, params);
     }
 
     if (GrPixelConfigIsAlphaOnly(texture->config())) {

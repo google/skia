@@ -1145,6 +1145,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         return;
     }
 
+    SkColorSpace* dstColorSpace = nullptr; // XFORMTODO
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(bitmap.colorSpace(),
+                                                                       dstColorSpace);
     SkRect dstRect = {0, 0, srcRect.width(), srcRect.height() };
     SkRect paintRect;
     SkScalar wInv = SkScalarInvert(SkIntToScalar(texture->width()));
@@ -1189,17 +1192,19 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         }
         textureDomain.setLTRB(left, top, right, bottom);
         if (bicubic) {
-            fp = GrBicubicEffect::Make(texture, texMatrix, textureDomain);
+            fp = GrBicubicEffect::Make(texture, std::move(colorSpaceXform), texMatrix,
+                                       textureDomain);
         } else {
-            fp = GrTextureDomainEffect::Make(texture, texMatrix, textureDomain,
-                                             GrTextureDomain::kClamp_Mode, params.filterMode());
+            fp = GrTextureDomainEffect::Make(texture, std::move(colorSpaceXform), texMatrix,
+                                             textureDomain, GrTextureDomain::kClamp_Mode,
+                                             params.filterMode());
         }
     } else if (bicubic) {
         SkASSERT(GrTextureParams::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        fp = GrBicubicEffect::Make(texture, texMatrix, tileModes);
+        fp = GrBicubicEffect::Make(texture, std::move(colorSpaceXform), texMatrix, tileModes);
     } else {
-        fp = GrSimpleTextureEffect::Make(texture, texMatrix, params);
+        fp = GrSimpleTextureEffect::Make(texture, std::move(colorSpaceXform), texMatrix, params);
     }
 
     GrPaint grPaint;
@@ -1287,7 +1292,8 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
     tmpUnfiltered.setImageFilter(nullptr);
 
     GrPaint grPaint;
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), SkMatrix::I()));
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), nullptr,
+                                                              SkMatrix::I()));
     if (GrPixelConfigIsAlphaOnly(texture->config())) {
         fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
     } else {

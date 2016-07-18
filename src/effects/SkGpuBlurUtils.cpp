@@ -275,6 +275,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
                          (i < scaleFactorY) ? SK_ScalarHalf / srcTexture->height() : 0.0f);
             sk_sp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
                                                         srcTexture.get(),
+                                                        nullptr,
                                                         matrix,
                                                         domain,
                                                         GrTextureDomain::kDecal_Mode,
@@ -284,7 +285,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
             srcOffset.set(0, 0);
         } else {
             GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
-            paint.addColorTextureProcessor(srcTexture.get(), matrix, params);
+            paint.addColorTextureProcessor(srcTexture.get(), nullptr, matrix, params);
         }
         paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
@@ -361,7 +362,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
         // FIXME:  this should be mitchell, not bilinear.
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
         sk_sp<GrTexture> tex(srcDrawContext->asTexture());
-        paint.addColorTextureProcessor(tex.get(), matrix, params);
+        paint.addColorTextureProcessor(tex.get(), nullptr, matrix, params);
         paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
         SkIRect dstRect(srcRect);

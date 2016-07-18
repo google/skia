@@ -188,7 +188,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
         backgroundMatrix.preTranslate(SkIntToScalar(-backgroundOffset.fX),
                                       SkIntToScalar(-backgroundOffset.fY));
         bgFP = GrTextureDomainEffect::Make(
-                            backgroundTex.get(), backgroundMatrix,
+                            backgroundTex.get(), nullptr, backgroundMatrix,
                             GrTextureDomain::MakeTexelDomain(backgroundTex.get(),
                                                              background->subset()),
                             GrTextureDomain::kDecal_Mode,
@@ -207,7 +207,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
         sk_sp<GrFragmentProcessor> foregroundFP;
 
         foregroundFP = GrTextureDomainEffect::Make(
-                            foregroundTex.get(), foregroundMatrix,
+                            foregroundTex.get(), nullptr, foregroundMatrix,
                             GrTextureDomain::MakeTexelDomain(foregroundTex.get(), 
                                                              foreground->subset()),
                             GrTextureDomain::kDecal_Mode,

@@ -115,7 +115,7 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
                     sk_sp<GrFragmentProcessor> fp(
-                        GrTextureDomainEffect::Make(texture, textureMatrices[tm],
+                        GrTextureDomainEffect::Make(texture, nullptr, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
                                                                                  texelDomains[d]),
                                                 mode, GrTextureParams::kNone_FilterMode));

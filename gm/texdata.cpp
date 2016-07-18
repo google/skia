@@ -98,7 +98,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         SkMatrix tm;
         tm = vm;
         tm.postIDiv(2*S, 2*S);
-        paint.addColorTextureProcessor(texture, tm);
+        paint.addColorTextureProcessor(texture, nullptr, tm);
 
         drawContext->drawRect(clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
 

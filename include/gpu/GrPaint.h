@@ -11,6 +11,7 @@
 #define GrPaint_DEFINED
 
 #include "GrColor.h"
+#include "GrColorSpaceXform.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "GrFragmentProcessor.h"
@@ -115,9 +116,10 @@ public:
      * Helpers for adding color or coverage effects that sample a texture. The matrix is applied
      * to the src space position to compute texture coordinates.
      */
-    void addColorTextureProcessor(GrTexture*, const SkMatrix&);
+    void addColorTextureProcessor(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&);
     void addCoverageTextureProcessor(GrTexture*, const SkMatrix&);
-    void addColorTextureProcessor(GrTexture*, const SkMatrix&, const GrTextureParams&);
+    void addColorTextureProcessor(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
+                                  const GrTextureParams&);
     void addCoverageTextureProcessor(GrTexture*, const SkMatrix&, const GrTextureParams&);
 
     int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }

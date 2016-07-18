@@ -543,7 +543,7 @@ bool GrContext::applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma){
     }
 
     GrPaint paint;
-    paint.addColorTextureProcessor(src, GrCoordTransform::MakeDivByTextureWHMatrix(src));
+    paint.addColorTextureProcessor(src, nullptr, GrCoordTransform::MakeDivByTextureWHMatrix(src));
     if (!SkScalarNearlyEqual(gamma, 1.0f)) {
         paint.addColorFragmentProcessor(GrGammaEffect::Make(gamma));
     }

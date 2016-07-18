@@ -44,6 +44,7 @@ static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
     return sk_sp<GrFragmentProcessor>(GrTextureDomainEffect::Make(
                                          result,
+                                         nullptr,
                                          mat,
                                          GrTextureDomain::MakeTexelDomain(result, domainTexels),
                                          GrTextureDomain::kDecal_Mode,

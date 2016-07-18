@@ -68,7 +68,7 @@ private:
                       float yInvZoom,
                       float xInvInset,
                       float yInvInset)
-        : INHERITED(texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
+        : INHERITED(texture, nullptr, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
         , fBounds(bounds)
         , fXOffset(xOffset)
         , fYOffset(yOffset)

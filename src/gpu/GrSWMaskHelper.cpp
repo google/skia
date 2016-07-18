@@ -186,6 +186,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
 
     pipelineBuilder.addCoverageFragmentProcessor(
                          GrSimpleTextureEffect::Make(texture,
+                                                     nullptr,
                                                      maskMatrix,
                                                      GrTextureParams::kNone_FilterMode,
                                                      kDevice_GrCoordSet));

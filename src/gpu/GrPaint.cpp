@@ -22,24 +22,32 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
     fXPFactory = GrCoverageSetOpXPFactory::Make(regionOp, invertCoverage);
 }
 
-void GrPaint::addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix));
+void GrPaint::addColorTextureProcessor(GrTexture* texture,
+                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                       const SkMatrix& matrix) {
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture,
+                                                                std::move(colorSpaceXform),
+                                                                matrix));
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix));
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
+                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
                                        const SkMatrix& matrix,
                                        const GrTextureParams& params) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix, params));
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture,
+                                                                std::move(colorSpaceXform),
+                                                                matrix, params));
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
                                           const SkMatrix& matrix,
                                           const GrTextureParams& params) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix, params));
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
+                                                                   params));
 }
 
 bool GrPaint::isConstantBlendedColor(GrColor* color) const {

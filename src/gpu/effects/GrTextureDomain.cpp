@@ -219,6 +219,7 @@ void GrGLTextureDomainEffect::GenKey(const GrProcessor& processor, const GrGLSLC
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(GrTexture* texture,
+                                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                        const SkMatrix& matrix,
                                                        const SkRect& domain,
                                                        GrTextureDomain::Mode mode,
@@ -227,20 +228,22 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(GrTexture* texture,
     static const SkRect kFullRect = {0, 0, SK_Scalar1, SK_Scalar1};
     if (GrTextureDomain::kIgnore_Mode == mode ||
         (GrTextureDomain::kClamp_Mode == mode && domain.contains(kFullRect))) {
-        return GrSimpleTextureEffect::Make(texture, matrix, filterMode);
+        return GrSimpleTextureEffect::Make(texture, std::move(colorSpaceXform), matrix, filterMode);
     } else {
         return sk_sp<GrFragmentProcessor>(
-            new GrTextureDomainEffect(texture, matrix, domain, mode, filterMode, coordSet));
+            new GrTextureDomainEffect(texture, std::move(colorSpaceXform), matrix, domain, mode,
+                                      filterMode, coordSet));
     }
 }
 
 GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
+                                             sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& matrix,
                                              const SkRect& domain,
                                              GrTextureDomain::Mode mode,
                                              GrTextureParams::FilterMode filterMode,
                                              GrCoordSet coordSet)
-    : GrSingleTextureEffect(texture, matrix, filterMode, coordSet)
+    : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode, coordSet)
     , fTextureDomain(domain, mode) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
             filterMode == GrTextureParams::kNone_FilterMode);
@@ -294,6 +297,7 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData
     GrCoordSet coords = d->fRandom->nextBool() ? kLocal_GrCoordSet : kDevice_GrCoordSet;
     return GrTextureDomainEffect::Make(
         d->fTextures[texIdx],
+        nullptr,
         matrix,
         domain,
         mode,
