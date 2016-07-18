@@ -58,10 +58,18 @@ struct SkDVector {
     }
 
     // similar to cross, this bastardization considers nearly coincident to be zero
+    // uses ulps epsilon == 16
     double crossCheck(const SkDVector& a) const {
         double xy = fX * a.fY;
         double yx = fY * a.fX;
         return AlmostEqualUlps(xy, yx) ? 0 : xy - yx;
+    }
+
+    // allow tinier numbers
+    double crossNoNormalCheck(const SkDVector& a) const {
+        double xy = fX * a.fY;
+        double yx = fY * a.fX;
+        return AlmostEqualUlpsNoNormalCheck(xy, yx) ? 0 : xy - yx;
     }
 
     double dot(const SkDVector& a) const {
@@ -74,6 +82,12 @@ struct SkDVector {
 
     double lengthSquared() const {
         return fX * fX + fY * fY;
+    }
+
+    void normalize() {
+        double inverseLength = 1 / this->length();
+        fX *= inverseLength;
+        fY *= inverseLength;
     }
 };
 
@@ -164,7 +178,7 @@ struct SkDPoint {
         float tiniest = SkTMin(SkTMin(SkTMin(a.fX, b.fX), a.fY), b.fY);
         float largest = SkTMax(SkTMax(SkTMax(a.fX, b.fX), a.fY), b.fY);
         largest = SkTMax(largest, -tiniest);
-        return AlmostPequalUlps((double) largest, largest + dist); // is dist within ULPS tolerance?
+        return AlmostDequalUlps((double) largest, largest + dist); // is dist within ULPS tolerance?
     }
 
     // only used by testing

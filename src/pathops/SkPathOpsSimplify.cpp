@@ -10,8 +10,7 @@
 #include "SkPathOpsCommon.h"
 #include "SkPathWriter.h"
 
-static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple,
-        SkChunkAlloc* allocator, bool* closable) {
+static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple, bool* closable) {
     bool unsortable = false;
     do {
         SkOpSpan* span = FindSortableTop(contourList);
@@ -40,11 +39,9 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple,
                             if (!current->addCurveTo(start, end, simple)) {
                                 return false;
                             }
-                    #if DEBUG_ACTIVE_SPANS
                             if (!simple->isClosed()) {
-                                DebugShowActiveSpans(contourList);
+                                SkPathOpsDebug::ShowActiveSpans(contourList);
                             }
-                    #endif
                         }
                         break;
                     }
@@ -86,9 +83,7 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple,
                 }
             }
             current = FindChase(&chase, &start, &end);
-        #if DEBUG_ACTIVE_SPANS
-            DebugShowActiveSpans(contourList);
-        #endif
+            SkPathOpsDebug::ShowActiveSpans(contourList);
             if (!current) {
                 break;
             }
@@ -99,8 +94,7 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple,
 }
 
 // returns true if all edges were processed
-static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple,
-        SkChunkAlloc* allocator, bool* closable) {
+static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple, bool* closable) {
     SkOpSegment* current;
     SkOpSpanBase* start;
     SkOpSpanBase* end;
@@ -108,11 +102,9 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple,
     *closable = true;
     while ((current = FindUndone(contourList, &start, &end))) {
         do {
-    #if DEBUG_ACTIVE_SPANS
             if (!unsortable && current->done()) {
-                DebugShowActiveSpans(contourList);
+                SkPathOpsDebug::ShowActiveSpans(contourList);
             }
-    #endif
             SkASSERT(unsortable || !current->done());
             SkOpSpanBase* nextStart = start;
             SkOpSpanBase* nextEnd = end;
@@ -124,11 +116,9 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple,
                     if (!current->addCurveTo(start, end, simple)) {
                         return false;
                     }
-            #if DEBUG_ACTIVE_SPANS
                     if (!simple->isClosed()) {
-                        DebugShowActiveSpans(contourList);
+                        SkPathOpsDebug::ShowActiveSpans(contourList);
                     }
-            #endif
                 }
                 break;
             }
@@ -156,16 +146,14 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple,
             *closable = false;
         }
         simple->close();
-    #if DEBUG_ACTIVE_SPANS
-        DebugShowActiveSpans(contourList);
-    #endif
+        SkPathOpsDebug::ShowActiveSpans(contourList);
     }
     return true;
 }
 
 // FIXME : add this as a member of SkPath
-bool Simplify(const SkPath& path, SkPath* result) {
-    SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
+bool SimplifyDebug(const SkPath& path, SkPath* result
+        SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     SkPath::FillType fillType = path.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
             : SkPath::kEvenOdd_FillType;
@@ -177,16 +165,26 @@ bool Simplify(const SkPath& path, SkPath* result) {
         return true;
     }
     // turn path into list of segments
-    SkOpCoincidence coincidence;
+    SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
-    SkOpGlobalState globalState(&coincidence, contourList  SkDEBUGPARAMS(false)
-            SkDEBUGPARAMS(nullptr));
+    SkOpGlobalState globalState(contourList, &allocator
+            SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName));
+    SkOpCoincidence coincidence(&globalState);
+    SkScalar scaleFactor = ScaleFactor(path);
+    SkPath scaledPath;
+    const SkPath* workingPath;
+    if (scaleFactor > SK_Scalar1) {
+        ScalePath(path, 1.f / scaleFactor, &scaledPath);
+        workingPath = &scaledPath;
+    } else {
+        workingPath = &path;
+    }
 #if DEBUG_SORT
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
-    SkOpEdgeBuilder builder(path, &contour, &allocator, &globalState);
-    if (!builder.finish(&allocator)) {
+    SkOpEdgeBuilder builder(*workingPath, &contour, &globalState);
+    if (!builder.finish()) {
         return false;
     }
 #if DEBUG_DUMP_SEGMENTS
@@ -201,13 +199,13 @@ bool Simplify(const SkPath& path, SkPath* result) {
     SkOpContour* current = contourList;
     do {
         SkOpContour* next = current;
-        while (AddIntersectTs(current, next, &coincidence, &allocator)
+        while (AddIntersectTs(current, next, &coincidence)
                 && (next = next->next()));
     } while ((current = current->next()));
 #if DEBUG_VALIDATE
     globalState.setPhase(SkOpGlobalState::kWalking);
 #endif
-    if (!HandleCoincidence(contourList, &coincidence, &allocator)) {
+    if (!HandleCoincidence(contourList, &coincidence)) {
         return false;
     }
 #if DEBUG_DUMP_ALIGNMENT
@@ -219,8 +217,8 @@ bool Simplify(const SkPath& path, SkPath* result) {
     SkPathWriter wrapper(*result);
     bool closable SK_INIT_TO_AVOID_WARNING;
     if (builder.xorMask() == kWinding_PathOpsMask
-            ? !bridgeWinding(contourList, &wrapper, &allocator, &closable)
-            : !bridgeXor(contourList, &wrapper, &allocator, &closable)) {
+            ? !bridgeWinding(contourList, &wrapper, &closable)
+            : !bridgeXor(contourList, &wrapper, &closable)) {
         return false;
     }
     if (!closable)
@@ -232,6 +230,12 @@ bool Simplify(const SkPath& path, SkPath* result) {
         *result = *assembled.nativePath();
         result->setFillType(fillType);
     }
+    if (scaleFactor > 1) {
+        ScalePath(*result, scaleFactor, result);
+    }
     return true;
 }
 
+bool Simplify(const SkPath& path, SkPath* result) {
+    return SimplifyDebug(path, result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
+}

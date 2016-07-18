@@ -36,9 +36,9 @@ int SkOpEdgeBuilder::count() const {
     return count;
 }
 
-bool SkOpEdgeBuilder::finish(SkChunkAlloc* allocator) {
+bool SkOpEdgeBuilder::finish() {
     fOperand = false;
-    if (fUnparseable || !walk(allocator)) {
+    if (fUnparseable || !walk()) {
         return false;
     }
     complete();
@@ -162,7 +162,7 @@ bool SkOpEdgeBuilder::close() {
     return true;
 }
 
-bool SkOpEdgeBuilder::walk(SkChunkAlloc* allocator) {
+bool SkOpEdgeBuilder::walk() {
     uint8_t* verbPtr = fPathVerbs.begin();
     uint8_t* endOfFirstHalf = &verbPtr[fSecondHalf];
     SkPoint* pointsPtr = fPathPts.begin() - 1;
@@ -183,20 +183,20 @@ bool SkOpEdgeBuilder::walk(SkChunkAlloc* allocator) {
                     }
                 }
                 if (!fCurrentContour) {
-                    fCurrentContour = fContoursHead->appendContour(allocator);
+                    fCurrentContour = fContoursHead->appendContour();
                 }
                 fCurrentContour->init(fGlobalState, fOperand,
                     fXorMask[fOperand] == kEvenOdd_PathOpsMask);
                 pointsPtr += 1;
                 continue;
             case SkPath::kLine_Verb:
-                fCurrentContour->addLine(pointsPtr, fAllocator);
+                fCurrentContour->addLine(pointsPtr);
                 break;
             case SkPath::kQuad_Verb:
-                fCurrentContour->addQuad(pointsPtr, fAllocator);
+                fCurrentContour->addQuad(pointsPtr);
                 break;
             case SkPath::kConic_Verb:
-                fCurrentContour->addConic(pointsPtr, *weightPtr++, fAllocator);
+                fCurrentContour->addConic(pointsPtr, *weightPtr++);
                 break;
             case SkPath::kCubic_Verb: {
                 // Split complex cubics (such as self-intersecting curves or
@@ -221,13 +221,13 @@ bool SkOpEdgeBuilder::walk(SkChunkAlloc* allocator) {
                         for (int index = 0; index < SkPathOpsVerbToPoints(v2); ++index) {
                             force_small_to_zero(&curve2[index]);
                         }
-                        fCurrentContour->addCurve(v1, curve1, fAllocator);
-                        fCurrentContour->addCurve(v2, curve2, fAllocator);
+                        fCurrentContour->addCurve(v1, curve1);
+                        fCurrentContour->addCurve(v2, curve2);
                     } else {
-                        fCurrentContour->addCubic(pointsPtr, fAllocator);
+                        fCurrentContour->addCubic(pointsPtr);
                     }
                 } else {
-                    fCurrentContour->addCubic(pointsPtr, fAllocator);
+                    fCurrentContour->addCubic(pointsPtr);
                 }
                 } break;
             case SkPath::kClose_Verb:

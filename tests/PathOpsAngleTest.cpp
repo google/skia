@@ -194,6 +194,10 @@ public:
         return lh.after(&rh);
     }
 
+    static int AllOnOneSide(SkOpAngle& lh, SkOpAngle& rh) {
+        return lh.allOnOneSide(&rh);
+    }
+
     static int ConvexHullOverlaps(SkOpAngle& lh, SkOpAngle& rh) {
         return lh.convexHullOverlaps(&rh);
     }
@@ -235,7 +239,7 @@ static const int circleDataSetSize = (int) SK_ARRAY_COUNT(circleDataSet);
 DEF_TEST(PathOpsAngleCircle, reporter) {
     SkChunkAlloc allocator(4096);
     SkOpContourHead contour;
-    SkOpGlobalState state(nullptr, &contour  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
     for (int index = 0; index < circleDataSetSize; ++index) {
         CircleData& data = circleDataSet[index];
@@ -244,20 +248,20 @@ DEF_TEST(PathOpsAngleCircle, reporter) {
         }
         switch (data.fPtCount) {
             case 2:
-                contour.addLine(data.fShortPts, &allocator);
+                contour.addLine(data.fShortPts);
                 break;
             case 3:
-                contour.addQuad(data.fShortPts, &allocator);
+                contour.addQuad(data.fShortPts);
                 break;
             case 4:
-                contour.addCubic(data.fShortPts, &allocator);
+                contour.addCubic(data.fShortPts);
                 break;
         }
     }
     SkOpSegment* first = contour.first();
-    first->debugAddAngle(0, 1, &allocator);
+    first->debugAddAngle(0, 1);
     SkOpSegment* next = first->next();
-    next->debugAddAngle(0, 1, &allocator);
+    next->debugAddAngle(0, 1);
     PathOpsAngleTester::Orderable(*first->debugLastAngle(), *next->debugLastAngle());
 }
 
@@ -427,7 +431,7 @@ struct FourPoints {
 DEF_TEST(PathOpsAngleAfter, reporter) {
     SkChunkAlloc allocator(4096);
     SkOpContourHead contour;
-    SkOpGlobalState state(nullptr, &contour  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
     for (int index = intersectDataSetsSize - 1; index >= 0; --index) {
         IntersectData* dataArray = intersectDataSets[index];
@@ -443,22 +447,22 @@ DEF_TEST(PathOpsAngleAfter, reporter) {
                 }
                 switch (data.fPtCount) {
                     case 2: {
-                        contour.addLine(temp, &allocator);
+                        contour.addLine(temp);
                         } break;
                     case 3: {
-                        contour.addQuad(temp, &allocator);
+                        contour.addQuad(temp);
                         } break;
                     case 4: {
-                        contour.addCubic(temp, &allocator);
+                        contour.addCubic(temp);
                         } break;
                 }
             }
             SkOpSegment* seg1 = contour.first();
-            seg1->debugAddAngle(dataArray[index2 + 0].fTStart, dataArray[index2 + 0].fTEnd, &allocator);
+            seg1->debugAddAngle(dataArray[index2 + 0].fTStart, dataArray[index2 + 0].fTEnd);
             SkOpSegment* seg2 = seg1->next();
-            seg2->debugAddAngle(dataArray[index2 + 1].fTStart, dataArray[index2 + 1].fTEnd, &allocator);
+            seg2->debugAddAngle(dataArray[index2 + 1].fTStart, dataArray[index2 + 1].fTEnd);
             SkOpSegment* seg3 = seg2->next();
-            seg3->debugAddAngle(dataArray[index2 + 2].fTStart, dataArray[index2 + 2].fTEnd, &allocator);
+            seg3->debugAddAngle(dataArray[index2 + 2].fTStart, dataArray[index2 + 2].fTEnd);
             SkOpAngle& angle1 = *seg1->debugLastAngle();
             SkOpAngle& angle2 = *seg2->debugLastAngle();
             SkOpAngle& angle3 = *seg3->debugLastAngle();
@@ -472,12 +476,12 @@ DEF_TEST(PathOpsAngleAfter, reporter) {
     }
 }
 
-void SkOpSegment::debugAddAngle(double startT, double endT, SkChunkAlloc* allocator) {
+void SkOpSegment::debugAddAngle(double startT, double endT) {
     SkOpPtT* startPtT = startT == 0 ? fHead.ptT() : startT == 1 ? fTail.ptT()
-            : this->addT(startT, kNoAlias, allocator);
+            : this->addT(startT, kNoAliasMatch, nullptr);
     SkOpPtT* endPtT = endT == 0 ? fHead.ptT() : endT == 1 ? fTail.ptT()
-            : this->addT(endT, kNoAlias, allocator);
-    SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(allocator);
+            : this->addT(endT, kNoAliasMatch, nullptr);
+    SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(this->globalState()->allocator());
     SkOpSpanBase* startSpan = &fHead;
     while (startSpan->ptT() != startPtT) {
         startSpan = startSpan->upCast()->next();
@@ -493,5 +497,31 @@ void SkOpSegment::debugAddAngle(double startT, double endT, SkChunkAlloc* alloca
     } else {
         endSpan->upCast()->setToAngle(angle);
         startSpan->setFromAngle(angle);
+    }
+}
+
+DEF_TEST(PathOpsAngleAllOnOneSide, reporter) {
+    SkChunkAlloc allocator(4096);
+    SkOpContourHead contour;
+    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+    contour.init(&state, false, false);
+    SkPoint conicPts[3] = {{494.37100219726562f, 224.66200256347656f},
+        {494.37360910682298f, 224.6729026561527f},
+        {494.37600708007813f, 224.68400573730469f}};
+    SkPoint linePts[2] = {{494.371002f, 224.662003f}, {494.375000f, 224.675995f}};
+    for (int i = 10; i >= 0; --i) {
+        SkPoint modLinePts[2] = { linePts[0], linePts[1] };
+        modLinePts[1].fX += i * .1f;
+        contour.addLine(modLinePts);
+        contour.addQuad(conicPts);
+   //     contour.addConic(conicPts, 0.999935746f, &allocator);
+        SkOpSegment* first = contour.first();
+        first->debugAddAngle(0, 1);
+        SkOpSegment* next = first->next();
+        next->debugAddAngle(0, 1);
+        /* int result = */
+            PathOpsAngleTester::AllOnOneSide(*first->debugLastAngle(), *next->debugLastAngle());
+  //      SkDebugf("i=%d result=%d\n", i , result);
+  //      SkDebugf("");
     }
 }

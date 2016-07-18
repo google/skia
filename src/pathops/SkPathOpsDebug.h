@@ -37,6 +37,8 @@
         if (!SkPathOpsDebug::ValidWind(x)) strcpy(x##Str, "?"); \
         else SK_SNPRINTF(x##Str, sizeof(x##Str), "%d", x)
 
+#define DEBUG_UNDER_DEVELOPMENT 01
+
 #if FORCE_RELEASE
 
 #define DEBUG_ACTIVE_OP 0
@@ -47,6 +49,7 @@
 #define DEBUG_ANGLE 0
 #define DEBUG_ASSEMBLE 0
 #define DEBUG_COINCIDENCE 0
+#define DEBUG_COINCIDENCE_VERBOSE 0
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 0
 #define DEBUG_DUMP_SEGMENTS 0
@@ -74,12 +77,13 @@
 #define DEBUG_ALIGNMENT 0
 #define DEBUG_ANGLE 1
 #define DEBUG_ASSEMBLE 1
-#define DEBUG_COINCIDENCE 0
+#define DEBUG_COINCIDENCE 01
+#define DEBUG_COINCIDENCE_VERBOSE 01
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 1
 #define DEBUG_DUMP_SEGMENTS 1
 #define DEBUG_FLOW 1
-#define DEBUG_LIMIT_WIND_SUM 5
+#define DEBUG_LIMIT_WIND_SUM 15
 #define DEBUG_MARK_DONE 1
 #define DEBUG_PATH_CONSTRUCTION 1
 #define DEBUG_PERP 1
@@ -186,6 +190,7 @@ public:
     static void BumpTestName(char* );
 #endif
     static const char* OpStr(SkPathOp );
+    static void ShowActiveSpans(SkOpContourHead* contourList);
     static void ShowOnePath(const SkPath& path, const char* name, bool includeDeclaration);
     static void ShowPath(const SkPath& one, const SkPath& two, SkPathOp op, const char* name);
 
@@ -193,37 +198,37 @@ public:
 
     static void CheckHealth(class SkOpContourHead* contourList, const char* id);
 
-    static const struct SkOpAngle* DebugAngleAngle(const struct SkOpAngle*, int id);
-    static class SkOpContour* DebugAngleContour(struct SkOpAngle*, int id);
-    static const class SkOpPtT* DebugAnglePtT(const struct SkOpAngle*, int id);
-    static const class SkOpSegment* DebugAngleSegment(const struct SkOpAngle*, int id);
-    static const class SkOpSpanBase* DebugAngleSpan(const struct SkOpAngle*, int id);
+    static const class SkOpAngle* DebugAngleAngle(const class SkOpAngle*, int id);
+    static class SkOpContour* DebugAngleContour(class SkOpAngle*, int id);
+    static const class SkOpPtT* DebugAnglePtT(const class SkOpAngle*, int id);
+    static const class SkOpSegment* DebugAngleSegment(const class SkOpAngle*, int id);
+    static const class SkOpSpanBase* DebugAngleSpan(const class SkOpAngle*, int id);
 
-    static const struct SkOpAngle* DebugContourAngle(class SkOpContour*, int id);
+    static const class SkOpAngle* DebugContourAngle(class SkOpContour*, int id);
     static class SkOpContour* DebugContourContour(class SkOpContour*, int id);
     static const class SkOpPtT* DebugContourPtT(class SkOpContour*, int id);
     static const class SkOpSegment* DebugContourSegment(class SkOpContour*, int id);
     static const class SkOpSpanBase* DebugContourSpan(class SkOpContour*, int id);
 
-    static const struct SkOpAngle* DebugCoincidenceAngle(class SkOpCoincidence*, int id);
+    static const class SkOpAngle* DebugCoincidenceAngle(class SkOpCoincidence*, int id);
     static class SkOpContour* DebugCoincidenceContour(class SkOpCoincidence*, int id);
     static const class SkOpPtT* DebugCoincidencePtT(class SkOpCoincidence*, int id);
     static const class SkOpSegment* DebugCoincidenceSegment(class SkOpCoincidence*, int id);
     static const class SkOpSpanBase* DebugCoincidenceSpan(class SkOpCoincidence*, int id);
 
-    static const struct SkOpAngle* DebugPtTAngle(const class SkOpPtT*, int id);
+    static const class SkOpAngle* DebugPtTAngle(const class SkOpPtT*, int id);
     static class SkOpContour* DebugPtTContour(class SkOpPtT*, int id);
     static const class SkOpPtT* DebugPtTPtT(const class SkOpPtT*, int id);
     static const class SkOpSegment* DebugPtTSegment(const class SkOpPtT*, int id);
     static const class SkOpSpanBase* DebugPtTSpan(const class SkOpPtT*, int id);
 
-    static const struct SkOpAngle* DebugSegmentAngle(const class SkOpSegment*, int id);
+    static const class SkOpAngle* DebugSegmentAngle(const class SkOpSegment*, int id);
     static class SkOpContour* DebugSegmentContour(class SkOpSegment*, int id);
     static const class SkOpPtT* DebugSegmentPtT(const class SkOpSegment*, int id);
     static const class SkOpSegment* DebugSegmentSegment(const class SkOpSegment*, int id);
     static const class SkOpSpanBase* DebugSegmentSpan(const class SkOpSegment*, int id);
 
-    static const struct SkOpAngle* DebugSpanAngle(const class SkOpSpanBase*, int id);
+    static const class SkOpAngle* DebugSpanAngle(const class SkOpSpanBase*, int id);
     static class SkOpContour* DebugSpanContour(class SkOpSpanBase*, int id);
     static const class SkOpPtT* DebugSpanPtT(const class SkOpSpanBase*, int id);
     static const class SkOpSegment* DebugSpanSegment(const class SkOpSpanBase*, int id);

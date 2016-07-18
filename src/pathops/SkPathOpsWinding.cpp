@@ -192,7 +192,7 @@ SkOpSpan* SkOpSegment::windingSpanAtT(double tHit) {
         next = span->next();
         if (approximately_equal(tHit, next->t())) {
             return nullptr;
-        } 
+        }
         if (tHit < next->t()) {
             return span;
         }
@@ -243,6 +243,10 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
     }
     SkOpRayHit* hitHead = &hitBase;
     dir = static_cast<SkOpRayDir>(static_cast<int>(dir) + dirOffset);
+    if (hitBase.fSpan && hitBase.fSpan->segment()->verb() > SkPath::kLine_Verb
+            && !pt_yx(hitBase.fSlope.asSkVector(), dir)) {
+        return false;
+    }
     SkOpContour* contour = contourHead;
     do {
         contour->rayCheck(hitBase, dir, &hitHead, &allocator);
@@ -256,11 +260,11 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
     }
     int count = sorted.count();
     SkTQSort(sorted.begin(), sorted.end() - 1, xy_index(dir)
-            ? less_than(dir) ? hit_compare_y : reverse_hit_compare_y 
+            ? less_than(dir) ? hit_compare_y : reverse_hit_compare_y
             : less_than(dir) ? hit_compare_x : reverse_hit_compare_x);
     // verify windings
 #if DEBUG_WINDING
-    SkDebugf("%s dir=%s seg=%d t=%1.9g pt=(%1.9g,%1.9g)\n", __FUNCTION__, 
+    SkDebugf("%s dir=%s seg=%d t=%1.9g pt=(%1.9g,%1.9g)\n", __FUNCTION__,
             gDebugRayDirName[static_cast<int>(dir)], hitBase.fSpan->segment()->debugID(),
             hitBase.fT, hitBase.fPt.fX, hitBase.fPt.fY);
     for (int index = 0; index < count; ++index) {
@@ -378,15 +382,20 @@ SkOpSpan* SkOpSegment::findSortableTop(SkOpContour* contourHead) {
 
 SkOpSpan* SkOpContour::findSortableTop(SkOpContour* contourHead) {
     SkOpSegment* testSegment = &fHead;
+    bool allDone = true;
     do {
         if (testSegment->done()) {
             continue;
         }
+        allDone = false;
         SkOpSpan* result = testSegment->findSortableTop(contourHead);
         if (result) {
             return result;
         }
     } while ((testSegment = testSegment->next()));
+    if (allDone) {
+      fDone = true;
+    }
     return nullptr;
 }
 

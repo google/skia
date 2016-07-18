@@ -191,6 +191,12 @@ SkDPoint SkDQuad::ptAtT(double t) const {
 }
 
 static double interp_quad_coords(const double* src, double t) {
+    if (0 == t) {
+        return src[0];
+    }
+    if (1 == t) {
+        return src[4];
+    }
     double ab = SkDInterp(src[0], src[2], t);
     double bc = SkDInterp(src[2], src[4], t);
     double abc = SkDInterp(ab, bc, t);
@@ -228,8 +234,11 @@ Group the known values on one side:
 B   = D*2 - A/2 - C/2
 */
 
-// OPTIMIZE : special case either or both of t1 = 0, t2 = 1 
+// OPTIMIZE? : special case  t1 = 1 && t2 = 0
 SkDQuad SkDQuad::subDivide(double t1, double t2) const {
+    if (0 == t1 && 1 == t2) {
+        return *this;
+    }
     SkDQuad dst;
     double ax = dst[0].fX = interp_quad_coords(&fPts[0].fX, t1);
     double ay = dst[0].fY = interp_quad_coords(&fPts[0].fY, t1);
@@ -263,7 +272,7 @@ SkDPoint SkDQuad::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, dou
         b = i.pt(0);
     } else {
         SkASSERT(i.used() <= 2);
-        b = SkDPoint::Mid(b0[1], b1[1]);
+        return SkDPoint::Mid(b0[1], b1[1]);
     }
     if (t1 == 0 || t2 == 0) {
         align(0, &b);

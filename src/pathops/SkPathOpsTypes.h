@@ -22,6 +22,7 @@ enum SkPathOpsMask {
     kEvenOdd_PathOpsMask = 1
 };
 
+class SkChunkAlloc;
 class SkOpCoincidence;
 class SkOpContour;
 class SkOpContourHead;
@@ -30,8 +31,8 @@ class SkIntersectionHelper;
 
 class SkOpGlobalState {
 public:
-    SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head
-                    SkDEBUGPARAMS(bool debugSkipAssert)
+    SkOpGlobalState(SkOpContourHead* head,
+                    SkChunkAlloc* allocator  SkDEBUGPARAMS(bool debugSkipAssert)
                     SkDEBUGPARAMS(const char* testName));
 
     enum Phase {
@@ -43,6 +44,10 @@ public:
     enum {
         kMaxWindingTries = 10
     };
+
+    SkChunkAlloc* allocator() {
+        return fAllocator;
+    }
 
     bool angleCoincidence() const {
         return fAngleCoincidence;
@@ -65,7 +70,8 @@ public:
     }
 
 #ifdef SK_DEBUG
-    const struct SkOpAngle* debugAngle(int id) const;
+    const class SkOpAngle* debugAngle(int id) const;
+    const SkOpCoincidence* debugCoincidence() const;
     SkOpContour* debugContour(int id);
     const class SkOpPtT* debugPtT(int id) const;
     bool debugRunFail() const;
@@ -81,6 +87,11 @@ public:
     void debugDoYourWorst(SkOpGlobalState* );
     void debugLoopReport();
     void debugResetLoopCounts();
+#endif
+
+#if DEBUG_COINCIDENCE
+    void debugSetCheckHealth(bool check) { fDebugCheckHealth = check; }
+    bool debugCheckHealth() const { return fDebugCheckHealth; }
 #endif
 
     int nested() const {
@@ -120,6 +131,10 @@ public:
     void setAngleCoincidence() {
         fAngleCoincidence = true;
     }
+
+    void setCoincidence(SkOpCoincidence* coincidence) {
+        fCoincidence = coincidence;
+    }
     
     void setContourHead(SkOpContourHead* contourHead) {
         fContourHead = contourHead;
@@ -140,6 +155,7 @@ public:
     }
 
 private:
+    SkChunkAlloc* fAllocator;
     SkOpCoincidence* fCoincidence;
     SkOpContourHead* fContourHead;
     int fNested;
@@ -162,12 +178,20 @@ private:
     SkPoint fDebugWorstPts[24];
     float fDebugWorstWeight[6];
 #endif
+#if DEBUG_COINCIDENCE
+    bool fDebugCheckHealth;
+#endif
 };
 
 // Use Almost Equal when comparing coordinates. Use epsilon to compare T values.
 bool AlmostEqualUlps(float a, float b);
 inline bool AlmostEqualUlps(double a, double b) {
     return AlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
+bool AlmostEqualUlpsNoNormalCheck(float a, float b);
+inline bool AlmostEqualUlpsNoNormalCheck(double a, double b) {
+    return AlmostEqualUlpsNoNormalCheck(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
 bool AlmostEqualUlps_Pin(float a, float b);
@@ -246,6 +270,8 @@ const double MORE_ROUGH_EPSILON = FLT_EPSILON * 256;
 const double WAY_ROUGH_EPSILON = FLT_EPSILON * 2048;
 const double BUMP_EPSILON = FLT_EPSILON * 4096;
 
+const SkScalar INVERSE_NUMBER_RANGE = FLT_EPSILON_ORDERABLE_ERR;
+
 inline bool zero_or_one(double x) {
     return x == 0 || x == 1;
 }
@@ -298,13 +324,16 @@ inline bool approximately_zero_inverse(double x) {
     return fabs(x) > FLT_EPSILON_INVERSE;
 }
 
-// OPTIMIZATION: if called multiple times with the same denom, we want to pass 1/y instead
 inline bool approximately_zero_when_compared_to(double x, double y) {
     return x == 0 || fabs(x) < fabs(y * FLT_EPSILON);
 }
 
 inline bool precisely_zero_when_compared_to(double x, double y) {
     return x == 0 || fabs(x) < fabs(y * DBL_EPSILON);
+}
+
+inline bool roughly_zero_when_compared_to(double x, double y) {
+    return x == 0 || fabs(x) < fabs(y * ROUGH_EPSILON);
 }
 
 // Use this for comparing Ts in the range of 0 to 1. For general numbers (larger and smaller) use

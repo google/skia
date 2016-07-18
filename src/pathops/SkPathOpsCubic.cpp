@@ -277,7 +277,7 @@ bool SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
             for (int index = 0; index < roots; ++index) {
                 if (between(inflectionTs[0], maxCurvature[index], inflectionTs[1])) {
                     *t = maxCurvature[index];
-                    return true;
+                    return *t > 0 && *t < 1;
                 }
             }
         } else if (infTCount == 1) {

@@ -250,7 +250,7 @@ private:
     SkTSpan<TCurve, OppCurve>* addFollowing(SkTSpan<TCurve, OppCurve>* prior);
     void addForPerp(SkTSpan<OppCurve, TCurve>* span, double t);
     SkTSpan<TCurve, OppCurve>* addOne();
-    
+
     SkTSpan<TCurve, OppCurve>* addSplitAt(SkTSpan<TCurve, OppCurve>* span, double t) {
         SkTSpan<TCurve, OppCurve>* result = this->addOne();
         result->splitAt(span, t, &fHeap);
@@ -343,7 +343,7 @@ void SkTCoincident<TCurve, OppCurve>::setPerp(const TCurve& c1, double t,
     if (used == 0 || used == 3) {
         this->init();
         return;
-    } 
+    }
     fPerpT = i[0][0];
     fPerpPt = i.pt(0);
     SkASSERT(used <= 2);
@@ -858,7 +858,7 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::addOne() {
     result->reset();
     result->fHasPerp = false;
     result->fDeleted = false;
-    ++fActiveCount; 
+    ++fActiveCount;
     PATH_OPS_DEBUG_T_SECT_CODE(result->fID = fDebugCount++ * 2 + fID);
     SkDEBUGCODE(result->fDebugSect = this);
 #ifdef SK_DEBUG
@@ -969,6 +969,9 @@ void SkTSect<TCurve, OppCurve>::coincidentCheck(SkTSect<OppCurve, TCurve>* sect2
         do {
             coinStart = this->extractCoincident(sect2, coinStart, last);
         } while (coinStart && !last->fDeleted);
+        if (!fHead || !sect2->fHead) {
+            break;
+        }
     } while ((first = next));
 }
 
@@ -1208,7 +1211,7 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::extractCoincident(
     }
     this->validate();
     sect2->validate();
-    return last && !last->fDeleted ? last : nullptr;
+    return last && !last->fDeleted && fHead && sect2->fHead ? last : nullptr;
 }
 
 template<typename TCurve, typename OppCurve>
@@ -1511,7 +1514,7 @@ template<typename TCurve, typename OppCurve>
 void SkTSect<TCurve, OppCurve>::matchedDirCheck(double t, const SkTSect<OppCurve, TCurve>* sect2,
         double t2, bool* calcMatched, bool* oppMatched) const {
     if (*calcMatched) {
-        SkASSERT(*oppMatched == this->matchedDirection(t, sect2, t2)); 
+        SkASSERT(*oppMatched == this->matchedDirection(t, sect2, t2));
     } else {
         *oppMatched = this->matchedDirection(t, sect2, t2);
         *calcMatched = true;
@@ -1584,7 +1587,7 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::prev(
         test = test->fNext;
         SkASSERT(test);
     }
-    return result; 
+    return result;
 }
 
 template<typename TCurve, typename OppCurve>
@@ -1939,7 +1942,7 @@ struct SkClosestRecord {
         fC1Index = mate.fC1Index;
         fC2Index = mate.fC2Index;
     }
-    
+
     void reset() {
         fClosest = FLT_MAX;
         SkDEBUGCODE(fC1Span = nullptr);
@@ -2099,7 +2102,7 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
                    gets stuck in a loop. It adds an extension to allow a coincident end
                    perpendicular to track its intersection in the opposite curve. However,
                    the bounding box of the extension does not intersect the original curve,
-                   so the extension is discarded, only to be added again the next time around. */ 
+                   so the extension is discarded, only to be added again the next time around. */
                 sect1->coincidentForce(sect2, start1s, start1e);
                 sect1->validate();
                 sect2->validate();

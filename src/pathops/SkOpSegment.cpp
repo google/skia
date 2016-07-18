@@ -9,6 +9,8 @@
 #include "SkOpSegment.h"
 #include "SkPathWriter.h"
 
+#define FAIL_IF(cond) do { if (cond) return false; } while (false)
+
 /*
 After computing raw intersections, post process all segments to:
 - find small collections of points that can be collapsed to a single point
@@ -159,90 +161,10 @@ bool SkOpSegment::activeWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* sum
     return result;
 }
 
-void SkOpSegment::addAlignIntersection(SkOpPtT& endPtT, SkPoint& oldPt,
-        SkOpContourHead* contourList, SkChunkAlloc* allocator) {
-    const SkPoint& newPt = endPtT.fPt;
-    if (newPt == oldPt) {
-        return;
-    }
-    SkPoint line[2] = { newPt, oldPt };
-    SkPathOpsBounds lineBounds;
-    lineBounds.setBounds(line, 2);
-    SkDLine aLine;
-    aLine.set(line);
-    SkOpContour* current = contourList;
-    do {
-        if (!SkPathOpsBounds::Intersects(current->bounds(), lineBounds)) {
-            continue;
-        }
-        SkOpSegment* segment = current->first();
-        do {
-            if (!SkPathOpsBounds::Intersects(segment->bounds(), lineBounds)) {
-                continue;
-            }
-            if (newPt == segment->fPts[0]) {
-                continue;
-            }
-            if (newPt == segment->fPts[SkPathOpsVerbToPoints(segment->fVerb)]) {
-                continue;
-            }
-            if (oldPt == segment->fPts[0]) {
-                continue;
-            }
-            if (oldPt == segment->fPts[SkPathOpsVerbToPoints(segment->fVerb)]) {
-                continue;
-            }
-            if (endPtT.contains(segment)) {
-                continue;
-            }
-            SkIntersections i;
-            switch (segment->fVerb) {
-                case SkPath::kLine_Verb: {
-                    SkDLine bLine;
-                    bLine.set(segment->fPts);
-                    i.intersect(bLine, aLine);
-                    } break;
-                case SkPath::kQuad_Verb: {
-                    SkDQuad bQuad;
-                    bQuad.set(segment->fPts);
-                    i.intersect(bQuad, aLine);
-                    } break;
-                case SkPath::kConic_Verb: {
-                    SkDConic bConic;
-                    bConic.set(segment->fPts, segment->fWeight);
-                    i.intersect(bConic, aLine);
-                    } break;
-                case SkPath::kCubic_Verb: {
-                    SkDCubic bCubic;
-                    bCubic.set(segment->fPts);
-                    i.intersect(bCubic, aLine);
-                    } break;
-                default:
-                    SkASSERT(0);
-            }
-            if (i.used()) {
-                SkASSERT(i.used() == 1);
-                SkASSERT(!zero_or_one(i[0][0]));
-                SkOpSpanBase* checkSpan = fHead.next();
-                while (!checkSpan->final()) {
-                    if (checkSpan->contains(segment)) {
-                        goto nextSegment;
-                    }
-                    checkSpan = checkSpan->upCast()->next();
-                }
-                SkOpPtT* ptT = segment->addT(i[0][0], SkOpSegment::kAllowAlias, allocator);
-                ptT->fPt = newPt;
-                endPtT.addOpp(ptT);
-            }
-    nextSegment:
-            ;
-        } while ((segment = segment->next()));
-    } while ((current = current->next()));
-}
-
 bool SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
         SkPathWriter* path) const {
     if (start->starter(end)->alreadyAdded()) {
+        SkDEBUGF(("same curve added twice aborted pathops\n"));
         return false;
     }
     SkOpCurve edge;
@@ -298,29 +220,57 @@ bool SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
     return true;
 }
 
-SkOpPtT* SkOpSegment::addMissing(double t, SkOpSegment* opp, SkChunkAlloc* allocator) {
-    SkOpSpanBase* existing = nullptr;
-    SkOpSpanBase* test = &fHead;
-    double testT;
+const SkOpPtT* SkOpSegment::existing(double t, const SkOpSegment* opp) const {
+    const SkOpSpanBase* test = &fHead;
+    const SkOpPtT* testPtT;
+    SkPoint pt = this->ptAtT(t);
     do {
-        if ((testT = test->ptT()->fT) >= t) {
-            if (testT == t) {
-                existing = test;
-            }
+        testPtT = test->ptT();
+        if (testPtT->fT == t) {
             break;
         }
+        if (!this->match(testPtT, this, t, pt, opp ? kAllowAliasMatch : kNoAliasMatch)) {
+            if (t < testPtT->fT) {
+                return nullptr;
+            }
+            continue;
+        }
+        if (!opp) {
+            return testPtT;
+        }
+        const SkOpPtT* loop = testPtT->next();
+        while (loop != testPtT) {
+            if (loop->segment() == this && loop->fT == t && loop->fPt == pt) {
+                goto foundMatch;
+            }
+            loop = loop->next();
+        }
+        return nullptr;
     } while ((test = test->upCast()->next()));
-    SkOpPtT* result;
-    if (existing && existing->contains(opp)) {
-        result = existing->ptT();
-    } else {
-        result = this->addT(t, SkOpSegment::kNoAlias, allocator);
-    }
-    SkASSERT(result);
-    return result;
+foundMatch:
+    return opp && !test->contains(opp) ? nullptr : testPtT;
 }
 
-SkOpPtT* SkOpSegment::addT(double t, AllowAlias allowAlias, SkChunkAlloc* allocator) {
+// break the span so that the coincident part does not change the angle of the remainder
+bool SkOpSegment::addExpanded(double newT, const SkOpSpanBase* test, bool* startOver) {
+    if (this->contains(newT)) {
+        return true;
+    }
+    SkOpPtT* newPtT = this->addT(newT, kAllowAliasMatch, startOver);
+    if (!newPtT) {
+        return false;
+    }
+    newPtT->fPt = this->ptAtT(newT);
+    // const cast away to change linked list; pt/t values stays unchanged
+    SkOpSpanBase* writableTest = const_cast<SkOpSpanBase*>(test);
+    if (writableTest->ptT()->addOpp(newPtT)) {
+        writableTest->checkForCollapsedCoincidence();
+    }
+    return true;
+}
+
+// Please keep this in sync with debugAddT()
+SkOpPtT* SkOpSegment::addT(double t, AliasMatch allowAlias, bool* allocated) {
     debugValidate();
     SkPoint pt = this->ptAtT(t);
     SkOpSpanBase* span = &fHead;
@@ -331,9 +281,9 @@ SkOpPtT* SkOpSegment::addT(double t, AllowAlias allowAlias, SkChunkAlloc* alloca
         if (t == result->fT) {
             goto bumpSpan;
         }
-        if (this->match(result, this, t, pt)) {
+        if (this->match(result, this, t, pt, allowAlias)) {
             // see if any existing alias matches segment, pt, and t
-           loop = result->next();
+            loop = result->next();
             duplicatePt = false;
             while (loop != result) {
                 bool ptMatch = loop->fPt == pt;
@@ -343,12 +293,12 @@ SkOpPtT* SkOpSegment::addT(double t, AllowAlias allowAlias, SkChunkAlloc* alloca
                 duplicatePt |= ptMatch;
                 loop = loop->next();
             }
-            if (kNoAlias == allowAlias) {
+            if (kNoAliasMatch == allowAlias) {
     bumpSpan:
                 span->bumpSpanAdds();
                 return result;
             }
-            SkOpPtT* alias = SkOpTAllocator<SkOpPtT>::Allocate(allocator);
+            SkOpPtT* alias = SkOpTAllocator<SkOpPtT>::Allocate(this->globalState()->allocator());
             alias->init(result->span(), t, pt, duplicatePt);
             result->insert(alias);
             result->span()->unaligned();
@@ -358,6 +308,9 @@ SkOpPtT* SkOpSegment::addT(double t, AllowAlias allowAlias, SkChunkAlloc* alloca
                     alias->segment()->debugID(), alias->span()->debugID());
 #endif
             span->bumpSpanAdds();
+            if (allocated) {
+                *allocated = true;
+            }
             return alias;
         }
         if (t < result->fT) {
@@ -365,7 +318,7 @@ SkOpPtT* SkOpSegment::addT(double t, AllowAlias allowAlias, SkChunkAlloc* alloca
             if (!prev) {
                 return nullptr;
             }
-            SkOpSpan* span = insert(prev, allocator);
+            SkOpSpan* span = insert(prev);
             span->init(this, prev, t, pt);
             this->debugValidate();
 #if DEBUG_ADD_T
@@ -373,6 +326,9 @@ SkOpPtT* SkOpSegment::addT(double t, AllowAlias allowAlias, SkChunkAlloc* alloca
                     span->segment()->debugID(), span->debugID());
 #endif
             span->bumpSpanAdds();
+            if (allocated) {
+                *allocated = true;
+            }
             return span->ptT();
         }
         SkASSERT(span != &fTail);
@@ -381,43 +337,17 @@ SkOpPtT* SkOpSegment::addT(double t, AllowAlias allowAlias, SkChunkAlloc* alloca
     return nullptr;
 }
 
-// choose a solitary t and pt value; remove aliases; align the opposite ends
-void SkOpSegment::align() {
-    debugValidate();
-    SkOpSpanBase* span = &fHead;
-    if (!span->aligned()) {
-        span->alignEnd(0, fPts[0]);
-    }
-    while ((span = span->upCast()->next())) {
-        if (span == &fTail) {
-            break;
-        }
-        span->align();
-    }
-    if (!span->aligned()) {
-        span->alignEnd(1, fPts[SkPathOpsVerbToPoints(fVerb)]);
-    }
-    if (this->collapsed()) {
-        SkOpSpan* span = &fHead;
-        do {
-            span->setWindValue(0);
-            span->setOppValue(0);
-            this->markDone(span);
-        } while ((span = span->next()->upCastable()));
-    }
-    debugValidate();
-}
-
-void SkOpSegment::calcAngles(SkChunkAlloc* allocator) {
+void SkOpSegment::calcAngles() {
     bool activePrior = !fHead.isCanceled();
     if (activePrior && !fHead.simple()) {
-        addStartSpan(allocator);
+        addStartSpan();
     }
     SkOpSpan* prior = &fHead;
     SkOpSpanBase* spanBase = fHead.next();
     while (spanBase != &fTail) {
         if (activePrior) {
-            SkOpAngle* priorAngle = SkOpTAllocator<SkOpAngle>::Allocate(allocator);
+            SkOpAngle* priorAngle = SkOpTAllocator<SkOpAngle>::Allocate(
+                    this->globalState()->allocator());
             priorAngle->set(spanBase, prior);
             spanBase->setFromAngle(priorAngle);
         }
@@ -425,7 +355,8 @@ void SkOpSegment::calcAngles(SkChunkAlloc* allocator) {
         bool active = !span->isCanceled();
         SkOpSpanBase* next = span->next();
         if (active) {
-            SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(allocator);
+            SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(
+                    this->globalState()->allocator());
             angle->set(span, next);
             span->setToAngle(angle);
         }
@@ -434,12 +365,32 @@ void SkOpSegment::calcAngles(SkChunkAlloc* allocator) {
         spanBase = next;
     }
     if (activePrior && !fTail.simple()) {
-        addEndSpan(allocator);
+        addEndSpan();
     }
 }
 
+// Please keep this in sync with debugClearAll()
+void SkOpSegment::clearAll() {
+    SkOpSpan* span = &fHead;
+    do {
+        this->clearOne(span);
+    } while ((span = span->next()->upCastable()));
+    this->globalState()->coincidence()->release(this);
+}
+
+// Please keep this in sync with debugClearOne()
+void SkOpSegment::clearOne(SkOpSpan* span) {
+    span->setWindValue(0);
+    span->setOppValue(0);
+    this->markDone(span);
+}
+
+// Quads and conics collapse if the end points are the same, because
+// the curve doesn't enclose an area.
 bool SkOpSegment::collapsed() const {
-    return fVerb == SkPath::kLine_Verb && fHead.pt() == fTail.pt();
+    // FIXME: cubics can have also collapsed -- need to check if the
+    // control points are on a line with the end points
+    return fVerb < SkPath::kCubic_Verb && fHead.pt() == fTail.pt();
 }
 
 void SkOpSegment::ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
@@ -571,12 +522,26 @@ int SkOpSegment::computeSum(SkOpSpanBase* start, SkOpSpanBase* end,
     return start->starter(end)->windSum();
 }
 
+bool SkOpSegment::contains(double newT) const {
+    const SkOpSpanBase* spanBase = &fHead;
+    do {
+        if (spanBase->ptT()->contains(this, newT)) {
+            return true;
+        }
+        if (spanBase == &fTail) {
+            break;
+        }
+        spanBase = spanBase->upCast()->next();
+    } while (true);
+    return false;
+}
+
 void SkOpSegment::release(const SkOpSpan* span) {
     if (span->done()) {
         --fDoneCount;
     }
     --fCount;
-    SkASSERT(fCount >= fDoneCount);
+    SkASSERT(this->globalState()->debugSkipAssert() || fCount >= fDoneCount);
 }
 
 double SkOpSegment::distSq(double t, const SkOpAngle* oppAngle) const {
@@ -599,15 +564,6 @@ double SkOpSegment::distSq(double t, const SkOpAngle* oppAngle) const {
         }
     }
     return closestDistSq;
-}
-
-void SkOpSegment::findCollapsed() {
-    if (fHead.contains(&fTail)) {
-        markAllDone();
-        // move start and end to the same point
-        fHead.alignEnd(0, fHead.pt());
-        fTail.setAligned();
-    }
 }
 
 /*
@@ -887,14 +843,12 @@ SkOpSegment* SkOpSegment::findNextXor(SkOpSpanBase** nextStart, SkOpSpanBase** n
 }
 
 SkOpGlobalState* SkOpSegment::globalState() const {
-    return contour()->globalState(); 
+    return contour()->globalState();
 }
 
 void SkOpSegment::init(SkPoint pts[], SkScalar weight, SkOpContour* contour, SkPath::Verb verb) {
     fContour = contour;
     fNext = nullptr;
-    fOriginal[0] = pts[0];
-    fOriginal[1] = pts[SkPathOpsVerbToPoints(verb)];
     fPts = pts;
     fWeight = weight;
     fVerb = verb;
@@ -1095,15 +1049,17 @@ bool SkOpSegment::markWinding(SkOpSpan* span, int winding, int oppWinding) {
 }
 
 bool SkOpSegment::match(const SkOpPtT* base, const SkOpSegment* testParent, double testT,
-        const SkPoint& testPt) const {
-    const SkOpSegment* baseParent = base->segment();
-    if (this == baseParent && this == testParent && precisely_equal(base->fT, testT)) {
-        return true;
+        const SkPoint& testPt, AliasMatch aliasMatch) const {
+    SkASSERT(this == base->segment());
+    if (this == testParent) {
+        if (precisely_equal(base->fT, testT)) {
+            return true;
+        }
     }
     if (!SkDPoint::ApproximatelyEqual(testPt, base->fPt)) {
         return false;
     }
-    return !this->ptsDisjoint(base->fT, base->fPt, testT, testPt);
+    return this != testParent || !this->ptsDisjoint(base->fT, base->fPt, testT, testPt);
 }
 
 static SkOpSegment* set_last(SkOpSpanBase** last, SkOpSpanBase* endSpan) {
@@ -1178,7 +1134,8 @@ SkOpSegment* SkOpSegment::nextChase(SkOpSpanBase** startPtr, int* stepPtr, SkOpS
     return other;
 }
 
-static void clear_visited(SkOpSpanBase* span) {
+// Please keep this in sync with DebugClearVisited()
+void SkOpSegment::ClearVisited(SkOpSpanBase* span) {
     // reset visited flag back to false
     do {
         SkOpPtT* ptT = span->ptT(), * stopPtT = ptT;
@@ -1189,20 +1146,23 @@ static void clear_visited(SkOpSpanBase* span) {
     } while (!span->final() && (span = span->upCast()->next()));
 }
 
+// Please keep this in sync with debugMissingCoincidence()
 // look for pairs of undetected coincident curves
 // assumes that segments going in have visited flag clear
-// curve/curve intersection should now do a pretty good job of finding coincident runs so 
-// this may be only be necessary for line/curve pairs -- so skip unless this is a line and the
-// the opp is not a line
-bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc* allocator) {
-    if (this->verb() != SkPath::kLine_Verb) {
-        return false;
-    }
+// Even though pairs of curves correct detect coincident runs, a run may be missed
+// if the coincidence is a product of multiple intersections. For instance, given
+// curves A, B, and C:
+// A-B intersect at a point 1; A-C and B-C intersect at point 2, so near
+// the end of C that the intersection is replaced with the end of C.
+// Even though A-B correctly do not detect an intersection at point 2,
+// the resulting run from point 1 to point 2 is coincident on A and B.
+bool SkOpSegment::missingCoincidence() {
     if (this->done()) {
         return false;
     }
     SkOpSpan* prior = nullptr;
     SkOpSpanBase* spanBase = &fHead;
+    bool result = false;
     do {
         SkOpPtT* ptT = spanBase->ptT(), * spanStopPtT = ptT;
         SkASSERT(ptT->span() == spanBase);
@@ -1211,9 +1171,6 @@ bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
                 continue;
             }
             SkOpSegment* opp = ptT->span()->segment();
-//            if (opp->verb() == SkPath::kLine_Verb) {
-//                continue;
-//            }
             if (opp->done()) {
                 continue;
             }
@@ -1224,18 +1181,18 @@ bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
             if (spanBase == &fHead) {
                 continue;
             }
+            if (ptT->segment() == this) {
+                continue;
+            }
             SkOpSpan* span = spanBase->upCastable();
             // FIXME?: this assumes that if the opposite segment is coincident then no more
             // coincidence needs to be detected. This may not be true.
-            if (span && span->containsCoincidence(opp)) { 
-                continue;
-            }
-            if (spanBase->segment() == opp) {
+            if (span && span->containsCoincidence(opp)) {
                 continue;
             }
             if (spanBase->containsCoinEnd(opp)) {
                 continue;
-            } 
+            }
             SkOpPtT* priorPtT = nullptr, * priorStopPtT;
             // find prior span containing opp segment
             SkOpSegment* priorOpp = nullptr;
@@ -1268,28 +1225,28 @@ bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
                 SkTSwap(priorPtT, ptT);
                 SkTSwap(oppStart, oppEnd);
             }
-            bool flipped = oppStart->fT > oppEnd->fT;
-            bool coincident = false;
-            if (coincidences->contains(priorPtT, ptT, oppStart, oppEnd, flipped)) {
+            SkOpCoincidence* coincidences = this->globalState()->coincidence();
+            SkOpPtT* rootPriorPtT = priorPtT->span()->ptT();
+            SkOpPtT* rootPtT = ptT->span()->ptT();
+            SkOpPtT* rootOppStart = oppStart->span()->ptT();
+            SkOpPtT* rootOppEnd = oppEnd->span()->ptT();
+            if (coincidences->contains(rootPriorPtT, rootPtT, rootOppStart, rootOppEnd)) {
                 goto swapBack;
             }
-            if (opp->verb() == SkPath::kLine_Verb) {
-                coincident = (SkDPoint::ApproximatelyEqual(priorPtT->fPt, oppStart->fPt) ||
-                        SkDPoint::ApproximatelyEqual(priorPtT->fPt, oppEnd->fPt)) &&
-                        (SkDPoint::ApproximatelyEqual(ptT->fPt, oppStart->fPt) ||
-                        SkDPoint::ApproximatelyEqual(ptT->fPt, oppEnd->fPt));
-            }
-            if (!coincident) {
-                coincident = testForCoincidence(priorPtT, ptT, prior, spanBase, opp, 5000);
-            }
-            if (coincident) {
+            if (this->testForCoincidence(rootPriorPtT, rootPtT, prior, spanBase, opp)) {
             // mark coincidence
-                if (!coincidences->extend(priorPtT, ptT, oppStart, oppEnd)
-                        && !coincidences->extend(oppStart, oppEnd, priorPtT, ptT)) {
-                    coincidences->add(priorPtT, ptT, oppStart, oppEnd, allocator);
+#if DEBUG_COINCIDENCE_VERBOSE
+                SkDebugf("%s coinSpan=%d endSpan=%d oppSpan=%d oppEndSpan=%d\n", __FUNCTION__,
+                        rootPriorPtT->debugID(), rootPtT->debugID(), rootOppStart->debugID(),
+                        rootOppEnd->debugID());
+#endif
+                if (!coincidences->extend(rootPriorPtT, rootPtT, rootOppStart, rootOppEnd)) {
+                    coincidences->add(rootPriorPtT, rootPtT, rootOppStart, rootOppEnd);
                 }
-                clear_visited(&fHead);
-                return true;
+#if DEBUG_COINCIDENCE
+                SkASSERT(coincidences->contains(rootPriorPtT, rootPtT, rootOppStart, rootOppEnd));
+#endif
+                result = true;
             }
     swapBack:
             if (swapped) {
@@ -1297,19 +1254,18 @@ bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
             }
         }
     } while ((spanBase = spanBase->final() ? nullptr : spanBase->upCast()->next()));
-    clear_visited(&fHead);
-    return false;
+    ClearVisited(&fHead);
+    return result;
 }
 
+// please keep this in sync with debugMoveMultiples()
 // if a span has more than one intersection, merge the other segments' span as needed
 bool SkOpSegment::moveMultiples() {
     debugValidate();
     SkOpSpanBase* test = &fHead;
     do {
         int addCount = test->spanAddsCount();
-        if (addCount < 1) {
-            return false;
-        }
+        FAIL_IF(addCount < 1);
         if (addCount == 1) {
             continue;
         }
@@ -1392,66 +1348,126 @@ bool SkOpSegment::moveMultiples() {
                     oppSegment->debugValidate();
                     goto checkNextSpan;
                 }
-        tryNextSpan: 
+        tryNextSpan:
                 ;
             } while (oppTest != oppLast && (oppTest = oppTest->upCast()->next()));
         } while ((testPtT = testPtT->next()) != startPtT);
-checkNextSpan: 
+checkNextSpan:
         ;
     } while ((test = test->final() ? nullptr : test->upCast()->next()));
     debugValidate();
     return true;
 }
 
+// adjacent spans may have points close by
+bool SkOpSegment::spansNearby(const SkOpSpanBase* refSpan, const SkOpSpanBase* checkSpan) const {
+    const SkOpPtT* refHead = refSpan->ptT();
+    const SkOpPtT* checkHead = checkSpan->ptT();
+// if the first pt pair from adjacent spans are far apart, assume that all are far enough apart
+    if (!SkDPoint::RoughlyEqual(refHead->fPt, checkHead->fPt)) {
+#if DEBUG_COINCIDENCE
+        // verify that no combination of points are close
+        const SkOpPtT* dBugRef = refHead;
+        do {
+            const SkOpPtT* dBugCheck = checkHead;
+            do {
+                SkASSERT(!SkDPoint::ApproximatelyEqual(dBugRef->fPt, dBugCheck->fPt));
+                dBugCheck = dBugCheck->next();
+            } while (dBugCheck != checkHead);
+            dBugRef = dBugRef->next();
+        } while (dBugRef != refHead);
+#endif
+        return false;
+    }
+    // check only unique points
+    SkScalar distSqBest = SK_ScalarMax;
+    const SkOpPtT* refBest = nullptr;
+    const SkOpPtT* checkBest = nullptr;
+    const SkOpPtT* ref = refHead;
+    do {
+        if (ref->deleted()) {
+            continue;
+        }
+        while (ref->ptAlreadySeen(refHead)) {
+            ref = ref->next();
+            if (ref == refHead) {
+                goto doneCheckingDistance;
+            }
+        }
+        const SkOpPtT* check = checkHead;
+        const SkOpSegment* refSeg = ref->segment();
+        do {
+            if (check->deleted()) {
+                continue;
+            }
+            while (check->ptAlreadySeen(checkHead)) {
+                check = check->next();
+                if (check == checkHead) {
+                    goto nextRef;
+                }
+            }
+            SkScalar distSq = ref->fPt.distanceToSqd(check->fPt);
+            if (distSqBest > distSq && (refSeg != check->segment()
+                    || !refSeg->ptsDisjoint(*ref, *check))) {
+                distSqBest = distSq;
+                refBest = ref;
+                checkBest = check;
+            }
+        } while ((check = check->next()) != checkHead);
+nextRef:
+        ;
+   } while ((ref = ref->next()) != refHead);
+doneCheckingDistance:
+    return checkBest && refBest->segment()->match(refBest, checkBest->segment(), checkBest->fT,
+            checkBest->fPt, kAllowAliasMatch);
+}
+
+// Please keep this function in sync with debugMoveNearby()
 // Move nearby t values and pts so they all hang off the same span. Alignment happens later.
 void SkOpSegment::moveNearby() {
     debugValidate();
-    SkOpSpanBase* spanS = &fHead;
+    // release undeleted spans pointing to this seg that are linked to the primary span
+    SkOpSpanBase* spanBase = &fHead;
     do {
-        SkOpSpanBase* test = spanS->upCast()->next();
-        SkOpSpanBase* next;
-        if (spanS->contains(test)) {
-            if (!test->final()) {
-                test->upCast()->release(spanS->ptT());
-                continue;
-            } else if (spanS != &fHead) {
-                spanS->upCast()->release(test->ptT());
-                spanS = test;
-                continue;
+        SkOpPtT* ptT = spanBase->ptT();
+        const SkOpPtT* headPtT = ptT;
+        while ((ptT = ptT->next()) != headPtT) {
+            SkOpSpanBase* test = ptT->span();
+            if (ptT->segment() == this && !ptT->deleted() && test != spanBase
+                    && test->ptT() == ptT) {
+                if (test->final()) {
+                    if (spanBase == &fHead) {
+                        this->clearAll();
+                        return;
+                    }
+                    spanBase->upCast()->release(ptT);
+                } else if (test->prev()) {
+                    test->upCast()->release(headPtT);
+                }
+                break;
             }
         }
-        do {  // iterate through all spans associated with start
-            SkOpPtT* startBase = spanS->ptT();
-            next = test->final() ? nullptr : test->upCast()->next();
-            do {
-                SkOpPtT* testBase = test->ptT();
-                do {
-                    if (startBase == testBase) {
-                        goto checkNextSpan;
-                    }
-                    if (testBase->duplicate()) {
-                        continue;
-                    }
-                    if (this->match(startBase, testBase->segment(), testBase->fT, testBase->fPt)) {
-                        if (test == &this->fTail) {
-                            if (spanS == &fHead) {
-                                debugValidate();
-                                return;  // if this span has collapsed, remove it from parent
-                            }
-                            this->fTail.merge(spanS->upCast());
-                            debugValidate();
-                            return;
-                        }
-                        spanS->merge(test->upCast());
-                        goto checkNextSpan;
-                    }
-                } while ((testBase = testBase->next()) != test->ptT());
-            } while ((startBase = startBase->next()) != spanS->ptT());
-    checkNextSpan:
-            ;
-        } while ((test = next));
-        spanS = spanS->upCast()->next();
-    } while (!spanS->final());
+        spanBase = spanBase->upCast()->next();
+    } while (!spanBase->final());
+
+    // This loop looks for adjacent spans which are near by
+    spanBase = &fHead;
+    do {  // iterate through all spans associated with start
+        SkOpSpanBase* test = spanBase->upCast()->next();
+        if (this->spansNearby(spanBase, test)) {
+            if (test->final()) {
+                if (spanBase->prev()) {
+                    test->merge(spanBase->upCast());
+                } else {
+                    this->clearAll();
+                    return;
+                }
+            } else {
+                spanBase->merge(test->upCast());
+            }
+        }
+        spanBase = test;
+    } while (!spanBase->final());
     debugValidate();
 }
 
@@ -1679,8 +1695,7 @@ bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,
 }
 
 bool SkOpSegment::testForCoincidence(const SkOpPtT* priorPtT, const SkOpPtT* ptT,
-        const SkOpSpanBase* prior, const SkOpSpanBase* spanBase, const SkOpSegment* opp,
-        SkScalar flatnessLimit) const {
+        const SkOpSpanBase* prior, const SkOpSpanBase* spanBase, const SkOpSegment* opp) const {
     // average t, find mid pt
     double midT = (prior->t() + spanBase->t()) / 2;
     SkPoint midPt = this->ptAtT(midT);
@@ -1688,22 +1703,28 @@ bool SkOpSegment::testForCoincidence(const SkOpPtT* priorPtT, const SkOpPtT* ptT
     // if the mid pt is not near either end pt, project perpendicular through opp seg
     if (!SkDPoint::ApproximatelyEqual(priorPtT->fPt, midPt)
             && !SkDPoint::ApproximatelyEqual(ptT->fPt, midPt)) {
+        if (priorPtT->span() == ptT->span()) {
+          return false;
+        }
         coincident = false;
         SkIntersections i;
-        SkVector dxdy = (*CurveSlopeAtT[fVerb])(this->pts(), this->weight(), midT);
-        SkDLine ray = {{{midPt.fX, midPt.fY},
-                {(double) midPt.fX + dxdy.fY, (double) midPt.fY - dxdy.fX}}};
-        (*CurveIntersectRay[opp->verb()])(opp->pts(), opp->weight(), ray, &i);
+        SkDCurve curvePart;
+        this->subDivide(prior, spanBase, &curvePart);
+        SkDVector dxdy = (*CurveDDSlopeAtT[fVerb])(curvePart, 0.5f);
+        SkDPoint partMidPt = (*CurveDDPointAtT[fVerb])(curvePart, 0.5f);
+        SkDLine ray = {{{midPt.fX, midPt.fY}, {partMidPt.fX + dxdy.fY, partMidPt.fY - dxdy.fX}}};
+        SkDCurve oppPart;
+        opp->subDivide(priorPtT->span(), ptT->span(), &oppPart);
+        (*CurveDIntersectRay[opp->verb()])(oppPart, ray, &i);
         // measure distance and see if it's small enough to denote coincidence
         for (int index = 0; index < i.used(); ++index) {
+            if (!between(0, i[0][index], 1)) {
+                continue;
+            }
             SkDPoint oppPt = i.pt(index);
             if (oppPt.approximatelyEqual(midPt)) {
-                SkVector oppDxdy = (*CurveSlopeAtT[opp->verb()])(opp->pts(),
-                        opp->weight(), i[index][0]);
-                oppDxdy.normalize();
-                dxdy.normalize();
-                SkScalar flatness = SkScalarAbs(dxdy.cross(oppDxdy) / FLT_EPSILON);
-                coincident |= flatness < flatnessLimit;
+                // the coincidence can occur at almost any angle
+                coincident = true;
             }
         }
     }

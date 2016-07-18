@@ -50,6 +50,14 @@ void SkPathOpsDebug::WindingPrintf(int wind) {
 }
 #endif
 
+static void DumpID(int id) {
+    SkDebugf("} ");
+    if (id >= 0) {
+        SkDebugf("id=%d", id);
+    }
+    SkDebugf("\n");
+}
+
 void SkDConic::dump() const {
     dumpInner();
     SkDebugf("},\n");
@@ -57,7 +65,7 @@ void SkDConic::dump() const {
 
 void SkDConic::dumpID(int id) const {
     dumpInner();
-    SkDebugf("} id=%d\n", id);
+    DumpID(id);
 }
 
 void SkDConic::dumpInner() const {
@@ -73,7 +81,8 @@ void SkDCubic::dump() const {
 
 void SkDCubic::dumpID(int id) const {
     this->dumpInner();
-    SkDebugf("}} id=%d\n", id);
+    SkDebugf("}");
+    DumpID(id);
 }
 
 static inline bool double_is_NaN(double x) { return x != x; }
@@ -95,6 +104,10 @@ void SkDCubic::dumpInner() const {
     }
     SkDebugf(", ");
     fPts[index].dump();
+}
+
+void SkDCurve::dump() const {
+    dumpID(-1);
 }
 
 void SkDCurve::dumpID(int id) const {
@@ -127,7 +140,8 @@ void SkDLine::dump() const {
 
 void SkDLine::dumpID(int id) const {
     this->dumpInner();
-    SkDebugf("}} id=%d\n", id);
+    SkDebugf("}");
+    DumpID(id);
 }
 
 void SkDLine::dumpInner() const {
@@ -168,7 +182,8 @@ void SkDQuad::dump() const {
 
 void SkDQuad::dumpID(int id) const {
     dumpInner();
-    SkDebugf("}} id=%d\n", id);
+    SkDebugf("}");
+    DumpID(id);
 }
 
 void SkDQuad::dumpInner() const {
@@ -787,6 +802,10 @@ const SkOpAngle* SkOpAngle::debugAngle(int id) const {
     return this->segment()->debugAngle(id);
 }
 
+const SkOpCoincidence* SkOpAngle::debugCoincidence() const {
+    return this->segment()->debugCoincidence();
+}
+
 SkOpContour* SkOpAngle::debugContour(int id) {
     return this->segment()->debugContour(id);
 }
@@ -925,6 +944,10 @@ SkOpContour* SkOpPtT::debugContour(int id) {
     return this->span()->debugContour(id);
 }
 
+const SkOpCoincidence* SkOpPtT::debugCoincidence() const {
+    return this->span()->debugCoincidence();
+}
+
 const SkOpPtT* SkOpPtT::debugPtT(int id) const {
     return this->span()->debugPtT(id);
 }
@@ -964,12 +987,17 @@ void SkOpPtT::dumpAll() const {
 }
 
 void SkOpPtT::dumpBase() const {
-    SkDebugf(" t=%1.9g pt=(%1.9g,%1.9g)%s%s", this->fT, this->fPt.fX, this->fPt.fY,
+    SkDebugf(" t=%1.9g pt=(%1.9g,%1.9g)%s%s%s", this->fT, this->fPt.fX, this->fPt.fY,
+            this->fCoincident ? " coin" : "",
             this->fDuplicatePt ? " dup" : "", this->fDeleted ? " deleted" : "");
 }
 
 const SkOpAngle* SkOpSpanBase::debugAngle(int id) const {
     return this->segment()->debugAngle(id);
+}
+
+const SkOpCoincidence* SkOpSpanBase::debugCoincidence() const {
+    return this->segment()->debugCoincidence();
 }
 
 SkOpContour* SkOpSpanBase::debugContour(int id) {
@@ -989,15 +1017,19 @@ const SkOpSpanBase* SkOpSpanBase::debugSpan(int id) const {
 }
 
 void SkOpSpanBase::dump() const {
-    this->dumpAll();
-    SkDebugf("\n");
+    this->dumpHead();
+    this->fPtT.dump();
 }
 
-void SkOpSpanBase::dumpAll() const {
+void SkOpSpanBase::dumpHead() const {
     SkDebugf("%.*s", contour()->debugIndent(), "        ");
     SkDebugf("seg=%d span=%d", this->segment()->debugID(), this->debugID());
     this->dumpBase();
     SkDebugf("\n");
+}
+
+void SkOpSpanBase::dumpAll() const {
+    this->dumpHead();
     this->fPtT.dumpAll();
 }
 
@@ -1008,6 +1040,11 @@ void SkOpSpanBase::dumpBase() const {
     if (this->fChased) {
         SkDebugf(" chased");
     }
+#ifdef SK_DEBUG
+    if (this->fDeleted) {
+        SkDebugf(" deleted");
+    }
+#endif
     if (!this->final()) {
         this->upCast()->dumpSpan();
     }
@@ -1067,6 +1104,11 @@ bool SkOpSpan::dumpSpan() const {
 
 const SkOpAngle* SkOpSegment::debugAngle(int id) const {
     return this->contour()->debugAngle(id);
+}
+
+
+const SkOpCoincidence* SkOpSegment::debugCoincidence() const {
+    return this->contour()->debugCoincidence();
 }
 
 SkOpContour* SkOpSegment::debugContour(int id) {
@@ -1188,20 +1230,26 @@ void SkOpCoincidence::dump() const {
     SkCoincidentSpans* span = fHead;
     while (span) {
         span->dump();
-        span = span->fNext;
+        span = span->next();
     }
     if (!fTop || fHead == fTop) {
         return;
     }
     SkDebugf("top:\n");
     span = fTop;
-    if (fHead) {
-        span->dump();
-        return;
-    }
+    int count = 0;
     while (span) {
         span->dump();
-        span = span->fNext;
+        span = span->next();
+        SkCoincidentSpans* check = fTop;
+        ++count;
+        for (int index = 0; index < count; ++index) {
+            if (span == check) {
+                SkDebugf("(loops to #%d)\n", index);
+                return;
+            }
+            check = check->next();
+        }
     }
 }
 

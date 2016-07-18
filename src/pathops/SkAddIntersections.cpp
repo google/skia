@@ -254,8 +254,7 @@ static void debugShowCubicIntersection(int , const SkIntersectionHelper& ,
 }
 #endif
 
-bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coincidence,
-        SkChunkAlloc* allocator) {
+bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coincidence) {
     if (test != next) {
         if (AlmostLessUlps(test->bounds().fBottom, next->bounds().fTop)) {
             return false;
@@ -506,12 +505,14 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                 SkASSERT(ts[0][pt] >= 0 && ts[0][pt] <= 1);
                 SkASSERT(ts[1][pt] >= 0 && ts[1][pt] <= 1);
                 wt.segment()->debugValidate();
-                SkOpPtT* testTAt = wt.segment()->addT(ts[swap][pt], SkOpSegment::kAllowAlias,
-                        allocator);
+                SkOpPtT* testTAt = wt.segment()->addT(ts[swap][pt], SkOpSegment::kAllowAliasMatch,
+                        nullptr);
                 wn.segment()->debugValidate();
-                SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt], SkOpSegment::kAllowAlias,
-                        allocator);
-                testTAt->addOpp(nextTAt);
+                SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt], SkOpSegment::kAllowAliasMatch,
+                        nullptr);
+                if (testTAt->addOpp(nextTAt)) {
+                    testTAt->span()->checkForCollapsedCoincidence();
+                }
                 if (testTAt->fPt != nextTAt->fPt) {
                     testTAt->span()->unaligned();
                     nextTAt->span()->unaligned();
@@ -540,7 +541,7 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                     SkTSwap(testTAt, nextTAt);
                 }
                 SkASSERT(coinPtT[0]->span()->t() < testTAt->span()->t());
-                coincidence->add(coinPtT[0], testTAt, coinPtT[1], nextTAt, allocator);
+                coincidence->add(coinPtT[0], testTAt, coinPtT[1], nextTAt);
                 wt.segment()->debugValidate();
                 wn.segment()->debugValidate();
                 coinIndex = -1;

@@ -23,9 +23,9 @@ class SkPathWriter;
 
 class SkOpSegment {
 public:
-    enum AllowAlias {
-        kAllowAlias,
-        kNoAlias
+    enum AliasMatch {
+        kNoAliasMatch,
+        kAllowAliasMatch,
     };
 
     bool operator<(const SkOpSegment& rh) const {
@@ -45,13 +45,6 @@ public:
 
     bool activeWinding(SkOpSpanBase* start, SkOpSpanBase* end);
     bool activeWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* sumWinding);
-    void addAlignIntersection(SkOpPtT& endPtT, SkPoint& oldPt,
-        SkOpContourHead* contourList, SkChunkAlloc* allocator);
-
-    void addAlignIntersections(SkOpContourHead* contourList, SkChunkAlloc* allocator) {
-        this->addAlignIntersection(*fHead.ptT(), fOriginal[0], contourList, allocator);
-        this->addAlignIntersection(*fTail.ptT(), fOriginal[1], contourList, allocator);
-    }
 
     SkOpSegment* addConic(SkPoint pts[3], SkScalar weight, SkOpContour* parent) {
         init(pts, weight, parent, SkPath::kConic_Verb);
@@ -71,12 +64,14 @@ public:
 
     bool addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end, SkPathWriter* path) const;
 
-    SkOpAngle* addEndSpan(SkChunkAlloc* allocator) {
-        SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(allocator);
+    SkOpAngle* addEndSpan() {
+        SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(this->globalState()->allocator());
         angle->set(&fTail, fTail.prev());
         fTail.setFromAngle(angle);
         return angle;
     }
+
+    bool addExpanded(double newT, const SkOpSpanBase* test, bool* startOver);
 
     SkOpSegment* addLine(SkPoint pts[2], SkOpContour* parent) {
         init(pts, 1, parent, SkPath::kLine_Verb);
@@ -84,10 +79,10 @@ public:
         return this;
     }
 
-    SkOpPtT* addMissing(double t, SkOpSegment* opp, SkChunkAlloc* );
+    SkOpPtT* addMissing(double t, SkOpSegment* opp, bool* allExist);
 
-    SkOpAngle* addStartSpan(SkChunkAlloc* allocator) {
-        SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(allocator);
+    SkOpAngle* addStartSpan() {
+        SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(this->globalState()->allocator());
         angle->set(&fHead, fHead.next());
         fHead.setToAngle(angle);
         return angle;
@@ -101,9 +96,11 @@ public:
         return this;
     }
 
-    SkOpPtT* addT(double t, AllowAlias , SkChunkAlloc* );
+    SkOpPtT* addT(double t, AliasMatch, bool* allocated);
 
-    void align();
+    template<typename T> T* allocateArray(int count) {
+        return SkOpTAllocator<T>::AllocateArray(this->globalState()->allocator(), count);
+    }
 
     const SkPathOpsBounds& bounds() const {
         return fBounds;
@@ -113,13 +110,18 @@ public:
         ++fCount;
     }
 
-    void calcAngles(SkChunkAlloc*);
+    void calcAngles();
     bool collapsed() const;
     static void ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
                               SkOpAngle::IncludeType );
     static void ComputeOneSumReverse(SkOpAngle* baseAngle, SkOpAngle* nextAngle,
                                      SkOpAngle::IncludeType );
     int computeSum(SkOpSpanBase* start, SkOpSpanBase* end, SkOpAngle::IncludeType includeType);
+
+    void clearAll();
+    void clearOne(SkOpSpan* span);
+    static void ClearVisited(SkOpSpanBase* span);
+    bool contains(double t) const;
 
     SkOpContour* contour() const {
         return fContour;
@@ -129,36 +131,30 @@ public:
         return fCount;
     }
 
-    void debugAddAngle(double startT, double endT, SkChunkAlloc*);
-    void debugAddAlignIntersection(const char* id, SkPathOpsDebug::GlitchLog* glitches,
-                                   const SkOpPtT& endPtT, const SkPoint& oldPt,
-                                   const SkOpContourHead* ) const;
-
-    void debugAddAlignIntersections(const char* id, SkPathOpsDebug::GlitchLog* glitches,
-                                    SkOpContourHead* contourList) const {
-        this->debugAddAlignIntersection(id, glitches, *fHead.ptT(), fOriginal[0], contourList);
-        this->debugAddAlignIntersection(id, glitches, *fTail.ptT(), fOriginal[1], contourList);
-    }
-
-    bool debugAddMissing(double t, const SkOpSegment* opp) const;
-    void debugAlign(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugAddAngle(double startT, double endT);
+    const SkOpPtT* debugAddT(double t, AliasMatch , bool* allocated) const;
     const SkOpAngle* debugAngle(int id) const;
 #if DEBUG_ANGLE
     void debugCheckAngleCoin() const;
 #endif
+#if DEBUG_COINCIDENCE_VERBOSE
     void debugCheckHealth(const char* id, SkPathOpsDebug::GlitchLog* ) const;
+    void debugClearAll(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugClearOne(const SkOpSpan* span, const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
+#endif
+    const SkOpCoincidence* debugCoincidence() const;
     SkOpContour* debugContour(int id);
-    void debugFindCollapsed(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
 
     int debugID() const {
         return SkDEBUGRELEASE(fID, -1);
     }
 
     SkOpAngle* debugLastAngle();
-    void debugMissingCoincidence(const char* id, SkPathOpsDebug::GlitchLog* glitches,
-                                 const SkOpCoincidence* coincidences) const;
+#if DEBUG_COINCIDENCE_VERBOSE
+    void debugMissingCoincidence(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
     void debugMoveMultiples(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
     void debugMoveNearby(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
+#endif
     const SkOpPtT* debugPtT(int id) const;
     void debugReset();
     const SkOpSegment* debugSegment(int id) const;
@@ -173,11 +169,24 @@ public:
 
     const SkOpSpanBase* debugSpan(int id) const;
     void debugValidate() const;
+
+#if DEBUG_COINCIDENCE
+    static void SkOpSegment::DebugClearVisited(const SkOpSpanBase* span);
+
+    bool debugVisited() const {
+        if (!fDebugVisited) {
+            fDebugVisited = true;
+            return false;
+        }
+        return true;
+    }
+#endif
+
     void release(const SkOpSpan* );
     double distSq(double t, const SkOpAngle* opp) const;
 
     bool done() const {
-        SkASSERT(fDoneCount <= fCount);
+        SkASSERT(this->globalState()->debugSkipAssert() || fDoneCount <= fCount);
         return fDoneCount == fCount;
     }
 
@@ -200,7 +209,7 @@ public:
     void dumpPts(const char* prefix = "seg") const;
     void dumpPtsInner(const char* prefix = "seg") const;
 
-    void findCollapsed();
+    const SkOpPtT* existing(double t, const SkOpSegment* opp) const;
     SkOpSegment* findNextOp(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** nextStart,
                              SkOpSpanBase** nextEnd, bool* unsortable, SkPathOp op,
                              int xorMiMask, int xorSuMask);
@@ -220,8 +229,8 @@ public:
 
     void init(SkPoint pts[], SkScalar weight, SkOpContour* parent, SkPath::Verb verb);
 
-    SkOpSpan* insert(SkOpSpan* prev, SkChunkAlloc* allocator) {
-        SkOpSpan* result = SkOpTAllocator<SkOpSpan>::Allocate(allocator);
+    SkOpSpan* insert(SkOpSpan* prev) {
+        SkOpSpan* result = SkOpTAllocator<SkOpSpan>::Allocate(this->globalState()->allocator());
         SkOpSpanBase* next = prev->next();
         result->setPrev(prev);
         prev->setNext(result);
@@ -269,8 +278,9 @@ public:
     void markDone(SkOpSpan* );
     bool markWinding(SkOpSpan* , int winding);
     bool markWinding(SkOpSpan* , int winding, int oppWinding);
-    bool match(const SkOpPtT* span, const SkOpSegment* parent, double t, const SkPoint& pt) const;
-    bool missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc* allocator);
+    bool match(const SkOpPtT* span, const SkOpSegment* parent, double t, const SkPoint& pt,
+               AliasMatch ) const;
+    bool missingCoincidence();
     bool moveMultiples();
     void moveNearby();
 
@@ -302,17 +312,31 @@ public:
     }
 
     bool ptsDisjoint(const SkOpPtT& span, const SkOpPtT& test) const {
+        SkASSERT(this == span.segment());
+        SkASSERT(this == test.segment());
         return ptsDisjoint(span.fT, span.fPt, test.fT, test.fPt);
     }
 
     bool ptsDisjoint(const SkOpPtT& span, double t, const SkPoint& pt) const {
+        SkASSERT(this == span.segment());
         return ptsDisjoint(span.fT, span.fPt, t, pt);
+    }
+
+    bool ptsDisjoint(const SkOpSpanBase* span, const SkOpSpanBase* test) const {
+        SkASSERT(this == span->segment());
+        SkASSERT(this == test->segment());
+        return ptsDisjoint(span->t(), span->pt(), test->t(), test->pt());
     }
 
     bool ptsDisjoint(double t1, const SkPoint& pt1, double t2, const SkPoint& pt2) const;
 
-    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits,
-                  SkChunkAlloc* allocator);
+    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkChunkAlloc*);
+
+#if DEBUG_COINCIDENCE
+    void resetDebugVisited() const {
+        fDebugVisited = false;
+    }
+#endif
 
     void resetVisited() {
         fVisited = false;
@@ -330,10 +354,6 @@ public:
         fPrev = prev;
     }
 
-    void setVisited() {
-        fVisited = true;
-    }
-
     void setUpWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* maxWinding, int* sumWinding) {
         int deltaSum = SpanSign(start, end);
         *maxWinding = *sumWinding;
@@ -348,6 +368,7 @@ public:
     void setUpWindings(SkOpSpanBase* start, SkOpSpanBase* end, int* sumMiWinding, int* sumSuWinding,
                        int* maxWinding, int* sumWinding, int* oppMaxWinding, int* oppSumWinding);
     void sortAngles();
+    bool spansNearby(const SkOpSpanBase* ref, const SkOpSpanBase* check) const;
 
     static int SpanSign(const SkOpSpanBase* start, const SkOpSpanBase* end) {
         int result = start->t() < end->t() ? -start->upCast()->windValue()
@@ -372,9 +393,10 @@ public:
     }
 
     bool testForCoincidence(const SkOpPtT* priorPtT, const SkOpPtT* ptT, const SkOpSpanBase* prior,
-            const SkOpSpanBase* spanBase, const SkOpSegment* opp, SkScalar flatnessLimit) const;
+            const SkOpSpanBase* spanBase, const SkOpSegment* opp) const;
 
     void undoneSpan(SkOpSpanBase** start, SkOpSpanBase** end);
+    bool uniqueT(double t, AliasMatch allowAlias) const;
     int updateOppWinding(const SkOpSpanBase* start, const SkOpSpanBase* end) const;
     int updateOppWinding(const SkOpAngle* angle) const;
     int updateOppWindingReverse(const SkOpAngle* angle) const;
@@ -404,17 +426,12 @@ public:
     SkOpSpan* windingSpanAtT(double tHit);
     int windSum(const SkOpAngle* angle) const;
 
-    SkPoint* writablePt(bool end) {
-        return &fPts[end ? SkPathOpsVerbToPoints(fVerb) : 0];
-    }
-
 private:
     SkOpSpan fHead;  // the head span always has its t set to zero
     SkOpSpanBase fTail;  // the tail span always has its t set to one
     SkOpContour* fContour;
     SkOpSegment* fNext;  // forward-only linked list used by contour to walk the segments
     const SkOpSegment* fPrev;
-    SkPoint fOriginal[2];  // if aligned, the original unaligned points are here
     SkPoint* fPts;  // pointer into array of points owned by edge builder that may be tweaked
     SkPathOpsBounds fBounds;  // tight bounds
     SkScalar fWeight;
@@ -422,6 +439,9 @@ private:
     int fDoneCount;  // number of processed spans (zero initially)
     SkPath::Verb fVerb;
     bool fVisited;  // used by missing coincidence check
+#if DEBUG_COINCIDENCE
+    mutable bool fDebugVisited;  // used by debug missing coincidence check
+#endif
     SkDEBUGCODE(int fID);
 };
 

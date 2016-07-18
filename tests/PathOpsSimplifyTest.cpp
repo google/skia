@@ -5052,19 +5052,259 @@ path.lineTo(SkBits2Float(0x4c00001e), SkBits2Float(0x00000000));  // 3.35546e+07
 path.lineTo(SkBits2Float(0x42f60000), SkBits2Float(0x00000000));  // 123, 0
 path.close();
 
-    REPORTER_ASSERT(reporter, !Simplify(path, &path));
+    testSimplify(reporter, path, filename);
 }
 
-static void fuzz_59(skiatest::Reporter* reporter, const char* filename) {
+static void tiger8(skiatest::Reporter* reporter, const char* filename) {
+#if DEBUG_UNDER_DEVELOPMENT  // tiger
+    return;
+#endif
     SkPath path;
-path.moveTo(SkBits2Float(0x430c0000), SkBits2Float(0xce58f41c));  // 140, -9.09969e+08f
-path.lineTo(SkBits2Float(0x43480000), SkBits2Float(0xce58f419));  // 200, -9.09969e+08f
-path.lineTo(SkBits2Float(0x42200000), SkBits2Float(0xce58f41b));  // 40, -9.09969e+08f
-path.lineTo(SkBits2Float(0x43700000), SkBits2Float(0xce58f41b));  // 240, -9.09969e+08f
-path.lineTo(SkBits2Float(0x428c0000), SkBits2Float(0xce58f419));  // 70, -9.09969e+08f
-path.lineTo(SkBits2Float(0x430c0000), SkBits2Float(0xce58f41c));  // 140, -9.09969e+08f
+    path.moveTo(SkBits2Float(0x43f639c5), SkBits2Float(0x4361375a));  // 492.451f, 225.216f
+path.quadTo(SkBits2Float(0x43f58ce4), SkBits2Float(0x435d2a04), SkBits2Float(0x43f71bd9), SkBits2Float(0x435ac7d8));  // 491.101f, 221.164f, 494.218f, 218.781f
+path.quadTo(SkBits2Float(0x43f7d69d), SkBits2Float(0x4359aa35), SkBits2Float(0x43f8b3b3), SkBits2Float(0x435951c5));  // 495.677f, 217.665f, 497.404f, 217.319f
+path.conicTo(SkBits2Float(0x43f8ba67), SkBits2Float(0x43594f16), SkBits2Float(0x43f8c136), SkBits2Float(0x43594dd9), SkBits2Float(0x3f7fa2b1));  // 497.456f, 217.309f, 497.509f, 217.304f, 0.998576f
+path.quadTo(SkBits2Float(0x43fcc3a8), SkBits2Float(0x43589340), SkBits2Float(0x43ff01dc), SkBits2Float(0x4352e191));  // 505.529f, 216.575f, 510.015f, 210.881f
+path.conicTo(SkBits2Float(0x43ff5113), SkBits2Float(0x4352187b), SkBits2Float(0x43ffb59e), SkBits2Float(0x4352b6e9), SkBits2Float(0x3f3504f3));  // 510.633f, 210.096f, 511.419f, 210.714f, 0.707107f
+path.conicTo(SkBits2Float(0x43ffdc85), SkBits2Float(0x4352f435), SkBits2Float(0x43ffe4a9), SkBits2Float(0x435355e9), SkBits2Float(0x3f6ec0ae));  // 511.723f, 210.954f, 511.786f, 211.336f, 0.932628f
+path.quadTo(SkBits2Float(0x4400461c), SkBits2Float(0x435b3080), SkBits2Float(0x4400b692), SkBits2Float(0x4360b229));  // 513.095f, 219.189f, 514.853f, 224.696f
+path.conicTo(SkBits2Float(0x4400c662), SkBits2Float(0x43617856), SkBits2Float(0x44009920), SkBits2Float(0x4361decb), SkBits2Float(0x3f46ad5b));  // 515.1f, 225.47f, 514.393f, 225.87f, 0.776083f
+path.quadTo(SkBits2Float(0x43fb4920), SkBits2Float(0x43688f50), SkBits2Float(0x43f8340f), SkBits2Float(0x4365b887));  // 502.571f, 232.56f, 496.407f, 229.721f
+path.quadTo(SkBits2Float(0x43f72cd2), SkBits2Float(0x4364c612), SkBits2Float(0x43f69888), SkBits2Float(0x4362e330));  // 494.35f, 228.774f, 493.192f, 226.887f
+path.quadTo(SkBits2Float(0x43f66a00), SkBits2Float(0x43624bae), SkBits2Float(0x43f64c73), SkBits2Float(0x4361ad04));  // 492.828f, 226.296f, 492.597f, 225.676f
+path.quadTo(SkBits2Float(0x43f642ea), SkBits2Float(0x436179d2), SkBits2Float(0x43f63c1c), SkBits2Float(0x43614abe));  // 492.523f, 225.476f, 492.47f, 225.292f
+path.quadTo(SkBits2Float(0x43f639c9), SkBits2Float(0x43613aa5), SkBits2Float(0x43f63809), SkBits2Float(0x43612cda));  // 492.451f, 225.229f, 492.438f, 225.175f
+path.quadTo(SkBits2Float(0x43f63777), SkBits2Float(0x43612855), SkBits2Float(0x43f636df), SkBits2Float(0x43612357));  // 492.433f, 225.158f, 492.429f, 225.138f
+path.quadTo(SkBits2Float(0x43f6368f), SkBits2Float(0x436120b2), SkBits2Float(0x43f6367b), SkBits2Float(0x43612005));  // 492.426f, 225.128f, 492.426f, 225.125f
+path.lineTo(SkBits2Float(0x43f63656), SkBits2Float(0x43611ebc));  // 492.424f, 225.12f
+path.lineTo(SkBits2Float(0x43f63647), SkBits2Float(0x43611e34));  // 492.424f, 225.118f
+path.lineTo(SkBits2Float(0x43f6363f), SkBits2Float(0x43611df3));  // 492.424f, 225.117f
+path.lineTo(SkBits2Float(0x43f6363e), SkBits2Float(0x43611de5));  // 492.424f, 225.117f
+path.lineTo(SkBits2Float(0x43f6363f), SkBits2Float(0x43611deb));  // 492.424f, 225.117f
+path.lineTo(SkBits2Float(0x43f63647), SkBits2Float(0x43611e37));  // 492.424f, 225.118f
+path.lineTo(SkBits2Float(0x43f63644), SkBits2Float(0x43611e19));  // 492.424f, 225.118f
+path.quadTo(SkBits2Float(0x43f6365c), SkBits2Float(0x43611ee7), SkBits2Float(0x43f6365d), SkBits2Float(0x43611ef9));  // 492.425f, 225.121f, 492.425f, 225.121f
+path.quadTo(SkBits2Float(0x43f63666), SkBits2Float(0x43611f4b), SkBits2Float(0x43f63672), SkBits2Float(0x43611fb1));  // 492.425f, 225.122f, 492.425f, 225.124f
+path.quadTo(SkBits2Float(0x43f636ab), SkBits2Float(0x436121a4), SkBits2Float(0x43f636e3), SkBits2Float(0x4361236a));  // 492.427f, 225.131f, 492.429f, 225.138f
+path.quadTo(SkBits2Float(0x43f636fd), SkBits2Float(0x43612443), SkBits2Float(0x43f63705), SkBits2Float(0x4361247e));  // 492.43f, 225.142f, 492.43f, 225.143f
+path.quadTo(SkBits2Float(0x43f637d7), SkBits2Float(0x43612b15), SkBits2Float(0x43f638dc), SkBits2Float(0x436131b0));  // 492.436f, 225.168f, 492.444f, 225.194f
+path.quadTo(SkBits2Float(0x43f63b88), SkBits2Float(0x43614303), SkBits2Float(0x43f63f62), SkBits2Float(0x43615368));  // 492.465f, 225.262f, 492.495f, 225.326f
+path.quadTo(SkBits2Float(0x43f6436f), SkBits2Float(0x4361649f), SkBits2Float(0x43f648b2), SkBits2Float(0x43617468));  // 492.527f, 225.393f, 492.568f, 225.455f
+path.quadTo(SkBits2Float(0x43f68760), SkBits2Float(0x43623072), SkBits2Float(0x43f6ec71), SkBits2Float(0x4361cb60));  // 493.058f, 226.189f, 493.847f, 225.794f
+path.quadTo(SkBits2Float(0x43f722ef), SkBits2Float(0x436194e0), SkBits2Float(0x43f73027), SkBits2Float(0x43611df0));  // 494.273f, 225.582f, 494.376f, 225.117f
+path.quadTo(SkBits2Float(0x43f73334), SkBits2Float(0x43610284), SkBits2Float(0x43f73333), SkBits2Float(0x4360e667));  // 494.4f, 225.01f, 494.4f, 224.9f
+path.lineTo(SkBits2Float(0x43f63638), SkBits2Float(0x43611daf));  // 492.424f, 225.116f
+path.lineTo(SkBits2Float(0x43f6b333), SkBits2Float(0x4360e666));  // 493.4f, 224.9f
+path.lineTo(SkBits2Float(0x43f639c5), SkBits2Float(0x4361375a));  // 492.451f, 225.216f
 path.close();
-    REPORTER_ASSERT(reporter, !Simplify(path, &path));
+path.moveTo(SkBits2Float(0x43f72ca1), SkBits2Float(0x43609572));  // 494.349f, 224.584f
+path.conicTo(SkBits2Float(0x43f72ebd), SkBits2Float(0x4360a219), SkBits2Float(0x43f7302e), SkBits2Float(0x4360af1f), SkBits2Float(0x3f7fa741));  // 494.365f, 224.633f, 494.376f, 224.684f, 0.998646f
+path.lineTo(SkBits2Float(0x43f63333), SkBits2Float(0x4360e667));  // 492.4f, 224.9f
+path.quadTo(SkBits2Float(0x43f63333), SkBits2Float(0x4360ca4b), SkBits2Float(0x43f6363f), SkBits2Float(0x4360aede));  // 492.4f, 224.79f, 492.424f, 224.683f
+path.quadTo(SkBits2Float(0x43f64377), SkBits2Float(0x436037ee), SkBits2Float(0x43f679f5), SkBits2Float(0x4360016e));  // 492.527f, 224.218f, 492.953f, 224.006f
+path.quadTo(SkBits2Float(0x43f6df06), SkBits2Float(0x435f9c5c), SkBits2Float(0x43f71db4), SkBits2Float(0x43605866));  // 493.742f, 223.611f, 494.232f, 224.345f
+path.quadTo(SkBits2Float(0x43f722f8), SkBits2Float(0x43606830), SkBits2Float(0x43f72704), SkBits2Float(0x43607966));  // 494.273f, 224.407f, 494.305f, 224.474f
+path.quadTo(SkBits2Float(0x43f72ae0), SkBits2Float(0x436089cd), SkBits2Float(0x43f72d8a), SkBits2Float(0x43609b1e));  // 494.335f, 224.538f, 494.356f, 224.606f
+path.quadTo(SkBits2Float(0x43f72e8e), SkBits2Float(0x4360a1b8), SkBits2Float(0x43f72f61), SkBits2Float(0x4360a850));  // 494.364f, 224.632f, 494.37f, 224.657f
+path.quadTo(SkBits2Float(0x43f72f68), SkBits2Float(0x4360a88a), SkBits2Float(0x43f72f83), SkBits2Float(0x4360a964));  // 494.37f, 224.658f, 494.371f, 224.662f
+path.quadTo(SkBits2Float(0x43f72fbb), SkBits2Float(0x4360ab2a), SkBits2Float(0x43f72ff4), SkBits2Float(0x4360ad1d));  // 494.373f, 224.669f, 494.375f, 224.676f
+path.quadTo(SkBits2Float(0x43f73000), SkBits2Float(0x4360ad83), SkBits2Float(0x43f73009), SkBits2Float(0x4360add5));  // 494.375f, 224.678f, 494.375f, 224.679f
+path.quadTo(SkBits2Float(0x43f7300b), SkBits2Float(0x4360ade9), SkBits2Float(0x43f73022), SkBits2Float(0x4360aeb5));  // 494.375f, 224.679f, 494.376f, 224.682f
+path.lineTo(SkBits2Float(0x43f7301f), SkBits2Float(0x4360ae97));  // 494.376f, 224.682f
+path.lineTo(SkBits2Float(0x43f73027), SkBits2Float(0x4360aee3));  // 494.376f, 224.683f
+path.lineTo(SkBits2Float(0x43f73028), SkBits2Float(0x4360aeeb));  // 494.376f, 224.683f
+path.lineTo(SkBits2Float(0x43f73027), SkBits2Float(0x4360aedf));  // 494.376f, 224.683f
+path.lineTo(SkBits2Float(0x43f73021), SkBits2Float(0x4360aeaa));  // 494.376f, 224.682f
+path.lineTo(SkBits2Float(0x43f73016), SkBits2Float(0x4360ae50));  // 494.376f, 224.681f
+path.lineTo(SkBits2Float(0x43f73007), SkBits2Float(0x4360adc1));  // 494.375f, 224.679f
+path.lineTo(SkBits2Float(0x43f72ff9), SkBits2Float(0x4360ad4d));  // 494.375f, 224.677f
+path.quadTo(SkBits2Float(0x43f7300d), SkBits2Float(0x4360adf7), SkBits2Float(0x43f73031), SkBits2Float(0x4360af12));  // 494.375f, 224.68f, 494.376f, 224.684f
+path.quadTo(SkBits2Float(0x43f730f0), SkBits2Float(0x4360b4f1), SkBits2Float(0x43f7320a), SkBits2Float(0x4360bc94));  // 494.382f, 224.707f, 494.391f, 224.737f
+path.quadTo(SkBits2Float(0x43f73625), SkBits2Float(0x4360d8fe), SkBits2Float(0x43f73c59), SkBits2Float(0x4360fa4a));  // 494.423f, 224.848f, 494.471f, 224.978f
+path.quadTo(SkBits2Float(0x43f75132), SkBits2Float(0x43616a36), SkBits2Float(0x43f772ac), SkBits2Float(0x4361d738));  // 494.634f, 225.415f, 494.896f, 225.841f
+path.quadTo(SkBits2Float(0x43f7de60), SkBits2Float(0x436335ea), SkBits2Float(0x43f89f25), SkBits2Float(0x4363e779));  // 495.737f, 227.211f, 497.243f, 227.904f
+path.quadTo(SkBits2Float(0x43fb3d30), SkBits2Float(0x436650a0), SkBits2Float(0x44005a14), SkBits2Float(0x43602133));  // 502.478f, 230.315f, 513.407f, 224.13f
+path.lineTo(SkBits2Float(0x4400799a), SkBits2Float(0x4360ffff));  // 513.9f, 225
+path.lineTo(SkBits2Float(0x44003ca2), SkBits2Float(0x43614dd5));  // 512.947f, 225.304f
+path.quadTo(SkBits2Float(0x43ff92b8), SkBits2Float(0x435ba8f8), SkBits2Float(0x43fee825), SkBits2Float(0x4353aa15));  // 511.146f, 219.66f, 509.814f, 211.664f
+path.lineTo(SkBits2Float(0x43ff6667), SkBits2Float(0x43537fff));  // 510.8f, 211.5f
+path.lineTo(SkBits2Float(0x43ffcaf2), SkBits2Float(0x43541e6d));  // 511.586f, 212.119f
+path.quadTo(SkBits2Float(0x43fd4888), SkBits2Float(0x435a7d38), SkBits2Float(0x43f8d864), SkBits2Float(0x435b4bbf));  // 506.567f, 218.489f, 497.691f, 219.296f
+path.lineTo(SkBits2Float(0x43f8cccd), SkBits2Float(0x435a4ccc));  // 497.6f, 218.3f
+path.lineTo(SkBits2Float(0x43f8e5e7), SkBits2Float(0x435b47d3));  // 497.796f, 219.281f
+path.quadTo(SkBits2Float(0x43f84300), SkBits2Float(0x435b88fd), SkBits2Float(0x43f7b75b), SkBits2Float(0x435c5e8e));  // 496.523f, 219.535f, 495.432f, 220.369f
+path.quadTo(SkBits2Float(0x43f6b984), SkBits2Float(0x435de2c4), SkBits2Float(0x43f72ca1), SkBits2Float(0x43609572));  // 493.449f, 221.886f, 494.349f, 224.584f
+path.close();
+testSimplify(reporter, path, filename);
+}
+
+// fails to include a line of edges, probably mis-sorting
+static void tiger8a(skiatest::Reporter* reporter, const char* filename) {
+#if DEBUG_UNDER_DEVELOPMENT // tiger
+    return;
+#endif
+    SkPath path;
+    path.moveTo(SkBits2Float(0x43f639c5), SkBits2Float(0x4361375a));  // 492.451f, 225.216f
+path.quadTo(SkBits2Float(0x43f58ce4), SkBits2Float(0x435d2a04), SkBits2Float(0x43f71bd9), SkBits2Float(0x435ac7d8));  // 491.101f, 221.164f, 494.218f, 218.781f
+path.quadTo(SkBits2Float(0x43f7d69d), SkBits2Float(0x4359aa35), SkBits2Float(0x43f8b3b3), SkBits2Float(0x435951c5));  // 495.677f, 217.665f, 497.404f, 217.319f
+path.conicTo(SkBits2Float(0x43f8ba67), SkBits2Float(0x43594f16), SkBits2Float(0x43f8c136), SkBits2Float(0x43594dd9), SkBits2Float(0x3f7fa2b1));  // 497.456f, 217.309f, 497.509f, 217.304f, 0.998576f
+path.quadTo(SkBits2Float(0x43fcc3a8), SkBits2Float(0x43589340), SkBits2Float(0x43ff01dc), SkBits2Float(0x4352e191));  // 505.529f, 216.575f, 510.015f, 210.881f
+path.conicTo(SkBits2Float(0x43ff5113), SkBits2Float(0x4352187b), SkBits2Float(0x43ffb59e), SkBits2Float(0x4352b6e9), SkBits2Float(0x3f3504f3));  // 510.633f, 210.096f, 511.419f, 210.714f, 0.707107f
+path.conicTo(SkBits2Float(0x43ffdc85), SkBits2Float(0x4352f435), SkBits2Float(0x43ffe4a9), SkBits2Float(0x435355e9), SkBits2Float(0x3f6ec0ae));  // 511.723f, 210.954f, 511.786f, 211.336f, 0.932628f
+path.quadTo(SkBits2Float(0x4400461c), SkBits2Float(0x435b3080), SkBits2Float(0x4400b692), SkBits2Float(0x4360b229));  // 513.095f, 219.189f, 514.853f, 224.696f
+path.conicTo(SkBits2Float(0x4400c662), SkBits2Float(0x43617856), SkBits2Float(0x44009920), SkBits2Float(0x4361decb), SkBits2Float(0x3f46ad5b));  // 515.1f, 225.47f, 514.393f, 225.87f, 0.776083f
+path.quadTo(SkBits2Float(0x43fb4920), SkBits2Float(0x43688f50), SkBits2Float(0x43f8340f), SkBits2Float(0x4365b887));  // 502.571f, 232.56f, 496.407f, 229.721f
+path.quadTo(SkBits2Float(0x43f72cd2), SkBits2Float(0x4364c612), SkBits2Float(0x43f69888), SkBits2Float(0x4362e330));  // 494.35f, 228.774f, 493.192f, 226.887f
+path.quadTo(SkBits2Float(0x43f66a00), SkBits2Float(0x43624bae), SkBits2Float(0x43f64c73), SkBits2Float(0x4361ad04));  // 492.828f, 226.296f, 492.597f, 225.676f
+path.quadTo(SkBits2Float(0x43f642ea), SkBits2Float(0x436179d2), SkBits2Float(0x43f63c1c), SkBits2Float(0x43614abe));  // 492.523f, 225.476f, 492.47f, 225.292f
+path.quadTo(SkBits2Float(0x43f639c9), SkBits2Float(0x43613aa5), SkBits2Float(0x43f63809), SkBits2Float(0x43612cda));  // 492.451f, 225.229f, 492.438f, 225.175f
+path.quadTo(SkBits2Float(0x43f63777), SkBits2Float(0x43612855), SkBits2Float(0x43f636df), SkBits2Float(0x43612357));  // 492.433f, 225.158f, 492.429f, 225.138f
+path.quadTo(SkBits2Float(0x43f6368f), SkBits2Float(0x436120b2), SkBits2Float(0x43f6367b), SkBits2Float(0x43612005));  // 492.426f, 225.128f, 492.426f, 225.125f
+path.lineTo(SkBits2Float(0x43f63656), SkBits2Float(0x43611ebc));  // 492.424f, 225.12f
+path.lineTo(SkBits2Float(0x43f63647), SkBits2Float(0x43611e34));  // 492.424f, 225.118f
+path.lineTo(SkBits2Float(0x43f6363f), SkBits2Float(0x43611df3));  // 492.424f, 225.117f
+path.lineTo(SkBits2Float(0x43f6363e), SkBits2Float(0x43611de5));  // 492.424f, 225.117f
+path.lineTo(SkBits2Float(0x43f6363f), SkBits2Float(0x43611deb));  // 492.424f, 225.117f
+path.lineTo(SkBits2Float(0x43f63647), SkBits2Float(0x43611e37));  // 492.424f, 225.118f
+path.lineTo(SkBits2Float(0x43f63644), SkBits2Float(0x43611e19));  // 492.424f, 225.118f
+path.quadTo(SkBits2Float(0x43f6365c), SkBits2Float(0x43611ee7), SkBits2Float(0x43f6365d), SkBits2Float(0x43611ef9));  // 492.425f, 225.121f, 492.425f, 225.121f
+path.quadTo(SkBits2Float(0x43f63666), SkBits2Float(0x43611f4b), SkBits2Float(0x43f63672), SkBits2Float(0x43611fb1));  // 492.425f, 225.122f, 492.425f, 225.124f
+path.quadTo(SkBits2Float(0x43f636ab), SkBits2Float(0x436121a4), SkBits2Float(0x43f636e3), SkBits2Float(0x4361236a));  // 492.427f, 225.131f, 492.429f, 225.138f
+path.quadTo(SkBits2Float(0x43f636fd), SkBits2Float(0x43612443), SkBits2Float(0x43f63705), SkBits2Float(0x4361247e));  // 492.43f, 225.142f, 492.43f, 225.143f
+path.quadTo(SkBits2Float(0x43f637d7), SkBits2Float(0x43612b15), SkBits2Float(0x43f638dc), SkBits2Float(0x436131b0));  // 492.436f, 225.168f, 492.444f, 225.194f
+path.quadTo(SkBits2Float(0x43f63b88), SkBits2Float(0x43614303), SkBits2Float(0x43f63f62), SkBits2Float(0x43615368));  // 492.465f, 225.262f, 492.495f, 225.326f
+path.quadTo(SkBits2Float(0x43f6436f), SkBits2Float(0x4361649f), SkBits2Float(0x43f648b2), SkBits2Float(0x43617468));  // 492.527f, 225.393f, 492.568f, 225.455f
+path.quadTo(SkBits2Float(0x43f68760), SkBits2Float(0x43623072), SkBits2Float(0x43f6ec71), SkBits2Float(0x4361cb60));  // 493.058f, 226.189f, 493.847f, 225.794f
+path.quadTo(SkBits2Float(0x43f722ef), SkBits2Float(0x436194e0), SkBits2Float(0x43f73027), SkBits2Float(0x43611df0));  // 494.273f, 225.582f, 494.376f, 225.117f
+path.quadTo(SkBits2Float(0x43f73334), SkBits2Float(0x43610284), SkBits2Float(0x43f73333), SkBits2Float(0x4360e667));  // 494.4f, 225.01f, 494.4f, 224.9f
+path.lineTo(SkBits2Float(0x43f63638), SkBits2Float(0x43611daf));  // 492.424f, 225.116f
+path.lineTo(SkBits2Float(0x43f6b333), SkBits2Float(0x4360e666));  // 493.4f, 224.9f
+path.lineTo(SkBits2Float(0x43f639c5), SkBits2Float(0x4361375a));  // 492.451f, 225.216f
+path.close();
+testSimplify(reporter, path, filename);
+}
+
+static void tiger8a_x(skiatest::Reporter* reporter, const char* filename, uint64_t testlines) {
+#if DEBUG_UNDER_DEVELOPMENT // tiger
+    return;
+#endif
+    SkPath path;
+uint64_t i = 0;
+if (testlines & (1LL << i++)) path.moveTo(SkBits2Float(0x43f639c5), SkBits2Float(0x4361375a));  // 492.451f, 225.216f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f58ce4), SkBits2Float(0x435d2a04), SkBits2Float(0x43f71bd9), SkBits2Float(0x435ac7d8));  // 491.101f, 221.164f, 494.218f, 218.781f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f7d69d), SkBits2Float(0x4359aa35), SkBits2Float(0x43f8b3b3), SkBits2Float(0x435951c5));  // 495.677f, 217.665f, 497.404f, 217.319f
+if (testlines & (1LL << i++)) path.conicTo(SkBits2Float(0x43f8ba67), SkBits2Float(0x43594f16), SkBits2Float(0x43f8c136), SkBits2Float(0x43594dd9), SkBits2Float(0x3f7fa2b1));  // 497.456f, 217.309f, 497.509f, 217.304f, 0.998576f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43fcc3a8), SkBits2Float(0x43589340), SkBits2Float(0x43ff01dc), SkBits2Float(0x4352e191));  // 505.529f, 216.575f, 510.015f, 210.881f
+if (testlines & (1LL << i++)) path.conicTo(SkBits2Float(0x43ff5113), SkBits2Float(0x4352187b), SkBits2Float(0x43ffb59e), SkBits2Float(0x4352b6e9), SkBits2Float(0x3f3504f3));  // 510.633f, 210.096f, 511.419f, 210.714f, 0.707107f
+if (testlines & (1LL << i++)) path.conicTo(SkBits2Float(0x43ffdc85), SkBits2Float(0x4352f435), SkBits2Float(0x43ffe4a9), SkBits2Float(0x435355e9), SkBits2Float(0x3f6ec0ae));  // 511.723f, 210.954f, 511.786f, 211.336f, 0.932628f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x4400461c), SkBits2Float(0x435b3080), SkBits2Float(0x4400b692), SkBits2Float(0x4360b229));  // 513.095f, 219.189f, 514.853f, 224.696f
+if (testlines & (1LL << i++)) path.conicTo(SkBits2Float(0x4400c662), SkBits2Float(0x43617856), SkBits2Float(0x44009920), SkBits2Float(0x4361decb), SkBits2Float(0x3f46ad5b));  // 515.1f, 225.47f, 514.393f, 225.87f, 0.776083f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43fb4920), SkBits2Float(0x43688f50), SkBits2Float(0x43f8340f), SkBits2Float(0x4365b887));  // 502.571f, 232.56f, 496.407f, 229.721f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f72cd2), SkBits2Float(0x4364c612), SkBits2Float(0x43f69888), SkBits2Float(0x4362e330));  // 494.35f, 228.774f, 493.192f, 226.887f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f66a00), SkBits2Float(0x43624bae), SkBits2Float(0x43f64c73), SkBits2Float(0x4361ad04));  // 492.828f, 226.296f, 492.597f, 225.676f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f642ea), SkBits2Float(0x436179d2), SkBits2Float(0x43f63c1c), SkBits2Float(0x43614abe));  // 492.523f, 225.476f, 492.47f, 225.292f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f639c9), SkBits2Float(0x43613aa5), SkBits2Float(0x43f63809), SkBits2Float(0x43612cda));  // 492.451f, 225.229f, 492.438f, 225.175f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f63777), SkBits2Float(0x43612855), SkBits2Float(0x43f636df), SkBits2Float(0x43612357));  // 492.433f, 225.158f, 492.429f, 225.138f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f6368f), SkBits2Float(0x436120b2), SkBits2Float(0x43f6367b), SkBits2Float(0x43612005));  // 492.426f, 225.128f, 492.426f, 225.125f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f63656), SkBits2Float(0x43611ebc));  // 492.424f, 225.12f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f63647), SkBits2Float(0x43611e34));  // 492.424f, 225.118f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f6363f), SkBits2Float(0x43611df3));  // 492.424f, 225.117f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f6363e), SkBits2Float(0x43611de5));  // 492.424f, 225.117f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f6363f), SkBits2Float(0x43611deb));  // 492.424f, 225.117f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f63647), SkBits2Float(0x43611e37));  // 492.424f, 225.118f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f63644), SkBits2Float(0x43611e19));  // 492.424f, 225.118f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f6365c), SkBits2Float(0x43611ee7), SkBits2Float(0x43f6365d), SkBits2Float(0x43611ef9));  // 492.425f, 225.121f, 492.425f, 225.121f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f63666), SkBits2Float(0x43611f4b), SkBits2Float(0x43f63672), SkBits2Float(0x43611fb1));  // 492.425f, 225.122f, 492.425f, 225.124f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f636ab), SkBits2Float(0x436121a4), SkBits2Float(0x43f636e3), SkBits2Float(0x4361236a));  // 492.427f, 225.131f, 492.429f, 225.138f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f636fd), SkBits2Float(0x43612443), SkBits2Float(0x43f63705), SkBits2Float(0x4361247e));  // 492.43f, 225.142f, 492.43f, 225.143f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f637d7), SkBits2Float(0x43612b15), SkBits2Float(0x43f638dc), SkBits2Float(0x436131b0));  // 492.436f, 225.168f, 492.444f, 225.194f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f63b88), SkBits2Float(0x43614303), SkBits2Float(0x43f63f62), SkBits2Float(0x43615368));  // 492.465f, 225.262f, 492.495f, 225.326f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f6436f), SkBits2Float(0x4361649f), SkBits2Float(0x43f648b2), SkBits2Float(0x43617468));  // 492.527f, 225.393f, 492.568f, 225.455f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f68760), SkBits2Float(0x43623072), SkBits2Float(0x43f6ec71), SkBits2Float(0x4361cb60));  // 493.058f, 226.189f, 493.847f, 225.794f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f722ef), SkBits2Float(0x436194e0), SkBits2Float(0x43f73027), SkBits2Float(0x43611df0));  // 494.273f, 225.582f, 494.376f, 225.117f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f73334), SkBits2Float(0x43610284), SkBits2Float(0x43f73333), SkBits2Float(0x4360e667));  // 494.4f, 225.01f, 494.4f, 224.9f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f63638), SkBits2Float(0x43611daf));  // 492.424f, 225.116f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f6b333), SkBits2Float(0x4360e666));  // 493.4f, 224.9f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f639c5), SkBits2Float(0x4361375a));  // 492.451f, 225.216f
+if (testlines & (1LL << i++)) path.close();
+testSimplify(reporter, path, filename);
+}
+
+#include "SkRandom.h"
+
+static void tiger8a_h(skiatest::Reporter* reporter, const char* filename) {
+#if DEBUG_UNDER_DEVELOPMENT  // tiger
+    return;
+#endif
+    SkRandom r;
+    for (int samples = 2; samples < 38; ++samples) {
+        for (int tests = 0; tests < 10000; ++tests) {
+            uint64_t testlines = 0;
+            for (int i = 0; i < samples; ++i) {
+                int bit;
+                do {
+                    bit = r.nextRangeU(0, 38);
+                } while (testlines & (1LL << bit));
+                testlines |= 1LL << bit;
+            }
+            tiger8a_x(reporter, filename, testlines);
+        }
+    }
+}
+
+static void tiger8a_h_1(skiatest::Reporter* reporter, const char* filename) {
+#if DEBUG_UNDER_DEVELOPMENT  // tiger
+    return;
+#endif
+    uint64_t testlines = 0x0000000280802863;  // best so far: 0x0000001610031021;
+    tiger8a_x(reporter, filename, testlines);
+}
+
+// tries to add same edge twice
+static void tiger8b(skiatest::Reporter* reporter, const char* filename) {
+#if DEBUG_UNDER_DEVELOPMENT  // tiger
+    return;
+#endif
+    SkPath path;
+path.moveTo(SkBits2Float(0x43f72ca1), SkBits2Float(0x43609572));  // 494.349f, 224.584f
+path.conicTo(SkBits2Float(0x43f72ebd), SkBits2Float(0x4360a219), SkBits2Float(0x43f7302e), SkBits2Float(0x4360af1f), SkBits2Float(0x3f7fa741));  // 494.365f, 224.633f, 494.376f, 224.684f, 0.998646f
+path.lineTo(SkBits2Float(0x43f63333), SkBits2Float(0x4360e667));  // 492.4f, 224.9f
+path.quadTo(SkBits2Float(0x43f63333), SkBits2Float(0x4360ca4b), SkBits2Float(0x43f6363f), SkBits2Float(0x4360aede));  // 492.4f, 224.79f, 492.424f, 224.683f
+path.quadTo(SkBits2Float(0x43f64377), SkBits2Float(0x436037ee), SkBits2Float(0x43f679f5), SkBits2Float(0x4360016e));  // 492.527f, 224.218f, 492.953f, 224.006f
+path.quadTo(SkBits2Float(0x43f6df06), SkBits2Float(0x435f9c5c), SkBits2Float(0x43f71db4), SkBits2Float(0x43605866));  // 493.742f, 223.611f, 494.232f, 224.345f
+path.quadTo(SkBits2Float(0x43f722f8), SkBits2Float(0x43606830), SkBits2Float(0x43f72704), SkBits2Float(0x43607966));  // 494.273f, 224.407f, 494.305f, 224.474f
+path.quadTo(SkBits2Float(0x43f72ae0), SkBits2Float(0x436089cd), SkBits2Float(0x43f72d8a), SkBits2Float(0x43609b1e));  // 494.335f, 224.538f, 494.356f, 224.606f
+path.quadTo(SkBits2Float(0x43f72e8e), SkBits2Float(0x4360a1b8), SkBits2Float(0x43f72f61), SkBits2Float(0x4360a850));  // 494.364f, 224.632f, 494.37f, 224.657f
+path.quadTo(SkBits2Float(0x43f72f68), SkBits2Float(0x4360a88a), SkBits2Float(0x43f72f83), SkBits2Float(0x4360a964));  // 494.37f, 224.658f, 494.371f, 224.662f
+path.quadTo(SkBits2Float(0x43f72fbb), SkBits2Float(0x4360ab2a), SkBits2Float(0x43f72ff4), SkBits2Float(0x4360ad1d));  // 494.373f, 224.669f, 494.375f, 224.676f
+path.quadTo(SkBits2Float(0x43f73000), SkBits2Float(0x4360ad83), SkBits2Float(0x43f73009), SkBits2Float(0x4360add5));  // 494.375f, 224.678f, 494.375f, 224.679f
+path.quadTo(SkBits2Float(0x43f7300b), SkBits2Float(0x4360ade9), SkBits2Float(0x43f73022), SkBits2Float(0x4360aeb5));  // 494.375f, 224.679f, 494.376f, 224.682f
+path.lineTo(SkBits2Float(0x43f7301f), SkBits2Float(0x4360ae97));  // 494.376f, 224.682f
+path.lineTo(SkBits2Float(0x43f73027), SkBits2Float(0x4360aee3));  // 494.376f, 224.683f
+path.lineTo(SkBits2Float(0x43f73028), SkBits2Float(0x4360aeeb));  // 494.376f, 224.683f
+path.lineTo(SkBits2Float(0x43f73027), SkBits2Float(0x4360aedf));  // 494.376f, 224.683f
+path.lineTo(SkBits2Float(0x43f73021), SkBits2Float(0x4360aeaa));  // 494.376f, 224.682f
+path.lineTo(SkBits2Float(0x43f73016), SkBits2Float(0x4360ae50));  // 494.376f, 224.681f
+path.lineTo(SkBits2Float(0x43f73007), SkBits2Float(0x4360adc1));  // 494.375f, 224.679f
+path.lineTo(SkBits2Float(0x43f72ff9), SkBits2Float(0x4360ad4d));  // 494.375f, 224.677f
+path.quadTo(SkBits2Float(0x43f7300d), SkBits2Float(0x4360adf7), SkBits2Float(0x43f73031), SkBits2Float(0x4360af12));  // 494.375f, 224.68f, 494.376f, 224.684f
+path.quadTo(SkBits2Float(0x43f730f0), SkBits2Float(0x4360b4f1), SkBits2Float(0x43f7320a), SkBits2Float(0x4360bc94));  // 494.382f, 224.707f, 494.391f, 224.737f
+path.quadTo(SkBits2Float(0x43f73625), SkBits2Float(0x4360d8fe), SkBits2Float(0x43f73c59), SkBits2Float(0x4360fa4a));  // 494.423f, 224.848f, 494.471f, 224.978f
+path.quadTo(SkBits2Float(0x43f75132), SkBits2Float(0x43616a36), SkBits2Float(0x43f772ac), SkBits2Float(0x4361d738));  // 494.634f, 225.415f, 494.896f, 225.841f
+path.quadTo(SkBits2Float(0x43f7de60), SkBits2Float(0x436335ea), SkBits2Float(0x43f89f25), SkBits2Float(0x4363e779));  // 495.737f, 227.211f, 497.243f, 227.904f
+path.quadTo(SkBits2Float(0x43fb3d30), SkBits2Float(0x436650a0), SkBits2Float(0x44005a14), SkBits2Float(0x43602133));  // 502.478f, 230.315f, 513.407f, 224.13f
+path.lineTo(SkBits2Float(0x4400799a), SkBits2Float(0x4360ffff));  // 513.9f, 225
+path.lineTo(SkBits2Float(0x44003ca2), SkBits2Float(0x43614dd5));  // 512.947f, 225.304f
+path.quadTo(SkBits2Float(0x43ff92b8), SkBits2Float(0x435ba8f8), SkBits2Float(0x43fee825), SkBits2Float(0x4353aa15));  // 511.146f, 219.66f, 509.814f, 211.664f
+path.lineTo(SkBits2Float(0x43ff6667), SkBits2Float(0x43537fff));  // 510.8f, 211.5f
+path.lineTo(SkBits2Float(0x43ffcaf2), SkBits2Float(0x43541e6d));  // 511.586f, 212.119f
+path.quadTo(SkBits2Float(0x43fd4888), SkBits2Float(0x435a7d38), SkBits2Float(0x43f8d864), SkBits2Float(0x435b4bbf));  // 506.567f, 218.489f, 497.691f, 219.296f
+path.lineTo(SkBits2Float(0x43f8cccd), SkBits2Float(0x435a4ccc));  // 497.6f, 218.3f
+path.lineTo(SkBits2Float(0x43f8e5e7), SkBits2Float(0x435b47d3));  // 497.796f, 219.281f
+path.quadTo(SkBits2Float(0x43f84300), SkBits2Float(0x435b88fd), SkBits2Float(0x43f7b75b), SkBits2Float(0x435c5e8e));  // 496.523f, 219.535f, 495.432f, 220.369f
+path.quadTo(SkBits2Float(0x43f6b984), SkBits2Float(0x435de2c4), SkBits2Float(0x43f72ca1), SkBits2Float(0x43609572));  // 493.449f, 221.886f, 494.349f, 224.584f
+path.close();
+testSimplify(reporter, path, filename);
 }
 
 // FIXME: this should not fail -- it was isolated looking for the root cause to fuzz763_4713
@@ -5101,7 +5341,443 @@ path.quadTo(SkBits2Float(0x41dc55b6), SkBits2Float(0x41d924df), SkBits2Float(0x4
 path.quadTo(SkBits2Float(0x41dcaf1e), SkBits2Float(0x41d8ca01), SkBits2Float(0x41dcdc4c), SkBits2Float(0x41d89bf0));
 path.quadTo(SkBits2Float(0x41ef6c33), SkBits2Float(0x41c5aec5), SkBits2Float(0x4204f72e), SkBits2Float(0x41c56cd2));
 path.close();
-testSimplifyCheck(reporter, path, filename, false);
+// DEBUG_UNDER_DEVELOPMENT  fuzz763_4713_b disable expectation check for now
+testSimplifyCheck(reporter, path, filename, !FLAGS_runFail);
+}
+
+static void dean4(skiatest::Reporter* reporter, const char* filename) {
+  SkPath path;
+
+  // start region
+  // start loop, contour: 1
+  // Segment 1145.3381097316742 2017.6783947944641 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.3381097316742 2017.0033947825432
+  path.moveTo(1145.3381347656250, 2017.6783447265625);
+  path.lineTo(1145.3381347656250, 2017.0034179687500);
+  // Segment 1145.3381097316742 2017.0033947825432 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.6927231521568 2017.0033947825432
+  path.lineTo(1143.6927490234375, 2017.0034179687500);
+  // Segment 1143.6927231521568 2017.0033947825432 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1144.8640675112890 2018.1589246992417
+  path.lineTo(1144.8640136718750, 2018.1589355468750);
+  // Segment 1144.8640675112890 2018.1589246992417 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.3381097316742 2017.6783947944641
+  path.lineTo(1145.3381347656250, 2017.6783447265625);
+  path.close();
+  // start loop, contour: 2
+  // Segment 1145.3381097316742 2016.3216052055359 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1144.8640675258462 2015.8410752863977
+  path.moveTo(1145.3381347656250, 2016.3216552734375);
+  path.lineTo(1144.8640136718750, 2015.8410644531250);
+  // Segment 1144.8640675258462 2015.8410752863977 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.6927230811802 2016.9966052174568
+  path.lineTo(1143.6927490234375, 2016.9965820312500);
+  // Segment 1143.6927230811802 2016.9966052174568 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.3381097316742 2016.9966052174568
+  path.lineTo(1145.3381347656250, 2016.9965820312500);
+  // Segment 1145.3381097316742 2016.9966052174568 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.3381097316742 2016.3216052055359
+  path.lineTo(1145.3381347656250, 2016.3216552734375);
+  path.close();
+  // start loop, contour: 3
+  // Segment 1147.3323798179626 2014.3542600870132 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.8064220239557 2014.8347900059885
+  path.moveTo(1147.3323974609375, 2014.3542480468750);
+  path.lineTo(1147.8063964843750, 2014.8348388671875);
+  // Segment 1147.8064220239557 2014.8347900059885 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.8064220516883 2014.8347899786306
+  path.lineTo(1147.8063964843750, 2014.8348388671875);
+  // Segment 1147.8064220516883 2014.8347899786306 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.3323798179626 2014.3542600870132
+  path.lineTo(1147.3323974609375, 2014.3542480468750);
+  path.close();
+  // start loop, contour: 4
+  // Segment 1146.3696286678314 2013.4045072346926 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8436708778083 2013.8850371497379
+  path.moveTo(1146.3696289062500, 2013.4045410156250);
+  path.lineTo(1146.8436279296875, 2013.8850097656250);
+  // Segment 1146.8436708778083 2013.8850371497379 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8436709015571 2013.8850371263100
+  path.lineTo(1146.8436279296875, 2013.8850097656250);
+  // Segment 1146.8436709015571 2013.8850371263100 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.3696286678314 2013.4045072346926
+  path.lineTo(1146.3696289062500, 2013.4045410156250);
+  path.close();
+  // start loop, contour: 5
+  // Segment 1143.2063037902117 2016.5251235961914 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1142.7322615802348 2016.0445936811461
+  path.moveTo(1143.2062988281250, 2016.5251464843750);
+  path.lineTo(1142.7322998046875, 2016.0445556640625);
+  // Segment 1142.7322615802348 2016.0445936811461 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1142.7322615564860 2016.0445937045740
+  path.lineTo(1142.7322998046875, 2016.0445556640625);
+  // Segment 1142.7322615564860 2016.0445937045740 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.2063037902117 2016.5251235961914
+  path.lineTo(1143.2062988281250, 2016.5251464843750);
+  path.close();
+  // start loop, contour: 6
+  // Segment 1143.0687679275870 2016.7286419868469 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.5428101613127 2017.2091718784643
+  path.moveTo(1143.0687255859375, 2016.7286376953125);
+  path.lineTo(1143.5428466796875, 2017.2092285156250);
+  // Segment 1143.5428101613127 2017.2091718784643 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.7437679395080 2017.0109272411960
+  path.lineTo(1143.7437744140625, 2017.0109863281250);
+  // Segment 1143.7437679395080 2017.0109272411960 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.7437679395080 2016.7286419868469
+  path.lineTo(1143.7437744140625, 2016.7286376953125);
+  // Segment 1143.7437679395080 2016.7286419868469 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.0687679275870 2016.7286419868469
+  path.lineTo(1143.0687255859375, 2016.7286376953125);
+  path.close();
+  // start loop, contour: 7
+  // Segment 1143.2063037902117 2017.4748764038086 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1142.7322615603032 2017.9554062991915
+  path.moveTo(1143.2062988281250, 2017.4748535156250);
+  path.lineTo(1142.7322998046875, 2017.9554443359375);
+  // Segment 1142.7322615603032 2017.9554062991915 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1142.7322615746241 2017.9554063133189
+  path.lineTo(1142.7322998046875, 2017.9554443359375);
+  // Segment 1142.7322615746241 2017.9554063133189 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.2063037902117 2017.4748764038086
+  path.lineTo(1143.2062988281250, 2017.4748535156250);
+  path.close();
+  // start loop, contour: 8
+  // Segment 1146.3696286678314 2020.5954928398132 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8436708977399 2020.1149629444303
+  path.moveTo(1146.3696289062500, 2020.5954589843750);
+  path.lineTo(1146.8436279296875, 2020.1149902343750);
+  // Segment 1146.8436708977399 2020.1149629444303 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8436708834190 2020.1149629303029
+  path.lineTo(1146.8436279296875, 2020.1149902343750);
+  // Segment 1146.8436708834190 2020.1149629303029 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.3696286678314 2020.5954928398132
+  path.lineTo(1146.3696289062500, 2020.5954589843750);
+  path.close();
+  // start loop, contour: 9
+  // Segment 1147.3323798179626 2019.6457400321960 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.8064220484741 2019.1652101374082
+  path.moveTo(1147.3323974609375, 2019.6457519531250);
+  path.lineTo(1147.8063964843750, 2019.1651611328125);
+  // Segment 1147.8064220484741 2019.1652101374082 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.8064220383478 2019.1652101274185
+  path.lineTo(1147.8063964843750, 2019.1651611328125);
+  // Segment 1147.8064220383478 2019.1652101274185 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.3323798179626 2019.6457400321960
+  path.lineTo(1147.3323974609375, 2019.6457519531250);
+  path.close();
+  // start loop, contour: 10
+  // Segment 1145.3381097316742 2018.3533948063850 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1156.6848182678223 2018.3533948063850
+  path.moveTo(1145.3381347656250, 2018.3533935546875);
+  path.lineTo(1156.6848144531250, 2018.3533935546875);
+  // Segment 1156.6848182678223 2018.3533948063850 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1156.6848182678223 2017.0033947825432
+  path.lineTo(1156.6848144531250, 2017.0034179687500);
+  // Segment 1156.6848182678223 2017.0033947825432 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.3381097316742 2017.0033947825432
+  path.lineTo(1145.3381347656250, 2017.0034179687500);
+  // Segment 1145.3381097316742 2017.0033947825432 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.3381097316742 2018.3533948063850
+  path.lineTo(1145.3381347656250, 2018.3533935546875);
+  path.close();
+  // start loop, contour: 11
+  // Segment 1156.6848182678223 2018.3533948063850 0.3569631313191 0.0000000000000 -0.2645167304388 0.2609454237780 1157.6574279406423 2017.9723661860094
+  path.moveTo(1156.6848144531250, 2018.3533935546875);
+  path.cubicTo(1157.0417480468750, 2018.3533935546875, 1157.3929443359375, 2018.2332763671875, 1157.6574707031250, 2017.9724121093750);
+  // Segment 1157.6574279406423 2017.9723661860094 0.2653344079822 -0.2617520616521 0.0000000000000 0.3596905289350 1158.0474975705147 2017.0000000000000
+  path.cubicTo(1157.9227294921875, 2017.7105712890625, 1158.0474853515625, 2017.3597412109375, 1158.0474853515625, 2017.0000000000000);
+  // Segment 1158.0474975705147 2017.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1156.6974975466728 2017.0000000000000
+  path.lineTo(1156.6975097656250, 2017.0000000000000);
+  // Segment 1156.6974975466728 2017.0000000000000 0.0028009248351 0.0403311981485 0.0118595244351 -0.0220843520393 1156.6941780622435 2017.0325257649940
+  path.cubicTo(1156.7003173828125, 2017.0402832031250, 1156.7060546875000, 2017.0104980468750, 1156.6942138671875, 2017.0324707031250);
+  // Segment 1156.6941780622435 2017.0325257649940 -0.0032637855860 0.0184860248562 0.0120617528380 -0.0065934603083 1156.7093435710913 2017.0113063061967
+  path.cubicTo(1156.6909179687500, 2017.0510253906250, 1156.7214355468750, 2017.0047607421875, 1156.7093505859375, 2017.0113525390625);
+  // split at 0.4496445953846
+  // path.cubicTo(1156.6927490234375, 2017.0407714843750, 1156.6981201171875, 2017.0360107421875, 1156.7033691406250, 2017.0289306640625);
+  // path.cubicTo(1156.7097167968750, 2017.0201416015625, 1156.7159423828125, 2017.0076904296875, 1156.7093505859375, 2017.0113525390625);
+  // Segment 1156.7093435710913 2017.0113063061967 -0.0070717276929 0.0122220954353 0.0203483811973 -0.0039136894418 1156.7268834554304 2016.9985353221975
+  path.cubicTo(1156.7022705078125, 2017.0235595703125, 1156.7471923828125, 2016.9946289062500, 1156.7269287109375, 2016.9985351562500);
+  // Segment 1156.7268834554304 2016.9985353221975 -0.0244396787691 0.0123649140586 0.0433322464027 0.0026558844666 1156.6848182678223 2017.0033947825432
+  path.cubicTo(1156.7023925781250, 2017.0108642578125, 1156.7281494140625, 2017.0061035156250, 1156.6848144531250, 2017.0034179687500);
+  // split at 0.4418420493603
+  // path.cubicTo(1156.7160644531250, 2017.0040283203125, 1156.7150878906250, 2017.0061035156250, 1156.7136230468750, 2017.0065917968750);
+  // path.cubicTo(1156.7116699218750, 2017.0070800781250, 1156.7089843750000, 2017.0048828125000, 1156.6848144531250, 2017.0034179687500);
+  // Segment 1156.6848182678223 2017.0033947825432 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1156.6848182678223 2018.3533948063850
+  path.lineTo(1156.6848144531250, 2018.3533935546875);
+  path.close();
+  // start loop, contour: 12
+  // Segment 1158.0474975705147 2017.0000000000000 0.0000000000000 -0.3596905289350 0.2653344079822 0.2617520616521 1157.6574279406423 2016.0276338139906
+  path.moveTo(1158.0474853515625, 2017.0000000000000);
+  path.cubicTo(1158.0474853515625, 2016.6402587890625, 1157.9227294921875, 2016.2894287109375, 1157.6574707031250, 2016.0275878906250);
+  // Segment 1157.6574279406423 2016.0276338139906 -0.2645167304388 -0.2609454237780 0.3569631313191 0.0000000000000 1156.6848182678223 2015.6466051936150
+  path.cubicTo(1157.3929443359375, 2015.7667236328125, 1157.0417480468750, 2015.6466064453125, 1156.6848144531250, 2015.6466064453125);
+  // split at 0.5481675863266
+  // path.cubicTo(1157.5124511718750, 2015.8846435546875, 1157.3414306640625, 2015.7839355468750, 1157.1577148437500, 2015.7220458984375);
+  // path.cubicTo(1157.0062255859375, 2015.6711425781250, 1156.8460693359375, 2015.6466064453125, 1156.6848144531250, 2015.6466064453125);
+  // Segment 1156.6848182678223 2015.6466051936150 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1156.6848182678223 2016.9966052174568
+  path.lineTo(1156.6848144531250, 2016.9965820312500);
+  // Segment 1156.6848182678223 2016.9966052174568 0.0433322464027 -0.0026558844666 -0.0244396787691 -0.0123649140586 1156.7268834554304 2017.0014646778025
+  path.cubicTo(1156.7281494140625, 2016.9938964843750, 1156.7023925781250, 2016.9891357421875, 1156.7269287109375, 2017.0014648437500);
+  // split at 0.5581579208374
+  // path.cubicTo(1156.7089843750000, 2016.9951171875000, 1156.7116699218750, 2016.9929199218750, 1156.7136230468750, 2016.9934082031250);
+  // path.cubicTo(1156.7150878906250, 2016.9938964843750, 1156.7160644531250, 2016.9959716796875, 1156.7269287109375, 2017.0014648437500);
+  // Segment 1156.7268834554304 2017.0014646778025 0.0203483811973 0.0039136894418 -0.0070717276929 -0.0122220954353 1156.7093435710913 2016.9886936938033
+  path.cubicTo(1156.7471923828125, 2017.0053710937500, 1156.7022705078125, 2016.9764404296875, 1156.7093505859375, 2016.9886474609375);
+  // Segment 1156.7093435710913 2016.9886936938033 0.0120617528380 0.0065934603083 -0.0032637855860 -0.0184860248562 1156.6941780622435 2016.9674742350060
+  path.cubicTo(1156.7214355468750, 2016.9952392578125, 1156.6909179687500, 2016.9489746093750, 1156.6942138671875, 2016.9675292968750);
+  // Segment 1156.6941780622435 2016.9674742350060 0.0118595244351 0.0220843520393 0.0028009248351 -0.0403311981485 1156.6974975466728 2017.0000000000000
+  path.cubicTo(1156.7060546875000, 2016.9895019531250, 1156.7003173828125, 2016.9597167968750, 1156.6975097656250, 2017.0000000000000);
+  // split at 0.4572408795357
+  // path.cubicTo(1156.6995849609375, 2016.9775390625000, 1156.7014160156250, 2016.9768066406250, 1156.7014160156250, 2016.9768066406250);
+  // path.cubicTo(1156.7014160156250, 2016.9769287109375, 1156.6989746093750, 2016.9781494140625, 1156.6975097656250, 2017.0000000000000);
+  // Segment 1156.6974975466728 2017.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1158.0474975705147 2017.0000000000000
+  path.lineTo(1158.0474853515625, 2017.0000000000000);
+  path.close();
+  // start loop, contour: 13
+  // Segment 1156.6848182678223 2015.6466051936150 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.3381097316742 2015.6466051936150
+  path.moveTo(1156.6848144531250, 2015.6466064453125);
+  path.lineTo(1145.3381347656250, 2015.6466064453125);
+  // Segment 1145.3381097316742 2015.6466051936150 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.3381097316742 2016.9966052174568
+  path.lineTo(1145.3381347656250, 2016.9965820312500);
+  // Segment 1145.3381097316742 2016.9966052174568 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1156.6848182678223 2016.9966052174568
+  path.lineTo(1156.6848144531250, 2016.9965820312500);
+  // Segment 1156.6848182678223 2016.9966052174568 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1156.6848182678223 2015.6466051936150
+  path.lineTo(1156.6848144531250, 2015.6466064453125);
+  path.close();
+  // start loop, contour: 14
+  // Segment 1145.8121519375022 2016.8021351246741 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.8064220237907 2014.8347900061515
+  path.moveTo(1145.8121337890625, 2016.8021240234375);
+  path.lineTo(1147.8063964843750, 2014.8348388671875);
+  // Segment 1147.8064220237907 2014.8347900061515 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8583376121346 2013.8737301678750
+  path.lineTo(1146.8583984375000, 2013.8737792968750);
+  // Segment 1146.8583376121346 2013.8737301678750 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1144.8640675258462 2015.8410752863977
+  path.lineTo(1144.8640136718750, 2015.8410644531250);
+  // Segment 1144.8640675258462 2015.8410752863977 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.8121519375022 2016.8021351246741
+  path.lineTo(1145.8121337890625, 2016.8021240234375);
+  path.close();
+  // start loop, contour: 15
+  // Segment 1147.8064220516883 2014.8347899786306 0.5430154146087 -0.5356841365729 0.5430154146087 0.5356841365729 1147.8064220516883 2012.9239773430752
+  path.moveTo(1147.8063964843750, 2014.8348388671875);
+  path.cubicTo(1148.3494873046875, 2014.2990722656250, 1148.3494873046875, 2013.4597167968750, 1147.8063964843750, 2012.9239501953125);
+  // Segment 1147.8064220516883 2012.9239773430752 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8583375842370 2013.8850371263100
+  path.lineTo(1146.8583984375000, 2013.8850097656250);
+  // Segment 1146.8583375842370 2013.8850371263100 0.0071280060876 0.0070317705240 0.0071280060876 -0.0070317705240 1146.8583375842370 2013.8737301953959
+  path.cubicTo(1146.8654785156250, 2013.8920898437500, 1146.8654785156250, 2013.8666992187500, 1146.8583984375000, 2013.8737792968750);
+  // Segment 1146.8583375842370 2013.8737301953959 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.8064220516883 2014.8347899786306
+  path.lineTo(1147.8063964843750, 2014.8348388671875);
+  path.close();
+  // start loop, contour: 16
+  // Segment 1147.8064220516883 2012.9239773430752 -0.5379138488298 -0.5306514472866 0.5379138488298 -0.5306514472866 1145.8955864341058 2012.9239773430752
+  path.moveTo(1147.8063964843750, 2012.9239501953125);
+  path.cubicTo(1147.2685546875000, 2012.3933105468750, 1146.4334716796875, 2012.3933105468750, 1145.8956298828125, 2012.9239501953125);
+  // Segment 1145.8955864341058 2012.9239773430752 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8436709015571 2013.8850371263100
+  path.lineTo(1146.8436279296875, 2013.8850097656250);
+  // Segment 1146.8436709015571 2013.8850371263100 0.0122295718664 -0.0120644598103 -0.0122295718664 -0.0120644598103 1146.8583375842370 2013.8850371263100
+  path.cubicTo(1146.8559570312500, 2013.8729248046875, 1146.8460693359375, 2013.8729248046875, 1146.8583984375000, 2013.8850097656250);
+  // Segment 1146.8583375842370 2013.8850371263100 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.8064220516883 2012.9239773430752
+  path.lineTo(1147.8063964843750, 2012.9239501953125);
+  path.close();
+  // start loop, contour: 17
+  // Segment 1145.8955864579798 2012.9239773195236 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1142.7322615803600 2016.0445936810224
+  path.moveTo(1145.8956298828125, 2012.9239501953125);
+  path.lineTo(1142.7322998046875, 2016.0445556640625);
+  // Segment 1142.7322615803600 2016.0445936810224 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.6803460000633 2017.0056535113604
+  path.lineTo(1143.6802978515625, 2017.0056152343750);
+  // Segment 1143.6803460000633 2017.0056535113604 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8436708776831 2013.8850371498615
+  path.lineTo(1146.8436279296875, 2013.8850097656250);
+  // Segment 1146.8436708776831 2013.8850371498615 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.8955864579798 2012.9239773195236
+  path.lineTo(1145.8956298828125, 2012.9239501953125);
+  path.close();
+  // start loop, contour: 18
+  // Segment 1142.7322615564860 2016.0445937045740 -0.0343838913237 0.0339196727021 0.0561572931720 -0.0710493024751 1142.5744069596683 2016.2183613784646
+  path.moveTo(1142.7322998046875, 2016.0445556640625);
+  path.cubicTo(1142.6978759765625, 2016.0784912109375, 1142.6306152343750, 2016.1473388671875, 1142.5744628906250, 2016.2183837890625);
+  // Segment 1142.5744069596683 2016.2183613784646 -0.0547779032556 0.0720510806539 0.0000000000000 -0.2570904015602 1142.3937679156661 2016.7286419868469
+  path.cubicTo(1142.5196533203125, 2016.2904052734375, 1142.3937988281250, 2016.4715576171875, 1142.3937988281250, 2016.7286376953125);
+  // Segment 1142.3937679156661 2016.7286419868469 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.7437679395080 2016.7286419868469
+  path.lineTo(1143.7437744140625, 2016.7286376953125);
+  // Segment 1143.7437679395080 2016.7286419868469 -0.0051909534315 0.0665915567290 0.0133980913650 -0.0361675066532 1143.6976291086639 2016.9514128270803
+  path.cubicTo(1143.7385253906250, 2016.7952880859375, 1143.7110595703125, 2016.9152832031250, 1143.6976318359375, 2016.9514160156250);
+  // Segment 1143.6976291086639 2016.9514128270803 -0.0142876819622 0.0277028472317 0.0040377216094 -0.0063254385208 1143.6490888124401 2017.0354042045738
+  path.cubicTo(1143.6833496093750, 2016.9791259765625, 1143.6530761718750, 2017.0290527343750, 1143.6490478515625, 2017.0354003906250);
+  // Segment 1143.6490888124401 2017.0354042045738 -0.0045813437564 0.0032098513409 -0.0343840362634 0.0339198156850 1143.6803460239373 2017.0056534878088
+  path.cubicTo(1143.6445312500000, 2017.0385742187500, 1143.6459960937500, 2017.0395507812500, 1143.6802978515625, 2017.0056152343750);
+  // Segment 1143.6803460239373 2017.0056534878088 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1142.7322615564860 2016.0445937045740
+  path.lineTo(1142.7322998046875, 2016.0445556640625);
+  path.close();
+  // start loop, contour: 19
+  // Segment 1142.5947256938614 2016.2481120952295 -0.1857487117715 0.1832409092043 0.0167379373694 -0.0990717748979 1142.3430278987244 2016.7518748698508
+  path.moveTo(1142.5947265625000, 2016.2481689453125);
+  path.cubicTo(1142.4089355468750, 2016.4313964843750, 1142.3597412109375, 2016.6528320312500, 1142.3430175781250, 2016.7518310546875);
+  // Segment 1142.3430278987244 2016.7518748698508 -0.0156657977007 0.1069052535795 0.0000000000000 -0.0339197441936 1142.3249999880791 2017.0000000000000
+  path.cubicTo(1142.3273925781250, 2016.8587646484375, 1142.3249511718750, 2016.9660644531250, 1142.3249511718750, 2017.0000000000000);
+  // Segment 1142.3249999880791 2017.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.6750000119209 2017.0000000000000
+  path.lineTo(1143.6750488281250, 2017.0000000000000);
+  // Segment 1143.6750000119209 2017.0000000000000 0.0000000000000 -0.0339197441936 -0.0015261841961 -0.0051459911965 1143.6741640831724 2016.9767671169961
+  path.cubicTo(1143.6750488281250, 2016.9660644531250, 1143.6726074218750, 2016.9716796875000, 1143.6741943359375, 2016.9768066406250);
+  // Segment 1143.6741640831724 2016.9767671169961 -0.0007886982052 0.0013596649622 0.0074114058388 -0.0224954551713 1143.6525251830094 2017.0486861571169
+  path.cubicTo(1143.6733398437500, 2016.9781494140625, 1143.6599121093750, 2017.0262451171875, 1143.6524658203125, 2017.0487060546875);
+  // split at 0.4203657805920
+  // path.cubicTo(1143.6738281250000, 2016.9774169921875, 1143.6712646484375, 2016.9862060546875, 1143.6678466796875, 2016.9979248046875);
+  // path.cubicTo(1143.6630859375000, 2017.0140380859375, 1143.6567382812500, 2017.0356445312500, 1143.6524658203125, 2017.0487060546875);
+  // Segment 1143.6525251830094 2017.0486861571169 -0.0119644334077 0.0236755853369 0.0381324473830 -0.0447670202574 1143.5428101613127 2017.2091718784643
+  path.cubicTo(1143.6405029296875, 2017.0723876953125, 1143.5809326171875, 2017.1644287109375, 1143.5428466796875, 2017.2092285156250);
+  // Segment 1143.5428101613127 2017.2091718784643 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1142.5947256938614 2016.2481120952295
+  path.lineTo(1142.5947265625000, 2016.2481689453125);
+  path.close();
+  // start loop, contour: 20
+  // Segment 1142.3249999880791 2017.0000000000000 0.0000000000000 0.0339197441936 -0.0156657977007 -0.1069052535795 1142.3430278987244 2017.2481251301492
+  path.moveTo(1142.3249511718750, 2017.0000000000000);
+  path.cubicTo(1142.3249511718750, 2017.0339355468750, 1142.3273925781250, 2017.1412353515625, 1142.3430175781250, 2017.2481689453125);
+  // Segment 1142.3430278987244 2017.2481251301492 0.0167379373694 0.0990717748979 -0.1857487117715 -0.1832409092043 1142.5947256938614 2017.7518879047705
+  path.cubicTo(1142.3597412109375, 2017.3471679687500, 1142.4089355468750, 2017.5686035156250, 1142.5947265625000, 2017.7518310546875);
+  // split at 0.4008532166481
+  // path.cubicTo(1142.3497314453125, 2017.2878417968750, 1142.3616943359375, 2017.3471679687500, 1142.3854980468750, 2017.4158935546875);
+  // path.cubicTo(1142.4211425781250, 2017.5185546875000, 1142.4833984375000, 2017.6420898437500, 1142.5947265625000, 2017.7518310546875);
+  // Segment 1142.5947256938614 2017.7518879047705 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.5428101613127 2016.7908281215357
+  path.lineTo(1143.5428466796875, 2016.7907714843750);
+  // Segment 1143.5428101613127 2016.7908281215357 0.0381324473830 0.0447670202574 -0.0119644334077 -0.0236755853369 1143.6525251830094 2016.9513138428831
+  path.cubicTo(1143.5809326171875, 2016.8355712890625, 1143.6405029296875, 2016.9276123046875, 1143.6524658203125, 2016.9512939453125);
+  // Segment 1143.6525251830094 2016.9513138428831 0.0074114058388 0.0224954551713 -0.0007886982052 -0.0013596649622 1143.6741640831724 2017.0232328830039
+  path.cubicTo(1143.6599121093750, 2016.9737548828125, 1143.6733398437500, 2017.0218505859375, 1143.6741943359375, 2017.0231933593750);
+  // Segment 1143.6741640831724 2017.0232328830039 -0.0015261841961 0.0051459911965 0.0000000000000 0.0339197441936 1143.6750000119209 2017.0000000000000
+  path.cubicTo(1143.6726074218750, 2017.0283203125000, 1143.6750488281250, 2017.0339355468750, 1143.6750488281250, 2017.0000000000000);
+  // Segment 1143.6750000119209 2017.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1142.3249999880791 2017.0000000000000
+  path.lineTo(1142.3249511718750, 2017.0000000000000);
+  path.close();
+  // start loop, contour: 21
+  // Segment 1142.5947256938614 2017.7518879047705 -0.0799271403989 -0.1522613934208 -0.2174629955730 -0.2879403701950 1142.7322615564860 2017.9554062954260
+  path.moveTo(1142.5947265625000, 2017.7518310546875);
+  path.cubicTo(1142.5147705078125, 2017.5996093750000, 1142.5147705078125, 2017.6674804687500, 1142.7322998046875, 2017.9554443359375);
+  // Segment 1142.7322615564860 2017.9554062954260 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.6803460239373 2016.9943465121912
+  path.lineTo(1143.6802978515625, 2016.9943847656250);
+  // Segment 1143.6803460239373 2016.9943465121912 0.0799271403989 0.1522613934208 0.2174629955730 0.2879403701950 1143.5428101613127 2016.7908281215357
+  path.cubicTo(1143.7602539062500, 2017.1466064453125, 1143.7602539062500, 2017.0787353515625, 1143.5428466796875, 2016.7907714843750);
+  // Segment 1143.5428101613127 2016.7908281215357 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1142.5947256938614 2017.7518879047705
+  path.lineTo(1142.5947265625000, 2017.7518310546875);
+  path.close();
+  // start loop, contour: 22
+  // Segment 1142.7322615746241 2017.9554063133189 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.8955864522438 2021.0760227493236
+  path.moveTo(1142.7322998046875, 2017.9554443359375);
+  path.lineTo(1145.8956298828125, 2021.0760498046875);
+  // Segment 1145.8955864522438 2021.0760227493236 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8436708834190 2020.1149629303029
+  path.lineTo(1146.8436279296875, 2020.1149902343750);
+  // Segment 1146.8436708834190 2020.1149629303029 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1143.6803460057993 2016.9943464942983
+  path.lineTo(1143.6802978515625, 2016.9943847656250);
+  // Segment 1143.6803460057993 2016.9943464942983 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1142.7322615746241 2017.9554063133189
+  path.lineTo(1142.7322998046875, 2017.9554443359375);
+  path.close();
+  // start loop, contour: 23
+  // Segment 1145.8955864341058 2021.0760227314306 0.2730164534637 0.2693304447891 -0.3016608168437 0.0000000000000 1146.8510041236877 2021.4740112423897
+  path.moveTo(1145.8956298828125, 2021.0760498046875);
+  path.cubicTo(1146.1685791015625, 2021.3453369140625, 1146.5493164062500, 2021.4739990234375, 1146.8509521484375, 2021.4739990234375);
+  // Segment 1146.8510041236877 2021.4740112423897 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8510041236877 2020.1240112185478
+  path.lineTo(1146.8509521484375, 2020.1240234375000);
+  // Segment 1146.8510041236877 2020.1240112185478 -0.0031276099109 0.0031991747760 0.0281856144058 0.0140930868099 1146.8580791488898 2020.1202473991566
+  path.cubicTo(1146.8479003906250, 2020.1271972656250, 1146.8862304687500, 2020.1343994140625, 1146.8580322265625, 2020.1202392578125);
+  // split at 0.3845077157021
+  // path.cubicTo(1146.8497314453125, 2020.1252441406250, 1146.8547363281250, 2020.1270751953125, 1146.8596191406250, 2020.1280517578125);
+  // path.cubicTo(1146.8675537109375, 2020.1296386718750, 1146.8753662109375, 2020.1289062500000, 1146.8580322265625, 2020.1202392578125);
+  // Segment 1146.8580791488898 2020.1202473991566 -0.0369995545027 -0.0123195805663 0.0067223483810 0.0136883790721 1146.8436709015571 2020.1149629481959
+  path.cubicTo(1146.8210449218750, 2020.1079101562500, 1146.8503417968750, 2020.1286621093750, 1146.8436279296875, 2020.1149902343750);
+  // Segment 1146.8436709015571 2020.1149629481959 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.8955864341058 2021.0760227314306
+  path.lineTo(1145.8956298828125, 2021.0760498046875);
+  path.close();
+  // start loop, contour: 24
+  // Segment 1146.8510041236877 2021.4740112423897 0.3016605789999 0.0000000000000 -0.2730166120260 0.2693306012106 1147.8064220516883 2021.0760227314306
+  path.moveTo(1146.8509521484375, 2021.4739990234375);
+  path.cubicTo(1147.1527099609375, 2021.4739990234375, 1147.5334472656250, 2021.3453369140625, 1147.8063964843750, 2021.0760498046875);
+  // Segment 1147.8064220516883 2021.0760227314306 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8583375842370 2020.1149629481959
+  path.lineTo(1146.8583984375000, 2020.1149902343750);
+  // Segment 1146.8583375842370 2020.1149629481959 -0.0067222671256 0.0136883164611 0.0369996293611 -0.0123196021258 1146.8439293663473 2020.1202473404985
+  path.cubicTo(1146.8515625000000, 2020.1286621093750, 1146.8809814453125, 2020.1079101562500, 1146.8438720703125, 2020.1202392578125);
+  // Segment 1146.8439293663473 2020.1202473404985 -0.0281857033438 0.0140931104690 0.0031276541428 0.0031991704542 1146.8510041236877 2020.1240112185478
+  path.cubicTo(1146.8157958984375, 2020.1343994140625, 1146.8541259765625, 2020.1271972656250, 1146.8509521484375, 2020.1240234375000);
+  // Segment 1146.8510041236877 2020.1240112185478 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8510041236877 2021.4740112423897
+  path.lineTo(1146.8509521484375, 2021.4739990234375);
+  path.close();
+  // start loop, contour: 25
+  // Segment 1147.8064220516883 2021.0760227314306 0.5430154146087 -0.5356841365729 0.5430154146087 0.5356841365729 1147.8064220516883 2019.1652101405787
+  path.moveTo(1147.8063964843750, 2021.0760498046875);
+  path.cubicTo(1148.3494873046875, 2020.5402832031250, 1148.3494873046875, 2019.7009277343750, 1147.8063964843750, 2019.1651611328125);
+  // Segment 1147.8064220516883 2019.1652101405787 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8583375842370 2020.1262699238134
+  path.lineTo(1146.8583984375000, 2020.1262207031250);
+  // Segment 1146.8583375842370 2020.1262699238134 0.0071280060876 0.0070317705240 0.0071280060876 -0.0070317705240 1146.8583375842370 2020.1149629481959
+  path.cubicTo(1146.8654785156250, 2020.1333007812500, 1146.8654785156250, 2020.1079101562500, 1146.8583984375000, 2020.1149902343750);
+  // Segment 1146.8583375842370 2020.1149629481959 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.8064220516883 2021.0760227314306
+  path.lineTo(1147.8063964843750, 2021.0760498046875);
+  path.close();
+  // start loop, contour: 26
+  // Segment 1147.8064220383478 2019.1652101274185 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1145.8121519520594 2017.1978648896866
+  path.moveTo(1147.8063964843750, 2019.1651611328125);
+  path.lineTo(1145.8121337890625, 2017.1978759765625);
+  // Segment 1145.8121519520594 2017.1978648896866 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1144.8640675112890 2018.1589246992417
+  path.lineTo(1144.8640136718750, 2018.1589355468750);
+  // Segment 1144.8640675112890 2018.1589246992417 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1146.8583375975775 2020.1262699369736
+  path.lineTo(1146.8583984375000, 2020.1262207031250);
+  // Segment 1146.8583375975775 2020.1262699369736 0.0000000000000 0.0000000000000 0.0000000000000 0.0000000000000 1147.8064220383478 2019.1652101274185
+  path.lineTo(1147.8063964843750, 2019.1651611328125);
+  path.close();
+
+testSimplify(reporter, path, filename);
+}
+
+static void testQuads66(skiatest::Reporter* reporter,const char* filename) {
+    SkPath path;
+    path.moveTo(2, 0);
+    path.quadTo(3, 1, 2, 2);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(2, 1);
+    path.lineTo(2, 1);
+    path.quadTo(1, 2, 2, 2);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void testQuads67(skiatest::Reporter* reporter,const char* filename) {
+    SkPath path;
+    path.moveTo(3, 2);
+    path.quadTo(1, 3, 3, 3);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(2, 3, 3, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void testQuads68(skiatest::Reporter* reporter,const char* filename) {
+    SkPath path;
+    path.moveTo(1, 2);
+    path.quadTo(0, 3, 2, 3);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(0, 1);
+    path.quadTo(1, 3, 2, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void testQuads69(skiatest::Reporter* reporter,const char* filename) {
+    SkPath path;
+    path.moveTo(1, 0);
+    path.quadTo(2, 2, 2, 3);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(1, 0);
+    path.quadTo(3, 0, 1, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void testQuads70(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.moveTo(1, 1);
+    path.quadTo(2, 3, 3, 3);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(2, 2);
+    path.quadTo(1, 3, 3, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void testQuads71(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.moveTo(1, 1);
+    path.quadTo(2, 3, 3, 3);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(3, 0);
+    path.lineTo(2, 2);
+    path.quadTo(1, 3, 3, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void testQuads72(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.moveTo(1, 1);
+    path.quadTo(2, 3, 3, 3);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(2, 2);
+    path.quadTo(1, 3, 3, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
@@ -5109,8 +5785,20 @@ static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(testQuads72),
+    TEST(testQuads71),
+    TEST(testQuads70),
+    TEST(testQuads69),
+    TEST(testQuads68),
+    TEST(testQuads67),
+    TEST(testQuads66),
+    TEST(dean4),
+    TEST(tiger8a_h_1),
+    TEST(tiger8a_h),
+    TEST(tiger8a),
+    TEST(tiger8b),
+    TEST(tiger8),
     TEST(fuzz763_4713_b),
-    TEST(fuzz_59),
     TEST(fuzz_twister2),
     TEST(fuzz_twister),
     TEST(fuzz994s_3414),

@@ -406,12 +406,11 @@ static bool bruteForceCheck(skiatest::Reporter* reporter, const SkDQuad& quad1,
     return ccw == upperRange.ccw;
 }
 
-static void makeSegment(SkOpContour* contour, const SkDQuad& quad, SkPoint shortQuad[3],
-        SkChunkAlloc* allocator) {
+static void makeSegment(SkOpContour* contour, const SkDQuad& quad, SkPoint shortQuad[3]) {
     shortQuad[0] = quad[0].asSkPoint();
     shortQuad[1] = quad[1].asSkPoint();
     shortQuad[2] = quad[2].asSkPoint();
-    contour->addQuad(shortQuad, allocator);
+    contour->addQuad(shortQuad);
 }
 
 static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, const SkDQuad& quad2,
@@ -419,14 +418,14 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
     SkPoint shortQuads[2][3];
 
     SkOpContourHead contour;
-    SkOpGlobalState state(nullptr, &contour  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+    SkOpGlobalState state(&contour, allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
-    makeSegment(&contour, quad1, shortQuads[0], allocator);
-    makeSegment(&contour, quad1, shortQuads[1], allocator);
+    makeSegment(&contour, quad1, shortQuads[0]);
+    makeSegment(&contour, quad1, shortQuads[1]);
     SkOpSegment* seg1 = contour.first();
-    seg1->debugAddAngle(0, 1, allocator);
+    seg1->debugAddAngle(0, 1);
     SkOpSegment* seg2 = seg1->next();
-    seg2->debugAddAngle(0, 1, allocator);
+    seg2->debugAddAngle(0, 1);
     int realOverlap = PathOpsAngleTester::ConvexHullOverlaps(*seg1->debugLastAngle(),
             *seg2->debugLastAngle());
     const SkDPoint& origin = quad1[0];

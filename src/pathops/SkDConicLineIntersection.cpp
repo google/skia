@@ -6,6 +6,7 @@
  */
 #include "SkIntersections.h"
 #include "SkPathOpsConic.h"
+#include "SkPathOpsCurve.h"
 #include "SkPathOpsLine.h"
 
 class LineConicIntersections {
@@ -199,7 +200,22 @@ protected:
             }
             fIntersections->insert(conicT, lineT, fConic[cIndex]);
         }
-        // FIXME: see if line end is nearly on conic
+        this->addLineNearEndPoints();
+    }
+
+    void addLineNearEndPoints() {
+        for (int lIndex = 0; lIndex < 2; ++lIndex) {
+            double lineT = (double) lIndex;
+            if (fIntersections->hasOppT(lineT)) {
+                continue;
+            }
+            double conicT = ((SkDCurve*) &fConic)->nearPoint(SkPath::kConic_Verb,
+                (*fLine)[lIndex], (*fLine)[!lIndex]);
+            if (conicT < 0) {
+                continue;
+            }
+            fIntersections->insert(conicT, lineT, (*fLine)[lIndex]);
+        }
     }
 
     void addExactHorizontalEndPoints(double left, double right, double y) {
@@ -225,7 +241,7 @@ protected:
             }
             fIntersections->insert(conicT, lineT, fConic[cIndex]);
         }
-        // FIXME: see if line end is nearly on conic
+        this->addLineNearEndPoints();
     }
 
     void addExactVerticalEndPoints(double top, double bottom, double x) {
@@ -251,7 +267,7 @@ protected:
             }
             fIntersections->insert(conicT, lineT, fConic[cIndex]);
         }
-        // FIXME: see if line end is nearly on conic
+        this->addLineNearEndPoints();
     }
 
     double findLineT(double t) {
