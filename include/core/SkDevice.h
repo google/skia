@@ -22,6 +22,7 @@ struct SkIRect;
 class SkMatrix;
 class SkMetaData;
 class SkRegion;
+class SkSpecialImage;
 class GrRenderTarget;
 
 class SK_API SkBaseDevice : public SkRefCnt {
@@ -276,6 +277,11 @@ protected:
     virtual void drawTextRSXform(const SkDraw&, const void* text, size_t len, const SkRSXform[],
                                  const SkPaint&);
 
+    virtual void drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&);
+    virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
+    virtual sk_sp<SkSpecialImage> makeSpecial(SkImage*);
+    virtual sk_sp<SkSpecialImage> snapSpecial();
+
     bool readPixels(const SkImageInfo&, void* dst, size_t rowBytes, int x, int y);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -369,6 +375,7 @@ private:
     friend class SkDeviceFilteredPaint;
     friend class SkNoPixelsBitmapDevice;
     friend class SkSurface_Raster;
+    friend class DeviceTestingAccess;
 
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to

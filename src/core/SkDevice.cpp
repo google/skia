@@ -23,6 +23,21 @@
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
 
+void SkBaseDevice::drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&) {
+}
+
+sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) {
+    return nullptr;
+}
+
+sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(SkImage*) {
+    return nullptr;
+}
+
+sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() {
+    return nullptr;
+}
+
 SkBaseDevice::SkBaseDevice(const SkSurfaceProps& surfaceProps)
     : fSurfaceProps(surfaceProps)
 #ifdef SK_DEBUG

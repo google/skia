@@ -1399,7 +1399,47 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
     this->drawTextureProducer(&maker, src, dst, constraint, *draw.fMatrix, fClip, paint);
 }
 
-sk_sp<SkSpecialImage> SkGpuDevice::asSpecial() {
+sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
+    SkASSERT(!bitmap.getTexture());
+
+    SkAutoLockPixels alp(bitmap, true);
+    if (!bitmap.readyToDraw()) {
+        return nullptr;
+    }
+
+    GrTexture* texture;
+    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(),	
+                          SkSourceGammaTreatment::kRespect, &texture);
+    if (!texture) {
+        return nullptr;
+    }
+
+    return SkSpecialImage::MakeFromGpu(bitmap.bounds(),
+                                       bitmap.getGenerationID(),
+                                       sk_ref_sp(texture), 
+                                       &this->surfaceProps());
+}
+
+sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(SkImage* image) {
+    SkPixmap pm;
+    if (image->isTextureBacked()) {
+        GrTexture* texture = as_IB(image)->peekTexture();
+
+        return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(image->width(), image->height()),
+                                           image->uniqueID(),
+                                           sk_ref_sp(texture), 
+                                           &this->surfaceProps());
+    } else if (image->peekPixels(&pm)) {
+        SkBitmap bm;
+
+        bm.installPixels(pm);
+        return this->makeSpecial(bm);
+    } else {
+        return nullptr;
+    }
+}
+
+sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
     sk_sp<GrTexture> texture(this->accessDrawContext()->asTexture());
     if (!texture) {
         // When the device doesn't have a texture, we create a temporary texture.
@@ -1436,7 +1476,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     CHECK_SHOULD_DRAW(draw);
 
     SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
-    sk_sp<SkSpecialImage> srcImg(dev->asSpecial());
+    sk_sp<SkSpecialImage> srcImg(dev->snapSpecial());
     if (!srcImg) {
         return;
     }
