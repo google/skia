@@ -35,8 +35,8 @@ static bool draw_mask(GrDrawContext* drawContext,
     matrix.setTranslate(-SkIntToScalar(maskRect.fLeft), -SkIntToScalar(maskRect.fTop));
     matrix.postIDiv(mask->width(), mask->height());
 
-    grp->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(mask, matrix,
-                                                                    kDevice_GrCoordSet))->unref();
+    grp->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(mask, matrix,
+                                                                  kDevice_GrCoordSet));
 
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {
@@ -220,7 +220,7 @@ static void draw_path_with_mask_filter(GrContext* context,
         if (mask) {
             GrTexture* filtered;
 
-            if (maskFilter->filterMaskGPU(mask.get(), viewMatrix, finalIRect, &filtered, true)) {
+            if (maskFilter->filterMaskGPU(mask.get(), viewMatrix, finalIRect, &filtered)) {
                 // filterMaskGPU gives us ownership of a ref to the result
                 SkAutoTUnref<GrTexture> atu(filtered);
                 if (draw_mask(drawContext, clip, viewMatrix, finalIRect, paint, filtered)) {

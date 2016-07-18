@@ -45,7 +45,7 @@ public:
     // Takes ownership of stream.
     static HRESULT Create(SkStreamAsset* stream, StreamFontFileLoader** streamFontFileLoader) {
         *streamFontFileLoader = new StreamFontFileLoader(stream);
-        if (nullptr == streamFontFileLoader) {
+        if (nullptr == *streamFontFileLoader) {
             return E_OUTOFMEMORY;
         }
         return S_OK;
@@ -110,7 +110,7 @@ public:
     static HRESULT Create(IDWriteFactory* factory, IDWriteFontFileLoader* fontFileLoader,
                           StreamFontFileEnumerator** streamFontFileEnumerator) {
         *streamFontFileEnumerator = new StreamFontFileEnumerator(factory, fontFileLoader);
-        if (nullptr == streamFontFileEnumerator) {
+        if (nullptr == *streamFontFileEnumerator) {
             return E_OUTOFMEMORY;
         }
         return S_OK;
@@ -207,7 +207,7 @@ public:
     static HRESULT Create(IDWriteFontFileLoader* fontFileLoader,
                           StreamFontCollectionLoader** streamFontCollectionLoader) {
         *streamFontCollectionLoader = new StreamFontCollectionLoader(fontFileLoader);
-        if (nullptr == streamFontCollectionLoader) {
+        if (nullptr == *streamFontCollectionLoader) {
             return E_OUTOFMEMORY;
         }
         return S_OK;

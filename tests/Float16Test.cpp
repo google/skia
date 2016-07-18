@@ -43,7 +43,7 @@ DEF_TEST(color_half_float, reporter) {
     pm.alloc(info);
     REPORTER_ASSERT(reporter, pm.getSafeSize() == SkToSizeT(w * h * sizeof(uint64_t)));
 
-    SkColor4f c4 { 0.5f, 1, 0.5f, 0.25f };
+    SkColor4f c4 { 1, 0.5f, 0.25f, 0.5f };
     pm.erase(c4);
 
     SkPM4f origpm4 = c4.premul();

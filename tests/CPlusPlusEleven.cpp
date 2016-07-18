@@ -28,3 +28,10 @@ DEF_TEST(CPlusPlusEleven_RvalueAndMove, r) {
     Moveable src1; Moveable dst1(std::move(src1));
     Moveable src2, dst2; dst2 = std::move(src2);
 }
+
+DEF_TEST(CPlusPlusEleven_constexpr, r) {
+    static constexpr int x = Sk32ToBool(50);
+    REPORTER_ASSERT(r, x == 1);
+    static constexpr int y = SkTPin<int>(100, 0, 10);
+    REPORTER_ASSERT(r, y == 10);
+}

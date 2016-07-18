@@ -22,22 +22,37 @@ struct SkMask;
 
 /** SkBlitter and its subclasses are responsible for actually writing pixels
     into memory. Besides efficiency, they handle clipping and antialiasing.
+    A SkBlitter subclass contains all the context needed to generate pixels
+    for the destination and how src/generated pixels map to the destination.
+    The coordinates passed to the blitX calls are in destination pixel space.
 */
 class SkBlitter {
 public:
     virtual ~SkBlitter();
 
     /// Blit a horizontal run of one or more pixels.
-    virtual void blitH(int x, int y, int width);
+    virtual void blitH(int x, int y, int width) = 0;
+
     /// Blit a horizontal run of antialiased pixels; runs[] is a *sparse*
     /// zero-terminated run-length encoding of spans of constant alpha values.
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
-                           const int16_t runs[]);
+    /// The runs[] and antialias[] work together to represent long runs of pixels with the same
+    /// alphas. The runs[] contains the number of pixels with the same alpha, and antialias[]
+    /// contain the coverage value for that number of pixels. The runs[] (and antialias[]) are
+    /// encoded in a clever way. The runs array is zero terminated, and has enough entries for
+    /// each pixel plus one, in most cases some of the entries will not contain valid data. An entry
+    /// in the runs array contains the number of pixels (np) that have the same alpha value. The
+    /// next np value is found np entries away. For example, if runs[0] = 7, then the next valid
+    /// entry will by at runs[7]. The runs array and antialias[] are coupled by index. So, if the
+    /// np entry is at runs[45] = 12 then the alpha value can be found at antialias[45] = 0x88.
+    /// This would mean to use an alpha value of 0x88 for the next 12 pixels starting at pixel 45.
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) = 0;
 
     /// Blit a vertical run of pixels with a constant alpha value.
     virtual void blitV(int x, int y, int height, SkAlpha alpha);
+
     /// Blit a solid rectangle one or more pixels wide.
     virtual void blitRect(int x, int y, int width, int height);
+
     /** Blit a rectangle with one alpha-blended column on the left,
         width (zero or more) opaque pixels, and one alpha-blended column
         on the right.
@@ -45,6 +60,7 @@ public:
     */
     virtual void blitAntiRect(int x, int y, int width, int height,
                               SkAlpha leftAlpha, SkAlpha rightAlpha);
+
     /// Blit a pattern of pixels defined by a rectangle-clipped mask;
     /// typically used for text.
     virtual void blitMask(const SkMask&, const SkIRect& clip);

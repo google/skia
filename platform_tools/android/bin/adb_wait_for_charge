@@ -54,7 +54,7 @@ function get_battery_level {
   STATS="$($ADB $DEVICE_SERIAL shell dumpsys battery)"
   SPLIT=( $STATS )
   RV="$(_parse_battery_level ${SPLIT[@]})"
-  if [ "$RV" != "-1" ]; then
+  if [ -n "$RV" ] && [ "$RV" != "-1" ]; then
     echo "$RV"
     return
   fi

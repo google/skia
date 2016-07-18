@@ -84,8 +84,8 @@ public:
     bool expand();
     bool extend(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* oppPtTStart,
         SkOpPtT* oppPtTEnd);
-    void findOverlaps(SkOpCoincidence* , SkChunkAlloc* allocator) const;
-    void fixAligned();
+    bool findOverlaps(SkOpCoincidence* , SkChunkAlloc* allocator) const;
+    bool fixAligned();
     void fixUp(SkOpPtT* deleted, SkOpPtT* kept);
 
     bool isEmpty() const {
@@ -103,7 +103,7 @@ private:
                       SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
                       SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd,
                       SkChunkAlloc* );
-    void addOverlap(SkOpSegment* seg1, SkOpSegment* seg1o, SkOpSegment* seg2, SkOpSegment* seg2o,
+    bool addOverlap(SkOpSegment* seg1, SkOpSegment* seg1o, SkOpSegment* seg2, SkOpSegment* seg2o,
                     SkOpPtT* overS, SkOpPtT* overE, SkChunkAlloc* );
     bool debugAddIfMissing(const SkCoincidentSpans* outer, const SkOpPtT* over1s, 
                            const SkOpPtT* over1e) const;

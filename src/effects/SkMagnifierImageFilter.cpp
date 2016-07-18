@@ -28,18 +28,18 @@
 class GrMagnifierEffect : public GrSingleTextureEffect {
 
 public:
-    static GrFragmentProcessor* Create(GrTexture* texture,
-                                       const SkRect& bounds,
-                                       float xOffset,
-                                       float yOffset,
-                                       float xInvZoom,
-                                       float yInvZoom,
-                                       float xInvInset,
-                                       float yInvInset) {
-        return new GrMagnifierEffect(texture, bounds,
-                                     xOffset, yOffset,
-                                     xInvZoom, yInvZoom,
-                                     xInvInset, yInvInset);
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* texture,
+                                           const SkRect& bounds,
+                                           float xOffset,
+                                           float yOffset,
+                                           float xInvZoom,
+                                           float yInvZoom,
+                                           float xInvInset,
+                                           float yInvInset) {
+        return sk_sp<GrFragmentProcessor>(new GrMagnifierEffect(texture, bounds,
+                                                                xOffset, yOffset,
+                                                                xInvZoom, yInvZoom,
+                                                                xInvInset, yInvInset));
     }
 
     ~GrMagnifierEffect() override {};
@@ -192,7 +192,7 @@ GrGLSLFragmentProcessor* GrMagnifierEffect::onCreateGLSLInstance() const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 
-const GrFragmentProcessor* GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
     GrTexture* texture = d->fTextures[0];
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;
@@ -203,7 +203,7 @@ const GrFragmentProcessor* GrMagnifierEffect::TestCreate(GrProcessorTestData* d)
     uint32_t y = d->fRandom->nextULessThan(kMaxHeight - height);
     uint32_t inset = d->fRandom->nextULessThan(kMaxInset);
 
-    GrFragmentProcessor* effect = GrMagnifierEffect::Create(
+    sk_sp<GrFragmentProcessor> effect(GrMagnifierEffect::Make(
         texture,
         SkRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight)),
         (float) width / texture->width(),
@@ -211,7 +211,7 @@ const GrFragmentProcessor* GrMagnifierEffect::TestCreate(GrProcessorTestData* d)
         texture->width() / (float) x,
         texture->height() / (float) y,
         (float) inset / texture->width(),
-        (float) inset / texture->height());
+        (float) inset / texture->height()));
     SkASSERT(effect);
     return effect;
 }
@@ -324,7 +324,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
             SkIntToScalar(inputTexture->width()) / bounds.width(),
             SkIntToScalar(inputTexture->height()) / bounds.height());
         // SRGBTODO: Handle sRGB here
-        sk_sp<GrFragmentProcessor> fp(GrMagnifierEffect::Create(
+        sk_sp<GrFragmentProcessor> fp(GrMagnifierEffect::Make(
                                                         inputTexture.get(),
                                                         effectBounds,
                                                         fSrcRect.x() / inputTexture->width(),

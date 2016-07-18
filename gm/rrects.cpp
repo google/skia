@@ -101,18 +101,15 @@ protected:
                     canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
                     if (kEffect_Type == fType) {
 #if SK_SUPPORT_GPU
-                        GrPipelineBuilder pipelineBuilder;
-                        pipelineBuilder.setXPFactory(
-                            GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+                        GrPaint grPaint;
+                        grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
-                        SkAutoTUnref<GrFragmentProcessor> fp(GrRRectEffect::Create(edgeType,
-                                                                                   rrect));
+                        sk_sp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
                         if (fp) {
-                            pipelineBuilder.addCoverageFragmentProcessor(fp);
-                            pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
+                            grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
@@ -120,8 +117,7 @@ protected:
                             SkAutoTUnref<GrDrawBatch> batch(
                                     GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(),
                                                                         bounds, nullptr, nullptr));
-                            drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder,
-                                                                                 batch);
+                            drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
                         } else {
                             drew = false;
                         }

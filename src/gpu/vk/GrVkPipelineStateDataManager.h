@@ -23,6 +23,7 @@ public:
                                  uint32_t vertexUniformSize,
                                  uint32_t fragmentUniformSize);
 
+    void set1i(UniformHandle, int32_t) const override;
     void set1f(UniformHandle, float v0) const override;
     void set1fv(UniformHandle, int arrayCount, const float v[]) const override;
     void set2f(UniformHandle, float, float) const override;

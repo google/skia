@@ -61,9 +61,10 @@ private:
         kValid_MipMapsStatus
     };
 
-    GrSLType        fSamplerType;
-    MipMapsStatus   fMipMapsStatus;
-    int             fMaxMipMapLevel;
+    GrSLType               fSamplerType;
+    MipMapsStatus          fMipMapsStatus;
+    int                    fMaxMipMapLevel;
+    SkSourceGammaTreatment fGammaTreatment;
 
     friend class GrTexturePriv;
 

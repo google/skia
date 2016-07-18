@@ -16,6 +16,7 @@
 
 #include "SkGpuDevice.h"
 #include "SkGrPriv.h"
+#include "SkMathPriv.h"
 #include "SkString.h"
 
 #include "text/GrBatchFontCache.h"
@@ -52,39 +53,21 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
 }
 };
 
-void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target, GrRenderTarget* rt) {
+void GrTestTarget::init(GrContext* ctx, sk_sp<GrDrawContext> drawContext) {
     SkASSERT(!fContext);
 
     fContext.reset(SkRef(ctx));
-    fDrawTarget.reset(SkRef(target));
-    fRenderTarget.reset(SkRef(rt));
+    fDrawContext = drawContext;
 }
 
-void GrContext::getTestTarget(GrTestTarget* tar, GrRenderTarget* rt) {
+void GrContext::getTestTarget(GrTestTarget* tar, sk_sp<GrDrawContext> drawContext) {
     this->flush();
+    SkASSERT(drawContext);
     // We could create a proxy GrDrawTarget that passes through to fGpu until ~GrTextTarget() and
     // then disconnects. This would help prevent test writers from mixing using the returned
     // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
-    if (!rt) {
-        GrSurfaceDesc desc;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fWidth = 32;
-        desc.fHeight = 32;
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
-        desc.fSampleCnt = 0;
-
-        SkAutoTUnref<GrTexture> texture(this->textureProvider()->createTexture(
-            desc, SkBudgeted::kNo, nullptr, 0));
-        if (nullptr == texture) {
-            return;
-        }
-        SkASSERT(nullptr != texture->asRenderTarget());
-        rt = texture->asRenderTarget();
-    }
-
-    SkAutoTUnref<GrDrawTarget> dt(fDrawingManager->newDrawTarget(rt));
-    tar->init(this, dt, rt);
+    tar->init(this, std::move(drawContext));
 }
 
 void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
@@ -251,19 +234,24 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fDrawContext->fSingleOwner);)
 #define RETURN_IF_ABANDONED        if (fDrawContext->fDrawingManager->wasAbandoned()) { return; }
 
-void GrDrawContextPriv::testingOnly_drawBatch(const GrPipelineBuilder& pipelineBuilder,
+void GrDrawContextPriv::testingOnly_drawBatch(const GrPaint& paint,
                                               GrDrawBatch* batch,
-                                              const GrClip* clip) {
+                                              const GrUserStencilSettings* uss,
+                                              bool snapToCenters) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(fDrawContext->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContext::testingOnly_drawBatch");
 
-    if (clip) {
-        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, *clip, batch);
-    } else {
-        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, GrNoClip(), batch);
+    GrPipelineBuilder pipelineBuilder(paint, fDrawContext->mustUseHWAA(paint));
+    if (uss) {
+        pipelineBuilder.setUserStencil(uss);
     }
+    if (snapToCenters) {
+        pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag, true);
+    }
+
+    fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, GrNoClip(), batch);
 }
 
 #undef ASSERT_SINGLE_OWNER
@@ -301,8 +289,6 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override { return false; }
 
-    void discard(GrRenderTarget*) override {}
-
     bool onCopySurface(GrSurface* dst,
                        GrSurface* src,
                        const SkIRect& srcRect,
@@ -317,6 +303,12 @@ public:
 
     bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override {
         return false;
+    }
+
+    GrGpuCommandBuffer* createCommandBuffer(GrRenderTarget* target,
+                                            const GrGpuCommandBuffer::LoadAndStoreInfo&,
+                                            const GrGpuCommandBuffer::LoadAndStoreInfo&) override {
+        return nullptr;
     }
 
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {};
@@ -352,15 +344,6 @@ private:
         return nullptr;
     }
 
-    void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override {}
-
-    void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override {}
-
-    void onDraw(const GrPipeline&,
-                const GrPrimitiveProcessor&,
-                const GrMesh*,
-                int meshCount) override {}
-
     bool onReadPixels(GrSurface* surface,
                       int left, int top, int width, int height,
                       GrPixelConfig,
@@ -393,7 +376,7 @@ private:
     void clearStencil(GrRenderTarget* target) override  {}
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config) override {
+                                                    GrPixelConfig config, bool isRT) override {
         return 0;
     }
     bool isTestingOnlyBackendTexture(GrBackendObject ) const override { return false; }

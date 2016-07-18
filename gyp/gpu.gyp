@@ -207,6 +207,22 @@
                 'vulkan_lib_name': '-lvulkan',
               },
             }],
+            [ 'skia_os == "linux"', {
+              'variables': {
+                'vulkan_sdk_path' : '<!(echo $VULKAN_SDK)',
+              },
+              'include_dirs': [
+                '<(vulkan_sdk_path)/include',
+              ],
+              'direct_dependent_settings': {
+                'include_dirs': [
+                  '<(vulkan_sdk_path)/include',
+                ],
+              },
+              'link_settings': {
+                'library_dirs': [ '<(vulkan_sdk_path)/lib', ],
+              },
+            }],
           ],
           'dependencies': [
             'shaderc.gyp:shaderc_combined',

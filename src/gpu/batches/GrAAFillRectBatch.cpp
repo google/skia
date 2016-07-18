@@ -44,7 +44,7 @@ const GrBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
         gAAFillRectIndexBufferKey);
 }
 
-static const GrGeometryProcessor* create_fill_rect_gp(
+static sk_sp<GrGeometryProcessor> create_fill_rect_gp(
                                        const SkMatrix& viewMatrix,
                                        const GrXPOverridesForBatch& overrides,
                                        GrDefaultGeoProcFactory::LocalCoords::Type localCoordsType) {
@@ -65,11 +65,11 @@ static const GrGeometryProcessor* create_fill_rect_gp(
     // We assume the caller has inverted the viewmatrix
     if (LocalCoords::kHasExplicit_Type == localCoordsType) {
         LocalCoords localCoords(localCoordsType);
-        return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
+        return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
     } else {
         LocalCoords localCoords(overrides.readsLocalCoords() ? localCoordsType :
                                                                LocalCoords::kUnused_Type);
-        return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
+        return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
     }
 }
 
@@ -84,10 +84,12 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
     SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
     SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vertexStride);
 
-    SkScalar inset = SkMinScalar(devRect.width(), SK_Scalar1);
-    inset = SK_ScalarHalf * SkMinScalar(inset, devRect.height());
+    SkScalar inset;
 
     if (viewMatrix.rectStaysRect()) {
+        inset = SkMinScalar(devRect.width(), SK_Scalar1);
+        inset = SK_ScalarHalf * SkMinScalar(inset, devRect.height());
+
         set_inset_fan(fan0Pos, vertexStride, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
         set_inset_fan(fan1Pos, vertexStride, devRect, inset,  inset);
     } else {
@@ -97,10 +99,13 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
           { viewMatrix[SkMatrix::kMSkewX],  viewMatrix[SkMatrix::kMScaleY] }
         };
 
-        vec[0].normalize();
+        SkScalar len1 = SkPoint::Normalize(&vec[0]);
         vec[0].scale(SK_ScalarHalf);
-        vec[1].normalize();
+        SkScalar len2 = SkPoint::Normalize(&vec[1]);
         vec[1].scale(SK_ScalarHalf);
+
+        inset = SkMinScalar(len1 * rect.width(), SK_Scalar1);
+        inset = SK_ScalarHalf * SkMinScalar(inset, len2 * rect.height());
 
         // create the rotated rect
         fan0Pos->setRectFan(rect.fLeft, rect.fTop,
@@ -234,9 +239,9 @@ public:
         return !overrides.readsLocalCoords() || mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix);
     }
 
-    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
+    static sk_sp<GrGeometryProcessor> MakeGP(const Geometry& geo,
                                                const GrXPOverridesForBatch& overrides) {
-        const GrGeometryProcessor* gp =
+        sk_sp<GrGeometryProcessor> gp =
                 create_fill_rect_gp(geo.fViewMatrix, overrides,
                                     GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type);
 
@@ -281,9 +286,9 @@ public:
         return true;
     }
 
-    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
+    static sk_sp<GrGeometryProcessor> MakeGP(const Geometry& geo,
                                                const GrXPOverridesForBatch& overrides) {
-        const GrGeometryProcessor* gp =
+        sk_sp<GrGeometryProcessor> gp =
                 create_fill_rect_gp(geo.fViewMatrix, overrides,
                                     GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type);
 

@@ -249,7 +249,11 @@ struct Edge {
         , fPrevEdgeBelow(nullptr)
         , fNextEdgeBelow(nullptr)
         , fLeftPoly(nullptr)
-        , fRightPoly(nullptr) {
+        , fRightPoly(nullptr)
+        , fLeftPolyPrev(nullptr)
+        , fLeftPolyNext(nullptr)
+        , fRightPolyPrev(nullptr)
+        , fRightPolyNext(nullptr) {
             recompute();
         }
     int      fWinding;          // 1 == edge goes downward; -1 = edge goes upward.
@@ -263,6 +267,10 @@ struct Edge {
     Edge*    fNextEdgeBelow;    // "
     Poly*    fLeftPoly;         // The Poly to the left of this edge, if any.
     Poly*    fRightPoly;        // The Poly to the right of this edge, if any.
+    Edge*    fLeftPolyPrev;
+    Edge*    fLeftPolyNext;
+    Edge*    fRightPolyPrev;
+    Edge*    fRightPolyNext;
     double   fDX;               // The line equation for this edge, in implicit form.
     double   fDY;               // fDY * x + fDX * y + fC = 0, for point (x, y) on the line.
     double   fC;
@@ -316,11 +324,11 @@ struct Edge {
 /***************************************************************************************/
 
 struct Poly {
-    Poly(int winding)
-        : fWinding(winding)
+    Poly(Vertex* v, int winding)
+        : fFirstVertex(v)
+        , fWinding(winding)
         , fHead(nullptr)
         , fTail(nullptr)
-        , fActive(nullptr)
         , fNext(nullptr)
         , fPartner(nullptr)
         , fCount(0)
@@ -331,36 +339,49 @@ struct Poly {
         LOG("*** created Poly %d\n", fID);
 #endif
     }
-    typedef enum { kNeither_Side, kLeft_Side, kRight_Side } Side;
+    typedef enum { kLeft_Side, kRight_Side } Side;
     struct MonotonePoly {
-        MonotonePoly()
-            : fSide(kNeither_Side)
+        MonotonePoly(Edge* edge, Side side)
+            : fSide(side)
+            , fFirstEdge(nullptr)
+            , fLastEdge(nullptr)
             , fPrev(nullptr)
-            , fNext(nullptr) {}
+            , fNext(nullptr) {
+            this->addEdge(edge);
+        }
         Side          fSide;
-        VertexList    fVertices;
+        Edge*         fFirstEdge;
+        Edge*         fLastEdge;
         MonotonePoly* fPrev;
         MonotonePoly* fNext;
-        bool addVertex(Vertex* v, Side side, SkChunkAlloc& alloc) {
-            Vertex* newV = ALLOC_NEW(Vertex, (v->fPoint), alloc);
-            bool done = false;
-            if (fSide == kNeither_Side) {
-                fSide = side;
-            } else {
-                done = side != fSide;
-            }
+        void addEdge(Edge* edge) {
             if (fSide == kRight_Side) {
-                fVertices.append(newV);
+                list_insert<Edge, &Edge::fRightPolyPrev, &Edge::fRightPolyNext>(
+                    edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
             } else {
-                fVertices.prepend(newV);
+                list_insert<Edge, &Edge::fLeftPolyPrev, &Edge::fLeftPolyNext>(
+                    edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
             }
-            return done;
         }
 
         SkPoint* emit(SkPoint* data) {
-            Vertex* first = fVertices.fHead;
+            Edge* e = fFirstEdge;
+            e->fTop->fPrev = e->fTop->fNext = nullptr;
+            VertexList vertices;
+            vertices.append(e->fTop);
+            while (e != nullptr) {
+                e->fBottom->fPrev = e->fBottom->fNext = nullptr;
+                if (kRight_Side == fSide) {
+                    vertices.append(e->fBottom);
+                    e = e->fRightPolyNext;
+                } else {
+                    vertices.prepend(e->fBottom);
+                    e = e->fLeftPolyNext;
+                }
+            }
+            Vertex* first = vertices.fHead;
             Vertex* v = first->fNext;
-            while (v != fVertices.fTail) {
+            while (v != vertices.fTail) {
                 SkASSERT(v && v->fPrev && v->fNext);
                 Vertex* prev = v->fPrev;
                 Vertex* curr = v;
@@ -385,45 +406,39 @@ struct Poly {
             return data;
         }
     };
-    Poly* addVertex(Vertex* v, Side side, SkChunkAlloc& alloc) {
-        LOG("addVertex() to %d at %g (%g, %g), %s side\n", fID, v->fID, v->fPoint.fX, v->fPoint.fY,
-               side == kLeft_Side ? "left" : side == kRight_Side ? "right" : "neither");
+    Poly* addEdge(Edge* e, Side side, SkChunkAlloc& alloc) {
+        LOG("addEdge (%g,%g)-(%g,%g) to poly %d, %s side\n",
+               e->fTop->fPoint.fX, e->fTop->fPoint.fY, e->fBottom->fPoint.fX, e->fBottom->fPoint.fY,
+               fID, side == kLeft_Side ? "left" : "right");
         Poly* partner = fPartner;
         Poly* poly = this;
         if (partner) {
             fPartner = partner->fPartner = nullptr;
         }
-        if (!fActive) {
-            fActive = ALLOC_NEW(MonotonePoly, (), alloc);
-        }
-        if (fActive->addVertex(v, side, alloc)) {
-            if (fTail) {
-                fActive->fPrev = fTail;
-                fTail->fNext = fActive;
-                fTail = fActive;
-            } else {
-                fHead = fTail = fActive;
-            }
+        if (!fTail) {
+            fHead = fTail = ALLOC_NEW(MonotonePoly, (e, side), alloc);
+            fCount += 2;
+        } else if (e->fBottom == fTail->fLastEdge->fBottom) {
+            return poly;
+        } else if (side == fTail->fSide) {
+            fTail->addEdge(e);
+            fCount++;
+        } else {
+            e = ALLOC_NEW(Edge, (fTail->fLastEdge->fBottom, e->fBottom, 1), alloc);
+            fTail->addEdge(e);
+            fCount++;
             if (partner) {
-                partner->addVertex(v, side, alloc);
+                partner->addEdge(e, side, alloc);
                 poly = partner;
             } else {
-                Vertex* prev = fActive->fSide == Poly::kLeft_Side ?
-                               fActive->fVertices.fHead->fNext : fActive->fVertices.fTail->fPrev;
-                fActive = ALLOC_NEW(MonotonePoly, , alloc);
-                fActive->addVertex(prev, Poly::kNeither_Side, alloc);
-                fActive->addVertex(v, side, alloc);
+                MonotonePoly* m = ALLOC_NEW(MonotonePoly, (e, side), alloc);
+                m->fPrev = fTail;
+                fTail->fNext = m;
+                fTail = m;
+                fCount += 2;
             }
         }
-        fCount++;
         return poly;
-    }
-    void end(Vertex* v, SkChunkAlloc& alloc) {
-        LOG("end() %d at %g, %g\n", fID, v->fPoint.fX, v->fPoint.fY);
-        if (fPartner) {
-            fPartner = fPartner->fPartner = nullptr;
-        }
-        addVertex(v, fActive->fSide == kLeft_Side ? kRight_Side : kLeft_Side, alloc);
     }
     SkPoint* emit(SkPoint *data) {
         if (fCount < 3) {
@@ -435,10 +450,11 @@ struct Poly {
         }
         return data;
     }
+    Vertex* lastVertex() const { return fTail ? fTail->fLastEdge->fBottom : fFirstVertex; }
+    Vertex* fFirstVertex;
     int fWinding;
     MonotonePoly* fHead;
     MonotonePoly* fTail;
-    MonotonePoly* fActive;
     Poly* fNext;
     Poly* fPartner;
     int fCount;
@@ -454,8 +470,7 @@ bool coincident(const SkPoint& a, const SkPoint& b) {
 }
 
 Poly* new_poly(Poly** head, Vertex* v, int winding, SkChunkAlloc& alloc) {
-    Poly* poly = ALLOC_NEW(Poly, (winding), alloc);
-    poly->addVertex(v, Poly::kNeither_Side, alloc);
+    Poly* poly = ALLOC_NEW(Poly, (v, winding), alloc);
     poly->fNext = *head;
     *head = poly;
     return poly;
@@ -1196,10 +1211,10 @@ Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
 #endif
         if (v->fFirstEdgeAbove) {
             if (leftPoly) {
-                leftPoly = leftPoly->addVertex(v, Poly::kRight_Side, alloc);
+                leftPoly = leftPoly->addEdge(v->fFirstEdgeAbove, Poly::kRight_Side, alloc);
             }
             if (rightPoly) {
-                rightPoly = rightPoly->addVertex(v, Poly::kLeft_Side, alloc);
+                rightPoly = rightPoly->addEdge(v->fLastEdgeAbove, Poly::kLeft_Side, alloc);
             }
             for (Edge* e = v->fFirstEdgeAbove; e != v->fLastEdgeAbove; e = e->fNextEdgeAbove) {
                 Edge* leftEdge = e;
@@ -1207,10 +1222,10 @@ Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
                 SkASSERT(rightEdge->isRightOf(leftEdge->fTop));
                 remove_edge(leftEdge, &activeEdges);
                 if (leftEdge->fRightPoly) {
-                    leftEdge->fRightPoly->end(v, alloc);
+                    leftEdge->fRightPoly->addEdge(e, Poly::kLeft_Side, alloc);
                 }
-                if (rightEdge->fLeftPoly && rightEdge->fLeftPoly != leftEdge->fRightPoly) {
-                    rightEdge->fLeftPoly->end(v, alloc);
+                if (rightEdge->fLeftPoly) {
+                    rightEdge->fLeftPoly->addEdge(e, Poly::kRight_Side, alloc);
                 }
             }
             remove_edge(v->fLastEdgeAbove, &activeEdges);
@@ -1224,28 +1239,21 @@ Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
         }
         if (v->fFirstEdgeBelow) {
             if (!v->fFirstEdgeAbove) {
-                if (leftPoly && leftPoly == rightPoly) {
-                    // Split the poly.
-                    if (leftPoly->fActive->fSide == Poly::kLeft_Side) {
-                        leftPoly = new_poly(&polys, leftEnclosingEdge->fTop, leftPoly->fWinding,
-                                            alloc);
-                        leftPoly->addVertex(v, Poly::kRight_Side, alloc);
-                        rightPoly->addVertex(v, Poly::kLeft_Side, alloc);
-                        leftEnclosingEdge->fRightPoly = leftPoly;
-                    } else {
-                        rightPoly = new_poly(&polys, rightEnclosingEdge->fTop, rightPoly->fWinding,
-                                             alloc);
-                        rightPoly->addVertex(v, Poly::kLeft_Side, alloc);
-                        leftPoly->addVertex(v, Poly::kRight_Side, alloc);
-                        rightEnclosingEdge->fLeftPoly = rightPoly;
+                if (leftPoly && rightPoly) {
+                    if (leftPoly == rightPoly) {
+                        if (leftPoly->fTail && leftPoly->fTail->fSide == Poly::kLeft_Side) {
+                            leftPoly = new_poly(&polys, leftPoly->lastVertex(),
+                                                 leftPoly->fWinding, alloc);
+                            leftEnclosingEdge->fRightPoly = leftPoly;
+                        } else {
+                            rightPoly = new_poly(&polys, rightPoly->lastVertex(),
+                                                 rightPoly->fWinding, alloc);
+                            rightEnclosingEdge->fLeftPoly = rightPoly;
+                        }
                     }
-                } else {
-                    if (leftPoly) {
-                        leftPoly = leftPoly->addVertex(v, Poly::kRight_Side, alloc);
-                    }
-                    if (rightPoly) {
-                        rightPoly = rightPoly->addVertex(v, Poly::kLeft_Side, alloc);
-                    }
+                    Edge* join = ALLOC_NEW(Edge, (leftPoly->lastVertex(), v, 1), alloc);
+                    leftPoly = leftPoly->addEdge(join, Poly::kRight_Side, alloc);
+                    rightPoly = rightPoly->addEdge(join, Poly::kLeft_Side, alloc);
                 }
             }
             Edge* leftEdge = v->fFirstEdgeBelow;

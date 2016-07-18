@@ -55,14 +55,14 @@ static Sk4s VECTORCALL bilerp4(Sk4s xs, Sk4s ys, Sk4f px00, Sk4f px10,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PixelGetter is the lowest level interface to the source data. There is a PixelGetter for each
 // of the different SkColorTypes.
-template <SkColorType colorType, SkColorProfileType colorProfile> class PixelGetter;
+template <SkColorType, SkGammaType> class PixelGetter;
 
 // Alpha handling:
 //   The alpha from the paint (tintColor) is used in the blend part of the pipeline to modulate
 // the entire bitmap. So, the tint color is given an alpha of 1.0 so that the later alpha can
 // modulate this color later.
 template <>
-class PixelGetter<kAlpha_8_SkColorType, kLinear_SkColorProfileType> {
+class PixelGetter<kAlpha_8_SkColorType, kLinear_SkGammaType> {
 public:
     using Element = uint8_t;
     PixelGetter(const SkPixmap& srcPixmap, SkColor tintColor)
@@ -76,63 +76,63 @@ private:
     const Sk4f fTintColor;
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kRGB_565_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kRGB_565_SkColorType, gammaType> {
 public:
     using Element = uint16_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
 
     Sk4f getPixelAt(const uint16_t* src) {
         SkPMColor pixel = SkPixel16ToPixel32(*src);
-        return colorProfile == kSRGB_SkColorProfileType
+        return gammaType == kSRGB_SkGammaType
                ? Sk4f_fromS32(pixel)
                : Sk4f_fromL32(pixel);
     }
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kARGB_4444_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kARGB_4444_SkColorType, gammaType> {
 public:
     using Element = uint16_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
 
     Sk4f getPixelAt(const uint16_t* src) {
         SkPMColor pixel = SkPixel4444ToPixel32(*src);
-        return colorProfile == kSRGB_SkColorProfileType
+        return gammaType == kSRGB_SkGammaType
                ? Sk4f_fromS32(pixel)
                : Sk4f_fromL32(pixel);
     }
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kRGBA_8888_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kRGBA_8888_SkColorType, gammaType> {
 public:
     using Element = uint32_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
 
     Sk4f getPixelAt(const uint32_t* src) {
-        return colorProfile == kSRGB_SkColorProfileType
+        return gammaType == kSRGB_SkGammaType
                ? Sk4f_fromS32(*src)
                : Sk4f_fromL32(*src);
     }
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kBGRA_8888_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kBGRA_8888_SkColorType, gammaType> {
 public:
     using Element = uint32_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
 
     Sk4f getPixelAt(const uint32_t* src) {
-        Sk4f pixel = colorProfile == kSRGB_SkColorProfileType
+        Sk4f pixel = gammaType == kSRGB_SkGammaType
                      ? Sk4f_fromS32(*src)
                      : Sk4f_fromL32(*src);
         return swizzle_rb(pixel);
     }
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kIndex_8_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kIndex_8_SkColorType, gammaType> {
 public:
     using Element = uint8_t;
     PixelGetter(const SkPixmap& srcPixmap) {
@@ -166,7 +166,7 @@ private:
             float invAlpha = 1.0f / alpha;
             Sk4f normalize = {invAlpha, invAlpha, invAlpha, 1.0f / 255.0f};
             pixel = pixel * normalize;
-            if (colorProfile == kSRGB_SkColorProfileType) {
+            if (gammaType == kSRGB_SkGammaType) {
                 pixel = linear_to_srgb(pixel);
             }
             return pixel;
@@ -178,8 +178,8 @@ private:
     Sk4f*                fColorTable;
 };
 
-template <SkColorProfileType colorProfile>
-class PixelGetter<kGray_8_SkColorType, colorProfile> {
+template <SkGammaType gammaType>
+class PixelGetter<kGray_8_SkColorType, gammaType> {
 public:
     using Element = uint8_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
@@ -187,14 +187,14 @@ public:
     Sk4f getPixelAt(const uint8_t* src) {
         float gray = *src * (1.0f/255.0f);
         Sk4f pixel = Sk4f{gray, gray, gray, 1.0f};
-        return colorProfile == kSRGB_SkColorProfileType
+        return gammaType == kSRGB_SkGammaType
                ? srgb_to_linear(pixel)
                : pixel;
     }
 };
 
 template <>
-class PixelGetter<kRGBA_F16_SkColorType, kLinear_SkColorProfileType> {
+class PixelGetter<kRGBA_F16_SkColorType, kLinear_SkGammaType> {
 public:
     using Element = uint64_t;
     PixelGetter(const SkPixmap& srcPixmap) { }
@@ -206,9 +206,9 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PixelAccessor handles all the same plumbing for all the PixelGetters.
-template <SkColorType colorType, SkColorProfileType colorProfile>
+template <SkColorType colorType, SkGammaType gammaType>
 class PixelAccessor {
-    using Element = typename PixelGetter<colorType, colorProfile>::Element;
+    using Element = typename PixelGetter<colorType, gammaType>::Element;
 public:
     template <typename... Args>
     PixelAccessor(const SkPixmap& srcPixmap, Args&&... args)
@@ -263,25 +263,63 @@ public:
 private:
     const Element* const                 fSrc;
     const Sk4i                           fWidth;
-    PixelGetter<colorType, colorProfile> fGetter;
+    PixelGetter<colorType, gammaType> fGetter;
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// GeneralSampler handles all the different sampling scenarios. It makes runtime decisions to
-// choose the fastest stratagy given a particular job. It ultimately uses PixelGetters to access
-// the pixels.
-template<SkColorType colorType, SkColorProfileType colorProfile, typename Next>
-class GeneralSampler {
+// We're moving through source space at a rate of 1 source pixel per 1 dst pixel.
+// We'll never re-use pixels, but we can at least load contiguous pixels.
+template <typename Next, typename Strategy>
+static void src_strategy_blend(Span span, Next* next, Strategy* strategy) {
+    SkPoint start;
+    SkScalar length;
+    int count;
+    std::tie(start, length, count) = span;
+    int ix = SkScalarFloorToInt(X(start));
+    const void* row = strategy->row((int)std::floor(Y(start)));
+    if (length > 0) {
+        while (count >= 4) {
+            Sk4f px0, px1, px2, px3;
+            strategy->get4Pixels(row, ix, &px0, &px1, &px2, &px3);
+            next->blend4Pixels(px0, px1, px2, px3);
+            ix += 4;
+            count -= 4;
+        }
+
+        while (count > 0) {
+            next->blendPixel(strategy->getPixelFromRow(row, ix));
+            ix += 1;
+            count -= 1;
+        }
+    } else {
+        while (count >= 4) {
+            Sk4f px0, px1, px2, px3;
+            strategy->get4Pixels(row, ix - 3, &px3, &px2, &px1, &px0);
+            next->blend4Pixels(px0, px1, px2, px3);
+            ix -= 4;
+            count -= 4;
+        }
+
+        while (count > 0) {
+            next->blendPixel(strategy->getPixelFromRow(row, ix));
+            ix -= 1;
+            count -= 1;
+        }
+    }
+}
+
+// NearestNeighborSampler - use nearest neighbor filtering to create runs of destination pixels.
+template<SkColorType colorType, SkGammaType gammaType, typename Next>
+class NearestNeighborSampler : public SkLinearBitmapPipeline::SampleProcessorInterface {
 public:
     template<typename... Args>
-    GeneralSampler(SkLinearBitmapPipeline::BlendProcessorInterface* next, Args&& ... args)
-        : fNext{next}, fStrategy{std::forward<Args>(args)...} { }
+    NearestNeighborSampler(SkLinearBitmapPipeline::BlendProcessorInterface* next, Args&& ... args)
+    : fNext{next}, fStrategy{std::forward<Args>(args)...} { }
 
-    GeneralSampler(SkLinearBitmapPipeline::BlendProcessorInterface* next,
-                   const GeneralSampler& sampler)
-        : fNext{next}, fStrategy{sampler.fStrategy} { }
+    NearestNeighborSampler(SkLinearBitmapPipeline::BlendProcessorInterface* next,
+    const NearestNeighborSampler& sampler)
+    : fNext{next}, fStrategy{sampler.fStrategy} { }
 
-    void VECTORCALL nearestListFew(int n, Sk4s xs, Sk4s ys) {
+    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         SkASSERT(0 < n && n < 4);
         Sk4f px0, px1, px2;
         fStrategy.getFewPixels(n, xs, ys, &px0, &px1, &px2);
@@ -290,13 +328,13 @@ public:
         if (n >= 3) fNext->blendPixel(px2);
     }
 
-    void VECTORCALL nearestList4(Sk4s xs, Sk4s ys) {
+    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         Sk4f px0, px1, px2, px3;
         fStrategy.get4Pixels(xs, ys, &px0, &px1, &px2, &px3);
         fNext->blend4Pixels(px0, px1, px2, px3);
     }
 
-    void nearestSpan(Span span) {
+    void pointSpan(Span span) override {
         SkASSERT(!span.isEmpty());
         SkPoint start;
         SkScalar length;
@@ -304,85 +342,33 @@ public:
         std::tie(start, length, count) = span;
         SkScalar absLength = SkScalarAbs(length);
         if (absLength < (count - 1)) {
-            this->nearestSpanSlowRate(span);
+            this->spanSlowRate(span);
         } else if (absLength == (count - 1)) {
-            this->nearestSpanUnitRate(span);
+            src_strategy_blend(span, fNext, &fStrategy);
         } else {
-            this->nearestSpanFastRate(span);
+            this->spanFastRate(span);
         }
     }
 
-    Sk4f bilerNonEdgePixel(SkScalar x, SkScalar y) {
-        Sk4f px00, px10, px01, px11;
-        Sk4f xs = Sk4f{x};
-        Sk4f ys = Sk4f{y};
-        Sk4f sampleXs = xs + Sk4f{-0.5f, 0.5f, -0.5f, 0.5f};
-        Sk4f sampleYs = ys + Sk4f{-0.5f, -0.5f, 0.5f, 0.5f};
-        fStrategy.get4Pixels(sampleXs, sampleYs, &px00, &px10, &px01, &px11);
-        return bilerp4(xs, ys, px00, px10, px01, px11);
-    }
-
-    void VECTORCALL bilerpListFew(int n, Sk4s xs, Sk4s ys) {
-        SkASSERT(0 < n && n < 4);
-        auto bilerpPixel = [&](int index) {
-            return this->bilerNonEdgePixel(xs[index], ys[index]);
-        };
-
-        if (n >= 1) fNext->blendPixel(bilerpPixel(0));
-        if (n >= 2) fNext->blendPixel(bilerpPixel(1));
-        if (n >= 3) fNext->blendPixel(bilerpPixel(2));
-    }
-
-    void VECTORCALL bilerpList4(Sk4s xs, Sk4s ys) {
-        auto bilerpPixel = [&](int index) {
-            return this->bilerNonEdgePixel(xs[index], ys[index]);
-        };
-        fNext->blend4Pixels(bilerpPixel(0), bilerpPixel(1), bilerpPixel(2), bilerpPixel(3));
-    }
-
-    void VECTORCALL bilerpEdge(Sk4s sampleXs, Sk4s sampleYs) {
-        Sk4f px00, px10, px01, px11;
-        Sk4f xs = Sk4f{sampleXs[0]};
-        Sk4f ys = Sk4f{sampleYs[0]};
-        fStrategy.get4Pixels(sampleXs, sampleYs, &px00, &px10, &px01, &px11);
-        Sk4f pixel = bilerp4(xs, ys, px00, px10, px01, px11);
-        fNext->blendPixel(pixel);
-    }
-
-    void bilerpSpan(Span span) {
-        this->bilerpSpanWithY(span, span.startY());
-    }
-
-    void bilerpSpanWithY(Span span, SkScalar y) {
-        SkASSERT(!span.isEmpty());
-        SkPoint start;
-        SkScalar length;
-        int count;
-        std::tie(start, length, count) = span;
-        SkScalar absLength = SkScalarAbs(length);
-        if (absLength == 0.0f) {
-            this->bilerpSpanZeroRate(span, y);
-        } else if (absLength < (count - 1)) {
-            this->bilerpSpanSlowRate(span, y);
-        } else if (absLength == (count - 1)) {
-            if (std::fmod(span.startX() - 0.5f, 1.0f) == 0.0f) {
-                if (std::fmod(span.startY() - 0.5f, 1.0f) == 0.0f) {
-                    this->nearestSpanUnitRate(span);
-                } else {
-                    this->bilerpSpanUnitRateAlignedX(span, y);
-                }
-            } else {
-                this->bilerpSpanUnitRate(span, y);
-            }
-        } else {
-            this->bilerpSpanFastRate(span, y);
+    void repeatSpan(Span span, int32_t repeatCount) override {
+        while (repeatCount > 0) {
+            this->pointSpan(span);
+            repeatCount--;
         }
+    }
+
+    void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override {
+        SkFAIL("Using nearest neighbor sampler, but calling a bilerpEdge.");
+    }
+
+    void bilerpSpan(Span span, SkScalar y) override {
+        SkFAIL("Using nearest neighbor sampler, but calling a bilerpSpan.");
     }
 
 private:
     // When moving through source space more slowly than dst space (zoomed in),
     // we'll be sampling from the same source pixel more than once.
-    void nearestSpanSlowRate(Span span) {
+    void spanSlowRate(Span span) {
         SkPoint start;
         SkScalar length;
         int count;
@@ -428,64 +414,111 @@ private:
 
     // We're moving through source space at a rate of 1 source pixel per 1 dst pixel.
     // We'll never re-use pixels, but we can at least load contiguous pixels.
-    void nearestSpanUnitRate(Span span) {
-        SkPoint start;
-        SkScalar length;
-        int count;
-        std::tie(start, length, count) = span;
-        int ix = SkScalarFloorToInt(X(start));
-        const void* row = fStrategy.row((int)std::floor(Y(start)));
-        Next* next = fNext;
-        if (length > 0) {
-            while (count >= 4) {
-                Sk4f px0, px1, px2, px3;
-                fStrategy.get4Pixels(row, ix, &px0, &px1, &px2, &px3);
-                next->blend4Pixels(px0, px1, px2, px3);
-                ix += 4;
-                count -= 4;
-            }
-
-            while (count > 0) {
-                next->blendPixel(fStrategy.getPixelFromRow(row, ix));
-                ix += 1;
-                count -= 1;
-            }
-        } else {
-            while (count >= 4) {
-                Sk4f px0, px1, px2, px3;
-                fStrategy.get4Pixels(row, ix - 3, &px3, &px2, &px1, &px0);
-                next->blend4Pixels(px0, px1, px2, px3);
-                ix -= 4;
-                count -= 4;
-            }
-
-            while (count > 0) {
-                next->blendPixel(fStrategy.getPixelFromRow(row, ix));
-                ix -= 1;
-                count -= 1;
-            }
-        }
+    void spanUnitRate(Span span) {
+        src_strategy_blend(span, fNext, &fStrategy);
     }
 
     // We're moving through source space faster than dst (zoomed out),
     // so we'll never reuse a source pixel or be able to do contiguous loads.
-    void nearestSpanFastRate(Span span) {
-        struct NearestWrapper {
-            void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) {
-                fSampler.nearestListFew(n, xs, ys);
-            }
-
-            void VECTORCALL pointList4(Sk4s xs, Sk4s ys) {
-                fSampler.nearestList4(xs, ys);
-            }
-
-            GeneralSampler& fSampler;
-        };
-        NearestWrapper wrapper{*this};
-        span_fallback(span, &wrapper);
+    void spanFastRate(Span span) {
+        span_fallback(span, this);
     }
 
-    void bilerpSpanZeroRate(Span span, SkScalar y1) {
+    Next* const                         fNext;
+    PixelAccessor<colorType, gammaType> fStrategy;
+};
+
+// -- BilerpSampler --------------------------------------------------------------------------------
+// BilerpSampler - use a bilerp filter to create runs of destination pixels.
+template<SkColorType colorType, SkGammaType gammaType, typename Next>
+class BilerpSampler : public SkLinearBitmapPipeline::SampleProcessorInterface {
+public:
+    template<typename... Args>
+    BilerpSampler(SkLinearBitmapPipeline::BlendProcessorInterface* next, Args&& ... args)
+        : fNext{next}, fStrategy{std::forward<Args>(args)...} { }
+
+    BilerpSampler(SkLinearBitmapPipeline::BlendProcessorInterface* next,
+                   const BilerpSampler& sampler)
+        : fNext{next}, fStrategy{sampler.fStrategy} { }
+
+    Sk4f bilerpNonEdgePixel(SkScalar x, SkScalar y) {
+        Sk4f px00, px10, px01, px11;
+
+        // bilerp4() expects xs, ys are the top-lefts of the 2x2 kernel.
+        Sk4f xs = Sk4f{x} - 0.5f;
+        Sk4f ys = Sk4f{y} - 0.5f;
+        Sk4f sampleXs = xs + Sk4f{0.0f, 1.0f, 0.0f, 1.0f};
+        Sk4f sampleYs = ys + Sk4f{0.0f, 0.0f, 1.0f, 1.0f};
+        fStrategy.get4Pixels(sampleXs, sampleYs, &px00, &px10, &px01, &px11);
+        return bilerp4(xs, ys, px00, px10, px01, px11);
+    }
+
+    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
+        SkASSERT(0 < n && n < 4);
+        auto bilerpPixel = [&](int index) {
+            return this->bilerpNonEdgePixel(xs[index], ys[index]);
+        };
+
+        if (n >= 1) fNext->blendPixel(bilerpPixel(0));
+        if (n >= 2) fNext->blendPixel(bilerpPixel(1));
+        if (n >= 3) fNext->blendPixel(bilerpPixel(2));
+    }
+
+    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
+        auto bilerpPixel = [&](int index) {
+            return this->bilerpNonEdgePixel(xs[index], ys[index]);
+        };
+        fNext->blend4Pixels(bilerpPixel(0), bilerpPixel(1), bilerpPixel(2), bilerpPixel(3));
+    }
+
+    void pointSpan(Span span) override {
+        this->bilerpSpan(span, span.startY());
+    }
+
+    void repeatSpan(Span span, int32_t repeatCount) override {
+        while (repeatCount > 0) {
+            this->pointSpan(span);
+            repeatCount--;
+        }
+    }
+
+    void VECTORCALL bilerpEdge(Sk4s sampleXs, Sk4s sampleYs) override {
+        Sk4f px00, px10, px01, px11;
+        Sk4f xs = Sk4f{sampleXs[0]};
+        Sk4f ys = Sk4f{sampleYs[0]};
+        fStrategy.get4Pixels(sampleXs, sampleYs, &px00, &px10, &px01, &px11);
+        Sk4f pixel = bilerp4(xs, ys, px00, px10, px01, px11);
+        fNext->blendPixel(pixel);
+    }
+
+    void bilerpSpan(Span span, SkScalar y) override {
+        SkASSERT(!span.isEmpty());
+        SkPoint start;
+        SkScalar length;
+        int count;
+        std::tie(start, length, count) = span;
+        SkScalar absLength = SkScalarAbs(length);
+        if (absLength == 0.0f) {
+            this->spanZeroRate(span, y);
+        } else if (absLength < (count - 1)) {
+            this->spanSlowRate(span, y);
+        } else if (absLength == (count - 1)) {
+            if (std::fmod(span.startX() - 0.5f, 1.0f) == 0.0f) {
+                if (std::fmod(span.startY() - 0.5f, 1.0f) == 0.0f) {
+                    src_strategy_blend(span, fNext, &fStrategy);
+                } else {
+                    this->spanUnitRateAlignedX(span, y);
+                }
+            } else {
+                this->spanUnitRate(span, y);
+            }
+        } else {
+            this->spanFastRate(span, y);
+        }
+    }
+
+private:
+    void spanZeroRate(Span span, SkScalar y1) {
         SkScalar y0 = span.startY() - 0.5f;
         y1 += 0.5f;
         int iy0 = SkScalarFloorToInt(y0);
@@ -509,16 +542,14 @@ private:
 
     // When moving through source space more slowly than dst space (zoomed in),
     // we'll be sampling from the same source pixel more than once.
-    void bilerpSpanSlowRate(Span span, SkScalar ry1) {
+    void spanSlowRate(Span span, SkScalar ry1) {
         SkPoint start;
         SkScalar length;
         int count;
         std::tie(start, length, count) = span;
-        SkFixed fx = SkScalarToFixed(X(start)
-                                         -0.5f);
+        SkFixed fx = SkScalarToFixed(X(start)-0.5f);
 
         SkFixed fdx = SkScalarToFixed(length / (count - 1));
-        //start = start + SkPoint{-0.5f, -0.5f};
 
         Sk4f xAdjust;
         if (fdx >= 0) {
@@ -580,7 +611,7 @@ private:
 
     // We're moving through source space at a rate of 1 source pixel per 1 dst pixel.
     // We'll never re-use pixels, but we can at least load contiguous pixels.
-    void bilerpSpanUnitRate(Span span, SkScalar y1) {
+    void spanUnitRate(Span span, SkScalar y1) {
         y1 += 0.5f;
         SkScalar y0 = span.startY() - 0.5f;
         int iy0 = SkScalarFloorToInt(y0);
@@ -685,7 +716,7 @@ private:
         }
     }
 
-    void bilerpSpanUnitRateAlignedX(Span span, SkScalar y1) {
+    void spanUnitRateAlignedX(Span span, SkScalar y1) {
         SkScalar y0 = span.startY() - 0.5f;
         y1 += 0.5f;
         int iy0 = SkScalarFloorToInt(y0);
@@ -744,28 +775,21 @@ private:
 
     // We're moving through source space faster than dst (zoomed out),
     // so we'll never reuse a source pixel or be able to do contiguous loads.
-    void bilerpSpanFastRate(Span span, SkScalar y1) {
+    void spanFastRate(Span span, SkScalar y1) {
         SkPoint start;
         SkScalar length;
         int count;
         std::tie(start, length, count) = span;
         SkScalar x = X(start);
         SkScalar y = Y(start);
-        if (false && y == y1) {
-            struct BilerpWrapper {
-                void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) {
-                    fSampler.bilerpListFew(n, xs, ys);
-                }
 
-                void VECTORCALL pointList4(Sk4s xs, Sk4s ys) {
-                    fSampler.bilerpList4(xs, ys);
-                }
-
-                GeneralSampler& fSampler;
-            };
-            BilerpWrapper wrapper{*this};
-            span_fallback(span, &wrapper);
+        // In this sampler, it is assumed that if span.StartY() and y1 are the same then both
+        // y-lines are on the same tile.
+        if (y == y1) {
+            // Both y-lines are on the same tile.
+            span_fallback(span, this);
         } else {
+            // The y-lines are on different tiles.
             SkScalar dx = length / (count - 1);
             Sk4f ys = {y - 0.5f, y - 0.5f, y1 + 0.5f, y1 + 0.5f};
             while (count > 0) {
@@ -777,8 +801,8 @@ private:
         }
     }
 
-    Next* const                            fNext;
-    PixelAccessor<colorType, colorProfile> fStrategy;
+    Next* const                         fNext;
+    PixelAccessor<colorType, gammaType> fStrategy;
 };
 
 }  // namespace

@@ -6,6 +6,7 @@
  */
 
 #include "SkChunkAlloc.h"
+#include "SkRandom.h"
 #include "SkUtils.h"
 #include "Test.h"
 
@@ -21,6 +22,14 @@ static void* simple_alloc(skiatest::Reporter* reporter, SkChunkAlloc* alloc, siz
     check_alloc(reporter, *alloc, size, size, 1);
     REPORTER_ASSERT(reporter, alloc->contains(ptr));
     return ptr;
+}
+
+static void check_alloc_alignment(skiatest::Reporter* reporter,
+                                  SkChunkAlloc* alloc, size_t size) {
+    const size_t kAlignment = 8;
+    void* ptr = alloc->allocThrow(size);
+    REPORTER_ASSERT(reporter, ptr != nullptr);
+    REPORTER_ASSERT(reporter, (size_t)ptr % kAlignment == 0);
 }
 
 static void test_chunkalloc(skiatest::Reporter* reporter) {
@@ -76,6 +85,14 @@ static void test_chunkalloc(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, freed == kMin);
     check_alloc(reporter, alloc, 2*kMin, size, 2);
     REPORTER_ASSERT(reporter, !alloc.contains(ptr));
+
+    //------------------------------------------------------------------------
+    // test the alignment
+    alloc.reset();
+    SkRandom rand;
+    for (int i = 0; i < 1000; i++) {
+        check_alloc_alignment(reporter, &alloc, rand.nextU16());
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

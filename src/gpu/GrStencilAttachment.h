@@ -52,8 +52,7 @@ public:
                                                   GrUniqueKey* key);
 
 protected:
-    GrStencilAttachment(GrGpu* gpu, int width, int height, int bits,
-                        int sampleCnt)
+    GrStencilAttachment(GrGpu* gpu, int width, int height, int bits, int sampleCnt)
         : GrGpuResource(gpu)
         , fWidth(width)
         , fHeight(height)

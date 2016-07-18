@@ -264,11 +264,11 @@ private:
 
 class GrRadialGradient : public GrGradientEffect {
 public:
-    static GrFragmentProcessor* Create(GrContext* ctx,
-                                       const SkRadialGradient& shader,
-                                       const SkMatrix& matrix,
-                                       SkShader::TileMode tm) {
-        return new GrRadialGradient(ctx, shader, matrix, tm);
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
+                                           const SkRadialGradient& shader,
+                                           const SkMatrix& matrix,
+                                           SkShader::TileMode tm) {
+        return sk_sp<GrFragmentProcessor>(new GrRadialGradient(ctx, shader, matrix, tm));
     }
 
     virtual ~GrRadialGradient() { }
@@ -302,7 +302,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradient);
 
-const GrFragmentProcessor* GrRadialGradient::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius = d->fRandom->nextUScalar1();
 
@@ -312,8 +312,9 @@ const GrFragmentProcessor* GrRadialGradient::TestCreate(GrProcessorTestData* d) 
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeRadial(center, radius, colors, stops, colorCount, tm);
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
+        SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -337,11 +338,12 @@ void GrGLRadialGradient::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor* SkRadialGradient::asFragmentProcessor(
+sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
                                                  GrContext* context,
                                                  const SkMatrix& viewM,
                                                  const SkMatrix* localMatrix,
-                                                 SkFilterQuality) const {
+                                                 SkFilterQuality,
+                                                 SkSourceGammaTreatment) const {
     SkASSERT(context);
 
     SkMatrix matrix;
@@ -356,9 +358,8 @@ const GrFragmentProcessor* SkRadialGradient::asFragmentProcessor(
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-        SkAutoTUnref<const GrFragmentProcessor> inner(
-            GrRadialGradient::Create(context, *this, matrix, fTileMode));
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    sk_sp<GrFragmentProcessor> inner(GrRadialGradient::Make(context, *this, matrix, fTileMode));
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif

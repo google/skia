@@ -15,12 +15,14 @@
 #include "SkChecksum.h"
 #include "SkCodec.h"
 #include "SkColorPriv.h"
+#include "SkColorSpace.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
 #include "SkData.h"
 #include "SkFontMgr.h"
 #include "SkGraphics.h"
 #include "SkHalf.h"
+#include "SkLeanWindows.h"
 #include "SkMD5.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
@@ -69,7 +71,8 @@ DEFINE_string(uninterestingHashesFile, "",
 
 DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
 DEFINE_int32(shard,  0, "Which shard do I run?");
-DEFINE_bool(simpleCodec, false, "Only decode images to native scale");
+
+DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
@@ -124,7 +127,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
     vlog("done  %s\n", id.c_str());
     int pending;
     {
-        SkAutoTAcquire<SkSpinlock> lock(gMutex);
+        SkAutoMutexAcquire lock(gMutex);
         for (int i = 0; i < gRunning.count(); i++) {
             if (gRunning[i] == id) {
                 gRunning.removeShuffle(i);
@@ -143,7 +146,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
 static void start(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
     vlog("start %s\n", id.c_str());
-    SkAutoTAcquire<SkSpinlock> lock(gMutex);
+    SkAutoMutexAcquire lock(gMutex);
     gRunning.push_back(id);
 }
 
@@ -152,7 +155,7 @@ static void print_status() {
         peak = sk_tools::getMaxResidentSetSizeMB();
     SkString elapsed = HumanizeMs(SkTime::GetMSecs() - kStartMs);
 
-    SkAutoTAcquire<SkSpinlock> lock(gMutex);
+    SkAutoMutexAcquire lock(gMutex);
     info("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
          elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
     for (auto& task : gRunning) {
@@ -160,13 +163,8 @@ static void print_status() {
     }
 }
 
-// Yo dawg, I heard you like signals so I caught a signal in your
-// signal handler so you can handle signals while you handle signals.
-// Let's not get into that situation.  Only print if we're the first ones to get a crash signal.
-static std::atomic<bool> in_signal_handler{false};
-
 #if defined(SK_BUILD_FOR_WIN32)
-    static LONG WINAPI handler(EXCEPTION_POINTERS* e) {
+    static LONG WINAPI crash_handler(EXCEPTION_POINTERS* e) {
         static const struct {
             const char* name;
             DWORD code;
@@ -180,50 +178,55 @@ static std::atomic<bool> in_signal_handler{false};
         #undef _
         };
 
-        if (!in_signal_handler.exchange(true)) {
-            const DWORD code = e->ExceptionRecord->ExceptionCode;
-            info("\nCaught exception %u", code);
-            for (const auto& exception : kExceptions) {
-                if (exception.code == code) {
-                    info(" %s", exception.name);
-                }
+        SkAutoMutexAcquire lock(gMutex);
+
+        const DWORD code = e->ExceptionRecord->ExceptionCode;
+        info("\nCaught exception %u", code);
+        for (const auto& exception : kExceptions) {
+            if (exception.code == code) {
+                info(" %s", exception.name);
             }
-            info("\n");
-            print_status();
-            fflush(stdout);
         }
+        info(", was running:\n");
+        for (auto& task : gRunning) {
+            info("\t%s\n", task.c_str());
+        }
+        fflush(stdout);
+
         // Execute default exception handler... hopefully, exit.
         return EXCEPTION_EXECUTE_HANDLER;
     }
-    static void setup_crash_handler() { SetUnhandledExceptionFilter(handler); }
+    static void setup_crash_handler() { SetUnhandledExceptionFilter(crash_handler); }
 
 #elif !defined(SK_BUILD_FOR_ANDROID)
     #include <execinfo.h>
     #include <signal.h>
     #include <stdlib.h>
 
+    static void crash_handler(int sig) {
+        SkAutoMutexAcquire lock(gMutex);
+
+        info("\nCaught signal %d [%s], was running:\n", sig, strsignal(sig));
+        for (auto& task : gRunning) {
+            info("\t%s\n", task.c_str());
+        }
+
+        void* stack[64];
+        int count = backtrace(stack, SK_ARRAY_COUNT(stack));
+        char** symbols = backtrace_symbols(stack, count);
+        info("\nStack trace:\n");
+        for (int i = 0; i < count; i++) {
+            info("    %s\n", symbols[i]);
+        }
+        fflush(stdout);
+
+        _Exit(sig);
+    }
+
     static void setup_crash_handler() {
         const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
         for (int sig : kSignals) {
-            signal(sig, [](int sig) {
-                if (!in_signal_handler.exchange(true)) {
-                    SkAutoTAcquire<SkSpinlock> lock(gMutex);
-                    info("\nCaught signal %d [%s], was running:\n", sig, strsignal(sig));
-                    for (auto& task : gRunning) {
-                        info("\t%s\n", task.c_str());
-                    }
-
-                    void* stack[64];
-                    int count = backtrace(stack, SK_ARRAY_COUNT(stack));
-                    char** symbols = backtrace_symbols(stack, count);
-                    info("\nStack trace:\n");
-                    for (int i = 0; i < count; i++) {
-                        info("    %s\n", symbols[i]);
-                    }
-                    fflush(stdout);
-                }
-                _Exit(sig);
-            });
+            signal(sig, crash_handler);
         }
     }
 
@@ -373,9 +376,6 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
     }
 
     switch (dstAlphaType) {
-        case kOpaque_SkAlphaType:
-            folder.append("_opaque");
-            break;
         case kPremul_SkAlphaType:
             folder.append("_premul");
             break;
@@ -414,9 +414,6 @@ static void push_android_codec_src(Path path, CodecSrc::DstColorType dstColorTyp
     }
 
     switch (dstAlphaType) {
-        case kOpaque_SkAlphaType:
-            folder.append("_opaque");
-            break;
         case kPremul_SkAlphaType:
             folder.append("_premul");
             break;
@@ -481,9 +478,8 @@ static void push_codec_srcs(Path path) {
         return;
     }
 
-    // Native Scales
-    // SkJpegCodec natively supports scaling to: 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875
-    const float nativeScales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
+    // native scaling is only supported by WEBP and JPEG
+    bool supportsNativeScaling = false;
 
     SkTArray<CodecSrc::Mode> nativeModes;
     nativeModes.push_back(CodecSrc::kCodec_Mode);
@@ -493,9 +489,11 @@ static void push_codec_srcs(Path path) {
             nativeModes.push_back(CodecSrc::kScanline_Mode);
             nativeModes.push_back(CodecSrc::kStripe_Mode);
             nativeModes.push_back(CodecSrc::kCroppedScanline_Mode);
+            supportsNativeScaling = true;
             break;
         case SkEncodedFormat::kWEBP_SkEncodedFormat:
             nativeModes.push_back(CodecSrc::kSubset_Mode);
+            supportsNativeScaling = true;
             break;
         case SkEncodedFormat::kDNG_SkEncodedFormat:
             break;
@@ -523,30 +521,31 @@ static void push_codec_srcs(Path path) {
 
     SkTArray<SkAlphaType> alphaModes;
     alphaModes.push_back(kPremul_SkAlphaType);
-    alphaModes.push_back(kUnpremul_SkAlphaType);
-    if (codec->getInfo().alphaType() == kOpaque_SkAlphaType) {
-        alphaModes.push_back(kOpaque_SkAlphaType);
+    if (codec->getInfo().alphaType() != kOpaque_SkAlphaType) {
+        alphaModes.push_back(kUnpremul_SkAlphaType);
     }
 
     for (CodecSrc::Mode mode : nativeModes) {
-        for (float scale : nativeScales) {
-            for (CodecSrc::DstColorType colorType : colorTypes) {
-                for (SkAlphaType alphaType : alphaModes) {
-                    // Only test kCroppedScanline_Mode when the alpha type is opaque.  The test is
-                    // slow and won't be interestingly different with different alpha types.
-                    if (CodecSrc::kCroppedScanline_Mode == mode &&
-                            kOpaque_SkAlphaType != alphaType) {
-                        continue;
-                    }
+        for (CodecSrc::DstColorType colorType : colorTypes) {
+            for (SkAlphaType alphaType : alphaModes) {
+                // Only test kCroppedScanline_Mode when the alpha type is premul.  The test is
+                // slow and won't be interestingly different with different alpha types.
+                if (CodecSrc::kCroppedScanline_Mode == mode &&
+                        kPremul_SkAlphaType != alphaType) {
+                    continue;
+                }
 
-                    // Skip kNonNative on different native scales.  It won't be interestingly
-                    // different.
-                    if (CodecSrc::kNonNative8888_Always_DstColorType == colorType && 1.0f != scale)
-                    {
-                        continue;
-                    }
+                push_codec_src(path, mode, colorType, alphaType, 1.0f);
 
-                    push_codec_src(path, mode, colorType, alphaType, scale);
+                // Skip kNonNative on different native scales.  It won't be interestingly
+                // different.
+                if (supportsNativeScaling &&
+                        CodecSrc::kNonNative8888_Always_DstColorType == colorType) {
+                    // Native Scales
+                    // SkJpegCodec natively supports scaling to the following:
+                    for (auto scale : { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f }) {
+                        push_codec_src(path, mode, colorType, alphaType, scale);
+                    }
                 }
             }
         }
@@ -646,6 +645,16 @@ static void push_brd_src(Path path, CodecSrc::DstColorType dstColorType, BRDSrc:
 }
 
 static void push_brd_srcs(Path path) {
+    // Only run Index8 and grayscale to one sampleSize and Mode. Though interesting
+    // to test these color types, they should not reveal anything across various
+    // sampleSizes and Modes
+    for (auto type : { CodecSrc::kIndex8_Always_DstColorType,
+                       CodecSrc::kGrayscale_Always_DstColorType }) {
+        // Arbitrarily choose Mode and sampleSize.
+        push_brd_src(path, type, BRDSrc::kFullImage_Mode, 2);
+    }
+
+
     // Test on a variety of sampleSizes, making sure to include:
     // - 2, 4, and 8, which are natively supported by jpeg
     // - multiples of 2 which are not divisible by 4 (analogous for 4)
@@ -653,24 +662,14 @@ static void push_brd_srcs(Path path) {
     // We will only produce output for the larger sizes on large images.
     const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 24, 32, 64 };
 
-    // We will only test to one backend (8888), but we will test all of the
-    // color types that we need to decode to on this backend.
-    const CodecSrc::DstColorType dstColorTypes[] = {
-            CodecSrc::kGetFromCanvas_DstColorType,
-            CodecSrc::kIndex8_Always_DstColorType,
-            CodecSrc::kGrayscale_Always_DstColorType,
-    };
-
     const BRDSrc::Mode modes[] = {
             BRDSrc::kFullImage_Mode,
             BRDSrc::kDivisor_Mode,
     };
 
     for (uint32_t sampleSize : sampleSizes) {
-        for (CodecSrc::DstColorType dstColorType : dstColorTypes) {
-            for (BRDSrc::Mode mode : modes) {
-                push_brd_src(path, dstColorType, mode, sampleSize);
-            }
+        for (BRDSrc::Mode mode : modes) {
+            push_brd_src(path, CodecSrc::kGetFromCanvas_DstColorType, mode, sampleSize);
         }
     }
 }
@@ -705,6 +704,19 @@ static bool gather_srcs() {
         }
     }
 
+    for (int i = 0; i < FLAGS_mskps.count(); i++) {
+        const char* path = FLAGS_mskps[i];
+        if (sk_isdir(path)) {
+            SkOSFile::Iter it(path, "mskp");
+            for (SkString file; it.next(&file);) {
+                push_src("mskp", "",
+                         new MSKPSrc(SkOSPath::Join(path, file.c_str())));
+            }
+        } else {
+            push_src("mskp", "", new MSKPSrc(path));
+        }
+    }
+
     SkTArray<SkString> images;
     if (!CollectImages(FLAGS_images, &images)) {
         return false;
@@ -730,6 +742,17 @@ static bool gather_srcs() {
     for (auto colorImage : colorImages) {
         ColorCodecSrc* src = new ColorCodecSrc(colorImage, ColorCodecSrc::kBaseline_Mode);
         push_src("image", "color_codec_baseline", src);
+
+        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_HPZR30w_Mode);
+        push_src("image", "color_codec_HPZR30w", src);
+
+        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_sRGB_Mode);
+        push_src("image", "color_codec_sRGB", src);
+
+#if defined(SK_TEST_QCMS)
+        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kQCMS_HPZR30w_Mode);
+        push_src("image", "color_codec_QCMS_HPZR30w", src);
+#endif
     }
 
     return true;
@@ -781,8 +804,8 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
                 contextOptions = static_cast<GrContextFactory::ContextOptions>(
                     contextOptions | GrContextFactory::kEnableNVPR_ContextOptions);
             }
-            if (SkColorAndProfileAreGammaCorrect(gpuConfig->getColorType(),
-                                                 gpuConfig->getProfileType())) {
+            if (SkColorAndColorSpaceAreGammaCorrect(gpuConfig->getColorType(),
+                                                    gpuConfig->getColorSpace())) {
                 contextOptions = static_cast<GrContextFactory::ContextOptions>(
                     contextOptions | GrContextFactory::kRequireSRGBSupport_ContextOptions);
             }
@@ -794,7 +817,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
             }
             return new GPUSink(contextType, contextOptions, gpuConfig->getSamples(),
                                gpuConfig->getUseDIText(), gpuConfig->getColorType(),
-                               gpuConfig->getProfileType(), FLAGS_gpu_threading);
+                               sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading);
         }
     }
 #endif
@@ -806,9 +829,11 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
 #endif
 
     if (FLAGS_cpu) {
+        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+
         SINK("565",  RasterSink, kRGB_565_SkColorType);
         SINK("8888", RasterSink, kN32_SkColorType);
-        SINK("srgb", RasterSink, kN32_SkColorType, kSRGB_SkColorProfileType);
+        SINK("srgb", RasterSink, kN32_SkColorType, srgbColorSpace);
         SINK("f16",  RasterSink, kRGBA_F16_SkColorType);
         SINK("pdf",  PDFSink);
         SINK("skp",  SKPSink);
@@ -1213,7 +1238,7 @@ SkThread* start_status_thread() {
 
 #define PORTABLE_FONT_PREFIX "Toy Liberation "
 
-static sk_sp<SkTypeface> create_from_name(const char familyName[], SkTypeface::Style style) {
+static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle style) {
     if (familyName && strlen(familyName) > sizeof(PORTABLE_FONT_PREFIX)
             && !strncmp(familyName, PORTABLE_FONT_PREFIX, sizeof(PORTABLE_FONT_PREFIX) - 1)) {
         return sk_tool_utils::create_portable_typeface(familyName, style);
@@ -1223,7 +1248,7 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkTypeface::S
 
 #undef PORTABLE_FONT_PREFIX
 
-extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style );
+extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
 int dm_main();
 int dm_main() {
@@ -1273,7 +1298,7 @@ int dm_main() {
         if (src->veto(sink->flags()) ||
             is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
                            src.options.c_str(), src->name().c_str())) {
-            SkAutoTAcquire<SkSpinlock> lock(gMutex);
+            SkAutoMutexAcquire lock(gMutex);
             gPending--;
             continue;
         }

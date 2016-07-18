@@ -107,26 +107,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_BUILD_FOR_WIN
-#  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
-#    define WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
-#  endif
-#  ifndef NOMINMAX
-#    define NOMINMAX
-#    define NOMINMAX_WAS_LOCALLY_DEFINED
-#  endif
-#
-#  include <windows.h>
-#
-#  ifdef WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
-#    undef WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
-#    undef WIN32_LEAN_AND_MEAN
-#  endif
-#  ifdef NOMINMAX_WAS_LOCALLY_DEFINED
-#    undef NOMINMAX_WAS_LOCALLY_DEFINED
-#    undef NOMINMAX
-#  endif
-#
 #  ifndef SK_A32_SHIFT
 #    define SK_A32_SHIFT 24
 #    define SK_R32_SHIFT 16

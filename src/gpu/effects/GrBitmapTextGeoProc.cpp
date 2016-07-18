@@ -164,7 +164,7 @@ GrGLSLPrimitiveProcessor* GrBitmapTextGeoProc::createGLSLInstance(const GrGLSLCa
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 
-const GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
@@ -177,7 +177,7 @@ const GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
     GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
-                                                           GrTextureParams::kNone_FilterMode);
+                                                               GrTextureParams::kNone_FilterMode);
 
     GrMaskFormat format = kARGB_GrMaskFormat; // init to avoid warning
     switch (d->fRandom->nextULessThan(3)) {
@@ -192,7 +192,7 @@ const GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
             break;
     }
 
-    return GrBitmapTextGeoProc::Create(GrRandomColor(d->fRandom), d->fTextures[texIdx], params,
-                                       format, GrTest::TestMatrix(d->fRandom),
-                                       d->fRandom->nextBool());
+    return GrBitmapTextGeoProc::Make(GrRandomColor(d->fRandom), d->fTextures[texIdx], params,
+                                     format, GrTest::TestMatrix(d->fRandom),
+                                     d->fRandom->nextBool());
 }

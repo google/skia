@@ -58,8 +58,8 @@ private:
         Color color(this->color());
         Coverage coverage(Coverage::kSolid_Type);
         LocalCoords localCoords(LocalCoords::kUnused_Type);
-        SkAutoTUnref<const GrGeometryProcessor> gp(
-            GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I()));
+        sk_sp<GrGeometryProcessor> gp(
+            GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I()));
 
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
@@ -71,7 +71,7 @@ private:
 
         fRect.toQuad(verts);
 
-        helper.recordDraw(target, gp);
+        helper.recordDraw(target, gp.get());
     }
 
     SkRect fRect;
@@ -173,20 +173,18 @@ protected:
                 path->transform(m, &p);
 
                 GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
-                SkAutoTUnref<GrFragmentProcessor> fp(GrConvexPolyEffect::Create(edgeType, p));
+                sk_sp<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, p));
                 if (!fp) {
                     continue;
                 }
 
-                GrPipelineBuilder pipelineBuilder;
-                pipelineBuilder.setXPFactory(
-                    GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                pipelineBuilder.addCoverageFragmentProcessor(fp);
-                pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
+                GrPaint grPaint;
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                 SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
 
-                drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -214,20 +212,18 @@ protected:
                 SkRect rect = *iter.get();
                 rect.offset(x, y);
                 GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
-                SkAutoTUnref<GrFragmentProcessor> fp(GrConvexPolyEffect::Create(edgeType, rect));
+                sk_sp<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, rect));
                 if (!fp) {
                     continue;
                 }
 
-                GrPipelineBuilder pipelineBuilder;
-                pipelineBuilder.setXPFactory(
-                    GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                pipelineBuilder.addCoverageFragmentProcessor(fp);
-                pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
+                GrPaint grPaint;
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                 SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(rect, 0xff000000));
 
-                drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }

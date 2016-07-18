@@ -7,6 +7,23 @@
 
 #include "SkLocalMatrixShader.h"
 
+#if SK_SUPPORT_GPU
+#include "GrFragmentProcessor.h"
+#endif
+
+#if SK_SUPPORT_GPU
+sk_sp<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
+                                        GrContext* context, const SkMatrix& viewM,
+                                        const SkMatrix* localMatrix, SkFilterQuality fq,
+                                        SkSourceGammaTreatment gammaTreatment) const {
+    SkMatrix tmp = this->getLocalMatrix();
+    if (localMatrix) {
+        tmp.preConcat(*localMatrix);
+    }
+    return fProxyShader->asFragmentProcessor(context, viewM, &tmp, fq, gammaTreatment);
+}
+#endif
+
 sk_sp<SkFlattenable> SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);

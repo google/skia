@@ -80,7 +80,7 @@ public:
 
     /** Returns true if will map a rectangle to another rectangle. This can be
         true if the matrix is identity, scale-only, or rotates a multiple of
-        90 degrees.
+        90 degrees, or mirrors in x or y.
     */
     bool rectStaysRect() const {
         if (fTypeMask & kUnknown_Mask) {

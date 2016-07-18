@@ -66,8 +66,8 @@ private:
 
 class BigKeyProcessor : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create() {
-        return new BigKeyProcessor;
+    static sk_sp<GrFragmentProcessor> Make() {
+        return sk_sp<GrFragmentProcessor>(new BigKeyProcessor);
     }
 
     const char* name() const override { return "Big Ole Key"; }
@@ -94,16 +94,16 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor);
 
-const GrFragmentProcessor* BigKeyProcessor::TestCreate(GrProcessorTestData*) {
-    return BigKeyProcessor::Create();
+sk_sp<GrFragmentProcessor> BigKeyProcessor::TestCreate(GrProcessorTestData*) {
+    return BigKeyProcessor::Make();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 class BlockInputFragmentProcessor : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(const GrFragmentProcessor* fp) {
-        return new BlockInputFragmentProcessor(fp);
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> fp) {
+        return sk_sp<GrFragmentProcessor>(new BlockInputFragmentProcessor(fp));
     }
 
     const char* name() const override { return "Block Input"; }
@@ -121,9 +121,9 @@ private:
         typedef GrGLSLFragmentProcessor INHERITED;
     };
 
-    BlockInputFragmentProcessor(const GrFragmentProcessor* child) {
+    BlockInputFragmentProcessor(sk_sp<GrFragmentProcessor> child) {
         this->initClassID<BlockInputFragmentProcessor>();
-        this->registerChildProcessor(child);
+        this->registerChildProcessor(std::move(child));
     }
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {}
@@ -147,44 +147,51 @@ private:
 static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
-static GrRenderTarget* random_render_target(GrTextureProvider* textureProvider, SkRandom* random,
-                                            const GrCaps* caps) {
-    // setup render target
-    GrTextureParams params;
-    GrSurfaceDesc texDesc;
-    texDesc.fWidth = kRenderTargetWidth;
-    texDesc.fHeight = kRenderTargetHeight;
-    texDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    texDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    texDesc.fOrigin = random->nextBool() == true ? kTopLeft_GrSurfaceOrigin :
-                                                   kBottomLeft_GrSurfaceOrigin;
-    texDesc.fSampleCnt = random->nextBool() == true ? SkTMin(4, caps->maxSampleCount()) : 0;
+static sk_sp<GrDrawContext> random_draw_context(GrContext* context,
+                                                SkRandom* random,
+                                                const GrCaps* caps) {
+    GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin
+                                                : kBottomLeft_GrSurfaceOrigin;
+    int sampleCnt = random->nextBool() ? SkTMin(4, caps->maxSampleCount()) : 0;
 
     GrUniqueKey key;
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey::Builder builder(&key, kDomain, 2);
-    builder[0] = texDesc.fOrigin;
-    builder[1] = texDesc.fSampleCnt;
+    builder[0] = origin;
+    builder[1] = sampleCnt;
     builder.finish();
 
-    GrTexture* texture = textureProvider->findAndRefTextureByUniqueKey(key);
-    if (!texture) {
-        texture = textureProvider->createTexture(texDesc, SkBudgeted::kYes);
-        if (texture) {
-            textureProvider->assignUniqueKeyToTexture(key, texture);
-        }
+    sk_sp<GrTexture> texture(context->textureProvider()->findAndRefTextureByUniqueKey(key));
+    if (texture) {
+        sk_sp<GrRenderTarget> rt(sk_ref_sp(texture->asRenderTarget()));
+        return context->drawContext(std::move(rt));
     }
-    return texture ? texture->asRenderTarget() : nullptr;
+
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kExact,
+                                                             kRenderTargetWidth,
+                                                             kRenderTargetHeight,
+                                                             kRGBA_8888_GrPixelConfig,
+                                                             sampleCnt,
+                                                             origin));
+    if (!drawContext) {
+        return nullptr;
+    }
+
+    // TODO: need a real way to do this via the drawContext
+    texture = drawContext->asTexture();
+    context->textureProvider()->assignUniqueKeyToTexture(key, texture.get());
+
+    return drawContext;
 }
 
-static void set_random_xpf(GrPipelineBuilder* pipelineBuilder, GrProcessorTestData* d) {
-    SkAutoTUnref<const GrXPFactory> xpf(GrProcessorTestFactory<GrXPFactory>::Create(d));
+static void set_random_xpf(GrPaint* paint, GrProcessorTestData* d) {
+    sk_sp<GrXPFactory> xpf(GrProcessorTestFactory<GrXPFactory>::Make(d));
     SkASSERT(xpf);
-    pipelineBuilder->setXPFactory(xpf.get());
+    paint->setXPFactory(std::move(xpf));
 }
 
-static const GrFragmentProcessor* create_random_proc_tree(GrProcessorTestData* d,
-                                                           int minLevels, int maxLevels) {
+static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d,
+                                                          int minLevels, int maxLevels) {
     SkASSERT(1 <= minLevels);
     SkASSERT(minLevels <= maxLevels);
 
@@ -195,14 +202,13 @@ static const GrFragmentProcessor* create_random_proc_tree(GrProcessorTestData* d
     if (1 == minLevels) {
         bool terminate = (1 == maxLevels) || (d->fRandom->nextF() < terminateProbability);
         if (terminate) {
-            const GrFragmentProcessor* fp;
+            sk_sp<GrFragmentProcessor> fp;
             while (true) {
-                fp = GrProcessorTestFactory<GrFragmentProcessor>::Create(d);
+                fp = GrProcessorTestFactory<GrFragmentProcessor>::Make(d);
                 SkASSERT(fp);
                 if (0 == fp->numChildProcessors()) {
                     break;
                 }
-                fp->unref();
             }
             return fp;
         }
@@ -213,70 +219,68 @@ static const GrFragmentProcessor* create_random_proc_tree(GrProcessorTestData* d
     if (minLevels > 1) {
         --minLevels;
     }
-    SkAutoTUnref<const GrFragmentProcessor> minLevelsChild(create_random_proc_tree(d, minLevels,
-                                                                                   maxLevels - 1));
-    SkAutoTUnref<const GrFragmentProcessor> otherChild(create_random_proc_tree(d, 1,
-                                                                               maxLevels - 1));
+    sk_sp<GrFragmentProcessor> minLevelsChild(create_random_proc_tree(d, minLevels, maxLevels - 1));
+    sk_sp<GrFragmentProcessor> otherChild(create_random_proc_tree(d, 1, maxLevels - 1));
     SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(d->fRandom->nextRangeU(0,
                                                           SkXfermode::kLastCoeffMode));
-    const GrFragmentProcessor* fp;
+    sk_sp<GrFragmentProcessor> fp;
     if (d->fRandom->nextF() < 0.5f) {
-        fp = GrXfermodeFragmentProcessor::CreateFromTwoProcessors(minLevelsChild, otherChild, mode);
+        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(minLevelsChild),
+                                                                std::move(otherChild), mode);
         SkASSERT(fp);
     } else {
-        fp = GrXfermodeFragmentProcessor::CreateFromTwoProcessors(otherChild, minLevelsChild, mode);
+        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(otherChild),
+                                                                std::move(minLevelsChild), mode);
         SkASSERT(fp);
     }
     return fp;
 }
 
-static void set_random_color_coverage_stages(GrPipelineBuilder* pipelineBuilder,
-                                             GrProcessorTestData* d, int maxStages) {
+static void set_random_color_coverage_stages(GrPaint* paint,
+                                             GrProcessorTestData* d,
+                                             int maxStages) {
     // Randomly choose to either create a linear pipeline of procs or create one proc tree
     const float procTreeProbability = 0.5f;
     if (d->fRandom->nextF() < procTreeProbability) {
         // A full tree with 5 levels (31 nodes) may exceed the max allowed length of the gl
         // processor key; maxTreeLevels should be a number from 1 to 4 inclusive.
         const int maxTreeLevels = 4;
-        SkAutoTUnref<const GrFragmentProcessor> fp(
-                                        create_random_proc_tree(d, 2, maxTreeLevels));
-        pipelineBuilder->addColorFragmentProcessor(fp);
+        sk_sp<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
+        paint->addColorFragmentProcessor(std::move(fp));
     } else {
         int numProcs = d->fRandom->nextULessThan(maxStages + 1);
         int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);
 
         for (int s = 0; s < numProcs;) {
-            SkAutoTUnref<const GrFragmentProcessor> fp(
-                GrProcessorTestFactory<GrFragmentProcessor>::Create(d));
+            sk_sp<GrFragmentProcessor> fp(GrProcessorTestFactory<GrFragmentProcessor>::Make(d));
             SkASSERT(fp);
 
             // finally add the stage to the correct pipeline in the drawstate
             if (s < numColorProcs) {
-                pipelineBuilder->addColorFragmentProcessor(fp);
+                paint->addColorFragmentProcessor(std::move(fp));
             } else {
-                pipelineBuilder->addCoverageFragmentProcessor(fp);
+                paint->addCoverageFragmentProcessor(std::move(fp));
             }
             ++s;
         }
     }
 }
 
-static void set_random_state(GrPipelineBuilder* pipelineBuilder, SkRandom* random) {
-    int state = 0;
-    for (int i = 1; i <= GrPipelineBuilder::kLast_Flag; i <<= 1) {
-        state |= random->nextBool() * i;
+static bool set_random_state(GrPaint* paint, SkRandom* random) {
+    if (random->nextBool()) {
+        paint->setDisableOutputConversionToSRGB(true);
     }
-
-    // If we don't have an MSAA rendertarget then we have to disable useHWAA
-    if ((state | GrPipelineBuilder::kHWAntialias_Flag) &&
-        !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled()) {
-        state &= ~GrPipelineBuilder::kHWAntialias_Flag;
+    if (random->nextBool()) {
+        paint->setAllowSRGBInputs(true);
     }
-    pipelineBuilder->enableState(state);
+    if (random->nextBool()) {
+        paint->setAntiAlias(true);
+    }
+    return random->nextBool();
 }
 
 // right now, the only thing we seem to care about in drawState's stencil is 'doesWrite()'
-static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* random) {
+static const GrUserStencilSettings* get_random_stencil(SkRandom* random) {
     static constexpr GrUserStencilSettings kDoesWriteStencil(
         GrUserStencilSettings::StaticInit<
             0xffff,
@@ -297,9 +301,9 @@ static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* ran
     );
 
     if (random->nextBool()) {
-        pipelineBuilder->setUserStencil(&kDoesWriteStencil);
+        return &kDoesWriteStencil;
     } else {
-        pipelineBuilder->setUserStencil(&kDoesNotWriteStencil);
+        return &kDoesNotWriteStencil;
     }
 }
 
@@ -335,68 +339,57 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
-        sk_sp<GrRenderTarget> rt(random_render_target(
-            context->textureProvider(), &random, context->caps()));
-        if (!rt.get()) {
-            SkDebugf("Could not allocate render target");
-            return false;
-        }
-
-        GrPipelineBuilder pipelineBuilder;
-        pipelineBuilder.setRenderTarget(rt.get());
-
-        SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
-        SkASSERT(batch);
-
-        GrProcessorTestData ptd(&random, context, context->caps(), rt.get(), dummyTextures);
-        set_random_color_coverage_stages(&pipelineBuilder, &ptd, maxStages);
-        set_random_xpf(&pipelineBuilder, &ptd);
-        set_random_state(&pipelineBuilder, &random);
-        set_random_stencil(&pipelineBuilder, &random);
-
-        sk_sp<GrDrawContext> drawContext(context->drawContext(rt));
+        sk_sp<GrDrawContext> drawContext(random_draw_context(context, &random, context->caps()));
         if (!drawContext) {
             SkDebugf("Could not allocate drawContext");
             return false;
         }
 
-        drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+        GrPaint grPaint;
+
+        SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
+        SkASSERT(batch);
+
+        GrProcessorTestData ptd(&random, context, context->caps(),
+                                drawContext.get(), dummyTextures);
+        set_random_color_coverage_stages(&grPaint, &ptd, maxStages);
+        set_random_xpf(&grPaint, &ptd);
+        bool snapToCenters = set_random_state(&grPaint, &random);
+        const GrUserStencilSettings* uss = get_random_stencil(&random);
+
+        drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch, uss, snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
 
     // Validate that GrFPs work correctly without an input.
-    GrSurfaceDesc rtDesc;
-    rtDesc.fWidth = kRenderTargetWidth;
-    rtDesc.fHeight = kRenderTargetHeight;
-    rtDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    rtDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    sk_sp<GrRenderTarget> rt(
-        context->textureProvider()->createTexture(rtDesc, SkBudgeted::kNo)->asRenderTarget());
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kExact,
+                                                             kRenderTargetWidth,
+                                                             kRenderTargetHeight,
+                                                             kRGBA_8888_GrPixelConfig));
+    if (!drawContext) {
+        SkDebugf("Could not allocate a drawContext");
+        return false;
+    }
+
     int fpFactoryCnt = GrProcessorTestFactory<GrFragmentProcessor>::Count();
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
             SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
             SkASSERT(batch);
-            GrProcessorTestData ptd(&random, context, context->caps(), rt.get(), dummyTextures);
-            GrPipelineBuilder builder;
-            builder.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-            builder.setRenderTarget(rt.get());
+            GrProcessorTestData ptd(&random, context, context->caps(),
+                                    drawContext.get(), dummyTextures);
+            GrPaint grPaint;
+            grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
-            SkAutoTUnref<const GrFragmentProcessor> fp(
-                GrProcessorTestFactory<GrFragmentProcessor>::CreateIdx(i, &ptd));
-            SkAutoTUnref<const GrFragmentProcessor> blockFP(
-                BlockInputFragmentProcessor::Create(fp));
-            builder.addColorFragmentProcessor(blockFP);
+            sk_sp<GrFragmentProcessor> fp(
+                GrProcessorTestFactory<GrFragmentProcessor>::MakeIdx(i, &ptd));
+            sk_sp<GrFragmentProcessor> blockFP(
+                BlockInputFragmentProcessor::Make(std::move(fp)));
+            grPaint.addColorFragmentProcessor(std::move(blockFP));
 
-            sk_sp<GrDrawContext> drawContext(context->drawContext(rt));
-            if (!drawContext) {
-                SkDebugf("Could not allocate a drawcontext");
-                return false;
-            }
-
-            drawContext->drawContextPriv().testingOnly_drawBatch(builder, batch);
+            drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
             drawingManager->flush();
         }
     }

@@ -124,8 +124,13 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool doReplace
         desc.fHeight = kHeight;
         desc.fSampleCnt = 0;
 
+        // Giving the texture some initial data so the Gpu (specifically vulkan) does not complain
+        // when reading from an uninitialized texture.
+        SkAutoTMalloc<uint32_t> srcBuffer(kWidth*kHeight);
+        memset(srcBuffer.get(), 0, kWidth*kHeight*sizeof(uint32_t));
+
         texture.reset(context->textureProvider()->createTexture(
-                desc, SkBudgeted::kNo, nullptr, 0));
+                desc, SkBudgeted::kNo, srcBuffer.get(), 0));
         layer->setTexture(texture, SkIRect::MakeWH(kWidth, kHeight), false);
     }
 

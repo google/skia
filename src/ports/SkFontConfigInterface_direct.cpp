@@ -632,7 +632,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     }
 
     FcResult result;
-    FcFontSet* font_set = FcFontSort(0, pattern, 0, 0, &result);
+    FcFontSet* font_set = FcFontSort(nullptr, pattern, 0, nullptr, &result);
     if (!font_set) {
         FcPatternDestroy(pattern);
         return false;

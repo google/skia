@@ -22,7 +22,6 @@
 #include "SkWriteBuffer.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
-#include "SkTestImageFilters.h"
 #include "SkXfermodeImageFilter.h"
 
 class ImageFiltersGraphGM : public skiagm::GM {

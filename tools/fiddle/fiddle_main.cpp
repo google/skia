@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <GL/osmesa.h>
 
@@ -111,6 +112,7 @@ int main() {
     if (options.raster) {
         auto rasterSurface =
                 SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(options.size));
+        srand(0);
         draw(rasterSurface->getCanvas());
         rasterData.reset(encode_snapshot(rasterSurface));
     }
@@ -128,6 +130,7 @@ int main() {
                 fputs("Unable to get render surface.\n", stderr);
                 exit(1);
             }
+            srand(0);
             draw(surface->getCanvas());
             gpuData.reset(encode_snapshot(surface));
         }
@@ -138,6 +141,7 @@ int main() {
     if (options.pdf) {
         SkDynamicMemoryWStream pdfStream;
         sk_sp<SkDocument> document(SkDocument::MakePDF(&pdfStream));
+        srand(0);
         draw(document->beginPage(options.size.width(), options.size.height()));
         document->close();
         pdfData.reset(pdfStream.copyToData());
@@ -146,6 +150,7 @@ int main() {
         SkSize size;
         size = options.size;
         SkPictureRecorder recorder;
+        srand(0);
         draw(recorder.beginRecording(size.width(), size.height()));
         auto picture = recorder.finishRecordingAsPicture();
         SkDynamicMemoryWStream skpStream;

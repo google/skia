@@ -31,7 +31,8 @@ public:
     bool isOpaque() const override { return fCache->info().isOpaque(); }
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const override;
+    GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
+                            SkSourceGammaTreatment) const override;
     bool onIsLazyGenerated() const override { return true; }
 
 private:
@@ -73,8 +74,9 @@ bool SkImage_Generator::getROPixels(SkBitmap* bitmap, CachingHint chint) const {
     return fCache->lockAsBitmap(bitmap, this, chint);
 }
 
-GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrTextureParams& params) const {
-    return fCache->lockAsTexture(ctx, params, this);
+GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrTextureParams& params,
+                                           SkSourceGammaTreatment gammaTreatment) const {
+    return fCache->lockAsTexture(ctx, params, gammaTreatment, this);
 }
 
 sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {

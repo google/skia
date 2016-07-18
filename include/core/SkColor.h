@@ -166,10 +166,10 @@ struct SkPM4f;
  *  The float values are 0...1 unpremultiplied
  */
 struct SkColor4f {
-    float fA;
     float fR;
     float fG;
     float fB;
+    float fA;
 
     bool operator==(const SkColor4f& other) const {
         return fA == other.fA && fR == other.fR && fG == other.fG && fB == other.fB;
@@ -178,14 +178,16 @@ struct SkColor4f {
         return !(*this == other);
     }
 
-    const float* vec() const { return &fA; }
-    float* vec() { return &fA; }
+    const float* vec() const { return &fR; }
+    float* vec() { return &fR; }
 
-    static SkColor4f Pin(float a, float r, float g, float b);
+    static SkColor4f Pin(float r, float g, float b, float a);
     static SkColor4f FromColor(SkColor);
 
+    SkColor toSkColor() const;
+
     SkColor4f pin() const {
-        return Pin(fA, fR, fG, fB);
+        return Pin(fR, fG, fB, fA);
     }
 
     SkPM4f premul() const;

@@ -9,10 +9,10 @@
 #ifndef SkPDFGraphicState_DEFINED
 #define SkPDFGraphicState_DEFINED
 
-#include "SkPaint.h"
 #include "SkPDFStream.h"
 #include "SkChecksum.h"
 
+class SkPaint;
 class SkPDFCanon;
 class SkPDFFormXObject;
 

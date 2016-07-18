@@ -356,16 +356,17 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 
 #include "SkGr.h"
 
-const GrFragmentProcessor* SkTwoPointConicalGradient::asFragmentProcessor(
+sk_sp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
                                                   GrContext* context,
                                                   const SkMatrix& viewM,
                                                   const SkMatrix* localMatrix,
-                                                  SkFilterQuality) const {
+                                                  SkFilterQuality,
+                                                  SkSourceGammaTreatment) const {
     SkASSERT(context);
     SkASSERT(fPtsToUnit.isIdentity());
-    SkAutoTUnref<const GrFragmentProcessor> inner(
-        Gr2PtConicalGradientEffect::Create(context, *this, fTileMode, localMatrix));
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    sk_sp<GrFragmentProcessor> inner(
+        Gr2PtConicalGradientEffect::Make(context, *this, fTileMode, localMatrix));
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif

@@ -526,9 +526,9 @@ static void create_vertices(const SegmentArray&  segments,
 class QuadEdgeEffect : public GrGeometryProcessor {
 public:
 
-    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& localMatrix,
-                                       bool usesLocalCoords) {
-        return new QuadEdgeEffect(color, localMatrix, usesLocalCoords);
+    static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& localMatrix,
+                                           bool usesLocalCoords) {
+        return sk_sp<GrGeometryProcessor>(new QuadEdgeEffect(color, localMatrix, usesLocalCoords));
     }
 
     virtual ~QuadEdgeEffect() {}
@@ -669,20 +669,20 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 
-const GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
     // Doesn't work without derivative instructions.
     return d->fCaps->shaderCaps()->shaderDerivativeSupport() ?
-           QuadEdgeEffect::Create(GrRandomColor(d->fRandom),
-                                  GrTest::TestMatrix(d->fRandom),
-                                  d->fRandom->nextBool()) : nullptr;
+           QuadEdgeEffect::Make(GrRandomColor(d->fRandom),
+                                GrTest::TestMatrix(d->fRandom),
+                                d->fRandom->nextBool()) : nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     return (args.fShaderCaps->shaderDerivativeSupport() && args.fAntiAlias &&
-            args.fStyle->isSimpleFill() && !args.fPath->isInverseFillType() &&
-            args.fPath->isConvex());
+            args.fShape->style().isSimpleFill() && !args.fShape->inverseFilled() &&
+            args.fShape->knownToBeConvex());
 }
 
 // extract the result vertices and indices from the GrAAConvexTessellator
@@ -718,7 +718,7 @@ static void extract_verts(const GrAAConvexTessellator& tess,
     }
 }
 
-static const GrGeometryProcessor* create_fill_gp(bool tweakAlphaForCoverage,
+static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
                                                  const SkMatrix& viewMatrix,
                                                  bool usesLocalCoords,
                                                  bool coverageIgnored) {
@@ -737,19 +737,19 @@ static const GrGeometryProcessor* create_fill_gp(bool tweakAlphaForCoverage,
     Coverage coverage(coverageType);
     LocalCoords localCoords(usesLocalCoords ? LocalCoords::kUsePosition_Type :
                                               LocalCoords::kUnused_Type);
-    return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
+    return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
 class AAConvexPathBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
-    struct Geometry {
-        GrColor fColor;
-        SkMatrix fViewMatrix;
-        SkPath fPath;
-    };
-
-    static GrDrawBatch* Create(const Geometry& geometry) { return new AAConvexPathBatch(geometry); }
+    AAConvexPathBatch(GrColor color, const SkMatrix& viewMatrix, const SkPath& path)
+        : INHERITED(ClassID()) {
+        fGeoData.emplace_back(Geometry{color, viewMatrix, path});
+        // compute bounds
+        fBounds = path.getBounds();
+        viewMatrix.mapRect(&fBounds);
+    }
 
     const char* name() const override { return "AAConvexBatch"; }
 
@@ -782,10 +782,10 @@ private:
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
-        SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_gp(canTweakAlphaForCoverage,
-                                                                  this->viewMatrix(),
-                                                                  this->usesLocalCoords(),
-                                                                  this->coverageIgnored()));
+        sk_sp<GrGeometryProcessor> gp(create_fill_gp(canTweakAlphaForCoverage,
+                                                     this->viewMatrix(),
+                                                     this->usesLocalCoords(),
+                                                     this->coverageIgnored()));
         if (!gp) {
             SkDebugf("Could not create GrGeometryProcessor\n");
             return;
@@ -836,7 +836,7 @@ private:
                              vertexBuffer, indexBuffer,
                              firstVertex, firstIndex,
                              tess.numPts(), tess.numIndices());
-            target->draw(gp, mesh);
+            target->draw(gp.get(), mesh);
         }
     }
 
@@ -857,8 +857,8 @@ private:
         }
 
         // Setup GrGeometryProcessor
-        SkAutoTUnref<GrGeometryProcessor> quadProcessor(
-                QuadEdgeEffect::Create(this->color(), invert, this->usesLocalCoords()));
+        sk_sp<GrGeometryProcessor> quadProcessor(
+                QuadEdgeEffect::Make(this->color(), invert, this->usesLocalCoords()));
 
         // TODO generate all segments for all paths and use one vertex buffer
         for (int i = 0; i < instanceCount; i++) {
@@ -924,21 +924,11 @@ private:
                 const Draw& draw = draws[j];
                 mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
                                  firstVertex, firstIndex, draw.fVertexCnt, draw.fIndexCnt);
-                target->draw(quadProcessor, mesh);
+                target->draw(quadProcessor.get(), mesh);
                 firstVertex += draw.fVertexCnt;
                 firstIndex += draw.fIndexCnt;
             }
         }
-    }
-
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    AAConvexPathBatch(const Geometry& geometry) : INHERITED(ClassID()) {
-        fGeoData.push_back(geometry);
-
-        // compute bounds
-        fBounds = geometry.fPath.getBounds();
-        geometry.fViewMatrix.mapRect(&fBounds);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -967,7 +957,7 @@ private:
             fBatch.fCanTweakAlphaForCoverage = false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(that->bounds());
         return true;
     }
@@ -988,6 +978,12 @@ private:
         bool fCanTweakAlphaForCoverage;
     };
 
+    struct Geometry {
+        GrColor fColor;
+        SkMatrix fViewMatrix;
+        SkPath fPath;
+    };
+
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 
@@ -995,18 +991,20 @@ private:
 };
 
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(), "GrAAConvexPathRenderer::onDrawPath");
-    if (args.fPath->isEmpty()) {
-        return true;
-    }
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+                              "GrAAConvexPathRenderer::onDrawPath");
+    SkASSERT(!args.fDrawContext->isUnifiedMultisampled());
+    SkASSERT(!args.fShape->isEmpty());
 
-    AAConvexPathBatch::Geometry geometry;
-    geometry.fColor = args.fColor;
-    geometry.fViewMatrix = *args.fViewMatrix;
-    geometry.fPath = *args.fPath;
+    SkPath path;
+    args.fShape->asPath(&path);
 
-    SkAutoTUnref<GrDrawBatch> batch(AAConvexPathBatch::Create(geometry));
-    args.fTarget->drawBatch(*args.fPipelineBuilder, *args.fClip, batch);
+    SkAutoTUnref<GrDrawBatch> batch(new AAConvexPathBatch(args.fColor, *args.fViewMatrix, path));
+
+    GrPipelineBuilder pipelineBuilder(*args.fPaint);
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
 
     return true;
 
@@ -1017,12 +1015,11 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 #ifdef GR_TEST_UTILS
 
 DRAW_BATCH_TEST_DEFINE(AAConvexPathBatch) {
-    AAConvexPathBatch::Geometry geometry;
-    geometry.fColor = GrRandomColor(random);
-    geometry.fViewMatrix = GrTest::TestMatrixInvertible(random);
-    geometry.fPath = GrTest::TestPathConvex(random);
+    GrColor color = GrRandomColor(random);
+    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
+    SkPath path = GrTest::TestPathConvex(random);
 
-    return AAConvexPathBatch::Create(geometry);
+    return new AAConvexPathBatch(color, viewMatrix, path);
 }
 
 #endif

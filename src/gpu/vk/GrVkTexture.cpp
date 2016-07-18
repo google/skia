@@ -83,7 +83,7 @@ GrVkTexture* GrVkTexture::CreateWrappedTexture(GrVkGpu* gpu,
                                                const GrVkImageInfo* info) {
     SkASSERT(info);
     // Wrapped textures require both image and allocation (because they can be mapped)
-    SkASSERT(VK_NULL_HANDLE != info->fImage && VK_NULL_HANDLE != info->fAlloc);
+    SkASSERT(VK_NULL_HANDLE != info->fImage && VK_NULL_HANDLE != info->fAlloc.fMemory);
 
     const GrVkImageView* imageView = GrVkImageView::Create(gpu, info->fImage, info->fFormat,
                                                            GrVkImageView::kColor_Type,
@@ -216,7 +216,7 @@ bool GrVkTexture::reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels) {
         fLinearTextureView = nullptr;
     }
 
-    this->setNewResource(info.fImage, info.fAlloc);
+    this->setNewResource(info.fImage, info.fAlloc, info.fImageTiling);
     fTextureView = textureView;
     fInfo = info;
     this->texturePriv().setMaxMipMapLevel(mipLevels);

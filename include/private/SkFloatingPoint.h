@@ -15,6 +15,12 @@
 #include <math.h>
 #include <float.h>
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    #include <xmmintrin.h>
+#elif defined(SK_ARM_HAS_NEON)
+    #include <arm_neon.h>
+#endif
+
 // For _POSIX_VERSION
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #include <unistd.h>

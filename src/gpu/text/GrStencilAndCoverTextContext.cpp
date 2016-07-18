@@ -82,7 +82,7 @@ void GrStencilAndCoverTextContext::drawText(GrContext* context, GrDrawContext* d
     } else if (this->canDraw(skPaint, viewMatrix)) {
         if (skPaint.getTextSize() > 0) {
             TextRun run(skPaint);
-            GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget());
+            GrPipelineBuilder pipelineBuilder(paint);
             run.setText(text, byteLength, x, y);
             run.draw(context, dc, &pipelineBuilder, clip, paint.getColor(), viewMatrix, props, 0, 0,
                      clipBounds, fFallbackTextContext, skPaint);
@@ -117,7 +117,7 @@ void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrDrawContext
     } else if (this->canDraw(skPaint, viewMatrix)) {
         if (skPaint.getTextSize() > 0) {
             TextRun run(skPaint);
-            GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget());
+            GrPipelineBuilder pipelineBuilder(paint);
             run.setPosText(text, byteLength, pos, scalarsPerPosition, offset);
             run.draw(context, dc, &pipelineBuilder, clip, paint.getColor(), viewMatrix, props, 0, 0,
                      clipBounds, fFallbackTextContext, skPaint);
@@ -225,7 +225,7 @@ void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrDrawContex
     }
 
     const TextBlob& blob = this->findOrCreateTextBlob(skBlob, skPaint);
-    GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget());
+    GrPipelineBuilder pipelineBuilder(paint);
 
     TextBlob::Iter iter(blob);
     for (TextRun* run = iter.get(); run; run = iter.next()) {
@@ -595,7 +595,7 @@ inline void GrStencilAndCoverTextContext::TextRun::appendGlyph(const SkGlyph& gl
 }
 
 void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
-                                                 GrDrawContext* dc,
+                                                 GrDrawContext* drawContext,
                                                  GrPipelineBuilder* pipelineBuilder,
                                                  const GrClip& clip,
                                                  GrColor color,
@@ -606,7 +606,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                                  GrAtlasTextContext* fallbackTextContext,
                                                  const SkPaint& originalSkPaint) const {
     SkASSERT(fInstanceData);
-    SkASSERT(dc->accessRenderTarget()->isStencilBufferMultisampled() || !fFont.isAntiAlias());
+    SkASSERT(drawContext->isStencilBufferMultisampled() || !fFont.isAntiAlias());
 
     if (fInstanceData->count()) {
         pipelineBuilder->setState(GrPipelineBuilder::kHWAntialias_Flag, fFont.isAntiAlias());
@@ -635,8 +635,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         // NV_path_rendering will also support NV_blend_equation_advanced.
         // For clipping we'll just skip any optimizations based on the bounds. This does, however,
         // hurt batching.
-        SkRect bounds = SkRect::MakeIWH(pipelineBuilder->getRenderTarget()->width(),
-                                        pipelineBuilder->getRenderTarget()->height());
+        const SkRect bounds = SkRect::MakeIWH(drawContext->width(), drawContext->height());
 
         SkAutoTUnref<GrDrawBatch> batch(
             GrDrawPathRangeBatch::Create(viewMatrix, fTextRatio, fTextInverseRatio * x,
@@ -644,7 +643,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                          GrPathRendering::kWinding_FillType, glyphs, fInstanceData,
                                          bounds));
 
-        dc->drawBatch(pipelineBuilder, clip, batch);
+        drawContext->drawBatch(*pipelineBuilder, clip, batch);
     }
 
     if (fFallbackTextBlob) {
@@ -654,8 +653,8 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
             fallbackSkPaint.setStrokeWidth(fStyle.strokeRec().getWidth() * fTextRatio);
         }
 
-        fallbackTextContext->drawTextBlob(ctx, dc, clip, fallbackSkPaint, viewMatrix, props,
-                                          fFallbackTextBlob, x, y, nullptr, clipBounds);
+        fallbackTextContext->drawTextBlob(ctx, drawContext, clip, fallbackSkPaint, viewMatrix,
+                                          props, fFallbackTextBlob, x, y, nullptr, clipBounds);
     }
 }
 

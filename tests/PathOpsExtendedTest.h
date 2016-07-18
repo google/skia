@@ -44,6 +44,10 @@ extern bool testPathOpFailCheck(skiatest::Reporter* reporter, const SkPath& a, c
                                 const SkPathOp , const char* testName);
 extern bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                            const SkPathOp , const char* testName);
+extern bool testPathFailSkipAssertOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                                 const SkPathOp , const char* testName);
+extern bool testPathSkipAssertOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                                 const SkPathOp , const char* testName);
 extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                          const char* pathStr);
 extern bool testSimplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename);
@@ -58,7 +62,6 @@ void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
                 void (*firstTest)(skiatest::Reporter* , const char* filename),
                 void (*skipTest)(skiatest::Reporter* , const char* filename),
                 void (*stopTest)(skiatest::Reporter* , const char* filename), bool reverse);
-void ShowTestArray(const char* testName);
 void ShowTestName(PathOpsThreadState* data, int a, int b, int c, int d);
 void ShowFunctionHeader(const char* name);
 void ShowPath(const SkPath& path, const char* pathName);

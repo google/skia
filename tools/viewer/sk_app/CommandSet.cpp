@@ -71,6 +71,16 @@ bool CommandSet::onChar(SkUnichar c, uint32_t modifiers) {
     return false;
 }
 
+bool CommandSet::onSoftkey(const SkString& softkey) {
+    for (const Command& cmd : fCommands) {
+        if (cmd.getSoftkeyString().equals(softkey)) {
+            cmd.fFunction();
+            return true;
+        }
+    }
+    return false;
+}
+
 void CommandSet::addCommand(SkUnichar c, const char* group, const char* description,
                             std::function<void(void)> function) {
     fCommands.push_back(Command(c, group, description, function));
@@ -152,6 +162,14 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
         canvas->drawText(text.c_str(), text.size(), x + keyWidth, y, paint);
         y += paint.getTextSize() + 2;
     }
+}
+
+std::vector<SkString> CommandSet::getCommandsAsSoftkeys() const {
+    std::vector<SkString> result;
+    for(const Command& command : fCommands) {
+        result.push_back(command.getSoftkeyString());
+    }
+    return result;
 }
 
 }   // namespace sk_app

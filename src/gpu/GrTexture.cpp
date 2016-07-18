@@ -89,7 +89,9 @@ GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
 GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType,
                      bool wasMipMapDataProvided)
     : INHERITED(gpu, desc)
-    , fSamplerType(samplerType) {
+    , fSamplerType(samplerType)
+    // Gamma treatment is explicitly set after creation via GrTexturePriv
+    , fGammaTreatment(SkSourceGammaTreatment::kIgnore) {
     if (wasMipMapDataProvided) {
         fMipMapsStatus = kValid_MipMapsStatus;
         fMaxMipMapLevel = SkMipMap::ComputeLevelCount(fDesc.fWidth, fDesc.fHeight);

@@ -102,6 +102,7 @@ public:
         } while (aa < stop);
         return true;
     }
+    bool operator!=(const SkDescriptor& other) const { return !(*this == other); }
 
     uint32_t getChecksum() const { return fChecksum; }
 

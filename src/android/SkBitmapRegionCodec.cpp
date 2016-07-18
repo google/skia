@@ -52,8 +52,9 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     // Create the image info for the decode
     SkColorType dstColorType = fCodec->computeOutputColorType(prefColorType);
     SkAlphaType dstAlphaType = fCodec->computeOutputAlphaType(requireUnpremul);
-    SkImageInfo decodeInfo = SkImageInfo::Make(scaledSize.width(), scaledSize.height(),
-            dstColorType, dstAlphaType);
+    SkImageInfo decodeInfo = fCodec->getInfo().makeWH(scaledSize.width(), scaledSize.height())
+                                              .makeColorType(dstColorType)
+                                              .makeAlphaType(dstAlphaType);
 
     // Construct a color table for the decode if necessary
     SkAutoTUnref<SkColorTable> colorTable(nullptr);
@@ -85,7 +86,7 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
         // used kAlpha8 for grayscale images (before kGray8 existed).  While
         // the codec recognizes kGray8, we need to decode into a kAlpha8
         // bitmap in order to avoid a behavior change.
-        outInfo = SkImageInfo::MakeA8(scaledOutWidth, scaledOutHeight);
+        outInfo = outInfo.makeColorType(kAlpha_8_SkColorType).makeAlphaType(kPremul_SkAlphaType);
     }
     bitmap->setInfo(outInfo);
     if (!bitmap->tryAllocPixels(allocator, colorTable.get())) {
@@ -115,15 +116,8 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     options.fZeroInitialized = zeroInit;
     void* dst = bitmap->getAddr(scaledOutX, scaledOutY);
 
-    // FIXME: skbug.com/4538
-    // It is important that we use the rowBytes on the pixelRef.  They may not be
-    // set properly on the bitmap.
-    SkPixelRef* pr = SkRef(bitmap->pixelRef());
-    size_t rowBytes = pr->rowBytes();
-    bitmap->setInfo(outInfo, rowBytes);
-    bitmap->setPixelRef(pr)->unref();
-    bitmap->lockPixels();
-    SkCodec::Result result = fCodec->getAndroidPixels(decodeInfo, dst, rowBytes, &options);
+    SkCodec::Result result = fCodec->getAndroidPixels(decodeInfo, dst, bitmap->rowBytes(),
+            &options);
     if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
         SkCodecPrintf("Error: Could not get pixels.\n");
         return false;
@@ -138,8 +132,5 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
 }
 
 bool SkBitmapRegionCodec::conversionSupported(SkColorType colorType) {
-    // FIXME: Call virtual function when it lands.
-    SkImageInfo info = SkImageInfo::Make(0, 0, colorType, fCodec->getInfo().alphaType(),
-            fCodec->getInfo().profileType());
-    return conversion_possible(info, fCodec->getInfo());
+    return conversion_possible(fCodec->getInfo().makeColorType(colorType), fCodec->getInfo());
 }

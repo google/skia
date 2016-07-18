@@ -26,6 +26,7 @@ using namespace Response;
 
 DEFINE_int32(port, 8888, "The port to listen on.");
 DEFINE_string(address, "127.0.0.1", "The address to bind to.");
+DEFINE_bool(hosted, false, "Running in hosted mode on debugger.skia.org.");
 
 class UrlManager {
 public:
@@ -44,7 +45,7 @@ public:
         fHandlers.push_back(new BatchesHandler);
         fHandlers.push_back(new BatchBoundsHandler);
         fHandlers.push_back(new ColorModeHandler);
-        fHandlers.push_back(new SRGBModeHandler);
+        fHandlers.push_back(new QuitHandler);
     }
 
     ~UrlManager() {
@@ -114,7 +115,18 @@ int skiaserve_main() {
         return 1;
     }
 
-    getchar();
+    if (FLAGS_hosted) {
+        while (1) {
+            SkDebugf("loop\n");
+            #if defined(SK_BUILD_FOR_WIN)
+                Sleep(60 * 1000);
+            #else
+                sleep(60);
+            #endif
+        }
+    } else {
+        getchar();
+    }
     MHD_stop_daemon(daemon);
     return 0;
 }

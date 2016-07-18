@@ -42,7 +42,6 @@ struct Request {
     SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
     bool enableGPU(bool enable);
     bool setColorMode(int mode);
-    bool setSRGBMode(bool enable);
     bool hasPicture() const { return SkToBool(fPicture.get()); }
     int getLastOp() const { return fDebugCanvas->getSize() - 1; }
 

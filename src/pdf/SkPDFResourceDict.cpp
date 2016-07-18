@@ -6,6 +6,7 @@
  */
 
 #include "SkPDFResourceDict.h"
+#include "SkPDFTypes.h"
 #include "SkPostConfig.h"
 
 // Sanity check that the values of enum SkPDFResourceType correspond to the

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <cmath>
 #include "SkBuffer.h"
 #include "SkCubicClipper.h"
 #include "SkErrorInternals.h"
@@ -1161,7 +1162,7 @@ void SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startIndex) 
             this->close();
 
             SkPathRef::Editor ed(&fPathRef);
-            ed.setIsRRect(isRRect);
+            ed.setIsRRect(isRRect, dir, startIndex % 8);
 
             SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
         }
@@ -1259,7 +1260,7 @@ void SkPath::addOval(const SkRect &oval, Direction dir, unsigned startPointIndex
 
     SkPathRef::Editor ed(&fPathRef);
 
-    ed.setIsOval(isOval);
+    ed.setIsOval(isOval, kCCW_Direction == dir, startPointIndex % 4);
 }
 
 void SkPath::addCircle(SkScalar x, SkScalar y, SkScalar r, Direction dir) {
@@ -1421,10 +1422,21 @@ void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle
     const SkScalar kFullCircleAngle = SkIntToScalar(360);
 
     if (sweepAngle >= kFullCircleAngle || sweepAngle <= -kFullCircleAngle) {
-        this->addOval(oval, sweepAngle > 0 ? kCW_Direction : kCCW_Direction);
-    } else {
-        this->arcTo(oval, startAngle, sweepAngle, true);
+        // We can treat the arc as an oval if it begins at one of our legal starting positions.
+        // See SkPath::addOval() docs.
+        SkScalar startOver90 = startAngle / 90.f;
+        SkScalar startOver90I = SkScalarRoundToScalar(startOver90);
+        SkScalar error = startOver90 - startOver90I;
+        if (SkScalarNearlyEqual(error, 0)) {
+            // Index 1 is at startAngle == 0.
+            SkScalar startIndex = std::fmod(startOver90I + 1.f, 4.f);
+            startIndex = startIndex < 0 ? startIndex + 4.f : startIndex;
+            this->addOval(oval, sweepAngle > 0 ? kCW_Direction : kCCW_Direction,
+                          (unsigned) startIndex);
+            return;
+        }
     }
+    this->arcTo(oval, startAngle, sweepAngle, true);
 }
 
 /*
@@ -2046,7 +2058,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     }
 
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
-    fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
+    fFillType = (packed >> kFillType_SerializationShift) & 0x3;
     uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;
     fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
     SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
@@ -2800,7 +2812,9 @@ static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* 
 
     // compute the actual x(t) value
     SkScalar t;
-    SkAssertResult(SkCubicClipper::ChopMonoAtY(pts, y, &t));
+    if (!SkCubicClipper::ChopMonoAtY(pts, y, &t)) {
+        return 0;
+    }
     SkScalar xt = eval_cubic_pts(pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX, t);
     if (SkScalarNearlyEqual(xt, x)) {
         if (x != pts[3].fX || y != pts[3].fY) {  // don't test end points; they're start points
@@ -3037,7 +3051,9 @@ static void tangent_cubic(const SkPoint pts[], SkScalar x, SkScalar y,
     for (int i = 0; i <= n; ++i) {
         SkPoint* c = &dst[i * 3];
         SkScalar t;
-        SkAssertResult(SkCubicClipper::ChopMonoAtY(c, y, &t));
+        if (!SkCubicClipper::ChopMonoAtY(c, y, &t)) {
+            continue;
+        }
         SkScalar xt = eval_cubic_pts(c[0].fX, c[1].fX, c[2].fX, c[3].fX, t);
         if (!SkScalarNearlyEqual(x, xt)) {
             continue;
@@ -3232,4 +3248,125 @@ int SkPath::ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPo
                                 SkScalar w, SkPoint pts[], int pow2) {
     const SkConic conic(p0, p1, p2, w);
     return conic.chopIntoQuadsPOW2(pts, pow2);
+}
+
+bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Direction* direction,
+                                    unsigned* start) {
+    if (path.getSegmentMasks() != SkPath::kLine_SegmentMask) {
+        return false;
+    }
+    SkPath::RawIter iter(path);
+    SkPoint verbPts[4];
+    SkPath::Verb v;
+    SkPoint rectPts[5];
+    int rectPtCnt = 0;
+    while ((v = iter.next(verbPts)) != SkPath::kDone_Verb) {
+        switch (v) {
+            case SkPath::kMove_Verb:
+                if (0 != rectPtCnt) {
+                    return false;
+                }
+                rectPts[0] = verbPts[0];
+                ++rectPtCnt;
+                break;
+            case SkPath::kLine_Verb:
+                if (5 == rectPtCnt) {
+                    return false;
+                }
+                rectPts[rectPtCnt] = verbPts[1];
+                ++rectPtCnt;
+                break;
+            case SkPath::kClose_Verb:
+                if (4 == rectPtCnt) {
+                    rectPts[4] = rectPts[0];
+                    rectPtCnt = 5;
+                }
+                break;
+            default:
+                return false;
+        }
+    }
+    if (rectPtCnt < 5) {
+        return false;
+    }
+    if (rectPts[0] != rectPts[4]) {
+        return false;
+    }
+    int verticalCnt = 0;
+    int horizontalCnt = 0;
+    // dirs are 0 - right, 1 - down, 2 - left, 3 - up.
+    int firstDir = 0;
+    int secondDir = 0;
+    SkRect tempRect;
+    for (int i = 0; i < 4; ++i) {
+        int sameCnt = 0;
+        if (rectPts[i].fX == rectPts[i + 1].fX) {
+            verticalCnt += 1;
+            sameCnt = 1;
+            if (0 == i) {
+                if (rectPts[1].fY > rectPts[0].fY) {
+                    firstDir = 1;
+                    tempRect.fTop = rectPts[0].fY;
+                    tempRect.fBottom = rectPts[1].fY;
+                } else {
+                    firstDir = 3;
+                    tempRect.fTop = rectPts[1].fY;
+                    tempRect.fBottom = rectPts[0].fY;
+                }
+            } else if (1 == i) {
+                if (rectPts[2].fY > rectPts[1].fY) {
+                    secondDir = 1;
+                    tempRect.fTop = rectPts[1].fY;
+                    tempRect.fBottom = rectPts[2].fY;
+                } else {
+                    secondDir = 3;
+                    tempRect.fTop = rectPts[2].fY;
+                    tempRect.fBottom = rectPts[1].fY;
+                }
+            }
+        }
+        if (rectPts[i].fY == rectPts[i + 1].fY) {
+            horizontalCnt += 1;
+            sameCnt += 1;
+            if (0 == i) {
+                if (rectPts[1].fX > rectPts[0].fX) {
+                    firstDir = 0;
+                    tempRect.fLeft = rectPts[0].fX;
+                    tempRect.fRight = rectPts[1].fX;
+                } else {
+                    firstDir = 2;
+                    tempRect.fLeft = rectPts[1].fX;
+                    tempRect.fRight = rectPts[0].fX;
+                }
+            } else if (1 == i) {
+                if (rectPts[2].fX > rectPts[1].fX) {
+                    secondDir = 0;
+                    tempRect.fLeft = rectPts[1].fX;
+                    tempRect.fRight = rectPts[2].fX;
+                } else {
+                    secondDir = 2;
+                    tempRect.fLeft = rectPts[2].fX;
+                    tempRect.fRight = rectPts[1].fX;
+                }
+            }
+        }
+        if (sameCnt != 1) {
+            return false;
+        }
+    }
+    if (2 != horizontalCnt || 2 != verticalCnt) {
+        return false;
+    }
+    // low bit indicates a vertical dir
+    SkASSERT((firstDir ^ secondDir) & 0b1);
+    if (((firstDir + 1) & 0b11) == secondDir) {
+        *direction = SkPath::kCW_Direction;
+        *start = firstDir;
+    } else {
+        SkASSERT(((secondDir + 1) & 0b11) == firstDir);
+        *direction = SkPath::kCCW_Direction;
+        *start = secondDir;
+    }
+    *rect = tempRect;
+    return true;
 }

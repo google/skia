@@ -85,7 +85,7 @@ public:
     int height() const { return fInfo.height(); }
     SkColorType colorType() const { return fInfo.colorType(); }
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
-    SkColorProfileType profileType() const { return fInfo.profileType(); }
+    SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
 
     /**
      *  Return the number of bytes per pixel based on the colortype. If the colortype is

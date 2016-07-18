@@ -6,10 +6,13 @@
  */
 
 #include "GrTextureProvider.h"
+
+#include "GrCaps.h"
 #include "GrTexturePriv.h"
 #include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "../private/GrSingleOwner.h"
+#include "SkMathPriv.h"
 #include "SkTArray.h"
 
 #define ASSERT_SINGLE_OWNER \

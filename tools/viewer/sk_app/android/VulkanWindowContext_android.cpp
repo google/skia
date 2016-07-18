@@ -6,7 +6,8 @@
  * found in the LICENSE file.
  */
 
-#include "VulkanWindowContext_android.h"
+#include "../VulkanWindowContext.h"
+#include "WindowContext_android.h"
 
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
@@ -40,7 +41,7 @@ VkSurfaceKHR VulkanWindowContext::createVkSurface(VkInstance instance, void* pla
 }
 
 bool VulkanWindowContext::canPresent(VkInstance instance, VkPhysicalDevice physDev,
-                                   uint32_t queueFamilyIndex) {
+                                     uint32_t queueFamilyIndex, void*) {
     return true;
 }
 

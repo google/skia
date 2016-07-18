@@ -1,8 +1,8 @@
-/* libpng 1.6.22beta03 STANDARD API DEFINITION */
+/* libpng 1.6.22rc01 STANDARD API DEFINITION */
 
 /* pnglibconf.h - library build configuration */
 
-/* Libpng version 1.6.22beta03 - February 8, 2016 */
+/* Libpng version 1.6.22rc01 - May 14, 2016 */
 
 /* Copyright (c) 1998-2015 Glenn Randers-Pehrson */
 
@@ -212,4 +212,10 @@
 #define PNG_sCAL_PRECISION 5
 #define PNG_sRGB_PROFILE_CHECKS 2
 /* end of settings */
+
+/* Skia-specific settings */
+#define PNG_PREFIX
+#include "pngprefix.h"
+/* end of Skia-specific settings */
+
 #endif /* PNGLCONF_H */

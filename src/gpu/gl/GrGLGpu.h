@@ -54,13 +54,15 @@ public:
         return static_cast<GrGLPathRendering*>(pathRendering());
     }
 
-    void discard(GrRenderTarget*) override;
+    void discard(GrRenderTarget*);
 
     // Used by GrGLProgram to configure OpenGL state.
-    void bindTexture(int unitIdx, const GrTextureParams& params, bool dstConfigAllowsSRGB,
+    void bindTexture(int unitIdx, const GrTextureParams& params, bool allowSRGBInputs,
                      GrGLTexture* texture);
 
-    void bindTexelBuffer(int unitIdx, intptr_t offsetInBytes, GrPixelConfig, GrGLBuffer*);
+    void bindTexelBuffer(int unitIdx, GrPixelConfig, GrGLBuffer*);
+
+    void generateMipmaps(const GrTextureParams& params, bool allowSRGBInputs, GrGLTexture* texture);
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
                              GrPixelConfig readConfig, DrawPreference*,
@@ -93,11 +95,34 @@ public:
     // Called by GrGLBuffer after its buffer object has been destroyed.
     void notifyBufferReleased(const GrGLBuffer*);
 
+    // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // Thus this is the implementation of the draw call for the corresponding passthrough function
+    // on GrGLGpuCommandBuffer.
+    void draw(const GrPipeline&,
+              const GrPrimitiveProcessor&,
+              const GrMesh*,
+              int meshCount);
+
+    // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // Thus this is the implementation of the clear call for the corresponding passthrough function
+    // on GrGLGpuCommandBuffer.
+    void clear(const SkIRect& rect, GrColor color, GrRenderTarget* renderTarget);
+
+    // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // Thus this is the implementation of the clearStencil call for the corresponding passthrough
+    // function on GrGLGpuCommandBuffer.
+    void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* renderTarget);
+
     const GrGLContext* glContextForTesting() const override {
         return &this->glContext();
     }
 
     void clearStencil(GrRenderTarget*) override;
+
+    GrGpuCommandBuffer* createCommandBuffer(
+            GrRenderTarget* target,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) override;
 
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
@@ -108,7 +133,8 @@ public:
                                                                 int height) override;
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config) override;
+                                                    GrPixelConfig config,
+                                                    bool isRenderTarget = false) override;
     bool isTestingOnlyBackendTexture(GrBackendObject) const override;
     void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override;
 
@@ -151,10 +177,6 @@ private:
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                            const SkTArray<GrMipLevel>& texels);
 
-    void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
-
-    void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override;
-
     bool onMakeCopyForTextureParams(GrTexture*, const GrTextureParams&,
                                     GrTextureProducer::CopyParams*) const override;
 
@@ -190,11 +212,6 @@ private:
                           size_t offset, size_t rowBytes) override;
 
     void onResolveRenderTarget(GrRenderTarget* target) override;
-
-    void onDraw(const GrPipeline&,
-                const GrPrimitiveProcessor&,
-                const GrMesh*,
-                int meshCount) override;
 
     bool onCopySurface(GrSurface* dst,
                        GrSurface* src,
@@ -237,6 +254,7 @@ private:
                                       GrSurface* src,
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
+    bool generateMipmap(GrGLTexture* texture, bool gammaCorrect);
 
     void stampPLSSetupRect(const SkRect& bounds);
 
@@ -319,6 +337,8 @@ private:
 
     void flushMinSampleShading(float minSampleShading);
 
+    void flushFramebufferSRGB(bool enable);
+
     // helper for onCreateTexture and writeTexturePixels
     enum UploadType {
         kNewTexture_UploadType,    // we are creating a new texture
@@ -365,6 +385,7 @@ private:
     SkAutoTUnref<GrGLContext>  fGLContext;
 
     bool createCopyProgram(int progIdx);
+    bool createMipmapProgram(int progIdx);
     bool createWireRectProgram();
     bool createPLSSetupProgram();
 
@@ -508,9 +529,7 @@ private:
 
         GrGLuint        fTextureID;
         bool            fKnownBound;
-        intptr_t        fOffsetInBytes;
         GrPixelConfig   fTexelConfig;
-        size_t          fAttachedSizeInBytes;
         uint32_t        fAttachedBufferUniqueID;
         GrSwizzle       fSwizzle;
     };
@@ -532,6 +551,14 @@ private:
     }                           fCopyPrograms[3];
     SkAutoTUnref<GrGLBuffer>    fCopyProgramArrayBuffer;
 
+    /** IDs for texture mipmap program. (4 filter configurations) */
+    struct {
+        GrGLuint    fProgram;
+        GrGLint     fTextureUniform;
+        GrGLint     fTexCoordXformUniform;
+    }                           fMipmapPrograms[4];
+    SkAutoTUnref<GrGLBuffer>    fMipmapProgramArrayBuffer;
+
     struct {
         GrGLuint fProgram;
         GrGLint  fColorUniform;
@@ -551,6 +578,12 @@ private:
                 SkFAIL("Unexpected texture target type.");
                 return 0;
         }
+    }
+
+    static int TextureSizeToMipmapProgramIdx(int width, int height) {
+        const bool wide = (width > 1) && SkToBool(width & 0x1);
+        const bool tall = (height > 1) && SkToBool(height & 0x1);
+        return (wide ? 0x2 : 0x0) | (tall ? 0x1 : 0x0);
     }
 
     struct {

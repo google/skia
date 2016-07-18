@@ -9,6 +9,7 @@
 #define Window_android_DEFINED
 
 #include "../Window.h"
+#include "WindowContext_android.h"
 #include "surface_glue_android.h"
 
 namespace sk_app {
@@ -26,8 +27,11 @@ public:
     void setTitle(const char*) override;
     void show() override {}
 
-    bool attach(BackEndType attachType, const DisplayParams& params) override;
-    void inval() override;
+    bool attach(BackendType attachType, const DisplayParams& params) override;
+    void onInval() override;
+    void setUIState(const Json::Value& state) override;
+
+    void paintIfNeeded();
 
     bool scaleContentToFit() const override { return true; }
     bool supportsContentRect() const override { return true; }
@@ -38,6 +42,7 @@ private:
     SkiaAndroidApp* fSkiaAndroidApp = nullptr;
     SkRect fContentRect;
     DisplayParams fDisplayParams;
+    BackendType fBackendType;
 };
 
 }   // namespace sk_app

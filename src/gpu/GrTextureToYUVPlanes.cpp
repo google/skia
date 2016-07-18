@@ -15,12 +15,12 @@
 #include "GrTextureProvider.h"
 
 namespace {
-    using CreateFPProc = const GrFragmentProcessor* (*)(const GrFragmentProcessor*,
-                                                        SkYUVColorSpace colorSpace);
+    using MakeFPProc = sk_sp<GrFragmentProcessor> (*)(sk_sp<GrFragmentProcessor>,
+                                                      SkYUVColorSpace colorSpace);
 };
 
 static bool convert_texture(GrTexture* src, GrDrawContext* dst, int dstW, int dstH,
-                            SkYUVColorSpace colorSpace, CreateFPProc proc) {
+                            SkYUVColorSpace colorSpace, MakeFPProc proc) {
 
     SkScalar xScale = SkIntToScalar(src->width()) / dstW / src->width();
     SkScalar yScale = SkIntToScalar(src->height()) / dstH / src->height();
@@ -31,18 +31,18 @@ static bool convert_texture(GrTexture* src, GrDrawContext* dst, int dstW, int ds
         filter = GrTextureParams::kBilerp_FilterMode;
     }
 
-    SkAutoTUnref<const GrFragmentProcessor> fp(
-            GrSimpleTextureEffect::Create(src, SkMatrix::MakeScale(xScale, yScale), filter));
+    sk_sp<GrFragmentProcessor> fp(
+            GrSimpleTextureEffect::Make(src, SkMatrix::MakeScale(xScale, yScale), filter));
     if (!fp) {
         return false;
     }
-    fp.reset(proc(fp, colorSpace));
+    fp = proc(std::move(fp), colorSpace);
     if (!fp) {
         return false;
     }
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
-    paint.addColorFragmentProcessor(fp);
+    paint.addColorFragmentProcessor(std::move(fp));
     dst->drawRect(GrNoClip(), paint, SkMatrix::I(), SkRect::MakeIWH(dstW, dstH));
     return true;
 }
@@ -107,32 +107,32 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
         if (yuvDrawContext) {
             if (!convert_texture(texture, yuvDrawContext.get(),
                                  sizes[0].fWidth, sizes[0].fHeight,
-                                 colorSpace, GrYUVEffect::CreateRGBToYUV)) {
+                                 colorSpace, GrYUVEffect::MakeRGBToYUV)) {
                 return false;
             }
         } else {
             SkASSERT(yDrawContext);
             if (!convert_texture(texture, yDrawContext.get(),
                                  sizes[0].fWidth, sizes[0].fHeight,
-                                 colorSpace, GrYUVEffect::CreateRGBToY)) {
+                                 colorSpace, GrYUVEffect::MakeRGBToY)) {
                 return false;
             }
             if (uvDrawContext) {
                 if (!convert_texture(texture, uvDrawContext.get(),
                                      sizes[1].fWidth, sizes[1].fHeight,
-                                     colorSpace,  GrYUVEffect::CreateRGBToUV)) {
+                                     colorSpace,  GrYUVEffect::MakeRGBToUV)) {
                     return false;
                 }
             } else {
                 SkASSERT(uDrawContext && vDrawContext);
                 if (!convert_texture(texture, uDrawContext.get(),
                                      sizes[1].fWidth, sizes[1].fHeight,
-                                     colorSpace, GrYUVEffect::CreateRGBToU)) {
+                                     colorSpace, GrYUVEffect::MakeRGBToU)) {
                     return false;
                 }
                 if (!convert_texture(texture, vDrawContext.get(),
                                      sizes[2].fWidth, sizes[2].fHeight,
-                                     colorSpace, GrYUVEffect::CreateRGBToV)) {
+                                     colorSpace, GrYUVEffect::MakeRGBToV)) {
                     return false;
                 }
             }

@@ -60,12 +60,12 @@ public:
     virtual GrGLvoid disableVertexAttribArray(GrGLuint index) {}
     virtual GrGLvoid drawArrays(GrGLenum mode, GrGLint first, GrGLsizei count) {}
     virtual GrGLvoid drawArraysInstanced(GrGLenum mode, GrGLint first, GrGLsizei count, GrGLsizei primcount) {}
-    virtual GrGLvoid drawArraysIndirect(GrGLenum mode, GrGLvoid* indirect) {}
+    virtual GrGLvoid drawArraysIndirect(GrGLenum mode, const GrGLvoid* indirect) {}
     virtual GrGLvoid drawBuffer(GrGLenum mode) {}
     virtual GrGLvoid drawBuffers(GrGLsizei n, const GrGLenum* bufs) {}
     virtual GrGLvoid drawElements(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid* indices) {}
     virtual GrGLvoid drawElementsInstanced(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid *indices, GrGLsizei primcount) {}
-    virtual GrGLvoid drawElementsIndirect(GrGLenum mode, GrGLenum type, GrGLvoid* indirect) {}
+    virtual GrGLvoid drawElementsIndirect(GrGLenum mode, GrGLenum type, const GrGLvoid* indirect) {}
     virtual GrGLvoid enable(GrGLenum cap) {}
     virtual GrGLvoid enableVertexAttribArray(GrGLuint index) {}
     virtual GrGLvoid endQuery(GrGLenum target) {}

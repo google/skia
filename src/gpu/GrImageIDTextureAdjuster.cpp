@@ -81,7 +81,8 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
     }
 }
 
-GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped) {
+GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
+                                                    SkSourceGammaTreatment gammaTreatment) {
     GrTexture* tex = nullptr;
 
     if (fOriginalKey.isValid()) {
@@ -91,7 +92,7 @@ GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped) {
         }
     }
     if (willBeMipped) {
-        tex = GrGenerateMipMapsAndUploadToTexture(this->context(), fBitmap);
+        tex = GrGenerateMipMapsAndUploadToTexture(this->context(), fBitmap, gammaTreatment);
     }
     if (!tex) {
         tex = GrUploadBitmapToTexture(this->context(), fBitmap);
@@ -130,8 +131,10 @@ GrImageTextureMaker::GrImageTextureMaker(GrContext* context, SkImageCacherator* 
     }
 }
 
-GrTexture* GrImageTextureMaker::refOriginalTexture(bool willBeMipped) {
-    return fCacher->lockTexture(this->context(), fOriginalKey, fClient, fCachingHint, willBeMipped);
+GrTexture* GrImageTextureMaker::refOriginalTexture(bool willBeMipped,
+                                                   SkSourceGammaTreatment gammaTreatment) {
+    return fCacher->lockTexture(this->context(), fOriginalKey, fClient, fCachingHint, willBeMipped,
+                                gammaTreatment);
 }
 
 void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) {

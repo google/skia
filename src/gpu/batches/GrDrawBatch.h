@@ -100,6 +100,20 @@ public:
                            this->pipeline()->getCoverageFragmentProcessor(i).dumpInfo().c_str());
         }
         string.appendf("XP: %s\n", this->pipeline()->getXferProcessor().name());
+
+        bool scissorEnabled = this->pipeline()->getScissorState().enabled();
+        string.appendf("Scissor: ");
+        if (scissorEnabled) {
+            string.appendf("[L: %d, T: %d, R: %d, B: %d]\n",
+                           this->pipeline()->getScissorState().rect().fLeft,
+                           this->pipeline()->getScissorState().rect().fTop,
+                           this->pipeline()->getScissorState().rect().fRight,
+                           this->pipeline()->getScissorState().rect().fBottom);
+        } else {
+            string.appendf("<disabled>\n");
+        }
+        string.append(INHERITED::dumpInfo());
+
         return string;
     }
 

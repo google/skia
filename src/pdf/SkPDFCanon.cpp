@@ -9,7 +9,6 @@
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
 #include "SkPDFFont.h"
-#include "SkPDFShader.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

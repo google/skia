@@ -206,7 +206,7 @@ GrVkRenderTarget::CreateWrappedRenderTarget(GrVkGpu* gpu,
     SkASSERT(info);
     // We can wrap a rendertarget without its allocation, as long as we don't take ownership
     SkASSERT(VK_NULL_HANDLE != info->fImage);
-    SkASSERT(VK_NULL_HANDLE != info->fAlloc || kAdopt_GrWrapOwnership != ownership);
+    SkASSERT(VK_NULL_HANDLE != info->fAlloc.fMemory || kAdopt_GrWrapOwnership != ownership);
 
     GrVkImage::Wrapped wrapped = kBorrow_GrWrapOwnership == ownership ? GrVkImage::kBorrowed_Wrapped
                                                                       : GrVkImage::kAdopted_Wrapped;
@@ -231,7 +231,8 @@ void GrVkRenderTarget::createFramebuffer(GrVkGpu* gpu) {
 
     // Vulkan requires us to create a compatible renderpass before we can create our framebuffer,
     // so we use this to get a (cached) basic renderpass, only for creation.
-    fCachedSimpleRenderPass = gpu->resourceProvider().findOrCreateCompatibleRenderPass(*this);
+    fCachedSimpleRenderPass =
+        gpu->resourceProvider().findCompatibleRenderPass(*this, &fCompatibleRPHandle);
 
     // Stencil attachment view is stored in the base RT stencil attachment
     const GrVkImageView* stencilView = this->stencilAttachmentView();

@@ -138,6 +138,15 @@ public:
                                                   const SkISize yuvSizes[3],
                                                   GrSurfaceOrigin);
 
+    /**
+     *  Create a new image by copying the pixels from the specified y and uv textures. The data
+     *  from the textures is immediately ingested into the image and the textures can be modified or
+     *  deleted after the function returns. The image will have the dimensions of the y texture.
+     */
+    static sk_sp<SkImage> MakeFromNV12TexturesCopy(GrContext*, SkYUVColorSpace,
+                                                   const GrBackendObject nv12TextureHandles[2],
+                                                   const SkISize nv12Sizes[2], GrSurfaceOrigin);
+
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture>, const SkISize& dimensions,
                                           const SkMatrix*, const SkPaint*);
 
@@ -320,10 +329,36 @@ public:
      */
     sk_sp<SkImage> makeTextureImage(GrContext*) const;
 
+    /**
+     *  Apply a given image filter to this image, and return the filtered result.
+     *
+     *  The subset represents the active portion of this image. The return value is similarly an
+     *  SkImage, with an active subset (outSubset). This is usually used with texture-backed
+     *  images, where the texture may be approx-match and thus larger than the required size.
+     *
+     *  clipBounds constrains the device-space extent of the image which may be produced to the
+     *  given rect.
+     *
+     *  offset is the amount to translate the resulting image relative to the src when it is drawn.
+     *  This is an out-param.
+     *
+     *  If the result image cannot be created, or the result would be transparent black, null
+     *  is returned, in which case the offset and outSubset parameters should be ignored by the
+     *  caller.
+     */
+    sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
+                                  const SkIRect& clipBounds, SkIRect* outSubset,
+                                  SkIPoint* offset) const;
+
     /** Drawing params for which a deferred texture image data should be optimized. */
     struct DeferredTextureImageUsageParams {
+        DeferredTextureImageUsageParams() : fPreScaleMipLevel(0) {}
+        DeferredTextureImageUsageParams(const SkMatrix matrix, const SkFilterQuality quality, 
+                                        int preScaleMipLevel)
+            : fMatrix(matrix), fQuality(quality), fPreScaleMipLevel(preScaleMipLevel) {}
         SkMatrix        fMatrix;
         SkFilterQuality fQuality;
+        int             fPreScaleMipLevel;
     };
 
     /**
@@ -375,7 +410,7 @@ public:
      *  to empty.
      */
     bool asLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
-    
+
     /**
      *  Returns true if the image is backed by an image-generator or other src that creates
      *  (and caches) its pixels / texture on-demand.
@@ -422,6 +457,10 @@ protected:
     SkImage(int width, int height, uint32_t uniqueID);
 
 private:
+    static sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&,
+                                                const GrMipLevel* texels, int mipLevelCount,
+                                                SkBudgeted);
+
     const int       fWidth;
     const int       fHeight;
     const uint32_t  fUniqueID;

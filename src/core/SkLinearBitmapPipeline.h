@@ -13,6 +13,18 @@
 #include "SkMatrix.h"
 #include "SkShader.h"
 
+class SkEmbeddableLinearPipeline;
+
+enum SkGammaType {
+    kLinear_SkGammaType,
+    kSRGB_SkGammaType,
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// SkLinearBitmapPipeline - encapsulates all the machinery for doing floating point pixel
+// processing in a linear color space.
+// Note: this class has unusual alignment requirements due to its use of SIMD instructions. The
+// class SkEmbeddableLinearPipeline below manages these requirements.
 class SkLinearBitmapPipeline {
 public:
     SkLinearBitmapPipeline(
@@ -22,10 +34,14 @@ public:
         SkColor paintColor,
         const SkPixmap& srcPixmap);
 
-
+    SkLinearBitmapPipeline(
+        const SkLinearBitmapPipeline& pipeline,
+        const SkPixmap& srcPixmap,
+        SkXfermode::Mode xferMode,
+        const SkImageInfo& dstInfo);
 
     static bool ClonePipelineForBlitting(
-        void* blitterStorage,
+        SkEmbeddableLinearPipeline* pipelineStorage,
         const SkLinearBitmapPipeline& pipeline,
         SkMatrix::TypeMask matrixMask,
         SkShader::TileMode xTileMode,
@@ -87,18 +103,43 @@ public:
     using BlenderStage = Stage<BlendProcessorInterface,   40>;
 
 private:
-    SkLinearBitmapPipeline(
-        const SkLinearBitmapPipeline& pipeline,
-        const SkPixmap& srcPixmap,
-        SkXfermode::Mode xferMode,
-        const SkImageInfo& dstInfo);
-
     PointProcessorInterface* fFirstStage;
     MatrixStage              fMatrixStage;
     TileStage                fTileStage;
     SampleStage              fSampleStage;
     BlenderStage             fBlenderStage;
     DestinationInterface*    fLastStage;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// SkEmbeddableLinearPipeline - manage stricter alignment needs for SkLinearBitmapPipeline.
+class SkEmbeddableLinearPipeline {
+public:
+    SkEmbeddableLinearPipeline() { }
+    ~SkEmbeddableLinearPipeline() {
+        if (get() != nullptr) {
+            get()->~SkLinearBitmapPipeline();
+        }
+    }
+
+    template <typename... Args>
+    void init(Args&&... args) {
+        // Ensure that our pipeline is created at a 16 byte aligned address.
+        fPipeline = (SkLinearBitmapPipeline*)SkAlign16((intptr_t)fPipelineStorage);
+        new (fPipeline) SkLinearBitmapPipeline{std::forward<Args>(args)...};
+    }
+
+    SkLinearBitmapPipeline* get()        const { return fPipeline;    }
+    SkLinearBitmapPipeline& operator*()  const { return *this->get(); }
+    SkLinearBitmapPipeline* operator->() const { return  this->get(); }
+
+private:
+    enum {
+        kActualSize = sizeof(SkLinearBitmapPipeline),
+        kPaddedSize = SkAlignPtr(kActualSize + 12),
+    };
+    void* fPipelineStorage[kPaddedSize / sizeof(void*)];
+    SkLinearBitmapPipeline* fPipeline{nullptr};
 };
 
 #endif  // SkLinearBitmapPipeline_DEFINED

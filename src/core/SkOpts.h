@@ -68,6 +68,16 @@ namespace SkOpts {
     // Blend ndst src pixels over dst, where both src and dst point to sRGB pixels (RGBA or BGRA).
     // If nsrc < ndst, we loop over src to create a pattern.
     extern void (*srcover_srgb_srgb)(uint32_t* dst, const uint32_t* src, int ndst, int nsrc);
+
+    // Color xform RGB1 pixels.  Does not change byte ordering.
+    extern void (*color_xform_RGB1_srgb_to_2dot2) (uint32_t* dst, const uint32_t* src, int len,
+                                                   const float srcToDstMatrix[16]);
+    extern void (*color_xform_RGB1_2dot2_to_2dot2)(uint32_t* dst, const uint32_t* src, int len,
+                                                   const float srcToDstMatrix[16]);
+    extern void (*color_xform_RGB1_srgb_to_srgb) (uint32_t* dst, const uint32_t* src, int len,
+                                                  const float srcToDstMatrix[16]);
+    extern void (*color_xform_RGB1_2dot2_to_srgb)(uint32_t* dst, const uint32_t* src, int len,
+                                                  const float srcToDstMatrix[16]);
 }
 
 #endif//SkOpts_DEFINED

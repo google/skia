@@ -161,8 +161,9 @@ void SkColorCubeFilter::toString(SkString* str) const {
 
 class GrColorCubeEffect : public GrFragmentProcessor {
 public:
-    static const GrFragmentProcessor* Create(GrTexture* colorCube) {
-        return (nullptr != colorCube) ? new GrColorCubeEffect(colorCube) : nullptr;
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* colorCube) {
+        return (nullptr != colorCube) ? sk_sp<GrFragmentProcessor>(new GrColorCubeEffect(colorCube))
+                                      : nullptr;
     }
 
     virtual ~GrColorCubeEffect();
@@ -297,7 +298,7 @@ void GrColorCubeEffect::GLSLProcessor::GenKey(const GrProcessor& proc,
                                               const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
 }
 
-const GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* context) const {
+sk_sp<GrFragmentProcessor> SkColorCubeFilter::asFragmentProcessor(GrContext* context) const {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
     GrUniqueKey::Builder builder(&key, kDomain, 2);
@@ -323,6 +324,6 @@ const GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* con
         }
     }
 
-    return GrColorCubeEffect::Create(textureCube);
+    return sk_sp<GrFragmentProcessor>(GrColorCubeEffect::Make(textureCube));
 }
 #endif

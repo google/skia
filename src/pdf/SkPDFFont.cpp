@@ -15,7 +15,6 @@
 #include "SkPDFFont.h"
 #include "SkPDFFontImpl.h"
 #include "SkPDFStream.h"
-#include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
@@ -592,7 +591,7 @@ static size_t get_subset_font_stream(const char* fontName,
                                      const SkTDArray<uint32_t>& subset,
                                      SkPDFStream** fontStream) {
     int ttcIndex;
-    std::unique_ptr<SkStream> fontData(typeface->openStream(&ttcIndex));
+    std::unique_ptr<SkStreamAsset> fontData(typeface->openStream(&ttcIndex));
     SkASSERT(fontData);
     if (!fontData) {
         return 0;

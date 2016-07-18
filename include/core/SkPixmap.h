@@ -44,6 +44,9 @@ public:
         this->reset(info, NULL, 0, NULL);
     }
 
+    // overrides the colorspace in the SkImageInfo of the pixmap
+    void setColorSpace(sk_sp<SkColorSpace>);
+
     /**
      *  If supported, set this pixmap to point to the pixels in the specified mask and return true.
      *  On failure, return false and set this pixmap to empty.

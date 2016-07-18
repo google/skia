@@ -58,6 +58,8 @@ protected:
 
     bool onDimensionsSupported(const SkISize&) override;
 
+    sk_sp<SkData> getICCData() const override { return fICCData; }
+
 private:
 
     /*
@@ -92,7 +94,8 @@ private:
      *                   takes ownership
      */
     SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin);
+            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin,
+            sk_sp<SkData> iccData);
 
     /*
      * Checks if the conversion between the input image and the requested output
@@ -123,6 +126,8 @@ private:
     SkIRect                    fSwizzlerSubset;
     SkAutoTDelete<SkSwizzler>  fSwizzler;
     
+    sk_sp<SkData>              fICCData;
+
     typedef SkCodec INHERITED;
 };
 

@@ -61,11 +61,11 @@ static void set_matrix_edge_conical(const SkTwoPointConicalGradient& shader,
 class Edge2PtConicalEffect : public GrGradientEffect {
 public:
 
-    static GrFragmentProcessor* Create(GrContext* ctx,
-                                       const SkTwoPointConicalGradient& shader,
-                                       const SkMatrix& matrix,
-                                       SkShader::TileMode tm) {
-        return new Edge2PtConicalEffect(ctx, shader, matrix, tm);
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
+                                           const SkTwoPointConicalGradient& shader,
+                                           const SkMatrix& matrix,
+                                           SkShader::TileMode tm) {
+        return sk_sp<GrFragmentProcessor>(new Edge2PtConicalEffect(ctx, shader, matrix, tm));
     }
 
     virtual ~Edge2PtConicalEffect() {}
@@ -184,7 +184,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(Edge2PtConicalEffect);
 /*
  * All Two point conical gradient test create functions may occasionally create edge case shaders
  */
-const GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> Edge2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = d->fRandom->nextUScalar1();
     SkPoint center2;
@@ -208,8 +208,9 @@ const GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(GrProcessorTestData*
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                                         colors, stops, colorCount, tm);
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
+        SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -369,12 +370,13 @@ static ConicalType set_matrix_focal_conical(const SkTwoPointConicalGradient& sha
 class FocalOutside2PtConicalEffect : public GrGradientEffect {
 public:
 
-    static GrFragmentProcessor* Create(GrContext* ctx,
-                                       const SkTwoPointConicalGradient& shader,
-                                       const SkMatrix& matrix,
-                                       SkShader::TileMode tm,
-                                       SkScalar focalX) {
-        return new FocalOutside2PtConicalEffect(ctx, shader, matrix, tm, focalX);
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
+                                           const SkTwoPointConicalGradient& shader,
+                                           const SkMatrix& matrix,
+                                           SkShader::TileMode tm,
+                                           SkScalar focalX) {
+        return sk_sp<GrFragmentProcessor>(
+            new FocalOutside2PtConicalEffect(ctx, shader, matrix, tm, focalX));
     }
 
     virtual ~FocalOutside2PtConicalEffect() { }
@@ -462,7 +464,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(FocalOutside2PtConicalEffect);
 /*
  * All Two point conical gradient test create functions may occasionally create edge case shaders
  */
-const GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> FocalOutside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = 0.f;
     SkPoint center2;
@@ -483,8 +485,9 @@ const GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(GrProcessorT
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                                         colors, stops, colorCount, tm);
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
+        SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -578,12 +581,13 @@ class GLFocalInside2PtConicalEffect;
 class FocalInside2PtConicalEffect : public GrGradientEffect {
 public:
 
-    static GrFragmentProcessor* Create(GrContext* ctx,
-                                       const SkTwoPointConicalGradient& shader,
-                                       const SkMatrix& matrix,
-                                       SkShader::TileMode tm,
-                                       SkScalar focalX) {
-        return new FocalInside2PtConicalEffect(ctx, shader, matrix, tm, focalX);
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
+                                           const SkTwoPointConicalGradient& shader,
+                                           const SkMatrix& matrix,
+                                           SkShader::TileMode tm,
+                                           SkScalar focalX) {
+        return sk_sp<GrFragmentProcessor>(
+            new FocalInside2PtConicalEffect(ctx, shader, matrix, tm, focalX));
     }
 
     virtual ~FocalInside2PtConicalEffect() {}
@@ -666,7 +670,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(FocalInside2PtConicalEffect);
 /*
  * All Two point conical gradient test create functions may occasionally create edge case shaders
  */
-const GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> FocalInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = 0.f;
     SkPoint center2;
@@ -689,8 +693,9 @@ const GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(GrProcessorTe
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                                         colors, stops, colorCount, tm);
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
+        SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -816,12 +821,13 @@ static ConicalType set_matrix_circle_conical(const SkTwoPointConicalGradient& sh
 class CircleInside2PtConicalEffect : public GrGradientEffect {
 public:
 
-    static GrFragmentProcessor* Create(GrContext* ctx,
-                                       const SkTwoPointConicalGradient& shader,
-                                       const SkMatrix& matrix,
-                                       SkShader::TileMode tm,
-                                       const CircleConicalInfo& info) {
-        return new CircleInside2PtConicalEffect(ctx, shader, matrix, tm, info);
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
+                                           const SkTwoPointConicalGradient& shader,
+                                           const SkMatrix& matrix,
+                                           SkShader::TileMode tm,
+                                           const CircleConicalInfo& info) {
+        return sk_sp<GrFragmentProcessor>(
+            new CircleInside2PtConicalEffect(ctx, shader, matrix, tm, info));
     }
 
     virtual ~CircleInside2PtConicalEffect() {}
@@ -913,7 +919,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleInside2PtConicalEffect);
 /*
  * All Two point conical gradient test create functions may occasionally create edge case shaders
  */
-const GrFragmentProcessor* CircleInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> CircleInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = d->fRandom->nextUScalar1() + 0.0001f; // make sure radius1 != 0
     SkPoint center2;
@@ -935,8 +941,9 @@ const GrFragmentProcessor* CircleInside2PtConicalEffect::TestCreate(GrProcessorT
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                                         colors, stops, colorCount, tm);
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
+        SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -1031,12 +1038,13 @@ void GLCircleInside2PtConicalEffect::GenKey(const GrProcessor& processor,
 class CircleOutside2PtConicalEffect : public GrGradientEffect {
 public:
 
-    static GrFragmentProcessor* Create(GrContext* ctx,
-                                       const SkTwoPointConicalGradient& shader,
-                                       const SkMatrix& matrix,
-                                       SkShader::TileMode tm,
-                                       const CircleConicalInfo& info) {
-        return new CircleOutside2PtConicalEffect(ctx, shader, matrix, tm, info);
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
+                                           const SkTwoPointConicalGradient& shader,
+                                           const SkMatrix& matrix,
+                                           SkShader::TileMode tm,
+                                           const CircleConicalInfo& info) {
+        return sk_sp<GrFragmentProcessor>(
+            new CircleOutside2PtConicalEffect(ctx, shader, matrix, tm, info));
     }
 
     virtual ~CircleOutside2PtConicalEffect() {}
@@ -1143,7 +1151,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleOutside2PtConicalEffect);
 /*
  * All Two point conical gradient test create functions may occasionally create edge case shaders
  */
-const GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> CircleOutside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = d->fRandom->nextUScalar1() + 0.0001f; // make sure radius1 != 0
     SkPoint center2;
@@ -1166,8 +1174,9 @@ const GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(GrProcessor
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                                         colors, stops, colorCount, tm);
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(
-        d->fContext,GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(
+        d->fContext,GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
+        SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -1286,10 +1295,10 @@ void GLCircleOutside2PtConicalEffect::GenKey(const GrProcessor& processor,
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrFragmentProcessor* Gr2PtConicalGradientEffect::Create(GrContext* ctx,
-                                                        const SkTwoPointConicalGradient& shader,
-                                                        SkShader::TileMode tm,
-                                                        const SkMatrix* localMatrix) {
+sk_sp<GrFragmentProcessor> Gr2PtConicalGradientEffect::Make(GrContext* ctx,
+                                                            const SkTwoPointConicalGradient& shader,
+                                                            SkShader::TileMode tm,
+                                                            const SkMatrix* localMatrix) {
     SkMatrix matrix;
     if (!shader.getLocalMatrix().invert(&matrix)) {
         return nullptr;
@@ -1306,12 +1315,12 @@ GrFragmentProcessor* Gr2PtConicalGradientEffect::Create(GrContext* ctx,
         SkScalar focalX;
         ConicalType type = set_matrix_focal_conical(shader, &matrix, &focalX);
         if (type == kInside_ConicalType) {
-            return FocalInside2PtConicalEffect::Create(ctx, shader, matrix, tm, focalX);
+            return FocalInside2PtConicalEffect::Make(ctx, shader, matrix, tm, focalX);
         } else if(type == kEdge_ConicalType) {
             set_matrix_edge_conical(shader, &matrix);
-            return Edge2PtConicalEffect::Create(ctx, shader, matrix, tm);
+            return Edge2PtConicalEffect::Make(ctx, shader, matrix, tm);
         } else {
-            return FocalOutside2PtConicalEffect::Create(ctx, shader, matrix, tm, focalX);
+            return FocalOutside2PtConicalEffect::Make(ctx, shader, matrix, tm, focalX);
         }
     }
 
@@ -1319,12 +1328,12 @@ GrFragmentProcessor* Gr2PtConicalGradientEffect::Create(GrContext* ctx,
     ConicalType type = set_matrix_circle_conical(shader, &matrix, &info);
 
     if (type == kInside_ConicalType) {
-        return CircleInside2PtConicalEffect::Create(ctx, shader, matrix, tm, info);
+        return CircleInside2PtConicalEffect::Make(ctx, shader, matrix, tm, info);
     } else if (type == kEdge_ConicalType) {
         set_matrix_edge_conical(shader, &matrix);
-        return Edge2PtConicalEffect::Create(ctx, shader, matrix, tm);
+        return Edge2PtConicalEffect::Make(ctx, shader, matrix, tm);
     } else {
-        return CircleOutside2PtConicalEffect::Create(ctx, shader, matrix, tm, info);
+        return CircleOutside2PtConicalEffect::Make(ctx, shader, matrix, tm, info);
     }
 }
 

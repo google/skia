@@ -69,7 +69,7 @@ public:
     struct XPInfo {
         XPInfo(skiatest::Reporter* reporter, SkXfermode::Mode xfermode, const GrCaps& caps,
                const GrPipelineOptimizations& optimizations) {
-            SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
+            sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(xfermode));
             SkAutoTUnref<GrXferProcessor> xp(
                 xpf->createXferProcessor(optimizations, false, nullptr, caps));
             TEST_ASSERT(!xpf->willNeedDstTexture(caps, optimizations));
@@ -1121,7 +1121,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     SkASSERT(kRGBA_GrColorComponentFlags == colorPOI.validFlags());
     SkASSERT(covPOI.isFourChannelOutput());
 
-    SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode));
+    sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(SkXfermode::kSrcOver_Mode));
     TEST_ASSERT(!xpf->willNeedDstTexture(caps, opts));
 
     SkAutoTUnref<GrXferProcessor> xp(
@@ -1198,7 +1198,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
             }
             for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
                 SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
-                SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
+                sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(xfermode));
                 GrXferProcessor::DstTexture* dstTexture =
                     xpf->willNeedDstTexture(caps, optimizations) ? &fakeDstTexture : 0;
                 SkAutoTUnref<GrXferProcessor> xp(

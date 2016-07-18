@@ -184,8 +184,9 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor);
 
-const GrGeometryProcessor* CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
-    return new CircleGeometryProcessor(d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom));
+sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+    return sk_sp<GrGeometryProcessor>(
+        new CircleGeometryProcessor(d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -335,8 +336,9 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor);
 
-const GrGeometryProcessor* EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
-    return new EllipseGeometryProcessor(d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom));
+sk_sp<GrGeometryProcessor> EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+    return sk_sp<GrGeometryProcessor>(
+        new EllipseGeometryProcessor(d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -514,9 +516,10 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor);
 
-const GrGeometryProcessor* DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
-    return new DIEllipseGeometryProcessor(GrTest::TestMatrix(d->fRandom),
-                                          (DIEllipseStyle)(d->fRandom->nextRangeU(0,2)));
+sk_sp<GrGeometryProcessor> DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+    return sk_sp<GrGeometryProcessor>(
+        new DIEllipseGeometryProcessor(GrTest::TestMatrix(d->fRandom),
+                                       (DIEllipseStyle)(d->fRandom->nextRangeU(0,2))));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

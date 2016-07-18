@@ -3,6 +3,10 @@ use_relative_paths = True
 # Dependencies on outside packages.
 #
 deps = {
+  "build":       "https://chromium.googlesource.com/chromium/src/build.git@c3550298c508d10c6281794de126223a38359249",
+  "buildtools":  "https://chromium.googlesource.com/chromium/buildtools.git@573942cffe9494e3d9f05ada4c61e1f32a1c58fc",
+  "tools/clang": "https://chromium.googlesource.com/chromium/src/tools/clang.git@ea64c667cd841b2c3268bd7dfd223269f3ea23ba",
+
   "common": "https://skia.googlesource.com/common.git@c282fe0b6e392b14f88d647cbd86e1a3ef5498e0",
 
   # There is some duplication here that might be worth cleaning up:
@@ -16,10 +20,7 @@ deps = {
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
   "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@v0.5.0",
   "third_party/externals/nanomsg" : "https://skia.googlesource.com/third_party/nanomsg.git@0.4-beta",
-  "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@c4e33043fb071b6ea0a153845da625d7ed633d3d",
-  # NOTE: If we update libpng, we may need to update the generated file at third_party/libpng/pnglibconf.h
-  # skbug.com/4710: We'd prefer to mirror AOSP or Chrome.
-  "third_party/externals/libpng"  : "https://github.com/mattsarett/libpng.git@91d2a9e56ea83f7bce091b1606ae4d04ddfc547a",
+  "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4576304a4b9835aa8646c9735b079e1d96858633",
   "third_party/externals/giflib"  : "https://android.googlesource.com/platform/external/giflib.git@ab10e256df4f684260ca239905b1cec727181f6c",
 
   "third_party/externals/dng_sdk" : "https://android.googlesource.com/platform/external/dng_sdk.git@96443b262250c390b0caefbf3eed8463ba35ecae",

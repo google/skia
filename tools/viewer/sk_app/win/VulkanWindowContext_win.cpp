@@ -6,7 +6,8 @@
  * found in the LICENSE file.
  */
 
-#include "VulkanWindowContext_win.h"
+#include "../VulkanWindowContext.h"
+#include "Window_win.h"
 
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
@@ -46,7 +47,7 @@ VkSurfaceKHR VulkanWindowContext::createVkSurface(VkInstance instance, void* pla
 
 // Platform dependant call
 bool VulkanWindowContext::canPresent(VkInstance instance, VkPhysicalDevice physDev,
-                                   uint32_t queueFamilyIndex) {
+                                     uint32_t queueFamilyIndex, void*) {
     static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR
                                             getPhysicalDeviceWin32PresentationSupportKHR = nullptr;
     if (!getPhysicalDeviceWin32PresentationSupportKHR) {

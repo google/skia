@@ -15,6 +15,12 @@ TAGS
 bower_components
 common
 gyp/build
+infra/bots/tools/luci-go/linux64/cipd
+infra/bots/tools/luci-go/linux64/isolate
+infra/bots/tools/luci-go/mac64/cipd
+infra/bots/tools/luci-go/mac64/isolate
+infra/bots/tools/luci-go/win64/cipd.exe
+infra/bots/tools/luci-go/win64/isolate.exe
 out
 platform_tools/android/apps/build
 platform_tools/android/apps/*.properties
@@ -27,3 +33,8 @@ third_party/externals
 tools/skp/page_sets/data/*.json
 tools/skp/page_sets/data/*.wpr
 xcodebuild
+
+build
+buildtools
+tools/clang
+third_party/llvm-build

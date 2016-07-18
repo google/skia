@@ -6,19 +6,99 @@
  */
 
 
+#include "GrNonAtomicRef.h"
 #include "gl/GrGLInterface.h"
 #include "GrGLTestInterface.h"
 #include "SkMutex.h"
 #include "SkTDArray.h"
+#include <type_traits>
 
 // added to suppress 'no previous prototype' warning and because this code is duplicated in
 // SkNullGLContext.cpp
 namespace {
 
-class BufferObj {
+class GLObject : public GrNonAtomicRef<GLObject> {
 public:
-    BufferObj(GrGLuint id) : fID(id), fDataPtr(nullptr), fSize(0), fMapped(false) {}
-    ~BufferObj() { delete[] fDataPtr; }
+    GLObject(GrGLuint id) : fID(id) {}
+    virtual ~GLObject() {}
+
+    GrGLuint id() const { return fID; }
+
+private:
+    GrGLuint fID;
+};
+
+// This class maintains a sparsely populated array of object pointers.
+template<typename T> class TGLObjectManager {
+   static_assert(std::is_convertible<T*, GLObject*>::value, "T must be a subclass of GLObject");
+
+public:
+    TGLObjectManager() : fFreeListHead(kFreeListEnd) {
+        *fGLObjects.append() = nullptr; // 0 is not a valid GL object id.
+    }
+
+    ~TGLObjectManager() {
+        // nullptr out the entries that are really free list links rather than ptrs before deleting.
+        intptr_t curr = fFreeListHead;
+        while (kFreeListEnd != curr) {
+            intptr_t next = reinterpret_cast<intptr_t>(fGLObjects[SkToS32(curr)]);
+            fGLObjects[SkToS32(curr)] = nullptr;
+            curr = next;
+        }
+
+        fGLObjects.safeUnrefAll();
+    }
+
+    T* lookUp(GrGLuint id) {
+        T* object = fGLObjects[id];
+        SkASSERT(object && object->id() == id);
+        return object;
+    }
+
+    T* create() {
+        GrGLuint id;
+        T* object;
+
+        if (kFreeListEnd == fFreeListHead) {
+            // no free slots - create a new one
+            id = fGLObjects.count();
+            object = new T(id);
+            *fGLObjects.append() = object;
+        } else {
+            // grab the head of the free list and advance the head to the next free slot.
+            id = static_cast<GrGLuint>(fFreeListHead);
+            fFreeListHead = reinterpret_cast<intptr_t>(fGLObjects[id]);
+
+            object = new T(id);
+            fGLObjects[id] = object;
+        }
+
+        return object;
+    }
+
+    void free(T* object) {
+        SkASSERT(object);
+        SkASSERT(fGLObjects.count() > 0);
+
+        GrGLuint id = object->id();
+        object->unref();
+
+        fGLObjects[id] = reinterpret_cast<T*>(fFreeListHead);
+        fFreeListHead = id;
+    }
+
+private:
+    static const intptr_t kFreeListEnd = -1;
+    // Index of the first entry of fGLObjects in the free list. Free slots in fGLObjects are indices
+    // to the next free slot. The last free slot has a value of kFreeListEnd.
+    intptr_t        fFreeListHead;
+    SkTDArray<T*>   fGLObjects;
+};
+
+class Buffer : public GLObject {
+public:
+    Buffer(GrGLuint id) : INHERITED(id), fDataPtr(nullptr), fSize(0), fMapped(false) {}
+    ~Buffer() { delete[] fDataPtr; }
 
     void allocate(GrGLsizeiptr size, const GrGLchar* dataPtr) {
         if (fDataPtr) {
@@ -30,7 +110,6 @@ public:
         fDataPtr = new char[size];
     }
 
-    GrGLuint id() const          { return fID; }
     GrGLchar* dataPtr()          { return fDataPtr; }
     GrGLsizeiptr size() const    { return fSize; }
 
@@ -38,90 +117,113 @@ public:
     bool mapped() const          { return fMapped; }
 
 private:
-    GrGLuint     fID;
     GrGLchar*    fDataPtr;
     GrGLsizeiptr fSize;         // size in bytes
     bool         fMapped;
+
+    typedef GLObject INHERITED;
 };
 
-// This class maintains a sparsely populated array of buffer pointers.
-class BufferManager {
+class FramebufferAttachment : public GLObject {
 public:
-    BufferManager() : fFreeListHead(kFreeListEnd) {
-        *fBuffers.append() = nullptr; // 0 is not a valid GL buffer id.
-    }
+    int numSamples() const { return fNumSamples; }
 
-    ~BufferManager() {
-        // nullptr out the entries that are really free list links rather than ptrs before deleting.
-        intptr_t curr = fFreeListHead;
-        while (kFreeListEnd != curr) {
-            intptr_t next = reinterpret_cast<intptr_t>(fBuffers[SkToS32(curr)]);
-            fBuffers[SkToS32(curr)] = nullptr;
-            curr = next;
+protected:
+    FramebufferAttachment(int id) : INHERITED(id), fNumSamples(1) {}
+
+    int fNumSamples;
+
+    typedef GLObject INHERITED;
+};
+
+class Renderbuffer : public FramebufferAttachment {
+public:
+    Renderbuffer(int id) : INHERITED(id) {}
+    void setNumSamples(int numSamples) { fNumSamples = numSamples; }
+
+private:
+    typedef FramebufferAttachment INHERITED;
+};
+
+class Texture : public FramebufferAttachment {
+public:
+    Texture() : INHERITED(1) {}
+
+private:
+    typedef FramebufferAttachment INHERITED;
+};
+
+class Framebuffer : public GLObject {
+public:
+    Framebuffer(int id) : INHERITED(id) {}
+
+    void setAttachment(GrGLenum attachmentPoint, const FramebufferAttachment* attachment) {
+        switch (attachmentPoint) {
+            default:
+                SK_ABORT("Invalid framebuffer attachment.");
+                break;
+            case GR_GL_STENCIL_ATTACHMENT:
+                fAttachments[(int)AttachmentPoint::kStencil].reset(SkRef(attachment));
+                break;
+            case GR_GL_DEPTH_ATTACHMENT:
+                fAttachments[(int)AttachmentPoint::kDepth].reset(SkRef(attachment));
+                break;
+            case GR_GL_COLOR_ATTACHMENT0:
+                fAttachments[(int)AttachmentPoint::kColor].reset(SkRef(attachment));
+                break;
         }
-
-        fBuffers.deleteAll();
     }
 
-    BufferObj* lookUp(GrGLuint id) {
-        BufferObj* buffer = fBuffers[id];
-        SkASSERT(buffer && buffer->id() == id);
-        return buffer;
-    }
-
-    BufferObj* create() {
-        GrGLuint id;
-        BufferObj* buffer;
-
-        if (kFreeListEnd == fFreeListHead) {
-            // no free slots - create a new one
-            id = fBuffers.count();
-            buffer = new BufferObj(id);
-            *fBuffers.append() = buffer;
-        } else {
-            // grab the head of the free list and advance the head to the next free slot.
-            id = static_cast<GrGLuint>(fFreeListHead);
-            fFreeListHead = reinterpret_cast<intptr_t>(fBuffers[id]);
-
-            buffer = new BufferObj(id);
-            fBuffers[id] = buffer;
+    void notifyAttachmentDeleteWhileBound(const FramebufferAttachment* deleted) {
+        for (auto& attachment : fAttachments) {
+            if (attachment == deleted) {
+                attachment.reset(nullptr);
+            }
         }
-
-        return buffer;
     }
 
-    void free(BufferObj* buffer) {
-        SkASSERT(buffer);
-        SkASSERT(fBuffers.count() > 0);
-
-        GrGLuint id = buffer->id();
-        delete buffer;
-
-        fBuffers[id] = reinterpret_cast<BufferObj*>(fFreeListHead);
-        fFreeListHead = id;
+    int numSamples() const {
+        int numSamples = 0;
+        for (auto& attachment : fAttachments) {
+            if (!attachment) {
+                continue;
+            }
+            if (numSamples) {
+                GrAlwaysAssert(attachment->numSamples() == numSamples);
+                continue;
+            }
+            numSamples = attachment->numSamples();
+        }
+        GrAlwaysAssert(numSamples);
+        return numSamples;
     }
 
 private:
-    static const intptr_t kFreeListEnd = -1;
-    // Index of the first entry of fBuffers in the free list. Free slots in fBuffers are indices to
-    // the next free slot. The last free slot has a value of kFreeListEnd.
-    intptr_t                fFreeListHead;
-    SkTDArray<BufferObj*>   fBuffers;
+    enum AttachmentPoint {
+        kStencil,
+        kDepth,
+        kColor
+    };
+    constexpr int static kNumAttachmentPoints = 1 + (int)AttachmentPoint::kColor;
+
+    SkAutoTUnref<const FramebufferAttachment> fAttachments[kNumAttachmentPoints];
+
+    typedef GLObject INHERITED;
 };
 
 /** Null interface implementation */
 class NullInterface : public GrGLTestInterface {
 public:
     NullInterface(bool enableNVPR)
-        : fCurrArrayBuffer(0)
-        , fCurrElementArrayBuffer(0)
-        , fCurrPixelPackBuffer(0)
-        , fCurrPixelUnpackBuffer(0)
+        : fCurrDrawFramebuffer(0)
+        , fCurrReadFramebuffer(0)
+        , fCurrRenderbuffer(0)
         , fCurrProgramID(0)
         , fCurrShaderID(0)
         , fCurrGenericID(0)
         , fCurrUniformLocation(0)
         , fCurrPathID(0) {
+        memset(fBoundBuffers, 0, sizeof(fBoundBuffers));
         fExtensions.push_back("GL_ARB_framebuffer_object");
         fExtensions.push_back("GL_ARB_blend_func_extended");
         fExtensions.push_back("GL_ARB_timer_query");
@@ -143,35 +245,16 @@ public:
 
     GrGLvoid genBuffers(GrGLsizei n, GrGLuint* ids) override {
         for (int i = 0; i < n; ++i) {
-            BufferObj* buffer = fBufferManager.create();
+            Buffer* buffer = fBufferManager.create();
             ids[i] = buffer->id();
         }
     }
 
     GrGLvoid bufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data,
                         GrGLenum usage) override {
-        GrGLuint id = 0;
-
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                id = fCurrArrayBuffer;
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                id = fCurrElementArrayBuffer;
-                break;
-            case GR_GL_PIXEL_PACK_BUFFER:
-                id = fCurrPixelPackBuffer;
-                break;
-            case GR_GL_PIXEL_UNPACK_BUFFER:
-                id = fCurrPixelUnpackBuffer;
-                break;
-            default:
-                SkFAIL("Unexpected target to nullGLBufferData");
-                break;
-        }
-
+        GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
         if (id > 0) {
-            BufferObj* buffer = fBufferManager.lookUp(id);
+            Buffer* buffer = fBufferManager.lookUp(id);
             buffer->allocate(size, (const GrGLchar*) data);
         }
     }
@@ -185,57 +268,187 @@ public:
     }
 
     GrGLvoid bindBuffer(GrGLenum target, GrGLuint buffer) override {
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                fCurrArrayBuffer = buffer;
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                fCurrElementArrayBuffer = buffer;
-                break;
-            case GR_GL_PIXEL_PACK_BUFFER:
-                fCurrPixelPackBuffer = buffer;
-                break;
-            case GR_GL_PIXEL_UNPACK_BUFFER:
-                fCurrPixelUnpackBuffer = buffer;
-                break;
-        }
+        fBoundBuffers[GetBufferIndex(target)] = buffer;
     }
 
    // deleting a bound buffer has the side effect of binding 0
-    GrGLvoid deleteBuffers(GrGLsizei n, const GrGLuint* ids) override {
-        for (int i = 0; i < n; ++i) {
-            if (ids[i] == fCurrArrayBuffer) {
-                fCurrArrayBuffer = 0;
+   GrGLvoid deleteBuffers(GrGLsizei n, const GrGLuint* ids) override {
+        // First potentially unbind the buffers.
+        for (int buffIdx = 0; buffIdx < kNumBufferTargets; ++buffIdx) {
+            if (!fBoundBuffers[buffIdx]) {
+                continue;
             }
-            if (ids[i] == fCurrElementArrayBuffer) {
-                fCurrElementArrayBuffer = 0;
+            for (int i = 0; i < n; ++i) {
+                if (ids[i] == fBoundBuffers[buffIdx]) {
+                    fBoundBuffers[buffIdx] = 0;
+                    break;
+                }
             }
-            if (ids[i] == fCurrPixelPackBuffer) {
-                fCurrPixelPackBuffer = 0;
-            }
-            if (ids[i] == fCurrPixelUnpackBuffer) {
-                fCurrPixelUnpackBuffer = 0;
-            }
+        }
 
+        // Then actually "delete" the buffers.
+        for (int i = 0; i < n; ++i) {
             if (ids[i] > 0) {
-                BufferObj* buffer = fBufferManager.lookUp(ids[i]);
+                Buffer* buffer = fBufferManager.lookUp(ids[i]);
                 fBufferManager.free(buffer);
             }
         }
     }
 
     GrGLvoid genFramebuffers(GrGLsizei n, GrGLuint *framebuffers) override {
-        this->genGenericIds(n, framebuffers);
+        for (int i = 0; i < n; ++i) {
+            Framebuffer* framebuffer = fFramebufferManager.create();
+            framebuffers[i] = framebuffer->id();
+        }
+    }
+
+    GrGLvoid bindFramebuffer(GrGLenum target, GrGLuint framebuffer) override {
+        SkASSERT(GR_GL_FRAMEBUFFER == target || GR_GL_DRAW_FRAMEBUFFER == target ||
+                 GR_GL_READ_FRAMEBUFFER == target);
+        if (GR_GL_READ_FRAMEBUFFER != target) {
+            fCurrDrawFramebuffer = framebuffer;
+        }
+        if (GR_GL_DRAW_FRAMEBUFFER != target) {
+            fCurrReadFramebuffer = framebuffer;
+        }
+    }
+
+    GrGLvoid deleteFramebuffers(GrGLsizei n, const GrGLuint* ids) override {
+        for (int i = 0; i < n; ++i) {
+            if (ids[i] == fCurrDrawFramebuffer) {
+                fCurrDrawFramebuffer = 0;
+            }
+            if (ids[i] == fCurrReadFramebuffer) {
+                fCurrReadFramebuffer = 0;
+            }
+
+            if (ids[i] > 0) {
+                Framebuffer* framebuffer = fFramebufferManager.lookUp(ids[i]);
+                fFramebufferManager.free(framebuffer);
+            }
+        }
     }
 
     GrGLvoid genQueries(GrGLsizei n, GrGLuint *ids) override { this->genGenericIds(n, ids); }
 
     GrGLvoid genRenderbuffers(GrGLsizei n, GrGLuint *renderbuffers) override {
-        this->genGenericIds(n, renderbuffers);
+        for (int i = 0; i < n; ++i) {
+            Renderbuffer* renderbuffer = fRenderbufferManager.create();
+            renderbuffers[i] = renderbuffer->id();
+        }
+    }
+
+    GrGLvoid bindRenderbuffer(GrGLenum target, GrGLuint renderbuffer) override {
+        SkASSERT(GR_GL_RENDERBUFFER == target);
+        fCurrRenderbuffer = renderbuffer;
+    }
+
+    GrGLvoid deleteRenderbuffers(GrGLsizei n, const GrGLuint* ids) override {
+        for (int i = 0; i < n; ++i) {
+            if (ids[i] <= 0) {
+                continue;
+            }
+            if (ids[i] == fCurrRenderbuffer) {
+                fCurrRenderbuffer = 0;
+            }
+            Renderbuffer* renderbuffer = fRenderbufferManager.lookUp(ids[i]);
+
+            if (fCurrDrawFramebuffer) {
+                Framebuffer* drawFramebuffer = fFramebufferManager.lookUp(fCurrDrawFramebuffer);
+                drawFramebuffer->notifyAttachmentDeleteWhileBound(renderbuffer);
+            }
+            if (fCurrReadFramebuffer) {
+                Framebuffer* readFramebuffer = fFramebufferManager.lookUp(fCurrReadFramebuffer);
+                readFramebuffer->notifyAttachmentDeleteWhileBound(renderbuffer);
+            }
+
+            fRenderbufferManager.free(renderbuffer);
+        }
+    }
+
+    GrGLvoid renderbufferStorage(GrGLenum target, GrGLenum internalformat, GrGLsizei width,
+                                 GrGLsizei height) override {
+        GrAlwaysAssert(GR_GL_RENDERBUFFER == target);
+        GrAlwaysAssert(fCurrRenderbuffer);
+        Renderbuffer* renderbuffer = fRenderbufferManager.lookUp(fCurrRenderbuffer);
+        renderbuffer->setNumSamples(1);
+    }
+
+    GrGLvoid renderbufferStorageMultisample(GrGLenum target, GrGLsizei samples,
+                                            GrGLenum internalformat, GrGLsizei width,
+                                            GrGLsizei height) override {
+        GrAlwaysAssert(GR_GL_RENDERBUFFER == target);
+        GrAlwaysAssert(samples > 0);
+        GrAlwaysAssert(fCurrRenderbuffer);
+        Renderbuffer* renderbuffer = fRenderbufferManager.lookUp(fCurrRenderbuffer);
+        renderbuffer->setNumSamples(samples);
+    }
+
+    GrGLvoid namedRenderbufferStorage(GrGLuint renderbuffer, GrGLenum GrGLinternalformat,
+                                      GrGLsizei width, GrGLsizei height) override {
+        SK_ABORT("Not implemented");
+    }
+
+    GrGLvoid namedRenderbufferStorageMultisample(GrGLuint renderbuffer, GrGLsizei samples,
+                                                 GrGLenum GrGLinternalformat, GrGLsizei width,
+                                                 GrGLsizei height) override {
+        SK_ABORT("Not implemented");
+    }
+
+    GrGLvoid framebufferRenderbuffer(GrGLenum target, GrGLenum attachment,
+                                     GrGLenum renderbuffertarget,
+                                     GrGLuint renderBufferID) override {
+        GrGLuint id = this->getBoundFramebufferID(target);
+        GrAlwaysAssert(id);
+        Framebuffer* framebuffer = fFramebufferManager.lookUp(id);
+
+        GrAlwaysAssert(GR_GL_RENDERBUFFER == renderbuffertarget);
+        GrAlwaysAssert(fCurrRenderbuffer);
+        Renderbuffer* renderbuffer = fRenderbufferManager.lookUp(fCurrRenderbuffer);
+
+        framebuffer->setAttachment(attachment, renderbuffer);
+    }
+
+    GrGLvoid namedFramebufferRenderbuffer(GrGLuint framebuffer, GrGLenum attachment,
+                                          GrGLenum renderbuffertarget,
+                                          GrGLuint renderbuffer) override {
+        SK_ABORT("Not implemented");
     }
 
     GrGLvoid genTextures(GrGLsizei n, GrGLuint *textures) override {
         this->genGenericIds(n, textures);
+    }
+
+    GrGLvoid framebufferTexture2D(GrGLenum target, GrGLenum attachment, GrGLenum textarget,
+                                  GrGLuint textureID, GrGLint level) override {
+        GrGLuint id = this->getBoundFramebufferID(target);
+        GrAlwaysAssert(id);
+        Framebuffer* framebuffer = fFramebufferManager.lookUp(id);
+        framebuffer->setAttachment(attachment, this->getSingleTextureObject());
+    }
+
+    GrGLvoid framebufferTexture2DMultisample(GrGLenum target, GrGLenum attachment,
+                                             GrGLenum textarget, GrGLuint texture, GrGLint level,
+                                             GrGLsizei samples) override {
+        SK_ABORT("Not implemented");
+    }
+
+    GrGLvoid namedFramebufferTexture1D(GrGLuint framebuffer, GrGLenum attachment,
+                                       GrGLenum textarget, GrGLuint texture,
+                                       GrGLint level) override {
+        SK_ABORT("Not implemented");
+    }
+
+    GrGLvoid namedFramebufferTexture2D(GrGLuint framebuffer, GrGLenum attachment,
+                                       GrGLenum textarget, GrGLuint texture,
+                                       GrGLint level) override {
+        SK_ABORT("Not implemented");
+    }
+
+    GrGLvoid namedFramebufferTexture3D(GrGLuint framebuffer, GrGLenum attachment,
+                                       GrGLenum textarget, GrGLuint texture, GrGLint level,
+                                       GrGLint zoffset) override {
+        SK_ABORT("Not implemented");
     }
 
     GrGLvoid genVertexArrays(GrGLsizei n, GrGLuint *arrays) override {
@@ -254,9 +467,12 @@ public:
             case GR_GL_STENCIL_BITS:
                 *params = 8;
                 break;
-            case GR_GL_SAMPLES:
-                *params = 1;
+            case GR_GL_SAMPLES: {
+                GrAlwaysAssert(fCurrDrawFramebuffer);
+                Framebuffer* framebuffer = fFramebufferManager.lookUp(fCurrDrawFramebuffer);
+                *params = framebuffer->numSamples();
                 break;
+            }
             case GR_GL_FRAMEBUFFER_BINDING:
                 *params = 0;
                 break;
@@ -407,25 +623,10 @@ public:
 
     GrGLvoid* mapBufferRange(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length,
                              GrGLbitfield access) override {
-        GrGLuint id = 0;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                id = fCurrArrayBuffer;
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                id = fCurrElementArrayBuffer;
-                break;
-            case GR_GL_PIXEL_PACK_BUFFER:
-                id = fCurrPixelPackBuffer;
-                break;
-            case GR_GL_PIXEL_UNPACK_BUFFER:
-                id = fCurrPixelUnpackBuffer;
-                break;
-        }
-
+        GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
         if (id > 0) {
             // We just ignore the offset and length here.
-            BufferObj* buffer = fBufferManager.lookUp(id);
+            Buffer* buffer = fBufferManager.lookUp(id);
             SkASSERT(!buffer->mapped());
             buffer->setMapped(true);
             return buffer->dataPtr();
@@ -434,24 +635,9 @@ public:
     }
 
     GrGLvoid* mapBuffer(GrGLenum target, GrGLenum access) override {
-        GrGLuint id = 0;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                id = fCurrArrayBuffer;
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                id = fCurrElementArrayBuffer;
-                break;
-            case GR_GL_PIXEL_PACK_BUFFER:
-                id = fCurrPixelPackBuffer;
-                break;
-            case GR_GL_PIXEL_UNPACK_BUFFER:
-                id = fCurrPixelUnpackBuffer;
-                break;
-        }
-
+        GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
         if (id > 0) {
-            BufferObj* buffer = fBufferManager.lookUp(id);
+            Buffer* buffer = fBufferManager.lookUp(id);
             SkASSERT(!buffer->mapped());
             buffer->setMapped(true);
             return buffer->dataPtr();
@@ -462,23 +648,9 @@ public:
     }
 
     GrGLboolean unmapBuffer(GrGLenum target) override {
-        GrGLuint id = 0;
-        switch (target) {
-            case GR_GL_ARRAY_BUFFER:
-                id = fCurrArrayBuffer;
-                break;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:
-                id = fCurrElementArrayBuffer;
-                break;
-            case GR_GL_PIXEL_PACK_BUFFER:
-                id = fCurrPixelPackBuffer;
-                break;
-            case GR_GL_PIXEL_UNPACK_BUFFER:
-                id = fCurrPixelUnpackBuffer;
-                break;
-        }
+        GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
         if (id > 0) {
-            BufferObj* buffer = fBufferManager.lookUp(id);
+            Buffer* buffer = fBufferManager.lookUp(id);
             SkASSERT(buffer->mapped());
             buffer->setMapped(false);
             return GR_GL_TRUE;
@@ -492,23 +664,9 @@ public:
         switch (pname) {
             case GR_GL_BUFFER_MAPPED: {
                 *params = GR_GL_FALSE;
-                GrGLuint id = 0;
-                switch (target) {
-                    case GR_GL_ARRAY_BUFFER:
-                        id = fCurrArrayBuffer;
-                        break;
-                    case GR_GL_ELEMENT_ARRAY_BUFFER:
-                        id = fCurrElementArrayBuffer;
-                        break;
-                    case GR_GL_PIXEL_PACK_BUFFER:
-                        id = fCurrPixelPackBuffer;
-                        break;
-                    case GR_GL_PIXEL_UNPACK_BUFFER:
-                        id = fCurrPixelUnpackBuffer;
-                        break;
-                }
+                GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
                 if (id > 0) {
-                    BufferObj* buffer = fBufferManager.lookUp(id);
+                    Buffer* buffer = fBufferManager.lookUp(id);
                     if (buffer->mapped()) {
                         *params = GR_GL_TRUE;
                     }
@@ -527,17 +685,33 @@ public:
 
 
 private:
-    BufferManager          fBufferManager;
-    GrGLuint               fCurrArrayBuffer;
-    GrGLuint               fCurrElementArrayBuffer;
-    GrGLuint               fCurrPixelPackBuffer;
-    GrGLuint               fCurrPixelUnpackBuffer;
-    GrGLuint               fCurrProgramID;
-    GrGLuint               fCurrShaderID;
-    GrGLuint               fCurrGenericID;
-    GrGLuint               fCurrUniformLocation;
-    GrGLuint               fCurrPathID;
-    SkTArray<const char*>  fExtensions;
+    inline int static GetBufferIndex(GrGLenum glTarget) {
+        switch (glTarget) {
+            default:                           SkFAIL("Unexpected GL target to GetBufferIndex");
+            case GR_GL_ARRAY_BUFFER:           return 0;
+            case GR_GL_ELEMENT_ARRAY_BUFFER:   return 1;
+            case GR_GL_TEXTURE_BUFFER:         return 2;
+            case GR_GL_DRAW_INDIRECT_BUFFER:   return 3;
+            case GR_GL_PIXEL_PACK_BUFFER:      return 4;
+            case GR_GL_PIXEL_UNPACK_BUFFER:    return 5;
+        }
+    }
+    constexpr int static kNumBufferTargets = 6;
+
+    TGLObjectManager<Buffer>         fBufferManager;
+    GrGLuint                         fBoundBuffers[kNumBufferTargets];
+    TGLObjectManager<Framebuffer>    fFramebufferManager;
+    GrGLuint                         fCurrDrawFramebuffer;
+    GrGLuint                         fCurrReadFramebuffer;
+    TGLObjectManager<Renderbuffer>   fRenderbufferManager;
+    GrGLuint                         fCurrRenderbuffer;
+    GrGLuint                         fCurrProgramID;
+    GrGLuint                         fCurrShaderID;
+    GrGLuint                         fCurrGenericID;
+    GrGLuint                         fCurrUniformLocation;
+    GrGLuint                         fCurrPathID;
+    SkAutoTUnref<const Texture>      fSingleTextureObject;
+    SkTArray<const char*>            fExtensions;
 
     // the OpenGLES 2.0 spec says this must be >= 128
     static const GrGLint kDefaultMaxVertexUniformVectors = 128;
@@ -550,6 +724,30 @@ private:
 
     // the OpenGLES 2.0 spec says this must be >= 8
     static const GrGLint kDefaultMaxVaryingVectors = 8;
+
+    GrGLuint getBoundFramebufferID(GrGLenum target) {
+        switch (target) {
+            case GR_GL_FRAMEBUFFER:
+            case GR_GL_DRAW_FRAMEBUFFER:
+                return fCurrDrawFramebuffer;
+            case GR_GL_READ_FRAMEBUFFER:
+                return fCurrReadFramebuffer;
+            default:
+                SK_ABORT("Invalid framebuffer target.");
+                return 0;
+        }
+    }
+
+    const Texture* getSingleTextureObject() {
+        // We currently only use FramebufferAttachment objects for a sample count, and all textures
+        // in Skia have one sample, so there is no need as of yet to track individual textures. This
+        // also works around a bug in chromium's cc_unittests where they send us texture IDs that
+        // were generated by cc::TestGLES2Interface.
+        if (!fSingleTextureObject) {
+            fSingleTextureObject.reset(new Texture);
+        }
+        return fSingleTextureObject;
+    }
 
     const GrGLubyte* CombinedExtensionString() {
         static SkString gExtString;

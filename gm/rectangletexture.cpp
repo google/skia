@@ -12,7 +12,9 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrGpu.h"
 #include "GrTest.h"
+#include "gl/GrGLContext.h"
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"

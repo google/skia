@@ -35,6 +35,13 @@ list (APPEND public_includes ${userconfig_directory})
 list (APPEND srcs             ../third_party/etc1/etc1.cpp ../third_party/ktx/ktx.cpp)
 list (APPEND private_includes ../third_party/etc1          ../third_party/ktx)
 
+list (APPEND private_includes ../third_party/libpng)
+file (GLOB libpng_srcs ../third_party/libpng/*.c)
+foreach (src ${libpng_srcs})
+    list (APPEND srcs ${src})
+endforeach()
+
+
 function (remove_srcs)
     file (GLOB_RECURSE to_remove ${ARGN})
     list (REMOVE_ITEM srcs ${to_remove})
@@ -148,7 +155,6 @@ if (UNIX AND NOT APPLE)
     find_library (FONTCONFIG_LIBRARIES fontconfig)
     find_package (GIF)
     find_package (JPEG)
-    find_package (PNG)
 endif()
 
 # Do not compile SkRawCodec.
@@ -188,17 +194,9 @@ else()
     remove_srcs(../src/utils/*Lua*)
 endif()
 
-if (PNG_FOUND)
-    list (APPEND private_includes ${PNG_INCLUDE_DIRS})
-    list (APPEND libs             ${PNG_LIBRARIES})
-    add_definitions(-DPNG_SKIP_SETJMP_CHECK)
-    add_definitions(-DPNG_SKIP_SKIA_OPTS)
-    add_definitions(-DSK_HAS_PNG_LIBRARY)
-else()
-    remove_srcs(../src/images/*PNG*)
-    remove_srcs(../src/codec/*Png*)
-    remove_srcs(../src/codec/*Ico*)
-endif()
+# PNG
+add_definitions(-DSK_HAS_PNG_LIBRARY)
+add_definitions(-DPNG_ARM_NEON_OPT=0)
 
 if (ZLIB_FOUND)
     list (APPEND private_includes ${ZLIB_INCLUDE_DIRS})
@@ -244,15 +242,16 @@ endif()
 
 if (WIN32)
     list (APPEND libs FontSub.lib Usp10.lib)
+else()
+    list (APPEND libs pthread)
 endif()
 
 find_package(OpenGL REQUIRED)
 list (APPEND libs  ${OPENGL_LIBRARIES})
 
-# This is our main output, libskia.so.
-# We mostly build an .so here because it helps test we've linked everything,
-# not so much that we think Skia is a good candidate to ship as a shared library.
-add_library (skia SHARED ${srcs})
+# This is our main output, libskia.{a,so,dll,dylib,etc...}
+# You can control whether this is static or shared with BUILD_SHARED_LIBS.
+add_library (skia ${srcs})
 
 target_compile_definitions(skia
     PUBLIC  ${public_defines}
@@ -274,9 +273,12 @@ else()
 endif()
 
 set_target_properties(skia PROPERTIES
-    COMPILE_FLAGS ${cc_flags}
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN true)
+    COMPILE_FLAGS ${cc_flags})
+if (BUILD_SHARED_LIBS)
+    set_target_properties(skia PROPERTIES
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN true)
+endif()
 
 # Experimental C API install:
 file(GLOB c_headers "../include/c/*.h")
@@ -298,9 +300,21 @@ configure_file ("SkUserConfig.h.in" "${userconfig_directory}/SkUserConfig.h")
 
 # skia_link_arguments.txt
 set (link_arguments ${CMAKE_BINARY_DIR}/skia_link_arguments.txt)
-file (WRITE ${link_arguments} "-L${CMAKE_BINARY_DIR}\n")
-file (APPEND ${link_arguments} "-lskia\n")
-file (APPEND ${link_arguments} "-Wl,-rpath,${CMAKE_BINARY_DIR}\n")
+if (BUILD_SHARED_LIBS)
+  file (WRITE ${link_arguments} "-L${CMAKE_BINARY_DIR}\n")
+  file (APPEND ${link_arguments} "-lskia\n")
+  file (APPEND ${link_arguments} "-Wl,-rpath,${CMAKE_BINARY_DIR}\n")
+else()
+  file (WRITE ${link_arguments} "${CMAKE_BINARY_DIR}/libskia.a\n")
+  foreach (lib ${libs})
+    if (EXISTS ${lib})
+      get_filename_component(lib_path ${lib} ABSOLUTE)
+      file (APPEND ${link_arguments} "${lib_path}\n")
+    else()
+      file (APPEND ${link_arguments} "-l${lib}\n")
+    endif()
+  endforeach()
+endif()
 
 # skia_compile_arguments.txt
 set (compile_arguments ${CMAKE_BINARY_DIR}/skia_compile_arguments.txt)

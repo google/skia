@@ -9,6 +9,7 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "GrInvariantOutput.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -35,10 +36,11 @@ public:
         buf.writeMatrix(fDeviceMatrix);
     }
 
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix* localMatrix,
-                                                   SkFilterQuality) const override;
+                                                   SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
@@ -98,12 +100,13 @@ private:
     GrCoordTransform fDeviceTransform;
 };
 
-const GrFragmentProcessor* DCShader::asFragmentProcessor(GrContext*,
+sk_sp<GrFragmentProcessor> DCShader::asFragmentProcessor(GrContext*,
                                                          const SkMatrix& viewM,
                                                          const SkMatrix* localMatrix,
-                                                         SkFilterQuality) const {
-    SkAutoTUnref<const GrFragmentProcessor> inner(new DCFP(fDeviceMatrix));
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+                                                         SkFilterQuality,
+                                                         SkSourceGammaTreatment) const {
+    sk_sp<GrFragmentProcessor> inner(new DCFP(fDeviceMatrix));
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 class DCShaderGM : public GM {

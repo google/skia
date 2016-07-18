@@ -552,6 +552,10 @@ void SkDebugCanvas::didConcat(const SkMatrix& matrix) {
     this->INHERITED::didConcat(matrix);
 }
 
+void SkDebugCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+    this->addDrawCommand(new SkDrawAnnotationCommand(rect, key, sk_ref_sp(value)));
+}
+
 void SkDebugCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar left,
                                  SkScalar top, const SkPaint* paint) {
     this->addDrawCommand(new SkDrawBitmapCommand(bitmap, left, top, paint));

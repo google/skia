@@ -354,7 +354,7 @@ struct State32 : State4f {
         if (is_opaque(paint, shaderContext)) {
             fFlags |= SkXfermode::kSrcIsOpaque_D32Flag;
         }
-        if (info.isSRGB()) {
+        if (info.gammaCloseToSRGB()) {
             fFlags |= SkXfermode::kDstIsSRGB_D32Flag;
         }
         fProc1 = SkXfermode::GetD32Proc(fXfer, fFlags | SkXfermode::kSrcIsSingle_D32Flag);

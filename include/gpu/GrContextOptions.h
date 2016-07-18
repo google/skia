@@ -23,7 +23,8 @@ struct GrContextOptions {
         , fDrawBatchBounds(false)
         , fMaxBatchLookback(-1)
         , fMaxBatchLookahead(-1)
-        , fUseShaderSwizzling(false) {}
+        , fUseShaderSwizzling(false)
+        , fDoManualMipmapping(false) {}
 
     // Suppress prints for the GrContext.
     bool fSuppressPrints;
@@ -67,6 +68,11 @@ struct GrContextOptions {
     /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
         swizzling. */
     bool fUseShaderSwizzling;
+
+    /** Construct mipmaps manually, via repeated downsampling draw-calls. This is used when
+        the driver's implementation (glGenerateMipmap) contains bugs. This requires mipmap
+        level and LOD control (ie desktop or ES3). */
+    bool fDoManualMipmapping;
 };
 
 #endif

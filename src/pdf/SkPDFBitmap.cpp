@@ -12,6 +12,7 @@
 #include "SkJpegInfo.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
+#include "SkPDFTypes.h"
 #include "SkStream.h"
 #include "SkUnPreMultiply.h"
 
@@ -91,7 +92,6 @@ static U8CPU SkGetG32Component(uint32_t value, SkColorType ct) {
 static U8CPU SkGetB32Component(uint32_t value, SkColorType ct) {
     return (value >> (SkIsBGRA(ct) ? SK_BGRA_B32_SHIFT : SK_RGBA_B32_SHIFT)) & 0xFF;
 }
-
 
 // unpremultiply and extract R, G, B components.
 static void pmcolor_to_rgb24(uint32_t color, uint8_t* rgb, SkColorType ct) {
@@ -183,6 +183,7 @@ static void bitmap_to_pdf_pixels(const SkBitmap& bitmap, SkWStream* out) {
     const SkBitmap& bm = not4444(bitmap, &copy);
     SkAutoLockPixels autoLockPixels(bm);
     SkColorType colorType = bm.colorType();
+    SkAlphaType alphaType = bm.alphaType();
     switch (colorType) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType: {
@@ -192,14 +193,21 @@ static void bitmap_to_pdf_pixels(const SkBitmap& bitmap, SkWStream* out) {
                 const uint32_t* src = bm.getAddr32(0, y);
                 uint8_t* dst = scanline.get();
                 for (int x = 0; x < bm.width(); ++x) {
-                    uint32_t color = *src++;
-                    U8CPU alpha = SkGetA32Component(color, colorType);
-                    if (alpha != SK_AlphaTRANSPARENT) {
-                        pmcolor_to_rgb24(color, dst, colorType);
+                    if (alphaType == kPremul_SkAlphaType) {
+                        uint32_t color = *src++;
+                        U8CPU alpha = SkGetA32Component(color, colorType);
+                        if (alpha != SK_AlphaTRANSPARENT) {
+                            pmcolor_to_rgb24(color, dst, colorType);
+                        } else {
+                            get_neighbor_avg_color(bm, x, y, dst, colorType);
+                        }
+                        dst += 3;
                     } else {
-                        get_neighbor_avg_color(bm, x, y, dst, colorType);
+                        uint32_t color = *src++;
+                        *dst++ = SkGetR32Component(color, colorType);
+                        *dst++ = SkGetG32Component(color, colorType);
+                        *dst++ = SkGetB32Component(color, colorType);
                     }
-                    dst += 3;
                 }
                 out->write(scanline.get(), 3 * bm.width());
             }
@@ -297,7 +305,9 @@ static void bitmap_alpha_to_a8(const SkBitmap& bitmap, SkWStream* out) {
     }
 }
 
-static sk_sp<SkPDFArray> make_indexed_color_space(const SkColorTable* table) {
+static sk_sp<SkPDFArray> make_indexed_color_space(
+        const SkColorTable* table,
+        SkAlphaType alphaType) {
     auto result = sk_make_sp<SkPDFArray>();
     result->reserve(4);
     result->appendName("Indexed");
@@ -319,8 +329,14 @@ static sk_sp<SkPDFArray> make_indexed_color_space(const SkColorTable* table) {
     uint8_t* tablePtr = reinterpret_cast<uint8_t*>(tableArray);
     const SkPMColor* colors = table->readColors();
     for (int i = 0; i < table->count(); i++) {
-        pmcolor_to_rgb24(colors[i], tablePtr, kN32_SkColorType);
-        tablePtr += 3;
+        if (alphaType == kPremul_SkAlphaType) {
+            pmcolor_to_rgb24(colors[i], tablePtr, kN32_SkColorType);
+            tablePtr += 3;
+        } else {
+            *tablePtr++ = SkGetR32Component(colors[i], kN32_SkColorType);
+            *tablePtr++ = SkGetG32Component(colors[i], kN32_SkColorType);
+            *tablePtr++ = SkGetB32Component(colors[i], kN32_SkColorType);
+        }
     }
     SkString tableString(tableArray, 3 * table->count());
     result->appendString(tableString);
@@ -357,7 +373,8 @@ static void emit_image_xobject(SkWStream* stream,
     } else if (bitmap.colorType() == kIndex_8_SkColorType) {
         SkASSERT(1 == pdf_color_component_count(bitmap.colorType()));
         pdfDict.insertObject("ColorSpace",
-                             make_indexed_color_space(bitmap.getColorTable()));
+                             make_indexed_color_space(bitmap.getColorTable(),
+                                                      bitmap.alphaType()));
     } else if (1 == pdf_color_component_count(bitmap.colorType())) {
         pdfDict.insertName("ColorSpace", "DeviceGray");
     } else {

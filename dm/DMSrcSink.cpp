@@ -6,9 +6,13 @@
  */
 
 #include "DMSrcSink.h"
+#include "Resources.h"
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
+#include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
+#include "SkColorSpaceXform.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
@@ -35,6 +39,10 @@
 
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
+#endif
+
+#if defined(SK_TEST_QCMS)
+    #include "qcms.h"
 #endif
 
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
@@ -314,7 +322,7 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
 }
 
 static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
-                            CodecSrc::DstColorType dstColorType) {
+                            CodecSrc::DstColorType dstColorType, SkAlphaType dstAlphaType) {
     switch (dstColorType) {
         case CodecSrc::kIndex8_Always_DstColorType:
             if (kRGB_565_SkColorType == canvasColorType) {
@@ -323,8 +331,7 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             *decodeInfo = decodeInfo->makeColorType(kIndex_8_SkColorType);
             break;
         case CodecSrc::kGrayscale_Always_DstColorType:
-            if (kRGB_565_SkColorType == canvasColorType ||
-                    kOpaque_SkAlphaType != decodeInfo->alphaType()) {
+            if (kRGB_565_SkColorType == canvasColorType) {
                 return false;
             }
             *decodeInfo = decodeInfo->makeColorType(kGray_8_SkColorType);
@@ -348,6 +355,7 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             break;
     }
 
+    *decodeInfo = decodeInfo->makeAlphaType(dstAlphaType);
     return true;
 }
 
@@ -373,8 +381,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo = codec->getInfo().makeAlphaType(fDstAlphaType);
-    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType)) {
+    SkImageInfo decodeInfo = codec->getInfo();
+    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType,
+                         fDstAlphaType)) {
         return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
     }
 
@@ -656,8 +665,9 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create android codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo = codec->getInfo().makeAlphaType(fDstAlphaType);
-    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType)) {
+    SkImageInfo decodeInfo = codec->getInfo();
+    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType,
+                         fDstAlphaType)) {
         return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
     }
 
@@ -793,11 +803,6 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     // Test various color and alpha types on CPU
     SkImageInfo decodeInfo = gen->getInfo().makeAlphaType(fDstAlphaType);
 
-    if (kGray_8_SkColorType == decodeInfo.colorType() &&
-            kOpaque_SkAlphaType != decodeInfo.alphaType()) {
-        return Error::Nonfatal("Avoid requesting non-opaque kGray8 decodes.");
-    }
-
     int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     size_t rowBytes = decodeInfo.width() * bpp;
     SkAutoMalloc pixels(decodeInfo.height() * rowBytes);
@@ -853,24 +858,97 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
     SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(decodeInfo)) {
+    if (!bitmap.tryAllocPixels(info)) {
         return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
-                              decodeInfo.width(), decodeInfo.height());
+                              info.width(), info.height());
+    }
+
+    SkImageInfo decodeInfo = info;
+    if (kBaseline_Mode != fMode) {
+        decodeInfo = decodeInfo.makeColorType(kRGBA_8888_SkColorType);
+    }
+
+    SkCodec::Result r = codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes());
+    if (SkCodec::kSuccess != r) {
+        return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
+    }
+
+    // Load the dst ICC profile.  This particular dst is fairly similar to Adobe RGB.
+    sk_sp<SkData> dstData = SkData::MakeFromFileName(
+            GetResourcePath("monitor_profiles/HP_ZR30w.icc").c_str());
+    if (!dstData) {
+        return "Cannot read monitor profile.  Is the resource path set correctly?";
     }
 
     switch (fMode) {
         case kBaseline_Mode:
-            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes())) {
-                case SkCodec::kSuccess:
-                    break;
-                default:
-                    // Everything else is considered a failure.
-                    return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
-            }
             canvas->drawBitmap(bitmap, 0, 0);
             break;
+        case kDst_sRGB_Mode:
+        case kDst_HPZR30w_Mode: {
+            sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getColorSpace());
+            sk_sp<SkColorSpace> dstSpace = (kDst_sRGB_Mode == fMode) ?
+                    SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) :
+                    SkColorSpace::NewICC(dstData->data(), dstData->size());
+            SkASSERT(dstSpace);
+
+            std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace, dstSpace);
+            if (!xform) {
+                return "Unimplemented color conversion.";
+            }
+
+            uint32_t* row = (uint32_t*) bitmap.getPixels();
+            for (int y = 0; y < info.height(); y++) {
+                xform->xform_RGB1_8888(row, row, info.width());
+                row = SkTAddOffset<uint32_t>(row, bitmap.rowBytes());
+            }
+
+            canvas->drawBitmap(bitmap, 0, 0);
+            break;
+        }
+#if defined(SK_TEST_QCMS)
+        case kQCMS_HPZR30w_Mode: {
+            sk_sp<SkData> srcData = codec->getICCData();
+            SkAutoTCallVProc<qcms_profile, qcms_profile_release>
+                    srcSpace(qcms_profile_from_memory(srcData->data(), srcData->size()));
+            if (!srcSpace) {
+                return Error::Nonfatal(SkStringPrintf("QCMS cannot create profile for %s.\n",
+                                       fPath.c_str()));
+            }
+
+            SkAutoTCallVProc<qcms_profile, qcms_profile_release>
+                    dstSpace(qcms_profile_from_memory(dstData->data(), dstData->size()));
+            SkASSERT(dstSpace);
+
+            // Optimizes conversion by precomputing the inverse transformation to dst.  Also
+            // causes QCMS to use a completely different codepath.  This is how Chrome uses QCMS.
+            qcms_profile_precache_output_transform(dstSpace);
+            SkAutoTCallVProc<qcms_transform, qcms_transform_release>
+                    transform (qcms_transform_create(srcSpace, QCMS_DATA_RGBA_8, dstSpace,
+                                                     QCMS_DATA_RGBA_8, QCMS_INTENT_PERCEPTUAL));
+            if (!transform) {
+                return SkStringPrintf("QCMS cannot create transform for %s.\n", fPath.c_str());
+            }
+
+#ifdef SK_PMCOLOR_IS_RGBA
+            qcms_output_type outType = QCMS_OUTPUT_RGBX;
+#else
+            qcms_output_type outType = QCMS_OUTPUT_BGRX;
+#endif
+
+            // Perform color correction.
+            uint32_t* row = (uint32_t*) bitmap.getPixels();
+            for (int y = 0; y < info.height(); y++) {
+                qcms_transform_data_type(transform, row, row, info.width(), outType);
+                row = SkTAddOffset<uint32_t>(row, bitmap.rowBytes());
+            }
+
+            canvas->drawBitmap(bitmap, 0, 0);
+            break;
+        }
+#endif
         default:
             SkASSERT(false);
             return "Invalid fMode";
@@ -933,6 +1011,41 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+MSKPSrc::MSKPSrc(Path path) : fPath(path) {
+    std::unique_ptr<SkStreamAsset> stream(SkStream::NewFromFile(fPath.c_str()));
+    (void)fReader.init(stream.get());
+}
+
+int MSKPSrc::pageCount() const { return fReader.pageCount(); }
+
+SkISize MSKPSrc::size() const { return this->size(0); }
+SkISize MSKPSrc::size(int i) const { return fReader.pageSize(i).toCeil(); }
+
+Error MSKPSrc::draw(SkCanvas* c) const { return this->draw(0, c); }
+Error MSKPSrc::draw(int i, SkCanvas* canvas) const {
+    std::unique_ptr<SkStreamAsset> stream(SkStream::NewFromFile(fPath.c_str()));
+    if (!stream) {
+        return SkStringPrintf("Unable to open file: %s", fPath.c_str());
+    }
+    if (fReader.pageCount() == 0) {
+        return SkStringPrintf("Unable to parse MultiPictureDocument file: %s", fPath.c_str());
+    }
+    if (i >= fReader.pageCount()) {
+        return SkStringPrintf("MultiPictureDocument page number out of range: %d", i);
+    }
+    sk_sp<SkPicture> page = fReader.readPage(stream.get(), i);
+    if (!page) {
+        return SkStringPrintf("SkMultiPictureDocumentReader failed on page %d: %s",
+                              i, fPath.c_str());
+    }
+    canvas->drawPicture(page);
+    return "";
+}
+
+Name MSKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
     SkAutoTDelete<SkCanvas> canvas(SkCreateNullCanvas());
     return src.draw(canvas);
@@ -947,14 +1060,14 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
                  int samples,
                  bool diText,
                  SkColorType colorType,
-                 SkColorProfileType profileType,
+                 sk_sp<SkColorSpace> colorSpace,
                  bool threaded)
     : fContextType(ct)
     , fContextOptions(options)
     , fSampleCount(samples)
     , fUseDIText(diText)
     , fColorType(colorType)
-    , fProfileType(profileType)
+    , fColorSpace(std::move(colorSpace))
     , fThreaded(threaded) {}
 
 void PreAbandonGpuContextErrorHandler(SkError, void*) {}
@@ -980,7 +1093,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
     const SkISize size = src.size();
     const SkImageInfo info =
         SkImageInfo::Make(size.width(), size.height(), fColorType,
-                          kPremul_SkAlphaType, fProfileType);
+                          kPremul_SkAlphaType, fColorSpace);
 #if SK_SUPPORT_GPU
     GrContext* context = factory.getContextInfo(fContextType, fContextOptions).grContext();
     const int maxDimension = context->caps()->maxTextureSize();
@@ -1025,44 +1138,15 @@ static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
         return "Source has empty dimensions";
     }
     SkASSERT(doc);
-    int width  = src.size().width(),
-        height = src.size().height();
-
-    if (FLAGS_multiPage) {
-        // Print the given DM:Src to a document, breaking on 8.5x11 pages.
-        const int kLetterWidth = 612,  // 8.5 * 72
-                kLetterHeight = 792;   // 11 * 72
-        const SkRect letter = SkRect::MakeWH(SkIntToScalar(kLetterWidth),
-                                             SkIntToScalar(kLetterHeight));
-
-        int xPages = ((width - 1) / kLetterWidth) + 1;
-        int yPages = ((height - 1) / kLetterHeight) + 1;
-
-        for (int y = 0; y < yPages; ++y) {
-            for (int x = 0; x < xPages; ++x) {
-                int w = SkTMin(kLetterWidth, width - (x * kLetterWidth));
-                int h = SkTMin(kLetterHeight, height - (y * kLetterHeight));
-                SkCanvas* canvas =
-                        doc->beginPage(SkIntToScalar(w), SkIntToScalar(h));
-                if (!canvas) {
-                    return "SkDocument::beginPage(w,h) returned nullptr";
-                }
-                canvas->clipRect(letter);
-                canvas->translate(-letter.width() * x, -letter.height() * y);
-                Error err = src.draw(canvas);
-                if (!err.isEmpty()) {
-                    return err;
-                }
-                doc->endPage();
-            }
-        }
-    } else {
+    int pageCount = src.pageCount();
+    for (int i = 0; i < pageCount; ++i) {
+        int width = src.size(i).width(), height = src.size(i).height();
         SkCanvas* canvas =
                 doc->beginPage(SkIntToScalar(width), SkIntToScalar(height));
         if (!canvas) {
             return "SkDocument::beginPage(w,h) returned nullptr";
         }
-        Error err = src.draw(canvas);
+        Error err = src.draw(i, canvas);
         if (!err.isEmpty()) {
             return err;
         }
@@ -1129,9 +1213,9 @@ Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-RasterSink::RasterSink(SkColorType colorType, SkColorProfileType profileType)
+RasterSink::RasterSink(SkColorType colorType, sk_sp<SkColorSpace> colorSpace)
     : fColorType(colorType)
-    , fProfileType(profileType) {}
+    , fColorSpace(std::move(colorSpace)) {}
 
 Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) const {
     const SkISize size = src.size();
@@ -1141,7 +1225,7 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 
     SkMallocPixelRef::ZeroedPRFactory factory;
     dst->allocPixels(SkImageInfo::Make(size.width(), size.height(),
-                                       fColorType, alphaType, fProfileType),
+                                       fColorType, alphaType, fColorSpace),
                      &factory,
                      nullptr/*colortable*/);
     SkCanvas canvas(*dst);

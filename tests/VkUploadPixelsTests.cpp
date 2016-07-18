@@ -52,7 +52,6 @@ bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,
 void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixelConfig config,
                         bool renderTarget, bool linearTiling) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
-    gpu->discard(NULL);
 
     const int kWidth = 16;
     const int kHeight = 16;

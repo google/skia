@@ -80,8 +80,9 @@ namespace sk_tools {
 
         SkAutoTMalloc<uint32_t> rgba(w*h);
 
-        if (bitmap.  colorType() ==  kN32_SkColorType &&
-            bitmap.profileType() == kSRGB_SkColorProfileType) {
+        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        if (bitmap. colorType() ==  kN32_SkColorType &&
+            bitmap.colorSpace() == srgbColorSpace.get()) {
             // These are premul sRGB 8-bit pixels in SkPMColor order.
             // We want unpremul sRGB 8-bit pixels in RGBA order.  We'll get there via floats.
             bitmap.lockPixels();

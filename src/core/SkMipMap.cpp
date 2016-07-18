@@ -9,8 +9,9 @@
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkHalf.h"
-#include "SkMath.h"
+#include "SkMathPriv.h"
 #include "SkNx.h"
+#include "SkPM4fPriv.h"
 #include "SkTypes.h"
 
 //
@@ -39,6 +40,16 @@ struct ColorTypeFilter_8888 {
         return (uint32_t)((x & 0xFF00FF) | ((x >> 24) & 0xFF00FF00));
     }
 #endif
+};
+
+struct ColorTypeFilter_S32 {
+    typedef uint32_t Type;
+    static Sk4f Expand(uint32_t x) {
+        return Sk4f_fromS32(x);
+    }
+    static uint32_t Compact(const Sk4f& x) {
+        return Sk4f_toS32(x);
+    }
 };
 
 struct ColorTypeFilter_565 {
@@ -293,7 +304,8 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     return sk_64_asS32(size);
 }
 
-SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
+SkMipMap* SkMipMap::Build(const SkPixmap& src, SkSourceGammaTreatment treatment,
+                          SkDiscardableFactoryProc fact) {
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
 
     FilterProc* proc_1_2 = nullptr;
@@ -307,17 +319,31 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
 
     const SkColorType ct = src.colorType();
     const SkAlphaType at = src.alphaType();
+    const bool srgbGamma = (SkSourceGammaTreatment::kRespect == treatment)
+                            && src.info().gammaCloseToSRGB();
+
     switch (ct) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            proc_1_2 = downsample_1_2<ColorTypeFilter_8888>;
-            proc_1_3 = downsample_1_3<ColorTypeFilter_8888>;
-            proc_2_1 = downsample_2_1<ColorTypeFilter_8888>;
-            proc_2_2 = downsample_2_2<ColorTypeFilter_8888>;
-            proc_2_3 = downsample_2_3<ColorTypeFilter_8888>;
-            proc_3_1 = downsample_3_1<ColorTypeFilter_8888>;
-            proc_3_2 = downsample_3_2<ColorTypeFilter_8888>;
-            proc_3_3 = downsample_3_3<ColorTypeFilter_8888>;
+            if (srgbGamma) {
+                proc_1_2 = downsample_1_2<ColorTypeFilter_S32>;
+                proc_1_3 = downsample_1_3<ColorTypeFilter_S32>;
+                proc_2_1 = downsample_2_1<ColorTypeFilter_S32>;
+                proc_2_2 = downsample_2_2<ColorTypeFilter_S32>;
+                proc_2_3 = downsample_2_3<ColorTypeFilter_S32>;
+                proc_3_1 = downsample_3_1<ColorTypeFilter_S32>;
+                proc_3_2 = downsample_3_2<ColorTypeFilter_S32>;
+                proc_3_3 = downsample_3_3<ColorTypeFilter_S32>;
+            } else {
+                proc_1_2 = downsample_1_2<ColorTypeFilter_8888>;
+                proc_1_3 = downsample_1_3<ColorTypeFilter_8888>;
+                proc_2_1 = downsample_2_1<ColorTypeFilter_8888>;
+                proc_2_2 = downsample_2_2<ColorTypeFilter_8888>;
+                proc_2_3 = downsample_2_3<ColorTypeFilter_8888>;
+                proc_3_1 = downsample_3_1<ColorTypeFilter_8888>;
+                proc_3_2 = downsample_3_2<ColorTypeFilter_8888>;
+                proc_3_3 = downsample_3_3<ColorTypeFilter_8888>;
+            }
             break;
         case kRGB_565_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_565>;
@@ -370,23 +396,12 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
         return nullptr;
     }
     // whip through our loop to compute the exact size needed
-    size_t  size = 0;
-    int countLevels = 0;
-    {
-        int width = src.width();
-        int height = src.height();
-        for (;;) {
-            width = SkTMax(1, width >> 1);
-            height = SkTMax(1, height >> 1);
-            size += SkColorTypeMinRowBytes(ct, width) * height;
-            countLevels += 1;
-            if (1 == width && 1 == height) {
-                break;
-            }
-        }
+    size_t size = 0;
+    int countLevels = ComputeLevelCount(src.width(), src.height());
+    for (int currentMipLevel = countLevels; currentMipLevel >= 0; currentMipLevel--) {
+        SkISize mipSize = ComputeLevelSize(src.width(), src.height(), currentMipLevel);
+        size += SkColorTypeMinRowBytes(ct, mipSize.fWidth) * mipSize.fHeight;
     }
-
-    SkASSERT(countLevels == SkMipMap::ComputeLevelCount(src.width(), src.height()));
 
     size_t storageSize = SkMipMap::AllocLevelsSize(countLevels, size);
     if (0 == storageSize) {
@@ -405,8 +420,10 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     }
 
     // init
+    mipmap->fCS = sk_ref_sp(src.info().colorSpace());
     mipmap->fCount = countLevels;
     mipmap->fLevels = (Level*)mipmap->writable_data();
+    SkASSERT(mipmap->fLevels);
 
     Level* levels = mipmap->fLevels;
     uint8_t*    baseAddr = (uint8_t*)&levels[countLevels];
@@ -451,7 +468,10 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
         height = SkTMax(1, height >> 1);
         rowBytes = SkToU32(SkColorTypeMinRowBytes(ct, width));
 
-        levels[i].fPixmap = SkPixmap(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
+        // We make the Info w/o any colorspace, since that storage is not under our control, and
+        // will not be deleted in a controlled fashion. When the caller is given the pixmap for
+        // a given level, we augment this pixmap with fCS (which we do manage).
+        new (&levels[i].fPixmap) SkPixmap(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
         levels[i].fScale  = SkSize::Make(SkIntToScalar(width)  / src.width(),
                                          SkIntToScalar(height) / src.height());
 
@@ -470,6 +490,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     }
     SkASSERT(addr == baseAddr + size);
 
+    SkASSERT(mipmap->fLevels);
     return mipmap;
 }
 
@@ -507,6 +528,29 @@ int SkMipMap::ComputeLevelCount(int baseWidth, int baseHeight) {
     return mipLevelCount;
 }
 
+SkISize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
+    if (baseWidth < 1 || baseHeight < 1) {
+        return SkISize::Make(0, 0);
+    }
+
+    int maxLevelCount = ComputeLevelCount(baseWidth, baseHeight);
+    if (level >= maxLevelCount || level < 0) {
+        return SkISize::Make(0, 0);
+    }
+    // OpenGL's spec requires that each mipmap level have height/width equal to
+    // max(1, floor(original_height / 2^i)
+    // (or original_width) where i is the mipmap level.
+
+    // SkMipMap does not include the base mip level.
+    // For example, it contains levels 1-x instead of 0-x.
+    // This is because the image used to create SkMipMap is the base level.
+    // So subtract 1 from the mip level to get the index stored by SkMipMap.
+    int width = SkTMax(1, baseWidth >> (level + 1));
+    int height = SkTMax(1, baseHeight >> (level + 1));
+
+    return SkISize::Make(width, height);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
@@ -535,9 +579,7 @@ bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
         return false;
     }
     SkASSERT(L >= 0);
-//    int rndLevel = SkScalarRoundToInt(L);
     int level = SkScalarFloorToInt(L);
-//    SkDebugf("mipmap scale=%g L=%g level=%d rndLevel=%d\n", scale, L, level, rndLevel);
 
     SkASSERT(level >= 0);
     if (level <= 0) {
@@ -549,13 +591,16 @@ bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
     }
     if (levelPtr) {
         *levelPtr = fLevels[level - 1];
+        // need to augment with our colorspace
+        levelPtr->fPixmap.setColorSpace(fCS);
     }
     return true;
 }
 
 // Helper which extracts a pixmap from the src bitmap
 //
-SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
+SkMipMap* SkMipMap::Build(const SkBitmap& src, SkSourceGammaTreatment treatment,
+                          SkDiscardableFactoryProc fact) {
     SkAutoPixmapUnlock srcUnlocker;
     if (!src.requestLock(&srcUnlocker)) {
         return nullptr;
@@ -565,7 +610,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
     if (nullptr == srcPixmap.addr()) {
         sk_throw();
     }
-    return Build(srcPixmap, fact);
+    return Build(srcPixmap, treatment, fact);
 }
 
 int SkMipMap::countLevels() const {

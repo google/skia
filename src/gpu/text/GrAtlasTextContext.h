@@ -19,7 +19,6 @@
 
 class GrDrawBatch;
 class GrDrawContext;
-class GrDrawTarget;
 class GrPipelineBuilder;
 class GrTextBlobCache;
 class SkGlyph;

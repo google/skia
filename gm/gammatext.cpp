@@ -19,7 +19,7 @@ static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
 }
 
 static bool setFont(SkPaint* paint, const char name[]) {
-    paint->setTypeface(SkTypeface::MakeFromName(name, SkTypeface::kNormal));
+    paint->setTypeface(SkTypeface::MakeFromName(name, SkFontStyle()));
     return SkToBool(paint->getTypeface());
 }
 
@@ -104,7 +104,8 @@ static sk_sp<SkShader> make_gradient(SkColor c) {
 }
 
 static void set_face(SkPaint* paint) {
-    paint->setTypeface(SkTypeface::MakeFromName("serif", SkTypeface::kItalic));
+    paint->setTypeface(SkTypeface::MakeFromName("serif",
+                           SkFontStyle::FromOldStyle(SkTypeface::kItalic)));
 }
 
 static void draw_pair(SkCanvas* canvas, SkPaint* paint, const sk_sp<SkShader>& shader) {

@@ -100,18 +100,20 @@ public:
     }
 #endif
 
-    /** Return the typeface that most closely matches the requested familyName and style.
-        Pass nullptr as the familyName to request the default font for the requested style.
-        Will never return nullptr.
+  /** Creates a new reference to the typeface that most closely matches the
+      requested familyName and fontStyle. This method allows extended font
+      face specifiers as in the SkFontStyle type. Will never return null.
 
-        @param familyName  May be NULL. The name of the font family.
-        @param style       The style (normal, bold, italic) of the typeface.
-        @return the closest-matching typeface.
+      @param familyName  May be NULL. The name of the font family.
+      @param fontStyle   The style of the typeface.
+      @return reference to the closest-matching typeface. Call must call
+              unref() when they are done.
     */
-    static sk_sp<SkTypeface> MakeFromName(const char familyName[], Style style);
+  static sk_sp<SkTypeface> MakeFromName(const char familyName[], SkFontStyle fontStyle);
+
 #ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
     static SkTypeface* CreateFromName(const char familyName[], Style style) {
-        return MakeFromName(familyName, style).release();
+        return MakeFromName(familyName, SkFontStyle::FromOldStyle(style)).release();
     }
 #endif
 
@@ -124,11 +126,6 @@ public:
         @return the closest-matching typeface.
     */
     static sk_sp<SkTypeface> MakeFromTypeface(SkTypeface* family, Style);
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    static SkTypeface* CreateFromTypeface(const SkTypeface* family, Style style) {
-        return MakeFromTypeface(const_cast<SkTypeface*>(family), style).release();
-    }
-#endif
 
     /** Return a new typeface given a file. If the file does not exist, or is
         not a valid font file, returns nullptr.
@@ -156,11 +153,6 @@ public:
         transferred, so the caller must not reference it again.
     */
     static sk_sp<SkTypeface> MakeFromFontData(SkFontData*);
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    static SkTypeface* CreateFromFontData(SkFontData* fd) {
-        return MakeFromFontData(fd).release();
-    }
-#endif
 
     /** Write a unique signature to a stream, sufficient to reconstruct a
         typeface referencing the same font when Deserialize is called.
@@ -173,11 +165,6 @@ public:
         Does not affect ownership of SkStream.
      */
     static sk_sp<SkTypeface> MakeDeserialize(SkStream*);
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    static SkTypeface* Deserialize(SkStream* stream) {
-        return MakeDeserialize(stream).release();
-    }
-#endif
 
     enum Encoding {
         kUTF8_Encoding,

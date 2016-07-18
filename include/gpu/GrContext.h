@@ -27,7 +27,6 @@ struct GrContextOptions;
 class GrContextThreadSafeProxy;
 class GrDrawingManager;
 class GrDrawContext;
-class GrDrawTarget;
 class GrFragmentProcessor;
 class GrGpu;
 class GrIndexBuffer;
@@ -354,8 +353,8 @@ public:
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
     GrResourceCache* getResourceCache() { return fResourceCache; }
 
-    // Called by tests that draw directly to the context via GrDrawTarget
-    void getTestTarget(GrTestTarget*, GrRenderTarget* rt);
+    // Called by tests that draw directly to the context via GrDrawContext
+    void getTestTarget(GrTestTarget*, sk_sp<GrDrawContext>);
 
     /** Reset GPU stats */
     void resetGpuStats() const ;
@@ -458,9 +457,9 @@ private:
      * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
      * return NULL. They also can perform a swizzle as part of the draw.
      */
-    const GrFragmentProcessor* createPMToUPMEffect(GrTexture*, const GrSwizzle&,
+    sk_sp<GrFragmentProcessor> createPMToUPMEffect(GrTexture*, const GrSwizzle&,
                                                    const SkMatrix&) const;
-    const GrFragmentProcessor* createUPMToPMEffect(GrTexture*, const GrSwizzle&,
+    sk_sp<GrFragmentProcessor> createUPMToPMEffect(GrTexture*, const GrSwizzle&,
                                                    const SkMatrix&) const;
     /** Called before either of the above two functions to determine the appropriate fragment
         processors for conversions. This must be called by readSurfacePixels before a mutex is

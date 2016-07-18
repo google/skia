@@ -14,6 +14,7 @@
 #include "BitmapRegionDecoderBench.h"
 #include "CodecBench.h"
 #include "CodecBenchPriv.h"
+#include "ColorCodecBench.h"
 #include "CrashHandler.h"
 #include "GMBench.h"
 #include "ProcStats.h"
@@ -33,6 +34,7 @@
 #include "SkData.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
+#include "SkLeanWindows.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
@@ -400,8 +402,16 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         if (!FLAGS_gpu)
             return;
 
-        const auto ctxOptions = gpuConfig->getUseNVPR() ? GrContextFactory::kEnableNVPR_ContextOptions
-                                                        : GrContextFactory::kNone_ContextOptions;
+        auto ctxOptions = GrContextFactory::kNone_ContextOptions;
+        if (gpuConfig->getUseNVPR()) {
+            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
+                ctxOptions | GrContextFactory::kEnableNVPR_ContextOptions);
+        }
+        if (SkColorAndColorSpaceAreGammaCorrect(gpuConfig->getColorType(),
+                                                gpuConfig->getColorSpace())) {
+            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
+                ctxOptions | GrContextFactory::kRequireSRGBSupport_ContextOptions);
+        }
         const auto ctxType = gpuConfig->getContextType();
         const auto sampleCount = gpuConfig->getSamples();
 
@@ -420,9 +430,9 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         Config target = {
             gpuConfig->getTag(),
             Benchmark::kGPU_Backend,
-            kN32_SkColorType,
+            gpuConfig->getColorType(),
             kPremul_SkAlphaType,
-            kLinear_SkColorProfileType,
+            sk_ref_sp(gpuConfig->getColorSpace()),
             sampleCount,
             ctxType,
             ctxOptions,
@@ -434,28 +444,29 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
     }
 #endif
 
-    #define CPU_CONFIG(name, backend, color, alpha, profile)                 \
-        if (config->getTag().equals(#name)) {                                \
-            Config config = {                                                \
-                SkString(#name), Benchmark::backend, color, alpha, profile,  \
-                0, kBogusContextType, kBogusContextOptions, false            \
-            };                                                               \
-            configs->push_back(config);                                      \
-            return;                                                          \
+    #define CPU_CONFIG(name, backend, color, alpha, colorSpace)                \
+        if (config->getTag().equals(#name)) {                                  \
+            Config config = {                                                  \
+                SkString(#name), Benchmark::backend, color, alpha, colorSpace, \
+                0, kBogusContextType, kBogusContextOptions, false              \
+            };                                                                 \
+            configs->push_back(config);                                        \
+            return;                                                            \
         }
 
     if (FLAGS_cpu) {
         CPU_CONFIG(nonrendering, kNonRendering_Backend,
-                   kUnknown_SkColorType, kUnpremul_SkAlphaType, kLinear_SkColorProfileType);
+                   kUnknown_SkColorType, kUnpremul_SkAlphaType, nullptr)
 
         CPU_CONFIG(8888, kRaster_Backend,
-                   kN32_SkColorType, kPremul_SkAlphaType, kLinear_SkColorProfileType)
+                   kN32_SkColorType, kPremul_SkAlphaType, nullptr)
         CPU_CONFIG(565,  kRaster_Backend,
-                   kRGB_565_SkColorType, kOpaque_SkAlphaType, kLinear_SkColorProfileType)
+                   kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
+        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
         CPU_CONFIG(srgb, kRaster_Backend,
-                   kN32_SkColorType,  kPremul_SkAlphaType, kSRGB_SkColorProfileType)
+                   kN32_SkColorType,  kPremul_SkAlphaType, srgbColorSpace)
         CPU_CONFIG(f16,  kRaster_Backend,
-                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, kLinear_SkColorProfileType)
+                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, nullptr)
     }
 
     #undef CPU_CONFIG
@@ -463,7 +474,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     if (config->getTag().equals("hwui")) {
         Config config = { SkString("hwui"), Benchmark::kHWUI_Backend,
-                          kRGBA_8888_SkColorType, kPremul_SkAlphaType, kLinear_SkColorProfileType,
+                          kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr,
                           0, kBogusContextType, kBogusContextOptions, false };
         configs->push_back(config);
     }
@@ -486,7 +497,7 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     }
 
     SkImageInfo info = SkImageInfo::Make(bench->getSize().fX, bench->getSize().fY,
-                                         config.color, config.alpha, config.profile);
+                                         config.color, config.alpha, config.colorSpace);
 
     Target* target = nullptr;
 
@@ -558,6 +569,7 @@ public:
                       , fCurrentCodec(0)
                       , fCurrentAndroidCodec(0)
                       , fCurrentBRDImage(0)
+                      , fCurrentColorImage(0)
                       , fCurrentColorType(0)
                       , fCurrentAlphaType(0)
                       , fCurrentSubsetType(0)
@@ -602,15 +614,18 @@ public:
         if (!CollectImages(FLAGS_images, &fImages)) {
             exit(1);
         }
+        if (!CollectImages(FLAGS_colorImages, &fColorImages)) {
+            exit(1);
+        }
 
         // Choose the candidate color types for image decoding
-        const SkColorType colorTypes[] =
-            { kN32_SkColorType,
-              kRGB_565_SkColorType,
-              kAlpha_8_SkColorType,
-              kIndex_8_SkColorType,
-              kGray_8_SkColorType };
-        fColorTypes.reset(colorTypes, SK_ARRAY_COUNT(colorTypes));
+        fColorTypes.push_back(kN32_SkColorType);
+        if (!FLAGS_simpleCodec) {
+            fColorTypes.push_back(kRGB_565_SkColorType);
+            fColorTypes.push_back(kAlpha_8_SkColorType);
+            fColorTypes.push_back(kIndex_8_SkColorType);
+            fColorTypes.push_back(kGray_8_SkColorType);
+        }
     }
 
     static sk_sp<SkPicture> ReadPicture(const char* path) {
@@ -748,28 +763,36 @@ public:
                 const SkColorType colorType = fColorTypes[fCurrentColorType];
 
                 SkAlphaType alphaType = codec->getInfo().alphaType();
-                switch (alphaType) {
-                    case kOpaque_SkAlphaType:
-                        // We only need to test one alpha type (opaque).
-                        fCurrentColorType++;
-                        break;
-                    case kUnpremul_SkAlphaType:
-                    case kPremul_SkAlphaType:
-                        if (0 == fCurrentAlphaType) {
-                            // Test unpremul first.
-                            alphaType = kUnpremul_SkAlphaType;
-                            fCurrentAlphaType++;
-                        } else {
-                            // Test premul.
-                            alphaType = kPremul_SkAlphaType;
-                            fCurrentAlphaType = 0;
+                if (FLAGS_simpleCodec) {
+                    if (kUnpremul_SkAlphaType == alphaType) {
+                        alphaType = kPremul_SkAlphaType;
+                    }
+
+                    fCurrentColorType++;
+                } else {
+                    switch (alphaType) {
+                        case kOpaque_SkAlphaType:
+                            // We only need to test one alpha type (opaque).
                             fCurrentColorType++;
-                        }
-                        break;
-                    default:
-                        SkASSERT(false);
-                        fCurrentColorType++;
-                        break;
+                            break;
+                        case kUnpremul_SkAlphaType:
+                        case kPremul_SkAlphaType:
+                            if (0 == fCurrentAlphaType) {
+                                // Test unpremul first.
+                                alphaType = kUnpremul_SkAlphaType;
+                                fCurrentAlphaType++;
+                            } else {
+                                // Test premul.
+                                alphaType = kPremul_SkAlphaType;
+                                fCurrentAlphaType = 0;
+                                fCurrentColorType++;
+                            }
+                            break;
+                        default:
+                            SkASSERT(false);
+                            fCurrentColorType++;
+                            break;
+                    }
                 }
 
                 // Make sure we can decode to this color type and alpha type.
@@ -917,6 +940,20 @@ public:
             fCurrentColorType = 0;
         }
 
+        while (fCurrentColorImage < fColorImages.count()) {
+            fSourceType = "colorimage";
+            fBenchType = "skcolorcodec";
+            const SkString& path = fColorImages[fCurrentColorImage];
+            fCurrentColorImage++;
+            sk_sp<SkData> encoded = SkData::MakeFromFileName(path.c_str());
+            if (encoded) {
+                return new ColorCodecBench(SkOSPath::Basename(path.c_str()).c_str(),
+                                           std::move(encoded));
+            } else {
+                SkDebugf("Could not read file %s.\n", path.c_str());
+            }
+        }
+
         return nullptr;
     }
 
@@ -960,6 +997,7 @@ private:
     SkTArray<SkString> fSKPs;
     SkTArray<bool>     fUseMPDs;
     SkTArray<SkString> fImages;
+    SkTArray<SkString> fColorImages;
     SkTArray<SkColorType, true> fColorTypes;
     SkScalar           fZoomMax;
     double             fZoomPeriodMs;
@@ -975,6 +1013,7 @@ private:
     int fCurrentCodec;
     int fCurrentAndroidCodec;
     int fCurrentBRDImage;
+    int fCurrentColorImage;
     int fCurrentColorType;
     int fCurrentAlphaType;
     int fCurrentSubsetType;

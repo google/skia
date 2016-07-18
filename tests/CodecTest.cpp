@@ -103,9 +103,49 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
     {
         // Test decoding to 565
         SkImageInfo info565 = info.makeColorType(kRGB_565_SkColorType);
-        SkCodec::Result expected565 = info.alphaType() == kOpaque_SkAlphaType ?
-                expectedResult : SkCodec::kInvalidConversion;
-        test_info(r, codec, info565, expected565, nullptr);
+        if (info.alphaType() == kOpaque_SkAlphaType) {
+            // Decoding to 565 should succeed.
+            SkBitmap bm565;
+            bm565.allocPixels(info565);
+            SkAutoLockPixels alp(bm565);
+
+            // This will allow comparison even if the image is incomplete.
+            bm565.eraseColor(SK_ColorBLACK);
+
+            REPORTER_ASSERT(r, expectedResult == codec->getPixels(info565,
+                    bm565.getPixels(), bm565.rowBytes()));
+
+            SkMD5::Digest digest565;
+            md5(bm565, &digest565);
+
+            // A dumb client's request for non-opaque should also succeed.
+            for (auto alpha : { kPremul_SkAlphaType, kUnpremul_SkAlphaType }) {
+                info565 = info565.makeAlphaType(alpha);
+                test_info(r, codec, info565, expectedResult, &digest565);
+            }
+        } else {
+            test_info(r, codec, info565, SkCodec::kInvalidConversion, nullptr);
+        }
+    }
+
+    if (codec->getInfo().colorType() == kGray_8_SkColorType) {
+        SkImageInfo grayInfo = codec->getInfo();
+        SkBitmap grayBm;
+        grayBm.allocPixels(grayInfo);
+        SkAutoLockPixels alp(grayBm);
+
+        grayBm.eraseColor(SK_ColorBLACK);
+
+        REPORTER_ASSERT(r, expectedResult == codec->getPixels(grayInfo,
+                grayBm.getPixels(), grayBm.rowBytes()));
+
+        SkMD5::Digest grayDigest;
+        md5(grayBm, &grayDigest);
+
+        for (auto alpha : { kPremul_SkAlphaType, kUnpremul_SkAlphaType }) {
+            grayInfo = grayInfo.makeAlphaType(alpha);
+            test_info(r, codec, grayInfo, expectedResult, &grayDigest);
+        }
     }
 
     // Verify that re-decoding gives the same result.  It is interesting to check this after

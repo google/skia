@@ -248,7 +248,9 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
         }
 
         SkString* namePtr = fFlattenableDict.find(index);
-        SkASSERT(namePtr);
+        if (!namePtr) {
+            return nullptr;
+        }
         name = *namePtr;
     }
 

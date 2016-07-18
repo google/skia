@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkLeanWindows.h"
 #include "SkOnce.h"
 #include "SkSemaphore.h"
 #include "SkSpinlock.h"

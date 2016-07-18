@@ -10,6 +10,12 @@
 
 #include "SkColorPriv.h"
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+    #include <immintrin.h>
+#elif defined(SK_ARM_HAS_NEON)
+    #include <arm_neon.h>
+#endif
+
 namespace SK_OPTS_NS {
 
 static void RGBA_to_rgbA_portable(uint32_t* dst, const void* vsrc, int count) {

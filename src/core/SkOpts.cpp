@@ -16,6 +16,7 @@
 #include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
+#include "SkColorXform_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkTextureCompressor_opts.h"
@@ -76,16 +77,24 @@ namespace SkOpts {
 
     decltype(srcover_srgb_srgb) srcover_srgb_srgb = sk_default::srcover_srgb_srgb;
 
+    decltype(color_xform_RGB1_srgb_to_2dot2)  color_xform_RGB1_srgb_to_2dot2  =
+            sk_default::color_xform_RGB1_srgb_to_2dot2;
+    decltype(color_xform_RGB1_2dot2_to_2dot2) color_xform_RGB1_2dot2_to_2dot2 =
+            sk_default::color_xform_RGB1_2dot2_to_2dot2;
+    decltype(color_xform_RGB1_srgb_to_srgb)   color_xform_RGB1_srgb_to_srgb   =
+            sk_default::color_xform_RGB1_srgb_to_srgb;
+    decltype(color_xform_RGB1_2dot2_to_srgb)  color_xform_RGB1_2dot2_to_srgb  =
+            sk_default::color_xform_RGB1_2dot2_to_srgb;
+
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
     void Init_sse41();
     void Init_sse42() {}
-    void Init_avx() {}
+    void Init_avx();
     void Init_avx2() {}
 
     static void init() {
-        // TODO: Chrome's not linking _sse* opts on iOS simulator builds.  Bug or feature?
-    #if defined(SK_CPU_X86) && !defined(SK_BUILD_FOR_IOS)
+    #if defined(SK_CPU_X86) && !defined(SK_BUILD_NO_OPTS)
         if (SkCpu::Supports(SkCpu::SSSE3)) { Init_ssse3(); }
         if (SkCpu::Supports(SkCpu::SSE41)) { Init_sse41(); }
         if (SkCpu::Supports(SkCpu::SSE42)) { Init_sse42(); }

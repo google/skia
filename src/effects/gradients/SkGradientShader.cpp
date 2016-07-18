@@ -1131,7 +1131,8 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
             fCoordTransform.reset(kCoordSet, matrix, fAtlas->getTexture(), params.filterMode());
             fTextureAccess.reset(fAtlas->getTexture(), params);
         } else {
-            SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(ctx, bitmap, params));
+            SkAutoTUnref<GrTexture> texture(
+                GrRefCachedBitmapTexture(ctx, bitmap, params, SkSourceGammaTreatment::kRespect));
             if (!texture) {
                 return;
             }
@@ -1156,12 +1157,14 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
     if (this->fColorType == s.getColorType()){
 
         if (SkGradientShaderBase::kTwo_GpuColorType == fColorType) {
-            if (*this->getColors(0) != *s.getColors(0) ||
+            if (this->getPremulType() != s.getPremulType() ||
+                *this->getColors(0) != *s.getColors(0) ||
                 *this->getColors(1) != *s.getColors(1)) {
                 return false;
             }
         } else if (SkGradientShaderBase::kThree_GpuColorType == fColorType) {
-            if (*this->getColors(0) != *s.getColors(0) ||
+            if (this->getPremulType() != s.getPremulType() ||
+                *this->getColors(0) != *s.getColors(0) ||
                 *this->getColors(1) != *s.getColors(1) ||
                 *this->getColors(2) != *s.getColors(2)) {
                 return false;

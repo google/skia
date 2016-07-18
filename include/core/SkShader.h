@@ -310,7 +310,7 @@ public:
 
     virtual bool asACompose(ComposeRec*) const { return false; }
 
-
+#if SK_SUPPORT_GPU
     /**
      *  Returns a GrFragmentProcessor that implements the shader for the GPU backend. NULL is
      *  returned if there is no GPU implementation.
@@ -324,10 +324,12 @@ public:
      *  The returned GrFragmentProcessor should expect an unpremultiplied input color and
      *  produce a premultiplied output.
      */
-    virtual const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
                                                            const SkMatrix& viewMatrix,
                                                            const SkMatrix* localMatrix,
-                                                           SkFilterQuality) const;
+                                                           SkFilterQuality,
+                                                           SkSourceGammaTreatment) const;
+#endif
 
     /**
      *  If the shader can represent its "average" luminance in a single color, return true and

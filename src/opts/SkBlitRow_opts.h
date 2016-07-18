@@ -190,7 +190,11 @@ void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, U8CPU a
 #endif
 
     while (len-- > 0) {
-        if (*src) {
+        // This 0xFF000000 is not semantically necessary, but for compatibility
+        // with chromium:611002 we need to keep it until we figure out where
+        // the non-premultiplied src values (like 0x00FFFFFF) are coming from.
+        // TODO(mtklein): sort this out and assert *src is premul here.
+        if (*src & 0xFF000000) {
             *dst = (*src >= 0xFF000000) ? *src : SkPMSrcOver(*src, *dst);
         }
         src++;

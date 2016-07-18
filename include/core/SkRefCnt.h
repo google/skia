@@ -264,8 +264,8 @@ template <typename T> class sk_sp {
 public:
     using element_type = T;
 
-    sk_sp() : fPtr(nullptr) {}
-    sk_sp(std::nullptr_t) : fPtr(nullptr) {}
+    constexpr sk_sp() : fPtr(nullptr) {}
+    constexpr sk_sp(std::nullptr_t) : fPtr(nullptr) {}
 
     /**
      *  Shares the underlying object by calling ref(), so that both the argument and the newly

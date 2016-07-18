@@ -144,8 +144,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(DrawElementsInstanced);
     }
 
-    if (glVer >= GR_GL_VER(4,0)) {
-        // We don't use ARB_draw_indirect because it does not support a base instance.
+    if (glVer >= GR_GL_VER(4,0) || extensions.has("GL_ARB_draw_indirect")) {
         GET_PROC(DrawArraysIndirect);
         GET_PROC(DrawElementsIndirect);
     }
@@ -190,6 +189,12 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(LineWidth);
     GET_PROC(LinkProgram);
     GET_PROC(MapBuffer);
+
+    if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_ARB_multi_draw_indirect")) {
+        GET_PROC(MultiDrawArraysIndirect);
+        GET_PROC(MultiDrawElementsIndirect);
+    }
+
     GET_PROC(PixelStorei);
     if (extensions.has("GL_EXT_raster_multisample")) {
         GET_PROC_SUFFIX(RasterSamples, EXT);
@@ -366,12 +371,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
 
     if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_ARB_program_interface_query")) {
         GET_PROC(GetProgramResourceLocation);
-    }
-
-    if (glVer >= GR_GL_VER(4,3)) {
-        // We don't use ARB_multi_draw_indirect because it does not support GL_DRAW_INDIRECT_BUFFER.
-        GET_PROC(MultiDrawArraysIndirect);
-        GET_PROC(MultiDrawElementsIndirect);
     }
 
     if (extensions.has("GL_NV_bindless_texture")) {
@@ -640,6 +639,12 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(IsTexture);
     GET_PROC(LineWidth);
     GET_PROC(LinkProgram);
+
+    if (extensions.has("GL_EXT_multi_draw_indirect")) {
+        GET_PROC_SUFFIX(MultiDrawArraysIndirect, EXT);
+        GET_PROC_SUFFIX(MultiDrawElementsIndirect, EXT);
+    }
+
     GET_PROC(PixelStorei);
 
     if (extensions.has("GL_EXT_raster_multisample")) {
@@ -852,11 +857,6 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     }
     if (extensions.has("GL_CHROMIUM_framebuffer_mixed_samples")) {
         GET_PROC_SUFFIX(CoverageModulation, CHROMIUM);
-    }
-
-    if (extensions.has("GL_EXT_multi_draw_indirect")) {
-        GET_PROC_SUFFIX(MultiDrawArraysIndirect, EXT);
-        GET_PROC_SUFFIX(MultiDrawElementsIndirect, EXT);
     }
 
     if (extensions.has("GL_NV_bindless_texture")) {

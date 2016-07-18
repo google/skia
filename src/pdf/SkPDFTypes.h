@@ -11,15 +11,15 @@
 
 #include "SkRefCnt.h"
 #include "SkScalar.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTDArray.h"
 #include "SkTHash.h"
 #include "SkTypes.h"
 
 class SkPDFObjNumMap;
 class SkPDFObject;
 class SkPDFSubstituteMap;
+class SkStreamAsset;
+class SkString;
+class SkWStream;
 
 #ifdef SK_PDF_IMAGE_STATS
 #include "SkAtomics.h"

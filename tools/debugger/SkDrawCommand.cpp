@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkDrawCommand.h"
 
 #include "SkBlurMaskFilter.h"
@@ -92,6 +91,8 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_TEXTURECOORDS     "textureCoords"
 #define SKDEBUGCANVAS_ATTRIBUTE_FILTERQUALITY     "filterQuality"
 
+#define SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC         "short-desc"
+
 #define SKDEBUGCANVAS_VERB_MOVE                   "move"
 #define SKDEBUGCANVAS_VERB_LINE                   "line"
 #define SKDEBUGCANVAS_VERB_QUAD                   "quad"
@@ -158,6 +159,11 @@
 
 typedef SkDrawCommand* (*FROM_JSON)(Json::Value&, UrlDataManager&);
 
+static SkString* str_append(SkString* str, const SkRect& r) {
+    str->appendf(" [%g %g %g %g]", r.left(), r.top(), r.right(), r.bottom());
+    return str;
+}
+
 // TODO(chudy): Refactor into non subclass model.
 
 SkDrawCommand::SkDrawCommand(OpType type)
@@ -177,6 +183,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kClipRect_OpType: return "ClipRect";
         case kClipRRect_OpType: return "ClipRRect";
         case kConcat_OpType: return "Concat";
+        case kDrawAnnotation_OpType: return "DrawAnnotation";
         case kDrawBitmap_OpType: return "DrawBitmap";
         case kDrawBitmapNine_OpType: return "DrawBitmapNine";
         case kDrawBitmapRect_OpType: return "DrawBitmapRect";
@@ -235,6 +242,7 @@ SkDrawCommand* SkDrawCommand::fromJSON(Json::Value& command, UrlDataManager& url
         INSTALL_FACTORY(ClipRect);
         INSTALL_FACTORY(ClipRRect);
         INSTALL_FACTORY(Concat);
+        INSTALL_FACTORY(DrawAnnotation);
         INSTALL_FACTORY(DrawBitmap);
         INSTALL_FACTORY(DrawBitmapRect);
         INSTALL_FACTORY(DrawBitmapNine);
@@ -1641,6 +1649,10 @@ Json::Value SkClipRectCommand::toJSON(UrlDataManager& urlDataManager) const {
     result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonRect(fRect);
     result[SKDEBUGCANVAS_ATTRIBUTE_REGIONOP] = make_json_regionop(fOp);
     result[SKDEBUGCANVAS_ATTRIBUTE_ANTIALIAS] = Json::Value(fDoAA);
+
+    SkString desc;
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fRect)->c_str());
+
     return result;
 }
 
@@ -1711,6 +1723,56 @@ SkConcatCommand* SkConcatCommand::fromJSON(Json::Value& command, UrlDataManager&
     extract_json_matrix(command[SKDEBUGCANVAS_ATTRIBUTE_MATRIX], &matrix);
     return new SkConcatCommand(matrix);
 }
+
+////
+
+SkDrawAnnotationCommand::SkDrawAnnotationCommand(const SkRect& rect, const char key[],
+                                                 sk_sp<SkData> value)
+    : INHERITED(kDrawAnnotation_OpType)
+    , fRect(rect)
+    , fKey(key)
+    , fValue(std::move(value))
+{
+    SkString str;
+    str.appendf("Key: %s Value: ", key);
+    if (fValue && fValue->size()) {
+        str.append((const char*) fValue->bytes(), fValue->size());
+    } else {
+        str.appendf("no value");
+    }
+    str.appendf("\n");
+    fInfo.push(new SkString(str));
+}
+
+void SkDrawAnnotationCommand::execute(SkCanvas* canvas) const {
+    canvas->drawAnnotation(fRect, fKey.c_str(), fValue);
+}
+
+Json::Value SkDrawAnnotationCommand::toJSON(UrlDataManager& urlDataManager) const {
+    Json::Value result = INHERITED::toJSON(urlDataManager);
+
+    result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonRect(fRect);
+    result["key"] = Json::Value(fKey.c_str());
+    if (fValue.get()) {
+        // TODO: dump out the "value"
+    }
+
+    SkString desc;
+    str_append(&desc, fRect)->appendf(" %s", fKey.c_str());
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(desc.c_str());
+
+    return result;
+}
+
+SkDrawAnnotationCommand* SkDrawAnnotationCommand::fromJSON(Json::Value& command,
+                                                           UrlDataManager& urlDataManager) {
+    SkRect rect;
+    extract_json_rect(command[SKDEBUGCANVAS_ATTRIBUTE_COORDS], &rect);
+    sk_sp<SkData> data(nullptr); // TODO: extract "value" from the Json
+    return new SkDrawAnnotationCommand(rect, command["key"].asCString(), data);
+}
+
+////
 
 SkDrawBitmapCommand::SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                                          const SkPaint* paint)
@@ -1903,6 +1965,10 @@ Json::Value SkDrawBitmapRectCommand::toJSON(UrlDataManager& urlDataManager) cons
             result[SKDEBUGCANVAS_ATTRIBUTE_STRICT] = Json::Value(true);
         }
     }
+
+    SkString desc;
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fDst)->c_str());
+
     return result;
 }
 
@@ -2070,6 +2136,10 @@ Json::Value SkDrawImageRectCommand::toJSON(UrlDataManager& urlDataManager) const
             result[SKDEBUGCANVAS_ATTRIBUTE_STRICT] = Json::Value(true);
         }
     }
+
+    SkString desc;
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fDst)->c_str());
+
     return result;
 }
 
@@ -2744,6 +2814,10 @@ Json::Value SkDrawRectCommand::toJSON(UrlDataManager& urlDataManager) const {
     Json::Value result = INHERITED::toJSON(urlDataManager);
     result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonRect(fRect);
     result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
+
+    SkString desc;
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fRect)->c_str());
+
     return result;
 }
 

@@ -13,7 +13,6 @@
 #include "SkPath.h"
 
 class SkMatrix;
-class SkPath;
 class SkPDFArray;
 struct SkRect;
 class SkWStream;
@@ -66,7 +65,7 @@ public:
     static size_t FloatToDecimal(float value,
                                  char output[kMaximumFloatDecimalLength]);
     static void AppendScalar(SkScalar value, SkWStream* stream);
-    static SkString FormatString(const char* input, size_t len);
+    static void WriteString(SkWStream* wStream, const char* input, size_t len);
 };
 
 #endif

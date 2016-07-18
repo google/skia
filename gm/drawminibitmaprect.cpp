@@ -9,6 +9,7 @@
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkMathPriv.h"
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkSurface.h"

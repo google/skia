@@ -23,6 +23,12 @@ class SkData;
 class SkPngChunkReader;
 class SkSampler;
 
+namespace DM {
+class ColorCodecSrc;
+}
+class ColorCodecBench;
+
+
 /**
  *  Abstraction layer directly on top of an image codec.
  */
@@ -646,6 +652,11 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
+    /**
+     *  Used for testing with qcms.
+     *  FIXME: Remove this when we are done comparing with qcms.
+     */
+    virtual sk_sp<SkData> getICCData() const { return nullptr; }
 private:
     const SkEncodedInfo         fEncodedInfo;
     const SkImageInfo           fSrcInfo;
@@ -708,6 +719,11 @@ private:
      *  Only valid during scanline decoding.
      */
     virtual SkSampler* getSampler(bool /*createIfNecessary*/) { return nullptr; }
+
+    // For testing with qcms
+    // FIXME: Remove these when we are done comparing with qcms.
+    friend class DM::ColorCodecSrc;
+    friend class ColorCodecBench;
 
     friend class SkSampledCodec;
     friend class SkIcoCodec;

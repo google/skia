@@ -17,6 +17,7 @@ DECLARE_bool(dryRun);
 DECLARE_bool(gpu);
 DECLARE_string(images);
 DECLARE_string(colorImages);
+DECLARE_bool(simpleCodec);
 DECLARE_string(match);
 DECLARE_bool(quiet);
 DECLARE_bool(resetGpuContext);

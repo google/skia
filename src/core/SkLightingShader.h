@@ -8,68 +8,29 @@
 #ifndef SkLightingShader_DEFINED
 #define SkLightingShader_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkLight.h"
+#include "SkLights.h"
 #include "SkShader.h"
-#include "SkTDArray.h"
 
 class SkBitmap;
 class SkMatrix;
 
 class SK_API SkLightingShader {
 public:
-    class Lights  : public SkRefCnt {
-    public:
-        class Builder {
-        public:
-            Builder(const SkLight lights[], int numLights)
-                : fLights(new Lights(lights, numLights)) {}
-
-            Builder() : fLights(new Lights) {}
-
-            // TODO: limit the number of lights here or just ignore those
-            // above some maximum?
-            void add(const SkLight& light) {
-                if (fLights) {
-                    *fLights->fLights.push() = light;
-                }
-            }
-
-            const Lights* finish() {
-                return fLights.release();
-            }
-
-        private:
-            SkAutoTUnref<Lights> fLights;
-        };
-
-        int numLights() const {
-            return fLights.count();
-        }
-
-        const SkLight& light(int index) const {
-            return fLights[index];
-        }
-
-    private:
-        Lights() {}
-        Lights(const SkLight lights[], int numLights) : fLights(lights, numLights) {}
-
-        SkTDArray<SkLight> fLights;
-
-        typedef SkRefCnt INHERITED;
-    };
-
-    /** Returns a shader that lights the diffuse and normal maps with a single light.
+    /** Returns a shader that lights the diffuse and normal maps with a set of lights.
 
         It returns a shader with a reference count of 1.
         The caller should decrement the shader's reference count when done with the shader.
         It is an error for count to be < 2.
         @param  diffuse     the diffuse bitmap
         @param  normal      the normal map
-        @param  light       the light applied to the normal map
-        @param  ambient     the linear (unpremul) ambient light color. Range is 0..1/channel.
-        @param  localMatrix the matrix mapping the textures to the dest rect
+        @param  lights       the lights applied to the normal map
+        @param  invNormRotation rotation applied to the normal map's normals
+        @param  diffLocalMatrix the local matrix for the diffuse map (transform from
+                                texture coordinates to shape source coordinates). nullptr is
+                                interpreted as an identity matrix.
+        @param  normLocalMatrix the local matrix for the normal map (transform from
+                                texture coordinates to shape source coordinates). nullptr is
+                                interpreted as an identity matrix.
 
         nullptr will be returned if:
             either 'diffuse' or 'normal' are empty
@@ -89,7 +50,7 @@ public:
         (127, 127, 0).
     */
     static sk_sp<SkShader> Make(const SkBitmap& diffuse, const SkBitmap& normal,
-                                const Lights* lights, const SkVector& invNormRotation,
+                                sk_sp<SkLights> lights, const SkVector& invNormRotation,
                                 const SkMatrix* diffLocalMatrix, const SkMatrix* normLocalMatrix);
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

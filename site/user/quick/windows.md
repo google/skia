@@ -6,8 +6,8 @@ Prerequisites
 
 Make sure the following have been installed:
 
-*   [Visual C++ 2013 Express or later, available for
-    free](https://www.visualstudio.com/downloads/download-visual-studio-vs#d-express-windows-8)
+*   [Visual C++ 2015u2 or later, available for
+    free](https://www.visualstudio.com/downloads/download-visual-studio-vs)
 
 *   [Chromium depot_tools](https://www.chromium.org/developers/how-tos/depottools)
 

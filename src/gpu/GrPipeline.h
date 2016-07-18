@@ -13,7 +13,9 @@
 #include "GrGpu.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingProgramElement.h"
+#include "GrPipelineBuilder.h"
 #include "GrPrimitiveProcessor.h"
+#include "GrProcOptInfo.h"
 #include "GrProgramDesc.h"
 #include "GrStencilSettings.h"
 #include "GrTypesPriv.h"
@@ -21,6 +23,7 @@
 #include "SkRefCnt.h"
 
 class GrBatch;
+class GrDrawContext;
 class GrDeviceCoordTexture;
 class GrPipelineBuilder;
 
@@ -48,6 +51,7 @@ public:
 
     struct CreateArgs {
         const GrPipelineBuilder*    fPipelineBuilder;
+        GrDrawContext*              fDrawContext;
         const GrCaps*               fCaps;
         GrPipelineOptimizations     fOpts;
         const GrScissorState*       fScissor;

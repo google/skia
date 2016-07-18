@@ -84,7 +84,8 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
 
     sk_sp<GrTexture> resultTex(GrRefCachedBitmapTexture(context,
                                                         bmp,
-                                                        GrTextureParams::ClampNoFilter()));
+                                                        GrTextureParams::ClampNoFilter(),
+                                                        SkSourceGammaTreatment::kRespect));
     if (!resultTex) {
         return nullptr;
     }
@@ -226,7 +227,8 @@ public:
 #if SK_SUPPORT_GPU
     sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
         return sk_sp<GrTexture>(as_IB(fImage)->asTextureRef(context,
-                                                            GrTextureParams::ClampNoFilter()));
+                                                            GrTextureParams::ClampNoFilter(),
+                                                            SkSourceGammaTreatment::kRespect));
     }
 #endif
 
@@ -368,7 +370,8 @@ public:
         if (context) {
             return sk_ref_sp(GrRefCachedBitmapTexture(context,
                                                       fBitmap,
-                                                      GrTextureParams::ClampNoFilter()));
+                                                      GrTextureParams::ClampNoFilter(),
+                                                      SkSourceGammaTreatment::kRespect));
         }
 
         return nullptr;

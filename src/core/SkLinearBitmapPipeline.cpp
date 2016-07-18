@@ -20,65 +20,6 @@
 #include "SkOpts.h"
 #include "SkPM4f.h"
 
-class SkLinearBitmapPipeline::PointProcessorInterface {
-public:
-    virtual ~PointProcessorInterface() { }
-    // Take the first n (where 0 < n && n < 4) items from xs and ys and sample those points. For
-    // nearest neighbor, that means just taking the floor xs and ys. For bilerp, this means
-    // to expand the bilerp filter around the point and sample using that filter.
-    virtual void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) = 0;
-    // Same as pointListFew, but n = 4.
-    virtual void VECTORCALL pointList4(Sk4s xs, Sk4s ys) = 0;
-    // A span is a compact form of sample points that are obtained by mapping points from
-    // destination space to source space. This is used for horizontal lines only, and is mainly
-    // used to take advantage of memory coherence for horizontal spans.
-    virtual void pointSpan(Span span) = 0;
-};
-
-class SkLinearBitmapPipeline::SampleProcessorInterface
-    : public SkLinearBitmapPipeline::PointProcessorInterface {
-public:
-    // Used for nearest neighbor when scale factor is 1.0. The span can just be repeated with no
-    // edge pixel alignment problems. This is for handling a very common case.
-    virtual void repeatSpan(Span span, int32_t repeatCount) = 0;
-
-    // The x's and y's are setup in the following order:
-    // +--------+--------+
-    // |        |        |
-    // |  px00  |  px10  |
-    // |    0   |    1   |
-    // +--------+--------+
-    // |        |        |
-    // |  px01  |  px11  |
-    // |    2   |    3   |
-    // +--------+--------+
-    // These pixels coordinates are arranged in the following order in xs and ys:
-    // px00  px10  px01  px11
-    virtual void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) = 0;
-
-    // A span represents sample points that have been mapped from destination space to source
-    // space. Each sample point is then expanded to the four bilerp points by add +/- 0.5. The
-    // resulting Y values my be off the tile. When y +/- 0.5 are more than 1 apart because of
-    // tiling, the second Y is used to denote the retiled Y value.
-    virtual void bilerpSpan(Span span, SkScalar y) = 0;
-};
-
-class SkLinearBitmapPipeline::DestinationInterface {
-public:
-    virtual ~DestinationInterface() { }
-    // Count is normally not needed, but in these early stages of development it is useful to
-    // check bounds.
-    // TODO(herb): 4/6/2016 - remove count when code is stable.
-    virtual void setDestination(void* dst, int count) = 0;
-};
-
-class SkLinearBitmapPipeline::BlendProcessorInterface
-    : public SkLinearBitmapPipeline::DestinationInterface {
-public:
-    virtual void VECTORCALL blendPixel(Sk4f pixel0) = 0;
-    virtual void VECTORCALL blend4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) = 0;
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SkLinearBitmapPipeline::Stage
 template<typename Base, size_t kSize, typename Next>
@@ -367,7 +308,9 @@ private:
         }
     }
     void breakIntoEdges(Span span) {
-        if (span.length() == 0) {
+        if (span.count() == 1) {
+            this->bilerpPoint(span.startX(), span.startY());
+        } else if (span.length() == 0) {
             yProcessSpan(span);
         } else {
             SkScalar dx = span.length() / (span.count() - 1);
@@ -465,90 +408,6 @@ static SkLinearBitmapPipeline::PointProcessorInterface* choose_tiler(
 
     return tileStage->get();
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Source Sampling Stage
-template <SkColorType colorType, SkColorProfileType colorProfile, typename Next>
-class NearestNeighborSampler final : public SkLinearBitmapPipeline::SampleProcessorInterface {
-public:
-    template <typename... Args>
-    NearestNeighborSampler(Next* next, Args&&... args)
-    : fSampler{next, std::forward<Args>(args)...} { }
-
-    NearestNeighborSampler(Next* next, const NearestNeighborSampler& sampler)
-        : fSampler{next, sampler.fSampler} { }
-
-    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
-        fSampler.nearestListFew(n, xs, ys);
-    }
-
-    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
-        fSampler.nearestList4(xs, ys);
-    }
-
-    void pointSpan(Span span) override {
-        fSampler.nearestSpan(span);
-    }
-
-    void repeatSpan(Span span, int32_t repeatCount) override {
-        while (repeatCount > 0) {
-            fSampler.nearestSpan(span);
-            repeatCount--;
-        }
-    }
-
-    void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override {
-        SkFAIL("Using nearest neighbor sampler, but calling a bilerpEdge.");
-    }
-
-    void bilerpSpan(Span span, SkScalar y) override {
-        SkFAIL("Using nearest neighbor sampler, but calling a bilerpSpan.");
-    }
-
-private:
-    GeneralSampler<colorType, colorProfile, Next> fSampler;
-};
-
-template <SkColorType colorType, SkColorProfileType colorProfile, typename Next>
-class BilerpSampler final : public SkLinearBitmapPipeline::SampleProcessorInterface {
-public:
-    template <typename... Args>
-    BilerpSampler(Next* next, Args&&... args)
-        : fSampler{next, std::forward<Args>(args)...} { }
-
-    BilerpSampler(Next* next, const BilerpSampler& sampler)
-    : fSampler{next, sampler.fSampler} { }
-
-    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
-        fSampler.bilerpListFew(n, xs, ys);
-    }
-
-    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
-        fSampler.bilerpList4(xs, ys);
-    }
-
-    void pointSpan(Span span) override {
-        fSampler.bilerpSpan(span);
-    }
-
-    void repeatSpan(Span span, int32_t repeatCount) override {
-        while (repeatCount > 0) {
-            fSampler.bilerpSpan(span);
-            repeatCount--;
-        }
-    }
-
-    void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override {
-        fSampler.bilerpEdge(xs, ys);
-    }
-
-    void bilerpSpan(Span span, SkScalar y) override {
-        fSampler.bilerpSpanWithY(span, y);
-    }
-
-private:
-    GeneralSampler<colorType, colorProfile, Next> fSampler;
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Specialized Samplers
@@ -708,22 +567,22 @@ private:
 
 using Blender = SkLinearBitmapPipeline::BlendProcessorInterface;
 
-template <SkColorType colorType, template <SkColorType, SkColorProfileType, typename> class Sampler>
+template <SkColorType colorType, template <SkColorType, SkGammaType, typename> class Sampler>
 static void choose_specific_sampler(
     Blender* next,
     const SkPixmap& srcPixmap,
     SkLinearBitmapPipeline::SampleStage* sampleStage)
 {
-    if (srcPixmap.info().profileType() == kSRGB_SkColorProfileType) {
-        using S = Sampler<colorType, kSRGB_SkColorProfileType, Blender>;
+    if (srcPixmap.info().gammaCloseToSRGB()) {
+        using S = Sampler<colorType, kSRGB_SkGammaType, Blender>;
         sampleStage->initStage<S>(next, srcPixmap);
     } else {
-        using S = Sampler<colorType, kLinear_SkColorProfileType, Blender>;
+        using S = Sampler<colorType, kLinear_SkGammaType, Blender>;
         sampleStage->initStage<S>(next, srcPixmap);
     }
 }
 
-template<template <SkColorType, SkColorProfileType, typename> class Sampler>
+template<template <SkColorType, SkGammaType, typename> class Sampler>
 static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_base(
     Blender* next,
     const SkPixmap& srcPixmap,
@@ -733,7 +592,7 @@ static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_ba
     const SkImageInfo& imageInfo = srcPixmap.info();
     switch (imageInfo.colorType()) {
         case kAlpha_8_SkColorType: {
-                using S = Sampler<kAlpha_8_SkColorType, kLinear_SkColorProfileType, Blender>;
+                using S = Sampler<kAlpha_8_SkColorType, kLinear_SkGammaType, Blender>;
                 sampleStage->initStage<S>(next, srcPixmap, A8TintColor);
             }
             break;
@@ -756,7 +615,7 @@ static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_ba
             choose_specific_sampler<kGray_8_SkColorType, Sampler>(next, srcPixmap, sampleStage);
             break;
         case kRGBA_F16_SkColorType: {
-                using S = Sampler<kRGBA_F16_SkColorType, kLinear_SkColorProfileType, Blender>;
+                using S = Sampler<kRGBA_F16_SkColorType, kLinear_SkGammaType, Blender>;
                 sampleStage->initStage<S>(next, srcPixmap);
             }
             break;
@@ -891,7 +750,7 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
 }
 
 bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
-    void* blitterStorage,
+    SkEmbeddableLinearPipeline* pipelineStorage,
     const SkLinearBitmapPipeline& pipeline,
     SkMatrix::TypeMask matrixMask,
     SkShader::TileMode xTileMode,
@@ -913,14 +772,15 @@ bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
     if (srcPixmap.info().colorType() != kRGBA_8888_SkColorType
         || dstInfo.colorType() != kRGBA_8888_SkColorType) { return false; }
 
-    if (srcPixmap.info().profileType() != kSRGB_SkColorProfileType
-        || dstInfo.profileType() != kSRGB_SkColorProfileType) { return false; }
+    if (!srcPixmap.info().gammaCloseToSRGB() || !dstInfo.gammaCloseToSRGB()) {
+        return false;
+    }
 
     if (xferMode != SkXfermode::kSrc_Mode && xferMode != SkXfermode::kSrcOver_Mode) {
         return false;
     }
 
-    new (blitterStorage) SkLinearBitmapPipeline(pipeline, srcPixmap, xferMode, dstInfo);
+    pipelineStorage->init(pipeline, srcPixmap, xferMode, dstInfo);
 
     return true;
 }

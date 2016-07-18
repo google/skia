@@ -8,6 +8,7 @@
 #include "GrClip.h"
 
 #include "GrClipMaskManager.h"
+#include "GrDrawContext.h"
 
 void GrNoClip::getConservativeBounds(int width, int height, SkIRect* devResult,
                                      bool* isIntersectionOfRects) const {
@@ -40,21 +41,23 @@ void GrFixedClip::getConservativeBounds(int width, int height, SkIRect* devResul
     }
 }
 
-bool GrFixedClip::apply(GrClipMaskManager*, const GrPipelineBuilder& pipelineBuilder,
+bool GrFixedClip::apply(GrContext*, const GrPipelineBuilder& pipelineBuilder,
+                        GrDrawContext* drawContext,
                         const SkRect* devBounds, GrAppliedClip* out) const {
     if (fScissorState.enabled()) {
-        const GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
         SkIRect tightScissor;
         if (!tightScissor.intersect(fScissorState.rect(),
-                                    SkIRect::MakeWH(rt->width(), rt->height()))) {
+                                    SkIRect::MakeWH(drawContext->width(), drawContext->height()))) {
             return false;
         }
         if (devBounds && !devBounds->intersects(SkRect::Make(tightScissor))) {
             return false;
         }
-        out->fScissorState.set(tightScissor);
+        out->makeScissoredStencil(fHasStencilClip, tightScissor);
+        return true;
     }
-    out->fHasStencilClip = fHasStencilClip;
+
+    out->makeStencil(fHasStencilClip);
     return true;
 }
 
@@ -81,9 +84,9 @@ void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devR
     devBounds.roundOut(devResult);
 }
 
-bool GrClipStackClip::apply(GrClipMaskManager* clipMaskManager,
-                            const GrPipelineBuilder& pipelineBuilder, const SkRect* devBounds,
-                            GrAppliedClip* out) const {
-    // TODO: Collapse ClipMaskManager into this class.(?)
-    return clipMaskManager->setupClipping(pipelineBuilder, *this, devBounds, out);
+bool GrClipStackClip::apply(GrContext* context,
+                            const GrPipelineBuilder& pipelineBuilder, GrDrawContext* drawContext,
+                            const SkRect* devBounds, GrAppliedClip* out) const {
+    return GrClipMaskManager::SetupClipping(context, pipelineBuilder, drawContext,
+                                            *this, devBounds, out);
 }

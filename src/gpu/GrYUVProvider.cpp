@@ -121,13 +121,10 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
     }
 
     GrPaint paint;
-    SkAutoTUnref<const GrFragmentProcessor> yuvToRgbProcessor(
-                                        GrYUVEffect::CreateYUVToRGB(yuvTextures[0],
-                                                                    yuvTextures[1],
-                                                                    yuvTextures[2],
-                                                                    yuvInfo.fSizeInfo.fSizes,
-                                                                    yuvInfo.fColorSpace));
-    paint.addColorFragmentProcessor(yuvToRgbProcessor);
+    sk_sp<GrFragmentProcessor> yuvToRgbProcessor(
+        GrYUVEffect::MakeYUVToRGB(yuvTextures[0], yuvTextures[1], yuvTextures[2],
+                                  yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false));
+    paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 
     // If we're decoding an sRGB image, the result of our linear math on the YUV planes is already
     // in sRGB. (The encoding is just math on bytes, with no concept of color spaces.) So, we need
@@ -139,7 +136,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
         if (ctx->caps()->srgbWriteControl()) {
             paint.setDisableOutputConversionToSRGB(true);
         } else {
-            paint.addColorFragmentProcessor(GrGammaEffect::Create(2.2f))->unref();
+            paint.addColorFragmentProcessor(GrGammaEffect::Make(2.2f));
         }
     }
 

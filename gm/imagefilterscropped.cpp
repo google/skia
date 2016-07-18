@@ -16,7 +16,6 @@
 #include "SkColorFilterImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkOffsetImageFilter.h"
-#include "SkTestImageFilters.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

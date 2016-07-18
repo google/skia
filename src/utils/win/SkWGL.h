@@ -10,6 +10,8 @@
 #ifndef SkWGL_DEFINED
 #define SkWGL_DEFINED
 
+#include "SkLeanWindows.h"
+
 /**
  * Working with WGL extensions can be a pain. Among the reasons is that You must
  * have a GL context to get the proc addresses, but you want to use the procs to
@@ -21,16 +23,6 @@
  * for WGL extensions. It handles the fact that wglGetExtensionsString is itself
  * an extension.
  */
-
-#if !defined(WIN32_LEAN_AND_MEAN)
-    #define WIN32_LEAN_AND_MEAN
-    #define SK_LOCAL_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#if defined(SK_LOCAL_LEAN_AND_MEAN)
-    #undef WIN32_LEAN_AND_MEAN
-    #undef SK_LOCAL_LEAN_AND_MEAN
-#endif
 
 #define SK_WGL_DRAW_TO_WINDOW                       0x2001
 #define SK_WGL_ACCELERATION                         0x2003

@@ -11,6 +11,7 @@
 #include "GrBatch.h"
 #include "GrBatchFlushState.h"
 #include "GrGpu.h"
+#include "GrGpuCommandBuffer.h"
 #include "GrRenderTarget.h"
 
 class GrClearBatch final : public GrBatch {
@@ -35,6 +36,7 @@ public:
         string.printf("Color: 0x%08x, Rect [L: %d, T: %d, R: %d, B: %d], RT: %d",
                       fColor, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
                       fRenderTarget.get()->getUniqueID());
+        string.append(INHERITED::dumpInfo());
         return string;
     }
 
@@ -59,7 +61,7 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override {
-        state->gpu()->clear(fRect, fColor, fRenderTarget.get());
+        state->commandBuffer()->clear(fRect, fColor, fRenderTarget.get());
     }
 
     SkIRect                                                 fRect;
@@ -91,6 +93,7 @@ public:
         string.printf("Rect [L: %d, T: %d, R: %d, B: %d], IC: %d, RT: 0x%p",
                       fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom, fInsideClip,
                       fRenderTarget.get());
+        string.append(INHERITED::dumpInfo());
         return string;
     }
 
@@ -100,7 +103,7 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override {
-        state->gpu()->clearStencilClip(fRect, fInsideClip, fRenderTarget.get());
+        state->commandBuffer()->clearStencilClip(fRect, fInsideClip, fRenderTarget.get());
     }
 
     SkIRect                                                 fRect;

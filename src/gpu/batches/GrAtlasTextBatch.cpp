@@ -11,6 +11,7 @@
 #include "GrResourceProvider.h"
 
 #include "SkGlyphCache.h"
+#include "SkMathPriv.h"
 
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
@@ -99,17 +100,16 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
 
     FlushInfo flushInfo;
     if (this->usesDistanceFields()) {
-        flushInfo.fGeometryProcessor.reset(
-            this->setupDfProcessor(this->viewMatrix(), fFilteredColor, this->color(), texture));
+        flushInfo.fGeometryProcessor =
+            this->setupDfProcessor(this->viewMatrix(), fFilteredColor, this->color(), texture);
     } else {
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
-        flushInfo.fGeometryProcessor.reset(
-            GrBitmapTextGeoProc::Create(this->color(),
-                                        texture,
-                                        params,
-                                        maskFormat,
-                                        localMatrix,
-                                        this->usesLocalCoords()));
+        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(this->color(),
+                                                                 texture,
+                                                                 params,
+                                                                 maskFormat,
+                                                                 localMatrix,
+                                                                 this->usesLocalCoords());
     }
 
     flushInfo.fGlyphsToFlush = 0;
@@ -132,23 +132,17 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
 
     unsigned char* currVertex = reinterpret_cast<unsigned char*>(vertices);
 
-    // We cache some values to avoid going to the glyphcache for the same fontScaler twice
-    // in a row
-    const SkDescriptor* desc = nullptr;
-    SkGlyphCache* cache = nullptr;
-    SkTypeface* typeface = nullptr;
-
     GrBlobRegenHelper helper(this, target, &flushInfo);
-
+    SkAutoGlyphCache glyphCache;
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
         Blob* blob = args.fBlob;
         size_t byteCount;
         void* blobVertices;
         int subRunGlyphCount;
-        blob->regenInBatch(target, fFontCache, &helper, args.fRun, args.fSubRun, &cache,
-                           &typeface, &desc, vertexStride, args.fViewMatrix, args.fX,
-                           args.fY, args.fColor, &blobVertices, &byteCount, &subRunGlyphCount);
+        blob->regenInBatch(target, fFontCache, &helper, args.fRun, args.fSubRun, &glyphCache,
+                           vertexStride, args.fViewMatrix, args.fX, args.fY, args.fColor,
+                           &blobVertices, &byteCount, &subRunGlyphCount);
 
         // now copy all vertices
         memcpy(currVertex, blobVertices, byteCount);
@@ -172,10 +166,6 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         currVertex += byteCount;
     }
 
-    // Make sure to attach the last cache if applicable
-    if (cache) {
-        SkGlyphCache::AttachCache(cache);
-    }
     this->flush(target, &flushInfo);
 }
 
@@ -187,7 +177,7 @@ void GrAtlasTextBatch::flush(GrVertexBatch::Target* target, FlushInfo* flushInfo
                        flushInfo->fIndexBuffer, flushInfo->fVertexOffset,
                        kVerticesPerGlyph, kIndicesPerGlyph, flushInfo->fGlyphsToFlush,
                        maxGlyphsPerDraw);
-    target->draw(flushInfo->fGeometryProcessor, mesh);
+    target->draw(flushInfo->fGeometryProcessor.get(), mesh);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
 }
@@ -255,9 +245,10 @@ bool GrAtlasTextBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
 
 // TODO just use class params
 // TODO trying to figure out why lcd is so whack
-GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatrix,
-                                                        SkColor filteredColor,
-                                                        GrColor color, GrTexture* texture) const {
+sk_sp<GrGeometryProcessor> GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatrix,
+                                                              SkColor filteredColor,
+                                                              GrColor color,
+                                                              GrTexture* texture) const {
     GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
     bool isLCD = this->isLCD();
     // set up any flags
@@ -286,32 +277,32 @@ GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatr
                                                                 greenCorrection,
                                                                 blueCorrection);
 
-        return GrDistanceFieldLCDTextGeoProc::Create(color,
-                                                     viewMatrix,
-                                                     texture,
-                                                     params,
-                                                     widthAdjust,
-                                                     flags,
-                                                     this->usesLocalCoords());
+        return GrDistanceFieldLCDTextGeoProc::Make(color,
+                                                   viewMatrix,
+                                                   texture,
+                                                   params,
+                                                   widthAdjust,
+                                                   flags,
+                                                   this->usesLocalCoords());
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
         U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT, filteredColor);
         float correction = fDistanceAdjustTable->getAdjustment(
             lum >> kDistanceAdjustLumShift, fUseGammaCorrectDistanceTable);
-        return GrDistanceFieldA8TextGeoProc::Create(color,
-                                                    viewMatrix,
-                                                    texture,
-                                                    params,
-                                                    correction,
-                                                    flags,
-                                                    this->usesLocalCoords());
+        return GrDistanceFieldA8TextGeoProc::Make(color,
+                                                  viewMatrix,
+                                                  texture,
+                                                  params,
+                                                  correction,
+                                                  flags,
+                                                  this->usesLocalCoords());
 #else
-        return GrDistanceFieldA8TextGeoProc::Create(color,
-                                                    viewMatrix,
-                                                    texture,
-                                                    params,
-                                                    flags,
-                                                    this->usesLocalCoords());
+        return GrDistanceFieldA8TextGeoProc::Make(color,
+                                                  viewMatrix,
+                                                  texture,
+                                                  params,
+                                                  flags,
+                                                  this->usesLocalCoords());
 #endif
     }
 

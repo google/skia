@@ -6,6 +6,7 @@
  */
 
 #include "SubsetPath.h"
+#include "SkMathPriv.h"
 
 SubsetPath::SubsetPath(const SkPath& path)
         : fPath(path)

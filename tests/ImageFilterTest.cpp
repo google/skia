@@ -377,6 +377,18 @@ static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context, 
     }
 }
 
+static sk_sp<SkSurface> create_surface(GrContext* context, int width, int height) {
+    const SkImageInfo info = SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType);
+#if SK_SUPPORT_GPU
+    if (context) {
+        return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
+    } else
+#endif
+    {
+        return SkSurface::MakeRaster(info);
+    }
+}
+
 static sk_sp<SkSpecialImage> create_empty_special_image(GrContext* context, int widthHeight) {
     sk_sp<SkSpecialSurface> surf(create_empty_special_surface(context, widthHeight));
 
@@ -903,7 +915,7 @@ DEF_TEST(ImageFilterMergeResultSize, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterMergeResultSize_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterMergeResultSize_Gpu, reporter, ctxInfo) {
     test_imagefilter_merge_result_size(reporter, ctxInfo.grContext());
 }
 #endif
@@ -1071,8 +1083,8 @@ DEF_TEST(ImageFilterMatrixConvolutionBigKernel, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterMatrixConvolutionBigKernel_Gpu,
-                                      reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterMatrixConvolutionBigKernel_Gpu,
+                                   reporter, ctxInfo) {
     test_big_kernel(reporter, ctxInfo.grContext());
 }
 #endif
@@ -1502,7 +1514,7 @@ DEF_TEST(ComposedImageFilterBounds, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ComposedImageFilterBounds_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ComposedImageFilterBounds_Gpu, reporter, ctxInfo) {
     test_composed_imagefilter_bounds(reporter, ctxInfo.grContext());
 }
 #endif
@@ -1669,6 +1681,64 @@ DEF_TEST(ImageFilterBlurLargeImage, reporter) {
     test_large_blur_input(reporter, surface->getCanvas());
 }
 
+static void test_make_with_filter(skiatest::Reporter* reporter, GrContext* context) {
+    sk_sp<SkSurface> surface(create_surface(context, 100, 100));
+    surface->getCanvas()->clear(SK_ColorRED);
+    SkPaint bluePaint;
+    bluePaint.setColor(SK_ColorBLUE);
+    SkIRect subset = SkIRect::MakeXYWH(25, 20, 50, 50);
+    surface->getCanvas()->drawRect(SkRect::Make(subset), bluePaint);
+    sk_sp<SkImage> sourceImage = surface->makeImageSnapshot();
+
+    sk_sp<SkImageFilter> filter = make_grayscale(nullptr, nullptr);
+    SkIRect clipBounds = SkIRect::MakeXYWH(30, 35, 100, 100);
+    SkIRect outSubset;
+    SkIPoint offset;
+    sk_sp<SkImage> result;
+
+    result = sourceImage->makeWithFilter(nullptr, subset, clipBounds, &outSubset, &offset);
+    REPORTER_ASSERT(reporter, !result);
+
+    result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, nullptr, &offset);
+    REPORTER_ASSERT(reporter, !result);
+
+    result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, &outSubset, nullptr);
+    REPORTER_ASSERT(reporter, !result);
+
+    SkIRect bigSubset = SkIRect::MakeXYWH(-10000, -10000, 20000, 20000);
+    result = sourceImage->makeWithFilter(filter.get(), bigSubset, clipBounds, &outSubset, &offset);
+    REPORTER_ASSERT(reporter, !result);
+
+    SkIRect empty = SkIRect::MakeEmpty();
+    result = sourceImage->makeWithFilter(filter.get(), empty, clipBounds, &outSubset, &offset);
+    REPORTER_ASSERT(reporter, !result);
+
+    result = sourceImage->makeWithFilter(filter.get(), subset, empty, &outSubset, &offset);
+    REPORTER_ASSERT(reporter, !result);
+
+    SkIRect leftField = SkIRect::MakeXYWH(-1000, 0, 100, 100);
+    result = sourceImage->makeWithFilter(filter.get(), subset, leftField, &outSubset, &offset);
+    REPORTER_ASSERT(reporter, !result);
+
+    result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, &outSubset, &offset);
+
+    REPORTER_ASSERT(reporter, result);
+    REPORTER_ASSERT(reporter, result->bounds().contains(outSubset));
+    SkIRect destRect = SkIRect::MakeXYWH(offset.x(), offset.y(),
+                                          outSubset.width(), outSubset.height());
+    REPORTER_ASSERT(reporter, clipBounds.contains(destRect));
+}
+
+DEF_TEST(ImageFilterMakeWithFilter, reporter) {
+    test_make_with_filter(reporter, nullptr);
+}
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Gpu, reporter, ctxInfo) {
+    test_make_with_filter(reporter, ctxInfo.grContext());
+}
+#endif
+
 #if SK_SUPPORT_GPU
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
@@ -1683,7 +1753,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
     test_huge_blur(canvas, reporter);
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, reporter, ctxInfo) {
 
     sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
                                                       SkBudgeted::kNo,
@@ -1695,7 +1765,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, repor
     test_xfermode_cropped_input(canvas, reporter);
 }
 
-DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(ImageFilterBlurLargeImage_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFilterBlurLargeImage_Gpu, reporter, ctxInfo) {
     auto surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kYes,
                                              SkImageInfo::MakeN32Premul(100, 100)));
     test_large_blur_input(reporter, surface->getCanvas());

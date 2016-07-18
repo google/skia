@@ -26,6 +26,7 @@ public:
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
      *  array of uniforms. arrayCount must be <= the array count of the uniform.
      */
+    virtual void set1i(UniformHandle, int32_t) const = 0;
     virtual void set1f(UniformHandle, float v0) const = 0;
     virtual void set1fv(UniformHandle, int arrayCount, const float v[]) const = 0;
     virtual void set2f(UniformHandle, float, float) const = 0;

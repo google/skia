@@ -20,24 +20,21 @@ public:
     /**
      * Must be initialized before adding to a GrProcessor's buffer access list.
      */
-    void reset(intptr_t offsetInBytes, GrPixelConfig texelConfig, GrBuffer* buffer,
+    void reset(GrPixelConfig texelConfig, GrBuffer* buffer,
                GrShaderFlags visibility = kFragment_GrShaderFlag) {
-        fOffsetInBytes = offsetInBytes;
         fTexelConfig = texelConfig;
         fBuffer.set(SkRef(buffer), kRead_GrIOType);
         fVisibility = visibility;
     }
 
     bool operator==(const GrBufferAccess& that) const {
-        return fOffsetInBytes == that.fOffsetInBytes &&
-               fTexelConfig == that.fTexelConfig &&
+        return fTexelConfig == that.fTexelConfig &&
                this->buffer() == that.buffer() &&
                fVisibility == that.fVisibility;
     }
 
     bool operator!=(const GrBufferAccess& that) const { return !(*this == that); }
 
-    intptr_t offsetInBytes() const { return fOffsetInBytes; }
     GrPixelConfig texelConfig() const { return fTexelConfig; }
     GrBuffer* buffer() const { return fBuffer.get(); }
     GrShaderFlags visibility() const { return fVisibility; }
@@ -48,7 +45,6 @@ public:
     const GrGpuResourceRef* getProgramBuffer() const { return &fBuffer;}
 
 private:
-    intptr_t                      fOffsetInBytes;
     GrPixelConfig                 fTexelConfig;
     GrTGpuResourceRef<GrBuffer>   fBuffer;
     GrShaderFlags                 fVisibility;

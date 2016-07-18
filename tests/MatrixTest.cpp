@@ -42,7 +42,7 @@ static bool are_equal(skiatest::Reporter* reporter,
                 if (0 == aVal && 0 == bVal && aValI != bValI) {
                     foundZeroSignDiff = true;
                 } else {
-                    REPORTER_ASSERT(reporter, aVal == bVal && aValI == aValI);
+                    REPORTER_ASSERT(reporter, aVal == bVal && aValI == bValI);
                 }
             }
             REPORTER_ASSERT(reporter, foundZeroSignDiff);

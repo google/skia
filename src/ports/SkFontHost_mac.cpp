@@ -29,6 +29,7 @@
 #include "SkFontMgr.h"
 #include "SkGlyph.h"
 #include "SkMaskGamma.h"
+#include "SkMathPriv.h"
 #include "SkMutex.h"
 #include "SkOTTable_glyf.h"
 #include "SkOTTable_head.h"

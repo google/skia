@@ -31,19 +31,26 @@ bool SkColorFilter::asComponentTable(SkBitmap*) const {
     return false;
 }
 
-void SkColorFilter::filterSpan4f(const SkPM4f[], int count, SkPM4f span[]) const {
+#if SK_SUPPORT_GPU
+sk_sp<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*) const {
+    return nullptr;
+}
+#endif
+
+void SkColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const {
     const int N = 128;
     SkPMColor tmp[N];
     while (count > 0) {
         int n = SkTMin(count, N);
         for (int i = 0; i < n; ++i) {
-            SkNx_cast<uint8_t>(Sk4f::Load(span[i].fVec) * Sk4f(255) + Sk4f(0.5f)).store(&tmp[i]);
+            tmp[i] = src[i].toPMColor();
         }
         this->filterSpan(tmp, n, tmp);
         for (int i = 0; i < n; ++i) {
-            span[i] = SkPM4f::FromPMColor(tmp[i]);
+            result[i] = SkPM4f::FromPMColor(tmp[i]);
         }
-        span += n;
+        src += n;
+        result += n;
         count -= n;
     }
 }
@@ -99,13 +106,13 @@ public:
 #endif
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext* context) const override {
-        SkAutoTUnref<const GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context));
-        SkAutoTUnref<const GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context));
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* context) const override {
+        sk_sp<GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context));
+        sk_sp<GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context));
         if (!innerFP || !outerFP) {
             return nullptr;
         }
-        const GrFragmentProcessor* series[] = { innerFP, outerFP };
+        sk_sp<GrFragmentProcessor> series[] = { std::move(innerFP), std::move(outerFP) };
         return GrFragmentProcessor::RunInSeries(series, 2);
     }
 #endif

@@ -9,6 +9,7 @@
 #ifndef GrVkTypes_DEFINED
 #define GrVkTypes_DEFINED
 
+#include "GrTypes.h"
 #include "vk/GrVkDefines.h"
 
 /**
@@ -26,16 +27,22 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * Types for interacting with Vulkan resources created externally to Skia. GrBackendObjects for 
+ * Types for interacting with Vulkan resources created externally to Skia. GrBackendObjects for
  * Vulkan textures are really const GrVkImageInfo*
  */
+struct GrVkAlloc {
+    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff Tex is an RT and uses borrow semantics
+    VkDeviceSize   fOffset;
+    VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
+};
+
 struct GrVkImageInfo {
     /**
      * If the image's format is sRGB (GrVkFormatIsSRGB returns true), then the image must have
      * been created with VkImageCreateFlags containing VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT.
      */
     VkImage        fImage;
-    VkDeviceMemory fAlloc;    // can be VK_NULL_HANDLE iff Tex is an RT and uses borrow semantics
+    GrVkAlloc      fAlloc;
     VkImageTiling  fImageTiling;
     VkImageLayout  fImageLayout;
     VkFormat       fFormat;

@@ -15,7 +15,6 @@
 #include "SkColorFilterImageFilter.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkSpecialImage.h"
-#include "SkTestImageFilters.h"
 
 class FailImageFilter : public SkImageFilter {
 public:

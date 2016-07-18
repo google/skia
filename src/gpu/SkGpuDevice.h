@@ -252,6 +252,7 @@ private:
                           const SkRect& dst, const SkPaint&);
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
+    void drawStrokedLine(const SkPoint pts[2], const SkDraw&, const SkPaint&);
 
     static sk_sp<GrDrawContext> CreateDrawContext(GrContext*,
                                                   SkBudgeted,

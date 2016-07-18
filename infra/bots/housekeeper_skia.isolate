@@ -1,0 +1,5 @@
+{
+  'includes': [
+    'skia_repo.isolate',
+  ],
+}

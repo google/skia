@@ -75,8 +75,8 @@ void GrVertexBatch::onDraw(GrBatchFlushState* state) {
             state->doUpload(fInlineUploads[currUploadIdx++].fUpload);
         }
         const QueuedDraw &draw = fQueuedDraws[currDrawIdx];
-        state->gpu()->draw(*this->pipeline(), *draw.fGeometryProcessor.get(),
-                           fMeshes.begin() + currMeshIdx, draw.fMeshCnt);
+        state->commandBuffer()->draw(*this->pipeline(), *draw.fGeometryProcessor.get(),
+                                     fMeshes.begin() + currMeshIdx, draw.fMeshCnt);
         currMeshIdx += draw.fMeshCnt;
         state->flushToken();
     }

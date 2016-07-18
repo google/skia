@@ -8,6 +8,7 @@
 #include "GrDefaultGeoProcFactory.h"
 
 #include "GrInvariantOutput.h"
+#include "SkRefCnt.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
@@ -30,15 +31,16 @@ enum GPFlag {
 
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(uint32_t gpTypeFlags,
-                                       GrColor color,
-                                       const SkMatrix& viewMatrix,
-                                       const SkMatrix& localMatrix,
-                                       bool localCoordsWillBeRead,
-                                       bool coverageWillBeIgnored,
-                                       uint8_t coverage) {
-        return new DefaultGeoProc(gpTypeFlags, color, viewMatrix, localMatrix, coverage,
-                                  localCoordsWillBeRead, coverageWillBeIgnored);
+    static sk_sp<GrGeometryProcessor> Make(uint32_t gpTypeFlags,
+                                             GrColor color,
+                                             const SkMatrix& viewMatrix,
+                                             const SkMatrix& localMatrix,
+                                             bool localCoordsWillBeRead,
+                                             bool coverageWillBeIgnored,
+                                             uint8_t coverage) {
+        return sk_sp<GrGeometryProcessor>(new DefaultGeoProc(
+                gpTypeFlags, color, viewMatrix, localMatrix, coverage,
+                localCoordsWillBeRead, coverageWillBeIgnored));
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -271,7 +273,7 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
 
-const GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
     uint32_t flags = 0;
     if (d->fRandom->nextBool()) {
         flags |= kColor_GPFlag;
@@ -286,19 +288,19 @@ const GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
         flags |= kTransformedLocalCoord_GPFlag;
     }
 
-    return DefaultGeoProc::Create(flags,
-                                  GrRandomColor(d->fRandom),
-                                  GrTest::TestMatrix(d->fRandom),
-                                  GrTest::TestMatrix(d->fRandom),
-                                  d->fRandom->nextBool(),
-                                  d->fRandom->nextBool(),
-                                  GrRandomCoverage(d->fRandom));
+    return DefaultGeoProc::Make(flags,
+                                GrRandomColor(d->fRandom),
+                                GrTest::TestMatrix(d->fRandom),
+                                GrTest::TestMatrix(d->fRandom),
+                                d->fRandom->nextBool(),
+                                d->fRandom->nextBool(),
+                                GrRandomCoverage(d->fRandom));
 }
 
-const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(const Color& color,
-                                                           const Coverage& coverage,
-                                                           const LocalCoords& localCoords,
-                                                           const SkMatrix& viewMatrix) {
+sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
+                                                         const Coverage& coverage,
+                                                         const LocalCoords& localCoords,
+                                                         const SkMatrix& viewMatrix) {
     uint32_t flags = 0;
     flags |= color.fType == Color::kAttribute_Type ? kColor_GPFlag : 0;
     flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverage_GPFlag : 0;
@@ -311,16 +313,16 @@ const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(const Color& color,
     bool localCoordsWillBeRead = localCoords.fType != LocalCoords::kUnused_Type;
 
     GrColor inColor = color.fColor;
-    return DefaultGeoProc::Create(flags,
-                                  inColor,
-                                  viewMatrix,
-                                  localCoords.fMatrix ? *localCoords.fMatrix : SkMatrix::I(),
-                                  localCoordsWillBeRead,
-                                  coverageWillBeIgnored,
-                                  inCoverage);
+    return DefaultGeoProc::Make(flags,
+                                inColor,
+                                viewMatrix,
+                                localCoords.fMatrix ? *localCoords.fMatrix : SkMatrix::I(),
+                                localCoordsWillBeRead,
+                                coverageWillBeIgnored,
+                                inCoverage);
 }
 
-const GrGeometryProcessor* GrDefaultGeoProcFactory::CreateForDeviceSpace(
+sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeForDeviceSpace(
                                                                      const Color& color,
                                                                      const Coverage& coverage,
                                                                      const LocalCoords& localCoords,
@@ -339,5 +341,5 @@ const GrGeometryProcessor* GrDefaultGeoProcFactory::CreateForDeviceSpace(
     }
 
     LocalCoords inverted(LocalCoords::kUsePosition_Type, &invert);
-    return Create(color, coverage, inverted, SkMatrix::I());
+    return Make(color, coverage, inverted, SkMatrix::I());
 }

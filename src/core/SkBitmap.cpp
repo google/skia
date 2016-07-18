@@ -49,25 +49,22 @@ SkBitmap::~SkBitmap() {
 SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
     if (this != &src) {
         this->freePixels();
-        memcpy(this, &src, sizeof(src));
-
-        // inc src reference counts
-        SkSafeRef(src.fPixelRef);
-
-        // we reset our locks if we get blown away
-        fPixelLockCount = 0;
-
-        if (fPixelRef) {
-            // ignore the values from the memcpy
-            fPixels = nullptr;
-            fColorTable = nullptr;
-            // Note that what to for genID is somewhat arbitrary. We have no
-            // way to track changes to raw pixels across multiple SkBitmaps.
-            // Would benefit from an SkRawPixelRef type created by
-            // setPixels.
-            // Just leave the memcpy'ed one but they'll get out of sync
-            // as soon either is modified.
+        this->fPixelRef = SkSafeRef(src.fPixelRef);
+        if (this->fPixelRef) {
+            // ignore the values if we have a pixelRef
+            this->fPixels = nullptr;
+            this->fColorTable = nullptr;
+        } else {
+            this->fPixels = src.fPixels;
+            this->fColorTable = src.fColorTable;
         }
+        // we reset our locks if we get blown away
+        this->fPixelLockCount = 0;
+
+        this->fPixelRefOrigin = src.fPixelRefOrigin;
+        this->fInfo = src.fInfo;
+        this->fRowBytes = src.fRowBytes;
+        this->fFlags = src.fFlags;
     }
 
     SkDEBUGCODE(this->validate();)
@@ -97,6 +94,7 @@ void SkBitmap::swap(SkBitmap& other) {
 
 void SkBitmap::reset() {
     this->freePixels();
+    this->fInfo.reset();
     sk_bzero(this, sizeof(*this));
 }
 
@@ -744,7 +742,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 
     if (fPixelRef->getTexture() != nullptr) {
         // Do a deep copy
-        SkPixelRef* pixelRef = fPixelRef->deepCopy(this->colorType(), this->profileType(), &subset);
+        SkPixelRef* pixelRef = fPixelRef->deepCopy(this->colorType(), this->colorSpace(), &subset);
         if (pixelRef != nullptr) {
             SkBitmap dst;
             dst.setInfo(this->info().makeWH(subset.width(), subset.height()));
@@ -913,7 +911,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
 
 bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
     const SkColorType dstCT = this->colorType();
-    const SkColorProfileType dstPT = this->profileType();
+    SkColorSpace* dstCS = this->colorSpace();
 
     if (!this->canCopyTo(dstCT)) {
         return false;
@@ -922,10 +920,10 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
     // If we have a PixelRef, and it supports deep copy, use it.
     // Currently supported only by texture-backed bitmaps.
     if (fPixelRef) {
-        SkPixelRef* pixelRef = fPixelRef->deepCopy(dstCT, dstPT, nullptr);
+        SkPixelRef* pixelRef = fPixelRef->deepCopy(dstCT, dstCS, nullptr);
         if (pixelRef) {
             uint32_t rowBytes;
-            if (this->colorType() == dstCT && this->profileType() == dstPT) {
+            if (this->colorType() == dstCT && this->colorSpace() == dstCS) {
                 // Since there is no subset to pass to deepCopy, and deepCopy
                 // succeeded, the new pixel ref must be identical.
                 SkASSERT(fPixelRef->info() == pixelRef->info());
@@ -1147,8 +1145,10 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     SkImageInfo info;
     info.unflatten(*buffer);
 
-    // If there was an error reading "info", don't use it to compute minRowBytes()
-    if (!buffer->validate(true)) {
+    // If there was an error reading "info" or if it is bogus, 
+    // don't use it to compute minRowBytes()
+    if (!buffer->validate(SkColorTypeValidateAlphaType(info.colorType(),
+                                                       info.alphaType()))) {
         return false;
     }
 

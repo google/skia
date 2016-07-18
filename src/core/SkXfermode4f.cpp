@@ -68,10 +68,10 @@ static Sk4x4f load_4_srgb(const void* ptr) {
 // Store an Sk4x4f back to 4 interlaced 8888 sRGB pixels.
 static void store_4_srgb(void* ptr, const Sk4x4f& p) {
     // Convert back to sRGB and [0,255], again approximating sRGB as gamma == 2.
-    auto r = p.r.sqrt() * 255.0f + 0.5f,
-         g = p.g.sqrt() * 255.0f + 0.5f,
-         b = p.b.sqrt() * 255.0f + 0.5f,
-         a = p.a        * 255.0f + 0.5f;
+    auto r = p.r.rsqrt().invert() * 255.0f + 0.5f,
+         g = p.g.rsqrt().invert() * 255.0f + 0.5f,
+         b = p.b.rsqrt().invert() * 255.0f + 0.5f,
+         a = p.a                  * 255.0f + 0.5f;
     Sk4x4f{r,g,b,a}.transpose((uint8_t*)ptr);
 }
 
@@ -213,33 +213,25 @@ template <DstType D> void src_1(const SkXfermode*, uint32_t dst[],
                 count -= 4;
             }
         } else {    // kSRGB
-            while (count >= 4) {
-                Sk4f aa4 = SkNx_cast<float>(Sk4b::Load(aa)) * Sk4f(1/255.0f);
-
-                /*  If we ever natively support convert 255_linear -> 255_srgb, then perhaps
-                 *  it would be faster (and possibly allow more code sharing with kLinear) to
-                 *  stay in that space.
-                 */
-                Sk4f r0 = lerp(s4, load_dst<D>(dst[0]), Sk4f(aa4[0]));
-                Sk4f r1 = lerp(s4, load_dst<D>(dst[1]), Sk4f(aa4[1]));
-                Sk4f r2 = lerp(s4, load_dst<D>(dst[2]), Sk4f(aa4[2]));
-                Sk4f r3 = lerp(s4, load_dst<D>(dst[3]), Sk4f(aa4[3]));
-                Sk4f_ToBytes((uint8_t*)dst,
-                             linear_unit_to_srgb_255f(r0),
-                             linear_unit_to_srgb_255f(r1),
-                             linear_unit_to_srgb_255f(r2),
-                             linear_unit_to_srgb_255f(r3));
-
-                dst += 4;
-                aa += 4;
-                count -= 4;
+            SkPMColor srcColor = store_dst<D>(s4);
+            while (count-- > 0) {
+                SkAlpha cover = *aa++;
+                switch (cover) {
+                    case 0xFF: {
+                        *dst++ = srcColor;
+                        break;
+                    }
+                    case 0x00: {
+                        dst++;
+                        break;
+                    }
+                    default: {
+                        Sk4f d4 = load_dst<D>(*dst);
+                        *dst++ = store_dst<D>(lerp(s4, d4, cover));
+                    }
+                }
             }
-        }
-        for (int i = 0; i < count; ++i) {
-            unsigned a = aa[i];
-            Sk4f d4 = load_dst<D>(dst[i]);
-            dst[i] = store_dst<D>(lerp(s4, d4, a));
-        }
+        }          // kSRGB
     } else {
         sk_memset32(dst, store_dst<D>(s4), count);
     }

@@ -15,7 +15,6 @@
 #include "SkXfermode.h"
 #include "SkPM4fPriv.h"
 #include "SkShader.h"
-#include "SkBitmapProcShader.h"
 
 static void fill_in_bits(SkBitmap& bm, SkIRect ir, SkColor c, bool premul) {
     bm.allocN32Pixels(ir.width(), ir.height());
@@ -56,7 +55,7 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
     SkPixmap pmdst;
     bmdst.peekPixels(&pmdst);
 
-    SkImageInfo info = SkImageInfo::MakeN32Premul(ir.width(), ir.height(), kLinear_SkColorProfileType);
+    SkImageInfo info = SkImageInfo::MakeN32Premul(ir.width(), ir.height());
 
     sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, pmsrc.addr32(), pmsrc.rowBytes())));
     SkPaint paint;
@@ -114,9 +113,6 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
     }
 
     uint32_t flags = 0;
-    //if (kSRGB_SkColorProfileType == profile) {
-        //flags |= SkXfermode::kDstIsSRGB_PM4fFlag;
-    //}
     auto procN = SkXfermode::GetD32Proc(nullptr, flags);
 
     SkLinearBitmapPipeline pipeline{

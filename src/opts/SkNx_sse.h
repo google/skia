@@ -9,6 +9,7 @@
 #define SkNx_sse_DEFINED
 
 #include "SkCpu.h"
+#include <immintrin.h>
 
 // This file may assume <= SSE2, but must check SK_CPU_SSE_LEVEL for anything more recent.
 // If you do, make sure this is in a static inline function... anywhere else risks violating ODR.
@@ -123,8 +124,12 @@ public:
     bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(_mm_castps_si128(fVec)); }
 
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+        return _mm_blendv_ps(e.fVec, t.fVec, fVec);
+#else
         return _mm_or_ps(_mm_and_ps   (fVec, t.fVec),
                          _mm_andnot_ps(fVec, e.fVec));
+#endif
     }
 
     __m128 fVec;
@@ -150,6 +155,8 @@ public:
         return _mm_unpacklo_epi32(_mm_shuffle_epi32(mul20, _MM_SHUFFLE(0,0,2,0)),
                                   _mm_shuffle_epi32(mul31, _MM_SHUFFLE(0,0,2,0)));
     }
+
+    SkNx operator | (const SkNx& o) const { return _mm_or_si128(fVec, o.fVec); }
 
     SkNx operator << (int bits) const { return _mm_slli_epi32(fVec, bits); }
     SkNx operator >> (int bits) const { return _mm_srai_epi32(fVec, bits); }

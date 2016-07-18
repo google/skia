@@ -43,7 +43,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
 /**
  * Creates a FormXObject from a content stream and associated resources.
  */
-SkPDFFormXObject::SkPDFFormXObject(SkStream* content, SkRect bbox,
+SkPDFFormXObject::SkPDFFormXObject(SkStreamAsset* content, SkRect bbox,
                                    SkPDFDict* resourceDict) {
     setData(content);
 

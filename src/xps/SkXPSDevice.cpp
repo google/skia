@@ -8,6 +8,8 @@
 #include "SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN32)
 
+#include "SkLeanWindows.h"
+
 #ifndef UNICODE
 #define UNICODE
 #endif
@@ -18,9 +20,9 @@
 #include <XpsObjectModel.h>
 #include <T2EmbApi.h>
 #include <FontSub.h>
+#include <limits>
 
 #include "SkColor.h"
-#include "SkConstexprMath.h"
 #include "SkData.h"
 #include "SkDraw.h"
 #include "SkEndian.h"
@@ -190,6 +192,10 @@ bool SkXPSDevice::beginSheet(
     return true;
 }
 
+template <typename T> static constexpr size_t sk_digits_in() {
+    return static_cast<size_t>(std::numeric_limits<T>::digits10 + 1);
+}
+
 HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
                                         const unsigned int pageNum,
                                         IXpsOMImageResource** image) {
@@ -202,10 +208,9 @@ HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
         "Could not create thumbnail generator.");
 
     SkTScopedComPtr<IOpcPartUri> partUri;
-    static const size_t size = SkTUMax<
-        SK_ARRAY_COUNT(L"/Documents/1/Metadata/.png") + SK_DIGITS_IN(pageNum),
-        SK_ARRAY_COUNT(L"/Metadata/" L_GUID_ID L".png")
-    >::value;
+    constexpr size_t size = SkTMax(
+            SK_ARRAY_COUNT(L"/Documents/1/Metadata/.png") + sk_digits_in<decltype(pageNum)>(),
+            SK_ARRAY_COUNT(L"/Metadata/" L_GUID_ID L".png"));
     wchar_t buffer[size];
     if (pageNum > 0) {
         swprintf_s(buffer, size, L"/Documents/1/Metadata/%u.png", pageNum);
@@ -229,8 +234,9 @@ HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
 
 HRESULT SkXPSDevice::createXpsPage(const XPS_SIZE& pageSize,
                                    IXpsOMPage** page) {
-    static const size_t size = SK_ARRAY_COUNT(L"/Documents/1/Pages/.fpage")
-                             + SK_DIGITS_IN(fCurrentPage);
+    constexpr size_t size =
+        SK_ARRAY_COUNT(L"/Documents/1/Pages/.fpage")
+        + sk_digits_in<decltype(fCurrentPage)>();
     wchar_t buffer[size];
     swprintf_s(buffer, size, L"/Documents/1/Pages/%u.fpage",
                              this->fCurrentPage);

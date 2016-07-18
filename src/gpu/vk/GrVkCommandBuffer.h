@@ -13,6 +13,7 @@
 #include "GrVkUtil.h"
 #include "vk/GrVkDefines.h"
 
+class GrVkFramebuffer;
 class GrVkPipeline;
 class GrVkRenderPass;
 class GrVkRenderTarget;
@@ -20,23 +21,7 @@ class GrVkTransferBuffer;
 
 class GrVkCommandBuffer : public GrVkResource {
 public:
-    static GrVkCommandBuffer* Create(const GrVkGpu* gpu, VkCommandPool cmdPool);
-    ~GrVkCommandBuffer() override;
-
-    void begin(const GrVkGpu* gpu);
-    void end(const GrVkGpu* gpu);
-
     void invalidateState();
-
-    // Begins render pass on this command buffer. The framebuffer from GrVkRenderTarget will be used
-    // in the render pass.
-    void beginRenderPass(const GrVkGpu* gpu,
-                         const GrVkRenderPass* renderPass,
-                         const GrVkRenderTarget& target);
-    void endRenderPass(const GrVkGpu* gpu);
-
-    void submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync);
-    bool finished(const GrVkGpu* gpu) const;
 
     ////////////////////////////////////////////////////////////////////////////
     // CommandBuffer commands
@@ -105,6 +90,103 @@ public:
 
     void setBlendConstants(const GrVkGpu* gpu, const float blendConstants[4]);
 
+    // Commands that only work inside of a render pass
+    void clearAttachments(const GrVkGpu* gpu,
+                          int numAttachments,
+                          const VkClearAttachment* attachments,
+                          int numRects,
+                          const VkClearRect* clearRects) const;
+
+    void drawIndexed(const GrVkGpu* gpu,
+                     uint32_t indexCount,
+                     uint32_t instanceCount,
+                     uint32_t firstIndex,
+                     int32_t vertexOffset,
+                     uint32_t firstInstance) const;
+
+    void draw(const GrVkGpu* gpu,
+              uint32_t vertexCount,
+              uint32_t instanceCount,
+              uint32_t firstVertex,
+              uint32_t firstInstance) const;
+
+    // Add ref-counted resource that will be tracked and released when this
+    // command buffer finishes execution
+    void addResource(const GrVkResource* resource) {
+        resource->ref();
+        fTrackedResources.push_back(resource);
+    }
+
+protected:
+        GrVkCommandBuffer(VkCommandBuffer cmdBuffer, const GrVkRenderPass* rp = VK_NULL_HANDLE)
+            : fTrackedResources(kInitialTrackedResourcesCount)
+            , fIsActive(false)
+            , fActiveRenderPass(rp)
+            , fCmdBuffer(cmdBuffer)
+            , fBoundVertexBufferIsValid(false)
+            , fBoundIndexBufferIsValid(false) {
+            this->invalidateState();
+        }
+        SkTArray<const GrVkResource*, true>     fTrackedResources;
+
+        // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
+        // new commands to the buffer;
+        bool fIsActive;
+
+        // Stores a pointer to the current active render pass (i.e. begin has been called but not
+        // end). A nullptr means there is no active render pass. The GrVKCommandBuffer does not own
+        // the render pass.
+        const GrVkRenderPass*     fActiveRenderPass;
+
+        VkCommandBuffer           fCmdBuffer;
+
+private:
+    static const int kInitialTrackedResourcesCount = 32;
+
+    void freeGPUData(const GrVkGpu* gpu) const override;
+    virtual void onFreeGPUData(const GrVkGpu* gpu) const = 0;
+    void abandonSubResources() const override;
+
+    VkBuffer                                fBoundVertexBuffer;
+    bool                                    fBoundVertexBufferIsValid;
+
+    VkBuffer                                fBoundIndexBuffer;
+    bool                                    fBoundIndexBufferIsValid;
+
+    // Cached values used for dynamic state updates
+    VkViewport fCachedViewport;
+    VkRect2D   fCachedScissor;
+    float      fCachedBlendConstant[4];
+};
+
+class GrVkSecondaryCommandBuffer;
+
+class GrVkPrimaryCommandBuffer : public GrVkCommandBuffer {
+public:
+    ~GrVkPrimaryCommandBuffer() override;
+
+    static GrVkPrimaryCommandBuffer* Create(const GrVkGpu* gpu, VkCommandPool cmdPool);
+
+    void begin(const GrVkGpu* gpu);
+    void end(const GrVkGpu* gpu);
+
+    // Begins render pass on this command buffer. The framebuffer from GrVkRenderTarget will be used
+    // in the render pass.
+    void beginRenderPass(const GrVkGpu* gpu,
+                         const GrVkRenderPass* renderPass,
+                         uint32_t clearCount,
+                         const VkClearValue* clearValues,
+                         const GrVkRenderTarget& target,
+                         const SkIRect& bounds,
+                         bool forSecondaryCB);
+    void endRenderPass(const GrVkGpu* gpu);
+
+    // Submits the SecondaryCommandBuffer into this command buffer. It is required that we are
+    // currently inside a render pass that is compatible with the one used to create the
+    // SecondaryCommandBuffer.
+    void executeCommands(const GrVkGpu* gpu,
+                         const GrVkSecondaryCommandBuffer* secondaryBuffer);
+
     // Commands that only work outside of a render pass
     void clearColorImage(const GrVkGpu* gpu,
                          GrVkImage* image,
@@ -169,75 +251,40 @@ public:
                            uint32_t copyRegionCount,
                            const VkBufferImageCopy* copyRegions);
 
-    // Commands that only work inside of a render pass
-    void clearAttachments(const GrVkGpu* gpu,
-                          int numAttachments,
-                          const VkClearAttachment* attachments,
-                          int numRects,
-                          const VkClearRect* clearRects) const;
-
-    void drawIndexed(const GrVkGpu* gpu,
-                     uint32_t indexCount,
-                     uint32_t instanceCount,
-                     uint32_t firstIndex,
-                     int32_t vertexOffset,
-                     uint32_t firstInstance) const;
-
-    void draw(const GrVkGpu* gpu,
-              uint32_t vertexCount,
-              uint32_t instanceCount,
-              uint32_t firstVertex,
-              uint32_t firstInstance) const;
-
-    // Add ref-counted resource that will be tracked and released when this
-    // command buffer finishes execution
-    void addResource(const GrVkResource* resource) {
-        resource->ref();
-        fTrackedResources.push_back(resource);
-    }
+    void submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync);
+    bool finished(const GrVkGpu* gpu) const;
 
 private:
-    static const int kInitialTrackedResourcesCount = 32;
+    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer)
+        : INHERITED(cmdBuffer)
+        , fSubmitFence(VK_NULL_HANDLE) {}
 
-    explicit GrVkCommandBuffer(VkCommandBuffer cmdBuffer)
-        : fTrackedResources(kInitialTrackedResourcesCount)
-        , fCmdBuffer(cmdBuffer)
-        , fSubmitFence(VK_NULL_HANDLE)
-        , fBoundVertexBufferIsValid(false)
-        , fBoundIndexBufferIsValid(false)
-        , fIsActive(false)
-        , fActiveRenderPass(nullptr) {
-        this->invalidateState();
-    }
+    void onFreeGPUData(const GrVkGpu* gpu) const override;
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
-    void abandonSubResources() const override;
+    VkFence                   fSubmitFence;
 
-    SkTArray<const GrVkResource*, true>     fTrackedResources;
-
-    VkCommandBuffer                         fCmdBuffer;
-    VkFence                                 fSubmitFence;
-
-    VkBuffer                                fBoundVertexBuffer;
-    bool                                    fBoundVertexBufferIsValid;
-
-    VkBuffer                                fBoundIndexBuffer;
-    bool                                    fBoundIndexBufferIsValid;
-
-    // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add new
-    // commands to the buffer;
-    bool fIsActive;
-
-    // Stores a pointer to the current active render pass (i.e. begin has been called but not end).
-    // A nullptr means there is no active render pass. The GrVKCommandBuffer does not own the render
-    // pass.
-    const GrVkRenderPass*     fActiveRenderPass;
-
-    // Cached values used for dynamic state updates
-    VkViewport fCachedViewport;
-    VkRect2D   fCachedScissor;
-    float      fCachedBlendConstant[4];
+    typedef GrVkCommandBuffer INHERITED;
 };
 
+class GrVkSecondaryCommandBuffer : public GrVkCommandBuffer {
+public:
+    static GrVkSecondaryCommandBuffer* Create(const GrVkGpu* gpu, VkCommandPool cmdPool, 
+                                              const GrVkRenderPass* compatibleRenderPass);
+
+    void begin(const GrVkGpu* gpu, const GrVkFramebuffer* framebuffer);
+    void end(const GrVkGpu* gpu);
+
+private:
+    explicit GrVkSecondaryCommandBuffer(VkCommandBuffer cmdBuffer,
+                                        const GrVkRenderPass* compatibleRenderPass)
+        : INHERITED(cmdBuffer, compatibleRenderPass) {
+    }
+
+    void onFreeGPUData(const GrVkGpu* gpu) const override {}
+
+    friend class GrVkPrimaryCommandBuffer;
+
+    typedef GrVkCommandBuffer INHERITED;
+};
 
 #endif

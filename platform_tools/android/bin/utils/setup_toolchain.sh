@@ -102,7 +102,7 @@ CCACHE=${ANDROID_MAKE_CCACHE-$(which ccache || true)}
 # variants for local development, but shipping versions of Skia
 # should be compiled on Linux for performance reasons.
 # TODO (msarett): Collect more information about this.
-if [ $(uname) == "Linux" ]; then
+if [ $HOST == "linux" ]; then
   if [ "$USE_CLANG" != "true" ]; then
     exportVar CC_target "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
     exportVar CXX_target "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-g++"
@@ -147,10 +147,10 @@ fi
 # Create symlinks for nm & readelf and add them to the path so that the ninja
 # build uses them instead of attempting to use the one on the system.
 # This is required to build using ninja on a Mac.
-if [ $(uname) == "Darwin" ]; then
-  ln -sf $ANDROID_TOOLCHAIN_PREFIX-nm $ANDROID_TOOLCHAIN/nm
-  ln -sf $ANDROID_TOOLCHAIN_PREFIX-readelf $ANDROID_TOOLCHAIN/readelf
-  ln -sf $ANDROID_TOOLCHAIN_PREFIX-as $ANDROID_TOOLCHAIN/as
+if [ $HOST == "darwin" ]; then
+  ln -sf $ANDROID_TOOLCHAIN_PREFIX-nm $ANDROID_TOOLCHAIN/bin/nm
+  ln -sf $ANDROID_TOOLCHAIN_PREFIX-readelf $ANDROID_TOOLCHAIN/bin/readelf
+  ln -sf $ANDROID_TOOLCHAIN_PREFIX-as $ANDROID_TOOLCHAIN/bin/as
 fi
 
 exportVar PATH ${ANDROID_TOOLCHAIN}/bin:${PATH}

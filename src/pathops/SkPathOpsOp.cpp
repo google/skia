@@ -36,6 +36,9 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
         int winding;
         bool sortable;
         const SkOpAngle* angle = AngleWinding(*startPtr, *endPtr, &winding, &sortable);
+        if (!angle) {
+            return nullptr;
+        }
         if (winding == SK_MinS32) {
             continue;
         }
@@ -245,13 +248,14 @@ extern void (*gVerboseFinalize)();
 
 #endif
 
-bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
-        bool expectSuccess  SkDEBUGPARAMS(const char* testName)) {
+bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
+        SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
     SkChunkAlloc allocator(4096);  // FIXME: add a constant expression here, tune
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
     SkOpCoincidence coincidence;
-    SkOpGlobalState globalState(&coincidence, contourList  SkDEBUGPARAMS(testName));
+    SkOpGlobalState globalState(&coincidence, contourList  
+        SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName));
 #if DEBUGGING_PATHOPS_FROM_HOST
     dump_op(one, two, op);
 #endif    
@@ -412,7 +416,7 @@ static int debug_paths_draw_the_same(const SkPath& one, const SkPath& two, SkBit
 
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
 #if DEBUG_VERIFY
-    if (!OpDebug(one, two, op, result, true  SkDEBUGPARAMS(nullptr))) {
+    if (!OpDebug(one, two, op, result  SkDEBUGPARAMS(nullptr))) {
         SkDebugf("%s did not expect failure\none: fill=%d\n", __FUNCTION__, one.getFillType());
         one.dumpHex();
         SkDebugf("two: fill=%d\n", two.getFillType());
@@ -454,6 +458,6 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     }
     return true;
 #else
-    return OpDebug(one, two, op, result, true  SkDEBUGPARAMS(nullptr));
+    return OpDebug(one, two, op, result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
 #endif
 }

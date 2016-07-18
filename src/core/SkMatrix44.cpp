@@ -85,6 +85,17 @@ void SkMatrix44::asColMajorf(float dst[]) const {
 #endif
 }
 
+void SkMatrix44::as4x3ColMajorf(float dst[]) const {
+    const SkMScalar* src = &fMat[0][0];
+#ifdef SK_MSCALAR_IS_DOUBLE
+    for (int i = 0; i < 12; ++i) {
+        dst[i] = SkMScalarToFloat(src[i]);
+    }
+#elif defined SK_MSCALAR_IS_FLOAT
+    memcpy(dst, src, 12 * sizeof(float));
+#endif
+}
+
 void SkMatrix44::asColMajord(double dst[]) const {
     const SkMScalar* src = &fMat[0][0];
 #ifdef SK_MSCALAR_IS_DOUBLE
@@ -175,7 +186,7 @@ void SkMatrix44::setRowMajord(const double src[]) {
 ///////////////////////////////////////////////////////////////////////////////
 
 const SkMatrix44& SkMatrix44::I() {
-    static const SkMatrix44 gIdentity44(kIdentity_Constructor);
+    static constexpr SkMatrix44 gIdentity44(kIdentity_Constructor);
     return gIdentity44;
 }
 
@@ -209,11 +220,19 @@ void SkMatrix44::set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
     this->dirtyTypeMask();
 }
 
-void SkMatrix44::set3x3ColMajorf(const float src[]) {
+void SkMatrix44::set3x3RowMajorf(const float src[]) {
     fMat[0][0] = src[0]; fMat[0][1] = src[3]; fMat[0][2] = src[6]; fMat[0][3] = 0;
     fMat[1][0] = src[1]; fMat[1][1] = src[4]; fMat[1][2] = src[7]; fMat[1][3] = 0;
     fMat[2][0] = src[2]; fMat[2][1] = src[5]; fMat[2][2] = src[8]; fMat[2][3] = 0;
     fMat[3][0] = 0;      fMat[3][1] = 0;      fMat[3][2] = 0;      fMat[3][3] = 1;
+    this->dirtyTypeMask();
+}
+
+void SkMatrix44::set4x3ColMajorf(const float src[]) {
+    fMat[0][0] = src[0]; fMat[0][1] = src[1]; fMat[0][2] = src[2];  fMat[0][3] = src[3];
+    fMat[1][0] = src[4]; fMat[1][1] = src[5]; fMat[1][2] = src[6];  fMat[1][3] = src[7];
+    fMat[2][0] = src[8]; fMat[2][1] = src[9]; fMat[2][2] = src[10]; fMat[2][3] = src[11];
+    fMat[3][0] = 0;      fMat[3][1] = 0;      fMat[3][2] = 0;       fMat[3][3] = 1;
     this->dirtyTypeMask();
 }
 

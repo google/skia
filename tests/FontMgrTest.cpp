@@ -64,12 +64,12 @@ static void test_alias_names(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(inNames); ++i) {
-        sk_sp<SkTypeface> first(SkTypeface::MakeFromName(inNames[i], SkTypeface::kNormal));
+        sk_sp<SkTypeface> first(SkTypeface::MakeFromName(inNames[i], SkFontStyle()));
         if (nullptr == first.get()) {
             continue;
         }
         for (int j = 0; j < 10; ++j) {
-            sk_sp<SkTypeface> face(SkTypeface::MakeFromName(inNames[i], SkTypeface::kNormal));
+            sk_sp<SkTypeface> face(SkTypeface::MakeFromName(inNames[i], SkFontStyle()));
     #if 0
             SkString name;
             face->getFamilyName(&name);

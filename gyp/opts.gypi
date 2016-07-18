@@ -49,11 +49,11 @@
         'sse41_sources': [
             '<(skia_src_path)/opts/SkOpts_sse41.cpp',
         ],
+        'avx_sources': [
+            '<(skia_src_path)/opts/SkOpts_avx.cpp',
+        ],
         # These targets are empty, but XCode doesn't like that, so add an empty file to each.
         'sse42_sources': [
-            '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
-        ],
-        'avx_sources': [
             '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
         ],
         'avx2_sources': [

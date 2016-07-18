@@ -213,6 +213,7 @@ double SkDCubeRoot(double x) {
 }
 
 SkOpGlobalState::SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head
+                                 SkDEBUGPARAMS(bool debugSkipAssert)
                                  SkDEBUGPARAMS(const char* testName))
     : fCoincidence(coincidence)
     , fContourHead(head)
@@ -226,7 +227,8 @@ SkOpGlobalState::SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* 
     SkDEBUGPARAMS(fContourID(0))
     SkDEBUGPARAMS(fPtTID(0))
     SkDEBUGPARAMS(fSegmentID(0))
-    SkDEBUGPARAMS(fSpanID(0)) {
+    SkDEBUGPARAMS(fSpanID(0))
+    SkDEBUGPARAMS(fDebugSkipAssert(debugSkipAssert)) {
     if (coincidence) {
         coincidence->debugSetGlobalState(this);
     }

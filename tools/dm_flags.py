@@ -158,19 +158,18 @@ def get_args(bot):
     blacklist.extend('_ image gen_platf 4bpp-pixeldata-cropped.bmp'.split(' '))
     blacklist.extend('_ image gen_platf 32bpp-pixeldata-cropped.bmp'.split(' '))
     blacklist.extend('_ image gen_platf 24bpp-pixeldata-cropped.bmp'.split(' '))
-    if 'CPU' in bot:
-      if 'x86_64' in bot:
-        # This GM triggers a SkSmallAllocator assert. skia:5315
-        blacklist.extend('_ gm _ composeshader_bitmap'.split(' '))
-      elif '-x86-' in bot:
-        # This image flakily fails to decode due to memory usage. skia:5318
-        blacklist.extend('_ image _ HTC.dng'.split(' '))
+    if 'x86_64' in bot and 'CPU' in bot:
+      # This GM triggers a SkSmallAllocator assert.
+      blacklist.extend('_ gm _ composeshader_bitmap'.split(' '))
 
+  if 'Android' in bot or 'iOS' in bot:
+    # This test crashes the N9 (perhaps because of large malloc/frees). It also
+    # is fairly slow and not platform-specific. So we just disable it on all of
+    # Android and iOS. skia:5438
+    blacklist.extend('_ test _ GrShape'.split(' '))
+ 
   # skia:4095
-  for test in ['not_native32_bitmap_config',
-               'bleed_image',
-               'bleed_alpha_image',
-               'bleed_alpha_image_shader',
+  for test in ['bleed_image',
                'c_gms',
                'colortype',
                'colortype_xfermodes',
@@ -179,10 +178,16 @@ def get_args(bot):
                'fontmgr_bounds_1_-0.25',
                'fontmgr_bounds',
                'fontmgr_match',
-               'fontmgr_iter',
-               'verylargebitmap',              # Windows only.
-               'verylarge_picture_image']:     # Windows only.
+               'fontmgr_iter']:
     blacklist.extend(['serialize-8888', 'gm', '_', test])
+  if 'Mac' not in bot:
+    for test in ['bleed_alpha_image', 'bleed_alpha_image_shader']:
+      blacklist.extend(['serialize-8888', 'gm', '_', test])
+  # It looks like we skip these only for out-of-memory concerns.
+  if 'Win' in bot or 'Android' in bot:
+    for test in ['verylargebitmap', 'verylarge_picture_image']:
+      blacklist.extend(['serialize-8888', 'gm', '_', test])
+
   # skia:4769
   for test in ['drawfilter']:
     blacklist.extend([    'sp-8888', 'gm', '_', test])
@@ -214,6 +219,7 @@ def get_args(bot):
   # Large image that overwhelms older Mac bots
   if 'MacMini4.1-GPU' in bot:
     blacklist.extend('_ image _ abnormal.wbmp'.split(' '))
+    blacklist.extend(['msaa16', 'gm', '_', 'blurcircles'])
 
   match = []
   if 'Valgrind' in bot: # skia:3021
@@ -242,7 +248,7 @@ def get_args(bot):
     match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.
 
   if 'TSAN' in bot:
-    match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots. 
+    match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
 
   if blacklist:
     args.append('--blacklist')
@@ -281,7 +287,6 @@ def self_test():
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-    'Test-Win-MSVC-GCE-CPU-AVX2-x86-Release',
     'Test-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
     'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',

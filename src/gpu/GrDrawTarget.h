@@ -9,12 +9,10 @@
 #define GrDrawTarget_DEFINED
 
 #include "GrClip.h"
-#include "GrClipMaskManager.h"
 #include "GrContext.h"
 #include "GrPathProcessor.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrPathRendering.h"
-#include "GrPipelineBuilder.h"
 #include "GrXferProcessor.h"
 
 #include "batches/GrDrawBatch.h"
@@ -37,6 +35,7 @@ class GrClip;
 class GrCaps;
 class GrPath;
 class GrDrawPathBatchBase;
+class GrPipelineBuilder;
 
 class GrDrawTarget final : public SkRefCnt {
 public:
@@ -105,7 +104,7 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void drawBatch(const GrPipelineBuilder&, const GrClip&, GrDrawBatch*);
+    void drawBatch(const GrPipelineBuilder&, GrDrawContext*, const GrClip&, GrDrawBatch*);
 
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
@@ -113,18 +112,19 @@ public:
      * on the GrPipelineBuilder (if possible in the 3D API).  Note, we will never have an inverse
      * fill with stencil path
      */
-    void stencilPath(const GrPipelineBuilder&, const GrClip&, const SkMatrix& viewMatrix,
+    void stencilPath(const GrPipelineBuilder&, GrDrawContext*,
+                     const GrClip&, const SkMatrix& viewMatrix,
                      const GrPath*, GrPathRendering::FillType);
 
     /**
-     * Clear the passed in render target. Ignores the GrPipelineBuilder and clip. Clears the whole
+     * Clear the passed in drawContext. Ignores the GrPipelineBuilder and clip. Clears the whole
      * thing if rect is nullptr, otherwise just the rect. If canIgnoreRect is set then the entire
-     * render target can be optionally cleared.
+     * drawContext can be optionally cleared.
      */
     void clear(const SkIRect* rect,
                GrColor color,
                bool canIgnoreRect,
-               GrRenderTarget* renderTarget);
+               GrDrawContext*);
 
     /** Discards the contents render target. */
     void discard(GrRenderTarget*);
@@ -144,28 +144,9 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
-    /** Provides access to internal functions to GrClipMaskManager without friending all of
-        GrDrawTarget to CMM. */
-    class CMMAccess {
-    public:
-        CMMAccess(GrDrawTarget* drawTarget) : fDrawTarget(drawTarget) {}
-    private:
-        void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* rt) const {
-            fDrawTarget->clearStencilClip(rect, insideClip, rt);
-        }
-
-        GrContext* context() const { return fDrawTarget->fContext; }
-        GrResourceProvider* resourceProvider() const { return fDrawTarget->fResourceProvider; }
-        GrDrawTarget* fDrawTarget;
-        friend class GrClipMaskManager;
-    };
-
-    const CMMAccess cmmAccess() { return CMMAccess(this); }
-
-    GrAuditTrail* getAuditTrail() const { return fAuditTrail; }
-
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+    friend class GrDrawContextPriv; // for clearStencilClip
 
     enum Flags {
         kClosed_Flag    = 0x01,   //!< This drawTarget can't accept any more batches
@@ -217,18 +198,18 @@ private:
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
     bool setupDstReadIfNecessary(const GrPipelineBuilder&,
-        const GrClip&,
-        const GrPipelineOptimizations& optimizations,
-        GrXferProcessor::DstTexture*,
-        const SkRect& batchBounds);
+                                 GrRenderTarget*,
+                                 const GrClip&,
+                                 const GrPipelineOptimizations& optimizations,
+                                 GrXferProcessor::DstTexture*,
+                                 const SkRect& batchBounds);
 
     void addDependency(GrDrawTarget* dependedOn);
 
-    // Used only by CMM.
+    // Used only by drawContextPriv.
     void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
 
     SkSTArray<256, SkAutoTUnref<GrBatch>, true> fBatches;
-    SkAutoTDelete<GrClipMaskManager>            fClipMaskManager;
     // The context is only in service of the clip mask manager, remove once CMM doesn't need this.
     GrContext*                                  fContext;
     GrGpu*                                      fGpu;

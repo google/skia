@@ -46,6 +46,8 @@
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
+//#define SK_SUPPORT_PRECHECK_CLIPRECT
+
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
  *
@@ -1177,6 +1179,7 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool i
                                    const SkPaint* paint) {
     // need to force L32 for now if we have an image filter. Once filters support other colortypes
     // e.g. sRGB or F16, we can remove this check
+    // SRGBTODO: Can we remove this check now?
     const bool hasImageFilter = paint && paint->getImageFilter();
 
     SkAlphaType alphaType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
@@ -1185,7 +1188,7 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool i
         return SkImageInfo::MakeN32(w, h, alphaType);
     } else {
         // keep the same characteristics as the prev
-        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, prev.profileType());
+        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, sk_ref_sp(prev.colorSpace()));
     }
 }
 
@@ -1521,6 +1524,29 @@ void SkCanvas::resetMatrix() {
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+    if (!fAllowSoftClip) {
+        doAA = false;
+    }
+
+#ifdef SK_SUPPORT_PRECHECK_CLIPRECT
+    // Check if we can quick-accept the clip call (and do nothing)
+    //
+    if (SkRegion::kIntersect_Op == op && !doAA && fMCRec->fMatrix.rectStaysRect()) {
+        SkRect devR;
+        fMCRec->fMatrix.mapRect(&devR, rect);
+        // NOTE: this check is CTM specific, since we might round differently with a different
+        //       CTM. Thus this is only 100% reliable if there is not global CTM scale to be
+        //       applied later (i.e. if this is going into a picture).
+        if (devR.round().contains(fMCRec->fRasterClip.getBounds())) {
+#if 0
+            SkDebugf("ignored clipRect [%g %g %g %g]\n",
+                     rect.left(), rect.top(), rect.right(), rect.bottom());
+#endif
+            return;
+        }
+    }
+#endif
+
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     this->onClipRect(rect, op, edgeStyle);
@@ -1530,7 +1556,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
 #ifdef SK_ENABLE_CLIP_QUICKREJECT
     if (SkRegion::kIntersect_Op == op) {
         if (fMCRec->fRasterClip.isEmpty()) {
-            return false;
+            return;
         }
 
         if (this->quickReject(rect)) {
@@ -1538,14 +1564,11 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
             fCachedLocalClipBoundsDirty = true;
 
             fClipStack->clipEmpty();
-            return fMCRec->fRasterClip.setEmpty();
+            (void)fMCRec->fRasterClip.setEmpty();
+            return;
         }
     }
 #endif
-
-    if (!fAllowSoftClip) {
-        edgeStyle = kHard_ClipEdgeStyle;
-    }
 
     const bool rectStaysRect = fMCRec->fMatrix.rectStaysRect();
     SkRect devR;
@@ -1553,12 +1576,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
         fMCRec->fMatrix.mapRect(&devR, rect);
     }
 
-    // Check if we can quick-accept the clip call (and do nothing)
-    //
-    // TODO: investigate if a (conservative) version of this could be done in ::clipRect,
-    //       so that subclasses (like PictureRecording) didn't see unnecessary clips, which in turn
-    //       might allow lazy save/restores to eliminate entire save/restore blocks.
-    //
+#ifndef SK_SUPPORT_PRECHECK_CLIPRECT
     if (SkRegion::kIntersect_Op == op &&
         kHard_ClipEdgeStyle == edgeStyle
         && rectStaysRect)
@@ -1571,6 +1589,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
             return;
         }
     }
+#endif
 
     AutoValidateClip avc(this);
 
@@ -1656,7 +1675,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
 #ifdef SK_ENABLE_CLIP_QUICKREJECT
     if (SkRegion::kIntersect_Op == op && !path.isInverseFillType()) {
         if (fMCRec->fRasterClip.isEmpty()) {
-            return false;
+            return;
         }
 
         if (this->quickReject(path.getBounds())) {
@@ -1664,7 +1683,8 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
             fCachedLocalClipBoundsDirty = true;
 
             fClipStack->clipEmpty();
-            return fMCRec->fRasterClip.setEmpty();
+            (void)fMCRec->fRasterClip.setEmpty();
+            return;
         }
     }
 #endif
@@ -2282,7 +2302,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
             drawAsSprite = false;
         } else{
             // Until imagefilters are updated, they cannot handle any src type but N32...
-            if (bitmap.info().colorType() != kN32_SkColorType || bitmap.info().isSRGB()) {
+            if (bitmap.info().colorType() != kN32_SkColorType || bitmap.info().gammaCloseToSRGB()) {
                 drawAsSprite = false;
             }
         }
@@ -2367,7 +2387,7 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
                                                               *paint);
     if (drawAsSprite && paint->getImageFilter()) {
         // Until imagefilters are updated, they cannot handle any src type but N32...
-        if (bitmap.info().colorType() != kN32_SkColorType || bitmap.info().isSRGB()) {
+        if (bitmap.info().colorType() != kN32_SkColorType || bitmap.info().gammaCloseToSRGB()) {
             drawAsSprite = false;
         }
     }

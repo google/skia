@@ -13,6 +13,7 @@
 #include "sk_app/Window.h"
 #include "gm.h"
 #include "SkAnimTimer.h"
+#include "SkTouchGesture.h"
 #include "Slide.h"
 
 class SkCanvas;
@@ -24,13 +25,17 @@ public:
 
     void onPaint(SkCanvas* canvas);
     void onIdle(double ms) override;
-    bool onTouch(int owner, sk_app::Window::InputState state, float x, float y);
+    bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y);
+    void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
 
 private:
     void initSlides();
     void updateTitle();
     void setupCurrentSlide(int previousSlide);
 
+    void updateUIState();
+
+    void drawSlide(SkCanvas* canvs, bool inSplitScreen);
     void drawStats(SkCanvas* canvas);
 
     void changeZoomLevel(float delta);
@@ -48,6 +53,11 @@ private:
 
     bool                   fDisplayStats;
 
+    // whether to split the screen and draw two copies of the slide, one with sRGB and one without
+    bool                   fSplitScreen;
+
+    sk_app::Window::BackendType fBackendType;
+
     // transform data
     SkScalar               fZoomCenterX;
     SkScalar               fZoomCenterY;
@@ -57,6 +67,12 @@ private:
     sk_app::CommandSet     fCommands;
 
     SkTouchGesture         fGesture;
+
+    // identity unless the window initially scales the content to fit the screen.
+    SkMatrix               fDefaultMatrix;
+    SkMatrix               fDefaultMatrixInv;
+
+    Json::Value            fAllSlideNames; // cache all slide names for fast updateUIState
 };
 
 

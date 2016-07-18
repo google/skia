@@ -33,7 +33,18 @@ public:
         kThrow_AllocFailType
     };
 
+    /**
+     *  Allocates a memory block of size bytes.
+     *  On success: returns a pointer to beginning of memory block that is
+     *  8 byte aligned. The content of allocated block is not initialized.
+     *  On failure: calls abort() if called with kThrow_AllocFailType,
+     *  otherwise returns NULL pointer.
+     */
     void* alloc(size_t bytes, AllocFailType);
+
+    /**
+     *  Shortcut for calling alloc with kThrow_AllocFailType.
+     */
     void* allocThrow(size_t bytes) {
         return this->alloc(bytes, kThrow_AllocFailType);
     }

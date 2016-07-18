@@ -13,6 +13,7 @@
 #include "vk/GrVkBackendContext.h"
 #include "GrVkCaps.h"
 #include "GrVkIndexBuffer.h"
+#include "GrVkMemory.h"
 #include "GrVkResourceProvider.h"
 #include "GrVkVertexBuffer.h"
 #include "GrVkUtil.h"
@@ -24,10 +25,11 @@ class GrPipeline;
 class GrNonInstancedMesh;
 
 class GrVkBufferImpl;
-class GrVkCommandBuffer;
 class GrVkPipeline;
 class GrVkPipelineState;
+class GrVkPrimaryCommandBuffer;
 class GrVkRenderPass;
+class GrVkSecondaryCommandBuffer;
 class GrVkTexture;
 struct GrVkInterface;
 
@@ -63,8 +65,6 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
-    void discard(GrRenderTarget*) override {}
-
     bool onCopySurface(GrSurface* dst,
                        GrSurface* src,
                        const SkIRect& srcRect,
@@ -80,7 +80,8 @@ public:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config) override;
+                                                    GrPixelConfig config,
+                                                    bool isRenderTarget) override;
     bool isTestingOnlyBackendTexture(GrBackendObject id) const override;
     void deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandonTexture) override;
 
@@ -89,6 +90,11 @@ public:
                                                                 int height) override;
 
     void clearStencil(GrRenderTarget* target) override;
+
+    GrGpuCommandBuffer* createCommandBuffer(
+            GrRenderTarget* target,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) override;
 
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {}
 
@@ -109,9 +115,36 @@ public:
         return fCompiler;
     }
 
+    void submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer*,
+                                      const GrVkRenderPass*,
+                                      const VkClearValue*,
+                                      GrVkRenderTarget*,
+                                      const SkIRect& bounds);
+
     void finishDrawTarget() override;
 
     void generateMipmap(GrVkTexture* tex) const;
+
+    // Heaps
+    enum Heap {
+        kLinearImage_Heap = 0,
+        // We separate out small (i.e., <= 16K) images to reduce fragmentation
+        // in the main heap.
+        kOptimalImage_Heap,
+        kSmallOptimalImage_Heap,
+        // We have separate vertex and image heaps, because it's possible that 
+        // a given Vulkan driver may allocate them separately.
+        kVertexBuffer_Heap,
+        kIndexBuffer_Heap,
+        kUniformBuffer_Heap,
+        kCopyReadBuffer_Heap,
+        kCopyWriteBuffer_Heap,
+
+        kLastHeap = kCopyWriteBuffer_Heap
+    };
+    static const int kHeapCount = kLastHeap + 1;
+
+    GrVkHeap* getHeap(Heap heap) const { return fHeaps[heap]; }
 
 private:
     GrVkGpu(GrContext* context, const GrContextOptions& options,
@@ -134,15 +167,6 @@ private:
     GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
                              const void* data) override;
 
-    void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
-
-    void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override;
-
-    void onDraw(const GrPipeline&,
-                const GrPrimitiveProcessor&,
-                const GrMesh*,
-                int meshCount) override;
-
     bool onReadPixels(GrSurface* surface,
                       int left, int top, int width, int height,
                       GrPixelConfig,
@@ -159,14 +183,6 @@ private:
                           size_t offset, size_t rowBytes) override { return false; }
 
     void onResolveRenderTarget(GrRenderTarget* target) override {}
-
-    sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&,
-                                              const GrPrimitiveProcessor&,
-                                              GrPrimitiveType,
-                                              const GrVkRenderPass&);
-
-    // Bind vertex and index buffers
-    void bindGeometry(const GrPrimitiveProcessor&, const GrNonInstancedMesh&);
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
@@ -214,8 +230,10 @@ private:
     // Created by GrVkGpu
     GrVkResourceProvider                   fResourceProvider;
     VkCommandPool                          fCmdPool;
-    GrVkCommandBuffer*                     fCurrentCmdBuffer;
+    GrVkPrimaryCommandBuffer*              fCurrentCmdBuffer;
     VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
+
+    SkAutoTDelete<GrVkHeap>                fHeaps[kHeapCount];
 
 #ifdef ENABLE_VK_LAYERS
     // For reporting validation layer errors

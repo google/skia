@@ -19,6 +19,7 @@ import uuid
 
 GCLIENT = 'gclient.bat' if sys.platform == 'win32' else 'gclient'
 GIT = 'git.bat' if sys.platform == 'win32' else 'git'
+WHICH = 'where' if sys.platform == 'win32' else 'which'
 
 
 class print_timings(object):

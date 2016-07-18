@@ -55,7 +55,7 @@ public:
     GrBitmapTextureMaker(GrContext* context, const SkBitmap& bitmap);
 
 protected:
-    GrTexture* refOriginalTexture(bool willBeMipped) override;
+    GrTexture* refOriginalTexture(bool willBeMipped, SkSourceGammaTreatment) override;
 
     void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override;
 
@@ -80,7 +80,7 @@ protected:
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
 
-    GrTexture* refOriginalTexture(bool willBeMipped) override;
+    GrTexture* refOriginalTexture(bool willBeMipped, SkSourceGammaTreatment) override;
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 

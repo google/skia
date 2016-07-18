@@ -232,58 +232,57 @@ static SkPath create_path_15() {
     return path;
 }
 
-static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* rp,
-                      const SkPath& path) {
+static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const SkPath& path) {
     GrTessellatingPathRenderer tess;
-    GrPipelineBuilder pipelineBuilder;
-    pipelineBuilder.setXPFactory(
-        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-    pipelineBuilder.setRenderTarget(rt);
+
+    GrPaint paint;
+    paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+
     GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrPathRenderer::DrawPathArgs args;
-    args.fTarget = dt;
-    args.fPipelineBuilder = &pipelineBuilder;
+    args.fPaint = &paint;
+    args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
+    args.fDrawContext = drawContext;
     args.fClip = &noClip;
     args.fResourceProvider = rp;
     args.fColor = GrColor_WHITE;
     args.fViewMatrix = &SkMatrix::I();
-    args.fPath = &path;
-    args.fStyle = &style;
+    GrShape shape(path, style);
+    args.fShape = &shape;
     args.fAntiAlias = false;
     tess.drawPath(args);
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = 800;
-    desc.fHeight = 800;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    SkAutoTUnref<GrTexture> texture(
-        ctxInfo.grContext()->textureProvider()->createApproxTexture(desc));
+    sk_sp<GrDrawContext> drawContext(ctxInfo.grContext()->newDrawContext(SkBackingFit::kApprox,
+                                                                         800, 800,
+                                                                         kSkia8888_GrPixelConfig,
+                                                                         0,
+                                                                         kTopLeft_GrSurfaceOrigin));
+    if (!drawContext) {
+        return;
+    }
+
     GrTestTarget tt;
-    GrRenderTarget* rt = texture->asRenderTarget();
-    ctxInfo.grContext()->getTestTarget(&tt, rt);
-    GrDrawTarget* dt = tt.target();
+    ctxInfo.grContext()->getTestTarget(&tt, drawContext);
     GrResourceProvider* rp = tt.resourceProvider();
 
-    test_path(dt, rt, rp, create_path_0());
-    test_path(dt, rt, rp, create_path_1());
-    test_path(dt, rt, rp, create_path_2());
-    test_path(dt, rt, rp, create_path_3());
-    test_path(dt, rt, rp, create_path_4());
-    test_path(dt, rt, rp, create_path_5());
-    test_path(dt, rt, rp, create_path_6());
-    test_path(dt, rt, rp, create_path_7());
-    test_path(dt, rt, rp, create_path_8());
-    test_path(dt, rt, rp, create_path_9());
-    test_path(dt, rt, rp, create_path_10());
-    test_path(dt, rt, rp, create_path_11());
-    test_path(dt, rt, rp, create_path_12());
-    test_path(dt, rt, rp, create_path_13());
-    test_path(dt, rt, rp, create_path_14());
-    test_path(dt, rt, rp, create_path_15());
+    test_path(drawContext.get(), rp, create_path_0());
+    test_path(drawContext.get(), rp, create_path_1());
+    test_path(drawContext.get(), rp, create_path_2());
+    test_path(drawContext.get(), rp, create_path_3());
+    test_path(drawContext.get(), rp, create_path_4());
+    test_path(drawContext.get(), rp, create_path_5());
+    test_path(drawContext.get(), rp, create_path_6());
+    test_path(drawContext.get(), rp, create_path_7());
+    test_path(drawContext.get(), rp, create_path_8());
+    test_path(drawContext.get(), rp, create_path_9());
+    test_path(drawContext.get(), rp, create_path_10());
+    test_path(drawContext.get(), rp, create_path_11());
+    test_path(drawContext.get(), rp, create_path_12());
+    test_path(drawContext.get(), rp, create_path_13());
+    test_path(drawContext.get(), rp, create_path_14());
+    test_path(drawContext.get(), rp, create_path_15());
 }
 #endif

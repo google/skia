@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmapProcShader.h"
 #include "SkBitmapProcState.h"
 #include "SkColor.h"
 #include "SkEmptyShader.h"
 #include "SkErrorInternals.h"
 #include "SkLightingShader.h"
 #include "SkMathPriv.h"
+#include "SkNormalSource.h"
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -37,26 +39,28 @@
 /** \class SkLightingShaderImpl
     This subclass of shader applies lighting.
 */
-class SK_API SkLightingShaderImpl : public SkShader {
+class SkLightingShaderImpl : public SkShader {
 public:
 
     /** Create a new lighting shader that uses the provided normal map and
         lights to light the diffuse bitmap.
-        @param diffuse    the diffuse bitmap
-        @param normal     the normal map
-        @param lights     the lights applied to the normal map
-        @param invNormRotation rotation applied to the normal map's normals
-        @param diffLocalM the local matrix for the diffuse coordinates
-        @param normLocalM the local matrix for the normal coordinates
+        @param diffuse           the diffuse bitmap
+        @param normal            the normal map
+        @param lights            the lights applied to the normal map
+        @param invNormRotation   rotation applied to the normal map's normals
+        @param diffLocalM        the local matrix for the diffuse coordinates
+        @param normLocalM        the local matrix for the normal coordinates
+        @param normalSource      the normal source for GPU computations
     */
     SkLightingShaderImpl(const SkBitmap& diffuse, const SkBitmap& normal,
-                         const SkLightingShader::Lights* lights,
+                         const sk_sp<SkLights> lights,
                          const SkVector& invNormRotation,
-                         const SkMatrix* diffLocalM, const SkMatrix* normLocalM)
+                         const SkMatrix* diffLocalM, const SkMatrix* normLocalM,
+                         sk_sp<SkNormalSource> normalSource)
         : INHERITED(diffLocalM)
         , fDiffuseMap(diffuse)
         , fNormalMap(normal)
-        , fLights(SkRef(lights))
+        , fLights(std::move(lights))
         , fInvNormRotation(invNormRotation) {
 
         if (normLocalM) {
@@ -67,15 +71,17 @@ public:
         // Pre-cache so future calls to fNormLocalMatrix.getType() are threadsafe.
         (void)fNormLocalMatrix.getType();
 
+        fNormalSource = std::move(normalSource);
     }
 
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix* localMatrix,
-                                                   SkFilterQuality) const override;
+                                                   SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 #endif
 
     class LightingShaderContext : public SkShader::Context {
@@ -83,7 +89,8 @@ public:
         // The context takes ownership of the states. It will call their destructors
         // but will NOT free the memory.
         LightingShaderContext(const SkLightingShaderImpl&, const ContextRec&,
-                              SkBitmapProcState* diffuseState, SkBitmapProcState* normalState);
+                              SkBitmapProcState* diffuseState, SkNormalSource::Provider*,
+                              void* heapAllocated);
         ~LightingShaderContext() override;
 
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
@@ -91,9 +98,11 @@ public:
         uint32_t getFlags() const override { return fFlags; }
 
     private:
-        SkBitmapProcState* fDiffuseState;
-        SkBitmapProcState* fNormalState;
-        uint32_t           fFlags;
+        SkBitmapProcState*        fDiffuseState;
+        SkNormalSource::Provider* fNormalProvider;
+        uint32_t                  fFlags;
+
+        void* fHeapAllocated;
 
         typedef SkShader::Context INHERITED;
     };
@@ -105,16 +114,17 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void*) const override;
-    bool computeNormTotalInverse(const ContextRec& rec, SkMatrix* normTotalInverse) const;
 
 private:
-    SkBitmap  fDiffuseMap;
-    SkBitmap  fNormalMap;
+    SkBitmap        fDiffuseMap;
+    SkBitmap        fNormalMap;
 
-    SkAutoTUnref<const SkLightingShader::Lights>   fLights;
+    sk_sp<SkLights> fLights;
 
-    SkMatrix  fNormLocalMatrix;
-    SkVector  fInvNormRotation;
+    SkMatrix        fNormLocalMatrix;
+    SkVector        fInvNormRotation;
+
+    sk_sp<SkNormalSource> fNormalSource;
 
     friend class SkLightingShader;
 
@@ -138,24 +148,17 @@ private:
 
 class LightingFP : public GrFragmentProcessor {
 public:
-    LightingFP(GrTexture* diffuse, GrTexture* normal, const SkMatrix& diffMatrix,
-               const SkMatrix& normMatrix, const GrTextureParams& diffParams,
-               const GrTextureParams& normParams, const SkLightingShader::Lights* lights,
-               const SkVector& invNormRotation)
+    LightingFP(GrTexture* diffuse, const SkMatrix& diffMatrix, const GrTextureParams& diffParams,
+               sk_sp<SkLights> lights, sk_sp<GrFragmentProcessor> normalFP)
         : fDiffDeviceTransform(kLocal_GrCoordSet, diffMatrix, diffuse, diffParams.filterMode())
-        , fNormDeviceTransform(kLocal_GrCoordSet, normMatrix, normal, normParams.filterMode())
-        , fDiffuseTextureAccess(diffuse, diffParams)
-        , fNormalTextureAccess(normal, normParams)
-        , fInvNormRotation(invNormRotation) {
+        , fDiffuseTextureAccess(diffuse, diffParams) {
         this->addCoordTransform(&fDiffDeviceTransform);
-        this->addCoordTransform(&fNormDeviceTransform);
         this->addTextureAccess(&fDiffuseTextureAccess);
-        this->addTextureAccess(&fNormalTextureAccess);
 
         // fuse all ambient lights into a single one
         fAmbientColor.set(0.0f, 0.0f, 0.0f);
         for (int i = 0; i < lights->numLights(); ++i) {
-            if (SkLight::kAmbient_LightType == lights->light(i).type()) {
+            if (SkLights::Light::kAmbient_LightType == lights->light(i).type()) {
                 fAmbientColor += lights->light(i).color();
             } else {
                 // TODO: handle more than one of these
@@ -164,16 +167,16 @@ public:
             }
         }
 
+        this->registerChildProcessor(std::move(normalFP));
         this->initClassID<LightingFP>();
     }
 
-    class LightingGLFP : public GrGLSLFragmentProcessor {
+    class GLSLLightingFP : public GrGLSLFragmentProcessor {
     public:
-        LightingGLFP() {
+        GLSLLightingFP() {
             fLightDir.fX = 10000.0f;
             fLightColor.fX = 0.0f;
             fAmbientColor.fX = 0.0f;
-            fInvNormRotation.set(0.0f, 0.0f);
         }
 
         void emitCode(EmitArgs& args) override {
@@ -197,33 +200,16 @@ public:
                                                           kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                           "AmbientColor", &ambientColorUniName);
 
-            const char* xformUniName = nullptr;
-            fXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                                   "Xform", &xformUniName);
-
             fragBuilder->codeAppend("vec4 diffuseColor = ");
             fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fTexSamplers[0],
                                                 args.fCoords[0].c_str(),
                                                 args.fCoords[0].getType());
             fragBuilder->codeAppend(";");
 
-            fragBuilder->codeAppend("vec4 normalColor = ");
-            fragBuilder->appendTextureLookup(args.fTexSamplers[1],
-                                     args.fCoords[1].c_str(),
-                                     args.fCoords[1].getType());
-            fragBuilder->codeAppend(";");
+            SkString dstNormalName("dstNormal");
+            this->emitChild(0, nullptr, &dstNormalName, args);
 
-            fragBuilder->codeAppend("vec3 normal = normalColor.rgb - vec3(0.5);");
-
-            fragBuilder->codeAppendf(
-                                 "mat3 m = mat3(%s.x, -%s.y, 0.0, %s.y, %s.x, 0.0, 0.0, 0.0, 1.0);",
-                                 xformUniName, xformUniName, xformUniName, xformUniName);
-
-            // TODO: inverse map the light direction vectors in the vertex shader rather than
-            // transforming all the normals here!
-            fragBuilder->codeAppend("normal = normalize(m*normal);");
-
+            fragBuilder->codeAppendf("vec3 normal = %s.xyz;", dstNormalName.c_str());
             fragBuilder->codeAppendf("float NdotL = clamp(dot(normal, %s), 0.0, 1.0);",
                                      lightDirUniName);
             // diffuse light
@@ -261,12 +247,6 @@ public:
                 pdman.set3fv(fAmbientColorUni, 1, &ambientColor.fX);
                 fAmbientColor = ambientColor;
             }
-
-            const SkVector& invNormRotation = lightingFP.invNormRotation();
-            if (invNormRotation != fInvNormRotation) {
-                pdman.set2fv(fXformUni, 1, &invNormRotation.fX);
-                fInvNormRotation = invNormRotation;
-            }
         }
 
     private:
@@ -278,13 +258,10 @@ public:
 
         SkColor3f fAmbientColor;
         GrGLSLProgramDataManager::UniformHandle fAmbientColorUni;
-
-        SkVector fInvNormRotation;
-        GrGLSLProgramDataManager::UniformHandle fXformUni;
     };
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
-        LightingGLFP::GenKey(*this, caps, b);
+        GLSLLightingFP::GenKey(*this, caps, b);
     }
 
     const char* name() const override { return "LightingFP"; }
@@ -296,32 +273,24 @@ public:
     const SkVector3& lightDir() const { return fLightDir; }
     const SkColor3f& lightColor() const { return fLightColor; }
     const SkColor3f& ambientColor() const { return fAmbientColor; }
-    const SkVector& invNormRotation() const { return fInvNormRotation; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new LightingGLFP; }
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLLightingFP; }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override {
         const LightingFP& lightingFP = proc.cast<LightingFP>();
         return fDiffDeviceTransform == lightingFP.fDiffDeviceTransform &&
-               fNormDeviceTransform == lightingFP.fNormDeviceTransform &&
                fDiffuseTextureAccess == lightingFP.fDiffuseTextureAccess &&
-               fNormalTextureAccess == lightingFP.fNormalTextureAccess &&
                fLightDir == lightingFP.fLightDir &&
                fLightColor == lightingFP.fLightColor &&
-               fAmbientColor == lightingFP.fAmbientColor &&
-               fInvNormRotation == lightingFP.fInvNormRotation;
+               fAmbientColor == lightingFP.fAmbientColor;
     }
 
     GrCoordTransform fDiffDeviceTransform;
-    GrCoordTransform fNormDeviceTransform;
     GrTextureAccess  fDiffuseTextureAccess;
-    GrTextureAccess  fNormalTextureAccess;
     SkVector3        fLightDir;
     SkColor3f        fLightColor;
     SkColor3f        fAmbientColor;
-
-    SkVector         fInvNormRotation;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -349,61 +318,47 @@ static bool make_mat(const SkBitmap& bm,
     return true;
 }
 
-const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
-                                                             GrContext* context,
-                                                             const SkMatrix& viewM,
-                                                             const SkMatrix* localMatrix,
-                                                             SkFilterQuality filterQuality) const {
+sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(
+                                                     GrContext* context,
+                                                     const SkMatrix& viewM,
+                                                     const SkMatrix* localMatrix,
+                                                     SkFilterQuality filterQuality,
+                                                     SkSourceGammaTreatment gammaTreatment) const {
     // we assume diffuse and normal maps have same width and height
-    // TODO: support different sizes
+    // TODO: support different sizes, will be addressed when diffuse maps are factored out of
+    //       SkLightingShader in a future CL
     SkASSERT(fDiffuseMap.width() == fNormalMap.width() &&
              fDiffuseMap.height() == fNormalMap.height());
-    SkMatrix diffM, normM;
+    SkMatrix diffM;
 
     if (!make_mat(fDiffuseMap, this->getLocalMatrix(), localMatrix, &diffM)) {
         return nullptr;
     }
 
-    if (!make_mat(fNormalMap, fNormLocalMatrix, localMatrix, &normM)) {
-        return nullptr;
-    }
-
     bool doBicubic;
     GrTextureParams::FilterMode diffFilterMode = GrSkFilterQualityToGrFilterMode(
-                                        SkTMin(filterQuality, kMedium_SkFilterQuality),
-                                        viewM,
-                                        this->getLocalMatrix(),
-                                        &doBicubic);
-    SkASSERT(!doBicubic);
-
-    GrTextureParams::FilterMode normFilterMode = GrSkFilterQualityToGrFilterMode(
-                                        SkTMin(filterQuality, kMedium_SkFilterQuality),
-                                        viewM,
-                                        fNormLocalMatrix,
-                                        &doBicubic);
+                                                    SkTMin(filterQuality, kMedium_SkFilterQuality),
+                                                    viewM,
+                                                    this->getLocalMatrix(),
+                                                    &doBicubic);
     SkASSERT(!doBicubic);
 
     // TODO: support other tile modes
     GrTextureParams diffParams(kClamp_TileMode, diffFilterMode);
-    SkAutoTUnref<GrTexture> diffuseTexture(GrRefCachedBitmapTexture(context,
-                                                                    fDiffuseMap, diffParams));
+    SkAutoTUnref<GrTexture> diffuseTexture(GrRefCachedBitmapTexture(context, fDiffuseMap,
+                                                                    diffParams, gammaTreatment));
     if (!diffuseTexture) {
         SkErrorInternals::SetError(kInternalError_SkError, "Couldn't convert bitmap to texture.");
         return nullptr;
     }
 
-    GrTextureParams normParams(kClamp_TileMode, normFilterMode);
-    SkAutoTUnref<GrTexture> normalTexture(GrRefCachedBitmapTexture(context,
-                                                                   fNormalMap, normParams));
-    if (!normalTexture) {
-        SkErrorInternals::SetError(kInternalError_SkError, "Couldn't convert bitmap to texture.");
-        return nullptr;
-    }
+    sk_sp<GrFragmentProcessor> normalFP(
+            fNormalSource->asFragmentProcessor(context, viewM, localMatrix, filterQuality,
+                                               gammaTreatment));
+    sk_sp<GrFragmentProcessor> inner (
+            new LightingFP(diffuseTexture, diffM, diffParams, fLights, std::move(normalFP)));
 
-    SkAutoTUnref<const GrFragmentProcessor> inner (
-        new LightingFP(diffuseTexture, normalTexture, diffM, normM, diffParams, normParams, fLights,
-                       fInvNormRotation));
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif
@@ -414,14 +369,13 @@ bool SkLightingShaderImpl::isOpaque() const {
     return fDiffuseMap.isOpaque();
 }
 
-SkLightingShaderImpl::LightingShaderContext::LightingShaderContext(const SkLightingShaderImpl& shader,
-                                                                   const ContextRec& rec,
-                                                                   SkBitmapProcState* diffuseState,
-                                                                   SkBitmapProcState* normalState)
+SkLightingShaderImpl::LightingShaderContext::LightingShaderContext(
+        const SkLightingShaderImpl& shader, const ContextRec& rec, SkBitmapProcState* diffuseState,
+        SkNormalSource::Provider* normalProvider, void* heapAllocated)
     : INHERITED(shader, rec)
     , fDiffuseState(diffuseState)
-    , fNormalState(normalState)
-{
+    , fNormalProvider(normalProvider)
+    , fHeapAllocated(heapAllocated) {
     const SkPixmap& pixmap = fDiffuseState->fPixmap;
     bool isOpaque = pixmap.isOpaque();
 
@@ -438,7 +392,9 @@ SkLightingShaderImpl::LightingShaderContext::~LightingShaderContext() {
     // The bitmap proc states have been created outside of the context on memory that will be freed
     // elsewhere. Call the destructors but leave the freeing of the memory to the caller.
     fDiffuseState->~SkBitmapProcState();
-    fNormalState->~SkBitmapProcState();
+    fNormalProvider->~Provider();
+
+    sk_free(fHeapAllocated);
 }
 
 static inline SkPMColor convert(SkColor3f color, U8CPU a) {
@@ -465,29 +421,24 @@ static inline SkPMColor convert(SkColor3f color, U8CPU a) {
 
 // larger is better (fewer times we have to loop), but we shouldn't
 // take up too much stack-space (each one here costs 16 bytes)
-#define TMP_COUNT     16
-
+#define TMP_COUNT 16
+#define BUFFER_MAX ((int)(TMP_COUNT * sizeof(uint32_t)))
 void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
                                                             SkPMColor result[], int count) {
     const SkLightingShaderImpl& lightShader = static_cast<const SkLightingShaderImpl&>(fShader);
 
-    uint32_t  tmpColor[TMP_COUNT], tmpNormal[TMP_COUNT];
-    SkPMColor tmpColor2[2*TMP_COUNT], tmpNormal2[2*TMP_COUNT];
+    uint32_t  tmpColor[TMP_COUNT];
+    SkPMColor tmpColor2[2*TMP_COUNT];
 
     SkBitmapProcState::MatrixProc   diffMProc = fDiffuseState->getMatrixProc();
     SkBitmapProcState::SampleProc32 diffSProc = fDiffuseState->getSampleProc32();
 
-    SkBitmapProcState::MatrixProc   normalMProc = fNormalState->getMatrixProc();
-    SkBitmapProcState::SampleProc32 normalSProc = fNormalState->getSampleProc32();
-
-    int diffMax = fDiffuseState->maxCountForBufferSize(sizeof(tmpColor[0]) * TMP_COUNT);
-    int normMax = fNormalState->maxCountForBufferSize(sizeof(tmpNormal[0]) * TMP_COUNT);
-    int max = SkTMin(diffMax, normMax);
+    int max = fDiffuseState->maxCountForBufferSize(BUFFER_MAX);
 
     SkASSERT(fDiffuseState->fPixmap.addr());
-    SkASSERT(fNormalState->fPixmap.addr());
 
-    SkPoint3 norm, xformedNorm;
+    SkASSERT(max <= BUFFER_MAX);
+    SkPoint3 normals[BUFFER_MAX];
 
     do {
         int n = count;
@@ -498,33 +449,21 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
         diffMProc(*fDiffuseState, tmpColor, n, x, y);
         diffSProc(*fDiffuseState, tmpColor, n, tmpColor2);
 
-        normalMProc(*fNormalState, tmpNormal, n, x, y);
-        normalSProc(*fNormalState, tmpNormal, n, tmpNormal2);
+        fNormalProvider->fillScanLine(x, y, normals, n);
 
         for (int i = 0; i < n; ++i) {
-            SkASSERT(0xFF == SkColorGetA(tmpNormal2[i]));  // opaque -> unpremul
-            norm.set(SkIntToScalar(SkGetPackedR32(tmpNormal2[i]))-127.0f,
-                     SkIntToScalar(SkGetPackedG32(tmpNormal2[i]))-127.0f,
-                     SkIntToScalar(SkGetPackedB32(tmpNormal2[i]))-127.0f);
-            norm.normalize();
-
-            xformedNorm.fX = lightShader.fInvNormRotation.fX * norm.fX +
-                             lightShader.fInvNormRotation.fY * norm.fY;
-            xformedNorm.fY = lightShader.fInvNormRotation.fX * norm.fX -
-                             lightShader.fInvNormRotation.fY * norm.fY;
-            xformedNorm.fZ = norm.fZ;
 
             SkColor diffColor = SkUnPreMultiply::PMColorToColor(tmpColor2[i]);
 
             SkColor3f accum = SkColor3f::Make(0.0f, 0.0f, 0.0f);
             // This is all done in linear unpremul color space (each component 0..255.0f though)
             for (int l = 0; l < lightShader.fLights->numLights(); ++l) {
-                const SkLight& light = lightShader.fLights->light(l);
+                const SkLights::Light& light = lightShader.fLights->light(l);
 
-                if (SkLight::kAmbient_LightType == light.type()) {
+                if (SkLights::Light::kAmbient_LightType == light.type()) {
                     accum += light.color().makeScale(255.0f);
                 } else {
-                    SkScalar NdotL = xformedNorm.dot(light.dir());
+                    SkScalar NdotL = normals[i].dot(light.dir());
                     if (NdotL < 0.0f) {
                         NdotL = 0.0f;
                     }
@@ -583,7 +522,7 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 
     int numLights = buf.readInt();
 
-    SkLightingShader::Lights::Builder builder;
+    SkLights::Builder builder;
 
     for (int l = 0; l < numLights; ++l) {
         bool isAmbient = buf.readBool();
@@ -594,25 +533,27 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
         }
 
         if (isAmbient) {
-            builder.add(SkLight(color));
+            builder.add(SkLights::Light(color));
         } else {
             SkVector3 dir;
             if (!buf.readScalarArray(&dir.fX, 3)) {
                 return nullptr;
             }
-            builder.add(SkLight(color, dir));
+            builder.add(SkLights::Light(color, dir));
         }
     }
 
-    SkAutoTUnref<const SkLightingShader::Lights> lights(builder.finish());
+    sk_sp<SkLights> lights(builder.finish());
 
     SkVector invNormRotation = {1,0};
     if (!buf.isVersionLT(SkReadBuffer::kLightingShaderWritesInvNormRotation)) {
         invNormRotation = buf.readPoint();
     }
 
-    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, lights, invNormRotation,
-                                            &diffLocalM, &normLocalM);
+    sk_sp<SkNormalSource> normalSource(buf.readFlattenable<SkNormalSource>());
+
+    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, std::move(lights), invNormRotation,
+                                            &diffLocalM, &normLocalM, std::move(normalSource));
 }
 
 void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
@@ -629,9 +570,9 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
 
     buf.writeInt(fLights->numLights());
     for (int l = 0; l < fLights->numLights(); ++l) {
-        const SkLight& light = fLights->light(l);
+        const SkLights::Light& light = fLights->light(l);
 
-        bool isAmbient = SkLight::kAmbient_LightType == light.type();
+        bool isAmbient = SkLights::Light::kAmbient_LightType == light.type();
 
         buf.writeBool(isAmbient);
         buf.writeScalarArray(&light.color().fX, 3);
@@ -640,23 +581,12 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
         }
     }
     buf.writePoint(fInvNormRotation);
+
+    buf.writeFlattenable(fNormalSource.get());
 }
 
-bool SkLightingShaderImpl::computeNormTotalInverse(const ContextRec& rec,
-                                                   SkMatrix* normTotalInverse) const {
-    SkMatrix total;
-    total.setConcat(*rec.fMatrix, fNormLocalMatrix);
-
-    const SkMatrix* m = &total;
-    if (rec.fLocalMatrix) {
-        total.setConcat(*m, *rec.fLocalMatrix);
-        m = &total;
-    }
-    return m->invert(normTotalInverse);
-}
-
-size_t SkLightingShaderImpl::onContextSize(const ContextRec&) const {
-    return 2 * sizeof(SkBitmapProcState) + sizeof(LightingShaderContext);
+size_t SkLightingShaderImpl::onContextSize(const ContextRec& rec) const {
+    return sizeof(LightingShaderContext);
 }
 
 SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
@@ -666,60 +596,56 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
     // computeTotalInverse was called in SkShader::createContext so we know it will succeed
     SkAssertResult(this->computeTotalInverse(rec, &diffTotalInv));
 
-    SkMatrix normTotalInv;
-    if (!this->computeNormTotalInverse(rec, &normTotalInv)) {
-        return nullptr;
-    }
+    size_t heapRequired = sizeof(SkBitmapProcState) + fNormalSource->providerSize(rec);
+    void* heapAllocated = sk_malloc_throw(heapRequired);
 
-    void* diffuseStateStorage = (char*)storage + sizeof(LightingShaderContext);
+    void* diffuseStateStorage = heapAllocated;
     SkBitmapProcState* diffuseState = new (diffuseStateStorage) SkBitmapProcState(fDiffuseMap,
-                                              SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+                                              SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+                                                                    SkMipMap::DeduceTreatment(rec));
     SkASSERT(diffuseState);
     if (!diffuseState->setup(diffTotalInv, *rec.fPaint)) {
         diffuseState->~SkBitmapProcState();
+        sk_free(heapAllocated);
         return nullptr;
     }
+    void* normalProviderStorage = (char*)heapAllocated + sizeof(SkBitmapProcState);
 
-    void* normalStateStorage = (char*)storage + sizeof(LightingShaderContext) + sizeof(SkBitmapProcState);
-    SkBitmapProcState* normalState = new (normalStateStorage) SkBitmapProcState(fNormalMap,
-                                            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
-    SkASSERT(normalState);
-    if (!normalState->setup(normTotalInv, *rec.fPaint)) {
+    SkNormalSource::Provider* normalProvider = fNormalSource->asProvider(rec,
+                                                                         normalProviderStorage);
+    if (!normalProvider) {
         diffuseState->~SkBitmapProcState();
-        normalState->~SkBitmapProcState();
+        sk_free(heapAllocated);
         return nullptr;
     }
 
-    return new (storage) LightingShaderContext(*this, rec, diffuseState, normalState);
+    return new (storage) LightingShaderContext(*this, rec, diffuseState, normalProvider,
+                                               heapAllocated);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool bitmap_is_too_big(const SkBitmap& bm) {
-    // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer, as it
-    // communicates between its matrix-proc and its sampler-proc. Until we can
-    // widen that, we have to reject bitmaps that are larger.
-    //
-    static const int kMaxSize = 65535;
-
-    return bm.width() > kMaxSize || bm.height() > kMaxSize;
-}
-
 sk_sp<SkShader> SkLightingShader::Make(const SkBitmap& diffuse, const SkBitmap& normal,
-                                       const Lights* lights,
+                                       sk_sp<SkLights> lights,
                                        const SkVector& invNormRotation,
                                        const SkMatrix* diffLocalM, const SkMatrix* normLocalM) {
-    if (diffuse.isNull() || bitmap_is_too_big(diffuse) ||
-        normal.isNull() || bitmap_is_too_big(normal) ||
-        diffuse.width() != normal.width() ||
+    if (diffuse.isNull() || SkBitmapProcShader::BitmapIsTooBig(diffuse) ||
+        normal.isNull()  || SkBitmapProcShader::BitmapIsTooBig(normal) ||
+        diffuse.width()  != normal.width() ||
         diffuse.height() != normal.height()) {
         return nullptr;
     }
-
     SkASSERT(SkScalarNearlyEqual(invNormRotation.lengthSqd(), SK_Scalar1));
 
-    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, lights, invNormRotation, diffLocalM,
-                                            normLocalM);
+    // TODO: support other tile modes
+    sk_sp<SkShader> mapShader = SkMakeBitmapShader(normal, SkShader::kClamp_TileMode,
+                                                   SkShader::kClamp_TileMode, normLocalM, nullptr);
+
+    sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(mapShader,
+                                                                           invNormRotation);
+
+    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, std::move(lights),
+            invNormRotation, diffLocalM, normLocalM, std::move(normalSource));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

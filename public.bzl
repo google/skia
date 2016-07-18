@@ -513,6 +513,7 @@ def DM_ARGS(base_dir, asan):
         "~Math",
         "~Matrix",
         "~PathOpsCubic",
+        "~PathOpsFailOp",
         "~PathOpsOpLoopsThreaded",
         "~PathOpsSimplify",
         "~PathOpsTightBoundsQuads",
@@ -569,6 +570,7 @@ DEFINES_ANDROID = [
 
 DEFINES_IOS = [
     "SK_BUILD_FOR_IOS",
+    "SK_BUILD_NO_OPTS",
     "SK_IGNORE_ETC1_SUPPORT",
     "SKNX_NO_SIMD",
 ]

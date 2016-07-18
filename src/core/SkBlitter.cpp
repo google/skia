@@ -38,14 +38,17 @@ const SkPixmap* SkBlitter::justAnOpaqueColor(uint32_t* value) {
     return nullptr;
 }
 
+/*
 void SkBlitter::blitH(int x, int y, int width) {
     SkDEBUGFAIL("unimplemented");
 }
+
 
 void SkBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                           const int16_t runs[]) {
     SkDEBUGFAIL("unimplemented");
 }
+ */
 
 void SkBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
     if (alpha == 255) {
@@ -155,7 +158,7 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
                 cy += 1;
             }
         } else {
-            // Bits is calculated as the offset into the mask at the point {cx, cy} therfore, all
+            // Bits is calculated as the offset into the mask at the point {cx, cy} therefore, all
             // addressing into the bit mask is relative to that point. Since this is an address
             // calculated from a arbitrary bit in that byte, calculate the left most bit.
             int bitsLeft = cx - ((cx - maskLeft) & 7);
@@ -785,7 +788,7 @@ SkShader::ContextRec::DstType SkBlitter::PreferredShaderDest(const SkImageInfo& 
 #ifdef SK_FORCE_PM4f_FOR_L32_BLITS
     return SkShader::ContextRec::kPM4f_DstType;
 #else
-    return (dstInfo.isSRGB() || dstInfo.colorType() == kRGBA_F16_SkColorType)
+    return (dstInfo.gammaCloseToSRGB() || dstInfo.colorType() == kRGBA_F16_SkColorType)
             ? SkShader::ContextRec::kPM4f_DstType
             : SkShader::ContextRec::kPMColor_DstType;
 #endif
@@ -919,7 +922,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 #ifdef SK_FORCE_PM4f_FOR_L32_BLITS
             if (true)
 #else
-            if (device.info().isSRGB())
+            if (device.info().gammaCloseToSRGB())
 #endif
             {
                 blitter = SkBlitter_ARGB32_Create(device, *paint, shaderContext, allocator);

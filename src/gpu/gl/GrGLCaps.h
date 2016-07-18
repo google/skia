@@ -296,9 +296,6 @@ public:
     /// Is there support for ES2 compatability?
     bool ES2CompatibilitySupport() const { return fES2CompatibilitySupport; }
 
-    /// Can we call glDisable(GL_MULTISAMPLE)?
-    bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
-
     /// Is there support for glDraw*Indirect? Note that the baseInstance fields of indirect draw
     /// commands cannot be used unless we have base instance support.
     bool drawIndirectSupport() const { return fDrawIndirectSupport; }
@@ -309,6 +306,9 @@ public:
 
     /// Are the baseInstance fields supported in indirect draw commands?
     bool baseInstanceSupport() const { return fBaseInstanceSupport; }
+
+    /// Does the platform have known issuses rendering to floating point when using glDraw*Indirect?
+    bool canDrawIndirectToFloat() const { return fCanDrawIndirectToFloat; }
 
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
@@ -332,6 +332,8 @@ public:
     bool textureSwizzleSupport() const { return fTextureSwizzleSupport; }
 
     bool mipMapLevelAndLodControlSupport() const { return fMipMapLevelAndLodControlSupport; }
+
+    bool doManualMipmapping() const { return fDoManualMipmapping; }
 
     /**
      * Returns a string containing the caps info.
@@ -396,10 +398,10 @@ private:
     bool fDirectStateAccessSupport : 1;
     bool fDebugSupport : 1;
     bool fES2CompatibilitySupport : 1;
-    bool fMultisampleDisableSupport : 1;
     bool fDrawIndirectSupport : 1;
     bool fMultiDrawIndirectSupport : 1;
     bool fBaseInstanceSupport : 1;
+    bool fCanDrawIndirectToFloat : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fBindFragDataLocationSupport : 1;
@@ -410,6 +412,7 @@ private:
     bool fTextureSwizzleSupport : 1;
     bool fMipMapLevelAndLodControlSupport : 1;
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
+    bool fDoManualMipmapping : 1;
 
     BlitFramebufferSupport fBlitFramebufferSupport;
 

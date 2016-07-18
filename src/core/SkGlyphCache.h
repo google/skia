@@ -277,7 +277,7 @@ class SkAutoGlyphCache : public std::unique_ptr<SkGlyphCache, SkGlyphCache::Atta
 public:
     /** deprecated: use get() */
     SkGlyphCache* getCache() const { return this->get(); }
-
+    SkAutoGlyphCache() = default;
     SkAutoGlyphCache(SkGlyphCache* cache) : INHERITED(cache) {}
     SkAutoGlyphCache(SkTypeface* typeface, const SkScalerContextEffects& effects,
                      const SkDescriptor* desc)

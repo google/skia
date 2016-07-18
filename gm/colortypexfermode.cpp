@@ -34,7 +34,8 @@ protected:
         paint.setShader(SkGradientShader::MakeSweep(0, 0, colors, nullptr, SK_ARRAY_COUNT(colors),
                                                     0, &local));
 
-        sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface("serif", SkTypeface::kBold));
+        sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface("serif",
+                                   SkFontStyle::FromOldStyle(SkTypeface::kBold)));
         if (nullptr == orig) {
             orig = SkTypeface::MakeDefault();
         }

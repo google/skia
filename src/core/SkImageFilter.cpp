@@ -277,7 +277,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
                                                 sk_sp<GrFragmentProcessor> fp,
                                                 const SkIRect& bounds) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(fp.get());
+    paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
     sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,

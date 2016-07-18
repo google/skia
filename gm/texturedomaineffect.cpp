@@ -82,7 +82,8 @@ protected:
         }
 
         SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fBmp,
-                                                                 GrTextureParams::ClampNoFilter()));
+                                                                 GrTextureParams::ClampNoFilter(),
+                                                                 SkSourceGammaTreatment::kRespect));
         if (!texture) {
             return;
         }
@@ -111,26 +112,24 @@ protected:
                 SkScalar x = kDrawPad + kTestPad;
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
-                    GrPipelineBuilder pipelineBuilder;
-                    pipelineBuilder.setXPFactory(
-                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                    SkAutoTUnref<const GrFragmentProcessor> fp(
-                        GrTextureDomainEffect::Create(texture, textureMatrices[tm],
+                    GrPaint grPaint;
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                    sk_sp<GrFragmentProcessor> fp(
+                        GrTextureDomainEffect::Make(texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
-                                                                                texelDomains[d]),
+                                                                                 texelDomains[d]),
                                                 mode, GrTextureParams::kNone_FilterMode));
 
                     if (!fp) {
                         continue;
                     }
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
-                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
-                    pipelineBuilder.addColorFragmentProcessor(fp);
+                    grPaint.addColorFragmentProcessor(std::move(fp));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

@@ -8,6 +8,8 @@
 #ifndef SkNx_neon_DEFINED
 #define SkNx_neon_DEFINED
 
+#include <arm_neon.h>
+
 #define SKNX_IS_FAST
 
 // ARMv8 has vrndmq_f32 to floor 4 floats.  Here we emulate it:
@@ -383,6 +385,8 @@ public:
     SkNx operator + (const SkNx& o) const { return vaddq_s32(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return vsubq_s32(fVec, o.fVec); }
     SkNx operator * (const SkNx& o) const { return vmulq_s32(fVec, o.fVec); }
+
+    SkNx operator | (const SkNx& o) const { return vorrq_s32(fVec, o.fVec); }
 
     SkNx operator << (int bits) const { SHIFT32(vshlq_n_s32, fVec, bits); }
     SkNx operator >> (int bits) const { SHIFT32(vshrq_n_s32, fVec, bits); }

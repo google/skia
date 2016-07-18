@@ -13,7 +13,6 @@
 #include "GrGpu.h"
 #include "GrTypesPriv.h"
 
-#include "shaderc/shaderc.h"
 #include "vk/GrVkDefines.h"
 
 class GrVkGpu;

@@ -114,10 +114,6 @@ SkDraw::SkDraw() {
     sk_bzero(this, sizeof(*this));
 }
 
-SkDraw::SkDraw(const SkDraw& src) {
-    memcpy(this, &src, sizeof(*this));
-}
-
 bool SkDraw::computeConservativeLocalClipBounds(SkRect* localBounds) const {
     if (fRC->isEmpty()) {
         return false;
@@ -1240,6 +1236,7 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
             // we manually build a shader and draw that into our new mask
             SkPaint tmpPaint;
             tmpPaint.setFlags(paint.getFlags());
+            tmpPaint.setFilterQuality(paint.getFilterQuality());
             SkAutoBitmapShaderInstall install(bitmap, tmpPaint);
             SkRect rr;
             rr.set(0, 0, SkIntToScalar(bitmap.width()),
@@ -1564,7 +1561,8 @@ private:
 
 uint32_t SkDraw::scalerContextFlags() const {
     uint32_t flags = SkPaint::kBoostContrast_ScalerContextFlag;
-    if (fDevice->imageInfo().isLinear()) {
+    // TODO: how should we handle non-srgb, non-linear gamma?
+    if (!fDevice->imageInfo().gammaCloseToSRGB()) {
         flags |= SkPaint::kFakeGamma_ScalerContextFlag;
     }
     return flags;

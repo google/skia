@@ -21,10 +21,11 @@ class GrInvariantOutput;
  */
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& p,
+    static sk_sp<GrGeometryProcessor> Make(GrColor color, GrTexture* tex, const GrTextureParams& p,
                                        GrMaskFormat format, const SkMatrix& localMatrix,
                                        bool usesLocalCoords) {
-        return new GrBitmapTextGeoProc(color, tex, p, format, localMatrix, usesLocalCoords);
+        return sk_sp<GrGeometryProcessor>(
+            new GrBitmapTextGeoProc(color, tex, p, format, localMatrix, usesLocalCoords));
     }
 
     virtual ~GrBitmapTextGeoProc() {}

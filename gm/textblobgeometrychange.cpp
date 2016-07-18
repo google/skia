@@ -42,7 +42,8 @@ protected:
 
         SkAutoTUnref<const SkTextBlob> blob(builder.build());
 
-        SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200, canvas->imageInfo().profileType());
+        SkImageInfo info = SkImageInfo::MakeN32(200, 200, kPremul_SkAlphaType,
+                                                sk_ref_sp(canvas->imageInfo().colorSpace()));
         SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
         uint32_t gammaCorrect = canvas->getProps(&canvasProps)
             ? canvasProps.flags() & SkSurfaceProps::kGammaCorrect_Flag : 0;

@@ -12,6 +12,8 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
+class GrFragmentProcessor;
+
 class SkLocalMatrixShader : public SkShader {
 public:
     SkLocalMatrixShader(SkShader* proxy, const SkMatrix& localMatrix)
@@ -24,15 +26,10 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext* context, const SkMatrix& viewM,
-                                                   const SkMatrix* localMatrix,
-                                                   SkFilterQuality fq) const override {
-        SkMatrix tmp = this->getLocalMatrix();
-        if (localMatrix) {
-            tmp.preConcat(*localMatrix);
-        }
-        return fProxyShader->asFragmentProcessor(context, viewM, &tmp, fq);
-    }
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(
+                                            GrContext* context, const SkMatrix& viewM,
+                                            const SkMatrix* localMatrix, SkFilterQuality fq,
+                                            SkSourceGammaTreatment gammaTreatment) const override;
 #endif
 
     SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const override {

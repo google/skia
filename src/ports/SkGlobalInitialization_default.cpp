@@ -36,12 +36,12 @@
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
+#include "SkNormalSource.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
 #include "SkTableColorFilter.h"
-#include "SkTestImageFilters.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 
@@ -88,6 +88,8 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPerlinNoiseShader)
     SkGradientShader::InitializeFlattenables();
     SkLightingShader::InitializeFlattenables();
+    SkNormalSource::InitializeFlattenables();
+
 
     // PathEffect
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkArcToPathEffect)
@@ -117,6 +119,5 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMergeImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDownSampleImageFilter)
     SkLightingImageFilter::InitializeFlattenables();
 }

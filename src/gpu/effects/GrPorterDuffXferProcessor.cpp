@@ -704,7 +704,7 @@ GrPorterDuffXPFactory::GrPorterDuffXPFactory(SkXfermode::Mode xfermode)
     this->initClassID<GrPorterDuffXPFactory>();
 }
 
-GrXPFactory* GrPorterDuffXPFactory::Create(SkXfermode::Mode xfermode) {
+sk_sp<GrXPFactory> GrPorterDuffXPFactory::Make(SkXfermode::Mode xfermode) {
     static GrPorterDuffXPFactory gClearPDXPF(SkXfermode::kClear_Mode);
     static GrPorterDuffXPFactory gSrcPDXPF(SkXfermode::kSrc_Mode);
     static GrPorterDuffXPFactory gDstPDXPF(SkXfermode::kDst_Mode);
@@ -731,7 +731,7 @@ GrXPFactory* GrPorterDuffXPFactory::Create(SkXfermode::Mode xfermode) {
     if (xfermode < 0 || xfermode > SkXfermode::kLastCoeffMode) {
         return nullptr;
     }
-    return SkRef(gFactories[xfermode]);
+    return sk_sp<GrXPFactory>(SkRef(gFactories[xfermode]));
 }
 
 GrXferProcessor*
@@ -826,9 +826,9 @@ bool GrPorterDuffXPFactory::onWillReadDstColor(const GrCaps& caps,
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
 
-const GrXPFactory* GrPorterDuffXPFactory::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrXPFactory> GrPorterDuffXPFactory::TestCreate(GrProcessorTestData* d) {
     SkXfermode::Mode mode = SkXfermode::Mode(d->fRandom->nextULessThan(SkXfermode::kLastCoeffMode));
-    return GrPorterDuffXPFactory::Create(mode);
+    return GrPorterDuffXPFactory::Make(mode);
 }
 
 void GrPorterDuffXPFactory::TestGetXPOutputTypes(const GrXferProcessor* xp,

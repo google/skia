@@ -91,16 +91,16 @@ sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 #include "effects/GrConstColorProcessor.h"
 #include "SkGr.h"
 
-const GrFragmentProcessor* SkModeColorFilter::asFragmentProcessor(GrContext*) const {
+sk_sp<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(GrContext*) const {
     if (SkXfermode::kDst_Mode == fMode) {
         return nullptr;
     }
 
-    SkAutoTUnref<const GrFragmentProcessor> constFP(
-        GrConstColorProcessor::Create(SkColorToPremulGrColor(fColor),
-                                        GrConstColorProcessor::kIgnore_InputMode));
-    const GrFragmentProcessor* fp =
-        GrXfermodeFragmentProcessor::CreateFromSrcProcessor(constFP, fMode);
+    sk_sp<GrFragmentProcessor> constFP(
+        GrConstColorProcessor::Make(SkColorToPremulGrColor(fColor),
+                                    GrConstColorProcessor::kIgnore_InputMode));
+    sk_sp<GrFragmentProcessor> fp(
+        GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(constFP), fMode));
     if (!fp) {
         return nullptr;
     }

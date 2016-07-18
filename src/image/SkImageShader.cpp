@@ -83,10 +83,12 @@ void SkImageShader::toString(SkString* str) const {
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-const GrFragmentProcessor* SkImageShader::asFragmentProcessor(GrContext* context,
-                                                              const SkMatrix& viewM,
-                                                              const SkMatrix* localMatrix,
-                                                              SkFilterQuality filterQuality) const {
+sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
+                                                     GrContext* context,
+                                                     const SkMatrix& viewM,
+                                                     const SkMatrix* localMatrix,
+                                                     SkFilterQuality filterQuality,
+                                                     SkSourceGammaTreatment gammaTreatment) const {
     SkMatrix matrix;
     matrix.setIDiv(fImage->width(), fImage->height());
 
@@ -113,22 +115,22 @@ const GrFragmentProcessor* SkImageShader::asFragmentProcessor(GrContext* context
     GrTextureParams::FilterMode textureFilterMode =
     GrSkFilterQualityToGrFilterMode(filterQuality, viewM, this->getLocalMatrix(), &doBicubic);
     GrTextureParams params(tm, textureFilterMode);
-    SkAutoTUnref<GrTexture> texture(as_IB(fImage)->asTextureRef(context, params));
+    SkAutoTUnref<GrTexture> texture(as_IB(fImage)->asTextureRef(context, params, gammaTreatment));
     if (!texture) {
         return nullptr;
     }
 
-    SkAutoTUnref<const GrFragmentProcessor> inner;
+    sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner.reset(GrBicubicEffect::Create(texture, matrix, tm));
+        inner = GrBicubicEffect::Make(texture, matrix, tm);
     } else {
-        inner.reset(GrSimpleTextureEffect::Create(texture, matrix, params));
+        inner = GrSimpleTextureEffect::Make(texture, matrix, params);
     }
 
     if (GrPixelConfigIsAlphaOnly(texture->config())) {
-        return SkRef(inner.get());
+        return inner;
     }
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    return sk_sp<GrFragmentProcessor>(GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner)));
 }
 
 #endif

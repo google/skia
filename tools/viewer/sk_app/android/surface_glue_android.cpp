@@ -22,6 +22,7 @@
 #include "SkTypes.h"
 #include "SkUtils.h"
 #include "Window_android.h"
+#include "SkTime.h"
 
 namespace sk_app {
 
@@ -46,6 +47,7 @@ SkiaAndroidApp::SkiaAndroidApp(JNIEnv* env, jobject androidApp) {
     fAndroidApp = env->NewGlobalRef(androidApp);
     jclass cls = env->GetObjectClass(fAndroidApp);
     fSetTitleMethodID = env->GetMethodID(cls, "setTitle", "(Ljava/lang/String;)V");
+    fSetStateMethodID = env->GetMethodID(cls, "setState", "(Ljava/lang/String;)V");
     fNativeWindow = nullptr;
     pthread_create(&fThread, nullptr, pthread_main, this);
 }
@@ -70,28 +72,20 @@ void SkiaAndroidApp::setTitle(const char* title) const {
     fPThreadEnv->DeleteLocalRef(titleString);
 }
 
-void SkiaAndroidApp::paintIfNeeded() {
-    if (fNativeWindow && fWindow) {
-        fWindow->onPaint();
-    }
+void SkiaAndroidApp::setUIState(const Json::Value& state) const {
+    jstring jstr = fPThreadEnv->NewStringUTF(state.toStyledString().c_str());
+    fPThreadEnv->CallVoidMethod(fAndroidApp, fSetStateMethodID, jstr);
+    fPThreadEnv->DeleteLocalRef(jstr);
 }
 
 void SkiaAndroidApp::postMessage(const Message& message) const {
-    auto writeSize = write(fPipes[1], &message, sizeof(message));
+    SkDEBUGCODE(auto writeSize =) write(fPipes[1], &message, sizeof(message));
     SkASSERT(writeSize == sizeof(message));
 }
 
 void SkiaAndroidApp::readMessage(Message* message) const {
-    auto readSize = read(fPipes[0], message, sizeof(Message));
+    SkDEBUGCODE(auto readSize =) read(fPipes[0], message, sizeof(Message));
     SkASSERT(readSize == sizeof(Message));
-}
-
-void SkiaAndroidApp::inval() {
-    SkAutoMutexAcquire ama(fMutex);
-    if (!fIsContentInvalidated) {
-        postMessage(Message(kContentInvalidated));
-        fIsContentInvalidated = true;
-    }
 }
 
 int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
@@ -108,9 +102,7 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             return 0;
         }
         case kContentInvalidated: {
-            SkAutoMutexAcquire ama(skiaAndroidApp->fMutex);
-            skiaAndroidApp->fIsContentInvalidated = false;
-            skiaAndroidApp->paintIfNeeded();
+            ((Window_android*)skiaAndroidApp->fWindow)->paintIfNeeded();
             break;
         }
         case kSurfaceCreated: {
@@ -118,17 +110,23 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             skiaAndroidApp->fNativeWindow = message.fNativeWindow;
             auto window_android = (Window_android*)skiaAndroidApp->fWindow;
             window_android->initDisplay(skiaAndroidApp->fNativeWindow);
-            skiaAndroidApp->paintIfNeeded();
+            ((Window_android*)skiaAndroidApp->fWindow)->paintIfNeeded();
             break;
         }
         case kSurfaceChanged: {
-            SkASSERT(message.fNativeWindow == skiaAndroidApp->fNativeWindow &&
-                     message.fNativeWindow);
+            SkASSERT(message.fNativeWindow);
             int width = ANativeWindow_getWidth(skiaAndroidApp->fNativeWindow);
             int height = ANativeWindow_getHeight(skiaAndroidApp->fNativeWindow);
             auto window_android = (Window_android*)skiaAndroidApp->fWindow;
+            if (message.fNativeWindow != skiaAndroidApp->fNativeWindow) {
+                window_android->onDisplayDestroyed();
+                ANativeWindow_release(skiaAndroidApp->fNativeWindow);
+                skiaAndroidApp->fNativeWindow = message.fNativeWindow;
+                window_android->initDisplay(skiaAndroidApp->fNativeWindow);
+            }
+            window_android->onResize(width, height);
             window_android->setContentRect(0, 0, width, height);
-            skiaAndroidApp->paintIfNeeded();
+            window_android->paintIfNeeded();
             break;
         }
         case kSurfaceDestroyed: {
@@ -155,6 +153,12 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
                                              message.fTouchY);
             break;
         }
+        case kUIStateChanged: {
+            skiaAndroidApp->fWindow->onUIStateChanged(*message.stateName, *message.stateValue);
+            delete message.stateName;
+            delete message.stateValue;
+            break;
+        }
         default: {
             // do nothing
         }
@@ -162,6 +166,8 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
 
     return 1;  // continue receiving callbacks
 }
+
+static double now_ms() { return SkTime::GetMSecs(); }
 
 void* SkiaAndroidApp::pthread_main(void* arg) {
     SkDebugf("pthread_main begins");
@@ -176,15 +182,23 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
     ALooper_addFd(looper, skiaAndroidApp->fPipes[0], LOOPER_ID_MESSAGEPIPE, ALOOPER_EVENT_INPUT,
                   message_callback, skiaAndroidApp);
 
-    int ident;
-    int events;
-    struct android_poll_source* source;
-
     skiaAndroidApp->fApp = Application::Create(0, nullptr, skiaAndroidApp);
 
-    while ((ident = ALooper_pollAll(-1, nullptr, &events, (void**)&source)) >= 0) {
-        SkDebugf("ALooper_pollAll ident=%d", ident);
+    double currentTime = 0.0;
+    double previousTime = 0.0;
+    while (true) {
+        const int ident = ALooper_pollAll(0, nullptr, nullptr, nullptr);
+
+        if (ident >= 0) {
+            SkDebugf("Unhandled ALooper_pollAll ident=%d !", ident);
+        } else {
+            previousTime = currentTime;
+            currentTime = now_ms();
+            skiaAndroidApp->fApp->onIdle(currentTime - previousTime);
+        }
     }
+
+    SkDebugf("pthread_main ends");
 
     return nullptr;
 }
@@ -243,6 +257,19 @@ extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onTouched(
     message.fTouchX = x;
     message.fTouchY = y;
     skiaAndroidApp->postMessage(message);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onUIStateChanged(
+    JNIEnv* env, jobject activity, jlong handle, jstring stateName, jstring stateValue) {
+    auto skiaAndroidApp = (SkiaAndroidApp*)handle;
+    Message message(kUIStateChanged);
+    const char* nameChars = env->GetStringUTFChars(stateName, nullptr);
+    const char* valueChars = env->GetStringUTFChars(stateValue, nullptr);
+    message.stateName = new SkString(nameChars);
+    message.stateValue = new SkString(valueChars);
+    skiaAndroidApp->postMessage(message);
+    env->ReleaseStringUTFChars(stateName, nameChars);
+    env->ReleaseStringUTFChars(stateValue, valueChars);
 }
 
 }  // namespace sk_app

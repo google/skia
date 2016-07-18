@@ -80,21 +80,23 @@ public:
     AutoBitmapTexture(GrContext* context,
                       const SkBitmap& bitmap,
                       const GrTextureParams& params,
+                      SkSourceGammaTreatment gammaTreatment,
                       GrTexture** texture) {
         SkASSERT(texture);
-        *texture = this->set(context, bitmap, params);
+        *texture = this->set(context, bitmap, params, gammaTreatment);
     }
 
     GrTexture* set(GrContext* context,
                    const SkBitmap& bitmap,
-                   const GrTextureParams& params) {
+                   const GrTextureParams& params,
+                   SkSourceGammaTreatment gammaTreatment) {
         // Either get the texture directly from the bitmap, or else use the cache and
         // remember to unref it.
         if (GrTexture* bmpTexture = bitmap.getTexture()) {
             fTexture.reset(nullptr);
             return bmpTexture;
         } else {
-            fTexture.reset(GrRefCachedBitmapTexture(context, bitmap, params));
+            fTexture.reset(GrRefCachedBitmapTexture(context, bitmap, params, gammaTreatment));
             return fTexture.get();
         }
     }
@@ -211,7 +213,7 @@ sk_sp<GrDrawContext> SkGpuDevice::CreateDrawContext(GrContext* context,
 
     SkColorType ct = origInfo.colorType();
     SkAlphaType at = origInfo.alphaType();
-    SkColorProfileType pt = origInfo.profileType();
+    SkColorSpace* cs = origInfo.colorSpace();
     if (kRGB_565_SkColorType == ct || kGray_8_SkColorType == ct) {
         at = kOpaque_SkAlphaType;  // force this setting
     }
@@ -219,13 +221,13 @@ sk_sp<GrDrawContext> SkGpuDevice::CreateDrawContext(GrContext* context,
         at = kPremul_SkAlphaType;  // force this setting
     }
 
-    GrPixelConfig origConfig = SkImageInfo2GrPixelConfig(ct, at, pt, *context->caps());
+    GrPixelConfig origConfig = SkImageInfo2GrPixelConfig(ct, at, cs, *context->caps());
     if (!context->caps()->isConfigRenderable(origConfig, sampleCount > 0)) {
         // Fall back from whatever ct was to default of kRGBA or kBGRA which is aliased as kN32
         ct = kN32_SkColorType;
     }
 
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(ct, at, pt, *context->caps());
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(ct, at, cs, *context->caps());
 
     return context->newDrawContext(SkBackingFit::kExact,               // Why exact?
                                    origInfo.width(), origInfo.height(),
@@ -260,7 +262,8 @@ void SkGpuDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitma
 
     GrTexture* texture;
     // draw sprite neither filters nor tiles.
-    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(), &texture);
+    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(),
+                          SkSourceGammaTreatment::kRespect, &texture);
     if (!texture) {
         return;
     }
@@ -692,12 +695,78 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
 #include "SkMaskFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
+                                  const SkDraw& draw,
+                                  const SkPaint& origPaint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawStrokedLine", fContext);
+    CHECK_SHOULD_DRAW(draw);
+
+    // Adding support for round capping would require a GrDrawContext::fillRRectWithLocalMatrix
+    // entry point
+    SkASSERT(SkPaint::kRound_Cap != origPaint.getStrokeCap());
+    SkASSERT(SkPaint::kStroke_Style == origPaint.getStyle());
+    SkASSERT(!origPaint.getPathEffect());
+    SkASSERT(!origPaint.getMaskFilter());
+
+    const SkScalar halfWidth = 0.5f * origPaint.getStrokeWidth();
+    SkASSERT(halfWidth > 0);
+
+    SkVector v = points[1] - points[0];
+
+    SkScalar length = SkPoint::Normalize(&v);
+    if (!length) {
+        v.fX = 1.0f;
+        v.fY = 0.0f;
+    }
+
+    SkPaint newPaint(origPaint);
+    newPaint.setStyle(SkPaint::kFill_Style);
+
+    SkScalar xtraLength = 0.0f;
+    if (SkPaint::kButt_Cap != origPaint.getStrokeCap()) {
+        xtraLength = halfWidth;
+    }
+
+    SkPoint mid = points[0] + points[1];
+    mid.scale(0.5f);
+
+    SkRect rect = SkRect::MakeLTRB(mid.fX-halfWidth, mid.fY - 0.5f*length - xtraLength,
+                                   mid.fX+halfWidth, mid.fY + 0.5f*length + xtraLength);
+    SkMatrix m;
+    m.setSinCos(v.fX, -v.fY, mid.fX, mid.fY);
+
+    SkMatrix local = m;
+
+    m.postConcat(*draw.fMatrix);
+
+    GrPaint grPaint;
+    if (!SkPaintToGrPaint(this->context(), newPaint, m,
+                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
+        return;
+    }
+
+    fDrawContext->fillRectWithLocalMatrix(fClip, grPaint, m, rect, local);
+}
 
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
     ASSERT_SINGLE_OWNER
     if (!origSrcPath.isInverseFillType() && !paint.getPathEffect() && !prePathMatrix) {
+        SkPoint points[2];
+        if (SkPaint::kStroke_Style == paint.getStyle() && paint.getStrokeWidth() > 0 &&
+            !paint.getMaskFilter() && SkPaint::kRound_Cap != paint.getStrokeCap() &&
+            draw.fMatrix->preservesRightAngles() && origSrcPath.isLine(points)) {
+            // Path-based stroking looks better for thin rects
+            SkScalar strokeWidth = draw.fMatrix->getMaxScale() * paint.getStrokeWidth();
+            if (strokeWidth >= 1.0f) {
+                // Round capping support is currently disabled b.c. it would require
+                // a RRect batch that takes a localMatrix.
+                this->drawStrokedLine(points, draw, paint);
+                return;
+            }
+        }
         bool isClosed;
         SkRect rect;
         if (origSrcPath.isRect(&rect, &isClosed) && isClosed) {
@@ -1099,7 +1168,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
               bitmap.height() <= fContext->caps()->maxTileSize()));
 
     GrTexture* texture;
-    AutoBitmapTexture abt(fContext, bitmap, params, &texture);
+    SkSourceGammaTreatment gammaTreatment = this->surfaceProps().isGammaCorrect()
+        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
+    AutoBitmapTexture abt(fContext, bitmap, params, gammaTreatment, &texture);
     if (nullptr == texture) {
         return;
     }
@@ -1127,7 +1198,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
-    SkAutoTUnref<const GrFragmentProcessor> fp;
+    sk_sp<GrFragmentProcessor> fp;
 
     if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
         // Use a constrained texture domain to avoid color bleeding
@@ -1148,24 +1219,21 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         }
         textureDomain.setLTRB(left, top, right, bottom);
         if (bicubic) {
-            fp.reset(GrBicubicEffect::Create(texture, texMatrix, textureDomain));
+            fp = GrBicubicEffect::Make(texture, texMatrix, textureDomain);
         } else {
-            fp.reset(GrTextureDomainEffect::Create(texture,
-                                                   texMatrix,
-                                                   textureDomain,
-                                                   GrTextureDomain::kClamp_Mode,
-                                                   params.filterMode()));
+            fp = GrTextureDomainEffect::Make(texture, texMatrix, textureDomain,
+                                             GrTextureDomain::kClamp_Mode, params.filterMode());
         }
     } else if (bicubic) {
         SkASSERT(GrTextureParams::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        fp.reset(GrBicubicEffect::Create(texture, texMatrix, tileModes));
+        fp = GrBicubicEffect::Make(texture, texMatrix, tileModes);
     } else {
-        fp.reset(GrSimpleTextureEffect::Create(texture, texMatrix, params));
+        fp = GrSimpleTextureEffect::Make(texture, texMatrix, params);
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(this->context(), paint, viewMatrix, fp,
+    if (!SkPaintToGrPaintWithTexture(this->context(), paint, viewMatrix, std::move(fp),
                                      kAlpha_8_SkColorType == bitmap.colorType(),
                                      this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
@@ -1198,7 +1266,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     GrTexture* texture;
     // draw sprite neither filters nor tiles.
-    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(), &texture);
+    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(),
+                          SkSourceGammaTreatment::kRespect, &texture);
     if (!texture) {
         return;
     }
@@ -1208,14 +1277,13 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     SkASSERT(!paint.getImageFilter());
 
     GrPaint grPaint;
-    SkAutoTUnref<const GrFragmentProcessor> fp(
-        GrSimpleTextureEffect::Create(texture, SkMatrix::I()));
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture, SkMatrix::I()));
     if (alphaOnly) {
-        fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
+        fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
     } else {
-        fp.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
+        fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
     }
-    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, fp,
+    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, std::move(fp),
                                        this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
@@ -1343,16 +1411,15 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     SkASSERT(!paint.getImageFilter());
 
     GrPaint grPaint;
-    SkAutoTUnref<const GrFragmentProcessor> fp(
-        GrSimpleTextureEffect::Create(devTex.get(), SkMatrix::I()));
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(devTex.get(), SkMatrix::I()));
     if (GrPixelConfigIsAlphaOnly(devTex->config())) {
         // Can this happen?
-        fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
+        fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
    } else {
-        fp.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
+        fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
     }
 
-    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, fp,
+    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, std::move(fp),
                                        this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
@@ -1454,15 +1521,17 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
     }
 
     static const GrTextureParams::FilterMode kMode = GrTextureParams::kNone_FilterMode;
-    SkAutoTUnref<const GrFragmentProcessor> fp(
+    bool gammaCorrect = this->surfaceProps().isGammaCorrect();
+    SkSourceGammaTreatment gammaTreatment = gammaCorrect
+        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
+    sk_sp<GrFragmentProcessor> fp(
         producer->createFragmentProcessor(SkMatrix::I(),
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
-                                          &kMode));
+                                          &kMode, gammaTreatment));
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(this->context(), paint, *draw.fMatrix, fp,
-                                     producer->isAlphaOnly(),
-                                     this->surfaceProps().isGammaCorrect(), &grPaint)) {
+    if (!SkPaintToGrPaintWithTexture(this->context(), paint, *draw.fMatrix, std::move(fp),
+                                     producer->isAlphaOnly(), gammaCorrect, &grPaint)) {
         return;
     }
 

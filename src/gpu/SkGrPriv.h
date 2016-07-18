@@ -62,7 +62,7 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
     no primitive color. */
 bool SkPaintToGrPaintReplaceShader(GrContext*,
                                    const SkPaint& skPaint,
-                                   const GrFragmentProcessor* shaderFP,
+                                   sk_sp<GrFragmentProcessor> shaderFP,
                                    bool allowSRGBInputs,
                                    GrPaint* grPaint);
 
@@ -93,7 +93,7 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, const SkPaint
 bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  const SkPaint& paint,
                                  const SkMatrix& viewM,
-                                 const GrFragmentProcessor* fp,
+                                 sk_sp<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  bool allowSRGBInputs,
                                  GrPaint* grPaint);
@@ -102,7 +102,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&, const GrCaps&);
 
-bool GrPixelConfig2ColorAndProfileType(GrPixelConfig, SkColorType*, SkColorProfileType*);
+bool GrPixelConfigToColorAndColorSpace(GrPixelConfig, SkColorType*, sk_sp<SkColorSpace>*);
 
 /**
  *  If the compressed data in the SkData is supported (as a texture format, this returns
@@ -124,12 +124,18 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
  */
 GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
 
-GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&);
+GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&, SkSourceGammaTreatment);
 
 /**
  * Creates a new texture for the pixmap.
  */
 GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budgeted);
+
+/**
+ * Creates a new texture populated with the mipmap levels.
+ */
+GrTexture* GrUploadMipMapToTexture(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
+                                   int mipLevelCount);
 
 //////////////////////////////////////////////////////////////////////////////
 

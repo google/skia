@@ -87,13 +87,6 @@ fi
 
 if [ "$SKIA_VULKAN" == "true" ]; then
   export GYP_DEFINES="skia_vulkan=1 $GYP_DEFINES"
-  # add cmake from the SDK to your path if it doesn't exist
-  if [ ! -d "${ANDROID_SDK_ROOT}/cmake" ]; then
-     echo "The Android SDK Tools version of CMake is required to build Vulkan. ${ANDROID_SDK_ROOT}/cmake"
-     exit 1
-  else
-    export PATH=${ANDROID_SDK_ROOT}/cmake/bin:$PATH
-  fi
 fi
 
 # Helper function to configure the GYP defines to the appropriate values

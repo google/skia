@@ -123,6 +123,13 @@ struct SkPathCounter {
         }
     }
 
+    void operator()(const SkRecords::ClipPath& op) {
+        // TODO: does the SkRegion op matter?
+        if (op.opAA.aa && !op.path.isConvex()) {
+            fNumSlowPathsAndDashEffects++;
+        }
+    }
+
     void operator()(const SkRecords::SaveLayer& op) {
         this->checkPaint(AsPtr(op.paint));
     }

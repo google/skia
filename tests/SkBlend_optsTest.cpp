@@ -35,7 +35,7 @@ extern void srcover_srgb_srgb(
     uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
 }
 
-#if defined(SK_CPU_X86) && !defined(SK_BUILD_FOR_IOS)
+#if defined(SK_CPU_X86) && !defined(SK_BUILD_NO_OPTS)
 namespace sk_sse41 {
 extern void srcover_srgb_srgb(
     uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
@@ -104,7 +104,7 @@ DEF_TEST(SkBlend_optsCheck, reporter) {
         Spec{sk_default::best_non_simd_srcover_srgb_srgb, "best_non_simd"},
         Spec{sk_default::srcover_srgb_srgb,               "default"},
     };
-    #if defined(SK_CPU_X86) && !defined(SK_BUILD_FOR_IOS)
+    #if defined(SK_CPU_X86) && !defined(SK_BUILD_NO_OPTS)
     if (SkCpu::Supports(SkCpu::SSE41)) {
         specs.push_back(Spec{sk_sse41::srcover_srgb_srgb, "sse41", });
     }

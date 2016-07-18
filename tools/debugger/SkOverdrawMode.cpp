@@ -26,8 +26,8 @@ class GLOverdrawFP;
 
 class GrOverdrawFP : public GrFragmentProcessor {
 public:
-    static const GrFragmentProcessor* Create(const GrFragmentProcessor* dst) {
-        return new GrOverdrawFP(dst);
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> dst) {
+        return sk_sp<GrFragmentProcessor>(new GrOverdrawFP(std::move(dst)));
     }
 
     ~GrOverdrawFP() override { }
@@ -50,11 +50,11 @@ private:
         inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
     }
 
-    GrOverdrawFP(const GrFragmentProcessor* dst) {
+    GrOverdrawFP(sk_sp<GrFragmentProcessor> dst) {
         this->initClassID<GrOverdrawFP>();
 
         SkASSERT(dst);
-        SkDEBUGCODE(int dstIndex = )this->registerChildProcessor(dst);
+        SkDEBUGCODE(int dstIndex = )this->registerChildProcessor(std::move(dst));
         SkASSERT(0 == dstIndex);
     }
 
@@ -129,9 +129,8 @@ void GrOverdrawFP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
     GLOverdrawFP::GenKey(*this, caps, b);
 }
 
-const GrFragmentProcessor* GrOverdrawFP::TestCreate(GrProcessorTestData* d) {
-    SkAutoTUnref<const GrFragmentProcessor> dst(GrProcessorUnitTest::CreateChildFP(d));
-    return new GrOverdrawFP(dst);
+sk_sp<GrFragmentProcessor> GrOverdrawFP::TestCreate(GrProcessorTestData* d) {
+    return GrOverdrawFP::Make(GrProcessorUnitTest::MakeChildFP(d));
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrOverdrawFP);
@@ -209,7 +208,7 @@ GrGLSLXferProcessor* OverdrawXP::createGLSLInstance() const { return new GLOverd
 ///////////////////////////////////////////////////////////////////////////////
 class GrOverdrawXPFactory : public GrXPFactory {
 public:
-    static GrXPFactory* Create() { return new GrOverdrawXPFactory(); }
+    static sk_sp<GrXPFactory> Make() { return sk_sp<GrXPFactory>(new GrOverdrawXPFactory()); }
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor* blendedColor) const override {
@@ -242,8 +241,8 @@ private:
 
 GR_DEFINE_XP_FACTORY_TEST(GrOverdrawXPFactory);
 
-const GrXPFactory* GrOverdrawXPFactory::TestCreate(GrProcessorTestData* d) {
-    return GrOverdrawXPFactory::Create();
+sk_sp<GrXPFactory> GrOverdrawXPFactory::TestCreate(GrProcessorTestData* d) {
+    return GrOverdrawXPFactory::Make();
 }
 #endif
 
@@ -289,13 +288,13 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOverdrawXfermode)
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* getFragmentProcessorForImageFilter(
-                                                const GrFragmentProcessor* dst) const override {
-        return GrOverdrawFP::Create(dst);
+    sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
+                                                sk_sp<GrFragmentProcessor> dst) const override {
+        return GrOverdrawFP::Make(dst);
     }
 
-    GrXPFactory* asXPFactory() const override {
-        return GrOverdrawXPFactory::Create();
+    sk_sp<GrXPFactory> asXPFactory() const override {
+        return GrOverdrawXPFactory::Make();
     }
 #endif
 

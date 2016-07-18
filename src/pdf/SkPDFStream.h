@@ -10,11 +10,7 @@
 #define SkPDFStream_DEFINED
 
 #include "SkPDFTypes.h"
-#include "SkRefCnt.h"
 #include "SkStream.h"
-#include "SkTemplates.h"
-
-class SkPDFObjNumMap;
 
 /** \class SkPDFStream
 
@@ -34,7 +30,7 @@ public:
      *  stream dictionary.
      *  @param stream The data part of the stream.  Will not take ownership.
      */
-    explicit SkPDFStream(SkStream* stream) { this->setData(stream); }
+    explicit SkPDFStream(SkStreamAsset* stream) { this->setData(stream); }
 
     virtual ~SkPDFStream();
 
@@ -51,14 +47,14 @@ protected:
     SkPDFStream() {}
 
     /** Only call this function once. */
-    void setData(SkStream* stream);
+    void setData(SkStreamAsset* stream);
     void setData(SkData* data) {
         SkMemoryStream memoryStream(data);
         this->setData(&memoryStream);
     }
 
 private:
-    std::unique_ptr<SkStreamRewindable> fCompressedData;
+    std::unique_ptr<SkStreamAsset> fCompressedData;
 
     typedef SkPDFDict INHERITED;
 };

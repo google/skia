@@ -13,6 +13,7 @@
 #include "GrRenderTarget.h"
 
 #include "GrVkRenderPass.h"
+#include "GrVkResourceProvider.h"
 
 class GrVkCommandBuffer;
 class GrVkFramebuffer;
@@ -52,6 +53,9 @@ public:
     const GrVkImageView* stencilAttachmentView() const;
 
     const GrVkRenderPass* simpleRenderPass() const { return fCachedSimpleRenderPass; }
+    GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle() const {
+        return fCompatibleRPHandle;
+    }
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
@@ -64,7 +68,6 @@ public:
 
     GrBackendObject getRenderTargetHandle() const override;
 
-    // Returns the total number of attachments
     void getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescriptor* desc,
                                   GrVkRenderPass::AttachmentFlags* flags) const;
 
@@ -135,6 +138,8 @@ private:
     // This is a cached pointer to a simple render pass. The render target should unref it
     // once it is done with it.
     const GrVkRenderPass*      fCachedSimpleRenderPass;
+    // This is a handle to be used to quickly get compatible GrVkRenderPasses for this render target
+    GrVkResourceProvider::CompatibleRPHandle fCompatibleRPHandle;
 };
 
 #endif

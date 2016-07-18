@@ -9,14 +9,16 @@
 
 #include "Resources.h"
 #include "SkGradientShader.h"
+#include "SkPM4fPriv.h"
 
-DEF_SIMPLE_GM(gamma, canvas, 500, 200) {
+DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     SkPaint p;
     const SkScalar sz = 50.0f;
     const int szInt = SkScalarTruncToInt(sz);
     const SkScalar tx = sz + 5.0f;
     const SkRect r = SkRect::MakeXYWH(0, 0, sz, sz);
     SkShader::TileMode rpt = SkShader::kRepeat_TileMode;
+    auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
 
     SkBitmap ditherBmp;
     ditherBmp.allocN32Pixels(2, 2);
@@ -25,16 +27,26 @@ DEF_SIMPLE_GM(gamma, canvas, 500, 200) {
     pixels[1] = pixels[2] = SkPackARGB32(0xFF, 0, 0, 0);
 
     SkBitmap linearGreyBmp;
-    SkImageInfo linearGreyInfo = SkImageInfo::MakeN32(szInt, szInt, kOpaque_SkAlphaType,
-                                                      kLinear_SkColorProfileType);
+    SkImageInfo linearGreyInfo = SkImageInfo::MakeN32(szInt, szInt, kOpaque_SkAlphaType, nullptr);
     linearGreyBmp.allocPixels(linearGreyInfo);
     linearGreyBmp.eraseARGB(0xFF, 0x7F, 0x7F, 0x7F);
 
     SkBitmap srgbGreyBmp;
     SkImageInfo srgbGreyInfo = SkImageInfo::MakeN32(szInt, szInt, kOpaque_SkAlphaType,
-                                                    kSRGB_SkColorProfileType);
+                                                    srgbColorSpace);
     srgbGreyBmp.allocPixels(srgbGreyInfo);
+    // 0xBC = 255 * linear_to_srgb(0.5f)
     srgbGreyBmp.eraseARGB(0xFF, 0xBC, 0xBC, 0xBC);
+
+    SkBitmap mipmapBmp;
+    SkImageInfo mipmapInfo = SkImageInfo::Make(2, 2, kN32_SkColorType, kOpaque_SkAlphaType,
+                                               srgbColorSpace);
+    mipmapBmp.allocPixels(mipmapInfo);
+    SkPMColor* mipmapPixels = reinterpret_cast<SkPMColor*>(mipmapBmp.getPixels());
+    unsigned s25 = 0x89;    // 255 * linear_to_srgb(0.25f)
+    unsigned s75 = 0xE1;    // 255 * linear_to_srgb(0.75f)
+    mipmapPixels[0] = mipmapPixels[3] = SkPackARGB32(0xFF, s25, s25, s25);
+    mipmapPixels[1] = mipmapPixels[2] = SkPackARGB32(0xFF, s75, s75, s75);
 
     SkPaint textPaint;
     textPaint.setColor(SK_ColorWHITE);
@@ -106,6 +118,12 @@ DEF_SIMPLE_GM(gamma, canvas, 500, 200) {
     p.setShader(SkShader::MakeBitmapShader(ditherBmp, rpt, rpt, &scaleMatrix));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("Dither", "Scale");
+
+    // 25%/75% dither, scaled down by 2x. Tests ALL aspects of minification. Specifically, are
+    // sRGB sources decoded to linear before computing mipmaps?
+    p.setShader(SkShader::MakeBitmapShader(mipmapBmp, rpt, rpt, &scaleMatrix));
+    p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
+    nextRect("MipMaps", 0);
 
     // 50% grey via paint color.
     p.setColor(0xff7f7f7f);

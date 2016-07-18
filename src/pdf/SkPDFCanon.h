@@ -15,8 +15,6 @@
 #include "SkBitmapKey.h"
 
 class SkPDFFont;
-class SkPaint;
-class SkImage;
 
 /**
  *  The SkPDFCanon canonicalizes objects across PDF pages

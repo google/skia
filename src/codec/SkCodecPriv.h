@@ -132,12 +132,7 @@ inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
         case kBGRA_8888_SkColorType:
             return true;
         case kRGB_565_SkColorType:
-            return kOpaque_SkAlphaType == dst.alphaType();
-        case kGray_8_SkColorType:
-            if (kOpaque_SkAlphaType != dst.alphaType()) {
-                return false;
-            }
-            // Fall through
+            return kOpaque_SkAlphaType == src.alphaType();
         default:
             return dst.colorType() == src.colorType();
     }

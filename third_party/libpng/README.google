@@ -1,23 +1,15 @@
 URL: http://www.libpng.org/pub/png/libpng.html
-Version: 1.6.16
+Version: 1.6.22rc01
 License: libpng license
 License File: LICENSE, pulled out of png.h
 Description: png compression/decompression library
 Local Modifications:
-    (1) Created pnglibconf.h from pnglibconf.h.prebuilt (a
-    rename with a few additional settings enabled).
-    (2) Copied LICENSE into this directory. (Originally it
-    was pulled from png.h, but libpng has now provided a
-    separate LICENSE file for convenience, which we use
-    directly.)
-    (3) Included Intel optimizations by running:
+    (1) Created pnglibconf.h from pnglibconf.h.prebuilt. This
+    is mostly a rename, with Skia-specific settings at the end.
+    The only difference is for pngprefix.h.
+    (2) Included Intel optimizations by running:
     "patch -i contrib/intel/intel_sse.patch -p1"
-
-FAQ:
-Q: Why does this directory exist?
-A: libpng is pulled in through DEPS, but in order to build it using ninja, we
-   need to create pnglibconf.h.  We originally tried creating
-   the file as an action in https://codereview.chromium.org/930283002/, but this
-   apparently led to a race condition on Windows, where some builds failed to
-   create the file in time for other files to include it. By checking these
-   files directly into Skia, we eliminate the race condition.
+    (3) Removed files unused by Skia
+    (4) Fixed an undefined behavior bug (skbug.com/5390)
+    (5) Add pngprefix.h, so multiple versions of libpng can
+    coexist.

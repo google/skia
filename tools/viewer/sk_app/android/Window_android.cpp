@@ -6,8 +6,11 @@
 */
 
 #include "Window_android.h"
-
-#include "VulkanWindowContext_android.h"
+#include "../GLWindowContext.h"
+#ifdef SK_VULKAN
+#include "../VulkanWindowContext.h"
+#endif
+#include "../RasterWindowContext.h"
 
 namespace sk_app {
 
@@ -41,15 +44,17 @@ void Window_android::setTitle(const char* title) {
     fSkiaAndroidApp->setTitle(title);
 }
 
-bool Window_android::attach(BackEndType attachType, const DisplayParams& params) {
-    if (kVulkan_BackendType != attachType) {
-        return false;
-    }
+void Window_android::setUIState(const Json::Value& state) {
+    fSkiaAndroidApp->setUIState(state);
+}
 
+bool Window_android::attach(BackendType attachType, const DisplayParams& params) {
+    fBackendType = attachType;
     fDisplayParams = params;
 
-    // We delay the creation of fTestContext until Android informs us that
+    // We delay the creation of fWindowContext until Android informs us that
     // the native window is ready to use.
+    // The creation will be done in initDisplay, which is initiated by kSurfaceCreated event.
     return true;
 }
 
@@ -57,15 +62,36 @@ void Window_android::initDisplay(ANativeWindow* window) {
     SkASSERT(window);
     ContextPlatformData_android platformData;
     platformData.fNativeWindow = window;
-    fWindowContext = VulkanWindowContext::Create((void*)&platformData, fDisplayParams);
+    switch (fBackendType) {
+        case kNativeGL_BackendType:
+        default:
+            fWindowContext = GLWindowContext::Create((void*)&platformData, fDisplayParams);
+            break;
+        case kRaster_BackendType:
+            fWindowContext = RasterWindowContext::Create((void*)&platformData, fDisplayParams);
+            break;
+#ifdef SK_VULKAN
+        case kVulkan_BackendType:
+            fWindowContext = VulkanWindowContext::Create((void*)&platformData, fDisplayParams);
+            break;
+#endif
+    }
 }
 
 void Window_android::onDisplayDestroyed() {
     detach();
 }
 
-void Window_android::inval() {
-    fSkiaAndroidApp->inval();
+void Window_android::onInval() {
+    fSkiaAndroidApp->postMessage(Message(kContentInvalidated));
+}
+
+void Window_android::paintIfNeeded() {
+    if (fWindowContext) { // Check if initDisplay has already been called
+        onPaint();
+    } else {
+        markInvalProcessed();
+    }
 }
 
 }   // namespace sk_app

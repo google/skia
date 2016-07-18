@@ -21,12 +21,18 @@ public:
 
     bool isOpaque() const override;
 
+    // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer, as it
+    // communicates between its matrix-proc and its sampler-proc. Until we can
+    // widen that, we have to reject bitmaps that are larger.
+    static bool BitmapIsTooBig(const SkBitmap&);
+
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*, const SkMatrix& viewM,
-                                                   const SkMatrix*, SkFilterQuality) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, const SkMatrix& viewM,
+                                                   const SkMatrix*, SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 #endif
 
 protected:

@@ -21,6 +21,15 @@ class SkAnimTimer;
     static SkView*          SK_MACRO_APPEND_LINE(F_)() { code } \
     static SkViewRegister   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
 
+#define MAX_ZOOM_LEVEL  8
+#define MIN_ZOOM_LEVEL  -8
+
+static const char gCharEvtName[] = "SampleCode_Char_Event";
+static const char gKeyEvtName[] = "SampleCode_Key_Event";
+static const char gTitleEvtName[] = "SampleCode_Title_Event";
+static const char gPrefSizeEvtName[] = "SampleCode_PrefSize_Event";
+static const char gFastTextEvtName[] = "SampleCode_FastText_Event";
+static const char gUpdateWindowTitleEvtName[] = "SampleCode_UpdateWindowTitle";
 
 class SampleCode {
 public:

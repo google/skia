@@ -44,60 +44,50 @@ public:
     ~SkMutex() { fSemaphore.cleanup(); }
 };
 
-template <typename Lock>
-class SkAutoTAcquire : SkNoncopyable {
+class SkAutoMutexAcquire {
 public:
-    explicit SkAutoTAcquire(Lock& mutex) : fMutex(&mutex) {
-        SkASSERT(fMutex != nullptr);
-        mutex.acquire();
-    }
-
-    explicit SkAutoTAcquire(Lock* mutex) : fMutex(mutex) {
+    template <typename T>
+    SkAutoMutexAcquire(T* mutex) : fMutex(mutex) {
         if (mutex) {
             mutex->acquire();
         }
+        fRelease = [](void* mutex) { ((T*)mutex)->release(); };
     }
 
-    /** If the mutex has not been released, release it now. */
-    ~SkAutoTAcquire() {
-        if (fMutex) {
-            fMutex->release();
-        }
-    }
+    template <typename T>
+    SkAutoMutexAcquire(T& mutex) : SkAutoMutexAcquire(&mutex) {}
 
-    /** If the mutex has not been released, release it now. */
+    ~SkAutoMutexAcquire() { this->release(); }
+
     void release() {
         if (fMutex) {
-            fMutex->release();
-            fMutex = nullptr;
+            fRelease(fMutex);
         }
-    }
-
-    /** Assert that we're holding the mutex. */
-    void assertHeld() {
-        SkASSERT(fMutex);
-        fMutex->assertHeld();
+        fMutex = nullptr;
     }
 
 private:
-    Lock* fMutex;
+    void*  fMutex;
+    void (*fRelease)(void*);
 };
-
-// SkAutoTExclusive is a lighter weight version of SkAutoTAcquire. It assumes that there is a valid
-// mutex, thus removing the check for the null pointer.
-template <typename Lock>
-class SkAutoTExclusive {
-public:
-    SkAutoTExclusive(Lock& lock) : fLock(lock) { lock.acquire(); }
-    ~SkAutoTExclusive() { fLock.release(); }
-private:
-    Lock &fLock;
-};
-
-typedef SkAutoTAcquire<SkBaseMutex> SkAutoMutexAcquire;
 #define SkAutoMutexAcquire(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexAcquire)
 
-typedef SkAutoTExclusive<SkBaseMutex> SkAutoMutexExclusive;
-#define SkAutoMutexExclusive(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexExclusive)
+// SkAutoExclusive is a lighter weight version of SkAutoMutexAcquire.
+// It assumes that there is a valid mutex, obviating the null check.
+class SkAutoExclusive {
+public:
+    template <typename T>
+    SkAutoExclusive(T& mutex) : fMutex(&mutex) {
+        mutex.acquire();
+
+        fRelease = [](void* mutex) { ((T*)mutex)->release(); };
+    }
+    ~SkAutoExclusive() { fRelease(fMutex); }
+
+private:
+    void* fMutex;
+    void (*fRelease)(void*);
+};
+#define SkAutoExclusive(...) SK_REQUIRE_LOCAL_VAR(SkAutoExclusive)
 
 #endif//SkMutex_DEFINED

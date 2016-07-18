@@ -12,7 +12,9 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
+        'qcms.gyp:qcms',
       ],
+      'export_dependent_settings': [ 'qcms.gyp:qcms', ],
       'include_dirs': [
         '../include/effects',
         '../include/client/android',

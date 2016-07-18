@@ -68,13 +68,15 @@ static inline GrColor SkPMColorToGrColor(SkPMColor c) {
 /** Returns a texture representing the bitmap that is compatible with the GrTextureParams. The
     texture is inserted into the cache (unless the bitmap is marked volatile) and can be
     retrieved again via this function. */
-GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&);
+GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&,
+                                    SkSourceGammaTreatment);
 
 // TODO: Move SkImageInfo2GrPixelConfig to SkGrPriv.h (requires cleanup to SkWindow its subclasses).
-GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, SkColorProfileType, const GrCaps&);
+GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, const SkColorSpace*,
+                                        const GrCaps&);
 
 static inline GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps) {
-    return SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType(), info.profileType(), caps);
+    return SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType(), info.colorSpace(), caps);
 }
 
 GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,

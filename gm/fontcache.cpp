@@ -32,8 +32,10 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fTypefaces[0] = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kItalic);
-        fTypefaces[1] = sk_tool_utils::create_portable_typeface("sans-serif", SkTypeface::kItalic);
+        fTypefaces[0] = sk_tool_utils::create_portable_typeface("serif",
+            SkFontStyle::FromOldStyle(SkTypeface::kItalic));
+        fTypefaces[1] = sk_tool_utils::create_portable_typeface("sans-serif",
+            SkFontStyle::FromOldStyle(SkTypeface::kItalic));
     }
 
     void onDraw(SkCanvas* canvas) override {

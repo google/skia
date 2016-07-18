@@ -89,11 +89,12 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-const GrFragmentProcessor* SkColorShader::asFragmentProcessor(GrContext*, const SkMatrix&,
+sk_sp<GrFragmentProcessor> SkColorShader::asFragmentProcessor(GrContext*, const SkMatrix&,
                                                               const SkMatrix*,
-                                                              SkFilterQuality) const {
+                                                              SkFilterQuality,
+                                                              SkSourceGammaTreatment) const {
     GrColor color = SkColorToPremulGrColor(fColor);
-    return GrConstColorProcessor::Create(color, GrConstColorProcessor::kModulateA_InputMode);
+    return GrConstColorProcessor::Make(color, GrConstColorProcessor::kModulateA_InputMode);
 }
 
 #endif
@@ -132,10 +133,10 @@ SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space
 
 sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer) {
     SkColor4f color;
-    color.fA = buffer.readScalar(); // readFloat()
-    color.fR = buffer.readScalar();
+    color.fR = buffer.readScalar(); // readFloat()
     color.fG = buffer.readScalar();
     color.fB = buffer.readScalar();
+    color.fA = buffer.readScalar();
     if (buffer.readBool()) {
         // TODO how do we unflatten colorspaces
     }
@@ -143,10 +144,10 @@ sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer) {
 }
 
 void SkColor4Shader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeScalar(fColor4.fA); // writeFloat()
-    buffer.writeScalar(fColor4.fR);
+    buffer.writeScalar(fColor4.fR); // writeFloat()
     buffer.writeScalar(fColor4.fG);
     buffer.writeScalar(fColor4.fB);
+    buffer.writeScalar(fColor4.fA);
     buffer.writeBool(false);    // TODO how do we flatten colorspaces?
 }
 
@@ -216,12 +217,13 @@ SkShader::GradientType SkColor4Shader::asAGradient(GradientInfo* info) const {
 
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-const GrFragmentProcessor* SkColor4Shader::asFragmentProcessor(GrContext*, const SkMatrix&,
+sk_sp<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(GrContext*, const SkMatrix&,
                                                                const SkMatrix*,
-                                                               SkFilterQuality) const {
+                                                               SkFilterQuality,
+                                                               SkSourceGammaTreatment) const {
     // TODO: how to communicate color4f to Gr
     GrColor color = SkColorToPremulGrColor(fCachedByteColor);
-    return GrConstColorProcessor::Create(color, GrConstColorProcessor::kModulateA_InputMode);
+    return GrConstColorProcessor::Make(color, GrConstColorProcessor::kModulateA_InputMode);
 }
 
 #endif
@@ -230,7 +232,7 @@ const GrFragmentProcessor* SkColor4Shader::asFragmentProcessor(GrContext*, const
 void SkColor4Shader::toString(SkString* str) const {
     str->append("SkColor4Shader: (");
 
-    str->append("ARGB:");
+    str->append("RGBA:");
     for (int i = 0; i < 4; ++i) {
         str->appendf(" %g", fColor4.vec()[i]);
     }
@@ -284,7 +286,7 @@ static bool choose_blitprocs(const SkPM4f* pm4, const SkImageInfo& info,
     }
     switch (info.colorType()) {
         case kN32_SkColorType:
-            if (info.isSRGB()) {
+            if (info.gammaCloseToSRGB()) {
                 flags |= SkXfermode::kDstIsSRGB_D32Flag;
             }
             state->fStorage[0] = (void*)SkXfermode::GetD32Proc(state->fXfer, flags);

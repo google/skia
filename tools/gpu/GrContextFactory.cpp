@@ -19,7 +19,7 @@
 #if SK_MESA
     #include "gl/mesa/GLTestContext_mesa.h"
 #endif
-#if SK_VULKAN
+#ifdef SK_VULKAN
 #include "vk/VkTestContext.h"
 #endif
 #include "gl/null/NullGLTestContext.h"
@@ -163,8 +163,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
 #ifdef SK_VULKAN
         case kVulkan_GrBackend:
             SkASSERT(kVulkan_ContextType == type);
-            if ((kEnableNVPR_ContextOptions & options) ||
-                (kRequireSRGBSupport_ContextOptions & options)) {
+            if (kEnableNVPR_ContextOptions & options) {
                 return ContextInfo();
             }
             testCtx.reset(CreatePlatformVkTestContext());

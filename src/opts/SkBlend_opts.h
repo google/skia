@@ -15,6 +15,10 @@ ninja -C out/Release dm nanobench ; and ./out/Release/dm --match Blend_opts ; an
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #include <immintrin.h>
+#endif
+
 namespace SK_OPTS_NS {
 
 // An implementation of SrcOver from bytes to bytes in linear space that takes advantage of the
@@ -127,27 +131,33 @@ void trivial_srcover_srgb_srgb(
                 int count = SkTMin(ndst, nsrc);
                 ndst -= count;
                 const uint32_t* src = srcStart;
-                const uint32_t* end = src + (count & ~3);
+                const uint32_t* end = dst + (count & ~3);
+                ptrdiff_t delta = src - dst;
 
-                while (src < end) {
+                while (dst < end) {
                     __m128i pixels = load(src);
                     if (_mm_testc_si128(pixels, alphaMask)) {
+                         uint32_t* start = dst;
                         do {
                             store(dst, pixels);
                             dst += 4;
-                            src += 4;
-                        } while (src < end && _mm_testc_si128(pixels = load(src), alphaMask));
+                        } while (dst < end
+                                 && _mm_testc_si128(pixels = load(dst + delta), alphaMask));
+                        src += dst - start;
                     } else if (_mm_testz_si128(pixels, alphaMask)) {
                         do {
                             dst += 4;
                             src += 4;
-                        } while (src < end && _mm_testz_si128(pixels = load(src), alphaMask));
+                        } while (dst < end
+                                 && _mm_testz_si128(pixels = load(src), alphaMask));
                     } else {
+                        uint32_t* start = dst;
                         do {
-                            srcover_srgb_srgb_4(dst, src);
+                            srcover_srgb_srgb_4(dst, dst + delta);
                             dst += 4;
-                            src += 4;
-                        } while (src < end && _mm_testnzc_si128(pixels = load(src), alphaMask));
+                        } while (dst < end
+                                 && _mm_testnzc_si128(pixels = load(dst + delta), alphaMask));
+                        src += dst - start;
                     }
                 }
 
@@ -159,32 +169,34 @@ void trivial_srcover_srgb_srgb(
         }
     #else
     // SSE2 versions
+
+        // Note: In the next three comparisons a group of 4 pixels is converted to a group of
+        // "signed" pixels because the sse2 does not have an unsigned comparison.
+        // Make it so that we can use the signed comparison operators by biasing
+        // 0x00xxxxxx to 0x80xxxxxxx which is the smallest values and biasing 0xffxxxxxx to
+        // 0x7fxxxxxx which is the largest set of values.
         static inline bool check_opaque_alphas(__m128i pixels) {
+            __m128i signedPixels = _mm_xor_si128(pixels, _mm_set1_epi32(0x80000000));
             int mask =
                 _mm_movemask_epi8(
-                    _mm_cmpeq_epi32(
-                        _mm_andnot_si128(pixels, _mm_set1_epi32(0xFF000000)),
-                        _mm_setzero_si128()));
-            return mask == 0xFFFF;
+                    _mm_cmplt_epi32(signedPixels, _mm_set1_epi32(0x7F000000)));
+            return mask == 0;
         }
 
         static inline bool check_transparent_alphas(__m128i pixels) {
+            __m128i signedPixels = _mm_xor_si128(pixels, _mm_set1_epi32(0x80000000));
             int mask =
                 _mm_movemask_epi8(
-                    _mm_cmpeq_epi32(
-                        _mm_and_si128(pixels, _mm_set1_epi32(0xFF000000)),
-                        _mm_setzero_si128()));
-            return mask == 0xFFFF;
+                    _mm_cmpgt_epi32(signedPixels, _mm_set1_epi32(0x80FFFFFF)));
+            return mask == 0;
         }
 
         static inline bool check_partial_alphas(__m128i pixels) {
-            __m128i alphas = _mm_and_si128(pixels, _mm_set1_epi32(0xFF000000));
-            int mask =
-                _mm_movemask_epi8(
-                    _mm_cmpeq_epi8(
-                        _mm_srai_epi32(alphas, 8),
-                        alphas));
-            return mask == 0xFFFF;
+            __m128i signedPixels = _mm_xor_si128(pixels, _mm_set1_epi32(0x80000000));
+            __m128i opaque       = _mm_cmplt_epi32(signedPixels, _mm_set1_epi32(0x7F000000));
+            __m128i transparent  = _mm_cmpgt_epi32(signedPixels, _mm_set1_epi32(0x80FFFFFF));
+            int mask             = _mm_movemask_epi8(_mm_xor_si128(opaque, transparent));
+            return mask == 0;
         }
 
         void srcover_srgb_srgb(
@@ -193,30 +205,33 @@ void trivial_srcover_srgb_srgb(
                 int count = SkTMin(ndst, nsrc);
                 ndst -= count;
                 const uint32_t* src = srcStart;
-                const uint32_t* end = src + (count & ~3);
+                const uint32_t* end = dst + (count & ~3);
+                const ptrdiff_t delta = src - dst;
 
                 __m128i pixels = load(src);
                 do {
                     if (check_opaque_alphas(pixels)) {
+                        uint32_t* start = dst;
                         do {
                             store(dst, pixels);
                             dst += 4;
-                            src += 4;
-                        } while (src < end && check_opaque_alphas(pixels = load(src)));
+                        } while (dst < end && check_opaque_alphas((pixels = load(dst + delta))));
+                        src += dst - start;
                     } else if (check_transparent_alphas(pixels)) {
-                        const uint32_t* start = src;
+                        const uint32_t* start = dst;
                         do {
-                            src += 4;
-                        } while (src < end && check_transparent_alphas(pixels = load(src)));
-                        dst += src - start;
-                    } else {
-                        do {
-                            srcover_srgb_srgb_4(dst, src);
                             dst += 4;
-                            src += 4;
-                        } while (src < end && check_partial_alphas(pixels = load(src)));
+                        } while (dst < end && check_transparent_alphas(pixels = load(dst + delta)));
+                        src += dst - start;
+                    } else {
+                        const uint32_t* start = dst;
+                        do {
+                            srcover_srgb_srgb_4(dst, dst + delta);
+                            dst += 4;
+                        } while (dst < end && check_partial_alphas(pixels = load(dst + delta)));
+                        src += dst - start;
                     }
-                } while (src < end);
+                } while (dst < end);
 
                 count = count & 3;
                 while (count-- > 0) {

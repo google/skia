@@ -88,8 +88,8 @@ static inline float getLengthSquared(float dx, float dy) {
 // This logic is encapsulated in a helper method to make it explicit that we
 // always perform this check in the same manner, to avoid inconsistencies
 // (see http://code.google.com/p/skia/issues/detail?id=560 ).
-static inline bool isLengthNearlyZero(float dx, float dy,
-                                      float *lengthSquared) {
+static inline bool is_length_nearly_zero(float dx, float dy,
+                                         float *lengthSquared) {
     *lengthSquared = getLengthSquared(dx, dy);
     return *lengthSquared <= (SK_ScalarNearlyZero * SK_ScalarNearlyZero);
 }
@@ -98,7 +98,7 @@ SkScalar SkPoint::Normalize(SkPoint* pt) {
     float x = pt->fX;
     float y = pt->fY;
     float mag2;
-    if (isLengthNearlyZero(x, y, &mag2)) {
+    if (is_length_nearly_zero(x, y, &mag2)) {
         pt->set(0, 0);
         return 0;
     }
@@ -146,7 +146,7 @@ SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
  */
 bool SkPoint::setLength(float x, float y, float length) {
     float mag2;
-    if (isLengthNearlyZero(x, y, &mag2)) {
+    if (is_length_nearly_zero(x, y, &mag2)) {
         this->set(0, 0);
         return false;
     }
@@ -183,7 +183,7 @@ bool SkPoint::setLengthFast(float length) {
 
 bool SkPoint::setLengthFast(float x, float y, float length) {
     float mag2;
-    if (isLengthNearlyZero(x, y, &mag2)) {
+    if (is_length_nearly_zero(x, y, &mag2)) {
         this->set(0, 0);
         return false;
     }

@@ -7,6 +7,7 @@
 
 #include "Sk4fLinearGradient.h"
 #include "SkLinearGradient.h"
+#include "SkRefCnt.h"
 
 // define to test the 4f gradient path
 // #define FORCE_4F_CONTEXT
@@ -369,11 +370,11 @@ private:
 class GrLinearGradient : public GrGradientEffect {
 public:
 
-    static GrFragmentProcessor* Create(GrContext* ctx,
-                                       const SkLinearGradient& shader,
-                                       const SkMatrix& matrix,
-                                       SkShader::TileMode tm) {
-        return new GrLinearGradient(ctx, shader, matrix, tm);
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
+                                           const SkLinearGradient& shader,
+                                           const SkMatrix& matrix,
+                                           SkShader::TileMode tm) {
+        return sk_sp<GrFragmentProcessor>(new GrLinearGradient(ctx, shader, matrix, tm));
     }
 
     virtual ~GrLinearGradient() { }
@@ -407,7 +408,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrLinearGradient);
 
-const GrFragmentProcessor* GrLinearGradient::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint points[] = {{d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()},
                         {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
 
@@ -417,8 +418,9 @@ const GrFragmentProcessor* GrLinearGradient::TestCreate(GrProcessorTestData* d) 
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeLinear(points, colors, stops, colorCount, tm);
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
+        SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -441,11 +443,12 @@ void GrGLLinearGradient::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor* SkLinearGradient::asFragmentProcessor(
+sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
                                                  GrContext* context,
                                                  const SkMatrix& viewm,
                                                  const SkMatrix* localMatrix,
-                                                 SkFilterQuality) const {
+                                                 SkFilterQuality,
+                                                 SkSourceGammaTreatment) const {
     SkASSERT(context);
 
     SkMatrix matrix;
@@ -461,9 +464,8 @@ const GrFragmentProcessor* SkLinearGradient::asFragmentProcessor(
     }
     matrix.postConcat(fPtsToUnit);
 
-    SkAutoTUnref<const GrFragmentProcessor> inner(
-        GrLinearGradient::Create(context, *this, matrix, fTileMode));
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    sk_sp<GrFragmentProcessor> inner(GrLinearGradient::Make(context, *this, matrix, fTileMode));
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 

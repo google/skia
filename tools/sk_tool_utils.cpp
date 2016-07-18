@@ -12,6 +12,8 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
+#include "SkFontMgr.h"
+#include "SkFontStyle.h"
 #include "SkPoint3.h"
 #include "SkShader.h"
 #include "SkTestScalerContext.h"
@@ -72,6 +74,9 @@ const char* platform_os_emoji() {
     if (!strncmp(osName, "Mac", 3)) {
         return "SBIX";
     }
+    if (!strncmp(osName, "Win", 3)) {
+        return "COLR";
+    }
     return "";
 }
 
@@ -80,7 +85,24 @@ sk_sp<SkTypeface> emoji_typeface() {
         return MakeResourceAsTypeface("/fonts/Funkster.ttf");
     }
     if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX")) {
-        return SkTypeface::MakeFromName("Apple Color Emoji", SkTypeface::kNormal);
+        return SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle());
+    }
+    if (!strcmp(sk_tool_utils::platform_os_emoji(), "COLR")) {
+        sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+        const char *colorEmojiFontName = "Segoe UI Emoji";
+        sk_sp<SkTypeface> typeface(fm->matchFamilyStyle(colorEmojiFontName, SkFontStyle()));
+        if (typeface) {
+            return typeface;
+        }
+        sk_sp<SkTypeface> fallback(fm->matchFamilyStyleCharacter(
+            colorEmojiFontName, SkFontStyle(), nullptr /* bcp47 */, 0 /* bcp47Count */,
+            0x1f4b0 /* character: 💰 */));
+        if (fallback) {
+            return fallback;
+        }
+        // If we don't have Segoe UI Emoji and can't find a fallback, try Segoe UI Symbol.
+        // Windows 7 does not have Segoe UI Emoji; Segoe UI Symbol has the (non - color) emoji.
+        return SkTypeface::MakeFromName("Segoe UI Symbol", SkFontStyle());
     }
     return nullptr;
 }
@@ -89,7 +111,9 @@ const char* emoji_sample_text() {
     if (!strcmp(sk_tool_utils::platform_os_emoji(), "CBDT")) {
         return "Hamburgefons";
     }
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX")) {
+    if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX") ||
+        !strcmp(sk_tool_utils::platform_os_emoji(), "COLR"))
+    {
         return "\xF0\x9F\x92\xB0" "\xF0\x9F\x8F\xA1" "\xF0\x9F\x8E\x85"  // 💰🏡🎅
                "\xF0\x9F\x8D\xAA" "\xF0\x9F\x8D\x95" "\xF0\x9F\x9A\x80"  // 🍪🍕🚀
                "\xF0\x9F\x9A\xBB" "\xF0\x9F\x92\xA9" "\xF0\x9F\x93\xB7" // 🚻💩📷
@@ -156,11 +180,11 @@ SkColor color_to_565(SkColor color) {
     return SkPixel16ToColor(color16);
 }
 
-sk_sp<SkTypeface> create_portable_typeface(const char* name, SkTypeface::Style style) {
+sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style) {
     return create_font(name, style);
 }
 
-void set_portable_typeface(SkPaint* paint, const char* name, SkTypeface::Style style) {
+void set_portable_typeface(SkPaint* paint, const char* name, SkFontStyle style) {
     paint->setTypeface(create_font(name, style));
 }
 

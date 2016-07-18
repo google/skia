@@ -15,7 +15,7 @@
 class SkMatrix;
 class GrCaps;
 class GrContext;
-class GrRenderTarget;
+class GrDrawContext;
 struct GrProcessorTestData;
 
 namespace GrProcessorUnitTest {
@@ -28,7 +28,7 @@ enum {
 
 /** This allows parent FPs to implement a test create with known leaf children in order to avoid
 creating an unbounded FP tree which may overflow various shader limits. */
-const GrFragmentProcessor* CreateChildFP(GrProcessorTestData*);
+sk_sp<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
 
 }
 
@@ -43,19 +43,19 @@ struct GrProcessorTestData {
     GrProcessorTestData(SkRandom* random,
                         GrContext* context,
                         const GrCaps* caps,
-                        const GrRenderTarget* rt,
+                        const GrDrawContext* drawContext,
                         GrTexture* textures[2])
         : fRandom(random)
         , fContext(context)
         , fCaps(caps)
-        , fRenderTarget(rt) {
+        , fDrawContext(drawContext) {
         fTextures[0] = textures[0];
         fTextures[1] = textures[1];
     }
     SkRandom* fRandom;
     GrContext* fContext;
     const GrCaps* fCaps;
-    const GrRenderTarget* fRenderTarget;
+    const GrDrawContext* fDrawContext;
     GrTexture* fTextures[2];
 };
 
@@ -66,28 +66,28 @@ class GrTexture;
 
 template <class Processor> class GrProcessorTestFactory : SkNoncopyable {
 public:
-    typedef const Processor* (*CreateProc)(GrProcessorTestData*);
+    typedef sk_sp<Processor> (*MakeProc)(GrProcessorTestData*);
 
-    GrProcessorTestFactory(CreateProc createProc) {
-        fCreateProc = createProc;
+    GrProcessorTestFactory(MakeProc makeProc) {
+        fMakeProc = makeProc;
         GetFactories()->push_back(this);
     }
 
     /** Pick a random factory function and create a processor.  */
-    static const Processor* Create(GrProcessorTestData* data) {
+    static sk_sp<Processor> Make(GrProcessorTestData* data) {
         VerifyFactoryCount();
         SkASSERT(GetFactories()->count());
         uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
-        return CreateIdx(idx, data);
+        return MakeIdx(idx, data);
     }
 
     /** Number of registered factory functions */
     static int Count() { return GetFactories()->count(); }
 
     /** Use factory function at Index idx to create a processor. */
-    static const Processor* CreateIdx(int idx, GrProcessorTestData* data) {
+    static sk_sp<Processor> MakeIdx(int idx, GrProcessorTestData* data) {
         GrProcessorTestFactory<Processor>* factory = (*GetFactories())[idx];
-        return factory->fCreateProc(data);
+        return factory->fMakeProc(data);
     }
 
     /*
@@ -96,7 +96,7 @@ public:
     static void VerifyFactoryCount();
 
 private:
-    CreateProc fCreateProc;
+    MakeProc fMakeProc;
 
     static SkTArray<GrProcessorTestFactory<Processor>*, true>* GetFactories();
 };
@@ -106,15 +106,15 @@ private:
  */
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                                                         \
     static GrProcessorTestFactory<GrGeometryProcessor> gTestFactory SK_UNUSED;                     \
-    static const GrGeometryProcessor* TestCreate(GrProcessorTestData*)
+    static sk_sp<GrGeometryProcessor> TestCreate(GrProcessorTestData*)
 
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
     static GrProcessorTestFactory<GrFragmentProcessor> gTestFactory SK_UNUSED;                     \
-    static const GrFragmentProcessor* TestCreate(GrProcessorTestData*)
+    static sk_sp<GrFragmentProcessor> TestCreate(GrProcessorTestData*)
 
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
     static GrProcessorTestFactory<GrXPFactory> gTestFactory SK_UNUSED;                             \
-    static const GrXPFactory* TestCreate(GrProcessorTestData*)
+    static sk_sp<GrXPFactory> TestCreate(GrProcessorTestData*)
 
 /** GrProcessor subclasses should insert this macro in their implementation file. They must then
  *  also implement this static function:
@@ -134,19 +134,19 @@ private:
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
-    static const GrFragmentProcessor* TestCreate(GrProcessorTestData*)
+    static sk_sp<GrFragmentProcessor> TestCreate(GrProcessorTestData*)
 #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(X)
 
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
-    static const GrXPFactory* TestCreate(GrProcessorTestData*)
+    static sk_sp<GrXPFactory> TestCreate(GrProcessorTestData*)
 #define GR_DEFINE_XP_FACTORY_TEST(X)
 
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                                                         \
-    static const GrGeometryProcessor* TestCreate(GrProcessorTestData*)
+    static sk_sp<GrGeometryProcessor> TestCreate(GrProcessorTestData*)
 #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(X)
 
 #endif // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS

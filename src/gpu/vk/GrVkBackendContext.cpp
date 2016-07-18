@@ -40,7 +40,9 @@ const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
 
 // Create the base Vulkan objects needed by the GrVkGpu object
 const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndexPtr,
-                             bool(*canPresent)(VkInstance, VkPhysicalDevice, uint32_t queueIndex)) {
+                             bool(*canPresent)(VkInstance, VkPhysicalDevice, uint32_t queueIndex,
+                                               void* platformData),
+                             void* platformData) {
     VkPhysicalDevice physDev;
     VkDevice device;
     VkInstance inst;
@@ -87,15 +89,15 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         instanceExtensionNames.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_win32_surface_GrVkExtensionFlag;
     }
-#elif SK_BUILD_FOR_ANDROID
+#elif defined(SK_BUILD_FOR_ANDROID)
     if (extensions.hasInstanceExtension(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_android_surface_GrVkExtensionFlag;
-}
-#elif SK_BUILD_FOR_UNIX
-    if (extensions.hasInstanceExtension(VK_KHR_XLIB_SURFACE_EXTENSION_NAME)) {
-        instanceExtensionNames.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
-        extensionFlags |= kKHR_xlib_surface_GrVkExtensionFlag;
+    }
+#elif defined(SK_BUILD_FOR_UNIX)
+    if (extensions.hasInstanceExtension(VK_KHR_XCB_SURFACE_EXTENSION_NAME)) {
+        instanceExtensionNames.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+        extensionFlags |= kKHR_xcb_surface_GrVkExtensionFlag;
     }
 #endif
 
@@ -159,7 +161,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     uint32_t presentQueueIndex = graphicsQueueIndex;
     if (presentQueueIndexPtr && canPresent) {
         for (uint32_t i = 0; i < queueCount; i++) {
-            if (canPresent(inst, physDev, i)) {
+            if (canPresent(inst, physDev, i, platformData)) {
                 presentQueueIndex = i;
                 break;
             }

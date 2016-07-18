@@ -6,21 +6,8 @@
  */
 
 #include "SkImageInfo.h"
-#include "SkImageInfoPriv.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-
-// Indicate how images and gradients should interpret colors by default.
-bool gDefaultProfileIsSRGB;
-
-SkColorProfileType SkDefaultColorProfile() {
-    return gDefaultProfileIsSRGB ? kSRGB_SkColorProfileType
-                                 : kLinear_SkColorProfileType;
-}
-
-static bool profile_type_is_valid(SkColorProfileType profileType) {
-    return (profileType >= 0) && (profileType <= kLastEnum_SkColorProfileType);
-}
 
 static bool alpha_type_is_valid(SkAlphaType alphaType) {
     return (alphaType >= 0) && (alphaType <= kLastEnum_SkAlphaType);
@@ -30,29 +17,47 @@ static bool color_type_is_valid(SkColorType colorType) {
     return (colorType >= 0) && (colorType <= kLastEnum_SkColorType);
 }
 
+SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
+    return SkImageInfo(width, height, kN32_SkColorType, at,
+                       SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
+}
+
+static const int kColorTypeMask = 0x0F;
+static const int kAlphaTypeMask = 0x03;
+
 void SkImageInfo::unflatten(SkReadBuffer& buffer) {
     fWidth = buffer.read32();
     fHeight = buffer.read32();
 
     uint32_t packed = buffer.read32();
-    SkASSERT(0 == (packed >> 24));
-    fProfileType = (SkColorProfileType)((packed >> 16) & 0xFF);
-    fAlphaType = (SkAlphaType)((packed >> 8) & 0xFF);
-    fColorType = (SkColorType)((packed >> 0) & 0xFF);
-    buffer.validate(profile_type_is_valid(fProfileType) &&
-                    alpha_type_is_valid(fAlphaType) &&
-                    color_type_is_valid(fColorType));
+    fColorType = (SkColorType)((packed >> 0) & kColorTypeMask);
+    fAlphaType = (SkAlphaType)((packed >> 8) & kAlphaTypeMask);
+    buffer.validate(alpha_type_is_valid(fAlphaType) && color_type_is_valid(fColorType));
+
+    sk_sp<SkData> data = buffer.readByteArrayAsData();
+    fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
 }
 
 void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
     buffer.write32(fWidth);
     buffer.write32(fHeight);
 
-    SkASSERT(0 == (fProfileType & ~0xFF));
-    SkASSERT(0 == (fAlphaType & ~0xFF));
-    SkASSERT(0 == (fColorType & ~0xFF));
-    uint32_t packed = (fProfileType << 16) | (fAlphaType << 8) | fColorType;
+    SkASSERT(0 == (fAlphaType & ~kAlphaTypeMask));
+    SkASSERT(0 == (fColorType & ~kColorTypeMask));
+    uint32_t packed = (fAlphaType << 8) | fColorType;
     buffer.write32(packed);
+
+    if (fColorSpace) {
+        sk_sp<SkData> data = fColorSpace->serialize();
+        if (data) {
+            buffer.writeDataAsByteArray(data.get());
+        } else {
+            buffer.writeByteArray(nullptr, 0);
+        }
+    } else {
+        sk_sp<SkData> data = SkData::MakeEmpty();
+        buffer.writeDataAsByteArray(data.get());
+    }
 }
 
 bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,

@@ -44,10 +44,12 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmapProvi
 
 class SkDefaultBitmapControllerState : public SkBitmapController::State {
 public:
-    SkDefaultBitmapControllerState(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality);
+    SkDefaultBitmapControllerState(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality,
+                                   SkSourceGammaTreatment);
 
 private:
     SkBitmap                     fResultBitmap;
+    SkSourceGammaTreatment       fSrcGammaTreatment;
     SkAutoTUnref<const SkMipMap> fCurrMip;
 
     bool processHQRequest(const SkBitmapProvider&);
@@ -164,13 +166,13 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
     }
 
     if (invScaleSize.width() > SK_Scalar1 || invScaleSize.height() > SK_Scalar1) {
-        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc()));
+        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc(), fSrcGammaTreatment));
         if (nullptr == fCurrMip.get()) {
             SkBitmap orig;
             if (!provider.asBitmap(&orig)) {
                 return false;
             }
-            fCurrMip.reset(SkMipMapCache::AddAndRef(orig));
+            fCurrMip.reset(SkMipMapCache::AddAndRef(orig, fSrcGammaTreatment));
             if (nullptr == fCurrMip.get()) {
                 return false;
             }
@@ -200,9 +202,11 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
 
 SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapProvider& provider,
                                                                const SkMatrix& inv,
-                                                               SkFilterQuality qual) {
+                                                               SkFilterQuality qual,
+                                                               SkSourceGammaTreatment treatment) {
     fInvMatrix = inv;
     fQuality = qual;
+    fSrcGammaTreatment = treatment;
 
     if (this->processHQRequest(provider) || this->processMediumRequest(provider)) {
         SkASSERT(fResultBitmap.getPixels());
@@ -223,5 +227,6 @@ SkBitmapController::State* SkDefaultBitmapController::onRequestBitmap(const SkBi
                                                                       const SkMatrix& inverse,
                                                                       SkFilterQuality quality,
                                                                       void* storage, size_t size) {
-    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality);
+    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality,
+                                                             fSrcGammaTreatment);
 }

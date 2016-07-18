@@ -9,8 +9,7 @@
 #define GrTest_DEFINED
 
 #include "GrContext.h"
-#include "GrDrawTarget.h"
-#include "gl/GrGLContext.h"
+#include "GrDrawContext.h"
 
 namespace GrTest {
     /**
@@ -28,15 +27,13 @@ class GrTestTarget {
 public:
     GrTestTarget() {};
 
-    void init(GrContext*, GrDrawTarget*, GrRenderTarget*);
+    void init(GrContext*, sk_sp<GrDrawContext>);
 
-    GrDrawTarget* target() { return fDrawTarget.get(); }
     GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
 
 private:
     SkAutoTUnref<GrContext>                 fContext;
-    SkAutoTUnref<GrDrawTarget>              fDrawTarget;
-    SkAutoTUnref<GrRenderTarget>            fRenderTarget;
+    sk_sp<GrDrawContext>                    fDrawContext;
 };
 
 #endif

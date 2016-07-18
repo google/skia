@@ -21,7 +21,7 @@
 #include "GrStencilAttachment.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
-#include "SkTypes.h"
+#include "SkMathPriv.h"
 
 GrMesh& GrMesh::operator =(const GrMesh& di) {
     fPrimitiveType  = di.fPrimitiveType;
@@ -241,23 +241,6 @@ GrBuffer* GrGpu::createBuffer(size_t size, GrBufferType intendedType,
         buffer->resourcePriv().removeScratchKey();
     }
     return buffer;
-}
-
-void GrGpu::clear(const SkIRect& rect,
-                  GrColor color,
-                  GrRenderTarget* renderTarget) {
-    SkASSERT(renderTarget);
-    SkASSERT(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()).contains(rect));
-    this->handleDirtyContext();
-    this->onClear(renderTarget, rect, color);
-}
-
-void GrGpu::clearStencilClip(const SkIRect& rect,
-                             bool insideClip,
-                             GrRenderTarget* renderTarget) {
-    SkASSERT(renderTarget);
-    this->handleDirtyContext();
-    this->onClearStencilClip(renderTarget, rect, insideClip);
 }
 
 bool GrGpu::copySurface(GrSurface* dst,
@@ -489,18 +472,3 @@ const GrGpu::MultisampleSpecs& GrGpu::getMultisampleSpecs(GrRenderTarget* rt,
     return specs;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-bool GrGpu::draw(const GrPipeline& pipeline,
-                 const GrPrimitiveProcessor& primProc,
-                 const GrMesh* meshes,
-                 int meshCount) {
-    if (primProc.numAttribs() > this->caps()->maxVertexAttributes()) {
-        fStats.incNumFailedDraws();
-        return false;
-    }
-    this->handleDirtyContext();
-
-    this->onDraw(pipeline, primProc, meshes, meshCount);
-    return true;
-}

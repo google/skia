@@ -121,6 +121,15 @@ public:
     }
 
     /**
+     * Ensures there is enough reserved space for n elements.
+     */
+    void reserve(int n) {
+        if (fCount < n) {
+            this->checkRealloc(n - fCount);
+        }
+    }
+
+    /**
      * Resets to a copy of a C array.
      */
     void reset(const T* array, int count) {

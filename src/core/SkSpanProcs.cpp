@@ -49,7 +49,7 @@ static void load_f16(const SkPixmap& src, int x, int y, SkPM4f span[], int count
 SkLoadSpanProc SkLoadSpanProc_Choose(const SkImageInfo& info) {
     switch (info.colorType()) {
         case kN32_SkColorType:
-            return info.isSRGB() ? load_s32 : load_l32;
+            return info.gammaCloseToSRGB() ? load_s32 : load_l32;
         case kRGBA_F16_SkColorType:
             return load_f16;
         default:

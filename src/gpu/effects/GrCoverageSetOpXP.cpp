@@ -8,6 +8,7 @@
 #include "effects/GrCoverageSetOpXP.h"
 #include "GrCaps.h"
 #include "GrColor.h"
+#include "GrDrawContext.h"
 #include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "GrProcOptInfo.h"
@@ -242,65 +243,65 @@ GrCoverageSetOpXPFactory::GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool i
     this->initClassID<GrCoverageSetOpXPFactory>();
 }
 
-GrXPFactory* GrCoverageSetOpXPFactory::Create(SkRegion::Op regionOp, bool invertCoverage) {
+sk_sp<GrXPFactory> GrCoverageSetOpXPFactory::Make(SkRegion::Op regionOp, bool invertCoverage) {
     switch (regionOp) {
         case SkRegion::kReplace_Op: {
             if (invertCoverage) {
                 static GrCoverageSetOpXPFactory gReplaceCDXPFI(regionOp, invertCoverage);
-                return SkRef(&gReplaceCDXPFI);
+                return sk_sp<GrXPFactory>(SkRef(&gReplaceCDXPFI));
             } else {
                 static GrCoverageSetOpXPFactory gReplaceCDXPF(regionOp, invertCoverage);
-                return SkRef(&gReplaceCDXPF);
+                return sk_sp<GrXPFactory>(SkRef(&gReplaceCDXPF));
             }
             break;
         }
         case SkRegion::kIntersect_Op: {
             if (invertCoverage) {
                 static GrCoverageSetOpXPFactory gIntersectCDXPFI(regionOp, invertCoverage);
-                return SkRef(&gIntersectCDXPFI);
+                return sk_sp<GrXPFactory>(SkRef(&gIntersectCDXPFI));
             } else {
                 static GrCoverageSetOpXPFactory gIntersectCDXPF(regionOp, invertCoverage);
-                return SkRef(&gIntersectCDXPF);
+                return sk_sp<GrXPFactory>(SkRef(&gIntersectCDXPF));
             }
             break;
         }
         case SkRegion::kUnion_Op: {
             if (invertCoverage) {
                 static GrCoverageSetOpXPFactory gUnionCDXPFI(regionOp, invertCoverage);
-                return SkRef(&gUnionCDXPFI);
+                return sk_sp<GrXPFactory>(SkRef(&gUnionCDXPFI));
             } else {
                 static GrCoverageSetOpXPFactory gUnionCDXPF(regionOp, invertCoverage);
-                return SkRef(&gUnionCDXPF);
+                return sk_sp<GrXPFactory>(SkRef(&gUnionCDXPF));
             }
             break;
         }
         case SkRegion::kXOR_Op: {
             if (invertCoverage) {
                 static GrCoverageSetOpXPFactory gXORCDXPFI(regionOp, invertCoverage);
-                return SkRef(&gXORCDXPFI);
+                return sk_sp<GrXPFactory>(SkRef(&gXORCDXPFI));
             } else {
                 static GrCoverageSetOpXPFactory gXORCDXPF(regionOp, invertCoverage);
-                return SkRef(&gXORCDXPF);
+                return sk_sp<GrXPFactory>(SkRef(&gXORCDXPF));
             }
             break;
         }
         case SkRegion::kDifference_Op: {
             if (invertCoverage) {
                 static GrCoverageSetOpXPFactory gDifferenceCDXPFI(regionOp, invertCoverage);
-                return SkRef(&gDifferenceCDXPFI);
+                return sk_sp<GrXPFactory>(SkRef(&gDifferenceCDXPFI));
             } else {
                 static GrCoverageSetOpXPFactory gDifferenceCDXPF(regionOp, invertCoverage);
-                return SkRef(&gDifferenceCDXPF);
+                return sk_sp<GrXPFactory>(SkRef(&gDifferenceCDXPF));
             }
             break;
         }
         case SkRegion::kReverseDifference_Op: {
             if (invertCoverage) {
                 static GrCoverageSetOpXPFactory gRevDiffCDXPFI(regionOp, invertCoverage);
-                return SkRef(&gRevDiffCDXPFI);
+                return sk_sp<GrXPFactory>(SkRef(&gRevDiffCDXPFI));
             } else {
                 static GrCoverageSetOpXPFactory gRevDiffCDXPF(regionOp, invertCoverage);
-                return SkRef(&gRevDiffCDXPF);
+                return sk_sp<GrXPFactory>(SkRef(&gRevDiffCDXPF));
             }
             break;
         }
@@ -336,8 +337,8 @@ void GrCoverageSetOpXPFactory::getInvariantBlendedColor(const GrProcOptInfo& col
 
 GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);
 
-const GrXPFactory* GrCoverageSetOpXPFactory::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrXPFactory> GrCoverageSetOpXPFactory::TestCreate(GrProcessorTestData* d) {
     SkRegion::Op regionOp = SkRegion::Op(d->fRandom->nextULessThan(SkRegion::kLastOp + 1));
-    bool invertCoverage = !d->fRenderTarget->hasMixedSamples() && d->fRandom->nextBool();
-    return GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage);
+    bool invertCoverage = !d->fDrawContext->hasMixedSamples() && d->fRandom->nextBool();
+    return GrCoverageSetOpXPFactory::Make(regionOp, invertCoverage);
 }

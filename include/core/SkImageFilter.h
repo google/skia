@@ -93,7 +93,7 @@ public:
     };
 
     /**
-     *  Request a new (result) image to be created from the src image.
+     *  Request a new filtered image to be created from the src image.
      *
      *  The context contains the environment in which the filter is occurring.
      *  It includes the clip bounds, CTM and cache.
@@ -101,8 +101,9 @@ public:
      *  Offset is the amount to translate the resulting image relative to the
      *  src when it is drawn. This is an out-param.
      *
-     *  If the result image cannot be created, return null, in which case
-     *  the offset parameters will be ignored by the caller.
+     *  If the result image cannot be created, or the result would be
+     *  transparent black, return null, in which case the offset parameter
+     *  should be ignored by the caller.
      *
      *  TODO: Right now the imagefilters sometimes return empty result bitmaps/
      *        specialimages. That doesn't seem quite right.

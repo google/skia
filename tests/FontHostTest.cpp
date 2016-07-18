@@ -223,7 +223,7 @@ static void test_tables(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {
-        sk_sp<SkTypeface> face(SkTypeface::MakeFromName(gNames[i], SkTypeface::kNormal));
+        sk_sp<SkTypeface> face(SkTypeface::MakeFromName(gNames[i], SkFontStyle()));
         if (face) {
 #ifdef DUMP_TABLES
             SkDebugf("%s\n", gNames[i]);
@@ -277,7 +277,7 @@ static void test_advances(skiatest::Reporter* reporter) {
     char txt[] = "long.text.with.lots.of.dots.";
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
-        paint.setTypeface(SkTypeface::MakeFromName(faces[i], SkTypeface::kNormal));
+        paint.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
 
         for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
             paint.setHinting(settings[j].hinting);

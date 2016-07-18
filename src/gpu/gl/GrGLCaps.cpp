@@ -37,10 +37,10 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDirectStateAccessSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
-    fMultisampleDisableSupport = false;
     fDrawIndirectSupport = false;
     fMultiDrawIndirectSupport = false;
     fBaseInstanceSupport = false;
+    fCanDrawIndirectToFloat = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
@@ -50,6 +50,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fPartialFBOReadIsSlow = false;
     fMipMapLevelAndLodControlSupport = false;
     fRGBAToBGRAReadbackConversionsAreSlow = false;
+    fDoManualMipmapping = false;
 
     fBlitFramebufferSupport = kNone_BlitFramebufferSupport;
 
@@ -518,15 +519,25 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (kGL_GrGLStandard == standard) {
-        // We don't use ARB_draw_indirect because it does not support a base instance.
-        // We don't use ARB_multi_draw_indirect because it does not support GL_DRAW_INDIRECT_BUFFER.
-        fDrawIndirectSupport =
-            fMultiDrawIndirectSupport = fBaseInstanceSupport = version >= GR_GL_VER(4,3);
+        fDrawIndirectSupport = version >= GR_GL_VER(4,0) ||
+                               ctxInfo.hasExtension("GL_ARB_draw_indirect");
+        fBaseInstanceSupport = version >= GR_GL_VER(4,2);
+        fMultiDrawIndirectSupport = version >= GR_GL_VER(4,3) ||
+                                    (!fBaseInstanceSupport && // The ARB extension has no base inst.
+                                     ctxInfo.hasExtension("GL_ARB_multi_draw_indirect"));
     } else {
         fDrawIndirectSupport = version >= GR_GL_VER(3,1);
         fMultiDrawIndirectSupport = ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
         fBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
     }
+
+    // OS X doesn't seem to write correctly to floating point textures when using glDraw*Indirect,
+    // regardless of the underlying GPU.
+#ifndef SK_BUILD_FOR_MAC
+    if (fDrawIndirectSupport) {
+        fCanDrawIndirectToFloat = true;
+    }
+#endif
 
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
 
@@ -541,6 +552,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     } else if (ctxInfo.hasExtension("GL_OES_sample_shading")) {
         fSampleShadingSupport = true;
+    }
+
+    // We support manual mip-map generation (via iterative downsampling draw calls). This fixes
+    // bugs on some cards/drivers that produce incorrect mip-maps for sRGB textures when using
+    // glGenerateMipmap. Our implementation requires mip-level sampling control. Additionally,
+    // it can be much slower (especially on mobile GPUs), so we opt-in only when necessary:
+    if (fMipMapLevelAndLodControlSupport &&
+        (contextOptions.fDoManualMipmapping ||
+         (kIntel_GrGLVendor == ctxInfo.vendor()) ||
+         (kNVIDIA_GrGLDriver == ctxInfo.driver() && isMAC) ||
+         (kATI_GrGLVendor == ctxInfo.vendor()))) {
+        fDoManualMipmapping = true;
     }
 
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
@@ -682,9 +705,12 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
         }
     }
 
-    if (glslCaps->fSampleVariablesSupport) {
+    if (glslCaps->fSampleVariablesSupport &&
+        ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage")) {
+        // Pre-361 NVIDIA has a bug with NV_sample_mask_override_coverage.
         glslCaps->fSampleMaskOverrideCoverageSupport =
-            ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage");
+            kNVIDIA_GrGLDriver != ctxInfo.driver() ||
+            ctxInfo.driverVersion() >= GR_GL_DRIVER_VER(361,00);
     }
 
     // Adreno GPUs have a tendency to drop tiles when there is a divide-by-zero in a shader
@@ -745,7 +771,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
 
     if (glslCaps->fTexelFetchSupport) {
         if (kGL_GrGLStandard == standard) {
-            glslCaps->fTexelBufferSupport = ctxInfo.version() >= GR_GL_VER(4, 3) &&
+            glslCaps->fTexelBufferSupport = ctxInfo.version() >= GR_GL_VER(3, 1) &&
                                             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
         } else {
             if (ctxInfo.version() >= GR_GL_VER(3, 2) &&
@@ -1092,10 +1118,10 @@ SkString GrGLCaps::dump() const {
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
     r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
     r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
-    r.appendf("Multisample disable support: %s\n", (fMultisampleDisableSupport ? "YES" : "NO"));
     r.appendf("Draw indirect support: %s\n", (fDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));
+    r.appendf("Can draw indirect to float: %s\n", (fCanDrawIndirectToFloat ? "YES" : "NO"));
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
@@ -1477,7 +1503,9 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             (ctxInfo.version() >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB"));
         // ES through 3.1 requires EXT_srgb_write_control to support toggling
         // sRGB writing for destinations.
-        fSRGBWriteControl = ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
+        // See https://bug.skia.org/5329 for Adreno4xx issue.
+        fSRGBWriteControl = kAdreno4xx_GrGLRenderer != ctxInfo.renderer() &&
+            ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
     }
     if (!ctxInfo.hasExtension("GL_EXT_texture_sRGB_decode")) {
         // To support "legacy" L32 mode, we require the ability to turn off sRGB decode:

@@ -75,7 +75,7 @@ static void check_texture(skiatest::Reporter* reporter,
 }
 
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
     GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
 
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
@@ -122,7 +122,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
     GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
 
     static const int kWidthHeight = 100;

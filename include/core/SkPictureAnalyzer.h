@@ -9,11 +9,13 @@
 #define SkPictureAnalyzer_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkRegion.h"
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 
+class SkPath;
 class SkPicture;
 
 /** \class SkPictureGpuAnalyzer
@@ -29,7 +31,12 @@ public:
     /**
      *  Process the given picture and accumulate its stats.
      */
-    void analyze(const SkPicture*);
+    void analyzePicture(const SkPicture*);
+
+    /**
+     *  Process an explicit clipPath op.
+     */
+    void analyzeClipPath(const SkPath&, SkRegion::Op, bool doAntiAlias);
 
     /**
      *  Reset all accumulated stats.
@@ -40,6 +47,12 @@ public:
      *  Returns true if the analyzed pictures are suitable for rendering on the GPU.
      */
     bool suitableForGpuRasterization(const char** whyNot = nullptr) const;
+
+    /**
+     * Returns the number of commands which are slow to draw on the GPU, capped at the predicate
+     * max.
+     */
+    uint32_t numSlowGpuCommands() { return fNumSlowPaths; }
 
 private:
     uint32_t fNumSlowPaths;

@@ -36,7 +36,7 @@ public:
         GrRenderTarget* rt = fDst.get()->asRenderTarget();
         return rt ? rt->getUniqueID() : 0;
     }
-    GrRenderTarget* renderTarget() const override { return fDst.get()->asRenderTarget(); }
+    GrRenderTarget* renderTarget() const override { return nullptr; }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -44,6 +44,7 @@ public:
                       "DPT:[X: %d, Y: %d]",
                       fDst.get(), fSrc.get(), fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight,
                       fSrcRect.fBottom, fDstPoint.fX, fDstPoint.fY);
+        string.append(INHERITED::dumpInfo());
         return string;
     }
 
@@ -64,7 +65,12 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override {
-        state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
+        if (!state->commandBuffer()) {
+            state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
+        } else {
+            // currently we are not sending copies through the GrGpuCommandBuffer
+            SkASSERT(false);
+        }
     }
 
     GrPendingIOResource<GrSurface, kWrite_GrIOType> fDst;

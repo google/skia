@@ -9,7 +9,8 @@
 #define SkEncodedInfo_DEFINED
 
 #include "SkImageInfo.h"
-#include "../private/SkImageInfoPriv.h"
+
+class SkColorSpace;
 
 struct SkEncodedInfo {
 public:
@@ -116,22 +117,21 @@ public:
      * Returns an SkImageInfo with Skia color and alpha types that are the
      * closest possible match to the encoded info.
      */
-    SkImageInfo makeImageInfo(int width, int height) const {
-        SkColorProfileType profileType = SkDefaultColorProfile();
+    SkImageInfo makeImageInfo(int width, int height, const sk_sp<SkColorSpace>& colorSpace) const {
         switch (fColor) {
             case kGray_Color:
                 SkASSERT(kOpaque_Alpha == fAlpha);
                 return SkImageInfo::Make(width, height, kGray_8_SkColorType,
-                                         kOpaque_SkAlphaType, profileType);
+                                         kOpaque_SkAlphaType, colorSpace);
             case kGrayAlpha_Color:
                 SkASSERT(kOpaque_Alpha != fAlpha);
                 return SkImageInfo::Make(width, height, kN32_SkColorType,
-                        kUnpremul_SkAlphaType, profileType);
+                        kUnpremul_SkAlphaType, colorSpace);
             case kPalette_Color: {
                 SkAlphaType alphaType = (kOpaque_Alpha == fAlpha) ? kOpaque_SkAlphaType :
                         kUnpremul_SkAlphaType;
                 return SkImageInfo::Make(width, height, kIndex_8_SkColorType,
-                                         alphaType, profileType);
+                                         alphaType, colorSpace);
             }
             case kRGB_Color:
             case kBGR_Color:
@@ -141,13 +141,13 @@ public:
             case kYCCK_Color:
                 SkASSERT(kOpaque_Alpha == fAlpha);
                 return SkImageInfo::Make(width, height, kN32_SkColorType,
-                                         kOpaque_SkAlphaType, profileType);
+                                         kOpaque_SkAlphaType, colorSpace);
             case kRGBA_Color:
             case kBGRA_Color:
             case kYUVA_Color:
                 SkASSERT(kOpaque_Alpha != fAlpha);
                 return SkImageInfo::Make(width, height, kN32_SkColorType,
-                                         kUnpremul_SkAlphaType, profileType);
+                                         kUnpremul_SkAlphaType, colorSpace);
             default:
                 SkASSERT(false);
                 return SkImageInfo::MakeUnknown();
@@ -191,15 +191,9 @@ private:
         , fBitsPerComponent(bitsPerComponent)
     {}
 
-    void setColor(Color color) {
-        fColor = color;
-    }
-
     Color   fColor;
     Alpha   fAlpha;
     uint8_t fBitsPerComponent;
-
-    friend class SkJpegCodec;
 };
 
 #endif

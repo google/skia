@@ -112,7 +112,7 @@ bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 
-const GrFragmentProcessor* GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
     GrColor color SK_INIT_TO_AVOID_WARNING;
     int colorPicker = d->fRandom->nextULessThan(3);
     switch (colorPicker) {
@@ -133,5 +133,5 @@ const GrFragmentProcessor* GrConstColorProcessor::TestCreate(GrProcessorTestData
             break;
     }
     InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));
-    return GrConstColorProcessor::Create(color, mode);
+    return GrConstColorProcessor::Make(color, mode);
 }

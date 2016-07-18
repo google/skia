@@ -54,6 +54,14 @@ void* GrVkPipelineStateDataManager::getBufferPtrAndMarkDirty(const Uniform& uni)
     return buffer;
 }
 
+void GrVkPipelineStateDataManager::set1i(UniformHandle u, int32_t i) const {
+    const Uniform& uni = fUniforms[u.toIndex()];
+    SkASSERT(uni.fType == kInt_GrSLType);
+    SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
+    memcpy(buffer, &i, sizeof(int32_t));
+}
+
 void GrVkPipelineStateDataManager::set1f(UniformHandle u, float v0) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);

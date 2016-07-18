@@ -71,8 +71,14 @@ SkCanvas* Request::getCanvas() {
 #if SK_SUPPORT_GPU
     GrContextFactory* factory = fContextFactory;
     GLTestContext* gl = factory->getContextInfo(GrContextFactory::kNativeGL_ContextType,
-                                            GrContextFactory::kNone_ContextOptions).glContext();
-    gl->makeCurrent();
+                                                GrContextFactory::kNone_ContextOptions).glContext();
+    if (!gl) {
+        gl = factory->getContextInfo(GrContextFactory::kMESA_ContextType,
+                                     GrContextFactory::kNone_ContextOptions).glContext();
+    }
+    if (gl) {
+        gl->makeCurrent();
+    }
 #endif
     SkASSERT(fDebugCanvas);
 
@@ -115,10 +121,15 @@ SkData* Request::writeOutSkp() {
 
 GrContext* Request::getContext() {
 #if SK_SUPPORT_GPU
-  return fContextFactory->get(GrContextFactory::kNativeGL_ContextType,
-                              GrContextFactory::kNone_ContextOptions);
+    GrContext* result = fContextFactory->get(GrContextFactory::kNativeGL_ContextType,
+                                             GrContextFactory::kNone_ContextOptions);
+    if (!result) {
+        result = fContextFactory->get(GrContextFactory::kMESA_ContextType,
+                                      GrContextFactory::kNone_ContextOptions);
+    } 
+    return result;
 #else
-  return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -148,14 +159,14 @@ namespace {
 
 struct ColorAndProfile {
     SkColorType fColorType;
-    SkColorProfileType fProfileType;
+    bool fSRGB;
     bool fGammaCorrect;
 };
 
 ColorAndProfile ColorModes[] = {
-    { kN32_SkColorType, kLinear_SkColorProfileType, false },
-    { kN32_SkColorType, kSRGB_SkColorProfileType, true },
-    { kRGBA_F16_SkColorType, kLinear_SkColorProfileType, true },
+    { kN32_SkColorType,      false, false },
+    { kN32_SkColorType,       true, true },
+    { kRGBA_F16_SkColorType, false, true },
 };
 
 }
@@ -163,8 +174,9 @@ ColorAndProfile ColorModes[] = {
 SkSurface* Request::createCPUSurface() {
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
+    auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
-                                         kPremul_SkAlphaType, cap.fProfileType);
+                                         kPremul_SkAlphaType, cap.fSRGB ? srgbColorSpace : nullptr);
     uint32_t flags = cap.fGammaCorrect ? SkSurfaceProps::kGammaCorrect_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
     return SkSurface::MakeRaster(info, &props).release();
@@ -174,8 +186,9 @@ SkSurface* Request::createGPUSurface() {
     GrContext* context = this->getContext();
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
+    auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
-                                         kPremul_SkAlphaType, cap.fProfileType);
+                                         kPremul_SkAlphaType, cap.fSRGB ? srgbColorSpace : nullptr);
     uint32_t flags = cap.fGammaCorrect ? SkSurfaceProps::kGammaCorrect_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
     SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,
@@ -186,11 +199,6 @@ SkSurface* Request::createGPUSurface() {
 bool Request::setColorMode(int mode) {
     fColorMode = mode;
     return enableGPU(fGPUEnabled);
-}
-
-bool Request::setSRGBMode(bool enable) {
-    gTreatSkColorAsSRGB = enable;
-    return true;
 }
 
 bool Request::enableGPU(bool enable) {
@@ -245,7 +253,6 @@ SkData* Request::getJsonOps(int n) {
     root["mode"] = Json::Value(fGPUEnabled ? "gpu" : "cpu");
     root["drawGpuBatchBounds"] = Json::Value(fDebugCanvas->getDrawGpuBatchBounds());
     root["colorMode"] = Json::Value(fColorMode);
-    root["srgbMode"] = Json::Value(gTreatSkColorAsSRGB);
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(root).c_str());
 
