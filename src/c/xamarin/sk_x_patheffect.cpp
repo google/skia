@@ -18,6 +18,11 @@
 #include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
+void sk_path_effect_unref(sk_path_effect_t* effect)
+{
+    SkSafeUnref(AsPathEffect(effect));
+} 
+
 sk_path_effect_t* sk_path_effect_create_compose(sk_path_effect_t* outer, sk_path_effect_t* inner)
 {
     return ToPathEffect(SkComposePathEffect::Create(AsPathEffect(outer), AsPathEffect(inner)));
