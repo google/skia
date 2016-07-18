@@ -293,8 +293,8 @@ private:
     void appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
                           SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
 
-    inline void flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBuilder, const GrClip&,
-                         int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
+    inline void flushRun(GrDrawContext* dc, const GrPaint&, const GrClip&,
+                         int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                          const SkPaint& skPaint, const SkSurfaceProps& props,
                          const GrDistanceFieldAdjustTable* distanceAdjustTable,
                          GrBatchFontCache* cache);
