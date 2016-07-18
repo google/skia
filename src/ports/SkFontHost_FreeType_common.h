@@ -31,9 +31,8 @@ protected:
         : INHERITED(typeface, effects, desc)
     {}
 
-    void generateGlyphImage(FT_Face face, const SkGlyph& glyph);
+    void generateGlyphImage(FT_Face face, const SkGlyph& glyph, const SkMatrix& bitmapTransform);
     void generateGlyphPath(FT_Face face, SkPath* path);
-
 private:
     typedef SkScalerContext INHERITED;
 };
