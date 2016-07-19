@@ -201,6 +201,11 @@ protected:
 
     void drawAnnotation(const SkDraw&, const SkRect&, const char key[], SkData* value) override;
 
+    void drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&) override;
+    sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
+    sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
+    sk_sp<SkSpecialImage> snapSpecial() override;
+
 private:
     struct RectWithData {
         SkRect rect;

@@ -8,6 +8,7 @@
 #include "SkBitmapDevice.h"
 #include "SkConfig8888.h"
 #include "SkDraw.h"
+#include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkMallocPixelRef.h"
 #include "SkMatrix.h"
@@ -15,7 +16,9 @@
 #include "SkPath.h"
 #include "SkPixelRef.h"
 #include "SkPixmap.h"
+#include "SkRasterClip.h"
 #include "SkShader.h"
+#include "SkSpecialImage.h"
 #include "SkSurface.h"
 #include "SkXfermode.h"
 
@@ -363,6 +366,53 @@ void SkBitmapDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
                                 int x, int y, const SkPaint& paint) {
     draw.drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkBitmapDevice::drawSpecial(const SkDraw& draw, SkSpecialImage* srcImg, int x, int y,
+                                 const SkPaint& paint) {
+    SkASSERT(!srcImg->isTextureBacked());
+
+    SkBitmap resultBM;
+
+    SkImageFilter* filter = paint.getImageFilter();
+    if (filter) {
+        SkIPoint offset = SkIPoint::Make(0, 0);
+        SkMatrix matrix = *draw.fMatrix;
+        matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+        const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-x, -y);
+        SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
+        SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
+        
+        sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
+        if (resultImg) {
+            SkPaint tmpUnfiltered(paint);
+            tmpUnfiltered.setImageFilter(nullptr);
+            if (resultImg->getROPixels(&resultBM)) {
+                this->drawSprite(draw, resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
+            }
+        }
+    } else {
+        if (srcImg->getROPixels(&resultBM)) {
+            this->drawSprite(draw, resultBM, x, y, paint);
+        }
+    }
+}
+
+sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {
+    return SkSpecialImage::MakeFromRaster(bitmap.bounds(), bitmap);
+}
+
+sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkImage* image) {
+    return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(image->width(), image->height()),
+                                         image->makeNonTextureImage());
+}
+
+sk_sp<SkSpecialImage> SkBitmapDevice::snapSpecial() {
+    return this->makeSpecial(fBitmap);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkSurface> SkBitmapDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
     return SkSurface::MakeRaster(info, &props);

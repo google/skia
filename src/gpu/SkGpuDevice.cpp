@@ -1426,7 +1426,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
                                        &this->surfaceProps());
 }
 
-sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(SkImage* image) {
+sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
     SkPixmap pm;
     if (image->isTextureBacked()) {
         GrTexture* texture = as_IB(image)->peekTexture();
@@ -1457,8 +1457,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
             return nullptr;
         }
 
-        if (!fContext->copySurface(this->accessDrawContext()->accessRenderTarget(),
-                                   texture.get())) {
+        if (!fContext->copySurface(texture.get(), this->accessDrawContext()->accessRenderTarget())){
             return nullptr;
         }
     }

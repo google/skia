@@ -279,7 +279,7 @@ protected:
 
     virtual void drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
-    virtual sk_sp<SkSpecialImage> makeSpecial(SkImage*);
+    virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     virtual sk_sp<SkSpecialImage> snapSpecial();
 
     bool readPixels(const SkImageInfo&, void* dst, size_t rowBytes, int x, int y);
