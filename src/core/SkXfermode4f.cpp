@@ -441,7 +441,7 @@ static Sk4f lcd16_to_unit_4f(uint16_t rgb) {
 
 template <DstType D>
 void src_1_lcd(uint32_t dst[], const SkPM4f* src, int count, const uint16_t lcd[]) {
-    const Sk4f s4 = Sk4f::Load(src->fVec);
+    const Sk4f s4 = src->to4f_pmorder();
 
     if (D == kLinear_Dst) {
         // operate in bias-255 space for src and dst
@@ -473,7 +473,7 @@ void src_n_lcd(uint32_t dst[], const SkPM4f src[], int count, const uint16_t lcd
         if (0 == rgb) {
             continue;
         }
-        Sk4f s4 = Sk4f::Load(src[i].fVec);
+        Sk4f s4 = src[i].to4f_pmorder();
         Sk4f d4 = load_dst<D>(dst[i]);
         dst[i] = store_dst<D>(lerp(s4, d4, lcd16_to_unit_4f(rgb))) | (SK_A32_MASK << SK_A32_SHIFT);
     }
@@ -481,7 +481,7 @@ void src_n_lcd(uint32_t dst[], const SkPM4f src[], int count, const uint16_t lcd
 
 template <DstType D>
 void srcover_1_lcd(uint32_t dst[], const SkPM4f* src, int count, const uint16_t lcd[]) {
-    const Sk4f s4 = Sk4f::Load(src->fVec);
+    const Sk4f s4 = src->to4f_pmorder();
     Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
 
     for (int i = 0; i < count; ++i) {
@@ -503,7 +503,7 @@ void srcover_n_lcd(uint32_t dst[], const SkPM4f src[], int count, const uint16_t
         if (0 == rgb) {
             continue;
         }
-        Sk4f s4 = Sk4f::Load(src[i].fVec);
+        Sk4f s4 = src[i].to4f_pmorder();
         Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
         Sk4f d4 = load_dst<D>(dst[i]);
         Sk4f r4 = s4 + d4 * dst_scale;
