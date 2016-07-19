@@ -494,7 +494,11 @@
 /* Memory model/platform independent fns */
 #ifndef PNG_ABORT
 #  ifdef _WINDOWS_
+#   if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP) /* Windows Desktop */
 #    define PNG_ABORT() ExitProcess(0)
+#   else /* Windows Store */
+#    define PNG_ABORT()
+#   endif
 #  else
 #    define PNG_ABORT() abort()
 #  endif
