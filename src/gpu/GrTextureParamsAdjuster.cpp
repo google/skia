@@ -35,28 +35,23 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
     SkASSERT(context);
     const GrCaps* caps = context->caps();
 
-    // Either it's a cache miss or the original wasn't cached to begin with.
-    GrSurfaceDesc rtDesc = inputTexture->desc();
-    rtDesc.fFlags = rtDesc.fFlags | kRenderTarget_GrSurfaceFlag;
-    rtDesc.fWidth = copyParams.fWidth;
-    rtDesc.fHeight = copyParams.fHeight;
-    rtDesc.fConfig = GrMakePixelConfigUncompressed(rtDesc.fConfig);
+    GrPixelConfig config = GrMakePixelConfigUncompressed(inputTexture->config());
 
     // If the config isn't renderable try converting to either A8 or an 32 bit config. Otherwise,
     // fail.
-    if (!caps->isConfigRenderable(rtDesc.fConfig, false)) {
-        if (GrPixelConfigIsAlphaOnly(rtDesc.fConfig)) {
+    if (!caps->isConfigRenderable(config, false)) {
+        if (GrPixelConfigIsAlphaOnly(config)) {
             if (caps->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
-                rtDesc.fConfig = kAlpha_8_GrPixelConfig;
+                config = kAlpha_8_GrPixelConfig;
             } else if (caps->isConfigRenderable(kSkia8888_GrPixelConfig, false)) {
-                rtDesc.fConfig = kSkia8888_GrPixelConfig;
+                config = kSkia8888_GrPixelConfig;
             } else {
                 return nullptr;
             }
         } else if (kRGB_GrColorComponentFlags ==
-                   (kRGB_GrColorComponentFlags & GrPixelConfigComponentMask(rtDesc.fConfig))) {
+                (kRGB_GrColorComponentFlags & GrPixelConfigComponentMask(config))) {
             if (caps->isConfigRenderable(kSkia8888_GrPixelConfig, false)) {
-                rtDesc.fConfig = kSkia8888_GrPixelConfig;
+                config = kSkia8888_GrPixelConfig;
             } else {
                 return nullptr;
             }
@@ -65,20 +60,17 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
         }
     }
 
-    SkAutoTUnref<GrTexture> copy(context->textureProvider()->createTexture(rtDesc,
-                                                                           SkBudgeted::kYes));
-    if (!copy) {
+    sk_sp<GrDrawContext> copyDC = context->newDrawContext(SkBackingFit::kExact, copyParams.fWidth,
+                                                          copyParams.fHeight, config);
+    if (!copyDC) {
         return nullptr;
     }
-
-    // TODO: If no scaling is being performed then use copySurface.
 
     GrPaint paint;
     paint.setGammaCorrect(true);
 
-    // TODO: Initializing these values for no reason cause the compiler is complaining
-    SkScalar sx = 0.f;
-    SkScalar sy = 0.f;
+    SkScalar sx SK_INIT_TO_AVOID_WARNING;
+    SkScalar sy SK_INIT_TO_AVOID_WARNING;
     if (subset) {
         sx = 1.f / inputTexture->width();
         sy = 1.f / inputTexture->height();
@@ -115,14 +107,9 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
         localRect = SkRect::MakeWH(1.f, 1.f);
     }
 
-    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(copy->asRenderTarget())));
-    if (!drawContext) {
-        return nullptr;
-    }
-
-    SkRect dstRect = SkRect::MakeWH(SkIntToScalar(rtDesc.fWidth), SkIntToScalar(rtDesc.fHeight));
-    drawContext->fillRectToRect(GrNoClip(), paint, SkMatrix::I(), dstRect, localRect);
-    return copy.release();
+    SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
+    copyDC->fillRectToRect(GrNoClip(), paint, SkMatrix::I(), dstRect, localRect);
+    return copyDC->asTexture().release();
 }
 
 GrTextureAdjuster::GrTextureAdjuster(GrTexture* original,
