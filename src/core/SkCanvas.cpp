@@ -1269,37 +1269,36 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         }
     }
 
-    SkBaseDevice* device = this->getTopDevice();
-    if (nullptr == device) {
+    SkBaseDevice* priorDevice = this->getTopDevice();
+    if (!priorDevice) {
         SkDebugf("Unable to find device for layer.");
         return;
     }
 
-    SkImageInfo info = make_layer_info(device->imageInfo(), ir.width(), ir.height(), isOpaque,
+    SkImageInfo info = make_layer_info(priorDevice->imageInfo(), ir.width(), ir.height(), isOpaque,
                                        paint);
 
+    SkAutoTUnref<SkBaseDevice> newDevice;
     {
         const bool preserveLCDText = kOpaque_SkAlphaType == info.alphaType() ||
                                      (saveLayerFlags & kPreserveLCDText_SaveLayerFlag);
         const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
         const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo,
                                                                              preserveLCDText);
-        SkBaseDevice* newDev = device->onCreateDevice(createInfo, paint);
-        if (nullptr == newDev) {
+        newDevice.reset(priorDevice->onCreateDevice(createInfo, paint));
+        if (!newDevice) {
             SkErrorInternals::SetError(kInternalError_SkError,
                                        "Unable to create device for layer.");
             return;
         }
-        device = newDev;
     }
-    device->setOrigin(ir.fLeft, ir.fTop);
+    newDevice->setOrigin(ir.fLeft, ir.fTop);
 
     if (rec.fBackdrop) {
-        draw_filter_into_device(fMCRec->fTopLayer->fDevice, rec.fBackdrop, device, fMCRec->fMatrix);
+        draw_filter_into_device(priorDevice, rec.fBackdrop, newDevice, fMCRec->fMatrix);
     }
 
-    DeviceCM* layer = new DeviceCM(device, paint, this, fConservativeRasterClip, stashedMatrix);
-    device->unref();
+    DeviceCM* layer = new DeviceCM(newDevice, paint, this, fConservativeRasterClip, stashedMatrix);
 
     layer->fNext = fMCRec->fTopLayer;
     fMCRec->fLayer = layer;
