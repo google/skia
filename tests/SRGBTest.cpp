@@ -11,7 +11,8 @@
 #include <math.h>
 
 static uint8_t linear_to_srgb(float l) {
-    return (uint8_t)roundf(sk_linear_to_srgb(Sk4f{l})[0]);
+    // Round float to int, truncate that to uint8_t.
+    return (uint8_t)Sk4f_round( sk_linear_to_srgb(Sk4f{l}) )[0];
 }
 
 DEF_TEST(sk_linear_to_srgb, r) {

@@ -14,14 +14,14 @@
  *
  *  Current best practices:
  *      - for sRGB -> linear, lookup R,G,B in sk_linear_from_srgb;
- *      - for linear -> sRGB, call sk_linear_to_srgb() for R,G,B, clamp to 255, and round;
+ *      - for linear -> sRGB, call sk_linear_to_srgb() for R,G,B, and round;
  *      - the alpha channel is linear in both formats, needing at most *(1/255.0f) or *255.0f.
  *
  *  sk_linear_to_srgb()'s output requires rounding; it does not round for you.
  *
  *  Given inputs in [0,1], sk_linear_to_srgb() will not underflow 0 but may overflow 255.
- *  The overflow is small enough that you can safely either clamp then round or round then clamp.
- *  (If you don't trust the inputs are in [0,1], you'd better clamp both sides immediately.)
+ *  The overflow is small enough to be handled by rounding.
+ *  (But if you don't trust the inputs are in [0,1], you'd better clamp both sides immediately.)
  *
  *  sk_linear_to_srgb() will run a little faster than usual when compiled with SSE4.1+.
  */
