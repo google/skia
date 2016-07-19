@@ -427,20 +427,13 @@ protected:
 
 private:
     enum {
-        kPremulTypeKeyBitCnt = 1,
-        kPremulTypeMask = 1,
-        kPremulBeforeInterpKey = kPremulTypeMask,
+        // First bit for premul before/after interp
+        kPremulBeforeInterpKey = 1,
 
-        kTwoColorKey = 2 << kPremulTypeKeyBitCnt,
-        kThreeColorKey = 3 << kPremulTypeKeyBitCnt,
-        kColorKeyMask = kTwoColorKey | kThreeColorKey,
-        kColorKeyBitCnt = 2,
-
-        // Subclasses must shift any key bits they produce up by this amount
-        // and combine with the result of GenBaseGradientKey.
-        kBaseKeyBitCnt = (kPremulTypeKeyBitCnt + kColorKeyBitCnt)
+        // Next two bits for 2/3 color type (neither means using texture atlas)
+        kTwoColorKey   = 4,
+        kThreeColorKey = 6,
     };
-    GR_STATIC_ASSERT(kBaseKeyBitCnt <= 32);
 
     SkScalar fCachedYCoord;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
