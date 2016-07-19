@@ -79,21 +79,6 @@ SK_API void sk_path_add_oval(sk_path_t*, const sk_rect_t*, sk_path_direction_t);
  */
 SK_API bool sk_path_get_bounds(const sk_path_t*, sk_rect_t*);
 
-/**
-   Clear any lines and curves from the path, making it empty. This frees up
-   internal storage associated with those segments.
-   On Android, does not change fSourcePath.
- */
-SK_API void sk_path_reset (sk_path_t* cpath);
-
-/**
-   Similar to sk_path_reset (), in that all lines and curves are removed from the
-   path. However, any internal storage for those lines/curves is retained,
-   making reuse of the path potentially faster.
-   On Android, does not change fSourcePath.   
- */
-SK_API void sk_path_rewind (sk_path_t* cpath);
-
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

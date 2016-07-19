@@ -116,6 +116,21 @@ SK_API void sk_path_add_path_matrix  (sk_path_t* cpath, sk_path_t* other, sk_mat
 SK_API void sk_path_add_path         (sk_path_t* cpath, sk_path_t* other, sk_path_add_mode_t add_mode);
 SK_API void sk_path_add_path_reverse (sk_path_t* cpath, sk_path_t* other);
 
+/**
+   Clear any lines and curves from the path, making it empty. This frees up
+   internal storage associated with those segments.
+   On Android, does not change fSourcePath.
+ */
+SK_API void sk_path_reset (sk_path_t* cpath);
+
+/**
+   Similar to sk_path_reset (), in that all lines and curves are removed from the
+   path. However, any internal storage for those lines/curves is retained,
+   making reuse of the path potentially faster.
+   On Android, does not change fSourcePath.   
+ */
+SK_API void sk_path_rewind (sk_path_t* cpath);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
