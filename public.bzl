@@ -513,6 +513,7 @@ def DM_ARGS(base_dir, asan):
         "~Matrix",
         "~PathOpsCubic",
         "~PathOpsFailOp",
+        "~PathOpsOpCubicsThreaded",
         "~PathOpsOpLoopsThreaded",
         "~PathOpsSimplify",
         "~PathOpsTightBoundsQuads",
