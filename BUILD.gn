@@ -70,6 +70,10 @@ skia_library_configs = [
   ":skia_library",
 ]
 
+if (!defined(is_fuchsia)) {
+  is_fuchsia = current_os == "fuchsia"
+}
+
 unwanted_configs = []
 
 if (!is_fuchsia) {
@@ -245,9 +249,7 @@ component("skia") {
   }
 
   if (is_fuchsia) {
-    sources += [
-      "src/ports/SkFontMgr_empty_factory.cpp",
-    ]
+    sources += [ "src/ports/SkFontMgr_empty_factory.cpp" ]
   }
 }
 
