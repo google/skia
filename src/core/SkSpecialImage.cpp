@@ -335,19 +335,6 @@ public:
         }
     }
 
-    SkSpecialImage_Raster(const SkIRect& subset,
-                          const SkPixmap& pixmap,
-                          RasterReleaseProc releaseProc,
-                          ReleaseContext context,
-                          const SkSurfaceProps* props)
-        : INHERITED(subset, kNeedNewImageUniqueID_SpecialImage, props) {
-        fBitmap.installPixels(pixmap.info(), pixmap.writable_addr(),
-                              pixmap.rowBytes(), pixmap.ctable(),
-                              releaseProc, context);
-    }
-
-    ~SkSpecialImage_Raster() override { }
-
     bool isOpaque() const override { return fBitmap.isOpaque(); }
 
     size_t getSize() const override { return fBitmap.getSize(); }
@@ -427,19 +414,6 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
 
     return sk_make_sp<SkSpecialImage_Raster>(subset, bm, props);
 }
-
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromPixmap(const SkIRect& subset,
-                                                     const SkPixmap& src,
-                                                     RasterReleaseProc releaseProc,
-                                                     ReleaseContext context,
-                                                     const SkSurfaceProps* props) {
-    if (!src.addr()) {
-        return nullptr;
-    }
-
-    return sk_make_sp<SkSpecialImage_Raster>(subset, src, releaseProc, context, props);
-}
-
 
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////

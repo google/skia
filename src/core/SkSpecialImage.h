@@ -80,11 +80,6 @@ public:
                                              const SkSurfaceProps* = nullptr,
                                              SkAlphaType at = kPremul_SkAlphaType);
 #endif
-    static sk_sp<SkSpecialImage> MakeFromPixmap(const SkIRect& subset,
-                                                const SkPixmap&,
-                                                RasterReleaseProc,
-                                                ReleaseContext,
-                                                const SkSurfaceProps* = nullptr);
 
     /**
      *  Create a new special surface with a backend that is compatible with this special image.

@@ -177,25 +177,6 @@ DEF_TEST(SpecialImage_Image, reporter) {
     }
 }
 
-DEF_TEST(SpecialImage_Pixmap, reporter) {
-    SkAutoPixmapStorage pixmap;
-
-    const SkImageInfo info = SkImageInfo::MakeN32(kFullSize, kFullSize, kOpaque_SkAlphaType);
-    pixmap.alloc(info);
-    pixmap.erase(SK_ColorGREEN);
-
-    const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
-
-    pixmap.erase(SK_ColorRED, subset);
-
-    {
-        sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromPixmap(subset, pixmap,
-                                                                 nullptr, nullptr));
-        test_image(img, reporter, nullptr, false, kPad, kFullSize);
-    }
-}
-
-
 #if SK_SUPPORT_GPU
 
 static void test_texture_backed(skiatest::Reporter* reporter,
