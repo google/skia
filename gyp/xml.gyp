@@ -24,12 +24,7 @@
 
         '<(skia_src_path)/xml/SkDOM.cpp',
         '<(skia_src_path)/xml/SkXMLParser.cpp',
-        '<(skia_src_path)/xml/SkXMLPullParser.cpp',
         '<(skia_src_path)/xml/SkXMLWriter.cpp',
-      ],
-      'sources!': [
-          # time to kill this?
-          '<(skia_src_path)/xml/SkXMLPullParser.cpp', #if 0 around class decl in header
       ],
       'direct_dependent_settings': {
         'include_dirs': [
