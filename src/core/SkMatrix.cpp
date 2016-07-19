@@ -1571,19 +1571,22 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
     if (!SkScalarIsFinite(results[0])) {
         return false;
     }
-    if (results[0] < 0 && results[0] > -SK_ScalarNearlyZero) {
+    // Due to the floating point inaccuracy, there might be an error in a, b, c
+    // calculated by sdot, further deepened by subsequent arithmetic operations
+    // on them. Therefore, we allow and cap the nearly-zero negative values.
+    SkASSERT(results[0] >= -SK_ScalarNearlyZero);
+    if (results[0] < 0) {
         results[0] = 0;
     }
-    SkASSERT(results[0] >= 0);
     results[0] = SkScalarSqrt(results[0]);
     if (kBoth_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
         if (!SkScalarIsFinite(results[1])) {
             return false;
         }
-        if (results[1] < 0 && results[1] > -SK_ScalarNearlyZero) {
+        SkASSERT(results[1] >= -SK_ScalarNearlyZero);
+        if (results[1] < 0) {
             results[1] = 0;
         }
-        SkASSERT(results[1] >= 0);
         results[1] = SkScalarSqrt(results[1]);
     }
     return true;
