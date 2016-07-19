@@ -21,6 +21,10 @@ sk_typeface_t* sk_typeface_create_from_name(const char *familyName, sk_typeface_
 {
     return ToTypeface(SkTypeface::MakeFromName (familyName, SkFontStyle::FromOldStyle((SkTypeface::Style)sstyle)).release());
 }
+
+sk_typeface_t* sk_typeface_create_from_name_with_font_style(const char *familyName, int weight, int width, sk_font_style_slant_t slant)
+{
+    return ToTypeface(SkTypeface::MakeFromName (familyName, SkFontStyle(weight, width, (SkFontStyle::Slant)slant)).release());
 }
 
 sk_typeface_t* sk_typeface_create_from_typeface(sk_typeface_t* typeface, sk_typeface_style_t sstyle)
