@@ -532,7 +532,6 @@
           '<(skia_include_path)/images',
           '<(skia_include_path)/pathops',
           '<(skia_include_path)/ports',
-          '<(skia_include_path)/svg/parser',
           '<(skia_include_path)/utils',
           '<(skia_include_path)/views',
           '<(skia_include_path)/xml',

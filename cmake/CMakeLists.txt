@@ -65,7 +65,7 @@ remove_srcs (../src/sksl/SkSLMain.cpp)
 
 # Skia sure ships a lot of code no one uses.
 remove_srcs (../src/animator/* ../src/*nacl* ../src/svg/* ../src/views/* ../src/xml/*)
-foreach (include animator svg svg/parser views xml gpu/vk)
+foreach (include animator svg views xml gpu/vk)
   file (GLOB globed_include ../include/${include})
   list (REMOVE_ITEM public_includes ${globed_include})
 endforeach()
