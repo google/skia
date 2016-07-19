@@ -82,12 +82,14 @@ typedef enum {
 */
 SK_API sk_colortype_t sk_colortype_get_default_8888();
 
+typedef struct sk_colorspace_t sk_colorspace_t;
+
 typedef struct {
-    int32_t                width;
-    int32_t                height;
-    sk_colortype_t         colorType;
-    sk_alphatype_t         alphaType;
-    sk_colorprofiletype_t  profileType;
+    sk_colorspace_t* colorSpace;
+    int32_t         width;
+    int32_t         height;
+    sk_colortype_t  colorType;
+    sk_alphatype_t  alphaType;
 } sk_imageinfo_t;
 
 typedef struct {

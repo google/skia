@@ -338,18 +338,6 @@ const struct {
 #include "../sk_c_from_to.h"
 
 const struct {
-    sk_colorprofiletype_t  fC;
-    SkColorProfileType     fSK;
-} MAKE_FROM_TO_NAME(sk_colorprofiletype_t)[] = {
-    { LINEAR_SK_COLORPROFILETYPE,  kLinear_SkColorProfileType },
-    { SRGB_SK_COLORPROFILETYPE,    kSRGB_SkColorProfileType   },
-};
-#define CType           sk_colorprofiletype_t
-#define SKType          SkColorProfileType
-#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_colorprofiletype_t)
-#include "../sk_c_from_to.h"
-
-const struct {
     sk_encoded_format_t  fC;
     SkEncodedFormat      fSK;
 } MAKE_FROM_TO_NAME(sk_encoded_format_t)[] = {
