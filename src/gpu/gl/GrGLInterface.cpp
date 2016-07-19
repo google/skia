@@ -774,7 +774,7 @@ bool GrGLInterface::validate() const {
         if (nullptr == fFunctions.fMinSampleShading) {
             RETURN_FALSE_INTERFACE
         }
-    } else if (kGL_GrGLStandard == fStandard && fExtensions.has("GL_OES_sample_shading")) {
+    } else if (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_OES_sample_shading")) {
         if (nullptr == fFunctions.fMinSampleShading) {
             RETURN_FALSE_INTERFACE
         }
