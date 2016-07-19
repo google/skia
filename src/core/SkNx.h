@@ -309,6 +309,15 @@ SI Sk4i Sk4f_round(const Sk4f& x) {
              (int) lrintf (x[3]), };
 }
 
+// Transpose 4 Sk4h and store (256 bits total).
+SI void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk4h& b, const Sk4h& a) {
+    uint64_t* dst64 = (uint64_t*) dst;
+    Sk4h(r[0], g[0], b[0], a[0]).store(dst64 + 0);
+    Sk4h(r[1], g[1], b[1], a[1]).store(dst64 + 1);
+    Sk4h(r[2], g[2], b[2], a[2]).store(dst64 + 2);
+    Sk4h(r[3], g[3], b[3], a[3]).store(dst64 + 3);
+}
+
 #endif
 
 SI void Sk4f_ToBytes(uint8_t p[16], const Sk4f& a, const Sk4f& b, const Sk4f& c, const Sk4f& d) {

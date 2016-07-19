@@ -73,7 +73,9 @@ DEF_TEST(HalfToFloat_finite, r) {
                         u(f), f);
             }
             REPORTER_ASSERT(r, SkHalfToFloat_finite(h)[0] == f);
-            REPORTER_ASSERT(r, SkFloatToHalf_finite(SkHalfToFloat_finite(h)) == h);
+            uint64_t result;
+            SkFloatToHalf_finite(SkHalfToFloat_finite(h)).store(&result);
+            REPORTER_ASSERT(r, result == h);
         }
     }
 }
@@ -89,7 +91,7 @@ DEF_TEST(FloatToHalf_finite, r) {
         float f;
         memcpy(&f, &bits, 4);
         if (isfinite(f) && isfinite(SkHalfToFloat(SkFloatToHalf(f)))) {
-            uint16_t h1 = (uint16_t)SkFloatToHalf_finite(Sk4f(f,0,0,0)),
+            uint16_t h1 = SkFloatToHalf_finite(Sk4f(f,0,0,0))[0],
                      h2 = SkFloatToHalf(f);
             bool ok = (h1 == h2 || h1 == h2-1);
             REPORTER_ASSERT(r, ok);

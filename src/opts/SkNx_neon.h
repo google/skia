@@ -483,4 +483,15 @@ static inline Sk4i Sk4f_round(const Sk4f& x) {
     return vcvtq_s32_f32((x + 0.5f).fVec);
 }
 
+static inline void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk4h& b,
+                               const Sk4h& a) {
+    uint16x4x4_t rgba = {{
+        r.fVec,
+        g.fVec,
+        b.fVec,
+        a.fVec,
+    }};
+    vst4_u16((uint16_t*) dst, rgba);
+}
+
 #endif//SkNx_neon_DEFINED

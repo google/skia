@@ -126,16 +126,10 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
 
                 dst = SkTAddOffset<void>(dst, 4 * sizeof(uint32_t));
             } else {
-                // FIXME (msarett):
-                // Can we do better here?  Should we store half floats as planar?
-                // Should we write Intel/Arm specific code?  Should we add a transpose
-                // function to SkNx?  Should we rewrite the algorithm to be interleaved?
-                uint64_t* dst64 = (uint64_t*) dst;
-                dst64[0] = SkFloatToHalf_finite(Sk4f(dstReds[0], dstGreens[0], dstBlues[0], 1.0f));
-                dst64[1] = SkFloatToHalf_finite(Sk4f(dstReds[1], dstGreens[1], dstBlues[1], 1.0f));
-                dst64[2] = SkFloatToHalf_finite(Sk4f(dstReds[2], dstGreens[2], dstBlues[2], 1.0f));
-                dst64[3] = SkFloatToHalf_finite(Sk4f(dstReds[3], dstGreens[3], dstBlues[3], 1.0f));
-
+                Sk4h_store4(dst, SkFloatToHalf_finite(dstReds),
+                                 SkFloatToHalf_finite(dstGreens),
+                                 SkFloatToHalf_finite(dstBlues),
+                                 SK_Half1);
                 dst = SkTAddOffset<void>(dst, 4 * sizeof(uint64_t));
             }
         };
@@ -185,10 +179,9 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
 
             dst = SkTAddOffset<void>(dst, sizeof(uint32_t));
         } else {
-            uint64_t rgba = SkFloatToHalf_finite(dstPixel);
-
-            // Set alpha to 1.0
-            rgba |= 0x3C00000000000000;
+            uint64_t rgba;
+            SkFloatToHalf_finite(dstPixel).store(&rgba);
+            rgba |= static_cast<uint64_t>(SK_Half1) << 48;
             *((uint64_t*) dst) = rgba;
             dst = SkTAddOffset<void>(dst, sizeof(uint64_t));
         }

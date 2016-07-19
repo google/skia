@@ -403,4 +403,14 @@ static inline Sk4i Sk4f_round(const Sk4f& x) {
     return _mm_cvtps_epi32(x.fVec);
 }
 
+static inline void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk4h& b,
+                               const Sk4h& a) {
+    __m128i rg = _mm_unpacklo_epi16(r.fVec, g.fVec);
+    __m128i ba = _mm_unpacklo_epi16(b.fVec, a.fVec);
+    __m128i lo = _mm_unpacklo_epi32(rg, ba);
+    __m128i hi = _mm_unpackhi_epi32(rg, ba);
+    _mm_storeu_si128(((__m128i*) dst) + 0, lo);
+    _mm_storeu_si128(((__m128i*) dst) + 1, hi);
+}
+
 #endif//SkNx_sse_DEFINED

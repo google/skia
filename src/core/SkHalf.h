@@ -16,9 +16,10 @@
 // only used for storage
 typedef uint16_t SkHalf;
 
-#define SK_HalfMin      0x0400   // 2^-24  (minimum positive normal value)
-#define SK_HalfMax      0x7bff   // 65504
-#define SK_HalfEpsilon  0x1400   // 2^-10
+static constexpr uint16_t SK_HalfMin     = 0x0400; // 2^-24  (minimum positive normal value)
+static constexpr uint16_t SK_HalfMax     = 0x7bff; // 65504
+static constexpr uint16_t SK_HalfEpsilon = 0x1400; // 2^-10
+static constexpr uint16_t SK_Half1       = 0x3C00; // 1
 
 // convert between half and single precision floating point
 float SkHalfToFloat(SkHalf h);
@@ -26,8 +27,8 @@ SkHalf SkFloatToHalf(float f);
 
 // Convert between half and single precision floating point,
 // assuming inputs and outputs are both finite.
-static inline     Sk4f SkHalfToFloat_finite(uint64_t);
-static inline uint64_t SkFloatToHalf_finite(const Sk4f&);
+static inline Sk4f SkHalfToFloat_finite(uint64_t);
+static inline Sk4h SkFloatToHalf_finite(const Sk4f&);
 
 // ~~~~~~~~~~~ impl ~~~~~~~~~~~~~~ //
 
@@ -65,14 +66,12 @@ static inline Sk4f SkHalfToFloat_finite(uint64_t hs) {
 #endif
 }
 
-static inline uint64_t SkFloatToHalf_finite(const Sk4f& fs) {
-    uint64_t r;
+static inline Sk4h SkFloatToHalf_finite(const Sk4f& fs) {
 #if !defined(SKNX_NO_SIMD) && defined(SK_CPU_ARM64)
     float32x4_t vec = fs.fVec;
     asm ("fcvtn %[vec].4h, %[vec].4s  \n"   // vcvt_f16_f32(vec)
-         "fmov  %[r], %d[vec]         \n"   // vst1_f16(&r, ...)
-        : [r] "=r" (r)                      // =r: write-only 64-bit general register
-        , [vec] "+w" (vec));                // +w: read-write NEON register
+        : [vec] "+w" (vec));                // +w: read-write NEON register
+    return vreinterpret_u16_f32(vget_low_f32(vec));
 #else
     Sk4i bits           = Sk4i::Load(&fs),
          sign           = bits & 0x80000000,              // Save the sign bit for later...
@@ -91,9 +90,8 @@ static inline uint64_t SkFloatToHalf_finite(const Sk4f& fs) {
     Sk4i denorm = Sk4i::Load(&plus_K) ^ K;
 
     Sk4i merged = (sign >> 16) | will_be_denorm.thenElse(denorm, norm);
-    SkNx_cast<uint16_t>(merged).store(&r);
+    return SkNx_cast<uint16_t>(merged);
 #endif
-    return r;
 }
 
 #endif

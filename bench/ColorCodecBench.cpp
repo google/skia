@@ -16,6 +16,7 @@ DEFINE_bool(qcms,       false, "Bench qcms color conversion");
 #endif
 DEFINE_bool(xform_only, false, "Only time the color xform, do not include the decode time");
 DEFINE_bool(srgb,       false, "Convert to srgb dst space");
+DEFINE_bool(half,       false, "Convert to half floats");
 
 ColorCodecBench::ColorCodecBench(const char* name, sk_sp<SkData> encoded)
     : fEncoded(std::move(encoded))
@@ -43,7 +44,7 @@ void ColorCodecBench::decodeAndXform() {
 #ifdef SK_DEBUG
     const SkCodec::Result result =
 #endif
-    codec->startScanlineDecode(fInfo);
+    codec->startScanlineDecode(fSrcInfo);
     SkASSERT(SkCodec::kSuccess == result);
 
     sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getColorSpace());
@@ -54,15 +55,17 @@ void ColorCodecBench::decodeAndXform() {
     SkASSERT(xform);
 
     void* dst = fDst.get();
-    for (int y = 0; y < fInfo.height(); y++) {
+    for (int y = 0; y < fSrcInfo.height(); y++) {
 #ifdef SK_DEBUG
         const int rows =
 #endif
         codec->getScanlines(fSrc.get(), 1, 0);
         SkASSERT(1 == rows);
 
-        xform->applyTo8888((SkPMColor*) dst, (uint32_t*) fSrc.get(), fInfo.width());
-        dst = SkTAddOffset<void>(dst, fInfo.minRowBytes());
+        FLAGS_half ?
+                xform->applyToF16((uint64_t*) dst, (uint32_t*) fSrc.get(), fSrcInfo.width()) :
+                xform->applyTo8888((SkPMColor*) dst, (uint32_t*) fSrc.get(), fSrcInfo.width());
+        dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
     }
 }
 
@@ -72,7 +75,7 @@ void ColorCodecBench::decodeAndXformQCMS() {
 #ifdef SK_DEBUG
     const SkCodec::Result result =
 #endif
-    codec->startScanlineDecode(fInfo);
+    codec->startScanlineDecode(fSrcInfo);
     SkASSERT(SkCodec::kSuccess == result);
 
     SkAutoTCallVProc<qcms_profile, qcms_profile_release>
@@ -91,15 +94,15 @@ void ColorCodecBench::decodeAndXformQCMS() {
 #endif
 
     void* dst = fDst.get();
-    for (int y = 0; y < fInfo.height(); y++) {
+    for (int y = 0; y < fSrcInfo.height(); y++) {
 #ifdef SK_DEBUG
         const int rows =
 #endif
         codec->getScanlines(fSrc.get(), 1, 0);
         SkASSERT(1 == rows);
 
-        qcms_transform_data_type(transform, fSrc.get(), dst, fInfo.width(), outType);
-        dst = SkTAddOffset<void>(dst, fInfo.minRowBytes());
+        qcms_transform_data_type(transform, fSrc.get(), dst, fSrcInfo.width(), outType);
+        dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
     }
 }
 #endif
@@ -114,11 +117,13 @@ void ColorCodecBench::xformOnly() {
 
     void* dst = fDst.get();
     void* src = fSrc.get();
-    for (int y = 0; y < fInfo.height(); y++) {
+    for (int y = 0; y < fSrcInfo.height(); y++) {
         // Transform in place
-        xform->applyTo8888((SkPMColor*) dst, (uint32_t*) src, fInfo.width());
-        dst = SkTAddOffset<void>(dst, fInfo.minRowBytes());
-        src = SkTAddOffset<void>(src, fInfo.minRowBytes());
+        FLAGS_half ?
+                xform->applyToF16((uint64_t*) dst, (uint32_t*) src, fSrcInfo.width()) :
+                xform->applyTo8888((SkPMColor*) dst, (uint32_t*) src, fSrcInfo.width());
+        dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
+        src = SkTAddOffset<void>(src, fSrcInfo.minRowBytes());
     }
 }
 
@@ -141,26 +146,31 @@ void ColorCodecBench::xformOnlyQCMS() {
 
     void* dst = fDst.get();
     void* src = fSrc.get();
-    for (int y = 0; y < fInfo.height(); y++) {
+    for (int y = 0; y < fSrcInfo.height(); y++) {
         // Transform in place
-        qcms_transform_data_type(transform, src, dst, fInfo.width(), outType);
-        dst = SkTAddOffset<void>(dst, fInfo.minRowBytes());
-        src = SkTAddOffset<void>(src, fInfo.minRowBytes());
+        qcms_transform_data_type(transform, src, dst, fSrcInfo.width(), outType);
+        dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
+        src = SkTAddOffset<void>(src, fSrcInfo.minRowBytes());
     }
 }
 #endif
 
 void ColorCodecBench::onDelayedSetup() {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
-    fInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
+    fSrcInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
 
-    fDst.reset(fInfo.getSafeSize(fInfo.minRowBytes()));
+    fDstInfo = fSrcInfo;
+    if (FLAGS_half) {
+        fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
+    }
+    fDst.reset(fDstInfo.getSafeSize(fDstInfo.minRowBytes()));
+
     if (FLAGS_xform_only) {
-        fSrc.reset(fInfo.getSafeSize(fInfo.minRowBytes()));
-        codec->getPixels(fInfo, fSrc.get(), fInfo.minRowBytes());
+        fSrc.reset(fSrcInfo.getSafeSize(fSrcInfo.minRowBytes()));
+        codec->getPixels(fSrcInfo, fSrc.get(), fSrcInfo.minRowBytes());
     } else {
         // Set-up a row buffer to decode into before transforming to dst.
-        fSrc.reset(fInfo.minRowBytes());
+        fSrc.reset(fSrcInfo.minRowBytes());
     }
 
     fSrcData = codec->getICCData();
@@ -189,6 +199,11 @@ void ColorCodecBench::onDelayedSetup() {
 }
 
 void ColorCodecBench::onDraw(int n, SkCanvas*) {
+    if ((FLAGS_srgb || FLAGS_qcms) && FLAGS_half) {
+        SkDebugf("Error: Contradicting flags.\n");
+        return;
+    }
+
     for (int i = 0; i < n; i++) {
 #if defined(SK_TEST_QCMS)
         if (FLAGS_qcms) {
