@@ -20,7 +20,6 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPictureImageFilter.h"
-#include "SkTestImageFilters.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 
@@ -135,16 +134,6 @@ sk_imagefilter_t* sk_imagefilter_new_displacement_map_effect(
         sk_ref_sp(AsImageFilter(displacement)),
         sk_ref_sp(AsImageFilter(color)),
         AsImageFilterCropRect(cropRect));
-    return ToImageFilter(filter.release());
-}
-
-sk_imagefilter_t* sk_imagefilter_new_downsample(
-    float scale,
-    sk_imagefilter_t* input /*NULL*/) {
-
-    sk_sp<SkImageFilter> filter = SkDownSampleImageFilter::Make(
-        scale,
-        sk_ref_sp(AsImageFilter(input)));
     return ToImageFilter(filter.release());
 }
 

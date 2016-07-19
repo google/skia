@@ -50,9 +50,6 @@ SK_API sk_imagefilter_t* sk_imagefilter_new_displacement_map_effect(
     sk_imagefilter_t* displacement,
     sk_imagefilter_t* color /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/);
-SK_API sk_imagefilter_t* sk_imagefilter_new_downsample(
-    float scale,
-    sk_imagefilter_t* input /*NULL*/);
 SK_API sk_imagefilter_t* sk_imagefilter_new_drop_shadow(
     float dx,
     float dy,
