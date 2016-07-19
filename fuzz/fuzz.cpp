@@ -14,6 +14,8 @@
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
 #include "SkPicture.h"
+#include "SkPicture.h"
+#include "SkPicture.h"
 #include "SkStream.h"
 
 #include <cmath>
@@ -403,6 +405,12 @@ Fuzz::Fuzz(SkData* bytes) : fBytes(SkSafeRef(bytes)), fNextByte(0) {}
 
 void Fuzz::signalBug   () { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
 void Fuzz::signalBoring() { SkDebugf("Signal boring\n"); exit(0); }
+
+size_t Fuzz::size() { return fBytes->size(); }
+
+size_t Fuzz::remaining() {
+    return fBytes->size() - fNextByte;
+}
 
 template <typename T>
 T Fuzz::nextT() {

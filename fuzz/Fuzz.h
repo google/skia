@@ -16,6 +16,14 @@ class Fuzz : SkNoncopyable {
 public:
     explicit Fuzz(SkData*);
 
+    // Returns the total number of "random" bytes available.
+    size_t size();
+    // Returns the total number of "random" bytes remaining for randomness.
+    size_t remaining();
+
+    template <typename T>
+    bool next(T* n);
+
     bool nextBool();
     uint8_t  nextB();
     uint32_t nextU();
@@ -42,6 +50,17 @@ private:
     SkAutoTUnref<SkData> fBytes;
     int fNextByte;
 };
+
+template <typename T>
+bool Fuzz::next(T* n) {
+    if (fNextByte + sizeof(T) > fBytes->size()) {
+        return false;
+    }
+
+    memcpy(n, fBytes->bytes() + fNextByte, sizeof(T));
+    fNextByte += sizeof(T);
+    return true;
+}
 
 struct Fuzzable {
     const char* name;
