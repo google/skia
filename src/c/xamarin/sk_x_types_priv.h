@@ -26,6 +26,7 @@
 #include "SkDropShadowImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
 #include "Sk1DPathEffect.h"
+#include "SkFontStyle.h"
 
 #include "sk_path.h"
 #include "sk_paint.h"

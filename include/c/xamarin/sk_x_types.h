@@ -133,11 +133,17 @@ typedef enum {
 } sk_path_filltype_t;
 
 typedef enum {
-    NORMAL_TYPEFACE_STYLE = 0,
-    BOLD_TYPEFACE_STYLE = 1,
-    ITALIC_TYPEFACE_STYLE = 2,
-    BOLD_ITALIC_TYPEFACE_STYLE = 3
+    NORMAL_TYPEFACE_STYLE      = 0,
+    BOLD_TYPEFACE_STYLE        = 0x01,
+    ITALIC_TYPEFACE_STYLE      = 0x02,
+    BOLD_ITALIC_TYPEFACE_STYLE = 0x03
 } sk_typeface_style_t;
+
+typedef enum {
+    UPRIGHT_SK_FONT_STYLE_SLANT = 0,
+    ITALIC_SK_FONT_STYLE_SLANT  = 1,
+    OBLIQUE_SK_FONT_STYLE_SLANT = 2,
+} sk_font_style_slant_t;
 
 typedef enum {
     NONE_SK_FILTER_QUALITY,

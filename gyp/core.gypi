@@ -36,6 +36,7 @@
         '<(skia_src_path)/c/xamarin/sk_x_codec.cpp',
         '<(skia_src_path)/c/xamarin/sk_x_data.cpp',
         '<(skia_src_path)/c/xamarin/sk_x_document.cpp',
+        '<(skia_src_path)/c/xamarin/sk_x_enums.cpp',
         '<(skia_src_path)/c/xamarin/sk_x_image.cpp',
         '<(skia_src_path)/c/xamarin/sk_x_maskfilter.cpp',
         '<(skia_src_path)/c/xamarin/sk_x_matrix.cpp',
