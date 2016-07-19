@@ -78,7 +78,7 @@ private:
         void setPosText(const char text[], size_t byteLength, const SkScalar pos[],
                         int scalarsPerPosition, const SkPoint& offset);
 
-        void draw(GrContext*, GrDrawContext*, const GrPaint&, const GrClip&, GrColor,
+        void draw(GrContext*, GrDrawContext*, const GrPaint&, const GrClip&,
                   const SkMatrix&, const SkSurfaceProps&,
                   SkScalar x, SkScalar y, const SkIRect& clipBounds,
                   GrAtlasTextContext* fallbackTextContext, const SkPaint& originalSkPaint) const;
@@ -86,6 +86,8 @@ private:
         void releaseGlyphCache() const;
 
         size_t computeSizeInCache() const;
+
+        bool isAntiAlias() const { return fFont.isAntiAlias(); }
 
     private:
         typedef GrDrawPathRangeBatch::InstanceData InstanceData;
