@@ -228,7 +228,7 @@ void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
 sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
                                     const sk_surfaceprops_t* props) {
     const SkImageInfo* info = AsImageInfo(cinfo);
-    SkSurfaceProps surfProps(0, (SkPixelGeometry)props->pixelGeometry);
+    SkSurfaceProps surfProps(0, props ? (SkPixelGeometry)props->pixelGeometry : SkPixelGeometry::kUnknown_SkPixelGeometry);
     return (sk_surface_t*)SkSurface::MakeRaster(*info, &surfProps).release();
 }
 
@@ -236,7 +236,7 @@ sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pi
                                            size_t rowBytes,
                                            const sk_surfaceprops_t* props) {
     const SkImageInfo* info = AsImageInfo(cinfo);
-    SkSurfaceProps surfProps(0, (SkPixelGeometry)props->pixelGeometry);
+    SkSurfaceProps surfProps(0, props ? (SkPixelGeometry)props->pixelGeometry : SkPixelGeometry::kUnknown_SkPixelGeometry);
     return (sk_surface_t*)SkSurface::MakeRasterDirect(*info, pixels, rowBytes, &surfProps).release();
 }
 
