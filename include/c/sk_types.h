@@ -60,11 +60,6 @@ typedef enum {
 } sk_alphatype_t;
 
 typedef enum {
-    LINEAR_SK_COLORPROFILETYPE,
-    SRGB_SK_COLORPROFILETYPE,
-} sk_colorprofiletype_t;
-
-typedef enum {
     INTERSECT_SK_CLIPTYPE,
     DIFFERENCE_SK_CLIPTYPE,
 } sk_cliptype_t;
