@@ -101,6 +101,10 @@
           'sources/': [ ['exclude', '_win.(h|cpp)$'],
           ],
         }],
+        ['skia_os != "mac"', {
+          'sources/': [ ['exclude', '_mac.(h|cpp)$'],
+          ],
+        }],
 	['skia_vulkan == 0', {
 	  'sources/': [ ['exclude', 'Vulkan']
 	  ],

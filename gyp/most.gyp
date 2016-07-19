@@ -67,7 +67,7 @@
             'skiaserve.gyp:skiaserve',
           ],
         }],
-        [ 'skia_os in ["win", "linux", "android"]', {
+        [ 'skia_os in ["win", "linux", "android", "mac"]', {
           'dependencies': [
             'viewer.gyp:viewer',
           ],
