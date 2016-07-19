@@ -199,7 +199,12 @@ void ColorCodecBench::onDelayedSetup() {
 }
 
 void ColorCodecBench::onDraw(int n, SkCanvas*) {
-    if ((FLAGS_srgb || FLAGS_qcms) && FLAGS_half) {
+#if defined(SK_TEST_QCMS)
+    bool to8888 = FLAGS_srgb || FLAGS_qcms;
+#else
+    bool to8888 = FLAGS_srgb;
+#endif
+    if (to8888 && FLAGS_half) {
         SkDebugf("Error: Contradicting flags.\n");
         return;
     }
