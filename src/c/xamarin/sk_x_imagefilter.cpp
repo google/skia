@@ -62,12 +62,7 @@ sk_imagefilter_t* sk_imagefilter_new_matrix(
     SkMatrix matrix;
     from_c(cmatrix, &matrix);
 
-    SkFilterQuality quality;
-    if (!find_sk(cquality, &quality)) {
-        return NULL;
-    }
-
-    sk_sp<SkImageFilter> filter = SkImageFilter::MakeMatrixFilter(matrix, quality, sk_ref_sp(AsImageFilter(input)));
+    sk_sp<SkImageFilter> filter = SkImageFilter::MakeMatrixFilter(matrix, (SkFilterQuality)cquality, sk_ref_sp(AsImageFilter(input)));
     return ToImageFilter(filter.release());
 }
 
@@ -118,18 +113,9 @@ sk_imagefilter_t* sk_imagefilter_new_displacement_map_effect(
     sk_imagefilter_t* color /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
 
-    SkDisplacementMapEffect::ChannelSelectorType xSel;
-    if (!find_sk(xChannelSelector, &xSel)) {
-        return NULL;
-    }
-    SkDisplacementMapEffect::ChannelSelectorType ySel;
-    if (!find_sk(yChannelSelector, &ySel)) {
-        return NULL;
-    }
-
     sk_sp<SkImageFilter> filter = SkDisplacementMapEffect::Make(
-        xSel,
-        ySel, 
+        (SkDisplacementMapEffect::ChannelSelectorType)xChannelSelector,
+        (SkDisplacementMapEffect::ChannelSelectorType)yChannelSelector, 
         scale, 
         sk_ref_sp(AsImageFilter(displacement)),
         sk_ref_sp(AsImageFilter(color)),
@@ -147,18 +133,13 @@ sk_imagefilter_t* sk_imagefilter_new_drop_shadow(
     sk_imagefilter_t* input /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
 
-    SkDropShadowImageFilter::ShadowMode shadowMode;
-    if (!find_sk(cShadowMode, &shadowMode)) {
-        return NULL;
-    }
-
     sk_sp<SkImageFilter> filter = SkDropShadowImageFilter::Make(
         dx,
         dy, 
         sigmaX, 
         sigmaY,
         color,
-        shadowMode,
+        (SkDropShadowImageFilter::ShadowMode)cShadowMode,
         sk_ref_sp(AsImageFilter(input)),
         AsImageFilterCropRect(cropRect));
     return ToImageFilter(filter.release());
@@ -313,18 +294,13 @@ sk_imagefilter_t* sk_imagefilter_new_matrix_convolution(
     sk_imagefilter_t* input /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
 
-    SkMatrixConvolutionImageFilter::TileMode tileMode;
-    if (!find_sk(ctileMode, &tileMode)) {
-        return NULL;
-    }
-
     sk_sp<SkImageFilter> filter = SkMatrixConvolutionImageFilter::Make(
         *AsISize(kernelSize),
         kernel,
         gain,
         bias,
         *AsIPoint(kernelOffset),
-        tileMode,
+        (SkMatrixConvolutionImageFilter::TileMode)ctileMode,
         convolveAlpha,
         sk_ref_sp(AsImageFilter(input)),
         AsImageFilterCropRect(cropRect));
@@ -337,14 +313,6 @@ sk_imagefilter_t* sk_imagefilter_new_merge(
     const sk_xfermode_mode_t cmodes[] /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
 
-    SkXfermode::Mode* modes = new SkXfermode::Mode[count];
-    for (int i = 0; i < count; i++) {
-        if (!find_sk(cmodes[i], &modes[i])) {
-            delete[] modes;
-            return NULL;
-        }
-    }
-    
     sk_sp<SkImageFilter>* filters = new sk_sp<SkImageFilter>[count];
     for (int i = 0; i < count; i++) {
         filters[i] = sk_ref_sp(AsImageFilter(cfilters[i]));
@@ -353,10 +321,8 @@ sk_imagefilter_t* sk_imagefilter_new_merge(
     sk_sp<SkImageFilter> filter = SkMergeImageFilter::Make(
         filters,
         count,
-        modes,
+        (SkXfermode::Mode*)cmodes,
         AsImageFilterCropRect(cropRect));
-
-    delete[] modes;
 
     return ToImageFilter(filter.release());
 }
@@ -426,15 +392,10 @@ sk_imagefilter_t* sk_imagefilter_new_picture_for_localspace(
     const sk_rect_t* cropRect,
     sk_filter_quality_t filterQuality) {
 
-    SkFilterQuality quality;
-    if (!find_sk(filterQuality, &quality)) {
-        return NULL;
-    }
-
     sk_sp<SkImageFilter> filter = SkPictureImageFilter::MakeForLocalSpace(
         sk_ref_sp(AsPicture(picture)),
         *AsRect(cropRect),
-        quality);
+        (SkFilterQuality)filterQuality);
     return ToImageFilter(filter.release());
 }
 
@@ -456,13 +417,8 @@ sk_imagefilter_t* sk_imagefilter_new_xfermode(
     sk_imagefilter_t* foreground /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
 
-    SkXfermode::Mode mode;
-    if (!find_sk(cmode, &mode)) {
-        return NULL;
-    }
-
     sk_sp<SkImageFilter> filter = SkXfermodeImageFilter::Make(
-        SkXfermode::Make(mode),
+        SkXfermode::Make((SkXfermode::Mode)cmode),
         sk_ref_sp(AsImageFilter(background)),
         sk_ref_sp(AsImageFilter(foreground)),
         AsImageFilterCropRect(cropRect));

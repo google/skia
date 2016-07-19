@@ -29,24 +29,6 @@ static inline bool find_c(SKType from, CType* to) {
     return false;
 }
 
-static inline SKType find_sk_default(CType from, SKType def) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(CTypeSkTypeMap); ++i) {
-        if (CTypeSkTypeMap[i].fC == from) {
-            return CTypeSkTypeMap[i].fSK;
-        }
-    }
-    return def;
-}
-
-static inline CType find_c_default(SKType from, CType def) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(CTypeSkTypeMap); ++i) {
-        if (CTypeSkTypeMap[i].fSK == from) {
-            return CTypeSkTypeMap[i].fC;
-        }
-    }
-    return def;
-}
-
 #undef CType
 #undef SKType
 #undef CTypeSkTypeMap

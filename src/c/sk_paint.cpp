@@ -68,44 +68,22 @@ void sk_paint_set_stroke_miter(sk_paint_t* cpaint, float miter) {
 }
 
 sk_stroke_cap_t sk_paint_get_stroke_cap(const sk_paint_t* cpaint) {
-    sk_stroke_cap_t ccap;
-    if (!find_c(AsPaint(*cpaint).getStrokeCap(), &ccap)) {
-        ccap = BUTT_SK_STROKE_CAP;
-    }
-    return ccap;
+    return (sk_stroke_cap_t)AsPaint(*cpaint).getStrokeCap();
 }
 
 void sk_paint_set_stroke_cap(sk_paint_t* cpaint, sk_stroke_cap_t ccap) {
-    SkPaint::Cap skcap;
-    if (find_sk(ccap, &skcap)) {
-        AsPaint(cpaint)->setStrokeCap(skcap);
-    } else {
-        // unknown ccap
-    }
+    AsPaint(cpaint)->setStrokeCap((SkPaint::Cap)ccap);
 }
 
 sk_stroke_join_t sk_paint_get_stroke_join(const sk_paint_t* cpaint) {
-    sk_stroke_join_t cjoin;
-    if (!find_c(AsPaint(*cpaint).getStrokeJoin(), &cjoin)) {
-        cjoin = MITER_SK_STROKE_JOIN;
-    }
-    return cjoin;
+    return (sk_stroke_join_t)AsPaint(*cpaint).getStrokeJoin();
 }
 
 void sk_paint_set_stroke_join(sk_paint_t* cpaint, sk_stroke_join_t cjoin) {
-    SkPaint::Join skjoin;
-    if (find_sk(cjoin, &skjoin)) {
-        AsPaint(cpaint)->setStrokeJoin(skjoin);
-    } else {
-        // unknown cjoin
-    }
+    AsPaint(cpaint)->setStrokeJoin((SkPaint::Join)cjoin);
 }
 
 void sk_paint_set_xfermode_mode(sk_paint_t* paint, sk_xfermode_mode_t mode) {
     SkASSERT(paint);
-
-    SkXfermode::Mode m;
-    if (find_sk(mode, &m)) {
-        AsPaint(paint)->setXfermodeMode(m);
-    }
+    AsPaint(paint)->setXfermodeMode((SkXfermode::Mode)mode);
 }

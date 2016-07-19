@@ -29,18 +29,12 @@ void sk_canvas_restore_to_count(sk_canvas_t* ccanvas, int saveCount) {
 }
 
 void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_xfermode_mode_t cmode) {
-    SkXfermode::Mode mode;
-    if (find_sk(cmode, &mode)) {
-        AsCanvas(ccanvas)->drawColor(color, mode);
-    }
+    AsCanvas(ccanvas)->drawColor(color, (SkXfermode::Mode)cmode);
 }
 
 void sk_canvas_draw_points(sk_canvas_t* ccanvas, sk_point_mode_t pointMode, size_t count, const sk_point_t points [], const sk_paint_t* cpaint)
 {
-    SkCanvas* canvas = AsCanvas(ccanvas);
-    SkCanvas::PointMode mode = MapPointMode(pointMode);
-
-    canvas->drawPoints (mode, count, AsPoint(points), *AsPaint(cpaint));
+    AsCanvas(ccanvas)->drawPoints ((SkCanvas::PointMode)pointMode, count, AsPoint(points), *AsPaint(cpaint));
 }
 
 void sk_canvas_draw_point(sk_canvas_t* ccanvas, float x, float y, const sk_paint_t* cpaint)
@@ -119,15 +113,11 @@ void sk_canvas_draw_round_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, flo
 }
 
 void sk_canvas_clip_rect_with_operation(sk_canvas_t* ccanvas, const sk_rect_t* crect, sk_region_op_t op, bool doAA) {
-    SkRegion::Op operation = SkRegion::kIntersect_Op;
-    find_sk(op, &operation);
-    AsCanvas(ccanvas)->clipRect(AsRect(*crect), operation, doAA);
+    AsCanvas(ccanvas)->clipRect(AsRect(*crect), (SkRegion::Op)op, doAA);
 }
 
 void sk_canvas_clip_path_with_operation(sk_canvas_t* ccanvas, const sk_path_t* cpath, sk_region_op_t op, bool doAA) {
-    SkRegion::Op operation = SkRegion::kIntersect_Op;
-    find_sk(op, &operation);
-    AsCanvas(ccanvas)->clipPath(AsPath(*cpath), operation, doAA);
+    AsCanvas(ccanvas)->clipPath(AsPath(*cpath), (SkRegion::Op)op, doAA);
 }
 
 bool sk_canvas_get_clip_bounds(sk_canvas_t* ccanvas, sk_rect_t* cbounds) {

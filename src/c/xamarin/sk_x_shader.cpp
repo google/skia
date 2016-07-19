@@ -27,21 +27,17 @@ sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t* src,
                                   sk_shader_tilemode_t tmx,
                                   sk_shader_tilemode_t tmy,
                                   const sk_matrix_t* localMatrix) {
-    SkShader::TileMode modex;
-    if (!find_sk(tmx, &modex)) {
-        return NULL;
-    }
-    SkShader::TileMode modey;
-    if (!find_sk(tmy, &modey)) {
-        return NULL;
-    }
     SkMatrix matrix;
     if (localMatrix) {
         from_c(localMatrix, &matrix);
     } else {
         matrix.setIdentity();
     }
-    sk_sp<SkShader> s = SkShader::MakeBitmapShader(*AsBitmap(src), modex, modey, &matrix);
+    sk_sp<SkShader> s = SkShader::MakeBitmapShader(
+        *AsBitmap(src),
+        (SkShader::TileMode)tmx,
+        (SkShader::TileMode)tmy,
+        &matrix);
     return ToShader(s.release());
 }
 
@@ -50,14 +46,6 @@ sk_shader_t* sk_shader_new_picture(sk_picture_t* src,
                                   sk_shader_tilemode_t tmy,
                                   const sk_matrix_t* localMatrix,
                                   const sk_rect_t* tile) {
-    SkShader::TileMode modex;
-    if (!find_sk(tmx, &modex)) {
-        return NULL;
-    }
-    SkShader::TileMode modey;
-    if (!find_sk(tmy, &modey)) {
-        return NULL;
-    }
     SkMatrix matrix;
     if (localMatrix) {
         from_c(localMatrix, &matrix);
@@ -65,7 +53,12 @@ sk_shader_t* sk_shader_new_picture(sk_picture_t* src,
     else {
         matrix.setIdentity();
     }
-    sk_sp<SkShader> s = SkShader::MakePictureShader(sk_ref_sp(AsPicture(src)), modex, modey, &matrix, AsRect(tile));
+    sk_sp<SkShader> s = SkShader::MakePictureShader(
+        sk_ref_sp(AsPicture(src)),
+        (SkShader::TileMode)tmx,
+        (SkShader::TileMode)tmy,
+        &matrix,
+        AsRect(tile));
     return ToShader(s.release());
 }
 
@@ -124,7 +117,11 @@ sk_shader_t* sk_shader_new_perlin_noise_turbulence(
 sk_shader_t* sk_shader_new_compose(
     sk_shader_t* shaderA,
     sk_shader_t* shaderB) {
-    sk_sp<SkShader> s = SkShader::MakeComposeShader(sk_ref_sp(AsShader(shaderA)), sk_ref_sp(AsShader(shaderB)), SkXfermode::kSrcOver_Mode);
+
+    sk_sp<SkShader> s = SkShader::MakeComposeShader(
+        sk_ref_sp(AsShader(shaderA)),
+        sk_ref_sp(AsShader(shaderB)),
+        SkXfermode::kSrcOver_Mode);
     return ToShader(s.release());
 }
 
@@ -133,10 +130,9 @@ sk_shader_t* sk_shader_new_compose_with_mode(
     sk_shader_t* shaderB,
     sk_xfermode_mode_t cmode) {
 
-    SkXfermode::Mode mode;
-    if (!find_sk(cmode, &mode)) {
-        return NULL;
-    }
-    sk_sp<SkShader> s = SkShader::MakeComposeShader(sk_ref_sp(AsShader(shaderA)), sk_ref_sp(AsShader(shaderB)), mode);
+    sk_sp<SkShader> s = SkShader::MakeComposeShader(
+        sk_ref_sp(AsShader(shaderA)),
+        sk_ref_sp(AsShader(shaderB)),
+        (SkXfermode::Mode)cmode);
     return ToShader(s.release());
 }

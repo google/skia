@@ -164,20 +164,12 @@ void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t co
 
 bool sk_bitmap_copy(sk_bitmap_t* cbitmap, sk_bitmap_t* dst, sk_colortype_t ct)
 {
-    SkColorType skct;
-    if (!find_sk(ct, &skct)) {
-        skct = SkColorType::kUnknown_SkColorType;
-    }
-    return AsBitmap(cbitmap)->copyTo(AsBitmap(dst), skct);
+    return AsBitmap(cbitmap)->copyTo(AsBitmap(dst), (SkColorType)ct);
 }
 
 bool sk_bitmap_can_copy_to(sk_bitmap_t* cbitmap, sk_colortype_t ct)
 {
-    SkColorType skct;
-    if (!find_sk(ct, &skct)) {
-        skct = SkColorType::kUnknown_SkColorType;
-    }
-    return AsBitmap(cbitmap)->canCopyTo(skct);
+    return AsBitmap(cbitmap)->canCopyTo((SkColorType)ct);
 }
 
 void sk_bitmap_unlock_pixels(sk_bitmap_t* cbitmap)

@@ -56,11 +56,9 @@ sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t* cpaint) {
 
 sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t* paint) {
     SkASSERT(paint);
-
     SkXfermode::Mode mode;
-    sk_xfermode_mode_t cmode;
-    if (SkXfermode::AsMode(AsPaint(paint)->getXfermode(), &mode) && find_c(mode, &cmode)) {
-        return cmode;
+    if (SkXfermode::AsMode(AsPaint(paint)->getXfermode(), &mode)) {
+        return (sk_xfermode_mode_t)mode;
     }
     return SRCOVER_SK_XFERMODE_MODE;
 }
@@ -68,24 +66,13 @@ sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t* paint) {
 void sk_paint_set_filter_quality(sk_paint_t* cpaint, sk_filter_quality_t filterQuality)
 {
     SkASSERT(cpaint);
-    SkFilterQuality fq;
-    if (find_sk(filterQuality, &fq)) {
-        AsPaint(cpaint)->setFilterQuality(fq);
-    }
+    AsPaint(cpaint)->setFilterQuality((SkFilterQuality)filterQuality);
 }
 
 sk_filter_quality_t sk_paint_get_filter_quality(sk_paint_t* cpaint)
 {
     SkASSERT(cpaint);
-    SkFilterQuality fq;
-    sk_filter_quality_t cfq;
-    fq = AsPaint(cpaint)->getFilterQuality();
-    if (find_c(fq, &cfq)) {
-        return cfq;
-    }
-    else {
-        return NONE_SK_FILTER_QUALITY;
-    }
+    return (sk_filter_quality_t)AsPaint(cpaint)->getFilterQuality();
 }
 
 sk_typeface_t* sk_paint_get_typeface(sk_paint_t* paint)
@@ -109,37 +96,19 @@ void sk_paint_set_textsize(sk_paint_t* paint, float size)
 }
 
 sk_text_align_t sk_paint_get_text_align(const sk_paint_t* cpaint) {
-    sk_text_align_t calign;
-    if (!find_c(AsPaint(*cpaint).getTextAlign(), &calign)) {
-        calign = LEFT_SK_TEXT_ALIGN;
-    }
-    return calign;
+    return (sk_text_align_t)AsPaint(*cpaint).getTextAlign();
 }
 
 void sk_paint_set_text_align(sk_paint_t* cpaint, sk_text_align_t calign) {
-    SkPaint::Align skalign;
-    if (find_sk(calign, &skalign)) {
-        AsPaint(cpaint)->setTextAlign(skalign);
-    } else {
-        // unknown calign
-    }
+    AsPaint(cpaint)->setTextAlign((SkPaint::Align)calign);
 }
 
 sk_text_encoding_t sk_paint_get_text_encoding(const sk_paint_t* cpaint) {
-    sk_text_encoding_t cencoding;
-    if (!find_c(AsPaint(*cpaint).getTextEncoding(), &cencoding)) {
-        cencoding = UTF8_SK_TEXT_ENCODING;
-    }
-    return cencoding;
+    return (sk_text_encoding_t)AsPaint(*cpaint).getTextEncoding();
 }
 
 void sk_paint_set_text_encoding(sk_paint_t* cpaint, sk_text_encoding_t cencoding) {
-    SkPaint::TextEncoding skencoding;
-    if (find_sk(cencoding, &skencoding)) {
-        AsPaint(cpaint)->setTextEncoding(skencoding);
-    } else {
-        // unknown cencoding
-    }
+    AsPaint(cpaint)->setTextEncoding((SkPaint::TextEncoding)cencoding);
 }
 
 float sk_paint_get_text_scale_x(const sk_paint_t* cpaint) {

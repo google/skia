@@ -45,7 +45,7 @@ sk_path_effect_t* sk_path_effect_create_corner(float radius)
 
 sk_path_effect_t* sk_path_effect_create_1d_path(const sk_path_t* path, float advance, float phase, sk_path_effect_1d_style_t style)
 {
-    return ToPathEffect(SkPath1DPathEffect::Make(AsPath(*path), advance, phase, find_sk_default(style, SkPath1DPathEffect::kTranslate_Style)).release());
+    return ToPathEffect(SkPath1DPathEffect::Make(AsPath(*path), advance, phase, (SkPath1DPathEffect::Style)style).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_2d_line(float width, const sk_matrix_t* cmatrix)

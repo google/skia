@@ -21,14 +21,9 @@ void sk_colorfilter_unref(sk_colorfilter_t* filter) {
 
 sk_colorfilter_t* sk_colorfilter_new_mode(sk_color_t c, sk_xfermode_mode_t cmode) {
 
-    SkXfermode::Mode mode;
-    if (!find_sk(cmode, &mode)) {
-        return NULL;
-    }
-
     sk_sp<SkColorFilter> filter = SkColorFilter::MakeModeFilter(
         c,
-        mode);
+        (SkXfermode::Mode)cmode);
     return ToColorFilter(filter.release());
 }
 
