@@ -183,27 +183,6 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx, const GrBackendTe
     return new_wrapped_texture_common(ctx, desc, at, kAdopt_GrWrapOwnership, nullptr, nullptr);
 }
 
-sk_sp<SkImage> SkImage::MakeFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                            SkAlphaType at) {
-    if (desc.fWidth <= 0 || desc.fHeight <= 0) {
-        return nullptr;
-    }
-
-    SkAutoTUnref<GrTexture> src(ctx->textureProvider()->wrapBackendTexture(
-        desc, kBorrow_GrWrapOwnership));
-    if (!src) {
-        return nullptr;
-    }
-
-    SkAutoTUnref<GrTexture> dst(GrDeepCopyTexture(src, SkBudgeted::kYes));
-    if (!dst) {
-        return nullptr;
-    }
-
-    return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, dst,
-                                   SkBudgeted::kYes);
-}
-
 static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                   bool nv12,
                                                   const GrBackendObject yuvTextureHandles[],

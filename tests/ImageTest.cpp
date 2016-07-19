@@ -782,11 +782,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTexture, reporter, ctxInfo)
     sk_sp<SkImage> refImg(
         SkImage::MakeFromTexture(ctxInfo.grContext(), backendDesc, kPremul_SkAlphaType,
                                  TextureReleaseChecker::Release, &releaseChecker));
-    sk_sp<SkImage> cpyImg(SkImage::MakeFromTextureCopy(ctxInfo.grContext(), backendDesc,
-                                                       kPremul_SkAlphaType));
 
     check_image_color(reporter, refImg.get(), expected0);
-    check_image_color(reporter, cpyImg.get(), expected0);
 
     // Now lets jam new colors into our "external" texture, and see if the images notice
     const SkPMColor expected1 = SkPreMultiplyColor(SK_ColorBLUE);
@@ -799,7 +796,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTexture, reporter, ctxInfo)
     // write pixels call violated the contract with refImg and refImg is now undefined.
     check_image_color(reporter, refImg, expected1);
 #endif
-    check_image_color(reporter, cpyImg.get(), expected0);
 
     // Now exercise the release proc
     REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
