@@ -170,7 +170,7 @@ public:
         GrSurfaceDesc   fTempSurfaceDesc;
         /** Indicates whether there is a performance advantage to using an exact match texture
             (in terms of width and height) for the intermediate texture instead of approximate. */
-        bool            fUseExactScratch;
+        SkBackingFit    fTempSurfaceFit;
         /** Swizzle to apply during the draw. This is used to compensate for either feature or
             performance limitations in the underlying 3D API. */
         GrSwizzle       fSwizzle;
