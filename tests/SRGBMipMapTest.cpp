@@ -119,27 +119,18 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     GrTextureProvider* texProvider = context->textureProvider();
     SkAutoTUnref<GrTexture> texture(texProvider->createTexture(desc, SkBudgeted::kNo, texData, 0));
 
-    // Create two surfaces (L32 and S32)
-    GrSurfaceDesc l32Desc;
-    l32Desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    l32Desc.fConfig = kSkia8888_GrPixelConfig;
-    l32Desc.fWidth = rtS;
-    l32Desc.fHeight = rtS;
-
-    GrSurfaceDesc s32Desc = l32Desc;
-    s32Desc.fConfig = kSkiaGamma8888_GrPixelConfig;
-
-    SkAutoTUnref<GrTexture> l32Texture(texProvider->createTexture(l32Desc, SkBudgeted::kNo));
-    SkAutoTUnref<GrTexture> s32Texture(texProvider->createTexture(s32Desc, SkBudgeted::kNo));
-
+    // Create two draw contexts (L32 and S32)
     SkSurfaceProps l32Props(SkSurfaceProps::kLegacyFontHost_InitType);
     SkSurfaceProps s32Props(SkSurfaceProps::kGammaCorrect_Flag,
                             SkSurfaceProps::kLegacyFontHost_InitType);
-
-    sk_sp<GrDrawContext> l32DrawContext(
-        context->drawContext(sk_ref_sp(l32Texture->asRenderTarget()), &l32Props));
-    sk_sp<GrDrawContext> s32DrawContext(
-        context->drawContext(sk_ref_sp(s32Texture->asRenderTarget()), &s32Props));
+    sk_sp<GrDrawContext> l32DrawContext = context->newDrawContext(SkBackingFit::kExact, rtS, rtS,
+                                                                  kSkia8888_GrPixelConfig, 0,
+                                                                  kDefault_GrSurfaceOrigin,
+                                                                  &l32Props);
+    sk_sp<GrDrawContext> s32DrawContext = context->newDrawContext(SkBackingFit::kExact, rtS, rtS,
+                                                                  kSkiaGamma8888_GrPixelConfig, 0,
+                                                                  kDefault_GrSurfaceOrigin,
+                                                                  &s32Props);
 
     SkRect rect = SkRect::MakeWH(SkIntToScalar(rtS), SkIntToScalar(rtS));
     GrNoClip noClip;
@@ -151,16 +142,19 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     // 1) Draw texture to S32 surface (should generate/use sRGB mips)
     paint.setGammaCorrect(true);
     s32DrawContext->drawRect(noClip, paint, SkMatrix::I(), rect);
-    read_and_check_pixels(reporter, s32Texture, expectedSRGB, error, "first render of sRGB");
+    read_and_check_pixels(reporter, s32DrawContext->asTexture().get(), expectedSRGB, error,
+                          "first render of sRGB");
 
     // 2) Draw texture to L32 surface (should generate/use linear mips)
     paint.setGammaCorrect(false);
     l32DrawContext->drawRect(noClip, paint, SkMatrix::I(), rect);
-    read_and_check_pixels(reporter, l32Texture, expectedLinear, error, "re-render as linear");
+    read_and_check_pixels(reporter, l32DrawContext->asTexture().get(), expectedLinear, error,
+                          "re-render as linear");
 
     // 3) Go back to sRGB
     paint.setGammaCorrect(true);
     s32DrawContext->drawRect(noClip, paint, SkMatrix::I(), rect);
-    read_and_check_pixels(reporter, s32Texture, expectedSRGB, error, "re-render as sRGB");
+    read_and_check_pixels(reporter, s32DrawContext->asTexture().get(), expectedSRGB, error,
+                          "re-render as sRGB");
 }
 #endif
