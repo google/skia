@@ -3,13 +3,19 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-declare_args() {
-}
+template("third_party") {
+  source_set(target_name) {
+    forward_variables_from(invoker, "*")
 
-# Chrome's GN environment sets up a bunch of default configs we don't need/want here.
-unwanted_configs = [
-  "//build/config/clang:extra_warnings",
-  "//build/config/clang:find_bad_constructs",
-  "//build/config/compiler:chromium_code",
-  "//build/config:feature_flags",
-]
+    # Warnings are just noise if we're not maintaining the code.
+    cflags = [ "-w" ]
+
+    # Chrome's GN environment sets up a bunch of default configs we don't need/want here.
+    configs -= [
+      "//build/config/clang:extra_warnings",
+      "//build/config/clang:find_bad_constructs",
+      "//build/config/compiler:chromium_code",
+      "//build/config:feature_flags",
+    ]
+  }
+}

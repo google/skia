@@ -3,24 +3,19 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("third_party.gni")
-
-# Most third_party code should disable warnings: if we don't maintain the code, warnings are noise.
-config("no_warnings") {
-  cflags = [ "-w" ]
+declare_args() {
 }
-third_party_configs = [ ":no_warnings" ]
+
+import("third_party.gni")
 
 config("libpng_public") {
   include_dirs = [ "libpng" ]
 }
-source_set("libpng") {
+third_party("libpng") {
   public_configs = [ ":libpng_public" ]
-  configs += third_party_configs
-  configs -= unwanted_configs
 
   deps = [
-    ":zlib",
+    "//third_party/zlib",
   ]
   sources = [
     "libpng/png.c",
@@ -44,10 +39,8 @@ source_set("libpng") {
 config("libjpeg-turbo_config") {
   include_dirs = [ "externals/libjpeg-turbo" ]
 }
-source_set("libjpeg-turbo") {
+third_party("libjpeg-turbo") {
   public_configs = [ ":libjpeg-turbo_config" ]
-  configs += third_party_configs
-  configs -= unwanted_configs
 
   sources = [
     "externals/libjpeg-turbo/jcapimin.c",
