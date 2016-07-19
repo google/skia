@@ -83,9 +83,8 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
             GrGLint buffer;
             GR_GL_CALL(fBackendContext, GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
             desc.fRenderTargetHandle = buffer;
-            fRenderTarget.reset(fContext->textureProvider()->wrapBackendRenderTarget(desc));
 
-            fSurface = this->createRenderSurface(fRenderTarget, fActualColorBits);
+            fSurface = this->createRenderSurface(desc, fActualColorBits);
         }
     }
 

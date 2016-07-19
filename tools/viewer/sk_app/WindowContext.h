@@ -45,12 +45,13 @@ public:
     GrContext* getGrContext() const { return fContext; }
 
     sk_sp<SkSurface> createOffscreenSurface(bool sRGB);
-    sk_sp<SkSurface> createRenderSurface(sk_sp<GrRenderTarget>, int colorBits);
     void presentRenderSurface(sk_sp<SkSurface> renderSurface, sk_sp<GrRenderTarget> rt,
                               int colorBits);
 
 protected:
     virtual bool isGpuContext() { return true;  }
+
+    sk_sp<SkSurface> createRenderSurface(GrBackendRenderTargetDesc, int colorBits);
 
     GrContext*        fContext;
 
@@ -62,7 +63,7 @@ protected:
 
 private:
     sk_sp<SkSurface> createSurface(
-            sk_sp<GrRenderTarget>, int colorBits, bool offscreen, bool forceSRGB);
+            GrBackendRenderTargetDesc*, int colorBits, bool offscreen, bool forceSRGB);
 };
 
 }   // namespace sk_app

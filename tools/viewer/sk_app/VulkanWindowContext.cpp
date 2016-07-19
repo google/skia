@@ -278,9 +278,8 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         desc.fSampleCnt = 0;
         desc.fStencilBits = 0;
         desc.fRenderTargetHandle = (GrBackendObject) &info;
-        fRenderTargets[i].reset(fContext->textureProvider()->wrapBackendRenderTarget(desc));
 
-        fSurfaces[i] = this->createRenderSurface(fRenderTargets[i], 24);
+        fSurfaces[i] = this->createRenderSurface(desc, 24);
     }
 
     // create the command pool for the command buffers

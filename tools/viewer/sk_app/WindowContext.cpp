@@ -25,12 +25,12 @@ sk_sp<SkSurface> WindowContext::createOffscreenSurface(bool forceSRGB) {
     return createSurface(nullptr, 0, true, forceSRGB);
 }
 
-sk_sp<SkSurface> WindowContext::createRenderSurface(sk_sp<GrRenderTarget> rt, int colorBits) {
-    return createSurface(rt, colorBits, false, false);
+sk_sp<SkSurface> WindowContext::createRenderSurface(GrBackendRenderTargetDesc desc, int colorBits) {
+    return createSurface(&desc, colorBits, false, false);
 }
 
 sk_sp<SkSurface> WindowContext::createSurface(
-        sk_sp<GrRenderTarget> rt, int colorBits, bool offscreen, bool forceSRGB) {
+        GrBackendRenderTargetDesc* rtDesc, int colorBits, bool offscreen, bool forceSRGB) {
     auto flags = (fSurfaceProps.flags() & ~SkSurfaceProps::kGammaCorrect_Flag) |
                  (GrPixelConfigIsSRGB(fPixelConfig) || forceSRGB ?
                   SkSurfaceProps::kGammaCorrect_Flag : 0);
@@ -57,7 +57,7 @@ sk_sp<SkSurface> WindowContext::createSurface(
             return SkSurface::MakeRaster(info, &props);
         }
     } else {
-        return SkSurface::MakeRenderTargetDirect(rt.get(), &props);
+        return SkSurface::MakeFromBackendRenderTarget(fContext, *rtDesc, &props);
     }
 }
 
