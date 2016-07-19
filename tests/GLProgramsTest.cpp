@@ -154,33 +154,12 @@ static sk_sp<GrDrawContext> random_draw_context(GrContext* context,
                                                 : kBottomLeft_GrSurfaceOrigin;
     int sampleCnt = random->nextBool() ? SkTMin(4, caps->maxSampleCount()) : 0;
 
-    GrUniqueKey key;
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(&key, kDomain, 2);
-    builder[0] = origin;
-    builder[1] = sampleCnt;
-    builder.finish();
-
-    sk_sp<GrTexture> texture(context->textureProvider()->findAndRefTextureByUniqueKey(key));
-    if (texture) {
-        sk_sp<GrRenderTarget> rt(sk_ref_sp(texture->asRenderTarget()));
-        return context->drawContext(std::move(rt));
-    }
-
     sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kExact,
                                                              kRenderTargetWidth,
                                                              kRenderTargetHeight,
                                                              kRGBA_8888_GrPixelConfig,
                                                              sampleCnt,
                                                              origin));
-    if (!drawContext) {
-        return nullptr;
-    }
-
-    // TODO: need a real way to do this via the drawContext
-    texture = drawContext->asTexture();
-    context->textureProvider()->assignUniqueKeyToTexture(key, texture.get());
-
     return drawContext;
 }
 
