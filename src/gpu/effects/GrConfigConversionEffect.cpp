@@ -154,16 +154,18 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                                                               PMConversion* upmToPMRule) {
     *pmToUPMRule = kNone_PMConversion;
     *upmToPMRule = kNone_PMConversion;
-    SkAutoTMalloc<uint32_t> data(256 * 256 * 3);
+    static constexpr int kSize = 256;
+    static constexpr GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
+    SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);
     uint32_t* srcData = data.get();
-    uint32_t* firstRead = data.get() + 256 * 256;
-    uint32_t* secondRead = data.get() + 2 * 256 * 256;
+    uint32_t* firstRead = data.get() + kSize * kSize;
+    uint32_t* secondRead = data.get() + 2 * kSize * kSize;
 
     // Fill with every possible premultiplied A, color channel value. There will be 256-y duplicate
     // values in row y. We set r,g, and b to the same value since they are handled identically.
-    for (int y = 0; y < 256; ++y) {
-        for (int x = 0; x < 256; ++x) {
-            uint8_t* color = reinterpret_cast<uint8_t*>(&srcData[256*y + x]);
+    for (int y = 0; y < kSize; ++y) {
+        for (int x = 0; x < kSize; ++x) {
+            uint8_t* color = reinterpret_cast<uint8_t*>(&srcData[kSize*y + x]);
             color[3] = y;
             color[2] = SkTMin(x, y);
             color[1] = SkTMin(x, y);
@@ -171,24 +173,17 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         }
     }
 
+    sk_sp<GrDrawContext> readDC(context->newDrawContext(SkBackingFit::kExact, kSize, kSize,
+                                                        kConfig));
+    sk_sp<GrDrawContext> tempDC(context->newDrawContext(SkBackingFit::kExact, kSize, kSize,
+                                                        kConfig));
+    if (!readDC || !tempDC) {
+        return;
+    }
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = 256;
-    desc.fHeight = 256;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fIsMipMapped = false;
-
-    SkAutoTUnref<GrTexture> readTex(context->textureProvider()->createTexture(
-        desc, SkBudgeted::kYes, nullptr, 0));
-    if (!readTex.get()) {
-        return;
-    }
-    SkAutoTUnref<GrTexture> tempTex(context->textureProvider()->createTexture(
-        desc, SkBudgeted::kYes, nullptr, 0));
-    if (!tempTex.get()) {
-        return;
-    }
-    desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fWidth = kSize;
+    desc.fHeight = kSize;
+    desc.fConfig = kConfig;
     SkAutoTUnref<GrTexture> dataTex(context->textureProvider()->createTexture(
         desc, SkBudgeted::kYes, data, 0));
     if (!dataTex.get()) {
@@ -206,8 +201,8 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         *pmToUPMRule = kConversionRules[i][0];
         *upmToPMRule = kConversionRules[i][1];
 
-        static const SkRect kDstRect = SkRect::MakeWH(SkIntToScalar(256), SkIntToScalar(256));
-        static const SkRect kSrcRect = SkRect::MakeWH(SK_Scalar1, SK_Scalar1);
+        static const SkRect kDstRect = SkRect::MakeIWH(kSize, kSize);
+        static const SkRect kSrcRect = SkRect::MakeIWH(1, 1);
         // We do a PM->UPM draw from dataTex to readTex and read the data. Then we do a UPM->PM draw
         // from readTex to tempTex followed by a PM->UPM draw to readTex and finally read the data.
         // We then verify that two reads produced the same values.
@@ -218,64 +213,33 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         sk_sp<GrFragmentProcessor> pmToUPM1(new GrConfigConversionEffect(
                 dataTex, GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(
-                readTex, GrSwizzle::RGBA(), *upmToPMRule, SkMatrix::I()));
+                readDC->asTexture().get(), GrSwizzle::RGBA(), *upmToPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> pmToUPM2(new GrConfigConversionEffect(
-                tempTex, GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
+                tempDC->asTexture().get(), GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
 
         paint1.addColorFragmentProcessor(std::move(pmToUPM1));
         paint1.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-        sk_sp<GrDrawContext> readDrawContext(
-                                    context->drawContext(sk_ref_sp(readTex->asRenderTarget())));
-        if (!readDrawContext) {
-            failed = true;
-            break;
-        }
+        readDC->fillRectToRect(GrNoClip(), paint1, SkMatrix::I(), kDstRect, kSrcRect);
 
-        readDrawContext->fillRectToRect(GrNoClip(),
-                                        paint1,
-                                        SkMatrix::I(),
-                                        kDstRect,
-                                        kSrcRect);
-
-        readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
+        readDC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
 
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-        sk_sp<GrDrawContext> tempDrawContext(
-                                    context->drawContext(sk_ref_sp(tempTex->asRenderTarget())));
-        if (!tempDrawContext) {
-            failed = true;
-            break;
-        }
-        tempDrawContext->fillRectToRect(GrNoClip(),
-                                        paint2,
-                                        SkMatrix::I(),
-                                        kDstRect,
-                                        kSrcRect);
+        tempDC->fillRectToRect(GrNoClip(), paint2, SkMatrix::I(), kDstRect, kSrcRect);
 
         paint3.addColorFragmentProcessor(std::move(pmToUPM2));
         paint3.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-        readDrawContext = context->drawContext(sk_ref_sp(readTex->asRenderTarget()));
-        if (!readDrawContext) {
-            failed = true;
-            break;
-        }
+        readDC->fillRectToRect(GrNoClip(), paint3, SkMatrix::I(), kDstRect, kSrcRect);
 
-        readDrawContext->fillRectToRect(GrNoClip(),
-                                        paint3,
-                                        SkMatrix::I(),
-                                        kDstRect,
-                                        kSrcRect);
-
-        readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);
+        readDC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, secondRead);
 
         failed = false;
-        for (int y = 0; y < 256 && !failed; ++y) {
+        for (int y = 0; y < kSize && !failed; ++y) {
             for (int x = 0; x <= y; ++x) {
-                if (firstRead[256 * y + x] != secondRead[256 * y + x]) {
+                if (firstRead[kSize * y + x] != secondRead[kSize * y + x]) {
                     failed = true;
                     break;
                 }
