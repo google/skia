@@ -48,6 +48,10 @@ sk_sp<SkFont> SkFont::makeWithSize(SkScalar newSize) const {
                         this->getSkewX(), this->getMaskType(), this->getFlags());
 }
 
+sk_sp<SkFont> SkFont::makeWithFlags(uint32_t newFlags) const {
+    return SkFont::Make(sk_ref_sp(this->getTypeface()), this->getSize(), this->getScaleX(),
+                        this->getSkewX(), this->getMaskType(), newFlags);
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
@@ -74,21 +78,21 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
             count = SkToInt(byteLength >> 1);
             break;
     }
-    if (nullptr == glyphs) {
+    if (!glyphs) {
         return count;
     }
 
     // TODO: unify/eliminate SkTypeface::Encoding with SkTextEncoding
-    SkTypeface::Encoding typeface_encoding;
+    SkTypeface::Encoding typefaceEncoding;
     switch (encoding) {
         case kUTF8_SkTextEncoding:
-            typeface_encoding = SkTypeface::kUTF8_Encoding;
+            typefaceEncoding = SkTypeface::kUTF8_Encoding;
             break;
         case kUTF16_SkTextEncoding:
-            typeface_encoding = SkTypeface::kUTF16_Encoding;
+            typefaceEncoding = SkTypeface::kUTF16_Encoding;
             break;
         case kUTF32_SkTextEncoding:
-            typeface_encoding = SkTypeface::kUTF32_Encoding;
+            typefaceEncoding = SkTypeface::kUTF32_Encoding;
             break;
         default:
             SkASSERT(kGlyphID_SkTextEncoding == encoding);
@@ -97,7 +101,7 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
             return count;
     }
 
-    (void)fTypeface->charsToGlyphs(text, typeface_encoding, glyphs, count);
+    (void)fTypeface->charsToGlyphs(text, typefaceEncoding, glyphs, count);
     return count;
 }
 

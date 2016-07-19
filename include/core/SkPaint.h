@@ -1085,7 +1085,9 @@ private:
         uint32_t fBitfieldsUInt;
     };
 
-    GlyphCacheProc getGlyphCacheProc(bool needFullMetrics) const;
+    static GlyphCacheProc GetGlyphCacheProc(TextEncoding encoding,
+                                            bool isDevKern,
+                                            bool needFullMetrics);
 
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;

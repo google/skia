@@ -253,7 +253,9 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
         return;
     }
 
-    SkPaint::GlyphCacheProc glyphCacheProc = skPaint.getGlyphCacheProc(true);
+    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(skPaint.getTextEncoding(),
+                                                                        skPaint.isDevKernText(),
+                                                                        true);
     SkAutoDescriptor desc;
     SkScalerContextEffects effects;
     // We apply the fake-gamma by altering the distance in the shader, so we ignore the
@@ -345,7 +347,9 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
     SkGlyphCache* cache = blob->setupCache(runIndex, props, SkPaint::kNone_ScalerContextFlags,
                                            dfPaint, nullptr);
-    SkPaint::GlyphCacheProc glyphCacheProc = dfPaint.getGlyphCacheProc(true);
+    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(dfPaint.getTextEncoding(),
+                                                                        dfPaint.isDevKernText(),
+                                                                        true);
 
     const char* stop = text + byteLength;
 
@@ -508,7 +512,9 @@ void GrTextUtils::DrawPosTextAsPath(GrContext* context,
     paint.setStyle(SkPaint::kFill_Style);
     paint.setPathEffect(nullptr);
 
-    SkPaint::GlyphCacheProc    glyphCacheProc = paint.getGlyphCacheProc(true);
+    SkPaint::GlyphCacheProc    glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
+                                                                           paint.isDevKernText(),
+                                                                           true);
     SkAutoGlyphCache           autoCache(paint, &props, nullptr);
     SkGlyphCache*              cache = autoCache.getCache();
 

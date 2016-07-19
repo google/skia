@@ -469,7 +469,9 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
     SkASSERT(byteLength == 0 || text != nullptr);
 
     SkGlyphCache* glyphCache = this->getGlyphCache();
-    SkPaint::GlyphCacheProc glyphCacheProc = fFont.getGlyphCacheProc(true);
+    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(fFont.getTextEncoding(),
+                                                                        fFont.isDevKernText(),
+                                                                        true);
 
     fTotalGlyphCount = fFont.countText(text, byteLength);
     fInstanceData.reset(InstanceData::Alloc(GrPathRendering::kTranslate_PathTransformType,
@@ -529,7 +531,9 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
     SkGlyphCache* glyphCache = this->getGlyphCache();
-    SkPaint::GlyphCacheProc glyphCacheProc = fFont.getGlyphCacheProc(true);
+    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(fFont.getTextEncoding(),
+                                                                        fFont.isDevKernText(),
+                                                                        true);
 
     fTotalGlyphCount = fFont.countText(text, byteLength);
     fInstanceData.reset(InstanceData::Alloc(GrPathRendering::kTranslate_PathTransformType,

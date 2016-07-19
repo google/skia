@@ -1638,7 +1638,9 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
     paint.setStyle(SkPaint::kFill_Style);
     paint.setPathEffect(nullptr);
 
-    SkPaint::GlyphCacheProc glyphCacheProc = paint.getGlyphCacheProc(true);
+    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
+                                                                        paint.isDevKernText(),
+                                                                        true);
     SkAutoGlyphCache cache(paint, &fDevice->surfaceProps(), this->scalerContextFlags(), nullptr);
 
     const char*        stop = text + byteLength;

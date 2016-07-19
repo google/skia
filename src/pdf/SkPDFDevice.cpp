@@ -1216,7 +1216,9 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     int numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
     textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-    SkPaint::GlyphCacheProc glyphCacheProc = textPaint.getGlyphCacheProc(true);
+    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(textPaint.getTextEncoding(),
+                                                                        textPaint.isDevKernText(),
+                                                                        true);
     align_text(glyphCacheProc, textPaint, glyphIDs, numGlyphs, &x, &y);
     content.entry()->fContent.writeText("BT\n");
     set_text_transform(x, y, textPaint.getTextSkewX(),
@@ -1293,7 +1295,9 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
     size_t numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
     textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-    SkPaint::GlyphCacheProc glyphCacheProc = textPaint.getGlyphCacheProc(true);
+    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(textPaint.getTextEncoding(),
+                                                                        textPaint.isDevKernText(),
+                                                                        true);
     content.entry()->fContent.writeText("BT\n");
     this->updateFont(textPaint, glyphIDs[0], content.entry());
     GlyphPositioner glyphPositioner(&content.entry()->fContent,

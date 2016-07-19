@@ -126,6 +126,10 @@ public:
      *  If size is not supported (e.g. <= 0 or non-finite) NULL will be returned.
      */
     sk_sp<SkFont> makeWithSize(SkScalar size) const;
+    /**
+     *  Return a font with the same attributes of this font, but with the flags.
+     */
+    sk_sp<SkFont> makeWithFlags(uint32_t newFlags) const;
 
     SkTypeface* getTypeface() const { return fTypeface.get(); }
     SkScalar    getSize() const { return fSize; }
@@ -139,9 +143,14 @@ public:
     bool isEnableAutoHints() const { return SkToBool(fFlags & kEnableAutoHints_Flag); }
     bool isEnableByteCodeHints() const { return SkToBool(fFlags & kEnableByteCodeHints_Flag); }
     bool isUseNonLinearMetrics() const { return SkToBool(fFlags & kUseNonlinearMetrics_Flag); }
+    bool isDevKern() const { return SkToBool(fFlags & kDevKern_Flag); }
 
     int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding,
                      uint16_t glyphs[], int maxGlyphCount) const;
+
+    int countText(const void* text, size_t byteLength, SkTextEncoding encoding) {
+        return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);
+    }
 
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding) const;
 
