@@ -19,9 +19,6 @@
     'SK_HAS_JPEG_LIBRARY',
     'SK_HAS_PNG_LIBRARY',
     'SK_HAS_WEBP_LIBRARY',
-
-    # Temporarily test against the QCMS library.
-    'SK_TEST_QCMS',
   ],
   'conditions' : [
     [ 'skia_is_bot', {
@@ -30,6 +27,12 @@
     [ 'skia_codec_decodes_raw', {
       'defines': [
         'SK_CODEC_DECODES_RAW',
+      ],
+    }],
+    [ 'skia_android_framework == 0', {
+      'defines': [
+        # Temporarily test against the QCMS library.
+        'SK_TEST_QCMS',
       ],
     }],
     ['skia_pic', {
