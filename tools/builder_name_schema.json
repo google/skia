@@ -12,6 +12,9 @@
     "Housekeeper": [
       "frequency"
     ],
+    "Infra": [
+      "frequency"
+    ],
     "Build": [
       "os",
       "compiler",

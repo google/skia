@@ -45,7 +45,8 @@ def gyp_defines(builder_dict):
   # skia_arch_type.
   if builder_dict['role'] == builder_name_schema.BUILDER_ROLE_BUILD:
     arch = builder_dict['target_arch']
-  elif builder_dict['role'] == builder_name_schema.BUILDER_ROLE_HOUSEKEEPER:
+  elif builder_dict['role'] in (builder_name_schema.BUILDER_ROLE_HOUSEKEEPER,
+                                builder_name_schema.BUILDER_ROLE_INFRA):
     arch = None
   else:
     arch = builder_dict['arch']
