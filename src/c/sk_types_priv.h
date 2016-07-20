@@ -204,17 +204,6 @@ static inline sk_colorspace_t* ToColorSpace(SkColorSpace* colorspace) {
     return reinterpret_cast<sk_colorspace_t*>(colorspace);
 }
 
-static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
-    matrix->setAll(
-        cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
-        cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
-        cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
-}
-
-static inline void from_sk(const SkMatrix* matrix, sk_matrix_t* cmatrix) {
-    matrix->get9(cmatrix->mat);
-}
-
 static inline sk_shader_t* ToShader(SkShader* shader) {
     return reinterpret_cast<sk_shader_t*>(shader);
 }
@@ -383,44 +372,9 @@ static inline sk_document_t* ToDocument(SkDocument* document) {
     return reinterpret_cast<sk_document_t*>(document);
 }
 
-static inline SkImageInfo* AsImageInfo(sk_imageinfo_t* cinfo) {
-    return reinterpret_cast<SkImageInfo*>(cinfo);
-}
 static inline SkPath::Iter* AsPathIter(sk_path_iterator_t* iter) {
     return reinterpret_cast<SkPath::Iter*>(iter);
 }
-
-static inline const SkImageInfo* AsImageInfo(const sk_imageinfo_t* cinfo) {
-    return reinterpret_cast<const SkImageInfo*>(cinfo);
-}
-
-static inline sk_imageinfo_t* ToImageInfo(SkImageInfo* info) {
-    return reinterpret_cast<sk_imageinfo_t*>(info);
-}
-
-static inline sk_imageinfo_t& ToImageInfo(SkImageInfo& info) {
-    return reinterpret_cast<sk_imageinfo_t&>(info);
-}
-
-static inline const sk_imageinfo_t* ToImageInfo(const SkImageInfo* info) {
-    return reinterpret_cast<const sk_imageinfo_t*>(info);
-}
-
-static inline const sk_imageinfo_t& ToImageInfo(const SkImageInfo& info) {
-    return reinterpret_cast<const sk_imageinfo_t&>(info);
-}
-
-static inline bool find_sk(const sk_codec_options_t& coptions, SkCodec::Options* options) {
-    if (options) {
-        *options = SkCodec::Options();
-        options->fZeroInitialized = (SkCodec::ZeroInitialized)coptions.fZeroInitialized;
-        if (coptions.fHasSubset) {
-            options->fSubset = AsIRect((sk_irect_t*)&coptions.fSubset);
-        }
-    }
-    return true;
-}
-
 
 static inline sk_path_iterator_t* ToPathIter(SkPath::Iter* iter) {
     return reinterpret_cast<sk_path_iterator_t*>(iter);
@@ -449,5 +403,50 @@ static inline sk_path_effect_t* ToPathEffect(SkPathEffect* p) {
 static inline const sk_path_effect_t* ToPathEffect(const SkPathEffect* p) {
     return reinterpret_cast<const sk_path_effect_t*>(p);
 }
+
+static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
+    matrix->setAll(
+        cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
+        cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
+        cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
+}
+
+static inline void from_sk(const SkMatrix* matrix, sk_matrix_t* cmatrix) {
+    matrix->get9(cmatrix->mat);
+}
+
+static inline bool from_c(const sk_codec_options_t& coptions, SkCodec::Options* options) {
+    if (options) {
+        *options = SkCodec::Options();
+        options->fZeroInitialized = (SkCodec::ZeroInitialized)coptions.fZeroInitialized;
+        if (coptions.fHasSubset) {
+            options->fSubset = AsIRect((sk_irect_t*)&coptions.fSubset);
+        }
+    }
+    return true;
+}
+
+static inline bool from_c(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
+    if (info) { 
+        *info = SkImageInfo::Make(
+            cinfo.width,
+            cinfo.height,
+            (SkColorType)cinfo.colorType,
+            (SkAlphaType)cinfo.alphaType); 
+    } 
+    return true; 
+} 
+
+static inline bool from_sk(const SkImageInfo& info, sk_imageinfo_t* cinfo) {
+    if (cinfo) { 
+        *cinfo = {
+            info.width(),
+            info.height(),
+            (sk_colortype_t)info.colorType(),
+            (sk_alphatype_t)info.alphaType()
+        }; 
+    } 
+    return true; 
+} 
 
 #endif

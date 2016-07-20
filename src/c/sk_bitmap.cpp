@@ -74,7 +74,7 @@ sk_bitmap_t* sk_bitmap_new()
 
 void sk_bitmap_get_info(sk_bitmap_t* cbitmap, sk_imageinfo_t* info)
 {
-    *info = ToImageInfo(AsBitmap(cbitmap)->info());
+    from_sk(AsBitmap(cbitmap)->info(), info);
 }
 
 void* sk_bitmap_get_pixels(sk_bitmap_t* cbitmap, size_t* length)
@@ -237,7 +237,8 @@ bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requ
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
 
-    const SkImageInfo* info = AsImageInfo(requestedInfo);
+    SkImageInfo info;
+    from_c(*requestedInfo, &info);
 
-    return bmp->tryAllocPixels(*info, rowBytes);
+    return bmp->tryAllocPixels(info, rowBytes);
 }

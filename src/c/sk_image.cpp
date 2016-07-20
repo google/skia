@@ -22,8 +22,9 @@ sk_image_t* sk_image_new_from_bitmap (const sk_bitmap_t* cbitmap)
 
 sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pixels,
                                      size_t rowBytes) {
-    const SkImageInfo* info = AsImageInfo(cinfo);
-    return (sk_image_t*)SkImage::MakeRasterCopy(SkPixmap(*info, pixels, rowBytes)).release();
+    SkImageInfo info;
+    from_c(*cinfo, &info);
+    return (sk_image_t*)SkImage::MakeRasterCopy(SkPixmap(info, pixels, rowBytes)).release();
 }
 
 sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata, const sk_irect_t* subset) {

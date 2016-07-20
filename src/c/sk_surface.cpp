@@ -31,17 +31,19 @@ sk_colortype_t sk_colortype_get_default_8888() {
 
 sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
                                     const sk_surfaceprops_t* props) {
-    const SkImageInfo* info = AsImageInfo(cinfo);
+    SkImageInfo info;
+    from_c(*cinfo, &info);
     SkSurfaceProps surfProps(0, props ? (SkPixelGeometry)props->pixelGeometry : SkPixelGeometry::kUnknown_SkPixelGeometry);
-    return (sk_surface_t*)SkSurface::MakeRaster(*info, &surfProps).release();
+    return (sk_surface_t*)SkSurface::MakeRaster(info, &surfProps).release();
 }
 
 sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pixels,
                                            size_t rowBytes,
                                            const sk_surfaceprops_t* props) {
-    const SkImageInfo* info = AsImageInfo(cinfo);
+    SkImageInfo info;
+    from_c(*cinfo, &info);
     SkSurfaceProps surfProps(0, props ? (SkPixelGeometry)props->pixelGeometry : SkPixelGeometry::kUnknown_SkPixelGeometry);
-    return (sk_surface_t*)SkSurface::MakeRasterDirect(*info, pixels, rowBytes, &surfProps).release();
+    return (sk_surface_t*)SkSurface::MakeRasterDirect(info, pixels, rowBytes, &surfProps).release();
 }
 
 void sk_surface_unref(sk_surface_t* csurf) {

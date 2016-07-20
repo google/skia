@@ -72,10 +72,7 @@ typedef enum {
     BGR_V_SK_PIXELGEOMETRY,
 } sk_pixelgeometry_t;
 
-typedef struct sk_colorspace_t sk_colorspace_t;
-
 typedef struct {
-    sk_colorspace_t* colorSpace;
     int32_t         width;
     int32_t         height;
     sk_colortype_t  colorType;

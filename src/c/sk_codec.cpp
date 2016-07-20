@@ -33,7 +33,7 @@ void sk_codec_destroy(sk_codec_t* codec)
 
 void sk_codec_get_info(sk_codec_t* codec, sk_imageinfo_t* info)
 {
-    *info = ToImageInfo(AsCodec(codec)->getInfo());
+    from_sk(AsCodec(codec)->getInfo(), info);
 }
 
 sk_colorspace_t* sk_codec_get_color_space(sk_codec_t* codec)
@@ -63,16 +63,18 @@ sk_encoded_format_t sk_codec_get_encoded_format(sk_codec_t* codec)
 
 sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_codec_options_t* coptions, sk_color_t ctable[], int* ctableCount)
 {
-    const SkImageInfo* info = AsImageInfo(cinfo);
+    SkImageInfo info;
+    from_c(*cinfo, &info);
     SkCodec::Options options;
-    if (!find_sk(*coptions, &options)) {
+    if (!from_c(*coptions, &options)) {
         return INVALID_PARAMETERS_SK_CODEC_RESULT;
     }
-    return (sk_codec_result_t)AsCodec(codec)->getPixels(*info, pixels, rowBytes, &options, ctable, ctableCount);
+    return (sk_codec_result_t)AsCodec(codec)->getPixels(info, pixels, rowBytes, &options, ctable, ctableCount);
 }
 
 sk_codec_result_t sk_codec_get_pixels_using_defaults(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes)
 {
-    const SkImageInfo* info = AsImageInfo(cinfo);
-    return (sk_codec_result_t)AsCodec(codec)->getPixels(*info, pixels, rowBytes);
+    SkImageInfo info;
+    from_c(*cinfo, &info);
+    return (sk_codec_result_t)AsCodec(codec)->getPixels(info, pixels, rowBytes);
 }
