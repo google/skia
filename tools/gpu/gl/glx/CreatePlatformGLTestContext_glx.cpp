@@ -184,8 +184,8 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
             if (gluCheckExtension(
                     reinterpret_cast<const GLubyte*>("GLX_EXT_create_context_es2_profile"),
                     reinterpret_cast<const GLubyte*>(glxExts))) {
-                static const int context_attribs_gles[] = {
-                    GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+                const int context_attribs_gles[] = {
+                    GLX_CONTEXT_MAJOR_VERSION_ARB, 2,
                     GLX_CONTEXT_MINOR_VERSION_ARB, 0,
                     GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT,
                     None
@@ -198,14 +198,17 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
             // to do this nastiness
             for (i = NUM_GL_VERSIONS - 2; i > 0 ; i--) {
                 /* don't bother below GL 3.0 */
-                if (gl_versions[i].major == 3 && gl_versions[i].minor == 0) {
+                if (gl_versions[i].major < 3) {
                     break;
                 }
                 // On Nvidia GPUs, to use Nv Path rendering we need a compatibility profile for the
                 // time being.
                 // TODO when Nvidia implements NVPR on Core profiles, we should start requesting
                 // core here
-                static const int context_attribs_gl[] = {
+                // Warning: This array should not be set to static. The
+                // glXCreateContextAttribsARB call writes to it upon failure and
+                // the next call would fail too.
+                const int context_attribs_gl[] = {
                       GLX_CONTEXT_MAJOR_VERSION_ARB, gl_versions[i].major,
                       GLX_CONTEXT_MINOR_VERSION_ARB, gl_versions[i].minor,
                       GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
@@ -231,7 +234,7 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
             // implementations will return the newest context version
             // compatible with OpenGL versions less than version 3.0.
             if (ctxErrorOccurred || !fContext) {
-                static const int context_attribs_gl_fallback[] = {
+                const int context_attribs_gl_fallback[] = {
                     GLX_CONTEXT_MAJOR_VERSION_ARB, 1,
                     GLX_CONTEXT_MINOR_VERSION_ARB, 0,
                     None
