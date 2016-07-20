@@ -1246,6 +1246,8 @@ DEF_TEST(PictureGpuAnalyzer, r) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Disable until we properly fix https://bugs.chromium.org/p/skia/issues/detail?id=5548
+#if 0
 static void empty_ops(SkCanvas* canvas) {
 }
 static void clip_ops(SkCanvas* canvas) {
@@ -1303,3 +1305,5 @@ DEF_TEST(Picture_RecordEmpty, r) {
         }
     }
 }
+#endif
+

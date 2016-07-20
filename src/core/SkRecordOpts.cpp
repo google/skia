@@ -276,7 +276,10 @@ void SkRecordOptimize(SkRecord* record) {
     // out junk for other optimization passes.  Right now, nothing needs it,
     // and the bounding box hierarchy will do the work of skipping no-op
     // Save-NoDraw-Restore sequences better than we can here.
-    SkRecordNoopSaveRestores(record);
+    // As there is a known problem with this peephole and drawAnnotation, disable this.
+    // If we want to enable this we must first fix this bug:
+    //     https://bugs.chromium.org/p/skia/issues/detail?id=5548
+//    SkRecordNoopSaveRestores(record);
 
     SkRecordNoopSaveLayerDrawRestores(record);
     SkRecordMergeSvgOpacityAndFilterLayers(record);
