@@ -456,9 +456,6 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
         PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
         uint32_t glyphIDsCount) const {
-#if defined(SK_BUILD_FOR_MAC)
-    return nullptr;
-#else
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
@@ -654,7 +651,6 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
     }
 
     return info;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////
