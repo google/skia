@@ -77,16 +77,20 @@ private:
 };
 
 template <SkGammaType gammaType>
+static inline Sk4f pmcolor_to_rgba(SkPMColor pixel) {
+    return swizzle_rb_if_bgra(
+            (gammaType == kSRGB_SkGammaType) ? Sk4f_fromS32(pixel)
+                                             : Sk4f_fromL32(pixel));
+}
+
+template <SkGammaType gammaType>
 class PixelConverter<kRGB_565_SkColorType, gammaType> {
 public:
     using Element = uint16_t;
     PixelConverter(const SkPixmap& srcPixmap) { }
 
     Sk4f toSk4f(Element pixel) const {
-        SkPMColor pixel32 = SkPixel16ToPixel32(pixel);
-        return gammaType == kSRGB_SkGammaType
-               ? Sk4f_fromS32(pixel32)
-               : Sk4f_fromL32(pixel32);
+        return pmcolor_to_rgba<gammaType>(SkPixel16ToPixel32(pixel));
     }
 };
 
@@ -97,10 +101,7 @@ public:
     PixelConverter(const SkPixmap& srcPixmap) { }
 
     Sk4f toSk4f(Element pixel) const {
-        SkPMColor pixel32 = SkPixel4444ToPixel32(pixel);
-        return gammaType == kSRGB_SkGammaType
-               ? Sk4f_fromS32(pixel32)
-               : Sk4f_fromL32(pixel32);
+        return pmcolor_to_rgba<gammaType>(SkPixel4444ToPixel32(pixel));
     }
 };
 
@@ -139,7 +140,7 @@ public:
 
         fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
         for (int i = 0; i < skColorTable->count(); i++) {
-            fColorTable[i] = this->convertPixel((*skColorTable)[i]);
+            fColorTable[i] = pmcolor_to_rgba<gammaType>((*skColorTable)[i]);
         }
     }
 
@@ -157,21 +158,7 @@ public:
 
 private:
     static const size_t kColorTableSize = sizeof(Sk4f[256]) + 12;
-    Sk4f convertPixel(SkPMColor pmColor) {
-        Sk4f pixel = to_4f(pmColor);
-        float alpha = get_alpha(pixel);
-        if (alpha != 0.0f) {
-            float invAlpha = 1.0f / alpha;
-            Sk4f normalize = {invAlpha, invAlpha, invAlpha, 1.0f / 255.0f};
-            pixel = pixel * normalize;
-            if (gammaType == kSRGB_SkGammaType) {
-                pixel = linear_to_srgb(pixel);
-            }
-            return pixel;
-        } else {
-            return Sk4f{0.0f};
-        }
-    }
+
     SkAutoMalloc         fColorTableStorage{kColorTableSize};
     Sk4f*                fColorTable;
 };
