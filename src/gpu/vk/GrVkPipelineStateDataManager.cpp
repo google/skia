@@ -62,6 +62,24 @@ void GrVkPipelineStateDataManager::set1i(UniformHandle u, int32_t i) const {
     memcpy(buffer, &i, sizeof(int32_t));
 }
 
+void GrVkPipelineStateDataManager::set1iv(UniformHandle u,
+                                          int arrayCount,
+                                          const int32_t v[]) const {
+    const Uniform& uni = fUniforms[u.toIndex()];
+    SkASSERT(uni.fType == kInt_GrSLType);
+    SkASSERT(arrayCount > 0);
+    SkASSERT(arrayCount <= uni.fArrayCount ||
+             (1 == arrayCount && GrGLSLShaderVar::kNonArray == uni.fArrayCount));
+
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
+    SkASSERT(sizeof(int32_t) == 4);
+    for (int i = 0; i < arrayCount; ++i) {
+        const int32_t* curVec = &v[i];
+        memcpy(buffer, curVec, sizeof(int32_t));
+        buffer = static_cast<char*>(buffer) + 4*sizeof(int32_t);
+    }
+}
+
 void GrVkPipelineStateDataManager::set1f(UniformHandle u, float v0) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);
