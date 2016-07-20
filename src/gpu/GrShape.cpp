@@ -403,6 +403,16 @@ void GrShape::attemptToSimplifyRRect() {
         // Dashing ignores the inverseness (currently). skbug.com/5421
         fRRectData.fInverted = false;
     }
+    // Turn a stroke-and-filled miter rect into a filled rect. TODO: more rrect stroke shortcuts.
+    if (!fStyle.hasPathEffect() &&
+        fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style &&
+        fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
+        fStyle.strokeRec().getMiter() >= SK_ScalarSqrt2 &&
+        fRRectData.fRRect.isRect()) {
+        SkScalar r = fStyle.strokeRec().getWidth() / 2;
+        fRRectData.fRRect = SkRRect::MakeRect(fRRectData.fRRect.rect().makeOutset(r, r));
+        fStyle = GrStyle::SimpleFill();
+    }
 }
 
 void GrShape::attemptToSimplifyLine() {

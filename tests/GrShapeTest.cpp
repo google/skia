@@ -433,6 +433,76 @@ static sk_sp<SkPathEffect> make_null_dash() {
     return SkDashPathEffect::Make(kNullIntervals, SK_ARRAY_COUNT(kNullIntervals), 0.f);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// These functions allow tests to check for special cases where style gets
+// applied by GrShape in its constructor (without calling GrShape::applyStyle).
+// These unfortunately rely on knowing details of GrShape's implementation.
+// These predicates are factored out here to avoid littering the rest of the
+// test code with GrShape implementation details.
+
+static bool path_is_axis_aligned_line(const SkPath& path) {
+    SkPoint pts[2];
+    if (!path.isLine(pts)) {
+        return false;
+    }
+    return pts[0].fX == pts[1].fX || pts[0].fY == pts[1].fY;
+}
+
+static bool path_is_unclosed_rect(const SkPath& path) {
+    bool closed;
+    return path.isRect(nullptr, &closed, nullptr) && !closed;
+}
+
+// Will a GrShape constructed from a geometry perform a geometric transformation if the style is
+// simple fill that would not otherwise be applied.
+template <typename GEO> static bool fill_changes_geom(const GEO& geo) { return false; }
+template <> bool fill_changes_geom<SkPath>(const SkPath& path) {
+    // unclosed rects get closed. Lines get turned into empty geometry
+    return path_is_unclosed_rect(path) || (path.isLine(nullptr) && !path.isInverseFillType());
+}
+
+// Will a GrShape constructed from the geometry with a stroke style (without path effect) perform a
+// geometric transformation that applies the the stroke immediately without storing a stroke style.
+template <typename GEO> static bool stroke_is_converted_to_fill(const GEO& geo) { return false; }
+template <> bool stroke_is_converted_to_fill(const SkPath& path) {
+    // converted to a rrect.
+    return path_is_axis_aligned_line(path);
+}
+
+// Will a GrShape constructed from the geometry with a stroke-and-fill style (without path effect)
+// perform a geometric transformation that applies the the stroke immediately without storing a
+// stroke-and-fill style.
+template <typename GEO> static bool stroke_and_fill_is_converted_to_fill(const GEO& geo, const SkPaint& paint);
+template <> bool stroke_and_fill_is_converted_to_fill(const SkRect& rect, const SkPaint& paint) {
+    SkASSERT(paint.getStyle() == SkPaint::kStrokeAndFill_Style);
+    // Converted to an outset rectangle.
+    return paint.getStrokeJoin() == SkPaint::kMiter_Join &&
+           paint.getStrokeMiter() >= SK_ScalarSqrt2;
+}
+template <> bool stroke_and_fill_is_converted_to_fill(const SkPath& path, const SkPaint& paint) {
+    SkASSERT(paint.getStyle() == SkPaint::kStrokeAndFill_Style);
+    if (path_is_axis_aligned_line(path)) {
+        // The fill is ignored (zero area) and the stroke is converted to a rrect.
+        return true;
+    }
+    SkRect rect;
+    unsigned start;
+    SkPath::Direction dir;
+    if (SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start)) {
+        return stroke_and_fill_is_converted_to_fill<SkRect>(rect, paint);
+    }
+    return false;
+}
+template <> bool stroke_and_fill_is_converted_to_fill(const SkRRect& rr, const SkPaint& paint) {
+    SkASSERT(paint.getStyle() == SkPaint::kStrokeAndFill_Style);
+    if (rr.isRect()) {
+        return stroke_and_fill_is_converted_to_fill<SkRect>(rr.rect(), paint);
+    }
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 template<typename GEO>
 static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     sk_sp<SkPathEffect> dashPE = make_dash();
@@ -457,7 +527,7 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     TestCase stroke2RoundBevelCase(geo, stroke2RoundBevel, reporter);
     expectations.fPEHasValidKey = true;
     expectations.fPEHasEffect = false;
-    expectations.fStrokeApplies = true;
+    expectations.fStrokeApplies = !stroke_is_converted_to_fill(geo);
     stroke2RoundBevelCase.testExpectations(reporter, expectations);
     TestCase(geo, stroke2RoundBevel, reporter).compare(reporter, stroke2RoundBevelCase,
                                                        TestCase::kAllSame_ComparisonExpecation);
@@ -472,12 +542,24 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     TestCase(geo, stroke2RoundBevelDash, reporter).compare(reporter, stroke2RoundBevelDashCase,
                                                            TestCase::kAllSame_ComparisonExpecation);
 
-    fillCase.compare(reporter, stroke2RoundBevelCase,
-                     TestCase::kSameUpToStroke_ComparisonExpecation);
-    fillCase.compare(reporter, stroke2RoundBevelDashCase,
-                     TestCase::kSameUpToPE_ComparisonExpecation);
-    stroke2RoundBevelCase.compare(reporter, stroke2RoundBevelDashCase,
-                                  TestCase::kSameUpToPE_ComparisonExpecation);
+    if (fill_changes_geom(geo) || stroke_is_converted_to_fill(geo)) {
+        fillCase.compare(reporter, stroke2RoundBevelCase,
+                         TestCase::kAllDifferent_ComparisonExpecation);
+        fillCase.compare(reporter, stroke2RoundBevelDashCase,
+                         TestCase::kAllDifferent_ComparisonExpecation);
+    } else {
+        fillCase.compare(reporter, stroke2RoundBevelCase,
+                         TestCase::kSameUpToStroke_ComparisonExpecation);
+        fillCase.compare(reporter, stroke2RoundBevelDashCase,
+                         TestCase::kSameUpToPE_ComparisonExpecation);
+    }
+    if (stroke_is_converted_to_fill(geo)) {
+        stroke2RoundBevelCase.compare(reporter, stroke2RoundBevelDashCase,
+                                      TestCase::kAllDifferent_ComparisonExpecation);
+    } else {
+        stroke2RoundBevelCase.compare(reporter, stroke2RoundBevelDashCase,
+                                      TestCase::kSameUpToPE_ComparisonExpecation);
+    }
 
     // Stroke and fill cases
     SkPaint stroke2RoundBevelAndFill = stroke2RoundBevel;
@@ -485,7 +567,7 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     TestCase stroke2RoundBevelAndFillCase(geo, stroke2RoundBevelAndFill, reporter);
     expectations.fPEHasValidKey = true;
     expectations.fPEHasEffect = false;
-    expectations.fStrokeApplies = true;
+    expectations.fStrokeApplies = !stroke_is_converted_to_fill(geo);
     stroke2RoundBevelAndFillCase.testExpectations(reporter, expectations);
     TestCase(geo, stroke2RoundBevelAndFill, reporter).compare(reporter,
             stroke2RoundBevelAndFillCase, TestCase::kAllSame_ComparisonExpecation);
@@ -495,7 +577,7 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     TestCase stroke2RoundBevelAndFillDashCase(geo, stroke2RoundBevelAndFillDash, reporter);
     expectations.fPEHasValidKey = true;
     expectations.fPEHasEffect = false;
-    expectations.fStrokeApplies = true;
+    expectations.fStrokeApplies = !stroke_is_converted_to_fill(geo);
     stroke2RoundBevelAndFillDashCase.testExpectations(reporter, expectations);
     TestCase(geo, stroke2RoundBevelAndFillDash, reporter).compare(
         reporter, stroke2RoundBevelAndFillDashCase, TestCase::kAllSame_ComparisonExpecation);
@@ -506,18 +588,17 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     hairline.setStyle(SkPaint::kStroke_Style);
     hairline.setStrokeWidth(0.f);
     TestCase hairlineCase(geo, hairline, reporter);
-    // Since hairline style doesn't change the SkPath data, it is keyed identically to fill.
-    hairlineCase.compare(reporter, fillCase, TestCase::kAllSame_ComparisonExpecation);
+    // Since hairline style doesn't change the SkPath data, it is keyed identically to fill (except
+    // in the line and unclosed rect cases).
+    if (fill_changes_geom(geo)) {
+        hairlineCase.compare(reporter, fillCase, TestCase::kAllDifferent_ComparisonExpecation);
+    } else {
+        hairlineCase.compare(reporter, fillCase, TestCase::kAllSame_ComparisonExpecation);
+    }
     REPORTER_ASSERT(reporter, hairlineCase.baseShape().style().isSimpleHairline());
     REPORTER_ASSERT(reporter, hairlineCase.appliedFullStyleShape().style().isSimpleHairline());
     REPORTER_ASSERT(reporter, hairlineCase.appliedPathEffectShape().style().isSimpleHairline());
-}
 
-// Was the shape pre-style geometry stored as something other than a general path. This somewhat
-// relies on knowing the internals of GrShape to know that this combination of tests is sufficient.
-static bool is_non_path(const GrShape& shape) {
-    return shape.asRRect(nullptr, nullptr, nullptr, nullptr) || shape.asLine(nullptr, nullptr) ||
-           shape.isEmpty();
 }
 
 template<typename GEO>
@@ -527,15 +608,6 @@ static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     static const SkScalar kS1 = 1.f;
     static const SkScalar kS2 = 2.f;
 
-    // Scale may affect the key for stroked results. However, there are two ways in which that may
-    // not occur. The base shape may instantly recognized that the geo + stroke is equivalent to
-    // a simple filled geometry. An example is a stroked line may become a filled rrect.
-    // Alternatively, after applying the style the output path may be recognized as a simpler shape
-    // causing the shape with style applied to have a purely geometric key rather than a key derived
-    // from the base geometry and the style params (and scale factor).
-    auto wasSimplified = [](const TestCase& c) {
-        return !c.baseShape().style().applies() || is_non_path(c.appliedFullStyleShape());
-    };
     SkPaint fill;
     TestCase fillCase1(geo, fill, reporter, kS1);
     TestCase fillCase2(geo, fill, reporter, kS2);
@@ -556,8 +628,8 @@ static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     TestCase strokeCase1(geo, stroke, reporter, kS1);
     TestCase strokeCase2(geo, stroke, reporter, kS2);
     // Scale affects the stroke
-    if (wasSimplified(strokeCase1)) {
-        REPORTER_ASSERT(reporter, wasSimplified(strokeCase2));
+    if (stroke_is_converted_to_fill(geo)) {
+        REPORTER_ASSERT(reporter, !strokeCase1.baseShape().style().applies());
         strokeCase1.compare(reporter, strokeCase2, TestCase::kAllSame_ComparisonExpecation);
     } else {
         strokeCase1.compare(reporter, strokeCase2, TestCase::kSameUpToStroke_ComparisonExpecation);
@@ -568,14 +640,8 @@ static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     TestCase strokeDashCase1(geo, strokeDash, reporter, kS1);
     TestCase strokeDashCase2(geo, strokeDash, reporter, kS2);
     // Scale affects the dash and the stroke.
-    if (wasSimplified(strokeDashCase1)) {
-        REPORTER_ASSERT(reporter, wasSimplified(strokeDashCase2));
-        strokeDashCase1.compare(reporter, strokeDashCase2,
-                                TestCase::kAllSame_ComparisonExpecation);
-    } else {
-        strokeDashCase1.compare(reporter, strokeDashCase2,
-                                TestCase::kSameUpToPE_ComparisonExpecation);
-    }
+    strokeDashCase1.compare(reporter, strokeDashCase2,
+                            TestCase::kSameUpToPE_ComparisonExpecation);
 
     // Stroke and fill cases
     SkPaint strokeAndFill = stroke;
@@ -587,13 +653,11 @@ static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     // Dash is ignored for stroke and fill
     TestCase strokeAndFillDashCase1(geo, strokeAndFillDash, reporter, kS1);
     TestCase strokeAndFillDashCase2(geo, strokeAndFillDash, reporter, kS2);
-    // Scale affects the stroke. Scale affects the stroke, but check to make sure this didn't
-    // become a simpler shape (e.g. stroke-and-filled rect can become a rect), in which case the
-    // scale shouldn't matter and the geometries should agree.
-    if (wasSimplified(strokeAndFillCase1)) {
-        REPORTER_ASSERT(reporter, wasSimplified(strokeAndFillCase1));
-        REPORTER_ASSERT(reporter, wasSimplified(strokeAndFillDashCase1));
-        REPORTER_ASSERT(reporter, wasSimplified(strokeAndFillDashCase2));
+    // Scale affects the stroke, but check to make sure this didn't become a simpler shape (e.g.
+    // stroke-and-filled rect can become a rect), in which case the scale shouldn't matter and the
+    // geometries should agree.
+    if (stroke_and_fill_is_converted_to_fill(geo, strokeAndFillDash)) {
+        REPORTER_ASSERT(reporter, !strokeAndFillCase1.baseShape().style().applies());
         strokeAndFillCase1.compare(reporter, strokeAndFillCase2,
                                    TestCase::kAllSame_ComparisonExpecation);
         strokeAndFillDashCase1.compare(reporter, strokeAndFillDashCase2,
@@ -629,12 +693,12 @@ static void test_stroke_param_impl(skiatest::Reporter* reporter, const GEO& geo,
     if (paramAffectsStroke) {
         // If stroking is immediately incorporated into a geometric transformation then the base
         // shapes will differ.
-        if (strokeACase.baseShape().style().applies()) {
-            strokeACase.compare(reporter, strokeBCase,
-                                TestCase::kSameUpToStroke_ComparisonExpecation);
-        } else {
+        if (stroke_is_converted_to_fill(geo)) {
             strokeACase.compare(reporter, strokeBCase,
                                 TestCase::kAllDifferent_ComparisonExpecation);
+        } else {
+            strokeACase.compare(reporter, strokeBCase,
+                                TestCase::kSameUpToStroke_ComparisonExpecation);
         }
     } else {
         strokeACase.compare(reporter, strokeBCase, TestCase::kAllSame_ComparisonExpecation);
@@ -649,12 +713,13 @@ static void test_stroke_param_impl(skiatest::Reporter* reporter, const GEO& geo,
     if (paramAffectsStroke) {
         // If stroking is immediately incorporated into a geometric transformation then the base
         // shapes will differ.
-        if (strokeAndFillACase.baseShape().style().applies()) {
+        if (stroke_and_fill_is_converted_to_fill(geo, strokeAndFillA) ||
+            stroke_and_fill_is_converted_to_fill(geo, strokeAndFillB)) {
             strokeAndFillACase.compare(reporter, strokeAndFillBCase,
-                                TestCase::kSameUpToStroke_ComparisonExpecation);
+                                       TestCase::kAllDifferent_ComparisonExpecation);
         } else {
             strokeAndFillACase.compare(reporter, strokeAndFillBCase,
-                                TestCase::kAllDifferent_ComparisonExpecation);
+                                       TestCase::kSameUpToStroke_ComparisonExpecation);
         }
     } else {
         strokeAndFillACase.compare(reporter, strokeAndFillBCase,
@@ -677,13 +742,7 @@ static void test_stroke_param_impl(skiatest::Reporter* reporter, const GEO& geo,
     TestCase dashACase(geo, dashA, reporter);
     TestCase dashBCase(geo, dashB, reporter);
     if (paramAffectsDashAndStroke) {
-        // If stroking is immediately incorporated into a geometric transformation then the base
-        // shapes will differ.
-        if (dashACase.baseShape().style().applies()) {
-            dashACase.compare(reporter, dashBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
-        } else {
-            dashACase.compare(reporter, dashBCase, TestCase::kAllDifferent_ComparisonExpecation);
-        }
+        dashACase.compare(reporter, dashBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
     } else {
         dashACase.compare(reporter, dashBCase, TestCase::kAllSame_ComparisonExpecation);
     }
@@ -801,9 +860,21 @@ void test_null_dash(skiatest::Reporter* reporter, const GEO& geo) {
     TestCase dashCase(geo, dash, reporter);
     TestCase nullDashCase(geo, nullDash, reporter);
 
-    nullDashCase.compare(reporter, fillCase, TestCase::kSameUpToStroke_ComparisonExpecation);
+    // We expect the null dash to be ignored so nullDashCase should match strokeCase, always.
     nullDashCase.compare(reporter, strokeCase, TestCase::kAllSame_ComparisonExpecation);
-    nullDashCase.compare(reporter, dashCase, TestCase::kSameUpToPE_ComparisonExpecation);
+    // Check whether the fillCase or strokeCase/nullDashCase would undergo a geometric tranformation
+    // on construction in order to determine how to compare the fill and stroke.
+    if (fill_changes_geom(geo) || stroke_is_converted_to_fill(geo)) {
+        nullDashCase.compare(reporter, fillCase, TestCase::kAllDifferent_ComparisonExpecation);
+    } else {
+        nullDashCase.compare(reporter, fillCase, TestCase::kSameUpToStroke_ComparisonExpecation);
+    }
+    // In the null dash case we may immediately convert to a fill, but not for the normal dash case.
+    if (stroke_is_converted_to_fill(geo)) {
+        nullDashCase.compare(reporter, dashCase, TestCase::kAllDifferent_ComparisonExpecation);
+    } else {
+        nullDashCase.compare(reporter, dashCase, TestCase::kSameUpToPE_ComparisonExpecation);
+    }
 }
 
 template <typename GEO>
@@ -848,8 +919,16 @@ void test_path_effect_makes_rrect(skiatest::Reporter* reporter, const GEO& geo) 
     peStroke.setStyle(SkPaint::kStroke_Style);
     TestCase geoPEStrokeCase(geo, peStroke, reporter);
 
-    fillGeoCase.compare(reporter, geoPECase, TestCase::kSameUpToPE_ComparisonExpecation);
-    fillGeoCase.compare(reporter, geoPEStrokeCase, TestCase::kSameUpToPE_ComparisonExpecation);
+    // Check whether constructing the filled case would cause the base shape to have a different
+    // geometry (because of a geometric transformation upon initial GrShape construction).
+    if (fill_changes_geom(geo)) {
+        fillGeoCase.compare(reporter, geoPECase, TestCase::kAllDifferent_ComparisonExpecation);
+        fillGeoCase.compare(reporter, geoPEStrokeCase,
+                            TestCase::kAllDifferent_ComparisonExpecation);
+    } else {
+        fillGeoCase.compare(reporter, geoPECase, TestCase::kSameUpToPE_ComparisonExpecation);
+        fillGeoCase.compare(reporter, geoPEStrokeCase, TestCase::kSameUpToPE_ComparisonExpecation);
+    }
     geoPECase.compare(reporter, geoPEStrokeCase,
                       TestCase::kSameUpToStroke_ComparisonExpecation);
 
@@ -1197,6 +1276,9 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     strokeRecs[kStroke].setStrokeStyle(2.f);
     strokeRecs[kHairline].setHairlineStyle();
     strokeRecs[kStrokeAndFill].setStrokeStyle(3.f, true);
+    // Use a bevel join to avoid complications of stroke+filled rects becoming filled rects before
+    // applyStyle() is called.
+    strokeRecs[kStrokeAndFill].setStrokeParams(SkPaint::kButt_Cap, SkPaint::kBevel_Join, 1.f);
     sk_sp<SkPathEffect> dashEffect = make_dash();
 
     static constexpr Style kStyleCnt = static_cast<Style>(SK_ARRAY_COUNT(strokeRecs));
@@ -1698,16 +1780,9 @@ DEF_TEST(GrShape, reporter) {
                 }
             }
             const SkPath& path = testPath.fPath;
-            // These tests all assume that the original GrShape for fill and stroke will be the
-            // same.
-            // However, that is not the case in special cases (e.g. an unclosed rect becomes a RRect
-            // GrShape with a fill style but becomes a Path GrShape when stroked). Similarly, a path
-            // that is a line becomes empty when filled but is special-cased as a line when stroked.
-            if (testPath.fIsRRectForFill == testPath.fIsRRectForStroke && !testPath.fIsLine) {
-                test_basic(reporter, path);
-                test_null_dash(reporter, path);
-                test_path_effect_makes_rrect(reporter, path);
-            }
+            test_basic(reporter, path);
+            test_null_dash(reporter, path);
+            test_path_effect_makes_rrect(reporter, path);
             test_scale(reporter, path);
             // This test uses a stroking paint, hence use of fIsRRectForStroke
             test_volatile_path(reporter, path, testPath.fIsRRectForStroke || testPath.fIsLine);
