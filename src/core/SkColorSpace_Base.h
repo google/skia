@@ -12,130 +12,120 @@
 #include "SkData.h"
 #include "SkTemplates.h"
 
-struct SkGammaCurve {
-    bool isNamed() const {
-       bool result = (SkColorSpace::kNonStandard_GammaNamed != fNamed);
-       SkASSERT(!result || (0.0f == fValue));
-       SkASSERT(!result || (0 == fTableSize));
-       SkASSERT(!result || (0.0f == fG && 0.0f == fE));
-       return result;
-    }
+struct SkGammas : SkRefCnt {
 
-    bool isValue() const {
-        bool result = (0.0f != fValue);
-        SkASSERT(!result || SkColorSpace::kNonStandard_GammaNamed == fNamed);
-        SkASSERT(!result || (0 == fTableSize));
-        SkASSERT(!result || (0.0f == fG && 0.0f == fE));
-        return result;
-    }
+    // There are four possible representations for gamma curves.  kNone_Type is used
+    // as a placeholder until the struct is initialized.  It is not a valid value.
+    enum class Type : uint8_t {
+        kNone_Type,
+        kNamed_Type,
+        kValue_Type,
+        kTable_Type,
+        kParam_Type,
+    };
 
-    bool isTable() const {
-        bool result = (0 != fTableSize);
-        SkASSERT(!result || SkColorSpace::kNonStandard_GammaNamed == fNamed);
-        SkASSERT(!result || (0.0f == fValue));
-        SkASSERT(!result || (0.0f == fG && 0.0f == fE));
-        SkASSERT(!result || fTable);
-        return result;
-    }
+    // Contains information for a gamma table.
+    struct Table {
+        size_t fOffset;
+        int    fSize;
 
-    bool isParametric() const {
-        bool result = (0.0f != fG || 0.0f != fE);
-        SkASSERT(!result || SkColorSpace::kNonStandard_GammaNamed == fNamed);
-        SkASSERT(!result || (0.0f == fValue));
-        SkASSERT(!result || (0 == fTableSize));
-        return result;
-    }
+        const float* table(const SkGammas* base) const {
+            return SkTAddOffset<const float>(base, sizeof(SkGammas) + fOffset);
+        }
+    };
 
-    // We have four different ways to represent gamma.
-    // (1) A known, named type:
-    SkColorSpace::GammaNamed fNamed;
+    // Contains the parameters for a parametric curve.
+    struct Params {
+        //     Y = (aX + b)^g + c  for X >= d
+        //     Y = eX + f          otherwise
+        float                    fG;
+        float                    fA;
+        float                    fB;
+        float                    fC;
+        float                    fD;
+        float                    fE;
+        float                    fF;
+    };
 
-    // (2) A single value:
-    float                    fValue;
+    // Contains the actual gamma curve information.  Should be interpreted
+    // based on the type of the gamma curve.
+    union Data {
+        Data()
+            : fTable{ 0, 0 }
+        {}
 
-    // (3) A lookup table:
-    uint32_t                 fTableSize;
-    std::unique_ptr<float[]> fTable;
-
-    // (4) Parameters for a curve:
-    //     Y = (aX + b)^g + c  for X >= d
-    //     Y = eX + f          otherwise
-    float                    fG;
-    float                    fA;
-    float                    fB;
-    float                    fC;
-    float                    fD;
-    float                    fE;
-    float                    fF;
-
-    SkGammaCurve()
-        : fNamed(SkColorSpace::kNonStandard_GammaNamed)
-        , fValue(0.0f)
-        , fTableSize(0)
-        , fTable(nullptr)
-        , fG(0.0f)
-        , fA(0.0f)
-        , fB(0.0f)
-        , fC(0.0f)
-        , fD(0.0f)
-        , fE(0.0f)
-        , fF(0.0f)
-    {}
-
-    bool quickEquals(const SkGammaCurve& that) const {
-        return (this->fNamed == that.fNamed) && (this->fValue == that.fValue) &&
-                (this->fTableSize == that.fTableSize) && (this->fTable == that.fTable) &&
-                (this->fG == that.fG) && (this->fA == that.fA) && (this->fB == that.fB) &&
-                (this->fC == that.fC) && (this->fD == that.fD) && (this->fE == that.fE) &&
-                (this->fF == that.fF);
-    }
-};
-
-struct SkGammas : public SkRefCnt {
-public:
-    static SkColorSpace::GammaNamed Named(SkGammaCurve curves[3]) {
-        if (SkColorSpace::kLinear_GammaNamed == curves[0].fNamed &&
-            SkColorSpace::kLinear_GammaNamed == curves[1].fNamed &&
-            SkColorSpace::kLinear_GammaNamed == curves[2].fNamed)
-        {
-            return SkColorSpace::kLinear_GammaNamed;
+        inline bool operator==(const Data& that) const {
+            return this->fTable.fOffset == that.fTable.fOffset &&
+                   this->fTable.fSize == that.fTable.fSize;
         }
 
-        if (SkColorSpace::kSRGB_GammaNamed == curves[0].fNamed &&
-            SkColorSpace::kSRGB_GammaNamed == curves[1].fNamed &&
-            SkColorSpace::kSRGB_GammaNamed == curves[2].fNamed)
-        {
-            return SkColorSpace::kSRGB_GammaNamed;
+        SkColorSpace::GammaNamed fNamed;
+        float                    fValue;
+        Table                    fTable;
+        size_t                   fParamOffset;
+
+        const Params& params(const SkGammas* base) const {
+            return *SkTAddOffset<const Params>(base, sizeof(SkGammas) + fParamOffset);
         }
+    };
 
-        if (SkColorSpace::k2Dot2Curve_GammaNamed == curves[0].fNamed &&
-            SkColorSpace::k2Dot2Curve_GammaNamed == curves[1].fNamed &&
-            SkColorSpace::k2Dot2Curve_GammaNamed == curves[2].fNamed)
-        {
-            return SkColorSpace::k2Dot2Curve_GammaNamed;
-        }
-
-        return SkColorSpace::kNonStandard_GammaNamed;
-    }
-
-    const SkGammaCurve& operator[](int i) const {
+    bool isNamed(int i) const {
         SkASSERT(0 <= i && i < 3);
-        return (&fRed)[i];
+        return (&fRedType)[i] == Type::kNamed_Type;
     }
 
-    const SkGammaCurve fRed;
-    const SkGammaCurve fGreen;
-    const SkGammaCurve fBlue;
+    bool isValue(int i) const {
+        SkASSERT(0 <= i && i < 3);
+        return (&fRedType)[i] == Type::kValue_Type;
+    }
 
-    SkGammas(SkGammaCurve red, SkGammaCurve green, SkGammaCurve blue)
-        : fRed(std::move(red))
-        , fGreen(std::move(green))
-        , fBlue(std::move(blue))
+    bool isTable(int i) const {
+        SkASSERT(0 <= i && i < 3);
+        return (&fRedType)[i] == Type::kTable_Type;
+    }
+
+    bool isParametric(int i) const {
+        SkASSERT(0 <= i && i < 3);
+        return (&fRedType)[i] == Type::kParam_Type;
+    }
+
+    const Data& data(int i) const {
+        SkASSERT(0 <= i && i < 3);
+        return (&fRedData)[i];
+    }
+
+    const float* table(int i) const {
+        SkASSERT(isTable(i));
+        return (&fRedData)[i].fTable.table(this);
+    }
+
+    const Params& params(int i) const {
+        SkASSERT(isParametric(i));
+        return (&fRedData)[i].params(this);
+    }
+
+    SkGammas()
+        : fRedType(Type::kNone_Type)
+        , fGreenType(Type::kNone_Type)
+        , fBlueType(Type::kNone_Type)
     {}
 
-    SkGammas() {}
+    // These fields should only be modified when initializing the struct.
+    Data fRedData;
+    Data fGreenData;
+    Data fBlueData;
+    Type fRedType;
+    Type fGreenType;
+    Type fBlueType;
 
-    friend class SkColorSpace;
+    // Objects of this type are sometimes created in a custom fashion using
+    // sk_malloc_throw and therefore must be sk_freed.  We overload new to
+    // also call sk_malloc_throw so that memory can be unconditionally released
+    // using sk_free in an overloaded delete. Overloading regular new means we
+    // must also overload placement new.
+    void* operator new(size_t size) { return sk_malloc_throw(size); }
+    void* operator new(size_t, void* p) { return p; }
+    void operator delete(void* p) { sk_free(p); }
 };
 
 struct SkColorLookUpTable : public SkRefCnt {
@@ -173,8 +163,8 @@ private:
 
     SkColorSpace_Base(GammaNamed gammaNamed, const SkMatrix44& toXYZ, Named named);
 
-    SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, sk_sp<SkGammas> gammas,
-                      const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
+    SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, GammaNamed gammaNamed,
+                      sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
 
     sk_sp<SkColorLookUpTable> fColorLUT;
     sk_sp<SkGammas>           fGammas;

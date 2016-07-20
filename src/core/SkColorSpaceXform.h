@@ -76,11 +76,10 @@ public:
     void applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const override;
     void applyToF16(RGBAF16* dst, const RGBA32* src, int len) const override;
 
+    static constexpr int kDstGammaTableSize = 1024;
 private:
     SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
                    const sk_sp<SkColorSpace>& dstSpace);
-
-    static constexpr int      kDstGammaTableSize = 1024;
 
     sk_sp<SkColorLookUpTable> fColorLUT;
 
