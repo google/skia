@@ -4,19 +4,25 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file
  */
+
 #include "SkSpecialImage.h"
-
-#if SK_SUPPORT_GPU
-#include "GrTexture.h"
-#include "GrTextureParams.h"
-#include "SkGr.h"
-#endif
-
+#include "SkBitmap.h"
+#include "SkImage.h"
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
 #include "SkImage_Base.h"
 #include "SkSpecialSurface.h"
 #include "SkSurfacePriv.h"
+#include "SkPixelRef.h"
+
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "GrTexture.h"
+#include "GrTextureParams.h"
+#include "SkGr.h"
+#include "SkGrPixelRef.h"
+#include "SkGrPriv.h"
+#endif
 
 // Currently the raster imagefilters can only handle certain imageinfos. Call this to know if
 // a given info is supported.
@@ -160,131 +166,6 @@ sk_sp<SkImage> SkSpecialImage::makeTightSubset(const SkIRect& subset) const {
     return as_SIB(this)->onMakeTightSubset(subset);
 }
 
-#if SK_SUPPORT_GPU
-#include "SkGr.h"
-#include "SkGrPixelRef.h"
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-#include "SkImage.h"
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "SkGrPriv.h"
-#endif
-
-class SkSpecialImage_Image : public SkSpecialImage_Base {
-public:
-    SkSpecialImage_Image(const SkIRect& subset,
-                         sk_sp<SkImage> image,
-                         const SkSurfaceProps* props)
-        : INHERITED(subset, image->uniqueID(), props)
-        , fImage(image) {
-    }
-
-    ~SkSpecialImage_Image() override { }
-
-    bool isOpaque() const override { return fImage->isOpaque(); }
-
-    size_t getSize() const override {
-#if SK_SUPPORT_GPU
-        if (GrTexture* texture = as_IB(fImage.get())->peekTexture()) {
-            return texture->gpuMemorySize();
-        } else
-#endif
-        {
-            SkPixmap pm;
-            if (fImage->peekPixels(&pm)) {
-                return pm.height() * pm.rowBytes();
-            }
-        }
-        return 0;
-    }
-
-    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
-        SkRect dst = SkRect::MakeXYWH(x, y, this->subset().width(), this->subset().height());
-
-        canvas->drawImageRect(fImage.get(), this->subset(),
-                              dst, paint, SkCanvas::kStrict_SrcRectConstraint);
-    }
-
-    bool onGetROPixels(SkBitmap* bm) const override {
-        return as_IB(fImage)->getROPixels(bm);
-    }
-
-    GrTexture* onPeekTexture() const override { return as_IB(fImage)->peekTexture(); }
-
-#if SK_SUPPORT_GPU
-    sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
-        return sk_sp<GrTexture>(as_IB(fImage)->asTextureRef(context,
-                                                            GrTextureParams::ClampNoFilter(),
-                                                            SkSourceGammaTreatment::kRespect));
-    }
-#endif
-
-    bool getBitmapDeprecated(SkBitmap* result) const override {
-#if SK_SUPPORT_GPU
-        if (GrTexture* texture = as_IB(fImage.get())->peekTexture()) {
-            const SkImageInfo info = GrMakeInfoFromTexture(texture,
-                                                           fImage->width(), fImage->height(),
-                                                           fImage->isOpaque());
-            if (!result->setInfo(info)) {
-                return false;
-            }
-
-            result->setPixelRef(new SkGrPixelRef(info, texture))->unref();
-            return true;
-        }
-#endif
-
-        return as_IB(fImage.get())->asBitmapForImageFilters(result);
-    }
-
-    sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const override {
-#if SK_SUPPORT_GPU
-        GrTexture* texture = as_IB(fImage.get())->peekTexture();
-        if (texture) {
-            GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *texture->getContext()->caps());
-
-            return SkSpecialSurface::MakeRenderTarget(texture->getContext(),
-                                                      info.width(),
-                                                      info.height(),
-                                                      config);
-        }
-#endif
-        return SkSpecialSurface::MakeRaster(info, nullptr);
-    }
-
-    sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
-        sk_sp<SkImage> subsetImg(fImage->makeSubset(subset));
-        if (!subsetImg) {
-            return nullptr;
-        }
-
-        return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(subset.width(), subset.height()),
-                                             subsetImg,
-                                             &this->props());
-    }
-
-    sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const override {
-        return fImage->makeSubset(subset);
-    }
-
-    sk_sp<SkSurface> onMakeTightSurface(const SkImageInfo& info) const override {
-#if SK_SUPPORT_GPU
-        GrTexture* texture = as_IB(fImage.get())->peekTexture();
-        if (texture) {
-            return SkSurface::MakeRenderTarget(texture->getContext(), SkBudgeted::kYes, info);
-        }
-#endif
-        return SkSurface::MakeRaster(info, nullptr);
-    }
-
-private:
-    sk_sp<SkImage> fImage;
-
-    typedef SkSpecialImage_Base INHERITED;
-};
-
 #ifdef SK_DEBUG
 static bool rect_fits(const SkIRect& rect, int width, int height) {
     if (0 == width && 0 == height) {
@@ -304,17 +185,21 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
                                                     const SkSurfaceProps* props) {
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
-    if (valid_for_imagefilters(as_IB(image.get())->onImageInfo())) {
-        return sk_make_sp<SkSpecialImage_Image>(subset, image, props);
-    } else {
-        return nullptr;
+#if SK_SUPPORT_GPU
+    if (GrTexture* texture = as_IB(image)->peekTexture()) {
+        return MakeFromGpu(subset, image->uniqueID(), sk_ref_sp(texture), props);
+    } else
+#endif
+    {
+        SkBitmap bm;
+        if (as_IB(image)->getROPixels(&bm)) {
+            return MakeFromRaster(subset, bm, props);
+        }
     }
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#include "SkBitmap.h"
-#include "SkImageInfo.h"
-#include "SkPixelRef.h"
 
 class SkSpecialImage_Raster : public SkSpecialImage_Base {
 public:
