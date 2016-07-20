@@ -71,7 +71,7 @@ const char* platform_os_emoji() {
     if (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu")) {
         return "CBDT";
     }
-    if (!strncmp(osName, "Mac", 3)) {
+    if (!strncmp(osName, "Mac", 3) || !strncmp(osName, "iOS", 3)) {
         return "SBIX";
     }
     if (!strncmp(osName, "Win", 3)) {
