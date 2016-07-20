@@ -4129,6 +4129,21 @@ public:
     }
 };
 
+static void test_crbug_629455(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.cubicTo(SkBits2Float(0xcdcdcd00), SkBits2Float(0xcdcdcdcd),
+                 SkBits2Float(0xcdcdcdcd), SkBits2Float(0xcdcdcdcd),
+                 SkBits2Float(0x423fcdcd), SkBits2Float(0x40ed9341));
+//  AKA: cubicTo(-4.31596e+08f, -4.31602e+08f, -4.31602e+08f, -4.31602e+08f, 47.951f, 7.42423f);
+    path.lineTo(0, 0);
+
+    auto surface = SkSurface::MakeRasterN32Premul(100, 100);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    surface->getCanvas()->drawPath(path, paint);
+}
+
 static void test_interp(skiatest::Reporter* reporter) {
     SkPath p1, p2, out;
     REPORTER_ASSERT(reporter, p1.isInterpolatable(p2));
@@ -4177,6 +4192,7 @@ DEF_TEST(PathContains, reporter) {
 }
 
 DEF_TEST(Paths, reporter) {
+    test_crbug_629455(reporter);
     test_fuzz_crbug_627414(reporter);
     test_path_crbug364224();
 

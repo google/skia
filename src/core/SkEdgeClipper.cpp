@@ -263,9 +263,25 @@ static void chop_cubic_in_Y(SkPoint pts[4], const SkRect& clip) {
     if (pts[0].fY < clip.fTop) {
         SkPoint tmp[7];
         chop_mono_cubic_at_y(pts, clip.fTop, tmp);
+
+        /*
+         *  For a large range in the points, we can do a poor job of chopping, such that the t
+         *  we computed resulted in the lower cubic still being partly above the clip.
+         *
+         *  If just the first or first 2 Y values are above the fTop, we can just smash them
+         *  down. If the first 3 Ys are above fTop, we can't smash all 3, as that can really
+         *  distort the cubic. In this case, we take the first output (tmp[3..6] and treat it as
+         *  a guess, and re-chop against fTop. Then we fall through to checking if we need to
+         *  smash the first 1 or 2 Y values.
+         */
+        if (tmp[3].fY < clip.fTop && tmp[4].fY < clip.fTop && tmp[5].fY < clip.fTop) {
+            SkPoint tmp2[4];
+            memcpy(tmp2, &tmp[3].fX, 4 * sizeof(SkPoint));
+            chop_mono_cubic_at_y(tmp2, clip.fTop, tmp);
+        }
+
         // tmp[3, 4].fY should all be to the below clip.fTop.
-        // Since we can't trust the numerics of
-        // the chopper, we force those conditions now
+        // Since we can't trust the numerics of the chopper, we force those conditions now
         tmp[3].fY = clip.fTop;
         clamp_ge(tmp[4].fY, clip.fTop);
 
