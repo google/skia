@@ -139,24 +139,15 @@ static void SK_VECTORCALL srcover(SkRasterPipeline::Stage* st, size_t x,
     st->next(x, r,g,b,a, dr,dg,db,da);
 }
 
-static Sk4f clamp(const Sk4f& x) {
-    return Sk4f::Min(Sk4f::Max(x, 0.0f), 255.0f);
-}
-
 static void SK_VECTORCALL store_srgb(SkRasterPipeline::Stage* st, size_t x,
                                      Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
                                      Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     auto ptr = st->ctx<uint32_t*>() + x;
 
-    r = clamp(sk_linear_to_srgb(r));
-    g = clamp(sk_linear_to_srgb(g));
-    b = clamp(sk_linear_to_srgb(b));
-    a = clamp(         255.0f * a );
-
-    ( SkNx_cast<int>(r)
-    | SkNx_cast<int>(g) << 8
-    | SkNx_cast<int>(b) << 16
-    | SkNx_cast<int>(a) << 24 ).store(ptr);
+    ( sk_linear_to_srgb(r)
+    | sk_linear_to_srgb(g) << 8
+    | sk_linear_to_srgb(b) << 16
+    | Sk4f_round(255.0f*a) << 24).store(ptr);
 }
 
 static void SK_VECTORCALL store_srgb_tail(SkRasterPipeline::Stage* st, size_t x,
@@ -164,9 +155,8 @@ static void SK_VECTORCALL store_srgb_tail(SkRasterPipeline::Stage* st, size_t x,
                                           Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     auto ptr = st->ctx<uint32_t*>() + x;
 
-    auto rgba = sk_linear_to_srgb({r[0], g[0], b[0], 0});
-    rgba = {rgba[0], rgba[1], rgba[2], 255.0f*a[0]};
-    rgba = clamp(rgba);
+    Sk4i rgba = sk_linear_to_srgb({r[0], g[0], b[0], 0});
+    rgba = {rgba[0], rgba[1], rgba[2], (int)(255.0f * a[0] + 0.5f)};
 
     SkNx_cast<uint8_t>(rgba).store(ptr);
 }
