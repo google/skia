@@ -18,6 +18,13 @@
 #include "SkSpecialSurface.h"
 #include "SkSurfacePriv.h"
 
+// Currently the raster imagefilters can only handle certain imageinfos. Call this to know if
+// a given info is supported.
+static bool valid_for_imagefilters(const SkImageInfo& info) {
+    // no support for other swizzles/depths yet
+    return info.colorType() == kN32_SkColorType;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 class SkSpecialImage_Base : public SkSpecialImage {
 public:
@@ -315,7 +322,11 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
                                                     const SkSurfaceProps* props) {
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
-    return sk_make_sp<SkSpecialImage_Image>(subset, image, props);
+    if (valid_for_imagefilters(as_IB(image.get())->onImageInfo())) {
+        return sk_make_sp<SkSpecialImage_Image>(subset, image, props);
+    } else {
+        return nullptr;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -412,7 +423,16 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
     SkASSERT(nullptr == bm.getTexture());
     SkASSERT(rect_fits(subset, bm.width(), bm.height()));
 
-    return sk_make_sp<SkSpecialImage_Raster>(subset, bm, props);
+    const SkBitmap* srcBM = &bm;
+    SkBitmap tmpStorage;
+    // ImageFilters only handle N32 at the moment, so force our src to be that
+    if (!valid_for_imagefilters(bm.info())) {
+        if (!bm.copyTo(&tmpStorage, kN32_SkColorType)) {
+            return nullptr;
+        }
+        srcBM = &tmpStorage;
+    }
+    return sk_make_sp<SkSpecialImage_Raster>(subset, *srcBM, props);
 }
 
 #if SK_SUPPORT_GPU

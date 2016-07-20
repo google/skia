@@ -2262,6 +2262,5 @@ sk_sp<SkSpecialImage> SkPDFDevice::makeSpecial(const SkImage* image) {
 }
 
 sk_sp<SkSpecialImage> SkPDFDevice::snapSpecial() {
-    SkASSERT(false);
     return nullptr;
 }
