@@ -348,12 +348,6 @@ protected:
         return NULL;
     }
 
-    /**
-     *  Calls through to drawSprite, processing the imagefilter.
-     */
-    virtual void drawSpriteWithFilter(const SkDraw&, const SkBitmap&,
-                                      int x, int y, const SkPaint&);
-
     // A helper function used by derived classes to log the scale factor of a bitmap or image draw.
     static void LogDrawScaleFactor(const SkMatrix&, SkFilterQuality);
 

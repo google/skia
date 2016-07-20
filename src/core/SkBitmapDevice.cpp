@@ -364,6 +364,7 @@ void SkBitmapDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode
 
 void SkBitmapDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
                                 int x, int y, const SkPaint& paint) {
+    SkASSERT(!paint.getImageFilter());
     draw.drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
 }
 

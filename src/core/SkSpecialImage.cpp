@@ -81,7 +81,11 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
     }
 
     SkBitmap bmp;
-    if (!this->internal_getBM(&bmp)) {
+    // At this point, we are definitely not texture-backed, so we must be raster or generator
+    // backed. If we remove the special-wrapping-an-image subclass, we may be able to assert that
+    // we are strictly raster-backed (i.e. generator images become raster when they are specialized)
+    // in which case getROPixels could turn into peekPixels...
+    if (!this->getROPixels(&bmp)) {
         return nullptr;
     }
 
@@ -160,28 +164,6 @@ sk_sp<SkImage> SkSpecialImage::makeTightSubset(const SkIRect& subset) const {
 #include "SkGr.h"
 #include "SkGrPixelRef.h"
 #endif
-
-sk_sp<SkSpecialImage> SkSpecialImage::internal_fromBM(const SkBitmap& src,
-                                                      const SkSurfaceProps* props) {
-#if SK_SUPPORT_GPU
-    // Need to test offset case! (see skbug.com/4967)
-    if (src.getTexture()) {
-        return SkSpecialImage::MakeFromGpu(src.bounds(),
-                                           src.getGenerationID(),
-                                           sk_ref_sp(src.getTexture()),
-                                           props);
-    }
-#endif
-
-    return SkSpecialImage::MakeFromRaster(src.bounds(), src, props);
-}
-
-bool SkSpecialImage::internal_getBM(SkBitmap* result) {
-    const SkSpecialImage_Base* ib = as_SIB(this);
-
-    // TODO: need to test offset case! (see skbug.com/4967)
-    return ib->getBitmapDeprecated(result);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 #include "SkImage.h"

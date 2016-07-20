@@ -250,17 +250,6 @@ sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(const SkDraw& draw,
     return filter->filterImage(srcImg, ctx, offset);
 }
 
-
-void SkGpuDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitmap,
-                                       int left, int top, const SkPaint& paint) {
-    ASSERT_SINGLE_OWNER
-    CHECK_SHOULD_DRAW(draw);
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpriteWithFilter", fContext);
-
-    SkASSERT(paint.getImageFilter());
-    this->drawSprite(draw, bitmap, left, top, paint);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
@@ -1468,6 +1457,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
 
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
                              int left, int top, const SkPaint& paint) {
+    SkASSERT(!paint.getImageFilter());
+
     ASSERT_SINGLE_OWNER
     // clear of the source device must occur before CHECK_SHOULD_DRAW
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawDevice", fContext);

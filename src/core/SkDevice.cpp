@@ -447,36 +447,6 @@ void SkBaseDevice::drawTextRSXform(const SkDraw& draw, const void* text, size_t 
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void SkBaseDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitmap,
-                                        int x, int y,
-                                        const SkPaint& paint) {
-    SkImageFilter* filter = paint.getImageFilter();
-    SkASSERT(filter);
-
-    SkIPoint offset = SkIPoint::Make(0, 0);
-    SkMatrix matrix = *draw.fMatrix;
-    matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
-    const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-x, -y);
-    SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
-    SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
-
-    sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(bitmap, &this->surfaceProps()));
-    if (!srcImg) {
-        return; // something disastrous happened
-    }
-
-    sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
-    if (resultImg) {
-        SkPaint tmpUnfiltered(paint);
-        tmpUnfiltered.setImageFilter(nullptr);
-        SkBitmap resultBM;
-        if (resultImg->internal_getBM(&resultBM)) {
-            // TODO: add drawSprite(SkSpecialImage) to SkDevice? (see skbug.com/5073)
-            this->drawSprite(draw, resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
-        }
-    }
-}
-
 uint32_t SkBaseDevice::filterTextFlags(const SkPaint& paint) const {
     uint32_t flags = paint.getFlags();
 

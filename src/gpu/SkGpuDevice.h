@@ -269,9 +269,6 @@ private:
                                                   int sampleCount,
                                                   const SkSurfaceProps*);
 
-    void drawSpriteWithFilter(const SkDraw&, const SkBitmap&, int x, int y,
-                              const SkPaint&) override;
-
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps
     typedef SkBaseDevice INHERITED;

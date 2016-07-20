@@ -1345,17 +1345,15 @@ void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
 
 void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
                              int x, int y, const SkPaint& paint) {
+    SkASSERT(!paint.getImageFilter());
+
     // Check if the source device is really a bitmapdevice (because that's what we returned
     // from createDevice (likely due to an imagefilter)
     SkPixmap pmap;
     if (device->peekPixels(&pmap)) {
         SkBitmap bitmap;
         bitmap.installPixels(pmap);
-        if (paint.getImageFilter()) {
-            this->drawSpriteWithFilter(d, bitmap, x, y, paint);
-        } else {
-            this->drawSprite(d, bitmap, x, y, paint);
-        }
+        this->drawSprite(d, bitmap, x, y, paint);
         return;
     }
 

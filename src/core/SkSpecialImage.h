@@ -105,10 +105,6 @@ public:
      */
     sk_sp<SkImage> makeTightSubset(const SkIRect& subset) const;
 
-    // These three internal methods will go away (see skbug.com/4965)
-    bool internal_getBM(SkBitmap* result);
-    static sk_sp<SkSpecialImage> internal_fromBM(const SkBitmap&, const SkSurfaceProps*);
-
     // TODO: hide this when GrLayerHoister uses SkSpecialImages more fully (see skbug.com/5063)
     /**
      *  If the SpecialImage is backed by a gpu texture, return true.
