@@ -40,9 +40,9 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
     }
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
-    GrRenderTarget* rt = surface->getDevice()->accessRenderTarget();
-    rt->prepareForExternalIO();
-    return rt;
+    surface->getDevice()->flush();
+    GrDrawContext* dc = surface->getDevice()->accessDrawContext();
+    return dc->accessRenderTarget();
 }
 
 GrBackendObject SkSurface_Gpu::onGetTextureHandle(BackendHandleAccess access) {
@@ -76,7 +76,7 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyMode forceCopyMode) {
-    GrRenderTarget* rt = fDevice->accessRenderTarget();
+    GrRenderTarget* rt = fDevice->accessDrawContext()->accessRenderTarget();
     SkASSERT(rt);
     GrTexture* tex = rt->asTexture();
     SkAutoTUnref<GrTexture> copy;
@@ -109,7 +109,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyM
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
 void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
-    GrRenderTarget* rt = fDevice->accessRenderTarget();
+    GrRenderTarget* rt = fDevice->accessDrawContext()->accessRenderTarget();
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
     sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo, kNo_ForceUnique));
@@ -127,7 +127,7 @@ void SkSurface_Gpu::onDiscard() {
 }
 
 void SkSurface_Gpu::onPrepareForExternalIO() {
-    fDevice->accessRenderTarget()->prepareForExternalIO();
+    fDevice->flush();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

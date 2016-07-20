@@ -341,11 +341,6 @@ void SkGpuDevice::prepareDraw(const SkDraw& draw) {
     fClip.reset(fClipStack, &this->getOrigin());
 }
 
-GrRenderTarget* SkGpuDevice::accessRenderTarget() {
-    ASSERT_SINGLE_OWNER
-    return fRenderTarget.get();
-}
-
 GrDrawContext* SkGpuDevice::accessDrawContext() {
     ASSERT_SINGLE_OWNER
     return fDrawContext.get();

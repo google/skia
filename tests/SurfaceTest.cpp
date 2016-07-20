@@ -627,7 +627,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
 
 static SkBudgeted is_budgeted(const sk_sp<SkSurface>& surf) {
     SkSurface_Gpu* gsurf = (SkSurface_Gpu*)surf.get();
-    return gsurf->getDevice()->accessRenderTarget()->resourcePriv().isBudgeted();
+    return gsurf->getDevice()->accessDrawContext()->accessRenderTarget()->resourcePriv().isBudgeted();
 }
 
 static SkBudgeted is_budgeted(SkImage* image) {
@@ -856,10 +856,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         [] (SkSurface* s){
             GrDrawContext* dc = s->getCanvas()->internal_private_accessTopLayerDrawContext();
             return dc->accessRenderTarget(); },
-        [] (SkSurface* s){
-            SkBaseDevice* d =
-                s->getCanvas()->getDevice_just_for_deprecated_compatibility_testing();
-            return d->accessRenderTarget(); },
         [] (SkSurface* s){ sk_sp<SkImage> i(s->makeImageSnapshot());
                            return as_IB(i)->peekTexture(); }
     };

@@ -78,7 +78,6 @@ public:
 
     void replaceDrawContext(bool shouldRetainContent);
 
-    GrRenderTarget* accessRenderTarget() override;
     GrDrawContext* accessDrawContext() override;
 
     SkImageInfo imageInfo() const override {
