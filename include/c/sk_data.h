@@ -65,6 +65,10 @@ SK_API size_t sk_data_get_size(const sk_data_t*);
  */
 SK_API const void* sk_data_get_data(const sk_data_t*);
 
+SK_API sk_data_t* sk_data_new_from_file(const char* path);
+SK_API sk_data_t* sk_data_new_from_stream(sk_stream_t* stream, size_t length);
+SK_API const uint8_t* sk_data_get_bytes(const sk_data_t*);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
