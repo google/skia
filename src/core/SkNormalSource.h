@@ -65,6 +65,10 @@ public:
     */
     static sk_sp<SkNormalSource> MakeFromNormalMap(sk_sp<SkShader> map, const SkMatrix& ctm);
 
+    /** Returns a normal source that provides straight-up normals only (0, 0, 1).
+    */
+    static sk_sp<SkNormalSource> MakeFlat();
+
     SK_DEFINE_FLATTENABLE_TYPE(SkNormalSource)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };

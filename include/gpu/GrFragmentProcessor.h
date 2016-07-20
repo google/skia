@@ -48,6 +48,12 @@ public:
     static sk_sp<GrFragmentProcessor> OverrideInput(sk_sp<GrFragmentProcessor>, GrColor);
 
     /**
+     *  Returns a fragment processor that premuls the input before calling the passed in fragment
+     *  processor.
+     */
+    static sk_sp<GrFragmentProcessor> PremulInput(sk_sp<GrFragmentProcessor>);
+
+    /**
      * Returns a fragment processor that runs the passed in array of fragment processors in a
      * series. The original input is passed to the first, the first's output is passed to the
      * second, etc. The output of the returned processor is the output of the last processor of the

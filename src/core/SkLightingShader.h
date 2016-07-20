@@ -23,8 +23,10 @@ public:
         It returns a shader with a reference count of 1.
         The caller should decrement the shader's reference count when done with the shader.
         It is an error for count to be < 2.
-        @param  diffuseShader     the shader that provides the colors
-        @param  normalSource      the source for the shape's normals
+        @param  diffuseShader     the shader that provides the colors. If nullptr, uses the paint's
+                                  color.
+        @param  normalSource      the source for the shape's normals. If nullptr, assumes straight
+                                  up normals (<0,0,1>).
         @param  lights            the lights applied to the normals
 
         The lighting equation is currently:

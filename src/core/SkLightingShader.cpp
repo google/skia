@@ -21,15 +21,11 @@
 
 /*
    SkLightingShader TODOs:
-        support other than clamp mode
-        allow 'diffuse' & 'normal' to be of different dimensions?
         support different light types
         support multiple lights
-        enforce normal map is 4 channel
-        use SkImages instead if SkBitmaps
+        fix non-opaque diffuse textures
 
     To Test:
-        non-opaque diffuse textures
         A8 diffuse textures
         down & upsampled draws
 */
@@ -81,6 +77,7 @@ public:
     private:
         SkShader::Context*        fDiffuseContext;
         SkNormalSource::Provider* fNormalProvider;
+        SkColor                   fPaintColor;
         uint32_t                  fFlags;
 
         void* fHeapAllocated;
@@ -121,6 +118,9 @@ private:
 #include "SkGr.h"
 #include "SkGrPriv.h"
 
+// This FP expects a premul'd color input for its diffuse color. Premul'ing of the paint's color is
+// handled by the asFragmentProcessor() factory, but shaders providing diffuse color must output it
+// premul'd.
 class LightingFP : public GrFragmentProcessor {
 public:
     LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights) {
@@ -180,9 +180,13 @@ public:
                                      lightDirUniName);
             // diffuse light
             fragBuilder->codeAppendf("vec3 result = %s*diffuseColor.rgb*NdotL;", lightColorUniName);
-            // ambient light
-            fragBuilder->codeAppendf("result += %s;", ambientColorUniName);
-            fragBuilder->codeAppendf("%s = vec4(result.rgb, diffuseColor.a);", args.fOutputColor);
+            // ambient light (multiplied by input color's alpha because we're working in premul'd
+            // space)
+            fragBuilder->codeAppendf("result += diffuseColor.a * %s;", ambientColorUniName);
+
+            // Clamping to alpha (equivalent to an unpremul'd clamp to 1.0)
+            fragBuilder->codeAppendf("%s = vec4(clamp(result.rgb, 0.0, diffuseColor.a), "
+                                               "diffuseColor.a);", args.fOutputColor);
         }
 
         static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
@@ -270,18 +274,25 @@ sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(
         return nullptr;
     }
 
-    sk_sp<GrFragmentProcessor> fpPipeline[] = {
+    if (fDiffuseShader) {
+        sk_sp<GrFragmentProcessor> fpPipeline[] = {
             fDiffuseShader->asFragmentProcessor(context, viewM, localMatrix, filterQuality,
                                                 gammaTreatment),
             sk_make_sp<LightingFP>(std::move(normalFP), fLights)
-    };
-    if(!fpPipeline[0]) {
-        return nullptr;
+        };
+        if(!fpPipeline[0]) {
+            return nullptr;
+        }
+
+        sk_sp<GrFragmentProcessor> innerLightFP = GrFragmentProcessor::RunInSeries(fpPipeline, 2);
+        // FP is wrapped because paint's alpha needs to be applied to output
+        return GrFragmentProcessor::MulOutputByInputAlpha(std::move(innerLightFP));
+    } else {
+        // FP is wrapped because paint comes in unpremul'd to fragment shader, but LightingFP
+        // expects premul'd color.
+        return GrFragmentProcessor::PremulInput(sk_make_sp<LightingFP>(std::move(normalFP),
+                                                                       fLights));
     }
-
-    sk_sp<GrFragmentProcessor> inner(GrFragmentProcessor::RunInSeries(fpPipeline, 2));
-
-    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif
@@ -289,7 +300,7 @@ sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(
 ////////////////////////////////////////////////////////////////////////////
 
 bool SkLightingShaderImpl::isOpaque() const {
-    return fDiffuseShader->isOpaque();
+    return (fDiffuseShader ? fDiffuseShader->isOpaque() : false);
 }
 
 SkLightingShaderImpl::LightingShaderContext::LightingShaderContext(
@@ -308,13 +319,16 @@ SkLightingShaderImpl::LightingShaderContext::LightingShaderContext(
         flags |= kOpaqueAlpha_Flag;
     }
 
+    fPaintColor = rec.fPaint->getColor();
     fFlags = flags;
 }
 
 SkLightingShaderImpl::LightingShaderContext::~LightingShaderContext() {
     // The dependencies have been created outside of the context on memory that was allocated by
     // the onCreateContext() method. Call the destructors and free the memory.
-    fDiffuseContext->~Context();
+    if (fDiffuseContext) {
+        fDiffuseContext->~Context();
+    }
     fNormalProvider->~Provider();
 
     sk_free(fHeapAllocated);
@@ -352,15 +366,21 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
     SkPMColor diffuse[BUFFER_MAX];
     SkPoint3 normals[BUFFER_MAX];
 
+    SkColor diffColor = fPaintColor;
+
     do {
         int n = SkTMin(count, BUFFER_MAX);
 
-        fDiffuseContext->shadeSpan(x, y, diffuse, n);
         fNormalProvider->fillScanLine(x, y, normals, n);
 
-        for (int i = 0; i < n; ++i) {
+        if (fDiffuseContext) {
+            fDiffuseContext->shadeSpan(x, y, diffuse, n);
+        }
 
-            SkColor diffColor = SkUnPreMultiply::PMColorToColor(diffuse[i]);
+        for (int i = 0; i < n; ++i) {
+            if (fDiffuseContext) {
+                diffColor = SkUnPreMultiply::PMColorToColor(diffuse[i]);
+            }
 
             SkColor3f accum = SkColor3f::Make(0.0f, 0.0f, 0.0f);
             // This is all done in linear unpremul color space (each component 0..255.0f though)
@@ -381,6 +401,7 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
                 }
             }
 
+            // convert() premultiplies the accumulate color with alpha
             result[i] = convert(accum, SkColorGetA(diffColor));
         }
 
@@ -430,7 +451,12 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
     sk_sp<SkLights> lights(builder.finish());
 
     sk_sp<SkNormalSource> normalSource(buf.readFlattenable<SkNormalSource>());
-    sk_sp<SkShader> diffuseShader(buf.readFlattenable<SkShader>());
+
+    bool hasDiffuse = buf.readBool();
+    sk_sp<SkShader> diffuseShader = nullptr;
+    if (hasDiffuse) {
+        diffuseShader = buf.readFlattenable<SkShader>();
+    }
 
     return sk_make_sp<SkLightingShaderImpl>(std::move(diffuseShader), std::move(normalSource),
                                             std::move(lights));
@@ -453,7 +479,10 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
     }
 
     buf.writeFlattenable(fNormalSource.get());
-    buf.writeFlattenable(fDiffuseShader.get());
+    buf.writeBool(fDiffuseShader);
+    if (fDiffuseShader) {
+        buf.writeFlattenable(fDiffuseShader.get());
+    }
 }
 
 size_t SkLightingShaderImpl::onContextSize(const ContextRec& rec) const {
@@ -462,18 +491,23 @@ size_t SkLightingShaderImpl::onContextSize(const ContextRec& rec) const {
 
 SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
                                                          void* storage) const {
-    size_t heapRequired = fDiffuseShader->contextSize(rec) +
+    size_t heapRequired = (fDiffuseShader ? fDiffuseShader->contextSize(rec) : 0) +
                           fNormalSource->providerSize(rec);
     void* heapAllocated = sk_malloc_throw(heapRequired);
 
     void* diffuseContextStorage = heapAllocated;
-    SkShader::Context* diffuseContext = fDiffuseShader->createContext(rec, diffuseContextStorage);
-    if (!diffuseContext) {
-        sk_free(heapAllocated);
-        return nullptr;
+    void* normalProviderStorage = (char*) diffuseContextStorage +
+                                  (fDiffuseShader ? fDiffuseShader->contextSize(rec) : 0);
+
+    SkShader::Context *diffuseContext = nullptr;
+    if (fDiffuseShader) {
+        diffuseContext = fDiffuseShader->createContext(rec, diffuseContextStorage);
+        if (!diffuseContext) {
+            sk_free(heapAllocated);
+            return nullptr;
+        }
     }
 
-    void* normalProviderStorage = (char*)heapAllocated + fDiffuseShader->contextSize(rec);
     SkNormalSource::Provider* normalProvider = fNormalSource->asProvider(rec,
                                                                          normalProviderStorage);
     if (!normalProvider) {
@@ -491,10 +525,8 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
 sk_sp<SkShader> SkLightingShader::Make(sk_sp<SkShader> diffuseShader,
                                        sk_sp<SkNormalSource> normalSource,
                                        sk_sp<SkLights> lights) {
-    if (!diffuseShader || !normalSource) {
-        // TODO: Use paint's color in absence of a diffuseShader
-        // TODO: Use a default implementation of normalSource instead
-        return nullptr;
+    if (!normalSource) {
+        normalSource = SkNormalSource::MakeFlat();
     }
 
     return sk_make_sp<SkLightingShaderImpl>(std::move(diffuseShader), std::move(normalSource),

@@ -10,6 +10,7 @@
 #include "SkLightingShader.h"
 #include "SkMatrix.h"
 #include "SkNormalSource.h"
+#include "SkPM4f.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
@@ -46,14 +47,18 @@ protected:
 private:
     class Provider : public SkNormalSource::Provider {
     public:
-        Provider(const NormalMapSourceImpl& source, SkShader::Context* fMapContext);
+        Provider(const NormalMapSourceImpl& source, SkShader::Context* mapContext,
+                 SkPaint* overridePaint);
 
         virtual ~Provider() override;
 
         void fillScanLine(int x, int y, SkPoint3 output[], int count) const override;
+
     private:
         const NormalMapSourceImpl& fSource;
         SkShader::Context* fMapContext;
+
+        SkPaint* fOverridePaint;
 
         typedef SkNormalSource::Provider INHERITED;
     };
@@ -105,17 +110,14 @@ public:
             fragBuilder->codeAppendf("vec3 normal = normalize(%s.rgb - vec3(0.5));",
                                      dstNormalColorName.c_str());
 
-            // TODO: inverse map the light direction vectors in the vertex shader rather than
-            // transforming all the normals here!
-
             // If there's no x & y components, return (0, 0, +/- 1) instead to avoid division by 0
             fragBuilder->codeAppend( "if (abs(normal.z) > 0.999) {");
             fragBuilder->codeAppendf("    %s = normalize(vec4(0.0, 0.0, normal.z, 0.0));",
                     args.fOutputColor);
             // Else, Normalizing the transformed X and Y, while keeping constant both Z and the
             // vector's angle in the XY plane. This maintains the "slope" for the surface while
-            // appropriately rotating the normal for any anisotropic scaling that occurs.
-            // Here, we call scaling factor the number that must divide the transformed X and Y so
+            // appropriately rotating the normal regardless of any anisotropic scaling that occurs.
+            // Here, we call 'scaling factor' the number that must divide the transformed X and Y so
             // that the normal's length remains equal to 1.
             fragBuilder->codeAppend( "} else {");
             fragBuilder->codeAppendf("    vec2 transformed = %s * normal.xy;",
@@ -195,13 +197,15 @@ sk_sp<GrFragmentProcessor> NormalMapSourceImpl::asFragmentProcessor(
 ////////////////////////////////////////////////////////////////////////////
 
 NormalMapSourceImpl::Provider::Provider(const NormalMapSourceImpl& source,
-                                        SkShader::Context* mapContext)
+                                        SkShader::Context* mapContext,
+                                        SkPaint* overridePaint)
     : fSource(source)
-    , fMapContext(mapContext) {
-}
+    , fMapContext(mapContext)
+    , fOverridePaint(overridePaint) {}
 
 NormalMapSourceImpl::Provider::~Provider() {
     fMapContext->~Context();
+    fOverridePaint->~SkPaint();
 }
 
 SkNormalSource::Provider* NormalMapSourceImpl::asProvider(
@@ -211,17 +215,24 @@ SkNormalSource::Provider* NormalMapSourceImpl::asProvider(
         return nullptr;
     }
 
-    void* mapContextStorage = (char*)storage + sizeof(Provider);
-    SkShader::Context* context = fMapShader->createContext(rec, mapContextStorage);
+    // Overriding paint's alpha because we need the normal map's RGB channels to be unpremul'd
+    void* paintStorage = (char*)storage + sizeof(Provider);
+    SkPaint* overridePaint = new (paintStorage) SkPaint(*(rec.fPaint));
+    overridePaint->setAlpha(0xFF);
+    SkShader::ContextRec overrideRec(*overridePaint, *(rec.fMatrix), rec.fLocalMatrix,
+                                     rec.fPreferredDstType);
+
+    void* mapContextStorage = (char*) paintStorage + sizeof(SkPaint);
+    SkShader::Context* context = fMapShader->createContext(overrideRec, mapContextStorage);
     if (!context) {
         return nullptr;
     }
 
-    return new (storage) Provider(*this, context);
+    return new (storage) Provider(*this, context, overridePaint);
 }
 
 size_t NormalMapSourceImpl::providerSize(const SkShader::ContextRec& rec) const {
-    return sizeof(Provider) + fMapShader->contextSize(rec);
+    return sizeof(Provider) + sizeof(SkPaint) + fMapShader->contextSize(rec);
 }
 
 bool NormalMapSourceImpl::computeNormTotalInverse(const SkShader::ContextRec& rec,
@@ -253,7 +264,9 @@ void NormalMapSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output[]
             tempNorm.set(SkIntToScalar(SkGetPackedR32(tmpNormalColors[i])) - 127.0f,
                          SkIntToScalar(SkGetPackedG32(tmpNormalColors[i])) - 127.0f,
                          SkIntToScalar(SkGetPackedB32(tmpNormalColors[i])) - 127.0f);
+
             tempNorm.normalize();
+
 
             if (!SkScalarNearlyEqual(SkScalarAbs(tempNorm.fZ), 1.0f)) {
                 SkVector transformed = fSource.fInvCTM.mapVector(tempNorm.fX, tempNorm.fY);
@@ -316,10 +329,151 @@ sk_sp<SkNormalSource> SkNormalSource::MakeFromNormalMap(sk_sp<SkShader> map, con
     return sk_make_sp<NormalMapSourceImpl>(std::move(map), invCTM);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+class SK_API NormalFlatSourceImpl : public SkNormalSource {
+public:
+    NormalFlatSourceImpl(){}
+
+#if SK_SUPPORT_GPU
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
+                                                   const SkMatrix& viewM,
+                                                   const SkMatrix* localMatrix,
+                                                   SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
+#endif
+
+    SkNormalSource::Provider* asProvider(const SkShader::ContextRec& rec,
+                                         void* storage) const override;
+    size_t providerSize(const SkShader::ContextRec& rec) const override;
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(NormalFlatSourceImpl)
+
+protected:
+    void flatten(SkWriteBuffer& buf) const override;
+
+private:
+    class Provider : public SkNormalSource::Provider {
+    public:
+        Provider();
+
+        virtual ~Provider();
+
+        void fillScanLine(int x, int y, SkPoint3 output[], int count) const override;
+
+    private:
+        typedef SkNormalSource::Provider INHERITED;
+    };
+
+    friend class SkNormalSource;
+
+    typedef SkNormalSource INHERITED;
+};
+
+////////////////////////////////////////////////////////////////////////////
+
+#if SK_SUPPORT_GPU
+
+class NormalFlatFP : public GrFragmentProcessor {
+public:
+    NormalFlatFP() {
+        this->initClassID<NormalFlatFP>();
+    }
+
+    class GLSLNormalFlatFP : public GrGLSLFragmentProcessor {
+    public:
+        GLSLNormalFlatFP() {}
+
+        void emitCode(EmitArgs& args) override {
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+
+            fragBuilder->codeAppendf("%s = vec4(0, 0, 1, 0);", args.fOutputColor);
+        }
+
+        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
+                           GrProcessorKeyBuilder* b) {
+            b->add32(0x0);
+        }
+
+    protected:
+        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {}
+    };
+
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLSLNormalFlatFP::GenKey(*this, caps, b);
+    }
+
+    const char* name() const override { return "NormalFlatFP"; }
+
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
+        inout->setToUnknown(GrInvariantOutput::ReadInput::kWillNot_ReadInput);
+    }
+
+private:
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalFlatFP; }
+
+    bool onIsEqual(const GrFragmentProcessor& proc) const override {
+        return true;
+    }
+};
+
+sk_sp<GrFragmentProcessor> NormalFlatSourceImpl::asFragmentProcessor(
+                                                     GrContext *context,
+                                                     const SkMatrix &viewM,
+                                                     const SkMatrix *localMatrix,
+                                                     SkFilterQuality filterQuality,
+                                                     SkSourceGammaTreatment gammaTreatment) const {
+
+    return sk_make_sp<NormalFlatFP>();
+}
+
+#endif // SK_SUPPORT_GPU
+
+////////////////////////////////////////////////////////////////////////////
+
+NormalFlatSourceImpl::Provider::Provider() {}
+
+NormalFlatSourceImpl::Provider::~Provider() {}
+
+SkNormalSource::Provider* NormalFlatSourceImpl::asProvider(const SkShader::ContextRec &rec,
+                                                           void *storage) const {
+    return new (storage) Provider();
+}
+
+size_t NormalFlatSourceImpl::providerSize(const SkShader::ContextRec&) const {
+    return sizeof(Provider);
+}
+
+void NormalFlatSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output[],
+                                                  int count) const {
+    for (int i = 0; i < count; i++) {
+        output[i] = {0.0f, 0.0f, 1.0f};
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkFlattenable> NormalFlatSourceImpl::CreateProc(SkReadBuffer& buf) {
+    return sk_make_sp<NormalFlatSourceImpl>();
+}
+
+void NormalFlatSourceImpl::flatten(SkWriteBuffer& buf) const {
+    this->INHERITED::flatten(buf);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkNormalSource> SkNormalSource::MakeFlat() {
+    return sk_make_sp<NormalFlatSourceImpl>();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 ////////////////////////////////////////////////////////////////////////////
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkNormalSource)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(NormalMapSourceImpl)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(NormalFlatSourceImpl)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 ////////////////////////////////////////////////////////////////////////////

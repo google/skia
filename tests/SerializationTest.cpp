@@ -587,13 +587,26 @@ DEF_TEST(Serialization, reporter) {
                                                                                ctm);
         sk_sp<SkShader> diffuseShader = SkMakeBitmapShader(diffuse, SkShader::kClamp_TileMode,
                 SkShader::kClamp_TileMode, &matrix, nullptr);
-        sk_sp<SkShader> lightingShader = SkLightingShader::Make(std::move(diffuseShader),
-                                                                std::move(normalSource),
+
+        sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuseShader,
+                                                                normalSource,
                                                                 fLights);
-
         SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
-        // TODO test equality?
 
+        lightingShader = SkLightingShader::Make(std::move(diffuseShader),
+                                                nullptr,
+                                                fLights);
+        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+
+        lightingShader = SkLightingShader::Make(nullptr,
+                                                std::move(normalSource),
+                                                fLights);
+        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+
+        lightingShader = SkLightingShader::Make(nullptr,
+                                                nullptr,
+                                                fLights);
+        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
     }
 }
 
