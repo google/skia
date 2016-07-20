@@ -264,11 +264,11 @@ static uint8_t clamp_normalized_float_to_byte(float v) {
     }
 }
 
-static void build_table_linear_to_gamma(uint8_t* outTable, int outTableSize, float exponent) {
+static void build_table_linear_to_gamma(uint8_t* outTable, float exponent) {
     float toGammaExp = 1.0f / exponent;
 
-    for (int i = 0; i < outTableSize; i++) {
-        float x = ((float) i) * (1.0f / ((float) (outTableSize - 1)));
+    for (int i = 0; i < SkDefaultXform::kDstGammaTableSize; i++) {
+        float x = ((float) i) * (1.0f / ((float) (SkDefaultXform::kDstGammaTableSize - 1)));
         outTable[i] = clamp_normalized_float_to_byte(powf(x, toGammaExp));
     }
 }
@@ -276,7 +276,7 @@ static void build_table_linear_to_gamma(uint8_t* outTable, int outTableSize, flo
 // Inverse table lookup.  Ex: what index corresponds to the input value?  This will
 // have strange results when the table is non-increasing.  But any sane gamma
 // function will be increasing.
-static float inverse_interp_lut(float input, float* table, int tableSize) {
+static float inverse_interp_lut(float input, const float* table, int tableSize) {
     if (input <= table[0]) {
         return table[0];
     } else if (input >= table[tableSize - 1]) {
@@ -299,10 +299,10 @@ static float inverse_interp_lut(float input, float* table, int tableSize) {
     return 0.0f;
 }
 
-static void build_table_linear_to_gamma(uint8_t* outTable, int outTableSize, float* inTable,
+static void build_table_linear_to_gamma(uint8_t* outTable, const float* inTable,
                                         int inTableSize) {
-    for (int i = 0; i < outTableSize; i++) {
-        float x = ((float) i) * (1.0f / ((float) (outTableSize - 1)));
+    for (int i = 0; i < SkDefaultXform::kDstGammaTableSize; i++) {
+        float x = ((float) i) * (1.0f / ((float) (SkDefaultXform::kDstGammaTableSize - 1)));
         float y = inverse_interp_lut(x, inTable, inTableSize);
         outTable[i] = clamp_normalized_float_to_byte(y);
     }
@@ -339,12 +339,108 @@ static float inverse_parametric(float x, float g, float a, float b, float c, flo
     return (powf(x - c, 1.0f / g) - b) / a;
 }
 
-static void build_table_linear_to_gamma(uint8_t* outTable, int outTableSize, float g, float a,
+static void build_table_linear_to_gamma(uint8_t* outTable, float g, float a,
                                         float b, float c, float d, float e, float f) {
-    for (int i = 0; i < outTableSize; i++) {
-        float x = ((float) i) * (1.0f / ((float) (outTableSize - 1)));
+    for (int i = 0; i < SkDefaultXform::kDstGammaTableSize; i++) {
+        float x = ((float) i) * (1.0f / ((float) (SkDefaultXform::kDstGammaTableSize - 1)));
         float y = inverse_parametric(x, g, a, b, c, d, e, f);
         outTable[i] = clamp_normalized_float_to_byte(y);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+struct GammaFns {
+    const T* fSRGBTable;
+    const T* f2Dot2Table;
+
+    void (*fBuildFromValue)(T*, float);
+    void (*fBuildFromTable)(T*, const float*, int);
+    void (*fBuildFromParam)(T*, float, float, float, float, float, float, float);
+};
+
+static const GammaFns<float> kToLinear {
+    sk_linear_from_srgb,
+    sk_linear_from_2dot2,
+    &build_table_linear_from_gamma,
+    &build_table_linear_from_gamma,
+    &build_table_linear_from_gamma,
+};
+
+static const GammaFns<uint8_t> kFromLinear {
+    linear_to_srgb,
+    linear_to_2dot2,
+    &build_table_linear_to_gamma,
+    &build_table_linear_to_gamma,
+    &build_table_linear_to_gamma,
+};
+
+// Build tables to transform src gamma to linear.
+template <typename T>
+static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage, int gammaTableSize,
+                               const sk_sp<SkColorSpace>& space, const GammaFns<T>& fns) {
+    switch (space->gammaNamed()) {
+        case SkColorSpace::kSRGB_GammaNamed:
+            outGammaTables[0] = outGammaTables[1] = outGammaTables[2] = fns.fSRGBTable;
+            break;
+        case SkColorSpace::k2Dot2Curve_GammaNamed:
+            outGammaTables[0] = outGammaTables[1] = outGammaTables[2] = fns.f2Dot2Table;
+            break;
+        case SkColorSpace::kLinear_GammaNamed:
+            (*fns.fBuildFromValue)(gammaTableStorage, 1.0f);
+            outGammaTables[0] = outGammaTables[1] = outGammaTables[2] = gammaTableStorage;
+            break;
+        default: {
+            const SkGammas* gammas = as_CSB(space)->gammas();
+            SkASSERT(gammas);
+
+            for (int i = 0; i < 3; i++) {
+                if (i > 0) {
+                    // Check if this curve matches the first curve.  In this case, we can
+                    // share the same table pointer.  This should almost always be true.
+                    // I've never seen a profile where all three gamma curves didn't match.
+                    // But it is possible that they won't.
+                    if (0 == memcmp(&gammas->data(0), &gammas->data(i), sizeof(SkGammas::Data))) {
+                        outGammaTables[i] = outGammaTables[0];
+                        continue;
+                    }
+                }
+
+                if (gammas->isNamed(i)) {
+                    switch (gammas->data(i).fNamed) {
+                        case SkColorSpace::kSRGB_GammaNamed:
+                            outGammaTables[i] = fns.fSRGBTable;
+                            break;
+                        case SkColorSpace::k2Dot2Curve_GammaNamed:
+                            outGammaTables[i] = fns.f2Dot2Table;
+                            break;
+                        case SkColorSpace::kLinear_GammaNamed:
+                            (*fns.fBuildFromValue)(&gammaTableStorage[i * gammaTableSize], 1.0f);
+                            outGammaTables[i] = &gammaTableStorage[i * gammaTableSize];
+                            break;
+                        default:
+                            SkASSERT(false);
+                            break;
+                    }
+                } else if (gammas->isValue(i)) {
+                    (*fns.fBuildFromValue)(&gammaTableStorage[i * gammaTableSize],
+                                           gammas->data(i).fValue);
+                    outGammaTables[i] = &gammaTableStorage[i * gammaTableSize];
+                } else if (gammas->isTable(i)) {
+                    (*fns.fBuildFromTable)(&gammaTableStorage[i * gammaTableSize], gammas->table(i),
+                                           gammas->data(i).fTable.fSize);
+                    outGammaTables[i] = &gammaTableStorage[i * gammaTableSize];
+                } else {
+                    SkASSERT(gammas->isParametric(i));
+                    const SkGammas::Params& params = gammas->params(i);
+                    (*fns.fBuildFromParam)(&gammaTableStorage[i * gammaTableSize], params.fG,
+                                           params.fA, params.fB, params.fC, params.fD, params.fE,
+                                           params.fF);
+                    outGammaTables[i] = &gammaTableStorage[i * gammaTableSize];
+                }
+            }
+        }
     }
 }
 
@@ -420,150 +516,9 @@ SkFastXform<Dst>::SkFastXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatri
                               const sk_sp<SkColorSpace>& dstSpace)
 {
     build_src_to_dst(fSrcToDst, srcToDst);
-
-    // Build tables to transform src gamma to linear.
-    switch (srcSpace->gammaNamed()) {
-        case SkColorSpace::kSRGB_GammaNamed:
-            fSrcGammaTables[0] = fSrcGammaTables[1] = fSrcGammaTables[2] = sk_linear_from_srgb;
-            break;
-        case SkColorSpace::k2Dot2Curve_GammaNamed:
-            fSrcGammaTables[0] = fSrcGammaTables[1] = fSrcGammaTables[2] = sk_linear_from_2dot2;
-            break;
-        case SkColorSpace::kLinear_GammaNamed:
-            build_table_linear_from_gamma(fSrcGammaTableStorage, 1.0f);
-            fSrcGammaTables[0] = fSrcGammaTables[1] = fSrcGammaTables[2] = fSrcGammaTableStorage;
-            break;
-        default: {
-            const SkGammas* gammas = as_CSB(srcSpace)->gammas();
-            SkASSERT(gammas);
-
-            for (int i = 0; i < 3; i++) {
-                const SkGammaCurve& curve = (*gammas)[i];
-
-                if (i > 0) {
-                    // Check if this curve matches the first curve.  In this case, we can
-                    // share the same table pointer.  Logically, this should almost always
-                    // be true.  I've never seen a profile where all three gamma curves
-                    // didn't match.  But it is possible that they won't.
-                    // TODO (msarett):
-                    // This comparison won't catch the case where each gamma curve has a
-                    // pointer to its own look-up table, but the tables actually match.
-                    // Should we perform a deep compare of gamma tables here?  Or should
-                    // we catch this when parsing the profile?  Or should we not worry
-                    // about a bit of redundant work?
-                    if (curve.quickEquals((*gammas)[0])) {
-                        fSrcGammaTables[i] = fSrcGammaTables[0];
-                        continue;
-                    }
-                }
-
-                if (curve.isNamed()) {
-                    switch (curve.fNamed) {
-                        case SkColorSpace::kSRGB_GammaNamed:
-                            fSrcGammaTables[i] = sk_linear_from_srgb;
-                            break;
-                        case SkColorSpace::k2Dot2Curve_GammaNamed:
-                            fSrcGammaTables[i] = sk_linear_from_2dot2;
-                            break;
-                        case SkColorSpace::kLinear_GammaNamed:
-                            build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256], 1.0f);
-                            fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
-                            break;
-                        default:
-                            SkASSERT(false);
-                            break;
-                    }
-                } else if (curve.isValue()) {
-                    build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256], curve.fValue);
-                    fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
-                } else if (curve.isTable()) {
-                    build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256],
-                                                  curve.fTable.get(), curve.fTableSize);
-                    fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
-                } else {
-                    SkASSERT(curve.isParametric());
-                    build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256], curve.fG,
-                                                  curve.fA, curve.fB, curve.fC, curve.fD, curve.fE,
-                                                  curve.fF);
-                    fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
-                }
-            }
-        }
-    }
-
-    // Build tables to transform linear to dst gamma.
-    // FIXME (msarett):
-    // Should we spend all of this time bulding the dst gamma tables when the client only
-    // wants to convert to F16?
-    switch (dstSpace->gammaNamed()) {
-        case SkColorSpace::kSRGB_GammaNamed:
-        case SkColorSpace::k2Dot2Curve_GammaNamed:
-            break;
-        case SkColorSpace::kLinear_GammaNamed:
-            build_table_linear_to_gamma(fDstGammaTableStorage, kDstGammaTableSize, 1.0f);
-            fDstGammaTables[0] = fDstGammaTables[1] = fDstGammaTables[2] = fDstGammaTableStorage;
-            break;
-        default: {
-            const SkGammas* gammas = as_CSB(dstSpace)->gammas();
-            SkASSERT(gammas);
-
-            for (int i = 0; i < 3; i++) {
-                const SkGammaCurve& curve = (*gammas)[i];
-
-                if (i > 0) {
-                    // Check if this curve matches the first curve.  In this case, we can
-                    // share the same table pointer.  Logically, this should almost always
-                    // be true.  I've never seen a profile where all three gamma curves
-                    // didn't match.  But it is possible that they won't.
-                    // TODO (msarett):
-                    // This comparison won't catch the case where each gamma curve has a
-                    // pointer to its own look-up table (but the tables actually match).
-                    // Should we perform a deep compare of gamma tables here?  Or should
-                    // we catch this when parsing the profile?  Or should we not worry
-                    // about a bit of redundant work?
-                    if (curve.quickEquals((*gammas)[0])) {
-                        fDstGammaTables[i] = fDstGammaTables[0];
-                        continue;
-                    }
-                }
-
-                if (curve.isNamed()) {
-                    switch (curve.fNamed) {
-                        case SkColorSpace::kSRGB_GammaNamed:
-                            fDstGammaTables[i] = linear_to_srgb;
-                            break;
-                        case SkColorSpace::k2Dot2Curve_GammaNamed:
-                            fDstGammaTables[i] = linear_to_2dot2;
-                            break;
-                        case SkColorSpace::kLinear_GammaNamed:
-                            build_table_linear_to_gamma(
-                                    &fDstGammaTableStorage[i * kDstGammaTableSize],
-                                    kDstGammaTableSize, 1.0f);
-                            fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
-                            break;
-                        default:
-                            SkASSERT(false);
-                            break;
-                    }
-                } else if (curve.isValue()) {
-                    build_table_linear_to_gamma(&fDstGammaTableStorage[i * kDstGammaTableSize],
-                                                kDstGammaTableSize, curve.fValue);
-                    fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
-                } else if (curve.isTable()) {
-                    build_table_linear_to_gamma(&fDstGammaTableStorage[i * kDstGammaTableSize],
-                                                kDstGammaTableSize, curve.fTable.get(),
-                                                curve.fTableSize);
-                    fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
-                } else {
-                    SkASSERT(curve.isParametric());
-                    build_table_linear_to_gamma(&fDstGammaTableStorage[i * kDstGammaTableSize],
-                                                kDstGammaTableSize, curve.fG, curve.fA, curve.fB,
-                                                curve.fC, curve.fD, curve.fE, curve.fF);
-                    fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
-                }
-            }
-        }
-    }
+    build_gamma_tables(fSrcGammaTables, fSrcGammaTableStorage, 256, srcSpace, kToLinear);
+    build_gamma_tables(fDstGammaTables, fDstGammaTableStorage, SkDefaultXform::kDstGammaTableSize,
+                       dstSpace, kFromLinear);
 }
 
 template <>
@@ -601,149 +556,9 @@ SkDefaultXform::SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatr
     : fColorLUT(sk_ref_sp((SkColorLookUpTable*) as_CSB(srcSpace)->colorLUT()))
     , fSrcToDst(srcToDst)
 {
-    // Build tables to transform src gamma to linear.
-    switch (srcSpace->gammaNamed()) {
-        case SkColorSpace::kSRGB_GammaNamed:
-            fSrcGammaTables[0] = fSrcGammaTables[1] = fSrcGammaTables[2] = sk_linear_from_srgb;
-            break;
-        case SkColorSpace::k2Dot2Curve_GammaNamed:
-            fSrcGammaTables[0] = fSrcGammaTables[1] = fSrcGammaTables[2] = sk_linear_from_2dot2;
-            break;
-        case SkColorSpace::kLinear_GammaNamed:
-            build_table_linear_from_gamma(fSrcGammaTableStorage, 1.0f);
-            fSrcGammaTables[0] = fSrcGammaTables[1] = fSrcGammaTables[2] = fSrcGammaTableStorage;
-            break;
-        default: {
-            const SkGammas* gammas = as_CSB(srcSpace)->gammas();
-            SkASSERT(gammas);
-
-            for (int i = 0; i < 3; i++) {
-                const SkGammaCurve& curve = (*gammas)[i];
-
-                if (i > 0) {
-                    // Check if this curve matches the first curve.  In this case, we can
-                    // share the same table pointer.  Logically, this should almost always
-                    // be true.  I've never seen a profile where all three gamma curves
-                    // didn't match.  But it is possible that they won't.
-                    // TODO (msarett):
-                    // This comparison won't catch the case where each gamma curve has a
-                    // pointer to its own look-up table, but the tables actually match.
-                    // Should we perform a deep compare of gamma tables here?  Or should
-                    // we catch this when parsing the profile?  Or should we not worry
-                    // about a bit of redundant work?
-                    if (curve.quickEquals((*gammas)[0])) {
-                        fSrcGammaTables[i] = fSrcGammaTables[0];
-                        continue;
-                    }
-                }
-
-                if (curve.isNamed()) {
-                    switch (curve.fNamed) {
-                        case SkColorSpace::kSRGB_GammaNamed:
-                            fSrcGammaTables[i] = sk_linear_from_srgb;
-                            break;
-                        case SkColorSpace::k2Dot2Curve_GammaNamed:
-                            fSrcGammaTables[i] = sk_linear_from_2dot2;
-                            break;
-                        case SkColorSpace::kLinear_GammaNamed:
-                            build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256], 1.0f);
-                            fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
-                            break;
-                        default:
-                            SkASSERT(false);
-                            break;
-                    }
-                } else if (curve.isValue()) {
-                    build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256], curve.fValue);
-                    fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
-                } else if (curve.isTable()) {
-                    build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256],
-                                                  curve.fTable.get(), curve.fTableSize);
-                    fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
-                } else {
-                    SkASSERT(curve.isParametric());
-                    build_table_linear_from_gamma(&fSrcGammaTableStorage[i * 256], curve.fG,
-                                                  curve.fA, curve.fB, curve.fC, curve.fD, curve.fE,
-                                                  curve.fF);
-                    fSrcGammaTables[i] = &fSrcGammaTableStorage[i * 256];
-                }
-            }
-        }
-    }
-
-    // Build tables to transform linear to dst gamma.
-    switch (dstSpace->gammaNamed()) {
-        case SkColorSpace::kSRGB_GammaNamed:
-            fDstGammaTables[0] = fDstGammaTables[1] = fDstGammaTables[2] = linear_to_srgb;
-            break;
-        case SkColorSpace::k2Dot2Curve_GammaNamed:
-            fDstGammaTables[0] = fDstGammaTables[1] = fDstGammaTables[2] = linear_to_2dot2;
-            break;
-        case SkColorSpace::kLinear_GammaNamed:
-            build_table_linear_to_gamma(fDstGammaTableStorage, kDstGammaTableSize, 1.0f);
-            fDstGammaTables[0] = fDstGammaTables[1] = fDstGammaTables[2] = fDstGammaTableStorage;
-            break;
-        default: {
-            const SkGammas* gammas = as_CSB(dstSpace)->gammas();
-            SkASSERT(gammas);
-
-            for (int i = 0; i < 3; i++) {
-                const SkGammaCurve& curve = (*gammas)[i];
-
-                if (i > 0) {
-                    // Check if this curve matches the first curve.  In this case, we can
-                    // share the same table pointer.  Logically, this should almost always
-                    // be true.  I've never seen a profile where all three gamma curves
-                    // didn't match.  But it is possible that they won't.
-                    // TODO (msarett):
-                    // This comparison won't catch the case where each gamma curve has a
-                    // pointer to its own look-up table (but the tables actually match).
-                    // Should we perform a deep compare of gamma tables here?  Or should
-                    // we catch this when parsing the profile?  Or should we not worry
-                    // about a bit of redundant work?
-                    if (curve.quickEquals((*gammas)[0])) {
-                        fDstGammaTables[i] = fDstGammaTables[0];
-                        continue;
-                    }
-                }
-
-                if (curve.isNamed()) {
-                    switch (curve.fNamed) {
-                        case SkColorSpace::kSRGB_GammaNamed:
-                            fDstGammaTables[i] = linear_to_srgb;
-                            break;
-                        case SkColorSpace::k2Dot2Curve_GammaNamed:
-                            fDstGammaTables[i] = linear_to_2dot2;
-                            break;
-                        case SkColorSpace::kLinear_GammaNamed:
-                            build_table_linear_to_gamma(
-                                    &fDstGammaTableStorage[i * kDstGammaTableSize],
-                                    kDstGammaTableSize, 1.0f);
-                            fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
-                            break;
-                        default:
-                            SkASSERT(false);
-                            break;
-                    }
-                } else if (curve.isValue()) {
-                    build_table_linear_to_gamma(&fDstGammaTableStorage[i * kDstGammaTableSize],
-                                                kDstGammaTableSize, curve.fValue);
-                    fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
-                } else if (curve.isTable()) {
-                    build_table_linear_to_gamma(&fDstGammaTableStorage[i * kDstGammaTableSize],
-                                                kDstGammaTableSize, curve.fTable.get(),
-                                                curve.fTableSize);
-                    fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
-                } else {
-                    SkASSERT(curve.isParametric());
-                    build_table_linear_to_gamma(&fDstGammaTableStorage[i * kDstGammaTableSize],
-                                                kDstGammaTableSize, curve.fG, curve.fA, curve.fB,
-                                                curve.fC, curve.fD, curve.fE, curve.fF);
-                    fDstGammaTables[i] = &fDstGammaTableStorage[i * kDstGammaTableSize];
-                }
-            }
-        }
-    }
+    build_gamma_tables(fSrcGammaTables, fSrcGammaTableStorage, 256, srcSpace, kToLinear);
+    build_gamma_tables(fDstGammaTables, fDstGammaTableStorage, SkDefaultXform::kDstGammaTableSize,
+                       dstSpace, kFromLinear);
 }
 
 static float byte_to_float(uint8_t byte) {
