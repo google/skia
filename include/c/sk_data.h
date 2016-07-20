@@ -42,7 +42,6 @@ SK_API sk_data_t* sk_data_new_from_malloc(const void* memory, size_t length);
     call to sk_data_unref().
 */
 SK_API sk_data_t* sk_data_new_subset(const sk_data_t* src, size_t offset, size_t length);
-
 /**
     Increment the reference count on the given sk_data_t. Must be
     balanced by a call to sk_data_unref().
@@ -55,7 +54,6 @@ SK_API void sk_data_ref(const sk_data_t*);
     reference count of 1.
 */
 SK_API void sk_data_unref(const sk_data_t*);
-
 /**
     Returns the number of bytes stored.
 */
@@ -64,9 +62,21 @@ SK_API size_t sk_data_get_size(const sk_data_t*);
     Returns the pointer to the data.
  */
 SK_API const void* sk_data_get_data(const sk_data_t*);
-
+/**
+    Create a new dataref the file with the specified path.
+    If the file cannot be opened, this returns NULL.
+*/
 SK_API sk_data_t* sk_data_new_from_file(const char* path);
+/**
+    Attempt to read size bytes into a SkData. If the read succeeds, return the data,
+    else return NULL. Either way the stream's cursor may have been changed as a result
+    of calling read().
+*/
 SK_API sk_data_t* sk_data_new_from_stream(sk_stream_t* stream, size_t length);
+/**
+    Like data(), returns a read-only ptr into the data, but in this case
+    it is cast to uint8_t*, to make it easy to add an offset to it.
+*/
 SK_API const uint8_t* sk_data_get_bytes(const sk_data_t*);
 
 SK_C_PLUS_PLUS_END_GUARD

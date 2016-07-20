@@ -152,9 +152,6 @@ SK_API sk_imagefilter_t* sk_imagefilter_new_picture_for_localspace(
     sk_picture_t* picture,
     const sk_rect_t* cropRect,
     sk_filter_quality_t filterQuality);
-SK_API sk_imagefilter_t* sk_imagefilter_new_rect_shader(
-    sk_shader_t* shader,
-    const sk_imagefilter_croprect_t* cropRect /*NULL*/);
 SK_API sk_imagefilter_t* sk_imagefilter_new_tile(
     const sk_rect_t* src,
     const sk_rect_t* dst,

@@ -35,15 +35,26 @@ SK_API void sk_maskfilter_unref(sk_maskfilter_t*);
 */
 SK_API sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t, float sigma);
 
+/** Create an emboss maskfilter
+    @param blurSigma    standard deviation of the Gaussian blur to apply
+                        before applying lighting (e.g. 3)
+    @param direction    array of 3 scalars [x, y, z] specifying the direction of the light source
+    @param ambient      0...1 amount of ambient light
+    @param specular     coefficient for specular highlights (e.g. 8)
+    @return the emboss maskfilter
+*/
 SK_API sk_maskfilter_t* sk_maskfilter_new_emboss(
     float blurSigma,
     const float direction[3],
     float ambient, 
     float specular);
+
 SK_API sk_maskfilter_t* sk_maskfilter_new_table(
     const uint8_t table[256]);
+
 SK_API sk_maskfilter_t* sk_maskfilter_new_gamma(
     float gamma);
+
 SK_API sk_maskfilter_t* sk_maskfilter_new_clip(
     uint8_t min,
     uint8_t max);
