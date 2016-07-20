@@ -72,6 +72,7 @@ public:
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     bool isAlphaOnly() const { return fIsAlphaOnly; }
+    virtual SkColorSpace* getColorSpace() = 0;
 
 protected:
     GrTextureProducer(int width, int height, bool isAlphaOnly)
@@ -107,8 +108,6 @@ protected:
     *  wants to note that for when the maker is destroyed.
     */
     virtual void didCacheCopy(const GrUniqueKey& copyKey) = 0;
-
-    virtual SkColorSpace* getColorSpace() = 0;
 
 private:
     const int   fWidth;

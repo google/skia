@@ -742,7 +742,8 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque) {
+SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque,
+                                  sk_sp<SkColorSpace> colorSpace) {
 #ifdef SK_DEBUG
     const GrSurfaceDesc& desc = tex->desc();
     SkASSERT(w <= desc.fWidth);
@@ -754,7 +755,7 @@ SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque) {
     if (!GrPixelConfigToColorAndColorSpace(config, &ct, nullptr)) {
         ct = kUnknown_SkColorType;
     }
-    return SkImageInfo::Make(w, h, ct, at);
+    return SkImageInfo::Make(w, h, ct, at, std::move(colorSpace));
 }
 
 

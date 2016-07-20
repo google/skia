@@ -449,9 +449,10 @@ public:
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
+        // TODO: Supply correct color space after we're storing it here
         auto img = sk_sp<SkImage>(new SkImage_Gpu(fTexture->width(), fTexture->height(),
                                                   this->uniqueID(), fAlphaType, fTexture.get(),
-                                                  SkBudgeted::kNo));
+                                                  nullptr, SkBudgeted::kNo));
 
         canvas->drawImageRect(img, this->subset(),
                                dst, paint, SkCanvas::kStrict_SrcRectConstraint);
@@ -528,9 +529,10 @@ public:
             fTexture->width() == subset.width() &&
             fTexture->height() == subset.height()) {
             // The existing GrTexture is already tight so reuse it in the SkImage
+            // TODO: Supply correct color space after we're storing it here
             return sk_make_sp<SkImage_Gpu>(fTexture->width(), fTexture->height(),
                                            kNeedNewImageUniqueID,
-                                           fAlphaType, fTexture.get(), SkBudgeted::kYes);
+                                           fAlphaType, fTexture.get(), nullptr, SkBudgeted::kYes);
         }
 
         GrContext* ctx = fTexture->getContext();
@@ -543,8 +545,9 @@ public:
             return nullptr;
         }
         ctx->copySurface(subTx.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
+        // TODO: Supply correct color space after we're storing it here
         return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                       fAlphaType, subTx.get(), SkBudgeted::kYes);
+                                       fAlphaType, subTx.get(), nullptr, SkBudgeted::kYes);
     }
 
     sk_sp<SkSurface> onMakeTightSurface(const SkImageInfo& info) const override {

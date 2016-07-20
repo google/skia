@@ -304,7 +304,8 @@ sk_sp<SkImage> SkImage::MakeFromBitmap(const SkBitmap& bm) {
         }
         const SkImageInfo info = bm.info();
         return sk_make_sp<SkImage_Gpu>(info.width(), info.height(), bm.getGenerationID(),
-                                       info.alphaType(), tex, SkBudgeted::kNo);
+                                       info.alphaType(), tex, sk_ref_sp(info.colorSpace()),
+                                       SkBudgeted::kNo);
     }
 #endif
 
@@ -396,7 +397,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBud
 }
 
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType,
-                                        TextureReleaseProc, ReleaseContext) {
+                                        sk_sp<SkColorSpace>, TextureReleaseProc, ReleaseContext) {
     return nullptr;
 }
 
@@ -412,14 +413,15 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
 }
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext*, const GrBackendTextureDesc&,
-                                               SkAlphaType) {
+                                               SkAlphaType, sk_sp<SkColorSpace>) {
     return nullptr;
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
                                                 const GrBackendObject yuvTextureHandles[3],
                                                 const SkISize yuvSizes[3],
-                                                GrSurfaceOrigin origin) {
+                                                GrSurfaceOrigin origin,
+                                                sk_sp<SkColorSpace> imageColorSpace) {
     return nullptr;
 }
 

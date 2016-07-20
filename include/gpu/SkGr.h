@@ -86,6 +86,7 @@ GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque);
+SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque,
+                                  sk_sp<SkColorSpace> colorSpace = nullptr);
 
 #endif

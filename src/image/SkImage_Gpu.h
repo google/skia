@@ -23,11 +23,13 @@ public:
      *  An "image" can be a subset/window into a larger texture, so we explicit take the
      *  width and height.
      */
-    SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType, GrTexture*, SkBudgeted);
+    SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType, GrTexture*, sk_sp<SkColorSpace>,
+                SkBudgeted);
     ~SkImage_Gpu() override;
 
     SkImageInfo onImageInfo() const override {
-        return GrMakeInfoFromTexture(fTexture, fTexture->width(), fTexture->height(), isOpaque());
+        return GrMakeInfoFromTexture(fTexture, fTexture->width(), fTexture->height(), isOpaque(),
+                                     fColorSpace);
     }
 
     void applyBudgetDecision() const {
@@ -58,6 +60,7 @@ private:
     SkAutoTUnref<GrTexture>     fTexture;
     const SkAlphaType           fAlphaType;
     const SkBudgeted            fBudgeted;
+    sk_sp<SkColorSpace>         fColorSpace;
     mutable SkAtomic<bool>      fAddedRasterVersionToCache;
 
 

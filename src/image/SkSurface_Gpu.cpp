@@ -100,7 +100,8 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyM
     sk_sp<SkImage> image;
     if (tex) {
         image = sk_make_sp<SkImage_Gpu>(info.width(), info.height(), kNeedNewImageUniqueID,
-                                        info.alphaType(), tex, budgeted);
+                                        info.alphaType(), tex, sk_ref_sp(info.colorSpace()),
+                                        budgeted);
     }
     return image;
 }
