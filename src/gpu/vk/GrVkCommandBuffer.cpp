@@ -40,6 +40,10 @@ void GrVkCommandBuffer::freeGPUData(const GrVkGpu* gpu) const {
         fTrackedResources[i]->unref(gpu);
     }
 
+    for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
+        fTrackedRecycledResources[i]->recycle(const_cast<GrVkGpu*>(gpu));
+    }
+
     GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(), gpu->cmdPool(),
                                                       1, &fCmdBuffer));
 
@@ -50,6 +54,11 @@ void GrVkCommandBuffer::abandonSubResources() const {
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->unrefAndAbandon();
     }
+
+    for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
+        // We don't recycle resources when abandoning them.
+        fTrackedRecycledResources[i]->unrefAndAbandon();
+    }
 }
 
 void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
@@ -58,6 +67,12 @@ void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
         fTrackedResources[i]->unref(gpu);
     }
     fTrackedResources.reset();
+
+    for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
+        fTrackedRecycledResources[i]->recycle(const_cast<GrVkGpu*>(gpu));
+    }
+    fTrackedRecycledResources.reset();
+
 
     this->invalidateState();
 

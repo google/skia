@@ -191,5 +191,21 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
+// This subclass allows for recycling
+class GrVkRecycledResource : public GrVkResource {
+public:
+    // When recycle is called and there is only one ref left on the resource, we will signal that
+    // the resource can be recycled for reuse. This function will always unref the object. Thus
+    // if the object is recycled it should be ref'd inside the onRecycle call.
+    void recycle(GrVkGpu* gpu) const {
+        if (this->unique()) {
+            this->onRecycle(gpu);
+        }
+        this->unref(gpu);
+    }
+
+private:
+    virtual void onRecycle(GrVkGpu* gpu) const = 0;
+};
 
 #endif

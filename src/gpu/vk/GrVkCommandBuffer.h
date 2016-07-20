@@ -117,11 +117,19 @@ public:
         fTrackedResources.push_back(resource);
     }
 
+    // Add ref-counted resource that will be tracked and released when this command buffer finishes
+    // execution. When it is released, it will signal that the resource can be recycled for reuse.
+    void addRecycledResource(const GrVkRecycledResource* resource) {
+        resource->ref();
+        fTrackedRecycledResources.push_back(resource);
+    }
+
     void reset(GrVkGpu* gpu);
 
 protected:
         GrVkCommandBuffer(VkCommandBuffer cmdBuffer, const GrVkRenderPass* rp = VK_NULL_HANDLE)
             : fTrackedResources(kInitialTrackedResourcesCount)
+            , fTrackedRecycledResources(kInitialTrackedResourcesCount)
             , fIsActive(false)
             , fActiveRenderPass(rp)
             , fCmdBuffer(cmdBuffer)
@@ -129,7 +137,8 @@ protected:
             , fBoundIndexBufferIsValid(false) {
             this->invalidateState();
         }
-        SkTArray<const GrVkResource*, true>     fTrackedResources;
+        SkTArray<const GrVkResource*, true>          fTrackedResources;
+        SkTArray<const GrVkRecycledResource*, true>  fTrackedRecycledResources;
 
         // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
         // new commands to the buffer;
