@@ -139,24 +139,24 @@ inline void operator delete(void* p) {
     SK_API void SkDebugf(const char format[], ...);
 #endif
 
-#define SkASSERT_RELEASE(cond)          if(!(cond)) { SK_ABORT(#cond); }
+#define SkASSERT_RELEASE(cond)          if (!(cond)) { SK_ABORT(#cond); }
 
 #ifdef SK_DEBUG
-    #if defined SK_BUILD_FOR_WIN
-        #define SkASSERT(cond)          if(!(cond)) { __debugbreak(); }
-    #else
-        #define SkASSERT(cond)          SkASSERT_RELEASE(cond)
-    #endif
-    #define SkDEBUGFAIL(message)        SkASSERT(false && message)
+    #define SkASSERT(cond)              if (!(cond)) { SK_ABORT("assert(" #cond ")"); }
+    #define SkASSERTF(cond, fmt, ...)   if (!(cond)) { \
+                                            SkDebugf(fmt"\n", __VA_ARGS__); \
+                                            SK_ABORT("assert(" #cond ")"); \
+                                        }
+    #define SkDEBUGFAIL(message)        SK_ABORT(message)
     #define SkDEBUGFAILF(fmt, ...)      SkASSERTF(false, fmt, ##__VA_ARGS__)
     #define SkDEBUGCODE(code)           code
     #define SkDECLAREPARAM(type, var)   , type var
     #define SkPARAM(var)                , var
-//  #define SkDEBUGF(args       )       SkDebugf##args
     #define SkDEBUGF(args       )       SkDebugf args
     #define SkAssertResult(cond)        SkASSERT(cond)
 #else
     #define SkASSERT(cond)
+    #define SkASSERTF(cond, fmt, ...)
     #define SkDEBUGFAIL(message)
     #define SkDEBUGCODE(code)
     #define SkDEBUGF(args)
@@ -171,11 +171,6 @@ inline void operator delete(void* p) {
 // Legacy macro names for SK_ABORT
 #define SkFAIL(message)                 SK_ABORT(message)
 #define sk_throw()                      SK_ABORT("sk_throw")
-
-// We want to evaluate cond only once, and inside the SkASSERT somewhere so we see its string form.
-// So we use the comma operator to make an SkDebugf that always returns false: we'll evaluate cond,
-// and if it's true the assert passes; if it's false, we'll print the message and the assert fails.
-#define SkASSERTF(cond, fmt, ...)       SkASSERT((cond) || (SkDebugf(fmt"\n", __VA_ARGS__), false))
 
 #ifdef SK_IGNORE_TO_STRING
     #define SK_TO_STRING_NONVIRT()

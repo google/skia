@@ -133,10 +133,10 @@
 #endif
 
 #ifndef SK_ABORT
-#  define SK_ABORT(msg) \
+#  define SK_ABORT(message) \
     do { \
        SkNO_RETURN_HINT(); \
-       SkDebugf("%s:%d: fatal error: \"%s\"\n", __FILE__, __LINE__, #msg); \
+       SkDebugf("%s:%d: fatal error: \"%s\"\n", __FILE__, __LINE__, message); \
        SK_DUMP_GOOGLE3_STACK(); \
        sk_abort_no_print(); \
     } while (false)
