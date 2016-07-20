@@ -119,11 +119,16 @@ public:
             // For uniform scale, we adjust for the effect of the transformation on the distance
             // by using the length of the gradient of the t coordinate in the y direction.
             // We use st coordinates to ensure we're mapping 1:1 from texel space to pixel space.
-            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
 
             // this gives us a smooth step across approximately one fragment
+#ifdef SK_VULKAN
+            fragBuilder->codeAppendf("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdx(%s.x));",
+                                     st.fsIn());
+#else
+            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
             fragBuilder->codeAppendf("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdy(%s.y));",
                                      st.fsIn());
+#endif
         } else if (isSimilarity) {
             // For similarity transform, we adjust the effect of the transformation on the distance
             // by using the length of the gradient of the texture coordinates. We use st coordinates
@@ -131,7 +136,12 @@ public:
             // We use the y gradient because there is a bug in the Mali 400 in the x direction.
 
             // this gives us a smooth step across approximately one fragment
+#ifdef SK_VULKAN
+            fragBuilder->codeAppendf("float st_grad_len = length(dFdx(%s));", st.fsIn());
+#else
+            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
             fragBuilder->codeAppendf("float st_grad_len = length(dFdy(%s));", st.fsIn());
+#endif
             fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*st_grad_len);");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
@@ -368,19 +378,26 @@ public:
             // For uniform scale, we adjust for the effect of the transformation on the distance
             // by using the length of the gradient of the t coordinate in the y direction.
             // We use st coordinates to ensure we're mapping 1:1 from texel space to pixel space.
-            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
 
             // this gives us a smooth step across approximately one fragment
+#ifdef SK_VULKAN
+            fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdx(st.x));");
+#else
+            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
             fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdy(st.y));");
-
+#endif
         } else if (isSimilarity) {
             // For similarity transform, we adjust the effect of the transformation on the distance
             // by using the length of the gradient of the texture coordinates. We use st coordinates
             // to ensure we're mapping 1:1 from texel space to pixel space.
-            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
 
             // this gives us a smooth step across approximately one fragment
+#ifdef SK_VULKAN
+            fragBuilder->codeAppend("float st_grad_len = length(dFdx(st));");
+#else
+            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
             fragBuilder->codeAppend("float st_grad_len = length(dFdy(st));");
+#endif
             fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*st_grad_len);");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
@@ -610,16 +627,26 @@ public:
             fragBuilder->codeAppendf("float delta = %.*f;\n", SK_FLT_DECIMAL_DIG, lcdDelta);
         }
         if (isUniformScale) {
+#ifdef SK_VULKAN
+            fragBuilder->codeAppendf("float st_grad_len = abs(dFdx(%s.x));", st.fsIn());
+#else
+            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
             fragBuilder->codeAppendf("float st_grad_len = abs(dFdy(%s.y));", st.fsIn());
+#endif
             fragBuilder->codeAppend("vec2 offset = vec2(st_grad_len*delta, 0.0);");
         } else if (isSimilarity) {
             // For a similarity matrix with rotation, the gradient will not be aligned
             // with the texel coordinate axes, so we need to calculate it.
+#ifdef SK_VULKAN
+            fragBuilder->codeAppendf("vec2 st_grad = dFdx(%s);", st.fsIn());
+            fragBuilder->codeAppend("vec2 offset = delta*st_grad;");
+#else
             // We use dFdy because of a Mali 400 bug, and rotate -90 degrees to
             // get the gradient in the x direction.
             fragBuilder->codeAppendf("vec2 st_grad = dFdy(%s);", st.fsIn());
-            fragBuilder->codeAppend("float st_grad_len = length(st_grad);");
             fragBuilder->codeAppend("vec2 offset = delta*vec2(st_grad.y, -st_grad.x);");
+#endif
+            fragBuilder->codeAppend("float st_grad_len = length(st_grad);");
         } else {
             fragBuilder->codeAppendf("vec2 st = %s;\n", st.fsIn());
 
