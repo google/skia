@@ -69,17 +69,17 @@ namespace SkOpts {
     // Color xform RGB1 pixels.
     extern void (*color_xform_RGB1_to_2dot2) (uint32_t* dst, const uint32_t* src, int len,
                                               const float* const srcTables[3],
-                                              const float srcToDstMatrix[12]);
+                                              const float srcToDstMatrix[16]);
     extern void (*color_xform_RGB1_to_srgb)(uint32_t* dst, const uint32_t* src, int len,
                                             const float* const srcTables[3],
-                                            const float srcToDstMatrix[12]);
+                                            const float srcToDstMatrix[16]);
     extern void (*color_xform_RGB1_to_table)(uint32_t* dst, const uint32_t* src, int len,
                                              const float* const srcTables[3],
-                                             const float srcToDstMatrix[12],
+                                             const float srcToDstMatrix[16],
                                              const uint8_t* const dstTables[3]);
     extern void (*color_xform_RGB1_to_linear)(uint64_t* dst, const uint32_t* src, int len,
                                               const float* const srcTables[3],
-                                              const float srcToDstMatrix[12]);
+                                              const float srcToDstMatrix[16]);
 
 }
 

@@ -55,7 +55,7 @@ private:
     const float*         fSrcGammaTables[3];
     float                fSrcGammaTableStorage[3 * 256];
 
-    float                fSrcToDst[12];
+    float                fSrcToDst[16];
 
     // May contain pointers into storage or pointers into precomputed tables.
     const uint8_t*       fDstGammaTables[3];

@@ -26,16 +26,16 @@
         return nullptr;                                              \
     } while (0)
 
-static uint16_t read_big_endian_short(const uint8_t* ptr) {
+static uint16_t read_big_endian_u16(const uint8_t* ptr) {
     return ptr[0] << 8 | ptr[1];
 }
 
-static uint32_t read_big_endian_uint(const uint8_t* ptr) {
+static uint32_t read_big_endian_u32(const uint8_t* ptr) {
     return ptr[0] << 24 | ptr[1] << 16 | ptr[2] << 8 | ptr[3];
 }
 
-static int32_t read_big_endian_int(const uint8_t* ptr) {
-    return (int32_t) read_big_endian_uint(ptr);
+static int32_t read_big_endian_i32(const uint8_t* ptr) {
+    return (int32_t) read_big_endian_u32(ptr);
 }
 
 // This is equal to the header size according to the ICC specification (128)
@@ -105,7 +105,7 @@ struct ICCProfileHeader {
 
         uint32_t* dst = (uint32_t*) this;
         for (uint32_t i = 0; i < kICCHeaderSize / 4; i++, src+=4) {
-            dst[i] = read_big_endian_uint(src);
+            dst[i] = read_big_endian_u32(src);
         }
     }
 
@@ -186,9 +186,9 @@ struct ICCTag {
     uint32_t fLength;
 
     const uint8_t* init(const uint8_t* src) {
-        fSignature = read_big_endian_uint(src);
-        fOffset = read_big_endian_uint(src + 4);
-        fLength = read_big_endian_uint(src + 8);
+        fSignature = read_big_endian_u32(src);
+        fOffset = read_big_endian_u32(src + 4);
+        fLength = read_big_endian_u32(src + 8);
         return src + 12;
     }
 
@@ -228,9 +228,9 @@ static bool load_xyz(float dst[3], const uint8_t* src, size_t len) {
         return false;
     }
 
-    dst[0] = SkFixedToFloat(read_big_endian_int(src + 8));
-    dst[1] = SkFixedToFloat(read_big_endian_int(src + 12));
-    dst[2] = SkFixedToFloat(read_big_endian_int(src + 16));
+    dst[0] = SkFixedToFloat(read_big_endian_i32(src + 8));
+    dst[1] = SkFixedToFloat(read_big_endian_i32(src + 12));
+    dst[2] = SkFixedToFloat(read_big_endian_i32(src + 16));
     SkColorSpacePrintf("XYZ %g %g %g\n", dst[0], dst[1], dst[2]);
     return true;
 }
@@ -259,7 +259,7 @@ static SkGammas::Type set_gamma_value(SkGammas::Data* data, float value) {
 
 static float read_big_endian_16_dot_16(const uint8_t buf[4]) {
     // It just so happens that SkFixed is also 16.16!
-    return SkFixedToFloat(read_big_endian_int(buf));
+    return SkFixedToFloat(read_big_endian_i32(buf));
 }
 
 /**
@@ -285,11 +285,11 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
     // tag, so that we can move on to the next tag.
     size_t tagBytes;
 
-    uint32_t type = read_big_endian_uint(src);
+    uint32_t type = read_big_endian_u32(src);
     // Bytes 4-7 are reserved and should be set to zero.
     switch (type) {
         case kTAG_CurveType: {
-            uint32_t count = read_big_endian_uint(src + 8);
+            uint32_t count = read_big_endian_u32(src + 8);
 
             // tagBytes = 12 + 2 * count
             // We need to do safe addition here to avoid integer overflow.
@@ -317,7 +317,7 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
             const uint16_t* table = (const uint16_t*) (src + 12);
             if (1 == count) {
                 // The table entry is the gamma (with a bias of 256).
-                float value = (read_big_endian_short((const uint8_t*) table)) / 256.0f;
+                float value = (read_big_endian_u16((const uint8_t*) table)) / 256.0f;
                 SkColorSpacePrintf("gamma %g\n", value);
 
                 return set_gamma_value(outData, value);
@@ -334,11 +334,11 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
                 // The magic values were chosen because they match both the very common
                 // HP sRGB gamma table and the less common Canon sRGB gamma table (which use
                 // different rounding rules).
-                if (0 == read_big_endian_short((const uint8_t*) &table[0]) &&
-                        3366 == read_big_endian_short((const uint8_t*) &table[257]) &&
-                        14116 == read_big_endian_short((const uint8_t*) &table[513]) &&
-                        34318 == read_big_endian_short((const uint8_t*) &table[768]) &&
-                        65535 == read_big_endian_short((const uint8_t*) &table[1023])) {
+                if (0 == read_big_endian_u16((const uint8_t*) &table[0]) &&
+                        3366 == read_big_endian_u16((const uint8_t*) &table[257]) &&
+                        14116 == read_big_endian_u16((const uint8_t*) &table[513]) &&
+                        34318 == read_big_endian_u16((const uint8_t*) &table[768]) &&
+                        65535 == read_big_endian_u16((const uint8_t*) &table[1023])) {
                     outData->fNamed = SkColorSpace::kSRGB_GammaNamed;
                     return SkGammas::Type::kNamed_Type;
                 }
@@ -347,11 +347,11 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
             if (26 == count) {
                 // The magic values were chosen because they match a very common LCMS sRGB
                 // gamma table.
-                if (0 == read_big_endian_short((const uint8_t*) &table[0]) &&
-                        3062 == read_big_endian_short((const uint8_t*) &table[6]) &&
-                        12824 == read_big_endian_short((const uint8_t*) &table[12]) &&
-                        31237 == read_big_endian_short((const uint8_t*) &table[18]) &&
-                        65535 == read_big_endian_short((const uint8_t*) &table[25])) {
+                if (0 == read_big_endian_u16((const uint8_t*) &table[0]) &&
+                        3062 == read_big_endian_u16((const uint8_t*) &table[6]) &&
+                        12824 == read_big_endian_u16((const uint8_t*) &table[12]) &&
+                        31237 == read_big_endian_u16((const uint8_t*) &table[18]) &&
+                        65535 == read_big_endian_u16((const uint8_t*) &table[25])) {
                     outData->fNamed = SkColorSpace::kSRGB_GammaNamed;
                     return SkGammas::Type::kNamed_Type;
                 }
@@ -360,11 +360,11 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
             if (4096 == count) {
                 // The magic values were chosen because they match Nikon, Epson, and
                 // LCMS sRGB gamma tables (all of which use different rounding rules).
-                if (0 == read_big_endian_short((const uint8_t*) &table[0]) &&
-                        950 == read_big_endian_short((const uint8_t*) &table[515]) &&
-                        3342 == read_big_endian_short((const uint8_t*) &table[1025]) &&
-                        14079 == read_big_endian_short((const uint8_t*) &table[2051]) &&
-                        65535 == read_big_endian_short((const uint8_t*) &table[4095])) {
+                if (0 == read_big_endian_u16((const uint8_t*) &table[0]) &&
+                        950 == read_big_endian_u16((const uint8_t*) &table[515]) &&
+                        3342 == read_big_endian_u16((const uint8_t*) &table[1025]) &&
+                        14079 == read_big_endian_u16((const uint8_t*) &table[2051]) &&
+                        65535 == read_big_endian_u16((const uint8_t*) &table[4095])) {
                     outData->fNamed = SkColorSpace::kSRGB_GammaNamed;
                     return SkGammas::Type::kNamed_Type;
                 }
@@ -384,7 +384,7 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
             };
 
             // Determine the format of the parametric curve tag.
-            uint16_t format = read_big_endian_short(src + 8);
+            uint16_t format = read_big_endian_u16(src + 8);
             if (format > kGABCDEF_ParaCurveType) {
                 SkColorSpacePrintf("Unsupported gamma tag type %d\n", type);
                 return SkGammas::Type::kNone_Type;
@@ -597,7 +597,7 @@ static size_t load_gammas(void* memory, size_t offset, SkGammas::Type type,
             float* outTable = (float*) storage;
             const uint16_t* inTable = (const uint16_t*) (src + 12);
             for (int i = 0; i < data->fTable.fSize; i++) {
-                outTable[i] = (read_big_endian_short((const uint8_t*) &inTable[i])) / 65535.0f;
+                outTable[i] = (read_big_endian_u16((const uint8_t*) &inTable[i])) / 65535.0f;
             }
 
             return sizeof(float) * data->fTable.fSize;
@@ -614,8 +614,8 @@ static size_t load_gammas(void* memory, size_t offset, SkGammas::Type type,
 
 static constexpr uint32_t kTAG_AtoBType = SkSetFourByteTag('m', 'A', 'B', ' ');
 
-static bool load_color_lut(SkColorLookUpTable* colorLUT, uint32_t inputChannels,
-                           uint32_t outputChannels, const uint8_t* src, size_t len) {
+static bool load_color_lut(sk_sp<SkColorLookUpTable>* colorLUT, uint32_t inputChannels,
+                           const uint8_t* src, size_t len) {
     // 16 bytes reserved for grid points, 2 for precision, 2 for padding.
     // The color LUT data follows after this header.
     static constexpr uint32_t kColorLUTHeaderSize = 20;
@@ -625,12 +625,11 @@ static bool load_color_lut(SkColorLookUpTable* colorLUT, uint32_t inputChannels,
     }
     size_t dataLen = len - kColorLUTHeaderSize;
 
-    SkASSERT(3 == inputChannels && 3 == outputChannels);
-    colorLUT->fInputChannels = inputChannels;
-    colorLUT->fOutputChannels = outputChannels;
+    SkASSERT(3 == inputChannels);
+    uint8_t gridPoints[3];
     uint32_t numEntries = 1;
     for (uint32_t i = 0; i < inputChannels; i++) {
-        colorLUT->fGridPoints[i] = src[i];
+        gridPoints[i] = src[i];
         if (0 == src[i]) {
             SkColorSpacePrintf("Each input channel must have at least one grid point.");
             return false;
@@ -642,7 +641,7 @@ static bool load_color_lut(SkColorLookUpTable* colorLUT, uint32_t inputChannels,
         }
     }
 
-    if (!safe_mul(numEntries, outputChannels, &numEntries)) {
+    if (!safe_mul(numEntries, SkColorLookUpTable::kOutputChannels, &numEntries)) {
         SkColorSpacePrintf("Too many entries in Color LUT.");
         return false;
     }
@@ -671,13 +670,17 @@ static bool load_color_lut(SkColorLookUpTable* colorLUT, uint32_t inputChannels,
     }
 
     // Movable struct colorLUT has ownership of fTable.
-    colorLUT->fTable = std::unique_ptr<float[]>(new float[numEntries]);
+    void* memory = sk_malloc_throw(sizeof(SkColorLookUpTable) + sizeof(float) * numEntries);
+    *colorLUT = sk_sp<SkColorLookUpTable>(new (memory) SkColorLookUpTable(inputChannels,
+                                                                          gridPoints));
+
+    float* table = SkTAddOffset<float>(memory, sizeof(SkColorLookUpTable));
     const uint8_t* ptr = src + kColorLUTHeaderSize;
     for (uint32_t i = 0; i < numEntries; i++, ptr += precision) {
         if (1 == precision) {
-            colorLUT->fTable[i] = ((float) ptr[i]) / 255.0f;
+            table[i] = ((float) ptr[i]) / 255.0f;
         } else {
-            colorLUT->fTable[i] = ((float) read_big_endian_short(ptr)) / 65535.0f;
+            table[i] = ((float) read_big_endian_u16(ptr)) / 65535.0f;
         }
     }
 
@@ -693,18 +696,18 @@ static bool load_matrix(SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     // For this matrix to behave like our "to XYZ D50" matrices, it needs to be scaled.
     constexpr float scale = 65535.0 / 32768.0;
     float array[16];
-    array[ 0] = scale * SkFixedToFloat(read_big_endian_int(src));
-    array[ 1] = scale * SkFixedToFloat(read_big_endian_int(src + 4));
-    array[ 2] = scale * SkFixedToFloat(read_big_endian_int(src + 8));
-    array[ 3] = scale * SkFixedToFloat(read_big_endian_int(src + 36)); // translate R
-    array[ 4] = scale * SkFixedToFloat(read_big_endian_int(src + 12));
-    array[ 5] = scale * SkFixedToFloat(read_big_endian_int(src + 16));
-    array[ 6] = scale * SkFixedToFloat(read_big_endian_int(src + 20));
-    array[ 7] = scale * SkFixedToFloat(read_big_endian_int(src + 40)); // translate G
-    array[ 8] = scale * SkFixedToFloat(read_big_endian_int(src + 24));
-    array[ 9] = scale * SkFixedToFloat(read_big_endian_int(src + 28));
-    array[10] = scale * SkFixedToFloat(read_big_endian_int(src + 32));
-    array[11] = scale * SkFixedToFloat(read_big_endian_int(src + 44)); // translate B
+    array[ 0] = scale * SkFixedToFloat(read_big_endian_i32(src));
+    array[ 1] = scale * SkFixedToFloat(read_big_endian_i32(src + 4));
+    array[ 2] = scale * SkFixedToFloat(read_big_endian_i32(src + 8));
+    array[ 3] = scale * SkFixedToFloat(read_big_endian_i32(src + 36)); // translate R
+    array[ 4] = scale * SkFixedToFloat(read_big_endian_i32(src + 12));
+    array[ 5] = scale * SkFixedToFloat(read_big_endian_i32(src + 16));
+    array[ 6] = scale * SkFixedToFloat(read_big_endian_i32(src + 20));
+    array[ 7] = scale * SkFixedToFloat(read_big_endian_i32(src + 40)); // translate G
+    array[ 8] = scale * SkFixedToFloat(read_big_endian_i32(src + 24));
+    array[ 9] = scale * SkFixedToFloat(read_big_endian_i32(src + 28));
+    array[10] = scale * SkFixedToFloat(read_big_endian_i32(src + 32));
+    array[11] = scale * SkFixedToFloat(read_big_endian_i32(src + 44)); // translate B
     array[12] = 0.0f;
     array[13] = 0.0f;
     array[14] = 0.0f;
@@ -713,14 +716,14 @@ static bool load_matrix(SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     return true;
 }
 
-static bool load_a2b0(SkColorLookUpTable* colorLUT, SkColorSpace::GammaNamed* gammaNamed,
+static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkColorSpace::GammaNamed* gammaNamed,
                       sk_sp<SkGammas>* gammas, SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     if (len < 32) {
         SkColorSpacePrintf("A to B tag is too small (%d bytes).", len);
         return false;
     }
 
-    uint32_t type = read_big_endian_uint(src);
+    uint32_t type = read_big_endian_u32(src);
     if (kTAG_AtoBType != type) {
         // FIXME (msarett): Need to support lut8Type and lut16Type.
         SkColorSpacePrintf("Unsupported A to B tag type.\n");
@@ -731,9 +734,11 @@ static bool load_a2b0(SkColorLookUpTable* colorLUT, SkColorSpace::GammaNamed* ga
     // must be zero.
     uint8_t inputChannels = src[8];
     uint8_t outputChannels = src[9];
-    if (3 != inputChannels || 3 != outputChannels) {
+    if (3 != inputChannels || SkColorLookUpTable::kOutputChannels != outputChannels) {
         // We only handle (supposedly) RGB inputs and RGB outputs.  The numbers of input
         // channels and output channels both must be 3.
+        // TODO (msarett):
+        // Support different numbers of input channels.  Ex: CMYK (4).
         SkColorSpacePrintf("Input and output channels must equal 3 in A to B tag.\n");
         return false;
     }
@@ -742,8 +747,8 @@ static bool load_a2b0(SkColorLookUpTable* colorLUT, SkColorSpace::GammaNamed* ga
     // B curves (which we do not yet support), we will handle these elements in the order in
     // which they should be applied (rather than the order in which they occur in the tag).
     // If the offset is non-zero it indicates that the element is present.
-    uint32_t offsetToACurves = read_big_endian_int(src + 28);
-    uint32_t offsetToBCurves = read_big_endian_int(src + 12);
+    uint32_t offsetToACurves = read_big_endian_i32(src + 28);
+    uint32_t offsetToBCurves = read_big_endian_i32(src + 12);
     if ((0 != offsetToACurves) || (0 != offsetToBCurves)) {
         // FIXME (msarett): Handle A and B curves.
         // Note that the A curve is technically required in order to have a color LUT.
@@ -752,15 +757,15 @@ static bool load_a2b0(SkColorLookUpTable* colorLUT, SkColorSpace::GammaNamed* ga
         SkColorSpacePrintf("Ignoring A and/or B curve.  Output may be wrong.\n");
     }
 
-    uint32_t offsetToColorLUT = read_big_endian_int(src + 24);
+    uint32_t offsetToColorLUT = read_big_endian_i32(src + 24);
     if (0 != offsetToColorLUT && offsetToColorLUT < len) {
-        if (!load_color_lut(colorLUT, inputChannels, outputChannels, src + offsetToColorLUT,
+        if (!load_color_lut(colorLUT, inputChannels, src + offsetToColorLUT,
                             len - offsetToColorLUT)) {
             SkColorSpacePrintf("Failed to read color LUT from A to B tag.\n");
         }
     }
 
-    uint32_t offsetToMCurves = read_big_endian_int(src + 20);
+    uint32_t offsetToMCurves = read_big_endian_i32(src + 20);
     if (0 != offsetToMCurves && offsetToMCurves < len) {
         const uint8_t* rTagPtr = src + offsetToMCurves;
         size_t tagLen = len - offsetToMCurves;
@@ -836,7 +841,7 @@ static bool load_a2b0(SkColorLookUpTable* colorLUT, SkColorSpace::GammaNamed* ga
         }
     }
 
-    uint32_t offsetToMatrix = read_big_endian_int(src + 16);
+    uint32_t offsetToMatrix = read_big_endian_i32(src + 16);
     if (0 != offsetToMatrix && offsetToMatrix < len) {
         if (!load_matrix(toXYZ, src + offsetToMatrix, len - offsetToMatrix)) {
             SkColorSpacePrintf("Failed to read matrix from A to B tag.\n");
@@ -1035,14 +1040,13 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
             if (a2b0) {
                 GammaNamed gammaNamed = kNonStandard_GammaNamed;
                 sk_sp<SkGammas> gammas = nullptr;
-                sk_sp<SkColorLookUpTable> colorLUT = sk_make_sp<SkColorLookUpTable>();
+                sk_sp<SkColorLookUpTable> colorLUT = nullptr;
                 SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
-                if (!load_a2b0(colorLUT.get(), &gammaNamed, &gammas, &toXYZ, a2b0->addr(base),
+                if (!load_a2b0(&colorLUT, &gammaNamed, &gammas, &toXYZ, a2b0->addr(base),
                                a2b0->fLength)) {
                     return_null("Failed to parse A2B0 tag");
                 }
 
-                colorLUT = colorLUT->fTable ? colorLUT : nullptr;
                 if (colorLUT || kNonStandard_GammaNamed == gammaNamed) {
                     return sk_sp<SkColorSpace>(new SkColorSpace_Base(std::move(colorLUT),
                                                                      gammaNamed, std::move(gammas),

@@ -187,23 +187,23 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
 }
 
 static void color_xform_RGB1_to_2dot2(uint32_t* dst, const uint32_t* src, int len,
-                                      const float* const srcTables[3], const float matrix[12]) {
+                                      const float* const srcTables[3], const float matrix[16]) {
     color_xform_RGB1<k2Dot2_DstGamma>(dst, src, len, srcTables, matrix, nullptr);
 }
 
 static void color_xform_RGB1_to_srgb(uint32_t* dst, const uint32_t* src, int len,
-                                     const float* const srcTables[3], const float matrix[12]) {
+                                     const float* const srcTables[3], const float matrix[16]) {
     color_xform_RGB1<kSRGB_DstGamma>(dst, src, len, srcTables, matrix, nullptr);
 }
 
 static void color_xform_RGB1_to_table(uint32_t* dst, const uint32_t* src, int len,
-                                      const float* const srcTables[3], const float matrix[12],
+                                      const float* const srcTables[3], const float matrix[16],
                                       const uint8_t* const dstTables[3]) {
     color_xform_RGB1<kTable_DstGamma>(dst, src, len, srcTables, matrix, dstTables);
 }
 
 static void color_xform_RGB1_to_linear(uint64_t* dst, const uint32_t* src, int len,
-                                       const float* const srcTables[3], const float matrix[12]) {
+                                       const float* const srcTables[3], const float matrix[16]) {
     color_xform_RGB1<kLinear_DstGamma>(dst, src, len, srcTables, matrix, nullptr);
 }
 

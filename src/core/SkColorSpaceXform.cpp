@@ -490,32 +490,11 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// TODO (msarett):
-// Once SkFastXform supports translation, delete this function and use asRowMajorf().
-static void build_src_to_dst(float srcToDstArray[12], const SkMatrix44& srcToDstMatrix) {
-    // Build the following row major matrix:
-    //   rX gX bX 0
-    //   rY gY bY 0
-    //   rZ gZ bZ 0
-    srcToDstArray[0] = srcToDstMatrix.getFloat(0, 0);
-    srcToDstArray[1] = srcToDstMatrix.getFloat(0, 1);
-    srcToDstArray[2] = srcToDstMatrix.getFloat(0, 2);
-    srcToDstArray[3] = 0.0f;
-    srcToDstArray[4] = srcToDstMatrix.getFloat(1, 0);
-    srcToDstArray[5] = srcToDstMatrix.getFloat(1, 1);
-    srcToDstArray[6] = srcToDstMatrix.getFloat(1, 2);
-    srcToDstArray[7] = 0.0f;
-    srcToDstArray[8] = srcToDstMatrix.getFloat(2, 0);
-    srcToDstArray[9] = srcToDstMatrix.getFloat(2, 1);
-    srcToDstArray[10] = srcToDstMatrix.getFloat(2, 2);
-    srcToDstArray[11] = 0.0f;
-}
-
 template <SkColorSpace::GammaNamed Dst>
 SkFastXform<Dst>::SkFastXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
                               const sk_sp<SkColorSpace>& dstSpace)
 {
-    build_src_to_dst(fSrcToDst, srcToDst);
+    srcToDst.asRowMajorf(fSrcToDst);
     build_gamma_tables(fSrcGammaTables, fSrcGammaTableStorage, 256, srcSpace, kToLinear);
     build_gamma_tables(fDstGammaTables, fDstGammaTableStorage, SkDefaultXform::kDstGammaTableSize,
                        dstSpace, kFromLinear);
@@ -615,7 +594,7 @@ static void interp_3d_clut(float dst[3], float src[3], const SkColorLookUpTable*
     const int n111 = n110 + n001;
 
     // Base ptr into the table.
-    float* ptr = &colorLUT->fTable[ix*n001 + iy*n010 + iz*n100];
+    const float* ptr = &(colorLUT->table()[ix*n001 + iy*n010 + iz*n100]);
 
     // The code below performs a tetrahedral interpolation for each of the three
     // dst components.  Once the tetrahedron containing the interpolation point is

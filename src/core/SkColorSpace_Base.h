@@ -129,18 +129,27 @@ struct SkGammas : SkRefCnt {
 };
 
 struct SkColorLookUpTable : public SkRefCnt {
-    uint8_t                  fInputChannels;
-    uint8_t                  fOutputChannels;
-    uint8_t                  fGridPoints[3];
-    std::unique_ptr<float[]> fTable;
+    static constexpr uint8_t kOutputChannels = 3;
 
-    SkColorLookUpTable()
-        : fInputChannels(0)
-        , fOutputChannels(0)
-        , fTable(nullptr)
-    {
-        fGridPoints[0] = fGridPoints[1] = fGridPoints[2] = 0;
+    uint8_t                  fInputChannels;
+    uint8_t                  fGridPoints[3];
+
+    const float* table() const {
+        return SkTAddOffset<const float>(this, sizeof(SkColorLookUpTable));
     }
+
+    SkColorLookUpTable(uint8_t inputChannels, uint8_t gridPoints[3])
+        : fInputChannels(inputChannels)
+    {
+        SkASSERT(3 == inputChannels);
+        memcpy(fGridPoints, gridPoints, 3 * sizeof(uint8_t));
+    }
+
+    // Objects of this type are created in a custom fashion using sk_malloc_throw
+    // and therefore must be sk_freed.
+    void* operator new(size_t size) = delete;
+    void* operator new(size_t, void* p) { return p; }
+    void operator delete(void* p) { sk_free(p); }
 };
 
 class SkColorSpace_Base : public SkColorSpace {
