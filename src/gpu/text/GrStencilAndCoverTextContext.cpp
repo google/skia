@@ -11,7 +11,6 @@
 #include "GrDrawContext.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
-#include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
 #include "GrTextUtils.h"
 #include "SkAutoKern.h"
@@ -643,11 +642,8 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                          GrPathRendering::kWinding_FillType, glyphs, fInstanceData,
                                          bounds));
 
-        GrPipelineBuilder pipelineBuilder(grPaint);
-        pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, grPaint.isAntiAlias());
-        pipelineBuilder.setUserStencil(&kCoverPass);
-
-        drawContext->drawBatch(pipelineBuilder, clip, batch);
+        SkASSERT(drawContext->mustUseHWAA(grPaint) == grPaint.isAntiAlias());
+        drawContext->drawBatch(grPaint, clip, kCoverPass, batch);
     }
 
     if (fFallbackTextBlob) {

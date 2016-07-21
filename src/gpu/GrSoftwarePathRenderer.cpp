@@ -8,7 +8,6 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrAuditTrail.h"
 #include "GrClip.h"
-#include "GrPipelineBuilder.h"
 #include "GrSWMaskHelper.h"
 #include "GrTextureProvider.h"
 #include "batches/GrRectBatchFactory.h"
@@ -73,10 +72,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrDrawContext* drawContext,
                                                                         viewMatrix, rect,
                                                                         nullptr, &localMatrix));
 
-    GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
-    pipelineBuilder.setUserStencil(&userStencilSettings);
-
-    drawContext->drawBatch(pipelineBuilder, clip, batch);
+    drawContext->drawBatch(paint, clip, userStencilSettings, batch);
 }
 
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrDrawContext* drawContext,
@@ -141,7 +137,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             DrawAroundInvPath(args.fDrawContext, *args.fPaint, *args.fUserStencilSettings,
                               *args.fClip,
                               *args.fViewMatrix, devClipBounds, devShapeBounds);
-
         }
         return true;
     }

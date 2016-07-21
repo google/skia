@@ -10,7 +10,6 @@
 #include "GrBlurUtils.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
-#include "GrPipelineBuilder.h"
 #include "GrTextUtils.h"
 #include "SkColorFilter.h"
 #include "SkDrawFilter.h"
@@ -324,9 +323,7 @@ void GrAtlasTextBlob::flushRun(GrDrawContext* dc, const GrPaint& grPaint,
                                                           distanceAdjustTable, dc->isGammaCorrect(),
                                                           cache));
 
-        GrPipelineBuilder pipelineBuilder(grPaint, dc->mustUseHWAA(grPaint));
-
-        dc->drawBatch(pipelineBuilder, clip, batch);
+        dc->drawBatch(grPaint, clip, GrUserStencilSettings::kUnused, batch);
     }
 }
 

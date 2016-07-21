@@ -17,7 +17,6 @@
 #include "GrInvariantOutput.h"
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
-#include "GrPipelineBuilder.h"
 #include "SkGeometry.h"
 #include "SkPathPriv.h"
 #include "SkString.h"
@@ -1001,10 +1000,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkAutoTUnref<GrDrawBatch> batch(new AAConvexPathBatch(args.fPaint->getColor(),
                                                           *args.fViewMatrix, path));
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint);
-    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-
-    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+    args.fDrawContext->drawBatch(*args.fPaint, *args.fClip, *args.fUserStencilSettings, batch);
 
     return true;
 

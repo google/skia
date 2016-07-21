@@ -13,7 +13,6 @@
 #include "GrDrawPathBatch.h"
 #include "GrGpu.h"
 #include "GrPath.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
 #include "GrStencilPathBatch.h"
@@ -137,14 +136,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                 GrRectBatchFactory::CreateNonAAFill(args.fPaint->getColor(), viewM, bounds,
                                                     nullptr, &invert));
 
-        {
-            GrPipelineBuilder pipelineBuilder(*args.fPaint,
-                                              args.fPaint->isAntiAlias() &&
-                                              !args.fDrawContext->hasMixedSamples());
-            pipelineBuilder.setUserStencil(&kInvertedCoverPass);
-
-            args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, coverBatch);
-        }
+        SkASSERT(args.fDrawContext->mustUseHWAA(*args.fPaint) ==
+                 (args.fPaint->isAntiAlias() && !args.fDrawContext->hasMixedSamples()));
+        args.fDrawContext->drawBatch(*args.fPaint, *args.fClip, kInvertedCoverPass, coverBatch);
     } else {
         static constexpr GrUserStencilSettings kCoverPass(
             GrUserStencilSettings::StaticInit<
@@ -159,14 +153,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkAutoTUnref<GrDrawBatch> batch(
                 GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(), p->getFillType(), p));
 
-        GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fPaint->isAntiAlias());
-        pipelineBuilder.setUserStencil(&kCoverPass);
-        if (args.fAntiAlias) {
-            SkASSERT(args.fDrawContext->isStencilBufferMultisampled());
-            pipelineBuilder.enableState(GrPipelineBuilder::kHWAntialias_Flag);
-        }
-
-        args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+        SkASSERT(args.fDrawContext->mustUseHWAA(*args.fPaint) ==
+                 (args.fPaint->isAntiAlias() || args.fAntiAlias));
+        args.fDrawContext->drawBatch(*args.fPaint, *args.fClip, kCoverPass, batch);
     }
 
     return true;

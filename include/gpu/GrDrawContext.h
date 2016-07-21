@@ -44,6 +44,7 @@ struct SkRect;
 class SkRRect;
 struct SkRSXform;
 class SkTextBlob;
+struct GrUserStencilSettings;
 
 /*
  * A helper object to orchestrate draws
@@ -260,7 +261,8 @@ public:
     bool hasMixedSamples() const { return fRenderTarget->hasMixedSamples(); }
 
     bool mustUseHWAA(const GrPaint& paint) const {
-        return paint.isAntiAlias() && fRenderTarget->isUnifiedMultisampled();
+        return paint.isAntiAlias() &&
+               (fRenderTarget->isUnifiedMultisampled() || fRenderTarget->hasMixedSamples());
     }
 
     const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
@@ -345,7 +347,8 @@ private:
 
     // This entry point allows the GrTextContext-derived classes to add their batches to
     // the drawTarget.
-    void drawBatch(const GrPipelineBuilder& pipelineBuilder, const GrClip&, GrDrawBatch* batch);
+    void drawBatch(const GrPaint&, const GrClip&, const GrUserStencilSettings&, GrDrawBatch* batch,
+                   GrDrawFace = GrDrawFace::kBoth);
 
     GrDrawTarget* getDrawTarget();
 
