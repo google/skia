@@ -73,7 +73,6 @@ void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
     }
     fTrackedRecycledResources.reset();
 
-
     this->invalidateState();
 
     // we will retain resources for later use

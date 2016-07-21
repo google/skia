@@ -11,6 +11,7 @@
 #include "GrGpu.h"
 #include "GrResourceHandle.h"
 #include "GrVkDescriptorPool.h"
+#include "GrVkDescriptorSetManager.h"
 #include "GrVkPipelineState.h"
 #include "GrVkRenderPass.h"
 #include "GrVkResource.h"
@@ -100,17 +101,32 @@ public:
                                                                  GrPrimitiveType,
                                                                  const GrVkRenderPass& renderPass);
 
-    // For all our GrVkPipelineState objects, we require a layout where the first set contains two
-    // uniform buffers, one for the vertex shader and one for the fragment shader. Thus it is
-    // possible for us to use a shadered descriptor pool to allocate all these similar descriptor
-    // sets. The caller is responsible for reffing the outPool for as long as the returned
-    // VkDescriptor set is in use.
-    void getUniformDescriptorSet(VkDescriptorSet*, const GrVkDescriptorPool** outPool);
+    // Returns a handle which the GrVkResourceProvider uses to know which compatible
+    // GrVkDescriptorSetManager to use when getting or recycling a GrVkDescriptorSet. Passing in a
+    // value of 0 for numSamplers is used to signal this is for the uniform descriptor set.
+    void getDescSetHandle(uint32_t numSamplers, VkDescriptorSetLayout layout,
+                          GrVkDescriptorSetManager::Handle* handle);
+
+    // Returns a GrVkDescriptorSet that can be used for uniform buffers. The GrVkDescriptorSet
+    // is already reffed for the caller.
+    const GrVkDescriptorSet* getUniformDescriptorSet();
+
+    // Returns a GrVkDescriptorSet that can be used for sampler descriptors that are compatible with
+    // the GrVkDescriptorSetManager::Handle passed int.. The GrVkDescriptorSet is already reffed for
+    // the caller.
+    // TODO: Move samplers in GrVkPipelineState to use the GrVkResourceProvider to allocate
+    // descriptor sets from.
+    const GrVkDescriptorSet* getSamplerDescriptorSet(const GrVkDescriptorSetManager::Handle&);
 
     // Returns the compatible VkDescriptorSetLayout to use for uniform buffers. The caller does not
     // own the VkDescriptorSetLayout and thus should not delete it. This function should be used
     // when the caller needs the layout to create a VkPipelineLayout.
     VkDescriptorSetLayout getUniDSLayout() const { return fUniformDescLayout; }
+
+    // Signals that the descriptor set passed it, which is compatible with the passed in handle,
+    // can be reused by the next allocation request.
+    void recycleDescriptorSet(const GrVkDescriptorSet* descSet,
+                              const GrVkDescriptorSetManager::Handle&);
 
     // Destroy any cached resources. To be called before destroying the VkDevice.
     // The assumption is that all queues are idle and all command buffers are finished.
@@ -162,7 +178,6 @@ private:
         int                         fCacheMisses;
 #endif
     };
-
 
     class CompatibleRenderPassSet {
     public:
@@ -218,8 +233,11 @@ private:
     // Cache of GrVkPipelineStates
     PipelineStateCache* fPipelineStateCache;
 
+    SkSTArray<4, GrVkDescriptorSetManager> fDescriptorSetManagers;
+
+    GrVkDescriptorSetManager::Handle       fUniformDSHandle;
+
     // Current pool to allocate uniform descriptor sets from
-    const GrVkDescriptorPool* fUniformDescPool;
     VkDescriptorSetLayout  fUniformDescLayout;
     //Curent number of uniform descriptors allocated from the pool
     int                fCurrentUniformDescCount;

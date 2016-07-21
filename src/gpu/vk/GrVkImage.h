@@ -110,7 +110,7 @@ private:
 
 #ifdef SK_TRACE_VK_RESOURCES
         void dumpInfo() const override {
-            SkDebugf("GrVkImage: %d (%d refs)\n", fImage, this->getRefCnt()); 
+            SkDebugf("GrVkImage: %d (%d refs)\n", fImage, this->getRefCnt());
         }
 #endif
     private:

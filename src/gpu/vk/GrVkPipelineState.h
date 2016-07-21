@@ -20,6 +20,7 @@
 class GrPipeline;
 class GrVkCommandBuffer;
 class GrVkDescriptorPool;
+class GrVkDescriptorSet;
 class GrVkGpu;
 class GrVkImageView;
 class GrVkPipeline;
@@ -256,6 +257,10 @@ private:
     // GrVkPipelineState since we update the descriptor sets and bind them at separate times;
     VkDescriptorSet fDescriptorSets[2];
 
+    // Once we move samplers over to use the resource provider for descriptor sets we will not need
+    // the above array and instead just use GrVkDescriptorSet like the uniform one here.
+    const GrVkDescriptorSet* fUniformDescriptorSet;
+
     // Meta data so we know which descriptor sets we are using and need to bind.
     int fStartDS;
     int fDSCount;
@@ -282,7 +287,6 @@ private:
     GrVkPipelineStateDataManager fDataManager;
 
     DescriptorPoolManager fSamplerPoolManager;
-    const GrVkDescriptorPool*   fCurrentUniformDescPool;
 
     int fNumSamplers;
 

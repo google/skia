@@ -195,13 +195,14 @@ private:
 class GrVkRecycledResource : public GrVkResource {
 public:
     // When recycle is called and there is only one ref left on the resource, we will signal that
-    // the resource can be recycled for reuse. This function will always unref the object. Thus
-    // if the object is recycled it should be ref'd inside the onRecycle call.
+    // the resource can be recycled for reuse. If the sublass (or whoever is managing this resource)
+    // decides not to recycle the objects, it is their responsibility to call unref on the object.
     void recycle(GrVkGpu* gpu) const {
         if (this->unique()) {
             this->onRecycle(gpu);
+        } else {
+            this->unref(gpu);
         }
-        this->unref(gpu);
     }
 
 private:

@@ -11,6 +11,7 @@
 #include "GrTexturePriv.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkDescriptorPool.h"
+#include "GrVkDescriptorSet.h"
 #include "GrVkGpu.h"
 #include "GrVkImageView.h"
 #include "GrVkMemory.h"
@@ -39,6 +40,7 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
                                      const GrGLSLFragProcs& fragmentProcessors)
     : fPipeline(pipeline)
     , fPipelineLayout(layout)
+    , fUniformDescriptorSet(nullptr)
     , fStartDS(SK_MaxS32)
     , fDSCount(0)
     , fBuiltinUniformHandles(builtinUniformHandles)
@@ -48,8 +50,7 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
     , fDesc(desc)
     , fDataManager(uniforms, vertexUniformSize, fragmentUniformSize)
     , fSamplerPoolManager(dsSamplerLayout, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                          numSamplers, gpu)
-    , fCurrentUniformDescPool(nullptr) {
+                          numSamplers, gpu) {
     fSamplers.setReserve(numSamplers);
     fTextureViews.setReserve(numSamplers);
     fTextures.setReserve(numSamplers);
@@ -124,9 +125,10 @@ void GrVkPipelineState::freeGPUResources(const GrVkGpu* gpu) {
     }
 
     fSamplerPoolManager.freeGPUResources(gpu);
-    if (fCurrentUniformDescPool) {
-        fCurrentUniformDescPool->unref(gpu);
-        fCurrentUniformDescPool = nullptr;
+
+    if (fUniformDescriptorSet) {
+        fUniformDescriptorSet->recycle(const_cast<GrVkGpu*>(gpu));
+        fUniformDescriptorSet = nullptr;
     }
 
     this->freeTempResources(gpu);
@@ -157,9 +159,10 @@ void GrVkPipelineState::abandonGPUResources() {
     fTextures.rewind();
 
     fSamplerPoolManager.abandonGPUResources();
-    if (fCurrentUniformDescPool) {
-        fCurrentUniformDescPool->unrefAndAbandon();
-        fCurrentUniformDescPool = nullptr;
+
+    if (fUniformDescriptorSet) {
+        fUniformDescriptorSet->unrefAndAbandon();
+        fUniformDescriptorSet = nullptr;
     }
 }
 
@@ -208,18 +211,13 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
 
     if (fVertexUniformBuffer.get() || fFragmentUniformBuffer.get()) {
         if (fDataManager.uploadUniformBuffers(gpu, fVertexUniformBuffer, fFragmentUniformBuffer) ||
-            VK_NULL_HANDLE == fDescriptorSets[GrVkUniformHandler::kUniformBufferDescSet]) {
-            const GrVkDescriptorPool* pool;
-            int uniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
-            gpu->resourceProvider().getUniformDescriptorSet(&fDescriptorSets[uniformDSIdx],
-                                                            &pool);
-            if (pool != fCurrentUniformDescPool) {
-                if (fCurrentUniformDescPool) {
-                    fCurrentUniformDescPool->unref(gpu);
-                }
-                fCurrentUniformDescPool = pool;
-                fCurrentUniformDescPool->ref();
+            !fUniformDescriptorSet) {
+            if (fUniformDescriptorSet) {
+                fUniformDescriptorSet->recycle(gpu);
             }
+            fUniformDescriptorSet = gpu->resourceProvider().getUniformDescriptorSet();
+            int uniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
+            fDescriptorSets[uniformDSIdx] = fUniformDescriptorSet->descriptorSet();
             this->writeUniformBuffers(gpu);
         }
     }
@@ -370,8 +368,9 @@ void GrVkPipelineState::addUniformResources(GrVkCommandBuffer& commandBuffer) {
     if (fSamplerPoolManager.fPool) {
         commandBuffer.addResource(fSamplerPoolManager.fPool);
     }
-    if (fCurrentUniformDescPool) {
-        commandBuffer.addResource(fCurrentUniformDescPool);
+
+    if (fUniformDescriptorSet) {
+        commandBuffer.addRecycledResource(fUniformDescriptorSet);
     }
 
     if (fVertexUniformBuffer.get()) {
