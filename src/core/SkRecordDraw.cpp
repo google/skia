@@ -86,11 +86,7 @@ DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op, r.opAA.aa));
 DRAW(ClipRect, clipRect(r.rect, r.opAA.op, r.opAA.aa));
 DRAW(ClipRegion, clipRegion(r.region, r.op));
 
-#ifdef SK_EXPERIMENTAL_SHADOWING
 DRAW(TranslateZ, SkCanvas::translateZ(r.z));
-#else
-template <> void Draw::draw(const TranslateZ& r) { }
-#endif
 
 DRAW(DrawBitmap, drawBitmap(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
 DRAW(DrawBitmapNine, drawBitmapNine(r.bitmap.shallowCopy(), r.center, r.dst, r.paint));
@@ -111,13 +107,6 @@ DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
 DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.xmode, r.paint));
 DRAW(DrawPicture, drawPicture(r.picture, &r.matrix, r.paint));
-
-#ifdef SK_EXPERIMENTAL_SHADOWING
-DRAW(DrawShadowedPicture, drawShadowedPicture(r.picture, &r.matrix, r.paint));
-#else
-template <> void Draw::draw(const DrawShadowedPicture& r) { }
-#endif
-
 DRAW(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint));
 DRAW(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
 DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
@@ -478,12 +467,6 @@ private:
     }
 
     Bounds bounds(const DrawPicture& op) const {
-        SkRect dst = op.picture->cullRect();
-        op.matrix.mapRect(&dst);
-        return this->adjustAndMap(dst, op.paint);
-    }
-
-    Bounds bounds(const DrawShadowedPicture& op) const {
         SkRect dst = op.picture->cullRect();
         op.matrix.mapRect(&dst);
         return this->adjustAndMap(dst, op.paint);

@@ -180,7 +180,6 @@ SkDrawCommand::~SkDrawCommand() {
 const char* SkDrawCommand::GetCommandString(OpType type) {
     switch (type) {
         case kBeginDrawPicture_OpType: return "BeginDrawPicture";
-        case kBeginDrawShadowedPicture_OpType: return "BeginDrawShadowedPicture";
         case kClipPath_OpType: return "ClipPath";
         case kClipRegion_OpType: return "ClipRegion";
         case kClipRect_OpType: return "ClipRect";
@@ -209,7 +208,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawTextRSXform_OpType: return "DrawTextRSXform";
         case kDrawVertices_OpType: return "DrawVertices";
         case kEndDrawPicture_OpType: return "EndDrawPicture";
-        case kEndDrawShadowedPicture_OpType: return "EndDrawShadowedPicture";
         case kRestore_OpType: return "Restore";
         case kSave_OpType: return "Save";
         case kSaveLayer_OpType: return "SaveLayer";
@@ -272,9 +270,8 @@ SkDrawCommand* SkDrawCommand::fromJSON(Json::Value& command, UrlDataManager& url
         INSTALL_FACTORY(Save);
         INSTALL_FACTORY(SaveLayer);
         INSTALL_FACTORY(SetMatrix);
-#ifdef SK_EXPERIMENTAL_SHADOWING
+
         INSTALL_FACTORY(TranslateZ);
-#endif
     }
     SkString name = SkString(command[SKDEBUGCANVAS_ATTRIBUTE_COMMAND].asCString());
     FROM_JSON* factory = factories.find(name);
@@ -1494,13 +1491,10 @@ static void extract_json_matrix(Json::Value& matrix, SkMatrix* result) {
     result->set9(values);
 }
 
-#ifdef SK_EXPERIMENTAL_SHADOWING
-// somehow this is only used in shadows...
 static void extract_json_scalar(Json::Value& scalar, SkScalar* result) {
     SkScalar value = scalar.asFloat();
     *result = value;
 }
-#endif
 
 static void extract_json_path(Json::Value& path, SkPath* result) {
     const char* fillType = path[SKDEBUGCANVAS_ATTRIBUTE_FILLTYPE].asCString();
@@ -2382,68 +2376,6 @@ SkEndDrawPictureCommand::SkEndDrawPictureCommand(bool restore)
     : INHERITED(kEndDrawPicture_OpType) , fRestore(restore) { }
 
 void SkEndDrawPictureCommand::execute(SkCanvas* canvas) const {
-    if (fRestore) {
-        canvas->restore();
-    }
-}
-
-SkBeginDrawShadowedPictureCommand::SkBeginDrawShadowedPictureCommand(const SkPicture* picture,
-                                                                     const SkMatrix* matrix,
-                                                                     const SkPaint* paint)
-        : INHERITED(kBeginDrawShadowedPicture_OpType)
-        , fPicture(SkRef(picture)) {
-
-    SkString* str = new SkString;
-    str->appendf("SkPicture: L: %f T: %f R: %f B: %f",
-                 picture->cullRect().fLeft, picture->cullRect().fTop,
-                 picture->cullRect().fRight, picture->cullRect().fBottom);
-    fInfo.push(str);
-
-    if (matrix) {
-        fMatrix.set(*matrix);
-        fInfo.push(SkObjectParser::MatrixToString(*matrix));
-    }
-
-    if (paint) {
-        fPaint.set(*paint);
-        fInfo.push(SkObjectParser::PaintToString(*paint));
-    }
-}
-
-void SkBeginDrawShadowedPictureCommand::execute(SkCanvas* canvas) const {
-    if (fPaint.isValid()) {
-        SkRect bounds = fPicture->cullRect();
-        if (fMatrix.isValid()) {
-            fMatrix.get()->mapRect(&bounds);
-        }
-        canvas->saveLayer(&bounds, fPaint.get());
-    }
-
-    if (fMatrix.isValid()) {
-        if (!fPaint.isValid()) {
-            canvas->save();
-        }
-        canvas->concat(*fMatrix.get());
-    }
-}
-
-bool SkBeginDrawShadowedPictureCommand::render(SkCanvas* canvas) const {
-    canvas->clear(0xFFFFFFFF);
-    canvas->save();
-
-    xlate_and_scale_to_bounds(canvas, fPicture->cullRect());
-
-    canvas->drawPicture(fPicture.get());
-
-    canvas->restore();
-
-    return true;
-}
-
-SkEndDrawShadowedPictureCommand::SkEndDrawShadowedPictureCommand(bool restore)
-        : INHERITED(kEndDrawShadowedPicture_OpType) , fRestore(restore) { }
-
-void SkEndDrawShadowedPictureCommand::execute(SkCanvas* canvas) const {
     if (fRestore) {
         canvas->restore();
     }
@@ -3385,9 +3317,7 @@ SkTranslateZCommand::SkTranslateZCommand(SkScalar z)
 }
 
 void SkTranslateZCommand::execute(SkCanvas* canvas) const {
-#ifdef SK_EXPERIMENTAL_SHADOWING
     canvas->translateZ(fZTranslate);
-#endif
 }
 
 Json::Value SkTranslateZCommand::toJSON(UrlDataManager& urlDataManager) const {
@@ -3399,10 +3329,6 @@ Json::Value SkTranslateZCommand::toJSON(UrlDataManager& urlDataManager) const {
 SkTranslateZCommand* SkTranslateZCommand::fromJSON(Json::Value& command,
                                        UrlDataManager& urlDataManager) {
     SkScalar z;
-#ifdef SK_EXPERIMENTAL_SHADOWING
     extract_json_scalar(command[SKDEBUGCANVAS_ATTRIBUTE_DRAWDEPTHTRANS], &z);
-#else
-    z = 0;
-#endif
     return new SkTranslateZCommand(z);
 }

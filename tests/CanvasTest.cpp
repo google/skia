@@ -780,7 +780,7 @@ DEF_TEST(Canvas_ClipEmptyPath, reporter) {
 }
 
 #define SHADOW_TEST_CANVAS_CONST 10
-#ifdef SK_EXPERIMENTAL_SHADOWING
+
 class SkShadowTestCanvas : public SkPaintFilterCanvas {
 public:
 
@@ -817,7 +817,6 @@ private:
 
     typedef SkPaintFilterCanvas INHERITED;
 };
-#endif
 
 namespace {
 
@@ -853,7 +852,6 @@ DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
     REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
     REPORTER_ASSERT(reporter, clip1 == clip2);
 
-#ifdef SK_EXPERIMENTAL_SHADOWING
     SkShadowTestCanvas* tCanvas = new SkShadowTestCanvas(100,100, reporter);
     tCanvas->testUpdateDepth(reporter);
     delete(tCanvas);
@@ -867,7 +865,6 @@ DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
     tSCanvas->drawPicture(pic);
 
     delete(tSCanvas);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

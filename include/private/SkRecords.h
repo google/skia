@@ -68,7 +68,6 @@ namespace SkRecords {
     M(DrawPath)                                                     \
     M(DrawPatch)                                                    \
     M(DrawPicture)                                                  \
-    M(DrawShadowedPicture)                                          \
     M(DrawPoints)                                                   \
     M(DrawPosText)                                                  \
     M(DrawPosTextH)                                                 \
@@ -307,10 +306,6 @@ RECORD(DrawPath, kDraw_Tag,
         SkPaint paint;
         PreCachedPath path);
 RECORD(DrawPicture, kDraw_Tag,
-        Optional<SkPaint> paint;
-        RefBox<const SkPicture> picture;
-        TypedMatrix matrix);
-RECORD(DrawShadowedPicture, kDraw_Tag,
         Optional<SkPaint> paint;
         RefBox<const SkPicture> picture;
         TypedMatrix matrix);

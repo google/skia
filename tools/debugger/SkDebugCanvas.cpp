@@ -58,16 +58,6 @@ protected:
         this->SkCanvas::onDrawPicture(picture, matrix, paint);
     }
 
-    void onDrawShadowedPicture(const SkPicture* picture,
-                               const SkMatrix* matrix,
-                               const SkPaint* paint) {
-#ifdef SK_EXPERIMENTAL_SHADOWING
-        this->SkCanvas::onDrawShadowedPicture(picture, matrix, paint);
-#else
-        this->SkCanvas::onDrawPicture(picture, matrix, paint);
-#endif
-    }
-
 private:
     sk_sp<SkXfermode> fOverdrawXfermode;
 
@@ -613,15 +603,6 @@ void SkDebugCanvas::onDrawPicture(const SkPicture* picture,
     this->addDrawCommand(new SkEndDrawPictureCommand(SkToBool(matrix) || SkToBool(paint)));
 }
 
-void SkDebugCanvas::onDrawShadowedPicture(const SkPicture* picture,
-                                          const SkMatrix* matrix,
-                                          const SkPaint* paint) {
-    this->addDrawCommand(new SkBeginDrawShadowedPictureCommand(picture, matrix, paint));
-    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
-    picture->playback(this);
-    this->addDrawCommand(new SkEndDrawShadowedPictureCommand(SkToBool(matrix) || SkToBool(paint)));
-}
-
 void SkDebugCanvas::onDrawPoints(PointMode mode, size_t count,
                                  const SkPoint pts[], const SkPaint& paint) {
     this->addDrawCommand(new SkDrawPointsCommand(mode, count, pts, paint));
@@ -710,10 +691,8 @@ void SkDebugCanvas::didSetMatrix(const SkMatrix& matrix) {
 }
 
 void SkDebugCanvas::didTranslateZ(SkScalar z) {
-#ifdef SK_EXPERIMENTAL_SHADOWING
     this->addDrawCommand(new SkTranslateZCommand(z));
     this->INHERITED::didTranslateZ(z);
-#endif
 }
 
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {

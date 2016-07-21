@@ -45,7 +45,7 @@ public:
     */
     SkLightingShaderImpl(sk_sp<SkShader> diffuseShader,
                          sk_sp<SkNormalSource> normalSource,
-                         sk_sp<SkLights> lights)
+                         const sk_sp<SkLights> lights)
         : fDiffuseShader(std::move(diffuseShader))
         , fNormalSource(std::move(normalSource))
         , fLights(std::move(lights)) {}
@@ -134,7 +134,6 @@ public:
                 // TODO: handle more than one of these
                 fLightColor = lights->light(i).color();
                 fLightDir = lights->light(i).dir();
-                // TODO get the handle to the shadow map if there is one
             }
         }
 
@@ -177,9 +176,6 @@ public:
             this->emitChild(0, nullptr, &dstNormalName, args);
 
             fragBuilder->codeAppendf("vec3 normal = %s.xyz;", dstNormalName.c_str());
-
-            // TODO: make this a loop and modulate the contribution from each light
-            // based on the shadow map
             fragBuilder->codeAppendf("float NdotL = clamp(dot(normal, %s), 0.0, 1.0);",
                                      lightDirUniName);
             // diffuse light
