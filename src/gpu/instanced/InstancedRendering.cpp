@@ -8,7 +8,6 @@
 #include "InstancedRendering.h"
 
 #include "GrBatchFlushState.h"
-#include "GrCaps.h"
 #include "GrPipeline.h"
 #include "GrResourceProvider.h"
 #include "instanced/InstanceProcessor.h"

@@ -356,16 +356,16 @@ void setup_color_blend_state(const GrVkGpu* gpu,
     // colorBlendInfo->blendConstants is set dynamically
 }
 
-VkCullModeFlags draw_face_to_vk_cull_mode(GrDrawFace drawFace) {
+VkCullModeFlags draw_face_to_vk_cull_mode(GrPipelineBuilder::DrawFace drawFace) {
     // Assumes that we've set the front face to be ccw
     static const VkCullModeFlags gTable[] = {
         VK_CULL_MODE_NONE,              // kBoth_DrawFace
         VK_CULL_MODE_BACK_BIT,          // kCCW_DrawFace, cull back face
         VK_CULL_MODE_FRONT_BIT,         // kCW_DrawFace, cull front face
     };
-    GR_STATIC_ASSERT(0 == GrDrawFace::kBoth);
-    GR_STATIC_ASSERT(1 == GrDrawFace::kCCW);
-    GR_STATIC_ASSERT(2 == GrDrawFace::kCW);
+    GR_STATIC_ASSERT(0 == GrPipelineBuilder::kBoth_DrawFace);
+    GR_STATIC_ASSERT(1 == GrPipelineBuilder::kCCW_DrawFace);
+    GR_STATIC_ASSERT(2 == GrPipelineBuilder::kCW_DrawFace);
     SkASSERT((unsigned)drawFace <= 2);
 
     return gTable[drawFace];

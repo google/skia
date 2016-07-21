@@ -18,7 +18,7 @@
 GrPipelineBuilder::GrPipelineBuilder()
     : fFlags(0x0)
     , fUserStencilSettings(&GrUserStencilSettings::kUnused)
-    , fDrawFace(GrDrawFace::kBoth) {
+    , fDrawFace(kBoth_DrawFace) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 

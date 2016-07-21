@@ -12,7 +12,6 @@
 #include "GrDrawContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
-#include "GrPipelineBuilder.h"
 #include "GrResourceCache.h"
 
 #include "SkGpuDevice.h"

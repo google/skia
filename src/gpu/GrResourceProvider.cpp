@@ -8,7 +8,6 @@
 #include "GrResourceProvider.h"
 
 #include "GrBuffer.h"
-#include "GrCaps.h"
 #include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"

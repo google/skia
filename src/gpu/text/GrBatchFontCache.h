@@ -9,7 +9,6 @@
 #define GrBatchFontCache_DEFINED
 
 #include "GrBatchAtlas.h"
-#include "GrCaps.h"
 #include "GrGlyph.h"
 #include "SkGlyphCache.h"
 #include "SkTDynamicHash.h"

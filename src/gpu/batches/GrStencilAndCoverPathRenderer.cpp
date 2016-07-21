@@ -13,7 +13,6 @@
 #include "GrDrawPathBatch.h"
 #include "GrGpu.h"
 #include "GrPath.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
 #include "GrStencilPathBatch.h"

@@ -15,7 +15,6 @@
 #include "GrPath.h"
 #include "GrPipeline.h"
 #include "GrMemoryPool.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
 #include "GrRenderTargetPriv.h"
