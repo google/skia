@@ -90,7 +90,7 @@ hooks = [{
                '--no_auth',
                '--bucket', 'chromium-gn',
                '--platform=win32',
-               '-s', 'skia/buildtools/win/gn.sha1'],
+               '-s', 'skia/buildtools/win/gn.exe.sha1'],
 }]
 
 recursedeps = [ "common" ]
