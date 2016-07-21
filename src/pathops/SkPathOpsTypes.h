@@ -183,6 +183,10 @@ private:
 #endif
 };
 
+#define SkOPASSERT(cond) SkASSERT(this->globalState()->debugSkipAssert() || cond)
+#define SkOPOBJASSERT(obj, cond) SkASSERT((obj->debugGlobalState() && \
+        obj->debugGlobalState()->debugSkipAssert()) || cond)
+
 // Use Almost Equal when comparing coordinates. Use epsilon to compare T values.
 bool AlmostEqualUlps(float a, float b);
 inline bool AlmostEqualUlps(double a, double b) {

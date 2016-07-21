@@ -230,7 +230,7 @@ private:
             const_cast<SkOpPtT*>(oppPtTStart), const_cast<SkOpPtT*>(oppPtTEnd));
     }
 
-    void addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase* testSpan);
+    bool addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase* testSpan);
     bool addEndMovedSpans(const SkOpPtT* ptT);
 
     bool addIfMissing(const SkCoincidentSpans* outer, SkOpPtT* over1s, SkOpPtT* over1e);

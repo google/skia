@@ -541,7 +541,7 @@ void SkOpSegment::release(const SkOpSpan* span) {
         --fDoneCount;
     }
     --fCount;
-    SkASSERT(this->globalState()->debugSkipAssert() || fCount >= fDoneCount);
+    SkOPASSERT(fCount >= fDoneCount);
 }
 
 double SkOpSegment::distSq(double t, const SkOpAngle* oppAngle) const {

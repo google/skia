@@ -186,7 +186,7 @@ public:
     double distSq(double t, const SkOpAngle* opp) const;
 
     bool done() const {
-        SkASSERT(this->globalState()->debugSkipAssert() || fDoneCount <= fCount);
+        SkOPASSERT(fDoneCount <= fCount);
         return fDoneCount == fCount;
     }
 

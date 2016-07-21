@@ -173,7 +173,7 @@ SkOpSegment* SkOpPtT::segment() {
 
 void SkOpPtT::setDeleted() {
     SkASSERT(this->span()->debugDeleted() || this->span()->ptT() != this);
-    SkASSERT(this->globalState()->debugSkipAssert() || !fDeleted);
+    SkOPASSERT(!fDeleted);
     fDeleted = true;
 }
 

@@ -268,7 +268,7 @@ void SkOpCoincidence::add(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* o
 }
 
 // description below
-void SkOpCoincidence::addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase* testSpan) {
+bool SkOpCoincidence::addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase* testSpan) {
     const SkOpPtT* testPtT = testSpan->ptT();
     const SkOpPtT* stopPtT = testPtT;
     const SkOpSegment* baseSeg = base->segment();
@@ -324,9 +324,12 @@ void SkOpCoincidence::addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase*
                 SkTSwap(coinTs, coinTe);
                 SkTSwap(oppTs, oppTe);
             }
-            (void) this->addOrOverlap(coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe);
+            if (!this->addOrOverlap(coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe)) {
+                return false;
+            }
         }
     }
+    return true;
 }
 
 // description below
@@ -337,10 +340,14 @@ bool SkOpCoincidence::addEndMovedSpans(const SkOpPtT* ptT) {
         return false;
     }
     if (!prev->isCanceled()) {
-        this->addEndMovedSpans(base, base->prev());
+        if (!this->addEndMovedSpans(base, base->prev())) {
+            return false;
+        }
     }
     if (!base->isCanceled()) {
-        this->addEndMovedSpans(base, base->next());
+        if (!this->addEndMovedSpans(base, base->next())) {
+            return false;
+        }
     }
     return true;
 }
@@ -631,7 +638,9 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
     if (overlap && cs && ce && overlap->contains(cs, ce)) {
         return false;
     }
-    SkASSERT(cs != ce || !cs);
+    if (cs == ce && cs) {
+        return false;
+    }
     const SkOpPtT* os = oppSeg->existing(oppTs, coinSeg);
     const SkOpPtT* oe = oppSeg->existing(oppTe, coinSeg);
     if (overlap && os && oe && overlap->contains(os, oe)) {
