@@ -182,6 +182,7 @@ namespace SkGpuBlurUtils {
 
 sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
                                   GrTexture* origSrc,
+                                  sk_sp<SkColorSpace> colorSpace,
                                   bool gammaCorrect,
                                   const SkIRect& dstBounds,
                                   const SkIRect* srcBounds,
@@ -230,7 +231,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
                                SkSurfaceProps::kLegacyFontHost_InitType);
 
     sk_sp<GrDrawContext> dstDrawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                                width, height, config,
+                                                                width, height, config, colorSpace,
                                                                 0, kDefault_GrSurfaceOrigin,
                                                                 &props));
     if (!dstDrawContext) {
@@ -251,7 +252,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
     } 
 
     sk_sp<GrDrawContext> tmpDrawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                                width, height, config,
+                                                                width, height, config, colorSpace,
                                                                 0, kDefault_GrSurfaceOrigin,
                                                                 &props));
     if (!tmpDrawContext) {

@@ -23,6 +23,7 @@ namespace SkGpuBlurUtils {
     * Note: one of sigmaX and sigmaY should be non-zero!
     * @param context         The GPU context
     * @param srcTexture      The source texture to be blurred.
+    * @param colorSpace      Color space of the source (used for the drawContext result, too).
     * @param gammaCorrect    Should blur be gamma-correct (sRGB to linear, etc...)
     * @param dstBounds       The destination bounds, relative to the source texture.
     * @param srcBounds       The source bounds, relative to the source texture. If non-null,
@@ -33,6 +34,7 @@ namespace SkGpuBlurUtils {
     */
     sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
                                       GrTexture* srcTexture,
+                                      sk_sp<SkColorSpace> colorSpace,
                                       bool gammaCorrect,
                                       const SkIRect& dstBounds,
                                       const SkIRect* srcBounds,

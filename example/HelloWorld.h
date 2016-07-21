@@ -36,7 +36,7 @@ protected:
     SkSurface* createSurface() override {
         SkSurfaceProps props(INHERITED::getSurfaceProps());
         if (kGPU_DeviceType == fType) {
-            return SkSurface::MakeRenderTargetDirect(fRenderTarget, &props).release();
+            return SkSurface::MakeRenderTargetDirect(fRenderTarget, nullptr, &props).release();
         }
         static const SkImageInfo info = SkImageInfo::MakeN32Premul(
                 SkScalarRoundToInt(this->width()), SkScalarRoundToInt(this->height()));

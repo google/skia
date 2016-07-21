@@ -397,7 +397,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
         desc.fOrigin = origin;
         SkAutoTUnref<GrTexture> surfaceTexture(
             ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo));
-        auto surface(SkSurface::MakeRenderTargetDirect(surfaceTexture->asRenderTarget()));
+        auto surface(SkSurface::MakeRenderTargetDirect(surfaceTexture->asRenderTarget(), nullptr));
         desc.fFlags = kNone_GrSurfaceFlags;
         test_readpixels(reporter, surface, kLast_BitmapInit);
     }

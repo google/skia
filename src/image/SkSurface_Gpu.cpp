@@ -132,9 +132,11 @@ void SkSurface_Gpu::onPrepareForExternalIO() {
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkSurface> SkSurface::MakeRenderTargetDirect(GrRenderTarget* target,
+                                                   sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* props) {
     sk_sp<SkGpuDevice> device(
-        SkGpuDevice::Make(sk_ref_sp(target), props, SkGpuDevice::kUninit_InitContents));
+        SkGpuDevice::Make(sk_ref_sp(target), std::move(colorSpace), props,
+                          SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }
@@ -154,6 +156,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
                                                    const GrBackendTextureDesc& desc,
+                                                   sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* props) {
     if (nullptr == context) {
         return nullptr;
@@ -166,7 +169,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
     if (!surface) {
         return nullptr;
     }
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(sk_ref_sp(surface->asRenderTarget()), props,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(sk_ref_sp(surface->asRenderTarget()),
+                                                std::move(colorSpace), props,
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
@@ -176,6 +180,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
                                                         const GrBackendRenderTargetDesc& desc,
+                                                        sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
     if (!context) {
         return nullptr;
@@ -184,7 +189,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     if (!rt) {
         return nullptr;
     }
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rt), props,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rt), std::move(colorSpace), props,
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
@@ -194,6 +199,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
                                                                  const GrBackendTextureDesc& desc,
+                                                                 sk_sp<SkColorSpace> colorSpace,
                                                                  const SkSurfaceProps* props) {
     if (!context) {
         return nullptr;
@@ -202,7 +208,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     if (!rt) {
         return nullptr;
     }
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rt), props,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rt), std::move(colorSpace), props,
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;

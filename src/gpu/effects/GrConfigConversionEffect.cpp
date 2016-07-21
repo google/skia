@@ -174,9 +174,9 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     }
 
     sk_sp<GrDrawContext> readDC(context->newDrawContext(SkBackingFit::kExact, kSize, kSize,
-                                                        kConfig));
+                                                        kConfig, nullptr));
     sk_sp<GrDrawContext> tempDC(context->newDrawContext(SkBackingFit::kExact, kSize, kSize,
-                                                        kConfig));
+                                                        kConfig, nullptr));
     if (!readDC || !tempDC) {
         return;
     }

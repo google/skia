@@ -31,7 +31,8 @@ public:
     bool wasAbandoned() const { return fAbandoned; }
     void freeGpuResources();
 
-    sk_sp<GrDrawContext> drawContext(sk_sp<GrRenderTarget> rt, const SkSurfaceProps*);
+    sk_sp<GrDrawContext> drawContext(sk_sp<GrRenderTarget> rt, sk_sp<SkColorSpace> colorSpace,
+                                     const SkSurfaceProps*);
 
     // The caller automatically gets a ref on the returned drawTarget. It must
     // be balanced by an unref call.

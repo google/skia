@@ -283,7 +283,8 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
 
     sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
                                                              bounds.width(), bounds.height(),
-                                                             kRGBA_8888_GrPixelConfig));
+                                                             kRGBA_8888_GrPixelConfig,
+                                                             std::move(colorSpace)));
     if (!drawContext) {
         return nullptr;
     }
@@ -294,9 +295,9 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     GrFixedClip clip(dstIRect);
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
-    // TODO: Get the colorSpace from the drawContext (once it has one)
     return SkSpecialImage::MakeFromGpu(dstIRect, kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture(), std::move(colorSpace));
+                                       drawContext->asTexture(),
+                                       sk_ref_sp(drawContext->getColorSpace()));
 }
 #endif
 

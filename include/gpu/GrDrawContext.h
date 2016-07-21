@@ -272,6 +272,7 @@ public:
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
     bool isGammaCorrect() const { return fSurfaceProps.isGammaCorrect(); }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
+    SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
 
     bool wasAbandoned() const;
 
@@ -288,7 +289,7 @@ public:
     GrAuditTrail* auditTrail() { return fAuditTrail; }
 
 protected:
-    GrDrawContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTarget>,
+    GrDrawContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTarget>, sk_sp<SkColorSpace>,
                   const SkSurfaceProps* surfaceProps, GrAuditTrail*, GrSingleOwner*);
 
     GrDrawingManager* drawingManager() { return fDrawingManager; }
@@ -362,6 +363,7 @@ private:
     GrContext*                        fContext;
     GrInstancedPipelineInfo           fInstancedPipelineInfo;
 
+    sk_sp<SkColorSpace>               fColorSpace;
     SkSurfaceProps                    fSurfaceProps;
     GrAuditTrail*                     fAuditTrail;
 

@@ -93,7 +93,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             // Now try writing on the single channel texture (if we could create as a RT).
             if (texture->asRenderTarget()) {
-                sk_sp<SkSurface> surf(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget()));
+                sk_sp<SkSurface> surf(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget(),
+                                                                        nullptr));
                 SkCanvas* canvas = surf->getCanvas();
 
                 SkPaint paint;

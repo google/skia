@@ -155,13 +155,15 @@ private:
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrContext* context,
                                                            int width, int height,
-                                                           GrPixelConfig config) {
+                                                           GrPixelConfig config,
+                                                           sk_sp<SkColorSpace> colorSpace) {
     if (!context) {
         return nullptr;
     }
 
     sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                             width, height, config));
+                                                             width, height, config,
+                                                             std::move(colorSpace)));
     if (!drawContext) {
         return nullptr;
     }

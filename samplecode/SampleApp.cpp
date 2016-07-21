@@ -297,7 +297,9 @@ public:
                 return SkSurface::MakeRenderTarget(fCurContext, SkBudgeted::kNo, win->info(),
                                                    fMSAASampleCount, &props).release();
             } else {
-                return SkSurface::MakeRenderTargetDirect(fCurRenderTarget, &props).release();
+                return SkSurface::MakeRenderTargetDirect(fCurRenderTarget,
+                                                         sk_ref_sp(win->info().colorSpace()),
+                                                         &props).release();
             }
         }
 #endif

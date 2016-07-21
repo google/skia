@@ -66,6 +66,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(AADistanceFieldPathRenderer, reporter, ctxInfo) 
     sk_sp<GrDrawContext> drawContext(ctxInfo.grContext()->newDrawContext(SkBackingFit::kApprox,
                                                                          800, 800,
                                                                          kSkia8888_GrPixelConfig,
+                                                                         nullptr,
                                                                          0,
                                                                          kTopLeft_GrSurfaceOrigin));
     if (!drawContext) {

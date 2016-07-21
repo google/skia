@@ -474,6 +474,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
                                               SkISize radius) {
     sk_sp<GrTexture> srcTexture(input->asTextureRef(context));
     SkASSERT(srcTexture);
+    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(input->getColorSpace());
 
     // setup new clip
     const GrFixedClip clip(SkIRect::MakeWH(srcTexture->width(), srcTexture->height()));
@@ -486,7 +487,8 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
     if (radius.fWidth > 0) {
         sk_sp<GrDrawContext> dstDrawContext(context->newDrawContext(SkBackingFit::kApprox,
                                                                     rect.width(), rect.height(),
-                                                                    kSkia8888_GrPixelConfig));
+                                                                    kSkia8888_GrPixelConfig,
+                                                                    colorSpace));
         if (!dstDrawContext) {
             return nullptr;
         }
@@ -507,7 +509,8 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
     if (radius.fHeight > 0) {
         sk_sp<GrDrawContext> dstDrawContext(context->newDrawContext(SkBackingFit::kApprox,
                                                                     rect.width(), rect.height(),
-                                                                    kSkia8888_GrPixelConfig));
+                                                                    kSkia8888_GrPixelConfig,
+                                                                    colorSpace));
         if (!dstDrawContext) {
             return nullptr;
         }
@@ -519,10 +522,9 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
         srcTexture = dstDrawContext->asTexture();
     }
 
-    // TODO: Get the colorSpace from the drawContext (once it has one)
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(rect.width(), rect.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       std::move(srcTexture), sk_ref_sp(input->getColorSpace()),
+                                       std::move(srcTexture), std::move(colorSpace),
                                        &input->props());
 }
 #endif

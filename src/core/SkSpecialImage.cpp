@@ -391,7 +391,7 @@ public:
 
         return SkSpecialSurface::MakeRenderTarget(fTexture->getContext(),
                                                   info.width(), info.height(),
-                                                  config);
+                                                  config, sk_ref_sp(info.colorSpace()));
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {

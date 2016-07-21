@@ -189,7 +189,8 @@ public:
      *
      * @return a draw context
      */
-    sk_sp<GrDrawContext> drawContext(sk_sp<GrRenderTarget> rt, const SkSurfaceProps* = nullptr);
+    sk_sp<GrDrawContext> drawContext(sk_sp<GrRenderTarget> rt, sk_sp<SkColorSpace> colorSpace,
+                                     const SkSurfaceProps* = nullptr);
 
     /**
      * Create both a GrRenderTarget and a matching GrDrawContext to wrap it.
@@ -199,6 +200,7 @@ public:
     sk_sp<GrDrawContext> newDrawContext(SkBackingFit fit, 
                                         int width, int height,
                                         GrPixelConfig config,
+                                        sk_sp<SkColorSpace> colorSpace,
                                         int sampleCnt = 0,
                                         GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
                                         const SkSurfaceProps* surfaceProps = nullptr,

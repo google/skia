@@ -416,7 +416,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
         desc.fOrigin = origin;
         SkAutoTUnref<GrTexture> texture(
             ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo));
-        auto surface(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget()));
+        auto surface(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget(), nullptr));
         test_write_pixels(reporter, surface.get());
     }
 }

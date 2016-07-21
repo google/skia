@@ -357,7 +357,10 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             }
             SkMatrix matrix;
             matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
-            sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(renderTarget)));
+            // TODO: Need to decide the semantics of this function for color spaces. Do we support
+            // conversion from a passed-in color space? For now, specifying nullptr means that this
+            // path will do no conversion, so it will match the behavior of the non-draw path.
+            sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(renderTarget), nullptr));
             if (!drawContext) {
                 return false;
             }
@@ -444,10 +447,14 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 tempDrawInfo.fTempSurfaceFit= SkBackingFit::kApprox;
             }
         }
+        // TODO: Need to decide the semantics of this function for color spaces. Do we support
+        // conversion to a passed-in color space? For now, specifying nullptr means that this
+        // path will do no conversion, so it will match the behavior of the non-draw path.
         sk_sp<GrDrawContext> tempDC = this->newDrawContext(tempDrawInfo.fTempSurfaceFit,
                                                            tempDrawInfo.fTempSurfaceDesc.fWidth,
                                                            tempDrawInfo.fTempSurfaceDesc.fHeight,
                                                            tempDrawInfo.fTempSurfaceDesc.fConfig,
+                                                           nullptr,
                                                            tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
                                                            tempDrawInfo.fTempSurfaceDesc.fOrigin);
         if (tempDC) {
@@ -534,7 +541,8 @@ bool GrContext::applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma){
 
     SkSurfaceProps props(SkSurfaceProps::kGammaCorrect_Flag,
                          SkSurfaceProps::kLegacyFontHost_InitType);
-    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(dst), &props));
+    // TODO: Supply color space?
+    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(dst), nullptr, &props));
     if (!drawContext) {
         return false;
     }
@@ -596,7 +604,7 @@ bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         src->flushWrites();
         return fGpu->copySurface(dst, src, clippedSrcRect, clippedDstPoint);
     }
-    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(dst->asRenderTarget())));
+    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(dst->asRenderTarget()), nullptr));
     if (!drawContext) {
         return false;
     }
@@ -636,14 +644,16 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
 
 
 sk_sp<GrDrawContext> GrContext::drawContext(sk_sp<GrRenderTarget> rt,
+                                            sk_sp<SkColorSpace> colorSpace,
                                             const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER
-    return fDrawingManager->drawContext(std::move(rt), surfaceProps);
+    return fDrawingManager->drawContext(std::move(rt), std::move(colorSpace), surfaceProps);
 }
 
 sk_sp<GrDrawContext> GrContext::newDrawContext(SkBackingFit fit,
                                                int width, int height,
                                                GrPixelConfig config,
+                                               sk_sp<SkColorSpace> colorSpace,
                                                int sampleCnt,
                                                GrSurfaceOrigin origin,
                                                const SkSurfaceProps* surfaceProps,
@@ -667,7 +677,7 @@ sk_sp<GrDrawContext> GrContext::newDrawContext(SkBackingFit fit,
     }
 
     sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(tex->asRenderTarget()),
-                                                       surfaceProps));
+                                                       std::move(colorSpace), surfaceProps));
     if (!drawContext) {
         return nullptr;
     }

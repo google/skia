@@ -42,7 +42,8 @@ public:
      *       MakeFromBackendTexture, MakeFromBackendRenderTarget,
      *       and MakeFromBackendTextureAsRenderTarget. Only the first is worrisome.
      */
-    static sk_sp<SkGpuDevice> Make(sk_sp<GrRenderTarget> target, 
+    static sk_sp<SkGpuDevice> Make(sk_sp<GrRenderTarget> target,
+                                   sk_sp<SkColorSpace> colorSpace,
                                    const SkSurfaceProps*,
                                    InitContents);
 

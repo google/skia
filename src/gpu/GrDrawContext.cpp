@@ -69,6 +69,7 @@ bool GrDrawContext::wasAbandoned() const {
 GrDrawContext::GrDrawContext(GrContext* context,
                              GrDrawingManager* drawingMgr,
                              sk_sp<GrRenderTarget> rt,
+                             sk_sp<SkColorSpace> colorSpace,
                              const SkSurfaceProps* surfaceProps,
                              GrAuditTrail* auditTrail,
                              GrSingleOwner* singleOwner)
@@ -77,6 +78,7 @@ GrDrawContext::GrDrawContext(GrContext* context,
     , fDrawTarget(SkSafeRef(fRenderTarget->getLastDrawTarget()))
     , fContext(context)
     , fInstancedPipelineInfo(fRenderTarget.get())
+    , fColorSpace(std::move(colorSpace))
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
     , fAuditTrail(auditTrail)
 #ifdef SK_DEBUG

@@ -104,7 +104,7 @@ sk_sp<GrTexture> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* contex
 
     sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
                                                              bounds.width(), bounds.height(),
-                                                             config));
+                                                             config, nullptr));
     if (!drawContext) {
         return nullptr;
     }

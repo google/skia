@@ -175,6 +175,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 }
 
 sk_sp<GrDrawContext> GrDrawingManager::drawContext(sk_sp<GrRenderTarget> rt,
+                                                   sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps) {
     if (this->wasAbandoned()) {
         return nullptr;
@@ -191,13 +192,14 @@ sk_sp<GrDrawContext> GrDrawingManager::drawContext(sk_sp<GrRenderTarget> rt,
         GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt.get());
         if (sb) {
             return sk_sp<GrDrawContext>(new GrPathRenderingDrawContext(
-                                                        fContext, this, std::move(rt), 
-                                                        surfaceProps,
+                                                        fContext, this, std::move(rt),
+                                                        std::move(colorSpace), surfaceProps,
                                                         fContext->getAuditTrail(), fSingleOwner));
         }
     }
 
-    return sk_sp<GrDrawContext>(new GrDrawContext(fContext, this, std::move(rt), surfaceProps,
+    return sk_sp<GrDrawContext>(new GrDrawContext(fContext, this, std::move(rt),
+                                                  std::move(colorSpace), surfaceProps,
                                                   fContext->getAuditTrail(),
                                                   fSingleOwner));
 }

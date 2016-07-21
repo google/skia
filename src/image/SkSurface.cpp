@@ -223,7 +223,8 @@ void SkSurface::prepareForExternalIO() {
 
 #if !SK_SUPPORT_GPU
 
-sk_sp<SkSurface> SkSurface::MakeRenderTargetDirect(GrRenderTarget*, const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeRenderTargetDirect(GrRenderTarget*, sk_sp<SkColorSpace>,
+                                                   const SkSurfaceProps*) {
     return nullptr;
 }
 
@@ -233,18 +234,19 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, const SkIma
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
-                                                   const SkSurfaceProps*) {
+                                                   sk_sp<SkColorSpace>, const SkSurfaceProps*) {
     return nullptr;
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
                                                         const GrBackendRenderTargetDesc&,
+                                                        sk_sp<SkColorSpace>,
                                                         const SkSurfaceProps*) {
     return nullptr;
 }
 
 sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext*, const GrBackendTextureDesc&,
-                                                      const SkSurfaceProps*) {
+                                                      sk_sp<SkColorSpace>, const SkSurfaceProps*) {
     return nullptr;
 }
 

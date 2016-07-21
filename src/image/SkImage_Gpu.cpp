@@ -245,6 +245,7 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     sk_sp<GrDrawContext> drawContext(ctx->newDrawContext(SkBackingFit::kExact,
                                                          width, height,
                                                          kRGBA_8888_GrPixelConfig,
+                                                         std::move(imageColorSpace),
                                                          0,
                                                          origin));
     if (!drawContext) {
@@ -262,7 +263,7 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     ctx->flushSurfaceWrites(drawContext->accessRenderTarget());
     return sk_make_sp<SkImage_Gpu>(width, height, kNeedNewImageUniqueID,
                                    kOpaque_SkAlphaType, drawContext->asTexture().get(),
-                                   std::move(imageColorSpace), budgeted);
+                                   sk_ref_sp(drawContext->getColorSpace()), budgeted);
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,

@@ -337,7 +337,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
         desc.fTextureHandle = textureObject;
         GrTexture* texture = context->textureProvider()->wrapBackendTexture(desc);
         {
-            auto surface(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget()));
+            auto surface(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget(), nullptr));
             test_unique_image_snap(reporter, surface.get(), true, imageBackingStore,
                                    surfaceBackingStore);
         }

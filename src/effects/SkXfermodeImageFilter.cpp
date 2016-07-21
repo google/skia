@@ -243,7 +243,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
                                                              bounds.width(), bounds.height(),
-                                                             kSkia8888_GrPixelConfig));
+                                                             kSkia8888_GrPixelConfig,
+                                                             sk_ref_sp(source->getColorSpace())));
     if (!drawContext) {
         return nullptr;
     }
@@ -252,11 +253,10 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
     drawContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(bounds));
 
-    // TODO: Get the colorSpace from the drawContext (once it has one)
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
                                        drawContext->asTexture(),
-                                       sk_ref_sp(source->getColorSpace()));
+                                       sk_ref_sp(drawContext->getColorSpace()));
 }
 
 #endif

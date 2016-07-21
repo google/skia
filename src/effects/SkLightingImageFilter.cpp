@@ -411,7 +411,8 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
     sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
                                                              offsetBounds.width(),
                                                              offsetBounds.height(),
-                                                             kRGBA_8888_GrPixelConfig));
+                                                             kRGBA_8888_GrPixelConfig,
+                                                             sk_ref_sp(source->getColorSpace())));
     if (!drawContext) {
         return nullptr;
     }
@@ -453,11 +454,10 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
     this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottomRight,
                    kBottomRight_BoundaryMode, pSrcBounds, offsetBounds);
 
-    // TODO: Get the colorSpace from the drawContext (once it has one)
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
                                        drawContext->asTexture(),
-                                       sk_ref_sp(source->getColorSpace()));
+                                       sk_ref_sp(drawContext->getColorSpace()));
 }
 #endif
 

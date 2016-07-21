@@ -126,8 +126,8 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
     return true;
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTarget> rt, const SkSurfaceProps* props,
-                                     InitContents init) {
+sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTarget> rt, sk_sp<SkColorSpace> colorSpace,
+                                     const SkSurfaceProps* props, InitContents init) {
     if (!rt || rt->wasDestroyed() || !rt->getContext()) {
         return nullptr;
     }
@@ -141,7 +141,8 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTarget> rt, const SkSurfacePr
 
     GrContext* context = rt->getContext();
 
-    sk_sp<GrDrawContext> drawContext(context->drawContext(std::move(rt), props));
+    sk_sp<GrDrawContext> drawContext(context->drawContext(std::move(rt), std::move(colorSpace),
+                                                          props));
     return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(drawContext), width, height, flags));
 }
 
@@ -223,7 +224,7 @@ sk_sp<GrDrawContext> SkGpuDevice::CreateDrawContext(GrContext* context,
 
     return context->newDrawContext(SkBackingFit::kExact,               // Why exact?
                                    origInfo.width(), origInfo.height(),
-                                   config, sampleCount,
+                                   config, sk_ref_sp(cs), sampleCount,
                                    kDefault_GrSurfaceOrigin, surfaceProps, budgeted);
 }
 
@@ -1842,6 +1843,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     sk_sp<GrDrawContext> dc(fContext->newDrawContext(fit,
                                                      cinfo.fInfo.width(), cinfo.fInfo.height(),
                                                      fDrawContext->config(),
+                                                     sk_ref_sp(fDrawContext->getColorSpace()),
                                                      fDrawContext->desc().fSampleCnt,
                                                      kDefault_GrSurfaceOrigin,
                                                      &props));

@@ -158,6 +158,7 @@ static sk_sp<GrDrawContext> random_draw_context(GrContext* context,
                                                              kRenderTargetWidth,
                                                              kRenderTargetHeight,
                                                              kRGBA_8888_GrPixelConfig,
+                                                             nullptr,
                                                              sampleCnt,
                                                              origin));
     return drawContext;
@@ -345,7 +346,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kExact,
                                                              kRenderTargetWidth,
                                                              kRenderTargetHeight,
-                                                             kRGBA_8888_GrPixelConfig));
+                                                             kRGBA_8888_GrPixelConfig,
+                                                             nullptr));
     if (!drawContext) {
         SkDebugf("Could not allocate a drawContext");
         return false;

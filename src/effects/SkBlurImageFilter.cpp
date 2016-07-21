@@ -121,13 +121,14 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
         inputBounds.offset(-inputOffset);
         dstBounds.offset(-inputOffset);
         sk_sp<GrDrawContext> drawContext(SkGpuBlurUtils::GaussianBlur(
-                                                                  context,
-                                                                  inputTexture.get(),
-                                                                  source->props().isGammaCorrect(),
-                                                                  dstBounds,
-                                                                  &inputBounds,
-                                                                  sigma.x(),
-                                                                  sigma.y()));
+                                                                context,
+                                                                inputTexture.get(),
+                                                                sk_ref_sp(source->getColorSpace()),
+                                                                source->props().isGammaCorrect(),
+                                                                dstBounds,
+                                                                &inputBounds,
+                                                                sigma.x(),
+                                                                sigma.y()));
         if (!drawContext) {
             return nullptr;
         }

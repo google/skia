@@ -113,6 +113,7 @@ static sk_sp<GrTexture> create_mask_GPU(GrContext* context,
                                                              maskRect.width(), 
                                                              maskRect.height(),
                                                              config,
+                                                             nullptr,
                                                              sampleCnt));
     if (!drawContext) {
         return nullptr;

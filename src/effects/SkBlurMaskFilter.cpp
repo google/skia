@@ -1248,7 +1248,7 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
     static const bool kIsGammaCorrect = false;
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
     sk_sp<GrDrawContext> drawContext(SkGpuBlurUtils::GaussianBlur(context, src,
-                                                                  kIsGammaCorrect,
+                                                                  nullptr, kIsGammaCorrect,
                                                                   clipRect, nullptr,
                                                                   xformedSigma, xformedSigma));
     if (!drawContext) {
