@@ -137,8 +137,7 @@ def main():
     sys.exit('Error (ret code: %s) calling "%s" in %s' % (error.returncode,
         error.cmd, chrome_src_dir))
 
-  shared_lib_src_dir = os.path.join(chrome_src_dir, chrome_target_dir_rel,
-                                    shared_lib_subdir)
+  shared_lib_src_dir = os.path.join(chrome_src_dir, chrome_target_dir_rel)
   shared_lib_dst_dir = os.path.join(args.output_dir, shared_lib_subdir)
   # Make the subdir for the dst if does not exist
   if shared_lib_subdir and not os.path.isdir(shared_lib_dst_dir):
