@@ -5348,7 +5348,7 @@ static void cubics_d3(skiatest::Reporter* reporter, const char* filename) {
     pathB.close();
     // DEBUG_UNDER_DEVELOPMENT  cubics_d3 disable expectation check for now
     // fails because segment 3 is marked as unorderable ?
-    testPathOpCheck(reporter, path, pathB, kDifference_SkPathOp, filename, !FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
 }
 
 static void cubics_o(skiatest::Reporter* reporter, const char* filename) {
