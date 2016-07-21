@@ -8,6 +8,7 @@
 #ifndef GrPathRenderer_DEFINED
 #define GrPathRenderer_DEFINED
 
+#include "GrCaps.h"
 #include "GrDrawContext.h"
 #include "GrPaint.h"
 #include "GrResourceProvider.h"

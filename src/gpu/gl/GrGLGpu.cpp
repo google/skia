@@ -494,7 +494,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         fHWBufferState[kXferCpuToGpu_GrBufferType].invalidate();
         fHWBufferState[kXferGpuToCpu_GrBufferType].invalidate();
 
-        fHWDrawFace = GrPipelineBuilder::kInvalid_DrawFace;
+        fHWDrawFace = GrDrawFace::kInvalid;
 
         if (kGL_GrGLStandard == this->glStandard()) {
             // Desktop-only state that we never change
@@ -2793,7 +2793,7 @@ void GrGLGpu::stampPLSSetupRect(const SkRect& bounds) {
     blendInfo.reset();
     this->flushBlend(blendInfo, GrSwizzle());
     this->flushColorWrite(true);
-    this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
+    this->flushDrawFace(GrDrawFace::kBoth);
     if (!fHWStencilSettings.isDisabled()) {
         GL_CALL(Disable(GR_GL_STENCIL_TEST));
     }
@@ -3359,18 +3359,18 @@ void GrGLGpu::flushColorWrite(bool writeColor) {
     }
 }
 
-void GrGLGpu::flushDrawFace(GrPipelineBuilder::DrawFace face) {
+void GrGLGpu::flushDrawFace(GrDrawFace face) {
     if (fHWDrawFace != face) {
         switch (face) {
-            case GrPipelineBuilder::kCCW_DrawFace:
+            case GrDrawFace::kCCW:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
                 GL_CALL(CullFace(GR_GL_BACK));
                 break;
-            case GrPipelineBuilder::kCW_DrawFace:
+            case GrDrawFace::kCW:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
                 GL_CALL(CullFace(GR_GL_FRONT));
                 break;
-            case GrPipelineBuilder::kBoth_DrawFace:
+            case GrDrawFace::kBoth:
                 GL_CALL(Disable(GR_GL_CULL_FACE));
                 break;
             default:
@@ -4088,7 +4088,7 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
     blendInfo.reset();
     this->flushBlend(blendInfo, GrSwizzle::RGBA());
     this->flushColorWrite(true);
-    this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
+    this->flushDrawFace(GrDrawFace::kBoth);
     this->flushHWAAState(glRT, false, false);
     this->disableScissor();
     GrStencilSettings stencil;
@@ -4176,7 +4176,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     blendInfo.reset();
     this->flushBlend(blendInfo, GrSwizzle::RGBA());
     this->flushColorWrite(true);
-    this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
+    this->flushDrawFace(GrDrawFace::kBoth);
     this->flushHWAAState(nullptr, false, false);
     this->disableScissor();
     GrStencilSettings stencil;
@@ -4384,7 +4384,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
     blendInfo.reset();
     this->flushBlend(blendInfo, GrSwizzle::RGBA());
     this->flushColorWrite(true);
-    this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
+    this->flushDrawFace(GrDrawFace::kBoth);
     this->flushHWAAState(nullptr, false, false);
     this->disableScissor();
     GrStencilSettings stencil;

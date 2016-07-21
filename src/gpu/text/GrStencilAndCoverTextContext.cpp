@@ -11,6 +11,7 @@
 #include "GrDrawContext.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
+#include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
 #include "GrTextUtils.h"
 #include "SkAutoKern.h"

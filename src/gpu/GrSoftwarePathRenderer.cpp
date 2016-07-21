@@ -8,6 +8,7 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrAuditTrail.h"
 #include "GrClip.h"
+#include "GrPipelineBuilder.h"
 #include "GrSWMaskHelper.h"
 #include "GrTextureProvider.h"
 #include "batches/GrRectBatchFactory.h"

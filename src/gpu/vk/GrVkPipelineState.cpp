@@ -487,8 +487,8 @@ void GrVkPipelineState::BuildStateKey(const GrPipeline& pipeline, GrPrimitiveTyp
 
     pipeline.getStencil().genKey(&b);
 
-    SkASSERT(sizeof(GrPipelineBuilder::DrawFace) <= sizeof(uint32_t));
-    b.add32(pipeline.getDrawFace());
+    SkASSERT(sizeof(GrDrawFace) <= sizeof(uint32_t));
+    b.add32((int32_t)pipeline.getDrawFace());
 
     b.add32(get_blend_info_key(pipeline));
 

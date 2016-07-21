@@ -433,7 +433,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 
     int                          passCount = 0;
     const GrUserStencilSettings* passes[3];
-    GrPipelineBuilder::DrawFace  drawFace[3];
+    GrDrawFace                   drawFace[3];
     bool                         reverse = false;
     bool                         lastPassIsBounds;
 
@@ -445,7 +445,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             passes[0] = userStencilSettings;
         }
         lastPassIsBounds = false;
-        drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
+        drawFace[0] = GrDrawFace::kBoth;
     } else {
         if (single_pass_shape(shape)) {
             passCount = 1;
@@ -454,7 +454,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             } else {
                 passes[0] = userStencilSettings;
             }
-            drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
+            drawFace[0] = GrDrawFace::kBoth;
             lastPassIsBounds = false;
         } else {
             switch (path.getFillType()) {
@@ -475,7 +475,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                             passes[1] = &gEOColorPass;
                         }
                     }
-                    drawFace[0] = drawFace[1] = GrPipelineBuilder::kBoth_DrawFace;
+                    drawFace[0] = drawFace[1] = GrDrawFace::kBoth;
                     break;
 
                 case SkPath::kInverseWinding_FillType:
@@ -489,7 +489,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                             passes[0] = &gWindStencilSeparateNoWrap;
                         }
                         passCount = 2;
-                        drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
+                        drawFace[0] = GrDrawFace::kBoth;
                     } else {
                         if (fStencilWrapOps) {
                             passes[0] = &gWindSingleStencilWithWrapInc;
@@ -499,8 +499,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                             passes[1] = &gWindSingleStencilNoWrapDec;
                         }
                         // which is cw and which is ccw is arbitrary.
-                        drawFace[0] = GrPipelineBuilder::kCW_DrawFace;
-                        drawFace[1] = GrPipelineBuilder::kCCW_DrawFace;
+                        drawFace[0] = GrDrawFace::kCW;
+                        drawFace[1] = GrDrawFace::kCCW;
                         passCount = 3;
                     }
                     if (stencilOnly) {
@@ -508,7 +508,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                         --passCount;
                     } else {
                         lastPassIsBounds = true;
-                        drawFace[passCount-1] = GrPipelineBuilder::kBoth_DrawFace;
+                        drawFace[passCount-1] = GrDrawFace::kBoth;
                         if (reverse) {
                             passes[passCount-1] = &gInvWindColorPass;
                         } else {
@@ -554,7 +554,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                     GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
                                                         &localMatrix));
 
-            SkASSERT(GrPipelineBuilder::kBoth_DrawFace == drawFace[p]);
+            SkASSERT(GrDrawFace::kBoth == drawFace[p]);
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);

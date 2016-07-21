@@ -10,6 +10,7 @@
 #include "GrBlurUtils.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrPipelineBuilder.h"
 #include "GrTextUtils.h"
 #include "SkColorFilter.h"
 #include "SkDrawFilter.h"

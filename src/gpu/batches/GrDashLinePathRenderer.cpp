@@ -7,8 +7,9 @@
 
 #include "GrDashLinePathRenderer.h"
 
-#include "GrGpu.h"
 #include "GrAuditTrail.h"
+#include "GrGpu.h"
+#include "GrPipelineBuilder.h"
 #include "effects/GrDashingEffect.h"
 
 bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
