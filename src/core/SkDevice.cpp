@@ -48,6 +48,7 @@ SkImageInfo SkBaseDevice::imageInfo() const {
     return SkImageInfo::MakeUnknown();
 }
 
+#ifdef SK_SUPPORT_LEGACY_ACCESSBITMAP
 const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
     const SkBitmap& bitmap = this->onAccessBitmap();
     if (changePixels) {
@@ -55,6 +56,7 @@ const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
     }
     return bitmap;
 }
+#endif
 
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info,
                                                          TileUsage tileUsage,

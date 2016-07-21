@@ -135,7 +135,11 @@ protected:
         altered. The config/width/height/rowbytes must remain unchanged.
         @return the device contents as a bitmap
     */
+#ifdef SK_SUPPORT_LEGACY_ACCESSBITMAP
     const SkBitmap& onAccessBitmap() override;
+#else
+    const SkBitmap& onAccessBitmap();
+#endif
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
     // just for subclasses, to assign a custom pixelref

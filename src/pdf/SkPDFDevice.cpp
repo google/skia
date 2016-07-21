@@ -658,8 +658,7 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFDocument* do
     , fDocument(doc) {
     SkASSERT(pageSize.width() > 0);
     SkASSERT(pageSize.height() > 0);
-    fLegacyBitmap.setInfo(
-            SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()));
+
     if (flip) {
         // Skia generally uses the top left as the origin but PDF
         // natively has the origin at the bottom left. This matrix
@@ -1402,7 +1401,8 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
 }
 
 SkImageInfo SkPDFDevice::imageInfo() const {
-    return fLegacyBitmap.info();
+    SkImageInfo info = SkImageInfo::MakeUnknown(fPageSize.width(), fPageSize.height());
+    return info;
 }
 
 void SkPDFDevice::onAttachToCanvas(SkCanvas* canvas) {

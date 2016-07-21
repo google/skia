@@ -81,7 +81,10 @@ public:
     GrDrawContext* accessDrawContext() override;
 
     SkImageInfo imageInfo() const override {
-        return fLegacyBitmap.info();
+        SkAlphaType at = fOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+        SkImageInfo info = fRenderTarget->surfacePriv().info(at).makeWH(fSize.fWidth, 
+                                                                        fSize.fHeight);
+        return info;
     }
 
     void drawPaint(const SkDraw&, const SkPaint& paint) override;
@@ -141,7 +144,6 @@ public:
     void onAttachToCanvas(SkCanvas* canvas) override;
     void onDetachFromCanvas() override;
 
-    const SkBitmap& onAccessBitmap() override;
     bool onAccessPixels(SkPixmap*) override;
 
     // for debugging purposes only
@@ -161,8 +163,7 @@ private:
     SkAutoTUnref<const SkClipStack> fClipStack;
     SkIPoint                        fClipOrigin;
     GrClipStackClip                 fClip;
-    // remove when our clients don't rely on accessBitmap()
-    SkBitmap                        fLegacyBitmap;
+    SkISize                         fSize;
     bool                            fOpaque;
 
     enum Flags {

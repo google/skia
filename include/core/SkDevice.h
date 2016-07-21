@@ -77,6 +77,7 @@ public:
         return this->imageInfo().isOpaque();
     }
 
+#ifdef SK_SUPPORT_LEGACY_ACCESSBITMAP
     /** Return the bitmap associated with this device. Call this each time you need
         to access the bitmap, as it notifies the subclass to perform any flushing
         etc. before you examine the pixels.
@@ -84,6 +85,7 @@ public:
         @return the device's bitmap
     */
     const SkBitmap& accessBitmap(bool changePixels);
+#endif
 
     bool writePixels(const SkImageInfo&, const void*, size_t rowBytes, int x, int y);
 
@@ -276,11 +278,16 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_ACCESSBITMAP
     /** Update as needed the pixel value in the bitmap, so that the caller can
         access the pixels directly.
         @return The device contents as a bitmap
     */
-    virtual const SkBitmap& onAccessBitmap() = 0;
+    virtual const SkBitmap& onAccessBitmap() {
+        SkASSERT(0);
+        return fLegacyBitmap;
+    }
+#endif
 
     virtual GrContext* context() const { return nullptr; }
 
@@ -386,6 +393,10 @@ private:
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;
     SkSurfaceProps fSurfaceProps;
+
+#ifdef SK_SUPPORT_LEGACY_ACCESSBITMAP
+    SkBitmap    fLegacyBitmap;
+#endif
 
 #ifdef SK_DEBUG
     bool        fAttachedToCanvas;

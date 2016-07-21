@@ -182,13 +182,8 @@ SkGpuDevice::SkGpuDevice(sk_sp<GrDrawContext> drawContext, int width, int height
     , fContext(SkRef(drawContext->accessRenderTarget()->getContext()))
     , fRenderTarget(drawContext->renderTarget())
     , fDrawContext(std::move(drawContext)) {
+    fSize.set(width, height);
     fOpaque = SkToBool(flags & kIsOpaque_Flag);
-
-    SkAlphaType at = fOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    SkImageInfo info = fRenderTarget->surfacePriv().info(at).makeWH(width, height);
-    SkPixelRef* pr = new SkGrPixelRef(info, fRenderTarget.get());
-    fLegacyBitmap.setInfo(info);
-    fLegacyBitmap.setPixelRef(pr)->unref();
 
     if (flags & kNeedClear_Flag) {
         this->clearAll();
@@ -284,23 +279,11 @@ bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, siz
     }
     fRenderTarget->writePixels(x, y, info.width(), info.height(), config, pixels, rowBytes, flags);
 
-    // need to bump our genID for compatibility with clients that "know" we have a bitmap
-    fLegacyBitmap.notifyPixelsChanged();
-
     return true;
-}
-
-const SkBitmap& SkGpuDevice::onAccessBitmap() {
-    ASSERT_SINGLE_OWNER
-    return fLegacyBitmap;
 }
 
 bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
     ASSERT_SINGLE_OWNER
-    // For compatibility with clients the know we're backed w/ a bitmap, and want to inspect its
-    // genID. When we can hide/remove that fact, we can eliminate this call to notify.
-    // ... ugh.
-    fLegacyBitmap.notifyPixelsChanged();
     return false;
 }
 
@@ -369,14 +352,6 @@ void SkGpuDevice::replaceDrawContext(bool shouldRetainContent) {
     SkASSERT(fDrawContext->accessRenderTarget() != newDC->accessRenderTarget());
 
     fRenderTarget = newDC->renderTarget();
-
-#ifdef SK_DEBUG
-    SkImageInfo info = fRenderTarget->surfacePriv().info(fOpaque ? kOpaque_SkAlphaType :
-                                                                   kPremul_SkAlphaType);
-    SkASSERT(info == fLegacyBitmap.info());
-#endif
-    SkPixelRef* pr = new SkGrPixelRef(fLegacyBitmap.info(), fRenderTarget.get());
-    fLegacyBitmap.setPixelRef(pr)->unref();
 
     fDrawContext = newDC;
 }

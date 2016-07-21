@@ -55,7 +55,6 @@ protected:
 
     void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
-    const SkBitmap& onAccessBitmap() override;
 
 private:
     SkSVGDevice(const SkISize& size, SkXMLWriter* writer);
@@ -69,7 +68,7 @@ private:
     SkXMLWriter*                  fWriter;
     SkAutoTDelete<AutoElement>    fRootElement;
     SkAutoTDelete<ResourceBucket> fResourceBucket;
-    SkBitmap                      fLegacyBitmap;
+    SkISize                       fSize;
 
     typedef SkBaseDevice INHERITED;
 };

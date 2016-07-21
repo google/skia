@@ -34,8 +34,6 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
         case SkSurface::kDiscardWrite_BackendHandleAccess:
             // for now we don't special-case on Discard, but we may in the future.
             surface->notifyContentWillChange(SkSurface::kRetain_ContentChangeMode);
-            // legacy: need to dirty the bitmap's genID in our device (curse it)
-            surface->getDevice()->accessBitmap(false).notifyPixelsChanged();
             break;
     }
 

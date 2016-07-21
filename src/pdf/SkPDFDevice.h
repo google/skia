@@ -193,10 +193,6 @@ public:
     };
 
 protected:
-    const SkBitmap& onAccessBitmap() override {
-        return fLegacyBitmap;
-    }
-
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
     void drawAnnotation(const SkDraw&, const SkRect&, const char key[], SkData* value) override;
@@ -263,8 +259,6 @@ private:
     const SkClipStack* fClipStack;
 
     SkScalar fRasterDpi;
-
-    SkBitmap fLegacyBitmap;
 
     SkPDFDocument* fDocument;
     ////////////////////////////////////////////////////////////////////////////
