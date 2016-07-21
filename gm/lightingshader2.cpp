@@ -38,7 +38,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(kGMSize, kGMSize);
+        return SkISize::Make(600, 740);
     }
 
     void onOnceBeforeDraw() override {
@@ -214,7 +214,6 @@ protected:
 
 private:
     static const int kTexSize = 96;
-    static const int kGMSize  = 512;
 
     sk_sp<SkShader> fOpaqueDiffuse;
     sk_sp<SkShader> fTranslucentDiffuse;
