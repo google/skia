@@ -3,9 +3,7 @@ use_relative_paths = True
 # Dependencies on outside packages.
 #
 deps = {
-  "build":       "https://chromium.googlesource.com/chromium/src/build.git@c3550298c508d10c6281794de126223a38359249",
   "buildtools":  "https://chromium.googlesource.com/chromium/buildtools.git@60f7f9a8b421ebf9a46041dfa2ff11c0fe59c582",
-  "tools/clang": "https://chromium.googlesource.com/chromium/src/tools/clang.git@ea64c667cd841b2c3268bd7dfd223269f3ea23ba",
 
   "common": "https://skia.googlesource.com/common.git@c282fe0b6e392b14f88d647cbd86e1a3ef5498e0",
 
@@ -65,5 +63,34 @@ deps_os = {
     "third_party/externals/llvm/projects/libcxxabi": "https://llvm.googlesource.com/libcxxabi@release_38",
   }
 }
+
+hooks = [{
+    'pattern': '.',
+    'action': ['download_from_google_storage',
+               '--quiet',
+               '--no_resume',
+               '--no_auth',
+               '--bucket', 'chromium-gn',
+               '--platform=linux*',
+               '-s', 'skia/buildtools/linux64/gn.sha1'],
+},{
+    'pattern': '.',
+    'action': ['download_from_google_storage',
+               '--quiet',
+               '--no_resume',
+               '--no_auth',
+               '--bucket', 'chromium-gn',
+               '--platform=darwin',
+               '-s', 'skia/buildtools/mac/gn.sha1'],
+},{
+    'pattern': '.',
+    'action': ['download_from_google_storage',
+               '--quiet',
+               '--no_resume',
+               '--no_auth',
+               '--bucket', 'chromium-gn',
+               '--platform=win32',
+               '-s', 'skia/buildtools/win/gn.sha1'],
+}]
 
 recursedeps = [ "common" ]

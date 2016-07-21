@@ -9,13 +9,5 @@ template("third_party") {
 
     # Warnings are just noise if we're not maintaining the code.
     cflags = [ "-w" ]
-
-    # Chrome's GN environment sets up a bunch of default configs we don't need/want here.
-    configs -= [
-      "//build/config/clang:extra_warnings",
-      "//build/config/clang:find_bad_constructs",
-      "//build/config/compiler:chromium_code",
-      "//build/config:feature_flags",
-    ]
   }
 }

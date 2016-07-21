@@ -1,0 +1,69 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# It's best to keep the names and defaults of is_foo flags consistent with Chrome.
+
+declare_args() {
+  is_debug = true
+  is_component_build = false
+}
+
+# Platform detection
+if (target_os == "") {
+  target_os = host_os
+}
+if (current_os == "") {
+  current_os = target_os
+}
+
+is_android = current_os == "android"
+is_fuchsia = current_os == "fuchsia"
+is_ios = current_os == "ios"
+is_linux = current_os == "linux"
+is_mac = current_os == "mac"
+is_win = current_os == "win"
+
+is_posix = !is_win
+
+# A component is either a source_set or a shared_library.
+template("component") {
+  _component_mode = "source_set"
+  if (is_component_build) {
+    _component_mode = "shared_library"
+  }
+
+  target(_component_mode, target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+
+# Default configs
+_default_configs = [ "//gn:default" ]
+if (!is_debug) {
+  _default_configs += [ "//gn:release" ]
+}
+
+set_defaults("executable") {
+  configs = _default_configs + [ "//gn:executable" ]
+}
+
+set_defaults("source_set") {
+  configs = _default_configs
+}
+
+set_defaults("static_library") {
+  configs = _default_configs
+}
+
+set_defaults("shared_library") {
+  configs = _default_configs
+}
+
+set_defaults("component") {
+  configs = _default_configs
+}
+
+# For now, we support GCC-like toolchains, including Clang.
+set_default_toolchain("//gn:gcc_like")

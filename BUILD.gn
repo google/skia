@@ -51,16 +51,6 @@ config("skia_private") {
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
 config("skia_library") {
   visibility = [ ":*" ]
-
-  cflags = [
-    "-Winit-self",
-    "-Wpointer-arith",
-    "-Wsign-compare",
-    "-Wvla",
-    "-fstrict-aliasing",
-  ]
-  cflags_cc = [ "-Wnon-virtual-dtor" ]
-
   defines = [ "SKIA_IMPLEMENTATION=1" ]
 }
 
@@ -70,21 +60,7 @@ skia_library_configs = [
   ":skia_library",
 ]
 
-if (!defined(is_fuchsia)) {
-  is_fuchsia = current_os == "fuchsia"
-}
-
-unwanted_configs = []
-
-if (!is_fuchsia) {
-  # Chrome's GN environment is mostly helpful, but a couple default configs tend to get in the way.
-  unwanted_configs += [
-    "//build/config/clang:find_bad_constructs",  # Chrome style checks.
-    "//build/config:feature_flags",  # A bunch of #defines we don't care about.
-  ]
-}
-
-core_gypi = exec_script("//build/gypi_to_gn.py",
+core_gypi = exec_script("gn/gypi_to_gn.py",
                         [
                           rebase_path("gyp/core.gypi"),
                           "--replace=<(skia_include_path)=include",
@@ -93,7 +69,7 @@ core_gypi = exec_script("//build/gypi_to_gn.py",
                         "scope",
                         [ "gyp/core.gypi" ])
 
-effects_gypi = exec_script("//build/gypi_to_gn.py",
+effects_gypi = exec_script("gn/gypi_to_gn.py",
                            [
                              rebase_path("gyp/effects.gypi"),
                              "--replace=<(skia_include_path)=include",
@@ -102,7 +78,7 @@ effects_gypi = exec_script("//build/gypi_to_gn.py",
                            "scope",
                            [ "gyp/effects.gypi" ])
 
-gpu_gypi = exec_script("//build/gypi_to_gn.py",
+gpu_gypi = exec_script("gn/gypi_to_gn.py",
                        [
                          rebase_path("gyp/gpu.gypi"),
                          "--replace=<(skia_include_path)=include",
@@ -111,7 +87,7 @@ gpu_gypi = exec_script("//build/gypi_to_gn.py",
                        "scope",
                        [ "gyp/gpu.gypi" ])
 
-opts_gypi = exec_script("//build/gypi_to_gn.py",
+opts_gypi = exec_script("gn/gypi_to_gn.py",
                         [
                           rebase_path("gyp/opts.gypi"),
                           "--replace=<(skia_include_path)=include",
@@ -120,7 +96,7 @@ opts_gypi = exec_script("//build/gypi_to_gn.py",
                         "scope",
                         [ "gyp/opts.gypi" ])
 
-pdf_gypi = exec_script("//build/gypi_to_gn.py",
+pdf_gypi = exec_script("gn/gypi_to_gn.py",
                        [
                          rebase_path("gyp/pdf.gypi"),
                          "--replace=<(skia_include_path)=include",
@@ -129,7 +105,7 @@ pdf_gypi = exec_script("//build/gypi_to_gn.py",
                        "scope",
                        [ "gyp/pdf.gypi" ])
 
-utils_gypi = exec_script("//build/gypi_to_gn.py",
+utils_gypi = exec_script("gn/gypi_to_gn.py",
                          [
                            rebase_path("gyp/utils.gypi"),
                            "--replace=<(skia_include_path)=include",
@@ -140,7 +116,6 @@ utils_gypi = exec_script("//build/gypi_to_gn.py",
 
 source_set("opts_ssse3") {
   configs += skia_library_configs
-  configs -= unwanted_configs
 
   sources = opts_gypi.ssse3_sources
   cflags = [ "-mssse3" ]
@@ -148,7 +123,6 @@ source_set("opts_ssse3") {
 
 source_set("opts_sse41") {
   configs += skia_library_configs
-  configs -= unwanted_configs
 
   sources = opts_gypi.sse41_sources
   cflags = [ "-msse4.1" ]
@@ -156,7 +130,6 @@ source_set("opts_sse41") {
 
 source_set("opts_avx") {
   configs += skia_library_configs
-  configs -= unwanted_configs
 
   sources = opts_gypi.avx_sources
   cflags = [ "-mavx" ]
@@ -165,7 +138,6 @@ source_set("opts_avx") {
 component("skia") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
-  configs -= unwanted_configs
 
   deps = [
     ":opts_avx",
@@ -174,7 +146,7 @@ component("skia") {
     "//third_party/zlib",
   ]
 
-  libs = []
+  libs = [ "pthread" ]
 
   sources = []
   sources += core_gypi.sources
@@ -254,8 +226,6 @@ component("skia") {
 }
 
 executable("example") {
-  configs -= unwanted_configs
-
   sources = [
     "cmake/example.cpp",
   ]
