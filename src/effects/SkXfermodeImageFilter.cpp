@@ -252,9 +252,11 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
     drawContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(bounds));
 
+    // TODO: Get the colorSpace from the drawContext (once it has one)
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture());
+                                       drawContext->asTexture(),
+                                       sk_ref_sp(source->getColorSpace()));
 }
 
 #endif

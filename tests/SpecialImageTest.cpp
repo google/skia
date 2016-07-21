@@ -187,6 +187,7 @@ static void test_texture_backed(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, gpuBacked->uniqueID() == orig->uniqueID());
     REPORTER_ASSERT(reporter, gpuBacked->subset().width() == orig->subset().width() &&
                               gpuBacked->subset().height() == orig->subset().height());
+    REPORTER_ASSERT(reporter, gpuBacked->getColorSpace() == orig->getColorSpace());
 }
 
 // Test out the SkSpecialImage::makeTextureImage entry point
@@ -236,7 +237,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
                                                                 SkIRect::MakeWH(kFullSize,
                                                                                 kFullSize),
                                                                 kNeedNewImageUniqueID_SpecialImage,
-                                                                std::move(texture)));
+                                                                std::move(texture), nullptr));
 
         {
             sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(context));
@@ -272,7 +273,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     sk_sp<SkSpecialImage> fullSImg(SkSpecialImage::MakeFromGpu(
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
-                                                            texture));
+                                                            texture, nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
@@ -280,7 +281,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
         sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromGpu(
                                                                subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                               texture));
+                                                               texture, nullptr));
         test_image(subSImg1, reporter, context, true, kPad, kFullSize);
     }
 

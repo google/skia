@@ -337,7 +337,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds);
+        return DrawWithFP(context, std::move(fp), bounds, sk_ref_sp(input->getColorSpace()));
     }
 #endif
 

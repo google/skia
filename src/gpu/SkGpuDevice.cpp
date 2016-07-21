@@ -1240,7 +1240,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     sk_sp<SkSpecialImage> srcImg(SkSpecialImage::MakeFromGpu(srcRect,
                                                              bitmap.getGenerationID(),
-                                                             std::move(texture), 
+                                                             std::move(texture),
+                                                             sk_ref_sp(bitmap.colorSpace()),
                                                              &this->surfaceProps()));
 
     this->drawSpecial(draw, srcImg.get(), left, top, paint);
@@ -1406,7 +1407,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
 
     return SkSpecialImage::MakeFromGpu(bitmap.bounds(),
                                        bitmap.getGenerationID(),
-                                       sk_ref_sp(texture), 
+                                       sk_ref_sp(texture),
+                                       sk_ref_sp(bitmap.colorSpace()),
                                        &this->surfaceProps());
 }
 
@@ -1417,7 +1419,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
 
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(image->width(), image->height()),
                                            image->uniqueID(),
-                                           sk_ref_sp(texture), 
+                                           sk_ref_sp(texture),
+                                           sk_ref_sp(as_IB(image)->onImageInfo().colorSpace()),
                                            &this->surfaceProps());
     } else if (image->peekPixels(&pm)) {
         SkBitmap bm;
@@ -1451,7 +1454,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
 
     return SkSpecialImage::MakeFromGpu(srcRect,
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       std::move(texture), 
+                                       std::move(texture),
+                                       sk_ref_sp(ii.colorSpace()),
                                        &this->surfaceProps());
 }
 

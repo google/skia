@@ -137,9 +137,11 @@ public:
     ~SkSpecialSurface_Gpu() override { }
 
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
+        // TODO: Supply color space from fDrawContext, once it's present
         sk_sp<SkSpecialImage> tmp(SkSpecialImage::MakeFromGpu(this->subset(),
                                                               kNeedNewImageUniqueID_SpecialImage,
                                                               fDrawContext->asTexture(),
+                                                              nullptr,
                                                               &this->props()));
         fDrawContext = nullptr;
         return tmp;

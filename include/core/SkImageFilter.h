@@ -11,6 +11,7 @@
 #include "../private/SkTArray.h"
 #include "../private/SkTemplates.h"
 #include "../private/SkMutex.h"
+#include "SkColorSpace.h"
 #include "SkFilterQuality.h"
 #include "SkFlattenable.h"
 #include "SkMatrix.h"
@@ -131,7 +132,8 @@ public:
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> DrawWithFP(GrContext* context, 
                                             sk_sp<GrFragmentProcessor> fp,
-                                            const SkIRect& bounds);
+                                            const SkIRect& bounds,
+                                            sk_sp<SkColorSpace> colorSpace);
 #endif
 
     /**

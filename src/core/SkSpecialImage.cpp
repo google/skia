@@ -45,6 +45,8 @@ public:
 
     virtual GrTexture* onPeekTexture() const { return nullptr; }
 
+    virtual SkColorSpace* onGetColorSpace() const = 0;
+
 #if SK_SUPPORT_GPU
     virtual sk_sp<GrTexture> onAsTextureRef(GrContext* context) const = 0;
 #endif
@@ -111,7 +113,8 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(resultTex->width(), resultTex->height()),
                                        this->uniqueID(),
-                                       resultTex, &this->props(), at);
+                                       resultTex, sk_ref_sp(this->getColorSpace()), &this->props(),
+                                       at);
 #else
     return nullptr;
 #endif
@@ -142,6 +145,10 @@ GrContext* SkSpecialImage::getContext() const {
     }
 #endif
     return nullptr;
+}
+
+SkColorSpace* SkSpecialImage::getColorSpace() const {
+    return as_SIB(this)->onGetColorSpace();
 }
 
 #if SK_SUPPORT_GPU
@@ -187,7 +194,8 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
 
 #if SK_SUPPORT_GPU
     if (GrTexture* texture = as_IB(image)->peekTexture()) {
-        return MakeFromGpu(subset, image->uniqueID(), sk_ref_sp(texture), props);
+        return MakeFromGpu(subset, image->uniqueID(), sk_ref_sp(texture),
+                           sk_ref_sp(as_IB(image)->onImageInfo().colorSpace()), props);
     } else
 #endif
     {
@@ -228,6 +236,10 @@ public:
     bool onGetROPixels(SkBitmap* bm) const override {
         *bm = fBitmap;
         return true;
+    }
+
+    SkColorSpace* onGetColorSpace() const override {
+        return fBitmap.colorSpace();
     }
 
 #if SK_SUPPORT_GPU
@@ -311,10 +323,11 @@ class SkSpecialImage_Gpu : public SkSpecialImage_Base {
 public:
     SkSpecialImage_Gpu(const SkIRect& subset,
                        uint32_t uniqueID, sk_sp<GrTexture> tex, SkAlphaType at,
-                       const SkSurfaceProps* props)
+                       sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props)
         : INHERITED(subset, uniqueID, props)
         , fTexture(std::move(tex))
         , fAlphaType(at)
+        , fColorSpace(std::move(colorSpace))
         , fAddedRasterVersionToCache(false) {
     }
 
@@ -334,10 +347,9 @@ public:
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
-        // TODO: Supply correct color space after we're storing it here
         auto img = sk_sp<SkImage>(new SkImage_Gpu(fTexture->width(), fTexture->height(),
                                                   this->uniqueID(), fAlphaType, fTexture.get(),
-                                                  nullptr, SkBudgeted::kNo));
+                                                  fColorSpace, SkBudgeted::kNo));
 
         canvas->drawImageRect(img, this->subset(),
                                dst, paint, SkCanvas::kStrict_SrcRectConstraint);
@@ -357,7 +369,8 @@ public:
 
         SkImageInfo info = SkImageInfo::MakeN32(this->width(), this->height(),
                                                 this->isOpaque() ? kOpaque_SkAlphaType
-                                                                 : kPremul_SkAlphaType);
+                                                                 : kPremul_SkAlphaType,
+                                                fColorSpace);
 
         if (!dst->tryAllocPixels(info)) {
             return false;
@@ -374,10 +387,14 @@ public:
         return true;
     }
 
+    SkColorSpace* onGetColorSpace() const override {
+        return fColorSpace.get();
+    }
+
     bool getBitmapDeprecated(SkBitmap* result) const override {
         const SkImageInfo info = GrMakeInfoFromTexture(fTexture.get(),
                                                        this->width(), this->height(),
-                                                       this->isOpaque());
+                                                       this->isOpaque(), fColorSpace);
         if (!result->setInfo(info)) {
             return false;
         }
@@ -405,6 +422,7 @@ public:
         return SkSpecialImage::MakeFromGpu(subset,
                                            this->uniqueID(),
                                            fTexture,
+                                           fColorSpace,
                                            &this->props(),
                                            fAlphaType);
     }
@@ -414,10 +432,10 @@ public:
             fTexture->width() == subset.width() &&
             fTexture->height() == subset.height()) {
             // The existing GrTexture is already tight so reuse it in the SkImage
-            // TODO: Supply correct color space after we're storing it here
             return sk_make_sp<SkImage_Gpu>(fTexture->width(), fTexture->height(),
                                            kNeedNewImageUniqueID,
-                                           fAlphaType, fTexture.get(), nullptr, SkBudgeted::kYes);
+                                           fAlphaType, fTexture.get(), fColorSpace,
+                                           SkBudgeted::kYes);
         }
 
         GrContext* ctx = fTexture->getContext();
@@ -430,9 +448,8 @@ public:
             return nullptr;
         }
         ctx->copySurface(subTx.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
-        // TODO: Supply correct color space after we're storing it here
         return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                       fAlphaType, subTx.get(), nullptr, SkBudgeted::kYes);
+                                       fAlphaType, subTx.get(), fColorSpace, SkBudgeted::kYes);
     }
 
     sk_sp<SkSurface> onMakeTightSurface(const SkImageInfo& info) const override {
@@ -442,6 +459,7 @@ public:
 private:
     sk_sp<GrTexture>        fTexture;
     const SkAlphaType       fAlphaType;
+    sk_sp<SkColorSpace>     fColorSpace;
     mutable SkAtomic<bool>  fAddedRasterVersionToCache;
 
     typedef SkSpecialImage_Base INHERITED;
@@ -450,10 +468,12 @@ private:
 sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(const SkIRect& subset,
                                                   uint32_t uniqueID,
                                                   sk_sp<GrTexture> tex,
+                                                  sk_sp<SkColorSpace> colorSpace,
                                                   const SkSurfaceProps* props,
                                                   SkAlphaType at) {
     SkASSERT(rect_fits(subset, tex->width(), tex->height()));
-    return sk_make_sp<SkSpecialImage_Gpu>(subset, uniqueID, std::move(tex), at, props);
+    return sk_make_sp<SkSpecialImage_Gpu>(subset, uniqueID, std::move(tex), at,
+                                          std::move(colorSpace), props);
 }
 
 #endif

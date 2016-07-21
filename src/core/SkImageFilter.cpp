@@ -275,7 +275,8 @@ bool SkImageFilter::canComputeFastBounds() const {
 #if SK_SUPPORT_GPU
 sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
                                                 sk_sp<GrFragmentProcessor> fp,
-                                                const SkIRect& bounds) {
+                                                const SkIRect& bounds,
+                                                sk_sp<SkColorSpace> colorSpace) {
     GrPaint paint;
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
@@ -293,8 +294,9 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     GrFixedClip clip(dstIRect);
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
+    // TODO: Get the colorSpace from the drawContext (once it has one)
     return SkSpecialImage::MakeFromGpu(dstIRect, kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture());
+                                       drawContext->asTexture(), std::move(colorSpace));
 }
 #endif
 

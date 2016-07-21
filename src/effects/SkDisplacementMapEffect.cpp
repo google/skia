@@ -346,9 +346,11 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
+        // TODO: Get the colorSpace from the drawContext (once it has one)
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           drawContext->asTexture());
+                                           drawContext->asTexture(),
+                                           sk_ref_sp(source->getColorSpace()));
     }
 #endif
 

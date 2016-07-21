@@ -180,7 +180,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds);
+        return DrawWithFP(context, std::move(fp), bounds, sk_ref_sp(input->getColorSpace()));
     }
 #endif
 

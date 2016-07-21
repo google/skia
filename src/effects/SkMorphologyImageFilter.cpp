@@ -519,9 +519,11 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
         srcTexture = dstDrawContext->asTexture();
     }
 
+    // TODO: Get the colorSpace from the drawContext (once it has one)
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(rect.width(), rect.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       std::move(srcTexture), &input->props());
+                                       std::move(srcTexture), sk_ref_sp(input->getColorSpace()),
+                                       &input->props());
 }
 #endif
 

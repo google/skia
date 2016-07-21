@@ -132,9 +132,11 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
             return nullptr;
         }
 
+        // TODO: Get the colorSpace from the drawContext (once it has one)
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           drawContext->asTexture(), &source->props());
+                                           drawContext->asTexture(),
+                                           sk_ref_sp(input->getColorSpace()), &source->props());
     }
 #endif
 

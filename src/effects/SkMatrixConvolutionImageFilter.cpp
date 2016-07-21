@@ -328,7 +328,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds);
+        return DrawWithFP(context, std::move(fp), bounds, sk_ref_sp(input->getColorSpace()));
     }
 #endif
 
