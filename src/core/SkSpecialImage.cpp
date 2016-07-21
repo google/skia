@@ -20,7 +20,6 @@
 #include "GrTexture.h"
 #include "GrTextureParams.h"
 #include "SkGr.h"
-#include "SkGrPixelRef.h"
 #include "SkGrPriv.h"
 #endif
 
@@ -50,9 +49,6 @@ public:
 #if SK_SUPPORT_GPU
     virtual sk_sp<GrTexture> onAsTextureRef(GrContext* context) const = 0;
 #endif
-
-    // Delete this entry point ASAP (see skbug.com/4965)
-    virtual bool getBitmapDeprecated(SkBitmap* result) const = 0;
 
     virtual sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const = 0;
 
@@ -255,11 +251,6 @@ public:
     }
 #endif
 
-    bool getBitmapDeprecated(SkBitmap* result) const override {
-        *result = fBitmap;
-        return true;
-    }
-
     sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const override {
         return SkSpecialSurface::MakeRaster(info, nullptr);
     }
@@ -389,21 +380,6 @@ public:
 
     SkColorSpace* onGetColorSpace() const override {
         return fColorSpace.get();
-    }
-
-    bool getBitmapDeprecated(SkBitmap* result) const override {
-        const SkImageInfo info = GrMakeInfoFromTexture(fTexture.get(),
-                                                       this->width(), this->height(),
-                                                       this->isOpaque(), fColorSpace);
-        if (!result->setInfo(info)) {
-            return false;
-        }
-
-        const SkImageInfo prInfo = info.makeWH(fTexture->width(), fTexture->height());
-
-        SkAutoTUnref<SkGrPixelRef> pixelRef(new SkGrPixelRef(prInfo, fTexture.get()));
-        result->setPixelRef(pixelRef, this->subset().fLeft, this->subset().fTop);
-        return true;
     }
 
     sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const override {

@@ -434,8 +434,6 @@
       '<(skia_src_path)/gpu/SkGpuDevice.h',
       '<(skia_src_path)/gpu/SkGpuDevice_drawTexture.cpp',
       '<(skia_src_path)/gpu/SkGr.cpp',
-      '<(skia_src_path)/gpu/SkGrPixelRef.cpp',
-      '<(skia_src_path)/gpu/SkGrPixelRef.h',
       '<(skia_src_path)/gpu/SkGrPriv.h',
 
       '<(skia_src_path)/image/SkImage_Gpu.h',

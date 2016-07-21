@@ -61,12 +61,6 @@ public:
 
     virtual bool onIsLazyGenerated() const { return false; }
 
-    // Return a bitmap suitable for passing to image-filters
-    // For now, that means wrapping textures into SkGrPixelRefs...
-    virtual bool asBitmapForImageFilters(SkBitmap* bitmap) const {
-        return this->getROPixels(bitmap, kAllow_CachingHint);
-    }
-
     // Call when this image is part of the key to a resourcecache entry. This allows the cache
     // to know automatically those entries can be purged when this SkImage deleted.
     void notifyAddedToCache() const {

@@ -24,7 +24,6 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkErrorInternals.h"
-#include "SkGrPixelRef.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
@@ -756,13 +755,6 @@ SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque,
         ct = kUnknown_SkColorType;
     }
     return SkImageInfo::Make(w, h, ct, at, std::move(colorSpace));
-}
-
-
-void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque, SkBitmap* dst) {
-    const SkImageInfo info = GrMakeInfoFromTexture(src, w, h, isOpaque);
-    dst->setInfo(info);
-    dst->setPixelRef(new SkGrPixelRef(info, src))->unref();
 }
 
 GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,

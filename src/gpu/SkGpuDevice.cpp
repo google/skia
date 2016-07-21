@@ -19,7 +19,6 @@
 #include "SkErrorInternals.h"
 #include "SkGlyphCache.h"
 #include "SkGr.h"
-#include "SkGrPixelRef.h"
 #include "SkGrPriv.h"
 #include "SkImage_Base.h"
 #include "SkImageCacherator.h"

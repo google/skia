@@ -13,7 +13,6 @@
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
 #include "SkBitmapCache.h"
-#include "SkGrPixelRef.h"
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
 #include "SkMipMap.h"
@@ -71,13 +70,6 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
         SkBitmapCache::Add(this->uniqueID(), *dst);
         fAddedRasterVersionToCache.store(true);
     }
-    return true;
-}
-
-bool SkImage_Gpu::asBitmapForImageFilters(SkBitmap* bitmap) const {
-    bitmap->setInfo(make_info(this->width(), this->height(), this->isOpaque(), fColorSpace));
-    bitmap->setPixelRef(new SkGrPixelRef(bitmap->info(), fTexture))->unref();
-    bitmap->pixelRef()->setImmutableWithID(this->uniqueID());
     return true;
 }
 

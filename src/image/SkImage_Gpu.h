@@ -54,8 +54,6 @@ public:
         return SkSurface::MakeRenderTarget(fTexture->getContext(), SkBudgeted::kNo, info);
     }
 
-    bool asBitmapForImageFilters(SkBitmap* bitmap) const override;
-
 private:
     SkAutoTUnref<GrTexture>     fTexture;
     const SkAlphaType           fAlphaType;
