@@ -13,10 +13,8 @@ import subprocess
 
 GS_GM_BUCKET = 'chromium-skia-gm'
 
-GS_SUBDIR_TMPL_SK_IMAGE = 'skimage/v%s'
 GS_SUBDIR_TMPL_SKP = 'playback_%s/skps'
 
-VERSION_FILE_SK_IMAGE = 'SK_IMAGE_VERSION'
 VERSION_FILE_SKP = 'SKP_VERSION'
 
 
