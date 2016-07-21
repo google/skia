@@ -21,19 +21,21 @@ ninja -C out/Release dm nanobench ; and ./out/Release/dm --match Blend_opts ; an
 
 namespace SK_OPTS_NS {
 
-static inline void srcover_srgb8888_srgb_1(uint32_t* dst, const uint32_t pixel) {
-    if ((~pixel & 0xFF000000) == 0) {
-        *dst = pixel;
-    } else if ((pixel & 0xFF000000) != 0) {
-        srcover_blend_srgb8888_srgb_1(dst, srgb_to_linear(to_4f(pixel)));
+static inline void srcover_srgb_srgb_1(uint32_t* dst, uint32_t src) {
+    if (src >= 0xFF000000) {
+        *dst = src;
+        return;
     }
+    auto d = Sk4f_fromS32(*dst),
+         s = Sk4f_fromS32( src);
+    *dst = Sk4f_toS32(s + d * (1.0f - s[3]));
 }
 
 static inline void srcover_srgb_srgb_4(uint32_t* dst, const uint32_t* src) {
-    srcover_srgb8888_srgb_1(dst++, *src++);
-    srcover_srgb8888_srgb_1(dst++, *src++);
-    srcover_srgb8888_srgb_1(dst++, *src++);
-    srcover_srgb8888_srgb_1(dst, *src);
+    srcover_srgb_srgb_1(dst++, *src++);
+    srcover_srgb_srgb_1(dst++, *src++);
+    srcover_srgb_srgb_1(dst++, *src++);
+    srcover_srgb_srgb_1(dst  , *src  );
 }
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
@@ -87,7 +89,7 @@ static inline void srcover_srgb_srgb_4(uint32_t* dst, const uint32_t* src) {
 
                 count = count & 3;
                 while (count-- > 0) {
-                    srcover_srgb8888_srgb_1(dst++, *src++);
+                    srcover_srgb_srgb_1(dst++, *src++);
                 }
             }
         }
@@ -159,7 +161,7 @@ static inline void srcover_srgb_srgb_4(uint32_t* dst, const uint32_t* src) {
 
                 count = count & 3;
                 while (count-- > 0) {
-                    srcover_srgb8888_srgb_1(dst++, *src++);
+                    srcover_srgb_srgb_1(dst++, *src++);
                 }
             }
         }
@@ -172,7 +174,7 @@ static inline void srcover_srgb_srgb_4(uint32_t* dst, const uint32_t* src) {
             int n = SkTMin(ndst, nsrc);
 
             for (int i = 0; i < n; i++) {
-                srcover_srgb8888_srgb_1(dst++, src[i]);
+                srcover_srgb_srgb_1(dst++, src[i]);
             }
             ndst -= n;
         }

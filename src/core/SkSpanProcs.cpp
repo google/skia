@@ -22,7 +22,7 @@ static void load_l32(const SkPixmap& src, int x, int y, SkPM4f span[], int count
     SkASSERT(src.addr32(x + count - 1, y));
 
     for (int i = 0; i < count; ++i) {
-        (to_4f_rgba(addr[i]) * Sk4f(1.0f/255)).store(span[i].fVec);
+        swizzle_rb_if_bgra(Sk4f_fromL32(addr[i])).store(span[i].fVec);
     }
 }
 
@@ -32,7 +32,7 @@ static void load_s32(const SkPixmap& src, int x, int y, SkPM4f span[], int count
     SkASSERT(src.addr32(x + count - 1, y));
 
     for (int i = 0; i < count; ++i) {
-        srgb_to_linear(to_4f_rgba(addr[i]) * Sk4f(1.0f/255)).store(span[i].fVec);
+        swizzle_rb_if_bgra(Sk4f_fromS32(addr[i])).store(span[i].fVec);
     }
 }
 

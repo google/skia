@@ -170,11 +170,10 @@ public:
     PixelConverter(const SkPixmap& srcPixmap) { }
 
     Sk4f toSk4f(Element pixel) const {
-        float gray = pixel * (1.0f/255.0f);
-        Sk4f result = Sk4f{gray, gray, gray, 1.0f};
-        return gammaType == kSRGB_SkGammaType
-               ? srgb_to_linear(result)
-               : result;
+        float gray = (gammaType == kSRGB_SkGammaType)
+            ? sk_linear_from_srgb[pixel]
+            : pixel * (1/255.0f);
+        return {gray, gray, gray, 1.0f};
     }
 };
 

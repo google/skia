@@ -53,13 +53,10 @@ void ramp<DstType::S32, ApplyPremul::False>(const Sk4f& c, const Sk4f& dc, SkPMC
     Sk4x4f        c4x = Sk4x4f::Transpose(c, c + dc, c + dc * 2, c + dc * 3);
 
     while (n >= 4) {
-        const Sk4x4f cx4s32 = {
-            c4x.r.rsqrt().invert(),
-            c4x.g.rsqrt().invert(),
-            c4x.b.rsqrt().invert(),
-            c4x.a
-        };
-        cx4s32.transpose((uint8_t*)dst);
+        ( sk_linear_to_srgb(c4x.r) <<  0
+        | sk_linear_to_srgb(c4x.g) <<  8
+        | sk_linear_to_srgb(c4x.b) << 16
+        | Sk4f_round(255.0f*c4x.a) << 24).store(dst);
 
         c4x.r += dc4x.r;
         c4x.g += dc4x.g;

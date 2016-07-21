@@ -19,13 +19,19 @@
 
 typedef void (*Blender)(uint32_t* dst, const uint32_t* const srcStart, int ndst, const int nsrc);
 
+static inline void srcover_srgb_srgb_1(uint32_t* dst, uint32_t src) {
+    auto d = Sk4f_fromS32(*dst),
+         s = Sk4f_fromS32( src);
+    *dst = Sk4f_toS32(s + d * (1.0f - s[3]));
+}
+
 static void brute_force_srcover_srgb_srgb(
     uint32_t* dst, const uint32_t* const src, int ndst, const int nsrc) {
     while (ndst > 0) {
         int n = SkTMin(ndst, nsrc);
 
         for (int i = 0; i < n; i++) {
-            srcover_blend_srgb8888_srgb_1(dst++, srgb_to_linear(to_4f(src[i])));
+            srcover_srgb_srgb_1(dst++, src[i]);
         }
         ndst -= n;
     }
@@ -63,6 +69,7 @@ static void test_blender(std::string resourceName, skiatest::Reporter* reporter)
     SkAutoTArray<uint32_t> testDst(width);
 
     for (int y = 0; y < pixmap.height(); y++) {
+        // TODO: zero is not the most interesting dst to test srcover...
         sk_bzero(correctDst.get(), width * sizeof(uint32_t));
         sk_bzero(testDst.get(), width * sizeof(uint32_t));
         brute_force_srcover_srgb_srgb(correctDst.get(), src, width, width);

@@ -126,7 +126,7 @@ struct SkPMColorAdaptor {
         return round(swizzle_rb_if_bgra(c4));
     }
     static Sk4f To4f(SkPMColor c) {
-        return to_4f(c) * Sk4f(1.0f/255);
+        return Sk4f_fromL32(c);
     }
 };
 void SkColorMatrixFilterRowMajor255::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
