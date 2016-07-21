@@ -192,11 +192,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     }
 
-#if 0 // Disabled due to https://bug.skia.org/4454
     fBindUniformLocationSupport = ctxInfo.hasExtension("GL_CHROMIUM_bind_uniform_location");
-#else
-    fBindUniformLocationSupport = false;
-#endif
 
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(3, 1) || ctxInfo.hasExtension("GL_ARB_texture_rectangle")) {
