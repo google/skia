@@ -558,7 +558,7 @@ private:
 
 bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                           const GrPaint& paint,
-                                          const GrUserStencilSettings* userStencilSettings,
+                                          const GrUserStencilSettings& userStencilSettings,
                                           const GrClip& clip,
                                           const SkMatrix& viewMatrix,
                                           const GrShape& shape,
@@ -579,7 +579,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
         } else {
-            passes[0] = userStencilSettings;
+            passes[0] = &userStencilSettings;
         }
         lastPassIsBounds = false;
     } else {
@@ -699,7 +699,7 @@ bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     return this->internalDrawPath(args.fDrawContext,
                                   *args.fPaint,
-                                  args.fUserStencilSettings,
+                                  *args.fUserStencilSettings,
                                   *args.fClip,
                                   *args.fViewMatrix,
                                   *shape,
@@ -716,7 +716,7 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     paint.setXPFactory(GrDisableColorXPFactory::Make());
     paint.setAntiAlias(args.fIsAA);
 
-    this->internalDrawPath(args.fDrawContext, paint, &GrUserStencilSettings::kUnused, *args.fClip,
+    this->internalDrawPath(args.fDrawContext, paint, GrUserStencilSettings::kUnused, *args.fClip,
                            *args.fViewMatrix, *args.fShape, true);
 }
 

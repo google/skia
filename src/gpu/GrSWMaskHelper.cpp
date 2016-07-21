@@ -160,7 +160,7 @@ GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider
 void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                                                GrDrawContext* drawContext,
                                                const GrPaint& paint,
-                                               const GrUserStencilSettings* userStencilSettings,
+                                               const GrUserStencilSettings& userStencilSettings,
                                                const GrClip& clip,
                                                const SkMatrix& viewMatrix,
                                                const SkIRect& rect) {
@@ -182,7 +182,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     maskMatrix.preTranslate(SkIntToScalar(-rect.fLeft), SkIntToScalar(-rect.fTop));
 
     GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
-    pipelineBuilder.setUserStencil(userStencilSettings);
+    pipelineBuilder.setUserStencil(&userStencilSettings);
 
     pipelineBuilder.addCoverageFragmentProcessor(
                          GrSimpleTextureEffect::Make(texture,

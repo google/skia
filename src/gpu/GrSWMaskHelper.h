@@ -87,7 +87,7 @@ public:
     static void DrawToTargetWithShapeMask(GrTexture* texture,
                                           GrDrawContext*,
                                           const GrPaint& paint,
-                                          const GrUserStencilSettings* userStencilSettings,
+                                          const GrUserStencilSettings& userStencilSettings,
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,
                                           const SkIRect& rect);

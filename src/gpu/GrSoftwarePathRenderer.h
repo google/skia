@@ -22,14 +22,14 @@ public:
 private:
     static void DrawNonAARect(GrDrawContext* drawContext,
                               const GrPaint& paint,
-                              const GrUserStencilSettings* userStencilSettings,
+                              const GrUserStencilSettings& userStencilSettings,
                               const GrClip& clip,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkMatrix& localMatrix);
     static void DrawAroundInvPath(GrDrawContext* drawContext,
                                   const GrPaint& paint,
-                                  const GrUserStencilSettings* userStencilSettings,
+                                  const GrUserStencilSettings& userStencilSettings,
                                   const GrClip& clip,
                                   const SkMatrix& viewMatrix,
                                   const SkIRect& devClipBounds,

@@ -413,7 +413,7 @@ private:
 
 bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                              const GrPaint& paint,
-                                             const GrUserStencilSettings* userStencilSettings,
+                                             const GrUserStencilSettings& userStencilSettings,
                                              const GrClip& clip,
                                              const SkMatrix& viewMatrix,
                                              const GrShape& shape,
@@ -442,7 +442,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
         } else {
-            passes[0] = userStencilSettings;
+            passes[0] = &userStencilSettings;
         }
         lastPassIsBounds = false;
         drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
@@ -452,7 +452,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
             } else {
-                passes[0] = userStencilSettings;
+                passes[0] = &userStencilSettings;
             }
             drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
             lastPassIsBounds = false;
@@ -591,7 +591,7 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
                               "GrDefaultPathRenderer::onDrawPath");
     return this->internalDrawPath(args.fDrawContext,
                                   *args.fPaint,
-                                  args.fUserStencilSettings,
+                                  *args.fUserStencilSettings,
                                   *args.fClip,
                                   *args.fViewMatrix,
                                   *args.fShape,
@@ -607,7 +607,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     paint.setXPFactory(GrDisableColorXPFactory::Make());
     paint.setAntiAlias(args.fIsAA);
 
-    this->internalDrawPath(args.fDrawContext, paint, &GrUserStencilSettings::kUnused, *args.fClip,
+    this->internalDrawPath(args.fDrawContext, paint, GrUserStencilSettings::kUnused, *args.fClip,
                            *args.fViewMatrix, *args.fShape, true);
 }
 

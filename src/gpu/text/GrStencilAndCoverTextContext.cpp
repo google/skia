@@ -136,7 +136,8 @@ void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrDrawContext
 
 void GrStencilAndCoverTextContext::uncachedDrawTextBlob(GrContext* context,
                                                         GrDrawContext* dc,
-                                                        const GrClip& clip, const SkPaint& skPaint,
+                                                        const GrClip& clip,
+                                                        const SkPaint& skPaint,
                                                         const SkMatrix& viewMatrix,
                                                         const SkSurfaceProps& props,
                                                         const SkTextBlob* blob,
