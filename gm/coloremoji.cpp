@@ -77,16 +77,19 @@ protected:
         const char* text = emojiFont.text;
 
         // draw text at different point sizes
-        const int textSize[] = { 10, 30, 50, };
-        const int textYOffset[] = { 10, 40, 100, };
-        SkASSERT(sizeof(textSize) == sizeof(textYOffset));
-        size_t y_offset = 0;
-        for (size_t y = 0; y < sizeof(textSize) / sizeof(int); y++) {
-            paint.setTextSize(SkIntToScalar(textSize[y]));
-            canvas->drawText(text, strlen(text), 10, SkIntToScalar(textYOffset[y]), paint);
-            y_offset += textYOffset[y];
+        static constexpr SkScalar textSizes[] = { 10, 30, 50, };
+        SkPaint::FontMetrics metrics;
+        SkScalar y = 0;
+        for (const SkScalar& textSize : textSizes) {
+            paint.setTextSize(textSize);
+            paint.getFontMetrics(&metrics);
+            y += -metrics.fAscent;
+            canvas->drawText(text, strlen(text), 10, y, paint);
+            y += metrics.fDescent + metrics.fLeading;
         }
 
+        y += 20;
+        SkScalar savedY = y;
         // draw with shaders and image filters
         for (int makeLinear = 0; makeLinear < 2; makeLinear++) {
             for (int makeBlur = 0; makeBlur < 2; makeBlur++) {
@@ -107,15 +110,15 @@ protected:
                         shaderPaint.setImageFilter(make_grayscale(nullptr));
                     }
                     shaderPaint.setTextSize(30);
-                    canvas->drawText(text, strlen(text), 380, SkIntToScalar(y_offset),
-                                     shaderPaint);
-                    y_offset += 32;
+                    shaderPaint.getFontMetrics(&metrics);
+                    y += -metrics.fAscent;
+                    canvas->drawText(text, strlen(text), 380, y, shaderPaint);
+                    y += metrics.fDescent + metrics.fLeading;
                 }
             }
         }
-
         // setup work needed to draw text with different clips
-        canvas->translate(10, 160);
+        canvas->translate(10, savedY);
         paint.setTextSize(40);
 
         // compute the bounds of the text
@@ -134,22 +137,23 @@ protected:
         SkRect interiorClip = bounds;
         interiorClip.inset(boundsQuarterWidth, boundsQuarterHeight);
 
-        const SkRect clipRects[] = { bounds, upperLeftClip, lowerRightClip, interiorClip };
+        static const SkRect clipRects[] = { bounds, upperLeftClip, lowerRightClip, interiorClip };
 
         SkPaint clipHairline;
         clipHairline.setColor(SK_ColorWHITE);
         clipHairline.setStyle(SkPaint::kStroke_Style);
 
-        for (size_t x = 0; x < sizeof(clipRects) / sizeof(SkRect); ++x) {
+        for (const SkRect& clipRect : clipRects) {
+            canvas->translate(0, bounds.height());
             canvas->save();
-            canvas->drawRect(clipRects[x], clipHairline);
+            canvas->drawRect(clipRect, clipHairline);
             paint.setAlpha(0x20);
             canvas->drawText(text, strlen(text), 0, 0, paint);
-            canvas->clipRect(clipRects[x]);
+            canvas->clipRect(clipRect);
             paint.setAlpha(0xFF);
             canvas->drawText(text, strlen(text), 0, 0, paint);
             canvas->restore();
-            canvas->translate(0, bounds.height() + SkIntToScalar(25));
+            canvas->translate(0, SkIntToScalar(25));
         }
     }
 

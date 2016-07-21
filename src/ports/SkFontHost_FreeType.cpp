@@ -1315,10 +1315,6 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
     }
 
     FT_Face face = fFace;
-    SkScalar scaleX = fScale.x();
-    SkScalar scaleY = fScale.y();
-    SkScalar mxy = -fMatrix22Scalar.getSkewX() * scaleY;
-    SkScalar myy = fMatrix22Scalar.getScaleY() * scaleY;
 
     // fetch units/EM from "head" table if needed (ie for bitmap fonts)
     SkScalar upem = SkIntToScalar(face->units_per_EM);
@@ -1335,10 +1331,10 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
     SkScalar cap_height = 0.0f;
     TT_OS2* os2 = (TT_OS2*) FT_Get_Sfnt_Table(face, ft_sfnt_os2);
     if (os2) {
-        x_height = scaleX * SkIntToScalar(os2->sxHeight) / upem;
+        x_height = SkIntToScalar(os2->sxHeight) / upem * fScale.y();
         avgCharWidth = SkIntToScalar(os2->xAvgCharWidth) / upem;
         if (os2->version != 0xFFFF && os2->version >= 2) {
-            cap_height = scaleX * SkIntToScalar(os2->sCapHeight) / upem;
+            cap_height = SkIntToScalar(os2->sCapHeight) / upem * fScale.y();
         }
     }
 
@@ -1389,8 +1385,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
         SkScalar yppem = SkIntToScalar(face->size->metrics.y_ppem);
         ascent = -SkIntToScalar(face->size->metrics.ascender) / (yppem * 64.0f);
         descent = -SkIntToScalar(face->size->metrics.descender) / (yppem * 64.0f);
-        leading = (SkIntToScalar(face->size->metrics.height) / (yppem * 64.0f))
-                + ascent - descent;
+        leading = (SkIntToScalar(face->size->metrics.height) / (yppem * 64.0f)) + ascent - descent;
         xmin = 0.0f;
         xmax = SkIntToScalar(face->available_sizes[fStrikeIndex].width) / xppem;
         ymin = descent + leading;
@@ -1407,13 +1402,13 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
 
     // synthesize elements that were not provided by the os/2 table or format-specific metrics
     if (!x_height) {
-        x_height = -ascent;
+        x_height = -ascent * fScale.y();
     }
     if (!avgCharWidth) {
         avgCharWidth = xmax - xmin;
     }
     if (!cap_height) {
-      cap_height = -ascent;
+      cap_height = -ascent * fScale.y();
     }
 
     // disallow negative linespacing
@@ -1421,22 +1416,18 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
         leading = 0.0f;
     }
 
-    SkScalar scale = myy;
-    if (this->isVertical()) {
-        scale = mxy;
-    }
-    metrics->fTop = ymax * scale;
-    metrics->fAscent = ascent * scale;
-    metrics->fDescent = descent * scale;
-    metrics->fBottom = ymin * scale;
-    metrics->fLeading = leading * scale;
-    metrics->fAvgCharWidth = avgCharWidth * scale;
-    metrics->fXMin = xmin * scale;
-    metrics->fXMax = xmax * scale;
+    metrics->fTop = ymax * fScale.y();
+    metrics->fAscent = ascent * fScale.y();
+    metrics->fDescent = descent * fScale.y();
+    metrics->fBottom = ymin * fScale.y();
+    metrics->fLeading = leading * fScale.y();
+    metrics->fAvgCharWidth = avgCharWidth * fScale.y();
+    metrics->fXMin = xmin * fScale.y();
+    metrics->fXMax = xmax * fScale.y();
     metrics->fXHeight = x_height;
     metrics->fCapHeight = cap_height;
-    metrics->fUnderlineThickness = underlineThickness * scale;
-    metrics->fUnderlinePosition = underlinePosition * scale;
+    metrics->fUnderlineThickness = underlineThickness * fScale.y();
+    metrics->fUnderlinePosition = underlinePosition * fScale.y();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
