@@ -251,6 +251,7 @@
         #'-ffast-math',           # Optimize float math even when it breaks IEEE compliance.
         #'-flto'                  # Enable link-time optimization.
     ],
+    'skia_experimental_shadowing': 0,       # for experimental shadow-drawing
 
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
     #

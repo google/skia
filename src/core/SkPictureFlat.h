@@ -17,6 +17,13 @@
 #include "SkPtrRecorder.h"
 #include "SkTDynamicHash.h"
 
+/*
+ * Note: While adding new DrawTypes, it is necessary to add to the end of this list
+ *       and update LAST_DRAWTYPE_ENUM to avoid having the code read older skps wrong.
+ *       (which can cause segfaults)
+ *
+ *       Reordering can be done during version updates.
+ */
 enum DrawType {
     UNUSED,
     CLIP_PATH,
@@ -83,7 +90,9 @@ enum DrawType {
 
     TRANSLATE_Z,
 
-    LAST_DRAWTYPE_ENUM = TRANSLATE_Z
+    DRAW_SHADOWED_PICTURE_LIGHTS,
+
+    LAST_DRAWTYPE_ENUM = DRAW_SHADOWED_PICTURE_LIGHTS
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

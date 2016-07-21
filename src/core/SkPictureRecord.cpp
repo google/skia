@@ -219,6 +219,7 @@ void SkPictureRecord::didSetMatrix(const SkMatrix& matrix) {
 }
 
 void SkPictureRecord::didTranslateZ(SkScalar z) {
+#ifdef SK_EXPERIMENTAL_SHADOWING
     this->validate(fWriter.bytesWritten(), 0);
     // op + scalar
     size_t size = 1 * kUInt32Size + 1 * sizeof(SkScalar);
@@ -226,6 +227,7 @@ void SkPictureRecord::didTranslateZ(SkScalar z) {
     this->addScalar(z);
     this->validate(initialOffset, size);
     this->INHERITED::didTranslateZ(z);
+#endif
 }
 
 static bool regionOpExpands(SkRegion::Op op) {
@@ -654,6 +656,27 @@ void SkPictureRecord::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScala
 
 void SkPictureRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                     const SkPaint* paint) {
+    // op + picture index
+    size_t size = 2 * kUInt32Size;
+    size_t initialOffset;
+
+    if (nullptr == matrix && nullptr == paint) {
+        initialOffset = this->addDraw(DRAW_PICTURE, &size);
+        this->addPicture(picture);
+    } else {
+        const SkMatrix& m = matrix ? *matrix : SkMatrix::I();
+        size += m.writeToMemory(nullptr) + kUInt32Size;    // matrix + paint
+        initialOffset = this->addDraw(DRAW_PICTURE_MATRIX_PAINT, &size);
+        this->addPaintPtr(paint);
+        this->addMatrix(m);
+        this->addPicture(picture);
+    }
+    this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::onDrawShadowedPicture(const SkPicture* picture,
+                                            const SkMatrix* matrix,
+                                            const SkPaint* paint) {
     // op + picture index
     size_t size = 2 * kUInt32Size;
     size_t initialOffset;
