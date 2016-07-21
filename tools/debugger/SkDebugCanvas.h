@@ -24,23 +24,27 @@ class SkNWayCanvas;
 class SK_API SkDebugCanvas : public SkCanvas {
 public:
     SkDebugCanvas(int width, int height);
+
     virtual ~SkDebugCanvas();
 
     void toggleFilter(bool toggle) { fFilter = toggle; }
 
     void setMegaVizMode(bool megaVizMode) { fMegaVizMode = megaVizMode; }
+
     bool getMegaVizMode() const { return fMegaVizMode; }
 
     /**
      * Enable or disable overdraw visualization
      */
     void setOverdrawViz(bool overdrawViz);
+
     bool getOverdrawViz() const { return fOverdrawViz; }
 
     /**
      * Set the color of the clip visualization. An alpha of zero renders the clip invisible.
      */
     void setClipVizColor(SkColor clipVizColor) { this->fClipVizColor = clipVizColor; }
+
     SkColor getClipVizColor() const { return fClipVizColor; }
 
     void setDrawGpuBatchBounds(bool drawGpuBatchBounds) {
@@ -51,7 +55,7 @@ public:
 
     bool getAllowSimplifyClip() const { return fAllowSimplifyClip; }
 
-    void setPicture(SkPicture* picture) { fPicture = picture; }
+    void setPicture(SkPicture *picture) { fPicture = picture; }
 
     /**
      * Enable or disable texure filtering override
@@ -62,7 +66,7 @@ public:
         Executes all draw calls to the canvas.
         @param canvas  The canvas being drawn to
      */
-    void draw(SkCanvas* canvas);
+    void draw(SkCanvas *canvas);
 
     /**
         Executes the draw calls up to the specified index.
@@ -70,19 +74,19 @@ public:
         @param index  The index of the final command being executed
         @param m an optional Mth gpu batch to highlight, or -1
      */
-    void drawTo(SkCanvas* canvas, int index, int m = -1);
+    void drawTo(SkCanvas *canvas, int index, int m = -1);
 
     /**
         Returns the most recently calculated transformation matrix
      */
-    const SkMatrix& getCurrentMatrix() {
+    const SkMatrix &getCurrentMatrix() {
         return fMatrix;
     }
 
     /**
         Returns the most recently calculated clip
      */
-    const SkIRect& getCurrentClip() {
+    const SkIRect &getCurrentClip() {
         return fClip;
     }
 
@@ -101,20 +105,20 @@ public:
         Returns the draw command at the given index.
         @param index  The index of the command
      */
-    SkDrawCommand* getDrawCommandAt(int index);
+    SkDrawCommand *getDrawCommandAt(int index);
 
     /**
         Sets the draw command for a given index.
         @param index  The index to overwrite
         @param command The new command
      */
-    void setDrawCommandAt(int index, SkDrawCommand* command);
+    void setDrawCommandAt(int index, SkDrawCommand *command);
 
     /**
         Returns information about the command at the given index.
         @param index  The index of the command
      */
-    const SkTDArray<SkString*>* getCommandInfo(int index) const;
+    const SkTDArray<SkString *> *getCommandInfo(int index) const;
 
     /**
         Returns the visibility of the command at the given index.
@@ -126,13 +130,13 @@ public:
         Returns the vector of draw commands
      */
     SK_ATTR_DEPRECATED("please use getDrawCommandAt and getSize instead")
-    const SkTDArray<SkDrawCommand*>& getDrawCommands() const;
+    const SkTDArray<SkDrawCommand *> &getDrawCommands() const;
 
     /**
         Returns the vector of draw commands. Do not use this entry
         point - it is going away!
      */
-    SkTDArray<SkDrawCommand*>& getDrawCommands();
+    SkTDArray<SkDrawCommand *> &getDrawCommands();
 
     /**
         Returns length of draw command vector.
@@ -158,9 +162,9 @@ public:
         SkDebugCanvas::getSize(). The encoder may use the UrlDataManager to store binary data such
         as images, referring to them via URLs embedded in the JSON.
      */
-    Json::Value toJSON(UrlDataManager& urlDataManager, int n, SkCanvas*);
+    Json::Value toJSON(UrlDataManager &urlDataManager, int n, SkCanvas *);
 
-    Json::Value toJSONBatchList(int n, SkCanvas*);
+    Json::Value toJSONBatchList(int n, SkCanvas *);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inherited from SkCanvas
@@ -170,8 +174,10 @@ public:
     static const int kVizImageWidth = 256;
 
     bool isClipEmpty() const override { return false; }
+
     bool isClipRect() const override { return true; }
-    bool getClipBounds(SkRect* bounds) const override {
+
+    bool getClipBounds(SkRect *bounds) const override {
         if (bounds) {
             bounds->setXYWH(0, 0,
                             SkIntToScalar(this->imageInfo().width()),
@@ -179,7 +185,8 @@ public:
         }
         return true;
     }
-    bool getClipDeviceBounds(SkIRect* bounds) const override {
+
+    bool getClipDeviceBounds(SkIRect *bounds) const override {
         if (bounds) {
             bounds->setLargest();
         }
@@ -188,13 +195,20 @@ public:
 
 protected:
     void willSave() override;
-    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
+
+    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec &) override;
+
     void willRestore() override;
 
-    void didConcat(const SkMatrix&) override;
-    void didSetMatrix(const SkMatrix&) override;
+    void didConcat(const SkMatrix &) override;
 
+    void didSetMatrix(const SkMatrix &) override;
+
+#ifdef SK_EXPERIMENTAL_SHADOWING
     void didTranslateZ(SkScalar) override;
+#else
+    void didTranslateZ(SkScalar);
+#endif
 
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
@@ -239,6 +253,16 @@ protected:
     void onClipRegion(const SkRegion& region, SkRegion::Op) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+
+#ifdef SK_EXPERIMENTAL_SHADOWING
+    void onDrawShadowedPicture(const SkPicture*,
+                               const SkMatrix*,
+                               const SkPaint*) override;
+#else
+    void onDrawShadowedPicture(const SkPicture*,
+                               const SkMatrix*,
+                               const SkPaint*);
+#endif
 
     void markActiveCommands(int index);
 

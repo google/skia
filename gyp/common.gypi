@@ -112,6 +112,13 @@
           },
         },
       }],
+      [ 'skia_experimental_shadowing',
+        {
+          'defines': [
+            'SK_EXPERIMENTAL_SHADOWING',
+          ],
+        },
+      ],
     ],
   }, # end 'target_defaults'
 }

@@ -159,7 +159,11 @@ protected:
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
 
+#ifdef SK_EXPERIMENTAL_SHADOWING
     void didTranslateZ(SkScalar) override;
+#endif
+    void didTranslateZ(SkScalar);
+#endif
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
 
@@ -208,6 +212,17 @@ protected:
     void onClipRegion(const SkRegion&, SkRegion::Op) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+
+#ifdef SK_EXPERIMENTAL_SHADOWING
+    void onDrawShadowedPicture(const SkPicture*,
+                               const SkMatrix*,
+                               const SkPaint*) override;
+#else
+    void onDrawShadowedPicture(const SkPicture*,
+                               const SkMatrix*,
+                               const SkPaint*);
+#endif
+
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
@@ -253,5 +268,3 @@ private:
 
     typedef SkCanvas INHERITED;
 };
-
-#endif

@@ -305,6 +305,20 @@ void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, con
     }
 }
 
+void SkRecorder::onDrawShadowedPicture(const SkPicture* pic,
+                                       const SkMatrix* matrix,
+                                       const SkPaint* paint) {
+    if (fDrawPictureMode == Record_DrawPictureMode) {
+        fApproxBytesUsedBySubPictures += SkPictureUtils::ApproximateBytesUsed(pic);
+        APPEND(DrawShadowedPicture, this->copy(paint), pic, matrix ? *matrix : SkMatrix::I());
+    } else {
+        SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);
+        SkAutoCanvasMatrixPaint acmp(this,  matrix, paint, pic->cullRect());
+        pic->playback(this);
+    }
+}
+
+
 void SkRecorder::onDrawVertices(VertexMode vmode,
                                 int vertexCount, const SkPoint vertices[],
                                 const SkPoint texs[], const SkColor colors[],
@@ -369,8 +383,10 @@ void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
     APPEND(SetMatrix, matrix);
 }
 
-void SkRecorder::didTranslateZ(SkScalar z)  {
+void SkRecorder::didTranslateZ(SkScalar z) {
+#ifdef SK_EXPERIMENTAL_SHADOWING
     APPEND(TranslateZ, z);
+#endif
 }
 
 void SkRecorder::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {

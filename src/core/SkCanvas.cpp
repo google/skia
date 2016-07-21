@@ -663,6 +663,9 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fDeviceCMDirty = true;
     fSaveCount = 1;
     fMetaData = nullptr;
+#ifdef SK_EXPERIMENTAL_SHADOWING
+    fLights = nullptr;
+#endif
 
     fClipStack.reset(new SkClipStack);
 
@@ -1519,6 +1522,7 @@ void SkCanvas::resetMatrix() {
     this->setMatrix(SkMatrix::I());
 }
 
+#ifdef SK_EXPERIMENTAL_SHADOWING
 void SkCanvas::translateZ(SkScalar z) {
     this->checkForDeferredSave();
     this->fMCRec->fCurDrawDepth += z;
@@ -1528,6 +1532,15 @@ void SkCanvas::translateZ(SkScalar z) {
 SkScalar SkCanvas::getZ() const {
     return this->fMCRec->fCurDrawDepth;
 }
+
+void SkCanvas::setLights(sk_sp<SkLights> lights) {
+    this->fLights = lights;
+}
+
+sk_sp<SkLights> SkCanvas::getLights() const {
+    return this->fLights;
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -2999,6 +3012,24 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
     picture->playback(this);
 }
+
+#ifdef SK_EXPERIMENTAL_SHADOWING
+void SkCanvas::drawShadowedPicture(const SkPicture* picture,
+                                   const SkMatrix* matrix,
+                                   const SkPaint* paint) {
+    RETURN_ON_NULL(picture);
+
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawShadowedPicture()");
+
+    this->onDrawShadowedPicture(picture, matrix, paint);
+}
+
+void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
+                                     const SkMatrix* matrix,
+                                     const SkPaint* paint) {
+    this->onDrawPicture(picture, matrix, paint);
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

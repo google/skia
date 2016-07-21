@@ -60,7 +60,12 @@ public:
 
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
+
+#ifdef SK_EXPERIMENTAL_SHADOWING
     void didTranslateZ(SkScalar) override;
+#else
+    void didTranslateZ(SkScalar);
+#endif
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
@@ -126,6 +131,17 @@ public:
     void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+
+#ifdef SK_EXPERIMENTAL_SHADOWING
+    void onDrawShadowedPicture(const SkPicture*,
+                               const SkMatrix*,
+                               const SkPaint*) override;
+#else
+    void onDrawShadowedPicture(const SkPicture*,
+                               const SkMatrix*,
+                               const SkPaint*);
+#endif
+
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
