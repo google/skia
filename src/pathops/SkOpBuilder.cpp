@@ -47,7 +47,12 @@ bool FixWinding(SkPath* path) {
     SkOpGlobalState globalState(&contourHead, &allocator  SkDEBUGPARAMS(false)
             SkDEBUGPARAMS(nullptr));
     SkOpEdgeBuilder builder(*path, &contourHead, &globalState);
-    builder.finish();
+    if (builder.unparseable() || !builder.finish()) {
+        return false;
+    }
+    if (!contourHead.count()) {
+        return true;
+    }
     SkASSERT(contourHead.next());
     contourHead.resetReverse();
     bool writePath = false;
