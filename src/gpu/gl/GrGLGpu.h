@@ -17,7 +17,6 @@
 #include "GrGLTexture.h"
 #include "GrGLVertexArray.h"
 #include "GrGpu.h"
-#include "GrPipelineBuilder.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "SkTArray.h"
@@ -303,7 +302,7 @@ private:
     };
 
     void flushColorWrite(bool writeColor);
-    void flushDrawFace(GrPipelineBuilder::DrawFace face);
+    void flushDrawFace(GrDrawFace face);
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
@@ -516,7 +515,7 @@ private:
     TriState                    fHWStencilTestEnabled;
 
 
-    GrPipelineBuilder::DrawFace fHWDrawFace;
+    GrDrawFace                  fHWDrawFace;
     TriState                    fHWWriteToColor;
     uint32_t                    fHWBoundRenderTargetUniqueID;
     TriState                    fHWSRGBFramebuffer;

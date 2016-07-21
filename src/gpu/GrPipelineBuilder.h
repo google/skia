@@ -266,27 +266,19 @@ public:
     /// @name Face Culling
     ////
 
-    enum DrawFace {
-        kInvalid_DrawFace = -1,
-
-        kBoth_DrawFace,
-        kCCW_DrawFace,
-        kCW_DrawFace,
-    };
-
     /**
      * Gets whether the target is drawing clockwise, counterclockwise,
      * or both faces.
      * @return the current draw face(s).
      */
-    DrawFace getDrawFace() const { return fDrawFace; }
+    GrDrawFace getDrawFace() const { return fDrawFace; }
 
     /**
      * Controls whether clockwise, counterclockwise, or both faces are drawn.
      * @param face  the face(s) to draw.
      */
-    void setDrawFace(DrawFace face) {
-        SkASSERT(kInvalid_DrawFace != face);
+    void setDrawFace(GrDrawFace face) {
+        SkASSERT(GrDrawFace::kInvalid != face);
         fDrawFace = face;
     }
 
@@ -305,7 +297,7 @@ private:
 
     uint32_t                                fFlags;
     const GrUserStencilSettings*            fUserStencilSettings;
-    DrawFace                                fDrawFace;
+    GrDrawFace                              fDrawFace;
     mutable sk_sp<GrXPFactory>              fXPFactory;
     FragmentProcessorArray                  fColorFragmentProcessors;
     FragmentProcessorArray                  fCoverageFragmentProcessors;

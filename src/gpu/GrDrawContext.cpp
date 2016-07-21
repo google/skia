@@ -12,6 +12,7 @@
 #include "GrDrawingManager.h"
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
+#include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceProvider.h"

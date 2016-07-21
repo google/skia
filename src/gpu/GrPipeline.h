@@ -13,7 +13,6 @@
 #include "GrGpu.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingProgramElement.h"
-#include "GrPipelineBuilder.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProcOptInfo.h"
 #include "GrProgramDesc.h"
@@ -21,6 +20,11 @@
 #include "GrTypesPriv.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
+
+#include "effects/GrCoverageSetOpXP.h"
+#include "effects/GrDisableColorXP.h"
+#include "effects/GrPorterDuffXferProcessor.h"
+#include "effects/GrSimpleTextureEffect.h"
 
 class GrBatch;
 class GrDrawContext;
@@ -169,7 +173,7 @@ public:
      * or both faces.
      * @return the current draw face(s).
      */
-    GrPipelineBuilder::DrawFace getDrawFace() const { return fDrawFace; }
+    GrDrawFace getDrawFace() const { return fDrawFace; }
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -212,7 +216,7 @@ private:
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
     GrStencilSettings                   fStencilSettings;
-    GrPipelineBuilder::DrawFace         fDrawFace;
+    GrDrawFace                          fDrawFace;
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
     FragmentProcessorArray              fFragmentProcessors;

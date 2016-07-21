@@ -14,6 +14,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMesh.h"
 #include "GrPathUtils.h"
+#include "GrPipelineBuilder.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrTessellator.h"
