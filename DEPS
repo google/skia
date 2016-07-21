@@ -72,7 +72,7 @@ hooks = [{
                '--no_auth',
                '--bucket', 'chromium-gn',
                '--platform=linux*',
-               '-s', 'skia/buildtools/linux64/gn.sha1'],
+               '-s', 'buildtools/linux64/gn.sha1'],
 },{
     'pattern': '.',
     'action': ['download_from_google_storage',
@@ -81,7 +81,7 @@ hooks = [{
                '--no_auth',
                '--bucket', 'chromium-gn',
                '--platform=darwin',
-               '-s', 'skia/buildtools/mac/gn.sha1'],
+               '-s', 'buildtools/mac/gn.sha1'],
 },{
     'pattern': '.',
     'action': ['download_from_google_storage',
@@ -90,7 +90,7 @@ hooks = [{
                '--no_auth',
                '--bucket', 'chromium-gn',
                '--platform=win32',
-               '-s', 'skia/buildtools/win/gn.exe.sha1'],
+               '-s', 'buildtools/win/gn.exe.sha1'],
 }]
 
 recursedeps = [ "common" ]
