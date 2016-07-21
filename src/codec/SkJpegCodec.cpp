@@ -373,22 +373,14 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
             } else {
-#ifdef LIBJPEG_TURBO_VERSION
-            fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
-#else
-            fDecoderMgr->dinfo()->out_color_space = JCS_RGB;
-#endif
+                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             }
             return true;
         case kBGRA_8888_SkColorType:
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
             } else {
-#ifdef LIBJPEG_TURBO_VERSION
-            fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
-#else
-            fDecoderMgr->dinfo()->out_color_space = JCS_RGB;
-#endif
+                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
             }
             return true;
         case kRGB_565_SkColorType:
@@ -517,7 +509,6 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         // If we cannot read enough rows, assume the input is incomplete
         if (lines != 1) {
             *rowsDecoded = y;
-
             return fDecoderMgr->returnFailure("Incomplete image data", kIncompleteInput);
         }
 
@@ -600,10 +591,6 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidInput;
     }
 
-    if (options.fSubset) {
-        fSwizzlerSubset = *options.fSubset;
-    }
-
 #ifdef TURBO_HAS_CROP
     if (options.fSubset) {
         uint32_t startX = options.fSubset->x();
@@ -647,6 +634,10 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         this->initializeSwizzler(dstInfo, options);
     }
 #else
+    if (options.fSubset) {
+        fSwizzlerSubset = *options.fSubset;
+    }
+
     // We will need a swizzler if we are performing a subset decode or
     // converting from CMYK.
     J_COLOR_SPACE colorSpace = fDecoderMgr->dinfo()->out_color_space;
