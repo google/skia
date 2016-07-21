@@ -151,7 +151,7 @@ int main(int argc, char** argv) {
     }
 
     // Draw gamut for the input image.
-    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(codec->getColorSpace());
+    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
     if (!colorSpace) {
         SkDebugf("Image had no embedded color space information.  Defaulting to sRGB.\n");
         colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);

@@ -902,7 +902,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
             break;
         case kDst_sRGB_Mode:
         case kDst_HPZR30w_Mode: {
-            sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getColorSpace());
+            sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getInfo().colorSpace());
             sk_sp<SkColorSpace> dstSpace = (kDst_sRGB_Mode == fMode) ?
                     SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) :
                     SkColorSpace::NewICC(dstData->data(), dstData->size());

@@ -109,13 +109,6 @@ public:
 
     const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
 
-    /**
-     *  Returns the color space associated with the codec.
-     *  Does not affect ownership.
-     *  Might be NULL.
-     */
-    SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
-
     enum Origin {
         kTopLeft_Origin     = 1, // Default
         kTopRight_Origin    = 2, // Reflected across y-axis
@@ -662,7 +655,6 @@ private:
     const SkImageInfo           fSrcInfo;
     SkAutoTDelete<SkStream>     fStream;
     bool                        fNeedsRewind;
-    sk_sp<SkColorSpace>         fColorSpace;
     const Origin                fOrigin;
 
     // These fields are only meaningful during scanline decodes.

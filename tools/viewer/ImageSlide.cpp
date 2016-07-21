@@ -41,7 +41,7 @@ void ImageSlide::load(SkScalar, SkScalar) {
     fImage->asLegacyBitmap(&fOriginalBitmap, SkImage::kRO_LegacyBitmapMode);
 
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
-    sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getColorSpace());
+    sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getInfo().colorSpace());
     sk_sp<SkColorSpace> dstSpace = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
     std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace, dstSpace);
     fOriginalBitmap.deepCopyTo(&fXformedBitmap);

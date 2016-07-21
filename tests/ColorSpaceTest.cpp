@@ -65,7 +65,7 @@ DEF_TEST(ColorSpaceParsePngICCProfile, r) {
     REPORTER_ASSERT(r, nullptr != codec);
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
-    SkColorSpace* colorSpace = codec->getColorSpace();
+    SkColorSpace* colorSpace = codec->getInfo().colorSpace();
     REPORTER_ASSERT(r, nullptr != colorSpace);
 
     test_space(r, colorSpace, &g_sRGB_XYZ[0], &g_sRGB_XYZ[3], &g_sRGB_XYZ[6],
@@ -86,7 +86,7 @@ DEF_TEST(ColorSpaceParseJpegICCProfile, r) {
         return;
     }
 
-    SkColorSpace* colorSpace = codec->getColorSpace();
+    SkColorSpace* colorSpace = codec->getInfo().colorSpace();
     REPORTER_ASSERT(r, nullptr != colorSpace);
 
     const float red[] = { 0.385117f, 0.716904f, 0.0970612f };

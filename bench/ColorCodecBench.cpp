@@ -47,7 +47,7 @@ void ColorCodecBench::decodeAndXform() {
     codec->startScanlineDecode(fSrcInfo);
     SkASSERT(SkCodec::kSuccess == result);
 
-    sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getColorSpace());
+    sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getInfo().colorSpace());
     if (!srcSpace) {
         srcSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     }
