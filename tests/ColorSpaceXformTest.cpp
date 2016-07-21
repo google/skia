@@ -17,7 +17,8 @@ class ColorSpaceXformTest {
 public:
     static std::unique_ptr<SkColorSpaceXform> CreateIdentityXform(const sk_sp<SkGammas>& gammas) {
         // Logically we can pass any matrix here.  For simplicty, pass I(), i.e. D50 XYZ gamut.
-        sk_sp<SkColorSpace> space(new SkColorSpace_Base(nullptr, gammas, SkMatrix::I(), nullptr));
+        sk_sp<SkColorSpace> space(new SkColorSpace_Base(
+                nullptr, SkColorSpace::kNonStandard_GammaNamed, gammas, SkMatrix::I(), nullptr));
         return SkColorSpaceXform::New(space, space);
     }
 };
@@ -54,53 +55,99 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
 
 DEF_TEST(ColorSpaceXform_TableGamma, r) {
     // Lookup-table based gamma curves
-    SkGammaCurve red, green, blue;
     constexpr size_t tableSize = 10;
-    red.fTable = std::unique_ptr<float[]>(new float[tableSize]);
-    green.fTable = std::unique_ptr<float[]>(new float[tableSize]);
-    blue.fTable = std::unique_ptr<float[]>(new float[tableSize]);
-    red.fTableSize = green.fTableSize = blue.fTableSize = 10;
-    red.fTable[0] = green.fTable[0] = blue.fTable[0] = 0.00f;
-    red.fTable[1] = green.fTable[1] = blue.fTable[1] = 0.05f;
-    red.fTable[2] = green.fTable[2] = blue.fTable[2] = 0.10f;
-    red.fTable[3] = green.fTable[3] = blue.fTable[3] = 0.15f;
-    red.fTable[4] = green.fTable[4] = blue.fTable[4] = 0.25f;
-    red.fTable[5] = green.fTable[5] = blue.fTable[5] = 0.35f;
-    red.fTable[6] = green.fTable[6] = blue.fTable[6] = 0.45f;
-    red.fTable[7] = green.fTable[7] = blue.fTable[7] = 0.60f;
-    red.fTable[8] = green.fTable[8] = blue.fTable[8] = 0.75f;
-    red.fTable[9] = green.fTable[9] = blue.fTable[9] = 1.00f;
-    sk_sp<SkGammas> gammas =
-            sk_make_sp<SkGammas>(std::move(red), std::move(green), std::move(blue));
+    void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(float) * tableSize);
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas());
+    gammas->fRedType = gammas->fGreenType = gammas->fBlueType = SkGammas::Type::kTable_Type;
+    gammas->fRedData.fTable.fSize = gammas->fGreenData.fTable.fSize =
+            gammas->fBlueData.fTable.fSize = tableSize;
+    gammas->fRedData.fTable.fOffset = gammas->fGreenData.fTable.fOffset =
+            gammas->fBlueData.fTable.fOffset = 0;
+    float* table = SkTAddOffset<float>(memory, sizeof(SkGammas));
+
+    table[0] = 0.00f;
+    table[1] = 0.05f;
+    table[2] = 0.10f;
+    table[3] = 0.15f;
+    table[4] = 0.25f;
+    table[5] = 0.35f;
+    table[6] = 0.45f;
+    table[7] = 0.60f;
+    table[8] = 0.75f;
+    table[9] = 1.00f;
     test_identity_xform(r, gammas);
 }
 
 DEF_TEST(ColorSpaceXform_ParametricGamma, r) {
     // Parametric gamma curves
-    SkGammaCurve red, green, blue;
+    void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(SkGammas::Params));
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas());
+    gammas->fRedType = gammas->fGreenType = gammas->fBlueType = SkGammas::Type::kParam_Type;
+    gammas->fRedData.fParamOffset = gammas->fGreenData.fParamOffset =
+            gammas->fBlueData.fParamOffset = 0;
+    SkGammas::Params* params = SkTAddOffset<SkGammas::Params>(memory, sizeof(SkGammas));
 
     // Interval, switch xforms at 0.0031308f
-    red.fD = green.fD = blue.fD = 0.04045f;
+    params->fD = 0.04045f;
 
     // First equation:
-    red.fE = green.fE = blue.fE = 1.0f / 12.92f;
+    params->fE = 1.0f / 12.92f;
+    params->fF = 0.0f;
 
     // Second equation:
     // Note that the function is continuous (it's actually sRGB).
-    red.fA = green.fA = blue.fA = 1.0f / 1.055f;
-    red.fB = green.fB = blue.fB = 0.055f / 1.055f;
-    red.fC = green.fC = blue.fC = 0.0f;
-    red.fG = green.fG = blue.fG = 2.4f;
-    sk_sp<SkGammas> gammas =
-            sk_make_sp<SkGammas>(std::move(red), std::move(green), std::move(blue));
+    params->fA = 1.0f / 1.055f;
+    params->fB = 0.055f / 1.055f;
+    params->fC = 0.0f;
+    params->fG = 2.4f;
     test_identity_xform(r, gammas);
 }
 
 DEF_TEST(ColorSpaceXform_ExponentialGamma, r) {
     // Exponential gamma curves
-    SkGammaCurve red, green, blue;
-    red.fValue = green.fValue = blue.fValue = 1.4f;
-    sk_sp<SkGammas> gammas =
-            sk_make_sp<SkGammas>(std::move(red), std::move(green), std::move(blue));
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new SkGammas());
+    gammas->fRedType = gammas->fGreenType = gammas->fBlueType = SkGammas::Type::kValue_Type;
+    gammas->fRedData.fValue = gammas->fGreenData.fValue = gammas->fBlueData.fValue = 1.4f;
+    test_identity_xform(r, gammas);
+}
+
+DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
+    constexpr size_t tableSize = 10;
+    void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(float) * tableSize +
+                                   sizeof(SkGammas::Params));
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas());
+
+    float* table = SkTAddOffset<float>(memory, sizeof(SkGammas));
+    table[0] = 0.00f;
+    table[1] = 0.15f;
+    table[2] = 0.20f;
+    table[3] = 0.25f;
+    table[4] = 0.35f;
+    table[5] = 0.45f;
+    table[6] = 0.55f;
+    table[7] = 0.70f;
+    table[8] = 0.85f;
+    table[9] = 1.00f;
+
+    SkGammas::Params* params = SkTAddOffset<SkGammas::Params>(memory, sizeof(SkGammas) +
+                                                              sizeof(float) * tableSize);
+    params->fA = 1.0f / 1.055f;
+    params->fB = 0.055f / 1.055f;
+    params->fC = 0.0f;
+    params->fD = 0.04045f;
+    params->fE = 1.0f / 12.92f;
+    params->fF = 0.0f;
+    params->fG = 2.4f;
+
+    gammas->fRedType = SkGammas::Type::kValue_Type;
+    gammas->fRedData.fValue = 1.2f;
+
+    gammas->fGreenType = SkGammas::Type::kTable_Type;
+    gammas->fGreenData.fTable.fSize = tableSize;
+    gammas->fGreenData.fTable.fOffset = 0;
+
+    gammas->fBlueType = SkGammas::Type::kParam_Type;
+    gammas->fBlueData.fParamOffset = sizeof(float) * tableSize;
+
     test_identity_xform(r, gammas);
 }

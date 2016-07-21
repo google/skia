@@ -22,9 +22,10 @@ SkColorSpace_Base::SkColorSpace_Base(GammaNamed gammaNamed, const SkMatrix44& to
     , fProfileData(nullptr)
 {}
 
-SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, sk_sp<SkGammas> gammas,
-                                     const SkMatrix44& toXYZD50, sk_sp<SkData> profileData)
-    : INHERITED(kNonStandard_GammaNamed, toXYZD50, kUnknown_Named)
+SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, GammaNamed gammaNamed,
+                                     sk_sp<SkGammas> gammas, const SkMatrix44& toXYZD50,
+                                     sk_sp<SkData> profileData)
+    : INHERITED(gammaNamed, toXYZD50, kUnknown_Named)
     , fColorLUT(std::move(colorLUT))
     , fGammas(std::move(gammas))
     , fProfileData(std::move(profileData))
@@ -68,16 +69,31 @@ static bool xyz_almost_equal(const SkMatrix44& toXYZD50, const float* standard) 
 }
 
 sk_sp<SkColorSpace> SkColorSpace_Base::NewRGB(float values[3], const SkMatrix44& toXYZD50) {
-    SkGammaCurve curves[3];
-    set_gamma_value(&curves[0], values[0]);
-    set_gamma_value(&curves[1], values[1]);
-    set_gamma_value(&curves[2], values[2]);
+    if (0.0f > values[0] || 0.0f > values[1] || 0.0f > values[2]) {
+        return nullptr;
+    }
 
-    GammaNamed gammaNamed = SkGammas::Named(curves);
+    GammaNamed gammaNamed = kNonStandard_GammaNamed;
+    if (color_space_almost_equal(2.2f, values[0]) &&
+            color_space_almost_equal(2.2f, values[1]) &&
+            color_space_almost_equal(2.2f, values[2])) {
+        gammaNamed = k2Dot2Curve_GammaNamed;
+    } else if (color_space_almost_equal(1.0f, values[0]) &&
+            color_space_almost_equal(1.0f, values[1]) &&
+            color_space_almost_equal(1.0f, values[2])) {
+        gammaNamed = kLinear_GammaNamed;
+    }
+
     if (kNonStandard_GammaNamed == gammaNamed) {
-        sk_sp<SkGammas> gammas(new SkGammas(std::move(curves[0]), std::move(curves[1]),
-                                            std::move(curves[2])));
-        return sk_sp<SkColorSpace>(new SkColorSpace_Base(nullptr, gammas, toXYZD50, nullptr));
+        sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new SkGammas());
+        gammas->fRedType = SkGammas::Type::kValue_Type;
+        gammas->fGreenType = SkGammas::Type::kValue_Type;
+        gammas->fBlueType = SkGammas::Type::kValue_Type;
+        gammas->fRedData.fValue = values[0];
+        gammas->fGreenData.fValue = values[1];
+        gammas->fBlueData.fValue = values[2];
+        return sk_sp<SkColorSpace>(new SkColorSpace_Base(nullptr, kNonStandard_GammaNamed, gammas,
+                                                         toXYZD50, nullptr));
     }
 
     return SkColorSpace_Base::NewRGB(gammaNamed, toXYZD50);
