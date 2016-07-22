@@ -243,6 +243,9 @@ def get_args(bot):
   if 'NexusPlayer' in bot:
     match.append('~ResourceCache')
 
+  if 'Nexus10' in bot: # skia:5509
+    match.append('~CopySurface')
+
   if 'GalaxyS4' in bot:  # skia:4079
     match.append('~imagefiltersclipped')
     match.append('~imagefilterscropexpand')
@@ -287,6 +290,7 @@ def self_test():
     'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
     'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
     'Test-Android-GCC-Nexus9-GPU-TegraK1-Arm64-Debug',
+    'Test-Android-GCC-Nexus10-GPU-MaliT604-Arm7-Debug',
     'Test-Android-GCC-NexusPlayer-CPU-SSSE3-x86-Release',
     'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Release',
     'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',
