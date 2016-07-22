@@ -310,6 +310,7 @@ int SkDCubic::searchRoots(double extremeTs[6], int extrema, double axisIntercept
     extrema += findInflections(&extremeTs[extrema]);
     extremeTs[extrema++] = 0;
     extremeTs[extrema] = 1;
+    SkASSERT(extrema < 6);
     SkTQSort(extremeTs, extremeTs + extrema);
     int validCount = 0;
     for (int index = 0; index < extrema; ) {
@@ -320,6 +321,9 @@ int SkDCubic::searchRoots(double extremeTs[6], int extrema, double axisIntercept
         }
         double newT = binarySearch(min, max, axisIntercept, xAxis);
         if (newT >= 0) {
+            if (validCount >= 3) {
+                return 0;
+            }
             validRoots[validCount++] = newT;
         }
     }
