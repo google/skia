@@ -14,6 +14,7 @@
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
+#include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
 #include "GrResourceProvider.h"
 #include "SkGeometry.h"
@@ -966,7 +967,10 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                           *args.fViewMatrix, path,
                                                           args.fShape->style(), devClipBounds));
 
-    args.fDrawContext->drawBatch(*args.fPaint, *args.fClip, *args.fUserStencilSettings, batch);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint);
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+
     return true;
 }
 

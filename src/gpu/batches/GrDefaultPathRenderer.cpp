@@ -13,6 +13,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMesh.h"
 #include "GrPathUtils.h"
+#include "GrPipelineBuilder.h"
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
@@ -554,19 +555,25 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                                         &localMatrix));
 
             SkASSERT(GrDrawFace::kBoth == drawFace[p]);
-            drawContext->drawBatch(paint, clip, *passes[p], batch, drawFace[p]);
+            GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
+            pipelineBuilder.setDrawFace(drawFace[p]);
+            pipelineBuilder.setUserStencil(passes[p]);
+
+            drawContext->drawBatch(pipelineBuilder, clip, batch);
         } else {
             SkAutoTUnref<GrDrawBatch> batch(new DefaultPathBatch(paint.getColor(), path,
                                                                  srcSpaceTol,
                                                                  newCoverage, viewMatrix,
                                                                  isHairline, devBounds));
 
-            SkTCopyOnFirstWrite<GrPaint> newPaint(paint);
+            GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
+            pipelineBuilder.setDrawFace(drawFace[p]);
+            pipelineBuilder.setUserStencil(passes[p]);
             if (passCount > 1) {
-                newPaint.writable()->setXPFactory(GrDisableColorXPFactory::Make());
+                pipelineBuilder.setDisableColorXPFactory();
             }
 
-            drawContext->drawBatch(*newPaint, clip, *passes[p], batch, drawFace[p]);
+            drawContext->drawBatch(pipelineBuilder, clip, batch);
         }
     }
     return true;

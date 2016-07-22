@@ -299,9 +299,9 @@ static bool should_apply_coverage_aa(const GrPaint& paint, GrRenderTarget* rt,
         return false;
     } else {
         if (useHWAA) {
-            *useHWAA = rt->isUnifiedMultisampled() || rt->hasMixedSamples();
+            *useHWAA = rt->isUnifiedMultisampled();
         }
-        return !rt->isUnifiedMultisampled() && !rt->hasMixedSamples();
+        return !rt->isUnifiedMultisampled();
     }
 }
 
@@ -623,8 +623,8 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
         batch.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(), croppedLocalRect,
                                    paint.isAntiAlias(), fInstancedPipelineInfo, &useHWAA));
         if (batch) {
-            SkASSERT(useHWAA == this->mustUseHWAA(paint));
-            this->drawBatch(paint, clip, GrUserStencilSettings::kUnused, batch);
+            GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
             return;
         }
     }
@@ -634,13 +634,15 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
         batch.reset(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(), viewMatrix,
                                                            croppedRect, croppedLocalRect));
         if (batch) {
-            SkASSERT(useHWAA == this->mustUseHWAA(paint));
-            this->drawBatch(paint, clip, GrUserStencilSettings::kUnused, batch);
+            GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+            this->drawBatch(pipelineBuilder, clip, batch);
+            return;
         }
     } else {
         this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, &croppedLocalRect,
                                   nullptr, nullptr);
     }
+
 }
 
 void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
@@ -1240,19 +1242,12 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     pr->drawPath(args);
 }
 
-void GrDrawContext::drawBatch(const GrPaint& paint,
-                              const GrClip& clip,
-                              const GrUserStencilSettings& userStencilSettings,
-                              GrDrawBatch* batch,
-                              GrDrawFace drawFace) {
+void GrDrawContext::drawBatch(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip,
+                              GrDrawBatch* batch) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawBatch");
-
-    GrPipelineBuilder pipelineBuilder(paint, this->mustUseHWAA(paint));
-    pipelineBuilder.setUserStencil(&userStencilSettings);
-    pipelineBuilder.setDrawFace(drawFace);
 
     this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
 }

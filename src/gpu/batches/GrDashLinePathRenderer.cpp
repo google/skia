@@ -9,6 +9,7 @@
 
 #include "GrAuditTrail.h"
 #include "GrGpu.h"
+#include "GrPipelineBuilder.h"
 #include "effects/GrDashingEffect.h"
 
 bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
@@ -25,15 +26,9 @@ bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrDashLinePathRenderer::onDrawPath");
-
-    SkTCopyOnFirstWrite<GrPaint> paint(*args.fPaint);
-
     bool useHWAA = args.fDrawContext->isUnifiedMultisampled();
     GrDashingEffect::AAMode aaMode;
     if (useHWAA) {
-        if (!paint->isAntiAlias()) {
-            paint.writable()->setAntiAlias(true);
-        }
         // We ignore args.fAntiAlias here and force anti aliasing when using MSAA. Otherwise,
         // we can wind up with external edges antialiased and internal edges unantialiased.
         aaMode = GrDashingEffect::AAMode::kCoverageWithMSAA;
@@ -53,7 +48,9 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
         return false;
     }
 
-    SkASSERT(args.fDrawContext->mustUseHWAA(*paint) == useHWAA);
-    args.fDrawContext->drawBatch(*paint, *args.fClip, *args.fUserStencilSettings, batch);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, useHWAA);
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
     return true;
 }

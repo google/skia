@@ -11,6 +11,7 @@
 #include "GrContext.h"
 #include "batches/GrDrawBatch.h"
 #include "GrDrawContext.h"
+#include "GrPipelineBuilder.h"
 #include "GrShape.h"
 
 #include "SkDistanceFieldGen.h"
@@ -180,17 +181,18 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     maskMatrix.setIDiv(texture->width(), texture->height());
     maskMatrix.preTranslate(SkIntToScalar(-rect.fLeft), SkIntToScalar(-rect.fTop));
 
-    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
-                                                                        SkMatrix::I(),
-                                                                        dstRect, nullptr, &invert));
+    GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
+    pipelineBuilder.setUserStencil(&userStencilSettings);
 
-    GrPaint newPaint(paint);
-    newPaint.addCoverageFragmentProcessor(
+    pipelineBuilder.addCoverageFragmentProcessor(
                          GrSimpleTextureEffect::Make(texture,
                                                      nullptr,
                                                      maskMatrix,
                                                      GrTextureParams::kNone_FilterMode,
                                                      kDevice_GrCoordSet));
 
-    drawContext->drawBatch(newPaint, clip, userStencilSettings, batch);
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
+                                                                        SkMatrix::I(),
+                                                                        dstRect, nullptr, &invert));
+    drawContext->drawBatch(pipelineBuilder, clip, batch);
 }

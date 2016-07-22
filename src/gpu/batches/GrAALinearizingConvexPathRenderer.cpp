@@ -16,6 +16,7 @@
 #include "GrInvariantOutput.h"
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
+#include "GrPipelineBuilder.h"
 #include "GrStyle.h"
 #include "SkGeometry.h"
 #include "SkString.h"
@@ -337,7 +338,11 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                                     path, strokeWidth, join,
                                                                     miterLimit));
 
-    args.fDrawContext->drawBatch(*args.fPaint, *args.fClip, *args.fUserStencilSettings, batch);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint);
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+
     return true;
 }
 

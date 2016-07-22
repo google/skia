@@ -11,6 +11,7 @@
 #include "GrBatchTest.h"
 #include "GrBuffer.h"
 #include "GrContext.h"
+#include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
 #include "GrSWMaskHelper.h"
@@ -532,7 +533,10 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                                  fAtlas, &fShapeCache, &fShapeList,
                                                                  args.fGammaCorrect));
 
-    args.fDrawContext->drawBatch(*args.fPaint, *args.fClip, *args.fUserStencilSettings, batch);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint);
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
 
     return true;
 }

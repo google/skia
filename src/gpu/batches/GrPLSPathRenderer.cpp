@@ -22,6 +22,7 @@
 #include "GrInvariantOutput.h"
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
+#include "GrPipelineBuilder.h"
 #include "GrStyle.h"
 #include "GrTessellator.h"
 #include "batches/GrVertexBatch.h"
@@ -950,7 +951,10 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkAutoTUnref<GrDrawBatch> batch(new PLSPathBatch(args.fPaint->getColor(),
                                                      path, *args.fViewMatrix));
 
-    args.fDrawContext->drawBatch(*args.fPaint, *args.fClip, *args.fUserStencilSettings, batch);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->mustUseHWAA(*args.fPaint));
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
 
     SkDEBUGCODE(inPLSDraw = false;)
     return true;

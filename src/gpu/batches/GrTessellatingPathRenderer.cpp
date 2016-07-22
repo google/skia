@@ -14,6 +14,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMesh.h"
 #include "GrPathUtils.h"
+#include "GrPipelineBuilder.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrTessellator.h"
@@ -271,7 +272,10 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                                   *args.fShape,
                                                                   *args.fViewMatrix, clipBounds));
 
-    args.fDrawContext->drawBatch(*args.fPaint, *args.fClip, *args.fUserStencilSettings, batch);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->mustUseHWAA(*args.fPaint));
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
 
     return true;
 }
