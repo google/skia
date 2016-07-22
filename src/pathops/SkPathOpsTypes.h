@@ -183,9 +183,14 @@ private:
 #endif
 };
 
+#ifdef SK_DEBUG
 #define SkOPASSERT(cond) SkASSERT(this->globalState()->debugSkipAssert() || cond)
 #define SkOPOBJASSERT(obj, cond) SkASSERT((obj->debugGlobalState() && \
         obj->debugGlobalState()->debugSkipAssert()) || cond)
+#else
+#define SkOPASSERT(cond)
+#define SkOPOBJASSERT(obj, cond)
+#endif
 
 // Use Almost Equal when comparing coordinates. Use epsilon to compare T values.
 bool AlmostEqualUlps(float a, float b);

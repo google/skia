@@ -882,6 +882,7 @@ bool SkTSect<TCurve, OppCurve>::binarySearchCoin(SkTSect<OppCurve, TCurve>* sect
     SkDPoint last = fCurve.ptAtT(tStart);
     SkDPoint oppPt;
     bool flip = false;
+    bool contained = false;
     SkDEBUGCODE(bool down = tStep < 0);
     const OppCurve& opp = sect2->fCurve;
     do {
@@ -908,6 +909,7 @@ bool SkTSect<TCurve, OppCurve>::binarySearchCoin(SkTSect<OppCurve, TCurve>* sect
             if (sect2->fHead->contains(oppTTest)) {
                 *oppT = oppTTest;
                 oppPt = work.fCoinStart.perpPt();
+                contained = true;
                 SkASSERT(down ? result > work.fStartT : result < work.fStartT);
                 result = work.fStartT;
                 continue;
@@ -916,6 +918,9 @@ bool SkTSect<TCurve, OppCurve>::binarySearchCoin(SkTSect<OppCurve, TCurve>* sect
         tStep = -tStep;
         flip = true;
     } while (true);
+    if (!contained) {
+        return false;
+    }
     if (last.approximatelyEqual(fCurve[0])) {
         result = 0;
     } else if (last.approximatelyEqual(fCurve[TCurve::kPointLast])) {
@@ -1923,10 +1928,10 @@ struct SkClosestRecord {
         fClosest = dist;
     }
 
-    bool matesWith(const SkClosestRecord& mate) const {
+    bool matesWith(const SkClosestRecord& mate  SkDEBUGPARAMS(SkIntersections* i)) const {
         SkASSERT(fC1Span == mate.fC1Span || fC1Span->endT() <= mate.fC1Span->startT()
                 || mate.fC1Span->endT() <= fC1Span->startT());
-        SkASSERT(fC2Span == mate.fC2Span || fC2Span->endT() <= mate.fC2Span->startT()
+        SkOPOBJASSERT(i, fC2Span == mate.fC2Span || fC2Span->endT() <= mate.fC2Span->startT()
                 || mate.fC2Span->endT() <= fC2Span->startT());
         return fC1Span == mate.fC1Span || fC1Span->endT() == mate.fC1Span->startT()
                 || fC1Span->startT() == mate.fC1Span->endT()
@@ -1975,7 +1980,8 @@ struct SkClosestSect {
         fClosest.push_back().reset();
     }
 
-    bool find(const SkTSpan<TCurve, OppCurve>* span1, const SkTSpan<OppCurve, TCurve>* span2) {
+    bool find(const SkTSpan<TCurve, OppCurve>* span1, const SkTSpan<OppCurve, TCurve>* span2
+            SkDEBUGPARAMS(SkIntersections* i)) {
         SkClosestRecord<TCurve, OppCurve>* record = &fClosest[fUsed];
         record->findEnd(span1, span2, 0, 0);
         record->findEnd(span1, span2, 0, OppCurve::kPointLast);
@@ -1986,7 +1992,7 @@ struct SkClosestSect {
         }
         for (int index = 0; index < fUsed; ++index) {
             SkClosestRecord<TCurve, OppCurve>* test = &fClosest[index];
-            if (test->matesWith(*record)) {
+            if (test->matesWith(*record  SkDEBUGPARAMS(i))) {
                 if (test->fClosest > record->fClosest) {
                     test->merge(*record);
                 }
@@ -2212,7 +2218,7 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
         SkTSpan<OppCurve, TCurve>* result2 = sect2->fHead;
         bool found = false;
         while (result2) {
-            found |= closest.find(result1, result2);
+            found |= closest.find(result1, result2  SkDEBUGPARAMS(intersections));
             result2 = result2->fNext;
         }
     } while ((result1 = result1->fNext));
