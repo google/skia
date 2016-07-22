@@ -22,6 +22,12 @@
 
 extern const float sk_linear_from_srgb[256];
 
+static inline Sk4f sk_clamp_0_255(const Sk4f& x) {
+    // The order of the arguments is important here.  We want to make sure that NaN
+    // clamps to zero.  Note that max(NaN, 0) = 0, while max(0, NaN) = NaN.
+    return Sk4f::Min(Sk4f::Max(x, 0.0f), 255.0f);
+}
+
 static inline Sk4i sk_linear_to_srgb(const Sk4f& x) {
     // Approximation of the sRGB gamma curve (within 1 when scaled to 8-bit pixels).
     //
@@ -40,7 +46,7 @@ static inline Sk4i sk_linear_to_srgb(const Sk4f& x) {
             + (+0.687999f  * 255.0f) * sqrt
             + (+0.412999f  * 255.0f) * ftrt;
 
-    return SkNx_cast<int>( (x < 0.0048f).thenElse(lo, hi) );
+    return SkNx_cast<int>(sk_clamp_0_255((x < 0.0048f).thenElse(lo, hi)));
 }
 
 #endif//SkSRGB_DEFINED

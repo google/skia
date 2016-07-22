@@ -16,12 +16,6 @@
 
 namespace SK_OPTS_NS {
 
-static Sk4f clamp_0_1(const Sk4f& x) {
-    // The order of the arguments is important here.  We want to make sure that NaN
-    // clamps to zero.  Note that max(NaN, 0) = 0, while max(0, NaN) = NaN.
-    return Sk4f::Min(Sk4f::Max(x, 0.0f), 1.0f);
-}
-
 static Sk4i linear_to_2dot2(const Sk4f& x) {
     // x^(29/64) is a very good approximation of the true value, x^(1/2.2).
     auto x2  = x.rsqrt(),                            // x^(-1/2)
@@ -29,7 +23,7 @@ static Sk4i linear_to_2dot2(const Sk4f& x) {
          x64 = x32.rsqrt();                          // x^(+1/64)
 
     // 29 = 32 - 2 - 1
-    return Sk4f_round(255.0f * x2.invert() * x32 * x64.invert());
+    return Sk4f_round(sk_clamp_0_255(255.0f * x2.invert() * x32 * x64.invert()));
 }
 
 enum DstGamma {
@@ -82,10 +76,9 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
                 Sk4i (*linear_to_curve)(const Sk4f&) =
                         (kSRGB_DstGamma == kDstGamma) ? sk_linear_to_srgb : linear_to_2dot2;
 
-                auto reds   = linear_to_curve(clamp_0_1(dstReds));
-                auto greens = linear_to_curve(clamp_0_1(dstGreens));
-                auto blues  = linear_to_curve(clamp_0_1(dstBlues));
-
+                auto reds   = linear_to_curve(dstReds);
+                auto greens = linear_to_curve(dstGreens);
+                auto blues  = linear_to_curve(dstBlues);
 
                 auto rgba = (reds       << SK_R32_SHIFT)
                           | (greens     << SK_G32_SHIFT)
@@ -155,7 +148,7 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
             Sk4i (*linear_to_curve)(const Sk4f&) =
                     (kSRGB_DstGamma == kDstGamma) ? sk_linear_to_srgb : linear_to_2dot2;
 
-            auto pixel = linear_to_curve(clamp_0_1(dstPixel));
+            auto pixel = linear_to_curve(dstPixel);
 
             uint32_t rgba;
             SkNx_cast<uint8_t>(pixel).store(&rgba);
