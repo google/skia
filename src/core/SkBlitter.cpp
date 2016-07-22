@@ -853,10 +853,6 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         p->setColor(0);
     }
 
-    if (auto blitter = SkCreateRasterPipelineBlitter(device, *paint)) {
-        return blitter.release();
-    }
-
     if (nullptr == shader) {
         if (mode) {
             // xfermodes (and filters) require shaders for our current blitters

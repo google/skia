@@ -231,7 +231,6 @@
         '<(skia_src_path)/core/SkQuadClipper.h',
         '<(skia_src_path)/core/SkRasterClip.cpp',
         '<(skia_src_path)/core/SkRasterPipeline.cpp',
-        '<(skia_src_path)/core/SkRasterPipelineBlitter.cpp',
         '<(skia_src_path)/core/SkRasterizer.cpp',
         '<(skia_src_path)/core/SkReadBuffer.h',
         '<(skia_src_path)/core/SkReadBuffer.cpp',

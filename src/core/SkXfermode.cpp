@@ -1420,14 +1420,6 @@ bool SkXfermode::IsOpaque(const SkXfermode* xfer, SrcColorOpacity opacityType) {
     return xfer->isOpaque(opacityType);
 }
 
-bool SkXfermode::appendStages(SkRasterPipeline* pipeline) const {
-    return this->onAppendStages(pipeline);
-}
-
-bool SkXfermode::onAppendStages(SkRasterPipeline*) const {
-    return false;
-}
-
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkProcCoeffXfermode)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
