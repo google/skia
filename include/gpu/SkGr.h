@@ -84,9 +84,4 @@ GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
                                                             const SkMatrix& localM,
                                                             bool* doBicubic);
 
-////////////////////////////////////////////////////////////////////////////////
-
-SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque,
-                                  sk_sp<SkColorSpace> colorSpace = nullptr);
-
 #endif

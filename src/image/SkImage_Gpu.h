@@ -27,10 +27,7 @@ public:
                 SkBudgeted);
     ~SkImage_Gpu() override;
 
-    SkImageInfo onImageInfo() const override {
-        return GrMakeInfoFromTexture(fTexture, fTexture->width(), fTexture->height(), isOpaque(),
-                                     fColorSpace);
-    }
+    SkImageInfo onImageInfo() const override;
 
     void applyBudgetDecision() const {
         if (SkBudgeted::kYes == fBudgeted) {

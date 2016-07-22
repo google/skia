@@ -238,7 +238,7 @@ void GrContext::flush(int flagsBitfield) {
 bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,
                           const void* inPixels, size_t outRowBytes, void* outPixels) {
     SkSrcPixelInfo srcPI;
-    if (!GrPixelConfigToColorAndColorSpace(srcConfig, &srcPI.fColorType, nullptr)) {
+    if (!GrPixelConfigToColorType(srcConfig, &srcPI.fColorType)) {
         return false;
     }
     srcPI.fAlphaType = kUnpremul_SkAlphaType;
@@ -509,7 +509,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     // Perform umpremul conversion if we weren't able to perform it as a draw.
     if (unpremul) {
         SkDstPixelInfo dstPI;
-        if (!GrPixelConfigToColorAndColorSpace(dstConfig, &dstPI.fColorType, nullptr)) {
+        if (!GrPixelConfigToColorType(dstConfig, &dstPI.fColorType)) {
             return false;
         }
         dstPI.fAlphaType = kUnpremul_SkAlphaType;

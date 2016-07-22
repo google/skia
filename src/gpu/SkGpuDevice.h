@@ -9,6 +9,7 @@
 #define SkGpuDevice_DEFINED
 
 #include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkBitmap.h"
 #include "SkDevice.h"
 #include "SkPicture.h"
@@ -82,10 +83,13 @@ public:
     GrDrawContext* accessDrawContext() override;
 
     SkImageInfo imageInfo() const override {
-        SkAlphaType at = fOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-        SkImageInfo info = fRenderTarget->surfacePriv().info(at).makeWH(fSize.fWidth, 
-                                                                        fSize.fHeight);
-        return info;
+        SkColorType colorType;
+        if (!GrPixelConfigToColorType(fRenderTarget->config(), &colorType)) {
+            colorType = kUnknown_SkColorType;
+        }
+        return SkImageInfo::Make(fSize.fWidth, fSize.fHeight, colorType,
+                                 fOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType,
+                                 sk_ref_sp(fDrawContext->getColorSpace()));
     }
 
     void drawPaint(const SkDraw&, const SkPaint& paint) override;

@@ -43,6 +43,14 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
     }
 }
 
+SkImageInfo SkImage_Gpu::onImageInfo() const {
+    SkColorType ct;
+    if (!GrPixelConfigToColorType(fTexture->config(), &ct)) {
+        ct = kUnknown_SkColorType;
+    }
+    return SkImageInfo::Make(fTexture->width(), fTexture->height(), ct, fAlphaType, fColorSpace);
+}
+
 static SkImageInfo make_info(int w, int h, bool isOpaque, sk_sp<SkColorSpace> colorSpace) {
     return SkImageInfo::MakeN32(w, h, isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType,
                                 std::move(colorSpace));
@@ -316,17 +324,10 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context) const {
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
-    GrTexture* texture = as_IB(this)->peekTexture();
-    if (!texture) {
+    if (!this->isTextureBacked()) {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
-    SkColorType ct;
-    sk_sp<SkColorSpace> cs;
-    if (!GrPixelConfigToColorAndColorSpace(texture->config(), &ct, &cs)) {
-        return nullptr;
-    }
-    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    auto info = SkImageInfo::Make(this->width(), this->height(), ct, at, cs);
+    SkImageInfo info = as_IB(this)->onImageInfo();
     size_t rowBytes = info.minRowBytes();
     size_t size = info.getSafeSize(rowBytes);
     auto data = SkData::MakeUninitialized(size);
