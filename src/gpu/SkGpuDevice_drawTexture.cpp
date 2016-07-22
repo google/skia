@@ -206,7 +206,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
     sk_sp<GrFragmentProcessor> fp(producer->createFragmentProcessor(
         *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode,
-        gammaTreatment));
+        fDrawContext->getColorSpace(), gammaTreatment));
     if (!fp) {
         return;
     }

@@ -1104,9 +1104,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         return;
     }
 
-    SkColorSpace* dstColorSpace = nullptr; // XFORMTODO
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(bitmap.colorSpace(),
-                                                                       dstColorSpace);
+    sk_sp<GrColorSpaceXform> colorSpaceXform =
+        GrColorSpaceXform::Make(bitmap.colorSpace(), fDrawContext->getColorSpace());
     SkRect dstRect = {0, 0, srcRect.width(), srcRect.height() };
     SkRect paintRect;
     SkScalar wInv = SkScalarInvert(SkIntToScalar(texture->width()));
@@ -1545,7 +1544,7 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
         producer->createFragmentProcessor(SkMatrix::I(),
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
-                                          &kMode, gammaTreatment));
+                                          &kMode, fDrawContext->getColorSpace(), gammaTreatment));
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), paint, *draw.fMatrix, std::move(fp),
                                      producer->isAlphaOnly(), gammaCorrect, &grPaint)) {

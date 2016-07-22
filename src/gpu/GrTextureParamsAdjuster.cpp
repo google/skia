@@ -373,6 +373,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
                                         FilterConstraint filterConstraint,
                                         bool coordsLimitedToConstraintRect,
                                         const GrTextureParams::FilterMode* filterOrNullForBicubic,
+                                        SkColorSpace* dstColorSpace,
                                         SkSourceGammaTreatment gammaTreatment) {
 
     SkMatrix textureMatrix = origTextureMatrix;
@@ -425,7 +426,6 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     SkASSERT(kNoDomain_DomainMode == domainMode ||
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
     textureMatrix.postIDiv(texture->width(), texture->height());
-    SkColorSpace* dstColorSpace = nullptr; // XFORMTODO
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(this->getColorSpace(),
                                                                        dstColorSpace);
     return create_fp_for_domain_and_filter(texture, std::move(colorSpaceXform), textureMatrix,
@@ -474,6 +474,7 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                                         FilterConstraint filterConstraint,
                                         bool coordsLimitedToConstraintRect,
                                         const GrTextureParams::FilterMode* filterOrNullForBicubic,
+                                        SkColorSpace* dstColorSpace,
                                         SkSourceGammaTreatment gammaTreatment) {
 
     const GrTextureParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
@@ -507,7 +508,6 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     SkASSERT(kTightCopy_DomainMode != domainMode);
     SkMatrix normalizedTextureMatrix = textureMatrix;
     normalizedTextureMatrix.postIDiv(texture->width(), texture->height());
-    SkColorSpace* dstColorSpace = nullptr; // XFORMTODO
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(this->getColorSpace(),
                                                                        dstColorSpace);
     return create_fp_for_domain_and_filter(texture, std::move(colorSpaceXform),

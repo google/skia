@@ -65,6 +65,7 @@ public:
                                     FilterConstraint filterConstraint,
                                     bool coordsLimitedToConstraintRect,
                                     const GrTextureParams::FilterMode* filterOrNullForBicubic,
+                                    SkColorSpace* dstColorSpace,
                                     SkSourceGammaTreatment) = 0;
 
     virtual ~GrTextureProducer() {}
@@ -138,6 +139,7 @@ public:
                                 FilterConstraint,
                                 bool coordsLimitedToConstraintRect,
                                 const GrTextureParams::FilterMode* filterOrNullForBicubic,
+                                SkColorSpace* dstColorSpace,
                                 SkSourceGammaTreatment) override;
 
 protected:
@@ -179,6 +181,7 @@ public:
                                 FilterConstraint filterConstraint,
                                 bool coordsLimitedToConstraintRect,
                                 const GrTextureParams::FilterMode* filterOrNullForBicubic,
+                                SkColorSpace* dstColorSpace,
                                 SkSourceGammaTreatment) override;
 
 protected:
