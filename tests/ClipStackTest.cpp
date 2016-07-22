@@ -794,6 +794,51 @@ static void test_quickContains(skiatest::Reporter* reporter) {
     }
 }
 
+static void set_region_to_stack(const SkClipStack& stack, const SkIRect& bounds, SkRegion* region) {
+    region->setRect(bounds);
+    SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
+    while (const SkClipStack::Element *element = iter.next()) {
+        SkRegion elemRegion;
+        SkRegion boundsRgn(bounds);
+        SkPath path;
+
+        switch (element->getType()) {
+            case SkClipStack::Element::kEmpty_Type:
+                elemRegion.setEmpty();
+                break;
+            default:
+                element->asPath(&path);
+                elemRegion.setPath(path, boundsRgn);
+                break;
+        }
+        region->op(elemRegion, element->getOp());
+    }
+}
+
+static void test_invfill_diff_bug(skiatest::Reporter* reporter) {
+    SkClipStack stack;
+    stack.clipDevRect({10, 10, 20, 20}, SkRegion::kIntersect_Op, false);
+
+    SkPath path;
+    path.addRect({30, 10, 40, 20});
+    path.setFillType(SkPath::kInverseWinding_FillType);
+    stack.clipDevPath(path, SkRegion::kDifference_Op, false);
+
+    REPORTER_ASSERT(reporter, SkClipStack::kEmptyGenID == stack.getTopmostGenID());
+
+    SkRect stackBounds;
+    SkClipStack::BoundsType stackBoundsType;
+    stack.getBounds(&stackBounds, &stackBoundsType);
+
+    REPORTER_ASSERT(reporter, stackBounds.isEmpty());
+    REPORTER_ASSERT(reporter, SkClipStack::kNormal_BoundsType == stackBoundsType);
+
+    SkRegion region;
+    set_region_to_stack(stack, {0, 0, 50, 30}, &region);
+
+    REPORTER_ASSERT(reporter, region.isEmpty());
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
@@ -857,25 +902,6 @@ static void add_elem_to_stack(const SkClipStack::Element& element, SkClipStack* 
             stack->clipEmpty();
             break;
     }
-}
-
-static void add_elem_to_region(const SkClipStack::Element& element,
-                               const SkIRect& bounds,
-                               SkRegion* region) {
-    SkRegion elemRegion;
-    SkRegion boundsRgn(bounds);
-    SkPath path;
-
-    switch (element.getType()) {
-        case SkClipStack::Element::kEmpty_Type:
-            elemRegion.setEmpty();
-            break;
-        default:
-            element.asPath(&path);
-            elemRegion.setPath(path, boundsRgn);
-            break;
-    }
-    region->op(elemRegion, element.getOp());
 }
 
 static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
@@ -991,20 +1017,11 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
 
         // convert both the original stack and reduced stack to SkRegions and see if they're equal
         SkRegion region;
+        set_region_to_stack(stack, inflatedIBounds, &region);
+
         SkRegion reducedRegion;
+        set_region_to_stack(reducedStack, inflatedIBounds, &reducedRegion);
 
-        region.setRect(inflatedIBounds);
-        const SkClipStack::Element* element;
-        SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
-        while ((element = iter.next())) {
-            add_elem_to_region(*element, inflatedIBounds, &region);
-        }
-
-        reducedRegion.setRect(inflatedIBounds);
-        iter.reset(reducedStack, SkClipStack::Iter::kBottom_IterStart);
-        while ((element = iter.next())) {
-            add_elem_to_region(*element, inflatedIBounds, &reducedRegion);
-        }
         SkString testCase;
         testCase.printf("Iteration %d", i);
         REPORTER_ASSERT_MESSAGE(reporter, region == reducedRegion, testCase.c_str());
@@ -1204,6 +1221,7 @@ DEF_TEST(ClipStack, reporter) {
     test_rect_inverse_fill(reporter);
     test_path_replace(reporter);
     test_quickContains(reporter);
+    test_invfill_diff_bug(reporter);
 #if SK_SUPPORT_GPU
     test_reduced_clip_stack(reporter);
     test_reduced_clip_stack_genid(reporter);

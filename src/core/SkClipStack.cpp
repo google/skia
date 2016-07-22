@@ -237,10 +237,10 @@ void SkClipStack::Element::combineBoundsDiff(FillCombo combination, const SkRect
             // is erased, so the only pixels that can remain set
             // occur w/in the intersection of the two finite bounds
             if (!fFiniteBound.intersect(prevFinite)) {
-                this->setEmpty();
-            } else {
-                fFiniteBoundType = kNormal_BoundsType;
+                fFiniteBound.setEmpty();
+                fGenID = kEmptyGenID;
             }
+            fFiniteBoundType = kNormal_BoundsType;
             break;
         case kPrev_Cur_FillCombo:
             // The most conservative result bound is that of the
