@@ -26,6 +26,10 @@
 #include "SkUtils.h"
 #include "Test.h"
 
+#if SK_SUPPORT_GPU
+#include "GrGpu.h"
+#endif
+
 using namespace sk_gpu_test;
 
 static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect* subsetA,
@@ -745,62 +749,30 @@ struct TextureReleaseChecker {
         static_cast<TextureReleaseChecker*>(self)->fReleaseCount++;
     }
 };
-static void check_image_color(skiatest::Reporter* reporter, SkImage* image, SkPMColor expected) {
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
-    SkPMColor pixel;
-    REPORTER_ASSERT(reporter, image->readPixels(info, &pixel, sizeof(pixel), 0, 0));
-    REPORTER_ASSERT(reporter, pixel == expected);
-}
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTexture, reporter, ctxInfo) {
-    GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
-    const int w = 10;
-    const int h = 10;
-    SkPMColor storage[w * h];
-    const SkPMColor expected0 = SkPreMultiplyColor(SK_ColorRED);
-    sk_memset32(storage, expected0, w * h);
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;  // needs to be a rendertarget for readpixels();
-    desc.fOrigin = kDefault_GrSurfaceOrigin;
-    desc.fWidth = w;
-    desc.fHeight = h;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fSampleCnt = 0;
-    SkAutoTUnref<GrTexture> tex(provider->createTexture(desc, SkBudgeted::kNo, storage, w * 4));
-    if (!tex) {
-        REPORTER_ASSERT(reporter, false);
-        return;
-    }
-
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, ctxInfo) {
+    const int kWidth = 10;
+    const int kHeight = 10;
+    SkAutoTDeleteArray<uint32_t> pixels(new uint32_t[kWidth * kHeight]);
     GrBackendTextureDesc backendDesc;
-    backendDesc.fConfig = kSkia8888_GrPixelConfig;
+    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
-    backendDesc.fWidth = w;
-    backendDesc.fHeight = h;
+    backendDesc.fWidth = kWidth;
+    backendDesc.fHeight = kHeight;
     backendDesc.fSampleCnt = 0;
-    backendDesc.fTextureHandle = tex->getTextureHandle();
+    backendDesc.fTextureHandle = ctxInfo.grContext()->getGpu()->createTestingOnlyBackendTexture(
+        pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true);
+
     TextureReleaseChecker releaseChecker;
     sk_sp<SkImage> refImg(
         SkImage::MakeFromTexture(ctxInfo.grContext(), backendDesc, kPremul_SkAlphaType,
                                  TextureReleaseChecker::Release, &releaseChecker));
 
-    check_image_color(reporter, refImg.get(), expected0);
-
-    // Now lets jam new colors into our "external" texture, and see if the images notice
-    const SkPMColor expected1 = SkPreMultiplyColor(SK_ColorBLUE);
-    sk_memset32(storage, expected1, w * h);
-    tex->writePixels(0, 0, w, h, kSkia8888_GrPixelConfig, storage, GrContext::kFlushWrites_PixelOp);
-
-    // The cpy'd one should still see the old color
-#if 0
-    // There is no guarantee that refImg sees the new color. We are free to have made a copy. Our
-    // write pixels call violated the contract with refImg and refImg is now undefined.
-    check_image_color(reporter, refImg, expected1);
-#endif
-
     // Now exercise the release proc
     REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
     refImg.reset(nullptr); // force a release of the image
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+
+    ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendDesc.fTextureHandle);
 }
 
 static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, const SkImage* b) {
