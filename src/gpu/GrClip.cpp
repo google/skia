@@ -54,10 +54,10 @@ bool GrFixedClip::apply(GrContext*,
                                     SkIRect::MakeWH(drawContext->width(), drawContext->height()))) {
             return false;
         }
-        if (devBounds && !devBounds->intersects(SkRect::Make(tightScissor))) {
+        if (devBounds && IsOutsideClip(tightScissor, *devBounds)) {
             return false;
         }
-        if (!devBounds || !CanIgnoreScissor(fScissorState.rect(), *devBounds)) {
+        if (!devBounds || !IsInsideClip(fScissorState.rect(), *devBounds)) {
             if (fHasStencilClip) {
                 out->makeScissoredStencil(tightScissor, &fDeviceBounds);
             } else {

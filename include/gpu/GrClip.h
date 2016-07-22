@@ -113,25 +113,76 @@ public:
 
     virtual ~GrClip() {}
 
-protected:
     /**
-     * Returns true if a clip can safely disable its scissor test for a particular draw.
+     * This is the maximum distance that a draw may extend beyond a clip's boundary and still count
+     * count as "on the other side". We leave some slack because floating point rounding error is
+     * likely to blame. The rationale for 1e-3 is that in the coverage case (and barring unexpected
+     * rounding), as long as coverage stays within 0.5 * 1/256 of its intended value it shouldn't
+     * have any effect on the final pixel values.
      */
-    static bool CanIgnoreScissor(const SkIRect& scissorRect, const SkRect& drawBounds) {
-        // This is the maximum distance that a draw may extend beyond a clip's scissor and still
-        // count as inside. We use a sloppy compare because the draw may have chosen its bounds in a
-        // different coord system. The rationale for 1e-3 is that in the coverage case (and barring
-        // unexpected rounding), as long as coverage stays below 0.5 * 1/256 we ought to be OK.
-        constexpr SkScalar fuzz = 1e-3f;
-        SkASSERT(!scissorRect.isEmpty());
-        SkASSERT(!drawBounds.isEmpty());
-        return scissorRect.fLeft <= drawBounds.fLeft + fuzz &&
-               scissorRect.fTop <= drawBounds.fTop + fuzz &&
-               scissorRect.fRight >= drawBounds.fRight - fuzz &&
-               scissorRect.fBottom >= drawBounds.fBottom - fuzz;
+    constexpr static SkScalar kBoundsTolerance = 1e-3f;
+
+    /**
+     * Returns true if the given query bounds count as entirely inside the clip.
+     *
+     * @param innerClipBounds   device-space rect contained by the clip (SkRect or SkIRect).
+     * @param queryBounds       device-space bounds of the query region.
+     */
+    template<typename TRect> constexpr static bool IsInsideClip(const TRect& innerClipBounds,
+                                                                const SkRect& queryBounds) {
+        return innerClipBounds.fRight - innerClipBounds.fLeft >= kBoundsTolerance &&
+               innerClipBounds.fBottom - innerClipBounds.fTop >= kBoundsTolerance &&
+               innerClipBounds.fLeft <= queryBounds.fLeft + kBoundsTolerance &&
+               innerClipBounds.fTop <= queryBounds.fTop + kBoundsTolerance &&
+               innerClipBounds.fRight >= queryBounds.fRight - kBoundsTolerance &&
+               innerClipBounds.fBottom >= queryBounds.fBottom - kBoundsTolerance;
     }
 
-    friend class GrClipMaskManager;
+    /**
+     * Returns true if the given query bounds count as entirely outside the clip.
+     *
+     * @param outerClipBounds   device-space rect that contains the clip (SkRect or SkIRect).
+     * @param queryBounds       device-space bounds of the query region.
+     */
+    template<typename TRect> constexpr static bool IsOutsideClip(const TRect& outerClipBounds,
+                                                                 const SkRect& queryBounds) {
+        return outerClipBounds.fRight - outerClipBounds.fLeft < kBoundsTolerance ||
+               outerClipBounds.fBottom - outerClipBounds.fTop < kBoundsTolerance ||
+               outerClipBounds.fLeft > queryBounds.fRight - kBoundsTolerance ||
+               outerClipBounds.fTop > queryBounds.fBottom - kBoundsTolerance ||
+               outerClipBounds.fRight < queryBounds.fLeft + kBoundsTolerance ||
+               outerClipBounds.fBottom < queryBounds.fTop + kBoundsTolerance;
+    }
+
+    /**
+     * Returns the minimal integer rect that counts as containing a given set of bounds.
+     */
+    static SkIRect GetPixelIBounds(const SkRect& bounds) {
+        return SkIRect::MakeLTRB(SkScalarFloorToInt(bounds.fLeft + kBoundsTolerance),
+                                 SkScalarFloorToInt(bounds.fTop + kBoundsTolerance),
+                                 SkScalarCeilToInt(bounds.fRight - kBoundsTolerance),
+                                 SkScalarCeilToInt(bounds.fBottom - kBoundsTolerance));
+    }
+
+    /**
+     * Returns the minimal pixel-aligned rect that counts as containing a given set of bounds.
+     */
+    static SkRect GetPixelBounds(const SkRect& bounds) {
+        return SkRect::MakeLTRB(SkScalarFloorToScalar(bounds.fLeft + kBoundsTolerance),
+                                SkScalarFloorToScalar(bounds.fTop + kBoundsTolerance),
+                                SkScalarCeilToScalar(bounds.fRight - kBoundsTolerance),
+                                SkScalarCeilToScalar(bounds.fBottom - kBoundsTolerance));
+    }
+
+    /**
+     * Returns true if the given rect counts as aligned with pixel boundaries.
+     */
+    static bool IsPixelAligned(const SkRect& rect) {
+        return SkScalarAbs(SkScalarRoundToScalar(rect.fLeft) - rect.fLeft) <= kBoundsTolerance &&
+               SkScalarAbs(SkScalarRoundToScalar(rect.fTop) - rect.fTop) <= kBoundsTolerance &&
+               SkScalarAbs(SkScalarRoundToScalar(rect.fRight) - rect.fRight) <= kBoundsTolerance &&
+               SkScalarAbs(SkScalarRoundToScalar(rect.fBottom) - rect.fBottom) <= kBoundsTolerance;
+    }
 };
 
 /**

@@ -54,9 +54,7 @@ struct GrGLIRect {
         }
         fHeight = height;
 
-        SkASSERT(fLeft >= 0);
         SkASSERT(fWidth >= 0);
-        SkASSERT(fBottom >= 0);
         SkASSERT(fHeight >= 0);
     }
 

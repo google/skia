@@ -7,14 +7,16 @@
 
 #include "GrReducedClip.h"
 
+#include "GrClip.h"
+
 typedef SkClipStack::Element Element;
 
-static void reduced_stack_walker(const SkClipStack& stack,
-                                 const SkRect& queryBounds,
-                                 GrReducedClip::ElementList* result,
-                                 int32_t* resultGenID,
-                                 GrReducedClip::InitialState* initialState,
-                                 bool* requiresAA) {
+static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack,
+                                                        const SkRect& queryBounds,
+                                                        const SkIRect& clipIBounds,
+                                                        GrReducedClip::ElementList* result,
+                                                        int32_t* resultGenID,
+                                                        bool* requiresAA) {
 
     // walk backwards until we get to:
     //  a) the beginning
@@ -23,27 +25,32 @@ static void reduced_stack_walker(const SkClipStack& stack,
 
     static const GrReducedClip::InitialState kUnknown_InitialState =
         static_cast<GrReducedClip::InitialState>(-1);
-    *initialState = kUnknown_InitialState;
+    GrReducedClip::InitialState initialState = kUnknown_InitialState;
 
     // During our backwards walk, track whether we've seen ops that either grow or shrink the clip.
     // TODO: track these per saved clip so that we can consider them on the forward pass.
     bool embiggens = false;
     bool emsmallens = false;
 
+    // We use a slightly relaxed set of query bounds for element containment tests. This is to
+    // account for floating point rounding error that may have occurred during coord transforms.
+    SkRect relaxedQueryBounds = queryBounds.makeInset(GrClip::kBoundsTolerance,
+                                                      GrClip::kBoundsTolerance);
+
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
     int numAAElements = 0;
-    while ((kUnknown_InitialState == *initialState)) {
+    while (kUnknown_InitialState == initialState) {
         const Element* element = iter.prev();
         if (nullptr == element) {
-            *initialState = GrReducedClip::kAllIn_InitialState;
+            initialState = GrReducedClip::kAllIn_InitialState;
             break;
         }
         if (SkClipStack::kEmptyGenID == element->getGenID()) {
-            *initialState = GrReducedClip::kAllOut_InitialState;
+            initialState = GrReducedClip::kAllOut_InitialState;
             break;
         }
         if (SkClipStack::kWideOpenGenID == element->getGenID()) {
-            *initialState = GrReducedClip::kAllIn_InitialState;
+            initialState = GrReducedClip::kAllIn_InitialState;
             break;
         }
 
@@ -55,17 +62,17 @@ static void reduced_stack_walker(const SkClipStack& stack,
                 // check if the shape subtracted either contains the entire bounds (and makes
                 // the clip empty) or is outside the bounds and therefore can be skipped.
                 if (element->isInverseFilled()) {
-                    if (element->contains(queryBounds)) {
+                    if (element->contains(relaxedQueryBounds)) {
                         skippable = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
-                        *initialState = GrReducedClip::kAllOut_InitialState;
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                        initialState = GrReducedClip::kAllOut_InitialState;
                         skippable = true;
                     }
                 } else {
-                    if (element->contains(queryBounds)) {
-                        *initialState = GrReducedClip::kAllOut_InitialState;
+                    if (element->contains(relaxedQueryBounds)) {
+                        initialState = GrReducedClip::kAllOut_InitialState;
                         skippable = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         skippable = true;
                     }
                 }
@@ -78,17 +85,17 @@ static void reduced_stack_walker(const SkClipStack& stack,
                 // be skipped or it is outside the entire bounds and therefore makes the clip
                 // empty.
                 if (element->isInverseFilled()) {
-                    if (element->contains(queryBounds)) {
-                        *initialState = GrReducedClip::kAllOut_InitialState;
+                    if (element->contains(relaxedQueryBounds)) {
+                        initialState = GrReducedClip::kAllOut_InitialState;
                         skippable = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         skippable = true;
                     }
                 } else {
-                    if (element->contains(queryBounds)) {
+                    if (element->contains(relaxedQueryBounds)) {
                         skippable = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
-                        *initialState = GrReducedClip::kAllOut_InitialState;
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                        initialState = GrReducedClip::kAllOut_InitialState;
                         skippable = true;
                     }
                 }
@@ -101,17 +108,17 @@ static void reduced_stack_walker(const SkClipStack& stack,
                 // the bounds is entirely inside the clip. If the union-ed shape is outside the
                 // bounds then this op can be skipped.
                 if (element->isInverseFilled()) {
-                    if (element->contains(queryBounds)) {
+                    if (element->contains(relaxedQueryBounds)) {
                         skippable = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
-                        *initialState = GrReducedClip::kAllIn_InitialState;
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                        initialState = GrReducedClip::kAllIn_InitialState;
                         skippable = true;
                     }
                 } else {
-                    if (element->contains(queryBounds)) {
-                        *initialState = GrReducedClip::kAllIn_InitialState;
+                    if (element->contains(relaxedQueryBounds)) {
+                        initialState = GrReducedClip::kAllIn_InitialState;
                         skippable = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         skippable = true;
                     }
                 }
@@ -125,15 +132,15 @@ static void reduced_stack_walker(const SkClipStack& stack,
                 // able to take advantage of this in the forward pass. If the xor-ed shape
                 // doesn't intersect the bounds then it can be skipped.
                 if (element->isInverseFilled()) {
-                    if (element->contains(queryBounds)) {
+                    if (element->contains(relaxedQueryBounds)) {
                         skippable = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         isFlip = true;
                     }
                 } else {
-                    if (element->contains(queryBounds)) {
+                    if (element->contains(relaxedQueryBounds)) {
                         isFlip = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         skippable = true;
                     }
                 }
@@ -147,17 +154,17 @@ static void reduced_stack_walker(const SkClipStack& stack,
                 // the bounds then we know after this element is applied that the bounds will be
                 // all outside the current clip.B
                 if (element->isInverseFilled()) {
-                    if (element->contains(queryBounds)) {
-                        *initialState = GrReducedClip::kAllOut_InitialState;
+                    if (element->contains(relaxedQueryBounds)) {
+                        initialState = GrReducedClip::kAllOut_InitialState;
                         skippable = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         isFlip = true;
                     }
                 } else {
-                    if (element->contains(queryBounds)) {
+                    if (element->contains(relaxedQueryBounds)) {
                         isFlip = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
-                        *initialState = GrReducedClip::kAllOut_InitialState;
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                        initialState = GrReducedClip::kAllOut_InitialState;
                         skippable = true;
                     }
                 }
@@ -165,30 +172,31 @@ static void reduced_stack_walker(const SkClipStack& stack,
                     emsmallens = embiggens = true;
                 }
                 break;
+
             case SkRegion::kReplace_Op:
                 // Replace will always terminate our walk. We will either begin the forward walk
                 // at the replace op or detect here than the shape is either completely inside
                 // or completely outside the bounds. In this latter case it can be skipped by
                 // setting the correct value for initialState.
                 if (element->isInverseFilled()) {
-                    if (element->contains(queryBounds)) {
-                        *initialState = GrReducedClip::kAllOut_InitialState;
+                    if (element->contains(relaxedQueryBounds)) {
+                        initialState = GrReducedClip::kAllOut_InitialState;
                         skippable = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
-                        *initialState = GrReducedClip::kAllIn_InitialState;
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                        initialState = GrReducedClip::kAllIn_InitialState;
                         skippable = true;
                     }
                 } else {
-                    if (element->contains(queryBounds)) {
-                        *initialState = GrReducedClip::kAllIn_InitialState;
+                    if (element->contains(relaxedQueryBounds)) {
+                        initialState = GrReducedClip::kAllIn_InitialState;
                         skippable = true;
-                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
-                        *initialState = GrReducedClip::kAllOut_InitialState;
+                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                        initialState = GrReducedClip::kAllOut_InitialState;
                         skippable = true;
                     }
                 }
                 if (!skippable) {
-                    *initialState = GrReducedClip::kAllOut_InitialState;
+                    initialState = GrReducedClip::kAllOut_InitialState;
                     embiggens = emsmallens = true;
                 }
                 break;
@@ -206,7 +214,8 @@ static void reduced_stack_walker(const SkClipStack& stack,
             if (isFlip) {
                 SkASSERT(SkRegion::kXOR_Op == element->getOp() ||
                          SkRegion::kReverseDifference_Op == element->getOp());
-                result->addToHead(queryBounds, SkRegion::kReverseDifference_Op, false);
+                result->addToHead(SkRect::Make(clipIBounds), SkRegion::kReverseDifference_Op,
+                                  false);
             } else {
                 Element* newElement = result->addToHead(*element);
                 if (newElement->isAA()) {
@@ -221,17 +230,18 @@ static void reduced_stack_walker(const SkClipStack& stack,
                     newElement->invertShapeFillType();
                     newElement->setOp(SkRegion::kDifference_Op);
                     if (isReplace) {
-                        SkASSERT(GrReducedClip::kAllOut_InitialState == *initialState);
-                        *initialState = GrReducedClip::kAllIn_InitialState;
+                        SkASSERT(GrReducedClip::kAllOut_InitialState == initialState);
+                        initialState = GrReducedClip::kAllIn_InitialState;
                     }
                 }
             }
         }
     }
 
-    if ((GrReducedClip::kAllOut_InitialState == *initialState && !embiggens) ||
-        (GrReducedClip::kAllIn_InitialState == *initialState && !emsmallens)) {
+    if ((GrReducedClip::kAllOut_InitialState == initialState && !embiggens) ||
+        (GrReducedClip::kAllIn_InitialState == initialState && !emsmallens)) {
         result->reset();
+        numAAElements = 0;
     } else {
         Element* element = result->headIter().get();
         while (element) {
@@ -239,20 +249,20 @@ static void reduced_stack_walker(const SkClipStack& stack,
             switch (element->getOp()) {
                 case SkRegion::kDifference_Op:
                     // subtracting from the empty set yields the empty set.
-                    skippable = GrReducedClip::kAllOut_InitialState == *initialState;
+                    skippable = GrReducedClip::kAllOut_InitialState == initialState;
                     break;
                 case SkRegion::kIntersect_Op:
                     // intersecting with the empty set yields the empty set
-                    if (GrReducedClip::kAllOut_InitialState == *initialState) {
+                    if (GrReducedClip::kAllOut_InitialState == initialState) {
                         skippable = true;
                     } else {
                         // We can clear to zero and then simply draw the clip element.
-                        *initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = GrReducedClip::kAllOut_InitialState;
                         element->setOp(SkRegion::kReplace_Op);
                     }
                     break;
                 case SkRegion::kUnion_Op:
-                    if (GrReducedClip::kAllIn_InitialState == *initialState) {
+                    if (GrReducedClip::kAllIn_InitialState == initialState) {
                         // unioning the infinite plane with anything is a no-op.
                         skippable = true;
                     } else {
@@ -261,23 +271,23 @@ static void reduced_stack_walker(const SkClipStack& stack,
                     }
                     break;
                 case SkRegion::kXOR_Op:
-                    if (GrReducedClip::kAllOut_InitialState == *initialState) {
+                    if (GrReducedClip::kAllOut_InitialState == initialState) {
                         // xor could be changed to diff in the kAllIn case, not sure it's a win.
                         element->setOp(SkRegion::kReplace_Op);
                     }
                     break;
                 case SkRegion::kReverseDifference_Op:
-                    if (GrReducedClip::kAllIn_InitialState == *initialState) {
+                    if (GrReducedClip::kAllIn_InitialState == initialState) {
                         // subtracting the whole plane will yield the empty set.
                         skippable = true;
-                        *initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = GrReducedClip::kAllOut_InitialState;
                     } else {
                         // this picks up flips inserted in the backwards pass.
                         skippable = element->isInverseFilled() ?
-                            !SkRect::Intersects(element->getBounds(), queryBounds) :
-                            element->contains(queryBounds);
+                            GrClip::IsOutsideClip(element->getBounds(), queryBounds) :
+                            element->contains(relaxedQueryBounds);
                         if (skippable) {
-                            *initialState = GrReducedClip::kAllIn_InitialState;
+                            initialState = GrReducedClip::kAllIn_InitialState;
                         } else {
                             element->setOp(SkRegion::kReplace_Op);
                         }
@@ -305,12 +315,15 @@ static void reduced_stack_walker(const SkClipStack& stack,
     *requiresAA = numAAElements > 0;
 
     if (0 == result->count()) {
-        if (*initialState == GrReducedClip::kAllIn_InitialState) {
+        if (initialState == GrReducedClip::kAllIn_InitialState) {
             *resultGenID = SkClipStack::kWideOpenGenID;
         } else {
             *resultGenID = SkClipStack::kEmptyGenID;
         }
     }
+
+    SkASSERT(SkClipStack::kInvalidGenID != *resultGenID);
+    return initialState;
 }
 
 /*
@@ -320,15 +333,13 @@ for the case where the bounds are kInsideOut_BoundsType. We could restrict earli
 based on later intersect operations, and perhaps remove intersect-rects. We could optionally
 take a rect in case the caller knows a bound on what is to be drawn through this clip.
 */
-void GrReducedClip::ReduceClipStack(const SkClipStack& stack,
-                                    const SkIRect& queryBounds,
-                                    ElementList* result,
-                                    int32_t* resultGenID,
-                                    InitialState* initialState,
-                                    SkIRect* tighterBounds,
-                                    bool* requiresAA) {
-    SkASSERT(tighterBounds);
-    SkASSERT(requiresAA);
+GrReducedClip::InitialState GrReducedClip::ReduceClipStack(const SkClipStack& stack,
+                                                           const SkRect& queryBounds,
+                                                           ElementList* result,
+                                                           int32_t* resultGenID,
+                                                           SkIRect* clipIBounds,
+                                                           bool* requiresAA) {
+    SkASSERT(!queryBounds.isEmpty());
     result->reset();
 
     // The clip established by the element list might be cached based on the last
@@ -336,85 +347,55 @@ void GrReducedClip::ReduceClipStack(const SkClipStack& stack,
     // id that lead to the state. Make a conservative guess.
     *resultGenID = stack.getTopmostGenID();
 
+    // TODO: instead devise a way of telling the caller to disregard some or all of the clip bounds.
+    *clipIBounds = GrClip::GetPixelIBounds(queryBounds);
+
     if (stack.isWideOpen()) {
-        *initialState = kAllIn_InitialState;
-        return;
+        return kAllIn_InitialState;
     }
-
-
-    // We initially look at whether the bounds alone is sufficient. We also use the stack bounds to
-    // attempt to compute the tighterBounds.
 
     SkClipStack::BoundsType stackBoundsType;
     SkRect stackBounds;
     bool iior;
     stack.getBounds(&stackBounds, &stackBoundsType, &iior);
 
-    const SkIRect* bounds = &queryBounds;
-
-    SkRect scalarQueryBounds = SkRect::Make(queryBounds);
-
-    if (iior) {
-        SkASSERT(SkClipStack::kNormal_BoundsType == stackBoundsType);
-        SkRect isectRect;
-        if (stackBounds.contains(scalarQueryBounds)) {
-            *initialState = GrReducedClip::kAllIn_InitialState;
-            *tighterBounds = queryBounds;
-            *requiresAA = false;
-        } else if (isectRect.intersect(stackBounds, scalarQueryBounds)) {
-            // If the caller asked for tighter integer bounds we may be able to
-            // return kAllIn and give the bounds with no elements
-            isectRect.roundOut(tighterBounds);
-            SkRect scalarTighterBounds = SkRect::Make(*tighterBounds);
-            if (scalarTighterBounds == isectRect) {
-                // the round-out didn't add any area outside the clip rect.
-                *requiresAA = false;
-                *initialState = GrReducedClip::kAllIn_InitialState;
-                return;
-            }
-            *initialState = kAllOut_InitialState;
-            // iior should only be true if aa/non-aa status matches among all elements.
-            SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
-            bool doAA = iter.prev()->isAA();
-            result->addToHead(isectRect, SkRegion::kReplace_Op, doAA);
-            *requiresAA = doAA;
-        } else {
-            *initialState = kAllOut_InitialState;
-            *requiresAA = false;
-        }
-        return;
-    } else {
-        if (SkClipStack::kNormal_BoundsType == stackBoundsType) {
-            if (!SkRect::Intersects(stackBounds, scalarQueryBounds)) {
-                *initialState = kAllOut_InitialState;
-               *requiresAA = false;
-                return;
-            }
-            SkIRect stackIBounds;
-            stackBounds.roundOut(&stackIBounds);
-            if (!tighterBounds->intersect(queryBounds, stackIBounds)) {
-                SkASSERT(0);
-                tighterBounds->setEmpty();
-            }
-            bounds = tighterBounds;
-        } else {
-            if (stackBounds.contains(scalarQueryBounds)) {
-                *initialState = kAllOut_InitialState;
-                // We know that the bounding box contains all the pixels that are outside the clip,
-                // but we don't know that *all* the pixels in the box are outside the clip. So
-                // proceed to walking the stack.
-            }
-            *tighterBounds = queryBounds;
-        }
+    if (stackBounds.isEmpty() || GrClip::IsOutsideClip(stackBounds, queryBounds)) {
+        bool insideOut = SkClipStack::kInsideOut_BoundsType == stackBoundsType;
+        return insideOut ? kAllIn_InitialState : kAllOut_InitialState;
     }
 
-    SkRect scalarBounds = SkRect::Make(*bounds);
+    if (iior) {
+        // "Is intersection of rects" means the clip is a single rect indicated by the stack bounds.
+        // This should only be true if aa/non-aa status matches among all elements.
+        SkASSERT(SkClipStack::kNormal_BoundsType == stackBoundsType);
+        SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+        if (!iter.prev()->isAA() || GrClip::IsPixelAligned(stackBounds)) {
+            // The clip is a non-aa rect. This is the one spot where we can actually implement the
+            // clip (using clipIBounds) rather than just telling the caller what it should be.
+            stackBounds.round(clipIBounds);
+            return kAllIn_InitialState;
+        }
+        if (GrClip::IsInsideClip(stackBounds, queryBounds)) {
+            return kAllIn_InitialState;
+        }
+
+        // Implement the clip with an AA rect element.
+        result->addToHead(stackBounds, SkRegion::kReplace_Op, true/*doAA*/);
+        *requiresAA = true;
+
+        SkAssertResult(clipIBounds->intersect(GrClip::GetPixelIBounds(stackBounds)));
+        return kAllOut_InitialState;
+    }
+
+    SkRect tighterQuery = queryBounds;
+    if (SkClipStack::kNormal_BoundsType == stackBoundsType) {
+        // Tighten the query by introducing a new clip at the stack's pixel boundaries. (This new
+        // clip will be enforced by the scissor through clipIBounds.)
+        SkAssertResult(tighterQuery.intersect(GrClip::GetPixelBounds(stackBounds)));
+        *clipIBounds = GrClip::GetPixelIBounds(tighterQuery);
+    }
 
     // Now that we have determined the bounds to use and filtered out the trivial cases, call the
     // helper that actually walks the stack.
-    reduced_stack_walker(stack, scalarBounds, result, resultGenID, initialState, requiresAA);
-
-    // The list that was computed in this function may be cached based on the gen id of the last
-    // element.
-    SkASSERT(SkClipStack::kInvalidGenID != *resultGenID);
+    return reduced_stack_walker(stack, tighterQuery, *clipIBounds, result, resultGenID, requiresAA);
 }

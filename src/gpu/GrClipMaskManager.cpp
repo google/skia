@@ -26,6 +26,7 @@
 #include "effects/GrTextureDomain.h"
 
 typedef SkClipStack::Element Element;
+typedef GrReducedClip::InitialState InitialState;
 
 static const int kMaxAnalyticElements = 4;
 
@@ -146,7 +147,7 @@ bool GrClipMaskManager::UseSWOnlyPath(GrContext* context,
 
 static bool get_analytic_clip_processor(const GrReducedClip::ElementList& elements,
                                         bool abortIfAA,
-                                        SkVector& clipToRTOffset,
+                                        const SkVector& clipToRTOffset,
                                         const SkRect& drawBounds,
                                         sk_sp<GrFragmentProcessor>* resultFP) {
     SkRect boundsInClipSpace;
@@ -237,40 +238,32 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
         return true;
     }
 
+    SkRect devBounds = SkRect::MakeIWH(drawContext->width(), drawContext->height());
+    if (origDevBounds && !devBounds.intersect(*origDevBounds)) {
+        return false;
+    }
+
+    const SkScalar clipX = SkIntToScalar(clip.origin().x()),
+                   clipY = SkIntToScalar(clip.origin().y());
+
     GrReducedClip::ElementList elements;
     int32_t genID = 0;
-    GrReducedClip::InitialState initialState = GrReducedClip::kAllIn_InitialState;
     SkIRect clipSpaceIBounds;
     bool requiresAA = false;
 
-    SkIRect clipSpaceReduceQueryBounds;
-    SkRect devBounds;
-    if (origDevBounds) {
-        if (!devBounds.intersect(SkRect::MakeIWH(drawContext->width(), drawContext->height()),
-                                 *origDevBounds)) {
-            return false;
-        }
-        devBounds.roundOut(&clipSpaceReduceQueryBounds);
-        clipSpaceReduceQueryBounds.offset(clip.origin());
-    } else {
-        devBounds = SkRect::MakeIWH(drawContext->width(), drawContext->height());
-        clipSpaceReduceQueryBounds.setXYWH(0, 0, drawContext->width(), drawContext->height());
-        clipSpaceReduceQueryBounds.offset(clip.origin());
-    }
-    GrReducedClip::ReduceClipStack(*clip.clipStack(),
-                                    clipSpaceReduceQueryBounds,
-                                    &elements,
-                                    &genID,
-                                    &initialState,
-                                    &clipSpaceIBounds,
-                                    &requiresAA);
+    InitialState initialState = GrReducedClip::ReduceClipStack(*clip.clipStack(),
+                                                               devBounds.makeOffset(clipX, clipY),
+                                                               &elements,
+                                                               &genID,
+                                                               &clipSpaceIBounds,
+                                                               &requiresAA);
     if (elements.isEmpty()) {
         if (GrReducedClip::kAllOut_InitialState == initialState) {
             return false;
         } else {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
-            if (!GrClip::CanIgnoreScissor(scissorSpaceIBounds, devBounds)) {
+            if (!GrClip::IsInsideClip(scissorSpaceIBounds, devBounds)) {
                 out->makeScissored(scissorSpaceIBounds);
             }
             return true;
@@ -286,8 +279,6 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
     // configuration's relative costs of switching RTs to generate a mask vs
     // longer shaders.
     if (elements.count() <= kMaxAnalyticElements) {
-        SkVector clipToRTOffset = { SkIntToScalar(-clip.origin().fX),
-                                    SkIntToScalar(-clip.origin().fY) };
         // When there are multiple samples we want to do per-sample clipping, not compute a
         // fractional pixel coverage.
         bool disallowAnalyticAA = drawContext->isStencilBufferMultisampled();
@@ -299,11 +290,11 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
         }
         sk_sp<GrFragmentProcessor> clipFP;
         if (requiresAA &&
-            get_analytic_clip_processor(elements, disallowAnalyticAA, clipToRTOffset, devBounds,
+            get_analytic_clip_processor(elements, disallowAnalyticAA, {-clipX, -clipY}, devBounds,
                                         &clipFP)) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
-            if (GrClip::CanIgnoreScissor(scissorSpaceIBounds, devBounds)) {
+            if (GrClip::IsInsideClip(scissorSpaceIBounds, devBounds)) {
                 out->makeFPBased(std::move(clipFP), SkRect::Make(scissorSpaceIBounds));
             } else {
                 out->makeScissoredFPBased(std::move(clipFP), scissorSpaceIBounds);
@@ -370,7 +361,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
     // use both stencil and scissor test to the bounds for the final draw.
     SkIRect scissorSpaceIBounds(clipSpaceIBounds);
     scissorSpaceIBounds.offset(clipSpaceToStencilSpaceOffset);
-    if (GrClip::CanIgnoreScissor(scissorSpaceIBounds, devBounds)) {
+    if (GrClip::IsInsideClip(scissorSpaceIBounds, devBounds)) {
         out->makeStencil(true, devBounds);
     } else {
         out->makeScissoredStencil(scissorSpaceIBounds);
