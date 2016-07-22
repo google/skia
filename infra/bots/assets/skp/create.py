@@ -20,7 +20,8 @@ import utils
 SKIA_TOOLS = os.path.join(common.INFRA_BOTS_DIR, os.pardir, os.pardir, 'tools')
 
 
-def create_asset(chrome_src_path, browser_executable, target_dir):
+def create_asset(chrome_src_path, browser_executable, target_dir,
+                 upload_to_partner_bucket):
   """Create the asset."""
   browser_executable = os.path.realpath(browser_executable)
   chrome_src_path = os.path.realpath(chrome_src_path)
@@ -47,6 +48,8 @@ def create_asset(chrome_src_path, browser_executable, target_dir):
       '--output_dir', os.getcwd(),
       '--chrome_src_path', chrome_src_path,
     ]
+    if upload_to_partner_bucket:
+      webpages_playback_cmd.append('--upload_to_partner_bucket')
     try:
       subprocess.check_call(webpages_playback_cmd)
     finally:
@@ -75,8 +78,10 @@ def main():
   parser.add_argument('--target_dir', '-t', required=True)
   parser.add_argument('--chrome_src_path', '-c', required=True)
   parser.add_argument('--browser_executable', '-e', required=True)
+  parser.add_argument('--upload_to_partner_bucket', action='store_true')
   args = parser.parse_args()
-  create_asset(args.chrome_src_path, args.browser_executable, args.target_dir)
+  create_asset(args.chrome_src_path, args.browser_executable, args.target_dir,
+               args.upload_to_partner_bucket)
 
 
 if __name__ == '__main__':
