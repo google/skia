@@ -36,11 +36,7 @@ public:
         buf.writeMatrix(fDeviceMatrix);
     }
 
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
-                                                   const SkMatrix& viewM,
-                                                   const SkMatrix* localMatrix,
-                                                   SkFilterQuality,
-                                                   SkSourceGammaTreatment) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
@@ -100,11 +96,7 @@ private:
     GrCoordTransform fDeviceTransform;
 };
 
-sk_sp<GrFragmentProcessor> DCShader::asFragmentProcessor(GrContext*,
-                                                         const SkMatrix& viewM,
-                                                         const SkMatrix* localMatrix,
-                                                         SkFilterQuality,
-                                                         SkSourceGammaTreatment) const {
+sk_sp<GrFragmentProcessor> DCShader::asFragmentProcessor(const AsFPArgs&) const {
     sk_sp<GrFragmentProcessor> inner(new DCFP(fDeviceMatrix));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }

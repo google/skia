@@ -83,12 +83,7 @@ void SkImageShader::toString(SkString* str) const {
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
-                                                     GrContext* context,
-                                                     const SkMatrix& viewM,
-                                                     const SkMatrix* localMatrix,
-                                                     SkFilterQuality filterQuality,
-                                                     SkSourceGammaTreatment gammaTreatment) const {
+sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& args) const {
     SkMatrix matrix;
     matrix.setIDiv(fImage->width(), fImage->height());
 
@@ -96,9 +91,9 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     if (!this->getLocalMatrix().invert(&lmInverse)) {
         return nullptr;
     }
-    if (localMatrix) {
+    if (args.fLocalMatrix) {
         SkMatrix inv;
-        if (!localMatrix->invert(&inv)) {
+        if (!args.fLocalMatrix->invert(&inv)) {
             return nullptr;
         }
         lmInverse.postConcat(inv);
@@ -113,9 +108,11 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // are provided by the caller.
     bool doBicubic;
     GrTextureParams::FilterMode textureFilterMode =
-    GrSkFilterQualityToGrFilterMode(filterQuality, viewM, this->getLocalMatrix(), &doBicubic);
+    GrSkFilterQualityToGrFilterMode(args.fFilterQuality, *args.fViewMatrix, this->getLocalMatrix(),
+                                    &doBicubic);
     GrTextureParams params(tm, textureFilterMode);
-    SkAutoTUnref<GrTexture> texture(as_IB(fImage)->asTextureRef(context, params, gammaTreatment));
+    SkAutoTUnref<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params,
+                                                                args.fGammaTreatment));
     if (!texture) {
         return nullptr;
     }

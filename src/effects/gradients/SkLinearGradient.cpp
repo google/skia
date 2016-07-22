@@ -418,9 +418,9 @@ sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) 
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeLinear(points, colors, stops, colorCount, tm);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
-        SkSourceGammaTreatment::kRespect);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -443,28 +443,24 @@ void GrGLLinearGradient::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
-                                                 GrContext* context,
-                                                 const SkMatrix& viewm,
-                                                 const SkMatrix* localMatrix,
-                                                 SkFilterQuality,
-                                                 SkSourceGammaTreatment) const {
-    SkASSERT(context);
+sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(const AsFPArgs& args) const {
+    SkASSERT(args.fContext);
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return nullptr;
     }
-    if (localMatrix) {
+    if (args.fLocalMatrix) {
         SkMatrix inv;
-        if (!localMatrix->invert(&inv)) {
+        if (!args.fLocalMatrix->invert(&inv)) {
             return nullptr;
         }
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
 
-    sk_sp<GrFragmentProcessor> inner(GrLinearGradient::Make(context, *this, matrix, fTileMode));
+    sk_sp<GrFragmentProcessor> inner(
+        GrLinearGradient::Make(args.fContext, *this, matrix, fTileMode));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

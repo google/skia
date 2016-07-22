@@ -418,10 +418,7 @@ void SkBitmapProcShader::toString(SkString* str) const {
 #include "SkGr.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-sk_sp<GrFragmentProcessor> SkBitmapProcShader::asFragmentProcessor(GrContext* context,
-                                             const SkMatrix& viewM, const SkMatrix* localMatrix,
-                                             SkFilterQuality filterQuality,
-                                             SkSourceGammaTreatment gammaTreatment) const {
+sk_sp<GrFragmentProcessor> SkBitmapProcShader::asFragmentProcessor(const AsFPArgs& args) const {
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
 
@@ -429,9 +426,9 @@ sk_sp<GrFragmentProcessor> SkBitmapProcShader::asFragmentProcessor(GrContext* co
     if (!this->getLocalMatrix().invert(&lmInverse)) {
         return nullptr;
     }
-    if (localMatrix) {
+    if (args.fLocalMatrix) {
         SkMatrix inv;
-        if (!localMatrix->invert(&inv)) {
+        if (!args.fLocalMatrix->invert(&inv)) {
             return nullptr;
         }
         lmInverse.postConcat(inv);
@@ -449,11 +446,11 @@ sk_sp<GrFragmentProcessor> SkBitmapProcShader::asFragmentProcessor(GrContext* co
     // are provided by the caller.
     bool doBicubic;
     GrTextureParams::FilterMode textureFilterMode =
-            GrSkFilterQualityToGrFilterMode(filterQuality, viewM, this->getLocalMatrix(),
-                                            &doBicubic);
+            GrSkFilterQualityToGrFilterMode(args.fFilterQuality, *args.fViewMatrix,
+                                            this->getLocalMatrix(), &doBicubic);
     GrTextureParams params(tm, textureFilterMode);
-    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fRawBitmap, params,
-                                                             gammaTreatment));
+    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(args.fContext, fRawBitmap, params,
+                                                             args.fGammaTreatment));
 
     if (!texture) {
         SkErrorInternals::SetError( kInternalError_SkError,

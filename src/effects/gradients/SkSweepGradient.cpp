@@ -191,10 +191,9 @@ sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tmIgnored);
     sk_sp<SkShader> shader(SkGradientShader::MakeSweep(center.fX, center.fY,  colors, stops,
                                                        colorCount));
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
-                                                                GrTest::TestMatrix(d->fRandom),
-                                                                NULL, kNone_SkFilterQuality,
-                                                                SkSourceGammaTreatment::kRespect);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -227,27 +226,22 @@ void GrGLSweepGradient::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
-                                                    GrContext* context,
-                                                    const SkMatrix& viewM,
-                                                    const SkMatrix* localMatrix,
-                                                    SkFilterQuality,
-                                                    SkSourceGammaTreatment) const {
+sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& args) const {
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return nullptr;
     }
-    if (localMatrix) {
+    if (args.fLocalMatrix) {
         SkMatrix inv;
-        if (!localMatrix->invert(&inv)) {
+        if (!args.fLocalMatrix->invert(&inv)) {
             return nullptr;
         }
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
 
-    sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(context, *this, matrix));
+    sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(args.fContext, *this, matrix));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

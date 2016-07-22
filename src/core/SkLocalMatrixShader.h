@@ -26,10 +26,7 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(
-                                            GrContext* context, const SkMatrix& viewM,
-                                            const SkMatrix* localMatrix, SkFilterQuality fq,
-                                            SkSourceGammaTreatment gammaTreatment) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
     SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const override {

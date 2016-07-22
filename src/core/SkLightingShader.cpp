@@ -53,11 +53,7 @@ public:
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
-                                                   const SkMatrix& viewM,
-                                                   const SkMatrix* localMatrix,
-                                                   SkFilterQuality,
-                                                   SkSourceGammaTreatment) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
     class LightingShaderContext : public SkShader::Context {
@@ -265,23 +261,15 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(
-                                                     GrContext* context,
-                                                     const SkMatrix& viewM,
-                                                     const SkMatrix* localMatrix,
-                                                     SkFilterQuality filterQuality,
-                                                     SkSourceGammaTreatment gammaTreatment) const {
-    sk_sp<GrFragmentProcessor> normalFP(
-            fNormalSource->asFragmentProcessor(context, viewM, localMatrix, filterQuality,
-                                               gammaTreatment));
+sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(const AsFPArgs& args) const {
+    sk_sp<GrFragmentProcessor> normalFP(fNormalSource->asFragmentProcessor(args));
     if (!normalFP) {
         return nullptr;
     }
 
     if (fDiffuseShader) {
         sk_sp<GrFragmentProcessor> fpPipeline[] = {
-            fDiffuseShader->asFragmentProcessor(context, viewM, localMatrix, filterQuality,
-                                                gammaTreatment),
+            fDiffuseShader->asFragmentProcessor(args),
             sk_make_sp<LightingFP>(std::move(normalFP), fLights)
         };
         if(!fpPipeline[0]) {

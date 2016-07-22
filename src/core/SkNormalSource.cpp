@@ -26,11 +26,7 @@ public:
         , fInvCTM(invCTM) {}
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
-                                                   const SkMatrix& viewM,
-                                                   const SkMatrix* localMatrix,
-                                                   SkFilterQuality,
-                                                   SkSourceGammaTreatment) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const SkShader::AsFPArgs&) const override;
 #endif
 
     SkNormalSource::Provider* asProvider(const SkShader::ContextRec& rec,
@@ -178,13 +174,8 @@ private:
 };
 
 sk_sp<GrFragmentProcessor> NormalMapSourceImpl::asFragmentProcessor(
-                                                     GrContext *context,
-                                                     const SkMatrix &viewM,
-                                                     const SkMatrix *localMatrix,
-                                                     SkFilterQuality filterQuality,
-                                                     SkSourceGammaTreatment gammaTreatment) const {
-    sk_sp<GrFragmentProcessor> mapFP = fMapShader->asFragmentProcessor(context, viewM,
-            localMatrix, filterQuality, gammaTreatment);
+        const SkShader::AsFPArgs& args) const {
+    sk_sp<GrFragmentProcessor> mapFP = fMapShader->asFragmentProcessor(args);
     if (!mapFP) {
         return nullptr;
     }
@@ -336,11 +327,7 @@ public:
     NormalFlatSourceImpl(){}
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
-                                                   const SkMatrix& viewM,
-                                                   const SkMatrix* localMatrix,
-                                                   SkFilterQuality,
-                                                   SkSourceGammaTreatment) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const SkShader::AsFPArgs&) const override;
 #endif
 
     SkNormalSource::Provider* asProvider(const SkShader::ContextRec& rec,
@@ -418,11 +405,7 @@ private:
 };
 
 sk_sp<GrFragmentProcessor> NormalFlatSourceImpl::asFragmentProcessor(
-                                                     GrContext *context,
-                                                     const SkMatrix &viewM,
-                                                     const SkMatrix *localMatrix,
-                                                     SkFilterQuality filterQuality,
-                                                     SkSourceGammaTreatment gammaTreatment) const {
+        const SkShader::AsFPArgs&) const {
 
     return sk_make_sp<NormalFlatFP>();
 }

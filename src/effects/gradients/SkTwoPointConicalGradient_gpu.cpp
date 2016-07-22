@@ -208,9 +208,9 @@ sk_sp<GrFragmentProcessor> Edge2PtConicalEffect::TestCreate(GrProcessorTestData*
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                                         colors, stops, colorCount, tm);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
-        SkSourceGammaTreatment::kRespect);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -485,9 +485,9 @@ sk_sp<GrFragmentProcessor> FocalOutside2PtConicalEffect::TestCreate(GrProcessorT
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                                         colors, stops, colorCount, tm);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
-        SkSourceGammaTreatment::kRespect);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -693,9 +693,9 @@ sk_sp<GrFragmentProcessor> FocalInside2PtConicalEffect::TestCreate(GrProcessorTe
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                                         colors, stops, colorCount, tm);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
-        SkSourceGammaTreatment::kRespect);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -941,9 +941,9 @@ sk_sp<GrFragmentProcessor> CircleInside2PtConicalEffect::TestCreate(GrProcessorT
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                                         colors, stops, colorCount, tm);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
-        SkSourceGammaTreatment::kRespect);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -1174,9 +1174,9 @@ sk_sp<GrFragmentProcessor> CircleOutside2PtConicalEffect::TestCreate(GrProcessor
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                                         colors, stops, colorCount, tm);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(
-        d->fContext,GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
-        SkSourceGammaTreatment::kRespect);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
