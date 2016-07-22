@@ -41,6 +41,9 @@ public:
     // blits using something like a SkRasterPipeline::runFew() method.
 
 private:
+    void append_load_d(SkRasterPipeline*, const void*) const;
+    void append_store (SkRasterPipeline*,       void*) const;
+
     SkPixmap         fDst;
     SkRasterPipeline fShader, fColorFilter, fXfermode;
     SkPM4f           fPaintColor;
@@ -124,12 +127,18 @@ static void SK_VECTORCALL lerp_a8_1(SkRasterPipeline::Stage* st, size_t x,
     st->next(x, r,g,b,a, dr,dg,db,da);
 }
 
-static void upscale_lcd16(const Sk4h& lcd16, Sk4f* r, Sk4f* g, Sk4f* b) {
-    Sk4i _32_bit = SkNx_cast<int>(lcd16);
+static void from_565(const Sk4h& _565, Sk4f* r, Sk4f* g, Sk4f* b) {
+    Sk4i _32_bit = SkNx_cast<int>(_565);
 
     *r = SkNx_cast<float>(_32_bit & SK_R16_MASK_IN_PLACE) * (1.0f / SK_R16_MASK_IN_PLACE);
     *g = SkNx_cast<float>(_32_bit & SK_G16_MASK_IN_PLACE) * (1.0f / SK_G16_MASK_IN_PLACE);
     *b = SkNx_cast<float>(_32_bit & SK_B16_MASK_IN_PLACE) * (1.0f / SK_B16_MASK_IN_PLACE);
+}
+
+static Sk4h to_565(const Sk4f& r, const Sk4f& g, const Sk4f& b) {
+    return SkNx_cast<uint16_t>( Sk4f_round(r * SK_R16_MASK) << SK_R16_SHIFT
+                              | Sk4f_round(g * SK_G16_MASK) << SK_G16_SHIFT
+                              | Sk4f_round(b * SK_B16_MASK) << SK_B16_SHIFT);
 }
 
 // s' = d(1-c) + sc, 4 pixels at a time for 565 coverage.
@@ -138,7 +147,7 @@ static void SK_VECTORCALL lerp_lcd16(SkRasterPipeline::Stage* st, size_t x,
                                      Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     auto ptr = st->ctx<const uint16_t*>() + x;
     Sk4f cr, cg, cb;
-    upscale_lcd16(Sk4h::Load(ptr), &cr, &cg, &cb);
+    from_565(Sk4h::Load(ptr), &cr, &cg, &cb);
 
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
@@ -153,13 +162,51 @@ static void SK_VECTORCALL lerp_lcd16_1(SkRasterPipeline::Stage* st, size_t x,
                                        Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     auto ptr = st->ctx<const uint16_t*>() + x;
     Sk4f cr, cg, cb;
-    upscale_lcd16({*ptr,0,0,0}, &cr, &cg, &cb);
+    from_565({*ptr,0,0,0}, &cr, &cg, &cb);
 
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
     a = 1.0f;
     st->next(x, r,g,b,a, dr,dg,db,da);
+}
+
+// Load 4 565 dst pixels.
+static void SK_VECTORCALL load_d_565(SkRasterPipeline::Stage* st, size_t x,
+                                     Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                     Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    auto ptr = st->ctx<const uint16_t*>() + x;
+
+    from_565(Sk4h::Load(ptr), &dr,&dg,&db);
+    da = 1.0f;
+    st->next(x, r,g,b,a, dr,dg,db,da);
+}
+
+// Load 1 565 dst pixel.
+static void SK_VECTORCALL load_d_565_1(SkRasterPipeline::Stage* st, size_t x,
+                                       Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                       Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    auto ptr = st->ctx<const uint16_t*>() + x;
+
+    from_565({*ptr,0,0,0}, &dr,&dg,&db);
+    da = 1.0f;
+    st->next(x, r,g,b,a, dr,dg,db,da);
+}
+
+// Store 4 565 pixels.
+static void SK_VECTORCALL store_565(SkRasterPipeline::Stage* st, size_t x,
+                                    Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                    Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    auto ptr = st->ctx<uint16_t*>() + x;
+    to_565(r,g,b).store(ptr);
+}
+
+// Store 1 565 pixel.
+static void SK_VECTORCALL store_565_1(SkRasterPipeline::Stage* st, size_t x,
+                                      Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                      Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    auto ptr = st->ctx<uint16_t*>() + x;
+    *ptr = to_565(r,g,b)[0];
 }
 
 // Load 4 8-bit sRGB pixels from SkPMColor order to RGBA.
@@ -222,6 +269,14 @@ static void SK_VECTORCALL store_srgb_1(SkRasterPipeline::Stage* st, size_t x,
     *dst = Sk4f_toS32(swizzle_rb_if_bgra({ r[0], g[0], b[0], a[0] }));
 }
 
+static bool supported(const SkImageInfo& info) {
+    // TODO: f16, more?
+    switch (info.colorType()) {
+        case kN32_SkColorType:     return info.gammaCloseToSRGB();
+        case kRGB_565_SkColorType: return true;
+        default:                   return false;
+    }
+}
 
 template <typename Effect>
 static bool append_effect_stages(const Effect* effect, SkRasterPipeline* pipeline) {
@@ -232,8 +287,8 @@ static bool append_effect_stages(const Effect* effect, SkRasterPipeline* pipelin
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
                                            SkTBlitterAllocator* alloc) {
-    if (!dst.info().gammaCloseToSRGB()) {
-        return nullptr;  // TODO: f16, etc.
+    if (!supported(dst.info())) {
+        return nullptr;
     }
     if (paint.getShader()) {
         return nullptr;  // TODO: need to work out how shaders and their contexts work
@@ -245,10 +300,19 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         return nullptr;
     }
 
+    uint32_t paintColor = paint.getColor();
+
+    SkColor4f color;
+    if (dst.info().colorSpace()) {
+        color = SkColor4f::FromColor(paintColor);
+    } else {
+        swizzle_rb(SkNx_cast<float>(Sk4b::Load(&paintColor)) * (1/255.0f)).store(&color);
+    }
+
     auto blitter = alloc->createT<SkRasterPipelineBlitter>(
             dst,
             shader, colorFilter, xfermode,
-            SkColor4f::FromColor(paint.getColor()).premul());
+            color.premul());
 
     if (!paint.getShader()) {
         blitter->fShader.append(constant_color, &blitter->fPaintColor);
@@ -260,15 +324,47 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     return blitter;
 }
 
+void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p, const void* dst) const {
+    SkASSERT(supported(fDst.info()));
+
+    switch (fDst.info().colorType()) {
+        case kN32_SkColorType:
+            if (fDst.info().gammaCloseToSRGB()) {
+                p->append(load_d_srgb, load_d_srgb_1, dst);
+            }
+            break;
+        case kRGB_565_SkColorType:
+            p->append(load_d_565, load_d_565_1, dst);
+            break;
+        default: break;
+    }
+}
+
+void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p, void* dst) const {
+    SkASSERT(supported(fDst.info()));
+
+    switch (fDst.info().colorType()) {
+        case kN32_SkColorType:
+            if (fDst.info().gammaCloseToSRGB()) {
+                p->append(store_srgb, store_srgb_1, dst);
+            }
+            break;
+        case kRGB_565_SkColorType:
+            p->append(store_565, store_565_1, dst);
+            break;
+        default: break;
+    }
+}
+
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     auto dst = fDst.writable_addr(0,y);
 
     SkRasterPipeline p;
     p.extend(fShader);
     p.extend(fColorFilter);
-    p.append(load_d_srgb, load_d_srgb_1, dst);
+    this->append_load_d(&p, dst);
     p.extend(fXfermode);
-    p.append(store_srgb, store_srgb_1, dst);
+    this->append_store(&p, dst);
 
     p.run(x, w);
 }
@@ -280,10 +376,10 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
     SkRasterPipeline p;
     p.extend(fShader);
     p.extend(fColorFilter);
-    p.append(load_d_srgb, load_d_srgb_1, dst);
+    this->append_load_d(&p, dst);
     p.extend(fXfermode);
     p.append(lerp_constant_float, &coverage);
-    p.append(store_srgb, store_srgb_1, dst);
+    this->append_store(&p, dst);
 
     for (int16_t run = *runs; run > 0; run = *runs) {
         coverage = *aa * (1/255.0f);
@@ -308,7 +404,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         SkRasterPipeline p;
         p.extend(fShader);
         p.extend(fColorFilter);
-        p.append(load_d_srgb, load_d_srgb_1, dst);
+        this->append_load_d(&p, dst);
         p.extend(fXfermode);
         switch (mask.fFormat) {
             case SkMask::kA8_Format:
@@ -319,7 +415,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
                 break;
             default: break;
         }
-        p.append(store_srgb, store_srgb_1, dst);
+        this->append_store(&p, dst);
 
         p.run(x, clip.width());
     }
