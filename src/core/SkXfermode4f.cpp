@@ -464,11 +464,11 @@ SkXfermode::LCD32Proc SkXfermode::GetLCD32Proc(uint32_t flags) {
     flags &= 7;
 
     const LCD32Proc procs[] = {
-        srcover_n_lcd<kSRGB_Dst>,   src_n_lcd<kSRGB_Dst>,
-        srcover_1_lcd<kSRGB_Dst>,   src_1_lcd<kSRGB_Dst>,
-
         srcover_n_lcd<kLinear_Dst>, src_n_lcd<kLinear_Dst>,
         srcover_1_lcd<kLinear_Dst>, src_1_lcd<kLinear_Dst>,
+
+        srcover_n_lcd<kSRGB_Dst>,   src_n_lcd<kSRGB_Dst>,
+        srcover_1_lcd<kSRGB_Dst>,   src_1_lcd<kSRGB_Dst>,
     };
     return procs[flags];
 }
