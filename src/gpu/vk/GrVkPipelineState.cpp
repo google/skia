@@ -68,8 +68,8 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
         fStartDS = SkTMin(fStartDS, (int)GrVkUniformHandler::kSamplerDescSet);
     }
 
-    fVertexUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, vertexUniformSize, true));
-    fFragmentUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, fragmentUniformSize, true));
+    fVertexUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, vertexUniformSize));
+    fFragmentUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, fragmentUniformSize));
 
     fNumSamplers = numSamplers;
 }

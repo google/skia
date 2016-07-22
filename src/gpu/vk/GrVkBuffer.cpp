@@ -108,7 +108,7 @@ void GrVkBuffer::Resource::freeGPUData(const GrVkGpu* gpu) const {
 
 void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {
     VALIDATE();
-    fResource->unref(gpu);
+    fResource->recycle(const_cast<GrVkGpu*>(gpu));
     fResource = nullptr;
     fMapPtr = nullptr;
     VALIDATE();

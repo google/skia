@@ -12,6 +12,7 @@
 #include "GrVkPipeline.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkSampler.h"
+#include "GrVkUniformBuffer.h"
 #include "GrVkUtil.h"
 
 #ifdef SK_TRACE_VK_RESOURCES
@@ -267,6 +268,22 @@ void GrVkResourceProvider::recycleSecondaryCommandBuffer(GrVkSecondaryCommandBuf
     fAvailableSecondaryCommandBuffers.push_back(cb);
 }
 
+const GrVkResource* GrVkResourceProvider::findOrCreateStandardUniformBufferResource() {
+    const GrVkResource* resource = nullptr;
+    int count = fAvailableUniformBufferResources.count();
+    if (count > 0) {
+        resource = fAvailableUniformBufferResources[count - 1];
+        fAvailableUniformBufferResources.removeShuffle(count - 1);
+    } else {
+        resource = GrVkUniformBuffer::CreateResource(fGpu, GrVkUniformBuffer::kStandardSize);
+    }
+    return resource;
+}
+
+void GrVkResourceProvider::recycleStandardUniformBufferResource(const GrVkResource* resource) {
+    fAvailableUniformBufferResources.push_back(resource);
+}
+
 void GrVkResourceProvider::destroyResources() {
     // release our active command buffers
     for (int i = 0; i < fActiveCommandBuffers.count(); ++i) {
@@ -322,6 +339,13 @@ void GrVkResourceProvider::destroyResources() {
         fDescriptorSetManagers[i].release(fGpu);
     }
     fDescriptorSetManagers.reset();
+
+    // release our uniform buffers
+    for (int i = 0; i < fAvailableUniformBufferResources.count(); ++i) {
+        SkASSERT(fAvailableUniformBufferResources[i]->unique());
+        fAvailableUniformBufferResources[i]->unref(fGpu);
+    }
+    fAvailableUniformBufferResources.reset();
 }
 
 void GrVkResourceProvider::abandonResources() {
@@ -371,6 +395,12 @@ void GrVkResourceProvider::abandonResources() {
     }
     fDescriptorSetManagers.reset();
 
+    // release our uniform buffers
+    for (int i = 0; i < fAvailableUniformBufferResources.count(); ++i) {
+        SkASSERT(fAvailableUniformBufferResources[i]->unique());
+        fAvailableUniformBufferResources[i]->unrefAndAbandon();
+    }
+    fAvailableUniformBufferResources.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

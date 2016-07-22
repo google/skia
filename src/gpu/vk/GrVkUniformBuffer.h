@@ -15,7 +15,9 @@ class GrVkGpu;
 class GrVkUniformBuffer : public GrVkBuffer {
 
 public:
-    static GrVkUniformBuffer* Create(GrVkGpu* gpu, size_t size, bool dynamic);
+    static GrVkUniformBuffer* Create(GrVkGpu* gpu, size_t size);
+    static const GrVkResource* CreateResource(GrVkGpu* gpu, size_t size);
+    static const size_t kStandardSize = 256;
 
     void* map(const GrVkGpu* gpu) {
         return this->vkMap(gpu);
@@ -29,17 +31,26 @@ public:
                     bool* createdNewBuffer) {
         return this->vkUpdateData(gpu, src, srcSizeInBytes, createdNewBuffer);
     }
-    void release(const GrVkGpu* gpu) {
-        this->vkRelease(gpu);
-    }
-    void abandon() {
-        this->vkAbandon();
-    }
+    void release(const GrVkGpu* gpu) { this->vkRelease(gpu); }
+    void abandon() { this->vkAbandon(); }
 
 private:
-    GrVkUniformBuffer(const GrVkBuffer::Desc& desc, const GrVkBuffer::Resource* resource)
-        : INHERITED(desc, resource) {
+    class Resource : public GrVkBuffer::Resource {
+    public:
+        Resource(VkBuffer buf, const GrVkAlloc& alloc)
+            : INHERITED(buf, alloc, kUniform_Type) {}
+
+        void onRecycle(GrVkGpu* gpu) const override;
+
+        typedef GrVkBuffer::Resource INHERITED;
     };
+
+    GrVkUniformBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
+                      const GrVkUniformBuffer::Resource* resource)
+        : INHERITED(desc, resource)
+        , fGpu(gpu) {}
+
+    GrVkGpu* fGpu;
 
     typedef GrVkBuffer INHERITED;
 };

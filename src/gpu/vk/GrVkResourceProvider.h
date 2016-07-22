@@ -128,6 +128,14 @@ public:
     void recycleDescriptorSet(const GrVkDescriptorSet* descSet,
                               const GrVkDescriptorSetManager::Handle&);
 
+    // Creates or finds free uniform buffer resources of size GrVkUniformBuffer::kStandardSize.
+    // Anything larger will need to be created and released by the client.
+    const GrVkResource* findOrCreateStandardUniformBufferResource();
+
+    // Signals that the resource passed to it (which should be a uniform buffer resource)
+    // can be reused by the next uniform buffer resource request.
+    void recycleStandardUniformBufferResource(const GrVkResource*);
+
     // Destroy any cached resources. To be called before destroying the VkDevice.
     // The assumption is that all queues are idle and all command buffers are finished.
     // For resource tracing to work properly, this should be called after unrefing all other
@@ -225,6 +233,9 @@ private:
 
     // Array of available secondary command buffers
     SkSTArray<16, GrVkSecondaryCommandBuffer*> fAvailableSecondaryCommandBuffers;
+
+    // Array of available uniform buffer resources
+    SkSTArray<16, const GrVkResource*> fAvailableUniformBufferResources;
 
     // Stores GrVkSampler objects that we've already created so we can reuse them across multiple
     // GrVkPipelineStates

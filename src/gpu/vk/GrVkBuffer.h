@@ -53,7 +53,7 @@ protected:
         bool        fDynamic;
     };
 
-    class Resource : public GrVkResource {
+    class Resource : public GrVkRecycledResource {
     public:
         Resource(VkBuffer buf, const GrVkAlloc& alloc, Type type)
             : INHERITED(), fBuffer(buf), fAlloc(alloc), fType(type) {}
@@ -70,7 +70,9 @@ protected:
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
 
-        typedef GrVkResource INHERITED;
+        void onRecycle(GrVkGpu* gpu) const override { this->unref(gpu); }
+
+        typedef GrVkRecycledResource INHERITED;
     };
 
     // convenience routine for raw buffer creation
