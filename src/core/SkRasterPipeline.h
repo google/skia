@@ -72,9 +72,10 @@ public:
 
     SkRasterPipeline();
 
-    // Run the pipeline constructed with append(), walking x through [0,n),
+    // Run the pipeline constructed with append(), walking x through [x,x+n),
     // generally in 4 pixel steps, but sometimes 1 pixel at a time.
-    void run(size_t n);
+    void run(size_t x, size_t n);
+    void run(size_t n) { this->run(0, n); }
 
     // Use this append() if your stage is sensitive to the number of pixels you're working with:
     //   - body will always be called for a full 4 pixels
@@ -92,6 +93,9 @@ public:
     void append(Fn body, Fn tail, const void* ctx = nullptr) {
         this->append(body, ctx, tail, ctx);
     }
+
+    // Append all stages to this pipeline.
+    void extend(const SkRasterPipeline&);
 
 private:
     using Stages = SkSTArray<10, Stage, /*MEM_COPY=*/true>;

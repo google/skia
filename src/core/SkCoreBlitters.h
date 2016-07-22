@@ -13,6 +13,7 @@
 #include "SkBlitRow.h"
 #include "SkShader.h"
 #include "SkSmallAllocator.h"
+#include <memory>
 
 class SkRasterBlitter : public SkBlitter {
 public:
@@ -209,5 +210,9 @@ SkBlitter* SkBlitter_F16_Create(const SkPixmap& device, const SkPaint&, SkShader
 SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
                                 SkShader::Context* shaderContext,
                                 SkTBlitterAllocator* allocator);
+
+
+// Returns nullptr if no SkRasterPipeline blitter can be constructed for this paint.
+std::unique_ptr<SkBlitter> SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&);
 
 #endif

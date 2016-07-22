@@ -22,11 +22,23 @@ void SkRasterPipeline::append(SkRasterPipeline::Fn body_fn, const void* body_ctx
     fTail.push_back({ &JustReturn, const_cast<void*>(tail_ctx) });
 }
 
-void SkRasterPipeline::run(size_t n) {
+void SkRasterPipeline::extend(const SkRasterPipeline& src) {
+    SkASSERT(src.fBody.count() == src.fTail.count());
+
+    Fn body_fn = src.fBodyStart,
+       tail_fn = src.fTailStart;
+    for (int i = 0; i < src.fBody.count(); i++) {
+        this->append(body_fn, src.fBody[i].fCtx,
+                     tail_fn, src.fTail[i].fCtx);
+        body_fn = src.fBody[i].fNext;
+        tail_fn = src.fTail[i].fNext;
+    }
+}
+
+void SkRasterPipeline::run(size_t x, size_t n) {
     // It's fastest to start uninitialized if the compilers all let us.  If not, next fastest is 0.
     Sk4f v;
 
-    size_t x = 0;
     while (n >= 4) {
         fBodyStart(fBody.begin(), x, v,v,v,v, v,v,v,v);
         x += 4;
