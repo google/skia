@@ -178,6 +178,15 @@ void span_fallback(Span span, Stage* stage) {
         stage->pointListFew(count, xs, ys);
     }
 }
+
+inline Sk4f SK_VECTORCALL check_pixel(const Sk4f& pixel) {
+    SkASSERTF(0.0f <= pixel[0] && pixel[0] <= 1.0f, "pixel[0]: %f", pixel[0]);
+    SkASSERTF(0.0f <= pixel[1] && pixel[1] <= 1.0f, "pixel[1]: %f", pixel[1]);
+    SkASSERTF(0.0f <= pixel[2] && pixel[2] <= 1.0f, "pixel[2]: %f", pixel[2]);
+    SkASSERTF(0.0f <= pixel[3] && pixel[3] <= 1.0f, "pixel[3]: %f", pixel[3]);
+    return pixel;
+}
+
 }  // namespace
 
 class SkLinearBitmapPipeline::PointProcessorInterface {
@@ -201,26 +210,6 @@ public:
     // Used for nearest neighbor when scale factor is 1.0. The span can just be repeated with no
     // edge pixel alignment problems. This is for handling a very common case.
     virtual void repeatSpan(Span span, int32_t repeatCount) = 0;
-
-    // The x's and y's are setup in the following order:
-    // +--------+--------+
-    // |        |        |
-    // |  px00  |  px10  |
-    // |    0   |    1   |
-    // +--------+--------+
-    // |        |        |
-    // |  px01  |  px11  |
-    // |    2   |    3   |
-    // +--------+--------+
-    // These pixels coordinates are arranged in the following order in xs and ys:
-    // px00  px10  px01  px11
-    virtual void SK_VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) = 0;
-
-    // A span represents sample points that have been mapped from destination space to source
-    // space. Each sample point is then expanded to the four bilerp points by add +/- 0.5. The
-    // resulting Y values my be off the tile. When y +/- 0.5 are more than 1 apart because of
-    // tiling, the second Y is used to denote the retiled Y value.
-    virtual void bilerpSpan(Span span, SkScalar y) = 0;
 };
 
 class SkLinearBitmapPipeline::DestinationInterface {
@@ -243,10 +232,10 @@ class SkLinearBitmapPipeline::PixelAccessorInterface {
 public:
     virtual ~PixelAccessorInterface() { }
     virtual void SK_VECTORCALL getFewPixels(
-        int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) const = 0;
+        int n, Sk4i xs, Sk4i ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) const = 0;
 
     virtual void SK_VECTORCALL get4Pixels(
-        Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const = 0;
+        Sk4i xs, Sk4i ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const = 0;
 
     virtual void get4Pixels(
         const void* src, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const = 0;

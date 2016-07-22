@@ -40,7 +40,7 @@ namespace {
 // * px11 -> xy
 // So x * y is calculated first and then used to calculate all the other factors.
 static Sk4s SK_VECTORCALL bilerp4(Sk4s xs, Sk4s ys, Sk4f px00, Sk4f px10,
-                               Sk4f px01, Sk4f px11) {
+                                                    Sk4f px01, Sk4f px11) {
     // Calculate fractional xs and ys.
     Sk4s fxs = xs - xs.floor();
     Sk4s fys = ys - ys.floor();
@@ -134,20 +134,21 @@ template <SkGammaType gammaType>
 class PixelConverter<kIndex_8_SkColorType, gammaType> {
 public:
     using Element = uint8_t;
-    PixelConverter(const SkPixmap& srcPixmap) {
+    PixelConverter(const SkPixmap& srcPixmap)
+    : fColorTableSize(srcPixmap.ctable()->count()){
         SkColorTable* skColorTable = srcPixmap.ctable();
         SkASSERT(skColorTable != nullptr);
 
         fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
-        for (int i = 0; i < skColorTable->count(); i++) {
+        for (int i = 0; i < fColorTableSize; i++) {
             fColorTable[i] = pmcolor_to_rgba<gammaType>((*skColorTable)[i]);
         }
     }
 
-    PixelConverter(const PixelConverter& strategy) {
+    PixelConverter(const PixelConverter& strategy)
+    : fColorTableSize{strategy.fColorTableSize}{
         fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
-        // TODO: figure out the count.
-        for (int i = 0; i < 256; i++) {
+        for (int i = 0; i < fColorTableSize; i++) {
             fColorTable[i] = strategy.fColorTable[i];
         }
     }
@@ -158,9 +159,9 @@ public:
 
 private:
     static const size_t kColorTableSize = sizeof(Sk4f[256]) + 12;
-
-    SkAutoMalloc         fColorTableStorage{kColorTableSize};
-    Sk4f*                fColorTable;
+    const int           fColorTableSize;
+    SkAutoMalloc        fColorTableStorage{kColorTableSize};
+    Sk4f*               fColorTable;
 };
 
 template <SkGammaType gammaType>
@@ -194,12 +195,12 @@ public:
         : fPixelAccessor(accessor) { }
 
     void SK_VECTORCALL getFewPixels(
-        int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) const {
+        int n, Sk4i xs, Sk4i ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) const {
         fPixelAccessor->getFewPixels(n, xs, ys, px0, px1, px2);
     }
 
     void SK_VECTORCALL get4Pixels(
-        Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const {
+        Sk4i xs, Sk4i ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const {
         fPixelAccessor->get4Pixels(xs, ys, px0, px1, px2, px3);
     }
 
@@ -237,10 +238,8 @@ public:
         , fConverter{srcPixmap, std::move<Args>(args)...} { }
 
     void SK_VECTORCALL getFewPixels (
-        int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) const override {
-        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
-        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
-        Sk4i bufferLoc = YIs * fWidth + XIs;
+        int n, Sk4i xs, Sk4i ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) const override {
+        Sk4i bufferLoc = ys * fWidth + xs;
         switch (n) {
             case 3:
                 *px2 = this->getPixelAt(bufferLoc[2]);
@@ -254,10 +253,8 @@ public:
     }
 
     void SK_VECTORCALL get4Pixels(
-        Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const override {
-        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
-        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
-        Sk4i bufferLoc = YIs * fWidth + XIs;
+        Sk4i xs, Sk4i ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const override {
+        Sk4i bufferLoc = ys * fWidth + xs;
         *px0 = this->getPixelAt(bufferLoc[0]);
         *px1 = this->getPixelAt(bufferLoc[1]);
         *px2 = this->getPixelAt(bufferLoc[2]);
@@ -330,6 +327,7 @@ static void src_strategy_blend(Span span, Next* next, Strategy* strategy) {
     }
 }
 
+// -- NearestNeighborSampler -----------------------------------------------------------------------
 // NearestNeighborSampler - use nearest neighbor filtering to create runs of destination pixels.
 template<typename Accessor, typename Next>
 class NearestNeighborSampler : public SkLinearBitmapPipeline::SampleProcessorInterface {
@@ -345,7 +343,7 @@ public:
     void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         SkASSERT(0 < n && n < 4);
         Sk4f px0, px1, px2;
-        fAccessor.getFewPixels(n, xs, ys, &px0, &px1, &px2);
+        fAccessor.getFewPixels(n, SkNx_cast<int>(xs), SkNx_cast<int>(ys), &px0, &px1, &px2);
         if (n >= 1) fNext->blendPixel(px0);
         if (n >= 2) fNext->blendPixel(px1);
         if (n >= 3) fNext->blendPixel(px2);
@@ -353,7 +351,7 @@ public:
 
     void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         Sk4f px0, px1, px2, px3;
-        fAccessor.get4Pixels(xs, ys, &px0, &px1, &px2, &px3);
+        fAccessor.get4Pixels(SkNx_cast<int>(xs), SkNx_cast<int>(ys), &px0, &px1, &px2, &px3);
         fNext->blend4Pixels(px0, px1, px2, px3);
     }
 
@@ -380,21 +378,11 @@ public:
         }
     }
 
-    void SK_VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override {
-        SkFAIL("Using nearest neighbor sampler, but calling a bilerpEdge.");
-    }
-
-    void bilerpSpan(Span span, SkScalar y) override {
-        SkFAIL("Using nearest neighbor sampler, but calling a bilerpSpan.");
-    }
-
 private:
     // When moving through source space more slowly than dst space (zoomed in),
     // we'll be sampling from the same source pixel more than once.
     void spanSlowRate(Span span) {
-        SkPoint start;
-        SkScalar length;
-        int count;
+        SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
         SkScalar x = X(start);
         SkFixed fx = SkScalarToFixed(x);
@@ -451,35 +439,82 @@ private:
     Accessor    fAccessor;
 };
 
+// From an edgeType, the integer value of a pixel vs, and the integer value of the extreme edge
+// vMax, take the point which might be off the tile by one pixel and either wrap it or pin it to
+// generate the right pixel. The value vs is on the interval [-1, vMax + 1]. It produces a value
+// on the interval [0, vMax].
+// Note: vMax is not width or height, but width-1 or height-1 because it is the largest valid pixel.
+static inline int adjust_edge(SkShader::TileMode edgeType, int vs, int vMax) {
+    SkASSERT(-1 <= vs && vs <= vMax + 1)
+    switch (edgeType) {
+        case SkShader::kClamp_TileMode:
+        case SkShader::kMirror_TileMode:
+            vs = std::max(vs, 0);
+            vs = std::min(vs, vMax);
+            break;
+        case SkShader::kRepeat_TileMode:
+            vs = (vs <= vMax) ? vs : 0;
+            vs =    (vs >= 0) ? vs : vMax;
+            break;
+    }
+    SkASSERT(0 <= vs && vs <= vMax);
+    return vs;
+}
+
+// From a sample point on the tile, return the top or left filter value.
+// The result r should be in the range (0, 1]. Since this represents the weight given to the top
+// left element, then if x == 0.5 the filter value should be 1.0.
+// The input sample point must be on the tile, therefore it must be >= 0.
+static SkScalar sample_to_filter(SkScalar x) {
+    SkASSERT(x >= 0.0f);
+    // The usual form of the top or left edge is x - .5, but since we are working on the unit
+    // square, then x + .5 works just as well. This also guarantees that v > 0.0 allowing the use
+    // of trunc.
+    SkScalar v = x + 0.5f;
+    // Produce the top or left offset a value on the range [0, 1).
+    SkScalar f = v - SkScalarTruncToScalar(v);
+    // Produce the filter value which is on the range (0, 1].
+    SkScalar r =  1.0f - f;
+    SkASSERT(0.0f < r && r <= 1.0f);
+    return r;
+}
+
 // -- BilerpSampler --------------------------------------------------------------------------------
 // BilerpSampler - use a bilerp filter to create runs of destination pixels.
+// Note: in the code below, there are two types of points
+//       * sample points - these are the points passed in by pointList* and Spans.
+//       * filter points - are created from a sample point to form the coordinates of the points
+//                         to use in the filter and to generate the filter values.
 template<typename Accessor, typename Next>
 class BilerpSampler : public SkLinearBitmapPipeline::SampleProcessorInterface {
 public:
     template<typename... Args>
-    BilerpSampler(SkLinearBitmapPipeline::BlendProcessorInterface* next, Args&& ... args)
-        : fNext{next}, fAccessor{std::forward<Args>(args)...} { }
+    BilerpSampler(
+        SkLinearBitmapPipeline::BlendProcessorInterface* next,
+        SkISize dimensions,
+        SkShader::TileMode xTile, SkShader::TileMode yTile,
+        Args&& ... args
+    )
+        : fNext{next}
+        , fXEdgeType{xTile}
+        , fXMax{dimensions.width() - 1}
+        , fYEdgeType{yTile}
+        , fYMax{dimensions.height() - 1}
+        , fAccessor{std::forward<Args>(args)...} { }
 
     BilerpSampler(SkLinearBitmapPipeline::BlendProcessorInterface* next,
                    const BilerpSampler& sampler)
-        : fNext{next}, fAccessor{sampler.fAccessor} { }
-
-    Sk4f bilerpNonEdgePixel(SkScalar x, SkScalar y) {
-        Sk4f px00, px10, px01, px11;
-
-        // bilerp4() expects xs, ys are the top-lefts of the 2x2 kernel.
-        Sk4f xs = Sk4f{x} - 0.5f;
-        Sk4f ys = Sk4f{y} - 0.5f;
-        Sk4f sampleXs = xs + Sk4f{0.0f, 1.0f, 0.0f, 1.0f};
-        Sk4f sampleYs = ys + Sk4f{0.0f, 0.0f, 1.0f, 1.0f};
-        fAccessor.get4Pixels(sampleXs, sampleYs, &px00, &px10, &px01, &px11);
-        return bilerp4(xs, ys, px00, px10, px01, px11);
-    }
+        : fNext{next}
+        , fXEdgeType{sampler.fXEdgeType}
+        , fXMax{sampler.fXMax}
+        , fYEdgeType{sampler.fYEdgeType}
+        , fYMax{sampler.fYMax}
+        , fAccessor{sampler.fAccessor} { }
 
     void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         SkASSERT(0 < n && n < 4);
         auto bilerpPixel = [&](int index) {
-            return this->bilerpNonEdgePixel(xs[index], ys[index]);
+            return this->bilerpSamplePoint(SkPoint{xs[index], ys[index]});
         };
 
         if (n >= 1) fNext->blendPixel(bilerpPixel(0));
@@ -489,13 +524,56 @@ public:
 
     void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         auto bilerpPixel = [&](int index) {
-            return this->bilerpNonEdgePixel(xs[index], ys[index]);
+            return this->bilerpSamplePoint(SkPoint{xs[index], ys[index]});
         };
         fNext->blend4Pixels(bilerpPixel(0), bilerpPixel(1), bilerpPixel(2), bilerpPixel(3));
     }
 
     void pointSpan(Span span) override {
-        this->bilerpSpan(span, span.startY());
+        SkASSERT(!span.isEmpty());
+        SkPoint start;
+        SkScalar length;
+        int count;
+        std::tie(start, length, count) = span;
+
+        // Nothing to do.
+        if (count == 0) {
+            return;
+        }
+
+        // Trivial case. No sample points are generated other than start.
+        if (count == 1) {
+            fNext->blendPixel(this->bilerpSamplePoint(start));
+            return;
+        }
+
+        // Note: the following code could be done in terms of dx = length / (count -1), but that
+        // would introduce a divide that is not needed for the most common dx == 1 cases.
+        SkScalar absLength = SkScalarAbs(length);
+        if (absLength == 0.0f) {
+            // |dx| == 0
+            // length is zero, so clamp an edge pixel.
+            this->spanZeroRate(span);
+        } else if (absLength < (count - 1)) {
+            // 0 < |dx| < 1.
+            this->spanSlowRate(span);
+        } else if (absLength == (count - 1)) {
+            // |dx| == 1.
+            if (sample_to_filter(span.startX()) == 1.0f
+                && sample_to_filter(span.startY()) == 1.0f) {
+                // All the pixels are aligned with the dest; go fast.
+                src_strategy_blend(span, fNext, &fAccessor);
+            } else {
+                // There is some sub-pixel offsets, so bilerp.
+                this->spanUnitRate(span);
+            }
+        } else if (absLength < 2.0f * (count - 1)) {
+            // 1 < |dx| < 2.
+            this->spanMediumRate(span);
+        } else {
+            // |dx| >= 2.
+            this->spanFastRate(span);
+        }
     }
 
     void repeatSpan(Span span, int32_t repeatCount) override {
@@ -505,292 +583,425 @@ public:
         }
     }
 
-    void SK_VECTORCALL bilerpEdge(Sk4s sampleXs, Sk4s sampleYs) override {
-        Sk4f px00, px10, px01, px11;
-        Sk4f xs = Sk4f{sampleXs[0]};
-        Sk4f ys = Sk4f{sampleYs[0]};
-        fAccessor.get4Pixels(sampleXs, sampleYs, &px00, &px10, &px01, &px11);
-        Sk4f pixel = bilerp4(xs, ys, px00, px10, px01, px11);
-        fNext->blendPixel(pixel);
-    }
-
-    void bilerpSpan(Span span, SkScalar y) override {
-        SkASSERT(!span.isEmpty());
-        SkPoint start;
-        SkScalar length;
-        int count;
-        std::tie(start, length, count) = span;
-        SkScalar absLength = SkScalarAbs(length);
-        if (absLength == 0.0f) {
-            this->spanZeroRate(span, y);
-        } else if (absLength < (count - 1)) {
-            this->spanSlowRate(span, y);
-        } else if (absLength == (count - 1)) {
-            if (std::fmod(span.startX() - 0.5f, 1.0f) == 0.0f) {
-                if (std::fmod(span.startY() - 0.5f, 1.0f) == 0.0f) {
-                    src_strategy_blend(span, fNext, &fAccessor);
-                } else {
-                    this->spanUnitRateAlignedX(span, y);
-                }
-            } else {
-                this->spanUnitRate(span, y);
-            }
-        } else {
-            this->spanFastRate(span, y);
-        }
-    }
-
 private:
-    void spanZeroRate(Span span, SkScalar y1) {
-        SkScalar y0 = span.startY() - 0.5f;
-        y1 += 0.5f;
-        int iy0 = SkScalarFloorToInt(y0);
-        SkScalar filterY1 = y0 - iy0;
-        SkScalar filterY0 = 1.0f - filterY1;
-        int iy1 = SkScalarFloorToInt(y1);
-        int ix = SkScalarFloorToInt(span.startX());
-        Sk4f pixelY0 = fAccessor.getPixelFromRow(fAccessor.row(iy0), ix);
-        Sk4f pixelY1 = fAccessor.getPixelFromRow(fAccessor.row(iy1), ix);
-        Sk4f filterPixel = pixelY0 * filterY0 + pixelY1 * filterY1;
-        int count = span.count();
-        while (count >= 4) {
-            fNext->blend4Pixels(filterPixel, filterPixel, filterPixel, filterPixel);
-            count -= 4;
-        }
-        while (count > 0) {
-            fNext->blendPixel(filterPixel);
-            count -= 1;
-        }
+
+    // Convert a sample point to the points used by the filter.
+    void filterPoints(SkPoint sample, Sk4i* filterXs, Sk4i* filterYs) {
+        // May be less than zero. Be careful to use Floor.
+        int x0 = adjust_edge(fXEdgeType, SkScalarFloorToInt(X(sample) - 0.5), fXMax);
+        // Always greater than zero. Use the faster Trunc.
+        int x1 = adjust_edge(fXEdgeType, SkScalarTruncToInt(X(sample) + 0.5), fXMax);
+        int y0 = adjust_edge(fYEdgeType, SkScalarFloorToInt(Y(sample) - 0.5), fYMax);
+        int y1 = adjust_edge(fYEdgeType, SkScalarTruncToInt(Y(sample) + 0.5), fYMax);
+
+        *filterXs = Sk4i{x0, x1, x0, x1};
+        *filterYs = Sk4i{y0, y0, y1, y1};
     }
 
-    // When moving through source space more slowly than dst space (zoomed in),
-    // we'll be sampling from the same source pixel more than once.
-    void spanSlowRate(Span span, SkScalar ry1) {
-        SkPoint start;
-        SkScalar length;
-        int count;
+    // Given a sample point, generate a color by bilerping the four filter points.
+    Sk4f bilerpSamplePoint(SkPoint sample) {
+        Sk4i iXs, iYs;
+        filterPoints(sample, &iXs, &iYs);
+        Sk4f px00, px10, px01, px11;
+        fAccessor.get4Pixels(iXs, iYs, &px00, &px10, &px01, &px11);
+        return bilerp4(Sk4f{X(sample) - 0.5f}, Sk4f{Y(sample) - 0.5f}, px00, px10, px01, px11);
+    }
+
+    // Get two pixels at x from row0 and row1.
+    void get2PixelColumn(const void* row0, const void* row1, int x, Sk4f* px0, Sk4f* px1) {
+        *px0 = fAccessor.getPixelFromRow(row0, x);
+        *px1 = fAccessor.getPixelFromRow(row1, x);
+    }
+
+    // |dx| == 0. This code assumes that length is zero.
+    void spanZeroRate(Span span) {
+        SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
-        SkFixed fx = SkScalarToFixed(X(start)-0.5f);
+        SkASSERT(length == 0.0f);
 
-        SkFixed fdx = SkScalarToFixed(length / (count - 1));
+        // Filter for the blending of the top and bottom pixels.
+        SkScalar filterY = sample_to_filter(Y(start));
 
-        Sk4f xAdjust;
-        if (fdx >= 0) {
-            xAdjust = Sk4f{-1.0f};
-        } else {
-            xAdjust = Sk4f{1.0f};
-        }
-        int ix = SkFixedFloorToInt(fx);
-        int ioldx = ix;
-        Sk4f x{SkFixedToScalar(fx) - ix};
-        Sk4f dx{SkFixedToScalar(fdx)};
-        SkScalar ry0 = Y(start) - 0.5f;
-        ry1 += 0.5f;
-        SkScalar yFloor = std::floor(ry0);
-        Sk4f y1 = Sk4f{ry0 - yFloor};
-        Sk4f y0 = Sk4f{1.0f} - y1;
-        const void* const row0 = fAccessor.row(SkScalarFloorToInt(ry0));
-        const void* const row1 = fAccessor.row(SkScalarFloorToInt(ry1));
-        Sk4f fpixel00 = y0 * fAccessor.getPixelFromRow(row0, ix);
-        Sk4f fpixel01 = y1 * fAccessor.getPixelFromRow(row1, ix);
-        Sk4f fpixel10 = y0 * fAccessor.getPixelFromRow(row0, ix + 1);
-        Sk4f fpixel11 = y1 * fAccessor.getPixelFromRow(row1, ix + 1);
-        auto getNextPixel = [&]() {
-            if (ix != ioldx) {
-                fpixel00 = fpixel10;
-                fpixel01 = fpixel11;
-                fpixel10 = y0 * fAccessor.getPixelFromRow(row0, ix + 1);
-                fpixel11 = y1 * fAccessor.getPixelFromRow(row1, ix + 1);
-                ioldx = ix;
-                x = x + xAdjust;
-            }
+        // Generate the four filter points from the sample point start. Generate the row* values.
+        Sk4i iXs, iYs;
+        this->filterPoints(start, &iXs, &iYs);
+        const void* const row0 = fAccessor.row(iYs[0]);
+        const void* const row1 = fAccessor.row(iYs[2]);
 
-            Sk4f x0, x1;
-            x0 = Sk4f{1.0f} - x;
-            x1 = x;
-            Sk4f fpixel = x0 * (fpixel00 + fpixel01) + x1 * (fpixel10 + fpixel11);
-            fx += fdx;
-            ix = SkFixedFloorToInt(fx);
-            x = x + dx;
-            return fpixel;
-        };
+        // Get the two pixels that make up the clamping pixel.
+        Sk4f pxTop, pxBottom;
+        this->get2PixelColumn(row0, row1, SkScalarFloorToInt(X(start)), &pxTop, &pxBottom);
+        Sk4f pixel = pxTop * filterY + (1.0f - filterY) * pxBottom;
 
         while (count >= 4) {
-            Sk4f fpixel0 = getNextPixel();
-            Sk4f fpixel1 = getNextPixel();
-            Sk4f fpixel2 = getNextPixel();
-            Sk4f fpixel3 = getNextPixel();
-
-            fNext->blend4Pixels(fpixel0, fpixel1, fpixel2, fpixel3);
+            fNext->blend4Pixels(pixel, pixel, pixel, pixel);
             count -= 4;
         }
-
         while (count > 0) {
-            fNext->blendPixel(getNextPixel());
-
+            fNext->blendPixel(pixel);
             count -= 1;
         }
     }
 
-    // We're moving through source space at a rate of 1 source pixel per 1 dst pixel.
-    // We'll never re-use pixels, but we can at least load contiguous pixels.
-    void spanUnitRate(Span span, SkScalar y1) {
-        y1 += 0.5f;
-        SkScalar y0 = span.startY() - 0.5f;
-        int iy0 = SkScalarFloorToInt(y0);
-        SkScalar filterY1 = y0 - iy0;
-        SkScalar filterY0 = 1.0f - filterY1;
-        int iy1 = SkScalarFloorToInt(y1);
-        const void* rowY0 = fAccessor.row(iy0);
-        const void* rowY1 = fAccessor.row(iy1);
-        SkScalar x0 = span.startX() - 0.5f;
-        int ix0 = SkScalarFloorToInt(x0);
-        SkScalar filterX1 = x0 - ix0;
-        SkScalar filterX0 = 1.0f - filterX1;
+    // 0 < |dx| < 1. This code reuses the calculations from previous pixels to reduce
+    // computation. In particular, several destination pixels maybe generated from the same four
+    // source pixels.
+    // In the following code a "part" is a combination of two pixels from the same column of the
+    // filter.
+    void spanSlowRate(Span span) {
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = span;
 
-        auto getPixelY0 = [&]() {
-            Sk4f px = fAccessor.getPixelFromRow(rowY0, ix0);
-            return px * filterY0;
+        // Calculate the distance between each sample point.
+        const SkScalar dx = length / (count - 1);
+        SkASSERT(-1.0f < dx && dx < 1.0f && dx != 0.0f);
+
+        // Generate the filter values for the top-left corner.
+        // Note: these values are in filter space; this has implications about how to adjust
+        // these values at each step. For example, as the sample point increases, the filter
+        // value decreases, this is because the filter and position are related by
+        // (1 - (X(sample) - .5)) % 1. The (1 - stuff) causes the filter to move in the opposite
+        // direction of the sample point which is increasing by dx.
+        SkScalar filterX = sample_to_filter(X(start));
+        SkScalar filterY = sample_to_filter(Y(start));
+
+        // Generate the four filter points from the sample point start. Generate the row* values.
+        Sk4i iXs, iYs;
+        this->filterPoints(start, &iXs, &iYs);
+        const void* const row0 = fAccessor.row(iYs[0]);
+        const void* const row1 = fAccessor.row(iYs[2]);
+
+        // Generate part of the filter value at xColumn.
+        auto partAtColumn = [&](int xColumn) {
+            int adjustedColumn = adjust_edge(fXEdgeType, xColumn, fXMax);
+            Sk4f pxTop, pxBottom;
+            this->get2PixelColumn(row0, row1, adjustedColumn, &pxTop, &pxBottom);
+            return pxTop * filterY + (1.0f - filterY) * pxBottom;
         };
 
-        auto getPixelY1 = [&]() {
-            Sk4f px = fAccessor.getPixelFromRow(rowY1, ix0);
-            return px * filterY1;
+        // The leftPart is made up of two pixels from the left column of the filter, right part
+        // is similar. The top and bottom pixels in the *Part are created as a linear blend of
+        // the top and bottom pixels using filterY. See the partAtColumn function above.
+        Sk4f leftPart  = partAtColumn(iXs[0]);
+        Sk4f rightPart = partAtColumn(iXs[1]);
+
+        // Create a destination color by blending together a left and right part using filterX.
+        auto bilerp = [&](const Sk4f& leftPart, const Sk4f& rightPart) {
+            Sk4f pixel = leftPart * filterX + rightPart * (1.0f - filterX);
+            return check_pixel(pixel);
         };
 
-        auto get4PixelsY0 = [&](int ix, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
-            fAccessor.get4Pixels(rowY0, ix, px0, px1, px2, px3);
-            *px0 = *px0 * filterY0;
-            *px1 = *px1 * filterY0;
-            *px2 = *px2 * filterY0;
-            *px3 = *px3 * filterY0;
-        };
+        // Send the first pixel to the destination. This simplifies the loop structure so that no
+        // extra pixels are fetched for the last iteration of the loop.
+        fNext->blendPixel(bilerp(leftPart, rightPart));
+        count -= 1;
 
-        auto get4PixelsY1 = [&](int ix, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
-            fAccessor.get4Pixels(rowY1, ix, px0, px1, px2, px3);
-            *px0 = *px0 * filterY1;
-            *px1 = *px1 * filterY1;
-            *px2 = *px2 * filterY1;
-            *px3 = *px3 * filterY1;
-        };
+        if (dx > 0.0f) {
+            // * positive direction - generate destination pixels by sliding the filter from left
+            //                        to right.
+            int rightPartCursor = iXs[1];
 
-        auto lerp = [&](Sk4f& pixelX0, Sk4f& pixelX1) {
-            return pixelX0 * filterX0 + pixelX1 * filterX1;
-        };
+            // Advance the filter from left to right. Remember that moving the top-left corner of
+            // the filter to the right actually makes the filter value smaller.
+            auto advanceFilter = [&]() {
+                filterX -= dx;
+                if (filterX <= 0.0f) {
+                    filterX += 1.0f;
+                    leftPart = rightPart;
+                    rightPartCursor += 1;
+                    rightPart = partAtColumn(rightPartCursor);
+                }
+                SkASSERT(0.0f < filterX && filterX <= 1.0f);
 
-        // Mid making 4 unit rate.
-        Sk4f pxB = getPixelY0() + getPixelY1();
-        if (span.length() > 0) {
-            int count = span.count();
+                return bilerp(leftPart, rightPart);
+            };
+
             while (count >= 4) {
-                Sk4f px00, px10, px20, px30;
-                get4PixelsY0(ix0, &px00, &px10, &px20, &px30);
-                Sk4f px01, px11, px21, px31;
-                get4PixelsY1(ix0, &px01, &px11, &px21, &px31);
-                Sk4f pxS0 = px00 + px01;
-                Sk4f px0 = lerp(pxB, pxS0);
-                Sk4f pxS1 = px10 + px11;
-                Sk4f px1 = lerp(pxS0, pxS1);
-                Sk4f pxS2 = px20 + px21;
-                Sk4f px2 = lerp(pxS1, pxS2);
-                Sk4f pxS3 = px30 + px31;
-                Sk4f px3 = lerp(pxS2, pxS3);
-                pxB = pxS3;
+                Sk4f px0 = advanceFilter(),
+                     px1 = advanceFilter(),
+                     px2 = advanceFilter(),
+                     px3 = advanceFilter();
                 fNext->blend4Pixels(px0, px1, px2, px3);
-                ix0 += 4;
                 count -= 4;
             }
-            while (count > 0) {
-                Sk4f pixelY0 = fAccessor.getPixelFromRow(rowY0, ix0);
-                Sk4f pixelY1 = fAccessor.getPixelFromRow(rowY1, ix0);
 
-                fNext->blendPixel(lerp(pixelY0, pixelY1));
-                ix0 += 1;
+            while (count > 0) {
+                fNext->blendPixel(advanceFilter());
                 count -= 1;
             }
         } else {
-            int count = span.count();
+            // * negative direction - generate destination pixels by sliding the filter from
+            //                        right to left.
+            int leftPartCursor = iXs[0];
+
+            // Advance the filter from right to left. Remember that moving the top-left corner of
+            // the filter to the left actually makes the filter value larger.
+            auto advanceFilter = [&]() {
+                // Remember, dx < 0 therefore this adds |dx| to filterX.
+                filterX -= dx;
+                // At this point filterX may be > 1, and needs to be wrapped back on to the filter
+                // interval, and the next column in the filter is calculated.
+                if (filterX > 1.0f) {
+                    filterX -= 1.0f;
+                    rightPart = leftPart;
+                    leftPartCursor -= 1;
+                    leftPart = partAtColumn(leftPartCursor);
+                }
+                SkASSERT(0.0f < filterX && filterX <= 1.0f);
+
+                return bilerp(leftPart, rightPart);
+            };
+
             while (count >= 4) {
-                Sk4f px00, px10, px20, px30;
-                get4PixelsY0(ix0 - 3, &px00, &px10, &px20, &px30);
-                Sk4f px01, px11, px21, px31;
-                get4PixelsY1(ix0 - 3, &px01, &px11, &px21, &px31);
-                Sk4f pxS3 = px30 + px31;
-                Sk4f px0 = lerp(pxS3, pxB);
-                Sk4f pxS2 = px20 + px21;
-                Sk4f px1 = lerp(pxS2, pxS3);
-                Sk4f pxS1 = px10 + px11;
-                Sk4f px2 = lerp(pxS1, pxS2);
-                Sk4f pxS0 = px00 + px01;
-                Sk4f px3 = lerp(pxS0, pxS1);
-                pxB = pxS0;
+                Sk4f px0 = advanceFilter(),
+                     px1 = advanceFilter(),
+                     px2 = advanceFilter(),
+                     px3 = advanceFilter();
                 fNext->blend4Pixels(px0, px1, px2, px3);
-                ix0 -= 4;
                 count -= 4;
             }
-            while (count > 0) {
-                Sk4f pixelY0 = fAccessor.getPixelFromRow(rowY0, ix0);
-                Sk4f pixelY1 = fAccessor.getPixelFromRow(rowY1, ix0);
 
-                fNext->blendPixel(lerp(pixelY0, pixelY1));
-                ix0 -= 1;
+            while (count > 0) {
+                fNext->blendPixel(advanceFilter());
                 count -= 1;
             }
         }
     }
 
-    void spanUnitRateAlignedX(Span span, SkScalar y1) {
-        SkScalar y0 = span.startY() - 0.5f;
-        y1 += 0.5f;
-        int iy0 = SkScalarFloorToInt(y0);
-        SkScalar filterY1 = y0 - iy0;
-        SkScalar filterY0 = 1.0f - filterY1;
-        int iy1 = SkScalarFloorToInt(y1);
-        int ix = SkScalarFloorToInt(span.startX());
-        const void* rowY0 = fAccessor.row(iy0);
-        const void* rowY1 = fAccessor.row(iy1);
-        auto lerp = [&](Sk4f* pixelY0, Sk4f* pixelY1) {
-            return *pixelY0 * filterY0 + *pixelY1 * filterY1;
+    // |dx| == 1. Moving through source space at a rate of 1 source pixel per 1 dst pixel.
+    // Every filter part is used for two destination pixels, and the code can bulk load four
+    // pixels at a time.
+    void spanUnitRate(Span span) {
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = span;
+        SkASSERT(SkScalarAbs(length) == (count - 1));
+
+        // Calculate the four filter points of start, and use the two different Y values to
+        // generate the row pointers.
+        Sk4i iXs, iYs;
+        filterPoints(start, &iXs, &iYs);
+        const void* row0 = fAccessor.row(iYs[0]);
+        const void* row1 = fAccessor.row(iYs[2]);
+
+        // Calculate the filter values for the top-left filter element.
+        const SkScalar filterX = sample_to_filter(X(start));
+        const SkScalar filterY = sample_to_filter(Y(start));
+
+        // Generate part of the filter value at xColumn.
+        auto partAtColumn = [&](int xColumn) {
+            int adjustedColumn = adjust_edge(fXEdgeType, xColumn, fXMax);
+            Sk4f pxTop, pxBottom;
+            this->get2PixelColumn(row0, row1, adjustedColumn, &pxTop, &pxBottom);
+            return pxTop * filterY + (1.0f - filterY) * pxBottom;
         };
 
-        if (span.length() > 0) {
-            int count = span.count();
+        auto get4Parts = [&](int ix, Sk4f* part0, Sk4f* part1, Sk4f* part2, Sk4f* part3) {
+            // Check if the pixels needed are near the edges. If not go fast using bulk pixels,
+            // otherwise be careful.
+            if (0 <= ix && ix <= fXMax - 3) {
+                Sk4f px00, px10, px20, px30,
+                     px01, px11, px21, px31;
+                fAccessor.get4Pixels(row0, ix, &px00, &px10, &px20, &px30);
+                fAccessor.get4Pixels(row1, ix, &px01, &px11, &px21, &px31);
+                *part0 = filterY * px00 + (1.0f - filterY) * px01;
+                *part1 = filterY * px10 + (1.0f - filterY) * px11;
+                *part2 = filterY * px20 + (1.0f - filterY) * px21;
+                *part3 = filterY * px30 + (1.0f - filterY) * px31;
+            } else {
+                *part0 = partAtColumn(ix + 0);
+                *part1 = partAtColumn(ix + 1);
+                *part2 = partAtColumn(ix + 2);
+                *part3 = partAtColumn(ix + 3);
+            }
+        };
+
+        auto bilerp = [&](const Sk4f& part0, const Sk4f& part1) {
+            return part0 * filterX + part1 * (1.0f - filterX);
+        };
+
+        if (length > 0) {
+            // * positive direction - generate destination pixels by sliding the filter from left
+            //                        to right.
+
+            // overlapPart is the filter part from the end of the previous four pixels used at
+            // the start of the next four pixels.
+            Sk4f overlapPart = partAtColumn(iXs[0]);
+            int rightColumnCursor = iXs[1];
             while (count >= 4) {
-                Sk4f px00, px10, px20, px30;
-                fAccessor.get4Pixels(rowY0, ix, &px00, &px10, &px20, &px30);
-                Sk4f px01, px11, px21, px31;
-                fAccessor.get4Pixels(rowY1, ix, &px01, &px11, &px21, &px31);
-                fNext->blend4Pixels(
-                    lerp(&px00, &px01), lerp(&px10, &px11), lerp(&px20, &px21), lerp(&px30, &px31));
-                ix += 4;
+                Sk4f part0, part1, part2, part3;
+                get4Parts(rightColumnCursor, &part0, &part1, &part2, &part3);
+                Sk4f px0 = bilerp(overlapPart, part0);
+                Sk4f px1 = bilerp(part0, part1);
+                Sk4f px2 = bilerp(part1, part2);
+                Sk4f px3 = bilerp(part2, part3);
+                overlapPart = part3;
+                fNext->blend4Pixels(px0, px1, px2, px3);
+                rightColumnCursor += 4;
                 count -= 4;
             }
-            while (count > 0) {
-                Sk4f pixelY0 = fAccessor.getPixelFromRow(rowY0, ix);
-                Sk4f pixelY1 = fAccessor.getPixelFromRow(rowY1, ix);
 
-                fNext->blendPixel(lerp(&pixelY0, &pixelY1));
-                ix += 1;
+            while (count > 0) {
+                Sk4f rightPart = partAtColumn(rightColumnCursor);
+
+                fNext->blendPixel(bilerp(overlapPart, rightPart));
+                overlapPart = rightPart;
+                rightColumnCursor += 1;
                 count -= 1;
             }
         } else {
-            int count = span.count();
+            // * negative direction - generate destination pixels by sliding the filter from
+            //                        right to left.
+            Sk4f overlapPart = partAtColumn(iXs[1]);
+            int leftColumnCursor = iXs[0];
+
             while (count >= 4) {
-                Sk4f px00, px10, px20, px30;
-                fAccessor.get4Pixels(rowY0, ix - 3, &px30, &px20, &px10, &px00);
-                Sk4f px01, px11, px21, px31;
-                fAccessor.get4Pixels(rowY1, ix - 3, &px31, &px21, &px11, &px01);
-                fNext->blend4Pixels(
-                    lerp(&px00, &px01), lerp(&px10, &px11), lerp(&px20, &px21), lerp(&px30, &px31));
-                ix -= 4;
+                Sk4f part0, part1, part2, part3;
+                get4Parts(leftColumnCursor - 3, &part3, &part2, &part1, &part0);
+                Sk4f px0 = bilerp(part0, overlapPart);
+                Sk4f px1 = bilerp(part1, part0);
+                Sk4f px2 = bilerp(part2, part1);
+                Sk4f px3 = bilerp(part3, part2);
+                overlapPart = part3;
+                fNext->blend4Pixels(px0, px1, px2, px3);
+                leftColumnCursor -= 4;
                 count -= 4;
             }
-            while (count > 0) {
-                Sk4f pixelY0 = fAccessor.getPixelFromRow(rowY0, ix);
-                Sk4f pixelY1 = fAccessor.getPixelFromRow(rowY1, ix);
 
-                fNext->blendPixel(lerp(&pixelY0, &pixelY1));
-                ix -= 1;
+            while (count > 0) {
+                Sk4f leftPart = partAtColumn(leftColumnCursor);
+
+                fNext->blendPixel(bilerp(leftPart, overlapPart));
+                overlapPart = leftPart;
+                leftColumnCursor -= 1;
+                count -= 1;
+            }
+        }
+    }
+
+    // 1 < |dx| < 2. Going through the source pixels at a faster rate than the dest pixels, but
+    // still slow enough to take advantage of previous calculations.
+    void spanMediumRate(Span span) {
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = span;
+
+        // Calculate the distance between each sample point.
+        const SkScalar dx = length / (count - 1);
+        SkASSERT((-2.0f < dx && dx < -1.0f) || (1.0f < dx && dx < 2.0f));
+
+        // Generate the filter values for the top-left corner.
+        // Note: these values are in filter space; this has implications about how to adjust
+        // these values at each step. For example, as the sample point increases, the filter
+        // value decreases, this is because the filter and position are related by
+        // (1 - (X(sample) - .5)) % 1. The (1 - stuff) causes the filter to move in the opposite
+        // direction of the sample point which is increasing by dx.
+        SkScalar filterX = sample_to_filter(X(start));
+        SkScalar filterY = sample_to_filter(Y(start));
+
+        // Generate the four filter points from the sample point start. Generate the row* values.
+        Sk4i iXs, iYs;
+        this->filterPoints(start, &iXs, &iYs);
+        const void* const row0 = fAccessor.row(iYs[0]);
+        const void* const row1 = fAccessor.row(iYs[2]);
+
+        // Generate part of the filter value at xColumn.
+        auto partAtColumn = [&](int xColumn) {
+            int adjustedColumn = adjust_edge(fXEdgeType, xColumn, fXMax);
+            Sk4f pxTop, pxBottom;
+            this->get2PixelColumn(row0, row1, adjustedColumn, &pxTop, &pxBottom);
+            return pxTop * filterY + (1.0f - filterY) * pxBottom;
+        };
+
+        // The leftPart is made up of two pixels from the left column of the filter, right part
+        // is similar. The top and bottom pixels in the *Part are created as a linear blend of
+        // the top and bottom pixels using filterY. See the nextPart function below.
+        Sk4f leftPart  = partAtColumn(iXs[0]);
+        Sk4f rightPart = partAtColumn(iXs[1]);
+
+        // Create a destination color by blending together a left and right part using filterX.
+        auto bilerp = [&](const Sk4f& leftPart, const Sk4f& rightPart) {
+            Sk4f pixel = leftPart * filterX + rightPart * (1.0f - filterX);
+            return check_pixel(pixel);
+        };
+
+        // Send the first pixel to the destination. This simplifies the loop structure so that no
+        // extra pixels are fetched for the last iteration of the loop.
+        fNext->blendPixel(bilerp(leftPart, rightPart));
+        count -= 1;
+
+        if (dx > 0.0f) {
+            // * positive direction - generate destination pixels by sliding the filter from left
+            //                        to right.
+            int rightPartCursor = iXs[1];
+
+            // Advance the filter from left to right. Remember that moving the top-left corner of
+            // the filter to the right actually makes the filter value smaller.
+            auto advanceFilter = [&]() {
+                filterX -= dx;
+                // At this point filterX is less than zero, but might actually be less than -1.
+                if (filterX > -1.0f) {
+                    filterX += 1.0f;
+                    leftPart = rightPart;
+                    rightPartCursor += 1;
+                    rightPart = partAtColumn(rightPartCursor);
+                } else {
+                    filterX += 2.0f;
+                    rightPartCursor += 2;
+                    leftPart = partAtColumn(rightPartCursor - 1);
+                    rightPart = partAtColumn(rightPartCursor);
+                }
+                SkASSERT(0.0f < filterX && filterX <= 1.0f);
+
+                return bilerp(leftPart, rightPart);
+            };
+
+            while (count >= 4) {
+                Sk4f px0 = advanceFilter(),
+                     px1 = advanceFilter(),
+                     px2 = advanceFilter(),
+                     px3 = advanceFilter();
+                fNext->blend4Pixels(px0, px1, px2, px3);
+                count -= 4;
+            }
+
+            while (count > 0) {
+                fNext->blendPixel(advanceFilter());
+                count -= 1;
+            }
+        } else {
+            // * negative direction - generate destination pixels by sliding the filter from
+            //                        right to left.
+            int leftPartCursor = iXs[0];
+
+            auto advanceFilter = [&]() {
+                // Remember, dx < 0 therefore this adds |dx| to filterX.
+                filterX -= dx;
+                // At this point, filterX is greater than one, but may actually be greater than two.
+                if (filterX < 2.0f) {
+                    filterX -= 1.0f;
+                    rightPart = leftPart;
+                    leftPartCursor -= 1;
+                    leftPart = partAtColumn(leftPartCursor);
+                } else {
+                    filterX -= 2.0f;
+                    leftPartCursor -= 2;
+                    rightPart = partAtColumn(leftPartCursor - 1);
+                    leftPart = partAtColumn(leftPartCursor);
+                }
+                SkASSERT(0.0f < filterX && filterX <= 1.0f);
+                return bilerp(leftPart, rightPart);
+            };
+
+            while (count >= 4) {
+                Sk4f px0 = advanceFilter(),
+                     px1 = advanceFilter(),
+                     px2 = advanceFilter(),
+                     px3 = advanceFilter();
+                fNext->blend4Pixels(px0, px1, px2, px3);
+                count -= 4;
+            }
+
+            while (count > 0) {
+                fNext->blendPixel(advanceFilter());
                 count -= 1;
             }
         }
@@ -798,34 +1009,26 @@ private:
 
     // We're moving through source space faster than dst (zoomed out),
     // so we'll never reuse a source pixel or be able to do contiguous loads.
-    void spanFastRate(Span span, SkScalar y1) {
-        SkPoint start;
-        SkScalar length;
-        int count;
+    void spanFastRate(Span span) {
+        SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
         SkScalar x = X(start);
         SkScalar y = Y(start);
 
-        // In this sampler, it is assumed that if span.StartY() and y1 are the same then both
-        // y-lines are on the same tile.
-        if (y == y1) {
-            // Both y-lines are on the same tile.
-            span_fallback(span, this);
-        } else {
-            // The y-lines are on different tiles.
-            SkScalar dx = length / (count - 1);
-            Sk4f ys = {y - 0.5f, y - 0.5f, y1 + 0.5f, y1 + 0.5f};
-            while (count > 0) {
-                Sk4f xs = Sk4f{-0.5f, 0.5f, -0.5f, 0.5f} + Sk4f{x};
-                this->bilerpEdge(xs, ys);
-                x += dx;
-                count -= 1;
-            }
+        SkScalar dx = length / (count - 1);
+        while (count > 0) {
+            fNext->blendPixel(this->bilerpSamplePoint(SkPoint{x, y}));
+            x += dx;
+            count -= 1;
         }
     }
 
-    Next* const fNext;
-    Accessor    fAccessor;
+    Next* const              fNext;
+    const SkShader::TileMode fXEdgeType;
+    const int                fXMax;
+    const SkShader::TileMode fYEdgeType;
+    const int                fYMax;
+    Accessor                 fAccessor;
 };
 
 }  // namespace
