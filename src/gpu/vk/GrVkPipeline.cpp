@@ -495,7 +495,7 @@ void set_dynamic_scissor_state(GrVkGpu* gpu,
         !scissorState.rect().contains(0, 0, target.width(), target.height())) {
         // This all assumes the scissorState has previously been clipped to the device space render
         // target.
-        scissor.offset.x = scissorState.rect().fLeft;
+        scissor.offset.x = SkTMax(scissorState.rect().fLeft, 0);
         scissor.extent.width = scissorState.rect().width();
         if (kTopLeft_GrSurfaceOrigin == target.origin()) {
             scissor.offset.y = scissorState.rect().fTop;
@@ -503,12 +503,11 @@ void set_dynamic_scissor_state(GrVkGpu* gpu,
             SkASSERT(kBottomLeft_GrSurfaceOrigin == target.origin());
             scissor.offset.y = target.height() - scissorState.rect().fBottom;
         }
+        scissor.offset.y = SkTMax(scissor.offset.y, 0);
         scissor.extent.height = scissorState.rect().height();
 
         SkASSERT(scissor.offset.x >= 0);
-        SkASSERT(scissor.offset.x + scissor.extent.width <= (uint32_t)target.width());
         SkASSERT(scissor.offset.y >= 0);
-        SkASSERT(scissor.offset.y + scissor.extent.height <= (uint32_t)target.height());
     } else {
         scissor.extent.width = target.width();
         scissor.extent.height = target.height();
