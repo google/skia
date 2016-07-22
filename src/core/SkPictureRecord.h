@@ -161,7 +161,7 @@ protected:
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     void didTranslateZ(SkScalar) override;
-#endif
+#else
     void didTranslateZ(SkScalar);
 #endif
 
@@ -268,3 +268,5 @@ private:
 
     typedef SkCanvas INHERITED;
 };
+
+#endif

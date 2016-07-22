@@ -1455,7 +1455,7 @@ protected:
                                        const SkMatrix*,
                                        const SkPaint*);
 #endif
-
+    
     // Returns the canvas to be used by DrawIter. Default implementation
     // returns this. Subclasses that encapsulate an indirect canvas may
     // need to overload this method. The impl must keep track of this, as it

@@ -205,7 +205,7 @@ protected:
     void didSetMatrix(const SkMatrix &) override;
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
-    void didTranslateZ(SkScalar) override;
+    void didTranslateZ(SkScalar) override; 
 #else
     void didTranslateZ(SkScalar);
 #endif
