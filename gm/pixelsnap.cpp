@@ -36,8 +36,8 @@ protected:
         SkPaint bgPaint;
         bgPaint.setShader(
                 sk_tool_utils::create_checkerboard_shader(
-                sk_tool_utils::color_to_565(0xFFAAAAAA), 
-                sk_tool_utils::color_to_565(0xFF777777), 1))->unref();
+                sk_tool_utils::color_to_565(0xFFAAAAAA),
+                sk_tool_utils::color_to_565(0xFF777777), 1));
         canvas->drawPaint(bgPaint);
 
         SkString offset;

@@ -10,8 +10,8 @@
 #ifndef SkString_DEFINED
 #define SkString_DEFINED
 
+#include "../private/SkTArray.h"
 #include "SkScalar.h"
-#include "SkTArray.h"
 
 #include <stdarg.h>
 
@@ -36,13 +36,13 @@ int SkStrStartsWithOneOf(const char string[], const char prefixes[]);
 static int SkStrFind(const char string[], const char substring[]) {
     const char *first = strstr(string, substring);
     if (NULL == first) return -1;
-    return SkToS32(first - &string[0]);
+    return SkToInt(first - &string[0]);
 }
 
 static int SkStrFindLastOf(const char string[], const char subchar) {
     const char* last = strrchr(string, subchar);
     if (NULL == last) return -1;
-    return SkToS32(last - &string[0]);
+    return SkToInt(last - &string[0]);
 }
 
 static bool SkStrContains(const char string[], const char substring[]) {
@@ -111,7 +111,6 @@ char*   SkStrAppendS64(char buffer[], int64_t, int minDigits);
 #define SkStrAppendScalar SkStrAppendFloat
 
 char* SkStrAppendFloat(char buffer[], float);
-char* SkStrAppendFixed(char buffer[], SkFixed);
 
 /** \class SkString
 
@@ -126,6 +125,7 @@ public:
     explicit    SkString(const char text[]);
                 SkString(const char text[], size_t len);
                 SkString(const SkString&);
+                SkString(SkString&&);
                 ~SkString();
 
     bool        isEmpty() const { return 0 == fRec->fLength; }
@@ -172,6 +172,7 @@ public:
     // these methods edit the string
 
     SkString& operator=(const SkString&);
+    SkString& operator=(SkString&&);
     SkString& operator=(const char text[]);
 
     char* writable_str();

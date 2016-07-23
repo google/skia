@@ -8,7 +8,6 @@
 #ifndef GrTracing_DEFINED
 #define GrTracing_DEFINED
 
-#include "GrDrawTarget.h"
 #include "GrGpu.h"
 #include "GrTraceMarker.h"
 #include "SkTLazy.h"
@@ -19,7 +18,7 @@
  */
 class GrGpuTraceMarkerGenerator : public ::SkNoncopyable {
 public:
-    GrGpuTraceMarkerGenerator(GrDrawTarget* target) {}
+    GrGpuTraceMarkerGenerator() {}
 
     ~GrGpuTraceMarkerGenerator() {
         if (fTraceMarker.isValid()) {

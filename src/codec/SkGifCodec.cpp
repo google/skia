@@ -13,6 +13,8 @@
 #include "SkSwizzler.h"
 #include "SkUtils.h"
 
+#include "gif_lib.h"
+
 /*
  * Checks the start of the stream to see if the image is a gif
  */
@@ -49,7 +51,11 @@ static int32_t read_bytes_callback(GifFileType* fileType, GifByteType* out, int3
  * Open the gif file
  */
 static GifFileType* open_gif(SkStream* stream) {
+#if GIFLIB_MAJOR < 5
+    return DGifOpen(stream, read_bytes_callback);
+#else
     return DGifOpen(stream, read_bytes_callback, nullptr);
+#endif
 }
 
 /*
@@ -117,7 +123,11 @@ inline uint32_t get_output_row_interlaced(uint32_t encodedRow, uint32_t height) 
  * It is used in a SkAutoTCallIProc template
  */
 void SkGifCodec::CloseGif(GifFileType* gif) {
-    DGifCloseFile(gif, NULL);
+#if GIFLIB_MAJOR < 5 || (GIFLIB_MAJOR == 5 && GIFLIB_MINOR == 0)
+    DGifCloseFile(gif);
+#else
+    DGifCloseFile(gif, nullptr);
+#endif
 }
 
 /*
@@ -126,7 +136,11 @@ void SkGifCodec::CloseGif(GifFileType* gif) {
  */
 void SkGifCodec::FreeExtension(SavedImage* image) {
     if (NULL != image->ExtensionBlocks) {
+#if GIFLIB_MAJOR < 5
+        FreeExtension(image);
+#else
         GifFreeExtensions(&image->ExtensionBlockCount, &image->ExtensionBlocks);
+#endif
     }
 }
 
@@ -185,29 +199,27 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
         }
         bool frameIsSubset = (size != frameRect.size());
 
-        // Determine the recommended alpha type.  The transIndex might be valid if it less
+        // Determine the encoded alpha type.  The transIndex might be valid if it less
         // than 256.  We are not certain that the index is valid until we process the color
         // table, since some gifs have color tables with less than 256 colors.  If
         // there might be a valid transparent index, we must indicate that the image has
         // alpha.
-        // In the case where we must support alpha, we have the option to set the
-        // suggested alpha type to kPremul or kUnpremul.  Both are valid since the alpha
-        // component will always be 0xFF or the entire 32-bit pixel will be set to zero.
-        // We prefer kPremul because we support kPremul, and it is more efficient to use
-        // kPremul directly even when kUnpremul is supported.
-        SkAlphaType alphaType = (transIndex < 256) ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
+        // In the case where we must support alpha, we indicate kBinary, since every
+        // pixel will either be fully opaque or fully transparent.
+        SkEncodedInfo::Alpha alpha = (transIndex < 256) ? SkEncodedInfo::kBinary_Alpha :
+                SkEncodedInfo::kOpaque_Alpha;
 
         // Return the codec
-        // kIndex is the most natural color type for gifs, so we set this as
-        // the default.
-        SkImageInfo imageInfo = SkImageInfo::Make(size.width(), size.height(), kIndex_8_SkColorType,
-                alphaType);
-        *codecOut = new SkGifCodec(imageInfo, streamDeleter.detach(), gif.detach(), transIndex,
-                frameRect, frameIsSubset);
+        // Use kPalette since Gifs are encoded with a color table.
+        // Use 8-bits per component, since this is the output we get from giflib.
+        // FIXME: Gifs can actually be encoded with 4-bits per pixel.  Can we support this?
+        SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color, alpha, 8);
+        *codecOut = new SkGifCodec(size.width(), size.height(), info, streamDeleter.release(),
+                gif.release(), transIndex, frameRect, frameIsSubset);
     } else {
         SkASSERT(nullptr != gifOut);
-        streamDeleter.detach();
-        *gifOut = gif.detach();
+        streamDeleter.release();
+        *gifOut = gif.release();
     }
     return true;
 }
@@ -225,9 +237,9 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     return nullptr;
 }
 
-SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif,
-        uint32_t transIndex, const SkIRect& frameRect, bool frameIsSubset)
-    : INHERITED(srcInfo, stream)
+SkGifCodec::SkGifCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+        GifFileType* gif, uint32_t transIndex, const SkIRect& frameRect, bool frameIsSubset)
+    : INHERITED(width, height, info, stream)
     , fGif(gif)
     , fSrcBuffer(new uint8_t[this->getInfo().width()])
     , fFrameRect(frameRect)
@@ -311,10 +323,15 @@ SkCodec::Result SkGifCodec::ReadUpToFirstImage(GifFileType* gif, uint32_t* trans
                 // Create an extension block with our data
                 while (nullptr != extData) {
                     // Add a single block
+
+#if GIFLIB_MAJOR < 5
+                    if (AddExtensionBlock(&saveExt, extData[0],
+                                          &extData[1]) == GIF_ERROR) {
+#else
                     if (GIF_ERROR == GifAddExtensionBlock(&saveExt.ExtensionBlockCount,
                                                           &saveExt.ExtensionBlocks,
-                                                          extFunction, extData[0], &extData[1]))
-                    {
+                                                          extFunction, extData[0], &extData[1])) {
+#endif
                         return gif_error("Could not add extension block.\n", kIncompleteInput);
                     }
                     // Move to the next block
@@ -393,32 +410,37 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, SkPMColor* inp
         // giflib guarantees these properties
         SkASSERT(colorCount == (unsigned) (1 << (colorMap->BitsPerPixel)));
         SkASSERT(colorCount <= 256);
+        PackColorProc proc = choose_pack_color_proc(false, dstInfo.colorType());
         for (uint32_t i = 0; i < colorCount; i++) {
-            colorPtr[i] = SkPackARGB32(0xFF, colorMap->Colors[i].Red,
+            colorPtr[i] = proc(0xFF, colorMap->Colors[i].Red,
                     colorMap->Colors[i].Green, colorMap->Colors[i].Blue);
         }
     }
 
-    // Gifs have the option to specify the color at a single index of the color
-    // table as transparent.  If the transparent index is greater than the
-    // colorCount, we know that there is no valid transparent color in the color
-    // table.  If there is not valid transparent index, we will try to use the
-    // backgroundIndex as the fill index.  If the backgroundIndex is also not
-    // valid, we will let fFillIndex default to 0 (it is set to zero in the
-    // constructor).  This behavior is not specified but matches
-    // SkImageDecoder_libgif.
-    uint32_t backgroundIndex = fGif->SBackGroundColor;
-    if (fTransIndex < colorCount) {
-        colorPtr[fTransIndex] = SK_ColorTRANSPARENT;
-        fFillIndex = fTransIndex;
-    } else if (backgroundIndex < colorCount) {
-        fFillIndex = backgroundIndex;
-    }
-
     // Fill in the color table for indices greater than color count.
     // This allows for predictable, safe behavior.
-    for (uint32_t i = colorCount; i < maxColors; i++) {
-        colorPtr[i] = colorPtr[fFillIndex];
+    if (colorCount > 0) {
+        // Gifs have the option to specify the color at a single index of the color
+        // table as transparent.  If the transparent index is greater than the
+        // colorCount, we know that there is no valid transparent color in the color
+        // table.  If there is not valid transparent index, we will try to use the
+        // backgroundIndex as the fill index.  If the backgroundIndex is also not
+        // valid, we will let fFillIndex default to 0 (it is set to zero in the
+        // constructor).  This behavior is not specified but matches
+        // SkImageDecoder_libgif.
+        uint32_t backgroundIndex = fGif->SBackGroundColor;
+        if (fTransIndex < colorCount) {
+            colorPtr[fTransIndex] = SK_ColorTRANSPARENT;
+            fFillIndex = fTransIndex;
+        } else if (backgroundIndex < colorCount) {
+            fFillIndex = backgroundIndex;
+        }
+
+        for (uint32_t i = colorCount; i < maxColors; i++) {
+            colorPtr[i] = colorPtr[fFillIndex];
+        }
+    } else {
+        sk_memset32(colorPtr, 0xFF000000, maxColors);
     }
 
     fColorTable.reset(new SkColorTable(colorPtr, maxColors));
@@ -436,19 +458,16 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
     // Initialize color table and copy to the client if necessary
     this->initializeColorTable(dstInfo, inputColorPtr, inputColorCount);
 
-    return this->initializeSwizzler(dstInfo, opts);
+    this->initializeSwizzler(dstInfo, opts);
+    return kSuccess;
 }
 
-SkCodec::Result SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
+void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     const SkIRect* frameRect = fFrameIsSubset ? &fFrameRect : nullptr;
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(SkSwizzler::kIndex, colorPtr, dstInfo, opts,
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colorPtr, dstInfo, opts,
             frameRect));
-
-    if (nullptr != fSwizzler.get()) {
-        return kSuccess;
-    }
-    return kUnimplemented;
+    SkASSERT(fSwizzler);
 }
 
 bool SkGifCodec::readRow() {
@@ -476,8 +495,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
     // Initialize the swizzler
     if (fFrameIsSubset) {
         // Fill the background
-        SkSampler::Fill(dstInfo, dst, dstRowBytes,
-                this->getFillValue(dstInfo.colorType(), dstInfo.alphaType()),
+        SkSampler::Fill(dstInfo, dst, dstRowBytes, this->getFillValue(dstInfo.colorType()),
                 opts.fZeroInitialized);
     }
 
@@ -495,14 +513,14 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
 
 // FIXME: This is similar to the implementation for bmp and png.  Can we share more code or
 //        possibly make this non-virtual?
-uint32_t SkGifCodec::onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const {
+uint32_t SkGifCodec::onGetFillValue(SkColorType colorType) const {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     return get_color_table_fill_value(colorType, colorPtr, fFillIndex);
 }
 
 SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& opts, SkPMColor inputColorPtr[], int* inputColorCount) {
-    return this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, this->options());
+    return this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, opts);
 }
 
 void SkGifCodec::handleScanlineFrame(int count, int* rowsBeforeFrame, int* rowsInFrame) {
@@ -538,8 +556,7 @@ int SkGifCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
     if (fFrameIsSubset) {
         // Fill the requested rows
         SkImageInfo fillInfo = this->dstInfo().makeWH(this->dstInfo().width(), count);
-        uint32_t fillValue = this->onGetFillValue(this->dstInfo().colorType(),
-                this->dstInfo().alphaType());
+        uint32_t fillValue = this->onGetFillValue(this->dstInfo().colorType());
         fSwizzler->fill(fillInfo, dst, rowBytes, fillValue, this->options().fZeroInitialized);
 
         // Start to write pixels at the start of the image frame

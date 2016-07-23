@@ -118,6 +118,14 @@
 #define SK_CPU_SSE_LEVEL_AVX      51
 #define SK_CPU_SSE_LEVEL_AVX2     52
 
+// When targetting iOS and using gyp to generate the build files, it is not
+// possible to select files to build depending on the architecture (i.e. it
+// is not possible to use hand optimized assembly implementation). In that
+// configuration SK_BUILD_NO_OPTS is defined. Remove optimisation then.
+#ifdef SK_BUILD_NO_OPTS
+    #define SK_CPU_SSE_LEVEL 0
+#endif
+
 // Are we in GCC?
 #ifndef SK_CPU_SSE_LEVEL
     // These checks must be done in descending order to ensure we set the highest
@@ -186,14 +194,12 @@
     #endif
 #endif
 
-// Disable ARM64 optimizations for iOS due to complications regarding gyp and iOS.
-#if defined(__aarch64__) && !defined(SK_BUILD_FOR_IOS)
+#if defined(__aarch64__) && !defined(SK_BUILD_NO_OPTS)
     #define SK_CPU_ARM64
 #endif
 
 // All 64-bit ARM chips have NEON.  Many 32-bit ARM chips do too.
-// TODO: Why don't we want NEON on iOS?
-#if !defined(SK_ARM_HAS_NEON) && !defined(SK_BUILD_FOR_IOS) && defined(__ARM_NEON)
+#if !defined(SK_ARM_HAS_NEON) && !defined(SK_BUILD_NO_OPTS) && (defined(__ARM_NEON__) || defined(__ARM_NEON))
     #define SK_ARM_HAS_NEON
 #endif
 
@@ -204,7 +210,7 @@
 #endif
 
 #if defined(SKIA_DLL)
-    #if defined(WIN32) || defined(_WIN32)
+    #if defined(SK_BUILD_FOR_WIN32)
         #if SKIA_IMPLEMENTATION
             #define SK_API __declspec(dllexport)
         #else

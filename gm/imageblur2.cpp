@@ -58,8 +58,7 @@ protected:
                 SkScalar sigmaY = kBlurSigmas[y];
 
                 SkPaint paint;
-                SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(sigmaX, sigmaY));
-                paint.setImageFilter(blur);
+                paint.setImageFilter(SkBlurImageFilter::Make(sigmaX, sigmaY, nullptr));
                 canvas->saveLayer(nullptr, &paint);
 
                 SkRandom rand;
@@ -89,7 +88,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new BlurImageFilter; }
-static GMRegistry reg(MyFactory);
+DEF_GM(return new BlurImageFilter;)
 
 }

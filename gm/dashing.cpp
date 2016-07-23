@@ -12,7 +12,7 @@
 
 static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint,
                      SkScalar finalX = SkIntToScalar(600), SkScalar finalY = SkIntToScalar(0),
-                     SkScalar phase = SkIntToScalar(0), 
+                     SkScalar phase = SkIntToScalar(0),
                      SkScalar startX = SkIntToScalar(0), SkScalar startY = SkIntToScalar(0)) {
     SkPaint p(paint);
 
@@ -21,7 +21,7 @@ static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint,
         SkIntToScalar(off),
     };
 
-    p.setPathEffect(SkDashPathEffect::Create(intervals, 2, phase))->unref();
+    p.setPathEffect(SkDashPathEffect::Make(intervals, 2, phase));
     canvas->drawLine(startX, startY, finalX, finalY, p);
 }
 
@@ -174,7 +174,7 @@ protected:
                 vals[i] = SkIntToScalar(*intervals++);
             }
             SkScalar phase = vals[0] / 2;
-            paint.setPathEffect(SkDashPathEffect::Create(vals, count, phase))->unref();
+            paint.setPathEffect(SkDashPathEffect::Make(vals, count, phase));
 
             for (size_t x = 0; x < SK_ARRAY_COUNT(gProc); ++x) {
                 SkPath path;
@@ -222,7 +222,7 @@ protected:
 
         SkScalar intervals[2] = { dashLength, dashLength };
 
-        p.setPathEffect(SkDashPathEffect::Create(intervals, 2, phase))->unref();
+        p.setPathEffect(SkDashPathEffect::Make(intervals, 2, phase));
 
         SkPoint pts[2];
 
@@ -453,8 +453,8 @@ protected:
             paint.setStrokeWidth(SkIntToScalar(phase+1));
             paint.setColor(gColors[phase]);
             sign = (x % 20) ? 1 : -1;
-            drawline(canvas, kOn, kOff, paint, 
-                     SkIntToScalar(x), -sign * SkIntToScalar(10003), 
+            drawline(canvas, kOn, kOff, paint,
+                     SkIntToScalar(x), -sign * SkIntToScalar(10003),
                      SkIntToScalar(phase),
                      SkIntToScalar(x),  sign * SkIntToScalar(10003));
             phase = (phase + 1) % kIntervalLength;
@@ -464,8 +464,8 @@ protected:
             paint.setStrokeWidth(SkIntToScalar(phase+1));
             paint.setColor(gColors[phase]);
             sign = (y % 20) ? 1 : -1;
-            drawline(canvas, kOn, kOff, paint, 
-                     -sign * SkIntToScalar(10003), SkIntToScalar(y), 
+            drawline(canvas, kOn, kOff, paint,
+                     -sign * SkIntToScalar(10003), SkIntToScalar(y),
                      SkIntToScalar(phase),
                       sign * SkIntToScalar(10003), SkIntToScalar(y));
             phase = (phase + 1) % kIntervalLength;
@@ -476,7 +476,7 @@ private:
     bool fDoAA;
 };
 
-DEF_SIMPLE_GM(longpathdash, canvas, 512, 512) {
+DEF_SIMPLE_GM(longpathdash, canvas, 612, 612) {
     SkPath lines;
     for (int x = 32; x < 256; x += 16) {
         for (SkScalar a = 0; a < 3.141592f * 2; a += 0.03141592f) {
@@ -498,8 +498,52 @@ DEF_SIMPLE_GM(longpathdash, canvas, 512, 512) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(1);
     const SkScalar intervals[] = { 1, 1 };
-    p.setPathEffect(SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), 0))->unref();
+    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+    
+    canvas->translate(50, 50);
     canvas->drawPath(lines, p);
+}
+
+DEF_SIMPLE_GM(longlinedash, canvas, 512, 512) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(80);
+
+    const SkScalar intervals[] = { 2, 2 };
+    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+    canvas->drawRect(SkRect::MakeXYWH(-10000, 100, 20000, 20), p);
+}
+
+DEF_SIMPLE_GM(longwavyline, canvas, 512, 512) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(2);
+
+    SkPath wavy;
+    wavy.moveTo(-10000, 100);
+    for (SkScalar i = -10000; i < 10000; i += 20) {
+        wavy.quadTo(i + 5, 95, i + 10, 100);
+        wavy.quadTo(i + 15, 105, i + 20, 100);
+    }
+    canvas->drawPath(wavy, p);
+}
+
+DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+    p.setStrokeCap(SkPaint::kRound_Cap);
+    p.setStrokeJoin(SkPaint::kRound_Join);
+    p.setTextSize(100);
+    p.setARGB(0xff, 0xbb, 0x00, 0x00);
+    sk_tool_utils::set_portable_typeface(&p);
+    const SkScalar intervals[] = { 12, 12 };
+    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+    canvas->drawText("Sausages", 8, 10, 90, p);
+    canvas->drawLine(8, 120, 456, 120, p);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -15,34 +15,44 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-/** Set the matrix to identity */
-void sk_matrix_set_identity(sk_matrix_t*);
+/**
+    Set the matrix to identity
+*/
+SK_API void sk_matrix_set_identity (sk_matrix_t*);
 
-/** Set the matrix to translate by (tx, ty). */
-void sk_matrix_set_translate(sk_matrix_t*, float tx, float ty);
+/**
+    Set the matrix to translate by (tx, ty).
+*/
+SK_API void sk_matrix_set_translate (sk_matrix_t*, float tx, float ty);
+
 /**
     Preconcats the matrix with the specified translation.
         M' = M * T(dx, dy)
 */
-void sk_matrix_pre_translate(sk_matrix_t*, float tx, float ty);
+SK_API void sk_matrix_pre_translate (sk_matrix_t*, float tx, float ty);
+
 /**
     Postconcats the matrix with the specified translation.
         M' = T(dx, dy) * M
 */
-void sk_matrix_post_translate(sk_matrix_t*, float tx, float ty);
+SK_API void sk_matrix_post_translate (sk_matrix_t*, float tx, float ty);
 
-/** Set the matrix to scale by sx and sy. */
-void sk_matrix_set_scale(sk_matrix_t*, float sx, float sy);
+/** 
+    Set the matrix to scale by sx and sy. 
+*/
+SK_API void sk_matrix_set_scale (sk_matrix_t*, float sx, float sy);
+
 /**
     Preconcats the matrix with the specified scale.
         M' = M * S(sx, sy)
 */
-void sk_matrix_pre_scale(sk_matrix_t*, float sx, float sy);
+SK_API void sk_matrix_pre_scale (sk_matrix_t*, float sx, float sy);
+
 /**
     Postconcats the matrix with the specified scale.
         M' = S(sx, sy) * M
 */
-void sk_matrix_post_scale(sk_matrix_t*, float sx, float sy);
+SK_API void sk_matrix_post_scale (sk_matrix_t*, float sx, float sy);
 
 /**
     Returns the matrix type
@@ -89,12 +99,12 @@ SK_API void sk_matrix_map_vectors (sk_matrix_t *matrix, sk_point_t *dst, sk_poin
 /**
     Applies the matrix to the the @x,@y positions
 */
-SK_API sk_point_t sk_matrix_map_xy (sk_matrix_t *matrix, float x, float y);
+SK_API void sk_matrix_map_xy (sk_matrix_t *matrix, float x, float y, sk_point_t* result);
 
 /**
     Applies the matrix to the the @x,@y positions, ignoring the translation component.
 */
-SK_API sk_point_t sk_matrix_map_vector (sk_matrix_t *matrix, float x, float y);
+SK_API void sk_matrix_map_vector (sk_matrix_t *matrix, float x, float y, sk_point_t* result);
 
 /**
     Return the mean radius of a circle after it has been mapped by

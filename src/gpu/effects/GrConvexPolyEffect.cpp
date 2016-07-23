@@ -8,6 +8,7 @@
 #include "GrConvexPolyEffect.h"
 #include "GrInvariantOutput.h"
 #include "SkPathPriv.h"
+#include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -18,8 +19,8 @@ class AARectEffect : public GrFragmentProcessor {
 public:
     const SkRect& getRect() const { return fRect; }
 
-    static GrFragmentProcessor* Create(GrPrimitiveEdgeType edgeType, const SkRect& rect) {
-        return new AARectEffect(edgeType, rect);
+    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType edgeType, const SkRect& rect) {
+        return sk_sp<GrFragmentProcessor>(new AARectEffect(edgeType, rect));
     }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
@@ -62,17 +63,17 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(AARectEffect);
 
-const GrFragmentProcessor* AARectEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> AARectEffect::TestCreate(GrProcessorTestData* d) {
     SkRect rect = SkRect::MakeLTRB(d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1());
-    GrFragmentProcessor* fp;
+    sk_sp<GrFragmentProcessor> fp;
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                 d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
 
-        fp = AARectEffect::Create(edgeType, rect);
+        fp = AARectEffect::Make(edgeType, rect);
     } while (nullptr == fp);
     return fp;
 }
@@ -81,9 +82,11 @@ const GrFragmentProcessor* AARectEffect::TestCreate(GrProcessorTestData* d) {
 
 class GLAARectEffect : public GrGLSLFragmentProcessor {
 public:
-    GLAARectEffect(const GrProcessor&);
+    GLAARectEffect() {
+        fPrevRect.fLeft = SK_ScalarNaN;
+    }
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -92,26 +95,23 @@ protected:
 
 private:
     GrGLSLProgramDataManager::UniformHandle fRectUniform;
-    SkRect                                fPrevRect;
+    SkRect                                  fPrevRect;
+
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GLAARectEffect::GLAARectEffect(const GrProcessor& effect) {
-    fPrevRect.fLeft = SK_ScalarNaN;
-}
 
 void GLAARectEffect::emitCode(EmitArgs& args) {
     const AARectEffect& aare = args.fFp.cast<AARectEffect>();
     const char *rectName;
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
-    fRectUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fRectUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec4f_GrSLType,
                                                     kDefault_GrSLPrecision,
                                                     "rect",
                                                     &rectName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     const char* fragmentPos = fragBuilder->fragmentPosition();
     if (GrProcessorEdgeTypeIsAA(aare.getEdgeType())) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
@@ -161,16 +161,18 @@ void AARectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
 }
 
 GrGLSLFragmentProcessor* AARectEffect::onCreateGLSLInstance() const  {
-    return new GLAARectEffect(*this);
+    return new GLAARectEffect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 class GrGLConvexPolyEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLConvexPolyEffect(const GrProcessor&);
+    GrGLConvexPolyEffect() {
+        fPrevEdges[0] = SK_ScalarNaN;
+    }
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -179,25 +181,21 @@ protected:
 
 private:
     GrGLSLProgramDataManager::UniformHandle fEdgeUniform;
-    SkScalar                              fPrevEdges[3 * GrConvexPolyEffect::kMaxEdges];
+    SkScalar                                fPrevEdges[3 * GrConvexPolyEffect::kMaxEdges];
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GrGLConvexPolyEffect::GrGLConvexPolyEffect(const GrProcessor&) {
-    fPrevEdges[0] = SK_ScalarNaN;
-}
 
 void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     const GrConvexPolyEffect& cpe = args.fFp.cast<GrConvexPolyEffect>();
 
     const char *edgeArrayName;
-    fEdgeUniform = args.fUniformHandler->addUniformArray(GrGLSLUniformHandler::kFragment_Visibility,
+    fEdgeUniform = args.fUniformHandler->addUniformArray(kFragment_GrShaderFlag,
                                                          kVec3f_GrSLType,
                                                          kDefault_GrSLPrecision,
                                                          "edges",
                                                          cpe.getEdgeCount(),
                                                          &edgeArrayName);
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     fragBuilder->codeAppend("\t\tfloat alpha = 1.0;\n");
     fragBuilder->codeAppend("\t\tfloat edge;\n");
     const char* fragmentPos = fragBuilder->fragmentPosition();
@@ -239,8 +237,8 @@ void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType type, const SkPath& path,
-                                                const SkVector* offset) {
+sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType type, const SkPath& path,
+                                                    const SkVector* offset) {
     if (kHairlineAA_GrProcessorEdgeType == type) {
         return nullptr;
     }
@@ -249,15 +247,17 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType type, const 
         return nullptr;
     }
 
-    if (path.countPoints() > kMaxEdges) {
-        return nullptr;
-    }
-
-    SkPoint pts[kMaxEdges];
-    SkScalar edges[3 * kMaxEdges];
-
     SkPathPriv::FirstDirection dir;
-    SkAssertResult(SkPathPriv::CheapComputeFirstDirection(path, &dir));
+    // The only way this should fail is if the clip is effectively a infinitely thin line. In that
+    // case nothing is inside the clip. It'd be nice to detect this at a higher level and either
+    // skip the draw or omit the clip element.
+    if (!SkPathPriv::CheapComputeFirstDirection(path, &dir)) {
+        if (GrProcessorEdgeTypeIsInverseFill(type)) {
+            return GrConstColorProcessor::Make(0xFFFFFFFF,
+                                               GrConstColorProcessor::kModulateRGBA_InputMode);
+        }
+        return GrConstColorProcessor::Make(0, GrConstColorProcessor::kIgnore_InputMode);
+    }
 
     SkVector t;
     if (nullptr == offset) {
@@ -266,35 +266,57 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType type, const 
         t = *offset;
     }
 
-    int count = path.getPoints(pts, kMaxEdges);
+    SkScalar        edges[3 * kMaxEdges];
+    SkPoint         pts[4];
+    SkPath::Verb    verb;
+    SkPath::Iter    iter(path, true);
+
+    // SkPath considers itself convex so long as there is a convex contour within it,
+    // regardless of any degenerate contours such as a string of moveTos before it.
+    // Iterate here to consume any degenerate contours and only process the points
+    // on the actual convex contour.
     int n = 0;
-    for (int lastPt = count - 1, i = 0; i < count; lastPt = i++) {
-        if (pts[lastPt] != pts[i]) {
-            SkVector v = pts[i] - pts[lastPt];
-            v.normalize();
-            if (SkPathPriv::kCCW_FirstDirection == dir) {
-                edges[3 * n] = v.fY;
-                edges[3 * n + 1] = -v.fX;
-            } else {
-                edges[3 * n] = -v.fY;
-                edges[3 * n + 1] = v.fX;
+    while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                SkASSERT(n == 0);
+            case SkPath::kClose_Verb:
+                break;
+            case SkPath::kLine_Verb: {
+                if (n >= kMaxEdges) {
+                    return nullptr;
+                }
+                SkVector v = pts[1] - pts[0];
+                v.normalize();
+                if (SkPathPriv::kCCW_FirstDirection == dir) {
+                    edges[3 * n] = v.fY;
+                    edges[3 * n + 1] = -v.fX;
+                } else {
+                    edges[3 * n] = -v.fY;
+                    edges[3 * n + 1] = v.fX;
+                }
+                SkPoint p = pts[1] + t;
+                edges[3 * n + 2] = -(edges[3 * n] * p.fX + edges[3 * n + 1] * p.fY);
+                ++n;
+                break;
             }
-            SkPoint p = pts[i] + t;
-            edges[3 * n + 2] = -(edges[3 * n] * p.fX + edges[3 * n + 1] * p.fY);
-            ++n;
+            default:
+                return nullptr;
         }
     }
+
     if (path.isInverseFillType()) {
         type = GrInvertProcessorEdgeType(type);
     }
-    return Create(type, n, edges);
+    return Make(type, n, edges);
 }
 
-GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType edgeType, const SkRect& rect) {
+sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType edgeType,
+                                                    const SkRect& rect) {
     if (kHairlineAA_GrProcessorEdgeType == edgeType){
         return nullptr;
     }
-    return AARectEffect::Create(edgeType, rect);
+    return AARectEffect::Make(edgeType, rect);
 }
 
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
@@ -309,7 +331,7 @@ void GrConvexPolyEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrConvexPolyEffect::onCreateGLSLInstance() const  {
-    return new GrGLConvexPolyEffect(*this);
+    return new GrGLConvexPolyEffect;
 }
 
 GrConvexPolyEffect::GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[])
@@ -338,18 +360,18 @@ bool GrConvexPolyEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConvexPolyEffect);
 
-const GrFragmentProcessor* GrConvexPolyEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrConvexPolyEffect::TestCreate(GrProcessorTestData* d) {
     int count = d->fRandom->nextULessThan(kMaxEdges) + 1;
     SkScalar edges[kMaxEdges * 3];
     for (int i = 0; i < 3 * count; ++i) {
         edges[i] = d->fRandom->nextSScalar1();
     }
 
-    GrFragmentProcessor* fp;
+    sk_sp<GrFragmentProcessor> fp;
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                 d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
-        fp = GrConvexPolyEffect::Create(edgeType, count, edges);
+        fp = GrConvexPolyEffect::Make(edgeType, count, edges);
     } while (nullptr == fp);
     return fp;
 }

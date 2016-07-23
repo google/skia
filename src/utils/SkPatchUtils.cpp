@@ -28,65 +28,44 @@
  */
 
 class FwDCubicEvaluator {
-    
+
 public:
-    FwDCubicEvaluator()
-    : fMax(0)
-    , fCurrent(0)
-    , fDivisions(0) {
-        memset(fPoints, 0, 4 * sizeof(SkPoint));
-        memset(fPoints, 0, 4 * sizeof(SkPoint));
-        memset(fPoints, 0, 4 * sizeof(SkPoint));
-    }
-    
+
     /**
      * Receives the 4 control points of the cubic bezier.
      */
-    FwDCubicEvaluator(SkPoint a, SkPoint b, SkPoint c, SkPoint d) {
-        fPoints[0] = a;
-        fPoints[1] = b;
-        fPoints[2] = c;
-        fPoints[3] = d;
-        
-        SkCubicToCoeff(fPoints, fCoefs);
-        
-        this->restart(1);
-    }
-    
-    explicit FwDCubicEvaluator(const SkPoint points[4])  {
+
+    explicit FwDCubicEvaluator(const SkPoint points[4])
+            : fCoefs(points) {
         memcpy(fPoints, points, 4 * sizeof(SkPoint));
-        
-        SkCubicToCoeff(fPoints, fCoefs);
-        
+
         this->restart(1);
     }
-    
+
     /**
      * Restarts the forward differences evaluator to the first value of t = 0.
      */
     void restart(int divisions)  {
         fDivisions = divisions;
-        SkScalar h  = 1.f / fDivisions;
         fCurrent    = 0;
         fMax        = fDivisions + 1;
-        fFwDiff[0]  = fCoefs[3];
-        SkScalar h2 = h * h;
-        SkScalar h3 = h2 * h;
-        
-        fFwDiff[3].set(6.f * fCoefs[0].x() * h3, 6.f * fCoefs[0].y() * h3); //6ah^3
-        fFwDiff[2].set(fFwDiff[3].x() + 2.f * fCoefs[1].x() * h2, //6ah^3 + 2bh^2
-                       fFwDiff[3].y() + 2.f * fCoefs[1].y() * h2);
-        fFwDiff[1].set(fCoefs[0].x() * h3 + fCoefs[1].x() * h2 + fCoefs[2].x() * h,//ah^3 + bh^2 +ch
-                       fCoefs[0].y() * h3 + fCoefs[1].y() * h2 + fCoefs[2].y() * h);
+        Sk2s h  = Sk2s(1.f / fDivisions);
+        Sk2s h2 = h * h;
+        Sk2s h3 = h2 * h;
+        Sk2s fwDiff3 = Sk2s(6) * fCoefs.fA * h3;
+        fFwDiff[3] = to_point(fwDiff3);
+        fFwDiff[2] = to_point(fwDiff3 + times_2(fCoefs.fB) * h2);
+        fFwDiff[1] = to_point(fCoefs.fA * h3 + fCoefs.fB * h2 + fCoefs.fC * h);
+        fFwDiff[0] = to_point(fCoefs.fD);
     }
-    
+
     /**
      * Check if the evaluator is still within the range of 0<=t<=1
      */
     bool done() const {
         return fCurrent > fMax;
     }
-    
+
     /**
      * Call next to obtain the SkPoint sampled and move to the next one.
      */
@@ -98,14 +77,15 @@ public:
         fCurrent++;
         return point;
     }
-    
+
     const SkPoint* getCtrlPoints() const {
         return fPoints;
     }
-    
+
 private:
+    SkCubicCoeff fCoefs;
     int fMax, fCurrent, fDivisions;
-    SkPoint fFwDiff[4], fCoefs[4], fPoints[4];
+    SkPoint fFwDiff[4], fPoints[4];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,29 +115,29 @@ static SkScalar bilerp(SkScalar tx, SkScalar ty, SkScalar c00, SkScalar c10, SkS
 }
 
 SkISize SkPatchUtils::GetLevelOfDetail(const SkPoint cubics[12], const SkMatrix* matrix) {
-    
+
     // Approximate length of each cubic.
     SkPoint pts[kNumPtsCubic];
     SkPatchUtils::getTopCubic(cubics, pts);
     matrix->mapPoints(pts, kNumPtsCubic);
     SkScalar topLength = approx_arc_length(pts, kNumPtsCubic);
-    
+
     SkPatchUtils::getBottomCubic(cubics, pts);
     matrix->mapPoints(pts, kNumPtsCubic);
     SkScalar bottomLength = approx_arc_length(pts, kNumPtsCubic);
-    
+
     SkPatchUtils::getLeftCubic(cubics, pts);
     matrix->mapPoints(pts, kNumPtsCubic);
     SkScalar leftLength = approx_arc_length(pts, kNumPtsCubic);
-    
+
     SkPatchUtils::getRightCubic(cubics, pts);
     matrix->mapPoints(pts, kNumPtsCubic);
     SkScalar rightLength = approx_arc_length(pts, kNumPtsCubic);
-    
+
     // Level of detail per axis, based on the larger side between top and bottom or left and right
     int lodX = static_cast<int>(SkMaxScalar(topLength, bottomLength) / kPartitionSize);
     int lodY = static_cast<int>(SkMaxScalar(leftLength, rightLength) / kPartitionSize);
-    
+
     return SkISize::Make(SkMax32(8, lodX), SkMax32(8, lodY));
 }
 
@@ -230,12 +210,12 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
         }
         data->fColors = new uint32_t[data->fVertexCount];
     }
-    
+
     // if texture coordinates are not null then create array for them
     if (texCoords) {
         data->fTexCoords = new SkPoint[data->fVertexCount];
     }
-    
+
     SkPoint pts[kNumPtsCubic];
     SkPatchUtils::getBottomCubic(cubics, pts);
     FwDCubicEvaluator fBottom(pts);
@@ -245,10 +225,10 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
     FwDCubicEvaluator fLeft(pts);
     SkPatchUtils::getRightCubic(cubics, pts);
     FwDCubicEvaluator fRight(pts);
-    
+
     fBottom.restart(lodX);
     fTop.restart(lodX);
-    
+
     SkScalar u = 0.0f;
     int stride = lodY + 1;
     for (int x = 0; x <= lodX; x++) {
@@ -258,9 +238,9 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
         SkScalar v = 0.f;
         for (int y = 0; y <= lodY; y++) {
             int dataIndex = x * (lodY + 1) + y;
-            
+
             SkPoint left = fLeft.next(), right = fRight.next();
-            
+
             SkPoint s0 = SkPoint::Make((1.0f - v) * top.x() + v * bottom.x(),
                                        (1.0f - v) * top.y() + v * bottom.y());
             SkPoint s1 = SkPoint::Make((1.0f - u) * left.x() + u * right.x(),
@@ -275,7 +255,7 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
                                        + v * ((1.0f - u) * fBottom.getCtrlPoints()[0].y()
                                               + u * fBottom.getCtrlPoints()[3].y()));
             data->fPoints[dataIndex] = s0 + s1 - s2;
-            
+
             if (colors) {
                 uint8_t a = uint8_t(bilerp(u, v,
                                    SkScalar(SkColorGetA(colorsPM[kTopLeft_Corner])),
@@ -299,7 +279,7 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
                                    SkScalar(SkColorGetB(colorsPM[kBottomRight_Corner]))));
                 data->fColors[dataIndex] = SkPackARGB32(a,r,g,b);
             }
-            
+
             if (texCoords) {
                 data->fTexCoords[dataIndex] = SkPoint::Make(
                                             bilerp(u, v, texCoords[kTopLeft_Corner].x(),
@@ -310,9 +290,9 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
                                                    texCoords[kTopRight_Corner].y(),
                                                    texCoords[kBottomLeft_Corner].y(),
                                                    texCoords[kBottomRight_Corner].y()));
-                
+
             }
-            
+
             if(x < lodX && y < lodY) {
                 int i = 6 * (x * lodY + y);
                 data->fIndices[i] = x * stride + y;

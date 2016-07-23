@@ -48,7 +48,7 @@ class SkPrivateEffectInitializer;
 
 #define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable)    \
     private:                                                                \
-    static SkFlattenable* CreateProc(SkReadBuffer&);                        \
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);                        \
     friend class SkFlattenable::PrivateInitializer;                         \
     public:                                                                 \
     Factory getFactory() const override { return CreateProc; }
@@ -71,6 +71,7 @@ class SK_API SkFlattenable : public SkRefCnt {
 public:
     enum Type {
         kSkColorFilter_Type,
+        kSkDrawable_Type,
         kSkDrawLooper_Type,
         kSkImageFilter_Type,
         kSkMaskFilter_Type,
@@ -80,9 +81,10 @@ public:
         kSkShader_Type,
         kSkUnused_Type,     // used to be SkUnitMapper
         kSkXfermode_Type,
+        kSkNormalSource_Type,
     };
 
-    typedef SkFlattenable* (*Factory)(SkReadBuffer&);
+    typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
 
     SkFlattenable() {}
 
@@ -92,9 +94,15 @@ public:
      */
     virtual Factory getFactory() const = 0;
 
-    /** Returns the name of the object's class
-      */
-    const char* getTypeName() const { return FactoryToName(getFactory()); }
+    /**
+     *  Returns the name of the object's class.
+     *
+     *  Subclasses should override this function if they intend to provide
+     *  support for flattening without using the global registry.
+     *
+     *  If the flattenable is registered, there is no need to override.
+     */
+    virtual const char* getTypeName() const { return FactoryToName(getFactory()); }
 
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);

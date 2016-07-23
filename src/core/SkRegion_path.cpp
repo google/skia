@@ -45,6 +45,9 @@ public:
     void    copyToRgn(SkRegion::RunType runs[]) const;
 
     void blitH(int x, int y, int width) override;
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
+        SkDEBUGFAIL("blitAntiH not implemented");
+    }
 
 #ifdef SK_DEBUG
     void dump() const {

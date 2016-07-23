@@ -16,8 +16,8 @@
 
 class DitherEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create() {
-        return new DitherEffect;
+    static sk_sp<GrFragmentProcessor> Make() {
+        return sk_sp<GrFragmentProcessor>(new DitherEffect);
     }
 
     virtual ~DitherEffect() {};
@@ -52,27 +52,22 @@ void DitherEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(DitherEffect);
 
-const GrFragmentProcessor* DitherEffect::TestCreate(GrProcessorTestData*) {
-    return DitherEffect::Create();
+sk_sp<GrFragmentProcessor> DitherEffect::TestCreate(GrProcessorTestData*) {
+    return DitherEffect::Make();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 class GLDitherEffect : public GrGLSLFragmentProcessor {
 public:
-    GLDitherEffect(const GrProcessor&);
-
-    virtual void emitCode(EmitArgs& args) override;
+    void emitCode(EmitArgs& args) override;
 
 private:
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
-GLDitherEffect::GLDitherEffect(const GrProcessor&) {
-}
-
 void GLDitherEffect::emitCode(EmitArgs& args) {
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Generate a random number based on the fragment position. For this
     // random number generator, we use the "GLSL rand" function
     // that seems to be floating around on the internet. It works under
@@ -97,7 +92,7 @@ void DitherEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* DitherEffect::onCreateGLSLInstance() const  {
-    return new GLDitherEffect(*this);
+    return new GLDitherEffect;
 }
 
-GrFragmentProcessor* GrDitherEffect::Create() { return DitherEffect::Create(); }
+sk_sp<GrFragmentProcessor> GrDitherEffect::Make() { return DitherEffect::Make(); }

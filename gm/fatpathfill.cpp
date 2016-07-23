@@ -15,8 +15,8 @@
 #define SMALL_H 3
 #define REPEAT_LOOP 5
 
-static SkSurface* new_surface(int width, int height) {
-    return SkSurface::NewRasterN32Premul(width, height);
+static sk_sp<SkSurface> new_surface(int width, int height) {
+    return SkSurface::MakeRasterN32Premul(width, height);
 }
 
 static void draw_pixel_centers(SkCanvas* canvas) {
@@ -49,7 +49,7 @@ static void draw_fatpath(SkCanvas* canvas, SkSurface* surface, const SkPath& pat
 DEF_SIMPLE_GM(fatpathfill, canvas,
               SMALL_W * ZOOM,
               SMALL_H * ZOOM * REPEAT_LOOP) {
-        SkAutoTUnref<SkSurface> surface(new_surface(SMALL_W, SMALL_H));
+        auto surface(new_surface(SMALL_W, SMALL_H));
 
         canvas->scale(ZOOM, ZOOM);
 
@@ -62,7 +62,7 @@ DEF_SIMPLE_GM(fatpathfill, canvas,
             line.moveTo(1, 2);
             line.lineTo(SkIntToScalar(4 + i), 1);
             paint.getFillPath(line, &path);
-            draw_fatpath(canvas, surface, path);
+            draw_fatpath(canvas, surface.get(), path);
 
             canvas->translate(0, SMALL_H);
         }

@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef SkPathOpsTSect_DEFINED
+#define SkPathOpsTSect_DEFINED
 
 #include "SkChunkAlloc.h"
 #include "SkPathOpsBounds.h"
@@ -425,7 +427,7 @@ void SkTSect<TCurve, OppCurve>::addForPerp(SkTSpan<OppCurve, TCurve>* span, doub
 template<typename TCurve, typename OppCurve>
 double SkTSpan<TCurve, OppCurve>::closestBoundedT(const SkDPoint& pt) const {
     double result = -1;
-    double closest = FLT_MAX;
+    double closest = DBL_MAX;
     const SkTSpanBounded<OppCurve, TCurve>* testBounded = fBounded;
     while (testBounded) {
         const SkTSpan<OppCurve, TCurve>* test = testBounded->fBounded;
@@ -510,7 +512,7 @@ int SkTSpan<TCurve, OppCurve>::hullCheck(const SkTSpan<OppCurve, TCurve>* opp,
         }
         fIsLinear = true;
         fIsLine = fPart.controlsInside();
-        return ptsInCommon ? 2 : -1;
+        return ptsInCommon ? 1 : -1;
     } else {  // hull is not linear; check set true if intersected at the end points
         return ((int) ptsInCommon) << 1;  // 0 or 2
     }
@@ -2241,3 +2243,5 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
     }
     SkASSERT(intersections->used() <= TCurve::kMaxIntersections);
 }
+
+#endif

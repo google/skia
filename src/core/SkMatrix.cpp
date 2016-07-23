@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
 #include "SkFloatBits.h"
+#include "SkMatrix.h"
+#include "SkNx.h"
+#include "SkPaint.h"
 #include "SkRSXform.h"
 #include "SkString.h"
-#include "SkNx.h"
-#include "SkOpts.h"
-
 #include <stddef.h>
 
 static void normalize_perspective(SkScalar mat[9]) {
@@ -380,7 +379,6 @@ void SkMatrix::preScale(SkScalar sx, SkScalar sy) {
     fMat[kMScaleY] *= sy;
     fMat[kMPersp1] *= sy;
 
-#ifndef SK_SUPPORT_LEGACY_PRESCALE_SEMANTICS
     // Attempt to simplify our type when applying an inverse scale.
     // TODO: The persp/affine preconditions are in place to keep the mask consistent with
     //       what computeTypeMask() would produce (persp/skew always implies kScale).
@@ -391,9 +389,6 @@ void SkMatrix::preScale(SkScalar sx, SkScalar sy) {
     } else {
         this->orTypeMask(kScale_Mask);
     }
-#else
-    this->orTypeMask(kScale_Mask);
-#endif
 }
 
 void SkMatrix::postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
@@ -921,11 +916,62 @@ void SkMatrix::Identity_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[
 }
 
 void SkMatrix::Trans_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
-    return SkOpts::matrix_translate(m,dst,src,count);
+    SkASSERT(m.getType() <= SkMatrix::kTranslate_Mask);
+    if (count > 0) {
+        SkScalar tx = m.getTranslateX();
+        SkScalar ty = m.getTranslateY();
+        if (count & 1) {
+            dst->fX = src->fX + tx;
+            dst->fY = src->fY + ty;
+            src += 1;
+            dst += 1;
+        }
+        Sk4s trans4(tx, ty, tx, ty);
+        count >>= 1;
+        if (count & 1) {
+            (Sk4s::Load(src) + trans4).store(dst);
+            src += 2;
+            dst += 2;
+        }
+        count >>= 1;
+        for (int i = 0; i < count; ++i) {
+            (Sk4s::Load(src+0) + trans4).store(dst+0);
+            (Sk4s::Load(src+2) + trans4).store(dst+2);
+            src += 4;
+            dst += 4;
+        }
+    }
 }
 
 void SkMatrix::Scale_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
-    return SkOpts::matrix_scale_translate(m,dst,src,count);
+    SkASSERT(m.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask));
+    if (count > 0) {
+        SkScalar tx = m.getTranslateX();
+        SkScalar ty = m.getTranslateY();
+        SkScalar sx = m.getScaleX();
+        SkScalar sy = m.getScaleY();
+        if (count & 1) {
+            dst->fX = src->fX * sx + tx;
+            dst->fY = src->fY * sy + ty;
+            src += 1;
+            dst += 1;
+        }
+        Sk4s trans4(tx, ty, tx, ty);
+        Sk4s scale4(sx, sy, sx, sy);
+        count >>= 1;
+        if (count & 1) {
+            (Sk4s::Load(src) * scale4 + trans4).store(dst);
+            src += 2;
+            dst += 2;
+        }
+        count >>= 1;
+        for (int i = 0; i < count; ++i) {
+            (Sk4s::Load(src+0) * scale4 + trans4).store(dst+0);
+            (Sk4s::Load(src+2) * scale4 + trans4).store(dst+2);
+            src += 4;
+            dst += 4;
+        }
+    }
 }
 
 void SkMatrix::Persp_pts(const SkMatrix& m, SkPoint dst[],
@@ -957,7 +1003,32 @@ void SkMatrix::Persp_pts(const SkMatrix& m, SkPoint dst[],
 }
 
 void SkMatrix::Affine_vpts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
-    return SkOpts::matrix_affine(m,dst,src,count);
+    SkASSERT(m.getType() != SkMatrix::kPerspective_Mask);
+    if (count > 0) {
+        SkScalar tx = m.getTranslateX();
+        SkScalar ty = m.getTranslateY();
+        SkScalar sx = m.getScaleX();
+        SkScalar sy = m.getScaleY();
+        SkScalar kx = m.getSkewX();
+        SkScalar ky = m.getSkewY();
+        if (count & 1) {
+            dst->set(src->fX * sx + src->fY * kx + tx,
+                     src->fX * ky + src->fY * sy + ty);
+            src += 1;
+            dst += 1;
+        }
+        Sk4s trans4(tx, ty, tx, ty);
+        Sk4s scale4(sx, sy, sx, sy);
+        Sk4s  skew4(kx, ky, kx, ky);    // applied to swizzle of src4
+        count >>= 1;
+        for (int i = 0; i < count; ++i) {
+            Sk4s src4 = Sk4s::Load(src);
+            Sk4s swz4 = SkNx_shuffle<1,0,3,2>(src4);  // y0 x0, y1 x1
+            (src4 * scale4 + swz4 * skew4 + trans4).store(dst);
+            src += 2;
+            dst += 2;
+        }
+    }
 }
 
 const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
@@ -1154,30 +1225,19 @@ const SkMatrix::MapXYProc SkMatrix::gMapXYProcs[] = {
 // if its nearly zero (just made up 26, perhaps it should be bigger or smaller)
 #define PerspNearlyZero(x)  SkScalarNearlyZero(x, (1.0f / (1 << 26)))
 
-bool SkMatrix::fixedStepInX(SkScalar y, SkFixed* stepX, SkFixed* stepY) const {
-    if (PerspNearlyZero(fMat[kMPersp0])) {
-        if (stepX || stepY) {
-            if (PerspNearlyZero(fMat[kMPersp1]) &&
-                    PerspNearlyZero(fMat[kMPersp2] - 1)) {
-                if (stepX) {
-                    *stepX = SkScalarToFixed(fMat[kMScaleX]);
-                }
-                if (stepY) {
-                    *stepY = SkScalarToFixed(fMat[kMSkewY]);
-                }
-            } else {
-                SkScalar z = y * fMat[kMPersp1] + fMat[kMPersp2];
-                if (stepX) {
-                    *stepX = SkScalarToFixed(fMat[kMScaleX] / z);
-                }
-                if (stepY) {
-                    *stepY = SkScalarToFixed(fMat[kMSkewY] / z);
-                }
-            }
-        }
-        return true;
+bool SkMatrix::isFixedStepInX() const {
+  return PerspNearlyZero(fMat[kMPersp0]);
+}
+
+SkVector SkMatrix::fixedStepInX(SkScalar y) const {
+    SkASSERT(PerspNearlyZero(fMat[kMPersp0]));
+    if (PerspNearlyZero(fMat[kMPersp1]) &&
+        PerspNearlyZero(fMat[kMPersp2] - 1)) {
+        return SkVector::Make(fMat[kMScaleX], fMat[kMSkewY]);
+    } else {
+        SkScalar z = y * fMat[kMPersp1] + fMat[kMPersp2];
+        return SkVector::Make(fMat[kMScaleX] / z, fMat[kMSkewY] / z);
     }
-    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1804,4 +1864,3 @@ void SkRSXform::toQuad(SkScalar width, SkScalar height, SkPoint quad[4]) const {
     quad[3].set(m01 * height + m02, m11 * height + m12);
 #endif
 }
-

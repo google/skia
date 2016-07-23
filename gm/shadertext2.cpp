@@ -24,11 +24,11 @@ static void makebm(SkBitmap* bm, int w, int h) {
 
     SkPaint     paint;
 
-    paint.setShader(SkGradientShader::CreateLinear(kPts0, kColors0, kPos,
-                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos,
+                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
-    paint.setShader(SkGradientShader::CreateLinear(kPts1, kColors1, kPos,
-                    SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos,
+                    SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
 }
 
@@ -136,11 +136,9 @@ DEF_SIMPLE_GM_BG(shadertext2, canvas, 1800, 900,
                 canvas->translate(0, kPadY / 2 + kPointSize);
                 columnH += kPadY / 2 + kPointSize;
                 for (int lm = 0; lm < localMatrices.count(); ++lm) {
-                    paint.setShader(
-                            SkShader::CreateBitmapShader(bmp,
-                                                         SkShader::kMirror_TileMode,
-                                                         SkShader::kRepeat_TileMode,
-                                                         &localMatrices[lm].fMatrix))->unref();
+                    paint.setShader(SkShader::MakeBitmapShader(bmp, SkShader::kMirror_TileMode,
+                                                               SkShader::kRepeat_TileMode,
+                                                               &localMatrices[lm].fMatrix));
 
                     canvas->save();
                         canvas->concat(matrices[m].fMatrix);

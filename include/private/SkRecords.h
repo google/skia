@@ -8,6 +8,7 @@
 #ifndef SkRecords_DEFINED
 #define SkRecords_DEFINED
 
+#include "SkData.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkImageFilter.h"
@@ -17,7 +18,16 @@
 #include "SkRect.h"
 #include "SkRRect.h"
 #include "SkRSXform.h"
+#include "SkString.h"
 #include "SkTextBlob.h"
+
+// Windows.h, will pull in all of the GDI defines.  GDI #defines
+// DrawText to DrawTextA or DrawTextW, but SkRecord has a struct
+// called DrawText. Since this file does not use GDI, undefing
+// DrawText makes things less confusing.
+#ifdef DrawText
+#undef DrawText
+#endif
 
 namespace SkRecords {
 
@@ -66,7 +76,8 @@ namespace SkRecords {
     M(DrawRect)                                                     \
     M(DrawTextBlob)                                                 \
     M(DrawAtlas)                                                    \
-    M(DrawVertices)
+    M(DrawVertices)                                                 \
+    M(DrawAnnotation)
 
 // Defines SkRecords::Type, an enum of all record types.
 #define ENUM(T) T##_Type,
@@ -358,7 +369,10 @@ RECORD(DrawVertices, kDraw_Tag,
         RefBox<SkXfermode> xmode;
         PODArray<uint16_t> indices;
         int indexCount);
-
+RECORD(DrawAnnotation, 0,
+       SkRect rect;
+       SkString key;
+       RefBox<SkData> value);
 #undef RECORD
 
 }  // namespace SkRecords

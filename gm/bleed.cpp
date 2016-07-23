@@ -27,10 +27,10 @@ struct TestPixels {
         kBitmap,
         kImage
     };
-    Type                  fType;
-    SkBitmap              fBitmap;
-    SkAutoTUnref<SkImage> fImage;
-    SkIRect               fRect;  // The region of the bitmap/image that should be rendered.
+    Type            fType;
+    SkBitmap        fBitmap;
+    sk_sp<SkImage>  fImage;
+    SkIRect         fRect;  // The region of the bitmap/image that should be rendered.
 };
 
 /** Creates a bitmap with two one-pixel rings around a checkerboard. The checkerboard is 2x2
@@ -130,7 +130,7 @@ static bool make_ringed_alpha_bitmap(GrContext* ctx, TestPixels* result, int wid
 /** Helper to reuse above functions to produce images rather than bmps */
 static void bmp_to_image(TestPixels* result) {
     SkASSERT(TestPixels::kBitmap == result->fType);
-    result->fImage.reset(SkImage::NewFromBitmap(result->fBitmap));
+    result->fImage = SkImage::MakeFromBitmap(result->fBitmap);
     SkASSERT(result->fImage);
     result->fType = TestPixels::kImage;
     result->fBitmap.reset();
@@ -156,7 +156,7 @@ bool make_ringed_alpha_image(GrContext* ctx, TestPixels* result, int width, int 
 
 /** Similar to make_ringed_bitmap with these modifications:
         - The backing store is a texture.
-        - The texture is larger than the bitmap dimensions (it is surrounded by non-content 
+        - The texture is larger than the bitmap dimensions (it is surrounded by non-content
           padding on the right/bottom of the contents.)
         - The right/bottom sides of the rings are omitted so that the rect to draw is adjacent to
           the texture padding.
@@ -236,8 +236,8 @@ bool make_oversized_texture_bitmap(GrContext* ctx, TestPixels* result, int width
     desc.fConfig = config;
     desc.fWidth = width + kXPad;
     desc.fHeight = height + kYPad;
-    SkAutoTUnref<GrTexture> texture(ctx->textureProvider()->createTexture(desc, true, pixels.get(),
-                                                                          rowBytes));
+    SkAutoTUnref<GrTexture> texture(ctx->textureProvider()->createTexture(
+            desc, SkBudgeted::kYes, pixels.get(), rowBytes));
 
     if (!texture) {
         return false;
@@ -277,13 +277,13 @@ static bool make_ringed_oversized_alpha_texture_bitmap(GrContext* ctx, TestPixel
         ctx, result, width, height, kAlpha_8_GrPixelConfig, kZero, kOne, k3Q, kHalf, k1Q);
 }
 
-static SkShader* make_shader() {
+static sk_sp<SkShader> make_shader() {
     static const SkPoint pts[] = { {0, 0}, {20, 20} };
     static const SkColor colors[] = { SK_ColorGREEN, SK_ColorYELLOW };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
 }
 
-static SkShader* make_null_shader() { return nullptr; }
+static sk_sp<SkShader> make_null_shader() { return nullptr; }
 
 enum BleedTest {
     kUseBitmap_BleedTest,
@@ -300,7 +300,7 @@ enum BleedTest {
 const struct {
     const char* fName;
     bool (*fPixelMaker)(GrContext*, TestPixels* result, int width, int height);
-    SkShader* (*fShaderMaker)();
+    sk_sp<SkShader> (*fShaderMaker)();
 } gBleedRec[] = {
     { "bleed",                          make_ringed_color_bitmap,                   make_null_shader },
     { "bleed_texture_bmp",              make_ringed_oversized_color_texture_bitmap, make_null_shader },
@@ -345,7 +345,7 @@ protected:
         if (TestPixels::kBitmap == pixels.fType) {
             canvas->drawBitmapRect(pixels.fBitmap, src, dst, paint, constraint);
         } else {
-            canvas->drawImageRect(pixels.fImage, src, dst, paint, constraint);
+            canvas->drawImageRect(pixels.fImage.get(), src, dst, paint, constraint);
         }
     }
 
@@ -410,9 +410,8 @@ protected:
 
         SkPaint paint;
         paint.setFilterQuality(filter);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                         SkBlurMask::ConvertRadiusToSigma(3));
-        paint.setMaskFilter(mf)->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                                   SkBlurMask::ConvertRadiusToSigma(3)));
         paint.setShader(fShader);
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
@@ -429,9 +428,8 @@ protected:
 
         SkPaint paint;
         paint.setFilterQuality(filter);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(kOuter_SkBlurStyle,
-                                                    SkBlurMask::ConvertRadiusToSigma(7));
-        paint.setMaskFilter(mf)->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kOuter_SkBlurStyle,
+                                                   SkBlurMask::ConvertRadiusToSigma(7)));
         paint.setShader(fShader);
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
@@ -468,7 +466,7 @@ protected:
             return;
         }
 
-        fShader.reset(gBleedRec[fBT].fShaderMaker());
+        fShader = gBleedRec[fBT].fShaderMaker();
 
         canvas->clear(SK_ColorGRAY);
         SkTDArray<SkMatrix> matrices;
@@ -582,13 +580,13 @@ private:
     static const int kSmallTextureSize = 6;
     static const int kMaxTileSize = 32;
 
-    bool                    fCreatedPixels;
-    TestPixels              fBigTestPixels;
-    TestPixels              fSmallTestPixels;
+    bool            fCreatedPixels;
+    TestPixels      fBigTestPixels;
+    TestPixels      fSmallTestPixels;
 
-    SkAutoTUnref<SkShader>  fShader;
+    sk_sp<SkShader> fShader;
 
-    const BleedTest         fBT;
+    const BleedTest fBT;
 
     typedef GM INHERITED;
 };

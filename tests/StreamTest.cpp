@@ -164,9 +164,8 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
     for (i = 0; i < SK_ARRAY_COUNT(sizes); ++i) {
         size_t n = rstream.readPackedUInt();
         if (sizes[i] != n) {
-            SkDebugf("-- %d: sizes:%x n:%x\n", i, sizes[i], n);
+            ERRORF(reporter, "sizes:%x != n:%x\n", i, sizes[i], n);
         }
-        REPORTER_ASSERT(reporter, sizes[i] == n);
     }
 }
 
@@ -266,12 +265,11 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
     for (size_t start = 0; start <= bufferSize; start++) {
         // Skip to the starting point
         REPORTER_ASSERT(r, bufferedStream->skip(start) == start);
-        REPORTER_ASSERT(r, bufferedStream->getPosition() == start);
 
         const size_t bytesPeeked = bufferedStream->peek(peekStorage.get(), bytesToPeek);
         if (0 == bytesPeeked) {
-            // Peeking should only fail completely if we have read beyond the buffer.
-            REPORTER_ASSERT(r, bufferedStream->getPosition() >= bufferSize);
+            // Peeking should only fail completely if we have read/skipped beyond the buffer.
+            REPORTER_ASSERT(r, start >= bufferSize);
             break;
         }
 
@@ -285,9 +283,9 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
     }
 }
 
-// This test uses file system operations that don't work out of the 
-// box on iOS. It's likely that we don't need them on iOS. Ignoring for now. 
-// TODO(stephana): Re-evaluate if we need this in the future. 
+// This test uses file system operations that don't work out of the
+// box on iOS. It's likely that we don't need them on iOS. Ignoring for now.
+// TODO(stephana): Re-evaluate if we need this in the future.
 #ifndef SK_BUILD_FOR_IOS
 DEF_TEST(StreamPeek, reporter) {
     // Test a memory stream.
@@ -436,4 +434,3 @@ DEF_TEST(StreamEmptyStreamMemoryBase, r) {
     SkAutoTDelete<SkStreamAsset> asset(tmp.detachAsStream());
     REPORTER_ASSERT(r, nullptr == asset->getMemoryBase());
 }
-

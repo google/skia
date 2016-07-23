@@ -7,9 +7,9 @@
 #ifndef SkPathOps_DEFINED
 #define SkPathOps_DEFINED
 
+#include "../private/SkTArray.h"
+#include "../private/SkTDArray.h"
 #include "SkPreConfig.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
 
 class SkPath;
 struct SkRect;

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -30,14 +29,14 @@ SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
     return kSweep_GradientType;
 }
 
-SkFlattenable* SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
         return nullptr;
     }
     const SkPoint center = buffer.readPoint();
-    return SkGradientShader::CreateSweep(center.x(), center.y(), desc.fColors, desc.fPos,
-                                         desc.fCount, desc.fGradFlags, desc.fLocalMatrix);
+    return SkGradientShader::MakeSweep(center.x(), center.y(), desc.fColors, desc.fPos,
+                                       desc.fCount, desc.fGradFlags, desc.fLocalMatrix);
 }
 
 void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
@@ -45,7 +44,7 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fCenter);
 }
 
-size_t SkSweepGradient::contextSize() const {
+size_t SkSweepGradient::onContextSize(const ContextRec&) const {
     return sizeof(SweepGradientContext);
 }
 
@@ -92,11 +91,9 @@ void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* S
         SkScalar dy, fy = srcPt.fY;
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
-            SkFixed storage[2];
-            (void)matrix.fixedStepInX(SkIntToScalar(y) + SK_ScalarHalf,
-                                      &storage[0], &storage[1]);
-            dx = SkFixedToScalar(storage[0]);
-            dy = SkFixedToScalar(storage[1]);
+            const auto step = matrix.fixedStepInX(SkIntToScalar(y) + SK_ScalarHalf);
+            dx = step.fX;
+            dy = step.fY;
         } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
             dx = matrix.getScaleX();
@@ -150,9 +147,9 @@ private:
 
 class GrSweepGradient : public GrGradientEffect {
 public:
-    static GrFragmentProcessor* Create(GrContext* ctx, const SkSweepGradient& shader,
-                                       const SkMatrix& m) {
-        return new GrSweepGradient(ctx, shader, m);
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx, const SkSweepGradient& shader,
+                                           const SkMatrix& m) {
+        return sk_sp<GrFragmentProcessor>(new GrSweepGradient(ctx, shader, m));
     }
     virtual ~GrSweepGradient() { }
 
@@ -184,7 +181,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSweepGradient);
 
-const GrFragmentProcessor* GrSweepGradient::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
 
     SkColor colors[kMaxRandomGradientColors];
@@ -192,11 +189,12 @@ const GrFragmentProcessor* GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     SkScalar* stops = stopsArray;
     SkShader::TileMode tmIgnored;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tmIgnored);
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateSweep(center.fX, center.fY,
-                                                                colors, stops, colorCount));
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
+    sk_sp<SkShader> shader(SkGradientShader::MakeSweep(center.fX, center.fY,  colors, stops,
+                                                       colorCount));
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
                                                                 GrTest::TestMatrix(d->fRandom),
-                                                                NULL, kNone_SkFilterQuality);
+                                                                NULL, kNone_SkFilterQuality,
+                                                                SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -224,16 +222,17 @@ void GrGLSweepGradient::emitCode(EmitArgs& args) {
                     ge, t.c_str(),
                     args.fOutputColor,
                     args.fInputColor,
-                    args.fSamplers);
+                    args.fTexSamplers);
 }
 
 /////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor* SkSweepGradient::asFragmentProcessor(
+sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
                                                     GrContext* context,
                                                     const SkMatrix& viewM,
                                                     const SkMatrix* localMatrix,
-                                                    SkFilterQuality) const {
+                                                    SkFilterQuality,
+                                                    SkSourceGammaTreatment) const {
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
@@ -248,9 +247,8 @@ const GrFragmentProcessor* SkSweepGradient::asFragmentProcessor(
     }
     matrix.postConcat(fPtsToUnit);
 
-    SkAutoTUnref<const GrFragmentProcessor> inner(
-        GrSweepGradient::Create(context, *this, matrix));
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(context, *this, matrix));
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 The Android Open Source Project
  *
@@ -11,14 +10,11 @@
 #define SkPDFFormXObject_DEFINED
 
 #include "SkPDFStream.h"
-#include "SkPDFTypes.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
 
-class SkMatrix;
+class SkPDFArray;
 class SkPDFDevice;
-class SkPDFObjNumMap;
+class SkPDFDict;
+struct SkRect;
 
 /** \class SkPDFFormXObject
 
@@ -41,7 +37,7 @@ public:
      * Create a PDF form XObject from a raw content stream and associated
      * resources.
      */
-    explicit SkPDFFormXObject(SkStream* content,
+    explicit SkPDFFormXObject(SkStreamAsset* content,
                               SkRect bbox,
                               SkPDFDict* resourceDict);
     virtual ~SkPDFFormXObject();

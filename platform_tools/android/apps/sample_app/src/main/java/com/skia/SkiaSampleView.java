@@ -18,6 +18,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 public class SkiaSampleView extends GLSurfaceView {
 
@@ -177,6 +178,9 @@ public class SkiaSampleView extends GLSurfaceView {
                 mSampleRenderer.saveToPDF();
             }
         });
+
+	String msg = getContext().getString(R.string.pdf_save_info);
+	Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     public boolean getUsesOpenGLAPI() {

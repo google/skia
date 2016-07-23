@@ -88,13 +88,12 @@ public:
         fBounds.set(0, 0, SkIntToScalar(width * zoom), SkIntToScalar(height * zoom));
         fMatrix.setScale(SkIntToScalar(zoom), SkIntToScalar(zoom));
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
-        fShader.reset(sk_tool_utils::create_checkerboard_shader(
-                              0xFFCCCCCC, 0xFFFFFFFF, zoom));
+        fShader = sk_tool_utils::create_checkerboard_shader(0xFFCCCCCC, 0xFFFFFFFF, zoom);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-        fMinSurface.reset(SkSurface::NewRaster(info));
+        fMinSurface = SkSurface::MakeRaster(info);
         info = info.makeWH(width * zoom, height * zoom);
-        fMaxSurface.reset(SkSurface::NewRaster(info));
+        fMaxSurface = SkSurface::MakeRaster(info);
     }
 
     void drawBG(SkCanvas*);
@@ -111,9 +110,9 @@ private:
     int fW, fH, fZoom;
     SkMatrix fMatrix, fInverse;
     SkRect   fBounds, fClipRect;
-    SkAutoTUnref<SkShader> fShader;
-    SkAutoTUnref<SkSurface> fMinSurface;
-    SkAutoTUnref<SkSurface> fMaxSurface;
+    sk_sp<SkShader> fShader;
+    sk_sp<SkSurface> fMinSurface;
+    sk_sp<SkSurface> fMaxSurface;
 
     void setupPaint(SkPaint* paint) {
         bool aa = this->getAA();
@@ -163,7 +162,7 @@ private:
     }
 
     void copyMinToMax() {
-        erase(fMaxSurface);
+        erase(fMaxSurface.get());
         SkCanvas* canvas = fMaxSurface->getCanvas();
         canvas->save();
         canvas->concat(fMatrix);
@@ -276,7 +275,7 @@ void FatBits::drawLine(SkCanvas* canvas, SkPoint pts[]) {
         apply_grid(pts, 2);
     }
 
-    erase(fMinSurface);
+    erase(fMinSurface.get());
     this->setupPaint(&paint);
     paint.setColor(FAT_PIXEL_COLOR);
     if (fUseClip) {
@@ -311,7 +310,7 @@ void FatBits::drawRect(SkCanvas* canvas, SkPoint pts[2]) {
     SkRect r;
     r.set(pts, 2);
 
-    erase(fMinSurface);
+    erase(fMinSurface.get());
     this->setupPaint(&paint);
     paint.setColor(FAT_PIXEL_COLOR);
     {
@@ -357,7 +356,7 @@ void FatBits::drawTriangle(SkCanvas* canvas, SkPoint pts[3]) {
     path.lineTo(pts[2]);
     path.close();
 
-    erase(fMinSurface);
+    erase(fMinSurface.get());
     this->setupPaint(&paint);
     paint.setColor(FAT_PIXEL_COLOR);
     fMinSurface->getCanvas()->drawPath(path, paint);

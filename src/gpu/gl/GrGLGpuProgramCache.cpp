@@ -23,7 +23,7 @@ SK_CONF_DECLARE(bool, c_DisplayCache, "gpu.displayCache", false,
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
 struct GrGLGpu::ProgramCache::Entry {
-    
+
     Entry() : fProgram(nullptr), fLRUStamp(0) {}
 
     SkAutoTUnref<GrGLProgram>   fProgram;
@@ -77,7 +77,7 @@ GrGLGpu::ProgramCache::~ProgramCache() {
 #endif
 }
 
-void GrGLGpu::ProgramCache::reset() {
+void GrGLGpu::ProgramCache::abandon() {
     for (int i = 0; i < fCount; ++i) {
         SkASSERT(fEntries[i]->fProgram.get());
         fEntries[i]->fProgram->abandon();
@@ -99,37 +99,42 @@ void GrGLGpu::ProgramCache::reset() {
 #endif
 }
 
-void GrGLGpu::ProgramCache::abandon() {
-    this->reset();
-}
-
 int GrGLGpu::ProgramCache::search(const GrProgramDesc& desc) const {
     ProgDescLess less;
     return SkTSearch(fEntries, fCount, desc, sizeof(Entry*), less);
 }
 
-GrGLProgram* GrGLGpu::ProgramCache::refProgram(const DrawArgs& args) {
+GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
+                                               const GrPipeline& pipeline,
+                                               const GrPrimitiveProcessor& primProc) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif
 
+    // Get GrGLProgramDesc
+    GrGLProgramDesc desc;
+    if (!GrGLProgramDescBuilder::Build(&desc, primProc, pipeline, *gpu->glCaps().glslCaps())) {
+        GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
+        return nullptr;
+    }
+
     Entry* entry = nullptr;
 
-    uint32_t hashIdx = args.fDesc->getChecksum();
+    uint32_t hashIdx = desc.getChecksum();
     hashIdx ^= hashIdx >> 16;
     if (kHashBits <= 8) {
         hashIdx ^= hashIdx >> 8;
     }
     hashIdx &=((1 << kHashBits) - 1);
     Entry* hashedEntry = fHashTable[hashIdx];
-    if (hashedEntry && hashedEntry->fProgram->getDesc() == *args.fDesc) {
+    if (hashedEntry && hashedEntry->fProgram->getDesc() == desc) {
         SkASSERT(hashedEntry->fProgram);
         entry = hashedEntry;
     }
 
     int entryIdx;
     if (nullptr == entry) {
-        entryIdx = this->search(*args.fDesc);
+        entryIdx = this->search(desc);
         if (entryIdx >= 0) {
             entry = fEntries[entryIdx];
 #ifdef PROGRAM_CACHE_STATS
@@ -143,7 +148,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const DrawArgs& args) {
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(args, fGpu);
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(pipeline, primProc, desc, fGpu);
         if (nullptr == program) {
             return nullptr;
         }

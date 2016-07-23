@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "float.h"
+
 #include "SkColorPriv.h"
 #include "SkEndian.h"
+#include "SkFixed.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "SkHalf.h"
@@ -52,9 +55,10 @@ static float std_floor(float x) {
 static void test_floor_value(skiatest::Reporter* reporter, float value) {
     float fast = fast_floor(value);
     float std = std_floor(value);
-    REPORTER_ASSERT(reporter, std == fast);
-//    SkDebugf("value[%1.9f] std[%g] fast[%g] equal[%d]\n",
-//             value, std, fast, std == fast);
+    if (std != fast) {
+        ERRORF(reporter, "fast_floor(%.9g) == %.9g != %.9g == std_floor(%.9g)",
+               value, fast, std, value);
+    }
 }
 
 static void test_floor(skiatest::Reporter* reporter) {
@@ -150,7 +154,7 @@ static void test_blend31() {
 
                 if (r0 != r1 && r0 != r2) {
                     SkDebugf("src:%d dst:%d a:%d result:%d float:%g\n",
-                                  src,   dst, a,        r0,      f);
+                                 src,   dst, a,        r0,      f);
                     failed += 1;
                 }
                 if (r0 > 255) {
@@ -176,11 +180,8 @@ static void test_blend(skiatest::Reporter* reporter) {
                     float diff = sk_float_abs(f1 - r1);
                     diff = sk_float_abs(diff - 0.5f);
                     if (diff > (1 / 255.f)) {
-#ifdef SK_DEBUG
-                        SkDebugf("src:%d dst:%d a:%d result:%d float:%g\n",
-                                 src, dst, a, r0, f1);
-#endif
-                        REPORTER_ASSERT(reporter, false);
+                        ERRORF(reporter, "src:%d dst:%d a:%d "
+                               "result:%d float:%g\n", src, dst, a, r0, f1);
                     }
                 }
             }
@@ -208,32 +209,27 @@ static float nextFloat(SkRandom& rand) {
 /*  returns true if a == b as resulting from (int)x. Since it is undefined
  what to do if the float exceeds 2^32-1, we check for that explicitly.
  */
-static bool equal_float_native_skia(float x, uint32_t ni, uint32_t si) {
-    if (!(x == x)) {    // NAN
-        return ((int32_t)si) == SK_MaxS32 || ((int32_t)si) == SK_MinS32;
+static bool equal_float_native_skia(float x, int32_t ni, int32_t si) {
+    // When the float is out of integer range (NaN, above, below),
+    // the C cast is undefined, but Skia's methods should have clamped.
+    if (!(x == x)) {    // NaN
+        return si == SK_MaxS32 || si == SK_MinS32;
     }
-    // for out of range, C is undefined, but skia always should return NaN32
     if (x > SK_MaxS32) {
-        return ((int32_t)si) == SK_MaxS32;
+        return si == SK_MaxS32;
     }
-    if (x < -SK_MaxS32) {
-        return ((int32_t)si) == SK_MinS32;
+    if (x < SK_MinS32) {
+        return si == SK_MinS32;
     }
     return si == ni;
 }
 
 static void assert_float_equal(skiatest::Reporter* reporter, const char op[],
-                               float x, uint32_t ni, uint32_t si) {
+                               float x, int32_t ni, int32_t si) {
     if (!equal_float_native_skia(x, ni, si)) {
         ERRORF(reporter, "%s float %g bits %x native %x skia %x\n",
                op, x, SkFloat2Bits(x), ni, si);
     }
-}
-
-static void test_float_cast(skiatest::Reporter* reporter, float x) {
-    int ix = (int)x;
-    int iix = SkFloatToIntCast(x);
-    assert_float_equal(reporter, "cast", x, ix, iix);
 }
 
 static void test_float_floor(skiatest::Reporter* reporter, float x) {
@@ -256,16 +252,9 @@ static void test_float_ceil(skiatest::Reporter* reporter, float x) {
 }
 
 static void test_float_conversions(skiatest::Reporter* reporter, float x) {
-    test_float_cast(reporter, x);
     test_float_floor(reporter, x);
     test_float_round(reporter, x);
     test_float_ceil(reporter, x);
-}
-
-static void test_int2float(skiatest::Reporter* reporter, int ival) {
-    float x0 = (float)ival;
-    float x1 = SkIntToFloatCast(ival);
-    REPORTER_ASSERT(reporter, x0 == x1);
 }
 
 static void unittest_fastfloat(skiatest::Reporter* reporter) {
@@ -273,6 +262,7 @@ static void unittest_fastfloat(skiatest::Reporter* reporter) {
     size_t i;
 
     static const float gFloats[] = {
+        0.f/0.f, -0.f/0.f, 1.f/0.f, -1.f/0.f,
         0.f, 1.f, 0.5f, 0.499999f, 0.5000001f, 1.f/3,
         0.000000001f, 1000000000.f,     // doesn't overflow
         0.0000000001f, 10000000000.f    // does overflow
@@ -287,17 +277,6 @@ static void unittest_fastfloat(skiatest::Reporter* reporter) {
         for (i = 0; i < 100000; i++) {
             float x = nextFloat(rand);
             test_float_conversions(reporter, x);
-        }
-
-        test_int2float(reporter, 0);
-        test_int2float(reporter, 1);
-        test_int2float(reporter, -1);
-        for (i = 0; i < 100000; i++) {
-            // for now only test ints that are 24bits or less, since we don't
-            // round (down) large ints the same as IEEE...
-            int ival = rand.nextU() & 0xFFFFFF;
-            test_int2float(reporter, ival);
-            test_int2float(reporter, -ival);
         }
     }
 }
@@ -382,14 +361,15 @@ static void unittest_half(skiatest::Reporter* reporter) {
 
 }
 
-static void test_rsqrt(skiatest::Reporter* reporter) {
+template <typename RSqrtFn>
+static void test_rsqrt(skiatest::Reporter* reporter, RSqrtFn rsqrt) {
     const float maxRelativeError = 6.50196699e-4f;
 
     // test close to 0 up to 1
     float input = 0.000001f;
     for (int i = 0; i < 1000; ++i) {
         float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = sk_float_rsqrt(input);
+        float estimate = rsqrt(input);
         float relativeError = sk_float_abs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 0.001f;
@@ -399,7 +379,7 @@ static void test_rsqrt(skiatest::Reporter* reporter) {
     input = 1.0f;
     for (int i = 0; i < 1000; ++i) {
         float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = sk_float_rsqrt(input);
+        float estimate = rsqrt(input);
         float relativeError = sk_float_abs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 0.01f;
@@ -409,7 +389,7 @@ static void test_rsqrt(skiatest::Reporter* reporter) {
     input = 1000000.0f;
     for (int i = 0; i < 100; ++i) {
         float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = sk_float_rsqrt(input);
+        float estimate = rsqrt(input);
         float relativeError = sk_float_abs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 754326.f;
@@ -555,7 +535,8 @@ DEF_TEST(Math, reporter) {
     unittest_fastfloat(reporter);
     unittest_isfinite(reporter);
     unittest_half(reporter);
-    test_rsqrt(reporter);
+    test_rsqrt(reporter, sk_float_rsqrt);
+    test_rsqrt(reporter, sk_float_rsqrt_portable);
 
     for (i = 0; i < 10000; i++) {
         SkFixed numer = rand.nextS();

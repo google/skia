@@ -10,79 +10,56 @@
 
 #include "GrBatchFlushState.h"
 #include "GrGeometryProcessor.h"
-#include "GrVertexBuffer.h"
 
 #include "batches/GrVertexBatch.h"
 
 /*
- * A simple batch only for testing purposes which actually doesn't batch at all, but can fit into
- * the batch pipeline and generate arbitrary geometry
+ * A simple solid color batch only for testing purposes which actually doesn't batch at all. It
+ * saves having to fill out some boiler plate methods.
  */
 class GrTestBatch : public GrVertexBatch {
 public:
-    struct Geometry {
-        GrColor fColor;
-    };
-
     virtual const char* name() const override = 0;
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(this->geoData(0)->fColor);
+        color->setKnownFourComponents(fColor);
         coverage->setUnknownSingleComponent();
-        overrides->fUsePLSDstRead = false;
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
-            this->geoData(0)->fColor = GrColor_ILLEGAL;
-        }
-        overrides.getOverrideColorIfSet(&this->geoData(0)->fColor);
+        overrides.getOverrideColorIfSet(&fColor);
 
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = this->geoData(0)->fColor;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
+        fOptimizations.fColorIgnored = !overrides.readsColor();
+        fOptimizations.fUsesLocalCoords = overrides.readsLocalCoords();
+        fOptimizations.fCoverageIgnored = !overrides.readsCoverage();
     }
 
 protected:
-    GrTestBatch(uint32_t classID, const GrGeometryProcessor* gp, const SkRect& bounds)
-        : INHERITED(classID) {
-        fGeometryProcessor.reset(SkRef(gp));
-
+    GrTestBatch(uint32_t classID, const SkRect& bounds, GrColor color)
+        : INHERITED(classID)
+        , fColor(color) {
         this->setBounds(bounds);
     }
 
-    const GrGeometryProcessor* geometryProcessor() const { return fGeometryProcessor; }
+    struct Optimizations {
+        bool fColorIgnored = false;
+        bool fUsesLocalCoords = false;
+        bool fCoverageIgnored = false;
+    };
+
+    GrColor color() const { return fColor; }
+    const Optimizations optimizations() const { return fOptimizations; }
 
 private:
-    void onPrepareDraws(Target* target) const override {
-        target->initDraw(fGeometryProcessor, this->pipeline());
-        this->generateGeometry(target);
-    }
-
-    virtual Geometry* geoData(int index) = 0;
-    virtual const Geometry* geoData(int index) const = 0;
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps&) override {
         return false;
     }
 
-    virtual void generateGeometry(Target*) const = 0;
-
-    struct BatchTracker {
-        GrColor fColor;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-    };
-
-    SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
-    BatchTracker fBatch;
+    GrColor       fColor;
+    Optimizations fOptimizations;
 
     typedef GrVertexBatch INHERITED;
 };

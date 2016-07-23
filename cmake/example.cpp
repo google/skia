@@ -47,34 +47,31 @@ template <typename T> std::shared_ptr<T> adopt(T* ptr) {
 
 static std::shared_ptr<SkSurface> create_raster_surface(int w, int h) {
     std::cout << "Using raster surface" << std::endl;
-    return adopt(SkSurface::NewRasterN32Premul(w, h));
+    return adopt(SkSurface::MakeRasterN32Premul(w, h).release());
 }
 
 static std::shared_ptr<SkSurface> create_opengl_surface(int w, int h) {
     std::cout << "Using opengl surface" << std::endl;
     std::shared_ptr<GrContext> grContext = adopt(GrContext::Create(kOpenGL_GrBackend, 0));
-    return adopt(SkSurface::NewRenderTarget(grContext.get(),
-                                            SkSurface::kNo_Budgeted,
-                                            SkImageInfo::MakeN32Premul(w,h)));
+    return adopt(SkSurface::MakeRenderTarget(grContext.get(),
+                                            SkBudgeted::kNo,
+                                            SkImageInfo::MakeN32Premul(w,h)).release());
 }
 
 int main(int, char**) {
     bool gl_ok = setup_gl_context();
-    srand(time(nullptr));
+    srand((unsigned)time(nullptr));
     std::shared_ptr<SkSurface> surface = (gl_ok && rand() % 2) ? create_opengl_surface(320, 240)
                                                                : create_raster_surface(320, 240);
 
     // Create a left-to-right green-to-purple gradient shader.
     SkPoint pts[] = { {0,0}, {320,240} };
     SkColor colors[] = { 0xFF00FF00, 0xFFFF00FF };
-    std::shared_ptr<SkShader> shader = adopt(
-            SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kRepeat_TileMode));
-
     // Our text will draw with this paint: size 24, antialiased, with the shader.
     SkPaint paint;
     paint.setTextSize(24);
     paint.setAntiAlias(true);
-    paint.setShader(shader.get());
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kRepeat_TileMode));
 
     // Draw to the surface via its SkCanvas.
     SkCanvas* canvas = surface->getCanvas();   // We don't manage this pointer's lifetime.
@@ -83,7 +80,7 @@ int main(int, char**) {
     canvas->drawText(msg, strlen(msg), 90,120, paint);
 
     // Grab a snapshot of the surface as an immutable SkImage.
-    std::shared_ptr<SkImage> image = adopt(surface->newImageSnapshot());
+    sk_sp<SkImage> image = surface->makeImageSnapshot();
     // Encode that image as a .png into a blob in memory.
     std::shared_ptr<SkData> png = adopt(image->encode(SkImageEncoder::kPNG_Type, 100));
 

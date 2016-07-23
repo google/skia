@@ -71,8 +71,8 @@ SkShader* SkDrawBitmapShader::getShader() {
     //
     // oops, bitmapshader no longer takes filterBitmap, but deduces it at
     // draw-time from the paint
-    return SkShader::CreateBitmapShader(image->fBitmap,
+    return SkShader::MakeBitmapShader(image->fBitmap,
                                         (SkShader::TileMode) tileMode,
                                         (SkShader::TileMode) tileMode,
-                                        getMatrix());
+                                        getMatrix()).release();
 }

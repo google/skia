@@ -1,0 +1,258 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+# Skia public API, generally provided by :skia.
+config("skia_public") {
+  include_dirs = [
+    "include/c",
+    "include/config",
+    "include/core",
+    "include/effects",
+    "include/gpu",
+    "include/images",
+    "include/lazy",
+    "include/pathops",
+    "include/ports",
+    "include/utils",
+    "include/utils/mac",
+  ]
+  defines = [ "SKIA_DLL" ]
+}
+
+# Skia internal APIs, used by Skia itself and a few test tools.
+config("skia_private") {
+  visibility = [ ":*" ]
+
+  include_dirs = [
+    "include/private",
+    "src/c",
+    "src/config",
+    "src/core",
+    "src/effects",
+    "src/gpu",
+    "src/image",
+    "src/images",
+    "src/lazy",
+    "src/opts",
+    "src/pathops",
+    "src/ports",
+    "src/sfnt",
+    "src/utils",
+    "third_party/etc1",
+    "third_party/ktx",
+  ]
+}
+
+# Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
+config("skia_library") {
+  visibility = [ ":*" ]
+
+  cflags = [
+    "-Winit-self",
+    "-Wpointer-arith",
+    "-Wsign-compare",
+    "-Wvla",
+    "-fstrict-aliasing",
+  ]
+  cflags_cc = [ "-Wnon-virtual-dtor" ]
+
+  defines = [ "SKIA_IMPLEMENTATION=1" ]
+}
+
+skia_library_configs = [
+  ":skia_public",
+  ":skia_private",
+  ":skia_library",
+]
+
+# Chrome's GN environment is mostly helpful, but a couple default configs tend to get in the way.
+unwanted_configs = [
+  "//build/config/clang:find_bad_constructs",  # Chrome style checks.
+  "//build/config:feature_flags",  # A bunch of #defines we don't care about.
+]
+
+core_gypi = exec_script("build/gypi_to_gn.py",
+                        [
+                          rebase_path("gyp/core.gypi"),
+                          "--replace=<(skia_include_path)=include",
+                          "--replace=<(skia_src_path)=src",
+                        ],
+                        "scope",
+                        [ "gyp/core.gypi" ])
+
+effects_gypi = exec_script("build/gypi_to_gn.py",
+                           [
+                             rebase_path("gyp/effects.gypi"),
+                             "--replace=<(skia_include_path)=include",
+                             "--replace=<(skia_src_path)=src",
+                           ],
+                           "scope",
+                           [ "gyp/effects.gypi" ])
+
+gpu_gypi = exec_script("build/gypi_to_gn.py",
+                       [
+                         rebase_path("gyp/gpu.gypi"),
+                         "--replace=<(skia_include_path)=include",
+                         "--replace=<(skia_src_path)=src",
+                       ],
+                       "scope",
+                       [ "gyp/gpu.gypi" ])
+
+opts_gypi = exec_script("build/gypi_to_gn.py",
+                        [
+                          rebase_path("gyp/opts.gypi"),
+                          "--replace=<(skia_include_path)=include",
+                          "--replace=<(skia_src_path)=src",
+                        ],
+                        "scope",
+                        [ "gyp/opts.gypi" ])
+
+pdf_gypi = exec_script("build/gypi_to_gn.py",
+                       [
+                         rebase_path("gyp/pdf.gypi"),
+                         "--replace=<(skia_include_path)=include",
+                         "--replace=<(skia_src_path)=src",
+                       ],
+                       "scope",
+                       [ "gyp/pdf.gypi" ])
+
+utils_gypi = exec_script("build/gypi_to_gn.py",
+                         [
+                           rebase_path("gyp/utils.gypi"),
+                           "--replace=<(skia_include_path)=include",
+                           "--replace=<(skia_src_path)=src",
+                         ],
+                         "scope",
+                         [ "gyp/utils.gypi" ])
+
+source_set("opts_ssse3") {
+  configs += skia_library_configs
+  configs -= unwanted_configs
+
+  sources = opts_gypi.ssse3_sources
+  cflags = [ "-mssse3" ]
+}
+
+source_set("opts_sse41") {
+  configs += skia_library_configs
+  configs -= unwanted_configs
+
+  sources = opts_gypi.sse41_sources
+  cflags = [ "-msse4.1" ]
+}
+
+source_set("opts_avx") {
+  configs += skia_library_configs
+  configs -= unwanted_configs
+
+  sources = opts_gypi.avx_sources
+  cflags = [ "-mavx" ]
+}
+
+component("skia") {
+  public_configs = [ ":skia_public" ]
+  configs += skia_library_configs
+  configs -= unwanted_configs
+
+  deps = [
+    ":opts_avx",
+    ":opts_sse41",
+    ":opts_ssse3",
+    "third_party:zlib",
+  ]
+
+  libs = []
+
+  sources = []
+  sources += core_gypi.sources
+  sources += effects_gypi.sources
+  sources += gpu_gypi.skgpu_sources
+  sources += opts_gypi.sse2_sources
+  sources += pdf_gypi.sources
+  sources += utils_gypi.sources
+  sources += [
+    "src/images/SkImageEncoder.cpp",
+    "src/images/SkImageEncoder_Factory.cpp",
+    "src/ports/SkDiscardableMemory_none.cpp",
+    "src/ports/SkGlobalInitialization_default.cpp",
+    "src/ports/SkImageGenerator_none.cpp",
+    "src/ports/SkMemory_malloc.cpp",
+    "src/ports/SkOSFile_stdio.cpp",
+    "src/sfnt/SkOTTable_name.cpp",
+    "src/sfnt/SkOTUtils.cpp",
+    "src/utils/mac/SkStream_mac.cpp",
+    "third_party/etc1/etc1.cpp",
+    "third_party/ktx/ktx.cpp",
+  ]
+
+  if (is_win) {
+    sources += [
+      "src/ports/SkDebug_win.cpp",
+      "src/ports/SkFontHost_win.cpp",
+      "src/ports/SkFontMgr_win_dw.cpp",
+      "src/ports/SkFontMgr_win_dw_factory.cpp",
+      "src/ports/SkImageEncoder_WIC.cpp",
+      "src/ports/SkImageGeneratorWIC.cpp",
+      "src/ports/SkOSFile_win.cpp",
+      "src/ports/SkScalerContext_win_dw.cpp",
+      "src/ports/SkTLS_win.cpp",
+      "src/ports/SkTypeface_win_dw.cpp",
+    ]
+  } else {
+    sources += [
+      "src/ports/SkDebug_stdio.cpp",
+      "src/ports/SkOSFile_posix.cpp",
+      "src/ports/SkTLS_pthread.cpp",
+    ]
+  }
+
+  if (is_linux) {
+    deps += [
+      "third_party:fontconfig",
+      "third_party:freetype2",
+      "third_party:libjpeg-turbo",
+      "third_party:libpng",
+    ]
+    sources += [
+      "src/fonts/SkFontMgr_fontconfig.cpp",
+      "src/images/SkJPEGImageEncoder.cpp",
+      "src/images/SkJPEGWriteUtility.cpp",
+      "src/images/SkPNGImageEncoder.cpp",
+      "src/ports/SkFontConfigInterface_direct.cpp",
+      "src/ports/SkFontConfigInterface_direct_factory.cpp",
+      "src/ports/SkFontHost_FreeType.cpp",
+      "src/ports/SkFontHost_FreeType_common.cpp",
+      "src/ports/SkFontHost_fontconfig.cpp",
+    ]
+  }
+
+  if (is_mac) {
+    sources += [
+      "src/ports/SkFontHost_mac.cpp",
+      "src/ports/SkImageEncoder_CG.cpp",
+      "src/ports/SkImageGeneratorCG.cpp",
+    ]
+    libs += [ "ApplicationServices.framework" ]
+  }
+}
+
+executable("example") {
+  configs -= unwanted_configs
+
+  sources = [
+    "cmake/example.cpp",
+  ]
+  deps = [
+    ":skia",
+  ]
+
+  libs = []
+  if (is_mac) {
+    libs += [ "OpenGL.framework" ]
+  }
+}

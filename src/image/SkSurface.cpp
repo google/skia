@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAtomics.h"
 #include "SkSurface_Base.h"
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
@@ -79,10 +80,9 @@ SkSurface_Base::~SkSurface_Base() {
 }
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
-    SkImage* image = this->newImageSnapshot(kYes_Budgeted);
+    auto image = this->makeImageSnapshot(SkBudgeted::kYes);
     if (image) {
         canvas->drawImage(image, x, y, paint);
-        image->unref();
     }
 }
 
@@ -163,13 +163,17 @@ SkCanvas* SkSurface::getCanvas() {
     return asSB(this)->getCachedCanvas();
 }
 
-SkImage* SkSurface::newImageSnapshot(Budgeted budgeted) {
-    SkImage* image = asSB(this)->getCachedImage(budgeted);
-    SkSafeRef(image);   // the caller will call unref() to balance this
-    return image;
+sk_sp<SkImage> SkSurface::makeImageSnapshot(SkBudgeted budgeted) {
+    // the caller will call unref() to balance this
+    return asSB(this)->refCachedImage(budgeted, kNo_ForceUnique);
 }
 
-SkSurface* SkSurface::newSurface(const SkImageInfo& info) {
+sk_sp<SkImage> SkSurface::makeImageSnapshot(SkBudgeted budgeted, ForceUnique unique) {
+    // the caller will call unref() to balance this
+    return asSB(this)->refCachedImage(budgeted, unique);
+}
+
+sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
     return asSB(this)->onNewSurface(info);
 }
 
@@ -178,9 +182,25 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
     return asSB(this)->onDraw(canvas, x, y, paint);
 }
 
-const void* SkSurface::peekPixels(SkImageInfo* info, size_t* rowBytes) {
-    return this->getCanvas()->peekPixels(info, rowBytes);
+bool SkSurface::peekPixels(SkPixmap* pmap) {
+    return this->getCanvas()->peekPixels(pmap);
 }
+
+#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
+const void* SkSurface::peekPixels(SkImageInfo* info, size_t* rowBytes) {
+    SkPixmap pm;
+    if (this->peekPixels(&pm)) {
+        if (info) {
+            *info = pm.info();
+        }
+        if (rowBytes) {
+            *rowBytes = pm.rowBytes();
+        }
+        return pm.addr();
+    }
+    return nullptr;
+}
+#endif
 
 bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                            int srcX, int srcY) {
@@ -195,26 +215,36 @@ bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess 
     return asSB(this)->onGetRenderTargetHandle(obj, access);
 }
 
+void SkSurface::prepareForExternalIO() {
+  asSB(this)->onPrepareForExternalIO();
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
 
-SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget*, const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeRenderTargetDirect(GrRenderTarget*, const SkSurfaceProps*) {
     return nullptr;
 }
 
-SkSurface* SkSurface::NewRenderTarget(GrContext*, Budgeted, const SkImageInfo&, int,
-                                      const SkSurfaceProps*) {
-    return nullptr;
-}
-
-SkSurface* SkSurface::NewFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&, int,
                                              const SkSurfaceProps*) {
     return nullptr;
 }
 
-SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext*, const GrBackendRenderTargetDesc&,
-                                                 const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
+                                                   const SkSurfaceProps*) {
+    return nullptr;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTargetDesc&,
+                                                        const SkSurfaceProps*) {
+    return nullptr;
+}
+
+sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext*, const GrBackendTextureDesc&,
+                                                      const SkSurfaceProps*) {
     return nullptr;
 }
 

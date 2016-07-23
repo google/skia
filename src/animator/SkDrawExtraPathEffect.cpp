@@ -379,12 +379,9 @@ bool SkDrawComposePathEffect::addChild(SkAnimateMaker& , SkDisplayable* child) {
 }
 
 SkPathEffect* SkDrawComposePathEffect::getPathEffect() {
-    SkPathEffect* e1 = effect1->getPathEffect();
-    SkPathEffect* e2 = effect2->getPathEffect();
-    SkPathEffect* composite = SkComposePathEffect::Create(e1, e2);
-    e1->unref();
-    e2->unref();
-    return composite;
+    auto e1 = sk_sp<SkPathEffect>(effect1->getPathEffect());
+    auto e2 = sk_sp<SkPathEffect>(effect2->getPathEffect());
+    return SkComposePathEffect::Make(e1, e2).release();
 }
 
 bool SkDrawComposePathEffect::isPaint() const {
@@ -411,7 +408,7 @@ SkDrawCornerPathEffect::~SkDrawCornerPathEffect() {
 }
 
 SkPathEffect* SkDrawCornerPathEffect::getPathEffect() {
-    return SkCornerPathEffect::Create(radius);
+    return SkCornerPathEffect::Make(radius).release();
 }
 
 /////////

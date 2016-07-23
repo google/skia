@@ -10,8 +10,6 @@
 // Include the implementation so we can make an appropriate template instance.
 #include "SkAdvancedTypefaceMetrics.h"
 
-using namespace skia_advanced_typeface_metrics_utils;
-
 // Negative values and zeros in a range plus trailing zeros.
 //                        0  1   2  3  4  5  6  7  8  9 10 11 12 13 14
 static const int16_t data1[] = {-1, 0, -3, 4, 5, 6, 7, 0, 0, 0, 8, 0, 0, 0, 0};
@@ -98,34 +96,35 @@ static const char* expected14 = "0[1] 5[2]";
 static const uint32_t subset14[] = {0, 5};
 static const char* expectedSubset14 = "0[1] 5[2]";
 
-static SkString stringify_advance_data(SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>* data) {
+static SkString stringify_advance_data(const SkSinglyLinkedList<
+        SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>>& list) {
     SkString result;
     bool leadingSpace = false;
-    while (data != nullptr) {
-      if (leadingSpace) {
-        result.append(" ");
-      } else {
-        leadingSpace = true;
-      }
-      switch(data->fType) {
-        case SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>::kRun:
-          result.appendf("%d %d %d", data->fStartId, data->fEndId, data->fAdvance[0]);
-          break;
-        case SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>::kRange:
-          result.appendf("%d[", data->fStartId);
-          for (int i = 0; i < data->fAdvance.count(); ++i) {
-            if (i > 0) {
-              result.append(" ");
-            }
-            result.appendf("%d", data->fAdvance[i]);
-          }
-          result.append("]");
-          break;
-        case SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>::kDefault:
-          result.appendf("<Default=%d>", data->fAdvance[0]);
-          break;
-      }
-      data = data->fNext.get();
+    for (const SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>& data : list) {
+        if (leadingSpace) {
+            result.append(" ");
+        } else {
+            leadingSpace = true;
+        }
+        switch (data.fType) {
+            case SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>::kRun:
+                result.appendf("%d %d %d", data.fStartId, data.fEndId,
+                               data.fAdvance[0]);
+                break;
+            case SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>::kRange:
+                result.appendf("%d[", data.fStartId);
+                for (int i = 0; i < data.fAdvance.count(); ++i) {
+                    if (i > 0) {
+                        result.append(" ");
+                    }
+                    result.appendf("%d", data.fAdvance[i]);
+                }
+                result.append("]");
+                break;
+            case SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>::kDefault:
+                result.appendf("<Default=%d>", data.fAdvance[0]);
+                break;
+        }
     }
     return result;
 }
@@ -141,7 +140,7 @@ class TestWData {
             , fSubset(subset)
             , fSubsetLen(subsetLen)
             , fExpected(expected) {
-        REPORTER_ASSERT(reporter, RunTest());
+        this->runTest(reporter);
     }
 
   private:
@@ -151,25 +150,22 @@ class TestWData {
     const int fSubsetLen;
     const char* fExpected;
 
-    static bool getAdvance(void* tc, int gId, int16_t* advance) {
-        TestWData* testCase = (TestWData*)tc;
-        if (gId >= 0 && gId < testCase->fAdvancesLen) {
-            *advance = testCase->fAdvances[gId];
-            return true;
-        }
-        return false;
-    }
+    void runTest(skiatest::Reporter* reporter) {
+        SkAdvancedTypefaceMetrics metrics;
+        metrics.setGlyphWidths(
+                fAdvancesLen, fSubset, fSubsetLen,
+                std::function<bool(int, int16_t*)>([this](int gId, int16_t* advance) {
+                            if (gId >= 0 && gId < fAdvancesLen) {
+                                *advance = fAdvances[gId];
+                                return true;
+                            }
+                            return false;
+                        }));
 
-    bool RunTest() {
-        SkAutoTDelete<SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t> > result;
-        result.reset(getAdvanceData((void*)this, fAdvancesLen, fSubset, fSubsetLen, getAdvance));
-
-        SkString stringResult = stringify_advance_data(result);
+        SkString stringResult = stringify_advance_data(metrics.fGlyphWidths);
         if (!stringResult.equals(fExpected)) {
-            SkDebugf("Expected: %s\n  Result: %s\n", fExpected, stringResult.c_str());
-            return false;
+            ERRORF(reporter, "Expected: %s\n  Result: %s\n", fExpected, stringResult.c_str());
         }
-        return true;
     }
 };
 

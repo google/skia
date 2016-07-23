@@ -80,7 +80,7 @@ public:
 
     /** Returns true if will map a rectangle to another rectangle. This can be
         true if the matrix is identity, scale-only, or rotates a multiple of
-        90 degrees.
+        90 degrees, or mirrors in x or y.
     */
     bool rectStaysRect() const {
         if (fTypeMask & kUnknown_Mask) {
@@ -591,11 +591,16 @@ public:
         return GetMapPtsProc(this->getType());
     }
 
-    /** If the matrix can be stepped in X (not complex perspective)
-        then return true and if step[XY] is not null, return the step[XY] value.
-        If it cannot, return false and ignore step.
+    /** Returns true if the matrix can be stepped in X (not complex
+        perspective).
     */
-    bool fixedStepInX(SkScalar y, SkFixed* stepX, SkFixed* stepY) const;
+    bool isFixedStepInX() const;
+
+    /** If the matrix can be stepped in X (not complex perspective)
+        then return the step value.
+        If it cannot, behavior is undefined.
+    */
+    SkVector fixedStepInX(SkScalar y) const;
 
     /** Efficient comparison of two matrices. It distinguishes between zero and
      *  negative zero. It will return false when the sign of zero values is the

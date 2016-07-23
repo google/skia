@@ -7,14 +7,31 @@
 
 #include "SkLocalMatrixShader.h"
 
-SkFlattenable* SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
+#if SK_SUPPORT_GPU
+#include "GrFragmentProcessor.h"
+#endif
+
+#if SK_SUPPORT_GPU
+sk_sp<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
+                                        GrContext* context, const SkMatrix& viewM,
+                                        const SkMatrix* localMatrix, SkFilterQuality fq,
+                                        SkSourceGammaTreatment gammaTreatment) const {
+    SkMatrix tmp = this->getLocalMatrix();
+    if (localMatrix) {
+        tmp.preConcat(*localMatrix);
+    }
+    return fProxyShader->asFragmentProcessor(context, viewM, &tmp, fq, gammaTreatment);
+}
+#endif
+
+sk_sp<SkFlattenable> SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);
-    SkAutoTUnref<SkShader> baseShader(buffer.readShader());
+    auto baseShader(buffer.readShader());
     if (!baseShader) {
         return nullptr;
     }
-    return baseShader->newWithLocalMatrix(lm);
+    return baseShader->makeWithLocalMatrix(lm);
 }
 
 void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {
@@ -47,9 +64,9 @@ void SkLocalMatrixShader::toString(SkString* str) const {
 }
 #endif
 
-SkShader* SkShader::newWithLocalMatrix(const SkMatrix& localMatrix) const {
+sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const {
     if (localMatrix.isIdentity()) {
-        return SkRef(const_cast<SkShader*>(this));
+        return sk_ref_sp(const_cast<SkShader*>(this));
     }
 
     const SkMatrix* lm = &localMatrix;
@@ -63,5 +80,5 @@ SkShader* SkShader::newWithLocalMatrix(const SkMatrix& localMatrix) const {
         baseShader = proxy.get();
     }
 
-    return new SkLocalMatrixShader(baseShader, *lm);
+    return sk_make_sp<SkLocalMatrixShader>(baseShader, *lm);
 }

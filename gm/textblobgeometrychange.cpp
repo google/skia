@@ -42,30 +42,30 @@ protected:
 
         SkAutoTUnref<const SkTextBlob> blob(builder.build());
 
-        SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200);
-        SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-        SkAutoTUnref<SkSurface> surface(canvas->newSurface(info, &props));
-        if (surface) {
-            SkCanvas* c = surface->getCanvas();
-
-            // LCD text on white background
-            SkRect rect = SkRect::MakeLTRB(0.f, 0.f, SkIntToScalar(kWidth), kHeight / 2.f);
-            SkPaint rectPaint;
-            rectPaint.setColor(0xffffffff);
-            canvas->drawRect(rect, rectPaint);
-            canvas->drawTextBlob(blob.get(), 10, 50, paint);
-
-            // This should not look garbled since we should disable LCD text in this case
-            // (i.e., unknown pixel geometry)
-            c->clear(0x00ffffff);
-            c->drawTextBlob(blob.get(), 10, 150, paint);
-            surface->draw(canvas, 0, 0, nullptr);
-        } else {
-            const char* text = "This test requires a surface";
-            size_t len = strlen(text);
-            SkPaint paint;
-            canvas->drawText(text, len, 10, 100, paint);
+        SkImageInfo info = SkImageInfo::MakeN32(200, 200, kPremul_SkAlphaType,
+                                                sk_ref_sp(canvas->imageInfo().colorSpace()));
+        SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
+        uint32_t gammaCorrect = canvas->getProps(&canvasProps)
+            ? canvasProps.flags() & SkSurfaceProps::kGammaCorrect_Flag : 0;
+        SkSurfaceProps props(gammaCorrect, kUnknown_SkPixelGeometry);
+        auto surface = canvas->makeSurface(info, &props);
+        if (!surface) {
+            surface = SkSurface::MakeRaster(info, &props);
         }
+        SkCanvas* c = surface->getCanvas();
+
+        // LCD text on white background
+        SkRect rect = SkRect::MakeLTRB(0.f, 0.f, SkIntToScalar(kWidth), kHeight / 2.f);
+        SkPaint rectPaint;
+        rectPaint.setColor(0xffffffff);
+        canvas->drawRect(rect, rectPaint);
+        canvas->drawTextBlob(blob.get(), 10, 50, paint);
+
+        // This should not look garbled since we should disable LCD text in this case
+        // (i.e., unknown pixel geometry)
+        c->clear(0x00ffffff);
+        c->drawTextBlob(blob.get(), 10, 150, paint);
+        surface->draw(canvas, 0, 0, nullptr);
     }
 
 private:

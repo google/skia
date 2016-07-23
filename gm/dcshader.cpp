@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -10,6 +9,7 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "GrInvariantOutput.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -36,10 +36,11 @@ public:
         buf.writeMatrix(fDeviceMatrix);
     }
 
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix* localMatrix,
-                                                   SkFilterQuality) const override;
+                                                   SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
@@ -51,10 +52,10 @@ private:
     const SkMatrix fDeviceMatrix;
 };
 
-SkFlattenable* DCShader::CreateProc(SkReadBuffer& buf) {
+sk_sp<SkFlattenable> DCShader::CreateProc(SkReadBuffer& buf) {
     SkMatrix matrix;
     buf.readMatrix(&matrix);
-    return new DCShader(matrix);
+    return sk_make_sp<DCShader>(matrix);
 }
 
 class DCFP : public GrFragmentProcessor {
@@ -99,12 +100,13 @@ private:
     GrCoordTransform fDeviceTransform;
 };
 
-const GrFragmentProcessor* DCShader::asFragmentProcessor(GrContext*,
+sk_sp<GrFragmentProcessor> DCShader::asFragmentProcessor(GrContext*,
                                                          const SkMatrix& viewM,
                                                          const SkMatrix* localMatrix,
-                                                         SkFilterQuality) const {
-    SkAutoTUnref<const GrFragmentProcessor> inner(new DCFP(fDeviceMatrix));
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+                                                         SkFilterQuality,
+                                                         SkSourceGammaTreatment) const {
+    sk_sp<GrFragmentProcessor> inner(new DCFP(fDeviceMatrix));
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 class DCShaderGM : public GM {
@@ -257,7 +259,7 @@ protected:
             for (int i = 0; i < fPrims.count(); ++i) {
                 for (int j = 0; j < devMats.count(); ++j) {
                     for (int k = 0; k < viewMats.count(); ++k) {
-                        paint.setShader(new DCShader(devMats[j]))->unref();
+                        paint.setShader(sk_make_sp<DCShader>(devMats[j]));
                         paint.setAntiAlias(SkToBool(aa));
                         canvas->save();
                         canvas->concat(viewMats[k]);

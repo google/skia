@@ -60,6 +60,21 @@ public:
         ++fIndent;
     }
 
+    void print(const SkRecords::DrawPicture& command, double ns) {
+        this->printNameAndTime(command, ns);
+
+        if (auto bp = command.picture->asSkBigPicture()) {
+            ++fIndent;
+
+            const SkRecord& record = *bp->record();
+            for (int i = 0; i < record.count(); i++) {
+                record.visit(i, *this);
+            }
+
+            --fIndent;
+        }
+    }
+
 private:
     template <typename T>
     void printNameAndTime(const T& command, double ns) {
@@ -104,6 +119,6 @@ void DumpRecord(const SkRecord& record,
                   bool timeWithCommand) {
     Dumper dumper(canvas, record.count(), timeWithCommand);
     for (int i = 0; i < record.count(); i++) {
-        record.visit<void>(i, dumper);
+        record.visit(i, dumper);
     }
 }

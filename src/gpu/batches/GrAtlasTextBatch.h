@@ -21,15 +21,14 @@ public:
     static const int kIndicesPerGlyph = 6;
 
     typedef GrAtlasTextBlob Blob;
-    typedef Blob::Run Run;
-    typedef Run::SubRunInfo TextInfo;
     struct Geometry {
+        SkMatrix fViewMatrix;
         Blob* fBlob;
+        SkScalar fX;
+        SkScalar fY;
         int fRun;
         int fSubRun;
         GrColor fColor;
-        SkScalar fTransX;
-        SkScalar fTransY;
     };
 
     static GrAtlasTextBatch* CreateBitmap(GrMaskFormat maskFormat, int glyphCount,
@@ -59,6 +58,7 @@ public:
     static GrAtlasTextBatch* CreateDistanceField(
                                               int glyphCount, GrBatchFontCache* fontCache,
                                               const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                              bool useGammaCorrectDistanceTable,
                                               SkColor filteredColor, bool isLCD,
                                               bool useBGR) {
         GrAtlasTextBatch* batch = new GrAtlasTextBatch;
@@ -66,6 +66,7 @@ public:
         batch->fFontCache = fontCache;
         batch->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
         batch->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
+        batch->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
         batch->fFilteredColor = filteredColor;
         batch->fUseBGR = useBGR;
         batch->fBatch.fNumGlyphs = glyphCount;
@@ -81,18 +82,9 @@ public:
     void init() {
         const Geometry& geo = fGeoData[0];
         fBatch.fColor = geo.fColor;
-        fBatch.fViewMatrix = geo.fBlob->fViewMatrix;
 
-        // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
-        // into device space
-        const Run& run = geo.fBlob->fRuns[geo.fRun];
-        if (run.fSubRunInfo[geo.fSubRun].drawAsDistanceFields()) {
-            SkRect bounds = run.fVertexBounds;
-            fBatch.fViewMatrix.mapRect(&bounds);
-            this->setBounds(bounds);
-        } else {
-            this->setBounds(run.fVertexBounds);
-        }
+        geo.fBlob->computeSubRunBounds(&fBounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX,
+                                       geo.fY);
     }
 
     const char* name() const override { return "TextBatch"; }
@@ -100,7 +92,7 @@ public:
     SkString dumpInfo() const override;
 
 protected:
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override;
 
@@ -109,10 +101,11 @@ private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override;
 
     struct FlushInfo {
-        SkAutoTUnref<const GrVertexBuffer> fVertexBuffer;
-        SkAutoTUnref<const GrIndexBuffer> fIndexBuffer;
-        int fGlyphsToFlush;
-        int fVertexOffset;
+        SkAutoTUnref<const GrBuffer> fVertexBuffer;
+        SkAutoTUnref<const GrBuffer> fIndexBuffer;
+        sk_sp<GrGeometryProcessor>   fGeometryProcessor;
+        int                          fGlyphsToFlush;
+        int                          fVertexOffset;
     };
 
     void onPrepareDraws(Target* target) const override;
@@ -149,17 +142,10 @@ private:
                kLCDDistanceField_MaskType == fMaskType;
     }
 
-    template <bool regenTexCoords, bool regenPos, bool regenCol, bool regenGlyphs>
-    inline void regenBlob(Target* target, FlushInfo* flushInfo, Blob* blob, Run* run,
-                          TextInfo* info, SkGlyphCache** cache,
-                          SkTypeface** typeface, GrFontScaler** scaler, const SkDescriptor** desc,
-                          const GrGeometryProcessor* gp, int glyphCount, size_t vertexStride,
-                          GrColor color, SkScalar transX, SkScalar transY) const;
-
     inline void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const;
 
     GrColor color() const { return fBatch.fColor; }
-    const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
+    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
     int numGlyphs() const { return fBatch.fNumGlyphs; }
 
@@ -167,12 +153,11 @@ private:
 
     // TODO just use class params
     // TODO trying to figure out why lcd is so whack
-    GrGeometryProcessor* setupDfProcessor(const SkMatrix& viewMatrix, SkColor filteredColor,
-                                          GrColor color, GrTexture* texture) const;
+    sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& viewMatrix, SkColor filteredColor,
+                                                GrColor color, GrTexture* texture) const;
 
     struct BatchTracker {
         GrColor fColor;
-        SkMatrix fViewMatrix;
         bool fUsesLocalCoords;
         bool fColorIgnored;
         bool fCoverageIgnored;
@@ -199,8 +184,36 @@ private:
     // Distance field properties
     SkAutoTUnref<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fFilteredColor;
+    bool fUseGammaCorrectDistanceTable;
+
+    friend class GrBlobRegenHelper; // Needs to trigger flushes
 
     typedef GrVertexBatch INHERITED;
+};
+
+/*
+ * A simple helper class to abstract the interface GrAtlasTextBlob needs to regenerate itself.
+ * It'd be nicer if this was nested, but we need to forward declare it in GrAtlasTextBlob.h
+ */
+class GrBlobRegenHelper {
+public:
+    GrBlobRegenHelper(const GrAtlasTextBatch* batch,
+                      GrVertexBatch::Target* target,
+                      GrAtlasTextBatch::FlushInfo* flushInfo)
+        : fBatch(batch)
+        , fTarget(target)
+        , fFlushInfo(flushInfo) {}
+
+    void flush();
+
+    void incGlyphCount(int glyphCount = 1) {
+        fFlushInfo->fGlyphsToFlush += glyphCount;
+    }
+
+private:
+    const GrAtlasTextBatch* fBatch;
+    GrVertexBatch::Target* fTarget;
+    GrAtlasTextBatch::FlushInfo* fFlushInfo;
 };
 
 #endif

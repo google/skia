@@ -14,7 +14,19 @@
 
 #ifdef SK_DEBUG
     #include "SkMutex.h"
-    #include "SkUniquePtr.h"
+
+    // On GCC 4.8, targeting ARMv7 with NEON, using libc++, we need to typedef float float32_t,
+    // (or include <arm_neon.h> which does that) before #including <memory> here.
+    // This makes no sense.  I'm not very interested in understanding why... this is an old,
+    // bizarre platform configuration that we should just let die.
+    #include <ciso646>  // Include something innocuous to define _LIBCPP_VERISON if it's libc++.
+    #if defined(__GNUC__) && __GNUC__ == 4 && __GNUC_MINOR__ == 8 \
+     && defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON) \
+     && defined(_LIBCPP_VERSION)
+        typedef float float32_t;
+    #endif
+
+    #include <memory>
 #endif  // SK_DEBUG
 
 // There are two shared lock implementations one debug the other is high performance. They implement
@@ -50,9 +62,9 @@ public:
 private:
 #ifdef SK_DEBUG
     class ThreadIDSet;
-    skstd::unique_ptr<ThreadIDSet> fCurrentShared;
-    skstd::unique_ptr<ThreadIDSet> fWaitingExclusive;
-    skstd::unique_ptr<ThreadIDSet> fWaitingShared;
+    std::unique_ptr<ThreadIDSet> fCurrentShared;
+    std::unique_ptr<ThreadIDSet> fWaitingExclusive;
+    std::unique_ptr<ThreadIDSet> fWaitingShared;
     int fSharedQueueSelect{0};
     mutable SkMutex fMu;
     SkSemaphore fSharedQueue[2];

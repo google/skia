@@ -49,6 +49,7 @@ protected:
     uint32_t            fShaderFlags;
     const SkShader*     fShader;
     SkShader::Context*  fShaderContext;
+    bool                fConstInY;
 
 private:
     // illegal
@@ -177,13 +178,18 @@ private:
     SkBlitRow::Proc32   fProc32;
     SkBlitRow::Proc32   fProc32Blend;
     bool                fShadeDirectlyIntoDevice;
-    bool                fConstInY;
 
     // illegal
     SkARGB32_Shader_Blitter& operator=(const SkARGB32_Shader_Blitter&);
 
     typedef SkShaderBlitter INHERITED;
 };
+
+SkBlitter* SkBlitter_ARGB32_Create(const SkPixmap& device, const SkPaint&, SkShader::Context*,
+                                   SkTBlitterAllocator*);
+
+SkBlitter* SkBlitter_F16_Create(const SkPixmap& device, const SkPaint&, SkShader::Context*,
+                                SkTBlitterAllocator*);
 
 ///////////////////////////////////////////////////////////////////////////////
 

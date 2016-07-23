@@ -10,6 +10,7 @@
       'product_name': 'skia_effects',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'msvs_disabled_warnings': [4244],
       'dependencies': [
         'core.gyp:*',
         'images.gyp:*',
@@ -20,6 +21,7 @@
       ],
       'include_dirs': [
         '../include/effects',
+        '../include/client/android',
         '../include/private',
         '../src/effects',
         '../src/opts',
@@ -28,6 +30,7 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '../include/effects',
+          '../include/client/android',
         ],
       },
       'sources': [

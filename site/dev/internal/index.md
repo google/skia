@@ -12,8 +12,8 @@ Skia team information
 Skia project information
 ------------------------
 *   [Milestones and schedule](https://sites.google.com/a/google.com/skia/milestones)  
-*   [Status](https://sites.google.com/a/google.com/skia/status) from weekly, montly
-updates and OKRs  
+*   [Status](https://sites.google.com/a/google.com/skia/status) from weekly,
+monthly updates and OKRs  
 *   [Skia branch process](https://docs.google.com/a/google.com/document/d/1Xn24lTMlmUgdP8bp-iHOeGKAOp8L5uCxg12lw49Jlpg/edit?usp=sharing)  
 *   [Design documents](https://sites.google.com/a/google.com/skia/design-documents)  
 
@@ -32,3 +32,8 @@ Chrome related
 Android related
 ---------------
 *   Skia on Android [development guide](https://sites.google.com/a/google.com/skia/android)  
+
+Google3 related
+---------------
+*   [Google3-Autoroller](https://sites.google.com/a/google.com/skia-infrastructure/docs/google3-autoroller)
+-- How to handle failures and how to test CLs.

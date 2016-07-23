@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -101,4 +100,3 @@ GrTraceMarkerSet::Iter GrTraceMarkerSet::begin() const {
 GrTraceMarkerSet::Iter GrTraceMarkerSet::end() const {
     return Iter(this, this->fMarkerArray.count());
 }
-

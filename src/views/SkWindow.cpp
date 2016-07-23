@@ -20,8 +20,9 @@ SkWindow::SkWindow()
 {
     fClicks.reset();
     fWaitingOnInval = false;
-    fColorType = kN32_SkColorType;
     fMatrix.reset();
+
+    fBitmap.allocN32Pixels(0, 0);
 }
 
 SkWindow::~SkWindow() {
@@ -31,7 +32,8 @@ SkWindow::~SkWindow() {
 
 SkSurface* SkWindow::createSurface() {
     const SkBitmap& bm = this->getBitmap();
-    return SkSurface::NewRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes(), &fSurfaceProps);
+    return SkSurface::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes(),
+                                       &fSurfaceProps).release();
 }
 
 void SkWindow::setMatrix(const SkMatrix& matrix) {
@@ -53,22 +55,29 @@ void SkWindow::postConcat(const SkMatrix& matrix) {
     this->setMatrix(m);
 }
 
-void SkWindow::setColorType(SkColorType ct) {
-    this->resize(fBitmap.width(), fBitmap.height(), ct);
-}
-
-void SkWindow::resize(int width, int height, SkColorType ct) {
-    if (ct == kUnknown_SkColorType)
-        ct = fColorType;
-
-    if (width != fBitmap.width() || height != fBitmap.height() || ct != fColorType) {
-        fColorType = ct;
-        fBitmap.allocPixels(SkImageInfo::Make(width, height,
-                                              ct, kPremul_SkAlphaType));
-
-        this->setSize(SkIntToScalar(width), SkIntToScalar(height));
+void SkWindow::resize(const SkImageInfo& info) {
+    if (fBitmap.info() != info) {
+        fBitmap.allocPixels(info);
         this->inval(nullptr);
     }
+    this->setSize(SkIntToScalar(fBitmap.width()), SkIntToScalar(fBitmap.height()));
+}
+
+void SkWindow::resize(int width, int height) {
+    this->resize(fBitmap.info().makeWH(width, height));
+}
+
+void SkWindow::setColorType(SkColorType ct, sk_sp<SkColorSpace> cs) {
+    const SkImageInfo& info = fBitmap.info();
+    this->resize(SkImageInfo::Make(info.width(), info.height(), ct, kPremul_SkAlphaType, cs));
+
+    // Set the global flag that enables or disables "legacy" mode, depending on our format.
+    // With sRGB 32-bit or linear FP 16, we turn on gamma-correct handling of inputs:
+    SkSurfaceProps props = this->getSurfaceProps();
+    uint32_t flags = (props.flags() & ~SkSurfaceProps::kGammaCorrect_Flag) |
+        (SkColorAndColorSpaceAreGammaCorrect(ct, cs.get())
+         ? SkSurfaceProps::kGammaCorrect_Flag : 0);
+    this->setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
 }
 
 bool SkWindow::handleInval(const SkRect* localR) {
@@ -326,7 +335,20 @@ GrRenderTarget* SkWindow::renderTarget(const AttachmentInfo& attachmentInfo,
     GrBackendRenderTargetDesc desc;
     desc.fWidth = SkScalarRoundToInt(this->width());
     desc.fHeight = SkScalarRoundToInt(this->height());
-    desc.fConfig = kSkia8888_GrPixelConfig;
+    // TODO: Query the actual framebuffer for sRGB capable. However, to
+    // preserve old (fake-linear) behavior, we don't do this. Instead, rely
+    // on the flag (currently driven via 'C' mode in SampleApp).
+    //
+    // Also, we may not have real sRGB support (ANGLE, in particular), so check for
+    // that, and fall back to L32:
+    //
+    // ... and, if we're using a 10-bit/channel FB0, it doesn't do sRGB conversion on write,
+    // so pretend that it's non-sRGB 8888:
+    desc.fConfig =
+        grContext->caps()->srgbSupport() &&
+        SkImageInfoIsGammaCorrect(info()) &&
+        (attachmentInfo.fColorBits != 30)
+        ? kSkiaGamma8888_GrPixelConfig : kSkia8888_GrPixelConfig;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fSampleCnt = attachmentInfo.fSampleCount;
     desc.fStencilBits = attachmentInfo.fStencilBits;

@@ -72,7 +72,7 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
         for (int x = bounds.fLeft; x < bounds.fRight; x += tileW) {
             const SkIRect tileRect = SkIRect::MakeXYWH(x, y, tileW, tileH);
             *fTileRects.append() = tileRect;
-            *fSurfaces.push() = canvas->newSurface(ii);
+            *fSurfaces.push() = canvas->makeSurface(ii).release();
 
             // Never want the contents of a tile to include stuff the parent
             // canvas clips out
@@ -90,7 +90,7 @@ void SKPBench::onPerCanvasPostDraw(SkCanvas* canvas) {
     // Draw the last set of tiles into the master canvas in case we're
     // saving the images
     for (int i = 0; i < fTileRects.count(); ++i) {
-        SkAutoTUnref<SkImage> image(fSurfaces[i]->newImageSnapshot());
+        sk_sp<SkImage> image(fSurfaces[i]->makeImageSnapshot());
         canvas->drawImage(image,
                           SkIntToScalar(fTileRects[i].fLeft), SkIntToScalar(fTileRects[i].fTop));
         SkSafeSetNull(fSurfaces[i]);
@@ -110,21 +110,22 @@ SkIPoint SKPBench::onGetSize() {
 
 void SKPBench::onDraw(int loops, SkCanvas* canvas) {
     SkASSERT(fDoLooping || 1 == loops);
-    if (fUseMultiPictureDraw) {
-        for (int i = 0; i < loops; i++) {
+    while (1) {
+        if (fUseMultiPictureDraw) {
             this->drawMPDPicture();
-        }
-    } else {
-        for (int i = 0; i < loops; i++) {
+        } else {
             this->drawPicture();
         }
-    }
+        if (0 == --loops) {
+            break;
+        }
 #if SK_SUPPORT_GPU
-    // Ensure the GrContext doesn't batch across draw loops.
-    if (GrContext* context = canvas->getGrContext()) {
-        context->flush();
-    }
+        // Ensure the GrContext doesn't batch across draw loops.
+        if (GrContext* context = canvas->getGrContext()) {
+            context->flush();
+        }
 #endif
+    }
 }
 
 void SKPBench::drawMPDPicture() {

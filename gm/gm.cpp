@@ -85,10 +85,9 @@ void GM::DrawGpuOnlyMessage(SkCanvas* canvas) {
     SkMatrix localM;
     localM.setRotate(35.f);
     localM.postTranslate(10.f, 0.f);
-    SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(bmp, SkShader::kMirror_TileMode,
-                                                               SkShader::kMirror_TileMode,
-                                                               &localM));
-    paint.setShader(shader);
+    paint.setShader(SkShader::MakeBitmapShader(bmp, SkShader::kMirror_TileMode,
+                                               SkShader::kMirror_TileMode,
+                                               &localM));
     paint.setFilterQuality(kMedium_SkFilterQuality);
     canvas->drawPaint(paint);
     return;
@@ -108,4 +107,3 @@ SkISize skiagm::SimpleGM::onISize() {
 SkString skiagm::SimpleGM::onShortName() {
     return fName;
 }
-

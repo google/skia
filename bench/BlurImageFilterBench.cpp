@@ -23,7 +23,7 @@
 #define BLUR_SIGMA_LARGE    10.0f
 #define BLUR_SIGMA_HUGE     80.0f
 
-  
+
 // When 'cropped' is set we apply a cropRect to the blurImageFilter. The crop rect is an inset of
 // the source's natural dimensions. This is intended to exercise blurring a larger source bitmap
 // to a smaller destination bitmap.
@@ -33,6 +33,30 @@
 // An additional crop rect is applied to the blurImageFilter that is just the natural dimensions
 // of the source (not inset). This is intended to exercise blurring a smaller source bitmap to a
 // larger destination.
+
+static SkBitmap make_checkerboard(int width, int height) {
+    SkBitmap bm;
+    bm.allocN32Pixels(width, height);
+    SkCanvas canvas(bm);
+    canvas.clear(0x00000000);
+    SkPaint darkPaint;
+    darkPaint.setColor(0xFF804020);
+    SkPaint lightPaint;
+    lightPaint.setColor(0xFF244484);
+    for (int y = 0; y < height; y += 16) {
+        for (int x = 0; x < width; x += 16) {
+            canvas.save();
+            canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
+            canvas.drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
+            canvas.drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
+            canvas.drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
+            canvas.drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
+            canvas.restore();
+        }
+    }
+
+    return bm;
+}
 
 class BlurImageFilterBench : public Benchmark {
 public:
@@ -59,13 +83,13 @@ protected:
 
     void onDelayedSetup() override {
         if (!fInitialized) {
-            make_checkerboard();
+            fCheckerboard = make_checkerboard(fIsSmall ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE,
+                                              fIsSmall ? FILTER_HEIGHT_SMALL : FILTER_HEIGHT_LARGE);
             fInitialized = true;
         }
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkPaint paint;
         static const SkScalar kX = 0;
         static const SkScalar kY = 0;
         const SkRect bmpRect = SkRect::MakeXYWH(kX, kY,
@@ -73,15 +97,15 @@ protected:
                                                 SkIntToScalar(fCheckerboard.height()));
         const SkImageFilter::CropRect cropRect(bmpRect.makeInset(10.f, 10.f));
         const SkImageFilter::CropRect cropRectLarge(bmpRect);
-        SkAutoTUnref<SkImageFilter> noOpCropped(SkOffsetImageFilter::Create(0, 0, nullptr,
-                                                &cropRect));
 
-        SkImageFilter* input = fIsExpanded ? noOpCropped.get() : nullptr;
+        sk_sp<SkImageFilter> input = fIsExpanded 
+                                        ? SkOffsetImageFilter::Make(0, 0, nullptr, &cropRect)
+                                        : nullptr;
 
         const SkImageFilter::CropRect* crop =
             fIsExpanded ? &cropRectLarge : fIsCropped ? &cropRect : nullptr;
-        SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(fSigmaX, fSigmaY, input, crop));
-        paint.setImageFilter(blur);
+        SkPaint paint;
+        paint.setImageFilter(SkBlurImageFilter::Make(fSigmaX, fSigmaY, std::move(input), crop));
 
         for (int i = 0; i < loops; i++) {
             canvas->drawBitmap(fCheckerboard, kX, kY, &paint);
@@ -89,28 +113,6 @@ protected:
     }
 
 private:
-    void make_checkerboard() {
-        const int w = fIsSmall ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
-        const int h = fIsSmall ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
-        fCheckerboard.allocN32Pixels(w, h);
-        SkCanvas canvas(fCheckerboard);
-        canvas.clear(0x00000000);
-        SkPaint darkPaint;
-        darkPaint.setColor(0xFF804020);
-        SkPaint lightPaint;
-        lightPaint.setColor(0xFF244484);
-        for (int y = 0; y < h; y += 16) {
-            for (int x = 0; x < w; x += 16) {
-                canvas.save();
-                canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
-                canvas.drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
-                canvas.drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
-                canvas.restore();
-            }
-        }
-    }
 
     SkString fName;
     bool fIsSmall;

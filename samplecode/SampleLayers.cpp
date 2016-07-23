@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -12,9 +12,8 @@
 #include "SkCamera.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
-#include "SkDevice.h"
 #include "SkGradientShader.h"
-#include "SkImageDecoder.h"
+#include "SkImage.h"
 #include "SkInterpolator.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"
@@ -30,27 +29,9 @@
 static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
     SkColor colors[] = { 0, SK_ColorWHITE };
     SkPoint pts[] = { { 0, 0 }, { 0, SK_Scalar1*20 } };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode,
-                                                 0, &localMatrix);
-
-    paint->setShader(s)->unref();
+    paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                  SkShader::kClamp_TileMode, 0, &localMatrix));
     paint->setXfermodeMode(SkXfermode::kDstIn_Mode);
-}
-
-static void dump_layers(const char label[], SkCanvas* canvas) {
-    SkDebugf("Dump Layers(%s)\n", label);
-
-    SkCanvas::LayerIter iter(canvas, true);
-    int index = 0;
-    while (!iter.done()) {
-        SkImageInfo info = iter.device()->imageInfo();
-        const SkIRect& clip = iter.clip().getBounds();
-        SkDebugf("Layer[%d] bitmap [%d %d] X=%d Y=%d clip=[%d %d %d %d] alpha=%d\n", index++,
-                 info.width(), info.height(), iter.x(), iter.y(),
-                 clip.fLeft, clip.fTop, clip.fRight, clip.fBottom,
-                 iter.paint().getAlpha());
-        iter.next();
-    }
 }
 
 // test drawing with strips of fading gradient above and below
@@ -88,8 +69,6 @@ static void test_fade(SkCanvas* canvas) {
         p.setAntiAlias(true);
         canvas->drawOval(r, p);
 
-        dump_layers("inside layer alpha", canvas);
-
         canvas->restore();
     } else {
         r.set(0, 0, SkIntToScalar(100), SkIntToScalar(100));
@@ -101,8 +80,6 @@ static void test_fade(SkCanvas* canvas) {
     }
 
 //    return;
-
-    dump_layers("outside layer alpha", canvas);
 
     // now apply an effect
     SkMatrix m;
@@ -246,14 +223,14 @@ DEF_SAMPLE( return new LayersView; )
 class BackdropView : public SampleView {
     SkPoint fCenter;
     SkScalar fAngle;
-    SkAutoTUnref<SkImage> fImage;
-    SkAutoTUnref<SkImageFilter> fFilter;
+    sk_sp<SkImage> fImage;
+    sk_sp<SkImageFilter> fFilter;
 public:
     BackdropView() {
         fCenter.set(200, 150);
         fAngle = 0;
-        fImage.reset(GetResourceAsImage("mandrill_512.png"));
-        fFilter.reset(SkDilateImageFilter::Create(8, 8));
+        fImage = GetResourceAsImage("mandrill_512.png");
+        fFilter = SkDilateImageFilter::Make(8, 8, nullptr);
     }
 
 protected:
@@ -267,7 +244,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawImage(fImage, 0, 0, nullptr);
+        canvas->drawImage(fImage.get(), 0, 0, nullptr);
 
         const SkScalar w = 250;
         const SkScalar h = 150;
@@ -283,7 +260,7 @@ protected:
 
         SkPaint paint;
         paint.setAlpha(0xCC);
-        canvas->saveLayer({ &bounds, &paint, fFilter, 0 });
+        canvas->saveLayer({ &bounds, &paint, fFilter.get(), 0 });
 
         canvas->restore();
     }
@@ -308,4 +285,3 @@ private:
     typedef SampleView INHERITED;
 };
 DEF_SAMPLE( return new BackdropView; )
-

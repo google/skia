@@ -8,14 +8,16 @@
 #ifndef GrStencilAndCoverTextContext_DEFINED
 #define GrStencilAndCoverTextContext_DEFINED
 
-#include "GrTextContext.h"
-#include "GrDrawTarget.h"
-#include "GrStrokeInfo.h"
+#include "GrDrawContext.h"
+#include "GrStyle.h"
+#include "SkDrawFilter.h"
+#include "SkTextBlob.h"
 #include "SkTHash.h"
 #include "SkTInternalLList.h"
 #include "SkTLList.h"
 #include "batches/GrDrawPathBatch.h"
 
+class GrAtlasTextContext;
 class GrTextStrike;
 class GrPath;
 class SkSurfaceProps;
@@ -23,36 +25,46 @@ class SkSurfaceProps;
 /*
  * This class implements text rendering using stencil and cover path rendering
  * (by the means of GrDrawTarget::drawPath).
- * This class exposes the functionality through GrTextContext interface.
  */
-class GrStencilAndCoverTextContext : public GrTextContext {
+class GrStencilAndCoverTextContext {
 public:
-    static GrStencilAndCoverTextContext* Create(GrContext*, const SkSurfaceProps&);
+    static GrStencilAndCoverTextContext* Create();
+
+    void drawText(GrContext*, GrDrawContext* dc,
+                  const GrClip&,  const GrPaint&, const SkPaint&,
+                  const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
+                  size_t byteLength, SkScalar x,
+                  SkScalar y, const SkIRect& clipBounds);
+    void drawPosText(GrContext*, GrDrawContext*,
+                     const GrClip&, const GrPaint&, const SkPaint&,
+                     const SkMatrix& viewMatrix, const SkSurfaceProps&,
+                     const char text[], size_t byteLength,
+                     const SkScalar pos[], int scalarsPerPosition,
+                     const SkPoint& offset, const SkIRect& clipBounds);
+    void drawTextBlob(GrContext*, GrDrawContext*, const GrClip&, const SkPaint&,
+                      const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
+                      SkScalar x, SkScalar y,
+                      SkDrawFilter*, const SkIRect& clipBounds);
 
     virtual ~GrStencilAndCoverTextContext();
 
 private:
-    GrStencilAndCoverTextContext(GrContext*, const SkSurfaceProps&);
+    GrStencilAndCoverTextContext();
 
-    bool canDraw(const SkPaint& skPaint, const SkMatrix&) override {
+    bool canDraw(const SkPaint& skPaint, const SkMatrix&) {
         return this->internalCanDraw(skPaint);
     }
 
     bool internalCanDraw(const SkPaint&);
 
-    void onDrawText(GrDrawContext*, const GrClip&, const GrPaint&, const SkPaint&,
-                    const SkMatrix& viewMatrix,
-                    const char text[], size_t byteLength,
-                    SkScalar x, SkScalar y, const SkIRect& clipBounds) override;
-    void onDrawPosText(GrDrawContext*,
-                       const GrClip&, const GrPaint&, const SkPaint&,
-                       const SkMatrix& viewMatrix,
-                       const char text[], size_t byteLength,
-                       const SkScalar pos[], int scalarsPerPosition,
-                       const SkPoint& offset, const SkIRect& clipBounds) override;
-    void drawTextBlob(GrDrawContext*, const GrClip&, const SkPaint&,
-                      const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
-                      SkDrawFilter*, const SkIRect& clipBounds) override;
+    void uncachedDrawTextBlob(GrContext*, GrDrawContext* dc,
+                              const GrClip& clip, const SkPaint& skPaint,
+                              const SkMatrix& viewMatrix,
+                              const SkSurfaceProps&,
+                              const SkTextBlob* blob,
+                              SkScalar x, SkScalar y,
+                              SkDrawFilter* drawFilter,
+                              const SkIRect& clipBounds);
 
     class FallbackBlobBuilder;
 
@@ -66,9 +78,10 @@ private:
         void setPosText(const char text[], size_t byteLength, const SkScalar pos[],
                         int scalarsPerPosition, const SkPoint& offset);
 
-        void draw(GrContext*, GrDrawContext*, GrPipelineBuilder*, GrColor, const SkMatrix&,
+        void draw(GrContext*, GrDrawContext*, GrPipelineBuilder*, const GrClip&, GrColor,
+                  const SkMatrix&, const SkSurfaceProps&,
                   SkScalar x, SkScalar y, const SkIRect& clipBounds,
-                  GrTextContext* fallbackTextContext, const SkPaint& originalSkPaint) const;
+                  GrAtlasTextContext* fallbackTextContext, const SkPaint& originalSkPaint) const;
 
         void releaseGlyphCache() const;
 
@@ -81,7 +94,7 @@ private:
         GrPathRange* createGlyphs(GrContext*) const;
         void appendGlyph(const SkGlyph&, const SkPoint&, FallbackBlobBuilder*);
 
-        GrStrokeInfo                     fStroke;
+        GrStyle                          fStyle;
         SkPaint                          fFont;
         SkScalar                         fTextRatio;
         float                            fTextInverseRatio;
@@ -134,12 +147,11 @@ private:
     const TextBlob& findOrCreateTextBlob(const SkTextBlob*, const SkPaint&);
     void purgeToFit(const TextBlob&);
 
+    GrAtlasTextContext*                                       fFallbackTextContext;
     SkTHashMap<uint32_t, TextBlob*>                           fBlobIdCache;
     SkTHashTable<TextBlob*, const TextBlob::Key&, TextBlob>   fBlobKeyCache;
     SkTInternalLList<TextBlob>                                fLRUList;
     size_t                                                    fCacheSize;
-
-    typedef GrTextContext INHERITED;
 };
 
 #endif

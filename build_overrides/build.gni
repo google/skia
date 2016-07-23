@@ -1,0 +1,3 @@
+mac_sdk_min_build_override           = "10.10"
+mac_deployment_target_build_override = "10.7"
+

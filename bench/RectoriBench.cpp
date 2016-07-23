@@ -52,7 +52,7 @@ protected:
             SkScalar translate = 2.0f * size;
 
             SkPaint paint;
-            paint.setLooper(this->createLooper(-translate, blurSigma))->unref();
+            paint.setLooper(this->createLooper(-translate, blurSigma));
             paint.setColor(0xff000000 | Random.nextU());
             paint.setAntiAlias(true);
 
@@ -71,7 +71,7 @@ private:
         H = 480,
     };
 
-    SkLayerDrawLooper* createLooper(SkScalar xOff, SkScalar sigma) {
+    sk_sp<SkDrawLooper> createLooper(SkScalar xOff, SkScalar sigma) {
         SkLayerDrawLooper::Builder looperBuilder;
 
         //-----------------------------------------------
@@ -86,17 +86,15 @@ private:
 
         SkPaint* paint = looperBuilder.addLayer(info);
 
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                                    sigma,
-                                                    SkBlurMaskFilter::kHighQuality_BlurFlag);
-        paint->setMaskFilter(mf)->unref();
+        paint->setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma,
+                                                    SkBlurMaskFilter::kHighQuality_BlurFlag));
 
         //-----------------------------------------------
         info.fPaintBits = 0;
         info.fOffset.set(0, 0);
 
         paint = looperBuilder.addLayer(info);
-        return looperBuilder.detachLooper();
+        return looperBuilder.detach();
     }
 
     typedef Benchmark INHERITED;

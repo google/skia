@@ -5147,4 +5147,3 @@ const SkPaint::FontMetrics LiberationSerifBoldItalicMetrics = {
 0x30307833, -0.980957f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 1.32861f, 0.0207596f,
 -0.178223f, 1.15039f, 0.469727f, 0.0103607f, 0.0952148f, 0.108887f
 };
-

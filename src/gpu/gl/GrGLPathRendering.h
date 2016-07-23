@@ -10,12 +10,13 @@
 
 #include "SkRefCnt.h"
 #include "GrPathRendering.h"
-#include "GrStencil.h"
 #include "gl/GrGLTypes.h"
 #include "glsl/GrGLSLUtil.h"
 
 class GrGLNameAllocator;
 class GrGLGpu;
+class GrStencilSettings;
+class GrStyle;
 
 /**
  * This class wraps the NV_path_rendering extension and manages its various
@@ -33,18 +34,18 @@ public:
     virtual ~GrGLPathRendering();
 
     // GrPathRendering implementations.
-    GrPath* createPath(const SkPath&, const GrStrokeInfo&) override;
+    GrPath* createPath(const SkPath&, const GrStyle&) override;
     virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*,
-                                         const GrStrokeInfo&) override;
+                                         const GrStyle&) override;
 
     /* Called when the 3D context state is unknown. */
     void resetContext();
 
     /**
-     * Called when the GPU resources have been lost and need to be abandoned
-     * (for example after a context loss).
+     * Called when the context either is about to be lost or is lost. DisconnectType indicates
+     * whether GPU resources should be cleaned up or abandoned when this is called.
      */
-    void abandonGpuResources();
+    void disconnect(GrGpu::DisconnectType);
 
     bool shouldBindFragmentInputs() const {
         return fCaps.bindFragmentInputSupport;
@@ -65,9 +66,19 @@ public:
 
 protected:
     void onStencilPath(const StencilPathArgs&, const GrPath*) override;
-    void onDrawPath(const DrawPathArgs&, const GrPath*) override;
-    void onDrawPaths(const DrawPathArgs&, const GrPathRange*, const void* indices, PathIndexType,
-                     const float transformValues[], PathTransformType, int count) override;
+    void onDrawPath(const GrPipeline&,
+                    const GrPrimitiveProcessor&,
+                    const GrStencilSettings&,
+                    const GrPath*) override;
+    void onDrawPaths(const GrPipeline&,
+                     const GrPrimitiveProcessor&,
+                     const GrStencilSettings&,
+                     const GrPathRange*,
+                     const void* indices,
+                     PathIndexType,
+                     const float transformValues[],
+                     PathTransformType,
+                     int count) override;
 private:
     /**
      * Mark certain functionality as not supported.

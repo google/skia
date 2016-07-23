@@ -8,9 +8,11 @@
 #include "SkAndroidSDKCanvas.h"
 
 #include "SkColorFilter.h"
+#include "SkDrawLooper.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 #include "SkTLazy.h"
 
 namespace {
@@ -68,7 +70,7 @@ void Filter(SkPaint* paint) {
         bool isMode = cf->asColorMode(&color, &mode);
         if (isMode && mode > SkXfermode::kLighten_Mode) {
             paint->setColorFilter(
-                SkColorFilter::CreateModeFilter(color, SkXfermode::kSrcOver_Mode));
+                SkColorFilter::MakeModeFilter(color, SkXfermode::kSrcOver_Mode));
         } else if (!isMode && !cf->asColorMatrix(srcColorMatrix)) {
             paint->setColorFilter(nullptr);
         }
@@ -286,27 +288,19 @@ bool SkAndroidSDKCanvas::getClipDeviceBounds(SkIRect* rect) const {
 bool SkAndroidSDKCanvas::isClipEmpty() const { return fProxyTarget->isClipEmpty(); }
 bool SkAndroidSDKCanvas::isClipRect() const { return fProxyTarget->isClipRect(); }
 
-SkSurface* SkAndroidSDKCanvas::onNewSurface(const SkImageInfo& info,
-                                                     const SkSurfaceProps& props) {
-    return fProxyTarget->newSurface(info, &props);
+sk_sp<SkSurface> SkAndroidSDKCanvas::onNewSurface(const SkImageInfo& info,
+                                                  const SkSurfaceProps& props) {
+    return fProxyTarget->makeSurface(info, &props);
 }
 
 bool SkAndroidSDKCanvas::onPeekPixels(SkPixmap* pmap) {
-    SkASSERT(pmap);
-    SkImageInfo info;
-    size_t rowBytes;
-    const void* addr = fProxyTarget->peekPixels(&info, &rowBytes);
-    if (addr) {
-        pmap->reset(info, addr, rowBytes);
-        return true;
-    }
-    return false;
+    return fProxyTarget->peekPixels(pmap);
 }
 
 bool SkAndroidSDKCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {
     SkASSERT(pmap);
     SkImageInfo info;
-    size_t rowBytes; 
+    size_t rowBytes;
     const void* addr = fProxyTarget->accessTopLayerPixels(&info, &rowBytes, nullptr);
     if (addr) {
         pmap->reset(info, addr, rowBytes);
@@ -361,5 +355,3 @@ void SkAndroidSDKCanvas::onClipRegion(const SkRegion& region, SkRegion::Op op) {
 }
 
 void SkAndroidSDKCanvas::onDiscard() { fProxyTarget->discard(); }
-
-

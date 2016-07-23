@@ -7,7 +7,7 @@
 
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
-#include "SkOncePtr.h"
+#include "SkOnce.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
@@ -74,7 +74,7 @@ protected:
     SkTypeface* onCreateFromFile(const char[], int) const override {
         return nullptr;
     }
-    SkTypeface* onLegacyCreateTypeface(const char [], unsigned) const override {
+    SkTypeface* onLegacyCreateTypeface(const char [], SkFontStyle) const override {
         return nullptr;
     }
 };
@@ -132,11 +132,23 @@ SkTypeface* SkFontMgr::createFromStream(SkStreamAsset* stream, int ttcIndex) con
     return this->onCreateFromStream(stream, ttcIndex);
 }
 
+SkTypeface* SkFontMgr::createFromStream(SkStreamAsset* stream, const FontParameters& params) const {
+    if (nullptr == stream) {
+        return nullptr;
+    }
+    return this->onCreateFromStream(stream, params);
+}
+
 SkTypeface* SkFontMgr::createFromFontData(SkFontData* data) const {
     if (nullptr == data) {
         return nullptr;
     }
     return this->onCreateFromFontData(data);
+}
+
+// This implementation is temporary until it can be made pure virtual.
+SkTypeface* SkFontMgr::onCreateFromStream(SkStreamAsset* stream, const FontParameters& p) const {
+    return this->createFromStream(stream, p.getCollectionIndex());
 }
 
 // This implementation is temporary until it can be made pure virtual.
@@ -153,17 +165,19 @@ SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) const {
     return this->onCreateFromFile(path, ttcIndex);
 }
 
-SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[],
-                                            unsigned styleBits) const {
-    return this->onLegacyCreateTypeface(familyName, styleBits);
+SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[], SkFontStyle style) const {
+    return this->onLegacyCreateTypeface(familyName, style);
 }
 
-SK_DECLARE_STATIC_ONCE_PTR(SkFontMgr, singleton);
 SkFontMgr* SkFontMgr::RefDefault() {
-    return SkRef(singleton.get([]{
+    static SkOnce once;
+    static SkFontMgr* singleton;
+
+    once([]{
         SkFontMgr* fm = SkFontMgr::Factory();
-        return fm ? fm : new SkEmptyFontMgr;
-    }));
+        singleton = fm ? fm : new SkEmptyFontMgr;
+    });
+    return SkRef(singleton);
 }
 
 /**
@@ -200,6 +214,9 @@ SkTypeface* SkFontStyleSet::matchStyleCSS3(const SkFontStyle& pattern) {
     struct Score {
         int score;
         int index;
+        Score& operator +=(int rhs) { this->score += rhs; return *this; }
+        Score& operator <<=(int rhs) { this->score <<= rhs; return *this; }
+        bool operator <(const Score& that) { return this->score < that.score; }
     };
 
     Score maxScore = { 0, 0 };
@@ -208,58 +225,70 @@ SkTypeface* SkFontStyleSet::matchStyleCSS3(const SkFontStyle& pattern) {
         this->getStyle(i, &current, nullptr);
         Score currentScore = { 0, i };
 
-        // CSS stretch. (This is the width.)
-        // This has the highest priority.
+        // CSS stretch / SkFontStyle::Width
+        // Takes priority over everything else.
         if (pattern.width() <= SkFontStyle::kNormal_Width) {
             if (current.width() <= pattern.width()) {
-                currentScore.score += 10 - pattern.width() + current.width();
+                currentScore += 10 - pattern.width() + current.width();
             } else {
-                currentScore.score += 10 - current.width();
+                currentScore += 10 - current.width();
             }
         } else {
             if (current.width() > pattern.width()) {
-                currentScore.score += 10 + pattern.width() - current.width();
+                currentScore += 10 + pattern.width() - current.width();
             } else {
-                currentScore.score += current.width();
+                currentScore += current.width();
             }
         }
-        currentScore.score *= 1002;
+        currentScore <<= 8;
 
-        // CSS style (italic/oblique)
-        // Being italic trumps all valid weights which are not italic.
-        // Note that newer specs differentiate between italic and oblique.
-        if (pattern.isItalic() == current.isItalic()) {
-            currentScore.score += 1001;
-        }
+        // CSS style (normal, italic, oblique) / SkFontStyle::Slant (upright, italic, oblique)
+        // Takes priority over all valid weights.
+        static_assert(SkFontStyle::kUpright_Slant == 0 &&
+                      SkFontStyle::kItalic_Slant  == 1 &&
+                      SkFontStyle::kOblique_Slant == 2,
+                      "SkFontStyle::Slant values not as required.");
+        SkASSERT(0 <= pattern.slant() && pattern.slant() <= 2 &&
+                 0 <= current.slant() && current.slant() <= 2);
+        static const int score[3][3] = {
+            /*               Upright Italic Oblique  [current]*/
+            /*   Upright */ {   3   ,  1   ,   2   },
+            /*   Italic  */ {   1   ,  3   ,   2   },
+            /*   Oblique */ {   1   ,  2   ,   3   },
+            /* [pattern] */
+        };
+        currentScore += score[pattern.slant()][current.slant()];
+        currentScore <<= 8;
 
-        // Synthetics (weight/style) [no stretch synthetic?]
+        // Synthetics (weight, style) [no stretch synthetic?]
 
+        // CSS weight / SkFontStyle::Weight
         // The 'closer' to the target weight, the higher the score.
         // 1000 is the 'heaviest' recognized weight
         if (pattern.weight() == current.weight()) {
-            currentScore.score += 1000;
+            currentScore += 1000;
         } else if (pattern.weight() <= 500) {
             if (400 <= pattern.weight() && pattern.weight() < 450) {
                 if (450 <= current.weight() && current.weight() <= 500) {
                     // Artificially boost the 500 weight.
                     // TODO: determine correct number to use.
-                    currentScore.score += 500;
+                    currentScore += 500;
                 }
             }
             if (current.weight() <= pattern.weight()) {
-                currentScore.score += 1000 - pattern.weight() + current.weight();
+                currentScore += 1000 - pattern.weight() + current.weight();
             } else {
-                currentScore.score += 1000 - current.weight();
+                currentScore += 1000 - current.weight();
             }
         } else if (pattern.weight() > 500) {
             if (current.weight() > pattern.weight()) {
-                currentScore.score += 1000 + pattern.weight() - current.weight();
+                currentScore += 1000 + pattern.weight() - current.weight();
             } else {
-                currentScore.score += current.weight();
+                currentScore += current.weight();
             }
         }
 
-        if (currentScore.score > maxScore.score) {
+        if (maxScore < currentScore) {
             maxScore = currentScore;
         }
     }

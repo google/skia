@@ -8,6 +8,7 @@
 #ifndef GrDrawBatch_DEFINED
 #define GrDrawBatch_DEFINED
 
+#include <functional>
 #include "GrBatch.h"
 #include "GrPipeline.h"
 
@@ -19,18 +20,25 @@ struct GrInitInvariantOutput;
  * to sequence the uploads relative to each other and to draws.
  **/
 
-typedef uint64_t GrBatchToken;
-
-class GrBatchUploader : public SkRefCnt {
+class GrBatchDrawToken {
 public:
-    class TextureUploader;
+    static GrBatchDrawToken AlreadyFlushedToken() { return GrBatchDrawToken(0); }
 
-    GrBatchUploader(GrBatchToken lastUploadToken) : fLastUploadToken(lastUploadToken) {}
-    GrBatchToken lastUploadToken() const { return fLastUploadToken; }
-    virtual void upload(TextureUploader*)=0;
+    GrBatchDrawToken(const GrBatchDrawToken& that) : fSequenceNumber(that.fSequenceNumber) {}
+    GrBatchDrawToken& operator =(const GrBatchDrawToken& that) {
+        fSequenceNumber = that.fSequenceNumber;
+        return *this;
+    }
+    bool operator==(const GrBatchDrawToken& that) const {
+        return fSequenceNumber == that.fSequenceNumber;
+    }
+    bool operator!=(const GrBatchDrawToken& that) const { return !(*this == that); }
 
 private:
-    GrBatchToken fLastUploadToken;
+    GrBatchDrawToken();
+    explicit GrBatchDrawToken(uint64_t sequenceNumber) : fSequenceNumber(sequenceNumber) {}
+    friend class GrBatchFlushState;
+    uint64_t fSequenceNumber;
 };
 
 /**
@@ -38,6 +46,14 @@ private:
  */
 class GrDrawBatch : public GrBatch {
 public:
+    /** Method that performs an upload on behalf of a DeferredUploadFn. */
+    using WritePixelsFn = std::function<bool(GrSurface* texture,
+                                             int left, int top, int width, int height,
+                                             GrPixelConfig config, const void* buffer,
+                                             size_t rowBytes)>;
+    /** See comments before GrDrawBatch::Target definition on how deferred uploaders work. */
+    using DeferredUploadFn = std::function<void(WritePixelsFn&)>;
+
     class Target;
 
     GrDrawBatch(uint32_t classID);
@@ -84,11 +100,25 @@ public:
                            this->pipeline()->getCoverageFragmentProcessor(i).dumpInfo().c_str());
         }
         string.appendf("XP: %s\n", this->pipeline()->getXferProcessor().name());
+
+        bool scissorEnabled = this->pipeline()->getScissorState().enabled();
+        string.appendf("Scissor: ");
+        if (scissorEnabled) {
+            string.appendf("[L: %d, T: %d, R: %d, B: %d]\n",
+                           this->pipeline()->getScissorState().rect().fLeft,
+                           this->pipeline()->getScissorState().rect().fTop,
+                           this->pipeline()->getScissorState().rect().fRight,
+                           this->pipeline()->getScissorState().rect().fBottom);
+        } else {
+            string.appendf("<disabled>\n");
+        }
+        string.append(INHERITED::dumpInfo());
+
         return string;
     }
 
 protected:
-    virtual void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    virtual void computePipelineOptimizations(GrInitInvariantOutput* color,
                                               GrInitInvariantOutput* coverage,
                                               GrBatchToXPOverrides* overrides) const = 0;
 
@@ -100,7 +130,14 @@ private:
     virtual void initBatchTracker(const GrXPOverridesForBatch&) = 0;
 
 protected:
-    SkTArray<SkAutoTUnref<GrBatchUploader>, true>   fInlineUploads;
+    struct QueuedUpload {
+        QueuedUpload(DeferredUploadFn&& upload, GrBatchDrawToken token)
+            : fUpload(std::move(upload))
+            , fUploadBeforeToken(token) {}
+        DeferredUploadFn    fUpload;
+        GrBatchDrawToken    fUploadBeforeToken;
+    };
+    SkTArray<QueuedUpload>   fInlineUploads;
 
 private:
     SkAlignedSTStorage<1, GrPipeline>               fPipelineStorage;

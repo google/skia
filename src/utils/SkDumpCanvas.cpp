@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -8,7 +7,8 @@
 
 #include "SkDumpCanvas.h"
 
-#ifdef SK_DEVELOPER
+#ifdef SK_DEBUG
+#include "SkData.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkPixelRef.h"
@@ -392,7 +392,7 @@ void SkDumpCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, cons
         toString(*src, &ss);
         rs.prependf("%s ", ss.c_str());
     }
-    
+
     this->dump(kDrawBitmap_Verb, paint, "drawImageRectToRect(%s %s)",
                bs.c_str(), rs.c_str());
 }
@@ -480,6 +480,13 @@ void SkDumpCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
               colors[0], colors[1], colors[2], colors[3],
               texCoords[0].x(), texCoords[0].y(), texCoords[1].x(), texCoords[1].y(),
               texCoords[2].x(), texCoords[2].y(), texCoords[3].x(), texCoords[3].y());
+}
+
+void SkDumpCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+    SkString str;
+    toString(rect, &str);
+    this->dump(kDrawAnnotation_Verb, nullptr, "drawAnnotation(%s \"%s\" (%zu))",
+               str.c_str(), key, value ? value->size() : 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

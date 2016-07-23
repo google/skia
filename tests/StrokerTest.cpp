@@ -1,3 +1,10 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "PathOpsCubicIntersectionTestData.h"
 #include "PathOpsQuadIntersectionTestData.h"
 #include "SkCommonFlags.h"
@@ -20,7 +27,7 @@ size_t widths_count = SK_ARRAY_COUNT(widths);
 
 static void pathTest(const SkPath& path) {
     SkPaint p;
-	SkPath fill;
+    SkPath fill;
     p.setStyle(SkPaint::kStroke_Style);
     for (size_t index = 0; index < widths_count; ++index) {
         p.setStrokeWidth(widths[index]);
@@ -29,91 +36,91 @@ static void pathTest(const SkPath& path) {
 }
 
 static void cubicTest(const SkPoint c[4]) {
-	SkPath path;
-	path.moveTo(c[0].fX, c[0].fY);
-	path.cubicTo(c[1].fX, c[1].fY, c[2].fX, c[2].fY, c[3].fX, c[3].fY);
-	pathTest(path);
+    SkPath path;
+    path.moveTo(c[0].fX, c[0].fY);
+    path.cubicTo(c[1].fX, c[1].fY, c[2].fX, c[2].fY, c[3].fX, c[3].fY);
+    pathTest(path);
 }
 
 static void quadTest(const SkPoint c[3]) {
-	SkPath path;
-	path.moveTo(c[0].fX, c[0].fY);
-	path.quadTo(c[1].fX, c[1].fY, c[2].fX, c[2].fY);
-	pathTest(path);
+    SkPath path;
+    path.moveTo(c[0].fX, c[0].fY);
+    path.quadTo(c[1].fX, c[1].fY, c[2].fX, c[2].fY);
+    pathTest(path);
 }
 
 static void cubicSetTest(const SkDCubic* dCubic, size_t count) {
-    SkMSec limit = SkTime::GetMSecs() + MS_TEST_DURATION;
-	for (size_t index = 0; index < count; ++index) {
-		const SkDCubic& d = dCubic[index];
-		SkPoint c[4] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
+    skiatest::Timer timer;
+    for (size_t index = 0; index < count; ++index) {
+        const SkDCubic& d = dCubic[index];
+        SkPoint c[4] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                          {(float) d[2].fX, (float) d[2].fY}, {(float) d[3].fX, (float) d[3].fY} };
-	    cubicTest(c);
-        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
+        cubicTest(c);
+        if (FLAGS_timeout && timer.elapsedMs() > MS_TEST_DURATION) {
             return;
         }
-	}
+    }
 }
 
 static void cubicPairSetTest(const SkDCubic dCubic[][2], size_t count) {
-    SkMSec limit = SkTime::GetMSecs() + MS_TEST_DURATION;
-	for (size_t index = 0; index < count; ++index) {
-		for (int pair = 0; pair < 2; ++pair) {
-			const SkDCubic& d = dCubic[index][pair];
-			SkPoint c[4] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
+    skiatest::Timer timer;
+    for (size_t index = 0; index < count; ++index) {
+        for (int pair = 0; pair < 2; ++pair) {
+            const SkDCubic& d = dCubic[index][pair];
+            SkPoint c[4] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                              {(float) d[2].fX, (float) d[2].fY}, {(float) d[3].fX, (float) d[3].fY} };
-			cubicTest(c);
-            if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
+            cubicTest(c);
+            if (FLAGS_timeout && timer.elapsedMs() > MS_TEST_DURATION) {
                 return;
             }
-		}
-	}
+        }
+    }
 }
 
 static void quadSetTest(const SkDQuad* dQuad, size_t count) {
-    SkMSec limit = SkTime::GetMSecs() + MS_TEST_DURATION;
-	for (size_t index = 0; index < count; ++index) {
-		const SkDQuad& d = dQuad[index];
-		SkPoint c[3] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
+    skiatest::Timer timer;
+    for (size_t index = 0; index < count; ++index) {
+        const SkDQuad& d = dQuad[index];
+        SkPoint c[3] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                          {(float) d[2].fX, (float) d[2].fY}  };
-	    quadTest(c);
-        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
+        quadTest(c);
+        if (FLAGS_timeout && timer.elapsedMs() > MS_TEST_DURATION) {
             return;
         }
-	}
+    }
 }
 
 static void quadPairSetTest(const SkDQuad dQuad[][2], size_t count) {
-    SkMSec limit = SkTime::GetMSecs() + MS_TEST_DURATION;
-	for (size_t index = 0; index < count; ++index) {
-		for (int pair = 0; pair < 2; ++pair) {
-			const SkDQuad& d = dQuad[index][pair];
-			SkPoint c[3] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
+    skiatest::Timer timer;
+    for (size_t index = 0; index < count; ++index) {
+        for (int pair = 0; pair < 2; ++pair) {
+            const SkDQuad& d = dQuad[index][pair];
+            SkPoint c[3] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                              {(float) d[2].fX, (float) d[2].fY}  };
-			quadTest(c);
-            if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
+            quadTest(c);
+            if (FLAGS_timeout && timer.elapsedMs() > MS_TEST_DURATION) {
                 return;
             }
-		}
-	}
+        }
+    }
 }
 
 DEF_TEST(QuadStrokerSet, reporter) {
-	quadSetTest(quadraticLines, quadraticLines_count);
-	quadSetTest(quadraticPoints, quadraticPoints_count);
-	quadSetTest(quadraticModEpsilonLines, quadraticModEpsilonLines_count);
-	quadPairSetTest(quadraticTests, quadraticTests_count);
+    quadSetTest(quadraticLines, quadraticLines_count);
+    quadSetTest(quadraticPoints, quadraticPoints_count);
+    quadSetTest(quadraticModEpsilonLines, quadraticModEpsilonLines_count);
+    quadPairSetTest(quadraticTests, quadraticTests_count);
 }
 
 DEF_TEST(CubicStrokerSet, reporter) {
-	cubicSetTest(pointDegenerates, pointDegenerates_count);
-	cubicSetTest(notPointDegenerates, notPointDegenerates_count);
-	cubicSetTest(lines, lines_count);
-	cubicSetTest(notLines, notLines_count);
-	cubicSetTest(modEpsilonLines, modEpsilonLines_count);
-	cubicSetTest(lessEpsilonLines, lessEpsilonLines_count);
-	cubicSetTest(negEpsilonLines, negEpsilonLines_count);
-	cubicPairSetTest(tests, tests_count);
+    cubicSetTest(pointDegenerates, pointDegenerates_count);
+    cubicSetTest(notPointDegenerates, notPointDegenerates_count);
+    cubicSetTest(lines, lines_count);
+    cubicSetTest(notLines, notLines_count);
+    cubicSetTest(modEpsilonLines, modEpsilonLines_count);
+    cubicSetTest(lessEpsilonLines, lessEpsilonLines_count);
+    cubicSetTest(negEpsilonLines, negEpsilonLines_count);
+    cubicPairSetTest(tests, tests_count);
 }
 
 static SkScalar unbounded(SkRandom& r) {
@@ -134,7 +141,7 @@ DEF_TEST(QuadStrokerUnbounded, reporter) {
     int best = 0;
     sk_bzero(gMaxRecursion, sizeof(gMaxRecursion[0]) * 3);
 #endif
-    SkMSec limit = SkTime::GetMSecs() + MS_TEST_DURATION;
+    skiatest::Timer timer;
     for (int i = 0; i < 1000000; ++i) {
         SkPath path, fill;
         path.moveTo(unbounded(r), unbounded(r));
@@ -153,7 +160,7 @@ DEF_TEST(QuadStrokerUnbounded, reporter) {
             best = gMaxRecursion[2];
         }
 #endif
-        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && timer.elapsedMs() > MS_TEST_DURATION) {
             return;
         }
     }
@@ -173,7 +180,7 @@ DEF_TEST(CubicStrokerUnbounded, reporter) {
     int bestCubic = 0;
     sk_bzero(gMaxRecursion, sizeof(gMaxRecursion[0]) * 3);
 #endif
-    SkMSec limit = SkTime::GetMSecs() + MS_TEST_DURATION;
+    skiatest::Timer timer;
     for (int i = 0; i < 1000000; ++i) {
         SkPath path, fill;
         path.moveTo(unbounded(r), unbounded(r));
@@ -194,7 +201,7 @@ DEF_TEST(CubicStrokerUnbounded, reporter) {
             bestCubic = SkTMax(bestCubic, gMaxRecursion[1]);
         }
     #endif
-        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && timer.elapsedMs() > MS_TEST_DURATION) {
             return;
         }
     }
@@ -213,7 +220,7 @@ DEF_TEST(QuadStrokerConstrained, reporter) {
     int best = 0;
     sk_bzero(gMaxRecursion, sizeof(gMaxRecursion[0]) * 3);
 #endif
-    SkMSec limit = SkTime::GetMSecs() + MS_TEST_DURATION;
+    skiatest::Timer timer;
     for (int i = 0; i < 1000000; ++i) {
         SkPath path, fill;
         SkPoint quad[3];
@@ -245,7 +252,7 @@ DEF_TEST(QuadStrokerConstrained, reporter) {
             best = gMaxRecursion[2];
         }
 #endif
-        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && timer.elapsedMs() > MS_TEST_DURATION) {
             return;
         }
     }
@@ -265,7 +272,7 @@ DEF_TEST(CubicStrokerConstrained, reporter) {
     int bestCubic = 0;
     sk_bzero(gMaxRecursion, sizeof(gMaxRecursion[0]) * 3);
 #endif
-    SkMSec limit = SkTime::GetMSecs() + MS_TEST_DURATION;
+    skiatest::Timer timer;
     for (int i = 0; i < 1000000; ++i) {
         SkPath path, fill;
         SkPoint cubic[4];
@@ -304,7 +311,7 @@ DEF_TEST(CubicStrokerConstrained, reporter) {
             bestCubic = SkTMax(bestCubic, gMaxRecursion[1]);
         }
 #endif
-        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && timer.elapsedMs() > MS_TEST_DURATION) {
             return;
         }
     }
@@ -323,7 +330,7 @@ DEF_TEST(QuadStrokerRange, reporter) {
     int best = 0;
     sk_bzero(gMaxRecursion, sizeof(gMaxRecursion[0]) * 3);
 #endif
-    SkMSec limit = SkTime::GetMSecs() + MS_TEST_DURATION;
+    skiatest::Timer timer;
     for (int i = 0; i < 1000000; ++i) {
         SkPath path, fill;
         SkPoint quad[3];
@@ -349,7 +356,7 @@ DEF_TEST(QuadStrokerRange, reporter) {
             best = gMaxRecursion[2];
         }
 #endif
-        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && timer.elapsedMs() > MS_TEST_DURATION) {
             return;
         }
     }
@@ -368,7 +375,7 @@ DEF_TEST(CubicStrokerRange, reporter) {
     int best[2] = { 0 };
     sk_bzero(gMaxRecursion, sizeof(gMaxRecursion[0]) * 3);
 #endif
-    SkMSec limit = SkTime::GetMSecs() + MS_TEST_DURATION;
+    skiatest::Timer timer;
     for (int i = 0; i < 1000000; ++i) {
         SkPath path, fill;
         path.moveTo(r.nextRangeF(0, 500), r.nextRangeF(0, 500));
@@ -389,7 +396,7 @@ DEF_TEST(CubicStrokerRange, reporter) {
             best[1] = SkTMax(best[1], gMaxRecursion[1]);
         }
 #endif
-        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && timer.elapsedMs() > MS_TEST_DURATION) {
             return;
         }
     }

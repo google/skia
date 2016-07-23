@@ -34,7 +34,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint whitePaint;
         whitePaint.setColor(SK_ColorWHITE);
-        whitePaint.setXfermode(SkXfermode::Create(SkXfermode::kSrc_Mode))->unref();
+        whitePaint.setXfermode(SkXfermode::Make(SkXfermode::kSrc_Mode));
         whitePaint.setAntiAlias(true);
 
         // This scale exercises precision limits in the circle blur effect (crbug.com/560651)
@@ -63,13 +63,13 @@ protected:
 
                     SkPaint paint;
 
-                    paint.setMaskFilter(SkBlurMaskFilter::Create(
+                    paint.setMaskFilter(SkBlurMaskFilter::Make(
                                             kNormal_SkBlurStyle,
                                             1.366025f,
-                                            SkBlurMaskFilter::kHighQuality_BlurFlag))->unref();
-                    paint.setColorFilter(SkColorFilter::CreateModeFilter(
+                                            SkBlurMaskFilter::kHighQuality_BlurFlag));
+                    paint.setColorFilter(SkColorFilter::MakeModeFilter(
                                              SK_ColorRED,
-                                             SkXfermode::kSrcIn_Mode))->unref();
+                                             SkXfermode::kSrcIn_Mode));
                     paint.setAntiAlias(true);
 
                     canvas->drawRRect(rr, paint);

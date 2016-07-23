@@ -25,9 +25,18 @@ pushd $here/../third_party/externals/cmake
 make -j $cores cmake
 popd
 
-echo "Building with bootstrapped CMake"
-mkdir -p $SKIA_OUT
-pushd $SKIA_OUT
-$here/../third_party/externals/cmake/bin/cmake -DCMAKE_BUILD_TYPE=$BUILDTYPE $here -G Ninja
+echo "Building static library with bootstrapped CMake"
+mkdir -p $SKIA_OUT/$BUILDTYPE
+pushd $SKIA_OUT/$BUILDTYPE
+$here/../third_party/externals/cmake/bin/cmake -DCMAKE_BUILD_TYPE=$BUILDTYPE \
+    $here -G Ninja
+ninja
+popd
+
+echo "Building shared library with bootstrapped CMake"
+mkdir -p $SKIA_OUT/$BUILDTYPE
+pushd $SKIA_OUT/$BUILDTYPE
+$here/../third_party/externals/cmake/bin/cmake -DCMAKE_BUILD_TYPE=$BUILDTYPE -DBUILD_SHARED_LIBS=1 \
+    $here -G Ninja
 ninja
 popd

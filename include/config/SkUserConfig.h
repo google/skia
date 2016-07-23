@@ -58,13 +58,6 @@
 //#define SK_DEBUG_GLYPH_CACHE
 //#define SK_DEBUG_PATH
 
-/*  If, in debugging mode, Skia needs to stop (presumably to invoke a debugger)
-    it will call SK_CRASH(). If this is not defined it, it is defined in
-    SkPostConfig.h to write to an illegal address
- */
-//#define SK_CRASH() *(int *)(uintptr_t)0 = 0
-
-
 /*  preconfig will have attempted to determine the endianness of the system,
     but you can change these mutually exclusive flags here.
  */
@@ -99,11 +92,6 @@
  *  value as well. If this is undefined, a built-in value will be used.
  */
 //#define SK_DEFAULT_IMAGE_CACHE_LIMIT (1024 * 1024)
-
-/*  Define this to allow PDF scalars above 32k.  The PDF/A spec doesn't allow
-    them, but modern PDF interpreters should handle them just fine.
- */
-//#define SK_ALLOW_LARGE_PDF_SCALARS
 
 /*  Define this to provide font subsetter in PDF generation.
  */
@@ -143,14 +131,12 @@
  */
 //#define SK_SUPPORT_GPU 1
 
-
-/* The PDF generation code uses Path Ops to handle complex clipping paths,
- * but at this time, Path Ops is not release ready yet. So, the code is
- * hidden behind this #define guard. If you are feeling adventurous and
- * want the latest and greatest PDF generation code, uncomment the #define.
- * When Path Ops is release ready, the define guards and this user config
- * define should be removed entirely.
+/* Skia makes use of histogram logging macros to trace the frequency of
+ * events. By default, Skia provides no-op versions of these macros.
+ * Skia consumers can provide their own definitions of these macros to
+ * integrate with their histogram collection backend.
  */
-//#define SK_PDF_USE_PATHOPS_CLIPPING
+//#define SK_HISTOGRAM_BOOLEAN(name, value)
+//#define SK_HISTOGRAM_ENUMERATION(name, value, boundary_value)
 
 #endif

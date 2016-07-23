@@ -27,7 +27,7 @@ public:
     bool drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y, const SkPaint&);
 
     // Detach anything we've recorded as a picture, resetting this SkMiniRecorder.
-    SkPicture* detachAsPicture(const SkRect& cull);
+    sk_sp<SkPicture> detachAsPicture(const SkRect& cull);
 
     // Flush anything we've recorded to the canvas, resetting this SkMiniRecorder.
     // This is logically the same as but rather more efficient than:

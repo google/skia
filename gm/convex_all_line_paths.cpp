@@ -28,7 +28,7 @@ namespace skiagm {
 // paths
 class ConvexLineOnlyPathsGM : public GM {
 public:
-    ConvexLineOnlyPathsGM() { 
+    ConvexLineOnlyPathsGM() {
         this->setBGColor(0xFFFFFFFF);
     }
 
@@ -284,7 +284,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         // the right edge of the last drawn path
-        SkPoint offset = { 0, SkScalarHalf(kMaxPathHeight) }; 
+        SkPoint offset = { 0, SkScalarHalf(kMaxPathHeight) };
 
         for (int i = 0; i < kNumPaths; ++i) {
             this->drawPath(canvas, i, &offset);

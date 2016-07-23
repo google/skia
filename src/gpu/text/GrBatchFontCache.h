@@ -9,9 +9,8 @@
 #define GrBatchFontCache_DEFINED
 
 #include "GrBatchAtlas.h"
-#include "GrFontScaler.h"
 #include "GrGlyph.h"
-#include "SkGlyph.h"
+#include "SkGlyphCache.h"
 #include "SkTDynamicHash.h"
 #include "SkVarAlloc.h"
 
@@ -20,21 +19,22 @@ class GrGpu;
 
 /**
  *  The GrBatchTextStrike manages a pool of CPU backing memory for GrGlyphs.  This backing memory
- *  is indexed by a PackedID and GrFontScaler.  The GrFontScaler is what actually creates the mask.
+ *  is indexed by a PackedID and SkGlyphCache. The SkGlyphCache is what actually creates the mask.
+ *  The GrBatchTextStrike may outlive the generating SkGlyphCache. However, it retains a copy
+ *  of it's SkDescriptor as a key to access (or regenerate) the SkGlyphCache. GrBatchTextStrikes are
+ *  created by and owned by a GrBatchFontCache.
  */
 class GrBatchTextStrike : public SkNVRefCnt<GrBatchTextStrike> {
 public:
-    GrBatchTextStrike(GrBatchFontCache*, const GrFontDescKey* fontScalerKey);
+    /** Owner is the cache that owns this strike. */
+    GrBatchTextStrike(GrBatchFontCache* owner, const SkDescriptor& fontScalerKey);
     ~GrBatchTextStrike();
 
-    const GrFontDescKey* getFontScalerKey() const { return fFontScalerKey; }
-    GrBatchFontCache* getBatchFontCache() const { return fBatchFontCache; }
-
     inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
-                             GrFontScaler* scaler) {
+                             SkGlyphCache* cache) {
         GrGlyph* glyph = fCache.find(packed);
         if (nullptr == glyph) {
-            glyph = this->generateGlyph(skGlyph, packed, scaler);
+            glyph = this->generateGlyph(skGlyph, packed, cache);
         }
         return glyph;
     }
@@ -45,14 +45,14 @@ public:
     // skbug:4143 crbug:510931
     inline GrGlyph* getGlyph(GrGlyph::PackedID packed,
                              GrMaskFormat expectedMaskFormat,
-                             GrFontScaler* scaler) {
+                             SkGlyphCache* cache) {
         GrGlyph* glyph = fCache.find(packed);
         if (nullptr == glyph) {
             // We could return this to the caller, but in practice it adds code complexity for
             // potentially little benefit(ie, if the glyph is not in our font cache, then its not
             // in the atlas and we're going to be doing a texture upload anyways).
-            const SkGlyph& skGlyph = scaler->grToSkGlyph(packed);
-            glyph = this->generateGlyph(skGlyph, packed, scaler);
+            const SkGlyph& skGlyph = GrToSkGlyph(cache, packed);
+            glyph = this->generateGlyph(skGlyph, packed, cache);
             glyph->fMaskFormat = expectedMaskFormat;
         }
         return glyph;
@@ -63,7 +63,7 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    bool addGlyphToAtlas(GrDrawBatch::Target*, GrGlyph*, GrFontScaler*,
+    bool addGlyphToAtlas(GrDrawBatch::Target*, GrGlyph*, SkGlyphCache*,
                          GrMaskFormat expectedMaskFormat);
 
     // testing
@@ -75,29 +75,34 @@ public:
     // If a TextStrike is abandoned by the cache, then the caller must get a new strike
     bool isAbandoned() const { return fIsAbandoned; }
 
-    static const GrFontDescKey& GetKey(const GrBatchTextStrike& ts) {
-        return *(ts.fFontScalerKey);
+    static const SkDescriptor& GetKey(const GrBatchTextStrike& ts) {
+        return *ts.fFontScalerKey.getDesc();
     }
-    static uint32_t Hash(const GrFontDescKey& key) {
-        return key.getHash();
-    }
+
+    static uint32_t Hash(const SkDescriptor& desc) { return desc.getChecksum(); }
 
 private:
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID> fCache;
-    SkAutoTUnref<const GrFontDescKey> fFontScalerKey;
+    SkAutoDescriptor fFontScalerKey;
     SkVarAlloc fPool;
 
     GrBatchFontCache* fBatchFontCache;
     int fAtlasedGlyphs;
     bool fIsAbandoned;
 
-    GrGlyph* generateGlyph(const SkGlyph&, GrGlyph::PackedID, GrFontScaler*);
+    static const SkGlyph& GrToSkGlyph(SkGlyphCache* cache, GrGlyph::PackedID id) {
+        return cache->getGlyphIDMetrics(GrGlyph::UnpackID(id),
+                                        GrGlyph::UnpackFixedX(id),
+                                        GrGlyph::UnpackFixedY(id));
+    }
+
+    GrGlyph* generateGlyph(const SkGlyph&, GrGlyph::PackedID, SkGlyphCache*);
 
     friend class GrBatchFontCache;
 };
 
 /*
- * GrBatchFontCache manages strikes which are indexed by a GrFontScaler.  These strikes can then be
+ * GrBatchFontCache manages strikes which are indexed by a SkGlyphCache.  These strikes can then be
  * used to individual Glyph Masks.  The GrBatchFontCache also manages GrBatchAtlases, though this is
  * more or less transparent to the client(aside from atlasGeneration, described below).
  * Note - we used to initialize the backing atlas for the GrBatchFontCache at initialization time.
@@ -112,10 +117,10 @@ public:
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrBatchTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    inline GrBatchTextStrike* getStrike(GrFontScaler* scaler) {
-        GrBatchTextStrike* strike = fCache.find(*(scaler->getKey()));
+    inline GrBatchTextStrike* getStrike(const SkGlyphCache* cache) {
+        GrBatchTextStrike* strike = fCache.find(cache->getDescriptor());
         if (nullptr == strike) {
-            strike = this->generateStrike(scaler);
+            strike = this->generateStrike(cache);
         }
         return strike;
     }
@@ -143,14 +148,14 @@ public:
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
     void addGlyphToBulkAndSetUseToken(GrBatchAtlas::BulkUseTokenUpdater* updater,
-                                      GrGlyph* glyph, GrBatchToken token) {
+                                      GrGlyph* glyph, GrBatchDrawToken token) {
         SkASSERT(glyph);
         updater->add(glyph->fID);
         this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
     }
 
     void setUseTokenBulk(const GrBatchAtlas::BulkUseTokenUpdater& updater,
-                         GrBatchToken token,
+                         GrBatchDrawToken token,
                          GrMaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
@@ -170,6 +175,9 @@ public:
     uint64_t atlasGeneration(GrMaskFormat format) const {
         return this->getAtlas(format)->atlasGeneration();
     }
+
+    int log2Width(GrMaskFormat format) { return fAtlasConfigs[format].fLog2Width; }
+    int log2Height(GrMaskFormat format) { return fAtlasConfigs[format].fLog2Height; }
 
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended debug only
@@ -204,8 +212,8 @@ private:
 
     bool initAtlas(GrMaskFormat);
 
-    GrBatchTextStrike* generateStrike(GrFontScaler* scaler) {
-        GrBatchTextStrike* strike = new GrBatchTextStrike(this, scaler->getKey());
+    GrBatchTextStrike* generateStrike(const SkGlyphCache* cache) {
+        GrBatchTextStrike* strike = new GrBatchTextStrike(this, cache->getDescriptor());
         fCache.add(strike);
         return strike;
     }
@@ -218,8 +226,9 @@ private:
 
     static void HandleEviction(GrBatchAtlas::AtlasID, void*);
 
+    using StrikeHash = SkTDynamicHash<GrBatchTextStrike, SkDescriptor>;
     GrContext* fContext;
-    SkTDynamicHash<GrBatchTextStrike, GrFontDescKey> fCache;
+    StrikeHash fCache;
     GrBatchAtlas* fAtlases[kMaskFormatCount];
     GrBatchTextStrike* fPreserveStrike;
     GrBatchAtlasConfig fAtlasConfigs[kMaskFormatCount];

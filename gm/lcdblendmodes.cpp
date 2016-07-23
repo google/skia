@@ -6,7 +6,7 @@
  */
 
 
-/* 
+/*
  * Tests text rendering with LCD and the various blend modes.
  */
 
@@ -22,7 +22,7 @@ static const int kNumCols = 4;
 static const int kWidth = kColWidth * kNumCols;
 static const int kHeight = 750;
 
-static SkShader* make_shader(const SkRect& bounds) {
+static sk_sp<SkShader> make_shader(const SkRect& bounds) {
     const SkPoint pts[] = {
         { bounds.left(), bounds.top() },
         { bounds.right(), bounds.bottom() },
@@ -30,9 +30,8 @@ static SkShader* make_shader(const SkRect& bounds) {
     const SkColor colors[] = {
         SK_ColorRED, SK_ColorGREEN,
     };
-    return SkGradientShader::CreateLinear(pts,
-                                          colors, nullptr, SK_ARRAY_COUNT(colors),
-                                          SkShader::kRepeat_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                        SkShader::kRepeat_TileMode);
 }
 
 class LcdBlendGM : public skiagm::GM {
@@ -41,20 +40,18 @@ public:
         const int kPointSize = 25;
         fTextHeight = SkIntToScalar(kPointSize);
     }
-    
+
 protected:
     SkString onShortName() override {
         return SkString("lcdblendmodes");
     }
 
     void onOnceBeforeDraw() override {
-        fCheckerboard.reset(sk_tool_utils::create_checkerboard_shader(SK_ColorBLACK,
-                                                                      SK_ColorWHITE,
-                                                                      4));
+        fCheckerboard = sk_tool_utils::create_checkerboard_shader(SK_ColorBLACK, SK_ColorWHITE, 4);
     }
-    
+
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
-    
+
     void onDraw(SkCanvas* canvas) override {
         SkPaint p;
         p.setAntiAlias(false);
@@ -64,9 +61,9 @@ protected:
         canvas->drawRect(r, p);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-        SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+        auto surface(canvas->makeSurface(info));
         if (nullptr == surface) {
-            surface.reset(SkSurface::NewRaster(info));
+            surface = SkSurface::MakeRaster(info);
         }
 
         SkCanvas* surfCanvas = surface->getCanvas();
@@ -79,8 +76,7 @@ protected:
         this->drawColumn(surfCanvas, SK_ColorCYAN, SK_ColorMAGENTA, true);
 
         SkPaint surfPaint;
-        SkAutoTUnref<SkXfermode> xfermode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
-        surfPaint.setXfermode(xfermode);
+        surfPaint.setXfermode(SkXfermode::Make(SkXfermode::kSrcOver_Mode));
         surface->draw(canvas, 0, 0, &surfPaint);
     }
 
@@ -126,29 +122,28 @@ protected:
                                backgroundPaint);
         SkScalar y = fTextHeight;
         for (size_t m = 0; m < SK_ARRAY_COUNT(gModes); m++) {
-            SkAutoTUnref<SkXfermode> xfermode(SkXfermode::Create(gModes[m].fMode));
             SkPaint paint;
             paint.setColor(textColor);
             paint.setAntiAlias(true);
             paint.setSubpixelText(true);
             paint.setLCDRenderText(true);
             paint.setTextSize(fTextHeight);
-            paint.setXfermode(xfermode);
+            paint.setXfermode(SkXfermode::Make(gModes[m].fMode));
             sk_tool_utils::set_portable_typeface(&paint);
             if (useGrad) {
                 SkRect r;
                 r.setXYWH(0, y - fTextHeight, SkIntToScalar(kColWidth), fTextHeight);
-                paint.setShader(make_shader(r))->unref();
+                paint.setShader(make_shader(r));
             }
             SkString string(gModes[m].fLabel);
             canvas->drawText(gModes[m].fLabel, string.size(), 0, y, paint);
             y+=fTextHeight;
         }
     }
-    
+
 private:
     SkScalar fTextHeight;
-    SkAutoTUnref<SkShader> fCheckerboard;
+    sk_sp<SkShader> fCheckerboard;
     typedef skiagm::GM INHERITED;
 };
 

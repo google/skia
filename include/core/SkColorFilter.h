@@ -10,7 +10,7 @@
 
 #include "SkColor.h"
 #include "SkFlattenable.h"
-#include "SkTDArray.h"
+#include "SkRefCnt.h"
 #include "SkXfermode.h"
 
 class GrContext;
@@ -68,10 +68,12 @@ public:
     */
     virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[]) const = 0;
 
+    virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const;
+
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
         */
-        kAlphaUnchanged_Flag = 0x01,
+        kAlphaUnchanged_Flag = 1 << 0,
     };
 
     /** Returns the flags for this filter. Override in subclasses to return custom flags.
@@ -85,7 +87,7 @@ public:
      *
      *  e.g. result(color) == this_filter(inner(color))
      */
-    virtual SkColorFilter* newComposed(const SkColorFilter* /*inner*/) const { return NULL; }
+    virtual sk_sp<SkColorFilter> makeComposed(sk_sp<SkColorFilter>) const { return nullptr; }
 
     /**
      *  Apply this colorfilter to the specified SkColor. This routine handles
@@ -94,6 +96,11 @@ public:
      *   which is virtual.
      */
     SkColor filterColor(SkColor) const;
+
+    /**
+     *  Filters a single color.
+     */
+    SkColor4f filterColor4f(const SkColor4f&) const;
 
     /** Create a colorfilter that uses the specified color and mode.
         If the Mode is DST, this function will return NULL (since that
@@ -104,7 +111,7 @@ public:
         @return colorfilter object that applies the src color and mode,
                     or NULL if the mode will have no effect.
     */
-    static SkColorFilter* CreateModeFilter(SkColor c, SkXfermode::Mode mode);
+    static sk_sp<SkColorFilter> MakeModeFilter(SkColor c, SkXfermode::Mode mode);
 
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
      *  the outer filter to the result of the inner's.
@@ -113,8 +120,30 @@ public:
      *  Due to internal limits, it is possible that this will return NULL, so the caller must
      *  always check.
      */
-    static SkColorFilter* CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner);
+    static sk_sp<SkColorFilter> MakeComposeFilter(sk_sp<SkColorFilter> outer,
+                                                  sk_sp<SkColorFilter> inner);
 
+    /** Construct a color filter that transforms a color by a 4x5 matrix. The matrix is in row-
+     *  major order and the translation column is specified in unnormalized, 0...255, space.
+     */
+    static sk_sp<SkColorFilter> MakeMatrixFilterRowMajor255(const SkScalar array[20]);
+
+#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
+    static SkColorFilter* CreateModeFilter(SkColor c, SkXfermode::Mode mode) {
+        return MakeModeFilter(c, mode).release();
+    }
+    static SkColorFilter* CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner) {
+        return MakeComposeFilter(sk_ref_sp(outer), sk_ref_sp(inner)).release();
+    }
+    static SkColorFilter* CreateMatrixFilterRowMajor255(const SkScalar array[20]) {
+        return MakeMatrixFilterRowMajor255(array).release();
+    }
+    virtual SkColorFilter* newComposed(const SkColorFilter* inner) const {
+        return this->makeComposed(sk_ref_sp(const_cast<SkColorFilter*>(inner))).release();
+    }
+#endif
+
+#if SK_SUPPORT_GPU
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns
      *  a GrFragmentProcessor that implemets the color filter in GPU shader code.
@@ -124,9 +153,8 @@ public:
      *
      *  A null return indicates that the color filter isn't implemented for the GPU backend.
      */
-    virtual const GrFragmentProcessor* asFragmentProcessor(GrContext*) const {
-        return nullptr;
-    }
+    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*) const;
+#endif
 
     bool affectsTransparentBlack() const {
         return this->filterColor(0) != 0;

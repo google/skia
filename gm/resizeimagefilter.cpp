@@ -20,7 +20,7 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() {
+    SkString onShortName() override {
         return SkString("resizeimagefilter");
     }
 
@@ -28,7 +28,7 @@ protected:
               const SkRect& rect,
               const SkSize& deviceSize,
               SkFilterQuality filterQuality,
-              SkImageFilter* input = nullptr) {
+              sk_sp<SkImageFilter> input) {
         SkRect dstRect;
         canvas->getTotalMatrix().mapRect(&dstRect, rect);
         canvas->save();
@@ -38,12 +38,12 @@ protected:
         canvas->scale(deviceScaleX, deviceScaleY);
         canvas->translate(-rect.x(), -rect.y());
         SkMatrix matrix;
-        matrix.setScale(SkScalarInvert(deviceScaleX),
-                        SkScalarInvert(deviceScaleY));
-        SkAutoTUnref<SkImageFilter> imageFilter(
-            SkImageFilter::CreateMatrixFilter(matrix, filterQuality, input));
+        matrix.setScale(SkScalarInvert(deviceScaleX), SkScalarInvert(deviceScaleY));
+        sk_sp<SkImageFilter> filter(SkImageFilter::MakeMatrixFilter(matrix,
+                                                                    filterQuality,
+                                                                    std::move(input)));
         SkPaint filteredPaint;
-        filteredPaint.setImageFilter(imageFilter.get());
+        filteredPaint.setImageFilter(std::move(filter));
         canvas->saveLayer(&rect, &filteredPaint);
         SkPaint paint;
         paint.setColor(0xFF00FF00);
@@ -54,40 +54,44 @@ protected:
         canvas->restore();
     }
 
-    virtual SkISize onISize() {
+    SkISize onISize() override {
         return SkISize::Make(520, 100);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
         SkRect srcRect = SkRect::MakeWH(96, 96);
 
         SkSize deviceSize = SkSize::Make(16, 16);
-        draw(canvas,
-             srcRect,
-             deviceSize,
-             kNone_SkFilterQuality);
+        this->draw(canvas,
+                   srcRect,
+                   deviceSize,
+                   kNone_SkFilterQuality,
+                   nullptr);
 
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        draw(canvas,
-             srcRect,
-             deviceSize,
-             kLow_SkFilterQuality);
+        this->draw(canvas,
+                   srcRect,
+                   deviceSize,
+                   kLow_SkFilterQuality,
+                   nullptr);
 
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        draw(canvas,
-             srcRect,
-             deviceSize,
-             kMedium_SkFilterQuality);
+        this->draw(canvas,
+                   srcRect,
+                   deviceSize,
+                   kMedium_SkFilterQuality,
+                   nullptr);
 
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        draw(canvas,
-             srcRect,
-             deviceSize,
-             kHigh_SkFilterQuality);
+        this->draw(canvas,
+                   srcRect,
+                   deviceSize,
+                   kHigh_SkFilterQuality,
+                   nullptr);
 
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(16, 16));
+        sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(16, 16));
         SkCanvas* surfaceCanvas = surface->getCanvas();
         surfaceCanvas->clear(0x000000);
         {
@@ -97,17 +101,17 @@ protected:
             ovalRect.inset(SkIntToScalar(2)/3, SkIntToScalar(2)/3);
             surfaceCanvas->drawOval(ovalRect, paint);
         }
-        SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+        sk_sp<SkImage> image(surface->makeImageSnapshot());
         SkRect inRect = SkRect::MakeXYWH(-4, -4, 20, 20);
         SkRect outRect = SkRect::MakeXYWH(-24, -24, 120, 120);
-        SkAutoTUnref<SkImageFilter> source(
-            SkImageSource::Create(image, inRect, outRect, kHigh_SkFilterQuality));
+        sk_sp<SkImageFilter> source(
+            SkImageSource::Make(std::move(image), inRect, outRect, kHigh_SkFilterQuality));
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        draw(canvas,
-             srcRect,
-             deviceSize,
-             kHigh_SkFilterQuality,
-             source.get());
+        this->draw(canvas,
+                   srcRect,
+                   deviceSize,
+                   kHigh_SkFilterQuality,
+                   std::move(source));
     }
 
 private:
@@ -116,7 +120,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ResizeGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM(return new ResizeGM; )
 
 }

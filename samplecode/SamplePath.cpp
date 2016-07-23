@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -12,7 +11,6 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -55,17 +53,6 @@ static void test_cubic2() {
     SkParsePath::FromSVGString(str, &path);
 
     {
-#ifdef SK_BUILD_FOR_WIN
-        // windows doesn't have strtof
-        float x = (float)strtod("9.94099e+07", nullptr);
-#else
-        float x = strtof("9.94099e+07", nullptr);
-#endif
-        int ix = (int)x;
-        int fx = (int)(x * 65536);
-        int ffx = SkScalarToFixed(x);
-        SkDebugf("%g %x %x %x\n", x, ix, fx, ffx);
-
         SkRect r = path.getBounds();
         SkIRect ir;
         r.round(&ir);
@@ -254,13 +241,13 @@ public:
         fArcToPaint.setStyle(SkPaint::kStroke_Style);
         fArcToPaint.setStrokeWidth(9);
         fArcToPaint.setColor(0x800000FF);
-        fArcToPaint.setPathEffect(SkArcToPathEffect::Create(rad))->unref();
+        fArcToPaint.setPathEffect(SkArcToPathEffect::Make(rad));
 
         fCornerPaint.setAntiAlias(true);
         fCornerPaint.setStyle(SkPaint::kStroke_Style);
         fCornerPaint.setStrokeWidth(13);
         fCornerPaint.setColor(SK_ColorGREEN);
-        fCornerPaint.setPathEffect(SkCornerPathEffect::Create(rad*2))->unref();
+        fCornerPaint.setPathEffect(SkCornerPathEffect::Make(rad*2));
 
         fSkeletonPaint.setAntiAlias(true);
         fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
@@ -346,4 +333,3 @@ private:
     typedef SampleView INHERITED;
 };
 DEF_SAMPLE( return new ArcToView; )
-

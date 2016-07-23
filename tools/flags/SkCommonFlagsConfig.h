@@ -50,20 +50,25 @@ class SkCommandLineConfig {
 // * backends that represent a shorthand of above (such as "msaa16" representing "gpu(samples=16)")
 class SkCommandLineConfigGpu : public SkCommandLineConfig {
   public:
-    typedef GrContextFactory::GLContextType ContextType;
+    typedef sk_gpu_test::GrContextFactory::ContextType ContextType;
     SkCommandLineConfigGpu(const SkString& tag, const SkTArray<SkString>& viaParts,
-                           ContextType contextType, bool useNVPR, bool useDIText, int samples);
+                           ContextType contextType, bool useNVPR, bool useDIText, int samples,
+                           SkColorType colorType, sk_sp<SkColorSpace> colorSpace);
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
     ContextType getContextType() const { return fContextType; }
     bool getUseNVPR() const { return fUseNVPR; }
     bool getUseDIText() const { return fUseDIText; }
     int getSamples() const { return fSamples; }
+    SkColorType getColorType() const { return fColorType; }
+    SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
 
   private:
     ContextType fContextType;
     bool fUseNVPR;
     bool fUseDIText;
     int fSamples;
+    SkColorType fColorType;
+    sk_sp<SkColorSpace> fColorSpace;
 };
 #endif
 

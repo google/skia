@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -12,7 +11,7 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrDrawContext.h"
+#include "GrDrawContextPriv.h"
 #include "GrContext.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
@@ -50,44 +49,41 @@ protected:
         SkPaint paint;
 
         SkColor colors1[] = { SK_ColorCYAN, SK_ColorLTGRAY, SK_ColorGRAY };
-        paint.setShader(SkGradientShader::CreateSweep(65.f, 75.f, colors1,
-                                                      nullptr, SK_ARRAY_COUNT(colors1)))->unref();
-        canvas.drawOval(SkRect::MakeXYWH(-5.f, -5.f,
-                                         fBmp.width() + 10.f, fBmp.height() + 10.f), paint);
+        paint.setShader(SkGradientShader::MakeSweep(65.f, 75.f, colors1, nullptr,
+                                                    SK_ARRAY_COUNT(colors1)));
+        canvas.drawOval(SkRect::MakeXYWH(-5.f, -5.f, fBmp.width() + 10.f, fBmp.height() + 10.f),
+                        paint);
 
         SkColor colors2[] = { SK_ColorMAGENTA, SK_ColorLTGRAY, SK_ColorYELLOW };
-        paint.setShader(SkGradientShader::CreateSweep(45.f, 55.f, colors2, nullptr,
-                                                      SK_ARRAY_COUNT(colors2)))->unref();
+        paint.setShader(SkGradientShader::MakeSweep(45.f, 55.f, colors2, nullptr,
+                                                    SK_ARRAY_COUNT(colors2)));
         paint.setXfermodeMode(SkXfermode::kDarken_Mode);
-        canvas.drawOval(SkRect::MakeXYWH(-5.f, -5.f,
-                                         fBmp.width() + 10.f, fBmp.height() + 10.f), paint);
+        canvas.drawOval(SkRect::MakeXYWH(-5.f, -5.f, fBmp.width() + 10.f, fBmp.height() + 10.f),
+                        paint);
 
         SkColor colors3[] = { SK_ColorBLUE, SK_ColorLTGRAY, SK_ColorGREEN };
-        paint.setShader(SkGradientShader::CreateSweep(25.f, 35.f, colors3, nullptr,
-                                                      SK_ARRAY_COUNT(colors3)))->unref();
+        paint.setShader(SkGradientShader::MakeSweep(25.f, 35.f, colors3, nullptr,
+                                                    SK_ARRAY_COUNT(colors3)));
         paint.setXfermodeMode(SkXfermode::kLighten_Mode);
-        canvas.drawOval(SkRect::MakeXYWH(-5.f, -5.f,
-                                         fBmp.width() + 10.f, fBmp.height() + 10.f), paint);
+        canvas.drawOval(SkRect::MakeXYWH(-5.f, -5.f, fBmp.width() + 10.f, fBmp.height() + 10.f),
+                        paint);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (nullptr == rt) {
-            return;
-        }
-        GrContext* context = rt->getContext();
-        if (nullptr == context) {
+        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
+        if (!drawContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
 
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
-        if (!drawContext) {
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
             return;
         }
 
         SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fBmp,
-                                                                 GrTextureParams::ClampNoFilter()));
+                                                                 GrTextureParams::ClampNoFilter(),
+                                                                 SkSourceGammaTreatment::kRespect));
         if (!texture) {
             return;
         }
@@ -116,26 +112,24 @@ protected:
                 SkScalar x = kDrawPad + kTestPad;
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
-                    GrPipelineBuilder pipelineBuilder;
-                    pipelineBuilder.setXPFactory(
-                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                    SkAutoTUnref<const GrFragmentProcessor> fp(
-                        GrTextureDomainEffect::Create(texture, textureMatrices[tm],
+                    GrPaint grPaint;
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                    sk_sp<GrFragmentProcessor> fp(
+                        GrTextureDomainEffect::Make(texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
-                                                                                texelDomains[d]),
+                                                                                 texelDomains[d]),
                                                 mode, GrTextureParams::kNone_FilterMode));
 
                     if (!fp) {
                         continue;
                     }
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
-                    pipelineBuilder.setRenderTarget(rt);
-                    pipelineBuilder.addColorFragmentProcessor(fp);
+                    grPaint.addColorFragmentProcessor(std::move(fp));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->internal_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

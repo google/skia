@@ -11,10 +11,10 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkDWrite.h"
 #include "SkHRESULT.h"
+#include "SkLeanWindows.h"
 #include "SkTScopedComPtr.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
-#include "SkTypes.h"
 
 #include <dwrite.h>
 #if SK_HAS_DWRITE_1_H
@@ -25,13 +25,16 @@ class SkFontDescriptor;
 struct SkScalerContextRec;
 
 static SkFontStyle get_style(IDWriteFont* font) {
-    DWRITE_FONT_STYLE dwStyle = font->GetStyle();
-    return SkFontStyle(font->GetWeight(),
-                       font->GetStretch(),
-                       (DWRITE_FONT_STYLE_OBLIQUE == dwStyle ||
-                        DWRITE_FONT_STYLE_ITALIC  == dwStyle)
-                                                   ? SkFontStyle::kItalic_Slant
-                                                   : SkFontStyle::kUpright_Slant);
+    int weight = font->GetWeight();
+    int width = font->GetStretch();
+    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
+    switch (font->GetStyle()) {
+        case DWRITE_FONT_STYLE_NORMAL: slant = SkFontStyle::kUpright_Slant; break;
+        case DWRITE_FONT_STYLE_OBLIQUE: slant = SkFontStyle::kOblique_Slant; break;
+        case DWRITE_FONT_STYLE_ITALIC: slant = SkFontStyle::kItalic_Slant; break;
+        default: SkASSERT(false); break;
+    }
+    return SkFontStyle(weight, width, slant);
 }
 
 class DWriteFontTypeface : public SkTypeface {
@@ -55,7 +58,7 @@ private:
         if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace1))) {
             // IUnknown::QueryInterface states that if it fails, punk will be set to nullptr.
             // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
-            SK_ALWAYSBREAK(nullptr == fDWriteFontFace1.get());
+            SkASSERT_RELEASE(nullptr == fDWriteFontFace1.get());
         }
 #endif
     }
@@ -96,7 +99,8 @@ protected:
     }
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
-    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override;
+    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                           const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 PerGlyphInfo, const uint32_t*, uint32_t) const override;

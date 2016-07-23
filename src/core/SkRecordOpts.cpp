@@ -292,4 +292,3 @@ void SkRecordOptimize2(SkRecord* record) {
 
     record->defrag();
 }
-

@@ -24,13 +24,21 @@
         'include_dirs': [
           '../tools/flags',
         ],
-      }
+      },
+      'conditions': [
+        ['skia_gpu', {
+          'dependencies': [
+            'gputest.gyp:skgputest',
+          ],
+        }],
+      ],
     },
     {
       'target_name': 'flags_common',
       'type': 'static_library',
       'include_dirs': [
           '../include/gpu',
+          '../include/private',
           '../src/gpu',
       ],
       'sources': [
@@ -46,6 +54,7 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '../include/gpu',
+          '../include/private',
           '../src/gpu',
           '../tools/flags',
         ],

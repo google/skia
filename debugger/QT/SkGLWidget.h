@@ -15,7 +15,6 @@
 #include <QtOpenGL/QGLWidget>
 #include "SkDebugCanvas.h"
 #include "SkDebugger.h"
-#include "SkDevice.h"
 #include "SkGpuDevice.h"
 #include "GrContext.h"
 #include "gl/GrGLInterface.h"
@@ -35,7 +34,7 @@ public:
     }
     void setSampleCount(int sampleCount);
 
-signals:
+Q_SIGNALS:
     void drawComplete();
 
 protected:

@@ -17,6 +17,16 @@ class GrCopySurfaceBatch final : public GrBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
+    /** This should not really be exposed as Create() will apply this clipping, but there is
+     *  currently a workaround in GrContext::copySurface() for non-render target dsts that relies
+     *  on it. */
+    static bool ClipSrcRectAndDstPoint(const GrSurface* dst,
+                                       const GrSurface* src,
+                                       const SkIRect& srcRect,
+                                       const SkIPoint& dstPoint,
+                                       SkIRect* clippedSrcRect,
+                                       SkIPoint* clippedDstPoint);
+
     static GrBatch* Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
 
@@ -26,7 +36,7 @@ public:
         GrRenderTarget* rt = fDst.get()->asRenderTarget();
         return rt ? rt->getUniqueID() : 0;
     }
-    GrRenderTarget* renderTarget() const override { return fDst.get()->asRenderTarget(); }
+    GrRenderTarget* renderTarget() const override { return nullptr; }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -34,6 +44,7 @@ public:
                       "DPT:[X: %d, Y: %d]",
                       fDst.get(), fSrc.get(), fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight,
                       fSrcRect.fBottom, fDstPoint.fX, fDstPoint.fY);
+        string.append(INHERITED::dumpInfo());
         return string;
     }
 
@@ -54,7 +65,12 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override {
-        state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
+        if (!state->commandBuffer()) {
+            state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
+        } else {
+            // currently we are not sending copies through the GrGpuCommandBuffer
+            SkASSERT(false);
+        }
     }
 
     GrPendingIOResource<GrSurface, kWrite_GrIOType> fDst;

@@ -141,12 +141,18 @@ public:
         SkDEBUGCODE(this->validate();)
     }
 
+    static SkRRect MakeEmpty() {
+        SkRRect rr;
+        rr.setEmpty();
+        return rr;
+    }
+
     static SkRRect MakeRect(const SkRect& r) {
         SkRRect rr;
         rr.setRect(r);
         return rr;
     }
-    
+
     static SkRRect MakeOval(const SkRect& oval) {
         SkRRect rr;
         rr.setOval(oval);
@@ -326,6 +332,7 @@ private:
 
     void computeType();
     bool checkCornerContainment(SkScalar x, SkScalar y) const;
+    void scaleRadii();
 
     // to access fRadii directly
     friend class SkPath;

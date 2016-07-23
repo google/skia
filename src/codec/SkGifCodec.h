@@ -6,11 +6,13 @@
  */
 
 #include "SkCodec.h"
+#include "SkColorSpace.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
 
-#include "gif_lib.h"
+struct GifFileType;
+struct SavedImage;
 
 /*
  *
@@ -64,7 +66,7 @@ protected:
 
     bool onRewind() override;
 
-    uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const override;
+    uint32_t onGetFillValue(SkColorType) const override;
 
     int onOutputScanline(int inputScanline) const override;
 
@@ -128,7 +130,7 @@ private:
      * @param options  Informs the swizzler if destination memory is zero initialized.
      *                 Contains subset information.
      */
-    Result initializeSwizzler(const SkImageInfo& dstInfo,
+    void initializeSwizzler(const SkImageInfo& dstInfo,
             const Options& options);
 
     SkSampler* getSampler(bool createIfNecessary) override {
@@ -180,15 +182,15 @@ private:
      * Creates an instance of the decoder
      * Called only by NewFromStream
      *
-     * @param srcInfo contains the source width and height
+     * @param info contains properties of the encoded data
      * @param stream the stream of image data
      * @param gif pointer to library type that manages gif decode
      *            takes ownership
      * @param transIndex  The transparent index.  An invalid value
      *            indicates that there is no transparent index.
      */
-    SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif, uint32_t transIndex,
-            const SkIRect& frameRect, bool frameIsSubset);
+    SkGifCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+            GifFileType* gif, uint32_t transIndex, const SkIRect& frameRect, bool frameIsSubset);
 
     SkAutoTCallVProc<GifFileType, CloseGif> fGif; // owned
     SkAutoTDeleteArray<uint8_t>             fSrcBuffer;

@@ -59,10 +59,10 @@ void color_cube_filter_span(const SkPMColor src[],
             const SkColor lutColor10 = colorCube[ix + i10];
             const SkColor lutColor11 = colorCube[ix + i11];
 
-            Sk4f  sum = SkNx_cast<float>(Sk4b::Load((const uint8_t*)&lutColor00)) * g0b0;
-            sum = sum + SkNx_cast<float>(Sk4b::Load((const uint8_t*)&lutColor01)) * g0b1;
-            sum = sum + SkNx_cast<float>(Sk4b::Load((const uint8_t*)&lutColor10)) * g1b0;
-            sum = sum + SkNx_cast<float>(Sk4b::Load((const uint8_t*)&lutColor11)) * g1b1;
+            Sk4f  sum = SkNx_cast<float>(Sk4b::Load(&lutColor00)) * g0b0;
+            sum = sum + SkNx_cast<float>(Sk4b::Load(&lutColor01)) * g0b1;
+            sum = sum + SkNx_cast<float>(Sk4b::Load(&lutColor10)) * g1b0;
+            sum = sum + SkNx_cast<float>(Sk4b::Load(&lutColor11)) * g1b1;
             color = color + sum * Sk4f((float)colorToFactors[x][r]);
         }
         if (a != 255) {

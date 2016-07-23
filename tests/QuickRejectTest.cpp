@@ -49,7 +49,7 @@ private:
     };
 };
 
-SkFlattenable* TestLooper::CreateProc(SkReadBuffer&) { return new TestLooper; }
+sk_sp<SkFlattenable> TestLooper::CreateProc(SkReadBuffer&) { return sk_make_sp<TestLooper>(); }
 
 static void test_drawBitmap(skiatest::Reporter* reporter) {
     SkBitmap src;
@@ -82,7 +82,7 @@ static void test_drawBitmap(skiatest::Reporter* reporter) {
     // to the left. The test is to ensure that canvas' quickReject machinary
     // allows us through, even though sans-looper we would look like we should
     // be clipped out.
-    paint.setLooper(new TestLooper)->unref();
+    paint.setLooper(sk_make_sp<TestLooper>());
     canvas.drawBitmap(src, SkIntToScalar(-10), 0, &paint);
     REPORTER_ASSERT(reporter, 0xFFFFFFFF == *dst.getAddr32(5, 5));
 }

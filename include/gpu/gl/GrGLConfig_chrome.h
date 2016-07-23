@@ -15,9 +15,6 @@
 // with NULL.
 #define GR_GL_USE_BUFFER_DATA_NULL_HINT             0
 
-// chrome uses this to set the context on each GL call.
-#define GR_GL_PER_GL_FUNC_CALLBACK                  1
-
 // Check error is even more expensive in chrome (cmd buffer flush). The
 // compositor also doesn't check its allocations.
 #define GR_GL_CHECK_ALLOC_WITH_GET_ERROR            0

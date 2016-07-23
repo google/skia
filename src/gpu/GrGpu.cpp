@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -9,10 +8,11 @@
 
 #include "GrGpu.h"
 
+#include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
-#include "GrIndexBuffer.h"
+#include "GrMesh.h"
 #include "GrPathRendering.h"
 #include "GrPipeline.h"
 #include "GrResourceCache.h"
@@ -20,11 +20,10 @@
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 #include "GrSurfacePriv.h"
-#include "GrTransferBuffer.h"
-#include "GrVertexBuffer.h"
-#include "GrVertices.h"
+#include "GrTexturePriv.h"
+#include "SkMathPriv.h"
 
-GrVertices& GrVertices::operator =(const GrVertices& di) {
+GrMesh& GrMesh::operator =(const GrMesh& di) {
     fPrimitiveType  = di.fPrimitiveType;
     fStartVertex    = di.fStartVertex;
     fStartIndex     = di.fStartIndex;
@@ -47,12 +46,13 @@ GrVertices& GrVertices::operator =(const GrVertices& di) {
 GrGpu::GrGpu(GrContext* context)
     : fResetTimestamp(kExpiredTimestamp+1)
     , fResetBits(kAll_GrBackendState)
+    , fMultisampleSpecsAllocator(1)
     , fContext(context) {
 }
 
 GrGpu::~GrGpu() {}
 
-void GrGpu::contextAbandoned() {}
+void GrGpu::disconnect(DisconnectType) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -89,70 +89,94 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
     }
 }
 
-GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, bool budgeted,
-                                const void* srcData, size_t rowBytes) {
-    GrSurfaceDesc desc = origDesc;
-
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
-        return nullptr;
+/**
+ * Prior to creating a texture, make sure the type of texture being created is
+ * supported by calling check_texture_creation_params.
+ *
+ * @param caps The capabilities of the GL device.
+ * @param desc The descriptor of the texture to create.
+ * @param isRT Indicates if the texture can be a render target.
+ */
+static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDesc& desc,
+                                          bool* isRT, const SkTArray<GrMipLevel>& texels) {
+    if (!caps.isConfigTexturable(desc.fConfig)) {
+        return false;
     }
 
-    bool isRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (isRT && !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
-        return nullptr;
+    *isRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+    if (*isRT && !caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        return false;
     }
 
     // We currently do not support multisampled textures
-    if (!isRT && desc.fSampleCnt > 0) {
+    if (!*isRT && desc.fSampleCnt > 0) {
+        return false;
+    }
+
+    if (*isRT) {
+        int maxRTSize = caps.maxRenderTargetSize();
+        if (desc.fWidth > maxRTSize || desc.fHeight > maxRTSize) {
+            return false;
+        }
+    } else {
+        int maxSize = caps.maxTextureSize();
+        if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
+            return false;
+        }
+    }
+
+    for (int i = 0; i < texels.count(); ++i) {
+        if (!texels[i].fPixels) {
+            return false;
+        }
+    }
+    return true;
+}
+
+GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
+                                const SkTArray<GrMipLevel>& texels) {
+    GrSurfaceDesc desc = origDesc;
+
+    const GrCaps* caps = this->caps();
+    bool isRT = false;
+    bool textureCreationParamsValid = check_texture_creation_params(*caps, desc, &isRT, texels);
+    if (!textureCreationParamsValid) {
         return nullptr;
     }
 
-    GrTexture *tex = nullptr;
-
-    if (isRT) {
-        int maxRTSize = this->caps()->maxRenderTargetSize();
-        if (desc.fWidth > maxRTSize || desc.fHeight > maxRTSize) {
-            return nullptr;
-        }
-    } else {
-        int maxSize = this->caps()->maxTextureSize();
-        if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
-            return nullptr;
-        }
-    }
-
-    GrGpuResource::LifeCycle lifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle :
-                                                    GrGpuResource::kUncached_LifeCycle;
-
-    desc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
-    // Attempt to catch un- or wrongly initialized sample counts;
+    desc.fSampleCnt = SkTMin(desc.fSampleCnt, caps->maxSampleCount());
+    // Attempt to catch un- or wrongly intialized sample counts;
     SkASSERT(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
 
     desc.fOrigin = resolve_origin(desc.fOrigin, isRT);
+
+    GrTexture* tex = nullptr;
 
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         // We shouldn't be rendering into this
         SkASSERT(!isRT);
         SkASSERT(0 == desc.fSampleCnt);
 
-        if (!this->caps()->npotTextureTileSupport() &&
+        if (!caps->npotTextureTileSupport() &&
             (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight))) {
             return nullptr;
         }
 
         this->handleDirtyContext();
-        tex = this->onCreateCompressedTexture(desc, lifeCycle, srcData);
+        tex = this->onCreateCompressedTexture(desc, budgeted, texels);
     } else {
         this->handleDirtyContext();
-        tex = this->onCreateTexture(desc, lifeCycle, srcData, rowBytes);
-    }
-    if (!this->caps()->reuseScratchTextures() && !isRT) {
-        tex->resourcePriv().removeScratchKey();
+        tex = this->onCreateTexture(desc, budgeted, texels);
     }
     if (tex) {
+        if (!caps->reuseScratchTextures() && !isRT) {
+            tex->resourcePriv().removeScratchKey();
+        }
         fStats.incTextureCreates();
-        if (srcData) {
-            fStats.incTextureUploads();
+        if (!texels.empty()) {
+            if (texels[0].fPixels) {
+                fStats.incTextureUploads();
+            }
         }
     }
     return tex;
@@ -165,6 +189,10 @@ GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwn
     }
     if ((desc.fFlags & kRenderTarget_GrBackendTextureFlag) &&
         !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        return nullptr;
+    }
+    int maxSize = this->caps()->maxTextureSize();
+    if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
         return nullptr;
     }
     GrTexture* tex = this->onWrapBackendTexture(desc, ownership);
@@ -190,45 +218,29 @@ GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& 
     return this->onWrapBackendRenderTarget(desc, ownership);
 }
 
-GrVertexBuffer* GrGpu::createVertexBuffer(size_t size, bool dynamic) {
+GrRenderTarget* GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc) {
     this->handleDirtyContext();
-    GrVertexBuffer* vb = this->onCreateVertexBuffer(size, dynamic);
-    if (!this->caps()->reuseScratchBuffers()) {
-        vb->resourcePriv().removeScratchKey();
+    if (!(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
+      return nullptr;
     }
-    return vb;
-}
-
-GrIndexBuffer* GrGpu::createIndexBuffer(size_t size, bool dynamic) {
-    this->handleDirtyContext();
-    GrIndexBuffer* ib = this->onCreateIndexBuffer(size, dynamic);
-    if (!this->caps()->reuseScratchBuffers()) {
-        ib->resourcePriv().removeScratchKey();
+    if (!this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        return nullptr;
     }
-    return ib;
+    int maxSize = this->caps()->maxTextureSize();
+    if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
+        return nullptr;
+    }
+    return this->onWrapBackendTextureAsRenderTarget(desc);
 }
 
-GrTransferBuffer* GrGpu::createTransferBuffer(size_t size, TransferType type) {
+GrBuffer* GrGpu::createBuffer(size_t size, GrBufferType intendedType,
+                              GrAccessPattern accessPattern, const void* data) {
     this->handleDirtyContext();
-    GrTransferBuffer* tb = this->onCreateTransferBuffer(size, type);
-    return tb;
-}
-
-void GrGpu::clear(const SkIRect& rect,
-                  GrColor color,
-                  GrRenderTarget* renderTarget) {
-    SkASSERT(renderTarget);
-    SkASSERT(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()).contains(rect));
-    this->handleDirtyContext();
-    this->onClear(renderTarget, rect, color);
-}
-
-void GrGpu::clearStencilClip(const SkIRect& rect,
-                             bool insideClip,
-                             GrRenderTarget* renderTarget) {
-    SkASSERT(renderTarget);
-    this->handleDirtyContext();
-    this->onClearStencilClip(renderTarget, rect, insideClip);
+    GrBuffer* buffer = this->onCreateBuffer(size, intendedType, accessPattern, data);
+    if (!this->caps()->reuseScratchBuffers()) {
+        buffer->resourcePriv().removeScratchKey();
+    }
+    return buffer;
 }
 
 bool GrGpu::copySurface(GrSurface* dst,
@@ -269,7 +281,7 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, size
 
     return true;
 }
-bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height, size_t rowBytes,
+bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                                GrPixelConfig srcConfig, DrawPreference* drawPreference,
                                WritePixelTempDrawInfo* tempDrawInfo) {
     SkASSERT(drawPreference);
@@ -281,13 +293,16 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height, siz
         return false;
     }
 
-    if (this->caps()->useDrawInsteadOfPartialRenderTargetWrite() &&
-        SkToBool(dstSurface->asRenderTarget()) &&
-        (width < dstSurface->width() || height < dstSurface->height())) {
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    if (SkToBool(dstSurface->asRenderTarget())) {
+        if (this->caps()->useDrawInsteadOfAllRenderTargetWrites()) {
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        } else if (this->caps()->useDrawInsteadOfPartialRenderTargetWrite() &&
+                   (width < dstSurface->width() || height < dstSurface->height())) {
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        }
     }
 
-    if (!this->onGetWritePixelsInfo(dstSurface, width, height, rowBytes, srcConfig, drawPreference,
+    if (!this->onGetWritePixelsInfo(dstSurface, width, height, srcConfig, drawPreference,
                                     tempDrawInfo)) {
         return false;
     }
@@ -332,29 +347,50 @@ bool GrGpu::readPixels(GrSurface* surface,
 
 bool GrGpu::writePixels(GrSurface* surface,
                         int left, int top, int width, int height,
-                        GrPixelConfig config, const void* buffer,
-                        size_t rowBytes) {
-    if (!buffer || !surface) {
+                        GrPixelConfig config, const SkTArray<GrMipLevel>& texels) {
+    if (!surface) {
         return false;
+    }
+    for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
+        if (!texels[currentMipLevel].fPixels ) {
+            return false;
+        }
     }
 
     this->handleDirtyContext();
-    if (this->onWritePixels(surface, left, top, width, height, config, buffer, rowBytes)) {
+    if (this->onWritePixels(surface, left, top, width, height, config, texels)) {
+        SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
+        this->didWriteToSurface(surface, &rect, texels.count());
         fStats.incTextureUploads();
         return true;
     }
     return false;
 }
 
+bool GrGpu::writePixels(GrSurface* surface,
+                        int left, int top, int width, int height,
+                        GrPixelConfig config, const void* buffer,
+                        size_t rowBytes) {
+    GrMipLevel mipLevel;
+    mipLevel.fPixels = buffer;
+    mipLevel.fRowBytes = rowBytes;
+    SkSTArray<1, GrMipLevel> texels;
+    texels.push_back(mipLevel);
+
+    return this->writePixels(surface, left, top, width, height, config, texels);
+}
+
 bool GrGpu::transferPixels(GrSurface* surface,
                            int left, int top, int width, int height,
-                           GrPixelConfig config, GrTransferBuffer* buffer,
+                           GrPixelConfig config, GrBuffer* transferBuffer,
                            size_t offset, size_t rowBytes) {
-    SkASSERT(buffer);
+    SkASSERT(transferBuffer);
 
     this->handleDirtyContext();
-    if (this->onTransferPixels(surface, left, top, width, height, config, 
-                               buffer, offset, rowBytes)) {
+    if (this->onTransferPixels(surface, left, top, width, height, config,
+                               transferBuffer, offset, rowBytes)) {
+        SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
+        this->didWriteToSurface(surface, &rect);
         fStats.incTransfersToTexture();
         return true;
     }
@@ -367,18 +403,72 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     this->onResolveRenderTarget(target);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+void GrGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_t mipLevels) const {
+    SkASSERT(surface);
+    // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
+    if (nullptr == bounds || !bounds->isEmpty()) {
+        if (GrRenderTarget* target = surface->asRenderTarget()) {
+            target->flagAsNeedingResolve(bounds);
+        }
+        GrTexture* texture = surface->asTexture();
+        if (texture && 1 == mipLevels) {
+            texture->texturePriv().dirtyMipMaps(true);
+        }
+    }
+}
 
-void GrGpu::draw(const DrawArgs& args, const GrVertices& vertices) {
-    this->handleDirtyContext();
-    if (GrXferBarrierType barrierType = args.fPipeline->xferBarrierType(*this->caps())) {
-        this->xferBarrier(args.fPipeline->getRenderTarget(), barrierType);
+inline static uint8_t multisample_specs_id(uint8_t numSamples, GrSurfaceOrigin origin,
+                                           const GrCaps& caps) {
+    if (!caps.sampleLocationsSupport()) {
+        return numSamples;
     }
 
-    GrVertices::Iterator iter;
-    const GrNonInstancedVertices* verts = iter.init(vertices);
-    do {
-        this->onDraw(args, *verts);
-        fStats.incNumDraws();
-    } while ((verts = iter.next()));
+    SkASSERT(numSamples < 128);
+    SkASSERT(kTopLeft_GrSurfaceOrigin == origin || kBottomLeft_GrSurfaceOrigin == origin);
+    return (numSamples << 1) | (origin - 1);
+
+    GR_STATIC_ASSERT(1 == kTopLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(2 == kBottomLeft_GrSurfaceOrigin);
 }
+
+const GrGpu::MultisampleSpecs& GrGpu::getMultisampleSpecs(GrRenderTarget* rt,
+                                                          const GrStencilSettings& stencil) {
+    const GrSurfaceDesc& desc = rt->desc();
+    uint8_t surfDescKey = multisample_specs_id(desc.fSampleCnt, desc.fOrigin, *this->caps());
+    if (fMultisampleSpecsMap.count() > surfDescKey && fMultisampleSpecsMap[surfDescKey]) {
+#if !defined(SK_DEBUG)
+        // In debug mode we query the multisample info every time and verify the caching is correct.
+        return *fMultisampleSpecsMap[surfDescKey];
+#endif
+    }
+    int effectiveSampleCnt;
+    SkAutoTDeleteArray<SkPoint> locations(nullptr);
+    this->onGetMultisampleSpecs(rt, stencil, &effectiveSampleCnt, &locations);
+    SkASSERT(effectiveSampleCnt && effectiveSampleCnt >= desc.fSampleCnt);
+    uint8_t effectiveKey = multisample_specs_id(effectiveSampleCnt, desc.fOrigin, *this->caps());
+    if (fMultisampleSpecsMap.count() > effectiveKey && fMultisampleSpecsMap[effectiveKey]) {
+        const MultisampleSpecs& specs = *fMultisampleSpecsMap[effectiveKey];
+        SkASSERT(effectiveKey == specs.fUniqueID);
+        SkASSERT(effectiveSampleCnt == specs.fEffectiveSampleCnt);
+        SkASSERT(!this->caps()->sampleLocationsSupport() ||
+                 !memcmp(locations.get(), specs.fSampleLocations.get(),
+                         effectiveSampleCnt * sizeof(SkPoint)));
+        SkASSERT(surfDescKey <= effectiveKey);
+        SkASSERT(!fMultisampleSpecsMap[surfDescKey] || fMultisampleSpecsMap[surfDescKey] == &specs);
+        fMultisampleSpecsMap[surfDescKey] = &specs;
+        return specs;
+    }
+    const MultisampleSpecs& specs = *new (&fMultisampleSpecsAllocator)
+        MultisampleSpecs{effectiveKey, effectiveSampleCnt, locations.release()};
+    if (fMultisampleSpecsMap.count() <= effectiveKey) {
+        int n = 1 + effectiveKey - fMultisampleSpecsMap.count();
+        fMultisampleSpecsMap.push_back_n(n, (const MultisampleSpecs*) nullptr);
+    }
+    fMultisampleSpecsMap[effectiveKey] = &specs;
+    if (effectiveSampleCnt != desc.fSampleCnt) {
+        SkASSERT(surfDescKey < effectiveKey);
+        fMultisampleSpecsMap[surfDescKey] = &specs;
+    }
+    return specs;
+}
+

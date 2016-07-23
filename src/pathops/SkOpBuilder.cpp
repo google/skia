@@ -25,7 +25,7 @@ static bool one_contour(const SkPath& path) {
     return true;
 }
 
-void FixWinding(SkPath* path) {
+bool FixWinding(SkPath* path) {
     SkPath::FillType fillType = path->getFillType();
     if (fillType == SkPath::kInverseEvenOdd_FillType) {
         fillType = SkPath::kInverseWinding_FillType;
@@ -40,14 +40,17 @@ void FixWinding(SkPath* path) {
             *path = temp;
         }
         path->setFillType(fillType);
-        return;
+        return true;
     }
     SkChunkAlloc allocator(4096);
     SkOpContourHead contourHead;
-    SkOpGlobalState globalState(nullptr, &contourHead  SkDEBUGPARAMS(nullptr));
+    SkOpGlobalState globalState(nullptr, &contourHead  SkDEBUGPARAMS(false)
+            SkDEBUGPARAMS(nullptr));
     SkOpEdgeBuilder builder(*path, &contourHead, &allocator, &globalState);
     builder.finish(&allocator);
-    SkASSERT(contourHead.next());
+    if (!contourHead.next()) {
+        return false;
+    }
     contourHead.resetReverse();
     bool writePath = false;
     SkOpSpan* topSpan;
@@ -69,7 +72,7 @@ void FixWinding(SkPath* path) {
     }
     if (!writePath) {
         path->setFillType(fillType);
-        return;
+        return true;
     }
     SkPath empty;
     SkPathWriter woundPath(empty);
@@ -83,6 +86,7 @@ void FixWinding(SkPath* path) {
     } while ((test = test->next()));
     *path = *woundPath.nativePath();
     path->setFillType(fillType);
+    return true;
 }
 
 void SkOpBuilder::add(const SkPath& path, SkPathOp op) {
@@ -160,7 +164,10 @@ bool SkOpBuilder::resolve(SkPath* result) {
         }
         if (!fPathRefs[index].isEmpty()) {
             // convert the even odd result back to winding form before accumulating it
-            FixWinding(&fPathRefs[index]);
+            if (!FixWinding(&fPathRefs[index])) {
+                *result = original;
+                return false;
+            }
             sum.addPath(fPathRefs[index]);
         }
     }

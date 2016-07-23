@@ -20,6 +20,7 @@ class GrTexture : virtual public GrSurface {
 public:
     GrTexture* asTexture() override { return this; }
     const GrTexture* asTexture() const override { return this; }
+    GrSLType samplerType() const { return fSamplerType; }
 
     /**
      *  Return the native ID or handle to the texture, depending on the
@@ -45,11 +46,12 @@ public:
     inline const GrTexturePriv texturePriv() const;
 
 protected:
-    GrTexture(GrGpu*, LifeCycle, const GrSurfaceDesc&);
+    GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType, bool wasMipMapDataProvided);
 
     void validateDesc() const;
 
 private:
+    void computeScratchKey(GrScratchKey*) const override;
     size_t onGpuMemorySize() const override;
     void dirtyMipMaps(bool mipMapsDirty);
 
@@ -59,11 +61,10 @@ private:
         kValid_MipMapsStatus
     };
 
-    MipMapsStatus   fMipMapsStatus;
-    // These two shift a fixed-point value into normalized coordinates	
-    // for this texture if the texture is power of two sized.
-    int             fShiftFixedX;
-    int             fShiftFixedY;
+    GrSLType               fSamplerType;
+    MipMapsStatus          fMipMapsStatus;
+    int                    fMaxMipMapLevel;
+    SkSourceGammaTreatment fGammaTreatment;
 
     friend class GrTexturePriv;
 

@@ -11,11 +11,11 @@
 #include "SkSurface.h"
 
 class DrawAtlasGM : public skiagm::GM {
-    static SkImage* MakeAtlas(SkCanvas* caller, const SkRect& target) {
+    static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-        SkAutoTUnref<SkSurface> surface(caller->newSurface(info));
+        auto surface(caller->makeSurface(info));
         if (nullptr == surface) {
-            surface.reset(SkSurface::NewRaster(info));
+            surface = SkSurface::MakeRaster(info);
         }
         SkCanvas* canvas = surface->getCanvas();
         // draw red everywhere, but we don't expect to see it in the draw, testing the notion
@@ -32,28 +32,28 @@ class DrawAtlasGM : public skiagm::GM {
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(true);
         canvas->drawOval(target, paint);
-        return surface->newImageSnapshot();
+        return surface->makeImageSnapshot();
     }
 
-    SkAutoTUnref<SkImage> fAtlas;
+    sk_sp<SkImage> fAtlas;
 
 public:
     DrawAtlasGM() {}
-    
+
 protected:
-    
+
     SkString onShortName() override {
         return SkString("draw-atlas");
     }
-    
+
     SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
-    
+
     void onDraw(SkCanvas* canvas) override {
         const SkRect target = { 50, 50, 80, 90 };
         if (nullptr == fAtlas) {
-            fAtlas.reset(MakeAtlas(canvas, target));
+            fAtlas = MakeAtlas(canvas, target);
         }
 
         const struct {
@@ -61,7 +61,7 @@ protected:
             SkScalar fDegrees;
             SkScalar fTx;
             SkScalar fTy;
-            
+
             void apply(SkRSXform* xform) const {
                 const SkScalar rad = SkDegreesToRadians(fDegrees);
                 xform->fSCos = fScale * SkScalarCos(rad);
@@ -91,13 +91,12 @@ protected:
         paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setAntiAlias(true);
 
-        canvas->drawAtlas(fAtlas, xform, tex, N, nullptr, &paint);
+        canvas->drawAtlas(fAtlas.get(), xform, tex, N, nullptr, &paint);
         canvas->translate(0, 100);
-        canvas->drawAtlas(fAtlas, xform, tex, colors, N, SkXfermode::kSrcIn_Mode, nullptr, &paint);
+        canvas->drawAtlas(fAtlas.get(), xform, tex, colors, N, SkXfermode::kSrcIn_Mode, nullptr, &paint);
     }
-    
+
 private:
     typedef GM INHERITED;
 };
 DEF_GM( return new DrawAtlasGM; )
-

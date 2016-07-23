@@ -15,7 +15,6 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPicture.h"

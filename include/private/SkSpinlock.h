@@ -5,40 +5,33 @@
  * found in the LICENSE file.
  */
 
-// This file is not part of the public Skia API.
-
 #ifndef SkSpinlock_DEFINED
 #define SkSpinlock_DEFINED
 
-#include "../private/SkAtomics.h"
+#include "SkTypes.h"
+#include <atomic>
 
-#define SK_DECLARE_STATIC_SPINLOCK(name) namespace {} static SkPODSpinlock name
-
-// This class has no constructor and must be zero-initialized (the macro above does this).
-class SK_API SkPODSpinlock {
+class SkSpinlock {
 public:
+    constexpr SkSpinlock() = default;
+
     void acquire() {
-        // To act as a mutex, we need an acquire barrier if we take the lock.
-        if (sk_atomic_exchange(&fLocked, true, sk_memory_order_acquire)) {
+        // To act as a mutex, we need an acquire barrier when we acquire the lock.
+        if (fLocked.exchange(true, std::memory_order_acquire)) {
             // Lock was contended.  Fall back to an out-of-line spin loop.
             this->contendedAcquire();
         }
     }
 
     void release() {
-        // To act as a mutex, we need a release barrier.
-        sk_atomic_store(&fLocked, false, sk_memory_order_release);
+        // To act as a mutex, we need a release barrier when we release the lock.
+        fLocked.store(false, std::memory_order_release);
     }
 
 private:
-    void contendedAcquire();
-    bool fLocked;
-};
+    SK_API void contendedAcquire();
 
-// For non-global-static use cases, this is normally what you want.
-class SkSpinlock : public SkPODSpinlock {
-public:
-    SkSpinlock() { this->release(); }
+    std::atomic<bool> fLocked{false};
 };
 
 #endif//SkSpinlock_DEFINED

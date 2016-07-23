@@ -9,15 +9,16 @@
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkMathPriv.h"
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 
-static SkImage* makebm(SkCanvas* caller, int w, int h) {
+static sk_sp<SkImage> makebm(SkCanvas* caller, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
-    SkAutoTUnref<SkSurface> surface(caller->newSurface(info));
+    auto surface(caller->makeSurface(info));
     if (nullptr == surface) {
-        surface.reset(SkSurface::NewRaster(info));
+        surface = SkSurface::MakeRaster(info);
     }
     SkCanvas* canvas = surface->getCanvas();
 
@@ -46,17 +47,17 @@ static SkImage* makebm(SkCanvas* caller, int w, int h) {
     SkRect rect = SkRect::MakeWH(wScalar, hScalar);
     SkMatrix mat = SkMatrix::I();
     for (int i = 0; i < 4; ++i) {
-        paint.setShader(SkGradientShader::CreateRadial(
+        paint.setShader(SkGradientShader::MakeRadial(
                         pt, radius,
                         colors, pos,
                         SK_ARRAY_COUNT(colors),
                         SkShader::kRepeat_TileMode,
-                        0, &mat))->unref();
+                        0, &mat));
         canvas->drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.postScale(SK_Scalar1 / 4, SK_Scalar1 / 4);
     }
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 static const int gSize = 1024;
@@ -80,7 +81,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         if (nullptr == fImage) {
-            fImage.reset(makebm(canvas, gSurfaceSize, gSurfaceSize));
+            fImage = makebm(canvas, gSurfaceSize, gSurfaceSize);
         }
 
         const SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};
@@ -113,7 +114,7 @@ protected:
                         // rect stays rect
                         break;
                 }
-                canvas->drawImageRect(fImage, srcRect, dstRect, &paint,
+                canvas->drawImageRect(fImage.get(), srcRect, dstRect, &paint,
                                       SkCanvas::kFast_SrcRectConstraint);
                 canvas->restore();
 
@@ -131,13 +132,12 @@ protected:
     }
 
 private:
-    bool                  fAA;
-    SkAutoTUnref<SkImage> fImage;
-    SkString              fName;
+    bool            fAA;
+    sk_sp<SkImage>  fImage;
+    SkString        fName;
 
     typedef skiagm::GM INHERITED;
 };
 
 DEF_GM( return new DrawMiniBitmapRectGM(true); )
 DEF_GM( return new DrawMiniBitmapRectGM(false); )
-

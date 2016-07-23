@@ -26,7 +26,12 @@ public:
     SkImage_Base(int width, int height, uint32_t uniqueID);
     virtual ~SkImage_Base();
 
-    virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const { return nullptr; }
+    // User: returns image info for this SkImage.
+    // Implementors: if you can not return the value, return an invalid ImageInfo with w=0 & h=0
+    // & unknown color space.
+    virtual SkImageInfo onImageInfo() const = 0;
+
+    virtual bool onPeekPixels(SkPixmap*) const { return false; }
 
     // Default impl calls onDraw
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
@@ -39,14 +44,15 @@ public:
     // but only inspect them (or encode them).
     virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
 
-    virtual SkSurface* onNewSurface(const SkImageInfo& info) const {
-        return SkSurface::NewRaster(info);
+    virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo& info) const {
+        return SkSurface::MakeRaster(info);
     }
 
     // Caller must call unref when they are done.
-    virtual GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const = 0;
+    virtual GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
+                                    SkSourceGammaTreatment) const = 0;
 
-    virtual SkImage* onNewSubset(const SkIRect&) const = 0;
+    virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
     // If a ctx is specified, then only gpu-specific formats are requested.
     virtual SkData* onRefEncoded(GrContext*) const { return nullptr; }
@@ -76,6 +82,10 @@ private:
 
 static inline SkImage_Base* as_IB(SkImage* image) {
     return static_cast<SkImage_Base*>(image);
+}
+
+static inline SkImage_Base* as_IB(const sk_sp<SkImage>& image) {
+    return static_cast<SkImage_Base*>(image.get());
 }
 
 static inline const SkImage_Base* as_IB(const SkImage* image) {

@@ -8,7 +8,9 @@
 #include "GLBench.h"
 
 #if SK_SUPPORT_GPU
+#include "GrGpu.h"
 #include "GrTest.h"
+#include "gl/GrGLContext.h"
 #include <stdio.h>
 
 const GrGLContext* GLBench::getGLContext(SkCanvas* canvas) {
@@ -56,6 +58,7 @@ void GLBench::onDraw(int loops, SkCanvas* canvas) {
         return;
     }
     this->glDraw(loops, ctx);
+    canvas->getGrContext()->resetContext();
 }
 
 GrGLuint GLBench::CompileShader(const GrGLInterface* gl, const char* shaderSrc, GrGLenum type) {

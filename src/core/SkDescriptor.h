@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -86,7 +85,7 @@ public:
         return desc;
     }
 
-    bool equals(const SkDescriptor& other) const {
+    bool operator==(const SkDescriptor& other) const {
         // probe to see if we have a good checksum algo
 //        SkASSERT(a.fChecksum != b.fChecksum || memcmp(&a, &b, a.fLength) == 0);
 
@@ -103,6 +102,7 @@ public:
         } while (aa < stop);
         return true;
     }
+    bool operator!=(const SkDescriptor& other) const { return !(*this == other); }
 
     uint32_t getChecksum() const { return fChecksum; }
 

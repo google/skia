@@ -9,13 +9,11 @@
 #define GrGLSLShaderBuilder_DEFINED
 
 #include "GrAllocator.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLShaderVar.h"
 #include "SkTDArray.h"
 
 #include <stdarg.h>
-
-class GrGLSLProgramBuilder;
-class GrGLSLTextureSampler;
 
 /**
   base class for all shaders builders
@@ -25,39 +23,59 @@ public:
     GrGLSLShaderBuilder(GrGLSLProgramBuilder* program);
     virtual ~GrGLSLShaderBuilder() {}
 
-    /*
-     * We put texture lookups in the base class because it is TECHNICALLY possible to do texture
-     * lookups in any kind of shader.  However, for the time being using these calls on non-fragment
-     * shaders will result in a shader compilation error as texture sampler uniforms are only
-     * visible to the fragment shader.  It would not be hard to change this behavior, if someone
-     * actually wants to do texture lookups in a non-fragment shader
-     *
-     * TODO if append texture lookup is used on a non-fragment shader, sampler uniforms should be
-     * made visible to that shaders
-     */
+    typedef GrGLSLUniformHandler::SamplerHandle SamplerHandle;
+
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
-        order of the result depends on the GrTextureAccess associated with the GrGLSLTextureSampler.
+        order of the result depends on the GrTextureAccess associated with the GrGLSLSampler.
         */
     void appendTextureLookup(SkString* out,
-                             const GrGLSLTextureSampler&,
+                             SamplerHandle,
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType) const;
 
-    /** Version of above that appends the result to the fragment shader code instead.*/
-    void appendTextureLookup(const GrGLSLTextureSampler&,
+    /** Version of above that appends the result to the shader code instead.*/
+    void appendTextureLookup(SamplerHandle,
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType);
 
 
     /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
-        always a vec4. modulation and the swizzle specified by GrGLSLTextureSampler must both be
+        always a vec4. modulation and the swizzle specified by GrGLSLSampler must both be
         vec4 or float. If modulation is "" or nullptr it this function acts as though
         appendTextureLookup were called. */
     void appendTextureLookupAndModulate(const char* modulation,
-                                        const GrGLSLTextureSampler&,
+                                        SamplerHandle,
                                         const char* coordName,
                                         GrSLType coordType = kVec2f_GrSLType);
+
+    /** Fetches an unfiltered texel from a sampler at integer coordinates. coordExpr must match the
+        dimensionality of the sampler and must be within the sampler's range. coordExpr is emitted
+        exactly once, so expressions like "idx++" are acceptable. */
+    void appendTexelFetch(SkString* out, SamplerHandle, const char* coordExpr) const;
+
+    /** Version of above that appends the result to the shader code instead.*/
+    void appendTexelFetch(SamplerHandle, const char* coordExpr);
+
+    /**
+    * Adds a #define directive to the top of the shader.
+    */
+    void define(const char* macro, const char* replacement) {
+        this->definitions().appendf("#define %s %s\n", macro, replacement);
+    }
+
+    void define(const char* macro, int replacement) {
+        this->definitions().appendf("#define %s %i\n", macro, replacement);
+    }
+
+    void definef(const char* macro, const char* replacement, ...) {
+       this->definitions().appendf("#define %s ", macro);
+       va_list args;
+       va_start(args, replacement);
+       this->definitions().appendVAList(replacement, args);
+       va_end(args);
+       this->definitions().append("\n");
+    }
 
     /**
     * Called by GrGLSLProcessors to add code to one of the shaders.
@@ -82,6 +100,11 @@ public:
      * Appends a variable declaration to one of the shaders
      */
     void declAppend(const GrGLSLShaderVar& var);
+
+    /**
+     * Appends a precision qualifier followed by a space, if relevant for the GLSL version.
+     */
+    void appendPrecisionModifier(GrSLPrecision);
 
     /** Emits a helper function outside of main() in the fragment shader. */
     void emitFunction(GrSLType returnType,
@@ -122,10 +145,28 @@ protected:
     typedef GrTAllocator<GrGLSLShaderVar> VarArray;
     void appendDecls(const VarArray& vars, SkString* out) const;
 
+    /**
+     * Features that should only be enabled internally by the builders.
+     */
+    enum GLSLPrivateFeature {
+        kFragCoordConventions_GLSLPrivateFeature,
+        kBlendEquationAdvanced_GLSLPrivateFeature,
+        kBlendFuncExtended_GLSLPrivateFeature,
+        kExternalTexture_GLSLPrivateFeature,
+        kTexelBuffer_GLSLPrivateFeature,
+        kFramebufferFetch_GLSLPrivateFeature,
+        kNoPerspectiveInterpolation_GLSLPrivateFeature,
+        kSampleVariables_GLSLPrivateFeature,
+        kSampleMaskOverrideCoverage_GLSLPrivateFeature,
+        kLastGLSLPrivateFeature = kSampleMaskOverrideCoverage_GLSLPrivateFeature
+    };
+
     /*
      * A general function which enables an extension in a shader if the feature bit is not present
+     *
+     * @return true if the feature bit was not yet present, false otherwise.
      */
-    void addFeature(uint32_t featureBit, const char* extensionName);
+    bool addFeature(uint32_t featureBit, const char* extensionName);
 
     enum InterfaceQualifier {
         kOut_InterfaceQualifier,
@@ -143,6 +184,12 @@ protected:
 
     void compileAndAppendLayoutQualifiers();
 
+    /* Appends any swizzling we may need to get from some backend internal format to the format used
+     * in GrPixelConfig. If this is implemented by the GrGpu object, then swizzle will be rgba. For
+     * shader prettiness we omit the swizzle rather than appending ".rgba".
+     */
+    void appendTextureSwizzle(SkString* out, GrPixelConfig) const;
+
     void nextStage() {
         fShaderStrings.push_back();
         fCompilerStrings.push_back(this->code().c_str());
@@ -152,6 +199,7 @@ protected:
 
     SkString& versionDecl() { return fShaderStrings[kVersionDecl]; }
     SkString& extensions() { return fShaderStrings[kExtensions]; }
+    SkString& definitions() { return fShaderStrings[kDefinitions]; }
     SkString& precisionQualifier() { return fShaderStrings[kPrecisionQualifier]; }
     SkString& layoutQualifiers() { return fShaderStrings[kLayoutQualifiers]; }
     SkString& uniforms() { return fShaderStrings[kUniforms]; }
@@ -166,6 +214,7 @@ protected:
     enum {
         kVersionDecl,
         kExtensions,
+        kDefinitions,
         kPrecisionQualifier,
         kLayoutQualifiers,
         kUniforms,
@@ -193,7 +242,8 @@ protected:
 
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
+    friend class GrGLSLVaryingHandler; // to access noperspective interpolation feature.
     friend class GrGLPathProgramBuilder; // to access fInputs.
-    friend class GrVkProgramBuilder;
+    friend class GrVkPipelineStateBuilder;
 };
 #endif

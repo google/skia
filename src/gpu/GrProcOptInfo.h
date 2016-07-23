@@ -14,7 +14,6 @@
 class GrDrawBatch;
 class GrFragmentProcessor;
 class GrPrimitiveProcessor;
-class GrProcessor;
 
 /**
  * GrProcOptInfo gathers invariant data from a set of processor stages.It is used to recognize
@@ -27,14 +26,13 @@ public:
         : fInOut(0, static_cast<GrColorComponentFlags>(0), false)
         , fFirstEffectiveProcessorIndex(0)
         , fInputColorIsUsed(true)
-        , fInputColor(0)
-        , fReadsFragPosition(false) {}
+        , fInputColor(0) {}
 
     void calcWithInitialValues(const GrFragmentProcessor* const *, int cnt, GrColor startColor,
                                GrColorComponentFlags, bool areCoverageStages, bool isLCD = false);
     void initUsingInvariantOutput(GrInitInvariantOutput invOutput);
     void completeCalculations(const GrFragmentProcessor * const processors[], int cnt);
-    
+
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }
     bool isOpaque() const { return fInOut.isOpaque(); }
     bool isSingleComponent() const { return fInOut.isSingleComponent(); }
@@ -75,19 +73,13 @@ public:
      */
     GrColor inputColorToFirstEffectiveProccesor() const { return fInputColor; }
 
-    /**
-     * Returns true if any of the processor preserved by GrProcOptInfo read the frag position.
-     */
-    bool readsFragPosition() const { return fReadsFragPosition; }
-
 private:
-    void internalCalc(const GrFragmentProcessor* const[], int cnt, bool initWillReadFragPosition);
+    void internalCalc(const GrFragmentProcessor* const[], int cnt);
 
     GrInvariantOutput fInOut;
     int fFirstEffectiveProcessorIndex;
     bool fInputColorIsUsed;
     GrColor fInputColor;
-    bool fReadsFragPosition;
 };
 
 #endif

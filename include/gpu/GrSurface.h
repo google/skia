@@ -100,8 +100,8 @@ public:
      *                      packed.
      * @param pixelOpsFlags See the GrContext::PixelOpsFlags enum.
      *
-     * @return true if the read succeeded, false if not. The read can fail because of an unsupported
-     *              pixel config.
+     * @return true if the write succeeded, false if not. The write can fail because of an
+     *              unsupported pixel config.
      */
     bool writePixels(int left, int top, int width, int height,
                      GrPixelConfig config,
@@ -146,8 +146,8 @@ protected:
     // Provides access to methods that should be public within Skia code.
     friend class GrSurfacePriv;
 
-    GrSurface(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc)
-        : INHERITED(gpu, lifeCycle)
+    GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc)
+        : INHERITED(gpu)
         , fDesc(desc)
         , fReleaseProc(NULL)
         , fReleaseCtx(NULL)

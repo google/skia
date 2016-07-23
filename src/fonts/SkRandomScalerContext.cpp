@@ -13,7 +13,8 @@
 
 class SkRandomScalerContext : public SkScalerContext {
 public:
-    SkRandomScalerContext(SkRandomTypeface*, const SkDescriptor*, bool fFakeIt);
+    SkRandomScalerContext(SkRandomTypeface*, const SkScalerContextEffects&,
+                          const SkDescriptor*, bool fFakeIt);
     virtual ~SkRandomScalerContext();
 
 protected:
@@ -35,12 +36,14 @@ private:
 
 #include "SkDescriptor.h"
 
-SkRandomScalerContext::SkRandomScalerContext(SkRandomTypeface* face, const SkDescriptor* desc,
+SkRandomScalerContext::SkRandomScalerContext(SkRandomTypeface* face,
+                                             const SkScalerContextEffects& effects,
+                                             const SkDescriptor* desc,
                                              bool fakeIt)
-        : SkScalerContext(face, desc)
+        : SkScalerContext(face, effects, desc)
         , fFace(face)
         , fFakeIt(fakeIt) {
-    fProxy = face->proxy()->createScalerContext(desc);
+    fProxy = face->proxy()->createScalerContext(effects, desc);
 }
 
 SkRandomScalerContext::~SkRandomScalerContext() { delete fProxy; }
@@ -60,7 +63,7 @@ void SkRandomScalerContext::generateAdvance(SkGlyph* glyph) {
 void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
     // Here we will change the mask format of the glyph
     // NOTE this is being overridden by the base class
-    SkMask::Format format;
+    SkMask::Format format = SkMask::kARGB32_Format; // init to handle defective compilers
     switch (glyph->getGlyphID() % 4) {
         case 0:
             format = SkMask::kLCD16_Format;
@@ -187,19 +190,15 @@ void SkRandomScalerContext::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 
 #include "SkTypefaceCache.h"
 
-SkRandomTypeface::SkRandomTypeface(SkTypeface* proxy, const SkPaint& paint, bool fakeIt)
+SkRandomTypeface::SkRandomTypeface(sk_sp<SkTypeface> proxy, const SkPaint& paint, bool fakeIt)
     : SkTypeface(proxy->fontStyle(), SkTypefaceCache::NewFontID(), false)
-    , fProxy(SkRef(proxy))
+    , fProxy(std::move(proxy))
     , fPaint(paint)
     , fFakeIt(fakeIt) {}
 
-SkRandomTypeface::~SkRandomTypeface() {
-    fProxy->unref();
-}
-
-SkScalerContext* SkRandomTypeface::onCreateScalerContext(
-                                            const SkDescriptor* desc) const {
-    return new SkRandomScalerContext(const_cast<SkRandomTypeface*>(this), desc, fFakeIt);
+SkScalerContext* SkRandomTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
+                                                         const SkDescriptor* desc) const {
+    return new SkRandomScalerContext(const_cast<SkRandomTypeface*>(this), effects, desc, fFakeIt);
 }
 
 void SkRandomTypeface::onFilterRec(SkScalerContextRec* rec) const {

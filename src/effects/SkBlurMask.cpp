@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -600,7 +599,7 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
             clamp_with_orig(dp + passCount * (rx + ry * dst->fRowBytes),
                             dst->fRowBytes, sp, src.fRowBytes, sw, sh, style);
         }
-        (void)autoCall.detach();
+        (void)autoCall.release();
     }
 
     if (style == kInner_SkBlurStyle) {
@@ -982,7 +981,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
             clamp_with_orig(dstPixels + pad*dst->fRowBytes + pad,
                 dst->fRowBytes, srcPixels, src.fRowBytes, srcWidth, srcHeight, style);
         }
-        (void)autoCall.detach();
+        (void)autoCall.release();
     }
 
     if (style == kInner_SkBlurStyle) {

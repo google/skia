@@ -21,25 +21,27 @@ class GrInvariantOutput;
 class GrSimpleTextureEffect : public GrSingleTextureEffect {
 public:
     /* unfiltered, clamp mode */
-    static const GrFragmentProcessor* Create(GrTexture* tex,
-                                             const SkMatrix& matrix,
-                                             GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return new GrSimpleTextureEffect(tex, matrix, GrTextureParams::kNone_FilterMode, coordSet);
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
+                                           const SkMatrix& matrix,
+                                           GrCoordSet coordSet = kLocal_GrCoordSet) {
+        return sk_sp<GrFragmentProcessor>(
+            new GrSimpleTextureEffect(tex, matrix, GrTextureParams::kNone_FilterMode, coordSet));
     }
 
     /* clamp mode */
-    static GrFragmentProcessor* Create(GrTexture* tex,
-                                       const SkMatrix& matrix,
-                                       GrTextureParams::FilterMode filterMode,
-                                       GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return new GrSimpleTextureEffect(tex, matrix, filterMode, coordSet);
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
+                                            const SkMatrix& matrix,
+                                            GrTextureParams::FilterMode filterMode,
+                                            GrCoordSet coordSet = kLocal_GrCoordSet) {
+        return sk_sp<GrFragmentProcessor>(
+            new GrSimpleTextureEffect(tex, matrix, filterMode, coordSet));
     }
 
-    static GrFragmentProcessor* Create(GrTexture* tex,
-                                       const SkMatrix& matrix,
-                                       const GrTextureParams& p,
-                                       GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return new GrSimpleTextureEffect(tex, matrix, p, coordSet);
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
+                                           const SkMatrix& matrix,
+                                           const GrTextureParams& p,
+                                           GrCoordSet coordSet = kLocal_GrCoordSet) {
+        return sk_sp<GrFragmentProcessor>(new GrSimpleTextureEffect(tex, matrix, p, coordSet));
     }
 
     virtual ~GrSimpleTextureEffect() {}

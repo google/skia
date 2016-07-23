@@ -9,15 +9,10 @@
 #define GrDrawTarget_DEFINED
 
 #include "GrClip.h"
-#include "GrClipMaskManager.h"
 #include "GrContext.h"
 #include "GrPathProcessor.h"
 #include "GrPrimitiveProcessor.h"
-#include "GrIndexBuffer.h"
 #include "GrPathRendering.h"
-#include "GrPipelineBuilder.h"
-#include "GrPipeline.h"
-#include "GrVertexBuffer.h"
 #include "GrXferProcessor.h"
 
 #include "batches/GrDrawBatch.h"
@@ -40,15 +35,21 @@ class GrClip;
 class GrCaps;
 class GrPath;
 class GrDrawPathBatchBase;
+class GrPipelineBuilder;
 
 class GrDrawTarget final : public SkRefCnt {
 public:
     /** Options for GrDrawTarget behavior. */
     struct Options {
-        Options () : fClipBatchToBounds(false), fDrawBatchBounds(false), fMaxBatchLookback(-1) {}
+        Options ()
+            : fClipBatchToBounds(false)
+            , fDrawBatchBounds(false)
+            , fMaxBatchLookback(-1)
+            , fMaxBatchLookahead(-1) {}
         bool fClipBatchToBounds;
         bool fDrawBatchBounds;
         int  fMaxBatchLookback;
+        int  fMaxBatchLookahead;
     };
 
     GrDrawTarget(GrRenderTarget*, GrGpu*, GrResourceProvider*, GrAuditTrail*, const Options&);
@@ -61,7 +62,9 @@ public:
 #ifdef ENABLE_MDB
         this->setFlag(kClosed_Flag);
 #endif
+        this->forwardCombine();
     }
+
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
 
     // TODO: this entry point is only needed in the non-MDB world. Remove when
@@ -101,7 +104,7 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void drawBatch(const GrPipelineBuilder&, GrDrawBatch*);
+    void drawBatch(const GrPipelineBuilder&, GrDrawContext*, const GrClip&, GrDrawBatch*);
 
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
@@ -109,27 +112,19 @@ public:
      * on the GrPipelineBuilder (if possible in the 3D API).  Note, we will never have an inverse
      * fill with stencil path
      */
-    void stencilPath(const GrPipelineBuilder&, const SkMatrix& viewMatrix, const GrPath*,
-                     GrPathRendering::FillType);
+    void stencilPath(const GrPipelineBuilder&, GrDrawContext*,
+                     const GrClip&, const SkMatrix& viewMatrix,
+                     const GrPath*, GrPathRendering::FillType);
 
     /**
-     * Draws a path batch. Fill must not be a hairline. It will respect the HW antialias flag on
-     * the GrPipelineBuilder (if possible in the 3D API). This needs to be separate from drawBatch
-     * because we install path stencil settings late.
-     *
-     * TODO: Figure out a better model that allows us to roll this method into drawBatch.
-     */
-    void drawPathBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawPathBatchBase* batch);
-
-    /**
-     * Clear the passed in render target. Ignores the GrPipelineBuilder and clip. Clears the whole
+     * Clear the passed in drawContext. Ignores the GrPipelineBuilder and clip. Clears the whole
      * thing if rect is nullptr, otherwise just the rect. If canIgnoreRect is set then the entire
-     * render target can be optionally cleared.
+     * drawContext can be optionally cleared.
      */
     void clear(const SkIRect* rect,
                GrColor color,
                bool canIgnoreRect,
-               GrRenderTarget* renderTarget);
+               GrDrawContext*);
 
     /** Discards the contents render target. */
     void discard(GrRenderTarget*);
@@ -144,33 +139,14 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    void copySurface(GrSurface* dst,
+    bool copySurface(GrSurface* dst,
                      GrSurface* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
-    /** Provides access to internal functions to GrClipMaskManager without friending all of
-        GrDrawTarget to CMM. */
-    class CMMAccess {
-    public:
-        CMMAccess(GrDrawTarget* drawTarget) : fDrawTarget(drawTarget) {}
-    private:
-        void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* rt) const {
-            fDrawTarget->clearStencilClip(rect, insideClip, rt);
-        }
-
-        GrContext* context() const { return fDrawTarget->fContext; }
-        GrResourceProvider* resourceProvider() const { return fDrawTarget->fResourceProvider; }
-        GrDrawTarget* fDrawTarget;
-        friend class GrClipMaskManager;
-    };
-
-    const CMMAccess cmmAccess() { return CMMAccess(this); }
-
-    GrAuditTrail* getAuditTrail() const { return fAuditTrail; }
-
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+    friend class GrDrawContextPriv; // for clearStencilClip
 
     enum Flags {
         kClosed_Flag    = 0x01,   //!< This drawTarget can't accept any more batches
@@ -216,35 +192,24 @@ private:
     };
 
     void recordBatch(GrBatch*);
-    bool installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
-                                    const GrScissorState* scissor,
-                                    GrDrawBatch* batch);
+    void forwardCombine();
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
     bool setupDstReadIfNecessary(const GrPipelineBuilder&,
-        const GrPipelineOptimizations& optimizations,
-        GrXferProcessor::DstTexture*,
-        const SkRect& batchBounds);
-
-    // Check to see if this set of draw commands has been sent out
-    void getPathStencilSettingsForFilltype(GrPathRendering::FillType,
-                                           const GrStencilAttachment*,
-                                           GrStencilSettings*);
-    bool setupClip(const GrPipelineBuilder&,
-                           GrPipelineBuilder::AutoRestoreFragmentProcessorState*,
-                           GrPipelineBuilder::AutoRestoreStencil*,
-                           GrScissorState*,
-                           const SkRect* devBounds);
+                                 GrRenderTarget*,
+                                 const GrClip&,
+                                 const GrPipelineOptimizations& optimizations,
+                                 GrXferProcessor::DstTexture*,
+                                 const SkRect& batchBounds);
 
     void addDependency(GrDrawTarget* dependedOn);
 
-    // Used only by CMM.
+    // Used only by drawContextPriv.
     void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
 
     SkSTArray<256, SkAutoTUnref<GrBatch>, true> fBatches;
-    SkAutoTDelete<GrClipMaskManager>            fClipMaskManager;
     // The context is only in service of the clip mask manager, remove once CMM doesn't need this.
     GrContext*                                  fContext;
     GrGpu*                                      fGpu;
@@ -258,8 +223,10 @@ private:
     SkTDArray<GrDrawTarget*>                    fDependencies;
     GrRenderTarget*                             fRenderTarget;
 
+    bool                                        fClipBatchToBounds;
     bool                                        fDrawBatchBounds;
     int                                         fMaxBatchLookback;
+    int                                         fMaxBatchLookahead;
 
     typedef SkRefCnt INHERITED;
 };

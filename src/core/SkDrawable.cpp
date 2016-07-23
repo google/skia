@@ -81,5 +81,5 @@ SkPicture* SkDrawable::onNewPictureSnapshot() {
     if (false) {
         draw_bbox(canvas, bounds);
     }
-    return recorder.endRecording();
+    return recorder.finishRecordingAsPicture().release();
 }

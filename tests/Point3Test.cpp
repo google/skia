@@ -76,7 +76,7 @@ static void test_dot(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dot, SK_ScalarRoot2Over2));
 }
 
-static void test_length(skiatest::Reporter* reporter, 
+static void test_length(skiatest::Reporter* reporter,
                         SkScalar x, SkScalar y, SkScalar z, SkScalar expectedLen) {
     SkPoint3 point = SkPoint3::Make(x, y, z);
 
@@ -115,7 +115,7 @@ DEF_TEST(Point3, reporter) {
         SkScalar fX;
         SkScalar fY;
         SkScalar fZ;
-        SkScalar fLength;    
+        SkScalar fLength;
     } gRec[] = {
         { 0.0f, 0.0f, 0.0f, 0.0f },
         { 0.3f, 0.4f, 0.5f, SK_ScalarRoot2Over2 },

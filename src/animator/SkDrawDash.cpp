@@ -31,5 +31,5 @@ SkPathEffect* SkDash::getPathEffect() {
     int count = intervals.count();
     if (count == 0)
         return nullptr;
-    return SkDashPathEffect::Create(intervals.begin(), count, phase);
+    return SkDashPathEffect::Make(intervals.begin(), count, phase).release();
 }

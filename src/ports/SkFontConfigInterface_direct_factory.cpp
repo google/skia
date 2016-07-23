@@ -5,16 +5,12 @@
  * found in the LICENSE file.
  */
 
-/* migrated from chrome/src/skia/ext/SkFontHost_fontconfig_direct.cpp */
-
 #include "SkFontConfigInterface_direct.h"
-#include "SkMutex.h"
+#include "SkOnce.h"
 
-SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface(SkBaseMutex* mutex) {
-    SkAutoMutexAcquire ac(mutex);
-    static SkFontConfigInterfaceDirect* singleton = nullptr;
-    if (singleton == nullptr) {
-        singleton = new SkFontConfigInterfaceDirect;
-    }
+SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
+    static SkFontConfigInterface* singleton;
+    static SkOnce once;
+    once([]{ singleton = new SkFontConfigInterfaceDirect(); });
     return singleton;
 }

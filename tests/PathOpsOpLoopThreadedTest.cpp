@@ -108,5 +108,4 @@ DEF_TEST(PathOpsOpLoopsThreaded, reporter) {
     }
 finish:
     testRunner.render();
-    ShowTestArray("loopOp");
 }

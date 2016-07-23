@@ -52,7 +52,6 @@ SkV8ExampleWindow::SkV8ExampleWindow(void* hwnd, JsContext* context)
     , fCurSurface(NULL)
 #endif
 {
-    this->setColorType(kBGRA_8888_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
@@ -75,7 +74,7 @@ void SkV8ExampleWindow::windowSizeChanged() {
     if (FLAGS_gpu) {
         SkOSWindow::AttachmentInfo attachmentInfo;
         bool result = this->attach(
-                SkOSWindow::kNativeGL_BackEndType, 0, &attachmentInfo);
+                SkOSWindow::kNativeGL_BackEndType, 0, false, &attachmentInfo);
         if (!result) {
             printf("Failed to attach.");
             exit(1);

@@ -300,4 +300,3 @@ SkTextBlob* SkTextBox::snapshotTextBlob(SkScalar* computedBottom) const {
     }
     return (SkTextBlob*)visitor.fBuilder.build();
 }
-

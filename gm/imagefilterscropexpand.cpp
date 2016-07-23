@@ -19,8 +19,10 @@
 #include "SkImageSource.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkColorFilterImageFilter.h"
+#include "SkLightingImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkPoint3.h"
 #include "SkSurface.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,33 +37,34 @@ protected:
         return SkString("imagefilterscropexpand");
     }
 
-    SkISize onISize() override { return SkISize::Make(650, 650); }
+    SkISize onISize() override { return SkISize::Make(730, 650); }
 
     void onDraw(SkCanvas* canvas) override {
-        SkAutoTUnref<SkColorFilter> cf(
-            SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
         SkImageFilter::CropRect cropRect(
             SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
             SkImageFilter::CropRect::kHasAll_CropEdge);
 
-        SkAutoTUnref<SkImage> gradientCircle(MakeGradientCircle(64, 64));
+        sk_sp<SkImage> gradientCircle(MakeGradientCircle(64, 64));
         SkBitmap checkerboard;
         MakeCheckerboard(&checkerboard);
 
-        SkAutoTUnref<SkImageFilter> gradientCircleSource(
-            SkImageSource::Create(gradientCircle));
-        SkAutoTUnref<SkImageFilter> noopCropped(
-            SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
-        SkScalar sk255 = SkIntToScalar(255);
+        sk_sp<SkImageFilter> gradientCircleSource(SkImageSource::Make(std::move(gradientCircle)));
+        sk_sp<SkImageFilter> noopCropped(SkOffsetImageFilter::Make(0, 0, nullptr, &cropRect));
+        // This color matrix saturates the green component but only partly increases the opacity.
+        // For the opaque checkerboard, the opacity boost doesn't matter but it does impact the
+        // area outside the checkerboard.
         SkScalar matrix[20] = { 1, 0, 0, 0, 0,
-                                0, 1, 0, 0, sk255,
+                                0, 1, 0, 0, 255,
                                 0, 0, 1, 0, 0,
-                                0, 0, 0, 0, sk255 };
-        SkAutoTUnref<SkColorFilter> cfAlphaTrans(SkColorMatrixFilter::Create(matrix));
+                                0, 0, 0, 1, 32 };
+        sk_sp<SkColorFilter> cfAlphaTrans(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
         SkScalar MARGIN = SkIntToScalar(12);
 
+        SkPoint3 pointLocation = SkPoint3::Make(0, 0, SkIntToScalar(10));
+        SkScalar kd = SkIntToScalar(2);
+        SkScalar surfaceScale = SkIntToScalar(1);
         SkIRect bounds;
         r.roundOut(&bounds);
 
@@ -72,38 +75,59 @@ protected:
             SkRect rect = cropRect.rect();
             rect.outset(SkIntToScalar(outset),
                         SkIntToScalar(outset));
-            SkImageFilter::CropRect big_rect(rect, SkImageFilter::CropRect::kHasAll_CropEdge);
+            SkImageFilter::CropRect bigRect(rect, SkImageFilter::CropRect::kHasAll_CropEdge);
 
-            Draw(canvas, checkerboard, rect, SkColorFilterImageFilter::Create(
-                cfAlphaTrans, noopCropped.get(), &big_rect));
+            Draw(canvas, checkerboard, rect, SkColorFilterImageFilter::Make(cfAlphaTrans,
+                                                                            noopCropped,
+                                                                            &bigRect));
 
-            Draw(canvas, checkerboard, rect, SkBlurImageFilter::Create(
-                0.3f, 0.3f, noopCropped.get(), &big_rect));
+            Draw(canvas, checkerboard, rect, SkBlurImageFilter::Make(0.3f, 0.3f,
+                                                                     noopCropped,
+                                                                     &bigRect));
 
-            Draw(canvas, checkerboard, rect, SkBlurImageFilter::Create(
-                8.0f, 8.0f, noopCropped.get(), &big_rect));
+            Draw(canvas, checkerboard, rect, SkBlurImageFilter::Make(8.0f, 8.0f,
+                                                                     noopCropped,
+                                                                     &bigRect));
 
-            Draw(canvas, checkerboard, rect, SkDilateImageFilter::Create(
-                2, 2, noopCropped.get(), &big_rect));
+            Draw(canvas, checkerboard, rect, SkDilateImageFilter::Make(2, 2,
+                                                                       noopCropped,
+                                                                       &bigRect));
 
-            Draw(canvas, checkerboard, rect, SkErodeImageFilter::Create(
-                2, 2, noopCropped.get(), &big_rect));
+            Draw(canvas, checkerboard, rect, SkErodeImageFilter::Make(2, 2,
+                                                                      noopCropped,
+                                                                      &bigRect));
 
-            Draw(canvas, checkerboard, rect, SkDropShadowImageFilter::Create(
-                SkIntToScalar(10), SkIntToScalar(10), SkIntToScalar(3), SkIntToScalar(3),
-                SK_ColorBLUE, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-                noopCropped.get(), &big_rect));
+            Draw(canvas, checkerboard, rect,
+                 SkDropShadowImageFilter::Make(
+                                    SkIntToScalar(10),
+                                    SkIntToScalar(10),
+                                    SkIntToScalar(3),
+                                    SkIntToScalar(3),
+                                    SK_ColorBLUE,
+                                    SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
+                                    noopCropped,
+                                    &bigRect));
 
-            Draw(canvas, checkerboard, rect, SkDisplacementMapEffect::Create(
-                SkDisplacementMapEffect::kR_ChannelSelectorType,
-                SkDisplacementMapEffect::kR_ChannelSelectorType,
-                SkIntToScalar(12),
-                gradientCircleSource.get(),
-                noopCropped.get(),
-                &big_rect));
+            Draw(canvas, checkerboard, rect,
+                 SkDisplacementMapEffect::Make(SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                               SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                               SkIntToScalar(12),
+                                               gradientCircleSource,
+                                               noopCropped,
+                                               &bigRect));
 
-            Draw(canvas, checkerboard, rect, SkOffsetImageFilter::Create(
-                SkIntToScalar(-8), SkIntToScalar(16), noopCropped.get(), &big_rect));
+            Draw(canvas, checkerboard, rect,
+                 SkOffsetImageFilter::Make(SkIntToScalar(-8), SkIntToScalar(16),
+                                           noopCropped,
+                                           &bigRect));
+
+            Draw(canvas, checkerboard, rect,
+                 SkLightingImageFilter::MakePointLitDiffuse(pointLocation,
+                                                            SK_ColorWHITE,
+                                                            surfaceScale,
+                                                            kd,
+                                                            noopCropped,
+                                                            &bigRect));
 
             canvas->restore();
             canvas->translate(0, SkIntToScalar(80));
@@ -132,30 +156,28 @@ private:
         }
     }
 
-    static SkImage* MakeGradientCircle(int width, int height) {
+    static sk_sp<SkImage> MakeGradientCircle(int width, int height) {
         SkScalar x = SkIntToScalar(width / 2);
         SkScalar y = SkIntToScalar(height / 2);
         SkScalar radius = SkMinScalar(x, y) * 0.8f;
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(width, height));
+        auto surface(SkSurface::MakeRasterN32Premul(width, height));
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(0x00000000);
         SkColor colors[2];
         colors[0] = SK_ColorWHITE;
         colors[1] = SK_ColorBLACK;
-        SkAutoTUnref<SkShader> shader(
-            SkGradientShader::CreateRadial(SkPoint::Make(x, y), radius, colors, nullptr, 2,
-                                           SkShader::kClamp_TileMode)
-        );
         SkPaint paint;
-        paint.setShader(shader);
+        paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(x, y), radius, colors, nullptr,
+                                                     2, SkShader::kClamp_TileMode));
         canvas->drawCircle(x, y, radius, paint);
 
-        return surface->newImageSnapshot();
+        return surface->makeImageSnapshot();
     }
 
-    static void Draw(SkCanvas* canvas, const SkBitmap& bitmap, const SkRect& rect, SkImageFilter* filter) {
+    static void Draw(SkCanvas* canvas, const SkBitmap& bitmap, const SkRect& rect,
+                     sk_sp<SkImageFilter> filter) {
         SkPaint paint;
-        paint.setImageFilter(filter)->unref();
+        paint.setImageFilter(std::move(filter));
         canvas->saveLayer(&rect, &paint);
         canvas->drawBitmap(bitmap, 0, 0);
         canvas->restore();

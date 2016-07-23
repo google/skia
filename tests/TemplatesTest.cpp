@@ -70,3 +70,59 @@ static void test_automalloc_realloc(skiatest::Reporter* reporter) {
 DEF_TEST(Templates, reporter) {
     test_automalloc_realloc(reporter);
 }
+
+constexpr int static kStackPreallocCount = 10;
+
+// Ensures the containers in SkTemplates.h all have a consistent api.
+template<typename TContainer, typename TCount>
+static void test_container_apis(skiatest::Reporter* reporter) {
+    REPORTER_ASSERT(reporter, !TContainer((TCount)0).get());
+    REPORTER_ASSERT(reporter, TContainer((TCount)1).get());
+    REPORTER_ASSERT(reporter, TContainer((TCount)kStackPreallocCount).get());
+    REPORTER_ASSERT(reporter, TContainer((TCount)kStackPreallocCount + 1).get());
+
+    TContainer container;
+    // The default constructor may or may not init to empty, depending on the type of container.
+
+    container.reset((TCount)1);
+    REPORTER_ASSERT(reporter, container.get());
+
+    container.reset((TCount)kStackPreallocCount);
+    REPORTER_ASSERT(reporter, container.get());
+
+    container.reset((TCount)kStackPreallocCount + 1);
+    REPORTER_ASSERT(reporter, container.get());
+
+    container.reset((TCount)0);
+    REPORTER_ASSERT(reporter, !container.get());
+}
+
+DEF_TEST(TemplateContainerAPIs, reporter) {
+    test_container_apis<SkAutoTArray<int>, int>(reporter);
+    test_container_apis<SkAutoSTArray<kStackPreallocCount, int>, int>(reporter);
+    test_container_apis<SkAutoTMalloc<int>, size_t>(reporter);
+    test_container_apis<SkAutoSTMalloc<kStackPreallocCount, int>, size_t>(reporter);
+}
+
+// Ensures that realloc(0) results in a null pointer.
+template<typename TAutoMalloc> static void test_realloc_to_zero(skiatest::Reporter* reporter) {
+    TAutoMalloc autoMalloc(kStackPreallocCount);
+    REPORTER_ASSERT(reporter, autoMalloc.get());
+
+    autoMalloc.realloc(0);
+    REPORTER_ASSERT(reporter, !autoMalloc.get());
+
+    autoMalloc.realloc(kStackPreallocCount + 1);
+    REPORTER_ASSERT(reporter, autoMalloc.get());
+
+    autoMalloc.realloc(0);
+    REPORTER_ASSERT(reporter, !autoMalloc.get());
+
+    autoMalloc.realloc(kStackPreallocCount);
+    REPORTER_ASSERT(reporter, autoMalloc.get());
+}
+
+DEF_TEST(AutoReallocToZero, reporter) {
+    test_realloc_to_zero<SkAutoTMalloc<int> >(reporter);
+    test_realloc_to_zero<SkAutoSTMalloc<kStackPreallocCount, int> >(reporter);
+}

@@ -102,6 +102,14 @@ void GrGLGetDriverInfo(GrGLStandard standard,
 
     *outDriver = kUnknown_GrGLDriver;
     *outVersion = GR_GL_DRIVER_UNKNOWN_VER;
+    // These null checks are for test GL contexts that return nullptr in their
+    // glGetString implementation.
+    if (!rendererString) {
+        rendererString = "";
+    }
+    if (!versionString) {
+        versionString = "";
+    }
 
     if (0 == strcmp(rendererString, "Chromium")) {
         *outDriver = kChromium_GrGLDriver;
@@ -119,7 +127,6 @@ void GrGLGetDriverInfo(GrGLStandard standard,
             }
             return;
         }
-
         int n = sscanf(versionString, "%d.%d Mesa %d.%d",
                        &major, &minor, &driverMajor, &driverMinor);
         if (4 == n) {
@@ -245,6 +252,9 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
         if (0 == strcmp(vendorString, "NVIDIA Corporation")) {
             return kNVIDIA_GrGLVendor;
         }
+        if (0 == strcmp(vendorString, "ATI Technologies Inc.")) {
+            return kATI_GrGLVendor;
+        }
     }
     return kOther_GrGLVendor;
 }
@@ -296,6 +306,9 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
                 }
             }
         }
+        if (strcmp("Mesa Offscreen", rendererString)) {
+            return kOSMesa_GrGLRenderer;
+        }
     }
     return kOther_GrGLRenderer;
 }
@@ -324,27 +337,26 @@ GrGLRenderer GrGLGetRenderer(const GrGLInterface* gl) {
     return GrGLGetRendererFromString((const char*) v);
 }
 
-GrGLenum GrToGLStencilFunc(GrStencilFunc basicFunc) {
-    static const GrGLenum gTable[] = {
-        GR_GL_ALWAYS,           // kAlways_StencilFunc
-        GR_GL_NEVER,            // kNever_StencilFunc
-        GR_GL_GREATER,          // kGreater_StencilFunc
-        GR_GL_GEQUAL,           // kGEqual_StencilFunc
-        GR_GL_LESS,             // kLess_StencilFunc
-        GR_GL_LEQUAL,           // kLEqual_StencilFunc,
-        GR_GL_EQUAL,            // kEqual_StencilFunc,
-        GR_GL_NOTEQUAL,         // kNotEqual_StencilFunc,
+GrGLenum GrToGLStencilFunc(GrStencilTest test) {
+    static const GrGLenum gTable[kGrStencilTestCount] = {
+        GR_GL_ALWAYS,           // kAlways
+        GR_GL_NEVER,            // kNever
+        GR_GL_GREATER,          // kGreater
+        GR_GL_GEQUAL,           // kGEqual
+        GR_GL_LESS,             // kLess
+        GR_GL_LEQUAL,           // kLEqual
+        GR_GL_EQUAL,            // kEqual
+        GR_GL_NOTEQUAL,         // kNotEqual
     };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kBasicStencilFuncCount);
-    GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
-    GR_STATIC_ASSERT(1 == kNever_StencilFunc);
-    GR_STATIC_ASSERT(2 == kGreater_StencilFunc);
-    GR_STATIC_ASSERT(3 == kGEqual_StencilFunc);
-    GR_STATIC_ASSERT(4 == kLess_StencilFunc);
-    GR_STATIC_ASSERT(5 == kLEqual_StencilFunc);
-    GR_STATIC_ASSERT(6 == kEqual_StencilFunc);
-    GR_STATIC_ASSERT(7 == kNotEqual_StencilFunc);
-    SkASSERT((unsigned) basicFunc < kBasicStencilFuncCount);
+    GR_STATIC_ASSERT(0 == (int)GrStencilTest::kAlways);
+    GR_STATIC_ASSERT(1 == (int)GrStencilTest::kNever);
+    GR_STATIC_ASSERT(2 == (int)GrStencilTest::kGreater);
+    GR_STATIC_ASSERT(3 == (int)GrStencilTest::kGEqual);
+    GR_STATIC_ASSERT(4 == (int)GrStencilTest::kLess);
+    GR_STATIC_ASSERT(5 == (int)GrStencilTest::kLEqual);
+    GR_STATIC_ASSERT(6 == (int)GrStencilTest::kEqual);
+    GR_STATIC_ASSERT(7 == (int)GrStencilTest::kNotEqual);
+    SkASSERT(test < (GrStencilTest)kGrStencilTestCount);
 
-    return gTable[basicFunc];
+    return gTable[(int)test];
 }

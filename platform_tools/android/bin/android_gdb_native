@@ -45,8 +45,7 @@ GDBSETUP=$GDB_TMP_DIR/gdb.setup
 
 # Launch gdb client
 echo "Entering gdb client shell"
-GDB_COMMAND=$(command ls "$ANDROID_TOOLCHAIN"/*-gdb | head -n1)
-"$GDB_COMMAND" -x $GDBSETUP
+$ANDROID_TOOLCHAIN/host_prebuilt/bin/gdb -x $GDBSETUP
 
 # Clean up:
 # We could 'rm -rf $GDB_TMP_DIR', but doing so would cause subsequent debugging

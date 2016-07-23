@@ -54,45 +54,36 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkDrawLooper* shadowLoopers[5];
-        shadowLoopers[0] =
-            SkBlurDrawLooper::Create(SK_ColorBLUE,
+        sk_sp<SkDrawLooper> shadowLoopers[] = {
+              SkBlurDrawLooper::Make(SK_ColorBLUE,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
                                      SkIntToScalar(5), SkIntToScalar(10),
                                      SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                                      SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                                     SkBlurDrawLooper::kHighQuality_BlurFlag);
-        SkAutoUnref aurL0(shadowLoopers[0]);
-        shadowLoopers[1] =
-            SkBlurDrawLooper::Create(SK_ColorBLUE,
+                                     SkBlurDrawLooper::kHighQuality_BlurFlag),
+              SkBlurDrawLooper::Make(SK_ColorBLUE,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
                                      SkIntToScalar(5), SkIntToScalar(10),
                                      SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                                     SkBlurDrawLooper::kOverrideColor_BlurFlag);
-        SkAutoUnref aurL1(shadowLoopers[1]);
-        shadowLoopers[2] =
-            SkBlurDrawLooper::Create(SK_ColorBLACK,
+                                     SkBlurDrawLooper::kOverrideColor_BlurFlag),
+              SkBlurDrawLooper::Make(SK_ColorBLACK,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
                                      SkIntToScalar(5),
                                      SkIntToScalar(10),
                                      SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                                     SkBlurDrawLooper::kHighQuality_BlurFlag);
-        SkAutoUnref aurL2(shadowLoopers[2]);
-        shadowLoopers[3] =
-            SkBlurDrawLooper::Create(0x7FFF0000,
+                                     SkBlurDrawLooper::kHighQuality_BlurFlag),
+              SkBlurDrawLooper::Make(0x7FFF0000,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
                                      SkIntToScalar(-5), SkIntToScalar(-10),
                                      SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                                      SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                                     SkBlurDrawLooper::kHighQuality_BlurFlag);
-        SkAutoUnref aurL3(shadowLoopers[3]);
-        shadowLoopers[4] =
-            SkBlurDrawLooper::Create(SK_ColorBLACK, SkIntToScalar(0),
+                                     SkBlurDrawLooper::kHighQuality_BlurFlag),
+            SkBlurDrawLooper::Make(SK_ColorBLACK, SkIntToScalar(0),
                                      SkIntToScalar(5), SkIntToScalar(5),
                                      SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                                      SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                                     SkBlurDrawLooper::kHighQuality_BlurFlag);
-        SkAutoUnref aurL4(shadowLoopers[4]);
+                                     SkBlurDrawLooper::kHighQuality_BlurFlag),
+        };
 
         static const struct {
             SkColor fColor;
@@ -128,12 +119,11 @@ protected:
             canvas->drawBitmap(fBitmap, 10, 10, &paint);
 
             canvas->translate(0, 40);
-            SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(
+            paint.setShader(SkShader::MakeBitmapShader(
                                           fBitmap, SkShader::kRepeat_TileMode,
                                           SkShader::kRepeat_TileMode));
 
             // see bug.skia.org/562 (shows bug as reported)
-            paint.setShader(shader);
             paint.setStyle(SkPaint::kFill_Style);
             canvas->drawRect(SkRect::MakeXYWH(10, 10, 20, 20), paint);
             paint.setShader(nullptr);

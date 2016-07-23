@@ -47,16 +47,16 @@ void decal_filter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 ///////////////////////////////////////////////////////////////////////////////
 
 // Compile neon code paths if needed
-#if !SK_ARM_NEON_IS_NONE
+#if defined(SK_ARM_HAS_NEON)
 
 // These are defined in src/opts/SkBitmapProcState_matrixProcs_neon.cpp
 extern const SkBitmapProcState::MatrixProc ClampX_ClampY_Procs_neon[];
 extern const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs_neon[];
 
-#endif // !SK_ARM_NEON_IS_NONE
+#endif // defined(SK_ARM_HAS_NEON)
 
 // Compile non-neon code path if needed
-#if !SK_ARM_NEON_IS_ALWAYS
+#if !defined(SK_ARM_HAS_NEON)
 #define MAKENAME(suffix)        ClampX_ClampY ## suffix
 #define TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
 #define TILEY_PROCF(fy, max)    SkClampMax((fy) >> 16, max)
@@ -171,21 +171,11 @@ static inline U16CPU fixed_repeat(SkFixed x) {
     return x & 0xFFFF;
 }
 
-// Visual Studio 2010 (MSC_VER=1600) optimizes bit-shift code incorrectly.
-// See http://code.google.com/p/skia/issues/detail?id=472
-#if defined(_MSC_VER) && (_MSC_VER >= 1600)
-#pragma optimize("", off)
-#endif
-
 static inline U16CPU fixed_mirror(SkFixed x) {
     SkFixed s = SkLeftShift(x, 15) >> 31;
     // s is FFFFFFFF if we're on an odd interval, or 0 if an even interval
     return (x ^ s) & 0xFFFF;
 }
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1600)
-#pragma optimize("", on)
-#endif
 
 static SkBitmapProcState::FixedTileProc choose_tile_proc(unsigned m) {
     if (SkShader::kClamp_TileMode == m) {
@@ -328,14 +318,11 @@ static void fill_sequential(uint16_t xptr[], int start, int count) {
 
 static int nofilter_trans_preamble(const SkBitmapProcState& s, uint32_t** xy,
                                    int x, int y) {
-    SkPoint pt;
-    s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-               SkIntToScalar(y) + SK_ScalarHalf, &pt);
-    **xy = s.fIntTileProcY(SkScalarToFixed(pt.fY) >> 16,
-                           s.fPixmap.height());
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
+    **xy = s.fIntTileProcY(mapper.intY(), s.fPixmap.height());
     *xy += 1;   // bump the ptr
     // return our starting X position
-    return SkScalarToFixed(pt.fX) >> 16;
+    return mapper.intX();
 }
 
 static void clampx_nofilter_trans(const SkBitmapProcState& s,
@@ -488,7 +475,7 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
 //    test_int_tileprocs();
     // check for our special case when there is no scale/affine/perspective
-    if (trivial_matrix && kNone_SkFilterQuality == fFilterLevel) {
+    if (trivial_matrix && kNone_SkFilterQuality == fFilterQuality) {
         fIntTileProcY = choose_int_tile_proc(fTileModeY);
         switch (fTileModeX) {
             case SkShader::kClamp_TileMode:
@@ -501,7 +488,7 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool trivial_m
     }
 
     int index = 0;
-    if (fFilterLevel != kNone_SkFilterQuality) {
+    if (fFilterQuality != kNone_SkFilterQuality) {
         index = 1;
     }
     if (fInvType & SkMatrix::kPerspective_Mask) {

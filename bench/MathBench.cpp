@@ -7,6 +7,8 @@
 
 #include "Benchmark.h"
 #include "SkColorPriv.h"
+#include "SkFixed.h"
+#include "SkMathPriv.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
@@ -606,3 +608,29 @@ DEF_BENCH( return new CLZBench(true); )
 DEF_BENCH( return new NormalizeBench(); )
 
 DEF_BENCH( return new FixedMathBench(); )
+
+
+struct FloatToIntBench : public Benchmark {
+    enum { N = 1000000 };
+    float fFloats[N];
+    int   fInts  [N];
+
+    const char* onGetName() override { return "float_to_int"; }
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+
+    void onDelayedSetup() override  {
+        const auto f32 = 4294967296.0f;
+        for (int i = 0; i < N; ++i) {
+            fFloats[i] = -f32 + i*(2*f32/N);
+        }
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        while (loops --> 0) {
+            for (int i = 0; i < N; i++) {
+                fInts[i] = SkFloatToIntFloor(fFloats[i]);
+            }
+        }
+    }
+};
+DEF_BENCH( return new FloatToIntBench; )

@@ -43,13 +43,13 @@ protected:
         canvas->drawBitmap(bm, 10, 10, &paint);
 
         const SkScalar dir[] = { 1, 1, 1 };
-        paint.setMaskFilter(SkBlurMaskFilter::CreateEmboss(3, dir, 0.3f, 0.1f))->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::MakeEmboss(3, dir, 0.3f, 0.1f));
         canvas->translate(bm.width() + SkIntToScalar(10), 0);
         canvas->drawBitmap(bm, 10, 10, &paint);
 
         // this combination of emboss+colorfilter used to crash -- so we exercise it to
         // confirm that we have a fix.
-        paint.setColorFilter(SkColorFilter::CreateModeFilter(0xFFFF0000, SkXfermode::kSrcATop_Mode))->unref();
+        paint.setColorFilter(SkColorFilter::MakeModeFilter(0xFFFF0000, SkXfermode::kSrcATop_Mode));
         canvas->translate(bm.width() + SkIntToScalar(10), 0);
         canvas->drawBitmap(bm, 10, 10, &paint);
     }

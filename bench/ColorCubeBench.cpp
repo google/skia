@@ -13,18 +13,12 @@
 class ColorCubeBench : public Benchmark {
     SkISize fSize;
     int fCubeDimension;
-    SkData* fCubeData;
+    sk_sp<SkData> fCubeData;
     SkBitmap fBitmap;
 
 public:
-    ColorCubeBench()
-     : fCubeDimension(0)
-     , fCubeData(nullptr) {
+    ColorCubeBench() : fCubeDimension(0) {
         fSize = SkISize::Make(2880, 1800); // 2014 Macbook Pro resolution
-    }
-
-    ~ColorCubeBench() {
-        SkSafeUnref(fCubeData);
     }
 
 protected:
@@ -48,13 +42,13 @@ protected:
     }
 
 private:
-    static SkShader* MakeLinear(const SkISize& size) {
+    static sk_sp<SkShader> MakeLinear(const SkISize& size) {
         const SkPoint pts[2] = {
                 { 0, 0 },
                 { SkIntToScalar(size.width()), SkIntToScalar(size.height()) }
             };
         static const SkColor colors[] = { SK_ColorYELLOW, SK_ColorBLUE };
-        return SkGradientShader::CreateLinear(
+        return SkGradientShader::MakeLinear(
             pts, colors, nullptr, 2, SkShader::kRepeat_TileMode, 0, &SkMatrix::I());
     }
 
@@ -64,16 +58,14 @@ private:
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
-        SkShader* shader = MakeLinear(fSize);
-        paint.setShader(shader);
+        paint.setShader(MakeLinear(fSize));
         SkRect r = { 0, 0, SkIntToScalar(fSize.width()), SkIntToScalar(fSize.height()) };
         canvas.drawRect(r, paint);
-        shader->unref();
     }
 
     void makeCubeData() {
         fCubeDimension = 32;
-        fCubeData = SkData::NewUninitialized(sizeof(SkColor) *
+        fCubeData = SkData::MakeUninitialized(sizeof(SkColor) *
             fCubeDimension * fCubeDimension * fCubeDimension);
         SkColor* pixels = (SkColor*)(fCubeData->writable_data());
         SkAutoTMalloc<uint8_t> lutMemory(fCubeDimension);
@@ -97,9 +89,7 @@ private:
     void test(int loops, SkCanvas* canvas) {
         SkPaint paint;
         for (int i = 0; i < loops; i++) {
-            SkAutoTUnref<SkColorFilter> colorCube(
-                SkColorCubeFilter::Create(fCubeData, fCubeDimension));
-            paint.setColorFilter(colorCube);
+            paint.setColorFilter(SkColorCubeFilter::Make(fCubeData, fCubeDimension));
             canvas->drawBitmap(fBitmap, 0, 0, &paint);
         }
     }

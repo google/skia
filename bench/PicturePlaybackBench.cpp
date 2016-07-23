@@ -42,7 +42,7 @@ protected:
         SkPictureRecorder recorder;
         SkCanvas* pCanvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT, nullptr, 0);
         this->recordCanvas(pCanvas);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
         const SkPoint translateDelta = getTranslateDelta(loops);
 
@@ -182,7 +182,7 @@ public:
                 paint.setAlpha(0xFF);
                 canvas->drawRect(SkRect::MakeXYWH(x,y,w,h), paint);
             }
-        fPic.reset(recorder.endRecording());
+        fPic = recorder.finishRecordingAsPicture();
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
@@ -207,10 +207,10 @@ public:
     }
 
 private:
-    BBH                     fBBH;
-    Mode                    fMode;
-    SkString                fName;
-    SkAutoTUnref<SkPicture> fPic;
+    BBH                 fBBH;
+    Mode                fMode;
+    SkString            fName;
+    sk_sp<SkPicture>    fPic;
 };
 
 DEF_BENCH( return new TiledPlaybackBench(kNone,     kRandom); )

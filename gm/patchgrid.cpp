@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -57,7 +56,7 @@ namespace skiagm {
  * This GM draws a grid of patches, it only uses colors so it could be considered a mesh gradient.
  */
 class SkPatchGridGM : public GM {
-    
+
 public:
     SkPatchGridGM() {
         this->setBGColor(0xFFFFFFFF);
@@ -75,28 +74,28 @@ protected:
     void onDraw(SkCanvas* canvas) override {
 
         SkPaint paint;
-        
+
         SkPoint vertices[4][5] = {
             {{50,50}, {150,50}, {250,50},{350,50},{450,50}},
             {{50,150}, {120,120}, {250,150},{350,150},{450,150}},
             {{50,250}, {150,250}, {250,250},{350,250},{450,250}},
             {{100,300}, {150,350}, {250,350},{350,350},{450,350}}
         };
-        
+
         SkColor cornerColors[4][5] = {
             {SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE},
             {SK_ColorRED, SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE, SK_ColorRED},
             {SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE},
             {SK_ColorRED, SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE, SK_ColorRED},
         };
-        
+
         SkPoint hrzCtrl[4][8] = {
             {{75,30},{125,45},{175,70},{225,20},{275,50},{325,50},{375,5},{425,90}},
             {{75,150},{125,150},{175,150},{225,150},{275,150},{325,150},{375,150},{425,150}},
             {{75,250},{125,250},{175,250},{225,250},{275,200},{325,150},{375,250},{425,250}},
             {{75,350},{125,350},{175,350},{225,350},{275,350},{325,350},{375,350},{425,350}}
         };
-        
+
         SkPoint vrtCtrl[6][5] = {
             {{50,75},{150,75},{250,75},{350,75},{450,75}},
             {{50,125},{150,125},{250,125},{350,125},{450,125}},
@@ -105,42 +104,42 @@ protected:
             {{50,275},{150,275},{250,275},{350,275},{400,305}},
             {{50,325},{150,325},{250,325},{350,325},{450,325}}
         };
-        
+
         static const int kRows = 3;
         static const int kCols = 4;
-        
+
         canvas->scale(3, 3);
         SkPatchGrid grid(kRows, kCols, SkPatchGrid::kColors_VertexType, nullptr);
         for (int i = 0; i < kRows; i++) {
             for (int j = 0; j < kCols; j++) {
                 SkPoint points[12];
-                
+
                 //set corners
                 points[SkPatchUtils::kTopP0_CubicCtrlPts] = vertices[i][j];
                 points[SkPatchUtils::kTopP3_CubicCtrlPts] = vertices[i][j + 1];
                 points[SkPatchUtils::kBottomP0_CubicCtrlPts] = vertices[i + 1][j];
                 points[SkPatchUtils::kBottomP3_CubicCtrlPts] = vertices[i + 1][j + 1];
-                
+
                 points[SkPatchUtils::kTopP1_CubicCtrlPts] = hrzCtrl[i][j * 2];
                 points[SkPatchUtils::kTopP2_CubicCtrlPts] = hrzCtrl[i][j * 2 + 1];
                 points[SkPatchUtils::kBottomP1_CubicCtrlPts] = hrzCtrl[i + 1][j * 2];
                 points[SkPatchUtils::kBottomP2_CubicCtrlPts] = hrzCtrl[i + 1][j * 2 + 1];
-                
+
                 points[SkPatchUtils::kLeftP1_CubicCtrlPts] = vrtCtrl[i * 2][j];
                 points[SkPatchUtils::kLeftP2_CubicCtrlPts] = vrtCtrl[i * 2 + 1][j];
                 points[SkPatchUtils::kRightP1_CubicCtrlPts] = vrtCtrl[i * 2][j + 1];
                 points[SkPatchUtils::kRightP2_CubicCtrlPts] = vrtCtrl[i * 2 + 1][j + 1];
-                
+
                 SkColor colors[4];
                 colors[0] = cornerColors[i][j];
                 colors[1] = cornerColors[i][j + 1];
                 colors[3] = cornerColors[i + 1][j];
                 colors[2] = cornerColors[i + 1][j + 1];
-                
+
                 grid.setPatch(j, i, points, colors, nullptr);
             }
         }
-        
+
         grid.draw(canvas, paint);
         SkISize dims = grid.getDimensions();
         for (int y = 0; y < dims.height(); y++) {

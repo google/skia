@@ -1,0 +1,17 @@
+{
+  'variables': {
+    'files': [
+      '../../tools/__init__.py',
+      '../../tools/buildbot_spec.py',
+      '../../tools/builder_name_schema.json',
+      '../../tools/builder_name_schema.py',
+      '../../tools/dm_flags.py',
+      '../../tools/lsan.supp',
+      '../../tools/nanobench_flags.py',
+      '../../tools/tsan.supp',
+      '../../tools/ubsan.supp',
+      '../../tools/valgrind.supp',
+      './',
+    ],
+  },
+}

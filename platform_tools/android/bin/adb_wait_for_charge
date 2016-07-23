@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# Wait for the device to be charged enough for testing.
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SKIP_TOOLCHAIN_SETUP="true"
+source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/setup_adb.sh
+
+# Helper function used by get_battery_level. Parses the battery level from
+# dumpsys output.
+function _parse_battery_level {
+  SPLIT=( $@ )
+
+  HAS_BATTERY=1
+  LEVEL=""
+
+  for i in "${!SPLIT[@]}"; do
+    if [ "${SPLIT[$i]}" = "level:" ]; then
+      LEVEL="${SPLIT[$i+1]}"
+    fi
+    if [ "${SPLIT[$i]}" = "present:" ]; then
+      PRESENT="$(echo "${SPLIT[$i+1]}" | tr -d '\r')"
+      if [ "$PRESENT" = "0" ]; then
+        HAS_BATTERY=0
+      fi
+      if [ "$PRESENT" = "false" ]; then
+        HAS_BATTERY=0
+      fi
+    fi
+  done
+
+  if [ "$HAS_BATTERY" = "1" ]; then
+    echo "$LEVEL" | tr -d '\r'
+    return
+  fi
+  # If there's no battery, report a full battery.
+  echo "Device has no battery." 1>&2
+  echo "100"
+}
+
+# Echo the battery level percentage of the attached Android device.
+function get_battery_level {
+  STATS="$($ADB $DEVICE_SERIAL shell dumpsys batteryproperties)"
+  SPLIT=( $STATS )
+  RV="$(_parse_battery_level ${SPLIT[@]})"
+  if [ -n "$RV" ]; then
+    echo "$RV"
+    return
+  fi
+
+  echo "Battery level fallback..." 1>&2
+
+  STATS="$($ADB $DEVICE_SERIAL shell dumpsys battery)"
+  SPLIT=( $STATS )
+  RV="$(_parse_battery_level ${SPLIT[@]})"
+  if [ -n "$RV" ] && [ "$RV" != "-1" ]; then
+    echo "$RV"
+    return
+  fi
+
+  echo "Could not determine battery level!" 1>&2
+  # Just exit to prevent hanging forever or failing the build.
+  echo "0"
+}
+
+# Wait for battery charge.
+DESIRED_BATTERY_LEVEL=80
+CURRENT_BATTERY_LEVEL="$(get_battery_level)"
+while [ "${CURRENT_BATTERY_LEVEL}" -lt "${DESIRED_BATTERY_LEVEL}" ]; do
+  echo "Battery level is ${CURRENT_BATTERY_LEVEL}; waiting to charge to ${DESIRED_BATTERY_LEVEL}"
+  sleep 5
+  CURRENT_BATTERY_LEVEL="$(get_battery_level)"
+done
+
+echo "Charged!"

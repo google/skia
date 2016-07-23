@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -35,9 +34,7 @@ public:
     // The ownership of the data remains with the caller. This class is intended
     // to be used as a logical wrapper around the data in order to properly
     // access the pixels.
-    SkKTXFile(SkData* data)
-        : fData(data), fSwapBytes(false)
-    {
+    SkKTXFile(SkData* data) : fData(data), fSwapBytes(false) {
         data->ref();
         fValid = this->readKTXFile(fData->bytes(), fData->size());
     }
@@ -63,7 +60,7 @@ public:
     bool isRGBA8() const;
     bool isRGB8() const;
 
-    static bool is_ktx(const uint8_t *data);
+    static bool is_ktx(const uint8_t data[], size_t size);
     static bool is_ktx(SkStreamRewindable* stream);
 
     static bool WriteETC1ToKTX(SkWStream* stream, const uint8_t *etc1Data,

@@ -19,15 +19,18 @@
 
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
 // and render targets to GrSurface all work as expected.
-DEF_GPUTEST_FOR_NULL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, context) {
+DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc desc;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fSampleCnt = 0;
-    GrSurface* texRT1 = context->textureProvider()->createTexture(desc, false, nullptr, 0);
-    GrSurface* texRT2 = context->textureProvider()->createTexture(desc, false, nullptr, 0);
+    GrSurface* texRT1 = context->textureProvider()->createTexture(
+        desc, SkBudgeted::kNo, nullptr, 0);
+    GrSurface* texRT2 = context->textureProvider()->createTexture(
+        desc, SkBudgeted::kNo, nullptr, 0);
     REPORTER_ASSERT(reporter, nullptr != texRT1);
     REPORTER_ASSERT(reporter, nullptr != texRT2);
     GrTexture* tex = texRT1->asTexture();
@@ -39,7 +42,7 @@ DEF_GPUTEST_FOR_NULL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, context)
     REPORTER_ASSERT(reporter, false == tex->texturePriv().hasMipMaps());
 
     // Painting with downscale and medium filter quality should result in mipmap creation
-    SkSurface* surface = SkSurface::NewRenderTargetDirect(texRT2->asRenderTarget());
+    auto surface = SkSurface::MakeRenderTargetDirect(texRT2->asRenderTarget());
     SkPaint paint;
     paint.setFilterQuality(kMedium_SkFilterQuality);
     surface->getCanvas()->scale(0.2f, 0.2f);
@@ -54,7 +57,6 @@ DEF_GPUTEST_FOR_NULL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, context)
     REPORTER_ASSERT(reporter, true == tex->texturePriv().hasMipMaps());
     REPORTER_ASSERT(reporter, true == tex->texturePriv().mipMapsAreDirty());
 
-    surface->unref();
     texRT1->unref();
     texRT2->unref();
 }

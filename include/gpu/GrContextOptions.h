@@ -12,23 +12,19 @@
 
 struct GrContextOptions {
     GrContextOptions()
-        : fDrawPathToCompressedTexture(false)
-        , fSuppressPrints(false)
+        : fSuppressPrints(false)
         , fMaxTextureSizeOverride(SK_MaxS32)
         , fMaxTileSizeOverride(0)
         , fSuppressDualSourceBlending(false)
-        , fGeometryBufferMapThreshold(-1)
+        , fBufferMapThreshold(-1)
         , fUseDrawInsteadOfPartialRenderTargetWrite(false)
         , fImmediateMode(false)
         , fClipBatchToBounds(false)
         , fDrawBatchBounds(false)
         , fMaxBatchLookback(-1)
-        , fUseShaderSwizzling(false) {}
-
-    // EXPERIMENTAL
-    // May be removed in the future, or may become standard depending
-    // on the outcomes of a variety of internal tests.
-    bool fDrawPathToCompressedTexture;
+        , fMaxBatchLookahead(-1)
+        , fUseShaderSwizzling(false)
+        , fDoManualMipmapping(false) {}
 
     // Suppress prints for the GrContext.
     bool fSuppressPrints;
@@ -46,7 +42,7 @@ struct GrContextOptions {
     /** the threshold in bytes above which we will use a buffer mapping API to map vertex and index
         buffers to CPU memory in order to update them.  A value of -1 means the GrContext should
         deduce the optimal value for this platform. */
-    int  fGeometryBufferMapThreshold;
+    int  fBufferMapThreshold;
 
     /** some gpus have problems with partial writes of the rendertarget */
     bool fUseDrawInsteadOfPartialRenderTargetWrite;
@@ -64,12 +60,19 @@ struct GrContextOptions {
         of their dev bounds. */
     bool fDrawBatchBounds;
 
-    /** For debugging, override the default maximum look-back window for GrBatch combining. */
+    /** For debugging, override the default maximum look-back or look-ahead window for GrBatch
+        combining. */
     int fMaxBatchLookback;
+    int fMaxBatchLookahead;
 
     /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
         swizzling. */
     bool fUseShaderSwizzling;
+
+    /** Construct mipmaps manually, via repeated downsampling draw-calls. This is used when
+        the driver's implementation (glGenerateMipmap) contains bugs. This requires mipmap
+        level and LOD control (ie desktop or ES3). */
+    bool fDoManualMipmapping;
 };
 
 #endif

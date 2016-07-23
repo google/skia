@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -15,6 +14,8 @@ GrShaderCaps::GrShaderCaps() {
     fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
+    fIntegerSupport = false;
+    fTexelBufferSupport = false;
     fShaderPrecisionVaries = false;
 }
 
@@ -50,6 +51,8 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
     r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
     r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
+    r.appendf("Integer Support                    : %s\n", gNY[fIntegerSupport]);
+    r.appendf("Texel Buffer Support               : %s\n", gNY[fTexelBufferSupport]);
 
     r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
 
@@ -81,6 +84,8 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
 GrCaps::GrCaps(const GrContextOptions& options) {
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
+    fSRGBSupport = false;
+    fSRGBWriteControl = false;
     fTwoSidedStencilSupport = false;
     fStencilWrapOpsSupport = false;
     fDiscardRenderTargetSupport = false;
@@ -90,10 +95,13 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fCompressedTexSubImageSupport = false;
     fOversizedStencilSupport = false;
     fTextureBarrierSupport = false;
-    fMixedSamplesSupport = false;
+    fSampleLocationsSupport = false;
+    fMultisampleDisableSupport = false;
+    fUsesMixedSamples = false;
     fSupportsInstancedDraws = false;
     fFullClearIsFree = false;
     fMustClearUploadedBufferData = false;
+    fSampleShadingSupport = false;
 
     fUseDrawInsteadOfClear = false;
 
@@ -102,15 +110,18 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     fMapBufferFlags = kNone_MapFlags;
 
+    fMaxVertexAttributes = 0;
     fMaxRenderTargetSize = 1;
     fMaxTextureSize = 1;
-    fMaxSampleCount = 0;
+    fMaxColorSampleCount = 0;
+    fMaxStencilSampleCount = 0;
+    fMaxRasterSamples = 0;
 
     fSuppressPrints = options.fSuppressPrints;
     fImmediateFlush = options.fImmediateMode;
-    fDrawPathMasksToCompressedTextureSupport = options.fDrawPathToCompressedTexture;
-    fGeometryBufferMapThreshold = options.fGeometryBufferMapThreshold;
+    fBufferMapThreshold = options.fBufferMapThreshold;
     fUseDrawInsteadOfPartialRenderTargetWrite = options.fUseDrawInsteadOfPartialRenderTargetWrite;
+    fUseDrawInsteadOfAllRenderTargetWrites = false;
 
     fPreferVRAMUseOverFlushes = true;
 }
@@ -151,6 +162,8 @@ SkString GrCaps::dump() const {
     static const char* gNY[] = {"NO", "YES"};
     r.appendf("MIP Map Support                    : %s\n", gNY[fMipMapSupport]);
     r.appendf("NPOT Texture Tile Support          : %s\n", gNY[fNPOTTextureTileSupport]);
+    r.appendf("sRGB Support                       : %s\n", gNY[fSRGBSupport]);
+    r.appendf("sRGB Write Control                 : %s\n", gNY[fSRGBWriteControl]);
     r.appendf("Two Sided Stencil Support          : %s\n", gNY[fTwoSidedStencilSupport]);
     r.appendf("Stencil Wrap Ops  Support          : %s\n", gNY[fStencilWrapOpsSupport]);
     r.appendf("Discard Render Target Support      : %s\n", gNY[fDiscardRenderTargetSupport]);
@@ -160,7 +173,9 @@ SkString GrCaps::dump() const {
     r.appendf("Compressed Update Support          : %s\n", gNY[fCompressedTexSubImageSupport]);
     r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);
     r.appendf("Texture Barrier Support            : %s\n", gNY[fTextureBarrierSupport]);
-    r.appendf("Mixed Samples Support              : %s\n", gNY[fMixedSamplesSupport]);
+    r.appendf("Sample Locations Support           : %s\n", gNY[fSampleLocationsSupport]);
+    r.appendf("Multisample disable support        : %s\n", gNY[fMultisampleDisableSupport]);
+    r.appendf("Uses Mixed Samples                 : %s\n", gNY[fUsesMixedSamples]);
     r.appendf("Supports instanced draws           : %s\n", gNY[fSupportsInstancedDraws]);
     r.appendf("Full screen clear is free          : %s\n", gNY[fFullClearIsFree]);
     r.appendf("Must clear buffer memory           : %s\n", gNY[fMustClearUploadedBufferData]);
@@ -173,9 +188,12 @@ SkString GrCaps::dump() const {
         r.appendf("Advanced Blend Equation Blacklist  : 0x%x\n", fAdvBlendEqBlacklist);
     }
 
+    r.appendf("Max Vertex Attributes              : %d\n", fMaxVertexAttributes);
     r.appendf("Max Texture Size                   : %d\n", fMaxTextureSize);
     r.appendf("Max Render Target Size             : %d\n", fMaxRenderTargetSize);
-    r.appendf("Max Sample Count                   : %d\n", fMaxSampleCount);
+    r.appendf("Max Color Sample Count             : %d\n", fMaxColorSampleCount);
+    r.appendf("Max Stencil Sample Count           : %d\n", fMaxStencilSampleCount);
+    r.appendf("Max Raster Samples                 : %d\n", fMaxRasterSamples);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",
@@ -201,6 +219,7 @@ SkString GrCaps::dump() const {
         "RGBA8888", // kRGBA_8888_GrPixelConfig,
         "BGRA8888", // kBGRA_8888_GrPixelConfig,
         "SRGBA8888",// kSRGBA_8888_GrPixelConfig,
+        "SBGRA8888",// kSBGRA_8888_GrPixelConfig,
         "ETC1",     // kETC1_GrPixelConfig,
         "LATC",     // kLATC_GrPixelConfig,
         "R11EAC",   // kR11_EAC_GrPixelConfig,
@@ -217,13 +236,14 @@ SkString GrCaps::dump() const {
     GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(8  == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(10  == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(11 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(13 == kAlpha_half_GrPixelConfig);
-    GR_STATIC_ASSERT(14 == kRGBA_half_GrPixelConfig);
+    GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(9  == kETC1_GrPixelConfig);
+    GR_STATIC_ASSERT(10  == kLATC_GrPixelConfig);
+    GR_STATIC_ASSERT(11  == kR11_EAC_GrPixelConfig);
+    GR_STATIC_ASSERT(12 == kASTC_12x12_GrPixelConfig);
+    GR_STATIC_ASSERT(13 == kRGBA_float_GrPixelConfig);
+    GR_STATIC_ASSERT(14 == kAlpha_half_GrPixelConfig);
+    GR_STATIC_ASSERT(15 == kRGBA_half_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kConfigNames) == kGrPixelConfigCnt);
 
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, false));

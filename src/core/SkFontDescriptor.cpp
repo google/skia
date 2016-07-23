@@ -58,8 +58,8 @@ static void write_uint(SkWStream* stream, size_t n, uint32_t id) {
     stream->writePackedUInt(n);
 }
 
-SkFontDescriptor::SkFontDescriptor(SkStream* stream) {
-    fStyle = (SkTypeface::Style)stream->readPackedUInt();
+bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
+    result->fStyle = (SkTypeface::Style)stream->readPackedUInt();
 
     SkAutoSTMalloc<4, SkFixed> axis;
     size_t axisCount = 0;
@@ -67,13 +67,13 @@ SkFontDescriptor::SkFontDescriptor(SkStream* stream) {
     for (size_t id; (id = stream->readPackedUInt()) != kSentinel;) {
         switch (id) {
             case kFontFamilyName:
-                read_string(stream, &fFamilyName);
+                read_string(stream, &result->fFamilyName);
                 break;
             case kFullName:
-                read_string(stream, &fFullName);
+                read_string(stream, &result->fFullName);
                 break;
             case kPostscriptName:
-                read_string(stream, &fPostscriptName);
+                read_string(stream, &result->fPostscriptName);
                 break;
             case kFontAxes:
                 axisCount = read_uint(stream);
@@ -90,17 +90,22 @@ SkFontDescriptor::SkFontDescriptor(SkStream* stream) {
                 break;
             default:
                 SkDEBUGFAIL("Unknown id used by a font descriptor");
-                return;
+                return false;
         }
     }
 
     size_t length = stream->readPackedUInt();
     if (length > 0) {
-        SkAutoTUnref<SkData> data(SkData::NewUninitialized(length));
+        sk_sp<SkData> data(SkData::MakeUninitialized(length));
         if (stream->read(data->writable_data(), length) == length) {
-            fFontData.reset(new SkFontData(new SkMemoryStream(data), index, axis, axisCount));
+            result->fFontData.reset(new SkFontData(new SkMemoryStream(data),
+                                                   index, axis, axisCount));
+        } else {
+            SkDEBUGFAIL("Could not read font data");
+            return false;
         }
     }
+    return true;
 }
 
 void SkFontDescriptor::serialize(SkWStream* stream) {

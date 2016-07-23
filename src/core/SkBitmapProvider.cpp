@@ -45,8 +45,7 @@ bool SkBitmapProvider::validForDrawing() const {
 
 SkImageInfo SkBitmapProvider::info() const {
     if (fImage) {
-        SkAlphaType at = fImage->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-        return SkImageInfo::MakeN32(fImage->width(), fImage->height(), at);
+        return as_IB(fImage)->onImageInfo();
     } else {
         return fBitmap.info();
     }
@@ -84,4 +83,3 @@ bool SkBitmapProvider::asBitmap(SkBitmap* bm) const {
         return true;
     }
 }
-

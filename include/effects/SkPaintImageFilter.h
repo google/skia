@@ -22,17 +22,23 @@ public:
      *                not specified, the source primitive's bounds are used
      *                instead.
      */
-    static SkImageFilter* Create(const SkPaint& paint, const CropRect* rect = NULL);
+    static sk_sp<SkImageFilter> Make(const SkPaint& paint, const CropRect* cropRect = nullptr);
 
-    bool canComputeFastBounds() const override;
+    bool affectsTransparentBlack() const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPaintImageFilter)
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
+    static SkImageFilter* Create(const SkPaint& paint, const CropRect* rect = nullptr) {
+        return Make(paint, rect).release();
+    }
+#endif
+
 protected:
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
-                       SkIPoint* loc) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
 
 private:
     SkPaintImageFilter(const SkPaint& paint, const CropRect* rect);

@@ -32,7 +32,7 @@ struct TestingRec : public SkResourceCache::Rec {
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* context) {
         const TestingRec& rec = static_cast<const TestingRec&>(baseRec);
         intptr_t* result = (intptr_t*)context;
-        
+
         *result = rec.fValue;
         return true;
     }

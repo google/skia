@@ -11,21 +11,16 @@
 #include "SkGradientShader.h"
 #include "SkTypeface.h"
 
-static SkShader* make_heatGradient(const SkPoint pts[2]) {
+static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
     const SkColor bw[] = { SK_ColorBLACK, SK_ColorWHITE };
 
-    return SkGradientShader::CreateLinear(pts, bw, nullptr,
-                                          SK_ARRAY_COUNT(bw),
-                                          SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, bw, nullptr, SK_ARRAY_COUNT(bw),
+                                        SkShader::kClamp_TileMode);
 }
 
 static bool setFont(SkPaint* paint, const char name[]) {
-    SkTypeface* tf = SkTypeface::CreateFromName(name, SkTypeface::kNormal);
-    if (tf) {
-        paint->setTypeface(tf)->unref();
-        return true;
-    }
-    return false;
+    paint->setTypeface(SkTypeface::MakeFromName(name, SkFontStyle()));
+    return SkToBool(paint->getTypeface());
 }
 
 /**
@@ -50,12 +45,11 @@ protected:
     }
 
     static void drawGrad(SkCanvas* canvas) {
-        SkPoint pts[] = { { 0, 0 }, { 0, SkIntToScalar(HEIGHT) } };
-        SkShader* s = make_heatGradient(pts);
+        const SkPoint pts[] = { { 0, 0 }, { 0, SkIntToScalar(HEIGHT) } };
 
         canvas->clear(SK_ColorRED);
         SkPaint paint;
-        paint.setShader(s)->unref();
+        paint.setShader(make_heatGradient(pts));
         SkRect r = { 0, 0, SkIntToScalar(1024), SkIntToScalar(HEIGHT) };
         canvas->drawRect(r, paint);
     }
@@ -101,47 +95,40 @@ DEF_GM( return new GammaTextGM; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkShader* make_gradient(SkColor c) {
+static sk_sp<SkShader> make_gradient(SkColor c) {
     const SkPoint pts[] = { { 0, 0 }, { 240, 0 } };
     SkColor colors[2];
     colors[0] = c;
     colors[1] = SkColorSetA(c, 0);
-    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
 static void set_face(SkPaint* paint) {
-    SkTypeface* face = SkTypeface::CreateFromName("serif", SkTypeface::kItalic);
-    SkSafeUnref(paint->setTypeface(face));
+    paint->setTypeface(SkTypeface::MakeFromName("serif",
+                           SkFontStyle::FromOldStyle(SkTypeface::kItalic)));
 }
 
-static void draw_pair(SkCanvas* canvas, SkPaint* paint, SkShader* shader) {
+static void draw_pair(SkCanvas* canvas, SkPaint* paint, const sk_sp<SkShader>& shader) {
     const char text[] = "Now is the time for all good";
     const size_t len = strlen(text);
-    
+
     paint->setShader(nullptr);
     canvas->drawText(text, len, 10, 20, *paint);
-    paint->setShader(SkShader::CreateColorShader(paint->getColor()))->unref();
+    paint->setShader(SkShader::MakeColorShader(paint->getColor()));
     canvas->drawText(text, len, 10, 40, *paint);
     paint->setShader(shader);
     canvas->drawText(text, len, 10, 60, *paint);
 }
 
 class GammaShaderTextGM : public skiagm::GM {
-    SkShader* fShaders[3];
+    sk_sp<SkShader> fShaders[3];
     SkColor fColors[3];
 
 public:
     GammaShaderTextGM() {
         const SkColor colors[] = { SK_ColorBLACK, SK_ColorRED, SK_ColorBLUE };
         for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
-            fShaders[i] = nullptr;
             fColors[i] = colors[i];
-        }
-    }
-
-    ~GammaShaderTextGM() override {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
-            SkSafeUnref(fShaders[i]);
         }
     }
 
@@ -149,7 +136,7 @@ protected:
     SkString onShortName() override {
         return SkString("gammagradienttext");
     }
-    
+
     SkISize onISize() override {
         return SkISize::Make(300, 300);
     }
@@ -173,10 +160,9 @@ protected:
             canvas->translate(0, 80);
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
 
 DEF_GM( return new GammaShaderTextGM; )
-

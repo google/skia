@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "SkDumpCanvas.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPicture.h"
@@ -28,7 +28,6 @@
 
 #include "SkStream.h"
 #include "SkSurface.h"
-#include "SkXMLParser.h"
 
 #include "SkGlyphCache.h"
 
@@ -118,7 +117,7 @@ protected:
 #endif
 
         if (!*picture) {
-            *picture = LoadPicture(fFilename.c_str(), fBBox);
+            *picture = LoadPicture(fFilename.c_str(), fBBox).release();
         }
         if (*picture) {
             SkCounterDrawFilter filter(fCount);
@@ -150,22 +149,22 @@ private:
     SkSize      fTileSize;
     int         fCount;
 
-    SkPicture* LoadPicture(const char path[], BBoxType bbox) {
-        SkAutoTUnref<SkPicture> pic;
+    sk_sp<SkPicture> LoadPicture(const char path[], BBoxType bbox) {
+        sk_sp<SkPicture> pic;
 
         SkBitmap bm;
-        if (SkImageDecoder::DecodeFile(path, &bm)) {
+        if (decode_file(path, &bm)) {
             bm.setImmutable();
             SkPictureRecorder recorder;
             SkCanvas* can = recorder.beginRecording(SkIntToScalar(bm.width()),
                                                     SkIntToScalar(bm.height()),
                                                     nullptr, 0);
             can->drawBitmap(bm, 0, 0, nullptr);
-            pic.reset(recorder.endRecording());
+            pic = recorder.finishRecordingAsPicture();
         } else {
             SkFILEStream stream(path);
             if (stream.isValid()) {
-                pic.reset(SkPicture::CreateFromStream(&stream));
+                pic = SkPicture::MakeFromStream(&stream);
             } else {
                 SkDebugf("coun't load picture at \"path\"\n", path);
             }
@@ -175,7 +174,7 @@ private:
                 pic->playback(recorder.beginRecording(pic->cullRect().width(),
                                                       pic->cullRect().height(),
                                                       nullptr, 0));
-                SkAutoTUnref<SkPicture> p2(recorder.endRecording());
+                sk_sp<SkPicture> p2(recorder.finishRecordingAsPicture());
 
                 SkString path2(path);
                 path2.append(".new.skp");
@@ -192,7 +191,7 @@ private:
         switch (bbox) {
         case kNo_BBoxType:
             // no bbox playback necessary
-            return pic.detach();
+            return pic;
         case kRTree_BBoxType:
             factory.reset(new SkRTreeFactory);
             break;
@@ -204,7 +203,7 @@ private:
         pic->playback(recorder.beginRecording(pic->cullRect().width(),
                                               pic->cullRect().height(),
                                               factory.get(), 0));
-        return recorder.endRecording();
+        return recorder.finishRecordingAsPicture();
     }
 
     typedef SampleView INHERITED;

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -92,9 +91,9 @@ void SkMeshUtils::Draw(SkCanvas* canvas, const SkBitmap& bitmap,
 
     if (idx.init(bitmap.width(), bitmap.height(), rows, cols)) {
         SkPaint p(paint);
-        p.setShader(SkShader::CreateBitmapShader(bitmap,
+        p.setShader(SkShader::MakeBitmapShader(bitmap,
                                          SkShader::kClamp_TileMode,
-                                         SkShader::kClamp_TileMode))->unref();
+                                         SkShader::kClamp_TileMode));
         canvas->drawVertices(SkCanvas::kTriangles_VertexMode,
                              rows * cols, verts, idx.tex(), colors, nullptr,
                              idx.indices(), idx.indexCount(), p);

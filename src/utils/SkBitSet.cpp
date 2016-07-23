@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -27,7 +26,7 @@ SkBitSet& SkBitSet::operator=(const SkBitSet& rhs) {
         return *this;
     }
     fBitCount = rhs.fBitCount;
-    fBitData.free();
+    fBitData.reset();
     fDwordCount = rhs.fDwordCount;
     fBitData.set(sk_malloc_throw(fDwordCount * sizeof(uint32_t)));
     memcpy(fBitData.get(), rhs.fBitData.get(), fDwordCount * sizeof(uint32_t));

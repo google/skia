@@ -17,4 +17,3 @@ GrGLSLGeometryBuilder::GrGLSLGeometryBuilder(GrGLSLProgramBuilder* program)
 void GrGLSLGeometryBuilder::onFinalize() {
     fProgramBuilder->varyingHandler()->getGeomDecls(&this->inputs(), &this->outputs());
 }
-

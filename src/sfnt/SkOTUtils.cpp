@@ -83,7 +83,7 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
     size_t originalDataSize = fontData->getLength() - oldNameTablePhysicalSize;
     size_t newDataSize = originalDataSize + nameTablePhysicalSize;
 
-    SkAutoTUnref<SkData> rewrittenFontData(SkData::NewUninitialized(newDataSize));
+    auto rewrittenFontData = SkData::MakeUninitialized(newDataSize);
     SK_OT_BYTE* data = static_cast<SK_OT_BYTE*>(rewrittenFontData->writable_data());
 
     if (fontData->read(data, oldNameTableOffset) < oldNameTableOffset) {
@@ -157,7 +157,7 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
         }
     }
 
-    return rewrittenFontData.detach();
+    return rewrittenFontData.release();
 }
 
 
@@ -174,7 +174,7 @@ SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(const SkTypeface& ty
         return nullptr;
     }
 
-    return new SkOTUtils::LocalizedStrings_NameTable((SkOTTableName*)nameTableData.detach(),
+    return new SkOTUtils::LocalizedStrings_NameTable((SkOTTableName*)nameTableData.release(),
         SkOTUtils::LocalizedStrings_NameTable::familyNameTypes,
         SK_ARRAY_COUNT(SkOTUtils::LocalizedStrings_NameTable::familyNameTypes));
 }

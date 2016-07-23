@@ -10,22 +10,49 @@
 #   http://clang.llvm.org/docs/UsersManual.html#controlling-code-generation
 
 set -e
+set -x
 
-sanitizer=$1
-shift
-args="$@"
+here=$(cd `dirname $0`; echo `pwd`)
+cores=48
 
-export CC="$(which clang)"
-export CXX="$(which clang++)"
+echo "Bootstrapping CMake"
+pushd $here/../third_party/externals/cmake
+./bootstrap --parallel=$cores
+make -j $cores cmake
+popd
 
-if [[ -z "${CC}" ]] || [[ -z "${CXX}" ]]; then
-  echo "Couldn't find Clang on this machine!"
-  exit 1
-fi
+cmake=$here/../third_party/externals/cmake/bin/cmake
 
-echo "CC=$CC"
-echo "CXX=$CXX"
+echo "Building Clang"
+pushd $here/../third_party/externals/llvm
+mkdir -p out/
+cd out/
+rm -f CMakeCache.txt   # Force CMake to re-configure, in case DEPS has changed.
+$cmake -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+ninja
+popd
+
+export CC=$here/../third_party/externals/llvm/out/bin/clang
+export CXX=$here/../third_party/externals/llvm/out/bin/clang++
 $CC --version
 
-export GYP_DEFINES="skia_sanitizer=$sanitizer ${GYP_DEFINES}"
-make ${args}
+if [[ "$1" == "memory" ]]; then
+    echo "Building libc++ with MSAN"
+    pushd $here/../third_party/externals/llvm
+    mkdir -p msan_out/
+    cd msan_out/
+    rm -f CMakeCache.txt   # Force CMake to re-configure, in case DEPS has changed.
+    $cmake -DLLVM_USE_SANITIZER=MemoryWithOrigins -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+    ninja cxx cxxabi   # No need to build all of LLVM+Clang with MSAN, just libc++.
+    popd
+
+    msan_out=$here/../third_party/externals/llvm/msan_out
+
+    export GYP_DEFINES="skia_gpu=0 skia_no_fontconfig=1 skia_freetype_static=1 ${GYP_DEFINES}"
+    export CXXFLAGS="-stdlib=libc++ -I$msan_out/include ${CXX_FLAGS}"
+    export LDFLAGS="-stdlib=libc++ -L$msan_out/lib -Wl,-rpath,$msan_out/lib ${LDFLAGS}"
+fi
+export GYP_DEFINES="skia_sanitizer=$1 ${GYP_DEFINES}"
+
+shift
+make $@

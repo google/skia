@@ -19,7 +19,7 @@
 
 static void test_font(skiatest::Reporter* reporter) {
     uint32_t flags = 0;
-    SkAutoTUnref<SkFont> font(SkFont::Create(nullptr, 24, SkFont::kA8_MaskType, flags));
+    sk_sp<SkFont> font(SkFont::Make(nullptr, 24, SkFont::kA8_MaskType, flags));
 
     REPORTER_ASSERT(reporter, font->getTypeface());
     REPORTER_ASSERT(reporter, 24 == font->getSize());
@@ -39,7 +39,7 @@ static void test_font(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, glyphs[0] != glyphs[1]); // 'h' != 'e'
     REPORTER_ASSERT(reporter, glyphs[2] == glyphs[3]); // 'l' == 'l'
 
-    SkAutoTUnref<SkFont> newFont(font->cloneWithSize(36));
+    sk_sp<SkFont> newFont(font->makeWithSize(36));
     REPORTER_ASSERT(reporter, newFont.get());
     REPORTER_ASSERT(reporter, font->getTypeface() == newFont->getTypeface());
     REPORTER_ASSERT(reporter, 36 == newFont->getSize());   // double check we haven't changed
@@ -47,7 +47,7 @@ static void test_font(skiatest::Reporter* reporter) {
 
     SkPaint paint;
     paint.setTextSize(18);
-    font.reset(SkFont::Testing_CreateFromPaint(paint));
+    font = SkFont::Testing_CreateFromPaint(paint);
     REPORTER_ASSERT(reporter, font.get());
     REPORTER_ASSERT(reporter, font->getSize() == paint.getTextSize());
     REPORTER_ASSERT(reporter, SkFont::kBW_MaskType == font->getMaskType());
@@ -64,14 +64,12 @@ static void test_alias_names(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(inNames); ++i) {
-        SkAutoTUnref<SkTypeface> first(SkTypeface::CreateFromName(inNames[i],
-                                                          SkTypeface::kNormal));
+        sk_sp<SkTypeface> first(SkTypeface::MakeFromName(inNames[i], SkFontStyle()));
         if (nullptr == first.get()) {
             continue;
         }
         for (int j = 0; j < 10; ++j) {
-            SkAutoTUnref<SkTypeface> face(SkTypeface::CreateFromName(inNames[i],
-                                                         SkTypeface::kNormal));
+            sk_sp<SkTypeface> face(SkTypeface::MakeFromName(inNames[i], SkFontStyle()));
     #if 0
             SkString name;
             face->getFamilyName(&name);
@@ -110,7 +108,7 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
 
             if (verbose) {
                 SkDebugf("\t[%d] %s [%3d %d %d]\n", j, sname.c_str(),
-                         fs.weight(), fs.width(), fs.isItalic());
+                         fs.weight(), fs.width(), fs.slant());
             }
         }
     }
@@ -125,7 +123,8 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
         TestTypeface(const SkFontStyle& fontStyle, SkFontID id) : SkTypeface(fontStyle, id, false){}
     protected:
         SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
-        SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override {
+        SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                               const SkDescriptor*) const override {
             return nullptr;
         }
         void onFilterRec(SkScalerContextRec*) const override { }
@@ -184,10 +183,14 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
     SkFontStyle condensed_normal_900(SkFontStyle::kBlack_Weight, SkFontStyle::kCondensed_Width, SkFontStyle::kUpright_Slant);
     SkFontStyle condensed_italic_100(SkFontStyle::kThin_Weight,  SkFontStyle::kCondensed_Width, SkFontStyle::kItalic_Slant);
     SkFontStyle condensed_italic_900(SkFontStyle::kBlack_Weight, SkFontStyle::kCondensed_Width, SkFontStyle::kItalic_Slant);
+    SkFontStyle condensed_obliqu_100(SkFontStyle::kThin_Weight,  SkFontStyle::kCondensed_Width, SkFontStyle::kOblique_Slant);
+    SkFontStyle condensed_obliqu_900(SkFontStyle::kBlack_Weight, SkFontStyle::kCondensed_Width, SkFontStyle::kOblique_Slant);
     SkFontStyle  expanded_normal_100(SkFontStyle::kThin_Weight,  SkFontStyle::kExpanded_Width,  SkFontStyle::kUpright_Slant);
     SkFontStyle  expanded_normal_900(SkFontStyle::kBlack_Weight, SkFontStyle::kExpanded_Width,  SkFontStyle::kUpright_Slant);
     SkFontStyle  expanded_italic_100(SkFontStyle::kThin_Weight,  SkFontStyle::kExpanded_Width,  SkFontStyle::kItalic_Slant);
     SkFontStyle  expanded_italic_900(SkFontStyle::kBlack_Weight, SkFontStyle::kExpanded_Width,  SkFontStyle::kItalic_Slant);
+    SkFontStyle  expanded_obliqu_100(SkFontStyle::kThin_Weight,  SkFontStyle::kExpanded_Width,  SkFontStyle::kOblique_Slant);
+    SkFontStyle  expanded_obliqu_900(SkFontStyle::kBlack_Weight, SkFontStyle::kExpanded_Width,  SkFontStyle::kOblique_Slant);
 
     SkFontStyle normal_normal_100(SkFontStyle::kThin_Weight,       SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
     SkFontStyle normal_normal_200(SkFontStyle::kExtraLight_Weight, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
@@ -461,16 +464,21 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
         },
 
         {
-            { expanded_normal_100,expanded_normal_900,expanded_italic_100,expanded_italic_900 },
+            { expanded_normal_100,expanded_normal_900,
+              expanded_italic_100,expanded_italic_900 },
             {
                 { condensed_normal_100, expanded_normal_100 },
                 { condensed_normal_900, expanded_normal_900 },
                 { condensed_italic_100, expanded_italic_100 },
                 { condensed_italic_900, expanded_italic_900 },
+                { condensed_obliqu_100, expanded_italic_100 },
+                { condensed_obliqu_900, expanded_italic_900 },
                 { expanded_normal_100, expanded_normal_100 },
                 { expanded_normal_900, expanded_normal_900 },
                 { expanded_italic_100, expanded_italic_100 },
                 { expanded_italic_900, expanded_italic_900 },
+                { expanded_obliqu_100, expanded_italic_100 },
+                { expanded_obliqu_900, expanded_italic_900 },
             },
         },
 
@@ -623,6 +631,61 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
                 { normal_normal_400, invalidFontStyle },
                 { normal_normal_500, invalidFontStyle },
                 { normal_normal_600, invalidFontStyle },
+            },
+        },
+        {
+            { expanded_normal_100,expanded_normal_900,
+              expanded_italic_100,expanded_italic_900,
+              expanded_obliqu_100,expanded_obliqu_900, },
+            {
+                { condensed_normal_100, expanded_normal_100 },
+                { condensed_normal_900, expanded_normal_900 },
+                { condensed_italic_100, expanded_italic_100 },
+                { condensed_italic_900, expanded_italic_900 },
+                { condensed_obliqu_100, expanded_obliqu_100 },
+                { condensed_obliqu_900, expanded_obliqu_900 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_900 },
+                { expanded_obliqu_100, expanded_obliqu_100 },
+                { expanded_obliqu_900, expanded_obliqu_900 },
+            },
+        },
+        {
+            { expanded_normal_100,expanded_normal_900,
+              expanded_obliqu_100,expanded_obliqu_900, },
+            {
+                { condensed_normal_100, expanded_normal_100 },
+                { condensed_normal_900, expanded_normal_900 },
+                { condensed_italic_100, expanded_obliqu_100 },
+                { condensed_italic_900, expanded_obliqu_900 },
+                { condensed_obliqu_100, expanded_obliqu_100 },
+                { condensed_obliqu_900, expanded_obliqu_900 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_obliqu_100 },
+                { expanded_italic_900, expanded_obliqu_900 },
+                { expanded_obliqu_100, expanded_obliqu_100 },
+                { expanded_obliqu_900, expanded_obliqu_900 },
+            },
+        },
+        {
+            { expanded_italic_100,expanded_italic_900,
+              expanded_obliqu_100,expanded_obliqu_900, },
+            {
+                { condensed_normal_100, expanded_obliqu_100 },
+                { condensed_normal_900, expanded_obliqu_900 },
+                { condensed_italic_100, expanded_italic_100 },
+                { condensed_italic_900, expanded_italic_900 },
+                { condensed_obliqu_100, expanded_obliqu_100 },
+                { condensed_obliqu_900, expanded_obliqu_900 },
+                { expanded_normal_100, expanded_obliqu_100 },
+                { expanded_normal_900, expanded_obliqu_900 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_900 },
+                { expanded_obliqu_100, expanded_obliqu_100 },
+                { expanded_obliqu_900, expanded_obliqu_900 },
             },
         },
     };

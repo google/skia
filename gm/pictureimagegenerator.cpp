@@ -68,10 +68,8 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     const SkScalar pos1[] = { 0, 0.75f };
     const SkColor colors1[] = { SK_ColorTRANSPARENT, SK_ColorBLACK };
     SkASSERT(SK_ARRAY_COUNT(pos1) == SK_ARRAY_COUNT(colors1));
-    SkAutoTUnref<SkShader> gradient1(SkGradientShader::CreateLinear(pts1, colors1, pos1,
-                                                                    SK_ARRAY_COUNT(pos1),
-                                                                    SkShader::kClamp_TileMode));
-    paint.setShader(gradient1.get());
+    paint.setShader(SkGradientShader::MakeLinear(pts1, colors1, pos1, SK_ARRAY_COUNT(pos1),
+                                                 SkShader::kClamp_TileMode));
     canvas->drawRect(underlineRect, paint);
 
     const SkPoint pts2[] = { SkPoint::Make(iBox.x() - iBox.width() * kGradientPad, 0),
@@ -88,10 +86,8 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
         SK_ColorBLACK
     };
     SkASSERT(SK_ARRAY_COUNT(pos2) == SK_ARRAY_COUNT(colors2));
-    SkAutoTUnref<SkShader> gradient2(SkGradientShader::CreateLinear(pts2, colors2, pos2,
-                                                                    SK_ARRAY_COUNT(pos2),
-                                                                    SkShader::kClamp_TileMode));
-    paint.setShader(gradient2.get());
+    paint.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos2, SK_ARRAY_COUNT(pos2),
+                                                 SkShader::kClamp_TileMode));
     canvas->drawText(kSkiaStr, textLen, 0, 0, paint);
 }
 
@@ -112,7 +108,7 @@ protected:
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(rect);
         draw_vector_logo(canvas, rect);
-        fPicture.reset(recorder.endRecording());
+        fPicture = recorder.finishRecordingAsPicture();
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -175,7 +171,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
 
     const SkScalar kPictureWidth = 200;
     const SkScalar kPictureHeight = 100;

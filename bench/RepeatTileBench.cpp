@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -120,10 +119,9 @@ protected:
             fBitmap = tmp;
         }
 
-        SkShader* s = SkShader::CreateBitmapShader(fBitmap,
-                                                   SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode);
-        fPaint.setShader(s)->unref();
+        fPaint.setShader(SkShader::MakeBitmapShader(fBitmap,
+                                                    SkShader::kRepeat_TileMode,
+                                                    SkShader::kRepeat_TileMode));
     }
 
 

@@ -103,9 +103,14 @@ public:
         for (int index = 0; index < roots; ++index) {
             double conicT = rootVals[index];
             double lineT = this->findLineT(conicT);
-            SkDEBUGCODE(SkDPoint conicPt = fConic.ptAtT(conicT));
-            SkDEBUGCODE(SkDPoint linePt = fLine->ptAtT(lineT));
-            SkASSERT(conicPt.approximatelyEqual(linePt));
+#ifdef SK_DEBUG
+            if (!fIntersections->debugGlobalState()
+                    || !fIntersections->debugGlobalState()->debugSkipAssert()) {
+                SkDEBUGCODE(SkDPoint conicPt = fConic.ptAtT(conicT));
+                SkDEBUGCODE(SkDPoint linePt = fLine->ptAtT(lineT));
+                SkASSERT(conicPt.approximatelyEqual(linePt));
+            }
+#endif
             SkDPoint pt;
             if (this->pinTs(&conicT, &lineT, &pt, kPointUninitialized)
                     && this->uniqueAnswer(conicT, pt)) {
@@ -152,7 +157,9 @@ public:
             double conicT = roots[index];
             SkDPoint pt = fConic.ptAtT(conicT);
             SkDEBUGCODE_(double conicVals[] = { fConic[0].fX, fConic[1].fX, fConic[2].fX });
-            SkASSERT(close_to(pt.fX, axisIntercept, conicVals));
+            SkASSERT((fIntersections->debugGlobalState() &&
+                fIntersections->debugGlobalState()->debugSkipAssert()) ||
+                close_to(pt.fX, axisIntercept, conicVals));
             double lineT = (pt.fY - top) / (bottom - top);
             if (this->pinTs(&conicT, &lineT, &pt, kPointInitialized)
                     && this->uniqueAnswer(conicT, pt)) {

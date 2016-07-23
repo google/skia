@@ -46,13 +46,13 @@ public:
     LightingShaderGM() {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
 
-        SkLightingShader::Lights::Builder builder;
+        SkLights::Builder builder;
 
-        builder.add(SkLight(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                            SkVector3::Make(1.0f, 0.0f, 0.0f)));
-        builder.add(SkLight(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f),
+                                    SkVector3::Make(1.0f, 0.0f, 0.0f)));
+        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
 
-        fLights.reset(builder.finish());
+        fLights = builder.finish();
     }
 
 protected:
@@ -92,20 +92,15 @@ protected:
 
         SkMatrix matrix;
         matrix.setRectToRect(bitmapBounds, r, SkMatrix::kFill_ScaleToFit);
-    
+
         const SkMatrix& ctm = canvas->getTotalMatrix();
 
         // TODO: correctly pull out the pure rotation
         SkVector invNormRotation = { ctm[SkMatrix::kMScaleX], ctm[SkMatrix::kMSkewY] };
 
-        SkAutoTUnref<SkShader> fShader(SkLightingShader::Create(
-                                                        fDiffuse,
-                                                        fNormalMaps[mapType],
-                                                        fLights,
-                                                        invNormRotation, &matrix, &matrix));
-
         SkPaint paint;
-        paint.setShader(fShader);
+        paint.setShader(SkLightingShader::Make(fDiffuse, fNormalMaps[mapType], fLights,
+                                               invNormRotation, &matrix, &matrix));
 
         canvas->drawRect(r, paint);
     }
@@ -167,10 +162,10 @@ private:
     static const int kTexSize = 128;
     static const int kGMSize  = 512;
 
-    SkBitmap                fDiffuse;
-    SkBitmap                fNormalMaps[kNormalMapCount];
+    SkBitmap        fDiffuse;
+    SkBitmap        fNormalMaps[kNormalMapCount];
 
-    SkAutoTUnref<const SkLightingShader::Lights>  fLights;
+    sk_sp<SkLights> fLights;
 
     typedef GM INHERITED;
 };

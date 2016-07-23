@@ -6,6 +6,7 @@
  */
 
 #include "SkChunkAlloc.h"
+#include "SkRandom.h"
 #include "SkUtils.h"
 #include "Test.h"
 
@@ -22,7 +23,15 @@ static void* simple_alloc(skiatest::Reporter* reporter, SkChunkAlloc* alloc, siz
     REPORTER_ASSERT(reporter, alloc->contains(ptr));
     return ptr;
 }
-                        
+
+static void check_alloc_alignment(skiatest::Reporter* reporter,
+                                  SkChunkAlloc* alloc, size_t size) {
+    const size_t kAlignment = 8;
+    void* ptr = alloc->allocThrow(size);
+    REPORTER_ASSERT(reporter, ptr != nullptr);
+    REPORTER_ASSERT(reporter, (size_t)ptr % kAlignment == 0);
+}
+
 static void test_chunkalloc(skiatest::Reporter* reporter) {
     static const size_t kMin = 1024;
     SkChunkAlloc alloc(kMin);
@@ -76,6 +85,14 @@ static void test_chunkalloc(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, freed == kMin);
     check_alloc(reporter, alloc, 2*kMin, size, 2);
     REPORTER_ASSERT(reporter, !alloc.contains(ptr));
+
+    //------------------------------------------------------------------------
+    // test the alignment
+    alloc.reset();
+    SkRandom rand;
+    for (int i = 0; i < 1000; i++) {
+        check_alloc_alignment(reporter, &alloc, rand.nextU16());
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,24 +112,24 @@ static void set_zero(void* dst, size_t bytes) {
 #define VALUE16         0x1234
 #define VALUE32         0x12345678
 
-static bool compare16(const uint16_t base[], uint16_t value, int count) {
+static void compare16(skiatest::Reporter* r, const uint16_t base[],
+                      uint16_t value, int count) {
     for (int i = 0; i < count; ++i) {
         if (base[i] != value) {
-            SkDebugf("[%d] expected %x found %x\n", i, value, base[i]);
-            return false;
+            ERRORF(r, "[%d] expected %x found %x\n", i, value, base[i]);
+            return;
         }
     }
-    return true;
 }
 
-static bool compare32(const uint32_t base[], uint32_t value, int count) {
+static void compare32(skiatest::Reporter* r, const uint32_t base[],
+                      uint32_t value, int count) {
     for (int i = 0; i < count; ++i) {
         if (base[i] != value) {
-            SkDebugf("[%d] expected %x found %x\n", i, value, base[i]);
-            return false;
+            ERRORF(r, "[%d] expected %x found %x\n", i, value, base[i]);
+            return;
         }
     }
-    return true;
 }
 
 static void test_16(skiatest::Reporter* reporter) {
@@ -125,10 +142,9 @@ static void test_16(skiatest::Reporter* reporter) {
             uint16_t* base = &buffer[PAD + alignment];
             sk_memset16(base, VALUE16, count);
 
-            REPORTER_ASSERT(reporter,
-                compare16(buffer,       0,       PAD + alignment) &&
-                compare16(base,         VALUE16, count) &&
-                compare16(base + count, 0,       TOTAL - count - PAD - alignment));
+            compare16(reporter, buffer,       0,       PAD + alignment);
+            compare16(reporter, base,         VALUE16, count);
+            compare16(reporter, base + count, 0,       TOTAL - count - PAD - alignment);
         }
     }
 }
@@ -143,10 +159,9 @@ static void test_32(skiatest::Reporter* reporter) {
             uint32_t* base = &buffer[PAD + alignment];
             sk_memset32(base, VALUE32, count);
 
-            REPORTER_ASSERT(reporter,
-                compare32(buffer,       0,       PAD + alignment) &&
-                compare32(base,         VALUE32, count) &&
-                compare32(base + count, 0,       TOTAL - count - PAD - alignment));
+            compare32(reporter, buffer,       0,       PAD + alignment);
+            compare32(reporter, base,         VALUE32, count);
+            compare32(reporter, base + count, 0,       TOTAL - count - PAD - alignment);
         }
     }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -33,12 +32,10 @@ protected:
         SkScalar r0 = 100;
         SkPoint c1 = { 100, 100 };
         SkScalar r1 = 100;
-        SkShader* s = SkGradientShader::CreateTwoPointConical(c0, r0, c1, r1, colors,
-                                                             nullptr, 2,
-                                                             SkShader::kClamp_TileMode);
-
         SkPaint paint;
-        paint.setShader(s)->unref();
+        paint.setShader(SkGradientShader::MakeTwoPointConical(c0, r0, c1, r1, colors,
+                                                             nullptr, 2,
+                                                             SkShader::kClamp_TileMode));
         canvas->drawPaint(paint);
     }
 

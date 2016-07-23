@@ -23,7 +23,7 @@ struct SkChunkAlloc::Block {
     char*   fFreePtr;
     // data[] follows
 
-    size_t blockSize() { 
+    size_t blockSize() const {
         char* start = this->startOfData();
         size_t bytes = fFreePtr - start;
         return fFreeSize + bytes;
@@ -35,8 +35,8 @@ struct SkChunkAlloc::Block {
         fFreePtr = this->startOfData();
     }
 
-    char* startOfData() {
-        return reinterpret_cast<char*>(this + 1);
+    char* startOfData() const {
+        return reinterpret_cast<char*>(SkAlign8(reinterpret_cast<size_t>(this + 1)));
     }
 
     static void FreeChain(Block* block) {
@@ -49,7 +49,7 @@ struct SkChunkAlloc::Block {
 
     bool contains(const void* addr) const {
         const char* ptr = reinterpret_cast<const char*>(addr);
-        return ptr >= (const char*)(this + 1) && ptr < fFreePtr;
+        return ptr >= this->startOfData() && ptr < fFreePtr;
     }
 };
 
@@ -121,7 +121,7 @@ SkChunkAlloc::Block* SkChunkAlloc::newBlock(size_t bytes, AllocFailType ftype) {
         size = fChunkSize;
     }
 
-    Block* block = (Block*)sk_malloc_flags(sizeof(Block) + size,
+    Block* block = (Block*)sk_malloc_flags(SkAlign8(sizeof(Block)) + size,
                         ftype == kThrow_AllocFailType ? SK_MALLOC_THROW : 0);
 
     if (block) {
@@ -137,7 +137,7 @@ SkChunkAlloc::Block* SkChunkAlloc::newBlock(size_t bytes, AllocFailType ftype) {
 }
 
 SkChunkAlloc::Block* SkChunkAlloc::addBlockIfNecessary(size_t bytes, AllocFailType ftype) {
-    SkASSERT(SkIsAlign4(bytes));
+    SkASSERT(SkIsAlign8(bytes));
 
     if (!fBlock || bytes > fBlock->fFreeSize) {
         Block* block = this->newBlock(bytes, ftype);
@@ -160,7 +160,7 @@ SkChunkAlloc::Block* SkChunkAlloc::addBlockIfNecessary(size_t bytes, AllocFailTy
 void* SkChunkAlloc::alloc(size_t bytes, AllocFailType ftype) {
     SkDEBUGCODE(this->validate();)
 
-    bytes = SkAlign4(bytes);
+    bytes = SkAlign8(bytes);
 
     Block* block = this->addBlockIfNecessary(bytes, ftype);
     if (!block) {
@@ -173,6 +173,7 @@ void* SkChunkAlloc::alloc(size_t bytes, AllocFailType ftype) {
     block->fFreeSize -= bytes;
     block->fFreePtr = ptr + bytes;
     SkDEBUGCODE(this->validate();)
+    SkASSERT(SkIsAlign8((size_t)ptr));
     return ptr;
 }
 
@@ -232,4 +233,3 @@ void SkChunkAlloc::validate() {
     SkASSERT(totCapacity == totUsed + totLost + totAvailable);
 }
 #endif
-

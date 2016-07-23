@@ -5,17 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "GrLayerCache.h"
-#include "GrLayerHoister.h"
-#include "GrRecordReplaceDraw.h"
-
 #include "SkBigPicture.h"
 #include "SkCanvas.h"
-#include "SkGpuDevice.h"
+#include "SkImageFilterCache.h"
 #include "SkLayerInfo.h"
 #include "SkRecordDraw.h"
+#include "SkSpecialImage.h"
 #include "SkSurface.h"
-#include "SkSurface_Gpu.h"
+
+#include "GrLayerHoister.h"
+
+#if !defined(SK_IGNORE_GPU_LAYER_HOISTING) && SK_SUPPORT_GPU
+
+#include "GrContext.h"
+#include "GrLayerCache.h"
+#include "GrRecordReplaceDraw.h"
 
 // Create the layer information for the hoisted layer and secure the
 // required texture/render target resources.
@@ -92,7 +96,7 @@ static bool compute_source_rect(const SkLayerInfo::BlockInfo& info, const SkMatr
     totMat.preConcat(info.fLocalMat);
 
     if (info.fPaint && info.fPaint->getImageFilter()) {
-        info.fPaint->getImageFilter()->filterBounds(clipBounds, totMat, &clipBounds);
+        clipBounds = info.fPaint->getImageFilter()->filterBounds(clipBounds, totMat);
     }
 
     if (!info.fSrcBounds.isEmpty()) {
@@ -231,7 +235,7 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
     if (atlased.count() > 0) {
         // All the atlased layers are rendered into the same GrTexture
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
+        sk_sp<SkSurface> surface(SkSurface::MakeRenderTargetDirect(
                                         atlased[0].fLayer->texture()->asRenderTarget(), &props));
 
         SkCanvas* atlasCanvas = surface->getCanvas();
@@ -277,7 +281,7 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
 }
 
 void GrLayerHoister::FilterLayer(GrContext* context,
-                                 SkGpuDevice* device,
+                                 const SkSurfaceProps* props,
                                  const GrHoistedLayer& info) {
     GrCachedLayer* layer = info.fLayer;
 
@@ -285,36 +289,41 @@ void GrLayerHoister::FilterLayer(GrContext* context,
 
     static const int kDefaultCacheSize = 32 * 1024 * 1024;
 
-    SkBitmap filteredBitmap;
-    SkIPoint offset = SkIPoint::Make(0, 0);
-
     const SkIPoint filterOffset = SkIPoint::Make(layer->srcIR().fLeft, layer->srcIR().fTop);
 
-    SkMatrix totMat = SkMatrix::I();
-    totMat.preConcat(info.fPreMat);
+    SkMatrix totMat(info.fPreMat);
     totMat.preConcat(info.fLocalMat);
     totMat.postTranslate(-SkIntToScalar(filterOffset.fX), -SkIntToScalar(filterOffset.fY));
 
     SkASSERT(0 == layer->rect().fLeft && 0 == layer->rect().fTop);
-    SkIRect clipBounds = layer->rect();
+    const SkIRect& clipBounds = layer->rect();
 
     // This cache is transient, and is freed (along with all its contained
     // textures) when it goes out of scope.
-    SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(kDefaultCacheSize));
+    SkAutoTUnref<SkImageFilterCache> cache(SkImageFilterCache::Create(kDefaultCacheSize));
     SkImageFilter::Context filterContext(totMat, clipBounds, cache);
 
-    SkImageFilter::DeviceProxy proxy(device);
-    SkBitmap src;
-    GrWrapTextureInBitmap(layer->texture(), layer->texture()->width(), layer->texture()->height(),
-                          false, &src);
+    // TODO: should the layer hoister store stand alone layers as SkSpecialImages internally?
+    SkASSERT(layer->rect().width() == layer->texture()->width() &&
+             layer->rect().height() == layer->texture()->height());
+    const SkIRect subset = SkIRect::MakeWH(layer->rect().width(), layer->rect().height());
+    sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromGpu(subset,
+                                                          kNeedNewImageUniqueID_SpecialImage,
+                                                          sk_ref_sp(layer->texture()),
+                                                          props));
 
-    if (!layer->filter()->filterImage(&proxy, src, filterContext, &filteredBitmap, &offset)) {
+    SkIPoint offset = SkIPoint::Make(0, 0);
+    sk_sp<SkSpecialImage> result(layer->filter()->filterImage(img.get(),
+                                                              filterContext,
+                                                              &offset));
+    if (!result) {
         // Filtering failed. Press on with the unfiltered version.
         return;
     }
 
-    SkIRect newRect = SkIRect::MakeWH(filteredBitmap.width(), filteredBitmap.height());
-    layer->setTexture(filteredBitmap.getTexture(), newRect, false);
+    SkASSERT(result->isTextureBacked());
+    sk_sp<GrTexture> texture(result->asTextureRef(context));
+    layer->setTexture(texture.get(), result->subset(), false);
     layer->setOffset(offset);
 }
 
@@ -330,7 +339,7 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
 
         // Each non-atlased layer has its own GrTexture
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
+        auto surface(SkSurface::MakeRenderTargetDirect(
                                         layer->texture()->asRenderTarget(), &props));
 
         SkCanvas* layerCanvas = surface->getCanvas();
@@ -354,9 +363,7 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
         layerCanvas->flush();
 
         if (layer->filter()) {
-            SkSurface_Gpu* gpuSurf = static_cast<SkSurface_Gpu*>(surface.get());
-
-            FilterLayer(context, gpuSurf->getDevice(), layers[i]);
+            FilterLayer(context, &surface->props(), layers[i]);
         }
     }
 }
@@ -391,3 +398,5 @@ void GrLayerHoister::End(GrContext* context) {
 
     layerCache->end();
 }
+
+#endif

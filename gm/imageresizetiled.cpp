@@ -18,9 +18,9 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
         SkPaint paint;
         SkMatrix matrix;
         matrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
-        SkAutoTUnref<SkImageFilter> imageFilter(
-            SkImageFilter::CreateMatrixFilter(matrix, kNone_SkFilterQuality));
-        paint.setImageFilter(imageFilter.get());
+        paint.setImageFilter(SkImageFilter::MakeMatrixFilter(matrix,
+                                                             kNone_SkFilterQuality,
+                                                             nullptr));
         const SkScalar tile_size = SkIntToScalar(100);
         SkRect bounds;
         canvas->getClipBounds(&bounds);

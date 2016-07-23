@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -15,39 +14,39 @@
 
 GrPaint::GrPaint()
     : fAntiAlias(false)
-    , fColor(GrColor_WHITE) {}
+    , fDisableOutputConversionToSRGB(false)
+    , fAllowSRGBInputs(false)
+    , fColor(GrColor4f::FromGrColor(GrColor_WHITE)) {}
 
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
-    fXPFactory.reset(GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage));
+    fXPFactory = GrCoverageSetOpXPFactory::Make(regionOp, invertCoverage);
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix));
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix));
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                        const SkMatrix& matrix,
                                        const GrTextureParams& params) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(texture,
-                                                                  matrix, params))->unref();
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix, params));
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
                                           const SkMatrix& matrix,
                                           const GrTextureParams& params) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(texture,
-                                                                     matrix, params))->unref();
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix, params));
 }
 
 bool GrPaint::isConstantBlendedColor(GrColor* color) const {
     GrProcOptInfo colorProcInfo;
-    colorProcInfo.calcWithInitialValues(fColorFragmentProcessors.begin(),
-                                        this->numColorFragmentProcessors(), fColor,
-                                        kRGBA_GrColorComponentFlags, false);
+    colorProcInfo.calcWithInitialValues(
+        sk_sp_address_as_pointer_address(fColorFragmentProcessors.begin()),
+        this->numColorFragmentProcessors(), this->getColor(), kRGBA_GrColorComponentFlags, false);
 
     GrXPFactory::InvariantBlendedColor blendedColor;
     if (fXPFactory) {
@@ -56,7 +55,7 @@ bool GrPaint::isConstantBlendedColor(GrColor* color) const {
         GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(colorProcInfo.color(),
                                                             colorProcInfo.validFlags(),
                                                             colorProcInfo.isOpaque(),
-                                                            &blendedColor); 
+                                                            &blendedColor);
     }
 
     if (kRGBA_GrColorComponentFlags == blendedColor.fKnownColorFlags) {

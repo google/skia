@@ -25,6 +25,13 @@
 #include "SkGrPriv.h"
 #endif
 
+// Until we actually have codecs/etc. that can contain/support a GPU texture format
+// skip this step, since for some generators, returning their encoded data as a SkData
+// can be somewhat expensive, and this call doesn't indicate to the generator that we're
+// only interested in GPU datas...
+// see skbug.com/ 4971, 5128, ...
+//#define SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
+
 SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
                                                        const SkIRect* subset) {
     if (!gen) {
@@ -55,7 +62,7 @@ SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
 
     // Now that we know we can hand-off the generator (to be owned by the cacherator) we can
     // release our holder. (we DONT want to delete it here anymore)
-    genHolder.detach();
+    genHolder.release();
 
     return new SkImageCacherator(gen, gen->getInfo().makeWH(subset->width(), subset->height()),
                                  SkIPoint::Make(subset->x(), subset->y()), uniqueID);
@@ -171,7 +178,8 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
     }
 
     const uint32_t pixelOpsFlags = 0;
-    if (!tex->readPixels(0, 0, bitmap->width(), bitmap->height(), SkImageInfo2GrPixelConfig(fInfo),
+    if (!tex->readPixels(0, 0, bitmap->width(), bitmap->height(),
+                         SkImageInfo2GrPixelConfig(fInfo, *tex->getContext()->caps()),
                          bitmap->getPixels(), bitmap->rowBytes(), pixelOpsFlags)) {
         bitmap->reset();
         return false;
@@ -194,6 +202,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
 
 #if SK_SUPPORT_GPU
 
+#ifdef SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
 static GrTexture* load_compressed_into_texture(GrContext* ctx, SkData* data, GrSurfaceDesc desc) {
     const void* rawStart;
     GrPixelConfig config = GrIsCompressedTextureDataSupported(ctx, data, desc.fWidth, desc.fHeight,
@@ -203,8 +212,9 @@ static GrTexture* load_compressed_into_texture(GrContext* ctx, SkData* data, GrS
     }
 
     desc.fConfig = config;
-    return ctx->textureProvider()->createTexture(desc, true, rawStart, 0);
+    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, rawStart, 0);
 }
+#endif
 
 class Generator_GrYUVProvider : public GrYUVProvider {
     SkImageGenerator* fGen;
@@ -213,12 +223,11 @@ public:
     Generator_GrYUVProvider(SkImageGenerator* gen) : fGen(gen) {}
 
     uint32_t onGetID() override { return fGen->uniqueID(); }
-    bool onGetYUVSizes(SkISize sizes[3]) override {
-        return fGen->getYUV8Planes(sizes, nullptr, nullptr, nullptr);
+    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
+        return fGen->queryYUV8(sizeInfo, colorSpace);
     }
-    bool onGetYUVPlanes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                        SkYUVColorSpace* space) override {
-        return fGen->getYUV8Planes(sizes, planes, rowBytes, space);
+    bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
+        return fGen->getYUV8Planes(sizeInfo, planes);
     }
 };
 
@@ -239,10 +248,27 @@ static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
  *  5. Ask the generator to return RGB(A) data, which the GPU can convert
  */
 GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key,
-                                          const SkImage* client, SkImage::CachingHint chint) {
+                                          const SkImage* client, SkImage::CachingHint chint,
+                                          bool willBeMipped,
+                                          SkSourceGammaTreatment gammaTreatment) {
+    // Values representing the various texture lock paths we can take. Used for logging the path
+    // taken to a histogram.
+    enum LockTexturePath {
+        kFailure_LockTexturePath,
+        kPreExisting_LockTexturePath,
+        kNative_LockTexturePath,
+        kCompressed_LockTexturePath,
+        kYUV_LockTexturePath,
+        kRGBA_LockTexturePath,
+    };
+
+    enum { kLockTexturePathCount = kRGBA_LockTexturePath + 1 };
+
     // 1. Check the cache for a pre-existing one
     if (key.isValid()) {
         if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kPreExisting_LockTexturePath,
+                                     kLockTexturePathCount);
             return tex;
         }
     }
@@ -252,56 +278,77 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
         ScopedGenerator generator(this);
         SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fInfo.width(), fInfo.height());
         if (GrTexture* tex = generator->generateTexture(ctx, &subset)) {
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
+                                     kLockTexturePathCount);
             return set_key_and_return(tex, key);
         }
     }
 
-    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(fInfo);
+    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(fInfo, *ctx->caps());
 
+#ifdef SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
     // 3. Ask the generator to return a compressed form that the GPU might support
     SkAutoTUnref<SkData> data(this->refEncoded(ctx));
     if (data) {
         GrTexture* tex = load_compressed_into_texture(ctx, data, desc);
         if (tex) {
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kCompressed_LockTexturePath,
+                                     kLockTexturePathCount);
             return set_key_and_return(tex, key);
         }
     }
+#endif
 
     // 4. Ask the generator to return YUV planes, which the GPU can convert
     {
         ScopedGenerator generator(this);
         Generator_GrYUVProvider provider(generator);
-        GrTexture* tex = provider.refAsTexture(ctx, desc, true);
+        sk_sp<GrTexture> tex = provider.refAsTexture(ctx, desc, true);
         if (tex) {
-            return set_key_and_return(tex, key);
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
+                                     kLockTexturePathCount);
+            return set_key_and_return(tex.release(), key);
         }
     }
 
     // 5. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
     if (this->tryLockAsBitmap(&bitmap, client, chint)) {
-        GrTexture* tex = GrUploadBitmapToTexture(ctx, bitmap);
+        GrTexture* tex = nullptr;
+        if (willBeMipped) {
+            tex = GrGenerateMipMapsAndUploadToTexture(ctx, bitmap, gammaTreatment);
+        }
+        if (!tex) {
+            tex = GrUploadBitmapToTexture(ctx, bitmap);
+        }
         if (tex) {
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
+                                     kLockTexturePathCount);
             return set_key_and_return(tex, key);
         }
     }
+    SK_HISTOGRAM_ENUMERATION("LockTexturePath", kFailure_LockTexturePath,
+                             kLockTexturePathCount);
     return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams& params,
+                                            SkSourceGammaTreatment gammaTreatment,
                                             const SkImage* client, SkImage::CachingHint chint) {
     if (!ctx) {
         return nullptr;
     }
 
-    return GrImageTextureMaker(ctx, this, client, chint).refTextureForParams(params);
+    return GrImageTextureMaker(ctx, this, client, chint).refTextureForParams(params,
+                                                                             gammaTreatment);
 }
 
 #else
 
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams&,
+                                            SkSourceGammaTreatment gammaTreatment,
                                             const SkImage* client, SkImage::CachingHint) {
     return nullptr;
 }

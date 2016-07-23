@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -18,7 +17,7 @@ class GrResourceKey;
 
 class GrStencilAttachment : public GrGpuResource {
 public:
-    
+
 
     virtual ~GrStencilAttachment() {
         // TODO: allow SB to be purged and detach itself from rts
@@ -53,9 +52,8 @@ public:
                                                   GrUniqueKey* key);
 
 protected:
-    GrStencilAttachment(GrGpu* gpu, LifeCycle lifeCycle, int width, int height, int bits,
-                        int sampleCnt)
-        : GrGpuResource(gpu, lifeCycle)
+    GrStencilAttachment(GrGpu* gpu, int width, int height, int bits, int sampleCnt)
+        : GrGpuResource(gpu)
         , fWidth(width)
         , fHeight(height)
         , fBits(bits)

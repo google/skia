@@ -17,15 +17,14 @@ namespace skiagm {
 
 static void compose_pe(SkPaint* paint) {
     SkPathEffect* pe = paint->getPathEffect();
-    SkPathEffect* corner = SkCornerPathEffect::Create(25);
-    SkPathEffect* compose;
+    sk_sp<SkPathEffect> corner = SkCornerPathEffect::Make(25);
+    sk_sp<SkPathEffect> compose;
     if (pe) {
-        compose = SkComposePathEffect::Create(pe, corner);
-        corner->unref();
+        compose = SkComposePathEffect::Make(sk_ref_sp(pe), corner);
     } else {
         compose = corner;
     }
-    paint->setPathEffect(compose)->unref();
+    paint->setPathEffect(compose);
 }
 
 static void hair_pe(SkPaint* paint) {
@@ -45,8 +44,7 @@ static void stroke_pe(SkPaint* paint) {
 static void dash_pe(SkPaint* paint) {
     SkScalar inter[] = { 20, 10, 10, 10 };
     paint->setStrokeWidth(12);
-    paint->setPathEffect(SkDashPathEffect::Create(inter, SK_ARRAY_COUNT(inter),
-                                                  0))->unref();
+    paint->setPathEffect(SkDashPathEffect::Make(inter, SK_ARRAY_COUNT(inter), 0));
     compose_pe(paint);
 }
 
@@ -69,8 +67,8 @@ static void one_d_pe(SkPaint* paint) {
     path.offset(SkIntToScalar(-6), 0);
     scale(&path, 1.5f);
 
-    paint->setPathEffect(SkPath1DPathEffect::Create(path, SkIntToScalar(21), 0,
-                                SkPath1DPathEffect::kRotate_Style))->unref();
+    paint->setPathEffect(SkPath1DPathEffect::Make(path, SkIntToScalar(21), 0,
+                                                  SkPath1DPathEffect::kRotate_Style));
     compose_pe(paint);
 }
 
@@ -83,21 +81,21 @@ static void fill_pe(SkPaint* paint) {
 }
 
 static void discrete_pe(SkPaint* paint) {
-    paint->setPathEffect(SkDiscretePathEffect::Create(10, 4))->unref();
+    paint->setPathEffect(SkDiscretePathEffect::Make(10, 4));
 }
 
-static SkPathEffect* MakeTileEffect() {
+static sk_sp<SkPathEffect> MakeTileEffect() {
     SkMatrix m;
     m.setScale(SkIntToScalar(12), SkIntToScalar(12));
 
     SkPath path;
     path.addCircle(0, 0, SkIntToScalar(5));
 
-    return SkPath2DPathEffect::Create(m, path);
+    return SkPath2DPathEffect::Make(m, path);
 }
 
 static void tile_pe(SkPaint* paint) {
-    paint->setPathEffect(MakeTileEffect())->unref();
+    paint->setPathEffect(MakeTileEffect());
 }
 
 static const PE_Proc gPE2[] = { fill_pe, discrete_pe, tile_pe };

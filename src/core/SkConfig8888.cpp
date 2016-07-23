@@ -129,7 +129,7 @@ bool SkSrcPixelInfo::convertPixelsTo(SkDstPixelInfo* dst, int width, int height)
 static void copy_g8_to_32(void* dst, size_t dstRB, const void* src, size_t srcRB, int w, int h) {
     uint32_t* dst32 = (uint32_t*)dst;
     const uint8_t* src8 = (const uint8_t*)src;
-    
+
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             dst32[x] = SkPackARGB32(0xFF, src8[x], src8[x], src8[x]);
@@ -176,6 +176,17 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
 
     const int width = srcInfo.width();
     const int height = srcInfo.height();
+
+    // Do the easiest one first : both configs are equal
+    if ((srcInfo == dstInfo) && !ctable) {
+        size_t bytes = width * srcInfo.bytesPerPixel();
+        for (int y = 0; y < height; ++y) {
+            memcpy(dstPixels, srcPixels, bytes);
+            srcPixels = (const char*)srcPixels + srcRB;
+            dstPixels = (char*)dstPixels + dstRB;
+        }
+        return true;
+    }
 
     // Handle fancy alpha swizzling if both are ARGB32
     if (4 == srcInfo.bytesPerPixel() && 4 == dstInfo.bytesPerPixel()) {
@@ -292,4 +303,3 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
         return true;
     }
 }
-

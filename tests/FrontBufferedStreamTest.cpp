@@ -6,8 +6,8 @@
  */
 
 #include "SkBitmap.h"
+#include "SkCodec.h"
 #include "SkFrontBufferedStream.h"
-#include "SkImageDecoder.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTypes.h"
@@ -68,7 +68,7 @@ static void test_incremental_buffering(skiatest::Reporter* reporter, size_t buff
     test_read(reporter, bufferedStream, gAbcs, bufferSize / 4);
 
     // Now test reading part of what was buffered, and buffering new data.
-    test_read(reporter, bufferedStream, gAbcs + bufferedStream->getPosition(), bufferSize / 2);
+    test_read(reporter, bufferedStream, gAbcs + bufferSize / 4, bufferSize / 2);
 
     // Now test reading what was buffered, buffering new data, and
     // reading directly from the stream.
@@ -96,7 +96,7 @@ static void test_perfectly_sized_buffer(skiatest::Reporter* reporter, size_t buf
     test_read(reporter, bufferedStream, gAbcs, bufferSize);
 
     // Read past the size of the buffer. At this point, we cannot return.
-    test_read(reporter, bufferedStream, gAbcs + bufferedStream->getPosition(), 1);
+    test_read(reporter, bufferedStream, gAbcs + memStream->getPosition(), 1);
     test_rewind(reporter, bufferedStream, false);
 }
 
@@ -116,7 +116,7 @@ static void test_skipping(skiatest::Reporter* reporter, size_t bufferSize) {
     bufferedStream->skip(bufferSize / 2);
 
     // Test that reading will still work.
-    test_read(reporter, bufferedStream, gAbcs + bufferedStream->getPosition(), bufferSize / 4);
+    test_read(reporter, bufferedStream, gAbcs + memStream->getPosition(), bufferSize / 4);
 
     test_rewind(reporter, bufferedStream, true);
     test_read(reporter, bufferedStream, gAbcs, bufferSize);
@@ -219,13 +219,12 @@ static void test_initial_offset(skiatest::Reporter* reporter, size_t bufferSize)
     memStream->skip(arbitraryOffset);
     SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
 
-    // Since SkMemoryStream has a length and a position, bufferedStream must also.
+    // Since SkMemoryStream has a length, bufferedStream must also.
     REPORTER_ASSERT(reporter, bufferedStream->hasLength());
 
     const size_t amountToRead = 10;
     const size_t bufferedLength = bufferedStream->getLength();
-    size_t currentPosition = bufferedStream->getPosition();
-    REPORTER_ASSERT(reporter, 0 == currentPosition);
+    size_t currentPosition = 0;
 
     // Read the stream in chunks. After each read, the position must match currentPosition,
     // which sums the amount attempted to read, unless the end of the stream has been reached.
@@ -235,7 +234,7 @@ static void test_initial_offset(skiatest::Reporter* reporter, size_t bufferSize)
         test_read(reporter, bufferedStream, gAbcs + arbitraryOffset + currentPosition,
                   amountToRead);
         currentPosition = SkTMin(currentPosition + amountToRead, bufferedLength);
-        REPORTER_ASSERT(reporter, bufferedStream->getPosition() == currentPosition);
+        REPORTER_ASSERT(reporter, memStream->getPosition() - arbitraryOffset == currentPosition);
     }
     REPORTER_ASSERT(reporter, bufferedStream->isAtEnd());
     REPORTER_ASSERT(reporter, bufferedLength == currentPosition);
@@ -264,14 +263,11 @@ class FailingStream : public SkStream {
 public:
     FailingStream()
     : fAtEnd(false)
-    , fReadAfterEnd(false)
     {}
+
     size_t read(void* buffer, size_t size) override {
-        if (fAtEnd) {
-            fReadAfterEnd = true;
-        } else {
-            fAtEnd = true;
-        }
+        SkASSERT(!fAtEnd);
+        fAtEnd = true;
         return 0;
     }
 
@@ -279,22 +275,15 @@ public:
         return fAtEnd;
     }
 
-    bool readAfterEnd() const {
-        return fReadAfterEnd;
-    }
 private:
     bool fAtEnd;
-    bool fReadAfterEnd;
 };
 
 DEF_TEST(ShortFrontBufferedStream, reporter) {
     FailingStream* failingStream = new FailingStream;
     SkAutoTDelete<SkStreamRewindable> stream(SkFrontBufferedStream::Create(failingStream, 64));
-    SkBitmap bm;
-    // The return value of DecodeStream is not important. We are just using DecodeStream because
-    // it simulates a bug. DecodeStream will read the stream, then rewind, then attempt to read
-    // again. FrontBufferedStream::read should not continue to read its underlying stream beyond
-    // its end.
-    SkImageDecoder::DecodeStream(stream, &bm);
-    REPORTER_ASSERT(reporter, !failingStream->readAfterEnd());
+
+    // This will fail to create a codec.  However, what we really want to test is that we
+    // won't read past the end of the stream.
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 }

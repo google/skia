@@ -443,7 +443,8 @@ public:
     };
 
     /** Sets a user class to return the current time to the animator.
-        Optional; if not called, the system clock will be used by calling SkTime::GetMSecs instead.
+        Optional; if not called, the system clock will be used by calling
+        SkEvent::GetMSecsSinceStartup instead.
         @param callBack the time function
     */
     void setTimeline(const Timeline& );

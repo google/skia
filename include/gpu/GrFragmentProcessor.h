@@ -31,34 +31,37 @@ public:
     *  does so by returning a parent FP that multiplies the passed in FPs output by the parent's
     *  input alpha. The passed in FP will not receive an input color.
     */
-    static const GrFragmentProcessor* MulOutputByInputAlpha(const GrFragmentProcessor*);
+    static sk_sp<GrFragmentProcessor> MulOutputByInputAlpha(sk_sp<GrFragmentProcessor>);
 
     /**
      *  Similar to the above but it modulates the output r,g,b of the child processor by the input
      *  rgb and then multiplies all the components by the input alpha. This effectively modulates
      *  the child processor's premul color by a unpremul'ed input and produces a premul output
      */
-    static const GrFragmentProcessor* MulOutputByInputUnpremulColor(const GrFragmentProcessor*);
+    static sk_sp<GrFragmentProcessor> MulOutputByInputUnpremulColor(sk_sp<GrFragmentProcessor>);
 
     /**
      *  Returns a parent fragment processor that adopts the passed fragment processor as a child.
      *  The parent will ignore its input color and instead feed the passed in color as input to the
      *  child.
      */
-    static const GrFragmentProcessor* OverrideInput(const GrFragmentProcessor*, GrColor);
+    static sk_sp<GrFragmentProcessor> OverrideInput(sk_sp<GrFragmentProcessor>, GrColor);
 
     /**
      * Returns a fragment processor that runs the passed in array of fragment processors in a
      * series. The original input is passed to the first, the first's output is passed to the
      * second, etc. The output of the returned processor is the output of the last processor of the
      * series.
+     *
+     * The array elements with be moved.
      */
-    static const GrFragmentProcessor* RunInSeries(const GrFragmentProcessor*[], int cnt);
+    static sk_sp<GrFragmentProcessor> RunInSeries(sk_sp<GrFragmentProcessor>*, int cnt);
 
     GrFragmentProcessor()
         : INHERITED()
         , fUsesLocalCoords(false)
         , fNumTexturesExclChildren(0)
+        , fNumBuffersExclChildren(0)
         , fNumTransformsExclChildren(0) {}
 
     ~GrFragmentProcessor() override;
@@ -73,6 +76,8 @@ public:
     }
 
     int numTexturesExclChildren() const { return fNumTexturesExclChildren; }
+
+    int numBuffersExclChildren() const { return fNumBuffersExclChildren; }
 
     int numTransformsExclChildren() const { return fNumTransformsExclChildren; }
 
@@ -122,6 +127,7 @@ public:
 
 protected:
     void addTextureAccess(const GrTextureAccess* textureAccess) override;
+    void addBufferAccess(const GrBufferAccess*) override;
 
     /**
      * Fragment Processor subclasses call this from their constructor to register coordinate
@@ -151,7 +157,7 @@ protected:
      * processors will allow the ProgramBuilder to automatically handle their transformed coords and
      * texture accesses and mangle their uniform and output color names.
      */
-    int registerChildProcessor(const GrFragmentProcessor* child);
+    int registerChildProcessor(sk_sp<GrFragmentProcessor> child);
 
     /**
      * Subclass implements this to support getConstantColorComponents(...).
@@ -183,7 +189,7 @@ private:
 
     bool hasSameTransforms(const GrFragmentProcessor&) const;
 
-    bool                                            fUsesLocalCoords;
+    bool                                       fUsesLocalCoords;
 
     /**
      * fCoordTransforms stores the transforms of this proc, followed by all the transforms of this
@@ -208,10 +214,16 @@ private:
      *
      * The same goes for fTextureAccesses with textures.
      */
-    SkSTArray<4, const GrCoordTransform*, true>     fCoordTransforms;
-    int                                             fNumTexturesExclChildren;
-    int                                             fNumTransformsExclChildren;
-    SkSTArray<1, const GrFragmentProcessor*, true>  fChildProcessors;
+    SkSTArray<4, const GrCoordTransform*, true> fCoordTransforms;
+    int                                         fNumTexturesExclChildren;
+    int                                         fNumBuffersExclChildren;
+    int                                         fNumTransformsExclChildren;
+
+    /**
+     * This is not SkSTArray<1, sk_sp<GrFragmentProcessor>> because this class holds strong
+     * references until notifyRefCntIsZero and then it holds pending executions.
+     */
+    SkSTArray<1, GrFragmentProcessor*, true>    fChildProcessors;
 
     typedef GrProcessor INHERITED;
 };

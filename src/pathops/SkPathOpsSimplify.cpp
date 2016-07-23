@@ -180,7 +180,8 @@ bool Simplify(const SkPath& path, SkPath* result) {
     SkOpCoincidence coincidence;
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
-    SkOpGlobalState globalState(&coincidence, contourList  SkDEBUGPARAMS(nullptr));
+    SkOpGlobalState globalState(&coincidence, contourList  SkDEBUGPARAMS(false)
+            SkDEBUGPARAMS(nullptr));
 #if DEBUG_SORT
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
@@ -216,7 +217,7 @@ bool Simplify(const SkPath& path, SkPath* result) {
     result->reset();
     result->setFillType(fillType);
     SkPathWriter wrapper(*result);
-    bool closable;
+    bool closable SK_INIT_TO_AVOID_WARNING;
     if (builder.xorMask() == kWinding_PathOpsMask
             ? !bridgeWinding(contourList, &wrapper, &allocator, &closable)
             : !bridgeXor(contourList, &wrapper, &allocator, &closable)) {

@@ -35,12 +35,16 @@ public:
         kAll_BlurFlag               = 0x07
     };
 
+    static sk_sp<SkDrawLooper> Make(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
+                                    uint32_t flags = kNone_BlurFlag) {
+        return sk_sp<SkDrawLooper>(new SkBlurDrawLooper(color, sigma, dx, dy, flags));
+    }
+#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
     static SkDrawLooper* Create(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
                                 uint32_t flags = kNone_BlurFlag) {
-        return new SkBlurDrawLooper(color, sigma, dx, dy, flags);
+        return Make(color, sigma, dx, dy, flags).release();
     }
-
-    virtual ~SkBlurDrawLooper();
+#endif
 
     SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const override;
 
@@ -58,8 +62,8 @@ protected:
     bool asABlurShadow(BlurShadowRec*) const override;
 
 private:
-    SkMaskFilter*   fBlur;
-    SkColorFilter*  fColorFilter;
+    sk_sp<SkMaskFilter>  fBlur;
+    sk_sp<SkColorFilter> fColorFilter;
     SkScalar        fDx, fDy, fSigma;
     SkColor         fBlurColor;
     uint32_t        fBlurFlags;

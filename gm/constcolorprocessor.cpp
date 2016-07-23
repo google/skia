@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -13,8 +12,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrDrawContext.h"
-#include "GrPipelineBuilder.h"
+#include "GrDrawContextPriv.h"
 #include "SkGrPriv.h"
 #include "SkGradientShader.h"
 #include "batches/GrDrawBatch.h"
@@ -43,23 +41,19 @@ protected:
     void onOnceBeforeDraw() override {
         SkColor colors[] = { 0xFFFF0000, 0x2000FF00, 0xFF0000FF};
         SkPoint pts[] = { SkPoint::Make(0, 0), SkPoint::Make(kRectSize, kRectSize) };
-        fShader.reset(SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                       SkShader::kClamp_TileMode));
+        fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                               SkShader::kClamp_TileMode);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (nullptr == rt) {
-            return;
-        }
-        GrContext* context = rt->getContext();
-        if (nullptr == context) {
+        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
+        if (!drawContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
 
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
-        if (!drawContext) {
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
             return;
         }
 
@@ -105,20 +99,19 @@ protected:
                     } else {
                         skPaint.setColor(kPaintColors[paintType]);
                     }
-                    SkAssertResult(SkPaintToGrPaint(context, skPaint, viewMatrix, &grPaint));
+                    // SRGBTODO: No sRGB inputs allowed here?
+                    SkAssertResult(SkPaintToGrPaint(context, skPaint, viewMatrix, false, &grPaint));
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
                     GrColor color = kColors[procColor];
-                    SkAutoTUnref<GrFragmentProcessor> fp(GrConstColorProcessor::Create(color, mode));
+                    sk_sp<GrFragmentProcessor> fp(GrConstColorProcessor::Make(color, mode));
 
-                    GrClip clip;
-                    GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
-                    pipelineBuilder.addColorFragmentProcessor(fp);
+                    grPaint.addColorFragmentProcessor(std::move(fp));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->internal_drawBatch(pipelineBuilder, batch);
+                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.
@@ -179,7 +172,7 @@ protected:
 
 private:
     // Use this as a way of generating and input FP
-    SkAutoTUnref<SkShader>      fShader;
+    sk_sp<SkShader> fShader;
 
     static const SkScalar       kPad;
     static const SkScalar       kRectSize;

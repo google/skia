@@ -57,7 +57,7 @@ public:
         fColor = (gRand.nextU() & 0x7F7F7F7F) | SkColorSetARGB(0xFF, 0, 0, 0x80);
         fFast32 = fast;
     }
-    
+
 protected:
     void onPrepareWidEvent(SkEvent* evt) override {
         evt->setType("push-button");
@@ -101,7 +101,7 @@ protected:
         }
         return true;
     }
-    
+
 private:
     typedef HasEventWig INHERITED;
 };
@@ -127,10 +127,9 @@ class CircDrawable : public ModeDrawable {
 public:
     CircDrawable(SkScalar size, SkColor c) {
         const SkColor colors[] = { 0, c };
-        SkAutoTUnref<SkShader> shader(SkGradientShader::CreateRadial(SkPoint::Make(size/2, size/2), size/2,
+        fPaint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(size/2, size/2), size/2,
                                                                      colors, nullptr, 2,
                                                                      SkShader::kClamp_TileMode));
-        fPaint.setShader(shader);
         fBounds = SkRect::MakeWH(size, size);
     }
 
@@ -152,7 +151,7 @@ class XferDemo : public SampleView {
     enum {
         N = 4
     };
-    
+
     SkRect        fModeRect[N_Modes];
     SkAutoTUnref<CircDrawable> fDrs[N];
     CircDrawable* fSelected;
@@ -235,7 +234,7 @@ protected:
         this->inval(nullptr);
         return fSelected ? new Click(this) : nullptr;
     }
-    
+
     bool onClick(Click* click) override {
         fSelected->fLoc.fX += click->fCurr.fX - click->fPrev.fX;
         fSelected->fLoc.fY += click->fCurr.fY - click->fPrev.fY;

@@ -71,6 +71,11 @@
      SK_B32_SHIFT == SK_BGRA_B32_SHIFT)
 
 
+#define SK_A_INDEX  (SK_A32_SHIFT/8)
+#define SK_R_INDEX  (SK_R32_SHIFT/8)
+#define SK_G_INDEX  (SK_G32_SHIFT/8)
+#define SK_B_INDEX  (SK_B32_SHIFT/8)
+
 #if defined(SK_PMCOLOR_IS_RGBA) && !LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA
     #error "SK_PMCOLOR_IS_RGBA does not match SK_*32_SHIFT values"
 #endif
@@ -219,13 +224,7 @@ static inline int SkAlphaBlend255(S16CPU src, S16CPU dst, U8CPU alpha) {
 }
 
 static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
-    if (x < 0) {
-        return 0;
-    }
-    if (x >= SK_Scalar1) {
-        return 255;
-    }
-    return SkScalarToFixed(x) >> 8;
+    return static_cast<U8CPU>(SkScalarPin(x, 0, 1) * 255 + 0.5);
 }
 
 #define SK_R16_BITS     5

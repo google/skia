@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkCornerPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
@@ -24,9 +24,7 @@
 #include "SkXfermode.h"
 
 #include "SkStream.h"
-#include "SkXMLParser.h"
 #include "SkColorPriv.h"
-#include "SkImageDecoder.h"
 
 class LinesView : public SampleView {
 public:
@@ -64,7 +62,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         SkBitmap bm;
-        SkImageDecoder::DecodeFile("/kill.gif", &bm);
+        decode_file("/kill.gif", &bm);
         canvas->drawBitmap(bm, 0, 0, nullptr);
 
         this->drawRings(canvas);

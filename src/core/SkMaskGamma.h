@@ -92,7 +92,7 @@ void SkTMaskGamma_build_correcting_lut(uint8_t table[256], U8CPU srcI, SkScalar 
  * @param B The number of luminance bits to use [1, 8] from the blue channel.
  */
 template <int R_LUM_BITS, int G_LUM_BITS, int B_LUM_BITS> class SkTMaskGamma : public SkRefCnt {
-    
+
 public:
 
     /** Creates a linear SkTMaskGamma. */
@@ -151,7 +151,7 @@ public:
     const uint8_t* getGammaTables() const {
         return (const uint8_t*) fGammaTables;
     }
-    
+
 private:
     static const int MAX_LUM_BITS =
           B_LUM_BITS > (R_LUM_BITS > G_LUM_BITS ? R_LUM_BITS : G_LUM_BITS)

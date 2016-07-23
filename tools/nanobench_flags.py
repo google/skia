@@ -27,11 +27,14 @@ def lineno():
 
 cov_start = lineno()+1   # We care about coverage starting just past this def.
 def get_args(bot):
-  args = []
+  args = ['--pre_log']
 
   if 'GPU' in bot:
     args.append('--images')
     args.extend(['--gpuStatsDump', 'true'])
+
+  if 'Android' in bot and 'GPU' in bot:
+    args.extend(['--useThermalManager', '1,1,10,1000'])
 
   if 'Appurify' not in bot:
     args.extend(['--scales', '1.0', '1.1'])
@@ -46,9 +49,15 @@ def get_args(bot):
     if ('GalaxyS4'    not in bot and
         'NexusPlayer' not in bot):
       if 'Android' in bot:
-        config.extend(['msaa4', 'nvprmsaa4'])
+        # The TegraX1 has a regular OpenGL implementation. We bench that instead
+        # of ES.
+        if 'TegraX1' in bot:
+          config.remove('gpu')
+          config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
+        else:
+          config.extend(['msaa4', 'nvpr4', 'nvprdit4'])
       else:
-        config.extend(['msaa16', 'nvprmsaa16'])
+        config.extend(['msaa16', 'nvpr16', 'nvprdit16'])
     args.append('--config')
     args.extend(config)
 
@@ -75,7 +84,8 @@ def get_args(bot):
     match.append('~desk_unicodetable')
   if 'GalaxyS4' in bot:
     match.append('~GLInstancedArraysBench')  # skia:4371
-
+  if 'Nexus5' in bot:
+    match.append('~keymobi_shop_mobileweb_ebay_com.skp')  # skia:5178
   if 'iOS' in bot:
     match.append('~blurroundrect')
     match.append('~patch_grid')  # skia:2847
@@ -94,6 +104,11 @@ def get_args(bot):
     match.append('~interlaced1.png')
     match.append('~interlaced2.png')
     match.append('~interlaced3.png')
+
+  # This low-end Android bot crashes about 25% of the time while running the
+  # (somewhat intense) shapes benchmarks.
+  if 'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release' in bot:
+    match.append('~shapes_')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -117,6 +132,10 @@ def get_args(bot):
   match.append('~inc0.webp')
   match.append('~inc1.webp')
 
+  # As an experiment, skip nanobench on Debug trybots.
+  if 'Debug' in bot and 'CPU' in bot and 'Trybot' in bot:
+    match = ['nothing_will_match_this']
+
   if match:
     args.append('--match')
     args.extend(match)
@@ -129,12 +148,17 @@ def self_test():
   import coverage  # This way the bots don't need coverage.py to be installed.
   args = {}
   cases = [
+    'Perf-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Release',
     'Perf-Android-Nexus7-Tegra3-Arm7-Release',
     'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
+    'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
     'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
     'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
+    'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot',
+    'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Release',
+    'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Release',
   ]
 
   cov = coverage.coverage()

@@ -22,10 +22,6 @@ public:
         this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
-    virtual ~DrawLooperGM() {
-        SkSafeUnref(fLooper);
-    }
-
 protected:
     virtual SkISize onISize() override {
         return SkISize::Make(520, 160);
@@ -55,7 +51,7 @@ protected:
     }
 
 private:
-    SkLayerDrawLooper*   fLooper;
+    sk_sp<SkDrawLooper> fLooper;
 
     void init() {
         if (fLooper) return;
@@ -86,12 +82,11 @@ private:
             paint->setStyle(gParams[i].fStyle);
             paint->setStrokeWidth(gParams[i].fWidth);
             if (gParams[i].fBlur > 0) {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                         SkBlurMask::ConvertRadiusToSigma(gParams[i].fBlur));
-                paint->setMaskFilter(mf)->unref();
+                paint->setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                         SkBlurMask::ConvertRadiusToSigma(gParams[i].fBlur)));
             }
         }
-        fLooper = looperBuilder.detachLooper();
+        fLooper = looperBuilder.detach();
     }
 
     typedef GM INHERITED;

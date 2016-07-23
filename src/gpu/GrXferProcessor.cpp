@@ -7,7 +7,6 @@
 
 #include "GrXferProcessor.h"
 #include "GrPipeline.h"
-#include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
 #include "gl/GrGLCaps.h"
 
@@ -197,14 +196,14 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineOptimizations&
                                                   const DstTexture* dstTexture,
                                                   const GrCaps& caps) const {
 #ifdef SK_DEBUG
-    if (this->willReadDstColor(caps, optimizations, hasMixedSamples)) {
+    if (this->willReadDstColor(caps, optimizations)) {
         if (!caps.shaderCaps()->dstReadInShaderSupport()) {
             SkASSERT(dstTexture && dstTexture->texture());
         } else {
-            SkASSERT(!dstTexture || !dstTexture->texture()); 
+            SkASSERT(!dstTexture || !dstTexture->texture());
         }
     } else {
-        SkASSERT(!dstTexture || !dstTexture->texture()); 
+        SkASSERT(!dstTexture || !dstTexture->texture());
     }
     SkASSERT(!hasMixedSamples || caps.shaderCaps()->dualSourceBlendingSupport());
 #endif
@@ -212,8 +211,12 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineOptimizations&
 }
 
 bool GrXPFactory::willNeedDstTexture(const GrCaps& caps,
-                                     const GrPipelineOptimizations& optimizations,
-                                     bool hasMixedSamples) const {
-    return (this->willReadDstColor(caps, optimizations, hasMixedSamples) &&
+                                     const GrPipelineOptimizations& optimizations) const {
+    return (this->willReadDstColor(caps, optimizations) &&
             !caps.shaderCaps()->dstReadInShaderSupport());
+}
+
+bool GrXPFactory::willReadDstColor(const GrCaps& caps,
+                                   const GrPipelineOptimizations& optimizations) const {
+    return optimizations.fOverrides.fUsePLSDstRead || this->onWillReadDstColor(caps, optimizations);
 }

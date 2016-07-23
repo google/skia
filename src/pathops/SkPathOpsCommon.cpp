@@ -27,6 +27,9 @@ const SkOpAngle* AngleWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* windi
     int winding = SK_MinS32;
     do {
         angle = angle->next();
+        if (!angle) {
+            return nullptr;
+        }
         unorderable |= angle->unorderable();
         if ((computeWinding = unorderable || (angle == firstAngle && loop))) {
             break;    // if we get here, there's no winding, loop is unorderable
@@ -113,7 +116,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
             segment = angle->segment();
             SkOpSpanBase* start = angle->start();
             SkOpSpanBase* end = angle->end();
-            int maxWinding;
+            int maxWinding SK_INIT_TO_AVOID_WARNING;
             if (sortable) {
                 segment->setUpWinding(start, end, &maxWinding, &sumWinding);
             }
@@ -198,7 +201,8 @@ public:
 void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
     SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     SkOpContourHead contour;
-    SkOpGlobalState globalState(nullptr, &contour  SkDEBUGPARAMS(nullptr));
+    SkOpGlobalState globalState(nullptr, &contour  SkDEBUGPARAMS(false)
+                                SkDEBUGPARAMS(nullptr));
 #if DEBUG_SHOW_TEST_NAME
     SkDebugf("</div>\n");
 #endif
@@ -425,11 +429,14 @@ static bool missingCoincidence(SkOpContourHead* contourList,
     return result;
 }
 
-static void moveMultiples(SkOpContourHead* contourList) {
+static bool moveMultiples(SkOpContourHead* contourList) {
     SkOpContour* contour = contourList;
     do {
-        contour->moveMultiples();
+        if (!contour->moveMultiples()) {
+            return false;
+        }
     } while ((contour = contour->next()));
+    return true;
 }
 
 static void moveNearby(SkOpContourHead* contourList) {
@@ -451,7 +458,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     SkOpGlobalState* globalState = contourList->globalState();
     // combine t values when multiple intersections occur on some segments but not others
     DEBUG_COINCIDENCE_HEALTH(contourList, "start");
-    moveMultiples(contourList);
+    if (!moveMultiples(contourList)) {
+        return false;
+    }
     DEBUG_COINCIDENCE_HEALTH(contourList, "moveMultiples");
     findCollapsed(contourList);
     DEBUG_COINCIDENCE_HEALTH(contourList, "findCollapsed");
@@ -460,7 +469,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     DEBUG_COINCIDENCE_HEALTH(contourList, "moveNearby");
     align(contourList);  // give all span members common values
     DEBUG_COINCIDENCE_HEALTH(contourList, "align");
-    coincidence->fixAligned();  // aligning may have marked a coincidence pt-t deleted
+    if (!coincidence->fixAligned()) { // aligning may have marked a coincidence pt-t deleted
+        return false;
+    }
     DEBUG_COINCIDENCE_HEALTH(contourList, "fixAligned");
 #if DEBUG_VALIDATE
     globalState->setPhase(SkOpGlobalState::kIntersecting);
@@ -474,7 +485,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
         DEBUG_COINCIDENCE_HEALTH(contourList, "moveNearby2");
         align(contourList);  // give all span members common values
         DEBUG_COINCIDENCE_HEALTH(contourList, "align2");
-        coincidence->fixAligned();  // aligning may have marked a coincidence pt-t deleted
+        if (!coincidence->fixAligned()) {  // aligning may have marked a coincidence pt-t deleted
+            return false;
+        }
         DEBUG_COINCIDENCE_HEALTH(contourList, "fixAligned2");
     }
 #if DEBUG_VALIDATE
@@ -489,7 +502,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     }
     DEBUG_COINCIDENCE_HEALTH(contourList, "expand2");
     // the expanded ranges may not align -- add the missing spans
-    coincidence->mark();  // mark spans of coincident segments as coincident
+    if (!coincidence->mark()) {  // mark spans of coincident segments as coincident
+        return false;
+    }
     DEBUG_COINCIDENCE_HEALTH(contourList, "mark1");
     // look for coincidence missed earlier
     if (missingCoincidence(contourList, coincidence, allocator)) {
@@ -512,7 +527,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
         DEBUG_COINCIDENCE_HEALTH(contourList, "pairs->apply");
         // For each coincident pair that overlaps another, when the receivers (the 1st of the pair)
         // are different, construct a new pair to resolve their mutual span
-        pairs->findOverlaps(&overlaps, allocator);
+        if (!pairs->findOverlaps(&overlaps, allocator)) {
+            return false;
+        }
         DEBUG_COINCIDENCE_HEALTH(contourList, "pairs->findOverlaps");
     } while (!overlaps.isEmpty());
     calcAngles(contourList, allocator);

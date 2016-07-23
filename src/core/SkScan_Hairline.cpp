@@ -7,6 +7,7 @@
 
 #include "SkScan.h"
 #include "SkBlitter.h"
+#include "SkMathPriv.h"
 #include "SkRasterClip.h"
 #include "SkFDot6.h"
 #include "SkLineClipper.h"
@@ -192,7 +193,7 @@ void SkScan::HairRect(const SkRect& rect, const SkRasterClip& clip,
 #include "SkGeometry.h"
 #include "SkNx.h"
 
-#define kMaxCubicSubdivideLevel 6
+#define kMaxCubicSubdivideLevel 9
 #define kMaxQuadSubdivideLevel  5
 
 static int compute_int_quad_dist(const SkPoint pts[3]) {
@@ -214,12 +215,11 @@ static int compute_int_quad_dist(const SkPoint pts[3]) {
     }
 }
 
-static void hairquad(const SkPoint pts[3], const SkRegion* clip,
+static void hair_quad(const SkPoint pts[3], const SkRegion* clip,
                      SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
     SkASSERT(level <= kMaxQuadSubdivideLevel);
 
-    SkPoint coeff[3];
-    SkQuadToCoeff(pts, coeff);
+    SkQuadCoeff coeff(pts);
 
     const int lines = 1 << level;
     Sk2s t(0);
@@ -229,15 +229,63 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
     SkASSERT((unsigned)lines < SK_ARRAY_COUNT(tmp));
 
     tmp[0] = pts[0];
-    Sk2s A = Sk2s::Load(&coeff[0].fX);
-    Sk2s B = Sk2s::Load(&coeff[1].fX);
-    Sk2s C = Sk2s::Load(&coeff[2].fX);
+    Sk2s A = coeff.fA;
+    Sk2s B = coeff.fB;
+    Sk2s C = coeff.fC;
     for (int i = 1; i < lines; ++i) {
         t = t + dt;
-        ((A * t + B) * t + C).store(&tmp[i].fX);
+        ((A * t + B) * t + C).store(&tmp[i]);
     }
     tmp[lines] = pts[2];
     lineproc(tmp, lines + 1, clip, blitter);
+}
+
+static SkRect compute_nocheck_quad_bounds(const SkPoint pts[3]) {
+    SkASSERT(SkScalarsAreFinite(&pts[0].fX, 6));
+
+    Sk2s min = Sk2s::Load(pts);
+    Sk2s max = min;
+    for (int i = 1; i < 3; ++i) {
+        Sk2s pair = Sk2s::Load(pts+i);
+        min = Sk2s::Min(min, pair);
+        max = Sk2s::Max(max, pair);
+    }
+    return { min[0], min[1], max[0], max[1] };
+}
+
+static bool is_inverted(const SkRect& r) {
+    return r.fLeft > r.fRight || r.fTop > r.fBottom;
+}
+
+// Can't call SkRect::intersects, since it cares about empty, and we don't (since we tracking
+// something to be stroked, so empty can still draw something (e.g. horizontal line)
+static bool geometric_overlap(const SkRect& a, const SkRect& b) {
+    SkASSERT(!is_inverted(a) && !is_inverted(b));
+    return a.fLeft < b.fRight && b.fLeft < a.fRight &&
+            a.fTop < b.fBottom && b.fTop < a.fBottom;
+}
+
+// Can't call SkRect::contains, since it cares about empty, and we don't (since we tracking
+// something to be stroked, so empty can still draw something (e.g. horizontal line)
+static bool geometric_contains(const SkRect& outer, const SkRect& inner) {
+    SkASSERT(!is_inverted(outer) && !is_inverted(inner));
+    return inner.fRight <= outer.fRight && inner.fLeft >= outer.fLeft &&
+            inner.fBottom <= outer.fBottom && inner.fTop >= outer.fTop;
+}
+
+static inline void hairquad(const SkPoint pts[3], const SkRegion* clip, const SkRect* insetClip, const SkRect* outsetClip,
+    SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
+    if (insetClip) {
+        SkASSERT(outsetClip);
+        SkRect bounds = compute_nocheck_quad_bounds(pts);
+        if (!geometric_overlap(*outsetClip, bounds)) {
+            return;
+        } else if (geometric_contains(*insetClip, bounds)) {
+            clip = nullptr;
+        }
+    }
+
+    hair_quad(pts, clip, blitter, level, lineproc);
 }
 
 static inline Sk2s abs(const Sk2s& value) {
@@ -296,8 +344,7 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
         return;
     }
 
-    SkPoint coeff[4];
-    SkCubicToCoeff(pts, coeff);
+    SkCubicCoeff coeff(pts);
 
     const Sk2s dt(SK_Scalar1 / lines);
     Sk2s t(0);
@@ -306,13 +353,13 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     SkASSERT((unsigned)lines < SK_ARRAY_COUNT(tmp));
 
     tmp[0] = pts[0];
-    Sk2s A = Sk2s::Load(&coeff[0].fX);
-    Sk2s B = Sk2s::Load(&coeff[1].fX);
-    Sk2s C = Sk2s::Load(&coeff[2].fX);
-    Sk2s D = Sk2s::Load(&coeff[3].fX);
+    Sk2s A = coeff.fA;
+    Sk2s B = coeff.fB;
+    Sk2s C = coeff.fC;
+    Sk2s D = coeff.fD;
     for (int i = 1; i < lines; ++i) {
         t = t + dt;
-        (((A * t + B) * t + C) * t + D).store(&tmp[i].fX);
+        (((A * t + B) * t + C) * t + D).store(&tmp[i]);
     }
     tmp[lines] = pts[3];
     lineproc(tmp, lines + 1, clip, blitter);
@@ -321,64 +368,26 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
 static SkRect compute_nocheck_cubic_bounds(const SkPoint pts[4]) {
     SkASSERT(SkScalarsAreFinite(&pts[0].fX, 8));
 
-    Sk2s min = Sk2s::Load(&pts[0].fX);
+    Sk2s min = Sk2s::Load(pts);
     Sk2s max = min;
     for (int i = 1; i < 4; ++i) {
-        Sk2s pair = Sk2s::Load(&pts[i].fX);
+        Sk2s pair = Sk2s::Load(pts+i);
         min = Sk2s::Min(min, pair);
         max = Sk2s::Max(max, pair);
     }
-    return { min.kth<0>(), min.kth<1>(), max.kth<0>(), max.kth<1>() };
+    return { min[0], min[1], max[0], max[1] };
 }
-
-static bool is_inverted(const SkRect& r) {
-    return r.fLeft > r.fRight || r.fTop > r.fBottom;
-}
-
-// Can't call SkRect::intersects, since it cares about empty, and we don't (since we tracking
-// something to be stroked, so empty can still draw something (e.g. horizontal line)
-static bool geometric_overlap(const SkRect& a, const SkRect& b) {
-    SkASSERT(!is_inverted(a) && !is_inverted(b));
-    return a.fLeft < b.fRight && b.fLeft < a.fRight &&
-           a.fTop < b.fBottom && b.fTop < a.fBottom;
-}
-
-// Can't call SkRect::contains, since it cares about empty, and we don't (since we tracking
-// something to be stroked, so empty can still draw something (e.g. horizontal line)
-static bool geometric_contains(const SkRect& outer, const SkRect& inner) {
-    SkASSERT(!is_inverted(outer) && !is_inverted(inner));
-    return inner.fRight <= outer.fRight && inner.fLeft >= outer.fLeft &&
-           inner.fBottom <= outer.fBottom && inner.fTop >= outer.fTop;
-}
-
-//#define SK_SHOW_HAIRCLIP_STATS
-#ifdef SK_SHOW_HAIRCLIP_STATS
-static int gKillClip, gRejectClip, gClipCount;
-#endif
 
 static inline void haircubic(const SkPoint pts[4], const SkRegion* clip, const SkRect* insetClip, const SkRect* outsetClip,
                       SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
     if (insetClip) {
         SkASSERT(outsetClip);
-#ifdef SK_SHOW_HAIRCLIP_STATS
-        gClipCount += 1;
-#endif
         SkRect bounds = compute_nocheck_cubic_bounds(pts);
         if (!geometric_overlap(*outsetClip, bounds)) {
-#ifdef SK_SHOW_HAIRCLIP_STATS
-            gRejectClip += 1;
-#endif
             return;
         } else if (geometric_contains(*insetClip, bounds)) {
             clip = nullptr;
-#ifdef SK_SHOW_HAIRCLIP_STATS
-            gKillClip += 1;
-#endif
         }
-#ifdef SK_SHOW_HAIRCLIP_STATS
-        if (0 == gClipCount % 256)
-            SkDebugf("kill %g reject %g total %d\n", 1.0*gKillClip / gClipCount, 1.0*gRejectClip/gClipCount, gClipCount);
-#endif
     }
 
     if (quick_cubic_niceness_check(pts)) {
@@ -514,7 +523,9 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                  */
                 insetStorage.setEmpty();    // just so we don't pass an inverted rect
             }
-            insetClip = &insetStorage;
+            if (rclip.isRect()) {
+                insetClip = &insetStorage;
+            }
             outsetClip = &outsetStorage;
         }
     }
@@ -543,7 +554,7 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                 if (SkPaint::kButt_Cap != capStyle) {
                     extend_pts<capStyle>(prevVerb, iter.peek(), pts, 3);
                 }
-                hairquad(pts, clip, blitter, compute_quad_level(pts), lineproc);
+                hairquad(pts, clip, insetClip, outsetClip, blitter, compute_quad_level(pts), lineproc);
                 lastPt = pts[2];
                 break;
             case SkPath::kConic_Verb: {
@@ -556,7 +567,7 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                                                        iter.conicWeight(), tol);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     int level = compute_quad_level(quadPts);
-                    hairquad(quadPts, clip, blitter, level, lineproc);
+                    hairquad(quadPts, clip, insetClip, outsetClip, blitter, level, lineproc);
                     quadPts += 2;
                 }
                 lastPt = pts[2];
@@ -630,7 +641,7 @@ void SkScan::FrameRect(const SkRect& r, const SkPoint& strokeSize,
     outer.set(r.fLeft - rx, r.fTop - ry,
                 r.fRight + rx, r.fBottom + ry);
 
-    if (r.width() <= dx || r.height() <= dx) {
+    if (r.width() <= dx || r.height() <= dy) {
         SkScan::FillRect(outer, clip, blitter);
         return;
     }

@@ -11,10 +11,6 @@
 #include "SkPath.h"
 #include "SkSurface.h"
 
-#if SK_SUPPORT_GPU
-    #include "SkGpuDevice.h"
-#endif
-
 #define W   SkIntToScalar(80)
 #define H   SkIntToScalar(60)
 
@@ -27,10 +23,8 @@ static void identity_paintproc(SkPaint* paint) {
 static void gradient_paintproc(SkPaint* paint) {
     const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };
     const SkPoint pts[] = { { 0, 0 }, { W, H } };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr,
-                                                 SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode);
-    paint->setShader(s)->unref();
+    paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                                  SkShader::kClamp_TileMode));
 }
 
 typedef void (*Proc)(SkCanvas*, const SkPaint&);
@@ -117,7 +111,7 @@ protected:
         }
     }
 
-    static SkSurface* compat_surface(SkCanvas* canvas, const SkISize& size, bool skipGPU) {
+    static sk_sp<SkSurface> compat_surface(SkCanvas* canvas, const SkISize& size, bool skipGPU) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
 
         bool callNewSurface = true;
@@ -126,17 +120,16 @@ protected:
             callNewSurface = false;
         }
 #endif
-        SkSurface* surface = callNewSurface ? canvas->newSurface(info) : nullptr;
+        sk_sp<SkSurface> surface = callNewSurface ? canvas->makeSurface(info) : nullptr;
         if (nullptr == surface) {
             // picture canvas will return null, so fall-back to raster
-            surface = SkSurface::NewRaster(info);
+            surface = SkSurface::MakeRaster(info);
         }
         return surface;
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkAutoTUnref<SkSurface> surf(compat_surface(canvas, this->getISize(),
-                                                    this->isCanvasDeferred()));
+        auto surf(compat_surface(canvas, this->getISize(), this->isCanvasDeferred()));
         surf->getCanvas()->drawColor(SK_ColorWHITE);
         this->drawContent(surf->getCanvas());
         surf->draw(canvas, 0, 0, nullptr);

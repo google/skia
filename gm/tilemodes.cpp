@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -27,15 +26,14 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     SkPaint     paint;
 
     paint.setDither(true);
-    paint.setShader(SkGradientShader::CreateLinear(pts, colors, pos,
-                SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, SK_ARRAY_COUNT(colors),
+                                                 SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
 }
 
 static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
                   SkShader::TileMode tmx, SkShader::TileMode tmy) {
-    SkShader* shader = SkShader::CreateBitmapShader(bm, tmx, tmy);
-    paint->setShader(shader)->unref();
+    paint->setShader(SkShader::MakeBitmapShader(bm, tmx, tmy));
     paint->setFilterQuality(filter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
 }
 
@@ -156,13 +154,13 @@ private:
 static const int gWidth = 32;
 static const int gHeight = 32;
 
-static SkShader* make_bm(SkShader::TileMode tx, SkShader::TileMode ty) {
+static sk_sp<SkShader> make_bm(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkBitmap bm;
     makebm(&bm, kN32_SkColorType, gWidth, gHeight);
-    return SkShader::CreateBitmapShader(bm, tx, ty);
+    return SkShader::MakeBitmapShader(bm, tx, ty);
 }
 
-static SkShader* make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
+static sk_sp<SkShader> make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkPoint pts[] = { { 0, 0 }, { SkIntToScalar(gWidth), SkIntToScalar(gHeight)} };
     SkPoint center = { SkIntToScalar(gWidth)/2, SkIntToScalar(gHeight)/2 };
     SkScalar rad = SkIntToScalar(gWidth)/2;
@@ -171,17 +169,16 @@ static SkShader* make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     int index = (int)ty;
     switch (index % 3) {
         case 0:
-            return SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
+            return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
         case 1:
-            return SkGradientShader::CreateRadial(center, rad, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
+            return SkGradientShader::MakeRadial(center, rad, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
         case 2:
-            return SkGradientShader::CreateSweep(center.fX, center.fY, colors, nullptr, SK_ARRAY_COUNT(colors));
+            return SkGradientShader::MakeSweep(center.fX, center.fY, colors, nullptr, SK_ARRAY_COUNT(colors));
     }
-
     return nullptr;
 }
 
-typedef SkShader* (*ShaderProc)(SkShader::TileMode, SkShader::TileMode);
+typedef sk_sp<SkShader> (*ShaderProc)(SkShader::TileMode, SkShader::TileMode);
 
 class Tiling2GM : public skiagm::GM {
     ShaderProc fProc;
@@ -197,7 +194,7 @@ protected:
         return fName;
     }
 
-    SkISize onISize() override { return SkISize::Make(880, 560); }
+    SkISize onISize() override { return SkISize::Make(650, 610); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(SkIntToScalar(3)/2, SkIntToScalar(3)/2);
@@ -239,7 +236,7 @@ protected:
             x += SkIntToScalar(50);
             for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
                 SkPaint paint;
-                paint.setShader(fProc(gModes[kx], gModes[ky]))->unref();
+                paint.setShader(fProc(gModes[kx], gModes[ky]));
 
                 canvas->save();
                 canvas->translate(x, y);

@@ -9,7 +9,7 @@
 #include "SkPaint.h"
 #include "SkPictureRecorder.h"
 
-static SkPicture* make_picture() {
+static sk_sp<SkPicture> make_picture() {
     SkPictureRecorder rec;
     SkCanvas* canvas = rec.beginRecording(100, 100);
 
@@ -23,7 +23,7 @@ static SkPicture* make_picture() {
     paint.setColor(0x80FF0000);
     path.moveTo(0, 0); path.lineTo(100, 0); path.lineTo(100, 100);
     canvas->drawPath(path, paint);
-    
+
     paint.setColor(0x8000FF00);
     path.reset(); path.moveTo(0, 0); path.lineTo(100, 0); path.lineTo(0, 100);
     canvas->drawPath(path, paint);
@@ -32,7 +32,7 @@ static SkPicture* make_picture() {
     paint.setXfermodeMode(SkXfermode::kPlus_Mode);
     canvas->drawRect(SkRect::MakeXYWH(25, 25, 50, 50), paint);
 
-    return rec.endRecording();
+    return rec.finishRecordingAsPicture();
 }
 
 // Exercise the optional arguments to drawPicture
@@ -45,7 +45,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-         fPicture.reset(make_picture());
+         fPicture = make_picture();
     }
 
     SkString onShortName() override {
@@ -63,10 +63,10 @@ protected:
         SkPaint paint;
 
         canvas->drawPicture(fPicture);
-        
+
         matrix.setTranslate(110, 0);
         canvas->drawPicture(fPicture, &matrix, nullptr);
-        
+
         matrix.postTranslate(110, 0);
         canvas->drawPicture(fPicture, &matrix, &paint);
 
@@ -76,7 +76,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
 
     typedef skiagm::GM INHERITED;
 };

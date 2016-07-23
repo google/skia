@@ -61,8 +61,8 @@ DONE:
     return true;
 }
 
-SkFlattenable* SkArcToPathEffect::CreateProc(SkReadBuffer& buffer) {
-    return SkArcToPathEffect::Create(buffer.readScalar());
+sk_sp<SkFlattenable> SkArcToPathEffect::CreateProc(SkReadBuffer& buffer) {
+    return SkArcToPathEffect::Make(buffer.readScalar());
 }
 
 void SkArcToPathEffect::flatten(SkWriteBuffer& buffer) const {

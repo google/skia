@@ -46,7 +46,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fOrigin = 0 == origin ?
             kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
         SkAutoTUnref<GrTexture> fpTexture(context->textureProvider()->createTexture(
-            desc, false, controlPixelData.begin(), 0));
+            desc, SkBudgeted::kNo, controlPixelData.begin(), 0));
         // Floating point textures are NOT supported everywhere
         if (nullptr == fpTexture) {
             continue;
@@ -60,25 +60,25 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
 static const int FP_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4/*RGBA*/;
 static const float kMaxIntegerRepresentableInSPFloatingPoint = 16777216;  // 2 ^ 24
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest, reporter, context) {
-    runFPTest<float>(reporter, context, FLT_MIN, FLT_MAX, FLT_EPSILON,
-                     kMaxIntegerRepresentableInSPFloatingPoint, 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest, reporter, ctxInfo) {
+    runFPTest<float>(reporter, ctxInfo.grContext(), FLT_MIN, FLT_MAX, FLT_EPSILON,
+                     kMaxIntegerRepresentableInSPFloatingPoint,
                      FP_CONTROL_ARRAY_SIZE, kRGBA_float_GrPixelConfig);
 }
 
 static const int HALF_ALPHA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 1 /*alpha-only*/;
 static const SkHalf kMaxIntegerRepresentableInHalfFloatingPoint = 0x6800;  // 2 ^ 11
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, context) {
-    runFPTest<SkHalf>(reporter, context, SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, ctxInfo) {
+    runFPTest<SkHalf>(reporter, ctxInfo.grContext(), SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
         kMaxIntegerRepresentableInHalfFloatingPoint,
         HALF_ALPHA_CONTROL_ARRAY_SIZE, kAlpha_half_GrPixelConfig);
 }
 
 static const int HALF_RGBA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4 /*RGBA*/;
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest, reporter, context) {
-    runFPTest<SkHalf>(reporter, context, SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest, reporter, ctxInfo) {
+    runFPTest<SkHalf>(reporter, ctxInfo.grContext(), SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
         kMaxIntegerRepresentableInHalfFloatingPoint,
         HALF_RGBA_CONTROL_ARRAY_SIZE, kRGBA_half_GrPixelConfig);
 }

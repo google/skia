@@ -9,6 +9,7 @@
 #define Sk4pxXfermode_DEFINED
 
 #include "Sk4px.h"
+#include "SkMSAN.h"
 #include "SkNx.h"
 #include "SkXfermode_proccoeff.h"
 
@@ -121,7 +122,7 @@ static inline Sk4f a_rgb(const Sk4f& a, const Sk4f& rgb) {
     return a * Sk4f(0,0,0,1) + rgb * Sk4f(1,1,1,0);
 }
 static inline Sk4f alphas(const Sk4f& f) {
-    return SkNx_dup<SK_A32_SHIFT/8>(f);
+    return f[SK_A32_SHIFT/8];
 }
 
 XFERMODE(ColorDodge) {
@@ -132,7 +133,7 @@ XFERMODE(ColorDodge) {
 
     auto srcover = s + d*isa,
          dstover = d + s*ida,
-         otherwise = sa * Sk4f::Min(da, (d*sa)*(sa-s).approxInvert()) + s*ida + d*isa;
+         otherwise = sa * Sk4f::Min(da, (d*sa)*(sa-s).invert()) + s*ida + d*isa;
 
     // Order matters here, preferring d==0 over s==sa.
     auto colors = (d == Sk4f(0)).thenElse(dstover,
@@ -148,7 +149,7 @@ XFERMODE(ColorBurn) {
 
     auto srcover = s + d*isa,
          dstover = d + s*ida,
-         otherwise = sa*(da-Sk4f::Min(da, (da-d)*sa*s.approxInvert())) + s*ida + d*isa;
+         otherwise = sa*(da-Sk4f::Min(da, (da-d)*sa*s.invert())) + s*ida + d*isa;
 
     // Order matters here, preferring d==da over s==0.
     auto colors = (d ==      da).thenElse(dstover,
@@ -202,6 +203,17 @@ XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
 
 #undef XFERMODE_AA
 
+// Src and Clear modes are safe to use with unitialized dst buffers,
+// even if the implementation branches based on bytes from dst (e.g. asserts in Debug mode).
+// For those modes, just lie to MSAN that dst is always intialized.
+template <typename Xfermode> static void mark_dst_initialized_if_safe(void*, void*) {}
+template <> void mark_dst_initialized_if_safe<Src>(void* dst, void* end) {
+    sk_msan_mark_initialized(dst, end, "Src doesn't read dst.");
+}
+template <> void mark_dst_initialized_if_safe<Clear>(void* dst, void* end) {
+    sk_msan_mark_initialized(dst, end, "Clear doesn't read dst.");
+}
+
 template <typename Xfermode>
 class Sk4pxXfermode : public SkProcCoeffXfermode {
 public:
@@ -209,6 +221,7 @@ public:
         : INHERITED(rec, mode) {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
+        mark_dst_initialized_if_safe<Xfermode>(dst, dst+n);
         if (nullptr == aa) {
             Sk4px::MapDstSrc(n, dst, src, Xfermode());
         } else {
@@ -217,6 +230,7 @@ public:
     }
 
     void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
+        mark_dst_initialized_if_safe<Xfermode>(dst, dst+n);
         SkPMColor dst32[4];
         while (n >= 4) {
             dst32[0] = SkPixel16ToPixel32(dst[0]);
@@ -285,12 +299,12 @@ private:
     }
 
     static Sk4f Load(SkPMColor c) {
-        return SkNx_cast<float>(Sk4b::Load((uint8_t*)&c)) * Sk4f(1.0f/255);
+        return SkNx_cast<float>(Sk4b::Load(&c)) * Sk4f(1.0f/255);
     }
 
     static SkPMColor Round(const Sk4f& f) {
         SkPMColor c;
-        SkNx_cast<uint8_t>(f * Sk4f(255) + Sk4f(0.5f)).store((uint8_t*)&c);
+        SkNx_cast<uint8_t>(f * Sk4f(255) + Sk4f(0.5f)).store(&c);
         return c;
     }
 

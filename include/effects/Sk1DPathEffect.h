@@ -46,7 +46,7 @@ public:
         kRotate_Style,      // rotate the shape about its center
         kMorph_Style,       // transform each point, and turn lines into curves
 
-        kStyleCount
+        kLastEnum_Style = kMorph_Style,
     };
 
     /** Dash by replicating the specified path.
@@ -56,9 +56,13 @@ public:
         @param style how to transform path at each point (based on the current
                      position and tangent)
     */
-    static SkPathEffect* Create(const SkPath& path, SkScalar advance, SkScalar phase, Style style) {
-        return new SkPath1DPathEffect(path, advance, phase, style);
+    static sk_sp<SkPathEffect> Make(const SkPath& path, SkScalar advance, SkScalar phase, Style);
+
+#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
+    static SkPathEffect* Create(const SkPath& path, SkScalar advance, SkScalar phase, Style s) {
+        return Make(path, advance, phase, s).release();
     }
+#endif
 
     virtual bool filterPath(SkPath*, const SkPath&,
                             SkStrokeRec*, const SkRect*) const override;

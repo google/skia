@@ -14,6 +14,7 @@
 #include "SkFlattenable.h"
 #include "SkMask.h"
 #include "SkPaint.h"
+#include "SkStrokeRec.h"
 
 class GrClip;
 class GrDrawContext;
@@ -27,7 +28,6 @@ class SkMatrix;
 class SkPath;
 class SkRasterClip;
 class SkRRect;
-class SkStrokeRec;
 
 /** \class SkMaskFilter
 
@@ -133,16 +133,14 @@ public:
     /**
      * This function is used to implement filters that require an explicit src mask. It should only
      * be called if canFilterMaskGPU returned true and the maskRect param should be the output from
-     * that call. canOverwriteSrc indicates whether the implementation may treat src as a scratch
-     * texture and overwrite its contents. When true it is also legal to return src as the result.
+     * that call.
      * Implementations are free to get the GrContext from the src texture in order to create
      * additional textures and perform multiple passes.
      */
     virtual bool filterMaskGPU(GrTexture* src,
                                const SkMatrix& ctm,
-                               const SkRect& maskRect,
-                               GrTexture** result,
-                               bool canOverwriteSrc) const;
+                               const SkIRect& maskRect,
+                               GrTexture** result) const;
 #endif
 
     /**
@@ -228,14 +226,14 @@ private:
      This method is not exported to java.
      */
     bool filterPath(const SkPath& devPath, const SkMatrix& ctm, const SkRasterClip&, SkBlitter*,
-                    SkPaint::Style) const;
+                    SkStrokeRec::InitStyle) const;
 
     /** Helper method that, given a roundRect in device space, will rasterize it into a kA8_Format
      mask and then call filterMask(). If this returns true, the specified blitter will be called
      to render that mask. Returns false if filterMask() returned false.
      */
     bool filterRRect(const SkRRect& devRRect, const SkMatrix& ctm, const SkRasterClip&,
-                     SkBlitter*, SkPaint::Style style) const;
+                     SkBlitter*) const;
 
     typedef SkFlattenable INHERITED;
 };

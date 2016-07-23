@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -17,6 +16,7 @@
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "../core/SkRasterClip.h"
+#include "../core/SkStrokeRec.h"
 #include "SkXfermode.h"
 #include <new>
 
@@ -79,7 +79,7 @@ static bool compute_bounds(const SkDeque& layers, const SkPath& path,
         if (!SkDraw::DrawToMask(devPath, clipBounds, paint.getMaskFilter(),
                                 &matrix, &mask,
                                 SkMask::kJustComputeBounds_CreateMode,
-                                SkPaint::kFill_Style)) {
+                                SkStrokeRec::kFill_InitStyle)) {
             return false;
         }
 
@@ -130,7 +130,6 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
 
         draw.fMatrix    = &drawMatrix;
         draw.fRC        = &rectClip;
-        draw.fClip      = &rectClip.bwRgn();
         // we set the matrixproc in the loop, as the matrix changes each time (potentially)
 
         SkDeque::F2BIter        iter(*fLayers);
@@ -145,8 +144,8 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
     return true;
 }
 
-SkFlattenable* SkLayerRasterizer::CreateProc(SkReadBuffer& buffer) {
-    return new SkLayerRasterizer(ReadLayers(buffer));
+sk_sp<SkFlattenable> SkLayerRasterizer::CreateProc(SkReadBuffer& buffer) {
+    return sk_sp<SkFlattenable>(new SkLayerRasterizer(ReadLayers(buffer)));
 }
 
 SkDeque* SkLayerRasterizer::ReadLayers(SkReadBuffer& buffer) {
@@ -196,7 +195,7 @@ void SkLayerRasterizer::Builder::addLayer(const SkPaint& paint, SkScalar dx,
     rec->fOffset.set(dx, dy);
 }
 
-SkLayerRasterizer* SkLayerRasterizer::Builder::detachRasterizer() {
+sk_sp<SkLayerRasterizer> SkLayerRasterizer::Builder::detach() {
     SkLayerRasterizer* rasterizer;
     if (0 == fLayers->count()) {
         rasterizer = nullptr;
@@ -205,10 +204,10 @@ SkLayerRasterizer* SkLayerRasterizer::Builder::detachRasterizer() {
         rasterizer = new SkLayerRasterizer(fLayers);
     }
     fLayers = nullptr;
-    return rasterizer;
+    return sk_sp<SkLayerRasterizer>(rasterizer);
 }
 
-SkLayerRasterizer* SkLayerRasterizer::Builder::snapshotRasterizer() const {
+sk_sp<SkLayerRasterizer> SkLayerRasterizer::Builder::snapshot() const {
     if (0 == fLayers->count()) {
         return nullptr;
     }
@@ -224,6 +223,5 @@ SkLayerRasterizer* SkLayerRasterizer::Builder::snapshotRasterizer() const {
     }
     SkASSERT(fLayers->count() == count);
     SkASSERT(layers->count() == count);
-    SkLayerRasterizer* rasterizer = new SkLayerRasterizer(layers);
-    return rasterizer;
+    return sk_sp<SkLayerRasterizer>(new SkLayerRasterizer(layers));
 }

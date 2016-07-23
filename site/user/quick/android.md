@@ -34,13 +34,19 @@ where you installed the SDK and run the following commands
     # You may want to add this export to your shell's .bash_profile or .profile
     export ANDROID_SDK_ROOT=/path/to/android/sdk
 
-    $ ANDROID_SDK_ROOT/tools/android update sdk --no-ui --filter android-19
+    $ANDROID_SDK_ROOT/tools/android update sdk --no-ui --filter android-19
+    $ANDROID_SDK_ROOT/tools/android update sdk --no-ui --filter android-23
+    $ANDROID_SDK_ROOT/tools/android update sdk -a -u -t 8
 
 From here you will need to type 'y' to approve the license agreement and that
-is all.  You will then have downloaded the SDK for API level 19 (Android 4.4
-KitKat) which will be used to build the Skia SampleApp.  You can download as
-many other Android add-ons or APIs as you want, but you only are required to
-have this one in order to complete the Skia build process.
+is all.  You will then have downloaded the SDK for API level 19 and 23(Android 4.4
+KitKat and Android 6.0 Marshmallow) which will be used to build the Skia SampleApp.  
+You can download as many other Android add-ons or APIs as you want, but you only 
+are required to have these two in order to complete the Skia build process.
+
+The last line in the script installs Android SDK Build-tools 22.0.1.
+Alternatively you can download the above packages with Android Studio, by clicking 
+the Launch Standalone SDK Manager link in Tools > Android > SDK Manger.
 
 Setup Environment for Android
 -----------------------------
@@ -48,6 +54,15 @@ Setup Environment for Android
 The Android build needs to set up some specific variables needed by both GYP
 and Make. We make this setup easy for developers by encapsulating all the
 details into a custom script that acts as a replacement for make.
+
+Syncing the Source
+-----------------------------
+We provide a utility to sync both our git repository as well as any third-party
+dependencies.  Simply run the command below:
+
+<!--?prettify lang=sh?-->
+    # Sync the source
+    ./bin/sync
 
 Custom Android Build Script
 ---------------------------
@@ -69,15 +84,6 @@ The -d option enables the build system to target the build to a specific
 architecture such as MIPS (generic), x86 (generic) and ARM (generic and device
 specific flavors for Nexus devices). This in turn allows Skia to take
 advantage of specific device optimizations (e.g. NEON instructions).
-
-Generate build file from GYP
-----------------------------
-
-We use the open-source gyp tool to generate build files from our
-multi-platform "gyp" files. While most other platforms enable you to
-regenerate these files using `./gyp_skia` or `bin/sync-and-gyp` it is
-recommended that you do NOT do this for Android.  Instead you can rely
-on it being run automatically by android_ninja.
 
 Faster rebuilds
 ---------------

@@ -48,11 +48,13 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 bool SkPaintToGrPaint(GrContext*,
                       const SkPaint& skPaint,
                       const SkMatrix& viewM,
+                      bool allowSRGBInputs,
                       GrPaint* grPaint);
 
 /** Same as above but ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrContext* context,
                               const SkPaint& skPaint,
+                              bool allowSRGBInputs,
                               GrPaint* grPaint);
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. The processor
@@ -60,7 +62,8 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
     no primitive color. */
 bool SkPaintToGrPaintReplaceShader(GrContext*,
                                    const SkPaint& skPaint,
-                                   const GrFragmentProcessor* shaderFP,
+                                   sk_sp<GrFragmentProcessor> shaderFP,
+                                   bool allowSRGBInputs,
                                    GrPaint* grPaint);
 
 /** Blends the SkPaint's shader (or color if no shader) with the color which specified via a
@@ -72,6 +75,7 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   const SkMatrix& viewM,
                                   SkXfermode::Mode primColorMode,
                                   bool primitiveIsSrc,
+                                  bool allowSRGBInputs,
                                   GrPaint* grPaint);
 
 /** This is used when there is a primitive color, but the shader should be ignored. Currently,
@@ -79,9 +83,9 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
     unpremultiplied so that interpolation is done in unpremul space. The paint's alpha will be
     applied to the primitive color after interpolation. */
 inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, const SkPaint& skPaint,
-                                               GrPaint* grPaint) {
+                                               bool allowSRGBInputs, GrPaint* grPaint) {
     return SkPaintToGrPaintWithXfermode(context, skPaint, SkMatrix::I(), SkXfermode::kDst_Mode,
-                                        false, grPaint);
+                                        false, allowSRGBInputs, grPaint);
 }
 
 /** This is used when there may or may not be a shader, and the caller wants to plugin a texture
@@ -89,15 +93,16 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, const SkPaint
 bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  const SkPaint& paint,
                                  const SkMatrix& viewM,
-                                 const GrFragmentProcessor* fp,
+                                 sk_sp<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
+                                 bool allowSRGBInputs,
                                  GrPaint* grPaint);
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&);
+GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&, const GrCaps&);
 
-bool GrPixelConfig2ColorAndProfileType(GrPixelConfig, SkColorType*, SkColorProfileType*);
+bool GrPixelConfigToColorAndColorSpace(GrPixelConfig, SkColorType*, sk_sp<SkColorSpace>*);
 
 /**
  *  If the compressed data in the SkData is supported (as a texture format, this returns
@@ -118,6 +123,19 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
  * compressed textures and yuv planes.
  */
 GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
+
+GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&, SkSourceGammaTreatment);
+
+/**
+ * Creates a new texture for the pixmap.
+ */
+GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budgeted);
+
+/**
+ * Creates a new texture populated with the mipmap levels.
+ */
+GrTexture* GrUploadMipMapToTexture(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
+                                   int mipLevelCount);
 
 //////////////////////////////////////////////////////////////////////////////
 

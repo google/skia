@@ -11,6 +11,7 @@
 #include "SkTypes.h"
 #include "SkBitmap.h"
 #include "SkDeque.h"
+#include "SkImage.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
@@ -18,34 +19,25 @@
 #include "SkXfermode.h"
 
 class GrContext;
-class GrRenderTarget;
+class GrDrawContext;
 class SkBaseDevice;
 class SkCanvasClipVisitor;
 class SkClipStack;
+class SkData;
 class SkDraw;
 class SkDrawable;
 class SkDrawFilter;
-class SkImage;
 class SkImageFilter;
 class SkMetaData;
 class SkPath;
 class SkPicture;
 class SkPixmap;
+class SkRasterClip;
 class SkRRect;
 struct SkRSXform;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
-
-/*
- *  If you want the legacy cliptolayer flag (i.e. android), then you must have the new
- *  legacy saveflags.
- */
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-#ifndef SK_SUPPORT_LEGACY_SAVEFLAGS
-    #define SK_SUPPORT_LEGACY_SAVEFLAGS
-#endif
-#endif
 
 /** \class SkCanvas
 
@@ -64,7 +56,7 @@ class SkTextBlob;
 */
 class SK_API SkCanvas : public SkRefCnt {
     enum PrivateSaveLayerFlags {
-        kDontClipToLayer_PrivateSaveLayerFlag   = 1 << 31,
+        kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
     };
     
 public:
@@ -131,10 +123,19 @@ public:
      */
     SkImageInfo imageInfo() const;
 
+    /**
+     *  If the canvas is backed by pixels (cpu or gpu), this writes a copy of the SurfaceProps
+     *  for the canvas to the location supplied by the caller, and returns true. Otherwise,
+     *  return false and leave the supplied props unchanged.
+     */
+    bool getProps(SkSurfaceProps*) const;
+
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     *  Trigger the immediate execution of all pending draw operations.
+     *  Trigger the immediate execution of all pending draw operations. For the GPU
+     *  backend this will resolve all rendering to the GPU surface backing the
+     *  SkSurface that owns this canvas.
      */
     void flush();
 
@@ -193,7 +194,10 @@ public:
      *  inherits the properties of the surface that owns this canvas. If this canvas has no parent
      *  surface, then the new surface is created with default properties.
      */
-    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps* = NULL);
+    sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps* = nullptr);
+#ifdef SK_SUPPORT_LEGACY_NEW_SURFACE_API
+    SkSurface* newSurface(const SkImageInfo& info, const SkSurfaceProps* props = NULL);
+#endif
 
     /**
      * Return the GPU context of the device that is associated with the canvas.
@@ -219,16 +223,19 @@ public:
     /**
      *  If the canvas has readable pixels in its base layer (and is not recording to a picture
      *  or other non-raster target) and has direct access to its pixels (i.e. they are in
-     *  local RAM) return the const-address of those pixels, and if not null,
-     *  return the ImageInfo and rowBytes. The returned address is only valid
+     *  local RAM) return true, and if not null, return in the pixmap parameter information about
+     *  the pixels. The pixmap's pixel address is only valid
      *  while the canvas object is in scope and unchanged. Any API calls made on
-     *  canvas (or its parent surface if any) will invalidate the
-     *  returned address (and associated information).
+     *  canvas (or its parent surface if any) will invalidate the pixel address
+     *  (and associated information).
      *
-     *  On failure, returns NULL and the info and rowBytes parameters are
-     *  ignored.
+     *  On failure, returns false and the pixmap parameter will be ignored.
      */
+    bool peekPixels(SkPixmap*);
+
+#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
     const void* peekPixels(SkImageInfo* info, size_t* rowBytes);
+#endif
 
     /**
      *  Copy the pixels from the base-layer into the specified buffer (pixels + rowBytes),
@@ -295,35 +302,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
-    enum SaveFlags {
-        /** save the matrix state, restoring it on restore() */
-        // [deprecated] kMatrix_SaveFlag            = 0x01,
-        kMatrix_SaveFlag            = 0x01,
-        /** save the clip state, restoring it on restore() */
-        // [deprecated] kClip_SaveFlag              = 0x02,
-        kClip_SaveFlag              = 0x02,
-        /** the layer needs to support per-pixel alpha */
-        kHasAlphaLayer_SaveFlag     = 0x04,
-        /** the layer needs to support 8-bits per color component */
-        kFullColorLayer_SaveFlag    = 0x08,
-        /**
-         *  the layer should clip against the bounds argument
-         *
-         *  if SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG is undefined, this is treated as always on.
-         */
-        kClipToLayer_SaveFlag       = 0x10,
-
-        // helper masks for common choices
-        // [deprecated] kMatrixClip_SaveFlag        = 0x03,
-        kMatrixClip_SaveFlag        = 0x03,
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-        kARGB_NoClipLayer_SaveFlag  = 0x0F,
-#endif
-        kARGB_ClipLayer_SaveFlag    = 0x1F
-    };
-#endif
-
     /** This call saves the current matrix, clip, and drawFilter, and pushes a
         copy onto a private stack. Subsequent calls to translate, scale,
         rotate, skew, concat or clipRect, clipPath, and setDrawFilter all
@@ -359,26 +337,6 @@ public:
      */
     int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
 
-#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
-    /** DEPRECATED - use saveLayer(const SkRect*, const SkPaint*) instead.
-
-        This behaves the same as saveLayer(const SkRect*, const SkPaint*),
-        but it allows fine-grained control of which state bits to be saved
-        (and subsequently restored).
-
-        @param bounds (may be null) This rect, if non-null, is used as a hint to
-                      limit the size of the offscreen, and thus drawing may be
-                      clipped to it, though that clipping is not guaranteed to
-                      happen. If exact clipping is desired, use clipRect().
-        @param paint (may be null) This is copied, and is applied to the
-                     offscreen when restore() is called
-        @param flags  LayerFlags
-        @return The value to pass to restoreToCount() to balance this save()
-    */
-    SK_ATTR_EXTERNALLY_DEPRECATED("SaveFlags use is deprecated")
-    int saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
-#endif
-
     /** This behaves the same as save(), but in addition it allocates an
         offscreen bitmap. All drawing calls are directed there, and only when
         the balancing call to restore() is made is that offscreen transfered to
@@ -391,25 +349,6 @@ public:
         @return The value to pass to restoreToCount() to balance this save()
     */
     int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
-
-#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
-    /** DEPRECATED - use saveLayerAlpha(const SkRect*, U8CPU) instead.
-
-        This behaves the same as saveLayerAlpha(const SkRect*, U8CPU),
-        but it allows fine-grained control of which state bits to be saved
-        (and subsequently restored).
-
-        @param bounds (may be null) This rect, if non-null, is used as a hint to
-                      limit the size of the offscreen, and thus drawing may be
-                      clipped to it, though that clipping is not guaranteed to
-                      happen. If exact clipping is desired, use clipRect().
-        @param alpha  This is applied to the offscreen when restore() is called.
-        @param flags  LayerFlags
-        @return The value to pass to restoreToCount() to balance this save()
-    */
-    SK_ATTR_EXTERNALLY_DEPRECATED("SaveFlags use is deprecated")
-    int saveLayerAlpha(const SkRect* bounds, U8CPU alpha, SaveFlags flags);
-#endif
 
     enum {
         kIsOpaque_SaveLayerFlag         = 1 << 0,
@@ -844,6 +783,10 @@ public:
         @param paint    The paint used to draw the image, or NULL
      */
     void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint = NULL);
+    void drawImage(const sk_sp<SkImage>& image, SkScalar left, SkScalar top,
+                   const SkPaint* paint = NULL) {
+        this->drawImage(image.get(), left, top, paint);
+    }
 
     /**
      *  Controls the behavior at the edge of the src-rect, when specified in drawImageRect,
@@ -895,6 +838,20 @@ public:
     void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
                        SrcRectConstraint = kStrict_SrcRectConstraint);
 
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst,
+                       const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint) {
+        this->drawImageRect(image.get(), src, dst, paint, constraint);
+    }
+    void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst,
+                       const SkPaint* paint, SrcRectConstraint cons = kStrict_SrcRectConstraint) {
+        this->drawImageRect(image.get(), isrc, dst, paint, cons);
+    }
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint,
+                       SrcRectConstraint cons = kStrict_SrcRectConstraint) {
+        this->drawImageRect(image.get(), dst, paint, cons);
+    }
+
     /**
      *  Draw the image stretched differentially to fit into dst.
      *  center is a rect within the image, and logically divides the image
@@ -910,7 +867,11 @@ public:
      *  - The sides (along the shrink axis) and center are not drawn
      */
     void drawImageNine(const SkImage*, const SkIRect& center, const SkRect& dst,
-                        const SkPaint* paint = NULL);
+                       const SkPaint* paint = nullptr);
+    void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst,
+                       const SkPaint* paint = nullptr) {
+        this->drawImageNine(image.get(), center, dst, paint);
+    }
 
     /** Draw the specified bitmap, with its top/left corner at (x,y), using the
         specified paint, transformed by the current matrix. Note: if the paint
@@ -1045,6 +1006,9 @@ public:
     void drawPicture(const SkPicture* picture) {
         this->drawPicture(picture, NULL, NULL);
     }
+    void drawPicture(const sk_sp<SkPicture>& picture) {
+        this->drawPicture(picture.get());
+    }
 
     /**
      *  Draw the picture into this canvas.
@@ -1059,6 +1023,9 @@ public:
      *      saveLayer(paint)/drawPicture/restore
      */
     void drawPicture(const SkPicture*, const SkMatrix* matrix, const SkPaint* paint);
+    void drawPicture(const sk_sp<SkPicture>& picture, const SkMatrix* matrix, const SkPaint* paint) {
+        this->drawPicture(picture.get(), matrix, paint);
+    }
 
     enum VertexMode {
         kTriangles_VertexMode,
@@ -1094,6 +1061,14 @@ public:
                       const SkColor colors[], SkXfermode* xmode,
                       const uint16_t indices[], int indexCount,
                       const SkPaint& paint);
+    void drawVertices(VertexMode vmode, int vertexCount,
+                      const SkPoint vertices[], const SkPoint texs[],
+                      const SkColor colors[], const sk_sp<SkXfermode>& xmode,
+                      const uint16_t indices[], int indexCount,
+                      const SkPaint& paint) {
+        this->drawVertices(vmode, vertexCount, vertices, texs, colors, xmode.get(),
+                           indices, indexCount, paint);
+    }
 
     /**
      Draw a cubic coons patch
@@ -1110,6 +1085,10 @@ public:
      */
     void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
+    void drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4],
+                   const sk_sp<SkXfermode>& xmode, const SkPaint& paint) {
+        this->drawPatch(cubics, colors, texCoords, xmode.get(), paint);
+    }
 
     /**
      *  Draw a set of sprites from the atlas. Each is specified by a tex rectangle in the
@@ -1137,6 +1116,17 @@ public:
         this->drawAtlas(atlas, xform, tex, NULL, count, SkXfermode::kDst_Mode, cullRect, paint);
     }
 
+    void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   const SkColor colors[], int count, SkXfermode::Mode mode, const SkRect* cull,
+                   const SkPaint* paint) {
+        this->drawAtlas(atlas.get(), xform, tex, colors, count, mode, cull, paint);
+    }
+    void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   int count, const SkRect* cullRect, const SkPaint* paint) {
+        this->drawAtlas(atlas.get(), xform, tex, nullptr, count, SkXfermode::kDst_Mode,
+                        cullRect, paint);
+    }
+
     /**
      *  Draw the contents of this drawable into the canvas. If the canvas is async
      *  (e.g. it is recording into a picture) then the drawable will be referenced instead,
@@ -1148,12 +1138,34 @@ public:
     void drawDrawable(SkDrawable* drawable, const SkMatrix* = NULL);
     void drawDrawable(SkDrawable*, SkScalar x, SkScalar y);
 
-    //////////////////////////////////////////////////////////////////////////
+    /**
+     *  Send an "annotation" to the canvas. The annotation is a key/value pair, where the key is
+     *  a null-terminated utf8 string, and the value is a blob of data stored in an SkData
+     *  (which may be null). The annotation is associated with the specified rectangle.
+     *
+     *  The caller still retains its ownership of the data (if any).
+     *
+     *  Note: on may canvas types, this information is ignored, but some canvases (e.g. recording
+     *  a picture or drawing to a PDF document) will pass on this information.
+     */
+    void drawAnnotation(const SkRect&, const char key[], SkData* value);
+    void drawAnnotation(const SkRect& rect, const char key[], const sk_sp<SkData>& value) {
+        this->drawAnnotation(rect, key, value.get());
+    }
 
+    //////////////////////////////////////////////////////////////////////////
+#ifdef SK_INTERNAL
+#ifndef SK_SUPPORT_LEGACY_DRAWFILTER
+    #define SK_SUPPORT_LEGACY_DRAWFILTER
+#endif
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
     /** Get the current filter object. The filter's reference count is not
         affected. The filter is saved/restored, just like the matrix and clip.
         @return the canvas' filter (or NULL).
     */
+    SK_ATTR_EXTERNALLY_DEPRECATED("getDrawFilter use is deprecated")
     SkDrawFilter* getDrawFilter() const;
 
     /** Set the new filter (or NULL). Pass NULL to clear any existing filter.
@@ -1164,8 +1176,9 @@ public:
         @param filter the new filter (or NULL)
         @return the new filter
     */
+    SK_ATTR_EXTERNALLY_DEPRECATED("setDrawFilter use is deprecated")
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter);
-
+#endif
     //////////////////////////////////////////////////////////////////////////
 
     /**
@@ -1208,13 +1221,37 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    // don't call
+    GrDrawContext* internal_private_accessTopLayerDrawContext();
+
+    // don't call
+    static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
+    static bool Internal_Private_GetIgnoreSaveLayerBounds();
+    static void Internal_Private_SetTreatSpriteAsBitmap(bool);
+    static bool Internal_Private_GetTreatSpriteAsBitmap();
+
+    // TEMP helpers until we switch virtual over to const& for src-rect
+    void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                              const SkPaint* paint,
+                              SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                               const SkPaint* paint,
+                               SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
+    // expose minimum amount of information necessary for transitional refactoring
+    /**
+     * Returns CTM and clip bounds, translated from canvas coordinates to top layer coordinates.
+     */
+    void temporary_internal_describeTopLayer(SkMatrix* matrix, SkIRect* clip_bounds);
+
+protected:
     /** After calling saveLayer(), there can be any number of devices that make
         up the top-most drawing area. LayerIter can be used to iterate through
         those devices. Note that the iterator is only valid until the next API
         call made on the canvas. Ownership of all pointers in the iterator stays
         with the canvas, so none of them should be modified or deleted.
     */
-    class SK_API LayerIter /*: SkNoncopyable*/ {
+    class LayerIter /*: SkNoncopyable*/ {
     public:
         /** Initialize iterator with canvas, and set values for 1st device */
         LayerIter(SkCanvas*, bool skipEmptyClips);
@@ -1229,7 +1266,7 @@ public:
 
         SkBaseDevice*   device() const;
         const SkMatrix& matrix() const;
-        const SkRegion& clip() const;
+        const SkRasterClip& clip() const;
         const SkPaint&  paint() const;
         int             x() const;
         int             y() const;
@@ -1246,26 +1283,8 @@ public:
         bool              fDone;
     };
 
-    // don't call
-    GrRenderTarget* internal_private_accessTopLayerRenderTarget();
-
-    // don't call
-    static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
-    static bool Internal_Private_GetIgnoreSaveLayerBounds();
-    static void Internal_Private_SetTreatSpriteAsBitmap(bool);
-    static bool Internal_Private_GetTreatSpriteAsBitmap();
-
-    // TEMP helpers until we switch virtual over to const& for src-rect
-    void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                              const SkPaint* paint,
-                              SrcRectConstraint constraint = kStrict_SrcRectConstraint);
-    void legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                               const SkPaint* paint,
-                               SrcRectConstraint constraint = kStrict_SrcRectConstraint);
-
-protected:
     // default impl defers to getDevice()->newSurface(info)
-    virtual SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&);
+    virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&);
 
     // default impl defers to its device
     virtual bool onPeekPixels(SkPixmap*);
@@ -1289,6 +1308,7 @@ protected:
     virtual void didConcat(const SkMatrix&) {}
     virtual void didSetMatrix(const SkMatrix&) {}
 
+    virtual void onDrawAnnotation(const SkRect&, const char key[], SkData* value);
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 
     virtual void onDrawText(const void* text, size_t byteLength, SkScalar x,
@@ -1364,16 +1384,8 @@ protected:
     bool clipRectBounds(const SkRect* bounds, SaveLayerFlags, SkIRect* intersection,
                         const SkImageFilter* imageFilter = NULL);
 
-#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
-    // Needed by SkiaCanvasProxy in Android. Make sure that class is updated
-    // before removing this method.
-    static uint32_t SaveLayerFlagsToSaveFlags(SaveLayerFlags);
-#endif
 private:
     static bool BoundsAffectsClip(SaveLayerFlags);
-#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
-    static uint32_t SaveFlagsToSaveLayerFlags(SaveFlags);
-#endif
     static SaveLayerFlags LegacySaveFlagsToSaveLayerFlags(uint32_t legacySaveFlags);
 
     enum ShaderOverrideOpacity {
@@ -1401,7 +1413,7 @@ private:
     enum {
         kMCRecSize      = 128,  // most recent measurement
         kMCRecCount     = 32,   // common depth for save/restores
-        kDeviceCMSize   = 136,  // most recent measurement
+        kDeviceCMSize   = 176,  // most recent measurement
     };
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
     intptr_t fDeviceCMStorage[kDeviceCMSize / sizeof(intptr_t)];
@@ -1425,7 +1437,9 @@ private:
 
     void doSave();
     void checkForDeferredSave();
+    void internalSetMatrix(const SkMatrix&);
 
+    friend class CanvasTestingAccess; // for testing
     friend class SkDrawIter;        // needs setupDrawForLayerDevice()
     friend class AutoDrawLooper;
     friend class SkLua;             // needs top layer size and offset
@@ -1457,11 +1471,10 @@ private:
     SkBaseDevice* init(SkBaseDevice*, InitFlags);
 
     /**
-     * Gets the size/origin of the top level layer in global canvas coordinates. We don't want this
+     * Gets the bounds of the top level layer in global canvas coordinates. We don't want this
      * to be public because it exposes decisions about layer sizes that are internal to the canvas.
      */
-    SkISize getTopLayerSize() const;
-    SkIPoint getTopLayerOrigin() const;
+    SkIRect getTopLayerBounds() const;
 
     void internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                                 const SkRect& dst, const SkPaint* paint,
@@ -1569,19 +1582,6 @@ private:
     int         fSaveCount;
 };
 #define SkAutoCanvasRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoCanvasRestore)
-
-#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
-static inline SkCanvas::SaveFlags operator|(const SkCanvas::SaveFlags lhs,
-                                            const SkCanvas::SaveFlags rhs) {
-    return static_cast<SkCanvas::SaveFlags>(static_cast<int>(lhs) | static_cast<int>(rhs));
-}
-
-static inline SkCanvas::SaveFlags& operator|=(SkCanvas::SaveFlags& lhs,
-                                              const SkCanvas::SaveFlags rhs) {
-    lhs = lhs | rhs;
-    return lhs;
-}
-#endif
 
 class SkCanvasClipVisitor {
 public:

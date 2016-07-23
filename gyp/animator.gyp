@@ -21,6 +21,7 @@
       'include_dirs': [
         '../include/animator',
         '../include/private',
+        '../src/core',
         '../src/utils',
       ],
       'sources': [
@@ -174,7 +175,6 @@
         '../src/animator/SkTextOnPath.h',
         '../src/animator/SkTextToPath.cpp',
         '../src/animator/SkTextToPath.h',
-        '../src/animator/SkTime.cpp',
         '../src/animator/SkTypedArray.cpp',
         '../src/animator/SkTypedArray.h',
         '../src/animator/SkXMLAnimatorWriter.cpp',

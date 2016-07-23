@@ -55,13 +55,12 @@ protected:
         SkPoint center = SkPoint::Make(SkIntToScalar(100), SkIntToScalar(100));
         SkColor colors[] = {SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN};
         SkScalar pos[] = {0, SK_ScalarHalf, SK_Scalar1};
-        SkShader* s = SkGradientShader::CreateRadial(center,
+        paint.setShader(SkGradientShader::MakeRadial(center,
                                                      SkIntToScalar(100),
                                                      colors,
                                                      pos,
                                                      SK_ARRAY_COUNT(colors),
-                                                     SkShader::kClamp_TileMode);
-        paint.setShader(s)->unref();
+                                                     SkShader::kClamp_TileMode));
         paint.setAntiAlias(aa);
 
         showPath(canvas,   0,   0, SkPath::kWinding_FillType,
@@ -85,13 +84,12 @@ protected:
                             SK_ColorYELLOW, SK_ColorWHITE};
         SkScalar pos[] = {0, SK_ScalarHalf / 2,
                           3 * SK_ScalarHalf / 2, SK_Scalar1};
-        SkShader* s = SkGradientShader::CreateRadial(center,
-                                                     SkIntToScalar(1000),
-                                                     colors,
-                                                     pos,
-                                                     SK_ARRAY_COUNT(colors),
-                                                     SkShader::kClamp_TileMode);
-        bkgnrd.setShader(s)->unref();
+        bkgnrd.setShader(SkGradientShader::MakeRadial(center,
+                                                      SkIntToScalar(1000),
+                                                      colors,
+                                                      pos,
+                                                      SK_ARRAY_COUNT(colors),
+                                                      SkShader::kClamp_TileMode));
         canvas->save();
             canvas->translate(SkIntToScalar(100), SkIntToScalar(100));
             SkMatrix mat;

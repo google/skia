@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
-#include "SkColorShader.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkSurface.h"
@@ -45,8 +44,7 @@ protected:
         size.fWidth /= 10;
         size.fHeight /= 10;
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
-        SkSurface* surface = SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info);
-
+        auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
         if (nullptr == surface) {
             return;
         }
@@ -67,9 +65,8 @@ protected:
                       surface->getCanvas()->clear(color);
                       break;
                   case 2:
-                      SkColorShader shader(color);
                       SkPaint paint;
-                      paint.setShader(&shader);
+                      paint.setShader(SkShader::MakeColorShader(color));
                       surface->getCanvas()->drawPaint(paint);
                       break;
               }
@@ -78,7 +75,6 @@ protected:
         }
 
         surface->getCanvas()->discard();
-        surface->unref();
     }
 
 private:

@@ -100,3 +100,85 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
     }
     return SkColorSetARGB(a, r, g, b);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkPM4fPriv.h"
+#include "SkHalf.h"
+
+SkPM4f SkPM4f::FromPMColor(SkPMColor c) {
+    Sk4f value = to_4f_rgba(c);
+    SkPM4f c4;
+    (value * Sk4f(1.0f / 255)).store(&c4);
+    return c4;
+}
+
+SkColor4f SkPM4f::unpremul() const {
+    float alpha = fVec[A];
+    if (0 == alpha) {
+        return { 0, 0, 0, 0 };
+    } else {
+        float invAlpha = 1 / alpha;
+        return { fVec[R] * invAlpha, fVec[G] * invAlpha, fVec[B] * invAlpha, alpha };
+    }
+}
+
+void SkPM4f::toF16(uint16_t half[4]) const {
+    for (int i = 0; i < 4; ++i) {
+        half[i] = SkFloatToHalf(fVec[i]);
+    }
+}
+
+uint64_t SkPM4f::toF16() const {
+    uint64_t value;
+    this->toF16(reinterpret_cast<uint16_t*>(&value));
+    return value;
+}
+
+SkPM4f SkPM4f::FromF16(const uint16_t half[4]) {
+    return {{
+        SkHalfToFloat(half[0]),
+        SkHalfToFloat(half[1]),
+        SkHalfToFloat(half[2]),
+        SkHalfToFloat(half[3])
+    }};
+}
+
+#ifdef SK_DEBUG
+void SkPM4f::assertIsUnit() const {
+    auto c4 = Sk4f::Load(fVec);
+    SkASSERT((c4 >= Sk4f(0)).allTrue() && (c4 <= Sk4f(1)).allTrue());
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkColor4f SkColor4f::FromColor(SkColor c) {
+    Sk4f value = SkNx_shuffle<2,1,0,3>(SkNx_cast<float>(Sk4b::Load(&c)));
+    SkColor4f c4;
+    (value * Sk4f(1.0f / 255)).store(&c4);
+    c4.fR = srgb_to_linear(c4.fR);
+    c4.fG = srgb_to_linear(c4.fG);
+    c4.fB = srgb_to_linear(c4.fB);
+    return c4;
+}
+
+SkColor SkColor4f::toSkColor() const {
+    SkColor result;
+    Sk4f value = Sk4f(linear_to_srgb(fB), linear_to_srgb(fG), linear_to_srgb(fR), fA);
+    SkNx_cast<uint8_t>(value * Sk4f(255) + Sk4f(0.5f)).store(&result);
+    return result;
+}
+
+SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
+    SkColor4f c4;
+    Sk4f::Min(Sk4f::Max(Sk4f(r, g, b, a), Sk4f(0)), Sk4f(1)).store(c4.vec());
+    return c4;
+}
+
+SkPM4f SkColor4f::premul() const {
+    auto src = Sk4f::Load(this->pin().vec());
+    float srcAlpha = src[3];  // need the pinned version of our alpha
+    src = src * Sk4f(srcAlpha, srcAlpha, srcAlpha, 1);
+
+    return SkPM4f::From4f(src);
+}

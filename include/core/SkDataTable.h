@@ -8,10 +8,10 @@
 #ifndef SkDataTable_DEFINED
 #define SkDataTable_DEFINED
 
+#include "../private/SkTDArray.h"
 #include "SkChunkAlloc.h"
 #include "SkData.h"
 #include "SkString.h"
-#include "SkTDArray.h"
 
 /**
  *  Like SkData, SkDataTable holds an immutable data buffer. The data buffer is

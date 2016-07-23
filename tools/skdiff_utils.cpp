@@ -7,8 +7,8 @@
 #include "skdiff.h"
 #include "skdiff_utils.h"
 #include "SkBitmap.h"
+#include "SkCodec.h"
 #include "SkData.h"
-#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkStream.h"
 #include "SkTypes.h"
@@ -33,20 +33,32 @@ SkData* read_file(const char* file_path) {
     return data;
 }
 
-bool get_bitmap(SkData* fileBits, DiffResource& resource, SkImageDecoder::Mode mode) {
-    SkMemoryStream stream(fileBits->data(), fileBits->size());
-
-    // In debug, the DLL will automatically be unloaded when this is deleted,
-    // but that shouldn't be a problem in release mode.
-    std::unique_ptr<SkImageDecoder> codec(SkImageDecoder::Factory(&stream));
-    if (nullptr == codec) {
-        SkDebugf("ERROR: no codec found for <%s>\n", resource.fFullPath.c_str());
+bool get_bitmap(SkData* fileBits, DiffResource& resource, bool sizeOnly) {
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fileBits));
+    if (!codec) {
+        SkDebugf("ERROR: could not create codec for <%s>\n", resource.fFullPath.c_str());
         resource.fStatus = DiffResource::kCouldNotDecode_Status;
         return false;
     }
 
-    stream.rewind();
-    if (!codec->decode(&stream, &resource.fBitmap, kN32_SkColorType, mode)) {
+    if (!resource.fBitmap.setInfo(codec->getInfo().makeColorType(kN32_SkColorType))) {
+        SkDebugf("ERROR: could not set bitmap info for <%s>\n", resource.fFullPath.c_str());
+        resource.fStatus = DiffResource::kCouldNotDecode_Status;
+        return false;
+    }
+
+    if (sizeOnly) {
+        return true;
+    }
+
+    if (!resource.fBitmap.tryAllocPixels()) {
+        SkDebugf("ERROR: could not allocate pixels for <%s>\n", resource.fFullPath.c_str());
+        resource.fStatus = DiffResource::kCouldNotDecode_Status;
+        return false;
+    }
+
+    if (SkCodec::kSuccess != codec->getPixels(resource.fBitmap.info(),
+            resource.fBitmap.getPixels(), resource.fBitmap.rowBytes())) {
         SkDebugf("ERROR: codec failed for basePath <%s>\n", resource.fFullPath.c_str());
         resource.fStatus = DiffResource::kCouldNotDecode_Status;
         return false;

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -42,8 +41,6 @@ protected:
         SkScalar x = 0, y = 0;
         for (size_t m = 0; m <= SkXfermode::kLastMode; m++) {
             SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(m);
-            SkXfermode* xm = SkXfermode::Create(mode);
-            SkAutoUnref aur(xm);
 
             canvas->save();
 
@@ -60,7 +57,7 @@ protected:
             p.setShader(fDst);
             canvas->drawRect(r, p);
             p.setShader(fSrc);
-            p.setXfermode(xm);
+            p.setXfermode(SkXfermode::Make(mode));
             canvas->drawRect(r, p);
 
             canvas->restore();
@@ -99,10 +96,8 @@ private:
 
         SkMatrix lm;
         lm.setScale(SkIntToScalar(16), SkIntToScalar(16));
-        fBG.reset(SkShader::CreateBitmapShader(bg,
-                                               SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode,
-                                               &lm));
+        fBG = SkShader::MakeBitmapShader(bg, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
+                                         &lm);
 
         SkBitmap srcBmp;
         srcBmp.allocN32Pixels(kSize, kSize);
@@ -115,9 +110,8 @@ private:
                 pixels[kSize * y + x] = rowColor;
             }
         }
-        fSrc.reset(SkShader::CreateBitmapShader(srcBmp,
-                                                SkShader::kClamp_TileMode,
-                                                SkShader::kClamp_TileMode));
+        fSrc = SkShader::MakeBitmapShader(srcBmp, SkShader::kClamp_TileMode,
+                                          SkShader::kClamp_TileMode);
         SkBitmap dstBmp;
         dstBmp.allocN32Pixels(kSize, kSize);
         pixels = reinterpret_cast<SkPMColor*>(dstBmp.getPixels());
@@ -129,9 +123,8 @@ private:
                 pixels[kSize * y + x] = colColor;
             }
         }
-        fDst.reset(SkShader::CreateBitmapShader(dstBmp,
-                                                SkShader::kClamp_TileMode,
-                                                SkShader::kClamp_TileMode));
+        fDst = SkShader::MakeBitmapShader(dstBmp, SkShader::kClamp_TileMode,
+                                          SkShader::kClamp_TileMode);
     }
 
     enum {
@@ -139,9 +132,9 @@ private:
         kSize = 256 >> kShift,
     };
 
-    SkAutoTUnref<SkShader> fBG;
-    SkAutoTUnref<SkShader> fSrc;
-    SkAutoTUnref<SkShader> fDst;
+    sk_sp<SkShader> fBG;
+    sk_sp<SkShader> fSrc;
+    sk_sp<SkShader> fDst;
 
     typedef GM INHERITED;
 };

@@ -26,8 +26,8 @@ public:
     };
     static const int kInputModeCnt = kLastInputMode + 1;
 
-    static GrFragmentProcessor* Create(GrColor color, InputMode mode) {
-        return new GrConstColorProcessor(color, mode);
+    static sk_sp<GrFragmentProcessor> Make(GrColor color, InputMode mode) {
+        return sk_sp<GrFragmentProcessor>(new GrConstColorProcessor(color, mode));
     }
 
     const char* name() const override { return "Color"; }

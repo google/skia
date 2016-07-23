@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -66,7 +65,7 @@ public:
         SkASSERT(count >= SkRegion::kRectRegionRuns);
 
         const int64_t size = sk_64_mul(count, sizeof(RunType)) + sizeof(RunHead);
-        if (count < 0 || !sk_64_isS32(size)) { SK_CRASH(); }
+        if (count < 0 || !sk_64_isS32(size)) { SK_ABORT("Invalid Size"); }
 
         RunHead* head = (RunHead*)sk_malloc_throw(size);
         head->fRefCnt = 1;

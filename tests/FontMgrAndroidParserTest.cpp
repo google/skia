@@ -7,6 +7,7 @@
 
 #include "Resources.h"
 #include "SkCommandLineFlags.h"
+#include "SkFixed.h"
 #include "SkFontMgr_android_parser.h"
 #include "Test.h"
 
@@ -88,7 +89,16 @@ void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* label) {
         }
         for (int j = 0; j < fontFamilies[i]->fFonts.count(); ++j) {
             const FontFileInfo& ffi = fontFamilies[i]->fFonts[j];
-            SkDebugf("  file (%d) %s#%d\n", ffi.fWeight, ffi.fFileName.c_str(), ffi.fIndex);
+            SkDebugf("  file (%d) %s#%d", ffi.fWeight, ffi.fFileName.c_str(), ffi.fIndex);
+            for (const auto& axis : ffi.fAxes) {
+                SkDebugf(" @'%c%c%c%c'=%f",
+                         (axis.fTag >> 24) & 0xFF,
+                         (axis.fTag >> 16) & 0xFF,
+                         (axis.fTag >>  8) & 0xFF,
+                         (axis.fTag      ) & 0xFF,
+                         axis.fStyleValue);
+            }
+            SkDebugf("\n");
         }
     }
     SkDebugf("\n\n");
@@ -204,4 +214,3 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
         SkDebugf("---- Resource files missing for FontConfigParser test\n");
     }
 }
-

@@ -8,10 +8,9 @@
 #ifndef SkStream_DEFINED
 #define SkStream_DEFINED
 
+#include "SkData.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
-
-class SkData;
 
 class SkStream;
 class SkStreamRewindable;
@@ -201,7 +200,10 @@ public:
     bool    write16(U16CPU);
     bool    write32(uint32_t);
 
-    bool    writeText(const char text[]);
+    bool    writeText(const char text[]) {
+        SkASSERT(text);
+        return this->write(text, strlen(text));
+    }
     bool    writeDecAsText(int32_t);
     bool    writeBigDecAsText(int64_t, int minDigits = 0);
     bool    writeHexAsText(uint32_t, int minDigits = 0);
@@ -270,11 +272,11 @@ public:
     const void* getMemoryBase() override;
 
 private:
-    FILE*     fFILE;
+    FILE*       fFILE;
     SkString    fName;
     Ownership   fOwnership;
     // fData is lazilly initialized when needed.
-    mutable SkAutoTUnref<SkData> fData;
+    mutable sk_sp<SkData> fData;
 
     typedef SkStreamAsset INHERITED;
 };
@@ -291,10 +293,12 @@ public:
 
     /** Use the specified data as the memory for this stream.
      *  The stream will call ref() on the data (assuming it is not NULL).
+     *  DEPRECATED
      */
     SkMemoryStream(SkData*);
 
-    virtual ~SkMemoryStream();
+    /** Creates the stream to read from the specified data */
+    SkMemoryStream(sk_sp<SkData>);
 
     /** Resets the stream to the specified data and length,
         just like the constructor.
@@ -341,8 +345,8 @@ public:
     const void* getMemoryBase() override;
 
 private:
-    SkData* fData;
-    size_t  fOffset;
+    sk_sp<SkData>   fData;
+    size_t          fOffset;
 
     typedef SkStreamMemory INHERITED;
 };
@@ -369,7 +373,7 @@ private:
     typedef SkWStream INHERITED;
 };
 
-class SkMemoryWStream : public SkWStream {
+class SK_API SkMemoryWStream : public SkWStream {
 public:
     SkMemoryWStream(void* buffer, size_t size);
     bool write(const void* buffer, size_t size) override;
@@ -417,7 +421,7 @@ private:
     Block*  fHead;
     Block*  fTail;
     size_t  fBytesWritten;
-    mutable SkData* fCopy;  // is invalidated if we write after it is created
+    mutable sk_sp<SkData> fCopy;  // is invalidated if we write after it is created
 
     void invalidateCopy();
 

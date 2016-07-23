@@ -58,7 +58,7 @@ static void test_evalquadat(skiatest::Reporter* reporter) {
             SkEvalQuadAt(pts, t, &r0);
             SkPoint r1 = SkEvalQuadAt(pts, t);
             check_pairs(reporter, i, t, "quad-pos", r0.fX, r0.fY, r1.fX, r1.fY);
-            
+
             SkVector v0;
             SkEvalQuadAt(pts, t, nullptr, &v0);
             SkVector v1 = SkEvalQuadTangentAt(pts, t);

@@ -110,16 +110,15 @@ public:
         SkASSERT(1 == count || 2 == count);
         SkIRect ir;
         rects[0].roundOut(&ir);
-        fSizes[0] = SkSize::Make(0, 0);
-        fSizes[1] = SkSize::Make(0, 0);
-        fSizes[2] = SkSize::Make(0, 0);
-        fSizes[3] = SkSize::Make(rects[0].x() - ir.x(), rects[0].y() - ir.y());
-        for (int i = 0; i < count; i++) {
-            fSizes[i] = SkSize::Make(rects[i].width(), rects[i].height());
-        }
+        fSizes[0] = SkSize::Make(rects[0].width(), rects[0].height());
         if (2 == count) {
+            fSizes[1] = SkSize::Make(rects[1].width(), rects[1].height());
             fSizes[2] = SkSize::Make(rects[0].x() - rects[1].x(), rects[0].y() - rects[1].y());
+        } else {
+            fSizes[1] = SkSize::Make(0, 0);
+            fSizes[2] = SkSize::Make(0, 0);
         }
+        fSizes[3] = SkSize::Make(rects[0].x() - ir.x(), rects[0].y() - ir.y());
 
         this->init(&gRectsBlurKeyNamespaceLabel, 0,
                    sizeof(fSigma) + sizeof(fStyle) + sizeof(fQuality) + sizeof(fSizes));

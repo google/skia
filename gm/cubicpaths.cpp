@@ -413,6 +413,19 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+DEF_SIMPLE_GM(bug5099, canvas, 50, 50) {
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+
+    SkPath path;
+    path.moveTo(6, 27);
+    path.cubicTo(31.5f, 1.5f, 3.5f, 4.5f, 29, 29);
+    canvas->drawPath(path, p);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new CubicPathGM; )

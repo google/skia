@@ -143,6 +143,8 @@ public:
 
         /**
          *  Indicates is destination pixel memory is zero initialized.
+         *
+         *  The default is SkCodec::kNo_ZeroInitialized.
          */
         SkCodec::ZeroInitialized fZeroInitialized;
 
@@ -153,6 +155,8 @@ public:
          *
          *  If the EncodedFormat is kWEBP_SkEncodedFormat, the top and left
          *  values must be even.
+         *
+         *  The default is NULL, meaning a decode of the entire image.
          */
         SkIRect* fSubset;
 
@@ -166,6 +170,8 @@ public:
          *  If the client does not request kIndex8_SkColorType, then the last
          *  two parameters may be NULL. If fColorCount is not null, it will be
          *  set to 0.
+         *
+         *  The default is NULL for both pointers.
          */
         SkPMColor* fColorPtr;
         int*       fColorCount;
@@ -174,6 +180,8 @@ public:
          *  The client may provide an integer downscale factor for the decode.
          *  The codec may implement this downscaling by sampling or another
          *  method if it is more efficient.
+         *
+         *  The default is 1, representing no downscaling.
          */
         int fSampleSize;
     };
@@ -207,7 +215,8 @@ public:
      *  be nullptr.
      *
      *  The AndroidOptions object is also used to specify any requested scaling or subsetting
-     *  using options->fSampleSize and options->fSubset.
+     *  using options->fSampleSize and options->fSubset. If NULL, the defaults (as specified above
+     *  for AndroidOptions) are used.
      *
      *  @return Result kSuccess, or another value explaining the type of failure.
      */
@@ -219,12 +228,17 @@ public:
             const AndroidOptions* options);
 
     /**
-     *  Simplified version of getAndroidPixels() where we supply the default AndroidOptions.
+     *  Simplified version of getAndroidPixels() where we supply the default AndroidOptions as
+     *  specified above for AndroidOptions.
      *
      *  This will return an error if the info is kIndex_8_SkColorType and also will not perform
      *  any scaling or subsetting.
      */
     SkCodec::Result getAndroidPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
+
+    SkCodec::Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
+        return this->getAndroidPixels(info, pixels, rowBytes);
+    }
 
 protected:
 

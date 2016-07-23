@@ -7,11 +7,13 @@
 
 #include "GrTessellatingPathRenderer.h"
 
+#include "GrAuditTrail.h"
 #include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
+#include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrMesh.h"
 #include "GrPathUtils.h"
-#include "GrVertices.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrTessellator.h"
@@ -23,7 +25,7 @@
 
 /*
  * This path renderer tessellates the path into triangles using GrTessellator, uploads the triangles
- * to a vertex buffer, and renders them with a single draw call. It does not currently do 
+ * to a vertex buffer, and renders them with a single draw call. It does not currently do
  * antialiasing, so it must be used in conjunction with multisampling.
  */
 namespace {
@@ -45,7 +47,7 @@ private:
     }
 };
 
-bool cache_match(GrVertexBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
+bool cache_match(GrBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
     if (!vertexBuffer) {
         return false;
     }
@@ -59,17 +61,57 @@ bool cache_match(GrVertexBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
     return false;
 }
 
+class StaticVertexAllocator : public GrTessellator::VertexAllocator {
+public:
+    StaticVertexAllocator(GrResourceProvider* resourceProvider, bool canMapVB)
+      : fResourceProvider(resourceProvider)
+      , fCanMapVB(canMapVB)
+      , fVertices(nullptr) {
+    }
+    SkPoint* lock(int vertexCount) override {
+        size_t size = vertexCount * sizeof(SkPoint);
+        fVertexBuffer.reset(fResourceProvider->createBuffer(
+            size, kVertex_GrBufferType, kStatic_GrAccessPattern, 0));
+        if (!fVertexBuffer.get()) {
+            return nullptr;
+        }
+        if (fCanMapVB) {
+            fVertices = static_cast<SkPoint*>(fVertexBuffer->map());
+        } else {
+            fVertices = new SkPoint[vertexCount];
+        }
+        return fVertices;
+    }
+    void unlock(int actualCount) override {
+        if (fCanMapVB) {
+            fVertexBuffer->unmap();
+        } else {
+            fVertexBuffer->updateData(fVertices, actualCount * sizeof(SkPoint));
+            delete[] fVertices;
+        }
+        fVertices = nullptr;
+    }
+    GrBuffer* vertexBuffer() { return fVertexBuffer.get(); }
+private:
+    SkAutoTUnref<GrBuffer> fVertexBuffer;
+    GrResourceProvider* fResourceProvider;
+    bool fCanMapVB;
+    SkPoint* fVertices;
+};
+
 }  // namespace
 
 GrTessellatingPathRenderer::GrTessellatingPathRenderer() {
 }
 
 bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // This path renderer can draw all fill styles, all stroke styles except hairlines, but does
-    // not do antialiasing. It can do convex and concave paths, but we'll leave the convex ones to
-    // simpler algorithms.
-    return !IsStrokeHairlineOrEquivalent(*args.fStroke, *args.fViewMatrix, nullptr) &&
-           !args.fAntiAlias && !args.fPath->isConvex();
+    // This path renderer can draw fill styles but does not do antialiasing. It can do convex and
+    // concave paths, but we'll leave the convex ones to simpler algorithms. We pass on paths that
+    // have styles, though they may come back around after applying the styling information to the
+    // geometry to create a filled path. We also skip paths that don't have a key since the real
+    // advantage of this path renderer comes from caching the tessellated geometry.
+    return !args.fShape->style().applies() && args.fShape->style().isSimpleFill() &&
+           !args.fAntiAlias && args.fShape->hasUnstyledKey() && !args.fShape->knownToBeConvex();
 }
 
 class TessellatingPathBatch : public GrVertexBatch {
@@ -77,21 +119,19 @@ public:
     DEFINE_BATCH_CLASS_ID
 
     static GrDrawBatch* Create(const GrColor& color,
-                               const SkPath& path,
-                               const GrStrokeInfo& stroke,
+                               const GrShape& shape,
                                const SkMatrix& viewMatrix,
                                SkRect clipBounds) {
-        return new TessellatingPathBatch(color, path, stroke, viewMatrix, clipBounds);
+        return new TessellatingPathBatch(color, shape, viewMatrix, clipBounds);
     }
 
     const char* name() const override { return "TessellatingPathBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         color->setKnownFourComponents(fColor);
         coverage->setUnknownSingleComponent();
-        overrides->fUsePLSDstRead = false;
     }
 
 private:
@@ -104,77 +144,55 @@ private:
         fPipelineInfo = overrides;
     }
 
-    int tessellate(GrUniqueKey* key,
-                   GrResourceProvider* resourceProvider,
-                   SkAutoTUnref<GrVertexBuffer>& vertexBuffer,
-                   bool canMapVB) const {
-        SkPath path;
-        GrStrokeInfo stroke(fStroke);
-        if (stroke.isDashed()) {
-            if (!stroke.applyDashToPath(&path, &stroke, fPath)) {
-                return 0;
-            }
-        } else {
-            path = fPath;
-        }
-        if (!stroke.isFillStyle()) {
-            stroke.setResScale(SkScalarAbs(fViewMatrix.getMaxScale()));
-            if (!stroke.applyToPath(&path, path)) {
-                return 0;
-            }
-            stroke.setFillStyle();
-        }
+    void draw(Target* target, const GrGeometryProcessor* gp) const {
+        GrResourceProvider* rp = target->resourceProvider();
         SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
-        SkRect pathBounds = path.getBounds();
-        SkScalar tol = GrPathUtils::scaleToleranceToSrc(screenSpaceTol, fViewMatrix, pathBounds);
+        SkScalar tol = GrPathUtils::scaleToleranceToSrc(screenSpaceTol, fViewMatrix,
+                                                        fShape.bounds());
 
-        bool isLinear;
-        int count = GrTessellator::PathToTriangles(path, tol, fClipBounds, resourceProvider, 
-                                                   vertexBuffer, canMapVB, &isLinear);
-        if (!fPath.isVolatile()) {
-            TessInfo info;
-            info.fTolerance = isLinear ? 0 : tol;
-            info.fCount = count;
-            SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
-            key->setCustomData(data.get());
-            resourceProvider->assignUniqueKeyToResource(*key, vertexBuffer.get());
-            SkPathPriv::AddGenIDChangeListener(fPath, new PathInvalidator(*key));
-        }
-        return count;
-    }
-
-    void onPrepareDraws(Target* target) const override {
+        SkPath path;
+        fShape.asPath(&path);
+        bool inverseFill = path.isInverseFillType();
         // construct a cache key from the path's genID and the view matrix
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
-        int clipBoundsSize32 =
-            fPath.isInverseFillType() ? sizeof(fClipBounds) / sizeof(uint32_t) : 0;
-        int strokeDataSize32 = fStroke.computeUniqueKeyFragmentData32Cnt();
-        GrUniqueKey::Builder builder(&key, kDomain, 2 + clipBoundsSize32 + strokeDataSize32);
-        builder[0] = fPath.getGenerationID();
-        builder[1] = fPath.getFillType();
+        static constexpr int kClipBoundsCnt = sizeof(fClipBounds) / sizeof(uint32_t);
+        int shapeKeyDataCnt = fShape.unstyledKeySize();
+        SkASSERT(shapeKeyDataCnt >= 0);
+        GrUniqueKey::Builder builder(&key, kDomain, shapeKeyDataCnt + kClipBoundsCnt);
+        fShape.writeUnstyledKey(&builder[0]);
         // For inverse fills, the tessellation is dependent on clip bounds.
-        if (fPath.isInverseFillType()) {
-            memcpy(&builder[2], &fClipBounds, sizeof(fClipBounds));
+        if (inverseFill) {
+            memcpy(&builder[shapeKeyDataCnt], &fClipBounds, sizeof(fClipBounds));
+        } else {
+            memset(&builder[shapeKeyDataCnt], 0, sizeof(fClipBounds));
         }
-        fStroke.asUniqueKeyFragment(&builder[2 + clipBoundsSize32]);
         builder.finish();
-        GrResourceProvider* rp = target->resourceProvider();
-        SkAutoTUnref<GrVertexBuffer> vertexBuffer(rp->findAndRefTByUniqueKey<GrVertexBuffer>(key));
+        SkAutoTUnref<GrBuffer> cachedVertexBuffer(rp->findAndRefTByUniqueKey<GrBuffer>(key));
         int actualCount;
-        SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
-        SkScalar tol = GrPathUtils::scaleToleranceToSrc(
-            screenSpaceTol, fViewMatrix, fPath.getBounds());
-        if (!cache_match(vertexBuffer.get(), tol, &actualCount)) {
-            bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
-            actualCount = this->tessellate(&key, rp, vertexBuffer, canMapVB);
-        }
-
-        if (actualCount == 0) {
+        if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
+            this->drawVertices(target, gp, cachedVertexBuffer.get(), 0, actualCount);
             return;
         }
 
-        SkAutoTUnref<const GrGeometryProcessor> gp;
+        bool isLinear;
+        bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
+        StaticVertexAllocator allocator(rp, canMapVB);
+        int count = GrTessellator::PathToTriangles(path, tol, fClipBounds, &allocator, &isLinear);
+        if (count == 0) {
+            return;
+        }
+        this->drawVertices(target, gp, allocator.vertexBuffer(), 0, count);
+        TessInfo info;
+        info.fTolerance = isLinear ? 0 : tol;
+        info.fCount = count;
+        SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
+        key.setCustomData(data.get());
+        rp->assignUniqueKeyToResource(key, allocator.vertexBuffer());
+    }
+
+    void onPrepareDraws(Target* target) const override {
+        sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
 
@@ -189,58 +207,47 @@ private:
                 coverageType = Coverage::kNone_Type;
             }
             Coverage coverage(coverageType);
-            gp.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
-                                                     fViewMatrix));
+            gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, fViewMatrix);
         }
+        this->draw(target, gp.get());
+    }
 
-        target->initDraw(gp, this->pipeline());
+    void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrBuffer* vb,
+                      int firstVertex, int count) const {
         SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 
         GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? kLines_GrPrimitiveType
                                                               : kTriangles_GrPrimitiveType;
-        GrVertices vertices;
-        vertices.init(primitiveType, vertexBuffer.get(), 0, actualCount);
-        target->draw(vertices);
+        GrMesh mesh;
+        mesh.init(primitiveType, vb, firstVertex, count);
+        target->draw(gp, mesh);
     }
 
     bool onCombineIfPossible(GrBatch*, const GrCaps&) override { return false; }
 
     TessellatingPathBatch(const GrColor& color,
-                          const SkPath& path,
-                          const GrStrokeInfo& stroke,
+                          const GrShape& shape,
                           const SkMatrix& viewMatrix,
                           const SkRect& clipBounds)
       : INHERITED(ClassID())
       , fColor(color)
-      , fPath(path)
-      , fStroke(stroke)
+      , fShape(shape)
       , fViewMatrix(viewMatrix) {
-        const SkRect& pathBounds = path.getBounds();
+        const SkRect& pathBounds = shape.bounds();
         fClipBounds = clipBounds;
         // Because the clip bounds are used to add a contour for inverse fills, they must also
         // include the path bounds.
         fClipBounds.join(pathBounds);
-        if (path.isInverseFillType()) {
+        if (shape.inverseFilled()) {
             fBounds = fClipBounds;
         } else {
-            fBounds = path.getBounds();
-        }
-        if (!stroke.isFillStyle()) {
-            SkScalar radius = SkScalarHalf(stroke.getWidth());
-            if (stroke.getJoin() == SkPaint::kMiter_Join) {
-                SkScalar scale = stroke.getMiter();
-                if (scale > SK_Scalar1) {
-                    radius = SkScalarMul(radius, scale);
-                }
-            }
-            fBounds.outset(radius, radius);
+            fBounds = pathBounds;
         }
         viewMatrix.mapRect(&fBounds);
     }
 
     GrColor                 fColor;
-    SkPath                  fPath;
-    GrStrokeInfo            fStroke;
+    GrShape                 fShape;
     SkMatrix                fViewMatrix;
     SkRect                  fClipBounds; // in source space
     GrXPOverridesForBatch   fPipelineInfo;
@@ -249,26 +256,28 @@ private:
 };
 
 bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrTessellatingPathRenderer::onDrawPath");
     SkASSERT(!args.fAntiAlias);
-    const GrRenderTarget* rt = args.fPipelineBuilder->getRenderTarget();
-    if (nullptr == rt) {
-        return false;
-    }
 
     SkIRect clipBoundsI;
-    args.fPipelineBuilder->clip().getConservativeBounds(rt->width(), rt->height(), &clipBoundsI);
+    args.fClip->getConservativeBounds(args.fDrawContext->width(), args.fDrawContext->height(),
+                                      &clipBoundsI);
     SkRect clipBounds = SkRect::Make(clipBoundsI);
     SkMatrix vmi;
     if (!args.fViewMatrix->invert(&vmi)) {
         return false;
     }
     vmi.mapRect(&clipBounds);
-    SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fPath,
-                                                                  *args.fStroke, *args.fViewMatrix,
-                                                                  clipBounds));
-    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
+    SkPath path;
+    args.fShape->asPath(&path);
+    SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fShape,
+                                                                  *args.fViewMatrix, clipBounds));
+
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->mustUseHWAA(*args.fPaint));
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
 
     return true;
 }
@@ -288,8 +297,12 @@ DRAW_BATCH_TEST_DEFINE(TesselatingPathBatch) {
         SkFAIL("Cannot invert matrix\n");
     }
     vmi.mapRect(&clipBounds);
-    GrStrokeInfo strokeInfo = GrTest::TestStrokeInfo(random);
-    return TessellatingPathBatch::Create(color, path, strokeInfo, viewMatrix, clipBounds);
+    GrStyle style;
+    do {
+        GrTest::TestStyle(random, &style);
+    } while (style.strokeRec().isHairlineStyle());
+    GrShape shape(path, style);
+    return TessellatingPathBatch::Create(color, shape, viewMatrix, clipBounds);
 }
 
 #endif

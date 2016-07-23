@@ -13,7 +13,7 @@
 manually compute the intersection of a pair of circles and see if the conic intersection matches
   given two circles
     construct a line connecting their centers
-    
+
  */
 
 static const SkDConic testSet[] = {
@@ -21,10 +21,10 @@ static const SkDConic testSet[] = {
     {{{{377.218994,-141.981003}, {40.578701,-201.339996}, {23.1854992,-102.697998}}}, 0.707107008f},
 
     {{{{5.1114602088928223, 628.77813720703125},
-        {10.834027290344238, 988.964111328125}, 
+        {10.834027290344238, 988.964111328125},
         {163.40835571289062, 988.964111328125}}}, 0.72944212f},
-    {{{{163.40835571289062, 988.964111328125}, 
-        {5, 988.964111328125}, 
+    {{{{163.40835571289062, 988.964111328125},
+        {5, 988.964111328125},
         {5, 614.7423095703125}}}, 0.707106769f},
 
     {{{{11.17222976684570312, -8.103978157043457031},
@@ -116,8 +116,8 @@ static void writePng(const SkConic& c, const SkConic ch[2], const char* name) {
 
 static void writeDPng(const SkDConic& dC, const char* name) {
     const int scale = 5;
-    SkDConic dConic = {{{ {dC.fPts[0].fX * scale, dC.fPts[0].fY * scale }, 
-        {dC.fPts[1].fX * scale, dC.fPts[1].fY * scale }, 
+    SkDConic dConic = {{{ {dC.fPts[0].fX * scale, dC.fPts[0].fY * scale },
+        {dC.fPts[1].fX * scale, dC.fPts[1].fY * scale },
         {dC.fPts[2].fX * scale, dC.fPts[2].fY * scale }}}, dC.fWeight };
     SkBitmap bitmap;
     SkDRect bounds;
@@ -226,7 +226,7 @@ const SkDConic frame6[] = {
 };
 
 const SkDConic* frames[] = {
-    frame0, frame1, frame2, frame3, frame4, frame5, frame6 
+    frame0, frame1, frame2, frame3, frame4, frame5, frame6
 };
 
 const int frameSizes[] = { (int) SK_ARRAY_COUNT(frame0), (int) SK_ARRAY_COUNT(frame1),
@@ -244,8 +244,8 @@ static void writeFrames() {
         int frameSize = frameSizes[index];
         for (int fIndex = 0; fIndex < frameSize; ++fIndex) {
             const SkDConic& dC = frames[index][fIndex];
-            SkDConic dConic = {{{ {dC.fPts[0].fX * scale, dC.fPts[0].fY * scale }, 
-                {dC.fPts[1].fX * scale, dC.fPts[1].fY * scale }, 
+            SkDConic dConic = {{{ {dC.fPts[0].fX * scale, dC.fPts[0].fY * scale },
+                {dC.fPts[1].fX * scale, dC.fPts[1].fY * scale },
                 {dC.fPts[2].fX * scale, dC.fPts[2].fY * scale }}}, dC.fWeight };
             SkDRect dBounds;
             dBounds.setBounds(dConic);
@@ -273,8 +273,8 @@ static void writeFrames() {
         canvas.drawColor(SK_ColorWHITE);
         for (int fIndex = 0; fIndex < frameSize; ++fIndex) {
             const SkDConic& dC = frames[index][fIndex];
-            SkDConic dConic = {{{ {dC.fPts[0].fX * scale, dC.fPts[0].fY * scale }, 
-                {dC.fPts[1].fX * scale, dC.fPts[1].fY * scale }, 
+            SkDConic dConic = {{{ {dC.fPts[0].fX * scale, dC.fPts[0].fY * scale },
+                {dC.fPts[1].fX * scale, dC.fPts[1].fY * scale },
                 {dC.fPts[2].fX * scale, dC.fPts[2].fY * scale }}}, dC.fWeight };
             SkPath path;
             path.moveTo(dConic.fPts[0].asSkPoint());

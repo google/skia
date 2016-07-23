@@ -60,8 +60,8 @@ protected:
                 SK_ColorMAGENTA,
         };
 
-        SkAutoTUnref<SkXfermode> xfermode(SkXfermode::Create(mode));
-        SkAutoTUnref<SkXfermode> xfermode2(SkXfermode::Create(mode2));
+        sk_sp<SkXfermode> xfermode(SkXfermode::Make(mode));
+        sk_sp<SkXfermode> xfermode2(SkXfermode::Make(mode2));
         for (size_t i = 0; i < SK_ARRAY_COUNT(colors); i++) {
             canvas->save();
             canvas->translate(x, y);

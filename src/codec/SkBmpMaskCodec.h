@@ -22,13 +22,13 @@ public:
      * Called only by SkBmpCodec::NewFromStream
      * There should be no other callers despite this being public
      *
-     * @param srcInfo contains the source width and height
+     * @param info contains properties of the encoded data
      * @param stream the stream of encoded image data
      * @param bitsPerPixel the number of bits used to store each pixel
      * @param masks color masks for certain bmp formats
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
      */
-    SkBmpMaskCodec(const SkImageInfo& srcInfo, SkStream* stream,
+    SkBmpMaskCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
             uint16_t bitsPerPixel, SkMasks* masks,
             SkCodec::SkScanlineOrder rowOrder);
 
@@ -44,7 +44,6 @@ protected:
 
 private:
 
-    bool initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fMaskSwizzler);
         return fMaskSwizzler;
@@ -55,7 +54,6 @@ private:
 
     SkAutoTDelete<SkMasks>              fMasks;        // owned
     SkAutoTDelete<SkMaskSwizzler>       fMaskSwizzler;
-    const size_t                        fSrcRowBytes;
     SkAutoTDeleteArray<uint8_t>         fSrcBuffer;
 
     typedef SkBmpCodec INHERITED;

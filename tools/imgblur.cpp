@@ -5,13 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkCommandLineFlags.h"
 #include "SkCommonFlags.h"
-#include "SkImageDecoder.h"
+#include "SkData.h"
+#include "SkForceLinking.h"
+#include "SkImage.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
 #include "sk_tool_utils.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string(in, "input.png", "Input image");
 DEFINE_string(out, "blurred.png", "Output image");
@@ -32,35 +37,30 @@ int tool_main(int argc, char** argv) {
         if (!FLAGS_quiet) {
             SkDebugf("Sigma must be greater than zero (it is %f).\n", FLAGS_sigma);
         }
-        return kError;       
+        return kError;
     }
 
-    SkFILEStream inputStream(FLAGS_in[0]);
-    if (!inputStream.isValid()) {
+    sk_sp<SkData> data(SkData::MakeFromFileName(FLAGS_in[0]));
+    if (nullptr == data) {
         if (!FLAGS_quiet) {
             SkDebugf("Couldn't open file: %s\n", FLAGS_in[0]);
         }
         return kError;
     }
 
-    SkAutoTDelete<SkImageDecoder> codec(SkImageDecoder::Factory(&inputStream));
-    if (!codec) {
+    sk_sp<SkImage> image(SkImage::MakeFromEncoded(data));
+    if (!image) {
         if (!FLAGS_quiet) {
-            SkDebugf("Couldn't create codec for: %s.\n", FLAGS_in[0]);
+            SkDebugf("Couldn't create image for: %s.\n", FLAGS_in[0]);
         }
         return kError;
     }
 
     SkBitmap src;
-
-    inputStream.rewind();
-    SkImageDecoder::Result res = codec->decode(&inputStream, &src,
-                                               kN32_SkColorType,
-                                               SkImageDecoder::kDecodePixels_Mode);
-    if (SkImageDecoder::kSuccess != res) {
+    if (!image->asLegacyBitmap(&src, SkImage::kRW_LegacyBitmapMode)) {
         if (!FLAGS_quiet) {
-            SkDebugf("Couldn't decode image: %s.\n", FLAGS_in[0]);
-        }    
+            SkDebugf("Couldn't create bitmap for: %s.\n", FLAGS_in[0]);
+        }
         return kError;
     }
 
@@ -70,7 +70,7 @@ int tool_main(int argc, char** argv) {
         if (!FLAGS_quiet) {
             SkDebugf("Couldn't write to file: %s\n", FLAGS_out[0]);
         }
-        return kError;       
+        return kError;
     }
 
     return kSuccess;

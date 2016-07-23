@@ -10,7 +10,7 @@
 
 #include "gl/GrGLInterface.h"
 #include "GrGLDefines.h"
-#include "GrStencil.h"
+#include "GrStencilSettings.h"
 
 class SkMatrix;
 
@@ -40,6 +40,7 @@ enum GrGLVendor {
     kIntel_GrGLVendor,
     kQualcomm_GrGLVendor,
     kNVIDIA_GrGLVendor,
+    kATI_GrGLVendor,
 
     kOther_GrGLVendor
 };
@@ -51,6 +52,7 @@ enum GrGLRenderer {
     kPowerVRRogue_GrGLRenderer,
     kAdreno3xx_GrGLRenderer,
     kAdreno4xx_GrGLRenderer,
+    kOSMesa_GrGLRenderer,
     kOther_GrGLRenderer
 };
 
@@ -172,13 +174,6 @@ void GrGLClearErr(const GrGLInterface* gl);
     #define GR_GL_LOG_CALLS_IMPL(X)
 #endif
 
-// internal macro that does the per-GL-call callback (if necessary)
-#if GR_GL_PER_GL_FUNC_CALLBACK
-    #define GR_GL_CALLBACK_IMPL(IFACE) (IFACE)->fCallback(IFACE)
-#else
-    #define GR_GL_CALLBACK_IMPL(IFACE)
-#endif
-
 // makes a GL call on the interface and does any error checking and logging
 #define GR_GL_CALL(IFACE, X)                                    \
     do {                                                        \
@@ -190,7 +185,6 @@ void GrGLClearErr(const GrGLInterface* gl);
 // the caller wants to do its own glGetError() call and examine the error value.
 #define GR_GL_CALL_NOERRCHECK(IFACE, X)                         \
     do {                                                        \
-        GR_GL_CALLBACK_IMPL(IFACE);                             \
         (IFACE)->fFunctions.f##X;                               \
         GR_GL_LOG_CALLS_IMPL(X);                                \
     } while (false)
@@ -205,7 +199,6 @@ void GrGLClearErr(const GrGLInterface* gl);
 // same as GR_GL_CALL_RET but always skips the error check.
 #define GR_GL_CALL_RET_NOERRCHECK(IFACE, RET, X)                \
     do {                                                        \
-        GR_GL_CALLBACK_IMPL(IFACE);                             \
         (RET) = (IFACE)->fFunctions.f##X;                       \
         GR_GL_LOG_CALLS_IMPL(X);                                \
     } while (false)
@@ -213,7 +206,7 @@ void GrGLClearErr(const GrGLInterface* gl);
 // call glGetError without doing a redundant error check or logging.
 #define GR_GL_GET_ERROR(IFACE) (IFACE)->fFunctions.fGetError()
 
-GrGLenum GrToGLStencilFunc(GrStencilFunc basicFunc);
+GrGLenum GrToGLStencilFunc(GrStencilTest test);
 
 
 #endif

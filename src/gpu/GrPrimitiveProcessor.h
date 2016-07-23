@@ -47,6 +47,16 @@ class GrGLSLPrimitiveProcessor;
 
 struct GrInitInvariantOutput;
 
+// Describes the state of pixel local storage with respect to the current draw.
+enum GrPixelLocalStorageState {
+    // The draw is actively updating PLS.
+    kDraw_GrPixelLocalStorageState,
+    // The draw is a "finish" operation which is reading from PLS and writing color.
+    kFinish_GrPixelLocalStorageState,
+    // The draw does not use PLS.
+    kDisabled_GrPixelLocalStorageState
+};
+
 /*
  * This class allows the GrPipeline to communicate information about the pipeline to a
  * GrBatch which should be forwarded to the GrPrimitiveProcessor(s) created by the batch.
@@ -141,12 +151,6 @@ public:
     // we put these calls on the base class to prevent having to cast
     virtual bool willUseGeoShader() const = 0;
 
-    /*
-     * This is a safeguard to prevent GrPrimitiveProcessor's from going beyond platform specific
-     * attribute limits. This number can almost certainly be raised if required.
-     */
-    static const int kMaxVertexAttribs = 6;
-
     struct Attribute {
         Attribute()
             : fName(nullptr)
@@ -164,11 +168,8 @@ public:
         GrSLPrecision fPrecision;
     };
 
-    int numAttribs() const { return fNumAttribs; }
-    const Attribute& getAttrib(int index) const {
-        SkASSERT(index < fNumAttribs);
-        return fAttribs[index];
-    }
+    int numAttribs() const { return fAttribs.count(); }
+    const Attribute& getAttrib(int index) const { return fAttribs[index]; }
 
     // Returns the vertex stride of the GP.  A common use case is to request geometry from a
     // drawtarget based off of the stride, and to populate this memory using an implicit array of
@@ -199,7 +200,7 @@ public:
         the object. */
     virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps& caps) const = 0;
 
-    bool isPathRendering() const { return fIsPathRendering; }
+    virtual bool isPathRendering() const { return false; }
 
     /**
      * No Local Coord Transformation is needed in the shader, instead transformed local coords will
@@ -207,21 +208,29 @@ public:
      */
     virtual bool hasTransformedLocalCoords() const = 0;
 
-protected:
-    GrPrimitiveProcessor(bool isPathRendering)
-        : fNumAttribs(0)
-        , fVertexStride(0)
-        , fIsPathRendering(isPathRendering) {}
+    virtual GrPixelLocalStorageState getPixelLocalStorageState() const {
+        return kDisabled_GrPixelLocalStorageState;
+    }
 
-    Attribute fAttribs[kMaxVertexAttribs];
-    int fNumAttribs;
+    /**
+     * If non-null, overrides the dest color returned by GrGLSLFragmentShaderBuilder::dstColor().
+     */
+    virtual const char* getDestColorOverride() const { return nullptr; }
+
+    virtual float getSampleShading() const {
+        return 0.0;
+    }
+
+protected:
+    GrPrimitiveProcessor() : fVertexStride(0) {}
+
+    enum { kPreallocAttribCnt = 8 };
+    SkSTArray<kPreallocAttribCnt, Attribute> fAttribs;
     size_t fVertexStride;
 
 private:
     void notifyRefCntIsZero() const final {};
     virtual bool hasExplicitLocalCoords() const = 0;
-
-    bool fIsPathRendering;
 
     typedef GrProcessor INHERITED;
 };

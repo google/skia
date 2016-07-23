@@ -12,13 +12,7 @@
 
 class ColorTypeGM : public skiagm::GM {
 public:
-    ColorTypeGM()
-        : fColorType(nullptr) {
-    }
-
-    virtual ~ColorTypeGM() {
-        SkSafeUnref(fColorType);
-    }
+    ColorTypeGM() {}
 
 protected:
     void onOnceBeforeDraw() override {
@@ -28,20 +22,17 @@ protected:
         };
         SkMatrix local;
         local.setRotate(180);
-        SkShader* s = SkGradientShader::CreateSweep(0,0, colors, nullptr,
-                                                    SK_ARRAY_COUNT(colors), 0, &local);
-
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setShader(s)->unref();
+        paint.setShader(SkGradientShader::MakeSweep(0, 0, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                                    0, &local));
 
-        SkTypeface* orig = sk_tool_utils::create_portable_typeface("serif",
-                                                            SkTypeface::kBold);
+        sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface(
+                                   "serif", SkFontStyle::FromOldStyle(SkTypeface::kBold)));
         if (nullptr == orig) {
-            orig = SkTypeface::RefDefault();
+            orig = SkTypeface::MakeDefault();
         }
-        fColorType = new SkGTypeface(orig, paint);
-        orig->unref();
+        fColorType = sk_make_sp<SkGTypeface>(std::move(orig), paint);
     }
 
     SkString onShortName() override {
@@ -65,7 +56,7 @@ protected:
     }
 
 private:
-    SkTypeface* fColorType;
+    sk_sp<SkTypeface> fColorType;
 
     typedef skiagm::GM INHERITED;
 };

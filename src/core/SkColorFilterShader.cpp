@@ -15,26 +15,26 @@
 #include "GrFragmentProcessor.h"
 #endif
 
-SkColorFilterShader::SkColorFilterShader(SkShader* shader, SkColorFilter* filter)
-    : fShader(SkRef(shader))
-    , fFilter(SkRef(filter))
+SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader, sk_sp<SkColorFilter> filter)
+    : fShader(std::move(shader))
+    , fFilter(std::move(filter))
 {
-    SkASSERT(shader);
-    SkASSERT(filter);
+    SkASSERT(fShader);
+    SkASSERT(fFilter);
 }
 
-SkFlattenable* SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
-    SkAutoTUnref<SkShader> shader(buffer.readShader());
-    SkAutoTUnref<SkColorFilter> filter(buffer.readColorFilter());
-    if (!shader.get() || !filter.get()) {
+sk_sp<SkFlattenable> SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
+    auto shader = buffer.readShader();
+    auto filter = buffer.readColorFilter();
+    if (!shader || !filter) {
         return nullptr;
     }
-    return new SkColorFilterShader(shader, filter);
+    return sk_make_sp<SkColorFilterShader>(shader, filter);
 }
 
 void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeFlattenable(fShader);
-    buffer.writeFlattenable(fFilter);
+    buffer.writeFlattenable(fShader.get());
+    buffer.writeFlattenable(fFilter.get());
 }
 
 uint32_t SkColorFilterShader::FilterShaderContext::getFlags() const {
@@ -43,7 +43,9 @@ uint32_t SkColorFilterShader::FilterShaderContext::getFlags() const {
     uint32_t shaderF = fShaderContext->getFlags();
     uint32_t filterF = filterShader.fFilter->getFlags();
 
-    // if the filter might change alpha, clear the opaque flag in the shader
+    // If the filter does not support a given feature, but sure to clear the corresponding flag
+    // in the shader flags.
+    //
     if (!(filterF & SkColorFilter::kAlphaUnchanged_Flag)) {
         shaderF &= ~SkShader::kOpaqueAlpha_Flag;
     }
@@ -60,8 +62,8 @@ SkShader::Context* SkColorFilterShader::onCreateContext(const ContextRec& rec,
     return new (storage) FilterShaderContext(*this, shaderContext, rec);
 }
 
-size_t SkColorFilterShader::contextSize() const {
-    return sizeof(FilterShaderContext) + fShader->contextSize();
+size_t SkColorFilterShader::onContextSize(const ContextRec& rec) const {
+    return sizeof(FilterShaderContext) + fShader->contextSize(rec);
 }
 
 SkColorFilterShader::FilterShaderContext::FilterShaderContext(
@@ -84,28 +86,36 @@ void SkColorFilterShader::FilterShaderContext::shadeSpan(int x, int y, SkPMColor
     filterShader.fFilter->filterSpan(result, count, result);
 }
 
+void SkColorFilterShader::FilterShaderContext::shadeSpan4f(int x, int y, SkPM4f result[],
+                                                          int count) {
+    const SkColorFilterShader& filterShader = static_cast<const SkColorFilterShader&>(fShader);
+
+    fShaderContext->shadeSpan4f(x, y, result, count);
+    filterShader.fFilter->filterSpan4f(result, count, result);
+}
+
 #if SK_SUPPORT_GPU
 /////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor* SkColorFilterShader::asFragmentProcessor(
-                                                               GrContext* context,
-                                                               const SkMatrix& viewM,
-                                                               const SkMatrix* localMatrix,
-                                                               SkFilterQuality fq) const {
+sk_sp<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
+                                                     GrContext* context,
+                                                     const SkMatrix& viewM,
+                                                     const SkMatrix* localMatrix,
+                                                     SkFilterQuality fq,
+                                                     SkSourceGammaTreatment gammaTreatment) const {
 
-    SkAutoTUnref<const GrFragmentProcessor> fp1(fShader->asFragmentProcessor(context, viewM,
-                                                                             localMatrix, fq));
-    if (!fp1.get()) {
+    sk_sp<GrFragmentProcessor> fp1(fShader->asFragmentProcessor(context, viewM, localMatrix, fq,
+                                                                gammaTreatment));
+    if (!fp1) {
         return nullptr;
     }
 
-    SkAutoTUnref<const GrFragmentProcessor> fp2(fFilter->asFragmentProcessor(context));
-    if (!fp2.get()) {
-        return fp1.release();
+    sk_sp<GrFragmentProcessor> fp2(fFilter->asFragmentProcessor(context));
+    if (!fp2) {
+        return fp1;
     }
 
-    const GrFragmentProcessor* fpSeries[] = { fp1.get(), fp2.get() };
-
+    sk_sp<GrFragmentProcessor> fpSeries[] = { std::move(fp1), std::move(fp2) };
     return GrFragmentProcessor::RunInSeries(fpSeries, 2);
 }
 #endif
@@ -127,10 +137,10 @@ void SkColorFilterShader::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkShader* SkShader::newWithColorFilter(SkColorFilter* filter) const {
+sk_sp<SkShader> SkShader::makeWithColorFilter(sk_sp<SkColorFilter> filter) const {
     SkShader* base = const_cast<SkShader*>(this);
     if (!filter) {
-        return SkRef(base);
+        return sk_ref_sp(base);
     }
-    return new SkColorFilterShader(base, filter);
+    return sk_make_sp<SkColorFilterShader>(sk_ref_sp(base), filter);
 }

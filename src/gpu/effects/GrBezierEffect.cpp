@@ -87,7 +87,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("ConicCoeffs", &v, kHigh_GrSLPrecision);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->fName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!gp.colorIgnored()) {
         this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
@@ -215,12 +215,11 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // TODO should we really be doing this?
     if (gp.coverageScale() != 0xff) {
         const char* coverageScale;
-        fCoverageScaleUniform = uniformHandler->addUniform(
-                                                         GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kFloat_GrSLType,
-                                                         kHigh_GrSLPrecision,
-                                                         "Coverage",
-                                                         &coverageScale);
+        fCoverageScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                           kFloat_GrSLType,
+                                                           kHigh_GrSLPrecision,
+                                                           "Coverage",
+                                                           &coverageScale);
         fragBuilder->codeAppendf("%s = vec4(%s * %s);",
                                  args.fOutputCoverage, coverageScale, edgeAlpha.c_str());
     } else {
@@ -273,15 +272,15 @@ GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t 
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrConicEffect);
 
-const GrGeometryProcessor* GrConicEffect::TestCreate(GrProcessorTestData* d) {
-    GrGeometryProcessor* gp;
+sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
+    sk_sp<GrGeometryProcessor> gp;
     do {
         GrPrimitiveEdgeType edgeType =
                 static_cast<GrPrimitiveEdgeType>(
                         d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrConicEffect::Create(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
-                                   edgeType, *d->fCaps,
-                                   GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
+        gp = GrConicEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
+                                 edgeType, *d->fCaps,
+                                 GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
     } while (nullptr == gp);
     return gp;
 }
@@ -362,7 +361,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("HairQuadEdge", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge()->fName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!gp.colorIgnored()) {
         this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
@@ -433,12 +432,11 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     if (0xff != gp.coverageScale()) {
         const char* coverageScale;
-        fCoverageScaleUniform = uniformHandler->addUniform(
-                                                         GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kFloat_GrSLType,
-                                                         kDefault_GrSLPrecision,
-                                                         "Coverage",
-                                                         &coverageScale);
+        fCoverageScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                           kFloat_GrSLType,
+                                                           kDefault_GrSLPrecision,
+                                                           "Coverage",
+                                                           &coverageScale);
         fragBuilder->codeAppendf("%s = vec4(%s * edgeAlpha);", args.fOutputCoverage, coverageScale);
     } else {
         fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
@@ -490,16 +488,16 @@ GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t co
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrQuadEffect);
 
-const GrGeometryProcessor* GrQuadEffect::TestCreate(GrProcessorTestData* d) {
-    GrGeometryProcessor* gp;
+sk_sp<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
+    sk_sp<GrGeometryProcessor> gp;
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                 d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrQuadEffect::Create(GrRandomColor(d->fRandom),
-                                  GrTest::TestMatrix(d->fRandom),
-                                  edgeType, *d->fCaps,
-                                  GrTest::TestMatrix(d->fRandom),
-                                  d->fRandom->nextBool());
+        gp = GrQuadEffect::Make(GrRandomColor(d->fRandom),
+                                GrTest::TestMatrix(d->fRandom),
+                                edgeType, *d->fCaps,
+                                GrTest::TestMatrix(d->fRandom),
+                                d->fRandom->nextBool());
     } while (nullptr == gp);
     return gp;
 }
@@ -566,7 +564,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("CubicCoeffs", &v, kHigh_GrSLPrecision);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inCubicCoeffs()->fName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!gp.colorIgnored()) {
         this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
@@ -718,15 +716,14 @@ GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrCubicEffect);
 
-const GrGeometryProcessor* GrCubicEffect::TestCreate(GrProcessorTestData* d) {
-    GrGeometryProcessor* gp;
+sk_sp<GrGeometryProcessor> GrCubicEffect::TestCreate(GrProcessorTestData* d) {
+    sk_sp<GrGeometryProcessor> gp;
     do {
         GrPrimitiveEdgeType edgeType =
                 static_cast<GrPrimitiveEdgeType>(
                         d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrCubicEffect::Create(GrRandomColor(d->fRandom),
-                                   GrTest::TestMatrix(d->fRandom), edgeType, *d->fCaps);
+        gp = GrCubicEffect::Make(GrRandomColor(d->fRandom),
+                                 GrTest::TestMatrix(d->fRandom), edgeType, *d->fCaps);
     } while (nullptr == gp);
     return gp;
 }
-

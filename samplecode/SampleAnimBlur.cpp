@@ -46,12 +46,10 @@ protected:
         SkRandom random;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gStyles); ++i) {
-            SkMaskFilter* mf = SkBlurMaskFilter::Create(
-                                       gStyles[i],
-                                       fBlurSigma,
-                                       SkBlurMaskFilter::kHighQuality_BlurFlag);
             SkPaint paint;
-            SkSafeUnref(paint.setMaskFilter(mf));
+            paint.setMaskFilter(SkBlurMaskFilter::Make(gStyles[i],
+                                                       fBlurSigma,
+                                                       SkBlurMaskFilter::kHighQuality_BlurFlag));
             paint.setColor(random.nextU() | 0xff000000);
             canvas->drawCircle(200 * SK_Scalar1 + 400 * (i % 2) * SK_Scalar1,
                                200 * SK_Scalar1 + i / 2 * 400 * SK_Scalar1,

@@ -12,7 +12,7 @@
 #include "sk_tool_utils.h"
 
 static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
-    SkAutoTUnref<SkImage> image(GetResourceAsImage(resource));
+    sk_sp<SkImage> image(GetResourceAsImage(resource));
     if (image) {
         canvas->drawImage(image, SkIntToScalar(x), SkIntToScalar(y));
     } else {
@@ -40,7 +40,8 @@ DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
     SkPaint paint;
-    sk_tool_utils::set_portable_typeface(&paint, nullptr, SkTypeface::kBold);
+    sk_tool_utils::set_portable_typeface(&paint, "sans-serif",
+                                         SkFontStyle::FromOldStyle(SkTypeface::kBold));
     paint.setTextSize(18.0f);
 
     canvas->clear(sk_tool_utils::color_to_565(SK_ColorLTGRAY));

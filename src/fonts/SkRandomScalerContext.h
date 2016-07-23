@@ -18,14 +18,14 @@
 
 class SkRandomTypeface : public SkTypeface {
 public:
-    SkRandomTypeface(SkTypeface* proxy, const SkPaint&, bool fakeit);
-    virtual ~SkRandomTypeface();
+    SkRandomTypeface(sk_sp<SkTypeface> proxy, const SkPaint&, bool fakeit);
 
-    SkTypeface* proxy() const { return fProxy; }
+    SkTypeface* proxy() const { return fProxy.get(); }
     const SkPaint& paint() const { return fPaint; }
 
 protected:
-    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override;
+    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                           const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
         PerGlyphInfo,
@@ -47,9 +47,9 @@ protected:
                           size_t length, void* data) const override;
 
 private:
-    SkTypeface* fProxy;
-    SkPaint     fPaint;
-    bool        fFakeIt;
+    sk_sp<SkTypeface>   fProxy;
+    SkPaint             fPaint;
+    bool                fFakeIt;
 };
 
 #endif

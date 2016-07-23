@@ -8,7 +8,6 @@
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkColorPriv.h"
 #include "SkShader.h"
 
@@ -35,9 +34,7 @@ const int gHeight = 64;
 const SkScalar W = SkIntToScalar(gWidth);
 const SkScalar H = SkIntToScalar(gHeight);
 
-static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode,
-                         SkAlpha a0, SkAlpha a1) {
-
+static SkScalar drawCell(SkCanvas* canvas, const sk_sp<SkXfermode>& mode, SkAlpha a0, SkAlpha a1) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
@@ -61,7 +58,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode,
     return H;
 }
 
-static SkShader* make_bg_shader() {
+static sk_sp<SkShader> make_bg_shader() {
     SkBitmap bm;
     bm.allocN32Pixels(2, 2);
     *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = 0xFFFFFFFF;
@@ -71,17 +68,17 @@ static SkShader* make_bg_shader() {
     SkMatrix m;
     m.setScale(SkIntToScalar(6), SkIntToScalar(6));
 
-    return SkShader::CreateBitmapShader(bm,
-                                        SkShader::kRepeat_TileMode,
-                                        SkShader::kRepeat_TileMode,
-                                        &m);
+    return SkShader::MakeBitmapShader(bm,
+                                      SkShader::kRepeat_TileMode,
+                                      SkShader::kRepeat_TileMode,
+                                      &m);
 }
 
 class AARectsModesView : public SampleView {
     SkPaint fBGPaint;
 public:
     AARectsModesView () {
-        fBGPaint.setShader(make_bg_shader())->unref();
+        fBGPaint.setShader(make_bg_shader());
     }
 
 protected:
@@ -109,17 +106,15 @@ protected:
                     canvas->translate(W * 5, 0);
                     canvas->save();
                 }
-                SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
+                sk_sp<SkXfermode> mode = SkXfermode::Make(gModes[i].fMode);
 
                 canvas->drawRect(bounds, fBGPaint);
                 canvas->saveLayer(&bounds, nullptr);
-                SkScalar dy = drawCell(canvas, mode,
-                                       gAlphaValue[alpha & 1],
+                SkScalar dy = drawCell(canvas, mode, gAlphaValue[alpha & 1],
                                        gAlphaValue[alpha & 2]);
                 canvas->restore();
 
                 canvas->translate(0, dy * 5 / 4);
-                SkSafeUnref(mode);
             }
             canvas->restore();
             canvas->restore();

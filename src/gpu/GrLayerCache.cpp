@@ -98,7 +98,7 @@ GrLayerCache::~GrLayerCache() {
     SkASSERT(0 == fPictureHash.count());
 
     // The atlas only lets go of its texture when the atlas is deleted.
-    fAtlas.free();
+    fAtlas.reset();
 }
 
 void GrLayerCache::initAtlas() {
@@ -255,7 +255,7 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrSurfaceDesc& desc, bool* n
     // TODO: make the test for exact match depend on the image filters themselves
     SkAutoTUnref<GrTexture> tex;
     if (layer->fFilter) {
-        tex.reset(fContext->textureProvider()->createTexture(desc, true));
+        tex.reset(fContext->textureProvider()->createTexture(desc, SkBudgeted::kYes));
     } else {
         tex.reset(fContext->textureProvider()->createApproxTexture(desc));
     }
@@ -468,8 +468,8 @@ void GrLayerCache::purgeAll() {
     SkASSERT(0 == fPictureHash.count());
 
     if (fAtlas->getTextureOrNull()) {
-        SkAutoTUnref<GrDrawContext> drawContext(
-                                    fContext->drawContext(fAtlas->getTexture()->asRenderTarget()));
+        sk_sp<GrDrawContext> drawContext(
+                       fContext->drawContext(sk_ref_sp(fAtlas->getTexture()->asRenderTarget())));
 
         if (drawContext) {
             drawContext->discard();
@@ -523,7 +523,7 @@ void GrLayerCache::processDeletedPictures() {
     }
 }
 
-#ifdef SK_DEVELOPER
+#ifdef SK_DEBUG
 void GrLayerCache::writeLayersToDisk(const SkString& dirName) {
 
     if (fAtlas) {

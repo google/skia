@@ -49,7 +49,7 @@ void HelloWorldWindow::tearDownBackend() {
     SkSafeUnref(fRenderTarget);
     fRenderTarget = NULL;
 
-    INHERITED::detach();
+    INHERITED::release();
 }
 
 void HelloWorldWindow::setTitle() {
@@ -59,14 +59,13 @@ void HelloWorldWindow::setTitle() {
 }
 
 bool HelloWorldWindow::setUpBackend() {
-    this->setColorType(kRGBA_8888_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
-    bool result = attach(kNativeGL_BackEndType, 0 /*msaa*/, &fAttachmentInfo);
+    bool result = attach(kNativeGL_BackEndType, 0 /*msaa*/, false, &fAttachmentInfo);
     if (false == result) {
         SkDebugf("Not possible to create backend.\n");
-        detach();
+        release();
         return false;
     }
 
@@ -94,10 +93,7 @@ void HelloWorldWindow::drawContents(SkCanvas* canvas) {
     paint.setColor(SK_ColorRED);
 
     // Draw a rectangle with red paint
-    SkRect rect = {
-            10, 10,
-            128, 128
-    };
+    SkRect rect = SkRect::MakeXYWH(10, 10, 128, 128);
     canvas->drawRect(rect, paint);
 
     // Set up a linear gradient and draw a circle
@@ -108,18 +104,15 @@ void HelloWorldWindow::drawContents(SkCanvas* canvas) {
         };
         SkColor linearColors[] = {SK_ColorGREEN, SK_ColorBLACK};
 
-        SkShader* shader = SkGradientShader::CreateLinear(
-                linearPoints, linearColors, NULL, 2,
-                SkShader::kMirror_TileMode);
-        SkAutoUnref shader_deleter(shader);
-
-        paint.setShader(shader);
+        paint.setShader(SkGradientShader::MakeLinear(
+                linearPoints, linearColors, nullptr, 2,
+                SkShader::kMirror_TileMode));
         paint.setFlags(SkPaint::kAntiAlias_Flag);
 
         canvas->drawCircle(200, 200, 64, paint);
 
         // Detach shader
-        paint.setShader(NULL);
+        paint.setShader(nullptr);
     }
 
     // Draw a message with a nice black paint.
@@ -157,18 +150,15 @@ void HelloWorldWindow::draw(SkCanvas* canvas) {
 
     if (kRaster_DeviceType == fType) {
         // need to send the raster bits to the (gpu) window
-        SkImage* snap = fSurface->newImageSnapshot();
-        size_t rowBytes;
-        SkImageInfo info;
-        const void* pixels = snap->peekPixels(&info, &rowBytes);
-        fRenderTarget->writePixels(0, 0, snap->width(), snap->height(),
-                                        SkImageInfo2GrPixelConfig(info.colorType(),
-                                                                info.alphaType(),
-                                                                info.profileType()),
-                                        pixels,
-                                        rowBytes,
-                                        GrContext::kFlushWrites_PixelOp);
-        SkSafeUnref(snap);
+        sk_sp<SkImage> snap = fSurface->makeImageSnapshot();
+        SkPixmap pmap;
+        if (snap->peekPixels(&pmap)) {
+            const SkImageInfo& info = pmap.info();
+            fRenderTarget->writePixels(0, 0, snap->width(), snap->height(),
+                                       SkImageInfo2GrPixelConfig(info, *fContext->caps()),
+                                       pmap.addr(), pmap.rowBytes(),
+                                       GrContext::kFlushWrites_PixelOp);
+        }
     }
     INHERITED::present();
 }

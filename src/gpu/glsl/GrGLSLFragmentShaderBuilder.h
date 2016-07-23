@@ -10,30 +10,29 @@
 
 #include "GrGLSLShaderBuilder.h"
 
+#include "GrProcessor.h"
 #include "glsl/GrGLSLProcessorTypes.h"
 
 class GrRenderTarget;
 class GrGLSLVarying;
 
 /*
- * This base class encapsulates the functionality which the GP uses to build fragment shaders
+ * This base class encapsulates the common functionality which all processors use to build fragment
+ * shaders.
  */
 class GrGLSLFragmentBuilder : public GrGLSLShaderBuilder {
 public:
-    GrGLSLFragmentBuilder(GrGLSLProgramBuilder* program)
-        : INHERITED(program)
-        , fHasCustomColorOutput(false)
-        , fHasSecondaryOutput(false) {
-        fSubstageIndices.push_back(0);
-    }
+    GrGLSLFragmentBuilder(GrGLSLProgramBuilder* program) : INHERITED(program) {}
     virtual ~GrGLSLFragmentBuilder() {}
+
     /**
      * Use of these features may require a GLSL extension to be enabled. Shaders may not compile
      * if code is added that uses one of these features without calling enableFeature()
      */
     enum GLSLFeature {
-        kStandardDerivatives_GLSLFeature = 0,
-        kLastGLSLFeature = kStandardDerivatives_GLSLFeature
+        kStandardDerivatives_GLSLFeature = kLastGLSLPrivateFeature + 1,
+        kPixelLocalStorage_GLSLFeature,
+        kMultisampleInterpolation_GLSLFeature
     };
 
     /**
@@ -54,23 +53,162 @@ public:
         is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
     virtual const char* fragmentPosition() = 0;
 
+    // TODO: remove this method.
+    void declAppendf(const char* fmt, ...);
+
+private:
+    typedef GrGLSLShaderBuilder INHERITED;
+};
+
+/*
+ * This class is used by fragment processors to build their fragment code.
+ */
+class GrGLSLFPFragmentBuilder : virtual public GrGLSLFragmentBuilder {
+public:
+    /** Appease the compiler; the derived class initializes GrGLSLFragmentBuilder. */
+    GrGLSLFPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {}
+
+    enum Coordinates {
+        kSkiaDevice_Coordinates,
+        kGLSLWindow_Coordinates,
+
+        kLast_Coordinates = kGLSLWindow_Coordinates
+    };
+
+    /**
+     * Appends the offset from the center of the pixel to a specified sample.
+     *
+     * @param sampleIdx      GLSL expression of the sample index.
+     * @param Coordinates    Coordinate space in which to emit the offset.
+     *
+     * A processor must call setWillUseSampleLocations in its constructor before using this method.
+     */
+    virtual void appendOffsetToSample(const char* sampleIdx, Coordinates) = 0;
+
+    /**
+     * Subtracts sample coverage from the fragment. Any sample whose corresponding bit is not found
+     * in the mask will not be written out to the framebuffer.
+     *
+     * @param mask      int that contains the sample mask. Bit N corresponds to the Nth sample.
+     * @param invert    perform a bit-wise NOT on the provided mask before applying it?
+     *
+     * Requires GLSL support for sample variables.
+     */
+    virtual void maskSampleCoverage(const char* mask, bool invert = false) = 0;
+
     /**
      * Fragment procs with child procs should call these functions before/after calling emitCode
      * on a child proc.
      */
-    void onBeforeChildProcEmitCode();
-    void onAfterChildProcEmitCode();
+    virtual void onBeforeChildProcEmitCode() = 0;
+    virtual void onAfterChildProcEmitCode() = 0;
 
-    const SkString& getMangleString() const { return fMangleString; }
+    virtual const SkString& getMangleString() const = 0;
+};
 
-    bool hasCustomColorOutput() const { return fHasCustomColorOutput; }
-    bool hasSecondaryOutput() const { return fHasSecondaryOutput; }
+/*
+ * This class is used by primitive processors to build their fragment code.
+ */
+class GrGLSLPPFragmentBuilder : public GrGLSLFPFragmentBuilder {
+public:
+    /** Appease the compiler; the derived class initializes GrGLSLFragmentBuilder. */
+    GrGLSLPPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {}
 
-protected:
-    bool fHasCustomColorOutput;
-    bool fHasSecondaryOutput;
+    /**
+     * Overrides the fragment's sample coverage. The provided mask determines which samples will now
+     * be written out to the framebuffer. Note that this mask can be reduced by a future call to
+     * maskSampleCoverage.
+     *
+     * If a primitive processor uses this method, it must guarantee that every codepath through the
+     * shader overrides the sample mask at some point.
+     *
+     * @param mask    int that contains the new coverage mask. Bit N corresponds to the Nth sample.
+     *
+     * Requires NV_sample_mask_override_coverage.
+     */
+    virtual void overrideSampleCoverage(const char* mask) = 0;
+};
+
+/*
+ * This class is used by Xfer processors to build their fragment code.
+ */
+class GrGLSLXPFragmentBuilder : virtual public GrGLSLFragmentBuilder {
+public:
+    /** Appease the compiler; the derived class initializes GrGLSLFragmentBuilder. */
+    GrGLSLXPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {}
+
+    virtual bool hasCustomColorOutput() const = 0;
+    virtual bool hasSecondaryOutput() const = 0;
+
+    /** Returns the variable name that holds the color of the destination pixel. This may be nullptr
+     * if no effect advertised that it will read the destination. */
+    virtual const char* dstColor() = 0;
+
+    /** Adds any necessary layout qualifiers in order to legalize the supplied blend equation with
+        this shader. It is only legal to call this method with an advanced blend equation, and only
+        if these equations are supported. */
+    virtual void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) = 0;
+};
+
+/*
+ * This class implements the various fragment builder interfaces.
+ */
+class GrGLSLFragmentShaderBuilder : public GrGLSLPPFragmentBuilder, public GrGLSLXPFragmentBuilder {
+public:
+   /** Returns a nonzero key for a surface's origin. This should only be called if a processor will
+       use the fragment position and/or sample locations. */
+    static uint8_t KeyForSurfaceOrigin(GrSurfaceOrigin);
+
+    GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program);
+
+    // Shared GrGLSLFragmentBuilder interface.
+    bool enableFeature(GLSLFeature) override;
+    virtual SkString ensureFSCoords2D(const GrGLSLTransformedCoordsArray& coords,
+                                      int index) override;
+    const char* fragmentPosition() override;
+
+    // GrGLSLFPFragmentBuilder interface.
+    void appendOffsetToSample(const char* sampleIdx, Coordinates) override;
+    void maskSampleCoverage(const char* mask, bool invert = false) override;
+    void overrideSampleCoverage(const char* mask) override;
+    const SkString& getMangleString() const override { return fMangleString; }
+    void onBeforeChildProcEmitCode() override;
+    void onAfterChildProcEmitCode() override;
+
+    // GrGLSLXPFragmentBuilder interface.
+    bool hasCustomColorOutput() const override { return fHasCustomColorOutput; }
+    bool hasSecondaryOutput() const override { return fHasSecondaryOutput; }
+    const char* dstColor() override;
+    void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
 
 private:
+    // Private public interface, used by GrGLProgramBuilder to build a fragment shader
+    void enableCustomOutput();
+    void enableSecondaryOutput();
+    const char* getPrimaryColorOutputName() const;
+    const char* getSecondaryColorOutputName() const;
+
+#ifdef SK_DEBUG
+    // As GLSLProcessors emit code, there are some conditions we need to verify.  We use the below
+    // state to track this.  The reset call is called per processor emitted.
+    GrProcessor::RequiredFeatures usedProcessorFeatures() const { return fUsedProcessorFeatures; }
+    bool hasReadDstColor() const { return fHasReadDstColor; }
+    void resetVerification() {
+        fUsedProcessorFeatures = GrProcessor::kNone_RequiredFeatures;
+        fHasReadDstColor = false;
+    }
+#endif
+
+    static const char* DeclaredColorOutputName() { return "fsColorOut"; }
+    static const char* DeclaredSecondaryColorOutputName() { return "fsSecondaryColorOut"; }
+
+    GrSurfaceOrigin getSurfaceOrigin() const;
+
+    void onFinalize() override;
+    void defineSampleOffsetArray(const char* name, const SkMatrix&);
+
+    static const char* kDstTextureColorName;
+
     /*
      * State that tracks which child proc in the proc tree is currently emitting code.  This is
      * used to update the fMangleString, which is used to mangle the names of uniforms and functions
@@ -91,113 +229,22 @@ private:
      */
     SkString fMangleString;
 
-    friend class GrGLPathProcessor;
+    bool       fSetupFragPosition;
+    bool       fHasCustomColorOutput;
+    int        fCustomColorOutputIndex;
+    bool       fHasSecondaryOutput;
+    uint8_t    fUsedSampleOffsetArrays;
+    bool       fHasInitializedSampleMask;
 
-    typedef GrGLSLShaderBuilder INHERITED;
-};
-
-/*
- * Fragment processor's, in addition to all of the above, may need to use dst color so they use
- * this builder to create their shader.  Because this is the only shader builder the FP sees, we
- * just call it FPShaderBuilder
- */
-class GrGLSLXPFragmentBuilder : public GrGLSLFragmentBuilder {
-public:
-    GrGLSLXPFragmentBuilder(GrGLSLProgramBuilder* program) : INHERITED(program) {}
-
-    /** Returns the variable name that holds the color of the destination pixel. This may be nullptr if
-        no effect advertised that it will read the destination. */
-    virtual const char* dstColor() = 0;
-
-    /** Adds any necessary layout qualifiers in order to legalize the supplied blend equation with
-        this shader. It is only legal to call this method with an advanced blend equation, and only
-        if these equations are supported. */
-    virtual void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) = 0;
-
-private:
-    typedef GrGLSLFragmentBuilder INHERITED;
-};
-
-// TODO rename to Fragment Builder
-class GrGLSLFragmentShaderBuilder : public GrGLSLXPFragmentBuilder {
-public:
-    typedef uint8_t FragPosKey;
-
-    /** Returns a key for reading the fragment location. This should only be called if there is an
-       effect that will requires the fragment position. If the fragment position is not required,
-       the key is 0. */
-    static FragPosKey KeyForFragmentPosition(const GrRenderTarget* dst);
-
-    GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program, uint8_t fragPosKey);
-
-    // true public interface, defined explicitly in the abstract interfaces above
-    bool enableFeature(GLSLFeature) override;
-    virtual SkString ensureFSCoords2D(const GrGLSLTransformedCoordsArray& coords,
-                                      int index) override;
-    const char* fragmentPosition() override;
-    const char* dstColor() override;
-
-    void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
-
-private:
-    // Private public interface, used by GrGLProgramBuilder to build a fragment shader
-    void enableCustomOutput();
-    void enableSecondaryOutput();
-    const char* getPrimaryColorOutputName() const;
-    const char* getSecondaryColorOutputName() const;
-
-    // As GLSLProcessors emit code, there are some conditions we need to verify.  We use the below
-    // state to track this.  The reset call is called per processor emitted.
-    bool hasReadDstColor() const { return fHasReadDstColor; }
-    bool hasReadFragmentPosition() const { return fHasReadFragmentPosition; }
-    void reset() {
-        fHasReadDstColor = false;
-        fHasReadFragmentPosition = false;
-    }
-
-    static const char* DeclaredColorOutputName() { return "fsColorOut"; }
-    static const char* DeclaredSecondaryColorOutputName() { return "fsSecondaryColorOut"; }
-
-    /*
-     * An internal call for GrGLProgramBuilder to use to add varyings to the vertex shader
-     */
-    void addVarying(GrGLSLVarying*, GrSLPrecision);
-
-    void onFinalize() override;
-
-    /**
-     * Features that should only be enabled by GrGLSLFragmentShaderBuilder itself.
-     */
-    enum GLSLPrivateFeature {
-        kFragCoordConventions_GLSLPrivateFeature = kLastGLSLFeature + 1,
-        kBlendEquationAdvanced_GLSLPrivateFeature,
-        kBlendFuncExtended_GLSLPrivateFeature,
-        kExternalTexture_GLSLPrivateFeature,
-        kLastGLSLPrivateFeature = kBlendFuncExtended_GLSLPrivateFeature
-    };
-
-    // Interpretation of FragPosKey when generating code
-    enum {
-        kNoFragPosRead_FragPosKey           = 0,  // The fragment positition will not be needed.
-        kTopLeftFragPosRead_FragPosKey      = 0x1,// Read frag pos relative to top-left.
-        kBottomLeftFragPosRead_FragPosKey   = 0x2,// Read frag pos relative to bottom-left.
-    };
-
-    static const char* kDstTextureColorName;
-
-    bool fSetupFragPosition;
-    bool fTopLeftFragPosRead;
-    int  fCustomColorOutputIndex;
-
+#ifdef SK_DEBUG
     // some state to verify shaders and effects are consistent, this is reset between effects by
     // the program creator
+    GrProcessor::RequiredFeatures fUsedProcessorFeatures;
     bool fHasReadDstColor;
-    bool fHasReadFragmentPosition;
+#endif
 
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
-
-    typedef GrGLSLXPFragmentBuilder INHERITED;
 };
 
 #endif

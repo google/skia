@@ -85,7 +85,7 @@ public:
     int height() const { return fInfo.height(); }
     SkColorType colorType() const { return fInfo.colorType(); }
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
-    SkColorProfileType profileType() const { return fInfo.profileType(); }
+    SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
 
     /**
      *  Return the number of bytes per pixel based on the colortype. If the colortype is
@@ -105,7 +105,7 @@ public:
      *  Return the shift amount per pixel (i.e. 0 for 1-byte per pixel, 1 for 2-bytes per pixel
      *  colortypes, 2 for 4-bytes per pixel colortypes). Return 0 for kUnknown_SkColorType.
      */
-    int shiftPerPixel() const { return this->bytesPerPixel() >> 1; }
+    int shiftPerPixel() const { return this->fInfo.shiftPerPixel(); }
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -774,8 +774,8 @@ private:
     static void WriteRawPixels(SkWriteBuffer*, const SkBitmap&);
     static bool ReadRawPixels(SkReadBuffer*, SkBitmap*);
 
-    friend class SkReadBuffer;      // unflatten, rawpixels
-    friend class SkWriteBuffer;     // rawpixels
+    friend class SkReadBuffer;        // unflatten, rawpixels
+    friend class SkBinaryWriteBuffer; // rawpixels
     friend struct SkBitmapProcState;
 };
 

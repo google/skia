@@ -6,6 +6,7 @@
  */
 
 #include "effects/GrDisableColorXP.h"
+#include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -97,12 +98,12 @@ GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                const GrPipelineOptimizations& optimizations,
                                                bool hasMixedSamples,
                                                const DstTexture* dst) const {
+    SkASSERT(!optimizations.fOverrides.fUsePLSDstRead);
     return DisableColorXP::Create();
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrDisableColorXPFactory);
 
-const GrXPFactory* GrDisableColorXPFactory::TestCreate(GrProcessorTestData*) {
-    return GrDisableColorXPFactory::Create();
+sk_sp<GrXPFactory> GrDisableColorXPFactory::TestCreate(GrProcessorTestData*) {
+    return GrDisableColorXPFactory::Make();
 }
-

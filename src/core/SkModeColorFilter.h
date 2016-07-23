@@ -13,9 +13,14 @@
 
 class SkModeColorFilter : public SkColorFilter {
 public:
-    static SkColorFilter* Create(SkColor color, SkXfermode::Mode mode) {
-        return new SkModeColorFilter(color, mode);
+    static sk_sp<SkColorFilter> Make(SkColor color, SkXfermode::Mode mode) {
+        return sk_sp<SkColorFilter>(new SkModeColorFilter(color, mode));
     }
+#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
+    static SkColorFilter* Create(SkColor color, SkXfermode::Mode mode) {
+        return Make(color, mode).release();
+    }
+#endif
 
     SkColor getColor() const { return fColor; }
     SkXfermode::Mode getMode() const { return fMode; }
@@ -24,13 +29,14 @@ public:
     bool asColorMode(SkColor*, SkXfermode::Mode*) const override;
     uint32_t getFlags() const override;
     void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override;
+    void filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const override;
 
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override;
 #endif
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*) const override;
 #endif
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkModeColorFilter)
 

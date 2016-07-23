@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkCommandLineFlags.h"
-#include "SkImageDecoder.h"
+#include "SkData.h"
+#include "SkImage.h"
 #include "SkStream.h"
 
 DEFINE_bool(header, false, "Print an extra row of the min-max values");
@@ -40,43 +42,46 @@ int tool_main(int argc, char** argv) {
             SkDebugf("Channel (--rgb) must be between 0 and 3 (inclusive) - value is %d.\n",
                      FLAGS_rgb);
         }
-        return kError;        
+        return kError;
     }
 
     if (FLAGS_row >= 0 && FLAGS_column >= 0) {
         if (!FLAGS_quiet) {
             SkDebugf("Only one of '-c' or '-r' can be specified at at time.\n");
         }
-        return kError;       
+        return kError;
     }
 
     if (FLAGS_row < 0 && FLAGS_column < 0) {
         if (!FLAGS_quiet) {
             SkDebugf("At least one of '-c' or '-r' need to be specified.\n");
         }
-        return kError;       
+        return kError;
     }
 
-    SkFILEStream inputStream(FLAGS_image[0]);
-    if (!inputStream.isValid()) {
+    sk_sp<SkData> data(SkData::MakeFromFileName(FLAGS_image[0]));
+    if (nullptr == data) {
         if (!FLAGS_quiet) {
             SkDebugf("Couldn't open file: %s\n", FLAGS_image[0]);
         }
         return kError;
     }
 
-    SkAutoTDelete<SkImageDecoder> codec(SkImageDecoder::Factory(&inputStream));
-    if (!codec) {
+    sk_sp<SkImage> image(SkImage::MakeFromEncoded(data));
+    if (!image) {
         if (!FLAGS_quiet) {
-            SkDebugf("Couldn't create codec for: %s.\n", FLAGS_image[0]);
+            SkDebugf("Couldn't create image for: %s.\n", FLAGS_image[0]);
         }
         return kError;
     }
 
     SkBitmap bitmap;
-
-    inputStream.rewind();
-    codec->decode(&inputStream, &bitmap, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
+    if (!image->asLegacyBitmap(&bitmap, SkImage::kRW_LegacyBitmapMode)) {
+        if (!FLAGS_quiet) {
+            SkDebugf("Couldn't create bitmap for: %s.\n", FLAGS_image[0]);
+        }
+        return kError;
+    }
 
     int top, bottom, left, right;
 
@@ -123,7 +128,7 @@ int tool_main(int argc, char** argv) {
 
                 SkDebugf(", %d", ((c) >> (FLAGS_rgb*8)) & 0xFF);
             }
-        }        
+        }
     }
 
     SkDebugf("\n");

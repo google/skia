@@ -52,7 +52,7 @@ static SkScalar RGB_to_HSV(SkColor color, HSV_Choice choice) {
     return hue;
 }
 
-#if defined _WIN32 && _MSC_VER >= 1300  // disable 'red', etc. may be used without having been initialized
+#if defined _WIN32  // disable 'red', etc. may be used without having been initialized
 #pragma warning ( push )
 #pragma warning ( disable : 4701 )
 #endif
@@ -89,7 +89,7 @@ static SkColor HSV_to_RGB(SkColor color, HSV_Choice choice, SkScalar hsv) {
                           SkScalarRoundToInt(green), SkScalarRoundToInt(blue));
 }
 
-#if defined _WIN32 && _MSC_VER >= 1300
+#if defined _WIN32
 #pragma warning ( pop )
 #endif
 

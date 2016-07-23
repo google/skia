@@ -201,3 +201,19 @@ DEF_TEST(PathMeasure, reporter) {
     test_small_segment2();
     test_small_segment3();
 }
+
+DEF_TEST(PathMeasureConic, reporter) {
+    SkPoint stdP, hiP, pts[] = {{0,0}, {100,0}, {100,0}};
+    SkPath p;
+    p.moveTo(0, 0);
+    p.conicTo(pts[1], pts[2], 1);
+    SkPathMeasure stdm(p, false);
+    REPORTER_ASSERT(reporter, stdm.getPosTan(20, &stdP, nullptr));
+    p.reset();
+    p.moveTo(0, 0);
+    p.conicTo(pts[1], pts[2], 10);
+    stdm.setPath(&p, false);
+    REPORTER_ASSERT(reporter, stdm.getPosTan(20, &hiP, nullptr));
+    REPORTER_ASSERT(reporter, 19.5f < stdP.fX && stdP.fX < 20.5f);
+    REPORTER_ASSERT(reporter, 19.5f < hiP.fX && hiP.fX < 20.5f);
+}

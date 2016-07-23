@@ -62,6 +62,8 @@ public:
     bool pathRenderingSupport() const { return fPathRenderingSupport; }
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
+    bool integerSupport() const { return fIntegerSupport; }
+    bool texelBufferSupport() const { return fTexelBufferSupport; }
 
     /**
     * Get the precision info for a variable of type kFloat_GrSLType, kVec2f_GrSLType, etc in a
@@ -81,6 +83,24 @@ public:
     */
     bool floatPrecisionVaries() const { return fShaderPrecisionVaries; }
 
+    /**
+     * PLS storage size in bytes (0 when not supported). The PLS spec defines a minimum size of 16 
+     * bytes whenever PLS is supported.
+     */
+    int pixelLocalStorageSize() const { return fPixelLocalStorageSize; }
+
+    /**
+     * True if this context supports the necessary extensions and features to enable the PLS path
+     * renderer.
+     */
+    bool plsPathRenderingSupport() const { 
+#if GR_ENABLE_PLS_PATH_RENDERING
+        return fPLSPathRenderingSupport;
+#else
+        return false;
+#endif
+    }
+
 protected:
     /** Subclasses must call this after initialization in order to apply caps overrides requested by
         the client. Note that overrides will only reduce the caps never expand them. */
@@ -91,9 +111,13 @@ protected:
     bool fPathRenderingSupport : 1;
     bool fDstReadInShaderSupport : 1;
     bool fDualSourceBlendingSupport : 1;
+    bool fIntegerSupport : 1;
+    bool fTexelBufferSupport : 1;
 
     bool fShaderPrecisionVaries;
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
+    int fPixelLocalStorageSize;
+    bool fPLSPathRenderingSupport;
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {};
@@ -115,6 +139,17 @@ public:
     /** To avoid as-yet-unnecessary complexity we don't allow any partial support of MIP Maps (e.g.
         only for POT textures) */
     bool mipMapSupport() const { return fMipMapSupport; }
+
+    /**
+     * Skia convention is that a device only has sRGB support if it supports sRGB formats for both
+     * textures and framebuffers. In addition:
+     *   Decoding to linear of an sRGB texture can be disabled.
+     */
+    bool srgbSupport() const { return fSRGBSupport; }
+    /**
+     * Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers?
+     */
+    bool srgbWriteControl() const { return fSRGBWriteControl; }
     bool twoSidedStencilSupport() const { return fTwoSidedStencilSupport; }
     bool stencilWrapOpsSupport() const { return  fStencilWrapOpsSupport; }
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
@@ -122,11 +157,17 @@ public:
     bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
-    bool mixedSamplesSupport() const { return fMixedSamplesSupport; }
+    bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
+    bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
+    bool usesMixedSamples() const { return fUsesMixedSamples; }
 
     bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
     bool useDrawInsteadOfPartialRenderTargetWrite() const {
         return fUseDrawInsteadOfPartialRenderTargetWrite;
+    }
+
+    bool useDrawInsteadOfAllRenderTargetWrites() const {
+        return fUseDrawInsteadOfAllRenderTargetWrites;
     }
 
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
@@ -181,6 +222,9 @@ public:
     bool reuseScratchTextures() const { return fReuseScratchTextures; }
     bool reuseScratchBuffers() const { return fReuseScratchBuffers; }
 
+    /// maximum number of attribute values per vertex
+    int maxVertexAttributes() const { return fMaxVertexAttributes; }
+
     int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
     int maxTextureSize() const { return fMaxTextureSize; }
     /** This is the maximum tile size to use by GPU devices for rendering sw-backed images/bitmaps.
@@ -188,7 +232,22 @@ public:
     int maxTileSize() const { SkASSERT(fMaxTileSize <= fMaxTextureSize); return fMaxTileSize; }
 
     // Will be 0 if MSAA is not supported
-    int maxSampleCount() const { return fMaxSampleCount; }
+    int maxColorSampleCount() const { return fMaxColorSampleCount; }
+    // Will be 0 if MSAA is not supported
+    int maxStencilSampleCount() const { return fMaxStencilSampleCount; }
+    // Will be 0 if raster multisample is not supported. Raster multisample is a special HW mode
+    // where the rasterizer runs with more samples than are in the target framebuffer.
+    int maxRasterSamples() const { return fMaxRasterSamples; }
+    // We require the sample count to be less than maxColorSampleCount and maxStencilSampleCount.
+    // If we are using mixed samples, we only care about stencil.
+    int maxSampleCount() const {
+        if (this->usesMixedSamples()) {
+            return this->maxStencilSampleCount();
+        } else {
+            return SkTMin(this->maxColorSampleCount(), this->maxStencilSampleCount());
+        }
+    }
+
 
     virtual bool isConfigTexturable(GrPixelConfig config) const = 0;
     virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
@@ -197,13 +256,9 @@ public:
 
     bool immediateFlush() const { return fImmediateFlush; }
 
-    bool drawPathMasksToCompressedTexturesSupport() const {
-        return fDrawPathMasksToCompressedTextureSupport;
-    }
-
-    size_t geometryBufferMapThreshold() const {
-        SkASSERT(fGeometryBufferMapThreshold >= 0);
-        return fGeometryBufferMapThreshold;
+    size_t bufferMapThreshold() const {
+        SkASSERT(fBufferMapThreshold >= 0);
+        return fBufferMapThreshold;
     }
 
     bool supportsInstancedDraws() const {
@@ -216,6 +271,8 @@ public:
         is not initialized (even if not read by draw calls). */
     bool mustClearUploadedBufferData() const { return fMustClearUploadedBufferData; }
 
+    bool sampleShadingSupport() const { return fSampleShadingSupport; }
+
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
         overrides requested by the client. Note that overrides will only reduce the caps never
@@ -226,6 +283,8 @@ protected:
 
     bool fNPOTTextureTileSupport                     : 1;
     bool fMipMapSupport                              : 1;
+    bool fSRGBSupport                                : 1;
+    bool fSRGBWriteControl                           : 1;
     bool fTwoSidedStencilSupport                     : 1;
     bool fStencilWrapOpsSupport                      : 1;
     bool fDiscardRenderTargetSupport                 : 1;
@@ -235,7 +294,9 @@ protected:
     bool fCompressedTexSubImageSupport               : 1;
     bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
-    bool fMixedSamplesSupport                        : 1;
+    bool fSampleLocationsSupport                     : 1;
+    bool fMultisampleDisableSupport                  : 1;
+    bool fUsesMixedSamples                           : 1;
     bool fSupportsInstancedDraws                     : 1;
     bool fFullClearIsFree                            : 1;
     bool fMustClearUploadedBufferData                : 1;
@@ -243,28 +304,33 @@ protected:
     // Driver workaround
     bool fUseDrawInsteadOfClear                      : 1;
     bool fUseDrawInsteadOfPartialRenderTargetWrite   : 1;
+    bool fUseDrawInsteadOfAllRenderTargetWrites      : 1;
 
     // ANGLE workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
+
+    bool fSampleShadingSupport                       : 1;
 
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fAdvBlendEqBlacklist;
     GR_STATIC_ASSERT(kLast_GrBlendEquation < 32);
 
     uint32_t fMapBufferFlags;
-    int fGeometryBufferMapThreshold;
+    int fBufferMapThreshold;
 
     int fMaxRenderTargetSize;
+    int fMaxVertexAttributes;
     int fMaxTextureSize;
     int fMaxTileSize;
-    int fMaxSampleCount;
+    int fMaxColorSampleCount;
+    int fMaxStencilSampleCount;
+    int fMaxRasterSamples;
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {};
 
     bool fSuppressPrints : 1;
     bool fImmediateFlush: 1;
-    bool fDrawPathMasksToCompressedTextureSupport : 1;
 
     typedef SkRefCnt INHERITED;
 };

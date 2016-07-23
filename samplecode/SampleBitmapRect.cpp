@@ -11,7 +11,6 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -37,8 +36,8 @@ static void make_bitmap(SkBitmap* bitmap) {
     paint.setAntiAlias(true);
     const SkPoint pts[] = { { 0, 0 }, { SCALAR_SIZE, SCALAR_SIZE } };
     const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
-    paint.setShader(SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
-                                                   SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                   SkShader::kClamp_TileMode));
     canvas.drawCircle(SCALAR_SIZE/2, SCALAR_SIZE/2, SCALAR_SIZE/2, paint);
 }
 
@@ -79,7 +78,7 @@ class BitmapRectView : public SampleView {
     void resetBounce() {
         fSrcPts[0].set(0, 0);
         fSrcPts[1].set(SCALAR_SIZE, SCALAR_SIZE);
-        
+
         fSrcVec[0] = unit_vec(30);
         fSrcVec[1] = unit_vec(107);
     }

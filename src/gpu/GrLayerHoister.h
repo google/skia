@@ -8,8 +8,13 @@
 #ifndef GrLayerHoister_DEFINED
 #define GrLayerHoister_DEFINED
 
+#define SK_IGNORE_GPU_LAYER_HOISTING
+
+
 #include "SkPicture.h"
 #include "SkTDArray.h"
+
+#if !defined(SK_IGNORE_GPU_LAYER_HOISTING) && SK_SUPPORT_GPU
 
 struct GrCachedLayer;
 class GrReplacements;
@@ -47,7 +52,7 @@ public:
         @param topLevelPicture The top-level picture that is about to be rendered
         @param initialMat  The CTM of the canvas into which the layers will be drawn
         @param query       The rectangle that is about to be drawn.
-        @param atlasedNeedRendering Out parameter storing the layers that 
+        @param atlasedNeedRendering Out parameter storing the layers that
                                     should be hoisted to the atlas
         @param recycled    Out parameter storing layers that are atlased but do not need rendering
         @param numSamples  The number if MSAA samples required
@@ -95,7 +100,7 @@ public:
         @param layers       The hoisted layers
         @param replacements Replacement object that will be used for a replacement draw
     */
-    static void ConvertLayersToReplacements(const SkPicture* topLevelPicture, 
+    static void ConvertLayersToReplacements(const SkPicture* topLevelPicture,
                                             const SkTDArray<GrHoistedLayer>& layers,
                                             GrReplacements* replacements);
 
@@ -114,11 +119,12 @@ public:
 private:
     /** Update the GrTexture in 'layer' with its filtered version
         @param context    Owner of the layer cache (and thus the layers)
-        @param device     Required by the filtering code
+        @param props      Surface properties
         @param info       Layer info for a layer needing filtering prior to being composited
      */
-    static void FilterLayer(GrContext* context, SkGpuDevice* device, const GrHoistedLayer& info);
+    static void FilterLayer(GrContext* context, const SkSurfaceProps*, const GrHoistedLayer& info);
 
 };
+#endif
 
 #endif

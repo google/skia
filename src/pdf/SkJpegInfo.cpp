@@ -117,5 +117,3 @@ bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info) {
     }
     return true;
 }
-
-

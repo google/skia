@@ -15,7 +15,7 @@
  * paint.setTextSize(SkIntToScalar(100));
  * paint.setTypeface(SkTypeface::CreateFromName("Hiragino Maru Gothic Pro"));
  * paint.getTextPath("e", 1, 50, 50, &path);
- * 
+ *
  * The path data is duplicated here to allow the test to
  * run on all platforms and to remove the bug dependency
  * should future Macs edit or delete the font.

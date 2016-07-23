@@ -37,13 +37,13 @@ protected:
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
               bool stitchTiles) {
         SkISize tileSize = SkISize::Make(fSize.width() / 2, fSize.height() / 2);
-        SkShader* shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
-            SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                   seed, stitchTiles ? &tileSize : nullptr) :
-            SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
+        sk_sp<SkShader> shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
+            SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
+                                                  seed, stitchTiles ? &tileSize : nullptr) :
+            SkPerlinNoiseShader::MakeTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
                                                 seed, stitchTiles ? &tileSize : nullptr);
         SkPaint paint;
-        paint.setShader(shader)->unref();
+        paint.setShader(std::move(shader));
         if (stitchTiles) {
             drawRect(canvas, x, y, paint, tileSize);
             x += tileSize.width();
@@ -110,12 +110,12 @@ protected:
     void install(SkPaint* paint, SkPerlinNoiseShader::Type type,
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
               bool stitchTiles) {
-        SkShader* shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
-        SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                seed, stitchTiles ? &fSize : nullptr) :
-        SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
-                                              seed, stitchTiles ? &fSize : nullptr);
-        paint->setShader(shader)->unref();
+        sk_sp<SkShader> shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
+            SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
+                                                  seed, stitchTiles ? &fSize : nullptr) :
+            SkPerlinNoiseShader::MakeTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
+                                                seed, stitchTiles ? &fSize : nullptr);
+        paint->setShader(std::move(shader));
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -154,7 +154,7 @@ protected:
 
         SkMatrix lm;
         lm.setScale(2, 2);
-        paint.setShader(paint.getShader()->newWithLocalMatrix(lm))->unref();
+        paint.setShader(paint.getShader()->makeWithLocalMatrix(lm));
         r.fRight += r.width();
         r.fBottom += r.height();
 

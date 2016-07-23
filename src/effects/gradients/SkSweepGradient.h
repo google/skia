@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -15,8 +14,6 @@ class SkSweepGradient : public SkGradientShaderBase {
 public:
     SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&);
 
-    size_t contextSize() const override;
-
     class SweepGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
         SweepGradientContext(const SkSweepGradient& shader, const ContextRec&);
@@ -30,10 +27,11 @@ public:
     GradientType asAGradient(GradientInfo* info) const override;
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix*,
-                                                   SkFilterQuality) const override;
+                                                   SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -41,6 +39,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
+    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -40,7 +39,7 @@ SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius, const
     , fRadius(radius) {
 }
 
-size_t SkRadialGradient::contextSize() const {
+size_t SkRadialGradient::onContextSize(const ContextRec&) const {
     return sizeof(RadialGradientContext);
 }
 
@@ -61,15 +60,15 @@ SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
     return kRadial_GradientType;
 }
 
-SkFlattenable* SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
         return nullptr;
     }
     const SkPoint center = buffer.readPoint();
     const SkScalar radius = buffer.readScalar();
-    return SkGradientShader::CreateRadial(center, radius, desc.fColors, desc.fPos, desc.fCount,
-                                          desc.fTileMode, desc.fGradFlags, desc.fLocalMatrix);
+    return SkGradientShader::MakeRadial(center, radius, desc.fColors, desc.fPos, desc.fCount,
+                                        desc.fTileMode, desc.fGradFlags, desc.fLocalMatrix);
 }
 
 void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
@@ -93,8 +92,7 @@ typedef void (* RadialShadeProc)(SkScalar sfx, SkScalar sdx,
         int count, int toggle);
 
 static inline Sk4f fast_sqrt(const Sk4f& R) {
-    // R * R.rsqrt0() is much faster, but it's non-monotonic, which isn't so pretty for gradients.
-    return R * R.rsqrt1();
+    return R * R.rsqrt();
 }
 
 static inline Sk4f sum_squares(const Sk4f& a, const Sk4f& b) {
@@ -111,6 +109,7 @@ void shadeSpan_radial_clamp2(SkScalar sfx, SkScalar sdx, SkScalar sfy, SkScalar 
                            cache[next_dither_toggle(toggle) + fi],
                            count);
     } else {
+        const Sk4f min(SK_ScalarNearlyZero);
         const Sk4f max(255);
         const float scale = 255;
         sfx *= scale;
@@ -124,13 +123,13 @@ void shadeSpan_radial_clamp2(SkScalar sfx, SkScalar sdx, SkScalar sfy, SkScalar 
 
         Sk4f tmpxy = fx4 * dx4 + fy4 * dy4;
         Sk4f tmpdxdy = sum_squares(dx4, dy4);
-        Sk4f R = sum_squares(fx4, fy4);
+        Sk4f R = Sk4f::Max(sum_squares(fx4, fy4), min);
         Sk4f dR = tmpxy + tmpxy + tmpdxdy;
         const Sk4f ddR = tmpdxdy + tmpdxdy;
 
         for (int i = 0; i < (count >> 2); ++i) {
             Sk4f dist = Sk4f::Min(fast_sqrt(R), max);
-            R = R + dR;
+            R = Sk4f::Max(R + dR, min);
             dR = dR + ddR;
 
             uint8_t fi[4];
@@ -206,11 +205,9 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
         SkScalar sdy = fDstToIndex.getSkewY();
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
-            SkFixed storage[2];
-            (void)fDstToIndex.fixedStepInX(SkIntToScalar(y),
-                                           &storage[0], &storage[1]);
-            sdx = SkFixedToScalar(storage[0]);
-            sdy = SkFixedToScalar(storage[1]);
+            const auto step = fDstToIndex.fixedStepInX(SkIntToScalar(y));
+            sdx = step.fX;
+            sdy = step.fY;
         } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
         }
@@ -267,11 +264,11 @@ private:
 
 class GrRadialGradient : public GrGradientEffect {
 public:
-    static GrFragmentProcessor* Create(GrContext* ctx,
-                                       const SkRadialGradient& shader,
-                                       const SkMatrix& matrix,
-                                       SkShader::TileMode tm) {
-        return new GrRadialGradient(ctx, shader, matrix, tm);
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
+                                           const SkRadialGradient& shader,
+                                           const SkMatrix& matrix,
+                                           SkShader::TileMode tm) {
+        return sk_sp<GrFragmentProcessor>(new GrRadialGradient(ctx, shader, matrix, tm));
     }
 
     virtual ~GrRadialGradient() { }
@@ -305,7 +302,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradient);
 
-const GrFragmentProcessor* GrRadialGradient::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius = d->fRandom->nextUScalar1();
 
@@ -314,11 +311,10 @@ const GrFragmentProcessor* GrRadialGradient::TestCreate(GrProcessorTestData* d) 
     SkScalar* stops = stopsArray;
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateRadial(center, radius,
-                                                                 colors, stops, colorCount,
-                                                                 tm));
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
+    auto shader = SkGradientShader::MakeRadial(center, radius, colors, stops, colorCount, tm);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
+        SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -337,16 +333,17 @@ void GrGLRadialGradient::emitCode(EmitArgs& args) {
                     ge, t.c_str(),
                     args.fOutputColor,
                     args.fInputColor,
-                    args.fSamplers);
+                    args.fTexSamplers);
 }
 
 /////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor* SkRadialGradient::asFragmentProcessor(
+sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
                                                  GrContext* context,
                                                  const SkMatrix& viewM,
                                                  const SkMatrix* localMatrix,
-                                                 SkFilterQuality) const {
+                                                 SkFilterQuality,
+                                                 SkSourceGammaTreatment) const {
     SkASSERT(context);
 
     SkMatrix matrix;
@@ -361,9 +358,8 @@ const GrFragmentProcessor* SkRadialGradient::asFragmentProcessor(
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-        SkAutoTUnref<const GrFragmentProcessor> inner(
-            GrRadialGradient::Create(context, *this, matrix, fTileMode));
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    sk_sp<GrFragmentProcessor> inner(GrRadialGradient::Make(context, *this, matrix, fTileMode));
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif

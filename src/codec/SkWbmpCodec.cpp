@@ -30,6 +30,19 @@ static inline void setup_color_table(SkColorType colorType,
     }
 }
 
+static inline bool valid_color_type(SkColorType colorType) {
+    switch (colorType) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kIndex_8_SkColorType:
+        case kGray_8_SkColorType:
+        case kRGB_565_SkColorType:
+            return true;
+        default:
+            return false;
+    }
+}
+
 static bool read_byte(SkStream* stream, uint8_t* data)
 {
     return stream->read(data, 1) == 1;
@@ -84,25 +97,15 @@ bool SkWbmpCodec::onRewind() {
 
 SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info, const SkPMColor* ctable,
         const Options& opts) {
-    // Create the swizzler based on the desired color type
-    switch (info.colorType()) {
-        case kIndex_8_SkColorType:
-        case kN32_SkColorType:
-        case kRGB_565_SkColorType:
-        case kGray_8_SkColorType:
-            break;
-        default:
-            return nullptr;
-    }
-    return SkSwizzler::CreateSwizzler(SkSwizzler::kBit, ctable, info, opts);
+    return SkSwizzler::CreateSwizzler(this->getEncodedInfo(), ctable, info, opts);
 }
 
 bool SkWbmpCodec::readRow(uint8_t* row) {
     return this->stream()->read(row, fSrcRowBytes) == fSrcRowBytes;
 }
 
-SkWbmpCodec::SkWbmpCodec(const SkImageInfo& info, SkStream* stream)
-    : INHERITED(info, stream)
+SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream)
+    : INHERITED(width, height, info, stream)
     , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
     , fSwizzler(nullptr)
     , fColorTable(nullptr)
@@ -124,7 +127,8 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
         return kUnimplemented;
     }
 
-    if (!valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
+    if (!valid_color_type(info.colorType()) ||
+            !valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
         return kInvalidConversion;
     }
 
@@ -133,9 +137,7 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
 
     // Initialize the swizzler
     SkAutoTDelete<SkSwizzler> swizzler(this->initializeSwizzler(info, ctable, options));
-    if (nullptr == swizzler.get()) {
-        return kInvalidConversion;
-    }
+    SkASSERT(swizzler);
 
     // Perform the decode
     SkISize size = info.dimensions();
@@ -164,9 +166,9 @@ SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
     if (!read_header(stream, &size)) {
         return nullptr;
     }
-    SkImageInfo info = SkImageInfo::Make(size.width(), size.height(),
-            kGray_8_SkColorType, kOpaque_SkAlphaType);
-    return new SkWbmpCodec(info, streamDeleter.detach());
+    SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kGray_Color,
+            SkEncodedInfo::kOpaque_Alpha, 1);
+    return new SkWbmpCodec(size.width(), size.height(), info, streamDeleter.release());
 }
 
 int SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
@@ -181,6 +183,11 @@ int SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
     return count;
 }
 
+bool SkWbmpCodec::onSkipScanlines(int count) {
+    const size_t bytesToSkip = count * fSrcRowBytes;
+    return this->stream()->skip(bytesToSkip) == bytesToSkip;
+}
+
 SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const Options& options, SkPMColor inputColorTable[], int* inputColorCount) {
     if (options.fSubset) {
@@ -188,7 +195,8 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-    if (!valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
+    if (!valid_color_type(dstInfo.colorType()) ||
+            !valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
         return kInvalidConversion;
     }
 
@@ -202,9 +210,7 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
 
     // Initialize the swizzler
     fSwizzler.reset(this->initializeSwizzler(dstInfo, get_color_ptr(fColorTable.get()), options));
-    if (nullptr == fSwizzler.get()) {
-        return kInvalidConversion;
-    }
+    SkASSERT(fSwizzler);
 
     fSrcBuffer.reset(fSrcRowBytes);
 

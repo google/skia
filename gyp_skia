@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright 2011 The Android Open Source Project
 #
@@ -13,6 +13,7 @@ import glob
 import os
 import platform
 import shlex
+import stat
 import sys
 
 script_dir = os.path.abspath(os.path.dirname(__file__))
@@ -78,8 +79,6 @@ if __name__ == '__main__':
   args = sys.argv[1:]
 
   if not os.getenv(ENVVAR_GYP_GENERATORS):
-    print ('%s environment variable not set, using default' %
-           ENVVAR_GYP_GENERATORS)
     if sys.platform.startswith('darwin'):
       default_gyp_generators = 'ninja,xcode'
     elif sys.platform.startswith('win'):
@@ -89,9 +88,10 @@ if __name__ == '__main__':
     else:
       default_gyp_generators = 'ninja'
     os.environ[ENVVAR_GYP_GENERATORS] = default_gyp_generators
-  print '%s is "%s"' % (ENVVAR_GYP_GENERATORS, os.getenv(ENVVAR_GYP_GENERATORS))
+    print ('%s environment variable not set, using default, %s' %
+           (ENVVAR_GYP_GENERATORS, default_gyp_generators))
 
-  vs2013_runtime_dll_dirs = None
+  vs_runtime_dll_dirs = None
   if os.getenv('CHROME_HEADLESS', '0') == '1':
     if sys.platform.startswith('win') or sys.platform.startswith('cygwin'):
       chrome_path = os.getenv('CHROME_PATH')
@@ -99,7 +99,7 @@ if __name__ == '__main__':
       sys.path.append(os.path.join(chrome_path, 'build'))
       sys.path.append(os.path.join(chrome_path, 'tools'))
       import vs_toolchain
-      vs2013_runtime_dll_dirs = \
+      vs_runtime_dll_dirs = \
           vs_toolchain.SetEnvironmentAndGetRuntimeDllDirs()
 
   # Set CWD to the directory containing this script.
@@ -128,7 +128,8 @@ if __name__ == '__main__':
   args.extend(['--depth', '.'])
 
   # Tell gyp to write the build files into output_dir.
-  args.extend(['--generator-output', os.path.abspath(get_output_dir())])
+  out_dir = os.path.abspath(get_output_dir())
+  args.extend(['--generator-output', out_dir])
 
   # Tell ninja to write its output into the same directory.
   args.extend(['-Goutput_dir=%s' % gyp_output_dir])
@@ -148,9 +149,6 @@ if __name__ == '__main__':
   # just turn that feature off.
   os.environ['GYP_LINK_CONCURRENCY'] = '9001'
 
-  print 'Updating projects from gyp files...'
-  sys.stdout.flush()
-
   if '--dry-run' in args:
     args.remove('--dry-run')
     print gyp_source_dir, ' '.join(args)
@@ -162,8 +160,15 @@ if __name__ == '__main__':
 
   # This code is copied from Chrome's build/gyp_chromium. It's not clear why
   # the *_runtime variables are reversed.
-  if vs2013_runtime_dll_dirs:
-    x64_runtime, x86_runtime = vs2013_runtime_dll_dirs
+  if vs_runtime_dll_dirs:
+    # The DLLs might be read-only, which will cause an error when attempting to
+    # overwrite them. Make them writeable first.
+    for path, dirs, files in os.walk(out_dir):
+      for f in files:
+        if f.endswith('.dll'):
+          os.chmod(os.path.join(path, f), stat.S_IWRITE)
+
+    x64_runtime, x86_runtime = vs_runtime_dll_dirs
     vs_toolchain.CopyVsRuntimeDlls(
-        os.path.join(os.getenv('CHROME_PATH'), get_output_dir()),
+        os.path.join(os.getenv('CHROME_PATH'), out_dir),
         (x86_runtime, x64_runtime))

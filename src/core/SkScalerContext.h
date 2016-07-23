@@ -20,6 +20,22 @@ class SkMaskFilter;
 class SkPathEffect;
 class SkRasterizer;
 
+struct SkScalerContextEffects {
+    SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr), fRasterizer(nullptr) {}
+    SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf, SkRasterizer* ra)
+        : fPathEffect(pe), fMaskFilter(mf), fRasterizer(ra) {}
+
+    SkPathEffect*   fPathEffect;
+    SkMaskFilter*   fMaskFilter;
+    SkRasterizer*   fRasterizer;
+};
+
+enum SkAxisAlignment {
+    kNone_SkAxisAlignment,
+    kX_SkAxisAlignment,
+    kY_SkAxisAlignment
+};
+
 /*
  *  To allow this to be forward-declared, it must be its own typename, rather
  *  than a nested struct inside SkScalerContext (where it started).
@@ -62,18 +78,27 @@ struct SkScalerContextRec {
     }
 
     /**
+     *  Causes the luminance color to be ignored, and the paint and device
+     *  gamma to be effectively 1.0
+     */
+    void ignoreGamma() {
+        setLuminanceColor(SK_ColorTRANSPARENT);
+        setPaintGamma(SK_Scalar1);
+        setDeviceGamma(SK_Scalar1);
+    }
+
+    /**
      *  Causes the luminance color and contrast to be ignored, and the
      *  paint and device gamma to be effectively 1.0.
      */
     void ignorePreBlend() {
-        setLuminanceColor(SK_ColorTRANSPARENT);
-        setPaintGamma(SK_Scalar1);
-        setDeviceGamma(SK_Scalar1);
+        ignoreGamma();
         setContrast(0);
     }
 
     uint8_t     fMaskFormat;
-    uint8_t     fStrokeJoin;
+    uint8_t     fStrokeJoin : 4;
+    uint8_t     fStrokeCap : 4;
     uint16_t    fFlags;
     // Warning: when adding members note that the size of this structure
     // must be a multiple of 4. SkDescriptor requires that its arguments be
@@ -185,8 +210,7 @@ public:
         kHinting_Mask   = kHintingBit1_Flag | kHintingBit2_Flag,
     };
 
-
-    SkScalerContext(SkTypeface*, const SkDescriptor*);
+    SkScalerContext(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*);
     virtual ~SkScalerContext();
 
     SkTypeface* getTypeface() const { return fTypeface.get(); }
@@ -244,6 +268,16 @@ public:
     static SkMaskGamma::PreBlend GetMaskPreBlend(const Rec& rec);
 
     const Rec& getRec() const { return fRec; }
+
+    SkScalerContextEffects getEffects() const {
+        return { fPathEffect.get(), fMaskFilter.get(), fRasterizer.get() };
+    }
+
+    /**
+    *  Return the axis (if any) that the baseline for horizontal text should land on.
+    *  As an example, the identity matrix will return kX_SkAxisAlignment
+    */
+    SkAxisAlignment computeAxisAlignmentForHText();
 
 protected:
     Rec         fRec;
@@ -304,12 +338,12 @@ private:
     friend class SkRandomScalerContext; // For debug purposes
 
     // never null
-    SkAutoTUnref<SkTypeface> fTypeface;
+    sk_sp<SkTypeface> fTypeface;
 
-    // optional object, which may be null
-    SkPathEffect*   fPathEffect;
-    SkMaskFilter*   fMaskFilter;
-    SkRasterizer*   fRasterizer;
+    // optional objects, which may be null
+    sk_sp<SkPathEffect> fPathEffect;
+    sk_sp<SkMaskFilter> fMaskFilter;
+    sk_sp<SkRasterizer> fRasterizer;
 
     // if this is set, we draw the image from a path, rather than
     // calling generateImage.
@@ -337,22 +371,6 @@ private:
 #define kPathEffect_SkDescriptorTag     SkSetFourByteTag('p', 't', 'h', 'e')
 #define kMaskFilter_SkDescriptorTag     SkSetFourByteTag('m', 's', 'k', 'f')
 #define kRasterizer_SkDescriptorTag     SkSetFourByteTag('r', 'a', 's', 't')
-
-///////////////////////////////////////////////////////////////////////////////
-
-enum SkAxisAlignment {
-    kNone_SkAxisAlignment,
-    kX_SkAxisAlignment,
-    kY_SkAxisAlignment
-};
-
-/**
- *  Return the axis (if any) that the baseline for horizontal text will land on
- *  after running through the specified matrix.
- *
- *  As an example, the identity matrix will return kX_SkAxisAlignment
- */
-SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix);
 
 ///////////////////////////////////////////////////////////////////////////////
 

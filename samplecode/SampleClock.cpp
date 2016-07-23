@@ -215,8 +215,10 @@ protected:
 #endif
 
         canvas->restore();
+    }
 
-        this->inval(nullptr);
+    bool onAnimate(const SkAnimTimer&) override {
+        return true;
     }
 
 private:

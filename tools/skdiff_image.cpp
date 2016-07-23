@@ -8,7 +8,6 @@
 #include "skdiff_utils.h"
 #include "SkBitmap.h"
 #include "SkData.h"
-#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkTDArray.h"
@@ -60,8 +59,8 @@ static void create_diff_images (DiffMetricProc dmp,
         return;
     }
 
-    get_bitmap(baseFileBits, drp->fBase, SkImageDecoder::kDecodePixels_Mode);
-    get_bitmap(comparisonFileBits, drp->fComparison, SkImageDecoder::kDecodePixels_Mode);
+    get_bitmap(baseFileBits, drp->fBase, false);
+    get_bitmap(comparisonFileBits, drp->fComparison, false);
     if (DiffResource::kDecoded_Status != drp->fBase.fStatus ||
         DiffResource::kDecoded_Status != drp->fComparison.fStatus)
     {

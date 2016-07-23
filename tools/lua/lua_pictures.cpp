@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "LazyDecodeBitmap.h"
 #include "SkLua.h"
 #include "SkLuaCanvas.h"
 #include "SkPicture.h"
@@ -15,7 +14,6 @@
 #include "SkData.h"
 #include "picture_utils.h"
 #include "SkOSFile.h"
-#include "SkImageDecoder.h"
 
 #include <stdlib.h>
 
@@ -40,13 +38,12 @@ DEFINE_string2(headCode, s, "", "Optional lua code to call at beginning");
 DEFINE_string2(tailFunc, s, "", "Optional lua function to call at end");
 DEFINE_bool2(quiet, q, false, "Silence all non-error related output");
 
-static SkPicture* load_picture(const char path[]) {
+static sk_sp<SkPicture> load_picture(const char path[]) {
     SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
-    SkPicture* pic = nullptr;
     if (stream.get()) {
-        pic = SkPicture::CreateFromStream(stream.get(), &sk_tools::LazyDecodeBitmap);
+        return SkPicture::MakeFromStream(stream.get());
     }
-    return pic;
+    return nullptr;
 }
 
 static void call_canvas(lua_State* L, SkLuaCanvas* canvas,
@@ -145,10 +142,10 @@ int tool_main(int argc, char** argv) {
                 SkDebugf("scraping %s %s\n", path, moduloStr.c_str());
             }
 
-            SkAutoTUnref<SkPicture> pic(load_picture(path));
+            auto pic(load_picture(path));
             if (pic.get()) {
                 SkAutoTUnref<SkLuaCanvas> canvas(
-                                    new SkLuaCanvas(SkScalarCeilToInt(pic->cullRect().width()), 
+                                    new SkLuaCanvas(SkScalarCeilToInt(pic->cullRect().width()),
                                                     SkScalarCeilToInt(pic->cullRect().height()),
                                                     L.get(), gAccumulateFunc));
 

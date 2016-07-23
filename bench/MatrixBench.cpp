@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -298,4 +297,3 @@ DEF_BENCH( return new MapPointsMatrixBench("mappoints_identity", SkMatrix::I());
 DEF_BENCH( return new MapPointsMatrixBench("mappoints_trans", make_trans()); )
 DEF_BENCH( return new MapPointsMatrixBench("mappoints_scale", make_scale()); )
 DEF_BENCH( return new MapPointsMatrixBench("mappoints_affine", make_afine()); )
-

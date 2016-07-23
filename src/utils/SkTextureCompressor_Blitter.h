@@ -55,7 +55,7 @@ namespace SkTextureCompressor {
 //     // most likely be implementation dependent. The mask variable will have
 //     // 0xFF in positions where the block should be updated and 0 in positions
 //     // where it shouldn't. src contains an uncompressed buffer of pixels.
-//     static void UpdateBlock(uint8_t* dst, const uint8_t* src, int srcRowBytes, 
+//     static void UpdateBlock(uint8_t* dst, const uint8_t* src, int srcRowBytes,
 //                             const uint8_t* mask);
 #endif
 // };
@@ -65,7 +65,7 @@ public:
     SkTCompressedAlphaBlitter(int width, int height, void *compressedBuffer)
         // 0x7FFE is one minus the largest positive 16-bit int. We use it for
         // debugging to make sure that we're properly setting the nextX distance
-        // in flushRuns(). 
+        // in flushRuns().
 #ifdef SK_DEBUG
         : fCalledOnceWithNonzeroY(false)
         , fBlitMaskCalled(false),
@@ -139,7 +139,7 @@ public:
             this->flushRuns();
         }
     }
-    
+
     // Blit a vertical run of pixels with a constant alpha value.
     void blitV(int x, int y, int height, SkAlpha alpha) override {
         // This function is currently not implemented. It is not explicitly
@@ -171,7 +171,7 @@ public:
 
         // Make sure that we're only ever bracketing calls to blitAntiH.
         SkASSERT((0 == y) || (!fCalledOnceWithNonzeroY && (fCalledOnceWithNonzeroY = true)));
-        
+
 #if !(PEDANTIC_BLIT_RECT)
         for (int i = 0; i < height; ++i) {
             const SkAlpha kFullAlpha = 0xFF;
@@ -194,7 +194,7 @@ public:
 
             const int yoff = y - startBlockY;
             SkASSERT((yoff + height) <= BlockDim);
-            
+
             for (int j = 0; j < height; ++j) {
                 memset(mask + (j + yoff)*BlockDim + xoff, 0xFF, width);
             }
@@ -493,7 +493,7 @@ private:
         // -----------------------------------------------------------------------
         // ... |  |  |  |  |  ----> fBufferedRuns[3]
         // -----------------------------------------------------------------------
-        // 
+        //
         // curX -- the macro X value that we've gotten to.
         // c[BlockDim] -- the buffers that represent the columns of the current block
         //                  that we're operating on

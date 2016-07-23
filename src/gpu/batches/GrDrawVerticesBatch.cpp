@@ -11,7 +11,7 @@
 #include "GrInvariantOutput.h"
 #include "GrDefaultGeoProcFactory.h"
 
-static const GrGeometryProcessor* set_vertex_attributes(bool hasLocalCoords,
+static sk_sp<GrGeometryProcessor> set_vertex_attributes(bool hasLocalCoords,
                                                         int* colorOffset,
                                                         int* texOffset,
                                                         const SkMatrix& viewMatrix,
@@ -27,8 +27,8 @@ static const GrGeometryProcessor* set_vertex_attributes(bool hasLocalCoords,
     if (hasLocalCoords) {
         *texOffset = sizeof(SkPoint) + sizeof(GrColor);
     }
-    return GrDefaultGeoProcFactory::Create(Color(Color::kAttribute_Type),
-                                           coverage, localCoords, viewMatrix);
+    return GrDefaultGeoProcFactory::Make(Color(Color::kAttribute_Type),
+                                         coverage, localCoords, viewMatrix);
 }
 
 GrDrawVerticesBatch::GrDrawVerticesBatch(const Geometry& geometry, GrPrimitiveType primitiveType,
@@ -65,7 +65,7 @@ GrDrawVerticesBatch::GrDrawVerticesBatch(const Geometry& geometry, GrPrimitiveTy
     this->setBounds(bounds);
 }
 
-void GrDrawVerticesBatch::computePipelineOptimizations(GrInitInvariantOutput* color, 
+void GrDrawVerticesBatch::computePipelineOptimizations(GrInitInvariantOutput* color,
                                                        GrInitInvariantOutput* coverage,
                                                        GrBatchToXPOverrides* overrides) const {
     // When this is called on a batch, there is only one geometry bundle
@@ -75,7 +75,6 @@ void GrDrawVerticesBatch::computePipelineOptimizations(GrInitInvariantOutput* co
         color->setKnownFourComponents(fGeoData[0].fColor);
     }
     coverage->setKnownSingleComponent(0xff);
-    overrides->fUsePLSDstRead = false;
 }
 
 void GrDrawVerticesBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
@@ -95,11 +94,8 @@ void GrDrawVerticesBatch::initBatchTracker(const GrXPOverridesForBatch& override
 void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
     bool hasLocalCoords = !fGeoData[0].fLocalCoords.isEmpty();
     int colorOffset = -1, texOffset = -1;
-    SkAutoTUnref<const GrGeometryProcessor> gp(
-        set_vertex_attributes(hasLocalCoords, &colorOffset, &texOffset, fViewMatrix,
-                              fCoverageIgnored));
-    target->initDraw(gp, this->pipeline());
-
+    sk_sp<GrGeometryProcessor> gp(set_vertex_attributes(hasLocalCoords, &colorOffset, &texOffset,
+                                                        fViewMatrix, fCoverageIgnored));
     size_t vertexStride = gp->getVertexStride();
 
     SkASSERT(vertexStride == sizeof(SkPoint) + (hasLocalCoords ? sizeof(SkPoint) : 0)
@@ -107,7 +103,7 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
 
     int instanceCount = fGeoData.count();
 
-    const GrVertexBuffer* vertexBuffer;
+    const GrBuffer* vertexBuffer;
     int firstVertex;
 
     void* verts = target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex);
@@ -117,7 +113,7 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
         return;
     }
 
-    const GrIndexBuffer* indexBuffer = nullptr;
+    const GrBuffer* indexBuffer = nullptr;
     int firstIndex = 0;
 
     uint16_t* indices = nullptr;
@@ -157,15 +153,15 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
         }
     }
 
-    GrVertices vertices;
+    GrMesh mesh;
     if (indices) {
-        vertices.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex,
-                             firstIndex, fVertexCount, fIndexCount);
+        mesh.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex,
+                         firstIndex, fVertexCount, fIndexCount);
 
     } else {
-        vertices.init(this->primitiveType(), vertexBuffer, firstVertex, fVertexCount);
+        mesh.init(this->primitiveType(), vertexBuffer, firstVertex, fVertexCount);
     }
-    target->draw(vertices);
+    target->draw(gp.get(), mesh);
 }
 
 bool GrDrawVerticesBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {

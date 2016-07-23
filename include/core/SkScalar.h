@@ -8,7 +8,6 @@
 #ifndef SkScalar_DEFINED
 #define SkScalar_DEFINED
 
-#include "SkFixed.h"
 #include "../private/SkFloatingPoint.h"
 
 // TODO: move this sort of check into SkPostConfig.h
@@ -32,12 +31,10 @@ typedef float SkScalar;
 #define SK_ScalarNegativeInfinity   SK_FloatNegativeInfinity
 #define SK_ScalarNaN                SK_FloatNaN
 
-#define SkFixedToScalar(x)          SkFixedToFloat(x)
-#define SkScalarToFixed(x)          SkFloatToFixed(x)
-
 #define SkScalarFloorToScalar(x)    sk_float_floor(x)
 #define SkScalarCeilToScalar(x)     sk_float_ceil(x)
 #define SkScalarRoundToScalar(x)    sk_float_floor((x) + 0.5f)
+#define SkScalarTruncToScalar(x)    sk_float_trunc(x)
 
 #define SkScalarFloorToInt(x)       sk_float_floor2int(x)
 #define SkScalarCeilToInt(x)        sk_float_ceil2int(x)
@@ -46,7 +43,6 @@ typedef float SkScalar;
 #define SkScalarAbs(x)              sk_float_abs(x)
 #define SkScalarCopySign(x, y)      sk_float_copysign(x, y)
 #define SkScalarMod(x, y)           sk_float_mod(x,y)
-#define SkScalarFraction(x)         sk_float_mod(x, 1.0f)
 #define SkScalarSqrt(x)             sk_float_sqrt(x)
 #define SkScalarPow(b, e)           sk_float_pow(b, e)
 
@@ -75,12 +71,10 @@ typedef double SkScalar;
 #define SK_ScalarNegativeInfinity   SK_DoubleNegativeInfinity
 #define SK_ScalarNaN                SK_DoubleNaN
 
-#define SkFixedToScalar(x)          SkFixedToDouble(x)
-#define SkScalarToFixed(x)          SkDoubleToFixed(x)
-
 #define SkScalarFloorToScalar(x)    floor(x)
 #define SkScalarCeilToScalar(x)     ceil(x)
 #define SkScalarRoundToScalar(x)    floor((x) + 0.5)
+#define SkScalarTruncToScalar(x)    trunc(x)
 
 #define SkScalarFloorToInt(x)       (int)floor(x)
 #define SkScalarCeilToInt(x)        (int)ceil(x)
@@ -89,7 +83,6 @@ typedef double SkScalar;
 #define SkScalarAbs(x)              abs(x)
 #define SkScalarCopySign(x, y)      copysign(x, y)
 #define SkScalarMod(x, y)           fmod(x,y)
-#define SkScalarFraction(x)         fmod(x, 1.0)
 #define SkScalarSqrt(x)             sqrt(x)
 #define SkScalarPow(b, e)           pow(b, e)
 
@@ -108,6 +101,7 @@ typedef double SkScalar;
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define SkIntToScalar(x)        static_cast<SkScalar>(x)
+#define SkIntToFloat(x)         static_cast<float>(x)
 #define SkScalarTruncToInt(x)   static_cast<int>(x)
 
 #define SkScalarToFloat(x)      static_cast<float>(x)
@@ -168,6 +162,11 @@ static inline int SkDScalarRoundToInt(SkScalar x) {
     return (int)floor(xx);
 }
 
+/** Returns the fractional part of the scalar. */
+static inline SkScalar SkScalarFraction(SkScalar x) {
+    return x - SkScalarTruncToScalar(x);
+}
+
 static inline SkScalar SkScalarClampMax(SkScalar x, SkScalar max) {
     x = SkTMin(x, max);
     x = SkTMax<SkScalar>(x, 0);
@@ -218,7 +217,7 @@ static inline SkScalar SkScalarSignAsScalar(SkScalar x) {
 #define SK_ScalarNearlyZero         (SK_Scalar1 / (1 << 12))
 
 static inline bool SkScalarNearlyZero(SkScalar x,
-                                    SkScalar tolerance = SK_ScalarNearlyZero) {
+                                      SkScalar tolerance = SK_ScalarNearlyZero) {
     SkASSERT(tolerance >= 0);
     return SkScalarAbs(x) <= tolerance;
 }

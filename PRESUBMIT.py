@@ -36,13 +36,12 @@ PUBLIC_API_OWNERS = (
 AUTHORS_FILE_NAME = 'AUTHORS'
 
 DOCS_PREVIEW_URL = 'https://skia.org/?cl='
-GOLD_TRYBOT_URL = ('https://gold.skia.org/search2?unt=true'
-                   '&query=source_type%3Dgm&master=false&issue=')
+GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 
 # Path to CQ bots feature is described in https://bug.skia.org/4364
 PATH_PREFIX_TO_EXTRA_TRYBOTS = {
     # pylint: disable=line-too-long
-    'cmake/': 'client.skia.compile:Build-Mac10.9-Clang-x86_64-Release-CMake-Trybot,Build-Ubuntu-GCC-x86_64-Release-CMake-Trybot',
+    'cmake/': 'client.skia.compile:Build-Mac-Clang-x86_64-Release-CMake-Trybot,Build-Ubuntu-GCC-x86_64-Release-CMake-Trybot',
     # pylint: disable=line-too-long
     'src/opts/': 'client.skia:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD-Trybot',
 
@@ -85,6 +84,7 @@ def _PythonChecks(input_api, output_api):
       'R0201',  # Method could be a function.
       'E1003',  # Using class name in super.
       'W0613',  # Unused argument.
+      'W0105',  # String statement has no effect.
   )
   # Run Pylint on only the modified python files. Unfortunately it still runs
   # Pylint on the whole file instead of just the modified lines.

@@ -24,4 +24,22 @@
       },
     },
   ],
+  'conditions': [
+    ['skia_os == "mac"',
+      {
+        'targets': [
+          {
+            'target_name': 'coreGraphicsPdf2png',
+            'type': 'executable',
+            'sources': [ '../experimental/tools/coreGraphicsPdf2png.cpp', ],
+            'link_settings': {
+              'libraries': [
+                '$(SDKROOT)/System/Library/Frameworks/ApplicationServices.framework',
+              ],
+            },
+          },
+        ],
+      },
+    ],
+  ],
 }

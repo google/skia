@@ -110,7 +110,20 @@ protected:
 private:
     typedef GM INHERITED;
 };
+DEF_GM(return new StrokeRectGM;)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new StrokeRectGM;)
+/*
+ *  Exercise rect-stroking (which is specialized from paths) when the resulting stroke-width is
+ *  non-square. See https://bugs.chromium.org/p/skia/issues/detail?id=5408
+ */
+DEF_SIMPLE_GM(strokerect_anisotropic_5408, canvas, 200, 50) {
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(6);
+
+    canvas->scale(10, 1);
+    SkRect r = SkRect::MakeXYWH(5, 20, 10, 10);
+    canvas->drawRect(r, p);
+}

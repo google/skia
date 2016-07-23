@@ -16,74 +16,8 @@
 class SkSwizzler : public SkSampler {
 public:
     /**
-     *  Enum describing the config of the source data.
-     */
-    enum SrcConfig {
-        kUnknown,  // Invalid type.
-        kBit,      // A single bit to distinguish between white and black
-        kGray,
-        kIndex1,
-        kIndex2,
-        kIndex4,
-        kIndex,
-        kRGB,
-        kBGR,
-        kRGBX,
-        kBGRX,
-        kRGBA,
-        kBGRA,
-        kRGB_565,
-        kCMYK,
-    };
-
-    /*
-     *
-     * Returns bits per pixel for source config
-     *
-     */
-    static int BitsPerPixel(SrcConfig sc) {
-        switch (sc) {
-            case kBit:
-            case kIndex1:
-                return 1;
-            case kIndex2:
-                return 2;
-            case kIndex4:
-                return 4;
-            case kGray:
-            case kIndex:
-                return 8;
-            case kRGB_565:
-                return 16;
-            case kRGB:
-            case kBGR:
-                return 24;
-            case kRGBX:
-            case kRGBA:
-            case kBGRX:
-            case kBGRA:
-            case kCMYK:
-                return 32;
-            default:
-                SkASSERT(false);
-                return 0;
-        }
-    }
-
-    /*
-     *
-     * Returns bytes per pixel for source config
-     * Raises an error if each pixel is not stored in an even number of bytes
-     *
-     */
-    static int BytesPerPixel(SrcConfig sc) {
-        SkASSERT(SkIsAlign8(BitsPerPixel(sc)));
-        return BitsPerPixel(sc) >> 3;
-    }
-
-    /**
      *  Create a new SkSwizzler.
-     *  @param SrcConfig Description of the format of the source.
+     *  @param encodedInfo Description of the format of the encoded data.
      *  @param ctable Unowned pointer to an array of up to 256 colors for an
      *                index source.
      *  @param dstInfo Describes the destination.
@@ -93,6 +27,9 @@ public:
      *                 Contains partial scanline information.
      *  @param frame   Is non-NULL if the source pixels are part of an image
      *                 frame that is a subset of the full image.
+     *  @param preSwizzled Indicates that the codec has already swizzled to the
+     *                     destination format.  The swizzler only needs to sample
+     *                     and/or subset.
      *
      *  Note that a deeper discussion of partial scanline subsets and image frame
      *  subsets is below.  Currently, we do not support both simultaneously.  If
@@ -100,9 +37,9 @@ public:
      *
      *  @return A new SkSwizzler or nullptr on failure.
      */
-    static SkSwizzler* CreateSwizzler(SrcConfig, const SkPMColor* ctable,
+    static SkSwizzler* CreateSwizzler(const SkEncodedInfo& encodedInfo, const SkPMColor* ctable,
                                       const SkImageInfo& dstInfo, const SkCodec::Options&,
-                                      const SkIRect* frame = nullptr);
+                                      const SkIRect* frame = nullptr, bool preSwizzled = false);
 
     /**
      *  Swizzle a line. Generally this will be called height times, once
@@ -160,10 +97,18 @@ private:
                                          int dstWidth, int bpp, int deltaSrc, int offset,
                                          const SkPMColor ctable[]);
 
-    // May be NULL.  We will not always be able to used an optimized function.
-    RowProc             fFastProc;
-    // Always non-NULL.  We use this if fFastProc is NULL.
-    const RowProc       fProc;
+    template <RowProc Proc>
+    static void SkipLeadingGrayAlphaZerosThen(void* dst, const uint8_t* src, int width, int bpp,
+                                              int deltaSrc, int offset, const SkPMColor ctable[]);
+
+    // May be NULL.  We have not implemented optimized functions for all supported transforms.
+    const RowProc       fFastProc;
+    // Always non-NULL.  Supports sampling.
+    const RowProc       fSlowProc;
+    // The actual RowProc we are using.  This depends on if fFastProc is non-NULL and
+    // whether or not we are sampling.
+    RowProc             fActualProc;
+
     const SkPMColor*    fColorTable;      // Unowned pointer
 
     // Subset Swizzles

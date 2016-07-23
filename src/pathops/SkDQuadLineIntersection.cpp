@@ -442,3 +442,13 @@ int SkIntersections::VerticalIntercept(const SkDQuad& quad, SkScalar x, double* 
     LineQuadraticIntersections q(quad);
     return q.verticalIntersect(x, roots);
 }
+
+// SkDQuad accessors to Intersection utilities
+
+int SkDQuad::horizontalIntersect(double yIntercept, double roots[2]) const {
+    return SkIntersections::HorizontalIntercept(*this, yIntercept, roots);
+}
+
+int SkDQuad::verticalIntersect(double xIntercept, double roots[2]) const {
+    return SkIntersections::VerticalIntercept(*this, xIntercept, roots);
+}

@@ -40,6 +40,8 @@ public:
 
     const GrXPOverridesForBatch& overrides() const { return fOverrides; }
 
+    virtual bool isPathRendering() const override { return true; }
+
 private:
     GrPathProcessor(GrColor color, const GrXPOverridesForBatch& overrides,
                     const SkMatrix& viewMatrix, const SkMatrix& localMatrix);

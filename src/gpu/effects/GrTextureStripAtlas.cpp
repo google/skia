@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -19,7 +18,7 @@
     #define VALIDATE
 #endif
 
-class GrTextureStripAtlas::Hash : public SkTDynamicHash<GrTextureStripAtlas::AtlasEntry, 
+class GrTextureStripAtlas::Hash : public SkTDynamicHash<GrTextureStripAtlas::AtlasEntry,
                                                         GrTextureStripAtlas::Desc> {};
 
 int32_t GrTextureStripAtlas::gCacheCount = 0;
@@ -159,7 +158,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
         // that is not currently in use
         fTexture->writePixels(0,  rowNumber * fDesc.fRowHeight,
                               fDesc.fWidth, fDesc.fRowHeight,
-                              SkImageInfo2GrPixelConfig(data.info()),
+                              SkImageInfo2GrPixelConfig(data.info(), *this->getContext()->caps()),
                               data.getPixels(),
                               data.rowBytes(),
                               GrContext::kDontFlush_PixelOpsFlag);
@@ -195,6 +194,7 @@ void GrTextureStripAtlas::lockTexture() {
     texDesc.fWidth = fDesc.fWidth;
     texDesc.fHeight = fDesc.fHeight;
     texDesc.fConfig = fDesc.fConfig;
+    texDesc.fIsMipMapped = false;
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
@@ -204,7 +204,8 @@ void GrTextureStripAtlas::lockTexture() {
 
     fTexture = fDesc.fContext->textureProvider()->findAndRefTextureByUniqueKey(key);
     if (nullptr == fTexture) {
-        fTexture = fDesc.fContext->textureProvider()->createTexture(texDesc, true, nullptr, 0);
+        fTexture = fDesc.fContext->textureProvider()->createTexture(texDesc, SkBudgeted::kYes,
+                                                                    nullptr, 0);
         if (!fTexture) {
             return;
         }

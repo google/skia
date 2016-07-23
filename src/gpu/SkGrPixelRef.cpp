@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -51,7 +50,7 @@ bool SkROLockPixelsPixelRef::onLockPixelsAreWritable() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorType dstCT,
-                                                  SkColorProfileType dstPT, const SkIRect* subset) {
+                                                  SkColorSpace* dstCS, const SkIRect* subset) {
     if (nullptr == texture || kUnknown_SkColorType == dstCT) {
         return nullptr;
     }
@@ -75,21 +74,22 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
         srcRect = *subset;
     }
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fConfig = SkImageInfo2GrPixelConfig(dstCT, kPremul_SkAlphaType, dstPT);
+    desc.fConfig = SkImageInfo2GrPixelConfig(dstCT, kPremul_SkAlphaType, dstCS, *context->caps());
+    desc.fIsMipMapped = false;
 
-    GrTexture* dst = context->textureProvider()->createTexture(desc, false, nullptr, 0);
+    GrTexture* dst = context->textureProvider()->createTexture(desc, SkBudgeted::kNo, nullptr, 0);
     if (nullptr == dst) {
         return nullptr;
     }
 
     // Blink is relying on the above copy being sent to GL immediately in the case when the source
-    // is a WebGL canvas backing store. We could have a TODO to remove this flush flag, but we have
+    // is a WebGL canvas backing store. We could have a TODO to remove this flush, but we have
     // a larger TODO to remove SkGrPixelRef entirely.
-    context->copySurface(dst->asRenderTarget(), texture, srcRect, SkIPoint::Make(0,0),
-                         GrContext::kFlushWrites_PixelOp);
+    context->copySurface(dst, texture, srcRect, SkIPoint::Make(0,0));
+    context->flushSurfaceWrites(dst);
 
     SkImageInfo info = SkImageInfo::Make(desc.fWidth, desc.fHeight, dstCT, kPremul_SkAlphaType,
-                                         dstPT);
+                                         sk_ref_sp(dstCS));
     SkGrPixelRef* pixelRef = new SkGrPixelRef(info, dst);
     SkSafeUnref(dst);
     return pixelRef;
@@ -130,8 +130,7 @@ void SkGrPixelRef::onNotifyPixelsChanged() {
     }
 }
 
-SkPixelRef* SkGrPixelRef::deepCopy(SkColorType dstCT, SkColorProfileType dstPT,
-                                   const SkIRect* subset) {
+SkPixelRef* SkGrPixelRef::deepCopy(SkColorType dstCT, SkColorSpace* dstCS, const SkIRect* subset) {
     if (nullptr == fSurface) {
         return nullptr;
     }
@@ -142,7 +141,7 @@ SkPixelRef* SkGrPixelRef::deepCopy(SkColorType dstCT, SkColorProfileType dstPT,
     // a GrTexture owned elsewhere (e.g., SkGpuDevice), and cannot live
     // independently of that texture.  Texture-backed pixel refs, on the other
     // hand, own their GrTextures, and are thus self-contained.
-    return copy_to_new_texture_pixelref(fSurface->asTexture(), dstCT, dstPT, subset);
+    return copy_to_new_texture_pixelref(fSurface->asTexture(), dstCT, dstCS, subset);
 }
 
 static bool tryAllocBitmapPixels(SkBitmap* bitmap) {
@@ -183,7 +182,7 @@ bool SkGrPixelRef::onReadPixels(SkBitmap* dst, SkColorType colorType, const SkIR
         SkBitmap cachedBitmap;
         cachedBitmap.setInfo(SkImageInfo::Make(bounds.width(), bounds.height(), colorType,
                                                this->info().alphaType(),
-                                               this->info().profileType()));
+                                               sk_ref_sp(this->info().colorSpace())));
 
         // If we can't alloc the pixels, then fail
         if (!tryAllocBitmapPixels(&cachedBitmap)) {

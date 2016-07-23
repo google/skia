@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -33,7 +32,7 @@ static GrColor filterColor(const GrColor& color, uint32_t flags)  {
     return color & mask;
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuColorFilter, reporter, context) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuColorFilter, reporter, ctxInfo) {
     struct GetConstantComponentTestCase {
         // "Shape drawn with"
         uint32_t inputComponents; // "rgb of", "red of", "alpha of", ...
@@ -99,9 +98,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuColorFilter, reporter, context) {
     GrPaint paint;
     for (size_t i = 0; i < SK_ARRAY_COUNT(filterTests); ++i) {
         const GetConstantComponentTestCase& test = filterTests[i];
-        SkAutoTUnref<SkColorFilter> cf(
-            SkColorFilter::CreateModeFilter(test.filterColor, test.filterMode));
-        SkAutoTUnref<const GrFragmentProcessor> fp( cf->asFragmentProcessor(context));
+        auto cf(SkColorFilter::MakeModeFilter(test.filterColor, test.filterMode));
+        sk_sp<GrFragmentProcessor> fp(cf->asFragmentProcessor(ctxInfo.grContext()));
         REPORTER_ASSERT(reporter, fp);
         GrInvariantOutput inout(test.inputColor,
                                 static_cast<GrColorComponentFlags>(test.inputComponents),

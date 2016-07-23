@@ -11,8 +11,8 @@
 
 #include <stdlib.h>
 
-#if defined(GOOGLE3) && (defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS))
-    // I don't know why, but this is defined by //base only for non-Linux.
+#if defined(GOOGLE3) && defined(SK_BUILD_FOR_IOS)
+    // This is defined by //base only for iOS (I don't know why).
     DECLARE_bool(undefok)
 #else
     DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
@@ -148,6 +148,10 @@ SkString SkCommandLineFlags::gUsage;
 
 void SkCommandLineFlags::SetUsage(const char* usage) {
     gUsage.set(usage);
+}
+
+void SkCommandLineFlags::PrintUsage() {
+    SkDebugf("%s", gUsage.c_str());
 }
 
 // Maximum line length for the help message.

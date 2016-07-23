@@ -13,16 +13,13 @@
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
-#include "SkDevice.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPathOpsDebug.h"
 #include "SkPicture.h"
 #include "SkRTConf.h"
-#include "SkRunnable.h"
 #include "SkTSort.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -33,8 +30,6 @@
 #include "SkTime.h"
 
 #include <stdlib.h>
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 /* add local exceptions here */
 /* TODO : add command flag interface */
@@ -219,7 +214,7 @@ struct TestResult {
     TestStep fTestStep;
     int fDirNo;
     int fPixelError;
-    int fTime;
+    SkMSec fTime;
     int fScale;
 };
 
@@ -260,9 +255,9 @@ struct TestRunner {
     SkTDArray<class TestRunnable*> fRunnables;
 };
 
-class TestRunnable : public SkRunnable {
+class TestRunnable {
 public:
-    void run() override {
+    void operator()() {
         SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
         (*fTestFun)(&fState);
     }
@@ -305,10 +300,8 @@ TestRunner::~TestRunner() {
 }
 
 void TestRunner::render() {
-    // TODO: this doesn't really need to use SkRunnables any more.
-    // We can just write the code to run in the for-loop directly.
     SkTaskGroup().batch(fRunnables.count(), [&](int i) {
-        fRunnables[i]->run();
+        (*fRunnables[i])();
     });
 }
 
@@ -378,7 +371,7 @@ static bool addError(TestState* data, const TestResult& testResult) {
         }
     }
     int slowCount = data->fSlowest.count();
-    int time = testResult.fTime;
+    SkMSec time = testResult.fTime;
     if (time > 0) {
         for (int index = 0; index < slowCount; ++index) {
             if (time > data->fSlowest[index].fTime) {
@@ -408,7 +401,7 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
     SkScalar yInterval = SkTMax(pHeight - maxDimension, 0.0f) / (slices - 1);
     SkRect rect = {0, 0, SkTMin(maxDimension, pWidth), SkTMin(maxDimension, pHeight) };
     canvas->clipRect(rect);
-    SkMSec start = SkTime::GetMSecs();
+    double start = SkTime::GetMSecs();
     for (int x = 0; x < slices; ++x) {
         for (int y = 0; y < slices; ++y) {
             pic->playback(canvas);
@@ -416,9 +409,9 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
         }
         canvas->translate(xInterval, -yInterval * slices);
     }
-    SkMSec end = SkTime::GetMSecs();
+    double end = SkTime::GetMSecs();
     canvas->restore();
-    return end - start;
+    return static_cast<SkMSec>(end - start);
 }
 
 static void drawPict(SkPicture* pic, SkCanvas* canvas, int scale) {
@@ -443,7 +436,7 @@ static void writePict(const SkBitmap& bitmap, const char* outDir, const char* pn
 }
 
 void TestResult::testOne() {
-    SkPicture* pic = nullptr;
+    sk_sp<SkPicture> pic;
     {
     #if DEBUG_SHOW_TEST_NAME
         if (fTestStep == kCompareBits) {
@@ -471,12 +464,12 @@ void TestResult::testOne() {
         SkFILEStream stream(path.c_str());
         if (!stream.isValid()) {
             SkDebugf("invalid stream %s\n", path.c_str());
-            goto finish;
+            return;
         }
-        pic = SkPicture::CreateFromStream(&stream, &SkImageDecoder::DecodeMemory);
+        pic = SkPicture::MakeFromStream(&stream);
         if (!pic) {
             SkDebugf("unable to decode %s\n", fFilename);
-            goto finish;
+            return;
         }
         SkScalar width = pic->cullRect().width();
         SkScalar height = pic->cullRect().height();
@@ -496,7 +489,7 @@ void TestResult::testOne() {
         if (fScale >= 256) {
             SkDebugf("unable to allocate bitmap for %s (w=%f h=%f)\n", fFilename,
                     width, height);
-            goto finish;
+            return;
         }
         oldBitmap.eraseColor(SK_ColorWHITE);
         SkCanvas oldCanvas(oldBitmap);
@@ -504,23 +497,19 @@ void TestResult::testOne() {
         opBitmap.eraseColor(SK_ColorWHITE);
         SkCanvas opCanvas(opBitmap);
         opCanvas.setAllowSimplifyClip(true);
-        drawPict(pic, &oldCanvas, fScale);
-        drawPict(pic, &opCanvas, fScale);
+        drawPict(pic.get(), &oldCanvas, fScale);
+        drawPict(pic.get(), &opCanvas, fScale);
         if (fTestStep == kCompareBits) {
             fPixelError = similarBits(oldBitmap, opBitmap);
-            int oldTime = timePict(pic, &oldCanvas);
-            int opTime = timePict(pic, &opCanvas);
-            fTime = SkTMax(0, oldTime - opTime);
+            SkMSec oldTime = timePict(pic.get(), &oldCanvas);
+            SkMSec opTime = timePict(pic.get(), &opCanvas);
+            fTime = SkTMax(static_cast<SkMSec>(0), oldTime - opTime);
         } else if (fTestStep == kEncodeFiles) {
             SkString pngStr = make_png_name(fFilename);
             const char* pngName = pngStr.c_str();
             writePict(oldBitmap, outOldDir, pngName);
             writePict(opBitmap, outOpDir, pngName);
         }
-    }
-finish:
-    if (pic) {
-        pic->unref();
     }
 }
 

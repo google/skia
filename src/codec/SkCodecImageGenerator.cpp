@@ -16,8 +16,16 @@ SkImageGenerator* SkCodecImageGenerator::NewFromEncodedCodec(SkData* data) {
     return new SkCodecImageGenerator(codec, data);
 }
 
+static SkImageInfo make_premul(const SkImageInfo& info) {
+    if (kUnpremul_SkAlphaType == info.alphaType()) {
+        return info.makeAlphaType(kPremul_SkAlphaType);
+    }
+
+    return info;
+}
+
 SkCodecImageGenerator::SkCodecImageGenerator(SkCodec* codec, SkData* data)
-    : INHERITED(codec->getInfo())
+    : INHERITED(make_premul(codec->getInfo()))
     , fCodec(codec)
     , fData(SkRef(data))
 {}
@@ -40,7 +48,19 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, s
     }
 }
 
-bool SkCodecImageGenerator::onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-        SkYUVColorSpace* colorSpace) {
-    return false;
+bool SkCodecImageGenerator::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const
+{
+    return fCodec->queryYUV8(sizeInfo, colorSpace);
+}
+
+bool SkCodecImageGenerator::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
+    SkCodec::Result result = fCodec->getYUV8Planes(sizeInfo, planes);
+
+    switch (result) {
+        case SkCodec::kSuccess:
+        case SkCodec::kIncompleteInput:
+            return true;
+        default:
+            return false;
+    }
 }

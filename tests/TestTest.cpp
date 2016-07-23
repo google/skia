@@ -9,7 +9,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "gl/SkGLContext.h"
+#include "gl/GLTestContext.h"
 #endif
 
 
@@ -29,47 +29,26 @@ DEF_GPUTEST(TestGpuFactory, reporter, factory) {
 // This is an example of a GPU test that tests a property that should work for all GPU contexts.
 // Note: Some of the contexts might not produce a rendering output.
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_ALL_CONTEXTS(TestGpuAllContexts, reporter, context) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(TestGpuAllContexts, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
-    REPORTER_ASSERT(reporter, context);
+    REPORTER_ASSERT(reporter, ctxInfo.grContext());
 }
 #endif
 
 // This is an example of a GPU test that tests a property that should work for all GPU contexts that
 // produce a rendering output.
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContexts, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContexts, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
-    REPORTER_ASSERT(reporter, context);
-}
-#endif
-
-// This is an example of a GPU test that tests a property that should work at least for the native
-// GPU context. If the test takes a long time to run, it may be appropriate to test only the native
-// context.
-#if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_NATIVE_CONTEXT(TestGpuNativeContext, reporter, context) {
-    REPORTER_ASSERT(reporter, reporter);
-    REPORTER_ASSERT(reporter, context);
+    REPORTER_ASSERT(reporter, ctxInfo.grContext());
 }
 #endif
 
 // This is an example of a GPU test that tests a property that uses the null GPU context.  It should
 // be used if the test tests some behavior that is mocked with the null context.
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_NULL_CONTEXT(TestGpuNullContext, reporter, context) {
+DEF_GPUTEST_FOR_NULLGL_CONTEXT(TestGpuNullContext, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
-    REPORTER_ASSERT(reporter, context);
+    REPORTER_ASSERT(reporter, ctxInfo.grContext());
 }
 #endif
-
-// This is an example of a GPU test that tests a property that should work for all GPU contexts.
-// It uses the additional SkGLContext* glContext to implement the test.
-#if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_ALL_CONTEXTS(TestGpuGrContextAndGLContext, reporter, context, glContext) {
-    REPORTER_ASSERT(reporter, reporter);
-    REPORTER_ASSERT(reporter, context);
-    REPORTER_ASSERT(reporter, glContext);
-}
-#endif
-

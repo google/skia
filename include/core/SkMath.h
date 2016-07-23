@@ -53,13 +53,6 @@ static inline int32_t SkMulDiv(int32_t numer1, int32_t numer2, int32_t denom) {
 }
 
 /**
- *  Computes (numer1 << shift) / denom in full 64 intermediate precision.
- *  It is an error for denom to be 0. There is no special handling if
- *  the result overflows 32bits.
- */
-int32_t SkDivBits(int32_t numer, int32_t denom, int shift);
-
-/**
  *  Return the integer square root of value, with a bias of bitBias
  */
 int32_t SkSqrtBits(int32_t value, int bitBias);
@@ -67,35 +60,6 @@ int32_t SkSqrtBits(int32_t value, int bitBias);
 /** Return the integer square root of n, treated as a SkFixed (16.16)
  */
 #define SkSqrt32(n)         SkSqrtBits(n, 15)
-
-//! Returns the number of leading zero bits (0...32)
-int SkCLZ_portable(uint32_t);
-
-#ifndef SkCLZ
-    #if defined(_MSC_VER) && _MSC_VER >= 1400
-        #include <intrin.h>
-
-        static inline int SkCLZ(uint32_t mask) {
-            if (mask) {
-                DWORD index;
-                _BitScanReverse(&index, mask);
-                // Suppress this bogus /analyze warning. The check for non-zero
-                // guarantees that _BitScanReverse will succeed.
-#pragma warning(suppress : 6102) // Using 'index' from failed function call
-                return index ^ 0x1F;
-            } else {
-                return 32;
-            }
-        }
-    #elif defined(SK_CPU_ARM32) || defined(__GNUC__) || defined(__clang__)
-        static inline int SkCLZ(uint32_t mask) {
-            // __builtin_clz(0) is undefined, so we have to detect that case.
-            return mask ? __builtin_clz(mask) : 32;
-        }
-    #else
-        #define SkCLZ(x)    SkCLZ_portable(x)
-    #endif
-#endif
 
 /**
  *  Returns (value < 0 ? 0 : value) efficiently (i.e. no compares or branches)
@@ -120,30 +84,6 @@ static inline int SkClampMax(int value, int max) {
         value = max;
     }
     return value;
-}
-
-/**
- *  Returns the smallest power-of-2 that is >= the specified value. If value
- *  is already a power of 2, then it is returned unchanged. It is undefined
- *  if value is <= 0.
- */
-static inline int SkNextPow2(int value) {
-    SkASSERT(value > 0);
-    return 1 << (32 - SkCLZ(value - 1));
-}
-
-/**
- *  Returns the log2 of the specified value, were that value to be rounded up
- *  to the next power of 2. It is undefined to pass 0. Examples:
- *  SkNextLog2(1) -> 0
- *  SkNextLog2(2) -> 1
- *  SkNextLog2(3) -> 2
- *  SkNextLog2(4) -> 2
- *  SkNextLog2(5) -> 3
- */
-static inline int SkNextLog2(uint32_t value) {
-    SkASSERT(value != 0);
-    return 32 - SkCLZ(value - 1);
 }
 
 /**

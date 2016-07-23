@@ -169,6 +169,54 @@ static inline GrColor GrUnpremulColor(GrColor color) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
+
+/**
+* Similarly, GrColor4f is 4 floats for R, G, B, A, in that order. And like GrColor, whether
+* the color is premultiplied or not depends on the context.
+*/
+struct GrColor4f {
+    float fRGBA[4];
+
+    GrColor4f() {}
+    GrColor4f(float r, float g, float b, float a) {
+        fRGBA[0] = r;
+        fRGBA[1] = g;
+        fRGBA[2] = b;
+        fRGBA[3] = a;
+    }
+
+    static GrColor4f FromGrColor(GrColor color) {
+        GrColor4f result;
+        GrColorToRGBAFloat(color, result.fRGBA);
+        return result;
+    }
+
+    static GrColor4f FromSkColor4f(const SkColor4f& color) {
+        return GrColor4f(color.fR, color.fG, color.fB, color.fA);
+    }
+
+    GrColor toGrColor() const {
+        return GrColorPackRGBA(
+            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[0] * 255.0f + 0.5f), 0, 255),
+            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[1] * 255.0f + 0.5f), 0, 255),
+            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[2] * 255.0f + 0.5f), 0, 255),
+            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[3] * 255.0f + 0.5f), 0, 255));
+    }
+
+    SkColor4f toSkColor4f() const {
+        return SkColor4f { fRGBA[0], fRGBA[1], fRGBA[2], fRGBA[3] };
+    }
+
+    GrColor4f opaque() const {
+        return GrColor4f(fRGBA[0], fRGBA[1], fRGBA[2], 1.0f);
+    }
+
+    GrColor4f premul() const {
+        float a = fRGBA[3];
+        return GrColor4f(fRGBA[0] * a, fRGBA[1] * a, fRGBA[2] * a, a);
+    }
+};
+
 /**
  * Flags used for bitfields of color components. They are defined so that the bit order reflects the
  * GrColor shift order.
@@ -208,7 +256,6 @@ static inline char GrColorComponentFlagToChar(GrColorComponentFlags component) {
 }
 
 static inline uint32_t GrPixelConfigComponentMask(GrPixelConfig config) {
-    SkASSERT(config >= 0 && config < kGrPixelConfigCnt);
     static const uint32_t kFlags[] = {
         0,                              // kUnknown_GrPixelConfig
         kA_GrColorComponentFlag,        // kAlpha_8_GrPixelConfig
@@ -218,6 +265,7 @@ static inline uint32_t GrPixelConfigComponentMask(GrPixelConfig config) {
         kRGBA_GrColorComponentFlags,    // kRGBA_8888_GrPixelConfig
         kRGBA_GrColorComponentFlags,    // kBGRA_8888_GrPixelConfig
         kRGBA_GrColorComponentFlags,    // kSRGBA_8888_GrPixelConfig
+        kRGBA_GrColorComponentFlags,    // kSBGRA_8888_GrPixelConfig
         kRGB_GrColorComponentFlags,     // kETC1_GrPixelConfig
         kA_GrColorComponentFlag,        // kLATC_GrPixelConfig
         kA_GrColorComponentFlag,        // kR11_EAC_GrPixelConfig
@@ -236,13 +284,14 @@ static inline uint32_t GrPixelConfigComponentMask(GrPixelConfig config) {
     GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(8  == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(10  == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(11 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(13 == kAlpha_half_GrPixelConfig);
-    GR_STATIC_ASSERT(14 == kRGBA_half_GrPixelConfig);
+    GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(9  == kETC1_GrPixelConfig);
+    GR_STATIC_ASSERT(10  == kLATC_GrPixelConfig);
+    GR_STATIC_ASSERT(11  == kR11_EAC_GrPixelConfig);
+    GR_STATIC_ASSERT(12 == kASTC_12x12_GrPixelConfig);
+    GR_STATIC_ASSERT(13 == kRGBA_float_GrPixelConfig);
+    GR_STATIC_ASSERT(14 == kAlpha_half_GrPixelConfig);
+    GR_STATIC_ASSERT(15 == kRGBA_half_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFlags) == kGrPixelConfigCnt);
 }
 

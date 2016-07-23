@@ -49,14 +49,14 @@ public:
         kIn_ZoomCommand,
         kOut_ZoomCommand,
     };
-public slots:
+public Q_SLOTS:
     /**
      *  Zooms in or out (see ZoomCommandTypes) by the standard zoom factor
      *  with the transformation centered in the middle of the widget.
      */
     void zoom(int zoomCommand);
 
-signals:
+Q_SIGNALS:
     void scaleFactorChanged(float newScaleFactor);
     void commandChanged(int newCommand);
     void hitChanged(int hit);

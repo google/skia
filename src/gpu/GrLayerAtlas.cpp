@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -12,7 +11,7 @@
 #include "GrTextureProvider.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-GrLayerAtlas::Plot::Plot() 
+GrLayerAtlas::Plot::Plot()
     : fID(-1)
     , fRects(nullptr) {
     fOffset.set(0, 0);
@@ -54,7 +53,7 @@ bool GrLayerAtlas::reattachBackingTexture() {
     SkASSERT(!fTexture);
 
     fTexture.reset(fTexProvider->findAndRefTextureByUniqueKey(get_layer_atlas_key()));
-    return SkToBool(fTexture);
+    return fTexture != nullptr;
 }
 
 void GrLayerAtlas::createBackingTexture() {
@@ -66,12 +65,12 @@ void GrLayerAtlas::createBackingTexture() {
     desc.fHeight = fBackingTextureSize.height();
     desc.fConfig = fPixelConfig;
 
-    fTexture.reset(fTexProvider->createTexture(desc, true, nullptr, 0));
+    fTexture.reset(fTexProvider->createTexture(desc, SkBudgeted::kYes, nullptr, 0));
 
     fTexture->resourcePriv().setUniqueKey(get_layer_atlas_key());
 }
 
-GrLayerAtlas::GrLayerAtlas(GrTextureProvider* texProvider, GrPixelConfig config, 
+GrLayerAtlas::GrLayerAtlas(GrTextureProvider* texProvider, GrPixelConfig config,
                            GrSurfaceFlags flags,
                            const SkISize& backingTextureSize,
                            int numPlotsX, int numPlotsY) {
@@ -167,4 +166,3 @@ GrLayerAtlas::Plot* GrLayerAtlas::addToAtlas(ClientPlotUsage* usage,
     // If the above fails, then the current plot list has no room
     return nullptr;
 }
-

@@ -18,7 +18,7 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     SkPMColor pixel[1];
     output.installPixels(SkImageInfo::MakeN32Premul(1, 1), pixel, 4);
 
-    SkSurface* surf = SkSurface::NewRasterN32Premul(300, 33300);
+    auto surf = SkSurface::MakeRasterN32Premul(300, 33300);
     SkCanvas* canvas = surf->getCanvas();
 
     SkRect r = { 0, 33000, 300, 33300 };
@@ -46,7 +46,6 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     } else {
         REPORTER_ASSERT_MESSAGE(reporter, false, "readPixels failed");
     }
-    surf->unref();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,7 +94,7 @@ static void test_crbug131181() {
     moveToH(&path, &data[0]);
     cubicToH(&path, &data[2]);
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
+    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -132,7 +131,7 @@ static void test_inversepathwithclip() {
 
     SkPaint paint;
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
+    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
     SkCanvas* canvas = surface->getCanvas();
     canvas->save();
     canvas->clipRect(SkRect::MakeWH(19, 11));
@@ -171,7 +170,7 @@ static void test_bug533() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
+    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
     surface->getCanvas()->drawPath(path, paint);
 }
 
@@ -192,7 +191,7 @@ static void test_crbug_140642() {
      */
 
     const SkScalar vals[] = { 27734, 35660, 2157846850.0f, 247 };
-    SkAutoTUnref<SkPathEffect> dontAssert(SkDashPathEffect::Create(vals, 4, -248.135982067f));
+    auto dontAssert = SkDashPathEffect::Make(vals, 4, -248.135982067f);
 }
 
 static void test_crbug_124652() {
@@ -202,7 +201,7 @@ static void test_crbug_124652() {
         large values can "swamp" small ones.
      */
     SkScalar intervals[2] = {837099584, 33450};
-    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, -10));
+    auto dontAssert = SkDashPathEffect::Make(intervals, 2, -10);
 }
 
 static void test_bigcubic() {
@@ -213,7 +212,7 @@ static void test_bigcubic() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
+    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
     surface->getCanvas()->drawPath(path, paint);
 }
 
@@ -241,7 +240,7 @@ static void test_halfway() {
     m.postTranslate(0.001f, 0.001f);
     path.transform(m, &p2);
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
+    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
     SkCanvas* canvas = surface->getCanvas();
     canvas->translate(-16366, -1383);
     canvas->drawPath(p2, paint);
@@ -262,7 +261,7 @@ static void test_halfway() {
 static void test_giantaa() {
     const int W = 400;
     const int H = 400;
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(33000, 10));
+    auto surface(SkSurface::MakeRasterN32Premul(33000, 10));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -281,7 +280,7 @@ static void test_infinite_dash(skiatest::Reporter* reporter) {
     path.lineTo(5000000, 0);
 
     SkScalar intervals[] = { 0.2f, 0.2f };
-    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 2, 0));
 
     SkPath filteredPath;
     SkPaint paint;
@@ -301,7 +300,7 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
     path.lineTo(10000000, 0);
 
     SkScalar intervals[] = { 0.5f, 0.5f };
-    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 2, 0));
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
@@ -316,7 +315,7 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
 // http://crbug.com/472147
 // This is a simplified version from the bug. RRect radii not properly scaled.
 static void test_crbug_472147_simple(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(1000, 1000));
+    auto surface(SkSurface::MakeRasterN32Premul(1000, 1000));
     SkCanvas* canvas = surface->getCanvas();
     SkPaint p;
     SkRect r = SkRect::MakeLTRB(-246.0f, 33.0f, 848.0f, 33554464.0f);
@@ -331,7 +330,7 @@ static void test_crbug_472147_simple(skiatest::Reporter* reporter) {
 // http://crbug.com/472147
 // RRect radii not properly scaled.
 static void test_crbug_472147_actual(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(1000, 1000));
+    auto surface(SkSurface::MakeRasterN32Premul(1000, 1000));
     SkCanvas* canvas = surface->getCanvas();
     SkPaint p;
     SkRect r = SkRect::MakeLTRB(-246.0f, 33.0f, 848.0f, 33554464.0f);

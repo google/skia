@@ -9,8 +9,6 @@
 #define SkLocalMatrixImageFilter_DEFINED
 
 #include "SkImageFilter.h"
-#include "SkReadBuffer.h"
-#include "SkString.h"
 
 /**
  *  Wraps another imagefilter + matrix, such that using this filter will give the same result
@@ -18,21 +16,27 @@
  */
 class SkLocalMatrixImageFilter : public SkImageFilter {
 public:
-    static SkImageFilter* Create(const SkMatrix& localM, SkImageFilter* input);
+    static sk_sp<SkImageFilter> Make(const SkMatrix& localM, sk_sp<SkImageFilter> input);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixImageFilter)
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
+    static SkImageFilter* Create(const SkMatrix& localM, SkImageFilter* input) {
+        return Make(localM, sk_sp<SkImageFilter>(SkSafeRef(input))).release();
+    }
+#endif
+
 protected:
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override;
-    bool onFilterBounds(const SkIRect& src, const SkMatrix&, SkIRect* dst) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+    SkIRect onFilterBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
 
 private:
-    SkLocalMatrixImageFilter(const SkMatrix& localM, SkImageFilter* input);
+    SkLocalMatrixImageFilter(const SkMatrix& localM, sk_sp<SkImageFilter> input);
 
-    SkMatrix                    fLocalM;
+    SkMatrix fLocalM;
 
     typedef SkImageFilter INHERITED;
 };

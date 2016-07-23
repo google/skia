@@ -18,7 +18,7 @@
 #define WHITELIST_DEBUG 0
 
 extern void WhitelistSerializeTypeface(const SkTypeface*, SkWStream* );
-extern SkTypeface* WhitelistDeserializeTypeface(SkStream* );
+sk_sp<SkTypeface> WhitelistDeserializeTypeface(SkStream* );
 extern bool CheckChecksums();
 extern bool GenerateChecksums();
 
@@ -28,12 +28,12 @@ static bool timesNewRomanSerializedNameOnly = false;
 
 #define SUBNAME_PREFIX "sk_"
 
-static bool font_name_is_local(const char* fontName, SkTypeface::Style style) {
+static bool font_name_is_local(const char* fontName, SkFontStyle style) {
     if (!strcmp(fontName, "DejaVu Sans")) {
         return true;
     }
-    SkTypeface* defaultFace = SkTypeface::CreateFromName(nullptr, style);
-    SkTypeface* foundFace = SkTypeface::CreateFromName(fontName, style);
+    sk_sp<SkTypeface> defaultFace(SkTypeface::MakeFromName(nullptr, style));
+    sk_sp<SkTypeface> foundFace(SkTypeface::MakeFromName(fontName, style));
     return defaultFace != foundFace;
 }
 
@@ -162,7 +162,7 @@ void WhitelistSerializeTypeface(const SkTypeface* tf, SkWStream* wstream) {
         return;
     }
     const char* fontName = whitelist[whitelistIndex].fFontName;
-    if (!font_name_is_local(fontName, tf->style())) {
+    if (!font_name_is_local(fontName, tf->fontStyle())) {
 #if WHITELIST_DEBUG
         SkDebugf("name not found locally \"%s\" style=%d\n", fontName, tf->style());
 #endif
@@ -183,11 +183,15 @@ void WhitelistSerializeTypeface(const SkTypeface* tf, SkWStream* wstream) {
     serialize_sub(fontName, tf->style(), wstream);
 }
 
-SkTypeface* WhitelistDeserializeTypeface(SkStream* stream) {
-    SkFontDescriptor desc(stream);
+sk_sp<SkTypeface> WhitelistDeserializeTypeface(SkStream* stream) {
+    SkFontDescriptor desc;
+    if (!SkFontDescriptor::Deserialize(stream, &desc)) {
+        return nullptr;
+    }
+
     SkFontData* data = desc.detachFontData();
     if (data) {
-        SkTypeface* typeface = SkTypeface::CreateFromFontData(data);
+        sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(data));
         if (typeface) {
             return typeface;
         }
@@ -196,14 +200,14 @@ SkTypeface* WhitelistDeserializeTypeface(SkStream* stream) {
     if (!strncmp(SUBNAME_PREFIX, familyName, sizeof(SUBNAME_PREFIX) - 1)) {
         familyName += sizeof(SUBNAME_PREFIX) - 1;
     }
-    return SkTypeface::CreateFromName(familyName, desc.getStyle());
+    return SkTypeface::MakeFromName(familyName, SkFontStyle::FromOldStyle(desc.getStyle()));
 }
 
 bool CheckChecksums() {
     for (int i = 0; i < whitelistCount; ++i) {
         const char* fontName = whitelist[i].fFontName;
-        SkTypeface* tf = SkTypeface::CreateFromName(fontName, SkTypeface::kNormal);
-        uint32_t checksum = compute_checksum(tf);
+        sk_sp<SkTypeface> tf(SkTypeface::MakeFromName(fontName, SkFontStyle()));
+        uint32_t checksum = compute_checksum(tf.get());
         if (whitelist[i].fChecksum != checksum) {
             return false;
         }
@@ -257,8 +261,8 @@ bool GenerateChecksums() {
     sk_fwrite(line.c_str(), line.size(), file);
     for (int i = 0; i < whitelistCount; ++i) {
         const char* fontName = whitelist[i].fFontName;
-        SkTypeface* tf = SkTypeface::CreateFromName(fontName, SkTypeface::kNormal);
-        uint32_t checksum = compute_checksum(tf);
+        sk_sp<SkTypeface> tf(SkTypeface::MakeFromName(fontName, SkFontStyle()));
+        uint32_t checksum = compute_checksum(tf.get());
         line.printf(checksumEntry, fontName, checksum);
         sk_fwrite(line.c_str(), line.size(), file);
     }

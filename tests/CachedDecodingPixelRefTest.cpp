@@ -9,7 +9,8 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDiscardableMemoryPool.h"
-#include "SkImageDecoder.h"
+#include "SkImage.h"
+#include "SkImageEncoder.h"
 #include "SkImageGeneratorPriv.h"
 #include "SkResourceCache.h"
 #include "SkStream.h"
@@ -254,7 +255,7 @@ static void check_pixelref(TestImageGenerator::TestType type,
     SkAutoTDelete<SkImageGenerator> gen(new TestImageGenerator(type, reporter, colorType));
     REPORTER_ASSERT(reporter, gen.get() != nullptr);
     SkBitmap lazy;
-    bool success = SkDEPRECATED_InstallDiscardablePixelRef(gen.detach(), nullptr, &lazy, factory);
+    bool success = SkDEPRECATED_InstallDiscardablePixelRef(gen.release(), nullptr, &lazy, factory);
 
     REPORTER_ASSERT(reporter, success);
     if (TestImageGenerator::kSucceedGetPixels_TestType == type) {
@@ -319,8 +320,8 @@ DEF_TEST(Image_NewFromGenerator, r) {
         TestImageGenerator::TestType test = testTypes[i];
         for (const SkColorType testColorType : testColorTypes) {
             SkImageGenerator* gen = new TestImageGenerator(test, r, testColorType);
-            SkAutoTUnref<SkImage> image(SkImage::NewFromGenerator(gen));
-            if (nullptr == image.get()) {
+            sk_sp<SkImage> image(SkImage::MakeFromGenerator(gen));
+            if (nullptr == image) {
                 ERRORF(r, "SkImage::NewFromGenerator unexpecedly failed ["
                     SK_SIZE_T_SPECIFIER "]", i);
                 continue;

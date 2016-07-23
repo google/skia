@@ -15,12 +15,12 @@
 #include "SkNinePatchIter.h"
 #include "SkRect.h"
 
-static const GrGeometryProcessor* create_gp(bool readsCoverage) {
+static sk_sp<GrGeometryProcessor> create_gp(bool readsCoverage) {
     using namespace GrDefaultGeoProcFactory;
     Color color(Color::kAttribute_Type);
     Coverage coverage(readsCoverage ? Coverage::kSolid_Type : Coverage::kNone_Type);
     LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
-    return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
+    return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
 }
 
 class GrNonAANinePatchBatch : public GrVertexBatch {
@@ -74,30 +74,27 @@ public:
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         color->setUnknownFourComponents();
         coverage->setKnownSingleComponent(0xff);
-        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
     void onPrepareDraws(Target* target) const override {
-        SkAutoTUnref<const GrGeometryProcessor> gp(create_gp(fOverrides.readsCoverage()));
+        sk_sp<GrGeometryProcessor> gp(create_gp(fOverrides.readsCoverage()));
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
 
-        target->initDraw(gp, this->pipeline());
-
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fGeoData.count();
 
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+        SkAutoTUnref<const GrBuffer> indexBuffer(
                 target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
@@ -139,7 +136,7 @@ private:
                 verts += kVertsPerRect * vertexStride;
             }
         }
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp.get());
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {

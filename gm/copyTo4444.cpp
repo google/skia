@@ -9,7 +9,6 @@
 
 #include "Resources.h"
 #include "SkCanvas.h"
-#include "SkImageDecoder.h"
 #include "SkOSFile.h"
 
 namespace skiagm {
@@ -32,9 +31,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm, bm4444;
-        SkString pngFilename = GetResourcePath("mandrill_512.png");
-        if (!SkImageDecoder::DecodeFile(pngFilename.c_str(), &bm, kN32_SkColorType,
-                                        SkImageDecoder::kDecodePixels_Mode)) {
+        if (!GetResourceAsBitmap("mandrill_512.png", &bm)) {
             SkDebugf("Could not decode the file. Did you forget to set the "
                      "resourcePath?\n");
             return;

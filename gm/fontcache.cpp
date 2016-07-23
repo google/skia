@@ -20,15 +20,7 @@ static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
 
 class FontCacheGM : public skiagm::GM {
 public:
-    FontCacheGM() {
-        fTypefaces[0] = nullptr;
-        fTypefaces[1] = nullptr;
-    }
-
-    virtual ~FontCacheGM() {
-        SkSafeUnref(fTypefaces[0]);
-        SkSafeUnref(fTypefaces[1]);
-    }
+    FontCacheGM() {}
 
 protected:
     SkString onShortName() override {
@@ -40,8 +32,10 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fTypefaces[0] = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kItalic);
-        fTypefaces[1] = sk_tool_utils::create_portable_typeface("sans-serif", SkTypeface::kItalic);
+        fTypefaces[0] = sk_tool_utils::create_portable_typeface("serif",
+            SkFontStyle::FromOldStyle(SkTypeface::kItalic));
+        fTypefaces[1] = sk_tool_utils::create_portable_typeface("sans-serif",
+            SkFontStyle::FromOldStyle(SkTypeface::kItalic));
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -76,7 +70,7 @@ protected:
     }
 
 private:
-    SkTypeface* fTypefaces[2];
+    sk_sp<SkTypeface> fTypefaces[2];
     typedef GM INHERITED;
 };
 

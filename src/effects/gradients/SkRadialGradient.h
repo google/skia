@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -15,8 +14,6 @@ class SkRadialGradient : public SkGradientShaderBase {
 public:
     SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
 
-    size_t contextSize() const override;
-
     class RadialGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
         RadialGradientContext(const SkRadialGradient&, const ContextRec&);
@@ -29,10 +26,11 @@ public:
 
     GradientType asAGradient(GradientInfo* info) const override;
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix*,
-                                                   SkFilterQuality) const override;
+                                                   SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -41,6 +39,7 @@ public:
 protected:
     SkRadialGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
+    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:

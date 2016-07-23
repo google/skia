@@ -14,21 +14,21 @@
 #include "SkOffsetImageFilter.h"
 #include "SkSurface.h"
 
-static SkImage* make_image(SkCanvas* rootCanvas) {
+static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    SkAutoTUnref<SkSurface> surface(rootCanvas->newSurface(info));
+    auto surface(rootCanvas->makeSurface(info));
     if (!surface) {
-        surface.reset(SkSurface::NewRaster(info));
+        surface = SkSurface::MakeRaster(info);
     }
 
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
     surface->getCanvas()->drawCircle(50, 50, 50, paint);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
-typedef SkImageFilter* (*ImageFilterFactory)();
+typedef sk_sp<SkImageFilter> (*ImageFilterFactory)();
 
 // +[]{...} did not work on windows (VS)
 // (ImageFilterFactory)[]{...} did not work on linux (gcc)
@@ -49,7 +49,7 @@ protected:
         return SkISize::Make(640, 640);
     }
 
-    static void show_image(SkCanvas* canvas, SkImage* image, SkImageFilter* filter) {
+    static void show_image(SkCanvas* canvas, SkImage* image, sk_sp<SkImageFilter> filter) {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         SkRect r = SkRect::MakeIWH(image->width(), image->height()).makeOutset(SK_ScalarHalf,
@@ -62,13 +62,13 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkAutoTUnref<SkImage> image0(make_image(canvas));
+        sk_sp<SkImage> image0(make_image(canvas));
 
         const ImageFilterFactory factories[] = {
-            IFCCast([]{ return SkBlurImageFilter::Create(8, 8); }),
-            IFCCast([]{ return SkDilateImageFilter::Create(8, 8); }),
-            IFCCast([]{ return SkErodeImageFilter::Create(8, 8); }),
-            IFCCast([]{ return SkOffsetImageFilter::Create(8, 8); }),
+            IFCCast([]{ return SkBlurImageFilter::Make(8, 8, nullptr); }),
+            IFCCast([]{ return SkDilateImageFilter::Make(8, 8, nullptr); }),
+            IFCCast([]{ return SkErodeImageFilter::Make(8, 8, nullptr); }),
+            IFCCast([]{ return SkOffsetImageFilter::Make(8, 8, nullptr); }),
         };
 
         const SkMatrix matrices[] = {
@@ -81,14 +81,14 @@ protected:
 
         canvas->translate(40, 40);
         for (auto&& factory : factories) {
-            SkAutoTUnref<SkImageFilter> filter(factory());
+            sk_sp<SkImageFilter> filter(factory());
 
             canvas->save();
-            show_image(canvas, image0, filter);
+            show_image(canvas, image0.get(), filter);
             for (const auto& matrix : matrices) {
-                SkAutoTUnref<SkImageFilter> localFilter(filter->newWithLocalMatrix(matrix));
+                sk_sp<SkImageFilter> localFilter(filter->makeWithLocalMatrix(matrix));
                 canvas->translate(spacer, 0);
-                show_image(canvas, image0, localFilter);
+                show_image(canvas, image0.get(), std::move(localFilter));
             }
             canvas->restore();
             canvas->translate(0, spacer);
@@ -99,4 +99,3 @@ private:
     typedef GM INHERITED;
 };
 DEF_GM( return new LocalMatrixImageFilterGM; )
-

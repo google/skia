@@ -84,4 +84,3 @@ DEF_BENCH( return new BigPathBench(kRight_Align,    false); )
 DEF_BENCH( return new BigPathBench(kLeft_Align,     true); )
 DEF_BENCH( return new BigPathBench(kMiddle_Align,   true); )
 DEF_BENCH( return new BigPathBench(kRight_Align,    true); )
-

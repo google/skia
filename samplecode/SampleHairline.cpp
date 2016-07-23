@@ -12,7 +12,6 @@
 #include "SkCornerPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
@@ -25,9 +24,7 @@
 #include "SkXfermode.h"
 
 #include "SkStream.h"
-#include "SkXMLParser.h"
 #include "SkColorPriv.h"
-#include "SkImageDecoder.h"
 
 static SkRandom gRand;
 

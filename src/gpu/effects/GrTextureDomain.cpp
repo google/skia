@@ -12,8 +12,8 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLShaderBuilder.h"
-#include "glsl/GrGLSLTextureSampler.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
 GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
@@ -49,7 +49,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                               const GrTextureDomain& textureDomain,
                                               const char* outColor,
                                               const SkString& inCoords,
-                                              const GrGLSLTextureSampler& sampler,
+                                              GrGLSLFragmentProcessor::SamplerHandle sampler,
                                               const char* inModulateColor) {
     SkASSERT((Mode)-1 == fMode || textureDomain.mode() == fMode);
     SkDEBUGCODE(fMode = textureDomain.mode();)
@@ -60,7 +60,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
         if (textureDomain.fIndex >= 0) {
             uniName.appendS32(textureDomain.fIndex);
         }
-        fDomainUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fDomainUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                 kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                 uniName.c_str(), &name);
         fDomainName = name;
@@ -102,12 +102,10 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler,
                                                           inCoords.c_str());
                 builder->codeAppend(";");
-                
-                builder->codeAppend(GrGLSLShaderVar::PrecisionString(glslCaps,
-                                                                     kHigh_GrSLPrecision));
+
+                builder->appendPrecisionModifier(kHigh_GrSLPrecision);
                 builder->codeAppendf("float x = (%s).x;", inCoords.c_str());
-                builder->codeAppend(GrGLSLShaderVar::PrecisionString(glslCaps,
-                                                                     kHigh_GrSLPrecision));
+                builder->appendPrecisionModifier(kHigh_GrSLPrecision);
                 builder->codeAppendf("float y = (%s).y;", inCoords.c_str());
 
                 builder->codeAppendf("x = abs(2.0*(x - %s.x)/(%s.z - %s.x) - 1.0);",
@@ -176,9 +174,7 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
 
 class GrGLTextureDomainEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLTextureDomainEffect(const GrProcessor&);
-
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -190,14 +186,11 @@ private:
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
-GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProcessor&) {
-}
-
 void GrGLTextureDomainEffect::emitCode(EmitArgs& args) {
     const GrTextureDomainEffect& textureDomainEffect = args.fFp.cast<GrTextureDomainEffect>();
     const GrTextureDomain& domain = textureDomainEffect.textureDomain();
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     fGLDomain.sampleTexture(fragBuilder,
                             args.fUniformHandler,
@@ -205,7 +198,7 @@ void GrGLTextureDomainEffect::emitCode(EmitArgs& args) {
                             domain,
                             args.fOutputColor,
                             coords2D,
-                            args.fSamplers[0],
+                            args.fTexSamplers[0],
                             args.fInputColor);
 }
 
@@ -225,18 +218,19 @@ void GrGLTextureDomainEffect::GenKey(const GrProcessor& processor, const GrGLSLC
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor* GrTextureDomainEffect::Create(GrTexture* texture,
-                                                         const SkMatrix& matrix,
-                                                         const SkRect& domain,
-                                                         GrTextureDomain::Mode mode,
-                                                         GrTextureParams::FilterMode filterMode,
-                                                         GrCoordSet coordSet) {
+sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(GrTexture* texture,
+                                                       const SkMatrix& matrix,
+                                                       const SkRect& domain,
+                                                       GrTextureDomain::Mode mode,
+                                                       GrTextureParams::FilterMode filterMode,
+                                                       GrCoordSet coordSet) {
     static const SkRect kFullRect = {0, 0, SK_Scalar1, SK_Scalar1};
     if (GrTextureDomain::kIgnore_Mode == mode ||
         (GrTextureDomain::kClamp_Mode == mode && domain.contains(kFullRect))) {
-        return GrSimpleTextureEffect::Create(texture, matrix, filterMode);
+        return GrSimpleTextureEffect::Make(texture, matrix, filterMode);
     } else {
-        return new GrTextureDomainEffect(texture, matrix, domain, mode, filterMode, coordSet);
+        return sk_sp<GrFragmentProcessor>(
+            new GrTextureDomainEffect(texture, matrix, domain, mode, filterMode, coordSet));
     }
 }
 
@@ -261,7 +255,7 @@ void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
-    return new GrGLTextureDomainEffect(*this);
+    return new GrGLTextureDomainEffect;
 }
 
 bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -285,7 +279,7 @@ void GrTextureDomainEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureDomainEffect);
 
-const GrFragmentProcessor* GrTextureDomainEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     SkRect domain;
@@ -298,7 +292,7 @@ const GrFragmentProcessor* GrTextureDomainEffect::TestCreate(GrProcessorTestData
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     bool bilerp = mode != GrTextureDomain::kRepeat_Mode ? d->fRandom->nextBool() : false;
     GrCoordSet coords = d->fRandom->nextBool() ? kLocal_GrCoordSet : kDevice_GrCoordSet;
-    return GrTextureDomainEffect::Create(
+    return GrTextureDomainEffect::Make(
         d->fTextures[texIdx],
         matrix,
         domain,

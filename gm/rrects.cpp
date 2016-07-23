@@ -8,12 +8,11 @@
 #include "gm.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrDrawContextPriv.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrRRectEffect.h"
 #endif
-#include "SkDevice.h"
 #include "SkRRect.h"
 
 namespace skiagm {
@@ -63,24 +62,8 @@ protected:
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = nullptr;
-#if SK_SUPPORT_GPU
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        context = rt ? rt->getContext() : nullptr;
-        SkAutoTUnref<GrDrawContext> drawContext;
-        if (kEffect_Type == fType) {
-            if (!context) {
-                skiagm::GM::DrawGpuOnlyMessage(canvas);
-                return;
-            }
-
-            drawContext.reset(context->drawContext(rt));
-            if (!drawContext) {
-                return;
-            }
-        }
-#endif
-        if (kEffect_Type == fType && nullptr == context) {
+        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
+        if (kEffect_Type == fType && !drawContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
@@ -118,18 +101,15 @@ protected:
                     canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
                     if (kEffect_Type == fType) {
 #if SK_SUPPORT_GPU
-                        GrPipelineBuilder pipelineBuilder;
-                        pipelineBuilder.setXPFactory(
-                            GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+                        GrPaint grPaint;
+                        grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
-                        SkAutoTUnref<GrFragmentProcessor> fp(GrRRectEffect::Create(edgeType,
-                                                                                   rrect));
+                        sk_sp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
                         if (fp) {
-                            pipelineBuilder.addCoverageFragmentProcessor(fp);
-                            pipelineBuilder.setRenderTarget(rt);
+                            grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
@@ -137,7 +117,7 @@ protected:
                             SkAutoTUnref<GrDrawBatch> batch(
                                     GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(),
                                                                         bounds, nullptr, nullptr));
-                            drawContext->internal_drawBatch(pipelineBuilder, batch);
+                            drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
                         } else {
                             drew = false;
                         }

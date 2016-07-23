@@ -8,10 +8,16 @@
     'targets': [{
         'target_name': 'fuzz',
         'type': 'executable',
+        'defines': [
+          'SK_FUZZ_LOGGING',
+        ],
         'sources': [ '<!@(python find.py ../fuzz "*.cpp")' ],
-        'dependencies': [ 'skia_lib.gyp:skia_lib' ],
-        'xcode_settings': {
-            'DEAD_CODE_STRIPPING': 'YES',
-        },
+        'dependencies': [
+            'flags.gyp:flags',
+            'skia_lib.gyp:skia_lib',
+        ],
+        'include_dirs': [
+            '../src/core',
+        ],
     }],
 }

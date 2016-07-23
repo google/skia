@@ -7,16 +7,14 @@
 
 #include "gm.h"
 
-#include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
-#include "SkComposeShader.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkShader.h"
 #include "SkString.h"
 #include "SkXfermode.h"
 
-static SkShader* make_shader(SkXfermode::Mode mode) {
+static sk_sp<SkShader> make_shader(SkXfermode::Mode mode) {
     SkPoint pts[2];
     SkColor colors[2];
 
@@ -24,29 +22,22 @@ static SkShader* make_shader(SkXfermode::Mode mode) {
     pts[1].set(SkIntToScalar(100), 0);
     colors[0] = SK_ColorRED;
     colors[1] = SK_ColorBLUE;
-    SkAutoTUnref<SkShader> shaderA(SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
-                                                                  SkShader::kClamp_TileMode));
+    auto shaderA = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 
     pts[0].set(0, 0);
     pts[1].set(0, SkIntToScalar(100));
     colors[0] = SK_ColorBLACK;
     colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
-    SkAutoTUnref<SkShader> shaderB(SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
-                                                                  SkShader::kClamp_TileMode));
+    auto shaderB = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 
-    SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(mode));
-
-    return new SkComposeShader(shaderA, shaderB, xfer);
+    return SkShader::MakeComposeShader(std::move(shaderA), std::move(shaderB),
+                                       SkXfermode::Make(mode));
 }
 
 class ComposeShaderGM : public skiagm::GM {
 public:
     ComposeShaderGM() {
         fShader = make_shader(SkXfermode::kDstIn_Mode);
-    }
-
-    virtual ~ComposeShaderGM() {
-        SkSafeUnref(fShader);
     }
 
 protected:
@@ -59,9 +50,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-
         SkPaint paint;
-
         paint.setColor(SK_ColorGREEN);
         canvas->drawRectCoords(0, 0, SkIntToScalar(100), SkIntToScalar(100), paint);
         paint.setShader(fShader);
@@ -69,7 +58,7 @@ protected:
     }
 
 protected:
-    SkShader*   fShader;
+    sk_sp<SkShader> fShader;
 
 private:
     typedef GM INHERITED ;
@@ -89,9 +78,10 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkAutoTUnref<SkShader> shader0(make_shader(SkXfermode::kDstIn_Mode));
-        SkAutoTUnref<SkShader> shader1(make_shader(SkXfermode::kSrcOver_Mode));
-        SkShader* shaders[] = { shader0.get(), shader1.get() };
+        sk_sp<SkShader> shaders[] = {
+            make_shader(SkXfermode::kDstIn_Mode),
+            make_shader(SkXfermode::kSrcOver_Mode),
+        };
 
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
@@ -99,7 +89,6 @@ protected:
         const SkRect r = SkRect::MakeXYWH(5, 5, 100, 100);
 
         for (size_t y = 0; y < SK_ARRAY_COUNT(shaders); ++y) {
-            SkShader* shader = shaders[y];
             canvas->save();
             for (int alpha = 0xFF; alpha > 0; alpha -= 0x28) {
                 paint.setAlpha(0xFF);
@@ -107,7 +96,7 @@ protected:
                 canvas->drawRect(r, paint);
 
                 paint.setAlpha(alpha);
-                paint.setShader(shader);
+                paint.setShader(shaders[y]);
                 canvas->drawRect(r, paint);
 
                 canvas->translate(r.width() + 5, 0);
@@ -149,25 +138,20 @@ static void draw_alpha8_bm(SkBitmap* bm, int length) {
 }
 
 // creates a linear gradient shader
-static SkShader* make_linear_gradient_shader(int length) {
+static sk_sp<SkShader> make_linear_gradient_shader(int length) {
     SkPoint pts[2];
     SkColor colors[2];
     pts[0].set(0, 0);
     pts[1].set(SkIntToScalar(length), 0);
     colors[0] = SK_ColorBLUE;
     colors[1] = SkColorSetARGB(0, 0, 0, 0xFF);
-    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
 
 class ComposeShaderBitmapGM : public skiagm::GM {
 public:
     ComposeShaderBitmapGM() {}
-    ~ComposeShaderBitmapGM() {
-        SkSafeUnref(fColorBitmapShader);
-        SkSafeUnref(fAlpha8BitmapShader);
-        SkSafeUnref(fLinearGradientShader);
-    }
 
 protected:
     void onOnceBeforeDraw() override {
@@ -175,10 +159,10 @@ protected:
         draw_alpha8_bm(&fAlpha8Bitmap, squareLength);
         SkMatrix s;
         s.reset();
-        fColorBitmapShader = new SkBitmapProcShader(fColorBitmap, SkShader::kRepeat_TileMode,
-                                                    SkShader::kRepeat_TileMode, &s);
-        fAlpha8BitmapShader = new SkBitmapProcShader(fAlpha8Bitmap, SkShader::kRepeat_TileMode,
-                                                     SkShader::kRepeat_TileMode, &s);
+        fColorBitmapShader = SkShader::MakeBitmapShader(fColorBitmap, SkShader::kRepeat_TileMode,
+                                                        SkShader::kRepeat_TileMode, &s);
+        fAlpha8BitmapShader = SkShader::MakeBitmapShader(fAlpha8Bitmap, SkShader::kRepeat_TileMode,
+                                                         SkShader::kRepeat_TileMode, &s);
         fLinearGradientShader = make_linear_gradient_shader(squareLength);
     }
 
@@ -191,18 +175,14 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(SkXfermode::kDstOver_Mode));
+        auto xfer(SkXfermode::Make(SkXfermode::kDstOver_Mode));
 
-        // gradient should appear over color bitmap
-        SkAutoTUnref<SkShader> shader0(new SkComposeShader(fLinearGradientShader,
-                                                           fColorBitmapShader,
-                                                           xfer));
-        // gradient should appear over alpha8 bitmap colorized by the paint color
-        SkAutoTUnref<SkShader> shader1(new SkComposeShader(fLinearGradientShader,
-                                                           fAlpha8BitmapShader,
-                                                           xfer));
-
-        SkShader* shaders[] = { shader0.get(), shader1.get() };
+        sk_sp<SkShader> shaders[] = {
+            // gradient should appear over color bitmap
+            SkShader::MakeComposeShader(fLinearGradientShader, fColorBitmapShader, xfer),
+            // gradient should appear over alpha8 bitmap colorized by the paint color
+            SkShader::MakeComposeShader(fLinearGradientShader, fAlpha8BitmapShader, xfer),
+        };
 
         SkPaint paint;
         paint.setColor(SK_ColorYELLOW);
@@ -211,11 +191,10 @@ protected:
                                           SkIntToScalar(squareLength));
 
         for (size_t y = 0; y < SK_ARRAY_COUNT(shaders); ++y) {
-            SkShader* shader = shaders[y];
             canvas->save();
             for (int alpha = 0xFF; alpha > 0; alpha -= 0x28) {
                 paint.setAlpha(alpha);
-                paint.setShader(shader);
+                paint.setShader(shaders[y]);
                 canvas->drawRect(r, paint);
 
                 canvas->translate(r.width() + 5, 0);
@@ -224,9 +203,9 @@ protected:
             canvas->translate(0, r.height() + 5);
         }
     }
-    
+
 private:
-    /** This determines the length and width of the bitmaps used in the SkComposeShaders.  Values
+    /** This determines the length and width of the bitmaps used in the ComposeShaders.  Values
      *  above 20 may cause an SkASSERT to fail in SkSmallAllocator. However, larger values will
      *  work in a release build.  You can change this parameter and then compile a release build
      *  to have this GM draw larger bitmaps for easier visual inspection.
@@ -235,9 +214,9 @@ private:
 
     SkBitmap fColorBitmap;
     SkBitmap fAlpha8Bitmap;
-    SkShader* fColorBitmapShader{nullptr};
-    SkShader* fAlpha8BitmapShader{nullptr};
-    SkShader* fLinearGradientShader{nullptr};
+    sk_sp<SkShader> fColorBitmapShader;
+    sk_sp<SkShader> fAlpha8BitmapShader;
+    sk_sp<SkShader> fLinearGradientShader;
 
     typedef GM INHERITED;
 };

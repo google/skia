@@ -45,7 +45,7 @@ SkVarAlloc::~SkVarAlloc() {
 void SkVarAlloc::makeSpace(size_t bytes) {
     SkASSERT(SkIsAlignPtr(bytes));
 
-    size_t alloc = 1<<fLgSize++;
+    size_t alloc = static_cast<size_t>(1)<<fLgSize++;
     while (alloc < bytes + sizeof(Block)) {
         alloc *= 2;
     }

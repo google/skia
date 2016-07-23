@@ -11,9 +11,11 @@
 #include "GrContextFactory.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
-#include "gl/SkGLContext.h"
+#include "gl/GLTestContext.h"
 
-static void cleanup(SkGLContext* glctx0, GrGLuint texID0, SkGLContext* glctx1, GrContext* grctx1,
+using sk_gpu_test::GLTestContext;
+
+static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx1, GrContext* grctx1,
                     const GrGLTextureInfo* grbackendtex1, GrEGLImage image1) {
     if (glctx1) {
         glctx1->makeCurrent();
@@ -73,12 +75,16 @@ static void test_copy_surface(skiatest::Reporter* reporter, GrContext* context,
     copyDesc.fWidth = externalTexture->width();
     copyDesc.fHeight = externalTexture->height();
     copyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    SkAutoTUnref<GrTexture> copy(context->textureProvider()->createTexture(copyDesc, true));
+    SkAutoTUnref<GrTexture> copy(context->textureProvider()->createTexture(
+            copyDesc, SkBudgeted::kYes));
     context->copySurface(copy, externalTexture);
     test_read_pixels(reporter, context, copy, expectedPixelValues);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EGLImageTest, reporter, context0, glCtx0) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
+    GrContext* context0 = ctxInfo.grContext();
+    sk_gpu_test::GLTestContext* glCtx0 = ctxInfo.glContext();
+
     // Try to create a second GL context and then check if the contexts have necessary
     // extensions to run this test.
 
@@ -86,11 +92,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EGLImageTest, reporter, context0, glCtx0) {
         return;
     }
     GrGLGpu* gpu0 = static_cast<GrGLGpu*>(context0->getGpu());
-    if (!gpu0->glCaps().externalTextureSupport()) {
+    if (!gpu0->glCaps().glslCaps()->externalTextureSupport()) {
         return;
     }
 
-    SkAutoTDelete<SkGLContext> glCtx1 = glCtx0->createNew();
+    SkAutoTDelete<GLTestContext> glCtx1 = glCtx0->createNew();
     if (!glCtx1) {
         return;
     }

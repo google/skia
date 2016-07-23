@@ -100,8 +100,8 @@ bool GrSurface::writePixels(int left, int top, int width, int height,
     if (nullptr == context) {
         return false;
     }
-    return context->writeSurfacePixels(this, left, top, width, height, config, buffer, rowBytes,
-                                       pixelOpsFlags);
+    return context->writeSurfacePixels(this, left, top, width, height, config, buffer,
+                                       rowBytes, pixelOpsFlags);
 }
 
 bool GrSurface::readPixels(int left, int top, int width, int height,
@@ -118,12 +118,11 @@ bool GrSurface::readPixels(int left, int top, int width, int height,
 
 SkImageInfo GrSurface::info(SkAlphaType alphaType) const {
     SkColorType colorType;
-    SkColorProfileType profileType;
-    if (!GrPixelConfig2ColorAndProfileType(this->config(), &colorType, &profileType)) {
+    sk_sp<SkColorSpace> colorSpace;
+    if (!GrPixelConfigToColorAndColorSpace(this->config(), &colorType, &colorSpace)) {
         sk_throw();
     }
-    return SkImageInfo::Make(this->width(), this->height(), colorType, alphaType,
-                             profileType);
+    return SkImageInfo::Make(this->width(), this->height(), colorType, alphaType, colorSpace);
 }
 
 // TODO: This should probably be a non-member helper function. It might only be needed in

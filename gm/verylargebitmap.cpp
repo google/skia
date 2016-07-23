@@ -15,33 +15,31 @@
 static void draw(SkCanvas* canvas, int width, int height, SkColor colors[2]) {
     const SkPoint center = { SkIntToScalar(width)/2, SkIntToScalar(height)/2 };
     const SkScalar radius = 40;
-    SkShader* shader = SkGradientShader::CreateRadial(center, radius, colors, nullptr, 2,
-                                                      SkShader::kMirror_TileMode);
     SkPaint paint;
-    paint.setShader(shader)->unref();
+    paint.setShader(SkGradientShader::MakeRadial(center, radius, colors, nullptr, 2,
+                                                 SkShader::kMirror_TileMode));
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     canvas->drawPaint(paint);
 }
 
-static SkImage* make_raster_image(int width, int height, SkColor colors[2]) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(width, height));
+static sk_sp<SkImage> make_raster_image(int width, int height, SkColor colors[2]) {
+    auto surface(SkSurface::MakeRasterN32Premul(width, height));
     draw(surface->getCanvas(), width, height, colors);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
-static SkImage* make_picture_image(int width, int height, SkColor colors[2]) {
+static sk_sp<SkImage> make_picture_image(int width, int height, SkColor colors[2]) {
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(width, height)), width, height, colors);
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-    return SkImage::NewFromPicture(picture, SkISize::Make(width, height),
-                                   nullptr, nullptr);
+    return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
+                                    SkISize::Make(width, height), nullptr, nullptr);
 }
 
-typedef SkImage* (*ImageMakerProc)(int width, int height, SkColor colors[2]);
+typedef sk_sp<SkImage> (*ImageMakerProc)(int width, int height, SkColor colors[2]);
 
 static void show_image(SkCanvas* canvas, int width, int height, SkColor colors[2],
                        ImageMakerProc proc) {
-    SkAutoTUnref<SkImage> image(proc(width, height, colors));
+    sk_sp<SkImage> image(proc(width, height, colors));
 
     SkPaint paint;
     SkRect r;
@@ -122,4 +120,3 @@ private:
 };
 DEF_GM( return new VeryLargeBitmapGM(make_raster_image, "bitmap"); )
 DEF_GM( return new VeryLargeBitmapGM(make_picture_image, "_picture_image"); )
-

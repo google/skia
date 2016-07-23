@@ -131,19 +131,19 @@ class TestExtractAlphaGM : public skiagm::GM {
 
         fBitmap.extractAlpha(&fAlpha);
     }
-    
+
 public:
     SkBitmap fBitmap, fAlpha;
-    
+
 protected:
     SkString onShortName() override {
         return SkString("extractalpha");
     }
-    
+
     SkISize onISize() override {
         return SkISize::Make(540, 330);
     }
-    
+
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -153,9 +153,8 @@ protected:
         canvas->drawBitmap(fBitmap, 10, 10, &paint);    // should stay blue (ignore paint's color)
         canvas->drawBitmap(fAlpha, 120, 10, &paint);    // should draw red
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new TestExtractAlphaGM; )
-

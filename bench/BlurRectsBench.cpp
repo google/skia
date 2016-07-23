@@ -31,7 +31,7 @@ public:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, fRadius))->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, fRadius));
 
         SkPath path;
         path.addRect(fOuter, SkPath::kCW_Direction);

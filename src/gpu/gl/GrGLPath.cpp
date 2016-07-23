@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -9,6 +8,7 @@
 #include "GrGLPath.h"
 #include "GrGLPathRendering.h"
 #include "GrGLGpu.h"
+#include "GrStyle.h"
 
 namespace {
 inline GrGLubyte verb_to_gl_path_cmd(SkPath::Verb verb) {
@@ -78,6 +78,14 @@ inline GrGLenum cap_to_gl_cap(SkPaint::Cap cap) {
     GR_STATIC_ASSERT(2 == SkPaint::kSquare_Cap);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(gSkCapsToGrGLCaps) == SkPaint::kCapCount);
 }
+
+#ifdef SK_DEBUG
+inline void verify_floats(const float* floats, int count) {
+    for (int i = 0; i < count; ++i) {
+        SkASSERT(!SkScalarIsNaN(SkFloatToScalar(floats[i])));
+    }
+}
+#endif
 
 inline void points_to_coords(const SkPoint points[], size_t first_point, size_t amount,
                              GrGLfloat coords[]) {
@@ -170,13 +178,15 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
                 continue;
         }
         SkDEBUGCODE(numCoords += num_coords(verb));
+        SkDEBUGCODE(verify_floats(coords, coordsForVerb));
         pathCoords.push_back_n(coordsForVerb, coords);
     }
     SkASSERT(verbCnt == pathCommands.count());
     SkASSERT(numCoords == pathCoords.count());
 
-    GR_GL_CALL(gpu->glInterface(), PathCommands(pathID, pathCommands.count(), &pathCommands[0],
-                                                pathCoords.count(), GR_GL_FLOAT, &pathCoords[0]));
+    GR_GL_CALL(gpu->glInterface(),
+               PathCommands(pathID, pathCommands.count(), pathCommands.begin(),
+                            pathCoords.count(), GR_GL_FLOAT, pathCoords.begin()));
     return true;
 }
 
@@ -232,6 +242,7 @@ void GrGLPath::InitPathObjectPathData(GrGLGpu* gpu,
         }
         SkASSERT(verbCnt == pathCommands.count());
         SkASSERT(verbCoordCnt == pathCoords.count());
+        SkDEBUGCODE(verify_floats(&pathCoords[0], pathCoords.count()));
         GR_GL_CALL(gpu->glInterface(), PathCommands(pathID, pathCommands.count(), &pathCommands[0],
                                                     pathCoords.count(), GR_GL_FLOAT,
                                                     &pathCoords[0]));
@@ -241,9 +252,7 @@ void GrGLPath::InitPathObjectPathData(GrGLGpu* gpu,
     SkAssertResult(init_path_object_for_general_path<false>(gpu, pathID, skPath));
 }
 
-void GrGLPath::InitPathObjectStroke(GrGLGpu* gpu, GrGLuint pathID, const GrStrokeInfo& stroke) {
-    SkASSERT(stroke.needToApply());
-    SkASSERT(!stroke.isDashed());
+void GrGLPath::InitPathObjectStroke(GrGLGpu* gpu, GrGLuint pathID, const SkStrokeRec& stroke) {
     SkASSERT(!stroke.isHairlineStyle());
     GR_GL_CALL(gpu->glInterface(),
                PathParameterf(pathID, GR_GL_PATH_STROKE_WIDTH, SkScalarToFloat(stroke.getWidth())));
@@ -260,8 +269,8 @@ void GrGLPath::InitPathObjectEmptyPath(GrGLGpu* gpu, GrGLuint pathID) {
     GR_GL_CALL(gpu->glInterface(), PathCommands(pathID, 0, nullptr, 0, GR_GL_FLOAT, nullptr));
 }
 
-GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& origStroke)
-    : INHERITED(gpu, origSkPath, origStroke),
+GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStyle& style)
+    : INHERITED(gpu, origSkPath, style),
       fPathID(gpu->glPathRendering()->genPaths(1)) {
 
     if (origSkPath.isEmpty()) {
@@ -271,21 +280,21 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& o
     } else {
         const SkPath* skPath = &origSkPath;
         SkTLazy<SkPath> tmpPath;
-        const GrStrokeInfo* stroke = &origStroke;
-        GrStrokeInfo tmpStroke(SkStrokeRec::kFill_InitStyle);
+        SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
 
-        if (stroke->isDashed()) {
+        if (style.pathEffect()) {
             // Skia stroking and NVPR stroking differ with respect to dashing
             // pattern.
-            // Convert a dashing to either a stroke or a fill.
-            if (stroke->applyDashToPath(tmpPath.init(), &tmpStroke, *skPath)) {
+            // Convert a dashing (or other path effect) to either a stroke or a fill.
+            if (style.applyPathEffectToPath(tmpPath.init(), &stroke, *skPath, SK_Scalar1)) {
                 skPath = tmpPath.get();
-                stroke = &tmpStroke;
             }
+        } else {
+            stroke = style.strokeRec();
         }
 
         bool didInit = false;
-        if (stroke->needToApply() && stroke->getCap() != SkPaint::kButt_Cap) {
+        if (stroke.needToApply() && stroke.getCap() != SkPaint::kButt_Cap) {
             // Skia stroking and NVPR stroking differ with respect to stroking
             // end caps of empty subpaths.
             // Convert stroke to fill if path contains empty subpaths.
@@ -294,10 +303,9 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& o
                 if (!tmpPath.isValid()) {
                     tmpPath.init();
                 }
-                SkAssertResult(stroke->applyToPath(tmpPath.get(), *skPath));
+                SkAssertResult(stroke.applyToPath(tmpPath.get(), *skPath));
                 skPath = tmpPath.get();
-                tmpStroke.setFillStyle();
-                stroke = &tmpStroke;
+                stroke.setFillStyle();
             }
         }
 
@@ -305,26 +313,24 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& o
             InitPathObjectPathData(gpu, fPathID, *skPath);
         }
 
-        fShouldStroke = stroke->needToApply();
-        fShouldFill = stroke->isFillStyle() ||
-                stroke->getStyle() == SkStrokeRec::kStrokeAndFill_Style;
+        fShouldStroke = stroke.needToApply();
+        fShouldFill = stroke.isFillStyle() ||
+                stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
 
         fFillType = convert_skpath_filltype(skPath->getFillType());
         fBounds = skPath->getBounds();
-
+        SkScalar radius = stroke.getInflationRadius();
+        fBounds.outset(radius, radius);
         if (fShouldStroke) {
-            InitPathObjectStroke(gpu, fPathID, *stroke);
-
-            // FIXME: try to account for stroking, without rasterizing the stroke.
-            fBounds.outset(stroke->getWidth(), stroke->getWidth());
+            InitPathObjectStroke(gpu, fPathID, stroke);
         }
     }
 
-    this->registerWithCache();
+    this->registerWithCache(SkBudgeted::kYes);
 }
 
 void GrGLPath::onRelease() {
-    if (0 != fPathID && this->shouldFreeResources()) {
+    if (0 != fPathID) {
         static_cast<GrGLGpu*>(this->getGpu())->glPathRendering()->deletePaths(fPathID, 1);
         fPathID = 0;
     }

@@ -9,9 +9,9 @@
 #define GrVertexBatch_DEFINED
 
 #include "GrDrawBatch.h"
-#include "GrPrimitiveProcessor.h"
+#include "GrGeometryProcessor.h"
+#include "GrMesh.h"
 #include "GrPendingProgramElement.h"
-#include "GrVertices.h"
 
 #include "SkTLList.h"
 
@@ -32,16 +32,16 @@ protected:
    class InstancedHelper {
    public:
         InstancedHelper() {}
-        /** Returns the allocated storage for the vertices. The caller should populate the before
-            vertices before calling issueDraws(). */
+        /** Returns the allocated storage for the vertices. The caller should populate the vertices
+            before calling recordDraws(). */
         void* init(Target*, GrPrimitiveType, size_t vertexStride,
-                   const GrIndexBuffer*, int verticesPerInstance, int indicesPerInstance,
+                   const GrBuffer*, int verticesPerInstance, int indicesPerInstance,
                    int instancesToDraw);
 
         /** Call after init() to issue draws to the batch target.*/
-        void recordDraw(Target* target);
+        void recordDraw(Target*, const GrGeometryProcessor*);
     private:
-        GrVertices  fVertices;
+        GrMesh fMesh;
     };
 
     static const int kVerticesPerQuad = 4;
@@ -52,9 +52,9 @@ protected:
     public:
         QuadHelper() : INHERITED() {}
         /** Finds the cached quad index buffer and reserves vertex space. Returns nullptr on failure
-            and on sucess a pointer to the vertex data that the caller should populate before
-            calling issueDraws(). */
-        void* init(Target* batchTarget, size_t vertexStride, int quadsToDraw);
+            and on success a pointer to the vertex data that the caller should populate before
+            calling recordDraws(). */
+        void* init(Target*, size_t vertexStride, int quadsToDraw);
 
         using InstancedHelper::recordDraw;
     private:
@@ -67,18 +67,23 @@ private:
 
     virtual void onPrepareDraws(Target*) const = 0;
 
-    // A set of contiguous draws with no inline uploads between them that all use the same
-    // primitive processor. All the draws in a DrawArray share a primitive processor and use the
-    // the batch's GrPipeline.
-    struct DrawArray {
-        SkSTArray<1, GrVertices, true>                      fDraws;
-        GrPendingProgramElement<const GrPrimitiveProcessor> fPrimitiveProcessor;
+    // A set of contiguous draws that share a draw token and primitive processor. The draws all use
+    // the batch's pipeline. The meshes for the draw are stored in the fMeshes array and each
+    // Queued draw uses fMeshCnt meshes from the fMeshes array. The reason for coallescing meshes
+    // that share a primitive processor into a QueuedDraw is that it allows the Gpu object to setup
+    // the shared state once and then issue draws for each mesh.
+    struct QueuedDraw {
+        int fMeshCnt = 0;
+        GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
     };
 
-    // Array of DrawArray. There may be inline uploads between each DrawArray and each DrawArray
-    // may use a different primitive processor.
-    typedef SkTLList<DrawArray, 4> DrawArrayList;
-    DrawArrayList fDrawArrays;
+    // All draws in all the vertex batches have implicit tokens based on the order they are
+    // enqueued globally across all batches. This is the offset of the first entry in fQueuedDraws.
+    // fQueuedDraws[i]'s token is fBaseDrawToken + i.
+    GrBatchDrawToken fBaseDrawToken;
+
+    SkSTArray<4, GrMesh>           fMeshes;
+    SkSTArray<4, QueuedDraw, true> fQueuedDraws;
 
     typedef GrDrawBatch INHERITED;
 };

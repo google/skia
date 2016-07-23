@@ -21,10 +21,10 @@ fi
 
 if [[ ${app} == 'SampleApp' ]]; then
     activity="com.skia.sample_app/com.skia.SkiaSampleActivity"
-elif [[ ${app} == "VisualBench" ]] ; then
-    activity="com.skia.visualbench/com.skia.VisualBenchActivity"
+elif [[ ${app} == "Viewer" ]] ; then
+    activity="org.skia.viewer/org.skia.viewer.ViewerActivity"
 else
-    echo "ERROR: supports either 'SampleApp' or 'VisualBench' as valid apps"
+    echo "ERROR: supports either 'SampleApp' or 'Viewer' as valid apps"
     exit 1
 fi
 $ADB ${DEVICE_SERIAL} shell "am start -S -n ${activity} --es cmdLineFlags \"${APP_ARGS[*]:1}\""

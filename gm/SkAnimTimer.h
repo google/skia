@@ -29,7 +29,7 @@ public:
     /**
      *  Class begins in the "stopped" state.
      */
-    SkAnimTimer() : fBaseTime(0), fCurrTime(0), fState(kStopped_State) {}
+    SkAnimTimer() : fBaseTimeNanos(0), fCurrTimeNanos(0), fState(kStopped_State) {}
 
     bool isStopped() const { return kStopped_State == fState; }
     bool isRunning() const { return kRunning_State == fState; }
@@ -70,23 +70,26 @@ public:
      */
     void updateTime() {
         if (kRunning_State == fState) {
-            fCurrTime = SkTime::GetMSecs();
+            fCurrTimeNanos = SkTime::GetNSecs();
         }
     }
 
     /**
      *  Return the time in milliseconds the timer has been in the running state.
-     *  Returns 0 if the timer is stopped.
+     *  Returns 0 if the timer is stopped. Behavior is undefined if the timer
+     *  has been running longer than SK_MSecMax.
      */
-    SkMSec msec() const { return fCurrTime - fBaseTime; }
+    SkMSec msec() const {
+        const double msec = (fCurrTimeNanos - fBaseTimeNanos) * 1e-6;
+        SkASSERT(SK_MSecMax >= msec);
+        return static_cast<SkMSec>(msec);
+    }
 
     /**
      *  Return the time in seconds the timer has been in the running state.
      *  Returns 0 if the timer is stopped.
      */
-    double secs() const {
-        return this->msec() * 0.001;
-    }
+    double secs() const { return (fCurrTimeNanos - fBaseTimeNanos) * 1e-9; }
 
     /**
      *  Return the time in seconds the timer has been in the running state,
@@ -101,15 +104,32 @@ public:
         return SkDoubleToScalar(value);
     }
 
+    /**
+     * Transitions from ends->mid->ends linearly over period seconds. The phase specifies a phase
+     * shift in seconds.
+     */
+    SkScalar pingPong(SkScalar period, SkScalar phase, SkScalar ends, SkScalar mid) const {
+        return PingPong(this->secs(), period, phase, ends, mid);
+    }
+
+    /** Helper for computing a ping-pong value without a SkAnimTimer object. */
+    static SkScalar PingPong(double t, SkScalar period, SkScalar phase, SkScalar ends,
+                             SkScalar mid) {
+        double value = ::fmod(t + phase, period);
+        double half = period / 2.0;
+        double diff = ::fabs(value - half);
+        return SkDoubleToScalar(ends + (1.0 - diff / half) * (mid - ends));
+    }
+
 private:
-    SkMSec  fBaseTime;
-    SkMSec  fCurrTime;
+    double  fBaseTimeNanos;
+    double  fCurrTimeNanos;
     State   fState;
 
     void setState(State newState) {
         switch (newState) {
             case kStopped_State:
-                fBaseTime = fCurrTime = 0;
+                fBaseTimeNanos = fCurrTimeNanos = 0;
                 fState = kStopped_State;
                 break;
             case kPaused_State:
@@ -120,12 +140,12 @@ private:
             case kRunning_State:
                 switch (fState) {
                     case kStopped_State:
-                        fBaseTime = fCurrTime = SkTime::GetMSecs();
+                        fBaseTimeNanos = fCurrTimeNanos = SkTime::GetNSecs();
                         break;
                     case kPaused_State: {// they want "resume"
-                        SkMSec now = SkTime::GetMSecs();
-                        fBaseTime += now - fCurrTime;
-                        fCurrTime = now;
+                        double now = SkTime::GetNSecs();
+                        fBaseTimeNanos += now - fCurrTimeNanos;
+                        fCurrTimeNanos = now;
                     } break;
                     case kRunning_State:
                         break;

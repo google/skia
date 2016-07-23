@@ -32,8 +32,8 @@ heptagram.  This function can be cut and pasted into
         canvas->drawPath(path, p);
     }
 
-<a href="https://fiddle.skia.org/c/d7b4ccb6d6281b68a274a72b187fc450">
-<img src="https://fiddle.skia.org/i/d7b4ccb6d6281b68a274a72b187fc450_raster.png"></a>
+<a href='https://fiddle.skia.org/c/@skcanvas_star'><img
+  src='https://fiddle.skia.org/i/@skcanvas_star_raster.png'></a>
 
 Details
 -------
@@ -59,8 +59,8 @@ SkPaint.
         canvas->restore();
     }
 
-<a href="https://fiddle.skia.org/c/6af99894b40ea1331f6a79d55a4cbfd7">
-<img src="https://fiddle.skia.org/i/6af99894b40ea1331f6a79d55a4cbfd7_raster.png"></a>
+<a href='https://fiddle.skia.org/c/@skcanvas_square'><img
+  src='https://fiddle.skia.org/i/@skcanvas_square_raster.png'></a>
 
 The code above will draw a rectangle rotated by 45 degrees. Exactly
 what color and style the rect will be drawn in is described by the
@@ -132,15 +132,16 @@ parameter.
         canvas->drawBitmap(source, 128, 128, &paint);
 
         SkRect rect2 = SkRect::MakeXYWH(0, 0, 40, 60);
-        canvas->drawBitmapRect(source, rect2);
+        canvas->drawBitmapRect(source, rect2, &paint);
 
         SkPaint paint2;
         const char text[] = "Hello, Skia!";
         canvas->drawText(text, strlen(text), 50, 25, paint2);
     }
 
-<a href="https://fiddle.skia.org/c/35b614d41e60289461d658a9d509e28d">
-<img src="https://fiddle.skia.org/i/35b614d41e60289461d658a9d509e28d_raster.png"></a>
+
+<a href='https://fiddle.skia.org/c/@skcanvas_paint'><img
+  src='https://fiddle.skia.org/i/@skcanvas_paint_raster.png'></a>
 
 In some of the calls, we pass a pointer, rather than a reference, to
 the paint. In those instances, the paint parameter may be null. In all

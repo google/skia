@@ -11,6 +11,8 @@
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkImage_Base.h"
+#include "SkMathPriv.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 
@@ -32,13 +34,13 @@ static SkBitmap make_chessbm(int w, int h) {
     return bm;
 }
 
-static SkImage* makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, int h) {
+static sk_sp<SkImage> makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
-    
-    SkAutoTUnref<SkSurface> surface(origCanvas->newSurface(info));
+
+    auto surface(origCanvas->makeSurface(info));
     if (nullptr == surface) {
         // picture canvas will return null, so fall-back to raster
-        surface.reset(SkSurface::NewRaster(info));
+        surface = SkSurface::MakeRaster(info);
     }
 
     SkCanvas* canvas = surface->getCanvas();
@@ -69,26 +71,25 @@ static SkImage* makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, int h) {
     SkRect rect = SkRect::MakeWH(wScalar, hScalar);
     SkMatrix mat = SkMatrix::I();
     for (int i = 0; i < 4; ++i) {
-        paint.setShader(SkGradientShader::CreateRadial(
+        paint.setShader(SkGradientShader::MakeRadial(
                         pt, radius,
                         colors, pos,
                         SK_ARRAY_COUNT(colors),
                         SkShader::kRepeat_TileMode,
-                        0, &mat))->unref();
+                        0, &mat));
         canvas->drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.postScale(SK_Scalar1 / 4, SK_Scalar1 / 4);
     }
 
-    SkImage* image = surface->newImageSnapshot();
+    auto image = surface->makeImageSnapshot();
 
     SkBitmap tempBM;
 
 #if SK_SUPPORT_GPU
-    if (image->getTexture()) {
-        GrWrapTextureInBitmap(image->getTexture(),
-                              image->width(), image->height(), image->isOpaque(), &tempBM);
-    } else 
+    if (GrTexture* texture = as_IB(image)->peekTexture()) {
+        GrWrapTextureInBitmap(texture, image->width(), image->height(), image->isOpaque(), &tempBM);
+    } else
 #endif
     {
         image->asLegacyBitmap(&tempBM, SkImage::kRO_LegacyBitmapMode);
@@ -125,10 +126,10 @@ public:
         }
     }
 
-    DrawRectRectProc*     fProc;
-    SkBitmap              fLargeBitmap;
-    SkAutoTUnref<SkImage> fImage;
-    SkString              fName;
+    DrawRectRectProc*   fProc;
+    SkBitmap            fLargeBitmap;
+    sk_sp<SkImage>      fImage;
+    SkString            fName;
 
 protected:
     SkString onShortName() override { return fName; }
@@ -136,7 +137,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(gSize, gSize); }
 
     void setupImage(SkCanvas* canvas) {
-        fImage.reset(makebm(canvas, &fLargeBitmap, gBmpSize, gBmpSize));
+        fImage = makebm(canvas, &fLargeBitmap, gBmpSize, gBmpSize);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -172,7 +173,7 @@ protected:
             for (int h = 1; h <= kMaxSrcRectSize; h *= 4) {
 
                 SkIRect srcRect = SkIRect::MakeXYWH((gBmpSize - w) / 2, (gBmpSize - h) / 2, w, h);
-                fProc(canvas, fImage, fLargeBitmap, srcRect, dstRect);
+                fProc(canvas, fImage.get(), fLargeBitmap, srcRect, dstRect);
 
                 SkString label;
                 label.appendf("%d x %d", w, h);
@@ -211,12 +212,11 @@ protected:
             paint.setFilterQuality(kLow_SkFilterQuality);
 
             srcRect.setXYWH(1, 1, 3, 3);
-            SkMaskFilter* mf = SkBlurMaskFilter::Create(
+            paint.setMaskFilter(SkBlurMaskFilter::Make(
                 kNormal_SkBlurStyle,
                 SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
                 SkBlurMaskFilter::kHighQuality_BlurFlag |
-                SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
-            paint.setMaskFilter(mf)->unref();
+                SkBlurMaskFilter::kIgnoreTransform_BlurFlag));
             canvas->drawBitmapRect(bm, srcRect, dstRect, &paint);
         }
     }

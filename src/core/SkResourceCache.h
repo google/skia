@@ -29,14 +29,18 @@ class SkTraceMemoryDump;
 class SkResourceCache {
 public:
     struct Key {
-        // Call this to access your private contents. Must not use the address after calling init()
-        void* writableContents() { return this + 1; }
+        /** Key subclasses must call this after their own fields and data are initialized.
+         *  All fields and data must be tightly packed.
+         *  @param nameSpace must be unique per Key subclass.
+         *  @param sharedID == 0 means ignore this field, does not support group purging.
+         *  @param dataSize is size of fields and data of the subclass, must be a multiple of 4.
+         */
+        void init(void* nameSpace, uint64_t sharedID, size_t dataSize);
 
-        // must call this after your private data has been written.
-        // nameSpace must be unique per Key subclass.
-        // sharedID == 0 means ignore this field : does not support group purging.
-        // length must be a multiple of 4
-        void init(void* nameSpace, uint64_t sharedID, size_t length);
+        /** Returns the size of this key. */
+        size_t size() const {
+            return fCount32 << 2;
+        }
 
         void* getNamespace() const { return fNamespace; }
         uint64_t getSharedID() const { return ((uint64_t)fSharedID_hi << 32) | fSharedID_lo; }
@@ -272,7 +276,7 @@ private:
     // linklist management
     void moveToHead(Rec*);
     void addToHead(Rec*);
-    void detach(Rec*);
+    void release(Rec*);
     void remove(Rec*);
 
     void init();    // called by constructors

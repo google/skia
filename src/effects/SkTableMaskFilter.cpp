@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -7,10 +6,11 @@
  */
 
 
-#include "SkTableMaskFilter.h"
+#include "SkFixed.h"
 #include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkString.h"
+#include "SkTableMaskFilter.h"
+#include "SkWriteBuffer.h"
 
 SkTableMaskFilter::SkTableMaskFilter() {
     for (int i = 0; i < 256; i++) {
@@ -74,12 +74,12 @@ void SkTableMaskFilter::flatten(SkWriteBuffer& wb) const {
     wb.writeByteArray(fTable, 256);
 }
 
-SkFlattenable* SkTableMaskFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkTableMaskFilter::CreateProc(SkReadBuffer& buffer) {
     uint8_t table[256];
     if (!buffer.readByteArray(table, 256)) {
         return nullptr;
     }
-    return Create(table);
+    return sk_sp<SkFlattenable>(Create(table));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

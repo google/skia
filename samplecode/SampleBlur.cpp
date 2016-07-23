@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -99,10 +98,9 @@ protected:
             paint.setColor(SK_ColorBLUE);
             for (size_t i = 0; i < SK_ARRAY_COUNT(gRecs); i++) {
                 if (gRecs[i].fStyle != NONE) {
-                    SkMaskFilter* mf = SkBlurMaskFilter::Create(gRecs[i].fStyle,
+                    paint.setMaskFilter(SkBlurMaskFilter::Make(gRecs[i].fStyle,
                                       SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(20)),
-                                      flags);
-                    paint.setMaskFilter(mf)->unref();
+                                      flags));
                 } else {
                     paint.setMaskFilter(nullptr);
                 }
@@ -111,10 +109,9 @@ protected:
             }
             // draw text
             {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4)),
-                                      flags);
-                paint.setMaskFilter(mf)->unref();
+                paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                                           SkBlurMask::ConvertRadiusToSigma(4),
+                                                           flags));
                 SkScalar x = SkIntToScalar(70);
                 SkScalar y = SkIntToScalar(400);
                 paint.setColor(SK_ColorBLACK);

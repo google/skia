@@ -41,13 +41,13 @@ protected:
             SK_ColorWHITE,   SK_ColorGRAY,
         };
 
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(kImageSize, kImageSize));
+        auto surface(SkSurface::MakeRasterN32Premul(kImageSize, kImageSize));
         SkCanvas* canvas = surface->getCanvas();
 
         int curColor = 0;
 
         for (int x = 0; x < kImageSize; x += 3) {
-            SkRect r = SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(0), 
+            SkRect r = SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(0),
                                         SkIntToScalar(3), SkIntToScalar(kImageSize));
             SkPaint p;
             p.setColor(gColors[curColor]);
@@ -56,19 +56,17 @@ protected:
             curColor = (curColor+1) % SK_ARRAY_COUNT(gColors);
         }
 
-        fImage.reset(surface->newImageSnapshot());
+        fImage = surface->makeImageSnapshot();
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRect srcRect = SkRect::MakeLTRB(0, 0,
-                                          SkIntToScalar(kImageSize), SkIntToScalar(kImageSize));
-        SkRect dstRect = SkRect::MakeLTRB(0.75f, 0.75f, 225.75f, 225.75f);
-
-        SkAutoTUnref<SkImageFilter> filter(
-            SkImageSource::Create(fImage, srcRect, dstRect, fFilter));
+        const SkRect srcRect = SkRect::MakeLTRB(0, 0,
+                                                SkIntToScalar(kImageSize),
+                                                SkIntToScalar(kImageSize));
+        const SkRect dstRect = SkRect::MakeLTRB(0.75f, 0.75f, 225.75f, 225.75f);
 
         SkPaint p;
-        p.setImageFilter(filter);
+        p.setImageFilter(SkImageSource::Make(fImage, srcRect, dstRect, fFilter));
 
         canvas->saveLayer(nullptr, &p);
         canvas->restore();
@@ -79,7 +77,7 @@ private:
 
     SkString fSuffix;
     SkFilterQuality fFilter;
-    SkAutoTUnref<SkImage> fImage;
+    sk_sp<SkImage>  fImage;
 
     typedef GM INHERITED;
 };

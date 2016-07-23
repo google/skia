@@ -21,7 +21,7 @@ class GrProcOptInfo;
  */
 class GrCoverageSetOpXPFactory : public GrXPFactory {
 public:
-    static GrXPFactory* Create(SkRegion::Op regionOp, bool invertCoverage = false);
+    static sk_sp<GrXPFactory> Make(SkRegion::Op regionOp, bool invertCoverage = false);
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
@@ -34,9 +34,7 @@ private:
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstColor(const GrCaps& /*caps*/,
-                          const GrPipelineOptimizations& /*optimizations*/,
-                          bool /*hasMixedSamples*/) const override {
+    bool onWillReadDstColor(const GrCaps&, const GrPipelineOptimizations&) const override {
         return false;
     }
 

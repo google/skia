@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -44,12 +43,10 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm = make_bitmap();
-        SkShader* s =
-            SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                         SkShader::kMirror_TileMode);
         SkPaint paint;
         paint.setAlpha(0x80);
-        paint.setShader(s)->unref();
+        paint.setShader(SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode,
+                                                   SkShader::kMirror_TileMode));
         canvas->drawPaint(paint);
     }
 

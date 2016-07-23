@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -8,128 +7,105 @@
 
 #include "SkWriteBuffer.h"
 #include "SkBitmap.h"
-#include "SkBitmapHeap.h"
 #include "SkData.h"
 #include "SkPixelRef.h"
 #include "SkPtrRecorder.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-SkWriteBuffer::SkWriteBuffer(uint32_t flags)
+SkBinaryWriteBuffer::SkBinaryWriteBuffer(uint32_t flags)
     : fFlags(flags)
     , fFactorySet(nullptr)
-    , fNamedFactorySet(nullptr)
-    , fBitmapHeap(nullptr)
     , fTFSet(nullptr) {
 }
 
-SkWriteBuffer::SkWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
+SkBinaryWriteBuffer::SkBinaryWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
     : fFlags(flags)
     , fFactorySet(nullptr)
-    , fNamedFactorySet(nullptr)
     , fWriter(storage, storageSize)
-    , fBitmapHeap(nullptr)
     , fTFSet(nullptr) {
 }
 
-SkWriteBuffer::~SkWriteBuffer() {
+SkBinaryWriteBuffer::~SkBinaryWriteBuffer() {
     SkSafeUnref(fFactorySet);
-    SkSafeUnref(fNamedFactorySet);
-    SkSafeUnref(fBitmapHeap);
     SkSafeUnref(fTFSet);
 }
 
-void SkWriteBuffer::writeByteArray(const void* data, size_t size) {
+void SkBinaryWriteBuffer::writeByteArray(const void* data, size_t size) {
     fWriter.write32(SkToU32(size));
     fWriter.writePad(data, size);
 }
 
-void SkWriteBuffer::writeBool(bool value) {
+void SkBinaryWriteBuffer::writeBool(bool value) {
     fWriter.writeBool(value);
 }
 
-void SkWriteBuffer::writeFixed(SkFixed value) {
-    fWriter.write32(value);
-}
-
-void SkWriteBuffer::writeScalar(SkScalar value) {
+void SkBinaryWriteBuffer::writeScalar(SkScalar value) {
     fWriter.writeScalar(value);
 }
 
-void SkWriteBuffer::writeScalarArray(const SkScalar* value, uint32_t count) {
+void SkBinaryWriteBuffer::writeScalarArray(const SkScalar* value, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(value, count * sizeof(SkScalar));
 }
 
-void SkWriteBuffer::writeInt(int32_t value) {
+void SkBinaryWriteBuffer::writeInt(int32_t value) {
     fWriter.write32(value);
 }
 
-void SkWriteBuffer::writeIntArray(const int32_t* value, uint32_t count) {
+void SkBinaryWriteBuffer::writeIntArray(const int32_t* value, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(value, count * sizeof(int32_t));
 }
 
-void SkWriteBuffer::writeUInt(uint32_t value) {
+void SkBinaryWriteBuffer::writeUInt(uint32_t value) {
     fWriter.write32(value);
 }
 
-void SkWriteBuffer::write32(int32_t value) {
-    fWriter.write32(value);
-}
-
-void SkWriteBuffer::writeString(const char* value) {
+void SkBinaryWriteBuffer::writeString(const char* value) {
     fWriter.writeString(value);
 }
 
-void SkWriteBuffer::writeEncodedString(const void* value, size_t byteLength,
-                                              SkPaint::TextEncoding encoding) {
-    fWriter.writeInt(encoding);
-    fWriter.writeInt(SkToU32(byteLength));
-    fWriter.write(value, byteLength);
-}
-
-
-void SkWriteBuffer::writeColor(const SkColor& color) {
+void SkBinaryWriteBuffer::writeColor(SkColor color) {
     fWriter.write32(color);
 }
 
-void SkWriteBuffer::writeColorArray(const SkColor* color, uint32_t count) {
+void SkBinaryWriteBuffer::writeColorArray(const SkColor* color, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(color, count * sizeof(SkColor));
 }
 
-void SkWriteBuffer::writePoint(const SkPoint& point) {
+void SkBinaryWriteBuffer::writePoint(const SkPoint& point) {
     fWriter.writeScalar(point.fX);
     fWriter.writeScalar(point.fY);
 }
 
-void SkWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
+void SkBinaryWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(point, count * sizeof(SkPoint));
 }
 
-void SkWriteBuffer::writeMatrix(const SkMatrix& matrix) {
+void SkBinaryWriteBuffer::writeMatrix(const SkMatrix& matrix) {
     fWriter.writeMatrix(matrix);
 }
 
-void SkWriteBuffer::writeIRect(const SkIRect& rect) {
+void SkBinaryWriteBuffer::writeIRect(const SkIRect& rect) {
     fWriter.write(&rect, sizeof(SkIRect));
 }
 
-void SkWriteBuffer::writeRect(const SkRect& rect) {
+void SkBinaryWriteBuffer::writeRect(const SkRect& rect) {
     fWriter.writeRect(rect);
 }
 
-void SkWriteBuffer::writeRegion(const SkRegion& region) {
+void SkBinaryWriteBuffer::writeRegion(const SkRegion& region) {
     fWriter.writeRegion(region);
 }
 
-void SkWriteBuffer::writePath(const SkPath& path) {
+void SkBinaryWriteBuffer::writePath(const SkPath& path) {
     fWriter.writePath(path);
 }
 
-size_t SkWriteBuffer::writeStream(SkStream* stream, size_t length) {
+size_t SkBinaryWriteBuffer::writeStream(SkStream* stream, size_t length) {
     fWriter.write32(SkToU32(length));
     size_t bytesWritten = fWriter.readFromStream(stream, length);
     if (bytesWritten < length) {
@@ -138,50 +114,32 @@ size_t SkWriteBuffer::writeStream(SkStream* stream, size_t length) {
     return bytesWritten;
 }
 
-bool SkWriteBuffer::writeToStream(SkWStream* stream) {
+bool SkBinaryWriteBuffer::writeToStream(SkWStream* stream) {
     return fWriter.writeToStream(stream);
 }
 
-static void write_encoded_bitmap(SkWriteBuffer* buffer, SkData* data,
+static void write_encoded_bitmap(SkBinaryWriteBuffer* buffer, SkData* data,
                                  const SkIPoint& origin) {
-    buffer->writeUInt(SkToU32(data->size()));
-    buffer->getWriter32()->writePad(data->data(), data->size());
+    buffer->writeDataAsByteArray(data);
     buffer->write32(origin.fX);
     buffer->write32(origin.fY);
 }
 
-void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
+void SkBinaryWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     // Record the width and height. This way if readBitmap fails a dummy bitmap can be drawn at the
     // right size.
     this->writeInt(bitmap.width());
     this->writeInt(bitmap.height());
 
-    // Record information about the bitmap in one of three ways, in order of priority:
-    // 1. If there is an SkBitmapHeap, store it in the heap. The client can avoid serializing the
-    //    bitmap entirely or serialize it later as desired. A boolean value of true will be written
-    //    to the stream to signify that a heap was used.
-    // 2. If there is a function for encoding bitmaps, use it to write an encoded version of the
+    // Record information about the bitmap in one of two ways, in order of priority:
+    // 1. If there is a function for encoding bitmaps, use it to write an encoded version of the
     //    bitmap. After writing a boolean value of false, signifying that a heap was not used, write
     //    the size of the encoded data. A non-zero size signifies that encoded data was written.
-    // 3. Call SkBitmap::flatten. After writing a boolean value of false, signifying that a heap was
+    // 2. Call SkBitmap::flatten. After writing a boolean value of false, signifying that a heap was
     //    not used, write a zero to signify that the data was not encoded.
-    bool useBitmapHeap = fBitmapHeap != nullptr;
-    // Write a bool: true if the SkBitmapHeap is to be used, in which case the reader must use an
-    // SkBitmapHeapReader to read the SkBitmap. False if the bitmap was serialized another way.
-    this->writeBool(useBitmapHeap);
-    if (useBitmapHeap) {
-        SkASSERT(nullptr == fPixelSerializer);
-        int32_t slot = fBitmapHeap->insert(bitmap);
-        fWriter.write32(slot);
-        // crbug.com/155875
-        // The generation ID is not required information. We write it to prevent collisions
-        // in SkFlatDictionary.  It is possible to get a collision when a previously
-        // unflattened (i.e. stale) instance of a similar flattenable is in the dictionary
-        // and the instance currently being written is re-using the same slot from the
-        // bitmap heap.
-        fWriter.write32(bitmap.getGenerationID());
-        return;
-    }
+
+    // Write a bool to indicate that we did not use an SkBitmapHeap. That feature is deprecated.
+    this->writeBool(false);
 
     SkPixelRef* pixelRef = bitmap.pixelRef();
     if (pixelRef) {
@@ -200,7 +158,6 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
         // see if the caller wants to manually encode
         SkAutoPixmapUnlock result;
         if (fPixelSerializer && bitmap.requestLock(&result)) {
-            SkASSERT(nullptr == fBitmapHeap);
             SkAutoDataUnref data(fPixelSerializer->encode(result.pixmap()));
             if (data.get() != nullptr) {
                 // if we have to "encode" the bitmap, then we assume there is no
@@ -215,7 +172,7 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     SkBitmap::WriteRawPixels(this, bitmap);
 }
 
-void SkWriteBuffer::writeImage(const SkImage* image) {
+void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     this->writeInt(image->width());
     this->writeInt(image->height());
 
@@ -225,10 +182,17 @@ void SkWriteBuffer::writeImage(const SkImage* image) {
         return;
     }
 
+    SkBitmap bm;
+    if (image->asLegacyBitmap(&bm, SkImage::kRO_LegacyBitmapMode)) {
+        this->writeUInt(1);  // signal raw pixels.
+        SkBitmap::WriteRawPixels(this, bm);
+        return;
+    }
+
     this->writeUInt(0); // signal no pixels (in place of the size of the encoded data)
 }
 
-void SkWriteBuffer::writeTypeface(SkTypeface* obj) {
+void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
     if (nullptr == obj || nullptr == fTFSet) {
         fWriter.write32(0);
     } else {
@@ -236,96 +200,76 @@ void SkWriteBuffer::writeTypeface(SkTypeface* obj) {
     }
 }
 
-SkFactorySet* SkWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
+void SkBinaryWriteBuffer::writePaint(const SkPaint& paint) {
+    paint.flatten(*this);
+}
+
+SkFactorySet* SkBinaryWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
     SkRefCnt_SafeAssign(fFactorySet, rec);
-    if (fNamedFactorySet != nullptr) {
-        fNamedFactorySet->unref();
-        fNamedFactorySet = nullptr;
-    }
     return rec;
 }
 
-SkNamedFactorySet* SkWriteBuffer::setNamedFactoryRecorder(SkNamedFactorySet* rec) {
-    SkRefCnt_SafeAssign(fNamedFactorySet, rec);
-    if (fFactorySet != nullptr) {
-        fFactorySet->unref();
-        fFactorySet = nullptr;
-    }
-    return rec;
-}
-
-SkRefCntSet* SkWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
+SkRefCntSet* SkBinaryWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
     SkRefCnt_SafeAssign(fTFSet, rec);
     return rec;
 }
 
-void SkWriteBuffer::setBitmapHeap(SkBitmapHeap* bitmapHeap) {
-    SkRefCnt_SafeAssign(fBitmapHeap, bitmapHeap);
-    if (bitmapHeap != nullptr) {
-        SkASSERT(nullptr == fPixelSerializer);
-        fPixelSerializer.reset(nullptr);
-    }
-}
-
-void SkWriteBuffer::setPixelSerializer(SkPixelSerializer* serializer) {
+void SkBinaryWriteBuffer::setPixelSerializer(SkPixelSerializer* serializer) {
     fPixelSerializer.reset(serializer);
     if (serializer) {
         serializer->ref();
-        SkASSERT(nullptr == fBitmapHeap);
-        SkSafeUnref(fBitmapHeap);
-        fBitmapHeap = nullptr;
     }
 }
 
-void SkWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
+void SkBinaryWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     /*
-     *  If we have a factoryset, then the first 32bits tell us...
+     *  The first 32 bits tell us...
      *       0: failure to write the flattenable
-     *      >0: (1-based) index into the SkFactorySet or SkNamedFactorySet
-     *  If we don't have a factoryset, then the first "ptr" is either the
-     *  factory, or null for failure.
-     *
-     *  The distinction is important, since 0-index is 32bits (always), but a
-     *  0-functionptr might be 32 or 64 bits.
+     *      >0: index (1-based) into fFactorySet or fFlattenableDict or
+     *          the first character of a string
      */
     if (nullptr == flattenable) {
-        if (this->isValidating()) {
-            this->writeString("");
-        } else if (fFactorySet != nullptr || fNamedFactorySet != nullptr) {
-            this->write32(0);
-        } else {
-            this->writeFunctionPtr(nullptr);
-        }
+        this->write32(0);
         return;
     }
 
-    SkFlattenable::Factory factory = flattenable->getFactory();
-    SkASSERT(factory != nullptr);
-
     /*
-     *  We can write 1 of 3 versions of the flattenable:
-     *  1.  function-ptr : this is the fastest for the reader, but assumes that
-     *      the writer and reader are in the same process.
-     *  2.  index into fFactorySet : This is assumes the writer will later
+     *  We can write 1 of 2 versions of the flattenable:
+     *  1.  index into fFactorySet : This assumes the writer will later
      *      resolve the function-ptrs into strings for its reader. SkPicture
      *      does exactly this, by writing a table of names (matching the indices)
      *      up front in its serialized form.
-     *  3.  index into fNamedFactorySet. fNamedFactorySet will also store the
-     *      name. SkGPipe uses this technique so it can write the name to its
-     *      stream before writing the flattenable.
+     *  2.  string name of the flattenable or index into fFlattenableDict:  We
+     *      store the string to allow the reader to specify its own factories
+     *      after write time.  In order to improve compression, if we have
+     *      already written the string, we write its index instead.
      */
-    if (this->isValidating()) {
-        this->writeString(flattenable->getTypeName());
-    } else if (fFactorySet) {
+    if (fFactorySet) {
+        SkFlattenable::Factory factory = flattenable->getFactory();
+        SkASSERT(factory);
         this->write32(fFactorySet->add(factory));
-    } else if (fNamedFactorySet) {
-        int32_t index = fNamedFactorySet->find(factory);
-        this->write32(index);
-        if (0 == index) {
-            return;
-        }
     } else {
-        this->writeFunctionPtr((void*)factory);
+        const char* name = flattenable->getTypeName();
+        SkASSERT(name);
+        SkString key(name);
+        if (uint32_t* indexPtr = fFlattenableDict.find(key)) {
+            // We will write the index as a 32-bit int.  We want the first byte
+            // that we send to be zero - this will act as a sentinel that we
+            // have an index (not a string).  This means that we will send the
+            // the index shifted left by 8.  The remaining 24-bits should be
+            // plenty to store the index.  Note that this strategy depends on
+            // being little endian.
+            SkASSERT(0 == *indexPtr >> 24);
+            this->write32(*indexPtr << 8);
+        } else {
+            // Otherwise write the string.  Clients should not use the empty
+            // string as a name, or we will have a problem.
+            SkASSERT(strcmp("", name));
+            this->writeString(name);
+
+            // Add key to dictionary.
+            fFlattenableDict.set(key, fFlattenableDict.count() + 1);
+        }
     }
 
     // make room for the size of the flattened object

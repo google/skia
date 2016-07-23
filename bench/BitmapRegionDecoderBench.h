@@ -18,16 +18,13 @@
 /**
  *  Benchmark Android's BitmapRegionDecoder for a particular colorType, sampleSize, and subset.
  *
- *  fStrategy determines which of various implementations is to be used.
- *
  *  nanobench.cpp handles creating benchmarks for interesting scaled subsets.  We strive to test
  *  on real use cases.
  */
 class BitmapRegionDecoderBench : public Benchmark {
 public:
     // Calls encoded->ref()
-    BitmapRegionDecoderBench(const char* basename, SkData* encoded,
-            SkBitmapRegionDecoder::Strategy strategy, SkColorType colorType,
+    BitmapRegionDecoderBench(const char* basename, SkData* encoded, SkColorType colorType,
             uint32_t sampleSize, const SkIRect& subset);
 
 protected:
@@ -40,7 +37,6 @@ private:
     SkString                                       fName;
     SkAutoTDelete<SkBitmapRegionDecoder>           fBRD;
     SkAutoTUnref<SkData>                           fData;
-    const SkBitmapRegionDecoder::Strategy          fStrategy;
     const SkColorType                              fColorType;
     const uint32_t                                 fSampleSize;
     const SkIRect                                  fSubset;

@@ -12,9 +12,9 @@
 #include "SkSurface.h"
 
 // Call this if you explicitly want to use/share this pixelRef in the image
-extern SkImage* SkNewImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
-                                       const SkIPoint& pixelRefOrigin,
-                                       size_t rowBytes);
+extern sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
+                                              const SkIPoint& pixelRefOrigin,
+                                              size_t rowBytes);
 
 /**
  *  Examines the bitmap to decide if it can share the existing pixelRef, or
@@ -38,7 +38,8 @@ enum ForceCopyMode {
     kNo_ForceCopyMode,
     kYes_ForceCopyMode, // must copy the pixels even if the bitmap is immutable
 };
-extern SkImage* SkNewImageFromRasterBitmap(const SkBitmap&, ForceCopyMode = kNo_ForceCopyMode);
+extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&,
+                                                  ForceCopyMode = kNo_ForceCopyMode);
 
 // Given an image created from SkNewImageFromBitmap, return its pixelref. This
 // may be called to see if the surface and the image share the same pixelref,
@@ -56,6 +57,6 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* textureImage);
 // surface needs to perform a copy-on-write
 extern void SkTextureImageSetTexture(SkImage* image, GrTexture* texture);
 
-GrTexture* GrDeepCopyTexture(GrTexture* src, bool isBudgeted);
+GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted);
 
 #endif

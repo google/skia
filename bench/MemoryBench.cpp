@@ -55,4 +55,3 @@ private:
 
 DEF_BENCH( return new ChunkAllocBench(64); )
 DEF_BENCH( return new ChunkAllocBench(8*1024); )
-

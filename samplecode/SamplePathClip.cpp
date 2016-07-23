@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -10,7 +9,6 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -81,7 +79,7 @@ static int clip_line(const SkRect& bounds, SkPoint p0, SkPoint p1, SkPoint edges
     if (p0.fY == p1.fY) {
         return 0;
     }
-    
+
     if (p0.fY > p1.fY) {
         SkTSwap(p0, p1);
     }
@@ -89,7 +87,7 @@ static int clip_line(const SkRect& bounds, SkPoint p0, SkPoint p1, SkPoint edges
     if (p1.fY <= bounds.top() || p0.fY >= bounds.bottom()) {
         return 0;
     }
-    
+
     double dxdy = (double)(p1.fX - p0.fX) / (p1.fY - p0.fY);
     if (p0.fY < bounds.top()) {
         p0.fX = SkDoubleToScalar(p0.fX + dxdy * (bounds.top() - p0.fY));
@@ -99,14 +97,14 @@ static int clip_line(const SkRect& bounds, SkPoint p0, SkPoint p1, SkPoint edges
         p1.fX = SkDoubleToScalar(p1.fX + dxdy * (bounds.bottom() - p1.fY));
         p1.fY = bounds.bottom();
     }
-    
+
     // Now p0...p1 is strictly inside bounds vertically, so we just need to clip horizontally
-    
+
     if (p0.fX > p1.fX) {
         SkTSwap(p0, p1);
     }
     // now we're left-to-right: p0 .. p1
-    
+
     if (p1.fX <= bounds.left()) {   // entirely to the left
         p0.fX = p1.fX = bounds.left();
         *edges++ = p0;
@@ -119,7 +117,7 @@ static int clip_line(const SkRect& bounds, SkPoint p0, SkPoint p1, SkPoint edges
         *edges++ = p1;
         return 2;
     }
-    
+
     if (p0.fX < bounds.left()) {
         float y = SkDoubleToScalar(p0.fY + (bounds.left() - p0.fX) / dxdy);
         *edges++ = SkPoint::Make(bounds.left(), p0.fY);
@@ -158,7 +156,7 @@ public:
     SkPoint fPoly[N];
     SkRect  fClip;
     SkColor fEdgeColor[N];
-    
+
     EdgeClipView() : fClip(SkRect::MakeLTRB(150, 150, 550, 450)) {
         fPoly[0].set(300, 40);
         fPoly[1].set(550, 250);
@@ -168,7 +166,7 @@ public:
         fEdgeColor[1] = 0xFF00FF00;
         fEdgeColor[2] = 0xFF0000FF;
     }
-    
+
 protected:
     bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
@@ -241,21 +239,21 @@ protected:
         MyClick(SkView* view) : Click(view) {}
         virtual void handleMove() = 0;
     };
-    
+
     class VertClick : public MyClick {
         SkPoint* fPt;
     public:
         VertClick(SkView* view, SkPoint* pt) : MyClick(view), fPt(pt) {}
         void handleMove() override { *fPt = snap(fCurr); }
     };
-    
+
     class DragRectClick : public MyClick {
         SkRect* fRect;
     public:
         DragRectClick(SkView* view, SkRect* rect) : MyClick(view), fRect(rect) {}
         void handleMove() override { fRect->offset(fCurr.x() - fPrev.x(), fCurr.y() - fPrev.y()); }
     };
-    
+
     class DragPolyClick : public MyClick {
         SkPoint fSrc[100];
         SkPoint* fPoly;
@@ -295,7 +293,7 @@ protected:
                 return new VertClick(this, &fPoly[i]);
             }
         }
-        
+
         SkPath path;
         path.addPoly(fPoly, N, true);
         if (path.contains(x, y)) {
@@ -307,15 +305,14 @@ protected:
         }
         return new DoNothingClick(this);
     }
-    
+
     bool onClick(Click* click) override {
         ((MyClick*)click)->handleMove();
         this->inval(nullptr);
         return false;
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };
 DEF_SAMPLE( return new EdgeClipView; )
-

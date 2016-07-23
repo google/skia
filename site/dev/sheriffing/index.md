@@ -38,13 +38,13 @@ Below is a brief summary of what the sheriff does for each task:
 
 <a name="deps_rolls"></a>
 ### DEPS rolls
-* Ensure that [AutoRoll Bot](https://skia-tree-status.appspot.com/set_arb_action)'s DEPS rolls land successfully.
+* Ensure that [AutoRoll Bot](https://autoroll.skia.org)'s DEPS rolls land successfully.
 
 <a name="gold_and_perf"></a>
 ### Gold and Perf
 * Pay attention for new [Perf](https://perf.skia.org/) and [Gold](https://gold.skia.org/) alerts (by clicking on the bell at the top right of the [status page](https://status.skia.org)).
 * The sheriff's duty here is to make sure that when developers introduce new images or new perf regressions, that they are aware of what happened, and they use these tools to take appropriate action.
- 
+
 <a name="sheriff_doc"></a>
 ### Documentation
 * Improve/update this documentation page for future sheriffs, especially the [Tips section](#tips).
@@ -149,7 +149,7 @@ If a Skia CL changes layout tests, but the new images look good, the tests need 
 
 * Retry the DEPS roll (for the 1st/dispreferred option this usually means just retrying the layout bots)
 * Make a Blink patch by editing LayoutTests/TestExpectations
-  * Add # comment about what has changed 
+  * Add # comment about what has changed
   * Add line(s) like the following after the comment:
       * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ NeedsRebaseline ]
         * (if you took the second option above you can just edit the existing line(s))

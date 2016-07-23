@@ -16,17 +16,15 @@
             'skia_lib.gyp:skia_lib',
           ],
           'include_dirs': [
-            '../include/device/xps',
             '../include/private',
             '../include/utils/win',
             '../src/core', # needed to get SkGlyphCache.h
             '../src/utils', # needed to get SkBitSet.h
           ],
           'sources': [
-            '../include/device/xps/SkConstexprMath.h',
-            '../include/device/xps/SkXPSDevice.h',
-            '../src/device/xps/SkXPSDevice.cpp',
-            '../src/doc/SkDocument_XPS.cpp',
+            '../src/xps/SkDocument_XPS.cpp',
+            '../src/xps/SkXPSDevice.cpp',
+            '../src/xps/SkXPSDevice.h',
           ],
           'link_settings': {
             'libraries': [
@@ -42,7 +40,7 @@
             ],
           },
         },{ #else if 'skia_os != "win"'
-          'sources': [ '../src/doc/SkDocument_XPS_None.cpp', ],
+          'sources': [ '../src/xps/SkDocument_XPS_None.cpp', ],
           'dependencies': [ 'skia_lib.gyp:skia_lib', ],
         }],
       ],

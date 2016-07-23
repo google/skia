@@ -13,13 +13,6 @@
 
 #include "sk_types.h"
 
-typedef enum {
-    NORMAL_SK_BLUR_STYLE,   //!< fuzzy inside and outside
-    SOLID_SK_BLUR_STYLE,    //!< solid inside, fuzzy outside
-    OUTER_SK_BLUR_STYLE,    //!< nothing inside, fuzzy outside
-    INNER_SK_BLUR_STYLE,    //!< fuzzy inside, nothing outside
-} sk_blurstyle_t;
-
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
 /**
@@ -41,6 +34,30 @@ SK_API void sk_maskfilter_unref(sk_maskfilter_t*);
     @param sigma Standard deviation of the Gaussian blur to apply. Must be > 0.
 */
 SK_API sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t, float sigma);
+
+/** Create an emboss maskfilter
+    @param blurSigma    standard deviation of the Gaussian blur to apply
+                        before applying lighting (e.g. 3)
+    @param direction    array of 3 scalars [x, y, z] specifying the direction of the light source
+    @param ambient      0...1 amount of ambient light
+    @param specular     coefficient for specular highlights (e.g. 8)
+    @return the emboss maskfilter
+*/
+SK_API sk_maskfilter_t* sk_maskfilter_new_emboss(
+    float blurSigma,
+    const float direction[3],
+    float ambient, 
+    float specular);
+
+SK_API sk_maskfilter_t* sk_maskfilter_new_table(
+    const uint8_t table[256]);
+
+SK_API sk_maskfilter_t* sk_maskfilter_new_gamma(
+    float gamma);
+
+SK_API sk_maskfilter_t* sk_maskfilter_new_clip(
+    uint8_t min,
+    uint8_t max);
 
 SK_C_PLUS_PLUS_END_GUARD
 
