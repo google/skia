@@ -2094,6 +2094,42 @@ static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
             check_simple_closed_rect(reporter, path2, testRect, swapDir, kYSwapStarts[start]);
         }
     }
+    // down, up, left, close
+    path.reset();
+    path.moveTo(1, 1);
+    path.lineTo(1, 2);
+    path.lineTo(1, 1);
+    path.lineTo(0, 1);
+    SkRect rect;
+    SkPath::Direction  dir;
+    unsigned start;
+    path.close();
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+    // right, left, up, close
+    path.reset();
+    path.moveTo(1, 1);
+    path.lineTo(2, 1);
+    path.lineTo(1, 1);
+    path.lineTo(1, 0);
+    path.close();
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+    // parallelogram with horizontal edges
+    path.reset();
+    path.moveTo(1, 0);
+    path.lineTo(3, 0);
+    path.lineTo(2, 1);
+    path.lineTo(0, 1);
+    path.close();
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+    // parallelogram with vertical edges
+    path.reset();
+    path.moveTo(0, 1);
+    path.lineTo(0, 3);
+    path.lineTo(1, 2);
+    path.lineTo(1, 0);
+    path.close();
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+
 }
 
 static void test_isNestedFillRects(skiatest::Reporter* reporter) {
