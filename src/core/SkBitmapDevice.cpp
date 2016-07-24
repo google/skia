@@ -142,7 +142,7 @@ const SkBitmap& SkBitmapDevice::onAccessBitmap() {
 }
 
 bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
-    if (fBitmap.lockPixelsAreWritable() && this->onPeekPixels(pmap)) {
+    if (this->onPeekPixels(pmap)) {
         fBitmap.notifyPixelsChanged();
         return true;
     }
@@ -185,16 +185,12 @@ bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
 
 void SkBitmapDevice::onAttachToCanvas(SkCanvas* canvas) {
     INHERITED::onAttachToCanvas(canvas);
-    if (fBitmap.lockPixelsAreWritable()) {
-        fBitmap.lockPixels();
-    }
+    fBitmap.lockPixels();
 }
 
 void SkBitmapDevice::onDetachFromCanvas() {
     INHERITED::onDetachFromCanvas();
-    if (fBitmap.lockPixelsAreWritable()) {
-        fBitmap.unlockPixels();
-    }
+    fBitmap.unlockPixels();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

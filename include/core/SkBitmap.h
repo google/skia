@@ -455,6 +455,7 @@ public:
      *  not be used as targets for a raster device/canvas (since all pixels
      *  modifications will be lost when unlockPixels() is called.)
      */
+    // DEPRECATED
     bool lockPixelsAreWritable() const;
 
     bool requestLock(SkAutoPixmapUnlock* result) const;

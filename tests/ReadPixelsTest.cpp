@@ -130,7 +130,6 @@ static void fill_src_texture(GrTexture* texture) {
 #endif
 
 static void fill_dst_bmp_with_init_data(SkBitmap* bitmap) {
-    SkASSERT(bitmap->lockPixelsAreWritable());
     SkAutoLockPixels alp(*bitmap);
     int w = bitmap->width();
     int h = bitmap->height();
