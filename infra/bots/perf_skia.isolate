@@ -4,6 +4,10 @@
     'infrabots.isolate',
     'ios_bin.isolate',
     'resources.isolate',
-    'skps.isolate',
   ],
+  'variables': {
+    'files': [
+      '../../../.gclient',
+    ],
+  },
 }

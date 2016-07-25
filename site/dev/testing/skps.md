@@ -31,16 +31,11 @@ How to download SKPs
 
 The following will work only if you have a google.com account.
 
-All buildbot SKP files created by the RecreateSKPs bot are available in the Google Storage bucket gs://chromium-skia-gm, they can be copied over to your local directory like this:
+All buildbot SKP files created by the RecreateSKPs bot are available via the asset management scripts:
 
-* Download the gsutil tool https://developers.google.com/cloud/sdk/#Quick_Start.
-* Authenticate using your google.com credentials “gcloud auth login”
-* Get the current SKP version from https://skia.googlesource.com/skia/+/master/SKP_VERSION.
-* Run in your terminal:
-
-    $ SKP\_VERSION=...<br/>
-    $ SKP\_DEST=...<br/>
-    $ gsutil -m cp gs://chromium-skia-gm/playback\_${SKP\_VERSION}/skps/*.skp ${SKP\_DEST}
+    $ download_from_google_storage -s infra/bots/tools/luci-go/${PLATFORM}/cipd.sha1 --bucket chromium-luci
+    $ infra/bots/tools/luci-go/${PLATFORM}/cipd auth-login
+    $ infra/bots/assets/skp/download.py -t ${TARGET_DIR}
 
 
 <a name="buildbot_skps_partners"></a>
