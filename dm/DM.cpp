@@ -116,11 +116,19 @@ static void fail(const SkString& err) {
     gFailures.push_back(err);
 }
 
+struct Running {
+    SkString   id;
+    SkThreadID thread;
+
+    void dump() const {
+        info("\t%s\n", id.c_str());
+    }
+};
 
 // We use a spinlock to make locking this in a signal handler _somewhat_ safe.
 static SkSpinlock gMutex;
-static int32_t            gPending;
-static SkTArray<SkString> gRunning;
+static int32_t           gPending;
+static SkTArray<Running> gRunning;
 
 static void done(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
@@ -129,7 +137,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
     {
         SkAutoMutexAcquire lock(gMutex);
         for (int i = 0; i < gRunning.count(); i++) {
-            if (gRunning[i] == id) {
+            if (gRunning[i].id == id) {
                 gRunning.removeShuffle(i);
                 break;
             }
@@ -147,7 +155,7 @@ static void start(const char* config, const char* src, const char* srcOptions, c
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
     vlog("start %s\n", id.c_str());
     SkAutoMutexAcquire lock(gMutex);
-    gRunning.push_back(id);
+    gRunning.push_back({id,SkGetThreadID()});
 }
 
 static void print_status() {
@@ -159,9 +167,22 @@ static void print_status() {
     info("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
          elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
     for (auto& task : gRunning) {
-        info("\t%s\n", task.c_str());
+        task.dump();
     }
 }
+
+#if !defined(SK_BUILD_FOR_ANDROID)
+    static void find_culprit() {
+        // Assumes gMutex is locked.
+        SkThreadID thisThread = SkGetThreadID();
+        for (auto& task : gRunning) {
+            if (task.thread == thisThread) {
+                info("Likely culprit:\n");
+                task.dump();
+            }
+        }
+    }
+#endif
 
 #if defined(SK_BUILD_FOR_WIN32)
     static LONG WINAPI crash_handler(EXCEPTION_POINTERS* e) {
@@ -189,8 +210,9 @@ static void print_status() {
         }
         info(", was running:\n");
         for (auto& task : gRunning) {
-            info("\t%s\n", task.c_str());
+            task.dump();
         }
+        find_culprit();
         fflush(stdout);
 
         // Execute default exception handler... hopefully, exit.
@@ -208,8 +230,9 @@ static void print_status() {
 
         info("\nCaught signal %d [%s], was running:\n", sig, strsignal(sig));
         for (auto& task : gRunning) {
-            info("\t%s\n", task.c_str());
+            task.dump();
         }
+        find_culprit();
 
         void* stack[64];
         int count = backtrace(stack, SK_ARRAY_COUNT(stack));
