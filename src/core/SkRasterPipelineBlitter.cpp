@@ -9,7 +9,6 @@
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkPM4f.h"
-#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkSRGB.h"
@@ -57,6 +56,22 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     return SkRasterPipelineBlitter::Create(dst, paint, alloc);
 }
 
+// Clamp colors into [0,1] premul (e.g. just before storing back to memory).
+static void SK_VECTORCALL clamp_01_premul(SkRasterPipeline::Stage* st, size_t x,
+                                          Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                          Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    a = Sk4f::Max(a, 0.0f);
+    r = Sk4f::Max(r, 0.0f);
+    g = Sk4f::Max(g, 0.0f);
+    b = Sk4f::Max(b, 0.0f);
+
+    a = Sk4f::Min(a, 1.0f);
+    r = Sk4f::Min(r, a);
+    g = Sk4f::Min(g, a);
+    b = Sk4f::Min(b, a);
+
+    st->next(x, r,g,b,a, dr,dg,db,da);
+}
 
 // The default shader produces a constant color (from the SkPaint).
 static void SK_VECTORCALL constant_color(SkRasterPipeline::Stage* st, size_t x,
@@ -255,10 +270,10 @@ static void SK_VECTORCALL store_srgb(SkRasterPipeline::Stage* st, size_t x,
                                      Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
                                      Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     auto dst = st->ctx<uint32_t*>() + x;
-    ( sk_linear_to_srgb(r) << SK_R32_SHIFT
-    | sk_linear_to_srgb(g) << SK_G32_SHIFT
-    | sk_linear_to_srgb(b) << SK_B32_SHIFT
-    | Sk4f_round(255.0f*a) << SK_A32_SHIFT).store(dst);
+    ( sk_linear_to_srgb_noclamp(r) << SK_R32_SHIFT
+    | sk_linear_to_srgb_noclamp(g) << SK_G32_SHIFT
+    | sk_linear_to_srgb_noclamp(b) << SK_B32_SHIFT
+    |       Sk4f_round(255.0f * a) << SK_A32_SHIFT).store(dst);
 }
 
 // Tail variant of store_srgb() handling 1 pixel at a time.
@@ -266,7 +281,12 @@ static void SK_VECTORCALL store_srgb_1(SkRasterPipeline::Stage* st, size_t x,
                                        Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
                                        Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     auto dst = st->ctx<uint32_t*>() + x;
-    *dst = Sk4f_toS32(swizzle_rb_if_bgra({ r[0], g[0], b[0], a[0] }));
+    Sk4i rgb = sk_linear_to_srgb_noclamp(swizzle_rb_if_bgra({ r[0], g[0], b[0], 0.0f }));
+
+    uint32_t rgba;
+    SkNx_cast<uint8_t>(rgb).store(&rgba);
+    rgba |= (uint32_t)(255.0f * a[0] + 0.5f) << 24;
+    *dst = rgba;
 }
 
 static bool supported(const SkImageInfo& info) {
@@ -343,6 +363,7 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p, const void* dst
 void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p, void* dst) const {
     SkASSERT(supported(fDst.info()));
 
+    p->append(clamp_01_premul);
     switch (fDst.info().colorType()) {
         case kN32_SkColorType:
             if (fDst.info().gammaCloseToSRGB()) {
