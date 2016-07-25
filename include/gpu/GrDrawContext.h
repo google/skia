@@ -269,6 +269,10 @@ public:
     GrPixelConfig config() const { return fRenderTarget->config(); }
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
     bool isGammaCorrect() const { return fSurfaceProps.isGammaCorrect(); }
+    SkSourceGammaTreatment sourceGammaTreatment() const {
+        return this->isGammaCorrect() ? SkSourceGammaTreatment::kRespect
+                                      : SkSourceGammaTreatment::kIgnore;
+    }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
 

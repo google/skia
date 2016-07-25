@@ -139,9 +139,7 @@ void SkGpuDevice::drawTexture(GrTexture* tex, const SkRect& dst, const SkPaint& 
     GrPaint grPaint;
     SkMatrix mat;
     mat.reset();
-    if (!SkPaintToGrPaint(this->context(), paint, mat,
-                          this->surfaceProps().isGammaCorrect(), fDrawContext->getColorSpace(),
-                          &grPaint)) {
+    if (!SkPaintToGrPaint(this->context(), fDrawContext.get(), paint, mat, &grPaint)) {
         return;
     }
     SkMatrix textureMat;

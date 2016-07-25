@@ -124,8 +124,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrDrawContext* dc,
     // Though for the time being runs in the textblob can override the paint, they only touch font
     // info.
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(context, skPaint, viewMatrix, props.isGammaCorrect(), dc->getColorSpace(),
-                          &grPaint)) {
+    if (!SkPaintToGrPaint(context, dc, skPaint, viewMatrix, &grPaint)) {
         return;
     }
 
@@ -389,7 +388,10 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
         gTextContext = GrAtlasTextContext::Create();
     }
 
-    // Setup dummy SkPaint / GrPaint
+    // Setup dummy SkPaint / GrPaint / GrDrawContext
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox, 1024, 1024,
+                                                             kSkia8888_GrPixelConfig, nullptr));
+
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPaint skPaint;
@@ -399,8 +401,7 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     skPaint.setSubpixelText(random->nextBool());
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(context, skPaint, viewMatrix, gSurfaceProps.isGammaCorrect(), nullptr,
-                          &grPaint)) {
+    if (!SkPaintToGrPaint(context, drawContext.get(), skPaint, viewMatrix, &grPaint)) {
         SkFAIL("couldn't convert paint\n");
     }
 

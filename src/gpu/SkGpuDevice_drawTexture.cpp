@@ -201,19 +201,16 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         }
         textureMatrix = &tempMatrix;
     }
-    bool gammaCorrect = this->surfaceProps().isGammaCorrect();
-    SkSourceGammaTreatment gammaTreatment = gammaCorrect
-        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
     sk_sp<GrFragmentProcessor> fp(producer->createFragmentProcessor(
         *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode,
-        fDrawContext->getColorSpace(), gammaTreatment));
+        fDrawContext->getColorSpace(), fDrawContext->sourceGammaTreatment()));
     if (!fp) {
         return;
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(fContext, paint, viewMatrix, fp, producer->isAlphaOnly(),
-                                     gammaCorrect, fDrawContext->getColorSpace(), &grPaint)) {
+    if (!SkPaintToGrPaintWithTexture(fContext, fDrawContext.get(), paint, viewMatrix, fp,
+                                     producer->isAlphaOnly(), &grPaint)) {
         return;
     }
 
