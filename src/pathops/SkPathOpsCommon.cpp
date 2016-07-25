@@ -513,7 +513,10 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
 #endif
     DEBUG_COINCIDENCE_HEALTH(contourList, "expand2");
     // the expanded ranges may not align -- add the missing spans
-    SkAssertResult(coincidence->addExpanded());
+    if (!coincidence->addExpanded()) {
+        SkASSERT(globalState->debugSkipAssert());
+        return false;
+    }
     DEBUG_COINCIDENCE_HEALTH(contourList, "addExpanded3");
     coincidence->correctEnds();
     if (!coincidence->mark()) {  // mark spans of coincident segments as coincident

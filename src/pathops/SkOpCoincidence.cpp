@@ -448,7 +448,7 @@ bool SkOpCoincidence::addExpanded() {
                         : start->segment()->addExpanded(
                                 startPtT->fT + startRange * oStartPart, oTest, &startOver);
                 if (!success) {
-                    SkASSERT(0);
+                    SkASSERT(fGlobalState->debugSkipAssert());
                     return false;
                 }
                 if (startOver) {

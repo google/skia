@@ -331,7 +331,9 @@ SkOpPtT* SkOpSegment::addT(double t, AliasMatch allowAlias, bool* allocated) {
             }
             return span->ptT();
         }
-        SkASSERT(span != &fTail);
+        if (span == &fTail) {
+            return nullptr;
+        }
     } while ((span = span->upCast()->next()));
     SkASSERT(0);
     return nullptr;
