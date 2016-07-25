@@ -282,6 +282,39 @@ void SkPDFUtils::AppendScalar(SkScalar value, SkWStream* stream) {
     stream->write(result, len);
 }
 
+// Return pow(10.0, e), optimized for common cases.
+inline double pow10(int e) {
+    switch (e) {
+        case 0:  return 1.0;  // common cases
+        case 1:  return 10.0;
+        case 2:  return 100.0;
+        case 3:  return 1e+03;
+        case 4:  return 1e+04;
+        case 5:  return 1e+05;
+        case 6:  return 1e+06;
+        case 7:  return 1e+07;
+        case 8:  return 1e+08;
+        case 9:  return 1e+09;
+        case 10: return 1e+10;
+        case 11: return 1e+11;
+        case 12: return 1e+12;
+        case 13: return 1e+13;
+        case 14: return 1e+14;
+        case 15: return 1e+15;
+        default:
+            if (e > 15) {
+                double value = 1e+15;
+                while (e-- > 15) { value *= 10.0; }
+                return value;
+            } else {
+                SkASSERT(e < 0);
+                double value = 1.0;
+                while (e++ < 0) { value /= 10.0; }
+                return value;
+            }
+    }
+}
+
 /** Write a string into result, includeing a terminating '\0' (for
     unit testing).  Return strlen(result) (for SkWStream::write) The
     resulting string will be in the form /[-]?([0-9]*.)?[0-9]+/ and
@@ -327,65 +360,74 @@ size_t SkPDFUtils::FloatToDecimal(float value,
         *output = '\0';
         return output - result;
     }
-    // Inspired by:
-    // http://www.exploringbinary.com/quick-and-dirty-floating-point-to-decimal-conversion/
-
     if (value < 0.0) {
         *output++ = '-';
         value = -value;
     }
     SkASSERT(value >= 0.0f);
 
-    // Must use double math to keep precision right.
-    double intPart;
-    double fracPart = std::modf(static_cast<double>(value), &intPart);
-    SkASSERT(intPart + fracPart == static_cast<double>(value));
-    size_t significantDigits = 0;
-    const size_t maxSignificantDigits = 9;
-    // Any fewer significant digits loses precision.  The unit test
-    // checks round-trip correctness.
-    SkASSERT(intPart >= 0.0 && fracPart >= 0.0);  // negative handled already.
-    SkASSERT(intPart > 0.0 || fracPart > 0.0);  // zero already caught.
-    if (intPart > 0.0) {
-        // put the intPart digits onto a stack for later reversal.
-        char reversed[1 + FLT_MAX_10_EXP];  // 39 == 1 + FLT_MAX_10_EXP
-        // the largest integer part is FLT_MAX; it has 39 decimal digits.
-        size_t reversedIndex = 0;
-        do {
-            SkASSERT(reversedIndex < sizeof(reversed));
-            int digit = static_cast<int>(std::fmod(intPart, 10.0));
-            SkASSERT(digit >= 0 && digit <= 9);
-            reversed[reversedIndex++] = '0' + digit;
-            intPart = std::floor(intPart / 10.0);
-        } while (intPart > 0.0);
-        significantDigits = reversedIndex;
-        SkASSERT(reversedIndex <= sizeof(reversed));
-        SkASSERT(output + reversedIndex <= end);
-        while (reversedIndex-- > 0) {  // pop from stack, append to result
-            *output++ = reversed[reversedIndex];
-        }
+    int binaryExponent;
+    (void)std::frexp(value, &binaryExponent);
+    static const double kLog2 = 0.3010299956639812;  // log10(2.0);
+    int decimalExponent = static_cast<int>(std::floor(kLog2 * binaryExponent));
+    int decimalShift = decimalExponent - 8;
+    double power = pow10(-decimalShift);
+    int32_t d = static_cast<int32_t>(value * power + 0.5);
+    // SkASSERT(value == (float)(d * pow(10.0, decimalShift)));
+    SkASSERT(d <= 999999999);
+    if (d > 167772159) {  // floor(pow(10,1+log10(1<<24)))
+       // need one fewer decimal digits for 24-bit precision.
+       decimalShift = decimalExponent - 7;
+       // SkASSERT(power * 0.1 = pow10(-decimalShift));
+       // recalculate to get rounding right.
+       d = static_cast<int32_t>(value * (power * 0.1) + 0.5);
+       SkASSERT(d <= 99999999);
     }
-    if (fracPart > 0 && significantDigits < maxSignificantDigits) {
-        *output++ = '.';
-        SkASSERT(output <= end);
+    while (d % 10 == 0) {
+        d /= 10;
+        ++decimalShift;
+    }
+    SkASSERT(d > 0);
+    // SkASSERT(value == (float)(d * pow(10.0, decimalShift)));
+    uint8_t buffer[9]; // decimal value buffer.
+    int bufferIndex = 0;
+    do {
+        buffer[bufferIndex++] = d % 10;
+        d /= 10;
+    } while (d != 0);
+    SkASSERT(bufferIndex <= (int)sizeof(buffer) && bufferIndex > 0);
+    if (decimalShift >= 0) {
         do {
-            fracPart = std::modf(fracPart * 10.0, &intPart);
-            int digit = static_cast<int>(intPart);
-            SkASSERT(digit >= 0 && digit <= 9);
-            *output++ = '0' + digit;
-            SkASSERT(output <= end);
-            if (digit > 0 || significantDigits > 0) {
-                // start counting significantDigits after first non-zero digit.
-                ++significantDigits;
+            --bufferIndex;
+            *output++ = '0' + buffer[bufferIndex];
+        } while (bufferIndex);
+        for (int i = 0; i < decimalShift; ++i) {
+            *output++ = '0';
+        }
+    } else {
+        int placesBeforeDecimal = bufferIndex + decimalShift;
+        if (placesBeforeDecimal > 0) {
+            while (placesBeforeDecimal-- > 0) {
+                --bufferIndex;
+                *output++ = '0' + buffer[bufferIndex];
             }
-        } while (fracPart > 0.0
-                 && significantDigits < maxSignificantDigits
-                 && output < end);
-        // When fracPart == 0, additional digits will be zero.
-        // When significantDigits == maxSignificantDigits, we can stop.
-        // when output == end, we have filed the string.
-        // Note: denormalized numbers will not have the same number of
-        // significantDigits, but do not need them to round-trip.
+            *output++ = '.';
+        } else {
+            *output++ = '.';
+            int placesAfterDecimal = -placesBeforeDecimal;
+            while (placesAfterDecimal-- > 0) {
+                *output++ = '0';
+            }
+        }
+        while (bufferIndex > 0) {
+            --bufferIndex;
+            *output++ = '0' + buffer[bufferIndex];
+            if (output == end) {
+                break;  // denormalized: don't need extra precision.
+                // Note: denormalized numbers will not have the same number of
+                // significantDigits, but do not need them to round-trip.
+            }
+        }
     }
     SkASSERT(output <= end);
     *output = '\0';
