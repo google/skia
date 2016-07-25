@@ -146,7 +146,7 @@ public:
     bool isDevKern() const { return SkToBool(fFlags & kDevKern_Flag); }
 
     int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding,
-                     uint16_t glyphs[], int maxGlyphCount) const;
+                     SkGlyphID glyphs[], int maxGlyphCount) const;
 
     int countText(const void* text, size_t byteLength, SkTextEncoding encoding) {
         return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);

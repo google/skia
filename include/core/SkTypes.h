@@ -348,6 +348,10 @@ typedef uint32_t SkFourByteTag;
 */
 typedef int32_t SkUnichar;
 
+/** 16 bit unsigned integer to hold a glyph index
+*/
+typedef uint16_t SkGlyphID;
+
 /** 32 bit value to hold a millisecond duration
  *  Note that SK_MSecMax is about 25 days.
  */

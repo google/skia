@@ -106,7 +106,7 @@ public:
      *  A run is a sequence of glyphs sharing the same font metrics and positioning mode.
      */
     struct RunBuffer {
-        uint16_t* glyphs;
+        SkGlyphID* glyphs;
         SkScalar* pos;
     };
 

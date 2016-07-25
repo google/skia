@@ -821,7 +821,7 @@ public:
         is returned.
     */
     int textToGlyphs(const void* text, size_t byteLength,
-                     uint16_t glyphs[]) const;
+                     SkGlyphID glyphs[]) const;
 
     /** Return true if all of the specified text has a corresponding non-zero
         glyph ID. If any of the code-points in the text are not supported in
@@ -836,7 +836,7 @@ public:
         to zero. Note: this does not look at the text-encoding setting in the
         paint, only at the typeface.
     */
-    void glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar text[]) const;
+    void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
 
     /** Return the number of drawable units in the specified text buffer.
         This looks at the current TextEncoding field of the paint. If you also
