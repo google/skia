@@ -8,6 +8,7 @@
 #include "SkBlitter.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
+#include "SkHalf.h"
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
@@ -224,6 +225,59 @@ static void SK_VECTORCALL store_565_1(SkRasterPipeline::Stage* st, size_t x,
     *ptr = to_565(r,g,b)[0];
 }
 
+// Load 4 F16 pixels.
+static void SK_VECTORCALL load_d_f16(SkRasterPipeline::Stage* st, size_t x,
+                                     Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                     Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    auto ptr = st->ctx<const uint64_t*>() + x;
+
+    // TODO: This can be made a lot more efficient with platform-specific code.
+    auto p0 = SkHalfToFloat_finite(ptr[0]),
+         p1 = SkHalfToFloat_finite(ptr[1]),
+         p2 = SkHalfToFloat_finite(ptr[2]),
+         p3 = SkHalfToFloat_finite(ptr[3]);
+    dr = { p0[0], p1[0], p2[0], p3[0] };
+    dg = { p0[1], p1[1], p2[1], p3[1] };
+    db = { p0[2], p1[2], p2[2], p3[2] };
+    da = { p0[3], p1[3], p2[3], p3[3] };
+
+    st->next(x, r,g,b,a, dr,dg,db,da);
+}
+
+// Load 1 F16 pixel.
+static void SK_VECTORCALL load_d_f16_1(SkRasterPipeline::Stage* st, size_t x,
+                                       Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                       Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    auto ptr = st->ctx<const uint64_t*>() + x;
+
+    auto p0 = SkHalfToFloat_finite(ptr[0]);
+    dr = { p0[0],0,0,0 };
+    dg = { p0[1],0,0,0 };
+    db = { p0[2],0,0,0 };
+    da = { p0[3],0,0,0 };
+
+    st->next(x, r,g,b,a, dr,dg,db,da);
+}
+
+// Store 4 F16 pixels.
+static void SK_VECTORCALL store_f16(SkRasterPipeline::Stage* st, size_t x,
+                                    Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                    Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    auto ptr = st->ctx<uint64_t*>() + x;
+
+    Sk4h_store4(ptr, SkFloatToHalf_finite(r), SkFloatToHalf_finite(g),
+                     SkFloatToHalf_finite(b), SkFloatToHalf_finite(a));
+}
+
+// Store 1 F16 pixel.
+static void SK_VECTORCALL store_f16_1(SkRasterPipeline::Stage* st, size_t x,
+                                      Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                      Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    auto ptr = st->ctx<uint64_t*>() + x;
+
+    SkFloatToHalf_finite({r[0], g[0], b[0], a[0]}).store(ptr);
+}
+
 // Load 4 8-bit sRGB pixels from SkPMColor order to RGBA.
 static void SK_VECTORCALL load_d_srgb(SkRasterPipeline::Stage* st, size_t x,
                                       Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
@@ -290,11 +344,11 @@ static void SK_VECTORCALL store_srgb_1(SkRasterPipeline::Stage* st, size_t x,
 }
 
 static bool supported(const SkImageInfo& info) {
-    // TODO: f16, more?
     switch (info.colorType()) {
-        case kN32_SkColorType:     return info.gammaCloseToSRGB();
-        case kRGB_565_SkColorType: return true;
-        default:                   return false;
+        case kN32_SkColorType:      return info.gammaCloseToSRGB();
+        case kRGBA_F16_SkColorType: return true;
+        case kRGB_565_SkColorType:  return true;
+        default:                    return false;
     }
 }
 
@@ -323,7 +377,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     uint32_t paintColor = paint.getColor();
 
     SkColor4f color;
-    if (dst.info().colorSpace()) {
+    if (SkImageInfoIsGammaCorrect(dst.info())) {
         color = SkColor4f::FromColor(paintColor);
     } else {
         swizzle_rb(SkNx_cast<float>(Sk4b::Load(&paintColor)) * (1/255.0f)).store(&color);
@@ -353,6 +407,9 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p, const void* dst
                 p->append(load_d_srgb, load_d_srgb_1, dst);
             }
             break;
+        case kRGBA_F16_SkColorType:
+            p->append(load_d_f16, load_d_f16_1, dst);
+            break;
         case kRGB_565_SkColorType:
             p->append(load_d_565, load_d_565_1, dst);
             break;
@@ -369,6 +426,9 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p, void* dst) const
             if (fDst.info().gammaCloseToSRGB()) {
                 p->append(store_srgb, store_srgb_1, dst);
             }
+            break;
+        case kRGBA_F16_SkColorType:
+            p->append(store_f16, store_f16_1, dst);
             break;
         case kRGB_565_SkColorType:
             p->append(store_565, store_565_1, dst);
