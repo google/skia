@@ -168,7 +168,7 @@ void SkTypeface::serialize(SkWStream* wstream) const {
         return;
     }
     bool isLocal = false;
-    SkFontDescriptor desc(this->style());
+    SkFontDescriptor desc;
     this->onGetFontDescriptor(&desc, &isLocal);
 
     // Embed font data if it's a local font.
@@ -196,8 +196,7 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
         }
     }
 
-    return SkTypeface::MakeFromName(desc.getFamilyName(),
-                                    SkFontStyle::FromOldStyle(desc.getStyle()));
+    return SkTypeface::MakeFromName(desc.getFamilyName(), desc.getStyle());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

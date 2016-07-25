@@ -1714,6 +1714,7 @@ void LogFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     SkString familyName;
     this->onGetFamilyName(&familyName);
     desc->setFamilyName(familyName.c_str());
+    desc->setStyle(this->fontStyle());
     *isLocalStream = this->fSerializeAsStream;
 }
 
