@@ -346,6 +346,8 @@ protected:
 
     /** Sets the fixedPitch bit. If used, must be called in the constructor. */
     void setIsFixedPitch(bool isFixedPitch) { fIsFixedPitch = isFixedPitch; }
+    /** Sets the font style. If used, must be called in the constructor. */
+    void setFontStyle(SkFontStyle style) { fStyle = style; }
 
     friend class SkScalerContext;
     static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);

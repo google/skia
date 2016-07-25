@@ -1696,9 +1696,9 @@ bool SkTypeface_FreeType::Scanner::scanFont(
             { "standard", SkFontStyle::kNormal_Weight },
             { "thin", SkFontStyle::kThin_Weight },
             { "ultra", SkFontStyle::kExtraBold_Weight },
-            { "ultrablack", 1000 },
+            { "ultrablack", SkFontStyle::kExtraBlack_Weight },
             { "ultrabold", SkFontStyle::kExtraBold_Weight },
-            { "ultraheavy", 1000 },
+            { "ultraheavy", SkFontStyle::kExtraBlack_Weight },
             { "ultralight", SkFontStyle::kExtraLight_Weight },
         };
         int const index = SkStrLCSearch(&commonWeights[0].name, SK_ARRAY_COUNT(commonWeights),

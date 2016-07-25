@@ -370,31 +370,90 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool find_dict_float(CFDictionaryRef dict, CFStringRef name, float* value) {
+static bool find_dict_CGFloat(CFDictionaryRef dict, CFStringRef name, CGFloat* value) {
     CFNumberRef num;
     return CFDictionaryGetValueIfPresent(dict, name, (const void**)&num)
     && CFNumberIsFloatType(num)
-    && CFNumberGetValue(num, kCFNumberFloatType, value);
+    && CFNumberGetValue(num, kCFNumberCGFloatType, value);
 }
 
-static int unit_weight_to_fontstyle(float unit) {
-    float value;
-    if (unit < 0) {
-        value = 100 + (1 + unit) * 300;
-    } else {
-        value = 400 + unit * 500;
+template <typename S, typename D, typename C> struct LinearInterpolater {
+    struct Mapping {
+        S src_val;
+        D dst_val;
+    };
+    constexpr LinearInterpolater(Mapping const mapping[], int mappingCount)
+        : fMapping(mapping), fMappingCount(mappingCount) {}
+
+    static D map(S value, S src_min, S src_max, D dst_min, D dst_max) {
+        SkASSERT(src_min < src_max);
+        SkASSERT(dst_min <= dst_max);
+        return C()(dst_min + (((value - src_min) * (dst_max - dst_min)) / (src_max - src_min)));
     }
-    return sk_float_round2int(value);
+
+    int map(S val) const {
+        // -Inf to [0]
+        if (val < fMapping[0].src_val) {
+            return fMapping[0].dst_val;
+        }
+
+        // Linear from [i] to [i+1]
+        for (int i = 0; i < fMappingCount - 1; ++i) {
+            if (val < fMapping[i+1].src_val) {
+                return map(val, fMapping[i].src_val, fMapping[i+1].src_val,
+                                fMapping[i].dst_val, fMapping[i+1].dst_val);
+            }
+        }
+
+        // From [n] to +Inf
+        // if (fcweight < Inf)
+        return fMapping[fMappingCount - 1].dst_val;
+    }
+
+    Mapping const * fMapping;
+    int fMappingCount;
+};
+
+struct RoundCGFloatToInt {
+    int operator()(CGFloat s) { return s + 0.5; }
+};
+
+static int ct_weight_to_fontstyle(CGFloat cgWeight) {
+    using Interpolator = LinearInterpolater<CGFloat, int, RoundCGFloatToInt>;
+
+    // Values determined by creating font data with every weight, creating a CTFont,
+    // and asking the CTFont for its weight. See TypefaceStyle test for basics.
+
+    // Note that Mac supports the old OS2 version A so 0 through 10 are as if multiplied by 100.
+    // However, on this end we can't tell.
+    static constexpr Interpolator::Mapping weightMappings[] = {
+        { -1.00,    0 },
+        { -0.70,  100 },
+        { -0.50,  200 },
+        { -0.23,  300 },
+        {  0.00,  400 },
+        {  0.20,  500 },
+        {  0.30,  600 },
+        {  0.40,  700 },
+        {  0.60,  800 },
+        {  0.80,  900 },
+        {  1.00, 1000 },
+    };
+    static constexpr Interpolator interpolater(weightMappings, SK_ARRAY_COUNT(weightMappings));
+    return interpolater.map(cgWeight);
 }
 
-static int unit_width_to_fontstyle(float unit) {
-    float value;
-    if (unit < 0) {
-        value = 1 + (1 + unit) * 4;
-    } else {
-        value = 5 + unit * 4;
-    }
-    return sk_float_round2int(value);
+static int ct_width_to_fontstyle(CGFloat cgWidth) {
+    using Interpolator = LinearInterpolater<CGFloat, int, RoundCGFloatToInt>;
+
+    // Values determined by creating font data with every width, creating a CTFont,
+    // and asking the CTFont for its width. See TypefaceStyle test for basics.
+    static constexpr Interpolator::Mapping widthMappings[] = {
+        { -0.5,  0 },
+        {  0.5, 10 },
+    };
+    static constexpr Interpolator interpolater(widthMappings, SK_ARRAY_COUNT(widthMappings));
+    return interpolater.map(cgWidth);
 }
 
 static SkFontStyle fontstyle_from_descriptor(CTFontDescriptorRef desc) {
@@ -404,19 +463,19 @@ static SkFontStyle fontstyle_from_descriptor(CTFontDescriptorRef desc) {
         return SkFontStyle();
     }
 
-    float weight, width, slant;
-    if (!find_dict_float(dict, kCTFontWeightTrait, &weight)) {
+    CGFloat weight, width, slant;
+    if (!find_dict_CGFloat(dict, kCTFontWeightTrait, &weight)) {
         weight = 0;
     }
-    if (!find_dict_float(dict, kCTFontWidthTrait, &width)) {
+    if (!find_dict_CGFloat(dict, kCTFontWidthTrait, &width)) {
         width = 0;
     }
-    if (!find_dict_float(dict, kCTFontSlantTrait, &slant)) {
+    if (!find_dict_CGFloat(dict, kCTFontSlantTrait, &slant)) {
         slant = 0;
     }
 
-    return SkFontStyle(unit_weight_to_fontstyle(weight),
-                       unit_width_to_fontstyle(width),
+    return SkFontStyle(ct_weight_to_fontstyle(weight),
+                       ct_width_to_fontstyle(width),
                        slant ? SkFontStyle::kItalic_Slant
                              : SkFontStyle::kUpright_Slant);
 }

@@ -210,8 +210,6 @@ public:
         , fLogFont(lf)
         , fSerializeAsStream(serializeAsStream)
     {
-
-        // If the font has cubic outlines, it will not be rendered with ClearType.
         HFONT font = CreateFontIndirect(&lf);
 
         HDC deviceContext = ::CreateCompatibleDC(nullptr);
@@ -234,9 +232,11 @@ public:
 
         // The fixed pitch bit is set if the font is *not* fixed pitch.
         this->setIsFixedPitch((textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH) == 0);
+        this->setFontStyle(SkFontStyle(textMetric.tmWeight, style.width(), style.slant()));
 
         // Used a logfont on a memory context, should never get a device font.
         // Therefore all TMPF_DEVICE will be PostScript (cubic) fonts.
+        // If the font has cubic outlines, it will not be rendered with ClearType.
         fCanBeLCD = !((textMetric.tmPitchAndFamily & TMPF_VECTOR) &&
                       (textMetric.tmPitchAndFamily & TMPF_DEVICE));
     }
