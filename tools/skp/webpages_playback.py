@@ -376,21 +376,22 @@ class SkPicturePlayback(object):
           posixpath.join(self.gs.target_name(), dest_dir_name,
                          SKPICTURES_DIR_NAME))
 
-      if self._upload_to_partner_bucket:
-        print '\n\n=======Uploading to Partner bucket %s =======\n\n' % (
-            PARTNERS_GS_BUCKET)
-        partner_gs = GoogleStorageDataStore(PARTNERS_GS_BUCKET)
-        partner_gs.delete_path(SKPICTURES_DIR_NAME)
-        partner_gs.upload_dir_contents(
-            os.path.join(LOCAL_PLAYBACK_ROOT_DIR, SKPICTURES_DIR_NAME),
-            dest_dir=SKPICTURES_DIR_NAME,
-            upload_if=gs_utils.GSUtils.UploadIf.IF_MODIFIED)
-        print '\n\n=======New SKPs have been uploaded to %s =======\n\n' % (
-            posixpath.join(partner_gs.target_name(), SKPICTURES_DIR_NAME))
     else:
       print '\n\n=======Not Uploading to %s=======\n\n' % self.gs.target_type()
       print 'Generated resources are available in %s\n\n' % (
           LOCAL_PLAYBACK_ROOT_DIR)
+
+    if self._upload_to_partner_bucket:
+      print '\n\n=======Uploading to Partner bucket %s =======\n\n' % (
+          PARTNERS_GS_BUCKET)
+      partner_gs = GoogleStorageDataStore(PARTNERS_GS_BUCKET)
+      partner_gs.delete_path(SKPICTURES_DIR_NAME)
+      partner_gs.upload_dir_contents(
+          os.path.join(LOCAL_PLAYBACK_ROOT_DIR, SKPICTURES_DIR_NAME),
+          dest_dir=SKPICTURES_DIR_NAME,
+          upload_if=gs_utils.GSUtils.UploadIf.IF_MODIFIED)
+      print '\n\n=======New SKPs have been uploaded to %s =======\n\n' % (
+          posixpath.join(partner_gs.target_name(), SKPICTURES_DIR_NAME))
 
     return 0
 
