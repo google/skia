@@ -67,43 +67,6 @@ enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Helper for turning a bitmap into a texture. If the bitmap is GrTexture backed this
-// just accesses the backing GrTexture. Otherwise, it creates a cached texture
-// representation and releases it in the destructor.
-class AutoBitmapTexture : public SkNoncopyable {
-public:
-    AutoBitmapTexture() {}
-
-    AutoBitmapTexture(GrContext* context,
-                      const SkBitmap& bitmap,
-                      const GrTextureParams& params,
-                      SkSourceGammaTreatment gammaTreatment,
-                      GrTexture** texture) {
-        SkASSERT(texture);
-        *texture = this->set(context, bitmap, params, gammaTreatment);
-    }
-
-    GrTexture* set(GrContext* context,
-                   const SkBitmap& bitmap,
-                   const GrTextureParams& params,
-                   SkSourceGammaTreatment gammaTreatment) {
-        // Either get the texture directly from the bitmap, or else use the cache and
-        // remember to unref it.
-        if (GrTexture* bmpTexture = bitmap.getTexture()) {
-            fTexture.reset(nullptr);
-            return bmpTexture;
-        } else {
-            fTexture.reset(GrRefCachedBitmapTexture(context, bitmap, params, gammaTreatment));
-            return fTexture.get();
-        }
-    }
-
-private:
-    SkAutoTUnref<GrTexture> fTexture;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 /** Checks that the alpha type is legal and gets constructor flags. Returns false if device creation
     should fail. */
 bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
@@ -826,11 +789,6 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
                                    int* tileSize,
                                    SkIRect* clippedSrcRect) const {
     ASSERT_SINGLE_OWNER
-    // if bitmap is explictly texture backed then just use the texture
-    if (bitmap.getTexture()) {
-        return false;
-    }
-
     return this->shouldTileImageID(bitmap.getGenerationID(), bitmap.getSubset(), viewMatrix, params,
                                    srcRectPtr, maxTileSize, tileSize, clippedSrcRect);
 }
@@ -877,13 +835,7 @@ void SkGpuDevice::drawBitmap(const SkDraw& origDraw,
     CHECK_SHOULD_DRAW(origDraw);
     SkMatrix viewMatrix;
     viewMatrix.setConcat(*origDraw.fMatrix, m);
-    if (bitmap.getTexture()) {
-        GrBitmapTextureAdjuster adjuster(&bitmap);
-        // We can use kFast here because we know texture-backed bitmaps don't support extractSubset.
-        this->drawTextureProducer(&adjuster, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
-                                  viewMatrix, fClip, paint);
-        return;
-    }
+
     int maxTileSize = fContext->caps()->maxTileSize();
 
     // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
@@ -1080,16 +1032,13 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     // We should have already handled bitmaps larger than the max texture size.
     SkASSERT(bitmap.width() <= fContext->caps()->maxTextureSize() &&
              bitmap.height() <= fContext->caps()->maxTextureSize());
-    // Unless the bitmap is inherently texture-backed, we should be respecting the max tile size
-    // by the time we get here.
-    SkASSERT(bitmap.getTexture() ||
-             (bitmap.width() <= fContext->caps()->maxTileSize() &&
-              bitmap.height() <= fContext->caps()->maxTileSize()));
+    // We should be respecting the max tile size by the time we get here.
+    SkASSERT(bitmap.width() <= fContext->caps()->maxTileSize() &&
+             bitmap.height() <= fContext->caps()->maxTileSize());
 
-    GrTexture* texture;
     SkSourceGammaTreatment gammaTreatment = this->surfaceProps().isGammaCorrect()
         ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
-    AutoBitmapTexture abt(fContext, bitmap, params, gammaTreatment, &texture);
+    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext, bitmap, params, gammaTreatment);
     if (nullptr == texture) {
         return;
     }
@@ -1140,19 +1089,19 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         }
         textureDomain.setLTRB(left, top, right, bottom);
         if (bicubic) {
-            fp = GrBicubicEffect::Make(texture, std::move(colorSpaceXform), texMatrix,
+            fp = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix,
                                        textureDomain);
         } else {
-            fp = GrTextureDomainEffect::Make(texture, std::move(colorSpaceXform), texMatrix,
+            fp = GrTextureDomainEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix,
                                              textureDomain, GrTextureDomain::kClamp_Mode,
                                              params.filterMode());
         }
     } else if (bicubic) {
         SkASSERT(GrTextureParams::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        fp = GrBicubicEffect::Make(texture, std::move(colorSpaceXform), texMatrix, tileModes);
+        fp = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, tileModes);
     } else {
-        fp = GrSimpleTextureEffect::Make(texture, std::move(colorSpaceXform), texMatrix, params);
+        fp = GrSimpleTextureEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, params);
     }
 
     GrPaint grPaint;
@@ -1182,8 +1131,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         return;
     }
 
-    sk_sp<GrTexture> texture = sk_ref_sp(bitmap.getTexture());
-    if (!texture) {
+    sk_sp<GrTexture> texture;
+    {
         SkAutoLockPixels alp(bitmap, true);
         if (!bitmap.readyToDraw()) {
             return;
@@ -1273,12 +1222,7 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                                  const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     ASSERT_SINGLE_OWNER
     CHECK_SHOULD_DRAW(draw);
-    if (bitmap.getTexture()) {
-        GrBitmapTextureAdjuster adjuster(&bitmap);
-        this->drawTextureProducer(&adjuster, src, &origDst, constraint, *draw.fMatrix, fClip,
-                                  paint);
-        return;
-    }
+
     // The src rect is inferred to be the bmp bounds if not provided. Otherwise, the src rect must
     // be clipped to the bmp bounds. To determine tiling parameters we need the filter mode which
     // in turn requires knowing the src-to-dst mapping. If the src was clipped to the bmp bounds
@@ -1357,23 +1301,21 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
-    SkASSERT(!bitmap.getTexture());
-
     SkAutoLockPixels alp(bitmap, true);
     if (!bitmap.readyToDraw()) {
         return nullptr;
     }
 
-    GrTexture* texture;
-    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(),	
-                          SkSourceGammaTreatment::kRespect, &texture);
+    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext, bitmap,
+                                                         GrTextureParams::ClampNoFilter(),
+                                                         SkSourceGammaTreatment::kRespect);
     if (!texture) {
         return nullptr;
     }
 
     return SkSpecialImage::MakeFromGpu(bitmap.bounds(),
                                        bitmap.getGenerationID(),
-                                       sk_ref_sp(texture),
+                                       texture,
                                        sk_ref_sp(bitmap.colorSpace()),
                                        &this->surfaceProps());
 }
@@ -1568,13 +1510,8 @@ void SkGpuDevice::drawImageNine(const SkDraw& draw, const SkImage* image,
 void SkGpuDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
                                  const SkRect& dst, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    if (bitmap.getTexture()) {
-        GrBitmapTextureAdjuster adjuster(&bitmap);
-        this->drawProducerNine(draw, &adjuster, center, dst, paint);
-    } else {
-        GrBitmapTextureMaker maker(fContext, bitmap);
-        this->drawProducerNine(draw, &maker, center, dst, paint);
-    }
+    GrBitmapTextureMaker maker(fContext, bitmap);
+    this->drawProducerNine(draw, &maker, center, dst, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

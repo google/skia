@@ -421,11 +421,14 @@ GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                     const GrTextureParams& params,
                                     SkSourceGammaTreatment gammaTreatment) {
-    if (bitmap.getTexture()) {
-        return GrBitmapTextureAdjuster(&bitmap).refTextureSafeForParams(params, gammaTreatment,
-                                                                        nullptr);
-    }
     return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, gammaTreatment);
+}
+
+sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
+                                           const GrTextureParams& params,
+                                           SkSourceGammaTreatment gammaTreatment) {
+    GrTexture* tex = GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, gammaTreatment);
+    return sk_sp<GrTexture>(tex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

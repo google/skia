@@ -424,10 +424,6 @@ void SkBitmap::notifyPixelsChanged() const {
     }
 }
 
-GrTexture* SkBitmap::getTexture() const {
-    return fPixelRef ? fPixelRef->getTexture() : nullptr;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /** We explicitly use the same allocator for our pixels that SkMask does,
@@ -740,20 +736,6 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
         return false;   // r is empty (i.e. no intersection)
     }
 
-    if (fPixelRef->getTexture() != nullptr) {
-        // Do a deep copy
-        SkPixelRef* pixelRef = fPixelRef->deepCopy(this->colorType(), this->colorSpace(), &subset);
-        if (pixelRef != nullptr) {
-            SkBitmap dst;
-            dst.setInfo(this->info().makeWH(subset.width(), subset.height()));
-            dst.setIsVolatile(this->isVolatile());
-            dst.setPixelRef(pixelRef)->unref();
-            SkDEBUGCODE(dst.validate());
-            result->swap(dst);
-            return true;
-        }
-    }
-
     // If the upper left of the rectangle was outside the bounds of this SkBitmap, we should have
     // exited above.
     SkASSERT(static_cast<unsigned>(r.fLeft) < static_cast<unsigned>(this->width()));
@@ -909,46 +891,14 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     return true;
 }
 
+// TODO: can we merge this with copyTo?
 bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
     const SkColorType dstCT = this->colorType();
-    SkColorSpace* dstCS = this->colorSpace();
 
     if (!this->canCopyTo(dstCT)) {
         return false;
     }
-
-    // If we have a PixelRef, and it supports deep copy, use it.
-    // Currently supported only by texture-backed bitmaps.
-    if (fPixelRef) {
-        SkPixelRef* pixelRef = fPixelRef->deepCopy(dstCT, dstCS, nullptr);
-        if (pixelRef) {
-            uint32_t rowBytes;
-            if (this->colorType() == dstCT && this->colorSpace() == dstCS) {
-                // Since there is no subset to pass to deepCopy, and deepCopy
-                // succeeded, the new pixel ref must be identical.
-                SkASSERT(fPixelRef->info() == pixelRef->info());
-                pixelRef->cloneGenID(*fPixelRef);
-                // Use the same rowBytes as the original.
-                rowBytes = fRowBytes;
-            } else {
-                // With the new config, an appropriate fRowBytes will be computed by setInfo.
-                rowBytes = 0;
-            }
-
-            const SkImageInfo info = fInfo.makeColorType(dstCT);
-            if (!dst->setInfo(info, rowBytes)) {
-                return false;
-            }
-            dst->setPixelRef(pixelRef, fPixelRefOrigin)->unref();
-            return true;
-        }
-    }
-
-    if (this->getTexture()) {
-        return false;
-    } else {
-        return this->copyTo(dst, dstCT, nullptr);
-    }
+    return this->copyTo(dst, dstCT, nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -253,8 +253,6 @@ sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
 }
 
 sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode forceCopy) {
-    SkASSERT(nullptr == bm.getTexture());
-
     bool hasColorTable = false;
     if (kIndex_8_SkColorType == bm.colorType()) {
         SkAutoLockPixels autoLockPixels(bm);

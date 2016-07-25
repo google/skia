@@ -15,25 +15,6 @@ class SkBitmap;
 class SkImage_Base;
 class SkImageCacherator;
 
-/** Implementation for texture-backed SkBitmaps. The bitmap must stay in scope and unmodified
-    while this object exists. */
-class GrBitmapTextureAdjuster : public GrTextureAdjuster {
-public:
-    explicit GrBitmapTextureAdjuster(const SkBitmap* bmp);
-
-protected:
-    SkColorSpace* getColorSpace() override;
-
-private:
-    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
-
-    void didCacheCopy(const GrUniqueKey& copyKey) override;
-
-    const SkBitmap* fBmp;
-
-    typedef GrTextureAdjuster INHERITED;
-};
-
 /** Implementation for texture-backed SkImages. The image must stay in scope and unmodified while
     this object exists. */
 class GrImageTextureAdjuster : public GrTextureAdjuster {

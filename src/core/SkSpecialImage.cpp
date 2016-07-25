@@ -290,7 +290,6 @@ private:
 sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
                                                      const SkBitmap& bm,
                                                      const SkSurfaceProps* props) {
-    SkASSERT(nullptr == bm.getTexture());
     SkASSERT(rect_fits(subset, bm.width(), bm.height()));
 
     const SkBitmap* srcBM = &bm;

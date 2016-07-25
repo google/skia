@@ -849,7 +849,7 @@ SkBaseDevice* SkCanvas::getTopDevice(bool updateMatrixClip) const {
 }
 
 bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
-    if (kUnknown_SkColorType == bitmap->colorType() || bitmap->getTexture()) {
+    if (kUnknown_SkColorType == bitmap->colorType()) {
         return false;
     }
 
@@ -911,10 +911,6 @@ bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowByte
 }
 
 bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
-    if (bitmap.getTexture()) {
-        return false;
-    }
-
     SkAutoPixmapUnlock unlocker;
     if (bitmap.requestLock(&unlocker)) {
         const SkPixmap& pm = unlocker.pixmap();
