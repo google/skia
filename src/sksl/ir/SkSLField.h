@@ -21,16 +21,16 @@ namespace SkSL {
  * result of declaring anonymous interface blocks.
  */
 struct Field : public Symbol {
-    Field(Position position, std::shared_ptr<Variable> owner, int fieldIndex)
-    : INHERITED(position, kField_Kind, owner->fType->fields()[fieldIndex].fName)
+    Field(Position position, const Variable& owner, int fieldIndex)
+    : INHERITED(position, kField_Kind, owner.fType.fields()[fieldIndex].fName)
     , fOwner(owner)
     , fFieldIndex(fieldIndex) {}
 
     virtual std::string description() const override {
-        return fOwner->description() + "." + fOwner->fType->fields()[fFieldIndex].fName;
+        return fOwner.description() + "." + fOwner.fType.fields()[fFieldIndex].fName;
     }
 
-    const std::shared_ptr<Variable> fOwner;
+    const Variable& fOwner;
     const int fFieldIndex;
 
     typedef Symbol INHERITED;

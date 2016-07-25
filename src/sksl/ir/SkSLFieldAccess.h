@@ -18,12 +18,12 @@ namespace SkSL {
  */
 struct FieldAccess : public Expression {
     FieldAccess(std::unique_ptr<Expression> base, int fieldIndex)
-    : INHERITED(base->fPosition, kFieldAccess_Kind, base->fType->fields()[fieldIndex].fType)
+    : INHERITED(base->fPosition, kFieldAccess_Kind, base->fType.fields()[fieldIndex].fType)
     , fBase(std::move(base))
     , fFieldIndex(fieldIndex) {}
 
     virtual std::string description() const override {
-        return fBase->description() + "." + fBase->fType->fields()[fFieldIndex].fName;
+        return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
     }
 
     const std::unique_ptr<Expression> fBase;

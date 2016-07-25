@@ -8,6 +8,7 @@
 #ifndef SKSL_FLOATLITERAL
 #define SKSL_FLOATLITERAL
 
+#include "SkSLContext.h"
 #include "SkSLExpression.h"
 
 namespace SkSL {
@@ -16,8 +17,8 @@ namespace SkSL {
  * A literal floating point number.
  */
 struct FloatLiteral : public Expression {
-    FloatLiteral(Position position, double value)
-    : INHERITED(position, kFloatLiteral_Kind, kFloat_Type)
+    FloatLiteral(const Context& context, Position position, double value)
+    : INHERITED(position, kFloatLiteral_Kind, *context.fFloat_Type)
     , fValue(value) {}
 
     virtual std::string description() const override {

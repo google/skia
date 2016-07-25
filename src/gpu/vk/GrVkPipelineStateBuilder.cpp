@@ -93,8 +93,6 @@ shaderc_shader_kind vk_shader_stage_to_shaderc_kind(VkShaderStageFlagBits stage)
 }
 #endif
 
-#include <fstream>
-#include <sstream>
 bool GrVkPipelineStateBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
                                                     VkShaderStageFlagBits stage,
                                                     const GrGLSLShaderBuilder& builder,

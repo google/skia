@@ -18,24 +18,26 @@
 
 namespace SkSL {
 
+class Context;
+
 /**
  * Represents a type, such as int or vec4.
  */
 class Type : public Symbol {
 public:
     struct Field {
-        Field(Modifiers modifiers, std::string name, std::shared_ptr<Type> type)
+        Field(Modifiers modifiers, std::string name, const Type& type)
         : fModifiers(modifiers)
         , fName(std::move(name))
         , fType(std::move(type)) {}
 
-        const std::string description() {
-            return fType->description() + " " + fName + ";";
+        const std::string description() const {
+            return fType.description() + " " + fName + ";";
         }
 
         const Modifiers fModifiers;
         const std::string fName;
-        const std::shared_ptr<Type> fType;
+        const Type& fType;
     };
 
     enum Kind {
@@ -56,7 +58,7 @@ public:
     , fTypeKind(kOther_Kind) {}
 
     // Create a generic type which maps to the listed types.
-    Type(std::string name, std::vector<std::shared_ptr<Type>> types)
+    Type(std::string name, std::vector<const Type*> types)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kGeneric_Kind)
     , fCoercibleTypes(std::move(types)) {
@@ -78,7 +80,7 @@ public:
     , fRows(1) {}
 
     // Create a scalar type which can be coerced to the listed types.
-    Type(std::string name, bool isNumber, std::vector<std::shared_ptr<Type>> coercibleTypes)
+    Type(std::string name, bool isNumber, std::vector<const Type*> coercibleTypes)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
     , fIsNumber(isNumber)
@@ -87,23 +89,23 @@ public:
     , fRows(1) {}
 
     // Create a vector type.
-    Type(std::string name, std::shared_ptr<Type> componentType, int columns)
+    Type(std::string name, const Type& componentType, int columns)
     : Type(name, kVector_Kind, componentType, columns) {}
 
     // Create a vector or array type.
-    Type(std::string name, Kind kind, std::shared_ptr<Type> componentType, int columns)
+    Type(std::string name, Kind kind, const Type& componentType, int columns)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kind)
-    , fComponentType(std::move(componentType))
+    , fComponentType(&componentType)
     , fColumns(columns)
     , fRows(1)    
     , fDimensions(SpvDim1D) {}
 
     // Create a matrix type.
-    Type(std::string name, std::shared_ptr<Type> componentType, int columns, int rows)
+    Type(std::string name, const Type& componentType, int columns, int rows)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kMatrix_Kind)
-    , fComponentType(std::move(componentType))
+    , fComponentType(&componentType)
     , fColumns(columns)
     , fRows(rows)    
     , fDimensions(SpvDim1D) {}
@@ -153,7 +155,7 @@ public:
      * Returns true if an instance of this type can be freely coerced (implicitly converted) to 
      * another type.
      */
-    bool canCoerceTo(std::shared_ptr<Type> other) const {
+    bool canCoerceTo(const Type& other) const {
         int cost;
         return determineCoercionCost(other, &cost);
     }
@@ -164,15 +166,15 @@ public:
      * costs. Returns true if a conversion is possible, false otherwise. The value of the out 
      * parameter is undefined if false is returned.
      */
-    bool determineCoercionCost(std::shared_ptr<Type> other, int* outCost) const;
+    bool determineCoercionCost(const Type& other, int* outCost) const;
 
     /**
      * For matrices and vectors, returns the type of individual cells (e.g. mat2 has a component
      * type of kFloat_Type). For all other types, causes an assertion failure.
      */
-    std::shared_ptr<Type> componentType() const {
+    const Type& componentType() const {
         ASSERT(fComponentType);
-        return fComponentType;
+        return *fComponentType;
     }
 
     /**
@@ -195,7 +197,7 @@ public:
         return fRows;
     }
 
-    std::vector<Field> fields() const {
+    const std::vector<Field>& fields() const {
         ASSERT(fTypeKind == kStruct_Kind);
         return fFields;
     }
@@ -204,7 +206,7 @@ public:
      * For generic types, returns the types that this generic type can substitute for. For other
      * types, returns a list of other types that this type can be coerced into.
      */
-    std::vector<std::shared_ptr<Type>> coercibleTypes() const {
+    const std::vector<const Type*>& coercibleTypes() const {
         ASSERT(fCoercibleTypes.size() > 0);
         return fCoercibleTypes;
     }
@@ -257,7 +259,7 @@ public:
             case kStruct_Kind: {
                 size_t result = 16;
                 for (size_t i = 0; i < fFields.size(); i++) {
-                    size_t alignment = fFields[i].fType->alignment();
+                    size_t alignment = fFields[i].fType.alignment();
                     if (alignment > result) {
                         result = alignment;
                     }
@@ -300,13 +302,13 @@ public:
             case kStruct_Kind: {
                 size_t total = 0;
                 for (size_t i = 0; i < fFields.size(); i++) {
-                    size_t alignment = fFields[i].fType->alignment();
+                    size_t alignment = fFields[i].fType.alignment();
                     if (total % alignment != 0) {
                         total += alignment - total % alignment;
                     }
                     ASSERT(false);
                     ASSERT(total % alignment == 0);
-                    total += fFields[i].fType->size();
+                    total += fFields[i].fType.size();
                 }
                 return total;
             }
@@ -319,15 +321,15 @@ public:
      * Returns the corresponding vector or matrix type with the specified number of columns and 
      * rows.
      */
-    std::shared_ptr<Type> toCompound(int columns, int rows);
+    const Type& toCompound(const Context& context, int columns, int rows) const;
 
 private:
     typedef Symbol INHERITED;
 
     const Kind fTypeKind;
     const bool fIsNumber = false;
-    const std::shared_ptr<Type> fComponentType = nullptr;
-    const std::vector<std::shared_ptr<Type>> fCoercibleTypes = { };
+    const Type* fComponentType = nullptr;
+    const std::vector<const Type*> fCoercibleTypes = { };
     const int fColumns = -1;
     const int fRows = -1;
     const std::vector<Field> fFields = { };
@@ -337,101 +339,6 @@ private:
     const bool fIsMultisampled = false;
     const bool fIsSampled = false;
 };
-
-extern const std::shared_ptr<Type> kVoid_Type;
-
-extern const std::shared_ptr<Type> kFloat_Type;
-extern const std::shared_ptr<Type> kVec2_Type;
-extern const std::shared_ptr<Type> kVec3_Type;
-extern const std::shared_ptr<Type> kVec4_Type;
-extern const std::shared_ptr<Type> kDouble_Type;
-extern const std::shared_ptr<Type> kDVec2_Type;
-extern const std::shared_ptr<Type> kDVec3_Type;
-extern const std::shared_ptr<Type> kDVec4_Type;
-extern const std::shared_ptr<Type> kInt_Type;
-extern const std::shared_ptr<Type> kIVec2_Type;
-extern const std::shared_ptr<Type> kIVec3_Type;
-extern const std::shared_ptr<Type> kIVec4_Type;
-extern const std::shared_ptr<Type> kUInt_Type;
-extern const std::shared_ptr<Type> kUVec2_Type;
-extern const std::shared_ptr<Type> kUVec3_Type;
-extern const std::shared_ptr<Type> kUVec4_Type;
-extern const std::shared_ptr<Type> kBool_Type;
-extern const std::shared_ptr<Type> kBVec2_Type;
-extern const std::shared_ptr<Type> kBVec3_Type;
-extern const std::shared_ptr<Type> kBVec4_Type;
-
-extern const std::shared_ptr<Type> kMat2x2_Type;
-extern const std::shared_ptr<Type> kMat2x3_Type;
-extern const std::shared_ptr<Type> kMat2x4_Type;
-extern const std::shared_ptr<Type> kMat3x2_Type;
-extern const std::shared_ptr<Type> kMat3x3_Type;
-extern const std::shared_ptr<Type> kMat3x4_Type;
-extern const std::shared_ptr<Type> kMat4x2_Type;
-extern const std::shared_ptr<Type> kMat4x3_Type;
-extern const std::shared_ptr<Type> kMat4x4_Type;
-
-extern const std::shared_ptr<Type> kDMat2x2_Type;
-extern const std::shared_ptr<Type> kDMat2x3_Type;
-extern const std::shared_ptr<Type> kDMat2x4_Type;
-extern const std::shared_ptr<Type> kDMat3x2_Type;
-extern const std::shared_ptr<Type> kDMat3x3_Type;
-extern const std::shared_ptr<Type> kDMat3x4_Type;
-extern const std::shared_ptr<Type> kDMat4x2_Type;
-extern const std::shared_ptr<Type> kDMat4x3_Type;
-extern const std::shared_ptr<Type> kDMat4x4_Type;
-
-extern const std::shared_ptr<Type> kSampler1D_Type;
-extern const std::shared_ptr<Type> kSampler2D_Type;
-extern const std::shared_ptr<Type> kSampler3D_Type;
-extern const std::shared_ptr<Type> kSamplerCube_Type;
-extern const std::shared_ptr<Type> kSampler2DRect_Type;
-extern const std::shared_ptr<Type> kSampler1DArray_Type;
-extern const std::shared_ptr<Type> kSampler2DArray_Type;
-extern const std::shared_ptr<Type> kSamplerCubeArray_Type;
-extern const std::shared_ptr<Type> kSamplerBuffer_Type;
-extern const std::shared_ptr<Type> kSampler2DMS_Type;
-extern const std::shared_ptr<Type> kSampler2DMSArray_Type;
-
-extern const std::shared_ptr<Type> kGSampler1D_Type;
-extern const std::shared_ptr<Type> kGSampler2D_Type;
-extern const std::shared_ptr<Type> kGSampler3D_Type;
-extern const std::shared_ptr<Type> kGSamplerCube_Type;
-extern const std::shared_ptr<Type> kGSampler2DRect_Type;
-extern const std::shared_ptr<Type> kGSampler1DArray_Type;
-extern const std::shared_ptr<Type> kGSampler2DArray_Type;
-extern const std::shared_ptr<Type> kGSamplerCubeArray_Type;
-extern const std::shared_ptr<Type> kGSamplerBuffer_Type;
-extern const std::shared_ptr<Type> kGSampler2DMS_Type;
-extern const std::shared_ptr<Type> kGSampler2DMSArray_Type;
-
-extern const std::shared_ptr<Type> kSampler1DShadow_Type;
-extern const std::shared_ptr<Type> kSampler2DShadow_Type;
-extern const std::shared_ptr<Type> kSamplerCubeShadow_Type;
-extern const std::shared_ptr<Type> kSampler2DRectShadow_Type;
-extern const std::shared_ptr<Type> kSampler1DArrayShadow_Type;
-extern const std::shared_ptr<Type> kSampler2DArrayShadow_Type;
-extern const std::shared_ptr<Type> kSamplerCubeArrayShadow_Type;
-extern const std::shared_ptr<Type> kGSampler2DArrayShadow_Type;
-extern const std::shared_ptr<Type> kGSamplerCubeArrayShadow_Type;
-
-extern const std::shared_ptr<Type> kGenType_Type;
-extern const std::shared_ptr<Type> kGenDType_Type;
-extern const std::shared_ptr<Type> kGenIType_Type;
-extern const std::shared_ptr<Type> kGenUType_Type;
-extern const std::shared_ptr<Type> kGenBType_Type;
-extern const std::shared_ptr<Type> kMat_Type;
-extern const std::shared_ptr<Type> kVec_Type;
-extern const std::shared_ptr<Type> kGVec_Type;
-extern const std::shared_ptr<Type> kGVec2_Type;
-extern const std::shared_ptr<Type> kGVec3_Type;
-extern const std::shared_ptr<Type> kGVec4_Type;
-extern const std::shared_ptr<Type> kDVec_Type;
-extern const std::shared_ptr<Type> kIVec_Type;
-extern const std::shared_ptr<Type> kUVec_Type;
-extern const std::shared_ptr<Type> kBVec_Type;
-
-extern const std::shared_ptr<Type> kInvalid_Type;
 
 } // namespace
 

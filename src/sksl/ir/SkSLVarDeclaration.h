@@ -20,7 +20,7 @@ namespace SkSL {
  * names ['x', 'y', 'z'], sizes of [[], [], [4, 2]], and values of [null, 1, null].
  */
 struct VarDeclaration : public ProgramElement {
-    VarDeclaration(Position position, std::vector<std::shared_ptr<Variable>> vars,
+    VarDeclaration(Position position, std::vector<const Variable*> vars,
                    std::vector<std::vector<std::unique_ptr<Expression>>> sizes,
                    std::vector<std::unique_ptr<Expression>> values)
     : INHERITED(position, kVar_Kind) 
@@ -30,9 +30,9 @@ struct VarDeclaration : public ProgramElement {
 
     std::string description() const override {
         std::string result = fVars[0]->fModifiers.description();
-        std::shared_ptr<Type> baseType = fVars[0]->fType;
+        const Type* baseType = &fVars[0]->fType;
         while (baseType->kind() == Type::kArray_Kind) {
-            baseType = baseType->componentType();
+            baseType = &baseType->componentType();
         }
         result += baseType->description();
         std::string separator = " ";
@@ -55,7 +55,7 @@ struct VarDeclaration : public ProgramElement {
         return result;
     }
 
-    const std::vector<std::shared_ptr<Variable>> fVars;
+    const std::vector<const Variable*> fVars;
     const std::vector<std::vector<std::unique_ptr<Expression>>> fSizes;
     const std::vector<std::unique_ptr<Expression>> fValues;
 

@@ -53,7 +53,8 @@ namespace SkSL {
  */
 class IRGenerator {
 public:
-    IRGenerator(std::shared_ptr<SymbolTable> root, ErrorReporter& errorReporter);
+    IRGenerator(const Context* context, std::shared_ptr<SymbolTable> root, 
+                ErrorReporter& errorReporter);
 
     std::unique_ptr<VarDeclaration> convertVarDeclaration(const ASTVarDeclaration& decl, 
                                                           Variable::Storage storage);
@@ -65,21 +66,20 @@ private:
     void pushSymbolTable();
     void popSymbolTable();
 
-    std::shared_ptr<Type> convertType(const ASTType& type);
+    const Type* convertType(const ASTType& type);
     std::unique_ptr<Expression> call(Position position, 
-                                     std::shared_ptr<FunctionDeclaration> function, 
+                                     const FunctionDeclaration& function, 
                                      std::vector<std::unique_ptr<Expression>> arguments);
-    bool determineCallCost(std::shared_ptr<FunctionDeclaration> function, 
+    bool determineCallCost(const FunctionDeclaration& function, 
                            const std::vector<std::unique_ptr<Expression>>& arguments,
                            int* outCost);
     std::unique_ptr<Expression> call(Position position, std::unique_ptr<Expression> function, 
                                      std::vector<std::unique_ptr<Expression>> arguments);
-    std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, 
-                                       std::shared_ptr<Type> type);
+    std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     std::unique_ptr<Block> convertBlock(const ASTBlock& block);
     std::unique_ptr<Statement> convertBreak(const ASTBreakStatement& b);
     std::unique_ptr<Expression> convertConstructor(Position position, 
-                                                   std::shared_ptr<Type> type, 
+                                                   const Type& type, 
                                                    std::vector<std::unique_ptr<Expression>> params);
     std::unique_ptr<Statement> convertContinue(const ASTContinueStatement& c);
     std::unique_ptr<Statement> convertDiscard(const ASTDiscardStatement& d);
@@ -106,10 +106,11 @@ private:
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
 
     void checkValid(const Expression& expr);
-    void markReadFrom(std::shared_ptr<Variable> var);
+    void markReadFrom(const Variable& var);
     void markWrittenTo(const Expression& expr);
 
-    std::shared_ptr<FunctionDeclaration> fCurrentFunction;
+    const Context& fContext;
+    const FunctionDeclaration* fCurrentFunction;
     std::shared_ptr<SymbolTable> fSymbolTable;
     ErrorReporter& fErrors;
 

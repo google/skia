@@ -18,7 +18,7 @@ namespace SkSL {
  */
 struct BinaryExpression : public Expression {
     BinaryExpression(Position position, std::unique_ptr<Expression> left, Token::Kind op,
-                     std::unique_ptr<Expression> right, std::shared_ptr<Type> type)
+                     std::unique_ptr<Expression> right, const Type& type)
     : INHERITED(position, kBinary_Kind, type)
     , fLeft(std::move(left))
     , fOperator(op)

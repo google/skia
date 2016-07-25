@@ -8,6 +8,7 @@
 #ifndef SKSL_FUNCTIONREFERENCE
 #define SKSL_FUNCTIONREFERENCE
 
+#include "SkSLContext.h"
 #include "SkSLExpression.h"
 
 namespace SkSL {
@@ -17,8 +18,9 @@ namespace SkSL {
  * always eventually replaced by FunctionCalls in valid programs.
  */
 struct FunctionReference : public Expression {
-    FunctionReference(Position position, std::vector<std::shared_ptr<FunctionDeclaration>> function)
-    : INHERITED(position, kFunctionReference_Kind, kInvalid_Type)
+    FunctionReference(const Context& context, Position position, 
+                      std::vector<const FunctionDeclaration*> function)
+    : INHERITED(position, kFunctionReference_Kind, *context.fInvalid_Type)
     , fFunctions(function) {}
 
     virtual std::string description() const override {
@@ -26,7 +28,7 @@ struct FunctionReference : public Expression {
     	return "<function>";
     }
 
-    const std::vector<std::shared_ptr<FunctionDeclaration>> fFunctions;
+    const std::vector<const FunctionDeclaration*> fFunctions;
 
     typedef Expression INHERITED;
 };

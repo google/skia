@@ -35,7 +35,7 @@ struct Expression : public IRNode {
         kTypeReference_Kind,
     };
 
-    Expression(Position position, Kind kind, std::shared_ptr<Type> type)
+    Expression(Position position, Kind kind, const Type& type)
     : INHERITED(position)
     , fKind(kind)
     , fType(std::move(type)) {}
@@ -45,7 +45,7 @@ struct Expression : public IRNode {
     }
 
     const Kind fKind;
-    const std::shared_ptr<Type> fType;
+    const Type& fType;
 
     typedef IRNode INHERITED;
 };

@@ -18,41 +18,40 @@ namespace SkSL {
  * instance, swizzling a vec3 with two components will result in a vec2. It is possible to swizzle
  * with more components than the source vector, as in 'vec2(1).xxxx'.
  */
-static std::shared_ptr<Type> get_type(Expression& value, 
-                                      size_t count) {
-    std::shared_ptr<Type> base = value.fType->componentType();
+static const Type& get_type(const Context& context, Expression& value, size_t count) {
+    const Type& base = value.fType.componentType();
     if (count == 1) {
         return base;
     }
-    if (base == kFloat_Type) {
+    if (base == *context.fFloat_Type) {
         switch (count) {
-            case 2: return kVec2_Type;
-            case 3: return kVec3_Type;
-            case 4: return kVec4_Type;
+            case 2: return *context.fVec2_Type;
+            case 3: return *context.fVec3_Type;
+            case 4: return *context.fVec4_Type;
         }
-    } else if (base == kDouble_Type) {
+    } else if (base == *context.fDouble_Type) {
         switch (count) {
-            case 2: return kDVec2_Type;
-            case 3: return kDVec3_Type;
-            case 4: return kDVec4_Type;
+            case 2: return *context.fDVec2_Type;
+            case 3: return *context.fDVec3_Type;
+            case 4: return *context.fDVec4_Type;
         }
-    } else if (base == kInt_Type) {
+    } else if (base == *context.fInt_Type) {
         switch (count) {
-            case 2: return kIVec2_Type;
-            case 3: return kIVec3_Type;
-            case 4: return kIVec4_Type;
+            case 2: return *context.fIVec2_Type;
+            case 3: return *context.fIVec3_Type;
+            case 4: return *context.fIVec4_Type;
         }
-    } else if (base == kUInt_Type) {
+    } else if (base == *context.fUInt_Type) {
         switch (count) {
-            case 2: return kUVec2_Type;
-            case 3: return kUVec3_Type;
-            case 4: return kUVec4_Type;
+            case 2: return *context.fUVec2_Type;
+            case 3: return *context.fUVec3_Type;
+            case 4: return *context.fUVec4_Type;
         }
-    } else if (base == kBool_Type) {
+    } else if (base == *context.fBool_Type) {
         switch (count) {
-            case 2: return kBVec2_Type;
-            case 3: return kBVec3_Type;
-            case 4: return kBVec4_Type;
+            case 2: return *context.fBVec2_Type;
+            case 3: return *context.fBVec3_Type;
+            case 4: return *context.fBVec4_Type;
         }
     }
     ABORT("cannot swizzle %s\n", value.description().c_str());
@@ -62,8 +61,8 @@ static std::shared_ptr<Type> get_type(Expression& value,
  * Represents a vector swizzle operation such as 'vec2(1, 2, 3).zyx'.
  */
 struct Swizzle : public Expression {
-    Swizzle(std::unique_ptr<Expression> base, std::vector<int> components)
-    : INHERITED(base->fPosition, kSwizzle_Kind, get_type(*base, components.size()))
+    Swizzle(const Context& context, std::unique_ptr<Expression> base, std::vector<int> components)
+    : INHERITED(base->fPosition, kSwizzle_Kind, get_type(context, *base, components.size()))
     , fBase(std::move(base))
     , fComponents(std::move(components)) {
         ASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);

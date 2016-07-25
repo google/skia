@@ -41,9 +41,10 @@ Compiler::Compiler()
 : fErrorCount(0) {
     auto types = std::shared_ptr<SymbolTable>(new SymbolTable(*this));
     auto symbols = std::shared_ptr<SymbolTable>(new SymbolTable(types, *this));
-    fIRGenerator = new IRGenerator(symbols, *this);
+    fIRGenerator = new IRGenerator(&fContext, symbols, *this);
     fTypes = types;
-    #define ADD_TYPE(t) types->add(k ## t ## _Type->fName, k ## t ## _Type)
+    #define ADD_TYPE(t) types->addWithoutOwnership(fContext.f ## t ## _Type->fName, \
+                                                   fContext.f ## t ## _Type.get())
     ADD_TYPE(Void);
     ADD_TYPE(Float);
     ADD_TYPE(Vec2);
@@ -185,19 +186,21 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, std::strin
     fErrorText = "";
     fErrorCount = 0;
     fIRGenerator->pushSymbolTable();
-    std::vector<std::unique_ptr<ProgramElement>> result;
+    std::vector<std::unique_ptr<ProgramElement>> elements;
     switch (kind) {
         case Program::kVertex_Kind:
-            this->internalConvertProgram(SKSL_VERT_INCLUDE, &result);
+            this->internalConvertProgram(SKSL_VERT_INCLUDE, &elements);
             break;
         case Program::kFragment_Kind:
-            this->internalConvertProgram(SKSL_FRAG_INCLUDE, &result);
+            this->internalConvertProgram(SKSL_FRAG_INCLUDE, &elements);
             break;
     }
-    this->internalConvertProgram(text, &result);
+    this->internalConvertProgram(text, &elements);
+    auto result = std::unique_ptr<Program>(new Program(kind, std::move(elements), 
+                                                       fIRGenerator->fSymbolTable));;
     fIRGenerator->popSymbolTable();
     this->writeErrorCount();
-    return std::unique_ptr<Program>(new Program(kind, std::move(result)));;
+    return result;
 }
 
 void Compiler::error(Position position, std::string msg) {
@@ -224,7 +227,7 @@ void Compiler::writeErrorCount() {
 bool Compiler::toSPIRV(Program::Kind kind, std::string text, std::ostream& out) {
     auto program = this->convertProgram(kind, text);
     if (fErrorCount == 0) {
-        SkSL::SPIRVCodeGenerator cg;
+        SkSL::SPIRVCodeGenerator cg(&fContext);
         cg.generateCode(*program.get(), out);
         ASSERT(!out.rdstate());
     }

@@ -11,6 +11,7 @@
 #include <vector>
 #include "ir/SkSLProgram.h"
 #include "ir/SkSLSymbolTable.h"
+#include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
 
 namespace SkSL {
@@ -50,6 +51,7 @@ private:
     IRGenerator* fIRGenerator;
     std::string fSkiaVertText; // FIXME store parsed version instead
 
+    Context fContext;
     int fErrorCount;
     std::string fErrorText;
 };

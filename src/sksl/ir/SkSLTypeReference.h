@@ -8,6 +8,7 @@
 #ifndef SKSL_TYPEREFERENCE
 #define SKSL_TYPEREFERENCE
 
+#include "SkSLContext.h"
 #include "SkSLExpression.h"
 
 namespace SkSL {
@@ -17,16 +18,16 @@ namespace SkSL {
  * always eventually replaced by Constructors in valid programs.
  */
 struct TypeReference : public Expression {
-    TypeReference(Position position, std::shared_ptr<Type> type)
-    : INHERITED(position, kTypeReference_Kind, kInvalid_Type)
-    , fValue(std::move(type)) {}
+    TypeReference(const Context& context, Position position, const Type& type)
+    : INHERITED(position, kTypeReference_Kind, *context.fInvalid_Type)
+    , fValue(type) {}
 
     std::string description() const override {
     	ASSERT(false);
     	return "<type>";
     }
 
-    const std::shared_ptr<Type> fValue;
+    const Type& fValue;
 
     typedef Expression INHERITED;
 };
