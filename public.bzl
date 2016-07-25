@@ -518,6 +518,7 @@ def DM_ARGS(base_dir, asan):
         "~PathOpsSimplify",
         "~PathOpsTightBoundsQuads",
         "~Point",
+        "~sk_linear_to_srgb",
     ]
   return [
       "--src %s" % " ".join(source),
