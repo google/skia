@@ -1461,7 +1461,7 @@ KERNEL(dstatop)  { return srcatop(d,da,s,sa); }
 
 KERNEL(modulate) { return s*d; }
 KERNEL(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
-KERNEL(plus)     { return s + d; }
+KERNEL(plus_)     { return s + d; }
 KERNEL(screen)   { return s + d - s*d; }
 KERNEL(xor_)     { return s*inv(da) + d*inv(sa); }
 
@@ -1531,7 +1531,7 @@ bool SkProcCoeffXfermode::onAppendStages(SkRasterPipeline* p) const {
         case kClear_Mode:    p->append(rgba<clear>);    return true;
         case kModulate_Mode: p->append(rgba<modulate>); return true;
         case kMultiply_Mode: p->append(rgba<multiply>); return true;
-        case kPlus_Mode:     p->append(rgba<plus>);     return true;
+        case kPlus_Mode:     p->append(rgba<plus_>);    return true;
         case kScreen_Mode:   p->append(rgba<screen>);   return true;
         case kXor_Mode:      p->append(rgba<xor_>);     return true;
 
