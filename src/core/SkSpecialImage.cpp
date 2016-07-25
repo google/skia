@@ -209,12 +209,15 @@ class SkSpecialImage_Raster : public SkSpecialImage_Base {
 public:
     SkSpecialImage_Raster(const SkIRect& subset, const SkBitmap& bm, const SkSurfaceProps* props)
         : INHERITED(subset, bm.getGenerationID(), props)
-        , fBitmap(bm) {
-        if (bm.pixelRef() && bm.pixelRef()->isPreLocked()) {
-            // we only preemptively lock if there is no chance of triggering something expensive
-            // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
-            fBitmap.lockPixels();
-        }
+        , fBitmap(bm)
+    {
+        SkASSERT(bm.pixelRef());
+
+        // We have to lock now, while bm is still in scope, since it may have come from our
+        // cache, which means we need to keep it locked until we (the special) are done, since
+        // we cannot re-generate the cache entry (if bm came from a generator).
+        fBitmap.lockPixels();
+        SkASSERT(fBitmap.getPixels());
     }
 
     bool isOpaque() const override { return fBitmap.isOpaque(); }
@@ -291,6 +294,10 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
                                                      const SkBitmap& bm,
                                                      const SkSurfaceProps* props) {
     SkASSERT(rect_fits(subset, bm.width(), bm.height()));
+
+    if (!bm.pixelRef()) {
+        return nullptr;
+    }
 
     const SkBitmap* srcBM = &bm;
     SkBitmap tmpStorage;
