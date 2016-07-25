@@ -63,7 +63,10 @@ import tempfile
 import time
 import traceback
 
-sys.path.insert(0, os.getcwd())
+SKIA_DIR = os.path.abspath(os.path.join(
+    os.path.realpath(os.path.dirname(__file__)),
+    os.pardir, os.pardir))
+sys.path.insert(0, SKIA_DIR)
 
 from common.py.utils import gs_utils
 from common.py.utils import shell_utils

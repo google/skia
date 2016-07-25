@@ -1,8 +1,0 @@
-{
-  'variables': {
-    'files': [
-      '../../../skps/',
-      '../../../tmp/SKP_VERSION',
-    ],
-  },
-}
