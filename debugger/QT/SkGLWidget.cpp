@@ -63,7 +63,7 @@ void SkGLWidget::createRenderTarget() {
     sk_sp<GrRenderTarget> curRenderTarget(
             fCurContext->textureProvider()->wrapBackendRenderTarget(desc));
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    fGpuDevice.reset(SkGpuDevice::Make(std::move(curRenderTarget), &props,
+    fGpuDevice.reset(SkGpuDevice::Make(std::move(curRenderTarget), nullptr, &props,
                                        SkGpuDevice::kUninit_InitContents).release());
     fCanvas.reset(new SkCanvas(fGpuDevice));
 }
