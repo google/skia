@@ -444,3 +444,68 @@ DEF_GM( return new BleedGM(kUseAlphaBitmap_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaImage_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaBitmapShader_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaImageShader_BleedTest); )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkSurface.h"
+
+sk_sp<SkSurface> make_surface(SkCanvas* canvas, const SkImageInfo& info) {
+    auto surface = canvas->makeSurface(info);
+    if (!surface) {
+        surface = SkSurface::MakeRaster(info);
+    }
+    return surface;
+}
+
+// Construct an image and return the inner "src" rect. Build the image such that the interior is
+// blue, with a margin of blue (2px) but then an outer margin of red.
+//
+// Show that kFast_SrcRectConstraint sees even the red margin (due to mipmapping) when the image
+// is scaled down far enough.
+//
+static sk_sp<SkImage> make_image(SkCanvas* canvas, SkRect* srcR) {
+    const int N = 9 + 2 + 7 + 2 + 9;
+    SkImageInfo info = SkImageInfo::MakeN32Premul(N, N);
+    auto surface = make_surface(canvas, info);
+    SkCanvas* c = surface->getCanvas();
+    SkRect r = SkRect::MakeIWH(info.width(), info.height());
+    SkPaint paint;
+
+    paint.setColor(SK_ColorRED);
+    c->drawRect(r, paint);
+    r.inset(4, 4);
+    paint.setColor(SK_ColorBLUE);
+    c->drawRect(r, paint);
+
+    *srcR = r.makeInset(2, 2);
+    return surface->makeImageSnapshot();
+}
+
+DEF_SIMPLE_GM(bleed_downscale, canvas, 360, 240) {
+    SkRect src;
+    sk_sp<SkImage> img = make_image(canvas, &src);
+    SkPaint paint;
+
+    canvas->translate(10, 10);
+
+    const SkCanvas::SrcRectConstraint constraints[] = {
+        SkCanvas::kStrict_SrcRectConstraint, SkCanvas::kFast_SrcRectConstraint
+    };
+    const SkFilterQuality qualities[] = {
+        kNone_SkFilterQuality, kLow_SkFilterQuality, kMedium_SkFilterQuality
+    };
+    for (auto constraint : constraints) {
+        canvas->save();
+        for (auto quality : qualities) {
+            paint.setFilterQuality(quality);
+            auto surf = make_surface(canvas, SkImageInfo::MakeN32Premul(1, 1));
+            surf->getCanvas()->drawImageRect(img, src, SkRect::MakeWH(1, 1), &paint, constraint);
+            // now blow up the 1 pixel result
+            canvas->drawImageRect(surf->makeImageSnapshot(), SkRect::MakeWH(100, 100), nullptr);
+            canvas->translate(120, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, 120);
+    }
+}
+
+
