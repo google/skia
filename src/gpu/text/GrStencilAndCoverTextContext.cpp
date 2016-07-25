@@ -165,7 +165,8 @@ void GrStencilAndCoverTextContext::uncachedDrawTextBlob(GrContext* context,
         runPaint.setFlags(GrTextUtils::FilterTextFlags(props, runPaint));
 
         GrPaint grPaint;
-        if (!SkPaintToGrPaint(context, runPaint, viewMatrix, dc->isGammaCorrect(), &grPaint)) {
+        if (!SkPaintToGrPaint(context, runPaint, viewMatrix, dc->isGammaCorrect(),
+                              dc->getColorSpace(), &grPaint)) {
             return;
         }
 
@@ -220,7 +221,8 @@ void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrDrawContex
     }
 
     GrPaint paint;
-    if (!SkPaintToGrPaint(context, skPaint, viewMatrix, dc->isGammaCorrect(), &paint)) {
+    if (!SkPaintToGrPaint(context, skPaint, viewMatrix, dc->isGammaCorrect(), dc->getColorSpace(),
+                          &paint)) {
         return;
     }
 

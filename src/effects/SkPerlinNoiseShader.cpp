@@ -594,7 +594,7 @@ sk_sp<GrFragmentProcessor> GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* 
 
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     return shader->asFragmentProcessor(SkShader::AsFPArgs(d->fContext, &viewMatrix, nullptr,
-                                                          kNone_SkFilterQuality,
+                                                          kNone_SkFilterQuality, nullptr,
                                                           SkSourceGammaTreatment::kRespect));
 }
 

@@ -730,7 +730,7 @@ sk_sp<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData*
     GrPaint grPaint;
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     return shader->asFragmentProcessor(SkShader::AsFPArgs(d->fContext, &viewMatrix, nullptr,
-                                                          kNone_SkFilterQuality,
+                                                          kNone_SkFilterQuality, nullptr,
                                                           SkSourceGammaTreatment::kRespect));
 }
 
@@ -1138,7 +1138,7 @@ sk_sp<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTe
     GrPaint grPaint;
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     return shader->asFragmentProcessor(SkShader::AsFPArgs(d->fContext, &viewMatrix, nullptr,
-                                                          kNone_SkFilterQuality,
+                                                          kNone_SkFilterQuality, nullptr,
                                                           SkSourceGammaTreatment::kRespect));
 }
 

@@ -518,6 +518,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            SkXfermode::Mode* primColorMode,
                                            bool primitiveIsSrc,
                                            bool allowSRGBInputs,
+                                           SkColorSpace* dstColorSpace,
                                            GrPaint* grPaint) {
     grPaint->setAntiAlias(skPaint.isAntiAlias());
     grPaint->setAllowSRGBInputs(allowSRGBInputs);
@@ -543,6 +544,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                 ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
             shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr,
                                                                       skPaint.getFilterQuality(),
+                                                                      dstColorSpace,
                                                                       gammaTreatment));
             if (!shaderFP) {
                 return false;
@@ -656,9 +658,9 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 }
 
 bool SkPaintToGrPaint(GrContext* context, const SkPaint& skPaint, const SkMatrix& viewM,
-                      bool allowSRGBInputs, GrPaint* grPaint) {
+                      bool allowSRGBInputs, SkColorSpace* dstColorSpace, GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context, skPaint, viewM, nullptr, nullptr, false,
-                                   allowSRGBInputs, grPaint);
+                                   allowSRGBInputs, dstColorSpace, grPaint);
 }
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. */
@@ -666,24 +668,26 @@ bool SkPaintToGrPaintReplaceShader(GrContext* context,
                                    const SkPaint& skPaint,
                                    sk_sp<GrFragmentProcessor> shaderFP,
                                    bool allowSRGBInputs,
+                                   SkColorSpace* dstColorSpace,
                                    GrPaint* grPaint) {
     if (!shaderFP) {
         return false;
     }
     return skpaint_to_grpaint_impl(context, skPaint, SkMatrix::I(), &shaderFP, nullptr, false,
-                                   allowSRGBInputs, grPaint);
+                                   allowSRGBInputs, dstColorSpace, grPaint);
 }
 
 /** Ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrContext* context,
                               const SkPaint& skPaint,
                               bool allowSRGBInputs,
+                              SkColorSpace* dstColorSpace,
                               GrPaint* grPaint) {
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
     static sk_sp<GrFragmentProcessor> kNullShaderFP(nullptr);
     static sk_sp<GrFragmentProcessor>* kIgnoreShader = &kNullShaderFP;
     return skpaint_to_grpaint_impl(context, skPaint, SkMatrix::I(), kIgnoreShader, nullptr, false,
-                                   allowSRGBInputs, grPaint);
+                                   allowSRGBInputs, dstColorSpace, grPaint);
 }
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
@@ -694,9 +698,10 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   SkXfermode::Mode primColorMode,
                                   bool primitiveIsSrc,
                                   bool allowSRGBInputs,
+                                  SkColorSpace* dstColorSpace,
                                   GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context, skPaint, viewM, nullptr, &primColorMode, primitiveIsSrc,
-                                   allowSRGBInputs, grPaint);
+                                   allowSRGBInputs, dstColorSpace, grPaint);
 }
 
 bool SkPaintToGrPaintWithTexture(GrContext* context,
@@ -705,6 +710,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  sk_sp<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  bool allowSRGBInputs,
+                                 SkColorSpace* dstColorSpace,
                                  GrPaint* grPaint) {
     sk_sp<GrFragmentProcessor> shaderFP;
     if (textureIsAlphaOnly) {
@@ -715,6 +721,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                                                       &viewM,
                                                                       nullptr,
                                                                       paint.getFilterQuality(),
+                                                                      dstColorSpace,
                                                                       gammaTreatment));
             if (!shaderFP) {
                 return false;
@@ -729,7 +736,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
     }
 
     return SkPaintToGrPaintReplaceShader(context, paint, std::move(shaderFP), allowSRGBInputs,
-                                         grPaint);
+                                         dstColorSpace, grPaint);
 }
 
 

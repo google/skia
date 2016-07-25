@@ -329,6 +329,7 @@ sk_sp<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(const AsFPArgs& 
         return nullptr;
     }
     return bitmapShader->asFragmentProcessor(SkShader::AsFPArgs(
-        args.fContext, args.fViewMatrix, nullptr, args.fFilterQuality, args.fGammaTreatment));
+        args.fContext, args.fViewMatrix, nullptr, args.fFilterQuality, args.fDstColorSpace,
+        args.fGammaTreatment));
 }
 #endif

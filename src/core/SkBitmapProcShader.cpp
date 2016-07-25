@@ -457,9 +457,8 @@ sk_sp<GrFragmentProcessor> SkBitmapProcShader::asFragmentProcessor(const AsFPArg
                                     "Couldn't convert bitmap to texture.");
         return nullptr;
     }
-    SkColorSpace* dstColorSpace = nullptr; // XFORMTODO
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fRawBitmap.colorSpace(),
-                                                                       dstColorSpace);
+                                                                       args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
         inner = GrBicubicEffect::Make(texture, std::move(colorSpaceXform), matrix, tm);

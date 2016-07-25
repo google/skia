@@ -357,7 +357,7 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 #include "SkGr.h"
 
 sk_sp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
-                                                                  const AsFPArgs& args) const {
+        const AsFPArgs& args) const {
     SkASSERT(args.fContext);
     SkASSERT(fPtsToUnit.isIdentity());
     sk_sp<GrFragmentProcessor> inner(

@@ -210,7 +210,8 @@ sk_sp<GrFragmentProcessor> Edge2PtConicalEffect::TestCreate(GrProcessorTestData*
                                                         colors, stops, colorCount, tm);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
-        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, nullptr,
+        SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -487,7 +488,8 @@ sk_sp<GrFragmentProcessor> FocalOutside2PtConicalEffect::TestCreate(GrProcessorT
                                                         colors, stops, colorCount, tm);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
-        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, nullptr,
+        SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -695,7 +697,8 @@ sk_sp<GrFragmentProcessor> FocalInside2PtConicalEffect::TestCreate(GrProcessorTe
                                                         colors, stops, colorCount, tm);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
-        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, nullptr,
+        SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -943,7 +946,8 @@ sk_sp<GrFragmentProcessor> CircleInside2PtConicalEffect::TestCreate(GrProcessorT
                                                         colors, stops, colorCount, tm);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
-        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, nullptr,
+        SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -1176,7 +1180,8 @@ sk_sp<GrFragmentProcessor> CircleOutside2PtConicalEffect::TestCreate(GrProcessor
                                                         colors, stops, colorCount, tm);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
-        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect));
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, nullptr,
+        SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }

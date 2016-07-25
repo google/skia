@@ -49,12 +49,14 @@ bool SkPaintToGrPaint(GrContext*,
                       const SkPaint& skPaint,
                       const SkMatrix& viewM,
                       bool allowSRGBInputs,
+                      SkColorSpace* dstColorSpace,
                       GrPaint* grPaint);
 
 /** Same as above but ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrContext* context,
                               const SkPaint& skPaint,
                               bool allowSRGBInputs,
+                              SkColorSpace* dstColorSpace,
                               GrPaint* grPaint);
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. The processor
@@ -64,6 +66,7 @@ bool SkPaintToGrPaintReplaceShader(GrContext*,
                                    const SkPaint& skPaint,
                                    sk_sp<GrFragmentProcessor> shaderFP,
                                    bool allowSRGBInputs,
+                                   SkColorSpace* dstColorSpace,
                                    GrPaint* grPaint);
 
 /** Blends the SkPaint's shader (or color if no shader) with the color which specified via a
@@ -76,6 +79,7 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   SkXfermode::Mode primColorMode,
                                   bool primitiveIsSrc,
                                   bool allowSRGBInputs,
+                                  SkColorSpace* dstColorSpace,
                                   GrPaint* grPaint);
 
 /** This is used when there is a primitive color, but the shader should be ignored. Currently,
@@ -83,9 +87,10 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
     unpremultiplied so that interpolation is done in unpremul space. The paint's alpha will be
     applied to the primitive color after interpolation. */
 inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, const SkPaint& skPaint,
-                                               bool allowSRGBInputs, GrPaint* grPaint) {
+                                               bool allowSRGBInputs, SkColorSpace* dstColorSpace,
+                                               GrPaint* grPaint) {
     return SkPaintToGrPaintWithXfermode(context, skPaint, SkMatrix::I(), SkXfermode::kDst_Mode,
-                                        false, allowSRGBInputs, grPaint);
+                                        false, allowSRGBInputs, dstColorSpace, grPaint);
 }
 
 /** This is used when there may or may not be a shader, and the caller wants to plugin a texture
@@ -96,6 +101,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  sk_sp<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  bool allowSRGBInputs,
+                                 SkColorSpace* dstColorSpace,
                                  GrPaint* grPaint);
 
 //////////////////////////////////////////////////////////////////////////////

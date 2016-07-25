@@ -316,17 +316,20 @@ public:
                  const SkMatrix* viewMatrix,
                  const SkMatrix* localMatrix,
                  SkFilterQuality filterQuality,
+                 SkColorSpace* dstColorSpace,
                  SkSourceGammaTreatment gammaTreatment)
             : fContext(context)
             , fViewMatrix(viewMatrix)
             , fLocalMatrix(localMatrix)
             , fFilterQuality(filterQuality)
+            , fDstColorSpace(dstColorSpace)
             , fGammaTreatment(gammaTreatment) {}
 
         GrContext*             fContext;
         const SkMatrix*        fViewMatrix;
         const SkMatrix*        fLocalMatrix;
         SkFilterQuality        fFilterQuality;
+        SkColorSpace*          fDstColorSpace;
         SkSourceGammaTreatment fGammaTreatment;
     };
 
