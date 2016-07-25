@@ -207,19 +207,13 @@ struct DeviceCM {
         , fClip(conservativeRasterClip)
         , fStashedMatrix(stashed)
     {
-        if (nullptr != device) {
-            device->ref();
-            device->onAttachToCanvas(canvas);
-        }
+        SkSafeRef(device);
         fDevice = device;
         fPaint = paint ? new SkPaint(*paint) : nullptr;
     }
 
     ~DeviceCM() {
-        if (fDevice) {
-            fDevice->onDetachFromCanvas();
-            fDevice->unref();
-        }
+        SkSafeUnref(fDevice);
         delete fPaint;
     }
 
@@ -684,7 +678,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     if (device) {
         // The root device and the canvas should always have the same pixel geometry
         SkASSERT(fProps.pixelGeometry() == device->surfaceProps().pixelGeometry());
-        device->onAttachToCanvas(this);
         fMCRec->fLayer->fDevice = SkRef(device);
         fMCRec->fRasterClip.setRect(device->getGlobalBounds());
     }

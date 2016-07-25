@@ -70,8 +70,10 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
     : INHERITED(SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
-    , fBitmap(bitmap) {
+    , fBitmap(bitmap)
+{
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
+    fBitmap.lockPixels();
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
@@ -80,8 +82,10 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps)
     : INHERITED(surfaceProps)
-    , fBitmap(bitmap) {
+    , fBitmap(bitmap)
+{
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
+    fBitmap.lockPixels();
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
@@ -181,16 +185,6 @@ bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPi
 bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                                   int x, int y) {
     return fBitmap.readPixels(dstInfo, dstPixels, dstRowBytes, x, y);
-}
-
-void SkBitmapDevice::onAttachToCanvas(SkCanvas* canvas) {
-    INHERITED::onAttachToCanvas(canvas);
-    fBitmap.lockPixels();
-}
-
-void SkBitmapDevice::onDetachFromCanvas() {
-    INHERITED::onDetachFromCanvas();
-    fBitmap.unlockPixels();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -287,30 +287,12 @@ bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
     return false;
 }
 
-void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {
-    ASSERT_SINGLE_OWNER
-    INHERITED::onAttachToCanvas(canvas);
-
-    // Canvas promises that this ptr is valid until onDetachFromCanvas is called
-    fClipStack.reset(SkRef(canvas->getClipStack()));
-}
-
-void SkGpuDevice::onDetachFromCanvas() {
-    ASSERT_SINGLE_OWNER
-    INHERITED::onDetachFromCanvas();
-    fClip.reset();
-    fClipStack.reset(nullptr);
-}
-
 // call this every draw call, to ensure that the context reflects our state,
 // and not the state from some other canvas/device
 void SkGpuDevice::prepareDraw(const SkDraw& draw) {
     ASSERT_SINGLE_OWNER
-    SkASSERT(fClipStack.get());
 
-    SkASSERT(draw.fClipStack && draw.fClipStack == fClipStack);
-
-    fClip.reset(fClipStack, &this->getOrigin());
+    fClip.reset(draw.fClipStack, &this->getOrigin());
 }
 
 GrDrawContext* SkGpuDevice::accessDrawContext() {

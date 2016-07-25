@@ -119,8 +119,6 @@ public:
     void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 
-    void onAttachToCanvas(SkCanvas* canvas) override;
-    void onDetachFromCanvas() override;
     SkImageInfo imageInfo() const override;
 
     // PDF specific methods.
@@ -255,8 +253,6 @@ private:
         SkDynamicMemoryWStream fContent;
     };
     SkSinglyLinkedList<ContentEntry> fContentEntries;
-
-    const SkClipStack* fClipStack;
 
     SkScalar fRasterDpi;
 

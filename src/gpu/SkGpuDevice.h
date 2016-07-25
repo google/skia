@@ -146,9 +146,6 @@ public:
 
     void flush() override;
 
-    void onAttachToCanvas(SkCanvas* canvas) override;
-    void onDetachFromCanvas() override;
-
     bool onAccessPixels(SkPixmap*) override;
 
     // for debugging purposes only
@@ -165,7 +162,6 @@ private:
     sk_sp<GrRenderTarget>           fRenderTarget;
     sk_sp<GrDrawContext>            fDrawContext;
 
-    SkAutoTUnref<const SkClipStack> fClipStack;
     SkIPoint                        fClipOrigin;
     GrClipStackClip                 fClip;
     SkISize                         fSize;

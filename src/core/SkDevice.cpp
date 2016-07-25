@@ -23,12 +23,7 @@
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
 
-SkBaseDevice::SkBaseDevice(const SkSurfaceProps& surfaceProps)
-    : fSurfaceProps(surfaceProps)
-#ifdef SK_DEBUG
-    , fAttachedToCanvas(false)
-#endif
-{
+SkBaseDevice::SkBaseDevice(const SkSurfaceProps& surfaceProps) : fSurfaceProps(surfaceProps) {
     fOrigin.setZero();
     fMetaData = nullptr;
 }

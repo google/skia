@@ -653,7 +653,6 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFDocument* do
     , fPageSize(pageSize)
     , fContentSize(pageSize)
     , fExistingClipRegion(SkIRect::MakeSize(pageSize))
-    , fClipStack(nullptr)
     , fRasterDpi(rasterDpi)
     , fDocument(doc) {
     SkASSERT(pageSize.width() > 0);
@@ -1403,19 +1402,6 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
 SkImageInfo SkPDFDevice::imageInfo() const {
     SkImageInfo info = SkImageInfo::MakeUnknown(fPageSize.width(), fPageSize.height());
     return info;
-}
-
-void SkPDFDevice::onAttachToCanvas(SkCanvas* canvas) {
-    INHERITED::onAttachToCanvas(canvas);
-
-    // Canvas promises that this ptr is valid until onDetachFromCanvas is called
-    fClipStack = canvas->getClipStack();
-}
-
-void SkPDFDevice::onDetachFromCanvas() {
-    INHERITED::onDetachFromCanvas();
-
-    fClipStack = nullptr;
 }
 
 sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {

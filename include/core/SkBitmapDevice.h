@@ -152,8 +152,6 @@ protected:
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
     bool onPeekPixels(SkPixmap*) override;
     bool onAccessPixels(SkPixmap*) override;
-    void onAttachToCanvas(SkCanvas*) override;
-    void onDetachFromCanvas() override;
 
 private:
     friend class SkCanvas;
