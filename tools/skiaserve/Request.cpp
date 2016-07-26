@@ -161,13 +161,12 @@ namespace {
 struct ColorAndProfile {
     SkColorType fColorType;
     bool fSRGB;
-    bool fGammaCorrect;
 };
 
 ColorAndProfile ColorModes[] = {
-    { kN32_SkColorType,      false, false },
-    { kN32_SkColorType,       true, true },
-    { kRGBA_F16_SkColorType,  true, true },
+    { kN32_SkColorType,      false },
+    { kN32_SkColorType,       true },
+    { kRGBA_F16_SkColorType,  true },
 };
 
 }
@@ -178,9 +177,7 @@ SkSurface* Request::createCPUSurface() {
     auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
                                          kPremul_SkAlphaType, cap.fSRGB ? srgbColorSpace : nullptr);
-    uint32_t flags = cap.fGammaCorrect ? SkSurfaceProps::kGammaCorrect_Flag : 0;
-    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    return SkSurface::MakeRaster(info, &props).release();
+    return SkSurface::MakeRaster(info).release();
 }
 
 SkSurface* Request::createGPUSurface() {
@@ -190,10 +187,7 @@ SkSurface* Request::createGPUSurface() {
     auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
                                          kPremul_SkAlphaType, cap.fSRGB ? srgbColorSpace : nullptr);
-    uint32_t flags = cap.fGammaCorrect ? SkSurfaceProps::kGammaCorrect_Flag : 0;
-    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,
-                                                     &props).release();
+    SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info).release();
     return surface;
 }
 

@@ -22,16 +22,13 @@ static sk_sp<SkShader> make_shader() {
 }
 
 static sk_sp<SkSurface> make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo,
-                                     int disallowAA, int disallowDither, bool gammaCorrect) {
+                                     int disallowAA, int disallowDither) {
     uint32_t flags = 0;
     if (disallowAA) {
         flags |= SkSurfaceProps::kDisallowAntiAlias_Flag;
     }
     if (disallowDither) {
         flags |= SkSurfaceProps::kDisallowDither_Flag;
-    }
-    if (gammaCorrect) {
-        flags |= SkSurfaceProps::kGammaCorrect_Flag;
     }
 
     SkSurfaceProps props(flags, geo);
@@ -79,8 +76,6 @@ protected:
         // must be opaque to have a hope of testing LCD text
         const SkImageInfo info = SkImageInfo::MakeN32(W, H, kOpaque_SkAlphaType,
                                                       sk_ref_sp(canvas->imageInfo().colorSpace()));
-        SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
-        bool gammaCorrect = canvas->getProps(&canvasProps) && canvasProps.isGammaCorrect();
 
         const struct {
             SkPixelGeometry fGeo;
@@ -98,8 +93,7 @@ protected:
             for (int disallowDither = 0; disallowDither <= 1; ++disallowDither) {
                 SkScalar y = 0;
                 for (const auto& rec : recs) {
-                    auto surface(make_surface(ctx, info, rec.fGeo, disallowAA, disallowDither,
-                                              gammaCorrect));
+                    auto surface(make_surface(ctx, info, rec.fGeo, disallowAA, disallowDither));
                     if (!surface) {
                         SkDebugf("failed to create surface! label: %s AA: %s dither: %s\n",
                                  rec.fLabel, (disallowAA == 1 ? "disallowed" : "allowed"),

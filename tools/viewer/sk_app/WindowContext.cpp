@@ -31,11 +31,6 @@ sk_sp<SkSurface> WindowContext::createRenderSurface(GrBackendRenderTargetDesc de
 
 sk_sp<SkSurface> WindowContext::createSurface(
         GrBackendRenderTargetDesc* rtDesc, int colorBits, bool offscreen, bool forceSRGB) {
-    auto flags = (fSurfaceProps.flags() & ~SkSurfaceProps::kGammaCorrect_Flag) |
-                 (GrPixelConfigIsSRGB(fPixelConfig) || forceSRGB ?
-                  SkSurfaceProps::kGammaCorrect_Flag : 0);
-    SkSurfaceProps props(flags, fSurfaceProps.pixelGeometry());
-
     if (!this->isGpuContext() || colorBits > 24 || offscreen ||
         kRGBA_F16_SkColorType == fDisplayParams.fColorType) {
         // If we're rendering to F16, we need an off-screen surface - the current render
@@ -52,12 +47,12 @@ sk_sp<SkSurface> WindowContext::createSurface(
         );
         if (this->isGpuContext()) {
             return SkSurface::MakeRenderTarget(fContext, SkBudgeted::kNo, info,
-                                               fDisplayParams.fMSAASampleCount, &props);
+                                               fDisplayParams.fMSAASampleCount, &fSurfaceProps);
         } else {
-            return SkSurface::MakeRaster(info, &props);
+            return SkSurface::MakeRaster(info, &fSurfaceProps);
         }
     } else {
-        return SkSurface::MakeFromBackendRenderTarget(fContext, *rtDesc, &props);
+        return SkSurface::MakeFromBackendRenderTarget(fContext, *rtDesc, &fSurfaceProps);
     }
 }
 

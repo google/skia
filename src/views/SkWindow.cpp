@@ -70,14 +70,6 @@ void SkWindow::resize(int width, int height) {
 void SkWindow::setColorType(SkColorType ct, sk_sp<SkColorSpace> cs) {
     const SkImageInfo& info = fBitmap.info();
     this->resize(SkImageInfo::Make(info.width(), info.height(), ct, kPremul_SkAlphaType, cs));
-
-    // Set the global flag that enables or disables "legacy" mode, depending on our format.
-    // With sRGB 32-bit or linear FP 16, we turn on gamma-correct handling of inputs:
-    SkSurfaceProps props = this->getSurfaceProps();
-    uint32_t flags = (props.flags() & ~SkSurfaceProps::kGammaCorrect_Flag) |
-        (SkColorAndColorSpaceAreGammaCorrect(ct, cs.get())
-         ? SkSurfaceProps::kGammaCorrect_Flag : 0);
-    this->setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
 }
 
 bool SkWindow::handleInval(const SkRect* localR) {

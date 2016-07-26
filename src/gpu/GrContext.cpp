@@ -539,10 +539,8 @@ bool GrContext::applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma){
         return false;
     }
 
-    SkSurfaceProps props(SkSurfaceProps::kGammaCorrect_Flag,
-                         SkSurfaceProps::kLegacyFontHost_InitType);
     // TODO: Supply color space?
-    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(dst), nullptr, &props));
+    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(dst), nullptr));
     if (!drawContext) {
         return false;
     }

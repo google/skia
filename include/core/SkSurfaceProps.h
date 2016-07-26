@@ -54,17 +54,6 @@ public:
         kDisallowAntiAlias_Flag         = 1 << 0,
         kDisallowDither_Flag            = 1 << 1,
         kUseDeviceIndependentFonts_Flag = 1 << 2,
-
-        /**
-         *  This flag causes sRGB inputs to the color pipeline (images and other sRGB-tagged
-         *  colors) to be gamma-corrected (converted to linear) before use. Without this flag,
-         *  texture scaling and filtering is not gamma correct, preserving the behavior of Skia
-         *  up through 2015.
-         *
-         *  It is recommended to enable this flag when rendering to an sRGB or floating point
-         *  surface.
-         */
-        kGammaCorrect_Flag              = 1 << 3,
     };
     /** Deprecated alias used by Chromium. Will be removed. */
     static const Flags kUseDistanceFieldFonts_Flag = kUseDeviceIndependentFonts_Flag;
@@ -86,7 +75,6 @@ public:
     bool isUseDeviceIndependentFonts() const {
         return SkToBool(fFlags & kUseDeviceIndependentFonts_Flag);
     }
-    bool isGammaCorrect() const { return SkToBool(fFlags & kGammaCorrect_Flag); }
 
 private:
     SkSurfaceProps();
