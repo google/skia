@@ -403,6 +403,19 @@ static inline Sk4i Sk4f_round(const Sk4f& x) {
     return _mm_cvtps_epi32(x.fVec);
 }
 
+static inline void Sk4h_load4(const void* ptr, Sk4h* r, Sk4h* g, Sk4h* b, Sk4h* a) {
+    __m128i lo = _mm_loadu_si128(((__m128i*)ptr) + 0),
+            hi = _mm_loadu_si128(((__m128i*)ptr) + 1);
+    __m128i even = _mm_unpacklo_epi16(lo, hi),   // r0 r2 g0 g2 b0 b2 a0 a2
+             odd = _mm_unpackhi_epi16(lo, hi);   // r1 r3 ...
+    __m128i rg = _mm_unpacklo_epi16(even, odd),  // r0 r1 r2 r3 g0 g1 g2 g3
+            ba = _mm_unpackhi_epi16(even, odd);  // b0 b1 ...   a0 a1 ...
+    *r = rg;
+    *g = _mm_srli_si128(rg, 8);
+    *b = ba;
+    *a = _mm_srli_si128(ba, 8);
+}
+
 static inline void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk4h& b,
                                const Sk4h& a) {
     __m128i rg = _mm_unpacklo_epi16(r.fVec, g.fVec);

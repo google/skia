@@ -483,6 +483,14 @@ static inline Sk4i Sk4f_round(const Sk4f& x) {
     return vcvtq_s32_f32((x + 0.5f).fVec);
 }
 
+static inline void Sk4h_load4(const void* ptr, Sk4h* r, Sk4h* g, Sk4h* b, Sk4h* a) {
+    uint16x4x4_t rgba = vld4_u16((const uint16_t*)ptr);
+    *r = rgba.val[0];
+    *g = rgba.val[1];
+    *b = rgba.val[2];
+    *a = rgba.val[3];
+}
+
 static inline void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk4h& b,
                                const Sk4h& a) {
     uint16x4x4_t rgba = {{

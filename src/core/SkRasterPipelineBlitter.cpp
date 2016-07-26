@@ -231,15 +231,13 @@ static void SK_VECTORCALL load_d_f16(SkRasterPipeline::Stage* st, size_t x,
                                      Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     auto ptr = st->ctx<const uint64_t*>() + x;
 
-    // TODO: This can be made a lot more efficient with platform-specific code.
-    auto p0 = SkHalfToFloat_finite(ptr[0]),
-         p1 = SkHalfToFloat_finite(ptr[1]),
-         p2 = SkHalfToFloat_finite(ptr[2]),
-         p3 = SkHalfToFloat_finite(ptr[3]);
-    dr = { p0[0], p1[0], p2[0], p3[0] };
-    dg = { p0[1], p1[1], p2[1], p3[1] };
-    db = { p0[2], p1[2], p2[2], p3[2] };
-    da = { p0[3], p1[3], p2[3], p3[3] };
+    Sk4h rh, gh, bh, ah;
+    Sk4h_load4(ptr, &rh, &gh, &bh, &ah);
+
+    dr = SkHalfToFloat_finite(rh);
+    dg = SkHalfToFloat_finite(gh);
+    db = SkHalfToFloat_finite(bh);
+    da = SkHalfToFloat_finite(ah);
 
     st->next(x, r,g,b,a, dr,dg,db,da);
 }

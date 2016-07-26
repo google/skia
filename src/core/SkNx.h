@@ -309,6 +309,19 @@ SI Sk4i Sk4f_round(const Sk4f& x) {
              (int) lrintf (x[3]), };
 }
 
+// Load 4 Sk4h and transpose them (256 bits total).
+SI void Sk4h_load4(const void* vptr, Sk4h* r, Sk4h* g, Sk4h* b, Sk4h* a) {
+    const uint64_t* ptr = (const uint64_t*)vptr;
+    auto p0 = Sk4h::Load(ptr+0),
+         p1 = Sk4h::Load(ptr+1),
+         p2 = Sk4h::Load(ptr+2),
+         p3 = Sk4h::Load(ptr+3);
+    *r = { p0[0], p1[0], p2[0], p3[0] };
+    *g = { p0[1], p1[1], p2[1], p3[1] };
+    *b = { p0[2], p1[2], p2[2], p3[2] };
+    *a = { p0[3], p1[3], p2[3], p3[3] };
+}
+
 // Transpose 4 Sk4h and store (256 bits total).
 SI void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk4h& b, const Sk4h& a) {
     uint64_t* dst64 = (uint64_t*) dst;

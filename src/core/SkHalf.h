@@ -37,19 +37,18 @@ static inline Sk4h SkFloatToHalf_finite(const Sk4f&);
 
 // GCC 4.9 lacks the intrinsics to use ARMv8 f16<->f32 instructions, so we use inline assembly.
 
-static inline Sk4f SkHalfToFloat_finite(uint64_t hs) {
+static inline Sk4f SkHalfToFloat_finite(const Sk4h& hs) {
 #if !defined(SKNX_NO_SIMD) && defined(SK_CPU_ARM64)
     float32x4_t fs;
-    asm ("fmov  %d[fs], %[hs]        \n"   // vcreate_f16(hs)
-         "fcvtl %[fs].4s, %[fs].4h   \n"   // vcvt_f32_f16(...)
+    asm ("fcvtl %[fs].4s, %[hs].4h   \n"   // vcvt_f32_f16(...)
         : [fs] "=w" (fs)                   // =w: write-only NEON register
-        : [hs] "r" (hs));                  //  r: read-only 64-bit general register
+        : [hs] "w" (hs.fVec));             //  w: read-only NEON register
     return fs;
 #else
-    Sk4i bits      = SkNx_cast<int>(Sk4h::Load(&hs)),   // Expand to 32 bit.
-         sign      = bits & 0x00008000,                 // Save the sign bit for later...
-         positive  = bits ^ sign,                       // ...but strip it off for now.
-         is_denorm = positive < (1<<10);                // Exponent == 0?
+    Sk4i bits      = SkNx_cast<int>(hs),   // Expand to 32 bit.
+         sign      = bits & 0x00008000,    // Save the sign bit for later...
+         positive  = bits ^ sign,          // ...but strip it off for now.
+         is_denorm = positive < (1<<10);   // Exponent == 0?
 
     // For normal half floats, extend the mantissa by 13 zero bits,
     // then adjust the exponent from 15 bias to 127 bias.
@@ -64,6 +63,10 @@ static inline Sk4f SkHalfToFloat_finite(uint64_t hs) {
     Sk4i merged = (sign << 16) | is_denorm.thenElse(Sk4i::Load(&denorm), norm);
     return Sk4f::Load(&merged);
 #endif
+}
+
+static inline Sk4f SkHalfToFloat_finite(uint64_t hs) {
+    return SkHalfToFloat_finite(Sk4h::Load(&hs));
 }
 
 static inline Sk4h SkFloatToHalf_finite(const Sk4f& fs) {
