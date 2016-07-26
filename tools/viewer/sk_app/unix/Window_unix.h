@@ -63,10 +63,12 @@ public:
         }
     }
 
-    void markPendingResize(int width, int height) { 
-        fPendingWidth = width; 
-        fPendingHeight = height;
-        fPendingResize = true;
+    void markPendingResize(int width, int height) {
+        if (width != fWidth || height != fHeight){
+            fPendingResize = true;
+            fPendingWidth = width;
+            fPendingHeight = height;
+        }
     }
     void finishResize() { 
         if (fPendingResize) {
