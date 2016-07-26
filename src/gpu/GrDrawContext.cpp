@@ -980,6 +980,16 @@ void GrDrawContext::drawImageNine(const GrClip& clip,
     this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
 }
 
+void GrDrawContext::prepareForExternalIO() {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::prepareForExternalIO");
+
+    ASSERT_OWNED_RESOURCE(fRenderTarget);
+
+    fDrawingManager->getContext()->prepareSurfaceForExternalIO(fRenderTarget.get());
+}
 
 void GrDrawContext::drawNonAAFilledRect(const GrClip& clip,
                                         const GrPaint& paint,

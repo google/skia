@@ -1727,7 +1727,7 @@ bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
 void SkGpuDevice::flush() {
     ASSERT_SINGLE_OWNER
 
-    fRenderTarget->prepareForExternalIO();
+    fDrawContext->prepareForExternalIO();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

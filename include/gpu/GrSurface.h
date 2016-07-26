@@ -114,13 +114,6 @@ public:
      */
     void flushWrites();
 
-
-    /**
-     * After this returns any pending surface IO will be issued to the backend 3D API and
-     * if the surface has MSAA it will be resolved.
-     */
-    void prepareForExternalIO();
-
     /** Access methods that are only to be used within Skia code. */
     inline GrSurfacePriv surfacePriv();
     inline const GrSurfacePriv surfacePriv() const;

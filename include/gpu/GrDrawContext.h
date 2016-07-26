@@ -253,6 +253,12 @@ public:
                        const SkIRect& center,
                        const SkRect& dst);
 
+    /**
+     * After this returns any pending surface IO will be issued to the backend 3D API and
+     * if the surface has MSAA it will be resolved.
+     */
+    void prepareForExternalIO();
+
     bool isStencilBufferMultisampled() const {
         return fRenderTarget->isStencilBufferMultisampled();
     }
