@@ -37,6 +37,7 @@ All buildbot SKP files created by the RecreateSKPs bot are available via the ass
     $ infra/bots/tools/luci-go/${PLATFORM}/cipd auth-login
     $ infra/bots/assets/skp/download.py -t ${TARGET_DIR}
 
+Note: If you are on Windows, you will need to specify *cipd.exe.sha1*, not *cipd.sha1*
 
 <a name="buildbot_skps_partners"></a>
 ### Buildbot SKPs (for trusted partners)
