@@ -30,6 +30,8 @@ WindowContext* NewVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);
 
 WindowContext* NewGLForXlib(const XlibWindowInfo&, const DisplayParams&);
 
+WindowContext* NewRasterForXlib(const XlibWindowInfo&, const DisplayParams&);
+
 }  // namespace window_context_factory
 
 }  // namespace sk_app

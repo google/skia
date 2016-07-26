@@ -47,7 +47,7 @@ bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
     // we already have a window
     if (fDisplay) {
         return true;
-    } 
+    }
     fDisplay = display;
 
     fWidth = 1280;
@@ -272,19 +272,21 @@ void Window_unix::show() {
 bool Window_unix::attach(BackendType attachType, const DisplayParams& params) {
     this->initWindow(fDisplay, &params);
 
-    window_context_factory::XlibWindowInfo xwinInfo;
-    xwinInfo.fDisplay = fDisplay;
-    xwinInfo.fWindow = fWindow;
-    xwinInfo.fVisualInfo = fVisualInfo;
+    window_context_factory::XlibWindowInfo winInfo;
+    winInfo.fDisplay = fDisplay;
+    winInfo.fWindow = fWindow;
+    winInfo.fVisualInfo = fVisualInfo;
     switch (attachType) {
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = window_context_factory::NewVulkanForXlib(xwinInfo, params);
+            fWindowContext = window_context_factory::NewVulkanForXlib(winInfo, params);
             break;
 #endif
         case kNativeGL_BackendType:
-        default:
-            fWindowContext = window_context_factory::NewGLForXlib(xwinInfo, params);
+            fWindowContext = window_context_factory::NewGLForXlib(winInfo, params);
+            break;
+        case kRaster_BackendType:
+            fWindowContext = window_context_factory::NewRasterForXlib(winInfo, params);
             break;
     }
 
