@@ -53,7 +53,7 @@ const struct {
 } gConfig[] = {
     { kN32_SkColorType,      false, "L32" },
     { kN32_SkColorType,       true, "S32" },
-    { kRGBA_F16_SkColorType, false, "F16" },
+    { kRGBA_F16_SkColorType,  true, "F16" },
 };
 
 static const char* find_config_name(const SkImageInfo& info) {

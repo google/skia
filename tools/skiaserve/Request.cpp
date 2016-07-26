@@ -167,7 +167,7 @@ struct ColorAndProfile {
 ColorAndProfile ColorModes[] = {
     { kN32_SkColorType,      false, false },
     { kN32_SkColorType,       true, true },
-    { kRGBA_F16_SkColorType, false, true },
+    { kRGBA_F16_SkColorType,  true, true },
 };
 
 }
