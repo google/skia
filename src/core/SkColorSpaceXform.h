@@ -39,47 +39,17 @@ public:
 };
 
 template <SkColorSpace::GammaNamed Dst>
-class SkFastXform : public SkColorSpaceXform {
+class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
 
     void applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const override;
     void applyToF16(RGBAF16* dst, const RGBA32* src, int len) const override;
 
+    static constexpr int      kDstGammaTableSize = 1024;
+
 private:
-    SkFastXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
-                const sk_sp<SkColorSpace>& dstSpace);
-
-    static constexpr int kDstGammaTableSize = 1024;
-
-    // May contain pointers into storage or pointers into precomputed tables.
-    const float*         fSrcGammaTables[3];
-    float                fSrcGammaTableStorage[3 * 256];
-
-    float                fSrcToDst[16];
-
-    // May contain pointers into storage or pointers into precomputed tables.
-    const uint8_t*       fDstGammaTables[3];
-    uint8_t              fDstGammaTableStorage[3 * kDstGammaTableSize];
-
-    friend class SkColorSpaceXform;
-};
-
-/**
- *  Works for any valid src and dst profiles.
- */
-// TODO (msarett):
-// Merge with SkFastXform and delete this.  SkFastXform can almost do everything that
-// this does.
-class SkDefaultXform : public SkColorSpaceXform {
-public:
-
-    void applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const override;
-    void applyToF16(RGBAF16* dst, const RGBA32* src, int len) const override;
-
-    static constexpr int kDstGammaTableSize = 1024;
-private:
-    SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
-                   const sk_sp<SkColorSpace>& dstSpace);
+    SkColorSpaceXform_Base(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
+                           const sk_sp<SkColorSpace>& dstSpace);
 
     sk_sp<SkColorLookUpTable> fColorLUT;
 
@@ -87,7 +57,7 @@ private:
     const float*              fSrcGammaTables[3];
     float                     fSrcGammaTableStorage[3 * 256];
 
-    const SkMatrix44          fSrcToDst;
+    float                     fSrcToDst[16];
 
     // May contain pointers into storage or pointers into precomputed tables.
     const uint8_t*            fDstGammaTables[3];

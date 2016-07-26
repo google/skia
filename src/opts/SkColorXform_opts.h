@@ -40,9 +40,10 @@ template <DstGamma kDstGamma>
 static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
                              const float* const srcTables[3], const float matrix[16],
                              const uint8_t* const dstTables[3]) {
-    Sk4f rXgXbX = Sk4f::Load(matrix + 0),
-         rYgYbY = Sk4f::Load(matrix + 4),
-         rZgZbZ = Sk4f::Load(matrix + 8);
+    Sk4f rXgXbX = Sk4f::Load(matrix +  0),
+         rYgYbY = Sk4f::Load(matrix +  4),
+         rZgZbZ = Sk4f::Load(matrix +  8),
+         rTgTbT = Sk4f::Load(matrix + 12);
 
     if (len >= 4) {
         Sk4f reds, greens, blues;
@@ -65,10 +66,10 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
 
         Sk4f dstReds, dstGreens, dstBlues;
         auto transform_4 = [&reds, &greens, &blues, &dstReds, &dstGreens, &dstBlues, &rXgXbX,
-                            &rYgYbY, &rZgZbZ] {
-            dstReds   = rXgXbX[0]*reds + rYgYbY[0]*greens + rZgZbZ[0]*blues;
-            dstGreens = rXgXbX[1]*reds + rYgYbY[1]*greens + rZgZbZ[1]*blues;
-            dstBlues  = rXgXbX[2]*reds + rYgYbY[2]*greens + rZgZbZ[2]*blues;
+                            &rYgYbY, &rZgZbZ, &rTgTbT] {
+            dstReds   = rXgXbX[0]*reds + rYgYbY[0]*greens + rZgZbZ[0]*blues + rTgTbT[0];
+            dstGreens = rXgXbX[1]*reds + rYgYbY[1]*greens + rZgZbZ[1]*blues + rTgTbT[1];
+            dstBlues  = rXgXbX[2]*reds + rYgYbY[2]*greens + rZgZbZ[2]*blues + rTgTbT[2];
         };
 
         auto store_4 = [&dstReds, &dstGreens, &dstBlues, &dst, &dstTables] {
@@ -142,7 +143,7 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
              g = Sk4f{srcTables[1][(*src >>  8) & 0xFF]},
              b = Sk4f{srcTables[2][(*src >> 16) & 0xFF]};
 
-        auto dstPixel = rXgXbX*r + rYgYbY*g + rZgZbZ*b;
+        auto dstPixel = rXgXbX*r + rYgYbY*g + rZgZbZ*b + rTgTbT;
 
         if (kSRGB_DstGamma == kDstGamma || k2Dot2_DstGamma == kDstGamma) {
             Sk4i (*linear_to_curve)(const Sk4f&) =

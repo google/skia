@@ -264,11 +264,14 @@ static uint8_t clamp_normalized_float_to_byte(float v) {
     }
 }
 
+static const int kDstGammaTableSize =
+        SkColorSpaceXform_Base<SkColorSpace::kNonStandard_GammaNamed>::kDstGammaTableSize;
+
 static void build_table_linear_to_gamma(uint8_t* outTable, float exponent) {
     float toGammaExp = 1.0f / exponent;
 
-    for (int i = 0; i < SkDefaultXform::kDstGammaTableSize; i++) {
-        float x = ((float) i) * (1.0f / ((float) (SkDefaultXform::kDstGammaTableSize - 1)));
+    for (int i = 0; i < kDstGammaTableSize; i++) {
+        float x = ((float) i) * (1.0f / ((float) (kDstGammaTableSize - 1)));
         outTable[i] = clamp_normalized_float_to_byte(powf(x, toGammaExp));
     }
 }
@@ -301,8 +304,8 @@ static float inverse_interp_lut(float input, const float* table, int tableSize) 
 
 static void build_table_linear_to_gamma(uint8_t* outTable, const float* inTable,
                                         int inTableSize) {
-    for (int i = 0; i < SkDefaultXform::kDstGammaTableSize; i++) {
-        float x = ((float) i) * (1.0f / ((float) (SkDefaultXform::kDstGammaTableSize - 1)));
+    for (int i = 0; i < kDstGammaTableSize; i++) {
+        float x = ((float) i) * (1.0f / ((float) (kDstGammaTableSize - 1)));
         float y = inverse_interp_lut(x, inTable, inTableSize);
         outTable[i] = clamp_normalized_float_to_byte(y);
     }
@@ -341,8 +344,8 @@ static float inverse_parametric(float x, float g, float a, float b, float c, flo
 
 static void build_table_linear_to_gamma(uint8_t* outTable, float g, float a,
                                         float b, float c, float d, float e, float f) {
-    for (int i = 0; i < SkDefaultXform::kDstGammaTableSize; i++) {
-        float x = ((float) i) * (1.0f / ((float) (SkDefaultXform::kDstGammaTableSize - 1)));
+    for (int i = 0; i < kDstGammaTableSize; i++) {
+        float x = ((float) i) * (1.0f / ((float) (kDstGammaTableSize - 1)));
         float y = inverse_parametric(x, g, a, b, c, d, e, f);
         outTable[i] = clamp_normalized_float_to_byte(y);
     }
@@ -464,81 +467,20 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
         return nullptr;
     }
 
-    if (0.0f == srcToDst.getFloat(3, 0) &&
-        0.0f == srcToDst.getFloat(3, 1) &&
-        0.0f == srcToDst.getFloat(3, 2) &&
-        !as_CSB(srcSpace)->colorLUT())
-    {
-        switch (dstSpace->gammaNamed()) {
-            case SkColorSpace::kSRGB_GammaNamed:
-                return std::unique_ptr<SkColorSpaceXform>(
-                        new SkFastXform<SkColorSpace::kSRGB_GammaNamed>(srcSpace, srcToDst,
-                                                                        dstSpace));
-            case SkColorSpace::k2Dot2Curve_GammaNamed:
-                return std::unique_ptr<SkColorSpaceXform>(
-                        new SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed>(srcSpace, srcToDst,
-                                                                              dstSpace));
-            default:
-                return std::unique_ptr<SkColorSpaceXform>(
-                        new SkFastXform<SkColorSpace::kNonStandard_GammaNamed>(srcSpace, srcToDst,
-                                                                               dstSpace));
-        }
+    switch (dstSpace->gammaNamed()) {
+        case SkColorSpace::kSRGB_GammaNamed:
+            return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_Base
+                    <SkColorSpace::kSRGB_GammaNamed>(srcSpace, srcToDst, dstSpace));
+        case SkColorSpace::k2Dot2Curve_GammaNamed:
+            return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_Base
+                    <SkColorSpace::k2Dot2Curve_GammaNamed>(srcSpace, srcToDst, dstSpace));
+        default:
+            return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_Base
+                    <SkColorSpace::kNonStandard_GammaNamed>(srcSpace, srcToDst, dstSpace));
     }
-
-    return std::unique_ptr<SkColorSpaceXform>(new SkDefaultXform(srcSpace, srcToDst, dstSpace));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <SkColorSpace::GammaNamed Dst>
-SkFastXform<Dst>::SkFastXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
-                              const sk_sp<SkColorSpace>& dstSpace)
-{
-    srcToDst.asRowMajorf(fSrcToDst);
-    build_gamma_tables(fSrcGammaTables, fSrcGammaTableStorage, 256, srcSpace, kToLinear);
-    build_gamma_tables(fDstGammaTables, fDstGammaTableStorage, SkDefaultXform::kDstGammaTableSize,
-                       dstSpace, kFromLinear);
-}
-
-template <>
-void SkFastXform<SkColorSpace::kSRGB_GammaNamed>
-::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
-{
-    SkOpts::color_xform_RGB1_to_srgb(dst, src, len, fSrcGammaTables, fSrcToDst);
-}
-
-template <>
-void SkFastXform<SkColorSpace::k2Dot2Curve_GammaNamed>
-::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
-{
-    SkOpts::color_xform_RGB1_to_2dot2(dst, src, len, fSrcGammaTables, fSrcToDst);
-}
-
-template <>
-void SkFastXform<SkColorSpace::kNonStandard_GammaNamed>
-::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
-{
-    SkOpts::color_xform_RGB1_to_table(dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
-}
-
-template <SkColorSpace::GammaNamed T>
-void SkFastXform<T>
-::applyToF16(RGBAF16* dst, const RGBA32* src, int len) const
-{
-    SkOpts::color_xform_RGB1_to_linear(dst, src, len, fSrcGammaTables, fSrcToDst);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-SkDefaultXform::SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
-                               const sk_sp<SkColorSpace>& dstSpace)
-    : fColorLUT(sk_ref_sp((SkColorLookUpTable*) as_CSB(srcSpace)->colorLUT()))
-    , fSrcToDst(srcToDst)
-{
-    build_gamma_tables(fSrcGammaTables, fSrcGammaTableStorage, 256, srcSpace, kToLinear);
-    build_gamma_tables(fDstGammaTables, fDstGammaTableStorage, SkDefaultXform::kDstGammaTableSize,
-                       dstSpace, kFromLinear);
-}
 
 static float byte_to_float(uint8_t byte) {
     return ((float) byte) * (1.0f / 255.0f);
@@ -647,64 +589,96 @@ static void interp_3d_clut(float dst[3], float src[3], const SkColorLookUpTable*
     }
 }
 
-void SkDefaultXform::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const {
+static void handle_color_lut(uint32_t* dst, const uint32_t* src, int len,
+                             SkColorLookUpTable* colorLUT) {
     while (len-- > 0) {
         uint8_t r = (*src >>  0) & 0xFF,
                 g = (*src >>  8) & 0xFF,
                 b = (*src >> 16) & 0xFF;
 
-        if (fColorLUT) {
-            float in[3];
-            float out[3];
+        float in[3];
+        float out[3];
+        in[0] = byte_to_float(r);
+        in[1] = byte_to_float(g);
+        in[2] = byte_to_float(b);
+        interp_3d_clut(out, in, colorLUT);
 
-            in[0] = byte_to_float(r);
-            in[1] = byte_to_float(g);
-            in[2] = byte_to_float(b);
+        r = sk_float_round2int(255.0f * clamp_normalized_float(out[0]));
+        g = sk_float_round2int(255.0f * clamp_normalized_float(out[1]));
+        b = sk_float_round2int(255.0f * clamp_normalized_float(out[2]));
+        *dst = SkPackARGB_as_RGBA(0xFF, r, g, b);
 
-            interp_3d_clut(out, in, fColorLUT.get());
-
-            r = sk_float_round2int(255.0f * clamp_normalized_float(out[0]));
-            g = sk_float_round2int(255.0f * clamp_normalized_float(out[1]));
-            b = sk_float_round2int(255.0f * clamp_normalized_float(out[2]));
-        }
-
-        // Convert to linear.
-        float srcFloats[3];
-        srcFloats[0] = fSrcGammaTables[0][r];
-        srcFloats[1] = fSrcGammaTables[1][g];
-        srcFloats[2] = fSrcGammaTables[2][b];
-
-        // Convert to dst gamut.
-        float dstFloats[3];
-        dstFloats[0] = srcFloats[0] * fSrcToDst.getFloat(0, 0) +
-                       srcFloats[1] * fSrcToDst.getFloat(1, 0) +
-                       srcFloats[2] * fSrcToDst.getFloat(2, 0) + fSrcToDst.getFloat(3, 0);
-        dstFloats[1] = srcFloats[0] * fSrcToDst.getFloat(0, 1) +
-                       srcFloats[1] * fSrcToDst.getFloat(1, 1) +
-                       srcFloats[2] * fSrcToDst.getFloat(2, 1) + fSrcToDst.getFloat(3, 1);
-        dstFloats[2] = srcFloats[0] * fSrcToDst.getFloat(0, 2) +
-                       srcFloats[1] * fSrcToDst.getFloat(1, 2) +
-                       srcFloats[2] * fSrcToDst.getFloat(2, 2) + fSrcToDst.getFloat(3, 2);
-
-        // Clamp to 0-1.
-        dstFloats[0] = clamp_normalized_float(dstFloats[0]);
-        dstFloats[1] = clamp_normalized_float(dstFloats[1]);
-        dstFloats[2] = clamp_normalized_float(dstFloats[2]);
-
-        // Convert to dst gamma.
-        r = fDstGammaTables[0][sk_float_round2int((kDstGammaTableSize - 1) * dstFloats[0])];
-        g = fDstGammaTables[1][sk_float_round2int((kDstGammaTableSize - 1) * dstFloats[1])];
-        b = fDstGammaTables[2][sk_float_round2int((kDstGammaTableSize - 1) * dstFloats[2])];
-
-        *dst = SkPackARGB32NoCheck(0xFF, r, g, b);
-
-        dst++;
         src++;
+        dst++;
     }
 }
 
-void SkDefaultXform::applyToF16(RGBAF16* dst, const RGBA32* src, int len) const {
-    // FIXME (msarett):
-    // Planning to delete SkDefaultXform.  Not going to bother to implement this.
-    memset(dst, 0, len * sizeof(RGBAF16));
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <SkColorSpace::GammaNamed Dst>
+SkColorSpaceXform_Base<Dst>::SkColorSpaceXform_Base(const sk_sp<SkColorSpace>& srcSpace,
+                                                    const SkMatrix44& srcToDst,
+                                                    const sk_sp<SkColorSpace>& dstSpace)
+    : fColorLUT(sk_ref_sp((SkColorLookUpTable*) as_CSB(srcSpace)->colorLUT()))
+{
+    srcToDst.asRowMajorf(fSrcToDst);
+    build_gamma_tables(fSrcGammaTables, fSrcGammaTableStorage, 256, srcSpace, kToLinear);
+    build_gamma_tables(fDstGammaTables, fDstGammaTableStorage, kDstGammaTableSize,
+                       dstSpace, kFromLinear);
+}
+
+template <>
+void SkColorSpaceXform_Base<SkColorSpace::kSRGB_GammaNamed>
+::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
+{
+    if (fColorLUT) {
+        handle_color_lut(dst, src, len, fColorLUT.get());
+        src = dst;
+    }
+
+    SkOpts::color_xform_RGB1_to_srgb(dst, src, len, fSrcGammaTables, fSrcToDst);
+}
+
+template <>
+void SkColorSpaceXform_Base<SkColorSpace::k2Dot2Curve_GammaNamed>
+::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
+{
+    if (fColorLUT) {
+        handle_color_lut(dst, src, len, fColorLUT.get());
+        src = dst;
+    }
+
+    SkOpts::color_xform_RGB1_to_2dot2(dst, src, len, fSrcGammaTables, fSrcToDst);
+}
+
+template <>
+void SkColorSpaceXform_Base<SkColorSpace::kNonStandard_GammaNamed>
+::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
+{
+    if (fColorLUT) {
+        handle_color_lut(dst, src, len, fColorLUT.get());
+        src = dst;
+    }
+
+    SkOpts::color_xform_RGB1_to_table(dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+}
+
+template <SkColorSpace::GammaNamed T>
+void SkColorSpaceXform_Base<T>
+::applyToF16(RGBAF16* dst, const RGBA32* src, int len) const
+{
+    if (fColorLUT) {
+        size_t storageBytes = len * sizeof(RGBA32);
+#if defined(GOOGLE3)
+        // Stack frame size is limited in GOOGLE3.
+        SkAutoSMalloc<256 * sizeof(RGBA32)> storage(storageBytes);
+#else
+        SkAutoSMalloc<1024 * sizeof(RGBA32)> storage(storageBytes);
+#endif
+
+        handle_color_lut((RGBA32*) storage.get(), src, len, fColorLUT.get());
+        src = (const RGBA32*) storage.get();
+    }
+
+    SkOpts::color_xform_RGB1_to_linear(dst, src, len, fSrcGammaTables, fSrcToDst);
 }
