@@ -41,7 +41,8 @@ def get_args(bot):
   if 'iOS' in bot:
     args.extend(['--skps', 'ignore_skps'])
 
-  config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui']
+  config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui' ]
+  config += [ 'f16', 'srgb' ]
   # The S4 crashes and the NP produces a long error stream when we run with
   # MSAA.
   if ('GalaxyS4'    not in bot and
