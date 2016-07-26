@@ -202,7 +202,6 @@ void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
         this->onDrawImageRect(image, src, dst, paint);
     }
 #else
-    TRY_MINIRECORDER(drawBitmapRect, bitmap, src, dst, paint, constraint);
     if (kFast_SrcRectConstraint == constraint) {
         APPEND(DrawBitmapRectFast, this->copy(paint), bitmap, this->copy(src), dst);
         return;
