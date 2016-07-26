@@ -463,7 +463,9 @@ sk_sp<SkSurface> make_surface(SkCanvas* canvas, const SkImageInfo& info) {
 // is scaled down far enough.
 //
 static sk_sp<SkImage> make_image(SkCanvas* canvas, SkRect* srcR) {
-    const int N = 9 + 2 + 7 + 2 + 9;
+    // Intentially making the size a power of 2 to avoid the noise from how different GPUs will
+    // produce different mipmap filtering when we have an odd sized texture.
+    const int N = 10 + 2 + 8 + 2 + 10;
     SkImageInfo info = SkImageInfo::MakeN32Premul(N, N);
     auto surface = make_surface(canvas, info);
     SkCanvas* c = surface->getCanvas();
@@ -472,7 +474,7 @@ static sk_sp<SkImage> make_image(SkCanvas* canvas, SkRect* srcR) {
 
     paint.setColor(SK_ColorRED);
     c->drawRect(r, paint);
-    r.inset(4, 4);
+    r.inset(10, 10);
     paint.setColor(SK_ColorBLUE);
     c->drawRect(r, paint);
 
