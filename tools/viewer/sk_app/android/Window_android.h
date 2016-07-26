@@ -9,7 +9,6 @@
 #define Window_android_DEFINED
 
 #include "../Window.h"
-#include "WindowContext_android.h"
 #include "surface_glue_android.h"
 
 namespace sk_app {

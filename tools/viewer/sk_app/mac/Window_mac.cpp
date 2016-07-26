@@ -9,7 +9,7 @@
 
 #include "SkUtils.h"
 #include "Timer.h"
-#include "../GLWindowContext.h"
+#include "WindowContextFactory_mac.h"
 #include "Window_mac.h"
 
 namespace sk_app {
@@ -270,19 +270,20 @@ void Window_mac::show() {
 bool Window_mac::attach(BackendType attachType, const DisplayParams& params) {
     this->initWindow(fDisplay, &params);
 
-    ContextPlatformData_mac platformData;
-    platformData.fDisplay = fDisplay;
-    platformData.fWindow = fWindow;
-    platformData.fVisualInfo = fVisualInfo;
+    MacWindowInfo info;
+#if 0
+    // Init Mac window info here
+    info.foo = foo;
+#endif
     switch (attachType) {
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = VulkanWindowContext::Create((void*)&platformData, params);
+            fWindowContext = NewVulkanForMac(info, params);
             break;
 #endif
         case kNativeGL_BackendType:
         default:
-            fWindowContext = GLWindowContext::Create((void*)&platformData, params);
+            fWindowContext = NewGLForMac(info, params);
             break;
     }
 

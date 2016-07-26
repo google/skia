@@ -18,12 +18,6 @@ typedef Window XWindow;
 
 namespace sk_app {
 
-struct ContextPlatformData_unix {
-    Display*     fDisplay;
-    XWindow      fWindow;
-    XVisualInfo* fVisualInfo;
-};
-
 class Window_unix : public Window {
 public:
     Window_unix() : Window()

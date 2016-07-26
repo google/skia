@@ -23,20 +23,6 @@ class VulkanWindowContext : public WindowContext {
 public:
     ~VulkanWindowContext() override;
 
-    // each platform will have to implement these in its CPP file
-    static VkSurfaceKHR createVkSurface(VkInstance, void* platformData);
-    static bool canPresent(VkInstance, VkPhysicalDevice, uint32_t queueFamilyIndex,
-                           void* platformData);
-
-    static VulkanWindowContext* Create(void* platformData, const DisplayParams& params) {
-        VulkanWindowContext* ctx = new VulkanWindowContext(platformData, params);
-        if (!ctx->isValid()) {
-            delete ctx;
-            return nullptr;
-        }
-        return ctx;
-    }
-
     sk_sp<SkSurface> getBackbufferSurface() override;
     void swapBuffers() override;
 
@@ -54,9 +40,14 @@ public:
         return (GrBackendContext) fBackendContext.get(); 
     }
 
+    /** Platform specific function that creates a VkSurfaceKHR for a window */
+    using CreateVkSurfaceFn = std::function<VkSurfaceKHR(VkInstance)>;
+    /** Platform specific function that determines whether presentation will succeed. */
+    using CanPresentFn = GrVkBackendContext::CanPresentFn;
+
+    VulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn);
+
 private:
-    VulkanWindowContext(void*, const DisplayParams&);
-    void initializeContext(void*, const DisplayParams&);
     void destroyContext();
 
     struct BackbufferInfo {

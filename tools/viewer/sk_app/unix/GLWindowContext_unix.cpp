@@ -6,50 +6,50 @@
  * found in the LICENSE file.
  */
 
-#include "GLWindowContext_unix.h"
+#include "../GLWindowContext.h"
+#include "WindowContextFactory_unix.h"
 
 #include <GL/gl.h>
 
-#include "Window_unix.h"
+using sk_app::window_context_factory::XlibWindowInfo;
+using sk_app::DisplayParams;
+using sk_app::GLWindowContext;
 
-namespace sk_app {
+namespace {
 
-// platform-dependent create
-GLWindowContext* GLWindowContext::Create(void* platformData, const DisplayParams& params) {
-    GLWindowContext_unix* ctx = new GLWindowContext_unix(platformData, params);
-    if (!ctx->isValid()) {
-        delete ctx;
-        return nullptr;
-    }
-    return ctx;
+class GLWindowContext_xlib : public GLWindowContext {
+public:
+    GLWindowContext_xlib(const XlibWindowInfo&, const DisplayParams&);
+    ~GLWindowContext_xlib() override;
+
+    void onSwapBuffers() override;
+
+    void onDestroyContext() override;
+
+protected:
+    void onInitializeContext() override;
+
+private:
+    GLWindowContext_xlib(void*, const DisplayParams&);
+
+    Display*     fDisplay;
+    XWindow      fWindow;
+    XVisualInfo* fVisualInfo;
+    GLXContext   fGLContext;
+};
+
+GLWindowContext_xlib::GLWindowContext_xlib(const XlibWindowInfo& winInfo, const DisplayParams& params)
+        : GLWindowContext(params)
+        , fDisplay(winInfo.fDisplay)
+        , fWindow(winInfo.fWindow)
+        , fVisualInfo(winInfo.fVisualInfo)
+        , fGLContext() {
+    this->initializeContext();
 }
 
-GLWindowContext_unix::GLWindowContext_unix(void* platformData, const DisplayParams& params)
-    : GLWindowContext(platformData, params)
-    , fDisplay(nullptr)
-    , fWindow(0)
-    , fGLContext(0) {
-
+void GLWindowContext_xlib::onInitializeContext() {
     // any config code here (particularly for msaa)?
-
-    this->initializeContext(platformData, params);
-}
-
-GLWindowContext_unix::~GLWindowContext_unix() {
-    this->destroyContext();
-}
-
-void GLWindowContext_unix::onInitializeContext(void* platformData, const DisplayParams& params) {
-    ContextPlatformData_unix* unixPlatformData =
-        reinterpret_cast<ContextPlatformData_unix*>(platformData);
-
-    if (unixPlatformData) {
-        fDisplay = unixPlatformData->fDisplay;
-        fWindow = unixPlatformData->fWindow;
-        fVisualInfo = unixPlatformData->fVisualInfo;
-    }
     SkASSERT(fDisplay);
-
     fGLContext = glXCreateContext(fDisplay, fVisualInfo, nullptr, GL_TRUE);
     if (!fGLContext) {
         return;
@@ -73,12 +73,16 @@ void GLWindowContext_unix::onInitializeContext(void* platformData, const Display
         int x, y;
         unsigned int border_width, depth;
         XGetGeometry(fDisplay, fWindow, &root, &x, &y,
-                     (unsigned int*)&fWidth, (unsigned int*)&fHeight, &border_width, &depth); 
+                     (unsigned int*)&fWidth, (unsigned int*)&fHeight, &border_width, &depth);
         glViewport(0, 0, fWidth, fHeight);
     }
 }
 
-void GLWindowContext_unix::onDestroyContext() {
+GLWindowContext_xlib::~GLWindowContext_xlib() {
+    this->destroyContext();
+}
+
+void GLWindowContext_xlib::onDestroyContext() {
     if (!fDisplay || !fGLContext) {
         return;
     }
@@ -87,12 +91,27 @@ void GLWindowContext_unix::onDestroyContext() {
     fGLContext = nullptr;
 }
 
-
-void GLWindowContext_unix::onSwapBuffers() {
+void GLWindowContext_xlib::onSwapBuffers() {
     if (fDisplay && fGLContext) {
         glXSwapBuffers(fDisplay, fWindow);
     }
 }
 
+}  // anonymous namespace
 
-}   //namespace sk_app
+namespace sk_app {
+
+namespace window_context_factory {
+
+WindowContext* NewGLForXlib(const XlibWindowInfo& winInfo, const DisplayParams& params) {
+    WindowContext* ctx = new GLWindowContext_xlib(winInfo, params);
+    if (!ctx->isValid()) {
+        delete ctx;
+        return nullptr;
+    }
+    return ctx;
+}
+
+}  // namespace window_context_factory
+
+}  // namespace sk_app

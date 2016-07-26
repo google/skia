@@ -25,7 +25,9 @@
 
 namespace sk_app {
 
-VulkanWindowContext::VulkanWindowContext(void* platformData, const DisplayParams& params)
+VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
+                                         CreateVkSurfaceFn createVkSurface,
+                                         CanPresentFn canPresent)
     : WindowContext()
     , fSurface(VK_NULL_HANDLE)
     , fSwapchain(VK_NULL_HANDLE)
@@ -36,13 +38,7 @@ VulkanWindowContext::VulkanWindowContext(void* platformData, const DisplayParams
     , fBackbuffers(nullptr) {
 
     // any config code here (particularly for msaa)?
-
-    this->initializeContext(platformData, params);
-}
-
-void VulkanWindowContext::initializeContext(void* platformData, const DisplayParams& params) {
-    fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent, 
-                                                     platformData));
+    fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent));
 
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
         !(fBackendContext->fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {
@@ -65,7 +61,7 @@ void VulkanWindowContext::initializeContext(void* platformData, const DisplayPar
 
     fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext) fBackendContext.get());
 
-    fSurface = createVkSurface(instance, platformData);
+    fSurface = createVkSurface(instance);
     if (VK_NULL_HANDLE == fSurface) {
         fBackendContext.reset(nullptr);
         return;

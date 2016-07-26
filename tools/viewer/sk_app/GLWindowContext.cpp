@@ -21,19 +21,16 @@
 
 namespace sk_app {
 
-GLWindowContext::GLWindowContext(void* platformData, const DisplayParams& params) 
+GLWindowContext::GLWindowContext(const DisplayParams& params)
     : WindowContext()
     , fBackendContext(nullptr)
     , fRenderTarget(nullptr)
     , fSurface(nullptr) {
+    fDisplayParams = params;
 }
 
-void GLWindowContext::initializeContext(void* platformData, const DisplayParams& params) {
-
-    this->onInitializeContext(platformData, params);
-
-    fDisplayParams = params;
-
+void GLWindowContext::initializeContext() {
+    this->onInitializeContext();
     SkAutoTUnref<const GrGLInterface> glInterface;
     glInterface.reset(GrGLCreateNativeInterface());
     fBackendContext.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
@@ -98,14 +95,13 @@ void GLWindowContext::swapBuffers() {
 
 void GLWindowContext::resize(uint32_t w, uint32_t h) {
     this->destroyContext();
-
-    this->initializeContext(nullptr, fDisplayParams);
+    this->initializeContext();
 }
 
 void GLWindowContext::setDisplayParams(const DisplayParams& params) {
     this->destroyContext();
-
-    this->initializeContext(nullptr, params);
+    fDisplayParams = params;
+    this->initializeContext();
 }
 
 }   //namespace sk_app

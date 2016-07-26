@@ -6,26 +6,41 @@
  * found in the LICENSE file.
  */
 
-#include "GLWindowContext_mac.h"
+#include "../GLWindowContext.h"
+#include "WindowContextFactory_mac.h"
 
 //#include <GL/gl.h>
 
-#include "Window_mac.h"
+using sk_app::DisplayParams;
+using sk_app::window_context_factory::MacWindowInfo;
+using sk_app::GLWindowContext;
 
-namespace sk_app {
+namespace {
 
-// platform-dependent create
-GLWindowContext* GLWindowContext::Create(void* platformData, const DisplayParams& params) {
-    GLWindowContext_mac* ctx = new GLWindowContext_mac(platformData, params);
-    if (!ctx->isValid()) {
-        delete ctx;
-        return nullptr;
-    }
-    return ctx;
-}
+class GLWindowContext_mac : public GLWindowContext {
+public:
+    GLWindowContext_mac(const MacWindowInfo&, const DisplayParams&);
+    
+    ~GLWindowContext_mac() override;
+    
+    void onSwapBuffers() override;
+    
+    void onInitializeContext() override;
+    void onDestroyContext() override;
+    
+private:
+  
+#if 0
+    // TODO: add Mac-specific GL display objects
+    Display*     fDisplay;
+    XWindow      fWindow;
+    XVisualInfo* fVisualInfo;
+    GLXContext   fGLContext;
+#endif
+};
 
-GLWindowContext_mac::GLWindowContext_mac(void* platformData, const DisplayParams& params)
-    : GLWindowContext(platformData, params)
+GLWindowContext_mac::GLWindowContext_mac(const MacWindowInfo& info, const DisplayParams& params)
+    : GLWindowContext(params)
 #if 0
     // TODO: init Mac-specific OpenGL objects
     , fDisplay(nullptr)
@@ -36,24 +51,16 @@ GLWindowContext_mac::GLWindowContext_mac(void* platformData, const DisplayParams
 
     // any config code here (particularly for msaa)?
 
-    this->initializeContext(platformData, params);
+    this->initializeContext();
 }
 
 GLWindowContext_mac::~GLWindowContext_mac() {
     this->destroyContext();
 }
 
-void GLWindowContext_mac::onInitializeContext(void* platformData, const DisplayParams& params) {
+void GLWindowContext_mac::onInitializeContext() {
 #if 0
     // TODO: Init for Mac
-    ContextPlatformData_mac* unixPlatformData =
-        reinterpret_cast<ContextPlatformData_mac*>(platformData);
-
-    if (unixPlatformData) {
-        fDisplay = unixPlatformData->fDisplay;
-        fWindow = unixPlatformData->fWindow;
-        fVisualInfo = unixPlatformData->fVisualInfo;
-    }
     SkASSERT(fDisplay);
 
     fGLContext = glXCreateContext(fDisplay, fVisualInfo, nullptr, GL_TRUE);
@@ -107,5 +114,20 @@ void GLWindowContext_mac::onSwapBuffers() {
 #endif
 }
 
+}  // anonymous namespace
 
-}   //namespace sk_app
+
+namespace sk_app {
+namespace window_context_factory {
+
+WindowContext* MakeGLForMac(const MacWindowInfo& info, const DisplayParams& params) {
+    WindowContext* ctx = new GLWindowContext_mac(info, params);
+    if (!ctx->isValid()) {
+        delete ctx;
+        return nullptr;
+    }
+    return ctx;
+}
+
+}  // namespace window_context_factory
+}  // namespace sk_app

@@ -14,15 +14,6 @@
 
 namespace sk_app {
 
-struct ContextPlatformData_mac {
-#if 0
-    // TODO: use Mac-specific objects
-    Display*     fDisplay;
-    XWindow      fWindow;
-    XVisualInfo* fVisualInfo;
-#endif
-};
-
 class Window_mac : public Window {
 public:
     Window_mac() : Window()

@@ -40,9 +40,7 @@ const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
 
 // Create the base Vulkan objects needed by the GrVkGpu object
 const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndexPtr,
-                             bool(*canPresent)(VkInstance, VkPhysicalDevice, uint32_t queueIndex,
-                                               void* platformData),
-                             void* platformData) {
+                                                     CanPresentFn canPresent) {
     VkPhysicalDevice physDev;
     VkDevice device;
     VkInstance inst;
@@ -161,7 +159,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     uint32_t presentQueueIndex = graphicsQueueIndex;
     if (presentQueueIndexPtr && canPresent) {
         for (uint32_t i = 0; i < queueCount; i++) {
-            if (canPresent(inst, physDev, i, platformData)) {
+            if (canPresent(inst, physDev, i)) {
                 presentQueueIndex = i;
                 break;
             }
