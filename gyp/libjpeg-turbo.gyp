@@ -32,11 +32,11 @@
       'target_name': 'yasm-android',
       'type': 'executable',
       'sources': [
-        '../third_party/yasm/android/yasm',
+        '../third_party/yasm/android/yasm-android',
       ],
       'copies' : [{
         'destination': '<(PRODUCT_DIR)',
-        'files': [ '../third_party/yasm/android/yasm' ],
+        'files': [ '../third_party/yasm/android/yasm-android' ],
       }],
     },
     {
@@ -263,7 +263,7 @@
             'yasm-android',
           ],
           'variables': {
-            'yasm_path': '<(PRODUCT_DIR)/yasm',
+            'yasm_path': '<(PRODUCT_DIR)/yasm-android',
             'conditions': [
               [ 'skia_arch_type == "x86"', {
                 'yasm_format': '-felf',
