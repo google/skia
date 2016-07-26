@@ -16,14 +16,19 @@
 
 namespace SK_OPTS_NS {
 
-static Sk4i linear_to_2dot2(const Sk4f& x) {
+// Strange that we need a wrapper on SkNx_cast to use as a function ptr.
+static Sk4i Sk4f_trunc(const Sk4f& x) {
+    return SkNx_cast<int>(x);
+}
+
+static Sk4f linear_to_2dot2(const Sk4f& x) {
     // x^(29/64) is a very good approximation of the true value, x^(1/2.2).
     auto x2  = x.rsqrt(),                            // x^(-1/2)
          x32 = x2.rsqrt().rsqrt().rsqrt().rsqrt(),   // x^(-1/32)
          x64 = x32.rsqrt();                          // x^(+1/64)
 
     // 29 = 32 - 2 - 1
-    return Sk4f_round(sk_clamp_0_255(255.0f * x2.invert() * x32 * x64.invert()));
+    return 255.0f * x2.invert() * x32 * x64.invert();
 }
 
 enum DstGamma {
@@ -74,17 +79,23 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
 
         auto store_4 = [&dstReds, &dstGreens, &dstBlues, &dst, &dstTables] {
             if (kSRGB_DstGamma == kDstGamma || k2Dot2_DstGamma == kDstGamma) {
-                Sk4i (*linear_to_curve)(const Sk4f&) =
-                        (kSRGB_DstGamma == kDstGamma) ? sk_linear_to_srgb : linear_to_2dot2;
+                Sk4f (*linear_to_curve)(const Sk4f&) = (kSRGB_DstGamma == kDstGamma) ?
+                        sk_linear_to_srgb_needs_trunc : linear_to_2dot2;
+                Sk4i (*float_to_int)(const Sk4f&) = (kSRGB_DstGamma == kDstGamma) ?
+                        Sk4f_trunc : Sk4f_round;
 
-                auto reds   = linear_to_curve(dstReds);
-                auto greens = linear_to_curve(dstGreens);
-                auto blues  = linear_to_curve(dstBlues);
+                dstReds   = linear_to_curve(dstReds);
+                dstGreens = linear_to_curve(dstGreens);
+                dstBlues  = linear_to_curve(dstBlues);
 
-                auto rgba = (reds       << SK_R32_SHIFT)
-                          | (greens     << SK_G32_SHIFT)
-                          | (blues      << SK_B32_SHIFT)
-                          | (Sk4i{0xFF} << SK_A32_SHIFT);
+                dstReds   = sk_clamp_0_255(dstReds);
+                dstGreens = sk_clamp_0_255(dstGreens);
+                dstBlues  = sk_clamp_0_255(dstBlues);
+
+                auto rgba = (float_to_int(dstReds)   << SK_R32_SHIFT)
+                          | (float_to_int(dstGreens) << SK_G32_SHIFT)
+                          | (float_to_int(dstBlues)  << SK_B32_SHIFT)
+                          | (Sk4i{0xFF}              << SK_A32_SHIFT);
                 rgba.store((uint32_t*) dst);
 
                 dst = SkTAddOffset<void>(dst, 4 * sizeof(uint32_t));
@@ -146,13 +157,15 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
         auto dstPixel = rXgXbX*r + rYgYbY*g + rZgZbZ*b + rTgTbT;
 
         if (kSRGB_DstGamma == kDstGamma || k2Dot2_DstGamma == kDstGamma) {
-            Sk4i (*linear_to_curve)(const Sk4f&) =
-                    (kSRGB_DstGamma == kDstGamma) ? sk_linear_to_srgb : linear_to_2dot2;
+            Sk4f (*linear_to_curve)(const Sk4f&) = (kSRGB_DstGamma == kDstGamma) ?
+                    sk_linear_to_srgb_needs_trunc : linear_to_2dot2;
+            Sk4i (*float_to_int)(const Sk4f&) = (kSRGB_DstGamma == kDstGamma) ?
+                    Sk4f_trunc : Sk4f_round;
 
-            auto pixel = linear_to_curve(dstPixel);
+            dstPixel = sk_clamp_0_255(linear_to_curve(dstPixel));
 
             uint32_t rgba;
-            SkNx_cast<uint8_t>(pixel).store(&rgba);
+            SkNx_cast<uint8_t>(float_to_int(dstPixel)).store(&rgba);
             rgba |= 0xFF000000;
             *((uint32_t*) dst) = SkSwizzle_RGBA_to_PMColor(rgba);
             dst = SkTAddOffset<void>(dst, sizeof(uint32_t));
