@@ -10,6 +10,7 @@
 #define GrVkPipelineState_DEFINED
 
 #include "GrStencilSettings.h"
+#include "GrVkDescriptorSetManager.h"
 #include "GrVkImage.h"
 #include "GrVkProgramDesc.h"
 #include "GrVkPipelineStateDataManager.h"
@@ -151,7 +152,7 @@ private:
                       const GrVkPipelineState::Desc&,
                       GrVkPipeline* pipeline,
                       VkPipelineLayout layout,
-                      VkDescriptorSetLayout dsSamplerLayout,
+                      const GrVkDescriptorSetManager::Handle& samplerDSHandle,
                       const BuiltinUniformHandles& builtinUniformHandles,
                       const UniformInfoArray& uniforms,
                       uint32_t vertexUniformSize,
@@ -260,6 +261,9 @@ private:
     // Once we move samplers over to use the resource provider for descriptor sets we will not need
     // the above array and instead just use GrVkDescriptorSet like the uniform one here.
     const GrVkDescriptorSet* fUniformDescriptorSet;
+    const GrVkDescriptorSet* fSamplerDescriptorSet;
+
+    const GrVkDescriptorSetManager::Handle fSamplerDSHandle;
 
     // Meta data so we know which descriptor sets we are using and need to bind.
     int fStartDS;
@@ -285,8 +289,6 @@ private:
     Desc fDesc;
 
     GrVkPipelineStateDataManager fDataManager;
-
-    DescriptorPoolManager fSamplerPoolManager;
 
     int fNumSamplers;
 

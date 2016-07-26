@@ -16,6 +16,7 @@
 
 class GrVkDescriptorSet;
 class GrVkGpu;
+class GrVkUniformHandler;
 
 /**
  * This class handles the allocation of descriptor sets for a given VkDescriptorSetLayout. It will
@@ -26,40 +27,25 @@ public:
     GR_DEFINE_RESOURCE_HANDLE_CLASS(Handle);
 
     GrVkDescriptorSetManager(GrVkGpu* gpu,
-                             VkDescriptorSetLayout layout,
                              VkDescriptorType,
-                             uint32_t samplerCount);
+                             const GrVkUniformHandler* handler = nullptr);
     ~GrVkDescriptorSetManager() {}
 
     void abandon();
     void release(const GrVkGpu* gpu);
 
+    VkDescriptorSetLayout layout() const { return fPoolManager.fDescLayout; }
+
     const GrVkDescriptorSet* getDescriptorSet(GrVkGpu* gpu, const Handle& handle);
 
     void recycleDescriptorSet(const GrVkDescriptorSet*);
 
-    int isCompatible(uint32_t numSamplers) const { return numSamplers == fNumSamplerBindings; }
+    bool isCompatible(VkDescriptorType type, const GrVkUniformHandler*) const;
 
 private:
     struct DescriptorPoolManager {
-        DescriptorPoolManager(VkDescriptorSetLayout layout, VkDescriptorType type,
-                              uint32_t samplerCount, GrVkGpu* gpu)
-            : fDescLayout(layout)
-            , fDescType(type)
-            , fCurrentDescriptorCount(0)
-            , fPool(nullptr) {
-            if (VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type) {
-                fDescCountPerSet = kNumUniformDescPerSet;
-            } else {
-                SkASSERT(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-                fDescCountPerSet = samplerCount;
-            }
-
-            SkASSERT(fDescCountPerSet < kStartNumDescriptors);
-            fMaxDescriptors = kStartNumDescriptors;
-            SkASSERT(fMaxDescriptors > 0);
-            this->getNewPool(gpu);
-        }
+        DescriptorPoolManager(VkDescriptorType type, GrVkGpu* gpu,
+                              const GrVkUniformHandler* handler = nullptr);
 
         ~DescriptorPoolManager() {
             SkASSERT(!fDescLayout);
@@ -71,7 +57,7 @@ private:
         void freeGPUResources(const GrVkGpu* gpu);
         void abandonGPUResources();
 
-        VkDescriptorSetLayout  fDescLayout; // Not owned by this class
+        VkDescriptorSetLayout  fDescLayout;
         VkDescriptorType       fDescType;
         uint32_t               fDescCountPerSet;
         uint32_t               fMaxDescriptors;
@@ -80,7 +66,7 @@ private:
 
     private:
         enum {
-            kNumUniformDescPerSet = 2,
+            kUniformDescPerSet = 2,
             kMaxDescriptors = 1024,
             kStartNumDescriptors = 16, // must be less than kMaxUniformDescriptors
         };
@@ -88,10 +74,9 @@ private:
         void getNewPool(GrVkGpu* gpu);
     };
 
-    DescriptorPoolManager              fPoolManager;
-    SkTArray<const GrVkDescriptorSet*> fFreeSets;
-    // If the number of bindings is 0 we assume this is for uniform buffers
-    uint32_t                           fNumSamplerBindings;
+    DescriptorPoolManager                    fPoolManager;
+    SkTArray<const GrVkDescriptorSet*, true> fFreeSets;
+    SkSTArray<4, uint32_t>                   fBindingVisibilities;
 };
 
 #endif
