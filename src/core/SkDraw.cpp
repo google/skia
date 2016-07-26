@@ -1585,8 +1585,7 @@ private:
 
 uint32_t SkDraw::scalerContextFlags() const {
     uint32_t flags = SkPaint::kBoostContrast_ScalerContextFlag;
-    // TODO: how should we handle non-srgb, non-linear gamma?
-    if (!fDevice->imageInfo().gammaCloseToSRGB()) {
+    if (!SkImageInfoIsGammaCorrect(fDevice->imageInfo())) {
         flags |= SkPaint::kFakeGamma_ScalerContextFlag;
     }
     return flags;
