@@ -6,21 +6,25 @@
 declare_args() {
 }
 
+skia_public_includes = [
+  "include/codec",
+  "include/config",
+  "include/core",
+  "include/effects",
+  "include/gpu",
+  "include/gpu/gl",
+  "include/images",
+  "include/pathops",
+  "include/ports",
+  "include/utils",
+  "include/utils/mac",
+
+  "include/c",   # TODO: move back to top, order shouldn't matter
+]
+
 # Skia public API, generally provided by :skia.
 config("skia_public") {
-  include_dirs = [
-    "include/c",
-    "include/config",
-    "include/core",
-    "include/effects",
-    "include/gpu",
-    "include/images",
-    "include/lazy",
-    "include/pathops",
-    "include/ports",
-    "include/utils",
-    "include/utils/mac",
-  ]
+  include_dirs = skia_public_includes
   defines = [ "SKIA_DLL" ]
 }
 
@@ -31,6 +35,7 @@ config("skia_private") {
   include_dirs = [
     "include/private",
     "src/c",
+    "src/codec",
     "src/config",
     "src/core",
     "src/effects",
@@ -146,6 +151,11 @@ component("skia") {
     "//third_party/zlib",
   ]
 
+  defines = [
+    "SK_HAS_JPEG_LIBRARY",
+    "SK_HAS_PNG_LIBRARY",
+  ]
+
   libs = [ "pthread" ]
 
   sources = []
@@ -156,11 +166,27 @@ component("skia") {
   sources += pdf_gypi.sources
   sources += utils_gypi.sources
   sources += [
+    "src/codec/SkBmpCodec.cpp",
+    "src/codec/SkBmpMaskCodec.cpp",
+    "src/codec/SkBmpRLECodec.cpp",
+    "src/codec/SkBmpStandardCodec.cpp",
+    "src/codec/SkCodec.cpp",
+    "src/codec/SkCodecImageGenerator.cpp",
+    "src/codec/SkIcoCodec.cpp",
+    "src/codec/SkJpegCodec.cpp",
+    "src/codec/SkJpegDecoderMgr.cpp",
+    "src/codec/SkJpegUtility.cpp",
+    "src/codec/SkMaskSwizzler.cpp",
+    "src/codec/SkMasks.cpp",
+    "src/codec/SkPngCodec.cpp",
+    "src/codec/SkSampler.cpp",
+    "src/codec/SkSwizzler.cpp",
+    "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/images/SkImageEncoder_Factory.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
     "src/ports/SkGlobalInitialization_default.cpp",
-    "src/ports/SkImageGenerator_none.cpp",
+    "src/ports/SkImageGenerator_skia.cpp",
     "src/ports/SkMemory_malloc.cpp",
     "src/ports/SkOSFile_stdio.cpp",
     "src/sfnt/SkOTTable_name.cpp",
@@ -225,16 +251,25 @@ component("skia") {
   }
 }
 
-executable("example") {
+action("skia.h") {
+  script = "gn/echo_headers.py"
+  args = [ rebase_path("$target_gen_dir/skia.h", root_build_dir) ] +
+         rebase_path(skia_public_includes, root_build_dir)
+  outputs = [
+    "$target_gen_dir/skia.h",
+  ]
+}
+
+executable("fiddle") {
+  include_dirs = [ "$target_gen_dir" ]
+  libs = [ "OSMesa" ]
+
   sources = [
-    "cmake/example.cpp",
+    "tools/fiddle/draw.cpp",
+    "tools/fiddle/fiddle_main.cpp",
   ]
   deps = [
     ":skia",
+    ":skia.h",
   ]
-
-  libs = []
-  if (is_mac) {
-    libs += [ "OpenGL.framework" ]
-  }
 }
