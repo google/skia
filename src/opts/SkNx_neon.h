@@ -296,6 +296,8 @@ public:
 template <>
 class SkNx<4, uint8_t> {
 public:
+    typedef uint32_t __attribute__((aligned(1))) unaligned_uint32_t;
+
     SkNx(const uint8x8_t& vec) : fVec(vec) {}
 
     SkNx() {}
@@ -303,10 +305,10 @@ public:
         fVec = (uint8x8_t){a,b,c,d, 0,0,0,0};
     }
     static SkNx Load(const void* ptr) {
-        return (uint8x8_t)vld1_dup_u32((const uint32_t*)ptr);
+        return (uint8x8_t)vld1_dup_u32((const unaligned_uint32_t*)ptr);
     }
     void store(void* ptr) const {
-        return vst1_lane_u32((uint32_t*)ptr, (uint32x2_t)fVec, 0);
+        return vst1_lane_u32((unaligned_uint32_t*)ptr, (uint32x2_t)fVec, 0);
     }
     uint8_t operator[](int k) const {
         SkASSERT(0 <= k && k < 4);
