@@ -183,7 +183,6 @@ namespace SkGpuBlurUtils {
 sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
                                   GrTexture* origSrc,
                                   sk_sp<SkColorSpace> colorSpace,
-                                  bool gammaCorrect,
                                   const SkIRect& dstBounds,
                                   const SkIRect* srcBounds,
                                   float sigmaX,
@@ -227,13 +226,9 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
     const int height = dstBounds.height();
     const GrPixelConfig config = srcTexture->config();
 
-    const SkSurfaceProps props(gammaCorrect ? SkSurfaceProps::kGammaCorrect_Flag : 0,
-                               SkSurfaceProps::kLegacyFontHost_InitType);
-
     sk_sp<GrDrawContext> dstDrawContext(context->newDrawContext(SkBackingFit::kApprox,
                                                                 width, height, config, colorSpace,
-                                                                0, kDefault_GrSurfaceOrigin,
-                                                                &props));
+                                                                0, kDefault_GrSurfaceOrigin));
     if (!dstDrawContext) {
         return nullptr;
     }
@@ -253,8 +248,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
 
     sk_sp<GrDrawContext> tmpDrawContext(context->newDrawContext(SkBackingFit::kApprox,
                                                                 width, height, config, colorSpace,
-                                                                0, kDefault_GrSurfaceOrigin,
-                                                                &props));
+                                                                0, kDefault_GrSurfaceOrigin));
     if (!tmpDrawContext) {
         return nullptr;
     }
@@ -265,7 +259,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         GrPaint paint;
-        paint.setGammaCorrect(gammaCorrect);
+        paint.setGammaCorrect(dstDrawContext->isGammaCorrect());
         SkMatrix matrix;
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         SkIRect dstRect(srcRect);
@@ -359,7 +353,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
         matrix.setIDiv(srcDrawContext->width(), srcDrawContext->height());
 
         GrPaint paint;
-        paint.setGammaCorrect(gammaCorrect);
+        paint.setGammaCorrect(dstDrawContext->isGammaCorrect());
         // FIXME:  this should be mitchell, not bilinear.
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
         sk_sp<GrTexture> tex(srcDrawContext->asTexture());

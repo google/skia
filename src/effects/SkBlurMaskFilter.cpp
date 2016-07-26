@@ -1245,10 +1245,8 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
 
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
-    static const bool kIsGammaCorrect = false;
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
-    sk_sp<GrDrawContext> drawContext(SkGpuBlurUtils::GaussianBlur(context, src,
-                                                                  nullptr, kIsGammaCorrect,
+    sk_sp<GrDrawContext> drawContext(SkGpuBlurUtils::GaussianBlur(context, src, nullptr,
                                                                   clipRect, nullptr,
                                                                   xformedSigma, xformedSigma));
     if (!drawContext) {

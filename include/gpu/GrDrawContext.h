@@ -274,7 +274,7 @@ public:
     int height() const { return fRenderTarget->height(); }
     GrPixelConfig config() const { return fRenderTarget->config(); }
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
-    bool isGammaCorrect() const { return fSurfaceProps.isGammaCorrect(); }
+    bool isGammaCorrect() const { return SkToBool(fColorSpace.get()); }
     SkSourceGammaTreatment sourceGammaTreatment() const {
         return this->isGammaCorrect() ? SkSourceGammaTreatment::kRespect
                                       : SkSourceGammaTreatment::kIgnore;
