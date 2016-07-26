@@ -124,14 +124,15 @@ sk_sp<SkBaseDevice> SkGpuDevice::Make(sk_sp<GrDrawContext> drawContext,
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
                                      const SkImageInfo& info, int sampleCount,
+                                     GrSurfaceOrigin origin,
                                      const SkSurfaceProps* props, InitContents init) {
     unsigned flags;
     if (!CheckAlphaTypeAndGetFlags(&info, init, &flags)) {
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> drawContext(CreateDrawContext(context, budgeted, info,
-                                                       sampleCount, props));
+    sk_sp<GrDrawContext> drawContext(MakeDrawContext(context, budgeted, info,
+                                                     sampleCount, origin, props));
     if (!drawContext) {
         return nullptr;
     }
@@ -153,11 +154,12 @@ SkGpuDevice::SkGpuDevice(sk_sp<GrDrawContext> drawContext, int width, int height
     }
 }
 
-sk_sp<GrDrawContext> SkGpuDevice::CreateDrawContext(GrContext* context,
-                                                    SkBudgeted budgeted,
-                                                    const SkImageInfo& origInfo,
-                                                    int sampleCount,
-                                                    const SkSurfaceProps* surfaceProps) {
+sk_sp<GrDrawContext> SkGpuDevice::MakeDrawContext(GrContext* context,
+                                                  SkBudgeted budgeted,
+                                                  const SkImageInfo& origInfo,
+                                                  int sampleCount,
+                                                  GrSurfaceOrigin origin,
+                                                  const SkSurfaceProps* surfaceProps) {
     if (kUnknown_SkColorType == origInfo.colorType() ||
         origInfo.width() < 0 || origInfo.height() < 0) {
         return nullptr;
@@ -188,7 +190,7 @@ sk_sp<GrDrawContext> SkGpuDevice::CreateDrawContext(GrContext* context,
     return context->newDrawContext(SkBackingFit::kExact,               // Why exact?
                                    origInfo.width(), origInfo.height(),
                                    config, sk_ref_sp(cs), sampleCount,
-                                   kDefault_GrSurfaceOrigin, surfaceProps, budgeted);
+                                   origin, surfaceProps, budgeted);
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(const SkDraw& draw,
@@ -276,11 +278,12 @@ void SkGpuDevice::replaceDrawContext(bool shouldRetainContent) {
 
     SkBudgeted budgeted = fRenderTarget->resourcePriv().isBudgeted();
 
-    sk_sp<GrDrawContext> newDC(CreateDrawContext(this->context(), 
-                                                 budgeted,
-                                                 this->imageInfo(),
-                                                 fDrawContext->numColorSamples(),
-                                                 &this->surfaceProps()));
+    sk_sp<GrDrawContext> newDC(MakeDrawContext(this->context(), 
+                                               budgeted,
+                                               this->imageInfo(),
+                                               fDrawContext->numColorSamples(),
+                                               fDrawContext->origin(),
+                                               &this->surfaceProps()));
     if (!newDC) {
         return;
     }
@@ -1769,7 +1772,7 @@ sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfa
     // TODO: Change the signature of newSurface to take a budgeted parameter.
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
     return SkSurface::MakeRenderTarget(fContext, kBudgeted, info, fDrawContext->desc().fSampleCnt,
-                                       &props);
+                                       fDrawContext->origin(), &props);
 }
 
 SkImageFilterCache* SkGpuDevice::getImageFilterCache() {

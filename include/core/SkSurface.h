@@ -140,11 +140,19 @@ public:
      *  Return a new surface whose contents will be drawn to an offscreen
      *  render target, allocated by the surface.
      */
-    static sk_sp<SkSurface> MakeRenderTarget(
-            GrContext*, SkBudgeted, const SkImageInfo&, int sampleCount, const SkSurfaceProps*);
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&,
+                                             int sampleCount, GrSurfaceOrigin,
+                                             const SkSurfaceProps*);
+
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+                                             const SkImageInfo& info, int sampleCount,
+                                             const SkSurfaceProps* props) {
+        return MakeRenderTarget(context, budgeted, info, sampleCount,
+                                kBottomLeft_GrSurfaceOrigin, props);
+    }
 
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* gr, SkBudgeted b, const SkImageInfo& info) {
-        return MakeRenderTarget(gr, b, info, 0, nullptr);
+        return MakeRenderTarget(gr, b, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr);
     }
 
 #ifdef SK_SUPPORT_LEGACY_NEW_SURFACE_API

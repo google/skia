@@ -387,17 +387,10 @@ DEF_TEST(ReadPixels, reporter) {
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
+    const SkImageInfo ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
     for (auto& origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
-        GrSurfaceDesc desc;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fWidth = DEV_W;
-        desc.fHeight = DEV_H;
-        desc.fConfig = kSkia8888_GrPixelConfig;
-        desc.fOrigin = origin;
-        SkAutoTUnref<GrTexture> surfaceTexture(
-            ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo));
-        auto surface(SkSurface::MakeRenderTargetDirect(surfaceTexture->asRenderTarget(), nullptr));
-        desc.fFlags = kNone_GrSurfaceFlags;
+        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo,
+                                                             ii, 0, origin, nullptr));
         test_readpixels(reporter, surface, kLast_BitmapInit);
     }
 }

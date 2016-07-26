@@ -62,7 +62,8 @@ public:
      * the resource cache budget. On failure, returns nullptr.
      */
     static sk_sp<SkGpuDevice> Make(GrContext*, SkBudgeted, const SkImageInfo&,
-                                   int sampleCount, const SkSurfaceProps*, InitContents);
+                                   int sampleCount, GrSurfaceOrigin, 
+                                   const SkSurfaceProps*, InitContents);
 
     ~SkGpuDevice() override {}
 
@@ -265,11 +266,12 @@ private:
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
     void drawStrokedLine(const SkPoint pts[2], const SkDraw&, const SkPaint&);
 
-    static sk_sp<GrDrawContext> CreateDrawContext(GrContext*,
-                                                  SkBudgeted,
-                                                  const SkImageInfo&,
-                                                  int sampleCount,
-                                                  const SkSurfaceProps*);
+    static sk_sp<GrDrawContext> MakeDrawContext(GrContext*,
+                                                SkBudgeted,
+                                                const SkImageInfo&,
+                                                int sampleCount,
+                                                GrSurfaceOrigin,
+                                                const SkSurfaceProps*);
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps

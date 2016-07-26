@@ -56,7 +56,7 @@ static sk_sp<SkSurface> create_gpu_surface(GrContext* context, SkAlphaType at = 
     if (requestedInfo) {
         *requestedInfo = info;
     }
-    return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
+    return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
 }
 static sk_sp<SkSurface> create_gpu_scratch_surface(GrContext* context,
                                                    SkAlphaType at = kPremul_SkAlphaType,
@@ -65,7 +65,7 @@ static sk_sp<SkSurface> create_gpu_scratch_surface(GrContext* context,
     if (requestedInfo) {
         *requestedInfo = info;
     }
-    return SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 0, nullptr);
+    return SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
 }
 #endif
 
@@ -79,8 +79,7 @@ DEF_TEST(SurfaceEmpty, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceEmpty_Gpu, reporter, ctxInfo) {
     const SkImageInfo info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
     REPORTER_ASSERT(reporter, nullptr ==
-                    SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info, 0,
-                                                nullptr));
+                    SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info));
 }
 #endif
 
@@ -335,13 +334,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
         desc.fHeight = 10;
         desc.fFlags = kRenderTarget_GrBackendTextureFlag;
         desc.fTextureHandle = textureObject;
-        GrTexture* texture = context->textureProvider()->wrapBackendTexture(desc);
+
         {
-            auto surface(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget(), nullptr));
+            sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTexture(context, desc, nullptr));
             test_unique_image_snap(reporter, surface.get(), true, imageBackingStore,
                                    surfaceBackingStore);
         }
-        texture->unref();
+
         context->getGpu()->deleteTestingOnlyBackendTexture(textureObject);
     }
 }

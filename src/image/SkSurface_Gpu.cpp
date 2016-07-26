@@ -67,10 +67,11 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
     int sampleCount = fDevice->accessDrawContext()->numColorSamples();
+    GrSurfaceOrigin origin = fDevice->accessDrawContext()->origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
     return SkSurface::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
-                                       &this->props());
+                                       origin, &this->props());
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyMode forceCopyMode) {
@@ -145,9 +146,9 @@ sk_sp<SkSurface> SkSurface::MakeRenderTargetDirect(GrRenderTarget* target,
 
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
-                                             const SkSurfaceProps* props) {
+                                             GrSurfaceOrigin origin, const SkSurfaceProps* props) {
     sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
-            ctx, budgeted, info, sampleCount, props, SkGpuDevice::kClear_InitContents));
+            ctx, budgeted, info, sampleCount, origin, props, SkGpuDevice::kClear_InitContents));
     if (!device) {
         return nullptr;
     }

@@ -281,6 +281,7 @@ public:
     }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
+    GrSurfaceOrigin origin() const { return fRenderTarget->origin(); }
 
     bool wasAbandoned() const;
 
