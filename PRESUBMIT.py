@@ -169,6 +169,19 @@ def _ToolFlags(input_api, output_api):
   return results
 
 
+def _RecipeSimulationTest(input_api, output_api):
+  """Run the recipe simulation test."""
+  results = []
+  recipes_py = os.path.join('infra', 'bots', 'recipes.py')
+  cmd = ['python', recipes_py, 'simulation_test']
+  try:
+    subprocess.check_output(cmd)
+  except subprocess.CalledProcessError as e:
+    results.append(output_api.PresubmitError(
+        '`%s` failed:\n%s' % (' '.join(cmd), e.output)))
+  return results
+
+
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
@@ -202,6 +215,9 @@ def CheckChangeOnUpload(input_api, output_api):
   """
   results = []
   results.extend(_CommonChecks(input_api, output_api))
+  # Run on upload, not commit, since the presubmit bot apparently doesn't have
+  # coverage installed.
+  results.extend(_RecipeSimulationTest(input_api, output_api))
   return results
 
 

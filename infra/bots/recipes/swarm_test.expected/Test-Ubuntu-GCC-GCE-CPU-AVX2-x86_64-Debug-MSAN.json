@@ -1,0 +1,149 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[SLAVE_BUILD]/skia/tools/buildbot_spec.py",
+      "/path/to/tmp/json",
+      "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "exec buildbot_spec.py",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"build_targets\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"dm\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"nanobench\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  ], @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"builder_cfg\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"arch\": \"x86_64\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"compiler\": \"GCC\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"configuration\": \"Debug\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"cpu_or_gpu\": \"CPU\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"cpu_or_gpu_value\": \"AVX2\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"extra_config\": \"MSAN\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"is_trybot\": false, @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"model\": \"GCE\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"os\": \"Ubuntu\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"role\": \"Test\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"configuration\": \"Debug\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"dm_flags\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  ], @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"do_perf_steps\": true, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"do_test_steps\": true, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"env\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"GYP_DEFINES\": \"skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"nanobench_flags\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  ], @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"upload_dm_results\": false, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"upload_perf_results\": false@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/skp/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded SKP VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[SLAVE_BUILD]/tmp/SKP_VERSION"
+    ],
+    "name": "write SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/skimage/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded skimage VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION"
+    ],
+    "name": "write SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/out/Debug/dm",
+      "--undefok",
+      "--resourcePath",
+      "[SLAVE_BUILD]/skia/resources",
+      "--skps",
+      "[SLAVE_BUILD]/skp",
+      "--images",
+      "[SLAVE_BUILD]/skimage/dm",
+      "--colorImages",
+      "[SLAVE_BUILD]/skimage/colorspace",
+      "--nameByHash",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "master",
+      "client.skia",
+      "builder",
+      "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN",
+      "build_number",
+      "5",
+      "--key",
+      "arch",
+      "x86_64",
+      "compiler",
+      "GCC",
+      "configuration",
+      "Debug",
+      "cpu_or_gpu",
+      "CPU",
+      "cpu_or_gpu_value",
+      "AVX2",
+      "extra_config",
+      "MSAN",
+      "model",
+      "GCE",
+      "os",
+      "Ubuntu",
+      "--nogpu",
+      "--dummy-flags"
+    ],
+    "env": {
+      "ASAN_OPTIONS": "symbolize=1 detect_leaks=1",
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0",
+      "LD_LIBRARY_PATH": "[SLAVE_BUILD]/third_party/externals/llvm/msan_out/lib",
+      "LSAN_OPTIONS": "symbolize=1 print_suppressions=1 suppressions=[SLAVE_BUILD]/skia/tools/lsan.supp",
+      "PATH": "%(PATH)s:[SLAVE_BUILD]/llvm-build/Release+Asserts/bin",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "TSAN_OPTIONS": "suppressions=[SLAVE_BUILD]/skia/tools/tsan.supp",
+      "UBSAN_OPTIONS": "suppressions=[SLAVE_BUILD]/skia/tools/ubsan.supp"
+    },
+    "name": "dm"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
