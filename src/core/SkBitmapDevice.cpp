@@ -268,7 +268,18 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
             matrix.mapRect(&tmpDst, tmpSrc);
             dstPtr = &tmpDst;
         }
+    }
 
+    if (src && !src->contains(bitmapBounds) &&
+        SkCanvas::kFast_SrcRectConstraint == constraint &&
+        paint.getFilterQuality() != kNone_SkFilterQuality) {
+        // src is smaller than the bounds of the bitmap, and we are filtering, so we don't know
+        // how much more of the bitmap we need, so we can't use extractSubset or drawBitmap,
+        // but we must use a shader w/ dst bounds (which can access all of the bitmap needed).
+        goto USE_SHADER;
+    }
+
+    if (src) {
         // since we may need to clamp to the borders of the src rect within
         // the bitmap, we extract a subset.
         const SkIRect srcIR = tmpSrc.roundOut();
@@ -310,6 +321,7 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         return;
     }
 
+    USE_SHADER:
     // construct a shader, so we can call drawRect with the dst
     auto s = SkShader::MakeBitmapShader(*bitmapPtr, SkShader::kClamp_TileMode,
                                         SkShader::kClamp_TileMode, &matrix);
