@@ -29,6 +29,17 @@
       }],
     },
     {
+      'target_name': 'yasm-android',
+      'type': 'executable',
+      'sources': [
+        '../third_party/yasm/android/yasm',
+      ],
+      'copies' : [{
+        'destination': '<(PRODUCT_DIR)',
+        'files': [ '../third_party/yasm/android/yasm' ],
+      }],
+    },
+    {
       'target_name': 'libjpeg-turbo',
       'type': 'static_library',
       'include_dirs': [
@@ -249,7 +260,7 @@
         [ 'skia_os == "android" and host_os == "linux" and \
           (skia_arch_type == "x86" or skia_arch_type == "x86_64")', {
           'dependencies': [
-            'yasm.gyp:yasm#host',
+            'yasm-android',
           ],
           'variables': {
             'yasm_path': '<(PRODUCT_DIR)/yasm',
