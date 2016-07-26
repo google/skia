@@ -425,6 +425,7 @@ bool SkOpCoincidence::addExpanded() {
         const SkOpSpanBase* end = coin->coinPtTEnd()->span();
         const SkOpSpanBase* oEnd = coin->oppPtTEnd()->span();
         FAIL_IF(oEnd->deleted());
+        FAIL_IF(!start->upCastable());
         const SkOpSpanBase* test = start->upCast()->next();
         const SkOpSpanBase* oTest = coin->flipped() ? oStart->prev() : oStart->upCast()->next();
         if (!oTest) {
@@ -448,7 +449,7 @@ bool SkOpCoincidence::addExpanded() {
                         : start->segment()->addExpanded(
                                 startPtT->fT + startRange * oStartPart, oTest, &startOver);
                 if (!success) {
-                    SkASSERT(fGlobalState->debugSkipAssert());
+                    SkOPASSERT(false);
                     return false;
                 }
                 if (startOver) {

@@ -184,7 +184,8 @@ private:
 };
 
 #ifdef SK_DEBUG
-#define SkOPASSERT(cond) SkASSERT(this->globalState()->debugSkipAssert() || cond)
+#define SkOPASSERT(cond) SkASSERT((this->globalState() && \
+        this->globalState()->debugSkipAssert()) || cond)
 #define SkOPOBJASSERT(obj, cond) SkASSERT((obj->debugGlobalState() && \
         obj->debugGlobalState()->debugSkipAssert()) || cond)
 #else
