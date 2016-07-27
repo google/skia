@@ -616,12 +616,12 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
     }
 
     AutoCheckFlush acf(fDrawingManager);
-    SkAutoTUnref<GrDrawBatch> batch;
     bool useHWAA;
 
     if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
-        batch.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(), croppedLocalRect,
-                                   paint.isAntiAlias(), fInstancedPipelineInfo, &useHWAA));
+        SkAutoTUnref<GrDrawBatch> batch(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
+                                                       croppedLocalRect, paint.isAntiAlias(),
+                                                       fInstancedPipelineInfo, &useHWAA));
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
             this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
@@ -629,20 +629,33 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
         }
     }
 
-    if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA) &&
-        view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        batch.reset(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(), viewMatrix,
-                                                           croppedRect, croppedLocalRect));
-        if (batch) {
-            GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->drawBatch(pipelineBuilder, clip, batch);
-            return;
-        }
-    } else {
+    if (!should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
         this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, &croppedLocalRect,
                                   nullptr, nullptr);
+        return;
     }
 
+    if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+        SkAutoTUnref<GrDrawBatch> batch(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(),
+                                                                               viewMatrix,
+                                                                               croppedRect,
+                                                                               croppedLocalRect));
+        GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+        this->drawBatch(pipelineBuilder, clip, batch);
+        return;
+    }
+
+    SkMatrix viewAndUnLocalMatrix;
+    if (!viewAndUnLocalMatrix.setRectToRect(localRect, rectToDraw, SkMatrix::kFill_ScaleToFit)) {
+        SkDebugf("fillRectToRect called with empty local matrix.\n");
+        return;
+    }
+    viewAndUnLocalMatrix.postConcat(viewMatrix);
+
+    SkPath path;
+    path.setIsVolatile(true);
+    path.addRect(localRect);
+    this->internalDrawPath(clip, paint, viewAndUnLocalMatrix, path, GrStyle());
 }
 
 void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
@@ -661,12 +674,12 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
     }
 
     AutoCheckFlush acf(fDrawingManager);
-    SkAutoTUnref<GrDrawBatch> batch;
     bool useHWAA;
 
     if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
-        batch.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(), localMatrix,
-                                   paint.isAntiAlias(), fInstancedPipelineInfo, &useHWAA));
+        SkAutoTUnref<GrDrawBatch> batch(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
+                                                       localMatrix, paint.isAntiAlias(),
+                                                       fInstancedPipelineInfo, &useHWAA));
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
             this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
@@ -674,17 +687,32 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
         }
     }
 
-    if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA) &&
-        view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        batch.reset(GrAAFillRectBatch::Create(paint.getColor(), viewMatrix, localMatrix,
-                                              croppedRect));
-        GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-        this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
-    } else {
+    if (!should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
         this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, nullptr,
                                   &localMatrix, nullptr);
+        return;
     }
 
+    if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+        SkAutoTUnref<GrDrawBatch> batch(GrAAFillRectBatch::Create(paint.getColor(), viewMatrix,
+                                                                  localMatrix, croppedRect));
+        GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+        this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
+        return;
+    }
+
+    SkMatrix viewAndUnLocalMatrix;
+    if (!localMatrix.invert(&viewAndUnLocalMatrix)) {
+        SkDebugf("fillRectWithLocalMatrix called with degenerate local matrix.\n");
+        return;
+    }
+    viewAndUnLocalMatrix.postConcat(viewMatrix);
+
+    SkPath path;
+    path.setIsVolatile(true);
+    path.addRect(rectToDraw);
+    path.transform(localMatrix);
+    this->internalDrawPath(clip, paint, viewAndUnLocalMatrix, path, GrStyle());
 }
 
 void GrDrawContext::drawVertices(const GrClip& clip,
