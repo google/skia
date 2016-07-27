@@ -62,7 +62,7 @@ def main(builder_name, build_number, perf_data_dir, got_revision, gsutil_path,
       break
 
   if nanobench_name:
-    dest_gsbase = 'gs://chromium-skia-gm/'
+    dest_gsbase = 'gs://chromium-skia-gm'
     nanobench_json_file = os.path.join(perf_data_dir,
                                        nanobench_name)
     _UploadJSONResults(builder_name, build_number, dest_gsbase, 'nano-json-v1',
