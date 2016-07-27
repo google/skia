@@ -938,3 +938,57 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     }
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void make_all_premul(SkBitmap* bm) {
+    bm->allocPixels(SkImageInfo::MakeN32(256, 256, kPremul_SkAlphaType));
+    for (int a = 0; a < 256; ++a) {
+        for (int r = 0; r < 256; ++r) {
+            // make all valid premul combinations
+            int c = SkTMin(a, r);
+            *bm->getAddr32(a, r) = SkPackARGB32(a, c, c, c);
+        }
+    }
+}
+
+static bool equal(const SkBitmap& a, const SkBitmap& b) {
+    SkASSERT(a.width() == b.width());
+    SkASSERT(a.height() == b.height());
+    for (int y = 0; y < a.height(); ++y) {
+        if (0 != memcmp(a.getAddr32(0, y), b.getAddr32(0, y), a.width() * sizeof(SkPMColor))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+DEF_TEST(image_roundtrip_encode, reporter) {
+    SkBitmap bm0;
+    make_all_premul(&bm0);
+
+    auto img0 = SkImage::MakeFromBitmap(bm0);
+    sk_sp<SkData> data(img0->encode(SkImageEncoder::kPNG_Type, 100));
+    auto img1 = SkImage::MakeFromEncoded(data);
+    
+    SkBitmap bm1;
+    bm1.allocPixels(SkImageInfo::MakeN32(256, 256, kPremul_SkAlphaType));
+    img1->readPixels(bm1.info(), bm1.getPixels(), bm1.rowBytes(), 0, 0);
+    
+    REPORTER_ASSERT(reporter, equal(bm0, bm1));
+}
+
+DEF_TEST(image_roundtrip_premul, reporter) {
+    SkBitmap bm0;
+    make_all_premul(&bm0);
+
+    SkBitmap bm1;
+    bm1.allocPixels(SkImageInfo::MakeN32(256, 256, kUnpremul_SkAlphaType));
+    bm0.readPixels(bm1.info(), bm1.getPixels(), bm1.rowBytes(), 0, 0);
+
+    SkBitmap bm2;
+    bm2.allocPixels(SkImageInfo::MakeN32(256, 256, kPremul_SkAlphaType));
+    bm1.readPixels(bm2.info(), bm2.getPixels(), bm2.rowBytes(), 0, 0);
+
+    REPORTER_ASSERT(reporter, equal(bm0, bm2));
+}
