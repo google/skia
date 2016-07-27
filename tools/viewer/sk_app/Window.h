@@ -156,7 +156,7 @@ public:
     bool onTouch(intptr_t owner, InputState state, float x, float y);  // multi-owner = multi-touch
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
     void onPaint();
-    void onResize(uint32_t width, uint32_t height);
+    void onResize(int width, int height);
 
     int width() { return fWidth; }
     int height() { return fHeight;  }

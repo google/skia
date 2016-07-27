@@ -270,8 +270,10 @@ void Window_win::show() {
 bool Window_win::attach(BackendType attachType, const DisplayParams& params) {
     switch (attachType) {
         case kNativeGL_BackendType:
-        default:
             fWindowContext = window_context_factory::NewGLForWin(fHWnd, params);
+            break;
+        case kRaster_BackendType:
+            fWindowContext = window_context_factory::NewRasterForWin(fHWnd, params);
             break;
 #ifdef SK_VULKAN
         case kVulkan_BackendType:

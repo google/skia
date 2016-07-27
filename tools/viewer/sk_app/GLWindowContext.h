@@ -27,7 +27,7 @@ public:
 
     bool isValid() override { return SkToBool(fBackendContext.get()); }
 
-    void resize(uint32_t w, uint32_t h) override;
+    void resize(int w, int h) override;
     void swapBuffers() override;
 
     void setDisplayParams(const DisplayParams& params) override;

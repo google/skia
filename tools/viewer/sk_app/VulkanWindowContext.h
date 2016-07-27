@@ -28,7 +28,7 @@ public:
 
     bool isValid() override { return SkToBool(fBackendContext.get()); }
 
-    void resize(uint32_t w, uint32_t h) override {
+    void resize(int w, int h) override {
         this->createSwapchain(w, h, fDisplayParams);
     }
 
@@ -59,7 +59,7 @@ private:
     };
 
     BackbufferInfo* getAvailableBackbuffer();
-    bool createSwapchain(uint32_t width, uint32_t height, const DisplayParams& params);
+    bool createSwapchain(int width, int height, const DisplayParams& params);
     void createBuffers(VkFormat format);
     void destroyBuffers();
 

@@ -93,7 +93,7 @@ void GLWindowContext::swapBuffers() {
     this->onSwapBuffers();
 }
 
-void GLWindowContext::resize(uint32_t w, uint32_t h) {
+void GLWindowContext::resize(int  w, int h) {
     this->destroyContext();
     this->initializeContext();
 }

@@ -21,7 +21,7 @@ public:
     sk_sp<SkSurface> getBackbufferSurface() override;
     void swapBuffers() override;
     bool isValid() override { return SkToBool(fWindow); }
-    void resize(uint32_t w, uint32_t h) override;
+    void resize(int  w, int h) override;
     void setDisplayParams(const DisplayParams& params) override;
 
 protected:
@@ -49,7 +49,7 @@ void RasterWindowContext_xlib::setDisplayParams(const DisplayParams& params) {
     this->resize(attrs.width, attrs.height);
 }
 
-void RasterWindowContext_xlib::resize(uint32_t w, uint32_t h) {
+void RasterWindowContext_xlib::resize(int  w, int h) {
     SkImageInfo info = SkImageInfo::Make(w, h, fDisplayParams.fColorType, kPremul_SkAlphaType,
                                          fDisplayParams.fColorSpace);
     fBackbufferSurface = SkSurface::MakeRaster(info);

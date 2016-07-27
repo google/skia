@@ -23,7 +23,7 @@ public:
     void swapBuffers() override;
 
     bool isValid() override { return SkToBool(fNativeWindow); }
-    void resize(uint32_t w, uint32_t h) override;
+    void resize(int w, int h) override;
     void setDisplayParams(const DisplayParams& params) override;
 
 private:
@@ -63,7 +63,7 @@ void RasterWindowContext_android::setDisplayParams(const DisplayParams& params) 
     this->setBuffersGeometry();
 }
 
-void RasterWindowContext_android::resize(uint32_t w, uint32_t h) {
+void RasterWindowContext_android::resize(int w, int h) {
     fWidth = w;
     fHeight = h;
     this->setBuffersGeometry();

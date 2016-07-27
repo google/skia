@@ -22,6 +22,8 @@ WindowContext* NewVulkanForWin(HWND, const DisplayParams&);
 
 WindowContext* NewGLForWin(HWND, const DisplayParams&);
 
+WindowContext* NewRasterForWin(HWND, const DisplayParams&);
+
 }  // namespace window_context_factory
 
 }  // namespace sk_app

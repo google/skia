@@ -31,7 +31,7 @@ public:
 
     virtual bool isValid() = 0;
 
-    virtual void resize(uint32_t w, uint32_t h) = 0;
+    virtual void resize(int w, int h) = 0;
 
     const DisplayParams& getDisplayParams() { return fDisplayParams; }
     virtual void setDisplayParams(const DisplayParams& params) = 0;

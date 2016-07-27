@@ -85,7 +85,7 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
     vkGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
 }
 
-bool VulkanWindowContext::createSwapchain(uint32_t width, uint32_t height,
+bool VulkanWindowContext::createSwapchain(int width, int height,
                                           const DisplayParams& params) {
     // check for capabilities
     VkSurfaceCapabilitiesKHR caps;
