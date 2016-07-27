@@ -25,6 +25,7 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-Arm7-Debug-Android-Trybot',
       'Build-Ubuntu-GCC-Arm7-Release-Android',
       'Build-Ubuntu-GCC-Arm7-Release-Android_Vulkan',
+      'Build-Ubuntu-GCC-x86-Debug',
       'Build-Ubuntu-GCC-x86_64-Debug-MSAN',
       'Build-Ubuntu-GCC-x86_64-Release-CMake',
       'Build-Ubuntu-GCC-x86_64-Release-PDFium',
@@ -83,6 +84,22 @@ def GenTests(api):
 
   mastername = 'client.skia.compile'
   slavename = 'skiabot-win-compile-000'
+  buildername = 'Build-Ubuntu-GCC-x86-Debug'
+  yield (
+      api.test('failed_compile') +
+      api.properties(buildername=buildername,
+                     mastername=mastername,
+                     slavename=slavename,
+                     buildnumber=5,
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(
+          api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
+      ) +
+      api.step_data('build most', retcode=1)
+  )
+
   buildername = 'Build-Win-MSVC-x86-Debug'
   yield (
       api.test('win_retry_failed_compile') +

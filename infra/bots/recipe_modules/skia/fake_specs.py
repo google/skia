@@ -278,6 +278,33 @@ FAKE_SPECS = {
     'upload_dm_results': True,
     'upload_perf_results': False,
   },
+  'Build-Ubuntu-GCC-x86-Debug': {
+    'build_targets': [
+      'most',
+    ],
+    'builder_cfg': {
+      'compiler': 'GCC',
+      'configuration': 'Debug',
+      'is_trybot': False,
+      'os': 'Ubuntu',
+      'role': 'Build',
+      'target_arch': 'x86',
+    },
+    'configuration': 'Debug',
+    'dm_flags': [
+      '--dummy-flags',
+    ],
+    'do_perf_steps': False,
+    'do_test_steps': False,
+    'env': {
+      'GYP_DEFINES': 'skia_arch_type=x86 skia_warnings_as_errors=1',
+    },
+    'nanobench_flags': [
+      '--dummy-flags',
+    ],
+    'upload_dm_results': True,
+    'upload_perf_results': False,
+  },
   'Build-Ubuntu-GCC-x86_64-Debug': {
     'build_targets': [
       'most',
@@ -1177,39 +1204,6 @@ FAKE_SPECS = {
       '--dummy-flags',
     ],
     'upload_dm_results': False,
-    'upload_perf_results': False,
-  },
-  'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan': {
-    'build_targets': [
-      'dm',
-    ],
-    'builder_cfg': {
-      'arch': 'x86_64',
-      'compiler': 'MSVC',
-      'configuration': 'Release',
-      'cpu_or_gpu': 'GPU',
-      'cpu_or_gpu_value': 'GTX660',
-      'extra_config': 'Vulkan',
-      'is_trybot': False,
-      'model': 'ShuttleA',
-      'os': 'Win10',
-      'role': 'Test',
-    },
-    'configuration': 'Release_x64',
-    'dm_flags': [
-      '--dummy-flags',
-    ],
-    'do_perf_steps': False,
-    'do_test_steps': True,
-    'env': {
-      'GYP_DEFINES':
-          ('qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86_64 skia_vulkan=1 skia_warn'
-           'ings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp'),
-    },
-    'nanobench_flags': [
-      '--dummy-flags',
-    ],
-    'upload_dm_results': True,
     'upload_perf_results': False,
   },
   'Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release': {

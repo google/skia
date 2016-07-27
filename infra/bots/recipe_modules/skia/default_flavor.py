@@ -144,6 +144,8 @@ class DefaultFlavorUtils(object):
         # The linker occasionally crashes on Windows. Try again.
         self._skia_api.run(self._skia_api.m.step, 'build %s' % target, cmd=cmd,
                            env=env, cwd=self._skia_api.m.path['checkout'])
+      else:
+        raise
     if 'CommandBuffer' in self._skia_api.builder_name:
       self._skia_api._run_once(self.build_command_buffer)
 
