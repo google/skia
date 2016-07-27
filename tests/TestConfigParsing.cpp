@@ -305,8 +305,12 @@ DEF_TEST(ParseConfigs_ViaParsing, reporter) {
     } expectedConfigs[] = {
         {"8888", {"a", "b", "c"}},
         {"gpu", {"zz", "qq", nullptr}},
-        {"angle-gl", {"a", nullptr, nullptr}}  // The angle-gl tag is only tag that contains
-                                               // hyphen.
+#if SK_ANGLE
+        { "gpu",{ "a", nullptr, nullptr } }  // With SK_ANGLE, angle-gl becomes gpu(api=angle-gl)
+#else
+        { "angle-gl",{ "a", nullptr, nullptr } }  // The angle-gl tag is only tag that contains
+                                                  // hyphen.
+#endif
     };
     for (int i = 0; i < config1.count(); ++i) {
         REPORTER_ASSERT(reporter, configs[i]->getTag().equals(config1[i]));
