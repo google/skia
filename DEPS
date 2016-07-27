@@ -36,7 +36,7 @@ deps = {
   #"third_party/externals/v8": "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
 
   # sfntly is used by the PDF backend for font subsetting
-  "third_party/externals/sfntly" : "https://chromium.googlesource.com/external/github.com/googlei18n/sfntly.git@130f832eddf98467e6578b548cb74ce17d04a26d",
+  "third_party/externals/sfntly" : "https://chromium.googlesource.com/external/github.com/googlei18n/sfntly.git@468cad540fa1b0027cad60456f53feabecdce2bc",
   # ICU is needed for sfntly.
   "third_party/externals/icu" : "https://chromium.googlesource.com/chromium/deps/icu.git@c291cde264469b20ca969ce8832088acb21e0c48",
 
