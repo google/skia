@@ -95,9 +95,6 @@ import elf_symbolizer
 
 from recipe_engine.types import freeze
 
-# Skia addition
-from common.skia import global_constants
-
 # Node dictionary keys. These are output in json read by the webapp so
 # keep them short to save file size.
 # Note: If these change, the webapp must also change.
@@ -338,7 +335,7 @@ def DumpCompactTree(symbols, symbol_path_origin_dir, ha, ts, issue, gsutil):
     # Use separators without whitespace to get a smaller file.
     json.dump(json_data, out, separators=(',', ':'))
 
-  GS_PREFIX = 'gs://' + global_constants.GS_GM_BUCKET + '/'
+  GS_PREFIX = 'gs://chromium-skia-gm/'
   # Writes to Google Storage for visualization.
   subprocess.check_call(GetGsCopyCommandList(
       gsutil, tmpfile, GS_PREFIX + 'size/' + ha + '.json'))

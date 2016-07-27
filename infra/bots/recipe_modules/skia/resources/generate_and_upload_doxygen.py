@@ -13,15 +13,13 @@ import shutil
 import subprocess
 import sys
 
-from common.skia import global_constants
-
 
 DOXYFILE_BASENAME = 'Doxyfile'  # must match name of Doxyfile in skia root
 DOXYGEN_BINARY = 'doxygen'
 WORKDIR = os.path.join(os.pardir, 'doxygen_workdir')
 DOXYGEN_CONFIG_DIR = os.path.join(WORKDIR, 'doxygen-config')
 DOXYGEN_WORKING_DIR = os.path.join(WORKDIR, 'doxygen')
-DOXYGEN_GS_PATH = '/'.join(['gs:/', global_constants.GS_GM_BUCKET, 'doxygen'])
+DOXYGEN_GS_PATH = '/'.join(['gs://chromium-skia-gm', 'doxygen'])
 
 IFRAME_FOOTER_TEMPLATE = """
 <html><body><address style="text-align: right;"><small>

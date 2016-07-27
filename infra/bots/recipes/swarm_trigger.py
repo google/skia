@@ -400,7 +400,9 @@ def perf_steps_collect(api, task, upload_perf_results, got_revision,
     api.file.copy('perf_results', src_results_file, dst_results_file,
                   infra_step=True)
 
-    gsutil_path = api.depot_tools.gsutil_py_path
+    gsutil_path = api.path['slave_build'].join(
+        'skia', 'infra', 'bots', '.recipe_deps', 'depot_tools', 'third_party',
+        'gsutil', 'gsutil')
     upload_args = [api.properties['buildername'], api.properties['buildnumber'],
                    perf_data_dir, got_revision, gsutil_path]
     if is_trybot:

@@ -13,8 +13,6 @@ import subprocess
 import sys
 import tempfile
 
-from common.skia import builder_name_schema
-from common.skia import global_constants
 from datetime import datetime
 
 
@@ -25,7 +23,7 @@ def _UploadJSONResults(builder_name, build_number, dest_gsbase, gs_subdir,
   gs_json_path = '/'.join((str(now.year).zfill(4), str(now.month).zfill(2),
                            str(now.day).zfill(2), str(now.hour).zfill(2)))
   gs_dir = '/'.join((gs_subdir, gs_json_path, builder_name))
-  if builder_name_schema.IsTrybot(builder_name):
+  if builder_name.endswith('-Trybot'):
     if not issue_number:
       raise Exception('issue_number build property is missing!')
     gs_dir = '/'.join(('trybot', gs_dir, build_number, issue_number))
@@ -64,7 +62,7 @@ def main(builder_name, build_number, perf_data_dir, got_revision, gsutil_path,
       break
 
   if nanobench_name:
-    dest_gsbase = 'gs://' + global_constants.GS_GM_BUCKET
+    dest_gsbase = 'gs://chromium-skia-gm/'
     nanobench_json_file = os.path.join(perf_data_dir,
                                        nanobench_name)
     _UploadJSONResults(builder_name, build_number, dest_gsbase, 'nano-json-v1',
