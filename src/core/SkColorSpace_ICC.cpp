@@ -560,7 +560,7 @@ static size_t gamma_alloc_size(SkGammas::Type type, const SkGammas::Data& data) 
 static void handle_invalid_gamma(SkGammas::Type* type, SkGammas::Data* data) {
     if (SkGammas::Type::kNone_Type == *type) {
         *type = SkGammas::Type::kNamed_Type;
-        data->fNamed = SkColorSpace::kSRGB_GammaNamed;
+        data->fNamed = SkColorSpace::kInvalid_GammaNamed;
     }
 }
 
@@ -839,6 +839,8 @@ static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkColorSpace::GammaNa
             (*gammas)->fGreenData = gData;
             (*gammas)->fBlueData = bData;
         }
+    } else {
+        *gammaNamed = SkColorSpace::kInvalid_GammaNamed;
     }
 
     uint32_t offsetToMatrix = read_big_endian_i32(src + 16);
@@ -961,21 +963,21 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                     if (tag_equals(r, g, base) && tag_equals(g, b, base)) {
                         SkGammas::Data data;
                         SkGammas::Params params;
-                        SkGammas::Type Type =
+                        SkGammas::Type type =
                                 parse_gamma(&data, &params, &tagBytes, r->addr(base), r->fLength);
-                        handle_invalid_gamma(&Type, &data);
+                        handle_invalid_gamma(&type, &data);
 
-                        if (SkGammas::Type::kNamed_Type == Type) {
+                        if (SkGammas::Type::kNamed_Type == type) {
                             gammaNamed = data.fNamed;
                         } else {
-                            size_t allocSize = sizeof(SkGammas) + gamma_alloc_size(Type, data);
+                            size_t allocSize = sizeof(SkGammas) + gamma_alloc_size(type, data);
                             void* memory = sk_malloc_throw(allocSize);
                             gammas = sk_sp<SkGammas>(new (memory) SkGammas());
-                            load_gammas(memory, 0, Type, &data, params, r->addr(base));
+                            load_gammas(memory, 0, type, &data, params, r->addr(base));
 
-                            gammas->fRedType = Type;
-                            gammas->fGreenType = Type;
-                            gammas->fBlueType = Type;
+                            gammas->fRedType = type;
+                            gammas->fGreenType = type;
+                            gammas->fBlueType = type;
 
                             gammas->fRedData = data;
                             gammas->fGreenData = data;
@@ -1023,7 +1025,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                         gammas->fBlueData = bData;
                     }
                 } else {
-                    gammaNamed = kLinear_GammaNamed;
+                    gammaNamed = kInvalid_GammaNamed;
                 }
 
                 if (kNonStandard_GammaNamed == gammaNamed) {

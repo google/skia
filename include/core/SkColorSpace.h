@@ -42,10 +42,14 @@ public:
 
         /**
          *  Gamma is represented by a look-up table, a parametric curve, or an uncommon
-         *  exponential curve.  Or there is an additional pre-processing step before the
-         *  applying the gamma.
+         *  exponential curve.  Or the R, G, and B gammas do not match.
          */
         kNonStandard_GammaNamed,
+
+        /**
+         *  To be used by UMA code only.  ICC profiles lacks valid gamma representation.
+         */
+        kInvalid_GammaNamed,
     };
 
     /**
@@ -76,6 +80,15 @@ public:
     bool gammaCloseToSRGB() const {
         return kSRGB_GammaNamed == fGammaNamed || k2Dot2Curve_GammaNamed == fGammaNamed;
     }
+
+    /**
+     *  To be used only by UMA code.
+     */
+    bool gammasAreMatching() const;
+    bool gammasAreNamed() const;
+    bool gammasAreValues() const;
+    bool gammasAreTables() const;
+    bool gammasAreParams() const;
 
     /**
      *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and

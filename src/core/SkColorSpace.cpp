@@ -304,3 +304,41 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
 
     return NewICC(data, profileSize);
 }
+
+bool SkColorSpace::gammasAreMatching() const {
+    const SkGammas* gammas = as_CSB(this)->gammas();
+    SkASSERT(gammas);
+    return gammas->fRedData == gammas->fGreenData && gammas->fGreenData == gammas->fBlueData;
+}
+
+bool SkColorSpace::gammasAreNamed() const {
+    const SkGammas* gammas = as_CSB(this)->gammas();
+    SkASSERT(gammas);
+    return gammas->fRedType == SkGammas::Type::kNamed_Type &&
+           gammas->fGreenType == SkGammas::Type::kNamed_Type &&
+           gammas->fBlueType == SkGammas::Type::kNamed_Type;
+}
+
+bool SkColorSpace::gammasAreValues() const {
+    const SkGammas* gammas = as_CSB(this)->gammas();
+    SkASSERT(gammas);
+    return gammas->fRedType == SkGammas::Type::kValue_Type &&
+           gammas->fGreenType == SkGammas::Type::kValue_Type &&
+           gammas->fBlueType == SkGammas::Type::kValue_Type;
+}
+
+bool SkColorSpace::gammasAreTables() const {
+    const SkGammas* gammas = as_CSB(this)->gammas();
+    SkASSERT(gammas);
+    return gammas->fRedType == SkGammas::Type::kTable_Type &&
+           gammas->fGreenType == SkGammas::Type::kTable_Type &&
+           gammas->fBlueType == SkGammas::Type::kTable_Type;
+}
+
+bool SkColorSpace::gammasAreParams() const {
+    const SkGammas* gammas = as_CSB(this)->gammas();
+    SkASSERT(gammas);
+    return gammas->fRedType == SkGammas::Type::kParam_Type &&
+           gammas->fGreenType == SkGammas::Type::kParam_Type &&
+           gammas->fBlueType == SkGammas::Type::kParam_Type;
+}
