@@ -127,27 +127,27 @@ sk_sp<SkColorSpace> SkColorSpace::NewRGB(GammaNamed gammaNamed, const SkMatrix44
 
 sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
     static SkOnce sRGBOnce;
-    static SkColorSpace* sRGB;
+    static sk_sp<SkColorSpace> sRGB;
     static SkOnce adobeRGBOnce;
-    static SkColorSpace* adobeRGB;
+    static sk_sp<SkColorSpace> adobeRGB;
 
     switch (named) {
         case kSRGB_Named: {
             sRGBOnce([] {
                 SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
                 srgbToxyzD50.set3x3RowMajorf(gSRGB_toXYZD50);
-                sRGB = new SkColorSpace_Base(kSRGB_GammaNamed, srgbToxyzD50, kSRGB_Named);
+                sRGB.reset(new SkColorSpace_Base(kSRGB_GammaNamed, srgbToxyzD50, kSRGB_Named));
             });
-            return sk_ref_sp(sRGB);
+            return sRGB;
         }
         case kAdobeRGB_Named: {
             adobeRGBOnce([] {
                 SkMatrix44 adobergbToxyzD50(SkMatrix44::kUninitialized_Constructor);
                 adobergbToxyzD50.set3x3RowMajorf(gAdobeRGB_toXYZD50);
-                adobeRGB = new SkColorSpace_Base(k2Dot2Curve_GammaNamed, adobergbToxyzD50,
-                                                 kAdobeRGB_Named);
+                adobeRGB.reset(new SkColorSpace_Base(k2Dot2Curve_GammaNamed, adobergbToxyzD50,
+                                                     kAdobeRGB_Named));
             });
-            return sk_ref_sp(adobeRGB);
+            return adobeRGB;
         }
         default:
             break;
