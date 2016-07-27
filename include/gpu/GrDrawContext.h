@@ -347,7 +347,8 @@ private:
                              const SkRect& rect,
                              const SkRect* localRect,
                              const SkMatrix* localMatrix,
-                             const GrUserStencilSettings* ss);
+                             const GrUserStencilSettings* ss,
+                             bool useHWAA);
 
     void internalDrawPath(const GrClip& clip,
                           const GrPaint& paint,

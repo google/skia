@@ -277,7 +277,8 @@ void GrDrawContext::drawPaint(const GrClip& clip,
 
         AutoCheckFlush acf(fDrawingManager);
 
-        this->drawNonAAFilledRect(clip, *paint, SkMatrix::I(), r, nullptr, &localMatrix, nullptr);
+        this->drawNonAAFilledRect(clip, *paint, SkMatrix::I(), r, nullptr, &localMatrix, nullptr,
+                                  false /* useHWAA */);
     }
 }
 
@@ -399,7 +400,8 @@ bool GrDrawContext::drawFilledRect(const GrClip& clip,
             }
         }
     } else {
-        this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, nullptr, nullptr, ss);
+        this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, nullptr, nullptr, ss,
+                                  useHWAA);
         return true;
     }
 
@@ -566,9 +568,7 @@ void GrDrawContextPriv::stencilRect(const GrFixedClip& clip,
     paint.setAntiAlias(useHWAA);
     paint.setXPFactory(GrDisableColorXPFactory::Make());
 
-    SkASSERT(!useHWAA || fDrawContext->isStencilBufferMultisampled());
-
-    fDrawContext->drawFilledRect(clip, paint, viewMatrix, rect, ss);
+    fDrawContext->drawNonAAFilledRect(clip, paint, viewMatrix, rect, nullptr, nullptr, ss, useHWAA);
 }
 
 bool GrDrawContextPriv::drawAndStencilRect(const GrFixedClip& clip,
@@ -631,7 +631,7 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
 
     if (!should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
         this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, &croppedLocalRect,
-                                  nullptr, nullptr);
+                                  nullptr, nullptr, useHWAA);
         return;
     }
 
@@ -689,7 +689,7 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
 
     if (!should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
         this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, nullptr,
-                                  &localMatrix, nullptr);
+                                  &localMatrix, nullptr, useHWAA);
         return;
     }
 
@@ -1025,11 +1025,13 @@ void GrDrawContext::drawNonAAFilledRect(const GrClip& clip,
                                         const SkRect& rect,
                                         const SkRect* localRect,
                                         const SkMatrix* localMatrix,
-                                        const GrUserStencilSettings* ss) {
+                                        const GrUserStencilSettings* ss,
+                                        bool useHWAA) {
+    SkASSERT(!useHWAA || this->isStencilBufferMultisampled());
     SkAutoTUnref<GrDrawBatch> batch(
             GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewMatrix, rect, localRect,
                                                 localMatrix));
-    GrPipelineBuilder pipelineBuilder(paint, this->mustUseHWAA(paint));
+    GrPipelineBuilder pipelineBuilder(paint, useHWAA);
     if (ss) {
         pipelineBuilder.setUserStencil(ss);
     }
