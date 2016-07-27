@@ -57,7 +57,7 @@ def skia_glob(srcs):
 
 PRIVATE_HDRS_LIST = [
     "include/private/**/*",
-    "src/utils/SkWhitelistChecksums.cpp",
+    "src/utils/SkWhitelistChecksums.inc",
 ]
 
 PRIVATE_HDRS = struct(

@@ -142,11 +142,11 @@ void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* maker) {
     } while (gUnknowns.count() > 0);
     qsort(gInfosTypeIDs.begin(), gInfosTypeIDs.count(), sizeof(gInfosTypeIDs[0]), &type_compare);
 #ifdef SK_DEBUG
-    FILE* condensed = fopen("../../src/animator/SkCondensedDebug.cpp", "w+");
+    FILE* condensed = fopen("../../src/animator/SkCondensedDebug.inc", "w+");
     fprintf(condensed, "#include \"SkTypes.h\"\n");
     fprintf(condensed, "#ifdef SK_DEBUG\n");
 #else
-    FILE* condensed = fopen("../../src/animator/SkCondensedRelease.cpp", "w+");
+    FILE* condensed = fopen("../../src/animator/SkCondensedRelease.inc", "w+");
     fprintf(condensed, "#include \"SkTypes.h\"\n");
     fprintf(condensed, "#ifdef SK_RELEASE\n");
 #endif

@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
- * GenerateChecksums() in ../../src/utils/SkWhitelistTypefaces.cpp generated SkWhitelistChecksums.cpp.
+ * GenerateChecksums() in ../../src/utils/SkWhitelistTypefaces.cpp generated SkWhitelistChecksums.inc.
  * Run 'whitelist_typefaces --generate' to create anew.
  */
 

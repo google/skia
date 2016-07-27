@@ -11,12 +11,12 @@
 
 #if SK_USE_CONDENSED_INFO == 1
 
-// SkCondensed.cpp is auto-generated
+// SkCondensed.inc is auto-generated
 // To generate it, execute SkDisplayType::BuildCondensedInfo()
 #ifdef SK_DEBUG
-#include "SkCondensedDebug.cpp"
+#include "SkCondensedDebug.inc"
 #else
-#include "SkCondensedRelease.cpp"
+#include "SkCondensedRelease.inc"
 #endif
 
 static int _searchByName(const unsigned char* lengths, int count, const char* strings, const char target[]) {

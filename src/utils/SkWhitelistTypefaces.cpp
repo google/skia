@@ -13,7 +13,7 @@
 #include "SkUtils.h"
 #include "../sfnt/SkOTUtils.h"
 
-#include "SkWhitelistChecksums.cpp"
+#include "SkWhitelistChecksums.inc"
 
 #define WHITELIST_DEBUG 0
 
@@ -216,7 +216,7 @@ bool CheckChecksums() {
     return true;
 }
 
-const char checksumFileName[] = "SkWhitelistChecksums.cpp";
+const char checksumFileName[] = "SkWhitelistChecksums.inc";
 
 const char checksumHeader[] =
 "/*"                                                                        "\n"
