@@ -79,7 +79,7 @@ public:
 
     class AttrIter {
     public:
-        AttrIter(const class SkDOM&, const Node*);
+        AttrIter(const SkDOM&, const Node*);
         const char* next(const char** value);
     private:
         const Attr* fAttr;

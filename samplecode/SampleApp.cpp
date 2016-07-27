@@ -80,6 +80,17 @@ public:
     }
 };
 
+extern SampleView* CreateSampleSVGFileView(const char filename[]);
+
+class SVGFileFactory : public SkViewFactory {
+    SkString fFilename;
+public:
+    SVGFileFactory(const SkString& filename) : fFilename(filename) {}
+    SkView* operator() () const override {
+        return CreateSampleSVGFileView(fFilename.c_str());
+    }
+};
+
 #ifdef SAMPLE_PDF_FILE_VIEWER
 extern SampleView* CreateSamplePdfFileViewer(const char filename[]);
 
@@ -678,6 +689,8 @@ DEFINE_int32(msaa, 0, "Request multisampling with this count.");
 DEFINE_bool(deepColor, false, "Request deep color (10-bit/channel or more) display buffer.");
 DEFINE_string(pictureDir, "", "Read pictures from here.");
 DEFINE_string(picture, "", "Path to single picture.");
+DEFINE_string(svg, "", "Path to single SVG file.");
+DEFINE_string(svgDir, "", "Read SVGs from here.");
 DEFINE_string(sequence, "", "Path to file containing the desired samples/gms to show.");
 DEFINE_bool(sort, false, "Sort samples by title.");
 DEFINE_bool(list, false, "List samples?");
@@ -710,6 +723,19 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         SkString path(FLAGS_picture[0]);
         fCurrIndex = fSamples.count();
         *fSamples.append() = new PictFileFactory(path);
+    }
+    if (!FLAGS_svg.isEmpty()) {
+        SkString path(FLAGS_svg[0]);
+        fCurrIndex = fSamples.count();
+        *fSamples.append() = new SVGFileFactory(path);
+    }
+    if (!FLAGS_svgDir.isEmpty()) {
+        SkOSFile::Iter iter(FLAGS_svgDir[0], "svg");
+        SkString filename;
+        while (iter.next(&filename)) {
+            *fSamples.append() = new SVGFileFactory(
+                SkOSPath::Join(FLAGS_svgDir[0], filename.c_str()));
+        }
     }
 #ifdef SAMPLE_PDF_FILE_VIEWER
     if (!FLAGS_pdfPath.isEmpty()) {

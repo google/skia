@@ -73,10 +73,10 @@ protected:
 
 public:
     // public for ported implementation, not meant for clients to call
-    virtual bool startElement(const char elem[]);
-    virtual bool addAttribute(const char name[], const char value[]);
-    virtual bool endElement(const char elem[]);
-    virtual bool text(const char text[], int len);
+    bool startElement(const char elem[]);
+    bool addAttribute(const char name[], const char value[]);
+    bool endElement(const char elem[]);
+    bool text(const char text[], int len);
     void* fParser;
 protected:
     SkXMLParserError* fError;

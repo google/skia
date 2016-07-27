@@ -31,5 +31,45 @@
         ],
       },
     },
+    {
+      'target_name': 'svgdom',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'xml.gyp:xml',
+      ],
+      'include_dirs': [
+        '<(skia_include_path)/private',
+        '../experimental/svg/model',
+      ],
+      'sources': [
+        '../experimental/svg/model/SkSVGAttribute.h',
+        '../experimental/svg/model/SkSVGAttribute.cpp',
+        '../experimental/svg/model/SkSVGContainer.h',
+        '../experimental/svg/model/SkSVGContainer.cpp',
+        '../experimental/svg/model/SkSVGDOM.h',
+        '../experimental/svg/model/SkSVGDOM.cpp',
+        '../experimental/svg/model/SkSVGG.h',
+        '../experimental/svg/model/SkSVGNode.h',
+        '../experimental/svg/model/SkSVGNode.cpp',
+        '../experimental/svg/model/SkSVGPath.h',
+        '../experimental/svg/model/SkSVGPath.cpp',
+        '../experimental/svg/model/SkSVGRenderContext.h',
+        '../experimental/svg/model/SkSVGRenderContext.cpp',
+        '../experimental/svg/model/SkSVGSVG.h',
+        '../experimental/svg/model/SkSVGSVG.cpp',
+        '../experimental/svg/model/SkSVGTransformableNode.h',
+        '../experimental/svg/model/SkSVGTransformableNode.cpp',
+        '../experimental/svg/model/SkSVGValue.h',
+        '../experimental/svg/model/SkSVGValue.cpp',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../experimental/svg/model',
+        ],
+      },
+    },
+
   ],
 }
