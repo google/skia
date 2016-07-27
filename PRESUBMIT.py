@@ -172,6 +172,10 @@ def _ToolFlags(input_api, output_api):
 def _RecipeSimulationTest(input_api, output_api):
   """Run the recipe simulation test."""
   results = []
+  if not any(f.LocalPath().startswith('infra')
+             for f in input_api.AffectedFiles()):
+    return results
+
   recipes_py = os.path.join('infra', 'bots', 'recipes.py')
   cmd = ['python', recipes_py, 'simulation_test']
   try:
