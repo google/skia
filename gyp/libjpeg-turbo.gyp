@@ -19,7 +19,7 @@
   'targets': [
     {
       'target_name': 'yasm-win',
-      'type': 'executable',
+      'type': 'none',
       'sources': [
         '../third_party/externals/yasm/binaries/win/yasm.exe',
       ],
@@ -30,7 +30,7 @@
     },
     {
       'target_name': 'yasm-android',
-      'type': 'executable',
+      'type': 'none',
       'sources': [
         '../third_party/yasm/android/yasm-android',
       ],
