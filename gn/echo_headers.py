@@ -11,6 +11,7 @@ import os.path
 
 blacklist = [
   'GrGLConfig_chrome.h',
+  'SkFontMgr_fontconfig.h',
 ]
 
 headers = []

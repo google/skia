@@ -19,7 +19,7 @@ skia_public_includes = [
   "include/utils",
   "include/utils/mac",
 
-  "include/c",   # TODO: move back to top, order shouldn't matter
+  "include/c",  # TODO: move back to top, order shouldn't matter
 ]
 
 # Skia public API, generally provided by :skia.
@@ -148,6 +148,8 @@ component("skia") {
     ":opts_avx",
     ":opts_sse41",
     ":opts_ssse3",
+    "//third_party/libjpeg_turbo",
+    "//third_party/libpng",
     "//third_party/zlib",
   ]
 
@@ -221,8 +223,6 @@ component("skia") {
     deps += [
       "third_party:fontconfig",
       "third_party:freetype2",
-      "third_party:libjpeg-turbo",
-      "third_party:libpng",
     ]
     sources += [
       "src/fonts/SkFontMgr_fontconfig.cpp",
@@ -262,7 +262,10 @@ action("skia.h") {
 
 executable("fiddle") {
   include_dirs = [ "$target_gen_dir" ]
-  libs = [ "OSMesa" ]
+  libs = []
+  if (is_linux) {
+    libs += [ "OSMesa" ]
+  }
 
   sources = [
     "tools/fiddle/draw.cpp",
