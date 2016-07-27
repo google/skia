@@ -8,24 +8,25 @@
 #ifndef GrColorSpaceXform_DEFINED
 #define GrColorSpaceXform_DEFINED
 
-#include "SkMatrix44.h"
 #include "SkRefCnt.h"
 
 class SkColorSpace;
+class SkMatrix44;
 
  /**
   * Represents a color gamut transformation (as a 4x4 color matrix)
   */
 class GrColorSpaceXform : public SkRefCnt {
 public:
-    GrColorSpaceXform(const SkMatrix44& srcToDst) : fSrcToDst(srcToDst) {}
+    GrColorSpaceXform(const SkMatrix44& srcToDst);
 
     static sk_sp<GrColorSpaceXform> Make(SkColorSpace* src, SkColorSpace* dst);
 
-    const SkMatrix44& srcToDst() { return fSrcToDst; }
+    const float* srcToDst() { return fSrcToDst; }
 
 private:
-    SkMatrix44 fSrcToDst;
+    // We store the column-major form of the srcToDst matrix, for easy uploading to uniforms
+    float fSrcToDst[16];
 };
 
 #endif

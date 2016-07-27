@@ -132,9 +132,7 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     pdman.setMatrix4f(fCoefficientsUni, bicubicEffect.coefficients());
     fDomain.setData(pdman, bicubicEffect.domain(), texture.origin());
     if (SkToBool(bicubicEffect.colorSpaceXform())) {
-        float xformMatrix[16];
-        bicubicEffect.colorSpaceXform()->srcToDst().asColMajorf(xformMatrix);
-        pdman.setMatrix4f(fColorSpaceXformUni, xformMatrix);
+        pdman.setMatrix4f(fColorSpaceXformUni, bicubicEffect.colorSpaceXform()->srcToDst());
     }
 }
 
