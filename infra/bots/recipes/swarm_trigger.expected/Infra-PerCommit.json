@@ -318,6 +318,8 @@
       "--tag",
       "os:Ubuntu",
       "--tag",
+      "revision:abc123",
+      "--tag",
       "slavename:skiabot-linux-swarm-000",
       "--tag",
       "stepname:infra_skia on Ubuntu",

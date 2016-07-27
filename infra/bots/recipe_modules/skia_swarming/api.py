@@ -223,6 +223,9 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
           io_timeout if io_timeout else DEFAULT_IO_TIMEOUT)
       if extra_args:
         swarming_task.extra_args = extra_args
+      revision = self.m.properties.get('revision')
+      if revision:
+        swarming_task.tags.add('revision:%s' % revision)
       swarming_tasks.append(swarming_task)
     step_results = self.m.swarming.trigger(swarming_tasks)
     for step_result in step_results:

@@ -361,6 +361,8 @@
       "--tag",
       "os:Mac",
       "--tag",
+      "revision:abc123",
+      "--tag",
       "slavename:skiabot-linux-swarm-000",
       "--tag",
       "stepname:compile_skia on Mac",
