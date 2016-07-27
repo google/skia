@@ -29,8 +29,8 @@ class SkPDFDevice;
 class SkPDFDocument;
 class SkPDFDict;
 class SkPDFFont;
-class SkPDFFormXObject;
 class SkPDFObject;
+class SkPDFStream;
 class SkRRect;
 
 /** \class SkPDFDevice
@@ -268,10 +268,10 @@ private:
 
     void init();
     void cleanUp();
-    SkPDFFormXObject* createFormXObjectFromDevice();
+    sk_sp<SkPDFObject> makeFormXObjectFromDevice();
 
     void drawFormXObjectWithMask(int xObjectIndex,
-                                 SkPDFFormXObject* mask,
+                                 SkPDFObject* mask,
                                  const SkClipStack* clipStack,
                                  const SkRegion& clipRegion,
                                  SkXfermode::Mode mode,
@@ -286,9 +286,9 @@ private:
                                     const SkMatrix& matrix,
                                     const SkPaint& paint,
                                     bool hasText,
-                                    SkPDFFormXObject** dst);
+                                    SkPDFObject** dst);
     void finishContentEntry(SkXfermode::Mode xfermode,
-                            SkPDFFormXObject* dst,
+                            SkPDFObject* dst,
                             SkPath* shape);
     bool isContentEmpty();
 

@@ -10,41 +10,15 @@
 #define SkPDFFormXObject_DEFINED
 
 #include "SkPDFStream.h"
+#include "SkPDFDevice.h"
 
-class SkPDFArray;
-class SkPDFDevice;
-class SkPDFDict;
-struct SkRect;
-
-/** \class SkPDFFormXObject
-
-    A form XObject; a self contained description of graphics objects.  A form
-    XObject is basically a page object with slightly different syntax, that
-    can be drawn onto a page.
+/** A form XObject is a self contained description of a graphics
+    object.  A form XObject is a page object with slightly different
+    syntax, that can be drawn into a page content stream, just like a
+    bitmap XObject can be drawn into a page content stream.
 */
-
-// The caller could keep track of the form XObjects it creates and
-// canonicalize them, but the Skia API doesn't provide enough context to
-// automatically do it (trivially).
-class SkPDFFormXObject final : public SkPDFStream {
-public:
-    /** Create a PDF form XObject. Entries for the dictionary entries are
-     *  automatically added.
-     *  @param device      The set of graphical elements on this form.
-     */
-    explicit SkPDFFormXObject(SkPDFDevice* device);
-    /**
-     * Create a PDF form XObject from a raw content stream and associated
-     * resources.
-     */
-    explicit SkPDFFormXObject(std::unique_ptr<SkStreamAsset> content,
-                              SkRect bbox,
-                              SkPDFDict* resourceDict);
-    virtual ~SkPDFFormXObject();
-
-private:
-    void init(const char* colorSpace,
-              SkPDFDict* resourceDict, SkPDFArray* bbox);
-};
-
+sk_sp<SkPDFObject> SkPDFMakeFormXObject(std::unique_ptr<SkStreamAsset> content,
+                                        sk_sp<SkPDFArray> mediaBox,
+                                        sk_sp<SkPDFDict> resourceDict,
+                                        const char* colorSpace);
 #endif

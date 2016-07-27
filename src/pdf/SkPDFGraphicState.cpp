@@ -144,7 +144,7 @@ sk_sp<SkPDFStream> SkPDFGraphicState::MakeInvertFunction() {
 }
 
 sk_sp<SkPDFDict> SkPDFGraphicState::GetSMaskGraphicState(
-        SkPDFFormXObject* sMask,
+        SkPDFObject* sMask,
         bool invert,
         SkPDFSMaskMode sMaskMode,
         SkPDFCanon* canon) {

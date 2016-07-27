@@ -703,9 +703,10 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(
     auto resources =
         get_gradient_resource_dict(luminosityShader.get(), nullptr);
 
-    sk_sp<SkPDFFormXObject> alphaMask(
-            new SkPDFFormXObject(std::move(alphaStream), bbox, resources.get()));
-
+    auto alphaMask = SkPDFMakeFormXObject(std::move(alphaStream),
+                                          SkPDFUtils::RectToArray(bbox),
+                                          std::move(resources),
+                                          "DeviceRGB");
     return SkPDFGraphicState::GetSMaskGraphicState(
             alphaMask.get(), false,
             SkPDFGraphicState::kLuminosity_SMaskMode, doc->canon());

@@ -627,7 +627,7 @@ private:
     SkPDFDevice* fDevice;
     SkPDFDevice::ContentEntry* fContentEntry;
     SkXfermode::Mode fXfermode;
-    SkPDFFormXObject* fDstFormXObject;
+    SkPDFObject* fDstFormXObject;
     SkPath fShape;
 
     void init(const SkClipStack* clipStack, const SkRegion& clipRegion,
@@ -835,7 +835,7 @@ static sk_sp<SkPDFDict> create_link_annotation(const SkRect& translatedRect) {
 }
 
 static sk_sp<SkPDFDict> create_link_to_url(const SkData* urlData, const SkRect& r) {
-    auto annotation = create_link_annotation(r);
+    sk_sp<SkPDFDict> annotation = create_link_annotation(r);
     SkString url(static_cast<const char *>(urlData->data()),
                  urlData->size() - 1);
     auto action = sk_make_sp<SkPDFDict>("Action");
@@ -847,7 +847,7 @@ static sk_sp<SkPDFDict> create_link_to_url(const SkData* urlData, const SkRect& 
 
 static sk_sp<SkPDFDict> create_link_named_dest(const SkData* nameData,
                                                const SkRect& r) {
-    auto  annotation = create_link_annotation(r);
+    sk_sp<SkPDFDict> annotation = create_link_annotation(r);
     SkString name(static_cast<const char *>(nameData->data()),
                   nameData->size() - 1);
     annotation->insertName("Dest", name);
@@ -1394,7 +1394,7 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
         return;
     }
 
-    auto xObject = sk_make_sp<SkPDFFormXObject>(pdfDevice);
+    sk_sp<SkPDFObject> xObject = pdfDevice->makeFormXObjectFromDevice();
     SkPDFUtils::DrawFormXObject(this->addXObjectResource(xObject.get()),
                                 &content.entry()->fContent);
 }
@@ -1610,18 +1610,20 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
     }
 }
 
-SkPDFFormXObject* SkPDFDevice::createFormXObjectFromDevice() {
-    SkPDFFormXObject* xobject = new SkPDFFormXObject(this);
+sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice() {
+    sk_sp<SkPDFObject> xobject =
+        SkPDFMakeFormXObject(this->content(), this->copyMediaBox(),
+                             this->makeResourceDict(), nullptr);
     // We always draw the form xobjects that we create back into the device, so
     // we simply preserve the font usage instead of pulling it out and merging
     // it back in later.
-    cleanUp();  // Reset this device to have no content.
-    init();
+    this->cleanUp();  // Reset this device to have no content.
+    this->init();
     return xobject;
 }
 
 void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
-                                          SkPDFFormXObject* mask,
+                                          SkPDFObject* mask,
                                           const SkClipStack* clipStack,
                                           const SkRegion& clipRegion,
                                           SkXfermode::Mode mode,
@@ -1630,7 +1632,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
         return;
     }
 
-    auto sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
+    sk_sp<SkPDFDict> sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
             mask, invertClip, SkPDFGraphicState::kAlpha_SMaskMode, fDocument->canon());
 
     SkMatrix identity;
@@ -1658,7 +1660,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
                                              const SkMatrix& matrix,
                                              const SkPaint& paint,
                                              bool hasText,
-                                             SkPDFFormXObject** dst) {
+                                             SkPDFObject** dst) {
     *dst = nullptr;
     if (clipRegion.isEmpty()) {
         return nullptr;
@@ -1699,7 +1701,8 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
             xfermode == SkXfermode::kDstATop_Mode ||
             xfermode == SkXfermode::kModulate_Mode) {
         if (!isContentEmpty()) {
-            *dst = createFormXObjectFromDevice();
+            // TODO(halcanary): make this safer.
+            *dst = this->makeFormXObjectFromDevice().release();
             SkASSERT(isContentEmpty());
         } else if (xfermode != SkXfermode::kSrc_Mode &&
                    xfermode != SkXfermode::kSrcOut_Mode) {
@@ -1730,7 +1733,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
 }
 
 void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
-                                     SkPDFFormXObject* dst,
+                                     SkPDFObject* dst,
                                      SkPath* shape) {
     if (xfermode != SkXfermode::kClear_Mode       &&
             xfermode != SkXfermode::kSrc_Mode     &&
@@ -1775,7 +1778,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
     identity.reset();
     SkPaint stockPaint;
 
-    sk_sp<SkPDFFormXObject> srcFormXObject;
+    sk_sp<SkPDFObject> srcFormXObject;
     if (isContentEmpty()) {
         // If nothing was drawn and there's no shape, then the draw was a
         // no-op, but dst needs to be restored for that to be true.
@@ -1795,7 +1798,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
         }
     } else {
         SkASSERT(fContentEntries.count() == 1);
-        srcFormXObject.reset(createFormXObjectFromDevice());
+        srcFormXObject = this->makeFormXObjectFromDevice();
     }
 
     // TODO(vandebo) srcFormXObject may contain alpha, but here we want it
@@ -1809,8 +1812,8 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
                                 &fExistingClipStack, fExistingClipRegion,
                                 SkXfermode::kSrcOver_Mode, true);
     } else {
-        sk_sp<SkPDFFormXObject> dstMaskStorage;
-        SkPDFFormXObject* dstMask = srcFormXObject.get();
+        sk_sp<SkPDFObject> dstMaskStorage;
+        SkPDFObject* dstMask = srcFormXObject.get();
         if (shape != nullptr) {
             // Draw shape into a form-xobject.
             SkRasterClip rc(clipRegion);
@@ -1823,7 +1826,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
             filledPaint.setStyle(SkPaint::kFill_Style);
             this->drawPath(d, *shape, filledPaint, nullptr, true);
 
-            dstMaskStorage.reset(createFormXObjectFromDevice());
+            dstMaskStorage = this->makeFormXObjectFromDevice();
             dstMask = dstMaskStorage.get();
         }
         drawFormXObjectWithMask(addXObjectResource(dst), dstMask,
@@ -2184,7 +2187,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
     SkBitmapKey key = imageBitmap.getKey();
     sk_sp<SkPDFObject> pdfimage = fDocument->canon()->findPDFBitmap(key);
     if (!pdfimage) {
-        auto img = imageBitmap.makeImage();
+        sk_sp<SkImage> img = imageBitmap.makeImage();
         if (!img) {
             return;
         }

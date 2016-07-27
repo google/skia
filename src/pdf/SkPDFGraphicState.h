@@ -14,7 +14,6 @@
 
 class SkPaint;
 class SkPDFCanon;
-class SkPDFFormXObject;
 
 /** \class SkPDFGraphicState
     SkPaint objects roughly correspond to graphic state dictionaries that can
@@ -52,7 +51,7 @@ public:
      *
      *  These are not de-duped.
      */
-    static sk_sp<SkPDFDict> GetSMaskGraphicState(SkPDFFormXObject* sMask,
+    static sk_sp<SkPDFDict> GetSMaskGraphicState(SkPDFObject* sMask,
                                                  bool invert,
                                                  SkPDFSMaskMode sMaskMode,
                                                  SkPDFCanon* canon);
