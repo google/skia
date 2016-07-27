@@ -96,7 +96,6 @@ void GLWindowContext_win::onInitializeContext() {
 
 
 void GLWindowContext_win::onDestroyContext() {
-    wglMakeCurrent(wglGetCurrentDC(), NULL);
     wglDeleteContext(fHGLRC);
     fHGLRC = NULL;
 }

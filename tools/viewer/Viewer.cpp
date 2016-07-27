@@ -60,7 +60,7 @@ DEFINE_string2(match, m, nullptr,
                "it is skipped unless some list entry starts with ~");
 
 #ifdef SK_VULKAN
-#    define BACKENDS_STR "\"sw\", \"gl\", and \"vulkan\""
+#    define BACKENDS_STR "\"sw\", \"gl\", and \"vk\""
 #else
 #    define BACKENDS_STR "\"sw\" and \"gl\""
 #endif
@@ -180,24 +180,42 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->changeZoomLevel(-1.f / 32.f);
         fWindow->inval();
     });
-#if 0  // this doesn't seem to work on any platform right now
-#ifndef SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_WIN
     fCommands.addCommand('d', "Modes", "Change rendering backend", [this]() {
+        if (sk_app::Window::kRaster_BackendType == fBackendType) {
+            fBackendType = sk_app::Window::kNativeGL_BackendType;
+#ifdef SK_VULKAN
+        } else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
+            fBackendType = sk_app::Window::kVulkan_BackendType;
+#endif
+        } else {
+            fBackendType = sk_app::Window::kRaster_BackendType;
+        }
+
         fWindow->detach();
 
+#ifdef SK_VULKAN
+        // Switching from OpenGL to Vulkan in the same window is problematic at this point,
+        // so we just delete the window and recreate it.
+        // On Windows, only tearing down the window when going from OpenGL to Vulkan works fine.
+        // On Linux, we may need to tear down the window for the Vulkan to OpenGL case as well.
         if (sk_app::Window::kVulkan_BackendType == fBackendType) {
-            fBackendType = sk_app::Window::kNativeGL_BackendType;
-        } 
-        // TODO: get Vulkan -> OpenGL working on Windows without swapchain creation failure
-        //else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
-        //    fBackendType = sk_app::Window::kVulkan_BackendType;
-        //}
+            delete fWindow;
+            fWindow = Window::CreateNativeWindow(nullptr);
 
+            // re-register callbacks
+            fCommands.attach(fWindow);
+            fWindow->registerPaintFunc(on_paint_handler, this);
+            fWindow->registerTouchFunc(on_touch_handler, this);
+            fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
+        }
+#endif
         fWindow->attach(fBackendType, DisplayParams());
+
         this->updateTitle();
         fWindow->inval();
+        fWindow->show();
     });
-#endif
 #endif
 
     // set up slides
