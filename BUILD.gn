@@ -7,6 +7,7 @@ declare_args() {
 }
 
 skia_public_includes = [
+  "include/android",
   "include/codec",
   "include/config",
   "include/core",
@@ -16,8 +17,10 @@ skia_public_includes = [
   "include/images",
   "include/pathops",
   "include/ports",
+  "include/svg",
   "include/utils",
   "include/utils/mac",
+  "include/xml",
 
   "include/c",  # TODO: move back to top, order shouldn't matter
 ]
@@ -39,6 +42,8 @@ config("skia_private") {
     "src/config",
     "src/core",
     "src/effects",
+    "src/effects/gradients",
+    "src/fonts",
     "src/gpu",
     "src/image",
     "src/images",
@@ -148,14 +153,19 @@ component("skia") {
     ":opts_avx",
     ":opts_sse41",
     ":opts_ssse3",
+    "//third_party/expat",
+    "//third_party/giflib",
     "//third_party/libjpeg_turbo",
     "//third_party/libpng",
+    "//third_party/libwebp",
     "//third_party/zlib",
   ]
 
   defines = [
+    "SK_HAS_GIF_LIBRARY",
     "SK_HAS_JPEG_LIBRARY",
     "SK_HAS_PNG_LIBRARY",
+    "SK_HAS_WEBP_LIBRARY",
   ]
 
   libs = [ "pthread" ]
@@ -168,12 +178,16 @@ component("skia") {
   sources += pdf_gypi.sources
   sources += utils_gypi.sources
   sources += [
+    "src/android/SkBitmapRegionCodec.cpp",
+    "src/android/SkBitmapRegionDecoder.cpp",
+    "src/codec/SkAndroidCodec.cpp",
     "src/codec/SkBmpCodec.cpp",
     "src/codec/SkBmpMaskCodec.cpp",
     "src/codec/SkBmpRLECodec.cpp",
     "src/codec/SkBmpStandardCodec.cpp",
     "src/codec/SkCodec.cpp",
     "src/codec/SkCodecImageGenerator.cpp",
+    "src/codec/SkGifCodec.cpp",
     "src/codec/SkIcoCodec.cpp",
     "src/codec/SkJpegCodec.cpp",
     "src/codec/SkJpegDecoderMgr.cpp",
@@ -181,9 +195,12 @@ component("skia") {
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
     "src/codec/SkPngCodec.cpp",
+    "src/codec/SkSampledCodec.cpp",
     "src/codec/SkSampler.cpp",
     "src/codec/SkSwizzler.cpp",
     "src/codec/SkWbmpCodec.cpp",
+    "src/codec/SkWebpAdapterCodec.cpp",
+    "src/codec/SkWebpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/images/SkImageEncoder_Factory.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
@@ -193,7 +210,12 @@ component("skia") {
     "src/ports/SkOSFile_stdio.cpp",
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
+    "src/svg/SkSVGCanvas.cpp",
+    "src/svg/SkSVGDevice.cpp",
     "src/utils/mac/SkStream_mac.cpp",
+    "src/xml/SkDOM.cpp",
+    "src/xml/SkXMLParser.cpp",
+    "src/xml/SkXMLWriter.cpp",
     "third_party/etc1/etc1.cpp",
     "third_party/ktx/ktx.cpp",
   ]
@@ -210,12 +232,14 @@ component("skia") {
       "src/ports/SkScalerContext_win_dw.cpp",
       "src/ports/SkTLS_win.cpp",
       "src/ports/SkTypeface_win_dw.cpp",
+      "src/xps/SkDocument_XPS.cpp",
     ]
   } else {
     sources += [
       "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkOSFile_posix.cpp",
       "src/ports/SkTLS_pthread.cpp",
+      "src/xps/SkDocument_XPS_None.cpp",
     ]
   }
 
@@ -275,4 +299,125 @@ executable("fiddle") {
     ":skia",
     ":skia.h",
   ]
+}
+
+template("test_lib") {
+  config(target_name + "_config") {
+    include_dirs = invoker.public_include_dirs
+  }
+  source_set(target_name) {
+    forward_variables_from(invoker, "*", [ "public_include_dirs" ])
+    public_configs = [
+      ":" + target_name + "_config",
+      ":skia_private",
+    ]
+
+    if (!defined(deps)) {
+      deps = []
+    }
+    deps += [ ":skia" ]
+    testonly = true
+  }
+}
+
+test_lib("gpu_tool_utils") {
+  public_include_dirs = [ "tools/gpu" ]
+  sources = [
+    "tools/gpu/GrContextFactory.cpp",
+    "tools/gpu/GrTest.cpp",
+    "tools/gpu/TestContext.cpp",
+    "tools/gpu/gl/GLTestContext.cpp",
+    "tools/gpu/gl/debug/DebugGLTestContext.cpp",
+    "tools/gpu/gl/debug/GrBufferObj.cpp",
+    "tools/gpu/gl/debug/GrFrameBufferObj.cpp",
+    "tools/gpu/gl/debug/GrProgramObj.cpp",
+    "tools/gpu/gl/debug/GrShaderObj.cpp",
+    "tools/gpu/gl/debug/GrTextureObj.cpp",
+    "tools/gpu/gl/debug/GrTextureUnitObj.cpp",
+    "tools/gpu/gl/null/NullGLTestContext.cpp",
+  ]
+  libs = []
+
+  if (is_linux) {
+    sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
+    libs += [
+      "GL",
+      "GLU",
+      "X11",
+    ]
+  } else if (is_mac) {
+    sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
+    libs += [ "OpenGL.framework" ]
+  }
+}
+
+test_lib("flags") {
+  public_include_dirs = [ "tools/flags" ]
+  sources = [
+    "tools/flags/SkCommandLineFlags.cpp",
+    "tools/flags/SkCommonFlags.cpp",
+    "tools/flags/SkCommonFlagsConfig.cpp",
+  ]
+  deps = [
+    ":gpu_tool_utils",
+  ]
+}
+
+test_lib("tool_utils") {
+  public_include_dirs = [
+    "tools",
+    "tools/timer",
+  ]
+  sources = [
+    "src/utils/SkMultiPictureDocumentReader.cpp",  # TODO(halcanary): move to tools?
+    "tools/ProcStats.cpp",
+    "tools/Resources.cpp",
+    "tools/picture_utils.cpp",
+    "tools/random_parse_path.cpp",
+    "tools/sk_tool_utils.cpp",
+    "tools/sk_tool_utils_font.cpp",
+    "tools/timer/Timer.cpp",
+  ]
+  deps = [
+    ":flags",
+  ]
+}
+
+gm_sources = exec_script("gyp/find.py",
+                         [
+                           rebase_path("gm"),
+                           "*.c*",
+                         ],
+                         "list lines",
+                         [])
+test_lib("gm") {
+  public_include_dirs = [ "gm" ]
+  sources = gm_sources
+  deps = [
+    ":gpu_tool_utils",
+    ":skia",
+    ":tool_utils",
+  ]
+}
+
+executable("dm") {
+  sources = [
+    "dm/DM.cpp",
+    "dm/DMJsonWriter.cpp",
+    "dm/DMSrcSink.cpp",
+
+    # TODO: tests for real
+    "tests/Test.cpp",
+  ]
+  include_dirs = [ "tests" ]
+  deps = [
+    ":flags",
+    ":gm",
+    ":gpu_tool_utils",
+    ":skia",
+    ":tool_utils",
+    "//third_party/jsoncpp",
+    "//third_party/libpng",
+  ]
+  testonly = true
 }

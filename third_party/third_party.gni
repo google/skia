@@ -4,8 +4,12 @@
 # found in the LICENSE file.
 
 template("third_party") {
+  config(target_name + "_public") {
+    include_dirs = invoker.public_include_dirs
+  }
   source_set(target_name) {
-    forward_variables_from(invoker, "*")
+    forward_variables_from(invoker, "*", [ "public_include_dirs" ])
+    public_configs = [ ":" + target_name + "_public" ]
 
     # Warnings are just noise if we're not maintaining the code.
     cflags = [ "-w" ]

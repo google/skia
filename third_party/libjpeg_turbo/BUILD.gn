@@ -8,11 +8,8 @@ declare_args() {
 
 import("../third_party.gni")
 
-config("libjpeg_turbo_config") {
-  include_dirs = [ "../externals/libjpeg-turbo" ]
-}
 third_party("libjpeg_turbo") {
-  public_configs = [ ":libjpeg_turbo_config" ]
+  public_include_dirs = [ "../externals/libjpeg-turbo" ]
 
   sources = [
     "../externals/libjpeg-turbo/jcapimin.c",

@@ -435,6 +435,9 @@
       'direct_dependent_settings': {
         'include_dirs': [ '../tools', ],
       },
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+      ],
     },
     {
       'target_name': 'url_data_manager',

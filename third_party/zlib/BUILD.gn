@@ -8,11 +8,8 @@ declare_args() {
 
 import("../third_party.gni")
 
-config("zlib_public") {
-  include_dirs = [ "../externals/zlib" ]
-}
 third_party("zlib") {
-  public_configs = [ ":zlib_public" ]
+  public_include_dirs = [ "../externals/zlib" ]
 
   sources = [
     "../externals/zlib/adler32.c",

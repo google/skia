@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "CrashHandler.h"
 #include "DMJsonWriter.h"
 #include "DMSrcSink.h"
 #include "DMSrcSinkAndroid.h"
