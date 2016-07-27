@@ -152,7 +152,13 @@ class DefaultFlavorUtils(object):
 
     Copy flavor-specific build products to swarming_out_dir for use in test and
     perf steps."""
-    pass
+    if ("Win" in self._skia_api.builder_name and
+        "Vulkan" in self._skia_api.builder_name):
+      # This copies vulkan-1.dll that has been bundled into win_vulkan_sdk
+      # since version 2  See skia/api BUILD_PRODUCTS_ISOLATE_WHITELIST
+      self._skia_api.copy_build_products(
+        self._skia_api.m.path['slave_build'].join('win_vulkan_sdk'),
+        swarming_out_dir)
 
   @property
   def out_dir(self):

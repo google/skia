@@ -311,7 +311,6 @@ def compile_steps_swarm(api, builder_spec, got_revision, infrabots_dir,
     cipd_packages.append(pkg)
 
     if 'Vulkan' in builder_name:
-      version_file = infrabots_dir.join('assets', 'win_vulkan_sdk', 'VERSION')
       cipd_packages.append(cipd_pkg(api, infrabots_dir, 'win_vulkan_sdk'))
 
   # Fake these properties for compile tasks so that they can be de-duped.
