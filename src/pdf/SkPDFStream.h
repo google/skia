@@ -28,9 +28,11 @@ public:
 
     /** Create a PDF stream. A Length entry is automatically added to the
      *  stream dictionary.
-     *  @param stream The data part of the stream.  Will not take ownership.
+     *  @param stream The data part of the stream.
      */
-    explicit SkPDFStream(SkStreamAsset* stream) { this->setData(stream); }
+    explicit SkPDFStream(std::unique_ptr<SkStreamAsset> stream) {
+        this->setData(std::move(stream));
+    }
 
     virtual ~SkPDFStream();
 
@@ -47,10 +49,9 @@ protected:
     SkPDFStream() {}
 
     /** Only call this function once. */
-    void setData(SkStreamAsset* stream);
+    void setData(std::unique_ptr<SkStreamAsset> stream);
     void setData(SkData* data) {
-        SkMemoryStream memoryStream(data);
-        this->setData(&memoryStream);
+        this->setData(std::unique_ptr<SkStreamAsset>(new SkMemoryStream(data)));
     }
 
 private:

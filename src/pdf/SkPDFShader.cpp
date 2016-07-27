@@ -704,7 +704,7 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(
         get_gradient_resource_dict(luminosityShader.get(), nullptr);
 
     sk_sp<SkPDFFormXObject> alphaMask(
-            new SkPDFFormXObject(alphaStream.get(), bbox, resources.get()));
+            new SkPDFFormXObject(std::move(alphaStream), bbox, resources.get()));
 
     return SkPDFGraphicState::GetSMaskGraphicState(
             alphaMask.get(), false,
@@ -739,7 +739,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
 
     std::unique_ptr<SkStreamAsset> colorStream(
             create_pattern_fill_content(0, bbox));
-    alphaFunctionShader->setData(colorStream.get());
+    alphaFunctionShader->setData(std::move(colorStream));
 
     populate_tiling_pattern_dict(alphaFunctionShader, bbox, resourceDict.get(),
                                  SkMatrix::I());
@@ -801,7 +801,7 @@ static sk_sp<SkPDFStream> make_ps_function(
         std::unique_ptr<SkStreamAsset> psCode,
         SkPDFArray* domain,
         sk_sp<SkPDFObject> range) {
-    auto result = sk_make_sp<SkPDFStream>(psCode.get());
+    auto result = sk_make_sp<SkPDFStream>(std::move(psCode));
     result->insertInt("FunctionType", 4);
     result->insertObject("Domain", sk_ref_sp(domain));
     result->insertObject("Range", std::move(range));
@@ -1207,10 +1207,8 @@ SkPDFImageShader* SkPDFImageShader::Create(
     }
 
     // Put the canvas into the pattern stream (fContent).
-    auto content = patternDevice->content();
-
     SkPDFImageShader* imageShader = new SkPDFImageShader(autoState->release());
-    imageShader->setData(content.get());
+    imageShader->setData(patternDevice->content());
 
     auto resourceDict = patternDevice->makeResourceDict();
     populate_tiling_pattern_dict(imageShader, patternBBox,

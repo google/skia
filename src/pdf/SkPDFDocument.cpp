@@ -278,8 +278,7 @@ void SkPDFDocument::onEndPage() {
     if (annotations->size() > 0) {
         page->insertObject("Annots", std::move(annotations));
     }
-    auto contentData = fPageDevice->content();
-    auto contentObject = sk_make_sp<SkPDFStream>(contentData.get());
+    auto contentObject = sk_make_sp<SkPDFStream>(fPageDevice->content());
     this->serialize(contentObject);
     page->insertObjRef("Contents", std::move(contentObject));
     fPageDevice->appendDestinations(fDests.get(), page.get());

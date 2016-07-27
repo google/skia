@@ -32,13 +32,13 @@ void SkPDFStream::emitObject(SkWStream* stream,
     stream->writeText("\nendstream");
 }
 
-void SkPDFStream::setData(SkStreamAsset* stream) {
+void SkPDFStream::setData(std::unique_ptr<SkStreamAsset> stream) {
     SkASSERT(!fCompressedData);  // Only call this function once.
     SkASSERT(stream);
     // Code assumes that the stream starts at the beginning.
 
     #ifdef SK_PDF_LESS_COMPRESSION
-    fCompressedData.reset(stream->duplicate());
+    fCompressedData = std::move(stream);
     SkASSERT(fCompressedData && fCompressedData->hasLength());
     this->insertInt("Length", fCompressedData->getLength());
     #else
@@ -46,13 +46,14 @@ void SkPDFStream::setData(SkStreamAsset* stream) {
     SkASSERT(stream->hasLength());
     SkDynamicMemoryWStream compressedData;
     SkDeflateWStream deflateWStream(&compressedData);
-    SkStreamCopy(&deflateWStream, stream);
+    SkStreamCopy(&deflateWStream, stream.get());
     deflateWStream.finalize();
     size_t compressedLength = compressedData.bytesWritten();
     size_t originalLength = stream->getLength();
 
     if (originalLength <= compressedLength + strlen("/Filter_/FlateDecode_")) {
-        fCompressedData.reset(stream->duplicate());
+        SkAssertResult(stream->rewind());
+        fCompressedData = std::move(stream);
         this->insertInt("Length", originalLength);
         return;
     }

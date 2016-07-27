@@ -20,8 +20,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // resources).
     auto resourceDict = device->makeResourceDict();
 
-    auto content = device->content();
-    this->setData(content.get());
+    this->setData(device->content());
 
     sk_sp<SkPDFArray> bboxArray(device->copyMediaBox());
     this->init(nullptr, resourceDict.get(), bboxArray.get());
@@ -43,10 +42,10 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
 /**
  * Creates a FormXObject from a content stream and associated resources.
  */
-SkPDFFormXObject::SkPDFFormXObject(SkStreamAsset* content, SkRect bbox,
+SkPDFFormXObject::SkPDFFormXObject(std::unique_ptr<SkStreamAsset> content,
+                                   SkRect bbox,
                                    SkPDFDict* resourceDict) {
-    setData(content);
-
+    this->setData(std::move(content));
     sk_sp<SkPDFArray> bboxArray(SkPDFUtils::RectToArray(bbox));
     this->init("DeviceRGB", resourceDict, bboxArray.get());
 }

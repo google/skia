@@ -640,7 +640,7 @@ static size_t get_subset_font_stream(const char* fontName,
     fontData->rewind();
 
     // Fail over: just embed the whole font.
-    *fontStream = new SkPDFStream(fontData.get());
+    *fontStream = new SkPDFStream(std::move(fontData));
     return fontSize;
 }
 #endif
@@ -1356,11 +1356,9 @@ bool SkPDFType3Font::populate(uint16_t glyphID) {
             SkPDFUtils::PaintPath(paint.getStyle(), path->getFillType(),
                                   &content);
         }
-        std::unique_ptr<SkMemoryStream> glyphStream(new SkMemoryStream());
-        glyphStream->setData(content.copyToData())->unref();
-
         charProcs->insertObjRef(
-                characterName, sk_make_sp<SkPDFStream>(glyphStream.get()));
+                characterName, sk_make_sp<SkPDFStream>(
+                        std::unique_ptr<SkStreamAsset>(content.detachAsStream())));
     }
 
     encoding->insertObject("Differences", std::move(encDiffs));

@@ -83,9 +83,9 @@ static void assert_emit_eq(skiatest::Reporter* reporter,
 
 static void TestPDFStream(skiatest::Reporter* reporter) {
     char streamBytes[] = "Test\nFoo\tBar";
-    SkAutoTDelete<SkMemoryStream> streamData(new SkMemoryStream(
+    std::unique_ptr<SkStreamAsset> streamData(new SkMemoryStream(
         streamBytes, strlen(streamBytes), true));
-    sk_sp<SkPDFStream> stream(new SkPDFStream(streamData.get()));
+    auto stream = sk_make_sp<SkPDFStream>(std::move(streamData));
     assert_emit_eq(reporter,
                    *stream,
                    "<</Length 12>> stream\nTest\nFoo\tBar\nendstream");

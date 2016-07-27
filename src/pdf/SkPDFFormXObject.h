@@ -37,7 +37,7 @@ public:
      * Create a PDF form XObject from a raw content stream and associated
      * resources.
      */
-    explicit SkPDFFormXObject(SkStreamAsset* content,
+    explicit SkPDFFormXObject(std::unique_ptr<SkStreamAsset> content,
                               SkRect bbox,
                               SkPDFDict* resourceDict);
     virtual ~SkPDFFormXObject();
