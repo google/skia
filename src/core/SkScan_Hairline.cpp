@@ -538,10 +538,12 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
     if (SkPaint::kButt_Cap != capStyle) {
         prevVerb = SkPath::kDone_Verb;
     }
+    bool firstPtSet = false;
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
                 firstPt = lastPt = pts[0];
+                firstPtSet = false;
                 break;
             case SkPath::kLine_Verb:
                 if (SkPaint::kButt_Cap != capStyle) {
@@ -591,6 +593,10 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                 break;
             case SkPath::kDone_Verb:
                 break;
+        }
+        if (!firstPtSet && SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb) {
+            firstPt = lastPt = pts[0];
+            firstPtSet = true;
         }
         if (SkPaint::kButt_Cap != capStyle) {
             prevVerb = verb;
