@@ -22,9 +22,11 @@ class SkPDFStream : public SkPDFDict {
 public:
     /** Create a PDF stream. A Length entry is automatically added to the
      *  stream dictionary.
-     *  @param data   The data part of the stream.  Will not take ownership.
-     */
-    explicit SkPDFStream(SkData* data) { this->setData(data); }
+     *  @param data   The data part of the stream. */
+    explicit SkPDFStream(sk_sp<SkData> data) {
+        this->setData(std::unique_ptr<SkStreamAsset>(
+                              new SkMemoryStream(std::move(data))));
+    }
 
     /** Create a PDF stream. A Length entry is automatically added to the
      *  stream dictionary.
@@ -50,9 +52,6 @@ protected:
 
     /** Only call this function once. */
     void setData(std::unique_ptr<SkStreamAsset> stream);
-    void setData(SkData* data) {
-        this->setData(std::unique_ptr<SkStreamAsset>(new SkMemoryStream(data)));
-    }
 
 private:
     std::unique_ptr<SkStreamAsset> fCompressedData;

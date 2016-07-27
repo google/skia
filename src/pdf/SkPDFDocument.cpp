@@ -320,8 +320,7 @@ static sk_sp<SkData> SkSrgbIcm() {
 }
 
 static sk_sp<SkPDFStream> make_srgb_color_profile() {
-    sk_sp<SkData> profile = SkSrgbIcm();
-    sk_sp<SkPDFStream> stream = sk_make_sp<SkPDFStream>(profile.get());
+    sk_sp<SkPDFStream> stream = sk_make_sp<SkPDFStream>(SkSrgbIcm());
     stream->insertInt("N", 3);
     sk_sp<SkPDFArray> array = sk_make_sp<SkPDFArray>();
     array->appendScalar(0.0f);

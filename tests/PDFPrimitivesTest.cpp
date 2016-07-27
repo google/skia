@@ -100,9 +100,8 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
                               "can do something with it. With shorter strings, "
                               "the short circuit logic cuts in and we end up "
                               "with an uncompressed string.";
-        SkAutoDataUnref streamData2(SkData::NewWithCopy(streamBytes2,
-                                                        strlen(streamBytes2)));
-        sk_sp<SkPDFStream> stream(new SkPDFStream(streamData2.get()));
+        auto stream = sk_make_sp<SkPDFStream>(
+                SkData::MakeWithCopy(streamBytes2, strlen(streamBytes2)));
 
         SkDynamicMemoryWStream compressedByteStream;
         SkDeflateWStream deflateWStream(&compressedByteStream);

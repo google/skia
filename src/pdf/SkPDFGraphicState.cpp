@@ -135,10 +135,8 @@ sk_sp<SkPDFStream> SkPDFGraphicState::MakeInvertFunction() {
 
     static const char psInvert[] = "{1 exch sub}";
     // Do not copy the trailing '\0' into the SkData.
-    sk_sp<SkData> psInvertStream(
-            SkData::NewWithoutCopy(psInvert, strlen(psInvert)));
-
-    auto invertFunction = sk_make_sp<SkPDFStream>(psInvertStream.get());
+    auto invertFunction = sk_make_sp<SkPDFStream>(
+            SkData::MakeWithoutCopy(psInvert, strlen(psInvert)));
     invertFunction->insertInt("FunctionType", 4);
     invertFunction->insertObject("Domain", domainAndRange);
     invertFunction->insertObject("Range", std::move(domainAndRange));
