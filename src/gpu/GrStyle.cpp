@@ -104,7 +104,7 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScala
 }
 
 void GrStyle::initPathEffect(SkPathEffect* pe) {
-    SkASSERT(!fPathEffect)
+    SkASSERT(!fPathEffect);
     SkASSERT(SkPathEffect::kNone_DashType == fDashInfo.fType);
     SkASSERT(0 == fDashInfo.fIntervals.count());
     if (!pe) {

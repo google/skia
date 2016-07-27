@@ -139,14 +139,19 @@ inline void operator delete(void* p) {
     SK_API void SkDebugf(const char format[], ...);
 #endif
 
-#define SkASSERT_RELEASE(cond)          if (!(cond)) { SK_ABORT(#cond); }
+#define SkREQUIRE_SEMICOLON_AFTER(code) do { code } while (false)
+
+#define SkASSERT_RELEASE(cond) \
+    SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { SK_ABORT(#cond); } )
 
 #ifdef SK_DEBUG
-    #define SkASSERT(cond)              if (!(cond)) { SK_ABORT("assert(" #cond ")"); }
-    #define SkASSERTF(cond, fmt, ...)   if (!(cond)) { \
-                                            SkDebugf(fmt"\n", __VA_ARGS__); \
-                                            SK_ABORT("assert(" #cond ")"); \
-                                        }
+    #define SkASSERT(cond) \
+        SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { SK_ABORT("assert(" #cond ")"); })
+    #define SkASSERTF(cond, fmt, ...) \
+        SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { \
+                                      SkDebugf(fmt"\n", __VA_ARGS__); \
+                                      SK_ABORT("assert(" #cond ")"); \
+                                  })
     #define SkDEBUGFAIL(message)        SK_ABORT(message)
     #define SkDEBUGFAILF(fmt, ...)      SkASSERTF(false, fmt, ##__VA_ARGS__)
     #define SkDEBUGCODE(code)           code

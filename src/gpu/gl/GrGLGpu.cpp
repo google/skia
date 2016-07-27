@@ -2769,7 +2769,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
 }
 
 void GrGLGpu::stampPLSSetupRect(const SkRect& bounds) {
-    SkASSERT(this->glCaps().glslCaps()->plsPathRenderingSupport())
+    SkASSERT(this->glCaps().glslCaps()->plsPathRenderingSupport());
 
     if (!fPLSSetupProgram.fProgram) {
         if (!this->createPLSSetupProgram()) {

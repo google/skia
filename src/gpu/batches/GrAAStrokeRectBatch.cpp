@@ -124,8 +124,8 @@ public:
                       const SkRect& devOutside, const SkRect& devInside)
             : INHERITED(ClassID())
             , fViewMatrix(viewMatrix) {
-        SkASSERT(!devOutside.isEmpty())
-        SkASSERT(!devInside.isEmpty())
+        SkASSERT(!devOutside.isEmpty());
+        SkASSERT(!devInside.isEmpty());
 
         fGeoData.emplace_back(Geometry{color, devOutside, devOutside, devInside, false});
         this->setBounds(devOutside, HasAABloat::kYes, IsZeroArea::kNo);

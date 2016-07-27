@@ -822,7 +822,7 @@ void SkOpSegment::debugMissingCoincidence(const char* id, SkPathOpsDebug::Glitch
                 //   coincidences->add(rootPriorPtT, rootPtT, rootOppStart, rootOppEnd);
                 // }
 #if DEBUG_COINCIDENCE
-//                SkASSERT(coincidences->contains(rootPriorPtT, rootPtT, rootOppStart, rootOppEnd)
+//                SkASSERT(coincidences->contains(rootPriorPtT, rootPtT, rootOppStart, rootOppEnd);
 #endif
                 // result = true;
             }

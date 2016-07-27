@@ -297,7 +297,7 @@ bool GrVkFreeListAlloc::alloc(VkDeviceSize requestedSize,
                 }
                 iter.next();
             }
-            SkASSERT(largestSize == fLargestBlockSize)
+            SkASSERT(largestSize == fLargestBlockSize);
 #endif
         } else {
             SkASSERT(bestFit->fSize == alignedSize);

@@ -130,7 +130,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     // We really need to know if the shape will be inverse filled or not
     bool inverseFilled = false;
     SkTLazy<GrShape> tmpShape;
-    SkASSERT(!args.fShape->style().applies())
+    SkASSERT(!args.fShape->style().applies());
     inverseFilled = args.fShape->inverseFilled();
 
     SkIRect devShapeBounds, devClipBounds;

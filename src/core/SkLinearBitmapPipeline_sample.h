@@ -445,7 +445,7 @@ private:
 // on the interval [0, vMax].
 // Note: vMax is not width or height, but width-1 or height-1 because it is the largest valid pixel.
 static inline int adjust_edge(SkShader::TileMode edgeType, int vs, int vMax) {
-    SkASSERT(-1 <= vs && vs <= vMax + 1)
+    SkASSERT(-1 <= vs && vs <= vMax + 1);
     switch (edgeType) {
         case SkShader::kClamp_TileMode:
         case SkShader::kMirror_TileMode:

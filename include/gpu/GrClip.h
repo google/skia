@@ -44,7 +44,7 @@ public:
         fHasStencilClip = true;
         if (deviceBounds) {
             fDeviceBounds = *deviceBounds;
-            SkASSERT(scissor.contains(*deviceBounds))
+            SkASSERT(scissor.contains(*deviceBounds));
         } else {
             fDeviceBounds = SkRect::Make(scissor);
         }
@@ -75,7 +75,7 @@ public:
         fHasStencilClip = false;
         if (deviceBounds) {
             fDeviceBounds = *deviceBounds;
-            SkASSERT(scissor.contains(*deviceBounds))
+            SkASSERT(scissor.contains(*deviceBounds));
         } else {
             fDeviceBounds = SkRect::Make(scissor);
         }

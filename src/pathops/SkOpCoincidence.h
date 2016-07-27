@@ -72,7 +72,7 @@ public:
         SkDEBUGPARAMS(int id));
 
     void setCoinPtTEnd(const SkOpPtT* ptT) {
-        SkOPASSERT(ptT == ptT->span()->ptT())
+        SkOPASSERT(ptT == ptT->span()->ptT());
         SkASSERT(!fCoinPtTStart || ptT->fT != fCoinPtTStart->fT);
         SkASSERT(!fCoinPtTStart || fCoinPtTStart->segment() == ptT->segment());
         fCoinPtTEnd = ptT;
@@ -80,7 +80,7 @@ public:
     }
 
     void setCoinPtTStart(const SkOpPtT* ptT) {
-        SkASSERT(ptT == ptT->span()->ptT())
+        SkASSERT(ptT == ptT->span()->ptT());
         SkASSERT(!fCoinPtTEnd || ptT->fT != fCoinPtTEnd->fT);
         SkASSERT(!fCoinPtTEnd || fCoinPtTEnd->segment() == ptT->segment());
         fCoinPtTStart = ptT;
@@ -93,7 +93,7 @@ public:
     }
 
     void setOppPtTEnd(const SkOpPtT* ptT) {
-        SkOPASSERT(ptT == ptT->span()->ptT())
+        SkOPASSERT(ptT == ptT->span()->ptT());
         SkASSERT(!fOppPtTStart || ptT->fT != fOppPtTStart->fT);
         SkASSERT(!fOppPtTStart || fOppPtTStart->segment() == ptT->segment());
         fOppPtTEnd = ptT;
@@ -101,7 +101,7 @@ public:
     }
 
     void setOppPtTStart(const SkOpPtT* ptT) {
-        SkASSERT(ptT == ptT->span()->ptT())
+        SkASSERT(ptT == ptT->span()->ptT());
         SkASSERT(!fOppPtTEnd || ptT->fT != fOppPtTEnd->fT);
         SkASSERT(!fOppPtTEnd || fOppPtTEnd->segment() == ptT->segment());
         fOppPtTStart = ptT;

@@ -942,7 +942,7 @@ private:
 
 SkDEBUGCODE(bool inPLSDraw = false;)
 bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    SkASSERT(!args.fShape->isEmpty())
+    SkASSERT(!args.fShape->isEmpty());
     SkASSERT(!inPLSDraw);
     SkDEBUGCODE(inPLSDraw = true;)
     SkPath path;

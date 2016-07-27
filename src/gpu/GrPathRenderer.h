@@ -196,7 +196,7 @@ public:
             SkASSERT(fDrawContext);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
-            SkASSERT(fShape->style().isSimpleFill())
+            SkASSERT(fShape->style().isSimpleFill());
             SkPath path;
             fShape->asPath(&path);
             SkASSERT(!path.isInverseFillType());

@@ -280,7 +280,7 @@ void NormalMapSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output[]
                 output[i].normalize();
             }
 
-            SkASSERT(SkScalarNearlyEqual(output[i].length(), 1.0f))
+            SkASSERT(SkScalarNearlyEqual(output[i].length(), 1.0f));
         }
 
         output += n;
