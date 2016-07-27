@@ -261,7 +261,7 @@ void SkOpCoincidence::add(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* o
     DebugCheckAdd(fTop, coinPtTStart, coinPtTEnd, oppPtTStart, oppPtTEnd);
     SkCoincidentSpans* coinRec = SkOpTAllocator<SkCoincidentSpans>::Allocate(
             this->globalState()->allocator());
-    coinRec->init();
+    coinRec->init(SkDEBUGCODE(fGlobalState));
     coinRec->set(this->fHead, coinPtTStart, coinPtTEnd, oppPtTStart, oppPtTEnd
             SkDEBUGPARAMS(fGlobalState->nextCoinID()));
     fHead = coinRec;
@@ -334,6 +334,9 @@ bool SkOpCoincidence::addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase*
 
 // description below
 bool SkOpCoincidence::addEndMovedSpans(const SkOpPtT* ptT) {
+    if (!ptT->span()->upCastable()) {
+        return false;
+    }
     const SkOpSpan* base = ptT->span()->upCast();
     const SkOpSpan* prev = base->prev();
     if (!prev) {
@@ -1368,6 +1371,9 @@ bool SkOpCoincidence::mark() {
         SkOpSpanBase* next = start;
         SkOpSpanBase* oNext = oStart;
         while ((next = next->upCast()->next()) != end) {
+            if (!next->upCastable()) {
+                return false;
+            }
             if (!next->upCast()->insertCoincidence(oSegment, flipped)) {
                 return false;
             }

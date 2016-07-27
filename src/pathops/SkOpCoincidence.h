@@ -49,7 +49,13 @@ public:
     bool extend(const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
                 const SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd);
     bool flipped() const { return fOppPtTStart->fT > fOppPtTEnd->fT; }
-    void init() { sk_bzero(this, sizeof(*this)); }
+    SkDEBUGCODE(SkOpGlobalState* globalState() { return fGlobalState; })
+
+    void init(SkDEBUGCODE(SkOpGlobalState* globalState)) {
+        sk_bzero(this, sizeof(*this)); 
+        SkDEBUGCODE(fGlobalState = globalState);
+    }
+
     const SkOpPtT* oppPtTStart() const { return fOppPtTStart; }
     const SkOpPtT* oppPtTEnd() const { return fOppPtTEnd; }
     // These return non-const pointers so that, as copies, they can be added
@@ -66,7 +72,7 @@ public:
         SkDEBUGPARAMS(int id));
 
     void setCoinPtTEnd(const SkOpPtT* ptT) {
-        SkASSERT(ptT == ptT->span()->ptT())
+        SkOPASSERT(ptT == ptT->span()->ptT())
         SkASSERT(!fCoinPtTStart || ptT->fT != fCoinPtTStart->fT);
         SkASSERT(!fCoinPtTStart || fCoinPtTStart->segment() == ptT->segment());
         fCoinPtTEnd = ptT;
@@ -87,7 +93,7 @@ public:
     }
 
     void setOppPtTEnd(const SkOpPtT* ptT) {
-        SkASSERT(ptT == ptT->span()->ptT())
+        SkOPASSERT(ptT == ptT->span()->ptT())
         SkASSERT(!fOppPtTStart || ptT->fT != fOppPtTStart->fT);
         SkASSERT(!fOppPtTStart || fOppPtTStart->segment() == ptT->segment());
         fOppPtTEnd = ptT;
@@ -118,6 +124,7 @@ private:
     const SkOpPtT* fCoinPtTEnd;
     const SkOpPtT* fOppPtTStart;
     const SkOpPtT* fOppPtTEnd;
+    SkDEBUGCODE(SkOpGlobalState* fGlobalState);
     SkDEBUGCODE(int fID);
 };
 

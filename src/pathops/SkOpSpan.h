@@ -134,7 +134,7 @@ public:
     SkOpSegment* segment();
 
     void setCoincident() const {
-        SkASSERT(!fDeleted);
+        SkOPASSERT(!fDeleted);
         fCoincident = true;
     }
 
