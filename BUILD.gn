@@ -400,24 +400,26 @@ test_lib("gm") {
   ]
 }
 
-executable("dm") {
-  sources = [
-    "dm/DM.cpp",
-    "dm/DMJsonWriter.cpp",
-    "dm/DMSrcSink.cpp",
+if (!is_component_build) {   # DM uses many non-SK_API APIs...
+    executable("dm") {
+      sources = [
+        "dm/DM.cpp",
+        "dm/DMJsonWriter.cpp",
+        "dm/DMSrcSink.cpp",
 
-    # TODO: tests for real
-    "tests/Test.cpp",
-  ]
-  include_dirs = [ "tests" ]
-  deps = [
-    ":flags",
-    ":gm",
-    ":gpu_tool_utils",
-    ":skia",
-    ":tool_utils",
-    "//third_party/jsoncpp",
-    "//third_party/libpng",
-  ]
-  testonly = true
+        # TODO: tests for real
+        "tests/Test.cpp",
+      ]
+      include_dirs = [ "tests" ]
+      deps = [
+        ":flags",
+        ":gm",
+        ":gpu_tool_utils",
+        ":skia",
+        ":tool_utils",
+        "//third_party/jsoncpp",
+        "//third_party/libpng",
+      ]
+      testonly = true
+    }
 }

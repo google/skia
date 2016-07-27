@@ -14,6 +14,7 @@ config("default") {
     "-g",
     "-fstrict-aliasing",
     "-fPIC",
+    "-fvisibility=hidden",
 
     "-Werror",
     "-Wall",
@@ -31,6 +32,7 @@ config("default") {
     "-fno-exceptions",
     "-fno-rtti",
     "-fno-threadsafe-statics",
+    "-fvisibility-inlines-hidden",
 
     "-Wnon-virtual-dtor",
   ]
