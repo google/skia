@@ -462,10 +462,10 @@ sk_sp<GrTexture> GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
         config = kAlpha_8_GrPixelConfig;
     }
 
-    sk_sp<GrDrawContext> dc(context->newDrawContext(SkBackingFit::kApprox,
-                                                    clipSpaceIBounds.width(),
-                                                    clipSpaceIBounds.height(),
-                                                    config, nullptr));
+    sk_sp<GrDrawContext> dc(context->makeDrawContext(SkBackingFit::kApprox,
+                                                     clipSpaceIBounds.width(),
+                                                     clipSpaceIBounds.height(),
+                                                     config, nullptr));
     if (!dc) {
         return nullptr;
     }

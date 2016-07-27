@@ -161,9 +161,9 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                             width, height, config,
-                                                             std::move(colorSpace)));
+    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
+                                                              width, height, config,
+                                                              std::move(colorSpace)));
     if (!drawContext) {
         return nullptr;
     }

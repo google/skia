@@ -485,10 +485,10 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
     if (radius.fWidth > 0) {
-        sk_sp<GrDrawContext> dstDrawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                                    rect.width(), rect.height(),
-                                                                    kSkia8888_GrPixelConfig,
-                                                                    colorSpace));
+        sk_sp<GrDrawContext> dstDrawContext(context->makeDrawContext(SkBackingFit::kApprox,
+                                                                     rect.width(), rect.height(),
+                                                                     kSkia8888_GrPixelConfig,
+                                                                     colorSpace));
         if (!dstDrawContext) {
             return nullptr;
         }
@@ -507,10 +507,10 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        sk_sp<GrDrawContext> dstDrawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                                    rect.width(), rect.height(),
-                                                                    kSkia8888_GrPixelConfig,
-                                                                    colorSpace));
+        sk_sp<GrDrawContext> dstDrawContext(context->makeDrawContext(SkBackingFit::kApprox,
+                                                                     rect.width(), rect.height(),
+                                                                     kSkia8888_GrPixelConfig,
+                                                                     colorSpace));
         if (!dstDrawContext) {
             return nullptr;
         }

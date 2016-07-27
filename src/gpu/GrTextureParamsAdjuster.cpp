@@ -60,8 +60,8 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
         }
     }
 
-    sk_sp<GrDrawContext> copyDC = context->newDrawContext(SkBackingFit::kExact, copyParams.fWidth,
-                                                          copyParams.fHeight, config, nullptr);
+    sk_sp<GrDrawContext> copyDC = context->makeDrawContext(SkBackingFit::kExact, copyParams.fWidth,
+                                                           copyParams.fHeight, config, nullptr);
     if (!copyDC) {
         return nullptr;
     }

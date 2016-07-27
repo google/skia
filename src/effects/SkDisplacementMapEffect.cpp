@@ -336,8 +336,8 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
 
         sk_sp<GrDrawContext> drawContext(
-            context->newDrawContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                                    kSkia8888_GrPixelConfig, sk_ref_sp(source->getColorSpace())));
+            context->makeDrawContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
+                                     kSkia8888_GrPixelConfig, sk_ref_sp(source->getColorSpace())));
         if (!drawContext) {
             return nullptr;
         }

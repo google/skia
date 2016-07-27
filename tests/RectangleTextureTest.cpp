@@ -90,8 +90,8 @@ static void test_clear(skiatest::Reporter* reporter, GrContext* context,
                        GrTexture* rectangleTexture) {
     if (rectangleTexture->asRenderTarget()) {
         sk_sp<GrDrawContext> dc(
-                            context->drawContext(sk_ref_sp(rectangleTexture->asRenderTarget()),
-                                                 nullptr));
+                            context->makeDrawContext(sk_ref_sp(rectangleTexture->asRenderTarget()),
+                                                     nullptr));
         if (!dc) {
             ERRORF(reporter, "Could not get GrDrawContext for rectangle texture.");
             return;

@@ -389,8 +389,8 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     }
 
     // Setup dummy SkPaint / GrPaint / GrDrawContext
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox, 1024, 1024,
-                                                             kSkia8888_GrPixelConfig, nullptr));
+    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox, 1024, 1024,
+                                                              kSkia8888_GrPixelConfig, nullptr));
 
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);

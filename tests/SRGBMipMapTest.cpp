@@ -121,12 +121,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
 
     // Create two draw contexts (L32 and S32)
     sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    sk_sp<GrDrawContext> l32DrawContext = context->newDrawContext(SkBackingFit::kExact, rtS, rtS,
-                                                                  kSkia8888_GrPixelConfig,
-                                                                  nullptr);
-    sk_sp<GrDrawContext> s32DrawContext = context->newDrawContext(SkBackingFit::kExact, rtS, rtS,
-                                                                  kSkiaGamma8888_GrPixelConfig,
-                                                                  std::move(srgbColorSpace));
+    sk_sp<GrDrawContext> l32DrawContext = context->makeDrawContext(SkBackingFit::kExact, rtS, rtS,
+                                                                   kSkia8888_GrPixelConfig,
+                                                                   nullptr);
+    sk_sp<GrDrawContext> s32DrawContext = context->makeDrawContext(SkBackingFit::kExact, rtS, rtS,
+                                                                   kSkiaGamma8888_GrPixelConfig,
+                                                                   std::move(srgbColorSpace));
 
     SkRect rect = SkRect::MakeWH(SkIntToScalar(rtS), SkIntToScalar(rtS));
     GrNoClip noClip;

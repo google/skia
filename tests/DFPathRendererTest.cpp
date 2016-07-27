@@ -63,22 +63,22 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(AADistanceFieldPathRenderer, reporter, ctxInfo) 
     if (!ctxInfo.grContext()->caps()->shaderCaps()->shaderDerivativeSupport()) {
         return;
     }
-    sk_sp<GrDrawContext> drawContext(ctxInfo.grContext()->newDrawContext(SkBackingFit::kApprox,
-                                                                         800, 800,
-                                                                         kSkia8888_GrPixelConfig,
-                                                                         nullptr,
-                                                                         0,
-                                                                         kTopLeft_GrSurfaceOrigin));
-    if (!drawContext) {
+    sk_sp<GrDrawContext> dc(ctxInfo.grContext()->makeDrawContext(SkBackingFit::kApprox,
+                                                                 800, 800,
+                                                                 kSkia8888_GrPixelConfig,
+                                                                 nullptr,
+                                                                 0,
+                                                                 kTopLeft_GrSurfaceOrigin));
+    if (!dc) {
         return;
     }
 
     GrAADistanceFieldPathRenderer dfpr;
     GrTestTarget tt;
-    ctxInfo.grContext()->getTestTarget(&tt, drawContext);
+    ctxInfo.grContext()->getTestTarget(&tt, dc);
     GrResourceProvider* rp = tt.resourceProvider();
 
-    test_far_from_origin(drawContext.get(), &dfpr, rp);
+    test_far_from_origin(dc.get(), &dfpr, rp);
     ctxInfo.grContext()->flush();
 }
 #endif

@@ -104,9 +104,9 @@ private:
 DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                             1, 1, kRGBA_8888_GrPixelConfig,
-                                                             nullptr));
+    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
+                                                              1, 1, kRGBA_8888_GrPixelConfig,
+                                                              nullptr));
     if (!drawContext) {
         ERRORF(reporter, "Could not create draw context.");
         return;

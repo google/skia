@@ -360,7 +360,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             // TODO: Need to decide the semantics of this function for color spaces. Do we support
             // conversion from a passed-in color space? For now, specifying nullptr means that this
             // path will do no conversion, so it will match the behavior of the non-draw path.
-            sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(renderTarget), nullptr));
+            sk_sp<GrDrawContext> drawContext(this->makeDrawContext(sk_ref_sp(renderTarget), nullptr));
             if (!drawContext) {
                 return false;
             }
@@ -450,7 +450,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
         // TODO: Need to decide the semantics of this function for color spaces. Do we support
         // conversion to a passed-in color space? For now, specifying nullptr means that this
         // path will do no conversion, so it will match the behavior of the non-draw path.
-        sk_sp<GrDrawContext> tempDC = this->newDrawContext(tempDrawInfo.fTempSurfaceFit,
+        sk_sp<GrDrawContext> tempDC = this->makeDrawContext(tempDrawInfo.fTempSurfaceFit,
                                                            tempDrawInfo.fTempSurfaceDesc.fWidth,
                                                            tempDrawInfo.fTempSurfaceDesc.fHeight,
                                                            tempDrawInfo.fTempSurfaceDesc.fConfig,
@@ -540,7 +540,7 @@ bool GrContext::applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma){
     }
 
     // TODO: Supply color space?
-    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(dst), nullptr));
+    sk_sp<GrDrawContext> drawContext(this->makeDrawContext(sk_ref_sp(dst), nullptr));
     if (!drawContext) {
         return false;
     }
@@ -602,7 +602,7 @@ bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         src->flushWrites();
         return fGpu->copySurface(dst, src, clippedSrcRect, clippedDstPoint);
     }
-    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(dst->asRenderTarget()), nullptr));
+    sk_sp<GrDrawContext> drawContext(this->makeDrawContext(sk_ref_sp(dst->asRenderTarget()), nullptr));
     if (!drawContext) {
         return false;
     }
@@ -641,21 +641,21 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
 }
 
 
-sk_sp<GrDrawContext> GrContext::drawContext(sk_sp<GrRenderTarget> rt,
+sk_sp<GrDrawContext> GrContext::makeDrawContext(sk_sp<GrRenderTarget> rt,
                                             sk_sp<SkColorSpace> colorSpace,
                                             const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER
     return fDrawingManager->drawContext(std::move(rt), std::move(colorSpace), surfaceProps);
 }
 
-sk_sp<GrDrawContext> GrContext::newDrawContext(SkBackingFit fit,
-                                               int width, int height,
-                                               GrPixelConfig config,
-                                               sk_sp<SkColorSpace> colorSpace,
-                                               int sampleCnt,
-                                               GrSurfaceOrigin origin,
-                                               const SkSurfaceProps* surfaceProps,
-                                               SkBudgeted budgeted) {
+sk_sp<GrDrawContext> GrContext::makeDrawContext(SkBackingFit fit,
+                                                int width, int height,
+                                                GrPixelConfig config,
+                                                sk_sp<SkColorSpace> colorSpace,
+                                                int sampleCnt,
+                                                GrSurfaceOrigin origin,
+                                                const SkSurfaceProps* surfaceProps,
+                                                SkBudgeted budgeted) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = origin;
@@ -674,8 +674,8 @@ sk_sp<GrDrawContext> GrContext::newDrawContext(SkBackingFit fit,
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(tex->asRenderTarget()),
-                                                       std::move(colorSpace), surfaceProps));
+    sk_sp<GrDrawContext> drawContext(this->makeDrawContext(sk_ref_sp(tex->asRenderTarget()),
+                                                           std::move(colorSpace), surfaceProps));
     if (!drawContext) {
         return nullptr;
     }

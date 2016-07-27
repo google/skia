@@ -281,10 +281,10 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                             bounds.width(), bounds.height(),
-                                                             kRGBA_8888_GrPixelConfig,
-                                                             std::move(colorSpace)));
+    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
+                                                              bounds.width(), bounds.height(),
+                                                              kRGBA_8888_GrPixelConfig,
+                                                              std::move(colorSpace)));
     if (!drawContext) {
         return nullptr;
     }

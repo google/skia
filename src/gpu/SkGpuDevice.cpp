@@ -104,8 +104,8 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTarget> rt, sk_sp<SkColorSpac
 
     GrContext* context = rt->getContext();
 
-    sk_sp<GrDrawContext> drawContext(context->drawContext(std::move(rt), std::move(colorSpace),
-                                                          props));
+    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(std::move(rt), std::move(colorSpace),
+                                                              props));
     return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(drawContext), width, height, flags));
 }
 
@@ -187,10 +187,10 @@ sk_sp<GrDrawContext> SkGpuDevice::MakeDrawContext(GrContext* context,
 
     GrPixelConfig config = SkImageInfo2GrPixelConfig(ct, at, cs, *context->caps());
 
-    return context->newDrawContext(SkBackingFit::kExact,               // Why exact?
-                                   origInfo.width(), origInfo.height(),
-                                   config, sk_ref_sp(cs), sampleCount,
-                                   origin, surfaceProps, budgeted);
+    return context->makeDrawContext(SkBackingFit::kExact,               // Why exact?
+                                    origInfo.width(), origInfo.height(),
+                                    config, sk_ref_sp(cs), sampleCount,
+                                    origin, surfaceProps, budgeted);
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(const SkDraw& draw,
@@ -1745,13 +1745,13 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     SkBackingFit fit = kNever_TileUsage == cinfo.fTileUsage ? SkBackingFit::kApprox
                                                             : SkBackingFit::kExact;
 
-    sk_sp<GrDrawContext> dc(fContext->newDrawContext(fit,
-                                                     cinfo.fInfo.width(), cinfo.fInfo.height(),
-                                                     fDrawContext->config(),
-                                                     sk_ref_sp(fDrawContext->getColorSpace()),
-                                                     fDrawContext->desc().fSampleCnt,
-                                                     kDefault_GrSurfaceOrigin,
-                                                     &props));
+    sk_sp<GrDrawContext> dc(fContext->makeDrawContext(fit,
+                                                      cinfo.fInfo.width(), cinfo.fInfo.height(),
+                                                      fDrawContext->config(),
+                                                      sk_ref_sp(fDrawContext->getColorSpace()),
+                                                      fDrawContext->desc().fSampleCnt,
+                                                      kDefault_GrSurfaceOrigin,
+                                                      &props));
     if (!dc) {
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "---- failed to create gpu device texture [%d %d]\n",
