@@ -172,6 +172,7 @@ def gyp_defines(builder_dict):
   # Vulkan.
   if builder_dict.get('extra_config') == 'Vulkan':
     gyp_defs['skia_vulkan'] = '1'
+    gyp_defs['skia_vulkan_debug_layers'] = '0'
 
   return gyp_defs
 

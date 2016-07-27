@@ -251,7 +251,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"do_perf_steps\": true, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"do_test_steps\": true, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"env\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"GYP_DEFINES\": \"skia_arch_type=arm64 skia_vulkan=1 skia_warnings_as_errors=0\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"GYP_DEFINES\": \"skia_arch_type=arm64 skia_vulkan=1 skia_vulkan_debug_layers=0 skia_warnings_as_errors=0\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"nanobench_flags\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",

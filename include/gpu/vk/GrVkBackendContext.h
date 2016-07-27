@@ -12,10 +12,6 @@
 
 #include "vk/GrVkDefines.h"
 
-#ifdef SK_DEBUG
-#define ENABLE_VK_LAYERS
-#endif
-
 struct GrVkInterface;
 
 enum GrVkExtensionFlags {

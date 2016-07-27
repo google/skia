@@ -44,7 +44,7 @@
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RET(this->vkInterface(), RET, X)
 #define VK_CALL_ERRCHECK(X) GR_VK_CALL_ERRCHECK(this->vkInterface(), X)
 
-#ifdef ENABLE_VK_LAYERS
+#ifdef SK_ENABLE_VK_LAYERS
 VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     VkDebugReportFlagsEXT       flags,
     VkDebugReportObjectTypeEXT  objectType,
@@ -93,7 +93,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     , fResourceProvider(this) {
     fBackendContext.reset(backendCtx);
 
-#ifdef ENABLE_VK_LAYERS
+#ifdef SK_ENABLE_VK_LAYERS
     fCallback = VK_NULL_HANDLE;
     if (backendCtx->fExtensions & kEXT_debug_report_GrVkExtensionFlag) {
         // Setup callback creation information
@@ -191,7 +191,7 @@ GrVkGpu::~GrVkGpu() {
     shaderc_compiler_release(fCompiler);
 #endif
 
-#ifdef ENABLE_VK_LAYERS
+#ifdef SK_ENABLE_VK_LAYERS
     if (fCallback) {
         VK_CALL(DestroyDebugReportCallbackEXT(fBackendContext->fInstance, fCallback, nullptr));
         fCallback = VK_NULL_HANDLE;

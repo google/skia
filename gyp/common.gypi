@@ -70,6 +70,13 @@
             'SK_VULKAN',
           ],
         },
+        'conditions': [
+          [ 'skia_vulkan_debug_layers', {
+            'configurations': {
+              'Debug':   { 'defines': [ 'SK_ENABLE_VK_LAYERS' ] },
+            },
+          }],
+        ],
       }],
       [ 'skia_command_buffer', {
         'defines': [

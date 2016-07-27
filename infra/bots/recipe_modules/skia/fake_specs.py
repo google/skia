@@ -583,9 +583,9 @@ FAKE_SPECS = {
     'do_test_steps': False,
     'env': {
       'GYP_DEFINES':
-          ('qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86_64 skia_vulkan=1 skia_warn'
-           'ings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg'
-           '=0'),
+          ('qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86_64 skia_vulkan=1 skia_vulk'
+           'an_debug_layers=0 skia_warnings_as_errors=1 skia_win_debuggers_pa'
+           'th=c:/DbgHelp skia_win_ltcg=0'),
     },
     'nanobench_flags': [
       '--dummy-flags',
@@ -936,7 +936,8 @@ FAKE_SPECS = {
     'do_test_steps': True,
     'env': {
       'GYP_DEFINES':
-          'skia_arch_type=arm64 skia_vulkan=1 skia_warnings_as_errors=0',
+          ('skia_arch_type=arm64 skia_vulkan=1 skia_vulkan_debug_layers=0 ski'
+           'a_warnings_as_errors=0'),
     },
     'nanobench_flags': [
       '--dummy-flags',

@@ -250,7 +250,7 @@ private:
 
     SkAutoTDelete<GrVkHeap>                fHeaps[kHeapCount];
 
-#ifdef ENABLE_VK_LAYERS
+#ifdef SK_ENABLE_VK_LAYERS
     // For reporting validation layer errors
     VkDebugReportCallbackEXT               fCallback;
 #endif

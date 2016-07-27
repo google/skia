@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Helper code to set up Vulkan context objects
 
-#ifdef ENABLE_VK_LAYERS
+#ifdef SK_ENABLE_VK_LAYERS
 const char* kDebugLayerNames[] = {
     // elements of VK_LAYER_LUNARG_standard_validation
     "VK_LAYER_GOOGLE_threading",
@@ -62,7 +62,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     SkTArray<const char*> instanceLayerNames;
     SkTArray<const char*> instanceExtensionNames;
     uint32_t extensionFlags = 0;
-#ifdef ENABLE_VK_LAYERS
+#ifdef SK_ENABLE_VK_LAYERS
     for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
         if (extensions.hasInstanceLayer(kDebugLayerNames[i])) {
             instanceLayerNames.push_back(kDebugLayerNames[i]);
@@ -172,7 +172,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
 
     SkTArray<const char*> deviceLayerNames;
     SkTArray<const char*> deviceExtensionNames;
-#ifdef ENABLE_VK_LAYERS
+#ifdef SK_ENABLE_VK_LAYERS
     for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
         if (extensions.hasDeviceLayer(kDebugLayerNames[i])) {
             deviceLayerNames.push_back(kDebugLayerNames[i]);
