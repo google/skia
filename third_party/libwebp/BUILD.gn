@@ -9,7 +9,7 @@ declare_args() {
 import("../third_party.gni")
 
 third_party("libwebp") {
-  public_include_dirs = [ "../externals/libwebp" ]
+  public_include_dirs = [ "../externals/libwebp/src" ]
 
   sources = [
     "../externals/libwebp/src/dec/alpha.c",
