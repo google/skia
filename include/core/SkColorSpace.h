@@ -96,6 +96,12 @@ public:
      */
     sk_sp<SkData> serialize() const;
 
+    /**
+     *  If |memory| is nullptr, returns the size required to serialize.
+     *  Otherwise, serializes into |memory| and returns the size.
+     */
+    size_t writeToMemory(void* memory) const;
+
     static sk_sp<SkColorSpace> Deserialize(const void* data, size_t length);
 
 protected:

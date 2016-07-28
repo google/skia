@@ -200,15 +200,16 @@ struct ColorSpaceHeader {
     uint8_t fFlags;      // Some combination of the flags listed above
 };
 
-sk_sp<SkData> SkColorSpace::serialize() const {
+size_t SkColorSpace::writeToMemory(void* memory) const {
     // If we have a named profile, only write the enum.
     switch (fNamed) {
         case kSRGB_Named:
         case kAdobeRGB_Named: {
-            sk_sp<SkData> data = SkData::MakeUninitialized(sizeof(ColorSpaceHeader));
-            *((ColorSpaceHeader*) data->writable_data()) =
-                    ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed, 0);
-            return data;
+            if (memory) {
+                *((ColorSpaceHeader*) memory) =
+                        ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed, 0);
+            }
+            return sizeof(ColorSpaceHeader);
         }
         default:
             break;
@@ -219,16 +220,14 @@ sk_sp<SkData> SkColorSpace::serialize() const {
         case kSRGB_GammaNamed:
         case k2Dot2Curve_GammaNamed:
         case kLinear_GammaNamed: {
-            sk_sp<SkData> data = SkData::MakeUninitialized(sizeof(ColorSpaceHeader) +
-                                                           12 * sizeof(float));
-            void* dataPtr = data->writable_data();
-
-            *((ColorSpaceHeader*) dataPtr) = ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed,
-                                                                    ColorSpaceHeader::kMatrix_Flag);
-            dataPtr = SkTAddOffset<void>(dataPtr, sizeof(ColorSpaceHeader));
-
-            fToXYZD50.as4x3ColMajorf((float*) dataPtr);
-            return data;
+            if (memory) {
+                *((ColorSpaceHeader*) memory) =
+                        ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed,
+                                               ColorSpaceHeader::kMatrix_Flag);
+                memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
+                fToXYZD50.as4x3ColMajorf((float*) memory);
+            }
+            return sizeof(ColorSpaceHeader) + 12 * sizeof(float);
         }
         default:
             break;
@@ -240,22 +239,31 @@ sk_sp<SkData> SkColorSpace::serialize() const {
 
     size_t profileSize = as_CSB(this)->fProfileData->size();
     if (SkAlign4(profileSize) != (uint32_t) SkAlign4(profileSize)) {
+        return 0;
+    }
+
+    if (memory) {
+        *((ColorSpaceHeader*) memory) = ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed,
+                                                               ColorSpaceHeader::kICC_Flag);
+        memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
+
+        *((uint32_t*) memory) = (uint32_t) SkAlign4(profileSize);
+        memory = SkTAddOffset<void>(memory, sizeof(uint32_t));
+
+        memcpy(memory, as_CSB(this)->fProfileData->data(), profileSize);
+        memset(SkTAddOffset<void>(memory, profileSize), 0, SkAlign4(profileSize) - profileSize);
+    }
+    return sizeof(ColorSpaceHeader) + sizeof(uint32_t) + SkAlign4(profileSize);
+}
+
+sk_sp<SkData> SkColorSpace::serialize() const {
+    size_t size = this->writeToMemory(nullptr);
+    if (0 == size) {
         return nullptr;
     }
 
-    sk_sp<SkData> data = SkData::MakeUninitialized(sizeof(ColorSpaceHeader) + sizeof(uint32_t) +
-                                                   SkAlign4(profileSize));
-    void* dataPtr = data->writable_data();
-
-    *((ColorSpaceHeader*) dataPtr) = ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed,
-                                                            ColorSpaceHeader::kICC_Flag);
-    dataPtr = SkTAddOffset<void>(dataPtr, sizeof(ColorSpaceHeader));
-
-    *((uint32_t*) dataPtr) = (uint32_t) SkAlign4(profileSize);
-    dataPtr = SkTAddOffset<void>(dataPtr, sizeof(uint32_t));
-
-    memcpy(dataPtr, as_CSB(this)->fProfileData->data(), profileSize);
-    memset(SkTAddOffset<void>(dataPtr, profileSize), 0, SkAlign4(profileSize) - profileSize);
+    sk_sp<SkData> data = SkData::MakeUninitialized(size);
+    this->writeToMemory(data->writable_data());
     return data;
 }
 

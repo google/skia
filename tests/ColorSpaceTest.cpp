@@ -166,31 +166,43 @@ DEF_TEST(ColorSpace_Named, r) {
     REPORTER_ASSERT(r, info.gammaCloseToSRGB());
 }
 
+static void matrix_equals(skiatest::Reporter* r, SkColorSpace* space1, SkColorSpace* space2) {
+    REPORTER_ASSERT(r, space1->xyz().getFloat(0, 0) == space2->xyz().getFloat(0, 0));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(0, 1) == space2->xyz().getFloat(0, 1));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(0, 2) == space2->xyz().getFloat(0, 2));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(0, 3) == space2->xyz().getFloat(0, 3));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(1, 0) == space2->xyz().getFloat(1, 0));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(1, 1) == space2->xyz().getFloat(1, 1));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(1, 2) == space2->xyz().getFloat(1, 2));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(1, 3) == space2->xyz().getFloat(1, 3));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(2, 0) == space2->xyz().getFloat(2, 0));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(2, 1) == space2->xyz().getFloat(2, 1));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(2, 2) == space2->xyz().getFloat(2, 2));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(2, 3) == space2->xyz().getFloat(2, 3));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(3, 0) == space2->xyz().getFloat(3, 0));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(3, 1) == space2->xyz().getFloat(3, 1));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(3, 2) == space2->xyz().getFloat(3, 2));
+    REPORTER_ASSERT(r, space1->xyz().getFloat(3, 3) == space2->xyz().getFloat(3, 3));
+}
+
 static void test_serialize(skiatest::Reporter* r, SkColorSpace* space, bool isNamed) {
-    sk_sp<SkData> data = space->serialize();
-    sk_sp<SkColorSpace> newSpace = SkColorSpace::Deserialize(data->data(), data->size());
+    sk_sp<SkData> data1 = space->serialize();
+
+    size_t bytes = space->writeToMemory(nullptr);
+    sk_sp<SkData> data2 = SkData::MakeUninitialized(bytes);
+    space->writeToMemory(data2->writable_data());
+
+    sk_sp<SkColorSpace> newSpace1 = SkColorSpace::Deserialize(data1->data(), data1->size());
+    sk_sp<SkColorSpace> newSpace2 = SkColorSpace::Deserialize(data2->data(), data2->size());
 
     if (isNamed) {
-        REPORTER_ASSERT(r, space == newSpace.get());
+        REPORTER_ASSERT(r, space == newSpace1.get());
+        REPORTER_ASSERT(r, space == newSpace2.get());
     } else {
-        REPORTER_ASSERT(r, space->gammaNamed() == newSpace->gammaNamed());
-
-        REPORTER_ASSERT(r, space->xyz().getFloat(0, 0) == newSpace->xyz().getFloat(0, 0));
-        REPORTER_ASSERT(r, space->xyz().getFloat(0, 1) == newSpace->xyz().getFloat(0, 1));
-        REPORTER_ASSERT(r, space->xyz().getFloat(0, 2) == newSpace->xyz().getFloat(0, 2));
-        REPORTER_ASSERT(r, space->xyz().getFloat(0, 3) == newSpace->xyz().getFloat(0, 3));
-        REPORTER_ASSERT(r, space->xyz().getFloat(1, 0) == newSpace->xyz().getFloat(1, 0));
-        REPORTER_ASSERT(r, space->xyz().getFloat(1, 1) == newSpace->xyz().getFloat(1, 1));
-        REPORTER_ASSERT(r, space->xyz().getFloat(1, 2) == newSpace->xyz().getFloat(1, 2));
-        REPORTER_ASSERT(r, space->xyz().getFloat(1, 3) == newSpace->xyz().getFloat(1, 3));
-        REPORTER_ASSERT(r, space->xyz().getFloat(2, 0) == newSpace->xyz().getFloat(2, 0));
-        REPORTER_ASSERT(r, space->xyz().getFloat(2, 1) == newSpace->xyz().getFloat(2, 1));
-        REPORTER_ASSERT(r, space->xyz().getFloat(2, 2) == newSpace->xyz().getFloat(2, 2));
-        REPORTER_ASSERT(r, space->xyz().getFloat(2, 3) == newSpace->xyz().getFloat(2, 3));
-        REPORTER_ASSERT(r, space->xyz().getFloat(3, 0) == newSpace->xyz().getFloat(3, 0));
-        REPORTER_ASSERT(r, space->xyz().getFloat(3, 1) == newSpace->xyz().getFloat(3, 1));
-        REPORTER_ASSERT(r, space->xyz().getFloat(3, 2) == newSpace->xyz().getFloat(3, 2));
-        REPORTER_ASSERT(r, space->xyz().getFloat(3, 3) == newSpace->xyz().getFloat(3, 3));
+        REPORTER_ASSERT(r, space->gammaNamed() == newSpace1->gammaNamed());
+        REPORTER_ASSERT(r, space->gammaNamed() == newSpace2->gammaNamed());
+        matrix_equals(r, space, newSpace1.get());
+        matrix_equals(r, space, newSpace2.get());
     }
 }
 
