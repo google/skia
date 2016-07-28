@@ -49,6 +49,7 @@ config("skia_private") {
     "src/lazy",
     "src/opts",
     "src/pathops",
+    "src/pdf",
     "src/ports",
     "src/sfnt",
     "src/utils",
@@ -202,6 +203,11 @@ component("skia") {
     "src/codec/SkWebpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/images/SkImageEncoder_Factory.cpp",
+    "src/images/SkJPEGImageEncoder.cpp",
+    "src/images/SkJPEGWriteUtility.cpp",
+    "src/images/SkKTXImageEncoder.cpp",
+    "src/images/SkPNGImageEncoder.cpp",
+    "src/images/SkWEBPImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
     "src/ports/SkGlobalInitialization_default.cpp",
     "src/ports/SkImageGenerator_skia.cpp",
@@ -249,9 +255,6 @@ component("skia") {
     ]
     sources += [
       "src/fonts/SkFontMgr_fontconfig.cpp",
-      "src/images/SkJPEGImageEncoder.cpp",
-      "src/images/SkJPEGWriteUtility.cpp",
-      "src/images/SkPNGImageEncoder.cpp",
       "src/ports/SkFontConfigInterface_direct.cpp",
       "src/ports/SkFontConfigInterface_direct_factory.cpp",
       "src/ports/SkFontHost_FreeType.cpp",
@@ -368,9 +371,12 @@ test_lib("tool_utils") {
     "tools/timer",
   ]
   sources = [
+    "src/images/SkForceLinking.cpp",
     "src/utils/SkMultiPictureDocumentReader.cpp",  # TODO(halcanary): move to tools?
+    "tools/CrashHandler.cpp",
     "tools/ProcStats.cpp",
     "tools/Resources.cpp",
+    "tools/ThermalManager.cpp",
     "tools/picture_utils.cpp",
     "tools/random_parse_path.cpp",
     "tools/sk_tool_utils.cpp",
@@ -399,26 +405,77 @@ test_lib("gm") {
   ]
 }
 
-if (!is_component_build) {   # DM uses many non-SK_API APIs...
-    executable("dm") {
-      sources = [
-        "dm/DM.cpp",
-        "dm/DMJsonWriter.cpp",
-        "dm/DMSrcSink.cpp",
+bench_sources = exec_script("gyp/find.py",
+                            [
+                              rebase_path("bench"),
+                              "*.c*",
+                            ],
+                            "list lines",
+                            [])
 
-        # TODO: tests for real
-        "tests/Test.cpp",
-      ]
-      include_dirs = [ "tests" ]
-      deps = [
-        ":flags",
-        ":gm",
-        ":gpu_tool_utils",
-        ":skia",
-        ":tool_utils",
-        "//third_party/jsoncpp",
-        "//third_party/libpng",
-      ]
-      testonly = true
-    }
+test_lib("bench") {
+  public_include_dirs = [ "bench" ]
+  sources = bench_sources
+  sources -= [
+    rebase_path("bench/nanobench.cpp"),
+    rebase_path("bench/nanobenchAndroid.cpp"),
+  ]
+  deps = [
+    ":flags",
+    ":gm",
+    ":gpu_tool_utils",
+    ":skia",
+    ":tool_utils",
+  ]
+}
+
+if (!is_component_build) {  # Our test tools use many non-SK_API APIs...
+  executable("dm") {
+    sources = [
+      "dm/DM.cpp",
+      "dm/DMJsonWriter.cpp",
+      "dm/DMSrcSink.cpp",
+
+      # TODO: tests for real
+      "tests/Test.cpp",
+    ]
+    include_dirs = [ "tests" ]
+    deps = [
+      ":flags",
+      ":gm",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+      "//third_party/jsoncpp",
+      "//third_party/libpng",
+    ]
+    testonly = true
+  }
+
+  executable("monobench") {
+    sources = [
+      "tools/monobench.cpp",
+    ]
+    deps = [
+      ":bench",
+      ":skia",
+    ]
+    testonly = true
+  }
+
+  executable("nanobench") {
+    sources = [
+      "bench/nanobench.cpp",
+    ]
+    deps = [
+      ":bench",
+      ":flags",
+      ":gm",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+      "//third_party/jsoncpp",
+    ]
+    testonly = true
+  }
 }
