@@ -92,16 +92,6 @@ DRAW(TranslateZ, SkCanvas::translateZ(r.z));
 template <> void Draw::draw(const TranslateZ& r) { }
 #endif
 
-DRAW(DrawBitmap, drawBitmap(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
-DRAW(DrawBitmapNine, drawBitmapNine(r.bitmap.shallowCopy(), r.center, r.dst, r.paint));
-DRAW(DrawBitmapRect,
-        legacy_drawBitmapRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
-                             SkCanvas::kStrict_SrcRectConstraint));
-DRAW(DrawBitmapRectFast,
-        legacy_drawBitmapRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
-                       SkCanvas::kFast_SrcRectConstraint));
-DRAW(DrawBitmapRectFixedSize,
-        legacy_drawBitmapRect(r.bitmap.shallowCopy(), &r.src, r.dst, &r.paint, r.constraint));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image, r.left, r.top, r.paint));
 DRAW(DrawImageRect, legacy_drawImageRect(r.image, r.src, r.dst, r.paint, r.constraint));
@@ -424,24 +414,6 @@ private:
     Bounds bounds(const DrawImageNine& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
-    Bounds bounds(const DrawBitmapRect& op) const {
-        return this->adjustAndMap(op.dst, op.paint);
-    }
-    Bounds bounds(const DrawBitmapRectFast& op) const {
-        return this->adjustAndMap(op.dst, op.paint);
-    }
-    Bounds bounds(const DrawBitmapRectFixedSize& op) const {
-        return this->adjustAndMap(op.dst, &op.paint);
-    }
-    Bounds bounds(const DrawBitmapNine& op) const {
-        return this->adjustAndMap(op.dst, op.paint);
-    }
-    Bounds bounds(const DrawBitmap& op) const {
-        return this->adjustAndMap(
-                SkRect::MakeXYWH(op.left, op.top, op.bitmap.width(), op.bitmap.height()),
-                op.paint);
-    }
-
     Bounds bounds(const DrawPath& op) const {
         return op.path.isInverseFillType() ? fCurrentClipBounds
                                            : this->adjustAndMap(op.path.getBounds(), &op.paint);

@@ -176,17 +176,30 @@ def get_args(bot):
     blacklist.extend('_ gm _ fontscalerdistortable'.split(' '))
 
   # skia:4095
-  for test in ['bleed_image',
-               'c_gms',
-               'colortype',
-               'colortype_xfermodes',
-               'drawfilter',
-               'fontmgr_bounds_0.75_0',
-               'fontmgr_bounds_1_-0.25',
-               'fontmgr_bounds',
-               'fontmgr_match',
-               'fontmgr_iter']:
+  bad_serialize_gms = ['bleed_image',
+                       'c_gms',
+                       'colortype',
+                       'colortype_xfermodes',
+                       'drawfilter',
+                       'fontmgr_bounds_0.75_0',
+                       'fontmgr_bounds_1_-0.25',
+                       'fontmgr_bounds',
+                       'fontmgr_match',
+                       'fontmgr_iter']
+  # skia:5589
+  bad_serialize_gms.extend(['bitmapfilters',
+                            'bitmapshaders',
+                            'bleed',
+                            'bleed_alpha_bmp',
+                            'bleed_alpha_bmp_shader',
+                            'extractalpha',
+                            'filterbitmap_checkerboard_32_32_g8',
+                            'filterbitmap_image_mandrill_64',
+                            'shadows',
+                            'simpleaaclip_aaclip'])
+  for test in bad_serialize_gms:
     blacklist.extend(['serialize-8888', 'gm', '_', test])
+
   if 'Mac' not in bot:
     for test in ['bleed_alpha_image', 'bleed_alpha_image_shader']:
       blacklist.extend(['serialize-8888', 'gm', '_', test])

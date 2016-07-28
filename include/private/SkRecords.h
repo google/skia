@@ -53,11 +53,6 @@ namespace SkRecords {
     M(ClipRRect)                                                    \
     M(ClipRect)                                                     \
     M(ClipRegion)                                                   \
-    M(DrawBitmap)                                                   \
-    M(DrawBitmapNine)                                               \
-    M(DrawBitmapRect)                                               \
-    M(DrawBitmapRectFast)                                           \
-    M(DrawBitmapRectFixedSize)                                      \
     M(DrawDrawable)                                                 \
     M(DrawImage)                                                    \
     M(DrawImageRect)                                                \
@@ -155,25 +150,6 @@ private:
 
 #undef ACT_AS_PTR
 
-// Like SkBitmap, but deep copies pixels if they're not immutable.
-// Using this, we guarantee the immutability of all bitmaps we record.
-class ImmutableBitmap : SkNoncopyable {
-public:
-    ImmutableBitmap() {}
-    ImmutableBitmap(const SkBitmap& bitmap);
-    ImmutableBitmap(ImmutableBitmap&& o) {
-        fBitmap.swap(o.fBitmap);
-    }
-
-    int width()  const { return fBitmap.width();  }
-    int height() const { return fBitmap.height(); }
-
-    // While the pixels are immutable, SkBitmap itself is not thread-safe, so return a copy.
-    SkBitmap shallowCopy() const { return fBitmap; }
-private:
-    SkBitmap fBitmap;
-};
-
 // SkPath::getBounds() isn't thread safe unless we precache the bounds in a singlethreaded context.
 // SkPath::cheapComputeDirection() is similar.
 // Recording is a convenient time to cache these, or we can delay it to between record and playback.
@@ -248,32 +224,6 @@ RECORD(ClipRegion, 0,
         SkRegion::Op op);
 
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
-RECORD(DrawBitmap, kDraw_Tag|kHasImage_Tag,
-        Optional<SkPaint> paint;
-        ImmutableBitmap bitmap;
-        SkScalar left;
-        SkScalar top);
-RECORD(DrawBitmapNine, kDraw_Tag|kHasImage_Tag,
-        Optional<SkPaint> paint;
-        ImmutableBitmap bitmap;
-        SkIRect center;
-        SkRect dst);
-RECORD(DrawBitmapRect, kDraw_Tag|kHasImage_Tag,
-        Optional<SkPaint> paint;
-        ImmutableBitmap bitmap;
-        Optional<SkRect> src;
-        SkRect dst);
-RECORD(DrawBitmapRectFast, kDraw_Tag|kHasImage_Tag,
-        Optional<SkPaint> paint;
-        ImmutableBitmap bitmap;
-        Optional<SkRect> src;
-        SkRect dst);
-RECORD(DrawBitmapRectFixedSize, kDraw_Tag|kHasImage_Tag,
-        SkPaint paint;
-        ImmutableBitmap bitmap;
-        SkRect src;
-        SkRect dst;
-        SkCanvas::SrcRectConstraint constraint);
 RECORD(DrawDRRect, kDraw_Tag,
         SkPaint paint;
         SkRRect outer;

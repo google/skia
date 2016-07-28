@@ -7,13 +7,12 @@
 
 #include "SkBigPicture.h"
 #include "SkCanvasPriv.h"
+#include "SkImage.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkPictureUtils.h"
 #include "SkRecorder.h"
 #include "SkSurface.h"
-
-//#define WRAP_BITMAP_AS_IMAGE
 
 SkDrawableList::~SkDrawableList() {
     fArray.unrefAll();
@@ -180,14 +179,10 @@ void SkRecorder::onDrawBitmap(const SkBitmap& bitmap,
                               SkScalar left,
                               SkScalar top,
                               const SkPaint* paint) {
-#ifdef WRAP_BITMAP_AS_IMAGE
-    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
     if (image) {
-        this->onDrawImage(image, left, top, paint);
+        this->onDrawImage(image.get(), left, top, paint);
     }
-#else
-    APPEND(DrawBitmap, this->copy(paint), bitmap, left, top);
-#endif
 }
 
 void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
@@ -195,34 +190,20 @@ void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
                                   const SkRect& dst,
                                   const SkPaint* paint,
                                   SrcRectConstraint constraint) {
-#ifdef WRAP_BITMAP_AS_IMAGE
-    // TODO: need a way to support the flags for images...
-    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
     if (image) {
-        this->onDrawImageRect(image, src, dst, paint);
+        this->onDrawImageRect(image.get(), src, dst, paint, constraint);
     }
-#else
-    if (kFast_SrcRectConstraint == constraint) {
-        APPEND(DrawBitmapRectFast, this->copy(paint), bitmap, this->copy(src), dst);
-        return;
-    }
-    SkASSERT(kStrict_SrcRectConstraint == constraint);
-    APPEND(DrawBitmapRect, this->copy(paint), bitmap, this->copy(src), dst);
-#endif
 }
 
 void SkRecorder::onDrawBitmapNine(const SkBitmap& bitmap,
                                   const SkIRect& center,
                                   const SkRect& dst,
                                   const SkPaint* paint) {
-#ifdef WRAP_BITMAP_AS_IMAGE
-    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
     if (image) {
-        this->onDrawImageNine(image, center, dst, paint);
+        this->onDrawImageNine(image.get(), center, dst, paint);
     }
-#else
-    APPEND(DrawBitmapNine, this->copy(paint), bitmap, center, dst);
-#endif
 }
 
 void SkRecorder::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
