@@ -20,11 +20,6 @@
 #include "SkTemplates.h"
 #include "SkUtils.h"
 
-// This warning triggers false postives way too often in here.
-#if defined(__GNUC__) && !defined(__clang__)
-    #pragma GCC diagnostic ignored "-Wclobbered"
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 // Callback functions
 ///////////////////////////////////////////////////////////////////////////////

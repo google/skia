@@ -19,12 +19,6 @@
 #include <stdio.h>
 #include "SkJpegUtility.h"
 
-// Same as setjmp, but introduces a new empty scope.
-// This way we can avoid GCC's overactive warnings about clobbered locals.
-static int setjmp_no_locals(jmp_buf env) {
-    return setjmp(env);
-}
-
 extern "C" {
     #include "jerror.h"
     #include "jpeglib.h"
@@ -196,7 +190,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
     SkAutoTDelete<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 
     // libjpeg errors will be caught and reported here
-    if (setjmp_no_locals(decoderMgr->getJmpBuf())) {
+    if (setjmp(decoderMgr->getJmpBuf())) {
         return decoderMgr->returnFalse("setjmp");
     }
 
@@ -420,7 +414,7 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
  * dimensions if possible
  */
 bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
-    if (setjmp_no_locals(fDecoderMgr->getJmpBuf())) {
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
         return fDecoderMgr->returnFalse("onDimensionsSupported/setjmp");
     }
 
@@ -472,7 +466,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
 
     // Set the jump location for libjpeg errors
-    if (setjmp_no_locals(fDecoderMgr->getJmpBuf())) {
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
@@ -581,7 +575,7 @@ SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
 SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const Options& options, SkPMColor ctable[], int* ctableCount) {
     // Set the jump location for libjpeg errors
-    if (setjmp_no_locals(fDecoderMgr->getJmpBuf())) {
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
         SkCodecPrintf("setjmp: Error from libjpeg\n");
         return kInvalidInput;
     }
@@ -657,7 +651,7 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
 
 int SkJpegCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
     // Set the jump location for libjpeg errors
-    if (setjmp_no_locals(fDecoderMgr->getJmpBuf())) {
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
     // Read rows one at a time
@@ -694,7 +688,7 @@ int SkJpegCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
 
 bool SkJpegCodec::onSkipScanlines(int count) {
     // Set the jump location for libjpeg errors
-    if (setjmp_no_locals(fDecoderMgr->getJmpBuf())) {
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
         return fDecoderMgr->returnFalse("setjmp");
     }
 
@@ -809,7 +803,7 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void
     }
 
     // Set the jump location for libjpeg errors
-    if (setjmp_no_locals(fDecoderMgr->getJmpBuf())) {
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
