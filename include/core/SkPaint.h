@@ -33,6 +33,7 @@ class SkRasterizer;
 struct SkScalerContextEffects;
 class SkShader;
 class SkSurfaceProps;
+class SkTextBlob;
 class SkTypeface;
 
 #define kBicubicFilterBitmap_Flag kHighQualityFilterBitmap_Flag
@@ -963,6 +964,40 @@ public:
      */
     int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
                              const SkScalar bounds[2], SkScalar* intervals) const;
+
+    /** Return the number of intervals that intersect the intercept along the axis of the advance.
+     *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
+     *  string. The caller may pass nullptr for intervals to determine the size of the interval
+     *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
+     *  intervals are cached by glyph to improve performance for multiple calls.
+     *  This permits constructing an underline that skips the descenders.
+     *
+     *  @param text         The text.
+     *  @param length       Number of bytes of text.
+     *  @param xpos         Array of x-positions, used to position each character.
+     *  @param constY       The shared Y coordinate for all of the positions.
+     *  @param bounds       The lower and upper line parallel to the advance.
+     *  @param array        If not null, the glyph bounds contained by the advance parallel lines.
+     *
+     *  @return             The number of intersections, which may be zero.
+     */
+    int getPosTextHIntercepts(const void* text, size_t length, const SkScalar xpos[],
+                              SkScalar constY, const SkScalar bounds[2], SkScalar* intervals) const;
+
+    /** Return the number of intervals that intersect the intercept along the axis of the advance.
+     *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
+     *  text blob. The caller may pass nullptr for intervals to determine the size of the interval
+     *  array. The computed intervals are cached by glyph to improve performance for multiple calls.
+     *  This permits constructing an underline that skips the descenders.
+     *
+     *  @param blob         The text blob.
+     *  @param bounds       The lower and upper line parallel to the advance.
+     *  @param array        If not null, the glyph bounds contained by the advance parallel lines.
+     *
+     *  @return             The number of intersections, which may be zero.
+     */
+    int getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
+                              SkScalar* intervals) const;
 
     /**
      *  Return a rectangle that represents the union of the bounds of all
