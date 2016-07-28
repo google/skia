@@ -296,7 +296,6 @@ cov_end = lineno()   # Don't care about code coverage past here.
 
 
 def self_test():
-  import coverage  # This way the bots don't need coverage.py to be installed.
   args = {}
   cases = [
     'Pretend-iOS-Bot',
@@ -320,19 +319,24 @@ def self_test():
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
     'Test-Win8-MSVC-GCE-CPU-AVX2-x86_64-Debug',
   ]
-
-  cov = coverage.coverage()
-  cov.start()
-  for case in cases:
-    args[case] = get_args(case)
-  cov.stop()
-
   this_file = os.path.basename(__file__)
-  _, _, not_run, _ = cov.analysis(this_file)
-  filtered = [line for line in not_run if line > cov_start and line < cov_end]
-  if filtered:
-    print 'Lines not covered by test cases: ', filtered
-    sys.exit(1)
+
+  try:
+    import coverage
+    cov = coverage.coverage()
+    cov.start()
+    for case in cases:
+      args[case] = get_args(case)
+    cov.stop()
+
+    _, _, not_run, _ = cov.analysis(this_file)
+    filtered = [line for line in not_run if line > cov_start and line < cov_end]
+    if filtered:
+      print 'Lines not covered by test cases: ', filtered
+      sys.exit(1)
+  except ImportError:
+    print ("We cannot guarantee that this files tests are comprehensive " +
+           "without coverage.py.  Please install it when you get a chance.")
 
   golden = this_file.replace('.py', '.json')
   with open(os.path.join(os.path.dirname(__file__), golden), 'w') as f:
