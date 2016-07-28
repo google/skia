@@ -56,31 +56,4 @@ sk_sp<SkSurface> WindowContext::createSurface(
     }
 }
 
-void WindowContext::presentRenderSurface(sk_sp<SkSurface> renderSurface, sk_sp<GrRenderTarget> rt,
-                                         int colorBits) {
-    if (!this->isGpuContext() || colorBits > 24 ||
-        kRGBA_F16_SkColorType == fDisplayParams.fColorType) {
-        // We made/have an off-screen surface. Get the contents as an SkImage:
-        SkImageInfo info = SkImageInfo::Make(fWidth, fHeight,
-                                             fDisplayParams.fColorType,
-                                             kUnknown_SkAlphaType,
-                                             fDisplayParams.fColorSpace);
-        SkBitmap bm;
-        bm.allocPixels(info);
-        renderSurface->getCanvas()->readPixels(&bm, 0, 0);
-        SkPixmap pm;
-        bm.peekPixels(&pm);
-        sk_sp<SkImage> image(SkImage::MakeTextureFromPixmap(fContext, pm,
-                             SkBudgeted::kNo));
-        GrTexture* texture = as_IB(image)->peekTexture();
-        SkASSERT(texture);
-
-        // With ten-bit output, we need to manually apply the gamma of the output device
-        // (unless we're in non-gamma correct mode, in which case our data is already
-        // fake-sRGB, like we're expected to put in the 10-bit buffer):
-        bool doGamma = (colorBits == 30) && SkImageInfoIsGammaCorrect(info);
-        fContext->applyGamma(rt.get(), texture, doGamma ? 1.0f / 2.2f : 1.0f);
-    }
-}
-
 }   //namespace sk_app

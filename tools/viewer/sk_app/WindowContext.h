@@ -45,8 +45,6 @@ public:
     GrContext* getGrContext() const { return fContext; }
 
     sk_sp<SkSurface> createOffscreenSurface(bool sRGB);
-    void presentRenderSurface(sk_sp<SkSurface> renderSurface, sk_sp<GrRenderTarget> rt,
-                              int colorBits);
 
 protected:
     virtual bool isGpuContext() { return true;  }

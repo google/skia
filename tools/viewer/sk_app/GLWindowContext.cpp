@@ -89,7 +89,6 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
 }
 
 void GLWindowContext::swapBuffers() {
-    this->presentRenderSurface(fSurface, fRenderTarget, fActualColorBits);
     this->onSwapBuffers();
 }
 
