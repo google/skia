@@ -78,38 +78,21 @@ static SkPaint calculate_text_paint(const SkPaint& paint) {
 }
 
 // Stolen from measure_text in SkDraw.cpp and then tweaked.
-static void align_text(SkPaint::GlyphCacheProc glyphCacheProc, const SkPaint& paint,
+static void align_text(const SkPaint& paint,
                        const uint16_t* glyphs, size_t len,
                        SkScalar* x, SkScalar* y) {
     if (paint.getTextAlign() == SkPaint::kLeft_Align) {
         return;
     }
-
-    SkMatrix ident;
-    ident.reset();
-    SkAutoGlyphCache autoCache(paint, nullptr, &ident);
-    SkGlyphCache* cache = autoCache.getCache();
-
-    const char* start = reinterpret_cast<const char*>(glyphs);
-    const char* stop = reinterpret_cast<const char*>(glyphs + len);
-    SkScalar xAdv = 0, yAdv = 0;
-
-    // TODO(vandebo): This probably needs to take kerning into account.
-    while (start < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &start);
-        xAdv += SkFloatToScalar(glyph.fAdvanceX);
-        yAdv += SkFloatToScalar(glyph.fAdvanceY);
-    };
-    if (paint.getTextAlign() == SkPaint::kLeft_Align) {
-        return;
-    }
-
+    SkScalar advance = paint.measureText(glyphs, len * sizeof(uint16_t));
     if (paint.getTextAlign() == SkPaint::kCenter_Align) {
-        xAdv = SkScalarHalf(xAdv);
-        yAdv = SkScalarHalf(yAdv);
+        advance *= 0.5f;
     }
-    *x = *x - xAdv;
-    *y = *y - yAdv;
+    if (paint.isVerticalText()) {
+        *y -= advance;
+    } else {
+        *x -= advance;
+    }
 }
 
 static int max_glyphid_for_typeface(SkTypeface* typeface) {
@@ -1214,10 +1197,7 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     int numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
     textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(textPaint.getTextEncoding(),
-                                                                        textPaint.isDevKernText(),
-                                                                        true);
-    align_text(glyphCacheProc, textPaint, glyphIDs, numGlyphs, &x, &y);
+    align_text(textPaint, glyphIDs, numGlyphs, &x, &y);
     content.entry()->fContent.writeText("BT\n");
     set_text_transform(x, y, textPaint.getTextSkewX(),
                        &content.entry()->fContent);
@@ -1293,9 +1273,6 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
     size_t numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
     textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(textPaint.getTextEncoding(),
-                                                                        textPaint.isDevKernText(),
-                                                                        true);
     content.entry()->fContent.writeText("BT\n");
     this->updateFont(textPaint, glyphIDs[0], content.entry());
     GlyphPositioner glyphPositioner(&content.entry()->fContent,
@@ -1321,7 +1298,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
         fontGlyphUsage->noteGlyphUsage(font, &encodedValue, 1);
         SkScalar x = offset.x() + pos[i * scalarsPerPos];
         SkScalar y = offset.y() + (2 == scalarsPerPos ? pos[i * scalarsPerPos + 1] : 0);
-        align_text(glyphCacheProc, textPaint, glyphIDs + i, 1, &x, &y);
+        align_text(textPaint, glyphIDs + i, 1, &x, &y);
 
         SkScalar advanceWidth = textPaint.measureText(&encodedValue, sizeof(uint16_t));
         glyphPositioner.writeGlyph(x, y, advanceWidth, encodedValue);
