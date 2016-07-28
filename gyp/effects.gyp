@@ -25,6 +25,7 @@
         '../src/effects',
         '../src/opts',
         '../src/core',
+        '../src/gpu/effects',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
