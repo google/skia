@@ -357,30 +357,30 @@ sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext* ctx, const SkPixmap& pi
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class DeferredTextureImage {
-public:
-    SkImage* newImage(GrContext* context, SkBudgeted) const;
-
-private:
-    uint32_t fContextUniqueID;
-    struct MipMapLevelData {
-        void* fPixelData;
-        size_t fRowBytes;
-    };
-    struct Data {
-        SkImageInfo fInfo;
-        int         fColorTableCnt;
-        uint32_t*   fColorTableData;
-        int         fMipMapLevelCount;
-        // The fMipMapLevelData array may contain more than 1 element.
-        // It contains fMipMapLevelCount elements.
-        // That means this struct's size is not known at compile-time.
-        MipMapLevelData fMipMapLevelData[1];
-    };
-    Data fData;
-
-    friend class SkImage;
+namespace {
+struct MipMapLevelData {
+    void* fPixelData;
+    size_t fRowBytes;
 };
+
+struct DeferredTextureImage {
+    uint32_t    fContextUniqueID;
+    // We don't store a SkImageInfo because it contains a ref-counted SkColorSpace.
+    int         fWidth;
+    int         fHeight;
+    SkColorType fColorType;
+    SkAlphaType fAlphaType;
+    void*       fColorSpace;
+    size_t      fColorSpaceSize;
+    int         fColorTableCnt;
+    uint32_t*   fColorTableData;
+    int         fMipMapLevelCount;
+    // The fMipMapLevelData array may contain more than 1 element.
+    // It contains fMipMapLevelCount elements.
+    // That means this struct's size is not known at compile-time.
+    MipMapLevelData fMipMapLevelData[1];
+};
+}  // anonymous namespace
 
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& proxy,
                                             const DeferredTextureImageUsageParams params[],
@@ -466,11 +466,18 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size_t size = 0;
     size_t dtiSize = SkAlign8(sizeof(DeferredTextureImage));
     size += dtiSize;
-    size += mipMapLevelCount * sizeof(DeferredTextureImage::MipMapLevelData);
+    size += mipMapLevelCount * sizeof(MipMapLevelData);
     size_t pixelOffset = size;
     size += pixelSize;
     size_t ctOffset = size;
     size += ctSize;
+    size_t colorSpaceOffset = 0;
+    size_t colorSpaceSize = 0;
+    if (info.colorSpace()) {
+        colorSpaceOffset = size;
+        colorSpaceSize = info.colorSpace()->writeToMemory(nullptr);
+        size += colorSpaceSize;
+    }
     if (!fillMode) {
         return size;
     }
@@ -490,12 +497,23 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size_t rowBytes = pixmap.rowBytes();
     DeferredTextureImage* dti = new (buffer) DeferredTextureImage();
     dti->fContextUniqueID = proxy.fContextUniqueID;
-    dti->fData.fInfo = info;
-    dti->fData.fColorTableCnt = ctCount;
-    dti->fData.fColorTableData = ct;
-    dti->fData.fMipMapLevelCount = mipMapLevelCount;
-    dti->fData.fMipMapLevelData[0].fPixelData = pixels;
-    dti->fData.fMipMapLevelData[0].fRowBytes = rowBytes;
+    dti->fWidth = info.width();
+    dti->fHeight = info.height();
+    dti->fColorType = info.colorType();
+    dti->fAlphaType = info.alphaType();
+    dti->fColorTableCnt = ctCount;
+    dti->fColorTableData = ct;
+    dti->fMipMapLevelCount = mipMapLevelCount;
+    dti->fMipMapLevelData[0].fPixelData = pixels;
+    dti->fMipMapLevelData[0].fRowBytes = rowBytes;
+    if (colorSpaceSize) {
+        dti->fColorSpace = reinterpret_cast<void*>(bufferAsInt + colorSpaceOffset);
+        dti->fColorSpaceSize = colorSpaceSize;
+        info.colorSpace()->writeToMemory(dti->fColorSpace);
+    } else {
+        dti->fColorSpace = nullptr;
+        dti->fColorSpaceSize = 0;
+    }
     return size;
 }
 
@@ -510,14 +528,20 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
         return nullptr;
     }
     SkAutoTUnref<SkColorTable> colorTable;
-    if (dti->fData.fColorTableCnt) {
-        SkASSERT(dti->fData.fColorTableData);
-        colorTable.reset(new SkColorTable(dti->fData.fColorTableData, dti->fData.fColorTableCnt));
+    if (dti->fColorTableCnt) {
+        SkASSERT(dti->fColorTableData);
+        colorTable.reset(new SkColorTable(dti->fColorTableData, dti->fColorTableCnt));
     }
-    SkASSERT(dti->fData.fMipMapLevelCount == 1);
+    SkASSERT(dti->fMipMapLevelCount == 1);
+    sk_sp<SkColorSpace> colorSpace;
+    if (dti->fColorSpaceSize) {
+        colorSpace = SkColorSpace::Deserialize(dti->fColorSpace, dti->fColorSpaceSize);
+    }
+    SkImageInfo info = SkImageInfo::Make(dti->fWidth, dti->fHeight,
+                                         dti->fColorType, dti->fAlphaType, colorSpace);
     SkPixmap pixmap;
-    pixmap.reset(dti->fData.fInfo, dti->fData.fMipMapLevelData[0].fPixelData,
-                 dti->fData.fMipMapLevelData[0].fRowBytes, colorTable.get());
+    pixmap.reset(info, dti->fMipMapLevelData[0].fPixelData,
+                 dti->fMipMapLevelData[0].fRowBytes, colorTable.get());
     return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
 }
 
