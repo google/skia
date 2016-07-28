@@ -4,7 +4,7 @@
       "python",
       "-u",
       "\nimport json\nimport sys\n\nwith open(sys.argv[1]) as f:\n  content = json.load(f)\n\nprint json.dumps(content, indent=2)\n",
-      "{\"buildername\": \"Build-Ubuntu-GCC-x86_64-Debug\", \"buildnumber\": 5, \"mastername\": \"client.skia\", \"path_config\": \"kitchen\", \"recipe\": \"swarm_trigger\", \"revision\": \"abc123\", \"slavename\": \"skiabot-linux-swarm-000\"}"
+      "{\"buildername\": \"Build-Ubuntu-GCC-x86_64-Debug-GN\", \"buildnumber\": 5, \"mastername\": \"client.skia\", \"path_config\": \"kitchen\", \"recipe\": \"swarm_trigger\", \"revision\": \"abc123\", \"slavename\": \"skiabot-linux-swarm-000\"}"
     ],
     "name": "print properties",
     "~followup_annotations": [
