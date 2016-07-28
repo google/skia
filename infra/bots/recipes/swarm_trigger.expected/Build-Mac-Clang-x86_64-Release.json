@@ -1,11 +1,31 @@
 [
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport json\nimport sys\n\nwith open(sys.argv[1]) as f:\n  content = json.load(f)\n\nprint json.dumps(content, indent=2)\n",
+      "{\"buildername\": \"Build-Mac-Clang-x86_64-Release\", \"buildnumber\": 5, \"mastername\": \"client.skia\", \"path_config\": \"kitchen\", \"recipe\": \"swarm_trigger\", \"revision\": \"abc123\", \"slavename\": \"skiabot-linux-swarm-000\"}"
+    ],
+    "name": "print properties",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(sys.argv[1]) as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  content = json.load(f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print json.dumps(content, indent=2)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "git",
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[ROOT]/skia",
+    "cwd": "[SLAVE_BUILD]/skia",
     "name": "git rev-parse",
     "stdout": "/path/to/tmp/"
   },
@@ -24,9 +44,19 @@
     "cmd": [
       "python",
       "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "",
+      "[SLAVE_BUILD]/.gclient"
+    ],
+    "name": "write .gclient"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "import os\nfor r, _, files in os.walk(os.getcwd()):\n  for fname in files:\n    f = os.path.join(r, fname)\n    if os.path.isfile(f):\n      if os.access(f, os.X_OK):\n        os.chmod(f, 0755)\n      else:\n        os.chmod(f, 0644)\n"
     ],
-    "cwd": "[ROOT]/skia",
+    "cwd": "[SLAVE_BUILD]/skia",
     "name": "fix filemodes",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -140,7 +170,7 @@
       "--bucket",
       "chromium-luci",
       "-d",
-      "[ROOT]/skia/infra/bots/tools/luci-go/linux64"
+      "[SLAVE_BUILD]/skia/infra/bots/tools/luci-go/linux64"
     ],
     "name": "download luci-go linux"
   },
@@ -153,7 +183,7 @@
       "--bucket",
       "chromium-luci",
       "-d",
-      "[ROOT]/skia/infra/bots/tools/luci-go/mac64"
+      "[SLAVE_BUILD]/skia/infra/bots/tools/luci-go/mac64"
     ],
     "name": "download luci-go mac"
   },
@@ -166,7 +196,7 @@
       "--bucket",
       "chromium-luci",
       "-d",
-      "[ROOT]/skia/infra/bots/tools/luci-go/win64"
+      "[SLAVE_BUILD]/skia/infra/bots/tools/luci-go/win64"
     ],
     "name": "download luci-go win"
   },
@@ -178,7 +208,7 @@
       "[SLAVE_BUILD]/luci-go"
     ],
     "env": {
-      "PYTHONPATH": "[ROOT]/skia/infra/bots/.recipe_deps/build/scripts"
+      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
     },
     "name": "rmtree luci-go",
     "~followup_annotations": [
@@ -197,7 +227,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copytree(sys.argv[1], sys.argv[2], symlinks=bool(sys.argv[3]))\n",
-      "[ROOT]/skia/infra/bots/tools/luci-go",
+      "[SLAVE_BUILD]/skia/infra/bots/tools/luci-go",
       "[SLAVE_BUILD]/luci-go",
       "0"
     ],
@@ -219,11 +249,11 @@
     "cmd": [
       "python",
       "-u",
-      "[ROOT]/skia/tools/buildbot_spec.py",
+      "[SLAVE_BUILD]/skia/tools/buildbot_spec.py",
       "/path/to/tmp/json",
       "Build-Mac-Clang-x86_64-Release"
     ],
-    "cwd": "[ROOT]/skia",
+    "cwd": "[SLAVE_BUILD]/skia",
     "name": "exec buildbot_spec.py",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -285,7 +315,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[ROOT]/skia/infra/bots/compile_skia.isolate\", \n        \"--isolated\", \n        \"[SLAVE_BUILD]/swarming_temp_dir/skia-task-compile_skia.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"Mac\", \n        \"--blacklist\", \n        \".git\", \n        \"--blacklist\", \n        \"out\", \n        \"--blacklist\", \n        \"*.pyc\", \n        \"--blacklist\", \n        \".recipe_deps\", \n        \"--extra-variable\", \n        \"WORKDIR\", \n        \"[SLAVE_BUILD]\"\n    ], \n    \"dir\": \"[SLAVE_BUILD]\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[SLAVE_BUILD]/skia/infra/bots/compile_skia.isolate\", \n        \"--isolated\", \n        \"[SLAVE_BUILD]/swarming_temp_dir/skia-task-compile_skia.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"Mac\", \n        \"--blacklist\", \n        \".git\", \n        \"--blacklist\", \n        \"out\", \n        \"--blacklist\", \n        \"*.pyc\", \n        \"--blacklist\", \n        \".recipe_deps\", \n        \"--extra-variable\", \n        \"WORKDIR\", \n        \"[SLAVE_BUILD]\"\n    ], \n    \"dir\": \"[SLAVE_BUILD]\", \n    \"version\": 1\n}",
       "[SLAVE_BUILD]/swarming_temp_dir/compile_skia.isolated.gen.json"
     ],
     "name": "Write compile_skia.isolated.gen.json"

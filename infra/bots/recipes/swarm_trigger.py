@@ -15,6 +15,7 @@ DEPS = [
   'depot_tools/depot_tools',
   'depot_tools/git',
   'depot_tools/tryserver',
+  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -215,7 +216,7 @@ def checkout_steps(api):
   """Run the steps to obtain a checkout of Skia."""
   # In this case, we're already running inside a checkout of Skia, so just
   # report the currently-checked-out commit.
-  checkout_path = api.path['root'].join('skia')
+  checkout_path = api.path['slave_build'].join('skia')
   got_revision = api.git(
       'rev-parse', 'HEAD', cwd=checkout_path,
       stdout=api.raw_io.output(),
@@ -225,6 +226,12 @@ def checkout_steps(api):
   res = api.step('got_revision', cmd=cmd)
   res.presentation.properties['got_revision'] = got_revision
   api.path['checkout'] = checkout_path
+
+  # Write a fake .gclient file if none exists. This is required by .isolates.
+  dot_gclient = api.path['slave_build'].join('.gclient')
+  if not api.path.exists(dot_gclient):
+    api.skia._writefile(dot_gclient, '')
+
   fix_filemodes(api, api.path['checkout'])
   return got_revision
 
@@ -552,7 +559,29 @@ def cipd_pkg(api, infrabots_dir, asset_name):
   return (asset_name, 'skia/bots/%s' % asset_name, version)
 
 
+def print_properties(api):
+  """Dump out all properties for debugging purposes."""
+  props = {}
+  for k, v in api.properties.iteritems():
+    props[k] = v
+  api.python.inline(
+      'print properties',
+      '''
+import json
+import sys
+
+with open(sys.argv[1]) as f:
+  content = json.load(f)
+
+print json.dumps(content, indent=2)
+''',
+      args=[api.json.input(props)])
+
+
 def RunSteps(api):
+  # TODO(borenet): Remove this once SwarmBucket is working.
+  print_properties(api)
+
   got_revision = checkout_steps(api)
   infrabots_dir = api.path['checkout'].join('infra', 'bots')
   api.skia_swarming.setup(
