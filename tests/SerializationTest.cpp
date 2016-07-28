@@ -608,6 +608,17 @@ DEF_TEST(Serialization, reporter) {
                                                 fLights);
         SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
     }
+
+    // Test NormalBevelSource serialization
+    {
+        sk_sp<SkNormalSource> bevelSource = SkNormalSource::MakeBevel(
+                SkNormalSource::BevelType::kLinear, 2.0f, 5.0f);
+
+        SkAutoTUnref<SkNormalSource>(TestFlattenableSerialization(bevelSource.get(), true,
+                                                                  reporter));
+        // TODO test equality?
+
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
