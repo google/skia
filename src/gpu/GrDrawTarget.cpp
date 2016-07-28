@@ -216,6 +216,9 @@ void GrDrawTarget::prepareBatches(GrBatchFlushState* flushState) {
 }
 
 void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
+    if (0 == fRecordedBatches.count()) {
+        return;
+    }
     // Draw all the generated geometry.
     SkRandom random;
     GrRenderTarget* currentRT = nullptr;
