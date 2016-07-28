@@ -41,10 +41,19 @@ enum DstGamma {
     kLinear_DstGamma,
 };
 
-template <DstGamma kDstGamma>
+template <DstGamma kDstGamma, bool kSwapRB>
 static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
                              const float* const srcTables[3], const float matrix[16],
                              const uint8_t* const dstTables[3]) {
+    int kRShift = 0;
+    int kGShift = 8;
+    int kBShift = 16;
+    int kAShift = 24;
+    if (kSwapRB) {
+        kBShift = 0;
+        kRShift = 16;
+    }
+
     Sk4f rXgXbX = Sk4f::Load(matrix +  0),
          rYgYbY = Sk4f::Load(matrix +  4),
          rZgZbZ = Sk4f::Load(matrix +  8),
@@ -77,7 +86,8 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
             dstBlues  = rXgXbX[2]*reds + rYgYbY[2]*greens + rZgZbZ[2]*blues + rTgTbT[2];
         };
 
-        auto store_4 = [&dstReds, &dstGreens, &dstBlues, &dst, &dstTables] {
+        auto store_4 = [&dstReds, &dstGreens, &dstBlues, &dst, &dstTables, kRShift, kGShift,
+                        kBShift, kAShift] {
             if (kSRGB_DstGamma == kDstGamma || k2Dot2_DstGamma == kDstGamma) {
                 Sk4f (*linear_to_curve)(const Sk4f&) = (kSRGB_DstGamma == kDstGamma) ?
                         sk_linear_to_srgb_needs_trunc : linear_to_2dot2;
@@ -92,10 +102,10 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
                 dstGreens = sk_clamp_0_255(dstGreens);
                 dstBlues  = sk_clamp_0_255(dstBlues);
 
-                auto rgba = (float_to_int(dstReds)   << SK_R32_SHIFT)
-                          | (float_to_int(dstGreens) << SK_G32_SHIFT)
-                          | (float_to_int(dstBlues)  << SK_B32_SHIFT)
-                          | (Sk4i{0xFF}              << SK_A32_SHIFT);
+                auto rgba = (float_to_int(dstReds)   << kRShift)
+                          | (float_to_int(dstGreens) << kGShift)
+                          | (float_to_int(dstBlues)  << kBShift)
+                          | (Sk4i{0xFF}              << kAShift);
                 rgba.store((uint32_t*) dst);
 
                 dst = SkTAddOffset<void>(dst, 4 * sizeof(uint32_t));
@@ -109,22 +119,22 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
                 Sk4i indicesBlues  = Sk4f_round(scaledBlues);
 
                 uint32_t* dst32 = (uint32_t*) dst;
-                dst32[0] = dstTables[0][indicesReds  [0]] << SK_R32_SHIFT
-                         | dstTables[1][indicesGreens[0]] << SK_G32_SHIFT
-                         | dstTables[2][indicesBlues [0]] << SK_B32_SHIFT
-                         | 0xFF                           << SK_A32_SHIFT;
-                dst32[1] = dstTables[0][indicesReds  [1]] << SK_R32_SHIFT
-                         | dstTables[1][indicesGreens[1]] << SK_G32_SHIFT
-                         | dstTables[2][indicesBlues [1]] << SK_B32_SHIFT
-                         | 0xFF                           << SK_A32_SHIFT;
-                dst32[2] = dstTables[0][indicesReds  [2]] << SK_R32_SHIFT
-                         | dstTables[1][indicesGreens[2]] << SK_G32_SHIFT
-                         | dstTables[2][indicesBlues [2]] << SK_B32_SHIFT
-                         | 0xFF                           << SK_A32_SHIFT;
-                dst32[3] = dstTables[0][indicesReds  [3]] << SK_R32_SHIFT
-                         | dstTables[1][indicesGreens[3]] << SK_G32_SHIFT
-                         | dstTables[2][indicesBlues [3]] << SK_B32_SHIFT
-                         | 0xFF                           << SK_A32_SHIFT;
+                dst32[0] = dstTables[0][indicesReds  [0]] << kRShift
+                         | dstTables[1][indicesGreens[0]] << kGShift
+                         | dstTables[2][indicesBlues [0]] << kBShift
+                         | 0xFF                           << kAShift;
+                dst32[1] = dstTables[0][indicesReds  [1]] << kRShift
+                         | dstTables[1][indicesGreens[1]] << kGShift
+                         | dstTables[2][indicesBlues [1]] << kBShift
+                         | 0xFF                           << kAShift;
+                dst32[2] = dstTables[0][indicesReds  [2]] << kRShift
+                         | dstTables[1][indicesGreens[2]] << kGShift
+                         | dstTables[2][indicesBlues [2]] << kBShift
+                         | 0xFF                           << kAShift;
+                dst32[3] = dstTables[0][indicesReds  [3]] << kRShift
+                         | dstTables[1][indicesGreens[3]] << kGShift
+                         | dstTables[2][indicesBlues [3]] << kBShift
+                         | 0xFF                           << kAShift;
 
                 dst = SkTAddOffset<void>(dst, 4 * sizeof(uint32_t));
             } else {
@@ -167,17 +177,21 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
             uint32_t rgba;
             SkNx_cast<uint8_t>(float_to_int(dstPixel)).store(&rgba);
             rgba |= 0xFF000000;
-            *((uint32_t*) dst) = SkSwizzle_RGBA_to_PMColor(rgba);
+            if (kSwapRB) {
+                *((uint32_t*) dst) = SkSwizzle_RB(rgba);
+            } else {
+                *((uint32_t*) dst) = rgba;
+            }
             dst = SkTAddOffset<void>(dst, sizeof(uint32_t));
         } else if (kTable_DstGamma == kDstGamma) {
             Sk4f scaledPixel = Sk4f::Min(Sk4f::Max(1023.0f * dstPixel, 0.0f), 1023.0f);
 
             Sk4i indices = Sk4f_round(scaledPixel);
 
-            *((uint32_t*) dst) = dstTables[0][indices[0]] << SK_R32_SHIFT
-                               | dstTables[1][indices[1]] << SK_G32_SHIFT
-                               | dstTables[2][indices[2]] << SK_B32_SHIFT
-                               | 0xFF                     << SK_A32_SHIFT;
+            *((uint32_t*) dst) = dstTables[0][indices[0]] << kRShift
+                               | dstTables[1][indices[1]] << kGShift
+                               | dstTables[2][indices[2]] << kBShift
+                               | 0xFF                     << kAShift;
 
             dst = SkTAddOffset<void>(dst, sizeof(uint32_t));
         } else {
@@ -195,23 +209,42 @@ static void color_xform_RGB1(void* dst, const uint32_t* src, int len,
 
 static void color_xform_RGB1_to_2dot2(uint32_t* dst, const uint32_t* src, int len,
                                       const float* const srcTables[3], const float matrix[16]) {
-    color_xform_RGB1<k2Dot2_DstGamma>(dst, src, len, srcTables, matrix, nullptr);
+    color_xform_RGB1<k2Dot2_DstGamma, false>(dst, src, len, srcTables, matrix, nullptr);
 }
 
 static void color_xform_RGB1_to_srgb(uint32_t* dst, const uint32_t* src, int len,
                                      const float* const srcTables[3], const float matrix[16]) {
-    color_xform_RGB1<kSRGB_DstGamma>(dst, src, len, srcTables, matrix, nullptr);
+    color_xform_RGB1<kSRGB_DstGamma, false>(dst, src, len, srcTables, matrix, nullptr);
 }
 
 static void color_xform_RGB1_to_table(uint32_t* dst, const uint32_t* src, int len,
                                       const float* const srcTables[3], const float matrix[16],
                                       const uint8_t* const dstTables[3]) {
-    color_xform_RGB1<kTable_DstGamma>(dst, src, len, srcTables, matrix, dstTables);
+    color_xform_RGB1<kTable_DstGamma, false>(dst, src, len, srcTables, matrix, dstTables);
 }
 
 static void color_xform_RGB1_to_linear(uint64_t* dst, const uint32_t* src, int len,
                                        const float* const srcTables[3], const float matrix[16]) {
-    color_xform_RGB1<kLinear_DstGamma>(dst, src, len, srcTables, matrix, nullptr);
+    color_xform_RGB1<kLinear_DstGamma, false>(dst, src, len, srcTables, matrix, nullptr);
+}
+
+static void color_xform_RGB1_to_2dot2_swaprb(uint32_t* dst, const uint32_t* src, int len,
+                                             const float* const srcTables[3],
+                                             const float matrix[16]) {
+    color_xform_RGB1<k2Dot2_DstGamma, true>(dst, src, len, srcTables, matrix, nullptr);
+}
+
+static void color_xform_RGB1_to_srgb_swaprb(uint32_t* dst, const uint32_t* src, int len,
+                                            const float* const srcTables[3],
+                                            const float matrix[16]) {
+    color_xform_RGB1<kSRGB_DstGamma, true>(dst, src, len, srcTables, matrix, nullptr);
+}
+
+static void color_xform_RGB1_to_table_swaprb(uint32_t* dst, const uint32_t* src, int len,
+                                             const float* const srcTables[3],
+                                             const float matrix[16],
+                                             const uint8_t* const dstTables[3]) {
+    color_xform_RGB1<kTable_DstGamma, true>(dst, src, len, srcTables, matrix, dstTables);
 }
 
 }  // namespace SK_OPTS_NS

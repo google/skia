@@ -41,32 +41,13 @@ bool ColorCodecBench::isSuitableFor(Backend backend) {
 
 void ColorCodecBench::decodeAndXform() {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
+    SkASSERT(codec);
+
 #ifdef SK_DEBUG
-    const SkCodec::Result result =
+    SkCodec::Result result =
 #endif
-    codec->startScanlineDecode(fSrcInfo);
+    codec->getPixels(fDstInfo, fDst.get(), fDstInfo.minRowBytes());
     SkASSERT(SkCodec::kSuccess == result);
-
-    sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getInfo().colorSpace());
-    if (!srcSpace) {
-        srcSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    }
-    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace, fDstSpace);
-    SkASSERT(xform);
-
-    void* dst = fDst.get();
-    for (int y = 0; y < fSrcInfo.height(); y++) {
-#ifdef SK_DEBUG
-        const int rows =
-#endif
-        codec->getScanlines(fSrc.get(), 1, 0);
-        SkASSERT(1 == rows);
-
-        FLAGS_half ?
-                xform->applyToF16((uint64_t*) dst, (uint32_t*) fSrc.get(), fSrcInfo.width()) :
-                xform->applyTo8888((SkPMColor*) dst, (uint32_t*) fSrc.get(), fSrcInfo.width());
-        dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
-    }
 }
 
 #if defined(SK_TEST_QCMS)
@@ -121,7 +102,7 @@ void ColorCodecBench::xformOnly() {
         // Transform in place
         FLAGS_half ?
                 xform->applyToF16((uint64_t*) dst, (uint32_t*) src, fSrcInfo.width()) :
-                xform->applyTo8888((SkPMColor*) dst, (uint32_t*) src, fSrcInfo.width());
+                xform->applyToRGBA((SkPMColor*) dst, (uint32_t*) src, fSrcInfo.width());
         dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
         src = SkTAddOffset<void>(src, fSrcInfo.minRowBytes());
     }
@@ -157,28 +138,12 @@ void ColorCodecBench::xformOnlyQCMS() {
 
 void ColorCodecBench::onDelayedSetup() {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
-    fSrcInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
-
-    fDstInfo = fSrcInfo;
-    if (FLAGS_half) {
-        fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
-    }
-    fDst.reset(fDstInfo.getSafeSize(fDstInfo.minRowBytes()));
-
-    if (FLAGS_xform_only) {
-        fSrc.reset(fSrcInfo.getSafeSize(fSrcInfo.minRowBytes()));
-        codec->getPixels(fSrcInfo, fSrc.get(), fSrcInfo.minRowBytes());
-    } else {
-        // Set-up a row buffer to decode into before transforming to dst.
-        fSrc.reset(fSrcInfo.minRowBytes());
-    }
-
     fSrcData = codec->getICCData();
     sk_sp<SkData> dstData = SkData::MakeFromFileName(
             GetResourcePath("monitor_profiles/HP_ZR30w.icc").c_str());
     SkASSERT(dstData);
 
-
+    fDstSpace = nullptr;
 #if defined(SK_TEST_QCMS)
     if (FLAGS_qcms) {
         fDstSpaceQCMS.reset(FLAGS_srgb ?
@@ -195,6 +160,22 @@ void ColorCodecBench::onDelayedSetup() {
         fDstSpace = FLAGS_srgb ? SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) :
                                  SkColorSpace::NewICC(dstData->data(), dstData->size());
         SkASSERT(fDstSpace);
+    }
+
+    fSrcInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
+
+    fDstInfo = fSrcInfo.makeColorSpace(fDstSpace);
+    if (FLAGS_half) {
+        fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
+    }
+    fDst.reset(fDstInfo.getSafeSize(fDstInfo.minRowBytes()));
+
+    if (FLAGS_xform_only) {
+        fSrc.reset(fSrcInfo.getSafeSize(fSrcInfo.minRowBytes()));
+        codec->getPixels(fSrcInfo, fSrc.get(), fSrcInfo.minRowBytes());
+    } else if (FLAGS_qcms) {
+        // Set-up a row buffer to decode into before transforming to dst.
+        fSrc.reset(fSrcInfo.minRowBytes());
     }
 }
 
