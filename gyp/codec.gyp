@@ -22,11 +22,6 @@
         'libpng.gyp:libpng',
         'libwebp.gyp:libwebp',
       ],
-      'cflags':[   
-        # FIXME: This gets around a warning: "Argument might be clobbered by longjmp". 
-        '-Wno-clobbered',
-        '-Wno-unknown-warning-option',
-      ],
       'include_dirs': [
         '../include/codec',
         '../include/private',
