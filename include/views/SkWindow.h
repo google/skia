@@ -78,7 +78,7 @@ public:
     void    preConcat(const SkMatrix&);
     void    postConcat(const SkMatrix&);
 
-    virtual SkSurface* createSurface();
+    virtual sk_sp<SkSurface> makeSurface();
 
 protected:
     virtual bool onEvent(const SkEvent&);
@@ -98,8 +98,8 @@ protected:
     virtual bool onSetFocusView(SkView* focus);
 
 #if SK_SUPPORT_GPU
-    GrRenderTarget* renderTarget(const AttachmentInfo& attachmentInfo,
-                                 const GrGLInterface* , GrContext* grContext);
+    sk_sp<SkSurface> makeGpuBackedSurface(const AttachmentInfo& attachmentInfo,
+                                          const GrGLInterface* , GrContext* grContext);
 #endif
 
 private:

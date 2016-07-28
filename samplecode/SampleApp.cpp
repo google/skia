@@ -36,6 +36,7 @@
 #if SK_SUPPORT_GPU
 #   include "gl/GrGLInterface.h"
 #   include "gl/GrGLUtil.h"
+#   include "GrDrawContext.h"
 #   include "GrRenderTarget.h"
 #   include "GrContext.h"
 #   include "SkGr.h"
@@ -187,7 +188,6 @@ public:
 #if SK_SUPPORT_GPU
         fCurContext = nullptr;
         fCurIntf = nullptr;
-        fCurRenderTarget = nullptr;
         fMSAASampleCount = 0;
         fDeepColor = false;
         fActualColorBits = 0;
@@ -199,7 +199,6 @@ public:
 #if SK_SUPPORT_GPU
         SkSafeUnref(fCurContext);
         SkSafeUnref(fCurIntf);
-        SkSafeUnref(fCurRenderTarget);
 #endif
     }
 
@@ -272,7 +271,7 @@ public:
             win->release();
         }
 #endif // SK_SUPPORT_GPU
-        // call windowSizeChanged to create the render target
+        // call windowSizeChanged to create the gpu-backed Surface
         this->windowSizeChanged(win);
     }
 
@@ -288,14 +287,13 @@ public:
         SkSafeUnref(fCurIntf);
         fCurIntf = nullptr;
 
-        SkSafeUnref(fCurRenderTarget);
-        fCurRenderTarget = nullptr;
+        fGpuSurface = nullptr;
 #endif
         win->release();
         fBackend = kNone_BackEndType;
     }
 
-    SkSurface* createSurface(SampleWindow::DeviceType dType, SampleWindow* win) override {
+    sk_sp<SkSurface> makeSurface(SampleWindow::DeviceType dType, SampleWindow* win) override {
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && fCurContext) {
             SkSurfaceProps props(win->getSurfaceProps());
@@ -306,11 +304,9 @@ public:
                 // If we're using a deep (10-bit or higher) surface, we probably need an off-screen
                 // surface. 10-bit, in particular, has strange gamma behavior.
                 return SkSurface::MakeRenderTarget(fCurContext, SkBudgeted::kNo, win->info(),
-                                                   fMSAASampleCount, &props).release();
+                                                   fMSAASampleCount, &props);
             } else {
-                return SkSurface::MakeRenderTargetDirect(fCurRenderTarget,
-                                                         sk_ref_sp(win->info().colorSpace()),
-                                                         &props).release();
+                return fGpuSurface;
             }
         }
 #endif
@@ -336,14 +332,20 @@ public:
             bm.peekPixels(&pm);
             sk_sp<SkImage> image(SkImage::MakeTextureFromPixmap(fCurContext, pm,
                                                                 SkBudgeted::kNo));
-            GrTexture* texture = as_IB(image)->peekTexture();
+
+            SkCanvas* canvas = fGpuSurface->getCanvas();
+
+            // Temporary code until applyGamma is replaced
+            GrDrawContext* dc = canvas->internal_private_accessTopLayerDrawContext();
+            GrRenderTarget* rt = dc->accessRenderTarget();
+            GrTexture* texture = image->getTexture();
             SkASSERT(texture);
 
             // With ten-bit output, we need to manually apply the gamma of the output device
             // (unless we're in non-gamma correct mode, in which case our data is already
             // fake-sRGB, like we're expected to put in the 10-bit buffer):
             bool doGamma = (fActualColorBits == 30) && SkImageInfoIsGammaCorrect(win->info());
-            fCurContext->applyGamma(fCurRenderTarget, texture, doGamma ? 1.0f / 2.2f : 1.0f);
+            fCurContext->applyGamma(rt, texture, doGamma ? 1.0f / 2.2f : 1.0f);
         }
 #endif
 
@@ -355,9 +357,8 @@ public:
         if (fCurContext) {
             AttachmentInfo attachmentInfo;
             win->attach(fBackend, fMSAASampleCount, fDeepColor, &attachmentInfo);
-            SkSafeUnref(fCurRenderTarget);
             fActualColorBits = SkTMax(attachmentInfo.fColorBits, 24);
-            fCurRenderTarget = win->renderTarget(attachmentInfo, fCurIntf, fCurContext);
+            fGpuSurface = win->makeGpuBackedSurface(attachmentInfo, fCurIntf, fCurContext);
         }
 #endif
     }
@@ -370,12 +371,8 @@ public:
 #endif
     }
 
-    GrRenderTarget* getGrRenderTarget() override {
-#if SK_SUPPORT_GPU
-        return fCurRenderTarget;
-#else
-        return nullptr;
-#endif
+    int numColorSamples() const override {
+        return fMSAASampleCount;
     }
 
     int getColorBits() override {
@@ -391,7 +388,7 @@ private:
 #if SK_SUPPORT_GPU
     GrContext*              fCurContext;
     const GrGLInterface*    fCurIntf;
-    GrRenderTarget*         fCurRenderTarget;
+    sk_sp<SkSurface>        fGpuSurface;
     int fMSAASampleCount;
     bool fDeepColor;
     int fActualColorBits;
@@ -2085,10 +2082,9 @@ void SampleWindow::updateTitle() {
 #if SK_SUPPORT_GPU
     if (IsGpuDeviceType(fDeviceType) &&
         fDevManager &&
-        fDevManager->getGrRenderTarget() &&
-        fDevManager->getGrRenderTarget()->numColorSamples() > 0) {
+        fDevManager->numColorSamples() > 0) {
         title.appendf(" [MSAA: %d]",
-                       fDevManager->getGrRenderTarget()->numColorSamples());
+                       fDevManager->numColorSamples());
     }
 #endif
 
