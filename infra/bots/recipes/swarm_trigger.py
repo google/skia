@@ -35,6 +35,7 @@ TEST_BUILDERS = {
       'Build-Mac-Clang-x86_64-Release',
       'Build-Ubuntu-GCC-Arm64-Debug-Android_Vulkan',
       'Build-Ubuntu-GCC-x86_64-Debug',
+      'Build-Ubuntu-GCC-x86_64-Debug-GN',
       'Build-Ubuntu-GCC-x86_64-Release-RemoteRun',
       'Build-Ubuntu-GCC-x86_64-Release-Trybot',
       'Build-Win-MSVC-x86_64-Release',

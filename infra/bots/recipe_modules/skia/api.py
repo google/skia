@@ -19,6 +19,7 @@ from . import cmake_flavor
 from . import coverage_flavor
 from . import default_flavor
 from . import fake_specs
+from . import gn_flavor
 from . import ios_flavor
 from . import pdfium_flavor
 from . import valgrind_flavor
@@ -66,6 +67,10 @@ def is_cmake(builder_cfg):
   return 'CMake' in builder_cfg.get('extra_config', '')
 
 
+def is_gn(builder_cfg):
+  return 'GN' == builder_cfg.get('extra_config', '')
+
+
 def is_ios(builder_cfg):
   return ('iOS' in builder_cfg.get('extra_config', '') or
           builder_cfg.get('os') == 'iOS')
@@ -93,6 +98,8 @@ class SkiaApi(recipe_api.RecipeApi):
       return android_flavor.AndroidFlavorUtils(self)
     elif is_cmake(builder_cfg):
       return cmake_flavor.CMakeFlavorUtils(self)
+    elif is_gn(builder_cfg):
+      return gn_flavor.GNFlavorUtils(self)
     elif is_ios(builder_cfg):
       return ios_flavor.iOSFlavorUtils(self)
     elif is_pdfium(builder_cfg):
