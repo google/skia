@@ -8,6 +8,7 @@ declare_args() {
 
 skia_public_includes = [
   "include/android",
+  "include/c",
   "include/codec",
   "include/config",
   "include/core",
@@ -21,8 +22,6 @@ skia_public_includes = [
   "include/utils",
   "include/utils/mac",
   "include/xml",
-
-  "include/c",  # TODO: move back to top, order shouldn't matter
 ]
 
 # Skia public API, generally provided by :skia.

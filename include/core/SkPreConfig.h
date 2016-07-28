@@ -209,18 +209,20 @@
     #define SKIA_IMPLEMENTATION 0
 #endif
 
-#if defined(SKIA_DLL)
-    #if defined(SK_BUILD_FOR_WIN32)
-        #if SKIA_IMPLEMENTATION
-            #define SK_API __declspec(dllexport)
+#if !defined(SK_API)
+    #if defined(SKIA_DLL)
+        #if defined(SK_BUILD_FOR_WIN32)
+            #if SKIA_IMPLEMENTATION
+                #define SK_API __declspec(dllexport)
+            #else
+                #define SK_API __declspec(dllimport)
+            #endif
         #else
-            #define SK_API __declspec(dllimport)
+            #define SK_API __attribute__((visibility("default")))
         #endif
     #else
-        #define SK_API __attribute__((visibility("default")))
+        #define SK_API
     #endif
-#else
-    #define SK_API
 #endif
 
 //////////////////////////////////////////////////////////////////////
