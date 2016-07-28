@@ -63,6 +63,7 @@ def get_args(bot):
 
   if '-TSAN' not in bot:
     if ('TegraK1'  in bot or
+        'TegraX1'  in bot or
         'GTX550Ti' in bot or
         'GTX660'   in bot or
         'GT610'    in bot):
@@ -75,6 +76,7 @@ def get_args(bot):
   if 'TegraX1' in bot:
     configs = [x.replace('gpu', 'gl') for x in configs]
     configs = [x.replace('msaa', 'glmsaa') for x in configs]
+    configs = [x.replace('nvpr', 'glnvpr') for x in configs]
 
   # NP is running out of RAM when we run all these modes.  skia:3255
   if 'NexusPlayer' not in bot:
