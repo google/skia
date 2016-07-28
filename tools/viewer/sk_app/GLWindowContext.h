@@ -12,7 +12,6 @@
 #include "gl/GrGLInterface.h"
 
 #include "SkRefCnt.h"
-#include "GrRenderTarget.h"
 #include "SkSurface.h"
 
 #include "WindowContext.h"
@@ -52,7 +51,6 @@ protected:
     virtual void onSwapBuffers() = 0;
 
     SkAutoTUnref<const GrGLInterface> fBackendContext;
-    sk_sp<GrRenderTarget>             fRenderTarget;
     sk_sp<SkSurface>                  fSurface;
 
     // parameters obtained from the native window

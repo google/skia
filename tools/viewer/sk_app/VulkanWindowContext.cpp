@@ -254,7 +254,6 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
 
     // set up initial image layouts and create surfaces
     fImageLayouts = new VkImageLayout[fImageCount];
-    fRenderTargets = new sk_sp<GrRenderTarget>[fImageCount];
     fSurfaces = new sk_sp<SkSurface>[fImageCount];
     for (uint32_t i = 0; i < fImageCount; ++i) {
         fImageLayouts[i] = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -367,8 +366,6 @@ void VulkanWindowContext::destroyBuffers() {
     // Does this actually free the surfaces?
     delete[] fSurfaces;
     fSurfaces = nullptr;
-    delete[] fRenderTargets;
-    fRenderTargets = nullptr;
     delete[] fImageLayouts;
     fImageLayouts = nullptr;
     delete[] fImages;

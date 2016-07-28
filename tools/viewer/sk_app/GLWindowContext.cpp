@@ -24,7 +24,6 @@ namespace sk_app {
 GLWindowContext::GLWindowContext(const DisplayParams& params)
     : WindowContext()
     , fBackendContext(nullptr)
-    , fRenderTarget(nullptr)
     , fSurface(nullptr) {
     fDisplayParams = params;
 }
@@ -51,7 +50,6 @@ void GLWindowContext::initializeContext() {
 
 void GLWindowContext::destroyContext() {
     fSurface.reset(nullptr);
-    fRenderTarget.reset(nullptr);
 
     if (fContext) {
         // in case we have outstanding refs to this guy (lua?)

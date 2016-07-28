@@ -97,7 +97,6 @@ private:
     uint32_t               fImageCount;
     VkImage*               fImages;         // images in the swapchain
     VkImageLayout*         fImageLayouts;   // layouts of these images when not color attachment
-    sk_sp<GrRenderTarget>* fRenderTargets;  // wrapped rendertargets for those images
     sk_sp<SkSurface>*      fSurfaces;       // surfaces client renders to (may not be based on rts)
     VkCommandPool          fCommandPool;
     BackbufferInfo*        fBackbuffers;
