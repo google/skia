@@ -258,7 +258,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
                                                                &clipSpaceIBounds,
                                                                &requiresAA);
     if (elements.isEmpty()) {
-        if (GrReducedClip::kAllOut_InitialState == initialState) {
+        if (GrReducedClip::kAllOut_InitialState == initialState || clipSpaceIBounds.isEmpty()) {
             return false;
         } else {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
