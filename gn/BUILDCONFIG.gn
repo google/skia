@@ -27,9 +27,9 @@ is_win = current_os == "win"
 
 is_posix = !is_win
 
-# A component is either a source_set or a shared_library.
+# A component is either a static or a shared library.
 template("component") {
-  _component_mode = "source_set"
+  _component_mode = "static_library"
   if (is_component_build) {
     _component_mode = "shared_library"
   }

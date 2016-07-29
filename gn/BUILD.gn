@@ -88,7 +88,7 @@ toolchain("gcc_like") {
   tool("alink") {
     command = "rm -f {{output}} && $ar rcs {{output}} {{inputs}}"
     outputs = [
-      "{{target_out_dir}}/{{target_output_name}}{{output_extension}}",
+      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
     default_output_extension = ".a"
     output_prefix = "lib"
