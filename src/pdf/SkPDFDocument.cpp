@@ -9,7 +9,6 @@
 #include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
-#include "SkPDFStream.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 
@@ -321,7 +320,7 @@ static sk_sp<SkData> SkSrgbIcm() {
 
 static sk_sp<SkPDFStream> make_srgb_color_profile() {
     sk_sp<SkPDFStream> stream = sk_make_sp<SkPDFStream>(SkSrgbIcm());
-    stream->insertInt("N", 3);
+    stream->dict()->insertInt("N", 3);
     sk_sp<SkPDFArray> array = sk_make_sp<SkPDFArray>();
     array->appendScalar(0.0f);
     array->appendScalar(1.0f);
@@ -329,7 +328,7 @@ static sk_sp<SkPDFStream> make_srgb_color_profile() {
     array->appendScalar(1.0f);
     array->appendScalar(0.0f);
     array->appendScalar(1.0f);
-    stream->insertObject("Range", std::move(array));
+    stream->dict()->insertObject("Range", std::move(array));
     return stream;
 }
 

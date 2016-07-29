@@ -14,7 +14,6 @@
 #include "SkPDFDevice.h"
 #include "SkPDFFont.h"
 #include "SkPDFFontImpl.h"
-#include "SkPDFStream.h"
 #include "SkPDFUtils.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
@@ -1006,7 +1005,7 @@ static sk_sp<SkPDFObject> get_subset_font_stream(
                     subsetFont, subsetFontSize,
                     [](const void* p, void*) { delete[] (unsigned char*)p; },
                     nullptr));
-    subsetStream->insertInt("Length1", subsetFontSize);
+    subsetStream->dict()->insertInt("Length1", subsetFontSize);
     return subsetStream;
 }
 #endif  // SK_SFNTLY_SUBSETTER
@@ -1048,7 +1047,7 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
                 fontAsset.reset(this->typeface()->openStream(&ttcIndex));
             }
             #endif  // SK_SFNTLY_SUBSETTER
-            auto fontStream = sk_make_sp<SkPDFSharedStream>(fontAsset.release());
+            auto fontStream = sk_make_sp<SkPDFSharedStream>(std::move(fontAsset));
             fontStream->dict()->insertInt("Length1", fontSize);
             descriptor->insertObjRef("FontFile2", std::move(fontStream));
             break;
@@ -1062,8 +1061,7 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
             if (!fontData || 0 == fontData->getLength()) {
                 return false;
             }
-            sk_sp<SkPDFSharedStream> fontStream(
-                    new SkPDFSharedStream(fontData.release()));
+            auto fontStream = sk_make_sp<SkPDFSharedStream>(std::move(fontData));
             if (getType() == SkAdvancedTypefaceMetrics::kCFF_Font) {
                 fontStream->dict()->insertName("Subtype", "Type1C");
             } else {
@@ -1200,9 +1198,9 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     }
     SkASSERT(this->canEmbed());
     auto fontStream = sk_make_sp<SkPDFStream>(std::move(fontData));
-    fontStream->insertInt("Length1", header);
-    fontStream->insertInt("Length2", data);
-    fontStream->insertInt("Length3", trailer);
+    fontStream->dict()->insertInt("Length1", header);
+    fontStream->dict()->insertInt("Length2", data);
+    fontStream->dict()->insertInt("Length3", trailer);
     descriptor->insertObjRef("FontFile", std::move(fontStream));
 
     this->insertObjRef("FontDescriptor", std::move(descriptor));

@@ -9,7 +9,7 @@
 #ifndef SkPDFGraphicState_DEFINED
 #define SkPDFGraphicState_DEFINED
 
-#include "SkPDFStream.h"
+#include "SkPDFTypes.h"
 #include "SkChecksum.h"
 
 class SkPaint;

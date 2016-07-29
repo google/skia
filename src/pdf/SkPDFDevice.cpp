@@ -24,7 +24,6 @@
 #include "SkPDFGraphicState.h"
 #include "SkPDFResourceDict.h"
 #include "SkPDFShader.h"
-#include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkRasterClip.h"

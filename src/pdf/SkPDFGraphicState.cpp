@@ -137,9 +137,9 @@ sk_sp<SkPDFStream> SkPDFGraphicState::MakeInvertFunction() {
     // Do not copy the trailing '\0' into the SkData.
     auto invertFunction = sk_make_sp<SkPDFStream>(
             SkData::MakeWithoutCopy(psInvert, strlen(psInvert)));
-    invertFunction->insertInt("FunctionType", 4);
-    invertFunction->insertObject("Domain", domainAndRange);
-    invertFunction->insertObject("Range", std::move(domainAndRange));
+    invertFunction->dict()->insertInt("FunctionType", 4);
+    invertFunction->dict()->insertObject("Domain", domainAndRange);
+    invertFunction->dict()->insertObject("Range", std::move(domainAndRange));
     return invertFunction;
 }
 

@@ -743,8 +743,9 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
             create_pattern_fill_content(0, bbox));
     alphaFunctionShader->setData(std::move(colorStream));
 
-    populate_tiling_pattern_dict(alphaFunctionShader, bbox, resourceDict.get(),
-                                 SkMatrix::I());
+    populate_tiling_pattern_dict(
+            alphaFunctionShader->dict(), bbox, resourceDict.get(),
+            SkMatrix::I());
     doc->canon()->addAlphaShader(alphaFunctionShader);
     return alphaFunctionShader;
 }
@@ -804,9 +805,9 @@ static sk_sp<SkPDFStream> make_ps_function(
         SkPDFArray* domain,
         sk_sp<SkPDFObject> range) {
     auto result = sk_make_sp<SkPDFStream>(std::move(psCode));
-    result->insertInt("FunctionType", 4);
-    result->insertObject("Domain", sk_ref_sp(domain));
-    result->insertObject("Range", std::move(range));
+    result->dict()->insertInt("FunctionType", 4);
+    result->dict()->insertObject("Domain", sk_ref_sp(domain));
+    result->dict()->insertObject("Range", std::move(range));
     return result;
 }
 
@@ -1213,7 +1214,7 @@ SkPDFImageShader* SkPDFImageShader::Create(
     imageShader->setData(patternDevice->content());
 
     auto resourceDict = patternDevice->makeResourceDict();
-    populate_tiling_pattern_dict(imageShader, patternBBox,
+    populate_tiling_pattern_dict(imageShader->dict(), patternBBox,
                                  resourceDict.get(), finalMatrix);
 
     imageShader->fShaderState->fImage.unlockPixels();

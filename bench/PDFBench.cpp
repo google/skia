@@ -137,8 +137,9 @@ protected:
         SkASSERT(fAsset);
         if (!fAsset) { return; }
         while (loops-- > 0) {
-            sk_sp<SkPDFObject> object(
-                    new SkPDFSharedStream(fAsset->duplicate()));
+            sk_sp<SkPDFObject> object =
+                sk_make_sp<SkPDFSharedStream>(
+                        std::unique_ptr<SkStreamAsset>(fAsset->duplicate()));
             test_pdf_object_serialization(object);
         }
     }

@@ -9,8 +9,8 @@
 #ifndef SkPDFFormXObject_DEFINED
 #define SkPDFFormXObject_DEFINED
 
-#include "SkPDFStream.h"
 #include "SkPDFDevice.h"
+#include "SkPDFTypes.h"
 
 /** A form XObject is a self contained description of a graphics
     object.  A form XObject is a page object with slightly different

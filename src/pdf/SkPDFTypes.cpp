@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkData.h"
 #include "SkDeflate.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
@@ -456,18 +457,16 @@ void SkPDFDict::insertString(const char key[], const SkString& value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFSharedStream::SkPDFSharedStream(SkStreamAsset* data)
-    : fAsset(data), fDict(new SkPDFDict) {
-    SkDEBUGCODE(fDumped = false;)
-    SkASSERT(data);
+SkPDFSharedStream::SkPDFSharedStream(std::unique_ptr<SkStreamAsset> data)
+    : fAsset(std::move(data)) {
+    SkASSERT(fAsset);
 }
 
 SkPDFSharedStream::~SkPDFSharedStream() { this->drop(); }
 
 void SkPDFSharedStream::drop() {
-    fAsset.reset();
-    fDict.reset(nullptr);
-    SkDEBUGCODE(fDumped = true;)
+    fAsset = nullptr;;
+    fDict.drop();
 }
 
 #ifdef SK_PDF_LESS_COMPRESSION
@@ -475,12 +474,12 @@ void SkPDFSharedStream::emitObject(
         SkWStream* stream,
         const SkPDFObjNumMap& objNumMap,
         const SkPDFSubstituteMap& substitutes) const {
-    SkASSERT(!fDumped);
+    SkASSERT(fAsset);
     std::unique_ptr<SkStreamAsset> dup(fAsset->duplicate());
     SkASSERT(dup && dup->hasLength());
     size_t length = dup->getLength();
     stream->writeText("<<");
-    fDict->emitAll(stream, objNumMap, substitutes);
+    fDict.emitAll(stream, objNumMap, substitutes);
     stream->writeText("\n");
     SkPDFUnion::Name("Length").emitObject(
             stream, objNumMap, substitutes);
@@ -496,7 +495,7 @@ void SkPDFSharedStream::emitObject(
         SkWStream* stream,
         const SkPDFObjNumMap& objNumMap,
         const SkPDFSubstituteMap& substitutes) const {
-    SkASSERT(!fDumped);
+    SkASSERT(fAsset);
     SkDynamicMemoryWStream buffer;
     SkDeflateWStream deflateWStream(&buffer);
     // Since emitObject is const, this function doesn't change the dictionary.
@@ -506,7 +505,7 @@ void SkPDFSharedStream::emitObject(
     deflateWStream.finalize();
     size_t length = buffer.bytesWritten();
     stream->writeText("<<");
-    fDict->emitAll(stream, objNumMap, substitutes);
+    fDict.emitAll(stream, objNumMap, substitutes);
     stream->writeText("\n");
     SkPDFUnion::Name("Length").emitObject(stream, objNumMap, substitutes);
     stream->writeText(" ");
@@ -524,8 +523,80 @@ void SkPDFSharedStream::emitObject(
 
 void SkPDFSharedStream::addResources(
         SkPDFObjNumMap* catalog, const SkPDFSubstituteMap& substitutes) const {
-    SkASSERT(!fDumped);
-    fDict->addResources(catalog, substitutes);
+    SkASSERT(fAsset);
+    fDict.addResources(catalog, substitutes);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+SkPDFStream:: SkPDFStream(sk_sp<SkData> data) {
+    this->setData(std::unique_ptr<SkStreamAsset>(
+                          new SkMemoryStream(std::move(data))));
+}
+
+SkPDFStream::SkPDFStream(std::unique_ptr<SkStreamAsset> stream) {
+    this->setData(std::move(stream));
+}
+
+SkPDFStream::SkPDFStream() {}
+
+SkPDFStream::~SkPDFStream() {}
+
+void SkPDFStream::addResources(
+        SkPDFObjNumMap* catalog, const SkPDFSubstituteMap& substitutes) const {
+    SkASSERT(fCompressedData);
+    fDict.addResources(catalog, substitutes);
+}
+
+void SkPDFStream::drop() {
+    fCompressedData.reset(nullptr);
+    fDict.drop();
+}
+
+void SkPDFStream::emitObject(SkWStream* stream,
+                             const SkPDFObjNumMap& objNumMap,
+                             const SkPDFSubstituteMap& substitutes) const {
+    SkASSERT(fCompressedData);
+    fDict.emitObject(stream, objNumMap, substitutes);
+    // duplicate (a cheap operation) preserves const on fCompressedData.
+    std::unique_ptr<SkStreamAsset> dup(fCompressedData->duplicate());
+    SkASSERT(dup);
+    SkASSERT(dup->hasLength());
+    stream->writeText(" stream\n");
+    stream->writeStream(dup.get(), dup->getLength());
+    stream->writeText("\nendstream");
+}
+
+void SkPDFStream::setData(std::unique_ptr<SkStreamAsset> stream) {
+    SkASSERT(!fCompressedData);  // Only call this function once.
+    SkASSERT(stream);
+    // Code assumes that the stream starts at the beginning.
+
+    #ifdef SK_PDF_LESS_COMPRESSION
+    fCompressedData = std::move(stream);
+    SkASSERT(fCompressedData && fCompressedData->hasLength());
+    fDict.insertInt("Length", fCompressedData->getLength());
+    #else
+
+    SkASSERT(stream->hasLength());
+    SkDynamicMemoryWStream compressedData;
+    SkDeflateWStream deflateWStream(&compressedData);
+    SkStreamCopy(&deflateWStream, stream.get());
+    deflateWStream.finalize();
+    size_t compressedLength = compressedData.bytesWritten();
+    size_t originalLength = stream->getLength();
+
+    if (originalLength <= compressedLength + strlen("/Filter_/FlateDecode_")) {
+        SkAssertResult(stream->rewind());
+        fCompressedData = std::move(stream);
+        fDict.insertInt("Length", originalLength);
+        return;
+    }
+    fCompressedData.reset(compressedData.detachAsStream());
+    fDict.insertName("Filter", "FlateDecode");
+    fDict.insertInt("Length", compressedLength);
+    #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

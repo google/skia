@@ -16,7 +16,6 @@
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFFont.h"
-#include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkReadBuffer.h"
@@ -89,7 +88,7 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
     assert_emit_eq(reporter,
                    *stream,
                    "<</Length 12>> stream\nTest\nFoo\tBar\nendstream");
-    stream->insertInt("Attribute", 42);
+    stream->dict()->insertInt("Attribute", 42);
     assert_emit_eq(reporter,
                    *stream,
                    "<</Length 12\n/Attribute 42>> stream\n"

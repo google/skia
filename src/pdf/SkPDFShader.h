@@ -9,7 +9,6 @@
 #ifndef SkPDFShader_DEFINED
 #define SkPDFShader_DEFINED
 
-#include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 
 class SkPDFCanon;

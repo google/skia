@@ -15,14 +15,14 @@ sk_sp<SkPDFObject> SkPDFMakeFormXObject(std::unique_ptr<SkStreamAsset> content,
                                         const SkMatrix& inverseTransform,
                                         const char* colorSpace) {
     auto form = sk_make_sp<SkPDFStream>(std::move(content));
-    form->insertName("Type", "XObject");
-    form->insertName("Subtype", "Form");
+    form->dict()->insertName("Type", "XObject");
+    form->dict()->insertName("Subtype", "Form");
     if (!inverseTransform.isIdentity()) {
-        form->insertObject("Matrix",
-                           SkPDFUtils::MatrixToArray(inverseTransform));
+        sk_sp<SkPDFObject> mat(SkPDFUtils::MatrixToArray(inverseTransform));
+        form->dict()->insertObject("Matrix", std::move(mat));
     }
-    form->insertObject("Resources", std::move(resourceDict));
-    form->insertObject("BBox", std::move(mediaBox));
+    form->dict()->insertObject("Resources", std::move(resourceDict));
+    form->dict()->insertObject("BBox", std::move(mediaBox));
 
     // Right now FormXObject is only used for saveLayer, which implies
     // isolated blending.  Do this conditionally if that changes.
@@ -34,6 +34,6 @@ sk_sp<SkPDFObject> SkPDFMakeFormXObject(std::unique_ptr<SkStreamAsset> content,
         group->insertName("CS", colorSpace);
     }
     group->insertBool("I", true);  // Isolated.
-    form->insertObject("Group", std::move(group));
+    form->dict()->insertObject("Group", std::move(group));
     return form;
 }
