@@ -25,11 +25,11 @@ public:
         SkASSERT(!fResource);
     }
 
-    VkBuffer            buffer() const { return fResource->fBuffer; }
-    const GrVkAlloc&    alloc() const { return fResource->fAlloc; }
-    const GrVkResource* resource() const { return fResource; }
-    size_t              size() const { return fDesc.fSizeInBytes; }
-    VkDeviceSize        offset() const { return fOffset;  }
+    VkBuffer                    buffer() const { return fResource->fBuffer; }
+    const GrVkAlloc&            alloc() const { return fResource->fAlloc; }
+    const GrVkRecycledResource* resource() const { return fResource; }
+    size_t                      size() const { return fDesc.fSizeInBytes; }
+    VkDeviceSize                offset() const { return fOffset;  }
 
     void addMemoryBarrier(const GrVkGpu* gpu,
                           VkAccessFlags srcAccessMask,
@@ -94,6 +94,11 @@ protected:
     void vkRelease(const GrVkGpu* gpu);
 
 private:
+    virtual const Resource* createResource(GrVkGpu* gpu,
+                                           const Desc& descriptor) {
+        return Create(gpu, descriptor);
+    }
+
     void validate() const;
     bool vkIsMapped() const;
 

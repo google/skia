@@ -45,6 +45,9 @@ private:
         typedef GrVkBuffer::Resource INHERITED;
     };
 
+    const GrVkBuffer::Resource* createResource(GrVkGpu* gpu,
+                                               const GrVkBuffer::Desc& descriptor) override;
+
     GrVkUniformBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                       const GrVkUniformBuffer::Resource* resource)
         : INHERITED(desc, resource)

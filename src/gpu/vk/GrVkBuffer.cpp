@@ -180,8 +180,8 @@ bool GrVkBuffer::vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInByt
 
     if (!fResource->unique()) {
         // in use by the command buffer, so we need to create a new one
-        fResource->unref(gpu);
-        fResource = Create(gpu, fDesc);
+        fResource->recycle(gpu);
+        fResource = this->createResource(gpu, fDesc);
         if (createdNewBuffer) {
             *createdNewBuffer = true;
         }

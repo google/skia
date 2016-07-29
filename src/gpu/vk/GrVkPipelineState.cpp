@@ -382,13 +382,13 @@ void GrVkPipelineState::addUniformResources(GrVkCommandBuffer& commandBuffer) {
         commandBuffer.addRecycledResource(fSamplerDescriptorSet);
     }
 
-
     if (fVertexUniformBuffer.get()) {
-        commandBuffer.addResource(fVertexUniformBuffer->resource());
+        commandBuffer.addRecycledResource(fVertexUniformBuffer->resource());
     }
     if (fFragmentUniformBuffer.get()) {
-        commandBuffer.addResource(fFragmentUniformBuffer->resource());
+        commandBuffer.addRecycledResource(fFragmentUniformBuffer->resource());
     }
+
     for (int i = 0; i < fSamplers.count(); ++i) {
         commandBuffer.addResource(fSamplers[i]);
     }
