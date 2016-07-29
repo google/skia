@@ -50,10 +50,7 @@ private:
 
     GrVkUniformBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                       const GrVkUniformBuffer::Resource* resource)
-        : INHERITED(desc, resource)
-        , fGpu(gpu) {}
-
-    GrVkGpu* fGpu;
+        : INHERITED(desc, resource) {}
 
     typedef GrVkBuffer INHERITED;
 };

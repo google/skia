@@ -20,7 +20,7 @@ class GrVkGpu;
  */
 class GrVkBuffer : public SkNoncopyable {
 public:
-    ~GrVkBuffer() {
+    virtual ~GrVkBuffer() {
         // either release or abandon should have been called by the owner of this object.
         SkASSERT(!fResource);
     }
