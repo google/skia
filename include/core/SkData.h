@@ -14,7 +14,9 @@
 
 class SkStream;
 
+#ifndef SK_SUPPORT_LEGACY_DATA_FACTORIES
 #define SK_SUPPORT_LEGACY_DATA_FACTORIES
+#endif
 
 /**
  *  SkData holds an immutable data buffer. Not only is the data immutable,
