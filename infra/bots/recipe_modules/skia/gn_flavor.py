@@ -26,9 +26,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     ccache = self._skia_api.ccache()
     if ccache:
-      cc, cxx = '"%s %s"' % (ccache, cc), '"%s %s"' % (ccache, cxx)
+      cc, cxx = '%s %s' % (ccache, cc), '%s %s' % (ccache, cxx)
 
-    gn_args += [ 'cc=' + cc, 'cxx=' + cxx ]
+    gn_args += [ 'cc="%s"' % cc, 'cxx="%s"' % cxx ]
 
     # Run gn gen.
     gn_exe = 'gn'
