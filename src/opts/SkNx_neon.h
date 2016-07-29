@@ -22,28 +22,6 @@ static inline float32x4_t armv7_vrndmq_f32(float32x4_t v) {
     return roundtrip - (float32x4_t)vandq_u32(too_big, (uint32x4_t)vdupq_n_f32(1));
 }
 
-// Well, this is absurd.  The shifts require compile-time constant arguments.
-
-#define SHIFT8(op, v, bits) switch(bits) { \
-    case  1: return op(v,  1);  case  2: return op(v,  2);  case  3: return op(v,  3); \
-    case  4: return op(v,  4);  case  5: return op(v,  5);  case  6: return op(v,  6); \
-    case  7: return op(v,  7); \
-    } return fVec
-
-#define SHIFT16(op, v, bits) if (bits < 8) { SHIFT8(op, v, bits); } switch(bits) { \
-                                case  8: return op(v,  8);  case  9: return op(v,  9); \
-    case 10: return op(v, 10);  case 11: return op(v, 11);  case 12: return op(v, 12); \
-    case 13: return op(v, 13);  case 14: return op(v, 14);  case 15: return op(v, 15); \
-    } return fVec
-
-#define SHIFT32(op, v, bits) if (bits < 16) { SHIFT16(op, v, bits); } switch(bits) { \
-    case 16: return op(v, 16);  case 17: return op(v, 17);  case 18: return op(v, 18); \
-    case 19: return op(v, 19);  case 20: return op(v, 20);  case 21: return op(v, 21); \
-    case 22: return op(v, 22);  case 23: return op(v, 23);  case 24: return op(v, 24); \
-    case 25: return op(v, 25);  case 26: return op(v, 26);  case 27: return op(v, 27); \
-    case 28: return op(v, 28);  case 29: return op(v, 29);  case 30: return op(v, 30); \
-    case 31: return op(v, 31); } return fVec
-
 template <>
 class SkNx<2, float> {
 public:
@@ -204,8 +182,8 @@ public:
     SkNx operator - (const SkNx& o) const { return fVec - o.fVec; }
     SkNx operator * (const SkNx& o) const { return fVec * o.fVec; }
 
-    SkNx operator << (int bits) const { SHIFT16(vshl_n_u16, fVec, bits); }
-    SkNx operator >> (int bits) const { SHIFT16(vshr_n_u16, fVec, bits); }
+    SkNx operator << (int bits) const { return fVec << SkNx(bits).fVec; }
+    SkNx operator >> (int bits) const { return fVec >> SkNx(bits).fVec; }
 
     static SkNx Min(const SkNx& a, const SkNx& b) { return vmin_u16(a.fVec, b.fVec); }
 
@@ -235,8 +213,8 @@ public:
     SkNx operator - (const SkNx& o) const { return fVec - o.fVec; }
     SkNx operator * (const SkNx& o) const { return fVec * o.fVec; }
 
-    SkNx operator << (int bits) const { SHIFT16(vshlq_n_u16, fVec, bits); }
-    SkNx operator >> (int bits) const { SHIFT16(vshrq_n_u16, fVec, bits); }
+    SkNx operator << (int bits) const { return fVec << SkNx(bits).fVec; }
+    SkNx operator >> (int bits) const { return fVec >> SkNx(bits).fVec; }
 
     static SkNx Min(const SkNx& a, const SkNx& b) { return vminq_u16(a.fVec, b.fVec); }
 
@@ -324,8 +302,8 @@ public:
     SkNx operator | (const SkNx& o) const { return fVec | o.fVec; }
     SkNx operator ^ (const SkNx& o) const { return fVec ^ o.fVec; }
 
-    SkNx operator << (int bits) const { SHIFT32(vshlq_n_s32, fVec, bits); }
-    SkNx operator >> (int bits) const { SHIFT32(vshrq_n_s32, fVec, bits); }
+    SkNx operator << (int bits) const { return fVec << SkNx(bits).fVec; }
+    SkNx operator >> (int bits) const { return fVec >> SkNx(bits).fVec; }
 
     SkNx operator == (const SkNx& o) const { return fVec == o.fVec; }
     SkNx operator <  (const SkNx& o) const { return fVec <  o.fVec; }
@@ -362,8 +340,8 @@ public:
     SkNx operator | (const SkNx& o) const { return fVec | o.fVec; }
     SkNx operator ^ (const SkNx& o) const { return fVec ^ o.fVec; }
 
-    SkNx operator << (int bits) const { SHIFT32(vshlq_n_u32, fVec, bits); }
-    SkNx operator >> (int bits) const { SHIFT32(vshrq_n_u32, fVec, bits); }
+    SkNx operator << (int bits) const { return fVec << SkNx(bits).fVec; }
+    SkNx operator >> (int bits) const { return fVec >> SkNx(bits).fVec; }
 
     SkNx operator == (const SkNx& o) const { return fVec == o.fVec; }
     SkNx operator <  (const SkNx& o) const { return fVec <  o.fVec; }
@@ -379,10 +357,6 @@ public:
 
     uint32x4_t fVec;
 };
-
-#undef SHIFT32
-#undef SHIFT16
-#undef SHIFT8
 
 template<> inline Sk4i SkNx_cast<int32_t, float>(const Sk4f& src) {
     return vcvtq_s32_f32(src.fVec);
