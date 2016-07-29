@@ -629,7 +629,7 @@ SkColorSpaceXform_Base<Dst>::SkColorSpaceXform_Base(const sk_sp<SkColorSpace>& s
 
 template <>
 void SkColorSpaceXform_Base<SkColorSpace::kSRGB_GammaNamed>
-::applyToRGBA(RGBA32* dst, const RGBA32* src, int len) const
+::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
 {
     if (fColorLUT) {
         handle_color_lut(dst, src, len, fColorLUT.get());
@@ -641,7 +641,7 @@ void SkColorSpaceXform_Base<SkColorSpace::kSRGB_GammaNamed>
 
 template <>
 void SkColorSpaceXform_Base<SkColorSpace::k2Dot2Curve_GammaNamed>
-::applyToRGBA(RGBA32* dst, const RGBA32* src, int len) const
+::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
 {
     if (fColorLUT) {
         handle_color_lut(dst, src, len, fColorLUT.get());
@@ -653,7 +653,7 @@ void SkColorSpaceXform_Base<SkColorSpace::k2Dot2Curve_GammaNamed>
 
 template <>
 void SkColorSpaceXform_Base<SkColorSpace::kNonStandard_GammaNamed>
-::applyToRGBA(RGBA32* dst, const RGBA32* src, int len) const
+::applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const
 {
     if (fColorLUT) {
         handle_color_lut(dst, src, len, fColorLUT.get());
@@ -661,43 +661,6 @@ void SkColorSpaceXform_Base<SkColorSpace::kNonStandard_GammaNamed>
     }
 
     SkOpts::color_xform_RGB1_to_table(dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
-}
-
-template <>
-void SkColorSpaceXform_Base<SkColorSpace::kSRGB_GammaNamed>
-::applyToBGRA(BGRA32* dst, const RGBA32* src, int len) const
-{
-    if (fColorLUT) {
-        handle_color_lut(dst, src, len, fColorLUT.get());
-        src = dst;
-    }
-
-    SkOpts::color_xform_RGB1_to_srgb_swaprb(dst, src, len, fSrcGammaTables, fSrcToDst);
-}
-
-template <>
-void SkColorSpaceXform_Base<SkColorSpace::k2Dot2Curve_GammaNamed>
-::applyToBGRA(BGRA32* dst, const RGBA32* src, int len) const
-{
-    if (fColorLUT) {
-        handle_color_lut(dst, src, len, fColorLUT.get());
-        src = dst;
-    }
-
-    SkOpts::color_xform_RGB1_to_2dot2_swaprb(dst, src, len, fSrcGammaTables, fSrcToDst);
-}
-
-template <>
-void SkColorSpaceXform_Base<SkColorSpace::kNonStandard_GammaNamed>
-::applyToBGRA(BGRA32* dst, const RGBA32* src, int len) const
-{
-    if (fColorLUT) {
-        handle_color_lut(dst, src, len, fColorLUT.get());
-        src = dst;
-    }
-
-    SkOpts::color_xform_RGB1_to_table_swaprb(dst, src, len, fSrcGammaTables, fSrcToDst,
-                                             fDstGammaTables);
 }
 
 template <SkColorSpace::GammaNamed T>

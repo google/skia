@@ -76,9 +76,6 @@ namespace SkOpts {
     DEFINE_DEFAULT(color_xform_RGB1_to_srgb);
     DEFINE_DEFAULT(color_xform_RGB1_to_table);
     DEFINE_DEFAULT(color_xform_RGB1_to_linear);
-    DEFINE_DEFAULT(color_xform_RGB1_to_2dot2_swaprb);
-    DEFINE_DEFAULT(color_xform_RGB1_to_srgb_swaprb);
-    DEFINE_DEFAULT(color_xform_RGB1_to_table_swaprb);
 #undef DEFINE_DEFAULT
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.

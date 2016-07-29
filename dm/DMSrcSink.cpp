@@ -867,6 +867,28 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
+    SkImageInfo info = codec->getInfo().makeColorType(fColorType);
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocPixels(info)) {
+        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
+                              info.width(), info.height());
+    }
+
+    SkImageInfo decodeInfo = info;
+    size_t srcRowBytes = sizeof(SkPMColor) * info.width();
+    SkAutoMalloc src(srcRowBytes * info.height());
+    void* srcPixels = src.get();
+    if (kBaseline_Mode == fMode) {
+        srcPixels = bitmap.getPixels();
+    } else {
+        decodeInfo = decodeInfo.makeColorType(kRGBA_8888_SkColorType);
+    }
+
+    SkCodec::Result r = codec->getPixels(decodeInfo, srcPixels, srcRowBytes);
+    if (SkCodec::kSuccess != r) {
+        return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
+    }
+
     // Load the dst ICC profile.  This particular dst is fairly similar to Adobe RGB.
     sk_sp<SkData> dstData = SkData::MakeFromFileName(
             GetResourcePath("monitor_profiles/HP_ZR30w.icc").c_str());
@@ -874,39 +896,46 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return "Cannot read monitor profile.  Is the resource path set correctly?";
     }
 
-    sk_sp<SkColorSpace> dstSpace = nullptr;
-    if (kDst_sRGB_Mode == fMode) {
-        dstSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    } else if (kDst_HPZR30w_Mode == fMode) {
-        dstSpace = SkColorSpace::NewICC(dstData->data(), dstData->size());
-    }
-
-    SkImageInfo decodeInfo = codec->getInfo().makeColorType(fColorType).makeColorSpace(dstSpace);
-    SkImageInfo bitmapInfo = decodeInfo;
-    if (kRGBA_8888_SkColorType == decodeInfo.colorType() ||
-        kBGRA_8888_SkColorType == decodeInfo.colorType())
-    {
-        bitmapInfo = bitmapInfo.makeColorType(kN32_SkColorType);
-    }
-
-    SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(bitmapInfo)) {
-        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
-                              bitmapInfo.width(), bitmapInfo.height());
-    }
-
-    size_t rowBytes = bitmap.rowBytes();
-    SkCodec::Result r = codec->getPixels(decodeInfo, bitmap.getPixels(), rowBytes);
-    if (SkCodec::kSuccess != r) {
-        return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
-    }
-
     switch (fMode) {
         case kBaseline_Mode:
-        case kDst_sRGB_Mode:
-        case kDst_HPZR30w_Mode:
             canvas->drawBitmap(bitmap, 0, 0);
             break;
+        case kDst_sRGB_Mode:
+        case kDst_HPZR30w_Mode: {
+            sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getInfo().colorSpace());
+            sk_sp<SkColorSpace> dstSpace = (kDst_sRGB_Mode == fMode) ?
+                    SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) :
+                    SkColorSpace::NewICC(dstData->data(), dstData->size());
+            SkASSERT(dstSpace);
+
+            std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace, dstSpace);
+            if (!xform) {
+                return "Unimplemented color conversion.";
+            }
+
+            if (kN32_SkColorType == fColorType) {
+                uint32_t* srcRow = (uint32_t*) srcPixels;
+                uint32_t* dstRow = (uint32_t*) bitmap.getPixels();
+                for (int y = 0; y < info.height(); y++) {
+                    xform->applyTo8888(dstRow, srcRow, info.width());
+                    srcRow = SkTAddOffset<uint32_t>(srcRow, srcRowBytes);
+                    dstRow = SkTAddOffset<uint32_t>(dstRow, bitmap.rowBytes());
+                }
+            } else {
+                SkASSERT(kRGBA_F16_SkColorType == fColorType);
+
+                uint32_t* srcRow = (uint32_t*) srcPixels;
+                uint64_t* dstRow = (uint64_t*) bitmap.getPixels();
+                for (int y = 0; y < info.height(); y++) {
+                    xform->applyToF16(dstRow, srcRow, info.width());
+                    srcRow = SkTAddOffset<uint32_t>(srcRow, srcRowBytes);
+                    dstRow = SkTAddOffset<uint64_t>(dstRow, bitmap.rowBytes());
+                }
+            }
+
+            canvas->drawBitmap(bitmap, 0, 0);
+            break;
+        }
 #if defined(SK_TEST_QCMS)
         case kQCMS_HPZR30w_Mode: {
             sk_sp<SkData> srcData = codec->getICCData();
@@ -938,10 +967,12 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 #endif
 
             // Perform color correction.
-            uint32_t* row = (uint32_t*) bitmap.getPixels();
-            for (int y = 0; y < decodeInfo.height(); y++) {
-                qcms_transform_data_type(transform, row, row, decodeInfo.width(), outType);
-                row = SkTAddOffset<uint32_t>(row, rowBytes);
+            uint32_t* srcRow = (uint32_t*) srcPixels;
+            uint32_t* dstRow = (uint32_t*) bitmap.getPixels();
+            for (int y = 0; y < info.height(); y++) {
+                qcms_transform_data_type(transform, srcRow, dstRow, info.width(), outType);
+                srcRow = SkTAddOffset<uint32_t>(srcRow, srcRowBytes);
+                dstRow = SkTAddOffset<uint32_t>(dstRow, bitmap.rowBytes());
             }
 
             canvas->drawBitmap(bitmap, 0, 0);

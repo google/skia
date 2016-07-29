@@ -42,9 +42,7 @@ bool CodecBench::isSuitableFor(Backend backend) {
 void CodecBench::onDelayedSetup() {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fData));
 
-    fInfo = codec->getInfo().makeColorType(fColorType)
-                            .makeAlphaType(fAlphaType)
-                            .makeColorSpace(nullptr);
+    fInfo = codec->getInfo().makeColorType(fColorType).makeAlphaType(fAlphaType);
 
     fPixelStorage.reset(fInfo.getSafeSize(fInfo.minRowBytes()));
 }

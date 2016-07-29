@@ -37,18 +37,20 @@ void ImageSlide::draw(SkCanvas* canvas) {
 
 void ImageSlide::load(SkScalar, SkScalar) {
     sk_sp<SkData> encoded = SkData::MakeFromFileName(fPath.c_str());
+    fImage = SkImage::MakeFromEncoded(encoded);
+    fImage->asLegacyBitmap(&fOriginalBitmap, SkImage::kRO_LegacyBitmapMode);
+
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
-    if (!codec) {
-        return;
+    sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getInfo().colorSpace());
+    sk_sp<SkColorSpace> dstSpace = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
+    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace, dstSpace);
+    fOriginalBitmap.deepCopyTo(&fXformedBitmap);
+    uint32_t* row = (uint32_t*) fXformedBitmap.getPixels();
+    for (int y = 0; y < fXformedBitmap.height(); y++) {
+        xform->applyTo8888(row, row, fXformedBitmap.width());
+        row = SkTAddOffset<uint32_t>(row, fXformedBitmap.rowBytes());
     }
-
-    fOriginalBitmap.allocPixels(codec->getInfo());
-    codec->getPixels(codec->getInfo(), fOriginalBitmap.getPixels(), fOriginalBitmap.rowBytes());
-
-    SkImageInfo xformedInfo = codec->getInfo().makeColorSpace(
-            SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named));
-    fXformedBitmap.allocPixels(xformedInfo);
-    codec->getPixels(xformedInfo, fXformedBitmap.getPixels(), fXformedBitmap.rowBytes());
+    fXformedBitmap.notifyPixelsChanged(); // This is needed for the deepCopy
 }
 
 void ImageSlide::unload() {
