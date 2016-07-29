@@ -192,6 +192,7 @@ def get_args(bot):
                             'bleed',
                             'bleed_alpha_bmp',
                             'bleed_alpha_bmp_shader',
+                            'convex_poly_clip',
                             'extractalpha',
                             'filterbitmap_checkerboard_32_32_g8',
                             'filterbitmap_image_mandrill_64',
