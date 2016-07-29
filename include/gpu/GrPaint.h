@@ -78,6 +78,11 @@ public:
     bool getAllowSRGBInputs() const { return fAllowSRGBInputs; }
 
     /**
+     * Does one of the fragment processors need a field of distance vectors to the nearest edge?
+     */
+    bool usesDistanceVectorField() const { return fUsesDistanceVectorField; }
+
+    /**
      * Should rendering be gamma-correct, end-to-end. Causes sRGB render targets to behave
      * as such (with linear blending), and sRGB inputs to be filtered and decoded correctly.
      */
@@ -101,6 +106,7 @@ public:
      */
     void addColorFragmentProcessor(sk_sp<GrFragmentProcessor> fp) {
         SkASSERT(fp);
+        fUsesDistanceVectorField |= fp->usesDistanceVectorField();
         fColorFragmentProcessors.push_back(std::move(fp));
     }
 
@@ -109,6 +115,7 @@ public:
      */
     void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> fp) {
         SkASSERT(fp);
+        fUsesDistanceVectorField |= fp->usesDistanceVectorField();
         fCoverageFragmentProcessors.push_back(std::move(fp));
     }
 
@@ -142,6 +149,7 @@ public:
         fAntiAlias = paint.fAntiAlias;
         fDisableOutputConversionToSRGB = paint.fDisableOutputConversionToSRGB;
         fAllowSRGBInputs = paint.fAllowSRGBInputs;
+        fUsesDistanceVectorField = paint.fUsesDistanceVectorField;
 
         fColor = paint.fColor;
         fColorFragmentProcessors = paint.fColorFragmentProcessors;
@@ -168,6 +176,7 @@ private:
     bool                                      fAntiAlias;
     bool                                      fDisableOutputConversionToSRGB;
     bool                                      fAllowSRGBInputs;
+    bool                                      fUsesDistanceVectorField;
 
     GrColor4f                                 fColor;
 };

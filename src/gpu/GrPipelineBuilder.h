@@ -221,7 +221,13 @@ public:
          */
         kAllowSRGBInputs_Flag = 0x08,
 
-        kLast_Flag = kAllowSRGBInputs_Flag,
+        /**
+         * Signals that one or more FPs need access to the distance vector field to the nearest
+         * edge
+         */
+        kUsesDistanceVectorField_Flag = 0x10,
+
+        kLast_Flag = kUsesDistanceVectorField_Flag,
     };
 
     bool isHWAntialias() const { return SkToBool(fFlags & kHWAntialias_Flag); }
@@ -231,6 +237,8 @@ public:
         return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag); }
     bool getAllowSRGBInputs() const {
         return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
+    bool getUsesDistanceVectorField() const {
+        return SkToBool(fFlags & kUsesDistanceVectorField_Flag); }
 
     /**
      * Enable render state settings.

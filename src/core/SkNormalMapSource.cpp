@@ -10,6 +10,7 @@
 #include "SkLightingShader.h"
 #include "SkMatrix.h"
 #include "SkNormalSource.h"
+#include "SkNormalSourcePriv.h"
 #include "SkPM4f.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -31,13 +32,13 @@ public:
         this->initClassID<NormalMapFP>();
     }
 
-    class GLSLNormalMapFP : public GrGLSLFragmentProcessor {
+    class GLSLNormalMapFP : public GLSLNormalFP {
     public:
         GLSLNormalMapFP()
             : fColumnMajorInvCTM22{0.0f} {}
 
-        void emitCode(EmitArgs& args) override {
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        void onEmitCode(EmitArgs& args) override {
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // add uniform
@@ -78,7 +79,8 @@ public:
         }
 
     protected:
-        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
+        void setNormalData(const GrGLSLProgramDataManager& pdman,
+                           const GrProcessor& proc) override {
             const NormalMapFP& normalMapFP = proc.cast<NormalMapFP>();
 
             const SkMatrix& invCTM = normalMapFP.invCTM();
