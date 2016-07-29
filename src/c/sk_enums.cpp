@@ -49,6 +49,10 @@ static_assert ((int)SkPath::AddPathMode::kExtend_AddPathMode   == (int)EXTEND_SK
 static_assert ((int)SkPath::Direction::kCCW_Direction   == (int)CCW_SK_PATH_DIRECTION,   ASSERT_MSG(SkPath::Direction, sk_path_direction_t));
 static_assert ((int)SkPath::Direction::kCW_Direction    == (int)CW_SK_PATH_DIRECTION,    ASSERT_MSG(SkPath::Direction, sk_path_direction_t));
 
+// sk_path_arc_size_t
+static_assert ((int)SkPath::ArcSize::kLarge_ArcSize   == (int)LARGE_SK_PATH_ARC_SIZE,   ASSERT_MSG(SkPath::ArcSize, sk_path_arc_size_t));
+static_assert ((int)SkPath::ArcSize::kSmall_ArcSize   == (int)SMALL_SK_PATH_ARC_SIZE,   ASSERT_MSG(SkPath::ArcSize, sk_path_arc_size_t));
+
 // sk_path_filltype_t
 static_assert ((int)SkPath::FillType::kWinding_FillType          == (int)WINDING_SK_PATH_FILLTYPE,           ASSERT_MSG(SkPath::FillType, sk_path_filltype_t));
 static_assert ((int)SkPath::FillType::kEvenOdd_FillType          == (int)EVENODD_SK_PATH_FILLTYPE,           ASSERT_MSG(SkPath::FillType, sk_path_filltype_t));

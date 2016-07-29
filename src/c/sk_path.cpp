@@ -180,6 +180,14 @@ void sk_path_cubic_to(sk_path_t* cpath, float x0, float y0, float x1, float y1, 
     AsPath(cpath)->cubicTo(x0, y0, x1, y1, x2, y2);
 }
 
+void sk_path_arc_to(sk_path_t* cpath, float rx, float ry, float xAxisRotate, sk_path_arc_size_t largeArc, sk_path_direction_t sweep, float x, float y) {
+    AsPath(cpath)->arcTo(rx, ry, xAxisRotate, (SkPath::ArcSize)largeArc, (SkPath::Direction)sweep, x, y);
+}
+
+void sk_path_rarc_to(sk_path_t* cpath, float rx, float ry, float xAxisRotate, sk_path_arc_size_t largeArc, sk_path_direction_t sweep, float x, float y) {
+    AsPath(cpath)->rArcTo(rx, ry, xAxisRotate, (SkPath::ArcSize)largeArc, (SkPath::Direction)sweep, x, y);
+}
+
 void sk_path_close(sk_path_t* cpath) {
     AsPath(cpath)->close();
 }
@@ -188,8 +196,16 @@ void sk_path_add_rect(sk_path_t* cpath, const sk_rect_t* crect, sk_path_directio
     AsPath(cpath)->addRect(AsRect(*crect), (SkPath::Direction)cdir);
 }
 
+void sk_path_add_rounded_rect(sk_path_t* cpath, const sk_rect_t* crect, float rx, float ry, sk_path_direction_t cdir) {
+    AsPath(cpath)->addRoundRect(AsRect(*crect), rx, ry, (SkPath::Direction)cdir);
+}
+
 void sk_path_add_oval(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir) {
     AsPath(cpath)->addOval(AsRect(*crect), (SkPath::Direction)cdir);
+}
+
+void sk_path_add_circle(sk_path_t* cpath, float x, float y, float radius, sk_path_direction_t dir) {
+    AsPath(cpath)->addCircle(x, y, radius, (SkPath::Direction)dir);
 }
 
 bool sk_path_get_bounds(const sk_path_t* cpath, sk_rect_t* crect) {

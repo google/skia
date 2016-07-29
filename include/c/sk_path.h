@@ -53,6 +53,17 @@ SK_API void sk_path_cubic_to(sk_path_t*,
                              float x1, float y1,
                              float x2, float y2);
 /**
+ *  Append an elliptical arc from the current point in the format used by SVG.
+ *  The center of the ellipse is computed to satisfy the constraints below.
+ */
+SK_API void sk_path_arc_to(sk_path_t*, float rx, float ry, float xAxisRotate, sk_path_arc_size_t largeArc, sk_path_direction_t sweep, float x, float y);
+/**
+ *  Same as arcTo format used by SVG, but the destination coordinate is relative to the
+ *  last point on this contour. If there is no previous point, then a
+ *  moveTo(0,0) is inserted automatically.
+ */
+SK_API void sk_path_rarc_to(sk_path_t*, float rx, float ry, float xAxisRotate, sk_path_arc_size_t largeArc, sk_path_direction_t sweep, float x, float y);
+/**
    Close the current contour. If the current point is not equal to the
    first point of the contour, a line segment is automatically added.
 */
@@ -63,9 +74,18 @@ SK_API void sk_path_close(sk_path_t*);
 */
 SK_API void sk_path_add_rect(sk_path_t*, const sk_rect_t*, sk_path_direction_t);
 /**
+ *  Add a closed rounded rectangle contour to the path.
+ */
+SK_API void sk_path_add_rounded_rect(sk_path_t*, const sk_rect_t*, float, float, sk_path_direction_t);
+/**
     Add a closed oval contour to the path
 */
 SK_API void sk_path_add_oval(sk_path_t*, const sk_rect_t*, sk_path_direction_t);
+/**
+ *  Add a closed circle contour to the path. The circle contour begins at
+ *  the right-most point (as though 1 were passed to addOval's 'start' param).
+ */
+SK_API void sk_path_add_circle(sk_path_t*, float x, float y, float radius, sk_path_direction_t dir);
 
 /**
  *  If the path is empty, return false and set the rect parameter to [0, 0, 0, 0].

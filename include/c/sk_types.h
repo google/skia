@@ -497,6 +497,11 @@ typedef enum {
     CCW_SK_PATH_DIRECTION,
 } sk_path_direction_t;
 
+typedef enum {
+    SMALL_SK_PATH_ARC_SIZE,
+    LARGE_SK_PATH_ARC_SIZE,
+} sk_path_arc_size_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
