@@ -18,15 +18,22 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         is_debug = 'is_debug=false'
     gn_args = [is_debug]
 
+    is_clang = 'Clang' in self._skia_api.builder_name
+    is_gcc   = 'GCC'   in self._skia_api.builder_name
+
     cc, cxx = 'cc', 'c++'
-    if 'Clang' in self._skia_api.builder_name:
+    if is_clang:
       cc, cxx = 'clang', 'clang++'
-    elif 'GCC' in self._skia_api.builder_name:
+    elif is_gcc:
       cc, cxx = 'gcc', 'g++'
 
     ccache = self._skia_api.ccache()
     if ccache:
       cc, cxx = '%s %s' % (ccache, cc), '%s %s' % (ccache, cxx)
+      if is_clang:
+        # Stifle "argument unused during compilation: ..." warnings.
+        stifle = '-Qunused-arguments'
+        cc, cxx = '%s %s' % (cc, stifle), '%s %s' % (cxx, stifle)
 
     gn_args += [ 'cc="%s"' % cc, 'cxx="%s"' % cxx ]
 
