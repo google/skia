@@ -70,38 +70,57 @@ struct SkGammas : SkRefCnt {
     };
 
     bool isNamed(int i) const {
-        SkASSERT(0 <= i && i < 3);
-        return (&fRedType)[i] == Type::kNamed_Type;
+        return Type::kNamed_Type == this->type(i);
     }
 
     bool isValue(int i) const {
-        SkASSERT(0 <= i && i < 3);
-        return (&fRedType)[i] == Type::kValue_Type;
+        return Type::kValue_Type == this->type(i);
     }
 
     bool isTable(int i) const {
-        SkASSERT(0 <= i && i < 3);
-        return (&fRedType)[i] == Type::kTable_Type;
+        return Type::kTable_Type == this->type(i);
     }
 
     bool isParametric(int i) const {
-        SkASSERT(0 <= i && i < 3);
-        return (&fRedType)[i] == Type::kParam_Type;
+        return Type::kParam_Type == this->type(i);
     }
 
     const Data& data(int i) const {
-        SkASSERT(0 <= i && i < 3);
-        return (&fRedData)[i];
+        switch (i) {
+            case 0:
+                return fRedData;
+            case 1:
+                return fGreenData;
+            case 2:
+                return fBlueData;
+            default:
+                SkASSERT(false);
+                return fRedData;
+        }
     }
 
     const float* table(int i) const {
         SkASSERT(isTable(i));
-        return (&fRedData)[i].fTable.table(this);
+        return this->data(i).fTable.table(this);
     }
 
     const Params& params(int i) const {
         SkASSERT(isParametric(i));
-        return (&fRedData)[i].params(this);
+        return this->data(i).params(this);
+    }
+
+    Type type(int i) const {
+        switch (i) {
+            case 0:
+                return fRedType;
+            case 1:
+                return fGreenType;
+            case 2:
+                return fBlueType;
+            default:
+                SkASSERT(false);
+                return fRedType;
+        }
     }
 
     SkGammas()

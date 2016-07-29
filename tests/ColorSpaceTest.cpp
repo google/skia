@@ -125,7 +125,7 @@ DEF_TEST(ColorSpaceWriteICC, r) {
 
     // Test saving the original ICC data
     sk_sp<SkData> monitorData = SkData::MakeFromFileName(
-            GetResourcePath("monitor_profiles/HP_ZR30w.icc").c_str());
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
     REPORTER_ASSERT(r, monitorData);
     if (!monitorData) {
         return;
@@ -211,7 +211,13 @@ DEF_TEST(ColorSpace_Serialize, r) {
     test_serialize(r, SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named).get(), true);
 
     sk_sp<SkData> monitorData = SkData::MakeFromFileName(
-            GetResourcePath("monitor_profiles/HP_ZR30w.icc").c_str());
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+    test_serialize(r, SkColorSpace::NewICC(monitorData->data(), monitorData->size()).get(), false);
+    monitorData = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
+    test_serialize(r, SkColorSpace::NewICC(monitorData->data(), monitorData->size()).get(), false);
+    monitorData = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
+    test_serialize(r, SkColorSpace::NewICC(monitorData->data(), monitorData->size()).get(), false);
+    monitorData = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     test_serialize(r, SkColorSpace::NewICC(monitorData->data(), monitorData->size()).get(), false);
 }
 

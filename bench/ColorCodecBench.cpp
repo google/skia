@@ -140,7 +140,7 @@ void ColorCodecBench::onDelayedSetup() {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
     fSrcData = codec->getICCData();
     sk_sp<SkData> dstData = SkData::MakeFromFileName(
-            GetResourcePath("monitor_profiles/HP_ZR30w.icc").c_str());
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
     SkASSERT(dstData);
 
     fDstSpace = nullptr;

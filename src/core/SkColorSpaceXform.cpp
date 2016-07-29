@@ -404,7 +404,7 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
                     // share the same table pointer.  This should almost always be true.
                     // I've never seen a profile where all three gamma curves didn't match.
                     // But it is possible that they won't.
-                    if (gammas->data(0) == gammas->data(i)) {
+                    if (gammas->type(0) == gammas->type(i) && gammas->data(0) == gammas->data(i)) {
                         outGammaTables[i] = outGammaTables[0];
                         continue;
                     }

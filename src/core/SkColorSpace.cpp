@@ -201,49 +201,52 @@ struct ColorSpaceHeader {
 };
 
 size_t SkColorSpace::writeToMemory(void* memory) const {
-    // If we have a named profile, only write the enum.
-    switch (fNamed) {
-        case kSRGB_Named:
-        case kAdobeRGB_Named: {
-            if (memory) {
-                *((ColorSpaceHeader*) memory) =
-                        ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed, 0);
+    // Start by trying the serialization fast path.  If we haven't saved ICC profile data,
+    // we must have a profile that we can serialize easily.
+    if (!as_CSB(this)->fProfileData) {
+        // If we have a named profile, only write the enum.
+        switch (fNamed) {
+            case kSRGB_Named:
+            case kAdobeRGB_Named: {
+                if (memory) {
+                    *((ColorSpaceHeader*) memory) =
+                            ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed, 0);
+                }
+                return sizeof(ColorSpaceHeader);
             }
-            return sizeof(ColorSpaceHeader);
+            default:
+                break;
         }
-        default:
-            break;
+
+        // If we have a named gamma, write the enum and the matrix.
+        switch (fGammaNamed) {
+            case kSRGB_GammaNamed:
+            case k2Dot2Curve_GammaNamed:
+            case kLinear_GammaNamed: {
+                if (memory) {
+                    *((ColorSpaceHeader*) memory) =
+                            ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed,
+                                                   ColorSpaceHeader::kMatrix_Flag);
+                    memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
+                    fToXYZD50.as4x3ColMajorf((float*) memory);
+                }
+                return sizeof(ColorSpaceHeader) + 12 * sizeof(float);
+            }
+            default:
+                SkASSERT(false);
+                return 0;
+        }
     }
 
-    // If we have a named gamma, write the enum and the matrix.
-    switch (fGammaNamed) {
-        case kSRGB_GammaNamed:
-        case k2Dot2Curve_GammaNamed:
-        case kLinear_GammaNamed: {
-            if (memory) {
-                *((ColorSpaceHeader*) memory) =
-                        ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed,
-                                               ColorSpaceHeader::kMatrix_Flag);
-                memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
-                fToXYZD50.as4x3ColMajorf((float*) memory);
-            }
-            return sizeof(ColorSpaceHeader) + 12 * sizeof(float);
-        }
-        default:
-            break;
-    }
-
-    // If we do not have a named gamma, this must have been created from an ICC profile.
-    // Since we were unable to recognize the gamma, we will have saved the ICC data.
-    SkASSERT(as_CSB(this)->fProfileData);
-
+    // Otherwise, serialize the ICC data.
     size_t profileSize = as_CSB(this)->fProfileData->size();
     if (SkAlign4(profileSize) != (uint32_t) SkAlign4(profileSize)) {
         return 0;
     }
 
     if (memory) {
-        *((ColorSpaceHeader*) memory) = ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed,
+        *((ColorSpaceHeader*) memory) = ColorSpaceHeader::Pack(k0_Version, kUnknown_Named,
+                                                               kNonStandard_GammaNamed,
                                                                ColorSpaceHeader::kICC_Flag);
         memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
 
@@ -316,7 +319,8 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
 bool SkColorSpace::gammasAreMatching() const {
     const SkGammas* gammas = as_CSB(this)->gammas();
     SkASSERT(gammas);
-    return gammas->fRedData == gammas->fGreenData && gammas->fGreenData == gammas->fBlueData;
+    return gammas->fRedType == gammas->fGreenType && gammas->fGreenType == gammas->fBlueType &&
+           gammas->fRedData == gammas->fGreenData && gammas->fGreenData == gammas->fBlueData;
 }
 
 bool SkColorSpace::gammasAreNamed() const {
