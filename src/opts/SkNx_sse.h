@@ -130,14 +130,14 @@ public:
 };
 
 template <>
-class SkNx<4, int> {
+class SkNx<4, int32_t> {
 public:
     SkNx(const __m128i& vec) : fVec(vec) {}
 
     SkNx() {}
-    SkNx(int val) : fVec(_mm_set1_epi32(val)) {}
+    SkNx(int32_t val) : fVec(_mm_set1_epi32(val)) {}
     static SkNx Load(const void* ptr) { return _mm_loadu_si128((const __m128i*)ptr); }
-    SkNx(int a, int b, int c, int d) : fVec(_mm_setr_epi32(a,b,c,d)) {}
+    SkNx(int32_t a, int32_t b, int32_t c, int32_t d) : fVec(_mm_setr_epi32(a,b,c,d)) {}
 
     void store(void* ptr) const { _mm_storeu_si128((__m128i*)ptr, fVec); }
 
@@ -161,9 +161,9 @@ public:
     SkNx operator  < (const SkNx& o) const { return _mm_cmplt_epi32 (fVec, o.fVec); }
     SkNx operator  > (const SkNx& o) const { return _mm_cmpgt_epi32 (fVec, o.fVec); }
 
-    int operator[](int k) const {
+    int32_t operator[](int k) const {
         SkASSERT(0 <= k && k < 4);
-        union { __m128i v; int is[4]; } pun = {fVec};
+        union { __m128i v; int32_t is[4]; } pun = {fVec};
         return pun.is[k&3];
     }
 
@@ -178,6 +178,51 @@ public:
 
     __m128i fVec;
 };
+
+template <>
+class SkNx<4, uint32_t> {
+public:
+    SkNx(const __m128i& vec) : fVec(vec) {}
+
+    SkNx() {}
+    SkNx(uint32_t val) : fVec(_mm_set1_epi32(val)) {}
+    static SkNx Load(const void* ptr) { return _mm_loadu_si128((const __m128i*)ptr); }
+    SkNx(uint32_t a, uint32_t b, uint32_t c, uint32_t d) : fVec(_mm_setr_epi32(a,b,c,d)) {}
+
+    void store(void* ptr) const { _mm_storeu_si128((__m128i*)ptr, fVec); }
+
+    SkNx operator + (const SkNx& o) const { return _mm_add_epi32(fVec, o.fVec); }
+    SkNx operator - (const SkNx& o) const { return _mm_sub_epi32(fVec, o.fVec); }
+    // Not quite sure how to best do operator * in SSE2.  We probably don't use it.
+
+    SkNx operator & (const SkNx& o) const { return _mm_and_si128(fVec, o.fVec); }
+    SkNx operator | (const SkNx& o) const { return _mm_or_si128(fVec, o.fVec); }
+    SkNx operator ^ (const SkNx& o) const { return _mm_xor_si128(fVec, o.fVec); }
+
+    SkNx operator << (int bits) const { return _mm_slli_epi32(fVec, bits); }
+    SkNx operator >> (int bits) const { return _mm_srli_epi32(fVec, bits); }
+
+    SkNx operator == (const SkNx& o) const { return _mm_cmpeq_epi32 (fVec, o.fVec); }
+    // operator < and > take a little extra fiddling to make work for unsigned ints.
+
+    uint32_t operator[](int k) const {
+        SkASSERT(0 <= k && k < 4);
+        union { __m128i v; uint32_t us[4]; } pun = {fVec};
+        return pun.us[k&3];
+    }
+
+    SkNx thenElse(const SkNx& t, const SkNx& e) const {
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+        return _mm_blendv_epi8(e.fVec, t.fVec, fVec);
+    #else
+        return _mm_or_si128(_mm_and_si128   (fVec, t.fVec),
+                            _mm_andnot_si128(fVec, e.fVec));
+    #endif
+    }
+
+    __m128i fVec;
+};
+
 
 template <>
 class SkNx<4, uint16_t> {
@@ -315,15 +360,18 @@ public:
     __m128i fVec;
 };
 
-template<> /*static*/ inline Sk4f SkNx_cast<float, int>(const Sk4i& src) {
+template<> /*static*/ inline Sk4f SkNx_cast<float, int32_t>(const Sk4i& src) {
     return _mm_cvtepi32_ps(src.fVec);
 }
+template<> /*static*/ inline Sk4f SkNx_cast<float, uint32_t>(const Sk4u& src) {
+    return SkNx_cast<float>(Sk4i::Load(&src));
+}
 
-template <> /*static*/ inline Sk4i SkNx_cast<int, float>(const Sk4f& src) {
+template <> /*static*/ inline Sk4i SkNx_cast<int32_t, float>(const Sk4f& src) {
     return _mm_cvttps_epi32(src.fVec);
 }
 
-template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, int>(const Sk4i& src) {
+template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, int32_t>(const Sk4i& src) {
 #if 0 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
     // TODO: This seems to be causing code generation problems.   Investigate?
     return _mm_packus_epi32(src.fVec);
@@ -339,7 +387,7 @@ template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, int>(const Sk4i& src) {
 }
 
 template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, float>(const Sk4f& src) {
-    return SkNx_cast<uint16_t>(SkNx_cast<int>(src));
+    return SkNx_cast<uint16_t>(SkNx_cast<int32_t>(src));
 }
 
 template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, float>(const Sk4f& src) {
@@ -391,11 +439,11 @@ template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, uint16_t>(const Sk4h& src) 
     return _mm_packus_epi16(src.fVec, src.fVec);
 }
 
-template<> /*static*/ inline Sk4i SkNx_cast<int, uint16_t>(const Sk4h& src) {
+template<> /*static*/ inline Sk4i SkNx_cast<int32_t, uint16_t>(const Sk4h& src) {
     return _mm_unpacklo_epi16(src.fVec, _mm_setzero_si128());
 }
 
-template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, int>(const Sk4i& src) {
+template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, int32_t>(const Sk4i& src) {
     return _mm_packus_epi16(_mm_packus_epi16(src.fVec, src.fVec), src.fVec);
 }
 

@@ -297,8 +297,7 @@ static void SK_VECTORCALL load_d_srgb(SkRasterPipeline::Stage* st, size_t x,
            sk_linear_from_srgb[(ptr[2] >> SK_B32_SHIFT) & 0xff],
            sk_linear_from_srgb[(ptr[3] >> SK_B32_SHIFT) & 0xff] };
 
-    // TODO: this >> doesn't really need mask if we make it logical instead of arithmetic.
-    da = SkNx_cast<float>((Sk4i::Load(ptr) >> SK_A32_SHIFT) & 0xff) * (1/255.0f);
+    da = SkNx_cast<float>(Sk4u::Load(ptr) >> SK_A32_SHIFT) * (1/255.0f);
 
     st->next(x, r,g,b,a, dr,dg,db,da);
 }
