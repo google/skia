@@ -332,6 +332,34 @@ FAKE_SPECS = {
     'upload_dm_results': True,
     'upload_perf_results': False,
   },
+  'Build-Ubuntu-Clang-x86_64-Debug-GN': {
+    'build_targets': [
+      'most',
+    ],
+    'builder_cfg': {
+      'compiler': 'Clang',
+      'configuration': 'Debug',
+      'extra_config': 'GN',
+      'is_trybot': False,
+      'os': 'Ubuntu',
+      'role': 'Build',
+      'target_arch': 'x86_64',
+    },
+    'configuration': 'Debug',
+    'dm_flags': [
+      '--dummy-flags',
+    ],
+    'do_perf_steps': False,
+    'do_test_steps': False,
+    'env': {
+      'GYP_DEFINES': 'skia_arch_type=x86_64 skia_warnings_as_errors=1',
+    },
+    'nanobench_flags': [
+      '--dummy-flags',
+    ],
+    'upload_dm_results': True,
+    'upload_perf_results': False,
+  },
   'Build-Ubuntu-GCC-x86_64-Debug-GN': {
     'build_targets': [
       'most',

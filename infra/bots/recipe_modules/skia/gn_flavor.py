@@ -18,6 +18,18 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         is_debug = 'is_debug=false'
     gn_args = [is_debug]
 
+    cc, cxx = 'cc', 'c++'
+    if 'Clang' in self._skia_api.builder_name:
+      cc, cxx = 'clang', 'clang++'
+    elif 'GCC' in self._skia_api.builder_name:
+      cc, cxx = 'gcc', 'g++'
+
+    ccache = self._skia_api.ccache()
+    if ccache:
+      cc, cxx = '"%s %s"' % (ccache, cc), '"%s %s"' % (ccache, cxx)
+
+    gn_args += [ 'cc=' + cc, 'cxx=' + cxx ]
+
     # Run gn gen.
     gn_exe = 'gn'
     if self._skia_api.m.platform.is_win:

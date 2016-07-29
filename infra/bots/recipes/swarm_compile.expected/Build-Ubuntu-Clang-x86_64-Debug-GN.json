@@ -4,7 +4,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_C:\\_B_WORK]",
+      "[CUSTOM_/_B_WORK]",
       "511"
     ],
     "name": "makedirs checkout_path",
@@ -25,15 +25,15 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]\\gclient.py",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
       "config",
       "--spec",
-      "cache_dir = '[CUSTOM_C:\\\\_B_CACHE]'\nsolutions = [{'deps_file': 'DEPS', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]\ntarget_os = ['llvm']"
+      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': 'DEPS', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]\ntarget_os = ['llvm']"
     ],
-    "cwd": "[CUSTOM_C:\\_B_WORK]",
+    "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "gclient setup"
   },
@@ -41,7 +41,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]\\gclient.py",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
       "sync",
       "--nohooks",
       "--force",
@@ -52,10 +52,10 @@
       "--output-json",
       "/path/to/tmp/json"
     ],
-    "cwd": "[CUSTOM_C:\\_B_WORK]",
+    "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "gclient sync",
     "~followup_annotations": [
@@ -74,11 +74,11 @@
     "cmd": [
       "python",
       "-u",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\tools\\buildbot_spec.py",
+      "[CUSTOM_/_B_WORK]/skia/tools/buildbot_spec.py",
       "/path/to/tmp/json",
-      "Build-Win-MSVC-x86-Release-GN"
+      "Build-Ubuntu-Clang-x86_64-Debug-GN"
     ],
-    "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "name": "exec buildbot_spec.py",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -86,22 +86,22 @@
       "@@@STEP_LOG_LINE@json.output@    \"most\"@@@",
       "@@@STEP_LOG_LINE@json.output@  ], @@@",
       "@@@STEP_LOG_LINE@json.output@  \"builder_cfg\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"compiler\": \"MSVC\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"configuration\": \"Release\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"compiler\": \"Clang\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"configuration\": \"Debug\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"extra_config\": \"GN\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"is_trybot\": false, @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"os\": \"Win\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"os\": \"Ubuntu\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"role\": \"Build\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"target_arch\": \"x86\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"target_arch\": \"x86_64\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"configuration\": \"Release\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"configuration\": \"Debug\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"dm_flags\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",
       "@@@STEP_LOG_LINE@json.output@  ], @@@",
       "@@@STEP_LOG_LINE@json.output@  \"do_perf_steps\": false, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"do_test_steps\": false, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"env\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"GYP_DEFINES\": \"qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"GYP_DEFINES\": \"skia_arch_type=x86_64 skia_warnings_as_errors=1\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"nanobench_flags\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",
@@ -114,32 +114,65 @@
   },
   {
     "cmd": [
-      "[CUSTOM_C:\\_B_WORK]\\skia\\bin\\fetch-gn"
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
-    "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0",
-      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN"
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_warnings_as_errors=1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN"
     },
     "name": "fetch-gn"
   },
   {
     "cmd": [
-      "gn.exe",
-      "gen",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN\\Release",
-      "--args=is_debug=false cc=cc cxx=c++"
+      "python",
+      "-u",
+      "import json\nimport subprocess\nimport sys\n\nccache = None\ntry:\n  ccache = subprocess.check_output(['which', 'ccache']).rstrip()\nexcept:\n  pass\nprint json.dumps({'ccache': ccache})\n"
     ],
-    "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0",
-      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN"
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_warnings_as_errors=1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN"
+    },
+    "name": "has ccache?",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"ccache\": \"/usr/bin/ccache\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@ccache = None@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  ccache = subprocess.check_output(['which', 'ccache']).rstrip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@except:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  pass@@@",
+      "@@@STEP_LOG_LINE@python.inline@print json.dumps({'ccache': ccache})@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gn",
+      "gen",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN/Debug",
+      "--args=is_debug=true cc=\"/usr/bin/ccache clang\" cxx=\"/usr/bin/ccache clang++\""
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_warnings_as_errors=1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN"
     },
     "name": "gn_gen"
   },
@@ -147,15 +180,15 @@
     "cmd": [
       "ninja",
       "-C",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN\\Release"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN/Debug"
     ],
-    "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0",
-      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN"
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_warnings_as_errors=1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN"
     },
     "name": "compile most"
   },
@@ -164,8 +197,8 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['dm', 'dm.exe', 'nanobench', 'nanobench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'lib/*.so', 'iOSShell.app', 'iOSShell.ipa', 'visualbench', 'visualbench.exe', 'vulkan-1.dll']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN\\Release",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\out\\Release"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN/Debug",
+      "[CUSTOM_[SWARM_OUT_DIR]]/out/Debug"
     ],
     "name": "copy build products",
     "~followup_annotations": [
@@ -193,24 +226,6 @@
       "@@@STEP_LOG_LINE@python.inline@      os.makedirs(os.path.dirname(dst_path))@@@",
       "@@@STEP_LOG_LINE@python.inline@    print 'Copying build product %s to %s' % (f, dst_path)@@@",
       "@@@STEP_LOG_LINE@python.inline@    shutil.move(f, dst_path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "import psutil\nfor p in psutil.process_iter():\n  try:\n    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):\n      p.kill()\n  except psutil._error.AccessDenied:\n    pass\n"
-    ],
-    "name": "cleanup",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import psutil@@@",
-      "@@@STEP_LOG_LINE@python.inline@for p in psutil.process_iter():@@@",
-      "@@@STEP_LOG_LINE@python.inline@  try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@      p.kill()@@@",
-      "@@@STEP_LOG_LINE@python.inline@  except psutil._error.AccessDenied:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    pass@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },

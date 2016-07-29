@@ -27,6 +27,7 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-Arm7-Release-Android_Vulkan',
       'Build-Ubuntu-GCC-x86-Debug',
       'Build-Ubuntu-GCC-x86_64-Debug-MSAN',
+      'Build-Ubuntu-Clang-x86_64-Debug-GN',
       'Build-Ubuntu-GCC-x86_64-Debug-GN',
       'Build-Ubuntu-GCC-x86_64-Release-CMake',
       'Build-Ubuntu-GCC-x86_64-Release-PDFium',
@@ -70,10 +71,11 @@ def GenTests(api):
           test += api.platform('mac', 64)
         else:
           test += api.platform('linux', 64)
-        if 'Android' in builder:
+        if 'Android' in builder or ('GN' in builder and 'Win' not in builder):
           ccache = '/usr/bin/ccache'
           test += api.step_data('has ccache?',
                                 stdout=api.json.output({'ccache':ccache}))
+        if 'Android' in builder:
           test += api.step_data(
             'which adb',
             retcode=1)
