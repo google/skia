@@ -55,8 +55,6 @@ public:
         return static_cast<GrGLPathRendering*>(pathRendering());
     }
 
-    gr_instanced::InstancedRendering* createInstancedRenderingIfSupported() override;
-
     // Used by GrGLProgram to configure OpenGL state.
     void bindTexture(int unitIdx, const GrTextureParams& params, bool allowSRGBInputs,
                      GrGLTexture* texture);
@@ -165,6 +163,9 @@ private:
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                               GrWrapOwnership) override;
     GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override;
+
+    gr_instanced::InstancedRendering* onCreateInstancedRendering() override;
+
     // Given a GrPixelConfig return the index into the stencil format array on GrGLCaps to a
     // compatible stencil format, or negative if there is no compatible stencil format.
     int getCompatibleStencilIndex(GrPixelConfig config);

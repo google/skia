@@ -31,27 +31,21 @@ private:
     typedef Batch INHERITED;
 };
 
-GLInstancedRendering* GLInstancedRendering::CreateIfSupported(GrGLGpu* gpu) {
-#ifndef SK_BUILD_FOR_MAC
-    // Only whitelisting on Mac for now. Once we've been able to work through the various issues on
-    // other platforms we can enable more generally.
-    return nullptr;
-#endif
-    const GrGLCaps& glCaps = gpu->glCaps();
-    AntialiasMode lastSupportedAAMode;
-    if (!glCaps.vertexArrayObjectSupport() ||
-        !glCaps.drawIndirectSupport() ||
-        !InstanceProcessor::IsSupported(*glCaps.glslCaps(), glCaps, &lastSupportedAAMode)) {
-        return nullptr;
+GrCaps::InstancedSupport GLInstancedRendering::CheckSupport(const GrGLCaps& glCaps) {
+    // This method is only intended to be used for initializing fInstancedSupport in the caps.
+    SkASSERT(GrCaps::InstancedSupport::kNone == glCaps.instancedSupport());
+    if (!glCaps.vertexArrayObjectSupport() || !glCaps.drawIndirectSupport()) {
+        return GrCaps::InstancedSupport::kNone;
     }
-    return new GLInstancedRendering(gpu, lastSupportedAAMode);
+    return InstanceProcessor::CheckSupport(*glCaps.glslCaps(), glCaps);
 }
 
-GLInstancedRendering::GLInstancedRendering(GrGLGpu* gpu, AntialiasMode lastSupportedAAMode)
-    : INHERITED(gpu, lastSupportedAAMode, gpu->glCaps().canDrawIndirectToFloat()),
+GLInstancedRendering::GLInstancedRendering(GrGLGpu* gpu)
+    : INHERITED(gpu),
       fVertexArrayID(0),
       fGLDrawCmdsInfo(0),
       fInstanceAttribsBufferUniqueId(SK_InvalidUniqueID) {
+    SkASSERT(GrCaps::InstancedSupport::kNone != this->gpu()->caps()->instancedSupport());
 }
 
 GLInstancedRendering::~GLInstancedRendering() {

@@ -58,6 +58,14 @@ def get_args(bot):
     else:
       config.extend(['msaa16', 'nvpr16', 'nvprdit16'])
 
+  # Bench instanced rendering on a limited number of platforms
+  if 'Nexus6' in bot:
+    config.append('esinst') # esinst4 isn't working yet on Adreno.
+  elif 'TegraX1' in bot:
+    config.extend(['glinst', 'glinst4'])
+  elif 'MacMini6.2' in bot:
+    config.extend(['glinst', 'glinst16'])
+
   if 'Vulkan' in bot:
     config = ['vk']
 
@@ -147,9 +155,11 @@ def self_test():
   args = {}
   cases = [
     'Perf-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Release',
+    'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
     'Perf-Android-Nexus7-Tegra3-Arm7-Release',
     'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
     'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release',
+    'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
     'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',

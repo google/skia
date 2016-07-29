@@ -139,10 +139,10 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
-    /**
-     * Gets the shape rendering object if it is supported on this platform.
-     */
-    gr_instanced::InstancedRendering* instancedRendering() const { return fInstancedRendering; }
+    gr_instanced::InstancedRendering* instancedRendering() const {
+        SkASSERT(fInstancedRendering);
+        return fInstancedRendering;
+    }
 
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits

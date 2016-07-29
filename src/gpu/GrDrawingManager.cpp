@@ -45,7 +45,8 @@ GrDrawingManager::~GrDrawingManager() {
 void GrDrawingManager::abandon() {
     fAbandoned = true;
     for (int i = 0; i < fDrawTargets.count(); ++i) {
-        if (InstancedRendering* ir = fDrawTargets[i]->instancedRendering()) {
+        if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+            InstancedRendering* ir = fDrawTargets[i]->instancedRendering();
             ir->resetGpuResources(InstancedRendering::ResetType::kAbandon);
         }
     }
@@ -58,7 +59,8 @@ void GrDrawingManager::freeGpuResources() {
     fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
     for (int i = 0; i < fDrawTargets.count(); ++i) {
-        if (InstancedRendering* ir = fDrawTargets[i]->instancedRendering()) {
+        if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+            InstancedRendering* ir = fDrawTargets[i]->instancedRendering();
             ir->resetGpuResources(InstancedRendering::ResetType::kDestroy);
         }
     }

@@ -832,6 +832,10 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
                 contextOptions = static_cast<GrContextFactory::ContextOptions>(
                     contextOptions | GrContextFactory::kEnableNVPR_ContextOptions);
             }
+            if (gpuConfig->getUseInstanced()) {
+                contextOptions = static_cast<GrContextFactory::ContextOptions>(
+                    contextOptions | GrContextFactory::kUseInstanced_ContextOptions);
+            }
             if (SkColorAndColorSpaceAreGammaCorrect(gpuConfig->getColorType(),
                                                     gpuConfig->getColorSpace())) {
                 contextOptions = static_cast<GrContextFactory::ContextOptions>(

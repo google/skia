@@ -8,6 +8,7 @@
 #ifndef gr_instanced_InstanceProcessor_DEFINED
 #define gr_instanced_InstanceProcessor_DEFINED
 
+#include "GrCaps.h"
 #include "GrBufferAccess.h"
 #include "GrGeometryProcessor.h"
 #include "instanced/InstancedRenderingTypes.h"
@@ -22,8 +23,6 @@ namespace gr_instanced {
  */
 class InstanceProcessor : public GrGeometryProcessor {
 public:
-    static bool IsSupported(const GrGLSLCaps&, const GrCaps&, AntialiasMode* lastSupportedAAMode);
-
     InstanceProcessor(BatchInfo, GrBuffer* paramsBuffer);
 
     const char* name() const override { return "Instance Processor"; }
@@ -52,8 +51,16 @@ public:
     static const char* GetNameOfIndexRange(IndexRange);
 
 private:
+    /**
+     * Called by the platform-specific instanced rendering implementation to determine the level of
+     * support this class can offer on the given GLSL platform.
+     */
+    static GrCaps::InstancedSupport CheckSupport(const GrGLSLCaps&, const GrCaps&);
+
     const BatchInfo   fBatchInfo;
     GrBufferAccess    fParamsAccess;
+
+    friend class GLInstancedRendering; // For CheckSupport.
 
     typedef GrGeometryProcessor INHERITED;
 };

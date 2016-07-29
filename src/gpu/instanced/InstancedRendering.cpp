@@ -15,11 +15,8 @@
 
 namespace gr_instanced {
 
-InstancedRendering::InstancedRendering(GrGpu* gpu, AntialiasMode lastSupportedAAMode,
-                                       bool canRenderToFloat)
+InstancedRendering::InstancedRendering(GrGpu* gpu)
     : fGpu(SkRef(gpu)),
-      fLastSupportedAAMode(lastSupportedAAMode),
-      fCanRenderToFloat(canRenderToFloat),
       fState(State::kRecordingDraws),
       fDrawPool(1024 * sizeof(Batch::Draw), 1024 * sizeof(Batch::Draw)) {
 }
@@ -107,7 +104,7 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
                                                            bool* useHWAA) {
     SkASSERT(State::kRecordingDraws == fState);
 
-    if (info.fIsRenderingToFloat && !fCanRenderToFloat) {
+    if (info.fIsRenderingToFloat && fGpu->caps()->avoidInstancedDrawsToFPTargets()) {
         return nullptr;
     }
 
@@ -201,9 +198,9 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
                                                     bool* useHWAA, AntialiasMode* antialiasMode) {
     SkASSERT(!info.fColorDisabled || info.fDrawingShapeToStencil);
     SkASSERT(!info.fIsMixedSampled || info.fIsMultisampled);
+    SkASSERT(GrCaps::InstancedSupport::kNone != fGpu->caps()->instancedSupport());
 
     if (!info.fIsMultisampled || fGpu->caps()->multisampleDisableSupport()) {
-        SkASSERT(fLastSupportedAAMode >= AntialiasMode::kCoverage);
         if (!antialias) {
             if (info.fDrawingShapeToStencil && !info.fCanDiscard) {
                 // We can't draw to the stencil buffer without discard (or sample mask if MSAA).
@@ -221,13 +218,14 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
         }
     }
 
-    if (info.fIsMultisampled && fLastSupportedAAMode >= AntialiasMode::kMSAA) {
+    if (info.fIsMultisampled &&
+        fGpu->caps()->instancedSupport() >= GrCaps::InstancedSupport::kMultisampled) {
         if (!info.fIsMixedSampled || info.fColorDisabled) {
             *antialiasMode = AntialiasMode::kMSAA;
             *useHWAA = true;
             return true;
         }
-        if (fLastSupportedAAMode >= AntialiasMode::kMixedSamples) {
+        if (fGpu->caps()->instancedSupport() >= GrCaps::InstancedSupport::kMixedSampled) {
             *antialiasMode = AntialiasMode::kMixedSamples;
             *useHWAA = true;
             return true;

@@ -152,9 +152,7 @@ public:
     /**
      * Creates an instanced rendering object if it is supported on this platform.
      */
-    virtual gr_instanced::InstancedRendering* createInstancedRenderingIfSupported() {
-        return nullptr;
-    }
+    gr_instanced::InstancedRendering* createInstancedRendering();
 
     /**
      * Resolves MSAA.
@@ -536,6 +534,8 @@ private:
     virtual GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) = 0;
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
+
+    virtual gr_instanced::InstancedRendering* onCreateInstancedRendering() = 0;
 
     virtual bool onMakeCopyForTextureParams(GrTexture* texture, const GrTextureParams&,
                                             GrTextureProducer::CopyParams*) const { return false; }

@@ -44,6 +44,7 @@ DEF_TEST(ParseConfigs_Gpu, reporter) {
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getContextType()
                     == GrContextFactory::kNativeGL_ContextType);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseNVPR() == false);
+    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseInstanced() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseDIText() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 0);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorType() == kN32_SkColorType);
@@ -75,9 +76,10 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
 
     SkCommandLineFlags::StringArray config1 = make_string_array({
         "565", "8888", "debug", "gpu", "gpudebug", "gpudft", "gpunull", "msaa16", "msaa4",
-        "nonrendering", "null", "nullgpu", "nvpr16", "nvpr4", "nvprdit16", "nvprdit4", "pdf",
-        "skp", "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui",
-        "gpuf16", "gpusrgb", "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk"
+        "nonrendering", "null", "nullgpu", "nvpr16", "nvpr4", "nvprdit16", "nvprdit4", "pdf", "skp",
+        "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui", "gpuf16", "gpusrgb",
+        "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk", "glinst", "glinst4", "glinstdit4",
+        "glinst16", "glinstdit16", "esinst", "esinst4", "esinstdit4"
     });
 
     SkCommandLineConfigArray configs;
@@ -124,6 +126,39 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorType() == kN32_SkColorType);
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
+    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGL_ContextType);
+    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getUseInstanced());
+    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGL_ContextType);
+    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getUseInstanced());
+    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getSamples() == 4);
+    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGL_ContextType);
+    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getUseInstanced());
+    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getUseDIText());
+    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getSamples() == 4);
+    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGL_ContextType);
+    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getUseInstanced());
+    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getSamples() == 16);
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGL_ContextType);
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getUseInstanced());
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getUseDIText());
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getSamples() == 16);
+    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGLES_ContextType);
+    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu()->getUseInstanced());
+    REPORTER_ASSERT(reporter, configs[39]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGLES_ContextType);
+    REPORTER_ASSERT(reporter, configs[39]->asConfigGpu()->getUseInstanced());
+    REPORTER_ASSERT(reporter, configs[39]->asConfigGpu()->getSamples() == 4);
+    REPORTER_ASSERT(reporter, configs[40]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGLES_ContextType);
+    REPORTER_ASSERT(reporter, configs[40]->asConfigGpu()->getUseInstanced());
+    REPORTER_ASSERT(reporter, configs[40]->asConfigGpu()->getUseDIText());
+    REPORTER_ASSERT(reporter, configs[40]->asConfigGpu()->getSamples() == 4);
 
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN

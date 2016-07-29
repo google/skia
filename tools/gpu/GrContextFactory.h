@@ -92,7 +92,8 @@ public:
     enum ContextOptions {
         kNone_ContextOptions                = 0x0,
         kEnableNVPR_ContextOptions          = 0x1,
-        kRequireSRGBSupport_ContextOptions  = 0x2,
+        kUseInstanced_ContextOptions        = 0x2,
+        kRequireSRGBSupport_ContextOptions  = 0x4,
     };
 
     static ContextType NativeContextTypeForBackend(GrBackend backend) {

@@ -407,6 +407,10 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
             ctxOptions = static_cast<GrContextFactory::ContextOptions>(
                 ctxOptions | GrContextFactory::kEnableNVPR_ContextOptions);
         }
+        if (gpuConfig->getUseInstanced()) {
+            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
+                ctxOptions | GrContextFactory::kUseInstanced_ContextOptions);
+        }
         if (SkColorAndColorSpaceAreGammaCorrect(gpuConfig->getColorType(),
                                                 gpuConfig->getColorSpace())) {
             ctxOptions = static_cast<GrContextFactory::ContextOptions>(

@@ -8,9 +8,11 @@
 #ifndef gr_instanced_GLInstancedRendering_DEFINED
 #define gr_instanced_GLInstancedRendering_DEFINED
 
+#include "GrCaps.h"
 #include "gl/GrGLBuffer.h"
 #include "instanced/InstancedRendering.h"
 
+class GrGLCaps;
 class GrGLGpu;
 
 #define GR_GL_LOG_INSTANCED_BATCHES 0
@@ -19,11 +21,15 @@ namespace gr_instanced {
 
 class GLInstancedRendering final : public InstancedRendering {
 public:
-    static GLInstancedRendering* CreateIfSupported(GrGLGpu*);
+    GLInstancedRendering(GrGLGpu*);
     ~GLInstancedRendering() override;
 
 private:
-    GLInstancedRendering(GrGLGpu*, AntialiasMode lastSupportedAAMode);
+    /**
+     * Called by GrGLCaps to determine the level of support this class can offer for instanced
+     * rendering on the current platform.
+     */
+    static GrCaps::InstancedSupport CheckSupport(const GrGLCaps&);
 
     GrGLGpu* glGpu() const;
 
@@ -51,6 +57,8 @@ private:
     int                                   fInstanceAttribsBaseInstance;
 
     class GLBatch;
+
+    friend class ::GrGLCaps; // For CheckSupport.
 
     typedef InstancedRendering INHERITED;
 };

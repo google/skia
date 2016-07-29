@@ -479,10 +479,6 @@ void GrGLGpu::disconnect(DisconnectType type) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-InstancedRendering* GrGLGpu::createInstancedRenderingIfSupported() {
-    return GLInstancedRendering::CreateIfSupported(this);
-}
-
 void GrGLGpu::onResetContext(uint32_t resetBits) {
     // we don't use the zb at all
     if (resetBits & kMisc_GrGLBackendState) {
@@ -1963,6 +1959,10 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
 GrBuffer* GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
                                   GrAccessPattern accessPattern, const void* data) {
     return GrGLBuffer::Create(this, size, intendedType, accessPattern, data);
+}
+
+InstancedRendering* GrGLGpu::onCreateInstancedRendering() {
+    return new GLInstancedRendering(this);
 }
 
 void GrGLGpu::flushScissor(const GrScissorState& scissorState,

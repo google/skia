@@ -106,6 +106,8 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     fUseDrawInsteadOfClear = false;
 
+    fInstancedSupport = InstancedSupport::kNone;
+
     fBlendEquationSupport = kBasic_BlendEquationSupport;
     fAdvBlendEqBlacklist = 0;
 
@@ -123,6 +125,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fBufferMapThreshold = options.fBufferMapThreshold;
     fUseDrawInsteadOfPartialRenderTargetWrite = options.fUseDrawInsteadOfPartialRenderTargetWrite;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
+    fAvoidInstancedDrawsToFPTargets = false;
 
     fPreferVRAMUseOverFlushes = true;
 }
@@ -196,6 +199,21 @@ SkString GrCaps::dump() const {
     r.appendf("Max Color Sample Count             : %d\n", fMaxColorSampleCount);
     r.appendf("Max Stencil Sample Count           : %d\n", fMaxStencilSampleCount);
     r.appendf("Max Raster Samples                 : %d\n", fMaxRasterSamples);
+
+    static const char* kInstancedSupportNames[] = {
+        "None",
+        "Basic",
+        "Multisampled",
+        "Mixed Sampled",
+    };
+    GR_STATIC_ASSERT(0 == (int)InstancedSupport::kNone);
+    GR_STATIC_ASSERT(1 == (int)InstancedSupport::kBasic);
+    GR_STATIC_ASSERT(2 == (int)InstancedSupport::kMultisampled);
+    GR_STATIC_ASSERT(3 == (int)InstancedSupport::kMixedSampled);
+    GR_STATIC_ASSERT(4 == SK_ARRAY_COUNT(kInstancedSupportNames));
+
+    r.appendf("Instanced Support                  : %s\n",
+              kInstancedSupportNames[(int)fInstancedSupport]);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",

@@ -251,6 +251,11 @@ GrBuffer* GrGpu::createBuffer(size_t size, GrBufferType intendedType,
     return buffer;
 }
 
+gr_instanced::InstancedRendering* GrGpu::createInstancedRendering() {
+    SkASSERT(GrCaps::InstancedSupport::kNone != this->caps()->instancedSupport());
+    return this->onCreateInstancedRendering();
+}
+
 bool GrGpu::copySurface(GrSurface* dst,
                         GrSurface* src,
                         const SkIRect& srcRect,

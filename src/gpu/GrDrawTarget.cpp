@@ -48,8 +48,7 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
     , fResourceProvider(resourceProvider)
     , fAuditTrail(auditTrail)
     , fFlags(0)
-    , fRenderTarget(rt)
-    , fInstancedRendering(fGpu->createInstancedRenderingIfSupported()) {
+    , fRenderTarget(rt) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
 
@@ -59,6 +58,10 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
                                                           options.fMaxBatchLookback;
     fMaxBatchLookahead = (options.fMaxBatchLookahead < 0) ? kDefaultMaxBatchLookahead :
                                                            options.fMaxBatchLookahead;
+
+    if (GrCaps::InstancedSupport::kNone != this->caps()->instancedSupport()) {
+        fInstancedRendering.reset(fGpu->createInstancedRendering());
+    }
 
     rt->setLastDrawTarget(this);
 

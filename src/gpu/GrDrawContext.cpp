@@ -368,7 +368,8 @@ bool GrDrawContext::drawFilledRect(const GrClip& clip,
     SkAutoTUnref<GrDrawBatch> batch;
     bool useHWAA;
 
-    if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
+    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+        InstancedRendering* ir = this->getDrawTarget()->instancedRendering();
         batch.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
                                    paint.isAntiAlias(), fInstancedPipelineInfo,
                                    &useHWAA));
@@ -618,7 +619,8 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
     bool useHWAA;
 
-    if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
+    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+        InstancedRendering* ir = this->getDrawTarget()->instancedRendering();
         SkAutoTUnref<GrDrawBatch> batch(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
                                                        croppedLocalRect, paint.isAntiAlias(),
                                                        fInstancedPipelineInfo, &useHWAA));
@@ -676,7 +678,8 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
     bool useHWAA;
 
-    if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
+    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+        InstancedRendering* ir = this->getDrawTarget()->instancedRendering();
         SkAutoTUnref<GrDrawBatch> batch(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
                                                        localMatrix, paint.isAntiAlias(),
                                                        fInstancedPipelineInfo, &useHWAA));
@@ -803,7 +806,8 @@ void GrDrawContext::drawRRect(const GrClip& clip,
     const SkStrokeRec stroke = style.strokeRec();
     bool useHWAA;
 
-    if (this->getDrawTarget()->instancedRendering() && stroke.isFillStyle()) {
+    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
+        stroke.isFillStyle()) {
         InstancedRendering* ir = this->getDrawTarget()->instancedRendering();
         SkAutoTUnref<GrDrawBatch> batch(ir->recordRRect(rrect, viewMatrix, paint.getColor(),
                                                         paint.isAntiAlias(), fInstancedPipelineInfo,
@@ -843,8 +847,9 @@ bool GrDrawContext::drawFilledDRRect(const GrClip& clip,
     SkASSERT(!origInner.isEmpty());
     SkASSERT(!origOuter.isEmpty());
 
-    if (InstancedRendering* ir = this->getDrawTarget()->instancedRendering()) {
+    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
         bool useHWAA;
+        InstancedRendering* ir = this->getDrawTarget()->instancedRendering();
         SkAutoTUnref<GrDrawBatch> batch(ir->recordDRRect(origOuter, origInner, viewMatrix,
                                                          paintIn.getColor(), paintIn.isAntiAlias(),
                                                          fInstancedPipelineInfo, &useHWAA));
@@ -954,7 +959,8 @@ void GrDrawContext::drawOval(const GrClip& clip,
     const SkStrokeRec& stroke = style.strokeRec();
     bool useHWAA;
 
-    if (this->getDrawTarget()->instancedRendering() && stroke.isFillStyle()) {
+    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
+        stroke.isFillStyle()) {
         InstancedRendering* ir = this->getDrawTarget()->instancedRendering();
         SkAutoTUnref<GrDrawBatch> batch(ir->recordOval(oval, viewMatrix, paint.getColor(),
                                                        paint.isAntiAlias(), fInstancedPipelineInfo,

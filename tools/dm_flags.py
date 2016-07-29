@@ -90,6 +90,16 @@ def get_args(bot):
   if 'GalaxyS3' in bot:
       configs.append('gpudft')
 
+  # Test instanced rendering on a limited number of platforms
+  if 'Nexus6' in bot:
+    configs.append('esinst') # esinst4 isn't working yet on Adreno.
+  elif 'TegraX1' in bot:
+    # Multisampled instanced configs use nvpr.
+    configs = [x.replace('glnvpr', 'glinst') for x in configs]
+    configs.append('glinst')
+  elif 'MacMini6.2' in bot:
+    configs.extend(['glinst', 'glinst16'])
+
   # CommandBuffer bot *only* runs the command_buffer config.
   if 'CommandBuffer' in bot:
     configs = ['commandbuffer']
@@ -303,6 +313,7 @@ def self_test():
     'Test-Android-GCC-AndroidOne-GPU-Mali400MP2-Arm7-Release',
     'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
     'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
+    'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
     'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
     'Test-Android-GCC-Nexus9-GPU-TegraK1-Arm64-Debug',
     'Test-Android-GCC-Nexus10-GPU-MaliT604-Arm7-Debug',
@@ -310,6 +321,7 @@ def self_test():
     'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Release',
     'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',
     'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
+    'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug',
     'Test-Mac10.8-Clang-MacMini4.1-CPU-SSE4-x86_64-Release',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',

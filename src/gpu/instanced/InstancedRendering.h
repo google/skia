@@ -143,7 +143,7 @@ protected:
 
     typedef SkTInternalLList<Batch> BatchList;
 
-    InstancedRendering(GrGpu* gpu, AntialiasMode lastSupportedAAMode, bool canRenderToFloat);
+    InstancedRendering(GrGpu* gpu);
 
     const BatchList& trackedBatches() const { return fTrackedBatches; }
     const GrBuffer* vertexBuffer() const { SkASSERT(fVertexBuffer); return fVertexBuffer; }
@@ -171,8 +171,6 @@ private:
     virtual Batch* createBatch() = 0;
 
     const SkAutoTUnref<GrGpu>            fGpu;
-    const AntialiasMode                  fLastSupportedAAMode;
-    const bool                           fCanRenderToFloat;
     State                                fState;
     GrMemoryPool                         fDrawPool;
     SkSTArray<1024, ParamsTexel, true>   fParams;

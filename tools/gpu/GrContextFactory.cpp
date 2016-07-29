@@ -31,6 +31,8 @@ GrContextFactory::GrContextFactory() { }
 
 GrContextFactory::GrContextFactory(const GrContextOptions& opts)
     : fGlobalOptions(opts) {
+    // In this factory, instanced rendering is specified with kUseInstanced_ContextOptions.
+    SkASSERT(!fGlobalOptions.fEnableInstancedRendering);
 }
 
 GrContextFactory::~GrContextFactory() {
@@ -150,8 +152,9 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
             }
             testCtx.reset(glCtx);
             glInterface.reset(SkRef(glCtx->gl()));
-            // Block NVPR from non-NVPR types.
-            if (!(kEnableNVPR_ContextOptions & options)) {
+            // Block NVPR from non-NVPR types. We don't block NVPR from contexts that will use
+            // instanced rendering because that would prevent us from testing mixed samples.
+            if (!((kEnableNVPR_ContextOptions | kUseInstanced_ContextOptions) & options)) {
                 glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
                 if (!glInterface) {
                     return ContextInfo();
@@ -188,12 +191,21 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
     }
     testCtx->makeCurrent();
     SkASSERT(testCtx && testCtx->backend() == backend);
-    grCtx.reset(GrContext::Create(backend, backendContext, fGlobalOptions));
+    GrContextOptions grOptions = fGlobalOptions;
+    if (kUseInstanced_ContextOptions & options) {
+        grOptions.fEnableInstancedRendering = true;
+    }
+    grCtx.reset(GrContext::Create(backend, backendContext, grOptions));
     if (!grCtx.get()) {
         return ContextInfo();
     }
     if (kEnableNVPR_ContextOptions & options) {
         if (!grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
+            return ContextInfo();
+        }
+    }
+    if (kUseInstanced_ContextOptions & options) {
+        if (GrCaps::InstancedSupport::kNone == grCtx->caps()->instancedSupport()) {
             return ContextInfo();
         }
     }

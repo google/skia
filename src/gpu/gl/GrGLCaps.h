@@ -307,9 +307,6 @@ public:
     /// Are the baseInstance fields supported in indirect draw commands?
     bool baseInstanceSupport() const { return fBaseInstanceSupport; }
 
-    /// Does the platform have known issuses rendering to floating point when using glDraw*Indirect?
-    bool canDrawIndirectToFloat() const { return fCanDrawIndirectToFloat; }
-
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
@@ -401,7 +398,6 @@ private:
     bool fDrawIndirectSupport : 1;
     bool fMultiDrawIndirectSupport : 1;
     bool fBaseInstanceSupport : 1;
-    bool fCanDrawIndirectToFloat : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fBindFragDataLocationSupport : 1;
