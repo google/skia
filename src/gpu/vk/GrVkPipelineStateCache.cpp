@@ -99,10 +99,10 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 #endif
     // Get GrVkProgramDesc
     GrVkPipelineState::Desc desc;
-    if (!GrVkProgramDescBuilder::Build(&desc.fProgramDesc,
-                                       primProc,
-                                       pipeline,
-                                       *fGpu->vkCaps().glslCaps())) {
+    if (!GrGLSLProgramDescBuilder::Build(&desc.fProgramDesc,
+                                         primProc,
+                                         pipeline,
+                                         *fGpu->vkCaps().glslCaps())) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }

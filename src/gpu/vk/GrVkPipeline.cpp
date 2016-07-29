@@ -11,7 +11,6 @@
 #include "GrPipeline.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkGpu.h"
-#include "GrVkProgramDesc.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkUtil.h"
 

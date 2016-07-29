@@ -19,7 +19,7 @@
 
 class GrVkGpu;
 class GrVkRenderPass;
-class GrVkProgramDesc;
+class GrGLSLProgramDesc;
 
 class GrVkPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
@@ -48,7 +48,7 @@ private:
     GrVkPipelineStateBuilder(GrVkGpu*,
                              const GrPipeline&,
                              const GrPrimitiveProcessor&,
-                             const GrVkProgramDesc&);
+                             const GrGLSLProgramDesc&);
 
     GrVkPipelineState* finalize(GrPrimitiveType primitiveType,
                                 const GrVkRenderPass& renderPass,

@@ -12,9 +12,9 @@
 #include "GrStencilSettings.h"
 #include "GrVkDescriptorSetManager.h"
 #include "GrVkImage.h"
-#include "GrVkProgramDesc.h"
 #include "GrVkPipelineStateDataManager.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDesc.h"
 
 #include "vk/GrVkDefines.h"
 
@@ -72,7 +72,7 @@ public:
      * For Vulkan we want to cache the entire VkPipeline for reuse of draws. The Desc here holds all
      * the information needed to differentiate one pipeline from another.
      *
-     * The GrVkProgramDesc contains all the information need to create the actual shaders for the
+     * The GrGLSLProgramDesc contains all the information need to create the actual shaders for the
      * pipeline.
      *
      * The fStateKey is used to store all the inputs for the rest of the state stored on the
@@ -86,7 +86,7 @@ public:
      */
     struct Desc {
         uint32_t                fChecksum;
-        GrVkProgramDesc         fProgramDesc;
+        GrGLSLProgramDesc       fProgramDesc;
 
         enum {
             kRenderPassKeyAlloc = 12, // This is typical color attachment with no stencil or msaa
