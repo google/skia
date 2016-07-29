@@ -286,6 +286,12 @@ public:
      *         to scale. If the generator cannot perform this scale,
      *         it will return kInvalidScale.
      *
+     *         If the info contains a non-null SkColorSpace, the codec
+     *         will perform the appropriate color space transformation.
+     *         If the caller passes in the same color space that was
+     *         reported by the codec, the color space transformation is
+     *         a no-op.
+     *
      *  If info is kIndex8_SkColorType, then the caller must provide storage for up to 256
      *  SkPMColor values in ctable. On success the generator must copy N colors into that storage,
      *  (where N is the logical number of table entries) and set ctableCount to N.

@@ -15,6 +15,7 @@ class SkColorSpaceXform : SkNoncopyable {
 public:
 
     typedef uint32_t RGBA32;
+    typedef uint32_t BGRA32;
     typedef uint64_t RGBAF16;
 
     /**
@@ -32,7 +33,8 @@ public:
      *  The src is stored as RGBA (8888) and is treated as opaque.
      *  TODO (msarett): Support non-opaque srcs.
      */
-    virtual void applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const = 0;
+    virtual void applyToRGBA(RGBA32* dst, const RGBA32* src, int len) const = 0;
+    virtual void applyToBGRA(BGRA32* dst, const RGBA32* src, int len) const = 0;
     virtual void applyToF16(RGBAF16* dst, const RGBA32* src, int len) const = 0;
 
     virtual ~SkColorSpaceXform() {}
@@ -42,7 +44,8 @@ template <SkColorSpace::GammaNamed Dst>
 class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
 
-    void applyTo8888(SkPMColor* dst, const RGBA32* src, int len) const override;
+    void applyToRGBA(RGBA32* dst, const RGBA32* src, int len) const override;
+    void applyToBGRA(BGRA32* dst, const RGBA32* src, int len) const override;
     void applyToF16(RGBAF16* dst, const RGBA32* src, int len) const override;
 
     static constexpr int      kDstGammaTableSize = 1024;

@@ -21,9 +21,12 @@ namespace SkOpts {
         srcover_srgb_srgb    = sse41::srcover_srgb_srgb;
         blit_row_s32a_opaque = sse41::blit_row_s32a_opaque;
 
-        color_xform_RGB1_to_2dot2  = sse41::color_xform_RGB1_to_2dot2;
-        color_xform_RGB1_to_srgb   = sse41::color_xform_RGB1_to_srgb;
-        color_xform_RGB1_to_table  = sse41::color_xform_RGB1_to_table;
-        color_xform_RGB1_to_linear = sse41::color_xform_RGB1_to_linear;
+        color_xform_RGB1_to_2dot2        = sse41::color_xform_RGB1_to_2dot2;
+        color_xform_RGB1_to_srgb         = sse41::color_xform_RGB1_to_srgb;
+        color_xform_RGB1_to_table        = sse41::color_xform_RGB1_to_table;
+        color_xform_RGB1_to_linear       = sse41::color_xform_RGB1_to_linear;
+        color_xform_RGB1_to_2dot2_swaprb = sse41::color_xform_RGB1_to_2dot2_swaprb;
+        color_xform_RGB1_to_srgb_swaprb  = sse41::color_xform_RGB1_to_srgb_swaprb;
+        color_xform_RGB1_to_table_swaprb = sse41::color_xform_RGB1_to_table_swaprb;
     }
 }
