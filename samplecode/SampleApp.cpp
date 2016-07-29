@@ -15,6 +15,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
+#include "SkGammaColorFilter.h"
 #include "SkGraphics.h"
 #include "SkImage_Base.h"
 #include "SkImageEncoder.h"
@@ -36,8 +37,6 @@
 #if SK_SUPPORT_GPU
 #   include "gl/GrGLInterface.h"
 #   include "gl/GrGLUtil.h"
-#   include "GrDrawContext.h"
-#   include "GrRenderTarget.h"
 #   include "GrContext.h"
 #   include "SkGr.h"
 #   if SK_ANGLE
@@ -314,39 +313,37 @@ public:
     }
 
     void publishCanvas(SampleWindow::DeviceType dType,
-                       SkCanvas* canvas, SampleWindow* win) override {
+                       SkCanvas* renderingCanvas, SampleWindow* win) override {
 #if SK_SUPPORT_GPU
-        if (fCurContext) {
-            // in case we have queued drawing calls
-            fCurContext->flush();
-        }
-
         if (!IsGpuDeviceType(dType) ||
             kRGBA_F16_SkColorType == win->info().colorType() ||
             fActualColorBits > 24) {
             // We made/have an off-screen surface. Get the contents as an SkImage:
             SkBitmap bm;
             bm.allocPixels(win->info());
-            canvas->readPixels(&bm, 0, 0);
+            renderingCanvas->readPixels(&bm, 0, 0);
             SkPixmap pm;
             bm.peekPixels(&pm);
             sk_sp<SkImage> image(SkImage::MakeTextureFromPixmap(fCurContext, pm,
                                                                 SkBudgeted::kNo));
 
-            SkCanvas* canvas = fGpuSurface->getCanvas();
-
-            // Temporary code until applyGamma is replaced
-            GrDrawContext* dc = canvas->internal_private_accessTopLayerDrawContext();
-            GrRenderTarget* rt = dc->accessRenderTarget();
-            GrTexture* texture = image->getTexture();
-            SkASSERT(texture);
+            SkCanvas* gpuCanvas = fGpuSurface->getCanvas();
 
             // With ten-bit output, we need to manually apply the gamma of the output device
             // (unless we're in non-gamma correct mode, in which case our data is already
             // fake-sRGB, like we're expected to put in the 10-bit buffer):
             bool doGamma = (fActualColorBits == 30) && SkImageInfoIsGammaCorrect(win->info());
-            fCurContext->applyGamma(rt, texture, doGamma ? 1.0f / 2.2f : 1.0f);
+
+            SkPaint gammaPaint;
+            gammaPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
+            if (doGamma) {
+                gammaPaint.setColorFilter(SkGammaColorFilter::Make(1.0f / 2.2f));
+            }
+
+            gpuCanvas->drawImage(image, 0, 0, &gammaPaint);
         }
+
+        fGpuSurface->prepareForExternalIO();
 #endif
 
         win->present();

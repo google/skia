@@ -10,11 +10,9 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
-#include "GrTexture.h"
-#include "GrTextureProvider.h"
 
 #include "SkCanvas.h"
+#include "SkGammaColorFilter.h"
 #include "SkPixmap.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
@@ -113,20 +111,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
             dstCanvas->clear(SK_ColorRED);
             dstCanvas->flush();
 
-            // Temporary code until applyGamma is replaced
-            GrDrawContext* dc = dstCanvas->internal_private_accessTopLayerDrawContext();
-            GrRenderTarget* rt = dc->accessRenderTarget();
-            GrTexture* texture = src->getTexture();
-            SkASSERT(texture);
+            SkPaint gammaPaint;
+            gammaPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
+            gammaPaint.setColorFilter(SkGammaColorFilter::Make(gamma));
 
-            bool result = context->applyGamma(rt, texture, gamma);
-
-            // To make the copied src rect correct we would apply any dst clipping
-            // back to the src rect, but we don't use it again so don't bother.
-            if (!result) {
-                ERRORF(reporter, "Unexpected failure from applyGamma.");
-                continue;
-            }
+            dstCanvas->drawImage(src, 0, 0, &gammaPaint);
+            dstCanvas->flush();
 
             sk_memset32(read.get(), 0, kW * kH);
             if (!dstCanvas->readPixels(ii, read.get(), kRowBytes, 0, 0)) {

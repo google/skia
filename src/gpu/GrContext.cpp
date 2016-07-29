@@ -527,40 +527,6 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     return true;
 }
 
-bool GrContext::applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma){
-    ASSERT_SINGLE_OWNER
-    RETURN_FALSE_IF_ABANDONED
-    ASSERT_OWNED_RESOURCE(dst);
-    ASSERT_OWNED_RESOURCE(src);
-    GR_AUDIT_TRAIL_AUTO_FRAME(&fAuditTrail, "GrContext::applyGamma");
-
-    // Dimensions must match exactly.
-    if (dst->width() != src->width() || dst->height() != src->height()) {
-        return false;
-    }
-
-    // TODO: Supply color space?
-    sk_sp<GrDrawContext> drawContext(this->makeDrawContext(sk_ref_sp(dst), nullptr));
-    if (!drawContext) {
-        return false;
-    }
-
-    GrPaint paint;
-    paint.addColorTextureProcessor(src, nullptr, GrCoordTransform::MakeDivByTextureWHMatrix(src));
-    if (!SkScalarNearlyEqual(gamma, 1.0f)) {
-        paint.addColorFragmentProcessor(GrGammaEffect::Make(gamma));
-    }
-    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
-    paint.setGammaCorrect(true);
-
-    SkRect rect;
-    src->getBoundsRect(&rect);
-    drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), rect);
-
-    this->flushSurfaceWrites(dst);
-    return true;
-}
-
 void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
