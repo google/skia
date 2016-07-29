@@ -277,10 +277,6 @@ public:
         return fBufferMapThreshold;
     }
 
-    bool supportsInstancedDraws() const {
-        return fSupportsInstancedDraws;
-    }
-
     bool fullClearIsFree() const { return fFullClearIsFree; }
 
     /** True in environments that will issue errors if memory uploaded to buffers 
@@ -314,7 +310,6 @@ protected:
     bool fMultisampleDisableSupport                  : 1;
     bool fUsesMixedSamples                           : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
-    bool fSupportsInstancedDraws                     : 1;
     bool fFullClearIsFree                            : 1;
     bool fMustClearUploadedBufferData                : 1;
 

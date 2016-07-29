@@ -38,6 +38,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDirectStateAccessSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
+    fDrawInstancedSupport = false;
     fDrawIndirectSupport = false;
     fMultiDrawIndirectSupport = false;
     fBaseInstanceSupport = false;
@@ -502,12 +503,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (kGL_GrGLStandard == standard) {
         // 3.1 has draw_instanced but not instanced_arrays, for the time being we only care about
         // instanced arrays, but we could make this more granular if we wanted
-        fSupportsInstancedDraws =
+        fDrawInstancedSupport =
                 version >= GR_GL_VER(3, 2) ||
                 (ctxInfo.hasExtension("GL_ARB_draw_instanced") &&
                  ctxInfo.hasExtension("GL_ARB_instanced_arrays"));
     } else {
-        fSupportsInstancedDraws =
+        fDrawInstancedSupport =
                 version >= GR_GL_VER(3, 0) ||
                 (ctxInfo.hasExtension("GL_EXT_draw_instanced") &&
                  ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
@@ -518,12 +519,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                ctxInfo.hasExtension("GL_ARB_draw_indirect");
         fBaseInstanceSupport = version >= GR_GL_VER(4,2);
         fMultiDrawIndirectSupport = version >= GR_GL_VER(4,3) ||
-                                    (!fBaseInstanceSupport && // The ARB extension has no base inst.
+                                    (fDrawIndirectSupport &&
+                                     !fBaseInstanceSupport && // The ARB extension has no base inst.
                                      ctxInfo.hasExtension("GL_ARB_multi_draw_indirect"));
     } else {
         fDrawIndirectSupport = version >= GR_GL_VER(3,1);
-        fMultiDrawIndirectSupport = ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
-        fBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
+        fMultiDrawIndirectSupport = fDrawIndirectSupport &&
+                                    ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
+        fBaseInstanceSupport = fDrawIndirectSupport &&
+                               ctxInfo.hasExtension("GL_EXT_base_instance");
     }
 
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
@@ -1105,6 +1109,7 @@ SkString GrGLCaps::dump() const {
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
     r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
     r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
+    r.appendf("Draw instanced support: %s\n", (fDrawInstancedSupport ? "YES" : "NO"));
     r.appendf("Draw indirect support: %s\n", (fDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));

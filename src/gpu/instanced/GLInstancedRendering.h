@@ -43,10 +43,8 @@ private:
     void flushInstanceAttribs(int baseInstance);
 
     struct GLDrawCmdInfo {
-        int fInstanceCount;
-#if GR_GL_LOG_INSTANCED_BATCHES
         IndexRange fGeometry;
-#endif
+        int fInstanceCount;
     };
 
     GrGLuint                              fVertexArrayID;
