@@ -17,9 +17,9 @@ class SkSVGRenderContext;
 class SkSVGValue;
 
 enum class SkSVGTag {
-    g,
-    path,
-    svg
+    kG,
+    kPath,
+    kSvg
 };
 
 class SkSVGNode : public SkRefCnt {

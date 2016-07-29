@@ -9,6 +9,7 @@
 #include "SkDOM.h"
 #include "SkParse.h"
 #include "SkParsePath.h"
+#include "SkString.h"
 #include "SkSVGDOM.h"
 #include "SkSVGG.h"
 #include "SkSVGNode.h"
@@ -118,6 +119,60 @@ bool SetTransformAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+// Breaks a "foo: bar; baz: ..." string into key:value pairs.
+class StyleIterator {
+public:
+    StyleIterator(const char* str) : fPos(str) { }
+
+    std::tuple<SkString, SkString> next() {
+        SkString name, value;
+
+        if (fPos) {
+            const char* sep = this->nextSeparator();
+            SkASSERT(*sep == ';' || *sep == '\0');
+
+            const char* valueSep = strchr(fPos, ':');
+            if (valueSep && valueSep < sep) {
+                name.set(fPos, valueSep - fPos);
+                value.set(valueSep + 1, sep - valueSep - 1);
+            }
+
+            fPos = *sep ? sep + 1 : nullptr;
+        }
+
+        return std::make_tuple(name, value);
+    }
+
+private:
+    const char* nextSeparator() const {
+        const char* sep = fPos;
+        while (*sep != ';' && *sep != '\0') {
+            sep++;
+        }
+        return sep;
+    }
+
+    const char* fPos;
+};
+
+void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value);
+
+bool SetStyleAttributes(const sk_sp<SkSVGNode>& node, SkSVGAttribute,
+                        const char* stringValue) {
+
+    SkString name, value;
+    StyleIterator iter(stringValue);
+    for (;;) {
+        std::tie(name, value) = iter.next();
+        if (name.isEmpty()) {
+            break;
+        }
+        set_string_attribute(node, name.c_str(), value.c_str());
+    }
+
+    return true;
+}
+
 template<typename T>
 struct SortedDictionaryEntry {
     const char* fKey;
@@ -130,10 +185,11 @@ struct AttrParseInfo {
 };
 
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
-    { "d",         { SkSVGAttribute::d,         SetPathDataAttribute  }},
-    { "fill",      { SkSVGAttribute::fill,      SetPaintAttribute     }},
-    { "stroke",    { SkSVGAttribute::stroke,    SetPaintAttribute     }},
-    { "transform", { SkSVGAttribute::transform, SetTransformAttribute }},
+    { "d",         { SkSVGAttribute::kD,         SetPathDataAttribute  }},
+    { "fill",      { SkSVGAttribute::kFill,      SetPaintAttribute     }},
+    { "stroke",    { SkSVGAttribute::kStroke,    SetPaintAttribute     }},
+    { "style",     { SkSVGAttribute::kUnknown,   SetStyleAttributes    }},
+    { "transform", { SkSVGAttribute::kTransform, SetTransformAttribute }},
 };
 
 SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
@@ -150,24 +206,28 @@ struct ConstructionContext {
     const SkSVGNode* fParent;
 };
 
+void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value) {
+    const int attrIndex = SkStrSearch(&gAttributeParseInfo[0].fKey,
+                                      SkTo<int>(SK_ARRAY_COUNT(gAttributeParseInfo)),
+                                      name, sizeof(gAttributeParseInfo[0]));
+    if (attrIndex < 0) {
+        SkDebugf("unhandled attribute: %s\n", name);
+        return;
+    }
+
+    SkASSERT(SkTo<size_t>(attrIndex) < SK_ARRAY_COUNT(gAttributeParseInfo));
+    const auto& attrInfo = gAttributeParseInfo[attrIndex].fValue;
+    if (!attrInfo.fSetter(node, attrInfo.fAttr, value)) {
+        SkDebugf("could not parse attribute: '%s=\"%s\"'\n", name, value);
+    }
+}
+
 void parse_node_attributes(const SkDOM& xmlDom, const SkDOM::Node* xmlNode,
                            const sk_sp<SkSVGNode>& svgNode) {
     const char* name, *value;
     SkDOM::AttrIter attrIter(xmlDom, xmlNode);
     while ((name = attrIter.next(&value))) {
-        const int attrIndex = SkStrSearch(&gAttributeParseInfo[0].fKey,
-                                          SkTo<int>(SK_ARRAY_COUNT(gAttributeParseInfo)),
-                                          name, sizeof(gAttributeParseInfo[0]));
-        if (attrIndex < 0) {
-            SkDebugf("unhandled attribute: %s\n", name);
-            continue;
-        }
-
-        SkASSERT(SkTo<size_t>(attrIndex) < SK_ARRAY_COUNT(gAttributeParseInfo));
-        const auto& attrInfo = gAttributeParseInfo[attrIndex].fValue;
-        if (!attrInfo.fSetter(svgNode, attrInfo.fAttr, value)) {
-            SkDebugf("could not parse attribute: '%s=\"%s\"'\n", name, value);
-        }
+        set_string_attribute(svgNode, name, value);
     }
 }
 

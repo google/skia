@@ -14,7 +14,7 @@ SkSVGTransformableNode::SkSVGTransformableNode(SkSVGTag tag)
 
 void SkSVGTransformableNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
-    case SkSVGAttribute::transform:
+    case SkSVGAttribute::kTransform:
         if (const auto* transform = v.as<SkSVGTransformValue>()) {
             this->setTransform(*transform);
         }

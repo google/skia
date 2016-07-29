@@ -11,7 +11,7 @@
 #include "SkSVGRenderContext.h"
 #include "SkSVGValue.h"
 
-SkSVGPath::SkSVGPath() : INHERITED(SkSVGTag::path) { }
+SkSVGPath::SkSVGPath() : INHERITED(SkSVGTag::kPath) { }
 
 void SkSVGPath::doRender(SkCanvas* canvas, const SkPaint* paint) const {
     if (paint) {
@@ -26,7 +26,7 @@ void SkSVGPath::onRender(SkCanvas* canvas, const SkSVGRenderContext& ctx) const 
 
 void SkSVGPath::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
-    case SkSVGAttribute::d:
+    case SkSVGAttribute::kD:
         if (const auto* path = v.as<SkSVGPathValue>()) {
             this->setPath(*path);
         }

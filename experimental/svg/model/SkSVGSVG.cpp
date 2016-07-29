@@ -7,4 +7,4 @@
 
 #include "SkSVGSVG.h"
 
-SkSVGSVG::SkSVGSVG() : INHERITED(SkSVGTag::svg) { }
+SkSVGSVG::SkSVGSVG() : INHERITED(SkSVGTag::kSvg) { }

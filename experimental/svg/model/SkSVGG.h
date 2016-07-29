@@ -17,7 +17,7 @@ public:
     static sk_sp<SkSVGG> Make() { return sk_sp<SkSVGG>(new SkSVGG()); }
 
 private:
-    SkSVGG() : INHERITED(SkSVGTag::g) { }
+    SkSVGG() : INHERITED(SkSVGTag::kG) { }
 
     typedef SkSVGContainer INHERITED;
 };

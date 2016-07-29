@@ -12,10 +12,12 @@
 #include "SkTLazy.h"
 
 enum class SkSVGAttribute {
-    d,
-    fill,
-    stroke,
-    transform,
+    kD,
+    kFill,
+    kStroke,
+    kTransform,
+
+    kUnknown,
 };
 
 class SkSVGRenderContext;

@@ -40,12 +40,12 @@ void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 
 void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
-    case SkSVGAttribute::fill:
+    case SkSVGAttribute::kFill:
         if (const SkSVGColorValue* color = v.as<SkSVGColorValue>()) {
             fPresentationAttributes.setFill(*color);
         }
         break;
-    case SkSVGAttribute::stroke:
+    case SkSVGAttribute::kStroke:
         if (const SkSVGColorValue* color = v.as<SkSVGColorValue>()) {
             fPresentationAttributes.setStroke(*color);
         }
