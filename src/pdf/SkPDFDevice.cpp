@@ -1588,9 +1588,16 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
 }
 
 sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice() {
+    SkMatrix inverseTransform = SkMatrix::I();
+    if (!this->initialTransform().isIdentity()) {
+        if (!this->initialTransform().invert(&inverseTransform)) {
+            SkDEBUGFAIL("Layer initial transform should be invertible.");
+            inverseTransform.reset();
+        }
+    }
     sk_sp<SkPDFObject> xobject =
         SkPDFMakeFormXObject(this->content(), this->copyMediaBox(),
-                             this->makeResourceDict(), nullptr);
+                             this->makeResourceDict(), inverseTransform, nullptr);
     // We always draw the form xobjects that we create back into the device, so
     // we simply preserve the font usage instead of pulling it out and merging
     // it back in later.

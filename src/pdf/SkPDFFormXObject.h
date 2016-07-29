@@ -20,5 +20,6 @@
 sk_sp<SkPDFObject> SkPDFMakeFormXObject(std::unique_ptr<SkStreamAsset> content,
                                         sk_sp<SkPDFArray> mediaBox,
                                         sk_sp<SkPDFDict> resourceDict,
+                                        const SkMatrix& inverseTransform,
                                         const char* colorSpace);
 #endif

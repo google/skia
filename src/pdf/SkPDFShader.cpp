@@ -706,6 +706,7 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(
     auto alphaMask = SkPDFMakeFormXObject(std::move(alphaStream),
                                           SkPDFUtils::RectToArray(bbox),
                                           std::move(resources),
+                                          SkMatrix::I(),
                                           "DeviceRGB");
     return SkPDFGraphicState::GetSMaskGraphicState(
             alphaMask.get(), false,
