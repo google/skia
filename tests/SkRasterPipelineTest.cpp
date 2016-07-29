@@ -9,55 +9,40 @@
 #include "SkRasterPipeline.h"
 
 // load needs two variants, one to load 4 values...
-static void SK_VECTORCALL load(SkRasterPipeline::Stage* st, size_t x,
-                               Sk4f v0, Sk4f v1, Sk4f v2, Sk4f v3,
-                               Sk4f v4, Sk4f v5, Sk4f v6, Sk4f v7) {
-    auto ptr = st->ctx<const float*>();
-    v0 = Sk4f{ptr[x+0]};
-    v1 = Sk4f{ptr[x+1]};
-    v2 = Sk4f{ptr[x+2]};
-    v3 = Sk4f{ptr[x+3]};
-
-    st->next(x, v0,v1,v2,v3, v4,v5,v6,v7);
+SK_RASTER_STAGE(load) {
+    auto ptr = (const float*)ctx + x;
+    r = Sk4f{ptr[0]};
+    g = Sk4f{ptr[1]};
+    b = Sk4f{ptr[2]};
+    a = Sk4f{ptr[3]};
 }
 
 // ...and one to load a single value.
-static void SK_VECTORCALL load_tail(SkRasterPipeline::Stage* st, size_t x,
-                                    Sk4f v0, Sk4f v1, Sk4f v2, Sk4f v3,
-                                    Sk4f v4, Sk4f v5, Sk4f v6, Sk4f v7) {
-    auto ptr = st->ctx<const float*>();
-    v0 = Sk4f{ptr[x]};
-
-    st->next(x, v0,v1,v2,v3, v4,v5,v6,v7);
+SK_RASTER_STAGE(load_tail) {
+    auto ptr = (const float*)ctx + x;
+    r = Sk4f{*ptr};
 }
 
 // square doesn't really care how many of its inputs are active, nor does it need a context.
-static void SK_VECTORCALL square(SkRasterPipeline::Stage* st, size_t x,
-                                 Sk4f v0, Sk4f v1, Sk4f v2, Sk4f v3,
-                                 Sk4f v4, Sk4f v5, Sk4f v6, Sk4f v7) {
-    v0 *= v0;
-    v1 *= v1;
-    v2 *= v2;
-    v3 *= v3;
-    st->next(x, v0,v1,v2,v3, v4,v5,v6,v7);
+SK_RASTER_STAGE(square) {
+    r *= r;
+    g *= g;
+    b *= b;
+    a *= a;
 }
 
-// Like load, store has a _tail variant.  It ends the pipeline by returning.
-static void SK_VECTORCALL store(SkRasterPipeline::Stage* st, size_t x,
-                                Sk4f v0, Sk4f v1, Sk4f v2, Sk4f v3,
-                                Sk4f v4, Sk4f v5, Sk4f v6, Sk4f v7) {
-    auto ptr = st->ctx<float*>();
-    ptr[x+0] = v0[0];
-    ptr[x+1] = v1[0];
-    ptr[x+2] = v2[0];
-    ptr[x+3] = v3[0];
+// Like load, store has a _tail variant.
+SK_RASTER_STAGE(store) {
+    auto ptr = (float*)ctx + x;
+    ptr[0] = r[0];
+    ptr[1] = g[0];
+    ptr[2] = b[0];
+    ptr[3] = a[0];
 }
 
-static void SK_VECTORCALL store_tail(SkRasterPipeline::Stage* st, size_t x,
-                                     Sk4f v0, Sk4f v1, Sk4f v2, Sk4f v3,
-                                     Sk4f v4, Sk4f v5, Sk4f v6, Sk4f v7) {
-    auto ptr = st->ctx<float*>();
-    ptr[x+0] = v0[0];
+SK_RASTER_STAGE(store_tail) {
+    auto ptr = (float*)ctx + x;
+    *ptr = r[0];
 }
 
 DEF_TEST(SkRasterPipeline, r) {
@@ -73,9 +58,9 @@ DEF_TEST(SkRasterPipeline, r) {
     float       dst_vals[] = { 0,0,0,0,0 };
 
     SkRasterPipeline p;
-    p.append(load, load_tail, src_vals);
-    p.append(square);
-    p.append(store, store_tail, dst_vals);
+    p.append<load, load_tail>(src_vals);
+    p.append<square>();
+    p.append<store, store_tail>(dst_vals);
 
     p.run(5);
 
@@ -96,6 +81,6 @@ DEF_TEST(SkRasterPipeline_nonsense, r) {
     // No asserts... just a test that this is safe to run and terminates.
     // square() always calls st->next(); this makes sure we've always got something there to call.
     SkRasterPipeline p;
-    p.append(square);
+    p.append<square>();
     p.run(20);
 }
