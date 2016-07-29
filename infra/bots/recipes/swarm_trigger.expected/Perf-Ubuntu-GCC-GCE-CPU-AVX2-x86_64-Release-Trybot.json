@@ -904,10 +904,6 @@
       "500"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "env": {
-      "AWS_CREDENTIAL_FILE": "[HOME]/chromium-skia-gm.boto",
-      "BOTO_CONFIG": "[HOME]/chromium-skia-gm.boto"
-    },
     "name": "Upload perf results"
   },
   {

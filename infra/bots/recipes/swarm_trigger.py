@@ -419,7 +419,6 @@ def perf_steps_collect(api, task, upload_perf_results, got_revision,
              script=api.skia.resource('upload_bench_results.py'),
              args=upload_args,
              cwd=api.path['checkout'],
-             env=api.skia.gsutil_env('chromium-skia-gm.boto'),
              infra_step=True)
 
 
