@@ -28,8 +28,8 @@ guides.  We diverge where they'd first run some command with "gyp" in it.
     gclient sync && bin/fetch-gn
 
     # Run GN to generate your build files.  Some examples.
-    gn gen out/Release
-    gn gen out/Debug --args=is_debug=true
+    gn gen out/Debug
+    gn gen out/Release --args=is_debug=false
     gn gen out/Clang --args='cc="clang" cxx="clang++"'
     gn gen out/Shared --args=is_component_build=true
 
