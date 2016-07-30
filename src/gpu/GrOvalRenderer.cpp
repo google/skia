@@ -83,13 +83,10 @@ public:
         fStroke = stroke;
     }
 
-    bool implementsDistanceVector() const override { return true; };
-
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inCircleEdge() const { return fInCircleEdge; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-
     virtual ~CircleGeometryProcessor() {}
 
     const char* name() const override { return "CircleEdge"; }
@@ -129,22 +126,12 @@ public:
                                  args.fTransformsOut);
 
             fragBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
-            fragBuilder->codeAppendf("float distanceToEdge = %s.z * (1.0 - d);", v.fsIn());
-            fragBuilder->codeAppendf("float edgeAlpha = clamp(distanceToEdge, 0.0, 1.0);");
+            fragBuilder->codeAppendf("float edgeAlpha = clamp(%s.z * (1.0 - d), 0.0, 1.0);",
+                                     v.fsIn());
             if (cgp.fStroke) {
                 fragBuilder->codeAppendf("float innerAlpha = clamp(%s.z * (d - %s.w), 0.0, 1.0);",
                                          v.fsIn(), v.fsIn());
                 fragBuilder->codeAppend("edgeAlpha *= innerAlpha;");
-            }
-
-            if (args.fDistanceVectorName) {
-                fragBuilder->codeAppend ("if (d == 0.0) {"); // if on the center of the circle
-                fragBuilder->codeAppendf("    %s = vec2(distanceToEdge, 0.0);", // avoid normalizing
-                                         args.fDistanceVectorName);
-                fragBuilder->codeAppend ("} else {");
-                fragBuilder->codeAppendf("    %s = normalize(%s.xy) * distanceToEdge;",
-                                         args.fDistanceVectorName, v.fsIn());
-                fragBuilder->codeAppend ("}");
             }
 
             fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
