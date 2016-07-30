@@ -106,9 +106,6 @@ int GrFragmentProcessor::registerChildProcessor(sk_sp<GrFragmentProcessor> child
     if (child->usesLocalCoords()) {
         fUsesLocalCoords = true;
     }
-    if (child->usesDistanceVectorField()) {
-        fUsesDistanceVectorField = true;
-    }
 
     int index = fChildProcessors.count();
     fChildProcessors.push_back(child.release());

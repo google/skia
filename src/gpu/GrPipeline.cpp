@@ -48,9 +48,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (builder.getAllowSRGBInputs()) {
         pipeline->fFlags |= kAllowSRGBInputs_Flag;
     }
-    if (builder.getUsesDistanceVectorField()) {
-        pipeline->fFlags |= kUsesDistanceVectorField_Flag;
-    }
     if (args.fHasStencilClip) {
         pipeline->fFlags |= kHasStencilClip_Flag;
     }

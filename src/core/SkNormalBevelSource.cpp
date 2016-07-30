@@ -8,7 +8,6 @@
 #include "SkNormalBevelSource.h"
 
 #include "SkNormalSource.h"
-#include "SkNormalSourcePriv.h"
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -26,19 +25,17 @@ public:
         , fWidth(width)
         , fHeight(height) {
         this->initClassID<NormalBevelFP>();
-
-        fUsesDistanceVectorField = true;
     }
 
-    class GLSLNormalBevelFP : public GLSLNormalFP {
+    class GLSLNormalBevelFP : public GrGLSLFragmentProcessor {
     public:
         GLSLNormalBevelFP() {
             fPrevWidth = SkFloatToScalar(0.0f);
             fPrevHeight = SkFloatToScalar(0.0f);
         }
 
-        void onEmitCode(EmitArgs& args) override {
-            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        void emitCode(EmitArgs& args) override {
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             const char* widthUniName = nullptr;
@@ -49,7 +46,7 @@ public:
             fHeightUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
                     kDefault_GrSLPrecision, "Height", &heightUniName);
 
-            fragBuilder->codeAppendf("%s = vec4(0.0, 0.0, 1.0, 0.0);", args.fOutputColor);
+            fragBuilder->codeAppendf("%s = vec4(0, 0, 1, 0);", args.fOutputColor);
         }
 
         static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
@@ -59,8 +56,7 @@ public:
         }
 
     protected:
-        void setNormalData(const GrGLSLProgramDataManager& pdman,
-                           const GrProcessor& proc) override {
+        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
             const NormalBevelFP& normalBevelFP = proc.cast<NormalBevelFP>();
 
             if (fPrevWidth  != normalBevelFP.fWidth) {

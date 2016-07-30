@@ -197,7 +197,6 @@
         '<(skia_src_path)/core/SkNormalFlatSource.h',
         '<(skia_src_path)/core/SkNormalSource.cpp',
         '<(skia_src_path)/core/SkNormalSource.h',
-        '<(skia_src_path)/core/SkNormalSourcePriv.h',
         '<(skia_src_path)/core/SkNx.h',
         '<(skia_src_path)/core/SkOpts.cpp',
         '<(skia_src_path)/core/SkOpts.h',

@@ -189,10 +189,6 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
     }
 }
 
-const char* GrGLSLFragmentShaderBuilder::distanceVectorName() const {
-    return "fsDistanceVector";
-}
-
 void GrGLSLFragmentShaderBuilder::appendOffsetToSample(const char* sampleIdx, Coordinates coords) {
     SkASSERT(fProgramBuilder->header().fSamplePatternKey);
     SkDEBUGCODE(fUsedProcessorFeatures |= GrProcessor::kSampleLocations_RequiredFeature);

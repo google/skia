@@ -41,8 +41,6 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool useHWAA)
                    paint.getDisableOutputConversionToSRGB());
     this->setState(GrPipelineBuilder::kAllowSRGBInputs_Flag,
                    paint.getAllowSRGBInputs());
-    this->setState(GrPipelineBuilder::kUsesDistanceVectorField_Flag,
-                   paint.usesDistanceVectorField());
 }
 
 //////////////////////////////////////////////////////////////////////////////s

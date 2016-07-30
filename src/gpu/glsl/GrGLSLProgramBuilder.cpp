@@ -87,13 +87,6 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     this->nameExpression(outputColor, "outputColor");
     this->nameExpression(outputCoverage, "outputCoverage");
 
-    const char* distanceVectorName = nullptr;
-    if (this->fPipeline.usesDistanceVectorField() && proc.implementsDistanceVector()) {
-        distanceVectorName = fFS.distanceVectorName();
-        fFS.codeAppend( "// Un-normalized vector to the closed geometric edge (in source space)\n");
-        fFS.codeAppendf("vec2 %s;", distanceVectorName);
-    }
-
     // Enclose custom code in a block to avoid namespace conflicts
     SkString openBrace;
     openBrace.printf("{ // Stage %d, %s\n", fStageIndex, proc.name());
@@ -115,7 +108,6 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
                                            proc,
                                            outputColor->c_str(),
                                            outputCoverage->c_str(),
-                                           distanceVectorName,
                                            texSamplers.begin(),
                                            bufferSamplers.begin(),
                                            fCoordTransforms,
@@ -169,9 +161,7 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
                                            input.isOnes() ? nullptr : input.c_str(),
                                            fOutCoords[index],
                                            texSamplers.begin(),
-                                           bufferSamplers.begin(),
-                                           this->primitiveProcessor().implementsDistanceVector());
-
+                                           bufferSamplers.begin());
     fragProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect

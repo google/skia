@@ -107,8 +107,7 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
                        inputColor,
                        childCoords,
                        childTexSamplers,
-                       childBufferSamplers,
-                       args.fGpImplementsDistanceVector);
+                       childBufferSamplers);
     this->childProcessor(childIndex)->emitCode(childArgs);
     fragBuilder->codeAppend("}\n");
 

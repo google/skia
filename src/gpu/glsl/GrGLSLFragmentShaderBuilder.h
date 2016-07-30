@@ -96,10 +96,6 @@ public:
      */
     virtual void maskSampleCoverage(const char* mask, bool invert = false) = 0;
 
-    /** Returns a variable name that represents a vector to the nearest edge of the shape, in source
-        space coordinates. */
-    virtual const char* distanceVectorName() const = 0;
-
     /**
      * Fragment procs with child procs should call these functions before/after calling emitCode
      * on a child proc.
@@ -170,7 +166,6 @@ public:
     virtual SkString ensureFSCoords2D(const GrGLSLTransformedCoordsArray& coords,
                                       int index) override;
     const char* fragmentPosition() override;
-    const char* distanceVectorName() const override;
 
     // GrGLSLFPFragmentBuilder interface.
     void appendOffsetToSample(const char* sampleIdx, Coordinates) override;
@@ -240,7 +235,6 @@ private:
     bool       fHasSecondaryOutput;
     uint8_t    fUsedSampleOffsetArrays;
     bool       fHasInitializedSampleMask;
-    SkString   fDistanceVectorOutput;
 
 #ifdef SK_DEBUG
     // some state to verify shaders and effects are consistent, this is reset between effects by

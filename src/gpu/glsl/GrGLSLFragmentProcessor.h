@@ -61,8 +61,7 @@ public:
                  const char* inputColor,
                  const GrGLSLTransformedCoordsArray& coords,
                  const SamplerHandle* texSamplers,
-                 const SamplerHandle* bufferSamplers,
-                 bool gpImplementsDistanceVector)
+                 const SamplerHandle* bufferSamplers)
             : fFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
             , fGLSLCaps(caps)
@@ -71,8 +70,7 @@ public:
             , fInputColor(inputColor)
             , fCoords(coords)
             , fTexSamplers(texSamplers)
-            , fBufferSamplers(bufferSamplers)
-            , fGpImplementsDistanceVector(gpImplementsDistanceVector){}
+            , fBufferSamplers(bufferSamplers) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrGLSLCaps* fGLSLCaps;
@@ -82,7 +80,6 @@ public:
         const GrGLSLTransformedCoordsArray& fCoords;
         const SamplerHandle* fTexSamplers;
         const SamplerHandle* fBufferSamplers;
-        bool fGpImplementsDistanceVector;
     };
 
     virtual void emitCode(EmitArgs&) = 0;

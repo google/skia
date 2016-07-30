@@ -8,7 +8,6 @@
 #include "SkNormalFlatSource.h"
 
 #include "SkNormalSource.h"
-#include "SkNormalSourcePriv.h"
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -24,12 +23,12 @@ public:
         this->initClassID<NormalFlatFP>();
     }
 
-    class GLSLNormalFlatFP : public GLSLNormalFP {
+    class GLSLNormalFlatFP : public GrGLSLFragmentProcessor {
     public:
         GLSLNormalFlatFP() {}
 
-        void onEmitCode(EmitArgs& args) override {
-            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        void emitCode(EmitArgs& args) override {
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             fragBuilder->codeAppendf("%s = vec4(0, 0, 1, 0);", args.fOutputColor);
         }
@@ -40,8 +39,7 @@ public:
         }
 
     protected:
-        void setNormalData(const GrGLSLProgramDataManager& pdman,
-                           const GrProcessor& proc) override {}
+        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {}
     };
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
