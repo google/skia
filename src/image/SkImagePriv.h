@@ -36,7 +36,8 @@ extern sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
  */
 enum ForceCopyMode {
     kNo_ForceCopyMode,
-    kYes_ForceCopyMode, // must copy the pixels even if the bitmap is immutable
+    kYes_ForceCopyMode,     // must copy the pixels even if the bitmap is immutable
+    kNever_ForceCopyMode,   // don't ever copy, even if the bitmap is mutable
 };
 extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&,
                                                   ForceCopyMode = kNo_ForceCopyMode);

@@ -17,6 +17,7 @@
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
 #include "SkImage_Base.h"
+#include "SkImagePriv.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPixelSerializer.h"
@@ -193,6 +194,36 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, ctxInfo) {
     test_encode(reporter, create_gpu_image(ctxInfo.grContext()).get());
 }
 #endif
+
+DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
+    const struct {
+        ForceCopyMode fMode;
+        bool          fExpectSameAsMutable;
+        bool          fExpectSameAsImmutable;
+    } recs[] = {
+        { kNo_ForceCopyMode,    false,  true },
+        { kYes_ForceCopyMode,   false,  false },
+        { kNever_ForceCopyMode, true,   true },
+    };
+    for (auto rec : recs) {
+        SkPixmap pm;
+        SkBitmap bm;
+        bm.allocN32Pixels(100, 100);
+
+        auto img = SkMakeImageFromRasterBitmap(bm, rec.fMode);
+        REPORTER_ASSERT(reporter, img->peekPixels(&pm));
+        const bool sameMutable = pm.addr32(0, 0) == bm.getAddr32(0, 0);
+        REPORTER_ASSERT(reporter, rec.fExpectSameAsMutable == sameMutable);
+
+        bm.notifyPixelsChanged();   // force a new generation ID
+
+        bm.setImmutable();
+        img = SkMakeImageFromRasterBitmap(bm, rec.fMode);
+        REPORTER_ASSERT(reporter, img->peekPixels(&pm));
+        const bool sameImmutable = pm.addr32(0, 0) == bm.getAddr32(0, 0);
+        REPORTER_ASSERT(reporter, rec.fExpectSameAsImmutable == sameImmutable);
+    }
+}
 
 namespace {
 

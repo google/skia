@@ -94,7 +94,7 @@ public:
     bool isOpaque() const override;
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
 
-    SkImage_Raster(const SkBitmap& bm)
+    SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false)
         : INHERITED(bm.width(), bm.height(),
                     is_not_subset(bm) ? bm.getGenerationID()
                                       : (uint32_t)kNeedNewImageUniqueID)
@@ -105,7 +105,7 @@ public:
             // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
             fBitmap.lockPixels();
         }
-        SkASSERT(fBitmap.isImmutable());
+        SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
     }
 
     bool onIsLazyGenerated() const override {
@@ -264,7 +264,9 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode for
     }
 
     sk_sp<SkImage> image;
-    if (kYes_ForceCopyMode == forceCopy || !bm.isImmutable()) {
+    if (kYes_ForceCopyMode == forceCopy ||
+        (!bm.isImmutable() && kNever_ForceCopyMode != forceCopy))
+    {
         SkBitmap tmp(bm);
         tmp.lockPixels();
         SkPixmap pmap;
@@ -272,7 +274,7 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode for
             image = SkImage::MakeRasterCopy(pmap);
         }
     } else {
-        image = sk_make_sp<SkImage_Raster>(bm);
+        image = sk_make_sp<SkImage_Raster>(bm, kNever_ForceCopyMode == forceCopy);
     }
     return image;
 }
