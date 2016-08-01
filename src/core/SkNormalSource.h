@@ -111,7 +111,7 @@ public:
     /** Returns a normal source that generates a bevel for the given shape. UNIMPLEMENTED: Will
         return straight-up normals only.
 
-        @param  type   the type of bevel to add
+        @param  type   the type of bevel to add.
         @param  width  the width of the bevel, in source space. Must be positive.
         @param  height the height of the plateau, in source space. Can be positive, negative,
                        or zero. A negative height means the simulated bevels slope downwards.

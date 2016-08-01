@@ -16,6 +16,7 @@ GrPaint::GrPaint()
     : fAntiAlias(false)
     , fDisableOutputConversionToSRGB(false)
     , fAllowSRGBInputs(false)
+    , fUsesDistanceVectorField(false)
     , fColor(GrColor4f::FromGrColor(GrColor_WHITE)) {}
 
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
