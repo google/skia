@@ -51,6 +51,36 @@ SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* s
                                            SkBitmapProvider(fImage), rec, storage);
 }
 
+SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
+    if (texM) {
+        *texM = this->getLocalMatrix();
+    }
+    if (xy) {
+        xy[0] = (TileMode)fTileModeX;
+        xy[1] = (TileMode)fTileModeY;
+    }
+    return const_cast<SkImage*>(fImage.get());
+}
+
+bool SkImageShader::onIsABitmap(SkBitmap* texture, SkMatrix* texM, TileMode xy[]) const {
+    const SkBitmap* bm = as_IB(fImage)->onPeekBitmap();
+    if (!bm) {
+        return false;
+    }
+
+    if (texture) {
+        *texture = *bm;
+    }
+    if (texM) {
+        *texM = this->getLocalMatrix();
+    }
+    if (xy) {
+        xy[0] = (TileMode)fTileModeX;
+        xy[1] = (TileMode)fTileModeY;
+    }
+    return true;
+}
+
 sk_sp<SkShader> SkImageShader::Make(const SkImage* image, TileMode tx, TileMode ty,
                                     const SkMatrix* localMatrix) {
     if (!image) {

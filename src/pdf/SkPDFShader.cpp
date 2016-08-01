@@ -1289,10 +1289,7 @@ SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
     fType = shader->asAGradient(&fInfo);
 
     if (fType == SkShader::kNone_GradientType) {
-        SkMatrix matrix;
-        if (shader->isABitmap(&fImage, &matrix, fImageTileModes)) {
-            SkASSERT(matrix.isIdentity());
-        } else {
+        if (!shader->isABitmap(&fImage, nullptr, fImageTileModes)) {
             // Generic fallback for unsupported shaders:
             //  * allocate a bbox-sized bitmap
             //  * shade the whole area

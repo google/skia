@@ -29,6 +29,8 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
+    bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
+    SkImage* onIsAImage(SkMatrix*, TileMode*) const override;
 
     SkAutoTUnref<const SkImage> fImage;
     const TileMode              fTileModeX;

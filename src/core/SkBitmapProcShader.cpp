@@ -272,7 +272,7 @@ bool SkBitmapProcShader::onIsABitmap(SkBitmap* texture, SkMatrix* texM, TileMode
         *texture = fRawBitmap;
     }
     if (texM) {
-        texM->reset();
+        *texM = this->getLocalMatrix();
     }
     if (xy) {
         xy[0] = (TileMode)fTileModeX;

@@ -33,6 +33,8 @@ public:
 
     virtual bool onPeekPixels(SkPixmap*) const { return false; }
 
+    virtual const SkBitmap* onPeekBitmap() const { return nullptr; }
+
     // Default impl calls onDraw
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const;

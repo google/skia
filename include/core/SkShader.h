@@ -18,6 +18,7 @@
 
 class SkColorFilter;
 class SkColorSpace;
+class SkImage;
 class SkPath;
 class SkPicture;
 class SkXfermode;
@@ -239,6 +240,18 @@ public:
 
     bool isABitmap() const {
         return this->isABitmap(nullptr, nullptr, nullptr);
+    }
+
+    /**
+     *  Iff this shader is backed by a single SkImage, return its ptr (the caller must ref this
+     *  if they want to keep it longer than the lifetime of the shader). If not, return nullptr.
+     */
+    SkImage* isAImage(SkMatrix* localMatrix, TileMode xy[2]) const {
+        return this->onIsAImage(localMatrix, xy);
+    }
+
+    bool isAImage() const {
+        return this->isAImage(nullptr, nullptr) != nullptr;
     }
 
     /**
@@ -510,6 +523,10 @@ protected:
 
     virtual bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode[2]) const {
         return false;
+    }
+
+    virtual SkImage* onIsAImage(SkMatrix*, TileMode[2]) const {
+        return nullptr;
     }
 
 private:
