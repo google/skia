@@ -686,8 +686,7 @@ def test_for_bot(api, builder, mastername, slavename, testname=None):
     test += api.step_data(
         'upload new .isolated file for test_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))
-  if ('Test' in builder and 'Debug' in builder) or 'Perf' in builder or (
-      'Valgrind' in builder and 'Test' in builder):
+  if 'Perf' in builder:
     test += api.step_data(
         'upload new .isolated file for perf_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))

@@ -311,20 +311,15 @@ def get_builder_spec(builder_name):
   if configuration == CONFIG_COVERAGE:
     rv['do_compile_steps'] = False
   rv['do_test_steps'] = role == builder_name_schema.BUILDER_ROLE_TEST
-  rv['do_perf_steps'] = (role == builder_name_schema.BUILDER_ROLE_PERF or
-                         (role == builder_name_schema.BUILDER_ROLE_TEST and
-                          configuration == CONFIG_DEBUG))
-  if rv['do_test_steps'] and 'Valgrind' in builder_name:
-    rv['do_perf_steps'] = True
-  if 'GalaxyS4' in builder_name:
-    rv['do_perf_steps'] = False
+  rv['do_perf_steps'] = role == builder_name_schema.BUILDER_ROLE_PERF
 
   rv['build_targets'] = build_targets_from_builder_dict(
         builder_dict, rv['do_test_steps'], rv['do_perf_steps'])
 
   # Do we upload perf results?
   upload_perf_results = False
-  if role == builder_name_schema.BUILDER_ROLE_PERF:
+  if (role == builder_name_schema.BUILDER_ROLE_PERF and
+      CONFIG_RELEASE in configuration):
     upload_perf_results = True
   rv['upload_perf_results'] = upload_perf_results
 

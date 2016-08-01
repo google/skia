@@ -3555,8 +3555,7 @@
   }, 
   "Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug": {
     "build_targets": [
-      "dm", 
-      "nanobench"
+      "dm"
     ], 
     "builder_cfg": {
       "arch": "Arm7", 
@@ -3815,7 +3814,7 @@
       "_", 
       ".SRW"
     ], 
-    "do_perf_steps": true, 
+    "do_perf_steps": false, 
     "do_test_steps": true, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0"
@@ -3872,8 +3871,7 @@
   }, 
   "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer": {
     "build_targets": [
-      "dm", 
-      "nanobench"
+      "dm"
     ], 
     "builder_cfg": {
       "arch": "x86_64", 
@@ -4137,7 +4135,7 @@
       "_", 
       ".SRW"
     ], 
-    "do_perf_steps": true, 
+    "do_perf_steps": false, 
     "do_test_steps": true, 
     "env": {
       "CC": "/usr/bin/clang", 
@@ -4905,7 +4903,7 @@
       "~Once", 
       "~Shared"
     ], 
-    "do_perf_steps": true, 
+    "do_perf_steps": false, 
     "do_test_steps": true, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0"
@@ -5802,8 +5800,7 @@
   }, 
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
     "build_targets": [
-      "dm", 
-      "nanobench"
+      "dm"
     ], 
     "builder_cfg": {
       "arch": "x86_64", 
@@ -6074,7 +6071,7 @@
       "--match", 
       "~Threaded"
     ], 
-    "do_perf_steps": true, 
+    "do_perf_steps": false, 
     "do_test_steps": true, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_release_optimization_level=1 skia_warnings_as_errors=0"
@@ -7393,7 +7390,7 @@
       "_", 
       ".SRW"
     ], 
-    "do_perf_steps": true, 
+    "do_perf_steps": false, 
     "do_test_steps": true, 
     "env": {
       "CC": "/usr/bin/clang", 

@@ -30,7 +30,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"dm_flags\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",
       "@@@STEP_LOG_LINE@json.output@  ], @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"do_perf_steps\": true, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"do_perf_steps\": false, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"do_test_steps\": true, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"env\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"CC\": \"/usr/bin/clang\", @@@",
