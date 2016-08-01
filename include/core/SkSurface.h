@@ -178,12 +178,6 @@ public:
                                          const SkSurfaceProps* props = NULL) {
         return NewRaster(SkImageInfo::MakeN32Premul(width, height), props);
     }
-    static SkSurface* NewRenderTargetDirect(GrRenderTarget* rt, const SkSurfaceProps* props) {
-        return MakeRenderTargetDirect(rt, nullptr, props).release();
-    }
-    static SkSurface* NewRenderTargetDirect(GrRenderTarget* target) {
-        return NewRenderTargetDirect(target, NULL);
-    }
     static SkSurface* NewFromBackendTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
                                             const SkSurfaceProps* props) {
         return MakeFromBackendTexture(ctx, desc, props).release();

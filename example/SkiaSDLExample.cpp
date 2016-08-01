@@ -206,15 +206,14 @@ int main(int argc, char** argv) {
     GrGLint buffer;
     GR_GL_GetIntegerv(interface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
     desc.fRenderTargetHandle = buffer;
-    SkAutoTUnref<GrRenderTarget>
-            renderTarget(grContext->textureProvider()->wrapBackendRenderTarget(desc));
 
     // setup SkSurface
     // To use distance field text, use commented out SkSurfaceProps instead
     // SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
     //                      SkSurfaceProps::kLegacyFontHost_InitType);
     SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(renderTarget, &props));
+
+    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext, desc, &props));
 
     SkCanvas* canvas = surface->getCanvas();
 
