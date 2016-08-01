@@ -289,12 +289,10 @@ public:
     bool operator==(const SkImageInfo& other) const {
         return fWidth == other.fWidth && fHeight == other.fHeight &&
                fColorType == other.fColorType && fAlphaType == other.fAlphaType &&
-               fColorSpace == other.fColorSpace;
+               SkColorSpace::Equals(fColorSpace.get(), other.fColorSpace.get());
     }
     bool operator!=(const SkImageInfo& other) const {
-        return fWidth != other.fWidth || fHeight != other.fHeight ||
-               fColorType != other.fColorType || fAlphaType != other.fAlphaType ||
-               fColorSpace != other.fColorSpace;
+        return !(*this == other);
     }
 
     void unflatten(SkReadBuffer&);

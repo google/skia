@@ -6,6 +6,7 @@
  */
 
 #include "SkTypes.h"
+#include "Resources.h"
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
@@ -17,13 +18,15 @@
 #include "SkWriteBuffer.h"
 
 static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) {
-    // just need a safe amount of storage, but ensure that it is 4-byte aligned.
-    int32_t storage[(sizeof(SkImageInfo)*2) / sizeof(int32_t)];
-    SkBinaryWriteBuffer wb(storage, sizeof(storage));
+    // Need a safe amount of 4-byte aligned storage.  Note that one of the test ICC profiles
+    // is ~7500 bytes.
+    const size_t storageBytes = 8000;
+    SkAutoTMalloc<uint32_t> storage(storageBytes / sizeof(uint32_t));
+    SkBinaryWriteBuffer wb(storage.get(), storageBytes);
     info.flatten(wb);
-    SkASSERT(wb.bytesWritten() < sizeof(storage));
+    SkASSERT(wb.bytesWritten() < storageBytes);
 
-    SkReadBuffer rb(storage, wb.bytesWritten());
+    SkReadBuffer rb(storage.get(), wb.bytesWritten());
 
     // pick a noisy byte pattern, so we ensure that unflatten sets all of our fields
     SkImageInfo info2 = SkImageInfo::Make(0xB8, 0xB8, (SkColorType) 0xB8, (SkAlphaType) 0xB8);
@@ -35,10 +38,24 @@ static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) 
 }
 
 DEF_TEST(ImageInfo_flattening, reporter) {
+     sk_sp<SkData> data =
+             SkData::MakeFromFileName(GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+    sk_sp<SkColorSpace> space0 = SkColorSpace::NewICC(data->data(), data->size());
+    data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
+    sk_sp<SkColorSpace> space1 = SkColorSpace::NewICC(data->data(), data->size());
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
+    sk_sp<SkColorSpace> space2 = SkColorSpace::NewICC(data->data(), data->size());
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
+    sk_sp<SkColorSpace> space3 = SkColorSpace::NewICC(data->data(), data->size());
+
     sk_sp<SkColorSpace> spaces[] = {
         nullptr,
         SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named),
         SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named),
+        space0,
+        space1,
+        space2,
+        space3,
     };
 
     for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {

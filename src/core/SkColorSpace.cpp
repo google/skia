@@ -316,6 +316,51 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
     return NewICC(data, profileSize);
 }
 
+bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
+    if (src == dst) {
+        return true;
+    }
+
+    if (!src || !dst) {
+        return false;
+    }
+
+    switch (src->fNamed) {
+        case kSRGB_Named:
+        case kAdobeRGB_Named:
+            return src->fNamed == dst->fNamed;
+        case kUnknown_Named:
+            if (kUnknown_Named != dst->fNamed) {
+                return false;
+            }
+            break;
+    }
+
+    SkData* srcData = as_CSB(src)->fProfileData.get();
+    SkData* dstData = as_CSB(dst)->fProfileData.get();
+    if (srcData || dstData) {
+        if (srcData && dstData) {
+            return srcData->size() == dstData->size() &&
+                   0 == memcmp(srcData->data(), dstData->data(), srcData->size());
+        }
+
+        return false;
+    }
+
+    // It's important to check fProfileData before named gammas.  Some profiles may have named
+    // gammas, but also include other wacky features that cause us to save the data.
+    switch (src->fGammaNamed) {
+        case kSRGB_GammaNamed:
+        case k2Dot2Curve_GammaNamed:
+        case kLinear_GammaNamed:
+            return (src->fGammaNamed == dst->fGammaNamed) && (src->fToXYZD50 == dst->fToXYZD50);
+        default:
+            // If |src| does not have a named gamma, fProfileData should be non-null.
+            SkASSERT(false);
+            return false;
+    }
+}
+
 bool SkColorSpace::gammasAreMatching() const {
     const SkGammas* gammas = as_CSB(this)->gammas();
     SkASSERT(gammas);

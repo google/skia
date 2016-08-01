@@ -104,6 +104,12 @@ public:
 
     static sk_sp<SkColorSpace> Deserialize(const void* data, size_t length);
 
+    /**
+     *  If both are null, we return true.  If one is null and the other is not, we return false.
+     *  If both are non-null, we do a deeper compare.
+     */
+    static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
+
 protected:
     SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50, Named named);
 

@@ -475,10 +475,9 @@ bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
 }
 
 static bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
-    // FIXME (msarett):
-    // Do a better check for color space equality.
     return (kRGBA_F16_SkColorType == dstInfo.colorType()) ||
-           (dstInfo.colorSpace() && (dstInfo.colorSpace() != srcInfo.colorSpace()));
+           (dstInfo.colorSpace() && !SkColorSpace::Equals(srcInfo.colorSpace(),
+                                                          dstInfo.colorSpace()));
 }
 
 int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count) {

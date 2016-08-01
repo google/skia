@@ -221,3 +221,34 @@ DEF_TEST(ColorSpace_Serialize, r) {
     test_serialize(r, SkColorSpace::NewICC(monitorData->data(), monitorData->size()).get(), false);
 }
 
+DEF_TEST(ColorSpace_Equals, r) {
+    sk_sp<SkColorSpace> srgb = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    sk_sp<SkColorSpace> adobe = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+    sk_sp<SkColorSpace> z30 = SkColorSpace::NewICC(data->data(), data->size());
+    data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
+    sk_sp<SkColorSpace> z32 = SkColorSpace::NewICC(data->data(), data->size());
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
+    sk_sp<SkColorSpace> upperLeft = SkColorSpace::NewICC(data->data(), data->size());
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
+    sk_sp<SkColorSpace> upperRight = SkColorSpace::NewICC(data->data(), data->size());
+
+    REPORTER_ASSERT(r, SkColorSpace::Equals(nullptr, nullptr));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(srgb.get(), srgb.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(adobe.get(), adobe.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(z30.get(), z30.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(z32.get(), z32.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(upperLeft.get(), upperLeft.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(upperRight.get(), upperRight.get()));
+
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(nullptr, srgb.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), nullptr));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(adobe.get(), srgb.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), srgb.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(z32.get(), z30.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(upperLeft.get(), srgb.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(upperLeft.get(), upperRight.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), upperRight.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(upperRight.get(), adobe.get()));
+}
