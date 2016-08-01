@@ -10,7 +10,7 @@
     'SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=<(skia_static_initializers)',
     'SK_SUPPORT_GPU=<(skia_gpu)',
     'SK_FORCE_DISTANCE_FIELD_TEXT=<(skia_force_distance_field_text)',
-    
+
     # Indicate that all dependency libraries are present.  Clients that
     # are missing some of the required decoding libraries may choose
     # not to define these.  This will disable some decoder and encoder
@@ -630,13 +630,9 @@
         'defines': [
           'SK_BUILD_FOR_ANDROID',
 
-          # Android Text Tuning
+          # Android defines a fixed text gamma exponent instead of using SRGB
           'SK_GAMMA_EXPONENT=1.4',
           'SK_GAMMA_CONTRAST=0.0',
-        ],
-        # Android defines a fixed gamma exponent instead of using SRGB
-        'defines!': [
-          'SK_GAMMA_SRGB',
         ],
         'configurations': {
           'Release': {

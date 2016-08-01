@@ -13,10 +13,9 @@
   'target_defaults': {
     'defines': [
       'SK_INTERNAL',
-      'SK_GAMMA_SRGB',
       'SK_GAMMA_APPLY_TO_A8',
       'QT_NO_KEYWORDS',
-      # The discardable resource cache is tested via a special bot. This is 
+      # The discardable resource cache is tested via a special bot. This is
       # disabled here so we test the non-discardable use case.
       # 'SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
     ],
