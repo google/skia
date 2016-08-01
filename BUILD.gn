@@ -56,6 +56,13 @@ config("skia_private") {
     "third_party/etc1",
     "third_party/ktx",
   ]
+
+  defines = [
+    "SK_HAS_GIF_LIBRARY",
+    "SK_HAS_JPEG_LIBRARY",
+    "SK_HAS_PNG_LIBRARY",
+    "SK_HAS_WEBP_LIBRARY",
+  ]
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
@@ -159,13 +166,6 @@ component("skia") {
     "//third_party/libpng",
     "//third_party/libwebp",
     "//third_party/zlib",
-  ]
-
-  defines = [
-    "SK_HAS_GIF_LIBRARY",
-    "SK_HAS_JPEG_LIBRARY",
-    "SK_HAS_PNG_LIBRARY",
-    "SK_HAS_WEBP_LIBRARY",
   ]
 
   libs = [ "pthread" ]
