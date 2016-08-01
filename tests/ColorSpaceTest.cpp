@@ -113,10 +113,17 @@ DEF_TEST(ColorSpaceSRGBCompare, r) {
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }
 
+class ColorSpaceTest {
+public:
+    static sk_sp<SkData> WriteToICC(SkColorSpace* space) {
+        return as_CSB(space)->writeToICC();
+    }
+};
+
 DEF_TEST(ColorSpaceWriteICC, r) {
     // Test writing a new ICC profile
     sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    sk_sp<SkData> namedData = as_CSB(namedColorSpace)->writeToICC();
+    sk_sp<SkData> namedData = ColorSpaceTest::WriteToICC(namedColorSpace.get());
     sk_sp<SkColorSpace> iccColorSpace = SkColorSpace::NewICC(namedData->data(), namedData->size());
     test_space(r, iccColorSpace.get(), g_sRGB_XYZ, &g_sRGB_XYZ[3], &g_sRGB_XYZ[6],
                SkColorSpace::k2Dot2Curve_GammaNamed);
@@ -132,7 +139,7 @@ DEF_TEST(ColorSpaceWriteICC, r) {
     }
     sk_sp<SkColorSpace> monitorSpace = SkColorSpace::NewICC(monitorData->data(),
                                                             monitorData->size());
-    sk_sp<SkData> newMonitorData = as_CSB(monitorSpace)->writeToICC();
+    sk_sp<SkData> newMonitorData = ColorSpaceTest::WriteToICC(monitorSpace.get());
     sk_sp<SkColorSpace> newMonitorSpace = SkColorSpace::NewICC(newMonitorData->data(),
                                                                newMonitorData->size());
     REPORTER_ASSERT(r, monitorSpace->xyz() == newMonitorSpace->xyz());

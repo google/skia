@@ -180,12 +180,16 @@ public:
 
     const SkColorLookUpTable* colorLUT() const { return fColorLUT.get(); }
 
+private:
+
     /**
-     *  Writes this object as an ICC profile.
+     *  FIXME (msarett):
+     *  Hiding this function until we can determine if we need it.  Known issues include:
+     *  Only writes 3x3 matrices
+     *  Only writes float gammas
+     *  Rejected by some parsers because the "profile description" is empty
      */
     sk_sp<SkData> writeToICC() const;
-
-private:
 
     static sk_sp<SkColorSpace> NewRGB(GammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
@@ -200,6 +204,7 @@ private:
 
     friend class SkColorSpace;
     friend class ColorSpaceXformTest;
+    friend class ColorSpaceTest;
     typedef SkColorSpace INHERITED;
 };
 
