@@ -208,17 +208,17 @@ void SkRecorder::onDrawBitmapNine(const SkBitmap& bitmap,
 
 void SkRecorder::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                              const SkPaint* paint) {
-    APPEND(DrawImage, this->copy(paint), image, left, top);
+    APPEND(DrawImage, this->copy(paint), sk_ref_sp(image), left, top);
 }
 
 void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                  const SkPaint* paint, SrcRectConstraint constraint) {
-    APPEND(DrawImageRect, this->copy(paint), image, this->copy(src), dst, constraint);
+    APPEND(DrawImageRect, this->copy(paint), sk_ref_sp(image), this->copy(src), dst, constraint);
 }
 
 void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,
                                  const SkRect& dst, const SkPaint* paint) {
-    APPEND(DrawImageNine, this->copy(paint), image, center, dst);
+    APPEND(DrawImageNine, this->copy(paint), sk_ref_sp(image), center, dst);
 }
 
 void SkRecorder::onDrawText(const void* text, size_t byteLength,
@@ -271,13 +271,13 @@ void SkRecorder::onDrawTextRSXform(const void* text, size_t byteLength, const Sk
 void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) {
     TRY_MINIRECORDER(drawTextBlob, blob, x, y, paint);
-    APPEND(DrawTextBlob, paint, blob, x, y);
+    APPEND(DrawTextBlob, paint, sk_ref_sp(blob), x, y);
 }
 
 void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, const SkPaint* paint) {
     if (fDrawPictureMode == Record_DrawPictureMode) {
         fApproxBytesUsedBySubPictures += SkPictureUtils::ApproximateBytesUsed(pic);
-        APPEND(DrawPicture, this->copy(paint), pic, matrix ? *matrix : SkMatrix::I());
+        APPEND(DrawPicture, this->copy(paint), sk_ref_sp(pic), matrix ? *matrix : SkMatrix::I());
     } else {
         SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);
         SkAutoCanvasMatrixPaint acmp(this, matrix, paint, pic->cullRect());
@@ -290,7 +290,9 @@ void SkRecorder::onDrawShadowedPicture(const SkPicture* pic,
                                        const SkPaint* paint) {
     if (fDrawPictureMode == Record_DrawPictureMode) {
         fApproxBytesUsedBySubPictures += SkPictureUtils::ApproximateBytesUsed(pic);
-        APPEND(DrawShadowedPicture, this->copy(paint), pic, matrix ? *matrix : SkMatrix::I());
+        APPEND(DrawShadowedPicture, this->copy(paint),
+                                    sk_ref_sp(pic),
+                                    matrix ? *matrix : SkMatrix::I());
     } else {
         SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);
         SkAutoCanvasMatrixPaint acmp(this,  matrix, paint, pic->cullRect());
@@ -310,7 +312,7 @@ void SkRecorder::onDrawVertices(VertexMode vmode,
                          this->copy(vertices, vertexCount),
                          texs ? this->copy(texs, vertexCount) : nullptr,
                          colors ? this->copy(colors, vertexCount) : nullptr,
-                         xmode,
+                         sk_ref_sp(xmode),
                          this->copy(indices, indexCount),
                          indexCount);
 }
@@ -321,14 +323,14 @@ void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
            cubics ? this->copy(cubics, SkPatchUtils::kNumCtrlPts) : nullptr,
            colors ? this->copy(colors, SkPatchUtils::kNumCorners) : nullptr,
            texCoords ? this->copy(texCoords, SkPatchUtils::kNumCorners) : nullptr,
-           xmode);
+           sk_ref_sp(xmode));
 }
 
 void SkRecorder::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                              const SkColor colors[], int count, SkXfermode::Mode mode,
                              const SkRect* cull, const SkPaint* paint) {
     APPEND(DrawAtlas, this->copy(paint),
-           atlas,
+           sk_ref_sp(atlas),
            this->copy(xform, count),
            this->copy(tex, count),
            this->copy(colors, count),
@@ -338,7 +340,7 @@ void SkRecorder::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], cons
 }
 
 void SkRecorder::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
-    APPEND(DrawAnnotation, rect, SkString(key), value);
+    APPEND(DrawAnnotation, rect, SkString(key), sk_ref_sp(value));
 }
 
 void SkRecorder::willSave() {
@@ -346,8 +348,10 @@ void SkRecorder::willSave() {
 }
 
 SkCanvas::SaveLayerStrategy SkRecorder::getSaveLayerStrategy(const SaveLayerRec& rec) {
-    APPEND(SaveLayer,
-           this->copy(rec.fBounds), this->copy(rec.fPaint), rec.fBackdrop, rec.fSaveLayerFlags);
+    APPEND(SaveLayer, this->copy(rec.fBounds)
+                    , this->copy(rec.fPaint)
+                    , sk_ref_sp(rec.fBackdrop)
+                    , rec.fSaveLayerFlags);
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 

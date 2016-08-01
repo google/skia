@@ -86,22 +86,6 @@ enum Type { SK_RECORD_TYPES(ENUM) };
     operator T*() const { return ptr; } \
     T* operator->() const { return ptr; }
 
-template <typename T>
-class RefBox : SkNoncopyable {
-public:
-    RefBox() {}
-    RefBox(T* obj) : fObj(SkSafeRef(obj)) {}
-    RefBox(RefBox&& o) : fObj(o.fObj) {
-        o.fObj = nullptr;
-    }
-    ~RefBox() { SkSafeUnref(fObj); }
-
-    ACT_AS_PTR(fObj);
-
-private:
-    T* fObj;
-};
-
 // An Optional doesn't own the pointer's memory, but may need to destroy non-POD data.
 template <typename T>
 class Optional : SkNoncopyable {
@@ -188,7 +172,7 @@ RECORD(Save, 0);
 RECORD(SaveLayer, 0,
        Optional<SkRect> bounds;
        Optional<SkPaint> paint;
-       RefBox<const SkImageFilter> backdrop;
+       sk_sp<const SkImageFilter> backdrop;
        SkCanvas::SaveLayerFlags saveLayerFlags);
 
 RECORD(SetMatrix, 0,
@@ -234,18 +218,18 @@ RECORD(DrawDrawable, kDraw_Tag,
         int32_t index);
 RECORD(DrawImage, kDraw_Tag|kHasImage_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkImage> image;
+        sk_sp<const SkImage> image;
         SkScalar left;
         SkScalar top);
 RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkImage> image;
+        sk_sp<const SkImage> image;
         Optional<SkRect> src;
         SkRect dst;
         SkCanvas::SrcRectConstraint constraint);
 RECORD(DrawImageNine, kDraw_Tag|kHasImage_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkImage> image;
+        sk_sp<const SkImage> image;
         SkIRect center;
         SkRect dst);
 RECORD(DrawOval, kDraw_Tag,
@@ -258,11 +242,11 @@ RECORD(DrawPath, kDraw_Tag,
         PreCachedPath path);
 RECORD(DrawPicture, kDraw_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkPicture> picture;
+        sk_sp<const SkPicture> picture;
         TypedMatrix matrix);
 RECORD(DrawShadowedPicture, kDraw_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkPicture> picture;
+        sk_sp<const SkPicture> picture;
         TypedMatrix matrix);
 RECORD(DrawPoints, kDraw_Tag,
         SkPaint paint;
@@ -294,7 +278,7 @@ RECORD(DrawText, kDraw_Tag|kHasText_Tag,
         SkScalar y);
 RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag,
         SkPaint paint;
-        RefBox<const SkTextBlob> blob;
+        sk_sp<const SkTextBlob> blob;
         SkScalar x;
         SkScalar y);
 RECORD(DrawTextOnPath, kDraw_Tag|kHasText_Tag,
@@ -314,10 +298,10 @@ RECORD(DrawPatch, kDraw_Tag,
         PODArray<SkPoint> cubics;
         PODArray<SkColor> colors;
         PODArray<SkPoint> texCoords;
-        RefBox<SkXfermode> xmode);
+        sk_sp<SkXfermode> xmode);
 RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkImage> atlas;
+        sk_sp<const SkImage> atlas;
         PODArray<SkRSXform> xforms;
         PODArray<SkRect> texs;
         PODArray<SkColor> colors;
@@ -331,13 +315,13 @@ RECORD(DrawVertices, kDraw_Tag,
         PODArray<SkPoint> vertices;
         PODArray<SkPoint> texs;
         PODArray<SkColor> colors;
-        RefBox<SkXfermode> xmode;
+        sk_sp<SkXfermode> xmode;
         PODArray<uint16_t> indices;
         int indexCount);
 RECORD(DrawAnnotation, 0,
        SkRect rect;
        SkString key;
-       RefBox<SkData> value);
+       sk_sp<SkData> value);
 #undef RECORD
 
 }  // namespace SkRecords

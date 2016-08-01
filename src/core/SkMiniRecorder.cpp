@@ -79,7 +79,7 @@ bool SkMiniRecorder::drawPath(const SkPath& path, const SkPaint& paint) {
 }
 
 bool SkMiniRecorder::drawTextBlob(const SkTextBlob* b, SkScalar x, SkScalar y, const SkPaint& p) {
-    TRY_TO_STORE(DrawTextBlob, p, b, x, y);
+    TRY_TO_STORE(DrawTextBlob, p, sk_ref_sp(b), x, y);
 }
 #undef TRY_TO_STORE
 

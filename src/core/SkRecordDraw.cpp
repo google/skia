@@ -77,7 +77,10 @@ template <> void Draw::draw(const NoOp&) {}
 #define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
 DRAW(Restore, restore());
 DRAW(Save, save());
-DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds, r.paint, r.backdrop, r.saveLayerFlags)));
+DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
+                                                 r.paint,
+                                                 r.backdrop.get(),
+                                                 r.saveLayerFlags)));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 DRAW(Concat, concat(r.matrix));
 
@@ -93,17 +96,17 @@ template <> void Draw::draw(const TranslateZ& r) { }
 #endif
 
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
-DRAW(DrawImage, drawImage(r.image, r.left, r.top, r.paint));
-DRAW(DrawImageRect, legacy_drawImageRect(r.image, r.src, r.dst, r.paint, r.constraint));
-DRAW(DrawImageNine, drawImageNine(r.image, r.center, r.dst, r.paint));
+DRAW(DrawImage, drawImage(r.image.get(), r.left, r.top, r.paint));
+DRAW(DrawImageRect, legacy_drawImageRect(r.image.get(), r.src, r.dst, r.paint, r.constraint));
+DRAW(DrawImageNine, drawImageNine(r.image.get(), r.center, r.dst, r.paint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
 DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.xmode, r.paint));
-DRAW(DrawPicture, drawPicture(r.picture, &r.matrix, r.paint));
+DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint));
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
-DRAW(DrawShadowedPicture, drawShadowedPicture(r.picture, &r.matrix, r.paint));
+DRAW(DrawShadowedPicture, drawShadowedPicture(r.picture.get(), &r.matrix, r.paint));
 #else
 template <> void Draw::draw(const DrawShadowedPicture& r) { }
 #endif
@@ -114,13 +117,14 @@ DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
 DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
 DRAW(DrawRect, drawRect(r.rect, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
-DRAW(DrawTextBlob, drawTextBlob(r.blob, r.x, r.y, r.paint));
+DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint));
 DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
 DRAW(DrawTextRSXform, drawTextRSXform(r.text, r.byteLength, r.xforms, r.cull, r.paint));
-DRAW(DrawAtlas, drawAtlas(r.atlas, r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
+DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
+                          r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
 DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
                                 r.xmode, r.indices, r.indexCount, r.paint));
-DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value));
+DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()));
 #undef DRAW
 
 template <> void Draw::draw(const DrawDrawable& r) {
@@ -403,7 +407,7 @@ private:
         return this->adjustAndMap(op.outer.rect(), &op.paint);
     }
     Bounds bounds(const DrawImage& op) const {
-        const SkImage* image = op.image;
+        const SkImage* image = op.image.get();
         SkRect rect = SkRect::MakeXYWH(op.left, op.top, image->width(), image->height());
 
         return this->adjustAndMap(rect, op.paint);
