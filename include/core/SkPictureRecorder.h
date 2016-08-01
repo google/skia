@@ -19,6 +19,7 @@ namespace android {
 };
 #endif
 
+class GrContext;
 class SkCanvas;
 class SkDrawable;
 class SkPictureRecord;
@@ -111,6 +112,9 @@ public:
     SkPicture* SK_WARN_UNUSED_RESULT endRecording() { return this->endRecordingAsPicture(); }
 #endif
 
+    // Strawman API.
+    void optimizeFor(GrContext* ctx) { fGrContextToOptimizeFor = ctx; }
+
 private:
     void reset();
 
@@ -130,6 +134,8 @@ private:
     SkAutoTUnref<SkRecorder>      fRecorder;
     SkAutoTUnref<SkRecord>        fRecord;
     SkMiniRecorder                fMiniRecorder;
+
+    GrContext*                    fGrContextToOptimizeFor = nullptr;
 
     typedef SkNoncopyable INHERITED;
 };
