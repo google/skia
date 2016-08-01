@@ -19,6 +19,11 @@ def gn_path():
     return 'buildtools/mac/gn'
   return 'buildtools/win/gn.exe'
 
-quiet('download_from_google_storage',
+def download_tool():
+	if 'linux' in sys.platform or 'darwin' in sys.platform:
+		return 'download_from_google_storage'
+	return 'download_from_google_storage.bat'
+	 
+quiet(download_tool(),
       '--no_resume --no_auth --bucket chromium-gn',
       '-s ', gn_path() + '.sha1')
