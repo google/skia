@@ -341,6 +341,8 @@
         '<(skia_src_path)/core/SkXfermodeInterpretation.h',
         '<(skia_src_path)/core/SkYUVPlanesCache.cpp',
         '<(skia_src_path)/core/SkYUVPlanesCache.h',
+        '<(skia_src_path)/core/SkShadowShader.cpp',
+        '<(skia_src_path)/core/SkShadowShader.h',
 
         '<(skia_src_path)/image/SkImage.cpp',
         '<(skia_src_path)/image/SkImage_Generator.cpp',
