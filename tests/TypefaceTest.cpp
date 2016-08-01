@@ -83,7 +83,7 @@ DEF_TEST(TypefaceStyle, reporter) {
     for (int weight = SkFS::kInvisible_Weight; weight <= SkFS::kExtraBlack_Weight; ++weight) {
         TypefaceStyle_test(reporter, weight, 5, data.get());
     }
-    for (int width = SkFS::kUltraCondensed_Width; width <= SkFS::kUltaExpanded_Width; ++width) {
+    for (int width = SkFS::kUltraCondensed_Width; width <= SkFS::kUltraExpanded_Width; ++width) {
         TypefaceStyle_test(reporter, 400, width, data.get());
     }
 }

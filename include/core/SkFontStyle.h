@@ -23,7 +23,7 @@ public:
         kBold_Weight        =  700,
         kExtraBold_Weight   =  800,
         kBlack_Weight       =  900,
-        kExtraBlack_Weight  = 1000
+        kExtraBlack_Weight  = 1000,
     };
 
     enum Width {
@@ -35,7 +35,8 @@ public:
         kSemiExpanded_Width     = 6,
         kExpanded_Width         = 7,
         kExtraExpanded_Width    = 8,
-        kUltaExpanded_Width     = 9
+        kUltraExpanded_Width    = 9,
+        kUltaExpanded_Width     = 9,  // deprecated, typo
     };
 
     enum Slant {

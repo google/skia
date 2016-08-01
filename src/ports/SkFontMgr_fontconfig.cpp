@@ -340,7 +340,7 @@ static SkFontStyle skfontstyle_from_fcpattern(FcPattern* pattern) {
         { SkTFixed<FC_WIDTH_SEMIEXPANDED>::value,   SkTFixed<SkFS::kSemiExpanded_Width>::value },
         { SkTFixed<FC_WIDTH_EXPANDED>::value,       SkTFixed<SkFS::kExpanded_Width>::value },
         { SkTFixed<FC_WIDTH_EXTRAEXPANDED>::value,  SkTFixed<SkFS::kExtraExpanded_Width>::value },
-        { SkTFixed<FC_WIDTH_ULTRAEXPANDED>::value,  SkTFixed<SkFS::kUltaExpanded_Width>::value },
+        { SkTFixed<FC_WIDTH_ULTRAEXPANDED>::value,  SkTFixed<SkFS::kUltraExpanded_Width>::value },
     };
     int width = map_ranges(get_int(pattern, FC_WIDTH, FC_WIDTH_NORMAL),
                            widthRanges, SK_ARRAY_COUNT(widthRanges));
@@ -384,7 +384,7 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
         { SkTFixed<SkFS::kSemiExpanded_Width>::value,   SkTFixed<FC_WIDTH_SEMIEXPANDED>::value },
         { SkTFixed<SkFS::kExpanded_Width>::value,       SkTFixed<FC_WIDTH_EXPANDED>::value },
         { SkTFixed<SkFS::kExtraExpanded_Width>::value,  SkTFixed<FC_WIDTH_EXTRAEXPANDED>::value },
-        { SkTFixed<SkFS::kUltaExpanded_Width>::value,   SkTFixed<FC_WIDTH_ULTRAEXPANDED>::value },
+        { SkTFixed<SkFS::kUltraExpanded_Width>::value,  SkTFixed<FC_WIDTH_ULTRAEXPANDED>::value },
     };
     int width = map_ranges(style.width(), widthRanges, SK_ARRAY_COUNT(widthRanges));
 
