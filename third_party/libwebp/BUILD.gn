@@ -11,6 +11,14 @@ import("../third_party.gni")
 third_party("libwebp") {
   public_include_dirs = [ "../externals/libwebp/src" ]
 
+  defines = [
+    # WebP naturally decodes to RGB_565, and we work with BGR_565.
+    # This makes WebP decode to BGR_565 when we ask for RGB_565.
+    # (It also swaps the color order for 4444, but we don't care today.)
+    # TODO: swizzle ourself in SkWebpCodec instead of requiring this non-standard libwebp.
+    "WEBP_SWAP_16BIT_CSP",
+  ]
+
   sources = [
     "../externals/libwebp/src/dec/alpha.c",
     "../externals/libwebp/src/dec/buffer.c",

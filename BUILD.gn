@@ -65,6 +65,10 @@ config("skia_private") {
     "SK_HAS_JPEG_LIBRARY",
     "SK_HAS_PNG_LIBRARY",
     "SK_HAS_WEBP_LIBRARY",
+
+    "TURBO_HAS_565",
+    "TURBO_HAS_CROP",
+    "TURBO_HAS_SKIP",
   ]
 }
 
