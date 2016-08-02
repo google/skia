@@ -135,12 +135,14 @@ def main():
     sys.exit('Error (ret code: %s) calling "%s" in %s' % (
         error.returncode, error.cmd, chrome_src_dir))
 
+  gn = 'gn'
   platform = 'linux64'
   if sys.platform == 'darwin':
     platform = 'mac'
   elif sys.platform == 'win32':
     platform = 'win'
-  gn = os.path.join(chrome_src_dir, 'buildtools', platform, 'gn')
+    gn = 'gn.exe'
+  gn = os.path.join(chrome_src_dir, 'buildtools', platform, gn)
   try:
     subprocess.check_call([gn, 'gen', chrome_target_dir_rel],
                           cwd=chrome_src_dir)
