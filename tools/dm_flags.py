@@ -208,6 +208,10 @@ def get_args(bot):
                             'filterbitmap_image_mandrill_64',
                             'shadows',
                             'simpleaaclip_aaclip'])
+  # skia:5595
+  bad_serialize_gms.extend(['composeshader_bitmap',
+                            'scaled_tilemodes_npot',
+                            'scaled_tilemodes'])
   for test in bad_serialize_gms:
     blacklist.extend(['serialize-8888', 'gm', '_', test])
 

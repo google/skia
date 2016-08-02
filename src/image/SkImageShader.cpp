@@ -7,6 +7,9 @@
 
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProvider.h"
+#include "SkColorShader.h"
+#include "SkColorTable.h"
+#include "SkEmptyShader.h"
 #include "SkImage_Base.h"
 #include "SkImageShader.h"
 #include "SkReadBuffer.h"
@@ -43,11 +46,11 @@ bool SkImageShader::isOpaque() const {
 }
 
 size_t SkImageShader::onContextSize(const ContextRec& rec) const {
-    return SkBitmapProcShader::ContextSize(rec, SkBitmapProvider(fImage).info());
+    return SkBitmapProcLegacyShader::ContextSize(rec, SkBitmapProvider(fImage).info());
 }
 
 SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* storage) const {
-    return SkBitmapProcShader::MakeContext(*this, fTileModeX, fTileModeY,
+    return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
                                            SkBitmapProvider(fImage), rec, storage);
 }
 
@@ -81,12 +84,76 @@ bool SkImageShader::onIsABitmap(SkBitmap* texture, SkMatrix* texM, TileMode xy[]
     return true;
 }
 
-sk_sp<SkShader> SkImageShader::Make(const SkImage* image, TileMode tx, TileMode ty,
-                                    const SkMatrix* localMatrix) {
-    if (!image) {
-        return nullptr;
+static bool bitmap_is_too_big(int w, int h) {
+    // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer, as it
+    // communicates between its matrix-proc and its sampler-proc. Until we can
+    // widen that, we have to reject bitmaps that are larger.
+    //
+    static const int kMaxSize = 65535;
+    
+    return w > kMaxSize || h > kMaxSize;
+}
+
+// returns true and set color if the bitmap can be drawn as a single color
+// (for efficiency)
+static bool can_use_color_shader(const SkImage* image, SkColor* color) {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // HWUI does not support color shaders (see b/22390304)
+    return false;
+#endif
+    
+    if (1 != image->width() || 1 != image->height()) {
+        return false;
     }
-    return sk_sp<SkShader>(new SkImageShader(image, tx, ty, localMatrix));
+    
+    SkPixmap pmap;
+    if (!image->peekPixels(&pmap)) {
+        return false;
+    }
+    
+    switch (pmap.colorType()) {
+        case kN32_SkColorType:
+            *color = SkUnPreMultiply::PMColorToColor(*pmap.addr32(0, 0));
+            return true;
+        case kRGB_565_SkColorType:
+            *color = SkPixel16ToColor(*pmap.addr16(0, 0));
+            return true;
+        case kIndex_8_SkColorType: {
+            const SkColorTable& ctable = *pmap.ctable();
+            *color = SkUnPreMultiply::PMColorToColor(ctable[*pmap.addr8(0, 0)]);
+            return true;
+        }
+        default: // just skip the other configs for now
+            break;
+    }
+    return false;
+}
+
+sk_sp<SkShader> SkImageShader::Make(const SkImage* image, TileMode tx, TileMode ty,
+                                    const SkMatrix* localMatrix,
+                                    SkTBlitterAllocator* allocator) {
+    SkShader* shader;
+    SkColor color;
+    if (!image || bitmap_is_too_big(image->width(), image->height())) {
+        if (nullptr == allocator) {
+            shader = new SkEmptyShader;
+        } else {
+            shader = allocator->createT<SkEmptyShader>();
+        }
+    } else if (can_use_color_shader(image, &color)) {
+        if (nullptr == allocator) {
+            shader = new SkColorShader(color);
+        } else {
+            shader = allocator->createT<SkColorShader>(color);
+        }
+    } else {
+        if (nullptr == allocator) {
+            shader = new SkImageShader(image, tx, ty, localMatrix);
+        } else {
+            shader = allocator->createT<SkImageShader>(image, tx, ty, localMatrix);
+        }
+    }
+    return sk_sp<SkShader>(shader);
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -161,3 +228,33 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
 }
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkImagePriv.h"
+
+sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
+                                   SkShader::TileMode tmy, const SkMatrix* localMatrix,
+                                   SkTBlitterAllocator* allocator) {
+    ForceCopyMode mode = allocator ? kNever_ForceCopyMode : kNo_ForceCopyMode;
+    return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, mode).get(),
+                               tmx, tmy, localMatrix, allocator);
+}
+
+static sk_sp<SkFlattenable> SkBitmapProcShader_CreateProc(SkReadBuffer& buffer) {
+    SkMatrix lm;
+    buffer.readMatrix(&lm);
+    SkBitmap bm;
+    if (!buffer.readBitmap(&bm)) {
+        return nullptr;
+    }
+    bm.setImmutable();
+    SkShader::TileMode mx = (SkShader::TileMode)buffer.readUInt();
+    SkShader::TileMode my = (SkShader::TileMode)buffer.readUInt();
+    return SkShader::MakeBitmapShader(bm, mx, my, &lm);
+}
+
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkShader)
+SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageShader)
+SkFlattenable::Register("SkBitmapProcShader", SkBitmapProcShader_CreateProc, kSkShader_Type);
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+

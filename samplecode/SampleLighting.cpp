@@ -70,7 +70,7 @@ protected:
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr, nullptr);
         sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(
                 std::move(normalMap), SkMatrix::I());
-        sk_sp<SkShader> diffuseShader = SkBitmapProcShader::MakeBitmapShader(fDiffuseBitmap,
+        sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(fDiffuseBitmap,
                 SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr);
         paint.setShader(SkLightingShader::Make(std::move(diffuseShader), std::move(normalSource),
                                                std::move(lights)));

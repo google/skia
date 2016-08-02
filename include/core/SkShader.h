@@ -499,6 +499,7 @@ public:
 
     SK_TO_STRING_VIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -536,7 +537,7 @@ private:
 
     // So the SkLocalMatrixShader can whack fLocalMatrix in its SkReadBuffer constructor.
     friend class SkLocalMatrixShader;
-    friend class SkBitmapProcShader;    // for computeTotalInverse()
+    friend class SkBitmapProcLegacyShader;    // for computeTotalInverse()
 
     typedef SkFlattenable INHERITED;
 };

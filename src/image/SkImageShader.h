@@ -10,11 +10,12 @@
 
 #include "SkImage.h"
 #include "SkShader.h"
+#include "SkBitmapProcShader.h"
 
 class SkImageShader : public SkShader {
 public:
     static sk_sp<SkShader> Make(const SkImage*, TileMode tx, TileMode ty,
-                                const SkMatrix* localMatrix);
+                                const SkMatrix* localMatrix, SkTBlitterAllocator* = nullptr);
 
     bool isOpaque() const override;
 
@@ -24,6 +25,8 @@ public:
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
+
+    SkImageShader(const SkImage*, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -37,7 +40,7 @@ protected:
     const TileMode              fTileModeY;
 
 private:
-    SkImageShader(const SkImage*, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
+    friend class SkShader;
 
     typedef SkShader INHERITED;
 };

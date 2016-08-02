@@ -15,8 +15,7 @@
 static void check_isabitmap(skiatest::Reporter* reporter, SkShader* shader,
                             int expectedW, int expectedH,
                             SkShader::TileMode expectedX, SkShader::TileMode expectedY,
-                            const SkMatrix& expectedM,
-                            bool expectedImage) {
+                            const SkMatrix& expectedM) {
     SkBitmap bm;
     SkShader::TileMode tileModes[2];
     SkMatrix localM;
@@ -32,14 +31,12 @@ static void check_isabitmap(skiatest::Reporter* reporter, SkShader* shader,
     tileModes[0] = tileModes[1] = (SkShader::TileMode)99;
 
     SkImage* image = shader->isAImage(&localM, tileModes);
-    REPORTER_ASSERT(reporter, (image != nullptr) == expectedImage);
-    if (image) {
-        REPORTER_ASSERT(reporter, image->width() == expectedW);
-        REPORTER_ASSERT(reporter, image->height() == expectedH);
-        REPORTER_ASSERT(reporter, localM == expectedM);
-        REPORTER_ASSERT(reporter, tileModes[0] == expectedX);
-        REPORTER_ASSERT(reporter, tileModes[1] == expectedY);
-    }
+    REPORTER_ASSERT(reporter, image);
+    REPORTER_ASSERT(reporter, image->width() == expectedW);
+    REPORTER_ASSERT(reporter, image->height() == expectedH);
+    REPORTER_ASSERT(reporter, localM == expectedM);
+    REPORTER_ASSERT(reporter, tileModes[0] == expectedX);
+    REPORTER_ASSERT(reporter, tileModes[1] == expectedY);
 }
 
 DEF_TEST(Shader_isABitmap, reporter) {
@@ -55,6 +52,6 @@ DEF_TEST(Shader_isABitmap, reporter) {
     auto shader0 = SkShader::MakeBitmapShader(bm, tmx, tmy, &localM);
     auto shader1 = SkImage::MakeFromBitmap(bm)->makeShader(tmx, tmy, &localM);
 
-    check_isabitmap(reporter, shader0.get(), W, H, tmx, tmy, localM, false);
-    check_isabitmap(reporter, shader1.get(), W, H, tmx, tmy, localM, true);
+    check_isabitmap(reporter, shader0.get(), W, H, tmx, tmy, localM);
+    check_isabitmap(reporter, shader1.get(), W, H, tmx, tmy, localM);
 }
