@@ -15,7 +15,7 @@
       'target_name': 'icuuc',
       'type': '<(component)',
       'sources': [
-        '<!@(python find.py ../third_party/externals/icu/source/common "*.c*")'
+        '<!@(python find.py "*.c*" ../third_party/externals/icu/source/common)'
       ],
       'defines': [
         'U_COMMON_IMPLEMENTATION',

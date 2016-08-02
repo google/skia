@@ -19,7 +19,7 @@
     # It'd be nice to do this in SampleApp.gypi, but I can't find a way to make it work.
     [ 'not ("<(_target_name)" == "SampleApp" and skia_is_bot)', {
       'sources': [
-        '<!@(python find.py ../gm "*.c*")',
+        '<!@(python find.py "*.c*" ../gm)',
 
         # Files needed by particular GMs
         '../src/gpu/batches/GrTestBatch.h',

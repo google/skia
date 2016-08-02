@@ -116,7 +116,7 @@
         'sources': [
             '../tools/monobench.cpp',
             '../bench/Benchmark.cpp',
-            '<!@(python find.py ../bench "*Bench.cpp")',
+            '<!@(python find.py "*Bench.cpp" ../bench)',
         ],
         'sources!': [
             '../bench/GMBench.cpp',

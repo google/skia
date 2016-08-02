@@ -13,7 +13,7 @@
     '../src/pdf',
     '../src/utils',
   ],
-  'sources': [ '<!@(python find.py ../bench "*.cpp")' ],
+  'sources': [ '<!@(python find.py "*.cpp" ../bench)' ],
 
   'dependencies': [
     'etc1.gyp:libetc1',

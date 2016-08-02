@@ -12,7 +12,7 @@
           'SK_FUZZ_LOGGING',
         ],
         'sources': [
-          '<!@(python find.py ../fuzz "*.cpp")',
+          '<!@(python find.py "*.cpp" ../fuzz)',
           '../tests/PathOpsDebug.cpp',
         ],
         'dependencies': [

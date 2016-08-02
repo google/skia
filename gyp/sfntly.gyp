@@ -22,7 +22,7 @@
       'sources': [
         '<(sfntly_src_path)/sample/chromium/font_subsetter.cc',
         '<(sfntly_src_path)/sample/chromium/subsetter_impl.cc',
-        '<!@(python find.py "<(sfntly_src_path)/sfntly" "*.c*")'
+        '<!@(python find.py "*.c*" "<(sfntly_src_path)/sfntly")'
       ],
       'include_dirs': [
         '<(sfntly_src_path)',
