@@ -96,7 +96,6 @@ BASE_SRCS_ALL = struct(
         "src/codec/*",
         "src/device/xps/*",  # Windows-only. Move to ports?
         "src/doc/*_XPS.cpp",  # Windows-only. Move to ports?
-        "src/fonts/SkFontMgr_fontconfig.cpp",
         "src/gpu/gl/android/*",
         "src/gpu/gl/egl/*",
         "src/gpu/gl/glfw/*",
@@ -121,6 +120,7 @@ BASE_SRCS_ALL = struct(
         "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
         "src/gpu/gl/GrGLDefaultInterface_native.cpp",
         "src/gpu/gl/GrGLDefaultInterface_none.cpp",
+        "src/fonts/SkFontMgr_fontconfig.cpp",
 
         # Exclude files that don't compile with the current DEFINES.
         "src/gpu/gl/mesa/*",  # Requires SK_MESA define.
@@ -144,7 +144,6 @@ BASE_SRCS_UNIX = struct(
     include = [
         "src/android/*",
         "src/codec/*",
-        "src/fonts/SkFontMgr_fontconfig.cpp",
         "src/gpu/gl/GrGLDefaultInterface_none.cpp",
         "src/images/*",
         "src/opts/**/*.cpp",
@@ -177,6 +176,7 @@ BASE_SRCS_UNIX = struct(
         "src/ports/*nacl*",
         "src/ports/*win*",
         "src/ports/SkFontConfigInterface_direct_factory.cpp",
+        "src/ports/SkFontHost_fontconfig.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",
@@ -224,8 +224,7 @@ BASE_SRCS_ANDROID = struct(
         "src/ports/*nacl*",
         "src/ports/*win*",
         "src/ports/SkDebug_stdio.cpp",
-        "src/ports/SkFontConfigInterface_direct_factory.cpp",
-        "src/ports/SkFontConfigInterface_direct_google3_factory.cpp",
+        "src/ports/SkFontHost_fontconfig.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",
@@ -279,9 +278,8 @@ BASE_SRCS_IOS = struct(
         "src/ports/*mozalloc*",
         "src/ports/*nacl*",
         "src/ports/*win*",
+        "src/ports/SkFontHost_fontconfig.cpp",
         "src/ports/SkFontMgr_custom.cpp",
-        "src/ports/SkFontConfigInterface_direct_factory.cpp",
-        "src/ports/SkFontConfigInterface_direct_google3_factory.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",

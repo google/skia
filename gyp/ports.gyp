@@ -40,6 +40,7 @@
         '../src/ports/SkFontMgr_android_factory.cpp',
         '../src/ports/SkFontMgr_custom_directory_factory.cpp',
         '../src/ports/SkFontMgr_custom_embedded_factory.cpp',
+        '../src/ports/SkFontMgr_FontConfigInterface_factory.cpp',
         '../src/ports/SkFontMgr_fontconfig_factory.cpp',
         '../src/ports/SkFontMgr_win_dw.cpp',
         '../src/ports/SkFontMgr_win_dw_factory.cpp',
@@ -87,6 +88,7 @@
             '../src/ports/SkFontMgr_android.cpp',
             '../src/ports/SkFontMgr_android_parser.cpp',
             '../src/ports/SkFontMgr_custom.cpp',
+            '../src/ports/SkFontMgr_FontConfigInterface.cpp',
           ],
           'dependencies': [
             'freetype.gyp:freetype',

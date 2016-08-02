@@ -265,6 +265,7 @@ component("skia") {
       "src/ports/SkFontConfigInterface_direct_factory.cpp",
       "src/ports/SkFontHost_FreeType.cpp",
       "src/ports/SkFontHost_FreeType_common.cpp",
+      "src/ports/SkFontMgr_FontConfigInterface.cpp",
       "src/ports/SkFontMgr_fontconfig.cpp",
       "src/ports/SkFontMgr_fontconfig_factory.cpp",
     ]

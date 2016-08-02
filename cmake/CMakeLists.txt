@@ -56,7 +56,9 @@ remove_srcs (../src/ports/SkFontHost_fontconfig.cpp
              ../src/ports/SkFontConfigInterface_direct.cpp
              ../src/ports/SkFontConfigInterface_direct_factory.cpp
              ../src/ports/SkFontConfigInterface_direct_google3.cpp
-             ../src/ports/SkFontConfigInterface_direct_google3_factory.cpp)
+             ../src/ports/SkFontConfigInterface_direct_google3_factory.cpp
+             ../src/ports/SkFontMgr_FontConfigInterface.cpp
+             ../src/ports/SkFontMgr_FontConfigInterface_factory.cpp)
 # Alternative font managers.
 remove_srcs (../src/ports/SkFontMgr_custom*.cpp)
 # skslc main()
