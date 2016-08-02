@@ -10,7 +10,6 @@
       'type': 'static_library',
       'dependencies': [ 'skia_lib.gyp:skia_lib', ],
       'sources': [ '<(skia_src_path)/pdf/SkDocument_PDF_None.cpp', ],
-      'defines': [ 'SK_SUPPORT_PDF=0', ],
     },
     {
       'target_name': 'pdf',
@@ -59,7 +58,6 @@
         ],
       ],
       'direct_dependent_settings': {
-        'defines': [ 'SK_SUPPORT_PDF=1', ],
         'include_dirs': [
           '../include/core',  # SkDocument.h
         ],
