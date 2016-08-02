@@ -36,7 +36,6 @@ public:
         kExpanded_Width         = 7,
         kExtraExpanded_Width    = 8,
         kUltraExpanded_Width    = 9,
-        kUltaExpanded_Width     = 9,  // deprecated, typo
     };
 
     enum Slant {
