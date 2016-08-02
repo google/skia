@@ -257,7 +257,7 @@ public:
     }
 
     SkMemoryStream* transferBuffer(size_t offset, size_t size) override {
-        SkAutoTUnref<SkData> data(SkData::NewUninitialized(size));
+        sk_sp<SkData> data(SkData::MakeUninitialized(size));
         if (offset > fStreamBuffer.bytesWritten()) {
             // If the offset is not buffered, read from fStream directly and skip the buffering.
             const size_t skipLength = offset - fStreamBuffer.bytesWritten();
@@ -266,7 +266,7 @@ public:
             }
             const size_t bytesRead = fStream->read(data->writable_data(), size);
             if (bytesRead < size) {
-                data.reset(SkData::NewSubset(data.get(), 0, bytesRead));
+                data = SkData::MakeSubset(data.get(), 0, bytesRead);
             }
         } else {
             const size_t alreadyBuffered = SkTMin(fStreamBuffer.bytesWritten() - offset, size);
@@ -284,7 +284,7 @@ public:
                     if (!safe_add_to_size_t(alreadyBuffered, bytesRead, &newSize)) {
                         return nullptr;
                     }
-                    data.reset(SkData::NewSubset(data.get(), 0, newSize));
+                    data = SkData::MakeSubset(data.get(), 0, newSize);
                 }
             }
         }
@@ -379,18 +379,18 @@ public:
         }
 
         if (fStream->getMemoryBase()) {  // directly copy if getMemoryBase() is available.
-            SkAutoTUnref<SkData> data(SkData::NewWithCopy(
+            sk_sp<SkData> data(SkData::MakeWithCopy(
                 static_cast<const uint8_t*>(fStream->getMemoryBase()) + offset, bytesToRead));
             fStream.reset();
             return new SkMemoryStream(data);
         } else {
-            SkAutoTUnref<SkData> data(SkData::NewUninitialized(bytesToRead));
+            sk_sp<SkData> data(SkData::MakeUninitialized(bytesToRead));
             if (!fStream->seek(offset)) {
                 return nullptr;
             }
             const size_t bytesRead = fStream->read(data->writable_data(), bytesToRead);
             if (bytesRead < bytesToRead) {
-                data.reset(SkData::NewSubset(data.get(), 0, bytesRead));
+                data = SkData::MakeSubset(data.get(), 0, bytesRead);
             }
             return new SkMemoryStream(data);
         }

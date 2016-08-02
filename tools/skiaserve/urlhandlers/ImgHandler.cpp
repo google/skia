@@ -40,6 +40,6 @@ int ImgHandler::handle(Request* request, MHD_Connection* connection,
         sscanf(commands[2].c_str(), "%d", &m);
     }
 
-    SkAutoTUnref<SkData> data(request->drawToPng(n, m));
-    return SendData(connection, data, "image/png");
+    sk_sp<SkData> data(request->drawToPng(n, m));
+    return SendData(connection, data.get(), "image/png");
 }

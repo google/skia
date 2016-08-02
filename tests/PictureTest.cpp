@@ -621,7 +621,7 @@ static void test_bad_bitmap() {
 }
 #endif
 
-static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
+static sk_sp<SkData> serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(bitmap.width()),
                                                SkIntToScalar(bitmap.height()));
@@ -632,7 +632,7 @@ static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkAutoTUnref<SkPixelSerializer> serializer(
             SkImageEncoder::CreatePixelSerializer());
     picture->serialize(&wStream, serializer);
-    return wStream.copyToData();
+    return sk_sp<SkData>(wStream.copyToData());
 }
 
 struct ErrorContext {
@@ -670,18 +670,18 @@ DEF_TEST(Picture_EncodedData, reporter) {
     if (!SkImageEncoder::EncodeStream(&wStream, original, SkImageEncoder::kPNG_Type, 100)) {
         return;
     }
-    SkAutoDataUnref data(wStream.copyToData());
+    sk_sp<SkData> data(wStream.copyToData());
 
     SkBitmap bm;
-    bool installSuccess = SkDEPRECATED_InstallDiscardablePixelRef(data, &bm);
+    bool installSuccess = SkDEPRECATED_InstallDiscardablePixelRef(data.get(), &bm);
     REPORTER_ASSERT(reporter, installSuccess);
 
     // Write both bitmaps to pictures, and ensure that the resulting data streams are the same.
     // Flattening original will follow the old path of performing an encode, while flattening bm
     // will use the already encoded data.
-    SkAutoDataUnref picture1(serialized_picture_from_bitmap(original));
-    SkAutoDataUnref picture2(serialized_picture_from_bitmap(bm));
-    REPORTER_ASSERT(reporter, picture1->equals(picture2));
+    sk_sp<SkData> picture1(serialized_picture_from_bitmap(original));
+    sk_sp<SkData> picture2(serialized_picture_from_bitmap(bm));
+    REPORTER_ASSERT(reporter, picture1->equals(picture2.get()));
 
     // Now test that a parse error was generated when trying to create a new SkPicture without
     // providing a function to decode the bitmap.
@@ -689,7 +689,7 @@ DEF_TEST(Picture_EncodedData, reporter) {
     context.fErrors = 0;
     context.fReporter = reporter;
     SkSetErrorCallback(assert_one_parse_error_cb, &context);
-    SkMemoryStream pictureStream(picture1);
+    SkMemoryStream pictureStream(std::move(picture1));
     SkClearLastError();
     sk_sp<SkPicture> pictureFromStream(SkPicture::MakeFromStream(&pictureStream, nullptr));
     REPORTER_ASSERT(reporter, pictureFromStream.get() != nullptr);

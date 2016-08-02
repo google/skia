@@ -149,11 +149,11 @@ static void delete_int_proc(const void* ptr, void* context) {
     delete[] data;
 }
 
-static void assert_len(skiatest::Reporter* reporter, SkData* ref, size_t len) {
+static void assert_len(skiatest::Reporter* reporter, const sk_sp<SkData>& ref, size_t len) {
     REPORTER_ASSERT(reporter, ref->size() == len);
 }
 
-static void assert_data(skiatest::Reporter* reporter, SkData* ref,
+static void assert_data(skiatest::Reporter* reporter, const sk_sp<SkData>& ref,
                         const void* data, size_t len) {
     REPORTER_ASSERT(reporter, ref->size() == len);
     REPORTER_ASSERT(reporter, !memcmp(ref->data(), data, len));
@@ -163,12 +163,12 @@ static void test_cstring(skiatest::Reporter* reporter) {
     const char str[] = "Hello world";
     size_t     len = strlen(str);
 
-    SkAutoTUnref<SkData> r0(SkData::NewWithCopy(str, len + 1));
-    SkAutoTUnref<SkData> r1(SkData::NewWithCString(str));
+    sk_sp<SkData> r0(SkData::MakeWithCopy(str, len + 1));
+    sk_sp<SkData> r1(SkData::MakeWithCString(str));
 
-    REPORTER_ASSERT(reporter, r0->equals(r1));
+    REPORTER_ASSERT(reporter, r0->equals(r1.get()));
 
-    SkAutoTUnref<SkData> r2(SkData::NewWithCString(nullptr));
+    sk_sp<SkData> r2(SkData::MakeWithCString(nullptr));
     REPORTER_ASSERT(reporter, 1 == r2->size());
     REPORTER_ASSERT(reporter, 0 == *r2->bytes());
 }
@@ -192,13 +192,13 @@ static void test_files(skiatest::Reporter* reporter) {
     }
 
     FILE* file = sk_fopen(path.c_str(), kRead_SkFILE_Flag);
-    SkAutoTUnref<SkData> r1(SkData::NewFromFILE(file));
+    sk_sp<SkData> r1(SkData::MakeFromFILE(file));
     REPORTER_ASSERT(reporter, r1.get() != nullptr);
     REPORTER_ASSERT(reporter, r1->size() == 26);
     REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r1->data()), s, 26) == 0);
 
     int fd = sk_fileno(file);
-    SkAutoTUnref<SkData> r2(SkData::NewFromFD(fd));
+    sk_sp<SkData> r2(SkData::MakeFromFD(fd));
     REPORTER_ASSERT(reporter, r2.get() != nullptr);
     REPORTER_ASSERT(reporter, r2->size() == 26);
     REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r2->data()), s, 26) == 0);
@@ -208,11 +208,10 @@ DEF_TEST(Data, reporter) {
     const char* str = "We the people, in order to form a more perfect union.";
     const int N = 10;
 
-    SkAutoTUnref<SkData> r0(SkData::NewEmpty());
-    SkAutoTUnref<SkData> r1(SkData::NewWithCopy(str, strlen(str)));
-    SkAutoTUnref<SkData> r2(SkData::NewWithProc(new int[N], N*sizeof(int),
-                                           delete_int_proc, gGlobal));
-    SkAutoTUnref<SkData> r3(SkData::NewSubset(r1, 7, 6));
+    sk_sp<SkData> r0(SkData::MakeEmpty());
+    sk_sp<SkData> r1(SkData::MakeWithCopy(str, strlen(str)));
+    sk_sp<SkData> r2(SkData::MakeWithProc(new int[N], N*sizeof(int), delete_int_proc, gGlobal));
+    sk_sp<SkData> r3(SkData::MakeSubset(r1.get(), 7, 6));
 
     assert_len(reporter, r0, 0);
     assert_len(reporter, r1, strlen(str));
@@ -222,12 +221,10 @@ DEF_TEST(Data, reporter) {
     assert_data(reporter, r1, str, strlen(str));
     assert_data(reporter, r3, "people", 6);
 
-    SkData* tmp = SkData::NewSubset(r1, strlen(str), 10);
+    sk_sp<SkData> tmp(SkData::MakeSubset(r1.get(), strlen(str), 10));
     assert_len(reporter, tmp, 0);
-    tmp->unref();
-    tmp = SkData::NewSubset(r1, 0, 0);
+    tmp = SkData::MakeSubset(r1.get(), 0, 0);
     assert_len(reporter, tmp, 0);
-    tmp->unref();
 
     test_cstring(reporter);
     test_files(reporter);

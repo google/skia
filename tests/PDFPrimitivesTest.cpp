@@ -112,7 +112,7 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
         compressedByteStream.writeToStream(&expected);
         compressedByteStream.reset();
         expected.writeText("\nendstream");
-        SkAutoDataUnref expectedResultData2(expected.copyToData());
+        sk_sp<SkData> expectedResultData2(expected.copyToData());
         SkString result = emit_to_string(*stream);
         assert_eql(reporter,
                    result,

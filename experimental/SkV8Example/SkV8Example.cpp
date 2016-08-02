@@ -200,9 +200,9 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
             "    canvas.inval();                    \n"
             "}                                      \n";
 
-    SkAutoTUnref<SkData> data;
+    sk_sp<SkData> data;
     if (FLAGS_infile.count()) {
-        data.reset(SkData::NewFromFileName(FLAGS_infile[0]));
+        data = SkData::MakeFromFileName(FLAGS_infile[0]);
         script = static_cast<const char*>(data->data());
     }
     if (NULL == script) {

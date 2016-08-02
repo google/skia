@@ -754,8 +754,8 @@ public:
             if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
-            SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
-            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+            sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
+            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -815,7 +815,7 @@ public:
                     case SkCodec::kSuccess:
                     case SkCodec::kIncompleteInput:
                         return new CodecBench(SkOSPath::Basename(path.c_str()),
-                                encoded, colorType, alphaType);
+                                              encoded.get(), colorType, alphaType);
                     case SkCodec::kInvalidConversion:
                         // This is okay. Not all conversions are valid.
                         break;
@@ -838,8 +838,8 @@ public:
             if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
-            SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
-            SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+            sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
+            SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded.get()));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -854,7 +854,8 @@ public:
                     break;
                 }
 
-                return new AndroidCodecBench(SkOSPath::Basename(path.c_str()), encoded, sampleSize);
+                return new AndroidCodecBench(SkOSPath::Basename(path.c_str()),
+                                             encoded.get(), sampleSize);
             }
             fCurrentSampleSize = 0;
         }
@@ -887,7 +888,7 @@ public:
                 while (fCurrentSampleSize < (int) SK_ARRAY_COUNT(brdSampleSizes)) {
                     while (fCurrentSubsetType <= kLastSingle_SubsetType) {
 
-                        SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
+                        sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
                         const SkColorType colorType = fColorTypes[fCurrentColorType];
                         uint32_t sampleSize = brdSampleSizes[fCurrentSampleSize];
                         int currentSubsetType = fCurrentSubsetType++;

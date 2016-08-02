@@ -4036,7 +4036,7 @@ static void compare_dump(skiatest::Reporter* reporter, const SkPath& path, bool 
         bool dumpAsHex, const char* str) {
     SkDynamicMemoryWStream wStream;
     path.dump(&wStream, force, dumpAsHex);
-    SkAutoDataUnref data(wStream.copyToData());
+    sk_sp<SkData> data(wStream.copyToData());
     REPORTER_ASSERT(reporter, data->size() == strlen(str));
     if (strlen(str) > 0) {
         REPORTER_ASSERT(reporter, !memcmp(data->data(), str, strlen(str)));

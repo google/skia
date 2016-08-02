@@ -75,8 +75,8 @@ public:
 
     SkStreamAsset* createStream() const {
         if (fFile) {
-            SkData* data = SkData::NewFromFILE(fFile);
-            return data ? new SkMemoryStream(data) : nullptr;
+            sk_sp<SkData> data(SkData::MakeFromFILE(fFile));
+            return data ? new SkMemoryStream(std::move(data)) : nullptr;
         }
         return SkStream::NewFromFile(fPathName.c_str());
     }

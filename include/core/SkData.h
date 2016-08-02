@@ -14,10 +14,6 @@
 
 class SkStream;
 
-#ifndef SK_SUPPORT_LEGACY_DATA_FACTORIES
-#define SK_SUPPORT_LEGACY_DATA_FACTORIES
-#endif
-
 /**
  *  SkData holds an immutable data buffer. Not only is the data immutable,
  *  but the actual ptr that is returned (by data() or bytes()) is guaranteed
@@ -71,7 +67,9 @@ public:
      *  effectively returning 0 == memcmp(...)
      */
     bool equals(const SkData* other) const;
+#ifdef SK_SUPPORT_LEGACY_DATA_FACTORIES
     bool equals(sk_sp<const SkData>& other) const { return this->equals(other.get()); }
+#endif
 
     /**
      *  Function that, if provided, will be called when the SkData goes out

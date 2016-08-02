@@ -12,8 +12,8 @@
 inline bool decode_file(const char* filename, SkBitmap* bitmap,
         SkColorType colorType = kN32_SkColorType, bool requireUnpremul = false) {
     SkASSERT(kIndex_8_SkColorType != colorType);
-    SkAutoTUnref<SkData> data(SkData::NewFromFileName(filename));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
+    sk_sp<SkData> data(SkData::MakeFromFileName(filename));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
     if (!codec) {
         return false;
     }

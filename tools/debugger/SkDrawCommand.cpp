@@ -609,8 +609,8 @@ static void store_bool(Json::Value* target, const char* key, bool value, bool de
 
 static void encode_data(const void* bytes, size_t count, const char* contentType,
                         UrlDataManager& urlDataManager, Json::Value* target) {
-    SkAutoTUnref<SkData> data(SkData::NewWithCopy(bytes, count));
-    SkString url = urlDataManager.addData(data, contentType);
+    sk_sp<SkData> data(SkData::MakeWithCopy(bytes, count));
+    SkString url = urlDataManager.addData(data.get(), contentType);
     *target = Json::Value(url.c_str());
 }
 
@@ -821,7 +821,7 @@ static SkBitmap* load_bitmap(const Json::Value& jsonBitmap, UrlDataManager& urlD
     }
     const void* data;
     int size = decode_data(jsonBitmap[SKDEBUGCANVAS_ATTRIBUTE_DATA], urlDataManager, &data);
-    sk_sp<SkData> encoded(SkData::NewWithoutCopy(data, size));
+    sk_sp<SkData> encoded(SkData::MakeWithoutCopy(data, size));
     sk_sp<SkImage> image(SkImage::MakeFromEncoded(std::move(encoded), nullptr));
 
     SkAutoTDelete<SkBitmap> bitmap(new SkBitmap());

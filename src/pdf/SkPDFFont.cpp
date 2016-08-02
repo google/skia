@@ -152,8 +152,8 @@ int8_t hexToBin(uint8_t c) {
     return -1;
 }
 
-static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
-                                   size_t* dataLen, size_t* trailerLen) {
+static sk_sp<SkData> handle_type1_stream(SkStream* srcStream, size_t* headerLen,
+                                         size_t* dataLen, size_t* trailerLen) {
     // srcStream may be backed by a file or a unseekable fd, so we may not be
     // able to use skip(), rewind(), or getMemoryBase().  read()ing through
     // the input only once is doable, but very ugly. Furthermore, it'd be nice
@@ -161,7 +161,7 @@ static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
     // Make as few copies as possible given these constraints.
     SkDynamicMemoryWStream dynamicStream;
     std::unique_ptr<SkMemoryStream> staticStream;
-    SkData* data = nullptr;
+    sk_sp<SkData> data;
     const uint8_t* src;
     size_t srcLen;
     if ((srcLen = srcStream->getLength()) > 0) {
@@ -191,14 +191,10 @@ static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
         }
         amount = 0;
         dynamicStream.write(&amount, 1);  // nullptr terminator.
-        data = dynamicStream.copyToData();
+        data.reset(dynamicStream.copyToData());
         src = data->bytes();
         srcLen = data->size() - 1;
     }
-
-    // this handles releasing the data we may have gotten from dynamicStream.
-    // if data is null, it is a no-op
-    SkAutoDataUnref aud(data);
 
     if (parsePFB(src, srcLen, headerLen, dataLen, trailerLen)) {
         static const int kPFBSectionHeaderLength = 6;
@@ -206,7 +202,7 @@ static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
         SkASSERT(length > 0);
         SkASSERT(length + (2 * kPFBSectionHeaderLength) <= srcLen);
 
-        SkData* data = SkData::NewUninitialized(length);
+        sk_sp<SkData> data(SkData::MakeUninitialized(length));
 
         const uint8_t* const srcHeader = src + kPFBSectionHeaderLength;
         // There is a six-byte section header before header and data
@@ -265,7 +261,7 @@ static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
         uint8_t* const resultTrailer = &(buffer[SkToInt(*headerLen + outputOffset)]);
         memcpy(resultTrailer, src + *headerLen + hexDataLen, *trailerLen);
 
-        return SkData::NewFromMalloc(buffer.release(), length);
+        return SkData::MakeFromMalloc(buffer.release(), length);
     }
     return nullptr;
 }
@@ -1191,8 +1187,7 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     if (!rawFontData || 0 == rawFontData->getLength()) {
         return false;
     }
-    sk_sp<SkData> fontData(handle_type1_stream(rawFontData.get(), &header,
-                                                      &data, &trailer));
+    sk_sp<SkData> fontData(handle_type1_stream(rawFontData.get(), &header, &data, &trailer));
     if (fontData.get() == nullptr) {
         return false;
     }

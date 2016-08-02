@@ -52,7 +52,7 @@ SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
     return bmp;
 }
 
-SkData* Request::writeCanvasToPng(SkCanvas* canvas) {
+sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
     // capture pixels
     SkAutoTDelete<SkBitmap> bmp(this->getBitmapFromCanvas(canvas));
     SkASSERT(bmp);
@@ -65,7 +65,7 @@ SkData* Request::writeCanvasToPng(SkCanvas* canvas) {
     SkDynamicMemoryWStream buffer;
     SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->bytes(), bmp->width(), bmp->height(),
                             buffer, true);
-    return buffer.copyToData();
+    return sk_sp<SkData>(buffer.copyToData());
 }
 
 SkCanvas* Request::getCanvas() {
@@ -96,12 +96,12 @@ void Request::drawToCanvas(int n, int m) {
     fDebugCanvas->drawTo(target, n, m);
 }
 
-SkData* Request::drawToPng(int n, int m) {
+sk_sp<SkData> Request::drawToPng(int n, int m) {
     this->drawToCanvas(n, m);
     return writeCanvasToPng(this->getCanvas());
 }
 
-SkData* Request::writeOutSkp() {
+sk_sp<SkData> Request::writeOutSkp() {
     // Playback into picture recorder
     SkIRect bounds = this->getBounds();
     SkPictureRecorder recorder;
@@ -117,7 +117,7 @@ SkData* Request::writeOutSkp() {
     SkAutoTUnref<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
     picture->serialize(&outStream, serializer);
 
-    return outStream.copyToData();
+    return sk_sp<SkData>(outStream.copyToData());
 }
 
 GrContext* Request::getContext() {
@@ -242,7 +242,7 @@ bool Request::initPictureFromStream(SkStream* stream) {
     return true;
 }
 
-SkData* Request::getJsonOps(int n) {
+sk_sp<SkData> Request::getJsonOps(int n) {
     SkCanvas* canvas = this->getCanvas();
     Json::Value root = fDebugCanvas->toJSON(fUrlDataManager, n, canvas);
     root["mode"] = Json::Value(fGPUEnabled ? "gpu" : "cpu");
@@ -251,10 +251,10 @@ SkData* Request::getJsonOps(int n) {
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(root).c_str());
 
-    return stream.copyToData();
+    return sk_sp<SkData>(stream.copyToData());
 }
 
-SkData* Request::getJsonBatchList(int n) {
+sk_sp<SkData> Request::getJsonBatchList(int n) {
     SkCanvas* canvas = this->getCanvas();
     SkASSERT(fGPUEnabled);
 
@@ -263,10 +263,10 @@ SkData* Request::getJsonBatchList(int n) {
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(result).c_str());
 
-    return stream.copyToData();
+    return sk_sp<SkData>(stream.copyToData());
 }
 
-SkData* Request::getJsonInfo(int n) {
+sk_sp<SkData> Request::getJsonInfo(int n) {
     // drawTo
     SkAutoTUnref<SkSurface> surface(this->createCPUSurface());
     SkCanvas* canvas = surface->getCanvas();
@@ -284,7 +284,7 @@ SkData* Request::getJsonInfo(int n) {
     std::string json = Json::FastWriter().write(info);
 
     // We don't want the null terminator so strlen is correct
-    return SkData::NewWithCopy(json.c_str(), strlen(json.c_str()));
+    return SkData::MakeWithCopy(json.c_str(), strlen(json.c_str()));
 }
 
 SkColor Request::getPixel(int x, int y) {

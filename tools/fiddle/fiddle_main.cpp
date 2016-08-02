@@ -93,7 +93,7 @@ static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
 int main() {
     const DrawOptions options = GetDrawOptions();
     if (options.source) {
-        sk_sp<SkData> data(SkData::NewFromFileName(options.source));
+        sk_sp<SkData> data(SkData::MakeFromFileName(options.source));
         if (!data) {
             perror(options.source);
             return 1;

@@ -36,8 +36,8 @@ struct Request {
     ~Request();
 
     // draws to skia draw op N, highlighting the Mth batch(-1 means no highlight)
-    SkData* drawToPng(int n, int m = -1);
-    SkData* writeOutSkp();
+    sk_sp<SkData> drawToPng(int n, int m = -1);
+    sk_sp<SkData> writeOutSkp();
     SkCanvas* getCanvas();
     SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
     bool enableGPU(bool enable);
@@ -48,13 +48,13 @@ struct Request {
     bool initPictureFromStream(SkStream*);
 
     // Returns the json list of ops as an SkData
-    SkData* getJsonOps(int n);
+    sk_sp<SkData> getJsonOps(int n);
 
     // Returns a json list of batches as an SkData
-    SkData* getJsonBatchList(int n);
+    sk_sp<SkData> getJsonBatchList(int n);
 
     // Returns json with the viewMatrix and clipRect
-    SkData* getJsonInfo(int n);
+    sk_sp<SkData> getJsonInfo(int n);
 
     // returns the color of the pixel at (x,y) in the canvas
     SkColor getPixel(int x, int y);
@@ -64,7 +64,7 @@ struct Request {
     UrlDataManager fUrlDataManager;
 
 private:
-    SkData* writeCanvasToPng(SkCanvas* canvas);
+    sk_sp<SkData> writeCanvasToPng(SkCanvas* canvas);
     void drawToCanvas(int n, int m = -1);
     SkSurface* createCPUSurface();
     SkSurface* createGPUSurface();

@@ -13,7 +13,7 @@
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const char* buffer, size_t len) {
-    SkAutoDataUnref data(stream.copyToData());
+    sk_sp<SkData> data(stream.copyToData());
     if (offset + len > data->size()) {
         return false;
     }

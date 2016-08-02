@@ -208,8 +208,8 @@ static void check(skiatest::Reporter* r,
     bool isIncomplete = supportsIncomplete;
     if (isIncomplete) {
         size_t size = stream->getLength();
-        SkAutoTUnref<SkData> data((SkData::NewFromStream(stream, 2 * size / 3)));
-        codec.reset(SkCodec::NewFromData(data));
+        sk_sp<SkData> data((SkData::MakeFromStream(stream, 2 * size / 3)));
+        codec.reset(SkCodec::NewFromData(data.get()));
     } else {
         codec.reset(SkCodec::NewFromStream(stream.release()));
     }
@@ -337,8 +337,8 @@ static void check(skiatest::Reporter* r,
         SkAutoTDelete<SkAndroidCodec> androidCodec(nullptr);
         if (isIncomplete) {
             size_t size = stream->getLength();
-            SkAutoTUnref<SkData> data((SkData::NewFromStream(stream, 2 * size / 3)));
-            androidCodec.reset(SkAndroidCodec::NewFromData(data));
+            sk_sp<SkData> data((SkData::MakeFromStream(stream, 2 * size / 3)));
+            androidCodec.reset(SkAndroidCodec::NewFromData(data.get()));
         } else {
             androidCodec.reset(SkAndroidCodec::NewFromStream(stream.release()));
         }
@@ -356,8 +356,9 @@ static void check(skiatest::Reporter* r,
     if (!isIncomplete) {
         // Test SkCodecImageGenerator
         SkAutoTDelete<SkStream> stream(resource(path));
-        SkAutoTUnref<SkData> fullData(SkData::NewFromStream(stream, stream->getLength()));
-        SkAutoTDelete<SkImageGenerator> gen(SkCodecImageGenerator::NewFromEncodedCodec(fullData));
+        sk_sp<SkData> fullData(SkData::MakeFromStream(stream, stream->getLength()));
+        SkAutoTDelete<SkImageGenerator> gen(
+                SkCodecImageGenerator::NewFromEncodedCodec(fullData.get()));
         SkBitmap bm;
         bm.allocPixels(info);
         SkAutoLockPixels autoLockPixels(bm);
@@ -365,8 +366,8 @@ static void check(skiatest::Reporter* r,
         compare_to_good_digest(r, codecDigest, bm);
 
         // Test using SkFrontBufferedStream, as Android does
-        SkStream* bufferedStream = SkFrontBufferedStream::Create(new SkMemoryStream(fullData),
-                SkCodec::MinBufferedBytesNeeded());
+        SkStream* bufferedStream = SkFrontBufferedStream::Create(
+                new SkMemoryStream(std::move(fullData)), SkCodec::MinBufferedBytesNeeded());
         REPORTER_ASSERT(r, bufferedStream);
         codec.reset(SkCodec::NewFromStream(bufferedStream));
         REPORTER_ASSERT(r, codec);
@@ -887,7 +888,7 @@ private:
 // Stream that is not an asset stream (!hasPosition() or !hasLength())
 class NotAssetMemStream : public SkStream {
 public:
-    NotAssetMemStream(SkData* data) : fStream(data) {}
+    NotAssetMemStream(sk_sp<SkData> data) : fStream(std::move(data)) {}
 
     bool hasPosition() const override {
         return false;
@@ -920,13 +921,13 @@ private:
 DEF_TEST(Codec_raw_notseekable, r) {
     const char* path = "dng_with_preview.dng";
     SkString fullPath(GetResourcePath(path));
-    SkAutoTUnref<SkData> data(SkData::NewFromFileName(fullPath.c_str()));
+    sk_sp<SkData> data(SkData::MakeFromFileName(fullPath.c_str()));
     if (!data) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
 
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(new NotAssetMemStream(data)));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(new NotAssetMemStream(std::move(data))));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);

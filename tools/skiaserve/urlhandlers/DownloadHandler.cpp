@@ -25,9 +25,9 @@ int DownloadHandler::handle(Request* request, MHD_Connection* connection,
         return MHD_NO;
     }
 
-    SkAutoTUnref<SkData> data(request->writeOutSkp());
+    sk_sp<SkData> data(request->writeOutSkp());
 
     // TODO fancier name handling
-    return SendData(connection, data, "application/octet-stream", true,
+    return SendData(connection, data.get(), "application/octet-stream", true,
                     "attachment; filename=something.skp;");
 }

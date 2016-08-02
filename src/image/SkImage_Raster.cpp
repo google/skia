@@ -214,7 +214,7 @@ sk_sp<SkImage> SkImage::MakeRasterCopy(const SkPixmap& pmap) {
     }
 
     // Here we actually make a copy of the caller's pixel data
-    sk_sp<SkData> data(SkData::NewWithCopy(pmap.addr(), size));
+    sk_sp<SkData> data(SkData::MakeWithCopy(pmap.addr(), size));
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
 }
 
@@ -242,7 +242,7 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
         return nullptr;
     }
 
-    sk_sp<SkData> data(SkData::NewWithProc(pmap.addr(), size, proc, ctx));
+    sk_sp<SkData> data(SkData::MakeWithProc(pmap.addr(), size, proc, ctx));
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
 }
 

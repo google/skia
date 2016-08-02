@@ -119,12 +119,12 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    SkAutoTUnref<SkData> data(SkData::NewFromFileName(input));
+    sk_sp<SkData> data(SkData::MakeFromFileName(input));
     if (!data) {
         SkDebugf("Cannot find input image.\n");
         return -1;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
     if (!codec) {
         SkDebugf("Invalid input image.\n");
         return -1;

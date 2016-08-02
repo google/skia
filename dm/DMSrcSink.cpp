@@ -97,11 +97,12 @@ bool BRDSrc::veto(SinkFlags flags) const {
 }
 
 static SkBitmapRegionDecoder* create_brd(Path path) {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
+    sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
     if (!encoded) {
         return NULL;
     }
-    return SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy);
+    return SkBitmapRegionDecoder::Create(encoded.get(),
+                                         SkBitmapRegionDecoder::kAndroidCodec_Strategy);
 }
 
 Error BRDSrc::draw(SkCanvas* canvas) const {
@@ -375,12 +376,12 @@ static void draw_to_canvas(SkCanvas* canvas, const SkImageInfo& info, void* pixe
 }
 
 Error CodecSrc::draw(SkCanvas* canvas) const {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
@@ -627,8 +628,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize CodecSrc::size() const {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -660,11 +661,11 @@ bool AndroidCodecSrc::veto(SinkFlags flags) const {
 }
 
 Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded.get()));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create android codec for %s.", fPath.c_str());
     }
@@ -716,8 +717,8 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize AndroidCodecSrc::size() const {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+    sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded.get()));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -756,7 +757,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         return Error::Nonfatal("Uninteresting to test image generator to 565.");
     }
 
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
@@ -772,16 +773,16 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     SkAutoTDelete<SkImageGenerator> gen(nullptr);
     switch (fMode) {
         case kCodec_Mode:
-            gen.reset(SkCodecImageGenerator::NewFromEncodedCodec(encoded));
+            gen.reset(SkCodecImageGenerator::NewFromEncodedCodec(encoded.get()));
             if (!gen) {
                 return "Could not create codec image generator.";
             }
             break;
         case kPlatform_Mode: {
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-            gen.reset(SkImageGeneratorCG::NewFromEncodedCG(encoded));
+            gen.reset(SkImageGeneratorCG::NewFromEncodedCG(encoded.get()));
 #elif defined(SK_BUILD_FOR_WIN)
-            gen.reset(SkImageGeneratorWIC::NewFromEncodedWIC(encoded));
+            gen.reset(SkImageGeneratorWIC::NewFromEncodedWIC(encoded.get()));
 #endif
 
             if (!gen) {
@@ -823,8 +824,8 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize ImageGenSrc::size() const {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -857,12 +858,12 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return Error::Nonfatal("F16 does not draw in legacy mode.");
     }
 
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
@@ -956,8 +957,8 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize ColorCodecSrc::size() const {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }

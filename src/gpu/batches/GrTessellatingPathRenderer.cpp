@@ -187,8 +187,7 @@ private:
         TessInfo info;
         info.fTolerance = isLinear ? 0 : tol;
         info.fCount = count;
-        SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
-        key.setCustomData(data.get());
+        key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, allocator.vertexBuffer());
     }
 

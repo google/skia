@@ -144,13 +144,13 @@ void SkBinaryWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     SkPixelRef* pixelRef = bitmap.pixelRef();
     if (pixelRef) {
         // see if the pixelref already has an encoded version
-        SkAutoDataUnref existingData(pixelRef->refEncodedData());
-        if (existingData.get() != nullptr) {
+        sk_sp<SkData> existingData(pixelRef->refEncodedData());
+        if (existingData) {
             // Assumes that if the client did not set a serializer, they are
             // happy to get the encoded data.
             if (!fPixelSerializer || fPixelSerializer->useEncodedData(existingData->data(),
                                                                       existingData->size())) {
-                write_encoded_bitmap(this, existingData, bitmap.pixelRefOrigin());
+                write_encoded_bitmap(this, existingData.get(), bitmap.pixelRefOrigin());
                 return;
             }
         }
@@ -158,11 +158,11 @@ void SkBinaryWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
         // see if the caller wants to manually encode
         SkAutoPixmapUnlock result;
         if (fPixelSerializer && bitmap.requestLock(&result)) {
-            SkAutoDataUnref data(fPixelSerializer->encode(result.pixmap()));
-            if (data.get() != nullptr) {
+            sk_sp<SkData> data(fPixelSerializer->encode(result.pixmap()));
+            if (data) {
                 // if we have to "encode" the bitmap, then we assume there is no
                 // offset to share, since we are effectively creating a new pixelref
-                write_encoded_bitmap(this, data, SkIPoint::Make(0, 0));
+                write_encoded_bitmap(this, data.get(), SkIPoint::Make(0, 0));
                 return;
             }
         }

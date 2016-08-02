@@ -38,10 +38,10 @@ static bool is_subset_of(SkData* smaller, SkData* larger) {
 }
 
 
-static SkData* load_resource(
+static sk_sp<SkData> load_resource(
         skiatest::Reporter* r, const char* test, const char* filename) {
     SkString path(GetResourcePath(filename));
-    SkData* data = SkData::NewFromFileName(path.c_str());
+    sk_sp<SkData> data(SkData::MakeFromFileName(path.c_str()));
     if (!data) {
         INFOF(r, "\n%s: Resource '%s' can not be found.\n",
               test, filename);
@@ -124,13 +124,12 @@ DEF_TEST(JpegIdentification, r) {
                   {"mandrill_512_q075.jpg", true, SkJFIFInfo::kYCbCr},
                   {"randPixels.jpg", true, SkJFIFInfo::kYCbCr}};
     for (size_t i = 0; i < SK_ARRAY_COUNT(kTests); ++i) {
-        SkAutoTUnref<SkData> data(
-                load_resource(r, "JpegIdentification", kTests[i].path));
+        sk_sp<SkData> data(load_resource(r, "JpegIdentification", kTests[i].path));
         if (!data) {
             continue;
         }
         SkJFIFInfo info;
-        bool isJfif = SkIsJFIF(data, &info);
+        bool isJfif = SkIsJFIF(data.get(), &info);
         if (isJfif != kTests[i].isJfif) {
             ERRORF(r, "%s failed isJfif test", kTests[i].path);
             continue;

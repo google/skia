@@ -10,7 +10,7 @@
 #include "SkData.h"
 
 inline bool decode_memory(const void* mem, size_t size, SkBitmap* bm) {
-    SkAutoTUnref<SkData> data(SkData::NewWithoutCopy(mem, size));
+    sk_sp<SkData> data(SkData::MakeWithoutCopy(mem, size));
 
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
     if (!codec) {

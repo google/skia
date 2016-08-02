@@ -304,7 +304,7 @@ static SkTHashSet<SkString> gUninterestingHashes;
 
 static void gather_uninteresting_hashes() {
     if (!FLAGS_uninterestingHashesFile.isEmpty()) {
-        SkAutoTUnref<SkData> data(SkData::NewFromFileName(FLAGS_uninterestingHashesFile[0]));
+        sk_sp<SkData> data(SkData::MakeFromFileName(FLAGS_uninterestingHashesFile[0]));
         if (!data) {
             info("WARNING: unable to read uninteresting hashes from %s\n",
                  FLAGS_uninterestingHashesFile[0]);
@@ -489,12 +489,12 @@ static void push_image_gen_src(Path path, ImageGenSrc::Mode mode, SkAlphaType al
 }
 
 static void push_codec_srcs(Path path) {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
+    sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
     if (!encoded) {
         info("Couldn't read %s.", path.c_str());
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
     if (nullptr == codec.get()) {
         info("Couldn't create codec for %s.", path.c_str());
         return;

@@ -19,10 +19,10 @@ extern "C" {
     #include "lauxlib.h"
 }
 
-static SkData* read_into_data(const char file[]) {
-    SkData* data = SkData::NewFromFileName(file);
+static sk_sp<SkData> read_into_data(const char file[]) {
+    sk_sp<SkData> data(SkData::MakeFromFileName(file));
     if (!data) {
-        data = SkData::NewEmpty();
+        data = SkData::MakeEmpty();
     }
     return data;
 }
@@ -33,7 +33,7 @@ int tool_main(int argc, char** argv) {
     SkLua L;
 
     for (int i = 1; i < argc; ++i) {
-        SkData* data = nullptr;
+        sk_sp<SkData> data;
         const void* ptr;
         size_t len;
 
@@ -50,7 +50,6 @@ int tool_main(int argc, char** argv) {
             SkDebugf("failed to load %s\n", argv[i]);
             exit(-1);
         }
-        SkSafeUnref(data);
     }
     return 0;
 }
