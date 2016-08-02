@@ -175,6 +175,9 @@
       "-d",
       "[SLAVE_BUILD]/skia/infra/bots/tools/luci-go/linux64"
     ],
+    "env": {
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+    },
     "name": "download luci-go linux"
   },
   {
@@ -188,6 +191,9 @@
       "-d",
       "[SLAVE_BUILD]/skia/infra/bots/tools/luci-go/mac64"
     ],
+    "env": {
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+    },
     "name": "download luci-go mac"
   },
   {
@@ -201,6 +207,9 @@
       "-d",
       "[SLAVE_BUILD]/skia/infra/bots/tools/luci-go/win64"
     ],
+    "env": {
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+    },
     "name": "download luci-go win"
   },
   {

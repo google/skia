@@ -41,18 +41,24 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
   # TODO(rmistry): Remove once the Go binaries are moved to recipes or buildbot.
   def setup_go_isolate(self, luci_go_dir):
     """Generates and puts in place the isolate Go binary."""
+    depot_tools_path = self.m.depot_tools.package_repo_resource()
+    env = {'PATH': self.m.path.pathsep.join([
+                       str(depot_tools_path), '%(PATH)s'])}
     self.m.step('download luci-go linux',
                 ['download_from_google_storage', '--no_resume',
                  '--platform=linux*', '--no_auth', '--bucket', 'chromium-luci',
-                 '-d', luci_go_dir.join('linux64')])
+                 '-d', luci_go_dir.join('linux64')],
+                env=env)
     self.m.step('download luci-go mac',
                 ['download_from_google_storage', '--no_resume',
                  '--platform=darwin', '--no_auth', '--bucket', 'chromium-luci',
-                 '-d', luci_go_dir.join('mac64')])
+                 '-d', luci_go_dir.join('mac64')],
+                env=env)
     self.m.step('download luci-go win',
                 ['download_from_google_storage', '--no_resume',
                  '--platform=win32', '--no_auth', '--bucket', 'chromium-luci',
-                 '-d', luci_go_dir.join('win64')])
+                 '-d', luci_go_dir.join('win64')],
+                env=env)
     # Copy binaries to the expected location.
     dest = self.m.path['slave_build'].join('luci-go')
     self.m.skia.rmtree(dest)
