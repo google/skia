@@ -180,9 +180,8 @@ public:
                                      lightDirUniName);
             // diffuse light
             fragBuilder->codeAppendf("vec3 result = %s*diffuseColor.rgb*NdotL;", lightColorUniName);
-            // ambient light (multiplied by input color's alpha because we're working in premul'd
-            // space)
-            fragBuilder->codeAppendf("result += diffuseColor.a * %s;", ambientColorUniName);
+            // ambient light
+            fragBuilder->codeAppendf("result += %s * diffuseColor.rgb;", ambientColorUniName);
 
             // Clamping to alpha (equivalent to an unpremul'd clamp to 1.0)
             fragBuilder->codeAppendf("%s = vec4(clamp(result.rgb, 0.0, diffuseColor.a), "
@@ -379,18 +378,18 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
             for (int l = 0; l < lightShader.fLights->numLights(); ++l) {
                 const SkLights::Light& light = lightShader.fLights->light(l);
 
-                if (SkLights::Light::kAmbient_LightType == light.type()) {
-                    accum += light.color().makeScale(255.0f);
-                } else {
-                    SkScalar NdotL = normals[i].dot(light.dir());
-                    if (NdotL < 0.0f) {
-                        NdotL = 0.0f;
-                    }
+                SkScalar illuminanceScalingFactor = 1.0f;
 
-                    accum.fX += light.color().fX * SkColorGetR(diffColor) * NdotL;
-                    accum.fY += light.color().fY * SkColorGetG(diffColor) * NdotL;
-                    accum.fZ += light.color().fZ * SkColorGetB(diffColor) * NdotL;
+                if (SkLights::Light::kDirectional_LightType == light.type()) {
+                    illuminanceScalingFactor = normals[i].dot(light.dir());
+                    if (illuminanceScalingFactor < 0.0f) {
+                        illuminanceScalingFactor = 0.0f;
+                    }
                 }
+
+                accum.fX += light.color().fX * SkColorGetR(diffColor) * illuminanceScalingFactor;
+                accum.fY += light.color().fY * SkColorGetG(diffColor) * illuminanceScalingFactor;
+                accum.fZ += light.color().fZ * SkColorGetB(diffColor) * illuminanceScalingFactor;
             }
 
             // convert() premultiplies the accumulate color with alpha
