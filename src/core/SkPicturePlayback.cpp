@@ -298,6 +298,18 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->readPoint(&loc);
             canvas->drawImage(image, loc.fX, loc.fY, paint);
         } break;
+        case DRAW_IMAGE_LATTICE: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            const SkImage* image = fPictureData->getImage(reader);
+            SkCanvas::Lattice lattice;
+            lattice.fXCount = reader->readInt();
+            lattice.fXDivs = (const int*) reader->skip(lattice.fXCount * sizeof(int32_t));
+            lattice.fYCount = reader->readInt();
+            lattice.fYDivs = (const int*) reader->skip(lattice.fYCount * sizeof(int32_t));
+            SkRect dst;
+            reader->readRect(&dst);
+            canvas->drawImageLattice(image, lattice, dst, paint);
+        } break;
         case DRAW_IMAGE_NINE: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkImage* image = fPictureData->getImage(reader);

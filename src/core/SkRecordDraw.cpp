@@ -97,6 +97,16 @@ template <> void Draw::draw(const TranslateZ& r) { }
 
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image.get(), r.left, r.top, r.paint));
+
+template <> void Draw::draw(const DrawImageLattice& r) {
+    SkCanvas::Lattice lattice;
+    lattice.fXCount = r.xCount;
+    lattice.fXDivs = r.xDivs;
+    lattice.fYCount = r.yCount;
+    lattice.fYDivs = r.yDivs;
+    fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.paint);
+}
+
 DRAW(DrawImageRect, legacy_drawImageRect(r.image.get(), r.src, r.dst, r.paint, r.constraint));
 DRAW(DrawImageNine, drawImageNine(r.image.get(), r.center, r.dst, r.paint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
@@ -411,6 +421,9 @@ private:
         SkRect rect = SkRect::MakeXYWH(op.left, op.top, image->width(), image->height());
 
         return this->adjustAndMap(rect, op.paint);
+    }
+    Bounds bounds(const DrawImageLattice& op) const {
+        return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawImageRect& op) const {
         return this->adjustAndMap(op.dst, op.paint);

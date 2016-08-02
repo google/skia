@@ -91,8 +91,9 @@ enum DrawType {
     TRANSLATE_Z,
 
     DRAW_SHADOWED_PICTURE_LIGHTS,
+    DRAW_IMAGE_LATTICE,
 
-    LAST_DRAWTYPE_ENUM = DRAW_SHADOWED_PICTURE_LIGHTS
+    LAST_DRAWTYPE_ENUM = DRAW_IMAGE_LATTICE
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

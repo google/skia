@@ -19,9 +19,9 @@
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
+#include "SkLatticeIter.h"
 #include "SkMatrixUtils.h"
 #include "SkMetaData.h"
-#include "SkNinePatchIter.h"
 #include "SkPaintPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
@@ -1985,7 +1985,7 @@ void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const 
     if (dst.isEmpty()) {
         return;
     }
-    if (!SkNinePatchIter::Valid(image->width(), image->height(), center)) {
+    if (!SkLatticeIter::Valid(image->width(), image->height(), center)) {
         this->drawImageRect(image, dst, paint);
     }
     this->onDrawImageNine(image, center, dst, paint);
@@ -2022,10 +2022,28 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, con
     if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
-    if (!SkNinePatchIter::Valid(bitmap.width(), bitmap.height(), center)) {
+    if (!SkLatticeIter::Valid(bitmap.width(), bitmap.height(), center)) {
         this->drawBitmapRect(bitmap, dst, paint);
     }
     this->onDrawBitmapNine(bitmap, center, dst, paint);
+}
+
+void SkCanvas::drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
+                                 const SkPaint* paint) {
+    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
+    this->drawImageLattice(image.get(), lattice, dst, paint);
+}
+
+void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+                                const SkPaint* paint) {
+    RETURN_ON_NULL(image);
+    if (dst.isEmpty()) {
+        return;
+    }
+    if (!SkLatticeIter::Valid(image->width(), image->height(), lattice)) {
+        this->drawImageRect(image, dst, paint);
+    }
+    this->onDrawImageLattice(image, lattice, dst, paint);
 }
 
 void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
@@ -2327,6 +2345,29 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
         } else {
             iter.fDevice->drawImage(iter, image, x, y, pnt);
         }
+    }
+
+    LOOPER_END
+}
+
+void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+                                  const SkPaint* paint) {
+    if (nullptr == paint || paint->canComputeFastBounds()) {
+        SkRect storage;
+        if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
+            return;
+        }
+    }
+
+    SkLazyPaint lazy;
+    if (nullptr == paint) {
+        paint = lazy.init();
+    }
+
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
+
+    while (iter.next()) {
+        iter.fDevice->drawImageLattice(iter, image, lattice, dst, looper.paint());
     }
 
     LOOPER_END

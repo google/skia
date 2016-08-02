@@ -12,7 +12,7 @@
 #include "GrResourceProvider.h"
 #include "GrVertexBatch.h"
 #include "SkBitmap.h"
-#include "SkNinePatchIter.h"
+#include "SkLatticeIter.h"
 #include "SkRect.h"
 
 static sk_sp<GrGeometryProcessor> create_gp(bool readsCoverage) {
@@ -101,7 +101,7 @@ private:
                              i * kRectsPerInstance * kVertsPerRect * vertexStride;
 
             const Patch& patch = fPatches[i];
-            SkNinePatchIter iter(fImageWidth, fImageHeight, patch.fCenter, patch.fDst);
+            SkLatticeIter iter(fImageWidth, fImageHeight, patch.fCenter, patch.fDst);
 
             SkRect srcR, dstR;
             while (iter.next(&srcR, &dstR)) {

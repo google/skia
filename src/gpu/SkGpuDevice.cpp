@@ -24,8 +24,8 @@
 #include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
+#include "SkLatticeIter.h"
 #include "SkMaskFilter.h"
-#include "SkNinePatchIter.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
@@ -1446,7 +1446,7 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
         GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), *draw.fMatrix, SkMatrix::I(),
                                         &doBicubic);
     if (useFallback || doBicubic || GrTextureParams::kNone_FilterMode != textureFilterMode) {
-        SkNinePatchIter iter(producer->width(), producer->height(), center, dst);
+        SkLatticeIter iter(producer->width(), producer->height(), center, dst);
 
         SkRect srcR, dstR;
         while (iter.next(&srcR, &dstR)) {

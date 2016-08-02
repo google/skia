@@ -55,6 +55,7 @@ namespace SkRecords {
     M(ClipRegion)                                                   \
     M(DrawDrawable)                                                 \
     M(DrawImage)                                                    \
+    M(DrawImageLattice)                                             \
     M(DrawImageRect)                                                \
     M(DrawImageNine)                                                \
     M(DrawDRRect)                                                   \
@@ -222,6 +223,14 @@ RECORD(DrawImage, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         sk_sp<const SkImage> image;
         SkScalar left;
         SkScalar top);
+RECORD(DrawImageLattice, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
+        Optional<SkPaint> paint;
+        sk_sp<const SkImage> image;
+        int xCount;
+        PODArray<int> xDivs;
+        int yCount;
+        PODArray<int> yDivs;
+        SkRect dst);
 RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> image;

@@ -211,6 +211,16 @@ void SkRecorder::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
     APPEND(DrawImage, this->copy(paint), sk_ref_sp(image), left, top);
 }
 
+void SkRecorder::onDrawImageLattice(const SkImage* image,
+                                    const Lattice& lattice,
+                                    const SkRect& dst,
+                                    const SkPaint* paint) {
+    APPEND(DrawImageLattice, this->copy(paint), sk_ref_sp(image),
+           lattice.fXCount, this->copy(lattice.fXDivs, lattice.fXCount),
+           lattice.fYCount, this->copy(lattice.fYDivs, lattice.fYCount), dst);
+}
+
+
 void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                  const SkPaint* paint, SrcRectConstraint constraint) {
     APPEND(DrawImageRect, this->copy(paint), sk_ref_sp(image), this->copy(src), dst, constraint);

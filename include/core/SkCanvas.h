@@ -938,7 +938,7 @@ public:
                         SrcRectConstraint = kStrict_SrcRectConstraint);
 
     /**
-     *  Draw the bitmap stretched differentially to fit into dst.
+     *  Draw the bitmap stretched or shrunk differentially to fit into dst.
      *  center is a rect within the bitmap, and logically divides the bitmap
      *  into 9 sections (3x3). For example, if the middle pixel of a [5x5]
      *  bitmap is the "center", then the center-rect should be [2, 2, 3, 3].
@@ -953,6 +953,47 @@ public:
      */
     void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                         const SkPaint* paint = NULL);
+
+    /**
+     *  Specifies coordinates to divide a bitmap into (xCount*yCount) rects.
+     */
+    struct Lattice {
+        // An array of x-coordinates that divide the bitmap vertically.
+        // These must be unique, increasing, and in the set [0, width].
+        // Does not have ownership.
+        const int* fXDivs;
+
+        // The number of fXDivs.
+        int        fXCount;
+
+        // An array of y-coordinates that divide the bitmap horizontally.
+        // These must be unique, increasing, and in the set [0, height].
+        // Does not have ownership.
+        const int* fYDivs;
+
+        // The number of fYDivs.
+        int        fYCount;
+    };
+
+    /**
+     *  Draw the bitmap stretched or shrunk differentially to fit into dst.
+     *
+     *  Moving horizontally across the bitmap, alternating rects will be "scalable"
+     *  (in the x-dimension) to fit into dst or must be left "fixed".  The first rect
+     *  is treated as "fixed", but it's possible to specify an empty first rect by
+     *  making lattice.fXDivs[0] = 0.
+     *
+     *  The scale factor for all "scalable" rects will be the same, and may be greater
+     *  than or less than 1 (meaning we can stretch or shrink).  If the number of
+     *  "fixed" pixels is greater than the width of the dst, we will collapse all of
+     *  the "scalable" regions and appropriately downscale the "fixed" regions.
+     *
+     *  The same interpretation also applies to the y-dimension.
+     */
+    void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
+                           const SkPaint* paint = nullptr);
+    void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+                          const SkPaint* paint = nullptr);
 
     /** Draw the text, with origin at (x,y), using the specified paint.
         The origin is interpreted based on the Align setting in the paint.
@@ -1435,6 +1476,8 @@ protected:
                                   SrcRectConstraint);
     virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                                   const SkPaint*);
+    virtual void onDrawImageLattice(const SkImage*, const Lattice& lattice, const SkRect& dst,
+                                    const SkPaint*);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,

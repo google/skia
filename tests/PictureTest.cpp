@@ -994,12 +994,17 @@ static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
     const SkPaint paint;
     const SkRect rect = { 5.0f, 5.0f, 8.0f, 8.0f };
     const SkIRect irect =  { 2, 2, 3, 3 };
+    int divs[] = { 2, 3 };
+    SkCanvas::Lattice lattice;
+    lattice.fXCount = lattice.fYCount = 2;
+    lattice.fXDivs = lattice.fYDivs = divs;
 
     // Don't care what these record, as long as they're legal.
     canvas->drawBitmap(bitmap, 0.0f, 0.0f, &paint);
     canvas->drawBitmapRect(bitmap, rect, rect, &paint, SkCanvas::kStrict_SrcRectConstraint);
     canvas->drawBitmapNine(bitmap, irect, rect, &paint);
     canvas->drawBitmap(bitmap, 1, 1);   // drawSprite
+    canvas->drawBitmapLattice(bitmap, lattice, rect, &paint);
 }
 
 static void test_draw_bitmaps(SkCanvas* canvas) {

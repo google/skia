@@ -12,8 +12,8 @@
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
+#include "SkLatticeIter.h"
 #include "SkMetaData.h"
-#include "SkNinePatchIter.h"
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
 #include "SkRasterClip.h"
@@ -152,6 +152,17 @@ void SkBaseDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar 
     }
 }
 
+void SkBaseDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
+                                    const SkCanvas::Lattice& lattice, const SkRect& dst,
+                                    const SkPaint& paint) {
+    SkLatticeIter iter(image->width(), image->height(), lattice, dst);
+
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        this->drawImageRect(draw, image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+    }
+}
+
 void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const SkRect* src,
                                  const SkRect& dst, const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint) {
@@ -164,7 +175,7 @@ void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const
 
 void SkBaseDevice::drawImageNine(const SkDraw& draw, const SkImage* image, const SkIRect& center,
                                  const SkRect& dst, const SkPaint& paint) {
-    SkNinePatchIter iter(image->width(), image->height(), center, dst);
+    SkLatticeIter iter(image->width(), image->height(), center, dst);
 
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
@@ -174,7 +185,7 @@ void SkBaseDevice::drawImageNine(const SkDraw& draw, const SkImage* image, const
 
 void SkBaseDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
                                   const SkRect& dst, const SkPaint& paint) {
-    SkNinePatchIter iter(bitmap.width(), bitmap.height(), center, dst);
+    SkLatticeIter iter(bitmap.width(), bitmap.height(), center, dst);
 
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
