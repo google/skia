@@ -507,6 +507,10 @@ template<> inline Sk4h SkNx_cast<uint16_t, int32_t>(const Sk4i& src) {
     return vmovn_u32(vreinterpretq_u32_s32(src.fVec));
 }
 
+template<> /*static*/ inline Sk4i SkNx_cast<int32_t, uint32_t>(const Sk4u& src) {
+    return vreinterpretq_s32_u32(src.fVec);
+}
+
 static inline Sk4i Sk4f_round(const Sk4f& x) {
     return vcvtq_s32_f32((x + 0.5f).fVec);
 }

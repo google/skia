@@ -447,6 +447,10 @@ template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, int32_t>(const Sk4i& src) {
     return _mm_packus_epi16(_mm_packus_epi16(src.fVec, src.fVec), src.fVec);
 }
 
+template<> /*static*/ inline Sk4i SkNx_cast<int32_t, uint32_t>(const Sk4u& src) {
+    return src.fVec;
+}
+
 static inline Sk4i Sk4f_round(const Sk4f& x) {
     return _mm_cvtps_epi32(x.fVec);
 }

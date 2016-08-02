@@ -27,7 +27,6 @@
 #include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
-#include "SkColorXform_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkTextureCompressor_opts.h"
@@ -71,14 +70,6 @@ namespace SkOpts {
     DEFINE_DEFAULT(inverted_CMYK_to_BGR1);
 
     DEFINE_DEFAULT(srcover_srgb_srgb);
-
-    DEFINE_DEFAULT(color_xform_RGB1_to_2dot2);
-    DEFINE_DEFAULT(color_xform_RGB1_to_srgb);
-    DEFINE_DEFAULT(color_xform_RGB1_to_table);
-    DEFINE_DEFAULT(color_xform_RGB1_to_linear);
-    DEFINE_DEFAULT(color_xform_RGB1_to_2dot2_swaprb);
-    DEFINE_DEFAULT(color_xform_RGB1_to_srgb_swaprb);
-    DEFINE_DEFAULT(color_xform_RGB1_to_table_swaprb);
 #undef DEFINE_DEFAULT
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.

@@ -8,7 +8,7 @@
 #include "SkColorPriv.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
-#include "SkOpts.h"
+#include "SkColorSpaceXformOpts.h"
 #include "SkSRGB.h"
 
 static constexpr float sk_linear_from_2dot2[256] = {
@@ -78,56 +78,6 @@ static constexpr float sk_linear_from_2dot2[256] = {
         0.974300202388861000f, 0.982826255053791000f, 0.991392843592940000f, 1.000000000000000000f,
 };
 
-static void build_table_linear_from_gamma(float* outTable, float exponent) {
-    for (float x = 0.0f; x <= 1.0f; x += (1.0f/255.0f)) {
-        *outTable++ = powf(x, exponent);
-    }
-}
-
-// Interpolating lookup in a variably sized table.
-static float interp_lut(float input, const float* table, int tableSize) {
-    float index = input * (tableSize - 1);
-    float diff = index - sk_float_floor2int(index);
-    return table[(int) sk_float_floor2int(index)] * (1.0f - diff) +
-            table[(int) sk_float_ceil2int(index)] * diff;
-}
-
-// outTable is always 256 entries, inTable may be larger or smaller.
-static void build_table_linear_from_gamma(float* outTable, const float* inTable,
-                                          int inTableSize) {
-    if (256 == inTableSize) {
-        memcpy(outTable, inTable, sizeof(float) * 256);
-        return;
-    }
-
-    for (float x = 0.0f; x <= 1.0f; x += (1.0f/255.0f)) {
-        *outTable++ = interp_lut(x, inTable, inTableSize);
-    }
-}
-
-static void build_table_linear_from_gamma(float* outTable, float g, float a, float b, float c,
-                                          float d, float e, float f) {
-    // Y = (aX + b)^g + c  for X >= d
-    // Y = eX + f          otherwise
-    for (float x = 0.0f; x <= 1.0f; x += (1.0f/255.0f)) {
-        if (x >= d) {
-            *outTable++ = powf(a * x + b, g) + c;
-        } else {
-            *outTable++ = e * x + f;
-        }
-    }
-}
-
-static inline bool compute_gamut_xform(SkMatrix44* srcToDst, const SkMatrix44& srcToXYZ,
-                                       const SkMatrix44& dstToXYZ) {
-    if (!dstToXYZ.invert(srcToDst)) {
-        return false;
-    }
-
-    srcToDst->postConcat(srcToXYZ);
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static constexpr uint8_t linear_to_srgb[1024] = {
@@ -190,7 +140,7 @@ static constexpr uint8_t linear_to_srgb[1024] = {
         253, 253, 254, 254, 254, 254, 254, 254, 254, 254, 254, 255, 255, 255, 255, 255
 };
 
-static constexpr uint8_t linear_to_2dot2[1024] = {
+static constexpr uint8_t linear_to_2dot2_table[1024] = {
           0,  11,  15,  18,  21,  23,  25,  26,  28,  30,  31,  32,  34,  35,  36,  37,  39,  40,
          41,  42,  43,  44,  45,  45,  46,  47,  48,  49,  50,  50,  51,  52,  53,  54,  54,  55,
          56,  56,  57,  58,  58,  59,  60,  60,  61,  62,  62,  63,  63,  64,  65,  65,  66,  66,
@@ -249,6 +199,50 @@ static constexpr uint8_t linear_to_2dot2[1024] = {
         251, 251, 251, 252, 252, 252, 252, 252, 252, 252, 252, 252, 253, 253, 253, 253, 253, 253,
         253, 253, 254, 254, 254, 254, 254, 254, 254, 254, 254, 255, 255, 255, 255, 255,
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void build_table_linear_from_gamma(float* outTable, float exponent) {
+    for (float x = 0.0f; x <= 1.0f; x += (1.0f/255.0f)) {
+        *outTable++ = powf(x, exponent);
+    }
+}
+
+// Interpolating lookup in a variably sized table.
+static float interp_lut(float input, const float* table, int tableSize) {
+    float index = input * (tableSize - 1);
+    float diff = index - sk_float_floor2int(index);
+    return table[(int) sk_float_floor2int(index)] * (1.0f - diff) +
+            table[(int) sk_float_ceil2int(index)] * diff;
+}
+
+// outTable is always 256 entries, inTable may be larger or smaller.
+static void build_table_linear_from_gamma(float* outTable, const float* inTable,
+                                          int inTableSize) {
+    if (256 == inTableSize) {
+        memcpy(outTable, inTable, sizeof(float) * 256);
+        return;
+    }
+
+    for (float x = 0.0f; x <= 1.0f; x += (1.0f/255.0f)) {
+        *outTable++ = interp_lut(x, inTable, inTableSize);
+    }
+}
+
+static void build_table_linear_from_gamma(float* outTable, float g, float a, float b, float c,
+                                          float d, float e, float f) {
+    // Y = (aX + b)^g + c  for X >= d
+    // Y = eX + f          otherwise
+    for (float x = 0.0f; x <= 1.0f; x += (1.0f/255.0f)) {
+        if (x >= d) {
+            *outTable++ = powf(a * x + b, g) + c;
+        } else {
+            *outTable++ = e * x + f;
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Expand range from 0-1 to 0-255, then convert.
 static uint8_t clamp_normalized_float_to_byte(float v) {
@@ -373,7 +367,7 @@ static const GammaFns<float> kToLinear {
 
 static const GammaFns<uint8_t> kFromLinear {
     linear_to_srgb,
-    linear_to_2dot2,
+    linear_to_2dot2_table,
     &build_table_linear_to_gamma,
     &build_table_linear_to_gamma,
     &build_table_linear_to_gamma,
@@ -445,6 +439,18 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
             }
         }
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static inline bool compute_gamut_xform(SkMatrix44* srcToDst, const SkMatrix44& srcToXYZ,
+                                       const SkMatrix44& dstToXYZ) {
+    if (!dstToXYZ.invert(srcToDst)) {
+        return false;
+    }
+
+    srcToDst->postConcat(srcToXYZ);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -615,8 +621,8 @@ static void handle_color_lut(uint32_t* dst, const uint32_t* src, int len,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <SkColorSpace::GammaNamed Dst>
-SkColorSpaceXform_Base<Dst>::SkColorSpaceXform_Base(const sk_sp<SkColorSpace>& srcSpace,
+template <SkColorSpace::GammaNamed kDst>
+SkColorSpaceXform_Base<kDst>::SkColorSpaceXform_Base(const sk_sp<SkColorSpace>& srcSpace,
                                                     const SkMatrix44& srcToDst,
                                                     const sk_sp<SkColorSpace>& dstSpace)
     : fColorLUT(sk_ref_sp((SkColorLookUpTable*) as_CSB(srcSpace)->colorLUT()))
@@ -636,7 +642,8 @@ void SkColorSpaceXform_Base<SkColorSpace::kSRGB_GammaNamed>
         src = dst;
     }
 
-    SkOpts::color_xform_RGB1_to_srgb(dst, src, len, fSrcGammaTables, fSrcToDst);
+    color_xform_RGBA<SkColorSpace::kSRGB_GammaNamed, false, false>
+            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
 }
 
 template <>
@@ -648,7 +655,8 @@ void SkColorSpaceXform_Base<SkColorSpace::k2Dot2Curve_GammaNamed>
         src = dst;
     }
 
-    SkOpts::color_xform_RGB1_to_2dot2(dst, src, len, fSrcGammaTables, fSrcToDst);
+    color_xform_RGBA<SkColorSpace::k2Dot2Curve_GammaNamed, false, false>
+            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
 }
 
 template <>
@@ -660,7 +668,8 @@ void SkColorSpaceXform_Base<SkColorSpace::kNonStandard_GammaNamed>
         src = dst;
     }
 
-    SkOpts::color_xform_RGB1_to_table(dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+    color_xform_RGBA<SkColorSpace::kNonStandard_GammaNamed, false, false>
+            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
 }
 
 template <>
@@ -672,7 +681,8 @@ void SkColorSpaceXform_Base<SkColorSpace::kSRGB_GammaNamed>
         src = dst;
     }
 
-    SkOpts::color_xform_RGB1_to_srgb_swaprb(dst, src, len, fSrcGammaTables, fSrcToDst);
+    color_xform_RGBA<SkColorSpace::kSRGB_GammaNamed, false, true>
+            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
 }
 
 template <>
@@ -684,7 +694,8 @@ void SkColorSpaceXform_Base<SkColorSpace::k2Dot2Curve_GammaNamed>
         src = dst;
     }
 
-    SkOpts::color_xform_RGB1_to_2dot2_swaprb(dst, src, len, fSrcGammaTables, fSrcToDst);
+    color_xform_RGBA<SkColorSpace::k2Dot2Curve_GammaNamed, false, true>
+            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
 }
 
 template <>
@@ -696,8 +707,8 @@ void SkColorSpaceXform_Base<SkColorSpace::kNonStandard_GammaNamed>
         src = dst;
     }
 
-    SkOpts::color_xform_RGB1_to_table_swaprb(dst, src, len, fSrcGammaTables, fSrcToDst,
-                                             fDstGammaTables);
+    color_xform_RGBA<SkColorSpace::kNonStandard_GammaNamed, false, true>
+            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
 }
 
 template <SkColorSpace::GammaNamed T>
@@ -717,5 +728,6 @@ void SkColorSpaceXform_Base<T>
         src = (const RGBA32*) storage.get();
     }
 
-    SkOpts::color_xform_RGB1_to_linear(dst, src, len, fSrcGammaTables, fSrcToDst);
+    color_xform_RGBA<SkColorSpace::kLinear_GammaNamed, false, false>
+            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
 }
