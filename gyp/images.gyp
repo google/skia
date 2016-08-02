@@ -47,7 +47,6 @@
 
         '../src/images/SkImageEncoder.cpp',
         '../src/images/SkImageEncoder_Factory.cpp',
-        '../src/images/SkARGBImageEncoder.cpp',
         '../src/images/SkJPEGWriteUtility.cpp',
         '../src/images/SkMovie.cpp',
         '../src/images/SkGIFMovie.cpp',
