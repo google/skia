@@ -20,7 +20,6 @@
         '<(skia_include_path)/utils/SkInterpolator.h',
         '<(skia_include_path)/utils/SkLayer.h',
         '<(skia_include_path)/utils/SkMeshUtils.h',
-        '<(skia_include_path)/utils/SkNinePatch.h',
         '<(skia_include_path)/utils/SkNoSaveLayerCanvas.h',
         '<(skia_include_path)/utils/SkNWayCanvas.h',
         '<(skia_include_path)/utils/SkNullCanvas.h',
