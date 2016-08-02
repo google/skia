@@ -194,6 +194,9 @@ class SkiaApi(recipe_api.RecipeApi):
          'SAN' in self.builder_name) or
         'RecreateSKPs' in self.builder_name):
       self._need_chromium_checkout = True
+      if 'RecreateSKPs' in self.builder_name:
+        self.gclient_env['CPPFLAGS'] = (
+            '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')
 
     # Some bots also require a checkout of PDFium.
     self._need_pdfium_checkout = 'PDFium' in self.builder_name

@@ -92,20 +92,21 @@ if os.path.isfile(backup_file):
 def RunSteps(api):
   # Check out Chrome.
   api.skia.setup()
-  api.gclient.runhooks(
-      env={'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1'})
 
   src_dir = api.skia.checkout_root.join('src')
+  out_dir = src_dir.join('out', 'Release')
 
-  # Call build/gyp_chromium
-  api.step('gyp_chromium',
-           ['build/gyp_chromium'],
+  # Call GN.
+  platform = 'linux64'  # This bot only runs on linux; don't bother checking.
+  gn = src_dir.join('buildtools', platform, 'gn')
+  api.step('GN',
+           [gn, 'gen', out_dir],
            env={'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1',
                 'GYP_GENERATORS': 'ninja'},
            cwd=src_dir)
   # Build Chrome.
   api.step('Build Chrome',
-           ['ninja', '-C', 'out/Release', 'chrome'],
+           ['ninja', '-C', out_dir, 'chrome'],
            cwd=src_dir)
 
   # Download boto file (needed by recreate_skps.py) to tmp dir.
