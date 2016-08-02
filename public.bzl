@@ -120,7 +120,6 @@ BASE_SRCS_ALL = struct(
         "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
         "src/gpu/gl/GrGLDefaultInterface_native.cpp",
         "src/gpu/gl/GrGLDefaultInterface_none.cpp",
-        "src/fonts/SkFontMgr_fontconfig.cpp",
 
         # Exclude files that don't compile with the current DEFINES.
         "src/gpu/gl/mesa/*",  # Requires SK_MESA define.
@@ -176,7 +175,6 @@ BASE_SRCS_UNIX = struct(
         "src/ports/*nacl*",
         "src/ports/*win*",
         "src/ports/SkFontConfigInterface_direct_factory.cpp",
-        "src/ports/SkFontHost_fontconfig.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",
@@ -224,7 +222,6 @@ BASE_SRCS_ANDROID = struct(
         "src/ports/*nacl*",
         "src/ports/*win*",
         "src/ports/SkDebug_stdio.cpp",
-        "src/ports/SkFontHost_fontconfig.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",
@@ -278,7 +275,6 @@ BASE_SRCS_IOS = struct(
         "src/ports/*mozalloc*",
         "src/ports/*nacl*",
         "src/ports/*win*",
-        "src/ports/SkFontHost_fontconfig.cpp",
         "src/ports/SkFontMgr_custom.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
