@@ -308,7 +308,9 @@ executable("fiddle") {
   deps = [
     ":skia",
     ":skia.h",
+    ":tool_utils",
   ]
+  testonly = true
 }
 
 template("test_lib") {
