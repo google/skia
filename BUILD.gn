@@ -391,6 +391,7 @@ test_lib("flags") {
 test_lib("tool_utils") {
   public_include_dirs = [
     "tools",
+    "tools/debugger",
     "tools/timer",
   ]
   sources = [
@@ -400,6 +401,12 @@ test_lib("tool_utils") {
     "tools/ProcStats.cpp",
     "tools/Resources.cpp",
     "tools/ThermalManager.cpp",
+    "tools/UrlDataManager.cpp",
+    "tools/debugger/SkDebugCanvas.cpp",
+    "tools/debugger/SkDrawCommand.cpp",
+    "tools/debugger/SkJsonWriteBuffer.cpp",
+    "tools/debugger/SkObjectParser.cpp",
+    "tools/debugger/SkOverdrawMode.cpp",
     "tools/picture_utils.cpp",
     "tools/random_parse_path.cpp",
     "tools/sk_tool_utils.cpp",
@@ -408,6 +415,10 @@ test_lib("tool_utils") {
   ]
   deps = [
     ":flags",
+    "//third_party/libpng",
+  ]
+  public_deps = [
+    "//third_party/jsoncpp",
   ]
 }
 
@@ -425,6 +436,34 @@ test_lib("gm") {
     ":gpu_tool_utils",
     ":skia",
     ":tool_utils",
+  ]
+}
+
+tests_sources = exec_script("gyp/find.py",
+                            [
+                              "*.c*",
+                              rebase_path("tests"),
+                            ],
+                            "list lines",
+                            [])
+
+test_lib("tests") {
+  public_include_dirs = [ "tests" ]
+  sources = tests_sources - [
+              rebase_path("tests/FontMgrAndroidParserTest.cpp"),  # Android only
+              rebase_path("tests/PathOpsSkpClipTest.cpp"),  # alternate main
+              rebase_path("tests/RTConfRegistryTest.cpp"),  # TODO: delete
+              rebase_path("tests/SkSLErrorTest.cpp"),   # TODO: make work
+              rebase_path("tests/SkpSkGrTest.cpp"),  # doesn't compile
+              rebase_path("tests/skia_test.cpp"),  # alternate main
+            ]
+  deps = [
+    ":flags",
+    ":gpu_tool_utils",
+    ":skia",
+    ":tool_utils",
+    "//third_party/libpng",
+    "//third_party/zlib",
   ]
 }
 
@@ -458,9 +497,6 @@ if (!is_component_build) {  # Our test tools use many non-SK_API APIs...
       "dm/DM.cpp",
       "dm/DMJsonWriter.cpp",
       "dm/DMSrcSink.cpp",
-
-      # TODO: tests for real
-      "tests/Test.cpp",
     ]
     include_dirs = [ "tests" ]
     deps = [
@@ -468,6 +504,7 @@ if (!is_component_build) {  # Our test tools use many non-SK_API APIs...
       ":gm",
       ":gpu_tool_utils",
       ":skia",
+      ":tests",
       ":tool_utils",
       "//third_party/jsoncpp",
       "//third_party/libpng",

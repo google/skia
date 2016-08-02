@@ -8,7 +8,6 @@
 #include <functional>
 #include <initializer_list>
 #include <vector>
-#include "DMGpuSupport.h"
 
 #include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
@@ -1001,11 +1000,11 @@ DEF_TEST(image_roundtrip_encode, reporter) {
     auto img0 = SkImage::MakeFromBitmap(bm0);
     sk_sp<SkData> data(img0->encode(SkImageEncoder::kPNG_Type, 100));
     auto img1 = SkImage::MakeFromEncoded(data);
-    
+
     SkBitmap bm1;
     bm1.allocPixels(SkImageInfo::MakeN32(256, 256, kPremul_SkAlphaType));
     img1->readPixels(bm1.info(), bm1.getPixels(), bm1.rowBytes(), 0, 0);
-    
+
     REPORTER_ASSERT(reporter, equal(bm0, bm1));
 }
 
