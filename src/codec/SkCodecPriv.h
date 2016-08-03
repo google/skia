@@ -20,11 +20,11 @@
 #endif
 
 // FIXME: Consider sharing with dm, nanbench, and tools.
-inline float get_scale_from_sample_size(int sampleSize) {
+static inline float get_scale_from_sample_size(int sampleSize) {
     return 1.0f / ((float) sampleSize);
 }
 
-inline bool is_valid_subset(const SkIRect& subset, const SkISize& imageDims) {
+static inline bool is_valid_subset(const SkIRect& subset, const SkISize& imageDims) {
     return SkIRect::MakeSize(imageDims).contains(subset);
 }
 
@@ -33,7 +33,7 @@ inline bool is_valid_subset(const SkIRect& subset, const SkISize& imageDims) {
  * NOTE: we round down here for scaled dimension to match the behavior of SkImageDecoder
  * FIXME: I think we should call this get_sampled_dimension().
  */
-inline int get_scaled_dimension(int srcDimension, int sampleSize) {
+static inline int get_scaled_dimension(int srcDimension, int sampleSize) {
     if (sampleSize > srcDimension) {
         return 1;
     }
@@ -46,7 +46,7 @@ inline int get_scaled_dimension(int srcDimension, int sampleSize) {
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-inline int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
+static inline int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
 
 /*
  * Given a coordinate in the original image, this returns the corresponding
@@ -56,7 +56,7 @@ inline int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-inline int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sampleFactor; };
+static inline int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sampleFactor; };
 
 /*
  * When scaling, we will discard certain y-coordinates (rows) and
@@ -66,7 +66,7 @@ inline int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sam
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-inline bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
+static inline bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
     // Get the first coordinate that we want to keep
     int startCoord = get_start_coord(sampleFactor);
 
@@ -79,7 +79,7 @@ inline bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
     return ((srcCoord - startCoord) % sampleFactor) == 0;
 }
 
-inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
+static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
     if (kUnknown_SkAlphaType == dstAlpha) {
         return false;
     }
@@ -108,19 +108,13 @@ inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
 
 /*
  * Most of our codecs support the same conversions:
- * - profileType must be the same
  * - opaque to any alpha type
  * - 565 only if opaque
  * - premul to unpremul and vice versa
  * - always support N32
  * - otherwise match the src color type
  */
-inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
-    // FIXME: skbug.com/4895
-    // Currently, we ignore the SkColorProfileType on the SkImageInfo.  We
-    // will treat the encoded data as linear regardless of what the client
-    // requests.
-
+static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
     // Ensure the alpha type is valid
     if (!valid_alpha(dst.alphaType(), src.alphaType())) {
         return false;
@@ -141,14 +135,14 @@ inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
 /*
  * If there is a color table, get a pointer to the colors, otherwise return nullptr
  */
-inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
+static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
      return nullptr != colorTable ? colorTable->readColors() : nullptr;
 }
 
 /*
  * Given that the encoded image uses a color table, return the fill value
  */
-inline uint32_t get_color_table_fill_value(SkColorType colorType, const SkPMColor* colorPtr,
+static inline uint32_t get_color_table_fill_value(SkColorType colorType, const SkPMColor* colorPtr,
         uint8_t fillIndex) {
     SkASSERT(nullptr != colorPtr);
     switch (colorType) {
@@ -169,7 +163,7 @@ inline uint32_t get_color_table_fill_value(SkColorType colorType, const SkPMColo
  *
  * Copy the codec color table back to the client when kIndex8 color type is requested
  */
-inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* colorTable,
+static inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* colorTable,
         SkPMColor* inputColorPtr, int* inputColorCount) {
     if (kIndex_8_SkColorType == dstInfo.colorType()) {
         SkASSERT(nullptr != inputColorPtr);
@@ -182,21 +176,21 @@ inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* colorTabl
 /*
  * Compute row bytes for an image using pixels per byte
  */
-inline size_t compute_row_bytes_ppb(int width, uint32_t pixelsPerByte) {
+static inline size_t compute_row_bytes_ppb(int width, uint32_t pixelsPerByte) {
     return (width + pixelsPerByte - 1) / pixelsPerByte;
 }
 
 /*
  * Compute row bytes for an image using bytes per pixel
  */
-inline size_t compute_row_bytes_bpp(int width, uint32_t bytesPerPixel) {
+static inline size_t compute_row_bytes_bpp(int width, uint32_t bytesPerPixel) {
     return width * bytesPerPixel;
 }
 
 /*
  * Compute row bytes for an image
  */
-inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
+static inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
     if (bitsPerPixel < 16) {
         SkASSERT(0 == 8 % bitsPerPixel);
         const uint32_t pixelsPerByte = 8 / bitsPerPixel;
@@ -212,7 +206,7 @@ inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
  * Get a byte from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  */
-inline uint8_t get_byte(uint8_t* buffer, uint32_t i) {
+static inline uint8_t get_byte(uint8_t* buffer, uint32_t i) {
     return buffer[i];
 }
 
@@ -220,7 +214,7 @@ inline uint8_t get_byte(uint8_t* buffer, uint32_t i) {
  * Get a short from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  */
-inline uint16_t get_short(uint8_t* buffer, uint32_t i) {
+static inline uint16_t get_short(uint8_t* buffer, uint32_t i) {
     uint16_t result;
     memcpy(&result, &(buffer[i]), 2);
 #ifdef SK_CPU_BENDIAN
@@ -234,7 +228,7 @@ inline uint16_t get_short(uint8_t* buffer, uint32_t i) {
  * Get an int from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  */
-inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
+static inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
     uint32_t result;
     memcpy(&result, &(buffer[i]), 4);
 #ifdef SK_CPU_BENDIAN
@@ -250,7 +244,7 @@ inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
  *                       Indicates if the data is little endian
  *                       Is unaffected on false returns
  */
-inline bool is_valid_endian_marker(const uint8_t* data, bool* isLittleEndian) {
+static inline bool is_valid_endian_marker(const uint8_t* data, bool* isLittleEndian) {
     // II indicates Intel (little endian) and MM indicates motorola (big endian).
     if (('I' != data[0] || 'I' != data[1]) && ('M' != data[0] || 'M' != data[1])) {
         return false;
@@ -260,7 +254,7 @@ inline bool is_valid_endian_marker(const uint8_t* data, bool* isLittleEndian) {
     return true;
 }
 
-inline uint16_t get_endian_short(const uint8_t* data, bool littleEndian) {
+static inline uint16_t get_endian_short(const uint8_t* data, bool littleEndian) {
     if (littleEndian) {
         return (data[1] << 8) | (data[0]);
     }
@@ -268,7 +262,7 @@ inline uint16_t get_endian_short(const uint8_t* data, bool littleEndian) {
     return (data[0] << 8) | (data[1]);
 }
 
-inline SkPMColor premultiply_argb_as_rgba(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+static inline SkPMColor premultiply_argb_as_rgba(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     if (a != 255) {
         r = SkMulDiv255Round(r, a);
         g = SkMulDiv255Round(g, a);
@@ -278,7 +272,7 @@ inline SkPMColor premultiply_argb_as_rgba(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkPackARGB_as_RGBA(a, r, g, b);
 }
 
-inline SkPMColor premultiply_argb_as_bgra(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+static inline SkPMColor premultiply_argb_as_bgra(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     if (a != 255) {
         r = SkMulDiv255Round(r, a);
         g = SkMulDiv255Round(g, a);
@@ -288,7 +282,7 @@ inline SkPMColor premultiply_argb_as_bgra(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkPackARGB_as_BGRA(a, r, g, b);
 }
 
-inline bool is_rgba(SkColorType colorType) {
+static inline bool is_rgba(SkColorType colorType) {
 #ifdef SK_PMCOLOR_IS_RGBA
     return (kBGRA_8888_SkColorType != colorType);
 #else
@@ -299,7 +293,7 @@ inline bool is_rgba(SkColorType colorType) {
 // Method for coverting to a 32 bit pixel.
 typedef uint32_t (*PackColorProc)(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 
-inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType colorType) {
+static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType colorType) {
     bool isRGBA = is_rgba(colorType);
     if (isPremul) {
         if (isRGBA) {
@@ -314,6 +308,12 @@ inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType colorType
             return &SkPackARGB_as_BGRA;
         }
     }
+}
+
+static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
+    return (kRGBA_F16_SkColorType == dstInfo.colorType()) ||
+           (dstInfo.colorSpace() && !SkColorSpace::Equals(srcInfo.colorSpace(),
+                                                          dstInfo.colorSpace()));
 }
 
 #endif // SkCodecPriv_DEFINED

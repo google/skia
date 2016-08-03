@@ -92,9 +92,7 @@ private:
 };
 #define AutoCleanPng(...) SK_REQUIRE_LOCAL_VAR(AutoCleanPng)
 
-// Note: SkColorTable claims to store SkPMColors, which is not necessarily
-// the case here.
-// TODO: If we add support for non-native swizzles, we'll need to handle that here.
+// Note: SkColorTable claims to store SkPMColors, which is not necessarily the case here.
 bool SkPngCodec::createColorTable(SkColorType dstColorType, bool premultiply, int* ctableCount) {
 
     int numColors;
@@ -341,83 +339,119 @@ static int bytes_per_pixel(int bitsPerPixel) {
     return bitsPerPixel / 8;
 }
 
-// Subclass of SkPngCodec which supports scanline decoding
-class SkPngScanlineDecoder : public SkPngCodec {
+static bool png_conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+    // Ensure the alpha type is valid
+    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
+        return false;
+    }
+
+    // Check for supported color types
+    switch (dst.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kRGBA_F16_SkColorType:
+            return true;
+        case kRGB_565_SkColorType:
+            return kOpaque_SkAlphaType == src.alphaType();
+        default:
+            return dst.colorType() == src.colorType();
+    }
+}
+
+void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
+    const int width = this->getInfo().width();
+    size_t colorXformBytes = fColorXform ? width * sizeof(uint32_t) : 0;
+
+    fStorage.reset(SkAlign4(fSrcRowBytes) + colorXformBytes);
+    fSwizzlerSrcRow = fStorage.get();
+    fColorXformSrcRow =
+            fColorXform ? SkTAddOffset<uint32_t>(fSwizzlerSrcRow, SkAlign4(fSrcRowBytes)) : 0;
+}
+
+class SkPngNormalCodec : public SkPngCodec {
 public:
-    SkPngScanlineDecoder(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+    SkPngNormalCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
             SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr, int bitDepth,
             sk_sp<SkColorSpace> colorSpace)
         : INHERITED(width, height, info, stream, chunkReader, png_ptr, info_ptr, bitDepth, 1,
                     colorSpace)
-        , fSrcRow(nullptr)
     {}
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
             SkPMColor ctable[], int* ctableCount) override {
-        if (!conversion_possible(dstInfo, this->getInfo())) {
+        if (!png_conversion_possible(dstInfo, this->getInfo()) ||
+            !this->initializeXforms(dstInfo, options, ctable, ctableCount))
+        {
             return kInvalidConversion;
         }
 
-        const Result result = this->initializeSwizzler(dstInfo, options, ctable,
-                                                       ctableCount);
-        if (result != kSuccess) {
-            return result;
-        }
-
-        fStorage.reset(this->getInfo().width() *
-                (bytes_per_pixel(this->getEncodedInfo().bitsPerPixel())));
-        fSrcRow = fStorage.get();
-
+        this->allocateStorage(dstInfo);
         return kSuccess;
     }
 
-    int onGetScanlines(void* dst, int count, size_t rowBytes) override {
+    int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count, int startRow)
+    override {
+        SkASSERT(0 == startRow);
+
         // Assume that an error in libpng indicates an incomplete input.
-        int row = 0;
-        if (setjmp(png_jmpbuf(this->png_ptr()))) {
-            SkCodecPrintf("setjmp long jump!\n");
-            return row;
+        int y = 0;
+        if (setjmp(png_jmpbuf(fPng_ptr))) {
+            SkCodecPrintf("Failed to read row.\n");
+            return y;
         }
 
-        void* dstRow = dst;
-        for (; row < count; row++) {
-            png_read_row(this->png_ptr(), fSrcRow, nullptr);
-            this->swizzler()->swizzle(dstRow, fSrcRow);
-            dstRow = SkTAddOffset<void>(dstRow, rowBytes);
+        void* swizzlerDstRow = dst;
+        size_t swizzlerDstRowBytes = rowBytes;
+        if (fColorXform) {
+            swizzlerDstRow = fColorXformSrcRow;
+            swizzlerDstRowBytes = 0;
         }
 
-        return row;
+        SkAlphaType xformAlphaType = (kOpaque_SkAlphaType == this->getInfo().alphaType()) ?
+                kOpaque_SkAlphaType : dstInfo.alphaType();
+        for (; y < count; y++) {
+            png_read_row(fPng_ptr, fSwizzlerSrcRow, nullptr);
+            fSwizzler->swizzle(swizzlerDstRow, fSwizzlerSrcRow);
+
+            if (fColorXform) {
+                fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow, dstInfo.width(),
+                                   dstInfo.colorType(), xformAlphaType);
+                dst = SkTAddOffset<void>(dst, rowBytes);
+            }
+
+            swizzlerDstRow = SkTAddOffset<void>(swizzlerDstRow, swizzlerDstRowBytes);
+        }
+
+        return y;
+    }
+
+    int onGetScanlines(void* dst, int count, size_t rowBytes) override {
+        return this->readRows(this->dstInfo(), dst, rowBytes, count, 0);
     }
 
     bool onSkipScanlines(int count) override {
-        // Assume that an error in libpng indicates an incomplete input.
-        if (setjmp(png_jmpbuf(this->png_ptr()))) {
-            SkCodecPrintf("setjmp long jump!\n");
+        if (setjmp(png_jmpbuf(fPng_ptr))) {
+            SkCodecPrintf("Failed to skip row.\n");
             return false;
         }
 
         for (int row = 0; row < count; row++) {
-            png_read_row(this->png_ptr(), fSrcRow, nullptr);
+            png_read_row(fPng_ptr, fSwizzlerSrcRow, nullptr);
         }
         return true;
     }
-
-private:
-    SkAutoTMalloc<uint8_t>      fStorage;
-    uint8_t*                    fSrcRow;
 
     typedef SkPngCodec INHERITED;
 };
 
 
-class SkPngInterlacedScanlineDecoder : public SkPngCodec {
+class SkPngInterlacedCodec : public SkPngCodec {
 public:
-    SkPngInterlacedScanlineDecoder(int width, int height, const SkEncodedInfo& info,
+    SkPngInterlacedCodec(int width, int height, const SkEncodedInfo& info,
             SkStream* stream, SkPngChunkReader* chunkReader, png_structp png_ptr,
             png_infop info_ptr, int bitDepth, int numberPasses, sk_sp<SkColorSpace> colorSpace)
         : INHERITED(width, height, info, stream, chunkReader, png_ptr, info_ptr, bitDepth,
                     numberPasses, colorSpace)
-        , fHeight(-1)
         , fCanSkipRewind(false)
     {
         SkASSERT(numberPasses != 1);
@@ -425,28 +459,76 @@ public:
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
             SkPMColor ctable[], int* ctableCount) override {
-        if (!conversion_possible(dstInfo, this->getInfo())) {
+        if (!png_conversion_possible(dstInfo, this->getInfo()) ||
+            !this->initializeXforms(dstInfo, options, ctable, ctableCount))
+        {
             return kInvalidConversion;
         }
 
-        const Result result = this->initializeSwizzler(dstInfo, options, ctable,
-                                                       ctableCount);
-        if (result != kSuccess) {
-            return result;
-        }
-
-        fHeight = dstInfo.height();
-        // FIXME: This need not be called on a second call to onStartScanlineDecode.
-        fSrcRowBytes = this->getInfo().width() *
-                (bytes_per_pixel(this->getEncodedInfo().bitsPerPixel()));
-        fGarbageRow.reset(fSrcRowBytes);
-        fGarbageRowPtr = static_cast<uint8_t*>(fGarbageRow.get());
+        this->allocateStorage(dstInfo);
         fCanSkipRewind = true;
-
         return SkCodec::kSuccess;
     }
 
-    int onGetScanlines(void* dst, int count, size_t dstRowBytes) override {
+    int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count, int startRow)
+    override {
+        if (setjmp(png_jmpbuf(fPng_ptr))) {
+            SkCodecPrintf("Failed to get scanlines.\n");
+            // FIXME (msarett): Returning 0 is pessimistic.  If we can complete a single pass,
+            // we may be able to report that all of the memory has been initialized.  Even if we
+            // fail on the first pass, we can still report than some scanlines are initialized.
+            return 0;
+        }
+
+        SkAutoTMalloc<uint8_t> storage(count * fSrcRowBytes);
+        uint8_t* srcRow;
+        for (int i = 0; i < fNumberPasses; i++) {
+            // Discard rows that we planned to skip.
+            for (int y = 0; y < startRow; y++){
+                png_read_row(fPng_ptr, fSwizzlerSrcRow, nullptr);
+            }
+            // Read rows we care about into storage.
+            srcRow = storage.get();
+            for (int y = 0; y < count; y++) {
+                png_read_row(fPng_ptr, srcRow, nullptr);
+                srcRow += fSrcRowBytes;
+            }
+            // Discard rows that we don't need.
+            for (int y = 0; y < this->getInfo().height() - startRow - count; y++) {
+                png_read_row(fPng_ptr, fSwizzlerSrcRow, nullptr);
+            }
+        }
+
+        // Swizzle and xform the rows we care about
+        void* swizzlerDstRow = dst;
+        size_t swizzlerDstRowBytes = rowBytes;
+        if (fColorXform) {
+            swizzlerDstRow = fColorXformSrcRow;
+            swizzlerDstRowBytes = 0;
+        }
+
+        SkAlphaType xformAlphaType = (kOpaque_SkAlphaType == this->getInfo().alphaType()) ?
+                kOpaque_SkAlphaType : dstInfo.alphaType();
+        srcRow = storage.get();
+        for (int y = 0; y < count; y++) {
+            fSwizzler->swizzle(swizzlerDstRow, srcRow);
+            srcRow = SkTAddOffset<uint8_t>(srcRow, fSrcRowBytes);
+
+            if (fColorXform) {
+                if (fColorXform) {
+                    fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow, dstInfo.width(),
+                                       dstInfo.colorType(), xformAlphaType);
+                    dst = SkTAddOffset<void>(dst, rowBytes);
+                }
+            }
+
+            swizzlerDstRow = SkTAddOffset<void>(swizzlerDstRow, swizzlerDstRowBytes);
+        }
+
+        return count;
+    }
+
+    int onGetScanlines(void* dst, int count, size_t rowBytes) override {
         // rewind stream if have previously called onGetScanlines,
         // since we need entire progressive image to get scanlines
         if (fCanSkipRewind) {
@@ -469,43 +551,7 @@ public:
             this->updateCurrScanline(currScanline);
         }
 
-        if (setjmp(png_jmpbuf(this->png_ptr()))) {
-            SkCodecPrintf("setjmp long jump!\n");
-            // FIXME (msarett): Returning 0 is pessimistic.  If we can complete a single pass,
-            // we may be able to report that all of the memory has been initialized.  Even if we
-            // fail on the first pass, we can still report than some scanlines are initialized.
-            return 0;
-        }
-        SkAutoTMalloc<uint8_t> storage(count * fSrcRowBytes);
-        uint8_t* storagePtr = storage.get();
-        uint8_t* srcRow;
-        const int startRow = this->nextScanline();
-        for (int i = 0; i < this->numberPasses(); i++) {
-            // read rows we planned to skip into garbage row
-            for (int y = 0; y < startRow; y++){
-                png_read_row(this->png_ptr(), fGarbageRowPtr, nullptr);
-            }
-            // read rows we care about into buffer
-            srcRow = storagePtr;
-            for (int y = 0; y < count; y++) {
-                png_read_row(this->png_ptr(), srcRow, nullptr);
-                srcRow += fSrcRowBytes;
-            }
-            // read rows we don't want into garbage buffer
-            for (int y = 0; y < fHeight - startRow - count; y++) {
-                png_read_row(this->png_ptr(), fGarbageRowPtr, nullptr);
-            }
-        }
-        //swizzle the rows we care about
-        srcRow = storagePtr;
-        void* dstRow = dst;
-        for (int y = 0; y < count; y++) {
-            this->swizzler()->swizzle(dstRow, srcRow);
-            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
-            srcRow += fSrcRowBytes;
-        }
-
-        return count;
+        return this->readRows(this->dstInfo(), dst, rowBytes, count, this->nextScanline());
     }
 
     bool onSkipScanlines(int count) override {
@@ -518,15 +564,11 @@ public:
     }
 
 private:
-    int                         fHeight;
-    size_t                      fSrcRowBytes;
-    SkAutoMalloc                fGarbageRow;
-    uint8_t*                    fGarbageRowPtr;
     // FIXME: This imitates behavior in SkCodec::rewindIfNeeded. That function
     // is called whenever some action is taken that reads the stream and
     // therefore the next call will require a rewind. So it modifies a boolean
     // to note that the *next* time it is called a rewind is needed.
-    // SkPngInterlacedScanlineDecoder has an extra wrinkle - calling
+    // SkPngInterlacedCodec has an extra wrinkle - calling
     // onStartScanlineDecode followed by onGetScanlines does *not* require a
     // rewind. Since rewindIfNeeded does not have this flexibility, we need to
     // add another layer.
@@ -684,10 +726,10 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
         SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
 
         if (1 == numberPasses) {
-            *outCodec = new SkPngScanlineDecoder(origWidth, origHeight, info, stream,
+            *outCodec = new SkPngNormalCodec(origWidth, origHeight, info, stream,
                     chunkReader, png_ptr, info_ptr, bitDepth, colorSpace);
         } else {
-            *outCodec = new SkPngInterlacedScanlineDecoder(origWidth, origHeight, info, stream,
+            *outCodec = new SkPngInterlacedCodec(origWidth, origHeight, info, stream,
                     chunkReader, png_ptr, info_ptr, bitDepth, numberPasses, colorSpace);
         }
     }
@@ -702,6 +744,9 @@ SkPngCodec::SkPngCodec(int width, int height, const SkEncodedInfo& info, SkStrea
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
+    , fSwizzlerSrcRow(nullptr)
+    , fColorXformSrcRow(nullptr)
+    , fSrcRowBytes(width * (bytes_per_pixel(this->getEncodedInfo().bitsPerPixel())))
     , fNumberPasses(numberPasses)
     , fBitDepth(bitDepth)
 {}
@@ -724,37 +769,58 @@ void SkPngCodec::destroyReadStruct() {
 // Getting the pixels
 ///////////////////////////////////////////////////////////////////////////////
 
-SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
-                                               const Options& options,
-                                               SkPMColor ctable[],
-                                               int* ctableCount) {
-    // FIXME: Could we use the return value of setjmp to specify the type of
-    // error?
+bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& options,
+                                  SkPMColor ctable[], int* ctableCount) {
     if (setjmp(png_jmpbuf(fPng_ptr))) {
-        SkCodecPrintf("setjmp long jump!\n");
-        return kInvalidInput;
+        SkCodecPrintf("Failed on png_read_update_info.\n");
+        return false;
     }
     png_read_update_info(fPng_ptr, fInfo_ptr);
 
+    // It's important to reset fColorXform to nullptr.  We don't do this on rewinding
+    // because the interlaced scanline decoder may need to rewind.
+    fColorXform = nullptr;
+    SkImageInfo swizzlerInfo = dstInfo;
+    bool needsColorXform = needs_color_xform(dstInfo, this->getInfo());
+    if (needsColorXform) {
+        switch (dstInfo.colorType()) {
+            case kRGBA_8888_SkColorType:
+            case kBGRA_8888_SkColorType:
+            case kRGBA_F16_SkColorType:
+                swizzlerInfo = swizzlerInfo.makeColorType(kRGBA_8888_SkColorType);
+                if (kPremul_SkAlphaType == dstInfo.alphaType()) {
+                    swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
+                }
+                break;
+            default:
+                return false;
+        }
+
+        fColorXform = SkColorSpaceXform::New(sk_ref_sp(this->getInfo().colorSpace()),
+                                             sk_ref_sp(dstInfo.colorSpace()));
+
+        if (!fColorXform && kRGBA_F16_SkColorType == dstInfo.colorType()) {
+            return false;
+        }
+    }
+
     if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
-        if (!this->createColorTable(requestedInfo.colorType(),
-                kPremul_SkAlphaType == requestedInfo.alphaType(), ctableCount)) {
-            return kInvalidInput;
+        if (!this->createColorTable(swizzlerInfo.colorType(),
+                                    kPremul_SkAlphaType == swizzlerInfo.alphaType(), ctableCount)) {
+            return false;
         }
     }
 
     // Copy the color table to the client if they request kIndex8 mode
-    copy_color_table(requestedInfo, fColorTable, ctable, ctableCount);
+    copy_color_table(swizzlerInfo, fColorTable, ctable, ctableCount);
 
     // Create the swizzler.  SkPngCodec retains ownership of the color table.
     const SkPMColor* colors = get_color_ptr(fColorTable.get());
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colors, requestedInfo,
-            options));
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colors, swizzlerInfo,
+                                               options));
     SkASSERT(fSwizzler);
-
-    return kSuccess;
+    return true;
 }
-
 
 bool SkPngCodec::onRewind() {
     // This sets fPng_ptr and fInfo_ptr to nullptr. If read_header
@@ -775,88 +841,26 @@ bool SkPngCodec::onRewind() {
     return true;
 }
 
-SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
-                                        size_t dstRowBytes, const Options& options,
+SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
+                                        size_t rowBytes, const Options& options,
                                         SkPMColor ctable[], int* ctableCount,
                                         int* rowsDecoded) {
-    if (!conversion_possible(requestedInfo, this->getInfo())) {
+    if (!png_conversion_possible(dstInfo, this->getInfo()) ||
+        !this->initializeXforms(dstInfo, options, ctable, ctableCount))
+    {
         return kInvalidConversion;
     }
+
     if (options.fSubset) {
-        // Subsets are not supported.
         return kUnimplemented;
     }
 
-    // Note that ctable and ctableCount may be modified if there is a color table
-    const Result result = this->initializeSwizzler(requestedInfo, options, ctable, ctableCount);
-    if (result != kSuccess) {
-        return result;
+    this->allocateStorage(dstInfo);
+    int count = this->readRows(dstInfo, dst, rowBytes, dstInfo.height(), 0);
+    if (count > dstInfo.height()) {
+        *rowsDecoded = count;
+        return kIncompleteInput;
     }
-
-    const int width = requestedInfo.width();
-    const int height = requestedInfo.height();
-    const int bpp = bytes_per_pixel(this->getEncodedInfo().bitsPerPixel());
-    const size_t srcRowBytes = width * bpp;
-
-    // FIXME: Could we use the return value of setjmp to specify the type of
-    // error?
-    int row = 0;
-    // This must be declared above the call to setjmp to avoid memory leaks on incomplete images.
-    SkAutoTMalloc<uint8_t> storage;
-    if (setjmp(png_jmpbuf(fPng_ptr))) {
-        // Assume that any error that occurs while reading rows is caused by an incomplete input.
-        if (fNumberPasses > 1) {
-            // FIXME (msarett): Handle incomplete interlaced pngs.
-            return (row == height) ? kSuccess : kInvalidInput;
-        }
-        // FIXME: We do a poor job on incomplete pngs compared to other decoders (ex: Chromium,
-        // Ubuntu Image Viewer).  This is because we use the default buffer size in libpng (8192
-        // bytes), and if we can't fill the buffer, we immediately fail.
-        // For example, if we try to read 8192 bytes, and the image (incorrectly) only contains
-        // half that, which may have been enough to contain a non-zero number of lines, we fail
-        // when we could have decoded a few more lines and then failed.
-        // The read function that we provide for libpng has no way of indicating that we have
-        // made a partial read.
-        // Making our buffer size smaller improves our incomplete decodes, but what impact does
-        // it have on regular decode performance?  Should we investigate using a different API
-        // instead of png_read_row?  Chromium uses png_process_data.
-        *rowsDecoded = row;
-        return (row == height) ? kSuccess : kIncompleteInput;
-    }
-
-    // FIXME: We could split these out based on subclass.
-    void* dstRow = dst;
-    if (fNumberPasses > 1) {
-        storage.reset(height * srcRowBytes);
-        uint8_t* const base = storage.get();
-
-        for (int i = 0; i < fNumberPasses; i++) {
-            uint8_t* srcRow = base;
-            for (int y = 0; y < height; y++) {
-                png_read_row(fPng_ptr, srcRow, nullptr);
-                srcRow += srcRowBytes;
-            }
-        }
-
-        // Now swizzle it.
-        uint8_t* srcRow = base;
-        for (; row < height; row++) {
-            fSwizzler->swizzle(dstRow, srcRow);
-            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
-            srcRow += srcRowBytes;
-        }
-    } else {
-        storage.reset(srcRowBytes);
-        uint8_t* srcRow = storage.get();
-        for (; row < height; row++) {
-            png_read_row(fPng_ptr, srcRow, nullptr);
-            fSwizzler->swizzle(dstRow, srcRow);
-            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
-        }
-    }
-
-    // read rest of file, and get additional comment and time chunks in info_ptr
-    png_read_end(fPng_ptr, fInfo_ptr);
 
     return kSuccess;
 }

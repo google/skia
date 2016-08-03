@@ -854,8 +854,15 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return Error::Nonfatal("No need to test color correction to 565 backend.");
     }
 
-    if (nullptr == canvas->imageInfo().colorSpace() && kRGBA_F16_SkColorType == fColorType) {
-        return Error::Nonfatal("F16 does not draw in legacy mode.");
+    bool runInLegacyMode = kBaseline_Mode == fMode;
+#if defined(SK_TEST_QCMS)
+    runInLegacyMode = runInLegacyMode || kQCMS_HPZR30w_Mode == fMode;
+#endif
+
+    if (runInLegacyMode && canvas->imageInfo().colorSpace()) {
+        return Error::Nonfatal("Skipping tests that are only interesting in legacy mode.");
+    } else if (!runInLegacyMode && !canvas->imageInfo().colorSpace()) {
+        return Error::Nonfatal("Skipping tests that are only interesting in srgb mode.");
     }
 
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
@@ -883,6 +890,10 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     }
 
     SkImageInfo decodeInfo = codec->getInfo().makeColorType(fColorType).makeColorSpace(dstSpace);
+    if (kUnpremul_SkAlphaType == decodeInfo.alphaType()) {
+        decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
+    }
+
     SkImageInfo bitmapInfo = decodeInfo;
     if (kRGBA_8888_SkColorType == decodeInfo.colorType() ||
         kBGRA_8888_SkColorType == decodeInfo.colorType())
@@ -911,6 +922,10 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 #if defined(SK_TEST_QCMS)
         case kQCMS_HPZR30w_Mode: {
             sk_sp<SkData> srcData = codec->getICCData();
+            if (!srcData) {
+                return Error::Nonfatal("No ICC profile data.  Cannot test with QCMS.\n");
+            }
+
             SkAutoTCallVProc<qcms_profile, qcms_profile_release>
                     srcSpace(qcms_profile_from_memory(srcData->data(), srcData->size()));
             if (!srcSpace) {

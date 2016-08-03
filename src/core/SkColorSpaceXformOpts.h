@@ -14,6 +14,11 @@
 #include "SkSRGB.h"
 #include "SkTemplates.h"
 
+enum SwapRB {
+    kNo_SwapRB,
+    kYes_SwapRB,
+};
+
 static inline void load_matrix(const float matrix[16],
                                Sk4f& rXgXbX, Sk4f& rYgYbY, Sk4f& rZgZbZ, Sk4f& rTgTbT) {
     rXgXbX = Sk4f::Load(matrix +  0);
@@ -113,12 +118,11 @@ static inline void premultiply_1(const Sk4f& a, Sk4f& rgba) {
 
 static inline void store_srgb(void* dst, const uint32_t* src,
                               Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
-                              const uint8_t* const[3], bool kSwapRB) {
+                              const uint8_t* const[3], SwapRB kSwapRB) {
     int kRShift = 0;
     int kGShift = 8;
     int kBShift = 16;
-    int kAShift = 24;
-    if (kSwapRB) {
+    if (kYes_SwapRB == kSwapRB) {
         kBShift = 0;
         kRShift = 16;
     }
@@ -131,24 +135,24 @@ static inline void store_srgb(void* dst, const uint32_t* src,
     dg = sk_clamp_0_255(dg);
     db = sk_clamp_0_255(db);
 
-    Sk4i da = SkNx_cast<int32_t>(Sk4u::Load(src) >> 24);
+    Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
     Sk4i rgba = (SkNx_cast<int>(dr) << kRShift)
               | (SkNx_cast<int>(dg) << kGShift)
               | (SkNx_cast<int>(db) << kBShift)
-              | (da                 << kAShift);
+              | (da                           );
     rgba.store(dst);
 }
 
 static inline void store_srgb_1(void* dst, const uint32_t* src,
                                 Sk4f& rgba, const Sk4f&,
-                                const uint8_t* const[3], bool kSwapRB) {
+                                const uint8_t* const[3], SwapRB kSwapRB) {
     rgba = sk_clamp_0_255(sk_linear_to_srgb_needs_trunc(rgba));
 
     uint32_t tmp;
     SkNx_cast<uint8_t>(SkNx_cast<int32_t>(rgba)).store(&tmp);
     tmp = (*src & 0xFF000000) | (tmp & 0x00FFFFFF);
-    if (kSwapRB) {
+    if (kYes_SwapRB == kSwapRB) {
         tmp = SkSwizzle_RB(tmp);
     }
 
@@ -167,12 +171,11 @@ static inline Sk4f linear_to_2dot2(const Sk4f& x) {
 
 static inline void store_2dot2(void* dst, const uint32_t* src,
                                Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
-                               const uint8_t* const[3], bool kSwapRB) {
+                               const uint8_t* const[3], SwapRB kSwapRB) {
     int kRShift = 0;
     int kGShift = 8;
     int kBShift = 16;
-    int kAShift = 24;
-    if (kSwapRB) {
+    if (kYes_SwapRB == kSwapRB) {
         kBShift = 0;
         kRShift = 16;
     }
@@ -185,24 +188,24 @@ static inline void store_2dot2(void* dst, const uint32_t* src,
     dg = sk_clamp_0_255(dg);
     db = sk_clamp_0_255(db);
 
-    Sk4i da = SkNx_cast<int32_t>(Sk4u::Load(src) >> 24);
+    Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
     Sk4i rgba = (Sk4f_round(dr) << kRShift)
               | (Sk4f_round(dg) << kGShift)
               | (Sk4f_round(db) << kBShift)
-              | (da             << kAShift);
+              | (da                       );
     rgba.store(dst);
 }
 
 static inline void store_2dot2_1(void* dst, const uint32_t* src,
                                  Sk4f& rgba, const Sk4f&,
-                                 const uint8_t* const[3], bool kSwapRB) {
+                                 const uint8_t* const[3], SwapRB kSwapRB) {
     rgba = sk_clamp_0_255(linear_to_2dot2(rgba));
 
     uint32_t tmp;
     SkNx_cast<uint8_t>(Sk4f_round(rgba)).store(&tmp);
     tmp = (*src & 0xFF000000) | (tmp & 0x00FFFFFF);
-    if (kSwapRB) {
+    if (kYes_SwapRB == kSwapRB) {
         tmp = SkSwizzle_RB(tmp);
     }
 
@@ -211,29 +214,45 @@ static inline void store_2dot2_1(void* dst, const uint32_t* src,
 
 static inline void store_f16(void* dst, const uint32_t* src,
                              Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
-                             const uint8_t* const[3], bool kSwapRB) {
+                             const uint8_t* const[3], SwapRB) {
     Sk4h_store4(dst, SkFloatToHalf_finite(dr),
                      SkFloatToHalf_finite(dg),
                      SkFloatToHalf_finite(db),
                      SkFloatToHalf_finite(da));
-    dst = SkTAddOffset<void>(dst, 4 * sizeof(uint64_t));
 }
 
 static inline void store_f16_1(void* dst, const uint32_t* src,
                                Sk4f& rgba, const Sk4f& a,
-                               const uint8_t* const[3], bool kSwapRB) {
+                               const uint8_t* const[3], SwapRB kSwapRB) {
     rgba = Sk4f(rgba[0], rgba[1], rgba[2], a[3]);
     SkFloatToHalf_finite(rgba).store((uint64_t*) dst);
 }
 
+static inline void store_f16_opaque(void* dst, const uint32_t* src,
+                                    Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
+                                    const uint8_t* const[3], SwapRB) {
+    Sk4h_store4(dst, SkFloatToHalf_finite(dr),
+                     SkFloatToHalf_finite(dg),
+                     SkFloatToHalf_finite(db),
+                     SK_Half1);
+}
+
+static inline void store_f16_1_opaque(void* dst, const uint32_t* src,
+                                      Sk4f& rgba, const Sk4f& a,
+                                      const uint8_t* const[3], SwapRB kSwapRB) {
+    uint64_t tmp;
+    SkFloatToHalf_finite(rgba).store(&tmp);
+    tmp |= static_cast<uint64_t>(SK_Half1) << 48;
+    *((uint64_t*) dst) = tmp;
+}
+
 static inline void store_generic(void* dst, const uint32_t* src,
                                  Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
-                                 const uint8_t* const dstTables[3], bool kSwapRB) {
+                                 const uint8_t* const dstTables[3], SwapRB kSwapRB) {
     int kRShift = 0;
     int kGShift = 8;
     int kBShift = 16;
-    int kAShift = 24;
-    if (kSwapRB) {
+    if (kYes_SwapRB == kSwapRB) {
         kBShift = 0;
         kRShift = 16;
     }
@@ -246,30 +265,30 @@ static inline void store_generic(void* dst, const uint32_t* src,
     Sk4i ig = Sk4f_round(dg);
     Sk4i ib = Sk4f_round(db);
 
-    Sk4i da = SkNx_cast<int32_t>(Sk4u::Load(src) >> 24);
+    Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
     uint32_t* dst32 = (uint32_t*) dst;
     dst32[0] = dstTables[0][ir[0]] << kRShift
              | dstTables[1][ig[0]] << kGShift
              | dstTables[2][ib[0]] << kBShift
-             | da[0]               << kAShift;
+             | da[0];
     dst32[1] = dstTables[0][ir[1]] << kRShift
              | dstTables[1][ig[1]] << kGShift
              | dstTables[2][ib[1]] << kBShift
-             | da[1]               << kAShift;
+             | da[1];
     dst32[2] = dstTables[0][ir[2]] << kRShift
              | dstTables[1][ig[2]] << kGShift
              | dstTables[2][ib[2]] << kBShift
-             | da[2]               << kAShift;
+             | da[2];
     dst32[3] = dstTables[0][ir[3]] << kRShift
              | dstTables[1][ig[3]] << kGShift
              | dstTables[2][ib[3]] << kBShift
-             | da[3]               << kAShift;
+             | da[3];
 }
 
 static inline void store_generic_1(void* dst, const uint32_t* src,
                                    Sk4f& rgba, const Sk4f&,
-                                   const uint8_t* const dstTables[3], bool kSwapRB) {
+                                   const uint8_t* const dstTables[3], SwapRB kSwapRB) {
     rgba = Sk4f::Min(Sk4f::Max(1023.0f * rgba, 0.0f), 1023.0f);
 
     Sk4i indices = Sk4f_round(rgba);
@@ -280,7 +299,7 @@ static inline void store_generic_1(void* dst, const uint32_t* src,
                        | (*src & 0xFF000000);
 }
 
-template <SkColorSpace::GammaNamed kDstGamma, bool kPremul, bool kSwapRB>
+template <SkColorSpace::GammaNamed kDstGamma, SkAlphaType kAlphaType, SwapRB kSwapRB>
 static void color_xform_RGBA(void* dst, const uint32_t* src, int len,
                              const float* const srcTables[3], const float matrix[16],
                              const uint8_t* const dstTables[3]) {
@@ -291,15 +310,19 @@ static void color_xform_RGBA(void* dst, const uint32_t* src, int len,
     size_t sizeOfDstPixel;
     switch (kDstGamma) {
         case SkColorSpace::kSRGB_GammaNamed:
-            load    = kPremul ? load_rgba_from_tables   : load_rgb_from_tables;
-            load_1  = kPremul ? load_rgba_from_tables_1 : load_rgb_from_tables_1;
+            load    = (kPremul_SkAlphaType == kAlphaType) ? load_rgba_from_tables :
+                                                            load_rgb_from_tables;
+            load_1  = (kPremul_SkAlphaType == kAlphaType) ? load_rgba_from_tables_1 :
+                                                            load_rgb_from_tables_1;
             store   = store_srgb;
             store_1 = store_srgb_1;
             sizeOfDstPixel = 4;
             break;
         case SkColorSpace::k2Dot2Curve_GammaNamed:
-            load    = kPremul ? load_rgba_from_tables   : load_rgb_from_tables;
-            load_1  = kPremul ? load_rgba_from_tables_1 : load_rgb_from_tables_1;
+            load    = (kPremul_SkAlphaType == kAlphaType) ? load_rgba_from_tables :
+                                                            load_rgb_from_tables;
+            load_1  = (kPremul_SkAlphaType == kAlphaType) ? load_rgba_from_tables_1 :
+                                                            load_rgb_from_tables_1;
             store   = store_2dot2;
             store_1 = store_2dot2_1;
             sizeOfDstPixel = 4;
@@ -307,13 +330,17 @@ static void color_xform_RGBA(void* dst, const uint32_t* src, int len,
         case SkColorSpace::kLinear_GammaNamed:
             load    = load_rgba_from_tables;
             load_1  = load_rgba_from_tables_1;
-            store   = store_f16;
-            store_1 = store_f16_1;
+            store   = (kOpaque_SkAlphaType == kAlphaType) ? store_f16_opaque :
+                                                            store_f16;
+            store_1 = (kOpaque_SkAlphaType == kAlphaType) ? store_f16_1_opaque :
+                                                            store_f16_1;
             sizeOfDstPixel = 8;
             break;
         case SkColorSpace::kNonStandard_GammaNamed:
-            load    = kPremul ? load_rgba_from_tables   : load_rgb_from_tables;
-            load_1  = kPremul ? load_rgba_from_tables_1 : load_rgb_from_tables_1;
+            load    = (kPremul_SkAlphaType == kAlphaType) ? load_rgba_from_tables :
+                                                            load_rgb_from_tables;
+            load_1  = (kPremul_SkAlphaType == kAlphaType) ? load_rgba_from_tables_1 :
+                                                            load_rgb_from_tables_1;
             store   = store_generic;
             store_1 = store_generic_1;
             sizeOfDstPixel = 4;
@@ -336,7 +363,7 @@ static void color_xform_RGBA(void* dst, const uint32_t* src, int len,
             transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
             translate_gamut(rTgTbT, dr, dg, db);
 
-            if (kPremul) {
+            if (kPremul_SkAlphaType == kAlphaType) {
                 premultiply(dr, dg, db, da);
             }
 
@@ -351,7 +378,7 @@ static void color_xform_RGBA(void* dst, const uint32_t* src, int len,
         transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
         translate_gamut(rTgTbT, dr, dg, db);
 
-        if (kPremul) {
+        if (kPremul_SkAlphaType == kAlphaType) {
             premultiply(dr, dg, db, da);
         }
 

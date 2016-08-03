@@ -633,101 +633,76 @@ SkColorSpaceXform_Base<kDst>::SkColorSpaceXform_Base(const sk_sp<SkColorSpace>& 
                        dstSpace, kFromLinear);
 }
 
-template <>
-void SkColorSpaceXform_Base<SkColorSpace::kSRGB_GammaNamed>
-::applyToRGBA(RGBA32* dst, const RGBA32* src, int len) const
+template <SkColorSpace::GammaNamed kDst>
+void SkColorSpaceXform_Base<kDst>
+::apply(void* dst, const uint32_t* src, int len, SkColorType dstColorType, SkAlphaType dstAlphaType)
+const
 {
     if (fColorLUT) {
-        handle_color_lut(dst, src, len, fColorLUT.get());
-        src = dst;
-    }
-
-    color_xform_RGBA<SkColorSpace::kSRGB_GammaNamed, false, false>
-            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
-}
-
-template <>
-void SkColorSpaceXform_Base<SkColorSpace::k2Dot2Curve_GammaNamed>
-::applyToRGBA(RGBA32* dst, const RGBA32* src, int len) const
-{
-    if (fColorLUT) {
-        handle_color_lut(dst, src, len, fColorLUT.get());
-        src = dst;
-    }
-
-    color_xform_RGBA<SkColorSpace::k2Dot2Curve_GammaNamed, false, false>
-            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
-}
-
-template <>
-void SkColorSpaceXform_Base<SkColorSpace::kNonStandard_GammaNamed>
-::applyToRGBA(RGBA32* dst, const RGBA32* src, int len) const
-{
-    if (fColorLUT) {
-        handle_color_lut(dst, src, len, fColorLUT.get());
-        src = dst;
-    }
-
-    color_xform_RGBA<SkColorSpace::kNonStandard_GammaNamed, false, false>
-            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
-}
-
-template <>
-void SkColorSpaceXform_Base<SkColorSpace::kSRGB_GammaNamed>
-::applyToBGRA(BGRA32* dst, const RGBA32* src, int len) const
-{
-    if (fColorLUT) {
-        handle_color_lut(dst, src, len, fColorLUT.get());
-        src = dst;
-    }
-
-    color_xform_RGBA<SkColorSpace::kSRGB_GammaNamed, false, true>
-            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
-}
-
-template <>
-void SkColorSpaceXform_Base<SkColorSpace::k2Dot2Curve_GammaNamed>
-::applyToBGRA(BGRA32* dst, const RGBA32* src, int len) const
-{
-    if (fColorLUT) {
-        handle_color_lut(dst, src, len, fColorLUT.get());
-        src = dst;
-    }
-
-    color_xform_RGBA<SkColorSpace::k2Dot2Curve_GammaNamed, false, true>
-            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
-}
-
-template <>
-void SkColorSpaceXform_Base<SkColorSpace::kNonStandard_GammaNamed>
-::applyToBGRA(BGRA32* dst, const RGBA32* src, int len) const
-{
-    if (fColorLUT) {
-        handle_color_lut(dst, src, len, fColorLUT.get());
-        src = dst;
-    }
-
-    color_xform_RGBA<SkColorSpace::kNonStandard_GammaNamed, false, true>
-            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
-}
-
-template <SkColorSpace::GammaNamed T>
-void SkColorSpaceXform_Base<T>
-::applyToF16(RGBAF16* dst, const RGBA32* src, int len) const
-{
-    if (fColorLUT) {
-        size_t storageBytes = len * sizeof(RGBA32);
+        size_t storageBytes = len * sizeof(uint32_t);
 #if defined(GOOGLE3)
         // Stack frame size is limited in GOOGLE3.
-        SkAutoSMalloc<256 * sizeof(RGBA32)> storage(storageBytes);
+        SkAutoSMalloc<256 * sizeof(uint32_t)> storage(storageBytes);
 #else
-        SkAutoSMalloc<1024 * sizeof(RGBA32)> storage(storageBytes);
+        SkAutoSMalloc<1024 * sizeof(uint32_t)> storage(storageBytes);
 #endif
 
-        handle_color_lut((RGBA32*) storage.get(), src, len, fColorLUT.get());
-        src = (const RGBA32*) storage.get();
+        handle_color_lut((uint32_t*) storage.get(), src, len, fColorLUT.get());
+        src = (const uint32_t*) storage.get();
     }
 
-    color_xform_RGBA<SkColorSpace::kLinear_GammaNamed, false, false>
-            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+    switch (dstAlphaType) {
+        case kPremul_SkAlphaType:
+            switch (dstColorType) {
+                case kRGBA_8888_SkColorType:
+                    return color_xform_RGBA<kDst, kPremul_SkAlphaType, kNo_SwapRB>
+                            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+                case kBGRA_8888_SkColorType:
+                    return color_xform_RGBA<kDst, kPremul_SkAlphaType, kYes_SwapRB>
+                            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+                case kRGBA_F16_SkColorType:
+                    return color_xform_RGBA
+                            <SkColorSpace::kLinear_GammaNamed, kPremul_SkAlphaType, kNo_SwapRB>
+                            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+                default:
+                    SkASSERT(false);
+                    return;
+            }
+            break;
+        case kUnpremul_SkAlphaType:
+            switch (dstColorType) {
+                case kRGBA_8888_SkColorType:
+                    return color_xform_RGBA<kDst, kUnpremul_SkAlphaType, kNo_SwapRB>
+                            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+                case kBGRA_8888_SkColorType:
+                    return color_xform_RGBA<kDst, kUnpremul_SkAlphaType, kYes_SwapRB>
+                            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+                case kRGBA_F16_SkColorType:
+                    return color_xform_RGBA
+                            <SkColorSpace::kLinear_GammaNamed, kUnpremul_SkAlphaType, kNo_SwapRB>
+                            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+                default:
+                    SkASSERT(false);
+                    return;
+            }
+        case kOpaque_SkAlphaType:
+            switch (dstColorType) {
+                case kRGBA_8888_SkColorType:
+                    return color_xform_RGBA<kDst, kOpaque_SkAlphaType, kNo_SwapRB>
+                            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+                case kBGRA_8888_SkColorType:
+                    return color_xform_RGBA<kDst, kOpaque_SkAlphaType, kYes_SwapRB>
+                            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+                case kRGBA_F16_SkColorType:
+                    return color_xform_RGBA
+                            <SkColorSpace::kLinear_GammaNamed, kOpaque_SkAlphaType, kNo_SwapRB>
+                            (dst, src, len, fSrcGammaTables, fSrcToDst, fDstGammaTables);
+                default:
+                    SkASSERT(false);
+                    return;
+            }
+        default:
+            SkASSERT(false);
+            return;
+    }
 }

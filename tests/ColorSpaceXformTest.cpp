@@ -37,7 +37,7 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
 
     // Create and perform an identity xform.
     std::unique_ptr<SkColorSpaceXform> xform = ColorSpaceXformTest::CreateIdentityXform(gammas);
-    xform->applyToRGBA(dstPixels, srcPixels, width);
+    xform->apply(dstPixels, srcPixels, width, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
 
     // Since the src->dst matrix is the identity, and the gamma curves match,
     // the pixels should be unchanged.

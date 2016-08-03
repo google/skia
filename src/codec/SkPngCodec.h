@@ -6,6 +6,7 @@
  */
 
 #include "SkCodec.h"
+#include "SkColorSpaceXform.h"
 #include "SkColorTable.h"
 #include "SkPngChunkReader.h"
 #include "SkEncodedFormat.h"
@@ -33,33 +34,38 @@ protected:
     bool onRewind() override;
     uint32_t onGetFillValue(SkColorType) const override;
 
-    // Helper to set up swizzler and color table. Also calls png_read_update_info.
-    Result initializeSwizzler(const SkImageInfo& requestedInfo, const Options&,
-                              SkPMColor*, int* ctableCount);
+    // Helper to set up swizzler, color xforms, and color table. Also calls png_read_update_info.
+    bool initializeXforms(const SkImageInfo& requestedInfo, const Options&, SkPMColor* colorPtr,
+                          int* colorCount);
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fSwizzler);
         return fSwizzler;
     }
+    void allocateStorage(const SkImageInfo& dstInfo);
+
+    virtual int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count,
+                         int startRow) = 0;
 
     SkPngCodec(int width, int height, const SkEncodedInfo&, SkStream*, SkPngChunkReader*,
             png_structp, png_infop, int, int, sk_sp<SkColorSpace>);
 
-    png_structp png_ptr() { return fPng_ptr; }
-    SkSwizzler* swizzler() { return fSwizzler; }
-    int numberPasses() const { return fNumberPasses; }
-
-private:
-    SkAutoTUnref<SkPngChunkReader>  fPngChunkReader;
-    png_structp                     fPng_ptr;
-    png_infop                       fInfo_ptr;
+    SkAutoTUnref<SkPngChunkReader>     fPngChunkReader;
+    png_structp                        fPng_ptr;
+    png_infop                          fInfo_ptr;
 
     // These are stored here so they can be used both by normal decoding and scanline decoding.
-    SkAutoTUnref<SkColorTable>      fColorTable;    // May be unpremul.
-    SkAutoTDelete<SkSwizzler>       fSwizzler;
+    SkAutoTUnref<SkColorTable>         fColorTable;    // May be unpremul.
+    SkAutoTDelete<SkSwizzler>          fSwizzler;
+    std::unique_ptr<SkColorSpaceXform> fColorXform;
+    SkAutoTMalloc<uint8_t>             fStorage;
+    uint8_t*                           fSwizzlerSrcRow;
+    uint32_t*                          fColorXformSrcRow;
+    size_t                             fSrcRowBytes;
 
-    const int                       fNumberPasses;
-    int                             fBitDepth;
+    const int                          fNumberPasses;
+    int                                fBitDepth;
 
+private:
     bool createColorTable(SkColorType dstColorType, bool premultiply, int* ctableCount);
     void destroyReadStruct();
 

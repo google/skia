@@ -99,10 +99,8 @@ void ColorCodecBench::xformOnly() {
     void* dst = fDst.get();
     void* src = fSrc.get();
     for (int y = 0; y < fSrcInfo.height(); y++) {
-        // Transform in place
-        FLAGS_half ?
-                xform->applyToF16((uint64_t*) dst, (uint32_t*) src, fSrcInfo.width()) :
-                xform->applyToRGBA((SkPMColor*) dst, (uint32_t*) src, fSrcInfo.width());
+        xform->apply(dst, (uint32_t*) src, fSrcInfo.width(), fDstInfo.colorType(),
+                     fDstInfo.alphaType());
         dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
         src = SkTAddOffset<void>(src, fSrcInfo.minRowBytes());
     }

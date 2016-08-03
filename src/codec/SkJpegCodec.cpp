@@ -478,12 +478,6 @@ bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
     return true;
 }
 
-static bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
-    return (kRGBA_F16_SkColorType == dstInfo.colorType()) ||
-           (dstInfo.colorSpace() && !SkColorSpace::Equals(srcInfo.colorSpace(),
-                                                          dstInfo.colorSpace()));
-}
-
 int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count) {
     // Set the jump location for libjpeg-turbo errors
     if (setjmp(fDecoderMgr->getJmpBuf())) {
@@ -529,22 +523,8 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
         }
 
         if (fColorXform) {
-            int width = dstInfo.width();
-            switch (dstInfo.colorType()) {
-                case kRGBA_8888_SkColorType:
-                    fColorXform->applyToRGBA((uint32_t*) dst, swizzleDst, width);
-                    break;
-                case kBGRA_8888_SkColorType:
-                    fColorXform->applyToBGRA((uint32_t*) dst, swizzleDst, width);
-                    break;
-                case kRGBA_F16_SkColorType:
-                    fColorXform->applyToF16((uint64_t*) dst, swizzleDst, width);
-                    break;
-                default:
-                    SkASSERT(false);
-                    break;
-            }
-
+            fColorXform->apply(dst, swizzleDst, dstInfo.width(), dstInfo.colorType(),
+                               kOpaque_SkAlphaType);
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
 
@@ -619,7 +599,7 @@ void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
     size_t xformBytes = 0;
     if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
         SkASSERT(fColorXform);
-        xformBytes = dstInfo.width() * sizeof(SkColorSpaceXform::RGBA32);
+        xformBytes = dstInfo.width() * sizeof(uint32_t);
     }
 
     size_t totalBytes = swizzleBytes + xformBytes;
