@@ -114,10 +114,12 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
         expected.writeText("\nendstream");
         sk_sp<SkData> expectedResultData2(expected.copyToData());
         SkString result = emit_to_string(*stream);
+        #ifndef SK_PDF_LESS_COMPRESSION
         assert_eql(reporter,
                    result,
                    (const char*)expectedResultData2->data(),
                    expectedResultData2->size());
+        #endif
     }
 }
 
