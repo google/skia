@@ -363,14 +363,20 @@ test_lib("gpu_tool_utils") {
   libs = []
 
   if (is_linux) {
-    sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
+    sources += [
+        "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp",
+        "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp",
+    ]
     libs += [
       "GL",
       "GLU",
       "X11",
     ]
   } else if (is_mac) {
-    sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
+    sources += [
+        "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp",
+        "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp",
+    ]
     libs += [ "OpenGL.framework" ]
   }
 }

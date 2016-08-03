@@ -12,7 +12,7 @@ Supported Features
 ----------
 
     * Linux, Mac
-    * Software rendering
+    * Software and GL rendering
     * libskia.a, libskia.so
     * DM, nanobench
 
