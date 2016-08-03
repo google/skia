@@ -70,7 +70,7 @@ for p in psutil.process_iter():
 ''',
           infra_step=True)
 
-  api.core.cleanup_steps()
+  api.flavor.cleanup_steps()
   api.run.check_failure()
 
 

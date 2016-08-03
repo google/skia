@@ -19,6 +19,15 @@ from . import valgrind_flavor
 from . import xsan_flavor
 
 
+TEST_EXPECTED_SKP_VERSION = '42'
+TEST_EXPECTED_SK_IMAGE_VERSION = '42'
+
+VERSION_FILE_SK_IMAGE = 'SK_IMAGE_VERSION'
+VERSION_FILE_SKP = 'SKP_VERSION'
+
+VERSION_NONE = -1
+
+
 def is_android(builder_cfg):
   """Determine whether the given builder is an Android builder."""
   return ('Android' in builder_cfg.get('extra_config', '') or
@@ -118,9 +127,90 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     return self._f.remove_file_on_device(path)
 
   def install(self):
-    rv = self._f.install()
+    self._f.install()
     self.device_dirs = self._f.device_dirs
-    return rv
+
+    # TODO(borenet): Only copy files which have changed.
+    # Resources
+    self.copy_directory_contents_to_device(
+        self.m.vars.resource_dir,
+        self.device_dirs.resource_dir)
+
+    self._copy_skps()
+    self._copy_images()
 
   def cleanup_steps(self):
     return self._f.cleanup_steps()
+
+  def _copy_dir(self, host_version, version_file, tmp_dir,
+                host_path, device_path, test_expected_version,
+                test_actual_version):
+    actual_version_file = self.m.path.join(tmp_dir, version_file)
+    # Copy to device.
+    device_version_file = self.device_path_join(
+        self.device_dirs.tmp_dir, version_file)
+    if str(actual_version_file) != str(device_version_file):
+      try:
+        device_version = self.read_file_on_device(device_version_file)
+      except self.m.step.StepFailure:
+        device_version = VERSION_NONE
+      if device_version != host_version:
+        self.remove_file_on_device(device_version_file)
+        self.create_clean_device_dir(device_path)
+        self.copy_directory_contents_to_device(
+            host_path, device_path)
+
+        # Copy the new version file.
+        self.copy_file_to_device(actual_version_file, device_version_file)
+
+  def _copy_images(self):
+    """Download and copy test images if needed."""
+    version_file = self.m.vars.infrabots_dir.join(
+        'assets', 'skimage', 'VERSION')
+    test_data = self.m.properties.get(
+        'test_downloaded_sk_image_version', TEST_EXPECTED_SK_IMAGE_VERSION)
+    version = self.m.run.readfile(
+        version_file,
+        name='Get downloaded skimage VERSION',
+        test_data=test_data).rstrip()
+    self.m.run.writefile(
+        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SK_IMAGE),
+        version)
+    self._copy_dir(
+        version,
+        VERSION_FILE_SK_IMAGE,
+        self.m.vars.tmp_dir,
+        self.m.vars.images_dir,
+        self.device_dirs.images_dir,
+        test_expected_version=self.m.properties.get(
+            'test_downloaded_sk_image_version',
+            TEST_EXPECTED_SK_IMAGE_VERSION),
+        test_actual_version=self.m.properties.get(
+            'test_downloaded_sk_image_version',
+            TEST_EXPECTED_SK_IMAGE_VERSION))
+    return version
+
+  def _copy_skps(self):
+    """Download and copy the SKPs if needed."""
+    version_file = self.m.vars.infrabots_dir.join(
+        'assets', 'skp', 'VERSION')
+    test_data = self.m.properties.get(
+        'test_downloaded_skp_version', TEST_EXPECTED_SKP_VERSION)
+    version = self.m.run.readfile(
+        version_file,
+        name='Get downloaded SKP VERSION',
+        test_data=test_data).rstrip()
+    self.m.run.writefile(
+        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SKP),
+        version)
+    self._copy_dir(
+        version,
+        VERSION_FILE_SKP,
+        self.m.vars.tmp_dir,
+        self.m.vars.local_skp_dir,
+        self.device_dirs.skp_dir,
+        test_expected_version=self.m.properties.get(
+            'test_downloaded_skp_version', TEST_EXPECTED_SKP_VERSION),
+        test_actual_version=self.m.properties.get(
+            'test_downloaded_skp_version', TEST_EXPECTED_SKP_VERSION))
+    return version
