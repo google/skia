@@ -144,7 +144,7 @@ sk_sp<SkPDFStream> SkPDFGraphicState::MakeInvertFunction() {
 }
 
 sk_sp<SkPDFDict> SkPDFGraphicState::GetSMaskGraphicState(
-        SkPDFObject* sMask,
+        sk_sp<SkPDFObject> sMask,
         bool invert,
         SkPDFSMaskMode sMaskMode,
         SkPDFCanon* canon) {
@@ -156,7 +156,7 @@ sk_sp<SkPDFDict> SkPDFGraphicState::GetSMaskGraphicState(
     } else if (sMaskMode == kLuminosity_SMaskMode) {
         sMaskDict->insertName("S", "Luminosity");
     }
-    sMaskDict->insertObjRef("G", sk_ref_sp(sMask));
+    sMaskDict->insertObjRef("G", std::move(sMask));
     if (invert) {
         // Instead of calling SkPDFGraphicState::MakeInvertFunction,
         // let the canon deduplicate this object.

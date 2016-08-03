@@ -48,14 +48,14 @@ public:
                         SkPDFFont** relatedFont) const;
     void addFont(SkPDFFont* font, uint32_t fontID, uint16_t fGlyphID);
 
-    SkPDFFunctionShader* findFunctionShader(const SkPDFShader::State&) const;
-    void addFunctionShader(SkPDFFunctionShader*);
+    sk_sp<SkPDFObject> findFunctionShader(const SkPDFShader::State&) const;
+    void addFunctionShader(sk_sp<SkPDFObject>, SkPDFShader::State);
 
-    SkPDFAlphaFunctionShader* findAlphaShader(const SkPDFShader::State&) const;
-    void addAlphaShader(SkPDFAlphaFunctionShader*);
+    sk_sp<SkPDFObject> findAlphaShader(const SkPDFShader::State&) const;
+    void addAlphaShader(sk_sp<SkPDFObject>, SkPDFShader::State);
 
-    SkPDFImageShader* findImageShader(const SkPDFShader::State&) const;
-    void addImageShader(SkPDFImageShader*);
+    sk_sp<SkPDFObject> findImageShader(const SkPDFShader::State&) const;
+    void addImageShader(sk_sp<SkPDFObject>, SkPDFShader::State);
 
     const SkPDFGraphicState* findGraphicState(const SkPDFGraphicState&) const;
     void addGraphicState(const SkPDFGraphicState*);
@@ -82,11 +82,15 @@ private:
     };
     SkTDArray<FontRec> fFontRecords;
 
-    SkTDArray<SkPDFFunctionShader*> fFunctionShaderRecords;
-
-    SkTDArray<SkPDFAlphaFunctionShader*> fAlphaShaderRecords;
-
-    SkTDArray<SkPDFImageShader*> fImageShaderRecords;
+    struct ShaderRec {
+        SkPDFShader::State fShaderState;
+        sk_sp<SkPDFObject> fShaderObject;
+        ShaderRec(SkPDFShader::State s, sk_sp<SkPDFObject> o)
+            : fShaderState(std::move(s)), fShaderObject(std::move(o)) {}
+    };
+    SkTArray<ShaderRec> fFunctionShaderRecords;
+    SkTArray<ShaderRec> fAlphaShaderRecords;
+    SkTArray<ShaderRec> fImageShaderRecords;
 
     struct WrapGS {
         explicit WrapGS(const SkPDFGraphicState* ptr = nullptr) : fPtr(ptr) {}

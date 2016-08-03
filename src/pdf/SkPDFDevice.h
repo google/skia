@@ -271,7 +271,7 @@ private:
     sk_sp<SkPDFObject> makeFormXObjectFromDevice();
 
     void drawFormXObjectWithMask(int xObjectIndex,
-                                 SkPDFObject* mask,
+                                 sk_sp<SkPDFObject> mask,
                                  const SkClipStack* clipStack,
                                  const SkRegion& clipRegion,
                                  SkXfermode::Mode mode,
@@ -286,9 +286,9 @@ private:
                                     const SkMatrix& matrix,
                                     const SkPaint& paint,
                                     bool hasText,
-                                    SkPDFObject** dst);
+                                    sk_sp<SkPDFObject>* dst);
     void finishContentEntry(SkXfermode::Mode xfermode,
-                            SkPDFObject* dst,
+                            sk_sp<SkPDFObject> dst,
                             SkPath* shape);
     bool isContentEmpty();
 

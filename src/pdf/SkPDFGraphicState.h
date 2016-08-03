@@ -51,7 +51,7 @@ public:
      *
      *  These are not de-duped.
      */
-    static sk_sp<SkPDFDict> GetSMaskGraphicState(SkPDFObject* sMask,
+    static sk_sp<SkPDFDict> GetSMaskGraphicState(sk_sp<SkPDFObject> sMask,
                                                  bool invert,
                                                  SkPDFSMaskMode sMaskMode,
                                                  SkPDFCanon* canon);

@@ -564,9 +564,8 @@ public:
             if (shape->isEmpty()) {
                 shape = nullptr;
             }
-            fDevice->finishContentEntry(fXfermode, fDstFormXObject, shape);
+            fDevice->finishContentEntry(fXfermode, std::move(fDstFormXObject), shape);
         }
-        SkSafeUnref(fDstFormXObject);
     }
 
     SkPDFDevice::ContentEntry* entry() { return fContentEntry; }
@@ -609,7 +608,7 @@ private:
     SkPDFDevice* fDevice;
     SkPDFDevice::ContentEntry* fContentEntry;
     SkXfermode::Mode fXfermode;
-    SkPDFObject* fDstFormXObject;
+    sk_sp<SkPDFObject> fDstFormXObject;
     SkPath fShape;
 
     void init(const SkClipStack* clipStack, const SkRegion& clipRegion,
@@ -1606,7 +1605,7 @@ sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice() {
 }
 
 void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
-                                          SkPDFObject* mask,
+                                          sk_sp<SkPDFObject> mask,
                                           const SkClipStack* clipStack,
                                           const SkRegion& clipRegion,
                                           SkXfermode::Mode mode,
@@ -1616,7 +1615,8 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
     }
 
     sk_sp<SkPDFDict> sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
-            mask, invertClip, SkPDFGraphicState::kAlpha_SMaskMode, fDocument->canon());
+            std::move(mask), invertClip,
+            SkPDFGraphicState::kAlpha_SMaskMode, fDocument->canon());
 
     SkMatrix identity;
     identity.reset();
@@ -1643,7 +1643,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
                                              const SkMatrix& matrix,
                                              const SkPaint& paint,
                                              bool hasText,
-                                             SkPDFObject** dst) {
+                                             sk_sp<SkPDFObject>* dst) {
     *dst = nullptr;
     if (clipRegion.isEmpty()) {
         return nullptr;
@@ -1684,8 +1684,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
             xfermode == SkXfermode::kDstATop_Mode ||
             xfermode == SkXfermode::kModulate_Mode) {
         if (!isContentEmpty()) {
-            // TODO(halcanary): make this safer.
-            *dst = this->makeFormXObjectFromDevice().release();
+            *dst = this->makeFormXObjectFromDevice();
             SkASSERT(isContentEmpty());
         } else if (xfermode != SkXfermode::kSrc_Mode &&
                    xfermode != SkXfermode::kSrcOut_Mode) {
@@ -1716,7 +1715,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
 }
 
 void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
-                                     SkPDFObject* dst,
+                                     sk_sp<SkPDFObject> dst,
                                      SkPath* shape) {
     if (xfermode != SkXfermode::kClear_Mode       &&
             xfermode != SkXfermode::kSrc_Mode     &&
@@ -1773,7 +1772,8 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
             ScopedContentEntry content(this, &fExistingClipStack,
                                        fExistingClipRegion, identity,
                                        stockPaint);
-            SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst),
+            // TODO: addXObjectResource take sk_sp
+            SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst.get()),
                                         &content.entry()->fContent);
             return;
         } else {
@@ -1795,8 +1795,6 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
                                 &fExistingClipStack, fExistingClipRegion,
                                 SkXfermode::kSrcOver_Mode, true);
     } else {
-        sk_sp<SkPDFObject> dstMaskStorage;
-        SkPDFObject* dstMask = srcFormXObject.get();
         if (shape != nullptr) {
             // Draw shape into a form-xobject.
             SkRasterClip rc(clipRegion);
@@ -1808,13 +1806,16 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
             filledPaint.setColor(SK_ColorBLACK);
             filledPaint.setStyle(SkPaint::kFill_Style);
             this->drawPath(d, *shape, filledPaint, nullptr, true);
+            drawFormXObjectWithMask(addXObjectResource(dst.get()),
+                                    this->makeFormXObjectFromDevice(),
+                                    &fExistingClipStack, fExistingClipRegion,
+                                    SkXfermode::kSrcOver_Mode, true);
 
-            dstMaskStorage = this->makeFormXObjectFromDevice();
-            dstMask = dstMaskStorage.get();
+        } else {
+            drawFormXObjectWithMask(addXObjectResource(dst.get()), srcFormXObject,
+                                    &fExistingClipStack, fExistingClipRegion,
+                                    SkXfermode::kSrcOver_Mode, true);
         }
-        drawFormXObjectWithMask(addXObjectResource(dst), dstMask,
-                                &fExistingClipStack, fExistingClipRegion,
-                                SkXfermode::kSrcOver_Mode, true);
     }
 
     if (xfermode == SkXfermode::kClear_Mode) {
@@ -1835,7 +1836,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
         ScopedContentEntry content(this, &fExistingClipStack,
                                    fExistingClipRegion, identity, stockPaint);
         if (content.entry()) {
-            SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst),
+            SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst.get()),
                                         &content.entry()->fContent);
         }
     }
@@ -1851,22 +1852,26 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
     if (xfermode == SkXfermode::kSrcIn_Mode ||
             xfermode == SkXfermode::kSrcOut_Mode ||
             xfermode == SkXfermode::kSrcATop_Mode) {
-        drawFormXObjectWithMask(addXObjectResource(srcFormXObject.get()), dst,
+        drawFormXObjectWithMask(addXObjectResource(srcFormXObject.get()),
+                                std::move(dst),
                                 &fExistingClipStack, fExistingClipRegion,
                                 SkXfermode::kSrcOver_Mode,
                                 xfermode == SkXfermode::kSrcOut_Mode);
+        return;
     } else {
         SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode;
+        int resourceID = addXObjectResource(dst.get());
         if (xfermode == SkXfermode::kModulate_Mode) {
             drawFormXObjectWithMask(addXObjectResource(srcFormXObject.get()),
-                                    dst, &fExistingClipStack,
+                                    std::move(dst), &fExistingClipStack,
                                     fExistingClipRegion,
                                     SkXfermode::kSrcOver_Mode, false);
             mode = SkXfermode::kMultiply_Mode;
         }
-        drawFormXObjectWithMask(addXObjectResource(dst), srcFormXObject.get(),
+        drawFormXObjectWithMask(resourceID, std::move(srcFormXObject),
                                 &fExistingClipStack, fExistingClipRegion, mode,
                                 xfermode == SkXfermode::kDstOut_Mode);
+        return;
     }
 }
 
@@ -1918,8 +1923,8 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
         SkScalar rasterScale =
                 SkIntToScalar(fRasterDpi) / DPI_FOR_RASTER_SCALE_ONE;
-        pdfShader.reset(SkPDFShader::GetPDFShader(
-                fDocument, fRasterDpi, shader, transform, bounds, rasterScale));
+        pdfShader = SkPDFShader::GetPDFShader(
+                fDocument, fRasterDpi, shader, transform, bounds, rasterScale);
 
         if (pdfShader.get()) {
             // pdfShader has been canonicalized so we can directly compare
@@ -1981,13 +1986,13 @@ int SkPDFDevice::addGraphicStateResource(SkPDFObject* gs) {
 }
 
 int SkPDFDevice::addXObjectResource(SkPDFObject* xObject) {
+    // TODO(halcanary): make this take a sk_sp<SkPDFObject>
     // Assumes that xobject has been canonicalized (so we can directly compare
     // pointers).
     int result = fXObjectResources.find(xObject);
     if (result < 0) {
         result = fXObjectResources.count();
-        fXObjectResources.push(xObject);
-        xObject->ref();
+        fXObjectResources.push(SkRef(xObject));
     }
     return result;
 }

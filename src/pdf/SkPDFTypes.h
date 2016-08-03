@@ -331,7 +331,7 @@ private:
     memory.
  */
 
-class SkPDFStream : public SkPDFObject {
+class SkPDFStream final : public SkPDFObject {
 
 public:
     /** Create a PDF stream. A Length entry is automatically added to the
