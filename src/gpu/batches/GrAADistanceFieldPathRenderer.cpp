@@ -20,7 +20,6 @@
 #include "effects/GrDistanceFieldGeoProc.h"
 
 #include "SkDistanceFieldGen.h"
-#include "SkRTConf.h"
 
 #define ATLAS_TEXTURE_WIDTH 2048
 #define ATLAS_TEXTURE_HEIGHT 2048

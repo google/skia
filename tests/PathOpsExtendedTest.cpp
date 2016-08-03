@@ -13,7 +13,6 @@
 #include "SkMatrix.h"
 #include "SkMutex.h"
 #include "SkPaint.h"
-#include "SkRTConf.h"
 #include "SkStream.h"
 
 #include <stdlib.h>
@@ -630,10 +629,6 @@ bool testPathOpFail(skiatest::Reporter* reporter, const SkPath& a, const SkPath&
 SK_DECLARE_STATIC_MUTEX(gMutex);
 
 void initializeTests(skiatest::Reporter* reporter, const char* test) {
-#if 0  // doesn't work yet
-    SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true);
-    SK_CONF_SET("images.png.suppressDecoderWarnings", true);
-#endif
     if (reporter->verbose()) {
         SkAutoMutexAcquire lock(gMutex);
         testName = test;

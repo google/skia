@@ -10,7 +10,6 @@
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkMath.h"
-#include "SkRTConf.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
@@ -36,11 +35,9 @@
 #endif
 
 #define DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS true
-SK_CONF_DECLARE(bool, c_suppressPNGImageDecoderWarnings,
-                "images.png.suppressDecoderWarnings",
-                DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS,
-                "Suppress most PNG warnings when calling image decode "
-                "functions.");
+// Suppress most PNG warnings when calling image decode functions.
+static const bool c_suppressPNGImageDecoderWarnings{
+    DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS};
 
 ///////////////////////////////////////////////////////////////////////////////
 

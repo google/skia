@@ -8,14 +8,13 @@
 #include "GrGLShaderStringBuilder.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLSLPrettyPrint.h"
-#include "SkRTConf.h"
 #include "SkTraceEvent.h"
 
 #define GL_CALL(X) GR_GL_CALL(gpu->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(gpu->glInterface(), R, X)
 
-SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false,
-                "Print the source code for all shaders generated.");
+// Print the source code for all shaders generated.
+static const bool c_PrintShaders{false};
 
 static void print_shader_source(const char** strings, int* lengths, int count);
 

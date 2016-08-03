@@ -12,7 +12,6 @@
 #include "SkWriteBuffer.h"
 #include "SkMaskFilter.h"
 #include "SkRRect.h"
-#include "SkRTConf.h"
 #include "SkStringUtils.h"
 #include "SkStrokeRec.h"
 
@@ -304,9 +303,10 @@ static SkCachedData* add_cached_rects(SkMask* mask, SkScalar sigma, SkBlurStyle 
 }
 
 #ifdef SK_IGNORE_FAST_RRECT_BLUR
-SK_CONF_DECLARE(bool, c_analyticBlurRRect, "mask.filter.blur.analyticblurrrect", false, "Use the faster analytic blur approach for ninepatch rects");
+  // Use the faster analytic blur approach for ninepatch round rects
+  static const bool c_analyticBlurRRect{false};
 #else
-SK_CONF_DECLARE(bool, c_analyticBlurRRect, "mask.filter.blur.analyticblurrrect", true, "Use the faster analytic blur approach for ninepatch round rects");
+  static const bool c_analyticBlurRRect{true};
 #endif
 
 SkMaskFilter::FilterReturn
@@ -443,7 +443,8 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     return kTrue_FilterReturn;
 }
 
-SK_CONF_DECLARE(bool, c_analyticBlurNinepatch, "mask.filter.analyticNinePatch", true, "Use the faster analytic blur approach for ninepatch rects");
+// Use the faster analytic blur approach for ninepatch rects
+static const bool c_analyticBlurNinepatch{true};
 
 SkMaskFilter::FilterReturn
 SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
