@@ -28,7 +28,7 @@ static inline void load_matrix(const float matrix[16],
 }
 
 static inline void load_rgb_from_tables(const uint32_t* src,
-                                        Sk4f& r, Sk4f& g, Sk4f& b, Sk4f&,
+                                        Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
                                         const float* const srcTables[3]) {
     r = { srcTables[0][(src[0] >>  0) & 0xFF],
           srcTables[0][(src[1] >>  0) & 0xFF],
@@ -42,6 +42,7 @@ static inline void load_rgb_from_tables(const uint32_t* src,
           srcTables[2][(src[1] >> 16) & 0xFF],
           srcTables[2][(src[2] >> 16) & 0xFF],
           srcTables[2][(src[3] >> 16) & 0xFF], };
+    a = 0.0f; // Don't let the compiler complain that |a| is uninitialized.
 }
 
 static inline void load_rgba_from_tables(const uint32_t* src,
