@@ -134,7 +134,7 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
         SkASSERT(defaultSerializer.get());
         effectiveSerializer = defaultSerializer.get();
     }
-    SkAutoTUnref<SkData> encoded(this->refEncoded());
+    sk_sp<SkData> encoded(this->refEncoded());
     if (encoded && effectiveSerializer->useEncodedData(encoded->data(), encoded->size())) {
         return encoded.release();
     }

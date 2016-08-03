@@ -32,7 +32,7 @@ private:
     SkString                fName;
     const SkColorType       fColorType;
     const SkAlphaType       fAlphaType;
-    SkAutoTUnref<SkData>    fData;
+    sk_sp<SkData>           fData;
     SkImageInfo             fInfo;          // Set in onDelayedSetup.
     SkAutoMalloc            fPixelStorage;
     typedef Benchmark INHERITED;

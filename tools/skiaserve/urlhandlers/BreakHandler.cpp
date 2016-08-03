@@ -80,6 +80,6 @@ int BreakHandler::handle(Request* request, MHD_Connection* connection,
     canvas->restoreToCount(saveCount);
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(response).c_str());
-    SkAutoTUnref<SkData> data(stream.copyToData());
-    return SendData(connection, data, "application/json");
+    sk_sp<SkData> data(stream.copyToData());
+    return SendData(connection, data.get(), "application/json");
 }

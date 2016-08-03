@@ -440,7 +440,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         // Here we're just using presence of data to know whether there is a codec behind the image.
         // In the future we will access the cacherator and get the exact data that we want to (e.g.
         // yuv planes) upload.
-        SkAutoTUnref<SkData> data(this->refEncoded());
+        sk_sp<SkData> data(this->refEncoded());
         if (!data && !this->peekPixels(nullptr)) {
             return 0;
         }

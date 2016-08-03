@@ -76,7 +76,7 @@ DEF_TEST(PDFJpegEmbedTest, r) {
     canvas->flush();
     document->endPage();
     document->close();
-    SkAutoTUnref<SkData> pdfData(pdf.copyToData());
+    sk_sp<SkData> pdfData(pdf.copyToData());
     SkASSERT(pdfData);
     pdf.reset();
 

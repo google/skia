@@ -47,7 +47,7 @@ private:
     template <typename T>
     T nextT();
 
-    SkAutoTUnref<SkData> fBytes;
+    sk_sp<SkData> fBytes;
     int fNextByte;
 };
 

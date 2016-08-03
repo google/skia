@@ -33,7 +33,7 @@ public:
     struct UrlData : public SkRefCnt {
         SkString fUrl;
         SkString fContentType;
-        SkAutoTUnref<SkData> fData;
+        sk_sp<SkData> fData;
     };
 
     /*

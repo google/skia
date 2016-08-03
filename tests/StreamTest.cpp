@@ -117,7 +117,7 @@ static void TestWStream(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, ds.getOffset() == 100 * 26);
 
     {
-        SkAutoTUnref<SkData> data(ds.copyToData());
+        sk_sp<SkData> data(ds.copyToData());
         REPORTER_ASSERT(reporter, 100 * 26 == data->size());
         REPORTER_ASSERT(reporter, memcmp(dst, data->data(), data->size()) == 0);
     }
@@ -404,7 +404,7 @@ static void stream_copy_test(skiatest::Reporter* reporter,
         ERRORF(reporter, "SkStreamCopy failed");
         return;
     }
-    SkAutoTUnref<SkData> data(tgt.copyToData());
+    sk_sp<SkData> data(tgt.copyToData());
     tgt.reset();
     if (data->size() != N) {
         ERRORF(reporter, "SkStreamCopy incorrect size");

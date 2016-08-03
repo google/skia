@@ -36,7 +36,7 @@ protected:
 private:
     SkString                                       fName;
     SkAutoTDelete<SkBitmapRegionDecoder>           fBRD;
-    SkAutoTUnref<SkData>                           fData;
+    sk_sp<SkData>                                  fData;
     const SkColorType                              fColorType;
     const uint32_t                                 fSampleSize;
     const SkIRect                                  fSubset;

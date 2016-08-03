@@ -904,10 +904,10 @@ static bool equivalent(const SkBitmap& a, const SkBitmap& b) {
     }
 
     // If the bitmaps have encoded data, check first before locking pixels so they don't decode.
-    SkAutoTUnref<SkData> encA(a.pixelRef()->refEncodedData()),
-                         encB(b.pixelRef()->refEncodedData());
+    sk_sp<SkData> encA(a.pixelRef()->refEncodedData()),
+                  encB(b.pixelRef()->refEncodedData());
     if (encA && encB) {
-        return encA->equals(encB);
+        return encA->equals(encB.get());
     } else if (encA || encB) {
         return false;   // One has encoded data but the other does not.
     }

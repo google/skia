@@ -198,13 +198,13 @@ static sk_sp<GrTexture> create_texture_from_yuv(GrContext* ctx, const SkBitmap& 
 }
 
 static GrTexture* load_etc1_texture(GrContext* ctx, const SkBitmap &bm, GrSurfaceDesc desc) {
-    SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
+    sk_sp<SkData> data(bm.pixelRef()->refEncodedData());
     if (!data) {
         return nullptr;
     }
 
     const void* startOfTexData;
-    desc.fConfig = GrIsCompressedTextureDataSupported(ctx, data, bm.width(), bm.height(),
+    desc.fConfig = GrIsCompressedTextureDataSupported(ctx, data.get(), bm.width(), bm.height(),
                                                       &startOfTexData);
     if (kUnknown_GrPixelConfig == desc.fConfig) {
         return nullptr;

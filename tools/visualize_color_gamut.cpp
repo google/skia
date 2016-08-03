@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
     draw_gamut(&canvas, colorSpace->xyz(), input, 0xFF000000, true);
 
     // Finally, encode the result to the output file.
-    SkAutoTUnref<SkData> out(SkImageEncoder::EncodeData(gamut, SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> out(SkImageEncoder::EncodeData(gamut, SkImageEncoder::kPNG_Type, 100));
     if (!out) {
         SkDebugf("Failed to encode gamut output.\n");
         return -1;

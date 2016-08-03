@@ -823,8 +823,8 @@ DEF_TEST(Codec_pngChunkReader, r) {
     ChunkReader chunkReader(r);
 
     // Now read the file with SkCodec.
-    SkAutoTUnref<SkData> data(wStream.copyToData());
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data, &chunkReader));
+    sk_sp<SkData> data(wStream.copyToData());
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get(), &chunkReader));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;

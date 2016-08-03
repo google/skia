@@ -54,7 +54,7 @@ public:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            SkAutoTUnref<SkData> data(SkImageEncoder::EncodeData(fBitmap, fType, fQuality));
+            sk_sp<SkData> data(SkImageEncoder::EncodeData(fBitmap, fType, fQuality));
             SkASSERT(data);
         }
     }
