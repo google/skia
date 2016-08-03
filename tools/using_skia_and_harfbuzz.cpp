@@ -134,7 +134,7 @@ public:
         glyph_paint.setColor(SK_ColorBLACK);
         glyph_paint.setFlags(SkPaint::kAntiAlias_Flag |
                              SkPaint::kSubpixelText_Flag);
-        glyph_paint.setTextSize(config->font_size.value);
+        glyph_paint.setTextSize(SkDoubleToScalar(config->font_size.value));
     }
 
     void WriteLine(const SkShaper& shaper, const char *text, size_t textBytes) {
@@ -142,8 +142,9 @@ public:
             if (pageCanvas) {
                 document->endPage();
             }
-            pageCanvas = document->beginPage(config->page_width.value,
-                                             config->page_height.value);
+            pageCanvas = document->beginPage(
+                    SkDoubleToScalar(config->page_width.value),
+                    SkDoubleToScalar(config->page_height.value));
             pageCanvas->drawPaint(white_paint);
             current_x = config->left_margin.value;
             current_y = config->line_spacing_ratio.value * config->font_size.value;
@@ -151,8 +152,9 @@ public:
         SkTextBlobBuilder textBlobBuilder;
         shaper.shape(&textBlobBuilder, glyph_paint, text, textBytes, SkPoint{0, 0});
         sk_sp<const SkTextBlob> blob(textBlobBuilder.build());
-        pageCanvas->drawTextBlob(blob.get(), current_x, current_y, glyph_paint);
-
+        pageCanvas->drawTextBlob(
+                blob.get(), SkDoubleToScalar(current_x),
+                SkDoubleToScalar(current_y), glyph_paint);
         // Advance to the next line.
         current_y += config->line_spacing_ratio.value * config->font_size.value;
     }

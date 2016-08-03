@@ -23,7 +23,7 @@ std::unique_ptr<hb_blob_t, HBFBlobDel> stream_to_blob(std::unique_ptr<SkStreamAs
     size_t size = asset->getLength();
     std::unique_ptr<hb_blob_t, HBFBlobDel> blob;
     if (const void* base = asset->getMemoryBase()) {
-        blob.reset(hb_blob_create((char*)base, size,
+        blob.reset(hb_blob_create((char*)base, SkToUInt(size),
                                   HB_MEMORY_MODE_READONLY, asset.release(),
                                   [](void* p) { delete (SkStreamAsset*)p; }));
     } else {
@@ -31,7 +31,7 @@ std::unique_ptr<hb_blob_t, HBFBlobDel> stream_to_blob(std::unique_ptr<SkStreamAs
         SkAutoMalloc autoMalloc(size);
         asset->read(autoMalloc.get(), size);
         void* ptr = autoMalloc.get();
-        blob.reset(hb_blob_create((char*)autoMalloc.release(), size,
+        blob.reset(hb_blob_create((char*)autoMalloc.release(), SkToUInt(size),
                                   HB_MEMORY_MODE_READONLY, ptr, sk_free));
     }
     SkASSERT(blob);
@@ -116,8 +116,8 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
     for (unsigned i = 0; i < len; i++) {
         runBuffer.glyphs[i] = info[i].codepoint;
         reinterpret_cast<SkPoint*>(runBuffer.pos)[i] =
-                SkPoint::Make(x + pos[i].x_offset * textSizeX,
-                              y - pos[i].y_offset * textSizeY);
+                SkPoint::Make(SkDoubleToScalar(x + pos[i].x_offset * textSizeX),
+                              SkDoubleToScalar(y - pos[i].y_offset * textSizeY));
         x += pos[i].x_advance * textSizeX;
         y += pos[i].y_advance * textSizeY;
     }

@@ -17,8 +17,10 @@ class SkPaint;
 class SkTextBlobBuilder;
 
 /**
-   Shapes text using harfbuzz and places the shaped text into a
+   Shapes text using HarfBuzz and places the shaped text into a
    TextBlob.
+
+   If compiled without HarfBuzz, fall back on SkPaint::textToGlyphs.
  */
 class SkShaper {
 public:
