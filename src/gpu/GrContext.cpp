@@ -6,6 +6,7 @@
  */
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrContextOptions.h"
 #include "GrDrawingManager.h"
 #include "GrDrawContext.h"
@@ -25,6 +26,8 @@
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fSingleOwner);)
+#define ASSERT_SINGLE_OWNER_PRIV \
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fContext->fSingleOwner);)
 #define RETURN_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return nullptr; }
@@ -360,7 +363,9 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             // TODO: Need to decide the semantics of this function for color spaces. Do we support
             // conversion from a passed-in color space? For now, specifying nullptr means that this
             // path will do no conversion, so it will match the behavior of the non-draw path.
-            sk_sp<GrDrawContext> drawContext(this->makeDrawContext(sk_ref_sp(renderTarget), nullptr));
+            sk_sp<GrDrawContext> drawContext(this->contextPriv().makeWrappedDrawContext(
+                                                                        sk_ref_sp(renderTarget),
+                                                                        nullptr));
             if (!drawContext) {
                 return false;
             }
@@ -568,7 +573,9 @@ bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         src->flushWrites();
         return fGpu->copySurface(dst, src, clippedSrcRect, clippedDstPoint);
     }
-    sk_sp<GrDrawContext> drawContext(this->makeDrawContext(sk_ref_sp(dst->asRenderTarget()), nullptr));
+    sk_sp<GrDrawContext> drawContext(this->contextPriv().makeWrappedDrawContext(
+                                                                sk_ref_sp(dst->asRenderTarget()),
+                                                                nullptr));
     if (!drawContext) {
         return false;
     }
@@ -606,12 +613,59 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
     return chosenSampleCount <= fGpu->caps()->maxSampleCount() ? chosenSampleCount : 0;
 }
 
+sk_sp<GrDrawContext> GrContextPriv::makeWrappedDrawContext(sk_sp<GrRenderTarget> rt,
+                                                           sk_sp<SkColorSpace> colorSpace,
+                                                           const SkSurfaceProps* surfaceProps) {
+    ASSERT_SINGLE_OWNER_PRIV
+    return fContext->drawingManager()->drawContext(std::move(rt), std::move(colorSpace),
+                                                   surfaceProps);
+}
 
-sk_sp<GrDrawContext> GrContext::makeDrawContext(sk_sp<GrRenderTarget> rt,
-                                            sk_sp<SkColorSpace> colorSpace,
-                                            const SkSurfaceProps* surfaceProps) {
-    ASSERT_SINGLE_OWNER
-    return fDrawingManager->drawContext(std::move(rt), std::move(colorSpace), surfaceProps);
+sk_sp<GrDrawContext> GrContextPriv::makeBackendTextureDrawContext(const GrBackendTextureDesc& desc, 
+                                                                  sk_sp<SkColorSpace> colorSpace,
+                                                                  const SkSurfaceProps* props,
+                                                                  GrWrapOwnership ownership) {
+    ASSERT_SINGLE_OWNER_PRIV
+    SkASSERT(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
+
+    sk_sp<GrSurface> surface(fContext->textureProvider()->wrapBackendTexture(desc, ownership));
+    if (!surface) {
+        return nullptr;
+    }
+
+    return fContext->drawingManager()->drawContext(sk_ref_sp(surface->asRenderTarget()),
+                                                   std::move(colorSpace), props);
+}
+
+sk_sp<GrDrawContext> GrContextPriv::makeBackendRenderTargetDrawContext(
+                                                const GrBackendRenderTargetDesc& desc,
+                                                sk_sp<SkColorSpace> colorSpace,
+                                                const SkSurfaceProps* surfaceProps) {
+    ASSERT_SINGLE_OWNER_PRIV
+
+    sk_sp<GrRenderTarget> rt(fContext->textureProvider()->wrapBackendRenderTarget(desc));
+    if (!rt) {
+        return nullptr;
+    }
+
+    return fContext->drawingManager()->drawContext(std::move(rt), std::move(colorSpace),
+                                                   surfaceProps);
+}
+
+sk_sp<GrDrawContext> GrContextPriv::makeBackendTextureAsRenderTargetDrawContext(
+                                                     const GrBackendTextureDesc& desc, 
+                                                     sk_sp<SkColorSpace> colorSpace,
+                                                     const SkSurfaceProps* surfaceProps) {
+    ASSERT_SINGLE_OWNER_PRIV
+    SkASSERT(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
+
+    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTextureAsRenderTarget(desc));
+    if (!surface) {
+        return nullptr;
+    }
+
+    return fContext->drawingManager()->drawContext(sk_ref_sp(surface->asRenderTarget()),
+                                                   std::move(colorSpace), surfaceProps);
 }
 
 sk_sp<GrDrawContext> GrContext::makeDrawContext(SkBackingFit fit,
@@ -640,7 +694,8 @@ sk_sp<GrDrawContext> GrContext::makeDrawContext(SkBackingFit fit,
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> drawContext(this->makeDrawContext(sk_ref_sp(tex->asRenderTarget()),
+    sk_sp<GrDrawContext> drawContext(this->contextPriv().makeWrappedDrawContext(
+                                                           sk_ref_sp(tex->asRenderTarget()),
                                                            std::move(colorSpace), surfaceProps));
     if (!drawContext) {
         return nullptr;

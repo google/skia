@@ -9,6 +9,7 @@
 #include "GrRenderTarget.h"
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrDrawContext.h"
 #include "GrDrawTarget.h"
 #include "GrGpu.h"
@@ -29,7 +30,8 @@ void GrRenderTarget::discard() {
         return;
     }
 
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(sk_ref_sp(this), nullptr));
+    sk_sp<GrDrawContext> drawContext(context->contextPriv().makeWrappedDrawContext(sk_ref_sp(this),
+                                                                                   nullptr));
     if (!drawContext) {
         return;
     }

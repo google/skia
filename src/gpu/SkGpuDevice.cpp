@@ -9,6 +9,7 @@
 
 #include "GrBlurUtils.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "SkDraw.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
@@ -104,8 +105,10 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTarget> rt, sk_sp<SkColorSpac
 
     GrContext* context = rt->getContext();
 
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(std::move(rt), std::move(colorSpace),
-                                                              props));
+    sk_sp<GrDrawContext> drawContext(context->contextPriv().makeWrappedDrawContext(
+                                                                            std::move(rt),
+                                                                            std::move(colorSpace),
+                                                                            props));
     return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(drawContext), width, height, flags));
 }
 

@@ -24,6 +24,7 @@
 struct GrBatchAtlasConfig;
 class GrBatchFontCache;
 struct GrContextOptions;
+class GrContextPriv;
 class GrContextThreadSafeProxy;
 class GrDrawingManager;
 class GrDrawContext;
@@ -178,19 +179,6 @@ public:
      *         MSAA is not supported or recommended to be used by default.
      */
     int getRecommendedSampleCount(GrPixelConfig config, SkScalar dpi) const;
-
-    /**
-     * Returns a helper object to orchestrate draws.
-     * Callers assume the creation ref of the drawContext
-     * NULL will be returned if the context has been abandoned.
-     *
-     * @param  rt           the render target receiving the draws
-     * @param  surfaceProps the surface properties (mainly defines text drawing)
-     *
-     * @return a draw context
-     */
-    sk_sp<GrDrawContext> makeDrawContext(sk_sp<GrRenderTarget> rt, sk_sp<SkColorSpace> colorSpace,
-                                         const SkSurfaceProps* = nullptr);
 
     /**
      * Create both a GrRenderTarget and a matching GrDrawContext to wrap it.
@@ -379,6 +367,10 @@ public:
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fSingleOwner; } )
 
+    // Provides access to functions that aren't part of the public API.
+    GrContextPriv contextPriv();
+    const GrContextPriv contextPriv() const;
+
 private:
     GrGpu*                                  fGpu;
     const GrCaps*                           fCaps;
@@ -434,6 +426,7 @@ private:
     // TODO: have the CMM use drawContexts and rm this friending
     friend class GrClipMaskManager; // the CMM is friended just so it can call 'drawingManager'
     friend class GrDrawingManager;  // for access to drawingManager for ProgramUnitTest
+    friend class GrContextPriv;
     GrDrawingManager* drawingManager() { return fDrawingManager; }
 
     GrContext(); // init must be called after the constructor.
