@@ -364,8 +364,8 @@ test_lib("gpu_tool_utils") {
 
   if (is_linux) {
     sources += [
-        "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp",
-        "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp",
+      "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp",
+      "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp",
     ]
     libs += [
       "GL",
@@ -374,8 +374,8 @@ test_lib("gpu_tool_utils") {
     ]
   } else if (is_mac) {
     sources += [
-        "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp",
-        "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp",
+      "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp",
+      "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp",
     ]
     libs += [ "OpenGL.framework" ]
   }
@@ -458,8 +458,8 @@ test_lib("tests") {
               rebase_path("tests/FontMgrAndroidParserTest.cpp"),  # Android only
               rebase_path("tests/PathOpsSkpClipTest.cpp"),  # alternate main
               rebase_path("tests/RTConfRegistryTest.cpp"),  # TODO: delete
-              rebase_path("tests/SkSLErrorTest.cpp"),   # TODO: make work
-              rebase_path("tests/SkSLGLSLTest.cpp"),   # TODO: make work
+              rebase_path("tests/SkSLErrorTest.cpp"),  # TODO: make work
+              rebase_path("tests/SkSLGLSLTest.cpp"),  # TODO: make work
               rebase_path("tests/SkpSkGrTest.cpp"),  # doesn't compile
               rebase_path("tests/skia_test.cpp"),  # alternate main
             ]

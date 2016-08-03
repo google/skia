@@ -185,6 +185,23 @@ def _RecipeSimulationTest(input_api, output_api):
         '`%s` failed:\n%s' % (' '.join(cmd), e.output)))
   return results
 
+def _CheckGNFormatted(input_api, output_api):
+  """Make sure any .gn files we're changing have been formatted."""
+  results = []
+  for f in input_api.AffectedFiles():
+    if not f.LocalPath().endswith('.gn'):
+      continue
+
+    cmd = ['gn', 'format', '--dry-run', f.LocalPath()]
+    try:
+      subprocess.check_output(cmd)
+    except subprocess.CalledProcessError:
+      fix = cmd[:]
+      fix[2] = '--in-place'
+      results.append(output_api.PresubmitError(
+          '`%s` failed, try\n\t%s' % (' '.join(cmd), ' '.join(fix))))
+  return results
+
 
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
@@ -222,6 +239,7 @@ def CheckChangeOnUpload(input_api, output_api):
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
   # coverage installed.
   results.extend(_RecipeSimulationTest(input_api, output_api))
+  results.extend(_CheckGNFormatted(input_api, output_api))
   return results
 
 
