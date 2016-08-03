@@ -24,7 +24,7 @@
         #include "TargetConditionals.h"
     #endif
 
-    #if defined(WIN32) || defined(__SYMBIAN32__)
+    #if defined(_WIN32) || defined(__SYMBIAN32__)
         #define SK_BUILD_FOR_WIN32
     #elif defined(ANDROID)
         #define SK_BUILD_FOR_ANDROID

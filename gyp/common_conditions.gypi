@@ -65,7 +65,6 @@
     [ 'skia_os == "win"',
       {
         'defines': [
-          'SK_BUILD_FOR_WIN32',
           '_CRT_SECURE_NO_WARNINGS',
           'GR_GL_FUNCTION_TYPE=__stdcall',
           '_HAS_EXCEPTIONS=0',
