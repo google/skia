@@ -20,12 +20,13 @@ namespace SkSL {
  */
 struct ASTLayout : public ASTNode {
     // For all parameters, a -1 means no value
-    ASTLayout(int location, int binding, int index, int set, int builtin)
+    ASTLayout(int location, int binding, int index, int set, int builtin, bool originUpperLeft)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
     , fSet(set)
-    , fBuiltin(builtin) {}
+    , fBuiltin(builtin)
+    , fOriginUpperLeft(originUpperLeft) {}
 
     std::string description() const {
         std::string result;
@@ -50,6 +51,10 @@ struct ASTLayout : public ASTNode {
             result += separator + "builtin = " + to_string(fBuiltin);
             separator = ", ";
         }
+        if (fOriginUpperLeft) {
+            result += separator + "origin_upper_left";
+            separator = ", ";
+        }
         if (result.length() > 0) {
             result = "layout (" + result + ")";
         }
@@ -61,6 +66,7 @@ struct ASTLayout : public ASTNode {
     const int fIndex;
     const int fSet;
     const int fBuiltin;
+    const bool fOriginUpperLeft;
 };
 
 } // namespace

@@ -18,14 +18,16 @@ namespace SkSL {
  */
 struct ASTModifiers : public ASTNode {
     enum Flag {
-        kNo_Flag      =  0,
-        kConst_Flag   =  1,
-        kIn_Flag      =  2,
-        kOut_Flag     =  4,
-        kLowp_Flag    =  8,
-        kMediump_Flag = 16,
-        kHighp_Flag   = 32,
-        kUniform_Flag = 64
+        kNo_Flag            =  0,
+        kConst_Flag         =  1,
+        kIn_Flag            =  2,
+        kOut_Flag           =  4,
+        kLowp_Flag          =  8,
+        kMediump_Flag       = 16,
+        kHighp_Flag         = 32,
+        kUniform_Flag       = 64,
+        kFlat_Flag          = 128,
+        kNoPerspective_Flag = 256
     };
 
     ASTModifiers(ASTLayout layout, int flags)
@@ -48,6 +50,12 @@ struct ASTModifiers : public ASTNode {
         }
         if (fFlags & kHighp_Flag) {
             result += "highp ";
+        }
+        if (fFlags & kFlat_Flag) {
+            result += "flat ";
+        }
+        if (fFlags & kNoPerspective_Flag) {
+            result += "noperspective ";
         }
 
         if ((fFlags & kIn_Flag) && (fFlags & kOut_Flag)) {

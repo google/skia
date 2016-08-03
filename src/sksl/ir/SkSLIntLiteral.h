@@ -27,7 +27,7 @@ struct IntLiteral : public Expression {
     }
 
    bool isConstant() const override {
-    	return true;
+        return true;
     }
 
     const int64_t fValue;

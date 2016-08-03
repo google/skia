@@ -13,6 +13,10 @@
  
 namespace SkSL {
 
+#undef IN
+#undef OUT
+#undef CONST
+
 /**
  * Represents a lexical analysis token. Token is generally only used during the parse process, but
  * Token::Kind is also used to represent operator kinds.
@@ -89,6 +93,8 @@ struct Token {
         MEDIUMP,
         HIGHP,
         UNIFORM,
+        FLAT,
+        NOPERSPECTIVE,
         STRUCT,
         LAYOUT,
         DIRECTIVE,

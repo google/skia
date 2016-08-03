@@ -18,14 +18,16 @@ namespace SkSL {
  */
 struct Modifiers {
     enum Flag {
-        kNo_Flag      = ASTModifiers::kNo_Flag,
-        kConst_Flag   = ASTModifiers::kConst_Flag,
-        kIn_Flag      = ASTModifiers::kIn_Flag,
-        kOut_Flag     = ASTModifiers::kOut_Flag,
-        kLowp_Flag    = ASTModifiers::kLowp_Flag,
-        kMediump_Flag = ASTModifiers::kMediump_Flag,
-        kHighp_Flag   = ASTModifiers::kHighp_Flag,
-        kUniform_Flag = ASTModifiers::kUniform_Flag
+        kNo_Flag            = ASTModifiers::kNo_Flag,
+        kConst_Flag         = ASTModifiers::kConst_Flag,
+        kIn_Flag            = ASTModifiers::kIn_Flag,
+        kOut_Flag           = ASTModifiers::kOut_Flag,
+        kLowp_Flag          = ASTModifiers::kLowp_Flag,
+        kMediump_Flag       = ASTModifiers::kMediump_Flag,
+        kHighp_Flag         = ASTModifiers::kHighp_Flag,
+        kUniform_Flag       = ASTModifiers::kUniform_Flag,
+        kFlat_Flag          = ASTModifiers::kFlat_Flag,
+        kNoPerspective_Flag = ASTModifiers::kNoPerspective_Flag
     };
 
     Modifiers(const ASTModifiers& modifiers)
@@ -53,6 +55,12 @@ struct Modifiers {
         if (fFlags & kHighp_Flag) {
             result += "highp ";
         }
+        if (fFlags & kFlat_Flag) {
+            result += "flat ";
+        }
+        if (fFlags & kNoPerspective_Flag) {
+            result += "noperspective ";
+        }
 
         if ((fFlags & kIn_Flag) && (fFlags & kOut_Flag)) {
             result += "inout ";
@@ -73,8 +81,8 @@ struct Modifiers {
         return !(*this == other);
     }
 
-    const Layout fLayout;
-    const int fFlags;
+    Layout fLayout;
+    int fFlags;
 };
 
 } // namespace

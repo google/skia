@@ -459,6 +459,7 @@ test_lib("tests") {
               rebase_path("tests/PathOpsSkpClipTest.cpp"),  # alternate main
               rebase_path("tests/RTConfRegistryTest.cpp"),  # TODO: delete
               rebase_path("tests/SkSLErrorTest.cpp"),   # TODO: make work
+              rebase_path("tests/SkSLGLSLTest.cpp"),   # TODO: make work
               rebase_path("tests/SkpSkGrTest.cpp"),  # doesn't compile
               rebase_path("tests/skia_test.cpp"),  # alternate main
             ]

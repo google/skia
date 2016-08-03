@@ -21,14 +21,16 @@ struct Layout {
     , fBinding(layout.fBinding)
     , fIndex(layout.fIndex)
     , fSet(layout.fSet)
-    , fBuiltin(layout.fBuiltin) {}
+    , fBuiltin(layout.fBuiltin)
+    , fOriginUpperLeft(layout.fOriginUpperLeft) {}
 
-    Layout(int location, int binding, int index, int set, int builtin)
+    Layout(int location, int binding, int index, int set, int builtin, bool originUpperLeft)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
     , fSet(set)
-    , fBuiltin(builtin) {}
+    , fBuiltin(builtin)
+    , fOriginUpperLeft(originUpperLeft) {}
 
     std::string description() const {
         std::string result;
@@ -53,6 +55,10 @@ struct Layout {
             result += separator + "builtin = " + to_string(fBuiltin);
             separator = ", ";
         }
+        if (fOriginUpperLeft) {
+            result += separator + "origin_upper_left";
+            separator = ", ";
+        }
         if (result.length() > 0) {
             result = "layout (" + result + ")";
         }
@@ -71,11 +77,14 @@ struct Layout {
         return !(*this == other);
     }
 
-    const int fLocation;
-    const int fBinding;
-    const int fIndex;
-    const int fSet;
-    const int fBuiltin;
+    // everything but builtin is in the GLSL spec; builtin comes from SPIR-V and identifies which
+    // particular builtin value this object represents.
+    int fLocation;
+    int fBinding;
+    int fIndex;
+    int fSet;
+    int fBuiltin;
+    bool fOriginUpperLeft;
 };
 
 } // namespace

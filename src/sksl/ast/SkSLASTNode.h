@@ -19,7 +19,7 @@ namespace SkSL {
  */
 struct ASTNode {
     virtual ~ASTNode() {}
- 	
+     
     virtual std::string description() const = 0;
 };
 

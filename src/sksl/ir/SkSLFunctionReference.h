@@ -24,8 +24,8 @@ struct FunctionReference : public Expression {
     , fFunctions(function) {}
 
     virtual std::string description() const override {
-    	ASSERT(false);
-    	return "<function>";
+        ASSERT(false);
+        return "<function>";
     }
 
     const std::vector<const FunctionDeclaration*> fFunctions;

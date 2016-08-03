@@ -16,14 +16,15 @@ namespace SkSL {
 
 /**
  * A variable declaration, which may consist of multiple individual variables. For instance
- * 'int x, y = 1, z[4][2];' is a single VarDeclaration. This declaration would have a type of 'int', 
- * names ['x', 'y', 'z'], sizes of [[], [], [4, 2]], and values of [null, 1, null].
+ * 'int x, y = 1, z[4][2];' is a single VarDeclaration. This declaration would have a base type of 
+ * 'int', names ['x', 'y', 'z'], sizes of [[], [], [4, 2]], and values of [null, 1, null].
  */
 struct VarDeclaration : public ProgramElement {
-    VarDeclaration(Position position, std::vector<const Variable*> vars,
+    VarDeclaration(Position position, const Type* baseType, std::vector<const Variable*> vars,
                    std::vector<std::vector<std::unique_ptr<Expression>>> sizes,
                    std::vector<std::unique_ptr<Expression>> values)
-    : INHERITED(position, kVar_Kind) 
+    : INHERITED(position, kVar_Kind)
+    , fBaseType(*baseType)
     , fVars(std::move(vars))
     , fSizes(std::move(sizes))
     , fValues(std::move(values)) {}
@@ -55,6 +56,7 @@ struct VarDeclaration : public ProgramElement {
         return result;
     }
 
+    const Type& fBaseType;
     const std::vector<const Variable*> fVars;
     const std::vector<std::vector<std::unique_ptr<Expression>>> fSizes;
     const std::vector<std::unique_ptr<Expression>> fValues;

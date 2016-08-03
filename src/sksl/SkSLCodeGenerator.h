@@ -20,9 +20,9 @@ namespace SkSL {
  */
 class CodeGenerator {
 public:
-	virtual ~CodeGenerator() {}
-	
-    virtual void generateCode(Program& program, std::ostream& out) = 0;
+    virtual ~CodeGenerator() {}
+    
+    virtual void generateCode(const Program& program, std::ostream& out) = 0;
 };
 
 } // namespace

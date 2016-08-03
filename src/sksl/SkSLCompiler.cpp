@@ -67,14 +67,17 @@ Compiler::Compiler()
     ADD_TYPE(BVec3);
     ADD_TYPE(BVec4);
     ADD_TYPE(Mat2x2);
+    types->addWithoutOwnership("mat2x2", fContext.fMat2x2_Type.get());
     ADD_TYPE(Mat2x3);
     ADD_TYPE(Mat2x4);
     ADD_TYPE(Mat3x2);
     ADD_TYPE(Mat3x3);
+    types->addWithoutOwnership("mat3x3", fContext.fMat3x3_Type.get());
     ADD_TYPE(Mat3x4);
     ADD_TYPE(Mat4x2);
     ADD_TYPE(Mat4x3);
     ADD_TYPE(Mat4x4);
+    types->addWithoutOwnership("mat4x4", fContext.fMat4x4_Type.get());
     ADD_TYPE(GenType);
     ADD_TYPE(GenDType);
     ADD_TYPE(GenIType);
@@ -223,8 +226,7 @@ void Compiler::writeErrorCount() {
     }
 }
 
-#include <fstream>
-bool Compiler::toSPIRV(Program::Kind kind, std::string text, std::ostream& out) {
+bool Compiler::toSPIRV(Program::Kind kind, const std::string& text, std::ostream& out) {
     auto program = this->convertProgram(kind, text);
     if (fErrorCount == 0) {
         SkSL::SPIRVCodeGenerator cg(&fContext);
@@ -234,13 +236,34 @@ bool Compiler::toSPIRV(Program::Kind kind, std::string text, std::ostream& out) 
     return fErrorCount == 0;
 }
 
-bool Compiler::toSPIRV(Program::Kind kind, std::string text, std::string* out) {
+bool Compiler::toSPIRV(Program::Kind kind, const std::string& text, std::string* out) {
     std::stringstream buffer;
     bool result = this->toSPIRV(kind, text, buffer);
     if (result) {
         *out = buffer.str();
     }
+    return result;
+}
+
+bool Compiler::toGLSL(Program::Kind kind, const std::string& text, GLCaps caps, 
+                      std::ostream& out) {
+    auto program = this->convertProgram(kind, text);
+    if (fErrorCount == 0) {
+        SkSL::GLSLCodeGenerator cg(&fContext, caps);
+        cg.generateCode(*program.get(), out);
+        ASSERT(!out.rdstate());
+    }
     return fErrorCount == 0;
+}
+
+bool Compiler::toGLSL(Program::Kind kind, const std::string& text, GLCaps caps, 
+                      std::string* out) {
+    std::stringstream buffer;
+    bool result = this->toGLSL(kind, text, caps, buffer);
+    if (result) {
+        *out = buffer.str();
+    }
+    return result;
 }
 
 } // namespace

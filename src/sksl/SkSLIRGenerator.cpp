@@ -182,7 +182,6 @@ std::unique_ptr<VarDeclaration> IRGenerator::convertVarDeclaration(const ASTVarD
                 currentVarSizes.push_back(nullptr);
             }
         }
-        sizes.push_back(std::move(currentVarSizes));
         auto var = std::unique_ptr<Variable>(new Variable(decl.fPosition, modifiers, decl.fNames[i], 
                                                           *type, storage));
         std::unique_ptr<Expression> value;
@@ -193,12 +192,22 @@ std::unique_ptr<VarDeclaration> IRGenerator::convertVarDeclaration(const ASTVarD
             }
             value = this->coerce(std::move(value), *type);
         }
-        variables.push_back(var.get());
-        fSymbolTable->add(decl.fNames[i], std::move(var));
-        values.push_back(std::move(value));
+        if ("gl_FragCoord" == decl.fNames[i] && (*fSymbolTable)[decl.fNames[i]]) {
+            // already defined, just update the modifiers
+            Variable* old = (Variable*) (*fSymbolTable)[decl.fNames[i]];
+            old->fModifiers = var->fModifiers;
+        } else {
+            variables.push_back(var.get());
+            fSymbolTable->add(decl.fNames[i], std::move(var));
+            values.push_back(std::move(value));
+            sizes.push_back(std::move(currentVarSizes));
+        }
     }
-    return std::unique_ptr<VarDeclaration>(new VarDeclaration(decl.fPosition, std::move(variables), 
-                                                              std::move(sizes), std::move(values)));
+    return std::unique_ptr<VarDeclaration>(new VarDeclaration(decl.fPosition, 
+                                                              baseType,
+                                                              std::move(variables), 
+                                                              std::move(sizes), 
+                                                              std::move(values)));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTIfStatement& s) {
@@ -573,8 +582,10 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
         case Symbol::kField_Kind: {
             const Field* field = (const Field*) result;
             VariableReference* base = new VariableReference(identifier.fPosition, field->fOwner);
-            return std::unique_ptr<Expression>(new FieldAccess(std::unique_ptr<Expression>(base),
-                                                               field->fFieldIndex));
+            return std::unique_ptr<Expression>(new FieldAccess(
+                                                  std::unique_ptr<Expression>(base),
+                                                  field->fFieldIndex,
+                                                  FieldAccess::kAnonymousInterfaceBlock_OwnerKind));
         }
         case Symbol::kType_Kind: {
             const Type* t = (const Type*) result;
@@ -616,6 +627,12 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
           type.description().c_str());
 }
 
+static bool is_matrix_multiply(const Type& left, const Type& right) {
+    if (left.kind() == Type::kMatrix_Kind) {
+        return right.kind() == Type::kMatrix_Kind || right.kind() == Type::kVector_Kind;
+    }
+    return left.kind() == Type::kVector_Kind && right.kind() == Type::kMatrix_Kind;
+}
 /**
  * Determines the operand and result types of a binary expression. Returns true if the expression is
  * legal, false otherwise. If false, the values of the out parameters are undefined.
@@ -651,18 +668,41 @@ static bool determine_binary_type(const Context& context,
                    right.canCoerceTo(*context.fBool_Type);
         case Token::STAR: // fall through
         case Token::STAREQ: 
-            // FIXME need to handle non-square matrices
-            if (left.kind() == Type::kMatrix_Kind && right.kind() == Type::kVector_Kind) {
-                *outLeftType = &left;
-                *outRightType = &right;
-                *outResultType = &right;
-                return left.rows() == right.columns();
-            }  
-            if (left.kind() == Type::kVector_Kind && right.kind() == Type::kMatrix_Kind) {
-                *outLeftType = &left;
-                *outRightType = &right;
-                *outResultType = &left;
-                return left.columns() == right.columns();
+            if (is_matrix_multiply(left, right)) {
+                // determine final component type
+                if (determine_binary_type(context, Token::STAR, left.componentType(),
+                                          right.componentType(), outLeftType, outRightType,
+                                          outResultType, false)) {
+                    *outLeftType = &(*outResultType)->toCompound(context, left.columns(), 
+                                                                 left.rows());;
+                    *outRightType = &(*outResultType)->toCompound(context, right.columns(), 
+                                                                  right.rows());;
+                    int leftColumns = left.columns();
+                    int leftRows = left.rows();
+                    int rightColumns;
+                    int rightRows;
+                    if (right.kind() == Type::kVector_Kind) {
+                        // matrix * vector treats the vector as a column vector, so we need to
+                        // transpose it
+                        rightColumns = right.rows();
+                        rightRows = right.columns();
+                        ASSERT(rightColumns == 1);
+                    } else {
+                        rightColumns = right.columns();
+                        rightRows = right.rows();
+                    }
+                    if (rightColumns > 1) {
+                        *outResultType = &(*outResultType)->toCompound(context, rightColumns,
+                                                                       leftRows);
+                    } else {
+                        // result was a column vector, transpose it back to a row
+                        *outResultType = &(*outResultType)->toCompound(context, leftRows,
+                                                                       rightColumns);
+                    }
+                    return leftColumns == rightRows;
+                } else {
+                    return false;
+                }
             }
             // fall through
         default:

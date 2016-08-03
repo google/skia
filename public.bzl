@@ -435,7 +435,7 @@ DM_SRCS_ALL = struct(
         "tests/PathOpsSkpClipTest.cpp",  # Alternate main.
         "tests/skia_test.cpp",  # Old main.
         "tests/SkpSkGrTest.cpp",  # Alternate main.
-        "tests/SkSLErrorTest.cpp",  # Excluded along with Vulkan.
+        "tests/SkSL*.cpp",  # Excluded along with Vulkan.
         "tests/SVGDeviceTest.cpp",
         "tools/gpu/gl/angle/*",
         "tools/gpu/gl/command_buffer/*",

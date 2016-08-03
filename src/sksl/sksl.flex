@@ -68,6 +68,10 @@ mediump { return SkSL::Token::MEDIUMP; }
 
 highp { return SkSL::Token::HIGHP; }
 
+flat { return SkSL::Token::FLAT; }
+
+noperspective { return SkSL::Token::NOPERSPECTIVE; }
+
 struct { return SkSL::Token::STRUCT; }
 
 layout { return SkSL::Token::LAYOUT; }

@@ -26,7 +26,7 @@ struct FloatLiteral : public Expression {
     }
 
     bool isConstant() const override {
-    	return true;
+        return true;
     }
 
     const double fValue;

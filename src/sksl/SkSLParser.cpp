@@ -14,10 +14,25 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunneeded-internal-declaration"
 #pragma clang diagnostic ignored "-Wnull-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#endif
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4018)
 #endif
 #include "lex.sksl.c"
 #ifdef __clang__
 #pragma clang diagnostic pop
+#endif
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+#ifdef _MSC_VER
+#pragma warning(pop)
 #endif
 #undef register
 
@@ -471,10 +486,11 @@ ASTLayout Parser::layout() {
     int index = -1;
     int set = -1;
     int builtin = -1;
+    bool originUpperLeft = false;
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
-            return ASTLayout(location, binding, index, set, builtin);
+            return ASTLayout(location, binding, index, set, builtin, originUpperLeft);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -488,6 +504,8 @@ ASTLayout Parser::layout() {
                 set = this->layoutInt();
             } else if (t.fText == "builtin") {
                 builtin = this->layoutInt();
+            } else if (t.fText == "origin_upper_left") {
+                originUpperLeft = true;
             } else {
                 this->error(t.fPosition, ("'" + t.fText + 
                                           "' is not a valid layout qualifier").c_str());
@@ -501,11 +519,10 @@ ASTLayout Parser::layout() {
             }
         }
     }
-    return ASTLayout(location, binding, index, set, builtin);
+    return ASTLayout(location, binding, index, set, builtin, originUpperLeft);
 }
 
-/* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | 
-   MEDIUMP | HIGHP)* */
+/* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE)* */
 ASTModifiers Parser::modifiers() {
     ASTLayout layout = this->layout();
     int flags = 0;
@@ -544,6 +561,14 @@ ASTModifiers Parser::modifiers() {
             case Token::HIGHP:
                 this->nextToken();
                 flags |= ASTModifiers::kHighp_Flag;
+                break;
+            case Token::FLAT:
+                this->nextToken();
+                flags |= ASTModifiers::kFlat_Flag;
+                break;
+            case Token::NOPERSPECTIVE:
+                this->nextToken();
+                flags |= ASTModifiers::kNoPerspective_Flag;
                 break;
             default:
                 return ASTModifiers(layout, flags);

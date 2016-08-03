@@ -20,9 +20,9 @@ struct UnresolvedFunction : public Symbol {
     : INHERITED(Position(), kUnresolvedFunction_Kind, funcs[0]->fName)
     , fFunctions(std::move(funcs)) {
 #ifdef DEBUG
-    	for (auto func : funcs) {
-    		ASSERT(func->fName == fName);
-    	}
+        for (auto func : funcs) {
+            ASSERT(func->fName == fName);
+        }
 #endif
     }
 

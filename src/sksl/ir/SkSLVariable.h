@@ -40,7 +40,7 @@ struct Variable : public Symbol {
         return fModifiers.description() + fType.fName + " " + fName;
     }
 
-    const Modifiers fModifiers;
+    mutable Modifiers fModifiers;
     const Type& fType;
     const Storage fStorage;
 

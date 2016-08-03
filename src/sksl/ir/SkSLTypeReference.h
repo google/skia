@@ -23,8 +23,8 @@ struct TypeReference : public Expression {
     , fValue(type) {}
 
     std::string description() const override {
-    	ASSERT(false);
-    	return "<type>";
+        ASSERT(false);
+        return "<type>";
     }
 
     const Type& fValue;

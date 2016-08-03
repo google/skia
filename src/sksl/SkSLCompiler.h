@@ -13,6 +13,7 @@
 #include "ir/SkSLSymbolTable.h"
 #include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
+#include "SkSLGLSLCodeGenerator.h"
 
 namespace SkSL {
 
@@ -32,9 +33,13 @@ public:
 
     std::unique_ptr<Program> convertProgram(Program::Kind kind, std::string text);
 
-	bool toSPIRV(Program::Kind kind, std::string text, std::ostream& out);
-	
-	bool toSPIRV(Program::Kind kind, std::string text, std::string* out);
+    bool toSPIRV(Program::Kind kind, const std::string& text, std::ostream& out);
+    
+    bool toSPIRV(Program::Kind kind, const std::string& text, std::string* out);
+
+    bool toGLSL(Program::Kind kind, const std::string& text, GLCaps caps, std::ostream& out);
+    
+    bool toGLSL(Program::Kind kind, const std::string& text, GLCaps caps, std::string* out);
 
     void error(Position position, std::string msg) override;
 
@@ -45,7 +50,7 @@ public:
 private:
 
     void internalConvertProgram(std::string text,
-    							std::vector<std::unique_ptr<ProgramElement>>* result);
+                                std::vector<std::unique_ptr<ProgramElement>>* result);
 
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;

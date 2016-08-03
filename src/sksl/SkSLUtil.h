@@ -8,6 +8,7 @@
 #ifndef SKSL_UTIL
 #define SKSL_UTIL
 
+#include <iomanip>
 #include <string>
 #include <sstream>
 #include "stdlib.h"
@@ -19,13 +20,9 @@ namespace SkSL {
 // our own definitions of certain std:: functions, because they are not always present on Android
 
 template <typename T> std::string to_string(T value) {
-#ifdef SK_BUILD_FOR_ANDROID
     std::stringstream buffer;
-    buffer << value;
+    buffer << std::setprecision(std::numeric_limits<T>::digits10) << value;
     return buffer.str();
-#else
-    return std::to_string(value);
-#endif
 }
 
 #if _MSC_VER
