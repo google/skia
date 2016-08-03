@@ -11,7 +11,7 @@
 
 #include "SkPoint3.h"
 #include "SkRefCnt.h"
-#include "../private/SkTDArray.h"
+#include "../private/SkTArray.h"
 #include "SkImage.h"
 
 class SK_API SkLights  : public SkRefCnt {
@@ -23,11 +23,24 @@ public:
             kDirectional_LightType
         };
 
+        Light(const Light& other)
+            : fType(other.fType)
+            , fColor(other.fColor)
+            , fDirection(other.fDirection)
+            , fShadowMap(other.fShadowMap) {
+        }
+
+        Light(Light&& other)
+            : fType(other.fType)
+            , fColor(other.fColor)
+            , fDirection(other.fDirection)
+            , fShadowMap(std::move(other.fShadowMap)) {
+        }
+
         Light(const SkColor3f& color)
             : fType(kAmbient_LightType)
             , fColor(color) {
             fDirection.set(0.0f, 0.0f, 1.0f);
-            fShadowMap.reset(nullptr);
         }
 
         Light(const SkColor3f& color, const SkVector3& dir)
@@ -37,7 +50,6 @@ public:
             if (!fDirection.normalize()) {
                 fDirection.set(0.0f, 0.0f, 1.0f);
             }
-            fShadowMap.reset(nullptr);
         }
 
         LightType type() const { return fType; }
@@ -51,22 +63,19 @@ public:
             fShadowMap = std::move(shadowMap);
         }
 
-        sk_sp<SkImage> getShadowMap() const {
-            return fShadowMap;
+        SkImage* getShadowMap() const {
+            return fShadowMap.get();
         }
 
         Light& operator= (const Light& b) {
-            if (this == &b)
+            if (this == &b) {
                 return *this;
-
-            this->fColor = b.fColor;
-            this->fType = b.fType;
-            this->fDirection = b.fDirection;
-
-            if (b.fShadowMap) {
-                this->fShadowMap = b.fShadowMap;
             }
 
+            fColor = b.fColor;
+            fType = b.fType;
+            fDirection = b.fDirection;
+            fShadowMap = b.fShadowMap;
             return *this;
         }
 
@@ -84,12 +93,18 @@ public:
     
         void add(const Light& light) {
             if (fLights) {
-                (void) fLights->fLights.append(1, &light);
+                fLights->fLights.push_back(light);
+            }
+        }
+
+        void add(Light&& light) {
+            if (fLights) {
+                fLights->fLights.push_back(std::move(light));
             }
         }
 
         sk_sp<SkLights> finish() {
-            return fLights;
+            return std::move(fLights);
         }
 
     private:
@@ -111,7 +126,9 @@ public:
 private:
     SkLights() {}
 
-    SkTDArray<Light> fLights;
+    SkTArray<Light> fLights;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif
