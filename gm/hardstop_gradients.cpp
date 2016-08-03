@@ -14,16 +14,25 @@
  * order to highlight the differences between tile modes, the gradient
  * starts and ends at 30 pixel inset from either side of the rectangle.
  *
- *                      | Clamp         Repeat          Mirror
- * _____________________|___________________________________________
- * 2-color              | rect00        rect01          rect02
- * 3-color              | rect10        rect11          rect12
- * 5-color hard stop    | rect20        rect21          rect22
- * 5-color edge case 1  | rect30        rect31          rect32
- * 5-color edge case 2  | rect40        rect41          rect42
+ *                            | Clamp         Repeat          Mirror
+ * ___________________________|___________________________________________
+ * 2-color                    | rect00        rect01          rect02
+ * 3-color even               | rect10        rect11          rect12
+ * 3-color texture            | rect20        rect21          rect22
+ * 5-color hard stop          | rect30        rect31          rect32
+ * 4-color hard stop centered | rect40        rect41          rect42
+ * 3-color hard stop 001      | rect50        rect51          rect52
+ * 3-color hard stop 011      | rect60        rect61          rect62
  *
- * The LAST two t-values in edge case 1 are the same, while the FIRST
- * two t-values in edge case 2 are the same.
+ * The first three rows are cases covered by pre-hard-stop code; simple
+ * 2-color gradients, 3-color gradients with the middle color centered,
+ * and general gradients that are rendered from a texture atlas.
+ *
+ * The next four rows all deal with hard stop gradients. The fourth row
+ * is a generic hard stop gradient, while the three subsequent rows deal
+ * with special cases of hard stop gradients; centered hard stop gradients
+ * (with t-values 0, 0.5, 0.5, 1), and two edge cases (with t-values
+ * 0, 0, 1 and 0, 1, 1).
  */
 
 #include "gm.h"
@@ -33,7 +42,7 @@
 const int WIDTH  = 500;
 const int HEIGHT = 500;
 
-const int NUM_ROWS = 5;
+const int NUM_ROWS = 7;
 const int NUM_COLS = 3;
 
 const int CELL_WIDTH  = WIDTH  / NUM_COLS;
@@ -60,9 +69,9 @@ static void shade_rect(SkCanvas* canvas, sk_sp<SkShader> shader, int cellRow, in
 static void create_gradient_points(int cellRow, int cellCol, SkPoint points[2]) {
     const int X_OFFSET = 30;
 
-    auto x0 = SkIntToScalar(cellCol     * CELL_WIDTH + PAD_WIDTH + X_OFFSET);
-    auto x1 = SkIntToScalar((cellCol+1) * CELL_WIDTH - PAD_WIDTH - X_OFFSET);
-    auto y  = SkIntToScalar(cellRow * CELL_HEIGHT + PAD_HEIGHT + RECT_HEIGHT/2);
+    auto x0 = SkIntToScalar(cellCol     * CELL_WIDTH  + PAD_WIDTH  + X_OFFSET);
+    auto x1 = SkIntToScalar((cellCol+1) * CELL_WIDTH  - PAD_WIDTH  - X_OFFSET);
+    auto y  = SkIntToScalar(cellRow     * CELL_HEIGHT + PAD_HEIGHT + RECT_HEIGHT/2);
 
     points[0] = SkPoint::Make(x0, y);
     points[1] = SkPoint::Make(x1, y);
@@ -94,27 +103,33 @@ protected:
             SK_ColorMAGENTA,
         };
 
-        SkScalar row3[] = {0.00f, 0.25f, 0.50f, 0.50f, 1.00f};
-        SkScalar row4[] = {0.00f, 0.25f, 0.50f, 1.00f, 1.00f};
-        SkScalar row5[] = {0.00f, 0.00f, 0.50f, 0.50f, 1.00f};
+        SkScalar row3[] = {0.00f, 0.25f, 1.00f};
+        SkScalar row4[] = {0.00f, 0.25f, 0.50f, 0.50f, 1.00f};
+        SkScalar row5[] = {0.00f, 0.50f, 0.50f, 1.00f};
+        SkScalar row6[] = {0.00f, 0.00f, 1.00f};
+        SkScalar row7[] = {0.00f, 1.00f, 1.00f};
 
-        SkScalar* positions[] = {
+        SkScalar* positions[NUM_ROWS] = {
             nullptr,
             nullptr,
             row3,
             row4,
             row5,
+            row6,
+            row7,
         };
 
-        int numGradientColors[] = {
+        int numGradientColors[NUM_ROWS] = {
             2,
             3,
+            3,
             5,
-            5,
-            5,
+            4,
+            3,
+            3,
         };
 
-        SkShader::TileMode tilemodes[] = {
+        SkShader::TileMode tilemodes[NUM_COLS] = {
             SkShader::kClamp_TileMode,
             SkShader::kRepeat_TileMode,
             SkShader::kMirror_TileMode,
