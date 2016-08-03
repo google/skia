@@ -1985,10 +1985,11 @@ void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const 
     if (dst.isEmpty()) {
         return;
     }
-    if (!SkLatticeIter::Valid(image->width(), image->height(), center)) {
+    if (SkLatticeIter::Valid(image->width(), image->height(), center)) {
+        this->onDrawImageNine(image, center, dst, paint);
+    } else {
         this->drawImageRect(image, dst, paint);
     }
-    this->onDrawImageNine(image, center, dst, paint);
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
@@ -2022,10 +2023,12 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, con
     if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
-    if (!SkLatticeIter::Valid(bitmap.width(), bitmap.height(), center)) {
+    if (SkLatticeIter::Valid(bitmap.width(), bitmap.height(), center)) {
+        this->onDrawBitmapNine(bitmap, center, dst, paint);
+    } else {
         this->drawBitmapRect(bitmap, dst, paint);
     }
-    this->onDrawBitmapNine(bitmap, center, dst, paint);
+
 }
 
 void SkCanvas::drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
@@ -2040,10 +2043,11 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     if (dst.isEmpty()) {
         return;
     }
-    if (!SkLatticeIter::Valid(image->width(), image->height(), lattice)) {
+    if (SkLatticeIter::Valid(image->width(), image->height(), lattice)) {
+        this->onDrawImageLattice(image, lattice, dst, paint);
+    } else {
         this->drawImageRect(image, dst, paint);
     }
-    this->onDrawImageLattice(image, lattice, dst, paint);
 }
 
 void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
