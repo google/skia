@@ -3,6 +3,9 @@
 # found in the LICENSE file.
 
 
+# pylint: disable=W0201
+
+
 """Default flavor utils class, used for desktop builders."""
 
 
@@ -66,28 +69,28 @@ class DefaultFlavorUtils(object):
   copying files between the host and Android device, as well as the
   'step' function, so that commands may be run through ADB.
   """
-  def __init__(self, skia_api, *args, **kwargs):
-    self._skia_api = skia_api
+  def __init__(self, m):
+    self.m = m
     self._chrome_path = None
-    self._win_toolchain_dir = self._skia_api.slave_dir.join(WIN_TOOLCHAIN_DIR)
-    win_toolchain_asset_path = self._skia_api.infrabots_dir.join(
+    self._win_toolchain_dir = self.m.vars.slave_dir.join(WIN_TOOLCHAIN_DIR)
+    win_toolchain_asset_path = self.m.vars.infrabots_dir.join(
         'assets', 'win_toolchain', 'VERSION')
-    if not self._skia_api.m.path.exists(win_toolchain_asset_path):
-      self._win_toolchain_dir = self._skia_api.slave_dir
+    if not self.m.path.exists(win_toolchain_asset_path):
+      self._win_toolchain_dir = self.m.vars.slave_dir
 
 
   def step(self, name, cmd, **kwargs):
     """Wrapper for the Step API; runs a step as appropriate for this flavor."""
-    path_to_app = self._skia_api.skia_out.join(
-        self._skia_api.configuration, cmd[0])
-    if (self._skia_api.m.platform.is_linux and
-        'x86_64' in self._skia_api.builder_name and
-        not 'TSAN' in self._skia_api.builder_name):
+    path_to_app = self.m.vars.skia_out.join(
+        self.m.vars.configuration, cmd[0])
+    if (self.m.platform.is_linux and
+        'x86_64' in self.m.vars.builder_name and
+        not 'TSAN' in self.m.vars.builder_name):
       new_cmd = ['catchsegv', path_to_app]
     else:
       new_cmd = [path_to_app]
     new_cmd.extend(cmd[1:])
-    return self._skia_api.run(self._skia_api.m.step,
+    return self.m.run(self.m.step,
                               name, cmd=new_cmd, **kwargs)
 
   @property
@@ -97,11 +100,11 @@ class DefaultFlavorUtils(object):
 
   def bootstrap_win_toolchain(self):
     """Run bootstrapping script for the Windows toolchain."""
-    bootstrap_script = self._skia_api.infrabots_dir.join(
+    bootstrap_script = self.m.vars.infrabots_dir.join(
         'bootstrap_win_toolchain_json.py')
     win_toolchain_json = self._win_toolchain_dir.join(
         'src', 'build', 'win_toolchain.json')
-    self._skia_api.m.python(
+    self.m.python(
         'bootstrap win toolchain',
         script=bootstrap_script,
         args=['--win_toolchain_json', win_toolchain_json,
@@ -110,13 +113,13 @@ class DefaultFlavorUtils(object):
 
   def build_command_buffer(self):
     """Build command_buffer."""
-    script = self._skia_api.skia_dir.join('tools', 'build_command_buffer.py')
-    self._skia_api.run(
-        self._skia_api.m.python, 'build command_buffer',
+    script = self.m.vars.skia_dir.join('tools', 'build_command_buffer.py')
+    self.m.run(
+        self.m.python, 'build command_buffer',
         script=script,
-        args=['--chrome-dir', self._skia_api.checkout_root,
+        args=['--chrome-dir', self.m.vars.checkout_root,
               '--output-dir', self.out_dir,
-              '--chrome-build-type', self._skia_api.configuration,
+              '--chrome-build-type', self.m.vars.configuration,
               '--no-sync'])
 
   def compile(self, target):
@@ -124,56 +127,52 @@ class DefaultFlavorUtils(object):
     # The CHROME_PATH environment variable is needed for builders that use
     # toolchains downloaded by Chrome.
     env = {'CHROME_PATH': self.chrome_path}
-    if self._skia_api.m.platform.is_win:
+    if self.m.platform.is_win:
       make_cmd = ['python', 'make.py']
-      self._skia_api._run_once(self.bootstrap_win_toolchain)
-      if 'Vulkan' in self._skia_api.builder_name:
-        env['VK_SDK_PATH'] = self._skia_api.slave_dir.join('win_vulkan_sdk')
-        if not self._skia_api.m.path.exists(self._skia_api.infrabots_dir.join(
-            'assets', 'win_vulkan_sdk', 'VERSION')):
-          # TODO(kjlubick): Remove this once enough time has passed.
-          env['VK_SDK_PATH'] = self._skia_api.slave_dir.join('vulkan_1.0.17.0')
+      self.m.run.run_once(self.bootstrap_win_toolchain)
+      if 'Vulkan' in self.m.vars.builder_name:
+        env['VK_SDK_PATH'] = self.m.vars.slave_dir.join('win_vulkan_sdk')
     else:
       make_cmd = ['make']
     cmd = make_cmd + [target]
     try:
-      self._skia_api.run(self._skia_api.m.step, 'build %s' % target, cmd=cmd,
-                         env=env, cwd=self._skia_api.m.path['checkout'])
-    except self._skia_api.m.step.StepFailure:
-      if self._skia_api.m.platform.is_win:
+      self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
+                       env=env, cwd=self.m.path['checkout'])
+    except self.m.step.StepFailure:
+      if self.m.platform.is_win:
         # The linker occasionally crashes on Windows. Try again.
-        self._skia_api.run(self._skia_api.m.step, 'build %s' % target, cmd=cmd,
-                           env=env, cwd=self._skia_api.m.path['checkout'])
+        self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
+                         env=env, cwd=self.m.path['checkout'])
       else:
         raise
-    if 'CommandBuffer' in self._skia_api.builder_name:
-      self._skia_api._run_once(self.build_command_buffer)
+    if 'CommandBuffer' in self.m.vars.builder_name:
+      self.m.run.run_once(self.build_command_buffer)
 
   def copy_extra_build_products(self, swarming_out_dir):
     """Copy extra build products to specified directory.
 
     Copy flavor-specific build products to swarming_out_dir for use in test and
     perf steps."""
-    if ("Win" in self._skia_api.builder_name and
-        "Vulkan" in self._skia_api.builder_name):
+    if ("Win" in self.m.vars.builder_name and
+        "Vulkan" in self.m.vars.builder_name):
       # This copies vulkan-1.dll that has been bundled into win_vulkan_sdk
       # since version 2  See skia/api BUILD_PRODUCTS_ISOLATE_WHITELIST
-      self._skia_api.copy_build_products(
-        self._skia_api.m.path['slave_build'].join('win_vulkan_sdk'),
-        swarming_out_dir)
+      self.m.run.copy_build_products(
+          self.m.path['slave_build'].join('win_vulkan_sdk'),
+          swarming_out_dir)
 
   @property
   def out_dir(self):
     """Flavor-specific out directory."""
-    return self._skia_api.skia_out.join(self._skia_api.configuration)
+    return self.m.vars.skia_out.join(self.m.vars.configuration)
 
   def device_path_join(self, *args):
     """Like os.path.join(), but for paths on a connected device."""
-    return self._skia_api.m.path.join(*args)
+    return self.m.path.join(*args)
 
   def device_path_exists(self, path):  # pragma: no cover
     """Like os.path.exists(), but for paths on a connected device."""
-    return self._skia_api.m.path.exists(path, infra_step=True)
+    return self.m.path.exists(path, infra_step=True)
 
   def copy_directory_contents_to_device(self, host_dir, device_dir):
     """Like shutil.copytree(), but for copying to a connected device."""
@@ -211,32 +210,23 @@ class DefaultFlavorUtils(object):
 
   def create_clean_host_dir(self, path):
     """Convenience function for creating a clean directory."""
-    self._skia_api.rmtree(path)
-    self._skia_api.m.file.makedirs(
-        self._skia_api.m.path.basename(path), path, infra_step=True)
+    self.m.run.rmtree(path)
+    self.m.file.makedirs(
+        self.m.path.basename(path), path, infra_step=True)
 
   def install(self):
     """Run device-specific installation steps."""
-    pass
+    self.device_dirs = DeviceDirs(
+        dm_dir=self.m.vars.dm_dir,
+        perf_data_dir=self.m.vars.perf_data_dir,
+        resource_dir=self.m.vars.resource_dir,
+        images_dir=self.m.vars.images_dir,
+        skp_dir=self.m.vars.local_skp_dir,
+        tmp_dir=self.m.vars.tmp_dir)
 
   def cleanup_steps(self):
     """Run any device-specific cleanup steps."""
     pass
-
-  def get_device_dirs(self):
-    """ Set the directories which will be used by the build steps.
-
-    These refer to paths on the same device where the test executables will
-    run, for example, for Android bots these are paths on the Android device
-    itself. For desktop bots, these are just local paths.
-    """
-    return DeviceDirs(
-        dm_dir=self._skia_api.dm_dir,
-        perf_data_dir=self._skia_api.perf_data_dir,
-        resource_dir=self._skia_api.resource_dir,
-        images_dir=self._skia_api.images_dir,
-        skp_dir=self._skia_api.local_skp_dir,
-        tmp_dir=self._skia_api.tmp_dir)
 
   def __repr__(self):
     return '<%s object>' % self.__class__.__name__  # pragma: no cover

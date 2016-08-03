@@ -10,9 +10,9 @@ import default_flavor
 
 
 class ValgrindFlavorUtils(default_flavor.DefaultFlavorUtils):
-  def __init__(self, *args, **kwargs):
-    super(ValgrindFlavorUtils, self).__init__(*args, **kwargs)
-    self._suppressions_file = self._skia_api.skia_dir.join(
+  def __init__(self, m):
+    super(ValgrindFlavorUtils, self).__init__(m)
+    self._suppressions_file = self.m.vars.skia_dir.join(
         'tools', 'valgrind.supp')
 
   def step(self, name, cmd, **kwargs):
@@ -22,6 +22,6 @@ class ValgrindFlavorUtils(default_flavor.DefaultFlavorUtils):
     path_to_app = self.out_dir.join(cmd[0])
     new_cmd.append(path_to_app)
     new_cmd.extend(cmd[1:])
-    return self._skia_api.run(self._skia_api.m.step, name, cmd=new_cmd,
-                              **kwargs)
+    return self.m.run(self.m.step, name, cmd=new_cmd,
+                            **kwargs)
 

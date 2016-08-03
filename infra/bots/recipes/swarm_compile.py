@@ -7,11 +7,15 @@
 
 
 DEPS = [
+  'core',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
-  'skia',
+  'recipe_engine/python',
+  'flavor',
+  'run',
+  'vars',
 ]
 
 
@@ -42,10 +46,32 @@ TEST_BUILDERS = {
 
 
 def RunSteps(api):
-  api.skia.setup()
-  api.skia.compile_steps()
-  api.skia.cleanup_steps()
-  api.skia.check_failure()
+  api.core.setup()
+
+  try:
+    for target in api.vars.build_targets:
+      api.flavor.compile(target)
+    api.run.copy_build_products(
+        api.flavor.out_dir,
+        api.vars.swarming_out_dir.join(
+            'out', api.vars.configuration))
+    api.flavor.copy_extra_build_products(api.vars.swarming_out_dir)
+  finally:
+    if 'Win' in api.vars.builder_cfg.get('os', ''):
+      api.python.inline(
+          name='cleanup',
+          program='''import psutil
+for p in psutil.process_iter():
+  try:
+    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):
+      p.kill()
+  except psutil._error.AccessDenied:
+    pass
+''',
+          infra_step=True)
+
+  api.core.cleanup_steps()
+  api.run.check_failure()
 
 
 def GenTests(api):

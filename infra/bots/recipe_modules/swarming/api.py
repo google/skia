@@ -61,7 +61,7 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
                 env=env)
     # Copy binaries to the expected location.
     dest = self.m.path['slave_build'].join('luci-go')
-    self.m.skia.rmtree(dest)
+    self.m.run.rmtree(dest)
     self.m.file.copytree('Copy Go binary',
                          source=luci_go_dir,
                          dest=dest)

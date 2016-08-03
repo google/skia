@@ -9,17 +9,18 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
   def compile(self, target):
     """Build Skia with GN."""
     # Get the gn executable.
-    fetch_gn = self._skia_api.skia_dir.join('bin', 'fetch-gn')
-    self._skia_api.run(self._skia_api.m.step, 'fetch-gn', cmd=[fetch_gn],
-                       cwd=self._skia_api.skia_dir)
+    fetch_gn = self.m.vars.skia_dir.join('bin', 'fetch-gn')
+    self.m.run(self.m.step, 'fetch-gn',
+               cmd=[fetch_gn],
+               cwd=self.m.vars.skia_dir)
 
     is_debug = 'is_debug=true'
-    if self._skia_api.configuration != 'Debug':
-        is_debug = 'is_debug=false'
+    if self.m.vars.configuration != 'Debug':
+      is_debug = 'is_debug=false'
     gn_args = [is_debug]
 
-    is_clang = 'Clang' in self._skia_api.builder_name
-    is_gcc   = 'GCC'   in self._skia_api.builder_name
+    is_clang = 'Clang' in self.m.vars.builder_name
+    is_gcc   = 'GCC'   in self.m.vars.builder_name
 
     cc, cxx = 'cc', 'c++'
     if is_clang:
@@ -27,7 +28,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     elif is_gcc:
       cc, cxx = 'gcc', 'g++'
 
-    ccache = self._skia_api.ccache()
+    ccache = self.m.run.ccache()
     if ccache:
       cc, cxx = '%s %s' % (ccache, cc), '%s %s' % (ccache, cxx)
       if is_clang:
@@ -39,14 +40,14 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     # Run gn gen.
     gn_exe = 'gn'
-    if self._skia_api.m.platform.is_win:
-        gn_exe = 'gn.exe'
+    if self.m.platform.is_win:
+      gn_exe = 'gn.exe'
     gn_gen = [gn_exe, 'gen', self.out_dir, '--args=%s' % ' '.join(gn_args)]
-    self._skia_api.run(self._skia_api.m.step, 'gn_gen', cmd=gn_gen,
-                       cwd=self._skia_api.skia_dir)
+    self.m.run(self.m.step, 'gn_gen', cmd=gn_gen,
+               cwd=self.m.vars.skia_dir)
 
     # Run ninja.
     ninja_cmd = ['ninja', '-C', self.out_dir]
-    self._skia_api.run(self._skia_api.m.step, 'compile %s' % target,
-            cmd=ninja_cmd,
-            cwd=self._skia_api.skia_dir)
+    self.m.run(self.m.step, 'compile %s' % target,
+               cmd=ninja_cmd,
+               cwd=self.m.vars.skia_dir)

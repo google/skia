@@ -873,7 +873,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::skia]/resources/upload_dm_results.py",
+      "RECIPE_MODULE[skia::core]/resources/upload_dm_results.py",
       "[SLAVE_BUILD]/dm",
       "abc123",
       "Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",

@@ -7,12 +7,13 @@
 
 
 DEPS = [
+  'core',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
-  'skia',
+  'run',
 ]
 
 
@@ -31,10 +32,10 @@ TEST_BUILDERS = {
 
 
 def RunSteps(api):
-  api.skia.setup()
-  api.skia.perf_steps()
-  api.skia.cleanup_steps()
-  api.skia.check_failure()
+  api.core.setup()
+  api.core.perf_steps()
+  api.core.cleanup_steps()
+  api.run.check_failure()
 
 
 def GenTests(api):

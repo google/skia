@@ -10,8 +10,8 @@ import default_flavor
 
 
 class XSanFlavorUtils(default_flavor.DefaultFlavorUtils):
-  def __init__(self, *args, **kwargs):
-    super(XSanFlavorUtils, self).__init__(*args, **kwargs)
+  def __init__(self, m):
+    super(XSanFlavorUtils, self).__init__(m)
     self._sanitizer = {
       # We'd love to just pass 'address,undefined' and get all the checks, but
       # we're not anywhere close to being able to do that.  Instead we start
@@ -24,37 +24,37 @@ class XSanFlavorUtils(default_flavor.DefaultFlavorUtils):
       # MSAN and TSAN can't run together with ASAN, so they're their own bots.
       'MSAN': 'memory',
       'TSAN': 'thread',
-    }[self._skia_api.builder_cfg['extra_config'].replace('Swarming', '')]
+    }[self.m.vars.builder_cfg['extra_config'].replace('Swarming', '')]
 
   def compile(self, target):
-    cmd = [self._skia_api.skia_dir.join('tools', 'xsan_build'),
+    cmd = [self.m.vars.skia_dir.join('tools', 'xsan_build'),
            self._sanitizer, target]
-    self._skia_api.run(self._skia_api.m.step, 'build %s' % target, cmd=cmd,
-                       cwd=self._skia_api.skia_dir)
+    self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
+                     cwd=self.m.vars.skia_dir)
 
   def copy_extra_build_products(self, swarming_out_dir):
     # Include msan_out if MSAN.
-    if 'MSAN' in self._skia_api.builder_cfg['extra_config']:
-      msan_out = self._skia_api.m.path.join(
+    if 'MSAN' in self.m.vars.builder_cfg['extra_config']:
+      msan_out = self.m.path.join(
           'third_party', 'externals', 'llvm', 'msan_out')
-      self._skia_api.m.file.copytree(
+      self.m.file.copytree(
           'copy msan_out',
-          self._skia_api.skia_dir.join(msan_out),
+          self.m.vars.skia_dir.join(msan_out),
           swarming_out_dir.join(msan_out),
           symlinks=True)
     # Include llvm_symbolizer from the Chromium DEPS so that suppressions work
     # by symbol name.
     # TODO(benjaminwagner): Figure out how to add this to Skia DEPS for
     # target_os 'llvm'.
-    self._skia_api.m.file.copytree(
+    self.m.file.copytree(
         'copy llvm-build',
-        self._skia_api.checkout_root.join('src', 'third_party', 'llvm-build'),
+        self.m.vars.checkout_root.join('src', 'third_party', 'llvm-build'),
         swarming_out_dir.join('llvm-build'),
         symlinks=True)
 
   def step(self, name, cmd, env=None, **kwargs):
     """Wrapper for the Step API; runs a step as appropriate for this flavor."""
-    skia_dir = self._skia_api.skia_dir
+    skia_dir = self.m.vars.skia_dir
     lsan_suppressions = skia_dir.join('tools', 'lsan.supp')
     tsan_suppressions = skia_dir.join('tools', 'tsan.supp')
     ubsan_suppressions = skia_dir.join('tools', 'ubsan.supp')
@@ -64,13 +64,12 @@ class XSanFlavorUtils(default_flavor.DefaultFlavorUtils):
                            lsan_suppressions)
     env['TSAN_OPTIONS'] = 'suppressions=%s' % tsan_suppressions
     env['UBSAN_OPTIONS'] = 'suppressions=%s' % ubsan_suppressions
-    self._skia_api.default_env['PATH'] = '%%(PATH)s:%s' % (
-        self._skia_api.slave_dir.join('llvm-build', 'Release+Asserts', 'bin'))
-    env['LD_LIBRARY_PATH'] = self._skia_api.slave_dir.join(
+    self.m.vars.default_env['PATH'] = '%%(PATH)s:%s' % (
+        self.m.vars.slave_dir.join('llvm-build', 'Release+Asserts', 'bin'))
+    env['LD_LIBRARY_PATH'] = self.m.vars.slave_dir.join(
         'third_party', 'externals', 'llvm', 'msan_out', 'lib')
 
     path_to_app = self.out_dir.join(cmd[0])
     new_cmd = [path_to_app]
     new_cmd.extend(cmd[1:])
-    return self._skia_api.run(self._skia_api.m.step, name, cmd=new_cmd, env=env,
-                              **kwargs)
+    return self.m.run(self.m.step, name, cmd=new_cmd, env=env, **kwargs)

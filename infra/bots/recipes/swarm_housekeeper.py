@@ -7,11 +7,13 @@
 
 
 DEPS = [
+  'core',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
-  'skia',
   'recipe_engine/step',
+  'run',
+  'vars',
 ]
 
 
@@ -27,11 +29,11 @@ TEST_BUILDERS = {
 
 def RunSteps(api):
   # Checkout, compile, etc.
-  api.skia.setup()
+  api.core.setup()
 
   cwd = api.path['checkout']
 
-  api.skia.run(
+  api.run(
     api.step,
     'android platform self-tests',
     cmd=['python',
@@ -43,22 +45,23 @@ def RunSteps(api):
 
   gsutil_path = api.path['depot_tools'].join('third_party', 'gsutil',
                                              'gsutil')
-  if not api.skia.is_trybot:
-    api.skia.run(
+  if not api.vars.is_trybot:
+    api.run(
       api.step,
       'generate and upload doxygen',
-      cmd=['python', api.skia.resource('generate_and_upload_doxygen.py'),
+      cmd=['python', api.core.resource('generate_and_upload_doxygen.py'),
            gsutil_path],
       cwd=cwd,
       abort_on_failure=False)
 
-  cmd = ['python', api.skia.resource('run_binary_size_analysis.py'),
-         '--library', api.skia.skia_out.join('Release', 'lib', 'libskia.so'),
+  cmd = ['python', api.core.resource('run_binary_size_analysis.py'),
+         '--library', api.vars.skia_out.join(
+             'Release', 'lib', 'libskia.so'),
          '--githash', api.properties['revision'],
          '--gsutil_path', gsutil_path]
-  if api.skia.is_trybot:
-    cmd.extend(['--issue_number', str(api.skia.m.properties['issue'])])
-  api.skia.run(
+  if api.vars.is_trybot:
+    cmd.extend(['--issue_number', str(api.properties['issue'])])
+  api.run(
     api.step,
     'generate and upload binary size data',
     cmd=cmd,
@@ -82,4 +85,6 @@ def GenTests(api):
         )
         if 'Trybot' in buildername:
           test.properties['issue'] = '500'
+          test.properties['patchset'] = '1'
+          test.properties['rietveld'] = 'https://codereview.chromium.org'
         yield test

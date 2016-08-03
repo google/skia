@@ -868,7 +868,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::skia]/resources/upload_dm_results.py",
+      "RECIPE_MODULE[skia::core]/resources/upload_dm_results.py",
       "[SLAVE_BUILD]/dm",
       "abc123",
       "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release",

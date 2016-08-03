@@ -10,6 +10,7 @@ import json
 
 
 DEPS = [
+  'core',
   'build/file',
   'build/gsutil',
   'depot_tools/depot_tools',
@@ -22,8 +23,9 @@ DEPS = [
   'recipe_engine/raw_io',
   'recipe_engine/step',
   'recipe_engine/time',
-  'skia',
-  'skia_swarming',
+  'run',
+  'swarming',
+  'vars',
 ]
 
 
@@ -196,7 +198,7 @@ def trigger_task(api, task_name, builder, master, slave, buildnumber,
     isolate_file = 'coverage_skia.isolate'
   if 'RecreateSKPs' in builder:
     isolate_file = 'compile_skia.isolate'
-  return api.skia_swarming.isolate_and_trigger_task(
+  return api.swarming.isolate_and_trigger_task(
       infrabots_dir.join(isolate_file),
       isolate_base_dir,
       '%s_skia' % task_name,
@@ -231,7 +233,7 @@ def checkout_steps(api):
   # Write a fake .gclient file if none exists. This is required by .isolates.
   dot_gclient = api.path['slave_build'].join('.gclient')
   if not api.path.exists(dot_gclient):
-    api.skia._writefile(dot_gclient, '')
+    api.run.writefile(dot_gclient, '')
 
   fix_filemodes(api, api.path['checkout'])
   return got_revision
@@ -252,7 +254,7 @@ def housekeeper_swarm(api, builder_spec, got_revision, infrabots_dir,
       idempotent=False,
       store_output=False,
       extra_isolate_hashes=extra_isolate_hashes)
-  return api.skia_swarming.collect_swarming_task(task)
+  return api.swarming.collect_swarming_task(task)
 
 
 def recreate_skps_swarm(api, builder_spec, got_revision, infrabots_dir,
@@ -270,7 +272,7 @@ def recreate_skps_swarm(api, builder_spec, got_revision, infrabots_dir,
       idempotent=False,
       store_output=False,
       extra_isolate_hashes=extra_isolate_hashes)
-  return api.skia_swarming.collect_swarming_task(task)
+  return api.swarming.collect_swarming_task(task)
 
 
 def infra_swarm(api, got_revision, infrabots_dir, extra_isolate_hashes):
@@ -294,7 +296,7 @@ def infra_swarm(api, got_revision, infrabots_dir, extra_isolate_hashes):
       idempotent=False,
       store_output=False,
       extra_isolate_hashes=extra_isolate_hashes)
-  return api.skia_swarming.collect_swarming_task(task)
+  return api.swarming.collect_swarming_task(task)
 
 
 def compile_steps_swarm(api, builder_spec, got_revision, infrabots_dir,
@@ -303,7 +305,7 @@ def compile_steps_swarm(api, builder_spec, got_revision, infrabots_dir,
                                          builder_spec)
   compile_builder_spec = builder_spec
   if builder_name != api.properties['buildername']:
-    compile_builder_spec = api.skia.get_builder_spec(
+    compile_builder_spec = api.core.get_builder_spec(
         api.path['slave_build'].join('skia'), builder_name)
 
   extra_hashes = extra_isolate_hashes[:]
@@ -311,7 +313,7 @@ def compile_steps_swarm(api, builder_spec, got_revision, infrabots_dir,
   # Windows bots require a toolchain.
   if 'Win' in builder_name:
     version_file = infrabots_dir.join('assets', 'win_toolchain', 'VERSION')
-    version = api.skia._readfile(version_file,
+    version = api.run.readfile(version_file,
                                  name='read win_toolchain VERSION',
                                  test_data='0').rstrip()
     version = 'version:%s' % version
@@ -342,7 +344,7 @@ def compile_steps_swarm(api, builder_spec, got_revision, infrabots_dir,
       cipd_packages=cipd_packages)
 
   # Wait for compile to finish, record the results hash.
-  return api.skia_swarming.collect_swarming_task_isolate_hash(task)
+  return api.swarming.collect_swarming_task_isolate_hash(task)
 
 
 def get_timeouts(builder_cfg):
@@ -388,8 +390,8 @@ def perf_steps_collect(api, task, upload_perf_results, got_revision,
                        is_trybot):
   """Wait for perf steps to finish and upload results."""
   # Wait for nanobench to finish, download the results.
-  api.skia.rmtree(task.task_output_dir)
-  api.skia_swarming.collect_swarming_task(task)
+  api.run.rmtree(task.task_output_dir)
+  api.swarming.collect_swarming_task(task)
 
   # Upload the results.
   if upload_perf_results:
@@ -397,7 +399,7 @@ def perf_steps_collect(api, task, upload_perf_results, got_revision,
         'perfdata', api.properties['buildername'], 'data')
     git_timestamp = api.git.get_timestamp(test_data='1408633190',
                                           infra_step=True)
-    api.skia.rmtree(perf_data_dir)
+    api.run.rmtree(perf_data_dir)
     api.file.makedirs('perf_dir', perf_data_dir, infra_step=True)
     src_results_file = task.task_output_dir.join(
         '0', 'perfdata', api.properties['buildername'], 'data',
@@ -416,7 +418,7 @@ def perf_steps_collect(api, task, upload_perf_results, got_revision,
       upload_args.append(api.properties['issue'])
     api.python(
              'Upload perf results',
-             script=api.skia.resource('upload_bench_results.py'),
+             script=api.core.resource('upload_bench_results.py'),
              args=upload_args,
              cwd=api.path['checkout'],
              infra_step=True)
@@ -448,20 +450,20 @@ def test_steps_collect(api, task, upload_dm_results, got_revision, is_trybot,
                        builder_cfg):
   """Collect the test results from Swarming."""
   # Wait for tests to finish, download the results.
-  api.skia.rmtree(task.task_output_dir)
-  api.skia_swarming.collect_swarming_task(task)
+  api.run.rmtree(task.task_output_dir)
+  api.swarming.collect_swarming_task(task)
 
   # Upload the results.
   if upload_dm_results:
     dm_dir = api.path['slave_build'].join('dm')
     dm_src = task.task_output_dir.join('0', 'dm')
-    api.skia.rmtree(dm_dir)
+    api.run.rmtree(dm_dir)
     api.file.copytree('dm_dir', dm_src, dm_dir, infra_step=True)
 
     # Upload them to Google Storage.
     api.python(
         'Upload DM Results',
-        script=api.skia.resource('upload_dm_results.py'),
+        script=api.core.resource('upload_dm_results.py'),
         args=[
           dm_dir,
           got_revision,
@@ -471,7 +473,7 @@ def test_steps_collect(api, task, upload_dm_results, got_revision, is_trybot,
           api.path['slave_build'].join('skia', 'common', 'py', 'utils'),
         ],
         cwd=api.path['checkout'],
-        env=api.skia.gsutil_env('chromium-skia-gm.boto'),
+        env=api.vars.gsutil_env('chromium-skia-gm.boto'),
         infra_step=True)
 
   if builder_cfg['configuration']  == 'Coverage':
@@ -522,10 +524,10 @@ def upload_coverage_results(api, task, got_revision, is_trybot):
     upload_args.append(api.properties['issue'])
   api.python(
       'upload nanobench coverage results',
-      script=api.skia.resource('upload_bench_results.py'),
+      script=api.core.resource('upload_bench_results.py'),
       args=upload_args,
       cwd=api.path['checkout'],
-      env=api.skia.gsutil_env('chromium-skia-gm.boto'),
+      env=api.vars.gsutil_env('chromium-skia-gm.boto'),
       infra_step=True)
 
   # Transform the coverage_by_line_${git_hash}.json file received from
@@ -552,7 +554,7 @@ def upload_coverage_results(api, task, got_revision, is_trybot):
 def cipd_pkg(api, infrabots_dir, asset_name):
   """Find and return the CIPD package info for the given asset."""
   version_file = infrabots_dir.join('assets', asset_name, 'VERSION')
-  version = api.skia._readfile(version_file,
+  version = api.run.readfile(version_file,
                                name='read %s VERSION' % asset_name,
                                test_data='0').rstrip()
   version = 'version:%s' % version
@@ -584,7 +586,7 @@ def RunSteps(api):
 
   got_revision = checkout_steps(api)
   infrabots_dir = api.path['checkout'].join('infra', 'bots')
-  api.skia_swarming.setup(
+  api.swarming.setup(
       infrabots_dir.join('tools', 'luci-go'),
       swarming_rev='')
 
@@ -601,7 +603,7 @@ def RunSteps(api):
   if 'Infra' in api.properties['buildername']:
     return infra_swarm(api, got_revision, infrabots_dir, extra_hashes)
 
-  builder_spec = api.skia.get_builder_spec(api.path['checkout'],
+  builder_spec = api.core.get_builder_spec(api.path['checkout'],
                                            api.properties['buildername'])
   builder_cfg = builder_spec['builder_cfg']
 
@@ -609,8 +611,6 @@ def RunSteps(api):
     recreate_skps_swarm(api, builder_spec, got_revision, infrabots_dir,
                         extra_hashes)
     return
-
-  # Android bots require an SDK.
   if 'Android' in api.properties['buildername']:
     compile_cipd_deps.append(cipd_pkg(api, infrabots_dir, 'android_sdk'))
 

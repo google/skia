@@ -76,7 +76,7 @@
   {
     "cmd": [
       "python",
-      "RECIPE_MODULE[skia::skia]/resources/run_binary_size_analysis.py",
+      "RECIPE_MODULE[skia::core]/resources/run_binary_size_analysis.py",
       "--library",
       "[SLAVE_BUILD]/out/Release/lib/libskia.so",
       "--githash",

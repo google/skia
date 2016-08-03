@@ -907,7 +907,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::skia]/resources/upload_bench_results.py",
+      "RECIPE_MODULE[skia::core]/resources/upload_bench_results.py",
       "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot",
       "5",
       "[SLAVE_BUILD]/perfdata/Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot/data",

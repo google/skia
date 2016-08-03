@@ -8,13 +8,14 @@
 
 DEPS = [
   'build/file',
+  'core',
   'depot_tools/gclient',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/raw_io',
   'recipe_engine/step',
-  'skia',
+  'vars',
 ]
 
 
@@ -91,9 +92,9 @@ if os.path.isfile(backup_file):
 
 def RunSteps(api):
   # Check out Chrome.
-  api.skia.setup()
+  api.core.setup()
 
-  src_dir = api.skia.checkout_root.join('src')
+  src_dir = api.vars.checkout_root.join('src')
   out_dir = src_dir.join('out', 'Release')
 
   # Call GN.
@@ -150,7 +151,7 @@ with open(dest_path, 'w') as f:
   recreate_skps_env = {}
   recreate_skps_env.update(env)
   recreate_skps_env.update(boto_env)
-  asset_dir = api.skia.infrabots_dir.join('assets', 'skp')
+  asset_dir = api.vars.infrabots_dir.join('assets', 'skp')
   cmd = ['python', asset_dir.join('create.py'),
          '--chrome_src_path', src_dir,
          '--browser_executable', src_dir.join('out', 'Release', 'chrome'),
@@ -159,18 +160,18 @@ with open(dest_path, 'w') as f:
     cmd.append('--upload_to_partner_bucket')
   api.step('Recreate SKPs',
            cmd=cmd,
-           cwd=api.skia.skia_dir,
+           cwd=api.vars.skia_dir,
            env=recreate_skps_env)
 
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
     cmd = ['python',
-           api.skia.skia_dir.join('infra', 'bots', 'upload_skps.py'),
+           api.vars.skia_dir.join('infra', 'bots', 'upload_skps.py'),
            '--target_dir', output_dir]
     with depot_tools_auth(api, UPDATE_SKPS_KEY):
       api.step('Upload SKPs',
                cmd=cmd,
-               cwd=api.skia.skia_dir,
+               cwd=api.vars.skia_dir,
                env=env)
 
 

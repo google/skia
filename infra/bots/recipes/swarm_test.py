@@ -7,12 +7,13 @@
 
 
 DEPS = [
+  'core',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
-  'skia',
+  'run',
 ]
 
 
@@ -33,10 +34,10 @@ TEST_BUILDERS = {
 
 
 def RunSteps(api):
-  api.skia.setup()
-  api.skia.test_steps()
-  api.skia.cleanup_steps()
-  api.skia.check_failure()
+  api.core.setup()
+  api.core.test_steps()
+  api.core.cleanup_steps()
+  api.run.check_failure()
 
 
 def GenTests(api):
@@ -306,39 +307,4 @@ def GenTests(api):
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     api.platform('win', 64)
-  )
-
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
-  yield (
-    api.test('legacy_skimage_version') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    )
-  )
-
-  yield (
-    api.test('legacy_skp_version') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    )
   )
