@@ -162,6 +162,37 @@ FAKE_SPECS = {
     'upload_dm_results': True,
     'upload_perf_results': False,
   },
+  'Build-Ubuntu-Clang-x86_64-Debug-GN': {
+    'build_targets': [
+      'most',
+    ],
+    'builder_cfg': {
+      'compiler': 'Clang',
+      'configuration': 'Debug',
+      'extra_config': 'GN',
+      'is_trybot': False,
+      'os': 'Ubuntu',
+      'role': 'Build',
+      'target_arch': 'x86_64',
+    },
+    'configuration': 'Debug',
+    'dm_flags': [
+      '--dummy-flags',
+    ],
+    'do_perf_steps': False,
+    'do_test_steps': False,
+    'env': {
+      'CC': '/usr/bin/clang',
+      'CXX': '/usr/bin/clang++',
+      'GYP_DEFINES':
+          'skia_arch_type=x86_64 skia_clang_build=1 skia_warnings_as_errors=1',
+    },
+    'nanobench_flags': [
+      '--dummy-flags',
+    ],
+    'upload_dm_results': True,
+    'upload_perf_results': False,
+  },
   'Build-Ubuntu-GCC-Arm64-Debug-Android_Vulkan': {
     'build_targets': [
       'most',
@@ -312,34 +343,6 @@ FAKE_SPECS = {
     'builder_cfg': {
       'compiler': 'GCC',
       'configuration': 'Debug',
-      'is_trybot': False,
-      'os': 'Ubuntu',
-      'role': 'Build',
-      'target_arch': 'x86_64',
-    },
-    'configuration': 'Debug',
-    'dm_flags': [
-      '--dummy-flags',
-    ],
-    'do_perf_steps': False,
-    'do_test_steps': False,
-    'env': {
-      'GYP_DEFINES': 'skia_arch_type=x86_64 skia_warnings_as_errors=1',
-    },
-    'nanobench_flags': [
-      '--dummy-flags',
-    ],
-    'upload_dm_results': True,
-    'upload_perf_results': False,
-  },
-  'Build-Ubuntu-Clang-x86_64-Debug-GN': {
-    'build_targets': [
-      'most',
-    ],
-    'builder_cfg': {
-      'compiler': 'Clang',
-      'configuration': 'Debug',
-      'extra_config': 'GN',
       'is_trybot': False,
       'os': 'Ubuntu',
       'role': 'Build',

@@ -101,7 +101,9 @@
       "@@@STEP_LOG_LINE@json.output@  \"do_perf_steps\": false, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"do_test_steps\": false, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"env\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"GYP_DEFINES\": \"skia_arch_type=x86_64 skia_warnings_as_errors=1\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"CC\": \"/usr/bin/clang\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"CXX\": \"/usr/bin/clang++\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"GYP_DEFINES\": \"skia_arch_type=x86_64 skia_clang_build=1 skia_warnings_as_errors=1\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"nanobench_flags\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",
@@ -119,8 +121,10 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=x86_64 skia_warnings_as_errors=1",
+      "CXX": "/usr/bin/clang++",
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_clang_build=1 skia_warnings_as_errors=1",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN"
     },
@@ -134,8 +138,10 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=x86_64 skia_warnings_as_errors=1",
+      "CXX": "/usr/bin/clang++",
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_clang_build=1 skia_warnings_as_errors=1",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN"
     },
@@ -169,8 +175,10 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=x86_64 skia_warnings_as_errors=1",
+      "CXX": "/usr/bin/clang++",
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_clang_build=1 skia_warnings_as_errors=1",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN"
     },
@@ -185,8 +193,10 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=x86_64 skia_warnings_as_errors=1",
+      "CXX": "/usr/bin/clang++",
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_clang_build=1 skia_warnings_as_errors=1",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN"
     },

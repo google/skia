@@ -153,7 +153,7 @@ def main():
     os.remove(tmp_spec_file.name)
 
   out = os.path.join(
-      SKIA_DIR, 'infra', 'bots', 'recipe_modules', 'skia', 'fake_specs.py')
+      SKIA_DIR, 'infra', 'bots', 'recipe_modules', 'core', 'fake_specs.py')
 
   with open(out, 'w') as f:
     f.write('''# Copyright 2016 The Chromium Authors. All rights reserved.
