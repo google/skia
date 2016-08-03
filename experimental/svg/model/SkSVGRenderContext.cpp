@@ -6,8 +6,44 @@
  */
 
 #include "SkSVGRenderContext.h"
+#include "SkSVGTypes.h"
 
-SkSVGRenderContext::SkSVGRenderContext() { }
+namespace {
+
+SkScalar length_size_for_type(const SkSize& viewport, SkSVGLengthContext::LengthType t) {
+    switch (t) {
+    case SkSVGLengthContext::LengthType::kHorizontal:
+        return viewport.width();
+    case SkSVGLengthContext::LengthType::kVertical:
+        return viewport.height();
+    case SkSVGLengthContext::LengthType::kOther:
+        return SkScalarSqrt(viewport.width() * viewport.height());
+    }
+
+    SkASSERT(false);  // Not reached.
+    return 0;
+}
+
+} // anonymous ns
+
+SkScalar SkSVGLengthContext::resolve(const SkSVGLength& l, LengthType t) const {
+    switch (l.unit()) {
+    case SkSVGLength::Unit::kNumber:
+        return l.value();
+        break;
+    case SkSVGLength::Unit::kPercentage:
+        return l.value() * length_size_for_type(fViewport, t) / 100;
+        break;
+    default:
+        SkDebugf("unsupported unit type: <%d>\n", l.unit());
+        break;
+    }
+
+    return 0;
+}
+
+SkSVGRenderContext::SkSVGRenderContext(const SkSize& initialViewport)
+    : fLengthContext(initialViewport) {}
 
 SkSVGRenderContext& SkSVGRenderContext::operator=(const SkSVGRenderContext& other) {
     if (other.fFill.isValid()) {

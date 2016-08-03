@@ -5,17 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkSVGSVG_DEFINED
-#define SkSVGSVG_DEFINED
+#ifndef SkSVGRect_DEFINED
+#define SkSVGRect_DEFINED
 
-#include "SkSVGContainer.h"
+#include "SkSVGShape.h"
 #include "SkSVGTypes.h"
 
-class SkSVGSVG : public SkSVGContainer {
+class SkSVGRect final : public SkSVGShape {
 public:
-    virtual ~SkSVGSVG() = default;
-
-    static sk_sp<SkSVGSVG> Make() { return sk_sp<SkSVGSVG>(new SkSVGSVG()); }
+    virtual ~SkSVGRect() = default;
+    static sk_sp<SkSVGRect> Make() { return sk_sp<SkSVGRect>(new SkSVGRect()); }
 
     void setX(const SkSVGLength&);
     void setY(const SkSVGLength&);
@@ -25,15 +24,17 @@ public:
 protected:
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
+    void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&) const override;
+
 private:
-    SkSVGSVG();
+    SkSVGRect();
 
     SkSVGLength fX      = SkSVGLength(0);
     SkSVGLength fY      = SkSVGLength(0);
-    SkSVGLength fWidth  = SkSVGLength(100, SkSVGLength::Unit::kPercentage);
-    SkSVGLength fHeight = SkSVGLength(100, SkSVGLength::Unit::kPercentage);
+    SkSVGLength fWidth  = SkSVGLength(0);
+    SkSVGLength fHeight = SkSVGLength(0);
 
-    typedef SkSVGContainer INHERITED;
+    typedef SkSVGShape INHERITED;
 };
 
-#endif // SkSVGSVG_DEFINED
+#endif // SkSVGRect_DEFINED

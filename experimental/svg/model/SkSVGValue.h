@@ -11,14 +11,16 @@
 #include "SkColor.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
+#include "SkSVGTypes.h"
 #include "SkTypes.h"
 
 class SkSVGValue : public SkNoncopyable {
 public:
     enum class Type {
-        Color,
-        Path,
-        Transform,
+        kColor,
+        kLength,
+        kPath,
+        kTransform,
     };
 
     Type type() const { return fType; }
@@ -33,6 +35,8 @@ protected:
 
 private:
     Type fType;
+
+    typedef SkNoncopyable INHERITED;
 };
 
 template <typename SkiaType, SkSVGValue::Type ValueType>
@@ -49,11 +53,12 @@ public:
 private:
     SkiaType fWrappedValue;
 
-    using INHERITED = SkSVGValue;
+    typedef SkSVGValue INHERITED;
 };
 
-using SkSVGColorValue     = SkSVGWrapperValue<SkColor , SkSVGValue::Type::Color    >;
-using SkSVGPathValue      = SkSVGWrapperValue<SkPath  , SkSVGValue::Type::Path     >;
-using SkSVGTransformValue = SkSVGWrapperValue<SkMatrix, SkSVGValue::Type::Transform>;
+using SkSVGColorValue     = SkSVGWrapperValue<SkSVGColor , SkSVGValue::Type::kColor    >;
+using SkSVGLengthValue    = SkSVGWrapperValue<SkSVGLength, SkSVGValue::Type::kLength   >;
+using SkSVGPathValue      = SkSVGWrapperValue<SkPath     , SkSVGValue::Type::kPath     >;
+using SkSVGTransformValue = SkSVGWrapperValue<SkMatrix   , SkSVGValue::Type::kTransform>;
 
 #endif // SkSVGValue_DEFINED

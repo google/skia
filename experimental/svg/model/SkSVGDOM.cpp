@@ -10,44 +10,19 @@
 #include "SkParse.h"
 #include "SkParsePath.h"
 #include "SkString.h"
+#include "SkSVGAttributeParser.h"
 #include "SkSVGDOM.h"
 #include "SkSVGG.h"
 #include "SkSVGNode.h"
 #include "SkSVGPath.h"
+#include "SkSVGRect.h"
+#include "SkSVGRenderContext.h"
 #include "SkSVGSVG.h"
+#include "SkSVGTypes.h"
 #include "SkSVGValue.h"
 #include "SkTSearch.h"
 
 namespace {
-
-SkColor ParseColor(const char* str) {
-    // FIXME: real parser
-    if (*str++ != '#') {
-        return SK_ColorBLACK;
-    }
-
-    uint32_t v;
-    const char* consumed = SkParse::FindHex(str, &v);
-
-    switch(consumed - str) {
-    case 6:
-        // matched '#xxxxxx'
-        break;
-    case 3:
-        // matched '#xxx;
-        v = ((v << 12) & 0x00f00000) |
-            ((v <<  8) & 0x000ff000) |
-            ((v <<  4) & 0x00000ff0) |
-            ((v <<  0) & 0x0000000f);
-        break;
-    default:
-        // failed
-        v = 0;
-        break;
-    }
-
-    return v | 0xff000000;
-}
 
 const char* ParseScalarPair(const char* str, SkScalar v[2]) {
     str = SkParse::FindScalar(str, v);
@@ -98,7 +73,13 @@ SkMatrix ParseTransform(const char* str) {
 
 bool SetPaintAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                        const char* stringValue) {
-    node->setAttribute(attr, SkSVGColorValue(ParseColor(stringValue)));
+    SkSVGColor color;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseColor(&color)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGColorValue(color));
     return true;
 }
 
@@ -116,6 +97,18 @@ bool SetPathDataAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
 bool SetTransformAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                            const char* stringValue) {
     node->setAttribute(attr, SkSVGTransformValue(ParseTransform(stringValue)));
+    return true;
+}
+
+bool SetLengthAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                        const char* stringValue) {
+    SkSVGLength length;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseLength(&length)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGLengthValue(length));
     return true;
 }
 
@@ -185,16 +178,21 @@ struct AttrParseInfo {
 };
 
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
-    { "d",         { SkSVGAttribute::kD,         SetPathDataAttribute  }},
-    { "fill",      { SkSVGAttribute::kFill,      SetPaintAttribute     }},
-    { "stroke",    { SkSVGAttribute::kStroke,    SetPaintAttribute     }},
-    { "style",     { SkSVGAttribute::kUnknown,   SetStyleAttributes    }},
+    { "d"        , { SkSVGAttribute::kD        , SetPathDataAttribute  }},
+    { "fill"     , { SkSVGAttribute::kFill     , SetPaintAttribute     }},
+    { "height"   , { SkSVGAttribute::kHeight   , SetLengthAttribute    }},
+    { "stroke"   , { SkSVGAttribute::kStroke   , SetPaintAttribute     }},
+    { "style"    , { SkSVGAttribute::kUnknown  , SetStyleAttributes    }},
     { "transform", { SkSVGAttribute::kTransform, SetTransformAttribute }},
+    { "width"    , { SkSVGAttribute::kWidth    , SetLengthAttribute    }},
+    { "x"        , { SkSVGAttribute::kX        , SetLengthAttribute    }},
+    { "y"        , { SkSVGAttribute::kY        , SetLengthAttribute    }},
 };
 
 SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "g"   , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();    }},
     { "path", []() -> sk_sp<SkSVGNode> { return SkSVGPath::Make(); }},
+    { "rect", []() -> sk_sp<SkSVGNode> { return SkSVGRect::Make(); }},
     { "svg" , []() -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();  }},
 };
 
@@ -294,7 +292,8 @@ sk_sp<SkSVGDOM> SkSVGDOM::MakeFromStream(SkStream& svgStream, const SkSize& cont
 
 void SkSVGDOM::render(SkCanvas* canvas) const {
     if (fRoot) {
-        fRoot->render(canvas);
+        SkSVGRenderContext ctx(fContainerSize);
+        fRoot->render(canvas, ctx);
     }
 }
 

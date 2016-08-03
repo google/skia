@@ -8,16 +8,38 @@
 #ifndef SkSVGRenderContext_DEFINED
 #define SkSVGRenderContext_DEFINED
 
+#include "SkSize.h"
 #include "SkPaint.h"
 #include "SkTLazy.h"
 
 class SkPaint;
+class SkSVGLength;
+
+class SkSVGLengthContext {
+public:
+    SkSVGLengthContext(const SkSize& viewport) : fViewport(viewport) {}
+
+    enum class LengthType {
+        kHorizontal,
+        kVertical,
+        kOther,
+    };
+
+    void setViewPort(const SkSize& viewport) { fViewport = viewport; }
+
+    SkScalar resolve(const SkSVGLength&, LengthType) const;
+
+private:
+    SkSize fViewport;
+};
 
 class SkSVGRenderContext {
 public:
-    SkSVGRenderContext();
+    explicit SkSVGRenderContext(const SkSize& initialViewport);
     SkSVGRenderContext(const SkSVGRenderContext&) = default;
     SkSVGRenderContext& operator=(const SkSVGRenderContext&);
+
+    const SkSVGLengthContext& lengthContext() const { return fLengthContext; }
 
     const SkPaint* fillPaint() const { return fFill.getMaybeNull(); }
     const SkPaint* strokePaint() const { return fStroke.getMaybeNull(); }
@@ -29,8 +51,9 @@ private:
     SkPaint& ensureFill();
     SkPaint& ensureStroke();
 
-    SkTLazy<SkPaint> fFill;
-    SkTLazy<SkPaint> fStroke;
+    SkSVGLengthContext fLengthContext;
+    SkTLazy<SkPaint>   fFill;
+    SkTLazy<SkPaint>   fStroke;
 };
 
 #endif // SkSVGRenderContext_DEFINED

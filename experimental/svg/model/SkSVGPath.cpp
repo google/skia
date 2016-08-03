@@ -13,17 +13,6 @@
 
 SkSVGPath::SkSVGPath() : INHERITED(SkSVGTag::kPath) { }
 
-void SkSVGPath::doRender(SkCanvas* canvas, const SkPaint* paint) const {
-    if (paint) {
-        canvas->drawPath(fPath, *paint);
-    }
-}
-
-void SkSVGPath::onRender(SkCanvas* canvas, const SkSVGRenderContext& ctx) const {
-    this->doRender(canvas, ctx.fillPaint());
-    this->doRender(canvas, ctx.strokePaint());
-}
-
 void SkSVGPath::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kD:
@@ -34,4 +23,8 @@ void SkSVGPath::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     default:
         this->INHERITED::onSetAttribute(attr, v);
     }
+}
+
+void SkSVGPath::onDraw(SkCanvas* canvas, const SkSVGLengthContext&, const SkPaint& paint) const {
+    canvas->drawPath(fPath, paint);
 }

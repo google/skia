@@ -8,14 +8,18 @@
 #ifndef SkSVGAttribute_DEFINED
 #define SkSVGAttribute_DEFINED
 
-#include "SkColor.h"
+#include "SkSVGTypes.h"
 #include "SkTLazy.h"
 
 enum class SkSVGAttribute {
     kD,
     kFill,
+    kHeight,
     kStroke,
     kTransform,
+    kWidth,
+    kX,
+    kY,
 
     kUnknown,
 };
@@ -26,15 +30,15 @@ class SkSVGPresentationAttributes {
 public:
     SkSVGPresentationAttributes();
 
-    void setFill(SkColor);
-    void setStroke(SkColor);
+    void setFill(const SkSVGColor&);
+    void setStroke(const SkSVGColor&);
 
     void applyTo(SkTCopyOnFirstWrite<SkSVGRenderContext>&) const;
 
 private:
     // Color only for now.
-    SkColor fFill;
-    SkColor fStroke;
+    SkSVGColor fFill;
+    SkSVGColor fStroke;
 
     unsigned fFillIsSet   : 1;
     unsigned fStrokeIsSet : 1;

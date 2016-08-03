@@ -12,12 +12,12 @@ SkSVGPresentationAttributes::SkSVGPresentationAttributes()
     : fFillIsSet(false)
     , fStrokeIsSet(false) { }
 
-void SkSVGPresentationAttributes::setFill(SkColor c) {
+void SkSVGPresentationAttributes::setFill(const SkSVGColor& c) {
     fFill = c;
     fFillIsSet = true;
 }
 
-void SkSVGPresentationAttributes::setStroke(SkColor c) {
+void SkSVGPresentationAttributes::setStroke(const SkSVGColor& c) {
     fStroke = c;
     fStrokeIsSet = true;
 }

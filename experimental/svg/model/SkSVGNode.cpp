@@ -16,10 +16,6 @@ SkSVGNode::SkSVGNode(SkSVGTag t) : fTag(t) { }
 
 SkSVGNode::~SkSVGNode() { }
 
-void SkSVGNode::render(SkCanvas* canvas) const {
-    this->render(canvas, SkSVGRenderContext());
-}
-
 void SkSVGNode::render(SkCanvas* canvas, const SkSVGRenderContext& ctx) const {
     SkTCopyOnFirstWrite<SkSVGRenderContext> localContext(ctx);
     fPresentationAttributes.applyTo(localContext);
@@ -51,6 +47,7 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         }
         break;
     default:
+        SkDebugf("attribute ID <%d> ignored for node <%d>\n", attr, fTag);
         break;
     }
 }

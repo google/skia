@@ -19,6 +19,7 @@ class SkSVGValue;
 enum class SkSVGTag {
     kG,
     kPath,
+    kRect,
     kSvg
 };
 
@@ -30,7 +31,6 @@ public:
 
     virtual void appendChild(sk_sp<SkSVGNode>) = 0;
 
-    void render(SkCanvas*) const;
     void render(SkCanvas*, const SkSVGRenderContext&) const;
 
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
