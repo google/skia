@@ -15,3 +15,7 @@ template("third_party") {
     cflags = [ "-w" ]
   }
 }
+
+set_defaults("third_party") {
+  configs = default_configs
+}

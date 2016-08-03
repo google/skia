@@ -40,29 +40,32 @@ template("component") {
 }
 
 # Default configs
-_default_configs = [ "//gn:default" ]
+default_configs = [
+  "//gn:default",
+  "//gn:no_rtti",
+]
 if (!is_debug) {
-  _default_configs += [ "//gn:release" ]
+  default_configs += [ "//gn:release" ]
 }
 
 set_defaults("executable") {
-  configs = _default_configs + [ "//gn:executable" ]
+  configs = default_configs + [ "//gn:executable" ]
 }
 
 set_defaults("source_set") {
-  configs = _default_configs
+  configs = default_configs
 }
 
 set_defaults("static_library") {
-  configs = _default_configs
+  configs = default_configs
 }
 
 set_defaults("shared_library") {
-  configs = _default_configs
+  configs = default_configs
 }
 
 set_defaults("component") {
-  configs = _default_configs
+  configs = default_configs
 }
 
 # For now, we support GCC-like toolchains, including Clang.

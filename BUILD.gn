@@ -65,6 +65,9 @@ config("skia_private") {
     "SK_HAS_PNG_LIBRARY",
     "SK_HAS_WEBP_LIBRARY",
 
+    # TODO(halcanary): make this the default; this is the value Android uses.
+    "SK_SFNTLY_SUBSETTER=\"sample/chromium/font_subsetter.h\"",
+
     "TURBO_HAS_565",
     "TURBO_HAS_CROP",
     "TURBO_HAS_SKIP",
@@ -171,6 +174,7 @@ component("skia") {
     "//third_party/libjpeg_turbo",
     "//third_party/libpng",
     "//third_party/libwebp",
+    "//third_party/sfntly",
     "//third_party/zlib",
   ]
 
@@ -541,6 +545,18 @@ if (!is_component_build) {  # Our test tools use many non-SK_API APIs...
       ":skia",
       ":tool_utils",
       "//third_party/jsoncpp",
+    ]
+    testonly = true
+  }
+
+  executable("sktexttopdf") {
+    sources = [
+      "tools/SkShaper_harfbuzz.cpp",
+      "tools/using_skia_and_harfbuzz.cpp",
+    ]
+    deps = [
+      ":skia",
+      "//third_party/harfbuzz",
     ]
     testonly = true
   }

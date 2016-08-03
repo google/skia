@@ -9,6 +9,10 @@ declare_args() {
   cxx = "c++"
 }
 
+config("no_rtti") {
+  cflags_cc = [ "-fno-rtti" ]
+}
+
 config("default") {
   cflags = [
     "-g",
@@ -30,7 +34,6 @@ config("default") {
   cflags_cc = [
     "-std=c++11",
     "-fno-exceptions",
-    "-fno-rtti",
     "-fno-threadsafe-statics",
     "-fvisibility-inlines-hidden",
 
