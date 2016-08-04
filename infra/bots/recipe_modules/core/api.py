@@ -14,22 +14,8 @@ import sys
 from recipe_engine import recipe_api
 from recipe_engine import config_types
 
-from . import fake_specs
-
 
 class SkiaApi(recipe_api.RecipeApi):
-
-  def get_builder_spec(self, skia_dir, builder_name):
-    """Obtain the buildbot spec for the given builder."""
-    fake_spec = None
-    if self._test_data.enabled:
-      fake_spec = fake_specs.FAKE_SPECS[builder_name]
-    builder_spec = self.m.run.json_from_file(
-      skia_dir.join('tools', 'buildbot_spec.py'),
-      skia_dir,
-      builder_name,
-      fake_spec)
-    return builder_spec
 
   def setup(self):
     """Prepare the bot to run."""
@@ -41,18 +27,16 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Obtain the spec for this builder from the Skia repo. Use it to set more
     # properties.
-    builder_spec = self.get_builder_spec(self.m.vars.skia_dir,
-                                         self.m.vars.builder_name)
+    builder_spec = self.m.vars.get_builder_spec(self.m.vars.builder_name)
 
     # Continue setting up vars with the builder_spec.
     self.m.vars.update_with_builder_spec(builder_spec)
 
-    
     if not self.m.path.exists(self.m.vars.tmp_dir):
       self.m.run.run_once(self.m.file.makedirs,
-                                'tmp_dir',
-                                self.m.vars.tmp_dir,
-                                infra_step=True)
+                          'tmp_dir',
+                          self.m.vars.tmp_dir,
+                          infra_step=True)
 
     self.m.flavor.setup()
 

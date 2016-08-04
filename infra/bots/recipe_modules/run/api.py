@@ -82,16 +82,6 @@ class SkiaStepApi(recipe_api.RecipeApi):
       if fail_build_on_failure:
         self._failed.append(e)
 
-  def json_from_file(self, filename, cwd, builder_name, test_data):
-    """Execute the given script to obtain JSON data."""
-    return self.m.python(
-        'exec %s' % self.m.path.basename(filename),
-        filename,
-        args=[self.m.json.output(), builder_name],
-        step_test_data=lambda: self.m.json.test_api.output(test_data),
-        cwd=cwd,
-        infra_step=True).json.output
-
   def copy_build_products(self, src, dst):
     """Copy whitelisted build products from src to dst."""
     self.m.python.inline(

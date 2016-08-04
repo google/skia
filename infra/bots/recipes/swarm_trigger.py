@@ -10,9 +10,10 @@ import json
 
 
 DEPS = [
-  'core',
   'build/file',
   'build/gsutil',
+  'builder_name_schema',
+  'core',
   'depot_tools/depot_tools',
   'depot_tools/git',
   'depot_tools/tryserver',
@@ -59,8 +60,9 @@ TEST_BUILDERS = {
 }
 
 
-def derive_compile_bot_name(builder_name, builder_spec):
-  builder_cfg = builder_spec['builder_cfg']
+def derive_compile_bot_name(api):
+  builder_name = api.properties['buildername']
+  builder_cfg = api.builder_name_schema.DictForBuilderName(builder_name)
   if builder_cfg['role'] == 'Housekeeper':
     return 'Build-Ubuntu-GCC-x86_64-Release-Shared'
   if builder_cfg['role'] in ('Test', 'Perf'):
@@ -77,16 +79,14 @@ def derive_compile_bot_name(builder_name, builder_spec):
       os = 'Mac'
     elif 'Win' in os:
       os = 'Win'
-    builder_name = 'Build-%s-%s-%s-%s' % (
-      os,
-      builder_cfg['compiler'],
-      builder_cfg['arch'],
-      builder_cfg['configuration']
-    )
-    if extra_config:
-      builder_name += '-%s' % extra_config
-    if builder_cfg['is_trybot']:
-      builder_name += '-Trybot'
+    return api.builder_name_schema.MakeBuilderName(
+        role=api.builder_name_schema.BUILDER_ROLE_BUILD,
+        os=os,
+        compiler=builder_cfg['compiler'],
+        target_arch=builder_cfg['arch'],
+        configuration=builder_cfg['configuration'],
+        extra_config=extra_config,
+        is_trybot=api.builder_name_schema.IsTrybot(builder_name))
   return builder_name
 
 
@@ -280,7 +280,8 @@ def infra_swarm(api, got_revision, infrabots_dir, extra_isolate_hashes):
   builder_spec = {
     'builder_cfg': {
       'role': 'Infra',
-      'is_trybot': api.properties['buildername'].endswith('-Trybot'),
+      'is_trybot': api.builder_name_schema.IsTrybot(
+          api.properties['buildername'])
     }
   }
   task = trigger_task(
@@ -301,12 +302,10 @@ def infra_swarm(api, got_revision, infrabots_dir, extra_isolate_hashes):
 
 def compile_steps_swarm(api, builder_spec, got_revision, infrabots_dir,
                         extra_isolate_hashes, cipd_packages):
-  builder_name = derive_compile_bot_name(api.properties['buildername'],
-                                         builder_spec)
+  builder_name = derive_compile_bot_name(api)
   compile_builder_spec = builder_spec
   if builder_name != api.properties['buildername']:
-    compile_builder_spec = api.core.get_builder_spec(
-        api.path['slave_build'].join('skia'), builder_name)
+    compile_builder_spec = api.vars.get_builder_spec(builder_name)
 
   extra_hashes = extra_isolate_hashes[:]
 
@@ -314,8 +313,8 @@ def compile_steps_swarm(api, builder_spec, got_revision, infrabots_dir,
   if 'Win' in builder_name:
     version_file = infrabots_dir.join('assets', 'win_toolchain', 'VERSION')
     version = api.run.readfile(version_file,
-                                 name='read win_toolchain VERSION',
-                                 test_data='0').rstrip()
+                               name='read win_toolchain VERSION',
+                               test_data='0').rstrip()
     version = 'version:%s' % version
     pkg = ('t', 'skia/bots/win_toolchain', version)
     cipd_packages.append(pkg)
@@ -603,8 +602,7 @@ def RunSteps(api):
   if 'Infra' in api.properties['buildername']:
     return infra_swarm(api, got_revision, infrabots_dir, extra_hashes)
 
-  builder_spec = api.core.get_builder_spec(api.path['checkout'],
-                                           api.properties['buildername'])
+  builder_spec = api.vars.get_builder_spec(api.properties['buildername'])
   builder_cfg = builder_spec['builder_cfg']
 
   if 'RecreateSKPs' in api.properties['buildername']:

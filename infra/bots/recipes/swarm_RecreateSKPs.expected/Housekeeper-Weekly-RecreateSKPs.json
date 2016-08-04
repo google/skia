@@ -93,45 +93,6 @@
     "cmd": [
       "python",
       "-u",
-      "[CUSTOM_/_B_WORK]/skia/tools/buildbot_spec.py",
-      "/path/to/tmp/json",
-      "Housekeeper-Weekly-RecreateSKPs"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "name": "exec buildbot_spec.py",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"build_targets\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"most\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  ], @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"builder_cfg\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"extra_config\": \"RecreateSKPs\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"frequency\": \"Weekly\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"is_trybot\": false, @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"role\": \"Housekeeper\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"configuration\": \"Release\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"dm_flags\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  ], @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"do_perf_steps\": false, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"do_test_steps\": false, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"env\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"GYP_DEFINES\": \"skia_shared_lib=1 skia_warnings_as_errors=0\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"nanobench_flags\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  ], @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"upload_dm_results\": true, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"upload_perf_results\": false@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
       "[SLAVE_BUILD]/tmp",
       "511"

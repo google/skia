@@ -3,10 +3,4 @@
 # found in the LICENSE file.
 
 DEPS = [
-  'builder_name_schema',
-  'recipe_engine/json',
-  'recipe_engine/path',
-  'recipe_engine/properties',
-  'recipe_engine/python',
-  'recipe_engine/step',
 ]

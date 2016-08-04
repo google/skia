@@ -72,50 +72,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "[CUSTOM_/_B_WORK]/skia/tools/buildbot_spec.py",
-      "/path/to/tmp/json",
-      "Build-Mac-Clang-x86_64-Release-CMake"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "name": "exec buildbot_spec.py",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"build_targets\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"most\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  ], @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"builder_cfg\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"compiler\": \"Clang\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"configuration\": \"Release\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"extra_config\": \"CMake\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"is_trybot\": false, @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"os\": \"Mac\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"role\": \"Build\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"target_arch\": \"x86_64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"configuration\": \"Release\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"dm_flags\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  ], @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"do_perf_steps\": false, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"do_test_steps\": false, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"env\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"CC\": \"/usr/bin/clang\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"CXX\": \"/usr/bin/clang++\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"GYP_DEFINES\": \"skia_arch_type=x86_64 skia_clang_build=1 skia_warnings_as_errors=1\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"nanobench_flags\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"--dummy-flags\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  ], @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"upload_dm_results\": true, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"upload_perf_results\": false@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
       "[CUSTOM_/_B_WORK]/skia/cmake/cmake_build"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",

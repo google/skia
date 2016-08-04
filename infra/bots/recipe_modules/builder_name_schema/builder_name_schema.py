@@ -51,7 +51,7 @@ def _LoadSchema():
     elif isinstance(obj, tuple):
       return tuple(map(_UnicodeToStr, obj))
     else:
-      return obj
+      return obj  # pragma: no cover
 
   builder_name_json_filename = os.path.join(
       os.path.dirname(__file__), 'builder_name_schema.json')
@@ -81,47 +81,18 @@ _LoadSchema()
 
 def MakeBuilderName(role, extra_config=None, is_trybot=False, **kwargs):
   schema = BUILDER_NAME_SCHEMA.get(role)
-  if not schema:
+  if not schema:  # pragma: no cover
     raise ValueError('%s is not a recognized role.' % role)
   for k, v in kwargs.iteritems():
-    if BUILDER_NAME_SEP in v:
+    if BUILDER_NAME_SEP in v:  # pragma: no cover
       raise ValueError('%s not allowed in %s.' % (BUILDER_NAME_SEP, v))
-    if not k in schema:
+    if not k in schema:  # pragma: no cover
       raise ValueError('Schema does not contain "%s": %s' %(k, schema))
-  if extra_config and BUILDER_NAME_SEP in extra_config:
+  if extra_config and BUILDER_NAME_SEP in extra_config:  # pragma: no cover
     raise ValueError('%s not allowed in %s.' % (BUILDER_NAME_SEP,
                                                 extra_config))
   name_parts = [role]
   name_parts.extend([kwargs[attribute] for attribute in schema])
-  if extra_config:
-    name_parts.append(extra_config)
-  if is_trybot:
-    name_parts.append(TRYBOT_NAME_SUFFIX)
-  return BUILDER_NAME_SEP.join(name_parts)
-
-
-def BuilderNameFromObject(obj, is_trybot=False):
-  """Create a builder name based on properties of the given object.
-
-  Args:
-      obj: the object from which to create the builder name. The object must
-          have as properties:
-          - A valid builder role, as defined in the JSON file
-          - All properties listed in the JSON file for that role
-          - Optionally, an extra_config property
-      is_trybot: bool; whether or not the builder is a trybot.
-  Returns:
-      string which combines the properties of the given object into a valid
-          builder name.
-  """
-  schema = BUILDER_NAME_SCHEMA.get(obj.role)
-  if not schema:
-    raise ValueError('%s is not a recognized role.' % obj.role)
-  name_parts = [obj.role]
-  for attr_name in schema:
-    attr_val = getattr(obj, attr_name)
-    name_parts.append(attr_val)
-  extra_config = getattr(obj, 'extra_config', None)
   if extra_config:
     name_parts.append(extra_config)
   if is_trybot:
@@ -135,7 +106,7 @@ def IsTrybot(builder_name):
   return builder_name.endswith(TRYBOT_NAME_SUFFIX)
 
 
-def GetWaterfallBot(builder_name):
+def GetWaterfallBot(builder_name):  # pragma: no cover
   """Returns the name of the waterfall bot for this builder. If it is not a
   trybot, builder_name is returned unchanged. If it is a trybot the name is
   returned without the trybot suffix."""
@@ -144,7 +115,7 @@ def GetWaterfallBot(builder_name):
   return _WithoutSuffix(builder_name, BUILDER_NAME_SEP + TRYBOT_NAME_SUFFIX)
 
 
-def TrybotName(builder_name):
+def TrybotName(builder_name):  # pragma: no cover
   """Returns the name of the trybot clone of this builder.
 
   If the given builder is a trybot, the name is returned unchanged. If not, the
@@ -155,7 +126,7 @@ def TrybotName(builder_name):
   return builder_name + BUILDER_NAME_SEP + TRYBOT_NAME_SUFFIX
 
 
-def _WithoutSuffix(string, suffix):
+def _WithoutSuffix(string, suffix):  # pragma: no cover
   """ Returns a copy of string 'string', but with suffix 'suffix' removed.
   Raises ValueError if string does not end with suffix. """
   if not string.endswith(suffix):
@@ -171,7 +142,7 @@ def DictForBuilderName(builder_name):
   def pop_front():
     try:
       return split_name.pop(0)
-    except:
+    except:  # pragma: no cover
       raise ValueError('Invalid builder name: %s' % builder_name)
 
   result = {'is_trybot': False}
@@ -187,9 +158,9 @@ def DictForBuilderName(builder_name):
       result[key] = pop_front()
     if split_name:
       result['extra_config'] = pop_front()
-    if split_name:
+    if split_name:  # pragma: no cover
       raise ValueError('Invalid builder name: %s' % builder_name)
-  else:
+  else:  # pragma: no cover
     raise ValueError('Invalid builder name: %s' % builder_name)
   return result
 
