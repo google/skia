@@ -12,25 +12,20 @@
 #include "SkChecksum.h"
 #include "SkTDynamicHash.h"
 
+#include "SDL.h"
+
 namespace sk_app {
 
 class Window_mac : public Window {
 public:
-    Window_mac() : Window()
-#if 0
-                  // TODO: use Mac-specific objects
-                  , fDisplay(nullptr)
-                  , fWindow(0)
-                  , fGC(nullptr)
-                  , fVisualInfo(nullptr)
-#endif
-                  , fMSAASampleCount(0) {}
+    Window_mac()
+        : INHERITED()
+        , fWindow(nullptr)
+        , fWindowID(0)
+        , fMSAASampleCount(0) {}
     ~Window_mac() override { this->closeWindow(); }
 
-#if 0
-    // TODO: need to init with Mac-specific data
-    bool initWindow(Display* display, const DisplayParams* params);
-#endif
+    bool initWindow(const DisplayParams* params);
 
     void setTitle(const char*) override;
     void show() override;
@@ -39,18 +34,29 @@ public:
 
     void onInval() override;
 
+    static bool HandleWindowEvent(const SDL_Event& event);
+
+    static const Uint32& GetKey(const Window_mac& w) {
+        return w.fWindowID;
+    }
+
+    static uint32_t Hash(const Uint32& winID) {
+        return winID;
+    }
+
 private:
+    bool handleEvent(const SDL_Event& event);
+
     void closeWindow();
 
-#if 0
-    // TODO: use Mac-specific window data
-    Display*     fDisplay;
-    XWindow      fWindow;
-    GC           fGC;
-    XVisualInfo* fVisualInfo;
-#endif
+    static SkTDynamicHash<Window_mac, Uint32> gWindowMap;
+
+    SDL_Window*  fWindow;
+    Uint32       fWindowID;
     
     int          fMSAASampleCount;
+    
+    typedef Window INHERITED;
 };
 
 }   // namespace sk_app

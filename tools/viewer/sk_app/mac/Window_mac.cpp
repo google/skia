@@ -5,8 +5,6 @@
 * found in the LICENSE file.
 */
 
-//#include <tchar.h>
-
 #include "SkUtils.h"
 #include "Timer.h"
 #include "WindowContextFactory_mac.h"
@@ -14,243 +12,200 @@
 
 namespace sk_app {
 
-Window* Window::CreateNativeWindow(void* platformData) {
-#if 0
-    // TODO: platform-specific window creation
-    Display* display = (Display*)platformData;
+SkTDynamicHash<Window_mac, Uint32> Window_mac::gWindowMap;
 
+Window* Window::CreateNativeWindow(void*) {
     Window_mac* window = new Window_mac();
-    if (!window->initWindow(display, nullptr)) {
+    if (!window->initWindow(nullptr)) {
         delete window;
         return nullptr;
     }
 
     return window;
-#else
-    return nullptr;
-#endif
 }
-    
-#if 0
-    // TODO: Implement Mac window code
 
-const long kEventMask = ExposureMask | StructureNotifyMask | 
-                        KeyPressMask | KeyReleaseMask | 
-                        PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
-
-bool Window_mac::initWindow(Display* display, const DisplayParams* params) {
+bool Window_mac::initWindow(const DisplayParams* params) {
     if (params && params->fMSAASampleCount != fMSAASampleCount) {
         this->closeWindow();
     }
     // we already have a window
-    if (fDisplay) {
+    if (fWindow) {
         return true;
     } 
-    fDisplay = display;
 
     fWidth = 1280;
     fHeight = 960;
 
-    // Attempt to create a window that supports GL
-    GLint att[] = {
-        GLX_RGBA,
-        GLX_DEPTH_SIZE, 24,
-        GLX_DOUBLEBUFFER,
-        GLX_STENCIL_SIZE, 8,
-        None
-    };
-    SkASSERT(nullptr == fVisualInfo);
-    if (params && params->fMSAASampleCount > 0) {
-        static const GLint kAttCount = SK_ARRAY_COUNT(att);
-        GLint msaaAtt[kAttCount + 4];
-        memcpy(msaaAtt, att, sizeof(att));
-        SkASSERT(None == msaaAtt[kAttCount - 1]);
-        msaaAtt[kAttCount - 1] = GLX_SAMPLE_BUFFERS_ARB;
-        msaaAtt[kAttCount + 0] = 1;
-        msaaAtt[kAttCount + 1] = GLX_SAMPLES_ARB;
-        msaaAtt[kAttCount + 2] = params->fMSAASampleCount;
-        msaaAtt[kAttCount + 3] = None;
-        fVisualInfo = glXChooseVisual(display, DefaultScreen(display), msaaAtt);
-        fMSAASampleCount = params->fMSAASampleCount;
-    }
-    if (nullptr == fVisualInfo) {
-        fVisualInfo = glXChooseVisual(display, DefaultScreen(display), att);
-        fMSAASampleCount = 0;
-    }
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    if (fVisualInfo) {
-        Colormap colorMap = XCreateColormap(display,
-                                            RootWindow(display, fVisualInfo->screen),
-                                            fVisualInfo->visual,
-                                            AllocNone);
-        XSetWindowAttributes swa;
-        swa.colormap = colorMap;
-        swa.event_mask = kEventMask;
-        fWindow = XCreateWindow(display,
-                                RootWindow(display, fVisualInfo->screen),
-                                0, 0, // x, y
-                                fWidth, fHeight,
-                                0, // border width
-                                fVisualInfo->depth,
-                                InputOutput,
-                                fVisualInfo->visual,
-                                CWEventMask | CWColormap,
-                                &swa);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+
+    if (params && params->fMSAASampleCount > 0) {
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, params->fMSAASampleCount);
     } else {
-        // Create a simple window instead.  We will not be able to show GL
-        fWindow = XCreateSimpleWindow(display,
-                                      DefaultRootWindow(display),
-                                      0, 0,  // x, y
-                                      fWidth, fHeight,
-                                      0,     // border width
-                                      0,     // border value
-                                      0);    // background value
-        XSelectInput(display, fWindow, kEventMask);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
     }
+    // TODO: handle other display params
+
+    uint32_t windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+    fWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                               fWidth, fHeight, windowFlags);
 
     if (!fWindow) {
         return false;
     }
 
-    // set up to catch window delete message
-    fWmDeleteMessage = XInternAtom(display, "WM_DELETE_WINDOW", False);
-    XSetWMProtocols(display, fWindow, &fWmDeleteMessage, 1);
-
     // add to hashtable of windows
+    fWindowID = SDL_GetWindowID(fWindow);
     gWindowMap.add(this);
-
-    // init event variables
-    fPendingPaint = false;
-    fPendingResize = false;
 
     return true;
 }
 
 void Window_mac::closeWindow() {
-    if (fDisplay) {
-        this->detach();
-        SkASSERT(fGC);
-        XFreeGC(fDisplay, fGC);
-        fGC = nullptr;
-        gWindowMap.remove(fWindow);
-        XDestroyWindow(fDisplay, fWindow);
-        fWindow = 0;
-        fVisualInfo = nullptr;
-        fDisplay = nullptr;
-        fMSAASampleCount = 0;
+    if (fWindow) {
+        gWindowMap.remove(fWindowID);
+        SDL_DestroyWindow(fWindow);
+        fWindowID = 0;
+        fWindow = nullptr;
     }
 }
 
-static Window::Key get_key(KeySym keysym) {
+static Window::Key get_key(const SDL_Keysym& keysym) {
     static const struct {
-        KeySym      fXK;
+        SDL_Keycode fSDLK;
         Window::Key fKey;
     } gPair[] = {
-        { XK_BackSpace, Window::Key::kBack },
-        { XK_Clear, Window::Key::kBack },
-        { XK_Return, Window::Key::kOK },
-        { XK_Up, Window::Key::kUp },
-        { XK_Down, Window::Key::kDown },
-        { XK_Left, Window::Key::kLeft },
-        { XK_Right, Window::Key::kRight }
+        { SDLK_BACKSPACE, Window::Key::kBack },
+        { SDLK_CLEAR, Window::Key::kBack },
+        { SDLK_RETURN, Window::Key::kOK },
+        { SDLK_UP, Window::Key::kUp },
+        { SDLK_DOWN, Window::Key::kDown },
+        { SDLK_LEFT, Window::Key::kLeft },
+        { SDLK_RIGHT, Window::Key::kRight }
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
-        if (gPair[i].fXK == keysym) {
+        if (gPair[i].fSDLK == keysym.sym) {
             return gPair[i].fKey;
         }
     }
     return Window::Key::kNONE;
 }
 
-static uint32_t get_modifiers(const XEvent& event) {
+static uint32_t get_modifiers(const SDL_Event& event) {
     static const struct {
-        unsigned    fXMask;
+        unsigned    fSDLMask;
         unsigned    fSkMask;
     } gModifiers[] = {
-        { ShiftMask,   Window::kShift_ModifierKey },
-        { ControlMask, Window::kControl_ModifierKey },
-        { Mod1Mask,    Window::kOption_ModifierKey },
+        { KMOD_SHIFT, Window::kShift_ModifierKey },
+        { KMOD_CTRL,  Window::kControl_ModifierKey },
+        { KMOD_ALT,   Window::kOption_ModifierKey },
     };
 
     auto modifiers = 0;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gModifiers); ++i) {
-        if (event.xkey.state & gModifiers[i].fXMask) {
-            modifiers |= gModifiers[i].fSkMask;
+
+    switch (event.type) {
+        case SDL_KEYDOWN:
+            // fall through
+        case SDL_KEYUP: {
+            for (size_t i = 0; i < SK_ARRAY_COUNT(gModifiers); ++i) {
+                if (event.key.keysym.mod & gModifiers[i].fSDLMask) {
+                    modifiers |= gModifiers[i].fSkMask;
+                }
+            }
+            if (0 == event.key.repeat) {
+                modifiers |= Window::kFirstPress_ModifierKey;
+            }
+            break;
+        }
+
+        default: {
+            SDL_Keymod mod = SDL_GetModState();
+            for (size_t i = 0; i < SK_ARRAY_COUNT(gModifiers); ++i) {
+                if (mod & gModifiers[i].fSDLMask) {
+                    modifiers |= gModifiers[i].fSkMask;
+                }
+            }
+            break;
         }
     }
     return modifiers;
 }
 
-bool Window_mac::handleEvent(const XEvent& event) {
+bool Window_mac::HandleWindowEvent(const SDL_Event& event) {
+    Window_mac* win = gWindowMap.find(event.window.windowID);
+    if (win && win->handleEvent(event)) {
+        return true;
+    }
+
+    return false;
+}
+
+bool Window_mac::handleEvent(const SDL_Event& event) {
     switch (event.type) {
-        case MapNotify:
-            if (!fGC) {
-                fGC = XCreateGC(fDisplay, fWindow, 0, nullptr);
+        case SDL_WINDOWEVENT:
+            if (SDL_WINDOWEVENT_EXPOSED == event.window.event) {
+                this->onPaint();
+            } else if (SDL_WINDOWEVENT_RESIZED == event.window.event) {
+                this->onResize(event.window.data1, event.window.data2);
             }
             break;
 
-        case ClientMessage:
-            if ((Atom)event.xclient.data.l[0] == fWmDeleteMessage &&
-                gWindowMap.count() == 1) {
-                return true;
-            }
-            break;
-
-        case ButtonPress:
-            if (event.xbutton.button == Button1) {
-                this->onMouse(event.xbutton.x, event.xbutton.y,
+        case SDL_MOUSEBUTTONDOWN:
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                this->onMouse(event.button.x, event.button.y,
                               Window::kDown_InputState, get_modifiers(event));
             }
             break;
 
-        case ButtonRelease:
-            if (event.xbutton.button == Button1) {
-                this->onMouse(event.xbutton.x, event.xbutton.y,
+        case SDL_MOUSEBUTTONUP:
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                this->onMouse(event.button.x, event.button.y,
                               Window::kUp_InputState, get_modifiers(event));
             }
             break;
 
-        case MotionNotify:
+        case SDL_MOUSEMOTION:
             // only track if left button is down
-            if (event.xmotion.state & Button1Mask) {
-                this->onMouse(event.xmotion.x, event.xmotion.y, 
+            if (event.motion.state & SDL_BUTTON_LMASK) {
+                this->onMouse(event.motion.x, event.motion.y,
                               Window::kMove_InputState, get_modifiers(event));
             }
             break;
 
-        case KeyPress: {
-            int shiftLevel = (event.xkey.state & ShiftMask) ? 1 : 0;
-            KeySym keysym = XkbKeycodeToKeysym(fDisplay, event.xkey.keycode,
-                                               0, shiftLevel);
-            if (keysym == XK_Escape) {
+        case SDL_KEYDOWN: {
+            if (event.key.keysym.sym == SDLK_ESCAPE) {
                 return true;
             }
-            Window::Key key = get_key(keysym);
+            Window::Key key = get_key(event.key.keysym);
             if (key != Window::Key::kNONE) {
-                (void) this->onKey(key, Window::kDown_InputState, 
+                (void) this->onKey(key, Window::kDown_InputState,
                                    get_modifiers(event));
             } else {
-                long uni = keysym2ucs(keysym);
-                if (uni != -1) {
-                    (void) this->onChar((SkUnichar) uni, 
-                                        get_modifiers(event));
-                }
+                (void) this->onChar((SkUnichar) event.key.keysym.sym,
+                                    get_modifiers(event));
             }
         } break;
 
-        case KeyRelease: {
-            int shiftLevel = (event.xkey.state & ShiftMask) ? 1 : 0;
-            KeySym keysym = XkbKeycodeToKeysym(fDisplay, event.xkey.keycode,
-                                               0, shiftLevel);
-            Window::Key key = get_key(keysym);
-            (void) this->onKey(key, Window::kUp_InputState, 
-                               get_modifiers(event));
+        case SDL_KEYUP: {
+            Window::Key key = get_key(event.key.keysym);
+            if (key != Window::Key::kNONE) {
+                (void) this->onKey(key, Window::kUp_InputState,
+                                   get_modifiers(event));
+            }
         } break;
-        
 
         default:
-            // these events should be handled in the main event loop
-            SkASSERT(event.type != Expose && event.type != ConfigureNotify);
             break;
     }
 
@@ -258,29 +213,19 @@ bool Window_mac::handleEvent(const XEvent& event) {
 }
 
 void Window_mac::setTitle(const char* title) {
-    XTextProperty textproperty;
-    XStringListToTextProperty(const_cast<char**>(&title), 1, &textproperty);
-    XSetWMName(fDisplay, fWindow, &textproperty);    
+    SDL_SetWindowTitle(fWindow, title);
 }
 
 void Window_mac::show() {
-    XMapWindow(fDisplay, fWindow);
+    SDL_ShowWindow(fWindow);
 }
 
 bool Window_mac::attach(BackendType attachType, const DisplayParams& params) {
-    this->initWindow(fDisplay, &params);
+    this->initWindow(&params);
 
-    MacWindowInfo info;
-#if 0
-    // Init Mac window info here
-    info.foo = foo;
-#endif
+    window_context_factory::MacWindowInfo info;
+    info.fWindow = fWindow;
     switch (attachType) {
-#ifdef SK_VULKAN
-        case kVulkan_BackendType:
-            fWindowContext = NewVulkanForMac(info, params);
-            break;
-#endif
         case kNativeGL_BackendType:
         default:
             fWindowContext = NewGLForMac(info, params);
@@ -291,19 +236,11 @@ bool Window_mac::attach(BackendType attachType, const DisplayParams& params) {
 }
 
 void Window_mac::onInval() {
-    XEvent event;
-    event.type = Expose;
-    event.xexpose.send_event = True;
-    event.xexpose.display = fDisplay;
-    event.xexpose.window = fWindow;
-    event.xexpose.x = 0;
-    event.xexpose.y = 0;
-    event.xexpose.width = fWidth;
-    event.xexpose.height = fHeight;
-    event.xexpose.count = 0;
-    
-    XSendEvent(fDisplay, fWindow, False, 0, &event);
+    SDL_Event sdlevent;
+    sdlevent.type = SDL_WINDOWEVENT;
+    sdlevent.window.windowID = fWindowID;
+    sdlevent.window.event = SDL_WINDOWEVENT_EXPOSED;
+    SDL_PushEvent(&sdlevent);
 }
-#endif
-    
+
 }   // namespace sk_app

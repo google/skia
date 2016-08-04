@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     [window makeKeyAndOrderFront:NSApp];
 
     AppDelegate * appDelegate = [[[AppDelegate alloc] init] autorelease];
-    
+
     app.delegate = appDelegate;
     
     NSMenu* menu=[[NSMenu alloc] initWithTitle:@"AMainMenu"];

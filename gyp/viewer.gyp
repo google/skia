@@ -32,6 +32,7 @@
       'sources': [
         '../gm/gm.cpp',
         '<!@(python find.py "*.cpp" ../tools/viewer)',
+        '<!@(python find.py "*.h" ../tools/viewer)',
 
         # views (subset of files for the Android build)
         '../src/views/SkEvent.cpp',
@@ -84,6 +85,11 @@
               '-lX11-xcb',
             ],
           },
+        }],
+        [ 'skia_os == "mac"', {
+          'dependencies': [
+            'sdl.gyp:sdl',
+          ],
         }],
         ['skia_os != "android"', {
           'sources/': [

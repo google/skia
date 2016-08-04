@@ -9,6 +9,8 @@
 #ifndef WindowContextFactory_mac_DEFINED
 #define WindowContextFactory_mac_DEFINED
 
+#include "SDL.h"
+
 namespace sk_app {
 
 class WindowContext;
@@ -17,11 +19,7 @@ struct DisplayParams;
 namespace window_context_factory {
 
 struct MacWindowInfo {
-#if 0 // TODO: use Mac-specific objects
-    Display*     fDisplay;
-    XWindow      fWindow;
-    XVisualInfo* fVisualInfo;
-#endif
+    SDL_Window*  fWindow;
 };
 
 inline WindowContext* NewVulkanForMac(const MacWindowInfo&, const DisplayParams&) {
