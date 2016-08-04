@@ -151,12 +151,7 @@ def get_gyp_defines(builder_dict):
 
 def get_extra_env_vars(builder_dict):
   env = {}
-  if builder_dict.get('configuration') == 'Coverage':
-    # We have to use Clang 3.6 because earlier versions do not support the
-    # compile flags we use and 3.7 and 3.8 hit asserts during compilation.
-    env['CC'] = '/usr/bin/clang-3.6'
-    env['CXX'] = '/usr/bin/clang++-3.6'
-  elif builder_dict.get('compiler') == 'Clang':
+  if builder_dict.get('compiler') == 'Clang':
     env['CC'] = '/usr/bin/clang'
     env['CXX'] = '/usr/bin/clang++'
 

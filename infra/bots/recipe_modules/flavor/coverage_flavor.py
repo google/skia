@@ -18,10 +18,21 @@ class CoverageFlavorUtils(default_flavor.DefaultFlavorUtils):
     compile_target = 'dm'
     build_cmd = [self.m.vars.skia_dir.join('tools', 'llvm_coverage_build'),
                  compile_target]
-    self.m.run(self.m.step,
-                     'build %s' % compile_target,
-                     cmd=build_cmd,
-                     cwd=self.m.path['checkout'])
+    build_env = kwargs.pop('env', {})
+    # We have to use Clang 3.6 because earlier versions do not support the
+    # compile flags we use and 3.7 and 3.8 hit asserts during compilation.
+    build_env['CC'] = '/usr/bin/clang-3.6'
+    build_env['CXX'] = '/usr/bin/clang++-3.6'
+    build_env['GYP_DEFINES'] = (
+        'skia_arch_type=x86_64 '
+        'skia_clang_build=1 '
+        'skia_gpu=0 '
+        'skia_warnings_as_errors=0')
+    self.m.step('build %s' % compile_target,
+                cmd=build_cmd,
+                cwd=self.m.path['checkout'],
+                env=build_env,
+                **kwargs)
 
     # Slice out the 'key' and 'properties' arguments to be reused.
     key = []
@@ -48,7 +59,7 @@ class CoverageFlavorUtils(default_flavor.DefaultFlavorUtils):
         self.m.vars.skia_dir.join('tools', 'llvm_coverage_run.py'),
     ] + cmd + ['--outResultsFile', report_file]
     self.m.run(self.m.step, name=name, cmd=args,
-                       cwd=self.m.path['checkout'], **kwargs)
+               cwd=self.m.path['checkout'], **kwargs)
 
     # Generate nanobench-style JSON output from the coverage report.
     nanobench_json = results_dir.join('nanobench_%s.json' % (
