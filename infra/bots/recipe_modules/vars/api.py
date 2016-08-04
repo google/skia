@@ -783,12 +783,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     # Some bots also require a checkout of PDFium.
     self.need_pdfium_checkout = 'PDFium' in self.builder_name
 
-
-  def update_with_builder_spec(self, builder_spec):
-    """Set more variables based on the builder_spec."""
-    # Obtain the spec for this builder from the Skia repo. Use it to set more
-    # properties.
-    self.builder_spec = builder_spec
+    # Obtain the spec for this builder. Use it to set more properties.
+    self.builder_spec = get_builder_spec(self.m, self.builder_name)
 
     self.builder_cfg = self.builder_spec['builder_cfg']
     self.role = self.builder_cfg['role']

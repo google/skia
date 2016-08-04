@@ -32,8 +32,11 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+      "GYP_DEFINES": "skia_shared_lib=1 skia_warnings_as_errors=0",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "gclient setup"
   },
@@ -56,8 +59,11 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]"
+      "GYP_DEFINES": "skia_shared_lib=1 skia_warnings_as_errors=0",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "gclient sync",
     "~followup_annotations": [

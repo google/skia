@@ -25,13 +25,6 @@ class SkiaApi(recipe_api.RecipeApi):
     # Check out the Skia code.
     self.checkout_steps()
 
-    # Obtain the spec for this builder from the Skia repo. Use it to set more
-    # properties.
-    builder_spec = self.m.vars.get_builder_spec(self.m.vars.builder_name)
-
-    # Continue setting up vars with the builder_spec.
-    self.m.vars.update_with_builder_spec(builder_spec)
-
     if not self.m.path.exists(self.m.vars.tmp_dir):
       self.m.run.run_once(self.m.file.makedirs,
                           'tmp_dir',
