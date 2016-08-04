@@ -34,7 +34,6 @@
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
 #include "SkTLogic.h"
-#include "SkSVGDOM.h"
 #include "SkSwizzler.h"
 #include <functional>
 
@@ -47,6 +46,7 @@
 #endif
 
 #if defined(SK_XML)
+    #include "SkSVGDOM.h"
     #include "SkXMLWriter.h"
 #endif
 
