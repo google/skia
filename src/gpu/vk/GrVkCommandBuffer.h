@@ -270,6 +270,12 @@ public:
                       VkDeviceSize dataSize,
                       const void* data);
 
+    void resolveImage(GrVkGpu* gpu,
+                      const GrVkImage& srcImage,
+                      const GrVkImage& dstImage,
+                      uint32_t regionCount,
+                      const VkImageResolve* regions);
+
     void submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync);
     bool finished(const GrVkGpu* gpu) const;
 

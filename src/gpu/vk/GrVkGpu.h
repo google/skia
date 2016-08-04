@@ -199,7 +199,7 @@ private:
                           GrPixelConfig config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override { return false; }
 
-    void onResolveRenderTarget(GrRenderTarget* target) override {}
+    void onResolveRenderTarget(GrRenderTarget* target) override;
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all

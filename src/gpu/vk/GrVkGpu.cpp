@@ -365,6 +365,48 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     return success;
 }
 
+void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target) {
+    if (target->needsResolve()) {
+        SkASSERT(target->numColorSamples() > 1);
+
+        GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
+        SkASSERT(rt->msaaImage());
+
+        // Flip rect if necessary
+        SkIRect srcVkRect = rt->getResolveRect();
+
+        if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
+            srcVkRect.fTop = rt->height() - rt->getResolveRect().fBottom;
+            srcVkRect.fBottom =  rt->height() - rt->getResolveRect().fTop;
+        }
+
+        VkImageResolve resolveInfo;
+        resolveInfo.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+        resolveInfo.srcOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
+        resolveInfo.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+        resolveInfo.dstOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
+        // By the spec the depth of the extent should be ignored for 2D images, but certain devices
+        // (e.g. nexus 5x) currently fail if it is not 1
+        resolveInfo.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
+
+        rt->setImageLayout(this,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           VK_ACCESS_TRANSFER_WRITE_BIT,
+                           VK_PIPELINE_STAGE_TRANSFER_BIT,
+                           false);
+
+        rt->msaaImage()->setImageLayout(this,
+                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                        VK_ACCESS_TRANSFER_READ_BIT,
+                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                        false);
+
+        fCurrentCmdBuffer->resolveImage(this, *rt, *rt->msaaImage(), 1, &resolveInfo);
+
+        rt->flagAsResolved();
+    }
+}
+
 bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
                                   int left, int top, int width, int height,
                                   GrPixelConfig dataConfig,
