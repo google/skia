@@ -11,13 +11,12 @@
 #include "GrProcessor.h"
 #include "GrVkPipelineState.h"
 #include "GrVkPipelineStateBuilder.h"
-#include "SkRTConf.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
-SK_CONF_DECLARE(bool, c_DisplayVkPipelineCache, "gpu.displayyVkPipelineCache", false,
-                "Display pipeline state cache usage.");
+// Display pipeline state cache usage
+static const bool c_DisplayVkPipelineCache{false};
 #endif
 
 struct GrVkResourceProvider::PipelineStateCache::Entry {

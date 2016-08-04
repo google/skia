@@ -22,7 +22,6 @@
 #include "SkPixelRef.h"
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
-#include "SkRTConf.h"
 #include "SkScalerContext.h"
 #include "SkShader.h"
 #include "SkStream.h"
@@ -49,15 +48,6 @@ void SkGraphics::Init() {
     // SkGraphics::Init() must be thread-safe and idempotent.
     SkCpu::CacheRuntimeFeatures();
     SkOpts::Init();
-
-#ifdef SK_DEBUG
-    skRTConfRegistry().possiblyDumpFile();
-    skRTConfRegistry().validate();
-    if (skRTConfRegistry().hasNonDefault()) {
-        SkDebugf("Non-default runtime configuration options:\n");
-        skRTConfRegistry().printNonDefault();
-    }
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

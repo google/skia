@@ -468,7 +468,6 @@ test_lib("tests") {
   sources = tests_sources - [
               rebase_path("tests/FontMgrAndroidParserTest.cpp"),  # Android only
               rebase_path("tests/PathOpsSkpClipTest.cpp"),  # alternate main
-              rebase_path("tests/RTConfRegistryTest.cpp"),  # TODO: delete
               rebase_path("tests/SkSLErrorTest.cpp"),  # TODO: make work
               rebase_path("tests/SkSLGLSLTest.cpp"),  # TODO: make work
               rebase_path("tests/SkpSkGrTest.cpp"),  # doesn't compile
