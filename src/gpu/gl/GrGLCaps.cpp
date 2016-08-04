@@ -972,8 +972,9 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
 
     SkASSERT(this->advancedBlendEquationSupport());
 
-    if (kNVIDIA_GrGLDriver == ctxInfo.driver()) {
-        // Blacklist color-dodge and color-burn on NVIDIA until the fix is released.
+    if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
+        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(355,00)) {
+        // Blacklist color-dodge and color-burn on pre-355.00 NVIDIA.
         fAdvBlendEqBlacklist |= (1 << kColorDodge_GrBlendEquation) |
                                 (1 << kColorBurn_GrBlendEquation);
     }
