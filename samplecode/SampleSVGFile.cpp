@@ -8,6 +8,7 @@
 #include "SampleCode.h"
 #include "SkCanvas.h"
 #include "SkDOM.h"
+#include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkSVGDOM.h"
 #include "SkView.h"
@@ -16,7 +17,8 @@ namespace {
 
 class SVGFileView : public SampleView {
 public:
-    SVGFileView(const char path[]) {
+    SVGFileView(const char path[])
+        : fLabel(SkStringPrintf("[%s]", SkOSPath::Basename(path).c_str())) {
         SkFILEStream svgStream(path);
         if (!svgStream.isValid()) {
             SkDebugf("file not found: \"path\"\n", path);
@@ -49,8 +51,17 @@ protected:
         this->INHERITED::onSizeChange();
     }
 
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, fLabel.c_str());
+            return true;
+        }
+
+        return this->INHERITED::onQuery(evt);
+    }
 private:
     sk_sp<SkSVGDOM> fDom;
+    SkString        fLabel;
 
     typedef SampleView INHERITED;
 };
