@@ -463,4 +463,54 @@ SkBitmap slow_blur(const SkBitmap& src, float sigma) {
     return dst;
 }
 
+// compute the intersection point between the diagonal and the ellipse in the
+// lower right corner
+static SkPoint intersection(SkScalar w, SkScalar h) {
+    SkASSERT(w > 0.0f || h > 0.0f);
+
+    return SkPoint::Make(w / SK_ScalarSqrt2, h / SK_ScalarSqrt2);
+}
+
+// Use the intersection of the corners' diagonals with their ellipses to shrink
+// the bounding rect
+SkRect compute_central_occluder(const SkRRect& rr) {
+    const SkRect r = rr.getBounds();
+
+    SkScalar newL = r.fLeft, newT = r.fTop, newR = r.fRight, newB = r.fBottom;
+
+    SkVector radii = rr.radii(SkRRect::kUpperLeft_Corner);
+    if (!radii.isZero()) {
+        SkPoint p = intersection(radii.fX, radii.fY);
+
+        newL = SkTMax(newL, r.fLeft + radii.fX - p.fX);
+        newT = SkTMax(newT, r.fTop + radii.fY - p.fY);
+    }
+
+    radii = rr.radii(SkRRect::kUpperRight_Corner);
+    if (!radii.isZero()) {
+        SkPoint p = intersection(radii.fX, radii.fY);
+
+        newR = SkTMin(newR, r.fRight + p.fX - radii.fX);
+        newT = SkTMax(newT, r.fTop + radii.fY - p.fY);
+    }
+
+    radii = rr.radii(SkRRect::kLowerRight_Corner);
+    if (!radii.isZero()) {
+        SkPoint p = intersection(radii.fX, radii.fY);
+
+        newR = SkTMin(newR, r.fRight + p.fX - radii.fX);
+        newB = SkTMin(newB, r.fBottom - radii.fY + p.fY);
+    }
+
+    radii = rr.radii(SkRRect::kLowerLeft_Corner);
+    if (!radii.isZero()) {
+        SkPoint p = intersection(radii.fX, radii.fY);
+
+        newL = SkTMax(newL, r.fLeft + radii.fX - p.fX);
+        newB = SkTMin(newB, r.fBottom - radii.fY + p.fY);
+    }
+
+    return SkRect::MakeLTRB(newL, newT, newR, newB);
+}
+
 }  // namespace sk_tool_utils
