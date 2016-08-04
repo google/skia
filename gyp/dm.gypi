@@ -24,6 +24,7 @@
     'skia_lib.gyp:skia_lib',
     'sksl.gyp:sksl',
     'svg.gyp:svg',
+    'svg.gyp:svgdom',
     'tools.gyp:crash_handler',
     'tools.gyp:picture_utils',
     'tools.gyp:proc_stats',

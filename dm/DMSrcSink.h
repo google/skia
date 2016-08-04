@@ -248,6 +248,21 @@ private:
     Path fPath;
 };
 
+#if defined(SK_XML)
+class SVGSrc : public Src {
+public:
+    explicit SVGSrc(Path path);
+
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
+
+private:
+    Path fPath;
+
+    typedef Src INHERITED;
+};
+#endif // SK_XML
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 class MSKPSrc : public Src {

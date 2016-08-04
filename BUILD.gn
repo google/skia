@@ -501,6 +501,27 @@ test_lib("bench") {
   ]
 }
 
+test_lib("experimental_svg_model") {
+  public_include_dirs = [ "experimental/svg/model" ]
+  sources = [
+    "experimental/svg/model/SkSVGAttribute.cpp",
+    "experimental/svg/model/SkSVGAttributeParser.cpp",
+    "experimental/svg/model/SkSVGContainer.cpp",
+    "experimental/svg/model/SkSVGDOM.cpp",
+    "experimental/svg/model/SkSVGNode.cpp",
+    "experimental/svg/model/SkSVGPath.cpp",
+    "experimental/svg/model/SkSVGRect.cpp",
+    "experimental/svg/model/SkSVGRenderContext.cpp",
+    "experimental/svg/model/SkSVGSVG.cpp",
+    "experimental/svg/model/SkSVGShape.cpp",
+    "experimental/svg/model/SkSVGTransformableNode.cpp",
+    "experimental/svg/model/SkSVGValue.cpp",
+  ]
+  deps = [
+    ":skia",
+  ]
+}
+
 if (!is_component_build) {  # Our test tools use many non-SK_API APIs...
   executable("dm") {
     sources = [
@@ -510,6 +531,7 @@ if (!is_component_build) {  # Our test tools use many non-SK_API APIs...
     ]
     include_dirs = [ "tests" ]
     deps = [
+      ":experimental_svg_model",
       ":flags",
       ":gm",
       ":gpu_tool_utils",

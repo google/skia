@@ -34,6 +34,7 @@
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
 #include "SkTLogic.h"
+#include "SkSVGDOM.h"
 #include "SkSwizzler.h"
 #include <functional>
 
@@ -1024,6 +1025,36 @@ SkISize SKPSrc::size() const {
 
 Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+#if defined(SK_XML)
+// Should we try to use the SVG intrinsic size instead?
+static const SkSize kSVGSize = SkSize::Make(1000, 1000);
+
+SVGSrc::SVGSrc(Path path) : fPath(path) {}
+
+Error SVGSrc::draw(SkCanvas* canvas) const {
+    SkFILEStream stream(fPath.c_str());
+    if (!stream.isValid()) {
+        return SkStringPrintf("Unable to open file: %s", fPath.c_str());
+    }
+
+    sk_sp<SkSVGDOM> dom = SkSVGDOM::MakeFromStream(stream, kSVGSize);
+    if (!dom) {
+        return SkStringPrintf("Unable to parse file: %s", fPath.c_str());
+    }
+
+    dom->render(canvas);
+
+    return "";
+}
+
+SkISize SVGSrc::size() const {
+    return kSVGSize.toRound();
+}
+
+Name SVGSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
+
+#endif // defined(SK_XML)
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 MSKPSrc::MSKPSrc(Path path) : fPath(path) {

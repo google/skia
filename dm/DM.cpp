@@ -73,6 +73,8 @@ DEFINE_int32(shard,  0, "Which shard do I run?");
 
 DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 
+DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
+
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
@@ -710,34 +712,31 @@ static bool brd_supported(const char* ext) {
     return false;
 }
 
+template <typename T>
+void gather_file_srcs(const SkCommandLineFlags::StringArray& flags, const char* ext) {
+    for (int i = 0; i < flags.count(); i++) {
+        const char* path = flags[i];
+        if (sk_isdir(path)) {
+            SkOSFile::Iter it(path, ext);
+            for (SkString file; it.next(&file); ) {
+                push_src(ext, "", new T(SkOSPath::Join(path, file.c_str())));
+            }
+        } else {
+            push_src(ext, "", new T(path));
+        }
+    }
+}
+
 static bool gather_srcs() {
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
         push_src("gm", "", new GMSrc(r->factory()));
     }
-    for (int i = 0; i < FLAGS_skps.count(); i++) {
-        const char* path = FLAGS_skps[i];
-        if (sk_isdir(path)) {
-            SkOSFile::Iter it(path, "skp");
-            for (SkString file; it.next(&file); ) {
-                push_src("skp", "", new SKPSrc(SkOSPath::Join(path, file.c_str())));
-            }
-        } else {
-            push_src("skp", "", new SKPSrc(path));
-        }
-    }
 
-    for (int i = 0; i < FLAGS_mskps.count(); i++) {
-        const char* path = FLAGS_mskps[i];
-        if (sk_isdir(path)) {
-            SkOSFile::Iter it(path, "mskp");
-            for (SkString file; it.next(&file);) {
-                push_src("mskp", "",
-                         new MSKPSrc(SkOSPath::Join(path, file.c_str())));
-            }
-        } else {
-            push_src("mskp", "", new MSKPSrc(path));
-        }
-    }
+    gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
+    gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
+#if defined(SK_XML)
+    gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
+#endif
 
     SkTArray<SkString> images;
     if (!CollectImages(FLAGS_images, &images)) {
