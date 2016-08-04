@@ -315,7 +315,7 @@ def dm_flags(bot):
   args.extend(configs)
 
   # Run tests, gms, and image decoding tests everywhere.
-  args.extend('--src tests gm image'.split(' '))
+  args.extend('--src tests gm image colorImage'.split(' '))
 
   if 'GalaxyS' in bot:
     args.extend(('--threads', '0'))

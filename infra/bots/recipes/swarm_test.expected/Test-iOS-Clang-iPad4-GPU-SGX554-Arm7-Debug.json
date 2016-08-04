@@ -491,6 +491,7 @@
       "tests",
       "gm",
       "image",
+      "colorImage",
       "--blacklist",
       "f16",
       "_",

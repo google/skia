@@ -356,7 +356,9 @@ bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
             return (src->fGammaNamed == dst->fGammaNamed) && (src->fToXYZD50 == dst->fToXYZD50);
         default:
             // If |src| does not have a named gamma, fProfileData should be non-null.
-            SkASSERT(false);
+            // FIXME (msarett): We may hit this case on pngs that specify float gammas.
+            //                  Gamma can be non-standard, but we don't have a profile
+            //                  to fall back on.  What do we do?
             return false;
     }
 }

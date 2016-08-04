@@ -426,6 +426,7 @@
       "tests",
       "gm",
       "image",
+      "colorImage",
       "--threads",
       "0",
       "--blacklist",
