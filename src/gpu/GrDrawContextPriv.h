@@ -55,6 +55,8 @@ public:
                             const SkMatrix& viewMatrix,
                             const SkPath&);
 
+    SkBudgeted isBudgeted() const;
+
     void testingOnly_drawBatch(const GrPaint&,
                                GrDrawBatch* batch,
                                const GrUserStencilSettings* = nullptr,

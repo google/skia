@@ -10,6 +10,7 @@
 #include "GrDrawContext.h"
 #include "GrDrawContextPriv.h"
 #include "GrDrawingManager.h"
+#include "GrGpuResourcePriv.h"
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
 #include "GrPipelineBuilder.h"
@@ -1214,6 +1215,18 @@ bool GrDrawContextPriv::drawAndStencilPath(const GrFixedClip& clip,
     args.fGammaCorrect = fDrawContext->isGammaCorrect();
     pr->drawPath(args);
     return true;
+}
+
+SkBudgeted GrDrawContextPriv::isBudgeted() const {
+    ASSERT_SINGLE_OWNER_PRIV
+
+    if (fDrawContext->wasAbandoned()) {
+        return SkBudgeted::kNo;
+    }
+
+    SkDEBUGCODE(fDrawContext->validate();)
+
+    return fDrawContext->fRenderTarget->resourcePriv().isBudgeted();
 }
 
 void GrDrawContext::internalDrawPath(const GrClip& clip,

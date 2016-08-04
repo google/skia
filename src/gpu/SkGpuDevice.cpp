@@ -10,13 +10,15 @@
 #include "GrBlurUtils.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "SkDraw.h"
+#include "GrDrawContextPriv.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrImageIDTextureAdjuster.h"
 #include "GrStyle.h"
 #include "GrTracing.h"
+
 #include "SkCanvasPriv.h"
+#include "SkDraw.h"
 #include "SkErrorInternals.h"
 #include "SkGlyphCache.h"
 #include "SkGr.h"
@@ -147,7 +149,6 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
 SkGpuDevice::SkGpuDevice(sk_sp<GrDrawContext> drawContext, int width, int height, unsigned flags) 
     : INHERITED(drawContext->surfaceProps())
     , fContext(SkRef(drawContext->accessRenderTarget()->getContext()))
-    , fRenderTarget(drawContext->renderTarget())
     , fDrawContext(std::move(drawContext)) {
     fSize.set(width, height);
     fOpaque = SkToBool(flags & kIsOpaque_Flag);
@@ -229,8 +230,10 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
     if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
-    return fRenderTarget->readPixels(x, y, dstInfo.width(), dstInfo.height(), config, dstPixels,
-                                     dstRowBytes, flags);
+    return fDrawContext->accessRenderTarget()->readPixels(x, y,
+                                                          dstInfo.width(), dstInfo.height(),
+                                                          config, dstPixels,
+                                                          dstRowBytes, flags);
 }
 
 bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
@@ -245,8 +248,8 @@ bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, siz
     if (kUnpremul_SkAlphaType == info.alphaType()) {
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
-    fRenderTarget->writePixels(x, y, info.width(), info.height(), config, pixels, rowBytes, flags);
-
+    fDrawContext->accessRenderTarget()->writePixels(x, y, info.width(), info.height(),
+                                                    config, pixels, rowBytes, flags);
     return true;
 }
 
@@ -279,7 +282,7 @@ void SkGpuDevice::clearAll() {
 void SkGpuDevice::replaceDrawContext(bool shouldRetainContent) {
     ASSERT_SINGLE_OWNER
 
-    SkBudgeted budgeted = fRenderTarget->resourcePriv().isBudgeted();
+    SkBudgeted budgeted = fDrawContext->drawContextPriv().isBudgeted();
 
     sk_sp<GrDrawContext> newDC(MakeDrawContext(this->context(), 
                                                budgeted,
@@ -292,17 +295,13 @@ void SkGpuDevice::replaceDrawContext(bool shouldRetainContent) {
     }
 
     if (shouldRetainContent) {
-        if (fRenderTarget->wasDestroyed()) {
+        if (fDrawContext->wasAbandoned()) {
             return;
         }
         newDC->copySurface(fDrawContext->asTexture().get(),
                            SkIRect::MakeWH(this->width(), this->height()),
                            SkIPoint::Make(0, 0));
     }
-
-    SkASSERT(fDrawContext->accessRenderTarget() != newDC->accessRenderTarget());
-
-    fRenderTarget = newDC->renderTarget();
 
     fDrawContext = newDC;
 }

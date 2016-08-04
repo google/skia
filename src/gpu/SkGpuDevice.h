@@ -85,7 +85,7 @@ public:
 
     SkImageInfo imageInfo() const override {
         SkColorType colorType;
-        if (!GrPixelConfigToColorType(fRenderTarget->config(), &colorType)) {
+        if (!GrPixelConfigToColorType(fDrawContext->config(), &colorType)) {
             colorType = kUnknown_SkColorType;
         }
         return SkImageInfo::Make(fSize.fWidth, fSize.fHeight, colorType,
@@ -158,9 +158,8 @@ protected:
     bool onShouldDisableLCD(const SkPaint&) const final;
 
 private:
-    // We want these unreffed in DrawContext, RenderTarget, GrContext order.
+    // We want these unreffed in DrawContext, GrContext order.
     SkAutoTUnref<GrContext>         fContext;
-    sk_sp<GrRenderTarget>           fRenderTarget;
     sk_sp<GrDrawContext>            fDrawContext;
 
     SkIPoint                        fClipOrigin;
