@@ -9,10 +9,8 @@
 
 #include "GrBlurUtils.h"
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrDrawContextPriv.h"
 #include "GrGpu.h"
-#include "GrGpuResourcePriv.h"
 #include "GrImageIDTextureAdjuster.h"
 #include "GrStyle.h"
 #include "GrTracing.h"
@@ -92,31 +90,9 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
     return true;
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTarget> rt, sk_sp<SkColorSpace> colorSpace,
-                                     const SkSurfaceProps* props, InitContents init) {
-    if (!rt || rt->wasDestroyed() || !rt->getContext()) {
-        return nullptr;
-    }
-    unsigned flags;
-    if (!CheckAlphaTypeAndGetFlags(nullptr, init, &flags)) {
-        return nullptr;
-    }
-
-    const int width = rt->width();
-    const int height = rt->height();
-
-    GrContext* context = rt->getContext();
-
-    sk_sp<GrDrawContext> drawContext(context->contextPriv().makeWrappedDrawContext(
-                                                                            std::move(rt),
-                                                                            std::move(colorSpace),
-                                                                            props));
-    return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(drawContext), width, height, flags));
-}
-
-sk_sp<SkBaseDevice> SkGpuDevice::Make(sk_sp<GrDrawContext> drawContext,
-                                      int width, int height,
-                                      InitContents init) {
+sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrDrawContext> drawContext,
+                                     int width, int height,
+                                     InitContents init) {
     if (!drawContext || drawContext->wasAbandoned()) {
         return nullptr;
     }
@@ -124,7 +100,7 @@ sk_sp<SkBaseDevice> SkGpuDevice::Make(sk_sp<GrDrawContext> drawContext,
     if (!CheckAlphaTypeAndGetFlags(nullptr, init, &flags)) {
         return nullptr;
     }
-    return sk_sp<SkBaseDevice>(new SkGpuDevice(std::move(drawContext), width, height, flags));
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(drawContext), width, height, flags));
 }
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
@@ -248,9 +224,8 @@ bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, siz
     if (kUnpremul_SkAlphaType == info.alphaType()) {
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
-    fDrawContext->accessRenderTarget()->writePixels(x, y, info.width(), info.height(),
-                                                    config, pixels, rowBytes, flags);
-    return true;
+    return fDrawContext->accessRenderTarget()->writePixels(x, y, info.width(), info.height(),
+                                                           config, pixels, rowBytes, flags);
 }
 
 bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {

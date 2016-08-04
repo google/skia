@@ -38,23 +38,12 @@ public:
     };
 
     /**
-     * Creates an SkGpuDevice from a GrRenderTarget.
-     * TODO: rm this factory. It is used by SkSurface::MakeRenderTargetDirect,
-     *       MakeFromBackendTexture, MakeFromBackendRenderTarget,
-     *       and MakeFromBackendTextureAsRenderTarget. Only the first is worrisome.
-     */
-    static sk_sp<SkGpuDevice> Make(sk_sp<GrRenderTarget> target,
-                                   sk_sp<SkColorSpace> colorSpace,
-                                   const SkSurfaceProps*,
-                                   InitContents);
-
-    /**
      * Creates an SkGpuDevice from a GrDrawContext whose backing width/height is
      * different than its actual width/height (e.g., approx-match scratch texture).
      */
-    static sk_sp<SkBaseDevice> Make(sk_sp<GrDrawContext> drawContext,
-                                    int width, int height,
-                                    InitContents);
+    static sk_sp<SkGpuDevice> Make(sk_sp<GrDrawContext> drawContext,
+                                   int width, int height,
+                                   InitContents);
 
     /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
@@ -66,13 +55,6 @@ public:
                                    const SkSurfaceProps*, InitContents);
 
     ~SkGpuDevice() override {}
-
-    SkGpuDevice* cloneDevice(const SkSurfaceProps& props) {
-        SkBaseDevice* dev = this->onCreateDevice(CreateInfo(this->imageInfo(), kPossible_TileUsage,
-                                                            props.pixelGeometry()),
-                                                 nullptr);
-        return static_cast<SkGpuDevice*>(dev);
-    }
 
     GrContext* context() const override { return fContext; }
 

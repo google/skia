@@ -80,12 +80,6 @@ public:
     }
 
     /**
-     *  Return a new surface using the specified render target.
-     */
-    static sk_sp<SkSurface> MakeRenderTargetDirect(GrRenderTarget*, sk_sp<SkColorSpace> colorSpace,
-                                                   const SkSurfaceProps* = nullptr);
-
-    /**
      *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. The kRenderTarget flag
      *  must be set on GrBackendTextureDesc for this to succeed. Skia will not assume ownership
      *  of the texture and the client must ensure the texture is valid for the lifetime of the

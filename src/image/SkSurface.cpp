@@ -223,11 +223,6 @@ void SkSurface::prepareForExternalIO() {
 
 #if !SK_SUPPORT_GPU
 
-sk_sp<SkSurface> SkSurface::MakeRenderTargetDirect(GrRenderTarget*, sk_sp<SkColorSpace>,
-                                                   const SkSurfaceProps*) {
-    return nullptr;
-}
-
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&,
                                              int, GrSurfaceOrigin, const SkSurfaceProps*) {
     return nullptr;
