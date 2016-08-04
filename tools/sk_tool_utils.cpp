@@ -513,4 +513,36 @@ SkRect compute_central_occluder(const SkRRect& rr) {
     return SkRect::MakeLTRB(newL, newT, newR, newB);
 }
 
+// The widest inset rect
+SkRect compute_widest_occluder(const SkRRect& rr) {
+    const SkRect& r = rr.getBounds();
+
+    const SkVector& ul = rr.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& ur = rr.radii(SkRRect::kUpperRight_Corner);
+    const SkVector& lr = rr.radii(SkRRect::kLowerRight_Corner);
+    const SkVector& ll = rr.radii(SkRRect::kLowerLeft_Corner);
+
+    SkScalar maxT = SkTMax(ul.fY, ur.fY);
+    SkScalar maxB = SkTMax(ll.fY, lr.fY);
+
+    return SkRect::MakeLTRB(r.fLeft, r.fTop + maxT, r.fRight, r.fBottom - maxB);
+
+}
+
+// The tallest inset rect
+SkRect compute_tallest_occluder(const SkRRect& rr) {
+    const SkRect& r = rr.getBounds();
+
+    const SkVector& ul = rr.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& ur = rr.radii(SkRRect::kUpperRight_Corner);
+    const SkVector& lr = rr.radii(SkRRect::kLowerRight_Corner);
+    const SkVector& ll = rr.radii(SkRRect::kLowerLeft_Corner);
+
+    SkScalar maxL = SkTMax(ul.fX, ll.fX);
+    SkScalar maxR = SkTMax(ur.fX, lr.fX);
+
+    return SkRect::MakeLTRB(r.fLeft + maxL, r.fTop, r.fRight - maxR, r.fBottom);
+}
+
+
 }  // namespace sk_tool_utils

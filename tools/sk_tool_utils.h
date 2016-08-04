@@ -132,6 +132,8 @@ namespace sk_tool_utils {
     SkBitmap slow_blur(const SkBitmap& src, float sigma);
 
     SkRect compute_central_occluder(const SkRRect& rr);
+    SkRect compute_widest_occluder(const SkRRect& rr);
+    SkRect compute_tallest_occluder(const SkRRect& rr);
 
     // A helper object to test the topological sorting code (TopoSortBench.cpp & TopoSortTest.cpp)
     class TopoTestNode {
