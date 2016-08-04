@@ -139,6 +139,11 @@ sk_color_t sk_bitmap_get_pixel_color(sk_bitmap_t* cbitmap, int x, int y)
     return AsBitmap(cbitmap)->getColor(x, y);
 }
 
+sk_color_t sk_bitmap_get_index8_color(sk_bitmap_t* cbitmap, int x, int y)
+{
+    return AsBitmap(cbitmap)->getIndex8Color(x, y);
+}
+
 void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t color)
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
@@ -241,4 +246,19 @@ bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requ
     from_c(*requestedInfo, &info);
 
     return bmp->tryAllocPixels(info, rowBytes);
+}
+
+bool sk_bitmap_try_alloc_pixels_with_color_table(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, sk_pixelref_factory_t* factory, sk_colortable_t* ctable)
+{
+    SkBitmap* bmp = AsBitmap(cbitmap);
+
+    SkImageInfo info;
+    from_c(*requestedInfo, &info);
+
+    return bmp->tryAllocPixels(info, AsPixelRefFactory(factory), AsColorTable(ctable));
+}
+
+sk_colortable_t* sk_bitmap_get_colortable(sk_bitmap_t* cbitmap)
+{
+    return ToColorTable(AsBitmap(cbitmap)->getColorTable());
 }

@@ -502,6 +502,10 @@ typedef enum {
     LARGE_SK_PATH_ARC_SIZE,
 } sk_path_arc_size_t;
 
+typedef struct sk_colortable_t sk_colortable_t;
+
+typedef struct sk_pixelref_factory_t sk_pixelref_factory_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

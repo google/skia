@@ -404,6 +404,38 @@ static inline const sk_path_effect_t* ToPathEffect(const SkPathEffect* p) {
     return reinterpret_cast<const sk_path_effect_t*>(p);
 }
 
+static inline const SkColorTable* AsColorTable(const sk_colortable_t* p) {
+    return reinterpret_cast<const SkColorTable*>(p);
+}
+
+static inline SkColorTable* AsColorTable(sk_colortable_t* p) {
+    return reinterpret_cast<SkColorTable*>(p);
+}
+
+static inline sk_colortable_t* ToColorTable(SkColorTable* p) {
+    return reinterpret_cast<sk_colortable_t*>(p);
+}
+
+static inline const sk_colortable_t* ToColorTable(const SkColorTable* p) {
+    return reinterpret_cast<const sk_colortable_t*>(p);
+}
+
+static inline const SkPixelRefFactory* AsPixelRefFactory(const sk_pixelref_factory_t* p) {
+    return reinterpret_cast<const SkPixelRefFactory*>(p);
+}
+
+static inline SkPixelRefFactory* AsPixelRefFactory(sk_pixelref_factory_t* p) {
+    return reinterpret_cast<SkPixelRefFactory*>(p);
+}
+
+static inline sk_pixelref_factory_t* ToColorTable(SkPixelRefFactory* p) {
+    return reinterpret_cast<sk_pixelref_factory_t*>(p);
+}
+
+static inline const sk_pixelref_factory_t* ToColorTable(const SkPixelRefFactory* p) {
+    return reinterpret_cast<const sk_pixelref_factory_t*>(p);
+}
+
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(
         cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
