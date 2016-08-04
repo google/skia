@@ -9,6 +9,7 @@
 #include "SkBlurMaskFilter.h"
 #include "SkBlurDrawLooper.h"
 #include "SkCanvas.h"
+#include "SkColorFilter.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkLayerDrawLooper.h"
 #include "SkMath.h"

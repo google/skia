@@ -53,6 +53,7 @@ config("skia_private") {
     "src/ports",
     "src/sfnt",
     "src/utils",
+    "src/utils/win",
     "third_party/etc1",
     "third_party/ktx",
   ]
@@ -178,7 +179,9 @@ component("skia") {
     "//third_party/zlib",
   ]
 
-  libs = [ "pthread" ]
+  if (!is_win) {
+    libs = [ "pthread" ]
+  }
 
   sources = []
   sources += core_gypi.sources
@@ -249,6 +252,7 @@ component("skia") {
       "src/ports/SkTypeface_win_dw.cpp",
       "src/xps/SkDocument_XPS.cpp",
     ]
+    sources -= [ "src/utils/SkThreadUtils_pthread.cpp" ]
   } else {
     sources += [
       "src/ports/SkDebug_stdio.cpp",

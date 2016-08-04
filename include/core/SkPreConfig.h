@@ -211,7 +211,7 @@
 
 #if !defined(SK_API)
     #if defined(SKIA_DLL)
-        #if defined(SK_BUILD_FOR_WIN32)
+        #if defined(_MSC_VER)
             #if SKIA_IMPLEMENTATION
                 #define SK_API __declspec(dllexport)
             #else

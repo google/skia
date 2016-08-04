@@ -11,6 +11,8 @@ import("../third_party.gni")
 third_party("libjpeg_turbo") {
   public_include_dirs = [ "../externals/libjpeg-turbo" ]
 
+  defines = [ "TURBO_FOR_WINDOWS" ]
+
   sources = [
     "../externals/libjpeg-turbo/jcapimin.c",
     "../externals/libjpeg-turbo/jcapistd.c",

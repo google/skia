@@ -9,6 +9,7 @@
 #include "SkBlurDrawLooper.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
+#include "SkColorFilter.h"
 #include "SkGradientShader.h"
 #include "SkMatrix.h"
 #include "SkTArray.h"

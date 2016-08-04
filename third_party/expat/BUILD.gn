@@ -9,7 +9,7 @@ declare_args() {
 import("../third_party.gni")
 
 third_party("expat") {
-  public_include_dirs = [ "../externals/expat" ]
+  public_include_dirs = [ "../externals/expat/lib" ]
 
   defines = [ "HAVE_MEMMOVE" ]
 
