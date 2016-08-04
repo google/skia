@@ -73,6 +73,9 @@ config("skia_private") {
     "TURBO_HAS_CROP",
     "TURBO_HAS_SKIP",
   ]
+  if (is_linux) {
+    defines += [ "SK_SAMPLES_FOR_X" ]
+  }
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
