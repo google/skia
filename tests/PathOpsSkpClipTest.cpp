@@ -19,6 +19,7 @@
 #include "SkOSFile.h"
 #include "SkPathOpsDebug.h"
 #include "SkPicture.h"
+#include "SkRTConf.h"
 #include "SkTSort.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -26,7 +27,6 @@
 #include "SkTDArray.h"
 #include "SkTaskGroup.h"
 #include "SkTemplates.h"
-#include "SkTSearch.h"
 #include "SkTime.h"
 
 #include <stdlib.h>
@@ -740,6 +740,13 @@ checkEarlyExit:
     return true;
 }
 
+static void initTest() {
+#if !defined SK_BUILD_FOR_WIN && !defined SK_BUILD_FOR_MAC
+    SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true);
+    SK_CONF_SET("images.png.suppressDecoderWarnings", true);
+#endif
+}
+
 static void testSkpClipEncode(TestState* data) {
     data->fResult.testOne();
     if (verbose()) {
@@ -820,6 +827,7 @@ typedef SkTRegistry<Test*(*)(void*)> TestRegistry;
 
 DEF_TEST(PathOpsSkpClip) {
     gDirs.setDefault();
+    initTest();
     SkTArray<TestResult, true> errors;
     TestState state;
     state.init(0);
@@ -843,6 +851,7 @@ static void testSkpClipMain(TestState* data) {
 
 DEF_TEST(PathOpsSkpClipThreaded) {
     gDirs.setDefault();
+    initTest();
     TestRunner testRunner;
     int dirNo;
     gDirs.reset();
@@ -881,6 +890,7 @@ DEF_TEST(PathOpsSkpClipUberThreaded) {
     gDirs.setDefault();
     const int firstDirNo = gDirs.next();
     const int lastDirNo = gDirs.last();
+    initTest();
     int dirCount = lastDirNo - firstDirNo + 1;
     SkAutoTDeleteArray<SkTDArray<TestResult> > tests(new SkTDArray<TestResult>[dirCount]);
     SkAutoTDeleteArray<SkTDArray<SortByName*> > sorted(new SkTDArray<SortByName*>[dirCount]);
@@ -963,6 +973,7 @@ DEF_TEST(PathOpsSkpClipOneOff) {
     if (!skp) {
         skp = skipOver[testIndex].filename;
     }
+    initTest();
     SkAssertResult(get_in_path(dirNo, skp).size());
     SkString filename(skp);
     TestResult state;
@@ -982,6 +993,7 @@ DEF_TEST(PathOpsTestSkipped) {
         }
         int dirNo = skip.directory;
         const char* skp = skip.filename;
+        initTest();
         SkAssertResult(get_in_path(dirNo, skp).size());
         SkString filename(skp);
         TestResult state;

@@ -18,6 +18,7 @@
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
+#include "SkRTConf.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"

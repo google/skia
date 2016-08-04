@@ -13,11 +13,12 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLProgramDesc.h"
+#include "SkRTConf.h"
 #include "SkTSearch.h"
 
 #ifdef PROGRAM_CACHE_STATS
-// Display program cache usage
-static const bool c_DisplayCache{false};
+SK_CONF_DECLARE(bool, c_DisplayCache, "gpu.displayCache", false,
+                "Display program cache usage.");
 #endif
 
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;

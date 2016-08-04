@@ -11,6 +11,7 @@
 #include "GrProcessor.h"
 #include "GrVkPipelineState.h"
 #include "GrVkPipelineStateBuilder.h"
+#include "SkRTConf.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 

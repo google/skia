@@ -12,6 +12,7 @@
 #include "GrGLProgramBuilder.h"
 #include "GrSwizzle.h"
 #include "GrTexture.h"
+#include "SkRTConf.h"
 #include "SkTraceEvent.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"

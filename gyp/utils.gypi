@@ -28,6 +28,7 @@
         '<(skia_include_path)/utils/SkParsePath.h',
         '<(skia_include_path)/utils/SkPictureUtils.h',
         '<(skia_include_path)/utils/SkRandom.h',
+        '<(skia_include_path)/utils/SkRTConf.h',
         '<(skia_include_path)/utils/SkTextBox.h',
 
         '<(skia_src_path)/utils/SkBase64.cpp',
@@ -67,6 +68,7 @@
         '<(skia_src_path)/utils/SkPatchUtils.h',
         '<(skia_src_path)/utils/SkRGBAToYUV.cpp',
         '<(skia_src_path)/utils/SkRGBAToYUV.h',
+        '<(skia_src_path)/utils/SkRTConf.cpp',
         '<(skia_src_path)/utils/SkTextBox.cpp',
         '<(skia_src_path)/utils/SkTextureCompressor.cpp',
         '<(skia_src_path)/utils/SkTextureCompressor.h',
