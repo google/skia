@@ -4,11 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "DecodeFile.h"
 #include "SampleCode.h"
 #include "Resources.h"
-
-#include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkLightingShader.h"
 #include "SkNormalSource.h"
@@ -66,8 +65,8 @@ protected:
 
         sk_sp<SkLights> lights(create_lights(fLightAngle, fColorFactor));
         SkPaint paint;
-        sk_sp<SkShader> normalMap = SkMakeBitmapShader(fNormalBitmap,
-            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr, nullptr);
+        sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(fNormalBitmap,
+            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr);
         sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(
                 std::move(normalMap), SkMatrix::I());
         sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(fDiffuseBitmap,

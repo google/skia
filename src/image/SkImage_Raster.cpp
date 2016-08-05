@@ -254,7 +254,7 @@ sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
     return sk_make_sp<SkImage_Raster>(info, pr, pixelRefOrigin, rowBytes);
 }
 
-sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode forceCopy) {
+sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm) {
     bool hasColorTable = false;
     if (kIndex_8_SkColorType == bm.colorType()) {
         SkAutoLockPixels autoLockPixels(bm);
@@ -266,9 +266,7 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode for
     }
 
     sk_sp<SkImage> image;
-    if (kYes_ForceCopyMode == forceCopy ||
-        (!bm.isImmutable() && kNever_ForceCopyMode != forceCopy))
-    {
+    if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
         SkBitmap tmp(bm);
         tmp.lockPixels();
         SkPixmap pmap;
@@ -276,7 +274,7 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode for
             image = SkImage::MakeRasterCopy(pmap);
         }
     } else {
-        image = sk_make_sp<SkImage_Raster>(bm, kNever_ForceCopyMode == forceCopy);
+        image = sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
     }
     return image;
 }

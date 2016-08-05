@@ -329,7 +329,7 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
     SkTBlitterAllocator allocator;
     // construct a shader, so we can call drawRect with the dst
     auto s = SkMakeBitmapShader(*bitmapPtr, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
-                                &matrix, &allocator);
+                                &matrix, kNever_SkCopyPixelsMode, &allocator);
     if (!s) {
         return;
     }

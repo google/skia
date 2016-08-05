@@ -194,20 +194,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, ctxInfo) {
 
 DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
     const struct {
-        ForceCopyMode fMode;
-        bool          fExpectSameAsMutable;
-        bool          fExpectSameAsImmutable;
+        SkCopyPixelsMode fCPM;
+        bool            fExpectSameAsMutable;
+        bool            fExpectSameAsImmutable;
     } recs[] = {
-        { kNo_ForceCopyMode,    false,  true },
-        { kYes_ForceCopyMode,   false,  false },
-        { kNever_ForceCopyMode, true,   true },
+        { kIfMutable_SkCopyPixelsMode,  false,  true },
+        { kAlways_SkCopyPixelsMode,     false,  false },
+        { kNever_SkCopyPixelsMode,      true,   true },
     };
     for (auto rec : recs) {
         SkPixmap pm;
         SkBitmap bm;
         bm.allocN32Pixels(100, 100);
 
-        auto img = SkMakeImageFromRasterBitmap(bm, rec.fMode);
+        auto img = SkMakeImageFromRasterBitmap(bm, rec.fCPM);
         REPORTER_ASSERT(reporter, img->peekPixels(&pm));
         const bool sameMutable = pm.addr32(0, 0) == bm.getAddr32(0, 0);
         REPORTER_ASSERT(reporter, rec.fExpectSameAsMutable == sameMutable);
@@ -215,7 +215,7 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
         bm.notifyPixelsChanged();   // force a new generation ID
 
         bm.setImmutable();
-        img = SkMakeImageFromRasterBitmap(bm, rec.fMode);
+        img = SkMakeImageFromRasterBitmap(bm, rec.fCPM);
         REPORTER_ASSERT(reporter, img->peekPixels(&pm));
         const bool sameImmutable = pm.addr32(0, 0) == bm.getAddr32(0, 0);
         REPORTER_ASSERT(reporter, rec.fExpectSameAsImmutable == sameImmutable);

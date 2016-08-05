@@ -83,7 +83,9 @@ public:
                               const SkMatrix* localMatrix = nullptr)
             : fPaint(paint) /* makes a copy of the paint */ {
         fPaint.setShader(SkMakeBitmapShader(src, SkShader::kClamp_TileMode,
-                                            SkShader::kClamp_TileMode, localMatrix, &fAllocator));
+                                            SkShader::kClamp_TileMode, localMatrix,
+                                            kNever_SkCopyPixelsMode,
+                                            &fAllocator));
         // we deliberately left the shader with an owner-count of 2
         fPaint.getShader()->ref();
         SkASSERT(2 == fPaint.getShader()->getRefCnt());

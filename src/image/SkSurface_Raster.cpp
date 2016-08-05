@@ -24,7 +24,7 @@ public:
 
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
-    sk_sp<SkImage> onNewImageSnapshot(SkBudgeted, ForceCopyMode) override;
+    sk_sp<SkImage> onNewImageSnapshot(SkBudgeted, SkCopyPixelsMode) override;
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
@@ -118,7 +118,7 @@ void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot(SkBudgeted, ForceCopyMode forceCopyMode) {
+sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot(SkBudgeted, SkCopyPixelsMode cpm) {
     if (fWeOwnThePixels) {
         // SkImage_raster requires these pixels are immutable for its full lifetime.
         // We'll undo this via onRestoreBackingMutability() if we can avoid the COW.
@@ -126,12 +126,12 @@ sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot(SkBudgeted, ForceCopyMode fo
             pr->setTemporarilyImmutable();
         }
     } else {
-        forceCopyMode = kYes_ForceCopyMode;
+        cpm = kAlways_SkCopyPixelsMode;
     }
 
     // Our pixels are in memory, so read access on the snapshot SkImage could be cheap.
     // Lock the shared pixel ref to ensure peekPixels() is usable.
-    return SkMakeImageFromRasterBitmap(fBitmap, forceCopyMode);
+    return SkMakeImageFromRasterBitmap(fBitmap, cpm);
 }
 
 void SkSurface_Raster::onRestoreBackingMutability() {

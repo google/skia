@@ -240,7 +240,7 @@ sk_sp<SkShader> SkShader::MakeColorShader(SkColor color) { return sk_make_sp<SkC
 
 sk_sp<SkShader> SkShader::MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                            const SkMatrix* localMatrix) {
-    return SkMakeBitmapShader(src, tmx, tmy, localMatrix, nullptr);
+    return SkMakeBitmapShader(src, tmx, tmy, localMatrix, kIfMutable_SkCopyPixelsMode, nullptr);
 }
 
 sk_sp<SkShader> SkShader::MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, TileMode tmy,

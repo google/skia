@@ -6,8 +6,6 @@
  */
 
 #include "gm.h"
-
-#include "SkBitmapProcShader.h"
 #include "SkLightingShader.h"
 #include "SkNormalSource.h"
 #include "SkPoint3.h"
@@ -100,10 +98,10 @@ protected:
         const SkMatrix& ctm = canvas->getTotalMatrix();
 
         SkPaint paint;
-        sk_sp<SkShader> diffuseShader = SkMakeBitmapShader(fDiffuse,
-                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix, nullptr);
-        sk_sp<SkShader> normalMap = SkMakeBitmapShader(fNormalMaps[mapType],
-                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix, nullptr);
+        sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(fDiffuse,
+                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix);
+        sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(fNormalMaps[mapType],
+                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix);
         sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
                                                                                ctm);
         paint.setShader(SkLightingShader::Make(std::move(diffuseShader), std::move(normalSource),

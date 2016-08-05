@@ -7,6 +7,7 @@
 #ifndef SkBitmapProcShader_DEFINED
 #define SkBitmapProcShader_DEFINED
 
+#include "SkImagePriv.h"
 #include "SkShader.h"
 #include "SkSmallAllocator.h"
 
@@ -36,6 +37,7 @@ typedef SkSmallAllocator<3, kSkBlitterContextSize> SkTBlitterAllocator;
 // If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
 // the SkShader.
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode, SkShader::TileMode,
-                                   const SkMatrix* localMatrix, SkTBlitterAllocator* alloc);
+                                   const SkMatrix* localMatrix, SkCopyPixelsMode,
+                                   SkTBlitterAllocator* alloc);
 
 #endif

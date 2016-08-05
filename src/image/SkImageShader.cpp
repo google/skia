@@ -234,9 +234,14 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
 
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
                                    SkShader::TileMode tmy, const SkMatrix* localMatrix,
-                                   SkTBlitterAllocator* allocator) {
-    ForceCopyMode mode = allocator ? kNever_ForceCopyMode : kNo_ForceCopyMode;
-    return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, mode).get(),
+                                   SkCopyPixelsMode cpm, SkTBlitterAllocator* allocator) {
+    // Until we learn otherwise, it seems that any caller that is passing an allocator must be
+    // assuming that the returned shader will have a stack-frame lifetime, so we assert that
+    // they are also asking for kNever_SkCopyPixelsMode. If that proves otherwise, we can remove
+    // or modify this assert.
+    SkASSERT(!allocator || (kNever_SkCopyPixelsMode == cpm));
+
+    return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm).get(),
                                tmx, tmy, localMatrix, allocator);
 }
 

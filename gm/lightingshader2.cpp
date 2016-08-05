@@ -6,8 +6,6 @@
  */
 
 #include "gm.h"
-
-#include "SkBitmapProcShader.h"
 #include "SkLightingShader.h"
 #include "SkNormalSource.h"
 #include "SkPoint3.h"
@@ -60,20 +58,21 @@ protected:
                 sk_tool_utils::color_to_565(0x0),
                 sk_tool_utils::color_to_565(0xFF804020),
                 8);
-        fOpaqueDiffuse = SkMakeBitmapShader(opaqueDiffuseMap, SkShader::kClamp_TileMode,
-                                            SkShader::kClamp_TileMode, &matrix, nullptr);
+        fOpaqueDiffuse = SkShader::MakeBitmapShader(opaqueDiffuseMap, SkShader::kClamp_TileMode,
+                                                    SkShader::kClamp_TileMode, &matrix);
 
         SkBitmap translucentDiffuseMap = sk_tool_utils::create_checkerboard_bitmap(
                 kTexSize, kTexSize,
                 SkColorSetARGB(0x55, 0x00, 0x00, 0x00),
                 SkColorSetARGB(0x55, 0x80, 0x40, 0x20),
                 8);
-        fTranslucentDiffuse = SkMakeBitmapShader(translucentDiffuseMap, SkShader::kClamp_TileMode,
-                                                 SkShader::kClamp_TileMode, &matrix, nullptr);
+        fTranslucentDiffuse = SkShader::MakeBitmapShader(translucentDiffuseMap,
+                                                         SkShader::kClamp_TileMode,
+                                                         SkShader::kClamp_TileMode, &matrix);
 
         SkBitmap normalMap = make_frustum_normalmap(kTexSize);
-        fNormalMapShader = SkMakeBitmapShader(normalMap, SkShader::kClamp_TileMode,
-                                              SkShader::kClamp_TileMode, &matrix, nullptr);
+        fNormalMapShader = SkShader::MakeBitmapShader(normalMap, SkShader::kClamp_TileMode,
+                                                      SkShader::kClamp_TileMode, &matrix);
 
     }
 

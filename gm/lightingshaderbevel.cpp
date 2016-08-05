@@ -6,8 +6,6 @@
  */
 
 #include "gm.h"
-
-#include "SkBitmapProcShader.h"
 #include "SkLightingShader.h"
 #include "SkNormalSource.h"
 #include "SkPath.h"
@@ -54,8 +52,8 @@ protected:
                 sk_tool_utils::color_to_565(0x0),
                 sk_tool_utils::color_to_565(0xFF804020),
                 8);
-        fDiffuse = SkMakeBitmapShader(diffuseMap, SkShader::kClamp_TileMode,
-                                      SkShader::kClamp_TileMode, &matrix, nullptr);
+        fDiffuse = SkShader::MakeBitmapShader(diffuseMap, SkShader::kClamp_TileMode,
+                                              SkShader::kClamp_TileMode, &matrix);
 
         fConvexPath.moveTo(fRect.width() / 2.0f, 0.0f);
         fConvexPath.lineTo(0.0f, fRect.height());

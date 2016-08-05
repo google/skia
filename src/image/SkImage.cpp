@@ -309,8 +309,7 @@ sk_sp<SkImage> SkImage::MakeFromBitmap(const SkBitmap& bm) {
     }
 #endif
 
-    // This will check for immutable (share or copy)
-    return SkMakeImageFromRasterBitmap(bm);
+    return SkMakeImageFromRasterBitmap(bm, kIfMutable_SkCopyPixelsMode);
 }
 
 bool SkImage::asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {

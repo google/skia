@@ -7,7 +7,6 @@
 
 #include "Resources.h"
 #include "SkAnnotationKeys.h"
-#include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
@@ -581,12 +580,12 @@ DEF_TEST(Serialization, reporter) {
         normals.allocN32Pixels(kTexSize, kTexSize);
 
         sk_tool_utils::create_frustum_normal_map(&normals, SkIRect::MakeWH(kTexSize, kTexSize));
-        sk_sp<SkShader> normalMap = SkMakeBitmapShader(normals, SkShader::kClamp_TileMode,
-                                                       SkShader::kClamp_TileMode, &matrix, nullptr);
+        sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(normals, SkShader::kClamp_TileMode,
+                SkShader::kClamp_TileMode, &matrix);
         sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
                                                                                ctm);
-        sk_sp<SkShader> diffuseShader = SkMakeBitmapShader(diffuse, SkShader::kClamp_TileMode,
-                SkShader::kClamp_TileMode, &matrix, nullptr);
+        sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(diffuse,
+                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix);
 
         sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuseShader,
                                                                 normalSource,

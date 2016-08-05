@@ -16,12 +16,18 @@ extern sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
                                               const SkIPoint& pixelRefOrigin,
                                               size_t rowBytes);
 
+enum SkCopyPixelsMode {
+    kIfMutable_SkCopyPixelsMode,  //!< only copy src pixels if they are marked mutable
+    kAlways_SkCopyPixelsMode,     //!< always copy src pixels (even if they are marked immutable)
+    kNever_SkCopyPixelsMode,      //!< never copy src pixels (even if they are marked mutable)
+};
+
 /**
  *  Examines the bitmap to decide if it can share the existing pixelRef, or
  *  if it needs to make a deep-copy of the pixels.
  *
  *  The bitmap's pixelref will be shared if either the bitmap is marked as
- *  immutable, or forceSharePixelRef is true.  Shared pixel refs are also
+ *  immutable, or CopyPixelsMode allows it. Shared pixel refs are also
  *  locked when kLocked_SharedPixelRefMode is specified.
  *
  *  Passing kLocked_SharedPixelRefMode allows the image's peekPixels() method
@@ -34,13 +40,7 @@ extern sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
  *  SkImageInfo, or the bitmap's pixels cannot be accessed, this will return
  *  nullptr.
  */
-enum ForceCopyMode {
-    kNo_ForceCopyMode,
-    kYes_ForceCopyMode,     // must copy the pixels even if the bitmap is immutable
-    kNever_ForceCopyMode,   // don't ever copy, even if the bitmap is mutable
-};
-extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&,
-                                                  ForceCopyMode = kNo_ForceCopyMode);
+extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopyPixelsMode);
 
 // Given an image created from SkNewImageFromBitmap, return its pixelref. This
 // may be called to see if the surface and the image share the same pixelref,
