@@ -14,7 +14,6 @@
 ////////////////////////////////////////////////////////////////////////////
 #ifdef SK_EXPERIMENTAL_SHADOWING
 
-#define SK_MAX_NON_AMBIENT_LIGHTS 4
 
 /** \class SkShadowShaderImpl
     This subclass of shader applies shadowing
@@ -116,12 +115,12 @@ public:
         for (int i = 0; i < lights->numLights(); ++i) {
             if (SkLights::Light::kAmbient_LightType == lights->light(i).type()) {
                 fAmbientColor += lights->light(i).color();
-            } else if (fNumDirLights < SK_MAX_NON_AMBIENT_LIGHTS){
+            } else if (fNumDirLights < SkShadowShader::kMaxNonAmbientLights) {
                 fLightColor[fNumDirLights] = lights->light(i).color();
                 fLightDir[fNumDirLights] = lights->light(i).dir();
-                SkImage_Base* shadowMap = ((SkImage_Base*)lights->light(i).getShadowMap().get());
+                SkImage_Base* shadowMap = ((SkImage_Base*)lights->light(i).getShadowMap());
 
-                // this sk_sp gets deleted when the ShadowFP is destroyed, and frees the GrTexture*
+                // gets deleted when the ShadowFP is destroyed, and frees the GrTexture*
                 fTexture[fNumDirLights] = sk_sp<GrTexture>(shadowMap->asTextureRef(context,
                                                            GrTextureParams::ClampNoFilter(),
                                                            SkSourceGammaTreatment::kIgnore));
@@ -154,13 +153,15 @@ public:
 
             // add uniforms
             int32_t numLights = args.fFp.cast<ShadowFP>().fNumDirLights;
-            SkASSERT(numLights <= SK_MAX_NON_AMBIENT_LIGHTS);
+            SkASSERT(numLights <= SkShadowShader::kMaxNonAmbientLights);
 
-            const char* lightDirUniName[SK_MAX_NON_AMBIENT_LIGHTS] = {nullptr};
-            const char* lightColorUniName[SK_MAX_NON_AMBIENT_LIGHTS] = {nullptr};
+            const char* lightDirUniName[SkShadowShader::kMaxNonAmbientLights] = {nullptr};
+            const char* lightColorUniName[SkShadowShader::kMaxNonAmbientLights] = {nullptr};
 
-            const char* depthMapWidthUniName[SK_MAX_NON_AMBIENT_LIGHTS] = {nullptr};
-            const char* depthMapHeightUniName[SK_MAX_NON_AMBIENT_LIGHTS] = {nullptr};
+            const char* depthMapWidthUniName[SkShadowShader::kMaxNonAmbientLights]
+                    = {nullptr};
+            const char* depthMapHeightUniName[SkShadowShader::kMaxNonAmbientLights]
+                    = {nullptr};
 
             SkString lightDirUniNameBase("lightDir");
             SkString lightColorUniNameBase("lightColor");
@@ -222,7 +223,7 @@ public:
             SkString diffuseColor("inDiffuseColor");
             this->emitChild(1, nullptr, &diffuseColor, args);
 
-            SkString depthMaps[SK_MAX_NON_AMBIENT_LIGHTS];
+            SkString depthMaps[SkShadowShader::kMaxNonAmbientLights];
 
             for (int i = 0; i < numLights; i++) {
                 SkString povCoord("povCoord");
@@ -354,15 +355,21 @@ public:
         }
 
     private:
-        SkVector3 fLightDir[SK_MAX_NON_AMBIENT_LIGHTS];
-        GrGLSLProgramDataManager::UniformHandle fLightDirUni[SK_MAX_NON_AMBIENT_LIGHTS];
-        SkColor3f fLightColor[SK_MAX_NON_AMBIENT_LIGHTS];
-        GrGLSLProgramDataManager::UniformHandle fLightColorUni[SK_MAX_NON_AMBIENT_LIGHTS];
+        SkVector3 fLightDir[SkShadowShader::kMaxNonAmbientLights];
+        GrGLSLProgramDataManager::UniformHandle
+                fLightDirUni[SkShadowShader::kMaxNonAmbientLights];
 
-        int fDepthMapWidth[SK_MAX_NON_AMBIENT_LIGHTS];
-        GrGLSLProgramDataManager::UniformHandle fDepthMapWidthUni[SK_MAX_NON_AMBIENT_LIGHTS];
-        int fDepthMapHeight[SK_MAX_NON_AMBIENT_LIGHTS];
-        GrGLSLProgramDataManager::UniformHandle fDepthMapHeightUni[SK_MAX_NON_AMBIENT_LIGHTS];
+        SkColor3f fLightColor[SkShadowShader::kMaxNonAmbientLights];
+        GrGLSLProgramDataManager::UniformHandle
+                fLightColorUni[SkShadowShader::kMaxNonAmbientLights];
+
+        int fDepthMapWidth[SkShadowShader::kMaxNonAmbientLights];
+        GrGLSLProgramDataManager::UniformHandle
+                fDepthMapWidthUni[SkShadowShader::kMaxNonAmbientLights];
+
+        int fDepthMapHeight[SkShadowShader::kMaxNonAmbientLights];
+        GrGLSLProgramDataManager::UniformHandle
+                fDepthMapHeightUni[SkShadowShader::kMaxNonAmbientLights];
 
         int fWidth;
         GrGLSLProgramDataManager::UniformHandle fWidthUni;
@@ -436,13 +443,13 @@ private:
 
     int              fNumDirLights;
 
-    SkVector3        fLightDir[SK_MAX_NON_AMBIENT_LIGHTS];
-    SkColor3f        fLightColor[SK_MAX_NON_AMBIENT_LIGHTS];
-    GrTextureAccess  fDepthMapAccess[SK_MAX_NON_AMBIENT_LIGHTS];
-    sk_sp<GrTexture> fTexture[SK_MAX_NON_AMBIENT_LIGHTS];
+    SkVector3        fLightDir[SkShadowShader::kMaxNonAmbientLights];
+    SkColor3f        fLightColor[SkShadowShader::kMaxNonAmbientLights];
+    GrTextureAccess  fDepthMapAccess[SkShadowShader::kMaxNonAmbientLights];
+    sk_sp<GrTexture> fTexture[SkShadowShader::kMaxNonAmbientLights];
 
-    int              fDepthMapWidth[SK_MAX_NON_AMBIENT_LIGHTS];
-    int              fDepthMapHeight[SK_MAX_NON_AMBIENT_LIGHTS];
+    int              fDepthMapWidth[SkShadowShader::kMaxNonAmbientLights];
+    int              fDepthMapHeight[SkShadowShader::kMaxNonAmbientLights];
 
     int              fHeight;
     int              fWidth;
@@ -647,7 +654,7 @@ void SkShadowShaderImpl::flatten(SkWriteBuffer& buf) const {
             buf.writeScalarArray(&light.dir().fX, 3);
         }
 
-        buf.writeImage(light.getShadowMap().get());
+        buf.writeImage(light.getShadowMap());
     }
 
     buf.writeInt(fDiffuseWidth);

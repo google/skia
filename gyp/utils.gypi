@@ -67,6 +67,8 @@
         '<(skia_src_path)/utils/SkPatchUtils.h',
         '<(skia_src_path)/utils/SkRGBAToYUV.cpp',
         '<(skia_src_path)/utils/SkRGBAToYUV.h',
+        '<(skia_src_path)/utils/SkShadowPaintFilterCanvas.cpp',
+        '<(skia_src_path)/utils/SkShadowPaintFilterCanvas.h',
         '<(skia_src_path)/utils/SkTextBox.cpp',
         '<(skia_src_path)/utils/SkTextureCompressor.cpp',
         '<(skia_src_path)/utils/SkTextureCompressor.h',

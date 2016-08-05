@@ -25,6 +25,10 @@ public:
                                 sk_sp<SkLights> lights,
                                 int diffuseWidth, int diffuseHeight);
 
+    // The shadow shader supports any number of ambient lights, but only
+    // 4 non-ambient lights (currently just refers to directional lights).
+    static constexpr int kMaxNonAmbientLights = 4;
+
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };
 

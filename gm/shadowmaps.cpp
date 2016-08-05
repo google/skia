@@ -7,9 +7,9 @@
 
 
 #include "gm.h"
-#include "SkPaintFilterCanvas.h"
 #include "SkPathEffect.h"
 #include "SkPictureRecorder.h"
+#include "SkShadowPaintFilterCanvas.h"
 #include "SkShadowShader.h"
 #include "SkSurface.h"
 
@@ -72,210 +72,6 @@ static sk_sp<SkPicture> make_test_picture(int width, int height) {
 
 namespace skiagm {
 
-/*  We override the onFilter method to draw depths into the canvas
- *  depending on the current draw depth of the canvas, throwing out
- *  the actual draw color.
- */
-class SkShadowPaintFilterCanvas : public SkPaintFilterCanvas {
-public:
-
-    SkShadowPaintFilterCanvas(SkCanvas* canvas) : INHERITED(canvas) { }
-
-    // TODO use a shader instead
-    bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const override {
-        if (*paint) {
-            int z = this->getZ();
-            SkASSERT(z <= 0xFF && z >= 0x00);
-
-            SkPaint newPaint;
-            newPaint.setPathEffect(sk_ref_sp<SkPathEffect>((*paint)->getPathEffect()));
-
-            SkColor color = 0xFF000000; // init color to opaque black
-            color |= z; // Put the index into the blue component
-            newPaint.setColor(color);
-
-            *paint->writable() = newPaint;
-        }
-
-        return true;
-    }
-
-    void onDrawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
-        SkTCopyOnFirstWrite<SkPaint> filteredPaint(paint);
-        if (this->onFilter(&filteredPaint, kPicture_Type)) {
-            // we directly call SkCanvas's onDrawPicture because calling the one
-            // that INHERITED has (SkPaintFilterCanvas) leads to wrong behavior
-            this->SkCanvas::onDrawPicture(picture, matrix, filteredPaint);
-        }
-    }
-
-    void updateMatrix() {
-        this->save();
-
-        // When we use the SkShadowPaintFilterCanvas, we can only render
-        // one depth map at a time. Thus, we leave it up to the user to
-        // set SkLights to only contain (or contain at the first position)
-        // the light they intend to use for the current depth rendering.
-
-        if (fLights->numLights() > 0 &&
-            this->fLights->light(0).type() == SkLights::Light::kDirectional_LightType) {
-            SkVector3 lightDir = this->fLights->light(0).dir();
-            SkScalar x = lightDir.fX * this->getZ();
-            SkScalar y = lightDir.fY * this->getZ();
-
-            this->translate(x, y);
-        }
-
-    }
-
-    void onDrawPaint(const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawPaint(paint);
-        this->restore();
-    }
-
-    void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
-                      const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawPoints(mode, count, pts, paint);
-        this->restore();
-    }
-
-    void onDrawRect(const SkRect& rect, const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawRect(rect, paint);
-        this->restore();
-    }
-
-    void onDrawRRect(const SkRRect& rrect, const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawRRect(rrect, paint);
-        this->restore();
-    }
-
-    void onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
-                      const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawDRRect(outer, inner, paint);
-        this->restore();
-    }
-
-    void onDrawOval(const SkRect& rect, const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawOval(rect, paint);
-        this->restore();
-    }
-
-    void onDrawPath(const SkPath& path, const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawPath(path, paint);
-        this->restore();
-    }
-
-    void onDrawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
-                      const SkPaint* paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawBitmap(bm, left, top, paint);
-        this->restore();
-    }
-
-    void onDrawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,
-                          const SkPaint* paint, SrcRectConstraint constraint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawBitmapRect(bm, src, dst, paint, constraint);
-        this->restore();
-    }
-
-    void onDrawBitmapNine(const SkBitmap& bm, const SkIRect& center,
-                          const SkRect& dst, const SkPaint* paint) {
-        this->updateMatrix();
-        this->INHERITED::onDrawBitmapNine(bm, center, dst, paint);
-        this->restore();
-    }
-
-    void onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
-                     const SkPaint* paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawImage(image, left, top, paint);
-        this->restore();
-    }
-
-    void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                         const SkPaint* paint, SrcRectConstraint constraint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawImageRect(image, src, dst, paint, constraint);
-        this->restore();
-    }
-
-    void onDrawImageNine(const SkImage* image, const SkIRect& center,
-                         const SkRect& dst, const SkPaint* paint) {
-        this->updateMatrix();
-        this->INHERITED::onDrawImageNine(image, center, dst, paint);
-        this->restore();
-    }
-
-    void onDrawVertices(VertexMode vmode, int vertexCount, const SkPoint vertices[],
-                        const SkPoint texs[], const SkColor colors[], SkXfermode* xmode,
-                        const uint16_t indices[], int indexCount, const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawVertices(vmode, vertexCount, vertices, texs, colors,
-                                        xmode, indices, indexCount, paint);
-        this->restore();
-    }
-
-    void onDrawPatch(const SkPoint cubics[], const SkColor colors[], const SkPoint texCoords[],
-                     SkXfermode* xmode, const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawPatch(cubics, colors, texCoords, xmode, paint);
-        this->restore();
-    }
-
-    void onDrawText(const void* text, size_t byteLength,
-                    SkScalar x, SkScalar y, const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawText(text, byteLength, x, y, paint);
-        this->restore();
-    }
-
-    void onDrawPosText(const void* text, size_t byteLength,
-                       const SkPoint pos[], const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawPosText(text, byteLength, pos, paint);
-        this->restore();
-    }
-
-    void onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                        SkScalar constY, const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawPosTextH(text, byteLength, xpos, constY, paint);
-        this->restore();
-    }
-
-    void onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                          const SkMatrix* matrix, const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawTextOnPath(text, byteLength, path, matrix, paint);
-        this->restore();
-    }
-
-    void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
-                           const SkRect* cull, const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawTextRSXform(text, byteLength, xform, cull, paint);
-        this->restore();
-    }
-
-    void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                        const SkPaint& paint) override {
-        this->updateMatrix();
-        this->INHERITED::onDrawTextBlob(blob, x, y, paint);
-        this->restore();
-    }
-
-private:
-    typedef SkPaintFilterCanvas INHERITED;
-};
-
 class ShadowMapsGM : public GM {
 public:
     ShadowMapsGM() {
@@ -322,7 +118,11 @@ protected:
             // TODO: compute the correct size of the depth map from the light properties
             // TODO: maybe add a kDepth_8_SkColorType
 
-            SkImageInfo info = SkImageInfo::Make(kWidth, kHeight,
+            // TODO: find actual max depth of picture
+            SkISize shMapSize = SkShadowPaintFilterCanvas::
+                    ComputeDepthMapSize(fLights->light(i), 255, kWidth, kHeight);
+
+            SkImageInfo info = SkImageInfo::Make(shMapSize.fWidth, shMapSize.fHeight,
                                                  kBGRA_8888_SkColorType,
                                                  kOpaque_SkAlphaType);
 

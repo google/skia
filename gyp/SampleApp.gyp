@@ -103,6 +103,7 @@
             '../experimental/iOSSampleApp/iPhone',
             '../experimental/iOSSampleApp/Shared',
             '../include/utils/ios',
+            '../src/utils',
             '../src/views/mac',
           ],
           'xcode_settings' : {
