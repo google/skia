@@ -163,11 +163,11 @@ def test_steps(api):
     skip_flag = '--nocpu'
   if skip_flag:
     args.append(skip_flag)
-  args.extend(api.vars.dm_flags)
+  args.extend(api.vars.builder_spec['dm_flags'])
 
   api.run(api.flavor.step, 'dm', cmd=args,
-                abort_on_failure=False,
-                env=api.vars.default_env)
+          abort_on_failure=False,
+          env=api.vars.default_env)
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.

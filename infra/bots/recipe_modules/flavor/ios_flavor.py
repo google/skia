@@ -35,11 +35,11 @@ class iOSFlavorUtils(default_flavor.DefaultFlavorUtils):
     return self.m.run(self.m.step, name=name, cmd=args + cmd,
                             env=env, **kwargs)
 
-  def compile(self, target):
+  def compile(self, target, **kwargs):
     """Build the given target."""
     cmd = [self.ios_bin.join('ios_ninja')]
     self.m.run(self.m.step, 'build iOSShell', cmd=cmd,
-                     cwd=self.m.path['checkout'])
+               cwd=self.m.path['checkout'], **kwargs)
 
   def device_path_join(self, *args):
     """Like os.path.join(), but for paths on a connected iOS device."""

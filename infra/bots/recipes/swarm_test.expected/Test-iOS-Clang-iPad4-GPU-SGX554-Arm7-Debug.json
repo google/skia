@@ -5,10 +5,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -22,10 +19,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -58,10 +52,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -75,10 +66,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -91,10 +79,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -107,10 +92,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -124,10 +106,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -141,10 +120,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -177,10 +153,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -194,10 +167,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -210,10 +180,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -226,10 +193,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -243,10 +207,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -260,10 +221,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -320,10 +278,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -336,10 +291,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -377,10 +329,7 @@
     "cwd": "[SLAVE_BUILD]/skia",
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "get uninteresting hashes",
@@ -426,10 +375,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -816,10 +762,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -833,10 +776,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -848,10 +788,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
@@ -864,10 +801,7 @@
     ],
     "env": {
       "BUILDTYPE": "Debug",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
       "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },

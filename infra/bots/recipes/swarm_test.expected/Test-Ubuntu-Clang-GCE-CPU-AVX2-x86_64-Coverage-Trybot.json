@@ -349,10 +349,7 @@
     "cwd": "[SLAVE_BUILD]/skia",
     "env": {
       "BUILDTYPE": "Coverage",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=x86_64 skia_clang_build=1 skia_gpu=0 skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "dm"
@@ -399,10 +396,7 @@
     "cwd": "[SLAVE_BUILD]/skia",
     "env": {
       "BUILDTYPE": "Coverage",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_arch_type=x86_64 skia_clang_build=1 skia_gpu=0 skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "Generate Coverage Data"

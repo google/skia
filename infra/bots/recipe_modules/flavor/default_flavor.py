@@ -111,7 +111,7 @@ class DefaultFlavorUtils(object):
               '--depot_tools_parent_dir',
               self._win_toolchain_dir])
 
-  def build_command_buffer(self):
+  def build_command_buffer(self, **kwargs):
     """Build command_buffer."""
     script = self.m.vars.skia_dir.join('tools', 'build_command_buffer.py')
     self.m.run(
@@ -120,13 +120,15 @@ class DefaultFlavorUtils(object):
         args=['--chrome-dir', self.m.vars.checkout_root,
               '--output-dir', self.out_dir,
               '--chrome-build-type', self.m.vars.configuration,
-              '--no-sync'])
+              '--no-sync'],
+        **kwargs)
 
-  def compile(self, target):
+  def compile(self, target, **kwargs):
     """Build the given target."""
+    env = kwargs.pop('env', {})
     # The CHROME_PATH environment variable is needed for builders that use
     # toolchains downloaded by Chrome.
-    env = {'CHROME_PATH': self.chrome_path}
+    env['CHROME_PATH'] = self.chrome_path
     if self.m.platform.is_win:
       make_cmd = ['python', 'make.py']
       self.m.run.run_once(self.bootstrap_win_toolchain)
@@ -137,16 +139,16 @@ class DefaultFlavorUtils(object):
     cmd = make_cmd + [target]
     try:
       self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-                       env=env, cwd=self.m.path['checkout'])
+                 env=env, cwd=self.m.path['checkout'], **kwargs)
     except self.m.step.StepFailure:
       if self.m.platform.is_win:
         # The linker occasionally crashes on Windows. Try again.
         self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-                         env=env, cwd=self.m.path['checkout'])
+                   env=env, cwd=self.m.path['checkout'], **kwargs)
       else:
         raise
     if 'CommandBuffer' in self.m.vars.builder_name:
-      self.m.run.run_once(self.build_command_buffer)
+      self.m.run.run_once(self.build_command_buffer, env=env)
 
   def copy_extra_build_products(self, swarming_out_dir):
     """Copy extra build products to specified directory.

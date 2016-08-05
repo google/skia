@@ -6,13 +6,14 @@ import default_flavor
 
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
-  def compile(self, target):
+  def compile(self, target, **kwargs):
     """Build Skia with GN."""
     # Get the gn executable.
     fetch_gn = self.m.vars.skia_dir.join('bin', 'fetch-gn')
     self.m.run(self.m.step, 'fetch-gn',
                cmd=[fetch_gn],
-               cwd=self.m.vars.skia_dir)
+               cwd=self.m.vars.skia_dir,
+               **kwargs)
 
     is_debug = 'is_debug=true'
     if self.m.vars.configuration != 'Debug':
@@ -44,10 +45,11 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       gn_exe = 'gn.exe'
     gn_gen = [gn_exe, 'gen', self.out_dir, '--args=%s' % ' '.join(gn_args)]
     self.m.run(self.m.step, 'gn_gen', cmd=gn_gen,
-               cwd=self.m.vars.skia_dir)
+               cwd=self.m.vars.skia_dir, **kwargs)
 
     # Run ninja.
     ninja_cmd = ['ninja', '-C', self.out_dir]
     self.m.run(self.m.step, 'compile %s' % target,
                cmd=ninja_cmd,
-               cwd=self.m.vars.skia_dir)
+               cwd=self.m.vars.skia_dir,
+               **kwargs)

@@ -20,7 +20,6 @@
       "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_ANDROID_VERBOSE_SETUP": "1",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
@@ -35,7 +34,6 @@
       "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_ANDROID_VERBOSE_SETUP": "1",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
@@ -51,7 +49,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "get EXTERNAL_STORAGE dir",
@@ -67,7 +64,6 @@
       "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_ANDROID_VERBOSE_SETUP": "1",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
@@ -83,7 +79,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "starting battery stats"
@@ -100,7 +95,6 @@
       "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_ANDROID_VERBOSE_SETUP": "1",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
@@ -136,7 +130,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "read SKP_VERSION",
@@ -172,7 +165,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "read SK_IMAGE_VERSION",
@@ -233,7 +225,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "rmdir skia_dm"
@@ -255,7 +246,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "exists skia_dm",
@@ -272,7 +262,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "mkdir skia_dm"
@@ -310,7 +299,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "get uninteresting hashes",
@@ -358,7 +346,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "push uninteresting_hashes.txt"
@@ -722,7 +709,6 @@
       "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_ANDROID_VERBOSE_SETUP": "1",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
@@ -740,7 +726,6 @@
       "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_ANDROID_VERBOSE_SETUP": "1",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
@@ -756,7 +741,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "final battery stats"
@@ -769,7 +753,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "reboot"
@@ -782,7 +765,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "wait for reboot"
@@ -796,7 +778,6 @@
       "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_ANDROID_VERBOSE_SETUP": "1",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
@@ -811,7 +792,6 @@
       "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_ANDROID_VERBOSE_SETUP": "1",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
@@ -825,7 +805,6 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "kill-server"

@@ -12,7 +12,7 @@ import default_flavor
 
 class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
 
-  def compile(self, target):
+  def compile(self, target, **kwargs):
     """Build PDFium with Skia."""
     pdfium_dir = self.m.vars.checkout_root.join('pdfium')
 
@@ -21,17 +21,20 @@ class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
         self.m.step,
         'runhook',
         cmd=['gclient', 'runhook', 'gn_linux64'],
-        cwd=pdfium_dir)
+        cwd=pdfium_dir,
+        **kwargs)
 
     # Setup gn args.
     gn_args = ['pdf_use_skia=true', 'pdf_is_standalone=true',
                'clang_use_chrome_plugins=false']
+    env = kwargs.pop('env', {})
+    env['CHROMIUM_BUILDTOOLS_PATH'] = str(pdfium_dir.join('buildtools'))
     self.m.run(
         self.m.step,
         'gn_gen',
         cmd=['gn', 'gen', 'out/skia', '--args=%s' % ' '.join(gn_args)],
         cwd=pdfium_dir,
-        env={'CHROMIUM_BUILDTOOLS_PATH': str(pdfium_dir.join('buildtools'))})
+        env=env)
 
     # Modify DEPS file to contain the current Skia revision.
     skia_revision = self.m.vars.got_revision
@@ -47,7 +50,7 @@ class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
     patched_contents = re.sub(deps_skia_regexp, str(skia_revision),
                               original_contents)
     self.m.file.write('write PDFium DEPs', deps_file,
-                                patched_contents, infra_step=True)
+                      patched_contents, infra_step=True)
 
     # gclient sync after updating DEPS.
     self.m.run(
@@ -61,4 +64,6 @@ class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
         self.m.step,
         'build_pdfium',
         cmd=['ninja', '-C', 'out/skia', '-j100'],
-        cwd=pdfium_dir)
+        cwd=pdfium_dir,
+        env=env,
+        **kwargs)

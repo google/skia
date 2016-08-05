@@ -787,8 +787,6 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.configuration = self.builder_spec['configuration']
     self.default_env.update({'SKIA_OUT': self.skia_out,
                              'BUILDTYPE': self.configuration})
-    self.default_env.update(self.builder_spec['env'])
-    self.build_targets = [str(t) for t in self.builder_spec['build_targets']]
     self.do_compile_steps = self.builder_spec.get('do_compile_steps', True)
     self.do_test_steps = self.builder_spec['do_test_steps']
     self.do_perf_steps = self.builder_spec['do_perf_steps']
@@ -806,5 +804,3 @@ class SkiaVarsApi(recipe_api.RecipeApi):
         self.swarming_out_dir, 'dm')
     self.perf_data_dir = self.m.path.join(self.swarming_out_dir,
         'perfdata', self.builder_name, 'data')
-    self.dm_flags = self.builder_spec['dm_flags']
-    self.nanobench_flags = self.builder_spec['nanobench_flags']

@@ -30,7 +30,6 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_shared_lib=1 skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "android platform self-tests"
@@ -45,7 +44,6 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_shared_lib=1 skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "generate and upload doxygen"
@@ -65,7 +63,6 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_shared_lib=1 skia_warnings_as_errors=0",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "generate and upload binary size data"

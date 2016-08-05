@@ -34,7 +34,6 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86_64 skia_vulkan=1 skia_vulkan_debug_layers=0 skia_warnings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0",
       "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86_64-Release-Vulkan"
     },
@@ -59,7 +58,6 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86_64 skia_vulkan=1 skia_vulkan_debug_layers=0 skia_warnings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0",
       "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86_64-Release-Vulkan"
     },

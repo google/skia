@@ -79,7 +79,7 @@ class AndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
           infra_step=True).stdout.rstrip()
     except self.m.step.StepFailure:
       path_to_adb = self.m.path.join(self._android_sdk_root,
-                                               'platform-tools', 'adb')
+                                     'platform-tools', 'adb')
     self._adb = _ADBWrapper(
         self.m, path_to_adb, self.serial_args, self)
     self._default_env = {'ANDROID_SDK_ROOT': self._android_sdk_root,
@@ -102,9 +102,10 @@ class AndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     return self.m.run(self.m.step, name=name, cmd=args + cmd,
                               env=env, **kwargs)
 
-  def compile(self, target):
+  def compile(self, target, **kwargs):
     """Build the given target."""
-    env = dict(self._default_env)
+    env = kwargs.pop('env', {})
+    env.update(dict(self._default_env))
     ccache = self.m.run.ccache()
     if ccache:
       env['ANDROID_MAKE_CCACHE'] = ccache
@@ -117,7 +118,7 @@ class AndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if 'Vulkan' in self.m.vars.builder_name:
       cmd.append('--vulkan')
     self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-                       env=env, cwd=self.m.path['checkout'])
+               env=env, cwd=self.m.path['checkout'], **kwargs)
 
   def device_path_join(self, *args):
     """Like os.path.join(), but for paths on a connected Android device."""

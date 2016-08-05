@@ -26,11 +26,11 @@ class XSanFlavorUtils(default_flavor.DefaultFlavorUtils):
       'TSAN': 'thread',
     }[self.m.vars.builder_cfg['extra_config'].replace('Swarming', '')]
 
-  def compile(self, target):
+  def compile(self, target, **kwargs):
     cmd = [self.m.vars.skia_dir.join('tools', 'xsan_build'),
            self._sanitizer, target]
     self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-                     cwd=self.m.vars.skia_dir)
+               cwd=self.m.vars.skia_dir, **kwargs)
 
   def copy_extra_build_products(self, swarming_out_dir):
     # Include msan_out if MSAN.

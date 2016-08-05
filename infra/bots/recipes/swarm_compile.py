@@ -48,9 +48,13 @@ TEST_BUILDERS = {
 def RunSteps(api):
   api.core.setup()
 
+  env = api.vars.builder_spec['env']
+
+  build_targets = api.vars.builder_spec['build_targets']
+
   try:
-    for target in api.vars.build_targets:
-      api.flavor.compile(target)
+    for target in build_targets:
+      api.flavor.compile(target, env=env)
     api.run.copy_build_products(
         api.flavor.out_dir,
         api.vars.swarming_out_dir.join(

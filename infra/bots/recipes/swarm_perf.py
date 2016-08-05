@@ -71,7 +71,7 @@ def perf_steps(api):
     skip_flag = '--nocpu'
   if skip_flag:
     args.append(skip_flag)
-  args.extend(api.vars.nanobench_flags)
+  args.extend(api.vars.builder_spec['nanobench_flags'])
 
   if api.vars.upload_perf_results:
     json_path = api.flavor.device_path_join(
@@ -87,8 +87,8 @@ def perf_steps(api):
         args.extend([k, api.vars.builder_cfg[k]])
 
   api.run(api.flavor.step, target, cmd=args,
-                abort_on_failure=False,
-                env=api.vars.default_env)
+          abort_on_failure=False,
+          env=api.vars.default_env)
 
   # See skia:2789.
   if ('Valgrind' in api.vars.builder_name and
@@ -96,9 +96,9 @@ def perf_steps(api):
     abandonGpuContext = list(args)
     abandonGpuContext.extend(['--abandonGpuContext', '--nocpu'])
     api.run(api.flavor.step,
-                  '%s --abandonGpuContext' % target,
-                  cmd=abandonGpuContext, abort_on_failure=False,
-                  env=api.vars.default_env)
+            '%s --abandonGpuContext' % target,
+            cmd=abandonGpuContext, abort_on_failure=False,
+            env=api.vars.default_env)
 
   # Copy results to swarming out dir.
   if api.vars.upload_perf_results:
