@@ -25,35 +25,31 @@ static void test_is_equal(skiatest::Reporter* reporter,
     }
 }
 
-static void test_datatable_is_empty(skiatest::Reporter* reporter,
-                                    SkDataTable* table) {
+static void test_datatable_is_empty(skiatest::Reporter* reporter, SkDataTable* table) {
     REPORTER_ASSERT(reporter, table->isEmpty());
     REPORTER_ASSERT(reporter, 0 == table->count());
 }
 
 static void test_emptytable(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkDataTable> table0(SkDataTable::NewEmpty());
-    SkAutoTUnref<SkDataTable> table1(SkDataTable::NewCopyArrays(nullptr, nullptr, 0));
-    SkAutoTUnref<SkDataTable> table2(SkDataTable::NewCopyArray(nullptr, 0, 0));
-    SkAutoTUnref<SkDataTable> table3(SkDataTable::NewArrayProc(nullptr, 0, 0,
-                                                               nullptr, nullptr));
+    sk_sp<SkDataTable> table0(SkDataTable::MakeEmpty());
+    sk_sp<SkDataTable> table1(SkDataTable::MakeCopyArrays(nullptr, nullptr, 0));
+    sk_sp<SkDataTable> table2(SkDataTable::MakeCopyArray(nullptr, 0, 0));
+    sk_sp<SkDataTable> table3(SkDataTable::MakeArrayProc(nullptr, 0, 0, nullptr, nullptr));
 
-    test_datatable_is_empty(reporter, table0);
-    test_datatable_is_empty(reporter, table1);
-    test_datatable_is_empty(reporter, table2);
-    test_datatable_is_empty(reporter, table3);
+    test_datatable_is_empty(reporter, table0.get());
+    test_datatable_is_empty(reporter, table1.get());
+    test_datatable_is_empty(reporter, table2.get());
+    test_datatable_is_empty(reporter, table3.get());
 
-    test_is_equal(reporter, table0, table1);
-    test_is_equal(reporter, table0, table2);
-    test_is_equal(reporter, table0, table3);
+    test_is_equal(reporter, table0.get(), table1.get());
+    test_is_equal(reporter, table0.get(), table2.get());
+    test_is_equal(reporter, table0.get(), table3.get());
 }
 
 static void test_simpletable(skiatest::Reporter* reporter) {
     const int idata[] = { 1, 4, 9, 16, 25, 63 };
     int icount = SK_ARRAY_COUNT(idata);
-    SkAutoTUnref<SkDataTable> itable(SkDataTable::NewCopyArray(idata,
-                                                               sizeof(idata[0]),
-                                                               icount));
+    sk_sp<SkDataTable> itable(SkDataTable::MakeCopyArray(idata, sizeof(idata[0]), icount));
     REPORTER_ASSERT(reporter, itable->count() == icount);
     for (int i = 0; i < icount; ++i) {
         size_t size;
@@ -73,8 +69,7 @@ static void test_vartable(skiatest::Reporter* reporter) {
         sizes[i] = strlen(str[i]) + 1;
     }
 
-    SkAutoTUnref<SkDataTable> table(SkDataTable::NewCopyArrays(
-                                        (const void*const*)str, sizes, count));
+    sk_sp<SkDataTable> table(SkDataTable::MakeCopyArrays((const void*const*)str, sizes, count));
 
     REPORTER_ASSERT(reporter, table->count() == count);
     for (int i = 0; i < count; ++i) {
@@ -100,7 +95,7 @@ static void test_tablebuilder(skiatest::Reporter* reporter) {
     for (int i = 0; i < count; ++i) {
         builder.append(str[i], strlen(str[i]) + 1);
     }
-    SkAutoTUnref<SkDataTable> table(builder.detachDataTable());
+    sk_sp<SkDataTable> table(builder.detachDataTable());
 
     REPORTER_ASSERT(reporter, table->count() == count);
     for (int i = 0; i < count; ++i) {
@@ -121,8 +116,8 @@ static void test_globaltable(skiatest::Reporter* reporter) {
     };
     int count = SK_ARRAY_COUNT(gData);
 
-    SkAutoTUnref<SkDataTable> table(SkDataTable::NewArrayProc(gData,
-                                          sizeof(gData[0]), count, nullptr, nullptr));
+    sk_sp<SkDataTable> table(
+        SkDataTable::MakeArrayProc(gData, sizeof(gData[0]), count, nullptr, nullptr));
 
     REPORTER_ASSERT(reporter, table->count() == count);
     for (int i = 0; i < count; ++i) {

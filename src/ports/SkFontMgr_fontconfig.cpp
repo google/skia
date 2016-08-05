@@ -503,7 +503,7 @@ private:
 
 class SkFontMgr_fontconfig : public SkFontMgr {
     mutable SkAutoFcConfig fFC;
-    SkAutoTUnref<SkDataTable> fFamilyNames;
+    sk_sp<SkDataTable> fFamilyNames;
     SkTypeface_FreeType::Scanner fScanner;
 
     class StyleSet : public SkFontStyleSet {
@@ -579,7 +579,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
         return false;
     }
 
-    static SkDataTable* GetFamilyNames(FcConfig* fcconfig) {
+    static sk_sp<SkDataTable> GetFamilyNames(FcConfig* fcconfig) {
         FCLocker lock;
 
         SkTDArray<const char*> names;
@@ -613,8 +613,8 @@ class SkFontMgr_fontconfig : public SkFontMgr {
             }
         }
 
-        return SkDataTable::NewCopyArrays((void const *const *)names.begin(),
-                                          sizes.begin(), names.count());
+        return SkDataTable::MakeCopyArrays((void const *const *)names.begin(),
+                                           sizes.begin(), names.count());
     }
 
     static bool FindByFcPattern(SkTypeface* cached, void* ctx) {

@@ -698,7 +698,7 @@ static bool find_name(const SkTDArray<const char*>& list, const char* str) {
     return false;
 }
 
-SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
+sk_sp<SkDataTable> SkFontConfigInterfaceDirect::getFamilyNames() {
     FCLocker lock;
 
     FcPattern* pat = FcPatternCreate();
@@ -730,6 +730,6 @@ SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
         }
     }
 
-    return SkDataTable::NewCopyArrays((const void*const*)names.begin(),
-                                      sizes.begin(), names.count());
+    return SkDataTable::MakeCopyArrays((const void*const*)names.begin(),
+                                       sizes.begin(), names.count());
 }

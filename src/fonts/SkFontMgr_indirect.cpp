@@ -61,7 +61,7 @@ private:
 };
 
 void SkFontMgr_Indirect::set_up_family_names(const SkFontMgr_Indirect* self) {
-    self->fFamilyNames.reset(self->fProxy->getFamilyNames());
+    self->fFamilyNames = self->fProxy->getFamilyNames();
 }
 
 int SkFontMgr_Indirect::onCountFamilies() const {

@@ -61,10 +61,8 @@ public:
      *
      *  The indexes may be used with getIndex(int) and
      *  matchIndexStyle(int, SkFontStyle).
-     *
-     *  The caller must unref() the returned object.
      */
-    virtual SkDataTable* getFamilyNames() const = 0;
+    virtual sk_sp<SkDataTable> getFamilyNames() const = 0;
 
     /**
      *  Returns all of the fonts with the given familyIndex.
