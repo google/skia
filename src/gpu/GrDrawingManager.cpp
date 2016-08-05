@@ -176,9 +176,9 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     return pr;
 }
 
-sk_sp<GrDrawContext> GrDrawingManager::drawContext(sk_sp<GrRenderTarget> rt,
-                                                   sk_sp<SkColorSpace> colorSpace,
-                                                   const SkSurfaceProps* surfaceProps) {
+sk_sp<GrDrawContext> GrDrawingManager::makeDrawContext(sk_sp<GrRenderTarget> rt,
+                                                       sk_sp<SkColorSpace> colorSpace,
+                                                       const SkSurfaceProps* surfaceProps) {
     if (this->wasAbandoned()) {
         return nullptr;
     }
