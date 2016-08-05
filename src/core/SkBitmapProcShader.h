@@ -9,9 +9,7 @@
 
 #include "SkImagePriv.h"
 #include "SkShader.h"
-#include "SkSmallAllocator.h"
 
-struct SkBitmapProcState;
 class SkBitmapProvider;
 
 class SkBitmapProcLegacyShader : public SkShader {
@@ -24,20 +22,5 @@ private:
 
     typedef SkShader INHERITED;
 };
-
-enum {kSkBlitterContextSize = 3332};
-
-// Commonly used allocator. It currently is only used to allocate up to 3 objects. The total
-// bytes requested is calculated using one of our large shaders, its context size plus the size of
-// an Sk3DBlitter in SkDraw.cpp
-// Note that some contexts may contain other contexts (e.g. for compose shaders), but we've not
-// yet found a situation where the size below isn't big enough.
-typedef SkSmallAllocator<3, kSkBlitterContextSize> SkTBlitterAllocator;
-
-// If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
-// the SkShader.
-sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode, SkShader::TileMode,
-                                   const SkMatrix* localMatrix, SkCopyPixelsMode,
-                                   SkTBlitterAllocator* alloc);
 
 #endif

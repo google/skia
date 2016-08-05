@@ -241,7 +241,7 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
     // or modify this assert.
     SkASSERT(!allocator || (kNever_SkCopyPixelsMode == cpm));
 
-    return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm).get(),
+    return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm, allocator).get(),
                                tmx, tmy, localMatrix, allocator);
 }
 

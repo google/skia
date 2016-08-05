@@ -7,6 +7,7 @@
 
 #include "SkImage_Base.h"
 #include "SkBitmap.h"
+#include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkColorTable.h"
 #include "SkData.h"
@@ -254,7 +255,8 @@ sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
     return sk_make_sp<SkImage_Raster>(info, pr, pixelRefOrigin, rowBytes);
 }
 
-sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm) {
+sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm,
+                                           SkTBlitterAllocator* allocator) {
     bool hasColorTable = false;
     if (kIndex_8_SkColorType == bm.colorType()) {
         SkAutoLockPixels autoLockPixels(bm);
@@ -274,7 +276,12 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode 
             image = SkImage::MakeRasterCopy(pmap);
         }
     } else {
-        image = sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
+        if (allocator) {
+            image.reset(allocator->createT<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm));
+            image.get()->ref(); // account for the allocator being an owner
+        } else {
+            image = sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
+        }
     }
     return image;
 }
