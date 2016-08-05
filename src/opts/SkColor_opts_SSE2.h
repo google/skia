@@ -80,6 +80,42 @@ static inline __m128i SkAlphaMulQ_SSE2(const __m128i& c, const unsigned scale) {
     return _mm_or_si128(rb, ag);
 }
 
+// Portable version SkFastFourByteInterp256 is in SkColorPriv.h.
+static inline __m128i SkFastFourByteInterp256_SSE2(const __m128i& src, const __m128i& dst, const unsigned src_scale) {
+    // Computes dst + (((src - dst)*src_scale)>>8)
+    const __m128i mask = _mm_set1_epi32(0x00FF00FF);
+
+    // Unpack the 16x8-bit source into 2 8x16-bit splayed halves.
+    __m128i src_rb = _mm_and_si128(mask, src);
+    __m128i src_ag = _mm_srli_epi16(src, 8);
+    __m128i dst_rb = _mm_and_si128(mask, dst);
+    __m128i dst_ag = _mm_srli_epi16(dst, 8);
+
+    // Compute scaled differences.
+    __m128i diff_rb = _mm_sub_epi16(src_rb, dst_rb);
+    __m128i diff_ag = _mm_sub_epi16(src_ag, dst_ag);
+    __m128i s = _mm_set1_epi16(src_scale);
+    diff_rb = _mm_mullo_epi16(diff_rb, s);
+    diff_ag = _mm_mullo_epi16(diff_ag, s);
+
+    // Pack the differences back together.
+    diff_rb = _mm_srli_epi16(diff_rb, 8);
+    diff_ag = _mm_andnot_si128(mask, diff_ag);
+    __m128i diff = _mm_or_si128(diff_rb, diff_ag);
+
+    // Add difference to destination.
+    return _mm_add_epi8(dst, diff);
+}
+
+// Portable version SkPMLerp is in SkColorPriv.h
+static inline __m128i SkPMLerp_SSE2(const __m128i& src, const __m128i& dst, const unsigned scale) {
+#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
+    return _mm_add_epi8(SkAlphaMulQ_SSE2(src, scale), SkAlphaMulQ_SSE2(dst, 256 - scale));
+#else
+    return SkFastFourByteInterp256_SSE2(src, dst, scale);
+#endif
+}
+
 static inline __m128i SkGetPackedA32_SSE2(const __m128i& src) {
 #if SK_A32_SHIFT == 24                // It's very common (universal?) that alpha is the top byte.
     return _mm_srli_epi32(src, 24);   // You'd hope the compiler would remove the left shift then,
@@ -213,33 +249,56 @@ static inline __m128i SkPMSrcOver_SSE2(const __m128i& src, const __m128i& dst) {
                                                              SkGetPackedA32_SSE2(src))));
 }
 
-// Portable version is SkBlendARGB32 in SkColorPriv.h.
-static inline __m128i SkBlendARGB32_SSE2(const __m128i& src, const __m128i& dst,
-                                         const __m128i& aa) {
-    __m128i src_scale = SkAlpha255To256_SSE2(aa);
-    // SkAlpha255To256(255 - SkAlphaMul(SkGetPackedA32(src), src_scale))
-    __m128i dst_scale = SkGetPackedA32_SSE2(src);
-    dst_scale = _mm_mullo_epi16(dst_scale, src_scale);
-    dst_scale = _mm_srli_epi16(dst_scale, 8);
-    dst_scale = _mm_sub_epi32(_mm_set1_epi32(256), dst_scale);
-
-    __m128i result = SkAlphaMulQ_SSE2(src, src_scale);
-    return _mm_add_epi8(result, SkAlphaMulQ_SSE2(dst, dst_scale));
-}
-
 // Fast path for SkBlendARGB32_SSE2 with a constant alpha factor.
 static inline __m128i SkBlendARGB32_SSE2(const __m128i& src, const __m128i& dst,
                                          const unsigned aa) {
     unsigned alpha = SkAlpha255To256(aa);
-    __m128i src_scale = _mm_set1_epi32(alpha);
-    // SkAlpha255To256(255 - SkAlphaMul(SkGetPackedA32(src), src_scale))
-    __m128i dst_scale = SkGetPackedA32_SSE2(src);
-    dst_scale = _mm_mullo_epi16(dst_scale, src_scale);
-    dst_scale = _mm_srli_epi16(dst_scale, 8);
-    dst_scale = _mm_sub_epi32(_mm_set1_epi32(256), dst_scale);
+#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
+     __m128i src_scale = _mm_set1_epi32(alpha);
+     // SkAlpha255To256(255 - SkAlphaMul(SkGetPackedA32(src), src_scale))
+     __m128i dst_scale = SkGetPackedA32_SSE2(src);
+     dst_scale = _mm_mullo_epi16(dst_scale, src_scale);
+     dst_scale = _mm_srli_epi16(dst_scale, 8);
+     dst_scale = _mm_sub_epi32(_mm_set1_epi32(256), dst_scale);
 
-    __m128i result = SkAlphaMulQ_SSE2(src, alpha);
-    return _mm_add_epi8(result, SkAlphaMulQ_SSE2(dst, dst_scale));
+     __m128i result = SkAlphaMulQ_SSE2(src, alpha);
+     return _mm_add_epi8(result, SkAlphaMulQ_SSE2(dst, dst_scale));
+#else
+    __m128i src_scale = _mm_set1_epi16(alpha);
+    // SkAlphaMulInv256(SkGetPackedA32(src), src_scale)
+    __m128i dst_scale = SkGetPackedA32_SSE2(src);
+    // High words in dst_scale are 0, so it's safe to multiply with 16-bit src_scale.
+    dst_scale = _mm_mullo_epi16(dst_scale, src_scale);
+    dst_scale = _mm_sub_epi32(_mm_set1_epi32(0xFFFF), dst_scale);
+    dst_scale = _mm_add_epi32(dst_scale, _mm_srli_epi32(dst_scale, 8));
+    dst_scale = _mm_srli_epi32(dst_scale, 8);
+    // Duplicate scales into 2x16-bit pattern per pixel.
+    dst_scale = _mm_shufflelo_epi16(dst_scale, _MM_SHUFFLE(2, 2, 0, 0));
+    dst_scale = _mm_shufflehi_epi16(dst_scale, _MM_SHUFFLE(2, 2, 0, 0));
+
+    const __m128i mask = _mm_set1_epi32(0x00FF00FF);
+
+    // Unpack the 16x8-bit source/destination into 2 8x16-bit splayed halves.
+    __m128i src_rb = _mm_and_si128(mask, src);
+    __m128i src_ag = _mm_srli_epi16(src, 8);
+    __m128i dst_rb = _mm_and_si128(mask, dst);
+    __m128i dst_ag = _mm_srli_epi16(dst, 8);
+
+    // Scale them.
+    src_rb = _mm_mullo_epi16(src_rb, src_scale);
+    src_ag = _mm_mullo_epi16(src_ag, src_scale);
+    dst_rb = _mm_mullo_epi16(dst_rb, dst_scale);
+    dst_ag = _mm_mullo_epi16(dst_ag, dst_scale);
+
+    // Add the scaled source and destination.
+    dst_rb = _mm_add_epi16(src_rb, dst_rb);
+    dst_ag = _mm_add_epi16(src_ag, dst_ag);
+
+    // Unsplay the halves back together.
+    dst_rb = _mm_srli_epi16(dst_rb, 8);
+    dst_ag = _mm_andnot_si128(mask, dst_ag);
+    return _mm_or_si128(dst_rb, dst_ag);
+#endif
 }
 
 #undef ASSERT_EQ

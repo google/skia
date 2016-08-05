@@ -789,9 +789,15 @@ static void S32_Blend_BlitRow32_mips_dsp(SkPMColor* SK_RESTRICT dst,
         "muleu_s.ph.qbr  %[t5],    %[t6],    %[t5]    \n\t"
         "addiu           %[src],   %[src],   4        \n\t"
         "addiu           %[count], %[count], -1       \n\t"
+#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
         "precrq.qb.ph    %[t0],    %[t3],    %[t2]    \n\t"
         "precrq.qb.ph    %[t2],    %[t5],    %[t4]    \n\t"
         "addu            %[t1],    %[t0],    %[t2]    \n\t"
+#else
+        "addu            %[t0],    %[t3],    %[t5]    \n\t"
+        "addu            %[t2],    %[t2],    %[t4]    \n\t"
+        "precrq.qb.ph    %[t1],    %[t0],    %[t2]    \n\t"
+#endif
         "sw              %[t1],    0(%[dst])          \n\t"
         "b               1b                           \n\t"
         " addi           %[dst],   %[dst],   4        \n\t"

@@ -180,7 +180,7 @@ static void S32A_D565_Blend_Dither(uint16_t* SK_RESTRICT dst,
             {
                 unsigned d = *dst;
                 int sa = SkGetPackedA32(c);
-                int dst_scale = SkAlpha255To256(255 - SkAlphaMul(sa, src_scale));
+                int dst_scale = SkAlphaMulInv256(sa, src_scale);
                 int dither = DITHER_VALUE(x);
 
                 int sr = SkGetPackedR32(c);
