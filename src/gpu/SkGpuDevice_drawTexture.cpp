@@ -226,15 +226,13 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
 
     // First see if we can do the draw + mask filter direct to the dst.
     SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
-    SkRRect rrect;
-    rrect.setRect(clippedDstRect);
     if (mf->directFilterRRectMaskGPU(fContext->textureProvider(),
                                       fDrawContext.get(),
                                       &grPaint,
                                       clip,
                                       viewMatrix,
                                       rec,
-                                      rrect)) {
+                                      SkRRect::MakeRect(clippedDstRect))) {
         return;
     }
     SkPath rectPath;

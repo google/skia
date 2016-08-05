@@ -149,7 +149,9 @@ static void draw_90(SkCanvas* canvas, const SkVector& v, SkScalar dist, const Sk
 static void draw_90_simple(SkCanvas* canvas, const SkVector& v,
                            SkScalar dist, const SkPoint& center) {
     static const int kLength = 128;
-    static const int kWidth = 32;
+    // The width needs to be larger than 2*3*blurRadii+2*cornerRadius for the analytic
+    // RRect blur to kick in
+    static const int kWidth = 47;
 
     SkIRect r;
     if (fabs(v.fX) < fabs(v.fY)) {
@@ -293,18 +295,18 @@ protected:
                    SkVector::Make(kRoot3Over2, -0.5f), 120, center);
 
         draw_45_simple(canvas, SkVector::Make(-SK_ScalarRoot2Over2, -SK_ScalarRoot2Over2),
-                       190, center);
+                       210, center);
         draw_45_simple(canvas, SkVector::Make(SK_ScalarRoot2Over2, -SK_ScalarRoot2Over2),
-                       190, center);
+                       210, center);
         draw_45_simple(canvas, SkVector::Make(SK_ScalarRoot2Over2, SK_ScalarRoot2Over2),
-                       190, center);
+                       210, center);
         draw_45_simple(canvas, SkVector::Make(-SK_ScalarRoot2Over2, SK_ScalarRoot2Over2),
-                       190, center);
+                       210, center);
 
-        draw_90_simple(canvas, SkVector::Make(-1.0f, 0.0f), 150, center);
-        draw_90_simple(canvas, SkVector::Make(0.0f, -1.0f), 150, center);
-        draw_90_simple(canvas, SkVector::Make(1.0f, 0.0f), 150, center);
-        draw_90_simple(canvas, SkVector::Make(0.0f, 1.0f), 150, center);
+        draw_90_simple(canvas, SkVector::Make(-1.0f, 0.0f), 160, center);
+        draw_90_simple(canvas, SkVector::Make(0.0f, -1.0f), 160, center);
+        draw_90_simple(canvas, SkVector::Make(1.0f, 0.0f), 160, center);
+        draw_90_simple(canvas, SkVector::Make(0.0f, 1.0f), 160, center);
     }
 
 private:

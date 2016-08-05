@@ -407,7 +407,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
+void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect,
                             const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRRect", fContext);
@@ -423,7 +423,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         // try to hit the fast path for drawing filtered round rects
 
         SkRRect devRRect;
-        if (rect.transform(*draw.fMatrix, &devRRect)) {
+        if (rrect.transform(*draw.fMatrix, &devRRect)) {
             if (devRRect.allCornersCircular()) {
                 SkRect maskRect;
                 if (paint.getMaskFilter()->canFilterMaskGPU(devRRect,
@@ -457,7 +457,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         // A path effect will presumably transform this rrect into something else.
         SkPath path;
         path.setIsVolatile(true);
-        path.addRRect(rect);
+        path.addRRect(rrect);
         GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext.get(),
                                             fClip, path, paint,
                                             *draw.fMatrix, nullptr,
@@ -467,7 +467,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
 
     SkASSERT(!style.pathEffect());
 
-    fDrawContext->drawRRect(fClip, grPaint, *draw.fMatrix, rect, style);
+    fDrawContext->drawRRect(fClip, grPaint, *draw.fMatrix, rrect, style);
 }
 
 

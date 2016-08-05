@@ -89,6 +89,10 @@ protected:
     bool filterRRectMask(SkMask* dstM, const SkRRect& r, const SkMatrix& matrix,
                         SkIPoint* margin, SkMask::CreateMode createMode) const;
 
+    bool ignoreXform() const {
+        return SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
+    }
+
 private:
     // To avoid unseemly allocation requests (esp. for finite platforms like
     // handset) we limit the radius so something manageable. (as opposed to
@@ -108,9 +112,7 @@ private:
     void flatten(SkWriteBuffer&) const override;
 
     SkScalar computeXformedSigma(const SkMatrix& ctm) const {
-        bool ignoreTransform = SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
-
-        SkScalar xformedSigma = ignoreTransform ? fSigma : ctm.mapRadius(fSigma);
+        SkScalar xformedSigma = this->ignoreXform() ? fSigma : ctm.mapRadius(fSigma);
         return SkMinScalar(xformedSigma, kMAX_BLUR_SIGMA);
     }
 
@@ -128,9 +130,9 @@ sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma, ui
     if ((unsigned)style > (unsigned)kLastEnum_SkBlurStyle) {
         return nullptr;
     }
-    if (flags > SkBlurMaskFilter::kAll_BlurFlag) {
-        return nullptr;
-    }
+    SkASSERT(flags <= SkBlurMaskFilter::kAll_BlurFlag);
+    flags &= SkBlurMaskFilter::kAll_BlurFlag;
+
     return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, flags));
 }
 
@@ -150,7 +152,7 @@ SkMask::Format SkBlurMaskFilterImpl::getFormat() const {
 }
 
 bool SkBlurMaskFilterImpl::asABlur(BlurRec* rec) const {
-    if (fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag) {
+    if (this->ignoreXform()) {
         return false;
     }
 
@@ -1169,10 +1171,6 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrTextureProvider* texProvid
     }
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
-    float extra=3.f*SkScalarCeilToScalar(xformedSigma-1/6.0f);
-
-    SkRect proxyRect = rrect.rect();
-    proxyRect.outset(extra, extra);
 
     sk_sp<GrFragmentProcessor> fp(GrRRectBlurEffect::Make(texProvider, xformedSigma, rrect));
     if (!fp) {
@@ -1185,6 +1183,11 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrTextureProvider* texProvid
     if (!viewMatrix.invert(&inverse)) {
         return false;
     }
+
+    float extra=3.f*SkScalarCeilToScalar(xformedSigma-1/6.0f);
+
+    SkRect proxyRect = rrect.rect();
+    proxyRect.outset(extra, extra);
 
     drawContext->fillRectWithLocalMatrix(clip, *grp, SkMatrix::I(), proxyRect, inverse);
     return true;
