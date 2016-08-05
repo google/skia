@@ -3,7 +3,7 @@ use_relative_paths = True
 # Dependencies on outside packages.
 #
 deps = {
-  "buildtools":  "https://chromium.googlesource.com/chromium/buildtools.git@60f7f9a8b421ebf9a46041dfa2ff11c0fe59c582",
+  "buildtools":  "https://chromium.googlesource.com/chromium/buildtools.git@9c6ad6f5cbc2f30989edc3504ec7f9d360542512",
 
   "common": "https://skia.googlesource.com/common.git@c282fe0b6e392b14f88d647cbd86e1a3ef5498e0",
 
