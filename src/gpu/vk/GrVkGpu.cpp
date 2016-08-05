@@ -366,9 +366,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
 }
 
 void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target) {
-    if (target->needsResolve()) {
-        SkASSERT(target->numColorSamples() > 1);
-
+    if (target->needsResolve() && target->numColorSamples() > 1) {
         GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
         SkASSERT(rt->msaaImage());
 
