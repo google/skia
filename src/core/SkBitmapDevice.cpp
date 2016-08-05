@@ -322,16 +322,23 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
     }
 
     USE_SHADER:
+
+    // Since the shader need only live for our stack-frame, pass in a custom allocator. This
+    // can save malloc calls, and signals to SkMakeBitmapShader to not try to copy the bitmap
+    // if its mutable, since that precaution is not needed (give the short lifetime of the shader).
+    SkTBlitterAllocator allocator;
     // construct a shader, so we can call drawRect with the dst
-    auto s = SkShader::MakeBitmapShader(*bitmapPtr, SkShader::kClamp_TileMode,
-                                        SkShader::kClamp_TileMode, &matrix);
+    auto s = SkMakeBitmapShader(*bitmapPtr, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+                                &matrix, &allocator);
     if (!s) {
         return;
     }
+    // we deliberately add a ref, since the allocator wants to be the last owner
+    s.get()->ref();
 
     SkPaint paintWithShader(paint);
     paintWithShader.setStyle(SkPaint::kFill_Style);
-    paintWithShader.setShader(std::move(s));
+    paintWithShader.setShader(s);
 
     // Call ourself, in case the subclass wanted to share this setup code
     // but handle the drawRect code themselves.
