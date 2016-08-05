@@ -1270,6 +1270,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
     const uint16_t* glyphIDs = nullptr;
     size_t numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
     textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    SkAutoGlyphCache autoGlyphCache(textPaint, nullptr, nullptr);
 
     content.entry()->fContent.writeText("BT\n");
     this->updateFont(textPaint, glyphIDs[0], content.entry());
@@ -1280,6 +1281,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
     for (size_t i = 0; i < numGlyphs; i++) {
         SkPDFFont* font = content.entry()->fState.fFont;
         uint16_t encodedValue = glyphIDs[i];
+        SkScalar advanceWidth = autoGlyphCache->getGlyphIDAdvance(encodedValue).fAdvanceX;
         if (font->glyphsToPDFFontEncoding(&encodedValue, 1) != 1) {
             // The current pdf font cannot encode the current glyph.
             // Try to get a pdf font which can encode the current glyph.
@@ -1292,13 +1294,11 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                 continue;
             }
         }
-
         fontGlyphUsage->noteGlyphUsage(font, &encodedValue, 1);
         SkScalar x = offset.x() + pos[i * scalarsPerPos];
         SkScalar y = offset.y() + (2 == scalarsPerPos ? pos[i * scalarsPerPos + 1] : 0);
         align_text(textPaint, glyphIDs + i, 1, &x, &y);
 
-        SkScalar advanceWidth = textPaint.measureText(&encodedValue, sizeof(uint16_t));
         glyphPositioner.writeGlyph(x, y, advanceWidth, encodedValue);
     }
     glyphPositioner.flush();  // Must flush before ending text object.

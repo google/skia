@@ -182,7 +182,6 @@ void SkAdvancedTypefaceMetrics::setGlyphWidths(
         }
     }
     if (curRange.fStartId == lastIndex) {
-        SkASSERT(prevRange);
         if (!prevRange) {
             fGlyphWidths.reset();
             return;  // https://crbug.com/567031

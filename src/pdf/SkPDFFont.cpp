@@ -301,51 +301,33 @@ static sk_sp<SkPDFArray> makeFontBBox(SkIRect glyphBBox, uint16_t emSize) {
     return bbox;
 }
 
-static void appendWidth(const int16_t& width, uint16_t emSize,
-                        SkPDFArray* array) {
-    array->appendScalar(scaleFromFontUnits(width, emSize));
-}
-
-static void appendVerticalAdvance(
-        const SkAdvancedTypefaceMetrics::VerticalMetric& advance,
-        uint16_t emSize, SkPDFArray* array) {
-    appendWidth(advance.fVerticalAdvance, emSize, array);
-    appendWidth(advance.fOriginXDisp, emSize, array);
-    appendWidth(advance.fOriginYDisp, emSize, array);
-}
-
-template <typename Data>
-SkPDFArray* composeAdvanceData(
-        const SkSinglyLinkedList<
-                SkAdvancedTypefaceMetrics::AdvanceMetric<Data>>& advanceInfo,
+sk_sp<SkPDFArray> composeAdvanceData(
+        const SkSinglyLinkedList<SkAdvancedTypefaceMetrics::WidthRange>& advanceInfo,
         uint16_t emSize,
-        void (*appendAdvance)(const Data& advance,
-                              uint16_t emSize,
-                              SkPDFArray* array),
-        Data* defaultAdvance) {
-    SkPDFArray* result = new SkPDFArray();
-    for (const SkAdvancedTypefaceMetrics::AdvanceMetric<Data>& range :
-         advanceInfo) {
+        int16_t* defaultAdvance) {
+    auto result = sk_make_sp<SkPDFArray>();
+    for (const SkAdvancedTypefaceMetrics::WidthRange& range : advanceInfo) {
         switch (range.fType) {
-            case SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::kDefault: {
+            case SkAdvancedTypefaceMetrics::WidthRange::kDefault: {
                 SkASSERT(range.fAdvance.count() == 1);
                 *defaultAdvance = range.fAdvance[0];
                 break;
             }
-            case SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::kRange: {
+            case SkAdvancedTypefaceMetrics::WidthRange::kRange: {
                 auto advanceArray = sk_make_sp<SkPDFArray>();
                 for (int j = 0; j < range.fAdvance.count(); j++)
-                    appendAdvance(range.fAdvance[j], emSize,
-                                  advanceArray.get());
+                    advanceArray->appendScalar(
+                            scaleFromFontUnits(range.fAdvance[j], emSize));
                 result->appendInt(range.fStartId);
                 result->appendObject(std::move(advanceArray));
                 break;
             }
-            case SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::kRun: {
+            case SkAdvancedTypefaceMetrics::WidthRange::kRun: {
                 SkASSERT(range.fAdvance.count() == 1);
                 result->appendInt(range.fStartId);
                 result->appendInt(range.fEndId);
-                appendAdvance(range.fAdvance[0], emSize, result);
+                result->appendScalar(
+                        scaleFromFontUnits(range.fAdvance[0], emSize));
                 break;
             }
         }
@@ -493,7 +475,7 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
 // one of them), the possible savings by aggressive optimization is 416KB
 // pre-compressed and does not provide enough motivation for implementation.
 
-// FIXME: this should be in a header so that it is separately testable
+// TODO(halcanary): this should be in a header so that it is separately testable
 // ( see caller in tests/ToUnicode.cpp )
 void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
                           const SkPDFGlyphSet* subset,
@@ -733,26 +715,11 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFCanon* canon,
             return SkRef(relatedFont);
         }
     } else {
-        SkTypeface::PerGlyphInfo info;
-        info = SkTypeface::kGlyphNames_PerGlyphInfo;
-        info = SkTBitOr<SkTypeface::PerGlyphInfo>(
-                  info, SkTypeface::kToUnicode_PerGlyphInfo);
-#if !defined (SK_SFNTLY_SUBSETTER)
-        info = SkTBitOr<SkTypeface::PerGlyphInfo>(
-                  info, SkTypeface::kHAdvance_PerGlyphInfo);
-#endif
+        SkTypeface::PerGlyphInfo info =
+            SkTBitOr(SkTypeface::kGlyphNames_PerGlyphInfo,
+                     SkTypeface::kToUnicode_PerGlyphInfo);
         fontMetrics.reset(
             typeface->getAdvancedTypefaceMetrics(info, nullptr, 0));
-#if defined (SK_SFNTLY_SUBSETTER)
-        if (fontMetrics.get() &&
-            fontMetrics->fType != SkAdvancedTypefaceMetrics::kTrueType_Font) {
-            // Font does not support subsetting, get new info with advance.
-            info = SkTBitOr<SkTypeface::PerGlyphInfo>(
-                      info, SkTypeface::kHAdvance_PerGlyphInfo);
-            fontMetrics.reset(
-                typeface->getAdvancedTypefaceMetrics(info, nullptr, 0));
-        }
-#endif
     }
 
     SkPDFFont* font = SkPDFFont::Create(canon, fontMetrics.get(), typeface,
@@ -1073,23 +1040,41 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
     return true;
 }
 
+void set_glyph_widths(SkTypeface* tf,
+                      const SkTDArray<uint32_t>* glyphIDs,
+                      SkAdvancedTypefaceMetrics* dst) {
+    SkPaint tmpPaint;
+    tmpPaint.setHinting(SkPaint::kNo_Hinting);
+    tmpPaint.setTypeface(sk_ref_sp(tf));
+    tmpPaint.setTextSize((SkScalar)tf->getUnitsPerEm());
+    SkAutoGlyphCache autoGlyphCache(tmpPaint, nullptr, nullptr);
+    SkGlyphCache* glyphCache = autoGlyphCache.get();
+    SkAdvancedTypefaceMetrics::GetAdvance advanceFn =
+        [glyphCache](int gid, int16_t* advance) {
+        *advance = (int16_t)glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
+        return true;
+    };
+    if (!glyphIDs || glyphIDs->isEmpty()) {
+        dst->setGlyphWidths(tf->countGlyphs(), nullptr, 0, advanceFn);
+    } else {
+        dst->setGlyphWidths(tf->countGlyphs(),
+                            glyphIDs->begin(),
+                            glyphIDs->count(), advanceFn);
+    }
+}
+
 bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
     // Generate new font metrics with advance info for true type fonts.
-    if (fontInfo()->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
-        // Generate glyph id array.
-        SkTDArray<uint32_t> glyphIDs;
-        if (subset) {
-            // Always include glyph 0.
-            if (!subset->has(0)) {
-                glyphIDs.push(0);
-            }
-            subset->exportTo(&glyphIDs);
+    // Generate glyph id array.
+    SkTDArray<uint32_t> glyphIDs;
+    if (subset) {
+        if (!subset->has(0)) {
+            glyphIDs.push(0);  // Always include glyph 0.
         }
-
-        SkTypeface::PerGlyphInfo info;
-        info = SkTypeface::kGlyphNames_PerGlyphInfo;
-        info = SkTBitOr<SkTypeface::PerGlyphInfo>(
-                  info, SkTypeface::kHAdvance_PerGlyphInfo);
+        subset->exportTo(&glyphIDs);
+    }
+    if (fontInfo()->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
+        SkTypeface::PerGlyphInfo info = SkTypeface::kGlyphNames_PerGlyphInfo;
         uint32_t* glyphs = (glyphIDs.count() == 0) ? nullptr : glyphIDs.begin();
         uint32_t glyphsCount = glyphs ? glyphIDs.count() : 0;
         sk_sp<const SkAdvancedTypefaceMetrics> fontMetrics(
@@ -1118,38 +1103,18 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
     sysInfo->insertInt("Supplement", 0);
     this->insertObject("CIDSystemInfo", std::move(sysInfo));
 
-    if (!fontInfo()->fGlyphWidths.empty()) {
-        int16_t defaultWidth = 0;
-        sk_sp<SkPDFArray> widths(composeAdvanceData(
-                fontInfo()->fGlyphWidths, fontInfo()->fEmSize, &appendWidth,
-                &defaultWidth));
-        if (widths->size()) {
-            this->insertObject("W", std::move(widths));
-        }
-        this->insertScalar(
-                "DW", scaleFromFontUnits(defaultWidth, fontInfo()->fEmSize));
-    }
-    if (!fontInfo()->fVerticalMetrics.empty()) {
-        struct SkAdvancedTypefaceMetrics::VerticalMetric defaultAdvance;
-        defaultAdvance.fVerticalAdvance = 0;
-        defaultAdvance.fOriginXDisp = 0;
-        defaultAdvance.fOriginYDisp = 0;
-        sk_sp<SkPDFArray> advances(composeAdvanceData(
-                fontInfo()->fVerticalMetrics, fontInfo()->fEmSize,
-                &appendVerticalAdvance, &defaultAdvance));
-        if (advances->size())
-            this->insertObject("W2", std::move(advances));
-        if (defaultAdvance.fVerticalAdvance ||
-                defaultAdvance.fOriginXDisp ||
-                defaultAdvance.fOriginYDisp) {
-            auto array = sk_make_sp<SkPDFArray>();
-            appendVerticalAdvance(defaultAdvance,
-                                  fontInfo()->fEmSize,
-                                  array.get());
-            this->insertObject("DW2", std::move(array));
-        }
+    SkAdvancedTypefaceMetrics tmpMetrics;
+    set_glyph_widths(this->typeface(), &glyphIDs, &tmpMetrics);
+    int16_t defaultWidth = 0;
+    uint16_t emSize = (uint16_t)this->fontInfo()->fEmSize;
+    sk_sp<SkPDFArray> widths = composeAdvanceData(
+    tmpMetrics.fGlyphWidths, emSize, &defaultWidth);
+    if (widths->size()) {
+        this->insertObject("W", std::move(widths));
     }
 
+    this->insertScalar(
+            "DW", scaleFromFontUnits(defaultWidth, emSize));
     return true;
 }
 
@@ -1205,24 +1170,28 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
 
 bool SkPDFType1Font::populate(int16_t glyphID) {
     SkASSERT(fontInfo()->fVerticalMetrics.empty());
-    SkASSERT(!fontInfo()->fGlyphWidths.empty());
+    SkASSERT(fontInfo()->fGlyphWidths.empty());
 
     adjustGlyphRangeForSingleByteEncoding(glyphID);
 
     int16_t defaultWidth = 0;
     const SkAdvancedTypefaceMetrics::WidthRange* widthRangeEntry = nullptr;
-    for (const auto& widthEntry : fontInfo()->fGlyphWidths) {
-        switch (widthEntry.fType) {
-            case SkAdvancedTypefaceMetrics::WidthRange::kDefault:
-                defaultWidth = widthEntry.fAdvance[0];
-                break;
-            case SkAdvancedTypefaceMetrics::WidthRange::kRun:
-                SkASSERT(false);
-                break;
-            case SkAdvancedTypefaceMetrics::WidthRange::kRange:
-                SkASSERT(widthRangeEntry == nullptr);
-                widthRangeEntry = &widthEntry;
-                break;
+    {
+        SkAdvancedTypefaceMetrics tmpMetrics;
+        set_glyph_widths(this->typeface(), nullptr, &tmpMetrics);
+        for (const auto& widthEntry : tmpMetrics.fGlyphWidths) {
+            switch (widthEntry.fType) {
+                case SkAdvancedTypefaceMetrics::WidthRange::kDefault:
+                    defaultWidth = widthEntry.fAdvance[0];
+                    break;
+                case SkAdvancedTypefaceMetrics::WidthRange::kRun:
+                    SkASSERT(false);
+                    break;
+                case SkAdvancedTypefaceMetrics::WidthRange::kRange:
+                    SkASSERT(widthRangeEntry == nullptr);
+                    widthRangeEntry = &widthEntry;
+                    break;
+            }
         }
     }
 
@@ -1234,8 +1203,6 @@ bool SkPDFType1Font::populate(int16_t glyphID) {
     insertName("BaseFont", fontInfo()->fFontName);
 
     addWidthInfoFromRange(defaultWidth, widthRangeEntry);
-
-
     auto encDiffs = sk_make_sp<SkPDFArray>();
     encDiffs->reserve(lastGlyphID() - firstGlyphID() + 2);
     encDiffs->appendInt(1);
@@ -1263,15 +1230,18 @@ void SkPDFType1Font::addWidthInfoFromRange(
         if (endIndex > widthRangeEntry->fAdvance.count())
             endIndex = widthRangeEntry->fAdvance.count();
         if (widthRangeEntry->fStartId == 0) {
-            appendWidth(widthRangeEntry->fAdvance[0], emSize, widthArray.get());
+            widthArray->appendScalar(
+                    scaleFromFontUnits(widthRangeEntry->fAdvance[0], emSize));
         } else {
             firstChar = startIndex + widthRangeEntry->fStartId;
         }
         for (int i = startIndex; i < endIndex; i++) {
-            appendWidth(widthRangeEntry->fAdvance[i], emSize, widthArray.get());
+            widthArray->appendScalar(
+                    scaleFromFontUnits(widthRangeEntry->fAdvance[i], emSize));
         }
     } else {
-        appendWidth(defaultWidth, 1000, widthArray.get());
+        widthArray->appendScalar(
+                scaleFromFontUnits(defaultWidth, 1000));
     }
     this->insertInt("FirstChar", firstChar);
     this->insertInt("LastChar", firstChar + widthArray->size() - 1);
