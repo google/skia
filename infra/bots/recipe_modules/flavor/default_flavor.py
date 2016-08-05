@@ -172,10 +172,6 @@ class DefaultFlavorUtils(object):
     """Like os.path.join(), but for paths on a connected device."""
     return self.m.path.join(*args)
 
-  def device_path_exists(self, path):  # pragma: no cover
-    """Like os.path.exists(), but for paths on a connected device."""
-    return self.m.path.exists(path, infra_step=True)
-
   def copy_directory_contents_to_device(self, host_dir, device_dir):
     """Like shutil.copytree(), but for copying to a connected device."""
     # For "normal" builders who don't have an attached device, we expect
@@ -229,6 +225,3 @@ class DefaultFlavorUtils(object):
   def cleanup_steps(self):
     """Run any device-specific cleanup steps."""
     pass
-
-  def __repr__(self):
-    return '<%s object>' % self.__class__.__name__  # pragma: no cover

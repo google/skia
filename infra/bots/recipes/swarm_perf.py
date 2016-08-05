@@ -23,14 +23,14 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
-      #'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release',
-      #'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Debug',
-      #'Perf-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Release',
+      'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release',
+      'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Debug',
+      'Perf-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Release',
       'Perf-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
-      #'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
-      #'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
-      #'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
-      #'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
+      'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
+      'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
+      'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
+      'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-VisualBench',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
@@ -54,7 +54,7 @@ def nanobench_flags(bot):
   args.extend(['--scales', '1.0', '1.1'])
 
   if 'iOS' in bot:
-    args.extend(['--skps', 'ignore_skps'])  # pragma: no cover
+    args.extend(['--skps', 'ignore_skps'])
 
   config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui' ]
   config += [ 'f16', 'srgb' ]
@@ -65,7 +65,7 @@ def nanobench_flags(bot):
     if 'Android' in bot:
       # The TegraX1 has a regular OpenGL implementation. We bench that instead
       # of ES.
-      if 'TegraX1' in bot:  # pragma: no cover
+      if 'TegraX1' in bot:
         config.remove('gpu')
         config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
       else:
@@ -74,15 +74,15 @@ def nanobench_flags(bot):
       config.extend(['msaa16', 'nvpr16', 'nvprdit16'])
 
   # Bench instanced rendering on a limited number of platforms
-  if 'Nexus6' in bot:  # pragma: no cover
+  if 'Nexus6' in bot:
     config.append('esinst') # esinst4 isn't working yet on Adreno.
   elif 'TegraX1' in bot:
-    config.extend(['glinst', 'glinst4'])  # pragma: no cover
+    config.extend(['glinst', 'glinst4'])
   elif 'MacMini6.2' in bot:
-    config.extend(['glinst', 'glinst16'])  # pragma: no cover
+    config.extend(['glinst', 'glinst16'])
 
   if 'Vulkan' in bot:
-    config = ['vk']  # pragma: no cover
+    config = ['vk']
 
   args.append('--config')
   args.extend(config)
@@ -101,10 +101,10 @@ def nanobench_flags(bot):
     match.append('~patch_grid')  # skia:2847
     match.append('~desk_carsvg')
   if 'NexusPlayer' in bot:
-    match.append('~desk_unicodetable')  # pragma: no cover
-  if 'Nexus5' in bot:  # pragma: no cover
+    match.append('~desk_unicodetable')
+  if 'Nexus5' in bot:
     match.append('~keymobi_shop_mobileweb_ebay_com.skp')  # skia:5178
-  if 'iOS' in bot:  # pragma: no cover
+  if 'iOS' in bot:
     match.append('~blurroundrect')
     match.append('~patch_grid')  # skia:2847
     match.append('~desk_carsvg')
@@ -126,7 +126,7 @@ def nanobench_flags(bot):
   # This low-end Android bot crashes about 25% of the time while running the
   # (somewhat intense) shapes benchmarks.
   if 'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release' in bot:
-    match.append('~shapes_')  # pragma: no cover
+    match.append('~shapes_')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.

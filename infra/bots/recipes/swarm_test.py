@@ -24,27 +24,27 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
-      #'Test-Android-GCC-AndroidOne-GPU-Mali400MP2-Arm7-Release',
+      'Test-Android-GCC-AndroidOne-GPU-Mali400MP2-Arm7-Release',
       'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
-      #'Test-Android-GCC-Nexus10-GPU-MaliT604-Arm7-Release',
-      #'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
+      'Test-Android-GCC-Nexus10-GPU-MaliT604-Arm7-Release',
+      'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
       'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Debug',
-      #'Test-Android-GCC-Nexus9-CPU-Denver-Arm64-Debug',
-      #'Test-Android-GCC-NexusPlayer-CPU-SSE4-x86-Release',
-      #'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug',
+      'Test-Android-GCC-Nexus9-CPU-Denver-Arm64-Debug',
+      'Test-Android-GCC-NexusPlayer-CPU-SSE4-x86-Release',
+      'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug',
       'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
-      #'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
-      #'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
-      #'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
+      'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
+      'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
+      'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
       'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot',
-      #'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
+      'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
-      #'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
+      'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
       'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-      #'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
+      'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
       'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot',
-      #'Test-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
+      'Test-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
     ],
   },
 }
@@ -56,7 +56,7 @@ def dm_flags(bot):
   # 32-bit desktop bots tend to run out of memory, because they have relatively
   # far more cores than RAM (e.g. 32 cores, 3G RAM).  Hold them back a bit.
   if '-x86-' in bot and not 'NexusPlayer' in bot:
-    args.extend('--threads 4'.split(' '))  # pragma: no cover
+    args.extend('--threads 4'.split(' '))
 
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
@@ -92,12 +92,12 @@ def dm_flags(bot):
         'GTX660'   in bot or
         'GT610'    in bot):
       if 'Android' in bot:
-        configs.append('nvprdit4')  # pragma: no cover
+        configs.append('nvprdit4')
       else:
         configs.append('nvprdit16')
 
   # We want to test the OpenGL config not the GLES config on the X1
-  if 'TegraX1' in bot:  # pragma: no cover
+  if 'TegraX1' in bot:
     configs = [x.replace('gpu', 'gl') for x in configs]
     configs = [x.replace('msaa', 'glmsaa') for x in configs]
     configs = [x.replace('nvpr', 'glnvpr') for x in configs]
@@ -108,29 +108,29 @@ def dm_flags(bot):
                    ['serialize', 'tiles_rt', 'pic'])
 
   if 'ANGLE' in bot:
-    configs.append('angle')  # pragma: no cover
+    configs.append('angle')
 
   # We want to run gpudft on atleast the mali 400
   if 'GalaxyS3' in bot:
     configs.append('gpudft')
 
   # Test instanced rendering on a limited number of platforms
-  if 'Nexus6' in bot:  # pragma: no cover
+  if 'Nexus6' in bot:
     configs.append('esinst') # esinst4 isn't working yet on Adreno.
-  elif 'TegraX1' in bot:  # pragma: no cover
+  elif 'TegraX1' in bot:
     # Multisampled instanced configs use nvpr.
     configs = [x.replace('glnvpr', 'glinst') for x in configs]
     configs.append('glinst')
   elif 'MacMini6.2' in bot:
-    configs.extend(['glinst', 'glinst16'])  # pragma: no cover
+    configs.extend(['glinst', 'glinst16'])
 
   # CommandBuffer bot *only* runs the command_buffer config.
   if 'CommandBuffer' in bot:
-    configs = ['commandbuffer']  # pragma: no cover
+    configs = ['commandbuffer']
 
   # Vulkan bot *only* runs the vk config.
   if 'Vulkan' in bot:
-    configs = ['vk']  # pragma: no cover
+    configs = ['vk']
 
   args.append('--config')
   args.extend(configs)
@@ -270,12 +270,12 @@ def dm_flags(bot):
     for raw_ext in r:
       blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
 
-  if 'Nexus9' in bot:  # pragma: no cover
+  if 'Nexus9' in bot:
     for raw_ext in r:
       blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
 
   # Large image that overwhelms older Mac bots
-  if 'MacMini4.1-GPU' in bot:  # pragma: no cover
+  if 'MacMini4.1-GPU' in bot:
     blacklist.extend('_ image _ abnormal.wbmp'.split(' '))
     blacklist.extend(['msaa16', 'gm', '_', 'blurcircles'])
 
@@ -287,21 +287,21 @@ def dm_flags(bot):
     match.append('~WritePixels')
 
   if 'AndroidOne' in bot:  # skia:4711
-    match.append('~WritePixels')  # pragma: no cover
+    match.append('~WritePixels')
 
   if 'NexusPlayer' in bot:
-    match.append('~ResourceCache')  # pragma: no cover
+    match.append('~ResourceCache')
 
   if 'Nexus10' in bot: # skia:5509
-    match.append('~CopySurface')  # pragma: no cover
+    match.append('~CopySurface')
 
-  if 'ANGLE' in bot and 'Debug' in bot:  # pragma: no cover
+  if 'ANGLE' in bot and 'Debug' in bot:
     match.append('~GLPrograms') # skia:4717
 
   if 'MSAN' in bot:
     match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.
 
-  if 'TSAN' in bot:  # pragma: no cover
+  if 'TSAN' in bot:
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
 
   if blacklist:

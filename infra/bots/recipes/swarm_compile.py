@@ -28,24 +28,24 @@ TEST_BUILDERS = {
       'Build-Mac-Clang-x86_64-Release-CMake',
       'Build-Ubuntu-Clang-x86_64-Debug-GN',
       'Build-Ubuntu-GCC-Arm7-Debug-Android-Trybot',
-      #'Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs',
-      #'Build-Ubuntu-GCC-Arm7-Debug-Android_NoNeon',
+      'Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs',
+      'Build-Ubuntu-GCC-Arm7-Debug-Android_NoNeon',
       'Build-Ubuntu-GCC-Arm7-Release-Android',
       'Build-Ubuntu-GCC-Arm7-Release-Android_Vulkan',
       'Build-Ubuntu-GCC-x86-Debug',
       'Build-Ubuntu-GCC-x86_64-Debug-MSAN',
       'Build-Ubuntu-GCC-x86_64-Debug-GN',
-      #'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
-      #'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
+      'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
+      'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
       'Build-Ubuntu-GCC-x86_64-Release-CMake',
-      #'Build-Ubuntu-GCC-x86_64-Release-Fast',
-      #'Build-Ubuntu-GCC-x86_64-Release-Mesa',
+      'Build-Ubuntu-GCC-x86_64-Release-Fast',
+      'Build-Ubuntu-GCC-x86_64-Release-Mesa',
       'Build-Ubuntu-GCC-x86_64-Release-PDFium',
       'Build-Ubuntu-GCC-x86_64-Release-Shared',
       'Build-Ubuntu-GCC-x86_64-Release-Valgrind',
       'Build-Win-MSVC-x86-Debug',
-      #'Build-Win-MSVC-x86-Debug-Exceptions',
-      #'Build-Win-MSVC-x86-Release-GDI',
+      'Build-Win-MSVC-x86-Debug-Exceptions',
+      'Build-Win-MSVC-x86-Release-GDI',
       'Build-Win-MSVC-x86-Release-GN',
       'Build-Win-MSVC-x86_64-Release-Vulkan',
     ],
@@ -73,7 +73,7 @@ def get_extra_env_vars(builder_dict):
   # SKNX_NO_SIMD, SK_USE_DISCARDABLE_SCALEDIMAGECACHE, etc.
   extra_config = builder_dict.get('extra_config', '')
   if extra_config.startswith('SK') and extra_config.isupper():
-    env['CPPFLAGS'] = '-D' + extra_config  # pragma: no cover
+    env['CPPFLAGS'] = '-D' + extra_config
 
   return env
 
@@ -107,7 +107,7 @@ def get_gyp_defines(builder_dict):
     werr = False
   elif 'Fast' in builder_dict.get('extra_config', ''):
     # See https://bugs.chromium.org/p/skia/issues/detail?id=5257
-    werr = False    # pragma: no cover
+    werr = False  
   else:
     werr = True
   gyp_defs['skia_warnings_as_errors'] = str(int(werr))  # True/False -> '1'/'0'
@@ -121,7 +121,7 @@ def get_gyp_defines(builder_dict):
     gyp_defs['qt_sdk'] = 'C:/Qt/4.8.5/'
 
   # ANGLE.
-  if builder_dict.get('extra_config') == 'ANGLE':  # pragma: no cover
+  if builder_dict.get('extra_config') == 'ANGLE':
     gyp_defs['skia_angle'] = '1'
     if builder_dict.get('os', '') in ('Ubuntu', 'Linux'):
       gyp_defs['use_x11'] = '1'
@@ -129,12 +129,12 @@ def get_gyp_defines(builder_dict):
 
   # GDI.
   if builder_dict.get('extra_config') == 'GDI':
-    gyp_defs['skia_gdi'] = '1'  # pragma: no cover
+    gyp_defs['skia_gdi'] = '1'
 
   # Build with Exceptions on Windows.
   if ('Win' in builder_dict.get('os', '') and
       builder_dict.get('extra_config') == 'Exceptions'):
-    gyp_defs['skia_win_exceptions'] = '1'  # pragma: no cover
+    gyp_defs['skia_win_exceptions'] = '1'
 
   # iOS.
   if (builder_dict.get('os') == 'iOS' or
@@ -147,13 +147,7 @@ def get_gyp_defines(builder_dict):
 
   # Build fastest Skia possible.
   if builder_dict.get('extra_config') == 'Fast':
-    gyp_defs['skia_fast'] = '1'  # pragma: no cover
-
-  # PDF viewer in GM.
-  if (builder_dict.get('os') == 'Mac10.8' and
-      builder_dict.get('arch') == 'x86_64' and
-      builder_dict.get('configuration') == 'Release'):  # pragma: no cover
-    gyp_defs['skia_run_pdfviewer_in_gm'] = '1'
+    gyp_defs['skia_fast'] = '1'
 
   # Clang.
   if builder_dict.get('compiler') == 'Clang':
@@ -170,11 +164,11 @@ def get_gyp_defines(builder_dict):
   # Mesa.
   if (builder_dict.get('extra_config') == 'Mesa' or
       builder_dict.get('cpu_or_gpu_value') == 'Mesa'):
-    gyp_defs['skia_mesa'] = '1'  # pragma: no cover
+    gyp_defs['skia_mesa'] = '1'
 
   # skia_use_android_framework_defines.
   if builder_dict.get('extra_config') == 'Android_FrameworkDefs':
-    gyp_defs['skia_use_android_framework_defines'] = '1'  # pragma: no cover
+    gyp_defs['skia_use_android_framework_defines'] = '1'
 
   # CommandBuffer.
   if builder_dict.get('extra_config') == 'CommandBuffer':

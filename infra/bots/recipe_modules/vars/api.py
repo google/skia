@@ -19,7 +19,7 @@ CONFIG_RELEASE = 'Release'
 def device_cfg(builder_dict):
   # Android.
   if 'Android' in builder_dict.get('extra_config', ''):
-    if 'NoNeon' in builder_dict['extra_config']:  # pragma: no cover
+    if 'NoNeon' in builder_dict['extra_config']:
       return 'arm_v7'
     return {
       'Arm64': 'arm64',

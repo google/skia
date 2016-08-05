@@ -45,16 +45,6 @@ class iOSFlavorUtils(default_flavor.DefaultFlavorUtils):
     """Like os.path.join(), but for paths on a connected iOS device."""
     return '/'.join(args)
 
-  def device_path_exists(self, path):
-    """Like os.path.exists(), but for paths on a connected device."""
-    return self.m.run(
-        self.m.step,
-        'exists %s' % path,
-        cmd=[self.ios_bin.join('ios_path_exists'), path],
-        env=self.default_env,
-        infra_step=True,
-    ) # pragma: no cover
-
   def _remove_device_dir(self, path):
     """Remove the directory on the device."""
     return self.m.run(
@@ -106,7 +96,7 @@ class iOSFlavorUtils(default_flavor.DefaultFlavorUtils):
         cmd=[self.ios_bin.join('ios_push_file'), host_path, device_path],
         env=self.default_env,
         infra_step=True,
-    ) # pragma: no cover
+    )
 
   def copy_extra_build_products(self, swarming_out_dir):
     xcode_dir = self.m.path.join(
