@@ -28,16 +28,24 @@ TEST_BUILDERS = {
       'Build-Mac-Clang-x86_64-Release-CMake',
       'Build-Ubuntu-Clang-x86_64-Debug-GN',
       'Build-Ubuntu-GCC-Arm7-Debug-Android-Trybot',
+      #'Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs',
+      #'Build-Ubuntu-GCC-Arm7-Debug-Android_NoNeon',
       'Build-Ubuntu-GCC-Arm7-Release-Android',
       'Build-Ubuntu-GCC-Arm7-Release-Android_Vulkan',
       'Build-Ubuntu-GCC-x86-Debug',
       'Build-Ubuntu-GCC-x86_64-Debug-MSAN',
       'Build-Ubuntu-GCC-x86_64-Debug-GN',
+      #'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
+      #'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
       'Build-Ubuntu-GCC-x86_64-Release-CMake',
+      #'Build-Ubuntu-GCC-x86_64-Release-Fast',
+      #'Build-Ubuntu-GCC-x86_64-Release-Mesa',
       'Build-Ubuntu-GCC-x86_64-Release-PDFium',
       'Build-Ubuntu-GCC-x86_64-Release-Shared',
       'Build-Ubuntu-GCC-x86_64-Release-Valgrind',
       'Build-Win-MSVC-x86-Debug',
+      #'Build-Win-MSVC-x86-Debug-Exceptions',
+      #'Build-Win-MSVC-x86-Release-GDI',
       'Build-Win-MSVC-x86-Release-GN',
       'Build-Win-MSVC-x86_64-Release-Vulkan',
     ],
@@ -45,12 +53,151 @@ TEST_BUILDERS = {
 }
 
 
+def build_targets_from_builder_dict(builder_dict):
+  """Return a list of targets to build, depending on the builder type."""
+  if builder_dict.get('extra_config') == 'iOS':
+    return ['iOSShell']
+  if 'SAN' in builder_dict.get('extra_config', ''):
+    # 'most' does not compile under MSAN.
+    return ['dm', 'nanobench']
+  else:
+    return ['most']
+
+
+def get_extra_env_vars(builder_dict):
+  env = {}
+  if builder_dict.get('compiler') == 'Clang':
+    env['CC'] = '/usr/bin/clang'
+    env['CXX'] = '/usr/bin/clang++'
+
+  # SKNX_NO_SIMD, SK_USE_DISCARDABLE_SCALEDIMAGECACHE, etc.
+  extra_config = builder_dict.get('extra_config', '')
+  if extra_config.startswith('SK') and extra_config.isupper():
+    env['CPPFLAGS'] = '-D' + extra_config  # pragma: no cover
+
+  return env
+
+
+def get_gyp_defines(builder_dict):
+  gyp_defs = {}
+
+  # skia_arch_type.
+  arch = builder_dict['target_arch']
+
+  arch_types = {
+    'x86':      'x86',
+    'x86_64':   'x86_64',
+    'Arm7':     'arm',
+    'Arm64':    'arm64',
+    'Mips':     'mips32',
+    'Mips64':   'mips64',
+    'MipsDSP2': 'mips32',
+  }
+  if arch in arch_types:
+    gyp_defs['skia_arch_type']  = arch_types[arch]
+
+  # skia_warnings_as_errors.
+  werr = False
+  if 'Win' in builder_dict.get('os', ''):
+    if not ('GDI' in builder_dict.get('extra_config', '') or
+            'Exceptions' in builder_dict.get('extra_config', '')):
+      werr = True
+  elif ('Mac' in builder_dict.get('os', '') and
+        'Android' in builder_dict.get('extra_config', '')):
+    werr = False
+  elif 'Fast' in builder_dict.get('extra_config', ''):
+    # See https://bugs.chromium.org/p/skia/issues/detail?id=5257
+    werr = False    # pragma: no cover
+  else:
+    werr = True
+  gyp_defs['skia_warnings_as_errors'] = str(int(werr))  # True/False -> '1'/'0'
+
+  # Win debugger.
+  if 'Win' in builder_dict.get('os', ''):
+    gyp_defs['skia_win_debuggers_path'] = 'c:/DbgHelp'
+
+  # Qt SDK (Win).
+  if 'Win' in builder_dict.get('os', ''):
+    gyp_defs['qt_sdk'] = 'C:/Qt/4.8.5/'
+
+  # ANGLE.
+  if builder_dict.get('extra_config') == 'ANGLE':  # pragma: no cover
+    gyp_defs['skia_angle'] = '1'
+    if builder_dict.get('os', '') in ('Ubuntu', 'Linux'):
+      gyp_defs['use_x11'] = '1'
+      gyp_defs['chromeos'] = '0'
+
+  # GDI.
+  if builder_dict.get('extra_config') == 'GDI':
+    gyp_defs['skia_gdi'] = '1'  # pragma: no cover
+
+  # Build with Exceptions on Windows.
+  if ('Win' in builder_dict.get('os', '') and
+      builder_dict.get('extra_config') == 'Exceptions'):
+    gyp_defs['skia_win_exceptions'] = '1'  # pragma: no cover
+
+  # iOS.
+  if (builder_dict.get('os') == 'iOS' or
+      builder_dict.get('extra_config') == 'iOS'):
+    gyp_defs['skia_os'] = 'ios'
+
+  # Shared library build.
+  if builder_dict.get('extra_config') == 'Shared':
+    gyp_defs['skia_shared_lib'] = '1'
+
+  # Build fastest Skia possible.
+  if builder_dict.get('extra_config') == 'Fast':
+    gyp_defs['skia_fast'] = '1'  # pragma: no cover
+
+  # PDF viewer in GM.
+  if (builder_dict.get('os') == 'Mac10.8' and
+      builder_dict.get('arch') == 'x86_64' and
+      builder_dict.get('configuration') == 'Release'):  # pragma: no cover
+    gyp_defs['skia_run_pdfviewer_in_gm'] = '1'
+
+  # Clang.
+  if builder_dict.get('compiler') == 'Clang':
+    gyp_defs['skia_clang_build'] = '1'
+
+  # Valgrind.
+  if 'Valgrind' in builder_dict.get('extra_config', ''):
+    gyp_defs['skia_release_optimization_level'] = '1'
+
+  # Link-time code generation just wastes time on compile-only bots.
+  if builder_dict.get('compiler') == 'MSVC':
+    gyp_defs['skia_win_ltcg'] = '0'
+
+  # Mesa.
+  if (builder_dict.get('extra_config') == 'Mesa' or
+      builder_dict.get('cpu_or_gpu_value') == 'Mesa'):
+    gyp_defs['skia_mesa'] = '1'  # pragma: no cover
+
+  # skia_use_android_framework_defines.
+  if builder_dict.get('extra_config') == 'Android_FrameworkDefs':
+    gyp_defs['skia_use_android_framework_defines'] = '1'  # pragma: no cover
+
+  # CommandBuffer.
+  if builder_dict.get('extra_config') == 'CommandBuffer':
+    gyp_defs['skia_command_buffer'] = '1'
+
+  # Vulkan.
+  if builder_dict.get('extra_config') == 'Vulkan':
+    gyp_defs['skia_vulkan'] = '1'
+    gyp_defs['skia_vulkan_debug_layers'] = '0'
+
+  return gyp_defs
+
+
 def RunSteps(api):
   api.core.setup()
 
-  env = api.vars.builder_spec['env']
+  env = get_extra_env_vars(api.vars.builder_cfg)
+  gyp_defs = get_gyp_defines(api.vars.builder_cfg)
+  gyp_defs_list = ['%s=%s' % (k, v) for k, v in gyp_defs.iteritems()]
+  gyp_defs_list.sort()
+  env['GYP_DEFINES'] = ' '.join(gyp_defs_list)
 
-  build_targets = api.vars.builder_spec['build_targets']
+  build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
 
   try:
     for target in build_targets:

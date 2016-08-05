@@ -23,15 +23,138 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
+      #'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release',
+      #'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Debug',
+      #'Perf-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Release',
+      'Perf-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
+      #'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
+      #'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
+      #'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
+      #'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
+      'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
+      'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-VisualBench',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
       'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
-      'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-      'Perf-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
-      'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-VisualBench',
     ],
   },
 }
+
+
+def nanobench_flags(bot):
+  args = ['--pre_log']
+
+  if 'GPU' in bot:
+    args.append('--images')
+    args.extend(['--gpuStatsDump', 'true'])
+
+  if 'Android' in bot and 'GPU' in bot:
+    args.extend(['--useThermalManager', '1,1,10,1000'])
+
+  args.extend(['--scales', '1.0', '1.1'])
+
+  if 'iOS' in bot:
+    args.extend(['--skps', 'ignore_skps'])  # pragma: no cover
+
+  config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui' ]
+  config += [ 'f16', 'srgb' ]
+  # The S4 crashes and the NP produces a long error stream when we run with
+  # MSAA.
+  if ('GalaxyS4'    not in bot and
+      'NexusPlayer' not in bot):
+    if 'Android' in bot:
+      # The TegraX1 has a regular OpenGL implementation. We bench that instead
+      # of ES.
+      if 'TegraX1' in bot:  # pragma: no cover
+        config.remove('gpu')
+        config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
+      else:
+        config.extend(['msaa4', 'nvpr4', 'nvprdit4'])
+    else:
+      config.extend(['msaa16', 'nvpr16', 'nvprdit16'])
+
+  # Bench instanced rendering on a limited number of platforms
+  if 'Nexus6' in bot:  # pragma: no cover
+    config.append('esinst') # esinst4 isn't working yet on Adreno.
+  elif 'TegraX1' in bot:
+    config.extend(['glinst', 'glinst4'])  # pragma: no cover
+  elif 'MacMini6.2' in bot:
+    config.extend(['glinst', 'glinst16'])  # pragma: no cover
+
+  if 'Vulkan' in bot:
+    config = ['vk']  # pragma: no cover
+
+  args.append('--config')
+  args.extend(config)
+
+  if 'Valgrind' in bot:
+    # Don't care about Valgrind performance.
+    args.extend(['--loops',   '1'])
+    args.extend(['--samples', '1'])
+    # Ensure that the bot framework does not think we have timed out.
+    args.extend(['--keepAlive', 'true'])
+
+  match = []
+  if 'Android' in bot:
+    # Segfaults when run as GPU bench. Very large texture?
+    match.append('~blurroundrect')
+    match.append('~patch_grid')  # skia:2847
+    match.append('~desk_carsvg')
+  if 'NexusPlayer' in bot:
+    match.append('~desk_unicodetable')  # pragma: no cover
+  if 'Nexus5' in bot:  # pragma: no cover
+    match.append('~keymobi_shop_mobileweb_ebay_com.skp')  # skia:5178
+  if 'iOS' in bot:  # pragma: no cover
+    match.append('~blurroundrect')
+    match.append('~patch_grid')  # skia:2847
+    match.append('~desk_carsvg')
+    match.append('~keymobi')
+    match.append('~path_hairline')
+    match.append('~GLInstancedArraysBench') # skia:4714
+
+  # the 32-bit GCE bots run out of memory in DM when running these large images
+  # so defensively disable them in nanobench, too.
+  # FIXME (scroggo): This may have just been due to SkImageDecoder's
+  # buildTileIndex leaking memory (https://bug.skia.org/4360). That is
+  # disabled by default for nanobench, so we may not need this.
+  # FIXME (scroggo): Share image blacklists between dm and nanobench?
+  if 'x86' in bot and not 'x86-64' in bot:
+    match.append('~interlaced1.png')
+    match.append('~interlaced2.png')
+    match.append('~interlaced3.png')
+
+  # This low-end Android bot crashes about 25% of the time while running the
+  # (somewhat intense) shapes benchmarks.
+  if 'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release' in bot:
+    match.append('~shapes_')  # pragma: no cover
+
+  # We do not need or want to benchmark the decodes of incomplete images.
+  # In fact, in nanobench we assert that the full image decode succeeds.
+  match.append('~inc0.gif')
+  match.append('~inc1.gif')
+  match.append('~incInterlaced.gif')
+  match.append('~inc0.jpg')
+  match.append('~incGray.jpg')
+  match.append('~inc0.wbmp')
+  match.append('~inc1.wbmp')
+  match.append('~inc0.webp')
+  match.append('~inc1.webp')
+  match.append('~inc0.ico')
+  match.append('~inc1.ico')
+  match.append('~inc0.png')
+  match.append('~inc1.png')
+  match.append('~inc2.png')
+  match.append('~inc12.png')
+  match.append('~inc13.png')
+  match.append('~inc14.png')
+  match.append('~inc0.webp')
+  match.append('~inc1.webp')
+
+  if match:
+    args.append('--match')
+    args.extend(match)
+
+  return args
 
 
 def perf_steps(api):
@@ -71,7 +194,7 @@ def perf_steps(api):
     skip_flag = '--nocpu'
   if skip_flag:
     args.append(skip_flag)
-  args.extend(api.vars.builder_spec['nanobench_flags'])
+  args.extend(nanobench_flags(api.vars.builder_name))
 
   if api.vars.upload_perf_results:
     json_path = api.flavor.device_path_join(
@@ -123,21 +246,23 @@ def GenTests(api):
             'get EXTERNAL_STORAGE dir',
             stdout=api.raw_io.output('/storage/emulated/legacy')) +
         api.step_data(
-            'adb root',
-            stdout=api.raw_io.output('restarting adbd as root')) +
-        api.step_data(
             'read SKP_VERSION',
             stdout=api.raw_io.output('42')) +
         api.step_data(
             'read SK_IMAGE_VERSION',
             stdout=api.raw_io.output('42')) +
         api.step_data(
-            'exists skia_perf',
-            stdout=api.raw_io.output('')) +
-        api.step_data(
             'which adb',
             retcode=1)
     )
+    if not 'Debug' in builder:
+      test_data += api.step_data(
+          'exists skia_perf',
+          stdout=api.raw_io.output(''))
+    if not 'GalaxyS3' in builder:
+      test_data += api.step_data(
+          'adb root',
+          stdout=api.raw_io.output('restarting adbd as root'))
     return test_data
 
   for mastername, slaves in TEST_BUILDERS.iteritems():
