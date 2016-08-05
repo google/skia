@@ -52,14 +52,6 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(SK_DEBUG) && !defined(SK_RELEASE)
-    #ifdef NDEBUG
-        #define SK_RELEASE
-    #else
-        #define SK_DEBUG
-    #endif
-#endif
-
 #ifdef SK_BUILD_FOR_WIN32
     #if !defined(SK_RESTRICT)
         #define SK_RESTRICT __restrict
@@ -68,8 +60,6 @@
         #define SK_WARN_UNUSED_RESULT
     #endif
 #endif
-
-//////////////////////////////////////////////////////////////////////
 
 #if !defined(SK_RESTRICT)
     #define SK_RESTRICT __restrict__

@@ -14,6 +14,14 @@
 #  define SK_BUILD_FOR_WIN
 #endif
 
+#if !defined(SK_DEBUG) && !defined(SK_RELEASE)
+    #ifdef NDEBUG
+        #define SK_RELEASE
+    #else
+        #define SK_DEBUG
+    #endif
+#endif
+
 #if defined(SK_DEBUG) && defined(SK_RELEASE)
 #  error "cannot define both SK_DEBUG and SK_RELEASE"
 #elif !defined(SK_DEBUG) && !defined(SK_RELEASE)
