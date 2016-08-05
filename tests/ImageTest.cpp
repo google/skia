@@ -211,6 +211,7 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
         REPORTER_ASSERT(reporter, img->peekPixels(&pm));
         const bool sameMutable = pm.addr32(0, 0) == bm.getAddr32(0, 0);
         REPORTER_ASSERT(reporter, rec.fExpectSameAsMutable == sameMutable);
+        REPORTER_ASSERT(reporter, (bm.getGenerationID() == img->uniqueID()) == sameMutable);
 
         bm.notifyPixelsChanged();   // force a new generation ID
 
@@ -219,6 +220,7 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
         REPORTER_ASSERT(reporter, img->peekPixels(&pm));
         const bool sameImmutable = pm.addr32(0, 0) == bm.getAddr32(0, 0);
         REPORTER_ASSERT(reporter, rec.fExpectSameAsImmutable == sameImmutable);
+        REPORTER_ASSERT(reporter, (bm.getGenerationID() == img->uniqueID()) == sameImmutable);
     }
 }
 
