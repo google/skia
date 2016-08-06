@@ -20,25 +20,25 @@ public:
     static sk_sp<SkLiteDL> New(SkRect);
 
     void save();
-    void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, uint32_t) {/*TODO*/}
+    void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, uint32_t);
     void restore();
 
     void    concat (const SkMatrix&);
     void setMatrix (const SkMatrix&);
     void translateZ(SkScalar) {/*TODO*/}
 
-    void clipPath  (const   SkPath&, SkRegion::Op, bool aa) {/*TODO*/}
-    void clipRRect (const  SkRRect&, SkRegion::Op, bool aa) {/*TODO*/}
+    void clipPath  (const   SkPath&, SkRegion::Op, bool aa);
     void clipRect  (const   SkRect&, SkRegion::Op, bool aa);
-    void clipRegion(const SkRegion&, SkRegion::Op) {/*TODO*/}
+    void clipRRect (const  SkRRect&, SkRegion::Op, bool aa);
+    void clipRegion(const SkRegion&, SkRegion::Op);
 
 
-    void drawPaint (const SkPaint&) {/*TODO*/}
+    void drawPaint (const SkPaint&);
     void drawPath  (const SkPath&, const SkPaint&);
     void drawRect  (const SkRect&, const SkPaint&);
-    void drawOval  (const SkRect&, const SkPaint&) {/*TODO*/}
-    void drawRRect (const SkRRect&, const SkPaint&) {/*TODO*/}
-    void drawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) {/*TODO*/}
+    void drawOval  (const SkRect&, const SkPaint&);
+    void drawRRect (const SkRRect&, const SkPaint&);
+    void drawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 
     void drawAnnotation     (const SkRect&, const char*, SkData*) {/*TODO*/}
     void drawDrawable       (SkDrawable*, const SkMatrix*) {/*TODO*/}
