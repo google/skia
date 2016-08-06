@@ -1578,6 +1578,7 @@ private:
     friend class SkDebugCanvas;     // needs experimental fAllowSimplifyClip
     friend class SkSurface_Raster;  // needs getDevice()
     friend class SkRecorder;        // InitFlags
+    friend class SkLiteRecorder;        // InitFlags
     friend class SkNoSaveLayerCanvas;   // InitFlags
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)

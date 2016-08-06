@@ -879,6 +879,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
 
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) { return new via(__VA_ARGS__); }
+    VIA("lite",      ViaLite,              wrapped);
     VIA("twice",     ViaTwice,             wrapped);
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);

@@ -21,6 +21,8 @@
 #include "SkImageGenerator.h"
 #include "SkImageGeneratorCG.h"
 #include "SkImageGeneratorWIC.h"
+#include "SkLiteDL.h"
+#include "SkLiteRecorder.h"
 #include "SkMallocPixelRef.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
@@ -1606,6 +1608,26 @@ Error ViaSingletonPictures::draw(
 
         canvas->drawPicture(macroPic);
         return check_against_reference(bitmap, src, fSink);
+    });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+Error ViaLite::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    auto size = src.size();
+    SkRect bounds = {0,0, (SkScalar)size.width(), (SkScalar)size.height()};
+    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+        sk_sp<SkLiteDL> dl = SkLiteDL::New(bounds);
+
+        SkLiteRecorder rec;
+        rec.reset(dl.get());
+
+        Error err = src.draw(&rec);
+        if (!err.isEmpty()) {
+            return err;
+        }
+        dl->draw(canvas);
+        return ""; //check_against_reference(bitmap, src, fSink);
     });
 }
 

@@ -161,6 +161,8 @@
         '<(skia_src_path)/core/SkLinearBitmapPipeline_tile.h',
         '<(skia_src_path)/core/SkLinearBitmapPipeline_sample.h',
         '<(skia_src_path)/core/SkLineClipper.cpp',
+        '<(skia_src_path)/core/SkLiteDL.cpp',
+        '<(skia_src_path)/core/SkLiteRecorder.cpp',
         '<(skia_src_path)/core/SkLocalMatrixImageFilter.cpp',
         '<(skia_src_path)/core/SkLocalMatrixImageFilter.h',
         '<(skia_src_path)/core/SkLocalMatrixShader.cpp',
