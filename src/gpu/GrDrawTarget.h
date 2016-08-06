@@ -214,7 +214,7 @@ private:
         SkRect         fClippedBounds;
     };
     SkSTArray<256, RecordedBatch, true>             fRecordedBatches;
-    // The context is only in service of the clip mask manager, remove once CMM doesn't need this.
+    // The context is only in service of the GrClip, remove once it doesn't need this.
     GrContext*                                      fContext;
     GrGpu*                                          fGpu;
     GrResourceProvider*                             fResourceProvider;

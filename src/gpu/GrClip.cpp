@@ -7,7 +7,6 @@
 
 #include "GrClip.h"
 
-#include "GrClipMaskManager.h"
 #include "GrDrawContext.h"
 
 void GrNoClip::getConservativeBounds(int width, int height, SkIRect* devResult,
@@ -69,37 +68,4 @@ bool GrFixedClip::apply(GrContext*,
 
     out->makeStencil(fHasStencilClip, fDeviceBounds);
     return true;
-}
-
-bool GrClipStackClip::quickContains(const SkRect& rect) const {
-    if (!fStack) {
-        return true;
-    }
-    return fStack->quickContains(rect.makeOffset(SkIntToScalar(fOrigin.x()),
-                                                 SkIntToScalar(fOrigin.y())));
-}
-
-void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devResult,
-                                            bool* isIntersectionOfRects) const {
-    if (!fStack) {
-        devResult->setXYWH(0, 0, width, height);
-        if (isIntersectionOfRects) {
-            *isIntersectionOfRects = true;
-        }
-        return;
-    }
-    SkRect devBounds;
-    fStack->getConservativeBounds(-fOrigin.x(), -fOrigin.y(), width, height, &devBounds,
-                                  isIntersectionOfRects);
-    devBounds.roundOut(devResult);
-}
-
-bool GrClipStackClip::apply(GrContext* context,
-                            GrDrawContext* drawContext,
-                            const SkRect* devBounds,
-                            bool useHWAA,
-                            bool hasUserStencilSettings,
-                            GrAppliedClip* out) const {
-    return GrClipMaskManager::SetupClipping(context, drawContext, *this, devBounds,
-                                            useHWAA, hasUserStencilSettings, out);
 }

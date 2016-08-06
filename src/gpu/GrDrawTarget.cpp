@@ -49,7 +49,7 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
     , fAuditTrail(auditTrail)
     , fFlags(0)
     , fRenderTarget(rt) {
-    // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
+    // TODO: Stop extracting the context (currently needed by GrClip)
     fContext = fGpu->getContext();
 
     fClipBatchToBounds = options.fClipBatchToBounds;

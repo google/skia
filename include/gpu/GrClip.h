@@ -10,7 +10,6 @@
 
 #include "GrFragmentProcessor.h"
 #include "GrTypesPriv.h"
-#include "SkClipStack.h"
 
 class GrDrawContext;
 
@@ -268,39 +267,6 @@ private:
     GrScissorState   fScissorState;
     SkRect           fDeviceBounds;
     bool             fHasStencilClip;
-};
-
-/**
- * GrClipStackClip can apply a generic SkClipStack to the draw state. It may generate clip masks or
- * write to the stencil buffer during apply().
- */
-class GrClipStackClip final : public GrClip {
-public:
-    GrClipStackClip(const SkClipStack* stack = nullptr, const SkIPoint* origin = nullptr) {
-        this->reset(stack, origin);
-    }
-
-    void reset(const SkClipStack* stack = nullptr, const SkIPoint* origin = nullptr) {
-        fOrigin = origin ? *origin : SkIPoint::Make(0, 0);
-        fStack.reset(SkSafeRef(stack));
-    }
-
-    const SkIPoint& origin() const { return fOrigin; }
-    const SkClipStack* clipStack() const { return fStack; }
-
-    bool quickContains(const SkRect&) const final;
-    void getConservativeBounds(int width, int height, SkIRect* devResult,
-                               bool* isIntersectionOfRects) const final;
-    bool apply(GrContext*,
-               GrDrawContext*,
-               const SkRect* devBounds,
-               bool useHWAA,
-               bool hasUserStencilSettings,
-               GrAppliedClip* out) const final;
-
-private:
-    SkIPoint                          fOrigin;
-    SkAutoTUnref<const SkClipStack>   fStack;
 };
 
 #endif

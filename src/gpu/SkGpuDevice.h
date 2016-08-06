@@ -15,6 +15,7 @@
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
+#include "GrClipStackClip.h"
 #include "GrDrawContext.h"
 #include "GrContext.h"
 #include "GrSurfacePriv.h"

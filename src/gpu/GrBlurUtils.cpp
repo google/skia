@@ -17,6 +17,7 @@
 #include "SkGrPriv.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
+#include "SkTLazy.h"
 
 static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& rect) {
     return clipBounds.isEmpty() || rect.isEmpty() || !SkIRect::Intersects(clipBounds, rect);

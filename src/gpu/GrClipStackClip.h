@@ -1,50 +1,44 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef GrClipMaskManager_DEFINED
-#define GrClipMaskManager_DEFINED
+#ifndef GrClipStackClip_DEFINED
+#define GrClipStackClip_DEFINED
+
+#include "GrClip.h"
 
 #include "GrReducedClip.h"
 #include "SkClipStack.h"
-#include "SkTypes.h"
 
-class GrAppliedClip;
-class GrClipStackClip;
-class GrContext;
-class GrDrawContext;
-class GrPathRenderer;
-class GrTexture;
 class GrTextureProvider;
-class GrUniqueKey;
-
+class GrPathRenderer;
 
 /**
- * The clip mask creator handles the generation of the clip mask. If anti
- * aliasing is requested it will (in the future) generate a single channel
- * (8bit) mask. If no anti aliasing is requested it will generate a 1-bit
- * mask in the stencil buffer. In the non anti-aliasing case, if the clip
- * mask can be represented as a rectangle then scissoring is used. In all
- * cases scissoring is used to bound the range of the clip mask.
+ * GrClipStackClip can apply a generic SkClipStack to the draw state. It may need to generate an
+ * 8-bit alpha clip mask and/or modify the stencil buffer during apply().
  */
-// This has to remain a class, for now, so it can be friended (by GrDrawContext & GrContext)
-class GrClipMaskManager {
+class GrClipStackClip final : public GrClip {
 public:
-    /**
-     * Creates a clip mask if necessary as a stencil buffer or alpha texture
-     * and sets the GrGpu's scissor and stencil state. If the return is false
-     * then the draw can be skipped. devBounds is optional but can help optimize
-     * clipping.
-     */
-    static bool SetupClipping(GrContext*,
-                              GrDrawContext*,
-                              const GrClipStackClip&,
-                              const SkRect* devBounds,
-                              bool useHWAA,
-                              bool hasUserStencilSettings,
-                              GrAppliedClip* out);
+    GrClipStackClip(const SkClipStack* stack = nullptr, const SkIPoint* origin = nullptr) {
+        this->reset(stack, origin);
+    }
+
+    void reset(const SkClipStack* stack = nullptr, const SkIPoint* origin = nullptr) {
+        fOrigin = origin ? *origin : SkIPoint::Make(0, 0);
+        fStack.reset(SkSafeRef(stack));
+    }
+
+    bool quickContains(const SkRect&) const final;
+    void getConservativeBounds(int width, int height, SkIRect* devResult,
+                               bool* isIntersectionOfRects) const final;
+    bool apply(GrContext*,
+               GrDrawContext*,
+               const SkRect* devBounds,
+               bool useHWAA,
+               bool hasUserStencilSettings,
+               GrAppliedClip* out) const final;
 
 private:
     static bool PathNeedsSWRenderer(GrContext* context,
@@ -89,6 +83,9 @@ private:
 
     static GrTexture* CreateCachedMask(int width, int height, const GrUniqueKey& key,
                                        bool renderTarget);
+
+    SkIPoint                          fOrigin;
+    SkAutoTUnref<const SkClipStack>   fStack;
 };
 
-#endif // GrClipMaskManager_DEFINED
+#endif // GrClipStackClip_DEFINED

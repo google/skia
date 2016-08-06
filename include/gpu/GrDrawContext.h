@@ -314,7 +314,6 @@ private:
     friend class GrDrawContextPriv;
     friend class GrTestTarget;  // for access to getDrawTarget
     friend class GrSWMaskHelper;                 // for access to drawBatch
-    friend class GrClipMaskManager;              // for access to drawBatch
 
     // All the path renderers currently make their own batches
     friend class GrSoftwarePathRenderer;         // for access to drawBatch

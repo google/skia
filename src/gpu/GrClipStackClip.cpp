@@ -1,27 +1,18 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#include "GrClipMaskManager.h"
-#include "GrCaps.h"
+#include "GrClipStackClip.h"
+
 #include "GrDrawingManager.h"
 #include "GrDrawContextPriv.h"
 #include "GrGpuResourcePriv.h"
-#include "GrPaint.h"
-#include "GrPathRenderer.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrResourceProvider.h"
 #include "GrStencilAttachment.h"
 #include "GrSWMaskHelper.h"
-#include "SkRasterClip.h"
-#include "SkTLazy.h"
-#include "batches/GrRectBatchFactory.h"
 #include "effects/GrConvexPolyEffect.h"
-#include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrRRectEffect.h"
 #include "effects/GrTextureDomain.h"
 
@@ -29,6 +20,29 @@ typedef SkClipStack::Element Element;
 typedef GrReducedClip::InitialState InitialState;
 
 static const int kMaxAnalyticElements = 4;
+
+bool GrClipStackClip::quickContains(const SkRect& rect) const {
+    if (!fStack) {
+        return true;
+    }
+    return fStack->quickContains(rect.makeOffset(SkIntToScalar(fOrigin.x()),
+                                                 SkIntToScalar(fOrigin.y())));
+}
+
+void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devResult,
+                                            bool* isIntersectionOfRects) const {
+    if (!fStack) {
+        devResult->setXYWH(0, 0, width, height);
+        if (isIntersectionOfRects) {
+            *isIntersectionOfRects = true;
+        }
+        return;
+    }
+    SkRect devBounds;
+    fStack->getConservativeBounds(-fOrigin.x(), -fOrigin.y(), width, height, &devBounds,
+                                  isIntersectionOfRects);
+    devBounds.roundOut(devResult);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // set up the draw state to enable the aa clipping mask. Besides setting up the
@@ -56,13 +70,13 @@ static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
 // Does the path in 'element' require SW rendering? If so, return true (and,
 // optionally, set 'prOut' to NULL. If not, return false (and, optionally, set
 // 'prOut' to the non-SW path renderer that will do the job).
-bool GrClipMaskManager::PathNeedsSWRenderer(GrContext* context,
-                                            bool hasUserStencilSettings,
-                                            const GrDrawContext* drawContext,
-                                            const SkMatrix& viewMatrix,
-                                            const Element* element,
-                                            GrPathRenderer** prOut,
-                                            bool needsStencil) {
+bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
+                                          bool hasUserStencilSettings,
+                                          const GrDrawContext* drawContext,
+                                          const SkMatrix& viewMatrix,
+                                          const Element* element,
+                                          GrPathRenderer** prOut,
+                                          bool needsStencil) {
     if (Element::kRect_Type == element->getType()) {
         // rects can always be drawn directly w/o using the software path
         // TODO: skip rrects once we're drawing them directly.
@@ -116,11 +130,11 @@ bool GrClipMaskManager::PathNeedsSWRenderer(GrContext* context,
  * will be used on any element. If so, it returns true to indicate that the
  * entire clip should be rendered in SW and then uploaded en masse to the gpu.
  */
-bool GrClipMaskManager::UseSWOnlyPath(GrContext* context,
-                                      bool hasUserStencilSettings,
-                                      const GrDrawContext* drawContext,
-                                      const SkVector& clipToMaskOffset,
-                                      const GrReducedClip::ElementList& elements) {
+bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
+                                    bool hasUserStencilSettings,
+                                    const GrDrawContext* drawContext,
+                                    const SkVector& clipToMaskOffset,
+                                    const GrReducedClip::ElementList& elements) {
     // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
@@ -227,14 +241,13 @@ static bool get_analytic_clip_processor(const GrReducedClip::ElementList& elemen
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
-bool GrClipMaskManager::SetupClipping(GrContext* context,
-                                      GrDrawContext* drawContext,
-                                      const GrClipStackClip& clip,
-                                      const SkRect* origDevBounds,
-                                      bool useHWAA,
-                                      bool hasUserStencilSettings,
-                                      GrAppliedClip* out) {
-    if (!clip.clipStack() || clip.clipStack()->isWideOpen()) {
+bool GrClipStackClip::apply(GrContext* context,
+                            GrDrawContext* drawContext,
+                            const SkRect* origDevBounds,
+                            bool useHWAA,
+                            bool hasUserStencilSettings,
+                            GrAppliedClip* out) const {
+    if (!fStack || fStack->isWideOpen()) {
         return true;
     }
 
@@ -243,15 +256,15 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
         return false;
     }
 
-    const SkScalar clipX = SkIntToScalar(clip.origin().x()),
-                   clipY = SkIntToScalar(clip.origin().y());
+    const SkScalar clipX = SkIntToScalar(fOrigin.x()),
+                   clipY = SkIntToScalar(fOrigin.y());
 
     GrReducedClip::ElementList elements;
     int32_t genID = 0;
     SkIRect clipSpaceIBounds;
     bool requiresAA = false;
 
-    InitialState initialState = GrReducedClip::ReduceClipStack(*clip.clipStack(),
+    InitialState initialState = GrReducedClip::ReduceClipStack(*fStack,
                                                                devBounds.makeOffset(clipX, clipY),
                                                                &elements,
                                                                &genID,
@@ -262,7 +275,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
             return false;
         } else {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
-            scissorSpaceIBounds.offset(-clip.origin());
+            scissorSpaceIBounds.offset(-fOrigin);
             if (!GrClip::IsInsideClip(scissorSpaceIBounds, devBounds)) {
                 out->makeScissored(scissorSpaceIBounds);
             }
@@ -293,7 +306,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
             get_analytic_clip_processor(elements, disallowAnalyticAA, {-clipX, -clipY}, devBounds,
                                         &clipFP)) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
-            scissorSpaceIBounds.offset(-clip.origin());
+            scissorSpaceIBounds.offset(-fOrigin);
             if (GrClip::IsInsideClip(scissorSpaceIBounds, devBounds)) {
                 out->makeFPBased(std::move(clipFP), SkRect::Make(scissorSpaceIBounds));
             } else {
@@ -338,7 +351,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
             // The mask's top left coord should be pinned to the rounded-out top left corner of
             // clipSpace bounds. We determine the mask's position WRT to the render target here.
             SkIRect rtSpaceMaskBounds = clipSpaceIBounds;
-            rtSpaceMaskBounds.offset(-clip.origin());
+            rtSpaceMaskBounds.offset(-fOrigin);
             out->makeFPBased(create_fp_for_mask(result.get(), rtSpaceMaskBounds),
                              SkRect::Make(rtSpaceMaskBounds));
             return true;
@@ -347,7 +360,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
     }
 
     // use the stencil clip if we can't represent the clip as a rectangle.
-    SkIPoint clipSpaceToStencilSpaceOffset = -clip.origin();
+    SkIPoint clipSpaceToStencilSpaceOffset = -fOrigin;
     CreateStencilClipMask(context,
                           drawContext,
                           genID,
@@ -443,12 +456,12 @@ static void GetClipMaskKey(int32_t clipGenID, const SkIRect& bounds, GrUniqueKey
     builder[2] = SkToU16(bounds.fTop) | (SkToU16(bounds.fBottom) << 16);
 }
 
-sk_sp<GrTexture> GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
-                                                        int32_t elementsGenID,
-                                                        GrReducedClip::InitialState initialState,
-                                                        const GrReducedClip::ElementList& elements,
-                                                        const SkVector& clipToMaskOffset,
-                                                        const SkIRect& clipSpaceIBounds) {
+sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
+                                                      int32_t elementsGenID,
+                                                      GrReducedClip::InitialState initialState,
+                                                      const GrReducedClip::ElementList& elements,
+                                                      const SkVector& clipToMaskOffset,
+                                                      const SkIRect& clipSpaceIBounds) {
     GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
     GetClipMaskKey(elementsGenID, clipSpaceIBounds, &key);
@@ -548,13 +561,13 @@ sk_sp<GrTexture> GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 1-bit clip mask in the stencil buffer. 'devClipBounds' are in device
 // (as opposed to canvas) coordinates
-bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
-                                              GrDrawContext* drawContext,
-                                              int32_t elementsGenID,
-                                              GrReducedClip::InitialState initialState,
-                                              const GrReducedClip::ElementList& elements,
-                                              const SkIRect& clipSpaceIBounds,
-                                              const SkIPoint& clipSpaceToStencilOffset) {
+bool GrClipStackClip::CreateStencilClipMask(GrContext* context,
+                                            GrDrawContext* drawContext,
+                                            int32_t elementsGenID,
+                                            GrReducedClip::InitialState initialState,
+                                            const GrReducedClip::ElementList& elements,
+                                            const SkIRect& clipSpaceIBounds,
+                                            const SkIPoint& clipSpaceToStencilOffset) {
     SkASSERT(drawContext);
 
     GrStencilAttachment* stencilAttachment = context->resourceProvider()->attachStencilAttachment(
@@ -620,9 +633,10 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                 canDrawArgs.fHasUserStencilSettings = false;
                 canDrawArgs.fIsStencilBufferMSAA = drawContext->isStencilBufferMultisampled();
 
-                pr = context->drawingManager()->getPathRenderer(canDrawArgs, false,
-                                                                GrPathRendererChain::kStencilOnly_DrawType,
-                                                                &stencilSupport);
+                GrDrawingManager* dm = context->drawingManager();
+                pr = dm->getPathRenderer(canDrawArgs, false,
+                                         GrPathRendererChain::kStencilOnly_DrawType,
+                                         &stencilSupport);
                 if (!pr) {
                     return false;
                 }
@@ -731,13 +745,12 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-sk_sp<GrTexture> GrClipMaskManager::CreateSoftwareClipMask(
-                                                    GrTextureProvider* texProvider,
-                                                    int32_t elementsGenID,
-                                                    GrReducedClip::InitialState initialState,
-                                                    const GrReducedClip::ElementList& elements,
-                                                    const SkVector& clipToMaskOffset,
-                                                    const SkIRect& clipSpaceIBounds) {
+sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texProvider,
+                                                         int32_t elementsGenID,
+                                                         GrReducedClip::InitialState initialState,
+                                                         const GrReducedClip::ElementList& elements,
+                                                         const SkVector& clipToMaskOffset,
+                                                         const SkIRect& clipSpaceIBounds) {
     GrUniqueKey key;
     GetClipMaskKey(elementsGenID, clipSpaceIBounds, &key);
     if (GrTexture* texture = texProvider->findAndRefTextureByUniqueKey(key)) {
