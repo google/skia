@@ -124,7 +124,7 @@ void SkLiteRecorder::onDrawBitmapNine(const SkBitmap& bm,
 void SkLiteRecorder::onDrawBitmapRect(const SkBitmap& bm,
                                       const SkRect* src, const SkRect& dst,
                                       const SkPaint* paint, SrcRectConstraint constraint) {
-    fDL->drawBitmapRect(bm, src, dst, paint, constraint == kStrict_SrcRectConstraint);
+    fDL->drawBitmapRect(bm, src, dst, paint, constraint);
 }
 
 void SkLiteRecorder::onDrawImage(const SkImage* img,
@@ -140,7 +140,7 @@ void SkLiteRecorder::onDrawImageNine(const SkImage* img,
 void SkLiteRecorder::onDrawImageRect(const SkImage* img,
                                       const SkRect* src, const SkRect& dst,
                                       const SkPaint* paint, SrcRectConstraint constraint) {
-    fDL->drawImageRect(img, src, dst, paint, constraint == kStrict_SrcRectConstraint);
+    fDL->drawImageRect(img, src, dst, paint, constraint);
 }
 void SkLiteRecorder::onDrawImageLattice(const SkImage* img,
                                         const SkCanvas::Lattice& lattice, const SkRect& dst,

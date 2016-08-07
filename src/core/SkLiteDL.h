@@ -15,9 +15,13 @@
 #include "SkRect.h"
 #include "SkTDArray.h"
 
+class GrContext;
+
 class SkLiteDL final : public SkDrawable {
 public:
     static sk_sp<SkLiteDL> New(SkRect);
+
+    void optimizeFor(GrContext*);
 
     void save();
     void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, uint32_t);
@@ -45,21 +49,24 @@ public:
     void drawPicture        (const SkPicture*, const SkMatrix*, const SkPaint*) {/*TODO*/}
     void drawShadowedPicture(const SkPicture*, const SkMatrix*, const SkPaint*) {/*TODO*/}
 
-    void drawText       (const void*, size_t, SkScalar, SkScalar, const SkPaint&) {/*TODO*/}
-    void drawPosText    (const void*, size_t, const SkPoint[], const SkPaint&) {/*TODO*/}
-    void drawPosTextH   (const void*, size_t, const SkScalar[], SkScalar, const SkPaint&) {/*TODO*/}
+    void drawText       (const void*, size_t, SkScalar, SkScalar, const SkPaint&);
+    void drawPosText    (const void*, size_t, const SkPoint[], const SkPaint&);
+    void drawPosTextH   (const void*, size_t, const SkScalar[], SkScalar, const SkPaint&);
     void drawTextOnPath (const void*, size_t, const SkPath&, const SkMatrix*, const SkPaint&) {/*TODO*/}
     void drawTextRSXForm(const void*, size_t, const SkRSXform[], const SkRect*, const SkPaint&) {/*TODO*/}
-    void drawTextBlob   (const SkTextBlob*, SkScalar,SkScalar, const SkPaint&) {/*TODO*/}
+    void drawTextBlob   (const SkTextBlob*, SkScalar,SkScalar, const SkPaint&);
 
-    void drawBitmap    (const SkBitmap&, SkScalar,SkScalar,     const SkPaint*) {/*TODO*/}
-    void drawBitmapNine(const SkBitmap&, SkIRect, const SkRect&,       const SkPaint*) {/*TODO*/}
-    void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*, bool) {/*TODO*/}
+    void drawBitmap    (const SkBitmap&, SkScalar, SkScalar,            const SkPaint*);
+    void drawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&, const SkPaint*);
+    void drawBitmapRect(const SkBitmap&, const SkRect*,  const SkRect&, const SkPaint*,
+                        SkCanvas::SrcRectConstraint);
 
-    void drawImage       (const SkImage*, SkScalar,SkScalar,     const SkPaint*) {/*TODO*/}
-    void drawImageNine   (const SkImage*, SkIRect, const SkRect&,       const SkPaint*) {/*TODO*/}
-    void drawImageRect   (const SkImage*, const SkRect*, const SkRect&, const SkPaint*, bool) {/*TODO*/}
-    void drawImageLattice(const SkImage*, SkCanvas::Lattice, const SkRect&, const SkPaint*) {/*TODO*/}
+    void drawImage    (const SkImage*, SkScalar,SkScalar,             const SkPaint*);
+    void drawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*);
+    void drawImageRect(const SkImage*, const SkRect*, const SkRect&,  const SkPaint*,
+                       SkCanvas::SrcRectConstraint);
+    void drawImageLattice(const SkImage*, const SkCanvas::Lattice&, const SkRect&, const SkPaint*)
+        {/*TODO*/}
 
     void drawPatch(const SkPoint[12], const SkColor[4], const SkPoint[4],
                    SkXfermode*, const SkPaint&) {/*TODO*/}
