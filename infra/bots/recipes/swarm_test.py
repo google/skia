@@ -84,6 +84,7 @@ def dm_flags(bot):
   if '-GCE-' in bot:
     configs.extend(['f16', 'srgb'])              # Gamma-correct formats.
     configs.extend(['sp-8888', '2ndpic-8888'])   # Test niche uses of SkPicture.
+    configs.extend(['lite-8888'])                # Experimental display list.
 
   if '-TSAN' not in bot:
     if ('TegraK1'  in bot or
@@ -247,6 +248,7 @@ def dm_flags(bot):
     blacklist.extend([    'sp-8888', 'gm', '_', test])
     blacklist.extend([   'pic-8888', 'gm', '_', test])
     blacklist.extend(['2ndpic-8888', 'gm', '_', test])
+    blacklist.extend([  'lite-8888', 'gm', '_', test])
   # skia:4703
   for test in ['image-cacherator-from-picture',
                'image-cacherator-from-raster',

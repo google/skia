@@ -1627,7 +1627,7 @@ Error ViaLite::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             return err;
         }
         dl->draw(canvas);
-        return ""; //check_against_reference(bitmap, src, fSink);
+        return check_against_reference(bitmap, src, fSink);
     });
 }
 

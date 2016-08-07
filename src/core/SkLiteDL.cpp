@@ -15,25 +15,24 @@
 #include "SkSpinlock.h"
 #include "SkTextBlob.h"
 
-// TODO: make sure DrawPosText and DrawPosTextH positions are aligned
-// (move the text after the positions).
-
 // A stand-in for an optional SkRect which was not set, e.g. bounds for a saveLayer().
 static const SkRect kUnset = {SK_ScalarInfinity, 0,0,0};
 static const SkRect* maybe_unset(const SkRect& r) {
     return r.left() == SK_ScalarInfinity ? nullptr : &r;
 }
 
-// memcpy_v(dst, src,bytes, src,bytes, ...) copies an arbitrary number of srcs into dst.
-static void memcpy_v(void* dst) {}
+// copy_v(dst, src,n, src,n, ...) copies an arbitrary number of typed srcs into dst.
+static void copy_v(void* dst) {}
 
-template <typename... Rest>
-static void memcpy_v(void* dst, const void* src, size_t bytes, Rest&&... rest) {
-    sk_careful_memcpy(dst, src, bytes);
-    memcpy_v(SkTAddOffset<void>(dst, bytes), std::forward<Rest>(rest)...);
+template <typename S, typename... Rest>
+static void copy_v(void* dst, const S* src, int n, Rest&&... rest) {
+    SkASSERTF(((uintptr_t)dst & (alignof(S)-1)) == 0,
+              "Expected %p to be aligned for at least %zu bytes.", dst, alignof(S));
+    sk_careful_memcpy(dst, src, n*sizeof(S));
+    copy_v(SkTAddOffset<void>(dst, n*sizeof(S)), std::forward<Rest>(rest)...);
 }
 
-// Helper for getting back at arrays which have been memcpy_v'd together after an Op.
+// Helper for getting back at arrays which have been copy_v'd together after an Op.
 template <typename D, typename T>
 static D* pod(T* op, size_t offset = 0) {
     return SkTAddOffset<D>(op+1, offset);
@@ -53,11 +52,18 @@ static void optimize_for(GrContext* ctx, SkPaint* paint, sk_sp<const SkImage>* i
     }
 }
 
+// Pre-cache lazy non-threadsafe fields on SkPath and/or SkMatrix.
+static void make_threadsafe(SkPath* path, SkMatrix* matrix) {
+    if (path)   { path->updateBoundsCache(); }
+    if (matrix) { (void)matrix->getType(); }
+}
+
 namespace {
     struct Op {
         virtual ~Op() {}
         virtual void draw(SkCanvas*) = 0;
         virtual void optimizeFor(GrContext*) {}
+        virtual void makeThreadsafe() {}
 
         size_t skip;
     };
@@ -86,11 +92,13 @@ namespace {
         Concat(const SkMatrix& matrix) : matrix(matrix) {}
         SkMatrix matrix;
         void draw(SkCanvas* c) override { c->concat(matrix); }
+        void makeThreadsafe() override { make_threadsafe(nullptr, &matrix); }
     };
     struct SetMatrix final : Op {
         SetMatrix(const SkMatrix& matrix) : matrix(matrix) {}
         SkMatrix matrix;
         void draw(SkCanvas* c) override { c->setMatrix(matrix); }
+        void makeThreadsafe() override { make_threadsafe(nullptr, &matrix); }
     };
     struct TranslateZ final : Op {
         TranslateZ(SkScalar dz) : dz(dz) {}
@@ -108,6 +116,7 @@ namespace {
         SkRegion::Op op;
         bool         aa;
         void draw(SkCanvas* c) override { c->clipPath(path, op, aa); }
+        void makeThreadsafe() override { make_threadsafe(&path, nullptr); }
     };
     struct ClipRect final : Op {
         ClipRect(const SkRect& rect, SkRegion::Op op, bool aa) : rect(rect), op(op), aa(aa) {}
@@ -142,6 +151,7 @@ namespace {
         SkPaint paint;
         void draw(SkCanvas* c) override { c->drawPath(path, paint); }
         void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
+        void makeThreadsafe() override { make_threadsafe(&path, nullptr); }
     };
     struct DrawRect final : Op {
         DrawRect(const SkRect& rect, const SkPaint& paint) : rect(rect), paint(paint) {}
@@ -183,21 +193,33 @@ namespace {
         DrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) : drawable(sk_ref_sp(drawable)) {
             if (matrix) { this->matrix = *matrix; }
         }
-        sk_sp<SkDrawable> drawable;
-        SkMatrix          matrix = SkMatrix::I();
-        void draw(SkCanvas* c) override { c->drawDrawable(drawable.get(), &matrix); }
+        sk_sp<SkDrawable>      drawable;
+        sk_sp<const SkPicture> snapped;
+        SkMatrix               matrix = SkMatrix::I();
+        void draw(SkCanvas* c) override {
+            snapped ? c->drawPicture(snapped.get(), &matrix, nullptr)
+                    : c->drawDrawable(drawable.get(), &matrix);
+        }
+        void makeThreadsafe() override {
+            snapped.reset(drawable->newPictureSnapshot());
+            make_threadsafe(nullptr, &matrix);
+        }
     };
     struct DrawPicture final : Op {
         DrawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint)
             : picture(sk_ref_sp(picture)) {
             if (matrix) { this->matrix = *matrix; }
-            if (paint)  { this->paint  = *paint;  }
+            if (paint)  { this->paint  = *paint; has_paint = true; }
         }
         sk_sp<const SkPicture> picture;
         SkMatrix               matrix = SkMatrix::I();
         SkPaint                paint;
-        void draw(SkCanvas* c) override { c->drawPicture(picture.get(), &matrix, &paint); }
+        bool                   has_paint = false;  // TODO: why is a default paint not the same?
+        void draw(SkCanvas* c) override {
+            c->drawPicture(picture.get(), &matrix, has_paint ? &paint : nullptr);
+        }
         void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
+        void makeThreadsafe() override { make_threadsafe(nullptr, &matrix); }
     };
     struct DrawShadowedPicture final : Op {
         DrawShadowedPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint)
@@ -214,6 +236,7 @@ namespace {
         #endif
         }
         void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
+        void makeThreadsafe() override { make_threadsafe(nullptr, &matrix); }
     };
 
     struct DrawImage final : Op {
@@ -284,23 +307,29 @@ namespace {
         void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
     };
     struct DrawPosText final : Op {
-        DrawPosText(size_t bytes, const SkPaint& paint)
-            : bytes(bytes), paint(paint) {}
+        DrawPosText(size_t bytes, const SkPaint& paint, int n)
+            : bytes(bytes), paint(paint), n(n) {}
         size_t bytes;
         SkPaint paint;
+        int n;
         void draw(SkCanvas* c) override {
-            c->drawPosText(pod<void>(this), bytes, pod<SkPoint>(this, bytes), paint);
+            auto points = pod<SkPoint>(this);
+            auto text   = pod<void>(this, n*sizeof(SkPoint));
+            c->drawPosText(text, bytes, points, paint);
         }
         void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
     };
     struct DrawPosTextH final : Op {
-        DrawPosTextH(size_t bytes, SkScalar y, const SkPaint& paint)
-            : bytes(bytes), y(y), paint(paint) {}
+        DrawPosTextH(size_t bytes, SkScalar y, const SkPaint& paint, int n)
+            : bytes(bytes), y(y), paint(paint), n(n) {}
         size_t   bytes;
         SkScalar y;
         SkPaint  paint;
+        int n;
         void draw(SkCanvas* c) override {
-            c->drawPosTextH(pod<void>(this), bytes, pod<SkScalar>(this, bytes), y, paint);
+            auto xs   = pod<SkScalar>(this);
+            auto text = pod<void>(this, n*sizeof(SkScalar));
+            c->drawPosTextH(text, bytes, xs, y, paint);
         }
         void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
     };
@@ -318,6 +347,7 @@ namespace {
             c->drawTextOnPath(pod<void>(this), bytes, path, &matrix, paint);
         }
         void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
+        void makeThreadsafe() override { make_threadsafe(&path, &matrix); }
     };
     struct DrawTextRSXform final : Op {
         DrawTextRSXform(size_t bytes, const SkRect* cull, const SkPaint& paint)
@@ -343,6 +373,27 @@ namespace {
         void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
     };
 
+    struct DrawPatch final : Op {
+        DrawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texs[4],
+                  SkXfermode* xfermode, const SkPaint& paint)
+            : xfermode(sk_ref_sp(xfermode)), paint(paint) {
+            copy_v(this->cubics, cubics, 12);
+            if (colors) { copy_v(this->colors, colors, 4); has_colors = true; }
+            if (texs  ) { copy_v(this->texs  , texs  , 4); has_texs   = true; }
+        }
+        SkPoint           cubics[12];
+        SkColor           colors[4];
+        SkPoint           texs[4];
+        sk_sp<SkXfermode> xfermode;
+        SkPaint           paint;
+        bool              has_colors = false;
+        bool              has_texs   = false;
+        void draw(SkCanvas* c) override {
+            c->drawPatch(cubics, has_colors ? colors : nullptr, has_texs ? texs : nullptr,
+                         xfermode.get(), paint);
+        }
+        void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
+    };
     struct DrawPoints final : Op {
         DrawPoints(SkCanvas::PointMode mode, size_t count, const SkPaint& paint)
             : mode(mode), count(count), paint(paint) {}
@@ -350,6 +401,44 @@ namespace {
         size_t              count;
         SkPaint             paint;
         void draw(SkCanvas* c) override { c->drawPoints(mode, count, pod<SkPoint>(this), paint); }
+        void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
+    };
+    struct DrawVertices final : Op {
+        DrawVertices(SkCanvas::VertexMode mode, int count, SkXfermode* xfermode, int nindices,
+                     const SkPaint& paint, bool has_texs, bool has_colors, bool has_indices)
+            : mode(mode), count(count), xfermode(sk_ref_sp(xfermode)), nindices(nindices)
+            , paint(paint), has_texs(has_texs), has_colors(has_colors), has_indices(has_indices) {}
+        SkCanvas::VertexMode mode;
+        int                  count;
+        sk_sp<SkXfermode>    xfermode;
+        int                  nindices;
+        SkPaint              paint;
+        bool                 has_texs;
+        bool                 has_colors;
+        bool                 has_indices;
+        void draw(SkCanvas* c) override {
+            SkPoint* vertices = pod<SkPoint>(this, 0);
+            size_t offset = count*sizeof(SkPoint);
+
+            SkPoint* texs = nullptr;
+            if (has_texs) {
+                texs = pod<SkPoint>(this, offset);
+                offset += count*sizeof(SkPoint);
+            }
+
+            SkColor* colors = nullptr;
+            if (has_colors) {
+                colors = pod<SkColor>(this, offset);
+                offset += count*sizeof(SkColor);
+            }
+
+            uint16_t* indices = nullptr;
+            if (has_indices) {
+                indices = pod<uint16_t>(this, offset);
+            }
+            c->drawVertices(mode, count, vertices, texs, colors, xfermode.get(),
+                            indices, nindices, paint);
+        }
         void optimizeFor(GrContext* ctx) override { optimize_for(ctx, &paint); }
     };
     struct DrawAtlas final : Op {
@@ -442,7 +531,7 @@ void SkLiteDL::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPa
 void SkLiteDL::drawAnnotation(const SkRect& rect, const char* key, SkData* value) {
     size_t bytes = strlen(key)+1;
     void* pod = push<DrawAnnotation>(&fBytes, bytes, rect, value);
-    memcpy_v(pod, key,bytes);
+    copy_v(pod, key,bytes);
 }
 void SkLiteDL::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     push<DrawDrawable>(&fBytes, 0, drawable, matrix);
@@ -484,46 +573,64 @@ void SkLiteDL::drawImageLattice(const SkImage* image, const SkCanvas::Lattice& l
     int xs = lattice.fXCount, ys = lattice.fYCount;
     size_t bytes = (xs + ys) * sizeof(int);
     void* pod = push<DrawImageLattice>(&fBytes, bytes, sk_ref_sp(image), xs, ys, dst, paint);
-    memcpy_v(pod, lattice.fXDivs,xs*sizeof(int),
-                  lattice.fYDivs,ys*sizeof(int));
+    copy_v(pod, lattice.fXDivs, xs,
+                lattice.fYDivs, ys);
 }
 
 void SkLiteDL::drawText(const void* text, size_t bytes,
                         SkScalar x, SkScalar y, const SkPaint& paint) {
     void* pod = push<DrawText>(&fBytes, bytes, bytes, x, y, paint);
-    memcpy_v(pod, text,bytes);
+    copy_v(pod, (const char*)text,bytes);
 }
 void SkLiteDL::drawPosText(const void* text, size_t bytes,
                            const SkPoint pos[], const SkPaint& paint) {
     int n = paint.countText(text, bytes);
-    void* pod = push<DrawPosText>(&fBytes, bytes+n*sizeof(SkPoint), bytes, paint);
-    memcpy_v(pod, text,bytes, pos,n*sizeof(SkPoint));
+    void* pod = push<DrawPosText>(&fBytes, n*sizeof(SkPoint)+bytes, bytes, paint, n);
+    copy_v(pod, pos,n, (const char*)text,bytes);
 }
 void SkLiteDL::drawPosTextH(const void* text, size_t bytes,
                            const SkScalar xs[], SkScalar y, const SkPaint& paint) {
     int n = paint.countText(text, bytes);
-    void* pod = push<DrawPosTextH>(&fBytes, bytes+n*sizeof(SkScalar), bytes, y, paint);
-    memcpy_v(pod, text,bytes, xs,n*sizeof(SkScalar));
+    void* pod = push<DrawPosTextH>(&fBytes, n*sizeof(SkScalar)+bytes, bytes, y, paint, n);
+    copy_v(pod, xs,n, (const char*)text,bytes);
 }
 void SkLiteDL::drawTextOnPath(const void* text, size_t bytes,
                               const SkPath& path, const SkMatrix* matrix, const SkPaint& paint) {
     void* pod = push<DrawTextOnPath>(&fBytes, bytes, bytes, path, matrix, paint);
-    memcpy_v(pod, text,bytes);
+    copy_v(pod, (const char*)text,bytes);
 }
 void SkLiteDL::drawTextRSXform(const void* text, size_t bytes,
                                const SkRSXform xforms[], const SkRect* cull, const SkPaint& paint) {
     int n = paint.countText(text, bytes);
     void* pod = push<DrawTextRSXform>(&fBytes, bytes+n*sizeof(SkRSXform), bytes, cull, paint);
-    memcpy_v(pod, text,bytes, xforms,n*sizeof(SkRSXform));
+    copy_v(pod, (const char*)text,bytes, xforms,n);
 }
 void SkLiteDL::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) {
     push<DrawTextBlob>(&fBytes, 0, blob, x,y, paint);
 }
 
+void SkLiteDL::drawPatch(const SkPoint points[12], const SkColor colors[4], const SkPoint texs[4],
+                         SkXfermode* xfermode, const SkPaint& paint) {
+    push<DrawPatch>(&fBytes, 0, points, colors, texs, xfermode, paint);
+}
 void SkLiteDL::drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint points[],
                           const SkPaint& paint) {
     void* pod = push<DrawPoints>(&fBytes, count*sizeof(SkPoint), mode, count, paint);
-    memcpy_v(pod, points,count*sizeof(SkPoint));
+    copy_v(pod, points,count);
+}
+void SkLiteDL::drawVertices(SkCanvas::VertexMode mode, int count, const SkPoint vertices[],
+                            const SkPoint texs[], const SkColor colors[], SkXfermode* xfermode,
+                            const uint16_t indices[], int nindices, const SkPaint& paint) {
+    size_t bytes = count * sizeof(SkPoint);
+    if (texs  )  { bytes += count    * sizeof(SkPoint); }
+    if (colors)  { bytes += count    * sizeof(SkColor); }
+    if (indices) { bytes += nindices * sizeof(uint16_t); }
+    void* pod = push<DrawVertices>(&fBytes, bytes, mode, count, xfermode, nindices, paint,
+                                   texs != nullptr, colors != nullptr, indices != nullptr);
+    copy_v(pod, vertices, count,
+                    texs, texs    ? count    : 0,
+                  colors, colors  ? count    : 0,
+                 indices, indices ? nindices : 0);
 }
 void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const SkRect texs[],
                          const SkColor colors[], int count, SkXfermode::Mode xfermode,
@@ -534,9 +641,9 @@ void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const S
     }
     void* pod = push<DrawAtlas>(&fBytes, bytes,
                                 atlas, count, xfermode, cull, paint, colors != nullptr);
-    memcpy_v(pod, xforms, count*sizeof(SkRSXform),
-                    texs, count*sizeof(SkRect),
-                  colors, colors ? count*sizeof(SkColor) : 0);
+    copy_v(pod, xforms, count,
+                  texs, count,
+                colors, colors ? count : 0);
 }
 
 
@@ -546,6 +653,10 @@ void SkLiteDL::onDraw(SkCanvas* canvas) {
 
 void SkLiteDL::optimizeFor(GrContext* ctx) {
     map(&fBytes, [ctx](Op* op) { op->optimizeFor(ctx); });
+}
+
+void SkLiteDL::makeThreadsafe() {
+    map(&fBytes, [](Op* op) { op->makeThreadsafe(); });
 }
 
 SkRect SkLiteDL::onGetBounds() {

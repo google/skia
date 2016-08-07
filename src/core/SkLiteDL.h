@@ -22,6 +22,7 @@ public:
     static sk_sp<SkLiteDL> New(SkRect);
 
     void optimizeFor(GrContext*);
+    void makeThreadsafe();
 
     void save();
     void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, SkCanvas::SaveLayerFlags);
@@ -35,7 +36,6 @@ public:
     void clipRect  (const   SkRect&, SkRegion::Op, bool aa);
     void clipRRect (const  SkRRect&, SkRegion::Op, bool aa);
     void clipRegion(const SkRegion&, SkRegion::Op);
-
 
     void drawPaint (const SkPaint&);
     void drawPath  (const SkPath&, const SkPaint&);
@@ -68,10 +68,10 @@ public:
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&, const SkRect&, const SkPaint*);
 
     void drawPatch(const SkPoint[12], const SkColor[4], const SkPoint[4],
-                   SkXfermode*, const SkPaint&) {/*TODO*/}
+                   SkXfermode*, const SkPaint&);
     void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&);
     void drawVertices(SkCanvas::VertexMode, int, const SkPoint[], const SkPoint[], const SkColor[],
-                      SkXfermode*, const uint16_t[], int, const SkPaint&) {/*TODO*/}
+                      SkXfermode*, const uint16_t[], int, const SkPaint&);
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
                    SkXfermode::Mode, const SkRect*, const SkPaint*);
 
