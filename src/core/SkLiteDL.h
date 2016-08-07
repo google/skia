@@ -24,12 +24,12 @@ public:
     void optimizeFor(GrContext*);
 
     void save();
-    void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, uint32_t);
+    void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, SkCanvas::SaveLayerFlags);
     void restore();
 
     void    concat (const SkMatrix&);
     void setMatrix (const SkMatrix&);
-    void translateZ(SkScalar) {/*TODO*/}
+    void translateZ(SkScalar);
 
     void clipPath  (const   SkPath&, SkRegion::Op, bool aa);
     void clipRect  (const   SkRect&, SkRegion::Op, bool aa);
@@ -44,16 +44,16 @@ public:
     void drawRRect (const SkRRect&, const SkPaint&);
     void drawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 
-    void drawAnnotation     (const SkRect&, const char*, SkData*) {/*TODO*/}
-    void drawDrawable       (SkDrawable*, const SkMatrix*) {/*TODO*/}
-    void drawPicture        (const SkPicture*, const SkMatrix*, const SkPaint*) {/*TODO*/}
-    void drawShadowedPicture(const SkPicture*, const SkMatrix*, const SkPaint*) {/*TODO*/}
+    void drawAnnotation     (const SkRect&, const char*, SkData*);
+    void drawDrawable       (SkDrawable*, const SkMatrix*);
+    void drawPicture        (const SkPicture*, const SkMatrix*, const SkPaint*);
+    void drawShadowedPicture(const SkPicture*, const SkMatrix*, const SkPaint*);
 
     void drawText       (const void*, size_t, SkScalar, SkScalar, const SkPaint&);
     void drawPosText    (const void*, size_t, const SkPoint[], const SkPaint&);
     void drawPosTextH   (const void*, size_t, const SkScalar[], SkScalar, const SkPaint&);
-    void drawTextOnPath (const void*, size_t, const SkPath&, const SkMatrix*, const SkPaint&) {/*TODO*/}
-    void drawTextRSXForm(const void*, size_t, const SkRSXform[], const SkRect*, const SkPaint&) {/*TODO*/}
+    void drawTextOnPath (const void*, size_t, const SkPath&, const SkMatrix*, const SkPaint&);
+    void drawTextRSXform(const void*, size_t, const SkRSXform[], const SkRect*, const SkPaint&);
     void drawTextBlob   (const SkTextBlob*, SkScalar,SkScalar, const SkPaint&);
 
     void drawBitmap    (const SkBitmap&, SkScalar, SkScalar,            const SkPaint*);
@@ -65,16 +65,15 @@ public:
     void drawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*);
     void drawImageRect(const SkImage*, const SkRect*, const SkRect&,  const SkPaint*,
                        SkCanvas::SrcRectConstraint);
-    void drawImageLattice(const SkImage*, const SkCanvas::Lattice&, const SkRect&, const SkPaint*)
-        {/*TODO*/}
+    void drawImageLattice(const SkImage*, const SkCanvas::Lattice&, const SkRect&, const SkPaint*);
 
     void drawPatch(const SkPoint[12], const SkColor[4], const SkPoint[4],
                    SkXfermode*, const SkPaint&) {/*TODO*/}
-    void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&) {/*TODO*/}
+    void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&);
     void drawVertices(SkCanvas::VertexMode, int, const SkPoint[], const SkPoint[], const SkColor[],
                       SkXfermode*, const uint16_t[], int, const SkPaint&) {/*TODO*/}
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
-                   SkXfermode::Mode, const SkRect*, const SkPaint*) {/*TODO*/}
+                   SkXfermode::Mode, const SkRect*, const SkPaint*);
 
 private:
     SkLiteDL();

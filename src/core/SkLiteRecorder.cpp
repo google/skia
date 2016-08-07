@@ -103,7 +103,7 @@ void SkLiteRecorder::onDrawTextOnPath(const void* text, size_t bytes,
 void SkLiteRecorder::onDrawTextRSXform(const void* text, size_t bytes,
                                        const SkRSXform xform[], const SkRect* cull,
                                        const SkPaint& paint) {
-    fDL->drawTextRSXForm(text, bytes, xform, cull, paint);
+    fDL->drawTextRSXform(text, bytes, xform, cull, paint);
 }
 void SkLiteRecorder::onDrawTextBlob(const SkTextBlob* blob,
                                     SkScalar x, SkScalar y,
