@@ -52,28 +52,19 @@ private:
     // Draws the clip into the stencil buffer
     static bool CreateStencilClipMask(GrContext*,
                                       GrDrawContext*,
-                                      int32_t elementsGenID,
-                                      GrReducedClip::InitialState initialState,
-                                      const GrReducedClip::ElementList& elements,
-                                      const SkIRect& clipSpaceIBounds,
+                                      const GrReducedClip&,
                                       const SkIPoint& clipSpaceToStencilOffset);
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
     static sk_sp<GrTexture> CreateAlphaClipMask(GrContext*,
-                                                int32_t elementsGenID,
-                                                GrReducedClip::InitialState initialState,
-                                                const GrReducedClip::ElementList& elements,
-                                                const SkVector& clipToMaskOffset,
-                                                const SkIRect& clipSpaceIBounds);
+                                                const GrReducedClip&,
+                                                const SkVector& clipToMaskOffset);
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
     static sk_sp<GrTexture> CreateSoftwareClipMask(GrTextureProvider*,
-                                                   int32_t elementsGenID,
-                                                   GrReducedClip::InitialState initialState,
-                                                   const GrReducedClip::ElementList& elements,
-                                                   const SkVector& clipToMaskOffset,
-                                                   const SkIRect& clipSpaceIBounds);
+                                                   const GrReducedClip&,
+                                                   const SkVector& clipToMaskOffset);
 
    static bool UseSWOnlyPath(GrContext*,
                              bool hasUserStencilSettings,

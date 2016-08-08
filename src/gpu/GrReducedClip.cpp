@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -23,9 +23,11 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
     //  b) an operation that is known to make the bounds all inside/outside
     //  c) a replace operation
 
-    static const GrReducedClip::InitialState kUnknown_InitialState =
-        static_cast<GrReducedClip::InitialState>(-1);
-    GrReducedClip::InitialState initialState = kUnknown_InitialState;
+    enum class InitialTriState {
+        kUnknown = -1,
+        kAllIn = (int)GrReducedClip::InitialState::kAllIn,
+        kAllOut = (int)GrReducedClip::InitialState::kAllOut
+    } initialState = InitialTriState::kUnknown;
 
     // During our backwards walk, track whether we've seen ops that either grow or shrink the clip.
     // TODO: track these per saved clip so that we can consider them on the forward pass.
@@ -39,18 +41,18 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
 
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
     int numAAElements = 0;
-    while (kUnknown_InitialState == initialState) {
+    while (InitialTriState::kUnknown == initialState) {
         const Element* element = iter.prev();
         if (nullptr == element) {
-            initialState = GrReducedClip::kAllIn_InitialState;
+            initialState = InitialTriState::kAllIn;
             break;
         }
         if (SkClipStack::kEmptyGenID == element->getGenID()) {
-            initialState = GrReducedClip::kAllOut_InitialState;
+            initialState = InitialTriState::kAllOut;
             break;
         }
         if (SkClipStack::kWideOpenGenID == element->getGenID()) {
-            initialState = GrReducedClip::kAllIn_InitialState;
+            initialState = InitialTriState::kAllIn;
             break;
         }
 
@@ -65,12 +67,12 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
                     if (element->contains(relaxedQueryBounds)) {
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = InitialTriState::kAllOut;
                         skippable = true;
                     }
                 } else {
                     if (element->contains(relaxedQueryBounds)) {
-                        initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = InitialTriState::kAllOut;
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         skippable = true;
@@ -86,7 +88,7 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
                 // empty.
                 if (element->isInverseFilled()) {
                     if (element->contains(relaxedQueryBounds)) {
-                        initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = InitialTriState::kAllOut;
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         skippable = true;
@@ -95,7 +97,7 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
                     if (element->contains(relaxedQueryBounds)) {
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = InitialTriState::kAllOut;
                         skippable = true;
                     }
                 }
@@ -111,12 +113,12 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
                     if (element->contains(relaxedQueryBounds)) {
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialState = GrReducedClip::kAllIn_InitialState;
+                        initialState = InitialTriState::kAllIn;
                         skippable = true;
                     }
                 } else {
                     if (element->contains(relaxedQueryBounds)) {
-                        initialState = GrReducedClip::kAllIn_InitialState;
+                        initialState = InitialTriState::kAllIn;
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         skippable = true;
@@ -155,7 +157,7 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
                 // all outside the current clip.B
                 if (element->isInverseFilled()) {
                     if (element->contains(relaxedQueryBounds)) {
-                        initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = InitialTriState::kAllOut;
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         isFlip = true;
@@ -164,7 +166,7 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
                     if (element->contains(relaxedQueryBounds)) {
                         isFlip = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = InitialTriState::kAllOut;
                         skippable = true;
                     }
                 }
@@ -180,23 +182,23 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
                 // setting the correct value for initialState.
                 if (element->isInverseFilled()) {
                     if (element->contains(relaxedQueryBounds)) {
-                        initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = InitialTriState::kAllOut;
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialState = GrReducedClip::kAllIn_InitialState;
+                        initialState = InitialTriState::kAllIn;
                         skippable = true;
                     }
                 } else {
                     if (element->contains(relaxedQueryBounds)) {
-                        initialState = GrReducedClip::kAllIn_InitialState;
+                        initialState = InitialTriState::kAllIn;
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = InitialTriState::kAllOut;
                         skippable = true;
                     }
                 }
                 if (!skippable) {
-                    initialState = GrReducedClip::kAllOut_InitialState;
+                    initialState = InitialTriState::kAllOut;
                     embiggens = emsmallens = true;
                 }
                 break;
@@ -230,16 +232,16 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
                     newElement->invertShapeFillType();
                     newElement->setOp(SkRegion::kDifference_Op);
                     if (isReplace) {
-                        SkASSERT(GrReducedClip::kAllOut_InitialState == initialState);
-                        initialState = GrReducedClip::kAllIn_InitialState;
+                        SkASSERT(InitialTriState::kAllOut == initialState);
+                        initialState = InitialTriState::kAllIn;
                     }
                 }
             }
         }
     }
 
-    if ((GrReducedClip::kAllOut_InitialState == initialState && !embiggens) ||
-        (GrReducedClip::kAllIn_InitialState == initialState && !emsmallens)) {
+    if ((InitialTriState::kAllOut == initialState && !embiggens) ||
+        (InitialTriState::kAllIn == initialState && !emsmallens)) {
         result->reset();
         numAAElements = 0;
     } else {
@@ -249,20 +251,20 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
             switch (element->getOp()) {
                 case SkRegion::kDifference_Op:
                     // subtracting from the empty set yields the empty set.
-                    skippable = GrReducedClip::kAllOut_InitialState == initialState;
+                    skippable = InitialTriState::kAllOut == initialState;
                     break;
                 case SkRegion::kIntersect_Op:
                     // intersecting with the empty set yields the empty set
-                    if (GrReducedClip::kAllOut_InitialState == initialState) {
+                    if (InitialTriState::kAllOut == initialState) {
                         skippable = true;
                     } else {
                         // We can clear to zero and then simply draw the clip element.
-                        initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = InitialTriState::kAllOut;
                         element->setOp(SkRegion::kReplace_Op);
                     }
                     break;
                 case SkRegion::kUnion_Op:
-                    if (GrReducedClip::kAllIn_InitialState == initialState) {
+                    if (InitialTriState::kAllIn == initialState) {
                         // unioning the infinite plane with anything is a no-op.
                         skippable = true;
                     } else {
@@ -271,23 +273,23 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
                     }
                     break;
                 case SkRegion::kXOR_Op:
-                    if (GrReducedClip::kAllOut_InitialState == initialState) {
+                    if (InitialTriState::kAllOut == initialState) {
                         // xor could be changed to diff in the kAllIn case, not sure it's a win.
                         element->setOp(SkRegion::kReplace_Op);
                     }
                     break;
                 case SkRegion::kReverseDifference_Op:
-                    if (GrReducedClip::kAllIn_InitialState == initialState) {
+                    if (InitialTriState::kAllIn == initialState) {
                         // subtracting the whole plane will yield the empty set.
                         skippable = true;
-                        initialState = GrReducedClip::kAllOut_InitialState;
+                        initialState = InitialTriState::kAllOut;
                     } else {
                         // this picks up flips inserted in the backwards pass.
                         skippable = element->isInverseFilled() ?
                             GrClip::IsOutsideClip(element->getBounds(), queryBounds) :
                             element->contains(relaxedQueryBounds);
                         if (skippable) {
-                            initialState = GrReducedClip::kAllIn_InitialState;
+                            initialState = InitialTriState::kAllIn;
                         } else {
                             element->setOp(SkRegion::kReplace_Op);
                         }
@@ -315,7 +317,7 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
     *requiresAA = numAAElements > 0;
 
     if (0 == result->count()) {
-        if (initialState == GrReducedClip::kAllIn_InitialState) {
+        if (initialState == InitialTriState::kAllIn) {
             *resultGenID = SkClipStack::kWideOpenGenID;
         } else {
             *resultGenID = SkClipStack::kEmptyGenID;
@@ -323,7 +325,8 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
     }
 
     SkASSERT(SkClipStack::kInvalidGenID != *resultGenID);
-    return initialState;
+    SkASSERT(InitialTriState::kUnknown != initialState);
+    return static_cast<GrReducedClip::InitialState>(initialState);
 }
 
 /*
@@ -333,25 +336,20 @@ for the case where the bounds are kInsideOut_BoundsType. We could restrict earli
 based on later intersect operations, and perhaps remove intersect-rects. We could optionally
 take a rect in case the caller knows a bound on what is to be drawn through this clip.
 */
-GrReducedClip::InitialState GrReducedClip::ReduceClipStack(const SkClipStack& stack,
-                                                           const SkRect& queryBounds,
-                                                           ElementList* result,
-                                                           int32_t* resultGenID,
-                                                           SkIRect* clipIBounds,
-                                                           bool* requiresAA) {
+GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds) {
     SkASSERT(!queryBounds.isEmpty());
-    result->reset();
 
     // The clip established by the element list might be cached based on the last
     // generation id. When we make early returns, we do not know what was the generation
     // id that lead to the state. Make a conservative guess.
-    *resultGenID = stack.getTopmostGenID();
+    fGenID = stack.getTopmostGenID();
 
     // TODO: instead devise a way of telling the caller to disregard some or all of the clip bounds.
-    *clipIBounds = GrClip::GetPixelIBounds(queryBounds);
+    fIBounds = GrClip::GetPixelIBounds(queryBounds);
 
     if (stack.isWideOpen()) {
-        return kAllIn_InitialState;
+        fInitialState = InitialState::kAllIn;
+        return;
     }
 
     SkClipStack::BoundsType stackBoundsType;
@@ -361,7 +359,8 @@ GrReducedClip::InitialState GrReducedClip::ReduceClipStack(const SkClipStack& st
 
     if (stackBounds.isEmpty() || GrClip::IsOutsideClip(stackBounds, queryBounds)) {
         bool insideOut = SkClipStack::kInsideOut_BoundsType == stackBoundsType;
-        return insideOut ? kAllIn_InitialState : kAllOut_InitialState;
+        fInitialState = insideOut ? InitialState::kAllIn : InitialState::kAllOut;
+        return;
     }
 
     if (iior) {
@@ -371,31 +370,39 @@ GrReducedClip::InitialState GrReducedClip::ReduceClipStack(const SkClipStack& st
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
         if (!iter.prev()->isAA() || GrClip::IsPixelAligned(stackBounds)) {
             // The clip is a non-aa rect. This is the one spot where we can actually implement the
-            // clip (using clipIBounds) rather than just telling the caller what it should be.
-            stackBounds.round(clipIBounds);
-            return kAllIn_InitialState;
+            // clip (using fIBounds) rather than just telling the caller what it should be.
+            stackBounds.round(&fIBounds);
+            fInitialState = fIBounds.isEmpty() ? InitialState::kAllOut : InitialState::kAllIn;
+            return;
         }
         if (GrClip::IsInsideClip(stackBounds, queryBounds)) {
-            return kAllIn_InitialState;
+            fInitialState = InitialState::kAllIn;
+            return;
         }
 
-        // Implement the clip with an AA rect element.
-        result->addToHead(stackBounds, SkRegion::kReplace_Op, true/*doAA*/);
-        *requiresAA = true;
+        SkAssertResult(fIBounds.intersect(GrClip::GetPixelIBounds(stackBounds)));
+        SkASSERT(!fIBounds.isEmpty()); // Empty should have been blocked by IsOutsideClip above.
 
-        SkAssertResult(clipIBounds->intersect(GrClip::GetPixelIBounds(stackBounds)));
-        return kAllOut_InitialState;
+        // Implement the clip with an AA rect element.
+        fElements.addToHead(stackBounds, SkRegion::kReplace_Op, true/*doAA*/);
+        fRequiresAA = true;
+
+        fInitialState = InitialState::kAllOut;
+        return;
     }
 
     SkRect tighterQuery = queryBounds;
     if (SkClipStack::kNormal_BoundsType == stackBoundsType) {
         // Tighten the query by introducing a new clip at the stack's pixel boundaries. (This new
-        // clip will be enforced by the scissor through clipIBounds.)
+        // clip will be enforced by the scissor through fIBounds.)
         SkAssertResult(tighterQuery.intersect(GrClip::GetPixelBounds(stackBounds)));
-        *clipIBounds = GrClip::GetPixelIBounds(tighterQuery);
+        fIBounds = GrClip::GetPixelIBounds(tighterQuery);
     }
+
+    SkASSERT(!fIBounds.isEmpty()); // Empty should have been blocked by IsOutsideClip above.
 
     // Now that we have determined the bounds to use and filtered out the trivial cases, call the
     // helper that actually walks the stack.
-    return reduced_stack_walker(stack, tighterQuery, *clipIBounds, result, resultGenID, requiresAA);
+    fInitialState = reduced_stack_walker(stack, tighterQuery, fIBounds, &fElements, &fGenID,
+                                         &fRequiresAA);
 }

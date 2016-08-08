@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -11,37 +11,57 @@
 #include "SkClipStack.h"
 #include "SkTLList.h"
 
+/**
+ * This class takes a clip stack and produces a reduced set of elements that are equivalent to
+ * applying that full stack within a specified query rectangle.
+ */
 class SK_API GrReducedClip {
 public:
+    GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds);
+
+    /**
+     * Uniquely identifies this reduced clip.
+     */
+    int32_t genID() const { return fGenID; }
+
+    /**
+     * Bounding box within which the reduced clip is valid. The caller must not draw any pixels
+     * outside this box.
+     */
+    const SkIRect& iBounds() const { return fIBounds; }
+    int left() const { return this->iBounds().left(); }
+    int top() const { return this->iBounds().top(); }
+    int width() const { return this->iBounds().width(); }
+    int height() const { return this->iBounds().height(); }
+
     typedef SkTLList<SkClipStack::Element, 16> ElementList;
 
-    enum InitialState {
-        kAllIn_InitialState,
-        kAllOut_InitialState,
+    /**
+     * Populated with a minimal list of elements that implement the clip.
+     */
+    const ElementList& elements() const { return fElements; }
+
+    /**
+     * Indicates whether antialiasing is required to process any of the clip elements.
+     */
+    bool requiresAA() const { return fRequiresAA; }
+
+    enum class InitialState : bool {
+        kAllIn,
+        kAllOut
     };
 
     /**
-     * This function produces a reduced set of SkClipStack::Elements that are equivalent to applying
-     * a full clip stack within a specified query rectangle.
-     *
-     * @param stack          the clip stack to reduce.
-     * @param queryBounds    bounding box of geometry the stack will clip.
-     * @param result         populated with a minimal list of elements that implement the clip
-     *                       within the provided query bounds.
-     * @param resultGenID    uniquely identifies the resulting reduced clip.
-     * @param clipIBounds    bounding box within which the reduced clip is valid. The caller must
-     *                       not draw any pixels outside this box. NOTE: this box may be undefined
-     *                       if no pixels are valid (e.g. empty result, "all out" initial state.)
-     * @param requiresAA     indicates whether anti-aliasing is required to process any of the
-     *                       elements in the element list result. Undefined if the result is empty.
-     * @return the initial clip state within clipIBounds ("all in" or "all out").
+     * The initial state of the clip within iBounds().
      */
-    static InitialState ReduceClipStack(const SkClipStack& stack,
-                                        const SkRect& queryBounds,
-                                        ElementList* result,
-                                        int32_t* resultGenID,
-                                        SkIRect* clipIBounds,
-                                        bool* requiresAA);
+    InitialState initialState() const { return fInitialState; }
+
+private:
+    int32_t        fGenID;
+    SkIRect        fIBounds;
+    ElementList    fElements;
+    bool           fRequiresAA;
+    InitialState   fInitialState;
 };
 
 #endif

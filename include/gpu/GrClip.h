@@ -129,12 +129,12 @@ public:
      */
     template<typename TRect> constexpr static bool IsInsideClip(const TRect& innerClipBounds,
                                                                 const SkRect& queryBounds) {
-        return innerClipBounds.fRight - innerClipBounds.fLeft >= kBoundsTolerance &&
-               innerClipBounds.fBottom - innerClipBounds.fTop >= kBoundsTolerance &&
-               innerClipBounds.fLeft <= queryBounds.fLeft + kBoundsTolerance &&
-               innerClipBounds.fTop <= queryBounds.fTop + kBoundsTolerance &&
-               innerClipBounds.fRight >= queryBounds.fRight - kBoundsTolerance &&
-               innerClipBounds.fBottom >= queryBounds.fBottom - kBoundsTolerance;
+        return innerClipBounds.fRight - innerClipBounds.fLeft > kBoundsTolerance &&
+               innerClipBounds.fBottom - innerClipBounds.fTop > kBoundsTolerance &&
+               innerClipBounds.fLeft < queryBounds.fLeft + kBoundsTolerance &&
+               innerClipBounds.fTop < queryBounds.fTop + kBoundsTolerance &&
+               innerClipBounds.fRight > queryBounds.fRight - kBoundsTolerance &&
+               innerClipBounds.fBottom > queryBounds.fBottom - kBoundsTolerance;
     }
 
     /**
@@ -145,12 +145,12 @@ public:
      */
     template<typename TRect> constexpr static bool IsOutsideClip(const TRect& outerClipBounds,
                                                                  const SkRect& queryBounds) {
-        return outerClipBounds.fRight - outerClipBounds.fLeft < kBoundsTolerance ||
-               outerClipBounds.fBottom - outerClipBounds.fTop < kBoundsTolerance ||
-               outerClipBounds.fLeft > queryBounds.fRight - kBoundsTolerance ||
-               outerClipBounds.fTop > queryBounds.fBottom - kBoundsTolerance ||
-               outerClipBounds.fRight < queryBounds.fLeft + kBoundsTolerance ||
-               outerClipBounds.fBottom < queryBounds.fTop + kBoundsTolerance;
+        return outerClipBounds.fRight - outerClipBounds.fLeft <= kBoundsTolerance ||
+               outerClipBounds.fBottom - outerClipBounds.fTop <= kBoundsTolerance ||
+               outerClipBounds.fLeft >= queryBounds.fRight - kBoundsTolerance ||
+               outerClipBounds.fTop >= queryBounds.fBottom - kBoundsTolerance ||
+               outerClipBounds.fRight <= queryBounds.fLeft + kBoundsTolerance ||
+               outerClipBounds.fBottom <= queryBounds.fTop + kBoundsTolerance;
     }
 
     /**

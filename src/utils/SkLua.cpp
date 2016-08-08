@@ -644,22 +644,9 @@ int SkLua::lcanvas_getReducedClipStack(lua_State* L) {
 #if SK_SUPPORT_GPU
     const SkCanvas* canvas = get_ref<SkCanvas>(L, 1);
     SkRect queryBounds = SkRect::Make(canvas->getTopLayerBounds());
+    const GrReducedClip reducedClip(*canvas->getClipStack(), queryBounds);
 
-    GrReducedClip::ElementList elements;
-    int32_t genID;
-    SkIRect resultBounds;
-    bool requiresAA;
-
-    const SkClipStack& stack = *canvas->getClipStack();
-
-    GrReducedClip::ReduceClipStack(stack,
-                                   queryBounds,
-                                   &elements,
-                                   &genID,
-                                   &resultBounds,
-                                   &requiresAA);
-
-    GrReducedClip::ElementList::Iter iter(elements);
+    GrReducedClip::ElementList::Iter iter(reducedClip.elements());
     int i = 0;
     lua_newtable(L);
     while(iter.get()) {
