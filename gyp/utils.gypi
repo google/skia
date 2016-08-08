@@ -42,6 +42,8 @@
         '<(skia_src_path)/utils/SkCanvasStack.h',
         '<(skia_src_path)/utils/SkCanvasStack.cpp',
         '<(skia_src_path)/utils/SkCanvasStateUtils.cpp',
+        '<(skia_src_path)/utils/SkCurveMeasure.cpp',
+        '<(skia_src_path)/utils/SkCurveMeasure.h',
         '<(skia_src_path)/utils/SkDashPath.cpp',
         '<(skia_src_path)/utils/SkDashPathPriv.h',
         '<(skia_src_path)/utils/SkDeferredCanvas.cpp',
