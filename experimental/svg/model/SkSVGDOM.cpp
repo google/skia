@@ -82,6 +82,18 @@ bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+SkString TrimmedString(const char* first, const char* last) {
+    SkASSERT(first);
+    SkASSERT(last);
+    SkASSERT(first <= last);
+
+    while (first <= last && *first <= ' ') { first++; }
+    while (first <= last && *last  <= ' ') { last--; }
+
+    SkASSERT(last - first + 1 >= 0);
+    return SkString(first, SkTo<size_t>(last - first + 1));
+}
+
 // Breaks a "foo: bar; baz: ..." string into key:value pairs.
 class StyleIterator {
 public:
@@ -96,8 +108,8 @@ public:
 
             const char* valueSep = strchr(fPos, ':');
             if (valueSep && valueSep < sep) {
-                name.set(fPos, valueSep - fPos);
-                value.set(valueSep + 1, sep - valueSep - 1);
+                name  = TrimmedString(fPos, valueSep - 1);
+                value = TrimmedString(valueSep + 1, sep - 1);
             }
 
             fPos = *sep ? sep + 1 : nullptr;

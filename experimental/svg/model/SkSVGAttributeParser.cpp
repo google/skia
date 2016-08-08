@@ -152,13 +152,20 @@ bool SkSVGAttributeParser::parseHexColorToken(SkColor* c) {
 bool SkSVGAttributeParser::parseColor(SkSVGColorType* color) {
     SkColor c;
 
+    // consume preceding whitespace
+    this->parseWSToken();
+
     // TODO: rgb(...)
+    bool parsedValue = false;
     if (this->parseHexColorToken(&c) || this->parseNamedColorToken(&c)) {
         *color = SkSVGColorType(c);
-        return true;
+        parsedValue = true;
+
+        // consume trailing whitespace
+        this->parseWSToken();
     }
 
-    return false;
+    return parsedValue && this->parseEOSToken();
 }
 
 // https://www.w3.org/TR/SVG/types.html#DataTypeNumber
