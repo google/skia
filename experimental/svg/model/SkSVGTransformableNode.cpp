@@ -12,13 +12,13 @@
 
 SkSVGTransformableNode::SkSVGTransformableNode(SkSVGTag tag)
     : INHERITED(tag)
-    , fMatrix(SkMatrix::I()) { }
+    , fTransform(SkMatrix::I()) { }
 
 
 bool SkSVGTransformableNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
-    if (!fMatrix.isIdentity()) {
+    if (!fTransform.value().isIdentity()) {
         ctx->canvas()->save();
-        ctx->canvas()->concat(fMatrix);
+        ctx->canvas()->concat(fTransform);
     }
 
     return this->INHERITED::onPrepareToRender(ctx);

@@ -18,6 +18,7 @@ public:
     bool parseNumber(SkSVGNumberType*);
     bool parseLength(SkSVGLength*);
     bool parseViewBox(SkSVGViewBoxType*);
+    bool parseTransform(SkSVGTransformType*);
 
 private:
     // Stack-only
@@ -36,6 +37,19 @@ private:
     bool parseLengthUnitToken(SkSVGLength::Unit*);
     bool parseNamedColorToken(SkColor*);
     bool parseHexColorToken(SkColor*);
+
+    // Transform helpers
+    bool parseMatrixToken(SkMatrix*);
+    bool parseTranslateToken(SkMatrix*);
+    bool parseScaleToken(SkMatrix*);
+    bool parseRotateToken(SkMatrix*);
+    bool parseSkewXToken(SkMatrix*);
+    bool parseSkewYToken(SkMatrix*);
+
+    // Parses a sequence of 'WS* <prefix> WS* (<nested>)', where the nested sequence
+    // is handled by the passed functor.
+    template <typename Func, typename T>
+    bool parseParenthesized(const char* prefix, Func, T* result);
 
     // The current position in the input string.
     const char* fCurPos;

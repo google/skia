@@ -9,6 +9,7 @@
 #define SkSVGTypes_DEFINED
 
 #include "SkColor.h"
+#include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
@@ -29,9 +30,10 @@ private:
     T fValue;
 };
 
-using SkSVGColorType   = SkSVGPrimitiveTypeWrapper<SkColor >;
-using SkSVGNumberType  = SkSVGPrimitiveTypeWrapper<SkScalar>;
-using SkSVGViewBoxType = SkSVGPrimitiveTypeWrapper<SkRect  >;
+using SkSVGColorType      = SkSVGPrimitiveTypeWrapper<SkColor >;
+using SkSVGNumberType     = SkSVGPrimitiveTypeWrapper<SkScalar>;
+using SkSVGViewBoxType    = SkSVGPrimitiveTypeWrapper<SkRect  >;
+using SkSVGTransformType  = SkSVGPrimitiveTypeWrapper<SkMatrix>;
 
 class SkSVGLength {
 public:

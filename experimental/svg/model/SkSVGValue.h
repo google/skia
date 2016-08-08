@@ -61,10 +61,10 @@ private:
     typedef SkSVGValue INHERITED;
 };
 
-using SkSVGColorValue     = SkSVGWrapperValue<SkSVGColorType  , SkSVGValue::Type::kColor    >;
-using SkSVGLengthValue    = SkSVGWrapperValue<SkSVGLength     , SkSVGValue::Type::kLength   >;
-using SkSVGPathValue      = SkSVGWrapperValue<SkPath          , SkSVGValue::Type::kPath     >;
-using SkSVGTransformValue = SkSVGWrapperValue<SkMatrix        , SkSVGValue::Type::kTransform>;
-using SkSVGViewBoxValue   = SkSVGWrapperValue<SkSVGViewBoxType, SkSVGValue::Type::kViewBox  >;
+using SkSVGColorValue     = SkSVGWrapperValue<SkSVGColorType    , SkSVGValue::Type::kColor    >;
+using SkSVGLengthValue    = SkSVGWrapperValue<SkSVGLength       , SkSVGValue::Type::kLength   >;
+using SkSVGPathValue      = SkSVGWrapperValue<SkPath            , SkSVGValue::Type::kPath     >;
+using SkSVGTransformValue = SkSVGWrapperValue<SkSVGTransformType, SkSVGValue::Type::kTransform>;
+using SkSVGViewBoxValue   = SkSVGWrapperValue<SkSVGViewBoxType  , SkSVGValue::Type::kViewBox  >;
 
 #endif // SkSVGValue_DEFINED

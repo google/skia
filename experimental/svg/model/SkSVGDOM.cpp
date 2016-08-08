@@ -7,7 +7,6 @@
 
 #include "SkCanvas.h"
 #include "SkDOM.h"
-#include "SkParse.h"
 #include "SkParsePath.h"
 #include "SkString.h"
 #include "SkSVGAttributeParser.h"
@@ -23,53 +22,6 @@
 #include "SkTSearch.h"
 
 namespace {
-
-const char* ParseScalarPair(const char* str, SkScalar v[2]) {
-    str = SkParse::FindScalar(str, v);
-    if (str) {
-        const char* second = SkParse::FindScalar(str, v + 1);
-        if (!second) {
-            v[1] = v[0];
-        } else {
-            str = second;
-        }
-    }
-
-    return str;
-}
-
-SkMatrix ParseTransform(const char* str) {
-    SkMatrix m = SkMatrix::I();
-
-    // FIXME: real parser
-    if (!strncmp(str, "matrix(", 7)) {
-        SkScalar values[6];
-        str = SkParse::FindScalars(str + 7, values, 6);
-        if (str) {
-            m.setAffine(values);
-        }
-    } else if (!strncmp(str, "scale(", 6)) {
-        SkScalar values[2];
-        str = ParseScalarPair(str + 6, values);
-        if (str) {
-            m.setScale(values[0], values[1]);
-        }
-    } else if (!strncmp(str, "translate(", 10)) {
-        SkScalar values[2];
-        str = ParseScalarPair(str + 10, values);
-        if (str) {
-            m.setTranslate(values[0], values[1]);
-        }
-    } else if (!strncmp(str, "rotate(", 7)) {
-        SkScalar value;
-        str = SkParse::FindScalar(str + 7, &value);
-        if (str) {
-            m.setRotate(value);
-        }
-    }
-
-    return m;
-}
 
 bool SetPaintAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                        const char* stringValue) {
@@ -96,7 +48,13 @@ bool SetPathDataAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
 
 bool SetTransformAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                            const char* stringValue) {
-    node->setAttribute(attr, SkSVGTransformValue(ParseTransform(stringValue)));
+    SkSVGTransformType transform;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseTransform(&transform)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGTransformValue(transform));
     return true;
 }
 

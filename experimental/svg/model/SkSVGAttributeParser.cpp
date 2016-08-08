@@ -211,3 +211,144 @@ bool SkSVGAttributeParser::parseViewBox(SkSVGViewBoxType* vb) {
     }
     return parsedValue && this->parseEOSToken();
 }
+
+template <typename Func, typename T>
+bool SkSVGAttributeParser::parseParenthesized(const char* prefix, Func f, T* result) {
+    this->parseWSToken();
+    if (prefix && !this->parseExpectedStringToken(prefix)) {
+        return false;
+    }
+    this->parseWSToken();
+    if (!this->parseExpectedStringToken("(")) {
+        return false;
+    }
+    this->parseWSToken();
+
+    if (!f(result)) {
+        return false;
+    }
+    this->parseWSToken();
+
+    return this->parseExpectedStringToken(")");
+}
+
+bool SkSVGAttributeParser::parseMatrixToken(SkMatrix* matrix) {
+    return this->parseParenthesized("matrix", [this](SkMatrix* m) -> bool {
+        SkScalar scalars[6];
+        for (int i = 0; i < 6; ++i) {
+            if (!(this->parseScalarToken(scalars + i) &&
+                  (i > 4 || this->parseSepToken()))) {
+                return false;
+            }
+        }
+
+        m->setAll(scalars[0], scalars[2], scalars[4], scalars[1], scalars[3], scalars[5], 0, 0, 1);
+        return true;
+    }, matrix);
+}
+
+bool SkSVGAttributeParser::parseTranslateToken(SkMatrix* matrix) {
+    return this->parseParenthesized("translate", [this](SkMatrix* m) -> bool {
+        SkScalar tx, ty;
+        this->parseWSToken();
+        if (!this->parseScalarToken(&tx)) {
+            return false;
+        }
+
+        if (!(this->parseSepToken() && this->parseScalarToken(&ty))) {
+            ty = tx;
+        }
+
+        m->setTranslate(tx, ty);
+        return true;
+    }, matrix);
+}
+
+bool SkSVGAttributeParser::parseScaleToken(SkMatrix* matrix) {
+    return this->parseParenthesized("scale", [this](SkMatrix* m) -> bool {
+        SkScalar sx, sy;
+        if (!this->parseScalarToken(&sx)) {
+            return false;
+        }
+
+        if (!(this->parseSepToken() && this->parseScalarToken(&sy))) {
+            sy = sx;
+        }
+
+        m->setScale(sx, sy);
+        return true;
+    }, matrix);
+}
+
+bool SkSVGAttributeParser::parseRotateToken(SkMatrix* matrix) {
+    return this->parseParenthesized("rotate", [this](SkMatrix* m) -> bool {
+        SkScalar angle;
+        if (!this->parseScalarToken(&angle)) {
+            return false;
+        }
+
+        SkScalar cx = 0;
+        SkScalar cy = 0;
+        // optional [<cx> <cy>]
+        if (this->parseSepToken() && this->parseScalarToken(&cx)) {
+            if (!(this->parseSepToken() && this->parseScalarToken(&cy))) {
+                return false;
+            }
+        }
+
+        m->setRotate(angle, cx, cy);
+        return true;
+    }, matrix);
+}
+
+bool SkSVGAttributeParser::parseSkewXToken(SkMatrix* matrix) {
+    return this->parseParenthesized("skewX", [this](SkMatrix* m) -> bool {
+        SkScalar angle;
+        if (!this->parseScalarToken(&angle)) {
+            return false;
+        }
+        m->setSkewX(angle);
+        return true;
+    }, matrix);
+}
+
+bool SkSVGAttributeParser::parseSkewYToken(SkMatrix* matrix) {
+    return this->parseParenthesized("skewY", [this](SkMatrix* m) -> bool {
+        SkScalar angle;
+        if (!this->parseScalarToken(&angle)) {
+            return false;
+        }
+        m->setSkewY(angle);
+        return true;
+    }, matrix);
+}
+
+// https://www.w3.org/TR/SVG/coords.html#TransformAttribute
+bool SkSVGAttributeParser::parseTransform(SkSVGTransformType* t) {
+    SkMatrix matrix = SkMatrix::I();
+
+    bool parsed = false;
+    while (true) {
+        SkMatrix m;
+
+        if (!( this->parseMatrixToken(&m)
+            || this->parseTranslateToken(&m)
+            || this->parseScaleToken(&m)
+            || this->parseRotateToken(&m)
+            || this->parseSkewXToken(&m)
+            || this->parseSkewYToken(&m))) {
+            break;
+        }
+
+        matrix.preConcat(m);
+        parsed = true;
+    }
+
+    this->parseWSToken();
+    if (!parsed || !this->parseEOSToken()) {
+        return false;
+    }
+
+    *t = SkSVGTransformType(matrix);
+    return true;
+}

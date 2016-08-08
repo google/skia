@@ -15,7 +15,7 @@ class SkSVGTransformableNode : public SkSVGNode {
 public:
     virtual ~SkSVGTransformableNode() = default;
 
-    void setTransform(const SkMatrix& m) { fMatrix = m; }
+    void setTransform(const SkSVGTransformType& t) { fTransform = t; }
 
 protected:
     SkSVGTransformableNode(SkSVGTag);
@@ -26,7 +26,7 @@ protected:
 
 private:
     // FIXME: should be sparse
-    SkMatrix fMatrix;
+    SkSVGTransformType fTransform;
 
     typedef SkSVGNode INHERITED;
 };
