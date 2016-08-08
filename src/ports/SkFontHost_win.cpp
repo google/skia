@@ -1818,29 +1818,6 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
         }
     }
 
-    if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
-        info->setGlyphWidths(
-            glyphCount,
-            glyphIDs,
-            glyphIDsCount,
-            SkAdvancedTypefaceMetrics::GetAdvance([hdc](int gId, int16_t* advance) {
-                // Initialize the MAT2 structure to
-                // the identify transformation matrix.
-                static const MAT2 mat2 = {
-                    SkScalarToFIXED(1), SkScalarToFIXED(0),
-                    SkScalarToFIXED(0), SkScalarToFIXED(1)};
-                int flags = GGO_METRICS | GGO_GLYPH_INDEX;
-                GLYPHMETRICS gm;
-                if (GDI_ERROR == GetGlyphOutline(hdc, gId, flags, &gm, 0, nullptr, &mat2)) {
-                    return false;
-                }
-                SkASSERT(advance);
-                *advance = gm.gmCellIncX;
-                return true;
-            })
-        );
-    }
-
 Error:
 ReturnInfo:
     SelectObject(hdc, savefont);

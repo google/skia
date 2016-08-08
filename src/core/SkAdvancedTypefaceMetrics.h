@@ -39,27 +39,7 @@ public:
         , fCapHeight(0)
         , fBBox(SkIRect::MakeEmpty()) {}
 
-    ~SkAdvancedTypefaceMetrics();
-
-    /** Retrieve advance data for glyphs. Used by the PDF backend. It
-        calls underlying platform dependent API getAdvance to acquire
-        the data.
-        @param num_glyphs    Total number of glyphs in the given font.
-        @param glyphIDs      For per-glyph info, specify subset of the
-                             font by giving glyph ids.  Each integer
-                             represents a glyph id.  Passing nullptr
-                             means all glyphs in the font.
-        @param glyphIDsCount Number of elements in subsetGlyphIds.
-                             Ignored if glyphIDs is nullptr.
-        @param  getAdvance   A function that takes a glyph id and
-                             passes back advance data from the
-                             typeface.  Returns false on failure.
-    */
-    typedef std::function<bool(int glyphId, int16_t* advanceData)> GetAdvance;
-    void setGlyphWidths(int num_glyphs,
-                        const uint32_t* subsetGlyphIDs,
-                        uint32_t subsetGlyphIDsLength,
-                        GetAdvance getAdvance);
+    ~SkAdvancedTypefaceMetrics() {}
 
     SkString fFontName;
 
@@ -108,47 +88,12 @@ public:
 
     SkIRect fBBox;  // The bounding box of all glyphs (in font units).
 
-    template <typename Data>
-    struct AdvanceMetric {
-        enum MetricType {
-            kDefault,  // Default advance: fAdvance.count = 1
-            kRange,    // Advances for a range: fAdvance.count = fEndID-fStartID
-            kRun       // fStartID-fEndID have same advance: fAdvance.count = 1
-        };
-        MetricType fType;
-        uint16_t fStartId;
-        uint16_t fEndId;
-        SkTDArray<Data> fAdvance;
-        AdvanceMetric(uint16_t startId) : fStartId(startId) {}
-        AdvanceMetric(AdvanceMetric&& other) = default;
-        AdvanceMetric& operator=(AdvanceMetric&& other) = default;
-        AdvanceMetric(const AdvanceMetric&) = delete;
-        AdvanceMetric& operator=(const AdvanceMetric&) = delete;
-    };
-
-    struct VerticalMetric {
-        int16_t fVerticalAdvance;
-        int16_t fOriginXDisp;  // Horiz. displacement of the secondary origin.
-        int16_t fOriginYDisp;  // Vert. displacement of the secondary origin.
-    };
-    typedef AdvanceMetric<int16_t> WidthRange;
-    typedef AdvanceMetric<VerticalMetric> VerticalAdvanceRange;
-
-    // This is indexed by glyph id.
-    SkSinglyLinkedList<WidthRange> fGlyphWidths;
-    // Only used for Vertical CID fonts.
-    SkSinglyLinkedList<VerticalAdvanceRange> fVerticalMetrics;
-
     // The names of each glyph, only populated for postscript fonts.
-    SkAutoTDelete<SkAutoTArray<SkString> > fGlyphNames;
+    SkTArray<SkString> fGlyphNames;
 
     // The mapping from glyph to Unicode, only populated if
     // kToUnicode_PerGlyphInfo is passed to GetAdvancedTypefaceMetrics.
     SkTDArray<SkUnichar> fGlyphToUnicode;
-
-    static void FinishRange(WidthRange* range,
-                            int endId,
-                            WidthRange::MetricType type);
 
 private:
     typedef SkRefCnt INHERITED;

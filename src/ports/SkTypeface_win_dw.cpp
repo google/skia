@@ -419,50 +419,6 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
                                     (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMax),
                                     (int32_t)SkEndian_SwapBE16((uint16_t)headTable->xMax),
                                     (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMin));
-
-    //TODO: is this even desired? It seems PDF only wants this value for Type1
-    //fonts, and we only get here for TrueType fonts.
-    info->fStemV = 0;
-    /*
-    // Figure out a good guess for StemV - Min width of i, I, !, 1.
-    // This probably isn't very good with an italic font.
-    int16_t min_width = SHRT_MAX;
-    info->fStemV = 0;
-    char stem_chars[] = {'i', 'I', '!', '1'};
-    for (size_t i = 0; i < SK_ARRAY_COUNT(stem_chars); i++) {
-        ABC abcWidths;
-        if (GetCharABCWidths(hdc, stem_chars[i], stem_chars[i], &abcWidths)) {
-            int16_t width = abcWidths.abcB;
-            if (width > 0 && width < min_width) {
-                min_width = width;
-                info->fStemV = min_width;
-            }
-        }
-    }
-    */
-
-    if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
-        if (fixedWidth) {
-            SkAdvancedTypefaceMetrics::WidthRange range(0);
-            int16_t advance;
-            getWidthAdvance(fDWriteFontFace.get(), 1, &advance);
-            range.fAdvance.append(1, &advance);
-            SkAdvancedTypefaceMetrics::FinishRange(
-                    &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
-            info->fGlyphWidths.emplace_back(std::move(range));
-        } else {
-            IDWriteFontFace* borrowedFontFace = fDWriteFontFace.get();
-            info->setGlyphWidths(
-                glyphCount,
-                glyphIDs,
-                glyphIDsCount,
-                SkAdvancedTypefaceMetrics::GetAdvance([borrowedFontFace](int gId, int16_t* data) {
-                    return getWidthAdvance(borrowedFontFace, gId, data);
-                })
-            );
-        }
-    }
-
     return info;
 }
 #endif//defined(SK_BUILD_FOR_WIN32)

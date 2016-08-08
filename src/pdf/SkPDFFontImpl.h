@@ -52,6 +52,8 @@ private:
                            const SkTDArray<uint32_t>* subset);
 };
 
+struct AdvanceMetric;
+
 class SkPDFType1Font final : public SkPDFFont {
 public:
     virtual ~SkPDFType1Font();
@@ -68,7 +70,7 @@ private:
     bool populate(int16_t glyphID);
     bool addFontDescriptor(int16_t defaultWidth);
     void addWidthInfoFromRange(int16_t defaultWidth,
-        const SkAdvancedTypefaceMetrics::WidthRange* widthRangeEntry);
+        const AdvanceMetric* widthRangeEntry);
 };
 
 class SkPDFType3Font final : public SkPDFFont {

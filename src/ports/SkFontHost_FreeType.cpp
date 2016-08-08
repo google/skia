@@ -577,38 +577,17 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
         perGlyphInfo = kNo_PerGlyphInfo;
     }
 
-    if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
-        info->setGlyphWidths(
-            face->num_glyphs,
-            glyphIDs,
-            glyphIDsCount,
-            SkAdvancedTypefaceMetrics::GetAdvance([face](int gId, int16_t* data) {
-                FT_Fixed advance = 0;
-                if (FT_Get_Advances(face, gId, 1, FT_LOAD_NO_SCALE, &advance)) {
-                    return false;
-                }
-                SkASSERT(data);
-                *data = advance;
-                return true;
-            })
-        );
-    }
-
-    if (perGlyphInfo & kVAdvance_PerGlyphInfo && FT_HAS_VERTICAL(face)) {
-        SkASSERT(false);  // Not implemented yet.
-    }
-
     if (perGlyphInfo & kGlyphNames_PerGlyphInfo &&
         info->fType == SkAdvancedTypefaceMetrics::kType1_Font)
     {
         // Postscript fonts may contain more than 255 glyphs, so we end up
         // using multiple font descriptions with a glyph ordering.  Record
         // the name of each glyph.
-        info->fGlyphNames.reset(new SkAutoTArray<SkString>(face->num_glyphs));
+        info->fGlyphNames.reset(face->num_glyphs);
         for (int gID = 0; gID < face->num_glyphs; gID++) {
             char glyphName[128];  // PS limit for names is 127 bytes.
             FT_Get_Glyph_Name(face, gID, glyphName, 128);
-            info->fGlyphNames->get()[gID].set(glyphName);
+            info->fGlyphNames[gID].set(glyphName);
         }
     }
 

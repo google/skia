@@ -18,7 +18,6 @@
         '<(skia_src_path)/core/Sk4px.h',
         '<(skia_src_path)/core/SkAAClip.cpp',
         '<(skia_src_path)/core/SkAnnotation.cpp',
-        '<(skia_src_path)/core/SkAdvancedTypefaceMetrics.cpp',
         '<(skia_src_path)/core/SkAdvancedTypefaceMetrics.h',
         '<(skia_src_path)/core/SkAlphaRuns.cpp',
         '<(skia_src_path)/core/SkAntiRun.h',
