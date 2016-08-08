@@ -58,8 +58,8 @@ public:
 
     class LightingShaderContext : public SkShader::Context {
     public:
-        // The context takes ownership of the states. It will call their destructors
-        // but will NOT free the memory.
+        // The context takes ownership of the context and provider. It will call their destructors
+        // and then indirectly free their memory by calling free() on heapAllocated
         LightingShaderContext(const SkLightingShaderImpl&, const ContextRec&,
                               SkShader::Context* diffuseContext, SkNormalSource::Provider*,
                               void* heapAllocated);
