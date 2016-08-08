@@ -49,7 +49,9 @@ SkImageInfo SkBitmapProvider::info() const {
 
 bool SkBitmapProvider::isVolatile() const {
     if (fImage) {
-        return false;   // add flag to images?
+        // add flag to images?
+        const SkBitmap* bm = as_IB(fImage)->onPeekBitmap();
+        return bm ? bm->isVolatile() : false;
     } else {
         return fBitmap.isVolatile();
     }
