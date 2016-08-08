@@ -186,7 +186,7 @@ public:
     }
 
     void addSegment(SkScalar d0, SkScalar d1, SkPath* path) const {
-        SkASSERT(d0 < fPathLength);
+        SkASSERT(d0 <= fPathLength);
         // clamp the segment to our length
         if (d1 > fPathLength) {
             d1 = fPathLength;
