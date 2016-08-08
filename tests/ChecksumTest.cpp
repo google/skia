@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkChecksum.h"
 #include "SkOpts.h"
 #include "SkRandom.h"
 #include "Test.h"
