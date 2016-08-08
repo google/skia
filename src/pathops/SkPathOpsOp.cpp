@@ -198,7 +198,7 @@ static const bool gOutInverse[kReverseDifference_SkPathOp + 1][2][2] = {
 static void dump_path(FILE* file, const SkPath& path, bool force, bool dumpAsHex) {
     SkDynamicMemoryWStream wStream;
     path.dump(&wStream, force, dumpAsHex);
-    SkAutoDataUnref data(wStream.copyToData());
+    sk_sp<SkData> data(wStream.copyToData());
     fprintf(file, "%.*s\n", (int) data->size(), data->data());
 }
 
@@ -234,7 +234,7 @@ static void dump_op(const SkPath& one, const SkPath& two, SkPathOp op) {
 
 SK_DECLARE_STATIC_MUTEX(debugWorstLoop);
 
-SkOpGlobalState debugWorstState(nullptr, nullptr  SkDEBUGPARAMS(nullptr));
+SkOpGlobalState debugWorstState(nullptr, nullptr  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
 
 void ReportPathOpsDebugging() {
     debugWorstState.debugLoopReport();

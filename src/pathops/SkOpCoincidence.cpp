@@ -461,6 +461,9 @@ bool SkOpCoincidence::addExpanded() {
                 }
             }
             if (test != end) {
+                if (!test->upCastable()) {
+                    return false;
+                }
                 test = test->upCast()->next();
             }
             if (oTest != oEnd) {
@@ -606,7 +609,9 @@ bool SkOpCoincidence::addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over1e,
 bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
         double coinTs, double coinTe, double oppTs, double oppTe) {
     SkTDArray<SkCoincidentSpans*> overlaps;
-    SkASSERT(fTop);
+    if (!fTop) {
+        return false;
+    }
     if (!this->checkOverlap(fTop, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, &overlaps)) {
         return false;
     }
@@ -683,6 +688,9 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
             : coinSeg->addT(coinTs, SkOpSegment::kNoAliasMatch, nullptr);
         SkOpPtT* osWritable = os ? const_cast<SkOpPtT*>(os)
             : oppSeg->addT(oppTs, SkOpSegment::kNoAliasMatch, nullptr);
+        if (!osWritable) {
+            return false;
+        }
         csWritable->span()->addOppAndMerge(osWritable->span());
         cs = csWritable;
         os = osWritable;
@@ -1379,6 +1387,9 @@ bool SkOpCoincidence::mark() {
             }
         }
         while ((oNext = oNext->upCast()->next()) != oEnd) {
+            if (!oNext->upCastable()) {
+                return false;
+            }
             if (!oNext->upCast()->insertCoincidence(segment, flipped)) {
                 return false;
             }
