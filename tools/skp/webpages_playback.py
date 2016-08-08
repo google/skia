@@ -77,8 +77,6 @@ SKPICTURES_DIR_NAME = 'skps'
 PARTNERS_GS_BUCKET = 'gs://chrome-partner-telemetry'
 
 # Local archive and SKP directories.
-LOCAL_PLAYBACK_ROOT_DIR = os.path.join(
-    tempfile.gettempdir(), ROOT_PLAYBACK_DIR_NAME)
 LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'page_sets', 'data')
 TMP_SKP_DIR = tempfile.mkdtemp()
@@ -232,10 +230,6 @@ class SkPicturePlayback(object):
         os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, 'skia_*')):
       os.remove(archive_file)
 
-    # Delete the local root directory if it already exists.
-    if os.path.exists(LOCAL_PLAYBACK_ROOT_DIR):
-      shutil.rmtree(LOCAL_PLAYBACK_ROOT_DIR)
-
     # Create the required local storage directories.
     self._CreateLocalStorageDirs()
 
@@ -367,7 +361,7 @@ class SkPicturePlayback(object):
         dest_dir_name = self._alternate_upload_dir
 
       self.gs.upload_dir_contents(
-          LOCAL_PLAYBACK_ROOT_DIR, dest_dir=dest_dir_name,
+          self._local_skp_dir, dest_dir=dest_dir_name,
           upload_if=gs_utils.GSUtils.UploadIf.IF_MODIFIED,
           predefined_acl=GS_PREDEFINED_ACL,
           fine_grained_acl_list=GS_FINE_GRAINED_ACL_LIST)
@@ -379,15 +373,16 @@ class SkPicturePlayback(object):
     else:
       print '\n\n=======Not Uploading to %s=======\n\n' % self.gs.target_type()
       print 'Generated resources are available in %s\n\n' % (
-          LOCAL_PLAYBACK_ROOT_DIR)
+          self._local_skp_dir)
 
     if self._upload_to_partner_bucket:
       print '\n\n=======Uploading to Partner bucket %s =======\n\n' % (
           PARTNERS_GS_BUCKET)
       partner_gs = GoogleStorageDataStore(PARTNERS_GS_BUCKET)
       partner_gs.delete_path(SKPICTURES_DIR_NAME)
+      print 'Uploading %s to %s' % (self._local_skp_dir, SKPICTURES_DIR_NAME)
       partner_gs.upload_dir_contents(
-          os.path.join(LOCAL_PLAYBACK_ROOT_DIR, SKPICTURES_DIR_NAME),
+          self._local_skp_dir,
           dest_dir=SKPICTURES_DIR_NAME,
           upload_if=gs_utils.GSUtils.UploadIf.IF_MODIFIED)
       print '\n\n=======New SKPs have been uploaded to %s =======\n\n' % (
