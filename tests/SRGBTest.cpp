@@ -33,6 +33,7 @@ DEF_TEST(sk_linear_to_srgb, r) {
 
         union { float flt; uint32_t bits; } pun = { f };
         pun.bits++;
+        SkDEBUGCODE(pun.bits += 127);
         f = pun.flt;
     }
 }
