@@ -130,7 +130,8 @@ class iOSFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def cleanup_steps(self):
     """Run any device-specific cleanup steps."""
-    if self.m.vars.do_test_steps or self.m.vars.do_perf_steps:
+    if self.m.vars.role in (self.m.builder_name_schema.BUILDER_ROLE_TEST, 
+                            self.m.builder_name_schema.BUILDER_ROLE_PERF):
       self.m.run(
           self.m.step,
           name='reboot',

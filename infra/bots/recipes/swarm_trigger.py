@@ -6,6 +6,7 @@
 # Recipe module for Skia Swarming trigger.
 
 
+import os
 import json
 
 
@@ -66,22 +67,22 @@ def derive_compile_bot_name(api):
   if builder_cfg['role'] == 'Housekeeper':
     return 'Build-Ubuntu-GCC-x86_64-Release-Shared'
   if builder_cfg['role'] in ('Test', 'Perf'):
-    os = builder_cfg['os']
+    task_os = builder_cfg['os']
     extra_config = builder_cfg.get('extra_config')
-    if os == 'Android':
+    if task_os == 'Android':
       if extra_config == 'Vulkan':
-        extra_config = '%s_%s' % (os, 'Vulkan')
+        extra_config = '%s_%s' % (task_os, 'Vulkan')
       else:
-        extra_config = os
-      os = 'Ubuntu'
-    elif os == 'iOS':
-      extra_config = os
-      os = 'Mac'
-    elif 'Win' in os:
-      os = 'Win'
+        extra_config = task_os
+      task_os = 'Ubuntu'
+    elif task_os == 'iOS':
+      extra_config = task_os
+      task_os = 'Mac'
+    elif 'Win' in task_os:
+      task_os = 'Win'
     return api.builder_name_schema.MakeBuilderName(
         role=api.builder_name_schema.BUILDER_ROLE_BUILD,
-        os=os,
+        os=task_os,
         compiler=builder_cfg['compiler'],
         target_arch=builder_cfg['arch'],
         configuration=builder_cfg['configuration'],
@@ -90,22 +91,35 @@ def derive_compile_bot_name(api):
   return builder_name
 
 
-def swarm_dimensions(builder_spec):
+def swarm_dimensions(builder_cfg):
   """Return a dict of keys and values to be used as Swarming bot dimensions."""
   dimensions = {
     'pool': 'Skia',
   }
-  builder_cfg = builder_spec['builder_cfg']
   dimensions['os'] = builder_cfg.get('os', 'Ubuntu')
   if 'Win' in builder_cfg.get('os', ''):
     dimensions['os'] = 'Windows'
   if builder_cfg['role'] in ('Test', 'Perf'):
     if 'Android' in builder_cfg['os']:
       # For Android, the device type is a better dimension than CPU or GPU.
-      dimensions['device_type'] = builder_spec['product.board']
+      dimensions['device_type'] = {
+        'AndroidOne':    'sprout',
+        'GalaxyS3':      'm0',  #'smdk4x12', Detected incorrectly by swarming?
+        'GalaxyS4':      None,  # TODO(borenet,kjlubick)
+        'NVIDIA_Shield': 'foster',
+        'Nexus10':       'manta',
+        'Nexus5':        'hammerhead',
+        'Nexus6':        'shamu',
+        'Nexus7':        'grouper',
+        'Nexus7v2':      'flo',
+        'Nexus9':        'flounder',
+        'NexusPlayer':   'fugu',
+      }[builder_cfg['model']]
     elif 'iOS' in builder_cfg['os']:
       # For iOS, the device type is a better dimension than CPU or GPU.
-      dimensions['device'] = builder_spec['device_cfg']
+      dimensions['device'] = {
+        'iPad4': 'iPad4,1',
+      }[builder_cfg['model']]
       # TODO(borenet): Replace this hack with something better.
       dimensions['os'] = 'iOS-9.2'
     elif builder_cfg['cpu_or_gpu'] == 'CPU':
@@ -156,7 +170,7 @@ for r, _, files in os.walk(os.getcwd()):
 
 
 def trigger_task(api, task_name, builder, master, slave, buildnumber,
-                 builder_spec, got_revision, infrabots_dir, idempotent=False,
+                 builder_cfg, got_revision, infrabots_dir, idempotent=False,
                  store_output=True, extra_isolate_hashes=None, expiration=None,
                  hard_timeout=None, io_timeout=None, cipd_packages=None):
   """Trigger the given bot to run as a Swarming task."""
@@ -173,7 +187,6 @@ def trigger_task(api, task_name, builder, master, slave, buildnumber,
     'slavename': slave,
     'swarm_out_dir': '${ISOLATED_OUTDIR}',
   }
-  builder_cfg = builder_spec['builder_cfg']
   if builder_cfg['is_trybot']:
     properties['issue'] = str(api.properties['issue'])
     properties['patchset'] = str(api.properties['patchset'])
@@ -187,7 +200,7 @@ def trigger_task(api, task_name, builder, master, slave, buildnumber,
     extra_args.append('%s=%s' % (k, v))
 
   isolate_base_dir = api.path['slave_build']
-  dimensions = swarm_dimensions(builder_spec)
+  dimensions = swarm_dimensions(builder_cfg)
   isolate_blacklist = ['.git', 'out', '*.pyc', '.recipe_deps']
   isolate_vars = {
     'WORKDIR': api.path['slave_build'],
@@ -239,7 +252,7 @@ def checkout_steps(api):
   return got_revision
 
 
-def housekeeper_swarm(api, builder_spec, got_revision, infrabots_dir,
+def housekeeper_swarm(api, builder_cfg, got_revision, infrabots_dir,
                       extra_isolate_hashes):
   task = trigger_task(
       api,
@@ -248,7 +261,7 @@ def housekeeper_swarm(api, builder_spec, got_revision, infrabots_dir,
       api.properties['mastername'],
       api.properties['slavename'],
       api.properties['buildnumber'],
-      builder_spec,
+      builder_cfg,
       got_revision,
       infrabots_dir,
       idempotent=False,
@@ -257,7 +270,7 @@ def housekeeper_swarm(api, builder_spec, got_revision, infrabots_dir,
   return api.swarming.collect_swarming_task(task)
 
 
-def recreate_skps_swarm(api, builder_spec, got_revision, infrabots_dir,
+def recreate_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
                         extra_isolate_hashes):
   task = trigger_task(
       api,
@@ -266,7 +279,7 @@ def recreate_skps_swarm(api, builder_spec, got_revision, infrabots_dir,
       api.properties['mastername'],
       api.properties['slavename'],
       api.properties['buildnumber'],
-      builder_spec,
+      builder_cfg,
       got_revision,
       infrabots_dir,
       idempotent=False,
@@ -276,13 +289,11 @@ def recreate_skps_swarm(api, builder_spec, got_revision, infrabots_dir,
 
 
 def infra_swarm(api, got_revision, infrabots_dir, extra_isolate_hashes):
-  # Fake the builder spec.
-  builder_spec = {
-    'builder_cfg': {
-      'role': 'Infra',
-      'is_trybot': api.builder_name_schema.IsTrybot(
-          api.properties['buildername'])
-    }
+  # Fake the builder cfg.
+  builder_cfg = {
+    'role': 'Infra',
+    'is_trybot': api.builder_name_schema.IsTrybot(
+         api.properties['buildername'])
   }
   task = trigger_task(
       api,
@@ -291,7 +302,7 @@ def infra_swarm(api, got_revision, infrabots_dir, extra_isolate_hashes):
       api.properties['mastername'],
       api.properties['slavename'],
       api.properties['buildnumber'],
-      builder_spec,
+      builder_cfg,
       got_revision,
       infrabots_dir,
       idempotent=False,
@@ -300,14 +311,15 @@ def infra_swarm(api, got_revision, infrabots_dir, extra_isolate_hashes):
   return api.swarming.collect_swarming_task(task)
 
 
-def compile_steps_swarm(api, builder_spec, got_revision, infrabots_dir,
-                        extra_isolate_hashes, cipd_packages):
+def compile_steps_swarm(api, builder_cfg, got_revision, infrabots_dir):
   builder_name = derive_compile_bot_name(api)
-  compile_builder_spec = builder_spec
-  if builder_name != api.properties['buildername']:
-    compile_builder_spec = api.vars.get_builder_spec(builder_name)
+  compile_builder_cfg = api.builder_name_schema.DictForBuilderName(builder_name)
 
-  extra_hashes = extra_isolate_hashes[:]
+  cipd_packages = []
+
+  # Android bots require a toolchain.
+  if 'Android' in api.properties['buildername']:
+    cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_sdk'))
 
   # Windows bots require a toolchain.
   if 'Win' in builder_name:
@@ -334,12 +346,11 @@ def compile_steps_swarm(api, builder_spec, got_revision, infrabots_dir,
       master,
       slave,
       buildnumber,
-      compile_builder_spec,
+      compile_builder_cfg,
       got_revision,
       infrabots_dir,
       idempotent=True,
       store_output=False,
-      extra_isolate_hashes=extra_hashes,
       cipd_packages=cipd_packages)
 
   # Wait for compile to finish, record the results hash.
@@ -362,12 +373,24 @@ def get_timeouts(builder_cfg):
   return expiration, hard_timeout, io_timeout
 
 
-def perf_steps_trigger(api, builder_spec, got_revision, infrabots_dir,
+def gsutil_env(api, boto_file):
+  """Environment variables for gsutil."""
+  home_dir = os.path.expanduser('~')
+  if api.path._test_data.enabled:
+    home_dir = '[HOME]'
+
+  boto_path = None
+  if boto_file:
+    boto_path = api.path.join(home_dir, boto_file)
+  return {'AWS_CREDENTIAL_FILE': boto_path,
+          'BOTO_CONFIG': boto_path}
+
+
+def perf_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
                        extra_hashes, cipd_packages):
   """Trigger perf tests via Swarming."""
 
-  expiration, hard_timeout, io_timeout = get_timeouts(
-      builder_spec['builder_cfg'])
+  expiration, hard_timeout, io_timeout = get_timeouts(builder_cfg)
   return trigger_task(
       api,
       'perf',
@@ -375,7 +398,7 @@ def perf_steps_trigger(api, builder_spec, got_revision, infrabots_dir,
       api.properties['mastername'],
       api.properties['slavename'],
       api.properties['buildnumber'],
-      builder_spec,
+      builder_cfg,
       got_revision,
       infrabots_dir,
       extra_isolate_hashes=extra_hashes,
@@ -385,15 +408,14 @@ def perf_steps_trigger(api, builder_spec, got_revision, infrabots_dir,
       cipd_packages=cipd_packages)
 
 
-def perf_steps_collect(api, task, upload_perf_results, got_revision,
-                       is_trybot):
+def perf_steps_collect(api, task, got_revision, is_trybot):
   """Wait for perf steps to finish and upload results."""
   # Wait for nanobench to finish, download the results.
   api.run.rmtree(task.task_output_dir)
   api.swarming.collect_swarming_task(task)
 
   # Upload the results.
-  if upload_perf_results:
+  if api.vars.upload_perf_results:
     perf_data_dir = api.path['slave_build'].join(
         'perfdata', api.properties['buildername'], 'data')
     git_timestamp = api.git.get_timestamp(test_data='1408633190',
@@ -416,18 +438,17 @@ def perf_steps_collect(api, task, upload_perf_results, got_revision,
     if is_trybot:
       upload_args.append(api.properties['issue'])
     api.python(
-             'Upload perf results',
-             script=api.core.resource('upload_bench_results.py'),
-             args=upload_args,
-             cwd=api.path['checkout'],
-             infra_step=True)
+        'Upload perf results',
+        script=api.core.resource('upload_bench_results.py'),
+        args=upload_args,
+        cwd=api.path['checkout'],
+        infra_step=True)
 
 
-def test_steps_trigger(api, builder_spec, got_revision, infrabots_dir,
+def test_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
                        extra_hashes, cipd_packages):
   """Trigger DM via Swarming."""
-  expiration, hard_timeout, io_timeout = get_timeouts(
-      builder_spec['builder_cfg'])
+  expiration, hard_timeout, io_timeout = get_timeouts(builder_cfg)
   return trigger_task(
       api,
       'test',
@@ -435,7 +456,7 @@ def test_steps_trigger(api, builder_spec, got_revision, infrabots_dir,
       api.properties['mastername'],
       api.properties['slavename'],
       api.properties['buildnumber'],
-      builder_spec,
+      builder_cfg,
       got_revision,
       infrabots_dir,
       extra_isolate_hashes=extra_hashes,
@@ -445,15 +466,14 @@ def test_steps_trigger(api, builder_spec, got_revision, infrabots_dir,
       cipd_packages=cipd_packages)
 
 
-def test_steps_collect(api, task, upload_dm_results, got_revision, is_trybot,
-                       builder_cfg):
+def test_steps_collect(api, task, got_revision, is_trybot, builder_cfg):
   """Collect the test results from Swarming."""
   # Wait for tests to finish, download the results.
   api.run.rmtree(task.task_output_dir)
   api.swarming.collect_swarming_task(task)
 
   # Upload the results.
-  if upload_dm_results:
+  if api.vars.upload_dm_results:
     dm_dir = api.path['slave_build'].join('dm')
     dm_src = task.task_output_dir.join('0', 'dm')
     api.run.rmtree(dm_dir)
@@ -472,7 +492,7 @@ def test_steps_collect(api, task, upload_dm_results, got_revision, is_trybot,
           api.path['slave_build'].join('skia', 'common', 'py', 'utils'),
         ],
         cwd=api.path['checkout'],
-        env=api.vars.gsutil_env('chromium-skia-gm.boto'),
+        env=gsutil_env(api, 'chromium-skia-gm.boto'),
         infra_step=True)
 
   if builder_cfg['configuration']  == 'Coverage':
@@ -526,7 +546,7 @@ def upload_coverage_results(api, task, got_revision, is_trybot):
       script=api.core.resource('upload_bench_results.py'),
       args=upload_args,
       cwd=api.path['checkout'],
-      env=api.vars.gsutil_env('chromium-skia-gm.boto'),
+      env=gsutil_env(api, 'chromium-skia-gm.boto'),
       infra_step=True)
 
   # Transform the coverage_by_line_${git_hash}.json file received from
@@ -595,32 +615,28 @@ def RunSteps(api):
   extra_hashes = []
 
   # Get ready to compile.
-  compile_cipd_deps = []
-  extra_compile_hashes = []
-
   infrabots_dir = api.path['checkout'].join('infra', 'bots')
   if 'Infra' in api.properties['buildername']:
     return infra_swarm(api, got_revision, infrabots_dir, extra_hashes)
 
-  builder_spec = api.vars.get_builder_spec(api.properties['buildername'])
-  builder_cfg = builder_spec['builder_cfg']
+  builder_cfg = api.builder_name_schema.DictForBuilderName(
+      api.properties['buildername'])
 
   if 'RecreateSKPs' in api.properties['buildername']:
-    recreate_skps_swarm(api, builder_spec, got_revision, infrabots_dir,
+    recreate_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
                         extra_hashes)
     return
-  if 'Android' in api.properties['buildername']:
-    compile_cipd_deps.append(cipd_pkg(api, infrabots_dir, 'android_sdk'))
 
   # Compile.
-  do_compile_steps = builder_spec.get('do_compile_steps', True)
+  do_compile_steps = True
+  if 'Coverage' in api.properties['buildername']:
+    do_compile_steps = False
   if do_compile_steps:
     extra_hashes.append(compile_steps_swarm(
-        api, builder_spec, got_revision, infrabots_dir, extra_compile_hashes,
-        cipd_packages=compile_cipd_deps))
+        api, builder_cfg, got_revision, infrabots_dir))
 
   if builder_cfg['role'] == 'Housekeeper':
-    housekeeper_swarm(api, builder_spec, got_revision, infrabots_dir,
+    housekeeper_swarm(api, builder_cfg, got_revision, infrabots_dir,
                       extra_hashes)
     return
 
@@ -629,8 +645,10 @@ def RunSteps(api):
   # CIPD packages needed by test/perf.
   cipd_packages = []
 
-  do_test_steps = builder_spec['do_test_steps']
-  do_perf_steps = builder_spec['do_perf_steps']
+  do_test_steps = (
+      builder_cfg['role'] == api.builder_name_schema.BUILDER_ROLE_TEST)
+  do_perf_steps = (
+      builder_cfg['role'] == api.builder_name_schema.BUILDER_ROLE_PERF)
 
   if not (do_test_steps or do_perf_steps):
     return
@@ -643,17 +661,21 @@ def RunSteps(api):
   test_task = None
   perf_task = None
   if do_test_steps:
-    test_task = test_steps_trigger(api, builder_spec, got_revision,
+    test_task = test_steps_trigger(api, builder_cfg, got_revision,
                                    infrabots_dir, extra_hashes, cipd_packages)
   if do_perf_steps:
-    perf_task = perf_steps_trigger(api, builder_spec, got_revision,
+    perf_task = perf_steps_trigger(api, builder_cfg, got_revision,
                                    infrabots_dir, extra_hashes, cipd_packages)
   is_trybot = builder_cfg['is_trybot']
+
+  # Wait for results, then upload them if necessary.
+
   if test_task:
-    test_steps_collect(api, test_task, builder_spec['upload_dm_results'],
+    test_steps_collect(api, test_task,
                        got_revision, is_trybot, builder_cfg)
+
   if perf_task:
-    perf_steps_collect(api, perf_task, builder_spec['upload_perf_results'],
+    perf_steps_collect(api, perf_task,
                        got_revision, is_trybot)
 
 

@@ -5,6 +5,7 @@
 DEPS = [
   'build/adb',
   'build/file',
+  'builder_name_schema',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',

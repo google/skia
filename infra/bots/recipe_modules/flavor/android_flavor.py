@@ -13,6 +13,38 @@ import default_flavor
 """Android flavor utils, used for building for and running tests on Android."""
 
 
+def get_device(api):
+  builder_cfg = api.builder_name_schema.DictForBuilderName(
+      api.vars.builder_name)
+  if 'Android' in builder_cfg.get('extra_config', ''):
+    # Compile bots.
+    if 'NoNeon' in builder_cfg['extra_config']:
+      return 'arm_v7'
+    return {
+      'Arm64': 'arm64',
+      'x86': 'x86',
+      'x86_64': 'x86_64',
+      'Mips': 'mips',
+      'Mips64': 'mips64',
+      'MipsDSP2': 'mips_dsp2',
+    }.get(builder_cfg['target_arch'], 'arm_v7_neon')
+  else:
+    # Test/Perf bots.
+    return {
+      'AndroidOne':    'arm_v7_neon',
+      'GalaxyS3':      'arm_v7_neon',
+      'GalaxyS4':      'arm_v7_neon',
+      'NVIDIA_Shield': 'arm64',
+      'Nexus10':       'arm_v7_neon',
+      'Nexus5':        'arm_v7_neon',
+      'Nexus6':        'arm_v7_neon',
+      'Nexus7':        'arm_v7_neon',
+      'Nexus7v2':      'arm_v7_neon',
+      'Nexus9':        'arm64',
+      'NexusPlayer':   'x86',
+    }[builder_cfg['model']]
+
+
 class _ADBWrapper(object):
   """Wrapper for the ADB recipe module.
 
@@ -64,7 +96,7 @@ class _ADBWrapper(object):
 class AndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def __init__(self, m):
     super(AndroidFlavorUtils, self).__init__(m)
-    self.device = self.m.vars.builder_spec['device_cfg']
+    self.device = get_device(m)
     self.android_bin = self.m.vars.skia_dir.join(
         'platform_tools', 'android', 'bin')
     self._android_sdk_root = self.m.vars.slave_dir.join(
@@ -273,7 +305,8 @@ class AndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def cleanup_steps(self):
     """Run any device-specific cleanup steps."""
-    if self.m.vars.do_test_steps or self.m.vars.do_perf_steps:
+    if self.m.vars.role in (self.m.builder_name_schema.BUILDER_ROLE_TEST,
+                            self.m.builder_name_schema.BUILDER_ROLE_PERF):
       self._adb(name='final battery stats',
                 serial=self.serial,
                 cmd=['shell', 'dumpsys', 'batteryproperties'],
