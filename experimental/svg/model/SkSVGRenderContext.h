@@ -8,11 +8,13 @@
 #ifndef SkSVGRenderContext_DEFINED
 #define SkSVGRenderContext_DEFINED
 
-#include "SkSize.h"
 #include "SkPaint.h"
+#include "SkRect.h"
+#include "SkSize.h"
 #include "SkTLazy.h"
+#include "SkTypes.h"
 
-class SkPaint;
+class SkCanvas;
 class SkSVGLength;
 
 class SkSVGLengthContext {
@@ -25,21 +27,22 @@ public:
         kOther,
     };
 
+    const SkSize& viewPort() const { return fViewport; }
     void setViewPort(const SkSize& viewport) { fViewport = viewport; }
 
     SkScalar resolve(const SkSVGLength&, LengthType) const;
+    SkRect   resolveRect(const SkSVGLength& x, const SkSVGLength& y,
+                         const SkSVGLength& w, const SkSVGLength& h) const;
 
 private:
     SkSize fViewport;
 };
 
-class SkSVGRenderContext {
+class SkSVGPresentationContext {
 public:
-    explicit SkSVGRenderContext(const SkSize& initialViewport);
-    SkSVGRenderContext(const SkSVGRenderContext&) = default;
-    SkSVGRenderContext& operator=(const SkSVGRenderContext&);
-
-    const SkSVGLengthContext& lengthContext() const { return fLengthContext; }
+    SkSVGPresentationContext();
+    SkSVGPresentationContext(const SkSVGPresentationContext&);
+    SkSVGPresentationContext& operator=(const SkSVGPresentationContext&);
 
     const SkPaint* fillPaint() const { return fFill.getMaybeNull(); }
     const SkPaint* strokePaint() const { return fStroke.getMaybeNull(); }
@@ -48,12 +51,44 @@ public:
     void setStrokeColor(SkColor);
 
 private:
+    void initFrom(const SkSVGPresentationContext&);
+
     SkPaint& ensureFill();
     SkPaint& ensureStroke();
 
-    SkSVGLengthContext fLengthContext;
-    SkTLazy<SkPaint>   fFill;
-    SkTLazy<SkPaint>   fStroke;
+    // TODO: convert to regular SkPaints and track explicit attribute values instead.
+    SkTLazy<SkPaint> fFill;
+    SkTLazy<SkPaint> fStroke;
+};
+
+class SkSVGRenderContext {
+public:
+    SkSVGRenderContext(SkCanvas*, const SkSVGLengthContext&, const SkSVGPresentationContext&);
+    SkSVGRenderContext(const SkSVGRenderContext&);
+    ~SkSVGRenderContext();
+
+    const SkSVGLengthContext& lengthContext() const { return *fLengthContext; }
+    SkSVGLengthContext* writableLengthContext() { return fLengthContext.writable(); }
+
+    const SkSVGPresentationContext& presentationContext() const { return *fPresentationContext; }
+    SkSVGPresentationContext* writablePresentationContext() {
+        return fPresentationContext.writable();
+    }
+
+    SkCanvas* canvas() const { return fCanvas; }
+
+private:
+    // Stack-only
+    void* operator new(size_t)                               = delete;
+    void* operator new(size_t, void*)                        = delete;
+    SkSVGRenderContext& operator=(const SkSVGRenderContext&) = delete;
+
+    SkTCopyOnFirstWrite<SkSVGLengthContext>       fLengthContext;
+    SkTCopyOnFirstWrite<SkSVGPresentationContext> fPresentationContext;
+    SkCanvas*                                     fCanvas;
+    // The save count on 'fCanvas' at construction time.
+    // A restoreToCount() will be issued on destruction.
+    int                                           fCanvasSaveCount;
 };
 
 #endif // SkSVGRenderContext_DEFINED

@@ -149,12 +149,12 @@ bool SkSVGAttributeParser::parseHexColorToken(SkColor* c) {
 }
 
 // https://www.w3.org/TR/SVG/types.html#DataTypeColor
-bool SkSVGAttributeParser::parseColor(SkSVGColor* color) {
+bool SkSVGAttributeParser::parseColor(SkSVGColorType* color) {
     SkColor c;
 
     // TODO: rgb(...)
     if (this->parseHexColorToken(&c) || this->parseNamedColorToken(&c)) {
-        *color = SkSVGColor(c);
+        *color = SkSVGColorType(c);
         return true;
     }
 
@@ -162,13 +162,13 @@ bool SkSVGAttributeParser::parseColor(SkSVGColor* color) {
 }
 
 // https://www.w3.org/TR/SVG/types.html#DataTypeNumber
-bool SkSVGAttributeParser::parseNumber(SkSVGNumber* number) {
+bool SkSVGAttributeParser::parseNumber(SkSVGNumberType* number) {
     // consume WS
     this->parseWSToken();
 
     SkScalar s;
     if (this->parseScalarToken(&s)) {
-        *number = SkSVGNumber(s);
+        *number = SkSVGNumberType(s);
         // consume trailing separators
         this->parseSepToken();
         return true;
@@ -191,4 +191,23 @@ bool SkSVGAttributeParser::parseLength(SkSVGLength* length) {
     }
 
     return false;
+}
+
+// https://www.w3.org/TR/SVG/coords.html#ViewBoxAttribute
+bool SkSVGAttributeParser::parseViewBox(SkSVGViewBoxType* vb) {
+    SkScalar x, y, w, h;
+    this->parseWSToken();
+
+    bool parsedValue = false;
+    if (this->parseScalarToken(&x) && this->parseSepToken() &&
+        this->parseScalarToken(&y) && this->parseSepToken() &&
+        this->parseScalarToken(&w) && this->parseSepToken() &&
+        this->parseScalarToken(&h)) {
+
+        *vb = SkSVGViewBoxType(SkRect::MakeXYWH(x, y, w, h));
+        parsedValue = true;
+        // consume trailing whitespace
+        this->parseWSToken();
+    }
+    return parsedValue && this->parseEOSToken();
 }

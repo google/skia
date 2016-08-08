@@ -10,13 +10,13 @@
 
 SkSVGShape::SkSVGShape(SkSVGTag t) : INHERITED(t) {}
 
-void SkSVGShape::onRender(SkCanvas* canvas, const SkSVGRenderContext& ctx) const {
-    if (const SkPaint* fillPaint = ctx.fillPaint()) {
-        this->onDraw(canvas, ctx.lengthContext(), *fillPaint);
+void SkSVGShape::onRender(const SkSVGRenderContext& ctx) const {
+    if (const SkPaint* fillPaint = ctx.presentationContext().fillPaint()) {
+        this->onDraw(ctx.canvas(), ctx.lengthContext(), *fillPaint);
     }
 
-    if (const SkPaint* strokePaint = ctx.strokePaint()) {
-        this->onDraw(canvas, ctx.lengthContext(), *strokePaint);
+    if (const SkPaint* strokePaint = ctx.presentationContext().strokePaint()) {
+        this->onDraw(ctx.canvas(), ctx.lengthContext(), *strokePaint);
     }
 }
 

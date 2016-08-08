@@ -31,18 +31,24 @@ public:
 
     virtual void appendChild(sk_sp<SkSVGNode>) = 0;
 
-    void render(SkCanvas*, const SkSVGRenderContext&) const;
+    void render(const SkSVGRenderContext&) const;
 
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
 
 protected:
     SkSVGNode(SkSVGTag);
 
-    virtual void onRender(SkCanvas*, const SkSVGRenderContext&) const = 0;
+    // Called before onRender(), to apply local attributes to the context.  Unlike onRender(),
+    // onPrepareToRender() bubbles up the inheritance chain: overriders should always call
+    // INHERITED::onPrepareToRender(), unless they intend to short-circuit rendering
+    // (return false).
+    // Implementations are expected to return true if rendering is to continue, or false if
+    // the node/subtree rendering is disabled.
+    virtual bool onPrepareToRender(SkSVGRenderContext*) const;
+
+    virtual void onRender(const SkSVGRenderContext&) const = 0;
 
     virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&);
-
-    virtual const SkMatrix& onLocalMatrix() const;
 
 private:
     SkSVGTag                    fTag;

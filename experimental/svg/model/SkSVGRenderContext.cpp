@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvas.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGTypes.h"
 
@@ -42,10 +43,27 @@ SkScalar SkSVGLengthContext::resolve(const SkSVGLength& l, LengthType t) const {
     return 0;
 }
 
-SkSVGRenderContext::SkSVGRenderContext(const SkSize& initialViewport)
-    : fLengthContext(initialViewport) {}
+SkRect SkSVGLengthContext::resolveRect(const SkSVGLength& x, const SkSVGLength& y,
+                                       const SkSVGLength& w, const SkSVGLength& h) const {
+    return SkRect::MakeXYWH(
+        this->resolve(x, SkSVGLengthContext::LengthType::kHorizontal),
+        this->resolve(y, SkSVGLengthContext::LengthType::kVertical),
+        this->resolve(w, SkSVGLengthContext::LengthType::kHorizontal),
+        this->resolve(h, SkSVGLengthContext::LengthType::kVertical));
+}
 
-SkSVGRenderContext& SkSVGRenderContext::operator=(const SkSVGRenderContext& other) {
+SkSVGPresentationContext::SkSVGPresentationContext() {}
+
+SkSVGPresentationContext::SkSVGPresentationContext(const SkSVGPresentationContext& o) {
+    this->initFrom(o);
+}
+
+SkSVGPresentationContext& SkSVGPresentationContext::operator=(const SkSVGPresentationContext& o) {
+    this->initFrom(o);
+    return *this;
+}
+
+void SkSVGPresentationContext::initFrom(const SkSVGPresentationContext& other) {
     if (other.fFill.isValid()) {
         fFill.set(*other.fFill.get());
     } else {
@@ -57,11 +75,9 @@ SkSVGRenderContext& SkSVGRenderContext::operator=(const SkSVGRenderContext& othe
     } else {
         fStroke.reset();
     }
-
-    return *this;
 }
 
-SkPaint& SkSVGRenderContext::ensureFill() {
+SkPaint& SkSVGPresentationContext::ensureFill() {
     if (!fFill.isValid()) {
         fFill.init();
         fFill.get()->setStyle(SkPaint::kFill_Style);
@@ -70,7 +86,7 @@ SkPaint& SkSVGRenderContext::ensureFill() {
     return *fFill.get();
 }
 
-SkPaint& SkSVGRenderContext::ensureStroke() {
+SkPaint& SkSVGPresentationContext::ensureStroke() {
     if (!fStroke.isValid()) {
         fStroke.init();
         fStroke.get()->setStyle(SkPaint::kStroke_Style);
@@ -79,10 +95,27 @@ SkPaint& SkSVGRenderContext::ensureStroke() {
     return *fStroke.get();
 }
 
-void SkSVGRenderContext::setFillColor(SkColor color) {
+void SkSVGPresentationContext::setFillColor(SkColor color) {
     this->ensureFill().setColor(color);
 }
 
-void SkSVGRenderContext::setStrokeColor(SkColor color) {
+void SkSVGPresentationContext::setStrokeColor(SkColor color) {
     this->ensureStroke().setColor(color);
+}
+
+SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,
+                                       const SkSVGLengthContext& lctx,
+                                       const SkSVGPresentationContext& pctx)
+    : fLengthContext(lctx)
+    , fPresentationContext(pctx)
+    , fCanvas(canvas)
+    , fCanvasSaveCount(canvas->getSaveCount()) {}
+
+SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
+    : SkSVGRenderContext(other.canvas(),
+                         other.lengthContext(),
+                         other.presentationContext()) {}
+
+SkSVGRenderContext::~SkSVGRenderContext() {
+    fCanvas->restoreToCount(fCanvasSaveCount);
 }

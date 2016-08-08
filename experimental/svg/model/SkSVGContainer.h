@@ -20,7 +20,7 @@ public:
 protected:
     SkSVGContainer(SkSVGTag);
 
-    void onRender(SkCanvas*, const SkSVGRenderContext&) const override;
+    void onRender(const SkSVGRenderContext&) const override;
 
 private:
     SkSTArray<1, sk_sp<SkSVGNode>, true> fChildren;

@@ -5,10 +5,44 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvas.h"
+#include "SkSVGRenderContext.h"
 #include "SkSVGSVG.h"
 #include "SkSVGValue.h"
 
 SkSVGSVG::SkSVGSVG() : INHERITED(SkSVGTag::kSvg) { }
+
+bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
+    auto viewPortRect  = ctx->lengthContext().resolveRect(fX, fY, fWidth, fHeight);
+    auto contentMatrix = SkMatrix::MakeTrans(viewPortRect.x(), viewPortRect.y());
+    auto viewPort      = SkSize::Make(viewPortRect.width(), viewPortRect.height());
+
+    if (fViewBox.isValid()) {
+        const SkRect& viewBox = *fViewBox.get();
+
+        // An empty viewbox disables rendering.
+        if (viewBox.isEmpty()) {
+            return false;
+        }
+
+        // A viewBox overrides the intrinsic viewport.
+        viewPort = SkSize::Make(viewBox.width(), viewBox.height());
+
+        contentMatrix.preConcat(
+            SkMatrix::MakeRectToRect(viewBox, viewPortRect, SkMatrix::kFill_ScaleToFit));
+    }
+
+    if (!contentMatrix.isIdentity()) {
+        ctx->canvas()->save();
+        ctx->canvas()->concat(contentMatrix);
+    }
+
+    if (viewPort != ctx->lengthContext().viewPort()) {
+        ctx->writableLengthContext()->setViewPort(viewPort);
+    }
+
+    return this->INHERITED::onPrepareToRender(ctx);
+}
 
 void SkSVGSVG::setX(const SkSVGLength& x) {
     fX = x;
@@ -24,6 +58,10 @@ void SkSVGSVG::setWidth(const SkSVGLength& w) {
 
 void SkSVGSVG::setHeight(const SkSVGLength& h) {
     fHeight = h;
+}
+
+void SkSVGSVG::setViewBox(const SkSVGViewBoxType& vb) {
+    fViewBox.set(vb);
 }
 
 void SkSVGSVG::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
@@ -46,6 +84,11 @@ void SkSVGSVG::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     case SkSVGAttribute::kHeight:
         if (const auto* h = v.as<SkSVGLengthValue>()) {
             this->setHeight(*h);
+        }
+        break;
+    case SkSVGAttribute::kViewBox:
+        if (const auto* vb = v.as<SkSVGViewBoxValue>()) {
+            this->setViewBox(*vb);
         }
         break;
     default:

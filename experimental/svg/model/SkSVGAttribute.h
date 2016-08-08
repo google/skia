@@ -11,12 +11,15 @@
 #include "SkSVGTypes.h"
 #include "SkTLazy.h"
 
+class SkSVGRenderContext;
+
 enum class SkSVGAttribute {
     kD,
     kFill,
     kHeight,
     kStroke,
     kTransform,
+    kViewBox,
     kWidth,
     kX,
     kY,
@@ -24,21 +27,19 @@ enum class SkSVGAttribute {
     kUnknown,
 };
 
-class SkSVGRenderContext;
-
 class SkSVGPresentationAttributes {
 public:
     SkSVGPresentationAttributes();
 
-    void setFill(const SkSVGColor&);
-    void setStroke(const SkSVGColor&);
+    void setFill(const SkSVGColorType&);
+    void setStroke(const SkSVGColorType&);
 
-    void applyTo(SkTCopyOnFirstWrite<SkSVGRenderContext>&) const;
+    void applyTo(SkSVGRenderContext*) const;
 
 private:
     // Color only for now.
-    SkSVGColor fFill;
-    SkSVGColor fStroke;
+    SkSVGColorType fFill;
+    SkSVGColorType fStroke;
 
     unsigned fFillIsSet   : 1;
     unsigned fStrokeIsSet : 1;

@@ -9,24 +9,29 @@
 #define SkSVGTypes_DEFINED
 
 #include "SkColor.h"
+#include "SkRect.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
 
-class SkSVGNumber {
+template <typename T>
+class SkSVGPrimitiveTypeWrapper {
 public:
-    constexpr SkSVGNumber()                    : fValue(0) {}
-    explicit constexpr SkSVGNumber(SkScalar v) : fValue(v) {}
-    SkSVGNumber(const SkSVGNumber&)            = default;
-    SkSVGNumber& operator=(const SkSVGNumber&) = default;
+    SkSVGPrimitiveTypeWrapper() = default;
+    explicit constexpr SkSVGPrimitiveTypeWrapper(T v) : fValue(v) {}
 
+    SkSVGPrimitiveTypeWrapper(const SkSVGPrimitiveTypeWrapper&)            = default;
+    SkSVGPrimitiveTypeWrapper& operator=(const SkSVGPrimitiveTypeWrapper&) = default;
 
-    const SkScalar& value() const { return fValue; }
-
-    operator const SkScalar&() const { return fValue; }
+    const T& value() const { return fValue; }
+    operator const T&() const { return fValue; }
 
 private:
-    SkScalar fValue;
+    T fValue;
 };
+
+using SkSVGColorType   = SkSVGPrimitiveTypeWrapper<SkColor >;
+using SkSVGNumberType  = SkSVGPrimitiveTypeWrapper<SkScalar>;
+using SkSVGViewBoxType = SkSVGPrimitiveTypeWrapper<SkRect  >;
 
 class SkSVGLength {
 public:
@@ -56,17 +61,6 @@ public:
 private:
     SkScalar fValue;
     Unit     fUnit;
-};
-
-class SkSVGColor {
-public:
-    constexpr SkSVGColor()                   : fValue(SK_ColorBLACK) {}
-    explicit constexpr SkSVGColor(SkColor c) : fValue(c) {}
-
-    operator const SkColor&() const { return fValue; }
-
-private:
-    SkColor fValue;
 };
 
 #endif // SkSVGTypes_DEFINED

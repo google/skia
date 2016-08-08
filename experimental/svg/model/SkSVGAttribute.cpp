@@ -12,23 +12,23 @@ SkSVGPresentationAttributes::SkSVGPresentationAttributes()
     : fFillIsSet(false)
     , fStrokeIsSet(false) { }
 
-void SkSVGPresentationAttributes::setFill(const SkSVGColor& c) {
+void SkSVGPresentationAttributes::setFill(const SkSVGColorType& c) {
     fFill = c;
     fFillIsSet = true;
 }
 
-void SkSVGPresentationAttributes::setStroke(const SkSVGColor& c) {
+void SkSVGPresentationAttributes::setStroke(const SkSVGColorType& c) {
     fStroke = c;
     fStrokeIsSet = true;
 }
 
 
-void SkSVGPresentationAttributes::applyTo(SkTCopyOnFirstWrite<SkSVGRenderContext>& ctx) const {
+void SkSVGPresentationAttributes::applyTo(SkSVGRenderContext* ctx) const {
     if (fFillIsSet) {
-        ctx.writable()->setFillColor(fFill);
+        ctx->writablePresentationContext()->setFillColor(fFill);
     }
 
     if (fStrokeIsSet) {
-        ctx.writable()->setStrokeColor(fStroke);
+        ctx->writablePresentationContext()->setStrokeColor(fStroke);
     }
 }

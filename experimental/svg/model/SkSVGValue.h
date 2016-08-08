@@ -21,6 +21,7 @@ public:
         kLength,
         kPath,
         kTransform,
+        kViewBox,
     };
 
     Type type() const { return fType; }
@@ -39,26 +40,31 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
-template <typename SkiaType, SkSVGValue::Type ValueType>
+template <typename T, SkSVGValue::Type ValueType>
 class SkSVGWrapperValue final : public SkSVGValue {
 public:
     static constexpr Type TYPE = ValueType;
 
-    explicit SkSVGWrapperValue(const SkiaType& v)
+    explicit SkSVGWrapperValue(const T& v)
         : INHERITED(ValueType)
         , fWrappedValue(v) { }
 
-    operator const SkiaType&() const { return fWrappedValue; }
+    operator const T&() const { return fWrappedValue; }
 
 private:
-    SkiaType fWrappedValue;
+    // Stack-only
+    void* operator new(size_t) = delete;
+    void* operator new(size_t, void*) = delete;
+
+    const T& fWrappedValue;
 
     typedef SkSVGValue INHERITED;
 };
 
-using SkSVGColorValue     = SkSVGWrapperValue<SkSVGColor , SkSVGValue::Type::kColor    >;
-using SkSVGLengthValue    = SkSVGWrapperValue<SkSVGLength, SkSVGValue::Type::kLength   >;
-using SkSVGPathValue      = SkSVGWrapperValue<SkPath     , SkSVGValue::Type::kPath     >;
-using SkSVGTransformValue = SkSVGWrapperValue<SkMatrix   , SkSVGValue::Type::kTransform>;
+using SkSVGColorValue     = SkSVGWrapperValue<SkSVGColorType  , SkSVGValue::Type::kColor    >;
+using SkSVGLengthValue    = SkSVGWrapperValue<SkSVGLength     , SkSVGValue::Type::kLength   >;
+using SkSVGPathValue      = SkSVGWrapperValue<SkPath          , SkSVGValue::Type::kPath     >;
+using SkSVGTransformValue = SkSVGWrapperValue<SkMatrix        , SkSVGValue::Type::kTransform>;
+using SkSVGViewBoxValue   = SkSVGWrapperValue<SkSVGViewBoxType, SkSVGValue::Type::kViewBox  >;
 
 #endif // SkSVGValue_DEFINED

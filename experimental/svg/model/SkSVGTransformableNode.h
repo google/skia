@@ -20,9 +20,9 @@ public:
 protected:
     SkSVGTransformableNode(SkSVGTag);
 
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
+    bool onPrepareToRender(SkSVGRenderContext*) const override;
 
-    const SkMatrix& onLocalMatrix() const override { return fMatrix; }
+    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
 private:
     // FIXME: should be sparse

@@ -22,7 +22,7 @@ public:
 protected:
     SkSVGShape(SkSVGTag);
 
-    void onRender(SkCanvas*, const SkSVGRenderContext&) const final;
+    void onRender(const SkSVGRenderContext&) const final;
 
     virtual void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&) const = 0;
 

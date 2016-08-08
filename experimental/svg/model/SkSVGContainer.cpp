@@ -14,8 +14,8 @@ void SkSVGContainer::appendChild(sk_sp<SkSVGNode> node) {
     fChildren.push_back(std::move(node));
 }
 
-void SkSVGContainer::onRender(SkCanvas* canvas, const SkSVGRenderContext& ctx) const {
+void SkSVGContainer::onRender(const SkSVGRenderContext& ctx) const {
     for (int i = 0; i < fChildren.count(); ++i) {
-        fChildren[i]->render(canvas, ctx);
+        fChildren[i]->render(ctx);
     }
 }

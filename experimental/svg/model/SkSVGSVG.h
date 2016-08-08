@@ -10,6 +10,7 @@
 
 #include "SkSVGContainer.h"
 #include "SkSVGTypes.h"
+#include "SkTLazy.h"
 
 class SkSVGSVG : public SkSVGContainer {
 public:
@@ -21,8 +22,11 @@ public:
     void setY(const SkSVGLength&);
     void setWidth(const SkSVGLength&);
     void setHeight(const SkSVGLength&);
+    void setViewBox(const SkSVGViewBoxType&);
 
 protected:
+    bool onPrepareToRender(SkSVGRenderContext*) const override;
+
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
 private:
@@ -32,6 +36,8 @@ private:
     SkSVGLength fY      = SkSVGLength(0);
     SkSVGLength fWidth  = SkSVGLength(100, SkSVGLength::Unit::kPercentage);
     SkSVGLength fHeight = SkSVGLength(100, SkSVGLength::Unit::kPercentage);
+
+    SkTLazy<SkSVGViewBoxType> fViewBox;
 
     typedef SkSVGContainer INHERITED;
 };

@@ -58,11 +58,5 @@ void SkSVGRect::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 
 void SkSVGRect::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
                        const SkPaint& paint) const {
-    const SkRect r = SkRect::MakeXYWH(
-        lctx.resolve(fX, SkSVGLengthContext::LengthType::kHorizontal),
-        lctx.resolve(fY, SkSVGLengthContext::LengthType::kVertical),
-        lctx.resolve(fWidth, SkSVGLengthContext::LengthType::kHorizontal),
-        lctx.resolve(fHeight, SkSVGLengthContext::LengthType::kVertical));
-
-    canvas->drawRect(r, paint);
+    canvas->drawRect(lctx.resolveRect(fX, fY, fWidth, fHeight), paint);
 }

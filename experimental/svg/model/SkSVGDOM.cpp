@@ -73,7 +73,7 @@ SkMatrix ParseTransform(const char* str) {
 
 bool SetPaintAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                        const char* stringValue) {
-    SkSVGColor color;
+    SkSVGColorType color;
     SkSVGAttributeParser parser(stringValue);
     if (!parser.parseColor(&color)) {
         return false;
@@ -109,6 +109,18 @@ bool SetLengthAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     }
 
     node->setAttribute(attr, SkSVGLengthValue(length));
+    return true;
+}
+
+bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                         const char* stringValue) {
+    SkSVGViewBoxType viewBox;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseViewBox(&viewBox)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGViewBoxValue(viewBox));
     return true;
 }
 
@@ -184,6 +196,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "stroke"   , { SkSVGAttribute::kStroke   , SetPaintAttribute     }},
     { "style"    , { SkSVGAttribute::kUnknown  , SetStyleAttributes    }},
     { "transform", { SkSVGAttribute::kTransform, SetTransformAttribute }},
+    { "viewBox"  , { SkSVGAttribute::kViewBox  , SetViewBoxAttribute   }},
     { "width"    , { SkSVGAttribute::kWidth    , SetLengthAttribute    }},
     { "x"        , { SkSVGAttribute::kX        , SetLengthAttribute    }},
     { "y"        , { SkSVGAttribute::kY        , SetLengthAttribute    }},
@@ -292,8 +305,10 @@ sk_sp<SkSVGDOM> SkSVGDOM::MakeFromStream(SkStream& svgStream, const SkSize& cont
 
 void SkSVGDOM::render(SkCanvas* canvas) const {
     if (fRoot) {
-        SkSVGRenderContext ctx(fContainerSize);
-        fRoot->render(canvas, ctx);
+        SkSVGRenderContext ctx(canvas,
+                               SkSVGLengthContext(fContainerSize),
+                               SkSVGPresentationContext());
+        fRoot->render(ctx);
     }
 }
 

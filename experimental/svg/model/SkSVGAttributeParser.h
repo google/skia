@@ -14,9 +14,10 @@ class SkSVGAttributeParser : public SkNoncopyable {
 public:
     SkSVGAttributeParser(const char[]);
 
-    bool parseColor(SkSVGColor*);
-    bool parseNumber(SkSVGNumber*);
+    bool parseColor(SkSVGColorType*);
+    bool parseNumber(SkSVGNumberType*);
     bool parseLength(SkSVGLength*);
+    bool parseViewBox(SkSVGViewBoxType*);
 
 private:
     // Stack-only

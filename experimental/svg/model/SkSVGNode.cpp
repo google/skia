@@ -16,18 +16,17 @@ SkSVGNode::SkSVGNode(SkSVGTag t) : fTag(t) { }
 
 SkSVGNode::~SkSVGNode() { }
 
-void SkSVGNode::render(SkCanvas* canvas, const SkSVGRenderContext& ctx) const {
-    SkTCopyOnFirstWrite<SkSVGRenderContext> localContext(ctx);
-    fPresentationAttributes.applyTo(localContext);
+void SkSVGNode::render(const SkSVGRenderContext& ctx) const {
+    SkSVGRenderContext localContext(ctx);
 
-    SkAutoCanvasRestore acr(canvas, false);
-    const SkMatrix& m = this->onLocalMatrix();
-    if (!m.isIdentity()) {
-        canvas->save();
-        canvas->concat(m);
+    if (this->onPrepareToRender(&localContext)) {
+        this->onRender(localContext);
     }
+}
 
-    this->onRender(canvas, *localContext);
+bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
+    fPresentationAttributes.applyTo(ctx);
+    return true;
 }
 
 void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
@@ -50,8 +49,4 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         SkDebugf("attribute ID <%d> ignored for node <%d>\n", attr, fTag);
         break;
     }
-}
-
-const SkMatrix& SkSVGNode::onLocalMatrix() const {
-    return SkMatrix::I();
 }
