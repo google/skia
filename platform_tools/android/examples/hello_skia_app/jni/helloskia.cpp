@@ -1,10 +1,3 @@
-/*
- * Copyright 2016 Google Inc.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
-
 #include <math.h>
 #include <jni.h>
 #include <android/bitmap.h>
@@ -36,7 +29,7 @@ JNIEXPORT void JNICALL Java_com_example_HelloSkiaActivity_drawIntoBitmap(JNIEnv*
     SkImageInfo info = SkImageInfo::MakeN32Premul(dstInfo.width, dstInfo.height);
 
     // Create a surface from the given bitmap
-    sk_sp<SkSurface> surface(SkSurface::MakeRasterDirect(info, dstPixels, dstInfo.stride));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterDirect(info, dstPixels, dstInfo.stride));
     SkCanvas* canvas = surface->getCanvas();
 
     // Draw something "interesting"

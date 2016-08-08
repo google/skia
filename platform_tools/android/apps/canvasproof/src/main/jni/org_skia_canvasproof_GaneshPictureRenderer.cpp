@@ -37,8 +37,9 @@ static void render_picture(GrContext* grContext,
     SkSurfaceProps surfaceProps(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                                 kUnknown_SkPixelGeometry);
     // TODO:  Check to see if we can keep the surface between draw calls.
-    sk_sp<SkSurface> surface(
-            SkSurface::MakeFromBackendRenderTarget(grContext, desc, nullptr, &surfaceProps));
+    SkAutoTUnref<SkSurface> surface(
+            SkSurface::NewFromBackendRenderTarget(
+                    grContext, desc, &surfaceProps));
     if (surface) {
         SkCanvas* canvas = surface->getCanvas();
         SkASSERT(canvas);
