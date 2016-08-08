@@ -369,11 +369,11 @@ static void color_xform_RGBA(void* dst, const uint32_t* src, int len,
             }
 
             load(src, r, g, b, a, srcTables);
-            src += 4;
-            len -= 4;
 
             store(dst, src - 4, dr, dg, db, da, dstTables, kSwapRB);
             dst = SkTAddOffset<void>(dst, 4 * sizeOfDstPixel);
+            src += 4;
+            len -= 4;
         }
 
         transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
@@ -393,7 +393,6 @@ static void color_xform_RGBA(void* dst, const uint32_t* src, int len,
 
         Sk4f rgba;
         transform_gamut_1(r, g, b, rXgXbX, rYgYbY, rZgZbZ, rgba);
-
         translate_gamut_1(rTgTbT, rgba);
 
         store_1(dst, src, rgba, a, dstTables, kSwapRB);
