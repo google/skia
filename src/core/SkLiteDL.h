@@ -85,6 +85,7 @@ private:
     void onDraw(SkCanvas*) override;
 
     SkLiteDL*          fNext;
+    int                fUsesRemaining;
     SkRect             fBounds;
     SkTDArray<uint8_t> fBytes;
 };

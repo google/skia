@@ -663,15 +663,16 @@ SkRect SkLiteDL::onGetBounds() {
     return fBounds;
 }
 
-SkLiteDL:: SkLiteDL() {}
+#if !defined(SK_LITEDL_USES)
+    #define  SK_LITEDL_USES 16
+#endif
+
+SkLiteDL:: SkLiteDL() : fUsesRemaining(SK_LITEDL_USES) {}
 SkLiteDL::~SkLiteDL() {}
 
-static const int kFreeStackByteLimit  = 128*1024;
-static const int kFreeStackCountLimit = 8;
-
+// If you're tempted to make this lock free, please don't forget about ABA.
 static SkSpinlock gFreeStackLock;
-static SkLiteDL*  gFreeStack      = nullptr;
-static int        gFreeStackCount = 0;
+static SkLiteDL*  gFreeStack = nullptr;
 
 sk_sp<SkLiteDL> SkLiteDL::New(SkRect bounds) {
     sk_sp<SkLiteDL> dl;
@@ -680,7 +681,6 @@ sk_sp<SkLiteDL> SkLiteDL::New(SkRect bounds) {
         if (gFreeStack) {
             dl.reset(gFreeStack);  // Adopts the ref the stack's been holding.
             gFreeStack = gFreeStack->fNext;
-            gFreeStackCount--;
         }
     }
 
@@ -700,15 +700,13 @@ void SkLiteDL::internal_dispose() const {
     auto self = const_cast<SkLiteDL*>(this);
     map(&self->fBytes, [](Op* op) { op->~Op(); });
 
-    if (self->fBytes.reserved() < kFreeStackByteLimit) {
+    if (--self->fUsesRemaining > 0) {
         self->fBytes.rewind();
+
         SkAutoMutexAcquire lock(gFreeStackLock);
-        if (gFreeStackCount < kFreeStackCountLimit) {
-            self->fNext = gFreeStack;
-            gFreeStack = self;
-            gFreeStackCount++;
-            return;
-        }
+        self->fNext = gFreeStack;
+        gFreeStack = self;
+        return;
     }
 
     delete this;
