@@ -315,12 +315,12 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context) const {
         GrImageTextureMaker maker(context, cacher, this, kDisallow_CachingHint);
         return create_image_from_maker(&maker, at, this->uniqueID());
     }
-    SkBitmap bmp;
-    if (!this->asLegacyBitmap(&bmp, kRO_LegacyBitmapMode)) {
-        return nullptr;
+
+    if (const SkBitmap* bmp = as_IB(this)->onPeekBitmap()) {
+        GrBitmapTextureMaker maker(context, *bmp);
+        return create_image_from_maker(&maker, at, this->uniqueID());
     }
-    GrBitmapTextureMaker maker(context, bmp);
-    return create_image_from_maker(&maker, at, this->uniqueID());
+    return nullptr;
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
