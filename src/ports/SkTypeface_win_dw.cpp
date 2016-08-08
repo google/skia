@@ -313,22 +313,6 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
     SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1).swap(*glyphToUnicode);
 }
 
-static bool getWidthAdvance(IDWriteFontFace* fontFace, int gId, int16_t* advance) {
-    SkASSERT(advance);
-
-    UINT16 glyphId = gId;
-    DWRITE_GLYPH_METRICS gm;
-    HRESULT hr = fontFace->GetDesignGlyphMetrics(&glyphId, 1, &gm);
-
-    if (FAILED(hr)) {
-        *advance = 0;
-        return false;
-    }
-
-    *advance = gm.advanceWidth;
-    return true;
-}
-
 SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
         PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
