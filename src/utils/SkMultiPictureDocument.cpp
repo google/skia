@@ -60,14 +60,10 @@ struct NullWStream : public SkWStream {
 
 struct Page {
   Page(SkSize s, sk_sp<SkPicture> c) : fSize(s), fContent(std::move(c)) {}
-  Page(Page&& that) : fSize(that.fSize), fContent(std::move(that.fContent)) {}
+  Page(Page&&) = default;
   Page(const Page&) = default;
   Page& operator=(const Page&) = default;
-  Page& operator=(Page&& that) {
-    fSize = that.fSize;
-    fContent = std::move(that.fContent);
-    return *this;
-  }
+  Page& operator=(Page&&) = default;
   SkSize fSize;
   sk_sp<SkPicture> fContent;
 };

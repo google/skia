@@ -290,8 +290,8 @@ private:
         SkPDFUnion fKey;
         SkPDFUnion fValue;
         Record(SkPDFUnion&&, SkPDFUnion&&);
-        Record(Record&&);
-        Record& operator=(Record&&);
+        Record(Record&&) = default;
+        Record& operator=(Record&&) = default;
         Record(const Record&) = delete;
         Record& operator=(const Record&) = delete;
     };

@@ -120,19 +120,8 @@ public:
         uint16_t fEndId;
         SkTDArray<Data> fAdvance;
         AdvanceMetric(uint16_t startId) : fStartId(startId) {}
-        AdvanceMetric(AdvanceMetric&& other)
-            : fType(other.fType)
-            , fStartId(other.fStartId)
-            , fEndId(other.fEndId) {
-            fAdvance.swap(other.fAdvance);
-        }
-        AdvanceMetric& operator=(AdvanceMetric&& other) {
-            fType = other.fType;
-            fStartId = other.fStartId;
-            fEndId = other.fEndId;
-            fAdvance.swap(other.fAdvance);
-            return *this;
-        }
+        AdvanceMetric(AdvanceMetric&& other) = default;
+        AdvanceMetric& operator=(AdvanceMetric&& other) = default;
         AdvanceMetric(const AdvanceMetric&) = delete;
         AdvanceMetric& operator=(const AdvanceMetric&) = delete;
     };

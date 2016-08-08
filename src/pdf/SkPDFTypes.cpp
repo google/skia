@@ -397,15 +397,6 @@ void SkPDFDict::addResources(SkPDFObjNumMap* catalog,
 SkPDFDict::Record::Record(SkPDFUnion&& k, SkPDFUnion&& v)
     : fKey(std::move(k)), fValue(std::move(v)) {}
 
-SkPDFDict::Record::Record(SkPDFDict::Record&& o)
-    : fKey(std::move(o.fKey)), fValue(std::move(o.fValue)) {}
-
-SkPDFDict::Record& SkPDFDict::Record::operator=(SkPDFDict::Record&& o) {
-    fKey = std::move(o.fKey);
-    fValue = std::move(o.fValue);
-    return *this;
-}
-
 int SkPDFDict::size() const { return fRecords.count(); }
 
 void SkPDFDict::insertObjRef(const char key[], sk_sp<SkPDFObject> objSp) {
