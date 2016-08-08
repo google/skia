@@ -9,7 +9,7 @@
 #define GrTextureStripAtlas_DEFINED
 
 #include "SkBitmap.h"
-#include "SkChecksum.h"
+#include "SkOpts.h"
 #include "SkGr.h"
 #include "SkTDArray.h"
 #include "SkTDynamicHash.h"
@@ -142,7 +142,7 @@ private:
     public:
         // for SkTDynamicHash
         static const Desc& GetKey(const AtlasEntry& entry) { return entry.fDesc; }
-        static uint32_t Hash(const Desc& desc) { return SkChecksum::Murmur3(&desc, sizeof(Desc)); }
+        static uint32_t Hash(const Desc& desc) { return SkOpts::hash(&desc, sizeof(Desc)); }
 
         // AtlasEntry proper
         AtlasEntry() : fAtlas(nullptr) {}

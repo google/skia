@@ -26,6 +26,7 @@
 #include "SkBlitMask_opts.h"
 #include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
+#include "SkChecksum_opts.h"
 #include "SkColorCubeFilter_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkSwizzler_opts.h"
@@ -70,12 +71,14 @@ namespace SkOpts {
     DEFINE_DEFAULT(inverted_CMYK_to_BGR1);
 
     DEFINE_DEFAULT(srcover_srgb_srgb);
+
+    DEFINE_DEFAULT(hash_fn);
 #undef DEFINE_DEFAULT
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
     void Init_sse41();
-    void Init_sse42() {}
+    void Init_sse42();
     void Init_avx();
     void Init_avx2() {}
 

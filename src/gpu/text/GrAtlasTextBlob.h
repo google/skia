@@ -14,6 +14,7 @@
 #include "GrMemoryPool.h"
 #include "SkDescriptor.h"
 #include "SkMaskFilter.h"
+#include "SkOpts.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
 #include "SkSurfaceProps.h"
@@ -89,7 +90,7 @@ public:
     }
 
     static uint32_t Hash(const Key& key) {
-        return SkChecksum::Murmur3(&key, sizeof(Key));
+        return SkOpts::hash(&key, sizeof(Key));
     }
 
     void operator delete(void* p) {

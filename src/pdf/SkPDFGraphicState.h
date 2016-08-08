@@ -10,7 +10,7 @@
 #define SkPDFGraphicState_DEFINED
 
 #include "SkPDFTypes.h"
-#include "SkChecksum.h"
+#include "SkOpts.h"
 
 class SkPaint;
 class SkPDFCanon;
@@ -63,7 +63,7 @@ public:
     bool operator==(const SkPDFGraphicState& rhs) const {
         return 0 == memcmp(&fStrokeWidth, &rhs.fStrokeWidth, 12);
     }
-    uint32_t hash() const { return SkChecksum::Murmur3(&fStrokeWidth, 12); }
+    uint32_t hash() const { return SkOpts::hash(&fStrokeWidth, 12); }
 
 private:
     const SkScalar fStrokeWidth;

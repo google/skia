@@ -158,6 +158,13 @@ source_set("opts_sse41") {
   cflags = [ "-msse4.1" ]
 }
 
+source_set("opts_sse42") {
+  configs += skia_library_configs
+
+  sources = opts_gypi.sse42_sources
+  cflags = [ "-msse4.2" ]
+}
+
 source_set("opts_avx") {
   configs += skia_library_configs
 
@@ -172,6 +179,7 @@ component("skia") {
   deps = [
     ":opts_avx",
     ":opts_sse41",
+    ":opts_sse42",
     ":opts_ssse3",
     "//third_party/expat",
     "//third_party/giflib",

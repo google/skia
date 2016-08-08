@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkChecksum.h"
 #include "SkFontDescriptor.h"
+#include "SkOpts.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTypeface.h"
@@ -80,7 +80,7 @@ static uint32_t compute_checksum(const SkTypeface* tf) {
     if (!fontStream->peek(data.begin(), length)) {
         return 0;
     }
-    return SkChecksum::Murmur3(data.begin(), length);
+    return SkOpts::hash(data.begin(), length);
 }
 
 static void serialize_sub(const char* fontName, SkFontStyle style, SkWStream* wstream) {

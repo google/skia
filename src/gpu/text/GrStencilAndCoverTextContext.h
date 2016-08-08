@@ -11,6 +11,7 @@
 #include "GrDrawContext.h"
 #include "GrStyle.h"
 #include "SkDrawFilter.h"
+#include "SkOpts.h"
 #include "SkTextBlob.h"
 #include "SkTHash.h"
 #include "SkTInternalLList.h"
@@ -120,7 +121,7 @@ private:
 
         static uint32_t Hash(const Key& key) {
             SkASSERT(key.count() > 1); // 1-length keys should be using the blob-id hash map.
-            return SkChecksum::Murmur3(key.begin(), sizeof(uint32_t) * key.count());
+            return SkOpts::hash(key.begin(), sizeof(uint32_t) * key.count());
         }
 
         TextBlob(uint32_t blobId, const SkTextBlob* skBlob, const SkPaint& skPaint)

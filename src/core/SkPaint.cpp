@@ -7,7 +7,6 @@
 
 #include "SkPaint.h"
 #include "SkAutoKern.h"
-#include "SkChecksum.h"
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDraw.h"
@@ -19,6 +18,7 @@
 #include "SkMutex.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
+#include "SkOpts.h"
 #include "SkPaintDefaults.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
@@ -2388,6 +2388,6 @@ uint32_t SkPaint::getHash() const {
     // so fBitfields should be 10 pointers and 6 32-bit values from the start.
     static_assert(offsetof(SkPaint, fBitfields) == 9 * sizeof(void*) + 6 * sizeof(uint32_t),
                   "SkPaint_notPackedTightly");
-    return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(this),
-                               offsetof(SkPaint, fBitfields) + sizeof(fBitfields));
+    return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
+                        offsetof(SkPaint, fBitfields) + sizeof(fBitfields));
 }

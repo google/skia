@@ -11,6 +11,7 @@
 #include "GrProcessor.h"
 #include "GrVkPipelineState.h"
 #include "GrVkPipelineStateBuilder.h"
+#include "SkOpts.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
@@ -112,8 +113,8 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
     int keyLength = desc.fStateKey.count();
     SkASSERT(0 == (keyLength % 4));
     // Seed the checksum with the checksum of the programDesc then add the vulkan key to it.
-    desc.fChecksum = SkChecksum::Murmur3(desc.fStateKey.begin(), keyLength,
-                                         desc.fProgramDesc.getChecksum());
+    desc.fChecksum = SkOpts::hash(desc.fStateKey.begin(), keyLength,
+                                  desc.fProgramDesc.getChecksum());
 
     Entry* entry = nullptr;
     if (Entry** entryptr = fHashTable.find(desc)) {
