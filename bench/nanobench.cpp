@@ -110,6 +110,7 @@ DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 DEFINE_string(zoom, "1.0,0", "Comma-separated zoomMax,zoomPeriodMs factors for a periodic SKP zoom "
                              "function that ping-pongs between 1.0 and zoomMax.");
 DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
+DEFINE_bool(lite, false, "Use SkLiteRecorder in recording benchmarks?");
 DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
 DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
@@ -691,7 +692,7 @@ public:
             fBenchType  = "recording";
             fSKPBytes = static_cast<double>(SkPictureUtils::ApproximateBytesUsed(pic.get()));
             fSKPOps   = pic->approximateOpCount();
-            return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh);
+            return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh, FLAGS_lite);
         }
 
         // Then once each for each scale as SKPBenches (playback).

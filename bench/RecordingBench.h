@@ -13,7 +13,7 @@
 
 class RecordingBench : public Benchmark {
 public:
-    RecordingBench(const char* name, const SkPicture*, bool useBBH);
+    RecordingBench(const char* name, const SkPicture*, bool useBBH, bool lite);
 
 protected:
     const char* onGetName() override;
@@ -22,9 +22,10 @@ protected:
     SkIPoint onGetSize() override;
 
 private:
-    SkAutoTUnref<const SkPicture> fSrc;
+    sk_sp<const SkPicture> fSrc;
     SkString fName;
     bool fUseBBH;
+    bool fLite;
 
     typedef Benchmark INHERITED;
 };
