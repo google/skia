@@ -90,8 +90,9 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     const char* distanceVectorName = nullptr;
     if (this->fPipeline.usesDistanceVectorField() && proc.implementsDistanceVector()) {
         distanceVectorName = fFS.distanceVectorName();
-        fFS.codeAppend( "// Un-normalized vector to the closed geometric edge (in source space)\n");
-        fFS.codeAppendf("vec2 %s;", distanceVectorName);
+        fFS.codeAppend( "// Normalized vector to the closest geometric edge (in source space)\n");
+        fFS.codeAppend( "// Distance to the edge encoded in the z-component\n");
+        fFS.codeAppendf("vec3 %s;", distanceVectorName);
     }
 
     // Enclose custom code in a block to avoid namespace conflicts

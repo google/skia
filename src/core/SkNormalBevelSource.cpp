@@ -86,10 +86,9 @@ public:
             }
 
             // Here we are splitting the distance vector into length and normalized direction
-            // TODO: Output these values from the geometry processor frag code instead of the vector
-            fragBuilder->codeAppendf("float dv_length = length(%s);",
+            fragBuilder->codeAppendf("float dv_length = %s.z;",
                                      fragBuilder->distanceVectorName());
-            fragBuilder->codeAppendf("vec2 dv_norm = normalize(%s);",
+            fragBuilder->codeAppendf("vec2 dv_norm = %s.xy;",
                                      fragBuilder->distanceVectorName());
 
             // Asserting presence of necessary uniforms

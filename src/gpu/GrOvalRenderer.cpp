@@ -139,10 +139,10 @@ public:
 
             if (args.fDistanceVectorName) {
                 fragBuilder->codeAppend ("if (d == 0.0) {"); // if on the center of the circle
-                fragBuilder->codeAppendf("    %s = vec2(distanceToEdge, 0.0);", // avoid normalizing
+                fragBuilder->codeAppendf("    %s = vec3(1.0, 0.0, distanceToEdge);", // no normalize
                                          args.fDistanceVectorName);
                 fragBuilder->codeAppend ("} else {");
-                fragBuilder->codeAppendf("    %s = normalize(%s.xy) * distanceToEdge;",
+                fragBuilder->codeAppendf("    %s = vec3(normalize(%s.xy), distanceToEdge);",
                                          args.fDistanceVectorName, v.fsIn());
                 fragBuilder->codeAppend ("}");
             }
