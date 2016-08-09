@@ -241,7 +241,7 @@ namespace {
 
     struct DrawImage final : Op {
         DrawImage(sk_sp<const SkImage>&& image, SkScalar x, SkScalar y, const SkPaint* paint)
-            : image(image), x(x), y(y) {
+            : image(std::move(image)), x(x), y(y) {
             if (paint) { this->paint = *paint; }
         }
         sk_sp<const SkImage> image;
@@ -253,7 +253,7 @@ namespace {
     struct DrawImageNine final : Op {
         DrawImageNine(sk_sp<const SkImage>&& image,
                       const SkIRect& center, const SkRect& dst, const SkPaint* paint)
-            : image(image), center(center), dst(dst) {
+            : image(std::move(image)), center(center), dst(dst) {
             if (paint) { this->paint = *paint; }
         }
         sk_sp<const SkImage> image;
@@ -266,7 +266,7 @@ namespace {
     struct DrawImageRect final : Op {
         DrawImageRect(sk_sp<const SkImage>&& image, const SkRect* src, const SkRect& dst,
                       const SkPaint* paint, SkCanvas::SrcRectConstraint constraint)
-            : image(image), dst(dst), constraint(constraint) {
+            : image(std::move(image)), dst(dst), constraint(constraint) {
             this->src = src ? *src : SkRect::MakeIWH(image->width(), image->height());
             if (paint) { this->paint = *paint; }
         }
@@ -282,7 +282,7 @@ namespace {
     struct DrawImageLattice final : Op {
         DrawImageLattice(sk_sp<const SkImage>&& image, int xs, int ys,
                          const SkRect& dst, const SkPaint* paint)
-            : image(image), xs(xs), ys(ys), dst(dst) {
+            : image(std::move(image)), xs(xs), ys(ys), dst(dst) {
             if (paint) { this->paint = *paint; }
         }
         sk_sp<const SkImage> image;
