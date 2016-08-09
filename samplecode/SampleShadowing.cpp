@@ -13,22 +13,6 @@
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
 
-static sk_sp<SkShader> make_shadow_shader(sk_sp<SkImage> povDepth,
-                                          sk_sp<SkImage> diffuse,
-                                          sk_sp<SkLights> lights) {
-
-    sk_sp<SkShader> povDepthShader = povDepth->makeShader(SkShader::kClamp_TileMode,
-                                                          SkShader::kClamp_TileMode);
-
-    sk_sp<SkShader> diffuseShader = diffuse->makeShader(SkShader::kClamp_TileMode,
-                                                        SkShader::kClamp_TileMode);
-
-    return SkShadowShader::Make(std::move(povDepthShader),
-                                std::move(diffuseShader),
-                                std::move(lights),
-                                diffuse->width(), diffuse->height());
-}
-
 class ShadowingView : public SampleView {
 public:
     ShadowingView() {
@@ -36,9 +20,9 @@ public:
         this->setBGColor(0xFFCCCCCC);
         SkLights::Builder builder;
         builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.3f, 0.4f),
-                                    SkVector3::Make(0.27f, 0.07f, 1.0f)));
+                                    SkVector3::Make(0.2f, 0.05f, 1.0f)));
         builder.add(SkLights::Light(SkColor3f::Make(0.4f, 0.3f, 0.2f),
-                                    SkVector3::Make(0.03f, 0.27f, 1.0f)));
+                                    SkVector3::Make(0.05f, 0.2f, 1.0f)));
         builder.add(SkLights::Light(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
         fLights = builder.finish();
 
@@ -59,6 +43,8 @@ public:
 
         fSelectedRect = -1;
         fMoveLight = false;
+
+        fClearShadowMaps = false;
     }
 
 protected:
@@ -73,6 +59,13 @@ protected:
             switch (uni) {
                 case 'L':
                     fMoveLight = !fMoveLight;
+                    break;
+                case 'd':
+                    // Raster generated shadow maps have their origin in the UL corner
+                    // GPU shadow maps can have an arbitrary origin.
+                    // We override the 'd' keypress so that when the device is cycled,
+                    // the shadow maps will be re-generated according to the new backend.
+                    fClearShadowMaps = true;
                     break;
                 default:
                     break;
@@ -111,103 +104,22 @@ protected:
         return recorder.finishRecordingAsPicture();
     }
 
-    void updateDepthMaps(SkCanvas *canvas) {
-        for (int i = 0; i < fLights->numLights(); ++i) {
-            // skip over ambient lights; they don't cast shadows
-            if (SkLights::Light::kAmbient_LightType == fLights->light(i).type()) {
-                continue;
-            }
-
-            // TODO: maybe add a kDepth_8_SkColorType when vertices have depth
-            // assume max depth is 255.
-            // TODO: find actual max depth of picture
-            SkISize shMapSize = SkShadowPaintFilterCanvas::
-                                ComputeDepthMapSize(fLights->light(i), 255, kWidth, kHeight);
-
-            SkImageInfo info = SkImageInfo::Make(shMapSize.fWidth, shMapSize.fHeight,
-                                                 kBGRA_8888_SkColorType,
-                                                 kOpaque_SkAlphaType);
-
-            // Create a new surface (that matches the backend of canvas)
-            // for each shadow map
-            sk_sp<SkSurface> surf(canvas->makeSurface(info));
-
-            // Wrap another SPFCanvas around the surface
-            sk_sp<SkShadowPaintFilterCanvas> depthMapCanvas =
-                    sk_make_sp<SkShadowPaintFilterCanvas>(surf->getCanvas());
-
-            // set the depth map canvas to have the light we're drawing.
-            SkLights::Builder builder;
-            builder.add(fLights->light(i));
-            sk_sp<SkLights> curLight = builder.finish();
-
-            depthMapCanvas->setLights(std::move(curLight));
-            depthMapCanvas->drawPicture(fPicture);
-
-            fLights->light(i).setShadowMap(surf->makeImageSnapshot());
-        }
-    }
-
-    void updatePovDepthMap(SkCanvas* canvas) {
-        // TODO: pass the depth to the shader in vertices, or uniforms
-        //       so we don't have to render depth and color separately
-
-        SkLights::Builder builder;
-        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                    SkVector3::Make(0.0f, 0.0f, 1.0f)));
-        sk_sp<SkLights> povLight = builder.finish();
-
-        SkImageInfo info = SkImageInfo::Make(kWidth, kHeight,
-                                             kBGRA_8888_SkColorType,
-                                             kOpaque_SkAlphaType);
-
-        // Create a new surface (that matches the backend of canvas)
-        // to create the povDepthMap
-        sk_sp<SkSurface> surf(canvas->makeSurface(info));
-
-        // Wrap another SPFCanvas around the surface
-        sk_sp<SkShadowPaintFilterCanvas> depthMapCanvas =
-                sk_make_sp<SkShadowPaintFilterCanvas>(surf->getCanvas());
-
-        // set the depth map canvas to have the light as the user's POV
-        depthMapCanvas->setLights(std::move(povLight));
-
-        depthMapCanvas->drawPicture(fPicture);
-
-        fPovDepthMap = surf->makeImageSnapshot();
-    }
-
-    void updateDiffuseMap(SkCanvas* canvas) {
-        SkImageInfo info = SkImageInfo::Make(kWidth, kHeight,
-                                             kBGRA_8888_SkColorType,
-                                             kOpaque_SkAlphaType);
-
-        sk_sp<SkSurface> surf(canvas->makeSurface(info));
-        surf->getCanvas()->drawPicture(fPicture);
-
-        fDiffuseMap = surf->makeImageSnapshot();
-    }
-
     void onDrawContent(SkCanvas *canvas) override {
-        if (fSceneChanged || !fPovDepthMap) {
+        if (fSceneChanged) {
             fPicture = this->makeTestPicture(kWidth, kHeight);
-            this->updateDepthMaps(canvas);
-            this->updatePovDepthMap(canvas);
-            this->updateDiffuseMap(canvas);
         }
 
-        if (fLightsChanged) {
-            this->updateDepthMaps(canvas);
+        if (fSceneChanged || fLightsChanged || fClearShadowMaps) {
+            for (int i = 0; i < fLights->numLights(); i++) {
+                fLights->light(i).setShadowMap(nullptr);
+            }
+            fSceneChanged = false;
+            fLightsChanged = false;
+            fClearShadowMaps = false;
+
+            canvas->setLights(fLights);
+            canvas->drawShadowedPicture(fPicture, nullptr, nullptr);
         }
-
-        if (fSceneChanged || fLightsChanged || !fShadowShader) {
-            fShadowShader = make_shadow_shader(fPovDepthMap, fDiffuseMap, fLights);
-        }
-
-        SkPaint paint;
-        paint.setShader(fShadowShader);
-
-        canvas->drawRect(SkRect::MakeIWH(kWidth, kHeight), paint);
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
@@ -228,12 +140,12 @@ protected:
 
                 SkLights::Builder builder;
                 builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.3f, 0.4f),
-                                            SkVector3::Make(0.12f + (200.0f - x) * recipX,
-                                                            -0.08f + (200.0f - y) * recipY,
+                                            SkVector3::Make(0.2f + (200.0f - x) * recipX,
+                                                            0.05f + (200.0f - y) * recipY,
                                                             1.0f)));
                 builder.add(SkLights::Light(SkColor3f::Make(0.4f, 0.3f, 0.2f),
-                                            SkVector3::Make(-0.12f + (200.0f - x) * recipX,
-                                                            0.12f + (200.0f - y) * recipY,
+                                            SkVector3::Make(0.05f + (200.0f - x) * recipX,
+                                                            0.2f + (200.0f - y) * recipY,
                                                             1.0f)));
                 builder.add(SkLights::Light(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
                 fLights = builder.finish();
@@ -277,6 +189,7 @@ private:
 
     static const int kWidth = 400;
     static const int kHeight = 400;
+    bool fClearShadowMaps;
 
     struct {
         SkRect  fGeometry;
@@ -287,10 +200,7 @@ private:
     int fSelectedRect;
     bool fMoveLight;
 
-    sk_sp<SkImage>   fPovDepthMap;
-    sk_sp<SkImage>   fDiffuseMap;
     sk_sp<SkPicture> fPicture;
-    sk_sp<SkShader>  fShadowShader;
 
     bool fSceneChanged;
     bool fLightsChanged;
