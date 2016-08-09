@@ -8,6 +8,7 @@
 #ifndef SkCurveMeasure_DEFINED
 #define SkCurveMeasure_DEFINED
 
+#include "SkPathMeasurePriv.h"
 #include "SkPoint.h"
 #include "SkNx.h"
 
@@ -25,14 +26,6 @@ static SkScalar absc8[8] = {-0.1834346424956498f, 0.1834346424956498f,
 static Sk8f weights = Sk8f::Load(weights8);
 static Sk8f absc = 0.5f*(Sk8f::Load(absc8) + 1.0f);
 
-
-// this is the same enum as in SkPathMeasure but it doesn't have a name there
-enum SkSegType {
-    kLine_SegType,
-    kQuad_SegType,
-    kCubic_SegType,
-    kConic_SegType,
-};
 
 class ArcLengthIntegrator {
 public:

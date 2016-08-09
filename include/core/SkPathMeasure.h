@@ -95,7 +95,8 @@ private:
         SkScalar    fDistance;  // total distance up to this point
         unsigned    fPtIndex; // index into the fPts array
         unsigned    fTValue : 30;
-        unsigned    fType : 2;
+        unsigned    fType : 2;  // actually the enum SkSegType
+                                // See SkPathMeasurePriv.h
 
         SkScalar getScalarT() const;
     };
