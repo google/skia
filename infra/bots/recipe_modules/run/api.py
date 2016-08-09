@@ -62,8 +62,8 @@ class SkiaStepApi(recipe_api.RecipeApi):
   def rmtree(self, path):
     """Wrapper around api.file.rmtree with environment fix."""
     env = {}
-    env['PYTHONPATH'] = str(self.m.path['checkout'].join(
-        'infra', 'bots', '.recipe_deps', 'build', 'scripts'))
+    env['PYTHONPATH'] = str(self.m.path['slave_build'].join(
+        'skia', 'infra', 'bots', '.recipe_deps', 'build', 'scripts'))
     self.m.file.rmtree(self.m.path.basename(path),
                        path,
                        env=env,
