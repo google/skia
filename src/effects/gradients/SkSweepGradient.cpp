@@ -125,28 +125,10 @@ void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* S
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-class GrGLSweepGradient : public GrGLGradientEffect {
-public:
-
-    GrGLSweepGradient(const GrProcessor&) {}
-    virtual ~GrGLSweepGradient() { }
-
-    virtual void emitCode(EmitArgs&) override;
-
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(processor));
-    }
-
-private:
-
-    typedef GrGLGradientEffect INHERITED;
-
-};
-
-/////////////////////////////////////////////////////////////////////
-
 class GrSweepGradient : public GrGradientEffect {
 public:
+    class GLSLSweepProcessor;
+
     static sk_sp<GrFragmentProcessor> Make(GrContext* ctx, const SkSweepGradient& shader,
                                            const SkMatrix& m) {
         return sk_sp<GrFragmentProcessor>(new GrSweepGradient(ctx, shader, m));
@@ -163,19 +145,45 @@ private:
         this->initClassID<GrSweepGradient>();
     }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GrGLSweepGradient(*this);
-    }
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override {
-        GrGLSweepGradient::GenKey(*this, caps, b);
-    }
+                                       GrProcessorKeyBuilder* b) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrGradientEffect INHERITED;
 };
+
+/////////////////////////////////////////////////////////////////////
+
+class GrSweepGradient::GLSLSweepProcessor : public GrGradientEffect::GLSLProcessor {
+public:
+    GLSLSweepProcessor(const GrProcessor&) {}
+    virtual ~GLSLSweepProcessor() { }
+
+    virtual void emitCode(EmitArgs&) override;
+
+    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+        b->add32(GenBaseGradientKey(processor));
+    }
+
+private:
+    typedef GrGradientEffect::GLSLProcessor INHERITED;
+
+};
+
+/////////////////////////////////////////////////////////////////////
+
+GrGLSLFragmentProcessor* GrSweepGradient::onCreateGLSLInstance() const {
+    return new GrSweepGradient::GLSLSweepProcessor(*this);
+}
+
+void GrSweepGradient::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                            GrProcessorKeyBuilder* b) const {
+    GrSweepGradient::GLSLSweepProcessor::GenKey(*this, caps, b);
+}
+
 
 /////////////////////////////////////////////////////////////////////
 
@@ -201,7 +209,7 @@ sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLSweepGradient::emitCode(EmitArgs& args) {
+void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
     const GrSweepGradient& ge = args.fFp.cast<GrSweepGradient>();
     this->emitUniforms(args.fUniformHandler, ge);
     SkString coords2D = args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0);

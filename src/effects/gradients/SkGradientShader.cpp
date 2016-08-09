@@ -911,12 +911,12 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "glsl/GrGLSLUniformHandler.h"
 #include "SkGr.h"
 
-GrGLGradientEffect::GrGLGradientEffect()
+GrGradientEffect::GLSLProcessor::GLSLProcessor()
     : fCachedYCoord(SK_ScalarMax) {
 }
 
-void GrGLGradientEffect::emitUniforms(GrGLSLUniformHandler* uniformHandler,
-                                      const GrGradientEffect& ge) {
+void GrGradientEffect::GLSLProcessor::emitUniforms(GrGLSLUniformHandler* uniformHandler,
+                                                   const GrGradientEffect& ge) {
 
     if (SkGradientShaderBase::kTwo_GpuColorType == ge.getColorType()) { // 2 Color case
         fColorStartUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
@@ -966,8 +966,8 @@ static inline void set_mul_color_uni(const GrGLSLProgramDataManager& pdman,
                    a);
 }
 
-void GrGLGradientEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                   const GrProcessor& processor) {
+void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
+                                                const GrProcessor& processor) {
 
     const GrGradientEffect& e = processor.cast<GrGradientEffect>();
 
@@ -1004,7 +1004,7 @@ void GrGLGradientEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 }
 
 
-uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrProcessor& processor) {
+uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& processor) {
     const GrGradientEffect& e = processor.cast<GrGradientEffect>();
 
     uint32_t key = 0;
@@ -1022,14 +1022,14 @@ uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrProcessor& processor) {
     return key;
 }
 
-void GrGLGradientEffect::emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
-                                   GrGLSLUniformHandler* uniformHandler,
-                                   const GrGLSLCaps* glslCaps,
-                                   const GrGradientEffect& ge,
-                                   const char* gradientTValue,
-                                   const char* outputColor,
-                                   const char* inputColor,
-                                   const SamplerHandle* texSamplers) {
+void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
+                                                GrGLSLUniformHandler* uniformHandler,
+                                                const GrGLSLCaps* glslCaps,
+                                                const GrGradientEffect& ge,
+                                                const char* gradientTValue,
+                                                const char* outputColor,
+                                                const char* inputColor,
+                                                const SamplerHandle* texSamplers) {
     if (SkGradientShaderBase::kTwo_GpuColorType == ge.getColorType()){
         fragBuilder->codeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
                                  uniformHandler->getUniformVariable(fColorStartUni).c_str(),

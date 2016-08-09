@@ -326,6 +326,7 @@ class GrInvariantOutput;
 // Base class for Gr gradient effects
 class GrGradientEffect : public GrFragmentProcessor {
 public:
+    class GLSLProcessor;
 
     GrGradientEffect(GrContext* ctx,
                      const SkGradientShaderBase& shader,
@@ -353,7 +354,6 @@ public:
     }
 
 protected:
-
     /** Populates a pair of arrays with colors and stop info to construct a random gradient.
         The function decides whether stop values should be used or not. The return value indicates
         the number of colors, which will be capped by kMaxRandomGradientColors. colors should be
@@ -392,10 +392,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Base class for GL gradient effects
-class GrGLGradientEffect : public GrGLSLFragmentProcessor {
+// Base class for GLSL gradient effects
+class GrGradientEffect::GLSLProcessor : public GrGLSLFragmentProcessor {
 public:
-    GrGLGradientEffect();
+    GLSLProcessor();
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
