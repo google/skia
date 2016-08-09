@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -11,12 +10,15 @@
 #include <GL/glx.h>
 #include <GL/glu.h>
 
+#include <vector>
+#include <utility>
+
 namespace {
 
 /* Note: Skia requires glx 1.3 or newer */
 
 /* This struct is taken from a mesa demo.  Please update as required */
-static const struct { int major, minor; } gl_versions[] = {
+static const std::vector<std::pair<int, int>> gl_versions = {
    {1, 0},
    {1, 1},
    {1, 2},
@@ -34,9 +36,12 @@ static const struct { int major, minor; } gl_versions[] = {
    {4, 2},
    {4, 3},
    {4, 4},
-   {0, 0} /* end of list */
 };
-#define NUM_GL_VERSIONS SK_ARRAY_COUNT(gl_versions)
+
+static const std::vector<std::pair<int, int>> gles_versions = {
+    {2, 0},
+    {3, 0},
+};
 
 static bool ctxErrorOccurred = false;
 static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
@@ -51,6 +56,8 @@ public:
 
 private:
     void destroyGLContext();
+    static GLXContext CreateBestContext(bool isES, Display* display, GLXFBConfig bestFbc,
+                                        GLXContext glxSharedContext);
 
     void onPlatformMakeCurrent() const override;
     void onPlatformSwapBuffers() const override;
@@ -149,25 +156,10 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
     // Done with the visual info data
     XFree(vi);
 
-    // Create the context
-
-    // Install an X error handler so the application won't exit if GL 3.0
-    // context allocation fails.
-    //
-    // Note this error handler is global.
-    // All display connections in all threads of a process use the same
-    // error handler, so be sure to guard against other threads issuing
-    // X commands while this code is running.
-    ctxErrorOccurred = false;
-    int (*oldHandler)(Display*, XErrorEvent*) =
-        XSetErrorHandler(&ctxErrorHandler);
-
     // Get the default screen's GLX extension list
     const char *glxExts = glXQueryExtensionsString(
         fDisplay, DefaultScreen(fDisplay)
     );
-
-
     // Check for the GLX_ARB_create_context extension string and the function.
     // If either is not present, use GLX 1.3 context creation method.
     if (!gluCheckExtension(reinterpret_cast<const GLubyte*>("GLX_ARB_create_context"),
@@ -176,85 +168,17 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
             fContext = glXCreateNewContext(fDisplay, bestFbc, GLX_RGBA_TYPE, 0, True);
         }
     } else {
-        //SkDebugf("Creating context.\n");
-        PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB =
-            (PFNGLXCREATECONTEXTATTRIBSARBPROC) glXGetProcAddressARB((GrGLubyte*)"glXCreateContextAttribsARB");
-
         if (kGLES_GrGLStandard == forcedGpuAPI) {
             if (gluCheckExtension(
                     reinterpret_cast<const GLubyte*>("GLX_EXT_create_context_es2_profile"),
                     reinterpret_cast<const GLubyte*>(glxExts))) {
-                const int context_attribs_gles[] = {
-                    GLX_CONTEXT_MAJOR_VERSION_ARB, 2,
-                    GLX_CONTEXT_MINOR_VERSION_ARB, 0,
-                    GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT,
-                    None
-                };
-                fContext = glXCreateContextAttribsARB(fDisplay, bestFbc, glxShareContext, True,
-                                                      context_attribs_gles);
+                fContext = CreateBestContext(true, fDisplay, bestFbc, glxShareContext);
             }
         } else {
-            // Well, unfortunately GLX will not just give us the highest context so instead we have
-            // to do this nastiness
-            for (i = NUM_GL_VERSIONS - 2; i > 0 ; i--) {
-                /* don't bother below GL 3.0 */
-                if (gl_versions[i].major < 3) {
-                    break;
-                }
-                // On Nvidia GPUs, to use Nv Path rendering we need a compatibility profile for the
-                // time being.
-                // TODO when Nvidia implements NVPR on Core profiles, we should start requesting
-                // core here
-                // Warning: This array should not be set to static. The
-                // glXCreateContextAttribsARB call writes to it upon failure and
-                // the next call would fail too.
-                const int context_attribs_gl[] = {
-                      GLX_CONTEXT_MAJOR_VERSION_ARB, gl_versions[i].major,
-                      GLX_CONTEXT_MINOR_VERSION_ARB, gl_versions[i].minor,
-                      GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
-                      None
-                };
-                fContext =
-                        glXCreateContextAttribsARB(fDisplay, bestFbc, glxShareContext, True,
-                                                   context_attribs_gl);
-
-                // Sync to ensure any errors generated are processed.
-                XSync(fDisplay, False);
-
-                if (!ctxErrorOccurred && fContext) {
-                    break;
-                }
-                // try again
-                ctxErrorOccurred = false;
-            }
-
-            // Couldn't create GL 3.0 context.
-            // Fall back to old-style 2.x context.
-            // When a context version below 3.0 is requested,
-            // implementations will return the newest context version
-            // compatible with OpenGL versions less than version 3.0.
-            if (ctxErrorOccurred || !fContext) {
-                const int context_attribs_gl_fallback[] = {
-                    GLX_CONTEXT_MAJOR_VERSION_ARB, 1,
-                    GLX_CONTEXT_MINOR_VERSION_ARB, 0,
-                    None
-                };
-
-                ctxErrorOccurred = false;
-
-                fContext = glXCreateContextAttribsARB(fDisplay, bestFbc, glxShareContext, True,
-                                                      context_attribs_gl_fallback);
-            }
+            fContext = CreateBestContext(false, fDisplay, bestFbc, glxShareContext);
         }
     }
-
-    // Sync to ensure any errors generated are processed.
-    XSync(fDisplay, False);
-
-    // Restore the original error handler
-    XSetErrorHandler(oldHandler);
-
-    if (ctxErrorOccurred || !fContext) {
+    if (!fContext) {
         SkDebugf("Failed to create an OpenGL context.\n");
         this->destroyGLContext();
         return;
@@ -318,6 +242,68 @@ void GLXGLTestContext::destroyGLContext() {
         XCloseDisplay(fDisplay);
         fDisplay = nullptr;
     }
+}
+
+/* Create a context with the highest possible version.
+ *
+ * Disable Xlib errors for the duration of this function (by default they abort
+ * the program) and try to get a context starting from the highest version
+ * number - there is no way to just directly ask what the highest supported
+ * version is.
+ *
+ * Returns the correct context or NULL on failure.
+ */
+GLXContext GLXGLTestContext::CreateBestContext(bool isES, Display* display, GLXFBConfig bestFbc,
+                                               GLXContext glxShareContext) {
+    auto glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC)
+        glXGetProcAddressARB((GrGLubyte*)"glXCreateContextAttribsARB");
+    if (!glXCreateContextAttribsARB) {
+        SkDebugf("Failed to get address of glXCreateContextAttribsARB");
+        return nullptr;
+    }
+    GLXContext context = nullptr;
+    // Install Xlib error handler that will set ctxErrorOccurred.
+    // WARNING: It is global for all threads.
+    ctxErrorOccurred = false;
+    int (*oldHandler)(Display*, XErrorEvent*) = XSetErrorHandler(&ctxErrorHandler);
+
+    auto versions = isES ? gles_versions : gl_versions;
+    // Well, unfortunately GLX will not just give us the highest context so
+    // instead we have to do this nastiness
+    for (int i = versions.size() - 1; i >= 0 ; i--) {
+        // WARNING: Don't try to optimize this and make this array static. The
+        // glXCreateContextAttribsARB call writes to it upon failure and the
+        // next call would fail too.
+        std::vector<int> flags = {
+            GLX_CONTEXT_MAJOR_VERSION_ARB, versions[i].first,
+            GLX_CONTEXT_MINOR_VERSION_ARB, versions[i].second,
+        };
+        if (isES) {
+            flags.push_back(GLX_CONTEXT_PROFILE_MASK_ARB);
+            // the ES2 flag should work even for higher versions
+            flags.push_back(GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
+        } else if (versions[i].first > 2) {
+            flags.push_back(GLX_CONTEXT_PROFILE_MASK_ARB);
+            // TODO When Nvidia implements NVPR on Core profiles, we should start
+            // requesting core here - currently Nv Path rendering on Nvidia
+            // requires a compatibility profile.
+            flags.push_back(GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB);
+        }
+        flags.push_back(0);
+        context = glXCreateContextAttribsARB(display, bestFbc, glxShareContext, true,
+                                             &flags[0]);
+        // Sync to ensure any errors generated are processed.
+        XSync(display, False);
+
+        if (!ctxErrorOccurred && context) {
+            break;
+        }
+        // try again
+        ctxErrorOccurred = false;
+    }
+    // Restore the original error handler.
+    XSetErrorHandler(oldHandler);
+    return context;
 }
 
 void GLXGLTestContext::onPlatformMakeCurrent() const {
