@@ -48,6 +48,7 @@ TEST_BUILDERS = {
       'Housekeeper-Nightly-RecreateSKPs_Canary',
       'Infra-PerCommit',
       'Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot',
+      'Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs',
       'Test-Android-GCC-Nexus7v2-GPU-Tegra3-Arm7-Release',
       'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
       'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release',
@@ -97,6 +98,9 @@ def swarm_dimensions(builder_cfg):
     'pool': 'Skia',
   }
   dimensions['os'] = builder_cfg.get('os', 'Ubuntu')
+  if builder_cfg.get('extra_config', '').startswith('CT_'):
+    dimensions['pool'] = 'SkiaCT'
+    return dimensions  # Do not need any more dimensions for CT builders.
   if 'Win' in builder_cfg.get('os', ''):
     dimensions['os'] = 'Windows'
   if builder_cfg['role'] in ('Test', 'Perf'):
@@ -275,6 +279,24 @@ def recreate_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
   task = trigger_task(
       api,
       'RecreateSKPs',
+      api.properties['buildername'],
+      api.properties['mastername'],
+      api.properties['slavename'],
+      api.properties['buildnumber'],
+      builder_cfg,
+      got_revision,
+      infrabots_dir,
+      idempotent=False,
+      store_output=False,
+      extra_isolate_hashes=extra_isolate_hashes)
+  return api.swarming.collect_swarming_task(task)
+
+
+def ct_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
+                  extra_isolate_hashes):
+  task = trigger_task(
+      api,
+      'ct_skps',
       api.properties['buildername'],
       api.properties['mastername'],
       api.properties['slavename'],
@@ -627,6 +649,10 @@ def RunSteps(api):
                         extra_hashes)
     return
 
+  if '-CT_' in api.properties['buildername']:
+    ct_skps_swarm(api, builder_cfg, got_revision, infrabots_dir, extra_hashes)
+    return
+
   # Compile.
   do_compile_steps = True
   if 'Coverage' in api.properties['buildername']:
@@ -706,7 +732,7 @@ def test_for_bot(api, builder, mastername, slavename, testname=None):
     test += api.step_data(
         'upload new .isolated file for test_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))
-  if 'Perf' in builder:
+  if 'Perf' in builder and '-CT_' not in builder:
     test += api.step_data(
         'upload new .isolated file for perf_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))
