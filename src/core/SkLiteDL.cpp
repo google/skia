@@ -478,7 +478,8 @@ static void* push(SkTDArray<uint8_t>* bytes, size_t pod, Args&&... args) {
 
 template <typename Fn>
 static void map(SkTDArray<uint8_t>* bytes, Fn&& fn) {
-    for (uint8_t* ptr = bytes->begin(); ptr < bytes->end(); ) {
+    auto end = bytes->end();
+    for (uint8_t* ptr = bytes->begin(); ptr < end; ) {
         auto op = (Op*)ptr;
         fn(op);
         ptr += op->skip;
