@@ -13,6 +13,12 @@
  * overlap and create holes. There is not a really great algorithm for this
  * and several other 2D graphics engines have the same bug.
  *
+ * If we run this using Nvidia Path Renderer with:
+ * `path/to/dm --match OverStroke -w gm_out --gpu --config nvpr16`
+ * then we get correct results, so that is a possible direction of attack -
+ * use the GPU and a completely different algorithm to get correctness in
+ * Skia.
+ *
  * See crbug.com/589769 skbug.com/5405 skbug.com/5406
  */
 
@@ -20,14 +26,28 @@
 #include "gm.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPathMeasure.h"
+
+const SkScalar OVERSTROKE_WIDTH = 500.0f;
+const SkScalar NORMALSTROKE_WIDTH = 3.0f;
 
 //////// path and paint builders
+
+SkPaint make_normal_paint() {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(NORMALSTROKE_WIDTH);
+    p.setColor(SK_ColorBLUE);
+
+    return p;
+}
 
 SkPaint make_overstroke_paint() {
     SkPaint p;
     p.setAntiAlias(true);
     p.setStyle(SkPaint::kStroke_Style);
-    p.setStrokeWidth(500);
+    p.setStrokeWidth(OVERSTROKE_WIDTH);
 
     return p;
 }
@@ -38,6 +58,7 @@ SkPath quad_path() {
     path.lineTo(100, 0);
     path.quadTo(50, -40,
                 0, 0);
+    path.close();
 
     return path;
 }
@@ -62,19 +83,50 @@ SkPath oval_path() {
     return path;
 }
 
+SkPath ribs_path(SkPath path, SkScalar radius) {
+    SkPath ribs;
+
+    const SkScalar spacing = 5.0f;
+    float accum = 0.0f;
+
+    SkPathMeasure meas(path, false);
+    SkScalar length = meas.getLength();
+    SkPoint pos;
+    SkVector tan;
+    while (accum < length) {
+        if (meas.getPosTan(accum, &pos, &tan)) {
+            tan.scale(radius);
+            tan.rotateCCW();
+
+            ribs.moveTo(pos.x() + tan.x(), pos.y() + tan.y());
+            ribs.lineTo(pos.x() - tan.x(), pos.y() - tan.y());
+        }
+        accum += spacing;
+    }
+
+    return ribs;
+}
+
+void draw_ribs(SkCanvas *canvas, SkPath path) {
+    SkPath ribs = ribs_path(path, OVERSTROKE_WIDTH/2.0f);
+    SkPaint p = make_normal_paint();
+    p.setStrokeWidth(1);
+    p.setColor(SK_ColorBLUE);
+    p.setColor(SK_ColorGREEN);
+
+    canvas->drawPath(ribs, p);
+}
+
 ///////// quads
 
 void draw_small_quad(SkCanvas *canvas) {
     // scaled so it's visible
-    canvas->scale(8, 8);
+    // canvas->scale(8, 8);
 
-    SkPaint p;
-    p.setAntiAlias(true);
-    p.setStyle(SkPaint::kStroke_Style);
-    p.setStrokeWidth(3);
-
+    SkPaint p = make_normal_paint();
     SkPath path = quad_path();
 
+    draw_ribs(canvas, path);
     canvas->drawPath(path, p);
 }
 
@@ -83,15 +135,14 @@ void draw_large_quad(SkCanvas *canvas) {
     SkPath path = quad_path();
 
     canvas->drawPath(path, p);
+    draw_ribs(canvas, path);
 }
 
 void draw_quad_fillpath(SkCanvas *canvas) {
     SkPath path = quad_path();
     SkPaint p = make_overstroke_paint();
 
-    SkPaint fillp;
-    fillp.setAntiAlias(true);
-    fillp.setStyle(SkPaint::kStroke_Style);
+    SkPaint fillp = make_normal_paint();
     fillp.setColor(SK_ColorMAGENTA);
 
     SkPath fillpath;
@@ -101,7 +152,7 @@ void draw_quad_fillpath(SkCanvas *canvas) {
 }
 
 void draw_stroked_quad(SkCanvas *canvas) {
-    canvas->translate(200, 0);
+    canvas->translate(400, 0);
     draw_large_quad(canvas);
     draw_quad_fillpath(canvas);
 }
@@ -109,16 +160,10 @@ void draw_stroked_quad(SkCanvas *canvas) {
 ////////// cubics
 
 void draw_small_cubic(SkCanvas *canvas) {
-    // scaled so it's visible
-    canvas->scale(8, 8);
-
-    SkPaint p;
-    p.setAntiAlias(true);
-    p.setStyle(SkPaint::kStroke_Style);
-    p.setStrokeWidth(3);
-
+    SkPaint p = make_normal_paint();
     SkPath path = cubic_path();
 
+    draw_ribs(canvas, path);
     canvas->drawPath(path, p);
 }
 
@@ -127,15 +172,14 @@ void draw_large_cubic(SkCanvas *canvas) {
     SkPath path = cubic_path();
 
     canvas->drawPath(path, p);
+    draw_ribs(canvas, path);
 }
 
 void draw_cubic_fillpath(SkCanvas *canvas) {
     SkPath path = cubic_path();
     SkPaint p = make_overstroke_paint();
 
-    SkPaint fillp;
-    fillp.setAntiAlias(true);
-    fillp.setStyle(SkPaint::kStroke_Style);
+    SkPaint fillp = make_normal_paint();
     fillp.setColor(SK_ColorMAGENTA);
 
     SkPath fillpath;
@@ -153,16 +197,11 @@ void draw_stroked_cubic(SkCanvas *canvas) {
 ////////// ovals
 
 void draw_small_oval(SkCanvas *canvas) {
-    // scaled so it's visible
-    canvas->scale(8, 8);
-
-    SkPaint p;
-    p.setAntiAlias(true);
-    p.setStyle(SkPaint::kStroke_Style);
-    p.setStrokeWidth(3);
+    SkPaint p = make_normal_paint();
 
     SkPath path = oval_path();
 
+    draw_ribs(canvas, path);
     canvas->drawPath(path, p);
 }
 
@@ -171,15 +210,14 @@ void draw_large_oval(SkCanvas *canvas) {
     SkPath path = oval_path();
 
     canvas->drawPath(path, p);
+    draw_ribs(canvas, path);
 }
 
 void draw_oval_fillpath(SkCanvas *canvas) {
     SkPath path = oval_path();
     SkPaint p = make_overstroke_paint();
 
-    SkPaint fillp;
-    fillp.setAntiAlias(true);
-    fillp.setStyle(SkPaint::kStroke_Style);
+    SkPaint fillp = make_normal_paint();
     fillp.setColor(SK_ColorMAGENTA);
 
     SkPath fillpath;
@@ -210,9 +248,9 @@ DEF_SIMPLE_GM(OverStroke, canvas, 500, 500) {
         int y = (int)(i / width);
 
         canvas->save();
-        canvas->translate(200.0f * x, 150.0f * y);
-        canvas->scale(0.25f, 0.25f);
-        canvas->translate(100.0f, 400.0f);
+        canvas->translate(150.0f * x, 150.0f * y);
+        canvas->scale(0.2f, 0.2f);
+        canvas->translate(300.0f, 400.0f);
 
         examples[i](canvas);
 
