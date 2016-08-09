@@ -468,155 +468,161 @@ namespace {
 }
 
 template <typename T, typename... Args>
-static void* push(SkTDArray<uint8_t>* bytes, size_t pod, Args&&... args) {
+void* SkLiteDL::push(size_t pod, Args&&... args) {
     size_t skip = SkAlignPtr(sizeof(T) + pod);
-    auto op = (T*)bytes->append(skip);
+    if (fUsed + skip > fReserved) {
+        fReserved = (fUsed + skip + 4096) & ~4095;  // Next greater multiple of 4096.
+        fBytes.realloc(fReserved);
+    }
+    SkASSERT(fUsed + skip <= fReserved);
+    auto op = (T*)(fBytes.get() + fUsed);
+    fUsed += skip;
     new (op) T{ std::forward<Args>(args)... };
     op->skip = skip;
     return op+1;
 }
 
 template <typename Fn>
-static void map(SkTDArray<uint8_t>* bytes, Fn&& fn) {
-    auto end = bytes->end();
-    for (uint8_t* ptr = bytes->begin(); ptr < end; ) {
+void SkLiteDL::map(Fn&& fn) {
+    auto end = fBytes.get() + fUsed;
+    for (uint8_t* ptr = fBytes.get(); ptr < end; ) {
         auto op = (Op*)ptr;
         fn(op);
         ptr += op->skip;
     }
 }
 
-void SkLiteDL::   save() { push   <Save>(&fBytes, 0); }
-void SkLiteDL::restore() { push<Restore>(&fBytes, 0); }
+void SkLiteDL::   save() { this->push   <Save>(0); }
+void SkLiteDL::restore() { this->push<Restore>(0); }
 void SkLiteDL::saveLayer(const SkRect* bounds, const SkPaint* paint,
                          const SkImageFilter* backdrop, SkCanvas::SaveLayerFlags flags) {
-    push<SaveLayer>(&fBytes, 0, bounds, paint, backdrop, flags);
+    this->push<SaveLayer>(0, bounds, paint, backdrop, flags);
 }
 
-void SkLiteDL::   concat(const SkMatrix& matrix) { push   <Concat>(&fBytes, 0, matrix); }
-void SkLiteDL::setMatrix(const SkMatrix& matrix) { push<SetMatrix>(&fBytes, 0, matrix); }
-void SkLiteDL::translateZ(SkScalar dz) { push<TranslateZ>(&fBytes, 0, dz); }
+void SkLiteDL::   concat(const SkMatrix& matrix) { this->push   <Concat>(0, matrix); }
+void SkLiteDL::setMatrix(const SkMatrix& matrix) { this->push<SetMatrix>(0, matrix); }
+void SkLiteDL::translateZ(SkScalar dz) { this->push<TranslateZ>(0, dz); }
 
 void SkLiteDL::clipPath(const SkPath& path, SkRegion::Op op, bool aa) {
-    push<ClipPath>(&fBytes, 0, path, op, aa);
+    this->push<ClipPath>(0, path, op, aa);
 }
 void SkLiteDL::clipRect(const SkRect& rect, SkRegion::Op op, bool aa) {
-    push<ClipRect>(&fBytes, 0, rect, op, aa);
+    this->push<ClipRect>(0, rect, op, aa);
 }
 void SkLiteDL::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool aa) {
-    push<ClipRRect>(&fBytes, 0, rrect, op, aa);
+    this->push<ClipRRect>(0, rrect, op, aa);
 }
 void SkLiteDL::clipRegion(const SkRegion& region, SkRegion::Op op) {
-    push<ClipRegion>(&fBytes, 0, region, op);
+    this->push<ClipRegion>(0, region, op);
 }
 
 void SkLiteDL::drawPaint(const SkPaint& paint) {
-    push<DrawPaint>(&fBytes, 0, paint);
+    this->push<DrawPaint>(0, paint);
 }
 void SkLiteDL::drawPath(const SkPath& path, const SkPaint& paint) {
-    push<DrawPath>(&fBytes, 0, path, paint);
+    this->push<DrawPath>(0, path, paint);
 }
 void SkLiteDL::drawRect(const SkRect& rect, const SkPaint& paint) {
-    push<DrawRect>(&fBytes, 0, rect, paint);
+    this->push<DrawRect>(0, rect, paint);
 }
 void SkLiteDL::drawOval(const SkRect& oval, const SkPaint& paint) {
-    push<DrawOval>(&fBytes, 0, oval, paint);
+    this->push<DrawOval>(0, oval, paint);
 }
 void SkLiteDL::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    push<DrawRRect>(&fBytes, 0, rrect, paint);
+    this->push<DrawRRect>(0, rrect, paint);
 }
 void SkLiteDL::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
-    push<DrawDRRect>(&fBytes, 0, outer, inner, paint);
+    this->push<DrawDRRect>(0, outer, inner, paint);
 }
 
 void SkLiteDL::drawAnnotation(const SkRect& rect, const char* key, SkData* value) {
     size_t bytes = strlen(key)+1;
-    void* pod = push<DrawAnnotation>(&fBytes, bytes, rect, value);
+    void* pod = this->push<DrawAnnotation>(bytes, rect, value);
     copy_v(pod, key,bytes);
 }
 void SkLiteDL::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
-    push<DrawDrawable>(&fBytes, 0, drawable, matrix);
+    this->push<DrawDrawable>(0, drawable, matrix);
 }
 void SkLiteDL::drawPicture(const SkPicture* picture,
                            const SkMatrix* matrix, const SkPaint* paint) {
-    push<DrawPicture>(&fBytes, 0, picture, matrix, paint);
+    this->push<DrawPicture>(0, picture, matrix, paint);
 }
 void SkLiteDL::drawShadowedPicture(const SkPicture* picture,
                                    const SkMatrix* matrix, const SkPaint* paint) {
-    push<DrawShadowedPicture>(&fBytes, 0, picture, matrix, paint);
+    this->push<DrawShadowedPicture>(0, picture, matrix, paint);
 }
 
 void SkLiteDL::drawBitmap(const SkBitmap& bm, SkScalar x, SkScalar y, const SkPaint* paint) {
-    push<DrawImage>(&fBytes, 0, SkImage::MakeFromBitmap(bm), x,y, paint);
+    this->push<DrawImage>(0, SkImage::MakeFromBitmap(bm), x,y, paint);
 }
 void SkLiteDL::drawBitmapNine(const SkBitmap& bm, const SkIRect& center,
                               const SkRect& dst, const SkPaint* paint) {
-    push<DrawImageNine>(&fBytes, 0, SkImage::MakeFromBitmap(bm), center, dst, paint);
+    this->push<DrawImageNine>(0, SkImage::MakeFromBitmap(bm), center, dst, paint);
 }
 void SkLiteDL::drawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,
                               const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
-    push<DrawImageRect>(&fBytes, 0, SkImage::MakeFromBitmap(bm), src, dst, paint, constraint);
+    this->push<DrawImageRect>(0, SkImage::MakeFromBitmap(bm), src, dst, paint, constraint);
 }
 
 void SkLiteDL::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
-    push<DrawImage>(&fBytes, 0, sk_ref_sp(image), x,y, paint);
+    this->push<DrawImage>(0, sk_ref_sp(image), x,y, paint);
 }
 void SkLiteDL::drawImageNine(const SkImage* image, const SkIRect& center,
                              const SkRect& dst, const SkPaint* paint) {
-    push<DrawImageNine>(&fBytes, 0, sk_ref_sp(image), center, dst, paint);
+    this->push<DrawImageNine>(0, sk_ref_sp(image), center, dst, paint);
 }
 void SkLiteDL::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                              const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
-    push<DrawImageRect>(&fBytes, 0, sk_ref_sp(image), src, dst, paint, constraint);
+    this->push<DrawImageRect>(0, sk_ref_sp(image), src, dst, paint, constraint);
 }
 void SkLiteDL::drawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,
                                 const SkRect& dst, const SkPaint* paint) {
     int xs = lattice.fXCount, ys = lattice.fYCount;
     size_t bytes = (xs + ys) * sizeof(int);
-    void* pod = push<DrawImageLattice>(&fBytes, bytes, sk_ref_sp(image), xs, ys, dst, paint);
+    void* pod = this->push<DrawImageLattice>(bytes, sk_ref_sp(image), xs, ys, dst, paint);
     copy_v(pod, lattice.fXDivs, xs,
                 lattice.fYDivs, ys);
 }
 
 void SkLiteDL::drawText(const void* text, size_t bytes,
                         SkScalar x, SkScalar y, const SkPaint& paint) {
-    void* pod = push<DrawText>(&fBytes, bytes, bytes, x, y, paint);
+    void* pod = this->push<DrawText>(bytes, bytes, x, y, paint);
     copy_v(pod, (const char*)text,bytes);
 }
 void SkLiteDL::drawPosText(const void* text, size_t bytes,
                            const SkPoint pos[], const SkPaint& paint) {
     int n = paint.countText(text, bytes);
-    void* pod = push<DrawPosText>(&fBytes, n*sizeof(SkPoint)+bytes, bytes, paint, n);
+    void* pod = this->push<DrawPosText>(n*sizeof(SkPoint)+bytes, bytes, paint, n);
     copy_v(pod, pos,n, (const char*)text,bytes);
 }
 void SkLiteDL::drawPosTextH(const void* text, size_t bytes,
                            const SkScalar xs[], SkScalar y, const SkPaint& paint) {
     int n = paint.countText(text, bytes);
-    void* pod = push<DrawPosTextH>(&fBytes, n*sizeof(SkScalar)+bytes, bytes, y, paint, n);
+    void* pod = this->push<DrawPosTextH>(n*sizeof(SkScalar)+bytes, bytes, y, paint, n);
     copy_v(pod, xs,n, (const char*)text,bytes);
 }
 void SkLiteDL::drawTextOnPath(const void* text, size_t bytes,
                               const SkPath& path, const SkMatrix* matrix, const SkPaint& paint) {
-    void* pod = push<DrawTextOnPath>(&fBytes, bytes, bytes, path, matrix, paint);
+    void* pod = this->push<DrawTextOnPath>(bytes, bytes, path, matrix, paint);
     copy_v(pod, (const char*)text,bytes);
 }
 void SkLiteDL::drawTextRSXform(const void* text, size_t bytes,
                                const SkRSXform xforms[], const SkRect* cull, const SkPaint& paint) {
     int n = paint.countText(text, bytes);
-    void* pod = push<DrawTextRSXform>(&fBytes, bytes+n*sizeof(SkRSXform), bytes, cull, paint);
+    void* pod = this->push<DrawTextRSXform>(bytes+n*sizeof(SkRSXform), bytes, cull, paint);
     copy_v(pod, (const char*)text,bytes, xforms,n);
 }
 void SkLiteDL::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) {
-    push<DrawTextBlob>(&fBytes, 0, blob, x,y, paint);
+    this->push<DrawTextBlob>(0, blob, x,y, paint);
 }
 
 void SkLiteDL::drawPatch(const SkPoint points[12], const SkColor colors[4], const SkPoint texs[4],
                          SkXfermode* xfermode, const SkPaint& paint) {
-    push<DrawPatch>(&fBytes, 0, points, colors, texs, xfermode, paint);
+    this->push<DrawPatch>(0, points, colors, texs, xfermode, paint);
 }
 void SkLiteDL::drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint points[],
                           const SkPaint& paint) {
-    void* pod = push<DrawPoints>(&fBytes, count*sizeof(SkPoint), mode, count, paint);
+    void* pod = this->push<DrawPoints>(count*sizeof(SkPoint), mode, count, paint);
     copy_v(pod, points,count);
 }
 void SkLiteDL::drawVertices(SkCanvas::VertexMode mode, int count, const SkPoint vertices[],
@@ -626,8 +632,8 @@ void SkLiteDL::drawVertices(SkCanvas::VertexMode mode, int count, const SkPoint 
     if (texs  )  { bytes += count    * sizeof(SkPoint); }
     if (colors)  { bytes += count    * sizeof(SkColor); }
     if (indices) { bytes += nindices * sizeof(uint16_t); }
-    void* pod = push<DrawVertices>(&fBytes, bytes, mode, count, xfermode, nindices, paint,
-                                   texs != nullptr, colors != nullptr, indices != nullptr);
+    void* pod = this->push<DrawVertices>(bytes, mode, count, xfermode, nindices, paint,
+                                         texs != nullptr, colors != nullptr, indices != nullptr);
     copy_v(pod, vertices, count,
                     texs, texs    ? count    : 0,
                   colors, colors  ? count    : 0,
@@ -640,8 +646,8 @@ void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const S
     if (colors) {
         bytes += count*sizeof(SkColor);
     }
-    void* pod = push<DrawAtlas>(&fBytes, bytes,
-                                atlas, count, xfermode, cull, paint, colors != nullptr);
+    void* pod = this->push<DrawAtlas>(bytes,
+                                      atlas, count, xfermode, cull, paint, colors != nullptr);
     copy_v(pod, xforms, count,
                   texs, count,
                 colors, colors ? count : 0);
@@ -649,15 +655,15 @@ void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const S
 
 
 void SkLiteDL::onDraw(SkCanvas* canvas) {
-    map(&fBytes, [canvas](Op* op) { op->draw(canvas); });
+    this->map([canvas](Op* op) { op->draw(canvas); });
 }
 
 void SkLiteDL::optimizeFor(GrContext* ctx) {
-    map(&fBytes, [ctx](Op* op) { op->optimizeFor(ctx); });
+    this->map([ctx](Op* op) { op->optimizeFor(ctx); });
 }
 
 void SkLiteDL::makeThreadsafe() {
-    map(&fBytes, [](Op* op) { op->makeThreadsafe(); });
+    this->map([](Op* op) { op->makeThreadsafe(); });
 }
 
 SkRect SkLiteDL::onGetBounds() {
@@ -668,7 +674,7 @@ SkRect SkLiteDL::onGetBounds() {
     #define  SK_LITEDL_USES 16
 #endif
 
-SkLiteDL:: SkLiteDL() : fUsesRemaining(SK_LITEDL_USES) {}
+SkLiteDL:: SkLiteDL() : fUsed(0), fReserved(0), fUsesRemaining(SK_LITEDL_USES) {}
 SkLiteDL::~SkLiteDL() {}
 
 // If you're tempted to make this lock free, please don't forget about ABA.
@@ -699,10 +705,10 @@ void SkLiteDL::internal_dispose() const {
     this->internal_dispose_restore_refcnt_to_1();
 
     auto self = const_cast<SkLiteDL*>(this);
-    map(&self->fBytes, [](Op* op) { op->~Op(); });
+    self->map([](Op* op) { op->~Op(); });
 
     if (--self->fUsesRemaining > 0) {
-        self->fBytes.rewind();
+        self->fUsed = 0;
 
         SkAutoMutexAcquire lock(gFreeStackLock);
         self->fNext = gFreeStack;

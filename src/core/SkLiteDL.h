@@ -86,10 +86,20 @@ private:
     SkRect   onGetBounds() override;
     void onDraw(SkCanvas*) override;
 
-    SkLiteDL*          fNext;
-    int                fUsesRemaining;
-    SkRect             fBounds;
-    SkTDArray<uint8_t> fBytes;
+    template <typename T, typename... Args>
+    void* push(size_t, Args&&...);
+
+    template <typename Fn>
+    void map(Fn&& fn);
+
+    SkAutoTMalloc<uint8_t> fBytes;
+    size_t                 fUsed;
+    size_t                 fReserved;
+    SkRect                 fBounds;
+
+    // Only used for freelisting.
+    SkLiteDL* fNext;
+    int       fUsesRemaining;
 };
 
 #endif//SkLiteDL_DEFINED
