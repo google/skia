@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include <ctype.h>
-
 #include "SkData.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPDFCanon.h"
+#include "SkPDFConvertType1FontStream.h"
 #include "SkPDFDevice.h"
+#include "SkPDFMakeToUnicodeCmap.h"
 #include "SkPDFFont.h"
-#include "SkPDFFontImpl.h"
 #include "SkPDFUtils.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
@@ -30,6 +29,8 @@
         #include SK_SFNTLY_SUBSETTER
     #endif
 #endif
+
+namespace {
 
 // PDF's notion of symbolic vs non-symbolic is related to the character set, not
 // symbols vs. characters.  Rarely is a font the right character set to call it
@@ -53,7 +54,66 @@ struct AdvanceMetric {
     AdvanceMetric& operator=(const AdvanceMetric&) = delete;
 };
 
-namespace {
+class SkPDFType0Font final : public SkPDFFont {
+public:
+    SkPDFType0Font(const SkAdvancedTypefaceMetrics* info,
+                   SkTypeface* typeface);
+    virtual ~SkPDFType0Font();
+    bool multiByteGlyphs() const override { return true; }
+    SkPDFFont* getFontSubset(const SkPDFGlyphSet* usage) override;
+#ifdef SK_DEBUG
+    void emitObject(SkWStream*,
+                    const SkPDFObjNumMap&,
+                    const SkPDFSubstituteMap&) const override;
+#endif
+
+private:
+#ifdef SK_DEBUG
+    bool fPopulated;
+#endif
+    bool populate(const SkPDFGlyphSet* subset);
+    typedef SkPDFDict INHERITED;
+};
+
+class SkPDFCIDFont final : public SkPDFFont {
+public:
+    SkPDFCIDFont(const SkAdvancedTypefaceMetrics* info,
+                 SkTypeface* typeface,
+                 const SkPDFGlyphSet* subset);
+    virtual ~SkPDFCIDFont();
+    bool multiByteGlyphs() const override { return true; }
+
+private:
+    bool populate(const SkPDFGlyphSet* subset);
+    bool addFontDescriptor(int16_t defaultWidth,
+                           const SkTDArray<uint32_t>* subset);
+};
+
+class SkPDFType1Font final : public SkPDFFont {
+public:
+    SkPDFType1Font(const SkAdvancedTypefaceMetrics* info,
+                   SkTypeface* typeface,
+                   uint16_t glyphID,
+                   SkPDFDict* relatedFontDescriptor);
+    virtual ~SkPDFType1Font();
+    bool multiByteGlyphs() const override { return false; }
+
+private:
+    bool populate(int16_t glyphID);
+    bool addFontDescriptor(int16_t defaultWidth);
+};
+
+class SkPDFType3Font final : public SkPDFFont {
+public:
+    SkPDFType3Font(const SkAdvancedTypefaceMetrics* info,
+                   SkTypeface* typeface,
+                   uint16_t glyphID);
+    virtual ~SkPDFType3Font();
+    bool multiByteGlyphs() const override { return false; }
+
+private:
+    bool populate(uint16_t glyphID);
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // File-Local Functions
@@ -260,239 +320,19 @@ static void get_glyph_widths(SkSinglyLinkedList<AdvanceMetric>* glyphWidths,
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool parsePFBSection(const uint8_t** src, size_t* len, int sectionType,
-                     size_t* size) {
-    // PFB sections have a two or six bytes header. 0x80 and a one byte
-    // section type followed by a four byte section length.  Type one is
-    // an ASCII section (includes a length), type two is a binary section
-    // (includes a length) and type three is an EOF marker with no length.
-    const uint8_t* buf = *src;
-    if (*len < 2 || buf[0] != 0x80 || buf[1] != sectionType) {
-        return false;
-    } else if (buf[1] == 3) {
-        return true;
-    } else if (*len < 6) {
-        return false;
-    }
-
-    *size = (size_t)buf[2] | ((size_t)buf[3] << 8) | ((size_t)buf[4] << 16) |
-            ((size_t)buf[5] << 24);
-    size_t consumed = *size + 6;
-    if (consumed > *len) {
-        return false;
-    }
-    *src = *src + consumed;
-    *len = *len - consumed;
-    return true;
-}
-
-bool parsePFB(const uint8_t* src, size_t size, size_t* headerLen,
-              size_t* dataLen, size_t* trailerLen) {
-    const uint8_t* srcPtr = src;
-    size_t remaining = size;
-
-    return parsePFBSection(&srcPtr, &remaining, 1, headerLen) &&
-           parsePFBSection(&srcPtr, &remaining, 2, dataLen) &&
-           parsePFBSection(&srcPtr, &remaining, 1, trailerLen) &&
-           parsePFBSection(&srcPtr, &remaining, 3, nullptr);
-}
-
-/* The sections of a PFA file are implicitly defined.  The body starts
- * after the line containing "eexec," and the trailer starts with 512
- * literal 0's followed by "cleartomark" (plus arbitrary white space).
- *
- * This function assumes that src is NUL terminated, but the NUL
- * termination is not included in size.
- *
- */
-bool parsePFA(const char* src, size_t size, size_t* headerLen,
-              size_t* hexDataLen, size_t* dataLen, size_t* trailerLen) {
-    const char* end = src + size;
-
-    const char* dataPos = strstr(src, "eexec");
-    if (!dataPos) {
-        return false;
-    }
-    dataPos += strlen("eexec");
-    while ((*dataPos == '\n' || *dataPos == '\r' || *dataPos == ' ') &&
-            dataPos < end) {
-        dataPos++;
-    }
-    *headerLen = dataPos - src;
-
-    const char* trailerPos = strstr(dataPos, "cleartomark");
-    if (!trailerPos) {
-        return false;
-    }
-    int zeroCount = 0;
-    for (trailerPos--; trailerPos > dataPos && zeroCount < 512; trailerPos--) {
-        if (*trailerPos == '\n' || *trailerPos == '\r' || *trailerPos == ' ') {
-            continue;
-        } else if (*trailerPos == '0') {
-            zeroCount++;
-        } else {
-            return false;
-        }
-    }
-    if (zeroCount != 512) {
-        return false;
-    }
-
-    *hexDataLen = trailerPos - src - *headerLen;
-    *trailerLen = size - *headerLen - *hexDataLen;
-
-    // Verify that the data section is hex encoded and count the bytes.
-    int nibbles = 0;
-    for (; dataPos < trailerPos; dataPos++) {
-        if (isspace(*dataPos)) {
-            continue;
-        }
-        if (!isxdigit(*dataPos)) {
-            return false;
-        }
-        nibbles++;
-    }
-    *dataLen = (nibbles + 1) / 2;
-
-    return true;
-}
-
-int8_t hexToBin(uint8_t c) {
-    if (!isxdigit(c)) {
-        return -1;
-    } else if (c <= '9') {
-        return c - '0';
-    } else if (c <= 'F') {
-        return c - 'A' + 10;
-    } else if (c <= 'f') {
-        return c - 'a' + 10;
-    }
-    return -1;
-}
-
-static sk_sp<SkData> handle_type1_stream(SkStream* srcStream, size_t* headerLen,
-                                         size_t* dataLen, size_t* trailerLen) {
-    // srcStream may be backed by a file or a unseekable fd, so we may not be
-    // able to use skip(), rewind(), or getMemoryBase().  read()ing through
-    // the input only once is doable, but very ugly. Furthermore, it'd be nice
-    // if the data was NUL terminated so that we can use strstr() to search it.
-    // Make as few copies as possible given these constraints.
-    SkDynamicMemoryWStream dynamicStream;
-    std::unique_ptr<SkMemoryStream> staticStream;
-    sk_sp<SkData> data;
-    const uint8_t* src;
-    size_t srcLen;
-    if ((srcLen = srcStream->getLength()) > 0) {
-        staticStream.reset(new SkMemoryStream(srcLen + 1));
-        src = (const uint8_t*)staticStream->getMemoryBase();
-        if (srcStream->getMemoryBase() != nullptr) {
-            memcpy((void *)src, srcStream->getMemoryBase(), srcLen);
-        } else {
-            size_t read = 0;
-            while (read < srcLen) {
-                size_t got = srcStream->read((void *)staticStream->getAtPos(),
-                                             srcLen - read);
-                if (got == 0) {
-                    return nullptr;
-                }
-                read += got;
-                staticStream->seek(read);
-            }
-        }
-        ((uint8_t *)src)[srcLen] = 0;
-    } else {
-        static const size_t kBufSize = 4096;
-        uint8_t buf[kBufSize];
-        size_t amount;
-        while ((amount = srcStream->read(buf, kBufSize)) > 0) {
-            dynamicStream.write(buf, amount);
-        }
-        amount = 0;
-        dynamicStream.write(&amount, 1);  // nullptr terminator.
-        data.reset(dynamicStream.copyToData());
-        src = data->bytes();
-        srcLen = data->size() - 1;
-    }
-
-    if (parsePFB(src, srcLen, headerLen, dataLen, trailerLen)) {
-        static const int kPFBSectionHeaderLength = 6;
-        const size_t length = *headerLen + *dataLen + *trailerLen;
-        SkASSERT(length > 0);
-        SkASSERT(length + (2 * kPFBSectionHeaderLength) <= srcLen);
-
-        sk_sp<SkData> data(SkData::MakeUninitialized(length));
-
-        const uint8_t* const srcHeader = src + kPFBSectionHeaderLength;
-        // There is a six-byte section header before header and data
-        // (but not trailer) that we're not going to copy.
-        const uint8_t* const srcData = srcHeader + *headerLen + kPFBSectionHeaderLength;
-        const uint8_t* const srcTrailer = srcData + *headerLen;
-
-        uint8_t* const resultHeader = (uint8_t*)data->writable_data();
-        uint8_t* const resultData = resultHeader + *headerLen;
-        uint8_t* const resultTrailer = resultData + *dataLen;
-
-        SkASSERT(resultTrailer + *trailerLen == resultHeader + length);
-
-        memcpy(resultHeader,  srcHeader,  *headerLen);
-        memcpy(resultData,    srcData,    *dataLen);
-        memcpy(resultTrailer, srcTrailer, *trailerLen);
-
-        return data;
-    }
-
-    // A PFA has to be converted for PDF.
-    size_t hexDataLen;
-    if (parsePFA((const char*)src, srcLen, headerLen, &hexDataLen, dataLen,
-                 trailerLen)) {
-        const size_t length = *headerLen + *dataLen + *trailerLen;
-        SkASSERT(length > 0);
-        SkAutoTMalloc<uint8_t> buffer(length);
-
-        memcpy(buffer.get(), src, *headerLen);
-        uint8_t* const resultData = &(buffer[SkToInt(*headerLen)]);
-
-        const uint8_t* hexData = src + *headerLen;
-        const uint8_t* trailer = hexData + hexDataLen;
-        size_t outputOffset = 0;
-        uint8_t dataByte = 0;  // To hush compiler.
-        bool highNibble = true;
-        for (; hexData < trailer; hexData++) {
-            int8_t curNibble = hexToBin(*hexData);
-            if (curNibble < 0) {
-                continue;
-            }
-            if (highNibble) {
-                dataByte = curNibble << 4;
-                highNibble = false;
-            } else {
-                dataByte |= curNibble;
-                highNibble = true;
-                resultData[outputOffset++] = dataByte;
-            }
-        }
-        if (!highNibble) {
-            resultData[outputOffset++] = dataByte;
-        }
-        SkASSERT(outputOffset == *dataLen);
-
-        uint8_t* const resultTrailer = &(buffer[SkToInt(*headerLen + outputOffset)]);
-        memcpy(resultTrailer, src + *headerLen + hexDataLen, *trailerLen);
-
-        return SkData::MakeFromMalloc(buffer.release(), length);
-    }
-    return nullptr;
-}
-
 // scale from em-units to base-1000, returning as a SkScalar
-SkScalar scaleFromFontUnits(int16_t val, uint16_t emSize) {
-    SkScalar scaled = SkIntToScalar(val);
+SkScalar from_font_units(SkScalar scaled, uint16_t emSize) {
     if (emSize == 1000) {
         return scaled;
     } else {
         return SkScalarMulDiv(scaled, 1000, emSize);
     }
 }
+
+SkScalar scaleFromFontUnits(int16_t val, uint16_t emSize) {
+    return from_font_units(SkIntToScalar(val), emSize);
+}
+
 
 void setGlyphWidthAndBoundingBox(SkScalar width, SkIRect box,
                                  SkWStream* content) {
@@ -555,233 +395,6 @@ sk_sp<SkPDFArray> composeAdvanceData(
 
 }  // namespace
 
-static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
-                                    uint16_t firstGlyphID,
-                                    uint16_t lastGlyphID) {
-    // 12 dict begin: 12 is an Adobe-suggested value. Shall not change.
-    // It's there to prevent old version Adobe Readers from malfunctioning.
-    const char* kHeader =
-        "/CIDInit /ProcSet findresource begin\n"
-        "12 dict begin\n"
-        "begincmap\n";
-    cmap->writeText(kHeader);
-
-    // The /CIDSystemInfo must be consistent to the one in
-    // SkPDFFont::populateCIDFont().
-    // We can not pass over the system info object here because the format is
-    // different. This is not a reference object.
-    const char* kSysInfo =
-        "/CIDSystemInfo\n"
-        "<<  /Registry (Adobe)\n"
-        "/Ordering (UCS)\n"
-        "/Supplement 0\n"
-        ">> def\n";
-    cmap->writeText(kSysInfo);
-
-    // The CMapName must be consistent to /CIDSystemInfo above.
-    // /CMapType 2 means ToUnicode.
-    // Codespace range just tells the PDF processor the valid range.
-    const char* kTypeInfoHeader =
-        "/CMapName /Adobe-Identity-UCS def\n"
-        "/CMapType 2 def\n"
-        "1 begincodespacerange\n";
-    cmap->writeText(kTypeInfoHeader);
-
-    // e.g.     "<0000> <FFFF>\n"
-    SkString range;
-    range.appendf("<%04X> <%04X>\n", firstGlyphID, lastGlyphID);
-    cmap->writeText(range.c_str());
-
-    const char* kTypeInfoFooter = "endcodespacerange\n";
-    cmap->writeText(kTypeInfoFooter);
-}
-
-static void append_cmap_footer(SkDynamicMemoryWStream* cmap) {
-    const char* kFooter =
-        "endcmap\n"
-        "CMapName currentdict /CMap defineresource pop\n"
-        "end\n"
-        "end";
-    cmap->writeText(kFooter);
-}
-
-struct BFChar {
-    uint16_t fGlyphId;
-    SkUnichar fUnicode;
-};
-
-struct BFRange {
-    uint16_t fStart;
-    uint16_t fEnd;
-    SkUnichar fUnicode;
-};
-
-static void write_utf16be(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
-    uint16_t utf16[2] = {0, 0};
-    size_t len = SkUTF16_FromUnichar(utf32, utf16);
-    SkASSERT(len == 1 || len == 2);
-    SkPDFUtils::WriteUInt16BE(wStream, utf16[0]);
-    if (len == 2) {
-        SkPDFUtils::WriteUInt16BE(wStream, utf16[1]);
-    }
-}
-
-static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
-                                  SkDynamicMemoryWStream* cmap) {
-    // PDF spec defines that every bf* list can have at most 100 entries.
-    for (int i = 0; i < bfchar.count(); i += 100) {
-        int count = bfchar.count() - i;
-        count = SkMin32(count, 100);
-        cmap->writeDecAsText(count);
-        cmap->writeText(" beginbfchar\n");
-        for (int j = 0; j < count; ++j) {
-            cmap->writeText("<");
-            SkPDFUtils::WriteUInt16BE(cmap, bfchar[i + j].fGlyphId);
-            cmap->writeText("> <");
-            write_utf16be(cmap, bfchar[i + j].fUnicode);
-            cmap->writeText(">\n");
-        }
-        cmap->writeText("endbfchar\n");
-    }
-}
-
-static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
-                                   SkDynamicMemoryWStream* cmap) {
-    // PDF spec defines that every bf* list can have at most 100 entries.
-    for (int i = 0; i < bfrange.count(); i += 100) {
-        int count = bfrange.count() - i;
-        count = SkMin32(count, 100);
-        cmap->writeDecAsText(count);
-        cmap->writeText(" beginbfrange\n");
-        for (int j = 0; j < count; ++j) {
-            cmap->writeText("<");
-            SkPDFUtils::WriteUInt16BE(cmap, bfrange[i + j].fStart);
-            cmap->writeText("> <");
-            SkPDFUtils::WriteUInt16BE(cmap, bfrange[i + j].fEnd);
-            cmap->writeText("> <");
-            write_utf16be(cmap, bfrange[i + j].fUnicode);
-            cmap->writeText(">\n");
-        }
-        cmap->writeText("endbfrange\n");
-    }
-}
-
-// Generate <bfchar> and <bfrange> table according to PDF spec 1.4 and Adobe
-// Technote 5014.
-// The function is not static so we can test it in unit tests.
-//
-// Current implementation guarantees bfchar and bfrange entries do not overlap.
-//
-// Current implementation does not attempt aggresive optimizations against
-// following case because the specification is not clear.
-//
-// 4 beginbfchar          1 beginbfchar
-// <0003> <0013>          <0020> <0014>
-// <0005> <0015>    to    endbfchar
-// <0007> <0017>          1 beginbfrange
-// <0020> <0014>          <0003> <0007> <0013>
-// endbfchar              endbfrange
-//
-// Adobe Technote 5014 said: "Code mappings (unlike codespace ranges) may
-// overlap, but succeeding maps supersede preceding maps."
-//
-// In case of searching text in PDF, bfrange will have higher precedence so
-// typing char id 0x0014 in search box will get glyph id 0x0004 first.  However,
-// the spec does not mention how will this kind of conflict being resolved.
-//
-// For the worst case (having 65536 continuous unicode and we use every other
-// one of them), the possible savings by aggressive optimization is 416KB
-// pre-compressed and does not provide enough motivation for implementation.
-
-// TODO(halcanary): this should be in a header so that it is separately testable
-// ( see caller in tests/ToUnicode.cpp )
-void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
-                          const SkPDFGlyphSet* subset,
-                          SkDynamicMemoryWStream* cmap,
-                          bool multiByteGlyphs,
-                          uint16_t firstGlyphID,
-                          uint16_t lastGlyphID);
-
-void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
-                          const SkPDFGlyphSet* subset,
-                          SkDynamicMemoryWStream* cmap,
-                          bool multiByteGlyphs,
-                          uint16_t firstGlyphID,
-                          uint16_t lastGlyphID) {
-    if (glyphToUnicode.isEmpty()) {
-        return;
-    }
-    int glyphOffset = 0;
-    if (!multiByteGlyphs) {
-        glyphOffset = firstGlyphID - 1;
-    }
-
-    SkTDArray<BFChar> bfcharEntries;
-    SkTDArray<BFRange> bfrangeEntries;
-
-    BFRange currentRangeEntry = {0, 0, 0};
-    bool rangeEmpty = true;
-    const int limit =
-            SkMin32(lastGlyphID + 1, glyphToUnicode.count()) - glyphOffset;
-
-    for (int i = firstGlyphID - glyphOffset; i < limit + 1; ++i) {
-        bool inSubset = i < limit &&
-                        (subset == nullptr || subset->has(i + glyphOffset));
-        if (!rangeEmpty) {
-            // PDF spec requires bfrange not changing the higher byte,
-            // e.g. <1035> <10FF> <2222> is ok, but
-            //      <1035> <1100> <2222> is no good
-            bool inRange =
-                i == currentRangeEntry.fEnd + 1 &&
-                i >> 8 == currentRangeEntry.fStart >> 8 &&
-                i < limit &&
-                glyphToUnicode[i + glyphOffset] ==
-                    currentRangeEntry.fUnicode + i - currentRangeEntry.fStart;
-            if (!inSubset || !inRange) {
-                if (currentRangeEntry.fEnd > currentRangeEntry.fStart) {
-                    bfrangeEntries.push(currentRangeEntry);
-                } else {
-                    BFChar* entry = bfcharEntries.append();
-                    entry->fGlyphId = currentRangeEntry.fStart;
-                    entry->fUnicode = currentRangeEntry.fUnicode;
-                }
-                rangeEmpty = true;
-            }
-        }
-        if (inSubset) {
-            currentRangeEntry.fEnd = i;
-            if (rangeEmpty) {
-              currentRangeEntry.fStart = i;
-              currentRangeEntry.fUnicode = glyphToUnicode[i + glyphOffset];
-              rangeEmpty = false;
-            }
-        }
-    }
-
-    // The spec requires all bfchar entries for a font must come before bfrange
-    // entries.
-    append_bfchar_section(bfcharEntries, cmap);
-    append_bfrange_section(bfrangeEntries, cmap);
-}
-
-static sk_sp<SkPDFStream> generate_tounicode_cmap(
-        const SkTDArray<SkUnichar>& glyphToUnicode,
-        const SkPDFGlyphSet* subset,
-        bool multiByteGlyphs,
-        uint16_t firstGlyphID,
-        uint16_t lastGlyphID) {
-    SkDynamicMemoryWStream cmap;
-    if (multiByteGlyphs) {
-        append_tounicode_header(&cmap, firstGlyphID, lastGlyphID);
-    } else {
-        append_tounicode_header(&cmap, 1, lastGlyphID - firstGlyphID + 1);
-    }
-    append_cmap_sections(glyphToUnicode, subset, &cmap, multiByteGlyphs,
-                         firstGlyphID, lastGlyphID);
-    append_cmap_footer(&cmap);
-    return sk_make_sp<SkPDFStream>(
-            std::unique_ptr<SkStreamAsset>(cmap.detachAsStream()));
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // class SkPDFGlyphSet
@@ -1069,11 +682,11 @@ void SkPDFFont::populateToUnicodeTable(const SkPDFGlyphSet* subset) {
         return;
     }
     this->insertObjRef("ToUnicode",
-                       generate_tounicode_cmap(fFontInfo->fGlyphToUnicode,
-                                               subset,
-                                               multiByteGlyphs(),
-                                               firstGlyphID(),
-                                               lastGlyphID()));
+                       SkPDFMakeToUnicodeCmap(fFontInfo->fGlyphToUnicode,
+                                              subset,
+                                              multiByteGlyphs(),
+                                              firstGlyphID(),
+                                              lastGlyphID()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1274,6 +887,20 @@ void set_glyph_widths(SkTypeface* tf,
     }
 }
 
+sk_sp<const SkAdvancedTypefaceMetrics> SkPDFFont::GetFontMetricsWithGlyphNames(
+        SkTypeface* typeface, uint32_t* glyphs, uint32_t glyphsCount) {
+    return sk_sp<const SkAdvancedTypefaceMetrics>(
+            typeface->getAdvancedTypefaceMetrics(
+                    SkTypeface::kGlyphNames_PerGlyphInfo, glyphs, glyphsCount));
+}
+
+sk_sp<const SkAdvancedTypefaceMetrics> SkPDFFont::GetFontMetricsWithToUnicode(
+        SkTypeface* typeface, uint32_t* glyphs, uint32_t glyphsCount) {
+    return sk_sp<const SkAdvancedTypefaceMetrics>(
+            typeface->getAdvancedTypefaceMetrics(
+                    SkTypeface::kToUnicode_PerGlyphInfo, glyphs, glyphsCount));
+}
+
 bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
     // Generate new font metrics with advance info for true type fonts.
     // Generate glyph id array.
@@ -1285,13 +912,12 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
         subset->exportTo(&glyphIDs);
     }
     if (fontInfo()->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
-        SkTypeface::PerGlyphInfo info = SkTypeface::kGlyphNames_PerGlyphInfo;
         uint32_t* glyphs = (glyphIDs.count() == 0) ? nullptr : glyphIDs.begin();
         uint32_t glyphsCount = glyphs ? glyphIDs.count() : 0;
-        sk_sp<const SkAdvancedTypefaceMetrics> fontMetrics(
-            typeface()->getAdvancedTypefaceMetrics(info, glyphs, glyphsCount));
-        setFontInfo(fontMetrics.get());
-        addFontDescriptor(0, &glyphIDs);
+        sk_sp<const SkAdvancedTypefaceMetrics> fontMetrics =
+            SkPDFFont::GetFontMetricsWithGlyphNames(this->typeface(), glyphs, glyphsCount);
+        this->setFontInfo(fontMetrics.get());
+        this->addFontDescriptor(0, &glyphIDs);
     } else {
         // Other CID fonts
         addFontDescriptor(0, nullptr);
@@ -1357,13 +983,9 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     size_t data SK_INIT_TO_AVOID_WARNING;
     size_t trailer SK_INIT_TO_AVOID_WARNING;
     std::unique_ptr<SkStreamAsset> rawFontData(typeface()->openStream(&ttcIndex));
-    SkASSERT(rawFontData);
-    SkASSERT(rawFontData->getLength() > 0);
-    if (!rawFontData || 0 == rawFontData->getLength()) {
-        return false;
-    }
-    sk_sp<SkData> fontData(handle_type1_stream(rawFontData.get(), &header, &data, &trailer));
-    if (fontData.get() == nullptr) {
+    sk_sp<SkData> fontData = SkPDFConvertType1FontStream(std::move(rawFontData),
+                                                         &header, &data, &trailer);
+    if (!fontData) {
         return false;
     }
     SkASSERT(this->canEmbed());
@@ -1379,81 +1001,53 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
 }
 
 bool SkPDFType1Font::populate(int16_t glyphID) {
+    this->insertName("Subtype", "Type1");
+    this->insertName("BaseFont", fontInfo()->fFontName);
     adjustGlyphRangeForSingleByteEncoding(glyphID);
+    SkGlyphID firstGlyphID = this->firstGlyphID();
+    SkGlyphID lastGlyphID = this->lastGlyphID();
 
-    int16_t defaultWidth = 0;
-    const AdvanceMetric* widthRangeEntry = nullptr;
+    // glyphCount not including glyph 0
+    unsigned glyphCount = 1 + lastGlyphID - firstGlyphID;
+    SkASSERT(glyphCount > 0 && glyphCount <= 255);
+    this->insertInt("FirstChar", (size_t)0);
+    this->insertInt("LastChar", (size_t)glyphCount);
     {
-        SkSinglyLinkedList<AdvanceMetric> tmpMetrics;
-        set_glyph_widths(this->typeface(), nullptr, &tmpMetrics);
-        for (const auto& widthEntry : tmpMetrics) {
-            switch (widthEntry.fType) {
-                case AdvanceMetric::kDefault:
-                    defaultWidth = widthEntry.fAdvance[0];
-                    break;
-                case AdvanceMetric::kRun:
-                    SkASSERT(false);
-                    break;
-                case AdvanceMetric::kRange:
-                    SkASSERT(widthRangeEntry == nullptr);
-                    widthRangeEntry = &widthEntry;
-                    break;
-            }
+        SkPaint tmpPaint;
+        tmpPaint.setHinting(SkPaint::kNo_Hinting);
+        tmpPaint.setTypeface(sk_ref_sp(this->typeface()));
+        tmpPaint.setTextSize((SkScalar)this->typeface()->getUnitsPerEm());
+        SkAutoGlyphCache glyphCache(tmpPaint, nullptr, nullptr);
+        auto widths = sk_make_sp<SkPDFArray>();
+        SkScalar advance = glyphCache->getGlyphIDAdvance(0).fAdvanceX;
+        const uint16_t emSize = this->fontInfo()->fEmSize;
+        widths->appendScalar(from_font_units(advance, emSize));
+        for (unsigned gID = firstGlyphID; gID <= lastGlyphID; gID++) {
+            advance = glyphCache->getGlyphIDAdvance(gID).fAdvanceX;
+            widths->appendScalar(from_font_units(advance, emSize));
         }
+        this->insertObject("Widths", std::move(widths));
     }
-
-    if (!addFontDescriptor(defaultWidth)) {
+    if (!addFontDescriptor(0)) {
         return false;
     }
-
-    insertName("Subtype", "Type1");
-    insertName("BaseFont", fontInfo()->fFontName);
-
-    addWidthInfoFromRange(defaultWidth, widthRangeEntry);
     auto encDiffs = sk_make_sp<SkPDFArray>();
-    encDiffs->reserve(lastGlyphID() - firstGlyphID() + 2);
-    encDiffs->appendInt(1);
-    SkASSERT(this->fontInfo()->fGlyphNames.count() >= this->lastGlyphID());
-    for (int gID = firstGlyphID(); gID <= lastGlyphID(); gID++) {
-        encDiffs->appendName(fontInfo()->fGlyphNames[gID].c_str());
+    encDiffs->reserve(lastGlyphID - firstGlyphID + 3);
+    encDiffs->appendInt(0);
+    const SkTArray<SkString>& glyphNames = this->fontInfo()->fGlyphNames;
+    SkASSERT(glyphNames.count() > lastGlyphID);
+    encDiffs->appendName(glyphNames[0].c_str());
+    const SkString unknown("UNKNOWN");
+    for (int gID = firstGlyphID; gID <= lastGlyphID; gID++) {
+        const bool valid = gID < glyphNames.count() && !glyphNames[gID].isEmpty();
+        const SkString& name = valid ? glyphNames[gID] : unknown;
+        encDiffs->appendName(name);
     }
 
     auto encoding = sk_make_sp<SkPDFDict>("Encoding");
     encoding->insertObject("Differences", std::move(encDiffs));
     this->insertObject("Encoding", std::move(encoding));
     return true;
-}
-
-void SkPDFType1Font::addWidthInfoFromRange(
-        int16_t defaultWidth,
-        const AdvanceMetric* widthRangeEntry) {
-    auto widthArray = sk_make_sp<SkPDFArray>();
-    int firstChar = 0;
-    if (widthRangeEntry) {
-        const uint16_t emSize = fontInfo()->fEmSize;
-        int startIndex = firstGlyphID() - widthRangeEntry->fStartId;
-        int endIndex = startIndex + lastGlyphID() - firstGlyphID() + 1;
-        if (startIndex < 0)
-            startIndex = 0;
-        if (endIndex > widthRangeEntry->fAdvance.count())
-            endIndex = widthRangeEntry->fAdvance.count();
-        if (widthRangeEntry->fStartId == 0) {
-            widthArray->appendScalar(
-                    scaleFromFontUnits(widthRangeEntry->fAdvance[0], emSize));
-        } else {
-            firstChar = startIndex + widthRangeEntry->fStartId;
-        }
-        for (int i = startIndex; i < endIndex; i++) {
-            widthArray->appendScalar(
-                    scaleFromFontUnits(widthRangeEntry->fAdvance[i], emSize));
-        }
-    } else {
-        widthArray->appendScalar(
-                scaleFromFontUnits(defaultWidth, 1000));
-    }
-    this->insertInt("FirstChar", firstChar);
-    this->insertInt("LastChar", firstChar + widthArray->size() - 1);
-    this->insertObject("Widths", std::move(widthArray));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

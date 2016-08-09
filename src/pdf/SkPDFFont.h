@@ -120,6 +120,12 @@ public:
                                       SkTypeface* typeface,
                                       uint16_t glyphID);
 
+    static sk_sp<const SkAdvancedTypefaceMetrics> GetFontMetricsWithGlyphNames(
+            SkTypeface*, uint32_t* glyphs, uint32_t glyphsCount);
+
+    static sk_sp<const SkAdvancedTypefaceMetrics> GetFontMetricsWithToUnicode(
+            SkTypeface*, uint32_t* glyphs, uint32_t glyphsCount);
+
     /** Subset the font based on usage set. Returns a SkPDFFont instance with
      *  subset.
      *  @param usage  Glyph subset requested.
