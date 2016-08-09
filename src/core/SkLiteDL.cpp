@@ -14,11 +14,12 @@
 #include "SkRSXform.h"
 #include "SkSpinlock.h"
 #include "SkTextBlob.h"
+#include <math.h>
 
 // A stand-in for an optional SkRect which was not set, e.g. bounds for a saveLayer().
-static const SkRect kUnset = {SK_ScalarInfinity, 0,0,0};
+static const SkRect kUnset = {(SkScalar)INFINITY, 0,0,0};
 static const SkRect* maybe_unset(const SkRect& r) {
-    return r.left() == SK_ScalarInfinity ? nullptr : &r;
+    return r.left() == (SkScalar)INFINITY ? nullptr : &r;
 }
 
 // copy_v(dst, src,n, src,n, ...) copies an arbitrary number of typed srcs into dst.
