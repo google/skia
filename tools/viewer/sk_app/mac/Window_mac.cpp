@@ -226,6 +226,10 @@ bool Window_mac::attach(BackendType attachType, const DisplayParams& params) {
     window_context_factory::MacWindowInfo info;
     info.fWindow = fWindow;
     switch (attachType) {
+        case kRaster_BackendType:
+            fWindowContext = NewRasterForMac(info, params);
+            break;
+            
         case kNativeGL_BackendType:
         default:
             fWindowContext = NewGLForMac(info, params);
