@@ -264,6 +264,7 @@ public:
         }
     }
 
+    int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
     virtual bool isConfigTexturable(GrPixelConfig config) const = 0;
     virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
@@ -340,6 +341,7 @@ protected:
     int fMaxColorSampleCount;
     int fMaxStencilSampleCount;
     int fMaxRasterSamples;
+    int fMaxWindowRectangles;
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {};

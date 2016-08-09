@@ -962,6 +962,11 @@
 /* GL_ARB_texture_rectangle */
 #define GR_GL_TEXTURE_RECTANGLE                             0x84F5
 
+/* GL_EXT_window_rectangles */
+#define GR_GL_MAX_WINDOW_RECTANGLES                         0x8f14
+#define GR_GL_INCLUSIVE                                     0x8f10
+#define GR_GL_EXCLUSIVE                                     0x8f11
+
 /* EGL Defines */
 #define GR_EGL_NO_DISPLAY                                   ((GrEGLDisplay)0)
 #define GR_EGL_EXTENSIONS                                   0x3055

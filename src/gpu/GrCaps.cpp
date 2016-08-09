@@ -118,6 +118,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMaxColorSampleCount = 0;
     fMaxStencilSampleCount = 0;
     fMaxRasterSamples = 0;
+    fMaxWindowRectangles = 0;
 
     fSuppressPrints = options.fSuppressPrints;
     fImmediateFlush = options.fImmediateMode;
@@ -197,6 +198,7 @@ SkString GrCaps::dump() const {
     r.appendf("Max Color Sample Count             : %d\n", fMaxColorSampleCount);
     r.appendf("Max Stencil Sample Count           : %d\n", fMaxStencilSampleCount);
     r.appendf("Max Raster Samples                 : %d\n", fMaxRasterSamples);
+    r.appendf("Max Window Rectangles              : %d\n", fMaxWindowRectangles);
 
     static const char* kInstancedSupportNames[] = {
         "None",
