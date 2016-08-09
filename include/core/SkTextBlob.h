@@ -19,7 +19,7 @@ class SkWriteBuffer;
 
     SkTextBlob combines multiple text runs into an immutable, ref-counted structure.
 */
-class SK_API SkTextBlob : public SkRefCnt {
+class SK_API SkTextBlob final : public SkNVRefCnt<SkTextBlob> {
 public:
     /**
      *  Returns a conservative blob bounding box.
@@ -52,11 +52,12 @@ public:
     };
 
 private:
+    friend class SkNVRefCnt<SkTextBlob>;
     class RunRecord;
 
     SkTextBlob(int runCount, const SkRect& bounds);
 
-    virtual ~SkTextBlob();
+    ~SkTextBlob();
 
     // Memory for objects of this class is created with sk_malloc rather than operator new and must
     // be freed with sk_free.

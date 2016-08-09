@@ -19,7 +19,7 @@ class SkStream;
  *  but the actual ptr that is returned (by data() or bytes()) is guaranteed
  *  to always be the same for the life of this instance.
  */
-class SK_API SkData : public SkRefCnt {
+class SK_API SkData final : public SkNVRefCnt<SkData> {
 public:
     /**
      *  Returns the number of bytes stored.
@@ -79,7 +79,7 @@ public:
      */
     static sk_sp<SkData> MakeWithCopy(const void* data, size_t length);
 
-    
+
     /**
      *  Create a new data with uninitialized contents. The caller should call writable_data()
      *  to write into the buffer, but this must be done before another ref() is made.
@@ -158,6 +158,7 @@ public:
     static sk_sp<SkData> MakeEmpty();
 
 private:
+    friend class SkNVRefCnt<SkData>;
     ReleaseProc fReleaseProc;
     void*       fReleaseProcContext;
     void*       fPtr;
@@ -165,7 +166,7 @@ private:
 
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);
     explicit SkData(size_t size);   // inplace new/delete
-    virtual ~SkData();
+    ~SkData();
 
 
     // Objects of this type are sometimes created in a custom fashion using sk_malloc_throw and
