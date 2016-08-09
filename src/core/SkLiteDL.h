@@ -21,6 +21,8 @@ class SkLiteDL final : public SkDrawable {
 public:
     static sk_sp<SkLiteDL> New(SkRect);
 
+    static void PurgeFreelist();
+
     void optimizeFor(GrContext*);
     void makeThreadsafe();
 

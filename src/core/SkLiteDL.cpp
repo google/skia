@@ -711,3 +711,12 @@ void SkLiteDL::internal_dispose() const {
 
     delete this;
 }
+
+void SkLiteDL::PurgeFreelist() {
+    SkAutoMutexAcquire lock(gFreeStackLock);
+    while (gFreeStack) {
+        SkLiteDL* top = gFreeStack;
+        gFreeStack = gFreeStack->fNext;
+        delete top;   // Calling unref() here would just put it back on the list!
+    }
+}
