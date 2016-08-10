@@ -324,7 +324,7 @@ bool SkMaskFilter::canFilterMaskGPU(const SkRRect& devRRect,
 }
 
 
-bool SkMaskFilter::directFilterRRectMaskGPU(GrTextureProvider* texProvider,
+bool SkMaskFilter::directFilterRRectMaskGPU(GrContext*,
                                             GrDrawContext* drawContext,
                                             GrPaint* grp,
                                             const GrClip&,

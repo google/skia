@@ -574,4 +574,66 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo) {
 
 #endif
 
+
+DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
+    const SkRect r = SkRect::MakeXYWH(10, 10, 100, 100);
+
+    bool ninePatchable;
+    SkRRect rrectToDraw;
+    SkISize size;
+    SkScalar xs[4], ys[4];
+    int numXs, numYs;
+
+    // not nine-patchable
+    {
+        SkVector radii[4] = { { 100, 100 }, { 0, 0 }, { 100, 100 }, { 0, 0 } };
+
+        SkRRect rr;
+        rr.setRectRadii(r, radii);
+
+        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, 3.0f, &rrectToDraw, &size,
+                                                                    xs, &numXs, ys, &numYs);   
+        REPORTER_ASSERT(reporter, !ninePatchable);
+    }
+
+    // simple circular
+    {
+        SkRRect rr;
+        rr.setRectXY(r, 10, 10);
+
+        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, 3.0f, &rrectToDraw, &size,
+                                                                    xs, &numXs, ys, &numYs);   
+        REPORTER_ASSERT(reporter, ninePatchable);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fWidth), 57.0f));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fHeight), 57.0));
+        REPORTER_ASSERT(reporter, 4 == numXs && 4 == numYs);
+        for (int i = 0; i < numXs; ++i) {
+            REPORTER_ASSERT(reporter, xs[i] >= 0.0f && xs[i] <= 1.0f);
+        }
+        for (int i = 0; i < numYs; ++i) {
+            REPORTER_ASSERT(reporter, ys[i] >= 0.0f && ys[i] <= 1.0f);
+        }
+    }
+
+    // simple elliptical
+    {
+        SkRRect rr;
+        rr.setRectXY(r, 2, 10);
+
+        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, 3.0f, &rrectToDraw, &size,
+                                                                    xs, &numXs, ys, &numYs);   
+        REPORTER_ASSERT(reporter, ninePatchable);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fWidth), 41.0f));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fHeight), 57.0));
+        REPORTER_ASSERT(reporter, 4 == numXs && 4 == numYs);
+        for (int i = 0; i < numXs; ++i) {
+            REPORTER_ASSERT(reporter, xs[i] >= 0.0f && xs[i] <= 1.0f);
+        }
+        for (int i = 0; i < numYs; ++i) {
+            REPORTER_ASSERT(reporter, ys[i] >= 0.0f && ys[i] <= 1.0f);
+        }
+    }
+
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
