@@ -192,14 +192,18 @@ void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const 
                                       SkTo<int>(SK_ARRAY_COUNT(gAttributeParseInfo)),
                                       name, sizeof(gAttributeParseInfo[0]));
     if (attrIndex < 0) {
+#if defined(SK_VERBOSE_SVG_PARSING)
         SkDebugf("unhandled attribute: %s\n", name);
+#endif
         return;
     }
 
     SkASSERT(SkTo<size_t>(attrIndex) < SK_ARRAY_COUNT(gAttributeParseInfo));
     const auto& attrInfo = gAttributeParseInfo[attrIndex].fValue;
     if (!attrInfo.fSetter(node, attrInfo.fAttr, value)) {
+#if defined(SK_VERBOSE_SVG_PARSING)
         SkDebugf("could not parse attribute: '%s=\"%s\"'\n", name, value);
+#endif
     }
 }
 
@@ -229,7 +233,9 @@ sk_sp<SkSVGNode> construct_svg_node(const SkDOM& dom, const ConstructionContext&
                                      SkTo<int>(SK_ARRAY_COUNT(gTagFactories)),
                                      elem, sizeof(gTagFactories[0]));
     if (tagIndex < 0) {
+#if defined(SK_VERBOSE_SVG_PARSING)
         SkDebugf("unhandled element: <%s>\n", elem);
+#endif
         return nullptr;
     }
 
