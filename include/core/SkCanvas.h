@@ -1071,6 +1071,9 @@ public:
         @param paint    The paint used for the text (e.g. color, size, style)
     */
     void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint);
+    void drawTextBlob(const sk_sp<SkTextBlob>& blob, SkScalar x, SkScalar y, const SkPaint& paint) {
+        this->drawTextBlob(blob.get(), x, y, paint);
+    }
 
     /** Draw the picture into this canvas. This method effective brackets the
         playback of the picture's draw calls with save/restore, so the state
