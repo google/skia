@@ -10,6 +10,7 @@
 
 #include "Benchmark.h"
 #include "SkPicture.h"
+#include "SkLiteDL.h"
 
 class RecordingBench : public Benchmark {
 public:
@@ -24,8 +25,8 @@ protected:
 private:
     sk_sp<const SkPicture> fSrc;
     SkString fName;
+    sk_sp<SkLiteDL> fDL;
     bool fUseBBH;
-    bool fLite;
 
     typedef Benchmark INHERITED;
 };

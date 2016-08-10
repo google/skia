@@ -13,13 +13,20 @@
 
 RecordingBench::RecordingBench(const char* name, const SkPicture* pic, bool useBBH, bool lite)
     : fName(name)
-    , fUseBBH(useBBH)
-    , fLite(lite) {
+    , fUseBBH(useBBH) {
     // Flatten the source picture in case it's trivially nested (useless for timing).
     SkPictureRecorder rec;
     pic->playback(rec.beginRecording(pic->cullRect(), nullptr,
                                      SkPictureRecorder::kPlaybackDrawPicture_RecordFlag));
     fSrc = rec.finishRecordingAsPicture();
+
+    // If we're recording into an SkLiteDL, also record _from_ one.
+    if (lite) {
+        fDL = SkLiteDL::New(pic->cullRect());
+        SkLiteRecorder r;
+        r.reset(fDL.get());
+        fSrc->playback(&r);
+    }
 }
 
 const char* RecordingBench::onGetName() {
@@ -36,12 +43,12 @@ SkIPoint RecordingBench::onGetSize() {
 }
 
 void RecordingBench::onDraw(int loops, SkCanvas*) {
-    if (fLite) {
+    if (fDL) {
         SkLiteRecorder rec;
         while (loops --> 0) {
             sk_sp<SkLiteDL> dl = SkLiteDL::New(fSrc->cullRect());
             rec.reset(dl.get());
-            fSrc->playback(&rec);
+            fDL->draw(&rec);
             dl->makeThreadsafe();
         }
 
