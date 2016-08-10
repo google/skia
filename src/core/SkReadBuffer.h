@@ -66,6 +66,7 @@ public:
         kHasDrawImageOpCodes_Version       = 43,
         kAnnotationsMovedToCanvas_Version  = 44,
         kLightingShaderWritesInvNormRotation = 45,
+        kBlurMaskFilterWritesOccluder      = 47,
     };
 
     /**

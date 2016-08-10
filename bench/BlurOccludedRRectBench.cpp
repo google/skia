@@ -35,7 +35,7 @@ public:
 
             const SkRect r = SkRect::MakeWH(480, 230);
             const SkRRect rr = SkRRect::MakeRectXY(r, 8, 8);
-            //SkRect occRect = sk_tool_utils::compute_central_occluder(rr);
+            SkRect occRect = sk_tool_utils::compute_central_occluder(rr);
 
             for (int i = 0; i < 2; ++i) {
                 canvas->save();
@@ -51,8 +51,8 @@ public:
                         firstBlur.setAntiAlias(true);
                         firstBlur.setColor(0x09000000);
                         firstBlur.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
-                                                                       2.5f));
-                                                                       //, occRect));
+                                                                       2.5f,
+                                                                       occRect));
 
                         canvas->drawRRect(rr, firstBlur);
 
@@ -63,8 +63,8 @@ public:
                             secondBlur.setAntiAlias(true);
                             secondBlur.setColor(0x30000000);
                             secondBlur.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
-                                                                            6.0f));
-                                                                            //, occRect));
+                                                                            6.0f,
+                                                                            occRect));
 
                             canvas->drawRRect(rr, secondBlur);
 

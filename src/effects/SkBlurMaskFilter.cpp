@@ -37,7 +37,7 @@ SkScalar SkBlurMaskFilter::ConvertRadiusToSigma(SkScalar radius) {
 
 class SkBlurMaskFilterImpl : public SkMaskFilter {
 public:
-    SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle, uint32_t flags);
+    SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle, const SkRect& occluder, uint32_t flags);
 
     // overrides from SkMaskFilter
     SkMask::Format getFormat() const override;
@@ -62,7 +62,8 @@ public:
                                   const GrClip&,
                                   const SkMatrix& viewMatrix,
                                   const SkStrokeRec& strokeRec,
-                                  const SkRRect& rrect) const override;
+                                  const SkRRect& rrect,
+                                  const SkRRect& devRRect) const override;
     bool filterMaskGPU(GrTexture* src,
                        const SkMatrix& ctm,
                        const SkIRect& maskRect,
@@ -101,6 +102,7 @@ private:
 
     SkScalar    fSigma;
     SkBlurStyle fBlurStyle;
+    SkRect      fOccluder;
     uint32_t    fBlurFlags;
 
     SkBlurQuality getQuality() const {
@@ -123,7 +125,8 @@ private:
 
 const SkScalar SkBlurMaskFilterImpl::kMAX_BLUR_SIGMA = SkIntToScalar(128);
 
-sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma, uint32_t flags) {
+sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma, 
+                                           const SkRect& occluder, uint32_t flags) {
     if (!SkScalarIsFinite(sigma) || sigma <= 0) {
         return nullptr;
     }
@@ -133,7 +136,7 @@ sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma, ui
     SkASSERT(flags <= SkBlurMaskFilter::kAll_BlurFlag);
     flags &= SkBlurMaskFilter::kAll_BlurFlag;
 
-    return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, flags));
+    return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, occluder, flags));
 }
 
 bool SkBlurMaskFilter::ComputeBlurredRRectParams(const SkRRect& rrect,
@@ -196,9 +199,11 @@ bool SkBlurMaskFilter::ComputeBlurredRRectParams(const SkRRect& rrect,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle style, uint32_t flags)
+SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle style,
+                                           const SkRect& occluder, uint32_t flags)
     : fSigma(sigma)
     , fBlurStyle(style)
+    , fOccluder(occluder)
     , fBlurFlags(flags) {
     SkASSERT(fSigma > 0);
     SkASSERT((unsigned)style <= kLastEnum_SkBlurStyle);
@@ -645,8 +650,16 @@ sk_sp<SkFlattenable> SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     const SkScalar sigma = buffer.readScalar();
     const unsigned style = buffer.readUInt();
     const unsigned flags = buffer.readUInt();
+
+    SkRect occluder;
+    if (buffer.isVersionLT(SkReadBuffer::kBlurMaskFilterWritesOccluder)) {
+        occluder.setEmpty();
+    } else {
+        buffer.readRect(&occluder);
+    }
+
     if (style <= kLastEnum_SkBlurStyle) {
-        return SkBlurMaskFilter::Make((SkBlurStyle)style, sigma, flags);
+        return SkBlurMaskFilter::Make((SkBlurStyle)style, sigma, occluder, flags);
     }
     return nullptr;
 }
@@ -655,6 +668,7 @@ void SkBlurMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fSigma);
     buffer.writeUInt(fBlurStyle);
     buffer.writeUInt(fBlurFlags);
+    buffer.writeRect(fOccluder);
 }
 
 
@@ -1222,7 +1236,8 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
                                                     const GrClip& clip,
                                                     const SkMatrix& viewMatrix,
                                                     const SkStrokeRec& strokeRec,
-                                                    const SkRRect& rrect) const {
+                                                    const SkRRect& srcRRect,
+                                                    const SkRRect& devRRect) const {
     SkASSERT(drawContext);
 
     if (fBlurStyle != kNormal_SkBlurStyle) {
@@ -1235,7 +1250,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
-    sk_sp<GrFragmentProcessor> fp(GrRRectBlurEffect::Make(context, xformedSigma, rrect));
+    sk_sp<GrFragmentProcessor> fp(GrRRectBlurEffect::Make(context, xformedSigma, devRRect));
     if (!fp) {
         return false;
     }
@@ -1244,17 +1259,54 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
     newPaint.addCoverageFragmentProcessor(std::move(fp));
     newPaint.setAntiAlias(false);
 
-    SkMatrix inverse;
-    if (!viewMatrix.invert(&inverse)) {
-        return false;
+    if (!this->ignoreXform()) {
+        SkRect srcProxyRect = srcRRect.rect();
+        srcProxyRect.outset(3.0f*fSigma, 3.0f*fSigma);
+
+        SkPoint points[8];
+        uint16_t indices[24];
+        int numPoints, numIndices;
+
+        SkRect temp = fOccluder;
+
+        if (!temp.isEmpty() && (srcProxyRect.contains(temp) || temp.intersect(srcProxyRect))) {
+            srcProxyRect.toQuad(points);
+            temp.toQuad(&points[4]);
+            numPoints = 8;
+
+            static const uint16_t ringI[24] = { 0, 1, 5, 5, 4, 0,
+                                                1, 2, 6, 6, 5, 1,
+                                                2, 3, 7, 7, 6, 2,
+                                                3, 0, 4, 4, 7, 3 };
+            memcpy(indices, ringI, sizeof(ringI));
+            numIndices = 24;
+        } else {
+            // full rect case
+            srcProxyRect.toQuad(points);
+            numPoints = 4;
+
+            static const uint16_t fullI[6] = { 0, 1, 2, 0, 2, 3 };
+            memcpy(indices, fullI, sizeof(fullI));
+            numIndices = 6;
+        } 
+
+        drawContext->drawVertices(clip, newPaint, viewMatrix, kTriangles_GrPrimitiveType,
+                                  numPoints, points, nullptr, nullptr, indices, numIndices);
+
+    } else {
+        SkMatrix inverse;
+        if (!viewMatrix.invert(&inverse)) {
+            return false;
+        }
+
+        float extra=3.f*SkScalarCeilToScalar(xformedSigma-1/6.0f);
+        SkRect proxyRect = devRRect.rect();
+        proxyRect.outset(extra, extra);
+
+
+        drawContext->fillRectWithLocalMatrix(clip, newPaint, SkMatrix::I(), proxyRect, inverse);
     }
 
-    float extra=3.f*SkScalarCeilToScalar(xformedSigma-1/6.0f);
-
-    SkRect proxyRect = rrect.rect();
-    proxyRect.outset(extra, extra);
-
-    drawContext->fillRectWithLocalMatrix(clip, newPaint, SkMatrix::I(), proxyRect, inverse);
     return true;
 }
 
@@ -1369,9 +1421,7 @@ void SkBlurMaskFilterImpl::toString(SkString* str) const {
     str->append("flags: (");
     if (fBlurFlags) {
         bool needSeparator = false;
-        SkAddFlagToString(str,
-                          SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag),
-                          "IgnoreXform", &needSeparator);
+        SkAddFlagToString(str, this->ignoreXform(), "IgnoreXform", &needSeparator);
         SkAddFlagToString(str,
                           SkToBool(fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag),
                           "HighQuality", &needSeparator);

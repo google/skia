@@ -330,7 +330,8 @@ bool SkMaskFilter::directFilterRRectMaskGPU(GrContext*,
                                             const GrClip&,
                                             const SkMatrix& viewMatrix,
                                             const SkStrokeRec& strokeRec,
-                                            const SkRRect& rrect) const {
+                                            const SkRRect& rrect,
+                                            const SkRRect& devRRect) const {
     return false;
 }
 

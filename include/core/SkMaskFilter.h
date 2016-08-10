@@ -129,7 +129,8 @@ public:
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,
                                           const SkStrokeRec& strokeRec,
-                                          const SkRRect& rrect) const;
+                                          const SkRRect& rrect,
+                                          const SkRRect& devRRect) const;
 
     /**
      * This function is used to implement filters that require an explicit src mask. It should only

@@ -32,13 +32,21 @@ public:
     };
 
     /** Create a blur maskfilter.
-     *  @param style    The SkBlurStyle to use
-     *  @param sigma    Standard deviation of the Gaussian blur to apply. Must be > 0.
-     *  @param flags    Flags to use - defaults to none
+     *  @param style     The SkBlurStyle to use
+     *  @param sigma     Standard deviation of the Gaussian blur to apply. Must be > 0.
+     *  @param occluder  The rect for which no pixels need be drawn (b.c. it will be overdrawn
+     *                   with some opaque object. This is just a hint which backends are free to
+     *                   ignore.
+     *  @param flags     Flags to use - defaults to none
      *  @return The new blur maskfilter
      */
     static sk_sp<SkMaskFilter> Make(SkBlurStyle style, SkScalar sigma,
-                                    uint32_t flags = kNone_BlurFlag);
+                                    const SkRect& occluder, uint32_t flags = kNone_BlurFlag);
+
+    static sk_sp<SkMaskFilter> Make(SkBlurStyle style, SkScalar sigma,
+                                    uint32_t flags = kNone_BlurFlag) {
+        return Make(style, sigma, SkRect::MakeEmpty(), flags);
+    }
 
     /** Create an emboss maskfilter
         @param blurSigma    standard deviation of the Gaussian blur to apply

@@ -232,6 +232,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
                                       clip,
                                       viewMatrix,
                                       rec,
+                                      SkRRect::MakeRect(clippedSrcRect),
                                       SkRRect::MakeRect(clippedDstRect))) {
         return;
     }

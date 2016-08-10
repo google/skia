@@ -442,6 +442,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect,
                                                                         fClip,
                                                                         *draw.fMatrix,
                                                                         style.strokeRec(),
+                                                                        rrect,
                                                                         devRRect)) {
                         return;
                     }

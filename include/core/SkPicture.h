@@ -207,10 +207,11 @@ private:
     // V44: Move annotations from paint to drawAnnotation
     // V45: Add invNormRotation to SkLightingShader.
     // V46: Add drawTextRSXform
+    // V47: Add occluder rect to SkBlurMaskFilter
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 35;     // Produced by Chrome M39.
-    static const uint32_t CURRENT_PICTURE_VERSION = 46;
+    static const uint32_t CURRENT_PICTURE_VERSION = 47;
 
     static_assert(MIN_PICTURE_VERSION <= 41,
                   "Remove kFontFileName and related code from SkFontDescriptor.cpp.");

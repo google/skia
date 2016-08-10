@@ -46,7 +46,7 @@ static void draw_rrect(SkCanvas* canvas, const SkRRect& rr, const SkRRect& occRR
 
     // draw the blur
     SkPaint paint;
-    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kBlurSigma)); //, occRect));
+    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kBlurSigma, occRect));
     canvas->drawRRect(rr, paint);
 
     // draw the stroked geometry of the full occluder
