@@ -653,14 +653,15 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(
 
     std::unique_ptr<SkStreamAsset> alphaStream(create_pattern_fill_content(-1, bbox));
 
-    auto resources =
+    sk_sp<SkPDFDict> resources =
         get_gradient_resource_dict(luminosityShader.get(), nullptr);
 
-    auto alphaMask = SkPDFMakeFormXObject(std::move(alphaStream),
-                                          SkPDFUtils::RectToArray(bbox),
-                                          std::move(resources),
-                                          SkMatrix::I(),
-                                          "DeviceRGB");
+    sk_sp<SkPDFObject> alphaMask =
+        SkPDFMakeFormXObject(std::move(alphaStream),
+                             SkPDFUtils::RectToArray(bbox),
+                             std::move(resources),
+                             SkMatrix::I(),
+                             "DeviceRGB");
     return SkPDFGraphicState::GetSMaskGraphicState(
             std::move(alphaMask), false,
             SkPDFGraphicState::kLuminosity_SMaskMode, doc->canon());
@@ -682,9 +683,9 @@ static sk_sp<SkPDFStream> make_alpha_function_shader(SkPDFDocument* doc,
 
     // Create resource dict with alpha graphics state as G0 and
     // pattern shader as P0, then write content stream.
-    auto alphaGs = create_smask_graphic_state(doc, dpi, state);
+    sk_sp<SkPDFObject> alphaGs = create_smask_graphic_state(doc, dpi, state);
 
-    auto resourceDict =
+    sk_sp<SkPDFDict> resourceDict =
             get_gradient_resource_dict(colorShader.get(), alphaGs.get());
 
     std::unique_ptr<SkStreamAsset> colorStream(
