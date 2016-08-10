@@ -228,6 +228,8 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     desc.flatten(buffer);
 }
 
+#if SK_SUPPORT_GPU
+
 static inline bool close_to_one_half(const SkFixed& val) {
     return SkScalarNearlyEqual(SkFixedToScalar(val), SK_ScalarHalf);
 }
@@ -271,6 +273,7 @@ GrGradientEffect::ColorType GrGradientEffect::determineColorTypeAndNumHardStops(
 
     return kTexture_ColorType;
 }
+#endif
 
 void SkGradientShaderBase::FlipGradientColors(SkColor* colorDst, Rec* recDst,
                                               SkColor* colorSrc, Rec* recSrc,
