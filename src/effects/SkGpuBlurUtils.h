@@ -29,7 +29,6 @@ namespace SkGpuBlurUtils {
     *                        no pixels will be sampled outside of this rectangle.
     * @param sigmaX          The blur's standard deviation in X.
     * @param sigmaY          The blur's standard deviation in Y.
-    * @param fit             backing fit for the returned draw context
     * @return                The drawContext containing the blurred result.
     */
     sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
@@ -38,8 +37,7 @@ namespace SkGpuBlurUtils {
                                       const SkIRect& dstBounds,
                                       const SkIRect* srcBounds,
                                       float sigmaX,
-                                      float sigmaY,
-                                      SkBackingFit fit = SkBackingFit::kApprox);
+                                      float sigmaY);
 };
 
 #endif
