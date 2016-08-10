@@ -43,7 +43,7 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 
     fContentInfo.set(record.fContentInfo);
 
-    fBitmaps = record.fBitmaps;
+    fBitmaps.reset();     // we never make bitmaps (anymore) during recording
     fPaints  = record.fPaints;
 
     fPaths.reset(record.fPaths.count());
@@ -223,12 +223,8 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
 void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
     int i, n;
 
-    if ((n = fBitmaps.count()) > 0) {
-        write_tag_size(buffer, SK_PICT_BITMAP_BUFFER_TAG, n);
-        for (i = 0; i < n; i++) {
-            buffer.writeBitmap(fBitmaps[i]);
-        }
-    }
+    // we never record bitmaps anymore, only images
+    SkASSERT(fBitmaps.count() == 0);
 
     if ((n = fPaints.count()) > 0) {
         write_tag_size(buffer, SK_PICT_PAINT_BUFFER_TAG, n);
