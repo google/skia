@@ -17,7 +17,6 @@ https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/yinyang.svg
 https://upload.wikimedia.org/wikipedia/commons/6/6d/Alabama-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/2/2b/Alaska-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/7/7e/Arizona-StateSeal.svg
-https://upload.wikimedia.org/wikipedia/commons/a/a4/Seal_of_Arkansas.svg
 https://upload.wikimedia.org/wikipedia/commons/0/0f/Seal_of_California.svg
 https://upload.wikimedia.org/wikipedia/commons/5/51/Colorado-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/e/e5/Connecticut-StateSeal.svg
