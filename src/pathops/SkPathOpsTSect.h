@@ -218,7 +218,7 @@ private:
     SkOpDebugBool fIsLine;
     SkOpDebugBool fDeleted;
     SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState);
-    SkDEBUGCODE_(SkTSect<TCurve, OppCurve>* fDebugSect);
+    SkDEBUGCODE(SkTSect<TCurve, OppCurve>* fDebugSect);
     PATH_OPS_DEBUG_T_SECT_CODE(int fID);
     friend class SkTSect<TCurve, OppCurve>;
     friend class SkTSect<OppCurve, TCurve>;
@@ -332,7 +332,7 @@ private:
     SkTSpan<TCurve, OppCurve>* fDeleted;
     int fActiveCount;
     SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState);
-    SkDEBUGCODE_(SkTSect<OppCurve, TCurve>* fOppSect);
+    SkDEBUGCODE(SkTSect<OppCurve, TCurve>* fOppSect);
     PATH_OPS_DEBUG_T_SECT_CODE(int fID);
     PATH_OPS_DEBUG_T_SECT_CODE(int fDebugCount);
 #if DEBUG_T_SECT
@@ -819,7 +819,7 @@ void SkTSpan<TCurve, OppCurve>::validateBounded() const {
 #if DEBUG_VALIDATE
     const SkTSpanBounded<OppCurve, TCurve>* testBounded = fBounded;
     while (testBounded) {
-        SkDEBUGCODE_(const SkTSpan<OppCurve, TCurve>* overlap = testBounded->fBounded);
+        SkDEBUGCODE(const SkTSpan<OppCurve, TCurve>* overlap = testBounded->fBounded);
         SkASSERT(!overlap->fDeleted);
 #if DEBUG_T_SECT
         SkASSERT(((this->debugID() ^ overlap->debugID()) & 1) == 1);

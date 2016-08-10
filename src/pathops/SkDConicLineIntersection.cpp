@@ -79,7 +79,7 @@ public:
         for (int index = 0; index < count; ++index) {
             double conicT = roots[index];
             SkDPoint pt = fConic.ptAtT(conicT);
-            SkDEBUGCODE_(double conicVals[] = { fConic[0].fY, fConic[1].fY, fConic[2].fY });
+            SkDEBUGCODE(double conicVals[] = { fConic[0].fY, fConic[1].fY, fConic[2].fY });
             SkOPOBJASSERT(fIntersections, close_to(pt.fY, axisIntercept, conicVals));
             double lineT = (pt.fX - left) / (right - left);
             if (this->pinTs(&conicT, &lineT, &pt, kPointInitialized)
@@ -157,7 +157,7 @@ public:
         for (int index = 0; index < count; ++index) {
             double conicT = roots[index];
             SkDPoint pt = fConic.ptAtT(conicT);
-            SkDEBUGCODE_(double conicVals[] = { fConic[0].fX, fConic[1].fX, fConic[2].fX });
+            SkDEBUGCODE(double conicVals[] = { fConic[0].fX, fConic[1].fX, fConic[2].fX });
             SkOPOBJASSERT(fIntersections, close_to(pt.fX, axisIntercept, conicVals));
             double lineT = (pt.fY - top) / (bottom - top);
             if (this->pinTs(&conicT, &lineT, &pt, kPointInitialized)

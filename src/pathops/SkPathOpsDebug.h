@@ -101,11 +101,9 @@
 #ifdef SK_RELEASE
     #define SkDEBUGRELEASE(a, b) b
     #define SkDEBUGPARAMS(...)
-    #define SkDEBUGCODE_(...)
 #else
     #define SkDEBUGRELEASE(a, b) a
     #define SkDEBUGPARAMS(...) , __VA_ARGS__
-    #define SkDEBUGCODE_(...) __VA_ARGS__  // temporary until SkDEBUGCODE is fixed
 #endif
 
 #if DEBUG_VALIDATE == 0
