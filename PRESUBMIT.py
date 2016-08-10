@@ -196,10 +196,9 @@ def _CheckGNFormatted(input_api, output_api):
     try:
       subprocess.check_output(cmd)
     except subprocess.CalledProcessError:
-      fix = cmd[:]
-      fix[2] = '--in-place'
+      fix = 'gn format ' + f.LocalPath()
       results.append(output_api.PresubmitError(
-          '`%s` failed, try\n\t%s' % (' '.join(cmd), ' '.join(fix))))
+          '`%s` failed, try\n\t%s' % (' '.join(cmd), fix)))
   return results
 
 
