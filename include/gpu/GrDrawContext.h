@@ -263,7 +263,7 @@ public:
         return fRenderTarget->isStencilBufferMultisampled();
     }
     bool isUnifiedMultisampled() const { return fRenderTarget->isUnifiedMultisampled(); }
-    bool hasMixedSamples() const { return fRenderTarget->hasMixedSamples(); }
+    bool hasMixedSamples() const { return fRenderTarget->isMixedSampled(); }
 
     bool mustUseHWAA(const GrPaint& paint) const {
         return paint.isAntiAlias() && fRenderTarget->isUnifiedMultisampled();

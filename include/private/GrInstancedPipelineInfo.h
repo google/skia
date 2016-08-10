@@ -17,7 +17,7 @@
 struct GrInstancedPipelineInfo {
     GrInstancedPipelineInfo(const GrRenderTarget* rt)
         : fIsMultisampled(rt->isStencilBufferMultisampled()),
-          fIsMixedSampled(rt->hasMixedSamples()),
+          fIsMixedSampled(rt->isMixedSampled()),
           fIsRenderingToFloat(GrPixelConfigIsFloatingPoint(rt->desc().fConfig)),
           fColorDisabled(false),
           fDrawingShapeToStencil(false),

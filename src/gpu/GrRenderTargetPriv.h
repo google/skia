@@ -35,7 +35,10 @@ public:
     const GrGpu::MultisampleSpecs& getMultisampleSpecs(const GrStencilSettings& stencil) const;
     uint8_t& accessMultisampleSpecsID() { return fRenderTarget->fMultisampleSpecsID; }
 
-    GrRenderTarget::SampleConfig sampleConfig() const { return fRenderTarget->fSampleConfig; }
+    typedef GrRenderTarget::Flags Flags;
+
+    Flags flags() const { return fRenderTarget->fFlags; }
+    bool supportsWindowRectangles() const { return this->flags() & Flags::kWindowRectsSupport; }
 
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}

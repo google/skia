@@ -13,6 +13,7 @@
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrPipelineBuilder.h"
+#include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
 
 #include "SkGpuDevice.h"
@@ -256,6 +257,12 @@ void GrDrawContextPriv::testingOnly_drawBatch(const GrPaint& paint,
 
 #undef ASSERT_SINGLE_OWNER
 #undef RETURN_IF_ABANDONED
+
+///////////////////////////////////////////////////////////////////////////////
+
+GrRenderTargetPriv::Flags GrRenderTargetProxy::testingOnly_getFlags() const {
+    return fFlags;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Code for the mock context. It's built on a mock GrGpu class that does nothing.

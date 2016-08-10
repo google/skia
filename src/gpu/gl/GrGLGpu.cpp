@@ -722,7 +722,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     } else {
         idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
     }
-    idDesc.fSampleConfig = GrRenderTarget::kUnified_SampleConfig;
+    idDesc.fIsMixedSampled = false;
 
     GrSurfaceDesc desc;
     desc.fConfig = wrapDesc.fConfig;
@@ -1505,7 +1505,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     idDesc->fTexFBOID = 0;
     SkASSERT((GrGLCaps::kMixedSamples_MSFBOType == this->glCaps().msFBOType()) ==
              this->caps()->usesMixedSamples());
-    idDesc->fSampleConfig = GrRenderTarget::ComputeSampleConfig(*this->caps(), desc.fSampleCnt);
+    idDesc->fIsMixedSampled = desc.fSampleCnt > 0 && this->caps()->usesMixedSamples();
 
     GrGLenum status;
 
@@ -2971,7 +2971,7 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabl
     }
 
     if (0 != this->caps()->maxRasterSamples()) {
-        if (useHWAA && rt->hasMixedSamples() && !stencilEnabled) {
+        if (useHWAA && rt->isMixedSampled() && !stencilEnabled) {
             // Since stencil is disabled and we want more samples than are in the color buffer, we
             // need to tell the rasterizer explicitly how many to run.
             if (kYes_TriState != fHWRasterMultisampleEnabled) {
@@ -2990,7 +2990,7 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabl
             }
         }
     } else {
-        SkASSERT(!useHWAA || !rt->hasMixedSamples() || stencilEnabled);
+        SkASSERT(!useHWAA || !rt->isMixedSampled() || stencilEnabled);
     }
 }
 
@@ -4440,7 +4440,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
 
 void GrGLGpu::onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings& stencil,
                                     int* effectiveSampleCnt, SamplePattern* samplePattern) {
-    SkASSERT(!rt->hasMixedSamples() || rt->renderTargetPriv().getStencilAttachment() ||
+    SkASSERT(!rt->isMixedSampled() || rt->renderTargetPriv().getStencilAttachment() ||
              stencil.isDisabled());
 
     this->flushStencil(stencil);

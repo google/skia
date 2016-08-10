@@ -16,6 +16,18 @@
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 
+GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, Flags flags,
+                               GrStencilAttachment* stencil)
+    : INHERITED(gpu, desc)
+    , fStencilAttachment(stencil)
+    , fMultisampleSpecsID(0)
+    , fFlags(flags)
+    , fLastDrawTarget(nullptr) {
+    SkASSERT(!(fFlags & Flags::kMixedSampled) || fDesc.fSampleCnt > 0);
+    SkASSERT(!(fFlags & Flags::kWindowRectsSupport) || gpu->caps()->maxWindowRectangles() > 0);
+    fResolveRect.setLargestInverted();
+}
+
 GrRenderTarget::~GrRenderTarget() {
     if (fLastDrawTarget) {
         fLastDrawTarget->clearRT();
@@ -115,11 +127,3 @@ const GrGpu::MultisampleSpecs&
 GrRenderTargetPriv::getMultisampleSpecs(const GrStencilSettings& stencil) const {
     return fRenderTarget->getGpu()->getMultisampleSpecs(fRenderTarget, stencil);
 }
-
-GrRenderTarget::SampleConfig GrRenderTarget::ComputeSampleConfig(const GrCaps& caps,
-                                                                 int sampleCnt) {
-    return (caps.usesMixedSamples() && sampleCnt > 0)
-                        ? GrRenderTarget::kStencil_SampleConfig
-                        : GrRenderTarget::kUnified_SampleConfig;
-}
-
