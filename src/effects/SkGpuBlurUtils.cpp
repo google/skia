@@ -186,8 +186,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
                                   const SkIRect& dstBounds,
                                   const SkIRect* srcBounds,
                                   float sigmaX,
-                                  float sigmaY,
-                                  SkBackingFit fit) {
+                                  float sigmaY) {
     SkASSERT(context);
     SkIRect clearRect;
     int scaleFactorX, radiusX;
@@ -227,7 +226,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
     const int height = dstBounds.height();
     const GrPixelConfig config = srcTexture->config();
 
-    sk_sp<GrDrawContext> dstDrawContext(context->makeDrawContext(fit,
+    sk_sp<GrDrawContext> dstDrawContext(context->makeDrawContext(SkBackingFit::kApprox,
                                                                  width, height, config, colorSpace,
                                                                  0, kDefault_GrSurfaceOrigin));
     if (!dstDrawContext) {
@@ -247,7 +246,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
         return dstDrawContext;
     } 
 
-    sk_sp<GrDrawContext> tmpDrawContext(context->makeDrawContext(fit,
+    sk_sp<GrDrawContext> tmpDrawContext(context->makeDrawContext(SkBackingFit::kApprox,
                                                                  width, height, config, colorSpace,
                                                                  0, kDefault_GrSurfaceOrigin));
     if (!tmpDrawContext) {
