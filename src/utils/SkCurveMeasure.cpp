@@ -234,10 +234,13 @@ SkScalar SkCurveMeasure::getTime(SkScalar targetLength) {
     return currentT;
 }
 
-void SkCurveMeasure::getPosTan(SkScalar targetLength, SkPoint* pos,
-                               SkVector* tan) {
+void SkCurveMeasure::getPosTanTime(SkScalar targetLength, SkPoint* pos,
+                               SkVector* tan, SkScalar* time) {
     SkScalar t = getTime(targetLength);
 
+    if (time) {
+        *time = t;
+    }
     if (pos) {
         // TODO(hstern) switch here on curve type.
         *pos = evaluateQuad(t);

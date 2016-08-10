@@ -47,7 +47,7 @@ public:
     SkCurveMeasure(const SkPoint* pts, SkSegType segType);
 
     SkScalar getTime(SkScalar targetLength);
-    void getPosTan(SkScalar distance, SkPoint* pos, SkVector* tan);
+    void getPosTanTime(SkScalar distance, SkPoint* pos, SkVector* tan, SkScalar* time);
     SkScalar getLength();
 
 private:

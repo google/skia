@@ -88,7 +88,7 @@ class MeasureBench : public Benchmark {
 
         SkPoint point;
         for (size_t i = 0; i <= fPieces; i++) {
-            meas.getPosTan(i*pieceLength, &point, nullptr);
+            meas.getPosTanTime(i*pieceLength, &point, nullptr, nullptr);
         }
     }
 
