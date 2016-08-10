@@ -6,10 +6,66 @@
  */
 
 #include "SkCurveMeasure.h"
+#include "SkGeometry.h"
 
 // for abs
 #include <cmath>
 
+#define UNIMPLEMENTED SkDEBUGF(("%s:%d unimplemented\n", __FILE__, __LINE__))
+
+/// Used inside SkCurveMeasure::getTime's Newton's iteration
+static inline SkPoint evaluate(const SkPoint pts[4], SkSegType segType,
+                               SkScalar t) {
+    SkPoint pos;
+    switch (segType) {
+        case kQuad_SegType:
+            pos = SkEvalQuadAt(pts, t);
+            break;
+        case kLine_SegType:
+            pos = SkPoint::Make(SkScalarInterp(pts[0].x(), pts[1].x(), t),
+                                SkScalarInterp(pts[0].y(), pts[1].y(), t));
+            break;
+        case kCubic_SegType:
+            SkEvalCubicAt(pts, t, &pos, nullptr, nullptr);
+            break;
+        case kConic_SegType: {
+            SkConic conic(pts, pts[3].x());
+            conic.evalAt(t, &pos);
+        }
+            break;
+        default:
+            UNIMPLEMENTED;
+    }
+
+    return pos;
+}
+
+/// Used inside SkCurveMeasure::getTime's Newton's iteration
+static inline SkVector evaluateDerivative(const SkPoint pts[4],
+                                          SkSegType segType, SkScalar t) {
+    SkVector tan;
+    switch (segType) {
+        case kQuad_SegType:
+            tan = SkEvalQuadTangentAt(pts, t);
+            break;
+        case kLine_SegType:
+            tan = pts[1] - pts[0];
+            break;
+        case kCubic_SegType:
+            SkEvalCubicAt(pts, t, nullptr, &tan, nullptr);
+            break;
+        case kConic_SegType: {
+            SkConic conic(pts, pts[3].x());
+            conic.evalAt(t, nullptr, &tan);
+        }
+            break;
+        default:
+            UNIMPLEMENTED;
+    }
+
+    return tan;
+}
+/// Used in ArcLengthIntegrator::computeLength
 static inline Sk8f evaluateDerivativeLength(const Sk8f& ts,
                                             const Sk8f (&xCoeff)[3],
                                             const Sk8f (&yCoeff)[3],
@@ -21,18 +77,15 @@ static inline Sk8f evaluateDerivativeLength(const Sk8f& ts,
             x = xCoeff[0]*ts + xCoeff[1];
             y = yCoeff[0]*ts + yCoeff[1];
             break;
-        case kLine_SegType:
-            SkDebugf("Unimplemented");
-            break;
         case kCubic_SegType:
             x = (xCoeff[0]*ts + xCoeff[1])*ts + xCoeff[2];
             y = (yCoeff[0]*ts + yCoeff[1])*ts + yCoeff[2];
             break;
         case kConic_SegType:
-            SkDebugf("Unimplemented");
+            UNIMPLEMENTED;
             break;
         default:
-            SkDebugf("Unimplemented");
+            UNIMPLEMENTED;
     }
 
     x = x * x;
@@ -40,6 +93,7 @@ static inline Sk8f evaluateDerivativeLength(const Sk8f& ts,
 
     return (x + y).sqrt();
 }
+
 ArcLengthIntegrator::ArcLengthIntegrator(const SkPoint* pts, SkSegType segType)
     : fSegType(segType) {
     switch (fSegType) {
@@ -59,9 +113,6 @@ ArcLengthIntegrator::ArcLengthIntegrator(const SkPoint* pts, SkSegType segType)
             yCoeff[1] = Sk8f(2.0f*(By - Ay));
         }
             break;
-        case kLine_SegType:
-            SkDEBUGF(("Unimplemented"));
-            break;
         case kCubic_SegType:
         {
             float Ax = pts[0].x();
@@ -73,6 +124,7 @@ ArcLengthIntegrator::ArcLengthIntegrator(const SkPoint* pts, SkSegType segType)
             float Cy = pts[2].y();
             float Dy = pts[3].y();
 
+            // precompute coefficients for derivative
             xCoeff[0] = Sk8f(3.0f*(-Ax + 3.0f*(Bx - Cx) + Dx));
             xCoeff[1] = Sk8f(3.0f*(2.0f*(Ax - 2.0f*Bx + Cx)));
             xCoeff[2] = Sk8f(3.0f*(-Ax + Bx));
@@ -83,10 +135,10 @@ ArcLengthIntegrator::ArcLengthIntegrator(const SkPoint* pts, SkSegType segType)
         }
             break;
         case kConic_SegType:
-            SkDEBUGF(("Unimplemented"));
+            UNIMPLEMENTED;
             break;
         default:
-            SkDEBUGF(("Unimplemented"));
+            UNIMPLEMENTED;
     }
 }
 
@@ -117,7 +169,9 @@ SkCurveMeasure::SkCurveMeasure(const SkPoint* pts, SkSegType segType)
             }
             break;
         case SkSegType::kLine_SegType:
-            SkDebugf("Unimplemented");
+            fPts[0] = pts[0];
+            fPts[1] = pts[1];
+            fLength = (fPts[1] - fPts[0]).length();
             break;
         case SkSegType::kCubic_SegType:
             for (size_t i = 0; i < 4; i++) {
@@ -125,13 +179,17 @@ SkCurveMeasure::SkCurveMeasure(const SkPoint* pts, SkSegType segType)
             }
             break;
         case SkSegType::kConic_SegType:
-            SkDebugf("Unimplemented");
+            for (size_t i = 0; i < 4; i++) {
+                fPts[i] = pts[i];
+            }
             break;
         default:
-            SkDEBUGF(("Unimplemented"));
+            UNIMPLEMENTED;
             break;
     }
-    fIntegrator = ArcLengthIntegrator(fPts, fSegType);
+    if (kLine_SegType != segType) {
+        fIntegrator = ArcLengthIntegrator(fPts, fSegType);
+    }
 }
 
 SkScalar SkCurveMeasure::getLength() {
@@ -151,14 +209,17 @@ SkScalar SkCurveMeasure::getLength() {
 // which is equal to the length of the tangent (so we have to do a sqrt).
 
 SkScalar SkCurveMeasure::getTime(SkScalar targetLength) {
-    if (targetLength == 0.0f) {
+    if (targetLength <= 0.0f) {
         return 0.0f;
     }
 
     SkScalar currentLength = getLength();
 
-    if (SkScalarNearlyEqual(targetLength, currentLength)) {
+    if (targetLength > currentLength || (SkScalarNearlyEqual(targetLength, currentLength))) {
         return 1.0f;
+    }
+    if (kLine_SegType == fSegType) {
+        return targetLength / currentLength;
     }
 
     // initial estimate of t is percentage of total length
@@ -199,9 +260,8 @@ SkScalar SkCurveMeasure::getTime(SkScalar targetLength) {
 
         prevT = currentT;
         if (iterations < kNewtonIters) {
-            // TODO(hstern) switch here on curve type.
             // This is just newton's formula.
-            SkScalar dt = evaluateQuadDerivative(currentT).length();
+            SkScalar dt = evaluateDerivative(fPts, fSegType, currentT).length();
             newT = currentT - (lengthDiff / dt);
 
             // If newT is out of bounds, bisect inside newton.
@@ -218,7 +278,7 @@ SkScalar SkCurveMeasure::getTime(SkScalar targetLength) {
             newT = (minT + maxT) * 0.5f;
         } else {
             SkDEBUGF(("%.7f %.7f didn't get close enough after bisection.\n",
-                     currentT, currentLength));
+                      currentT, currentLength));
             break;
         }
         currentT = newT;
@@ -235,52 +295,16 @@ SkScalar SkCurveMeasure::getTime(SkScalar targetLength) {
 }
 
 void SkCurveMeasure::getPosTanTime(SkScalar targetLength, SkPoint* pos,
-                               SkVector* tan, SkScalar* time) {
+                                   SkVector* tan, SkScalar* time) {
     SkScalar t = getTime(targetLength);
 
     if (time) {
         *time = t;
     }
     if (pos) {
-        // TODO(hstern) switch here on curve type.
-        *pos = evaluateQuad(t);
+        *pos = evaluate(fPts, fSegType, t);
     }
     if (tan) {
-        // TODO(hstern) switch here on curve type.
-        *tan = evaluateQuadDerivative(t);
+        *tan = evaluateDerivative(fPts, fSegType, t);
     }
-}
-
-// this is why I feel that the ArcLengthIntegrator should be combined
-// with some sort of evaluator that caches the constants computed from the
-// control points. this is basically the same code in ArcLengthIntegrator
-SkPoint SkCurveMeasure::evaluateQuad(SkScalar t) {
-    SkScalar ti = 1.0f - t;
-
-    SkScalar Ax = fPts[0].x();
-    SkScalar Bx = fPts[1].x();
-    SkScalar Cx = fPts[2].x();
-    SkScalar Ay = fPts[0].y();
-    SkScalar By = fPts[1].y();
-    SkScalar Cy = fPts[2].y();
-
-    SkScalar x = Ax*ti*ti + 2.0f*Bx*t*ti + Cx*t*t;
-    SkScalar y = Ay*ti*ti + 2.0f*By*t*ti + Cy*t*t;
-    return SkPoint::Make(x, y);
-}
-
-SkVector SkCurveMeasure::evaluateQuadDerivative(SkScalar t) {
-    SkScalar Ax = fPts[0].x();
-    SkScalar Bx = fPts[1].x();
-    SkScalar Cx = fPts[2].x();
-    SkScalar Ay = fPts[0].y();
-    SkScalar By = fPts[1].y();
-    SkScalar Cy = fPts[2].y();
-
-    SkScalar A2BCx = 2.0f*(Ax - 2*Bx + Cx);
-    SkScalar A2BCy = 2.0f*(Ay - 2*By + Cy);
-    SkScalar ABx = 2.0f*(Bx - Ax);
-    SkScalar ABy = 2.0f*(By - Ay);
-
-    return SkPoint::Make(A2BCx*t + ABx, A2BCy*t + ABy);
 }
