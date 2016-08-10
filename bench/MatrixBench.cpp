@@ -320,7 +320,7 @@ public:
         SkRect dst;
         if (fScaleTrans) {
             for (int i = 0; i < MEGA_LOOP; ++i) {
-                dst = fM.mapRectScaleTranslate(fR);
+                fM.mapRectScaleTranslate(&dst, fR);
             }
         } else {
             for (int i = 0; i < MEGA_LOOP; ++i) {

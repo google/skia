@@ -200,7 +200,7 @@ void SkDeferredCanvas::flush_check(SkRect* bounds, const SkPaint* paint, unsigne
                 if (canScale) {
                     SkMatrix m;
                     rec.getConcat(&m);
-                    *bounds = m.mapRectScaleTranslate(*bounds);
+                    m.mapRectScaleTranslate(bounds, *bounds);
                 } else {
                     goto STOP;
                 }
