@@ -66,7 +66,6 @@
       {
         'defines': [
           '_CRT_SECURE_NO_WARNINGS',
-          'GR_GL_FUNCTION_TYPE=__stdcall',
           '_HAS_EXCEPTIONS=0',
           'WIN32_LEAN_AND_MEAN',
           'NOMINMAX',
