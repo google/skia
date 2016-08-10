@@ -77,10 +77,6 @@ static inline Sk8f evaluateDerivativeLength(const Sk8f& ts,
             x = xCoeff[0]*ts + xCoeff[1];
             y = yCoeff[0]*ts + yCoeff[1];
             break;
-        case kLine_SegType:
-            // length of line derivative is constant
-            // and we precompute it in the constructor
-            return xCoeff[0];
         case kCubic_SegType:
             x = (xCoeff[0]*ts + xCoeff[1])*ts + xCoeff[2];
             y = (yCoeff[0]*ts + yCoeff[1])*ts + yCoeff[2];
@@ -115,14 +111,6 @@ ArcLengthIntegrator::ArcLengthIntegrator(const SkPoint* pts, SkSegType segType)
 
             yCoeff[0] = Sk8f(2.0f*(Ay - 2*By + Cy));
             yCoeff[1] = Sk8f(2.0f*(By - Ay));
-        }
-            break;
-        case kLine_SegType: {
-            // the length of the derivative of a line is constant
-            // we put in in both coeff arrays for consistency's sake
-            SkScalar length = (pts[1] - pts[0]).length();
-            xCoeff[0] = Sk8f(length);
-            yCoeff[0] = Sk8f(length);
         }
             break;
         case kCubic_SegType:
@@ -183,6 +171,7 @@ SkCurveMeasure::SkCurveMeasure(const SkPoint* pts, SkSegType segType)
         case SkSegType::kLine_SegType:
             fPts[0] = pts[0];
             fPts[1] = pts[1];
+            fLength = (fPts[1] - fPts[0]).length();
             break;
         case SkSegType::kCubic_SegType:
             for (size_t i = 0; i < 4; i++) {
@@ -198,7 +187,9 @@ SkCurveMeasure::SkCurveMeasure(const SkPoint* pts, SkSegType segType)
             UNIMPLEMENTED;
             break;
     }
-    fIntegrator = ArcLengthIntegrator(fPts, fSegType);
+    if (kLine_SegType != segType) {
+        fIntegrator = ArcLengthIntegrator(fPts, fSegType);
+    }
 }
 
 SkScalar SkCurveMeasure::getLength() {
@@ -226,6 +217,9 @@ SkScalar SkCurveMeasure::getTime(SkScalar targetLength) {
 
     if (SkScalarNearlyEqual(targetLength, currentLength)) {
         return 1.0f;
+    }
+    if (kLine_SegType == fSegType) {
+        return targetLength / currentLength;
     }
 
     // initial estimate of t is percentage of total length
