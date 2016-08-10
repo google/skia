@@ -65,6 +65,16 @@ public:
                                       SkScalar blurRadius);
 #endif
 
+    static bool ComputeBlurredRRectParams(const SkRRect& rrect,
+                                          SkScalar sigma,
+                                          SkRRect* rrectToDraw,
+                                          SkISize* widthHeight,
+                                          SkScalar xs[4],
+                                          int* numXs,
+                                          SkScalar ys[4],
+                                          int* numYs);
+
+
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 private:
