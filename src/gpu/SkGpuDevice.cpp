@@ -436,7 +436,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect,
                         // clipped out
                         return;
                     }
-                    if (paint.getMaskFilter()->directFilterRRectMaskGPU(fContext->textureProvider(),
+                    if (paint.getMaskFilter()->directFilterRRectMaskGPU(fContext,
                                                                         fDrawContext.get(),
                                                                         &grPaint,
                                                                         fClip,
