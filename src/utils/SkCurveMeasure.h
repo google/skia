@@ -44,15 +44,6 @@ private:
 class SkCurveMeasure {
 public:
     SkCurveMeasure() {}
-
-    // Almost exactly the same as in SkPath::Iter:
-    // kLine_SegType  -> 2 points: start end
-    // kQuad_SegType  -> 3 points: start control end
-    // kCubic_SegType -> 4 points: start control1 control2 end
-    // kConic_SegType -> 4 points: start control end (w, w)
-    //
-    // i.e. the only difference is that the conic's last point is a point
-    // consisting of the w value twice
     SkCurveMeasure(const SkPoint* pts, SkSegType segType);
 
     SkScalar getTime(SkScalar targetLength);
@@ -60,6 +51,13 @@ public:
     SkScalar getLength();
 
 private:
+    SkPoint evaluateQuad(SkScalar t);
+    SkVector evaluateQuadDerivative(SkScalar t);
+    //SkPoint evaluate_cubic(SkScalar t);
+    //SkVector evaluate_cubic_derivative(SkScalar t);
+    //SkPoint evaluate_conic(SkScalar t);
+    //SkVector evaluate_conic_derivative(SkScalar t);
+
     const SkScalar kTolerance = 0.0001f;
     const int kNewtonIters = 5;
     const int kBisectIters = 5;
