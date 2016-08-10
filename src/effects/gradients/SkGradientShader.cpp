@@ -790,7 +790,7 @@ sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
                                          SkShader::TileMode mode,
                                          uint32_t flags,
                                          const SkMatrix* localMatrix) {
-    if (!pts) {
+    if (!pts || !SkScalarIsFinite((pts[1] - pts[0]).length())) {
         return nullptr;
     }
     if (!valid_grad(colors, pos, colorCount, mode)) {

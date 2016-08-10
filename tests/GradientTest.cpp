@@ -253,6 +253,22 @@ static void test_clamping_overflow(skiatest::Reporter*) {
     // Passes if we don't trigger asserts.
 }
 
+// http://crbug.com/636194
+static void text_degenerate_linear(skiatest::Reporter*) {
+    SkPaint p;
+    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
+    const SkPoint pts[] = {
+        SkPoint::Make(-46058024627067344430605278824628224.0f, 0),
+        SkPoint::Make(SK_ScalarMax, 0)
+    };
+
+    p.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode));
+    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(50, 50));
+    surface->getCanvas()->drawPaint(p);
+
+    // Passes if we don't trigger asserts.
+}
+
 DEF_TEST(Gradient, reporter) {
     TestGradientShaders(reporter);
     TestConstantGradient(reporter);
@@ -261,4 +277,5 @@ DEF_TEST(Gradient, reporter) {
     test_linear_fuzz(reporter);
     test_two_point_conical_zero_radius(reporter);
     test_clamping_overflow(reporter);
+    text_degenerate_linear(reporter);
 }
