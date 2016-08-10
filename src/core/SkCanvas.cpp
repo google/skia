@@ -77,13 +77,11 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
     }
 
     if (rect) {
-        if (!this->getTotalMatrix().isScaleTranslate()) {
+        const SkMatrix& ctm = this->getTotalMatrix();
+        if (!ctm.isScaleTranslate()) {
             return false; // conservative
         }
-
-        SkRect devRect;
-        this->getTotalMatrix().mapRectScaleTranslate(&devRect, *rect);
-        if (!devRect.contains(bounds)) {
+        if (!ctm.mapRectScaleTranslate(*rect).contains(bounds)) {
             return false;
         }
     }
@@ -1544,8 +1542,7 @@ void SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     // Check if we can quick-accept the clip call (and do nothing)
     //
     if (SkRegion::kIntersect_Op == op && !doAA && fMCRec->fMatrix.isScaleTranslate()) {
-        SkRect devR;
-        fMCRec->fMatrix.mapRectScaleTranslate(&devR, rect);
+        SkRect devR = fMCRec->fMatrix.mapRectScaleTranslate(rect);
         // NOTE: this check is CTM specific, since we might round differently with a different
         //       CTM. Thus this is only 100% reliable if there is not global CTM scale to be
         //       applied later (i.e. if this is going into a picture).
@@ -1585,7 +1582,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
     const bool isScaleTrans = fMCRec->fMatrix.isScaleTranslate();
     SkRect devR;
     if (isScaleTrans) {
-        fMCRec->fMatrix.mapRectScaleTranslate(&devR, rect);
+        devR = fMCRec->fMatrix.mapRectScaleTranslate(rect);
     }
 
 #ifndef SK_SUPPORT_PRECHECK_CLIPRECT
