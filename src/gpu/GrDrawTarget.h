@@ -121,6 +121,9 @@ public:
                      const SkMatrix& viewMatrix,
                      const GrPath*);
 
+    /** Clears the entire render target */
+    void fullClear(GrRenderTarget*, GrColor color);
+
     /** Discards the contents render target. */
     void discard(GrRenderTarget*);
 

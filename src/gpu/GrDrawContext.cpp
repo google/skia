@@ -203,10 +203,12 @@ void GrDrawContext::clear(const SkIRect* rect,
 
     const SkIRect rtRect = SkIRect::MakeWH(this->width(), this->height());
     SkIRect clippedRect;
+    bool isFull = false;
     if (!rect ||
         (canIgnoreRect && fContext->caps()->fullClearIsFree()) ||
         rect->contains(rtRect)) {
         rect = &rtRect;
+        isFull = true;
     } else {
         clippedRect = *rect;
         if (!clippedRect.intersect(rtRect)) {
@@ -228,6 +230,8 @@ void GrDrawContext::clear(const SkIRect* rect,
         paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
         this->drawRect(GrNoClip(), paint, SkMatrix::I(), SkRect::Make(*rect));
+    } else if (isFull) {
+        this->getDrawTarget()->fullClear(this->accessRenderTarget(), color);
     } else {
         sk_sp<GrBatch> batch = GrClearBatch::Make(*rect, color, this->accessRenderTarget());
         this->getDrawTarget()->addBatch(std::move(batch));

@@ -26,6 +26,7 @@
 
 #include "SkStrokeRec.h"
 
+#include "batches/GrClearBatch.h"
 #include "batches/GrClearStencilClipBatch.h"
 #include "batches/GrCopySurfaceBatch.h"
 #include "batches/GrDiscardBatch.h"
@@ -456,7 +457,18 @@ void GrDrawTarget::addBatch(sk_sp<GrBatch> batch) {
     this->recordBatch(batch.get(), batch->bounds());
 }
 
+void GrDrawTarget::fullClear(GrRenderTarget* renderTarget, GrColor color) {
+    // Currently this just inserts a clear batch. However, once in MDB this can remove all the
+    // previously recorded batches and change the load op to clear with supplied color.
+    sk_sp<GrBatch> batch = GrClearBatch::Make(SkIRect::MakeWH(renderTarget->width(),
+                                                              renderTarget->height()),
+                                              color, renderTarget);
+    this->recordBatch(batch.get(), batch->bounds());
+}
+
 void GrDrawTarget::discard(GrRenderTarget* renderTarget) {
+    // Currently this just inserts a discard batch. However, once in MDB this can remove all the
+    // previously recorded batches and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
         GrBatch* batch = new GrDiscardBatch(renderTarget);
         this->recordBatch(batch, batch->bounds());
