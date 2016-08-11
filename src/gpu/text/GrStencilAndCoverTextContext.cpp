@@ -37,21 +37,17 @@ template<typename T> static void delete_hash_table_entry(T* val) {
     delete *val;
 }
 
-GrStencilAndCoverTextContext::GrStencilAndCoverTextContext()
-    : fFallbackTextContext(nullptr)
+GrStencilAndCoverTextContext::GrStencilAndCoverTextContext(GrAtlasTextContext* fallbackTextContext)
+    : fFallbackTextContext(fallbackTextContext)
     , fCacheSize(0) {
 }
 
 GrStencilAndCoverTextContext*
-GrStencilAndCoverTextContext::Create() {
-    GrStencilAndCoverTextContext* textContext = new GrStencilAndCoverTextContext();
-    textContext->fFallbackTextContext = GrAtlasTextContext::Create();
-
-    return textContext;
+GrStencilAndCoverTextContext::Create(GrAtlasTextContext* fallbackTextContext) {
+    return new GrStencilAndCoverTextContext(fallbackTextContext);;
 }
 
 GrStencilAndCoverTextContext::~GrStencilAndCoverTextContext() {
-    delete fFallbackTextContext;
     fBlobIdCache.foreach(delete_hash_map_entry<uint32_t, TextBlob*>);
     fBlobKeyCache.foreach(delete_hash_table_entry<TextBlob*>);
 }

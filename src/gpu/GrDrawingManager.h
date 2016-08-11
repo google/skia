@@ -8,6 +8,7 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
+#include "text/GrAtlasTextContext.h"
 #include "GrDrawTarget.h"
 #include "GrBatchFlushState.h"
 #include "GrPathRendererChain.h"
@@ -41,6 +42,8 @@ public:
 
     GrContext* getContext() { return fContext; }
 
+    GrAtlasTextContext* getAtlasTextContext();
+
     GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
                                     bool allowSW,
                                     GrPathRendererChain::DrawType drawType,
@@ -55,6 +58,7 @@ private:
         , fOptionsForDrawTargets(optionsForDrawTargets)
         , fSingleOwner(singleOwner)
         , fAbandoned(false)
+        , fAtlasTextContext(nullptr)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
         , fFlushState(context->getGpu(), context->resourceProvider())
@@ -71,20 +75,22 @@ private:
     static const int kNumPixelGeometries = 5; // The different pixel geometries
     static const int kNumDFTOptions = 2;      // DFT or no DFT
 
-    GrContext*                  fContext;
-    GrDrawTarget::Options       fOptionsForDrawTargets;
+    GrContext*                        fContext;
+    GrDrawTarget::Options             fOptionsForDrawTargets;
 
     // In debug builds we guard against improper thread handling
-    GrSingleOwner*              fSingleOwner;
+    GrSingleOwner*                    fSingleOwner;
 
-    bool                        fAbandoned;
-    SkTDArray<GrDrawTarget*>    fDrawTargets;
+    bool                              fAbandoned;
+    SkTDArray<GrDrawTarget*>          fDrawTargets;
 
-    GrPathRendererChain*        fPathRendererChain;
-    GrSoftwarePathRenderer*     fSoftwarePathRenderer;
+    SkAutoTDelete<GrAtlasTextContext> fAtlasTextContext;
 
-    GrBatchFlushState           fFlushState;
-    bool                        fFlushing;
+    GrPathRendererChain*              fPathRendererChain;
+    GrSoftwarePathRenderer*           fSoftwarePathRenderer;
+
+    GrBatchFlushState                 fFlushState;
+    bool                              fFlushing;
 };
 
 #endif

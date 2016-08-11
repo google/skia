@@ -26,7 +26,8 @@ void GrPathRenderingDrawContext::drawText(const GrClip& clip,  const GrPaint& gr
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrPathRenderingDrawContext::drawText");
 
     if (!fStencilAndCoverTextContext) {
-        fStencilAndCoverTextContext.reset(GrStencilAndCoverTextContext::Create());
+        GrAtlasTextContext* fallbackContext = this->drawingManager()->getAtlasTextContext();
+        fStencilAndCoverTextContext.reset(GrStencilAndCoverTextContext::Create(fallbackContext));
     }
 
     fStencilAndCoverTextContext->drawText(this->drawingManager()->getContext(), this, clip, grPaint,
@@ -46,7 +47,8 @@ void GrPathRenderingDrawContext::drawPosText(const GrClip& clip, const GrPaint& 
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrPathRenderingDrawContext::drawPosText");
 
     if (!fStencilAndCoverTextContext) {
-        fStencilAndCoverTextContext.reset(GrStencilAndCoverTextContext::Create());
+        GrAtlasTextContext* fallbackContext = this->drawingManager()->getAtlasTextContext();
+        fStencilAndCoverTextContext.reset(GrStencilAndCoverTextContext::Create(fallbackContext));
     }
 
     fStencilAndCoverTextContext->drawPosText(this->drawingManager()->getContext(), this, clip,
@@ -65,7 +67,8 @@ void GrPathRenderingDrawContext::drawTextBlob(const GrClip& clip, const SkPaint&
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrPathRenderingDrawContext::drawTextBlob");
 
     if (!fStencilAndCoverTextContext) {
-        fStencilAndCoverTextContext.reset(GrStencilAndCoverTextContext::Create());
+        GrAtlasTextContext* fallbackContext = this->drawingManager()->getAtlasTextContext();
+        fStencilAndCoverTextContext.reset(GrStencilAndCoverTextContext::Create(fallbackContext));
     }
 
     fStencilAndCoverTextContext->drawTextBlob(this->drawingManager()->getContext(), this, clip,

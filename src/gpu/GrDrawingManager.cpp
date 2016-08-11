@@ -150,6 +150,14 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     return SkRef(dt);
 }
 
+GrAtlasTextContext* GrDrawingManager::getAtlasTextContext() {
+    if (!fAtlasTextContext) {
+        fAtlasTextContext.reset(GrAtlasTextContext::Create());
+    }
+
+    return fAtlasTextContext.get();
+}
+
 /*
  * This method finds a path renderer that can draw the specified path on
  * the provided target.

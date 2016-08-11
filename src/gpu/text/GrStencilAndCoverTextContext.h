@@ -29,7 +29,7 @@ class SkSurfaceProps;
  */
 class GrStencilAndCoverTextContext {
 public:
-    static GrStencilAndCoverTextContext* Create();
+    static GrStencilAndCoverTextContext* Create(GrAtlasTextContext* fallbackTextContext);
 
     void drawText(GrContext*, GrDrawContext* dc,
                   const GrClip&,  const GrPaint&, const SkPaint&,
@@ -50,7 +50,7 @@ public:
     virtual ~GrStencilAndCoverTextContext();
 
 private:
-    GrStencilAndCoverTextContext();
+    GrStencilAndCoverTextContext(GrAtlasTextContext* fallbackTextContext);
 
     bool canDraw(const SkPaint& skPaint, const SkMatrix&) {
         return this->internalCanDraw(skPaint);
