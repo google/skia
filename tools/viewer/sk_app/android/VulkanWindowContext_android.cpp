@@ -15,11 +15,9 @@ namespace window_context_factory {
 
 WindowContext* NewVulkanForAndroid(ANativeWindow* window, const DisplayParams& params) {
     auto createVkSurface = [window] (VkInstance instance) -> VkSurfaceKHR {
-        static PFN_vkCreateAndroidSurfaceKHR createAndroidSurfaceKHR = nullptr;
-        if (!createAndroidSurfaceKHR) {
-            createAndroidSurfaceKHR = (PFN_vkCreateAndroidSurfaceKHR)vkGetInstanceProcAddr(
-                instance, "vkCreateAndroidSurfaceKHR");
-        }
+        PFN_vkCreateAndroidSurfaceKHR createAndroidSurfaceKHR =
+                (PFN_vkCreateAndroidSurfaceKHR)vkGetInstanceProcAddr(instance,
+                                                                     "vkCreateAndroidSurfaceKHR");
 
         if (!window) {
             return VK_NULL_HANDLE;
