@@ -170,7 +170,7 @@ SK_API sk_path_rawiterator_t* sk_path_create_rawiter (sk_path_t *cpath);
 
 SK_API sk_path_verb_t sk_path_rawiter_peek (sk_path_rawiterator_t *iterator);
 
-SK_API sk_path_verb_t sk_path_rawiter_next (sk_path_rawiterator_t *iterator);
+SK_API sk_path_verb_t sk_path_rawiter_next (sk_path_rawiterator_t *iterator, sk_point_t points [4]);
 
 SK_API float sk_path_rawiter_conic_weight (sk_path_rawiterator_t *iterator);
 
