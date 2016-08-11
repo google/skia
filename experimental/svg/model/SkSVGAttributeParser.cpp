@@ -359,3 +359,71 @@ bool SkSVGAttributeParser::parseTransform(SkSVGTransformType* t) {
     *t = SkSVGTransformType(matrix);
     return true;
 }
+
+// https://www.w3.org/TR/SVG/painting.html#SpecifyingPaint
+bool SkSVGAttributeParser::parsePaint(SkSVGPaint* paint) {
+    SkSVGColorType c;
+    bool parsedValue = false;
+    if (this->parseColor(&c)) {
+        *paint = SkSVGPaint(c);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("none")) {
+        *paint = SkSVGPaint(SkSVGPaint::Type::kNone);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("currentColor")) {
+        *paint = SkSVGPaint(SkSVGPaint::Type::kCurrentColor);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("inherit")) {
+        *paint = SkSVGPaint(SkSVGPaint::Type::kInherit);
+        parsedValue = true;
+    }
+    return parsedValue && this->parseEOSToken();
+}
+
+// https://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
+bool SkSVGAttributeParser::parseLineCap(SkSVGLineCap* cap) {
+    static const struct {
+        SkSVGLineCap::Type fType;
+        const char*        fName;
+    } gCapInfo[] = {
+        { SkSVGLineCap::Type::kButt   , "butt"    },
+        { SkSVGLineCap::Type::kRound  , "round"   },
+        { SkSVGLineCap::Type::kSquare , "square"  },
+        { SkSVGLineCap::Type::kInherit, "inherit" },
+    };
+
+    bool parsedValue = false;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gCapInfo); ++i) {
+        if (this->parseExpectedStringToken(gCapInfo[i].fName)) {
+            *cap = SkSVGLineCap(gCapInfo[i].fType);
+            parsedValue = true;
+            break;
+        }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
+// https://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
+bool SkSVGAttributeParser::parseLineJoin(SkSVGLineJoin* join) {
+    static const struct {
+        SkSVGLineJoin::Type fType;
+        const char*         fName;
+    } gJoinInfo[] = {
+        { SkSVGLineJoin::Type::kMiter  , "miter"   },
+        { SkSVGLineJoin::Type::kRound  , "round"   },
+        { SkSVGLineJoin::Type::kBevel  , "bevel"   },
+        { SkSVGLineJoin::Type::kInherit, "inherit" },
+    };
+
+    bool parsedValue = false;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gJoinInfo); ++i) {
+        if (this->parseExpectedStringToken(gJoinInfo[i].fName)) {
+            *join = SkSVGLineJoin(gJoinInfo[i].fType);
+            parsedValue = true;
+            break;
+        }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}

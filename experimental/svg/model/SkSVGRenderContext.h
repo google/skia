@@ -11,6 +11,7 @@
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkSize.h"
+#include "SkSVGAttribute.h"
 #include "SkTLazy.h"
 #include "SkTypes.h"
 
@@ -38,27 +39,17 @@ private:
     SkSize fViewport;
 };
 
-class SkSVGPresentationContext {
-public:
+struct SkSVGPresentationContext {
     SkSVGPresentationContext();
-    SkSVGPresentationContext(const SkSVGPresentationContext&);
-    SkSVGPresentationContext& operator=(const SkSVGPresentationContext&);
+    SkSVGPresentationContext(const SkSVGPresentationContext&)            = default;
+    SkSVGPresentationContext& operator=(const SkSVGPresentationContext&) = default;
 
-    const SkPaint* fillPaint() const { return fFill.getMaybeNull(); }
-    const SkPaint* strokePaint() const { return fStroke.getMaybeNull(); }
+    // Inherited presentation attributes, computed for the current node.
+    SkSVGPresentationAttributes fInherited;
 
-    void setFillColor(SkColor);
-    void setStrokeColor(SkColor);
-
-private:
-    void initFrom(const SkSVGPresentationContext&);
-
-    SkPaint& ensureFill();
-    SkPaint& ensureStroke();
-
-    // TODO: convert to regular SkPaints and track explicit attribute values instead.
-    SkTLazy<SkPaint> fFill;
-    SkTLazy<SkPaint> fStroke;
+    // Cached paints, reflecting the current presentation attributes.
+    SkPaint fFillPaint;
+    SkPaint fStrokePaint;
 };
 
 class SkSVGRenderContext {
@@ -70,12 +61,12 @@ public:
     const SkSVGLengthContext& lengthContext() const { return *fLengthContext; }
     SkSVGLengthContext* writableLengthContext() { return fLengthContext.writable(); }
 
-    const SkSVGPresentationContext& presentationContext() const { return *fPresentationContext; }
-    SkSVGPresentationContext* writablePresentationContext() {
-        return fPresentationContext.writable();
-    }
-
     SkCanvas* canvas() const { return fCanvas; }
+
+    void applyPresentationAttributes(const SkSVGPresentationAttributes&);
+
+    const SkPaint* fillPaint() const;
+    const SkPaint* strokePaint() const;
 
 private:
     // Stack-only

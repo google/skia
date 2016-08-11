@@ -19,6 +19,10 @@ public:
     enum class Type {
         kColor,
         kLength,
+        kLineCap,
+        kLineJoin,
+        kNumber,
+        kPaint,
         kPath,
         kTransform,
         kViewBox,
@@ -50,6 +54,7 @@ public:
         , fWrappedValue(v) { }
 
     operator const T&() const { return fWrappedValue; }
+    const T* operator->() const { return &fWrappedValue; }
 
 private:
     // Stack-only
@@ -66,5 +71,9 @@ using SkSVGLengthValue    = SkSVGWrapperValue<SkSVGLength       , SkSVGValue::Ty
 using SkSVGPathValue      = SkSVGWrapperValue<SkPath            , SkSVGValue::Type::kPath     >;
 using SkSVGTransformValue = SkSVGWrapperValue<SkSVGTransformType, SkSVGValue::Type::kTransform>;
 using SkSVGViewBoxValue   = SkSVGWrapperValue<SkSVGViewBoxType  , SkSVGValue::Type::kViewBox  >;
+using SkSVGPaintValue     = SkSVGWrapperValue<SkSVGPaint        , SkSVGValue::Type::kPaint    >;
+using SkSVGLineCapValue   = SkSVGWrapperValue<SkSVGLineCap      , SkSVGValue::Type::kLineCap  >;
+using SkSVGLineJoinValue  = SkSVGWrapperValue<SkSVGLineJoin     , SkSVGValue::Type::kLineJoin >;
+using SkSVGNumberValue    = SkSVGWrapperValue<SkSVGNumberType   , SkSVGValue::Type::kNumber   >;
 
 #endif // SkSVGValue_DEFINED

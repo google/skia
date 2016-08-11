@@ -16,10 +16,15 @@ class SkSVGRenderContext;
 enum class SkSVGAttribute {
     kD,
     kFill,
+    kFillOpacity,
     kHeight,
     kRx,
     kRy,
     kStroke,
+    kStrokeOpacity,
+    kStrokeLineCap,
+    kStrokeLineJoin,
+    kStrokeWidth,
     kTransform,
     kViewBox,
     kWidth,
@@ -29,22 +34,19 @@ enum class SkSVGAttribute {
     kUnknown,
 };
 
-class SkSVGPresentationAttributes {
-public:
-    SkSVGPresentationAttributes();
+struct SkSVGPresentationAttributes {
+    static SkSVGPresentationAttributes MakeInitial();
 
-    void setFill(const SkSVGColorType&);
-    void setStroke(const SkSVGColorType&);
+    // TODO: SkTLazy adds an extra ptr per attribute; refactor to reduce overhead.
 
-    void applyTo(SkSVGRenderContext*) const;
+    SkTLazy<SkSVGPaint>      fFill;
+    SkTLazy<SkSVGNumberType> fFillOpacity;
 
-private:
-    // Color only for now.
-    SkSVGColorType fFill;
-    SkSVGColorType fStroke;
-
-    unsigned fFillIsSet   : 1;
-    unsigned fStrokeIsSet : 1;
+    SkTLazy<SkSVGPaint>      fStroke;
+    SkTLazy<SkSVGLineCap>    fStrokeLineCap;
+    SkTLazy<SkSVGLineJoin>   fStrokeLineJoin;
+    SkTLazy<SkSVGNumberType> fStrokeOpacity;
+    SkTLazy<SkSVGLength>     fStrokeWidth;
 };
 
 #endif // SkSVGAttribute_DEFINED

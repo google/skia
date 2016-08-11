@@ -25,13 +25,17 @@ namespace {
 
 bool SetPaintAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                        const char* stringValue) {
-    SkSVGColorType color;
+    SkSVGPaint paint;
     SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseColor(&color)) {
-        return false;
+    if (!parser.parsePaint(&paint)) {
+        // Until we have paint server support, failing here will cause default/all-black rendering.
+        // It's better to just not draw for now.
+        paint = SkSVGPaint(SkSVGPaint::Type::kNone);
+
+        // return false;
     }
 
-    node->setAttribute(attr, SkSVGColorValue(color));
+    node->setAttribute(attr, SkSVGPaintValue(paint));
     return true;
 }
 
@@ -70,6 +74,18 @@ bool SetLengthAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetNumberAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                        const char* stringValue) {
+    SkSVGNumberType number;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseNumber(&number)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGNumberValue(number));
+    return true;
+}
+
 bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                          const char* stringValue) {
     SkSVGViewBoxType viewBox;
@@ -79,6 +95,30 @@ bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     }
 
     node->setAttribute(attr, SkSVGViewBoxValue(viewBox));
+    return true;
+}
+
+bool SetLineCapAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                         const char* stringValue) {
+    SkSVGLineCap lineCap;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseLineCap(&lineCap)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGLineCapValue(lineCap));
+    return true;
+}
+
+bool SetLineJoinAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                          const char* stringValue) {
+    SkSVGLineJoin lineJoin;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseLineJoin(&lineJoin)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGLineJoinValue(lineJoin));
     return true;
 }
 
@@ -160,18 +200,23 @@ struct AttrParseInfo {
 };
 
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
-    { "d"        , { SkSVGAttribute::kD        , SetPathDataAttribute  }},
-    { "fill"     , { SkSVGAttribute::kFill     , SetPaintAttribute     }},
-    { "height"   , { SkSVGAttribute::kHeight   , SetLengthAttribute    }},
-    { "rx"       , { SkSVGAttribute::kRx       , SetLengthAttribute    }},
-    { "ry"       , { SkSVGAttribute::kRy       , SetLengthAttribute    }},
-    { "stroke"   , { SkSVGAttribute::kStroke   , SetPaintAttribute     }},
-    { "style"    , { SkSVGAttribute::kUnknown  , SetStyleAttributes    }},
-    { "transform", { SkSVGAttribute::kTransform, SetTransformAttribute }},
-    { "viewBox"  , { SkSVGAttribute::kViewBox  , SetViewBoxAttribute   }},
-    { "width"    , { SkSVGAttribute::kWidth    , SetLengthAttribute    }},
-    { "x"        , { SkSVGAttribute::kX        , SetLengthAttribute    }},
-    { "y"        , { SkSVGAttribute::kY        , SetLengthAttribute    }},
+    { "d"              , { SkSVGAttribute::kD             , SetPathDataAttribute  }},
+    { "fill"           , { SkSVGAttribute::kFill          , SetPaintAttribute     }},
+    { "fill-opacity"   , { SkSVGAttribute::kFillOpacity   , SetNumberAttribute    }},
+    { "height"         , { SkSVGAttribute::kHeight        , SetLengthAttribute    }},
+    { "rx"             , { SkSVGAttribute::kRx            , SetLengthAttribute    }},
+    { "ry"             , { SkSVGAttribute::kRy            , SetLengthAttribute    }},
+    { "stroke"         , { SkSVGAttribute::kStroke        , SetPaintAttribute     }},
+    { "stroke-linecap" , { SkSVGAttribute::kStrokeLineCap , SetLineCapAttribute   }},
+    { "stroke-linejoin", { SkSVGAttribute::kStrokeLineJoin, SetLineJoinAttribute  }},
+    { "stroke-opacity" , { SkSVGAttribute::kStrokeOpacity , SetNumberAttribute    }},
+    { "stroke-width"   , { SkSVGAttribute::kStrokeWidth   , SetLengthAttribute    }},
+    { "style"          , { SkSVGAttribute::kUnknown       , SetStyleAttributes    }},
+    { "transform"      , { SkSVGAttribute::kTransform     , SetTransformAttribute }},
+    { "viewBox"        , { SkSVGAttribute::kViewBox       , SetViewBoxAttribute   }},
+    { "width"          , { SkSVGAttribute::kWidth         , SetLengthAttribute    }},
+    { "x"              , { SkSVGAttribute::kX             , SetLengthAttribute    }},
+    { "y"              , { SkSVGAttribute::kY             , SetLengthAttribute    }},
 };
 
 SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {

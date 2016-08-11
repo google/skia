@@ -6,29 +6,18 @@
  */
 
 #include "SkSVGAttribute.h"
-#include "SkSVGRenderContext.h"
 
-SkSVGPresentationAttributes::SkSVGPresentationAttributes()
-    : fFillIsSet(false)
-    , fStrokeIsSet(false) { }
+SkSVGPresentationAttributes SkSVGPresentationAttributes::MakeInitial() {
+    SkSVGPresentationAttributes result;
 
-void SkSVGPresentationAttributes::setFill(const SkSVGColorType& c) {
-    fFill = c;
-    fFillIsSet = true;
-}
+    result.fFill.set(SkSVGPaint(SkSVGColorType(SK_ColorBLACK)));
+    result.fFillOpacity.set(SkSVGNumberType(1));
 
-void SkSVGPresentationAttributes::setStroke(const SkSVGColorType& c) {
-    fStroke = c;
-    fStrokeIsSet = true;
-}
+    result.fStroke.set(SkSVGPaint(SkSVGPaint::Type::kNone));
+    result.fStrokeLineCap.set(SkSVGLineCap(SkSVGLineCap::Type::kButt));
+    result.fStrokeLineJoin.set(SkSVGLineJoin(SkSVGLineJoin::Type::kMiter));
+    result.fStrokeOpacity.set(SkSVGNumberType(1));
+    result.fStrokeWidth.set(SkSVGLength(1));
 
-
-void SkSVGPresentationAttributes::applyTo(SkSVGRenderContext* ctx) const {
-    if (fFillIsSet) {
-        ctx->writablePresentationContext()->setFillColor(fFill);
-    }
-
-    if (fStrokeIsSet) {
-        ctx->writablePresentationContext()->setStrokeColor(fStroke);
-    }
+    return result;
 }

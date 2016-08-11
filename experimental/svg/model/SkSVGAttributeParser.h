@@ -19,6 +19,9 @@ public:
     bool parseLength(SkSVGLength*);
     bool parseViewBox(SkSVGViewBoxType*);
     bool parseTransform(SkSVGTransformType*);
+    bool parsePaint(SkSVGPaint*);
+    bool parseLineCap(SkSVGLineCap*);
+    bool parseLineJoin(SkSVGLineJoin*);
 
 private:
     // Stack-only

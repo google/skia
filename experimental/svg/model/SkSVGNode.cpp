@@ -25,7 +25,7 @@ void SkSVGNode::render(const SkSVGRenderContext& ctx) const {
 }
 
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
-    fPresentationAttributes.applyTo(ctx);
+    ctx->applyPresentationAttributes(fPresentationAttributes);
     return true;
 }
 
@@ -36,13 +36,40 @@ void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kFill:
-        if (const SkSVGColorValue* color = v.as<SkSVGColorValue>()) {
-            fPresentationAttributes.setFill(*color);
+        if (const SkSVGPaintValue* paint = v.as<SkSVGPaintValue>()) {
+            fPresentationAttributes.fFill.set(*paint);
+        }
+        break;
+    case SkSVGAttribute::kFillOpacity:
+        if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
+            fPresentationAttributes.fFillOpacity.set(
+                SkSVGNumberType(SkTPin<SkScalar>((*opacity)->value(), 0, 1)));
         }
         break;
     case SkSVGAttribute::kStroke:
-        if (const SkSVGColorValue* color = v.as<SkSVGColorValue>()) {
-            fPresentationAttributes.setStroke(*color);
+        if (const SkSVGPaintValue* paint = v.as<SkSVGPaintValue>()) {
+            fPresentationAttributes.fStroke.set(*paint);
+        }
+        break;
+    case SkSVGAttribute::kStrokeOpacity:
+        if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
+            fPresentationAttributes.fStrokeOpacity.set(
+                SkSVGNumberType(SkTPin<SkScalar>((*opacity)->value(), 0, 1)));
+        }
+        break;
+    case SkSVGAttribute::kStrokeLineCap:
+        if (const SkSVGLineCapValue* lineCap = v.as<SkSVGLineCapValue>()) {
+            fPresentationAttributes.fStrokeLineCap.set(*lineCap);
+        }
+        break;
+    case SkSVGAttribute::kStrokeLineJoin:
+        if (const SkSVGLineJoinValue* lineJoin = v.as<SkSVGLineJoinValue>()) {
+            fPresentationAttributes.fStrokeLineJoin.set(*lineJoin);
+        }
+        break;
+    case SkSVGAttribute::kStrokeWidth:
+        if (const SkSVGLengthValue* strokeWidth = v.as<SkSVGLengthValue>()) {
+            fPresentationAttributes.fStrokeWidth.set(*strokeWidth);
         }
         break;
     default:
