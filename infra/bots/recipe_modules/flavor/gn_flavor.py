@@ -6,50 +6,51 @@ import default_flavor
 
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
-  def compile(self, target, **kwargs):
+  def supported(self):
+    extra_config = self.m.vars.builder_cfg.get('extra_config', '')
+
+    return any([
+      extra_config == 'GN',
+      extra_config == 'Fast',
+      extra_config.startswith('SK')
+    ])
+
+  def compile(self, unused_target, **kwargs):
     """Build Skia with GN."""
-    # Get the gn executable.
-    fetch_gn = self.m.vars.skia_dir.join('bin', 'fetch-gn')
-    self.m.run(self.m.step, 'fetch-gn',
-               cmd=[fetch_gn],
-               cwd=self.m.vars.skia_dir,
-               **kwargs)
+    compiler      = self.m.vars.builder_cfg.get('compiler',      '')
+    configuration = self.m.vars.builder_cfg.get('configuration', '')
+    extra_config  = self.m.vars.builder_cfg.get('extra_config',  '')
 
-    is_debug = 'is_debug=true'
-    if self.m.vars.configuration != 'Debug':
-      is_debug = 'is_debug=false'
-    gn_args = [is_debug]
-
-    is_clang = 'Clang' in self.m.vars.builder_name
-    is_gcc   = 'GCC'   in self.m.vars.builder_name
+    gn_args = []
+    if configuration != 'Debug':
+      gn_args.append('is_debug=false')
 
     cc, cxx = 'cc', 'c++'
-    if is_clang:
+    cflags = []
+
+    if compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
-    elif is_gcc:
+    elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
 
     ccache = self.m.run.ccache()
     if ccache:
       cc, cxx = '%s %s' % (ccache, cc), '%s %s' % (ccache, cxx)
-      if is_clang:
+      if compiler == 'Clang':
         # Stifle "argument unused during compilation: ..." warnings.
-        stifle = '-Qunused-arguments'
-        cc, cxx = '%s %s' % (cc, stifle), '%s %s' % (cxx, stifle)
+        cflags.append('-Qunused-arguments')
 
-    gn_args += [ 'cc="%s"' % cc, 'cxx="%s"' % cxx ]
+    if extra_config == 'Fast':
+      cflags.extend(['-march=native', '-fomit-frame-pointer'])
+    if extra_config.startswith('SK'):
+      cflags.append('-D' + extra_config)
 
-    # Run gn gen.
-    gn_exe = 'gn'
-    if self.m.platform.is_win:
-      gn_exe = 'gn.exe'
-    gn_gen = [gn_exe, 'gen', self.out_dir, '--args=%s' % ' '.join(gn_args)]
-    self.m.run(self.m.step, 'gn_gen', cmd=gn_gen,
-               cwd=self.m.vars.skia_dir, **kwargs)
+    cflags = ' '.join(cflags)
+    gn_args += [ 'cc="%s %s"' % (cc, cflags), 'cxx="%s %s"' % (cxx, cflags) ]
 
-    # Run ninja.
-    ninja_cmd = ['ninja', '-C', self.out_dir]
-    self.m.run(self.m.step, 'compile %s' % target,
-               cmd=ninja_cmd,
-               cwd=self.m.vars.skia_dir,
-               **kwargs)
+    run = lambda title, cmd: self.m.run(self.m.step, title, cmd=cmd,
+                                        cwd=self.m.vars.skia_dir, **kwargs)
+
+    run('fetch-gn', [self.m.vars.skia_dir.join('bin', 'fetch-gn')])
+    run('gn gen', ['gn', 'gen', self.out_dir, '--args=%s' % ' '.join(gn_args)])
+    run('ninja', ['ninja', '-C', self.out_dir])

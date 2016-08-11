@@ -38,10 +38,6 @@ def is_cmake(builder_cfg):
   return 'CMake' in builder_cfg.get('extra_config', '')
 
 
-def is_gn(builder_cfg):
-  return 'GN' == builder_cfg.get('extra_config', '')
-
-
 def is_ios(builder_cfg):
   return ('iOS' in builder_cfg.get('extra_config', '') or
           builder_cfg.get('os') == 'iOS')
@@ -64,12 +60,14 @@ def is_xsan(builder_cfg):
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, builder_cfg):
     """Return a flavor utils object specific to the given builder."""
+    gn = gn_flavor.GNFlavorUtils(self.m)
+    if gn.supported():
+      return gn
+
     if is_android(builder_cfg):
       return android_flavor.AndroidFlavorUtils(self.m)
     elif is_cmake(builder_cfg):
       return cmake_flavor.CMakeFlavorUtils(self.m)
-    elif is_gn(builder_cfg):
-      return gn_flavor.GNFlavorUtils(self.m)
     elif is_ios(builder_cfg):
       return ios_flavor.iOSFlavorUtils(self.m)
     elif is_pdfium(builder_cfg):

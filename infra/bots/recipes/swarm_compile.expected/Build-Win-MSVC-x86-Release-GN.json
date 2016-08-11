@@ -90,10 +90,10 @@
   },
   {
     "cmd": [
-      "gn.exe",
+      "gn",
       "gen",
       "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN\\Release",
-      "--args=is_debug=false cc=\"cc\" cxx=\"c++\""
+      "--args=is_debug=false cc=\"cc \" cxx=\"c++ \""
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
@@ -103,7 +103,7 @@
       "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN"
     },
-    "name": "gn_gen"
+    "name": "gn gen"
   },
   {
     "cmd": [
@@ -119,7 +119,7 @@
       "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN"
     },
-    "name": "compile most"
+    "name": "ninja"
   },
   {
     "cmd": [
