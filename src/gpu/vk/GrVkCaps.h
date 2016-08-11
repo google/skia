@@ -101,7 +101,7 @@ private:
         uint16_t fLinearFlags;
     };
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
-    
+
     StencilFormat fPreferedStencilFormat;
 
     // Tells of if we can pass in straight GLSL string into vkCreateShaderModule
