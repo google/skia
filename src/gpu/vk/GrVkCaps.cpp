@@ -137,16 +137,7 @@ void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceProperties& properties,
             glslCaps->fConfigTextureSwizzle[i] = GrSwizzle::RRRR();
             glslCaps->fConfigOutputSwizzle[i] = GrSwizzle::AAAA();
         } else {
-            if (kRGBA_4444_GrPixelConfig == config) {
-                // The vulkan spec does not require R4G4B4A4 to be supported for texturing so we
-                // store the data in a B4G4R4A4 texture and then swizzle it when doing texture reads
-                // or writing to outputs. Since we're not actually changing the data at all, the
-                // only extra work is the swizzle in the shader for all operations.
-                glslCaps->fConfigTextureSwizzle[i] = GrSwizzle::BGRA();
-                glslCaps->fConfigOutputSwizzle[i] = GrSwizzle::BGRA();
-            } else {
-                glslCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGBA();
-            }
+            glslCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGBA();
         }
     }
 
