@@ -14,7 +14,7 @@
 
 class SkImageShader : public SkShader {
 public:
-    static sk_sp<SkShader> Make(const SkImage*, TileMode tx, TileMode ty,
+    static sk_sp<SkShader> Make(sk_sp<SkImage>, TileMode tx, TileMode ty,
                                 const SkMatrix* localMatrix, SkTBlitterAllocator* = nullptr);
 
     bool isOpaque() const override;
@@ -26,7 +26,7 @@ public:
     sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
-    SkImageShader(const SkImage*, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
+    SkImageShader(sk_sp<SkImage>, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -35,9 +35,9 @@ protected:
     bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
     SkImage* onIsAImage(SkMatrix*, TileMode*) const override;
 
-    SkAutoTUnref<const SkImage> fImage;
-    const TileMode              fTileModeX;
-    const TileMode              fTileModeY;
+    sk_sp<SkImage>  fImage;
+    const TileMode  fTileModeX;
+    const TileMode  fTileModeY;
 
 private:
     friend class SkShader;

@@ -108,7 +108,7 @@ void SkImage::preroll(GrContext* ctx) const {
 
 sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
                                     const SkMatrix* localMatrix) const {
-    return SkImageShader::Make(this, tileX, tileY, localMatrix);
+    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tileX, tileY, localMatrix);
 }
 
 #ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR

@@ -15,9 +15,9 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-SkImageShader::SkImageShader(const SkImage* img, TileMode tmx, TileMode tmy, const SkMatrix* matrix)
+SkImageShader::SkImageShader(sk_sp<SkImage> img, TileMode tmx, TileMode tmy, const SkMatrix* matrix)
     : INHERITED(matrix)
-    , fImage(SkRef(img))
+    , fImage(std::move(img))
     , fTileModeX(tmx)
     , fTileModeY(tmy)
 {}
@@ -31,14 +31,14 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     if (!img) {
         return nullptr;
     }
-    return SkImageShader::Make(img.release(), tx, ty, &matrix);
+    return SkImageShader::Make(std::move(img), tx, ty, &matrix);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fTileModeX);
     buffer.writeUInt(fTileModeY);
     buffer.writeMatrix(this->getLocalMatrix());
-    buffer.writeImage(fImage);
+    buffer.writeImage(fImage.get());
 }
 
 bool SkImageShader::isOpaque() const {
@@ -46,12 +46,12 @@ bool SkImageShader::isOpaque() const {
 }
 
 size_t SkImageShader::onContextSize(const ContextRec& rec) const {
-    return SkBitmapProcLegacyShader::ContextSize(rec, SkBitmapProvider(fImage).info());
+    return SkBitmapProcLegacyShader::ContextSize(rec, SkBitmapProvider(fImage.get()).info());
 }
 
 SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* storage) const {
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                           SkBitmapProvider(fImage), rec, storage);
+                                                 SkBitmapProvider(fImage.get()), rec, storage);
 }
 
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
@@ -129,7 +129,7 @@ static bool can_use_color_shader(const SkImage* image, SkColor* color) {
     return false;
 }
 
-sk_sp<SkShader> SkImageShader::Make(const SkImage* image, TileMode tx, TileMode ty,
+sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image, TileMode tx, TileMode ty,
                                     const SkMatrix* localMatrix,
                                     SkTBlitterAllocator* allocator) {
     SkShader* shader;
@@ -140,7 +140,7 @@ sk_sp<SkShader> SkImageShader::Make(const SkImage* image, TileMode tx, TileMode 
         } else {
             shader = allocator->createT<SkEmptyShader>();
         }
-    } else if (can_use_color_shader(image, &color)) {
+    } else if (can_use_color_shader(image.get(), &color)) {
         if (nullptr == allocator) {
             shader = new SkColorShader(color);
         } else {
@@ -241,7 +241,7 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
     // or modify this assert.
     SkASSERT(!allocator || (kNever_SkCopyPixelsMode == cpm));
 
-    return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm, allocator).get(),
+    return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm, allocator),
                                tmx, tmy, localMatrix, allocator);
 }
 
