@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		09BE769DB3EA5FEBBB5B0267 /* SkBmpCodec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C62160EC084E140F8B891E74 /* SkBmpCodec.cpp */; };
-		116D59CF5C3D96E6FC335A8E /* SkJpegDecoderMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D2D4F255DBC50EE4EA2734F /* SkJpegDecoderMgr.cpp */; };
 		11EFA31235704F378369121B /* SkCodec_wbmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6F149743468F53069A3EDF52 /* SkCodec_wbmp.cpp */; };
 		1284B64E3A3A00B3B97D6506 /* SkCodec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1153F75FCA84B922AF83FA2 /* SkCodec.cpp */; };
 		4E8ED324A075EC8B42D050EB /* SkCodec_libico.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0219D04DB824660B4AC46BF6 /* SkCodec_libico.cpp */; };
@@ -18,11 +17,9 @@
 		96BC1560FE5199AA5A3D664C /* SkScaledCodec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CC4C3D3AACC6257335D24AB /* SkScaledCodec.cpp */; };
 		98BF63BAC0BFE5E0343C207B /* SkMasks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 554D53ACF0AE63F2CC3BCD4D /* SkMasks.cpp */; };
 		99A4F6936B07C1B5D4D91E66 /* SkCodec_libpng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C1959B553E5DBA66A76B8C5A /* SkCodec_libpng.cpp */; };
-		A50CD05A1E34E5A6B2F41F15 /* SkJpegCodec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8F3C27DC04C04B7873260 /* SkJpegCodec.cpp */; };
 		A7E3FCC23713011032A639E5 /* SkSwizzler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BA10803793600EDC9FF6AE8 /* SkSwizzler.cpp */; };
 		B3C5335E77B0DAED4633CB53 /* SkMaskSwizzler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6EBFDCF9CDB2DA5FC4846A3C /* SkMaskSwizzler.cpp */; };
 		C9CEAE4ACD8D95C6214C2CD2 /* SkBmpStandardCodec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045CB027AF0D031997E74495 /* SkBmpStandardCodec.cpp */; };
-		E30A3E2319F9B92221343E5C /* SkJpegUtility_codec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AEE3B389DCC5DF024428DAEC /* SkJpegUtility_codec.cpp */; };
 		FEE3FC9B8843B4128D1DE08E /* SkCodec_libgif.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6230CD0D2C22E3CB3A8F9ACC /* SkCodec_libgif.cpp */; };
 /* End PBXBuildFile section */
 
@@ -301,9 +298,6 @@
 				4E8ED324A075EC8B42D050EB /* SkCodec_libico.cpp in Sources */,
 				99A4F6936B07C1B5D4D91E66 /* SkCodec_libpng.cpp in Sources */,
 				11EFA31235704F378369121B /* SkCodec_wbmp.cpp in Sources */,
-				A50CD05A1E34E5A6B2F41F15 /* SkJpegCodec.cpp in Sources */,
-				116D59CF5C3D96E6FC335A8E /* SkJpegDecoderMgr.cpp in Sources */,
-				E30A3E2319F9B92221343E5C /* SkJpegUtility_codec.cpp in Sources */,
 				B3C5335E77B0DAED4633CB53 /* SkMaskSwizzler.cpp in Sources */,
 				98BF63BAC0BFE5E0343C207B /* SkMasks.cpp in Sources */,
 				96BC1560FE5199AA5A3D664C /* SkScaledCodec.cpp in Sources */,
