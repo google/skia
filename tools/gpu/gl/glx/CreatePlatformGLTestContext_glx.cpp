@@ -4,7 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "gl/GLTestContext.h"
+#include "SkOnce.h"
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>
@@ -69,12 +71,31 @@ private:
     GLXPixmap fGlxPixmap;
 };
 
+static Display* get_display() {
+    class AutoDisplay {
+    public:
+        AutoDisplay() { fDisplay = XOpenDisplay(nullptr); };
+        ~AutoDisplay() {
+            if (fDisplay) {
+                XCloseDisplay(fDisplay);
+            }
+        }
+        Display* display() const { return fDisplay; }
+    private:
+        Display* fDisplay;
+    };
+    static std::unique_ptr<AutoDisplay> ad;
+    static SkOnce once;
+    once([] { ad.reset(new AutoDisplay{}); });
+    return ad->display();
+}
+
 GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* shareContext)
     : fContext(nullptr)
     , fDisplay(nullptr)
     , fPixmap(0)
     , fGlxPixmap(0) {
-    fDisplay = XOpenDisplay(0);
+    fDisplay = get_display();
 
     GLXContext glxShareContext = shareContext ? shareContext->fContext : nullptr;
 
@@ -239,7 +260,6 @@ void GLXGLTestContext::destroyGLContext() {
             fPixmap = 0;
         }
 
-        XCloseDisplay(fDisplay);
         fDisplay = nullptr;
     }
 }
