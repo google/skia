@@ -29,28 +29,33 @@
 /* Begin PBXBuildFile section */
 		0C53B43372FFA308D7D9D5F8 /* SkBlitRow_opts_arm_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 514DB97AFBBBB7ED6AB472DA /* SkBlitRow_opts_arm_neon.cpp */; };
 		13A4CD551217028471536561 /* SkForceCPlusPlusLinking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66EA89C4CBF5D977F1160F4 /* SkForceCPlusPlusLinking.cpp */; };
-		1F1B6F771BD057EE0074F7FD /* SkBlitRow_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0C1BCF0B2900623F0F /* SkBlitRow_opts_none.cpp */; settings = {ASSET_TAGS = (); }; };
+		1F1B6F771BD057EE0074F7FD /* SkBlitRow_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0C1BCF0B2900623F0F /* SkBlitRow_opts_none.cpp */; };
 		1F8920F208E92315828BD3DE /* SkBitmapProcState_matrixProcs_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF68108D22CEEF53D7934553 /* SkBitmapProcState_matrixProcs_neon.cpp */; };
+<<<<<<< HEAD
 		1FDEEE091BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE081BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp */; settings = {ASSET_TAGS = (); }; };
 		1FDEEE0B1BCF0A8B00623F0F /* opts_check_x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0A1BCF0A8B00623F0F /* opts_check_x86.cpp */; settings = {ASSET_TAGS = (); }; };
 		1FDEEE1F1BCF0D0200623F0F /* opts_configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0E1BCF0CBE00623F0F /* opts_configuration.cpp */; settings = {ASSET_TAGS = (); }; };
+=======
+		1FDEEE091BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE081BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp */; };
+		1FDEEE0B1BCF0A8B00623F0F /* opts_check_x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0A1BCF0A8B00623F0F /* opts_check_x86.cpp */; };
+>>>>>>> turned on flags to make us use SSE42
 		9E0A7C1C69BF0DBD211637D0 /* SkForceCPlusPlusLinking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66EA89C4CBF5D977F1160F4 /* SkForceCPlusPlusLinking.cpp */; };
 		AB66668CCC0CFBCF082F222A /* SkBitmapProcState_arm_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5686780AE579C1B43E602FDD /* SkBitmapProcState_arm_neon.cpp */; };
 		ACDD227C13AFF6E82329C0CE /* SkBlitMask_opts_arm_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BFCB5B6F55513B7E3523AC7 /* SkBlitMask_opts_arm_neon.cpp */; };
 		D08EC5C3E60392B07B37F92B /* SkForceCPlusPlusLinking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66EA89C4CBF5D977F1160F4 /* SkForceCPlusPlusLinking.cpp */; };
-		DE70A9E91BCC19CB0039C99D /* SkBlitMask_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9E71BC839A70039C99D /* SkBlitMask_opts_arm.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70A9EA1BCC19CF0039C99D /* SkBitmapProcState_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9E31BC838CC0039C99D /* SkBitmapProcState_opts_arm.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70A9EB1BCC19D40039C99D /* SkBlitRow_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9DE1BC833970039C99D /* SkBlitRow_opts_arm.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70A9FB1BCC335B0039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9FA1BCC335B0039C99D /* SkBlitRow_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70AA021BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9FC1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70AA031BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9FE1BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70AA041BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA001BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70AA0B1BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA091BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70AA0C1BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA0A1BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70AA101BCC53560039C99D /* SkBlitRow_opts_SSE4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA0E1BCC53560039C99D /* SkBlitRow_opts_SSE4.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70AA131BCC53B10039C99D /* SkOpts_sse41.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA111BCC53B10039C99D /* SkOpts_sse41.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70AA141BCC53B10039C99D /* SkOpts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA121BCC53B10039C99D /* SkOpts.cpp */; settings = {ASSET_TAGS = (); }; };
-		DE70AA161BCC53E00039C99D /* SkOpts_ssse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA151BCC53E00039C99D /* SkOpts_ssse3.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70A9E91BCC19CB0039C99D /* SkBlitMask_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9E71BC839A70039C99D /* SkBlitMask_opts_arm.cpp */; };
+		DE70A9EA1BCC19CF0039C99D /* SkBitmapProcState_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9E31BC838CC0039C99D /* SkBitmapProcState_opts_arm.cpp */; };
+		DE70A9EB1BCC19D40039C99D /* SkBlitRow_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9DE1BC833970039C99D /* SkBlitRow_opts_arm.cpp */; };
+		DE70A9FB1BCC335B0039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9FA1BCC335B0039C99D /* SkBlitRow_opts_SSE2.cpp */; };
+		DE70AA021BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9FC1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp */; };
+		DE70AA031BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9FE1BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.cpp */; };
+		DE70AA041BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA001BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp */; };
+		DE70AA0B1BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA091BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp */; };
+		DE70AA0C1BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA0A1BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.cpp */; };
+		DE70AA101BCC53560039C99D /* SkBlitRow_opts_SSE4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA0E1BCC53560039C99D /* SkBlitRow_opts_SSE4.cpp */; };
+		DE70AA131BCC53B10039C99D /* SkOpts_sse41.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA111BCC53B10039C99D /* SkOpts_sse41.cpp */; };
+		DE70AA141BCC53B10039C99D /* SkOpts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA121BCC53B10039C99D /* SkOpts.cpp */; };
+		DE70AA161BCC53E00039C99D /* SkOpts_ssse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA151BCC53E00039C99D /* SkOpts_ssse3.cpp */; };
 		EBDEE3ED6E28E0F1A221AD51 /* SkOpts_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DC1AA72D29F961DF4138513B /* SkOpts_neon.cpp */; };
 /* End PBXBuildFile section */
 
@@ -1303,6 +1308,7 @@
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
 				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 3;
@@ -1750,6 +1756,7 @@
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
 				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 3;
@@ -2107,6 +2114,7 @@
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
 				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
@@ -2272,6 +2280,7 @@
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
 				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
