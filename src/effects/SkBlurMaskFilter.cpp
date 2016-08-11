@@ -1319,8 +1319,8 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
         return false;
     }
 
-    // We always do circles on the GPU
-    if (!devRRect.isCircle()) {
+    // We always do circles and simple circular rrects on the GPU
+    if (!devRRect.isCircle() && !devRRect.isSimpleCircular()) {
         static const SkScalar kMIN_GPU_BLUR_SIZE  = SkIntToScalar(64);
         static const SkScalar kMIN_GPU_BLUR_SIGMA = SkIntToScalar(32);
 
