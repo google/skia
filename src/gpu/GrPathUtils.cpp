@@ -249,7 +249,6 @@ void GrPathUtils::QuadUVMatrix::set(const SkPoint qPts[3]) {
             // distances to be to the left. This matches the non-degenerate
             // case.
             lineVec.setOrthog(lineVec, SkPoint::kLeft_Side);
-            lineVec.dot(qPts[0]);
             // first row
             fM[0] = 0;
             fM[1] = 0;
