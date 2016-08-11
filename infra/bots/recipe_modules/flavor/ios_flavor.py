@@ -119,6 +119,7 @@ class iOSFlavorUtils(default_flavor.DefaultFlavorUtils):
         resource_dir=prefix + 'resources',
         images_dir=prefix + 'images',
         skp_dir=prefix + 'skp/skps',
+        svg_dir=prefix + 'svg/svgs',
         tmp_dir=prefix + 'tmp_dir')
 
     self.m.run(
@@ -130,7 +131,7 @@ class iOSFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def cleanup_steps(self):
     """Run any device-specific cleanup steps."""
-    if self.m.vars.role in (self.m.builder_name_schema.BUILDER_ROLE_TEST, 
+    if self.m.vars.role in (self.m.builder_name_schema.BUILDER_ROLE_TEST,
                             self.m.builder_name_schema.BUILDER_ROLE_PERF):
       self.m.run(
           self.m.step,

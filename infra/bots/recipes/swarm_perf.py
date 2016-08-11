@@ -252,6 +252,9 @@ def GenTests(api):
             'read SK_IMAGE_VERSION',
             stdout=api.raw_io.output('42')) +
         api.step_data(
+            'read SVG_VERSION',
+            stdout=api.raw_io.output('42')) +
+        api.step_data(
             'which adb',
             retcode=1)
     )
@@ -318,6 +321,8 @@ def GenTests(api):
                                      'skimage', 'VERSION'),
         api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
                                      'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     api.platform('win', 64)

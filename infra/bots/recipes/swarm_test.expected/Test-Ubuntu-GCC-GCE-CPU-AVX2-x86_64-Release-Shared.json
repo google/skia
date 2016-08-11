@@ -134,7 +134,7 @@
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "env": {
-      "BUILDTYPE": "Debug",
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
@@ -176,7 +176,7 @@
   {
     "cmd": [
       "catchsegv",
-      "[SLAVE_BUILD]/out/Debug/dm",
+      "[SLAVE_BUILD]/out/Release/dm",
       "--undefok",
       "--resourcePath",
       "[SLAVE_BUILD]/skia/resources",
@@ -193,20 +193,24 @@
       "master",
       "client.skia",
       "builder",
-      "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug",
+      "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared",
       "build_number",
       "5",
+      "--svgs",
+      "[SLAVE_BUILD]/svg",
       "--key",
       "arch",
       "x86_64",
       "compiler",
       "GCC",
       "configuration",
-      "Debug",
+      "Release",
       "cpu_or_gpu",
       "CPU",
       "cpu_or_gpu_value",
       "AVX2",
+      "extra_config",
+      "Shared",
       "model",
       "GCE",
       "os",
@@ -236,6 +240,7 @@
       "gm",
       "image",
       "colorImage",
+      "svg",
       "--blacklist",
       "f16",
       "_",
@@ -423,7 +428,7 @@
       "image-cacherator-from-ctable"
     ],
     "env": {
-      "BUILDTYPE": "Debug",
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },

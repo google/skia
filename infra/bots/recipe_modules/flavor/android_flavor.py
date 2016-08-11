@@ -267,6 +267,7 @@ class AndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         resource_dir=prefix + 'resources',
         images_dir=prefix + 'images',
         skp_dir=prefix + 'skp/skps',
+        svg_dir=prefix + 'svg/svgs',
         tmp_dir=prefix + 'tmp_dir')
 
     self._has_root = self.has_root()

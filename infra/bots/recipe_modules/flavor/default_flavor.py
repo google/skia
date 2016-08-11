@@ -22,12 +22,14 @@ class DeviceDirs(object):
                resource_dir,
                images_dir,
                skp_dir,
+               svg_dir,
                tmp_dir):
     self._dm_dir = dm_dir
     self._perf_data_dir = perf_data_dir
     self._resource_dir = resource_dir
     self._images_dir = images_dir
     self._skp_dir = skp_dir
+    self._svg_dir = svg_dir
     self._tmp_dir = tmp_dir
 
   @property
@@ -51,6 +53,10 @@ class DeviceDirs(object):
   def skp_dir(self):
     """Holds SKP files that are consumed by RenderSKPs and BenchPictures."""
     return self._skp_dir
+
+  @property
+  def svg_dir(self):
+    return self._svg_dir
 
   @property
   def tmp_dir(self):
@@ -220,6 +226,7 @@ class DefaultFlavorUtils(object):
         resource_dir=self.m.vars.resource_dir,
         images_dir=self.m.vars.images_dir,
         skp_dir=self.m.vars.local_skp_dir,
+        svg_dir=self.m.vars.local_svg_dir,
         tmp_dir=self.m.vars.tmp_dir)
 
   def cleanup_steps(self):

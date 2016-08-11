@@ -20,10 +20,12 @@ from . import xsan_flavor
 
 
 TEST_EXPECTED_SKP_VERSION = '42'
+TEST_EXPECTED_SVG_VERSION = '42'
 TEST_EXPECTED_SK_IMAGE_VERSION = '42'
 
 VERSION_FILE_SK_IMAGE = 'SK_IMAGE_VERSION'
 VERSION_FILE_SKP = 'SKP_VERSION'
+VERSION_FILE_SVG = 'SVG_VERSION'
 
 VERSION_NONE = -1
 
@@ -133,6 +135,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
 
     self._copy_skps()
     self._copy_images()
+    self._copy_svgs()
 
   def cleanup_steps(self):
     return self._f.cleanup_steps()
@@ -208,4 +211,29 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
             'test_downloaded_skp_version', TEST_EXPECTED_SKP_VERSION),
         test_actual_version=self.m.properties.get(
             'test_downloaded_skp_version', TEST_EXPECTED_SKP_VERSION))
+    return version
+
+  def _copy_svgs(self):
+    """Download and copy the SVGs if needed."""
+    version_file = self.m.vars.infrabots_dir.join(
+        'assets', 'svg', 'VERSION')
+    test_data = self.m.properties.get(
+        'test_downloaded_svg_version', TEST_EXPECTED_SVG_VERSION)
+    version = self.m.run.readfile(
+        version_file,
+        name='Get downloaded SVG VERSION',
+        test_data=test_data).rstrip()
+    self.m.run.writefile(
+        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SVG),
+        version)
+    self._copy_dir(
+        version,
+        VERSION_FILE_SVG,
+        self.m.vars.tmp_dir,
+        self.m.vars.local_svg_dir,
+        self.device_dirs.svg_dir,
+        test_expected_version=self.m.properties.get(
+            'test_downloaded_svg_version', TEST_EXPECTED_SVG_VERSION),
+        test_actual_version=self.m.properties.get(
+            'test_downloaded_svg_version', TEST_EXPECTED_SVG_VERSION))
     return version

@@ -266,6 +266,41 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/svg/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded SVG VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[SLAVE_BUILD]/tmp/SVG_VERSION"
+    ],
+    "name": "write SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "shell",
+      "cat",
+      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SVG_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "read SVG_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
       "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
       "shell",
       "rm",

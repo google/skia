@@ -262,109 +262,7 @@
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "read SK_IMAGE_VERSION",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_EXCEPTION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "rm",
-      "-f",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "rm SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "rm",
-      "-r",
-      "/storage/emulated/legacy/skiabot/skia_images"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "rmdir skia_images"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "if",
-      "[",
-      "-e",
-      "/storage/emulated/legacy/skiabot/skia_images",
-      "];",
-      "then",
-      "echo",
-      "FILE_EXISTS;",
-      "fi"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "exists skia_images",
     "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "mkdir",
-      "-p",
-      "/storage/emulated/legacy/skiabot/skia_images"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "mkdir skia_images"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_push_if_needed",
-      "--verbose",
-      "[SLAVE_BUILD]/skimage",
-      "/storage/emulated/legacy/skiabot/skia_images"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "push skimage"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "push",
-      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "push SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -399,7 +297,109 @@
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "read SVG_VERSION",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "shell",
+      "rm",
+      "-f",
+      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SVG_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "rm SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "shell",
+      "rm",
+      "-r",
+      "/storage/emulated/legacy/skiabot/skia_svg/svgs"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "rmdir svgs"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "shell",
+      "if",
+      "[",
+      "-e",
+      "/storage/emulated/legacy/skiabot/skia_svg/svgs",
+      "];",
+      "then",
+      "echo",
+      "FILE_EXISTS;",
+      "fi"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "exists svgs",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/storage/emulated/legacy/skiabot/skia_svg/svgs"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "mkdir svgs"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_push_if_needed",
+      "--verbose",
+      "[SLAVE_BUILD]/svg",
+      "/storage/emulated/legacy/skiabot/skia_svg/svgs"
+    ],
+    "env": {
+      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
+      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_ANDROID_VERBOSE_SETUP": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "push svg"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "push",
+      "[SLAVE_BUILD]/tmp/SVG_VERSION",
+      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SVG_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "push SVG_VERSION"
   },
   {
     "cmd": [

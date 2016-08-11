@@ -55,6 +55,7 @@ TEST_BUILDERS = {
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
+      'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
       'Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release',
       'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release',
     ],
@@ -679,9 +680,15 @@ def RunSteps(api):
   if not (do_test_steps or do_perf_steps):
     return
 
-  # SKPs, SkImages.
+  # SKPs, SkImages, SVGs.
   cipd_packages.append(cipd_pkg(api, infrabots_dir, 'skp'))
   cipd_packages.append(cipd_pkg(api, infrabots_dir, 'skimage'))
+  # TODO(rmistry): Remove the below once we want to enable SVGs for all bots.
+  if (api.properties['buildername'] ==
+          'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared-Trybot' or
+      api.properties['buildername'] ==
+          'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared'):
+    cipd_packages.append(cipd_pkg(api, infrabots_dir, 'svg'))
 
   # Trigger test and perf tasks.
   test_task = None
@@ -749,6 +756,8 @@ def test_for_bot(api, builder, mastername, slavename, testname=None):
       'skia', 'infra', 'bots', 'assets', 'skimage', 'VERSION'))
   paths.append(api.path['slave_build'].join(
       'skia', 'infra', 'bots', 'assets', 'skp', 'VERSION'))
+  paths.append(api.path['slave_build'].join(
+      'skia', 'infra', 'bots', 'assets', 'svg', 'VERSION'))
 
   test += api.path.exists(*paths)
 

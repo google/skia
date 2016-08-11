@@ -40,6 +40,7 @@ TEST_BUILDERS = {
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
+      'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
       'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
@@ -138,6 +139,10 @@ def dm_flags(bot):
 
   # Run tests, gms, and image decoding tests everywhere.
   args.extend('--src tests gm image colorImage'.split(' '))
+  # TODO(rmistry): Remove the below once we want to enable SVGs for all bots.
+  if (bot == 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared-Trybot' or
+      bot == 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared'):
+    args.append('svg')
 
   if 'GalaxyS' in bot:
     args.extend(('--threads', '0'))
@@ -435,6 +440,13 @@ def test_steps(api):
     '--properties'
   ] + properties
 
+  # TODO(rmistry): Remove the below once we want to enable SVGs for all bots.
+  if (api.vars.builder_name ==
+          'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared-Trybot' or
+      api.vars.builder_name ==
+          'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared'):
+    args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
+
   args.append('--key')
   args.extend(key_params(api))
   if use_hash_file:
@@ -494,7 +506,10 @@ def GenTests(api):
         api.step_data(
             'read SK_IMAGE_VERSION',
             stdout=api.raw_io.output('42')) +
-       api.step_data(
+        api.step_data(
+            'read SVG_VERSION',
+            stdout=api.raw_io.output('42')) +
+        api.step_data(
             'exists skia_dm',
             stdout=api.raw_io.output(''))
     )
@@ -531,6 +546,8 @@ def GenTests(api):
                                            'skimage', 'VERSION'),
               api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
                                            'skp', 'VERSION'),
+              api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                           'svg', 'VERSION'),
               api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
           )
         )
@@ -564,6 +581,8 @@ def GenTests(api):
                                      'skimage', 'VERSION'),
         api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
                                      'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     api.step_data('dm', retcode=1)
@@ -585,12 +604,16 @@ def GenTests(api):
                                      'skimage', 'VERSION'),
         api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
                                      'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     AndroidTestData(builder) +
     api.step_data('read SKP_VERSION',
                   stdout=api.raw_io.output('42')) +
     api.step_data('read SK_IMAGE_VERSION',
+                  stdout=api.raw_io.output('42')) +
+    api.step_data('read SVG_VERSION',
                   stdout=api.raw_io.output('42')) +
     api.step_data('get uninteresting hashes', retcode=1)
   )
@@ -610,12 +633,16 @@ def GenTests(api):
                                      'skimage', 'VERSION'),
         api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
                                      'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     AndroidTestData(builder) +
     api.step_data('read SKP_VERSION',
                   stdout=api.raw_io.output('2')) +
     api.step_data('read SK_IMAGE_VERSION',
+                  stdout=api.raw_io.output('42')) +
+    api.step_data('read SVG_VERSION',
                   stdout=api.raw_io.output('42')) +
     api.step_data(
         'exists skps',
@@ -637,12 +664,16 @@ def GenTests(api):
                                      'skimage', 'VERSION'),
         api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
                                      'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     AndroidTestData(builder) +
     api.step_data('read SKP_VERSION',
                   retcode=1) +
     api.step_data('read SK_IMAGE_VERSION',
+                  stdout=api.raw_io.output('42')) +
+    api.step_data('read SVG_VERSION',
                   stdout=api.raw_io.output('42')) +
     api.step_data(
         'exists skps',
@@ -664,6 +695,8 @@ def GenTests(api):
                                      'skimage', 'VERSION'),
         api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
                                      'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     AndroidTestData(builder) +
@@ -671,6 +704,8 @@ def GenTests(api):
                   stdout=api.raw_io.output('42')) +
     api.step_data('read SK_IMAGE_VERSION',
                   stdout=api.raw_io.output('2')) +
+    api.step_data('read SVG_VERSION',
+                  stdout=api.raw_io.output('42')) +
     api.step_data(
         'exists skia_images',
         stdout=api.raw_io.output(''))
@@ -691,6 +726,8 @@ def GenTests(api):
                                      'skimage', 'VERSION'),
         api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
                                      'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     AndroidTestData(builder) +
@@ -698,8 +735,72 @@ def GenTests(api):
                   stdout=api.raw_io.output('42')) +
     api.step_data('read SK_IMAGE_VERSION',
                   retcode=1) +
+    api.step_data('read SVG_VERSION',
+                  stdout=api.raw_io.output('42')) +
     api.step_data(
         'exists skia_images',
+        stdout=api.raw_io.output(''))
+  )
+
+  yield (
+    api.test('download_and_push_svgs') +
+    api.properties(buildername=builder,
+                   mastername='client.skia',
+                   slavename='skiabot-linux-swarm-000',
+                   buildnumber=6,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.path.exists(
+        api.path['slave_build'].join('skia'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'skimage', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
+        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
+    ) +
+    AndroidTestData(builder) +
+    api.step_data('read SKP_VERSION',
+                  stdout=api.raw_io.output('42')) +
+    api.step_data('read SK_IMAGE_VERSION',
+                  stdout=api.raw_io.output('42')) +
+    api.step_data('read SVG_VERSION',
+                  stdout=api.raw_io.output('2')) +
+    api.step_data(
+        'exists svgs',
+        stdout=api.raw_io.output(''))
+  )
+
+  yield (
+    api.test('missing_SVG_VERSION_device') +
+    api.properties(buildername=builder,
+                   mastername='client.skia',
+                   slavename='skiabot-linux-swarm-000',
+                   buildnumber=6,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.path.exists(
+        api.path['slave_build'].join('skia'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'skimage', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
+        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
+    ) +
+    AndroidTestData(builder) +
+    api.step_data('read SKP_VERSION',
+                  stdout=api.raw_io.output('42')) +
+    api.step_data('read SK_IMAGE_VERSION',
+                  stdout=api.raw_io.output('42')) +
+    api.step_data('read SVG_VERSION',
+                  retcode=1) +
+    api.step_data(
+        'exists svgs',
         stdout=api.raw_io.output(''))
   )
 
@@ -718,12 +819,16 @@ def GenTests(api):
                                      'skimage', 'VERSION'),
         api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
                                      'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     AndroidTestData(builder, adb='/usr/bin/adb') +
     api.step_data('read SKP_VERSION',
                   stdout=api.raw_io.output('42')) +
     api.step_data('read SK_IMAGE_VERSION',
+                  stdout=api.raw_io.output('42')) +
+    api.step_data('read SVG_VERSION',
                   stdout=api.raw_io.output('42'))
   )
 
@@ -746,6 +851,8 @@ def GenTests(api):
                                      'skimage', 'VERSION'),
         api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
                                      'skp', 'VERSION'),
+        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     api.platform('win', 64)
