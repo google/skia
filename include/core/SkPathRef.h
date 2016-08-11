@@ -335,8 +335,8 @@ private:
         fIsOval = false;
         fIsRRect = false;
         // The next two values don't matter unless fIsOval or fIsRRect are true.
-        SkDEBUGCODE(fRRectOrOvalIsCCW = false);
-        SkDEBUGCODE(fRRectOrOvalStartIdx = 0xAC);
+        fRRectOrOvalIsCCW = false;
+        fRRectOrOvalStartIdx = 0xAC;
         SkDEBUGCODE(fEditorsAttached = 0;)
         SkDEBUGCODE(this->validate();)
     }
