@@ -11,12 +11,10 @@
 		095915B9FCA5939EB0589345 /* SkImageEncoder_argb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2AC90833BFF905C83607B541 /* SkImageEncoder_argb.cpp */; };
 		15F416C1C17D4E9F05A88445 /* SkImageEncoder_Factory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25FB0A38A18058A528A3348A /* SkImageEncoder_Factory.cpp */; };
 		1C39F370364200A5090E0CB2 /* SkForceLinking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9EB9CCF5DE5552315BF9E6A /* SkForceLinking.cpp */; };
-		21E7ADA36F3EE6EC0D7B8AB1 /* SkImageDecoder_libjpeg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 589AC7B093BD660098E5623D /* SkImageDecoder_libjpeg.cpp */; };
 		3B1E863FEBC259272DA66118 /* SkImageDecoder_CG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FA21BD94654CDAD797EDBF4 /* SkImageDecoder_CG.cpp */; };
 		44355BCAF65FC76D3249CA0E /* SkImageDecoder_FactoryRegistrar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A41EE93724ECF768888F8C1 /* SkImageDecoder_FactoryRegistrar.cpp */; };
 		5907E02D276B4EE1D629BAB0 /* SkScaledBitmapSampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D68D63F4BD2E48F107F60B54 /* SkScaledBitmapSampler.cpp */; };
 		68111DE590D0DC3B0EFCBA79 /* SkImageGenerator_skia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 19187A0E8E1A8488AEF00C17 /* SkImageGenerator_skia.cpp */; };
-		75CEF57D58B691ADD257CC0C /* SkJpegUtility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 592A046855B85B2E94EEBDEE /* SkJpegUtility.cpp */; };
 		7918F45D60FC15EF4641865A /* SkImageDecoder_wbmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 876AB1E494AE134D65AEA101 /* SkImageDecoder_wbmp.cpp */; };
 		79236A8321029424E4A97F97 /* SkImageEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76ED1153DFDC574409ADC26B /* SkImageEncoder.cpp */; };
 		7C1FF5213ED7895D2B97AA70 /* SkMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA1D075DE3F9C9844C003FD /* SkMovie.cpp */; };
@@ -418,11 +416,9 @@
 				9AFBF1E6268244AD32E29C22 /* SkImageDecoder_libbmp.cpp in Sources */,
 				A0B4D1459EC49317512956D5 /* SkImageDecoder_libico.cpp in Sources */,
 				D620DE4B19D668975522A30B /* SkImageDecoder_libwebp.cpp in Sources */,
-				21E7ADA36F3EE6EC0D7B8AB1 /* SkImageDecoder_libjpeg.cpp in Sources */,
 				79236A8321029424E4A97F97 /* SkImageEncoder.cpp in Sources */,
 				15F416C1C17D4E9F05A88445 /* SkImageEncoder_Factory.cpp in Sources */,
 				095915B9FCA5939EB0589345 /* SkImageEncoder_argb.cpp in Sources */,
-				75CEF57D58B691ADD257CC0C /* SkJpegUtility.cpp in Sources */,
 				7C1FF5213ED7895D2B97AA70 /* SkMovie.cpp in Sources */,
 				FA95EF231207C07943A02A03 /* SkPageFlipper.cpp in Sources */,
 				5907E02D276B4EE1D629BAB0 /* SkScaledBitmapSampler.cpp in Sources */,
