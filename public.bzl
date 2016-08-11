@@ -617,6 +617,7 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_PICTURE_PTR",
     "SK_SUPPORT_LEGACY_TYPEFACE_PTR",
     "SK_SUPPORT_LEGACY_XFERMODE_PTR",
+    "SK_SUPPORT_LEGACY_PICTUREINSTALLPIXELREF",
 ]
 
 ################################################################################
