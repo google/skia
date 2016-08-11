@@ -483,8 +483,8 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
 
     // Build font subsetting info before calling addObjectRecursively().
     for (const auto& entry : fGlyphUsage) {
-        sk_sp<SkPDFFont> subsetFont(
-                entry.fFont->getFontSubset(&entry.fGlyphSet));
+        sk_sp<SkPDFObject> subsetFont =
+            entry.fFont->getFontSubset(&entry.fGlyphSet);
         if (subsetFont) {
             fObjectSerializer.fSubstituteMap.setSubstitute(
                     entry.fFont, subsetFont.get());

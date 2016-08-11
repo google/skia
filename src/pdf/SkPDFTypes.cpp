@@ -573,7 +573,9 @@ void SkPDFStream::setData(std::unique_ptr<SkStreamAsset> stream) {
     SkASSERT(stream->hasLength());
     SkDynamicMemoryWStream compressedData;
     SkDeflateWStream deflateWStream(&compressedData);
-    SkStreamCopy(&deflateWStream, stream.get());
+    if (stream->getLength() > 0) {
+        SkStreamCopy(&deflateWStream, stream.get());
+    }
     deflateWStream.finalize();
     size_t compressedLength = compressedData.bytesWritten();
     size_t originalLength = stream->getLength();
