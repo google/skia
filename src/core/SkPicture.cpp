@@ -6,6 +6,7 @@
  */
 
 #include "SkAtomics.h"
+#include "SkImageDeserializer.h"
 #include "SkImageGenerator.h"
 #include "SkMessageBus.h"
 #include "SkPicture.h"
@@ -22,6 +23,31 @@ static bool g_AllPictureIOSecurityPrecautionsEnabled = false;
 #endif
 
 DECLARE_SKMESSAGEBUS_MESSAGE(SkPicture::DeletionMessage);
+
+#ifdef SK_SUPPORT_LEGACY_PICTUREINSTALLPIXELREF
+class InstallProcImageDeserializer : public SkImageDeserializer {
+    SkPicture::InstallPixelRefProc fProc;
+public:
+    InstallProcImageDeserializer(SkPicture::InstallPixelRefProc proc) : fProc(proc) {}
+
+    sk_sp<SkImage> makeFromMemory(const void* data, size_t length, const SkIRect* subset) override {
+        SkBitmap bitmap;
+        if (fProc(data, length, &bitmap)) {
+            bitmap.setImmutable();
+            return SkImage::MakeFromBitmap(bitmap);
+        }
+        return nullptr;
+    }
+    sk_sp<SkImage> makeFromData(SkData* data, const SkIRect* subset) override {
+        return this->makeFromMemory(data->data(), data->size(), subset);
+    }
+};
+
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, InstallPixelRefProc proc) {
+    InstallProcImageDeserializer deserializer(proc);
+    return MakeFromStream(stream, &deserializer);
+}
+#endif
 
 /* SkPicture impl.  This handles generic responsibilities like unique IDs and serialization. */
 
@@ -141,28 +167,23 @@ sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
     return r.finishRecordingAsPicture();
 }
 
-static bool default_install(const void* src, size_t length, SkBitmap* dst) {
-    sk_sp<SkData> encoded(SkData::MakeWithCopy(src, length));
-    return encoded && SkDEPRECATED_InstallDiscardablePixelRef(
-            SkImageGenerator::NewFromEncoded(encoded.get()), dst);
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory) {
+    return MakeFromStream(stream, factory, nullptr);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
-    return MakeFromStream(stream, &default_install, nullptr);
+    SkImageDeserializer factory;
+    return MakeFromStream(stream, &factory);
 }
 
-sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, InstallPixelRefProc proc) {
-    return MakeFromStream(stream, proc, nullptr);
-}
-
-sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, InstallPixelRefProc proc,
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory,
                                            SkTypefacePlayback* typefaces) {
     SkPictInfo info;
     if (!InternalOnly_StreamIsSKP(stream, &info) || !stream->readBool()) {
         return nullptr;
     }
     SkAutoTDelete<SkPictureData> data(
-            SkPictureData::CreateFromStream(stream, info, proc, typefaces));
+            SkPictureData::CreateFromStream(stream, info, factory, typefaces));
     return Forwardport(info, data, nullptr);
 }
 

@@ -16,6 +16,9 @@ class GrContext;
 class SkBigPicture;
 class SkBitmap;
 class SkCanvas;
+class SkData;
+class SkImage;
+class SkImageDeserializer;
 class SkPath;
 class SkPictureData;
 class SkPixelSerializer;
@@ -49,6 +52,7 @@ public:
      */
     typedef bool (*InstallPixelRefProc)(const void* src, size_t length, SkBitmap* dst);
 
+#ifdef SK_SUPPORT_LEGACY_PICTUREINSTALLPIXELREF
     /**
      *  Recreate a picture that was serialized into a stream.
      *  @param SkStream Serialized picture data. Ownership is unchanged by this call.
@@ -58,17 +62,18 @@ public:
      *          invalid.
      */
     static sk_sp<SkPicture> MakeFromStream(SkStream*, InstallPixelRefProc proc);
+    static sk_sp<SkPicture> MakeFromStream(SkStream* stream, std::nullptr_t) {
+        return MakeFromStream(stream);
+    }
+#endif
 
     /**
      *  Recreate a picture that was serialized into a stream.
      *
-     *  Any serialized images in the stream will be passed to
-     *  SkImageGenerator::NewFromEncoded.
-     *
-     *  @param SkStream Serialized picture data. Ownership is unchanged by this call.
-     *  @return A new SkPicture representing the serialized data, or NULL if the stream is
-     *          invalid.
+     *  Any serialized images in the stream will be passed the image-deserializer, or if that is
+     *  null, to the default deserializer that will call SkImage::MakeFromEncoded().
      */
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, SkImageDeserializer*);
     static sk_sp<SkPicture> MakeFromStream(SkStream*);
 
     /**
@@ -188,7 +193,7 @@ private:
     template <typename> friend class SkMiniPicture;
 
     void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet* typefaces) const;
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, InstallPixelRefProc, SkTypefacePlayback*);
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, SkImageDeserializer*, SkTypefacePlayback*);
     friend class SkPictureData;
 
     virtual int numSlowPaths() const = 0;

@@ -691,7 +691,7 @@ DEF_TEST(Picture_EncodedData, reporter) {
     SkSetErrorCallback(assert_one_parse_error_cb, &context);
     SkMemoryStream pictureStream(std::move(picture1));
     SkClearLastError();
-    sk_sp<SkPicture> pictureFromStream(SkPicture::MakeFromStream(&pictureStream, nullptr));
+    sk_sp<SkPicture> pictureFromStream(SkPicture::MakeFromStream(&pictureStream));
     REPORTER_ASSERT(reporter, pictureFromStream.get() != nullptr);
     SkClearLastError();
     SkSetErrorCallback(nullptr, nullptr);

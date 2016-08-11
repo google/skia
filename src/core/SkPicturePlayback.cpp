@@ -80,11 +80,6 @@ void get_text(SkReadBuffer* reader, TextContainer* text) {
     text->fText = (const char*)reader->skip(length);
 }
 
-// FIXME: SkBitmaps are stateful, so we need to copy them to play back in multiple threads.
-static SkBitmap shallow_copy(const SkBitmap& bitmap) {
-    return bitmap;
-}
-
 void SkPicturePlayback::draw(SkCanvas* canvas,
                              SkPicture::AbortCallback* callback,
                              const SkReadBuffer* buffer) {
@@ -214,39 +209,43 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_BITMAP: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkBitmap bitmap = shallow_copy(fPictureData->getBitmap(reader));
+            const SkImage* image = fPictureData->getBitmapAsImage(reader);
             SkPoint loc;
             reader->readPoint(&loc);
-            canvas->drawBitmap(bitmap, loc.fX, loc.fY, paint);
+            canvas->drawImage(image, loc.fX, loc.fY, paint);
         } break;
         case DRAW_BITMAP_RECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkBitmap bitmap = shallow_copy(fPictureData->getBitmap(reader));
+            const SkImage* image = fPictureData->getBitmapAsImage(reader);
             SkRect storage;
             const SkRect* src = get_rect_ptr(reader, &storage);   // may be null
             SkRect dst;
             reader->readRect(&dst);     // required
             SkCanvas::SrcRectConstraint constraint = (SkCanvas::SrcRectConstraint)reader->readInt();
-            canvas->legacy_drawBitmapRect(bitmap, src, dst, paint, constraint);
+            if (src) {
+                canvas->drawImageRect(image, *src, dst, paint, constraint);
+            } else {
+                canvas->drawImageRect(image, dst, paint, constraint);
+            }
         } break;
         case DRAW_BITMAP_MATRIX: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkBitmap bitmap = shallow_copy(fPictureData->getBitmap(reader));
+            const SkImage* image = fPictureData->getBitmapAsImage(reader);
             SkMatrix matrix;
             reader->readMatrix(&matrix);
 
             SkAutoCanvasRestore acr(canvas, true);
             canvas->concat(matrix);
-            canvas->drawBitmap(bitmap, 0, 0, paint);
+            canvas->drawImage(image, 0, 0, paint);
         } break;
         case DRAW_BITMAP_NINE: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkBitmap bitmap = shallow_copy(fPictureData->getBitmap(reader));
+            const SkImage* image = fPictureData->getBitmapAsImage(reader);
             SkIRect src;
             reader->readIRect(&src);
             SkRect dst;
             reader->readRect(&dst);
-            canvas->drawBitmapNine(bitmap, src, dst, paint);
+            canvas->drawImageNine(image, src, dst, paint);
         } break;
         case DRAW_CLEAR:
             canvas->clear(reader->readInt());
@@ -465,7 +464,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_SPRITE: {
             /* const SkPaint* paint = */ fPictureData->getPaint(reader);
-            /* const SkBitmap bitmap = */ shallow_copy(fPictureData->getBitmap(reader));
+            /* const SkImage* image = */ fPictureData->getBitmapAsImage(reader);
             /* int left = */ reader->readInt();
             /* int top = */ reader->readInt();
             // drawSprite removed dec-2015

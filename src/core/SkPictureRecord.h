@@ -209,20 +209,6 @@ protected:
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 
-    // NEVER CALL -- SkRecord should have already turned these into image draws
-    void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override {
-        sk_throw();
-    }
-    void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
-                          SrcRectConstraint) override {
-        sk_throw();
-    }
-    void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
-                          const SkPaint*) override {
-        sk_throw();
-    }
-
-
 #ifdef SK_EXPERIMENTAL_SHADOWING
     void onDrawShadowedPicture(const SkPicture*,
                                const SkMatrix*,
@@ -252,10 +238,22 @@ protected:
     void recordSaveLayer(const SaveLayerRec&);
     void recordRestore(bool fillInSkips = true);
 
+    // SHOULD NEVER BE CALLED
+    void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override {
+        sk_throw();
+    }
+    void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
+                          SrcRectConstraint) override {
+        sk_throw();
+    }
+    void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
+                          const SkPaint*) override {
+        sk_throw();
+    }
+
 private:
     SkPictureContentInfo fContentInfo;
 
-//    SkTArray<SkBitmap> fBitmaps;
     SkTArray<SkPaint>  fPaints;
 
     struct PathHash {

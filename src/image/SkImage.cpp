@@ -500,3 +500,14 @@ sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMip
                                      int mipLevelCount, SkBudgeted) {
     return nullptr;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkImageDeserializer.h"
+
+sk_sp<SkImage> SkImageDeserializer::makeFromData(SkData* data, const SkIRect* subset) {
+    return SkImage::MakeFromEncoded(sk_ref_sp(data), subset);
+}
+sk_sp<SkImage> SkImageDeserializer::makeFromMemory(const void* data, size_t length,
+                                                   const SkIRect* subset) {
+    return SkImage::MakeFromEncoded(SkData::MakeWithCopy(data, length), subset);
+}

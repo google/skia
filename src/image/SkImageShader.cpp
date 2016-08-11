@@ -27,11 +27,11 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     const TileMode ty = (TileMode)buffer.readUInt();
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
-    SkAutoTUnref<SkImage> img(buffer.readImage());
+    sk_sp<SkImage> img = buffer.readImage();
     if (!img) {
         return nullptr;
     }
-    return SkImageShader::Make(img, tx, ty, &matrix);
+    return SkImageShader::Make(img.release(), tx, ty, &matrix);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
@@ -248,14 +248,10 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
 static sk_sp<SkFlattenable> SkBitmapProcShader_CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);
-    SkBitmap bm;
-    if (!buffer.readBitmap(&bm)) {
-        return nullptr;
-    }
-    bm.setImmutable();
+    sk_sp<SkImage> image = buffer.readBitmapAsImage();
     SkShader::TileMode mx = (SkShader::TileMode)buffer.readUInt();
     SkShader::TileMode my = (SkShader::TileMode)buffer.readUInt();
-    return SkShader::MakeBitmapShader(bm, mx, my, &lm);
+    return image ? image->makeShader(mx, my, &lm) : nullptr;
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkShader)

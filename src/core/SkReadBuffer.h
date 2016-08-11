@@ -167,12 +167,11 @@ public:
     virtual uint32_t getArrayCount();
 
     /**
-     *  Returns false if the bitmap could not be completely read. In that case, it will be set
+     *  Returns false if the image could not be completely read. In that case, it will be set
      *  to have width/height, but no pixels.
      */
-    bool readBitmap(SkBitmap* bitmap);
-
-    SkImage* readImage();
+    sk_sp<SkImage> readBitmapAsImage();
+    sk_sp<SkImage> readImage();
 
     virtual SkTypeface* readTypeface();
 
@@ -204,14 +203,9 @@ public:
         fCustomFactory.set(name, factory);
     }
 
-    /**
-     *  Provide a function to decode an SkBitmap from encoded data. Only used if the writer
-     *  encoded the SkBitmap. If the proper decoder cannot be used, a red bitmap with the
-     *  appropriate size will be used.
-     */
-    void setBitmapDecoder(SkPicture::InstallPixelRefProc bitmapDecoder) {
-        fBitmapDecoder = bitmapDecoder;
-    }
+    // If nullptr is passed, then the default deserializer will be used
+    // which calls SkImage::MakeFromEncoded()
+    void setImageDeserializer(SkImageDeserializer* factory);
 
     // Default impelementations don't check anything.
     virtual bool validate(bool isValid) { return isValid; }
@@ -227,7 +221,6 @@ protected:
      *  of flattenables.
      */
     int factoryCount() { return fFactoryCount; }
-
 
     /**
      *  Checks if a custom factory has been set for a given flattenable.
@@ -260,7 +253,8 @@ private:
     // Only used if we do not have an fFactoryArray.
     SkTHashMap<SkString, SkFlattenable::Factory> fCustomFactory;
 
-    SkPicture::InstallPixelRefProc fBitmapDecoder;
+    // We do not own this ptr, we just use it (guaranteed to never be null)
+    SkImageDeserializer* fImageDeserializer;
 
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
     // Debugging counter to keep track of how many bitmaps we
