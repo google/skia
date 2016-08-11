@@ -1167,7 +1167,7 @@ bool SkOpSegment::missingCoincidence() {
     bool result = false;
     do {
         SkOpPtT* ptT = spanBase->ptT(), * spanStopPtT = ptT;
-        SkASSERT(ptT->span() == spanBase);
+        SkOPASSERT(ptT->span() == spanBase);
         while ((ptT = ptT->next()) != spanStopPtT) {
             if (ptT->deleted()) {
                 continue;

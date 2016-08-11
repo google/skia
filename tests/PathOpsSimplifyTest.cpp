@@ -5256,7 +5256,7 @@ static void tiger8a_h_1(skiatest::Reporter* reporter, const char* filename) {
 #if DEBUG_UNDER_DEVELOPMENT  // tiger
     return;
 #endif
-    uint64_t testlines = 0x0000000280802863;  // best so far: 0x0000001610031021;
+    uint64_t testlines = 0x0000000202480001;  // best so far: 0x0000001610031021;
     tiger8a_x(reporter, filename, testlines);
 }
 
@@ -5789,6 +5789,11 @@ static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(tiger8a_h_1),
+    TEST(tiger8a_h),
+    TEST(tiger8a),
+    TEST(tiger8b),
+    TEST(tiger8),
     TEST(testQuads72),
     TEST(testQuads71),
     TEST(testQuads70),
@@ -5797,11 +5802,6 @@ static TestDesc tests[] = {
     TEST(testQuads67),
     TEST(testQuads66),
     TEST(dean4),
-    TEST(tiger8a_h_1),
-    TEST(tiger8a_h),
-    TEST(tiger8a),
-    TEST(tiger8b),
-    TEST(tiger8),
     TEST(fuzz763_4713_b),
     TEST(fuzz_twister2),
     TEST(fuzz_twister),

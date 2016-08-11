@@ -69,6 +69,9 @@ bool SkCoincidentSpans::expand() {
     do {
         const SkOpSpanBase* end = coinPtTEnd()->span();
         SkOpSpanBase* next = end->final() ? nullptr : end->upCast()->next();
+        if (next && next->deleted()) {
+            break;
+        }
         const SkOpPtT* oppPtT;
         if (!next || !(oppPtT = next->contains(oppSegment))) {
             break;
@@ -280,6 +283,9 @@ bool SkOpCoincidence::addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase*
         if (testSeg == baseSeg) {
             continue;
         }
+        if (testPtT->span()->ptT() != testPtT) {
+            continue;
+        }
         if (this->contains(baseSeg, testSeg, testPtT->fT)) {
             continue;
         }
@@ -422,7 +428,7 @@ bool SkOpCoincidence::addExpanded() {
         const SkOpPtT* startPtT = coin->coinPtTStart();
         const SkOpPtT* oStartPtT = coin->oppPtTStart();
         SkASSERT(startPtT->contains(oStartPtT));
-        SkASSERT(coin->coinPtTEnd()->contains(coin->oppPtTEnd()));
+        SkOPASSERT(coin->coinPtTEnd()->contains(coin->oppPtTEnd()));
         const SkOpSpanBase* start = startPtT->span();
         const SkOpSpanBase* oStart = oStartPtT->span();
         const SkOpSpanBase* end = coin->coinPtTEnd()->span();

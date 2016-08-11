@@ -7144,7 +7144,7 @@ path.conicTo(SkBits2Float(0x2a8c54ed), SkBits2Float(0x21081f21), SkBits2Float(0x
 path.conicTo(SkBits2Float(0x68392d5b), SkBits2Float(0xf0682955), SkBits2Float(0x2a1f5b2d), SkBits2Float(0xef552a21), SkBits2Float(0x5b2d2a8c));  // 3.4979e+24f, -2.87402e+29f, 1.41537e-13f, -6.59712e+28f, 4.8742e+16f
 
     SkPath path2(path);
-    testPathOpFail(reporter, path1, path2, (SkPathOp) 0, filename);
+    testPathOpSkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
 }
 
 static void fuzz763_24(skiatest::Reporter* reporter, const char* filename) {
@@ -7197,8 +7197,8 @@ path.cubicTo(SkBits2Float(0x9e9e9e9e), SkBits2Float(0xe8009e9e), SkBits2Float(0x
 }
 
 static struct TestDesc failTests[] = {
-    TEST(fuzz763_24),
     TEST(fuzz763_23),
+    TEST(fuzz763_24),
     TEST(fuzz763_22),
     TEST(fuzz763_21),
     TEST(fuzz763_20),
