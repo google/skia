@@ -68,7 +68,7 @@ public:
     */
     static sk_sp<SkNormalSource> MakeFromNormalMap(sk_sp<SkShader> map, const SkMatrix& ctm);
 
-    /** Returns a normal source that provides straight-up normals only (0, 0, 1).
+    /** Returns a normal source that provides straight-up normals only <0, 0, 1>.
     */
     static sk_sp<SkNormalSource> MakeFlat();
 
@@ -108,8 +108,10 @@ public:
          */
         kRoundedIn
     };
-    /** Returns a normal source that generates a bevel for the given shape. UNIMPLEMENTED: Will
-        return straight-up normals only.
+
+    /** Returns a normal source that generates a bevel for the shape being drawn. Currently this is
+        not implemented on CPU rendering. On GPU this currently only works for anti-aliased circles
+        and rectangles.
 
         @param  type   the type of bevel to add.
         @param  width  the width of the bevel, in source space. Must be positive.

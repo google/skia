@@ -57,9 +57,7 @@ public:
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalFlatFP; }
 
-    bool onIsEqual(const GrFragmentProcessor& proc) const override {
-        return true;
-    }
+    bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 };
 
 sk_sp<GrFragmentProcessor> SkNormalFlatSourceImpl::asFragmentProcessor(
@@ -77,7 +75,7 @@ SkNormalFlatSourceImpl::Provider::Provider() {}
 SkNormalFlatSourceImpl::Provider::~Provider() {}
 
 SkNormalSource::Provider* SkNormalFlatSourceImpl::asProvider(const SkShader::ContextRec &rec,
-                                                           void *storage) const {
+                                                             void *storage) const {
     return new (storage) Provider();
 }
 
@@ -86,7 +84,7 @@ size_t SkNormalFlatSourceImpl::providerSize(const SkShader::ContextRec&) const {
 }
 
 void SkNormalFlatSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output[],
-                                                  int count) const {
+                                                    int count) const {
     for (int i = 0; i < count; i++) {
         output[i] = {0.0f, 0.0f, 1.0f};
     }

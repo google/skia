@@ -20,9 +20,6 @@ public:
     /** Returns a shader that lights the shape, colored by the diffuseShader, using the
         normals from normalSource, with the set of lights provided.
 
-        It returns a shader with a reference count of 1.
-        The caller should decrement the shader's reference count when done with the shader.
-        It is an error for count to be < 2.
         @param  diffuseShader     the shader that provides the colors. If nullptr, uses the paint's
                                   color.
         @param  normalSource      the source for the shape's normals. If nullptr, assumes straight
@@ -30,7 +27,7 @@ public:
         @param  lights            the lights applied to the normals
 
         The lighting equation is currently:
-            result = LightColor * DiffuseColor * (Normal * LightDir) + AmbientColor
+            result = (LightColor * dot(Normal, LightDir) + AmbientColor) * DiffuseColor
 
     */
     static sk_sp<SkShader> Make(sk_sp<SkShader> diffuseShader, sk_sp<SkNormalSource> normalSource,

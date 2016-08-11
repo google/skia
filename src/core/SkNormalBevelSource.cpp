@@ -245,6 +245,7 @@ private:
 sk_sp<GrFragmentProcessor> SkNormalBevelSourceImpl::asFragmentProcessor(
         const SkShader::AsFPArgs& args) const {
 
+    // This assumes a uniform scale. Anisotropic scaling might not be handled gracefully.
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
 
     // Providing device-space width and height
@@ -260,7 +261,7 @@ SkNormalBevelSourceImpl::Provider::Provider() {}
 SkNormalBevelSourceImpl::Provider::~Provider() {}
 
 SkNormalSource::Provider* SkNormalBevelSourceImpl::asProvider(const SkShader::ContextRec &rec,
-                                                            void *storage) const {
+                                                              void *storage) const {
     return new (storage) Provider();
 }
 
@@ -268,8 +269,9 @@ size_t SkNormalBevelSourceImpl::providerSize(const SkShader::ContextRec&) const 
     return sizeof(Provider);
 }
 
+// TODO Implement feature for the CPU pipeline
 void SkNormalBevelSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output[],
-                                                   int count) const {
+                                                     int count) const {
     for (int i = 0; i < count; i++) {
         output[i] = {0.0f, 0.0f, 1.0f};
     }
@@ -297,7 +299,7 @@ void SkNormalBevelSourceImpl::flatten(SkWriteBuffer& buf) const {
 ////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkNormalSource> SkNormalSource::MakeBevel(BevelType type, SkScalar width, SkScalar height) {
-    /* TODO make sure this checks are tolerant enough to account for loss of conversion when GPUs
+    /* TODO make sure these checks are tolerant enough to account for loss of conversion when GPUs
        use 16-bit float types. We don't want to assume stuff is non-zero on the GPU and be wrong.*/
     SkASSERT(width > 0.0f && !SkScalarNearlyZero(width));
     if (SkScalarNearlyZero(height)) {

@@ -73,8 +73,7 @@ public:
             fragBuilder->codeAppend( "}");
         }
 
-        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
-                           GrProcessorKeyBuilder* b) {
+        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
             b->add32(0x0);
         }
 
@@ -92,6 +91,7 @@ public:
         }
 
     private:
+        // Upper-right 2x2 corner of the inverse of the CTM in column-major form
         float fColumnMajorInvCTM22[4];
         GrGLSLProgramDataManager::UniformHandle fXformUni;
     };
@@ -134,8 +134,8 @@ sk_sp<GrFragmentProcessor> SkNormalMapSourceImpl::asFragmentProcessor(
 ////////////////////////////////////////////////////////////////////////////
 
 SkNormalMapSourceImpl::Provider::Provider(const SkNormalMapSourceImpl& source,
-                                        SkShader::Context* mapContext,
-                                        SkPaint* overridePaint)
+                                          SkShader::Context* mapContext,
+                                          SkPaint* overridePaint)
     : fSource(source)
     , fMapContext(mapContext)
     , fOverridePaint(overridePaint) {}
@@ -145,8 +145,8 @@ SkNormalMapSourceImpl::Provider::~Provider() {
     fOverridePaint->~SkPaint();
 }
 
-SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(
-        const SkShader::ContextRec &rec, void *storage) const {
+SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShader::ContextRec &rec,
+                                                            void *storage) const {
     SkMatrix normTotalInv;
     if (!this->computeNormTotalInverse(rec, &normTotalInv)) {
         return nullptr;
@@ -173,7 +173,7 @@ size_t SkNormalMapSourceImpl::providerSize(const SkShader::ContextRec& rec) cons
 }
 
 bool SkNormalMapSourceImpl::computeNormTotalInverse(const SkShader::ContextRec& rec,
-                                                  SkMatrix* normTotalInverse) const {
+                                                    SkMatrix* normTotalInverse) const {
     SkMatrix total;
     total.setConcat(*rec.fMatrix, fMapShader->getLocalMatrix());
 
@@ -187,7 +187,7 @@ bool SkNormalMapSourceImpl::computeNormTotalInverse(const SkShader::ContextRec& 
 
 #define BUFFER_MAX 16
 void SkNormalMapSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output[],
-                                                 int count) const {
+                                                   int count) const {
     SkPMColor tmpNormalColors[BUFFER_MAX];
 
     do {
