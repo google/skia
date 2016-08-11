@@ -556,40 +556,6 @@ public:
     */
     bool quickReject(const SkPath& path) const;
 
-    /** Return true if the horizontal band specified by top and bottom is
-        completely clipped out. This is a conservative calculation, meaning
-        that it is possible that if the method returns false, the band may still
-        in fact be clipped out, but the converse is not true. If this method
-        returns true, then the band is guaranteed to be clipped out.
-        @param top  The top of the horizontal band to compare with the clip
-        @param bottom The bottom of the horizontal and to compare with the clip
-        @return true if the horizontal band is completely clipped out (i.e. does
-                     not intersect the current clip)
-    */
-    bool quickRejectY(SkScalar top, SkScalar bottom) const {
-        SkASSERT(top <= bottom);
-
-#ifndef SK_WILL_NEVER_DRAW_PERSPECTIVE_TEXT
-        // TODO: add a hasPerspective method similar to getLocalClipBounds. This
-        // would cache the SkMatrix::hasPerspective result. Alternatively, have
-        // the MC stack just set a hasPerspective boolean as it is updated.
-        if (this->getTotalMatrix().hasPerspective()) {
-            // TODO: consider implementing some half-plane test between the
-            // two Y planes and the device-bounds (i.e., project the top and
-            // bottom Y planes and then determine if the clip bounds is completely
-            // outside either one).
-            return false;
-        }
-#endif
-
-        const SkRect& clipR = this->getLocalClipBounds();
-        // In the case where the clip is empty and we are provided with a
-        // negative top and positive bottom parameter then this test will return
-        // false even though it will be clipped. We have chosen to exclude that
-        // check as it is rare and would result double the comparisons.
-        return top >= clipR.fBottom || bottom <= clipR.fTop;
-    }
-
     /** Return the bounds of the current clip (in local coordinates) in the
         bounds parameter, and return true if it is non-empty. This can be useful
         in a way similar to quickReject, in that it tells you that drawing
