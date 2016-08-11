@@ -29,6 +29,14 @@ void SkSVGRect::setHeight(const SkSVGLength& h) {
     fHeight = h;
 }
 
+void SkSVGRect::setRx(const SkSVGLength& rx) {
+    fRx = rx;
+}
+
+void SkSVGRect::setRy(const SkSVGLength& ry) {
+    fRy = ry;
+}
+
 void SkSVGRect::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kX:
@@ -51,6 +59,16 @@ void SkSVGRect::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setHeight(*h);
         }
         break;
+    case SkSVGAttribute::kRx:
+        if (const auto* rx = v.as<SkSVGLengthValue>()) {
+            this->setRx(*rx);
+        }
+        break;
+    case SkSVGAttribute::kRy:
+        if (const auto* ry = v.as<SkSVGLengthValue>()) {
+            this->setRy(*ry);
+        }
+        break;
     default:
         this->INHERITED::onSetAttribute(attr, v);
     }
@@ -58,5 +76,13 @@ void SkSVGRect::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 
 void SkSVGRect::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
                        const SkPaint& paint) const {
-    canvas->drawRect(lctx.resolveRect(fX, fY, fWidth, fHeight), paint);
+    const SkRect rect = lctx.resolveRect(fX, fY, fWidth, fHeight);
+    const SkScalar rx = lctx.resolve(fRx, SkSVGLengthContext::LengthType::kHorizontal);
+    const SkScalar ry = lctx.resolve(fRy, SkSVGLengthContext::LengthType::kVertical);
+
+    if (rx || ry) {
+        canvas->drawRRect(SkRRect::MakeRectXY(rect, rx, ry), paint);
+    } else {
+        canvas->drawRect(rect, paint);
+    }
 }

@@ -11,6 +11,7 @@
 SkSVGShape::SkSVGShape(SkSVGTag t) : INHERITED(t) {}
 
 void SkSVGShape::onRender(const SkSVGRenderContext& ctx) const {
+    // TODO: this approach forces duplicate geometry resolution in onDraw(); refactor to avoid.
     if (const SkPaint* fillPaint = ctx.presentationContext().fillPaint()) {
         this->onDraw(ctx.canvas(), ctx.lengthContext(), *fillPaint);
     }

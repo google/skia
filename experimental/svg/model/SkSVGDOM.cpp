@@ -163,6 +163,8 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "d"        , { SkSVGAttribute::kD        , SetPathDataAttribute  }},
     { "fill"     , { SkSVGAttribute::kFill     , SetPaintAttribute     }},
     { "height"   , { SkSVGAttribute::kHeight   , SetLengthAttribute    }},
+    { "rx"       , { SkSVGAttribute::kRx       , SetLengthAttribute    }},
+    { "ry"       , { SkSVGAttribute::kRy       , SetLengthAttribute    }},
     { "stroke"   , { SkSVGAttribute::kStroke   , SetPaintAttribute     }},
     { "style"    , { SkSVGAttribute::kUnknown  , SetStyleAttributes    }},
     { "transform", { SkSVGAttribute::kTransform, SetTransformAttribute }},

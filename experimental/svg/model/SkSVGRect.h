@@ -20,6 +20,8 @@ public:
     void setY(const SkSVGLength&);
     void setWidth(const SkSVGLength&);
     void setHeight(const SkSVGLength&);
+    void setRx(const SkSVGLength&);
+    void setRy(const SkSVGLength&);
 
 protected:
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
@@ -33,6 +35,11 @@ private:
     SkSVGLength fY      = SkSVGLength(0);
     SkSVGLength fWidth  = SkSVGLength(0);
     SkSVGLength fHeight = SkSVGLength(0);
+
+    // The x radius for rounded rects.
+    SkSVGLength fRx     = SkSVGLength(0);
+    // The y radius for rounded rects.
+    SkSVGLength fRy     = SkSVGLength(0);
 
     typedef SkSVGShape INHERITED;
 };

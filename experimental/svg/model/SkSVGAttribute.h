@@ -17,6 +17,8 @@ enum class SkSVGAttribute {
     kD,
     kFill,
     kHeight,
+    kRx,
+    kRy,
     kStroke,
     kTransform,
     kViewBox,
