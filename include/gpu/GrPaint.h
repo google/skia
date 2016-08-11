@@ -166,9 +166,21 @@ public:
      * coverage and color, so the actual values written to pixels with partial coverage may still
      * not seem constant, even if this function returns true.
      */
-    bool isConstantBlendedColor(GrColor* constantColor) const;
+    bool isConstantBlendedColor(GrColor* constantColor) const {
+        GrColor paintColor = this->getColor();
+        if (!fXPFactory && fColorFragmentProcessors.empty()) {
+            if (!GrColorIsOpaque(paintColor)) {
+                return false;
+            }
+            *constantColor = paintColor;
+            return true;
+        }
+        return this->internalIsConstantBlendedColor(paintColor, constantColor);
+    }
 
 private:
+    bool internalIsConstantBlendedColor(GrColor paintColor, GrColor* constantColor) const;
+
     mutable sk_sp<GrXPFactory>                fXPFactory;
     SkSTArray<4, sk_sp<GrFragmentProcessor>>  fColorFragmentProcessors;
     SkSTArray<2, sk_sp<GrFragmentProcessor>>  fCoverageFragmentProcessors;
