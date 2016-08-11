@@ -136,6 +136,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Window::CreateNativeWindow(platformData);
     fWindow->attach(fBackendType, DisplayParams());
+#if defined(SK_VULKAN) && defined(SK_BUILD_FOR_UNIX)
+    // Vulkan doesn't seem to handle a single refresh properly on Linux
+    fRefresh = (sk_app::Window::kVulkan_BackendType == fBackendType);
+#endif
 
     // register callbacks
     fCommands.attach(fWindow);
@@ -211,6 +215,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         }
 #endif
         fWindow->attach(fBackendType, DisplayParams());
+#if defined(SK_VULKAN) && defined(SK_BUILD_FOR_UNIX)
+        // Vulkan doesn't seem to handle a single refresh properly on Linux
+        fRefresh = (sk_app::Window::kVulkan_BackendType == fBackendType);
+#endif
 
         this->updateTitle();
         fWindow->inval();

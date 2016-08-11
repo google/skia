@@ -587,7 +587,6 @@ void VulkanWindowContext::swapBuffers() {
     };
 
     fQueuePresentKHR(fPresentQueue, &presentInfo);
-
 }
 
 }   //namespace sk_app
