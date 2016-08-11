@@ -31,6 +31,7 @@
 
 class GrAuditTrail;
 class GrBatch;
+class GrClearBatch;
 class GrClip;
 class GrCaps;
 class GrPath;
@@ -57,6 +58,7 @@ public:
     ~GrDrawTarget() override;
 
     void makeClosed() {
+        fLastFullClearBatch = nullptr;
         // We only close drawTargets When MDB is enabled. When MDB is disabled there is only
         // ever one drawTarget and all calls will be funnelled into it.
 #ifdef ENABLE_MDB
@@ -194,7 +196,9 @@ private:
         }
     };
 
-    void recordBatch(GrBatch*, const SkRect& clippedBounds);
+    // Returns the batch that the input batch was combined with or the input batch if it wasn't
+    // combined.
+    GrBatch* recordBatch(GrBatch*, const SkRect& clippedBounds);
     void forwardCombine();
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
@@ -217,6 +221,7 @@ private:
         SkRect         fClippedBounds;
     };
     SkSTArray<256, RecordedBatch, true>             fRecordedBatches;
+    GrClearBatch*                                   fLastFullClearBatch;
     // The context is only in service of the GrClip, remove once it doesn't need this.
     GrContext*                                      fContext;
     GrGpu*                                          fGpu;

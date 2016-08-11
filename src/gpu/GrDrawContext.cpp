@@ -233,7 +233,7 @@ void GrDrawContext::clear(const SkIRect* rect,
     } else if (isFull) {
         this->getDrawTarget()->fullClear(this->accessRenderTarget(), color);
     } else {
-        sk_sp<GrBatch> batch = GrClearBatch::Make(*rect, color, this->accessRenderTarget());
+        sk_sp<GrBatch> batch(GrClearBatch::Make(*rect, color, this->accessRenderTarget()));
         this->getDrawTarget()->addBatch(std::move(batch));
     }
 }

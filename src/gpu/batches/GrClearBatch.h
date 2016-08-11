@@ -18,8 +18,8 @@ class GrClearBatch final : public GrBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    static sk_sp<GrBatch> Make(const SkIRect& rect,  GrColor color, GrRenderTarget* rt) {
-        return sk_sp<GrBatch>(new GrClearBatch(rect, color, rt));
+    static sk_sp<GrClearBatch> Make(const SkIRect& rect,  GrColor color, GrRenderTarget* rt) {
+        return sk_sp<GrClearBatch>(new GrClearBatch(rect, color, rt));
     }
 
     const char* name() const override { return "Clear"; }
@@ -35,6 +35,8 @@ public:
         string.append(INHERITED::dumpInfo());
         return string;
     }
+
+    void setColor(GrColor color) { fColor = color; }
 
 private:
     GrClearBatch(const SkIRect& rect,  GrColor color, GrRenderTarget* rt)

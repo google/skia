@@ -45,7 +45,8 @@ static const int kDefaultMaxBatchLookahead = 10;
 
 GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* resourceProvider,
                            GrAuditTrail* auditTrail, const Options& options)
-    : fGpu(SkRef(gpu))
+    : fLastFullClearBatch(nullptr)
+    , fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
     , fAuditTrail(auditTrail)
     , fFlags(0)
@@ -287,6 +288,7 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
 }
 
 void GrDrawTarget::reset() {
+    fLastFullClearBatch = nullptr;
     fRecordedBatches.reset();
     if (fInstancedRendering) {
         fInstancedRendering->endFlush();
@@ -458,12 +460,23 @@ void GrDrawTarget::addBatch(sk_sp<GrBatch> batch) {
 }
 
 void GrDrawTarget::fullClear(GrRenderTarget* renderTarget, GrColor color) {
-    // Currently this just inserts a clear batch. However, once in MDB this can remove all the
-    // previously recorded batches and change the load op to clear with supplied color.
-    sk_sp<GrBatch> batch = GrClearBatch::Make(SkIRect::MakeWH(renderTarget->width(),
-                                                              renderTarget->height()),
-                                              color, renderTarget);
-    this->recordBatch(batch.get(), batch->bounds());
+    // Currently this just inserts or updates the last clear batch. However, once in MDB this can
+    // remove all the previously recorded batches and change the load op to clear with supplied
+    // color.
+    if (fLastFullClearBatch &&
+        fLastFullClearBatch->renderTargetUniqueID() == renderTarget->getUniqueID()) {
+        // As currently implemented, fLastFullClearBatch should be the last batch because we would
+        // have cleared it when another batch was recorded.
+        SkASSERT(fRecordedBatches.back().fBatch.get() == fLastFullClearBatch);
+        fLastFullClearBatch->setColor(color);
+        return;
+    }
+    sk_sp<GrClearBatch> batch(GrClearBatch::Make(SkIRect::MakeWH(renderTarget->width(),
+                                                                 renderTarget->height()),
+                                                 color, renderTarget));
+    if (batch.get() == this->recordBatch(batch.get(), batch->bounds())) {
+        fLastFullClearBatch = batch.get();
+    }
 }
 
 void GrDrawTarget::discard(GrRenderTarget* renderTarget) {
@@ -509,7 +522,7 @@ static void join(SkRect* out, const SkRect& a, const SkRect& b) {
     out->fBottom = SkTMax(a.fBottom, b.fBottom);
 }
 
-void GrDrawTarget::recordBatch(GrBatch* batch, const SkRect& clippedBounds) {
+GrBatch* GrDrawTarget::recordBatch(GrBatch* batch, const SkRect& clippedBounds) {
     // A closed drawTarget should never receive new/more batches
     SkASSERT(!this->isClosed());
 
@@ -546,7 +559,7 @@ void GrDrawTarget::recordBatch(GrBatch* batch, const SkRect& clippedBounds) {
                 GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate, batch);
                 join(&fRecordedBatches.fromBack(i).fClippedBounds,
                      fRecordedBatches.fromBack(i).fClippedBounds, clippedBounds);
-                return;
+                return candidate;
             }
             // Stop going backwards if we would cause a painter's order violation.
             const SkRect& candidateBounds = fRecordedBatches.fromBack(i).fClippedBounds;
@@ -566,6 +579,8 @@ void GrDrawTarget::recordBatch(GrBatch* batch, const SkRect& clippedBounds) {
     }
     GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(fAuditTrail, batch);
     fRecordedBatches.emplace_back(RecordedBatch{sk_ref_sp(batch), clippedBounds});
+    fLastFullClearBatch = nullptr;
+    return batch;
 }
 
 void GrDrawTarget::forwardCombine() {
