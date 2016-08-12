@@ -485,6 +485,16 @@
     "cmd": [
       "python",
       "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/svg/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "read svg VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
       "[SLAVE_BUILD]/swarming_temp_dir",
       "511"
@@ -635,6 +645,8 @@
       "skp:skia/bots/skp:version:0",
       "--cipd-package",
       "skimage:skia/bots/skimage:version:0",
+      "--cipd-package",
+      "svg:skia/bots/svg:version:0",
       "def456",
       "--",
       "--workdir",

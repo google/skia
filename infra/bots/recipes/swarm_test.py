@@ -138,11 +138,7 @@ def dm_flags(bot):
   args.extend(configs)
 
   # Run tests, gms, and image decoding tests everywhere.
-  args.extend('--src tests gm image colorImage'.split(' '))
-  # TODO(rmistry): Remove the below once we want to enable SVGs for all bots.
-  if (bot == 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared-Trybot' or
-      bot == 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared'):
-    args.append('svg')
+  args.extend('--src tests gm image colorImage svg'.split(' '))
 
   if 'GalaxyS' in bot:
     args.extend(('--threads', '0'))
@@ -440,12 +436,7 @@ def test_steps(api):
     '--properties'
   ] + properties
 
-  # TODO(rmistry): Remove the below once we want to enable SVGs for all bots.
-  if (api.vars.builder_name ==
-          'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared-Trybot' or
-      api.vars.builder_name ==
-          'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared'):
-    args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
+  args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
 
   args.append('--key')
   args.extend(key_params(api))

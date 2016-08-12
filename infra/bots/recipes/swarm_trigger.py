@@ -683,12 +683,7 @@ def RunSteps(api):
   # SKPs, SkImages, SVGs.
   cipd_packages.append(cipd_pkg(api, infrabots_dir, 'skp'))
   cipd_packages.append(cipd_pkg(api, infrabots_dir, 'skimage'))
-  # TODO(rmistry): Remove the below once we want to enable SVGs for all bots.
-  if (api.properties['buildername'] ==
-          'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared-Trybot' or
-      api.properties['buildername'] ==
-          'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared'):
-    cipd_packages.append(cipd_pkg(api, infrabots_dir, 'svg'))
+  cipd_packages.append(cipd_pkg(api, infrabots_dir, 'svg'))
 
   # Trigger test and perf tasks.
   test_task = None
