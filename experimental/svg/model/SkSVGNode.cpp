@@ -33,28 +33,48 @@ void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     this->onSetAttribute(attr, v);
 }
 
+void SkSVGNode::setFill(const SkSVGPaint& svgPaint) {
+    fPresentationAttributes.fFill.set(svgPaint);
+}
+
+void SkSVGNode::setFillOpacity(const SkSVGNumberType& opacity) {
+    fPresentationAttributes.fFillOpacity.set(
+        SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
+}
+
+void SkSVGNode::setStroke(const SkSVGPaint& svgPaint) {
+    fPresentationAttributes.fStroke.set(svgPaint);
+}
+
+void SkSVGNode::setStrokeOpacity(const SkSVGNumberType& opacity) {
+    fPresentationAttributes.fStrokeOpacity.set(
+        SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
+}
+
+void SkSVGNode::setStrokeWidth(const SkSVGLength& strokeWidth) {
+    fPresentationAttributes.fStrokeWidth.set(strokeWidth);
+}
+
 void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kFill:
         if (const SkSVGPaintValue* paint = v.as<SkSVGPaintValue>()) {
-            fPresentationAttributes.fFill.set(*paint);
+            this->setFill(*paint);
         }
         break;
     case SkSVGAttribute::kFillOpacity:
         if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
-            fPresentationAttributes.fFillOpacity.set(
-                SkSVGNumberType(SkTPin<SkScalar>((*opacity)->value(), 0, 1)));
+            this->setFillOpacity(*opacity);
         }
         break;
     case SkSVGAttribute::kStroke:
         if (const SkSVGPaintValue* paint = v.as<SkSVGPaintValue>()) {
-            fPresentationAttributes.fStroke.set(*paint);
+            this->setStroke(*paint);
         }
         break;
     case SkSVGAttribute::kStrokeOpacity:
         if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
-            fPresentationAttributes.fStrokeOpacity.set(
-                SkSVGNumberType(SkTPin<SkScalar>((*opacity)->value(), 0, 1)));
+            this->setStrokeOpacity(*opacity);
         }
         break;
     case SkSVGAttribute::kStrokeLineCap:
@@ -69,7 +89,7 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         break;
     case SkSVGAttribute::kStrokeWidth:
         if (const SkSVGLengthValue* strokeWidth = v.as<SkSVGLengthValue>()) {
-            fPresentationAttributes.fStrokeWidth.set(*strokeWidth);
+            this->setStrokeWidth(*strokeWidth);
         }
         break;
     default:

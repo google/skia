@@ -26,6 +26,7 @@ public:
     static sk_sp<SkSVGDOM> MakeFromStream(SkStream&, const SkSize& containerSize);
 
     void setContainerSize(const SkSize&);
+    void setRoot(sk_sp<SkSVGNode>);
 
     void render(SkCanvas*) const;
 

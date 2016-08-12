@@ -96,6 +96,7 @@
     '../samplecode/SampleStringArt.cpp',
     '../samplecode/SampleStrokePath.cpp',
     '../samplecode/SampleSubpixelTranslate.cpp',
+    '../samplecode/SampleSVGPong.cpp',
     '../samplecode/SampleSVGFile.cpp',
     '../samplecode/SampleText.cpp',
     '../samplecode/SampleTextAlpha.cpp',

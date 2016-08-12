@@ -355,3 +355,7 @@ void SkSVGDOM::setContainerSize(const SkSize& containerSize) {
     // TODO: inval
     fContainerSize = containerSize;
 }
+
+void SkSVGDOM::setRoot(sk_sp<SkSVGNode> root) {
+    fRoot = std::move(root);
+}

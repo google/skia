@@ -37,6 +37,12 @@ public:
 
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
 
+    void setFill(const SkSVGPaint&);
+    void setFillOpacity(const SkSVGNumberType&);
+    void setStroke(const SkSVGPaint&);
+    void setStrokeOpacity(const SkSVGNumberType&);
+    void setStrokeWidth(const SkSVGLength&);
+
 protected:
     SkSVGNode(SkSVGTag);
 
