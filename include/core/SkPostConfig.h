@@ -275,18 +275,6 @@
 #  endif
 #endif
 
-/**
- * If your judgment is better than the compiler's (i.e. you've profiled it),
- * you can use SK_NEVER_INLINE to prevent inlining.
- */
-#if !defined(SK_NEVER_INLINE)
-#  if defined(SK_BUILD_FOR_WIN)
-#    define SK_NEVER_INLINE __declspec(noinline)
-#  else
-#    define SK_NEVER_INLINE SK_ATTRIBUTE(noinline)
-#  endif
-#endif
-
 //////////////////////////////////////////////////////////////////////
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1

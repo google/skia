@@ -1609,17 +1609,24 @@ private:
      */
     bool canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const SkPaint&);
 
-
-    /**
-     *  Keep track of the device clip bounds and if the matrix is scale-translate.  This allows
-     *  us to do a fast quick reject in the common case.
+    /*  These maintain a cache of the clip bounds in local coordinates,
+        (converted to 2s-compliment if floats are slow).
      */
-    bool   fConservativeIsScaleTranslate;
-    SkRect fDeviceClipBounds;
-
+    mutable SkRect fCachedLocalClipBounds;
+    mutable bool   fCachedLocalClipBoundsDirty;
     bool fAllowSoftClip;
     bool fAllowSimplifyClip;
     const bool fConservativeRasterClip;
+
+    const SkRect& getLocalClipBounds() const {
+        if (fCachedLocalClipBoundsDirty) {
+            if (!this->getClipBounds(&fCachedLocalClipBounds)) {
+                fCachedLocalClipBounds.setEmpty();
+            }
+            fCachedLocalClipBoundsDirty = false;
+        }
+        return fCachedLocalClipBounds;
+    }
 
     class AutoValidateClip : ::SkNoncopyable {
     public:
