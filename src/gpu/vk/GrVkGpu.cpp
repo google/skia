@@ -949,6 +949,31 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool copy_testing_data(GrVkGpu* gpu, void* srcData, GrVkAlloc* alloc,
+                       size_t srcRowBytes, size_t dstRowBytes, int h) {
+    void* mapPtr;
+    VkResult err = GR_VK_CALL(gpu->vkInterface(), MapMemory(gpu->device(),
+                                                            alloc->fMemory,
+                                                            alloc->fOffset,
+                                                            dstRowBytes * h,
+                                                            0,
+                                                            &mapPtr));
+    if (err) {
+        return false;
+    }
+
+    // If there is no padding on dst we can do a single memcopy.
+    // This assumes the srcData comes in with no padding.
+    if (srcRowBytes == dstRowBytes) {
+        memcpy(mapPtr, srcData, srcRowBytes * h);
+    } else {
+        SkRectMemcpy(mapPtr, static_cast<size_t>(dstRowBytes), srcData, srcRowBytes,
+                     srcRowBytes, h);
+    }
+    GR_VK_CALL(gpu->vkInterface(), UnmapMemory(gpu->device(), alloc->fMemory));
+    return true;
+}
+
 GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, int h,
                                                          GrPixelConfig config,
                                                          bool isRenderTarget) {
@@ -970,11 +995,6 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     if (fVkCaps->isConfigTexurableLinearly(config) &&
         (!isRenderTarget || fVkCaps->isConfigRenderableLinearly(config, false))) {
         linearTiling = true;
-    }
-
-    // Currently this is not supported since it requires a copy which has not yet been implemented.
-    if (srcData && !linearTiling) {
-        return 0;
     }
 
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -1024,6 +1044,8 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     }
 
     if (srcData) {
+        size_t bpp = GrBytesPerPixel(config);
+        size_t rowCopyBytes = bpp * w;
         if (linearTiling) {
             const VkImageSubresource subres = {
                 VK_IMAGE_ASPECT_COLOR_BIT,
@@ -1031,33 +1053,181 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
                 0,  // arraySlice
             };
             VkSubresourceLayout layout;
-            VkResult err;
 
             VK_CALL(GetImageSubresourceLayout(fDevice, image, &subres, &layout));
 
-            void* mapPtr;
-            err = VK_CALL(MapMemory(fDevice, alloc.fMemory, alloc.fOffset, layout.rowPitch * h,
-                                    0, &mapPtr));
+            if (!copy_testing_data(this, srcData, &alloc, rowCopyBytes, layout.rowPitch, h)) {
+                GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
+                VK_CALL(DestroyImage(fDevice, image, nullptr));
+                return 0;
+            }
+        } else {
+            SkASSERT(w && h);
+
+            VkBuffer buffer;
+            VkBufferCreateInfo bufInfo;
+            memset(&bufInfo, 0, sizeof(VkBufferCreateInfo));
+            bufInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+            bufInfo.flags = 0;
+            bufInfo.size = rowCopyBytes * h;
+            bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+            bufInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            bufInfo.queueFamilyIndexCount = 0;
+            bufInfo.pQueueFamilyIndices = nullptr;
+            VkResult err;
+            err = VK_CALL(CreateBuffer(fDevice, &bufInfo, nullptr, &buffer));
+
             if (err) {
                 GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
-                VK_CALL(DestroyImage(this->device(), image, nullptr));
+                VK_CALL(DestroyImage(fDevice, image, nullptr));
                 return 0;
             }
 
-            size_t bpp = GrBytesPerPixel(config);
-            size_t rowCopyBytes = bpp * w;
-            // If there is no padding on dst (layout.rowPitch) we can do a single memcopy.
-            // This assumes the srcData comes in with no padding.
-            if (rowCopyBytes == layout.rowPitch) {
-                memcpy(mapPtr, srcData, rowCopyBytes * h);
-            } else {
-                SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), srcData, rowCopyBytes,
-                             rowCopyBytes, h);
+            GrVkAlloc bufferAlloc = { VK_NULL_HANDLE, 0, 0 };
+            if (!GrVkMemory::AllocAndBindBufferMemory(this, buffer, GrVkBuffer::kCopyRead_Type,
+                                                      true, &bufferAlloc)) {
+                GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
+                VK_CALL(DestroyImage(fDevice, image, nullptr));
+                VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+                return 0;
             }
-            VK_CALL(UnmapMemory(fDevice, alloc.fMemory));
-        } else {
-            // TODO: Add support for copying to optimal tiling
-            SkASSERT(false);
+
+            if (!copy_testing_data(this, srcData, &bufferAlloc, rowCopyBytes, rowCopyBytes, h)) {
+                GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
+                VK_CALL(DestroyImage(fDevice, image, nullptr));
+                GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
+                VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+                return 0;
+            }
+
+            const VkCommandBufferAllocateInfo cmdInfo = {
+                VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
+                NULL,                                             // pNext
+                fCmdPool,                                         // commandPool
+                VK_COMMAND_BUFFER_LEVEL_PRIMARY,                  // level
+                1                                                 // bufferCount
+            };
+
+            VkCommandBuffer cmdBuffer;
+            err = VK_CALL(AllocateCommandBuffers(fDevice, &cmdInfo, &cmdBuffer));
+            if (err) {
+                GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
+                VK_CALL(DestroyImage(fDevice, image, nullptr));
+                GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
+                VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+                return 0;
+            }
+
+            VkCommandBufferBeginInfo cmdBufferBeginInfo;
+            memset(&cmdBufferBeginInfo, 0, sizeof(VkCommandBufferBeginInfo));
+            cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            cmdBufferBeginInfo.pNext = nullptr;
+            cmdBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+            cmdBufferBeginInfo.pInheritanceInfo = nullptr;
+
+            err = VK_CALL(BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
+            SkASSERT(!err);
+
+            // Set image layout and add barrier
+            VkImageMemoryBarrier barrier;
+            memset(&barrier, 0, sizeof(VkImageMemoryBarrier));
+            barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            barrier.pNext = nullptr;
+            barrier.srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(initialLayout);
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.image = image;
+            barrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0 , 1};
+
+            VK_CALL(CmdPipelineBarrier(cmdBuffer,
+                                       GrVkMemory::LayoutToPipelineStageFlags(initialLayout),
+                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                       0,
+                                       0, nullptr,
+                                       0, nullptr,
+                                       1, &barrier));
+            initialLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+            // Make sure buffer has finished the unmap
+            VkBufferMemoryBarrier bufBarrier;
+            memset(&barrier, 0, sizeof(VkImageMemoryBarrier));
+            bufBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            bufBarrier.pNext = nullptr;
+            bufBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+            bufBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            bufBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            bufBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            bufBarrier.buffer = buffer;
+            bufBarrier.offset = 0;
+            bufBarrier.size = bufInfo.size;
+
+            VK_CALL(CmdPipelineBarrier(cmdBuffer,
+                                       VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                       0,
+                                       0, nullptr,
+                                       1, &bufBarrier,
+                                       0, nullptr));
+
+            // Submit copy command
+            VkBufferImageCopy region;
+            memset(&region, 0, sizeof(VkBufferImageCopy));
+            region.bufferOffset = 0;
+            region.bufferRowLength = (uint32_t)rowCopyBytes;
+            region.bufferImageHeight = h;
+            region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+            region.imageOffset = { 0, 0, 0 };
+            region.imageExtent = { (uint32_t)w, (uint32_t)h, 1 };
+
+            VK_CALL(CmdCopyBufferToImage(cmdBuffer, buffer, image, initialLayout, 1, &region));
+
+            // End CommandBuffer
+            err = VK_CALL(EndCommandBuffer(cmdBuffer));
+            SkASSERT(!err);
+
+            // Create Fence for queue
+            VkFence fence;
+            VkFenceCreateInfo fenceInfo;
+            memset(&fenceInfo, 0, sizeof(VkFenceCreateInfo));
+            fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
+            err = VK_CALL(CreateFence(fDevice, &fenceInfo, nullptr, &fence));
+            SkASSERT(!err);
+
+            VkSubmitInfo submitInfo;
+            memset(&submitInfo, 0, sizeof(VkSubmitInfo));
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext = nullptr;
+            submitInfo.waitSemaphoreCount = 0;
+            submitInfo.pWaitSemaphores = nullptr;
+            submitInfo.pWaitDstStageMask = 0;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &cmdBuffer;
+            submitInfo.signalSemaphoreCount = 0;
+            submitInfo.pSignalSemaphores = nullptr;
+            err = VK_CALL(QueueSubmit(this->queue(), 1, &submitInfo, fence));
+            SkASSERT(!err);
+
+            err = VK_CALL(WaitForFences(fDevice, 1, &fence, true, UINT64_MAX));
+            if (VK_TIMEOUT == err) {
+                GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
+                VK_CALL(DestroyImage(fDevice, image, nullptr));
+                GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
+                VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+                VK_CALL(FreeCommandBuffers(fDevice, fCmdPool, 1, &cmdBuffer));
+                VK_CALL(DestroyFence(fDevice, fence, nullptr));
+                SkDebugf("Fence failed to signal: %d\n", err);
+                SkFAIL("failing");
+            }
+            SkASSERT(!err);
+
+            // Clean up transfer resources
+            GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
+            VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+            VK_CALL(FreeCommandBuffers(fDevice, fCmdPool, 1, &cmdBuffer));
+            VK_CALL(DestroyFence(fDevice, fence, nullptr));
         }
     }
 
