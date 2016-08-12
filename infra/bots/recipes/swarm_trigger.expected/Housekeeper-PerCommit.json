@@ -460,6 +460,16 @@
     "cmd": [
       "python",
       "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/go/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "read go VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
       "[SLAVE_BUILD]/swarming_temp_dir",
       "511"
@@ -601,6 +611,8 @@
       "slavename:skiabot-linux-swarm-000",
       "--tag",
       "stepname:housekeeper_skia on Ubuntu",
+      "--cipd-package",
+      "go:skia/bots/go:version:0",
       "def456",
       "--",
       "--workdir",

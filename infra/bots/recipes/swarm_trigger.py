@@ -271,7 +271,9 @@ def housekeeper_swarm(api, builder_cfg, got_revision, infrabots_dir,
       infrabots_dir,
       idempotent=False,
       store_output=False,
-      extra_isolate_hashes=extra_isolate_hashes)
+      extra_isolate_hashes=extra_isolate_hashes,
+      cipd_packages=[cipd_pkg(api, infrabots_dir, 'go')],
+      )
   return api.swarming.collect_swarming_task(task)
 
 

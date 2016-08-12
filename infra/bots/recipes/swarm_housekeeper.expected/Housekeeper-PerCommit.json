@@ -68,6 +68,38 @@
     "name": "generate and upload binary size data"
   },
   {
+    "cmd": [
+      "[SLAVE_BUILD]/go/go/bin/go",
+      "get",
+      "go.skia.org/infra/comments/go/extract_comments"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "GOPATH": "[SLAVE_BUILD]/tmp/golib",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "compile extract_comments"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/tmp/golib/bin/extract_comments",
+      "--dir",
+      "gm",
+      "--dest",
+      "gs://skia-doc/gm/comments.json"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "GOPATH": "[SLAVE_BUILD]/tmp/golib",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "run extract_comments"
+  },
+  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0
