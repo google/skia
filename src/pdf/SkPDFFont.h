@@ -132,7 +132,7 @@ public:
      *  @return       nullptr if font does not support subsetting, a new instance
      *                of SkPDFFont otherwise.
      */
-    virtual SkPDFFont* getFontSubset(const SkPDFGlyphSet* usage);
+    virtual sk_sp<SkPDFObject> getFontSubset(const SkPDFGlyphSet* usage);
 
     enum Match {
         kExact_Match,

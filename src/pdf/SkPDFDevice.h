@@ -291,7 +291,8 @@ private:
     int addGraphicStateResource(SkPDFObject* gs);
     int addXObjectResource(SkPDFObject* xObject);
 
-    void updateFont(const SkPaint& paint, uint16_t glyphID, ContentEntry* contentEntry);
+    // returns false when a valid SkFont can not be produced
+    bool updateFont(const SkPaint& paint, uint16_t glyphID, ContentEntry* contentEntry);
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);

@@ -1206,7 +1206,11 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     SkPDFGlyphSetMap* fontGlyphUsage = fDocument->getGlyphUsage();
 
     while (numGlyphs > consumedGlyphCount) {
-        this->updateFont(textPaint, glyphIDs[consumedGlyphCount], content.entry());
+        if (!this->updateFont(textPaint, glyphIDs[consumedGlyphCount], content.entry())) {
+            SkDebugf("SkPDF: Font error.");
+            content.entry()->fContent.writeText("ET\n%SkPDF: Font error.\n");
+            return;
+        }
         SkPDFFont* font = content.entry()->fState.fFont;
 
         int availableGlyphs = font->glyphsToPDFFontEncoding(
@@ -1273,7 +1277,11 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
     SkAutoGlyphCache autoGlyphCache(textPaint, nullptr, nullptr);
 
     content.entry()->fContent.writeText("BT\n");
-    this->updateFont(textPaint, glyphIDs[0], content.entry());
+    if (!this->updateFont(textPaint, glyphIDs[0], content.entry())) {
+        SkDebugf("SkPDF: Font error.");
+        content.entry()->fContent.writeText("ET\n%SkPDF: Font error.\n");
+        return;
+    }
     GlyphPositioner glyphPositioner(&content.entry()->fContent,
                                     textPaint.getTextSkewX(),
                                     content.entry()->fState.fFont->multiByteGlyphs());
@@ -1286,7 +1294,11 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
             // The current pdf font cannot encode the current glyph.
             // Try to get a pdf font which can encode the current glyph.
             glyphPositioner.flush();
-            this->updateFont(textPaint, glyphIDs[i], content.entry());
+            if (!this->updateFont(textPaint, glyphIDs[i], content.entry())) {
+                SkDebugf("SkPDF: Font error.");
+                content.entry()->fContent.writeText("ET\n%SkPDF: Font error.\n");
+                return;
+            }
             font = content.entry()->fState.fFont;
             glyphPositioner.setWideChars(font->multiByteGlyphs());
             if (font->glyphsToPDFFontEncoding(&encodedValue, 1) != 1) {
@@ -1997,13 +2009,16 @@ int SkPDFDevice::addXObjectResource(SkPDFObject* xObject) {
     return result;
 }
 
-void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
+bool SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
                              SkPDFDevice::ContentEntry* contentEntry) {
     SkTypeface* typeface = paint.getTypeface();
     if (contentEntry->fState.fFont == nullptr ||
             contentEntry->fState.fTextSize != paint.getTextSize() ||
             !contentEntry->fState.fFont->hasGlyph(glyphID)) {
         int fontIndex = getFontResourceIndex(typeface, glyphID);
+        if (fontIndex < 0) {
+            return false;
+        }
         contentEntry->fContent.writeText("/");
         contentEntry->fContent.writeText(SkPDFResourceDict::getResourceName(
                 SkPDFResourceDict::kFont_ResourceType,
@@ -2013,11 +2028,15 @@ void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
         contentEntry->fContent.writeText(" Tf\n");
         contentEntry->fState.fFont = fFontResources[fontIndex];
     }
+    return true;
 }
 
 int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
     sk_sp<SkPDFFont> newFont(
             SkPDFFont::GetFontResource(fDocument->canon(), typeface, glyphID));
+    if (!newFont) {
+        return -1;
+    }
     int resourceIndex = fFontResources.find(newFont.get());
     if (resourceIndex < 0) {
         resourceIndex = fFontResources.count();
