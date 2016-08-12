@@ -24,6 +24,7 @@
     '../samplecode/SampleAARects.cpp',
     '../samplecode/SampleAARectModes.cpp',
     '../samplecode/SampleAll.cpp',
+    '../samplecode/SampleAndroidShadows.cpp',
     '../samplecode/SampleAnimatedText.cpp',
     '../samplecode/SampleAnimBlur.cpp',
     '../samplecode/SampleArc.cpp',
