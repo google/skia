@@ -182,8 +182,9 @@ private:
     void updateLights() {        
         SkLights::Builder builder;
 
-        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f), fLightDir));
-        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.add(SkLights::Light::MakeDirectional(
+                SkColor3f::Make(1.0f, 1.0f, 1.0f), fLightDir));
+        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
 
         fLights = builder.finish();
     }

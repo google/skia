@@ -416,30 +416,7 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
     bool hasLocalMatrix = buf.readBool();
     SkAssertResult(!hasLocalMatrix);
 
-    int numLights = buf.readInt();
-
-    SkLights::Builder builder;
-
-    for (int l = 0; l < numLights; ++l) {
-        bool isAmbient = buf.readBool();
-
-        SkColor3f color;
-        if (!buf.readScalarArray(&color.fX, 3)) {
-            return nullptr;
-        }
-
-        if (isAmbient) {
-            builder.add(SkLights::Light(color));
-        } else {
-            SkVector3 dir;
-            if (!buf.readScalarArray(&dir.fX, 3)) {
-                return nullptr;
-            }
-            builder.add(SkLights::Light(color, dir));
-        }
-    }
-
-    sk_sp<SkLights> lights(builder.finish());
+    sk_sp<SkLights> lights = SkLights::MakeFromBuffer(buf);
 
     sk_sp<SkNormalSource> normalSource(buf.readFlattenable<SkNormalSource>());
 
@@ -456,18 +433,7 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
     this->INHERITED::flatten(buf);
 
-    buf.writeInt(fLights->numLights());
-    for (int l = 0; l < fLights->numLights(); ++l) {
-        const SkLights::Light& light = fLights->light(l);
-
-        bool isAmbient = SkLights::Light::kAmbient_LightType == light.type();
-
-        buf.writeBool(isAmbient);
-        buf.writeScalarArray(&light.color().fX, 3);
-        if (!isAmbient) {
-            buf.writeScalarArray(&light.dir().fX, 3);
-        }
-    }
+    fLights->flatten(buf);
 
     buf.writeFlattenable(fNormalSource.get());
     buf.writeBool(fDiffuseShader);

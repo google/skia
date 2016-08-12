@@ -36,9 +36,9 @@ protected:
         SkLights::Builder builder;
         const SkVector3 kLightFromUpperRight = SkVector3::Make(0.788f, 0.394f, 0.473f);
 
-        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                    kLightFromUpperRight));
-        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, 1.0f),
+                                                     kLightFromUpperRight));
+        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
         fLights = builder.finish();
 
         // fRect is assumed to be square throughout this file

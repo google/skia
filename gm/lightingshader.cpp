@@ -48,11 +48,11 @@ public:
 
         SkLights::Builder builder;
 
-        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                    SkVector3::Make(SK_ScalarRoot2Over2,
-                                                    0.0f,
-                                                    SK_ScalarRoot2Over2)));
-        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, 1.0f),
+                                                     SkVector3::Make(SK_ScalarRoot2Over2,
+                                                                     0.0f,
+                                                                     SK_ScalarRoot2Over2)));
+        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
 
         fLights = builder.finish();
     }

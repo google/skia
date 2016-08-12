@@ -556,9 +556,9 @@ DEF_TEST(Serialization, reporter) {
 
         SkLights::Builder builder;
 
-        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                    SkVector3::Make(1.0f, 0.0f, 0.0f)));
-        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, 1.0f),
+                                                     SkVector3::Make(1.0f, 0.0f, 0.0f)));
+        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
 
         sk_sp<SkLights> fLights = builder.finish();
 

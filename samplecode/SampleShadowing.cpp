@@ -19,11 +19,11 @@ public:
 
         this->setBGColor(0xFFCCCCCC);
         SkLights::Builder builder;
-        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.3f, 0.4f),
-                                    SkVector3::Make(0.2f, 0.05f, 1.0f)));
-        builder.add(SkLights::Light(SkColor3f::Make(0.4f, 0.3f, 0.2f),
-                                    SkVector3::Make(0.05f, 0.2f, 1.0f)));
-        builder.add(SkLights::Light(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.2f, 0.3f, 0.4f),
+                                                     SkVector3::Make(0.2f, 0.05f, 1.0f)));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.4f, 0.3f, 0.2f),
+                                                     SkVector3::Make(0.05f, 0.2f, 1.0f)));
+        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
         fLights = builder.finish();
 
         fTestRects[0].fColor = 0xFFEE8888;
@@ -139,15 +139,18 @@ protected:
                 float recipY = 1.0f / kHeight;
 
                 SkLights::Builder builder;
-                builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.3f, 0.4f),
-                                            SkVector3::Make(0.2f + (200.0f - x) * recipX,
-                                                            0.05f + (200.0f - y) * recipY,
-                                                            1.0f)));
-                builder.add(SkLights::Light(SkColor3f::Make(0.4f, 0.3f, 0.2f),
-                                            SkVector3::Make(0.05f + (200.0f - x) * recipX,
-                                                            0.2f + (200.0f - y) * recipY,
-                                                            1.0f)));
-                builder.add(SkLights::Light(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
+                builder.add(SkLights::Light::MakeDirectional(
+                        SkColor3f::Make(0.2f, 0.3f, 0.4f),
+                        SkVector3::Make(0.2f + (200.0f - x) * recipX,
+                                        0.05f + (200.0f - y) * recipY,
+                                        1.0f)));
+                builder.add(SkLights::Light::MakeDirectional(
+                        SkColor3f::Make(0.4f, 0.3f, 0.2f),
+                        SkVector3::Make(0.05f + (200.0f - x) * recipX,
+                                        0.2f + (200.0f - y) * recipY,
+                                        1.0f)));
+                builder.add(SkLights::Light::MakeAmbient(
+                        SkColor3f::Make(0.4f, 0.4f, 0.4f)));
                 fLights = builder.finish();
 
                 fLightsChanged = true;

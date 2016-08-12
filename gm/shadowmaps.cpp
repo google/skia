@@ -70,11 +70,11 @@ public:
         //   - soft white ambient light
 
         SkLights::Builder builder;
-        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.3f, 0.4f),
-                                    SkVector3::Make(0.2f, 0.1f, 1.0f)));
-        builder.add(SkLights::Light(SkColor3f::Make(0.4f, 0.3f, 0.2f),
-                                    SkVector3::Make(0.1f, 0.2f, 1.0f)));
-        builder.add(SkLights::Light(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.2f, 0.3f, 0.4f),
+                                                     SkVector3::Make(0.2f, 0.1f, 1.0f)));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.4f, 0.3f, 0.2f),
+                                                     SkVector3::Make(0.1f, 0.2f, 1.0f)));
+        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
         fLights = builder.finish();
     }
 

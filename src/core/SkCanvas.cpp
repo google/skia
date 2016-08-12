@@ -3198,8 +3198,8 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
     // povDepthMap
     {
         SkLights::Builder builder;
-        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                    SkVector3::Make(0.0f, 0.0f, 1.0f)));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, 1.0f),
+                                                     SkVector3::Make(0.0f, 0.0f, 1.0f)));
         sk_sp<SkLights> povLight = builder.finish();
 
         SkImageInfo info = SkImageInfo::Make(picture->cullRect().width(),
