@@ -219,6 +219,8 @@
       '<(skia_src_path)/gpu/batches/GrAAFillRectBatch.h',
       '<(skia_src_path)/gpu/batches/GrAAStrokeRectBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrAAStrokeRectBatch.h',
+      '<(skia_src_path)/gpu/batches/GrAnalyticRectBatch.cpp',
+      '<(skia_src_path)/gpu/batches/GrAnalyticRectBatch.h',
       '<(skia_src_path)/gpu/batches/GrAtlasTextBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrAtlasTextBatch.h',
       '<(skia_src_path)/gpu/batches/GrBatch.cpp',

@@ -10,9 +10,11 @@
 
 #include "GrAAFillRectBatch.h"
 #include "GrAAStrokeRectBatch.h"
+#include "GrAnalyticRectBatch.h"
 #include "GrColor.h"
 #include "GrNonAAFillRectBatch.h"
 #include "GrNonAAStrokeRectBatch.h"
+#include "GrPaint.h"
 #include "SkMatrix.h"
 
 class GrBatch;
@@ -37,11 +39,17 @@ inline GrDrawBatch* CreateNonAAFill(GrColor color,
     }
 }
 
-inline GrDrawBatch* CreateAAFill(GrColor color,
+inline GrDrawBatch* CreateAAFill(const GrPaint& paint,
                                  const SkMatrix& viewMatrix,
                                  const SkRect& rect,
+                                 const SkRect& croppedRect,
                                  const SkRect& devRect) {
-    return GrAAFillRectBatch::Create(color, viewMatrix, rect, devRect);
+    if (!paint.usesDistanceVectorField()) {
+        return GrAAFillRectBatch::Create(paint.getColor(), viewMatrix, croppedRect, devRect);
+    } else {
+        return GrAnalyticRectBatch::CreateAnalyticRectBatch(paint.getColor(), viewMatrix, rect,
+                                                            croppedRect, devRect);
+    }
 }
 
 inline GrDrawBatch* CreateAAFill(GrColor color,

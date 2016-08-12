@@ -385,8 +385,8 @@ bool GrDrawContext::drawFilledRect(const GrClip& clip,
             SkRect devBoundRect;
             viewMatrix.mapRect(&devBoundRect, croppedRect);
 
-            batch.reset(GrRectBatchFactory::CreateAAFill(paint.getColor(), viewMatrix,
-                                                         croppedRect, devBoundRect));
+            batch.reset(GrRectBatchFactory::CreateAAFill(paint, viewMatrix, rect, croppedRect,
+                                                         devBoundRect));
             if (batch) {
                 GrPipelineBuilder pipelineBuilder(paint, useHWAA);
                 if (ss) {

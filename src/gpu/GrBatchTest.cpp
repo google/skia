@@ -17,6 +17,7 @@ DRAW_BATCH_TEST_EXTERN(AAFillRectBatch);
 DRAW_BATCH_TEST_EXTERN(AAFillRectBatchLocalMatrix);
 DRAW_BATCH_TEST_EXTERN(AAHairlineBatch);
 DRAW_BATCH_TEST_EXTERN(AAStrokeRectBatch);
+DRAW_BATCH_TEST_EXTERN(AnalyticRectBatch);
 DRAW_BATCH_TEST_EXTERN(DashBatch);
 DRAW_BATCH_TEST_EXTERN(DefaultPathBatch);
 DRAW_BATCH_TEST_EXTERN(CircleBatch);
@@ -36,6 +37,7 @@ static BatchTestFunc gTestBatches[] = {
     DRAW_BATCH_TEST_ENTRY(AAFillRectBatchLocalMatrix),
     DRAW_BATCH_TEST_ENTRY(AAHairlineBatch),
     DRAW_BATCH_TEST_ENTRY(AAStrokeRectBatch),
+    DRAW_BATCH_TEST_ENTRY(AnalyticRectBatch),
     DRAW_BATCH_TEST_ENTRY(DashBatch),
     DRAW_BATCH_TEST_ENTRY(DefaultPathBatch),
     DRAW_BATCH_TEST_ENTRY(CircleBatch),
