@@ -427,3 +427,41 @@ bool SkSVGAttributeParser::parseLineJoin(SkSVGLineJoin* join) {
 
     return parsedValue && this->parseEOSToken();
 }
+
+// https://www.w3.org/TR/SVG/shapes.html#PolygonElementPointsAttribute
+bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
+    SkTDArray<SkPoint> pts;
+
+    bool parsedValue = false;
+    for (;;) {
+        this->parseWSToken();
+
+        SkScalar x, y;
+        if (!this->parseScalarToken(&x)) {
+            break;
+        }
+
+        // comma-wsp:
+        //     (wsp+ comma? wsp*) | (comma wsp*)
+        bool wsp   = this->parseWSToken();
+        bool comma = this->parseExpectedStringToken(",");
+        if (!(wsp || comma)) {
+            break;
+        }
+        this->parseWSToken();
+
+        if (!this->parseScalarToken(&y)) {
+            break;
+        }
+
+        pts.push(SkPoint::Make(x, y));
+        parsedValue = true;
+    }
+
+    if (parsedValue && this->parseEOSToken()) {
+        *points = pts;
+        return true;
+    }
+
+    return false;
+}

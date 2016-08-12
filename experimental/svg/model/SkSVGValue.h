@@ -24,6 +24,7 @@ public:
         kNumber,
         kPaint,
         kPath,
+        kPoints,
         kTransform,
         kViewBox,
     };
@@ -75,5 +76,6 @@ using SkSVGPaintValue     = SkSVGWrapperValue<SkSVGPaint        , SkSVGValue::Ty
 using SkSVGLineCapValue   = SkSVGWrapperValue<SkSVGLineCap      , SkSVGValue::Type::kLineCap  >;
 using SkSVGLineJoinValue  = SkSVGWrapperValue<SkSVGLineJoin     , SkSVGValue::Type::kLineJoin >;
 using SkSVGNumberValue    = SkSVGWrapperValue<SkSVGNumberType   , SkSVGValue::Type::kNumber   >;
+using SkSVGPointsValue    = SkSVGWrapperValue<SkSVGPointsType   , SkSVGValue::Type::kPoints   >;
 
 #endif // SkSVGValue_DEFINED

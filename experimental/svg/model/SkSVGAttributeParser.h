@@ -22,6 +22,7 @@ public:
     bool parsePaint(SkSVGPaint*);
     bool parseLineCap(SkSVGLineCap*);
     bool parseLineJoin(SkSVGLineJoin*);
+    bool parsePoints(SkSVGPointsType*);
 
 private:
     // Stack-only

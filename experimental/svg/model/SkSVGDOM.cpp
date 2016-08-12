@@ -14,6 +14,7 @@
 #include "SkSVGG.h"
 #include "SkSVGNode.h"
 #include "SkSVGPath.h"
+#include "SkSVGPoly.h"
 #include "SkSVGRect.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGSVG.h"
@@ -122,6 +123,18 @@ bool SetLineJoinAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetPointsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                        const char* stringValue) {
+    SkSVGPointsType points;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parsePoints(&points)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGPointsValue(points));
+    return true;
+}
+
 SkString TrimmedString(const char* first, const char* last) {
     SkASSERT(first);
     SkASSERT(last);
@@ -204,6 +217,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "fill"           , { SkSVGAttribute::kFill          , SetPaintAttribute     }},
     { "fill-opacity"   , { SkSVGAttribute::kFillOpacity   , SetNumberAttribute    }},
     { "height"         , { SkSVGAttribute::kHeight        , SetLengthAttribute    }},
+    { "points"         , { SkSVGAttribute::kPoints        , SetPointsAttribute    }},
     { "rx"             , { SkSVGAttribute::kRx            , SetLengthAttribute    }},
     { "ry"             , { SkSVGAttribute::kRy            , SetLengthAttribute    }},
     { "stroke"         , { SkSVGAttribute::kStroke        , SetPaintAttribute     }},
@@ -220,10 +234,12 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
 };
 
 SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
-    { "g"   , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();    }},
-    { "path", []() -> sk_sp<SkSVGNode> { return SkSVGPath::Make(); }},
-    { "rect", []() -> sk_sp<SkSVGNode> { return SkSVGRect::Make(); }},
-    { "svg" , []() -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();  }},
+    { "g"       , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();            }},
+    { "path"    , []() -> sk_sp<SkSVGNode> { return SkSVGPath::Make();         }},
+    { "polygon" , []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolygon();  }},
+    { "polyline", []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolyline(); }},
+    { "rect"    , []() -> sk_sp<SkSVGNode> { return SkSVGRect::Make();         }},
+    { "svg"     , []() -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();          }},
 };
 
 struct ConstructionContext {

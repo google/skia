@@ -57,6 +57,8 @@
         '../experimental/svg/model/SkSVGNode.cpp',
         '../experimental/svg/model/SkSVGPath.h',
         '../experimental/svg/model/SkSVGPath.cpp',
+        '../experimental/svg/model/SkSVGPoly.h',
+        '../experimental/svg/model/SkSVGPoly.cpp',
         '../experimental/svg/model/SkSVGRect.h',
         '../experimental/svg/model/SkSVGRect.cpp',
         '../experimental/svg/model/SkSVGRenderContext.h',

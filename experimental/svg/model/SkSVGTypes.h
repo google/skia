@@ -10,8 +10,10 @@
 
 #include "SkColor.h"
 #include "SkMatrix.h"
+#include "SkPoint.h"
 #include "SkRect.h"
 #include "SkScalar.h"
+#include "SkTDArray.h"
 #include "SkTypes.h"
 
 template <typename T>
@@ -22,6 +24,7 @@ public:
 
     SkSVGPrimitiveTypeWrapper(const SkSVGPrimitiveTypeWrapper&)            = default;
     SkSVGPrimitiveTypeWrapper& operator=(const SkSVGPrimitiveTypeWrapper&) = default;
+    SkSVGPrimitiveTypeWrapper& operator=(const T& v) { fValue = v; return *this; }
 
     bool operator==(const SkSVGPrimitiveTypeWrapper<T>& other) const {
         return fValue == other.fValue;
@@ -41,6 +44,7 @@ using SkSVGColorType      = SkSVGPrimitiveTypeWrapper<SkColor >;
 using SkSVGNumberType     = SkSVGPrimitiveTypeWrapper<SkScalar>;
 using SkSVGViewBoxType    = SkSVGPrimitiveTypeWrapper<SkRect  >;
 using SkSVGTransformType  = SkSVGPrimitiveTypeWrapper<SkMatrix>;
+using SkSVGPointsType     = SkSVGPrimitiveTypeWrapper<SkTDArray<SkPoint>>;
 
 class SkSVGLength {
 public:

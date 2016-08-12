@@ -19,6 +19,8 @@ class SkSVGValue;
 enum class SkSVGTag {
     kG,
     kPath,
+    kPolygon,
+    kPolyline,
     kRect,
     kSvg
 };
