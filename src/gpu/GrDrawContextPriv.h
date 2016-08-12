@@ -34,7 +34,6 @@ public:
                      const SkRect& rect);
 
     void stencilPath(const GrClip&,
-                     const GrUserStencilSettings* ss,
                      bool useHWAA,
                      const SkMatrix& viewMatrix,
                      const GrPath*);

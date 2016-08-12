@@ -542,11 +542,10 @@ void GrDrawContextPriv::clearStencilClip(const SkIRect& rect, bool insideClip) {
 }
 
 void GrDrawContextPriv::stencilPath(const GrClip& clip, 
-                                    const GrUserStencilSettings* ss,
                                     bool useHWAA,
                                     const SkMatrix& viewMatrix,
                                     const GrPath* path) {
-    fDrawContext->getDrawTarget()->stencilPath(fDrawContext, clip, ss, useHWAA, viewMatrix, path);
+    fDrawContext->getDrawTarget()->stencilPath(fDrawContext, clip, useHWAA, viewMatrix, path);
 }
 
 void GrDrawContextPriv::stencilRect(const GrFixedClip& clip,

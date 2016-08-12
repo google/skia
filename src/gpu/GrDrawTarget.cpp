@@ -417,7 +417,6 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
 
 void GrDrawTarget::stencilPath(GrDrawContext* drawContext,
                                const GrClip& clip,
-                               const GrUserStencilSettings* ss,
                                bool useHWAA,
                                const SkMatrix& viewMatrix,
                                const GrPath* path) {
@@ -427,7 +426,7 @@ void GrDrawTarget::stencilPath(GrDrawContext* drawContext,
 
     // Setup clip
     GrAppliedClip appliedClip;
-    if (!clip.apply(fContext, drawContext, nullptr, useHWAA, SkToBool(ss), &appliedClip)) {
+    if (!clip.apply(fContext, drawContext, nullptr, useHWAA, true, &appliedClip)) {
         return;
     }
     // TODO: respect fClipBatchToBounds if we ever start computing bounds here.

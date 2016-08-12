@@ -111,14 +111,14 @@ public:
     void addBatch(sk_sp<GrBatch>);
 
     /**
-     * Draws path into the stencil buffer. The path's fill must be either even/odd or
-     * winding (not inverse or hairline). It will respect the HW antialias boolean
-     * (if possible in the 3D API).  Note, we will never have an inverse
-     * fill with stencil path
+     * Draws the path into user stencil bits. Upon return, all user stencil values
+     * inside the path will be nonzero. The path's fill must be either even/odd or
+     * winding (notnverse or hairline).It will respect the HW antialias boolean (if
+     * possible in the 3D API).  Note, we will never have an inverse fill with
+     * stencil path.
      */
     void stencilPath(GrDrawContext*,
                      const GrClip&,
-                     const GrUserStencilSettings*,
                      bool useHWAA,
                      const SkMatrix& viewMatrix,
                      const GrPath*);

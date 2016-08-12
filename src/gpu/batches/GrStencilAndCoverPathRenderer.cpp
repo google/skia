@@ -76,8 +76,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     args.fShape->asPath(&path);
 
     SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, GrStyle::SimpleFill()));
-    args.fDrawContext->drawContextPriv().stencilPath(*args.fClip, nullptr, args.fIsAA,
-                                                     *args.fViewMatrix, p);
+    args.fDrawContext->drawContextPriv().stencilPath(*args.fClip, args.fIsAA, *args.fViewMatrix, p);
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -94,25 +93,6 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, args.fShape->style()));
 
     if (path.isInverseFillType()) {
-        static constexpr GrUserStencilSettings kInvertedCoverPass(
-            GrUserStencilSettings::StaticInit<
-                0x0000,
-                // We know our rect will hit pixels outside the clip and the user bits will be 0
-                // outside the clip. So we can't just fill where the user bits are 0. We also need
-                // to check that the clip bit is set.
-                GrUserStencilTest::kEqualIfInClip,
-                0xffff,
-                GrUserStencilOp::kKeep,
-                GrUserStencilOp::kZero,
-                0xffff>()
-        );
-
-        // fake inverse with a stencil and cover
-        args.fDrawContext->drawContextPriv().stencilPath(*args.fClip,
-                                                         &kInvertedCoverPass,
-                                                         args.fPaint->isAntiAlias(),
-                                                         viewMatrix, p);
-
         SkMatrix invert = SkMatrix::I();
         SkRect bounds =
             SkRect::MakeLTRB(0, 0,
@@ -137,7 +117,24 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                 GrRectBatchFactory::CreateNonAAFill(args.fPaint->getColor(), viewM, bounds,
                                                     nullptr, &invert));
 
+        // fake inverse with a stencil and cover
+        args.fDrawContext->drawContextPriv().stencilPath(*args.fClip, args.fPaint->isAntiAlias(),
+                                                         viewMatrix, p);
+
         {
+            static constexpr GrUserStencilSettings kInvertedCoverPass(
+                GrUserStencilSettings::StaticInit<
+                    0x0000,
+                    // We know our rect will hit pixels outside the clip and the user bits will
+                    // be 0 outside the clip. So we can't just fill where the user bits are 0. We
+                    // also need to check that the clip bit is set.
+                    GrUserStencilTest::kEqualIfInClip,
+                    0xffff,
+                    GrUserStencilOp::kKeep,
+                    GrUserStencilOp::kZero,
+                    0xffff>()
+            );
+
             GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                               args.fPaint->isAntiAlias() &&
                                               !args.fDrawContext->hasMixedSamples());
