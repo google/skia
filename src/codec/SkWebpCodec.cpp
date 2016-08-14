@@ -90,9 +90,6 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
             break;
         case 2:
             // This is the lossless format (BGRA).
-            // FIXME: Should we check the has_alpha flag here?  It looks
-            //        like the image is encoded with an alpha channel
-            //        regardless of whether or not the alpha flag is set.
             color = SkEncodedInfo::kBGRA_Color;
             alpha = SkEncodedInfo::kUnpremul_Alpha;
             break;
