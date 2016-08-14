@@ -1863,7 +1863,7 @@ bool SkCanvas::quickReject(const SkRect& src) const {
     // Verify that fDeviceClipBounds are set properly.
     SkRect tmp = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
     if (fMCRec->fRasterClip.isEmpty()) {
-        SkASSERT(fDeviceClipBounds.isEmpty() || tmp == fDeviceClipBounds);
+        SkASSERT(fDeviceClipBounds.isEmpty());
     } else {
         SkASSERT(tmp == fDeviceClipBounds);
     }
