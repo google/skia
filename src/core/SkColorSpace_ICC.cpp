@@ -787,7 +787,9 @@ static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkColorSpace::GammaNa
             if (SkGammas::Type::kNamed_Type == rType) {
                 *gammaNamed = rData.fNamed;
             } else {
-                size_t allocSize = sizeof(SkGammas) + gamma_alloc_size(rType, rData);
+                size_t allocSize = sizeof(SkGammas);
+                return_if_false(safe_add(allocSize, gamma_alloc_size(rType, rData), &allocSize),
+                                "SkGammas struct is too large to allocate");
                 void* memory = sk_malloc_throw(allocSize);
                 *gammas = sk_sp<SkGammas>(new (memory) SkGammas());
                 load_gammas(memory, 0, rType, &rData, rParams, rTagPtr);
@@ -819,9 +821,13 @@ static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkColorSpace::GammaNa
                                                        tagLen);
             handle_invalid_gamma(&bType, &bData);
 
-            size_t allocSize = sizeof(SkGammas) + gamma_alloc_size(rType, rData)
-                                                + gamma_alloc_size(gType, gData)
-                                                + gamma_alloc_size(bType, bData);
+            size_t allocSize = sizeof(SkGammas);
+            return_if_false(safe_add(allocSize, gamma_alloc_size(rType, rData), &allocSize),
+                            "SkGammas struct is too large to allocate");
+            return_if_false(safe_add(allocSize, gamma_alloc_size(gType, gData), &allocSize),
+                            "SkGammas struct is too large to allocate");
+            return_if_false(safe_add(allocSize, gamma_alloc_size(bType, bData), &allocSize),
+                            "SkGammas struct is too large to allocate");
             void* memory = sk_malloc_throw(allocSize);
             *gammas = sk_sp<SkGammas>(new (memory) SkGammas());
 
@@ -970,7 +976,10 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                         if (SkGammas::Type::kNamed_Type == type) {
                             gammaNamed = data.fNamed;
                         } else {
-                            size_t allocSize = sizeof(SkGammas) + gamma_alloc_size(type, data);
+                            size_t allocSize = sizeof(SkGammas);
+                            if (!safe_add(allocSize, gamma_alloc_size(type, data), &allocSize)) {
+                                return_null("SkGammas struct is too large to allocate");
+                            }
                             void* memory = sk_malloc_throw(allocSize);
                             gammas = sk_sp<SkGammas>(new (memory) SkGammas());
                             load_gammas(memory, 0, type, &data, params, r->addr(base));
@@ -1002,9 +1011,13 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                                 parse_gamma(&bData, &bParams, &tagBytes, b->addr(base), b->fLength);
                         handle_invalid_gamma(&bType, &bData);
 
-                        size_t allocSize = sizeof(SkGammas) + gamma_alloc_size(rType, rData)
-                                                            + gamma_alloc_size(gType, gData)
-                                                            + gamma_alloc_size(bType, bData);
+                        size_t allocSize = sizeof(SkGammas);
+                        if (!safe_add(allocSize, gamma_alloc_size(rType, rData), &allocSize) ||
+                            !safe_add(allocSize, gamma_alloc_size(gType, gData), &allocSize) ||
+                            !safe_add(allocSize, gamma_alloc_size(bType, bData), &allocSize))
+                        {
+                            return_null("SkGammas struct is too large to allocate");
+                        }
                         void* memory = sk_malloc_throw(allocSize);
                         gammas = sk_sp<SkGammas>(new (memory) SkGammas());
 
