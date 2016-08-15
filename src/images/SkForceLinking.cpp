@@ -14,8 +14,7 @@
 int SkForceLinking(bool doNotPassTrue) {
     if (doNotPassTrue) {
         SkASSERT(false);
-#if !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_IOS) && \
-    defined(SK_HAS_JPEG_LIBRARY)
+#if defined(SK_HAS_JPEG_LIBRARY)
         CreateJPEGImageEncoder();
 #endif
 #if defined(SK_HAS_WEBP_LIBRARY)
