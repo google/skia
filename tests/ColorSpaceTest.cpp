@@ -259,3 +259,10 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), upperRight.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperRight.get(), adobe.get()));
 }
+
+DEF_TEST(ColorSpace_CRBug, r) {
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("invalid_images/crbug636268.png").c_str());
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
+    REPORTER_ASSERT(r, codec.get());
+}
