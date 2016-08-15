@@ -1012,45 +1012,60 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-static sk_sp<GrTexture> make_rrect_blur_mask(GrContext* context,
-                                             const SkRRect& rrect,
-                                             float sigma,
-                                             bool doAA) {
-    SkRRect rrectToDraw;
-    SkISize size;
-    SkScalar xs[4], ys[4];
-    int numXs, numYs;
+static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
+                                                       const SkRRect& rrectToDraw,
+                                                       const SkISize& size,
+                                                       float xformedSigma,
+                                                       bool doAA) {
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 9);
+    builder[0] = SkScalarCeilToInt(xformedSigma-1/6.0f);
 
-    SkBlurMaskFilter::ComputeBlurredRRectParams(rrect, sigma, &rrectToDraw, &size,
-                                                xs, &numXs, ys, &numYs);
-
-    // TODO: this could be approx but the texture coords will need to be updated
-    sk_sp<GrDrawContext> dc(context->makeDrawContext(SkBackingFit::kExact,
-                                                     size.fWidth, size.fHeight,
-                                                     kAlpha_8_GrPixelConfig, nullptr));
-    if (!dc) {
-        return nullptr;
+    int index = 1;
+    for (auto c : { SkRRect::kUpperLeft_Corner,  SkRRect::kUpperRight_Corner,
+                    SkRRect::kLowerRight_Corner, SkRRect::kLowerLeft_Corner }) {
+        SkASSERT(SkScalarIsInt(rrectToDraw.radii(c).fX) && SkScalarIsInt(rrectToDraw.radii(c).fY));
+        builder[index++] = SkScalarCeilToInt(rrectToDraw.radii(c).fX);
+        builder[index++] = SkScalarCeilToInt(rrectToDraw.radii(c).fY);
     }
+    builder.finish();
+
+    sk_sp<GrTexture> mask(context->textureProvider()->findAndRefTextureByUniqueKey(key));
+    if (!mask) {
+        // TODO: this could be approx but the texture coords will need to be updated
+        sk_sp<GrDrawContext> dc(context->makeDrawContext(SkBackingFit::kExact,
+                                                         size.fWidth, size.fHeight,
+                                                         kAlpha_8_GrPixelConfig, nullptr));
+        if (!dc) {
+            return nullptr;
+        }
                 
-    GrPaint grPaint;
-    grPaint.setAntiAlias(doAA);
+        GrPaint grPaint;
+        grPaint.setAntiAlias(doAA);
 
-    dc->clear(nullptr, 0x0, true);
-    dc->drawRRect(GrNoClip(), grPaint, SkMatrix::I(), rrectToDraw, GrStyle::SimpleFill());
+        dc->clear(nullptr, 0x0, true);
+        dc->drawRRect(GrNoClip(), grPaint, SkMatrix::I(), rrectToDraw, GrStyle::SimpleFill());
 
-    sk_sp<GrTexture> tex(dc->asTexture());
-    sk_sp<GrDrawContext> dc2(SkGpuBlurUtils::GaussianBlur(context,
-                                                          tex.get(),
-                                                          nullptr,
-                                                          SkIRect::MakeWH(size.fWidth,
-                                                                          size.fHeight),
-                                                          nullptr,
-                                                          sigma, sigma, SkBackingFit::kExact));
-    if (!dc2) {
-        return nullptr;
+        sk_sp<GrTexture> srcTexture(dc->asTexture());
+        sk_sp<GrDrawContext> dc2(SkGpuBlurUtils::GaussianBlur(context,
+                                                              srcTexture.get(),
+                                                              nullptr,
+                                                              SkIRect::MakeWH(size.fWidth,
+                                                                              size.fHeight),
+                                                              nullptr,
+                                                              xformedSigma, xformedSigma,
+                                                              SkBackingFit::kExact));
+        if (!dc2) {
+            return nullptr;
+        }
+
+        mask = dc2->asTexture();
+        SkASSERT(mask);
+        context->textureProvider()->assignUniqueKeyToTexture(key, mask.get());
     }
 
-    return dc2->asTexture();
+    return mask;
 }
 
 sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
@@ -1066,33 +1081,28 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
     // Make sure we can successfully ninepatch this rrect -- the blur sigma has to be
     // sufficiently small relative to both the size of the corner radius and the
     // width (and height) of the rrect.
+    SkRRect rrectToDraw;
+    SkISize size;
+    SkScalar ignored[4];
+    int ignoredSize;
 
-    unsigned int blurRadius = 3*SkScalarCeilToInt(xformedSigma-1/6.0f);
-    unsigned int cornerRadius = SkScalarCeilToInt(devRRect.getSimpleRadii().x());
-    if (cornerRadius + blurRadius > devRRect.width()/2 ||
-        cornerRadius + blurRadius > devRRect.height()/2) {
+    bool ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(devRRect, xformedSigma,
+                                                                     &rrectToDraw, &size,
+                                                                     ignored, &ignoredSize,
+                                                                     ignored, &ignoredSize);
+    if (!ninePatchable) {
         return nullptr;
     }
 
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey key;
-    GrUniqueKey::Builder builder(&key, kDomain, 2);
-    builder[0] = blurRadius;
-    builder[1] = cornerRadius;
-    builder.finish();
-
-    sk_sp<GrTexture> blurNinePatchTexture(
-                                context->textureProvider()->findAndRefTextureByUniqueKey(key));
-
-    if (!blurNinePatchTexture) {
-        blurNinePatchTexture = make_rrect_blur_mask(context, devRRect, xformedSigma, true);
-        if (!blurNinePatchTexture) {
-            return nullptr;
-        }
-        context->textureProvider()->assignUniqueKeyToTexture(key, blurNinePatchTexture.get());
+    sk_sp<GrTexture> mask(find_or_create_rrect_blur_mask(context, rrectToDraw, size,
+                                                         xformedSigma, true));
+    if (!mask) {
+        return nullptr;
     }
-    return sk_sp<GrFragmentProcessor>(new GrRRectBlurEffect(xformedSigma, devRRect,
-                                                            blurNinePatchTexture.get()));
+
+    return sk_sp<GrFragmentProcessor>(new GrRRectBlurEffect(xformedSigma,
+                                                            devRRect,
+                                                            mask.get()));
 }
 
 void GrRRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
