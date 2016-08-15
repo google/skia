@@ -506,6 +506,11 @@ typedef struct sk_colortable_t sk_colortable_t;
 
 typedef struct sk_pixelref_factory_t sk_pixelref_factory_t;
 
+typedef struct sk_xmlstreamwriter_t sk_xmlstreamwriter_t;
+typedef struct sk_xmlwriter_t sk_xmlwriter_t;
+
+typedef struct sk_svgcanvas_t sk_svgcanvas_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

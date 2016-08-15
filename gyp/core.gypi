@@ -32,6 +32,8 @@
         '<(skia_include_path)/c/sk_surface.h',
         '<(skia_include_path)/c/sk_typeface.h',
         '<(skia_include_path)/c/sk_types.h',
+        '<(skia_include_path)/c/sk_xml.h',
+        '<(skia_include_path)/c/sk_svg.h',
         '<(skia_src_path)/c/sk_bitmap.cpp',
         '<(skia_src_path)/c/sk_canvas.cpp',
         '<(skia_src_path)/c/sk_codec.cpp',
@@ -54,6 +56,8 @@
         '<(skia_src_path)/c/sk_surface.cpp',
         '<(skia_src_path)/c/sk_typeface.cpp',
         '<(skia_src_path)/c/sk_types_priv.h',
+        '<(skia_src_path)/c/sk_xml.cpp',
+        '<(skia_src_path)/c/sk_svg.cpp',
 
         '<(skia_src_path)/core/Sk4px.h',
         '<(skia_src_path)/core/SkAAClip.cpp',

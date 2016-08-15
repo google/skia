@@ -27,6 +27,8 @@
         '../include/private',
         '../include/utils',
         '../include/images',
+        '../include/xml',
+        '../include/svg',
         '../src/core',
         '../src/sfnt',
         '../src/image',
