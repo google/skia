@@ -18,6 +18,7 @@ enum class SkSVGAttribute {
     kFill,
     kFillOpacity,
     kHeight,
+    kOpacity,
     kPoints,
     kRx,
     kRy,
@@ -48,6 +49,8 @@ struct SkSVGPresentationAttributes {
     SkTLazy<SkSVGLineJoin>   fStrokeLineJoin;
     SkTLazy<SkSVGNumberType> fStrokeOpacity;
     SkTLazy<SkSVGLength>     fStrokeWidth;
+
+    SkTLazy<SkSVGNumberType> fOpacity;
 };
 
 #endif // SkSVGAttribute_DEFINED

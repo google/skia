@@ -39,6 +39,7 @@ public:
 
     void setFill(const SkSVGPaint&);
     void setFillOpacity(const SkSVGNumberType&);
+    void setOpacity(const SkSVGNumberType&);
     void setStroke(const SkSVGPaint&);
     void setStrokeOpacity(const SkSVGNumberType&);
     void setStrokeWidth(const SkSVGLength&);

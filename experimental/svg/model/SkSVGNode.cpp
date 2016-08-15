@@ -42,6 +42,11 @@ void SkSVGNode::setFillOpacity(const SkSVGNumberType& opacity) {
         SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
 }
 
+void SkSVGNode::setOpacity(const SkSVGNumberType& opacity) {
+    fPresentationAttributes.fOpacity.set(
+        SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
+}
+
 void SkSVGNode::setStroke(const SkSVGPaint& svgPaint) {
     fPresentationAttributes.fStroke.set(svgPaint);
 }
@@ -65,6 +70,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     case SkSVGAttribute::kFillOpacity:
         if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
             this->setFillOpacity(*opacity);
+        }
+        break;
+    case SkSVGAttribute::kOpacity:
+        if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
+            this->setOpacity(*opacity);
         }
         break;
     case SkSVGAttribute::kStroke:

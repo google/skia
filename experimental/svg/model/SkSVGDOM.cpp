@@ -217,6 +217,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "fill"           , { SkSVGAttribute::kFill          , SetPaintAttribute     }},
     { "fill-opacity"   , { SkSVGAttribute::kFillOpacity   , SetNumberAttribute    }},
     { "height"         , { SkSVGAttribute::kHeight        , SetLengthAttribute    }},
+    { "opacity"        , { SkSVGAttribute::kOpacity       , SetNumberAttribute    }},
     { "points"         , { SkSVGAttribute::kPoints        , SetPointsAttribute    }},
     { "rx"             , { SkSVGAttribute::kRx            , SetLengthAttribute    }},
     { "ry"             , { SkSVGAttribute::kRy            , SetLengthAttribute    }},

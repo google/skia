@@ -224,6 +224,15 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(StrokeWidth);
 
 #undef ApplyLazyInheritedAttribute
+
+    // Uninherited attributes.  Only apply to the current context.
+
+    if (auto* opacity = attrs.fOpacity.getMaybeNull()) {
+        SkPaint opacityPaint;
+        opacityPaint.setAlpha(static_cast<uint8_t>(opacity->value() * 255));
+        // Balanced in the destructor, via restoreToCount().
+        fCanvas->saveLayer(nullptr, &opacityPaint);
+    }
 }
 
 const SkPaint* SkSVGRenderContext::fillPaint() const {
