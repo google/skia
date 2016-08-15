@@ -1056,7 +1056,8 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
 
             VK_CALL(GetImageSubresourceLayout(fDevice, image, &subres, &layout));
 
-            if (!copy_testing_data(this, srcData, &alloc, rowCopyBytes, layout.rowPitch, h)) {
+            if (!copy_testing_data(this, srcData, &alloc, rowCopyBytes,
+                                   static_cast<size_t>(layout.rowPitch), h)) {
                 GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
                 VK_CALL(DestroyImage(fDevice, image, nullptr));
                 return 0;
