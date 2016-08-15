@@ -158,6 +158,23 @@ public:
             }
         }
 
+        bool contains(const SkRRect& rrect) const {
+            switch (fType) {
+                case kRect_Type:
+                    return this->getRect().contains(rrect.getBounds());
+                case kRRect_Type:
+                    // We don't currently have a generalized rrect-rrect containment.
+                    return fRRect.contains(rrect.getBounds()) || rrect == fRRect;
+                case kPath_Type:
+                    return fPath.get()->conservativelyContainsRect(rrect.getBounds());
+                case kEmpty_Type:
+                    return false;
+                default:
+                    SkDEBUGFAIL("Unexpected type.");
+                    return false;
+            }
+        }
+
         /**
          * Is the clip shape inverse filled.
          */
@@ -312,11 +329,12 @@ public:
                    bool* isIntersectionOfRects = NULL) const;
 
     /**
-     * Returns true if the input rect in device space is entirely contained
-     * by the clip. A return value of false does not guarantee that the rect
+     * Returns true if the input (r)rect in device space is entirely contained
+     * by the clip. A return value of false does not guarantee that the (r)rect
      * is not contained by the clip.
      */
     bool quickContains(const SkRect& devRect) const;
+    bool quickContains(const SkRRect& devRRect) const;
 
     /**
      * Flattens the clip stack into a single SkPath. Returns true if any of

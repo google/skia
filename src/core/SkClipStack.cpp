@@ -646,6 +646,31 @@ bool SkClipStack::quickContains(const SkRect& rect) const {
     return true;
 }
 
+bool SkClipStack::quickContains(const SkRRect& rrect) const {
+
+    Iter iter(*this, Iter::kTop_IterStart);
+    const Element* element = iter.prev();
+    while (element != nullptr) {
+        if (SkRegion::kIntersect_Op != element->getOp() && SkRegion::kReplace_Op != element->getOp())
+            return false;
+        if (element->isInverseFilled()) {
+            // Part of 'rrect' could be trimmed off by the inverse-filled clip element
+            if (SkRect::Intersects(element->getBounds(), rrect.getBounds())) {
+                return false;
+            }
+        } else {
+            if (!element->contains(rrect)) {
+                return false;
+            }
+        }
+        if (SkRegion::kReplace_Op == element->getOp()) {
+            break;
+        }
+        element = iter.prev();
+    }
+    return true;
+}
+
 bool SkClipStack::asPath(SkPath *path) const {
     bool isAA = false;
 

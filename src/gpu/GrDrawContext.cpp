@@ -781,7 +781,7 @@ void GrDrawContext::drawAtlas(const GrClip& clip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrDrawContext::drawRRect(const GrClip& clip,
+void GrDrawContext::drawRRect(const GrClip& origClip,
                               const GrPaint& paint,
                               const SkMatrix& viewMatrix,
                               const SkRRect& rrect,
@@ -790,11 +790,23 @@ void GrDrawContext::drawRRect(const GrClip& clip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawRRect");
-
     if (rrect.isEmpty()) {
        return;
     }
 
+    GrNoClip noclip;
+    const GrClip* clip = &origClip;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // The Android framework frequently clips rrects to themselves where the clip is non-aa and the
+    // draw is aa. Since our lower level clip code works from batch bounds, which are SkRects, it
+    // doesn't detect that the clip can be ignored (modulo antialiasing). The following test
+    // attempts to mitigate the stencil clip cost but will only help when the entire clip stack
+    // can be ignored. We'd prefer to fix this in the framework by removing the clips calls.
+    SkRRect devRRect;
+    if (rrect.transform(viewMatrix, &devRRect) && clip->quickContains(devRRect)) {
+        clip = &noclip;
+    }
+#endif
     SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
 
     AutoCheckFlush acf(fDrawingManager);
@@ -809,7 +821,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
                                                         &useHWAA));
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, *clip, batch);
             return;
         }
     }
@@ -823,7 +835,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
                                                                          shaderCaps));
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, *clip, batch);
             return;
         }
     }
@@ -831,7 +843,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
     SkPath path;
     path.setIsVolatile(true);
     path.addRRect(rrect);
-    this->internalDrawPath(clip, paint, viewMatrix, path, style);
+    this->internalDrawPath(*clip, paint, viewMatrix, path, style);
 }
 
 bool GrDrawContext::drawFilledDRRect(const GrClip& clip,

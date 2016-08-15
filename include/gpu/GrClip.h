@@ -66,6 +66,9 @@ private:
 class GrClip {
 public:
     virtual bool quickContains(const SkRect&) const = 0;
+    virtual bool quickContains(const SkRRect& rrect) const {
+        return this->quickContains(rrect.getBounds());
+    }
     virtual void getConservativeBounds(int width, int height, SkIRect* devResult,
                                        bool* isIntersectionOfRects = nullptr) const = 0;
     virtual bool apply(GrContext*, GrDrawContext*, bool useHWAA, bool hasUserStencilSettings,

@@ -30,6 +30,14 @@ bool GrClipStackClip::quickContains(const SkRect& rect) const {
                                                  SkIntToScalar(fOrigin.y())));
 }
 
+bool GrClipStackClip::quickContains(const SkRRect& rrect) const {
+    if (!fStack) {
+        return true;
+    }
+    return fStack->quickContains(rrect.makeOffset(SkIntToScalar(fOrigin.fX),
+                                                  SkIntToScalar(fOrigin.fY)));
+}
+
 void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devResult,
                                             bool* isIntersectionOfRects) const {
     if (!fStack) {
