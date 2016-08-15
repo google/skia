@@ -87,6 +87,20 @@ public:
             fShadowMap = b.fShadowMap;
             return *this;
         }
+
+        bool operator== (const Light& b) {
+            if (this == &b) {
+                return true;
+            }
+
+            return (fColor     == b.fColor) &&
+                   (fType      == b.fType) &&
+                   (fDirection == b.fDirection) &&
+                   (fShadowMap == b.fShadowMap);
+        }
+
+        bool operator!= (const Light& b) { return !(this->operator==(b)); }
+
     private:
         LightType   fType;
         SkColor3f   fColor;           // linear (unpremul) color. Range is 0..1 in each channel.
