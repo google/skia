@@ -37,7 +37,7 @@ public:
         return SkToBool(ConfigInfo::kRenderable_Flag & fConfigTable[config].fOptimalFlags);
     }
 
-    bool isConfigTexurableLinearly(GrPixelConfig config) const {
+    bool isConfigTexturableLinearly(GrPixelConfig config) const {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fLinearFlags);
     }
 

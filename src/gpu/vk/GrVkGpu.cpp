@@ -638,7 +638,7 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
             SkDebugf("Trying to create linear tiled texture with mipmap");
             return nullptr;
         }
-        if (fVkCaps->isConfigTexurableLinearly(desc.fConfig) &&
+        if (fVkCaps->isConfigTexturableLinearly(desc.fConfig) &&
             (!renderTarget || fVkCaps->isConfigRenderableLinearly(desc.fConfig, false))) {
             linearTiling = true;
         } else {
@@ -992,7 +992,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
         return 0;
     }
 
-    if (fVkCaps->isConfigTexurableLinearly(config) &&
+    if (fVkCaps->isConfigTexturableLinearly(config) &&
         (!isRenderTarget || fVkCaps->isConfigRenderableLinearly(config, false))) {
         linearTiling = true;
     }
@@ -1175,7 +1175,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
             VkBufferImageCopy region;
             memset(&region, 0, sizeof(VkBufferImageCopy));
             region.bufferOffset = 0;
-            region.bufferRowLength = (uint32_t)rowCopyBytes;
+            region.bufferRowLength = w;
             region.bufferImageHeight = h;
             region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
             region.imageOffset = { 0, 0, 0 };

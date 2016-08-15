@@ -655,7 +655,7 @@ sk_sp<GrDrawContext> GrContextPriv::makeBackendRenderTargetDrawContext(
 }
 
 sk_sp<GrDrawContext> GrContextPriv::makeBackendTextureAsRenderTargetDrawContext(
-                                                     const GrBackendTextureDesc& desc, 
+                                                     const GrBackendTextureDesc& desc,
                                                      sk_sp<SkColorSpace> colorSpace,
                                                      const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
