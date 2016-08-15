@@ -11,8 +11,12 @@ under the BSD Free Software License.  While engineering of the core components
 is done by the Skia development team, we consider contributions from any
 source.
 
-The canonical source tree is here:
-[skia.googlesource.com/skia](https://skia.googlesource.com/skia).
+  * Canonical source tree:
+    [skia.googlesource.com/skia](https://skia.googlesource.com/skia).
+  * Issue tracker:
+    [bug.skia.org](https://bug.skia.org/).
+  * Discussion forum:
+    [skia-discuss@googlegroups.com](https://groups.google.com/forum/#!forum/skia-discuss).
 
 Showcase
 --------
