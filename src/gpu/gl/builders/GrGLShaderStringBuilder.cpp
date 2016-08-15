@@ -73,6 +73,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                 GrGLsizei length = GR_GL_INIT_ZERO;
                 GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1, &length, (char*)log.get()));
                 print_shader_source(strings, lengths, count);
+                SkDebugf("\n%s", (const char*)log.get());
             }
             SkDEBUGFAIL("Shader compilation failed!");
             GR_GL_CALL(gli, DeleteShader(shaderId));
