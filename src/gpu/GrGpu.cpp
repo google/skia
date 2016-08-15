@@ -277,6 +277,12 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, size
         return false;
     }
 
+    // We currently do not support reading into the packed formats 565 or 4444 as they are not
+    // required to have read back support on all devices and backends.
+    if (kRGB_565_GrPixelConfig == readConfig || kRGBA_4444_GrPixelConfig == readConfig) {
+        return false;
+    }
+
     if (!this->onGetReadPixelsInfo(srcSurface, width, height, rowBytes, readConfig, drawPreference,
                                    tempDrawInfo)) {
         return false;
