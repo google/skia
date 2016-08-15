@@ -36,7 +36,13 @@ public:
     virtual ~SkColorSpaceXform() {}
 };
 
-template <SkColorSpace::GammaNamed kDst>
+enum ColorSpaceMatch {
+    kNone_ColorSpaceMatch,
+    kGamut_ColorSpaceMatch,
+    kFull_ColorSpaceMatch,
+};
+
+template <SkColorSpace::GammaNamed kDst, ColorSpaceMatch kCSM>
 class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
 
