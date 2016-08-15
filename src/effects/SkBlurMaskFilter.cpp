@@ -1053,15 +1053,13 @@ static sk_sp<GrTexture> make_rrect_blur_mask(GrContext* context,
     return dc2->asTexture();
 }
 
-sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context, float sigma,
-                                                   const SkRRect& rrect) {
-    if (rrect.isCircle()) {
-        return GrCircleBlurFragmentProcessor::Make(context->textureProvider(),
-                                                   rrect.rect(), sigma);
-    }
+sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
+                                                   float xformedSigma,
+                                                   const SkRRect& devRRect) {
+    SkASSERT(!devRRect.isCircle()); // Should've been caught up-stream
 
     // TODO: loosen this up
-    if (!rrect.isSimpleCircular()) {
+    if (!devRRect.isSimpleCircular()) {
         return nullptr;
     }
 
@@ -1069,10 +1067,10 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context, float sig
     // sufficiently small relative to both the size of the corner radius and the
     // width (and height) of the rrect.
 
-    unsigned int blurRadius = 3*SkScalarCeilToInt(sigma-1/6.0f);
-    unsigned int cornerRadius = SkScalarCeilToInt(rrect.getSimpleRadii().x());
-    if (cornerRadius + blurRadius > rrect.width()/2 ||
-        cornerRadius + blurRadius > rrect.height()/2) {
+    unsigned int blurRadius = 3*SkScalarCeilToInt(xformedSigma-1/6.0f);
+    unsigned int cornerRadius = SkScalarCeilToInt(devRRect.getSimpleRadii().x());
+    if (cornerRadius + blurRadius > devRRect.width()/2 ||
+        cornerRadius + blurRadius > devRRect.height()/2) {
         return nullptr;
     }
 
@@ -1087,13 +1085,14 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context, float sig
                                 context->textureProvider()->findAndRefTextureByUniqueKey(key));
 
     if (!blurNinePatchTexture) {
-        blurNinePatchTexture = make_rrect_blur_mask(context, rrect, sigma, true);
+        blurNinePatchTexture = make_rrect_blur_mask(context, devRRect, xformedSigma, true);
         if (!blurNinePatchTexture) {
             return nullptr;
         }
         context->textureProvider()->assignUniqueKeyToTexture(key, blurNinePatchTexture.get());
     }
-    return sk_sp<GrFragmentProcessor>(new GrRRectBlurEffect(sigma, rrect, blurNinePatchTexture.get()));
+    return sk_sp<GrFragmentProcessor>(new GrRRectBlurEffect(xformedSigma, devRRect,
+                                                            blurNinePatchTexture.get()));
 }
 
 void GrRRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -1249,6 +1248,26 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
     }
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
+
+    if (devRRect.isCircle()) {
+        sk_sp<GrFragmentProcessor> fp(GrCircleBlurFragmentProcessor::Make(
+                                                                        context->textureProvider(),
+                                                                        devRRect.rect(),
+                                                                        xformedSigma));
+        if (!fp) {
+            return false;
+        }
+
+        GrPaint newPaint(*grp);
+        newPaint.addCoverageFragmentProcessor(std::move(fp));
+        newPaint.setAntiAlias(false);
+
+        SkRect srcProxyRect = srcRRect.rect();
+        srcProxyRect.outset(3.0f*fSigma, 3.0f*fSigma);
+
+        drawContext->drawRect(clip, newPaint, viewMatrix, srcProxyRect);
+        return true;
+    }
 
     sk_sp<GrFragmentProcessor> fp(GrRRectBlurEffect::Make(context, xformedSigma, devRRect));
     if (!fp) {
