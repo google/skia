@@ -196,3 +196,26 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFl
 
     return drawable;
 }
+
+#include "SkLiteDL.h"
+#include "SkLiteRecorder.h"
+
+SkPictureRecorder_Lite:: SkPictureRecorder_Lite() : fRecorder(new SkLiteRecorder) {}
+SkPictureRecorder_Lite::~SkPictureRecorder_Lite() {}
+
+SkCanvas* SkPictureRecorder_Lite::beginRecording(const SkRect& bounds) {
+    fDL = SkLiteDL::New(bounds);
+    fRecorder->reset(fDL.get());
+    return this->getRecordingCanvas();
+}
+
+SkCanvas* SkPictureRecorder_Lite::getRecordingCanvas() {
+    return fDL ? fRecorder.get() : nullptr;
+}
+
+sk_sp<SkDrawable> SkPictureRecorder_Lite::finishRecordingAsDrawable(uint32_t) {
+    if (fGrContextToOptimizeFor) {
+        fDL->optimizeFor(fGrContextToOptimizeFor);
+    }
+    return std::move(fDL);
+}
