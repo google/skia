@@ -425,6 +425,13 @@ struct GrScissorState {
     GrScissorState(const SkIRect& rect) : fEnabled(true), fRect(rect) {}
     void setDisabled() { fEnabled = false; }
     void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
+    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& rect) {
+        if (!fEnabled) {
+            this->set(rect);
+            return true;
+        }
+        return fRect.intersect(rect);
+    }
     bool operator==(const GrScissorState& other) const {
         return fEnabled == other.fEnabled &&
                 (false == fEnabled || fRect == other.fRect);

@@ -321,51 +321,38 @@ static void batch_bounds(SkRect* bounds, const GrBatch* batch) {
     }
 }
 
-static inline bool intersect(SkRect* out, const SkRect& a, const SkRect& b) {
-    SkASSERT(a.fLeft <= a.fRight && a.fTop <= a.fBottom);
-    SkASSERT(b.fLeft <= b.fRight && b.fTop <= b.fBottom);
-    out->fLeft   = SkTMax(a.fLeft,   b.fLeft);
-    out->fTop    = SkTMax(a.fTop,    b.fTop);
-    out->fRight  = SkTMin(a.fRight,  b.fRight);
-    out->fBottom = SkTMin(a.fBottom, b.fBottom);
-    return (out->fLeft <= out->fRight && out->fTop <= out->fBottom);
-}
-
 void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
                              GrDrawContext* drawContext,
                              const GrClip& clip,
                              GrDrawBatch* batch) {
     // Setup clip
-    GrAppliedClip appliedClip;
     SkRect bounds;
     batch_bounds(&bounds, batch);
-    if (!clip.apply(fContext, drawContext, &bounds,
-                    pipelineBuilder.isHWAntialias(), pipelineBuilder.hasUserStencilSettings(),
-                    &appliedClip)) {
+    GrAppliedClip appliedClip(bounds);
+    if (!clip.apply(fContext, drawContext, pipelineBuilder.isHWAntialias(),
+                    pipelineBuilder.hasUserStencilSettings(), &appliedClip)) {
         return;
     }
 
     // TODO: this is the only remaining usage of the AutoRestoreFragmentProcessorState - remove it
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
-    if (appliedClip.getClipCoverageFragmentProcessor()) {
+    if (appliedClip.clipCoverageFragmentProcessor()) {
         arfps.set(&pipelineBuilder);
-        arfps.addCoverageFragmentProcessor(sk_ref_sp(appliedClip.getClipCoverageFragmentProcessor()));
+        arfps.addCoverageFragmentProcessor(sk_ref_sp(appliedClip.clipCoverageFragmentProcessor()));
     }
 
-    GrPipeline::CreateArgs args;
-    args.fPipelineBuilder = &pipelineBuilder;
-    args.fDrawContext = drawContext;
-    args.fCaps = this->caps();
-    args.fScissor = &appliedClip.scissorState();
-    args.fHasStencilClip = appliedClip.hasStencilClip();
     if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
         if (!fResourceProvider->attachStencilAttachment(drawContext->accessRenderTarget())) {
             SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
             return;
         }
     }
+
+    GrPipeline::CreateArgs args;
+    args.fPipelineBuilder = &pipelineBuilder;
+    args.fDrawContext = drawContext;
+    args.fCaps = this->caps();
     batch->getPipelineOptimizations(&args.fOpts);
-    GrScissorState finalScissor;
     if (args.fOpts.fOverrides.fUsePLSDstRead || fClipBatchToBounds) {
         GrGLIRect viewport;
         viewport.fLeft = 0;
@@ -381,14 +368,9 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
                                viewport.fWidth);
         ibounds.fBottom = SkTPin(SkScalarCeilToInt(batch->bounds().fBottom), viewport.fBottom,
                                 viewport.fHeight);
-        if (appliedClip.scissorState().enabled()) {
-            const SkIRect& scissorRect = appliedClip.scissorState().rect();
-            if (!ibounds.intersect(scissorRect)) {
-                return;
-            }
+        if (!appliedClip.addScissor(ibounds)) {
+            return;
         }
-        finalScissor.set(ibounds);
-        args.fScissor = &finalScissor;
     }
     args.fOpts.fColorPOI.completeCalculations(
         sk_sp_address_as_pointer_address(pipelineBuilder.fColorFragmentProcessors.begin()),
@@ -396,6 +378,8 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     args.fOpts.fCoveragePOI.completeCalculations(
         sk_sp_address_as_pointer_address(pipelineBuilder.fCoverageFragmentProcessors.begin()),
         pipelineBuilder.numCoverageFragmentProcessors());
+    args.fScissor = &appliedClip.scissorState();
+    args.fHasStencilClip = appliedClip.hasStencilClip();
     if (!this->setupDstReadIfNecessary(pipelineBuilder, drawContext->accessRenderTarget(),
                                        clip, args.fOpts,
                                        &args.fDstTexture, batch->bounds())) {
@@ -410,9 +394,7 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(fRenderTarget);
     batch->pipeline()->addDependenciesTo(fRenderTarget);
 #endif
-    SkRect clippedBounds;
-    SkAssertResult(intersect(&clippedBounds, bounds, appliedClip.deviceBounds()));
-    this->recordBatch(batch, clippedBounds);
+    this->recordBatch(batch, appliedClip.clippedDrawBounds());
 }
 
 void GrDrawTarget::stencilPath(GrDrawContext* drawContext,
@@ -424,16 +406,20 @@ void GrDrawTarget::stencilPath(GrDrawContext* drawContext,
     SkASSERT(path);
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
 
+    // FIXME: Use path bounds instead of this WAR once
+    // https://bugs.chromium.org/p/skia/issues/detail?id=5640 is resolved.
+    SkRect bounds = SkRect::MakeIWH(drawContext->width(), drawContext->height());
+
     // Setup clip
-    GrAppliedClip appliedClip;
-    if (!clip.apply(fContext, drawContext, nullptr, useHWAA, true, &appliedClip)) {
+    GrAppliedClip appliedClip(bounds);
+    if (!clip.apply(fContext, drawContext, useHWAA, true, &appliedClip)) {
         return;
     }
     // TODO: respect fClipBatchToBounds if we ever start computing bounds here.
 
     // Coverage AA does not make sense when rendering to the stencil buffer. The caller should never
     // attempt this in a situation that would require coverage AA.
-    SkASSERT(!appliedClip.getClipCoverageFragmentProcessor());
+    SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
 
     GrStencilAttachment* stencilAttachment = fResourceProvider->attachStencilAttachment(
                                                 drawContext->accessRenderTarget());
@@ -450,7 +436,7 @@ void GrDrawTarget::stencilPath(GrDrawContext* drawContext,
                                                 appliedClip.scissorState(),
                                                 drawContext->accessRenderTarget(),
                                                 path);
-    this->recordBatch(batch, appliedClip.deviceBounds());
+    this->recordBatch(batch, appliedClip.clippedDrawBounds());
     batch->unref();
 }
 

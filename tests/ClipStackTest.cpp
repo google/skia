@@ -916,7 +916,8 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
     // they are equal.
 
     // All the clip elements will be contained within these bounds.
-    static const SkRect kBounds = SkRect::MakeWH(100, 100);
+    static const SkIRect kIBounds = SkIRect::MakeWH(100, 100);
+    static const SkRect kBounds = SkRect::Make(kIBounds);
 
     enum {
         kNumTests = 250,
@@ -1015,13 +1016,14 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
                                 testCase.c_str());
 
         if (!reduced.elements().isEmpty()) {
+            REPORTER_ASSERT_MESSAGE(reporter, reduced.hasIBounds(), testCase.c_str());
             SkRect stackBounds;
             SkClipStack::BoundsType stackBoundsType;
             stack.getBounds(&stackBounds, &stackBoundsType);
             if (SkClipStack::kNormal_BoundsType == stackBoundsType) {
                 // Unless GrReducedClip starts doing some heroic tightening of the clip bounds, this
                 // will be true since the stack bounds are completely contained inside the query.
-                REPORTER_ASSERT_MESSAGE(reporter, GrClip::IsInsideClip(reduced.iBounds(), stackBounds),
+                REPORTER_ASSERT_MESSAGE(reporter, GrClip::IsInsideClip(reduced.ibounds(), stackBounds),
                                         testCase.c_str());
             }
             REPORTER_ASSERT_MESSAGE(reporter, reduced.requiresAA() == doAA, testCase.c_str());
@@ -1037,16 +1039,18 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
             add_elem_to_stack(*iter.get(), &reducedStack);
         }
 
+        SkIRect ibounds = reduced.hasIBounds() ? reduced.ibounds() : kIBounds;
+
         // GrReducedClipStack assumes that the final result is clipped to the returned bounds
-        reducedStack.clipDevRect(reduced.iBounds(), SkRegion::kIntersect_Op);
-        stack.clipDevRect(reduced.iBounds(), SkRegion::kIntersect_Op);
+        reducedStack.clipDevRect(ibounds, SkRegion::kIntersect_Op);
+        stack.clipDevRect(ibounds, SkRegion::kIntersect_Op);
 
         // convert both the original stack and reduced stack to SkRegions and see if they're equal
         SkRegion region;
-        set_region_to_stack(stack, reduced.iBounds(), &region);
+        set_region_to_stack(stack, ibounds, &region);
 
         SkRegion reducedRegion;
-        set_region_to_stack(reducedStack, reduced.iBounds(), &reducedRegion);
+        set_region_to_stack(reducedStack, ibounds, &reducedRegion);
 
         REPORTER_ASSERT_MESSAGE(reporter, region == reducedRegion, testCase.c_str());
     }
@@ -1151,8 +1155,10 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
             SkASSERT(reduced.genID() == testCases[i].reducedGenID);
             REPORTER_ASSERT(reporter, reduced.initialState() == testCases[i].initialState);
             SkASSERT(reduced.initialState() == testCases[i].initialState);
-            REPORTER_ASSERT(reporter, reduced.iBounds() == testCases[i].clipIRect);
-            SkASSERT(reduced.iBounds() == testCases[i].clipIRect);
+            REPORTER_ASSERT(reporter, reduced.hasIBounds());
+            SkASSERT(reduced.hasIBounds());
+            REPORTER_ASSERT(reporter, reduced.ibounds() == testCases[i].clipIRect);
+            SkASSERT(reduced.ibounds() == testCases[i].clipIRect);
         }
     }
 }
@@ -1197,7 +1203,9 @@ static void test_aa_query(skiatest::Reporter* reporter, const SkString& testName
             return;
         case ClipMethod::kIgnoreClip:
             SkASSERT(0 == numExpectedElems);
-            REPORTER_ASSERT_MESSAGE(reporter, GrClip::IsInsideClip(reduced.iBounds(), queryBounds),
+            REPORTER_ASSERT_MESSAGE(reporter,
+                                    !reduced.hasIBounds() ||
+                                    GrClip::IsInsideClip(reduced.ibounds(), queryBounds),
                                     testName.c_str());
             REPORTER_ASSERT_MESSAGE(reporter, reduced.elements().isEmpty(), testName.c_str());
             REPORTER_ASSERT_MESSAGE(reporter,
@@ -1210,7 +1218,8 @@ static void test_aa_query(skiatest::Reporter* reporter, const SkString& testName
             SkIRect expectedScissor;
             stackBounds.round(&expectedScissor);
             REPORTER_ASSERT_MESSAGE(reporter, reduced.elements().isEmpty(), testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter, expectedScissor == reduced.iBounds(),
+            REPORTER_ASSERT_MESSAGE(reporter, reduced.hasIBounds(), testName.c_str());
+            REPORTER_ASSERT_MESSAGE(reporter, expectedScissor == reduced.ibounds(),
                                     testName.c_str());
             REPORTER_ASSERT_MESSAGE(reporter,
                                     GrReducedClip::InitialState::kAllIn == reduced.initialState(),
@@ -1224,7 +1233,8 @@ static void test_aa_query(skiatest::Reporter* reporter, const SkString& testName
             }
             REPORTER_ASSERT_MESSAGE(reporter, numExpectedElems == reduced.elements().count(),
                                     testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter, expectedClipIBounds == reduced.iBounds(),
+            REPORTER_ASSERT_MESSAGE(reporter, reduced.hasIBounds(), testName.c_str());
+            REPORTER_ASSERT_MESSAGE(reporter, expectedClipIBounds == reduced.ibounds(),
                                     testName.c_str());
             REPORTER_ASSERT_MESSAGE(reporter, reduced.requiresAA() == !reduced.elements().isEmpty(),
                                     testName.c_str());

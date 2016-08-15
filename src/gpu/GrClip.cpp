@@ -21,10 +21,7 @@ bool GrFixedClip::quickContains(const SkRect& rect) const {
     if (fHasStencilClip) {
         return false;
     }
-    if (!fScissorState.enabled()) {
-        return true;
-    }
-    return fScissorState.rect().contains(rect);
+    return !fScissorState.enabled() || GrClip::IsInsideClip(fScissorState.rect(), rect);
 }
 
 void GrFixedClip::getConservativeBounds(int width, int height, SkIRect* devResult,
@@ -40,32 +37,25 @@ void GrFixedClip::getConservativeBounds(int width, int height, SkIRect* devResul
     }
 }
 
-bool GrFixedClip::apply(GrContext*,
-                        GrDrawContext* drawContext,
-                        const SkRect* devBounds,
-                        bool isHWAntiAlias,
-                        bool hasUserStencilSettings,
-                        GrAppliedClip* out) const {
-    SkASSERT(!fDeviceBounds.isLargest());
+bool GrFixedClip::apply(GrContext*, GrDrawContext* drawContext, bool isHWAntiAlias,
+                        bool hasUserStencilSettings, GrAppliedClip* out) const {
     if (fScissorState.enabled()) {
         SkIRect tightScissor;
         if (!tightScissor.intersect(fScissorState.rect(),
                                     SkIRect::MakeWH(drawContext->width(), drawContext->height()))) {
             return false;
         }
-        if (devBounds && IsOutsideClip(tightScissor, *devBounds)) {
+        if (IsOutsideClip(tightScissor, out->clippedDrawBounds())) {
             return false;
         }
-        if (!devBounds || !IsInsideClip(fScissorState.rect(), *devBounds)) {
-            if (fHasStencilClip) {
-                out->makeScissoredStencil(tightScissor, &fDeviceBounds);
-            } else {
-                out->makeScissored(tightScissor);
-            }
-            return true;
+        if (!IsInsideClip(fScissorState.rect(), out->clippedDrawBounds())) {
+            out->addScissor(tightScissor);
         }
     }
 
-    out->makeStencil(fHasStencilClip, fDeviceBounds);
+    if (fHasStencilClip) {
+        out->addStencilClip();
+    }
+
     return true;
 }

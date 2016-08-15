@@ -33,11 +33,7 @@ public:
     bool quickContains(const SkRect&) const final;
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final;
-    bool apply(GrContext*,
-               GrDrawContext*,
-               const SkRect* devBounds,
-               bool useHWAA,
-               bool hasUserStencilSettings,
+    bool apply(GrContext*, GrDrawContext*, bool useHWAA, bool hasUserStencilSettings,
                GrAppliedClip* out) const final;
 
 private:

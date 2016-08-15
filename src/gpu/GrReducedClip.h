@@ -25,14 +25,20 @@ public:
     int32_t genID() const { return fGenID; }
 
     /**
-     * Bounding box within which the reduced clip is valid. The caller must not draw any pixels
-     * outside this box.
+     * If hasIBounds() is true, this is the bounding box within which the reduced clip is valid, and
+     * the caller must not modify any pixels outside this box. Undefined if hasIBounds() is false.
      */
-    const SkIRect& iBounds() const { return fIBounds; }
-    int left() const { return this->iBounds().left(); }
-    int top() const { return this->iBounds().top(); }
-    int width() const { return this->iBounds().width(); }
-    int height() const { return this->iBounds().height(); }
+    const SkIRect& ibounds() const { SkASSERT(fHasIBounds); return fIBounds; }
+    int left() const { return this->ibounds().left(); }
+    int top() const { return this->ibounds().top(); }
+    int width() const { return this->ibounds().width(); }
+    int height() const { return this->ibounds().height(); }
+
+    /**
+     * Indicates whether ibounds() are defined. They will always be defined if the elements() are
+     * nonempty.
+     */
+    bool hasIBounds() const { return fHasIBounds; }
 
     typedef SkTLList<SkClipStack::Element, 16> ElementList;
 
@@ -51,14 +57,12 @@ public:
         kAllOut
     };
 
-    /**
-     * The initial state of the clip within iBounds().
-     */
     InitialState initialState() const { return fInitialState; }
 
 private:
     int32_t        fGenID;
     SkIRect        fIBounds;
+    bool           fHasIBounds;
     ElementList    fElements;
     bool           fRequiresAA;
     InitialState   fInitialState;

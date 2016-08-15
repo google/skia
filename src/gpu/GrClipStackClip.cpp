@@ -242,18 +242,14 @@ static bool get_analytic_clip_processor(const ElementList& elements,
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
-bool GrClipStackClip::apply(GrContext* context,
-                            GrDrawContext* drawContext,
-                            const SkRect* origDevBounds,
-                            bool useHWAA,
-                            bool hasUserStencilSettings,
-                            GrAppliedClip* out) const {
+bool GrClipStackClip::apply(GrContext* context, GrDrawContext* drawContext, bool useHWAA,
+                            bool hasUserStencilSettings, GrAppliedClip* out) const {
     if (!fStack || fStack->isWideOpen()) {
         return true;
     }
 
     SkRect devBounds = SkRect::MakeIWH(drawContext->width(), drawContext->height());
-    if (origDevBounds && !devBounds.intersect(*origDevBounds)) {
+    if (!devBounds.intersect(out->clippedDrawBounds())) {
         return false;
     }
 
@@ -263,17 +259,18 @@ bool GrClipStackClip::apply(GrContext* context,
     SkRect clipSpaceDevBounds = devBounds.makeOffset(clipX, clipY);
     const GrReducedClip reducedClip(*fStack, clipSpaceDevBounds);
 
-    if (reducedClip.elements().isEmpty()) {
-        if (GrReducedClip::InitialState::kAllOut == reducedClip.initialState()) {
-            return false;
-        }
-        if (!GrClip::IsInsideClip(reducedClip.iBounds(), clipSpaceDevBounds)) {
-            SkIRect scissorSpaceIBounds(reducedClip.iBounds());
-            scissorSpaceIBounds.offset(-fOrigin);
-            out->makeScissored(scissorSpaceIBounds);
-        }
-        return true;
+    if (reducedClip.hasIBounds() &&
+        !GrClip::IsInsideClip(reducedClip.ibounds(), clipSpaceDevBounds)) {
+        SkIRect scissorSpaceIBounds(reducedClip.ibounds());
+        scissorSpaceIBounds.offset(-fOrigin);
+        out->addScissor(scissorSpaceIBounds);
     }
+
+    if (reducedClip.elements().isEmpty()) {
+        return InitialState::kAllIn == reducedClip.initialState();
+    }
+
+    SkASSERT(reducedClip.hasIBounds());
 
     // An element count of 4 was chosen because of the common pattern in Blink of:
     //   isect RR
@@ -297,13 +294,7 @@ bool GrClipStackClip::apply(GrContext* context,
         if (reducedClip.requiresAA() &&
             get_analytic_clip_processor(reducedClip.elements(), disallowAnalyticAA,
                                         {-clipX, -clipY}, devBounds, &clipFP)) {
-            SkIRect scissorSpaceIBounds(reducedClip.iBounds());
-            scissorSpaceIBounds.offset(-fOrigin);
-            if (GrClip::IsInsideClip(scissorSpaceIBounds, devBounds)) {
-                out->makeFPBased(std::move(clipFP), SkRect::Make(scissorSpaceIBounds));
-            } else {
-                out->makeScissoredFPBased(std::move(clipFP), scissorSpaceIBounds);
-            }
+            out->addCoverageFP(std::move(clipFP));
             return true;
         }
     }
@@ -333,10 +324,9 @@ bool GrClipStackClip::apply(GrContext* context,
         if (result) {
             // The mask's top left coord should be pinned to the rounded-out top left corner of
             // clipSpace bounds. We determine the mask's position WRT to the render target here.
-            SkIRect rtSpaceMaskBounds = reducedClip.iBounds();
+            SkIRect rtSpaceMaskBounds = reducedClip.ibounds();
             rtSpaceMaskBounds.offset(-fOrigin);
-            out->makeFPBased(create_fp_for_mask(result.get(), rtSpaceMaskBounds),
-                             SkRect::Make(rtSpaceMaskBounds));
+            out->addCoverageFP(create_fp_for_mask(result.get(), rtSpaceMaskBounds));
             return true;
         }
         // if alpha clip mask creation fails fall through to the non-AA code paths
@@ -345,17 +335,7 @@ bool GrClipStackClip::apply(GrContext* context,
     // use the stencil clip if we can't represent the clip as a rectangle.
     SkIPoint clipSpaceToStencilSpaceOffset = -fOrigin;
     CreateStencilClipMask(context, drawContext, reducedClip, clipSpaceToStencilSpaceOffset);
-
-    // This must occur after createStencilClipMask. That function may change the scissor. Also, it
-    // only guarantees that the stencil mask is correct within the bounds it was passed, so we must
-    // use both stencil and scissor test to the bounds for the final draw.
-    if (GrClip::IsInsideClip(reducedClip.iBounds(), clipSpaceDevBounds)) {
-        out->makeStencil(true, devBounds);
-    } else {
-        SkIRect scissorSpaceIBounds(reducedClip.iBounds());
-        scissorSpaceIBounds.offset(clipSpaceToStencilSpaceOffset);
-        out->makeScissoredStencil(scissorSpaceIBounds);
-    }
+    out->addStencilClip();
     return true;
 }
 
@@ -438,7 +418,7 @@ sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
                                                       const SkVector& clipToMaskOffset) {
     GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
-    GetClipMaskKey(reducedClip.genID(), reducedClip.iBounds(), &key);
+    GetClipMaskKey(reducedClip.genID(), reducedClip.ibounds(), &key);
     if (GrTexture* texture = resourceProvider->findAndRefTextureByUniqueKey(key)) {
         return sk_sp<GrTexture>(texture);
     }
@@ -463,9 +443,7 @@ sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
 
     // The scratch texture that we are drawing into can be substantially larger than the mask. Only
     // clear the part that we care about.
-    dc->clear(&maskSpaceIBounds,
-              GrReducedClip::InitialState::kAllIn == reducedClip.initialState() ? -1 : 0,
-              true);
+    dc->clear(&maskSpaceIBounds, InitialState::kAllIn == reducedClip.initialState() ? -1 : 0, true);
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
@@ -513,7 +491,7 @@ sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
             if (!dc->drawContextPriv().drawAndStencilRect(clip, &kDrawOutsideElement,
                                                           op, !invert, false,
                                                           translate,
-                                                          SkRect::Make(reducedClip.iBounds()))) {
+                                                          SkRect::Make(reducedClip.ibounds()))) {
                 return nullptr;
             }
         } else {
@@ -548,9 +526,9 @@ bool GrClipStackClip::CreateStencilClipMask(GrContext* context,
     }
 
     // TODO: these need to be swapped over to using a StencilAttachmentProxy
-    if (stencilAttachment->mustRenderClip(reducedClip.genID(), reducedClip.iBounds(),
+    if (stencilAttachment->mustRenderClip(reducedClip.genID(), reducedClip.ibounds(),
                                           clipSpaceToStencilOffset)) {
-        stencilAttachment->setLastClip(reducedClip.genID(), reducedClip.iBounds(),
+        stencilAttachment->setLastClip(reducedClip.genID(), reducedClip.ibounds(),
                                        clipSpaceToStencilOffset);
         // Set the matrix so that rendered clip elements are transformed from clip to stencil space.
         SkVector translate = {
@@ -561,11 +539,11 @@ bool GrClipStackClip::CreateStencilClipMask(GrContext* context,
         viewMatrix.setTranslate(translate);
 
         // We set the current clip to the bounds so that our recursive draws are scissored to them.
-        SkIRect stencilSpaceIBounds(reducedClip.iBounds());
+        SkIRect stencilSpaceIBounds(reducedClip.ibounds());
         stencilSpaceIBounds.offset(clipSpaceToStencilOffset);
         GrFixedClip clip(stencilSpaceIBounds);
 
-        bool insideClip = GrReducedClip::InitialState::kAllIn == reducedClip.initialState();
+        bool insideClip = InitialState::kAllIn == reducedClip.initialState();
         drawContext->drawContextPriv().clearStencilClip(stencilSpaceIBounds, insideClip);
 
         // walk through each clip element and perform its set op
@@ -671,22 +649,19 @@ bool GrClipStackClip::CreateStencilClipMask(GrContext* context,
                 }
             }
 
+            // Just enable stencil clip. The passes choose whether or not they will actually use it.
+            clip.enableStencilClip();
+
             // now we modify the clip bit by rendering either the clip
             // element directly or a bounding rect of the entire clip.
             for (GrUserStencilSettings const* const* pass = stencilPasses; *pass; ++pass) {
-
                 if (drawDirectToClip) {
                     if (Element::kRect_Type == element->getType()) {
-                        clip.enableStencilClip(element->getRect().makeOffset(translate.fX,
-                                                                             translate.fY));
                         drawContext->drawContextPriv().stencilRect(clip, *pass, useHWAA, viewMatrix,
                                                                    element->getRect());
                     } else {
                         GrShape shape(clipPath, GrStyle::SimpleFill());
                         GrPaint paint;
-                        SkRect bounds = clipPath.getBounds();
-                        bounds.offset(translate.fX, translate.fY);
-                        clip.enableStencilClip(bounds);
                         paint.setXPFactory(GrDisableColorXPFactory::Make());
                         paint.setAntiAlias(element->isAA());
                         GrPathRenderer::DrawPathArgs args;
@@ -704,11 +679,8 @@ bool GrClipStackClip::CreateStencilClipMask(GrContext* context,
                 } else {
                     // The view matrix is setup to do clip space -> stencil space translation, so
                     // draw rect in clip space.
-                    SkRect bounds = SkRect::Make(reducedClip.iBounds());
-                    bounds.offset(translate.fX, translate.fY);
-                    clip.enableStencilClip(bounds);
                     drawContext->drawContextPriv().stencilRect(clip, *pass, false, viewMatrix,
-                                                               SkRect::Make(reducedClip.iBounds()));
+                                                               SkRect::Make(reducedClip.ibounds()));
                 }
             }
         }
@@ -721,7 +693,7 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
                                                          const GrReducedClip& reducedClip,
                                                          const SkVector& clipToMaskOffset) {
     GrUniqueKey key;
-    GetClipMaskKey(reducedClip.genID(), reducedClip.iBounds(), &key);
+    GetClipMaskKey(reducedClip.genID(), reducedClip.ibounds(), &key);
     if (GrTexture* texture = texProvider->findAndRefTextureByUniqueKey(key)) {
         return sk_sp<GrTexture>(texture);
     }
@@ -738,7 +710,7 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
     translate.setTranslate(clipToMaskOffset);
 
     helper.init(maskSpaceIBounds, &translate);
-    helper.clear(GrReducedClip::InitialState::kAllIn == reducedClip.initialState() ? 0xFF : 0x00);
+    helper.clear(InitialState::kAllIn == reducedClip.initialState() ? 0xFF : 0x00);
 
     for (ElementList::Iter iter(reducedClip.elements()); iter.get(); iter.next()) {
         const Element* element = iter.get();
@@ -750,7 +722,7 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
             // but leave the pixels inside the geometry alone. For reverse difference we invert all
             // the pixels before clearing the ones outside the geometry.
             if (SkRegion::kReverseDifference_Op == op) {
-                SkRect temp = SkRect::Make(reducedClip.iBounds());
+                SkRect temp = SkRect::Make(reducedClip.ibounds());
                 // invert the entire scene
                 helper.drawRect(temp, SkRegion::kXOR_Op, false, 0xFF);
             }

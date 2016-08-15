@@ -343,9 +343,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
     // generation id. When we make early returns, we do not know what was the generation
     // id that lead to the state. Make a conservative guess.
     fGenID = stack.getTopmostGenID();
-
-    // TODO: instead devise a way of telling the caller to disregard some or all of the clip bounds.
-    fIBounds = GrClip::GetPixelIBounds(queryBounds);
+    fHasIBounds = false;
 
     if (stack.isWideOpen()) {
         fInitialState = InitialState::kAllIn;
@@ -372,6 +370,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
             // The clip is a non-aa rect. This is the one spot where we can actually implement the
             // clip (using fIBounds) rather than just telling the caller what it should be.
             stackBounds.round(&fIBounds);
+            fHasIBounds = true;
             fInitialState = fIBounds.isEmpty() ? InitialState::kAllOut : InitialState::kAllIn;
             return;
         }
@@ -380,8 +379,11 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
             return;
         }
 
-        SkAssertResult(fIBounds.intersect(GrClip::GetPixelIBounds(stackBounds)));
+        SkRect tightBounds;
+        SkAssertResult(tightBounds.intersect(stackBounds, queryBounds));
+        fIBounds = GrClip::GetPixelIBounds(tightBounds);
         SkASSERT(!fIBounds.isEmpty()); // Empty should have been blocked by IsOutsideClip above.
+        fHasIBounds = true;
 
         // Implement the clip with an AA rect element.
         fElements.addToHead(stackBounds, SkRegion::kReplace_Op, true/*doAA*/);
@@ -396,10 +398,11 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         // Tighten the query by introducing a new clip at the stack's pixel boundaries. (This new
         // clip will be enforced by the scissor through fIBounds.)
         SkAssertResult(tighterQuery.intersect(GrClip::GetPixelBounds(stackBounds)));
-        fIBounds = GrClip::GetPixelIBounds(tighterQuery);
     }
 
+    fIBounds = GrClip::GetPixelIBounds(tighterQuery);
     SkASSERT(!fIBounds.isEmpty()); // Empty should have been blocked by IsOutsideClip above.
+    fHasIBounds = true;
 
     // Now that we have determined the bounds to use and filtered out the trivial cases, call the
     // helper that actually walks the stack.
