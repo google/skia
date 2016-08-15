@@ -18,7 +18,7 @@ enum SkCopyPixelsMode {
     kNever_SkCopyPixelsMode,      //!< never copy src pixels (even if they are marked mutable)
 };
 
-enum {kSkBlitterContextSize = 5300};  // minimum required for compose shader blitter
+enum {kSkBlitterContextSize = 3332};
 
 // Commonly used allocator. It currently is only used to allocate up to 3 objects. The total
 // bytes requested is calculated using one of our large shaders, its context size plus the size of
