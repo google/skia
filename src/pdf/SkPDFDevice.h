@@ -16,10 +16,10 @@
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
+#include "SkSinglyLinkedList.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
-
-#include "SkSinglyLinkedList.h"
+#include "SkTextBlob.h"
 
 class SkImageBitmap;
 class SkPath;
@@ -294,6 +294,11 @@ private:
     // returns false when a valid SkFont can not be produced
     bool updateFont(const SkPaint& paint, uint16_t glyphID, ContentEntry* contentEntry);
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
+
+
+    void internalDrawText(const SkDraw&, const void*, size_t, const SkScalar pos[],
+                          SkTextBlob::GlyphPositioning, SkPoint, const SkPaint&);
+
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
 
