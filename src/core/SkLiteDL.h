@@ -25,6 +25,7 @@ public:
 
     void optimizeFor(GrContext*);
     void makeThreadsafe();
+    bool empty() const;
 
     void save();
     void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, SkCanvas::SaveLayerFlags);

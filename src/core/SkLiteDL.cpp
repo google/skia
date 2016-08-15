@@ -755,6 +755,10 @@ SkRect SkLiteDL::onGetBounds() {
     return fBounds;
 }
 
+bool SkLiteDL::empty() const {
+    return fUsed == 0;
+}
+
 #if !defined(SK_LITEDL_USES)
     #define  SK_LITEDL_USES 16
 #endif
