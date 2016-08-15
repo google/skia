@@ -80,14 +80,14 @@ public:
     }
 };
 
-extern SampleView* CreateSampleSVGFileView(const char filename[]);
+extern SampleView* CreateSampleSVGFileView(const SkString& filename);
 
 class SVGFileFactory : public SkViewFactory {
     SkString fFilename;
 public:
     SVGFileFactory(const SkString& filename) : fFilename(filename) {}
     SkView* operator() () const override {
-        return CreateSampleSVGFileView(fFilename.c_str());
+        return CreateSampleSVGFileView(fFilename);
     }
 };
 

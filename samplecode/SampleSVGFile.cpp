@@ -17,26 +17,27 @@ namespace {
 
 class SVGFileView : public SampleView {
 public:
-    SVGFileView(const char path[])
-        : fLabel(SkStringPrintf("[%s]", SkOSPath::Basename(path).c_str())) {
-        SkFILEStream svgStream(path);
+    SVGFileView(const SkString& path)
+        : fPath(path), fLabel(SkStringPrintf("[%s]", SkOSPath::Basename(path.c_str()).c_str())) {}
+    virtual ~SVGFileView() = default;
+
+protected:
+    void onOnceBeforeDraw() override {
+        SkFILEStream svgStream(fPath.c_str());
         if (!svgStream.isValid()) {
-            SkDebugf("file not found: \"path\"\n", path);
+            SkDebugf("file not found: \"path\"\n", fPath.c_str());
             return;
         }
 
         SkDOM xmlDom;
         if (!xmlDom.build(svgStream)) {
-            SkDebugf("XML parsing failed: \"path\"\n", path);
+            SkDebugf("XML parsing failed: \"path\"\n", fPath.c_str());
             return;
         }
 
         fDom = SkSVGDOM::MakeFromDOM(xmlDom, SkSize::Make(this->width(), this->height()));
     }
 
-    virtual ~SVGFileView() = default;
-
-protected:
     void onDrawContent(SkCanvas* canvas) override {
         if (fDom) {
             fDom->render(canvas);
@@ -61,6 +62,7 @@ protected:
     }
 private:
     sk_sp<SkSVGDOM> fDom;
+    SkString        fPath;
     SkString        fLabel;
 
     typedef SampleView INHERITED;
@@ -68,7 +70,7 @@ private:
 
 } // anonymous namespace
 
-SampleView* CreateSampleSVGFileView(const char filename[]);
-SampleView* CreateSampleSVGFileView(const char filename[]) {
+SampleView* CreateSampleSVGFileView(const SkString& filename);
+SampleView* CreateSampleSVGFileView(const SkString& filename) {
     return new SVGFileView(filename);
 }
