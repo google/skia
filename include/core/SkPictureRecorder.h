@@ -140,30 +140,4 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
-class SkLiteDL;
-class SkLiteRecorder;
-
-// A similar API to SkPictureRecorder, wrapping SkLiteRecorder and SkLiteDL.
-class SK_API SkPictureRecorder_Lite : SkNoncopyable {
-public:
-     SkPictureRecorder_Lite();
-    ~SkPictureRecorder_Lite();
-
-    SkCanvas* beginRecording(const SkRect& bounds);
-    SkCanvas* beginRecording(SkScalar w, SkScalar h) {
-        return this->beginRecording(SkRect::MakeWH(w,h));
-    }
-
-    SkCanvas* getRecordingCanvas();
-
-    void optimizeFor(GrContext* ctx) { fGrContextToOptimizeFor = ctx; }
-
-    sk_sp<SkDrawable> finishRecordingAsDrawable(uint32_t ignored = 0);
-
-private:
-    std::unique_ptr<SkLiteRecorder> fRecorder;
-    sk_sp<SkLiteDL>                 fDL;
-    GrContext*                      fGrContextToOptimizeFor = nullptr;
-};
-
 #endif
