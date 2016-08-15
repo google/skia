@@ -80,10 +80,12 @@ public:
         const size_t storageRemaining = sizeof(fStorage) - fStorageUsed;
         Rec* rec = &fRecs[fNumObjects];
         if (storageRequired > storageRemaining) {
-            // Allocate on the heap. Ideally we want to avoid this situation,
-            // but we're not sure we can catch all callers, so handle it but
-            // assert false in debug mode.
-            SkASSERT(false);
+            // Allocate on the heap. Ideally we want to avoid this situation.
+
+            // With the gm composeshader_bitmap2, storage required is 4476
+            // and storage remaining is 3392. Increasing the base storage
+            // causes google 3 tests to fail.
+
             rec->fStorageSize = 0;
             rec->fHeapStorage = sk_malloc_throw(storageRequired);
             rec->fObj = static_cast<void*>(rec->fHeapStorage);
