@@ -163,6 +163,7 @@ inline void operator delete(void* p) {
     #define SkASSERT(cond)
     #define SkASSERTF(cond, fmt, ...)
     #define SkDEBUGFAIL(message)
+    #define SkDEBUGFAILF(fmt, ...)
     #define SkDEBUGCODE(...)
     #define SkDEBUGF(args)
     #define SkDECLAREPARAM(type, var)
