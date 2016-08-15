@@ -498,7 +498,7 @@ bool SkPDFFont::hasGlyph(uint16_t id) {
     return (id >= fFirstGlyphID && id <= fLastGlyphID) || id == 0;
 }
 
-int SkPDFFont::glyphsToPDFFontEncoding(SkGlyphID* glyphIDs, int numGlyphs) const {
+int SkPDFFont::glyphsToPDFFontEncoding(uint16_t* glyphIDs, int numGlyphs) {
     // A font with multibyte glyphs will support all glyph IDs in a single font.
     if (this->multiByteGlyphs()) {
         return numGlyphs;
@@ -514,20 +514,6 @@ int SkPDFFont::glyphsToPDFFontEncoding(SkGlyphID* glyphIDs, int numGlyphs) const
         glyphIDs[i] -= (fFirstGlyphID - 1);
     }
 
-    return numGlyphs;
-}
-
-int SkPDFFont::glyphsToPDFFontEncodingCount(const SkGlyphID* glyphIDs,
-                                            int numGlyphs) const {
-    if (this->multiByteGlyphs()) {    // A font with multibyte glyphs will
-        return numGlyphs;             // support all glyph IDs in a single font.
-    }
-    for (int i = 0; i < numGlyphs; i++) {
-        if (glyphIDs[i] != 0 &&
-            (glyphIDs[i] < fFirstGlyphID || glyphIDs[i] > fLastGlyphID)) {
-            return i;
-        }
-    }
     return numGlyphs;
 }
 

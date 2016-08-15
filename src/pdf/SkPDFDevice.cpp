@@ -76,6 +76,77 @@ static SkPaint calculate_text_paint(const SkPaint& paint) {
     return result;
 }
 
+// Stolen from measure_text in SkDraw.cpp and then tweaked.
+static void align_text(const SkPaint& paint,
+                       const uint16_t* glyphs, size_t len,
+                       SkScalar* x, SkScalar* y) {
+    if (paint.getTextAlign() == SkPaint::kLeft_Align) {
+        return;
+    }
+    SkScalar advance = paint.measureText(glyphs, len * sizeof(uint16_t));
+    if (paint.getTextAlign() == SkPaint::kCenter_Align) {
+        advance *= 0.5f;
+    }
+    if (paint.isVerticalText()) {
+        *y -= advance;
+    } else {
+        *x -= advance;
+    }
+}
+
+static int max_glyphid_for_typeface(SkTypeface* typeface) {
+    SkAutoResolveDefaultTypeface autoResolve(typeface);
+    typeface = autoResolve.get();
+    return typeface->countGlyphs() - 1;
+}
+
+typedef SkAutoSTMalloc<128, uint16_t> SkGlyphStorage;
+
+static int force_glyph_encoding(const SkPaint& paint, const void* text,
+                                size_t len, SkGlyphStorage* storage,
+                                const uint16_t** glyphIDs) {
+    // Make sure we have a glyph id encoding.
+    if (paint.getTextEncoding() != SkPaint::kGlyphID_TextEncoding) {
+        int numGlyphs = paint.textToGlyphs(text, len, nullptr);
+        storage->reset(numGlyphs);
+        paint.textToGlyphs(text, len, storage->get());
+        *glyphIDs = storage->get();
+        return numGlyphs;
+    }
+
+    // For user supplied glyph ids we need to validate them.
+    SkASSERT((len & 1) == 0);
+    int numGlyphs = SkToInt(len / 2);
+    const uint16_t* input = static_cast<const uint16_t*>(text);
+
+    int maxGlyphID = max_glyphid_for_typeface(paint.getTypeface());
+    int validated;
+    for (validated = 0; validated < numGlyphs; ++validated) {
+        if (input[validated] > maxGlyphID) {
+            break;
+        }
+    }
+    if (validated >= numGlyphs) {
+        *glyphIDs = static_cast<const uint16_t*>(text);
+        return numGlyphs;
+    }
+
+    // Silently drop anything out of range.
+    storage->reset(numGlyphs);
+    if (validated > 0) {
+        memcpy(storage->get(), input, validated * sizeof(uint16_t));
+    }
+
+    for (int i = validated; i < numGlyphs; ++i) {
+        storage->get()[i] = input[i];
+        if (input[i] > maxGlyphID) {
+            storage->get()[i] = 0;
+        }
+    }
+    *glyphIDs = storage->get();
+    return numGlyphs;
+}
+
 static void set_text_transform(SkScalar x, SkScalar y, SkScalar textSkewX,
                                SkWStream* content) {
     // Flip the text about the x-axis to account for origin swap and include
@@ -956,22 +1027,50 @@ void SkPDFDevice::drawImageRect(const SkDraw& draw,
     SkASSERT(false);
 }
 
+//  Create a PDF string. Maximum length (in bytes) is 65,535.
+//  @param input     A string value.
+//  @param len       The length of the input array.
+//  @param wideChars True iff the upper byte in each uint16_t is
+//                   significant and should be encoded and not
+//                   discarded.  If true, the upper byte is encoded
+//                   first.  Otherwise, we assert the upper byte is
+//                   zero.
+static void write_wide_string(SkDynamicMemoryWStream* wStream,
+                              const uint16_t* input,
+                              size_t len,
+                              bool wideChars) {
+    if (wideChars) {
+        SkASSERT(2 * len < 65535);
+        wStream->writeText("<");
+        for (size_t i = 0; i < len; i++) {
+            SkPDFUtils::WriteUInt16BE(wStream, input[i]);
+        }
+        wStream->writeText(">");
+    } else {
+        SkASSERT(len <= 65535);
+        SkAutoMalloc buffer(len);  // Remove every other byte.
+        uint8_t* ptr = (uint8_t*)buffer.get();
+        for (size_t i = 0; i < len; i++) {
+            SkASSERT(0 == input[i] >> 8);
+            ptr[i] = static_cast<uint8_t>(input[i]);
+        }
+        SkPDFUtils::WriteString(wStream, (char*)buffer.get(), len);
+    }
+}
+
 namespace {
 class GlyphPositioner {
 public:
     GlyphPositioner(SkDynamicMemoryWStream* content,
                     SkScalar textSkewX,
-                    bool wideChars,
-                    bool defaultPositioning,
-                    SkPoint origin)
+                    bool wideChars)
         : fContent(content)
         , fCurrentMatrixX(0.0f)
         , fCurrentMatrixY(0.0f)
         , fXAdvance(0.0f)
         , fWideChars(wideChars)
-        , fInText(false)
-        , fDefaultPositioning(defaultPositioning) {
-        set_text_transform(origin.x(), origin.y(), textSkewX, fContent);
+        , fInText(false) {
+        set_text_transform(0.0f, 0.0f, textSkewX, fContent);
     }
     ~GlyphPositioner() { SkASSERT(!fInText);  /* flush first */ }
     void flush() {
@@ -983,7 +1082,6 @@ public:
     void setWideChars(bool wideChars) {
         if (fWideChars != wideChars) {
             SkASSERT(!fInText);
-            SkASSERT(fWideChars == wideChars);
             fWideChars = wideChars;
         }
     }
@@ -991,20 +1089,17 @@ public:
                     SkScalar y,
                     SkScalar advanceWidth,
                     uint16_t glyph) {
-        if (!fDefaultPositioning) {
-            SkScalar xPosition = x - fCurrentMatrixX;
-            SkScalar yPosition = y - fCurrentMatrixY;
-            if (xPosition != fXAdvance || yPosition != 0) {
-                this->flush();
-                SkPDFUtils::AppendScalar(xPosition, fContent);
-                fContent->writeText(" ");
-                SkPDFUtils::AppendScalar(-yPosition, fContent);
-                fContent->writeText(" Td ");
-                fCurrentMatrixX = x;
-                fCurrentMatrixY = y;
-                fXAdvance = 0;
-            }
-            fXAdvance += advanceWidth;
+        SkScalar xPosition = x - fCurrentMatrixX;
+        SkScalar yPosition = y - fCurrentMatrixY;
+        if (xPosition != fXAdvance || yPosition != 0) {
+            this->flush();
+            SkPDFUtils::AppendScalar(xPosition, fContent);
+            fContent->writeText(" ");
+            SkPDFUtils::AppendScalar(-yPosition, fContent);
+            fContent->writeText(" Td ");
+            fCurrentMatrixX = x;
+            fCurrentMatrixY = y;
+            fXAdvance = 0;
         }
         if (!fInText) {
             fContent->writeText("<");
@@ -1016,6 +1111,7 @@ public:
             SkASSERT(0 == glyph >> 8);
             SkPDFUtils::WriteUInt8(fContent, static_cast<uint8_t>(glyph));
         }
+        fXAdvance += advanceWidth;
     }
 
 private:
@@ -1025,7 +1121,6 @@ private:
     SkScalar fXAdvance;
     bool fWideChars;
     bool fInText;
-    const bool fDefaultPositioning;
 };
 }  // namespace
 
@@ -1052,8 +1147,6 @@ static void draw_transparent_text(SkPDFDevice* device,
             srcPaint.glyphsToUnichars(
                     (const uint16_t*)text, SkToInt(glyphCount), &unichars[0]);
             transparent.setTextEncoding(SkPaint::kUTF32_TextEncoding);
-            // TODO(halcanary): deal with case where default typeface
-            // does not have glyphs for these unicode code points.
             device->drawText(d, &unichars[0],
                              glyphCount * sizeof(SkUnichar),
                              x, y, transparent);
@@ -1070,153 +1163,158 @@ static void draw_transparent_text(SkPDFDevice* device,
     }
 }
 
-void SkPDFDevice::internalDrawText(
-        const SkDraw& d, const void* sourceText, size_t sourceByteCount,
-        const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
-        SkPoint offset, const SkPaint& srcPaint) {
-    NOT_IMPLEMENTED(srcPaint.getMaskFilter() != nullptr, false);
-    if (srcPaint.getMaskFilter() != nullptr) {
+
+void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
+                           SkScalar x, SkScalar y, const SkPaint& srcPaint) {
+    if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fDocument->canon())) {
+        // https://bug.skia.org/3866
+        SkPath path;
+        srcPaint.getTextPath(text, len, x, y, &path);
+        this->drawPath(d, path, srcPaint, &SkMatrix::I(), true);
+        // Draw text transparently to make it copyable/searchable/accessable.
+        draw_transparent_text(this, d, text, len, x, y, srcPaint);
+        return;
+    }
+    SkPaint paint = srcPaint;
+    replace_srcmode_on_opaque_paint(&paint);
+
+    NOT_IMPLEMENTED(paint.getMaskFilter() != nullptr, false);
+    if (paint.getMaskFilter() != nullptr) {
         // Don't pretend we support drawing MaskFilters, it makes for artifacts
         // making text unreadable (e.g. same text twice when using CSS shadows).
         return;
     }
-    SkPaint paint = calculate_text_paint(srcPaint);
-    replace_srcmode_on_opaque_paint(&paint);
-    if (!paint.getTypeface()) {
-        paint.setTypeface(SkTypeface::MakeDefault());
-    }
-    SkTypeface* typeface = paint.getTypeface();
-    SkASSERT(typeface);
-    if (!SkPDFFont::CanEmbedTypeface(typeface, fDocument->canon())) {
-        SkPath path; // https://bug.skia.org/3866
-        paint.getTextPath(sourceText, sourceByteCount,
-                             offset.x(), offset.y(), &path);
-        this->drawPath(d, path, srcPaint, &SkMatrix::I(), true);
-        // Draw text transparently to make it copyable/searchable/accessable.
-        draw_transparent_text(this, d, sourceText, sourceByteCount,
-                              offset.x(), offset.y(), paint);
-        return;
-    }
-    // Always make a copy (1) to validate user-input glyphs and
-    // (2) because we may modify the glyphs in place (for
-    // single-byte-glyph-id PDF fonts).
-    int glyphCount = paint.textToGlyphs(sourceText, sourceByteCount, nullptr);
-    if (glyphCount <= 0) { return; }
-    SkAutoSTMalloc<128, SkGlyphID> glyphStorage(SkToSizeT(glyphCount));
-    SkGlyphID* glyphs = glyphStorage.get();
-    (void)paint.textToGlyphs(sourceText, sourceByteCount, glyphs);
-    if (paint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding) {
-        // Validate user-input glyphs.
-        SkGlyphID maxGlyphID = SkToU16(typeface->countGlyphs() - 1);
-        for (int i = 0; i < glyphCount; ++i) {
-            glyphs[i] = SkTMin(maxGlyphID, glyphs[i]);
-        }
-    } else {
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    }
-
-    bool defaultPositioning = (positioning == SkTextBlob::kDefault_Positioning);
-    SkAutoGlyphCache glyphCache(paint, nullptr, nullptr);
-
-    SkPaint::Align alignment = paint.getTextAlign();
-    bool verticalText = paint.isVerticalText();
-    if (defaultPositioning && alignment != SkPaint::kLeft_Align) {
-        SkScalar advance{0};
-        for (int i = 0; i < glyphCount; ++i) {
-            advance += glyphCache->getGlyphIDAdvance(glyphs[i]).fAdvanceX;
-        }
-        SkScalar m = alignment == SkPaint::kCenter_Align
-            ? 0.5f * advance : advance;
-        offset -= verticalText ? SkPoint{0, m} : SkPoint{m, 0};
-    }
-    ScopedContentEntry content(this, d, paint, true);
+    SkPaint textPaint = calculate_text_paint(paint);
+    ScopedContentEntry content(this, d, textPaint, true);
     if (!content.entry()) {
         return;
     }
-    SkDynamicMemoryWStream* out = &content.entry()->fContent;
-    out->writeText("BT\n");
-    if (!this->updateFont(paint, glyphs[0], content.entry())) {
-        SkDebugf("SkPDF: Font error.");
-        out->writeText("ET\n%SkPDF: Font error.\n");
-        return;
-    }
-    SkPDFFont* font = content.entry()->fState.fFont;
-    GlyphPositioner glyphPositioner(out,
-                                    paint.getTextSkewX(),
-                                    font->multiByteGlyphs(),
-                                    defaultPositioning,
-                                    offset);
+
+    SkGlyphStorage storage(0);
+    const uint16_t* glyphIDs = nullptr;
+    int numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
+    textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    align_text(textPaint, glyphIDs, numGlyphs, &x, &y);
+    content.entry()->fContent.writeText("BT\n");
+    set_text_transform(x, y, textPaint.getTextSkewX(),
+                       &content.entry()->fContent);
+    int consumedGlyphCount = 0;
+
+    SkTDArray<uint16_t> glyphIDsCopy(glyphIDs, numGlyphs);
+
     SkPDFGlyphSetMap* fontGlyphUsage = fDocument->getGlyphUsage();
-    const SkGlyphID* const glyphsEnd = glyphs + glyphCount;
 
-    while (glyphs < glyphsEnd) {
-        font = content.entry()->fState.fFont;
-        int stretch = font->multiByteGlyphs()
-            ? SkToInt(glyphsEnd - glyphs)
-            : font->glyphsToPDFFontEncodingCount(glyphs, SkToInt(glyphsEnd - glyphs));
-        SkASSERT(glyphs + stretch <= glyphsEnd);
-        if (stretch < 1) {
-            SkASSERT(!font->multiByteGlyphs());
-            // The current pdf font cannot encode the next glyph.
-            // Try to get a pdf font which can encode the next glyph.
-            glyphPositioner.flush();
-            if (!this->updateFont(paint, *glyphs, content.entry())) {
-                SkDebugf("SkPDF: Font error.");
-                out->writeText("ET\n%SkPDF: Font error.\n");
-                return;
-            }
-            font = content.entry()->fState.fFont;
-            glyphPositioner.setWideChars(font->multiByteGlyphs());
-            // try again
-            stretch = font->glyphsToPDFFontEncodingCount(glyphs,
-                                                         SkToInt(glyphsEnd - glyphs));
-            if (stretch < 1) {
-                SkDEBUGFAIL("PDF could not encode glyph.");
-                glyphPositioner.flush();
-                out->writeText("ET\n%SkPDF: Font encoding error.\n");
-                return;
-            }
+    while (numGlyphs > consumedGlyphCount) {
+        if (!this->updateFont(textPaint, glyphIDs[consumedGlyphCount], content.entry())) {
+            SkDebugf("SkPDF: Font error.");
+            content.entry()->fContent.writeText("ET\n%SkPDF: Font error.\n");
+            return;
         }
-        fontGlyphUsage->noteGlyphUsage(font, glyphs, stretch);
-        if (defaultPositioning) {
-            (void)font->glyphsToPDFFontEncoding(glyphs, SkToInt(glyphsEnd - glyphs));
-            while (stretch-- > 0) {
-                glyphPositioner.writeGlyph(0, 0, 0, *glyphs);
-                ++glyphs;
-            }
-        } else {
-            while (stretch-- > 0) {
-                SkScalar advance = glyphCache->getGlyphIDAdvance(*glyphs).fAdvanceX;
-                SkScalar x = *pos++;
-                // evaluate x and y in order!
-                SkScalar y = SkTextBlob::kFull_Positioning == positioning ? *pos++ : 0;
-                SkPoint xy{x, y};
-                if (alignment != SkPaint::kLeft_Align) {
-                    SkScalar m = alignment == SkPaint::kCenter_Align
-                        ? 0.5f * advance : advance;
-                    xy -= verticalText ? SkPoint{0, m} : SkPoint{m, 0};
-                }
-                (void)font->glyphsToPDFFontEncoding(glyphs, 1);
-                glyphPositioner.writeGlyph(xy.x(), xy.y(), advance, *glyphs);
-                ++glyphs;
-            }
-        }
+        SkPDFFont* font = content.entry()->fState.fFont;
+
+        int availableGlyphs = font->glyphsToPDFFontEncoding(
+                glyphIDsCopy.begin() + consumedGlyphCount,
+                numGlyphs - consumedGlyphCount);
+        fontGlyphUsage->noteGlyphUsage(
+                font,  glyphIDsCopy.begin() + consumedGlyphCount,
+                availableGlyphs);
+        write_wide_string(&content.entry()->fContent,
+                          glyphIDsCopy.begin() + consumedGlyphCount,
+                          availableGlyphs, font->multiByteGlyphs());
+        consumedGlyphCount += availableGlyphs;
+        content.entry()->fContent.writeText(" Tj\n");
     }
-    glyphPositioner.flush();
-    out->writeText("ET\n");
-}
-
-void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
-                           SkScalar x, SkScalar y, const SkPaint& paint) {
-    this->internalDrawText(d, text, len, nullptr, SkTextBlob::kDefault_Positioning,
-                           SkPoint{x, y}, paint);
+    content.entry()->fContent.writeText("ET\n");
 }
 
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
-                              const SkPoint& offset, const SkPaint& paint) {
-    this->internalDrawText(d, text, len, pos, (SkTextBlob::GlyphPositioning)scalarsPerPos,
-                           offset, paint);
+                              const SkPoint& offset, const SkPaint& srcPaint) {
+    if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fDocument->canon())) {
+        const SkPoint* positions = reinterpret_cast<const SkPoint*>(pos);
+        SkAutoTMalloc<SkPoint> positionsBuffer;
+        if (2 != scalarsPerPos) {
+            int glyphCount = srcPaint.textToGlyphs(text, len, NULL);
+            positionsBuffer.reset(glyphCount);
+            for (int  i = 0; i < glyphCount; ++i) {
+                positionsBuffer[i].set(pos[i], 0.0f);
+            }
+            positions = &positionsBuffer[0];
+        }
+        SkPath path;
+        srcPaint.getPosTextPath(text, len, positions, &path);
+        SkMatrix matrix;
+        matrix.setTranslate(offset);
+        this->drawPath(d, path, srcPaint, &matrix, true);
+        // Draw text transparently to make it copyable/searchable/accessable.
+        draw_transparent_text(
+                this, d, text, len, offset.x() + positions[0].x(),
+                offset.y() + positions[0].y(), srcPaint);
+        return;
+    }
+
+    SkPaint paint = srcPaint;
+    replace_srcmode_on_opaque_paint(&paint);
+
+    NOT_IMPLEMENTED(paint.getMaskFilter() != nullptr, false);
+    if (paint.getMaskFilter() != nullptr) {
+        // Don't pretend we support drawing MaskFilters, it makes for artifacts
+        // making text unreadable (e.g. same text twice when using CSS shadows).
+        return;
+    }
+    SkASSERT(1 == scalarsPerPos || 2 == scalarsPerPos);
+    SkPaint textPaint = calculate_text_paint(paint);
+    ScopedContentEntry content(this, d, textPaint, true);
+    if (!content.entry()) {
+        return;
+    }
+
+    SkGlyphStorage storage(0);
+    const uint16_t* glyphIDs = nullptr;
+    size_t numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
+    textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    SkAutoGlyphCache autoGlyphCache(textPaint, nullptr, nullptr);
+
+    content.entry()->fContent.writeText("BT\n");
+    if (!this->updateFont(textPaint, glyphIDs[0], content.entry())) {
+        SkDebugf("SkPDF: Font error.");
+        content.entry()->fContent.writeText("ET\n%SkPDF: Font error.\n");
+        return;
+    }
+    GlyphPositioner glyphPositioner(&content.entry()->fContent,
+                                    textPaint.getTextSkewX(),
+                                    content.entry()->fState.fFont->multiByteGlyphs());
+    SkPDFGlyphSetMap* fontGlyphUsage = fDocument->getGlyphUsage();
+    for (size_t i = 0; i < numGlyphs; i++) {
+        SkPDFFont* font = content.entry()->fState.fFont;
+        uint16_t encodedValue = glyphIDs[i];
+        SkScalar advanceWidth = autoGlyphCache->getGlyphIDAdvance(encodedValue).fAdvanceX;
+        if (font->glyphsToPDFFontEncoding(&encodedValue, 1) != 1) {
+            // The current pdf font cannot encode the current glyph.
+            // Try to get a pdf font which can encode the current glyph.
+            glyphPositioner.flush();
+            if (!this->updateFont(textPaint, glyphIDs[i], content.entry())) {
+                SkDebugf("SkPDF: Font error.");
+                content.entry()->fContent.writeText("ET\n%SkPDF: Font error.\n");
+                return;
+            }
+            font = content.entry()->fState.fFont;
+            glyphPositioner.setWideChars(font->multiByteGlyphs());
+            if (font->glyphsToPDFFontEncoding(&encodedValue, 1) != 1) {
+                SkDEBUGFAIL("PDF could not encode glyph.");
+                continue;
+            }
+        }
+        fontGlyphUsage->noteGlyphUsage(font, &encodedValue, 1);
+        SkScalar x = offset.x() + pos[i * scalarsPerPos];
+        SkScalar y = offset.y() + (2 == scalarsPerPos ? pos[i * scalarsPerPos + 1] : 0);
+        align_text(textPaint, glyphIDs + i, 1, &x, &y);
+
+        glyphPositioner.writeGlyph(x, y, advanceWidth, encodedValue);
+    }
+    glyphPositioner.flush();  // Must flush before ending text object.
+    content.entry()->fContent.writeText("ET\n");
 }
 
 void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,

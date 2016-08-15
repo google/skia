@@ -106,12 +106,7 @@ public:
      *  @param numGlyphs      The number of input glyphs.
      *  @return               Returns the number of glyphs consumed.
      */
-    int glyphsToPDFFontEncoding(SkGlyphID* glyphIDs, int numGlyphs) const;
-    /**
-     * Like above, but does not modify glyphIDs array.
-     */
-    int glyphsToPDFFontEncodingCount(const SkGlyphID* glyphIDs,
-                                     int numGlyphs) const;
+    int glyphsToPDFFontEncoding(uint16_t* glyphIDs, int numGlyphs);
 
     /** Get the font resource for the passed typeface and glyphID. The
      *  reference count of the object is incremented and it is the caller's
