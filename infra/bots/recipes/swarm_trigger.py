@@ -297,6 +297,7 @@ def recreate_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
 
 def ct_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
                   extra_isolate_hashes):
+  expiration, hard_timeout, io_timeout = get_timeouts(builder_cfg)
   task = trigger_task(
       api,
       'ct_skps',
@@ -309,7 +310,10 @@ def ct_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
       infrabots_dir,
       idempotent=False,
       store_output=False,
-      extra_isolate_hashes=extra_isolate_hashes)
+      extra_isolate_hashes=extra_isolate_hashes,
+      expiration=expiration,
+      hard_timeout=hard_timeout,
+      io_timeout=io_timeout)
   return api.swarming.collect_swarming_task(task)
 
 
@@ -394,6 +398,9 @@ def get_timeouts(builder_cfg):
   if 'Valgrind' in builder_cfg.get('extra_config', ''):
     expiration = 2*24*60*60
     hard_timeout = 9*60*60
+    io_timeout = 60*60
+  if builder_cfg.get('extra_config', '').startswith('CT_'):
+    hard_timeout = 24*60*60
     io_timeout = 60*60
   return expiration, hard_timeout, io_timeout
 
