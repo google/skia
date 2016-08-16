@@ -2057,6 +2057,19 @@ void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const 
     }
 }
 
+void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+                                const SkPaint* paint) {
+    RETURN_ON_NULL(image);
+    if (dst.isEmpty()) {
+        return;
+    }
+    if (SkLatticeIter::Valid(image->width(), image->height(), lattice)) {
+        this->onDrawImageLattice(image, lattice, dst, paint);
+    } else {
+        this->drawImageRect(image, dst, paint);
+    }
+}
+
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
     if (bitmap.drawsNothing()) {
         return;
@@ -2093,25 +2106,17 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, con
     } else {
         this->drawBitmapRect(bitmap, dst, paint);
     }
-
 }
 
 void SkCanvas::drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
                                  const SkPaint* paint) {
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
-    this->drawImageLattice(image.get(), lattice, dst, paint);
-}
-
-void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
-                                const SkPaint* paint) {
-    RETURN_ON_NULL(image);
-    if (dst.isEmpty()) {
+    if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
-    if (SkLatticeIter::Valid(image->width(), image->height(), lattice)) {
-        this->onDrawImageLattice(image, lattice, dst, paint);
+    if (SkLatticeIter::Valid(bitmap.width(), bitmap.height(), lattice)) {
+        this->onDrawBitmapLattice(bitmap, lattice, dst, paint);
     } else {
-        this->drawImageRect(image, dst, paint);
+        this->drawBitmapRect(bitmap, dst, paint);
     }
 }
 
@@ -2419,29 +2424,6 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
     LOOPER_END
 }
 
-void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
-                                  const SkPaint* paint) {
-    if (nullptr == paint || paint->canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
-            return;
-        }
-    }
-
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
-
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
-
-    while (iter.next()) {
-        iter.fDevice->drawImageLattice(iter, image, lattice, dst, looper.paint());
-    }
-
-    LOOPER_END
-}
-
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                const SkPaint* paint, SrcRectConstraint constraint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageRect()");
@@ -2607,6 +2589,52 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
 
     while (iter.next()) {
         iter.fDevice->drawBitmapNine(iter, bitmap, center, dst, looper.paint());
+    }
+
+    LOOPER_END
+}
+
+void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+                                  const SkPaint* paint) {
+    if (nullptr == paint || paint->canComputeFastBounds()) {
+        SkRect storage;
+        if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
+            return;
+        }
+    }
+
+    SkLazyPaint lazy;
+    if (nullptr == paint) {
+        paint = lazy.init();
+    }
+
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
+
+    while (iter.next()) {
+        iter.fDevice->drawImageLattice(iter, image, lattice, dst, looper.paint());
+    }
+
+    LOOPER_END
+}
+
+void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
+                                   const SkRect& dst, const SkPaint* paint) {
+    if (nullptr == paint || paint->canComputeFastBounds()) {
+        SkRect storage;
+        if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
+            return;
+        }
+    }
+
+    SkLazyPaint lazy;
+    if (nullptr == paint) {
+        paint = lazy.init();
+    }
+
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
+
+    while (iter.next()) {
+        iter.fDevice->drawBitmapLattice(iter, bitmap, lattice, dst, looper.paint());
     }
 
     LOOPER_END

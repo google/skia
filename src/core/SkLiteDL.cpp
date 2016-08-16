@@ -624,6 +624,15 @@ void SkLiteDL::drawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRec
                               const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
     this->push<DrawImageRect>(0, SkImage::MakeFromBitmap(bm), src, dst, paint, constraint);
 }
+void SkLiteDL::drawBitmapLattice(const SkBitmap& bm, const SkCanvas::Lattice& lattice,
+                                 const SkRect& dst, const SkPaint* paint) {
+    int xs = lattice.fXCount, ys = lattice.fYCount;
+    size_t bytes = (xs + ys) * sizeof(int);
+    void* pod = this->push<DrawImageLattice>(bytes, SkImage::MakeFromBitmap(bm), xs, ys, dst,
+                                             paint);
+    copy_v(pod, lattice.fXDivs, xs,
+                lattice.fYDivs, ys);
+}
 
 void SkLiteDL::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     this->push<DrawImage>(0, sk_ref_sp(image), x,y, paint);

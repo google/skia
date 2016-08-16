@@ -95,3 +95,15 @@ void SkPDFCanvas::onDrawImageLattice(const SkImage* image,
         this->drawImageRect(image, srcR, dstR, paint);
     }
 }
+
+void SkPDFCanvas::onDrawBitmapLattice(const SkBitmap& bitmap,
+                                      const Lattice& lattice,
+                                      const SkRect& dst,
+                                      const SkPaint* paint) {
+    SkLatticeIter iter(bitmap.width(), bitmap.height(), lattice, dst);
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        this->drawBitmapRect(bitmap, srcR, dstR, paint);
+    }
+}
+

@@ -198,6 +198,8 @@ protected:
                                 SkCanvas::SrcRectConstraint) = 0;
     virtual void drawBitmapNine(const SkDraw&, const SkBitmap&, const SkIRect& center,
                                 const SkRect& dst, const SkPaint&);
+    virtual void drawBitmapLattice(const SkDraw&, const SkBitmap&, const SkCanvas::Lattice&,
+                                   const SkRect& dst, const SkPaint&);
 
     virtual void drawImage(const SkDraw&, const SkImage*, SkScalar x, SkScalar y, const SkPaint&);
     virtual void drawImageRect(const SkDraw&, const SkImage*, const SkRect* src, const SkRect& dst,

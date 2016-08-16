@@ -1439,14 +1439,16 @@ protected:
                                  SrcRectConstraint);
     virtual void onDrawImageNine(const SkImage*, const SkIRect& center, const SkRect& dst,
                                  const SkPaint*);
+    virtual void onDrawImageLattice(const SkImage*, const Lattice& lattice, const SkRect& dst,
+                                    const SkPaint*);
 
     virtual void onDrawBitmap(const SkBitmap&, SkScalar dx, SkScalar dy, const SkPaint*);
     virtual void onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*,
                                   SrcRectConstraint);
     virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                                   const SkPaint*);
-    virtual void onDrawImageLattice(const SkImage*, const Lattice& lattice, const SkRect& dst,
-                                    const SkPaint*);
+    virtual void onDrawBitmapLattice(const SkBitmap&, const Lattice& lattice, const SkRect& dst,
+                                     const SkPaint*);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,

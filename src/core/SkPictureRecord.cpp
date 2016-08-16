@@ -480,24 +480,6 @@ void SkPictureRecord::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
-                                         const SkRect& dst, const SkPaint* paint) {
-    // xCount + xDivs + yCount+ yDivs
-    size_t latticeSize = (1 + lattice.fXCount + 1 + lattice.fYCount) * kUInt32Size;
-
-    // op + paint index + image index + lattice + dst rect
-    size_t size = 3 * kUInt32Size + latticeSize + sizeof(dst);
-    size_t initialOffset = this->addDraw(DRAW_IMAGE_LATTICE, &size);
-    this->addPaintPtr(paint);
-    this->addImage(image);
-    this->addInt(lattice.fXCount);
-    fWriter.writePad(lattice.fXDivs, lattice.fXCount * kUInt32Size);
-    this->addInt(lattice.fYCount);
-    fWriter.writePad(lattice.fYDivs, lattice.fYCount * kUInt32Size);
-    this->addRect(dst);
-    this->validate(initialOffset, size);
-}
-
 void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                       const SkPaint* paint, SrcRectConstraint constraint) {
     // id + paint_index + image_index + bool_for_src + constraint
@@ -525,6 +507,24 @@ void SkPictureRecord::onDrawImageNine(const SkImage* img, const SkIRect& center,
     this->addPaintPtr(paint);
     this->addImage(img);
     this->addIRect(center);
+    this->addRect(dst);
+    this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
+                                         const SkRect& dst, const SkPaint* paint) {
+    // xCount + xDivs + yCount+ yDivs
+    size_t latticeSize = (1 + lattice.fXCount + 1 + lattice.fYCount) * kUInt32Size;
+
+    // op + paint index + image index + lattice + dst rect
+    size_t size = 3 * kUInt32Size + latticeSize + sizeof(dst);
+    size_t initialOffset = this->addDraw(DRAW_IMAGE_LATTICE, &size);
+    this->addPaintPtr(paint);
+    this->addImage(image);
+    this->addInt(lattice.fXCount);
+    fWriter.writePad(lattice.fXDivs, lattice.fXCount * kUInt32Size);
+    this->addInt(lattice.fYCount);
+    fWriter.writePad(lattice.fYDivs, lattice.fYCount * kUInt32Size);
     this->addRect(dst);
     this->validate(initialOffset, size);
 }

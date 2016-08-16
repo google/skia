@@ -63,6 +63,8 @@ public:
     void drawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&, const SkPaint*);
     void drawBitmapRect(const SkBitmap&, const SkRect*,  const SkRect&, const SkPaint*,
                         SkCanvas::SrcRectConstraint);
+    void drawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&, const SkRect&,
+                           const SkPaint*);
 
     void drawImage    (const SkImage*, SkScalar,SkScalar,             const SkPaint*);
     void drawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*);

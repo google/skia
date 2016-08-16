@@ -12,6 +12,7 @@
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
+#include "SkImagePriv.h"
 #include "SkLatticeIter.h"
 #include "SkMetaData.h"
 #include "SkPatchUtils.h"
@@ -152,17 +153,6 @@ void SkBaseDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar 
     }
 }
 
-void SkBaseDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
-                                    const SkCanvas::Lattice& lattice, const SkRect& dst,
-                                    const SkPaint& paint) {
-    SkLatticeIter iter(image->width(), image->height(), lattice, dst);
-
-    SkRect srcR, dstR;
-    while (iter.next(&srcR, &dstR)) {
-        this->drawImageRect(draw, image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
-    }
-}
-
 void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const SkRect* src,
                                  const SkRect& dst, const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint) {
@@ -186,6 +176,28 @@ void SkBaseDevice::drawImageNine(const SkDraw& draw, const SkImage* image, const
 void SkBaseDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
                                   const SkRect& dst, const SkPaint& paint) {
     SkLatticeIter iter(bitmap.width(), bitmap.height(), center, dst);
+
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        this->drawBitmapRect(draw, bitmap, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+    }
+}
+
+void SkBaseDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
+                                    const SkCanvas::Lattice& lattice, const SkRect& dst,
+                                    const SkPaint& paint) {
+    SkLatticeIter iter(image->width(), image->height(), lattice, dst);
+
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        this->drawImageRect(draw, image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+    }
+}
+
+void SkBaseDevice::drawBitmapLattice(const SkDraw& draw, const SkBitmap& bitmap,
+                                     const SkCanvas::Lattice& lattice, const SkRect& dst,
+                                     const SkPaint& paint) {
+    SkLatticeIter iter(bitmap.width(), bitmap.height(), lattice, dst);
 
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
