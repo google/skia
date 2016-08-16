@@ -79,8 +79,16 @@ typedef struct {
     sk_alphatype_t  alphaType;
 } sk_imageinfo_t;
 
+typedef enum {
+    DISALLOW_ANTIALIAS_GR_SURFACE_PROPS_FLAGS           = 1 << 0,
+    DISALLOW_DITHER_GR_SURFACE_PROPS_FLAGS              = 1 << 1,
+    USE_DEVICE_INDEPENDENT_FONTS_GR_SURFACE_PROPS_FLAGS = 1 << 2,
+    GAMMA_CORRECT_GR_SURFACE_PROPS_FLAGS                = 1 << 3,
+} sk_surfaceprops_flags_t;
+
 typedef struct {
     sk_pixelgeometry_t pixelGeometry;
+    sk_surfaceprops_flags_t flags;
 } sk_surfaceprops_t;
 
 typedef struct {
@@ -505,6 +513,51 @@ typedef enum {
 typedef struct sk_colortable_t sk_colortable_t;
 
 typedef struct sk_pixelref_factory_t sk_pixelref_factory_t;
+
+typedef enum {
+    TOP_LEFT_GR_SURFACE_ORIGIN = 1,
+    BOTTOM_LEFT_GR_SURFACE_ORIGIN,
+} gr_surfaceorigin_t;
+
+typedef enum {
+    UNKNOWN_GR_PIXEL_CONFIG,
+    ALPHA_8_GR_PIXEL_CONFIG,
+    INDEX_8_GR_PIXEL_CONFIG,
+    RGB_565_GR_PIXEL_CONFIG,
+    RGBA_4444_GR_PIXEL_CONFIG,
+    RGBA_8888_GR_PIXEL_CONFIG,
+    BGRA_8888_GR_PIXEL_CONFIG,
+    SRGBA_8888_GR_PIXEL_CONFIG,
+    SBGRA_8888_GR_PIXEL_CONFIG,
+    ETC1_GR_PIXEL_CONFIG,
+    LATC_GR_PIXEL_CONFIG,
+    R11_EAC_GR_PIXEL_CONFIG,
+    ASTC_12X12_GR_PIXEL_CONFIG,
+    RGBA_FLOAT_GR_PIXEL_CONFIG,
+    ALPHA_HALF_GR_PIXEL_CONFIG,
+    RGBA_HALF_GR_PIXEL_CONFIG,
+} gr_pixelconfig_t;
+
+typedef intptr_t gr_backendobject_t;
+
+typedef struct {
+    int fWidth;
+    int fHeight;
+    gr_pixelconfig_t fConfig;
+    gr_surfaceorigin_t fOrigin;
+    int fSampleCnt;
+    int fStencilBits;
+    gr_backendobject_t fRenderTargetHandle;
+} gr_backendrendertargetdesc_t;
+
+typedef struct gr_context_t gr_context_t;
+
+typedef enum {
+    OPENGL_GR_BACKEND,
+    VULKAN_GR_BACKEND,
+} gr_backend_t;
+
+typedef intptr_t gr_backendcontext_t;
 
 SK_C_PLUS_PLUS_END_GUARD
 
