@@ -106,11 +106,11 @@ ArcLengthIntegrator::ArcLengthIntegrator(const SkPoint* pts, SkSegType segType)
             float Cy = pts[2].y();
 
             // precompute coefficients for derivative
-            xCoeff[0] = Sk8f(2.0f*(Ax - 2*Bx + Cx));
-            xCoeff[1] = Sk8f(2.0f*(Bx - Ax));
+            xCoeff[0] = Sk8f(2*(Ax - 2*Bx + Cx));
+            xCoeff[1] = Sk8f(2*(Bx - Ax));
 
-            yCoeff[0] = Sk8f(2.0f*(Ay - 2*By + Cy));
-            yCoeff[1] = Sk8f(2.0f*(By - Ay));
+            yCoeff[0] = Sk8f(2*(Ay - 2*By + Cy));
+            yCoeff[1] = Sk8f(2*(By - Ay));
         }
             break;
         case kCubic_SegType:
@@ -125,13 +125,13 @@ ArcLengthIntegrator::ArcLengthIntegrator(const SkPoint* pts, SkSegType segType)
             float Dy = pts[3].y();
 
             // precompute coefficients for derivative
-            xCoeff[0] = Sk8f(3.0f*(-Ax + 3.0f*(Bx - Cx) + Dx));
-            xCoeff[1] = Sk8f(3.0f*(2.0f*(Ax - 2.0f*Bx + Cx)));
-            xCoeff[2] = Sk8f(3.0f*(-Ax + Bx));
+            xCoeff[0] = Sk8f(3*(-Ax + 3*(Bx - Cx) + Dx));
+            xCoeff[1] = Sk8f(6*(Ax - 2*Bx + Cx));
+            xCoeff[2] = Sk8f(3*(-Ax + Bx));
 
-            yCoeff[0] = Sk8f(3.0f*(-Ay + 3.0f*(By - Cy) + Dy));
-            yCoeff[1] = Sk8f(3.0f * -Ay + By + 2.0f*(Ay - 2.0f*By + Cy));
-            yCoeff[2] = Sk8f(3.0f*(-Ay + By));
+            yCoeff[0] = Sk8f(3*(-Ay + 3*(By - Cy) + Dy));
+            yCoeff[1] = Sk8f(6*(Ay - 2*By + Cy));
+            yCoeff[2] = Sk8f(3*(-Ay + By));
         }
             break;
         case kConic_SegType:
