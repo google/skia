@@ -139,59 +139,144 @@ sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma,
     return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, occluder, flags));
 }
 
-bool SkBlurMaskFilter::ComputeBlurredRRectParams(const SkRRect& rrect,
-                                                 SkScalar sigma,
+// linearly interpolate between y1 & y3 to match x2's position between x1 & x3
+static SkScalar interp(SkScalar x1, SkScalar x2, SkScalar x3, SkScalar y1, SkScalar y3) {
+    SkASSERT(x1 <= x2 && x2 <= x3);
+    SkASSERT(y1 <= y3);
+
+    SkScalar t = (x2 - x1) / (x3 - x1);
+    return y1 + t * (y3 - y1);
+}
+
+// Insert 'lower' and 'higher' into 'array1' and insert a new value at each matching insertion
+// point in 'array2' that linearly interpolates between the existing values.
+// Return a bit mask which contains a copy of 'inputMask' for all the cells between the two
+// insertion points.
+static uint32_t insert_into_arrays(SkScalar* array1, SkScalar* array2,
+                                   SkScalar lower, SkScalar higher,
+                                   int* num, uint32_t inputMask, int maskSize) {
+    SkASSERT(lower < higher);
+    SkASSERT(lower >= array1[0] && higher <= array1[*num-1]);
+
+    int32_t skipMask = 0x0;
+    int i;
+    for (i = 0; i < *num; ++i) {
+        if (lower >= array1[i] && lower < array1[i+1]) {
+            if (!SkScalarNearlyEqual(lower, array1[i])) {
+                memmove(&array1[i+2], &array1[i+1], (*num-i-1)*sizeof(SkScalar));
+                array1[i+1] = lower;
+                memmove(&array2[i+2], &array2[i+1], (*num-i-1)*sizeof(SkScalar));
+                array2[i+1] = interp(array1[i], lower, array1[i+2], array2[i], array2[i+2]);
+                i++;
+                (*num)++;
+            }
+            break;
+        }
+    }
+    for ( ; i < *num; ++i) {
+        skipMask |= inputMask << (i*maskSize);
+        if (higher > array1[i] && higher <= array1[i+1]) {
+            if (!SkScalarNearlyEqual(higher, array1[i+1])) {
+                memmove(&array1[i+2], &array1[i+1], (*num-i-1)*sizeof(SkScalar));
+                array1[i+1] = higher;
+                memmove(&array2[i+2], &array2[i+1], (*num-i-1)*sizeof(SkScalar));
+                array2[i+1] = interp(array1[i], higher, array1[i+2], array2[i], array2[i+2]);
+                (*num)++;
+            }
+            break;
+        } 
+    }
+
+    return skipMask;
+}
+
+bool SkBlurMaskFilter::ComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
+                                                 const SkRect& occluder,
+                                                 SkScalar sigma, SkScalar xformedSigma,
                                                  SkRRect* rrectToDraw,
                                                  SkISize* widthHeight,
-                                                 SkScalar xs[4],
-                                                 int* numXs,
-                                                 SkScalar ys[4],
-                                                 int* numYs) {
-    unsigned int blurRadius = 3*SkScalarCeilToInt(sigma-1/6.0f);
+                                                 SkScalar rectXs[kMaxDivisions],
+                                                 SkScalar rectYs[kMaxDivisions],
+                                                 SkScalar texXs[kMaxDivisions],
+                                                 SkScalar texYs[kMaxDivisions],
+                                                 int* numXs, int* numYs, uint32_t* skipMask) {
+    unsigned int devBlurRadius = 3*SkScalarCeilToInt(xformedSigma-1/6.0f);
+    SkScalar srcBlurRadius = 3.0f * sigma;
 
-    const SkRect& orig = rrect.getBounds();
-    const SkVector& radiiUL = rrect.radii(SkRRect::kUpperLeft_Corner);
-    const SkVector& radiiUR = rrect.radii(SkRRect::kUpperRight_Corner);
-    const SkVector& radiiLR = rrect.radii(SkRRect::kLowerRight_Corner);
-    const SkVector& radiiLL = rrect.radii(SkRRect::kLowerLeft_Corner);
+    const SkRect& devOrig = devRRect.getBounds();
+    const SkVector& devRadiiUL = devRRect.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& devRadiiUR = devRRect.radii(SkRRect::kUpperRight_Corner);
+    const SkVector& devRadiiLR = devRRect.radii(SkRRect::kLowerRight_Corner);
+    const SkVector& devRadiiLL = devRRect.radii(SkRRect::kLowerLeft_Corner);
 
-    const int left  = SkScalarCeilToInt(SkTMax<SkScalar>(radiiUL.fX, radiiLL.fX));
-    const int top   = SkScalarCeilToInt(SkTMax<SkScalar>(radiiUL.fY, radiiUR.fY));
-    const int right = SkScalarCeilToInt(SkTMax<SkScalar>(radiiUR.fX, radiiLR.fX));
-    const int bot   = SkScalarCeilToInt(SkTMax<SkScalar>(radiiLL.fY, radiiLR.fY));
+    const int devLeft  = SkScalarCeilToInt(SkTMax<SkScalar>(devRadiiUL.fX, devRadiiLL.fX));
+    const int devTop   = SkScalarCeilToInt(SkTMax<SkScalar>(devRadiiUL.fY, devRadiiUR.fY));
+    const int devRight = SkScalarCeilToInt(SkTMax<SkScalar>(devRadiiUR.fX, devRadiiLR.fX));
+    const int devBot   = SkScalarCeilToInt(SkTMax<SkScalar>(devRadiiLL.fY, devRadiiLR.fY));
 
     // This is a conservative check for nine-patchability
-    if (orig.fLeft + left + blurRadius >= orig.fRight  - right - blurRadius || 
-        orig.fTop  + top  + blurRadius >= orig.fBottom - bot   - blurRadius) {
+    if (devOrig.fLeft + devLeft + devBlurRadius >= devOrig.fRight  - devRight - devBlurRadius ||
+        devOrig.fTop  + devTop  + devBlurRadius >= devOrig.fBottom - devBot   - devBlurRadius) {
         return false;
     }
 
-    int newRRWidth, newRRHeight;
+    const SkVector& srcRadiiUL = srcRRect.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& srcRadiiUR = srcRRect.radii(SkRRect::kUpperRight_Corner);
+    const SkVector& srcRadiiLR = srcRRect.radii(SkRRect::kLowerRight_Corner);
+    const SkVector& srcRadiiLL = srcRRect.radii(SkRRect::kLowerLeft_Corner);
 
-    // 3x3 case
-    newRRWidth = 2*blurRadius + left + right + 1;
-    newRRHeight = 2*blurRadius + top + bot + 1;
-    widthHeight->fWidth = newRRWidth + 2 * blurRadius;
-    widthHeight->fHeight = newRRHeight + 2 * blurRadius;
-    // TODO: need to return non-normalized indices 
-    xs[0] = 0.0f;
-    xs[1] = (blurRadius + left) / (float) widthHeight->fWidth;
-    xs[2] = (blurRadius + left + 1.0f) / widthHeight->fWidth;
-    xs[3] = 1.0f;
+    const SkScalar srcLeft  = SkTMax<SkScalar>(srcRadiiUL.fX, srcRadiiLL.fX);
+    const SkScalar srcTop   = SkTMax<SkScalar>(srcRadiiUL.fY, srcRadiiUR.fY);
+    const SkScalar srcRight = SkTMax<SkScalar>(srcRadiiUR.fX, srcRadiiLR.fX);
+    const SkScalar srcBot   = SkTMax<SkScalar>(srcRadiiLL.fY, srcRadiiLR.fY);
+
+    int newRRWidth = 2*devBlurRadius + devLeft + devRight + 1;
+    int newRRHeight = 2*devBlurRadius + devTop + devBot + 1;
+    widthHeight->fWidth = newRRWidth + 2 * devBlurRadius;
+    widthHeight->fHeight = newRRHeight + 2 * devBlurRadius;
+
+    const SkRect srcProxyRect = srcRRect.getBounds().makeOutset(srcBlurRadius, srcBlurRadius);
+
+    rectXs[0] = srcProxyRect.fLeft;
+    rectXs[1] = srcProxyRect.fLeft + 2*srcBlurRadius + srcLeft;
+    rectXs[2] = srcProxyRect.fRight - 2*srcBlurRadius - srcRight;
+    rectXs[3] = srcProxyRect.fRight;
+
+    rectYs[0] = srcProxyRect.fTop;
+    rectYs[1] = srcProxyRect.fTop + 2*srcBlurRadius + srcTop;
+    rectYs[2] = srcProxyRect.fBottom - 2*srcBlurRadius - srcBot;
+    rectYs[3] = srcProxyRect.fBottom;
+
+    texXs[0] = 0.0f;
+    texXs[1] = 2.0f*devBlurRadius + devLeft;
+    texXs[2] = 2.0f*devBlurRadius + devLeft + 1;
+    texXs[3] = SkIntToScalar(widthHeight->fWidth);
+
+    texYs[0] = 0.0f;
+    texYs[1] = 2.0f*devBlurRadius + devTop;
+    texYs[2] = 2.0f*devBlurRadius + devTop + 1;
+    texYs[3] = SkIntToScalar(widthHeight->fHeight);
+
+    SkRect temp = occluder;
+
     *numXs = 4;
-    ys[0] = 0.0f;
-    ys[1] = (blurRadius + top) / (float) widthHeight->fHeight;
-    ys[2] = (blurRadius + top + 1.0f) / widthHeight->fHeight;
-    ys[3] = 1.0f;
     *numYs = 4;
+    *skipMask = 0;
+    if (!temp.isEmpty() && (srcProxyRect.contains(temp) || temp.intersect(srcProxyRect))) {
+        *skipMask = insert_into_arrays(rectXs, texXs, temp.fLeft, temp.fRight, numXs, 0x1, 1);
+        *skipMask = insert_into_arrays(rectYs, texYs, temp.fTop, temp.fBottom,
+                                       numYs, *skipMask, *numXs-1);
+    }
 
-    const SkRect newRect = SkRect::MakeXYWH(SkIntToScalar(blurRadius), SkIntToScalar(blurRadius),
-                                            SkIntToScalar(newRRWidth), SkIntToScalar(newRRHeight));
+    const SkRect newRect = SkRect::MakeXYWH(SkIntToScalar(devBlurRadius),
+                                            SkIntToScalar(devBlurRadius),
+                                            SkIntToScalar(newRRWidth),
+                                            SkIntToScalar(newRRHeight));
     SkVector newRadii[4];
-    newRadii[0] = { SkScalarCeilToScalar(radiiUL.fX), SkScalarCeilToScalar(radiiUL.fY) };
-    newRadii[1] = { SkScalarCeilToScalar(radiiUR.fX), SkScalarCeilToScalar(radiiUR.fY) };
-    newRadii[2] = { SkScalarCeilToScalar(radiiLR.fX), SkScalarCeilToScalar(radiiLR.fY) };
-    newRadii[3] = { SkScalarCeilToScalar(radiiLL.fX), SkScalarCeilToScalar(radiiLL.fY) };
+    newRadii[0] = { SkScalarCeilToScalar(devRadiiUL.fX), SkScalarCeilToScalar(devRadiiUL.fY) };
+    newRadii[1] = { SkScalarCeilToScalar(devRadiiUR.fX), SkScalarCeilToScalar(devRadiiUR.fY) };
+    newRadii[2] = { SkScalarCeilToScalar(devRadiiLR.fX), SkScalarCeilToScalar(devRadiiLR.fY) };
+    newRadii[3] = { SkScalarCeilToScalar(devRadiiLL.fX), SkScalarCeilToScalar(devRadiiLL.fY) };
 
     rrectToDraw->setRectRadii(newRect, newRadii);
     return true;
@@ -983,7 +1068,9 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
 class GrRRectBlurEffect : public GrFragmentProcessor {
 public:
 
-    static sk_sp<GrFragmentProcessor> Make(GrContext*, float sigma, const SkRRect&);
+    static sk_sp<GrFragmentProcessor> Make(GrContext*,
+                                           float sigma, float xformedSigma,
+                                           const SkRRect& srcRRect, const SkRRect& devRRect);
 
     virtual ~GrRRectBlurEffect() {};
     const char* name() const override { return "GrRRectBlur"; }
@@ -1069,8 +1156,8 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
 }
 
 sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
-                                                   float xformedSigma,
-                                                   const SkRRect& devRRect) {
+                                                   float sigma, float xformedSigma,
+                                                   const SkRRect& srcRRect, const SkRRect& devRRect) {
     SkASSERT(!devRRect.isCircle()); // Should've been caught up-stream
 
     // TODO: loosen this up
@@ -1083,13 +1170,18 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
     // width (and height) of the rrect.
     SkRRect rrectToDraw;
     SkISize size;
-    SkScalar ignored[4];
+    SkScalar ignored[SkBlurMaskFilter::kMaxDivisions];
     int ignoredSize;
+    uint32_t ignored32;
 
-    bool ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(devRRect, xformedSigma,
+    bool ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(srcRRect, devRRect, 
+                                                                     SkRect::MakeEmpty(),
+                                                                     sigma, xformedSigma,
                                                                      &rrectToDraw, &size,
-                                                                     ignored, &ignoredSize,
-                                                                     ignored, &ignoredSize);
+                                                                     ignored, ignored,
+                                                                     ignored, ignored, 
+                                                                     &ignoredSize, &ignoredSize, 
+                                                                     &ignored32);
     if (!ninePatchable) {
         return nullptr;
     }
@@ -1136,7 +1228,7 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::TestCreate(GrProcessorTestData* d)
     SkScalar sigma = d->fRandom->nextRangeF(1.f,10.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    return GrRRectBlurEffect::Make(d->fContext, sigma, rrect);
+    return GrRRectBlurEffect::Make(d->fContext, sigma, sigma, rrect, rrect);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1279,7 +1371,8 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         return true;
     }
 
-    sk_sp<GrFragmentProcessor> fp(GrRRectBlurEffect::Make(context, xformedSigma, devRRect));
+    sk_sp<GrFragmentProcessor> fp(GrRRectBlurEffect::Make(context, fSigma, xformedSigma,
+                                                          srcRRect, devRRect));
     if (!fp) {
         return false;
     }

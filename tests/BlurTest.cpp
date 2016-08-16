@@ -577,12 +577,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo) {
 
 DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
     const SkRect r = SkRect::MakeXYWH(10, 10, 100, 100);
+    static const SkScalar kBlurRad = 3.0f;
 
     bool ninePatchable;
     SkRRect rrectToDraw;
     SkISize size;
-    SkScalar xs[4], ys[4];
-    int numXs, numYs;
+    SkScalar rectXs[SkBlurMaskFilter::kMaxDivisions], rectYs[SkBlurMaskFilter::kMaxDivisions];
+    SkScalar texXs[SkBlurMaskFilter::kMaxDivisions], texYs[SkBlurMaskFilter::kMaxDivisions];
+    int numX, numY;
+    uint32_t skipMask;
 
     // not nine-patchable
     {
@@ -591,47 +594,123 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
         SkRRect rr;
         rr.setRectRadii(r, radii);
 
-        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, 3.0f, &rrectToDraw, &size,
-                                                                    xs, &numXs, ys, &numYs);   
+        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, rr, SkRect::MakeEmpty(),
+                                                                    kBlurRad, kBlurRad,
+                                                                    &rrectToDraw, &size,
+                                                                    rectXs, rectYs, texXs, texYs,
+                                                                    &numX, &numY, &skipMask);   
         REPORTER_ASSERT(reporter, !ninePatchable);
     }
 
     // simple circular
     {
+        static const SkScalar kCornerRad = 10.0f;
         SkRRect rr;
-        rr.setRectXY(r, 10, 10);
+        rr.setRectXY(r, kCornerRad, kCornerRad);
 
-        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, 3.0f, &rrectToDraw, &size,
-                                                                    xs, &numXs, ys, &numYs);   
+        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, rr, SkRect::MakeEmpty(),
+                                                                    kBlurRad, kBlurRad,
+                                                                    &rrectToDraw, &size,
+                                                                    rectXs, rectYs, texXs, texYs,
+                                                                    &numX, &numY, &skipMask);
+
+        static const SkScalar kAns = 12.0f * kBlurRad + 2.0f * kCornerRad + 1.0f;
         REPORTER_ASSERT(reporter, ninePatchable);
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fWidth), 57.0f));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fHeight), 57.0));
-        REPORTER_ASSERT(reporter, 4 == numXs && 4 == numYs);
-        for (int i = 0; i < numXs; ++i) {
-            REPORTER_ASSERT(reporter, xs[i] >= 0.0f && xs[i] <= 1.0f);
-        }
-        for (int i = 0; i < numYs; ++i) {
-            REPORTER_ASSERT(reporter, ys[i] >= 0.0f && ys[i] <= 1.0f);
-        }
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fWidth), kAns));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fHeight), kAns));
+        REPORTER_ASSERT(reporter, 4 == numX && 4 == numY);
+        REPORTER_ASSERT(reporter, !skipMask);
     }
 
     // simple elliptical
     {
+        static const SkScalar kXCornerRad = 2.0f;
+        static const SkScalar kYCornerRad = 10.0f;
         SkRRect rr;
-        rr.setRectXY(r, 2, 10);
+        rr.setRectXY(r, kXCornerRad, kYCornerRad);
 
-        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, 3.0f, &rrectToDraw, &size,
-                                                                    xs, &numXs, ys, &numYs);   
+        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, rr, SkRect::MakeEmpty(),
+                                                                    kBlurRad, kBlurRad,
+                                                                    &rrectToDraw, &size,
+                                                                    rectXs, rectYs, texXs, texYs,
+                                                                    &numX, &numY, &skipMask);
+
+        static const SkScalar kXAns = 12.0f * kBlurRad + 2.0f * kXCornerRad + 1.0f;
+        static const SkScalar kYAns = 12.0f * kBlurRad + 2.0f * kYCornerRad + 1.0f;
+
         REPORTER_ASSERT(reporter, ninePatchable);
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fWidth), 41.0f));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fHeight), 57.0));
-        REPORTER_ASSERT(reporter, 4 == numXs && 4 == numYs);
-        for (int i = 0; i < numXs; ++i) {
-            REPORTER_ASSERT(reporter, xs[i] >= 0.0f && xs[i] <= 1.0f);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fWidth), kXAns));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fHeight), kYAns));
+        REPORTER_ASSERT(reporter, 4 == numX && 4 == numY);
+        REPORTER_ASSERT(reporter, !skipMask);
+    }
+
+    // test-out occlusion
+    {
+        static const SkScalar kCornerRad = 10.0f;
+        SkRRect rr;
+        rr.setRectXY(r, kCornerRad, kCornerRad);
+
+        // The rectXs & rectYs should be { 1, 29, 91, 119 }. Add two more points around each.
+        SkScalar testLocs[] = {
+             -18.0f, -9.0f,
+               1.0f,
+               9.0f, 18.0f, 
+              29.0f, 
+              39.0f, 49.0f,
+              91.0f,
+             109.0f, 118.0f,
+             119.0f,
+             139.0f, 149.0f
+        };
+
+        for (int minY = 0; minY < (int)SK_ARRAY_COUNT(testLocs); ++minY) {
+            for (int maxY = minY+1; maxY < (int)SK_ARRAY_COUNT(testLocs); ++maxY) {
+                for (int minX = 0; minX < (int)SK_ARRAY_COUNT(testLocs); ++minX) {
+                    for (int maxX = minX+1; maxX < (int)SK_ARRAY_COUNT(testLocs); ++maxX) {
+                        SkRect occluder = SkRect::MakeLTRB(testLocs[minX], testLocs[minY],
+                                                           testLocs[maxX], testLocs[maxY]);
+                        if (occluder.isEmpty()) {
+                            continue;
+                        }
+
+                        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(
+                                                                    rr, rr, occluder,
+                                                                    kBlurRad, kBlurRad,
+                                                                    &rrectToDraw, &size,
+                                                                    rectXs, rectYs, texXs, texYs,
+                                                                    &numX, &numY, &skipMask);     
+
+                        static const SkScalar kAns = 12.0f * kBlurRad + 2.0f * kCornerRad + 1.0f;
+                        REPORTER_ASSERT(reporter, ninePatchable);
+                        REPORTER_ASSERT(reporter,
+                                            SkScalarNearlyEqual(SkIntToScalar(size.fWidth), kAns));
+                        REPORTER_ASSERT(reporter,
+                                            SkScalarNearlyEqual(SkIntToScalar(size.fHeight), kAns));
+
+                        int checkBit = 0x1;
+                        for (int y = 0; y < numY-1; ++y) {
+                            for (int x = 0; x < numX-1; ++x) {
+                                SkRect cell = SkRect::MakeLTRB(rectXs[x], rectYs[y],
+                                                               rectXs[x+1], rectYs[y+1]);
+                                REPORTER_ASSERT(reporter,
+                                                    SkToBool(skipMask & checkBit) ==
+                                                    (cell.isEmpty() || occluder.contains(cell)));
+
+                                REPORTER_ASSERT(reporter, texXs[x] >= 0 &&
+                                                          texXs[x] <= size.fWidth);
+                                REPORTER_ASSERT(reporter, texYs[y] >= 0 &&
+                                                          texXs[y] <= size.fHeight);
+
+                                checkBit <<= 1;
+                            }
+                        }
+                    }
+                }
+            }
         }
-        for (int i = 0; i < numYs; ++i) {
-            REPORTER_ASSERT(reporter, ys[i] >= 0.0f && ys[i] <= 1.0f);
-        }
+
+
     }
 
 }
