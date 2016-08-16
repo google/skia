@@ -142,13 +142,14 @@ public:
                                 SkColorSpace* dstColorSpace,
                                 SkSourceGammaTreatment) override;
 
-protected:
-    /** The whole texture is content. */
-    explicit GrTextureAdjuster(GrTexture* original, bool isAlphaOnly)
-        : INHERITED(original->width(), original->height(), isAlphaOnly)
-        , fOriginal(original) {}
+    // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
+    // this Adjuster is alive.
+    GrTextureAdjuster(GrTexture*, const SkIRect& area, uint32_t uniqueID, SkColorSpace*);
 
-    GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea, bool isAlphaOnly);
+protected:
+    SkColorSpace* getColorSpace() override;
+    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
+    void didCacheCopy(const GrUniqueKey& copyKey) override;
 
     GrTexture* originalTexture() const { return fOriginal; }
 
@@ -158,6 +159,8 @@ protected:
 private:
     SkTLazy<SkIRect>    fContentArea;
     GrTexture*          fOriginal;
+    SkColorSpace*       fColorSpace;
+    uint32_t            fUniqueID;
 
     GrTexture* refCopy(const CopyParams &copyParams);
 

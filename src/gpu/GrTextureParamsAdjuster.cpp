@@ -112,16 +112,33 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
     return copyDC->asTexture().release();
 }
 
-GrTextureAdjuster::GrTextureAdjuster(GrTexture* original,
-                                     const SkIRect& contentArea,
-                                     bool isAlphaOnly)
-    : INHERITED(contentArea.width(), contentArea.height(), isAlphaOnly)
-    , fOriginal(original) {
+GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea,
+                                     uint32_t uniqueID, SkColorSpace* cs)
+    : INHERITED(contentArea.width(), contentArea.height(),
+                GrPixelConfigIsAlphaOnly(original->config()))
+    , fOriginal(original)
+    , fColorSpace(cs)
+    , fUniqueID(uniqueID)
+{
     SkASSERT(SkIRect::MakeWH(original->width(), original->height()).contains(contentArea));
     if (contentArea.fLeft > 0 || contentArea.fTop > 0 ||
         contentArea.fRight < original->width() || contentArea.fBottom < original->height()) {
         fContentArea.set(contentArea);
     }
+}
+
+void GrTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) {
+    GrUniqueKey baseKey;
+    GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::MakeWH(this->width(), this->height()));
+    MakeCopyKeyFromOrigKey(baseKey, params, copyKey);
+}
+
+void GrTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey) {
+    // We don't currently have a mechanism for notifications on Images!
+}
+
+SkColorSpace* GrTextureAdjuster::getColorSpace() {
+    return fColorSpace;
 }
 
 GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {

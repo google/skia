@@ -17,32 +17,13 @@
 
 static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }
 
-// SkImage's don't have a way of communicating whether they're alpha-only. So we fallback to
-// inspecting the texture.
-static bool tex_image_is_alpha_only(const SkImage_Base& img) {
-    return GrPixelConfigIsAlphaOnly(img.peekTexture()->config());
-}
-
+// By construction this texture adjuster always represents an entire SkImage, so use the
+// image's dimensions for the key's rectangle.
 GrImageTextureAdjuster::GrImageTextureAdjuster(const SkImage_Base* img)
-    : INHERITED(img->peekTexture(), SkIRect::MakeWH(img->width(), img->height()),
-                tex_image_is_alpha_only(*img))
-    , fImageBase(img) {}
-
-void GrImageTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) {
-    // By construction this texture adjuster always represents an entire SkImage, so use the
-    // image's width and height for the key's rectangle.
-    GrUniqueKey baseKey;
-    GrMakeKeyFromImageID(&baseKey, fImageBase->uniqueID(),
-                         SkIRect::MakeWH(fImageBase->width(), fImageBase->height()));
-    MakeCopyKeyFromOrigKey(baseKey, params, copyKey);
-}
-
-void GrImageTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey) {
-    // We don't currently have a mechanism for notifications on Images!
-}
-
-SkColorSpace* GrImageTextureAdjuster::getColorSpace() {
-    return fImageBase->onImageInfo().colorSpace();
+    : GrTextureAdjuster(img->peekTexture(), SkIRect::MakeSize(img->dimensions()), img->uniqueID(),
+                        img->onImageInfo().colorSpace())
+{
+    SkASSERT(img->peekTexture());
 }
 
 //////////////////////////////////////////////////////////////////////////////
