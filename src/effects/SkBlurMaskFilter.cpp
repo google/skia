@@ -1081,7 +1081,7 @@ public:
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    GrRRectBlurEffect(float xformedSigma, const SkRRect& devRRect, GrTexture* mask);
+    GrRRectBlurEffect(float sigma, const SkRRect&, GrTexture* profileTexture);
 
     virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
                                        GrProcessorKeyBuilder* b) const override;
@@ -1192,19 +1192,19 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
         return nullptr;
     }
 
-    return sk_sp<GrFragmentProcessor>(new GrRRectBlurEffect(xformedSigma, devRRect, mask.get()));
+    return sk_sp<GrFragmentProcessor>(new GrRRectBlurEffect(xformedSigma,
+                                                            devRRect,
+                                                            mask.get()));
 }
 
 void GrRRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownSingleComponent();
 }
 
-GrRRectBlurEffect::GrRRectBlurEffect(float xformedSigma, 
-                                     const SkRRect& devRRect,
-                                     GrTexture *ninePatchTexture)
-    : fRRect(devRRect)
-    , fSigma(xformedSigma)
-    , fNinePatchAccess(ninePatchTexture) {
+GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTexture *ninePatchTexture)
+    : fRRect(rrect),
+      fSigma(sigma),
+      fNinePatchAccess(ninePatchTexture) {
     this->initClassID<GrRRectBlurEffect>();
     this->addTextureAccess(&fNinePatchAccess);
     this->setWillReadFragmentPosition();
@@ -1351,9 +1351,6 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
-    GrPaint newPaint(*grp);
-    newPaint.setAntiAlias(false);
-
     if (devRRect.isCircle()) {
         sk_sp<GrFragmentProcessor> fp(GrCircleBlurFragmentProcessor::Make(
                                                                         context->textureProvider(),
@@ -1363,7 +1360,9 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
             return false;
         }
 
+        GrPaint newPaint(*grp);
         newPaint.addCoverageFragmentProcessor(std::move(fp));
+        newPaint.setAntiAlias(false);
 
         SkRect srcProxyRect = srcRRect.rect();
         srcProxyRect.outset(3.0f*fSigma, 3.0f*fSigma);
@@ -1372,69 +1371,51 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         return true;
     }
 
-    SkRRect maskSpaceRRectToDraw;
-    SkISize maskSize;
-    SkScalar rectXs[SkBlurMaskFilter::kMaxDivisions], rectYs[SkBlurMaskFilter::kMaxDivisions];
-    SkScalar texXs[SkBlurMaskFilter::kMaxDivisions], texYs[SkBlurMaskFilter::kMaxDivisions];
-    int numX, numY;
-    uint32_t skipMask;
-
-    bool ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(srcRRect, devRRect, fOccluder,
-                                                                     fSigma, xformedSigma,
-                                                                     &maskSpaceRRectToDraw,
-                                                                     &maskSize,
-                                                                     rectXs, rectYs, texXs, texYs,
-                                                                     &numX, &numY, &skipMask);
-    if (!ninePatchable) {
+    sk_sp<GrFragmentProcessor> fp(GrRRectBlurEffect::Make(context, fSigma, xformedSigma,
+                                                          srcRRect, devRRect));
+    if (!fp) {
         return false;
     }
 
-    if (!this->ignoreXform()) { 
-        sk_sp<GrTexture> mask(find_or_create_rrect_blur_mask(context,
-                                                             maskSpaceRRectToDraw, maskSize,
-                                                             xformedSigma, true));
-        if (!mask) {
-            return false;
-        }
+    GrPaint newPaint(*grp);
+    newPaint.addCoverageFragmentProcessor(std::move(fp));
+    newPaint.setAntiAlias(false);
 
-        SkMatrix texMatrix;
-        texMatrix.setIDiv(mask->width(), mask->height());
+    if (!this->ignoreXform()) {
+        SkRect srcProxyRect = srcRRect.rect();
+        srcProxyRect.outset(3.0f*fSigma, 3.0f*fSigma);
 
-        GrTextureParams params;
-        params.reset(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
+        SkPoint points[8];
+        uint16_t indices[24];
+        int numPoints, numIndices;
 
-        sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(mask.get(), nullptr,
-                                                                    texMatrix, params);
-        if (!fp) {
-            return false;
-        }
+        SkRect temp = fOccluder;
 
-        newPaint.addColorFragmentProcessor(std::move(fp));
+        if (!temp.isEmpty() && (srcProxyRect.contains(temp) || temp.intersect(srcProxyRect))) {
+            srcProxyRect.toQuad(points);
+            temp.toQuad(&points[4]);
+            numPoints = 8;
 
-        uint32_t checkBit = 0x1;
-        for (int y = 0; y < numY-1; ++y) {
-            for (int x = 0; x < numX-1; ++x) {
-                if (skipMask & checkBit) {
-                    checkBit <<= 1;
-                    continue;
-                }
-                drawContext->fillRectToRect(
-                            clip, newPaint, viewMatrix,
-                            SkRect::MakeLTRB(rectXs[x], rectYs[y], rectXs[x+1], rectYs[y+1]), // dst
-                            SkRect::MakeLTRB(texXs[x], texYs[y], texXs[x+1], texYs[y+1]));    // src
-                checkBit <<= 1;
-            }
-        }
+            static const uint16_t ringI[24] = { 0, 1, 5, 5, 4, 0,
+                                                1, 2, 6, 6, 5, 1,
+                                                2, 3, 7, 7, 6, 2,
+                                                3, 0, 4, 4, 7, 3 };
+            memcpy(indices, ringI, sizeof(ringI));
+            numIndices = 24;
+        } else {
+            // full rect case
+            srcProxyRect.toQuad(points);
+            numPoints = 4;
+
+            static const uint16_t fullI[6] = { 0, 1, 2, 0, 2, 3 };
+            memcpy(indices, fullI, sizeof(fullI));
+            numIndices = 6;
+        } 
+
+        drawContext->drawVertices(clip, newPaint, viewMatrix, kTriangles_GrPrimitiveType,
+                                  numPoints, points, nullptr, nullptr, indices, numIndices);
+
     } else {
-        sk_sp<GrFragmentProcessor> fp(GrRRectBlurEffect::Make(context,
-                                                              fSigma, xformedSigma,
-                                                              srcRRect, devRRect));
-        if (!fp) {
-            return false;
-        }
-
-        newPaint.addCoverageFragmentProcessor(std::move(fp));
-
         SkMatrix inverse;
         if (!viewMatrix.invert(&inverse)) {
             return false;
