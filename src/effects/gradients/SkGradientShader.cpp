@@ -1116,12 +1116,14 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             if (SkShader::kClamp_TileMode == ge.fTileMode) {
                 fragBuilder->codeAppendf("relative_t += step(1.0, %s);", t);
             }
-            fragBuilder->codeAppendf("vec4 colorTemp = mix(%s[0], %s[1], relative_t);", colors,
-                                     colors);
+
+            fragBuilder->codeAppendf("vec4 start = %s[0];", colors);
+            fragBuilder->codeAppendf("vec4 end   = %s[1];", colors);
             fragBuilder->codeAppendf("if (clamp_t >= 0.5) {");
-            fragBuilder->codeAppendf("    colorTemp = mix(%s[2], %s[3], relative_t);", colors,
-                                     colors);
+            fragBuilder->codeAppendf("    start = %s[2];", colors);
+            fragBuilder->codeAppendf("    end   = %s[3];", colors);
             fragBuilder->codeAppendf("}");
+            fragBuilder->codeAppendf("vec4 colorTemp = mix(start, end, relative_t);");
 
             if (GrGradientEffect::kAfterInterp_PremulType == ge.getPremulType()) {
                 fragBuilder->codeAppend("colorTemp.rgb *= colorTemp.a;");
