@@ -116,10 +116,10 @@ protected:
             fSceneChanged = false;
             fLightsChanged = false;
             fClearShadowMaps = false;
-
-            canvas->setLights(fLights);
-            canvas->drawShadowedPicture(fPicture, nullptr, nullptr);
         }
+
+        canvas->setLights(fLights);
+        canvas->drawShadowedPicture(fPicture, nullptr, nullptr);
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
