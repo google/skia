@@ -1056,6 +1056,14 @@ SkISize SVGSrc::size() const {
 
 Name SVGSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
+bool SVGSrc::veto(SinkFlags flags) const {
+    // No need to test to non-(raster||gpu) or indirect backends.
+    bool type_ok = flags.type == SinkFlags::kRaster
+                || flags.type == SinkFlags::kGPU;
+
+    return !type_ok || flags.approach != SinkFlags::kDirect;
+}
+
 #endif // defined(SK_XML)
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

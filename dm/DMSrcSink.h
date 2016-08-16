@@ -256,6 +256,7 @@ public:
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
+    bool veto(SinkFlags) const override;
 
 private:
     Path fPath;
