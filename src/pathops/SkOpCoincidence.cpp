@@ -694,7 +694,7 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
             : coinSeg->addT(coinTs, SkOpSegment::kNoAliasMatch, nullptr);
         SkOpPtT* osWritable = os ? const_cast<SkOpPtT*>(os)
             : oppSeg->addT(oppTs, SkOpSegment::kNoAliasMatch, nullptr);
-        if (!osWritable) {
+        if (!csWritable || !osWritable) {
             return false;
         }
         csWritable->span()->addOppAndMerge(osWritable->span());

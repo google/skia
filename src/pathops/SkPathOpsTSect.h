@@ -1159,7 +1159,7 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::extractCoincident(
         SkTSect<OppCurve, TCurve>* sect2,
         SkTSpan<TCurve, OppCurve>* first, SkTSpan<TCurve, OppCurve>* last) {
     first = findCoincidentRun(first, &last);
-    if (!first) {
+    if (!first || !last) {
         return nullptr;
     }
     // march outwards to find limit of coincidence from here to previous and next spans
