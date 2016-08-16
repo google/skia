@@ -756,7 +756,7 @@ bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
     SkAdvancedTypefaceMetrics::FontType type = this->getType();
     SkTypeface* face = this->typeface();
     SkASSERT(face);
-    const char* name = metrics.fFontName.c_str();
+    const SkString& name = metrics.fFontName;
 
     auto descriptor = sk_make_sp<SkPDFDict>("FontDescriptor");
     add_common_font_descriptor_entries(descriptor.get(), metrics, 0);
@@ -785,7 +785,7 @@ bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
                     subset->exportTo(&glyphIDs);
                 }
                 sk_sp<SkPDFObject> subsetStream = get_subset_font_stream(
-                        std::move(fontAsset), glyphIDs, name);
+                        std::move(fontAsset), glyphIDs, name.c_str());
                 if (subsetStream) {
                     descriptor->insertObjRef("FontFile2", std::move(subsetStream));
                     break;
