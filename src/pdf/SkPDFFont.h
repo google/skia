@@ -125,9 +125,6 @@ public:
                                       SkTypeface* typeface,
                                       uint16_t glyphID);
 
-    static sk_sp<const SkAdvancedTypefaceMetrics> GetFontMetricsWithGlyphNames(
-            SkTypeface*, uint32_t* glyphs, uint32_t glyphsCount);
-
     static sk_sp<const SkAdvancedTypefaceMetrics> GetFontMetricsWithToUnicode(
             SkTypeface*, uint32_t* glyphs, uint32_t glyphsCount);
 
@@ -179,9 +176,6 @@ protected:
     void setFontDescriptor(sk_sp<SkPDFDict> descriptor);
 
     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
-
-    // Add common entries to FontDescriptor.
-    bool addCommonFontDescriptorEntries(int16_t defaultWidth);
 
     /** Set fFirstGlyphID and fLastGlyphID to span at most 255 glyphs,
      *  including the passed glyphID.
