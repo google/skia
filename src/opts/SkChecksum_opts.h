@@ -16,18 +16,18 @@
 #endif
 
 // TODO: ARMv8 has optional CRC instructions similar to SSE 4.2
-// TODO: 32-bit x86 version: same sort of idea using only _mm_crc32_u32() and smaller
 
 namespace SK_OPTS_NS {
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42 && (defined(__x86_64__) || defined(_M_X64))
-    template <typename T>
-    static inline T unaligned_load(const uint8_t* src) {
-        T val;
-        memcpy(&val, src, sizeof(val));
-        return val;
-    }
+template <typename T>
+static inline T unaligned_load(const uint8_t* src) {
+    T val;
+    memcpy(&val, src, sizeof(val));
+    return val;
+}
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42 && (defined(__x86_64__) || defined(_M_X64))
+    // This is not a CRC32.  It's Just A Hash that uses those instructions because they're fast.
     static uint32_t hash_fn(const void* vdata, size_t bytes, uint32_t seed) {
         auto data = (const uint8_t*)vdata;
 
@@ -82,21 +82,61 @@ namespace SK_OPTS_NS {
         return hash32;
     }
 
-#else
-    static uint32_t hash_fn(const void* data, size_t bytes, uint32_t seed) {
-        // This is Murmur3.
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42
+    // 32-bit version of above, using _mm_crc32_u32() but not _mm_crc32_u64().
+    static uint32_t hash_fn(const void* vdata, size_t bytes, uint32_t hash) {
+        auto data = (const uint8_t*)vdata;
 
-        // Use may_alias to remind the compiler we're intentionally violating strict aliasing,
-        // and so not to apply strict-aliasing-based optimizations.
-        typedef uint32_t SK_ATTRIBUTE(may_alias) aliased_uint32_t;
-        typedef uint8_t SK_ATTRIBUTE(may_alias) aliased_uint8_t;
+        if (bytes >= 12) {
+            // We'll create 3 independent hashes, each using _mm_crc32_u32()
+            // to hash 4 bytes per step.  Both 3 and independent are important:
+            // we can execute 3 of these instructions in parallel on a single core.
+            uint32_t a = hash,
+                     b = hash,
+                     c = hash;
+            size_t steps = bytes/12;
+            while (steps --> 0) {
+                a = _mm_crc32_u32(a, unaligned_load<uint32_t>(data+0));
+                b = _mm_crc32_u32(b, unaligned_load<uint32_t>(data+4));
+                c = _mm_crc32_u32(c, unaligned_load<uint32_t>(data+8));
+                data += 12;
+            }
+            bytes %= 12;
+            hash = a^b^c;
+        }
+
+        SkASSERT(bytes < 12);
+        if (bytes >= 8) {
+            hash = _mm_crc32_u32(hash, unaligned_load<uint32_t>(data));
+            bytes -= 4;
+            data  += 4;
+        }
+
+        SkASSERT(bytes < 8);
+        if (bytes & 4) {
+            hash = _mm_crc32_u32(hash, unaligned_load<uint32_t>(data));
+            data += 4;
+        }
+        if (bytes & 2) {
+            hash = _mm_crc32_u16(hash, unaligned_load<uint16_t>(data));
+            data += 2;
+        }
+        if (bytes & 1) {
+            hash = _mm_crc32_u8(hash, unaligned_load<uint8_t>(data));
+        }
+        return hash;
+    }
+
+#else
+    // This is Murmur3.
+    static uint32_t hash_fn(const void* vdata, size_t bytes, uint32_t hash) {
+        auto data = (const uint8_t*)vdata;
+
+        size_t original_bytes = bytes;
 
         // Handle 4 bytes at a time while possible.
-        const aliased_uint32_t* safe_data = (const aliased_uint32_t*)data;
-        const size_t words = bytes/4;
-        uint32_t hash = seed;
-        for (size_t i = 0; i < words; i++) {
-            uint32_t k = safe_data[i];
+        while (bytes >= 4) {
+            uint32_t k = unaligned_load<uint32_t>(data);
             k *= 0xcc9e2d51;
             k = (k << 15) | (k >> 17);
             k *= 0x1b873593;
@@ -105,22 +145,24 @@ namespace SK_OPTS_NS {
             hash = (hash << 13) | (hash >> 19);
             hash *= 5;
             hash += 0xe6546b64;
+
+            bytes -= 4;
+            data  += 4;
         }
 
         // Handle last 0-3 bytes.
-        const aliased_uint8_t* safe_tail = (const uint8_t*)(safe_data + words);
         uint32_t k = 0;
         switch (bytes & 3) {
-            case 3: k ^= safe_tail[2] << 16;
-            case 2: k ^= safe_tail[1] <<  8;
-            case 1: k ^= safe_tail[0] <<  0;
+            case 3: k ^= data[2] << 16;
+            case 2: k ^= data[1] <<  8;
+            case 1: k ^= data[0] <<  0;
                     k *= 0xcc9e2d51;
                     k = (k << 15) | (k >> 17);
                     k *= 0x1b873593;
                     hash ^= k;
         }
 
-        hash ^= bytes;
+        hash ^= original_bytes;
         return SkChecksum::Mix(hash);
     }
 #endif
