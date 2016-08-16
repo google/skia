@@ -105,12 +105,10 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
         return nullptr;
     }
 
-    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(resultTex->width(), resultTex->height()),
                                        this->uniqueID(),
                                        resultTex, sk_ref_sp(this->getColorSpace()), &this->props(),
-                                       at);
+                                       this->alphaType());
 #else
     return nullptr;
 #endif
@@ -220,7 +218,7 @@ public:
         SkASSERT(fBitmap.getPixels());
     }
 
-    bool isOpaque() const override { return fBitmap.isOpaque(); }
+    SkAlphaType alphaType() const override { return fBitmap.alphaType(); }
 
     size_t getSize() const override { return fBitmap.getSize(); }
 
@@ -334,9 +332,7 @@ public:
         }
     }
 
-    bool isOpaque() const override {
-        return GrPixelConfigIsOpaque(fTexture->config()) || fAlphaType == kOpaque_SkAlphaType;
-    }
+    SkAlphaType alphaType() const override { return fAlphaType; }
 
     size_t getSize() const override { return fTexture->gpuMemorySize(); }
 
@@ -365,9 +361,7 @@ public:
         }
 
         SkImageInfo info = SkImageInfo::MakeN32(this->width(), this->height(),
-                                                this->isOpaque() ? kOpaque_SkAlphaType
-                                                                 : kPremul_SkAlphaType,
-                                                fColorSpace);
+                                                this->alphaType(), fColorSpace);
 
         if (!dst->tryAllocPixels(info)) {
             return false;

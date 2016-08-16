@@ -53,7 +53,7 @@ public:
     SkColorSpace* getColorSpace() const;
 
     uint32_t uniqueID() const { return fUniqueID; }
-    virtual bool isOpaque() const { return false; }
+    virtual SkAlphaType alphaType() const = 0;
     virtual size_t getSize() const = 0;
 
     /**
