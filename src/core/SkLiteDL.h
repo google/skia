@@ -20,8 +20,7 @@ class GrContext;
 class SkLiteDL final : public SkDrawable {
 public:
     static sk_sp<SkLiteDL> New(SkRect);
-
-    static void PurgeFreelist();
+    void reset(SkRect);
 
     void optimizeFor(GrContext*);
     void makeThreadsafe();
@@ -81,10 +80,8 @@ public:
                    SkXfermode::Mode, const SkRect*, const SkPaint*);
 
 private:
-    SkLiteDL();
+    SkLiteDL(SkRect);
     ~SkLiteDL();
-
-    void internal_dispose() const override;
 
     SkRect   onGetBounds() override;
     void onDraw(SkCanvas*) override;
@@ -99,10 +96,6 @@ private:
     size_t                 fUsed;
     size_t                 fReserved;
     SkRect                 fBounds;
-
-    // Only used for freelisting.
-    SkLiteDL* fNext;
-    int       fUsesRemaining;
 };
 
 #endif//SkLiteDL_DEFINED

@@ -14,7 +14,6 @@
 #include "SkGeometry.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilter.h"
-#include "SkLiteDL.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
 #include "SkOpts.h"
@@ -62,7 +61,6 @@ void SkGraphics::PurgeAllCaches() {
     SkGraphics::PurgeFontCache();
     SkGraphics::PurgeResourceCache();
     SkImageFilter::PurgeCache();
-    SkLiteDL::PurgeFreelist();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

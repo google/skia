@@ -9,11 +9,16 @@
 #include "SkData.h"
 #include "SkImageFilter.h"
 #include "SkLiteDL.h"
+#include "SkMath.h"
 #include "SkPicture.h"
 #include "SkMutex.h"
 #include "SkRSXform.h"
 #include "SkSpinlock.h"
 #include "SkTextBlob.h"
+
+#ifndef SKLITEDL_PAGE
+    #define SKLITEDL_PAGE 4096
+#endif
 
 // A stand-in for an optional SkRect which was not set, e.g. bounds for a saveLayer().
 static const SkRect kUnset = { SK_ScalarInfinity, 0,0,0};
@@ -527,7 +532,9 @@ void* SkLiteDL::push(size_t pod, Args&&... args) {
     size_t skip = SkAlignPtr(sizeof(T) + pod);
     SkASSERT(skip < (1<<24));
     if (fUsed + skip > fReserved) {
-        fReserved = (fUsed + skip + 4096) & ~4095;  // Next greater multiple of 4096.
+        static_assert(SkIsPow2(SKLITEDL_PAGE), "This math needs updating for non-pow2.");
+        // Next greater multiple of SKLITEDL_PAGE.
+        fReserved = (fUsed + skip + SKLITEDL_PAGE) & ~(SKLITEDL_PAGE-1);
         fBytes.realloc(fReserved);
     }
     SkASSERT(fUsed + skip <= fReserved);
@@ -768,60 +775,21 @@ bool SkLiteDL::empty() const {
     return fUsed == 0;
 }
 
-#if !defined(SK_LITEDL_USES)
-    #define  SK_LITEDL_USES 16
-#endif
+SkLiteDL:: SkLiteDL(SkRect bounds) : fUsed(0), fReserved(0), fBounds(bounds) {}
 
-SkLiteDL:: SkLiteDL() : fUsed(0), fReserved(0), fUsesRemaining(SK_LITEDL_USES) {}
-SkLiteDL::~SkLiteDL() {}
-
-// If you're tempted to make this lock free, please don't forget about ABA.
-static SkSpinlock gFreeStackLock;
-static SkLiteDL*  gFreeStack = nullptr;
+SkLiteDL::~SkLiteDL() {
+    this->reset(SkRect::MakeEmpty());
+}
 
 sk_sp<SkLiteDL> SkLiteDL::New(SkRect bounds) {
-    sk_sp<SkLiteDL> dl;
-    {
-        SkAutoMutexAcquire lock(gFreeStackLock);
-        if (gFreeStack) {
-            dl.reset(gFreeStack);  // Adopts the ref the stack's been holding.
-            gFreeStack = gFreeStack->fNext;
-        }
-    }
-
-    if (!dl) {
-        dl.reset(new SkLiteDL);
-    }
-
-    dl->fBounds = bounds;
-    return dl;
+    return sk_sp<SkLiteDL>(new SkLiteDL(bounds));
 }
 
-void SkLiteDL::internal_dispose() const {
-    // Whether we delete this or leave it on the free stack,
-    // we want its refcnt at 1.
-    this->internal_dispose_restore_refcnt_to_1();
+void SkLiteDL::reset(SkRect bounds) {
+    SkASSERT(this->unique());
+    this->map(dtor_fns);
 
-    auto self = const_cast<SkLiteDL*>(this);
-    self->map(dtor_fns);
-
-    if (--self->fUsesRemaining > 0) {
-        self->fUsed = 0;
-
-        SkAutoMutexAcquire lock(gFreeStackLock);
-        self->fNext = gFreeStack;
-        gFreeStack = self;
-        return;
-    }
-
-    delete this;
-}
-
-void SkLiteDL::PurgeFreelist() {
-    SkAutoMutexAcquire lock(gFreeStackLock);
-    while (gFreeStack) {
-        SkLiteDL* top = gFreeStack;
-        gFreeStack = gFreeStack->fNext;
-        delete top;   // Calling unref() here would just put it back on the list!
-    }
+    // Leave fBytes and fReserved alone.
+    fUsed   = 0;
+    fBounds = bounds;
 }
