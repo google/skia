@@ -11,7 +11,6 @@
 #include "SkEndian.h"
 #include "SkOTTable_EBDT.h"
 #include "SkOTTableTypes.h"
-#include "SkTypedEnum.h"
 
 #pragma pack(push, 1)
 
@@ -54,13 +53,12 @@ struct SkOTTableEmbeddedBitmapLocation {
         SK_OT_BYTE ppemX; //horizontal pixels per Em
         SK_OT_BYTE ppemY; //vertical pixels per Em
         struct BitDepth {
-            SK_TYPED_ENUM(Value, SK_OT_BYTE,
-                ((BW, 1))
-                ((Gray4, 2))
-                ((Gray16, 4))
-                ((Gray256, 8))
-                SK_SEQ_END,
-            SK_SEQ_END)
+            enum Value : SK_OT_BYTE {
+                BW = 1,
+                Gray4 = 2,
+                Gray16 = 4,
+                Gray256 = 8,
+            };
             SK_OT_BYTE value;
         } bitDepth; //the Microsoft rasterizer v.1.7 or greater supports
         union Flags {

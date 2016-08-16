@@ -10,7 +10,6 @@
 
 #include "SkEndian.h"
 #include "SkOTTableTypes.h"
-#include "SkTypedEnum.h"
 
 #pragma pack(push, 1)
 
@@ -22,14 +21,13 @@ struct SkOTTablePostScript {
     static const SK_OT_ULONG TAG = SkOTTableTAG<SkOTTablePostScript>::value;
 
     struct Format {
-        SK_TYPED_ENUM(Value, SK_OT_Fixed,
-            ((version1, SkTEndian_SwapBE32(0x00010000)))
-            ((version2, SkTEndian_SwapBE32(0x00020000)))
-            ((version2_5, SkTEndian_SwapBE32(0x00025000)))
-            ((version3, SkTEndian_SwapBE32(0x00030000)))
-            ((version4, SkTEndian_SwapBE32(0x00040000)))
-            SK_SEQ_END,
-        SK_SEQ_END)
+        enum Value : SK_OT_Fixed {
+            version1 = SkTEndian_SwapBE32(0x00010000),
+            version2 = SkTEndian_SwapBE32(0x00020000),
+            version2_5 = SkTEndian_SwapBE32(0x00025000),
+            version3 = SkTEndian_SwapBE32(0x00030000),
+            version4 = SkTEndian_SwapBE32(0x00040000),
+        };
         SK_OT_Fixed value;
     } format;
     SK_OT_Fixed italicAngle;
