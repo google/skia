@@ -17,6 +17,8 @@ class SkSVGRenderContext;
 class SkSVGValue;
 
 enum class SkSVGTag {
+    kCircle,
+    kEllipse,
     kG,
     kPath,
     kPolygon,

@@ -14,14 +14,17 @@
 class SkSVGRenderContext;
 
 enum class SkSVGAttribute {
+    kCx, // <circle>,<ellipse>: center x position
+    kCy, // <circle>,<ellipse>: center y position
     kD,
     kFill,
     kFillOpacity,
     kHeight,
     kOpacity,
     kPoints,
-    kRx,
-    kRy,
+    kR,  // <circle>: radius
+    kRx, // <ellipse>,<rect>: horizontal (corner) radius
+    kRy, // <ellipse>,<rect>: vertical (corner) radius
     kStroke,
     kStrokeOpacity,
     kStrokeLineCap,
