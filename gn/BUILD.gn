@@ -7,6 +7,10 @@ declare_args() {
   ar = "ar"
   cc = "cc"
   cxx = "c++"
+
+  extra_cflags = ""
+  extra_cflags_c = ""
+  extra_cflags_cc = ""
 }
 
 config("no_rtti") {
@@ -64,7 +68,7 @@ toolchain("gcc_like") {
 
   tool("cc") {
     depfile = "{{output}}.d"
-    command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
+    command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} $extra_cflags $extra_cflags_c -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
@@ -74,7 +78,7 @@ toolchain("gcc_like") {
 
   tool("cxx") {
     depfile = "{{output}}.d"
-    command = "$cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+    command = "$cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} $extra_cflags $extra_cflags_cc -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",

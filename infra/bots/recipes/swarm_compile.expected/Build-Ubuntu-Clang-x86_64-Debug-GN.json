@@ -127,7 +127,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN/Debug",
-      "--args=cc=\"/usr/bin/ccache clang -Qunused-arguments\" cxx=\"/usr/bin/ccache clang++ -Qunused-arguments\""
+      "--args=cc=\"/usr/bin/ccache clang\" cxx=\"/usr/bin/ccache clang++\" is_debug=true extra_cflags=\"-Qunused-arguments\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

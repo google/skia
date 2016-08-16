@@ -21,12 +21,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     configuration = self.m.vars.builder_cfg.get('configuration', '')
     extra_config  = self.m.vars.builder_cfg.get('extra_config',  '')
 
-    gn_args = []
-    if configuration != 'Debug':
-      gn_args.append('is_debug=false')
-
     cc, cxx = 'cc', 'c++'
-    cflags = []
+    extra_cflags = []
 
     if compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
@@ -38,19 +34,24 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       cc, cxx = '%s %s' % (ccache, cc), '%s %s' % (ccache, cxx)
       if compiler == 'Clang':
         # Stifle "argument unused during compilation: ..." warnings.
-        cflags.append('-Qunused-arguments')
+        extra_cflags.append('-Qunused-arguments')
 
     if extra_config == 'Fast':
-      cflags.extend(['-march=native', '-fomit-frame-pointer'])
+      extra_cflags.extend(['-march=native', '-fomit-frame-pointer', '-O3'])
     if extra_config.startswith('SK'):
-      cflags.append('-D' + extra_config)
+      extra_cflags.append('-D' + extra_config)
 
-    cflags = ' '.join(cflags)
-    gn_args += [ 'cc="%s %s"' % (cc, cflags), 'cxx="%s %s"' % (cxx, cflags) ]
+    quote = lambda x: '"%s"' % x
+    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in {
+        'cc': quote(cc),
+        'cxx': quote(cxx),
+        'extra_cflags': quote(' '.join(extra_cflags)),
+        'is_debug': 'true' if configuration == 'Debug' else 'false',
+    }.iteritems())
 
     run = lambda title, cmd: self.m.run(self.m.step, title, cmd=cmd,
                                         cwd=self.m.vars.skia_dir, **kwargs)
 
     run('fetch-gn', [self.m.vars.skia_dir.join('bin', 'fetch-gn')])
-    run('gn gen', ['gn', 'gen', self.out_dir, '--args=%s' % ' '.join(gn_args)])
+    run('gn gen', ['gn', 'gen', self.out_dir, '--args=' + gn_args])
     run('ninja', ['ninja', '-C', self.out_dir])
