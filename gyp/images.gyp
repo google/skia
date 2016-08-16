@@ -17,6 +17,7 @@
         'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
         'etc1.gyp:libetc1',
         'ktx.gyp:libSkKTX',
+        'libpng.gyp:libpng',
         'libwebp.gyp:libwebp',
         'utils.gyp:utils',
       ],
@@ -57,7 +58,6 @@
       'conditions': [
         [ 'skia_os == "win"', {
           'sources!': [
-            '../src/images/SkPNGImageEncoder.cpp',
             '../src/images/SkGIFMovie.cpp',
           ],
           'dependencies!': [
@@ -75,19 +75,12 @@
         }],
         [ 'skia_os in ["mac", "ios"]', {
           'sources!': [
-            '../src/images/SkPNGImageEncoder.cpp',
             '../src/images/SkGIFMovie.cpp',
           ],
         },{ #else if skia_os != mac
           'sources!': [
             '../src/ports/SkImageEncoder_CG.cpp',
           ],
-        }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
-          'dependencies': [
-            'libpng.gyp:libpng',
-          ],
-          # end libpng stuff
         }],
         [ 'skia_os == "android"', {
           'include_dirs': [

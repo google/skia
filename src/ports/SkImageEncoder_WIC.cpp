@@ -50,10 +50,6 @@ class SkImageEncoder_WIC : public SkImageEncoder {
 public:
     SkImageEncoder_WIC(Type t) : fType(t) {}
 
-    // DO NOT USE this constructor.  This exists only so SkForceLinking can
-    // link the WIC image encoder.
-    SkImageEncoder_WIC() {}
-
 protected:
     virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality);
 
@@ -67,12 +63,6 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
 {
     GUID type;
     switch (fType) {
-        case kBMP_Type:
-            type = GUID_ContainerFormatBmp;
-            break;
-        case kICO_Type:
-            type = GUID_ContainerFormatIco;
-            break;
         case kJPEG_Type:
             type = GUID_ContainerFormatJpeg;
             break;
@@ -228,10 +218,9 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_USE_WIC_ENCODER
 static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
     switch (t) {
-        case SkImageEncoder::kBMP_Type:
-        case SkImageEncoder::kICO_Type:
         case SkImageEncoder::kPNG_Type:
         case SkImageEncoder::kJPEG_Type:
             break;
@@ -242,7 +231,10 @@ static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
 }
 
 static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_wic_factory);
+#endif
 
-DEFINE_ENCODER_CREATOR(ImageEncoder_WIC);
+SkImageEncoder* CreateImageEncoder_WIC(SkImageEncoder::Type type) {
+    return new SkImageEncoder_WIC(type);
+}
 
 #endif // defined(SK_BUILD_FOR_WIN32)
