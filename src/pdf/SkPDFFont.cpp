@@ -498,7 +498,7 @@ bool SkPDFFont::hasGlyph(uint16_t id) {
     return (id >= fFirstGlyphID && id <= fLastGlyphID) || id == 0;
 }
 
-int SkPDFFont::glyphsToPDFFontEncoding(uint16_t* glyphIDs, int numGlyphs) {
+int SkPDFFont::glyphsToPDFFontEncoding(SkGlyphID* glyphIDs, int numGlyphs) const {
     // A font with multibyte glyphs will support all glyph IDs in a single font.
     if (this->multiByteGlyphs()) {
         return numGlyphs;
@@ -514,6 +514,20 @@ int SkPDFFont::glyphsToPDFFontEncoding(uint16_t* glyphIDs, int numGlyphs) {
         glyphIDs[i] -= (fFirstGlyphID - 1);
     }
 
+    return numGlyphs;
+}
+
+int SkPDFFont::glyphsToPDFFontEncodingCount(const SkGlyphID* glyphIDs,
+                                            int numGlyphs) const {
+    if (this->multiByteGlyphs()) {    // A font with multibyte glyphs will
+        return numGlyphs;             // support all glyph IDs in a single font.
+    }
+    for (int i = 0; i < numGlyphs; i++) {
+        if (glyphIDs[i] != 0 &&
+            (glyphIDs[i] < fFirstGlyphID || glyphIDs[i] > fLastGlyphID)) {
+            return i;
+        }
+    }
     return numGlyphs;
 }
 
@@ -1267,11 +1281,11 @@ SkPDFFont::Match SkPDFFont::IsMatch(SkPDFFont* existingFont,
 
 //  Since getAdvancedTypefaceMetrics is expensive, cache the result.
 bool SkPDFFont::CanEmbedTypeface(SkTypeface* typeface, SkPDFCanon* canon) {
-    SkAutoResolveDefaultTypeface face(typeface);
-    uint32_t id = face->uniqueID();
+    SkFontID id = SkTypeface::UniqueID(typeface);
     if (bool* value = canon->fCanEmbedTypeface.find(id)) {
         return *value;
     }
+    SkAutoResolveDefaultTypeface face(typeface);
     bool canEmbed = true;
     sk_sp<const SkAdvancedTypefaceMetrics> fontMetrics(
             face->getAdvancedTypefaceMetrics(
