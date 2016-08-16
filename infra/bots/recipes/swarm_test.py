@@ -204,6 +204,8 @@ def dm_flags(bot):
     # bungeman: "Doesn't work on Windows anyway, produces unstable GMs with
     # 'Unexpected error' from DirectWrite"
     blacklist.extend('_ gm _ fontscalerdistortable'.split(' '))
+    # skia:5636
+    blacklist.extend('_ svg _ Nebraska-StateSeal.svg'.split(' '))
 
   # skia:4095
   bad_serialize_gms = ['bleed_image',
