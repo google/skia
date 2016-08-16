@@ -464,20 +464,15 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
 
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     info->fFontName.set(FT_Get_Postscript_Name(face));
-    info->fFlags = SkAdvancedTypefaceMetrics::kEmpty_FontFlag;
+
     if (FT_HAS_MULTIPLE_MASTERS(face)) {
-        info->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
-                info->fFlags, SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag);
+        info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
     }
     if (!canEmbed(face)) {
-        info->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
-                info->fFlags,
-                SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
+        info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
     }
     if (!canSubset(face)) {
-        info->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
-                info->fFlags,
-                SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag);
+        info->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
     }
     info->fLastGlyphID = face->num_glyphs - 1;
     info->fEmSize = 1000;
@@ -499,7 +494,7 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
         info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
     }
 
-    info->fStyle = 0;
+    info->fStyle = (SkAdvancedTypefaceMetrics::StyleFlags)0;
     if (FT_IS_FIXED_WIDTH(face)) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
     }

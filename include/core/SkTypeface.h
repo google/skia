@@ -8,6 +8,7 @@
 #ifndef SkTypeface_DEFINED
 #define SkTypeface_DEFINED
 
+#include "../private/SkBitmaskEnum.h"
 #include "../private/SkOnce.h"
 #include "../private/SkWeakRefCnt.h"
 #include "SkFontStyle.h"
@@ -420,5 +421,9 @@ private:
 
     typedef SkWeakRefCnt INHERITED;
 };
+
+namespace skstd {
+template <> struct is_bitmask_enum<SkTypeface::PerGlyphInfo> : std::true_type {};
+}
 
 #endif

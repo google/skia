@@ -298,14 +298,10 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
                 (os2table.version.v2.fsType.field.Restricted &&
                  !(os2table.version.v2.fsType.field.PreviewPrint ||
                    os2table.version.v2.fsType.field.Editable))) {
-                result->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
-                        result->fFlags,
-                        SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
+                result->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
             }
             if (os2table.version.v2.fsType.field.NoSubsetting) {
-                result->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
-                        result->fFlags,
-                        SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag);
+                result->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
             }
         }
     }

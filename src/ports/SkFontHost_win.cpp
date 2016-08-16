@@ -1761,9 +1761,7 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
     // If bit 1 is clear, the font can be embedded.
     // If bit 2 is set, the embedding is read-only.
     if (otm.otmfsType & 0x1) {
-        info->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
-                info->fFlags,
-                SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
+        info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
     }
 
     if (perGlyphInfo & kToUnicode_PerGlyphInfo) {
