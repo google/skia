@@ -97,6 +97,20 @@ static void make_path_crbug364224_simplified(SkPath* path) {
     path->close();
 }
 
+static void test_sect_with_horizontal_needs_pinning() {
+    // Test that sect_with_horizontal in SkLineClipper.cpp needs to pin after computing the
+    // intersection.
+    SkPath path;
+    path.reset();
+    path.moveTo(-540000, -720000);
+    path.lineTo(-9.10000017e-05f, 9.99999996e-13f);
+    path.lineTo(1, 1);
+
+    // Without the pinning code in sect_with_horizontal(), this would assert in the lineclipper
+    SkPaint paint;
+    SkSurface::MakeRasterN32Premul(10, 10)->getCanvas()->drawPath(path, paint);
+}
+
 static void test_path_crbug364224() {
     SkPath path;
     SkPaint paint;
@@ -4228,6 +4242,7 @@ DEF_TEST(PathContains, reporter) {
 }
 
 DEF_TEST(Paths, reporter) {
+    test_sect_with_horizontal_needs_pinning();
     test_crbug_629455(reporter);
     test_fuzz_crbug_627414(reporter);
     test_path_crbug364224();
