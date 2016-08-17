@@ -69,6 +69,12 @@ inline bool circle_stays_circle(const SkMatrix& m) {
  *             p is the position in the normalized space.
  *             outerRad is the outerRadius in device space.
  *             innerRad is the innerRadius in normalized space (ignored if not stroking).
+ * If fUsesDistanceVectorField is set in fragment processors in the same program, then 
+ * an additional vertex attribute is available via args.fFragBuilder->distanceVectorName():
+ *    vec4f : (v.xy, outerDistance, innerDistance)
+ *             v is a normalized vector pointing to the outer edge
+ *             outerDistance is the distance to the outer edge, < 0 if we are outside of the shape
+ *             if stroking, innerDistance is the distance to the inner edge, < 0 if outside
  */
 
 class CircleGeometryProcessor : public GrGeometryProcessor {
@@ -129,20 +135,25 @@ public:
                                  args.fTransformsOut);
 
             fragBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
-            fragBuilder->codeAppendf("float distanceToEdge = %s.z * (1.0 - d);", v.fsIn());
-            fragBuilder->codeAppendf("float edgeAlpha = clamp(distanceToEdge, 0.0, 1.0);");
+            fragBuilder->codeAppendf("float distanceToOuterEdge = %s.z * (1.0 - d);", v.fsIn());
+            fragBuilder->codeAppendf("float edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);");
             if (cgp.fStroke) {
-                fragBuilder->codeAppendf("float innerAlpha = clamp(%s.z * (d - %s.w), 0.0, 1.0);",
+                fragBuilder->codeAppendf("float distanceToInnerEdge = %s.z * (d - %s.w);",
                                          v.fsIn(), v.fsIn());
+                fragBuilder->codeAppend("float innerAlpha = clamp(distanceToInnerEdge, 0.0, 1.0);");
                 fragBuilder->codeAppend("edgeAlpha *= innerAlpha;");
+            } else {
+                fragBuilder->codeAppend("float distanceToInnerEdge = 0.0;");
             }
 
             if (args.fDistanceVectorName) {
                 fragBuilder->codeAppend ("if (d == 0.0) {"); // if on the center of the circle
-                fragBuilder->codeAppendf("    %s = vec3(1.0, 0.0, distanceToEdge);", // no normalize
+                fragBuilder->codeAppendf("    %s = vec4(1.0, 0.0, distanceToOuterEdge, "
+                                         "distanceToInnerEdge);", // no normalize
                                          args.fDistanceVectorName);
                 fragBuilder->codeAppend ("} else {");
-                fragBuilder->codeAppendf("    %s = vec3(normalize(%s.xy), distanceToEdge);",
+                fragBuilder->codeAppendf("    %s = vec4(normalize(%s.xy), distanceToOuterEdge, "
+                                         "distanceToInnerEdge);",
                                          args.fDistanceVectorName, v.fsIn());
                 fragBuilder->codeAppend ("}");
             }

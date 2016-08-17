@@ -183,7 +183,7 @@ public:
                 fragBuilder->codeAppend( "}");
 
                 fragBuilder->codeAppend( "float dvSign = sign(dot(offset, dvAxis));");
-                fragBuilder->codeAppendf("%s = vec3(dvSign * dvAxis, dvLength);",
+                fragBuilder->codeAppendf("%s = vec4(dvSign * dvAxis, dvLength, 0.0);",
                                          args.fDistanceVectorName);
 
             }
