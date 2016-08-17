@@ -32,15 +32,21 @@ sk_colortype_t sk_colortype_get_default_8888() {
 sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo, const sk_surfaceprops_t* props) {
     SkImageInfo info;
     from_c(*cinfo, &info);
-    SkSurfaceProps surfProps = AsSurfaceProps(props);
-    return ToSurface(SkSurface::MakeRaster(info, &surfProps).release());
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
+    }
+    return ToSurface(SkSurface::MakeRaster(info, surfProps).release());
 }
 
 sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_surfaceprops_t* props) {
     SkImageInfo info;
     from_c(*cinfo, &info);
-    SkSurfaceProps surfProps = AsSurfaceProps(props);
-    return ToSurface(SkSurface::MakeRasterDirect(info, pixels, rowBytes, &surfProps).release());
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
+    }
+    return ToSurface(SkSurface::MakeRasterDirect(info, pixels, rowBytes, surfProps).release());
 }
 
 void sk_surface_unref(sk_surface_t* csurf) {
@@ -55,7 +61,36 @@ sk_image_t* sk_surface_new_image_snapshot(sk_surface_t* csurf) {
     return ToImage(AsSurface(csurf)->makeImageSnapshot().release());
 }
 
-sk_surface_t* sk_surface_new_backend_render_target(gr_context_t* context, const gr_backendrendertargetdesc_t* desc, const sk_surfaceprops_t* props) {
-    const SkSurfaceProps surfProps = (const SkSurfaceProps)AsSurfaceProps(props);
-    return ToSurface(SkSurface::MakeFromBackendRenderTarget(AsGrContext(context), AsGrBackendRenderTargetDesc(*desc), &surfProps).release());
+sk_surface_t* sk_surface_new_backend_render_target(gr_context_t* context, const gr_backend_rendertarget_desc_t* desc, const sk_surfaceprops_t* props) {
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
+    }
+    return ToSurface(SkSurface::MakeFromBackendRenderTarget(AsGrContext(context), AsGrBackendRenderTargetDesc(*desc), surfProps).release());
+}
+
+sk_surface_t* sk_surface_new_backend_texture(gr_context_t* context, const gr_backend_texture_desc_t* desc, const sk_surfaceprops_t* props) {
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
+    }
+    return ToSurface(SkSurface::MakeFromBackendTexture(AsGrContext(context), AsGrBackendTextureDesc(*desc), surfProps).release());
+}
+
+sk_surface_t* sk_surface_new_backend_texture_as_render_target(gr_context_t* context, const gr_backend_texture_desc_t* desc, const sk_surfaceprops_t* props) {
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
+    }
+    return ToSurface(SkSurface::MakeFromBackendTextureAsRenderTarget(AsGrContext(context), AsGrBackendTextureDesc(*desc), surfProps).release());
+}
+
+sk_surface_t* sk_surface_new_render_target(gr_context_t* context, bool budgeted, const sk_imageinfo_t* cinfo, int sampleCount, const sk_surfaceprops_t* props) {
+    SkImageInfo info;
+    from_c(*cinfo, &info);
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
+    }
+    return ToSurface(SkSurface::MakeRenderTarget(AsGrContext(context), (SkBudgeted)budgeted, info, sampleCount, surfProps).release());
 }

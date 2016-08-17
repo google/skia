@@ -548,7 +548,22 @@ typedef struct {
     int fSampleCnt;
     int fStencilBits;
     gr_backendobject_t fRenderTargetHandle;
-} gr_backendrendertargetdesc_t;
+} gr_backend_rendertarget_desc_t;
+
+typedef enum {
+    NONE_GR_BACKEND_TEXTURE_FLAGS = 0,
+    RENDER_TARGET_GR_BACKEND_TEXTURE_FLAGS = 1,
+} gr_backendtexture_flags_t;
+
+typedef struct {
+    gr_backendtexture_flags_t fFlags;
+    gr_surfaceorigin_t fOrigin;
+    int fWidth;
+    int fHeight;
+    gr_pixelconfig_t fConfig;
+    int fSampleCnt;
+    gr_backendobject_t fTextureHandle;
+} gr_backend_texture_desc_t;
 
 typedef struct gr_context_t gr_context_t;
 
@@ -558,6 +573,8 @@ typedef enum {
 } gr_backend_t;
 
 typedef intptr_t gr_backendcontext_t;
+
+typedef struct gr_gl_interface_t gr_gl_interface_t;
 
 SK_C_PLUS_PLUS_END_GUARD
 

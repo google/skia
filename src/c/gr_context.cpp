@@ -6,6 +6,7 @@
  */
 
 #include "GrContext.h"
+#include "gl/GrGLInterface.h"
 
 #include "gr_context.h"
 
@@ -17,4 +18,16 @@ gr_context_t* gr_context_create_with_defaults(gr_backend_t backend, gr_backendco
 
 void gr_context_unref(gr_context_t* context) {
     AsGrContext(context)->unref();
+}
+
+const gr_gl_interface_t* gr_gl_default_interface() {
+    return ToGrGLInterface(GrGLDefaultInterface());
+}
+
+const gr_gl_interface_t* gr_gl_create_native_interface() {
+    return ToGrGLInterface(GrGLCreateNativeInterface());
+}
+
+void gr_gl_interface_unref(gr_gl_interface_t* glInterface) {
+    AsGrGLInterface(glInterface)->unref();
 }

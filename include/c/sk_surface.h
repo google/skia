@@ -76,7 +76,27 @@ SK_API sk_image_t* sk_surface_new_image_snapshot(sk_surface_t*);
  *  ownership of the render target and the client must ensure the render target is valid for the
  *  lifetime of the SkSurface.
  */
-SK_API sk_surface_t* sk_surface_new_backend_render_target(gr_context_t* context, const gr_backendrendertargetdesc_t* desc, const sk_surfaceprops_t* props);
+SK_API sk_surface_t* sk_surface_new_backend_render_target(gr_context_t* context, const gr_backend_rendertarget_desc_t* desc, const sk_surfaceprops_t* props);
+
+/**
+ *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. The kRenderTarget flag
+ *  must be set on GrBackendTextureDesc for this to succeed. Skia will not assume ownership
+ *  of the texture and the client must ensure the texture is valid for the lifetime of the
+ *  SkSurface.
+ */
+SK_API sk_surface_t* sk_surface_new_backend_texture(gr_context_t* context, const gr_backend_texture_desc_t* desc, const sk_surfaceprops_t* props);
+
+/**
+ *  Used to wrap a pre-existing 3D API texture as a SkSurface. Skia will treat the texture as
+ *  a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
+ *  the associated render target objects (but not the provided texture). The kRenderTarget flag
+ *  must be set on GrBackendTextureDesc for this to succeed. Skia will not assume ownership
+ *  of the texture and the client must ensure the texture is valid for the lifetime of the
+ *  SkSurface.
+ */
+SK_API sk_surface_t* sk_surface_new_backend_texture_as_render_target(gr_context_t* context, const gr_backend_texture_desc_t* desc, const sk_surfaceprops_t* props);
+
+SK_API sk_surface_t* sk_surface_new_render_target(gr_context_t* context, bool budgeted, const sk_imageinfo_t* info, int sampleCount, const sk_surfaceprops_t* props);
 
 SK_C_PLUS_PLUS_END_GUARD
 

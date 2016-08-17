@@ -24,6 +24,7 @@
 #include "SkMatrixConvolutionImageFilter.h"
 #include "Sk1DPathEffect.h"
 #include "SkFontStyle.h"
+#include "gl/GrGLInterface.h"
 
 #include "sk_path.h"
 #include "sk_paint.h"
@@ -452,36 +453,56 @@ static inline GrContext* AsGrContext(gr_context_t* p) {
     return reinterpret_cast<GrContext*>(p);
 }
 
-static inline gr_backendrendertargetdesc_t* ToGrBackendRenderTargetDesc(GrBackendRenderTargetDesc* p) {
-    return reinterpret_cast<gr_backendrendertargetdesc_t*>(p);
+static inline gr_backend_rendertarget_desc_t* ToGrBackendRenderTargetDesc(GrBackendRenderTargetDesc* p) {
+    return reinterpret_cast<gr_backend_rendertarget_desc_t*>(p);
 }
 
-static inline GrBackendRenderTargetDesc* AsGrBackendRenderTargetDesc(gr_backendrendertargetdesc_t* p) {
+static inline GrBackendRenderTargetDesc* AsGrBackendRenderTargetDesc(gr_backend_rendertarget_desc_t* p) {
     return reinterpret_cast<GrBackendRenderTargetDesc*>(p);
 }
 
-static inline gr_backendrendertargetdesc_t& ToGrBackendRenderTargetDesc(GrBackendRenderTargetDesc& p) {
-    return reinterpret_cast<gr_backendrendertargetdesc_t&>(p);
+static inline gr_backend_rendertarget_desc_t& ToGrBackendRenderTargetDesc(GrBackendRenderTargetDesc& p) {
+    return reinterpret_cast<gr_backend_rendertarget_desc_t&>(p);
 }
 
-static inline GrBackendRenderTargetDesc& AsGrBackendRenderTargetDesc(gr_backendrendertargetdesc_t& p) {
+static inline GrBackendRenderTargetDesc& AsGrBackendRenderTargetDesc(gr_backend_rendertarget_desc_t& p) {
     return reinterpret_cast<GrBackendRenderTargetDesc&>(p);
 }
 
-static inline const gr_backendrendertargetdesc_t* ToGrBackendRenderTargetDesc(const GrBackendRenderTargetDesc* p) {
-    return reinterpret_cast<const gr_backendrendertargetdesc_t*>(p);
+static inline const gr_backend_rendertarget_desc_t* ToGrBackendRenderTargetDesc(const GrBackendRenderTargetDesc* p) {
+    return reinterpret_cast<const gr_backend_rendertarget_desc_t*>(p);
 }
 
-static inline const GrBackendRenderTargetDesc* AsGrBackendRenderTargetDesc(const gr_backendrendertargetdesc_t* p) {
+static inline const GrBackendRenderTargetDesc* AsGrBackendRenderTargetDesc(const gr_backend_rendertarget_desc_t* p) {
     return reinterpret_cast<const GrBackendRenderTargetDesc*>(p);
 }
 
-static inline const gr_backendrendertargetdesc_t& ToGrBackendRenderTargetDesc(const GrBackendRenderTargetDesc& p) {
-    return reinterpret_cast<const gr_backendrendertargetdesc_t&>(p);
+static inline const gr_backend_rendertarget_desc_t& ToGrBackendRenderTargetDesc(const GrBackendRenderTargetDesc& p) {
+    return reinterpret_cast<const gr_backend_rendertarget_desc_t&>(p);
 }
 
-static inline const GrBackendRenderTargetDesc& AsGrBackendRenderTargetDesc(const gr_backendrendertargetdesc_t& p) {
+static inline const GrBackendRenderTargetDesc& AsGrBackendRenderTargetDesc(const gr_backend_rendertarget_desc_t& p) {
     return reinterpret_cast<const GrBackendRenderTargetDesc&>(p);
+}
+
+static inline const GrBackendTextureDesc& AsGrBackendTextureDesc(const gr_backend_texture_desc_t& p) {
+    return reinterpret_cast<const GrBackendTextureDesc&>(p);
+}
+
+static inline gr_gl_interface_t* ToGrGLInterface(GrGLInterface* p) {
+    return reinterpret_cast<gr_gl_interface_t*>(p);
+}
+
+static inline GrGLInterface* AsGrGLInterface(gr_gl_interface_t* p) {
+    return reinterpret_cast<GrGLInterface*>(p);
+}
+
+static inline const gr_gl_interface_t* ToGrGLInterface(const GrGLInterface* p) {
+    return reinterpret_cast<const gr_gl_interface_t*>(p);
+}
+
+static inline const GrGLInterface* AsGrGLInterface(const gr_gl_interface_t* p) {
+    return reinterpret_cast<const GrGLInterface*>(p);
 }
 
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
@@ -529,12 +550,8 @@ static inline bool from_sk(const SkImageInfo& info, sk_imageinfo_t* cinfo) {
     return true; 
 } 
 
-static inline SkSurfaceProps AsSurfaceProps(const sk_surfaceprops_t* cprops) {
-    if (cprops) {
-        return SkSurfaceProps(cprops->flags, (SkPixelGeometry)cprops->pixelGeometry);
-    } else {
-        return SkSurfaceProps(0, SkPixelGeometry::kUnknown_SkPixelGeometry);
-    }
+static inline void from_c(const sk_surfaceprops_t* cprops, SkSurfaceProps* props) {
+    *props = SkSurfaceProps(cprops->flags, (SkPixelGeometry)cprops->pixelGeometry);
 }
 
 #endif
