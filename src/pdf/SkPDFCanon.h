@@ -14,7 +14,6 @@
 #include "SkTHash.h"
 #include "SkBitmapKey.h"
 
-class SkAdvancedTypefaceMetrics;
 class SkPDFFont;
 
 /**
@@ -36,10 +35,18 @@ class SkPDFFont;
  */
 class SkPDFCanon : SkNoncopyable {
 public:
-    ~SkPDFCanon();
+    ~SkPDFCanon() { this->reset(); }
 
     // reset to original setting, unrefs all objects.
     void reset();
+
+    // Returns exact match if there is one.  If not, it returns nullptr.
+    // If there is no exact match, but there is a related font, we
+    // still return nullptr, but also set *relatedFont.
+    SkPDFFont* findFont(uint32_t fontID,
+                        uint16_t glyphID,
+                        SkPDFFont** relatedFont) const;
+    void addFont(SkPDFFont* font, uint32_t fontID, uint16_t fGlyphID);
 
     sk_sp<SkPDFObject> findFunctionShader(const SkPDFShader::State&) const;
     void addFunctionShader(sk_sp<SkPDFObject>, SkPDFShader::State);
@@ -56,9 +63,7 @@ public:
     sk_sp<SkPDFObject> findPDFBitmap(SkBitmapKey key) const;
     void addPDFBitmap(SkBitmapKey key, sk_sp<SkPDFObject>);
 
-    SkTHashMap<uint32_t, SkAdvancedTypefaceMetrics*> fTypefaceMetrics;
-    SkTHashMap<uint32_t, SkPDFDict*> fFontDescriptors;
-    SkTHashMap<uint64_t, SkPDFFont*> fFontMap;
+    SkTHashMap<uint32_t, bool> fCanEmbedTypeface;
 
     SkPixelSerializer* getPixelSerializer() const { return fPixelSerializer.get(); }
     void setPixelSerializer(sk_sp<SkPixelSerializer> ps) {
@@ -70,6 +75,13 @@ public:
     sk_sp<SkPDFArray> makeRangeObject();
 
 private:
+    struct FontRec {
+        SkPDFFont* fFont;
+        uint32_t fFontID;
+        uint16_t fGlyphID;
+    };
+    SkTDArray<FontRec> fFontRecords;
+
     struct ShaderRec {
         SkPDFShader::State fShaderState;
         sk_sp<SkPDFObject> fShaderObject;
