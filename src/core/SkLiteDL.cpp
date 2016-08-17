@@ -786,10 +786,6 @@ SkRect SkLiteDL::onGetBounds() {
     return fBounds;
 }
 
-bool SkLiteDL::empty() const {
-    return fUsed == 0;
-}
-
 SkLiteDL:: SkLiteDL(SkRect bounds) : fUsed(0), fReserved(0), fBounds(bounds) {}
 
 SkLiteDL::~SkLiteDL() {
