@@ -57,6 +57,8 @@
         '../experimental/svg/model/SkSVGEllipse.h',
         '../experimental/svg/model/SkSVGEllipse.cpp',
         '../experimental/svg/model/SkSVGG.h',
+        '../experimental/svg/model/SkSVGLine.h',
+        '../experimental/svg/model/SkSVGLine.cpp',
         '../experimental/svg/model/SkSVGNode.h',
         '../experimental/svg/model/SkSVGNode.cpp',
         '../experimental/svg/model/SkSVGPath.h',

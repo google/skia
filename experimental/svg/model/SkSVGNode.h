@@ -20,6 +20,7 @@ enum class SkSVGTag {
     kCircle,
     kEllipse,
     kG,
+    kLine,
     kPath,
     kPolygon,
     kPolyline,

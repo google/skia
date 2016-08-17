@@ -14,6 +14,7 @@
 #include "SkSVGDOM.h"
 #include "SkSVGEllipse.h"
 #include "SkSVGG.h"
+#include "SkSVGLine.h"
 #include "SkSVGNode.h"
 #include "SkSVGPath.h"
 #include "SkSVGPoly.h"
@@ -236,13 +237,18 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "viewBox"        , { SkSVGAttribute::kViewBox       , SetViewBoxAttribute   }},
     { "width"          , { SkSVGAttribute::kWidth         , SetLengthAttribute    }},
     { "x"              , { SkSVGAttribute::kX             , SetLengthAttribute    }},
+    { "x1"             , { SkSVGAttribute::kX1            , SetLengthAttribute    }},
+    { "x2"             , { SkSVGAttribute::kX2            , SetLengthAttribute    }},
     { "y"              , { SkSVGAttribute::kY             , SetLengthAttribute    }},
+    { "y1"             , { SkSVGAttribute::kY1            , SetLengthAttribute    }},
+    { "y2"             , { SkSVGAttribute::kY2            , SetLengthAttribute    }},
 };
 
 SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "circle"  , []() -> sk_sp<SkSVGNode> { return SkSVGCircle::Make();       }},
     { "ellipse" , []() -> sk_sp<SkSVGNode> { return SkSVGEllipse::Make();      }},
     { "g"       , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();            }},
+    { "line"    , []() -> sk_sp<SkSVGNode> { return SkSVGLine::Make();         }},
     { "path"    , []() -> sk_sp<SkSVGNode> { return SkSVGPath::Make();         }},
     { "polygon" , []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolygon();  }},
     { "polyline", []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolyline(); }},

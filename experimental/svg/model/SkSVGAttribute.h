@@ -34,7 +34,11 @@ enum class SkSVGAttribute {
     kViewBox,
     kWidth,
     kX,
+    kX1, // <line>: first endpoint x
+    kX2, // <line>: second endpoint x
     kY,
+    kY1, // <line>: first endpoint y
+    kY2, // <line>: second endpoint y
 
     kUnknown,
 };
