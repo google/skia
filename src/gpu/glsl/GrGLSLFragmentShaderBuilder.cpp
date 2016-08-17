@@ -266,6 +266,8 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
             fbFetchColorName = DeclaredColorOutputName();
             // Set the dstColor to an intermediate variable so we don't override it with the output
             this->codeAppendf("vec4 %s = %s;", kDstColorName, fbFetchColorName);
+        } else {
+            return fbFetchColorName;
         }
     }
     return kDstColorName;
