@@ -89,8 +89,8 @@ private:
     template <typename T, typename... Args>
     void* push(size_t, Args&&...);
 
-    template <typename... Args>
-    void map(void (*const [])(void*, Args...), Args...);
+    template <typename Fn, typename... Args>
+    void map(const Fn[], Args...);
 
     SkAutoTMalloc<uint8_t> fBytes;
     size_t                 fUsed;
