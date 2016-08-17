@@ -20,7 +20,8 @@ class SkSVGLength;
 
 class SkSVGLengthContext {
 public:
-    SkSVGLengthContext(const SkSize& viewport) : fViewport(viewport) {}
+    SkSVGLengthContext(const SkSize& viewport, SkScalar dpi = 90)
+        : fViewport(viewport), fDPI(dpi) {}
 
     enum class LengthType {
         kHorizontal,
@@ -36,7 +37,8 @@ public:
                          const SkSVGLength& w, const SkSVGLength& h) const;
 
 private:
-    SkSize fViewport;
+    SkSize   fViewport;
+    SkScalar fDPI;
 };
 
 struct SkSVGPresentationContext {

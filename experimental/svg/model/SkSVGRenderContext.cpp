@@ -26,6 +26,13 @@ SkScalar length_size_for_type(const SkSize& viewport, SkSVGLengthContext::Length
     return 0;
 }
 
+// Multipliers for DPI-relative units.
+constexpr SkScalar kINMultiplier = 1.00f;
+constexpr SkScalar kPTMultiplier = kINMultiplier / 72.272f;
+constexpr SkScalar kPCMultiplier = kPTMultiplier * 12;
+constexpr SkScalar kMMMultiplier = kINMultiplier / 25.4f;
+constexpr SkScalar kCMMultiplier = kMMMultiplier * 10;
+
 } // anonymous ns
 
 SkScalar SkSVGLengthContext::resolve(const SkSVGLength& l, LengthType t) const {
@@ -36,6 +43,16 @@ SkScalar SkSVGLengthContext::resolve(const SkSVGLength& l, LengthType t) const {
         return l.value();
     case SkSVGLength::Unit::kPercentage:
         return l.value() * length_size_for_type(fViewport, t) / 100;
+    case SkSVGLength::Unit::kCM:
+        return l.value() * fDPI * kCMMultiplier;
+    case SkSVGLength::Unit::kMM:
+        return l.value() * fDPI * kMMMultiplier;
+    case SkSVGLength::Unit::kIN:
+        return l.value() * fDPI * kINMultiplier;
+    case SkSVGLength::Unit::kPT:
+        return l.value() * fDPI * kPTMultiplier;
+    case SkSVGLength::Unit::kPC:
+        return l.value() * fDPI * kPCMultiplier;
     default:
         SkDebugf("unsupported unit type: <%d>\n", l.unit());
         return 0;
