@@ -127,6 +127,8 @@ static const char configExtendedHelp[] =
 #ifdef SK_VULKAN
     "\tvk        \t= gpu(api=vulkan)\n"
     "\tvksrgb    \t= gpu(api=vulkan,color=srgb)\n"
+    "\tvkmsaa4   \t= gpu(api=gl,samples=4)\n"
+    "\tvkmsaa16  \t= gpu(api=gl,samples=16)\n"
 #endif
 #endif
     ;
@@ -179,8 +181,10 @@ static const struct {
     , { "mesa", "gpu", "api=mesa" }
 #endif
 #ifdef SK_VULKAN
-    , { "vk", "gpu", "api=vulkan" }
-    , { "vksrgb", "gpu", "api=vulkan,color=srgb" }
+    , { "vk",       "gpu", "api=vulkan" }
+    , { "vksrgb",   "gpu", "api=vulkan,color=srgb" }
+    , { "vkmsaa4",  "gpu", "api=vulkan,samples=4" }
+    , { "vkmsaa16", "gpu", "api=vulkan,samples=16" }
 #endif
 
 #else
