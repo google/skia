@@ -227,8 +227,7 @@ private:
     SkGlyph* lookupByChar(SkUnichar id, MetricsType type, SkFixed x = 0, SkFixed y = 0);
 
     // Return a new SkGlyph for the glyph ID and subpixel position id. Limit the amount
-    // of work
-    // using type.
+    // of work using type.
     SkGlyph* allocateNewGlyph(PackedGlyphID packedGlyphID, MetricsType type);
 
     static bool DetachProc(const SkGlyphCache*, void*) { return true; }
@@ -237,8 +236,6 @@ private:
     CharGlyphRec* getCharGlyphRec(PackedUnicharID id);
 
     void invokeAndRemoveAuxProcs();
-
-    inline static SkGlyphCache* FindTail(SkGlyphCache* head);
 
     static void OffsetResults(const SkGlyph::Intercept* intercept, SkScalar scale,
                               SkScalar xPos, SkScalar* array, int* count);
