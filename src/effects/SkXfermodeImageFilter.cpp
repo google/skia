@@ -185,8 +185,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
     if (backgroundTex) {
         SkMatrix backgroundMatrix;
         backgroundMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
-        backgroundMatrix.preTranslate(SkIntToScalar(-backgroundOffset.fX),
-                                      SkIntToScalar(-backgroundOffset.fY));
+        backgroundMatrix.preTranslate(-SkIntToScalar(backgroundOffset.fX),
+                                      -SkIntToScalar(backgroundOffset.fY));
         bgFP = GrTextureDomainEffect::Make(
                             backgroundTex.get(), nullptr, backgroundMatrix,
                             GrTextureDomain::MakeTexelDomain(backgroundTex.get(),
@@ -201,8 +201,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
     if (foregroundTex) {
         SkMatrix foregroundMatrix;
         foregroundMatrix.setIDiv(foregroundTex->width(), foregroundTex->height());
-        foregroundMatrix.preTranslate(SkIntToScalar(-foregroundOffset.fX),
-                                      SkIntToScalar(-foregroundOffset.fY));
+        foregroundMatrix.preTranslate(-SkIntToScalar(foregroundOffset.fX),
+                                      -SkIntToScalar(foregroundOffset.fY));
 
         sk_sp<GrFragmentProcessor> foregroundFP;
 
