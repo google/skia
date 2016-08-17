@@ -11,6 +11,10 @@
 
  /** \class SkGaussianEdgeShaderImpl
  This subclass of shader applies a Gaussian to shadow edge
+
+ The radius of the Gaussian blur is specified by the g and b values of the color,
+ where g is the integer component and b is the fractional component. The r value
+ represents the max final alpha.
  */
 class SkGaussianEdgeShaderImpl : public SkShader {
 public:
@@ -65,20 +69,13 @@ public:
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-            fragBuilder->codeAppendf("vec4 output = %s;", args.fInputColor);
-            // outside the outer edge
-            fragBuilder->codeAppendf("if (%s.z <= 0) {", fragBuilder->distanceVectorName());
-            fragBuilder->codeAppend("output *= 0.0;");
-            // inside the stroke
-            fragBuilder->codeAppendf("} else if (%s.w > 0) {", fragBuilder->distanceVectorName());
-            fragBuilder->codeAppendf("float factor = %s.w/(%s.z + %s.w);",
-                                     fragBuilder->distanceVectorName(),
-                                     fragBuilder->distanceVectorName(),
+            fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
+            fragBuilder->codeAppend("float radius = color.g*255.0 + color.b;");
+
+            fragBuilder->codeAppendf("float factor = 1.0 - clamp(%s.z/radius, 0.0, 1.0);",
                                      fragBuilder->distanceVectorName());
             fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-            fragBuilder->codeAppend("output *= factor;");
-            fragBuilder->codeAppend("}");
-            fragBuilder->codeAppendf("%s = output;", args.fOutputColor);
+            fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.r);", args.fOutputColor);
         }
 
         static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,

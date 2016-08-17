@@ -25,15 +25,15 @@ class ShadowsView : public SampleView {
     SkPoint3  fLightPos;
 
     bool      fShowAmbient;
-    bool      fUseAltAmbient;
     bool      fShowSpot;
+    bool      fUseAlt;
     bool      fShowObject;
 
 public:
     ShadowsView() 
         : fShowAmbient(true)
-        , fUseAltAmbient(true)
         , fShowSpot(true)
+        , fUseAlt(true)
         , fShowObject(true) {}
 
 protected:
@@ -41,7 +41,7 @@ protected:
         fCirclePath.addCircle(0, 0, 50);
         fRectPath.addRect(SkRect::MakeXYWH(-100, -50, 200, 100));
         fRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-100, -50, 200, 100), 4, 4));
-        fLightPos = SkPoint3::Make(-220, -330, 150);
+        fLightPos = SkPoint3::Make(-2, -2, 6);
     }
 
     // overrides from SkEventSink
@@ -57,11 +57,11 @@ protected:
                 case 'B':
                     fShowAmbient = !fShowAmbient;
                     break;
-                case 'T':
-                    fUseAltAmbient = !fUseAltAmbient;
-                    break;
                 case 'S':
                     fShowSpot = !fShowSpot;
+                    break;
+                case 'T':
+                    fUseAlt = !fUseAlt;
                     break;
                 case 'O':
                     fShowObject = !fShowObject;
@@ -143,64 +143,48 @@ protected:
             return;
         }
 
+        SkRect pathRect;
+        SkRRect pathRRect;
+        if ((!path.isOval(&pathRect) || pathRect.width() != pathRect.height()) &&
+            (!path.isRRect(&pathRRect) || !pathRRect.allCornersCircular()) &&
+            !path.isRect(&pathRect)) {
+            this->drawAmbientShadow(canvas, path, zValue, ambientAlpha);
+            return;
+        }
+
         const SkScalar kHeightFactor = 1.f / 128.f;
         const SkScalar kGeomFactor = 64;
 
         SkScalar umbraAlpha = 1 / (1 + SkMaxScalar(zValue*kHeightFactor, 0));
         SkScalar radius = zValue*kHeightFactor*kGeomFactor;
 
-        // fast path
-        SkRect pathRect;
-        SkRRect pathRRect;
-        if ((path.isOval(&pathRect) && pathRect.width() == pathRect.height()) ||
-            (path.isRRect(&pathRRect) && pathRRect.allCornersCircular()) ||
-            path.isRect(&pathRect)) {
-
-            // For all of these, we outset the rect by half the radius to get our stroke shape.
-            if (path.isOval(nullptr)) {
-                pathRect.outset(0.5f*radius, 0.5f*radius);
-                pathRRect = SkRRect::MakeOval(pathRect);
-            } else if (path.isRect(nullptr)) {
-                pathRect.outset(0.5f*radius, 0.5f*radius);
-                pathRRect = SkRRect::MakeRectXY(pathRect, 0.5f*radius, 0.5f*radius);
-            } else {
-                pathRRect.outset(0.5f*radius, 0.5f*radius);
-            }
-
-            SkPaint paint;
-            paint.setAntiAlias(true);
-            paint.setColor(SkColorSetARGB((unsigned char)(ambientAlpha*umbraAlpha*255.999f), 
-                                          0, 0, 0));
-            paint.setStrokeWidth(radius);
-            paint.setStyle(SkPaint::kStroke_Style);
-
-            paint.setShader(SkGaussianEdgeShader::Make());
-            canvas->drawRRect(pathRRect, paint);
+        // For all of these, we outset the rect by the radius to get our coverage shape.
+        if (path.isOval(nullptr)) {
+            pathRect.outset(radius, radius);
+            pathRRect = SkRRect::MakeOval(pathRect);
+        } else if (path.isRect(nullptr)) {
+            pathRect.outset(radius, radius);
+            pathRRect = SkRRect::MakeRectXY(pathRect, radius, radius);
         } else {
-            // occlude blur
-            SkRect occlRect;
-            GetOcclRect(path, &occlRect);
-            sk_sp<SkMaskFilter> f = SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
-                                                           SkBlurMask::ConvertRadiusToSigma(radius),
-                                                           occlRect,
-                                                           SkBlurMaskFilter::kNone_BlurFlag);
-
-            SkPaint paint;
-            paint.setAntiAlias(true);
-            paint.setMaskFilter(std::move(f));
-            paint.setColor(SkColorSetARGB((unsigned char)(ambientAlpha*umbraAlpha*255.999f), 
-                                          0, 0, 0));
-            canvas->drawPath(path, paint);
-
-            // draw occlusion rect
-#if DRAW_OCCL_RECT
-            SkPaint stroke;
-            stroke.setStyle(SkPaint::kStroke_Style);
-            stroke.setColor(SK_ColorBLUE);
-            canvas->drawRect(occlRect, stroke);
-#endif
+            pathRRect.outset(radius, radius);
         }
 
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        // handle scale of radius due to CTM
+        SkScalar maxScale = canvas->getTotalMatrix().getMaxScale();
+        radius *= maxScale;
+        unsigned char gray = (unsigned char)(ambientAlpha*umbraAlpha*255.999f);
+        SkASSERT(radius < 256);
+        // convert the radius to fixed point 8.8 and
+        // place it in the G,B components of the color
+        unsigned char intPart = (unsigned char)radius;
+        SkScalar fracPart = radius - intPart;
+        paint.setColor(SkColorSetARGB(1, gray, intPart, (unsigned char)(fracPart*256.f)));
+
+        sk_sp<SkShader> gaussShader = std::move(SkGaussianEdgeShader::Make());
+        paint.setShader(gaussShader);
+        canvas->drawRRect(pathRRect, paint);
     }
 
     void drawSpotShadow(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
@@ -235,10 +219,19 @@ protected:
         GetOcclRect(path, &occlRect);
         // apply inverse transform
         occlRect.offset(-offset);
+#if 0
+        // It looks like the scale may be invalid
+        SkScalar scale = lightPos.fZ / (lightPos.fZ - zValue);
+        if (scale < 1.0f) {
+            scale = 1.0f;
+        } else if (scale > 1024.f) {
+            scale = 1024.f;
+        }
         occlRect.fLeft /= scale;
         occlRect.fRight /= scale;
         occlRect.fTop /= scale;
         occlRect.fBottom /= scale;
+#endif
         sk_sp<SkMaskFilter> mf = SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
                                                         SkBlurMask::ConvertRadiusToSigma(radius),
                                                         occlRect,
@@ -251,7 +244,10 @@ protected:
 
         // apply transformation to shadow
         canvas->translate(offset.fX, offset.fY);
+#if 0
+        // It looks like the scale may be invalid
         canvas->scale(scale, scale);
+#endif
         canvas->drawPath(path, paint);
 
         // draw occlusion rect
@@ -263,21 +259,93 @@ protected:
 #endif
     }
 
-    void drawShadowedPath(SkCanvas* canvas, const SkPath& path, SkScalar zValue, 
-                          const SkPaint& paint) {
-        const SkScalar kLightWidth = 3;
-        const SkScalar kAmbientAlpha = 0.25f;
-        const SkScalar kSpotAlpha = 0.25f;
+    void drawSpotShadowAlt(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
+                        SkPoint3 lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
+        if (spotAlpha <= 0) {
+            return;
+        }
 
+        SkRect pathRect;
+        SkRRect pathRRect;
+        if ((!path.isOval(&pathRect) || pathRect.width() != pathRect.height()) &&
+            (!path.isRRect(&pathRRect) || !pathRRect.allCornersCircular()) &&
+            !path.isRect(&pathRect)) {
+            this->drawSpotShadow(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
+            return;
+        }
+
+        SkScalar zRatio = zValue / (lightPos.fZ - zValue);
+        if (zRatio < 0.0f) {
+            zRatio = 0.0f;
+        } else if (zRatio > 0.95f) {
+            zRatio = 0.95f;
+        }
+        SkScalar radius = lightWidth*zRatio;
+
+        // For all of these, we outset the rect by the radius to get our coverage shape.
+        if (path.isOval(nullptr)) {
+            pathRect.outset(radius, radius);
+            pathRRect = SkRRect::MakeOval(pathRect);
+        } else if (path.isRect(nullptr)) {
+            pathRect.outset(radius, radius);
+            pathRRect = SkRRect::MakeRectXY(pathRect, radius, radius);
+        } else {
+            pathRRect.outset(radius, radius);
+        }
+
+        // compute the transformation params
+        SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
+        canvas->getTotalMatrix().mapPoints(&center, 1);
+        SkPoint offset = SkPoint::Make(-zRatio*(lightPos.fX - center.fX),
+                                       -zRatio*(lightPos.fY - center.fY));
+        SkAutoCanvasRestore acr(canvas, true);
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        sk_sp<SkShader> gaussShader = std::move(SkGaussianEdgeShader::Make());
+        paint.setShader(gaussShader);
+        // handle scale of radius due to CTM
+        SkScalar maxScale = canvas->getTotalMatrix().getMaxScale();
+        radius *= maxScale;
+        unsigned char gray = (unsigned char)(spotAlpha*255.999f);
+        SkASSERT(radius < 256);
+        // convert the radius to fixed point 8.8 and
+        // place it in the G,B components of the color
+        unsigned char intPart = (unsigned char)radius;
+        SkScalar fracPart = radius - intPart;
+        paint.setColor(SkColorSetARGB(1, gray, intPart, (unsigned char)(fracPart*256.f)));
+
+        // apply transformation to shadow
+        canvas->translate(offset.fX, offset.fY);
+#if 0
+        // It looks like the scale may be invalid
+        SkScalar scale = lightPos.fZ / (lightPos.fZ - zValue);
+        if (scale < 1.0f) {
+            scale = 1.0f;
+        } else if (scale > 1024.f) {
+            scale = 1024.f;
+        }
+        canvas->scale(scale, scale);
+#endif
+        canvas->drawRRect(pathRRect, paint);
+    }
+
+    void drawShadowedPath(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
+                          const SkPaint& paint, SkScalar ambientAlpha,
+                          const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
         if (fShowAmbient) {
-            if (fUseAltAmbient) {
-                this->drawAmbientShadowAlt(canvas, path, zValue, kAmbientAlpha);
+            if (fUseAlt) {
+                this->drawAmbientShadowAlt(canvas, path, zValue, ambientAlpha);
             } else {
-                this->drawAmbientShadow(canvas, path, zValue, kAmbientAlpha);
+                this->drawAmbientShadow(canvas, path, zValue, ambientAlpha);
             }
         }
         if (fShowSpot) {
-            this->drawSpotShadow(canvas, path, zValue, fLightPos, kLightWidth, kSpotAlpha);
+            if (fUseAlt) {
+                this->drawSpotShadowAlt(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
+            } else {
+                this->drawSpotShadow(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
+            }
         }
         if (fShowObject) {
             canvas->drawPath(path, paint);
@@ -286,25 +354,40 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         this->drawBG(canvas);
+        const SkScalar kLightWidth = 3;
+        const SkScalar kAmbientAlpha = 0.25f;
+        const SkScalar kSpotAlpha = 0.25f;
 
         SkPaint paint;
         paint.setAntiAlias(true);
 
+        SkPoint3 lightPos = fLightPos;
+
         paint.setColor(SK_ColorWHITE);
         canvas->translate(200, 90);
-        this->drawShadowedPath(canvas, fRectPath, 5, paint);
+        lightPos.fX += 200;
+        lightPos.fY += 90;
+        this->drawShadowedPath(canvas, fRectPath, 5, paint, kAmbientAlpha, 
+                               lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorRED);
         canvas->translate(250, 0);
-        this->drawShadowedPath(canvas, fRRPath, 5, paint);
+        lightPos.fX += 250;
+        this->drawShadowedPath(canvas, fRRPath, 5, paint, kAmbientAlpha,
+                               lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorBLUE);
         canvas->translate(-250, 110);
-        this->drawShadowedPath(canvas, fCirclePath, 5, paint);
+        lightPos.fX -= 250;
+        lightPos.fY += 110;
+        this->drawShadowedPath(canvas, fCirclePath, 5, paint, 0.0f,
+                               lightPos, kLightWidth, 0.5f);
 
         paint.setColor(SK_ColorGREEN);
         canvas->translate(250, 0);
-        this->drawShadowedPath(canvas, fRRPath, 5, paint);
+        lightPos.fX += 250;
+        this->drawShadowedPath(canvas, fRRPath, 5, paint, kAmbientAlpha,
+                               lightPos, kLightWidth, kSpotAlpha);
     }
 
 protected:
