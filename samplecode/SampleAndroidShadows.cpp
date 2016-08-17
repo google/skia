@@ -182,7 +182,7 @@ protected:
         SkScalar fracPart = radius - intPart;
         paint.setColor(SkColorSetARGB(1, gray, intPart, (unsigned char)(fracPart*256.f)));
 
-        sk_sp<SkShader> gaussShader = std::move(SkGaussianEdgeShader::Make());
+        sk_sp<SkShader> gaussShader = SkGaussianEdgeShader::Make();
         paint.setShader(gaussShader);
         canvas->drawRRect(pathRRect, paint);
     }
@@ -302,7 +302,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_sp<SkShader> gaussShader = std::move(SkGaussianEdgeShader::Make());
+        sk_sp<SkShader> gaussShader = SkGaussianEdgeShader::Make();
         paint.setShader(gaussShader);
         // handle scale of radius due to CTM
         SkScalar maxScale = canvas->getTotalMatrix().getMaxScale();
