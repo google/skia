@@ -43,20 +43,6 @@ static D* pod(T* op, size_t offset = 0) {
     return SkTAddOffset<D>(op+1, offset);
 }
 
-// Convert images and image-based shaders to textures.
-static void optimize_for(GrContext* ctx, SkPaint* paint, sk_sp<const SkImage>* image = nullptr) {
-    SkMatrix matrix;
-    SkShader::TileMode xy[2];
-    if (auto shader = paint->getShader())
-    if (auto image  = shader->isAImage(&matrix, xy)) {  // TODO: compose shaders, etc.
-        paint->setShader(image->makeTextureImage(ctx)->makeShader(xy[0], xy[1], &matrix));
-    }
-
-    if (image) {
-        *image = (*image)->makeTextureImage(ctx);
-    }
-}
-
 // Pre-cache lazy non-threadsafe fields on SkPath and/or SkMatrix.
 static void make_threadsafe(SkPath* path, SkMatrix* matrix) {
     if (path)   { path->updateBoundsCache(); }
@@ -80,10 +66,7 @@ namespace {
 #undef M
 
     struct Op {
-        // These are never called, only used to distinguish Ops that implement
-        // them from those that don't by return type: the real methods return void.
-        int optimizeFor(GrContext*) { sk_throw(); return 0;}
-        int makeThreadsafe()        { sk_throw(); return 0;}
+        void makeThreadsafe() {}
 
         uint32_t type :  8;
         uint32_t skip : 24;
@@ -114,7 +97,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) {
             c->saveLayer({ maybe_unset(bounds), &paint, backdrop.get(), flags });
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
 
     struct Concat final : Op {
@@ -182,7 +164,6 @@ namespace {
         DrawPaint(const SkPaint& paint) : paint(paint) {}
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) { c->drawPaint(paint); }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawPath final : Op {
         static const auto kType = Type::DrawPath;
@@ -190,7 +171,6 @@ namespace {
         SkPath  path;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) { c->drawPath(path, paint); }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
         void makeThreadsafe() { make_threadsafe(&path, nullptr); }
     };
     struct DrawRect final : Op {
@@ -199,7 +179,6 @@ namespace {
         SkRect  rect;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) { c->drawRect(rect, paint); }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawOval final : Op {
         static const auto kType = Type::DrawOval;
@@ -207,7 +186,6 @@ namespace {
         SkRect  oval;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) { c->drawOval(oval, paint); }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawRRect final : Op {
         static const auto kType = Type::DrawRRect;
@@ -215,7 +193,6 @@ namespace {
         SkRRect rrect;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) { c->drawRRect(rrect, paint); }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawDRRect final : Op {
         static const auto kType = Type::DrawDRRect;
@@ -224,7 +201,6 @@ namespace {
         SkRRect outer, inner;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) { c->drawDRRect(outer, inner, paint); }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
 
     struct DrawAnnotation final : Op {
@@ -267,7 +243,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) {
             c->drawPicture(picture.get(), &matrix, has_paint ? &paint : nullptr);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
         void makeThreadsafe() { make_threadsafe(nullptr, &matrix); }
     };
     struct DrawShadowedPicture final : Op {
@@ -285,7 +260,6 @@ namespace {
             c->drawShadowedPicture(picture.get(), &matrix, &paint);
         #endif
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
         void makeThreadsafe() { make_threadsafe(nullptr, &matrix); }
     };
 
@@ -299,7 +273,6 @@ namespace {
         SkScalar x,y;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) { c->drawImage(image.get(), x,y, &paint); }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint, &image); }
     };
     struct DrawImageNine final : Op {
         static const auto kType = Type::DrawImageNine;
@@ -315,7 +288,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) {
             c->drawImageNine(image.get(), center, dst, &paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint, &image); }
     };
     struct DrawImageRect final : Op {
         static const auto kType = Type::DrawImageRect;
@@ -332,7 +304,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) {
             c->drawImageRect(image.get(), src, dst, &paint, constraint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint, &image); }
     };
     struct DrawImageLattice final : Op {
         static const auto kType = Type::DrawImageLattice;
@@ -350,7 +321,6 @@ namespace {
                  ydivs = pod<int>(this, xs*sizeof(int));
             c->drawImageLattice(image.get(), {xdivs, xs, ydivs, ys}, dst, &paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint, &image); }
     };
 
     struct DrawText final : Op {
@@ -363,7 +333,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) {
             c->drawText(pod<void>(this), bytes, x,y, paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawPosText final : Op {
         static const auto kType = Type::DrawPosText;
@@ -377,7 +346,6 @@ namespace {
             auto text   = pod<void>(this, n*sizeof(SkPoint));
             c->drawPosText(text, bytes, points, paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawPosTextH final : Op {
         static const auto kType = Type::DrawPosTextH;
@@ -392,7 +360,6 @@ namespace {
             auto text = pod<void>(this, n*sizeof(SkScalar));
             c->drawPosTextH(text, bytes, xs, y, paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawTextOnPath final : Op {
         static const auto kType = Type::DrawTextOnPath;
@@ -408,7 +375,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) {
             c->drawTextOnPath(pod<void>(this), bytes, path, &matrix, paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
         void makeThreadsafe() { make_threadsafe(&path, &matrix); }
     };
     struct DrawTextRSXform final : Op {
@@ -424,7 +390,6 @@ namespace {
             c->drawTextRSXform(pod<void>(this), bytes, pod<SkRSXform>(this, bytes),
                                maybe_unset(cull), paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawTextBlob final : Op {
         static const auto kType = Type::DrawTextBlob;
@@ -436,7 +401,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) {
             c->drawTextBlob(blob.get(), x,y, paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
 
     struct DrawPatch final : Op {
@@ -459,7 +423,6 @@ namespace {
             c->drawPatch(cubics, has_colors ? colors : nullptr, has_texs ? texs : nullptr,
                          xfermode.get(), paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawPoints final : Op {
         static const auto kType = Type::DrawPoints;
@@ -471,7 +434,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) {
             c->drawPoints(mode, count, pod<SkPoint>(this), paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawVertices final : Op {
         static const auto kType = Type::DrawVertices;
@@ -510,7 +472,6 @@ namespace {
             c->drawVertices(mode, count, vertices, texs, colors, xfermode.get(),
                             indices, nindices, paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint); }
     };
     struct DrawAtlas final : Op {
         static const auto kType = Type::DrawAtlas;
@@ -535,7 +496,6 @@ namespace {
             c->drawAtlas(atlas.get(), xforms, texs, colors, count, xfermode,
                          maybe_unset(cull), &paint);
         }
-        void optimizeFor(GrContext* ctx) { optimize_for(ctx, &paint, &atlas); }
     };
 }
 
@@ -742,24 +702,15 @@ void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const S
                 colors, colors ? count : 0);
 }
 
-typedef void(*     draw_fn)(void*,  SkCanvas*, const SkMatrix&);
-typedef void(*grcontext_fn)(void*, GrContext*);
-typedef void(*     void_fn)(void*);
+typedef void(*draw_fn)(void*,  SkCanvas*, const SkMatrix&);
+typedef void(*void_fn)(void*);
 
 // All ops implement draw().
 #define M(T) [](void* op, SkCanvas* c, const SkMatrix& original) { ((T*)op)->draw(c, original); },
 static const draw_fn draw_fns[] = { TYPES(M) };
 #undef M
 
-// Ops that implement optimizeFor() or makeThreadsafe() return void from those functions;
-// the (throwing) defaults return int.
-#define M(T) std::is_void<decltype(((T*)nullptr)->optimizeFor(nullptr))>::value \
-    ? [](void* op, GrContext* ctx) { ((T*)op)->optimizeFor(ctx); } : (grcontext_fn)nullptr,
-static const grcontext_fn optimize_for_fns[] = { TYPES(M) };
-#undef M
-
-#define M(T) std::is_void<decltype(((T*)nullptr)->makeThreadsafe())>::value \
-    ? [](void* op) { ((T*)op)->makeThreadsafe(); } : (void_fn)nullptr,
+#define M(T) [](void* op) { ((T*)op)->makeThreadsafe(); },
 static const void_fn make_threadsafe_fns[] = { TYPES(M) };
 #undef M
 
@@ -775,12 +726,8 @@ static const void_fn make_threadsafe_fns[] = { TYPES(M) };
 static const void_fn dtor_fns[] = { TYPES(M) };
 #undef M
 
-void SkLiteDL::onDraw(SkCanvas* canvas) {
-    SkMatrix original = canvas->getTotalMatrix();
-    this->map(draw_fns, canvas, original);
-}
-void SkLiteDL::optimizeFor   (GrContext* ctx) { this->map(optimize_for_fns, ctx); }
-void SkLiteDL::makeThreadsafe()               { this->map(make_threadsafe_fns); }
+void SkLiteDL::onDraw(SkCanvas* canvas) { this->map(draw_fns, canvas, canvas->getTotalMatrix()); }
+void SkLiteDL::makeThreadsafe()         { this->map(make_threadsafe_fns); }
 
 SkRect SkLiteDL::onGetBounds() {
     return fBounds;

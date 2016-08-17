@@ -15,14 +15,11 @@
 #include "SkRect.h"
 #include "SkTDArray.h"
 
-class GrContext;
-
 class SkLiteDL final : public SkDrawable {
 public:
     static sk_sp<SkLiteDL> New(SkRect);
     void reset(SkRect);
 
-    void optimizeFor(GrContext*);
     void makeThreadsafe();
     bool empty() const { return fUsed == 0; }
 
