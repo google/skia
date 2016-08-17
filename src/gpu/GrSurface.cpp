@@ -29,7 +29,8 @@ size_t GrSurface::WorseCaseSize(const GrSurfaceDesc& desc) {
         SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
         size_t colorBytes = GrBytesPerPixel(desc.fConfig);
         SkASSERT(colorBytes > 0);
-        size = colorValuesPerPixel * desc.fWidth * desc.fHeight * colorBytes;
+
+        size = (size_t) colorValuesPerPixel * desc.fWidth * desc.fHeight * colorBytes;
     } else {
         if (GrPixelConfigIsCompressed(desc.fConfig)) {
             size = GrCompressedFormatDataSize(desc.fConfig, desc.fWidth, desc.fHeight);
