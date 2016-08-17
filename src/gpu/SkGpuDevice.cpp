@@ -686,8 +686,6 @@ static void determine_clipped_src_rect(int width, int height,
     SkRect clippedSrcRect = SkRect::Make(*clippedSrcIRect);
     inv.mapRect(&clippedSrcRect);
     if (srcRectPtr) {
-        // we've setup src space 0,0 to map to the top left of the src rect.
-        clippedSrcRect.offset(srcRectPtr->fLeft, srcRectPtr->fTop);
         if (!clippedSrcRect.intersect(*srcRectPtr)) {
             clippedSrcIRect->setEmpty();
             return;
