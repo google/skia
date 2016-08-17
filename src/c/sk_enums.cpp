@@ -237,6 +237,11 @@ static_assert ((int)SkPath1DPathEffect::Style::kTranslate_Style   == (int)TRANSL
 static_assert ((int)SkPath1DPathEffect::Style::kRotate_Style      == (int)ROTATE_SK_PATH_EFFECT_1D_STYLE,      ASSERT_MSG(SkPath1DPathEffect::Style, sk_path_effect_1d_style_t));
 static_assert ((int)SkPath1DPathEffect::Style::kMorph_Style       == (int)MORPH_SK_PATH_EFFECT_1D_STYLE,       ASSERT_MSG(SkPath1DPathEffect::Style, sk_path_effect_1d_style_t));
 
+// sk_path_effect_1d_style_t
+static_assert ((int)SkPaint::Style::kFill_Style            == (int)FILL_SK_PAINT_STYLE,              ASSERT_MSG(SkPaint::Style, sk_paint_style_t));
+static_assert ((int)SkPaint::Style::kStrokeAndFill_Style   == (int)STROKE_AND_FILL_SK_PAINT_STYLE,   ASSERT_MSG(SkPaint::Style, sk_paint_style_t));
+static_assert ((int)SkPaint::Style::kStroke_Style          == (int)STROKE_SK_PAINT_STYLE,            ASSERT_MSG(SkPaint::Style, sk_paint_style_t));
+
 // sk_point_mode_t
 static_assert ((int)SkCanvas::PointMode::kPoints_PointMode    == (int)POINTS_SK_POINT_MODE,    ASSERT_MSG(SkCanvas::PointMode, sk_point_mode_t));
 static_assert ((int)SkCanvas::PointMode::kLines_PointMode     == (int)LINES_SK_POINT_MODE,     ASSERT_MSG(SkCanvas::PointMode, sk_point_mode_t));
