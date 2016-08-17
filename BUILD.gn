@@ -144,32 +144,38 @@ utils_gypi = exec_script("gn/gypi_to_gn.py",
                          "scope",
                          [ "gyp/utils.gypi" ])
 
-source_set("opts_ssse3") {
-  configs += skia_library_configs
+is_x86 = current_cpu == "x64" || current_cpu == "x86"
 
-  sources = opts_gypi.ssse3_sources
-  cflags = [ "-mssse3" ]
-}
+if (is_x86) {
+  source_set("opts_sse2") {
+    configs += skia_library_configs
+    sources = opts_gypi.sse2_sources
+    cflags = [ "-msse2" ]
+  }
 
-source_set("opts_sse41") {
-  configs += skia_library_configs
+  source_set("opts_ssse3") {
+    configs += skia_library_configs
+    sources = opts_gypi.ssse3_sources
+    cflags = [ "-mssse3" ]
+  }
 
-  sources = opts_gypi.sse41_sources
-  cflags = [ "-msse4.1" ]
-}
+  source_set("opts_sse41") {
+    configs += skia_library_configs
+    sources = opts_gypi.sse41_sources
+    cflags = [ "-msse4.1" ]
+  }
 
-source_set("opts_sse42") {
-  configs += skia_library_configs
+  source_set("opts_sse42") {
+    configs += skia_library_configs
+    sources = opts_gypi.sse42_sources
+    cflags = [ "-msse4.2" ]
+  }
 
-  sources = opts_gypi.sse42_sources
-  cflags = [ "-msse4.2" ]
-}
-
-source_set("opts_avx") {
-  configs += skia_library_configs
-
-  sources = opts_gypi.avx_sources
-  cflags = [ "-mavx" ]
+  source_set("opts_avx") {
+    configs += skia_library_configs
+    sources = opts_gypi.avx_sources
+    cflags = [ "-mavx" ]
+  }
 }
 
 component("skia") {
@@ -177,10 +183,6 @@ component("skia") {
   configs += skia_library_configs
 
   deps = [
-    ":opts_avx",
-    ":opts_sse41",
-    ":opts_sse42",
-    ":opts_ssse3",
     "//third_party/expat",
     "//third_party/giflib",
     "//third_party/libjpeg_turbo",
@@ -189,6 +191,15 @@ component("skia") {
     "//third_party/sfntly",
     "//third_party/zlib",
   ]
+  if (is_x86) {
+    deps += [
+      ":opts_avx",
+      ":opts_sse2",
+      ":opts_sse41",
+      ":opts_sse42",
+      ":opts_ssse3",
+    ]
+  }
 
   if (!is_win) {
     libs = [ "pthread" ]
@@ -198,7 +209,6 @@ component("skia") {
   sources += core_gypi.sources
   sources += effects_gypi.sources
   sources += gpu_gypi.skgpu_sources
-  sources += opts_gypi.sse2_sources
   sources += pdf_gypi.sources
   sources += utils_gypi.sources
   sources += [

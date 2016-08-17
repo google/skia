@@ -18,6 +18,13 @@ if (current_os == "") {
   current_os = target_os
 }
 
+if (target_cpu == "") {
+  target_cpu = host_cpu
+}
+if (current_cpu == "") {
+  current_cpu = target_cpu
+}
+
 is_android = current_os == "android"
 is_fuchsia = current_os == "fuchsia"
 is_ios = current_os == "ios"
