@@ -55,12 +55,11 @@ class RectGeometryProcessor : public GrGeometryProcessor {
 public:
     RectGeometryProcessor(const SkMatrix& localMatrix) : fLocalMatrix(localMatrix) {
         this->initClassID<RectGeometryProcessor>();
-        fInPosition    = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                          kHigh_GrSLPrecision));
-        fInColor       = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
-        fInRectEdge    = &this->addVertexAttrib(Attribute("inRectEdge", kVec4f_GrVertexAttribType));
-        fInWidthHeight = &this->addVertexAttrib(Attribute("inWidthHeight",
-                                                          kVec2f_GrVertexAttribType));
+        fInPosition    = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                                kHigh_GrSLPrecision);
+        fInColor       = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+        fInRectEdge    = &this->addVertexAttrib("inRectEdge", kVec4f_GrVertexAttribType);
+        fInWidthHeight = &this->addVertexAttrib("inWidthHeight", kVec2f_GrVertexAttribType);
     }
 
     bool implementsDistanceVector() const override { return true; };

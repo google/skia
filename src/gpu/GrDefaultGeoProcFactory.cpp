@@ -234,14 +234,13 @@ private:
         bool hasTransformedLocalCoords = SkToBool(gpTypeFlags & kTransformedLocalCoord_GPFlag);
         bool hasLocalCoord = hasExplicitLocalCoords || hasTransformedLocalCoords;
         bool hasCoverage = SkToBool(gpTypeFlags & kCoverage_GPFlag);
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                       kHigh_GrSLPrecision));
+        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                             kHigh_GrSLPrecision);
         if (hasColor) {
-            fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
+            fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
         }
         if (hasLocalCoord) {
-            fInLocalCoords = &this->addVertexAttrib(Attribute("inLocalCoord",
-                                                              kVec2f_GrVertexAttribType));
+            fInLocalCoords = &this->addVertexAttrib("inLocalCoord", kVec2f_GrVertexAttribType);
             if (hasExplicitLocalCoords) {
                 this->setHasExplicitLocalCoords();
             } else {
@@ -250,8 +249,7 @@ private:
             }
         }
         if (hasCoverage) {
-            fInCoverage = &this->addVertexAttrib(Attribute("inCoverage",
-                                                           kFloat_GrVertexAttribType));
+            fInCoverage = &this->addVertexAttrib("inCoverage", kFloat_GrVertexAttribType);
         }
     }
 

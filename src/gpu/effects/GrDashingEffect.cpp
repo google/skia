@@ -950,10 +950,9 @@ DashingCircleEffect::DashingCircleEffect(GrColor color,
     , fUsesLocalCoords(usesLocalCoords)
     , fAAMode(aaMode) {
     this->initClassID<DashingCircleEffect>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
-    fInDashParams = &this->addVertexAttrib(Attribute("inDashParams", kVec3f_GrVertexAttribType));
-    fInCircleParams = &this->addVertexAttrib(Attribute("inCircleParams",
-                                                       kVec2f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType);
+    fInDashParams = &this->addVertexAttrib("inDashParams", kVec3f_GrVertexAttribType);
+    fInCircleParams = &this->addVertexAttrib("inCircleParams", kVec2f_GrVertexAttribType);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
@@ -1184,9 +1183,9 @@ DashingLineEffect::DashingLineEffect(GrColor color,
     , fUsesLocalCoords(usesLocalCoords)
     , fAAMode(aaMode) {
     this->initClassID<DashingLineEffect>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
-    fInDashParams = &this->addVertexAttrib(Attribute("inDashParams", kVec3f_GrVertexAttribType));
-    fInRectParams = &this->addVertexAttrib(Attribute("inRect", kVec4f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType);
+    fInDashParams = &this->addVertexAttrib("inDashParams", kVec3f_GrVertexAttribType);
+    fInRectParams = &this->addVertexAttrib("inRect", kVec4f_GrVertexAttribType);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);

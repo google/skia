@@ -421,16 +421,16 @@ private:
         : fLocalMatrix(localMatrix)
         , fUsesLocalCoords(usesLocalCoords) {
         this->initClassID<PLSAATriangleEffect>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                       kHigh_GrSLPrecision));
-        fInVertex1 = &this->addVertexAttrib(Attribute("inVertex1", kVec2f_GrVertexAttribType,
-                                                      kHigh_GrSLPrecision));
-        fInVertex2 = &this->addVertexAttrib(Attribute("inVertex2", kVec2f_GrVertexAttribType,
-                                                      kHigh_GrSLPrecision));
-        fInVertex3 = &this->addVertexAttrib(Attribute("inVertex3", kVec2f_GrVertexAttribType,
-                                                      kHigh_GrSLPrecision));
-        fInWindings = &this->addVertexAttrib(Attribute("inWindings", kInt_GrVertexAttribType,
-                                                       kLow_GrSLPrecision));
+        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                             kHigh_GrSLPrecision);
+        fInVertex1 = &this->addVertexAttrib("inVertex1", kVec2f_GrVertexAttribType,
+                                            kHigh_GrSLPrecision);
+        fInVertex2 = &this->addVertexAttrib("inVertex2", kVec2f_GrVertexAttribType,
+                                            kHigh_GrSLPrecision);
+        fInVertex3 = &this->addVertexAttrib("inVertex3", kVec2f_GrVertexAttribType,
+                                            kHigh_GrSLPrecision);
+        fInWindings = &this->addVertexAttrib("inWindings", kInt_GrVertexAttribType,
+                                             kLow_GrSLPrecision);
         this->setWillReadFragmentPosition();
     }
 
@@ -611,16 +611,15 @@ private:
         : fLocalMatrix(localMatrix)
         , fUsesLocalCoords(usesLocalCoords) {
         this->initClassID<PLSQuadEdgeEffect>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                       kHigh_GrSLPrecision));
-        fInUV = &this->addVertexAttrib(Attribute("inUV", kVec2f_GrVertexAttribType,
-                                                 kHigh_GrSLPrecision));
-        fInEndpoint1 = &this->addVertexAttrib(Attribute("inEndpoint1", kVec2f_GrVertexAttribType,
-                                                        kHigh_GrSLPrecision));
-        fInEndpoint2 = &this->addVertexAttrib(Attribute("inEndpoint2", kVec2f_GrVertexAttribType,
-                                                        kHigh_GrSLPrecision));
-        fInWindings  = &this->addVertexAttrib(Attribute("inWindings", kInt_GrVertexAttribType,
-                                                        kLow_GrSLPrecision));
+        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                             kHigh_GrSLPrecision);
+        fInUV = &this->addVertexAttrib("inUV", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+        fInEndpoint1 = &this->addVertexAttrib("inEndpoint1", kVec2f_GrVertexAttribType,
+                                              kHigh_GrSLPrecision);
+        fInEndpoint2 = &this->addVertexAttrib("inEndpoint2", kVec2f_GrVertexAttribType,
+                                              kHigh_GrSLPrecision);
+        fInWindings  = &this->addVertexAttrib("inWindings", kInt_GrVertexAttribType,
+                                              kLow_GrSLPrecision);
         this->setWillReadFragmentPosition();
     }
 
@@ -762,8 +761,8 @@ private:
         , fLocalMatrix(localMatrix)
         , fUsesLocalCoords(usesLocalCoords) {
         this->initClassID<PLSFinishEffect>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                       kHigh_GrSLPrecision));
+        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                             kHigh_GrSLPrecision);
     }
 
     const Attribute* fInPosition;

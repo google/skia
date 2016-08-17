@@ -248,12 +248,11 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
     , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
     this->initClassID<GrDistanceFieldA8TextGeoProc>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                   kHigh_GrSLPrecision));
-    fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
-    fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                        kVec2us_GrVertexAttribType,
-                                                        kHigh_GrSLPrecision));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                         kHigh_GrSLPrecision);
+    fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType,
+                                              kHigh_GrSLPrecision);
     this->addTextureAccess(&fTextureAccess);
 }
 
@@ -493,11 +492,10 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
     , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
     this->initClassID<GrDistanceFieldPathGeoProc>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                   kHigh_GrSLPrecision));
-    fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
-    fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                        kVec2f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                         kHigh_GrSLPrecision);
+    fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2f_GrVertexAttribType);
     this->addTextureAccess(&fTextureAccess);
 }
 
@@ -799,12 +797,11 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
     , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
     this->initClassID<GrDistanceFieldLCDTextGeoProc>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                   kHigh_GrSLPrecision));
-    fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
-    fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                        kVec2us_GrVertexAttribType,
-                                                        kHigh_GrSLPrecision));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                         kHigh_GrSLPrecision);
+    fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType,
+                                              kHigh_GrSLPrecision);
     this->addTextureAccess(&fTextureAccess);
 }
 

@@ -44,15 +44,13 @@ InstanceProcessor::InstanceProcessor(BatchInfo batchInfo, GrBuffer* paramsBuffer
     : fBatchInfo(batchInfo) {
     this->initClassID<InstanceProcessor>();
 
-    this->addVertexAttrib(Attribute("shapeCoords", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision));
-    this->addVertexAttrib(Attribute("vertexAttrs", kInt_GrVertexAttribType));
-    this->addVertexAttrib(Attribute("instanceInfo", kUint_GrVertexAttribType));
-    this->addVertexAttrib(Attribute("shapeMatrixX", kVec3f_GrVertexAttribType,
-                                    kHigh_GrSLPrecision));
-    this->addVertexAttrib(Attribute("shapeMatrixY", kVec3f_GrVertexAttribType,
-                                    kHigh_GrSLPrecision));
-    this->addVertexAttrib(Attribute("color", kVec4f_GrVertexAttribType, kLow_GrSLPrecision));
-    this->addVertexAttrib(Attribute("localRect", kVec4f_GrVertexAttribType, kHigh_GrSLPrecision));
+    this->addVertexAttrib("shapeCoords", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+    this->addVertexAttrib("vertexAttrs", kInt_GrVertexAttribType);
+    this->addVertexAttrib("instanceInfo", kUint_GrVertexAttribType);
+    this->addVertexAttrib("shapeMatrixX", kVec3f_GrVertexAttribType, kHigh_GrSLPrecision);
+    this->addVertexAttrib("shapeMatrixY", kVec3f_GrVertexAttribType, kHigh_GrSLPrecision);
+    this->addVertexAttrib("color", kVec4f_GrVertexAttribType, kLow_GrSLPrecision);
+    this->addVertexAttrib("localRect", kVec4f_GrVertexAttribType, kHigh_GrSLPrecision);
 
     GR_STATIC_ASSERT(0 == (int)Attrib::kShapeCoords);
     GR_STATIC_ASSERT(1 == (int)Attrib::kVertexAttrs);

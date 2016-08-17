@@ -81,11 +81,10 @@ class CircleGeometryProcessor : public GrGeometryProcessor {
 public:
     CircleGeometryProcessor(bool stroke, const SkMatrix& localMatrix) : fLocalMatrix(localMatrix){
         this->initClassID<CircleGeometryProcessor>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                       kHigh_GrSLPrecision));
-        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
-        fInCircleEdge = &this->addVertexAttrib(Attribute("inCircleEdge",
-                                                         kVec4f_GrVertexAttribType));
+        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                             kHigh_GrSLPrecision);
+        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+        fInCircleEdge = &this->addVertexAttrib("inCircleEdge", kVec4f_GrVertexAttribType);
         fStroke = stroke;
     }
 
@@ -223,12 +222,10 @@ public:
     EllipseGeometryProcessor(bool stroke, const SkMatrix& localMatrix)
         : fLocalMatrix(localMatrix) {
         this->initClassID<EllipseGeometryProcessor>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
-        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
-        fInEllipseOffset = &this->addVertexAttrib(Attribute("inEllipseOffset",
-                                                            kVec2f_GrVertexAttribType));
-        fInEllipseRadii = &this->addVertexAttrib(Attribute("inEllipseRadii",
-                                                           kVec4f_GrVertexAttribType));
+        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType);
+        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+        fInEllipseOffset = &this->addVertexAttrib("inEllipseOffset", kVec2f_GrVertexAttribType);
+        fInEllipseRadii = &this->addVertexAttrib("inEllipseRadii", kVec4f_GrVertexAttribType);
         fStroke = stroke;
     }
 
@@ -372,13 +369,11 @@ public:
     DIEllipseGeometryProcessor(const SkMatrix& viewMatrix, DIEllipseStyle style)
         : fViewMatrix(viewMatrix) {
         this->initClassID<DIEllipseGeometryProcessor>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                       kHigh_GrSLPrecision));
-        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
-        fInEllipseOffsets0 = &this->addVertexAttrib(Attribute("inEllipseOffsets0",
-                                                              kVec2f_GrVertexAttribType));
-        fInEllipseOffsets1 = &this->addVertexAttrib(Attribute("inEllipseOffsets1",
-                                                              kVec2f_GrVertexAttribType));
+        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                             kHigh_GrSLPrecision);
+        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+        fInEllipseOffsets0 = &this->addVertexAttrib("inEllipseOffsets0", kVec2f_GrVertexAttribType);
+        fInEllipseOffsets1 = &this->addVertexAttrib("inEllipseOffsets1", kVec2f_GrVertexAttribType);
         fStyle = style;
     }
 

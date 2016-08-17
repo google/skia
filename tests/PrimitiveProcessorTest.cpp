@@ -56,12 +56,7 @@ private:
                     fAttribNames.push_back().printf("attr%d", i);
                 }
                 for (auto i = 0; i < numAttribs; ++i) {
-                    Attribute attribute;
-                    attribute.fType = kVec2f_GrVertexAttribType;
-                    attribute.fName = fAttribNames[i].c_str();
-                    attribute.fOffset = 2 * sizeof(float) * i;
-                    attribute.fPrecision = kDefault_GrSLPrecision;
-                    this->addVertexAttrib(attribute);
+                    this->addVertexAttrib(fAttribNames[i].c_str(), kVec2f_GrVertexAttribType);
                 }
             };
             const char* name() const override { return "Dummy GP"; }

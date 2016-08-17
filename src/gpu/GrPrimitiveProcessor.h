@@ -156,8 +156,7 @@ public:
             : fName(nullptr)
             , fType(kFloat_GrVertexAttribType)
             , fOffset(0) {}
-        Attribute(const char* name, GrVertexAttribType type,
-                  GrSLPrecision precision = kDefault_GrSLPrecision)
+        Attribute(const char* name, GrVertexAttribType type, GrSLPrecision precision)
             : fName(name)
             , fType(type)
             , fOffset(SkAlign4(GrVertexAttribTypeSize(type)))

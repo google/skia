@@ -195,11 +195,10 @@ private:
     MSAAQuadProcessor(const SkMatrix& viewMatrix)
         : fViewMatrix(viewMatrix) {
         this->initClassID<MSAAQuadProcessor>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                       kHigh_GrSLPrecision));
-        fInUV = &this->addVertexAttrib(Attribute("inUV", kVec2f_GrVertexAttribType,
-                                                 kHigh_GrSLPrecision));
-        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
+        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                             kHigh_GrSLPrecision);
+        fInUV = &this->addVertexAttrib("inUV", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
         this->setSampleShading(1.0f);
     }
 
