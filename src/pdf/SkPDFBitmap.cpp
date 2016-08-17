@@ -32,8 +32,7 @@ void image_get_ro_pixels(const SkImage* image, SkBitmap* dst) {
         }
     }
     // no pixels or wrong size: fill with zeros.
-    SkAlphaType at = image->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    dst->setInfo(SkImageInfo::MakeN32(image->width(), image->height(), at));
+    dst->setInfo(SkImageInfo::MakeN32(image->width(), image->height(), image->alphaType()));
 }
 
 bool image_compute_is_opaque(const SkImage* image) {

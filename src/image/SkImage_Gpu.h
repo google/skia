@@ -28,6 +28,7 @@ public:
     ~SkImage_Gpu() override;
 
     SkImageInfo onImageInfo() const override;
+    SkAlphaType onAlphaType() const override { return fAlphaType; }
 
     void applyBudgetDecision() const {
         if (SkBudgeted::kYes == fBudgeted) {
@@ -47,7 +48,6 @@ public:
         *uniqueID = this->uniqueID();
         return sk_ref_sp(fTexture.get());
     }
-    bool isOpaque() const override;
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;
 

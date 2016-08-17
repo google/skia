@@ -166,7 +166,8 @@ public:
     SkISize dimensions() const { return SkISize::Make(fWidth, fHeight); }
     SkIRect bounds() const { return SkIRect::MakeWH(fWidth, fHeight); }
     uint32_t uniqueID() const { return fUniqueID; }
-    virtual bool isOpaque() const { return false; }
+    SkAlphaType alphaType() const;
+    bool isOpaque() const { return SkAlphaTypeIsOpaque(this->alphaType()); }
 
     /**
      * Extracts YUV planes from the SkImage and stores them in client-provided memory. The sizes

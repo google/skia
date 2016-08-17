@@ -79,6 +79,9 @@ public:
     SkImageInfo onImageInfo() const override {
         return fBitmap.info();
     }
+    SkAlphaType onAlphaType() const override {
+        return fBitmap.alphaType();
+    }
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     bool onPeekPixels(SkPixmap*) const override;
@@ -95,7 +98,6 @@ public:
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
-    bool isOpaque() const override;
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
 
     SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false)
@@ -357,10 +359,6 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode 
 
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
     return ((const SkImage_Raster*)image)->getPixelRef();
-}
-
-bool SkImage_Raster::isOpaque() const {
-    return fBitmap.isOpaque();
 }
 
 bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {

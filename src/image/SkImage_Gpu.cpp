@@ -51,9 +51,8 @@ SkImageInfo SkImage_Gpu::onImageInfo() const {
     return SkImageInfo::Make(fTexture->width(), fTexture->height(), ct, fAlphaType, fColorSpace);
 }
 
-static SkImageInfo make_info(int w, int h, bool isOpaque, sk_sp<SkColorSpace> colorSpace) {
-    return SkImageInfo::MakeN32(w, h, isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType,
-                                std::move(colorSpace));
+static SkImageInfo make_info(int w, int h, SkAlphaType at, sk_sp<SkColorSpace> colorSpace) {
+    return SkImageInfo::MakeN32(w, h, at, std::move(colorSpace));
 }
 
 bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
@@ -64,7 +63,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
         return true;
     }
 
-    if (!dst->tryAllocPixels(make_info(this->width(), this->height(), this->isOpaque(),
+    if (!dst->tryAllocPixels(make_info(this->width(), this->height(), this->alphaType(),
                                        this->fColorSpace))) {
         return false;
     }
@@ -86,10 +85,6 @@ GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& para
     GrTextureAdjuster adjuster(this->peekTexture(), this->bounds(), this->uniqueID(),
                                this->onImageInfo().colorSpace());
     return adjuster.refTextureSafeForParams(params, gammaTreatment, nullptr);
-}
-
-bool SkImage_Gpu::isOpaque() const {
-    return GrPixelConfigIsOpaque(fTexture->config()) || fAlphaType == kOpaque_SkAlphaType;
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -309,17 +304,15 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context) const {
     if (GrTexture* peek = as_IB(this)->peekTexture()) {
         return peek->getContext() == context ? sk_ref_sp(const_cast<SkImage*>(this)) : nullptr;
     }
-    // No way to check whether a image is premul or not?
-    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
 
     if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
         GrImageTextureMaker maker(context, cacher, this, kDisallow_CachingHint);
-        return create_image_from_maker(&maker, at, this->uniqueID());
+        return create_image_from_maker(&maker, this->alphaType(), this->uniqueID());
     }
 
     if (const SkBitmap* bmp = as_IB(this)->onPeekBitmap()) {
         GrBitmapTextureMaker maker(context, *bmp);
-        return create_image_from_maker(&maker, at, this->uniqueID());
+        return create_image_from_maker(&maker, this->alphaType(), this->uniqueID());
     }
     return nullptr;
 }
@@ -445,8 +438,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         if (!data && !this->peekPixels(nullptr)) {
             return 0;
         }
-        SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-        info = SkImageInfo::MakeN32(scaledSize.width(), scaledSize.height(), at);
+        info = SkImageInfo::MakeN32(scaledSize.width(), scaledSize.height(), this->alphaType());
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
             pixmap.alloc(info);

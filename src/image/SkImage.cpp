@@ -106,6 +106,10 @@ void SkImage::preroll(GrContext* ctx) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+SkAlphaType SkImage::alphaType() const {
+    return as_IB(this)->onAlphaType();
+}
+
 sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
                                     const SkMatrix* localMatrix) const {
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tileX, tileY, localMatrix);
@@ -320,7 +324,7 @@ bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) con
     // As the base-class, all we can do is make a copy (regardless of mode).
     // Subclasses that want to be more optimal should override.
     SkImageInfo info = this->onImageInfo().makeColorType(kN32_SkColorType)
-            .makeAlphaType(this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+            .makeAlphaType(this->alphaType());
     if (!bitmap->tryAllocPixels(info)) {
         return false;
     }

@@ -128,32 +128,31 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCanvasPeek_Gpu, reporter, ctxInfo) {
 #endif
 
 static void test_snapshot_alphatype(skiatest::Reporter* reporter, const sk_sp<SkSurface>& surface,
-                                    bool expectOpaque) {
+                                    SkAlphaType expectedAlphaType) {
     REPORTER_ASSERT(reporter, surface);
     if (surface) {
         sk_sp<SkImage> image(surface->makeImageSnapshot());
         REPORTER_ASSERT(reporter, image);
         if (image) {
-            REPORTER_ASSERT(reporter, image->isOpaque() == SkToBool(expectOpaque));
+            REPORTER_ASSERT(reporter, image->alphaType() == expectedAlphaType);
         }
     }
 }
 DEF_TEST(SurfaceSnapshotAlphaType, reporter) {
     for (auto& surface_func : { &create_surface, &create_direct_surface }) {
-        for (auto& isOpaque : { true, false }) {
-            SkAlphaType alphaType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-            auto surface(surface_func(alphaType, nullptr));
-            test_snapshot_alphatype(reporter, surface, isOpaque);
+        for (auto& at: { kOpaque_SkAlphaType, kPremul_SkAlphaType, kUnpremul_SkAlphaType }) {
+            auto surface(surface_func(at, nullptr));
+            test_snapshot_alphatype(reporter, surface, at);
         }
     }
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceSnapshotAlphaType_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
-        for (auto& isOpaque : { true, false }) {
-            SkAlphaType alphaType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-            auto surface(surface_func(ctxInfo.grContext(), alphaType, nullptr));
-            test_snapshot_alphatype(reporter, surface, isOpaque);
+        // GPU doesn't support creating unpremul surfaces, so only test opaque + premul
+        for (auto& at : { kOpaque_SkAlphaType, kPremul_SkAlphaType }) {
+            auto surface(surface_func(ctxInfo.grContext(), at, nullptr));
+            test_snapshot_alphatype(reporter, surface, at);
         }
     }
 }

@@ -43,8 +43,7 @@ static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect
     // see https://bug.skia.org/3965
     //REPORTER_ASSERT(reporter, a->isOpaque() == b->isOpaque());
 
-    SkImageInfo info = SkImageInfo::MakeN32(widthA, heightA,
-                                        a->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+    SkImageInfo info = SkImageInfo::MakeN32(widthA, heightA, a->alphaType());
     SkAutoPixmapStorage pmapA, pmapB;
     pmapA.alloc(info);
     pmapB.alloc(info);
@@ -505,8 +504,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, contextInf
         if (image->width() != texImage->width() || image->height() != texImage->height()) {
             ERRORF(reporter, "newTextureImage changed the image size.");
         }
-        if (image->isOpaque() != texImage->isOpaque()) {
-            ERRORF(reporter, "newTextureImage changed image opaqueness.");
+        if (image->alphaType() != texImage->alphaType()) {
+            ERRORF(reporter, "newTextureImage changed image alpha type.");
         }
     }
 }
@@ -669,7 +668,7 @@ static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* ima
                                 const SkBitmap& bitmap, SkImage::LegacyBitmapMode mode) {
     REPORTER_ASSERT(reporter, image->width() == bitmap.width());
     REPORTER_ASSERT(reporter, image->height() == bitmap.height());
-    REPORTER_ASSERT(reporter, image->isOpaque() == bitmap.isOpaque());
+    REPORTER_ASSERT(reporter, image->alphaType() == bitmap.alphaType());
 
     if (SkImage::kRO_LegacyBitmapMode == mode) {
         REPORTER_ASSERT(reporter, bitmap.isImmutable());
@@ -812,8 +811,8 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
         ERRORF(reporter, "Images must have the same size");
         return;
     }
-    if (a->isOpaque() != b->isOpaque()) {
-        ERRORF(reporter, "Images must have the same opaquness");
+    if (a->alphaType() != b->alphaType()) {
+        ERRORF(reporter, "Images must have the same alpha type");
         return;
     }
 
@@ -948,9 +947,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
                     if (newImage) {
                         // Scale the image in software for comparison.
                         SkImageInfo scaled_info = SkImageInfo::MakeN32(
-                                image->width() / testCase.fExpectedScaleFactor,
-                                image->height() / testCase.fExpectedScaleFactor,
-                                image->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+                                                    image->width() / testCase.fExpectedScaleFactor,
+                                                    image->height() / testCase.fExpectedScaleFactor,
+                                                    image->alphaType());
                         SkAutoPixmapStorage scaled;
                         scaled.alloc(scaled_info);
                         image->scalePixels(scaled, testCase.fExpectedQuality);
