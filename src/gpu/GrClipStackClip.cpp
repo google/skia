@@ -426,7 +426,7 @@ sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
                                                       const SkVector& clipToMaskOffset) {
     GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
-    GetClipMaskKey(reducedClip.genID(), reducedClip.ibounds(), &key);
+    GetClipMaskKey(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
     if (GrTexture* texture = resourceProvider->findAndRefTextureByUniqueKey(key)) {
         return sk_sp<GrTexture>(texture);
     }
@@ -534,9 +534,9 @@ bool GrClipStackClip::CreateStencilClipMask(GrContext* context,
     }
 
     // TODO: these need to be swapped over to using a StencilAttachmentProxy
-    if (stencilAttachment->mustRenderClip(reducedClip.genID(), reducedClip.ibounds(),
+    if (stencilAttachment->mustRenderClip(reducedClip.elementsGenID(), reducedClip.ibounds(),
                                           clipSpaceToStencilOffset)) {
-        stencilAttachment->setLastClip(reducedClip.genID(), reducedClip.ibounds(),
+        stencilAttachment->setLastClip(reducedClip.elementsGenID(), reducedClip.ibounds(),
                                        clipSpaceToStencilOffset);
         // Set the matrix so that rendered clip elements are transformed from clip to stencil space.
         SkVector translate = {
@@ -701,7 +701,7 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
                                                          const GrReducedClip& reducedClip,
                                                          const SkVector& clipToMaskOffset) {
     GrUniqueKey key;
-    GetClipMaskKey(reducedClip.genID(), reducedClip.ibounds(), &key);
+    GetClipMaskKey(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
     if (GrTexture* texture = texProvider->findAndRefTextureByUniqueKey(key)) {
         return sk_sp<GrTexture>(texture);
     }

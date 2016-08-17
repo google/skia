@@ -1007,39 +1007,48 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
             }
         }
 
+        // Zero the memory we will new the GrReducedClip into. This ensures the elements gen ID
+        // will be kInvalidGenID if left uninitialized.
+        SkAlignedSTStorage<1, GrReducedClip> storage;
+        memset(storage.get(), 0, sizeof(GrReducedClip));
+        GR_STATIC_ASSERT(0 == SkClipStack::kInvalidGenID);
+
         // Get the reduced version of the stack.
         SkRect queryBounds = kBounds;
         queryBounds.outset(kBounds.width() / 2, kBounds.height() / 2);
-        const GrReducedClip reduced(stack, queryBounds);
+        const GrReducedClip* reduced = new (storage.get()) GrReducedClip(stack, queryBounds);
 
-        REPORTER_ASSERT_MESSAGE(reporter, SkClipStack::kInvalidGenID != reduced.genID(),
+        REPORTER_ASSERT_MESSAGE(reporter,
+                                reduced->elements().isEmpty() ||
+                                SkClipStack::kInvalidGenID != reduced->elementsGenID(),
                                 testCase.c_str());
 
-        if (!reduced.elements().isEmpty()) {
-            REPORTER_ASSERT_MESSAGE(reporter, reduced.hasIBounds(), testCase.c_str());
+        if (!reduced->elements().isEmpty()) {
+            REPORTER_ASSERT_MESSAGE(reporter, reduced->hasIBounds(), testCase.c_str());
             SkRect stackBounds;
             SkClipStack::BoundsType stackBoundsType;
             stack.getBounds(&stackBounds, &stackBoundsType);
             if (SkClipStack::kNormal_BoundsType == stackBoundsType) {
                 // Unless GrReducedClip starts doing some heroic tightening of the clip bounds, this
                 // will be true since the stack bounds are completely contained inside the query.
-                REPORTER_ASSERT_MESSAGE(reporter, GrClip::IsInsideClip(reduced.ibounds(), stackBounds),
+                REPORTER_ASSERT_MESSAGE(reporter,
+                                        GrClip::IsInsideClip(reduced->ibounds(), stackBounds),
                                         testCase.c_str());
             }
-            REPORTER_ASSERT_MESSAGE(reporter, reduced.requiresAA() == doAA, testCase.c_str());
+            REPORTER_ASSERT_MESSAGE(reporter, reduced->requiresAA() == doAA, testCase.c_str());
         }
 
         // Build a new clip stack based on the reduced clip elements
         SkClipStack reducedStack;
-        if (GrReducedClip::InitialState::kAllOut == reduced.initialState()) {
+        if (GrReducedClip::InitialState::kAllOut == reduced->initialState()) {
             // whether the result is bounded or not, the whole plane should start outside the clip.
             reducedStack.clipEmpty();
         }
-        for (ElementList::Iter iter(reduced.elements()); iter.get(); iter.next()) {
+        for (ElementList::Iter iter(reduced->elements()); iter.get(); iter.next()) {
             add_elem_to_stack(*iter.get(), &reducedStack);
         }
 
-        SkIRect ibounds = reduced.hasIBounds() ? reduced.ibounds() : kIBounds;
+        SkIRect ibounds = reduced->hasIBounds() ? reduced->ibounds() : kIBounds;
 
         // GrReducedClipStack assumes that the final result is clipped to the returned bounds
         reducedStack.clipDevRect(ibounds, SkRegion::kIntersect_Op);
@@ -1053,6 +1062,8 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         set_region_to_stack(reducedStack, ibounds, &reducedRegion);
 
         REPORTER_ASSERT_MESSAGE(reporter, region == reducedRegion, testCase.c_str());
+
+        reduced->~GrReducedClip();
     }
 }
 
@@ -1069,11 +1080,16 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         stack.clipDevRect(SkRect::MakeXYWH(0, 0, SkScalar(50.3), SkScalar(50.3)), SkRegion::kReplace_Op, true);
         SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
-        const GrReducedClip reduced(stack, bounds);
+        SkAlignedSTStorage<1, GrReducedClip> storage;
+        memset(storage.get(), 0, sizeof(GrReducedClip));
+        GR_STATIC_ASSERT(0 == SkClipStack::kInvalidGenID);
+        const GrReducedClip* reduced = new (storage.get()) GrReducedClip(stack, bounds);
 
-        REPORTER_ASSERT(reporter, reduced.elements().count() == 1);
+        REPORTER_ASSERT(reporter, reduced->elements().count() == 1);
         // Clips will be cached based on the generation id. Make sure the gen id is valid.
-        REPORTER_ASSERT(reporter, SkClipStack::kInvalidGenID != reduced.genID());
+        REPORTER_ASSERT(reporter, SkClipStack::kInvalidGenID != reduced->elementsGenID());
+
+        reduced->~GrReducedClip();
     }
     {
         SkClipStack stack;
@@ -1115,30 +1131,30 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         } testCases[] = {
 
             // Rect A.
-            { XYWH(0, 0, 25, 25), 0, SkClipStack::kWideOpenGenID, GrReducedClip::InitialState::kAllIn, IXYWH(0, 0, 25, 25) },
-            { XYWH(0.1f, 0.1f, 25.1f, 25.1f), 0, SkClipStack::kWideOpenGenID, GrReducedClip::InitialState::kAllIn, IXYWH(0, 0, 26, 26) },
+            { XYWH(0, 0, 25, 25), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllIn, IXYWH(0, 0, 25, 25) },
+            { XYWH(0.1f, 0.1f, 25.1f, 25.1f), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllIn, IXYWH(0, 0, 26, 26) },
             { XYWH(0, 0, 27, 27), 1, genIDA, GrReducedClip::InitialState::kAllOut, IXYWH(0, 0, 27, 27)},
 
             // Rect B.
-            { XYWH(50, 0, 25, 25), 0, SkClipStack::kWideOpenGenID, GrReducedClip::InitialState::kAllIn, IXYWH(50, 0, 25, 25) },
-            { XYWH(50, 0, 25.3f, 25.3f), 0, SkClipStack::kWideOpenGenID, GrReducedClip::InitialState::kAllIn, IXYWH(50, 0, 26, 26) },
+            { XYWH(50, 0, 25, 25), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllIn, IXYWH(50, 0, 25, 25) },
+            { XYWH(50, 0, 25.3f, 25.3f), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllIn, IXYWH(50, 0, 26, 26) },
             { XYWH(50, 0, 27, 27), 1, genIDB, GrReducedClip::InitialState::kAllOut, IXYWH(50, 0, 26, 27) },
 
             // Rect C.
-            { XYWH(0, 50, 25, 25), 0, SkClipStack::kWideOpenGenID, GrReducedClip::InitialState::kAllIn, IXYWH(0, 50, 25, 25) },
-            { XYWH(0.2f, 50.1f, 25.1f, 25.2f), 0, SkClipStack::kWideOpenGenID, GrReducedClip::InitialState::kAllIn, IXYWH(0, 50, 26, 26) },
+            { XYWH(0, 50, 25, 25), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllIn, IXYWH(0, 50, 25, 25) },
+            { XYWH(0.2f, 50.1f, 25.1f, 25.2f), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllIn, IXYWH(0, 50, 26, 26) },
             { XYWH(0, 50, 27, 27), 1, genIDC, GrReducedClip::InitialState::kAllOut, IXYWH(0, 50, 27, 26) },
 
             // Rect D.
-            { XYWH(50, 50, 25, 25), 0, SkClipStack::kWideOpenGenID, GrReducedClip::InitialState::kAllIn, IXYWH(50, 50, 25, 25)},
-            { XYWH(50.3f, 50.3f, 25, 25), 0, SkClipStack::kWideOpenGenID, GrReducedClip::InitialState::kAllIn, IXYWH(50, 50, 26, 26)},
+            { XYWH(50, 50, 25, 25), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllIn, IXYWH(50, 50, 25, 25)},
+            { XYWH(50.3f, 50.3f, 25, 25), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllIn, IXYWH(50, 50, 26, 26)},
             { XYWH(50, 50, 27, 27), 1, genIDD, GrReducedClip::InitialState::kAllOut,  IXYWH(50, 50, 26, 26)},
 
             // Other tests:
             { XYWH(0, 0, 100, 100), 4, genIDD, GrReducedClip::InitialState::kAllOut, stackBounds },
 
             // Rect in the middle, touches none.
-            { XYWH(26, 26, 24, 24), 0, SkClipStack::kEmptyGenID, GrReducedClip::InitialState::kAllOut, IXYWH(26, 26, 24, 24) },
+            { XYWH(26, 26, 24, 24), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllOut, IXYWH(26, 26, 24, 24) },
 
             // Rect in the middle, touches all the rects. GenID is the last rect.
             { XYWH(24, 24, 27, 27), 4, genIDD, GrReducedClip::InitialState::kAllOut, IXYWH(24, 24, 27, 27) },
@@ -1151,8 +1167,10 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
             const GrReducedClip reduced(stack, testCases[i].testBounds);
             REPORTER_ASSERT(reporter, reduced.elements().count() == testCases[i].reducedClipCount);
             SkASSERT(reduced.elements().count() == testCases[i].reducedClipCount);
-            REPORTER_ASSERT(reporter, reduced.genID() == testCases[i].reducedGenID);
-            SkASSERT(reduced.genID() == testCases[i].reducedGenID);
+            if (reduced.elements().count()) {
+                REPORTER_ASSERT(reporter, reduced.elementsGenID() == testCases[i].reducedGenID);
+                SkASSERT(reduced.elementsGenID() == testCases[i].reducedGenID);
+            }
             REPORTER_ASSERT(reporter, reduced.initialState() == testCases[i].initialState);
             SkASSERT(reduced.initialState() == testCases[i].initialState);
             REPORTER_ASSERT(reporter, reduced.hasIBounds());

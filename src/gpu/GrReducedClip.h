@@ -20,11 +20,6 @@ public:
     GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds);
 
     /**
-     * Uniquely identifies this reduced clip.
-     */
-    int32_t genID() const { return fGenID; }
-
-    /**
      * If hasIBounds() is true, this is the bounding box within which the reduced clip is valid, and
      * the caller must not modify any pixels outside this box. Undefined if hasIBounds() is false.
      */
@@ -48,6 +43,12 @@ public:
     const ElementList& elements() const { return fElements; }
 
     /**
+     * If elements() are nonempty, uniquely identifies the list of elements within ibounds().
+     * Otherwise undefined.
+     */
+    int32_t elementsGenID() const { SkASSERT(!fElements.isEmpty()); return fElementsGenID; }
+
+    /**
      * Indicates whether antialiasing is required to process any of the clip elements.
      */
     bool requiresAA() const { return fRequiresAA; }
@@ -60,10 +61,10 @@ public:
     InitialState initialState() const { return fInitialState; }
 
 private:
-    int32_t        fGenID;
     SkIRect        fIBounds;
     bool           fHasIBounds;
     ElementList    fElements;
+    int32_t        fElementsGenID;
     bool           fRequiresAA;
     InitialState   fInitialState;
 };

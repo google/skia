@@ -316,15 +316,6 @@ static GrReducedClip::InitialState reduced_stack_walker(const SkClipStack& stack
     }
     *requiresAA = numAAElements > 0;
 
-    if (0 == result->count()) {
-        if (initialState == InitialTriState::kAllIn) {
-            *resultGenID = SkClipStack::kWideOpenGenID;
-        } else {
-            *resultGenID = SkClipStack::kEmptyGenID;
-        }
-    }
-
-    SkASSERT(SkClipStack::kInvalidGenID != *resultGenID);
     SkASSERT(InitialTriState::kUnknown != initialState);
     return static_cast<GrReducedClip::InitialState>(initialState);
 }
@@ -338,11 +329,6 @@ take a rect in case the caller knows a bound on what is to be drawn through this
 */
 GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds) {
     SkASSERT(!queryBounds.isEmpty());
-
-    // The clip established by the element list might be cached based on the last
-    // generation id. When we make early returns, we do not know what was the generation
-    // id that lead to the state. Make a conservative guess.
-    fGenID = stack.getTopmostGenID();
     fHasIBounds = false;
 
     if (stack.isWideOpen()) {
@@ -387,6 +373,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
 
         // Implement the clip with an AA rect element.
         fElements.addToHead(stackBounds, SkRegion::kReplace_Op, true/*doAA*/);
+        fElementsGenID = stack.getTopmostGenID();
         fRequiresAA = true;
 
         fInitialState = InitialState::kAllOut;
@@ -406,6 +393,6 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
 
     // Now that we have determined the bounds to use and filtered out the trivial cases, call the
     // helper that actually walks the stack.
-    fInitialState = reduced_stack_walker(stack, tighterQuery, fIBounds, &fElements, &fGenID,
+    fInitialState = reduced_stack_walker(stack, tighterQuery, fIBounds, &fElements, &fElementsGenID,
                                          &fRequiresAA);
 }
