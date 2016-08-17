@@ -383,14 +383,25 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     if (os2Table->version.v0.fsSelection.field.Italic) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
     }
-    //Script
-    if (SkPanose::FamilyType::Script == os2Table->version.v0.panose.bFamilyType.value) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
     //Serif
-    } else if (SkPanose::FamilyType::TextAndDisplay == os2Table->version.v0.panose.bFamilyType.value &&
-               SkPanose::Data::TextAndDisplay::SerifStyle::Triangle <= os2Table->version.v0.panose.data.textAndDisplay.bSerifStyle.value &&
-               SkPanose::Data::TextAndDisplay::SerifStyle::NoFit != os2Table->version.v0.panose.data.textAndDisplay.bSerifStyle.value) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+    using SerifStyle = SkPanose::Data::TextAndDisplay::SerifStyle;
+    SerifStyle serifStyle = os2Table->version.v0.panose.data.textAndDisplay.bSerifStyle;
+    if (SkPanose::FamilyType::TextAndDisplay == os2Table->version.v0.panose.bFamilyType) {
+        if (SerifStyle::Cove == serifStyle ||
+            SerifStyle::ObtuseCove == serifStyle ||
+            SerifStyle::SquareCove == serifStyle ||
+            SerifStyle::ObtuseSquareCove == serifStyle ||
+            SerifStyle::Square == serifStyle ||
+            SerifStyle::Thin == serifStyle ||
+            SerifStyle::Bone == serifStyle ||
+            SerifStyle::Exaggerated == serifStyle ||
+            SerifStyle::Triangle == serifStyle)
+        {
+            info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+        }
+    //Script
+    } else if (SkPanose::FamilyType::Script == os2Table->version.v0.panose.bFamilyType) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
     }
 
     info->fItalicAngle = SkEndian_SwapBE32(postTable->italicAngle) >> 16;

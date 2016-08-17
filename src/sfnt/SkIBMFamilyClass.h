@@ -13,7 +13,7 @@
 #pragma pack(push, 1)
 
 struct SkIBMFamilyClass {
-    enum Class : SK_OT_BYTE {
+    enum class Class : SK_OT_BYTE {
         NoClassification = 0,
         OldstyleSerifs = 1,
         TransitionalSerifs = 2,
@@ -30,126 +30,106 @@ struct SkIBMFamilyClass {
         //13-15 reserved for future use
     } familyClass;
     union SubClass {
-        struct OldstyleSerifs {
-            enum Value : SK_OT_BYTE {
-                NoClassification = 0,
-                IBMRoundedLegibility = 1,
-                Garalde = 2,
-                Venetian = 3,
-                ModifiedVenetian = 4,
-                DutchModern = 5,
-                DutchTraditional = 6,
-                Contemporary = 7,
-                Calligraphic = 8,
-                //9-14 reserved for future use
-                Miscellaneous = 15,
-            } value;
+        enum class OldstyleSerifs : SK_OT_BYTE {
+            NoClassification = 0,
+            IBMRoundedLegibility = 1,
+            Garalde = 2,
+            Venetian = 3,
+            ModifiedVenetian = 4,
+            DutchModern = 5,
+            DutchTraditional = 6,
+            Contemporary = 7,
+            Calligraphic = 8,
+            //9-14 reserved for future use
+            Miscellaneous = 15,
         } oldstyleSerifs;
-        struct TransitionalSerifs {
-            enum Value : SK_OT_BYTE {
-                NoClassification = 0,
-                DirectLine = 1,
-                Script = 2,
-                //3-14 reserved for future use
-                Miscellaneous = 15,
-            } value;
+        enum class TransitionalSerifs : SK_OT_BYTE {
+            NoClassification = 0,
+            DirectLine = 1,
+            Script = 2,
+            //3-14 reserved for future use
+            Miscellaneous = 15,
         } transitionalSerifs;
-        struct ModernSerifs {
-            enum Value : SK_OT_BYTE {
-                NoClassification = 0,
-                Italian = 1,
-                Script = 2,
-                //3-14 reserved for future use
-                Miscellaneous = 15,
-            } value;
+        enum class ModernSerifs : SK_OT_BYTE {
+            NoClassification = 0,
+            Italian = 1,
+            Script = 2,
+            //3-14 reserved for future use
+            Miscellaneous = 15,
         } modernSerifs;
-        struct ClarendonSerifs {
-            enum Value : SK_OT_BYTE {
-                NoClassification = 0,
-                Clarendon = 1,
-                Modern = 2,
-                Traditional = 3,
-                Newspaper = 4,
-                StubSerif = 5,
-                Monotone = 6,
-                Typewriter = 7,
-                //8-14 reserved for future use
-                Miscellaneous = 15,
-            } value;
+        enum class ClarendonSerifs : SK_OT_BYTE {
+            NoClassification = 0,
+            Clarendon = 1,
+            Modern = 2,
+            Traditional = 3,
+            Newspaper = 4,
+            StubSerif = 5,
+            Monotone = 6,
+            Typewriter = 7,
+            //8-14 reserved for future use
+            Miscellaneous = 15,
         } clarendonSerifs;
-        struct SlabSerifs {
-            enum Value : SK_OT_BYTE {
-                NoClassification = 0,
-                Monotone = 1,
-                Humanist = 2,
-                Geometric = 3,
-                Swiss = 4,
-                Typewriter = 5,
-                //6-14 reserved for future use
-                Miscellaneous = 15,
-            } value;
+        enum class SlabSerifs : SK_OT_BYTE {
+            NoClassification = 0,
+            Monotone = 1,
+            Humanist = 2,
+            Geometric = 3,
+            Swiss = 4,
+            Typewriter = 5,
+            //6-14 reserved for future use
+            Miscellaneous = 15,
         } slabSerifs;
-        struct FreeformSerifs {
-            enum Value : SK_OT_BYTE {
-                NoClassification = 0,
-                Modern = 1,
-                //2-14 reserved for future use
-                Miscellaneous = 15,
-            } value;
+        enum class FreeformSerifs : SK_OT_BYTE {
+            NoClassification = 0,
+            Modern = 1,
+            //2-14 reserved for future use
+            Miscellaneous = 15,
         } freeformSerifs;
-        struct SansSerif {
-            enum Value : SK_OT_BYTE {
-                NoClassification = 0,
-                IBMNeoGrotesqueGothic = 1,
-                Humanist = 2,
-                LowXRoundGeometric = 3,
-                HighXRoundGeometric = 4,
-                NeoGrotesqueGothic = 5,
-                ModifiedNeoGrotesqueGothic = 6,
-                //7-8 reserved for future use
-                TypewriterGothic = 9,
-                Matrix = 10,
-                //11-14 reserved for future use
-                Miscellaneous = 15,
-            } value;
+        enum class SansSerif : SK_OT_BYTE {
+            NoClassification = 0,
+            IBMNeoGrotesqueGothic = 1,
+            Humanist = 2,
+            LowXRoundGeometric = 3,
+            HighXRoundGeometric = 4,
+            NeoGrotesqueGothic = 5,
+            ModifiedNeoGrotesqueGothic = 6,
+            //7-8 reserved for future use
+            TypewriterGothic = 9,
+            Matrix = 10,
+            //11-14 reserved for future use
+            Miscellaneous = 15,
         } sansSerif;
-        struct Ornamentals {
-            enum Value : SK_OT_BYTE {
-                NoClassification = 0,
-                Engraver = 1,
-                BlackLetter = 2,
-                Decorative = 3,
-                ThreeDimensional = 4,
-                //5-14 reserved for future use
-                Miscellaneous = 15,
-            } value;
+        enum class Ornamentals : SK_OT_BYTE {
+            NoClassification = 0,
+            Engraver = 1,
+            BlackLetter = 2,
+            Decorative = 3,
+            ThreeDimensional = 4,
+            //5-14 reserved for future use
+            Miscellaneous = 15,
         } ornamentals;
-        struct Scripts {
-            enum Value : SK_OT_BYTE {
-                NoClassification = 0,
-                Uncial = 1,
-                Brush_Joined = 2,
-                Formal_Joined = 3,
-                Monotone_Joined = 4,
-                Calligraphic = 5,
-                Brush_Unjoined = 6,
-                Formal_Unjoined = 7,
-                Monotone_Unjoined = 8,
-                //9-14 reserved for future use
-                Miscellaneous = 15,
-            } value;
+        enum class Scripts : SK_OT_BYTE {
+            NoClassification = 0,
+            Uncial = 1,
+            Brush_Joined = 2,
+            Formal_Joined = 3,
+            Monotone_Joined = 4,
+            Calligraphic = 5,
+            Brush_Unjoined = 6,
+            Formal_Unjoined = 7,
+            Monotone_Unjoined = 8,
+            //9-14 reserved for future use
+            Miscellaneous = 15,
         } scripts;
-        struct Symbolic {
-            enum Value : SK_OT_BYTE {
-                NoClassification = 0,
-                //1-2 reserved for future use
-                MixedSerif = 3,
-                //4-5 reserved for future use
-                OldstyleSerif = 6,
-                NeoGrotesqueSansSerif = 7,
-                //8-14 reserved for future use
-                Miscellaneous = 15,
-            } value;
+        enum class Symbolic : SK_OT_BYTE {
+            NoClassification = 0,
+            //1-2 reserved for future use
+            MixedSerif = 3,
+            //4-5 reserved for future use
+            OldstyleSerif = 6,
+            NeoGrotesqueSansSerif = 7,
+            //8-14 reserved for future use
+            Miscellaneous = 15,
         } symbolic;
     } familySubClass;
 };
