@@ -526,6 +526,15 @@ protected:
             sk_sp<SkColorSpace> = nullptr,
             Origin = kTopLeft_Origin);
 
+    /**
+     *  Takes ownership of SkStream*
+     *  Allows the subclass to set the recommended SkImageInfo
+     */
+    SkCodec(const SkEncodedInfo&,
+            const SkImageInfo&,
+            SkStream*,
+            Origin = kTopLeft_Origin);
+
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.
         return this->getInfo().dimensions();

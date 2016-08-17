@@ -46,8 +46,8 @@ protected:
     virtual int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count,
                          int startRow) = 0;
 
-    SkPngCodec(int width, int height, const SkEncodedInfo&, SkStream*, SkPngChunkReader*,
-            png_structp, png_infop, int, int, sk_sp<SkColorSpace>);
+    SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStream*, SkPngChunkReader*,
+            png_structp, png_infop, int, int);
 
     SkAutoTUnref<SkPngChunkReader>     fPngChunkReader;
     png_structp                        fPng_ptr;

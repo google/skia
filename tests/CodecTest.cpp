@@ -11,6 +11,7 @@
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkData.h"
+#include "SkImageEncoder.h"
 #include "SkFrontBufferedStream.h"
 #include "SkMD5.h"
 #include "SkRandom.h"
@@ -1041,4 +1042,35 @@ DEF_TEST(Codec_jpeg_rewind, r) {
     // Rewind the codec and perform a full image decode.
     SkCodec::Result result = codec->getPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+}
+
+DEF_TEST(Codec_Png565, r) {
+    // Create an arbitrary 565 bitmap.
+    const char* path = "mandrill_512_q075.jpg";
+    SkAutoTDelete<SkStream> stream(resource(path));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    SkImageInfo info565 = codec->getInfo().makeColorType(kRGB_565_SkColorType);
+    SkBitmap bm1;
+    bm1.allocPixels(info565);
+    SkCodec::Result result = codec->getPixels(info565, bm1.getPixels(), bm1.rowBytes());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+
+    // Encode the image to png.
+    sk_sp<SkData> data =
+            sk_sp<SkData>(SkImageEncoder::EncodeData(bm1, SkImageEncoder::kPNG_Type, 100));
+
+    // Prepare to decode.  The codec should recognize that the PNG is 565.
+    codec.reset(SkCodec::NewFromData(data.get()));
+    REPORTER_ASSERT(r, kRGB_565_SkColorType == codec->getInfo().colorType());
+    REPORTER_ASSERT(r, kOpaque_SkAlphaType == codec->getInfo().alphaType());
+
+    SkBitmap bm2;
+    bm2.allocPixels(codec->getInfo());
+    result = codec->getPixels(codec->getInfo(), bm2.getPixels(), bm2.rowBytes());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+
+    SkMD5::Digest d1, d2;
+    md5(bm1, &d1);
+    md5(bm2, &d2);
+    REPORTER_ASSERT(r, d1 == d2);
 }

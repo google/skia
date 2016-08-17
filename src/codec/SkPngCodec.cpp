@@ -370,11 +370,10 @@ void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
 
 class SkPngNormalCodec : public SkPngCodec {
 public:
-    SkPngNormalCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr, int bitDepth,
-            sk_sp<SkColorSpace> colorSpace)
-        : INHERITED(width, height, info, stream, chunkReader, png_ptr, info_ptr, bitDepth, 1,
-                    colorSpace)
+    SkPngNormalCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
+            SkStream* stream, SkPngChunkReader* chunkReader, png_structp png_ptr,
+            png_infop info_ptr, int bitDepth)
+        : INHERITED(encodedInfo, imageInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, 1)
     {}
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
@@ -447,11 +446,11 @@ public:
 
 class SkPngInterlacedCodec : public SkPngCodec {
 public:
-    SkPngInterlacedCodec(int width, int height, const SkEncodedInfo& info,
+    SkPngInterlacedCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
             SkStream* stream, SkPngChunkReader* chunkReader, png_structp png_ptr,
-            png_infop info_ptr, int bitDepth, int numberPasses, sk_sp<SkColorSpace> colorSpace)
-        : INHERITED(width, height, info, stream, chunkReader, png_ptr, info_ptr, bitDepth,
-                    numberPasses, colorSpace)
+            png_infop info_ptr, int bitDepth, int numberPasses)
+        : INHERITED(encodedInfo, imageInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth,
+                    numberPasses)
         , fCanSkipRewind(false)
     {
         SkASSERT(numberPasses != 1);
@@ -723,30 +722,41 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
             colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
         }
 
-        SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
+        SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, 8);
+        SkImageInfo imageInfo = encodedInfo.makeImageInfo(origWidth, origHeight, colorSpace);
+
+        if (SkEncodedInfo::kOpaque_Alpha == alpha) {
+            png_color_8p sigBits;
+            if (png_get_sBIT(png_ptr, info_ptr, &sigBits)) {
+                if (5 == sigBits->red && 6 == sigBits->green && 5 == sigBits->blue) {
+                    // Recommend a decode to 565 if the sBIT indicates 565.
+                    imageInfo = imageInfo.makeColorType(kRGB_565_SkColorType);
+                }
+            }
+        }
 
         if (1 == numberPasses) {
-            *outCodec = new SkPngNormalCodec(origWidth, origHeight, info, stream,
-                    chunkReader, png_ptr, info_ptr, bitDepth, colorSpace);
+            *outCodec = new SkPngNormalCodec(encodedInfo, imageInfo, stream,
+                    chunkReader, png_ptr, info_ptr, bitDepth);
         } else {
-            *outCodec = new SkPngInterlacedCodec(origWidth, origHeight, info, stream,
-                    chunkReader, png_ptr, info_ptr, bitDepth, numberPasses, colorSpace);
+            *outCodec = new SkPngInterlacedCodec(encodedInfo, imageInfo, stream,
+                    chunkReader, png_ptr, info_ptr, bitDepth, numberPasses);
         }
     }
 
     return true;
 }
 
-SkPngCodec::SkPngCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-                       SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr,
-                       int bitDepth, int numberPasses, sk_sp<SkColorSpace> colorSpace)
-    : INHERITED(width, height, info, stream, colorSpace)
+SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
+                       SkStream* stream, SkPngChunkReader* chunkReader, png_structp png_ptr,
+                       png_infop info_ptr, int bitDepth, int numberPasses)
+    : INHERITED(encodedInfo, imageInfo, stream)
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
     , fSwizzlerSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
-    , fSrcRowBytes(width * (bytes_per_pixel(this->getEncodedInfo().bitsPerPixel())))
+    , fSrcRowBytes(imageInfo.width() * (bytes_per_pixel(this->getEncodedInfo().bitsPerPixel())))
     , fNumberPasses(numberPasses)
     , fBitDepth(bitDepth)
 {}

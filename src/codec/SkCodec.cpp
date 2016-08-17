@@ -126,6 +126,18 @@ SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info, SkStream* str
     , fCurrScanline(-1)
 {}
 
+SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo, SkStream* stream,
+        Origin origin)
+    : fEncodedInfo(info)
+    , fSrcInfo(imageInfo)
+    , fStream(stream)
+    , fNeedsRewind(false)
+    , fOrigin(origin)
+    , fDstInfo()
+    , fOptions()
+    , fCurrScanline(-1)
+{}
+
 SkCodec::~SkCodec() {}
 
 bool SkCodec::rewindIfNeeded() {
