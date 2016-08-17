@@ -63,6 +63,6 @@ void SkSVGEllipse::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
     const auto ry = lctx.resolve(fRy, SkSVGLengthContext::LengthType::kVertical);
 
     if (rx > 0 && ry > 0) {
-        canvas->drawOval(SkRect::MakeXYWH(cx - rx / 2, cy - ry / 2, rx * 2, ry * 2), paint);
+        canvas->drawOval(SkRect::MakeXYWH(cx - rx, cy - ry, rx * 2, ry * 2), paint);
     }
 }
