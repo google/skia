@@ -13,7 +13,7 @@
 
 class GrWindowRectangles {
 public:
-    constexpr static int kMaxWindows = 8;
+    constexpr static int kMaxWindows = 16;
 
     enum class Mode : bool {
         kExclusive,
