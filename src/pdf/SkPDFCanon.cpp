@@ -12,52 +12,25 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SkPDFCanon::reset() {
-    for (int i = 0; i < fFontRecords.count(); ++i) {
-        fFontRecords[i].fFont->unref();
-    }
-    fFontRecords.reset();
+namespace {
+template <typename K, typename V> struct UnrefValue {
+    void operator()(K, V** v) { (*v)->unref(); }
+};
+}
 
-    fFunctionShaderRecords.reset();
-    fAlphaShaderRecords.reset();
-    fImageShaderRecords.reset();
-
+SkPDFCanon::~SkPDFCanon() {
     // TODO(halcanary): make SkTHashSet work nicely with sk_sp<>,
     // or use std::unordered_set<>
     fGraphicStateRecords.foreach ([](WrapGS w) { w.fPtr->unref(); });
-    fGraphicStateRecords.reset();
-
-    fPDFBitmapMap.foreach([](SkBitmapKey, SkPDFObject** p) { (*p)->unref(); });
-    fPDFBitmapMap.reset();
+    fPDFBitmapMap.foreach(UnrefValue<SkBitmapKey, SkPDFObject>());
+    fTypefaceMetrics.foreach(UnrefValue<uint32_t, SkAdvancedTypefaceMetrics>());
+    fFontDescriptors.foreach(UnrefValue<uint32_t, SkPDFDict>());
+    fFontMap.foreach(UnrefValue<uint64_t, SkPDFFont>());
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-SkPDFFont* SkPDFCanon::findFont(uint32_t fontID,
-                                uint16_t glyphID,
-                                SkPDFFont** relatedFontPtr) const {
-    SkASSERT(relatedFontPtr);
-
-    SkPDFFont* relatedFont = nullptr;
-    for (int i = 0; i < fFontRecords.count(); ++i) {
-        SkPDFFont::Match match = SkPDFFont::IsMatch(
-                fFontRecords[i].fFont, fFontRecords[i].fFontID,
-                fFontRecords[i].fGlyphID, fontID, glyphID);
-        if (SkPDFFont::kExact_Match == match) {
-            return fFontRecords[i].fFont;
-        } else if (!relatedFont && SkPDFFont::kRelated_Match == match) {
-            relatedFont = fFontRecords[i].fFont;
-        }
-    }
-    *relatedFontPtr = relatedFont;  // May still be nullptr.
-    return nullptr;
-}
-
-void SkPDFCanon::addFont(SkPDFFont* font, uint32_t fontID, uint16_t fGlyphID) {
-    SkPDFCanon::FontRec* rec = fFontRecords.push();
-    rec->fFont = SkRef(font);
-    rec->fFontID = fontID;
-    rec->fGlyphID = fGlyphID;
+void SkPDFCanon::reset() {
+    this->~SkPDFCanon();
+    new (this)SkPDFCanon;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

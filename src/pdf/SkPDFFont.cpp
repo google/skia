@@ -39,11 +39,11 @@ static const int kPdfSymbolic = 4;
 
 class SkPDFType0Font final : public SkPDFFont {
 public:
-    SkPDFType0Font(sk_sp<const SkAdvancedTypefaceMetrics> info,
+    SkPDFType0Font(const SkAdvancedTypefaceMetrics* info,
                    sk_sp<SkTypeface> typeface,
                    SkAdvancedTypefaceMetrics::FontType type);
     virtual ~SkPDFType0Font();
-    sk_sp<SkPDFObject> getFontSubset(const SkPDFGlyphSet* usage) override;
+    sk_sp<SkPDFObject> getFontSubset(SkPDFCanon*, const SkPDFGlyphSet*) override;
 #ifdef SK_DEBUG
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,
@@ -54,26 +54,23 @@ private:
 #ifdef SK_DEBUG
     bool fPopulated;
 #endif
-    bool populate(const SkPDFGlyphSet* subset);
+    bool populate(const SkPDFGlyphSet* subset,
+                  const SkAdvancedTypefaceMetrics& metrics);
     typedef SkPDFDict INHERITED;
 };
 
 class SkPDFType1Font final : public SkPDFFont {
 public:
-    SkPDFType1Font(sk_sp<const SkAdvancedTypefaceMetrics> info,
+    SkPDFType1Font(const SkAdvancedTypefaceMetrics* info,
                    sk_sp<SkTypeface> typeface,
                    uint16_t glyphID,
-                   sk_sp<SkPDFDict> relatedFontDescriptor);
-    virtual ~SkPDFType1Font();
-
-private:
-    bool populate(int16_t glyphID);
-    bool addFontDescriptor(int16_t defaultWidth);
+                   SkPDFCanon* canon);
+    virtual ~SkPDFType1Font() {}
 };
 
 class SkPDFType3Font final : public SkPDFFont {
 public:
-    SkPDFType3Font(sk_sp<const SkAdvancedTypefaceMetrics> info,
+    SkPDFType3Font(const SkAdvancedTypefaceMetrics* info,
                    sk_sp<SkTypeface> typeface,
                    SkAdvancedTypefaceMetrics::FontType fontType,
                    uint16_t glyphID);
@@ -83,7 +80,7 @@ public:
                     const SkPDFSubstituteMap&) const override {
         SkDEBUGFAIL("should call getFontSubset!");
     }
-    sk_sp<SkPDFObject> getFontSubset(const SkPDFGlyphSet* usage) override;
+    sk_sp<SkPDFObject> getFontSubset(SkPDFCanon*, const SkPDFGlyphSet*) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -216,26 +213,14 @@ SkPDFGlyphSet* SkPDFGlyphSetMap::getGlyphSetForFont(SkPDFFont* font) {
 
 SkPDFFont::~SkPDFFont() {}
 
-bool SkPDFFont::canEmbed() const {
-    if (!fFontInfo.get()) {
-        SkASSERT(fFontType == SkAdvancedTypefaceMetrics::kOther_Font);
-        return true;
-    }
-    return (fFontInfo->fFlags &
-            SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag) == 0;
+static bool can_embed(const SkAdvancedTypefaceMetrics* metrics) {
+    return !metrics ||
+           !SkToBool(metrics->fFlags & SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
 }
 
-bool SkPDFFont::canSubset() const {
-    if (!fFontInfo.get()) {
-        SkASSERT(fFontType == SkAdvancedTypefaceMetrics::kOther_Font);
-        return true;
-    }
-    return (fFontInfo->fFlags &
-            SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag) == 0;
-}
-
-bool SkPDFFont::hasGlyph(uint16_t id) {
-    return (id >= fFirstGlyphID && id <= fLastGlyphID) || id == 0;
+static bool can_subset(const SkAdvancedTypefaceMetrics* metrics) {
+    return !metrics ||
+           !SkToBool(metrics->fFlags & SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag);
 }
 
 int SkPDFFont::glyphsToPDFFontEncoding(SkGlyphID* glyphIDs, int numGlyphs) const {
@@ -271,125 +256,105 @@ int SkPDFFont::glyphsToPDFFontEncodingCount(const SkGlyphID* glyphIDs,
     return numGlyphs;
 }
 
-// static
+
+const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
+                                                       SkPDFCanon* canon) {
+    SkFontID id = SkTypeface::UniqueID(typeface);
+    if (SkAdvancedTypefaceMetrics** ptr = canon->fTypefaceMetrics.find(id)) {
+        return *ptr;
+    }
+    sk_sp<SkTypeface> defaultFace;
+    if (!typeface) {
+        defaultFace = SkTypeface::MakeDefault();
+        typeface = defaultFace.get();
+    }
+    sk_sp<SkAdvancedTypefaceMetrics> metrics(
+            typeface->getAdvancedTypefaceMetrics(
+                    SkTypeface::kGlyphNames_PerGlyphInfo | SkTypeface::kToUnicode_PerGlyphInfo,
+                    nullptr, 0));
+    return *canon->fTypefaceMetrics.set(id, metrics.release());
+}
+
+SkAdvancedTypefaceMetrics::FontType font_type(const SkAdvancedTypefaceMetrics* metrics) {
+    if (!metrics || SkToBool(metrics->fFlags &
+                             SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag)) {
+        // force Type3 fallback.
+        return SkAdvancedTypefaceMetrics::kOther_Font;
+    }
+    return metrics->fType;
+}
+
+static SkGlyphID first_glyph_for_single_byte_encoding(SkGlyphID gid) {
+    return gid != 0 ? gid - (gid - 1) % 255 : 1;
+}
+
 SkPDFFont* SkPDFFont::GetFontResource(SkPDFCanon* canon,
                                       SkTypeface* face,
-                                      uint16_t glyphID) {
+                                      SkGlyphID glyphID) {
     SkASSERT(canon);
-    const uint32_t fontID = SkTypeface::UniqueID(face);
-    SkPDFFont* relatedFont;
-    if (SkPDFFont* pdfFont = canon->findFont(fontID, glyphID, &relatedFont)) {
-        return SkRef(pdfFont);
+    const SkAdvancedTypefaceMetrics* fontMetrics = SkPDFFont::GetMetrics(face, canon);
+    SkAdvancedTypefaceMetrics::FontType type = font_type(fontMetrics);
+    bool multibyte = SkPDFFont::IsMultiByte(type);
+    SkGlyphID firstGlyph = multibyte ? 0 : first_glyph_for_single_byte_encoding(glyphID);
+    uint64_t fontID = (SkTypeface::UniqueID(face) << 16) | firstGlyph;
+
+    if (SkPDFFont** found = canon->fFontMap.find(fontID)) {
+        SkASSERT(multibyte == (*found)->multiByteGlyphs());
+        return SkRef(*found);
     }
+
     sk_sp<SkTypeface> typeface(face ? sk_ref_sp(face) : SkTypeface::MakeDefault());
     SkASSERT(typeface);
     int glyphCount = typeface->countGlyphs();
+    // Validate typeface + glyph;
     if (glyphCount < 1 ||  // typeface lacks even a NOTDEF glyph.
         glyphCount > 1 + SK_MaxU16 ||  // invalid glyphCount
         glyphID >= glyphCount) {  // invalid glyph
         return nullptr;
-    }
-    sk_sp<const SkAdvancedTypefaceMetrics> fontMetrics;
-    sk_sp<SkPDFDict> relatedFontDescriptor;
-    if (relatedFont) {
-        fontMetrics = relatedFont->refFontInfo();
-        relatedFontDescriptor = relatedFont->refFontDescriptor();
-
-        // This only is to catch callers who pass invalid glyph ids.
-        // If glyph id is invalid, then we will create duplicate entries
-        // for TrueType fonts.
-        SkDEBUGCODE(SkAdvancedTypefaceMetrics::FontType fontType = relatedFont->getType());
-        SkASSERT(fontType != SkAdvancedTypefaceMetrics::kType1CID_Font);
-        SkASSERT(fontType != SkAdvancedTypefaceMetrics::kTrueType_Font);
-    } else {
-        SkTypeface::PerGlyphInfo info = SkTypeface::kGlyphNames_PerGlyphInfo |
-                                        SkTypeface::kToUnicode_PerGlyphInfo;
-        fontMetrics.reset(
-            typeface->getAdvancedTypefaceMetrics(info, nullptr, 0));
-    }
-
-    SkAdvancedTypefaceMetrics::FontType type =
-        fontMetrics ? fontMetrics->fType : SkAdvancedTypefaceMetrics::kOther_Font;
-    if (fontMetrics &&
-        SkToBool(fontMetrics->fFlags &
-                 SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag)) {
-        // force Type3 fallback.
-        type = SkAdvancedTypefaceMetrics::kOther_Font;
     }
 
     sk_sp<SkPDFFont> font;
     switch (type) {
         case SkAdvancedTypefaceMetrics::kType1CID_Font:
         case SkAdvancedTypefaceMetrics::kTrueType_Font:
-            SkASSERT(relatedFontDescriptor == nullptr);
+            SkASSERT(multibyte);
             SkASSERT(fontMetrics != nullptr);
-            font = sk_make_sp<SkPDFType0Font>(std::move(fontMetrics),
+            font = sk_make_sp<SkPDFType0Font>(fontMetrics,
                                               std::move(typeface),
                                               type);
             break;
         case SkAdvancedTypefaceMetrics::kType1_Font:
+            SkASSERT(!multibyte);
             SkASSERT(fontMetrics != nullptr);
-            font = sk_make_sp<SkPDFType1Font>(std::move(fontMetrics),
+            font = sk_make_sp<SkPDFType1Font>(fontMetrics,
                                               std::move(typeface),
                                               glyphID,
-                                              std::move(relatedFontDescriptor));
+                                              canon);
             break;
-        case SkAdvancedTypefaceMetrics::kCFF_Font:
-            SkASSERT(fontMetrics != nullptr);
-            // fallthrough
-        case SkAdvancedTypefaceMetrics::kOther_Font:
-            font = sk_make_sp<SkPDFType3Font>(std::move(fontMetrics),
+        default:
+            SkASSERT(!multibyte);
+            font = sk_make_sp<SkPDFType3Font>(fontMetrics,
                                               std::move(typeface),
                                               type,
                                               glyphID);
             break;
-        default:
-            SkDEBUGFAIL("invalid SkAdvancedTypefaceMetrics::FontType");
-            return nullptr;
     }
-    // When firstGlyphID==0, SkFont::IsMatch() matches all glyphs in font.
-    SkGlyphID firstGlyphID = font->multiByteGlyphs() ? 0 : font->fFirstGlyphID;
-    // TODO(halcanary) Make SkCanon::addFont take sk_sp<SkPDFFont>.
-    canon->addFont(font.get(), fontID, firstGlyphID);
+    canon->fFontMap.set(fontID, SkRef(font.get()));
     return font.release();  // TODO(halcanary) return sk_sp<SkPDFFont>.
 }
 
-sk_sp<SkPDFObject> SkPDFFont::getFontSubset(const SkPDFGlyphSet*) {
+sk_sp<SkPDFObject> SkPDFFont::getFontSubset(SkPDFCanon*, const SkPDFGlyphSet*) {
     return nullptr;  // Default: no support.
 }
 
-// TODO: take a sk_sp<SkAdvancedTypefaceMetrics> and sk_sp<SkTypeface>
-SkPDFFont::SkPDFFont(sk_sp<const SkAdvancedTypefaceMetrics> info,
-                     sk_sp<SkTypeface> typeface,
-                     sk_sp<SkPDFDict> relatedFontDescriptor,
-                     SkAdvancedTypefaceMetrics::FontType fontType,
-                     bool multiByteGlyphs)
+SkPDFFont::SkPDFFont(sk_sp<SkTypeface> typeface,
+                     SkAdvancedTypefaceMetrics::FontType fontType)
     : SkPDFDict("Font")
     , fTypeface(std::move(typeface))
-    , fFontInfo(std::move(info))
-    , fDescriptor(std::move(relatedFontDescriptor))
     , fFirstGlyphID(1)
-    , fFontType(fontType)
-    , fMultiByteGlyphs(multiByteGlyphs) {
+    , fFontType(fontType) {
     SkASSERT(fTypeface);
-    fLastGlyphID = fFontInfo ? fFontInfo->fLastGlyphID : 0;
-    if (0 == fLastGlyphID) {
-        fLastGlyphID = SkToU16(fTypeface->countGlyphs() - 1);
-    }
-}
-
-void SkPDFFont::setFontInfo(sk_sp<const SkAdvancedTypefaceMetrics> info) {
-    if (info) {
-        fFontInfo = std::move(info);
-    }
-}
-
-void SkPDFFont::setLastGlyphID(uint16_t glyphID) {
-    fLastGlyphID = glyphID;
-}
-
-void SkPDFFont::setFontDescriptor(sk_sp<SkPDFDict> descriptor) {
-    fDescriptor = std::move(descriptor);
+    fLastGlyphID = SkToU16(fTypeface->countGlyphs() - 1);
 }
 
 static void  add_common_font_descriptor_entries(SkPDFDict* descriptor,
@@ -415,48 +380,41 @@ static void  add_common_font_descriptor_entries(SkPDFDict* descriptor,
     }
 }
 
-void SkPDFFont::adjustGlyphRangeForSingleByteEncoding(uint16_t glyphID) {
+void SkPDFFont::adjustGlyphRangeForSingleByteEncoding(SkGlyphID glyphID) {
     // Single byte glyph encoding supports a max of 255 glyphs.
-    fFirstGlyphID = glyphID - (glyphID - 1) % 255;
+    fFirstGlyphID = first_glyph_for_single_byte_encoding(glyphID);
     if (fLastGlyphID > fFirstGlyphID + 255 - 1) {
         fLastGlyphID = fFirstGlyphID + 255 - 1;
     }
-}
-
-void SkPDFFont::populateToUnicodeTable(const SkPDFGlyphSet* subset) {
-    if (fFontInfo == nullptr || fFontInfo->fGlyphToUnicode.begin() == nullptr) {
-        return;
-    }
-    this->insertObjRef("ToUnicode",
-                       SkPDFMakeToUnicodeCmap(fFontInfo->fGlyphToUnicode,
-                                              subset,
-                                              multiByteGlyphs(),
-                                              firstGlyphID(),
-                                              lastGlyphID()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // class SkPDFType0Font
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPDFType0Font::SkPDFType0Font(sk_sp<const SkAdvancedTypefaceMetrics> info,
+SkPDFType0Font::SkPDFType0Font(const SkAdvancedTypefaceMetrics* info,
                                sk_sp<SkTypeface> typeface,
                                SkAdvancedTypefaceMetrics::FontType fontType)
-    : SkPDFFont(std::move(info), std::move(typeface), nullptr, fontType, true) {
+    : SkPDFFont(std::move(typeface), fontType) {
     SkDEBUGCODE(fPopulated = false);
-    if (!canSubset()) {
-        this->populate(nullptr);
+    if (!can_subset(info)) {
+        this->populate(nullptr, *info);
     }
 }
 
 SkPDFType0Font::~SkPDFType0Font() {}
 
-sk_sp<SkPDFObject>  SkPDFType0Font::getFontSubset(const SkPDFGlyphSet* subset) {
-    if (!canSubset()) {
+sk_sp<SkPDFObject>  SkPDFType0Font::getFontSubset(SkPDFCanon* canon,
+                                                  const SkPDFGlyphSet* subset) {
+    const SkAdvancedTypefaceMetrics* metrics =
+        SkPDFFont::GetMetrics(this->typeface(), canon);
+    SkASSERT(metrics);
+    if (!can_subset(metrics)) {
         return nullptr;
     }
-    auto newSubset = sk_make_sp<SkPDFType0Font>(refFontInfo(), refTypeface(), getType());
-    newSubset->populate(subset);
+    auto newSubset = sk_make_sp<SkPDFType0Font>(
+            metrics, this->refTypeface(), this->getType());
+    newSubset->populate(subset, *metrics);
     return newSubset;
 }
 
@@ -522,10 +480,9 @@ static sk_sp<SkPDFObject> get_subset_font_stream(
 }
 #endif  // SK_SFNTLY_SUBSETTER
 
-bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
-    SkASSERT(this->canEmbed());
-    SkASSERT(this->getFontInfo());
-    const SkAdvancedTypefaceMetrics& metrics = *(this->getFontInfo());
+bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset,
+                              const SkAdvancedTypefaceMetrics& metrics) {
+    SkASSERT(can_embed(&metrics));
     SkAdvancedTypefaceMetrics::FontType type = this->getType();
     SkTypeface* face = this->typeface();
     SkASSERT(face);
@@ -548,7 +505,7 @@ bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
             }
 
             #ifdef SK_SFNTLY_SUBSETTER
-            if (this->canSubset() && subset) {
+            if (can_subset(&metrics) && subset) {
                 // Generate glyph id array. in format needed by sfntly
                 SkTDArray<uint32_t> glyphIDs;
                 if (subset) {
@@ -607,7 +564,7 @@ bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
     sysInfo->insertInt("Supplement", 0);
     newCIDFont->insertObject("CIDSystemInfo", std::move(sysInfo));
 
-    uint16_t emSize = this->getFontInfo()->fEmSize;
+    uint16_t emSize = metrics.fEmSize;
     int16_t defaultWidth = 0;
     const SkBitSet* bitSet = subset ? &subset->bitSet() : nullptr;
     {
@@ -629,102 +586,77 @@ bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
     auto descendantFonts = sk_make_sp<SkPDFArray>();
     descendantFonts->appendObjRef(std::move(newCIDFont));
     this->insertObject("DescendantFonts", std::move(descendantFonts));
-    this->populateToUnicodeTable(subset);
+
+    if (metrics.fGlyphToUnicode.count() > 0) {
+        this->insertObjRef("ToUnicode",
+                           SkPDFMakeToUnicodeCmap(metrics.fGlyphToUnicode,
+                                                  subset,
+                                                  multiByteGlyphs(),
+                                                  firstGlyphID(),
+                                                  lastGlyphID()));
+    }
     SkDEBUGCODE(fPopulated = true);
     return true;
 }
-
-sk_sp<const SkAdvancedTypefaceMetrics> SkPDFFont::GetFontMetricsWithToUnicode(
-        SkTypeface* typeface, uint32_t* glyphs, uint32_t glyphsCount) {
-    return sk_sp<const SkAdvancedTypefaceMetrics>(
-            typeface->getAdvancedTypefaceMetrics(
-                    SkTypeface::kToUnicode_PerGlyphInfo, glyphs, glyphsCount));
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // class SkPDFType1Font
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPDFType1Font::SkPDFType1Font(sk_sp<const SkAdvancedTypefaceMetrics> info,
-                               sk_sp<SkTypeface> typeface,
-                               uint16_t glyphID,
-                               sk_sp<SkPDFDict> relatedFontDescriptor)
-    : SkPDFFont(std::move(info),
-                std::move(typeface),
-                std::move(relatedFontDescriptor),
-                SkAdvancedTypefaceMetrics::kType1_Font,
-                /* multiByteGlyphs = */ false) {
-    this->populate(glyphID);  // TODO(halcanary): subset this.
-}
-
-SkPDFType1Font::~SkPDFType1Font() {}
-
-bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
-    if (sk_sp<SkPDFDict> descriptor = this->refFontDescriptor()) {
-        this->insertObjRef("FontDescriptor", std::move(descriptor));
-        return true;
-    }
-
+static sk_sp<SkPDFDict> make_type1_font_descriptor(
+        SkTypeface* typeface,
+        const SkAdvancedTypefaceMetrics* info) {
     auto descriptor = sk_make_sp<SkPDFDict>("FontDescriptor");
-    setFontDescriptor(descriptor);
+    SkASSERT(info);
+    add_common_font_descriptor_entries(descriptor.get(), *info, 0);
 
     int ttcIndex;
     size_t header SK_INIT_TO_AVOID_WARNING;
     size_t data SK_INIT_TO_AVOID_WARNING;
     size_t trailer SK_INIT_TO_AVOID_WARNING;
-    std::unique_ptr<SkStreamAsset> rawFontData(typeface()->openStream(&ttcIndex));
+    std::unique_ptr<SkStreamAsset> rawFontData(typeface->openStream(&ttcIndex));
     sk_sp<SkData> fontData = SkPDFConvertType1FontStream(std::move(rawFontData),
                                                          &header, &data, &trailer);
-    if (!fontData) {
-        return false;
+    if (fontData && can_embed(info)) {
+        auto fontStream = sk_make_sp<SkPDFStream>(std::move(fontData));
+        fontStream->dict()->insertInt("Length1", header);
+        fontStream->dict()->insertInt("Length2", data);
+        fontStream->dict()->insertInt("Length3", trailer);
+        descriptor->insertObjRef("FontFile", std::move(fontStream));
     }
-    SkASSERT(this->canEmbed());
-    auto fontStream = sk_make_sp<SkPDFStream>(std::move(fontData));
-    fontStream->dict()->insertInt("Length1", header);
-    fontStream->dict()->insertInt("Length2", data);
-    fontStream->dict()->insertInt("Length3", trailer);
-    descriptor->insertObjRef("FontFile", std::move(fontStream));
-
-    SkASSERT(this->getFontInfo());
-    add_common_font_descriptor_entries(descriptor.get(),
-                                       *this->getFontInfo(),
-                                       defaultWidth);
-    this->insertObjRef("FontDescriptor", std::move(descriptor));
-    return true;
+    return descriptor;
 }
 
-bool SkPDFType1Font::populate(int16_t glyphID) {
-    this->insertName("Subtype", "Type1");
-    this->insertName("BaseFont", this->getFontInfo()->fFontName);
-    adjustGlyphRangeForSingleByteEncoding(glyphID);
-    SkGlyphID firstGlyphID = this->firstGlyphID();
-    SkGlyphID lastGlyphID = this->lastGlyphID();
+static void populate_type_1_font(SkPDFDict* font,
+                                 const SkAdvancedTypefaceMetrics* info,
+                                 SkTypeface* typeface,
+                                 SkGlyphID firstGlyphID,
+                                 SkGlyphID lastGlyphID) {
+    SkASSERT(info);
+    font->insertName("Subtype", "Type1");
+    font->insertName("BaseFont", info->fFontName);
 
     // glyphCount not including glyph 0
     unsigned glyphCount = 1 + lastGlyphID - firstGlyphID;
     SkASSERT(glyphCount > 0 && glyphCount <= 255);
-    this->insertInt("FirstChar", (size_t)0);
-    this->insertInt("LastChar", (size_t)glyphCount);
+    font->insertInt("FirstChar", (size_t)0);
+    font->insertInt("LastChar", (size_t)glyphCount);
     {
-        SkAutoGlyphCache glyphCache = vector_cache(this->typeface());
+        SkAutoGlyphCache glyphCache = vector_cache(typeface);
         auto widths = sk_make_sp<SkPDFArray>();
         SkScalar advance = glyphCache->getGlyphIDAdvance(0).fAdvanceX;
-        const uint16_t emSize = this->getFontInfo()->fEmSize;
+        const uint16_t emSize = info->fEmSize;
         widths->appendScalar(from_font_units(advance, emSize));
         for (unsigned gID = firstGlyphID; gID <= lastGlyphID; gID++) {
             advance = glyphCache->getGlyphIDAdvance(gID).fAdvanceX;
             widths->appendScalar(from_font_units(advance, emSize));
         }
-        this->insertObject("Widths", std::move(widths));
-    }
-    if (!addFontDescriptor(0)) {
-        return false;
+        font->insertObject("Widths", std::move(widths));
     }
     auto encDiffs = sk_make_sp<SkPDFArray>();
     encDiffs->reserve(lastGlyphID - firstGlyphID + 3);
     encDiffs->appendInt(0);
-    const SkTArray<SkString>& glyphNames = this->getFontInfo()->fGlyphNames;
+    const SkTArray<SkString>& glyphNames = info->fGlyphNames;
     SkASSERT(glyphNames.count() > lastGlyphID);
     encDiffs->appendName(glyphNames[0].c_str());
     const SkString unknown("UNKNOWN");
@@ -736,8 +668,28 @@ bool SkPDFType1Font::populate(int16_t glyphID) {
 
     auto encoding = sk_make_sp<SkPDFDict>("Encoding");
     encoding->insertObject("Differences", std::move(encDiffs));
-    this->insertObject("Encoding", std::move(encoding));
-    return true;
+    font->insertObject("Encoding", std::move(encoding));
+}
+
+SkPDFType1Font::SkPDFType1Font(const SkAdvancedTypefaceMetrics* info,
+                               sk_sp<SkTypeface> typeface,
+                               uint16_t glyphID,
+                               SkPDFCanon* canon)
+    : SkPDFFont(std::move(typeface), SkAdvancedTypefaceMetrics::kType1_Font)
+{
+    SkFontID fontID = this->typeface()->uniqueID();
+    sk_sp<SkPDFDict> fontDescriptor;
+    if (SkPDFDict** ptr = canon->fFontDescriptors.find(fontID)) {
+        fontDescriptor = sk_ref_sp(*ptr);
+    } else {
+        fontDescriptor = make_type1_font_descriptor(this->typeface(), info);
+        canon->fFontDescriptors.set(fontID, SkRef(fontDescriptor.get()));
+    }
+    this->insertObjRef("FontDescriptor", std::move(fontDescriptor));
+    this->adjustGlyphRangeForSingleByteEncoding(glyphID);
+    // TODO(halcanary): subset this (advances and names).
+    populate_type_1_font(this, info, this->typeface(),
+                         this->firstGlyphID(), this->lastGlyphID());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -774,7 +726,8 @@ private:
 };
 }
 
-static void add_type3_font_info(SkPDFDict* font,
+static void add_type3_font_info(SkPDFCanon* canon,
+                                SkPDFDict* font,
                                 SkTypeface* typeface,
                                 SkScalar emSize,
                                 const SkPDFGlyphSet* subset,
@@ -862,21 +815,8 @@ static void add_type3_font_info(SkPDFDict* font,
     fontBBox->appendInt(bbox.top());
     font->insertObject("FontBBox", std::move(fontBBox));
     font->insertName("CIDToGIDMap", "Identity");
-    sk_sp<const SkAdvancedTypefaceMetrics> metrics;
-    if (subset) {
-        SkTDArray<uint32_t> subsetList;
-        for (SkGlyphID gID : SingleByteGlyphIdIterator(firstGlyphID, lastGlyphID)) {
-            if (gID == 0 || subset->has(gID)) {  // Always include glyph 0.
-                subsetList.push(0);
-            }
-        }
-        subset->exportTo(&subsetList);
-        metrics = SkPDFFont::GetFontMetricsWithToUnicode(typeface, subsetList.begin(),
-                                                         subsetList.count());
-    } else {
-        metrics = SkPDFFont::GetFontMetricsWithToUnicode(typeface, nullptr, 0);
-    }
-    if (metrics) {
+    const SkAdvancedTypefaceMetrics* metrics = SkPDFFont::GetMetrics(typeface, canon);
+    if (metrics /* && metrics->fGlyphToUnicode.count() > 0 */) {
         font->insertObjRef("ToUnicode",
                            SkPDFMakeToUnicodeCmap(metrics->fGlyphToUnicode,
                                                   subset,
@@ -889,24 +829,23 @@ static void add_type3_font_info(SkPDFDict* font,
     font->insertObject("CharProcs", std::move(charProcs));
 }
 
-SkPDFType3Font::SkPDFType3Font(sk_sp<const SkAdvancedTypefaceMetrics> info,
+SkPDFType3Font::SkPDFType3Font(const SkAdvancedTypefaceMetrics* info,
                                sk_sp<SkTypeface> typeface,
                                SkAdvancedTypefaceMetrics::FontType fontType,
                                uint16_t glyphID)
-    : SkPDFFont(std::move(info), std::move(typeface), nullptr,
-                fontType, /* multiByteGlyphs = */ false) {
-    // If fLastGlyphID isn't set (because there is not fFontInfo), look it up.
-    this->setLastGlyphID(SkToU16(this->typeface()->countGlyphs() - 1));
+    : SkPDFFont(std::move(typeface), fontType) {
     this->adjustGlyphRangeForSingleByteEncoding(glyphID);
 }
 
-sk_sp<SkPDFObject> SkPDFType3Font::getFontSubset(const SkPDFGlyphSet* usage) {
+sk_sp<SkPDFObject> SkPDFType3Font::getFontSubset(SkPDFCanon* canon,
+                                                 const SkPDFGlyphSet* usage) {
     // All fonts are subset before serialization.
     // TODO(halcanary): all fonts should follow this pattern.
-    auto font = sk_make_sp<SkPDFDict>("Font");
-    const SkAdvancedTypefaceMetrics* info = this->getFontInfo();
+    const SkAdvancedTypefaceMetrics* info =
+        SkPDFFont::GetMetrics(this->typeface(), canon);
     uint16_t emSize = info && info->fEmSize > 0 ? info->fEmSize : 1000;
-    add_type3_font_info(font.get(), this->typeface(), (SkScalar)emSize, usage,
+    auto font = sk_make_sp<SkPDFDict>("Font");
+    add_type3_font_info(canon, font.get(), this->typeface(), (SkScalar)emSize, usage,
                         this->firstGlyphID(), this->lastGlyphID());
     return font;
 }
@@ -914,49 +853,11 @@ sk_sp<SkPDFObject> SkPDFType3Font::getFontSubset(const SkPDFGlyphSet* usage) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFFont::Match SkPDFFont::IsMatch(SkPDFFont* existingFont,
-                                    uint32_t existingFontID,
-                                    uint16_t existingGlyphID,
-                                    uint32_t searchFontID,
-                                    uint16_t searchGlyphID) {
-    if (existingFontID != searchFontID) {
-        return SkPDFFont::kNot_Match;
-    }
-    if (existingGlyphID == 0 || searchGlyphID == 0) {
-        return SkPDFFont::kExact_Match;
-    }
-    if (existingFont != nullptr) {
-        return (existingFont->fFirstGlyphID <= searchGlyphID &&
-                searchGlyphID <= existingFont->fLastGlyphID)
-                       ? SkPDFFont::kExact_Match
-                       : SkPDFFont::kRelated_Match;
-    }
-    return (existingGlyphID == searchGlyphID) ? SkPDFFont::kExact_Match
-                                              : SkPDFFont::kRelated_Match;
-}
-
-//  Since getAdvancedTypefaceMetrics is expensive, cache the result.
 bool SkPDFFont::CanEmbedTypeface(SkTypeface* typeface, SkPDFCanon* canon) {
-    SkFontID id = SkTypeface::UniqueID(typeface);
-    if (bool* value = canon->fCanEmbedTypeface.find(id)) {
-        return *value;
-    }
-    SkAutoResolveDefaultTypeface face(typeface);
-    bool canEmbed = true;
-    sk_sp<const SkAdvancedTypefaceMetrics> fontMetrics(
-            face->getAdvancedTypefaceMetrics(
-                    SkTypeface::kNo_PerGlyphInfo, nullptr, 0));
-    if (fontMetrics) {
-        canEmbed = !SkToBool(
-                fontMetrics->fFlags &
-                SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
-    }
-    return *canon->fCanEmbedTypeface.set(id, canEmbed);
+    return can_embed(SkPDFFont::GetMetrics(typeface, canon));
 }
 
 void SkPDFFont::drop() {
     fTypeface = nullptr;
-    fFontInfo = nullptr;
-    fDescriptor = nullptr;
     this->SkPDFDict::drop();
 }

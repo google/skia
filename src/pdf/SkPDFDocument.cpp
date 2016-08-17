@@ -168,46 +168,6 @@ static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
     return std::move(curNodes[0]);
 }
 
-#if 0
-// TODO(halcanary): expose notEmbeddableCount in SkDocument
-void GetCountOfFontTypes(
-        const SkTDArray<SkPDFDevice*>& pageDevices,
-        int counts[SkAdvancedTypefaceMetrics::kOther_Font + 1],
-        int* notSubsettableCount,
-        int* notEmbeddableCount) {
-    sk_bzero(counts, sizeof(int) *
-                     (SkAdvancedTypefaceMetrics::kOther_Font + 1));
-    SkTDArray<SkFontID> seenFonts;
-    int notSubsettable = 0;
-    int notEmbeddable = 0;
-
-    for (int pageNumber = 0; pageNumber < pageDevices.count(); pageNumber++) {
-        const SkTDArray<SkPDFFont*>& fontResources =
-                pageDevices[pageNumber]->getFontResources();
-        for (int font = 0; font < fontResources.count(); font++) {
-            SkFontID fontID = fontResources[font]->typeface()->uniqueID();
-            if (seenFonts.find(fontID) == -1) {
-                counts[fontResources[font]->getType()]++;
-                seenFonts.push(fontID);
-                if (!fontResources[font]->canSubset()) {
-                    notSubsettable++;
-                }
-                if (!fontResources[font]->canEmbed()) {
-                    notEmbeddable++;
-                }
-            }
-        }
-    }
-    if (notSubsettableCount) {
-        *notSubsettableCount = notSubsettable;
-
-    }
-    if (notEmbeddableCount) {
-        *notEmbeddableCount = notEmbeddable;
-    }
-}
-#endif
-
 template <typename T> static T* clone(const T* o) { return o ? new T(*o) : nullptr; }
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -484,7 +444,7 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
     // Build font subsetting info before calling addObjectRecursively().
     for (const auto& entry : fGlyphUsage) {
         sk_sp<SkPDFObject> subsetFont =
-            entry.fFont->getFontSubset(&entry.fGlyphSet);
+            entry.fFont->getFontSubset(&fCanon, &entry.fGlyphSet);
         if (subsetFont) {
             fObjectSerializer.fSubstituteMap.setSubstitute(
                     entry.fFont, subsetFont.get());
