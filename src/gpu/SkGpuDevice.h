@@ -179,32 +179,17 @@ private:
     // The tileSize and clippedSrcRect will be valid only if true is returned.
     bool shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
                            const SkMatrix& viewMatrix,
+                           const SkMatrix& srcToDstRectMatrix,
                            const GrTextureParams& params,
                            const SkRect* srcRectPtr,
                            int maxTileSize,
                            int* tileSize,
                            SkIRect* clippedSubset) const;
-    bool shouldTileBitmap(const SkBitmap& bitmap,
-                          const SkMatrix& viewMatrix,
-                          const GrTextureParams& sampler,
-                          const SkRect* srcRectPtr,
-                          int maxTileSize,
-                          int* tileSize,
-                          SkIRect* clippedSrcRect) const;
     // Just returns the predicate, not the out-tileSize or out-clippedSubset, as they are not
     // needed at the moment.
     bool shouldTileImage(const SkImage* image, const SkRect* srcRectPtr,
                          SkCanvas::SrcRectConstraint constraint, SkFilterQuality quality,
-                         const SkMatrix& viewMatrix) const;
-
-    void internalDrawBitmap(const SkBitmap&,
-                            const SkMatrix& viewMatrix,
-                            const SkRect&,
-                            const GrTextureParams& params,
-                            const SkPaint& paint,
-                            SkCanvas::SrcRectConstraint,
-                            bool bicubic,
-                            bool needsTextureDomain);
+                         const SkMatrix& viewMatrix, const SkMatrix& srcToDstRect) const;
 
     sk_sp<SkSpecialImage> filterTexture(const SkDraw&,
                                         SkSpecialImage*,
@@ -212,8 +197,10 @@ private:
                                         SkIPoint* offset,
                                         const SkImageFilter* filter);
 
+    // Splits bitmap into tiles of tileSize and draws them using separate textures for each tile.
     void drawTiledBitmap(const SkBitmap& bitmap,
                          const SkMatrix& viewMatrix,
+                         const SkMatrix& srcToDstMatrix,
                          const SkRect& srcRect,
                          const SkIRect& clippedSrcRect,
                          const GrTextureParams& params,
@@ -221,6 +208,17 @@ private:
                          SkCanvas::SrcRectConstraint,
                          int tileSize,
                          bool bicubic);
+
+    // Used by drawTiledBitmap to draw each tile.
+    void drawBitmapTile(const SkBitmap&,
+                        const SkMatrix& viewMatrix,
+                        const SkRect& dstRect,
+                        const SkRect& srcRect,
+                        const GrTextureParams& params,
+                        const SkPaint& paint,
+                        SkCanvas::SrcRectConstraint,
+                        bool bicubic,
+                        bool needsTextureDomain);
 
     void drawTextureProducer(GrTextureProducer*,
                              const SkRect* srcRect,
