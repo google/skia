@@ -11,6 +11,7 @@
 #include "SkPDFCanon.h"
 #include "SkPDFConvertType1FontStream.h"
 #include "SkPDFDevice.h"
+#include "SkPDFMakeCIDGlyphWidthsArray.h"
 #include "SkPDFMakeToUnicodeCmap.h"
 #include "SkPDFFont.h"
 #include "SkPDFUtils.h"
@@ -31,28 +32,10 @@
 #endif
 
 namespace {
-
 // PDF's notion of symbolic vs non-symbolic is related to the character set, not
 // symbols vs. characters.  Rarely is a font the right character set to call it
 // non-symbolic, so always call it symbolic.  (PDF 1.4 spec, section 5.7.1)
 static const int kPdfSymbolic = 4;
-
-struct AdvanceMetric {
-    enum MetricType {
-        kDefault,  // Default advance: fAdvance.count = 1
-        kRange,    // Advances for a range: fAdvance.count = fEndID-fStartID
-        kRun       // fStartID-fEndID have same advance: fAdvance.count = 1
-    };
-    MetricType fType;
-    uint16_t fStartId;
-    uint16_t fEndId;
-    SkTDArray<int16_t> fAdvance;
-    AdvanceMetric(uint16_t startId) : fStartId(startId) {}
-    AdvanceMetric(AdvanceMetric&&) = default;
-    AdvanceMetric& operator=(AdvanceMetric&& other) = default;
-    AdvanceMetric(const AdvanceMetric&) = delete;
-    AdvanceMetric& operator=(const AdvanceMetric&) = delete;
-};
 
 class SkPDFType0Font final : public SkPDFFont {
 public:
@@ -107,196 +90,21 @@ public:
 // File-Local Functions
 ///////////////////////////////////////////////////////////////////////////////
 
-const int16_t kInvalidAdvance = SK_MinS16;
-const int16_t kDontCareAdvance = SK_MinS16 + 1;
-
-static void stripUninterestingTrailingAdvancesFromRange(
-        AdvanceMetric* range) {
-    SkASSERT(range);
-
-    int expectedAdvanceCount = range->fEndId - range->fStartId + 1;
-    if (range->fAdvance.count() < expectedAdvanceCount) {
-        return;
-    }
-
-    for (int i = expectedAdvanceCount - 1; i >= 0; --i) {
-        if (range->fAdvance[i] != kDontCareAdvance &&
-            range->fAdvance[i] != kInvalidAdvance &&
-            range->fAdvance[i] != 0) {
-            range->fEndId = range->fStartId + i;
-            break;
-        }
-    }
-}
-
-static void zeroWildcardsInRange(AdvanceMetric* range) {
-    SkASSERT(range);
-    if (range->fType != AdvanceMetric::kRange) {
-        return;
-    }
-    SkASSERT(range->fAdvance.count() == range->fEndId - range->fStartId + 1);
-
-    // Zero out wildcards.
-    for (int i = 0; i < range->fAdvance.count(); ++i) {
-        if (range->fAdvance[i] == kDontCareAdvance) {
-            range->fAdvance[i] = 0;
-        }
-    }
-}
-
-static void FinishRange(
-        AdvanceMetric* range,
-        int endId,
-        AdvanceMetric::MetricType type) {
-    range->fEndId = endId;
-    range->fType = type;
-    stripUninterestingTrailingAdvancesFromRange(range);
-    int newLength;
-    if (type == AdvanceMetric::kRange) {
-        newLength = range->fEndId - range->fStartId + 1;
-    } else {
-        if (range->fEndId == range->fStartId) {
-            range->fType = AdvanceMetric::kRange;
-        }
-        newLength = 1;
-    }
-    SkASSERT(range->fAdvance.count() >= newLength);
-    range->fAdvance.setCount(newLength);
-    zeroWildcardsInRange(range);
-}
-
-/** Retrieve advance data for glyphs. Used by the PDF backend. */
-// TODO(halcanary): this function is complex enough to need its logic
-// tested with unit tests.  On the other hand, I want to do another
-// round of re-factoring before figuring out how to mock this.
-// TODO(halcanary): this function should be combined with
-// composeAdvanceData() so that we don't need to produce a linked list
-// of intermediate values.  Or we could make the intermediate value
-// something other than a linked list.
-static void set_glyph_widths(SkTypeface* typeface,
-                             const SkPDFGlyphSet* subset,
-                             SkSinglyLinkedList<AdvanceMetric>* glyphWidths) {
+static SkAutoGlyphCache vector_cache(SkTypeface* face, SkScalar size = 0) {
     SkPaint tmpPaint;
     tmpPaint.setHinting(SkPaint::kNo_Hinting);
-    tmpPaint.setTypeface(sk_ref_sp(typeface));
-    tmpPaint.setTextSize((SkScalar)typeface->getUnitsPerEm());
+    tmpPaint.setTypeface(sk_ref_sp(face));
+    if (0 == size) {
+        SkASSERT(face);
+        tmpPaint.setTextSize((SkScalar)face->getUnitsPerEm());
+    } else {
+        tmpPaint.setTextSize(size);
+    }    
     const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     SkAutoGlyphCache glyphCache(tmpPaint, &props, nullptr);
     SkASSERT(glyphCache.get());
-
-    // Assuming that on average, the ASCII representation of an advance plus
-    // a space is 8 characters and the ASCII representation of a glyph id is 3
-    // characters, then the following cut offs for using different range types
-    // apply:
-    // The cost of stopping and starting the range is 7 characers
-    //  a. Removing 4 0's or don't care's is a win
-    // The cost of stopping and starting the range plus a run is 22
-    // characters
-    //  b. Removing 3 repeating advances is a win
-    //  c. Removing 2 repeating advances and 3 don't cares is a win
-    // When not currently in a range the cost of a run over a range is 16
-    // characaters, so:
-    //  d. Removing a leading 0/don't cares is a win because it is omitted
-    //  e. Removing 2 repeating advances is a win
-
-    int num_glyphs = typeface->countGlyphs();
-
-    AdvanceMetric* prevRange = nullptr;
-    int16_t lastAdvance = kInvalidAdvance;
-    int repeatedAdvances = 0;
-    int wildCardsInRun = 0;
-    int trailingWildCards = 0;
-
-    // Limit the loop count to glyph id ranges provided.
-    int lastIndex = num_glyphs;
-    if (subset) {
-        while (!subset->has(lastIndex - 1) && lastIndex > 0) {
-            --lastIndex;
-        }
-    }
-    AdvanceMetric curRange(0);
-
-    for (int gId = 0; gId <= lastIndex; gId++) {
-        int16_t advance = kInvalidAdvance;
-        if (gId < lastIndex) {
-            if (!subset || 0 == gId || subset->has(gId)) {
-                advance = (int16_t)glyphCache->getGlyphIDAdvance(gId).fAdvanceX;
-            } else {
-                advance = kDontCareAdvance;
-            }
-        }
-        if (advance == lastAdvance) {
-            repeatedAdvances++;
-            trailingWildCards = 0;
-        } else if (advance == kDontCareAdvance) {
-            wildCardsInRun++;
-            trailingWildCards++;
-        } else if (curRange.fAdvance.count() ==
-                   repeatedAdvances + 1 + wildCardsInRun) {  // All in run.
-            if (lastAdvance == 0) {
-                curRange.fStartId = gId;  // reset
-                curRange.fAdvance.setCount(0);
-                trailingWildCards = 0;
-            } else if (repeatedAdvances + 1 >= 2 || trailingWildCards >= 4) {
-                FinishRange(&curRange, gId - 1, AdvanceMetric::kRun);
-                prevRange = glyphWidths->emplace_back(std::move(curRange));
-                curRange = AdvanceMetric(gId);
-                trailingWildCards = 0;
-            }
-            repeatedAdvances = 0;
-            wildCardsInRun = trailingWildCards;
-            trailingWildCards = 0;
-        } else {
-            if (lastAdvance == 0 &&
-                    repeatedAdvances + 1 + wildCardsInRun >= 4) {
-                FinishRange(&curRange,
-                            gId - repeatedAdvances - wildCardsInRun - 2,
-                            AdvanceMetric::kRange);
-                prevRange = glyphWidths->emplace_back(std::move(curRange));
-                curRange = AdvanceMetric(gId);
-                trailingWildCards = 0;
-            } else if (trailingWildCards >= 4 && repeatedAdvances + 1 < 2) {
-                FinishRange(&curRange, gId - trailingWildCards - 1,
-                            AdvanceMetric::kRange);
-                prevRange = glyphWidths->emplace_back(std::move(curRange));
-                curRange = AdvanceMetric(gId);
-                trailingWildCards = 0;
-            } else if (lastAdvance != 0 &&
-                       (repeatedAdvances + 1 >= 3 ||
-                        (repeatedAdvances + 1 >= 2 && wildCardsInRun >= 3))) {
-                FinishRange(&curRange,
-                            gId - repeatedAdvances - wildCardsInRun - 2,
-                            AdvanceMetric::kRange);
-                (void)glyphWidths->emplace_back(std::move(curRange));
-                curRange =
-                        AdvanceMetric(gId - repeatedAdvances - wildCardsInRun - 1);
-                curRange.fAdvance.append(1, &lastAdvance);
-                FinishRange(&curRange, gId - 1, AdvanceMetric::kRun);
-                prevRange = glyphWidths->emplace_back(std::move(curRange));
-                curRange = AdvanceMetric(gId);
-                trailingWildCards = 0;
-            }
-            repeatedAdvances = 0;
-            wildCardsInRun = trailingWildCards;
-            trailingWildCards = 0;
-        }
-        curRange.fAdvance.append(1, &advance);
-        if (advance != kDontCareAdvance) {
-            lastAdvance = advance;
-        }
-    }
-    if (curRange.fStartId == lastIndex) {
-        if (!prevRange) {
-            glyphWidths->reset();
-            return;  // https://crbug.com/567031
-        }
-    } else {
-        FinishRange(&curRange, lastIndex - 1, AdvanceMetric::kRange);
-        glyphWidths->emplace_back(std::move(curRange));
-    }
+    return glyphCache;
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 // scale from em-units to base-1000, returning as a SkScalar
 SkScalar from_font_units(SkScalar scaled, uint16_t emSize) {
@@ -336,41 +144,6 @@ static sk_sp<SkPDFArray> makeFontBBox(SkIRect glyphBBox, uint16_t emSize) {
     bbox->appendScalar(scaleFromFontUnits(glyphBBox.fTop, emSize));
     return bbox;
 }
-
-sk_sp<SkPDFArray> composeAdvanceData(
-        const SkSinglyLinkedList<AdvanceMetric>& advanceInfo,
-        uint16_t emSize,
-        int16_t* defaultAdvance) {
-    auto result = sk_make_sp<SkPDFArray>();
-    for (const AdvanceMetric& range : advanceInfo) {
-        switch (range.fType) {
-            case AdvanceMetric::kDefault: {
-                SkASSERT(range.fAdvance.count() == 1);
-                *defaultAdvance = range.fAdvance[0];
-                break;
-            }
-            case AdvanceMetric::kRange: {
-                auto advanceArray = sk_make_sp<SkPDFArray>();
-                for (int j = 0; j < range.fAdvance.count(); j++)
-                    advanceArray->appendScalar(
-                            scaleFromFontUnits(range.fAdvance[j], emSize));
-                result->appendInt(range.fStartId);
-                result->appendObject(std::move(advanceArray));
-                break;
-            }
-            case AdvanceMetric::kRun: {
-                SkASSERT(range.fAdvance.count() == 1);
-                result->appendInt(range.fStartId);
-                result->appendInt(range.fEndId);
-                result->appendScalar(
-                        scaleFromFontUnits(range.fAdvance[0], emSize));
-                break;
-            }
-        }
-    }
-    return result;
-}
-
 }  // namespace
 
 
@@ -834,18 +607,19 @@ bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
     sysInfo->insertInt("Supplement", 0);
     newCIDFont->insertObject("CIDSystemInfo", std::move(sysInfo));
 
-    SkSinglyLinkedList<AdvanceMetric> tmpMetrics;
-    set_glyph_widths(face, subset, &tmpMetrics);
+    uint16_t emSize = this->getFontInfo()->fEmSize;
     int16_t defaultWidth = 0;
-    uint16_t emSize = (uint16_t)this->getFontInfo()->fEmSize;
-    sk_sp<SkPDFArray> widths = composeAdvanceData(tmpMetrics, emSize, &defaultWidth);
-    if (widths->size()) {
-        newCIDFont->insertObject("W", std::move(widths));
+    const SkBitSet* bitSet = subset ? &subset->bitSet() : nullptr;
+    {
+        SkAutoGlyphCache glyphCache = vector_cache(face);
+        sk_sp<SkPDFArray> widths = SkPDFMakeCIDGlyphWidthsArray(
+                glyphCache.get(), bitSet, emSize, &defaultWidth);
+        if (widths && widths->size() > 0) {
+            newCIDFont->insertObject("W", std::move(widths));
+        }
+        newCIDFont->insertScalar(
+                "DW", scaleFromFontUnits(defaultWidth, emSize));
     }
-
-    newCIDFont->insertScalar(
-            "DW", scaleFromFontUnits(defaultWidth, emSize));
-
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -933,12 +707,7 @@ bool SkPDFType1Font::populate(int16_t glyphID) {
     this->insertInt("FirstChar", (size_t)0);
     this->insertInt("LastChar", (size_t)glyphCount);
     {
-        SkPaint tmpPaint;
-        tmpPaint.setHinting(SkPaint::kNo_Hinting);
-        tmpPaint.setTypeface(sk_ref_sp(this->typeface()));
-        tmpPaint.setTextSize((SkScalar)this->typeface()->getUnitsPerEm());
-        const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-        SkAutoGlyphCache glyphCache(tmpPaint, &props, nullptr);
+        SkAutoGlyphCache glyphCache = vector_cache(this->typeface());
         auto widths = sk_make_sp<SkPDFArray>();
         SkScalar advance = glyphCache->getGlyphIDAdvance(0).fAdvanceX;
         const uint16_t emSize = this->getFontInfo()->fEmSize;
@@ -1012,13 +781,8 @@ static void add_type3_font_info(SkPDFDict* font,
                                 SkGlyphID firstGlyphID,
                                 SkGlyphID lastGlyphID) {
     SkASSERT(lastGlyphID >= firstGlyphID);
-    SkPaint paint;
-    paint.setHinting(SkPaint::kNo_Hinting);
-    paint.setTypeface(sk_ref_sp(typeface));
-    paint.setTextSize(emSize);
-    const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    SkAutoGlyphCache cache(paint, &props, nullptr);
-
+    SkASSERT(emSize > 0.0f);
+    SkAutoGlyphCache cache = vector_cache(typeface, emSize);
     font->insertName("Subtype", "Type3");
     // Flip about the x-axis and scale by 1/emSize.
     SkMatrix fontMatrix;

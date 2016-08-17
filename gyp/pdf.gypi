@@ -34,6 +34,8 @@
         '<(skia_src_path)/pdf/SkPDFFormXObject.h',
         '<(skia_src_path)/pdf/SkPDFGraphicState.cpp',
         '<(skia_src_path)/pdf/SkPDFGraphicState.h',
+        '<(skia_src_path)/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp',
+        '<(skia_src_path)/pdf/SkPDFMakeCIDGlyphWidthsArray.h',
         '<(skia_src_path)/pdf/SkPDFMakeToUnicodeCmap.cpp',
         '<(skia_src_path)/pdf/SkPDFMakeToUnicodeCmap.h',
         '<(skia_src_path)/pdf/SkPDFMetadata.cpp',

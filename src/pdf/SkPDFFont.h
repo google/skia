@@ -26,6 +26,7 @@ public:
     void set(const uint16_t* glyphIDs, int numGlyphs);
     bool has(uint16_t glyphID) const;
     void exportTo(SkTDArray<uint32_t>* glyphIDs) const;
+    const SkBitSet& bitSet() const { return fBitSet; }
 
 private:
     SkBitSet fBitSet;
