@@ -628,7 +628,8 @@ public:
                               const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<QuadEdgeEffect>(primProc, pdman, index, transforms);
+            this->setTransformDataHelper(primProc.cast<QuadEdgeEffect>().fLocalMatrix, pdman, index,
+                                         transforms);
         }
 
     private:

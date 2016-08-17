@@ -823,7 +823,8 @@ public:
                           const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper<DashingCircleEffect>(primProc, pdman, index, transforms);
+        this->setTransformDataHelper(primProc.cast<DashingCircleEffect>().localMatrix(), pdman,
+                                     index, transforms);
     }
 
 private:
@@ -1043,7 +1044,8 @@ public:
                           const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper<DashingLineEffect>(primProc, pdman, index, transforms);
+        this->setTransformDataHelper(primProc.cast<DashingLineEffect>().localMatrix(), pdman, index,
+                                     transforms);
     }
 
 private:

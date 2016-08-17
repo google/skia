@@ -202,7 +202,8 @@ public:
                               const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<RectGeometryProcessor>(primProc, pdman, index, transforms);
+            this->setTransformDataHelper(primProc.cast<RectGeometryProcessor>().fLocalMatrix, pdman,
+                                         index, transforms);
         }
 
     private:

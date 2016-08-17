@@ -98,7 +98,8 @@ public:
                           const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper<GrBitmapTextGeoProc>(primProc, pdman, index, transforms);
+        this->setTransformDataHelper(primProc.cast<GrBitmapTextGeoProc>().localMatrix(), pdman,
+                                     index, transforms);
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,

@@ -122,7 +122,6 @@ public:
     const Attribute* inUV() const { return fInUV; }
     const Attribute* inColor() const { return fInColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
-    const SkMatrix& localMatrix() const { return SkMatrix::I(); }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
@@ -175,13 +174,6 @@ public:
                 GrGLSLGetMatrix<3>(viewMatrix, qp.viewMatrix());
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
             }
-        }
-
-        void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLSLProgramDataManager& pdman,
-                              int index,
-                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<MSAAQuadProcessor>(primProc, pdman, index, transforms);
         }
 
     private:

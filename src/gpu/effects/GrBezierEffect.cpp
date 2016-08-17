@@ -53,7 +53,8 @@ public:
                           const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper<GrConicEffect>(primProc, pdman, index, transforms);
+        this->setTransformDataHelper(primProc.cast<GrConicEffect>().localMatrix(), pdman, index,
+                                     transforms);
     }
 
 private:
@@ -327,7 +328,8 @@ public:
                           const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper<GrQuadEffect>(primProc, pdman, index, transforms);
+        this->setTransformDataHelper(primProc.cast<GrQuadEffect>().localMatrix(), pdman, index,
+                                     transforms);
     }
 
 private:

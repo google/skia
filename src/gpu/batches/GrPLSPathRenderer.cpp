@@ -399,7 +399,8 @@ public:
                               const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<PLSAATriangleEffect>(primProc, pdman, index, transforms);
+            this->setTransformDataHelper(primProc.cast<PLSAATriangleEffect>().fLocalMatrix, pdman,
+                                         index, transforms);
         }
 
     private:
@@ -588,7 +589,8 @@ public:
                               const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<PLSQuadEdgeEffect>(primProc, pdman, index, transforms);
+            this->setTransformDataHelper(primProc.cast<PLSQuadEdgeEffect>().fLocalMatrix, pdman,
+                                         index, transforms);
         }
 
     private:
@@ -731,7 +733,8 @@ public:
                               const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<PLSFinishEffect>(primProc, pdman, index, transforms);
+            this->setTransformDataHelper(primProc.cast<PLSFinishEffect>().fLocalMatrix, pdman,
+                                         index, transforms);
         }
 
     private:

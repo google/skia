@@ -91,8 +91,6 @@ public:
 
     bool implementsDistanceVector() const override { return true; };
 
-    const SkMatrix& localMatrix() const { return fLocalMatrix; }
-
     virtual ~CircleGeometryProcessor() {}
 
     const char* name() const override { return "CircleEdge"; }
@@ -184,8 +182,8 @@ private:
                               const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<CircleGeometryProcessor>(primProc, pdman, index,
-                                                                  transforms);
+            this->setTransformDataHelper(primProc.cast<CircleGeometryProcessor>().fLocalMatrix,
+                                         pdman, index, transforms);
         }
 
     private:
@@ -237,8 +235,6 @@ public:
     virtual ~EllipseGeometryProcessor() {}
 
     const char* name() const override { return "EllipseEdge"; }
-
-    const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
     void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
@@ -331,8 +327,8 @@ private:
                               const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<EllipseGeometryProcessor>(primProc, pdman, index,
-                                                                   transforms);
+            this->setTransformDataHelper(primProc.cast<EllipseGeometryProcessor>().fLocalMatrix,
+                                         pdman, index, transforms);
         }
 
     private:

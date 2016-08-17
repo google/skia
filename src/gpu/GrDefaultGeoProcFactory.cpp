@@ -186,7 +186,8 @@ public:
                               const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<DefaultGeoProc>(primProc, pdman, index, transforms);
+            this->setTransformDataHelper(primProc.cast<DefaultGeoProc>().fLocalMatrix, pdman, index,
+                                         transforms);
         }
 
     private:
