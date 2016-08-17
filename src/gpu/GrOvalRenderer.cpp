@@ -91,15 +91,21 @@ public:
 
     bool implementsDistanceVector() const override { return true; };
 
-    const Attribute* inPosition() const { return fInPosition; }
-    const Attribute* inColor() const { return fInColor; }
-    const Attribute* inCircleEdge() const { return fInCircleEdge; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
     virtual ~CircleGeometryProcessor() {}
 
     const char* name() const override { return "CircleEdge"; }
 
+    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLSLProcessor::GenKey(*this, caps, b);
+    }
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+        return new GLSLProcessor();
+    }
+
+private:
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor() {}
@@ -115,22 +121,22 @@ public:
 
             GrGLSLVertToFrag v(kVec4f_GrSLType);
             varyingHandler->addVarying("CircleEdge", &v);
-            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), cgp.inCircleEdge()->fName);
+            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), cgp.fInCircleEdge->fName);
 
             GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
-            varyingHandler->addPassThroughAttribute(cgp.inColor(), args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(cgp.fInColor, args.fOutputColor);
 
             // Setup position
-            this->setupPosition(vertBuilder, gpArgs, cgp.inPosition()->fName);
+            this->setupPosition(vertBuilder, gpArgs, cgp.fInPosition->fName);
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  gpArgs->fPositionVar,
-                                 cgp.inPosition()->fName,
-                                 cgp.localMatrix(),
+                                 cgp.fInPosition->fName,
+                                 cgp.fLocalMatrix,
                                  args.fTransformsIn,
                                  args.fTransformsOut);
 
@@ -166,7 +172,7 @@ public:
                            GrProcessorKeyBuilder* b) {
             const CircleGeometryProcessor& cgp = gp.cast<CircleGeometryProcessor>();
             uint16_t key = cgp.fStroke ? 0x1 : 0x0;
-            key |= cgp.localMatrix().hasPerspective() ? 0x2 : 0x0;
+            key |= cgp.fLocalMatrix.hasPerspective() ? 0x2 : 0x0;
             b->add32(key);
         }
 
@@ -186,15 +192,6 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
-    }
-
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
-        return new GLSLProcessor();
-    }
-
-private:
     SkMatrix         fLocalMatrix;
     const Attribute* fInPosition;
     const Attribute* fInColor;
@@ -241,12 +238,17 @@ public:
 
     const char* name() const override { return "EllipseEdge"; }
 
-    const Attribute* inPosition() const { return fInPosition; }
-    const Attribute* inColor() const { return fInColor; }
-    const Attribute* inEllipseOffset() const { return fInEllipseOffset; }
-    const Attribute* inEllipseRadii() const { return fInEllipseRadii; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
+    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLSLProcessor::GenKey(*this, caps, b);
+    }
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+        return new GLSLProcessor();
+    }
+
+private:
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor() {}
@@ -263,27 +265,27 @@ public:
             GrGLSLVertToFrag ellipseOffsets(kVec2f_GrSLType);
             varyingHandler->addVarying("EllipseOffsets", &ellipseOffsets);
             vertBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
-                                     egp.inEllipseOffset()->fName);
+                                     egp.fInEllipseOffset->fName);
 
             GrGLSLVertToFrag ellipseRadii(kVec4f_GrSLType);
             varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
             vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(),
-                                     egp.inEllipseRadii()->fName);
+                                     egp.fInEllipseRadii->fName);
 
             GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
-            varyingHandler->addPassThroughAttribute(egp.inColor(), args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(egp.fInColor, args.fOutputColor);
 
             // Setup position
-            this->setupPosition(vertBuilder, gpArgs, egp.inPosition()->fName);
+            this->setupPosition(vertBuilder, gpArgs, egp.fInPosition->fName);
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  gpArgs->fPositionVar,
-                                 egp.inPosition()->fName,
-                                 egp.localMatrix(),
+                                 egp.fInPosition->fName,
+                                 egp.fLocalMatrix,
                                  args.fTransformsIn,
                                  args.fTransformsOut);
 
@@ -318,7 +320,7 @@ public:
                            GrProcessorKeyBuilder* b) {
             const EllipseGeometryProcessor& egp = gp.cast<EllipseGeometryProcessor>();
             uint16_t key = egp.fStroke ? 0x1 : 0x0;
-            key |= egp.localMatrix().hasPerspective() ? 0x2 : 0x0;
+            key |= egp.fLocalMatrix.hasPerspective() ? 0x2 : 0x0;
             b->add32(key);
         }
 
@@ -337,15 +339,6 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
-    }
-
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
-        return new GLSLProcessor();
-    }
-
-private:
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInEllipseOffset;
@@ -398,12 +391,15 @@ public:
 
     const char* name() const override { return "DIEllipseEdge"; }
 
-    const Attribute* inPosition() const { return fInPosition; }
-    const Attribute* inColor() const { return fInColor; }
-    const Attribute* inEllipseOffsets0() const { return fInEllipseOffsets0; }
-    const Attribute* inEllipseOffsets1() const { return fInEllipseOffsets1; }
-    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLSLProcessor::GenKey(*this, caps, b);
+    }
 
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+        return new GLSLProcessor();
+    }
+
+private:
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor()
@@ -421,22 +417,22 @@ public:
             GrGLSLVertToFrag offsets0(kVec2f_GrSLType);
             varyingHandler->addVarying("EllipseOffsets0", &offsets0);
             vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(),
-                                     diegp.inEllipseOffsets0()->fName);
+                                     diegp.fInEllipseOffsets0->fName);
 
             GrGLSLVertToFrag offsets1(kVec2f_GrSLType);
             varyingHandler->addVarying("EllipseOffsets1", &offsets1);
             vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(),
-                                     diegp.inEllipseOffsets1()->fName);
+                                     diegp.fInEllipseOffsets1->fName);
 
             GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            varyingHandler->addPassThroughAttribute(diegp.inColor(), args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(diegp.fInColor, args.fOutputColor);
 
             // Setup position
             this->setupPosition(vertBuilder,
                                 uniformHandler,
                                 gpArgs,
-                                diegp.inPosition()->fName,
-                                diegp.viewMatrix(),
+                                diegp.fInPosition->fName,
+                                diegp.fViewMatrix,
                                 &fViewMatrixUniform);
 
             // emit transforms
@@ -444,7 +440,7 @@ public:
                                  varyingHandler,
                                  uniformHandler,
                                  gpArgs->fPositionVar,
-                                 diegp.inPosition()->fName,
+                                 diegp.fInPosition->fName,
                                  args.fTransformsIn,
                                  args.fTransformsOut);
 
@@ -494,7 +490,7 @@ public:
                            GrProcessorKeyBuilder* b) {
             const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
             uint16_t key = static_cast<uint16_t>(diegp.fStyle);
-            key |= ComputePosKey(diegp.viewMatrix()) << 10;
+            key |= ComputePosKey(diegp.fViewMatrix) << 10;
             b->add32(key);
         }
 
@@ -502,8 +498,8 @@ public:
                      const GrPrimitiveProcessor& gp) override {
             const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
 
-            if (!diegp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(diegp.viewMatrix())) {
-                fViewMatrix = diegp.viewMatrix();
+            if (!diegp.fViewMatrix.isIdentity() && !fViewMatrix.cheapEqualTo(diegp.fViewMatrix)) {
+                fViewMatrix = diegp.fViewMatrix;
                 float viewMatrix[3 * 3];
                 GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
@@ -517,15 +513,6 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
-    }
-
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
-        return new GLSLProcessor();
-    }
-
-private:
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInEllipseOffsets0;
