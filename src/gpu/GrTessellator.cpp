@@ -253,7 +253,9 @@ struct Edge {
         , fLeftPolyPrev(nullptr)
         , fLeftPolyNext(nullptr)
         , fRightPolyPrev(nullptr)
-        , fRightPolyNext(nullptr) {
+        , fRightPolyNext(nullptr)
+        , fUsedInLeftPoly(false)
+        , fUsedInRightPoly(false) {
             recompute();
         }
     int      fWinding;          // 1 == edge goes downward; -1 = edge goes upward.
@@ -271,6 +273,8 @@ struct Edge {
     Edge*    fLeftPolyNext;
     Edge*    fRightPolyPrev;
     Edge*    fRightPolyNext;
+    bool     fUsedInLeftPoly;
+    bool     fUsedInRightPoly;
     double   fDX;               // The line equation for this edge, in implicit form.
     double   fDY;               // fDY * x + fDX * y + fC = 0, for point (x, y) on the line.
     double   fC;
@@ -356,11 +360,19 @@ struct Poly {
         MonotonePoly* fNext;
         void addEdge(Edge* edge) {
             if (fSide == kRight_Side) {
+                if (edge->fUsedInRightPoly) {
+                    return;
+                }
                 list_insert<Edge, &Edge::fRightPolyPrev, &Edge::fRightPolyNext>(
                     edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
+                edge->fUsedInRightPoly = true;
             } else {
+                if (edge->fUsedInLeftPoly) {
+                    return;
+                }
                 list_insert<Edge, &Edge::fLeftPolyPrev, &Edge::fLeftPolyNext>(
                     edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
+                edge->fUsedInLeftPoly = true;
             }
         }
 
@@ -407,9 +419,8 @@ struct Poly {
         }
     };
     Poly* addEdge(Edge* e, Side side, SkChunkAlloc& alloc) {
-        LOG("addEdge (%g,%g)-(%g,%g) to poly %d, %s side\n",
-               e->fTop->fPoint.fX, e->fTop->fPoint.fY, e->fBottom->fPoint.fX, e->fBottom->fPoint.fY,
-               fID, side == kLeft_Side ? "left" : "right");
+        LOG("addEdge (%g -> %g) to poly %d, %s side\n",
+               e->fTop->fID, e->fBottom->fID, fID, side == kLeft_Side ? "left" : "right");
         Poly* partner = fPartner;
         Poly* poly = this;
         if (partner) {

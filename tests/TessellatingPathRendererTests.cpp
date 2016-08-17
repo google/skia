@@ -232,6 +232,23 @@ static SkPath create_path_15() {
     return path;
 }
 
+// Reduction of Nebraska-StateSeal.svg. Floating point error causes the
+// same edge to be added to more than one poly on the same side.
+static SkPath create_path_16() {
+    SkPath path;
+    path.moveTo(170.8199920654296875,   491.86700439453125);
+    path.lineTo(173.7649993896484375,    489.7340087890625);
+    path.lineTo(174.1450958251953125,  498.545989990234375);
+    path.lineTo( 171.998992919921875,   500.88201904296875);
+    path.moveTo(168.2922515869140625,   498.66265869140625);
+    path.lineTo(169.8589935302734375,   497.94500732421875);
+    path.lineTo(                 172,   500.88299560546875);
+    path.moveTo( 169.555267333984375,   490.70111083984375);
+    path.lineTo(173.7649993896484375,    489.7340087890625);
+    path.lineTo(  170.82000732421875,   491.86700439453125);
+    return path;
+}
+
 static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const SkPath& path) {
     GrTessellatingPathRenderer tess;
 
@@ -284,5 +301,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(dc.get(), rp, create_path_13());
     test_path(dc.get(), rp, create_path_14());
     test_path(dc.get(), rp, create_path_15());
+    test_path(dc.get(), rp, create_path_16());
 }
 #endif
