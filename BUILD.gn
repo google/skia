@@ -144,6 +144,11 @@ utils_gypi = exec_script("gn/gypi_to_gn.py",
                          "scope",
                          [ "gyp/utils.gypi" ])
 
+source_set("opts_none") {
+  configs += skia_library_configs
+  sources = opts_gypi.none_sources
+}
+
 is_x86 = current_cpu == "x64" || current_cpu == "x86"
 
 if (is_x86) {
@@ -199,6 +204,8 @@ component("skia") {
       ":opts_sse42",
       ":opts_ssse3",
     ]
+  } else {
+    deps += [ ":opts_none" ]
   }
 
   if (!is_win) {
@@ -530,8 +537,8 @@ test_lib("experimental_svg_model") {
   sources = [
     "experimental/svg/model/SkSVGAttribute.cpp",
     "experimental/svg/model/SkSVGAttributeParser.cpp",
-    "experimental/svg/model/SkSVGContainer.cpp",
     "experimental/svg/model/SkSVGCircle.cpp",
+    "experimental/svg/model/SkSVGContainer.cpp",
     "experimental/svg/model/SkSVGDOM.cpp",
     "experimental/svg/model/SkSVGEllipse.cpp",
     "experimental/svg/model/SkSVGLine.cpp",
