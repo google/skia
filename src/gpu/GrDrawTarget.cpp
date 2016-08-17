@@ -7,6 +7,7 @@
 
 #include "GrDrawTarget.h"
 
+#include "GrAppliedClip.h"
 #include "GrAuditTrail.h"
 #include "GrCaps.h"
 #include "GrDrawContext.h"
@@ -379,6 +380,7 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
         sk_sp_address_as_pointer_address(pipelineBuilder.fCoverageFragmentProcessors.begin()),
         pipelineBuilder.numCoverageFragmentProcessors());
     args.fScissor = &appliedClip.scissorState();
+    args.fWindowRects = &appliedClip.windowRects();
     args.fHasStencilClip = appliedClip.hasStencilClip();
     if (!this->setupDstReadIfNecessary(pipelineBuilder, drawContext->accessRenderTarget(),
                                        clip, args.fOpts,

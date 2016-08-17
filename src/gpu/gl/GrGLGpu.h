@@ -314,6 +314,9 @@ private:
     // disables the scissor
     void disableScissor();
 
+    void flushWindowRectangles(const GrWindowRectangles&, const GrGLRenderTarget*);
+    void disableWindowRectangles();
+
     void initFSAASupport();
 
     // determines valid stencil formats
@@ -418,6 +421,42 @@ private:
             fRect.invalidate();
         }
     } fHWScissorSettings;
+
+    class {
+    public:
+        bool valid() const { return kInvalidOrigin != fOrigin; }
+        void invalidate() { fOrigin = kInvalidOrigin; }
+
+        bool disabled() const {
+            return this->valid() && Mode::kExclusive == fWindows.mode() && !fWindows.count();
+        }
+        void setDisabled() { fOrigin = kDefault_GrSurfaceOrigin, fWindows.reset(); }
+
+        bool equal(GrSurfaceOrigin org, const GrGLIRect& viewp,
+                   const GrWindowRectangles& windows) const {
+            if (!this->valid()) {
+                return false;
+            }
+            if (fWindows.count() && (fOrigin != org || fViewport != viewp)) {
+                return false;
+            }
+            return fWindows == windows;
+        }
+
+        void set(GrSurfaceOrigin org, const GrGLIRect& viewp, const GrWindowRectangles& windows) {
+            fOrigin = org;
+            fViewport = viewp;
+            fWindows = windows;
+        }
+
+    private:
+        typedef GrWindowRectangles::Mode Mode;
+        enum { kInvalidOrigin = -1 };
+
+        int                  fOrigin;
+        GrGLIRect            fViewport;
+        GrWindowRectangles   fWindows;
+    } fHWWindowRects;
 
     GrGLIRect                   fHWViewport;
 

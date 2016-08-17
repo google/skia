@@ -7,6 +7,7 @@
 
 #include "GrCaps.h"
 #include "GrContextOptions.h"
+#include "GrWindowRectangles.h"
 
 GrShaderCaps::GrShaderCaps() {
     fShaderDerivativeSupport = false;
@@ -131,6 +132,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 }
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
+    this->onApplyOptionsOverrides(options);
     fMaxTextureSize = SkTMin(fMaxTextureSize, options.fMaxTextureSizeOverride);
     // If the max tile override is zero, it means we should use the max texture size.
     if (!options.fMaxTileSizeOverride || options.fMaxTileSizeOverride > fMaxTextureSize) {
@@ -138,7 +140,9 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     } else {
         fMaxTileSize = options.fMaxTileSizeOverride;
     }
-    this->onApplyOptionsOverrides(options);
+    if (fMaxWindowRectangles > GrWindowRectangles::kMaxWindows) {
+        fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
+    }
 }
 
 static SkString map_flags_to_string(uint32_t flags) {

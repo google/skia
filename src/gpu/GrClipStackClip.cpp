@@ -7,9 +7,11 @@
 
 #include "GrClipStackClip.h"
 
+#include "GrAppliedClip.h"
 #include "GrDrawingManager.h"
 #include "GrDrawContextPriv.h"
 #include "GrGpuResourcePriv.h"
+#include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 #include "GrSWMaskHelper.h"
 #include "effects/GrConvexPolyEffect.h"
@@ -279,6 +281,23 @@ bool GrClipStackClip::apply(GrContext* context, GrDrawContext* drawContext, bool
     }
 
     SkASSERT(reducedClip.hasIBounds());
+
+    // Attempt to implement difference clip rects with window rectangles. This will eventually
+    // become more comprehensive.
+    if (drawContext->accessRenderTarget()->renderTargetPriv().supportsWindowRectangles() &&
+        1 == reducedClip.elements().count() && !reducedClip.requiresAA() &&
+        InitialState::kAllIn == reducedClip.initialState()) {
+        const Element* element = reducedClip.elements().head();
+        SkRegion::Op op = element->getOp();
+        if (Element::kRect_Type == element->getType() &&
+            (SkRegion::kDifference_Op == op || SkRegion::kXOR_Op == op)) {
+            SkIRect window;
+            element->getRect().round(&window);
+            window.offset(-fOrigin);
+            out->addWindowRectangle(window);
+            return true;
+        }
+    }
 
     // An element count of 4 was chosen because of the common pattern in Blink of:
     //   isect RR

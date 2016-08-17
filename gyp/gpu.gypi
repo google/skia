@@ -67,6 +67,7 @@
       '<(skia_include_path)/private/GrSurfaceProxy.h',
       '<(skia_include_path)/private/GrTextureProxy.h',
 
+      '<(skia_src_path)/gpu/GrAppliedClip.h',
       '<(skia_src_path)/gpu/GrAuditTrail.cpp',
       '<(skia_src_path)/gpu/GrAutoLocaleSetter.h',
       '<(skia_src_path)/gpu/GrAllocator.h',
@@ -200,6 +201,7 @@
       '<(skia_src_path)/gpu/GrTextureAccess.cpp',
       '<(skia_src_path)/gpu/GrTRecorder.h',
       '<(skia_src_path)/gpu/GrUserStencilSettings.h',
+      '<(skia_src_path)/gpu/GrWindowRectangles.h',
       '<(skia_src_path)/gpu/GrXferProcessor.cpp',
       '<(skia_src_path)/gpu/GrYUVProvider.cpp',
       '<(skia_src_path)/gpu/GrYUVProvider.h',

@@ -463,8 +463,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (ctxInfo.hasExtension("GL_EXT_window_rectangles")) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
-        // Protect ourselves against tracking huge amounts of window rectangle state.
-        fMaxWindowRectangles = SkTMin(31, fMaxWindowRectangles);
     }
 
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||

@@ -7,6 +7,7 @@
 
 #include "GrClip.h"
 
+#include "GrAppliedClip.h"
 #include "GrDrawContext.h"
 
 void GrNoClip::getConservativeBounds(int width, int height, SkIRect* devResult,

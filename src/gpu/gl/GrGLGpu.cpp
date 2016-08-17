@@ -563,6 +563,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 
     if (resetBits & kView_GrGLBackendState) {
         fHWScissorSettings.invalidate();
+        fHWWindowRects.invalidate();
         fHWViewport.invalidate();
     }
 
@@ -1995,6 +1996,37 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
     this->disableScissor();
 }
 
+void GrGLGpu::flushWindowRectangles(const GrWindowRectangles& windows, const GrGLRenderTarget* rt) {
+    typedef GrWindowRectangles::Mode Mode;
+    SkASSERT(windows.count() <= this->caps()->maxWindowRectangles());
+    SkASSERT(windows.disabled() || rt->renderFBOID()); // Window rectangles can't be used on-screen.
+
+    if (!this->caps()->maxWindowRectangles() ||
+        fHWWindowRects.equal(rt->origin(), rt->getViewport(), windows)) {
+        return;
+
+    }
+
+    GrGLIRect glwindows[GrWindowRectangles::kMaxWindows];
+    const SkIRect* skwindows = windows.data();
+    for (int i = 0; i < windows.count(); ++i) {
+        glwindows[i].setRelativeTo(rt->getViewport(), skwindows[i], rt->origin());
+    }
+
+    GrGLenum glmode = (Mode::kExclusive == windows.mode()) ? GR_GL_EXCLUSIVE : GR_GL_INCLUSIVE;
+    GL_CALL(WindowRectangles(glmode, windows.count(), glwindows->asInts()));
+
+    fHWWindowRects.set(rt->origin(), rt->getViewport(), windows);
+}
+
+void GrGLGpu::disableWindowRectangles() {
+    if (!this->caps()->maxWindowRectangles() || fHWWindowRects.disabled()) {
+        return;
+    }
+    GL_CALL(WindowRectangles(GR_GL_EXCLUSIVE, 0, nullptr));
+    fHWWindowRects.setDisabled();
+}
+
 void GrGLGpu::flushMinSampleShading(float minSampleShading) {
     if (fHWMinSampleShading != minSampleShading) {
         if (minSampleShading > 0.0) {
@@ -2042,6 +2074,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
     this->flushStencil(pipeline.getStencil());
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
+    this->flushWindowRectangles(pipeline.getWindowRectangles(), glRT);
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !pipeline.getStencil().isDisabled());
 
     // This must come after textures are flushed because a texture may need
@@ -2171,6 +2204,7 @@ void GrGLGpu::clear(const SkIRect& rect, GrColor color, GrRenderTarget* target) 
     GrScissorState scissorState;
     scissorState.set(rect);
     this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
+    this->disableWindowRectangles();
 
     GrGLfloat r, g, b, a;
     static const GrGLfloat scale255 = 1.f / 255.f;
@@ -2194,6 +2228,7 @@ void GrGLGpu::clearStencil(GrRenderTarget* target) {
     this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
     this->disableScissor();
+    this->disableWindowRectangles();
 
     GL_CALL(StencilMask(0xffffffff));
     GL_CALL(ClearStencil(0));
@@ -2233,6 +2268,7 @@ void GrGLGpu::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTar
     GrScissorState scissorState;
     scissorState.set(rect);
     this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
+    this->disableWindowRectangles();
 
     GL_CALL(StencilMask((uint32_t) clipStencilMask));
     GL_CALL(ClearStencil(value));
@@ -2603,6 +2639,7 @@ void GrGLGpu::finishDrawTarget() {
          * it becomes safe to stop using this workaround once we start.
          */
         this->disableScissor();
+        this->disableWindowRectangles();
         // using PLS in the presence of MSAA results in GL_INVALID_OPERATION
         this->flushHWAAState(nullptr, false, false);
         SkASSERT(!fHWPLSEnabled);
@@ -2752,6 +2789,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
         GL_CALL(Disable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
         fHWPLSEnabled = false;
         this->disableScissor();
+        this->disableWindowRectangles();
     }
 
 #if SWAP_PER_DRAW
@@ -2848,6 +2886,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
                 GrScissorState scissorState;
                 scissorState.set(dirtyRect);
                 this->flushScissor(scissorState, vp, rt->origin());
+                this->disableWindowRectangles();
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
                 GrGLIRect r;
@@ -2859,6 +2898,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
 
                 // BlitFrameBuffer respects the scissor, so disable it.
                 this->disableScissor();
+                this->disableWindowRectangles();
                 GL_CALL(BlitFramebuffer(r.fLeft, r.fBottom, right, top,
                                         r.fLeft, r.fBottom, right, top,
                                         GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
@@ -4091,6 +4131,7 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
     this->flushDrawFace(GrDrawFace::kBoth);
     this->flushHWAAState(glRT, false, false);
     this->disableScissor();
+    this->disableWindowRectangles();
     GrStencilSettings stencil;
     stencil.setDisabled();
     this->flushStencil(stencil);
@@ -4179,6 +4220,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     this->flushDrawFace(GrDrawFace::kBoth);
     this->flushHWAAState(nullptr, false, false);
     this->disableScissor();
+    this->disableWindowRectangles();
     GrStencilSettings stencil;
     stencil.setDisabled();
     this->flushStencil(stencil);
@@ -4263,6 +4305,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
 
     // BlitFrameBuffer respects the scissor, so disable it.
     this->disableScissor();
+    this->disableWindowRectangles();
 
     GrGLint srcY0;
     GrGLint srcY1;
@@ -4387,6 +4430,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
     this->flushDrawFace(GrDrawFace::kBoth);
     this->flushHWAAState(nullptr, false, false);
     this->disableScissor();
+    this->disableWindowRectangles();
     GrStencilSettings stencil;
     stencil.setDisabled();
     this->flushStencil(stencil);

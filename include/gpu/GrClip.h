@@ -11,53 +11,8 @@
 #include "GrFragmentProcessor.h"
 #include "GrTypesPriv.h"
 
+class GrAppliedClip;
 class GrDrawContext;
-
-/**
- * Produced by GrClip. It provides a set of modifications to the drawing state that are used to
- * create the final GrPipeline for a GrBatch.
- */
-class GrAppliedClip : public SkNoncopyable {
-public:
-    GrAppliedClip(const SkRect& drawBounds)
-        : fHasStencilClip(false)
-        , fClippedDrawBounds(drawBounds) {
-    }
-
-    const GrScissorState& scissorState() const { return fScissorState; }
-    GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP.get(); }
-    bool hasStencilClip() const { return fHasStencilClip; }
-
-    /**
-     * Intersects the applied clip with the provided rect. Returns false if the draw became empty.
-     */
-    bool addScissor(const SkIRect& irect) {
-        return fScissorState.intersect(irect) && fClippedDrawBounds.intersect(SkRect::Make(irect));
-    }
-
-    void addCoverageFP(sk_sp<GrFragmentProcessor> fp) {
-        SkASSERT(!fClipCoverageFP);
-        fClipCoverageFP = fp;
-    }
-
-    void addStencilClip() {
-        SkASSERT(!fHasStencilClip);
-        fHasStencilClip = true;
-    }
-
-    /**
-     * Returns the device bounds of the draw after clip has been applied. TODO: Ideally this would
-     * consider the combined effect of all clipping techniques in play (scissor, stencil, fp, etc.).
-     */
-    const SkRect& clippedDrawBounds() const { return fClippedDrawBounds; }
-
-private:
-    GrScissorState             fScissorState;
-    sk_sp<GrFragmentProcessor> fClipCoverageFP;
-    bool                       fHasStencilClip;
-    SkRect                     fClippedDrawBounds;
-    typedef SkNoncopyable INHERITED;
-};
 
 /**
  * GrClip is an abstract base class for applying a clip. It constructs a clip mask if necessary, and
