@@ -17,6 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrImageIDTextureAdjuster.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #endif
@@ -193,8 +194,6 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
     *dst = fBitmap;
     return true;
 }
-
-#include "GrImageIDTextureAdjuster.h"
 
 GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& params,
                                         SkSourceGammaTreatment gammaTreatment) const {

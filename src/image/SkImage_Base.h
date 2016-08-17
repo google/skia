@@ -8,10 +8,13 @@
 #ifndef SkImage_Base_DEFINED
 #define SkImage_Base_DEFINED
 
-#include "GrTexture.h"
 #include "SkAtomics.h"
 #include "SkImage.h"
 #include "SkSurface.h"
+
+#if SK_SUPPORT_GPU
+    #include "GrTexture.h"
+#endif
 
 #include <new>
 
@@ -41,7 +44,9 @@ public:
                               int srcX, int srcY, CachingHint) const;
 
     virtual GrTexture* peekTexture() const { return nullptr; }
+#if SK_SUPPORT_GPU
     virtual sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const { return nullptr; }
+#endif
     virtual SkImageCacherator* peekCacherator() const { return nullptr; }
 
     // return a read-only copy of the pixels. We promise to not modify them,
