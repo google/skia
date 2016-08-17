@@ -55,12 +55,12 @@ SK_API void sk_paint_set_color(sk_paint_t*, sk_color_t);
     Return true iff stroking is enabled rather than filling on this
     sk_paint_t.
 */
-SK_API bool sk_paint_is_stroke(const sk_paint_t*);
+SK_API sk_paint_style_t sk_paint_get_style(const sk_paint_t*);
 /**
     Set to true to enable stroking rather than filling with this
     sk_paint_t.
 */
-SK_API void sk_paint_set_stroke(sk_paint_t*, bool);
+SK_API void sk_paint_set_style(sk_paint_t*, sk_paint_style_t);
 /**
     Return the width for stroking.  A value of 0 strokes in hairline mode.
  */

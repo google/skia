@@ -45,12 +45,12 @@ void sk_paint_set_maskfilter(sk_paint_t* cpaint, sk_maskfilter_t* cfilter) {
     AsPaint(cpaint)->setMaskFilter(sk_ref_sp(AsMaskFilter(cfilter)));
 }
 
-bool sk_paint_is_stroke(const sk_paint_t* cpaint) {
-    return AsPaint(*cpaint).getStyle() != SkPaint::kFill_Style;
+sk_paint_style_t sk_paint_get_style(const sk_paint_t* cpaint) {
+    return (sk_paint_style_t)AsPaint(*cpaint).getStyle();
 }
 
-void sk_paint_set_stroke(sk_paint_t* cpaint, bool doStroke) {
-    AsPaint(cpaint)->setStyle(doStroke ? SkPaint::kStroke_Style : SkPaint::kFill_Style);
+void sk_paint_set_style(sk_paint_t* cpaint, sk_paint_style_t style) {
+    AsPaint(cpaint)->setStyle((SkPaint::Style)style);
 }
 
 float sk_paint_get_stroke_width(const sk_paint_t* cpaint) {
