@@ -15,7 +15,7 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
 
-const char* GrGLSLFragmentShaderBuilder::kDstTextureColorName = "_dstColor";
+const char* GrGLSLFragmentShaderBuilder::kDstColorName = "_dstColor";
 
 static const char* sample_offset_array_name(GrGLSLFPFragmentBuilder::Coordinates coords) {
     static const char* kArrayNames[] = {
@@ -264,11 +264,11 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
             this->enableCustomOutput();
             fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
             fbFetchColorName = DeclaredColorOutputName();
+            // Set the dstColor to an intermediate variable so we don't override it with the output
+            this->codeAppendf("vec4 %s = %s;", kDstColorName, fbFetchColorName);
         }
-        return fbFetchColorName;
-    } else {
-        return kDstTextureColorName;
     }
+    return kDstColorName;
 }
 
 void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEquation equation) {

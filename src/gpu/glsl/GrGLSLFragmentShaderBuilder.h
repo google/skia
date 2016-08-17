@@ -212,7 +212,7 @@ private:
     void onFinalize() override;
     void defineSampleOffsetArray(const char* name, const SkMatrix&);
 
-    static const char* kDstTextureColorName;
+    static const char* kDstColorName;
 
     /*
      * State that tracks which child proc in the proc tree is currently emitting code.  This is

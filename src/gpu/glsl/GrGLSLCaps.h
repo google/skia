@@ -91,6 +91,8 @@ public:
 
     bool mustForceNegatedAtanParamToFloat() const { return fMustForceNegatedAtanParamToFloat; }
 
+    bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
+
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
     // this function, the caller should check that shaderDerivativeSupport exists.
@@ -199,6 +201,7 @@ private:
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
     bool fMustForceNegatedAtanParamToFloat : 1;
+    bool fRequiresLocalOutputColorForFBFetch : 1;
 
     const char* fVersionDeclString;
 

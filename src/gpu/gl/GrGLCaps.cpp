@@ -792,6 +792,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     if (kIntel_GrGLVendor == ctxInfo.vendor()) {
         glslCaps->fMustForceNegatedAtanParamToFloat = true;
     }
+
+    // On Adreno devices with framebuffer fetch support, there is a bug where they always return
+    // the original dst color when reading the outColor even after being written to. By using a
+    // local outColor we can work around this bug.
+    if (glslCaps->fFBFetchSupport && kQualcomm_GrGLVendor == ctxInfo.vendor()) {
+        glslCaps->fRequiresLocalOutputColorForFBFetch = true;
+    }
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
