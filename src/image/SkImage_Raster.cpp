@@ -115,8 +115,20 @@ public:
         return fBitmap.pixelRef() && fBitmap.pixelRef()->isLazyGenerated();
     }
 
+#if SK_SUPPORT_GPU
+    sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override;
+    void onPinAsTexture(GrContext*) const override;
+    void onUnpinAsTexture(GrContext*) const override;
+#endif
+
 private:
     SkBitmap fBitmap;
+
+#if SK_SUPPORT_GPU
+    mutable sk_sp<GrTexture> fPinnedTexture;
+    mutable int32_t fPinnedCount = 0;
+    mutable uint32_t fPinnedUniqueID = 0;
+#endif
 
     typedef SkImage_Base INHERITED;
 };
@@ -149,7 +161,11 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, const SkIPoint&
     SkASSERT(fBitmap.isImmutable());
 }
 
-SkImage_Raster::~SkImage_Raster() {}
+SkImage_Raster::~SkImage_Raster() {
+#if SK_SUPPORT_GPU
+    SkASSERT(nullptr == fPinnedTexture.get());  // want the caller to have manually unpinned
+#endif
+}
 
 bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                                   int srcX, int srcY, CachingHint) const {
@@ -178,6 +194,8 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
     return true;
 }
 
+#include "GrImageIDTextureAdjuster.h"
+
 GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& params,
                                         SkSourceGammaTreatment gammaTreatment) const {
 #if SK_SUPPORT_GPU
@@ -185,11 +203,63 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& p
         return nullptr;
     }
 
+    uint32_t uniqueID;
+    sk_sp<GrTexture> tex = this->refPinnedTexture(&uniqueID);
+    if (tex) {
+        GrTextureAdjuster adjuster(fPinnedTexture.get(), fBitmap.bounds(),
+                                   fPinnedUniqueID, fBitmap.colorSpace());
+        return adjuster.refTextureSafeForParams(params, gammaTreatment, nullptr);
+    }
+
     return GrRefCachedBitmapTexture(ctx, fBitmap, params, gammaTreatment);
 #endif
 
     return nullptr;
 }
+
+#if SK_SUPPORT_GPU
+
+sk_sp<GrTexture> SkImage_Raster::refPinnedTexture(uint32_t* uniqueID) const {
+    if (fPinnedTexture) {
+        SkASSERT(fPinnedCount > 0);
+        SkASSERT(fPinnedUniqueID != 0);
+        *uniqueID = fPinnedUniqueID;
+        return fPinnedTexture;
+    }
+    return nullptr;
+}
+
+void SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
+    if (fPinnedTexture) {
+        SkASSERT(fPinnedCount > 0);
+        SkASSERT(fPinnedUniqueID != 0);
+        SkASSERT(fPinnedTexture->getContext() == ctx);
+    } else {
+        SkASSERT(fPinnedCount == 0);
+        SkASSERT(fPinnedUniqueID == 0);
+        fPinnedTexture.reset(GrRefCachedBitmapTexture(ctx, fBitmap,
+                                                      GrTextureParams::ClampNoFilter(),
+                                                      SkSourceGammaTreatment::kRespect));
+        fPinnedUniqueID = fBitmap.getGenerationID();
+    }
+    // Note: we always increment, even if we failed to create the pinned texture
+    ++fPinnedCount;
+}
+
+void SkImage_Raster::onUnpinAsTexture(GrContext* ctx) const {
+    // Note: we always decrement, even if fPinnedTexture is null
+    SkASSERT(fPinnedCount > 0);
+    SkASSERT(fPinnedUniqueID != 0);
+    if (fPinnedTexture) {
+        SkASSERT(fPinnedTexture->getContext() == ctx);
+    }
+
+    if (0 == --fPinnedCount) {
+        fPinnedTexture.reset(nullptr);
+        fPinnedUniqueID = 0;
+    }
+}
+#endif
 
 sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset) const {
     // TODO : could consider heurist of sharing pixels, if subset is pretty close to complete

@@ -43,6 +43,10 @@ public:
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     GrTexture* peekTexture() const override { return fTexture; }
+    sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override {
+        *uniqueID = this->uniqueID();
+        return sk_ref_sp(fTexture.get());
+    }
     bool isOpaque() const override;
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;

@@ -77,4 +77,29 @@ extern void SkTextureImageSetTexture(SkImage* image, GrTexture* texture);
 
 GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted);
 
+/**
+ *  Will attempt to upload and lock the contents of the image as a texture, so that subsequent
+ *  draws to a gpu-target will come from that texture (and not by looking at the original image
+ *  src). In particular this is intended to use the texture even if the image's original content
+ *  changes subsequent to this call (i.e. the src is mutable!).
+ *
+ *  This must be balanced by an equal number of calls to SkImage_unpinAsTexture() -- calls can be
+ *  nested.
+ *
+ *  Once in this "pinned" state, the image has all of the same thread restrictions that exist
+ *  for a natively created gpu image (e.g. SkImage::MakeFromTexture)
+ *  - all drawing, pinning, unpinning must happen in the same thread as the GrContext.
+ */
+void SkImage_pinAsTexture(const SkImage*, GrContext*);
+
+/**
+ *  The balancing call to SkImage_pinAsTexture. When a balanced number of calls have been made, then
+ *  the "pinned" texture is free to be purged, etc. This also means that a subsequent "pin" call
+ *  will look at the original content again, and if its uniqueID/generationID has changed, then
+ *  a newer texture will be uploaded/pinned.
+ *
+ *  The context passed to unpin must match the one passed to pin.
+ */
+void SkImage_unpinAsTexture(const SkImage*, GrContext*);
+
 #endif

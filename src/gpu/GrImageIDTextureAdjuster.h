@@ -15,11 +15,6 @@ class SkBitmap;
 class SkImage_Base;
 class SkImageCacherator;
 
-class GrImageTextureAdjuster : public GrTextureAdjuster {
-public:
-    explicit GrImageTextureAdjuster(const SkImage_Base* img);
-};
-
 /** This class manages the conversion of SW-backed bitmaps to GrTextures. If the input bitmap is
     non-volatile the texture is cached using a key created from the pixels' image id and the
     subset of the pixelref specified by the bitmap. */

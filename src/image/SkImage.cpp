@@ -511,3 +511,17 @@ sk_sp<SkImage> SkImageDeserializer::makeFromMemory(const void* data, size_t leng
                                                    const SkIRect* subset) {
     return SkImage::MakeFromEncoded(SkData::MakeWithCopy(data, length), subset);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkImage_pinAsTexture(const SkImage* image, GrContext* ctx) {
+    SkASSERT(image);
+    SkASSERT(ctx);
+    as_IB(image)->onPinAsTexture(ctx);
+}
+
+void SkImage_unpinAsTexture(const SkImage* image, GrContext* ctx) {
+    SkASSERT(image);
+    SkASSERT(ctx);
+    as_IB(image)->onUnpinAsTexture(ctx);
+}

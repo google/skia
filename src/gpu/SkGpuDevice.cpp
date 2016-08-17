@@ -1315,9 +1315,11 @@ void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x
     ASSERT_SINGLE_OWNER
     SkMatrix viewMatrix = *draw.fMatrix;
     viewMatrix.preTranslate(x, y);
-    if (as_IB(image)->peekTexture()) {
+    uint32_t pinnedUniqueID;
+    if (sk_sp<GrTexture> tex = as_IB(image)->refPinnedTexture(&pinnedUniqueID)) {
         CHECK_SHOULD_DRAW(draw);
-        GrImageTextureAdjuster adjuster(as_IB(image));
+        GrTextureAdjuster adjuster(tex.get(), image->bounds(), pinnedUniqueID,
+                                   as_IB(image)->onImageInfo().colorSpace());
         this->drawTextureProducer(&adjuster, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
                                   viewMatrix, fClip, paint);
         return;
@@ -1345,9 +1347,11 @@ void SkGpuDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const 
                                 const SkRect& dst, const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
     ASSERT_SINGLE_OWNER
-    if (as_IB(image)->peekTexture()) {
+    uint32_t pinnedUniqueID;
+    if (sk_sp<GrTexture> tex = as_IB(image)->refPinnedTexture(&pinnedUniqueID)) {
         CHECK_SHOULD_DRAW(draw);
-        GrImageTextureAdjuster adjuster(as_IB(image));
+        GrTextureAdjuster adjuster(tex.get(), image->bounds(), pinnedUniqueID,
+                                   as_IB(image)->onImageInfo().colorSpace());
         this->drawTextureProducer(&adjuster, src, &dst, constraint, *draw.fMatrix, fClip, paint);
         return;
     }
@@ -1414,8 +1418,11 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
 void SkGpuDevice::drawImageNine(const SkDraw& draw, const SkImage* image,
                                 const SkIRect& center, const SkRect& dst, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    if (as_IB(image)->peekTexture()) {
-        GrImageTextureAdjuster adjuster(as_IB(image));
+    uint32_t pinnedUniqueID;
+    if (sk_sp<GrTexture> tex = as_IB(image)->refPinnedTexture(&pinnedUniqueID)) {
+        CHECK_SHOULD_DRAW(draw);
+        GrTextureAdjuster adjuster(tex.get(), image->bounds(), pinnedUniqueID,
+                                   as_IB(image)->onImageInfo().colorSpace());
         this->drawProducerNine(draw, &adjuster, center, dst, paint);
     } else {
         SkBitmap bm;

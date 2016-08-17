@@ -17,17 +17,6 @@
 
 static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }
 
-// By construction this texture adjuster always represents an entire SkImage, so use the
-// image's dimensions for the key's rectangle.
-GrImageTextureAdjuster::GrImageTextureAdjuster(const SkImage_Base* img)
-    : GrTextureAdjuster(img->peekTexture(), SkIRect::MakeSize(img->dimensions()), img->uniqueID(),
-                        img->onImageInfo().colorSpace())
-{
-    SkASSERT(img->peekTexture());
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& bitmap)
     : INHERITED(context, bitmap.width(), bitmap.height(), bmp_is_alpha_only(bitmap))
     , fBitmap(bitmap)

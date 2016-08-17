@@ -8,6 +8,7 @@
 #ifndef SkImage_Base_DEFINED
 #define SkImage_Base_DEFINED
 
+#include "GrTexture.h"
 #include "SkAtomics.h"
 #include "SkImage.h"
 #include "SkSurface.h"
@@ -40,6 +41,7 @@ public:
                               int srcX, int srcY, CachingHint) const;
 
     virtual GrTexture* peekTexture() const { return nullptr; }
+    virtual sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const { return nullptr; }
     virtual SkImageCacherator* peekCacherator() const { return nullptr; }
 
     // return a read-only copy of the pixels. We promise to not modify them,
@@ -68,6 +70,9 @@ public:
     void notifyAddedToCache() const {
         fAddedToCache.store(true);
     }
+
+    virtual void onPinAsTexture(GrContext*) const {}
+    virtual void onUnpinAsTexture(GrContext*) const {}
 
 private:
     // Set true by caches when they cache content that's derived from the current pixels.
