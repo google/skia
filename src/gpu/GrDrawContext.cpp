@@ -35,8 +35,6 @@
 
 #include "../private/GrAuditTrail.h"
 
-#include "SkLatticeIter.h"
-
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fDrawingManager->getContext())
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
@@ -1001,23 +999,23 @@ void GrDrawContext::drawOval(const GrClip& clip,
     this->internalDrawPath(clip, paint, viewMatrix, path, style);
 }
 
-void GrDrawContext::drawImageLattice(const GrClip& clip,
-                                     const GrPaint& paint,
-                                     const SkMatrix& viewMatrix,
-                                     int imageWidth,
-                                     int imageHeight,
-                                     std::unique_ptr<SkLatticeIter> iter,
-                                     const SkRect& dst) {
+void GrDrawContext::drawImageNine(const GrClip& clip,
+                                  const GrPaint& paint,
+                                  const SkMatrix& viewMatrix,
+                                  int imageWidth,
+                                  int imageHeight,
+                                  const SkIRect& center,
+                                  const SkRect& dst) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawImageLattice");
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawImageNine");
 
     AutoCheckFlush acf(fDrawingManager);
 
     SkAutoTUnref<GrDrawBatch> batch(GrNinePatch::CreateNonAA(paint.getColor(), viewMatrix,
                                                              imageWidth, imageHeight,
-                                                             std::move(iter), dst));
+                                                             center, dst));
 
     GrPipelineBuilder pipelineBuilder(paint, this->mustUseHWAA(paint));
     this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);

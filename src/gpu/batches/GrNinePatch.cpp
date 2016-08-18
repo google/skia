@@ -29,14 +29,15 @@ public:
 
     static const int kVertsPerRect = 4;
     static const int kIndicesPerRect = 6;
+    static const int kRectsPerInstance = 9; // We could skip empty rects
 
     GrNonAANinePatchBatch(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
-                          int imageHeight, std::unique_ptr<SkLatticeIter> iter, const SkRect &dst)
+                          int imageHeight, const SkIRect& center, const SkRect &dst)
         : INHERITED(ClassID()) {
         Patch& patch = fPatches.push_back();
         patch.fViewMatrix = viewMatrix;
         patch.fColor = color;
-        patch.fIter = std::move(iter);
+        patch.fCenter = center;
         patch.fDst = dst;
 
         fImageWidth = imageWidth;
@@ -52,9 +53,12 @@ public:
         SkString str;
 
         for (int i = 0; i < fPatches.count(); ++i) {
-            str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+            str.appendf("%d: Color: 0x%08x Center [L: %d, T: %d, R: %d, B: %d], "
+                        "Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
                         i,
                         fPatches[i].fColor,
+                        fPatches[i].fCenter.fLeft, fPatches[i].fCenter.fTop,
+                        fPatches[i].fCenter.fRight, fPatches[i].fCenter.fBottom,
                         fPatches[i].fDst.fLeft, fPatches[i].fDst.fTop,
                         fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
         }
@@ -80,39 +84,34 @@ private:
 
         size_t vertexStride = gp->getVertexStride();
         int patchCnt = fPatches.count();
-        int numRects = 0;
-        for (int i = 0; i < patchCnt; i++) {
-            numRects += fPatches[i].fIter->numRects();
-        }
 
         SkAutoTUnref<const GrBuffer> indexBuffer(
                 target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
                                      indexBuffer, kVertsPerRect,
-                                     kIndicesPerRect, patchCnt * numRects);
+                                     kIndicesPerRect, patchCnt * kRectsPerInstance);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
-        intptr_t verts = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < patchCnt; i++) {
-            const Patch& patch = fPatches[i];
+            intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
+                             i * kRectsPerInstance * kVertsPerRect * vertexStride;
 
-            // Apply the view matrix here if it is scale-translate.  Otherwise, we need to
-            // wait until we've created the dst rects.
-            bool isScaleTranslate = patch.fViewMatrix.isScaleTranslate();
-            if (isScaleTranslate) {
-                patch.fIter->mapDstScaleTranslate(patch.fViewMatrix);
-            }
+            const Patch& patch = fPatches[i];
+            SkLatticeIter iter(fImageWidth, fImageHeight, patch.fCenter, patch.fDst);
 
             SkRect srcR, dstR;
-            intptr_t patchVerts = verts;
-            while (patch.fIter->next(&srcR, &dstR)) {
+            while (iter.next(&srcR, &dstR)) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(verts);
+
                 positions->setRectFan(dstR.fLeft, dstR.fTop,
                                       dstR.fRight, dstR.fBottom, vertexStride);
+
+                SkASSERT(!patch.fViewMatrix.hasPerspective());
+                patch.fViewMatrix.mapPointsWithStride(positions, vertexStride, kVertsPerRect);
 
                 // Setup local coords
                 static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
@@ -126,13 +125,6 @@ private:
                     vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
                 }
                 verts += kVertsPerRect * vertexStride;
-            }
-
-            // If we didn't handle it above, apply the matrix here.
-            if (!isScaleTranslate) {
-                SkPoint* positions = reinterpret_cast<SkPoint*>(patchVerts);
-                patch.fViewMatrix.mapPointsWithStride(positions, vertexStride,
-                                                      kVertsPerRect * patch.fIter->numRects());
             }
         }
         helper.recordDraw(target, gp.get());
@@ -159,14 +151,14 @@ private:
             fOverrides = that->fOverrides;
         }
 
-        fPatches.move_back_n(that->fPatches.count(), that->fPatches.begin());
+        fPatches.push_back_n(that->fPatches.count(), that->fPatches.begin());
         this->joinBounds(*that);
         return true;
     }
 
     struct Patch {
         SkMatrix fViewMatrix;
-        std::unique_ptr<SkLatticeIter> fIter;
+        SkIRect fCenter;
         SkRect fDst;
         GrColor fColor;
     };
@@ -181,8 +173,7 @@ private:
 
 namespace GrNinePatch {
 GrDrawBatch* CreateNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth, int imageHeight,
-                         std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
-    return new GrNonAANinePatchBatch(color, viewMatrix, imageWidth, imageHeight, std::move(iter),
-                                     dst);
+                         const SkIRect& center, const SkRect& dst) {
+    return new GrNonAANinePatchBatch(color, viewMatrix, imageWidth, imageHeight, center, dst);
 }
 };

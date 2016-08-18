@@ -159,7 +159,6 @@ SkLatticeIter::SkLatticeIter(int srcWidth, int srcHeight, const SkCanvas::Lattic
 
     fCurrX = fCurrY = 0;
     fDone = false;
-    fNumRects = (xCount + 1) * (yCount + 1);
 }
 
 bool SkLatticeIter::Valid(int width, int height, const SkIRect& center) {
@@ -206,7 +205,6 @@ SkLatticeIter::SkLatticeIter(int w, int h, const SkIRect& c, const SkRect& dst) 
 
     fCurrX = fCurrY = 0;
     fDone = false;
-    fNumRects = 9;
 }
 
 bool SkLatticeIter::next(SkRect* src, SkRect* dst) {
@@ -229,19 +227,4 @@ bool SkLatticeIter::next(SkRect* src, SkRect* dst) {
         }
     }
     return true;
-}
-
-void SkLatticeIter::mapDstScaleTranslate(const SkMatrix& matrix) {
-    SkASSERT(matrix.isScaleTranslate());
-    SkScalar tx = matrix.getTranslateX();
-    SkScalar sx = matrix.getScaleX();
-    for (int i = 0; i < fDstX.count(); i++) {
-        fDstX[i] = fDstX[i] * sx + tx;
-    }
-
-    SkScalar ty = matrix.getTranslateY();
-    SkScalar sy = matrix.getScaleY();
-    for (int i = 0; i < fDstY.count(); i++) {
-        fDstY[i] = fDstY[i] * sy + ty;
-    }
 }
