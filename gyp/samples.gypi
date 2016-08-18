@@ -29,6 +29,7 @@
     '../samplecode/SampleAnimBlur.cpp',
     '../samplecode/SampleArc.cpp',
     '../samplecode/SampleAtlas.cpp',
+    '../samplecode/SampleBevel.cpp',
     '../samplecode/SampleBigBlur.cpp',
     '../samplecode/SampleBigGradient.cpp',
     '../samplecode/SampleBitmapRect.cpp',
