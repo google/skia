@@ -145,19 +145,18 @@ private:
                                          v.fsIn(), v.fsIn());
                 fragBuilder->codeAppend("float innerAlpha = clamp(distanceToInnerEdge, 0.0, 1.0);");
                 fragBuilder->codeAppend("edgeAlpha *= innerAlpha;");
-            } else {
-                fragBuilder->codeAppend("float distanceToInnerEdge = 0.0;");
             }
 
             if (args.fDistanceVectorName) {
+                const char* innerEdgeDistance = cgp.fStroke ? "distanceToInnerEdge" : "0.0";
                 fragBuilder->codeAppend ("if (d == 0.0) {"); // if on the center of the circle
                 fragBuilder->codeAppendf("    %s = vec4(1.0, 0.0, distanceToOuterEdge, "
-                                         "distanceToInnerEdge);", // no normalize
-                                         args.fDistanceVectorName);
+                                         "%s);", // no normalize
+                                         args.fDistanceVectorName, innerEdgeDistance);
                 fragBuilder->codeAppend ("} else {");
                 fragBuilder->codeAppendf("    %s = vec4(normalize(%s.xy), distanceToOuterEdge, "
-                                         "distanceToInnerEdge);",
-                                         args.fDistanceVectorName, v.fsIn());
+                                         "%s);",
+                                         args.fDistanceVectorName, v.fsIn(), innerEdgeDistance);
                 fragBuilder->codeAppend ("}");
             }
 
