@@ -78,10 +78,7 @@ void GrBufferAllocPool::reset() {
     VALIDATE();
     fBytesInUse = 0;
     this->deleteBlocks();
-
-    // we may have created a large cpu mirror of a large VB. Reset the size to match our minimum.
-    this->resetCpuData(fMinBlockSize);
-
+    this->resetCpuData(0);      // delete all the cpu-side memory
     VALIDATE();
 }
 
