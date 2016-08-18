@@ -27,6 +27,7 @@ struct SkCpu {
         NEON     = 1 << 0,
         NEON_FMA = 1 << 1,
         VFP_FP16 = 1 << 2,
+        CRC32    = 1 << 3,
     };
 
     static void CacheRuntimeFeatures();
@@ -77,6 +78,10 @@ inline bool SkCpu::Supports(uint32_t mask) {
 
     #if defined(SK_CPU_ARM64)
     features |= NEON|NEON_FMA|VFP_FP16;
+    #endif
+
+    #if defined(__ARM_FEATURE_CRC32)
+    features |= CRC32;
     #endif
 
 #endif
