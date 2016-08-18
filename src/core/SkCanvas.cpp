@@ -175,19 +175,6 @@ void SkCanvas::predrawNotify(const SkRect* rect, const SkPaint* paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static uint32_t filter_paint_flags(const SkSurfaceProps& props, uint32_t flags) {
-    const uint32_t propFlags = props.flags();
-    if (propFlags & SkSurfaceProps::kDisallowDither_Flag) {
-        flags &= ~SkPaint::kDither_Flag;
-    }
-    if (propFlags & SkSurfaceProps::kDisallowAntiAlias_Flag) {
-        flags &= ~SkPaint::kAntiAlias_Flag;
-    }
-    return flags;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 /*  This is the record we keep for each SkBaseDevice that the user installs.
     The clip/matrix/proc are fields that reflect the top of the save/restore
     stack. Whenever the canvas changes, it marks a dirty flag, and then before
@@ -507,15 +494,6 @@ public:
             // can we be marked as simple?
             fIsSimple = !fFilter && !fTempLayerForImageFilter;
         }
-
-        uint32_t oldFlags = paint.getFlags();
-        fNewPaintFlags = filter_paint_flags(props, oldFlags);
-        if (fIsSimple && (fNewPaintFlags != oldFlags)) {
-            SkPaint* paint = set_if_needed(&fLazyPaintInit, fOrigPaint);
-            paint->setFlags(fNewPaintFlags);
-            fPaint = paint;
-            // if we're not simple, doNext() will take care of calling setFlags()
-        }
     }
 
     ~AutoDrawLooper() {
@@ -549,7 +527,6 @@ private:
     SkDrawFilter*   fFilter;
     const SkPaint*  fPaint;
     int             fSaveCount;
-    uint32_t        fNewPaintFlags;
     bool            fTempLayerForImageFilter;
     bool            fDone;
     bool            fIsSimple;
@@ -566,7 +543,6 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
 
     SkPaint* paint = fLazyPaintPerLooper.set(fLazyPaintInit.isValid() ?
                                              *fLazyPaintInit.get() : fOrigPaint);
-    paint->setFlags(fNewPaintFlags);
 
     if (fTempLayerForImageFilter) {
         paint->setImageFilter(nullptr);

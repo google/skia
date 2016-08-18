@@ -21,17 +21,8 @@ static sk_sp<SkShader> make_shader() {
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
-static sk_sp<SkSurface> make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo,
-                                     int disallowAA, int disallowDither) {
-    uint32_t flags = 0;
-    if (disallowAA) {
-        flags |= SkSurfaceProps::kDisallowAntiAlias_Flag;
-    }
-    if (disallowDither) {
-        flags |= SkSurfaceProps::kDisallowDither_Flag;
-    }
-
-    SkSurfaceProps props(flags, geo);
+static sk_sp<SkSurface> make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo) {
+    SkSurfaceProps props(0, geo);
     if (ctx) {
         return SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
     } else {
@@ -67,7 +58,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(W * 4, H * 5);
+        return SkISize::Make(W, H * 5);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -89,23 +80,16 @@ protected:
         };
 
         SkScalar x = 0;
-        for (int disallowAA = 0; disallowAA <= 1; ++disallowAA) {
-            for (int disallowDither = 0; disallowDither <= 1; ++disallowDither) {
-                SkScalar y = 0;
-                for (const auto& rec : recs) {
-                    auto surface(make_surface(ctx, info, rec.fGeo, disallowAA, disallowDither));
-                    if (!surface) {
-                        SkDebugf("failed to create surface! label: %s AA: %s dither: %s\n",
-                                 rec.fLabel, (disallowAA == 1 ? "disallowed" : "allowed"),
-                                 (disallowDither == 1 ? "disallowed" : "allowed"));
-                        continue;
-                    }
-                    test_draw(surface->getCanvas(), rec.fLabel);
-                    surface->draw(canvas, x, y, nullptr);
-                    y += H;
-                }
-                x += W;
+        SkScalar y = 0;
+        for (const auto& rec : recs) {
+            auto surface(make_surface(ctx, info, rec.fGeo));
+            if (!surface) {
+                SkDebugf("failed to create surface! label: %s", rec.fLabel);
+                continue;
             }
+            test_draw(surface->getCanvas(), rec.fLabel);
+            surface->draw(canvas, x, y, nullptr);
+            y += H;
         }
     }
 
