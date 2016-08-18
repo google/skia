@@ -1615,7 +1615,7 @@ private:
      *  Keep track of the device clip bounds and if the matrix is scale-translate.  This allows
      *  us to do a fast quick reject in the common case.
      */
-    bool   fConservativeIsScaleTranslate;
+    bool   fIsScaleTranslate;
     SkRect fDeviceClipBounds;
 
     bool fAllowSoftClip;

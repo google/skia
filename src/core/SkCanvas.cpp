@@ -625,7 +625,7 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
     // know that the device is an SkBitmapDevice (really an SkNoPixelsBitmapDevice).
     static_cast<SkBitmapDevice*>(fMCRec->fLayer->fDevice)->setNewSize(bounds.size());
     fDeviceClipBounds = qr_clip_bounds(bounds);
-    fConservativeIsScaleTranslate = true;
+    fIsScaleTranslate = true;
 }
 
 SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
@@ -649,6 +649,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(fConservativeRasterClip);
+    fIsScaleTranslate = true;
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
     fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
@@ -665,7 +666,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
         fMCRec->fLayer->fDevice = SkRef(device);
         fMCRec->fRasterClip.setRect(device->getGlobalBounds());
         fDeviceClipBounds = qr_clip_bounds(device->getGlobalBounds());
-        fConservativeIsScaleTranslate = true;
     }
 
     return device;
@@ -1323,7 +1323,7 @@ void SkCanvas::internalRestore() {
     }
 
     if (fMCRec) {
-        fConservativeIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+        fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
         fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
     }
 }
@@ -1481,7 +1481,7 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     this->checkForDeferredSave();
     fDeviceCMDirty = true;
     fMCRec->fMatrix.preConcat(matrix);
-    fConservativeIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+    fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
     this->didConcat(matrix);
 }
 
@@ -1493,7 +1493,7 @@ void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
     this->checkForDeferredSave();
     this->internalSetMatrix(matrix);
-    fConservativeIsScaleTranslate = matrix.isScaleTranslate();
+    fIsScaleTranslate = matrix.isScaleTranslate();
     this->didSetMatrix(matrix);
 }
 
@@ -1839,11 +1839,11 @@ bool SkCanvas::quickReject(const SkRect& src) const {
         SkASSERT(tmp == fDeviceClipBounds);
     }
 
-    // Verify that fConservativeIsScaleTranslate is set properly.
-    SkASSERT(!fConservativeIsScaleTranslate || fMCRec->fMatrix.isScaleTranslate());
+    // Verify that fIsScaleTranslate is set properly.
+    SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
 #endif
 
-    if (!fConservativeIsScaleTranslate) {
+    if (!fIsScaleTranslate) {
         return quick_reject_slow_path(src, fDeviceClipBounds, fMCRec->fMatrix);
     }
 
