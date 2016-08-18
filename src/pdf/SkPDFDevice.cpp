@@ -1153,7 +1153,6 @@ void SkPDFDevice::internalDrawText(
                                     font->multiByteGlyphs(),
                                     defaultPositioning,
                                     offset);
-    SkPDFGlyphSetMap* fontGlyphUsage = fDocument->getGlyphUsage();
     const SkGlyphID* const glyphsEnd = glyphs + glyphCount;
 
     while (glyphs < glyphsEnd) {
@@ -1184,7 +1183,7 @@ void SkPDFDevice::internalDrawText(
                 return;
             }
         }
-        fontGlyphUsage->noteGlyphUsage(font, glyphs, stretch);
+        font->noteGlyphUsage(glyphs, stretch);
         if (defaultPositioning) {
             (void)font->glyphsToPDFFontEncoding(glyphs, SkToInt(glyphsEnd - glyphs));
             while (stretch-- > 0) {
@@ -1316,10 +1315,6 @@ sk_sp<SkPDFDict> SkPDFDevice::makeResourceDict() const {
             &fShaderResources,
             &fXObjectResources,
             &fonts);
-}
-
-const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {
-    return fFontResources;
 }
 
 sk_sp<SkPDFArray> SkPDFDevice::copyMediaBox() const {
@@ -1948,9 +1943,9 @@ int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
     }
     int resourceIndex = fFontResources.find(newFont.get());
     if (resourceIndex < 0) {
+        fDocument->registerFont(newFont.get());
         resourceIndex = fFontResources.count();
-        fFontResources.push(newFont.get());
-        newFont.get()->ref();
+        fFontResources.push(newFont.release());
     }
     return resourceIndex;
 }

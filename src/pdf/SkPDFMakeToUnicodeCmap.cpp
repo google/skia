@@ -149,7 +149,7 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
 // one of them), the possible savings by aggressive optimization is 416KB
 // pre-compressed and does not provide enough motivation for implementation.
 void SkPDFAppendCmapSections(const SkTDArray<SkUnichar>& glyphToUnicode,
-                             const SkPDFGlyphSet* subset,
+                             const SkBitSet* subset,
                              SkDynamicMemoryWStream* cmap,
                              bool multiByteGlyphs,
                              SkGlyphID firstGlyphID,
@@ -212,7 +212,7 @@ void SkPDFAppendCmapSections(const SkTDArray<SkUnichar>& glyphToUnicode,
 
 sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
         const SkTDArray<SkUnichar>& glyphToUnicode,
-        const SkPDFGlyphSet* subset,
+        const SkBitSet* subset,
         bool multiByteGlyphs,
         SkGlyphID firstGlyphID,
         SkGlyphID lastGlyphID) {

@@ -16,11 +16,6 @@ SkBitSet::SkBitSet(int numberOfBits)
     fBitData.set(sk_calloc_throw(fDwordCount * sizeof(uint32_t)));
 }
 
-SkBitSet::SkBitSet(const SkBitSet& source)
-    : fBitData(nullptr), fDwordCount(0), fBitCount(0) {
-    *this = source;
-}
-
 SkBitSet::SkBitSet(SkBitSet&& source)
     : fBitData(source.fBitData.release())
     , fDwordCount(source.fDwordCount)
@@ -29,15 +24,15 @@ SkBitSet::SkBitSet(SkBitSet&& source)
     source.fBitCount = 0;
 }
 
-SkBitSet& SkBitSet::operator=(const SkBitSet& rhs) {
-    if (this == &rhs) {
-        return *this;
+SkBitSet& SkBitSet::operator=(SkBitSet&& rhs) {
+    if (this != &rhs) {
+        fBitCount = rhs.fBitCount;
+        fDwordCount = rhs.fDwordCount;
+        fBitData.reset();  // Free old pointer.
+        fBitData.set(rhs.fBitData.release());
+        rhs.fBitCount = 0;
+        rhs.fDwordCount = 0;
     }
-    fBitCount = rhs.fBitCount;
-    fBitData.reset();
-    fDwordCount = rhs.fDwordCount;
-    fBitData.set(sk_malloc_throw(fDwordCount * sizeof(uint32_t)));
-    memcpy(fBitData.get(), rhs.fBitData.get(), fDwordCount * sizeof(uint32_t));
     return *this;
 }
 

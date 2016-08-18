@@ -17,10 +17,11 @@ public:
     /** NumberOfBits must be greater than zero.
      */
     explicit SkBitSet(int numberOfBits);
-    explicit SkBitSet(const SkBitSet& source);
-    explicit SkBitSet(SkBitSet&&);
+    SkBitSet(const SkBitSet&) = delete;
+    SkBitSet(SkBitSet&&);
+    SkBitSet& operator=(const SkBitSet&) = delete;
+    SkBitSet& operator=(SkBitSet&& rhs);
 
-    SkBitSet& operator=(const SkBitSet& rhs);
     bool operator==(const SkBitSet& rhs);
     bool operator!=(const SkBitSet& rhs);
 
@@ -39,6 +40,15 @@ public:
             *chunk &= ~mask;
         }
     }
+    void set(int index) { this->setBit(index, true); }
+
+    template<typename T>
+    void setAll(T* array, int len) {
+        static_assert(std::is_integral<T>::value, "T is integral");
+        for (int i = 0; i < len; ++i) {
+            this->set(static_cast<int>(array[i]));
+        }
+    }
 
     /** Test if bit index is set.
      */
@@ -46,6 +56,7 @@ public:
         uint32_t mask = 1 << (index & 31);
         return SkToBool(*this->internalGet(index) & mask);
     }
+    bool has(int index) const { return this->isBitSet(index); }
 
     /** Or bits from source.  false is returned if this doesn't have the same
      *  bit count as source.
@@ -56,6 +67,7 @@ public:
      */
     template<typename T>
     void exportTo(SkTDArray<T>* array) const {
+        static_assert(std::is_integral<T>::value, "T is integral");
         SkASSERT(array);
         uint32_t* data = reinterpret_cast<uint32_t*>(fBitData.get());
         for (unsigned int i = 0; i < fDwordCount; ++i) {

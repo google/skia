@@ -176,8 +176,7 @@ sk_sp<SkPDFDict> SkPDFGraphicState::MakeNoSmaskGraphicState() {
 
 void SkPDFGraphicState::emitObject(
         SkWStream* stream,
-        const SkPDFObjNumMap& objNumMap,
-        const SkPDFSubstituteMap& substitutes) const {
+        const SkPDFObjNumMap& objNumMap) const {
     auto dict = sk_make_sp<SkPDFDict>("ExtGState");
     dict->insertName("Type", "ExtGState");
 
@@ -207,5 +206,5 @@ void SkPDFGraphicState::emitObject(
     dict->insertScalar("ML", fStrokeMiter);
     dict->insertBool("SA", true);  // SA = Auto stroke adjustment.
     dict->insertName("BM", as_blend_mode(xferMode));
-    dict->emitObject(stream, objNumMap, substitutes);
+    dict->emitObject(stream, objNumMap);
 }

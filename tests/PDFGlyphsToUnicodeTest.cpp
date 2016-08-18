@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitSet.h"
 #include "SkData.h"
-#include "SkPDFFont.h"
 #include "SkPDFMakeToUnicodeCmap.h"
 #include "SkStream.h"
 #include "Test.h"
+
+static const int kMaximumGlyphCount = SK_MaxU16 + 1;
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const char* buffer, size_t len) {
@@ -26,7 +28,7 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
 DEF_TEST(ToUnicode, reporter) {
     SkTDArray<SkUnichar> glyphToUnicode;
     SkTDArray<uint16_t> glyphsInSubset;
-    SkPDFGlyphSet subset;
+    SkBitSet subset(kMaximumGlyphCount);
 
     glyphToUnicode.push(0);  // 0
     glyphToUnicode.push(0);  // 1
@@ -65,7 +67,7 @@ DEF_TEST(ToUnicode, reporter) {
     glyphToUnicode.push(0x1013);
 
     SkDynamicMemoryWStream buffer;
-    subset.set(glyphsInSubset.begin(), glyphsInSubset.count());
+    subset.setAll(glyphsInSubset.begin(), glyphsInSubset.count());
     SkPDFAppendCmapSections(glyphToUnicode, &subset, &buffer, true, 0, 0xFFFF);
 
     char expectedResult[] =
@@ -136,7 +138,7 @@ endbfrange\n";
 
     glyphToUnicode.reset();
     glyphsInSubset.reset();
-    SkPDFGlyphSet subset2;
+    SkBitSet subset2(kMaximumGlyphCount);
 
     // Test mapping:
     //           I  n  s  t  a  l
@@ -154,7 +156,7 @@ endbfrange\n";
     glyphsInSubset.push(0x57);
 
     SkDynamicMemoryWStream buffer2;
-    subset2.set(glyphsInSubset.begin(), glyphsInSubset.count());
+    subset2.setAll(glyphsInSubset.begin(), glyphsInSubset.count());
     SkPDFAppendCmapSections(glyphToUnicode, &subset2, &buffer2, true, 0, 0xffff);
 
     char expectedResult2[] =

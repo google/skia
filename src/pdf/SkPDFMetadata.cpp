@@ -168,12 +168,11 @@ class PDFXMLObject final : public SkPDFObject {
 public:
     PDFXMLObject(SkString xml) : fXML(std::move(xml)) {}
     void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& omap,
-                    const SkPDFSubstituteMap& smap) const override {
+                    const SkPDFObjNumMap& omap) const override {
         SkPDFDict dict("Metadata");
         dict.insertName("Subtype", "XML");
         dict.insertInt("Length", fXML.size());
-        dict.emitObject(stream, omap, smap);
+        dict.emitObject(stream, omap);
         static const char streamBegin[] = " stream\n";
         stream->write(streamBegin, strlen(streamBegin));
         // Do not compress this.  The standard requires that a

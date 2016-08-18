@@ -70,7 +70,4 @@ DEF_TEST(BitSet, reporter) {
     set3.setBit(0, true);
     REPORTER_ASSERT(reporter, set2 == set3);
     set3.clearAll();
-    set3 = set2;
-    set2 = set2;
-    REPORTER_ASSERT(reporter, set2 == set3);
 }

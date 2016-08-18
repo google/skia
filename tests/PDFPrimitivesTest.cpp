@@ -31,21 +31,14 @@
 
 #define DUMMY_TEXT "DCT compessed stream."
 
-namespace {
-struct Catalog {
-    SkPDFSubstituteMap substitutes;
-    SkPDFObjNumMap numbers;
-};
-}  // namespace
-
 template <typename T>
-static SkString emit_to_string(T& obj, Catalog* catPtr = nullptr) {
-    Catalog catalog;
+static SkString emit_to_string(T& obj, SkPDFObjNumMap* catPtr = nullptr) {
+    SkPDFObjNumMap catalog;
     SkDynamicMemoryWStream buffer;
     if (!catPtr) {
         catPtr = &catalog;
     }
-    obj.emitObject(&buffer, catPtr->numbers, catPtr->substitutes);
+    obj.emitObject(&buffer, *catPtr);
     SkString tmp(buffer.bytesWritten());
     buffer.copyTo(tmp.writable_str());
     return tmp;
@@ -148,30 +141,14 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     sk_sp<SkPDFArray> a2(new SkPDFArray);
     a2->appendObjRef(a1);
 
-    Catalog catalog;
-    catalog.numbers.addObject(a1.get());
-    REPORTER_ASSERT(reporter, catalog.numbers.getObjectNumber(a1.get()) == 1);
+    SkPDFObjNumMap catalog;
+    catalog.addObject(a1.get());
+    REPORTER_ASSERT(reporter, catalog.getObjectNumber(a1.get()) == 1);
 
     SkString result = emit_to_string(*a2, &catalog);
     // If appendObjRef misbehaves, then the result would
     // be [[]], not [1 0 R].
     assert_eq(reporter, result, "[1 0 R]");
-}
-
-static void TestSubstitute(skiatest::Reporter* reporter) {
-    sk_sp<SkPDFDict> proxy(new SkPDFDict());
-    sk_sp<SkPDFDict> stub(new SkPDFDict());
-
-    proxy->insertInt("Value", 33);
-    stub->insertInt("Value", 44);
-
-    SkPDFSubstituteMap substituteMap;
-    substituteMap.setSubstitute(proxy.get(), stub.get());
-    SkPDFObjNumMap catalog;
-    catalog.addObject(proxy.get());
-
-    REPORTER_ASSERT(reporter, stub.get() == substituteMap.getSubstitute(proxy.get()));
-    REPORTER_ASSERT(reporter, proxy.get() != substituteMap.getSubstitute(stub.get()));
 }
 
 // This test used to assert without the fix submitted for
@@ -283,9 +260,9 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
                    "(Another String) [-1]]");
 
     sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
-    Catalog catalog;
-    catalog.numbers.addObject(referencedArray.get());
-    REPORTER_ASSERT(reporter, catalog.numbers.getObjectNumber(
+    SkPDFObjNumMap catalog;
+    catalog.addObject(referencedArray.get());
+    REPORTER_ASSERT(reporter, catalog.getObjectNumber(
                             referencedArray.get()) == 1);
     array->appendObjRef(std::move(referencedArray));
 
@@ -347,9 +324,9 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
     assert_emit_eq(reporter, *dict, "<</Type /DType>>");
 
     sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
-    Catalog catalog;
-    catalog.numbers.addObject(referencedArray.get());
-    REPORTER_ASSERT(reporter, catalog.numbers.getObjectNumber(
+    SkPDFObjNumMap catalog;
+    catalog.addObject(referencedArray.get());
+    REPORTER_ASSERT(reporter, catalog.getObjectNumber(
                             referencedArray.get()) == 1);
     dict->insertObjRef("n1", std::move(referencedArray));
     SkString result = emit_to_string(*dict, &catalog);
@@ -363,7 +340,6 @@ DEF_TEST(PDFPrimitives, reporter) {
     TestPDFStream(reporter);
     TestObjectNumberMap(reporter);
     TestObjectRef(reporter);
-    TestSubstitute(reporter);
     test_issue1083();
 }
 

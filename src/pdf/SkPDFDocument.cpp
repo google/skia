@@ -23,7 +23,7 @@ SkPDFObjectSerializer::~SkPDFObjectSerializer() {
 }
 
 void SkPDFObjectSerializer::addObjectRecursively(const sk_sp<SkPDFObject>& object) {
-    fObjNumMap.addObjectRecursively(object.get(), fSubstituteMap);
+    fObjNumMap.addObjectRecursively(object.get());
 }
 
 #define SKPDF_MAGIC "\xD3\xEB\xE9\xE1"
@@ -58,10 +58,9 @@ void SkPDFObjectSerializer::serializeObjects(SkWStream* wStream) {
         // the head of the linked list of free objects."
         SkASSERT(fOffsets.count() == fNextToBeSerialized);
         fOffsets.push(this->offset(wStream));
-        SkASSERT(object == fSubstituteMap.getSubstitute(object));
         wStream->writeDecAsText(index);
         wStream->writeText(" 0 obj\n");  // Generation number is always 0.
-        object->emitObject(wStream, fObjNumMap, fSubstituteMap);
+        object->emitObject(wStream, fObjNumMap);
         wStream->writeText("\nendobj\n");
         object->drop();
         ++fNextToBeSerialized;
@@ -93,7 +92,7 @@ void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
         trailerDict.insertObject("ID", std::move(id));
     }
     wStream->writeText("trailer\n");
-    trailerDict.emitObject(wStream, fObjNumMap, fSubstituteMap);
+    trailerDict.emitObject(wStream, fObjNumMap);
     wStream->writeText("\nstartxref\n");
     wStream->writeBigDecAsText(xRefFileOffset);
     wStream->writeText("\n%%EOF");
@@ -246,11 +245,15 @@ void SkPDFDocument::onEndPage() {
 }
 
 void SkPDFDocument::onAbort() {
+    this->reset();
+}
+
+void SkPDFDocument::reset() {
     fCanvas.reset(nullptr);
     fPages.reset();
     fCanon.reset();
     renew(&fObjectSerializer);
-    renew(&fGlyphUsage);
+    fFonts.reset();
 }
 
 #ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
@@ -419,10 +422,7 @@ static sk_sp<SkPDFArray> make_srgb_output_intents() {
 bool SkPDFDocument::onClose(SkWStream* stream) {
     SkASSERT(!fCanvas.get());
     if (fPages.empty()) {
-        fPages.reset();
-        fCanon.reset();
-        renew(&fObjectSerializer);
-        renew(&fGlyphUsage);
+        this->reset();
         return false;
     }
     auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
@@ -442,21 +442,12 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
     }
 
     // Build font subsetting info before calling addObjectRecursively().
-    for (const auto& entry : fGlyphUsage) {
-        sk_sp<SkPDFObject> subsetFont =
-            entry.fFont->getFontSubset(&fCanon, &entry.fGlyphSet);
-        if (subsetFont) {
-            fObjectSerializer.fSubstituteMap.setSubstitute(
-                    entry.fFont, subsetFont.get());
-        }
-    }
-
+    SkPDFCanon* canon = &fCanon;
+    fFonts.foreach([canon](SkPDFFont* p){ p->getFontSubset(canon); });
     fObjectSerializer.addObjectRecursively(docCatalog);
     fObjectSerializer.serializeObjects(this->getStream());
     fObjectSerializer.serializeFooter(this->getStream(), docCatalog, fID);
-    fCanon.reset();
-    renew(&fObjectSerializer);
-    renew(&fGlyphUsage);
+    this->reset();
     return true;
 }
 

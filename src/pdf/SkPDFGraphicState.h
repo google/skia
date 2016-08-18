@@ -31,8 +31,7 @@ public:
     // Override emitObject so that we can populate the dictionary on
     // demand.
     void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& substitutes) const override;
+                    const SkPDFObjNumMap& objNumMap) const override;
 
     /** Get the graphic state for the passed SkPaint. The reference count of
      *  the object is incremented and it is the caller's responsibility to

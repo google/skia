@@ -13,14 +13,14 @@
 
 sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
         const SkTDArray<SkUnichar>& glyphToUnicode,
-        const SkPDFGlyphSet* subset,
+        const SkBitSet* subset,
         bool multiByteGlyphs,
         SkGlyphID firstGlyphID,
         SkGlyphID lastGlyphID);
 
 // Exposed for unit testing.
 void SkPDFAppendCmapSections(const SkTDArray<SkUnichar>& glyphToUnicode,
-                             const SkPDFGlyphSet* subset,
+                             const SkBitSet* subset,
                              SkDynamicMemoryWStream* cmap,
                              bool multiByteGlyphs,
                              SkGlyphID firstGlyphID,

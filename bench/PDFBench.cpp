@@ -30,14 +30,13 @@ struct NullWStream : public SkWStream {
 static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
     // SkDebugWStream wStream;
     NullWStream wStream;
-    SkPDFSubstituteMap substitutes;
     SkPDFObjNumMap objNumMap;
-    objNumMap.addObjectRecursively(object.get(), substitutes);
+    objNumMap.addObjectRecursively(object.get());
     for (int i = 0; i < objNumMap.objects().count(); ++i) {
         SkPDFObject* object = objNumMap.objects()[i].get();
         wStream.writeDecAsText(i + 1);
         wStream.writeText(" 0 obj\n");
-        object->emitObject(&wStream, objNumMap, substitutes);
+        object->emitObject(&wStream, objNumMap);
         wStream.writeText("\nendobj\n");
     }
 }

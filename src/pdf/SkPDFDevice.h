@@ -126,10 +126,6 @@ public:
     /** Create the resource dictionary for this device. */
     sk_sp<SkPDFDict> makeResourceDict() const;
 
-    /** Get the fonts used on this device.
-     */
-    const SkTDArray<SkPDFFont*>& getFontResources() const;
-
     /** Add our annotations (link to urls and destinations) to the supplied
      *  array.
      *  @param array Array to add annotations to.
