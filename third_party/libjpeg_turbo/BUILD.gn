@@ -8,7 +8,7 @@ declare_args() {
 
 import("../third_party.gni")
 
-third_party("libjpeg_turbo") {
+third_party("libjpeg") {
   public_include_dirs = [ "../externals/libjpeg-turbo" ]
 
   defines = [ "TURBO_FOR_WINDOWS" ]
