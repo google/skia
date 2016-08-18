@@ -318,22 +318,19 @@ public:
 
 class SkDrawIter : public SkDraw {
 public:
-    SkDrawIter(SkCanvas* canvas, bool skipEmptyClips = true) {
+    SkDrawIter(SkCanvas* canvas) {
         canvas = canvas->canvasForDrawIter();
         fCanvas = canvas;
         canvas->updateDeviceCMCache();
 
         fClipStack = canvas->fClipStack;
         fCurrLayer = canvas->fMCRec->fTopLayer;
-        fSkipEmptyClips = skipEmptyClips;
     }
 
     bool next() {
         // skip over recs with empty clips
-        if (fSkipEmptyClips) {
-            while (fCurrLayer && fCurrLayer->fClip.isEmpty()) {
-                fCurrLayer = fCurrLayer->fNext;
-            }
+        while (fCurrLayer && fCurrLayer->fClip.isEmpty()) {
+            fCurrLayer = fCurrLayer->fNext;
         }
 
         const DeviceCM* rec = fCurrLayer;
@@ -367,7 +364,6 @@ private:
     SkCanvas*       fCanvas;
     const DeviceCM* fCurrLayer;
     const SkPaint*  fPaint;     // May be null.
-    SkBool8         fSkipEmptyClips;
 
     typedef SkDraw INHERITED;
 };
@@ -432,8 +428,7 @@ public:
     // "rawBounds" is the original bounds of the primitive about to be drawn, unmodified by the
     // paint. It's used to determine the size of the offscreen layer for filters.
     // If null, the clip will be used instead.
-    AutoDrawLooper(SkCanvas* canvas, const SkSurfaceProps& props, const SkPaint& paint,
-                   bool skipLayerForImageFilter = false,
+    AutoDrawLooper(SkCanvas* canvas, const SkPaint& paint, bool skipLayerForImageFilter = false,
                    const SkRect* rawBounds = nullptr) : fOrigPaint(paint) {
         fCanvas = canvas;
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
@@ -580,28 +575,28 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
 
 ////////// macros to place around the internal draw calls //////////////////
 
-#define LOOPER_BEGIN_DRAWBITMAP(paint, skipLayerForFilter, bounds)          \
-    this->predrawNotify();                                                  \
-    AutoDrawLooper looper(this, fProps, paint, skipLayerForFilter, bounds); \
-    while (looper.next(SkDrawFilter::kBitmap_Type)) {                       \
+#define LOOPER_BEGIN_DRAWBITMAP(paint, skipLayerForFilter, bounds)  \
+    this->predrawNotify();                                          \
+    AutoDrawLooper looper(this, paint, skipLayerForFilter, bounds); \
+    while (looper.next(SkDrawFilter::kBitmap_Type)) {               \
         SkDrawIter iter(this);
 
 
 #define LOOPER_BEGIN_DRAWDEVICE(paint, type)                        \
     this->predrawNotify();                                          \
-    AutoDrawLooper  looper(this, fProps, paint, true);              \
+    AutoDrawLooper  looper(this, paint, true);                      \
     while (looper.next(type)) {                                     \
         SkDrawIter          iter(this);
 
 #define LOOPER_BEGIN(paint, type, bounds)                           \
     this->predrawNotify();                                          \
-    AutoDrawLooper  looper(this, fProps, paint, false, bounds);     \
+    AutoDrawLooper  looper(this, paint, false, bounds);             \
     while (looper.next(type)) {                                     \
         SkDrawIter          iter(this);
 
 #define LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, type, bounds, auxOpaque)  \
     this->predrawNotify(bounds, &paint, auxOpaque);                 \
-    AutoDrawLooper  looper(this, fProps, paint, false, bounds);     \
+    AutoDrawLooper  looper(this, paint, false, bounds);             \
     while (looper.next(type)) {                                     \
         SkDrawIter          iter(this);
 
@@ -3263,12 +3258,12 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-SkCanvas::LayerIter::LayerIter(SkCanvas* canvas, bool skipEmptyClips) {
+SkCanvas::LayerIter::LayerIter(SkCanvas* canvas) {
     static_assert(sizeof(fStorage) >= sizeof(SkDrawIter), "fStorage_too_small");
 
     SkASSERT(canvas);
 
-    fImpl = new (fStorage) SkDrawIter(canvas, skipEmptyClips);
+    fImpl = new (fStorage) SkDrawIter(canvas);
     fDone = !fImpl->next();
 }
 
