@@ -360,16 +360,12 @@ struct Poly {
         MonotonePoly* fNext;
         void addEdge(Edge* edge) {
             if (fSide == kRight_Side) {
-                if (edge->fUsedInRightPoly) {
-                    return;
-                }
+                SkASSERT(!edge->fUsedInRightPoly);
                 list_insert<Edge, &Edge::fRightPolyPrev, &Edge::fRightPolyNext>(
                     edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
                 edge->fUsedInRightPoly = true;
             } else {
-                if (edge->fUsedInLeftPoly) {
-                    return;
-                }
+                SkASSERT(!edge->fUsedInLeftPoly);
                 list_insert<Edge, &Edge::fLeftPolyPrev, &Edge::fLeftPolyNext>(
                     edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
                 edge->fUsedInLeftPoly = true;
@@ -423,6 +419,15 @@ struct Poly {
                e->fTop->fID, e->fBottom->fID, fID, side == kLeft_Side ? "left" : "right");
         Poly* partner = fPartner;
         Poly* poly = this;
+        if (side == kRight_Side) {
+            if (e->fUsedInRightPoly) {
+                return this;
+            }
+        } else {
+            if (e->fUsedInLeftPoly) {
+                return this;
+            }
+        }
         if (partner) {
             fPartner = partner->fPartner = nullptr;
         }
