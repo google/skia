@@ -35,6 +35,7 @@ struct GrUserStencilSettings;
 class SkDrawFilter;
 struct SkIPoint;
 struct SkIRect;
+class SkLatticeIter;
 class SkMatrix;
 class SkPaint;
 class SkPath;
@@ -231,26 +232,15 @@ public:
                   const GrStyle& style);
 
     /**
-     *  Draw the image stretched differentially to fit into dst.
-     *  center is a rect within the image, and logically divides the image
-     *  into 9 sections (3x3). For example, if the middle pixel of a [5x5]
-     *  image is the "center", then the center-rect should be [2, 2, 3, 3].
-     *
-     *  If the dst is >= the image size, then...
-     *  - The 4 corners are not stretched at all.
-     *  - The sides are stretched in only one axis.
-     *  - The center is stretched in both axes.
-     * Else, for each axis where dst < image,
-     *  - The corners shrink proportionally
-     *  - The sides (along the shrink axis) and center are not drawn
+     *  Draw the image as a set of rects, specified by |iter|.
      */
-    void drawImageNine(const GrClip&,
-                       const GrPaint& paint,
-                       const SkMatrix& viewMatrix,
-                       int imageWidth,
-                       int imageHeight,
-                       const SkIRect& center,
-                       const SkRect& dst);
+    void drawImageLattice(const GrClip&,
+                          const GrPaint& paint,
+                          const SkMatrix& viewMatrix,
+                          int imageWidth,
+                          int imageHeight,
+                          std::unique_ptr<SkLatticeIter> iter,
+                          const SkRect& dst);
 
     /**
      * After this returns any pending surface IO will be issued to the backend 3D API and

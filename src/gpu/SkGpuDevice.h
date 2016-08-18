@@ -122,6 +122,11 @@ public:
     void drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
                         const SkRect& dst, const SkPaint& paint) override;
 
+    void drawImageLattice(const SkDraw&, const SkImage*, const SkCanvas::Lattice&,
+                          const SkRect& dst, const SkPaint&) override;
+    void drawBitmapLattice(const SkDraw&, const SkBitmap&, const SkCanvas::Lattice&,
+                           const SkRect& dst, const SkPaint&) override;
+
     void drawSpecial(const SkDraw&, SkSpecialImage*,
                      int left, int top, const SkPaint& paint) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
@@ -242,6 +247,9 @@ private:
 
     void drawProducerNine(const SkDraw&, GrTextureProducer*, const SkIRect& center,
                           const SkRect& dst, const SkPaint&);
+
+    void drawProducerLattice(const SkDraw&, GrTextureProducer*, const SkCanvas::Lattice& lattice,
+                             const SkRect& dst, const SkPaint&);
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
     void drawStrokedLine(const SkPoint pts[2], const SkDraw&, const SkPaint&);

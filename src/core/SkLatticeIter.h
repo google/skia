@@ -35,15 +35,28 @@ public:
      */
     bool next(SkRect* src, SkRect* dst);
 
+    /**
+     *  Apply a matrix to the dst points.
+     */
+    void mapDstScaleTranslate(const SkMatrix& matrix);
+
+    /**
+     *  Returns the total number of rects that will be drawn.
+     */
+    int numRects() const {
+        return fNumRects;
+    }
+
 private:
     SkTArray<SkScalar> fSrcX;
     SkTArray<SkScalar> fSrcY;
     SkTArray<SkScalar> fDstX;
     SkTArray<SkScalar> fDstY;
 
-    int fCurrX;
-    int fCurrY;
+    int  fCurrX;
+    int  fCurrY;
     bool fDone;
+    int  fNumRects;
 };
 
 #endif
