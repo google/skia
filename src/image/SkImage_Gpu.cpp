@@ -82,7 +82,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params,
                                      SkSourceGammaTreatment gammaTreatment) const {
-    GrTextureAdjuster adjuster(this->peekTexture(), this->bounds(), this->uniqueID(),
+    GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(), this->uniqueID(),
                                this->onImageInfo().colorSpace());
     return adjuster.refTextureSafeForParams(params, gammaTreatment, nullptr);
 }

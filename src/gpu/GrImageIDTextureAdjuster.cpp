@@ -62,6 +62,10 @@ void GrBitmapTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
     GrInstallBitmapUniqueKeyInvalidator(copyKey, fBitmap.pixelRef());
 }
 
+SkAlphaType GrBitmapTextureMaker::alphaType() const {
+    return fBitmap.alphaType();
+}
+
 SkColorSpace* GrBitmapTextureMaker::getColorSpace() {
     return fBitmap.colorSpace();
 }
@@ -99,6 +103,10 @@ void GrImageTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
     if (fClient) {
         as_IB(fClient)->notifyAddedToCache();
     }
+}
+
+SkAlphaType GrImageTextureMaker::alphaType() const {
+    return fCacher->info().alphaType();
 }
 
 SkColorSpace* GrImageTextureMaker::getColorSpace() {

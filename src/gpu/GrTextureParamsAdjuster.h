@@ -73,6 +73,7 @@ public:
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     bool isAlphaOnly() const { return fIsAlphaOnly; }
+    virtual SkAlphaType alphaType() const = 0;
     virtual SkColorSpace* getColorSpace() = 0;
 
 protected:
@@ -144,9 +145,11 @@ public:
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.
-    GrTextureAdjuster(GrTexture*, const SkIRect& area, uint32_t uniqueID, SkColorSpace*);
+    GrTextureAdjuster(GrTexture*, SkAlphaType, const SkIRect& area, uint32_t uniqueID,
+                      SkColorSpace*);
 
 protected:
+    SkAlphaType alphaType() const override { return fAlphaType; }
     SkColorSpace* getColorSpace() override;
     void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;
@@ -159,6 +162,7 @@ protected:
 private:
     SkTLazy<SkIRect>    fContentArea;
     GrTexture*          fOriginal;
+    SkAlphaType         fAlphaType;
     SkColorSpace*       fColorSpace;
     uint32_t            fUniqueID;
 

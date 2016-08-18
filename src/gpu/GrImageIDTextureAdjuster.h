@@ -29,6 +29,7 @@ protected:
 
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 
+    SkAlphaType alphaType() const override;
     SkColorSpace* getColorSpace() override;
 
 private:
@@ -54,6 +55,7 @@ protected:
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 
+    SkAlphaType alphaType() const override;
     SkColorSpace* getColorSpace() override;
 
 private:

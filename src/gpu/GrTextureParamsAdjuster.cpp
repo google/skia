@@ -112,11 +112,13 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
     return copyDC->asTexture().release();
 }
 
-GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea,
-                                     uint32_t uniqueID, SkColorSpace* cs)
+GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,
+                                     const SkIRect& contentArea, uint32_t uniqueID,
+                                     SkColorSpace* cs)
     : INHERITED(contentArea.width(), contentArea.height(),
                 GrPixelConfigIsAlphaOnly(original->config()))
     , fOriginal(original)
+    , fAlphaType(alphaType)
     , fColorSpace(cs)
     , fUniqueID(uniqueID)
 {
