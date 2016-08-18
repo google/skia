@@ -1409,8 +1409,10 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
         return;
     }
 
-    fDrawContext->drawImageNine(fClip, grPaint, *draw.fMatrix, producer->width(),
-                                producer->height(), center, dst);
+    std::unique_ptr<SkLatticeIter> iter(
+            new SkLatticeIter(producer->width(), producer->height(), center, dst));
+    fDrawContext->drawImageLattice(fClip, grPaint, *draw.fMatrix, producer->width(),
+                                   producer->height(), std::move(iter), dst);
 }
 
 void SkGpuDevice::drawImageNine(const SkDraw& draw, const SkImage* image,
@@ -1438,6 +1440,61 @@ void SkGpuDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, con
     ASSERT_SINGLE_OWNER
     GrBitmapTextureMaker maker(fContext, bitmap);
     this->drawProducerNine(draw, &maker, center, dst, paint);
+}
+
+void SkGpuDevice::drawProducerLattice(const SkDraw& draw, GrTextureProducer* producer,
+                                      const SkCanvas::Lattice& lattice, const SkRect& dst,
+                                      const SkPaint& paint) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerLattice", fContext);
+
+    CHECK_SHOULD_DRAW(draw);
+
+    static const GrTextureParams::FilterMode kMode = GrTextureParams::kNone_FilterMode;
+    sk_sp<GrFragmentProcessor> fp(
+        producer->createFragmentProcessor(SkMatrix::I(),
+                                          SkRect::MakeIWH(producer->width(), producer->height()),
+                                          GrTextureProducer::kNo_FilterConstraint, true,
+                                          &kMode, fDrawContext->getColorSpace(),
+                                          fDrawContext->sourceGammaTreatment()));
+    GrPaint grPaint;
+    if (!SkPaintToGrPaintWithTexture(this->context(), fDrawContext.get(), paint, *draw.fMatrix,
+                                     std::move(fp), producer->isAlphaOnly(), &grPaint)) {
+        return;
+    }
+
+    std::unique_ptr<SkLatticeIter> iter(
+            new SkLatticeIter(producer->width(), producer->height(), lattice, dst));
+    fDrawContext->drawImageLattice(fClip, grPaint, *draw.fMatrix, producer->width(),
+                                   producer->height(), std::move(iter), dst);
+}
+
+void SkGpuDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
+                                   const SkCanvas::Lattice& lattice, const SkRect& dst,
+                                   const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    uint32_t pinnedUniqueID;
+    if (sk_sp<GrTexture> tex = as_IB(image)->refPinnedTexture(&pinnedUniqueID)) {
+        CHECK_SHOULD_DRAW(draw);
+        GrTextureAdjuster adjuster(tex.get(), image->alphaType(), image->bounds(), pinnedUniqueID,
+                                   as_IB(image)->onImageInfo().colorSpace());
+        this->drawProducerLattice(draw, &adjuster, lattice, dst, paint);
+    } else {
+        SkBitmap bm;
+        if (SkImageCacherator* cacher = as_IB(image)->peekCacherator()) {
+            GrImageTextureMaker maker(fContext, cacher, image, SkImage::kAllow_CachingHint);
+            this->drawProducerLattice(draw, &maker, lattice, dst, paint);
+        } else if (as_IB(image)->getROPixels(&bm)) {
+            this->drawBitmapLattice(draw, bm, lattice, dst, paint);
+        }
+    }
+}
+
+void SkGpuDevice::drawBitmapLattice(const SkDraw& draw, const SkBitmap& bitmap,
+                                    const SkCanvas::Lattice& lattice, const SkRect& dst,
+                                    const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GrBitmapTextureMaker maker(fContext, bitmap);
+    this->drawProducerLattice(draw, &maker, lattice, dst, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

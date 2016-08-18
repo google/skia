@@ -29,6 +29,10 @@ public:
         return fName.c_str();
     }
 
+    SkIPoint onGetSize() override {
+        return SkIPoint::Make(1000, 1000);
+    }
+
     bool isSuitableFor(Backend backend) override {
         return kRaster_Backend == backend || kGPU_Backend == backend;
     }
@@ -54,6 +58,17 @@ private:
     typedef Benchmark INHERITED;
 };
 
-static int gDivs[2] = { 250, 750, };
-DEF_BENCH(return new DrawLatticeBench(gDivs, 2, gDivs, 2, SkISize::Make(1000, 1000),
-                                      SkRect::MakeWH(4000.0f, 4000.0f), "StandardNine");)
+static int gDivs9[2] = { 25, 75, };
+DEF_BENCH(return new DrawLatticeBench(gDivs9, 2, gDivs9, 2, SkISize::Make(100, 100),
+                                      SkRect::MakeWH(250.0f, 250.0f), "Src100_Dst250_Rects9");)
+DEF_BENCH(return new DrawLatticeBench(gDivs9, 2, gDivs9, 2, SkISize::Make(100, 100),
+                                      SkRect::MakeWH(500.0f, 500.0f), "Src100_Dst500_Rects9");)
+DEF_BENCH(return new DrawLatticeBench(gDivs9, 2, gDivs9, 2, SkISize::Make(100, 100),
+                                      SkRect::MakeWH(1000.0f, 1000.0f), "Src100_Dst1000_Rects9");)
+static int gDivs15[4] = { 15, 45, 55, 85, };
+DEF_BENCH(return new DrawLatticeBench(gDivs15, 4, gDivs15, 4, SkISize::Make(100, 100),
+                                      SkRect::MakeWH(250.0f, 250.0f), "Src100_Dst250_Rects15");)
+DEF_BENCH(return new DrawLatticeBench(gDivs15, 4, gDivs15, 4, SkISize::Make(100, 100),
+                                      SkRect::MakeWH(500.0f, 500.0f), "Src100_Dst500_Rects15");)
+DEF_BENCH(return new DrawLatticeBench(gDivs15, 4, gDivs15, 4, SkISize::Make(100, 100),
+                                      SkRect::MakeWH(1000.0f, 1000.0f), "Src100_Dst1000_Rects15");)
