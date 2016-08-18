@@ -862,10 +862,12 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
     if (optimizations.fOverrides.fUsePLSDstRead) {
         return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, SkXfermode::kSrcOver_Mode);
     }
-    if (!optimizations.fCoveragePOI.isFourChannelOutput() &&
-        !(optimizations.fCoveragePOI.isSolidWhite() &&
-          !hasMixedSamples &&
-          optimizations.fColorPOI.isOpaque())) {
+
+    // We want to not make an xfer processor if possible. Thus for the simple case where we are not
+    // doing lcd blending we will just use our global SimpleSrcOverXP. This slightly differs from
+    // the general case where we convert a src-over blend that has solid coverage and an opaque
+    // color to src-mode, which allows disabling of blending.
+    if (!optimizations.fCoveragePOI.isFourChannelOutput()) {
         // We return nullptr here, which our caller interprets as meaning "use SimpleSrcOverXP".
         // We don't simply return the address of that XP here because our caller would have to unref
         // it and since it is a global object and GrProgramElement's ref-cnting system is not thread
@@ -873,23 +875,18 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         return nullptr;
     }
 
-    BlendFormula blendFormula;
-    if (optimizations.fCoveragePOI.isFourChannelOutput()) {
-        if (kRGBA_GrColorComponentFlags == optimizations.fColorPOI.validFlags() &&
-            !caps.shaderCaps()->dualSourceBlendingSupport() &&
-            !caps.shaderCaps()->dstReadInShaderSupport()) {
-            // If we don't have dual source blending or in shader dst reads, we fall
-            // back to this trick for rendering SrcOver LCD text instead of doing a
-            // dst copy.
-            SkASSERT(!dstTexture || !dstTexture->texture());
-            return PDLCDXferProcessor::Create(SkXfermode::kSrcOver_Mode, optimizations.fColorPOI);
-        }
-        blendFormula = get_lcd_blend_formula(optimizations.fCoveragePOI, SkXfermode::kSrcOver_Mode);
-    } else {
-        blendFormula = get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI,
-                                         hasMixedSamples, SkXfermode::kSrcOver_Mode);
+    if (kRGBA_GrColorComponentFlags == optimizations.fColorPOI.validFlags() &&
+        !caps.shaderCaps()->dualSourceBlendingSupport() &&
+        !caps.shaderCaps()->dstReadInShaderSupport()) {
+        // If we don't have dual source blending or in shader dst reads, we fall
+        // back to this trick for rendering SrcOver LCD text instead of doing a
+        // dst copy.
+        SkASSERT(!dstTexture || !dstTexture->texture());
+        return PDLCDXferProcessor::Create(SkXfermode::kSrcOver_Mode, optimizations.fColorPOI);
     }
 
+    BlendFormula blendFormula;
+    blendFormula = get_lcd_blend_formula(optimizations.fCoveragePOI, SkXfermode::kSrcOver_Mode);
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
         return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, SkXfermode::kSrcOver_Mode);
     }
