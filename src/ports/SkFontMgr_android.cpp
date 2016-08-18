@@ -217,7 +217,7 @@ public:
             return;
         }
         if (style) {
-            *style = this->style(index);
+            *style = fStyles[index]->fontStyle();
         }
         if (name) {
             name->reset();
@@ -230,39 +230,11 @@ public:
         return SkRef(fStyles[index].get());
     }
 
-    /** Find the typeface in this style set that most closely matches the given pattern.
-     *  TODO: consider replacing with SkStyleSet_Indirect::matchStyle();
-     *  this simpler version using match_score() passes all our tests.
-     */
     SkTypeface_AndroidSystem* matchStyle(const SkFontStyle& pattern) override {
-        if (0 == fStyles.count()) {
-            return nullptr;
-        }
-        SkTypeface_AndroidSystem* closest = fStyles[0];
-        int minScore = std::numeric_limits<int>::max();
-        for (int i = 0; i < fStyles.count(); ++i) {
-            SkFontStyle style = this->style(i);
-            int score = match_score(pattern, style);
-            if (score < minScore) {
-                closest = fStyles[i];
-                minScore = score;
-            }
-        }
-        return SkRef(closest);
+        return static_cast<SkTypeface_AndroidSystem*>(this->matchStyleCSS3(pattern));
     }
 
 private:
-    SkFontStyle style(int index) {
-        return fStyles[index]->fontStyle();
-    }
-    static int match_score(const SkFontStyle& pattern, const SkFontStyle& candidate) {
-        int score = 0;
-        score += SkTAbs((pattern.width() - candidate.width()) * 100);
-        score += SkTAbs((pattern.slant() == candidate.slant()) ? 0 : 1000);
-        score += SkTAbs(pattern.weight() - candidate.weight());
-        return score;
-    }
-
     SkTArray<SkAutoTUnref<SkTypeface_AndroidSystem>, true> fStyles;
 
     friend struct NameToFamily;
