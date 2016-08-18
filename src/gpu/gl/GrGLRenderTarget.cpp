@@ -61,7 +61,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
 
     fGpuMemorySize = this->totalSamples() * this->totalBytesPerSample();
 
-    SkASSERT(fGpuMemorySize <= WorseCaseSize(desc));
+    SkASSERT(fGpuMemorySize <= WorstCaseSize(desc));
 }
 
 GrGLRenderTarget* GrGLRenderTarget::CreateWrapped(GrGLGpu* gpu,

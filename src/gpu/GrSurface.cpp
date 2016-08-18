@@ -14,7 +14,7 @@
 #include "SkImageEncoder.h"
 #include <stdio.h>
 
-size_t GrSurface::WorseCaseSize(const GrSurfaceDesc& desc) {
+size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc) {
     size_t size;
 
     bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);

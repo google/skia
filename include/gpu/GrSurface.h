@@ -126,7 +126,7 @@ public:
         fReleaseCtx = ctx;
     }
 
-    static size_t WorseCaseSize(const GrSurfaceDesc& desc);
+    static size_t WorstCaseSize(const GrSurfaceDesc& desc);
 
 protected:
     // Methods made available via GrSurfacePriv

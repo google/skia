@@ -139,7 +139,7 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
             scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
         }
         GrGpuResource* resource = fCache->findAndRefScratchResource(key,
-                                                                   GrSurface::WorseCaseSize(*desc),
+                                                                   GrSurface::WorstCaseSize(*desc),
                                                                    scratchFlags);
         if (resource) {
             GrSurface* surface = static_cast<GrSurface*>(resource);
