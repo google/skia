@@ -290,7 +290,12 @@ void SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
         return;
     }
 
-    if (this->hasPerspective()) {
+    if (fTypeMask <= kTranslate_Mask) {
+        fMat[kMTransX] += dx;
+        fMat[kMTransY] += dy;
+        this->setTypeMask((fMat[kMTransX] != 0 || fMat[kMTransY] != 0) ? kTranslate_Mask
+                                                                       : kIdentity_Mask);
+    } else if (this->hasPerspective()) {
         SkMatrix    m;
         m.setTranslate(dx, dy);
         this->preConcat(m);
@@ -1100,7 +1105,7 @@ void SkMatrix::mapVectors(SkPoint dst[], const SkPoint src[], int count) const {
 void SkMatrix::mapRectScaleTranslate(SkRect* dst, const SkRect& src) const {
     SkASSERT(dst);
     SkASSERT(this->isScaleTranslate());
-    
+
     SkScalar sx = fMat[kMScaleX];
     SkScalar sy = fMat[kMScaleY];
     SkScalar tx = fMat[kMTransX];

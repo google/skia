@@ -25,6 +25,7 @@ public:
 
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
+    void didTranslate(SkScalar, SkScalar) override;
 
     void onClipRect  (const   SkRect&, SkRegion::Op, ClipEdgeStyle) override;
     void onClipRRect (const  SkRRect&, SkRegion::Op, ClipEdgeStyle) override;
