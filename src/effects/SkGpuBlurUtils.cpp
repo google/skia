@@ -15,6 +15,7 @@
 #include "GrContext.h"
 #include "GrCaps.h"
 #include "GrDrawContext.h"
+#include "GrFixedClip.h"
 
 #define MAX_BLUR_SIGMA 4.0f
 

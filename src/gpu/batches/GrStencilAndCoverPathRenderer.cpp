@@ -11,6 +11,7 @@
 #include "GrContext.h"
 #include "GrDrawContextPriv.h"
 #include "GrDrawPathBatch.h"
+#include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPipelineBuilder.h"

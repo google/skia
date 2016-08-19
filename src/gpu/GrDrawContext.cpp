@@ -10,6 +10,7 @@
 #include "GrDrawContext.h"
 #include "GrDrawContextPriv.h"
 #include "GrDrawingManager.h"
+#include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"

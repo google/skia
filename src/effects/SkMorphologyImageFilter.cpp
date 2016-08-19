@@ -18,6 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrFixedClip.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "SkGr.h"

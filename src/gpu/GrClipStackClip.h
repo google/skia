@@ -8,12 +8,13 @@
 #define GrClipStackClip_DEFINED
 
 #include "GrClip.h"
-
 #include "GrReducedClip.h"
 #include "SkClipStack.h"
 
-class GrTextureProvider;
 class GrPathRenderer;
+class GrTexture;
+class GrTextureProvider;
+class GrUniqueKey;
 
 /**
  * GrClipStackClip can apply a generic SkClipStack to the draw state. It may need to generate an

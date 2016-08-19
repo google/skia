@@ -9,6 +9,7 @@
 #include "GrDrawContext.h"
 #include "GrCaps.h"
 #include "GrContext.h"
+#include "GrFixedClip.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "GrStyle.h"
 #include "GrTexture.h"

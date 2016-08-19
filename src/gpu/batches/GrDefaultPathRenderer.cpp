@@ -11,6 +11,7 @@
 #include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrFixedClip.h"
 #include "GrMesh.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"

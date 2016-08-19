@@ -21,6 +21,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrFixedClip.h"
 #endif
 
 #ifndef SK_IGNORE_TO_STRING

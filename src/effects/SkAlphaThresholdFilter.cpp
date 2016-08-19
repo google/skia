@@ -17,6 +17,7 @@
 #include "GrAlphaThresholdFragmentProcessor.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrFixedClip.h"
 #endif
 
 class SK_API SkAlphaThresholdFilterImpl : public SkImageFilter {

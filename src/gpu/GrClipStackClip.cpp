@@ -10,6 +10,7 @@
 #include "GrAppliedClip.h"
 #include "GrDrawingManager.h"
 #include "GrDrawContextPriv.h"
+#include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"

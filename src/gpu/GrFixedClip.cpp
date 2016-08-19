@@ -5,18 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrClip.h"
+#include "GrFixedClip.h"
 
 #include "GrAppliedClip.h"
 #include "GrDrawContext.h"
-
-void GrNoClip::getConservativeBounds(int width, int height, SkIRect* devResult,
-                                     bool* isIntersectionOfRects) const {
-    devResult->setXYWH(0, 0, width, height);
-    if (isIntersectionOfRects) {
-        *isIntersectionOfRects = true;
-    }
-}
 
 bool GrFixedClip::quickContains(const SkRect& rect) const {
     if (fHasStencilClip) {

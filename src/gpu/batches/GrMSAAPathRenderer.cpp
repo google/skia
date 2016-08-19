@@ -11,6 +11,7 @@
 #include "GrBatchFlushState.h"
 #include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrFixedClip.h"
 #include "GrPathStencilSettings.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"

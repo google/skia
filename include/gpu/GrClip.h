@@ -8,10 +8,11 @@
 #ifndef GrClip_DEFINED
 #define GrClip_DEFINED
 
-#include "GrFragmentProcessor.h"
-#include "GrTypesPriv.h"
+#include "SkRect.h"
+#include "SkRRect.h"
 
 class GrAppliedClip;
+class GrContext;
 class GrDrawContext;
 
 /**
@@ -108,46 +109,19 @@ public:
  */
 class GrNoClip final : public GrClip {
 private:
-    bool quickContains(const SkRect&) const final { return true; }
-    void getConservativeBounds(int width, int height, SkIRect* devResult,
-                               bool* isIntersectionOfRects) const final;
-    bool apply(GrContext*, GrDrawContext*, bool, bool, GrAppliedClip*) const final { return true; }
-};
-
-/**
- * GrFixedClip is a clip that can be represented by fixed-function hardware. It never modifies the
- * stencil buffer itself, but can be configured to use whatever clip is already there.
- */
-class GrFixedClip final : public GrClip {
-public:
-    GrFixedClip() : fHasStencilClip(false) {}
-    GrFixedClip(const SkIRect& scissorRect)
-        : fScissorState(scissorRect)
-        , fHasStencilClip(false) {}
-
-    void reset() {
-        fScissorState.setDisabled();
-        fHasStencilClip = false;
+    bool quickContains(const SkRect&) const final {
+        return true;
     }
-
-    void reset(const SkIRect& scissorRect) {
-        fScissorState.set(scissorRect);
-        fHasStencilClip = false;
-    }
-
-    void enableStencilClip() { fHasStencilClip = true; }
-    void disableStencilClip() { fHasStencilClip = false; }
-
-    bool quickContains(const SkRect&) const final;
     void getConservativeBounds(int width, int height, SkIRect* devResult,
-                               bool* isIntersectionOfRects) const final;
-
-private:
-    bool apply(GrContext*, GrDrawContext*, bool useHWAA, bool hasUserStencilSettings,
-               GrAppliedClip* out) const final;
-
-    GrScissorState   fScissorState;
-    bool             fHasStencilClip;
+                               bool* isIntersectionOfRects) const final {
+        devResult->setXYWH(0, 0, width, height);
+        if (isIntersectionOfRects) {
+            *isIntersectionOfRects = true;
+        }
+    }
+    bool apply(GrContext*, GrDrawContext*, bool, bool, GrAppliedClip*) const final {
+        return true;
+    }
 };
 
 #endif
