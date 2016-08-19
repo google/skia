@@ -291,16 +291,14 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
     SkAdvancedTypefaceMetrics* result =
             this->onGetAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);
     if (result && result->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
-        struct SkOTTableOS2 os2table;
-        if (this->getTableData(SkTEndian_SwapBE32(SkOTTableOS2::TAG), 0,
-                               sizeof(os2table), &os2table) > 0) {
-            if (os2table.version.v2.fsType.field.Bitmap ||
-                (os2table.version.v2.fsType.field.Restricted &&
-                 !(os2table.version.v2.fsType.field.PreviewPrint ||
-                   os2table.version.v2.fsType.field.Editable))) {
+        SkOTTableOS2::Version::V2::Type::Field fsType;
+        constexpr SkFontTableTag os2Tag = SkTEndian_SwapBE32(SkOTTableOS2::TAG);
+        constexpr size_t fsTypeOffset = offsetof(SkOTTableOS2::Version::V2, fsType);
+        if (this->getTableData(os2Tag, fsTypeOffset, sizeof(fsType), &fsType) == sizeof(fsType)) {
+            if (fsType.Bitmap || (fsType.Restricted && !(fsType.PreviewPrint || fsType.Editable))) {
                 result->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
             }
-            if (os2table.version.v2.fsType.field.NoSubsetting) {
+            if (fsType.NoSubsetting) {
                 result->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
             }
         }
