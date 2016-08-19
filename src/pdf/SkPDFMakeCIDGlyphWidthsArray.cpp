@@ -171,7 +171,7 @@ sk_sp<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(SkGlyphCache* cache,
     // Limit the loop count to glyph id ranges provided.
     int lastIndex = num_glyphs;
     if (subset) {
-        while (!subset->isBitSet(lastIndex - 1) && lastIndex > 0) {
+        while (!subset->has(lastIndex - 1) && lastIndex > 0) {
             --lastIndex;
         }
     }
@@ -180,7 +180,7 @@ sk_sp<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(SkGlyphCache* cache,
     for (int gId = 0; gId <= lastIndex; gId++) {
         int16_t advance = kInvalidAdvance;
         if (gId < lastIndex) {
-            if (!subset || 0 == gId || subset->isBitSet(gId)) {
+            if (!subset || 0 == gId || subset->has(gId)) {
                 advance = (int16_t)cache->getGlyphIDAdvance(gId).fAdvanceX;
             } else {
                 advance = kDontCareAdvance;

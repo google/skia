@@ -34,7 +34,6 @@
         '<(skia_src_path)/utils/SkBase64.h',
         '<(skia_src_path)/utils/SkBitmapSourceDeserializer.cpp',
         '<(skia_src_path)/utils/SkBitmapSourceDeserializer.h',
-        '<(skia_src_path)/utils/SkBitSet.cpp',
         '<(skia_src_path)/utils/SkBitSet.h',
         '<(skia_src_path)/utils/SkBoundaryPatch.cpp',
         '<(skia_src_path)/utils/SkFrontBufferedStream.cpp',
