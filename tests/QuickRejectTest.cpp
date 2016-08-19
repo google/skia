@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkDrawLooper.h"
+#include "SkLightingImageFilter.h"
 #include "SkTypes.h"
 #include "Test.h"
 
@@ -144,4 +145,27 @@ DEF_TEST(QuickReject, reporter) {
     test_drawBitmap(reporter);
     test_layers(reporter);
     test_quick_reject(reporter);
+}
+
+// Regression test to make sure that we keep fIsScaleTranslate up to date on the canvas.
+// It is possible to set a new matrix on the canvas without calling setMatrix().  This tests
+// that code path.
+DEF_TEST(QuickReject_MatrixState, reporter) {
+    SkCanvas canvas(100, 100);
+
+    SkMatrix matrix;
+    matrix.setRotate(45.0f);
+    canvas.setMatrix(matrix);
+
+    SkPaint paint;
+    sk_sp<SkImageFilter> filter = SkLightingImageFilter::MakeDistantLitDiffuse(
+            SkPoint3::Make(1.0f, 1.0f, 1.0f), 0xFF0000FF, 2.0f, 0.5f, nullptr);
+    REPORTER_ASSERT(reporter, filter);
+    paint.setImageFilter(filter);
+    SkCanvas::SaveLayerRec rec;
+    rec.fPaint = &paint;
+    canvas.saveLayer(rec);
+
+    // quickReject() will assert if the matrix is out of sync.
+    canvas.quickReject(SkRect::MakeWH(100.0f, 100.0f));
 }

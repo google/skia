@@ -1488,12 +1488,12 @@ void SkCanvas::concat(const SkMatrix& matrix) {
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fMCRec->fMatrix = matrix;
+    fIsScaleTranslate = matrix.isScaleTranslate();
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
     this->checkForDeferredSave();
     this->internalSetMatrix(matrix);
-    fIsScaleTranslate = matrix.isScaleTranslate();
     this->didSetMatrix(matrix);
 }
 
