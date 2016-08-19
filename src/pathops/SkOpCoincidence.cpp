@@ -1364,6 +1364,9 @@ bool SkOpCoincidence::mark() {
         return true;
     }
     do {
+        if (!coin->coinPtTStartWritable()->span()->upCastable()) {
+            return false;
+        }
         SkOpSpan* start = coin->coinPtTStartWritable()->span()->upCast();
         SkASSERT(!start->deleted());
         SkOpSpanBase* end = coin->coinPtTEndWritable()->span();

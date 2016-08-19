@@ -1220,6 +1220,9 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::extractCoincident(
     if (!oppFirst) {
         return nullptr;
     }
+    if (!oppLast) {
+        return nullptr;
+    }
     // reduce coincident runs to single entries
     this->validate();
     sect2->validate();
