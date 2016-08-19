@@ -29,6 +29,9 @@
             '<(skia_src_path)/opts/SkBlitRow_opts_arm.cpp',
             '<(skia_src_path)/opts/SkBlitRow_opts_arm_neon.cpp',
         ],
+        'crc32_sources': [
+            '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
+        ],
 
         'mips_dsp_sources': [
             '<(skia_src_path)/opts/SkBitmapProcState_opts_mips_dsp.cpp',
