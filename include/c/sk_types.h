@@ -573,6 +573,22 @@ typedef struct {
 
 typedef struct gr_context_t gr_context_t;
 
+typedef struct {
+    bool fSuppressPrints;
+    int  fMaxTextureSizeOverride;
+    int  fMaxTileSizeOverride;
+    bool fSuppressDualSourceBlending;
+    int  fBufferMapThreshold;
+    bool fUseDrawInsteadOfPartialRenderTargetWrite;
+    bool fImmediateMode;
+    bool fClipBatchToBounds;
+    bool fDrawBatchBounds;
+    int fMaxBatchLookback;
+    int fMaxBatchLookahead;
+    bool fUseShaderSwizzling;
+    bool fDoManualMipmapping;
+} gr_context_options_t;
+
 typedef enum {
     OPENGL_GR_BACKEND,
     VULKAN_GR_BACKEND,
@@ -580,7 +596,7 @@ typedef enum {
 
 typedef intptr_t gr_backendcontext_t;
 
-typedef struct gr_gl_interface_t gr_gl_interface_t;
+typedef struct gr_glinterface_t gr_glinterface_t;
 
 SK_C_PLUS_PLUS_END_GUARD
 
