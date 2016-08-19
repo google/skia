@@ -1352,9 +1352,6 @@ protected:
     virtual void didRestore() {}
     virtual void didConcat(const SkMatrix&) {}
     virtual void didSetMatrix(const SkMatrix&) {}
-    virtual void didTranslate(SkScalar dx, SkScalar dy) {
-        this->didConcat(SkMatrix::MakeTrans(dx, dy));
-    }
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     virtual void didTranslateZ(SkScalar) {}

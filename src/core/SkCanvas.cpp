@@ -1444,14 +1444,9 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
 /////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::translate(SkScalar dx, SkScalar dy) {
-    this->checkForDeferredSave();
-    fDeviceCMDirty = true;
-    fMCRec->fMatrix.preTranslate(dx,dy);
-
-    // Translate shouldn't affect the is-scale-translateness of the matrix.
-    SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
-
-    this->didTranslate(dx,dy);
+    SkMatrix m;
+    m.setTranslate(dx, dy);
+    this->concat(m);
 }
 
 void SkCanvas::scale(SkScalar sx, SkScalar sy) {

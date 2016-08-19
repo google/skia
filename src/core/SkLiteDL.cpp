@@ -52,7 +52,7 @@ static void make_threadsafe(SkPath* path, SkMatrix* matrix) {
 namespace {
 #define TYPES(M)                                                                \
     M(Save) M(Restore) M(SaveLayer)                                             \
-    M(Concat) M(SetMatrix) M(Translate) M(TranslateZ)                           \
+    M(Concat) M(SetMatrix) M(TranslateZ)                                        \
     M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                          \
     M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawOval) M(DrawRRect) M(DrawDRRect) \
     M(DrawAnnotation) M(DrawDrawable) M(DrawPicture) M(DrawShadowedPicture)     \
@@ -114,14 +114,6 @@ namespace {
             c->setMatrix(SkMatrix::Concat(original, matrix));
         }
         void makeThreadsafe() { make_threadsafe(nullptr, &matrix); }
-    };
-    struct Translate final : Op {
-        static const auto kType = Type::Translate;
-        Translate(SkScalar dx, SkScalar dy) : dx(dx), dy(dy) {}
-        SkScalar dx,dy;
-        void draw(SkCanvas* c, const SkMatrix&) {
-            c->translate(dx, dy);
-        }
     };
     struct TranslateZ final : Op {
         static const auto kType = Type::TranslateZ;
@@ -547,9 +539,8 @@ void SkLiteDL::saveLayer(const SkRect* bounds, const SkPaint* paint,
     this->push<SaveLayer>(0, bounds, paint, backdrop, flags);
 }
 
-void SkLiteDL::   concat(const SkMatrix& matrix)   { this->push   <Concat>(0, matrix); }
-void SkLiteDL::setMatrix(const SkMatrix& matrix)   { this->push<SetMatrix>(0, matrix); }
-void SkLiteDL::translate(SkScalar dx, SkScalar dy) { this->push<Translate>(0, dx, dy); }
+void SkLiteDL::   concat(const SkMatrix& matrix) { this->push   <Concat>(0, matrix); }
+void SkLiteDL::setMatrix(const SkMatrix& matrix) { this->push<SetMatrix>(0, matrix); }
 void SkLiteDL::translateZ(SkScalar dz) { this->push<TranslateZ>(0, dz); }
 
 void SkLiteDL::clipPath(const SkPath& path, SkRegion::Op op, bool aa) {

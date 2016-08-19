@@ -29,7 +29,6 @@ public:
 
     void    concat (const SkMatrix&);
     void setMatrix (const SkMatrix&);
-    void translate(SkScalar, SkScalar);
     void translateZ(SkScalar);
 
     void clipPath  (const   SkPath&, SkRegion::Op, bool aa);
