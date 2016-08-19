@@ -742,18 +742,6 @@ static bool valid_grad(const SkColor colors[], const SkScalar pos[], int count, 
     return nullptr != colors && count >= 1 && tileMode < (unsigned)SkShader::kTileModeCount;
 }
 
-// assumes colors is SkColor* and pos is SkScalar*
-#define EXPAND_1_COLOR(count)               \
-    SkColor tmp[2];                         \
-    do {                                    \
-        if (1 == count) {                   \
-            tmp[0] = tmp[1] = colors[0];    \
-            colors = tmp;                   \
-            pos = nullptr;                     \
-            count = 2;                      \
-        }                                   \
-    } while (0)
-
 static void desc_init(SkGradientShaderBase::Descriptor* desc,
                       const SkColor colors[], const SkScalar pos[], int colorCount,
                       SkShader::TileMode mode, uint32_t flags, const SkMatrix* localMatrix) {
@@ -767,6 +755,18 @@ static void desc_init(SkGradientShaderBase::Descriptor* desc,
     desc->fLocalMatrix  = localMatrix;
 }
 
+// assumes colors is SkColor* and pos is SkScalar*
+#define EXPAND_1_COLOR(count)                \
+     SkColor tmp[2];                         \
+     do {                                    \
+         if (1 == count) {                   \
+             tmp[0] = tmp[1] = colors[0];    \
+             colors = tmp;                   \
+             pos = nullptr;                  \
+             count = 2;                      \
+         }                                   \
+     } while (0)
+
 sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
                                          const SkColor colors[],
                                          const SkScalar pos[], int colorCount,
@@ -779,7 +779,9 @@ sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
     if (!valid_grad(colors, pos, colorCount, mode)) {
         return nullptr;
     }
-    EXPAND_1_COLOR(colorCount);
+    if (1 == colorCount) {
+        return SkShader::MakeColorShader(colors[0]);
+    }
 
     SkGradientShaderBase::Descriptor desc;
     desc_init(&desc, colors, pos, colorCount, mode, flags, localMatrix);
@@ -798,7 +800,9 @@ sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar rad
     if (!valid_grad(colors, pos, colorCount, mode)) {
         return nullptr;
     }
-    EXPAND_1_COLOR(colorCount);
+    if (1 == colorCount) {
+        return SkShader::MakeColorShader(colors[0]);
+    }
 
     SkGradientShaderBase::Descriptor desc;
     desc_init(&desc, colors, pos, colorCount, mode, flags, localMatrix);
@@ -826,7 +830,6 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
             return SkShader::MakeEmptyShader();
         }
     }
-
     EXPAND_1_COLOR(colorCount);
 
     bool flipGradient = startRadius > endRadius;
@@ -867,7 +870,9 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
     if (!valid_grad(colors, pos, colorCount, SkShader::kClamp_TileMode)) {
         return nullptr;
     }
-    EXPAND_1_COLOR(colorCount);
+    if (1 == colorCount) {
+        return SkShader::MakeColorShader(colors[0]);
+    }
 
     SkGradientShaderBase::Descriptor desc;
     desc_init(&desc, colors, pos, colorCount, SkShader::kClamp_TileMode, flags, localMatrix);
