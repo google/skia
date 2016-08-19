@@ -41,6 +41,7 @@ public:
     void drawPath  (const SkPath&, const SkPaint&);
     void drawRect  (const SkRect&, const SkPaint&);
     void drawOval  (const SkRect&, const SkPaint&);
+    void drawArc   (const SkRect&, SkScalar, SkScalar, bool, const SkPaint&);
     void drawRRect (const SkRRect&, const SkPaint&);
     void drawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 

@@ -161,6 +161,9 @@ protected:
                           const SkPaint& paint) = 0;
     virtual void drawOval(const SkDraw&, const SkRect& oval,
                           const SkPaint& paint) = 0;
+    /** By the time this is called we know that abs(sweepAngle) is in the range [0, 360). */
+    virtual void drawArc(const SkDraw&, const SkRect& oval, SkScalar startAngle,
+                         SkScalar sweepAngle, bool useCenter, const SkPaint& paint);
     virtual void drawRRect(const SkDraw&, const SkRRect& rr,
                            const SkPaint& paint) = 0;
 

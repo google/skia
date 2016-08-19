@@ -179,6 +179,16 @@ void SkLuaCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     lua.pushPaint(paint, "paint");
 }
 
+void SkLuaCanvas::onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                            bool useCenter, const SkPaint& paint) {
+    AUTO_LUA("drawArc");
+    lua.pushRect(rect, "rect");
+    lua.pushScalar(startAngle, "startAngle");
+    lua.pushScalar(sweepAngle, "sweepAngle");
+    lua.pushBool(useCenter, "useCenter");
+    lua.pushPaint(paint, "paint");
+}
+
 void SkLuaCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     AUTO_LUA("drawRect");
     lua.pushRect(rect, "rect");

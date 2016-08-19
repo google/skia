@@ -739,9 +739,9 @@ public:
         specified oval. If the sweep angle is >= 360, then the oval is drawn
         completely. Note that this differs slightly from SkPath::arcTo, which
         treats the sweep angle mod 360.
-        @param oval The bounds of oval used to define the shape of the arc
+        @param oval The bounds of oval used to define the shape of the arc.
         @param startAngle Starting angle (in degrees) where the arc begins
-        @param sweepAngle Sweep angle (in degrees) measured clockwise
+        @param sweepAngle Sweep angle (in degrees) measured clockwise.
         @param useCenter true means include the center of the oval. For filling
                          this will draw a wedge. False means just use the arc.
         @param paint    The paint used to draw the arc
@@ -1390,6 +1390,8 @@ protected:
     virtual void onDrawPaint(const SkPaint&);
     virtual void onDrawRect(const SkRect&, const SkPaint&);
     virtual void onDrawOval(const SkRect&, const SkPaint&);
+    virtual void onDrawArc(const SkRect&, SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
+                           const SkPaint&);
     virtual void onDrawRRect(const SkRRect&, const SkPaint&);
     virtual void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&);
     virtual void onDrawVertices(VertexMode, int vertexCount, const SkPoint vertices[],

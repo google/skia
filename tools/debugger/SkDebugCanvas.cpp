@@ -596,6 +596,11 @@ void SkDebugCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawOvalCommand(oval, paint));
 }
 
+void SkDebugCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+                               bool useCenter, const SkPaint& paint) {
+    this->addDrawCommand(new SkDrawArcCommand(oval, startAngle, sweepAngle, useCenter, paint));
+}
+
 void SkDebugCanvas::onDrawPaint(const SkPaint& paint) {
     this->addDrawCommand(new SkDrawPaintCommand(paint));
 }

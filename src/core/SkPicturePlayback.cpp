@@ -188,6 +188,17 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->readString(&key);
             canvas->drawAnnotation(rect, key.c_str(), reader->readByteArrayAsData().get());
         } break;
+        case DRAW_ARC: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            SkRect rect;
+            reader->readRect(&rect);
+            SkScalar startAngle = reader->readScalar();
+            SkScalar sweepAngle = reader->readScalar();
+            int useCenter = reader->readInt();
+            if (paint) {
+                canvas->drawArc(rect, startAngle, sweepAngle, SkToBool(useCenter), *paint);
+            }
+        } break;
         case DRAW_ATLAS: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkImage* atlas = fPictureData->getImage(reader);

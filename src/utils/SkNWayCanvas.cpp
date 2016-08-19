@@ -161,6 +161,14 @@ void SkNWayCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
+void SkNWayCanvas::onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                             bool useCenter, const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawArc(rect, startAngle, sweepAngle, useCenter, paint);
+    }
+}
+
 void SkNWayCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {

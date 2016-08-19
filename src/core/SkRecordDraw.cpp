@@ -96,6 +96,7 @@ DRAW(TranslateZ, SkCanvas::translateZ(r.z));
 template <> void Draw::draw(const TranslateZ& r) { }
 #endif
 
+DRAW(DrawArc, drawArc(r.oval, r.startAngle, r.sweepAngle, r.useCenter, r.paint));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image.get(), r.left, r.top, r.paint));
 
@@ -413,6 +414,8 @@ private:
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
     Bounds bounds(const DrawOval& op) const { return this->adjustAndMap(op.oval, &op.paint); }
+    // Tighter arc bounds?
+    Bounds bounds(const DrawArc& op) const { return this->adjustAndMap(op.oval, &op.paint); }
     Bounds bounds(const DrawRRect& op) const {
         return this->adjustAndMap(op.rrect.rect(), &op.paint);
     }

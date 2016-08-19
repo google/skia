@@ -149,6 +149,11 @@ void SkRecorder::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     APPEND(DrawOval, paint, oval);
 }
 
+void SkRecorder::onDrawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+                           bool useCenter, const SkPaint& paint) {
+    APPEND(DrawArc, paint, oval, startAngle, sweepAngle, useCenter);
+}
+
 void SkRecorder::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     APPEND(DrawRRect, paint, rrect);
 }

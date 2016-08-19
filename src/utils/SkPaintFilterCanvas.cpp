@@ -87,6 +87,14 @@ void SkPaintFilterCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
+void SkPaintFilterCanvas::onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                                    bool useCenter, const SkPaint& paint) {
+    AutoPaintFilter apf(this, kArc_Type, paint);
+    if (apf.shouldDraw()) {
+        this->INHERITED::onDrawArc(rect, startAngle, sweepAngle, useCenter, *apf.paint());
+    }
+}
+
 void SkPaintFilterCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     AutoPaintFilter apf(this, kPath_Type, paint);
     if (apf.shouldDraw()) {

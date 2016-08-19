@@ -308,6 +308,14 @@ void SkDumpCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     this->dump(kDrawOval_Verb, &paint, "drawOval(%s)", str.c_str());
 }
 
+void SkDumpCanvas::onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                             bool useCenter, const SkPaint& paint) {
+    SkString str;
+    toString(rect, &str);
+    this->dump(kDrawArc_Verb, &paint, "drawArc(%s, %g, %g, %d)", str.c_str(), startAngle,
+               sweepAngle, useCenter);
+}
+
 void SkDumpCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     SkString str;
     toString(rect, &str);

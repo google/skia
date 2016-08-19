@@ -36,6 +36,7 @@ public:
         kDrawPaint_Verb,
         kDrawPoints_Verb,
         kDrawOval_Verb,
+        kDrawArc_Verb,
         kDrawRect_Verb,
         kDrawRRect_Verb,
         kDrawDRRect_Verb,
@@ -99,6 +100,7 @@ protected:
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
     void onDrawRect(const SkRect&, const SkPaint&) override;
     void onDrawOval(const SkRect&, const SkPaint&) override;
+    void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
     void onDrawRRect(const SkRRect&, const SkPaint&) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;

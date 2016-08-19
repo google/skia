@@ -428,6 +428,20 @@ void SkPictureRecord::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::onDrawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+                                bool useCenter, const SkPaint& paint) {
+    // op + paint index + rect + start + sweep + bool (as int)
+    size_t size = 2 * kUInt32Size + sizeof(oval) + sizeof(startAngle) + sizeof(sweepAngle) +
+                  sizeof(int);
+    size_t initialOffset = this->addDraw(DRAW_ARC, &size);
+    this->addPaint(paint);
+    this->addRect(oval);
+    this->addScalar(startAngle);
+    this->addScalar(sweepAngle);
+    this->addInt(useCenter);
+    this->validate(initialOffset, size);
+}
+
 void SkPictureRecord::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     // op + paint index + rect
     size_t size = 2 * kUInt32Size + sizeof(rect);

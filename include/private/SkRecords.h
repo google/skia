@@ -54,6 +54,7 @@ namespace SkRecords {
     M(ClipRRect)                                                    \
     M(ClipRect)                                                     \
     M(ClipRegion)                                                   \
+    M(DrawArc)                                                      \
     M(DrawDrawable)                                                 \
     M(DrawImage)                                                    \
     M(DrawImageLattice)                                             \
@@ -214,6 +215,12 @@ RECORD(ClipRegion, 0,
         SkRegion::Op op);
 
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
+RECORD(DrawArc, kDraw_Tag|kHasPaint_Tag,
+       SkPaint paint;
+       SkRect oval;
+       SkScalar startAngle;
+       SkScalar sweepAngle;
+       unsigned useCenter);
 RECORD(DrawDRRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRRect outer;

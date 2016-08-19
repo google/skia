@@ -399,6 +399,25 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
+class SkDrawArcCommand : public SkDrawCommand {
+public:
+    SkDrawArcCommand(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
+                     const SkPaint& paint);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
+    static SkDrawArcCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
+
+private:
+    SkRect   fOval;
+    SkScalar fStartAngle;
+    SkScalar fSweepAngle;
+    bool     fUseCenter;
+    SkPaint  fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
 class SkDrawPaintCommand : public SkDrawCommand {
 public:
     SkDrawPaintCommand(const SkPaint& paint);

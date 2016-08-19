@@ -92,7 +92,9 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_COLORS            "colors"
 #define SKDEBUGCANVAS_ATTRIBUTE_TEXTURECOORDS     "textureCoords"
 #define SKDEBUGCANVAS_ATTRIBUTE_FILTERQUALITY     "filterQuality"
-
+#define SKDEBUGCANVAS_ATTRIBUTE_STARTANGLE        "startAngle"
+#define SKDEBUGCANVAS_ATTRIBUTE_SWEEPANGLE        "sweepAngle"
+#define SKDEBUGCANVAS_ATTRIBUTE_USECENTER         "useCenter"
 #define SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC         "shortDesc"
 
 #define SKDEBUGCANVAS_VERB_MOVE                   "move"
@@ -2258,6 +2260,64 @@ SkDrawOvalCommand* SkDrawOvalCommand::fromJSON(Json::Value& command,
     SkPaint paint;
     extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
     return new SkDrawOvalCommand(coords, paint);
+}
+
+SkDrawArcCommand::SkDrawArcCommand(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+                                   bool useCenter, const SkPaint& paint)
+        : INHERITED(kDrawOval_OpType) {
+    fOval = oval;
+    fStartAngle = startAngle;
+    fSweepAngle = sweepAngle;
+    fUseCenter = useCenter;
+    fPaint = paint;
+
+    fInfo.push(SkObjectParser::RectToString(oval));
+    fInfo.push(SkObjectParser::ScalarToString(startAngle, "StartAngle: "));
+    fInfo.push(SkObjectParser::ScalarToString(sweepAngle, "SweepAngle: "));
+    fInfo.push(SkObjectParser::BoolToString(useCenter));
+    fInfo.push(SkObjectParser::PaintToString(paint));
+}
+
+void SkDrawArcCommand::execute(SkCanvas* canvas) const {
+    canvas->drawArc(fOval, fStartAngle, fSweepAngle, fUseCenter, fPaint);
+}
+
+bool SkDrawArcCommand::render(SkCanvas* canvas) const {
+    canvas->clear(0xFFFFFFFF);
+    canvas->save();
+
+    xlate_and_scale_to_bounds(canvas, fOval);
+
+    SkPaint p;
+    p.setColor(SK_ColorBLACK);
+    p.setStyle(SkPaint::kStroke_Style);
+
+    canvas->drawArc(fOval, fStartAngle, fSweepAngle, fUseCenter, p);
+    canvas->restore();
+
+    return true;
+}
+
+Json::Value SkDrawArcCommand::toJSON(UrlDataManager& urlDataManager) const {
+    Json::Value result = INHERITED::toJSON(urlDataManager);
+    result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonRect(fOval);
+    result[SKDEBUGCANVAS_ATTRIBUTE_STARTANGLE] = MakeJsonScalar(fStartAngle);
+    result[SKDEBUGCANVAS_ATTRIBUTE_SWEEPANGLE] = MakeJsonScalar(fSweepAngle);
+    result[SKDEBUGCANVAS_ATTRIBUTE_USECENTER] = fUseCenter;
+    result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
+    return result;
+}
+
+SkDrawArcCommand* SkDrawArcCommand::fromJSON(Json::Value& command,
+                                             UrlDataManager& urlDataManager) {
+    SkRect coords;
+    extract_json_rect(command[SKDEBUGCANVAS_ATTRIBUTE_COORDS], &coords);
+    SkScalar startAngle = command[SKDEBUGCANVAS_ATTRIBUTE_STARTANGLE].asFloat();
+    SkScalar sweepAngle = command[SKDEBUGCANVAS_ATTRIBUTE_SWEEPANGLE].asFloat();
+    bool useCenter = command[SKDEBUGCANVAS_ATTRIBUTE_USECENTER].asBool();
+    SkPaint paint;
+    extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
+    return new SkDrawArcCommand(coords, startAngle, sweepAngle, useCenter, paint);
 }
 
 SkDrawPaintCommand::SkDrawPaintCommand(const SkPaint& paint)

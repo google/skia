@@ -54,8 +54,9 @@ namespace {
     M(Save) M(Restore) M(SaveLayer)                                             \
     M(Concat) M(SetMatrix) M(Translate) M(TranslateZ)                           \
     M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                          \
-    M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawOval) M(DrawRRect) M(DrawDRRect) \
-    M(DrawAnnotation) M(DrawDrawable) M(DrawPicture) M(DrawShadowedPicture)     \
+    M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawOval) M(DrawArc) M(DrawRRect)    \
+    M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture)              \
+    M(DrawShadowedPicture)                                                      \
     M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice)          \
     M(DrawText) M(DrawPosText) M(DrawPosTextH)                                  \
     M(DrawTextOnPath) M(DrawTextRSXform) M(DrawTextBlob)                        \
@@ -194,6 +195,20 @@ namespace {
         SkRect  oval;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) { c->drawOval(oval, paint); }
+    };
+    struct DrawArc final : Op {
+        static const auto kType = Type::DrawArc;
+        DrawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
+                const SkPaint& paint)
+            : oval(oval), startAngle(startAngle), sweepAngle(sweepAngle), useCenter(useCenter)
+            , paint(paint) {}
+        SkRect  oval;
+        SkScalar startAngle;
+        SkScalar sweepAngle;
+        bool useCenter;
+        SkPaint paint;
+        void draw(SkCanvas* c, const SkMatrix&) { c->drawArc(oval, startAngle, sweepAngle,
+                                                             useCenter, paint); }
     };
     struct DrawRRect final : Op {
         static const auto kType = Type::DrawRRect;
@@ -576,6 +591,10 @@ void SkLiteDL::drawRect(const SkRect& rect, const SkPaint& paint) {
 }
 void SkLiteDL::drawOval(const SkRect& oval, const SkPaint& paint) {
     this->push<DrawOval>(0, oval, paint);
+}
+void SkLiteDL::drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
+                       const SkPaint& paint) {
+    this->push<DrawArc>(0, oval, startAngle, sweepAngle, useCenter, paint);
 }
 void SkLiteDL::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     this->push<DrawRRect>(0, rrect, paint);

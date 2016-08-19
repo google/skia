@@ -103,6 +103,14 @@ void SkShadowPaintFilterCanvas::onDrawOval(const SkRect &rect, const SkPaint &pa
     this->restore();
 }
 
+void SkShadowPaintFilterCanvas::onDrawArc(const SkRect &rect, SkScalar startAngle,
+                                          SkScalar sweepAngle, bool useCenter,
+                                          const SkPaint &paint) {
+    this->updateMatrix();
+    this->INHERITED::onDrawArc(rect, startAngle, sweepAngle, useCenter, paint);
+    this->restore();
+}
+
 void SkShadowPaintFilterCanvas::onDrawPath(const SkPath &path, const SkPaint &paint) {
     this->updateMatrix();
     this->INHERITED::onDrawPath(path, paint);

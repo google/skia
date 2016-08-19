@@ -2265,6 +2265,29 @@ void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     LOOPER_END
 }
 
+void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
+                         SkScalar sweepAngle, bool useCenter,
+                         const SkPaint& paint) {
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawArc()");
+    const SkRect* bounds = nullptr;
+    if (paint.canComputeFastBounds()) {
+        SkRect storage;
+        // Note we're using the entire oval as the bounds.
+        if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
+            return;
+        }
+        bounds = &oval;
+    }
+
+    LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type, bounds)
+
+    while (iter.next()) {
+        iter.fDevice->drawArc(iter, oval, startAngle, sweepAngle, useCenter, looper.paint());
+    }
+
+    LOOPER_END
+}
+
 void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRRect()");
     SkRect storage;
@@ -3073,15 +3096,7 @@ void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
     if (SkScalarAbs(sweepAngle) >= SkIntToScalar(360)) {
         this->drawOval(oval, paint);
     } else {
-        SkPath  path;
-        if (useCenter) {
-            path.moveTo(oval.centerX(), oval.centerY());
-        }
-        path.arcTo(oval, startAngle, sweepAngle, !useCenter);
-        if (useCenter) {
-            path.close();
-        }
-        this->drawPath(path, paint);
+        this->onDrawArc(oval, startAngle, sweepAngle, useCenter, paint);
     }
 }
 

@@ -31,6 +31,7 @@ public:
     enum Type {
         kPaint_Type,
         kPoint_Type,
+        kArc_Type,
         kBitmap_Type,
         kRect_Type,
         kRRect_Type,
@@ -66,6 +67,7 @@ protected:
     void onDrawRRect(const SkRRect&, const SkPaint&) override;
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawOval(const SkRect&, const SkPaint&) override;
+    void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,

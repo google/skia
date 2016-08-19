@@ -73,6 +73,20 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
     return geo;
 }
 
+void SkBaseDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar startAngle,
+                           SkScalar sweepAngle, bool useCenter, const SkPaint& paint) {
+    SkASSERT(SkScalarAbs(sweepAngle) >= 0.f && SkScalarAbs(sweepAngle) < 360.f);
+    SkPath  path;
+    if (useCenter) {
+        path.moveTo(oval.centerX(), oval.centerY());
+    }
+    path.arcTo(oval, startAngle, sweepAngle, !useCenter);
+    if (useCenter) {
+        path.close();
+    }
+    this->drawPath(draw, path, paint);
+}
+
 void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
                               const SkRRect& inner, const SkPaint& paint) {
     SkPath path;

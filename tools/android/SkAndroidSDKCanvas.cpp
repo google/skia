@@ -124,6 +124,11 @@ void SkAndroidSDKCanvas::onDrawOval(const SkRect& r, const SkPaint& paint) {
     FILTER(paint);
     fProxyTarget->drawOval(r, filteredPaint);
 }
+void SkAndroidSDKCanvas::onDrawArc(const SkRect& r, SkScalar startAngle, SkScalar sweepAngle,
+                                   bool useCenter, const SkPaint& paint) {
+    FILTER(paint);
+    fProxyTarget->drawArc(r, startAngle, sweepAngle, useCenter, filteredPaint);
+}
 void SkAndroidSDKCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     FILTER(paint);
     fProxyTarget->drawRect(r, filteredPaint);

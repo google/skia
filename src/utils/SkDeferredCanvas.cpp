@@ -324,6 +324,13 @@ void SkDeferredCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     fCanvas->drawOval(modRect, paint);
 }
 
+void SkDeferredCanvas::onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                                 bool useCenter, const SkPaint& paint) {
+    SkRect modRect = rect;
+    this->flush_check(&modRect, &paint, kNoClip_Flag);
+    fCanvas->drawArc(modRect, startAngle, sweepAngle, useCenter, paint);
+}
+
 static SkRRect make_offset(const SkRRect& src, SkScalar dx, SkScalar dy) {
     SkRRect dst = src;
     dst.offset(dx, dy);

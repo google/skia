@@ -55,6 +55,8 @@ protected:
 
     void onDrawOval(const SkRect &rect, const SkPaint &paint) override;
 
+    void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
+
     void onDrawPath(const SkPath &path, const SkPaint &paint) override;
 
     void onDrawBitmap(const SkBitmap &bm, SkScalar left, SkScalar top,
