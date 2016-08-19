@@ -26,10 +26,11 @@ void draw_arcs(SkCanvas* canvas, std::function<void(SkPaint*)> configureStyle) {
         p0.setAntiAlias(aa);
         // Set a reasonable stroke width that configureStyle can override.
         p0.setStrokeWidth(15.f);
-        // Use alpha so we see magenta on overlap between arc and its complement.
-        p0.setAlpha(100);
         SkPaint p1 = p0;
         p1.setColor(SK_ColorBLUE);
+        // Use alpha so we see magenta on overlap between arc and its complement.
+        p0.setAlpha(100);
+        p1.setAlpha(100);
         configureStyle(&p0);
         configureStyle(&p1);
 
@@ -64,7 +65,7 @@ void draw_arcs(SkCanvas* canvas, std::function<void(SkPaint*)> configureStyle) {
 
 #define DEF_ARC_GM(name) DEF_SIMPLE_GM(circular_arcs_##name, canvas, kW, kH)
 
-DEF_ARC_GM(circular_arcs_fill) {
+DEF_ARC_GM(fill) {
     auto setFill = [] (SkPaint*p) { p->setStyle(SkPaint::kFill_Style); };
     draw_arcs(canvas, setFill);
 }
