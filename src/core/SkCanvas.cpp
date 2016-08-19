@@ -2204,6 +2204,14 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
     LOOPER_END
 }
 
+static bool needs_autodrawlooper(SkCanvas* canvas, const SkPaint& paint) {
+    return ((intptr_t)paint.getImageFilter()    |
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+            (intptr_t)canvas->getDrawFilter()   |
+#endif
+            (intptr_t)paint.getLooper()         ) != 0;
+}
+
 void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRect()");
     SkRect storage;
@@ -2220,13 +2228,21 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
         bounds = &r;
     }
 
-    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, SkDrawFilter::kRect_Type, bounds, false)
+    if (needs_autodrawlooper(this, paint)) {
+        LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, SkDrawFilter::kRect_Type, bounds, false)
 
-    while (iter.next()) {
-        iter.fDevice->drawRect(iter, r, looper.paint());
+        while (iter.next()) {
+            iter.fDevice->drawRect(iter, r, looper.paint());
+        }
+
+        LOOPER_END
+    } else {
+        this->predrawNotify(bounds, &paint, false);
+        SkDrawIter iter(this);
+        while (iter.next()) {
+            iter.fDevice->drawRect(iter, r, paint);
+        }
     }
-
-    LOOPER_END
 }
 
 void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
