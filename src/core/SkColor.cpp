@@ -155,6 +155,15 @@ SkColor4f SkColor4f::FromColor(SkColor bgra) {
     return rgba;
 }
 
+SkColor4f SkColor4f::FromColor3f(SkColor3f color3f, float a) {
+    SkColor4f rgba;
+    rgba.fR = color3f.fX;
+    rgba.fG = color3f.fY;
+    rgba.fB = color3f.fZ;
+    rgba.fA = a;
+    return rgba;
+}
+
 SkColor SkColor4f::toSkColor() const {
     return Sk4f_toS32(swizzle_rb(Sk4f::Load(this->vec())));
 }
