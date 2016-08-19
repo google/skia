@@ -73,7 +73,7 @@ toolchain("gcc_like") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description = "$cc ... -o {{output}}"
+    description = "$cc ... $extra_cflags $extra_cflags_c -o {{output}}"
   }
 
   tool("cxx") {
@@ -83,7 +83,7 @@ toolchain("gcc_like") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description = "$cxx ... -o {{output}}"
+    description = "$cxx ... $extra_cflags $extra_cflags_cc -o {{output}}"
   }
 
   tool("asm") {
