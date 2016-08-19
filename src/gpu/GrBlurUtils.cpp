@@ -156,8 +156,8 @@ static void draw_path_with_mask_filter(GrContext* context,
 
     // We just fully apply the style here.
     if (style.applies()) {
-        if (!style.applyToPath(tmpPath.init(), &fillOrHairline, *path,
-                                   GrStyle::MatrixToScaleFactor(viewMatrix))) {
+        SkScalar scale = GrStyle::MatrixToScaleFactor(viewMatrix);
+        if (0 == scale || !style.applyToPath(tmpPath.init(), &fillOrHairline, *path, scale)) {
             return;
         }
         pathIsMutable = true;

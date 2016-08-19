@@ -44,7 +44,9 @@ uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[],
     SkASSERT(tol > 0);
 
     SkScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
-    if (d <= tol) {
+    if (!SkScalarIsFinite(d)) {
+        return MAX_POINTS_PER_CURVE;
+    } else if (d <= tol) {
         return 1;
     } else {
         // Each time we subdivide, d should be cut in 4. So we need to
@@ -104,7 +106,9 @@ uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
         points[1].distanceToLineSegmentBetweenSqd(points[0], points[3]),
         points[2].distanceToLineSegmentBetweenSqd(points[0], points[3]));
     d = SkScalarSqrt(d);
-    if (d <= tol) {
+    if (!SkScalarIsFinite(d)) {
+        return MAX_POINTS_PER_CURVE;
+    } else if (d <= tol) {
         return 1;
     } else {
         SkScalar divSqrt = SkScalarSqrt(d / tol);
