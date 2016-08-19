@@ -22,7 +22,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(800, 600);
+        return SkISize::Make(800, 800);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -34,11 +34,11 @@ protected:
         SkPaint paint;
         for (int i = 0; i < 10000; i++) {
             paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
-            canvas->drawRect(SkRect::MakeXYWH(rand.nextRangeScalar(min, max),
-                                              rand.nextRangeScalar(min, max),
-                                              rand.nextRangeScalar(0, size),
-                                              rand.nextRangeScalar(0, size)),
-                             paint);
+            SkScalar x = rand.nextRangeScalar(min, max);
+            SkScalar y = rand.nextRangeScalar(min, max);
+            SkScalar w = rand.nextRangeScalar(0, size);
+            SkScalar h = rand.nextRangeScalar(0, size);
+            canvas->drawRect(SkRect::MakeXYWH(x, y, w, h), paint);
         }
     }
 
