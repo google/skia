@@ -60,6 +60,7 @@ public:
 
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
+    void didTranslate(SkScalar, SkScalar) override;
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     void didTranslateZ(SkScalar) override;

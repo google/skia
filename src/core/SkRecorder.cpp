@@ -380,6 +380,10 @@ void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
     APPEND(SetMatrix, matrix);
 }
 
+void SkRecorder::didTranslate(SkScalar dx, SkScalar dy) {
+    APPEND(Translate, dx, dy);
+}
+
 void SkRecorder::didTranslateZ(SkScalar z) {
 #ifdef SK_EXPERIMENTAL_SHADOWING
     APPEND(TranslateZ, z);

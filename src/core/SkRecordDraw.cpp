@@ -83,6 +83,7 @@ DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
                                                  r.saveLayerFlags)));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 DRAW(Concat, concat(r.matrix));
+DRAW(Translate, translate(r.dx, r.dy));
 
 DRAW(ClipPath, clipPath(r.path, r.opAA.op, r.opAA.aa));
 DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op, r.opAA.aa));
@@ -241,11 +242,12 @@ private:
         SkMatrix ctm;
     };
 
-    // Only Restore, SetMatrix, and Concat change the CTM.
+    // Only Restore, SetMatrix, Concat, and Translate change the CTM.
     template <typename T> void updateCTM(const T&) {}
     void updateCTM(const Restore& op)   { fCTM = op.matrix; }
     void updateCTM(const SetMatrix& op) { fCTM = op.matrix; }
     void updateCTM(const Concat& op)    { fCTM.preConcat(op.matrix); }
+    void updateCTM(const Translate& op) { fCTM.preTranslate(op.dx, op.dy); }
 
     // Most ops don't change the clip.
     template <typename T> void updateClipBounds(const T&) {}
@@ -299,12 +301,13 @@ private:
 
     void trackBounds(const SetMatrix&)         { this->pushControl(); }
     void trackBounds(const Concat&)            { this->pushControl(); }
+    void trackBounds(const Translate&)         { this->pushControl(); }
+    void trackBounds(const TranslateZ&)        { this->pushControl(); }
     void trackBounds(const ClipRect&)          { this->pushControl(); }
     void trackBounds(const ClipRRect&)         { this->pushControl(); }
     void trackBounds(const ClipPath&)          { this->pushControl(); }
     void trackBounds(const ClipRegion&)        { this->pushControl(); }
 
-    void trackBounds(const TranslateZ&)              { this->pushControl(); }
 
     // For all other ops, we can calculate and store the bounds directly now.
     template <typename T> void trackBounds(const T& op) {

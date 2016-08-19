@@ -29,8 +29,9 @@ SkCanvas::SaveLayerStrategy SkLiteRecorder::getSaveLayerStrategy(const SaveLayer
 }
 void SkLiteRecorder::willRestore() { fDL->restore(); }
 
-void SkLiteRecorder::didConcat   (const SkMatrix& matrix) { fDL->   concat(matrix); }
-void SkLiteRecorder::didSetMatrix(const SkMatrix& matrix) { fDL->setMatrix(matrix); }
+void SkLiteRecorder::didConcat   (const SkMatrix& matrix)   { fDL->   concat(matrix); }
+void SkLiteRecorder::didSetMatrix(const SkMatrix& matrix)   { fDL->setMatrix(matrix); }
+void SkLiteRecorder::didTranslate(SkScalar dx, SkScalar dy) { fDL->translate(dx, dy); }
 
 void SkLiteRecorder::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle style) {
     fDL->clipRect(rect, op, style==kSoft_ClipEdgeStyle);
