@@ -119,8 +119,6 @@ public:
     void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 
-    SkImageInfo imageInfo() const override;
-
     // PDF specific methods.
 
     /** Create the resource dictionary for this device. */

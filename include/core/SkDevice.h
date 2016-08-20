@@ -30,7 +30,7 @@ public:
     /**
      *  Construct a new device.
     */
-    explicit SkBaseDevice(const SkSurfaceProps&);
+    explicit SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
     virtual ~SkBaseDevice();
 
     SkMetaData& getMetaData();
@@ -39,7 +39,7 @@ public:
      *  Return ImageInfo for this device. If the canvas is not backed by pixels
      *  (cpu or gpu), then the info's ColorType will be kUnknown_SkColorType.
      */
-    virtual SkImageInfo imageInfo() const;
+    const SkImageInfo& imageInfo() const { return fInfo; }
 
     /**
      *  Return SurfaceProps for this device.
@@ -371,9 +371,15 @@ private:
 
     virtual SkImageFilterCache* getImageFilterCache() { return NULL; }
 
+    friend class SkBitmapDevice;
+    void privateResize(int w, int h) {
+        *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(w, h);
+    }
+
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;
-    SkSurfaceProps fSurfaceProps;
+    const SkImageInfo    fInfo;
+    const SkSurfaceProps fSurfaceProps;
 
 #ifdef SK_SUPPORT_LEGACY_ACCESSBITMAP
     SkBitmap    fLegacyBitmap;

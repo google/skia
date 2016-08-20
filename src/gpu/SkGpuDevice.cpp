@@ -122,10 +122,22 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
                                               info.width(), info.height(), flags));
 }
 
-SkGpuDevice::SkGpuDevice(sk_sp<GrDrawContext> drawContext, int width, int height, unsigned flags) 
-    : INHERITED(drawContext->surfaceProps())
+static SkImageInfo make_info(GrDrawContext* context, int w, int h, bool opaque) {
+    SkColorType colorType;
+    if (!GrPixelConfigToColorType(context->config(), &colorType)) {
+        colorType = kUnknown_SkColorType;
+    }
+    return SkImageInfo::Make(w, h, colorType,
+                             opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType,
+                             sk_ref_sp(context->getColorSpace()));
+}
+
+SkGpuDevice::SkGpuDevice(sk_sp<GrDrawContext> drawContext, int width, int height, unsigned flags)
+    : INHERITED(make_info(drawContext.get(), width, height, SkToBool(flags & kIsOpaque_Flag)),
+                drawContext->surfaceProps())
     , fContext(SkRef(drawContext->accessRenderTarget()->getContext()))
-    , fDrawContext(std::move(drawContext)) {
+    , fDrawContext(std::move(drawContext))
+{
     fSize.set(width, height);
     fOpaque = SkToBool(flags & kIsOpaque_Flag);
 

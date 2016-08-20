@@ -559,7 +559,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFDocument* doc, bool flip)
-    : INHERITED(SkSurfaceProps(0, kUnknown_SkPixelGeometry))
+    : INHERITED(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
+                SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fPageSize(pageSize)
     , fContentSize(pageSize)
     , fExistingClipRegion(SkIRect::MakeSize(pageSize))
@@ -1292,11 +1293,6 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
     sk_sp<SkPDFObject> xObject = pdfDevice->makeFormXObjectFromDevice();
     SkPDFUtils::DrawFormXObject(this->addXObjectResource(xObject.get()),
                                 &content.entry()->fContent);
-}
-
-SkImageInfo SkPDFDevice::imageInfo() const {
-    SkImageInfo info = SkImageInfo::MakeUnknown(fPageSize.width(), fPageSize.height());
-    return info;
 }
 
 sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {

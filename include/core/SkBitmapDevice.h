@@ -58,8 +58,6 @@ public:
 
     static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&);
 
-    SkImageInfo imageInfo() const override;
-
 protected:
     bool onShouldDisableLCD(const SkPaint&) const override;
 

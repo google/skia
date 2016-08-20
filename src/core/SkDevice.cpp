@@ -24,7 +24,10 @@
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
 
-SkBaseDevice::SkBaseDevice(const SkSurfaceProps& surfaceProps) : fSurfaceProps(surfaceProps) {
+SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
+    : fInfo(info)
+    , fSurfaceProps(surfaceProps)
+{
     fOrigin.setZero();
     fMetaData = nullptr;
 }
@@ -38,10 +41,6 @@ SkMetaData& SkBaseDevice::getMetaData() {
         fMetaData = new SkMetaData;
     }
     return *fMetaData;
-}
-
-SkImageInfo SkBaseDevice::imageInfo() const {
-    return SkImageInfo::MakeUnknown();
 }
 
 #ifdef SK_SUPPORT_LEGACY_ACCESSBITMAP

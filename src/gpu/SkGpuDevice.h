@@ -66,16 +66,6 @@ public:
 
     GrDrawContext* accessDrawContext() override;
 
-    SkImageInfo imageInfo() const override {
-        SkColorType colorType;
-        if (!GrPixelConfigToColorType(fDrawContext->config(), &colorType)) {
-            colorType = kUnknown_SkColorType;
-        }
-        return SkImageInfo::Make(fSize.fWidth, fSize.fHeight, colorType,
-                                 fOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType,
-                                 sk_ref_sp(fDrawContext->getColorSpace()));
-    }
-
     void drawPaint(const SkDraw&, const SkPaint& paint) override;
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
                             const SkPoint[], const SkPaint& paint) override;

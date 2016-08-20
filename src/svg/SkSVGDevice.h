@@ -17,8 +17,6 @@ class SkSVGDevice : public SkBaseDevice {
 public:
     static SkBaseDevice* Create(const SkISize& size, SkXMLWriter* writer);
 
-    SkImageInfo imageInfo() const override;
-
 protected:
     void drawPaint(const SkDraw&, const SkPaint& paint) override;
     void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
@@ -68,7 +66,6 @@ private:
     SkXMLWriter*                  fWriter;
     SkAutoTDelete<AutoElement>    fRootElement;
     SkAutoTDelete<ResourceBucket> fResourceBucket;
-    SkISize                       fSize;
 
     typedef SkBaseDevice INHERITED;
 };

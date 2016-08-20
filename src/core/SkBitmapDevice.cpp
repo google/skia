@@ -69,7 +69,7 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
-    : INHERITED(SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
+    : INHERITED(bitmap.info(), SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
     , fBitmap(bitmap)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
@@ -81,7 +81,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps)
-    : INHERITED(surfaceProps)
+    : INHERITED(bitmap.info(), surfaceProps)
     , fBitmap(bitmap)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
@@ -120,13 +120,10 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
     return new SkBitmapDevice(bitmap, surfaceProps);
 }
 
-SkImageInfo SkBitmapDevice::imageInfo() const {
-    return fBitmap.info();
-}
-
 void SkBitmapDevice::setNewSize(const SkISize& size) {
     SkASSERT(!fBitmap.pixelRef());
     fBitmap.setInfo(fBitmap.info().makeWH(size.fWidth, size.fHeight));
+    this->privateResize(fBitmap.info().width(), fBitmap.info().height());
 }
 
 void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
@@ -134,6 +131,7 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     SkASSERT(bm.height() == fBitmap.height());
     fBitmap = bm;   // intent is to use bm's pixelRef (and rowbytes/config)
     fBitmap.lockPixels();
+    this->privateResize(fBitmap.info().width(), fBitmap.info().height());
 }
 
 SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
