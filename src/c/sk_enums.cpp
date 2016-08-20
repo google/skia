@@ -242,6 +242,12 @@ static_assert ((int)SkPaint::Style::kFill_Style            == (int)FILL_SK_PAINT
 static_assert ((int)SkPaint::Style::kStrokeAndFill_Style   == (int)STROKE_AND_FILL_SK_PAINT_STYLE,   ASSERT_MSG(SkPaint::Style, sk_paint_style_t));
 static_assert ((int)SkPaint::Style::kStroke_Style          == (int)STROKE_SK_PAINT_STYLE,            ASSERT_MSG(SkPaint::Style, sk_paint_style_t));
 
+// sk_path_effect_1d_style_t
+static_assert ((int)SkPaint::Hinting::kNo_Hinting       == (int)NO_HINTING_SK_PAINT_HINTING,       ASSERT_MSG(SkPaint::Hinting, sk_paint_style_t));
+static_assert ((int)SkPaint::Hinting::kSlight_Hinting   == (int)SLIGHT_HINTING_SK_PAINT_HINTING,   ASSERT_MSG(SkPaint::Hinting, sk_paint_style_t));
+static_assert ((int)SkPaint::Hinting::kNormal_Hinting   == (int)NORMAL_HINTING_SK_PAINT_HINTING,   ASSERT_MSG(SkPaint::Hinting, sk_paint_style_t));
+static_assert ((int)SkPaint::Hinting::kFull_Hinting     == (int)FULL_HINTING_SK_PAINT_HINTING,     ASSERT_MSG(SkPaint::Hinting, sk_paint_style_t));
+
 // sk_point_mode_t
 static_assert ((int)SkCanvas::PointMode::kPoints_PointMode    == (int)POINTS_SK_POINT_MODE,    ASSERT_MSG(SkCanvas::PointMode, sk_point_mode_t));
 static_assert ((int)SkCanvas::PointMode::kLines_PointMode     == (int)LINES_SK_POINT_MODE,     ASSERT_MSG(SkCanvas::PointMode, sk_point_mode_t));
