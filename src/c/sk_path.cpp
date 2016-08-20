@@ -223,3 +223,21 @@ bool sk_path_get_bounds(const sk_path_t* cpath, sk_rect_t* crect) {
     }
     return true;
 }
+
+int sk_path_count_points(const sk_path_t* cpath) {
+    const SkPath& path = AsPath(*cpath);
+    return path.countPoints();
+}
+
+void sk_path_get_point(const sk_path_t* cpath, int index, sk_point_t* cpoint) {
+    const SkPath& path = AsPath(*cpath);
+    if (cpoint) {
+        SkPoint point = path.getPoint(index);
+        *cpoint = ToPoint(point);
+    }
+}
+
+int sk_path_get_points(const sk_path_t* cpath, sk_point_t* cpoints, int max) {
+    const SkPath& path = AsPath(*cpath);
+    return path.getPoints(AsPoint(cpoints), max);
+}
