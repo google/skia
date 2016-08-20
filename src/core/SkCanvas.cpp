@@ -320,7 +320,6 @@ class SkDrawIter : public SkDraw {
 public:
     SkDrawIter(SkCanvas* canvas) {
         canvas = canvas->canvasForDrawIter();
-        fCanvas = canvas;
         canvas->updateDeviceCMCache();
 
         fClipStack = canvas->fClipStack;
@@ -361,7 +360,6 @@ public:
     const SkPaint* getPaint() const { return fPaint; }
 
 private:
-    SkCanvas*       fCanvas;
     const DeviceCM* fCurrLayer;
     const SkPaint*  fPaint;     // May be null.
 
