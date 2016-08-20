@@ -225,3 +225,7 @@ void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
     }
     AsCanvas(ccanvas)->drawPicture(AsPicture(cpicture), matrixPtr, AsPaint(cpaint));
 }
+
+sk_canvas_t* sk_canvas_new_from_bitmap(const sk_bitmap_t* bitmap) {
+    return ToCanvas(new SkCanvas(AsBitmap(*bitmap)));
+}
