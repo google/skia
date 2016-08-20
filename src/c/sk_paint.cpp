@@ -45,12 +45,12 @@ void sk_paint_set_maskfilter(sk_paint_t* cpaint, sk_maskfilter_t* cfilter) {
     AsPaint(cpaint)->setMaskFilter(sk_ref_sp(AsMaskFilter(cfilter)));
 }
 
-bool sk_paint_is_stroke(const sk_paint_t* cpaint) {
-    return AsPaint(*cpaint).getStyle() != SkPaint::kFill_Style;
+sk_paint_style_t sk_paint_get_style(const sk_paint_t* cpaint) {
+    return (sk_paint_style_t)AsPaint(*cpaint).getStyle();
 }
 
-void sk_paint_set_stroke(sk_paint_t* cpaint, bool doStroke) {
-    AsPaint(cpaint)->setStyle(doStroke ? SkPaint::kStroke_Style : SkPaint::kFill_Style);
+void sk_paint_set_style(sk_paint_t* cpaint, sk_paint_style_t style) {
+    AsPaint(cpaint)->setStyle((SkPaint::Style)style);
 }
 
 float sk_paint_get_stroke_width(const sk_paint_t* cpaint) {
@@ -235,4 +235,84 @@ sk_path_effect_t* sk_paint_get_path_effect(sk_paint_t* cpaint) {
 
 void sk_paint_set_path_effect(sk_paint_t* cpaint, sk_path_effect_t* effect) {
     AsPaint(cpaint)->setPathEffect(sk_ref_sp(AsPathEffect(effect)));
+}
+
+bool sk_paint_is_linear_text(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->isLinearText();
+}
+
+void sk_paint_set_linear_text(sk_paint_t* cpaint, bool linearText) {
+    AsPaint(cpaint)->setLinearText(linearText);
+}
+
+bool sk_paint_is_subpixel_text(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->isSubpixelText();
+}
+
+void sk_paint_set_subpixel_text(sk_paint_t* cpaint, bool subpixelText) {
+    AsPaint(cpaint)->setSubpixelText(subpixelText);
+}
+
+bool sk_paint_is_lcd_render_text(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->isLCDRenderText();
+}
+
+void sk_paint_set_lcd_render_text(sk_paint_t* cpaint, bool lcdText) {
+    AsPaint(cpaint)->setLCDRenderText(lcdText);
+}
+
+bool sk_paint_is_embedded_bitmap_text(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->isEmbeddedBitmapText();
+}
+
+void sk_paint_set_embedded_bitmap_text(sk_paint_t* cpaint, bool useEmbeddedBitmapText) {
+    AsPaint(cpaint)->setEmbeddedBitmapText(useEmbeddedBitmapText);
+}
+
+bool sk_paint_is_autohinted(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->isAutohinted();
+}
+
+void sk_paint_set_autohinted(sk_paint_t* cpaint, bool useAutohinter) {
+    AsPaint(cpaint)->setAutohinted(useAutohinter);
+}
+
+sk_paint_hinting_t sk_paint_get_hinting(const sk_paint_t* cpaint) {
+    return (sk_paint_hinting_t) AsPaint(cpaint)->getHinting();
+}
+
+void sk_paint_set_hinting(sk_paint_t* cpaint, sk_paint_hinting_t hintingLevel) {
+    AsPaint(cpaint)->setHinting((SkPaint::Hinting)hintingLevel);
+}
+
+bool sk_paint_is_underline_text(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->isUnderlineText();
+}
+
+void sk_paint_set_underline_text(sk_paint_t* cpaint, bool underlineText) {
+    AsPaint(cpaint)->setUnderlineText(underlineText);
+}
+
+bool sk_paint_is_strikethru_text(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->isStrikeThruText();
+}
+
+void sk_paint_set_strikethru_text(sk_paint_t* cpaint, bool strikeThruText) {
+    AsPaint(cpaint)->setStrikeThruText(strikeThruText);
+}
+
+bool sk_paint_is_fake_bold_text(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->isFakeBoldText();
+}
+
+void sk_paint_set_fake_bold_text(sk_paint_t* cpaint, bool fakeBoldText) {
+    AsPaint(cpaint)->setFakeBoldText(fakeBoldText);
+}
+
+bool sk_paint_is_dev_kern_text(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->isDevKernText();
+}
+
+void sk_paint_set_dev_kern_text(sk_paint_t* cpaint, bool devKernText) {
+    AsPaint(cpaint)->setDevKernText(devKernText);
 }

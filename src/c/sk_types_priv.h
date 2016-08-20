@@ -297,6 +297,10 @@ static inline sk_point_t* ToPoint(SkPoint *p) {
     return reinterpret_cast<sk_point_t*>(p);
 }
 
+static inline sk_point_t& ToPoint(SkPoint &p) {
+    return reinterpret_cast<sk_point_t&>(p);
+}
+
 static inline const SkIPoint& AsIPoint(const sk_ipoint_t& p) {
     return reinterpret_cast<const SkIPoint&>(p);
 }

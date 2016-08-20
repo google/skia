@@ -55,12 +55,12 @@ SK_API void sk_paint_set_color(sk_paint_t*, sk_color_t);
     Return true iff stroking is enabled rather than filling on this
     sk_paint_t.
 */
-SK_API bool sk_paint_is_stroke(const sk_paint_t*);
+SK_API sk_paint_style_t sk_paint_get_style(const sk_paint_t*);
 /**
     Set to true to enable stroking rather than filling with this
     sk_paint_t.
 */
-SK_API void sk_paint_set_stroke(sk_paint_t*, bool);
+SK_API void sk_paint_set_style(sk_paint_t*, sk_paint_style_t);
 /**
     Return the width for stroking.  A value of 0 strokes in hairline mode.
  */
@@ -246,6 +246,36 @@ SK_API sk_path_effect_t* sk_paint_get_path_effect(sk_paint_t* cpaint);
  *  Sets the paint's patheffect object  
  */  
 SK_API void sk_paint_set_path_effect(sk_paint_t* cpaint, sk_path_effect_t* effect);  
+
+SK_API bool sk_paint_is_linear_text(const sk_paint_t*);
+SK_API void sk_paint_set_linear_text(sk_paint_t*, bool);
+
+SK_API bool sk_paint_is_subpixel_text(const sk_paint_t*);
+SK_API void sk_paint_set_subpixel_text(sk_paint_t*, bool);
+
+SK_API bool sk_paint_is_lcd_render_text(const sk_paint_t*);
+SK_API void sk_paint_set_lcd_render_text(sk_paint_t*, bool);
+
+SK_API bool sk_paint_is_embedded_bitmap_text(const sk_paint_t*);
+SK_API void sk_paint_set_embedded_bitmap_text(sk_paint_t*, bool);
+
+SK_API sk_paint_hinting_t sk_paint_get_hinting(const sk_paint_t*);
+SK_API void sk_paint_set_hinting(sk_paint_t*, sk_paint_hinting_t);
+
+SK_API bool sk_paint_is_autohinted(const sk_paint_t*);
+SK_API void sk_paint_set_autohinted(sk_paint_t*, bool);
+
+SK_API bool sk_paint_is_underline_text(const sk_paint_t*);
+SK_API void sk_paint_set_underline_text(sk_paint_t*, bool);
+
+SK_API bool sk_paint_is_strikethru_text(const sk_paint_t*);
+SK_API void sk_paint_set_strikethru_text(sk_paint_t*, bool);
+
+SK_API bool sk_paint_is_fake_bold_text(const sk_paint_t*);
+SK_API void sk_paint_set_fake_bold_text(sk_paint_t*, bool);
+
+SK_API bool sk_paint_is_dev_kern_text(const sk_paint_t*);
+SK_API void sk_paint_set_dev_kern_text(sk_paint_t*, bool);
 
 SK_C_PLUS_PLUS_END_GUARD
 
