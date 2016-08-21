@@ -26,6 +26,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        canvas->translate(1, 1);    // want to exercise non-identity ctm performance
+
         const SkScalar min = -20;
         const SkScalar max = 800;
         const SkScalar size = 20;
