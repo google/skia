@@ -7,6 +7,7 @@
 
 #include "GrContext.h"
 #include "gl/GrGLInterface.h"
+#include "gl/GrGLAssembleInterface.h"
 
 #include "gr_context.h"
 
@@ -55,6 +56,18 @@ const gr_glinterface_t* gr_glinterface_default_interface() {
 
 const gr_glinterface_t* gr_glinterface_create_native_interface() {
     return ToGrGLInterface(GrGLCreateNativeInterface());
+}
+
+const gr_glinterface_t* gr_glinterface_assemble_interface(void* ctx, gr_gl_get_proc get) {
+    return ToGrGLInterface(GrGLAssembleInterface(ctx, get));
+}
+
+const gr_glinterface_t* gr_glinterface_assemble_gl_interface(void* ctx, gr_gl_get_proc get) {
+    return ToGrGLInterface(GrGLAssembleGLInterface(ctx, get));
+}
+
+const gr_glinterface_t* gr_glinterface_assemble_gles_interface(void* ctx, gr_gl_get_proc get) {
+    return ToGrGLInterface(GrGLAssembleGLESInterface(ctx, get));
 }
 
 void gr_glinterface_unref(gr_glinterface_t* glInterface) {

@@ -27,6 +27,9 @@ SK_API int gr_context_get_recommended_sample_count(gr_context_t* context, gr_pix
 
 SK_API const gr_glinterface_t* gr_glinterface_default_interface();
 SK_API const gr_glinterface_t* gr_glinterface_create_native_interface();
+SK_API const gr_glinterface_t* gr_glinterface_assemble_interface(void* ctx, gr_gl_get_proc get);
+SK_API const gr_glinterface_t* gr_glinterface_assemble_gl_interface(void* ctx, gr_gl_get_proc get);
+SK_API const gr_glinterface_t* gr_glinterface_assemble_gles_interface(void* ctx, gr_gl_get_proc get);
 SK_API void gr_glinterface_unref(gr_glinterface_t* glInterface);
 SK_API gr_glinterface_t* gr_glinterface_clone(gr_glinterface_t* glInterface);
 SK_API bool gr_glinterface_validate(gr_glinterface_t* glInterface);
