@@ -92,8 +92,12 @@ private:
 };
 #define AutoCleanPng(...) SK_REQUIRE_LOCAL_VAR(AutoCleanPng)
 
+static inline SkAlphaType xform_alpha_type(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
+    return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
+}
+
 // Note: SkColorTable claims to store SkPMColors, which is not necessarily the case here.
-bool SkPngCodec::createColorTable(SkColorType dstColorType, bool premultiply, int* ctableCount) {
+bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) {
 
     int numColors;
     png_color* palette;
@@ -101,21 +105,27 @@ bool SkPngCodec::createColorTable(SkColorType dstColorType, bool premultiply, in
         return false;
     }
 
-    // Note: These are not necessarily SkPMColors.
-    SkPMColor colorPtr[256];
+    // Contents depend on tableColorType and our choice of if/when to premultiply:
+    // { kPremul, kUnpremul, kOpaque } x { RGBA, BGRA }
+    SkPMColor colorTable[256];
+    SkColorType tableColorType = fColorXform ? kRGBA_8888_SkColorType : dstInfo.colorType();
 
     png_bytep alphas;
     int numColorsWithAlpha = 0;
     if (png_get_tRNS(fPng_ptr, fInfo_ptr, &alphas, &numColorsWithAlpha, nullptr)) {
+        // If we are performing a color xform, it will handle the premultiply.  Otherwise,
+        // we'll do it here.
+        bool premultiply =  !fColorXform && needs_premul(dstInfo, this->getInfo());
+
         // Choose which function to use to create the color table. If the final destination's
         // colortype is unpremultiplied, the color table will store unpremultiplied colors.
-        PackColorProc proc = choose_pack_color_proc(premultiply, dstColorType);
+        PackColorProc proc = choose_pack_color_proc(premultiply, tableColorType);
 
         for (int i = 0; i < numColorsWithAlpha; i++) {
             // We don't have a function in SkOpts that combines a set of alphas with a set
             // of RGBs.  We could write one, but it's hardly worth it, given that this
             // is such a small fraction of the total decode time.
-            colorPtr[i] = proc(alphas[i], palette->red, palette->green, palette->blue);
+            colorTable[i] = proc(alphas[i], palette->red, palette->green, palette->blue);
             palette++;
         }
     }
@@ -129,21 +139,31 @@ bool SkPngCodec::createColorTable(SkColorType dstColorType, bool premultiply, in
         SkASSERT(&palette->green < &palette->blue);
 #endif
 
-        if (is_rgba(dstColorType)) {
-            SkOpts::RGB_to_RGB1(colorPtr + numColorsWithAlpha, palette,
+        if (is_rgba(tableColorType)) {
+            SkOpts::RGB_to_RGB1(colorTable + numColorsWithAlpha, palette,
                     numColors - numColorsWithAlpha);
         } else {
-            SkOpts::RGB_to_BGR1(colorPtr + numColorsWithAlpha, palette,
+            SkOpts::RGB_to_BGR1(colorTable + numColorsWithAlpha, palette,
                     numColors - numColorsWithAlpha);
         }
+    }
+
+    // If we are not decoding to F16, we can color xform now and store the results
+    // in the color table.
+    if (fColorXform && kRGBA_F16_SkColorType != dstInfo.colorType()) {
+        SkColorType xformColorType = is_rgba(dstInfo.colorType()) ?
+                kRGBA_8888_SkColorType : kBGRA_8888_SkColorType;
+        SkAlphaType xformAlphaType = xform_alpha_type(dstInfo.alphaType(),
+                                                      this->getInfo().alphaType());
+        fColorXform->apply(colorTable, colorTable, numColors, xformColorType, xformAlphaType);
     }
 
     // Pad the color table with the last color in the table (or black) in the case that
     // invalid pixel indices exceed the number of colors in the table.
     const int maxColors = 1 << fBitDepth;
     if (numColors < maxColors) {
-        SkPMColor lastColor = numColors > 0 ? colorPtr[numColors - 1] : SK_ColorBLACK;
-        sk_memset32(colorPtr + numColors, lastColor, maxColors - numColors);
+        SkPMColor lastColor = numColors > 0 ? colorTable[numColors - 1] : SK_ColorBLACK;
+        sk_memset32(colorTable + numColors, lastColor, maxColors - numColors);
     }
 
     // Set the new color count.
@@ -151,7 +171,7 @@ bool SkPngCodec::createColorTable(SkColorType dstColorType, bool premultiply, in
         *ctableCount = maxColors;
     }
 
-    fColorTable.reset(new SkColorTable(colorPtr, maxColors));
+    fColorTable.reset(new SkColorTable(colorTable, maxColors));
     return true;
 }
 
@@ -367,6 +387,11 @@ void SkPngCodec::allocateStorage() {
             fColorXform ? SkTAddOffset<uint32_t>(fSwizzlerSrcRow, SkAlign4(fSrcRowBytes)) : 0;
 }
 
+static inline bool apply_xform_on_decode(SkColorType dstColorType, SkEncodedInfo::Color srcColor) {
+    // We will apply the color xform when reading the color table, unless F16 is requested.
+    return SkEncodedInfo::kPalette_Color != srcColor || kRGBA_F16_SkColorType == dstColorType;
+}
+
 class SkPngNormalCodec : public SkPngCodec {
 public:
     SkPngNormalCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
@@ -400,18 +425,21 @@ public:
 
         void* swizzlerDstRow = dst;
         size_t swizzlerDstRowBytes = rowBytes;
-        if (fColorXform) {
+
+        bool colorXform = fColorXform &&
+                apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color());
+        if (colorXform) {
             swizzlerDstRow = fColorXformSrcRow;
             swizzlerDstRowBytes = 0;
         }
 
-        SkAlphaType xformAlphaType = (kOpaque_SkAlphaType == this->getInfo().alphaType()) ?
-                kOpaque_SkAlphaType : dstInfo.alphaType();
+        SkAlphaType xformAlphaType = xform_alpha_type(dstInfo.alphaType(),
+                                                      this->getInfo().alphaType());
         for (; y < count; y++) {
             png_read_row(fPng_ptr, fSwizzlerSrcRow, nullptr);
             fSwizzler->swizzle(swizzlerDstRow, fSwizzlerSrcRow);
 
-            if (fColorXform) {
+            if (colorXform) {
                 fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow, fSwizzler->swizzleWidth(),
                                    dstInfo.colorType(), xformAlphaType);
                 dst = SkTAddOffset<void>(dst, rowBytes);
@@ -441,7 +469,6 @@ public:
 
     typedef SkPngCodec INHERITED;
 };
-
 
 class SkPngInterlacedCodec : public SkPngCodec {
 public:
@@ -500,25 +527,25 @@ public:
         // Swizzle and xform the rows we care about
         void* swizzlerDstRow = dst;
         size_t swizzlerDstRowBytes = rowBytes;
-        if (fColorXform) {
+
+        bool colorXform = fColorXform &&
+                apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color());
+        if (colorXform) {
             swizzlerDstRow = fColorXformSrcRow;
             swizzlerDstRowBytes = 0;
         }
 
-        SkAlphaType xformAlphaType = (kOpaque_SkAlphaType == this->getInfo().alphaType()) ?
-                kOpaque_SkAlphaType : dstInfo.alphaType();
+        SkAlphaType xformAlphaType = xform_alpha_type(dstInfo.alphaType(),
+                                                      this->getInfo().alphaType());
         srcRow = storage.get();
         for (int y = 0; y < count; y++) {
             fSwizzler->swizzle(swizzlerDstRow, srcRow);
             srcRow = SkTAddOffset<uint8_t>(srcRow, fSrcRowBytes);
 
-            if (fColorXform) {
-                if (fColorXform) {
-                    fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow,
-                                       fSwizzler->swizzleWidth(), dstInfo.colorType(),
-                                       xformAlphaType);
-                    dst = SkTAddOffset<void>(dst, rowBytes);
-                }
+            if (colorXform) {
+                fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow, fSwizzler->swizzleWidth(),
+                                   dstInfo.colorType(), xformAlphaType);
+                dst = SkTAddOffset<void>(dst, rowBytes);
             }
 
             swizzlerDstRow = SkTAddOffset<void>(swizzlerDstRow, swizzlerDstRowBytes);
@@ -802,6 +829,8 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
                     swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
                 }
                 break;
+            case kIndex_8_SkColorType:
+                break;
             default:
                 return false;
         }
@@ -815,8 +844,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     }
 
     if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
-        if (!this->createColorTable(swizzlerInfo.colorType(),
-                                    kPremul_SkAlphaType == swizzlerInfo.alphaType(), ctableCount)) {
+        if (!this->createColorTable(dstInfo, ctableCount)) {
             return false;
         }
     }

@@ -310,10 +310,25 @@ static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType co
     }
 }
 
+static inline bool needs_premul(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
+    return kPremul_SkAlphaType == dstInfo.alphaType() &&
+           kUnpremul_SkAlphaType == srcInfo.alphaType();
+}
+
 static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
-    return (kRGBA_F16_SkColorType == dstInfo.colorType()) ||
-           (dstInfo.colorSpace() && !SkColorSpace::Equals(srcInfo.colorSpace(),
-                                                          dstInfo.colorSpace()));
+    // Color xform is necessary in order to correctly perform premultiply in linear space.
+    bool needsPremul = needs_premul(dstInfo, srcInfo);
+
+    // F16 is by definition a linear space, so we always must perform a color xform.
+    bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
+
+    // Need a color xform when dst space does not match the src.
+    bool srcDstNotEqual = !SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace());
+
+    // We never perform a color xform in legacy mode.
+    bool isLegacy = nullptr == dstInfo.colorSpace();
+
+    return !isLegacy && (needsPremul || isF16 || srcDstNotEqual);
 }
 
 #endif // SkCodecPriv_DEFINED

@@ -66,7 +66,7 @@ protected:
     int                                fBitDepth;
 
 private:
-    bool createColorTable(SkColorType dstColorType, bool premultiply, int* ctableCount);
+    bool createColorTable(const SkImageInfo& dstInfo, int* ctableCount);
     void destroyReadStruct();
 
     typedef SkCodec INHERITED;
