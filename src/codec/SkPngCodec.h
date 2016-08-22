@@ -41,7 +41,7 @@ protected:
         SkASSERT(fSwizzler);
         return fSwizzler;
     }
-    void allocateStorage(const SkImageInfo& dstInfo);
+    void allocateStorage();
 
     virtual int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count,
                          int startRow) = 0;

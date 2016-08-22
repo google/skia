@@ -358,9 +358,8 @@ static bool png_conversion_possible(const SkImageInfo& dst, const SkImageInfo& s
     }
 }
 
-void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
-    const int width = this->getInfo().width();
-    size_t colorXformBytes = fColorXform ? width * sizeof(uint32_t) : 0;
+void SkPngCodec::allocateStorage() {
+    size_t colorXformBytes = fColorXform ? fSwizzler->swizzleWidth() * sizeof(uint32_t) : 0;
 
     fStorage.reset(SkAlign4(fSrcRowBytes) + colorXformBytes);
     fSwizzlerSrcRow = fStorage.get();
@@ -384,7 +383,7 @@ public:
             return kInvalidConversion;
         }
 
-        this->allocateStorage(dstInfo);
+        this->allocateStorage();
         return kSuccess;
     }
 
@@ -413,7 +412,7 @@ public:
             fSwizzler->swizzle(swizzlerDstRow, fSwizzlerSrcRow);
 
             if (fColorXform) {
-                fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow, dstInfo.width(),
+                fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow, fSwizzler->swizzleWidth(),
                                    dstInfo.colorType(), xformAlphaType);
                 dst = SkTAddOffset<void>(dst, rowBytes);
             }
@@ -464,7 +463,7 @@ public:
             return kInvalidConversion;
         }
 
-        this->allocateStorage(dstInfo);
+        this->allocateStorage();
         fCanSkipRewind = true;
         return SkCodec::kSuccess;
     }
@@ -515,8 +514,9 @@ public:
 
             if (fColorXform) {
                 if (fColorXform) {
-                    fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow, dstInfo.width(),
-                                       dstInfo.colorType(), xformAlphaType);
+                    fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow,
+                                       fSwizzler->swizzleWidth(), dstInfo.colorType(),
+                                       xformAlphaType);
                     dst = SkTAddOffset<void>(dst, rowBytes);
                 }
             }
@@ -865,7 +865,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
         return kUnimplemented;
     }
 
-    this->allocateStorage(dstInfo);
+    this->allocateStorage();
     int count = this->readRows(dstInfo, dst, rowBytes, dstInfo.height(), 0);
     if (count > dstInfo.height()) {
         *rowsDecoded = count;

@@ -1044,6 +1044,36 @@ DEF_TEST(Codec_jpeg_rewind, r) {
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 }
 
+static void check_color_xform(skiatest::Reporter* r, const char* path) {
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(resource(path)));
+
+    SkAndroidCodec::AndroidOptions opts;
+    opts.fSampleSize = 3;
+    const int subsetWidth = codec->getInfo().width() / 2;
+    const int subsetHeight = codec->getInfo().height() / 2;
+    SkIRect subset = SkIRect::MakeWH(subsetWidth, subsetHeight);
+    opts.fSubset = &subset;
+
+    const int dstWidth = subsetWidth / opts.fSampleSize;
+    const int dstHeight = subsetHeight / opts.fSampleSize;
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::NewICC(data->data(), data->size());
+    SkImageInfo dstInfo = codec->getInfo().makeWH(dstWidth, dstHeight)
+                                          .makeColorType(kN32_SkColorType)
+                                          .makeColorSpace(colorSpace);
+
+    size_t rowBytes = dstInfo.minRowBytes();
+    SkAutoMalloc pixelStorage(dstInfo.getSafeSize(rowBytes));
+    SkCodec::Result result = codec->getAndroidPixels(dstInfo, pixelStorage.get(), rowBytes, &opts);
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+}
+
+DEF_TEST(Codec_ColorXform, r) {
+    check_color_xform(r, "mandrill_512_q075.jpg");
+    check_color_xform(r, "mandrill_512.png");
+}
+
 DEF_TEST(Codec_Png565, r) {
     // Create an arbitrary 565 bitmap.
     const char* path = "mandrill_512_q075.jpg";

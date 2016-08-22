@@ -72,6 +72,12 @@ public:
      */
     int sampleX() const { return fSampleX; }
 
+    /**
+     *  Returns the actual number of pixels written to destination memory, taking
+     *  scaling, subsetting, and partial frames into account.
+     */
+    int swizzleWidth() const { return fSwizzleWidth; }
+
 private:
 
     /**

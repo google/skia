@@ -495,11 +495,13 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     uint32_t* swizzleDst = (uint32_t*) dst;
     size_t decodeDstRowBytes = rowBytes;
     size_t swizzleDstRowBytes = rowBytes;
+    int dstWidth = dstInfo.width();
     if (fSwizzleSrcRow && fColorXformSrcRow) {
         decodeDst = (JSAMPLE*) fSwizzleSrcRow;
         swizzleDst = fColorXformSrcRow;
         decodeDstRowBytes = 0;
         swizzleDstRowBytes = 0;
+        dstWidth = fSwizzler->swizzleWidth();
     } else if (fColorXformSrcRow) {
         decodeDst = (JSAMPLE*) fColorXformSrcRow;
         swizzleDst = fColorXformSrcRow;
@@ -508,6 +510,7 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     } else if (fSwizzleSrcRow) {
         decodeDst = (JSAMPLE*) fSwizzleSrcRow;
         decodeDstRowBytes = 0;
+        dstWidth = fSwizzler->swizzleWidth();
     }
 
     for (int y = 0; y < count; y++) {
@@ -523,8 +526,7 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
         }
 
         if (fColorXform) {
-            fColorXform->apply(dst, swizzleDst, dstInfo.width(), dstInfo.colorType(),
-                               kOpaque_SkAlphaType);
+            fColorXform->apply(dst, swizzleDst, dstWidth, dstInfo.colorType(), kOpaque_SkAlphaType);
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
 
@@ -590,16 +592,19 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
 }
 
 void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
+    int dstWidth = dstInfo.width();
+
     size_t swizzleBytes = 0;
     if (fSwizzler) {
         swizzleBytes = get_row_bytes(fDecoderMgr->dinfo());
+        dstWidth = fSwizzler->swizzleWidth();
         SkASSERT(!fColorXform || SkIsAlign4(swizzleBytes));
     }
 
     size_t xformBytes = 0;
     if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
         SkASSERT(fColorXform);
-        xformBytes = dstInfo.width() * sizeof(uint32_t);
+        xformBytes = dstWidth * sizeof(uint32_t);
     }
 
     size_t totalBytes = swizzleBytes + xformBytes;
