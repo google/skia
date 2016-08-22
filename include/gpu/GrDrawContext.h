@@ -230,9 +230,31 @@ public:
                   const SkMatrix& viewMatrix,
                   const SkRect& oval,
                   const GrStyle& style);
+   /**
+    * Draws a partial arc of an oval.
+    *
+    * @param paint         describes how to color pixels.
+    * @param viewMatrix    transformation matrix.
+    * @param oval          the bounding rect of the oval.
+    * @param startAngle    starting angle in degrees.
+    * @param sweepAngle    angle to sweep in degrees. Must be in (-360, 360)
+    * @param useCenter     true means that the implied path begins at the oval center, connects as a
+    *                      line to the point indicated by the start contains the arc indicated by
+    *                      the sweep angle. If false the line beginning at the center point is
+    *                      omitted.
+    * @param style         style to apply to the oval.
+    */
+    void drawArc(const GrClip&,
+                 const GrPaint& paint,
+                 const SkMatrix& viewMatrix,
+                 const SkRect& oval,
+                 SkScalar startAngle,
+                 SkScalar sweepAngle,
+                 bool useCenter,
+                 const GrStyle& style);
 
     /**
-     *  Draw the image as a set of rects, specified by |iter|.
+     * Draw the image as a set of rects, specified by |iter|.
      */
     void drawImageLattice(const GrClip&,
                           const GrPaint& paint,

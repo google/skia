@@ -554,6 +554,25 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
     fDrawContext->drawOval(fClip, grPaint, *draw.fMatrix, oval, GrStyle(paint));
 }
 
+void SkGpuDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar startAngle,
+                          SkScalar sweepAngle, bool useCenter, const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawArc", fContext);
+    CHECK_SHOULD_DRAW(draw);
+
+    if (paint.getMaskFilter()) {
+        this->INHERITED::drawArc(draw, oval, startAngle, sweepAngle, useCenter, paint);
+        return;
+    }
+    GrPaint grPaint;
+    if (!SkPaintToGrPaint(this->context(), fDrawContext.get(), paint, *draw.fMatrix, &grPaint)) {
+        return;
+    }
+
+    fDrawContext->drawArc(fClip, grPaint, *draw.fMatrix, oval, startAngle, sweepAngle, useCenter,
+                          GrStyle(paint));
+}
+
 #include "SkMaskFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////

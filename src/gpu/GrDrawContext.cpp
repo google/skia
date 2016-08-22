@@ -997,6 +997,44 @@ void GrDrawContext::drawOval(const GrClip& clip,
     this->internalDrawPath(clip, paint, viewMatrix, path, style);
 }
 
+void GrDrawContext::drawArc(const GrClip& clip,
+                            const GrPaint& paint,
+                            const SkMatrix& viewMatrix,
+                            const SkRect& oval,
+                            SkScalar startAngle,
+                            SkScalar sweepAngle,
+                            bool useCenter,
+                            const GrStyle& style) {
+    bool useHWAA;
+    if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
+        GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+        SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateArcBatch(paint.getColor(),
+                                                                       viewMatrix,
+                                                                       oval,
+                                                                       startAngle,
+                                                                       sweepAngle,
+                                                                       useCenter,
+                                                                       style,
+                                                                       shaderCaps));
+        if (batch) {
+            GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
+            return;
+        }
+    }
+    SkPath path;
+    path.setIsVolatile(true);
+    if (useCenter) {
+        path.moveTo(oval.centerX(), oval.centerY());
+    }
+    path.arcTo(oval, startAngle, sweepAngle, !useCenter);
+    if (useCenter) {
+        path.close();
+    }
+    this->internalDrawPath(clip, paint, viewMatrix, path, style);
+    return;
+}
+
 void GrDrawContext::drawImageLattice(const GrClip& clip,
                                      const GrPaint& paint,
                                      const SkMatrix& viewMatrix,

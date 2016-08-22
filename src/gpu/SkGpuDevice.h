@@ -77,6 +77,8 @@ public:
                             const SkRRect& inner, const SkPaint& paint) override;
     virtual void drawOval(const SkDraw&, const SkRect& oval,
                           const SkPaint& paint) override;
+    virtual void drawArc(const SkDraw&, const SkRect& oval, SkScalar startAngle,
+                         SkScalar sweepAngle, bool useCenter, const SkPaint& paint) override;
     virtual void drawPath(const SkDraw&, const SkPath& path,
                           const SkPaint& paint, const SkMatrix* prePathMatrix,
                           bool pathIsMutable) override;
