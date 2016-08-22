@@ -352,7 +352,10 @@ sk_sp<SkSurface> SkWindow::makeGpuBackedSurface(const AttachmentInfo& attachment
     GR_GL_GetIntegerv(interface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
     desc.fRenderTargetHandle = buffer;
 
-    return SkSurface::MakeFromBackendRenderTarget(grContext, desc, &fSurfaceProps);
+    sk_sp<SkColorSpace> colorSpace =
+        grContext->caps()->srgbSupport() && SkImageInfoIsGammaCorrect(info())
+        ? SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
+    return SkSurface::MakeFromBackendRenderTarget(grContext, desc, colorSpace, &fSurfaceProps);
 }
 
 #endif
