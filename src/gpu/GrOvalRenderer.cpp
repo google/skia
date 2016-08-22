@@ -1918,7 +1918,14 @@ GrDrawBatch* GrOvalRenderer::CreateArcBatch(GrColor color,
 
 DRAW_BATCH_TEST_DEFINE(CircleBatch) {
     do {
-        SkMatrix viewMatrix = GrTest::TestMatrix(random);
+        SkScalar rotate = random->nextSScalar1() * 360.f;
+        SkScalar translateX = random->nextSScalar1() * 1000.f;
+        SkScalar translateY = random->nextSScalar1() * 1000.f;
+        SkScalar scale = random->nextSScalar1() * 100.f;
+        SkMatrix viewMatrix;
+        viewMatrix.setRotate(rotate);
+        viewMatrix.postTranslate(translateX, translateY);
+        viewMatrix.postScale(scale, scale);
         GrColor color = GrRandomColor(random);
         SkRect circle = GrTest::TestSquare(random);
         SkPoint center = {circle.centerX(), circle.centerY()};
