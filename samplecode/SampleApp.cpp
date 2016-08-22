@@ -837,7 +837,9 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     fMouseX = fMouseY = 0;
     fFatBitsScale = 8;
-    fTypeface = SkTypeface::MakeFromTypeface(nullptr, SkTypeface::kBold);
+    fTypeface = SkTypeface::MakeFromName("Courier", SkFontStyle(SkFontStyle::kBold_Weight,
+                                                                SkFontStyle::kNormal_Width,
+                                                                SkFontStyle::kUpright_Slant));
     fShowZoomer = false;
 
     fZoomLevel = 0;
@@ -999,10 +1001,6 @@ static void drawText(SkCanvas* canvas, SkString str, SkScalar left, SkScalar top
     SkScalar inset = SkIntToScalar(-2);
     bounds.inset(inset, inset);
     canvas->drawRect(bounds, paint);
-    if (desiredColor != SK_ColorBLACK) {
-        paint.setColor(SK_ColorBLACK);
-        canvas->drawText(c_str, size, left + SK_Scalar1, top + SK_Scalar1, paint);
-    }
     paint.setColor(desiredColor);
     canvas->drawText(c_str, size, left, top, paint);
 }
@@ -1247,6 +1245,7 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
     // Identify the pixel and its color on screen
     paint.setTypeface(fTypeface);
     paint.setAntiAlias(true);
+    paint.setTextSize(18);
     SkScalar lineHeight = paint.getFontMetrics(nullptr);
     SkString string;
     string.appendf("(%i, %i)", fMouseX, fMouseY);
@@ -1268,7 +1267,7 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
     i += SK_Scalar1;
     string.reset();
     string.appendf("G: %X", SkColorGetG(color));
-    paint.setColor(SK_ColorGREEN);
+    paint.setColor(0xFF008800);
     drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
     // Blue
     i += SK_Scalar1;
