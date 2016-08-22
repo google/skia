@@ -716,6 +716,18 @@ static bool load_matrix(SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     return true;
 }
 
+static inline SkColorSpace::GammaNamed is_named(const sk_sp<SkGammas>& gammas) {
+    if (gammas->isNamed(0) && gammas->isNamed(1) && gammas->isNamed(2) &&
+        gammas->fRedData.fNamed == gammas->fGreenData.fNamed &&
+        gammas->fRedData.fNamed == gammas->fBlueData.fNamed)
+    {
+        return gammas->fRedData.fNamed;
+    }
+
+    return SkColorSpace::kNonStandard_GammaNamed;
+}
+
+
 static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkColorSpace::GammaNamed* gammaNamed,
                       sk_sp<SkGammas>* gammas, SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     if (len < 32) {
@@ -847,6 +859,14 @@ static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkColorSpace::GammaNa
         }
     } else {
         *gammaNamed = SkColorSpace::kInvalid_GammaNamed;
+    }
+
+    if (SkColorSpace::kNonStandard_GammaNamed == *gammaNamed) {
+        *gammaNamed = is_named(*gammas);
+        if (SkColorSpace::kNonStandard_GammaNamed != *gammaNamed) {
+            // No need to keep the gammas struct, the enum is enough.
+            *gammas = nullptr;
+        }
     }
 
     uint32_t offsetToMatrix = read_big_endian_i32(src + 16);
@@ -1042,12 +1062,17 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                 }
 
                 if (kNonStandard_GammaNamed == gammaNamed) {
-                    return sk_sp<SkColorSpace>(new SkColorSpace_Base(nullptr, gammaNamed,
-                                                                     std::move(gammas), mat,
-                                                                     std::move(data)));
-                } else {
-                    return SkColorSpace_Base::NewRGB(gammaNamed, mat);
+                    // It's possible that we'll initially detect non-matching gammas, only for
+                    // them to evaluate to the same named gamma curve.
+                    gammaNamed = is_named(gammas);
+                    if (kNonStandard_GammaNamed == gammaNamed) {
+                        return sk_sp<SkColorSpace>(new SkColorSpace_Base(nullptr, gammaNamed,
+                                                                         std::move(gammas), mat,
+                                                                         std::move(data)));
+                    }
                 }
+
+                return SkColorSpace_Base::NewRGB(gammaNamed, mat);
             }
 
             // Recognize color profile specified by A2B0 tag.
@@ -1066,9 +1091,9 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                     return sk_sp<SkColorSpace>(new SkColorSpace_Base(std::move(colorLUT),
                                                                      gammaNamed, std::move(gammas),
                                                                      toXYZ, std::move(data)));
-                } else {
-                    return SkColorSpace_Base::NewRGB(gammaNamed, toXYZ);
                 }
+
+                return SkColorSpace_Base::NewRGB(gammaNamed, toXYZ);
             }
         }
         default:
