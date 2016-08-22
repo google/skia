@@ -898,9 +898,7 @@
       "_",
       "image",
       "_",
-      ".SRW",
-      "--match",
-      "~CompressCheckerboard"
+      ".SRW"
     ],
     "env": {
       "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",

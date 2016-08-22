@@ -150,14 +150,14 @@ namespace SK_OPTS_NS {
     }
     #endif
 
-    static void compress_r11eac_blocks(uint64_t* dst, const uint8_t* src, size_t rowBytes) {
+    static void compress_r11eac_blocks(uint8_t* dst, const uint8_t* src, size_t rowBytes) {
         // Try to avoid switching between vector and non-vector ops...
         const uint8_t *const src1 = src;
         const uint8_t *const src2 = src + rowBytes;
         const uint8_t *const src3 = src + 2*rowBytes;
         const uint8_t *const src4 = src + 3*rowBytes;
-        uint64_t *const dst1 = dst;
-        uint64_t *const dst2 = dst + 2;
+        uint8_t *const dst1 = dst;
+        uint8_t *const dst2 = dst + 16;
 
         const uint8x16_t alphaRow1 = vld1q_u8(src1);
         const uint8x16_t alphaRow2 = vld1q_u8(src2);
@@ -175,12 +175,12 @@ namespace SK_OPTS_NS {
             if (is_zero(alphaRow1)) {
                 static const uint64x2_t kTransparent = { 0x0020000000002000ULL,
                                                          0x0020000000002000ULL };
-                vst1q_u64(dst1, kTransparent);
-                vst1q_u64(dst2, kTransparent);
+                vst1q_u8(dst1, vreinterpretq_u8_u64(kTransparent));
+                vst1q_u8(dst2, vreinterpretq_u8_u64(kTransparent));
                 return;
             } else if (is_zero(nAlphaRow1)) {
-                vst1q_u64(dst1, vreinterpretq_u64_u8(cmp));
-                vst1q_u64(dst2, vreinterpretq_u64_u8(cmp));
+                vst1q_u8(dst1, cmp);
+                vst1q_u8(dst2, cmp);
                 return;
             }
         }
@@ -205,8 +205,8 @@ namespace SK_OPTS_NS {
 
         const uint64x2_t d1 = vcombine_u64(vget_low_u64(indicesLeft), vget_low_u64(indicesRight));
         const uint64x2_t d2 = vcombine_u64(vget_high_u64(indicesLeft), vget_high_u64(indicesRight));
-        vst1q_u64(dst1, d1);
-        vst1q_u64(dst2, d2);
+        vst1q_u8(dst1, vreinterpretq_u8_u64(d1));
+        vst1q_u8(dst2, vreinterpretq_u8_u64(d2));
     }
 
     static bool compress_a8_r11eac(uint8_t* dst, const uint8_t* src,
@@ -224,12 +224,11 @@ namespace SK_OPTS_NS {
 
         SkASSERT((blocksX % 4) == 0);
 
-        uint64_t* encPtr = reinterpret_cast<uint64_t*>(dst);
         for (int y = 0; y < blocksY; ++y) {
             for (int x = 0; x < blocksX; x+=4) {
                 // Compress it
-                compress_r11eac_blocks(encPtr, src + 4*x, rowBytes);
-                encPtr += 4;
+                compress_r11eac_blocks(dst, src + 4*x, rowBytes);
+                dst += 32;
             }
             src += 4 * rowBytes;
         }

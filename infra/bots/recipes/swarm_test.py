@@ -298,9 +298,6 @@ def dm_flags(bot):
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
 
-  if 'Nexus6' in bot:  # skia:5637
-    match.append('~CompressCheckerboard')
-
   if 'GalaxyS3' in bot:  # skia:1699
     match.append('~WritePixels')
 
