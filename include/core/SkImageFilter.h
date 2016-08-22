@@ -152,6 +152,10 @@ public:
         return this->isColorFilterNode(filterPtr);
     }
 
+    static sk_sp<SkImageFilter> MakeBlur(SkScalar sigmaX, SkScalar sigmaY,
+                                         sk_sp<SkImageFilter> input,
+                                         const CropRect* cropRect = nullptr);
+
     /**
      *  Returns true (and optionally returns a ref'd filter) if this imagefilter can be completely
      *  replaced by the returned colorfilter. i.e. the two effects will affect drawing in the
@@ -229,6 +233,7 @@ public:
 
     SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 protected:
     class Common {

@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-
 #include "SkAutoPixmapStorage.h"
 #include "SkColorPriv.h"
 #include "SkGpuBlurUtils.h"
@@ -20,13 +18,51 @@
 #include "SkGr.h"
 #endif
 
-sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY, 
+class SkBlurImageFilterImpl : public SkImageFilter {
+public:
+    SkBlurImageFilterImpl(SkScalar sigmaX,
+                      SkScalar sigmaY,
+                      sk_sp<SkImageFilter> input,
+                      const CropRect* cropRect);
+
+    SkRect computeFastBounds(const SkRect&) const override;
+
+    SK_TO_STRING_OVERRIDE()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilterImpl)
+
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
+    static SkImageFilter* Create(SkScalar sigmaX, SkScalar sigmaY, SkImageFilter* input = nullptr,
+                                 const CropRect* cropRect = nullptr) {
+        return Make(sigmaX, sigmaY, sk_ref_sp<SkImageFilter>(input), cropRect).release();
+    }
+#endif
+
+protected:
+    void flatten(SkWriteBuffer&) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
+
+private:
+    SkSize   fSigma;
+    typedef SkImageFilter INHERITED;
+
+    friend class SkImageFilter;
+};
+
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkImageFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurImageFilterImpl)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+
+///////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkImageFilter> SkImageFilter::MakeBlur(SkScalar sigmaX, SkScalar sigmaY,
                                              sk_sp<SkImageFilter> input,
                                              const CropRect* cropRect) {
     if (0 == sigmaX && 0 == sigmaY && !cropRect) {
         return input;
     }
-    return sk_sp<SkImageFilter>(new SkBlurImageFilter(sigmaX, sigmaY, input, cropRect));
+    return sk_sp<SkImageFilter>(new SkBlurImageFilterImpl(sigmaX, sigmaY, input, cropRect));
 }
 
 // This rather arbitrary-looking value results in a maximum box blur kernel size
@@ -44,7 +80,7 @@ static SkVector map_sigma(const SkSize& localSigma, const SkMatrix& ctm) {
     return sigma;
 }
 
-SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX,
+SkBlurImageFilterImpl::SkBlurImageFilterImpl(SkScalar sigmaX,
                                      SkScalar sigmaY,
                                      sk_sp<SkImageFilter> input,
                                      const CropRect* cropRect)
@@ -52,14 +88,14 @@ SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX,
     , fSigma(SkSize::Make(sigmaX, sigmaY)) {
 }
 
-sk_sp<SkFlattenable> SkBlurImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
-    return Make(sigmaX, sigmaY, common.getInput(0), &common.cropRect());
+    return SkImageFilter::MakeBlur(sigmaX, sigmaY, common.getInput(0), &common.cropRect());
 }
 
-void SkBlurImageFilter::flatten(SkWriteBuffer& buffer) const {
+void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fSigma.fWidth);
     buffer.writeScalar(fSigma.fHeight);
@@ -80,7 +116,7 @@ static void get_box3_params(SkScalar s, int *kernelSize, int* kernelSize3, int *
     }
 }
 
-sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
+sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
                                                        const Context& ctx,
                                                        SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
@@ -231,14 +267,14 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
 }
 
 
-SkRect SkBlurImageFilter::computeFastBounds(const SkRect& src) const {
+SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
     bounds.outset(SkScalarMul(fSigma.width(), SkIntToScalar(3)),
                   SkScalarMul(fSigma.height(), SkIntToScalar(3)));
     return bounds;
 }
 
-SkIRect SkBlurImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+SkIRect SkBlurImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                               MapDirection) const {
     SkVector sigma = map_sigma(fSigma, ctm);
     return src.makeOutset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
@@ -246,8 +282,8 @@ SkIRect SkBlurImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix
 }
 
 #ifndef SK_IGNORE_TO_STRING
-void SkBlurImageFilter::toString(SkString* str) const {
-    str->appendf("SkBlurImageFilter: (");
+void SkBlurImageFilterImpl::toString(SkString* str) const {
+    str->appendf("SkBlurImageFilterImpl: (");
     str->appendf("sigma: (%f, %f) input (", fSigma.fWidth, fSigma.fHeight);
 
     if (this->getInput(0)) {
