@@ -102,7 +102,23 @@ DEF_ARC_GM(stroke_round) {
     draw_arcs(canvas, setStroke);
 }
 
-DEF_ARC_GM(fill_and_Stroke) {
+DEF_ARC_GM(stroke_and_fill_butt) {
+    auto setStroke = [] (SkPaint* p) {
+        p->setStyle(SkPaint::kStrokeAndFill_Style);
+        p->setStrokeCap(SkPaint::kButt_Cap);
+    };
+    draw_arcs(canvas, setStroke);
+}
+
+DEF_ARC_GM(stroke_and_fill_square) {
+    auto setStroke = [] (SkPaint* p) {
+        p->setStyle(SkPaint::kStrokeAndFill_Style);
+        p->setStrokeCap(SkPaint::kSquare_Cap);
+    };
+    draw_arcs(canvas, setStroke);
+}
+
+DEF_ARC_GM(stroke_and_fill_round) {
     auto setStroke = [] (SkPaint* p) {
         p->setStyle(SkPaint::kStrokeAndFill_Style);
         p->setStrokeCap(SkPaint::kRound_Cap);
