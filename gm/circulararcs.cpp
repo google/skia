@@ -10,7 +10,7 @@
 #include "gm.h"
 
 static constexpr SkScalar kStarts[] = {0.f, 10.f, 30.f, 45.f, 90.f, 165.f, 180.f, 270.f};
-static constexpr SkScalar kSweeps[] = {1.f, 45.f, 90.f, 130.f, 180.f, 270.f, 300.f, 355.f};
+static constexpr SkScalar kSweeps[] = {1.f, 45.f, 90.f, 130.f, 180.f, 184.f, 300.f, 355.f};
 static constexpr SkScalar kDiameter = 40.f;
 static constexpr SkRect kRect = {0.f, 0.f, kDiameter, kDiameter};
 static constexpr int kW = 1000;
@@ -97,6 +97,14 @@ DEF_ARC_GM(stroke_square) {
 DEF_ARC_GM(stroke_round) {
     auto setStroke = [] (SkPaint* p) {
         p->setStyle(SkPaint::kStroke_Style);
+        p->setStrokeCap(SkPaint::kRound_Cap);
+    };
+    draw_arcs(canvas, setStroke);
+}
+
+DEF_ARC_GM(fill_and_Stroke) {
+    auto setStroke = [] (SkPaint* p) {
+        p->setStyle(SkPaint::kStrokeAndFill_Style);
         p->setStrokeCap(SkPaint::kRound_Cap);
     };
     draw_arcs(canvas, setStroke);
