@@ -30,7 +30,7 @@
             '<(skia_src_path)/opts/SkBlitRow_opts_arm_neon.cpp',
         ],
         'crc32_sources': [
-            '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
+            '<(skia_src_path)/opts/SkOpts_crc32.cpp',
         ],
 
         'mips_dsp_sources': [

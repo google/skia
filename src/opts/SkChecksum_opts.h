@@ -13,9 +13,9 @@
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42
     #include <immintrin.h>
+#elif defined(SK_CPU_ARM64) && defined(__ARM_FEATURE_CRC32)
+    #include <arm_acle.h>
 #endif
-
-// TODO: ARMv8 has optional CRC instructions similar to SSE 4.2
 
 namespace SK_OPTS_NS {
 
@@ -123,6 +123,50 @@ static inline T unaligned_load(const uint8_t* src) {
         }
         if (bytes & 1) {
             hash = _mm_crc32_u8(hash, unaligned_load<uint8_t>(data));
+        }
+        return hash;
+    }
+
+#elif defined(SK_CPU_ARM64) && defined(__ARM_FEATURE_CRC32)
+    static uint32_t hash_fn(const void* vdata, size_t bytes, uint32_t hash) {
+        auto data = (const uint8_t*)vdata;
+        if (bytes >= 24) {
+            uint32_t a = hash,
+                     b = hash,
+                     c = hash;
+            size_t steps = bytes/24;
+            while (steps --> 0) {
+                a = __crc32d(a, unaligned_load<uint64_t>(data+ 0));
+                b = __crc32d(b, unaligned_load<uint64_t>(data+ 8));
+                c = __crc32d(c, unaligned_load<uint64_t>(data+16));
+                data += 24;
+            }
+            bytes %= 24;
+            hash = a^b^c;
+        }
+
+        SkASSERT(bytes < 24);
+        if (bytes >= 16) {
+            hash = __crc32d(hash, unaligned_load<uint64_t>(data));
+            bytes -= 8;
+            data  += 8;
+        }
+
+        SkASSERT(bytes < 16);
+        if (bytes & 8) {
+            hash = __crc32d(hash, unaligned_load<uint64_t>(data));
+            data += 8;
+        }
+        if (bytes & 4) {
+            hash = __crc32w(hash, unaligned_load<uint32_t>(data));
+            data += 4;
+        }
+        if (bytes & 2) {
+            hash = __crc32h(hash, unaligned_load<uint16_t>(data));
+            data += 2;
+        }
+        if (bytes & 1) {
+            hash = __crc32b(hash, unaligned_load<uint8_t>(data));
         }
         return hash;
     }
