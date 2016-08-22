@@ -190,7 +190,7 @@ private:
                     fragBuilder->codeAppend("clip *= clamp(circleEdge.z * dot(circleEdge.xy, isectPlane.xy) + isectPlane.z, 0.0, 1.0);");
                 }
                 if (cgp.fInUnionPlane) {
-                    fragBuilder->codeAppend("clip += (1-clip)*clamp(circleEdge.z * dot(circleEdge.xy, unionPlane.xy) + unionPlane.z, 0.0, 1.0);");
+                    fragBuilder->codeAppend("clip += (1.0 - clip)*clamp(circleEdge.z * dot(circleEdge.xy, unionPlane.xy) + unionPlane.z, 0.0, 1.0);");
                 }
                 fragBuilder->codeAppend("edgeAlpha *= clip;");
             }
