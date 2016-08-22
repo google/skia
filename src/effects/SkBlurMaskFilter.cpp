@@ -1034,8 +1034,8 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
 
     SkRect rect;
     if (path.isRect(&rect)) {
-        int pad = SkScalarCeilToInt(6*xformedSigma)/2;
-        rect.outset(SkIntToScalar(pad), SkIntToScalar(pad));
+        SkScalar pad = 3.0f * xformedSigma;
+        rect.outset(pad, pad);
 
         fp = GrRectBlurEffect::Make(texProvider, rect, xformedSigma);
     } else if (path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height())) {
