@@ -42,7 +42,7 @@ static void load_f16(const SkPixmap& src, int x, int y, SkPM4f span[], int count
     SkASSERT(src.addr64(x + count - 1, y));
 
     for (int i = 0; i < count; ++i) {
-        SkHalfToFloat_finite(addr[i]).store(span[i].fVec);
+        SkHalfToFloat_finite_ftz(addr[i]).store(span[i].fVec);
     }
 }
 

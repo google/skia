@@ -55,32 +55,29 @@ DEF_TEST(color_half_float, reporter) {
     }
 }
 
-static uint32_t u(float f) {
-    uint32_t x;
-    memcpy(&x, &f, 4);
-    return x;
+static bool is_denorm(uint16_t h) {
+    return (h & 0x7fff) < 0x0400;
 }
 
-DEF_TEST(HalfToFloat_finite, r) {
+static bool is_finite(uint16_t h) {
+    return (h & 0x7c00) != 0x7c00;
+}
+
+DEF_TEST(SkHalfToFloat_finite_ftz, r) {
     for (uint32_t h = 0; h <= 0xffff; h++) {
-        float f = SkHalfToFloat(h);
-        if (isfinite(f)) {
-            float got = SkHalfToFloat_finite(h)[0];
-            if (got != f) {
-                SkDebugf("0x%04x -> 0x%08x (%g), want 0x%08x (%g)\n",
-                        h,
-                        u(got), got,
-                        u(f), f);
-            }
-            REPORTER_ASSERT(r, SkHalfToFloat_finite(h)[0] == f);
-            uint64_t result;
-            SkFloatToHalf_finite(SkHalfToFloat_finite(h)).store(&result);
-            REPORTER_ASSERT(r, result == h);
+        if (!is_finite(h)) {
+            // _finite_ftz() only works for values that can be represented as a finite half float.
+            continue;
         }
+
+        // _finite_ftz() flushes denorms to zero.  0.0f will compare == with both +0.0f and -0.0f.
+        float expected = is_denorm(h) ? 0.0f : SkHalfToFloat(h);
+
+        REPORTER_ASSERT(r, SkHalfToFloat_finite_ftz(h)[0] == expected);
     }
 }
 
-DEF_TEST(FloatToHalf_finite, r) {
+DEF_TEST(SkFloatToHalf_finite_ftz, r) {
 #if 0
     for (uint64_t bits = 0; bits <= 0xffffffff; bits++) {
 #else
@@ -90,16 +87,20 @@ DEF_TEST(FloatToHalf_finite, r) {
 #endif
         float f;
         memcpy(&f, &bits, 4);
-        if (isfinite(f) && isfinite(SkHalfToFloat(SkFloatToHalf(f)))) {
-            uint16_t h1 = SkFloatToHalf_finite(Sk4f(f,0,0,0))[0],
-                     h2 = SkFloatToHalf(f);
-            bool ok = (h1 == h2 || h1 == h2-1);
-            REPORTER_ASSERT(r, ok);
-            if (!ok) {
-                SkDebugf("%08x (%g) -> %04x, want %04x (%g)\n",
-                         bits, f, h1, h2, SkHalfToFloat(h2));
-                break;
-            }
+
+        uint16_t expected = SkFloatToHalf(f);
+        if (!is_finite(expected)) {
+            // _finite_ftz() only works for values that can be represented as a finite half float.
+            continue;
         }
+
+        if (is_denorm(expected)) {
+            // _finite_ftz() flushes denorms to zero, and happens to keep the sign bit.
+            expected = signbit(f) ? 0x8000 : 0x0000;
+        }
+
+        uint16_t actual = SkFloatToHalf_finite_ftz(Sk4f{f})[0];
+        // _finite_ftz() truncates instead of rounding, so it may be one too small.
+        REPORTER_ASSERT(r, actual == expected || actual == expected - 1);
     }
 }

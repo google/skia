@@ -141,12 +141,12 @@ struct DstTraits<DstType::F16, premul> {
     }
 
     static void store(const Sk4f& c, Type* dst) {
-        SkFloatToHalf_finite(PM::apply(c)).store(dst);
+        SkFloatToHalf_finite_ftz(PM::apply(c)).store(dst);
     }
 
     static void store(const Sk4f& c, Type* dst, int n) {
         uint64_t color;
-        SkFloatToHalf_finite(PM::apply(c)).store(&color);
+        SkFloatToHalf_finite_ftz(PM::apply(c)).store(&color);
         sk_memset64(dst, color, n);
     }
 

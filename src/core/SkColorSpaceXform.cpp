@@ -876,25 +876,25 @@ static inline void store_2dot2_1(void* dst, const uint32_t* src,
 static inline void store_f16(void* dst, const uint32_t* src,
                              Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                              const uint8_t* const[3], SwapRB) {
-    Sk4h_store4(dst, SkFloatToHalf_finite(dr),
-                     SkFloatToHalf_finite(dg),
-                     SkFloatToHalf_finite(db),
-                     SkFloatToHalf_finite(da));
+    Sk4h_store4(dst, SkFloatToHalf_finite_ftz(dr),
+                     SkFloatToHalf_finite_ftz(dg),
+                     SkFloatToHalf_finite_ftz(db),
+                     SkFloatToHalf_finite_ftz(da));
 }
 
 static inline void store_f16_1(void* dst, const uint32_t* src,
                                Sk4f& rgba, const Sk4f& a,
                                const uint8_t* const[3], SwapRB kSwapRB) {
     rgba = Sk4f(rgba[0], rgba[1], rgba[2], a[3]);
-    SkFloatToHalf_finite(rgba).store((uint64_t*) dst);
+    SkFloatToHalf_finite_ftz(rgba).store((uint64_t*) dst);
 }
 
 static inline void store_f16_opaque(void* dst, const uint32_t* src,
                                     Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                                     const uint8_t* const[3], SwapRB) {
-    Sk4h_store4(dst, SkFloatToHalf_finite(dr),
-                     SkFloatToHalf_finite(dg),
-                     SkFloatToHalf_finite(db),
+    Sk4h_store4(dst, SkFloatToHalf_finite_ftz(dr),
+                     SkFloatToHalf_finite_ftz(dg),
+                     SkFloatToHalf_finite_ftz(db),
                      SK_Half1);
 }
 
@@ -902,7 +902,7 @@ static inline void store_f16_1_opaque(void* dst, const uint32_t* src,
                                       Sk4f& rgba, const Sk4f& a,
                                       const uint8_t* const[3], SwapRB kSwapRB) {
     uint64_t tmp;
-    SkFloatToHalf_finite(rgba).store(&tmp);
+    SkFloatToHalf_finite_ftz(rgba).store(&tmp);
     tmp |= static_cast<uint64_t>(SK_Half1) << 48;
     *((uint64_t*) dst) = tmp;
 }

@@ -600,7 +600,7 @@ SkColor SkBitmap::getColor(int x, int y) const {
         }
         case kRGBA_F16_SkColorType: {
             const uint64_t* addr = (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
-            Sk4f p4 = SkHalfToFloat_finite(addr[0]);
+            Sk4f p4 = SkHalfToFloat_finite_ftz(addr[0]);
             if (p4[3]) {
                 float inva = 1 / p4[3];
                 p4 = p4 * Sk4f(inva, inva, inva, 1);

@@ -185,7 +185,7 @@ public:
     PixelConverter(const SkPixmap& srcPixmap) { }
 
     Sk4f toSk4f(const Element pixel) const {
-        return SkHalfToFloat_finite(pixel);
+        return SkHalfToFloat_finite_ftz(pixel);
     }
 };
 

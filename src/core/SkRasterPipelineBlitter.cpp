@@ -196,17 +196,17 @@ SK_RASTER_STAGE(load_d_f16) {
     Sk4h rh, gh, bh, ah;
     Sk4h_load4(ptr, &rh, &gh, &bh, &ah);
 
-    dr = SkHalfToFloat_finite(rh);
-    dg = SkHalfToFloat_finite(gh);
-    db = SkHalfToFloat_finite(bh);
-    da = SkHalfToFloat_finite(ah);
+    dr = SkHalfToFloat_finite_ftz(rh);
+    dg = SkHalfToFloat_finite_ftz(gh);
+    db = SkHalfToFloat_finite_ftz(bh);
+    da = SkHalfToFloat_finite_ftz(ah);
 }
 
 // Load 1 F16 pixel.
 SK_RASTER_STAGE(load_d_f16_1) {
     auto ptr = (const uint64_t*)ctx + x;
 
-    auto p0 = SkHalfToFloat_finite(ptr[0]);
+    auto p0 = SkHalfToFloat_finite_ftz(ptr[0]);
     dr = { p0[0],0,0,0 };
     dg = { p0[1],0,0,0 };
     db = { p0[2],0,0,0 };
@@ -217,15 +217,15 @@ SK_RASTER_STAGE(load_d_f16_1) {
 SK_RASTER_STAGE(store_f16) {
     auto ptr = (uint64_t*)ctx + x;
 
-    Sk4h_store4(ptr, SkFloatToHalf_finite(r), SkFloatToHalf_finite(g),
-                     SkFloatToHalf_finite(b), SkFloatToHalf_finite(a));
+    Sk4h_store4(ptr, SkFloatToHalf_finite_ftz(r), SkFloatToHalf_finite_ftz(g),
+                     SkFloatToHalf_finite_ftz(b), SkFloatToHalf_finite_ftz(a));
 }
 
 // Store 1 F16 pixel.
 SK_RASTER_STAGE(store_f16_1) {
     auto ptr = (uint64_t*)ctx + x;
 
-    SkFloatToHalf_finite({r[0], g[0], b[0], a[0]}).store(ptr);
+    SkFloatToHalf_finite_ftz({r[0], g[0], b[0], a[0]}).store(ptr);
 }
 
 // Load 4 8-bit sRGB pixels from SkPMColor order to RGBA.
