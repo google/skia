@@ -173,25 +173,6 @@ DEF_TEST(ColorSpace_Named, r) {
     REPORTER_ASSERT(r, info.gammaCloseToSRGB());
 }
 
-static void matrix_equals(skiatest::Reporter* r, SkColorSpace* space1, SkColorSpace* space2) {
-    REPORTER_ASSERT(r, space1->xyz().getFloat(0, 0) == space2->xyz().getFloat(0, 0));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(0, 1) == space2->xyz().getFloat(0, 1));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(0, 2) == space2->xyz().getFloat(0, 2));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(0, 3) == space2->xyz().getFloat(0, 3));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(1, 0) == space2->xyz().getFloat(1, 0));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(1, 1) == space2->xyz().getFloat(1, 1));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(1, 2) == space2->xyz().getFloat(1, 2));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(1, 3) == space2->xyz().getFloat(1, 3));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(2, 0) == space2->xyz().getFloat(2, 0));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(2, 1) == space2->xyz().getFloat(2, 1));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(2, 2) == space2->xyz().getFloat(2, 2));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(2, 3) == space2->xyz().getFloat(2, 3));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(3, 0) == space2->xyz().getFloat(3, 0));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(3, 1) == space2->xyz().getFloat(3, 1));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(3, 2) == space2->xyz().getFloat(3, 2));
-    REPORTER_ASSERT(r, space1->xyz().getFloat(3, 3) == space2->xyz().getFloat(3, 3));
-}
-
 static void test_serialize(skiatest::Reporter* r, SkColorSpace* space, bool isNamed) {
     sk_sp<SkData> data1 = space->serialize();
 
@@ -206,10 +187,8 @@ static void test_serialize(skiatest::Reporter* r, SkColorSpace* space, bool isNa
         REPORTER_ASSERT(r, space == newSpace1.get());
         REPORTER_ASSERT(r, space == newSpace2.get());
     } else {
-        REPORTER_ASSERT(r, space->gammaNamed() == newSpace1->gammaNamed());
-        REPORTER_ASSERT(r, space->gammaNamed() == newSpace2->gammaNamed());
-        matrix_equals(r, space, newSpace1.get());
-        matrix_equals(r, space, newSpace2.get());
+        REPORTER_ASSERT(r, SkColorSpace::Equals(space, newSpace1.get()));
+        REPORTER_ASSERT(r, SkColorSpace::Equals(space, newSpace2.get()));
     }
 }
 
@@ -226,6 +205,10 @@ DEF_TEST(ColorSpace_Serialize, r) {
     test_serialize(r, SkColorSpace::NewICC(monitorData->data(), monitorData->size()).get(), false);
     monitorData = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     test_serialize(r, SkColorSpace::NewICC(monitorData->data(), monitorData->size()).get(), false);
+
+    const float gammas[] = { 1.1f, 1.2f, 1.7f, };
+    SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
+    test_serialize(r, SkColorSpace_Base::NewRGB(gammas, toXYZ).get(), false);
 }
 
 DEF_TEST(ColorSpace_Equals, r) {
@@ -240,6 +223,12 @@ DEF_TEST(ColorSpace_Equals, r) {
     sk_sp<SkColorSpace> upperLeft = SkColorSpace::NewICC(data->data(), data->size());
     data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     sk_sp<SkColorSpace> upperRight = SkColorSpace::NewICC(data->data(), data->size());
+    const float gammas1[] = { 1.1f, 1.2f, 1.3f, };
+    const float gammas2[] = { 1.1f, 1.2f, 1.7f, };
+    SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
+    sk_sp<SkColorSpace> rgb1 = SkColorSpace_Base::NewRGB(gammas1, toXYZ);
+    sk_sp<SkColorSpace> rgb2 = SkColorSpace_Base::NewRGB(gammas2, toXYZ);
+    sk_sp<SkColorSpace> rgb3 = SkColorSpace_Base::NewRGB(gammas1, toXYZ);
 
     REPORTER_ASSERT(r, SkColorSpace::Equals(nullptr, nullptr));
     REPORTER_ASSERT(r, SkColorSpace::Equals(srgb.get(), srgb.get()));
@@ -248,6 +237,8 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, SkColorSpace::Equals(z32.get(), z32.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(upperLeft.get(), upperLeft.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(upperRight.get(), upperRight.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(rgb1.get(), rgb1.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(rgb1.get(), rgb3.get()));
 
     REPORTER_ASSERT(r, !SkColorSpace::Equals(nullptr, srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), nullptr));
@@ -258,4 +249,5 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperLeft.get(), upperRight.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), upperRight.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperRight.get(), adobe.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(rgb1.get(), rgb2.get()));
 }

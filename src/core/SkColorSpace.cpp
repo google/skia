@@ -68,7 +68,7 @@ static bool xyz_almost_equal(const SkMatrix44& toXYZD50, const float* standard) 
            color_space_almost_equal(toXYZD50.getFloat(3, 3), 1.0f);
 }
 
-sk_sp<SkColorSpace> SkColorSpace_Base::NewRGB(float values[3], const SkMatrix44& toXYZD50) {
+sk_sp<SkColorSpace> SkColorSpace_Base::NewRGB(const float values[3], const SkMatrix44& toXYZD50) {
     if (0.0f > values[0] || 0.0f > values[1] || 0.0f > values[2]) {
         return nullptr;
     }
@@ -164,17 +164,25 @@ enum Version {
 struct ColorSpaceHeader {
     /**
      *  If kMatrix_Flag is set, we will write 12 floats after the header.
-     *  Should not be set at the same time as the kICC_Flag.
+     *  Should not be set at the same time as the kICC_Flag or kFloatGamma_Flag.
      */
-    static constexpr uint8_t kMatrix_Flag = 1 << 0;
+    static constexpr uint8_t kMatrix_Flag     = 1 << 0;
 
     /**
      *  If kICC_Flag is set, we will write an ICC profile after the header.
      *  The ICC profile will be written as a uint32 size, followed immediately
      *  by the data (padded to 4 bytes).
-     *  Should not be set at the same time as the kMatrix_Flag.
+     *  Should not be set at the same time as the kMatrix_Flag or kFloatGamma_Flag.
      */
-    static constexpr uint8_t kICC_Flag    = 1 << 1;
+    static constexpr uint8_t kICC_Flag        = 1 << 1;
+
+    /**
+     *  If kFloatGamma_Flag is set, we will write 15 floats after the header.
+     *  The first three are the gamma values, and the next twelve are the
+     *  matrix.
+     *  Should not be set at the same time as the kICC_Flag or kMatrix_Flag.
+     */
+    static constexpr uint8_t kFloatGamma_Flag = 1 << 2;
 
     static ColorSpaceHeader Pack(Version version, SkColorSpace::Named named,
                                  SkColorSpace::GammaNamed gammaNamed, uint8_t flags) {
@@ -189,7 +197,7 @@ struct ColorSpaceHeader {
         SkASSERT(gammaNamed <= SkColorSpace::kNonStandard_GammaNamed);
         header.fGammaNamed = (uint8_t) gammaNamed;
 
-        SkASSERT(flags <= kICC_Flag);
+        SkASSERT(flags <= kFloatGamma_Flag);
         header.fFlags = flags;
         return header;
     }
@@ -233,8 +241,26 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                 return sizeof(ColorSpaceHeader) + 12 * sizeof(float);
             }
             default:
-                SkASSERT(false);
-                return 0;
+                // Otherwise, write the gamma values and the matrix.
+                if (memory) {
+                    *((ColorSpaceHeader*) memory) =
+                            ColorSpaceHeader::Pack(k0_Version, fNamed, fGammaNamed,
+                                                   ColorSpaceHeader::kFloatGamma_Flag);
+                    memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
+
+                    const SkGammas* gammas = as_CSB(this)->gammas();
+                    SkASSERT(gammas);
+                    SkASSERT(SkGammas::Type::kValue_Type == gammas->fRedType &&
+                             SkGammas::Type::kValue_Type == gammas->fGreenType &&
+                             SkGammas::Type::kValue_Type == gammas->fBlueType);
+                    *(((float*) memory) + 0) = gammas->fRedData.fValue;
+                    *(((float*) memory) + 1) = gammas->fGreenData.fValue;
+                    *(((float*) memory) + 2) = gammas->fBlueData.fValue;
+                    memory = SkTAddOffset<void>(memory, 3 * sizeof(float));
+
+                    fToXYZD50.as4x3ColMajorf((float*) memory);
+                }
+                return sizeof(ColorSpaceHeader) + 15 * sizeof(float);
         }
     }
 
@@ -302,18 +328,39 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
             break;
     }
 
-    if (ColorSpaceHeader::kICC_Flag != header.fFlags || length < sizeof(uint32_t)) {
-        return nullptr;
-    }
+    switch (header.fFlags) {
+        case ColorSpaceHeader::kICC_Flag: {
+            if (length < sizeof(uint32_t)) {
+                return nullptr;
+            }
 
-    uint32_t profileSize = *((uint32_t*) data);
-    data = SkTAddOffset<const void>(data, sizeof(uint32_t));
-    length -= sizeof(uint32_t);
-    if (length < profileSize) {
-        return nullptr;
-    }
+            uint32_t profileSize = *((uint32_t*) data);
+            data = SkTAddOffset<const void>(data, sizeof(uint32_t));
+            length -= sizeof(uint32_t);
+            if (length < profileSize) {
+                return nullptr;
+            }
 
-    return NewICC(data, profileSize);
+            return NewICC(data, profileSize);
+        }
+        case ColorSpaceHeader::kFloatGamma_Flag: {
+            if (length < 15 * sizeof(float)) {
+                return nullptr;
+            }
+
+            float gammas[3];
+            gammas[0] = *(((const float*) data) + 0);
+            gammas[1] = *(((const float*) data) + 1);
+            gammas[2] = *(((const float*) data) + 2);
+            data = SkTAddOffset<const void>(data, 3 * sizeof(float));
+
+            SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
+            toXYZ.set4x3ColMajorf((const float*) data);
+            return SkColorSpace_Base::NewRGB(gammas, toXYZ);
+        }
+        default:
+            return nullptr;
+    }
 }
 
 bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
@@ -355,11 +402,15 @@ bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
         case kLinear_GammaNamed:
             return (src->fGammaNamed == dst->fGammaNamed) && (src->fToXYZD50 == dst->fToXYZD50);
         default:
-            // If |src| does not have a named gamma, fProfileData should be non-null.
-            // FIXME (msarett): We may hit this case on pngs that specify float gammas.
-            //                  Gamma can be non-standard, but we don't have a profile
-            //                  to fall back on.  What do we do?
-            return false;
+            if (src->fGammaNamed != dst->fGammaNamed) {
+                return false;
+            }
+
+            // It is unlikely that we will reach this case.
+            sk_sp<SkData> srcData = src->serialize();
+            sk_sp<SkData> dstData = dst->serialize();
+            return srcData->size() == dstData->size() &&
+                   0 == memcmp(srcData->data(), dstData->data(), srcData->size());
     }
 }
 
