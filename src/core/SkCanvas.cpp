@@ -1611,6 +1611,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
         SkPath  path;
 
         path.addRect(rect);
+        path.setIsVolatile(true);
         this->SkCanvas::onClipPath(path, op, edgeStyle);
     }
 
@@ -1647,6 +1648,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle 
 
     SkPath path;
     path.addRRect(rrect);
+    path.setIsVolatile(true);
     // call the non-virtual version
     this->SkCanvas::onClipPath(path, op, edgeStyle);
 }
@@ -1703,7 +1705,12 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
     }
 
     SkPath devPath;
-    path.transform(fMCRec->fMatrix, &devPath);
+    if (fMCRec->fMatrix.isIdentity()) {
+        devPath = path;
+    } else {
+        path.transform(fMCRec->fMatrix, &devPath);
+        devPath.setIsVolatile(true);
+    }
 
     // Check if the transfomation, or the original path itself
     // made us empty. Note this can also happen if we contained NaN
