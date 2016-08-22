@@ -190,7 +190,7 @@ component("skia") {
   deps = [
     "//third_party/expat",
     "//third_party/giflib",
-    "//third_party/libjpeg_turbo:libjpeg",
+    "//third_party/libjpeg-turbo:libjpeg",
     "//third_party/libpng",
     "//third_party/libwebp",
     "//third_party/sfntly",
