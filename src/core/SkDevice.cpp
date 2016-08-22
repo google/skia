@@ -75,7 +75,7 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
 void SkBaseDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar startAngle,
                            SkScalar sweepAngle, bool useCenter, const SkPaint& paint) {
     SkASSERT(SkScalarAbs(sweepAngle) >= 0.f && SkScalarAbs(sweepAngle) < 360.f);
-    SkPath  path;
+    SkPath path;
     if (useCenter) {
         path.moveTo(oval.centerX(), oval.centerY());
     }
@@ -83,6 +83,7 @@ void SkBaseDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar star
     if (useCenter) {
         path.close();
     }
+    path.setIsVolatile(true);
     this->drawPath(draw, path, paint);
 }
 
@@ -92,6 +93,7 @@ void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     path.addRRect(outer);
     path.addRRect(inner);
     path.setFillType(SkPath::kEvenOdd_FillType);
+    path.setIsVolatile(true);
 
     const SkMatrix* preMatrix = nullptr;
     const bool pathIsMutable = true;
