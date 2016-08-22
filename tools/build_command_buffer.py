@@ -131,7 +131,8 @@ def main():
     gn = 'gn.exe'
   gn = os.path.join(chrome_src_dir, 'buildtools', platform, gn)
   try:
-    subprocess.check_call([gn, 'gen', chrome_target_dir_rel],
+    subprocess.check_call([gn, 'gen', chrome_target_dir_rel,
+                           '--args=is_component_build=false'],
                           cwd=chrome_src_dir)
   except subprocess.CalledProcessError as error:
     sys.exit('Error (ret code: %s) calling "%s" in %s' % (
