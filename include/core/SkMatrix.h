@@ -842,6 +842,7 @@ private:
     static const MapPtsProc gMapPtsProcs[];
 
     friend class SkPerspIter;
+    friend class SkMatrixPriv;
 };
 SK_END_REQUIRE_DENSE
 

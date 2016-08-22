@@ -37,6 +37,7 @@
 #include "../private/GrAuditTrail.h"
 
 #include "SkLatticeIter.h"
+#include "SkMatrixPriv.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fDrawingManager->getContext())
 #define ASSERT_SINGLE_OWNER \
@@ -260,12 +261,10 @@ void GrDrawContext::drawPaint(const GrClip& clip,
     // map the four corners and bound them with a new rect. This will not
     // produce a correct result for some perspective matrices.
     if (!isPerspective) {
-        SkMatrix inverse;
-        if (!viewMatrix.invert(&inverse)) {
+        if (!SkMatrixPriv::InverseMapRect(viewMatrix, &r, r)) {
             SkDebugf("Could not invert matrix\n");
             return;
         }
-        inverse.mapRect(&r);
         this->drawRect(clip, *paint, viewMatrix, r);
     } else {
         SkMatrix localMatrix;
@@ -314,17 +313,13 @@ static bool crop_filled_rect(const GrRenderTarget* rt, const GrClip& clip,
         return true;
     }
 
-    SkMatrix inverseViewMatrix;
-    if (!viewMatrix.invert(&inverseViewMatrix)) {
-        return false;
-    }
-
     SkIRect clipDevBounds;
     SkRect clipBounds;
-    SkASSERT(inverseViewMatrix.rectStaysRect());
 
     clip.getConservativeBounds(rt->width(), rt->height(), &clipDevBounds);
-    inverseViewMatrix.mapRect(&clipBounds, SkRect::Make(clipDevBounds));
+    if (!SkMatrixPriv::InverseMapRect(viewMatrix, &clipBounds, SkRect::Make(clipDevBounds))) {
+        return false;
+    }
 
     if (localRect) {
         if (!rect->intersects(clipBounds)) {

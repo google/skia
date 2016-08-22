@@ -15,6 +15,8 @@
 #include "GrQuad.h"
 #include "GrVertexBatch.h"
 
+#include "SkMatrixPriv.h"
+
 static const int kVertsPerInstance = 4;
 static const int kIndicesPerInstance = 6;
 
@@ -47,7 +49,7 @@ static void tesselate(intptr_t vertices,
                           rect.fRight, rect.fBottom, vertexStride);
 
     if (viewMatrix) {
-        viewMatrix->mapPointsWithStride(positions, vertexStride, kVertsPerInstance);
+        SkMatrixPriv::MapPointsWithStride(*viewMatrix, positions, vertexStride, kVertsPerInstance);
     }
 
     // Setup local coords
