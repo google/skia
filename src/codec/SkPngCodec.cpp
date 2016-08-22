@@ -818,6 +818,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     // because the interlaced scanline decoder may need to rewind.
     fColorXform = nullptr;
     SkImageInfo swizzlerInfo = dstInfo;
+    Options swizzlerOptions = options;
     bool needsColorXform = needs_color_xform(dstInfo, this->getInfo());
     if (needsColorXform) {
         switch (dstInfo.colorType()) {
@@ -841,6 +842,12 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
         if (!fColorXform && kRGBA_F16_SkColorType == dstInfo.colorType()) {
             return false;
         }
+
+        // When there is a color xform, we swizzle into temporary memory, which is not
+        // zero initialized.
+        // FIXME (msarett):
+        // Is this a problem?
+        swizzlerOptions.fZeroInitialized = kNo_ZeroInitialized;
     }
 
     if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
@@ -855,7 +862,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     // Create the swizzler.  SkPngCodec retains ownership of the color table.
     const SkPMColor* colors = get_color_ptr(fColorTable.get());
     fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colors, swizzlerInfo,
-                                               options));
+                                               swizzlerOptions));
     SkASSERT(fSwizzler);
     return true;
 }
