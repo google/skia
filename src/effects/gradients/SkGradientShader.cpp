@@ -786,14 +786,10 @@ struct ColorStopOptimizer {
                     SkShader::kMirror_TileMode == mode ||
                     colors[0] == colors[1]) {
 
-                    fColorStorage[0] = colors[1];
-                    fColorStorage[1] = colors[2];
-                    fPosStorage[0] = 0.0f;
-                    fPosStorage[1] = 1.0f;
-
-                    fColors = fColorStorage;
-                    fPos    = fPosStorage;
-                    fCount  = 2;
+                    // Ignore the leftmost color/pos.
+                    fColors += 1;
+                    fPos    += 1;
+                    fCount   = 2;
                 }
             } else if (SkScalarNearlyEqual(pos[0], 0.0f) &&
                        SkScalarNearlyEqual(pos[1], 1.0f) &&
@@ -803,6 +799,7 @@ struct ColorStopOptimizer {
                     SkShader::kMirror_TileMode == mode ||
                     colors[1] == colors[2]) {
 
+                    // Ignore the rightmost color/pos.
                     fCount  = 2;
                 }
             }
@@ -811,9 +808,6 @@ struct ColorStopOptimizer {
     const SkColor*  fColors;
     const SkScalar* fPos;
     int             fCount;
-
-    SkColor         fColorStorage[2];
-    SkScalar        fPosStorage[2];
 };
 
 sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
