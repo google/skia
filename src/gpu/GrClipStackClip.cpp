@@ -26,7 +26,7 @@ typedef GrReducedClip::ElementList ElementList;
 static const int kMaxAnalyticElements = 4;
 
 bool GrClipStackClip::quickContains(const SkRect& rect) const {
-    if (!fStack) {
+    if (!fStack || fStack->isWideOpen()) {
         return true;
     }
     return fStack->quickContains(rect.makeOffset(SkIntToScalar(fOrigin.x()),
@@ -34,7 +34,7 @@ bool GrClipStackClip::quickContains(const SkRect& rect) const {
 }
 
 bool GrClipStackClip::quickContains(const SkRRect& rrect) const {
-    if (!fStack) {
+    if (!fStack || fStack->isWideOpen()) {
         return true;
     }
     return fStack->quickContains(rrect.makeOffset(SkIntToScalar(fOrigin.fX),

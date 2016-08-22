@@ -621,7 +621,7 @@ void SkClipStack::getBounds(SkRect* canvFiniteBound,
     }
 }
 
-bool SkClipStack::quickContains(const SkRect& rect) const {
+bool SkClipStack::internalQuickContains(const SkRect& rect) const {
 
     Iter iter(*this, Iter::kTop_IterStart);
     const Element* element = iter.prev();
@@ -646,7 +646,7 @@ bool SkClipStack::quickContains(const SkRect& rect) const {
     return true;
 }
 
-bool SkClipStack::quickContains(const SkRRect& rrect) const {
+bool SkClipStack::internalQuickContains(const SkRRect& rrect) const {
 
     Iter iter(*this, Iter::kTop_IterStart);
     const Element* element = iter.prev();
@@ -769,10 +769,6 @@ void SkClipStack::clipEmpty() {
     new (fDeque.push_back()) Element(fSaveCount);
 
     ((Element*)fDeque.back())->fGenID = kEmptyGenID;
-}
-
-bool SkClipStack::isWideOpen() const {
-    return this->getTopmostGenID() == kWideOpenGenID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
