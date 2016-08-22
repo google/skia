@@ -1158,7 +1158,7 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
 sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
                                                    float sigma, float xformedSigma,
                                                    const SkRRect& srcRRect, const SkRRect& devRRect) {
-    SkASSERT(!devRRect.isCircle()); // Should've been caught up-stream
+    SkASSERT(!devRRect.isCircle() && !devRRect.isRect()); // Should've been caught up-stream
 
     // TODO: loosen this up
     if (!devRRect.isSimpleCircular()) {
@@ -1351,11 +1351,23 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
-    if (devRRect.isCircle()) {
-        sk_sp<GrFragmentProcessor> fp(GrCircleBlurFragmentProcessor::Make(
-                                                                        context->textureProvider(),
-                                                                        devRRect.rect(),
-                                                                        xformedSigma));
+    if (devRRect.isRect() || devRRect.isCircle()) {
+        if (this->ignoreXform()) {
+            return false;
+        }
+
+        sk_sp<GrFragmentProcessor> fp;
+        if (devRRect.isRect()) {
+            SkScalar pad = 3.0f * xformedSigma;
+            const SkRect dstCoverageRect = devRRect.rect().makeOutset(pad, pad);
+
+            fp = GrRectBlurEffect::Make(context->textureProvider(), dstCoverageRect, xformedSigma);
+        } else {
+            fp = GrCircleBlurFragmentProcessor::Make(context->textureProvider(),
+                                                     devRRect.rect(),
+                                                     xformedSigma);
+        }
+
         if (!fp) {
             return false;
         }
