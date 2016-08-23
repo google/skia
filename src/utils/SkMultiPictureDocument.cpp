@@ -5,33 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include <vector>
-
 #include "SkMultiPictureDocument.h"
 #include "SkMultiPictureDocumentPriv.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
+#include "SkTArray.h"
 
 /*
   File format:
       BEGINNING_OF_FILE:
         kMagic
-        uint32_t version_number
+        uint32_t version_number (==2)
         uint32_t page_count
         {
-          uint64_t offset
           float sizeX
           float sizeY
         } * page_count
-      FIRST_OFFSET:
         skp file
-      SECOND_OFFSET:
-        skp file
-      ...
-      LAST_OFFSET:
-        skp file
-        "\nEndOfMultiPicture\n"
 */
 
 namespace {
@@ -48,30 +39,11 @@ static SkCanvas* trim(SkCanvas* canvas,
     return canvas;
 }
 
-struct NullWStream : public SkWStream {
-    NullWStream() : fN(0) {}
-    bool write(const void*, size_t n) override {
-        fN += n;
-        return true;
-    }
-    size_t bytesWritten() const override { return fN; }
-    size_t fN;
-};
-
-struct Page {
-  Page(SkSize s, sk_sp<SkPicture> c) : fSize(s), fContent(std::move(c)) {}
-  Page(Page&&) = default;
-  Page(const Page&) = default;
-  Page& operator=(const Page&) = default;
-  Page& operator=(Page&&) = default;
-  SkSize fSize;
-  sk_sp<SkPicture> fContent;
-};
-
 struct MultiPictureDocument final : public SkDocument {
     SkPictureRecorder fPictureRecorder;
     SkSize fCurrentPageSize;
-    std::vector<Page> fPages;
+    SkTArray<sk_sp<SkPicture>> fPages;
+    SkTArray<SkSize> fSizes;
     MultiPictureDocument(SkWStream* s, void (*d)(SkWStream*, bool))
         : SkDocument(s, d) {}
     ~MultiPictureDocument() { this->close(); }
@@ -81,35 +53,37 @@ struct MultiPictureDocument final : public SkDocument {
         return trim(fPictureRecorder.beginRecording(w, h), w, h, c);
     }
     void onEndPage() override {
-        fPages.emplace_back(fCurrentPageSize,
-                            fPictureRecorder.finishRecordingAsPicture());
+        fSizes.push_back(fCurrentPageSize);
+        fPages.push_back(fPictureRecorder.finishRecordingAsPicture());
     }
     bool onClose(SkWStream* wStream) override {
         SkASSERT(wStream);
         SkASSERT(wStream->bytesWritten() == 0);
         bool good = true;
         good &= wStream->writeText(SkMultiPictureDocumentProtocol::kMagic);
-        good &= wStream->write32(SkToU32(1));  // version
-        good &= wStream->write32(SkToU32(fPages.size()));
-        uint64_t offset = wStream->bytesWritten();
-        offset += fPages.size() * sizeof(SkMultiPictureDocumentProtocol::Entry);
-        for (const auto& page : fPages) {
-            SkMultiPictureDocumentProtocol::Entry entry{
-                    offset, page.fSize.width(), page.fSize.height()};
-            good &= wStream->write(&entry, sizeof(entry));
-            NullWStream buffer;
-            page.fContent->serialize(&buffer);
-            offset += buffer.bytesWritten();
+        good &= wStream->write32(SkMultiPictureDocumentProtocol::kVersion);
+        good &= wStream->write32(SkToU32(fPages.count()));
+        for (SkSize s : fSizes) {
+            good &= wStream->write(&s, sizeof(s));
         }
-        for (const auto& page : fPages) {
-            page.fContent->serialize(wStream);
+        SkSize bigsize = SkMultiPictureDocumentProtocol::Join(fSizes);
+        SkCanvas* c = fPictureRecorder.beginRecording(SkRect::MakeSize(bigsize));
+        for (const sk_sp<SkPicture>& page : fPages) {
+            c->drawPicture(page);
+            c->drawAnnotation(SkRect::MakeEmpty(),
+                              SkMultiPictureDocumentProtocol::kEndPage,
+                              nullptr);
         }
-        SkASSERT(wStream->bytesWritten() == offset);
-        good &= wStream->writeText("\nEndOfMultiPicture\n");
-        fPages.clear();
+        sk_sp<SkPicture> p = fPictureRecorder.finishRecordingAsPicture();
+        p->serialize(wStream);
+        fPages.reset();
+        fSizes.reset();
         return good;
     }
-    void onAbort() override { fPages.clear(); }
+    void onAbort() override {
+        fPages.reset();
+        fSizes.reset();
+    }
 };
 }
 
