@@ -136,6 +136,9 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
             sRGBOnce([] {
                 SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
                 srgbToxyzD50.set3x3RowMajorf(gSRGB_toXYZD50);
+
+                // Force the mutable type mask to be computed.  This avoids races.
+                (void)srgbToxyzD50.getType();
                 sRGB.reset(new SkColorSpace_Base(kSRGB_GammaNamed, srgbToxyzD50, kSRGB_Named));
             });
             return sRGB;
@@ -144,6 +147,9 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
             adobeRGBOnce([] {
                 SkMatrix44 adobergbToxyzD50(SkMatrix44::kUninitialized_Constructor);
                 adobergbToxyzD50.set3x3RowMajorf(gAdobeRGB_toXYZD50);
+
+                // Force the mutable type mask to be computed.  This avoids races.
+                (void)adobergbToxyzD50.getType();
                 adobeRGB.reset(new SkColorSpace_Base(k2Dot2Curve_GammaNamed, adobergbToxyzD50,
                                                      kAdobeRGB_Named));
             });

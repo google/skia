@@ -24,7 +24,7 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
     REPORTER_ASSERT(r, expectedGamma == space->gammaNamed());
 
 
-    SkMatrix44 mat = space->xyz();
+    const SkMatrix44& mat = space->xyz();
     const float src[] = {
         1, 0, 0, 1,
         0, 1, 0, 1,
