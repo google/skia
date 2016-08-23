@@ -147,19 +147,24 @@ endif()
 find_package (EXPAT)
 find_package (Lua)
 find_package (ZLIB)
-# No find_package for libwebp as far as I can tell, so simulate it here.
+
+# For libraries that don't have find_package() scripts, we do it ourselves:
 find_path (WEBP_INCLUDE_DIRS "webp/decode.h")
-find_library (WEBP_LIBRARIES webp)
+find_library (WEBP_LIBRARIES "webp")
+
 find_path (OSMESA_INCLUDE_DIRS "GL/osmesa.h")
 find_library(OSMESA_LIBRARIES "OSMesa")
 
 if (UNIX AND NOT APPLE)
     find_package (Freetype)
-    # Same deal for fontconfig.
+    find_package (GIF)
+
     find_path (FONTCONFIG_INCLUDE_DIRS "fontconfig/fontconfig.h")
     find_library (FONTCONFIG_LIBRARIES fontconfig)
-    find_package (GIF)
-    find_package (JPEG)
+
+    # We require libjpeg-turbo >= 1.5.0.
+    find_package(PkgConfig)
+    pkg_check_modules(JPEG_TURBO libjpeg>=1.5.0)
 endif()
 
 # Do not compile SkRawCodec.
@@ -183,9 +188,9 @@ else()
     remove_srcs(../src/codec/*Gif*)
 endif()
 
-if (JPEG_FOUND)
-    list (APPEND private_includes ${JPEG_INCLUDE_DIRS})
-    list (APPEND libs             ${JPEG_LIBRARIES})
+if (JPEG_TURBO_FOUND)
+    list (APPEND private_includes ${JPEG_TURBO_INCLUDE_DIRS})
+    list (APPEND libs             ${JPEG_TURBO_LIBRARIES})
     add_definitions(-DSK_HAS_JPEG_LIBRARY)
 else()
     remove_srcs(../src/images/*JPEG*)
