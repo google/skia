@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 
 declare_args() {
+  skia_use_libwebp = !is_fuchsia
 }
 
 skia_public_includes = [
@@ -64,7 +65,6 @@ config("skia_private") {
     "SK_HAS_GIF_LIBRARY",
     "SK_HAS_JPEG_LIBRARY",
     "SK_HAS_PNG_LIBRARY",
-    "SK_HAS_WEBP_LIBRARY",
 
     # TODO(halcanary): make this the default; this is the value Android uses.
     "SK_SFNTLY_SUBSETTER=\"sample/chromium/font_subsetter.h\"",
@@ -183,16 +183,37 @@ if (is_x86) {
   }
 }
 
+if (skia_use_libwebp) {
+  config("webp_config") {
+    defines = [ "SK_HAS_WEBP_LIBRARY" ]
+  }
+  source_set("webp") {
+    configs += skia_library_configs
+    all_dependent_configs = [ ":webp_config" ]
+    deps = [
+      "//third_party/libwebp",
+    ]
+    sources = [
+      "src/codec/SkWebpAdapterCodec.cpp",
+      "src/codec/SkWebpCodec.cpp",
+      "src/images/SkWEBPImageEncoder.cpp",
+    ]
+  }
+} else {
+  source_set("webp") {
+  }
+}
+
 component("skia") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
 
   deps = [
+    ":webp",
     "//third_party/expat",
     "//third_party/giflib",
     "//third_party/libjpeg-turbo:libjpeg",
     "//third_party/libpng",
-    "//third_party/libwebp",
     "//third_party/sfntly",
     "//third_party/zlib",
   ]
@@ -240,15 +261,12 @@ component("skia") {
     "src/codec/SkSampler.cpp",
     "src/codec/SkSwizzler.cpp",
     "src/codec/SkWbmpCodec.cpp",
-    "src/codec/SkWebpAdapterCodec.cpp",
-    "src/codec/SkWebpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/images/SkImageEncoder_Factory.cpp",
     "src/images/SkJPEGImageEncoder.cpp",
     "src/images/SkJPEGWriteUtility.cpp",
     "src/images/SkKTXImageEncoder.cpp",
     "src/images/SkPNGImageEncoder.cpp",
-    "src/images/SkWEBPImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
     "src/ports/SkGlobalInitialization_default.cpp",
     "src/ports/SkImageGenerator_skia.cpp",
