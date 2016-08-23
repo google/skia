@@ -206,10 +206,6 @@ public:
 
     bool requestLock(const LockRequest&, LockResult*);
 
-    /** Are we really wrapping a texture instead of a bitmap?
-     */
-    virtual GrTexture* getTexture() { return NULL; }
-
     /**
      *  If this can efficiently return YUV data, this should return true.
      *  Otherwise this returns false and does not modify any of the parameters.

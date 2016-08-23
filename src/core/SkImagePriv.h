@@ -75,8 +75,6 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* textureImage);
 // surface needs to perform a copy-on-write
 extern void SkTextureImageSetTexture(SkImage* image, GrTexture* texture);
 
-GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted);
-
 /**
  *  Will attempt to upload and lock the contents of the image as a texture, so that subsequent
  *  draws to a gpu-target will come from that texture (and not by looking at the original image

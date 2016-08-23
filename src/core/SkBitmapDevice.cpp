@@ -281,14 +281,8 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         // since we may need to clamp to the borders of the src rect within
         // the bitmap, we extract a subset.
         const SkIRect srcIR = tmpSrc.roundOut();
-        if(bitmap.pixelRef()->getTexture()) {
-            // Accelerated source canvas, don't use extractSubset but readPixels to get the subset.
-            // This way, the pixels are copied in CPU memory instead of GPU memory.
-            bitmap.pixelRef()->readPixels(&tmpBitmap, kN32_SkColorType, &srcIR);
-        } else {
-            if (!bitmap.extractSubset(&tmpBitmap, srcIR)) {
-                return;
-            }
+        if (!bitmap.extractSubset(&tmpBitmap, srcIR)) {
+            return;
         }
         bitmapPtr = &tmpBitmap;
 

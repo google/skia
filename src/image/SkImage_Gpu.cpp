@@ -540,22 +540,6 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted budgeted) {
-    GrContext* ctx = src->getContext();
-
-    GrSurfaceDesc desc = src->desc();
-    GrTexture* dst = ctx->textureProvider()->createTexture(desc, budgeted, nullptr, 0);
-    if (!dst) {
-        return nullptr;
-    }
-
-    const SkIRect srcR = SkIRect::MakeWH(desc.fWidth, desc.fHeight);
-    const SkIPoint dstP = SkIPoint::Make(0, 0);
-    ctx->copySurface(dst, src, srcR, dstP);
-    ctx->flushSurfaceWrites(dst);
-    return dst;
-}
-
 sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo& info,
                                               const GrMipLevel* texels, int mipLevelCount,
                                               SkBudgeted budgeted) {

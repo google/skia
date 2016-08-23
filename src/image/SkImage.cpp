@@ -296,23 +296,6 @@ sk_sp<SkImage> SkImage::MakeFromBitmap(const SkBitmap& bm) {
         return nullptr;
     }
 
-#if SK_SUPPORT_GPU
-    if (GrTexture* tex = pr->getTexture()) {
-        SkAutoTUnref<GrTexture> unrefCopy;
-        if (!bm.isImmutable()) {
-            tex = GrDeepCopyTexture(tex, SkBudgeted::kNo);
-            if (nullptr == tex) {
-                return nullptr;
-            }
-            unrefCopy.reset(tex);
-        }
-        const SkImageInfo info = bm.info();
-        return sk_make_sp<SkImage_Gpu>(info.width(), info.height(), bm.getGenerationID(),
-                                       info.alphaType(), tex, sk_ref_sp(info.colorSpace()),
-                                       SkBudgeted::kNo);
-    }
-#endif
-
     return SkMakeImageFromRasterBitmap(bm, kIfMutable_SkCopyPixelsMode);
 }
 
