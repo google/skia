@@ -26,8 +26,8 @@ float SkHalfToFloat(SkHalf h);
 SkHalf SkFloatToHalf(float f);
 
 // Convert between half and single precision floating point,
-// assuming inputs and outputs are both finite, and
-// flushing values which would be denormal half floats to zero.
+// assuming inputs and outputs are both finite, and may
+// flush values which would be denormal half floats to zero.
 static inline Sk4f SkHalfToFloat_finite_ftz(uint64_t);
 static inline Sk4h SkFloatToHalf_finite_ftz(const Sk4f&);
 

@@ -70,10 +70,13 @@ DEF_TEST(SkHalfToFloat_finite_ftz, r) {
             continue;
         }
 
-        // _finite_ftz() flushes denorms to zero.  0.0f will compare == with both +0.0f and -0.0f.
-        float expected = is_denorm(h) ? 0.0f : SkHalfToFloat(h);
+        // _finite_ftz() may flush denorms to zero.  0.0f will compare == with both +0.0f and -0.0f.
+        float expected  = SkHalfToFloat(h),
+              alternate = is_denorm(h) ? 0.0f : expected;
 
-        REPORTER_ASSERT(r, SkHalfToFloat_finite_ftz(h)[0] == expected);
+        float actual = SkHalfToFloat_finite_ftz(h)[0];
+
+        REPORTER_ASSERT(r, actual == expected || actual == alternate);
     }
 }
 
@@ -94,13 +97,15 @@ DEF_TEST(SkFloatToHalf_finite_ftz, r) {
             continue;
         }
 
+        uint16_t alternate = expected;
         if (is_denorm(expected)) {
-            // _finite_ftz() flushes denorms to zero, and happens to keep the sign bit.
-            expected = signbit(f) ? 0x8000 : 0x0000;
+            // _finite_ftz() may flush denorms to zero, and happens to keep the sign bit.
+            alternate = signbit(f) ? 0x8000 : 0x0000;
         }
 
         uint16_t actual = SkFloatToHalf_finite_ftz(Sk4f{f})[0];
-        // _finite_ftz() truncates instead of rounding, so it may be one too small.
-        REPORTER_ASSERT(r, actual == expected || actual == expected - 1);
+        // _finite_ftz() may truncate instead of rounding, so it may be one too small.
+        REPORTER_ASSERT(r, actual == expected  || actual == expected  - 1 ||
+                           actual == alternate || actual == alternate - 1);
     }
 }
