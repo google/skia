@@ -1935,7 +1935,8 @@ DRAW_BATCH_TEST_DEFINE(CircleBatch) {
         const CircleBatch::ArcParams* arcParams = nullptr;
         if (random->nextBool()) {
             arcParamsTmp.fStartAngleRadians = random->nextSScalar1() * SK_ScalarPI * 2;
-            arcParamsTmp.fStartAngleRadians = random->nextSScalar1() * SK_ScalarPI * 2 - .01f;
+            arcParamsTmp.fSweepAngleRadians = random->nextSScalar1() * SK_ScalarPI * 2 - .01f;
+            arcParamsTmp.fUseCenter = random->nextBool();
             arcParams = &arcParamsTmp;
         }
         GrDrawBatch* batch = CircleBatch::Create(color, viewMatrix, center, radius,
