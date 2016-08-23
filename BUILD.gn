@@ -257,6 +257,7 @@ component("skia") {
     "src/codec/SkSampler.cpp",
     "src/codec/SkSwizzler.cpp",
     "src/codec/SkWbmpCodec.cpp",
+    "src/gpu/gl/GrGLDefaultInterface_native.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/images/SkImageEncoder_Factory.cpp",
     "src/images/SkJPEGImageEncoder.cpp",
@@ -278,6 +279,10 @@ component("skia") {
     "src/xml/SkXMLWriter.cpp",
     "third_party/etc1/etc1.cpp",
     "third_party/ktx/ktx.cpp",
+  ]
+  sources -= [
+    "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
+    "src/gpu/gl/GrGLDefaultInterface_none.cpp",
   ]
 
   if (is_win) {
@@ -309,7 +314,13 @@ component("skia") {
       "third_party:fontconfig",
       "third_party:freetype2",
     ]
+    libs += [
+      "GL",
+      "GLU",
+      "X11",
+    ]
     sources += [
+      "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp",
       "src/ports/SkFontConfigInterface_direct.cpp",
       "src/ports/SkFontConfigInterface_direct_factory.cpp",
       "src/ports/SkFontHost_FreeType.cpp",
@@ -322,11 +333,15 @@ component("skia") {
 
   if (is_mac) {
     sources += [
+      "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp",
       "src/ports/SkFontHost_mac.cpp",
       "src/ports/SkImageEncoder_CG.cpp",
       "src/ports/SkImageGeneratorCG.cpp",
     ]
-    libs += [ "ApplicationServices.framework" ]
+    libs += [
+      "ApplicationServices.framework",
+      "OpenGL.framework",
+    ]
   }
 
   if (is_fuchsia) {
@@ -413,21 +428,9 @@ test_lib("gpu_tool_utils") {
   libs = []
 
   if (is_linux) {
-    sources += [
-      "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp",
-      "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp",
-    ]
-    libs += [
-      "GL",
-      "GLU",
-      "X11",
-    ]
+    sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
   } else if (is_mac) {
-    sources += [
-      "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp",
-      "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp",
-    ]
-    libs += [ "OpenGL.framework" ]
+    sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
   }
 }
 
