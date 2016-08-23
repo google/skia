@@ -124,6 +124,20 @@ static void test_path_crbug364224() {
     canvas->drawPath(path, paint);
 }
 
+// this is a unit test instead of a GM because it doesn't draw anything
+static void test_fuzz_crbug_638223() {
+    auto surface(SkSurface::MakeRasterN32Premul(250, 250));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPath path;
+    path.moveTo(SkBits2Float(0x47452a00), SkBits2Float(0x43211d01));  // 50474, 161.113f
+    path.conicTo(SkBits2Float(0x401c0000), SkBits2Float(0x40680000),
+        SkBits2Float(0x02c25a81), SkBits2Float(0x981a1fa0),
+        SkBits2Float(0x6bf9abea));  // 2.4375f, 3.625f, 2.85577e-37f, -1.992e-24f, 6.03669e+26f
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas->drawPath(path, paint);
+}
+
 /**
  * In debug mode, this path was causing an assertion to fail in
  * SkPathStroker::preJoinTo() and, in Release, the use of an unitialized value.
@@ -4399,4 +4413,5 @@ DEF_TEST(Paths, reporter) {
     test_skbug_3469(reporter);
     test_skbug_3239(reporter);
     test_bounds_crbug_513799(reporter);
+    test_fuzz_crbug_638223();
 }
