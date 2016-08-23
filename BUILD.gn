@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 
 declare_args() {
+  skia_use_giflib = !is_fuchsia
   skia_use_libwebp = !is_fuchsia
 }
 
@@ -62,7 +63,6 @@ config("skia_private") {
   defines = [
     "SK_GAMMA_APPLY_TO_A8",
 
-    "SK_HAS_GIF_LIBRARY",
     "SK_HAS_JPEG_LIBRARY",
     "SK_HAS_PNG_LIBRARY",
 
@@ -179,25 +179,59 @@ if (is_x86) {
   }
 }
 
-if (skia_use_libwebp) {
-  config("webp_config") {
-    defines = [ "SK_HAS_WEBP_LIBRARY" ]
+template("optional") {
+  if (invoker.enabled) {
+    config(target_name + "_public") {
+      defines = invoker.public_defines
+    }
+    source_set(target_name) {
+      forward_variables_from(invoker, "*", [ "public_defines" ])
+      all_dependent_configs = [ ":" + target_name + "_public" ]
+    }
+  } else {
+    # If not enabled, a phony empty target that swallows all otherwise unused variables.
+    source_set(target_name) {
+      forward_variables_from(invoker,
+                             "*",
+                             [
+                               "public_defines",
+                               "configs",
+                               "deps",
+                               "sources",
+                             ])
+    }
   }
-  source_set("webp") {
-    configs += skia_library_configs
-    all_dependent_configs = [ ":webp_config" ]
-    deps = [
-      "//third_party/libwebp",
-    ]
-    sources = [
-      "src/codec/SkWebpAdapterCodec.cpp",
-      "src/codec/SkWebpCodec.cpp",
-      "src/images/SkWEBPImageEncoder.cpp",
-    ]
-  }
-} else {
-  source_set("webp") {
-  }
+}
+set_defaults("optional") {
+  configs = default_configs
+}
+
+optional("gif") {
+  enabled = skia_use_giflib
+  public_defines = [ "SK_HAS_GIF_LIBRARY" ]
+
+  configs += skia_library_configs
+  deps = [
+    "//third_party/giflib",
+  ]
+  sources = [
+    "src/codec/SkGifCodec.cpp",
+  ]
+}
+
+optional("webp") {
+  enabled = skia_use_libwebp
+  public_defines = [ "SK_HAS_WEBP_LIBRARY" ]
+
+  configs += skia_library_configs
+  deps = [
+    "//third_party/libwebp",
+  ]
+  sources = [
+    "src/codec/SkWebpAdapterCodec.cpp",
+    "src/codec/SkWebpCodec.cpp",
+    "src/images/SkWEBPImageEncoder.cpp",
+  ]
 }
 
 component("skia") {
@@ -205,9 +239,9 @@ component("skia") {
   configs += skia_library_configs
 
   deps = [
+    ":gif",
     ":webp",
     "//third_party/expat",
-    "//third_party/giflib",
     "//third_party/libjpeg-turbo:libjpeg",
     "//third_party/libpng",
     "//third_party/sfntly",
@@ -245,7 +279,6 @@ component("skia") {
     "src/codec/SkBmpStandardCodec.cpp",
     "src/codec/SkCodec.cpp",
     "src/codec/SkCodecImageGenerator.cpp",
-    "src/codec/SkGifCodec.cpp",
     "src/codec/SkIcoCodec.cpp",
     "src/codec/SkJpegCodec.cpp",
     "src/codec/SkJpegDecoderMgr.cpp",
