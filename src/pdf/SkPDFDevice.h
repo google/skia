@@ -143,13 +143,6 @@ public:
      */
     std::unique_ptr<SkStreamAsset> content() const;
 
-    /** Writes the page contents to the stream. */
-    void writeContent(SkWStream*) const;
-
-    const SkMatrix& initialTransform() const {
-        return fInitialTransform;
-    }
-
     SkPDFCanon* getCanon() const;
 
     // It is important to not confuse GraphicStateEntry with SkPDFGraphicState, the
@@ -218,7 +211,6 @@ private:
     friend class ScopedContentEntry;
 
     SkISize fPageSize;
-    SkISize fContentSize;
     SkMatrix fInitialTransform;
     SkClipStack fExistingClipStack;
     SkRegion fExistingClipRegion;

@@ -562,7 +562,6 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFDocument* do
     : INHERITED(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fPageSize(pageSize)
-    , fContentSize(pageSize)
     , fExistingClipRegion(SkIRect::MakeSize(pageSize))
     , fRasterDpi(rasterDpi)
     , fDocument(doc) {
@@ -1325,29 +1324,11 @@ sk_sp<SkPDFArray> SkPDFDevice::copyMediaBox() const {
 
 std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
     SkDynamicMemoryWStream buffer;
-    this->writeContent(&buffer);
-    return std::unique_ptr<SkStreamAsset>(
-            buffer.bytesWritten() > 0
-            ? buffer.detachAsStream()
-            : new SkMemoryStream);
-}
-
-void SkPDFDevice::writeContent(SkWStream* out) const {
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
-        SkPDFUtils::AppendTransform(fInitialTransform, out);
+        SkPDFUtils::AppendTransform(fInitialTransform, &buffer);
     }
 
-    // If the content area is the entire page, then we don't need to clip
-    // the content area (PDF area clips to the page size).  Otherwise,
-    // we have to clip to the content area; we've already applied the
-    // initial transform, so just clip to the device size.
-    if (fPageSize != fContentSize) {
-        SkRect r = SkRect::MakeWH(SkIntToScalar(this->width()),
-                                  SkIntToScalar(this->height()));
-        emit_clip(nullptr, &r, out);
-    }
-
-    GraphicStackState gsState(fExistingClipStack, fExistingClipRegion, out);
+    GraphicStackState gsState(fExistingClipStack, fExistingClipRegion, &buffer);
     for (const auto& entry : fContentEntries) {
         SkPoint translation;
         translation.iset(this->getOrigin());
@@ -1357,9 +1338,14 @@ void SkPDFDevice::writeContent(SkWStream* out) const {
         gsState.updateMatrix(entry.fState.fMatrix);
         gsState.updateDrawingState(entry.fState);
 
-        entry.fContent.writeToStream(out);
+        entry.fContent.writeToStream(&buffer);
     }
     gsState.drainStack();
+
+    return std::unique_ptr<SkStreamAsset>(
+            buffer.bytesWritten() > 0
+            ? buffer.detachAsStream()
+            : new SkMemoryStream);
 }
 
 /* Draws an inverse filled path by using Path Ops to compute the positive
@@ -1499,8 +1485,8 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
 
 sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice() {
     SkMatrix inverseTransform = SkMatrix::I();
-    if (!this->initialTransform().isIdentity()) {
-        if (!this->initialTransform().invert(&inverseTransform)) {
+    if (!fInitialTransform.isIdentity()) {
+        if (!fInitialTransform.invert(&inverseTransform)) {
             SkDEBUGFAIL("Layer initial transform should be invertible.");
             inverseTransform.reset();
         }
