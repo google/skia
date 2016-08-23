@@ -13,7 +13,7 @@
 
 class GrWindowRectangles {
 public:
-    constexpr static int kMaxWindows = 16;
+    constexpr static int kMaxWindows = 8;
 
     enum class Mode : bool {
         kExclusive,
@@ -25,7 +25,7 @@ public:
     ~GrWindowRectangles() { SkSafeUnref(this->rec()); }
 
     Mode mode() const { return fMode; }
-    uint16_t count() const { return fCount; }
+    int count() const { return fCount; }
     bool disabled() const { return Mode::kExclusive == fMode && !fCount; }
     const SkIRect* data() const;
 

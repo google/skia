@@ -141,6 +141,8 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fMaxTileSize = options.fMaxTileSizeOverride;
     }
     if (fMaxWindowRectangles > GrWindowRectangles::kMaxWindows) {
+        SkDebugf("WARNING: capping window rectangles at %i. HW advertises support for %i.\n",
+                 GrWindowRectangles::kMaxWindows, fMaxWindowRectangles);
         fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
     }
 }
