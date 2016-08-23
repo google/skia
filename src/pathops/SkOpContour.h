@@ -44,6 +44,7 @@ public:
     SkOpSegment* addCurve(SkPath::Verb verb, const SkPoint pts[4]);
 
     SkOpSegment* addLine(SkPoint pts[2]) {
+        SkASSERT(pts[0] != pts[1]);
         return appendSegment().addLine(pts, this);
     }
 

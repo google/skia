@@ -221,8 +221,14 @@ bool SkOpEdgeBuilder::walk() {
                         for (int index = 0; index < SkPathOpsVerbToPoints(v2); ++index) {
                             force_small_to_zero(&curve2[index]);
                         }
-                        fCurrentContour->addCurve(v1, curve1);
-                        fCurrentContour->addCurve(v2, curve2);
+                        if (SkPath::kLine_Verb != v1 ||
+                                !SkDPoint::ApproximatelyEqual(curve1[0], curve1[1])) {
+                            fCurrentContour->addCurve(v1, curve1);
+                        }
+                        if (SkPath::kLine_Verb != v2 ||
+                                !SkDPoint::ApproximatelyEqual(curve2[0], curve2[1])) {
+                            fCurrentContour->addCurve(v2, curve2);
+                        }
                     } else {
                         fCurrentContour->addCubic(pointsPtr);
                     }

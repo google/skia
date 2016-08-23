@@ -74,6 +74,7 @@ public:
     bool addExpanded(double newT, const SkOpSpanBase* test, bool* startOver);
 
     SkOpSegment* addLine(SkPoint pts[2], SkOpContour* parent) {
+        SkASSERT(pts[0] != pts[1]);
         init(pts, 1, parent, SkPath::kLine_Verb);
         fBounds.set(pts, 2);
         return this;
