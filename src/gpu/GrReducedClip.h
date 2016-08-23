@@ -61,6 +61,9 @@ public:
     InitialState initialState() const { return fInitialState; }
 
 private:
+    void walkStack(const SkClipStack&, const SkRect& queryBounds);
+    bool intersectIBounds(const SkIRect&);
+
     SkIRect        fIBounds;
     bool           fHasIBounds;
     ElementList    fElements;
