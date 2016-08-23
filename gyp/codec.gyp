@@ -59,13 +59,6 @@
           '../include/codec',
         ],
       },
-      'defines': [
-        # Turn on libjpeg-turbo optimizations since we know that the
-        # appropriate version of libjpeg-turbo is present.
-        'TURBO_HAS_CROP',
-        'TURBO_HAS_SKIP',
-        'TURBO_HAS_565',
-      ],
       'conditions': [
         ['skia_codec_decodes_raw', {
           'dependencies': [

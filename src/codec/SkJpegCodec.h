@@ -8,13 +8,6 @@
 #ifndef SkJpegCodec_DEFINED
 #define SkJpegCodec_DEFINED
 
-// For testing.
-#ifdef SKNX_NO_SIMD
-#undef TURBO_HAS_CROP
-#undef TURBO_HAS_SKIP
-#undef TURBO_HAS_565
-#endif
-
 #include "SkCodec.h"
 #include "SkColorSpace.h"
 #include "SkColorSpaceXform.h"
@@ -145,12 +138,8 @@ private:
 
     SkAutoTDelete<SkSwizzler>          fSwizzler;
     std::unique_ptr<SkColorSpaceXform> fColorXform;
-    
-    sk_sp<SkData>                      fICCData;
 
-#if !defined(TURBO_HAS_SKIP)
-    SkAutoTMalloc<uint8_t>             fSkipStorage;
-#endif
+    sk_sp<SkData>                      fICCData;
 
     typedef SkCodec INHERITED;
 };

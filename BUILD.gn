@@ -68,10 +68,6 @@ config("skia_private") {
 
     # TODO(halcanary): make this the default; this is the value Android uses.
     "SK_SFNTLY_SUBSETTER=\"sample/chromium/font_subsetter.h\"",
-
-    "TURBO_HAS_565",
-    "TURBO_HAS_CROP",
-    "TURBO_HAS_SKIP",
   ]
   if (is_linux) {
     defines += [ "SK_SAMPLES_FOR_X" ]

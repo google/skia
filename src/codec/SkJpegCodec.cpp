@@ -278,12 +278,8 @@ SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStr
  * Return the row bytes of a particular image type and width
  */
 static size_t get_row_bytes(const j_decompress_ptr dinfo) {
-#ifdef TURBO_HAS_565
     const size_t colorBytes = (dinfo->out_color_space == JCS_RGB565) ? 2 :
             dinfo->out_color_components;
-#else
-    const size_t colorBytes = dinfo->out_color_components;
-#endif
     return dinfo->output_width * colorBytes;
 
 }
@@ -353,10 +349,6 @@ bool SkJpegCodec::onRewind() {
     fStorage.reset();
     fColorXform.reset(nullptr);
 
-#if !defined(TURBO_HAS_SKIP)
-    fSkipStorage.reset();
-#endif
-
     return true;
 }
 
@@ -408,12 +400,8 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo, bool needsColo
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
             } else {
-#ifdef TURBO_HAS_565
                 fDecoderMgr->dinfo()->dither_mode = JDITHER_NONE;
                 fDecoderMgr->dinfo()->out_color_space = JCS_RGB565;
-#else
-                fDecoderMgr->dinfo()->out_color_space = JCS_RGB;
-#endif
             }
             return true;
         case kGray_8_SkColorType:
@@ -576,7 +564,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     SkASSERT(1 == dinfo->rec_outbuf_height);
 
     J_COLOR_SPACE colorSpace = dinfo->out_color_space;
-    if (JCS_CMYK == colorSpace || JCS_RGB == colorSpace) {
+    if (JCS_CMYK == colorSpace) {
         this->initializeSwizzler(dstInfo, options);
     }
 
@@ -621,21 +609,11 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     // appropriate format to the swizzler.
     SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
     bool preSwizzled = true;
-    switch (fDecoderMgr->dinfo()->out_color_space) {
-        case JCS_RGB:
-            preSwizzled = false;
-            swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kRGB_Color,
-                                               swizzlerInfo.alpha(),
-                                               swizzlerInfo.bitsPerComponent());
-            break;
-        case JCS_CMYK:
-            preSwizzled = false;
-            swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kInvertedCMYK_Color,
-                                               swizzlerInfo.alpha(),
-                                               swizzlerInfo.bitsPerComponent());
-            break;
-        default:
-            break;
+    if (JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
+        preSwizzled = false;
+        swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kInvertedCMYK_Color,
+                                           swizzlerInfo.alpha(),
+                                           swizzlerInfo.bitsPerComponent());
     }
 
     Options swizzlerOptions = options;
@@ -698,7 +676,6 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidInput;
     }
 
-#ifdef TURBO_HAS_CROP
     if (options.fSubset) {
         uint32_t startX = options.fSubset->x();
         uint32_t width = options.fSubset->width();
@@ -740,18 +717,6 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     if (!fSwizzler && JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
         this->initializeSwizzler(dstInfo, options);
     }
-#else
-    if (options.fSubset) {
-        fSwizzlerSubset = *options.fSubset;
-    }
-
-    // We will need a swizzler if we are performing a subset decode or
-    // converting from CMYK.
-    J_COLOR_SPACE colorSpace = fDecoderMgr->dinfo()->out_color_space;
-    if (options.fSubset || JCS_CMYK == colorSpace || JCS_RGB == colorSpace) {
-        this->initializeSwizzler(dstInfo, options);
-    }
-#endif
 
     this->allocateStorage(dstInfo);
 
@@ -774,22 +739,7 @@ bool SkJpegCodec::onSkipScanlines(int count) {
         return fDecoderMgr->returnFalse("onSkipScanlines");
     }
 
-#ifdef TURBO_HAS_SKIP
     return (uint32_t) count == jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
-#else
-    uint8_t* ptr = fSkipStorage.get();
-    if (!ptr) {
-        fSkipStorage.reset(get_row_bytes(fDecoderMgr->dinfo()));
-        ptr = fSkipStorage.get();
-    }
-
-    for (int y = 0; y < count; y++) {
-        if (1 != jpeg_read_scanlines(fDecoderMgr->dinfo(), &ptr, 1)) {
-            return false;
-        }
-    }
-    return true;
-#endif
 }
 
 static bool is_yuv_supported(jpeg_decompress_struct* dinfo) {
