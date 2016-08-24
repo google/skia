@@ -420,7 +420,7 @@ public:
 
         // Assume that an error in libpng indicates an incomplete input.
         int y = 0;
-        if (setjmp(png_jmpbuf(fPng_ptr))) {
+        if (setjmp(png_jmpbuf((png_struct*)fPng_ptr))) {
             SkCodecPrintf("Failed to read row.\n");
             return y;
         }
@@ -458,7 +458,7 @@ public:
     }
 
     bool onSkipScanlines(int count) override {
-        if (setjmp(png_jmpbuf(fPng_ptr))) {
+        if (setjmp(png_jmpbuf((png_struct*)fPng_ptr))) {
             SkCodecPrintf("Failed to skip row.\n");
             return false;
         }
@@ -499,7 +499,7 @@ public:
 
     int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count, int startRow)
     override {
-        if (setjmp(png_jmpbuf(fPng_ptr))) {
+        if (setjmp(png_jmpbuf((png_struct*)fPng_ptr))) {
             SkCodecPrintf("Failed to get scanlines.\n");
             // FIXME (msarett): Returning 0 is pessimistic.  If we can complete a single pass,
             // we may be able to report that all of the memory has been initialized.  Even if we
@@ -810,7 +810,7 @@ void SkPngCodec::destroyReadStruct() {
 
 bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& options,
                                   SkPMColor ctable[], int* ctableCount) {
-    if (setjmp(png_jmpbuf(fPng_ptr))) {
+    if (setjmp(png_jmpbuf((png_struct*)fPng_ptr))) {
         SkCodecPrintf("Failed on png_read_update_info.\n");
         return false;
     }
