@@ -65,6 +65,38 @@ public:
             pts = (SkPoint*)((intptr_t)pts + stride);
         }
     }
+
+    static void SetMappedRectFan(const SkMatrix& mx, const SkRect& rect, SkPoint quad[4]) {
+        SkMatrix::TypeMask tm = mx.getType();
+        SkScalar l = rect.fLeft;
+        SkScalar t = rect.fTop;
+        SkScalar r = rect.fRight;
+        SkScalar b = rect.fBottom;
+        if (tm <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
+            const SkScalar tx = mx.getTranslateX();
+            const SkScalar ty = mx.getTranslateY();
+            if (tm <= SkMatrix::kTranslate_Mask) {
+                l += tx;
+                t += ty;
+                r += tx;
+                b += ty;
+            } else {
+                const SkScalar sx = mx.getScaleX();
+                const SkScalar sy = mx.getScaleY();
+                l = sx * l + tx;
+                t = sy * t + ty;
+                r = sx * r + tx;
+                b = sy * b + ty;
+            }
+            quad[0].set(l, t);
+            quad[1].set(l, b);
+            quad[2].set(r, b);
+            quad[3].set(r, t);
+        } else {
+            quad[0].setRectFan(l, t, r, b);
+            mx.mapPoints(quad, quad, 4);
+        }
+    }
 };
 
 #endif
