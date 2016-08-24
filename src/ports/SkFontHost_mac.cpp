@@ -818,12 +818,12 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     // As a result, it is necessary to know the actual device size and request that.
     SkVector scale;
     SkMatrix skTransform;
-    bool invertable = fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale,
+    bool invertible = fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale,
                                            &scale, &skTransform, nullptr, nullptr, &fFUnitMatrix);
     fTransform = MatrixToCGAffineTransform(skTransform);
     // CGAffineTransformInvert documents that if the transform is non-invertible it will return the
     // passed transform unchanged. It does so, but then also prints a message to stdout. Avoid this.
-    if (invertable) {
+    if (invertible) {
         fInvTransform = CGAffineTransformInvert(fTransform);
     } else {
         fInvTransform = fTransform;

@@ -239,8 +239,8 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
     SkMatrix mats[2*SK_ARRAY_COUNT(baseMats)];
     for (size_t i = 0; i < SK_ARRAY_COUNT(baseMats); ++i) {
         mats[i] = baseMats[i];
-        bool invertable = mats[i].invert(&mats[i + SK_ARRAY_COUNT(baseMats)]);
-        REPORTER_ASSERT(reporter, invertable);
+        bool invertible = mats[i].invert(&mats[i + SK_ARRAY_COUNT(baseMats)]);
+        REPORTER_ASSERT(reporter, invertible);
     }
     SkRandom rand;
     for (int m = 0; m < 1000; ++m) {

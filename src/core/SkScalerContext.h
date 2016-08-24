@@ -146,7 +146,7 @@ struct SkScalerContextRec {
      *  @param remainingWithoutRotation apply after scale to apply the total matrix sans rotation.
      *  @param remainingRotation apply after remainingWithoutRotation to apply the total matrix.
      *  @param total the total matrix.
-     *  @return false if the matrix was singular. The output will be valid but not invertable.
+     *  @return false if the matrix was singular. The output will be valid but not invertible.
      */
     bool computeMatrices(PreMatrixScale preMatrixScale,
                          SkVector* scale, SkMatrix* remaining,
