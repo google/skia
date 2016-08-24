@@ -60,7 +60,10 @@ public:
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
-        return kCanResolve_ResolveType;
+        if (this->numColorSamples() > 1) {
+            return kCanResolve_ResolveType;
+        }
+        return kAutoResolves_ResolveType;
     }
 
     bool canAttemptStencilAttachment() const override {

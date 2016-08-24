@@ -284,7 +284,8 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
         return true;
     }
 
-    if (renderTarget && this->vkCaps().isConfigRenderable(renderTarget->config(), false)) {
+    if (renderTarget && this->vkCaps().isConfigRenderable(renderTarget->config(),
+                                                          renderTarget->numColorSamples() > 1)) {
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
 
         bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
@@ -366,7 +367,8 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
 }
 
 void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target) {
-    if (target->needsResolve() && target->numColorSamples() > 1) {
+    if (target->needsResolve()) {
+        SkASSERT(target->numColorSamples() > 1);
         GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
         SkASSERT(rt->msaaImage());
 
@@ -817,18 +819,18 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) {
         return;
     }
 
-    // We currently don't support generating mipmaps for images that are multisampled.
-    // TODO: Add support for mipmapping the resolve target of a multisampled image
-    if (tex->asRenderTarget() && tex->asRenderTarget()->numColorSamples() > 1) {
-        return;
-    }
-
     // determine if we can blit to and from this format
     const GrVkCaps& caps = this->vkCaps();
     if (!caps.configCanBeDstofBlit(tex->config(), false) ||
         !caps.configCanBeSrcofBlit(tex->config(), false) ||
         !caps.mipMapSupport()) {
         return;
+    }
+
+    // We may need to resolve the texture first if it is also a render target
+    GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(tex->asRenderTarget());
+    if (texRT) {
+        this->onResolveRenderTarget(texRT);
     }
 
     int width = tex->width();
@@ -1433,7 +1435,7 @@ inline bool can_copy_as_blit(const GrSurface* dst,
                              const GrVkImage* dstImage,
                              const GrVkImage* srcImage,
                              const GrVkGpu* gpu) {
-    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src 
+    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src
     // as image usage flags.
     const GrVkCaps& caps = gpu->vkCaps();
     if (!caps.configCanBeDstofBlit(dst->config(), dstImage->isLinearTiled()) ||
@@ -1615,7 +1617,7 @@ bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         return true;
     }
 
-    if (this->vkCaps().isConfigRenderable(readConfig, false)) {
+    if (this->vkCaps().isConfigRenderable(readConfig, srcSurface->desc().fSampleCnt > 1)) {
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
         tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
         tempDrawInfo->fReadConfig = readConfig;
@@ -1635,17 +1637,36 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
         return false;
     }
 
-    GrVkTexture* tgt = static_cast<GrVkTexture*>(surface->asTexture());
-    if (!tgt) {
+    GrVkImage* image = nullptr;
+    GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(surface->asRenderTarget());
+    if (rt) {
+        // resolve the render target if necessary
+        switch (rt->getResolveType()) {
+            case GrVkRenderTarget::kCantResolve_ResolveType:
+                return false;
+            case GrVkRenderTarget::kAutoResolves_ResolveType:
+                break;
+            case GrVkRenderTarget::kCanResolve_ResolveType:
+                this->onResolveRenderTarget(rt);
+                break;
+            default:
+                SkFAIL("Unknown resolve type");
+        }
+        image = rt;
+    } else {
+        image = static_cast<GrVkTexture*>(surface->asTexture());
+    }
+
+    if (!image) {
         return false;
     }
 
     // Change layout of our target so it can be used as copy
-    tgt->setImageLayout(this,
-                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        VK_ACCESS_TRANSFER_READ_BIT,
-                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                        false);
+    image->setImageLayout(this,
+                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                          VK_ACCESS_TRANSFER_READ_BIT,
+                          VK_PIPELINE_STAGE_TRANSFER_BIT,
+                          false);
 
     GrVkTransferBuffer* transferBuffer =
         static_cast<GrVkTransferBuffer*>(this->createBuffer(rowBytes * height,
@@ -1670,7 +1691,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     region.imageExtent = { (uint32_t)width, (uint32_t)height, 1 };
 
     fCurrentCmdBuffer->copyImageToBuffer(this,
-                                         tgt,
+                                         image,
                                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                          transferBuffer,
                                          1,
@@ -1778,5 +1799,7 @@ void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
     fCurrentCmdBuffer->beginRenderPass(this, renderPass, 1, colorClear, *target, *pBounds, true);
     fCurrentCmdBuffer->executeCommands(this, buffer);
     fCurrentCmdBuffer->endRenderPass(this);
+
+    this->didWriteToSurface(target, pBounds);
 }
 

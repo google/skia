@@ -128,6 +128,8 @@ public:
     }
 #endif
 
+    void onResolveRenderTarget(GrRenderTarget* target) override;
+
     void submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer*,
                                       const GrVkRenderPass*,
                                       const VkClearValue*,
@@ -147,7 +149,7 @@ public:
         // in the main heap.
         kOptimalImage_Heap,
         kSmallOptimalImage_Heap,
-        // We have separate vertex and image heaps, because it's possible that 
+        // We have separate vertex and image heaps, because it's possible that
         // a given Vulkan driver may allocate them separately.
         kVertexBuffer_Heap,
         kIndexBuffer_Heap,
@@ -198,8 +200,6 @@ private:
                           int left, int top, int width, int height,
                           GrPixelConfig config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override { return false; }
-
-    void onResolveRenderTarget(GrRenderTarget* target) override;
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all

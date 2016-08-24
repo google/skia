@@ -346,6 +346,13 @@ static void append_sampled_images(const GrProcessor& processor,
             const GrTextureAccess& texAccess = processor.textureAccess(i);
             GrVkTexture* vkTexture = static_cast<GrVkTexture*>(processor.texture(i));
             SkASSERT(vkTexture);
+
+            // We may need to resolve the texture first if it is also a render target
+            GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
+            if (texRT) {
+                gpu->onResolveRenderTarget(texRT);
+            }
+
             const GrTextureParams& params = texAccess.getParams();
             // Check if we need to regenerate any mip maps
             if (GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
