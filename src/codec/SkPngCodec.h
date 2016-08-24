@@ -14,12 +14,6 @@
 #include "SkRefCnt.h"
 #include "SkSwizzler.h"
 
-// Instead of including png.h here, forward declare the few types we refer to.
-struct png_struct_def;
-struct png_info_def;
-typedef png_struct_def png_struct;
-typedef png_info_def png_info;
-
 class SkStream;
 
 class SkPngCodec : public SkCodec {
@@ -32,6 +26,19 @@ public:
     virtual ~SkPngCodec();
 
 protected:
+    // We hold the png_ptr and info_ptr as voidp to avoid having to include png.h
+    // or forward declare their types here.  voidp auto-casts to the real pointer types.
+    struct voidp {
+        voidp(void* ptr) : fPtr(ptr) {}
+
+        template <typename T>
+        operator T*() const { return (T*)fPtr; }
+
+        explicit operator bool() const { return fPtr != nullptr; }
+
+        void* fPtr;
+    };
+
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
             override;
     SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
@@ -51,11 +58,11 @@ protected:
                          int startRow) = 0;
 
     SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStream*, SkPngChunkReader*,
-               png_struct*, png_info*, int, int);
+               void* png_ptr, void* info_ptr, int, int);
 
-    SkAutoTUnref<SkPngChunkReader>     fPngChunkReader;
-    png_struct*                        fPng_ptr;
-    png_info*                          fInfo_ptr;
+    SkAutoTUnref<SkPngChunkReader> fPngChunkReader;
+    voidp                          fPng_ptr;
+    voidp                          fInfo_ptr;
 
     // These are stored here so they can be used both by normal decoding and scanline decoding.
     SkAutoTUnref<SkColorTable>         fColorTable;    // May be unpremul.

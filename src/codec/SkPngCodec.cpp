@@ -777,8 +777,8 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
 }
 
 SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
-                       SkStream* stream, SkPngChunkReader* chunkReader, png_structp png_ptr,
-                       png_infop info_ptr, int bitDepth, int numberPasses)
+                       SkStream* stream, SkPngChunkReader* chunkReader, void* png_ptr,
+                       void* info_ptr, int bitDepth, int numberPasses)
     : INHERITED(encodedInfo, imageInfo, stream)
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
@@ -798,7 +798,7 @@ void SkPngCodec::destroyReadStruct() {
     if (fPng_ptr) {
         // We will never have a nullptr fInfo_ptr with a non-nullptr fPng_ptr
         SkASSERT(fInfo_ptr);
-        png_destroy_read_struct(&fPng_ptr, &fInfo_ptr, nullptr);
+        png_destroy_read_struct((png_struct**)&fPng_ptr, (png_info**)&fInfo_ptr, nullptr);
         fPng_ptr = nullptr;
         fInfo_ptr = nullptr;
     }
