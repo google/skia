@@ -31,7 +31,7 @@ public:
      *  |dstColorType| and is premultiplied by alpha if |premul| is set.
      */
     virtual void apply(void* dst, const uint32_t* src, int len, SkColorType dstColorType,
-                       SkAlphaType dstAlphaType) const  = 0;
+                       SkAlphaType dstAlphaType) const = 0;
 
     virtual ~SkColorSpaceXform() {}
 };
@@ -68,6 +68,10 @@ private:
     uint8_t                   fDstGammaTableStorage[3 * kDstGammaTableSize];
 
     friend class SkColorSpaceXform;
+    friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(const sk_sp<SkColorSpace>& space);
 };
+
+// For testing.  Bypasses opts for when src and dst color spaces are equal.
+std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(const sk_sp<SkColorSpace>& space);
 
 #endif

@@ -950,13 +950,21 @@ static inline void store_generic(void* dst, const uint32_t* src,
 static inline void store_generic_1(void* dst, const uint32_t* src,
                                    Sk4f& rgba, const Sk4f&,
                                    const uint8_t* const dstTables[3], SwapRB kSwapRB) {
+    int kRShift = 0;
+    int kGShift = 8;
+    int kBShift = 16;
+    if (kYes_SwapRB == kSwapRB) {
+        kBShift = 0;
+        kRShift = 16;
+    }
+
     rgba = Sk4f::Min(Sk4f::Max(1023.0f * rgba, 0.0f), 1023.0f);
 
     Sk4i indices = Sk4f_round(rgba);
 
-    *((uint32_t*) dst) = dstTables[0][indices[0]] <<  0
-                       | dstTables[1][indices[1]] <<  8
-                       | dstTables[2][indices[2]] << 16
+    *((uint32_t*) dst) = dstTables[0][indices[0]] << kRShift
+                       | dstTables[1][indices[1]] << kGShift
+                       | dstTables[2][indices[2]] << kBShift
                        | (*src & 0xFF000000);
 }
 
@@ -1196,4 +1204,10 @@ const
             SkASSERT(false);
             return;
     }
+}
+
+std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(const sk_sp<SkColorSpace>& space) {
+        return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_Base
+                <SkColorSpace::kNonStandard_GammaNamed, kNone_ColorSpaceMatch>
+                (space, SkMatrix::I(), space));
 }
