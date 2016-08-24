@@ -534,18 +534,6 @@ private:
     typedef SkTypeface INHERITED;
 };
 
-/** Creates a typeface without searching the cache. Takes ownership of the CTFontRef. */
-static SkTypeface* NewFromFontRef(CTFontRef fontRef, CFTypeRef resourceRef, bool isLocalStream) {
-    SkASSERT(fontRef);
-
-    AutoCFRelease<CTFontDescriptorRef> desc(CTFontCopyFontDescriptor(fontRef));
-    SkFontStyle style = fontstyle_from_descriptor(desc);
-
-    CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(fontRef);
-    bool isFixedPitch = SkToBool(traits & kCTFontMonoSpaceTrait);
-    return new SkTypeface_Mac(fontRef, resourceRef, style, isFixedPitch, isLocalStream);
-}
-
 static bool find_by_CTFontRef(SkTypeface* cached, void* context) {
     CTFontRef self = (CTFontRef)context;
     CTFontRef other = ((SkTypeface_Mac*)cached)->fFontRef;
@@ -553,13 +541,50 @@ static bool find_by_CTFontRef(SkTypeface* cached, void* context) {
     return CFEqual(self, other);
 }
 
-/** Creates a typeface from a name, searching the cache. */
-static SkTypeface* NewFromName(const char familyName[], const SkFontStyle& theStyle) {
+/** Creates a typeface, searching the cache if isLocalStream is false.
+ *  Takes ownership of the CTFontRef and CFTypeRef.
+ */
+static SkTypeface* create_from_CTFontRef(CTFontRef f, CFTypeRef r, bool isLocalStream) {
+    SkASSERT(f);
+    AutoCFRelease<CTFontRef> font(f);
+    AutoCFRelease<CFTypeRef> resource(r);
+
+    if (!isLocalStream) {
+        SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_CTFontRef, (void*)font.get());
+        if (face) {
+            return face;
+        }
+    }
+
+    AutoCFRelease<CTFontDescriptorRef> desc(CTFontCopyFontDescriptor(font));
+    SkFontStyle style = fontstyle_from_descriptor(desc);
+    CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(font);
+    bool isFixedPitch = SkToBool(traits & kCTFontMonoSpaceTrait);
+
+    SkTypeface* face = new SkTypeface_Mac(font.release(), resource.release(),
+                                          style, isFixedPitch, isLocalStream);
+    if (!isLocalStream) {
+        SkTypefaceCache::Add(face);
+    }
+    return face;
+}
+
+/** Creates a typeface from a descriptor, searching the cache. */
+static SkTypeface* create_from_desc(CTFontDescriptorRef desc) {
+    AutoCFRelease<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(desc, 0, nullptr));
+    if (!ctFont) {
+        return nullptr;
+    }
+
+    return create_from_CTFontRef(ctFont.release(), nullptr, false);
+}
+
+static CTFontDescriptorRef create_descriptor(const char familyName[], const SkFontStyle& style) {
     CTFontSymbolicTraits ctFontTraits = 0;
-    if (theStyle.weight() >= SkFontStyle::kBold_Weight) {
+    if (style.weight() >= SkFontStyle::kBold_Weight) {
         ctFontTraits |= kCTFontBoldTrait;
     }
-    if (theStyle.slant() != SkFontStyle::kUpright_Slant) {
+    if (style.slant() != SkFontStyle::kUpright_Slant) {
         ctFontTraits |= kCTFontItalicTrait;
     }
 
@@ -590,24 +615,16 @@ static SkTypeface* NewFromName(const char familyName[], const SkFontStyle& theSt
     CFDictionaryAddValue(cfAttributes, kCTFontFamilyNameAttribute, cfFontName);
     CFDictionaryAddValue(cfAttributes, kCTFontTraitsAttribute, cfTraits);
 
-    AutoCFRelease<CTFontDescriptorRef> ctFontDesc(
-            CTFontDescriptorCreateWithAttributes(cfAttributes));
-    if (!ctFontDesc) {
+    return CTFontDescriptorCreateWithAttributes(cfAttributes);
+}
+
+/** Creates a typeface from a name, searching the cache. */
+static SkTypeface* create_from_name(const char familyName[], const SkFontStyle& style) {
+    AutoCFRelease<CTFontDescriptorRef> desc(create_descriptor(familyName, style));
+    if (!desc) {
         return nullptr;
     }
-
-    AutoCFRelease<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(ctFontDesc, 0, nullptr));
-    if (!ctFont) {
-        return nullptr;
-    }
-
-    SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_CTFontRef, (void*)ctFont.get());
-    if (face) {
-        return face;
-    }
-    face = NewFromFontRef(ctFont.release(), nullptr, false);
-    SkTypefaceCache::Add(face);
-    return face;
+    return create_from_desc(desc);
 }
 
 SK_DECLARE_STATIC_MUTEX(gGetDefaultFaceMutex);
@@ -617,7 +634,7 @@ static SkTypeface* GetDefaultFace() {
     static SkTypeface* gDefaultFace;
 
     if (nullptr == gDefaultFace) {
-        gDefaultFace = NewFromName(FONT_DEFAULT_NAME, SkFontStyle());
+        gDefaultFace = create_from_name(FONT_DEFAULT_NAME, SkFontStyle());
     }
     return gDefaultFace;
 }
@@ -634,17 +651,11 @@ CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
  *  not found, returns a new entry (after adding it to the cache).
  */
 SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef, CFTypeRef resourceRef) {
-    SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_CTFontRef, (void*)fontRef);
-    if (face) {
-        return face;
-    }
     CFRetain(fontRef);
     if (resourceRef) {
         CFRetain(resourceRef);
     }
-    face = NewFromFontRef(fontRef, resourceRef, false);
-    SkTypefaceCache::Add(face);
-    return face;
+    return create_from_CTFontRef(fontRef, resourceRef, false);
 }
 
 static const char* map_css_names(const char* name) {
@@ -1508,7 +1519,7 @@ static SkTypeface* create_from_dataProvider(CGDataProviderRef provider) {
         return nullptr;
     }
     CTFontRef ct = CTFontCreateWithGraphicsFont(cg, 0, nullptr, nullptr);
-    return ct ? NewFromFontRef(ct, nullptr, true) : nullptr;
+    return ct ? create_from_CTFontRef(ct, nullptr, true) : nullptr;
 }
 
 // Web fonts added to the the CTFont registry do not return their character set.
@@ -2196,22 +2207,6 @@ static int compute_metric(const SkFontStyle& a, const SkFontStyle& b) {
            sqr((a.slant() != b.slant()) * 900);
 }
 
-static SkTypeface* createFromDesc(CTFontDescriptorRef desc) {
-    AutoCFRelease<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(desc, 0, nullptr));
-    if (!ctFont) {
-        return nullptr;
-    }
-
-    SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_CTFontRef, (void*)ctFont.get());
-    if (face) {
-        return face;
-    }
-
-    face = NewFromFontRef(ctFont.release(), nullptr, false);
-    SkTypefaceCache::Add(face);
-    return face;
-}
-
 class SkFontStyleSet_Mac : public SkFontStyleSet {
 public:
     SkFontStyleSet_Mac(CTFontDescriptorRef desc)
@@ -2248,14 +2243,14 @@ public:
         SkASSERT((unsigned)index < (unsigned)CFArrayGetCount(fArray));
         CTFontDescriptorRef desc = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fArray, index);
 
-        return createFromDesc(desc);
+        return create_from_desc(desc);
     }
 
     SkTypeface* matchStyle(const SkFontStyle& pattern) override {
         if (0 == fCount) {
             return nullptr;
         }
-        return createFromDesc(findMatchingDesc(pattern));
+        return create_from_desc(findMatchingDesc(pattern));
     }
 
 private:
@@ -2344,10 +2339,26 @@ protected:
         return sset->matchStyle(fontStyle);
     }
 
-    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
+                                                    const SkFontStyle& style,
                                                     const char* bcp47[], int bcp47Count,
                                                     SkUnichar character) const override {
-        return nullptr;
+        AutoCFRelease<CTFontDescriptorRef> desc(create_descriptor(familyName, style));
+        AutoCFRelease<CTFontRef> currentFont(CTFontCreateWithFontDescriptor(desc, 0, nullptr));
+
+        // kCFStringEncodingUTF32 is BE unless there is a BOM.
+        // Since there is no machine endian option, explicitly state machine endian.
+#ifdef SK_CPU_LENDIAN
+        constexpr CFStringEncoding encoding = kCFStringEncodingUTF32LE;
+#else
+        constexpr CFStringEncoding encoding = kCFStringEncodingUTF32BE;
+#endif
+        AutoCFRelease<CFStringRef> string(CFStringCreateWithBytes(
+                kCFAllocatorDefault, reinterpret_cast<const UInt8 *>(&character), sizeof(character),
+                encoding, false));
+        CFRange range = CFRangeMake(0, CFStringGetLength(string));  // in UniChar units.
+        AutoCFRelease<CTFontRef> fallbackFont(CTFontCreateForString(currentFont, string, range));
+        return create_from_CTFontRef(fallbackFont.release(), nullptr, false);
     }
 
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
@@ -2503,11 +2514,11 @@ protected:
             cgVariant.reset(cg.release());
         }
 
-        CTFontRef ct = CTFontCreateWithGraphicsFont(cgVariant, 0, nullptr, nullptr);
+        AutoCFRelease<CTFontRef> ct(CTFontCreateWithGraphicsFont(cgVariant, 0, nullptr, nullptr));
         if (!ct) {
             return nullptr;
         }
-        return NewFromFontRef(ct, cg.release(), true);
+        return create_from_CTFontRef(ct.release(), cg.release(), true);
     }
 
     static CFDictionaryRef get_axes(CGFontRef cg, SkFontData* fontData) {
@@ -2586,11 +2597,11 @@ protected:
             cgVariant.reset(cg.release());
         }
 
-        CTFontRef ct = CTFontCreateWithGraphicsFont(cgVariant, 0, nullptr, nullptr);
+        AutoCFRelease<CTFontRef> ct(CTFontCreateWithGraphicsFont(cgVariant, 0, nullptr, nullptr));
         if (!ct) {
             return nullptr;
         }
-        return NewFromFontRef(ct, cg.release(), true);
+        return create_from_CTFontRef(ct.release(), cg.release(), true);
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
@@ -2610,7 +2621,7 @@ protected:
             familyName = FONT_DEFAULT_NAME;
         }
 
-        SkTypeface* face = NewFromName(familyName, style);
+        SkTypeface* face = create_from_name(familyName, style);
         if (face) {
             return face;
         }
