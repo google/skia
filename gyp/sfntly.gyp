@@ -14,9 +14,9 @@
         'sfntly_src_path': '../third_party/externals/sfntly/cpp/src',
       },
       'direct_dependent_settings': {
-        'include_dirs': [ '<(sfntly_src_path)/sample/chromium', ],
+        'include_dirs': [ '<(sfntly_src_path)', ],
         'defines': [
-          'SK_SFNTLY_SUBSETTER="font_subsetter.h"',
+          'SK_SFNTLY_SUBSETTER="sample/chromium/font_subsetter.h"',
         ],
       },
       'sources': [
