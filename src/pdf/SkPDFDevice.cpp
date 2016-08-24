@@ -1131,6 +1131,7 @@ void SkPDFDevice::internalDrawText(
     }
 
     bool defaultPositioning = (positioning == SkTextBlob::kDefault_Positioning);
+    paint.setHinting(SkPaint::kNo_Hinting);
     SkAutoGlyphCache glyphCache(paint, nullptr, nullptr);
 
     SkPaint::Align alignment = paint.getTextAlign();
