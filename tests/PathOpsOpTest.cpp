@@ -6822,7 +6822,7 @@ path.conicTo(SkBits2Float(0x084b0321), SkBits2Float(0x6ac07b2a), SkBits2Float(0x
 path.lineTo(SkBits2Float(0x8c558c55), SkBits2Float(0x212a1f2a));  // -1.64512e-31f, 5.76395e-19f
 
     SkPath path2(path);
-    testPathOpFailSkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
+    testPathOpSkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
 }
 
 static void fuzz763_17(skiatest::Reporter* reporter, const char* filename) {
@@ -6976,7 +6976,7 @@ path.lineTo(SkBits2Float(0x68395b2d), SkBits2Float(0xf0682955));  // 3.50128e+24
 path.close();
 
     SkPath path2(path);
-    testPathOpFailSkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
+    testPathOpSkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
 }
 
 static void fuzz763_20(skiatest::Reporter* reporter, const char* filename) {
@@ -7276,7 +7276,7 @@ path.lineTo(SkBits2Float(0x68385b2d), SkBits2Float(0xf0682955));  // 3.48239e+24
 path.close();
 
     SkPath path2(path);
-    testPathOpFailSkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
+    testPathOpSkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
 }
 
 static void fuzz763_28(skiatest::Reporter* reporter, const char* filename) {
@@ -7314,7 +7314,7 @@ path.moveTo(SkBits2Float(0x0321081f), SkBits2Float(0x6a4b7bc0));  // 4.7323e-37f
 path.conicTo(SkBits2Float(0x212a8ced), SkBits2Float(0x0321081f), SkBits2Float(0x6a3a7bc0), SkBits2Float(0x2147ed7a), SkBits2Float(0x28282a3a));  // 5.77848e-19f, 4.7323e-37f, 5.63611e+25f, 6.77381e-19f, 9.33503e-15f
 
     SkPath path2(path);
-    testPathOpFailSkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
+    testPathOpSkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
 }
 
 static void fuzz763_27(skiatest::Reporter* reporter, const char* filename) {

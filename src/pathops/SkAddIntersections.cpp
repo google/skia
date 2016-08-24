@@ -505,11 +505,9 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                 SkASSERT(ts[0][pt] >= 0 && ts[0][pt] <= 1);
                 SkASSERT(ts[1][pt] >= 0 && ts[1][pt] <= 1);
                 wt.segment()->debugValidate();
-                SkOpPtT* testTAt = wt.segment()->addT(ts[swap][pt], SkOpSegment::kAllowAliasMatch,
-                        nullptr);
+                SkOpPtT* testTAt = wt.segment()->addT(ts[swap][pt], nullptr);
                 wn.segment()->debugValidate();
-                SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt], SkOpSegment::kAllowAliasMatch,
-                        nullptr);
+                SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt], nullptr);
                 if (testTAt->addOpp(nextTAt)) {
                     testTAt->span()->checkForCollapsedCoincidence();
                 }

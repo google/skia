@@ -305,7 +305,7 @@ bool SkOpCoincidence::addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase*
                 continue;
             }
             SkOpSegment* writableSeg = const_cast<SkOpSegment*>(testSeg);
-            SkOpPtT* oppStart = writableSeg->addT(t, SkOpSegment::kAllowAliasMatch, nullptr);
+            SkOpPtT* oppStart = writableSeg->addT(t, nullptr);
             SkOpSpan* writableBase = const_cast<SkOpSpan*>(base);
             oppStart->span()->addOppAndMerge(writableBase);
             if (oppStart->deleted()) {
@@ -691,9 +691,9 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
     this->debugValidate();
     if (!cs || !os) {
         SkOpPtT* csWritable = cs ? const_cast<SkOpPtT*>(cs)
-            : coinSeg->addT(coinTs, SkOpSegment::kNoAliasMatch, nullptr);
+            : coinSeg->addT(coinTs, nullptr);
         SkOpPtT* osWritable = os ? const_cast<SkOpPtT*>(os)
-            : oppSeg->addT(oppTs, SkOpSegment::kNoAliasMatch, nullptr);
+            : oppSeg->addT(oppTs, nullptr);
         if (!csWritable || !osWritable) {
             return false;
         }
@@ -706,9 +706,9 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
     }
     if (!ce || !oe) {
         SkOpPtT* ceWritable = ce ? const_cast<SkOpPtT*>(ce)
-            : coinSeg->addT(coinTe, SkOpSegment::kNoAliasMatch, nullptr);
+            : coinSeg->addT(coinTe, nullptr);
         SkOpPtT* oeWritable = oe ? const_cast<SkOpPtT*>(oe)
-            : oppSeg->addT(oppTe, SkOpSegment::kNoAliasMatch, nullptr);
+            : oppSeg->addT(oppTe, nullptr);
         ceWritable->span()->addOppAndMerge(oeWritable->span());
         ce = ceWritable;
         oe = oeWritable;

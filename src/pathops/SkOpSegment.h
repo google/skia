@@ -23,11 +23,6 @@ class SkPathWriter;
 
 class SkOpSegment {
 public:
-    enum AliasMatch {
-        kNoAliasMatch,
-        kAllowAliasMatch,
-    };
-
     bool operator<(const SkOpSegment& rh) const {
         return fBounds.fTop < rh.fBounds.fTop;
     }
@@ -97,7 +92,7 @@ public:
         return this;
     }
 
-    SkOpPtT* addT(double t, AliasMatch, bool* allocated);
+    SkOpPtT* addT(double t, bool* allocated);
 
     template<typename T> T* allocateArray(int count) {
         return SkOpTAllocator<T>::AllocateArray(this->globalState()->allocator(), count);
@@ -133,7 +128,7 @@ public:
     }
 
     void debugAddAngle(double startT, double endT);
-    const SkOpPtT* debugAddT(double t, AliasMatch , bool* allocated) const;
+    const SkOpPtT* debugAddT(double t, bool* allocated) const;
     const SkOpAngle* debugAngle(int id) const;
 #if DEBUG_ANGLE
     void debugCheckAngleCoin() const;
@@ -279,8 +274,7 @@ public:
     void markDone(SkOpSpan* );
     bool markWinding(SkOpSpan* , int winding);
     bool markWinding(SkOpSpan* , int winding, int oppWinding);
-    bool match(const SkOpPtT* span, const SkOpSegment* parent, double t, const SkPoint& pt,
-               AliasMatch ) const;
+    bool match(const SkOpPtT* span, const SkOpSegment* parent, double t, const SkPoint& pt) const;
     bool missingCoincidence();
     bool moveMultiples();
     void moveNearby();
@@ -397,7 +391,6 @@ public:
             const SkOpSpanBase* spanBase, const SkOpSegment* opp) const;
 
     void undoneSpan(SkOpSpanBase** start, SkOpSpanBase** end);
-    bool uniqueT(double t, AliasMatch allowAlias) const;
     int updateOppWinding(const SkOpSpanBase* start, const SkOpSpanBase* end) const;
     int updateOppWinding(const SkOpAngle* angle) const;
     int updateOppWindingReverse(const SkOpAngle* angle) const;

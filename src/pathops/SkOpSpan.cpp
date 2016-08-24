@@ -238,7 +238,7 @@ void SkOpSpanBase::mergeContained(const SkPathOpsBounds& bounds) {
 bool SkOpSpanBase::contains(const SkOpSpanBase* span) const {
     const SkOpPtT* start = &fPtT;
     const SkOpPtT* check = &span->fPtT;
-    SkASSERT(start != check);
+    SkOPASSERT(start != check);
     const SkOpPtT* walk = start;
     while ((walk = walk->next()) != start) {
         if (walk == check) {

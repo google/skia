@@ -229,7 +229,7 @@ const SkOpPtT* SkOpSegment::existing(double t, const SkOpSegment* opp) const {
         if (testPtT->fT == t) {
             break;
         }
-        if (!this->match(testPtT, this, t, pt, opp ? kAllowAliasMatch : kNoAliasMatch)) {
+        if (!this->match(testPtT, this, t, pt)) {
             if (t < testPtT->fT) {
                 return nullptr;
             }
@@ -256,7 +256,7 @@ bool SkOpSegment::addExpanded(double newT, const SkOpSpanBase* test, bool* start
     if (this->contains(newT)) {
         return true;
     }
-    SkOpPtT* newPtT = this->addT(newT, kAllowAliasMatch, startOver);
+    SkOpPtT* newPtT = this->addT(newT, startOver);
     if (!newPtT) {
         return false;
     }
@@ -270,7 +270,7 @@ bool SkOpSegment::addExpanded(double newT, const SkOpSpanBase* test, bool* start
 }
 
 // Please keep this in sync with debugAddT()
-SkOpPtT* SkOpSegment::addT(double t, AliasMatch allowAlias, bool* allocated) {
+SkOpPtT* SkOpSegment::addT(double t, bool* allocated) {
     debugValidate();
     SkPoint pt = this->ptAtT(t);
     SkOpSpanBase* span = &fHead;
@@ -281,7 +281,7 @@ SkOpPtT* SkOpSegment::addT(double t, AliasMatch allowAlias, bool* allocated) {
         if (t == result->fT) {
             goto bumpSpan;
         }
-        if (this->match(result, this, t, pt, allowAlias)) {
+        if (this->match(result, this, t, pt)) {
             // see if any existing alias matches segment, pt, and t
             loop = result->next();
             duplicatePt = false;
@@ -293,25 +293,9 @@ SkOpPtT* SkOpSegment::addT(double t, AliasMatch allowAlias, bool* allocated) {
                 duplicatePt |= ptMatch;
                 loop = loop->next();
             }
-            if (kNoAliasMatch == allowAlias) {
     bumpSpan:
-                span->bumpSpanAdds();
-                return result;
-            }
-            SkOpPtT* alias = SkOpTAllocator<SkOpPtT>::Allocate(this->globalState()->allocator());
-            alias->init(result->span(), t, pt, duplicatePt);
-            result->insert(alias);
-            result->span()->unaligned();
-            this->debugValidate();
-#if DEBUG_ADD_T
-            SkDebugf("%s alias t=%1.9g segID=%d spanID=%d\n",  __FUNCTION__, t,
-                    alias->segment()->debugID(), alias->span()->debugID());
-#endif
             span->bumpSpanAdds();
-            if (allocated) {
-                *allocated = true;
-            }
-            return alias;
+            return result;
         }
         if (t < result->fT) {
             SkOpSpan* prev = result->span()->prev();
@@ -1051,7 +1035,7 @@ bool SkOpSegment::markWinding(SkOpSpan* span, int winding, int oppWinding) {
 }
 
 bool SkOpSegment::match(const SkOpPtT* base, const SkOpSegment* testParent, double testT,
-        const SkPoint& testPt, AliasMatch aliasMatch) const {
+        const SkPoint& testPt) const {
     SkASSERT(this == base->segment());
     if (this == testParent) {
         if (precisely_equal(base->fT, testT)) {
@@ -1421,7 +1405,7 @@ nextRef:
    } while ((ref = ref->next()) != refHead);
 doneCheckingDistance:
     return checkBest && refBest->segment()->match(refBest, checkBest->segment(), checkBest->fT,
-            checkBest->fPt, kAllowAliasMatch);
+            checkBest->fPt);
 }
 
 // Please keep this function in sync with debugMoveNearby()

@@ -582,7 +582,7 @@ void SkDRect::debugInit() {
 
 #if DEBUG_COINCIDENCE
 // commented-out lines keep this in sync with addT()
- const SkOpPtT* SkOpSegment::debugAddT(double t, AliasMatch allowAlias, bool* allocated) const {
+ const SkOpPtT* SkOpSegment::debugAddT(double t, bool* allocated) const {
     debugValidate();
     SkPoint pt = this->ptAtT(t);
     const SkOpSpanBase* span = &fHead;
@@ -593,7 +593,7 @@ void SkDRect::debugInit() {
         if (t == result->fT) {
             goto bumpSpan;
         }
-        if (this->match(result, this, t, pt, allowAlias)) {
+        if (this->match(result, this, t, pt)) {
             // see if any existing alias matches segment, pt, and t
             loop = result->next();
             duplicatePt = false;
@@ -605,25 +605,9 @@ void SkDRect::debugInit() {
                 duplicatePt |= ptMatch;
                 loop = loop->next();
             }
-            if (kNoAliasMatch == allowAlias) {
     bumpSpan:
-//                 span->bumpSpanAdds();
-                return result;
-            }
-//             SkOpPtT* alias = SkOpTAllocator<SkOpPtT>::Allocate(allocator);
-//             alias->init(result->span(), t, pt, duplicatePt);
-//             result->insert(alias);
-//             result->span()->unaligned();
-            this->debugValidate();
-// #if DEBUG_ADD_T
-//             SkDebugf("%s alias t=%1.9g segID=%d spanID=%d\n",  __FUNCTION__, t,
-//                     alias->segment()->debugID(), alias->span()->debugID());
-// #endif
 //             span->bumpSpanAdds();
-            if (allocated) {
-                *allocated = true;
-            }
-            return nullptr;
+             return result;
         }
         if (t < result->fT) {
             const SkOpSpan* prev = result->span()->prev();
@@ -1488,9 +1472,9 @@ void SkOpCoincidence::debugAddOrOverlap(const SkOpSegment* coinSeg, const SkOpSe
     this->debugValidate();
     if (!cs || !os) {
         if (!cs)
-            cs = coinSeg->debugAddT(coinTs, SkOpSegment::kNoAliasMatch, nullptr);
+            cs = coinSeg->debugAddT(coinTs, nullptr);
         if (!os)
-            os = oppSeg->debugAddT(oppTs, SkOpSegment::kNoAliasMatch, nullptr);
+            os = oppSeg->debugAddT(oppTs, nullptr);
         if (cs && os) cs->span()->debugAddOppAndMerge(id, log, os->span(), &csDeleted, &osDeleted);
 //         cs = csWritable;
 //         os = osWritable;
@@ -1500,9 +1484,9 @@ void SkOpCoincidence::debugAddOrOverlap(const SkOpSegment* coinSeg, const SkOpSe
     }
     if (!ce || !oe) {
         if (!ce)
-            ce = coinSeg->debugAddT(coinTe, SkOpSegment::kNoAliasMatch, nullptr);
+            ce = coinSeg->debugAddT(coinTe, nullptr);
         if (!oe)
-            oe = oppSeg->debugAddT(oppTe, SkOpSegment::kNoAliasMatch, nullptr);
+            oe = oppSeg->debugAddT(oppTe, nullptr);
         if (ce && oe) ce->span()->debugAddOppAndMerge(id, log, oe->span(), &ceDeleted, &oeDeleted);
 //         ce = ceWritable;
 //         oe = oeWritable;

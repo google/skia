@@ -369,7 +369,7 @@ public:
     }
 
     const SkOpSpan* upCast() const {
-        SkASSERT(!final());
+        SkOPASSERT(!final());
         return (const SkOpSpan*) this;
     }
 
@@ -520,7 +520,7 @@ public:
         SkASSERT(!final());
         SkASSERT(windValue >= 0);
         SkASSERT(fWindSum == SK_MinS32);
-        SkASSERT(!windValue || !fDone);
+        SkOPASSERT(!windValue || !fDone);
         fWindValue = windValue;
     }
 
@@ -537,7 +537,7 @@ public:
     }
 
     int windValue() const {
-        SkASSERT(!final());
+        SkOPASSERT(!final());
         return fWindValue;
     }
 
