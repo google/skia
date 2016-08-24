@@ -140,6 +140,9 @@ class SkiaApi(recipe_api.RecipeApi):
     self.m.vars.got_revision = (
         update_step.presentation.properties['got_revision'])
     self.m.tryserver.maybe_apply_issue()
+    if self.m.properties.get('patch_storage') == 'gerrit':
+      self.m.bot_update.apply_gerrit_ref(
+          root=str(self.m.vars.checkout_root.join('skia')))
 
     if self.m.vars.need_chromium_checkout:
       self.m.gclient.runhooks(cwd=self.m.vars.checkout_root,

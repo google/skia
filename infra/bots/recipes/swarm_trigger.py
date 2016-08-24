@@ -193,9 +193,15 @@ def trigger_task(api, task_name, builder, master, slave, buildnumber,
     'swarm_out_dir': '${ISOLATED_OUTDIR}',
   }
   if builder_cfg['is_trybot']:
-    properties['issue'] = str(api.properties['issue'])
-    properties['patchset'] = str(api.properties['patchset'])
-    properties['rietveld'] = api.properties['rietveld']
+    if api.properties.get('patch_storage') == 'gerrit':
+      properties['patch_storage'] = api.properties['patch_storage']
+      properties['repository'] = api.properties['repository']
+      properties['event.patchSet.ref'] = api.properties['event.patchSet.ref']
+      properties['event.change.number'] = api.properties['event.change.number']
+    else:
+      properties['issue'] = str(api.properties['issue'])
+      properties['patchset'] = str(api.properties['patchset'])
+      properties['rietveld'] = api.properties['rietveld']
 
   extra_args = [
       '--workdir', '../../..',
@@ -418,6 +424,13 @@ def gsutil_env(api, boto_file):
           'BOTO_CONFIG': boto_path}
 
 
+def get_issue_num(api):
+  if api.properties.get('patch_storage') == 'gerrit':
+    return str(api.properties['event.change.number'])
+  else:
+    return str(api.properties['issue'])
+
+
 def perf_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
                        extra_hashes, cipd_packages):
   """Trigger perf tests via Swarming."""
@@ -468,7 +481,7 @@ def perf_steps_collect(api, task, got_revision, is_trybot):
     upload_args = [api.properties['buildername'], api.properties['buildnumber'],
                    perf_data_dir, got_revision, gsutil_path]
     if is_trybot:
-      upload_args.append(api.properties['issue'])
+      upload_args.append(get_issue_num(api))
     api.python(
         'Upload perf results',
         script=api.core.resource('upload_bench_results.py'),
@@ -520,7 +533,7 @@ def test_steps_collect(api, task, got_revision, is_trybot, builder_cfg):
           got_revision,
           api.properties['buildername'],
           api.properties['buildnumber'],
-          api.properties['issue'] if is_trybot else '',
+          get_issue_num(api) if is_trybot else '',
           api.path['slave_build'].join('skia', 'common', 'py', 'utils'),
         ],
         cwd=api.path['checkout'],
@@ -546,8 +559,7 @@ def upload_coverage_results(api, task, got_revision, is_trybot):
       api.properties['buildername'],
       str(api.properties['buildnumber'])))
   if is_trybot:
-    gs_json_path = '/'.join(('trybot', gs_json_path,
-                             str(api.properties['issue'])))
+    gs_json_path = '/'.join(('trybot', gs_json_path, get_issue_num(api)))
   api.gsutil.upload(
       name='upload raw coverage data',
       source=cov_file,
@@ -572,7 +584,7 @@ def upload_coverage_results(api, task, got_revision, is_trybot):
   upload_args = [api.properties['buildername'], api.properties['buildnumber'],
                  results_dir, got_revision, gsutil_path]
   if is_trybot:
-    upload_args.append(api.properties['issue'])
+    upload_args.append(get_issue_num(api))
   api.python(
       'upload nanobench coverage results',
       script=api.core.resource('upload_bench_results.py'),
@@ -773,3 +785,24 @@ def GenTests(api):
     for slavename, builders_by_slave in slaves.iteritems():
       for builder in builders_by_slave:
         yield test_for_bot(api, builder, mastername, slavename)
+
+  gerrit_kwargs = {
+    'patch_storage': 'gerrit',
+    'repository': 'skia',
+    'event.patchSet.ref': 'refs/changes/00/2100/2',
+    'event.change.number': '2100',
+  }
+  yield (
+      api.test('recipe_with_gerrit_patch') +
+      api.properties(
+          buildername='Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot',
+          mastername='client.skia',
+          slavename='skiabot-linux-swarm-000',
+          buildnumber=5,
+          path_config='kitchen',
+          revision='abc123',
+          **gerrit_kwargs) +
+      api.step_data(
+          'upload new .isolated file for test_skia',
+          stdout=api.raw_io.output('def456 XYZ.isolated'))
+  )

@@ -199,6 +199,8 @@
       "500",
       "patchset",
       "1",
+      "patch_storage",
+      "",
       "--svgs",
       "[SLAVE_BUILD]\\svg",
       "--key",

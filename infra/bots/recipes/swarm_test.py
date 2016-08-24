@@ -431,8 +431,9 @@ def test_steps(api):
   ]
   if api.vars.is_trybot:
     properties.extend([
-      'issue',    api.vars.issue,
-      'patchset', api.vars.patchset,
+      'issue',         api.vars.issue,
+      'patchset',      api.vars.patchset,
+      'patch_storage', api.vars.patch_storage,
     ])
 
   args = [
@@ -859,4 +860,24 @@ def GenTests(api):
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     api.platform('win', 64)
+  )
+
+  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug-Trybot'
+  gerrit_kwargs = {
+    'patch_storage': 'gerrit',
+    'repository': 'skia',
+    'event.patchSet.ref': 'refs/changes/00/2100/2',
+    'event.change.number': '2100',
+  }
+  yield (
+      api.test('recipe_with_gerrit_patch') +
+      api.properties(
+          buildername=builder,
+          mastername='client.skia',
+          slavename='skiabot-linux-swarm-000',
+          buildnumber=5,
+          path_config='kitchen',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          revision='abc123',
+          **gerrit_kwargs)
   )

@@ -147,6 +147,8 @@
       "500",
       "patchset",
       "1",
+      "patch_storage",
+      "",
       "--svgs",
       "[SLAVE_BUILD]/svg",
       "--key",
@@ -483,7 +485,9 @@
       "issue",
       "500",
       "patchset",
-      "1"
+      "1",
+      "patch_storage",
+      ""
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "env": {

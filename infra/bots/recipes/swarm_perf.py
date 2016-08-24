@@ -173,6 +173,7 @@ def perf_steps(api):
     properties.extend([
       'issue',    api.vars.issue,
       'patchset', api.vars.patchset,
+      'patch_storage', api.vars.patch_storage,
     ])
 
   target = 'nanobench'
@@ -326,4 +327,24 @@ def GenTests(api):
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     api.platform('win', 64)
+  )
+
+  gerrit_kwargs = {
+    'patch_storage': 'gerrit',
+    'repository': 'skia',
+    'event.patchSet.ref': 'refs/changes/00/2100/2',
+    'event.change.number': '2100',
+  }
+  yield (
+      api.test('recipe_with_gerrit_patch') +
+      api.properties(
+          buildername='Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-' +
+                      'Valgrind-Trybot',
+          mastername='client.skia',
+          slavename='skiabot-linux-swarm-000',
+          buildnumber=5,
+          path_config='kitchen',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          revision='abc123',
+          **gerrit_kwargs)
   )

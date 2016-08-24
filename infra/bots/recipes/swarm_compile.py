@@ -107,7 +107,7 @@ def get_gyp_defines(builder_dict):
     werr = False
   elif 'Fast' in builder_dict.get('extra_config', ''):
     # See https://bugs.chromium.org/p/skia/issues/detail?id=5257
-    werr = False  
+    werr = False
   else:
     werr = True
   gyp_defs['skia_warnings_as_errors'] = str(int(werr))  # True/False -> '1'/'0'
@@ -307,5 +307,25 @@ def GenTests(api):
       api.path.exists(
           api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
       ) +
+      api.platform('win', 64)
+  )
+
+  gerrit_kwargs = {
+    'patch_storage': 'gerrit',
+    'repository': 'skia',
+    'event.patchSet.ref': 'refs/changes/00/2100/2',
+    'event.change.number': '2100',
+  }
+  yield (
+      api.test('recipe_with_gerrit_patch') +
+      api.properties(
+          buildername=buildername + '-Trybot',
+          mastername=mastername,
+          slavename=slavename,
+          buildnumber=5,
+          path_config='kitchen',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          revision='abc123',
+          **gerrit_kwargs) +
       api.platform('win', 64)
   )

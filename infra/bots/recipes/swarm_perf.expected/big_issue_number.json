@@ -167,6 +167,8 @@
       "2147533002",
       "patchset",
       "1",
+      "patch_storage",
+      "",
       "--key",
       "arch",
       "x86_64",

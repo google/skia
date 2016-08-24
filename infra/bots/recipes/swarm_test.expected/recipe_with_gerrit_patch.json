@@ -3,112 +3,8 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]\\skia\\infra\\bots\\assets\\skp\\VERSION",
-      "/path/to/tmp/"
-    ],
-    "name": "Get downloaded SKP VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "42",
-      "[SLAVE_BUILD]\\tmp\\SKP_VERSION"
-    ],
-    "name": "write SKP_VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]\\skia\\infra\\bots\\assets\\skimage\\VERSION",
-      "/path/to/tmp/"
-    ],
-    "name": "Get downloaded skimage VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "42",
-      "[SLAVE_BUILD]\\tmp\\SK_IMAGE_VERSION"
-    ],
-    "name": "write SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]\\skia\\infra\\bots\\assets\\svg\\VERSION",
-      "/path/to/tmp/"
-    ],
-    "name": "Get downloaded SVG VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "42",
-      "[SLAVE_BUILD]\\tmp\\SVG_VERSION"
-    ],
-    "name": "write SVG_VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\dm"
-    ],
-    "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]\\skia\\infra\\bots\\.recipe_deps\\build\\scripts"
-    },
-    "name": "rmtree dm",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\dm",
-      "511"
-    ],
-    "name": "makedirs dm",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]\\tmp",
+      "[SLAVE_BUILD]/tmp",
       "511"
     ],
     "name": "makedirs tmp_dir",
@@ -129,14 +25,118 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = 'https://gold.skia.org/_/hashes'\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[1], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
-      "[SLAVE_BUILD]\\tmp\\uninteresting_hashes.txt"
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/skp/VERSION",
+      "/path/to/tmp/"
     ],
-    "cwd": "[SLAVE_BUILD]\\skia",
+    "name": "Get downloaded SKP VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[SLAVE_BUILD]/tmp/SKP_VERSION"
+    ],
+    "name": "write SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/skimage/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded skimage VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION"
+    ],
+    "name": "write SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/svg/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded SVG VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[SLAVE_BUILD]/tmp/SVG_VERSION"
+    ],
+    "name": "write SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+    ],
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+    },
+    "name": "rmtree dm",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm",
+      "511"
+    ],
+    "name": "makedirs dm",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = 'https://gold.skia.org/_/hashes'\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[1], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
+      "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]\\out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "get uninteresting hashes",
     "~followup_annotations": [
@@ -175,54 +175,54 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]\\out\\Release_x64\\dm",
+      "[SLAVE_BUILD]/out/Debug/dm",
       "--undefok",
       "--resourcePath",
-      "[SLAVE_BUILD]\\skia\\resources",
+      "[SLAVE_BUILD]/skia/resources",
       "--skps",
-      "[SLAVE_BUILD]\\skp",
+      "[SLAVE_BUILD]/skp",
       "--images",
-      "[SLAVE_BUILD]\\skimage\\dm",
+      "[SLAVE_BUILD]/skimage/dm",
       "--colorImages",
-      "[SLAVE_BUILD]\\skimage\\colorspace",
+      "[SLAVE_BUILD]/skimage/colorspace",
       "--nameByHash",
       "--properties",
       "gitHash",
       "abc123",
       "master",
-      "client.skia.compile",
+      "client.skia",
       "builder",
-      "Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot",
+      "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug-Trybot",
       "build_number",
       "5",
       "issue",
-      "2147533002",
+      "2100",
       "patchset",
-      "1",
+      "2",
       "patch_storage",
-      "",
+      "gerrit",
       "--svgs",
-      "[SLAVE_BUILD]\\svg",
+      "[SLAVE_BUILD]/svg",
       "--key",
       "arch",
-      "x86_64",
+      "x86",
       "compiler",
-      "MSVC",
+      "GCC",
       "configuration",
-      "Release",
+      "Debug",
       "cpu_or_gpu",
       "CPU",
       "cpu_or_gpu_value",
       "AVX2",
       "model",
-      "ShuttleB",
+      "GCE",
       "os",
-      "Win8",
-      "--uninterestingHashesFile",
-      "[SLAVE_BUILD]\\tmp\\uninteresting_hashes.txt",
+      "Ubuntu",
       "--writePath",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\dm",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--nogpu",
+      "--threads",
+      "4",
       "--config",
       "565",
       "8888",
@@ -230,6 +230,11 @@
       "gpusrgb",
       "pdf",
       "msaa16",
+      "f16",
+      "srgb",
+      "sp-8888",
+      "2ndpic-8888",
+      "lite-8888",
       "serialize-8888",
       "tiles_rt-8888",
       "pic-8888",
@@ -256,62 +261,6 @@
       "image",
       "_",
       "_",
-      "_",
-      "image",
-      "gen_platf",
-      "rle8-height-negative.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "rle4-height-negative.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "pal8os2v2.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "pal8os2v2-16.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "rgba32abf.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "rgb24prof.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "rgb24lprof.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "8bpp-pixeldata-cropped.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "4bpp-pixeldata-cropped.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "32bpp-pixeldata-cropped.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "24bpp-pixeldata-cropped.bmp",
-      "_",
-      "gm",
-      "_",
-      "composeshader_bitmap",
-      "_",
-      "gm",
-      "_",
-      "fontscalerdistortable",
-      "_",
-      "svg",
-      "_",
-      "Nebraska-StateSeal.svg",
       "serialize-8888",
       "gm",
       "_",
@@ -416,14 +365,6 @@
       "gm",
       "_",
       "bleed_alpha_image_shader",
-      "serialize-8888",
-      "gm",
-      "_",
-      "verylargebitmap",
-      "serialize-8888",
-      "gm",
-      "_",
-      "verylarge_picture_image",
       "sp-8888",
       "gm",
       "_",
@@ -551,13 +492,12 @@
       "serialize-8888",
       "svg",
       "_",
-      "Seal_of_Kansas.svg",
-      "--noRAW_threading"
+      "Seal_of_Kansas.svg"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]\\out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "dm"
   },

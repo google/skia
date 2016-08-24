@@ -110,13 +110,16 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.default_env.update({'SKIA_OUT': self.skia_out,
                              'BUILDTYPE': self.configuration})
     self.is_trybot = self.builder_cfg['is_trybot']
+    self.patch_storage = self.m.properties.get('patch_storage', '')
     self.issue = None
     self.patchset = None
-    self.rietveld = None
     if self.is_trybot:
-      self.issue = self.m.properties['issue']
-      self.patchset = self.m.properties['patchset']
-      self.rietveld = self.m.properties['rietveld']
+      if self.patch_storage == 'gerrit':
+        self.issue = self.m.properties['event.change.number']
+        self.patchset = self.m.properties['event.patchSet.ref'].split('/')[-1]
+      else:
+        self.issue = self.m.properties['issue']
+        self.patchset = self.m.properties['patchset']
     self.dm_dir = self.m.path.join(
         self.swarming_out_dir, 'dm')
     self.perf_data_dir = self.m.path.join(self.swarming_out_dir,
