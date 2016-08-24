@@ -4,6 +4,8 @@
 # found in the LICENSE file.
 
 declare_args() {
+  skia_enable_tools = !is_fuchsia && !is_component_build
+
   skia_use_expat = true
   skia_use_giflib = !is_fuchsia
   skia_use_libjpeg_turbo = true
@@ -176,6 +178,7 @@ if (is_x86) {
   }
 }
 
+# Any feature of Skia that requires third-party code should be optional and use this template.
 template("optional") {
   if (invoker.enabled) {
     config(target_name + "_public") {
@@ -451,7 +454,7 @@ skia_h_headers = exec_script("gyp/find.py",
 action("skia.h") {
   script = "gn/echo_headers.py"
   args = [ rebase_path("$target_gen_dir/skia.h", root_build_dir) ] +
-         rebase_path(skia_h_headers, root_build_dir)
+         rebase_path(skia_h_headers, target_gen_dir)
   outputs = [
     "$target_gen_dir/skia.h",
   ]
@@ -465,202 +468,203 @@ executable("fiddle") {
   }
 
   sources = [
+    "src/images/SkForceLinking.cpp",
     "tools/fiddle/draw.cpp",
     "tools/fiddle/fiddle_main.cpp",
   ]
   deps = [
     ":skia",
     ":skia.h",
-    ":tool_utils",
   ]
-  testonly = true
 }
 
-template("test_lib") {
-  config(target_name + "_config") {
-    include_dirs = invoker.public_include_dirs
-  }
-  source_set(target_name) {
-    forward_variables_from(invoker, "*", [ "public_include_dirs" ])
-    public_configs = [
-      ":" + target_name + "_config",
-      ":skia_private",
-    ]
-
-    if (!defined(deps)) {
-      deps = []
+# Targets guarded by skia_enable_tools may use //third_party freely.
+if (skia_enable_tools) {
+  template("test_lib") {
+    config(target_name + "_config") {
+      include_dirs = invoker.public_include_dirs
     }
-    deps += [ ":skia" ]
-    testonly = true
+    source_set(target_name) {
+      forward_variables_from(invoker, "*", [ "public_include_dirs" ])
+      public_configs = [
+        ":" + target_name + "_config",
+        ":skia_private",
+      ]
+
+      if (!defined(deps)) {
+        deps = []
+      }
+      deps += [ ":skia" ]
+      testonly = true
+    }
   }
-}
 
-test_lib("gpu_tool_utils") {
-  public_include_dirs = [ "tools/gpu" ]
-  sources = [
-    "tools/gpu/GrContextFactory.cpp",
-    "tools/gpu/GrTest.cpp",
-    "tools/gpu/TestContext.cpp",
-    "tools/gpu/gl/GLTestContext.cpp",
-    "tools/gpu/gl/debug/DebugGLTestContext.cpp",
-    "tools/gpu/gl/debug/GrBufferObj.cpp",
-    "tools/gpu/gl/debug/GrFrameBufferObj.cpp",
-    "tools/gpu/gl/debug/GrProgramObj.cpp",
-    "tools/gpu/gl/debug/GrShaderObj.cpp",
-    "tools/gpu/gl/debug/GrTextureObj.cpp",
-    "tools/gpu/gl/debug/GrTextureUnitObj.cpp",
-    "tools/gpu/gl/null/NullGLTestContext.cpp",
-  ]
-  libs = []
+  test_lib("gpu_tool_utils") {
+    public_include_dirs = [ "tools/gpu" ]
+    sources = [
+      "tools/gpu/GrContextFactory.cpp",
+      "tools/gpu/GrTest.cpp",
+      "tools/gpu/TestContext.cpp",
+      "tools/gpu/gl/GLTestContext.cpp",
+      "tools/gpu/gl/debug/DebugGLTestContext.cpp",
+      "tools/gpu/gl/debug/GrBufferObj.cpp",
+      "tools/gpu/gl/debug/GrFrameBufferObj.cpp",
+      "tools/gpu/gl/debug/GrProgramObj.cpp",
+      "tools/gpu/gl/debug/GrShaderObj.cpp",
+      "tools/gpu/gl/debug/GrTextureObj.cpp",
+      "tools/gpu/gl/debug/GrTextureUnitObj.cpp",
+      "tools/gpu/gl/null/NullGLTestContext.cpp",
+    ]
+    libs = []
 
-  if (is_linux) {
-    sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
-  } else if (is_mac) {
-    sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
+    if (is_linux) {
+      sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
+    } else if (is_mac) {
+      sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
+    }
   }
-}
 
-test_lib("flags") {
-  public_include_dirs = [ "tools/flags" ]
-  sources = [
-    "tools/flags/SkCommandLineFlags.cpp",
-    "tools/flags/SkCommonFlags.cpp",
-    "tools/flags/SkCommonFlagsConfig.cpp",
-  ]
-  deps = [
-    ":gpu_tool_utils",
-  ]
-}
+  test_lib("flags") {
+    public_include_dirs = [ "tools/flags" ]
+    sources = [
+      "tools/flags/SkCommandLineFlags.cpp",
+      "tools/flags/SkCommonFlags.cpp",
+      "tools/flags/SkCommonFlagsConfig.cpp",
+    ]
+    deps = [
+      ":gpu_tool_utils",
+    ]
+  }
 
-test_lib("tool_utils") {
-  public_include_dirs = [
-    "tools",
-    "tools/debugger",
-    "tools/timer",
-  ]
-  sources = [
-    "src/images/SkForceLinking.cpp",
-    "src/utils/SkMultiPictureDocumentReader.cpp",  # TODO(halcanary): move to tools?
-    "tools/CrashHandler.cpp",
-    "tools/ProcStats.cpp",
-    "tools/Resources.cpp",
-    "tools/ThermalManager.cpp",
-    "tools/UrlDataManager.cpp",
-    "tools/debugger/SkDebugCanvas.cpp",
-    "tools/debugger/SkDrawCommand.cpp",
-    "tools/debugger/SkJsonWriteBuffer.cpp",
-    "tools/debugger/SkObjectParser.cpp",
-    "tools/debugger/SkOverdrawMode.cpp",
-    "tools/picture_utils.cpp",
-    "tools/random_parse_path.cpp",
-    "tools/sk_tool_utils.cpp",
-    "tools/sk_tool_utils_font.cpp",
-    "tools/timer/Timer.cpp",
-  ]
-  deps = [
-    ":flags",
-    "//third_party/libpng",
-  ]
-  public_deps = [
-    "//third_party/jsoncpp",
-  ]
-}
+  test_lib("tool_utils") {
+    public_include_dirs = [
+      "tools",
+      "tools/debugger",
+      "tools/timer",
+    ]
+    sources = [
+      "src/images/SkForceLinking.cpp",
+      "src/utils/SkMultiPictureDocumentReader.cpp",  # TODO(halcanary): move to tools?
+      "tools/CrashHandler.cpp",
+      "tools/ProcStats.cpp",
+      "tools/Resources.cpp",
+      "tools/ThermalManager.cpp",
+      "tools/UrlDataManager.cpp",
+      "tools/debugger/SkDebugCanvas.cpp",
+      "tools/debugger/SkDrawCommand.cpp",
+      "tools/debugger/SkJsonWriteBuffer.cpp",
+      "tools/debugger/SkObjectParser.cpp",
+      "tools/debugger/SkOverdrawMode.cpp",
+      "tools/picture_utils.cpp",
+      "tools/random_parse_path.cpp",
+      "tools/sk_tool_utils.cpp",
+      "tools/sk_tool_utils_font.cpp",
+      "tools/timer/Timer.cpp",
+    ]
+    deps = [
+      ":flags",
+      "//third_party/libpng",
+    ]
+    public_deps = [
+      "//third_party/jsoncpp",
+    ]
+  }
 
-gm_sources = exec_script("gyp/find.py",
-                         [
-                           "*.c*",
-                           rebase_path("gm"),
-                         ],
-                         "list lines",
-                         [])
-test_lib("gm") {
-  public_include_dirs = [ "gm" ]
-  sources = gm_sources
-  deps = [
-    ":gpu_tool_utils",
-    ":skia",
-    ":tool_utils",
-  ]
-}
+  gm_sources = exec_script("gyp/find.py",
+                           [
+                             "*.c*",
+                             rebase_path("gm"),
+                           ],
+                           "list lines",
+                           [])
+  test_lib("gm") {
+    public_include_dirs = [ "gm" ]
+    sources = gm_sources
+    deps = [
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+    ]
+  }
 
-tests_sources = exec_script("gyp/find.py",
-                            [
-                              "*.c*",
-                              rebase_path("tests"),
-                            ],
-                            "list lines",
-                            [])
+  tests_sources = exec_script("gyp/find.py",
+                              [
+                                "*.c*",
+                                rebase_path("tests"),
+                              ],
+                              "list lines",
+                              [])
 
-test_lib("tests") {
-  public_include_dirs = [ "tests" ]
-  sources = tests_sources - [
-              rebase_path("tests/FontMgrAndroidParserTest.cpp"),  # Android only
-              rebase_path("tests/PathOpsSkpClipTest.cpp"),  # alternate main
-              rebase_path("tests/SkSLErrorTest.cpp"),  # TODO: make work
-              rebase_path("tests/SkSLGLSLTest.cpp"),  # TODO: make work
-              rebase_path("tests/SkpSkGrTest.cpp"),  # doesn't compile
-              rebase_path("tests/skia_test.cpp"),  # alternate main
-            ]
-  deps = [
-    ":flags",
-    ":gpu_tool_utils",
-    ":skia",
-    ":tool_utils",
-    "//third_party/libpng",
-    "//third_party/zlib",
-  ]
-}
+  test_lib("tests") {
+    public_include_dirs = [ "tests" ]
+    sources =
+        tests_sources - [
+          rebase_path("tests/FontMgrAndroidParserTest.cpp"),  # Android only
+          rebase_path("tests/PathOpsSkpClipTest.cpp"),  # alternate main
+          rebase_path("tests/SkSLErrorTest.cpp"),  # TODO: make work
+          rebase_path("tests/SkSLGLSLTest.cpp"),  # TODO: make work
+          rebase_path("tests/SkpSkGrTest.cpp"),  # doesn't compile
+          rebase_path("tests/skia_test.cpp"),  # alternate main
+        ]
+    deps = [
+      ":flags",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+      "//third_party/libpng",
+      "//third_party/zlib",
+    ]
+  }
 
-bench_sources = exec_script("gyp/find.py",
-                            [
-                              "*.c*",
-                              rebase_path("bench"),
-                            ],
-                            "list lines",
-                            [])
+  bench_sources = exec_script("gyp/find.py",
+                              [
+                                "*.c*",
+                                rebase_path("bench"),
+                              ],
+                              "list lines",
+                              [])
 
-test_lib("bench") {
-  public_include_dirs = [ "bench" ]
-  sources = bench_sources
-  sources -= [
-    rebase_path("bench/nanobench.cpp"),
-    rebase_path("bench/nanobenchAndroid.cpp"),
-  ]
-  deps = [
-    ":flags",
-    ":gm",
-    ":gpu_tool_utils",
-    ":skia",
-    ":tool_utils",
-  ]
-}
+  test_lib("bench") {
+    public_include_dirs = [ "bench" ]
+    sources = bench_sources
+    sources -= [
+      rebase_path("bench/nanobench.cpp"),
+      rebase_path("bench/nanobenchAndroid.cpp"),
+    ]
+    deps = [
+      ":flags",
+      ":gm",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+    ]
+  }
 
-test_lib("experimental_svg_model") {
-  public_include_dirs = [ "experimental/svg/model" ]
-  sources = [
-    "experimental/svg/model/SkSVGAttribute.cpp",
-    "experimental/svg/model/SkSVGAttributeParser.cpp",
-    "experimental/svg/model/SkSVGCircle.cpp",
-    "experimental/svg/model/SkSVGContainer.cpp",
-    "experimental/svg/model/SkSVGDOM.cpp",
-    "experimental/svg/model/SkSVGEllipse.cpp",
-    "experimental/svg/model/SkSVGLine.cpp",
-    "experimental/svg/model/SkSVGNode.cpp",
-    "experimental/svg/model/SkSVGPath.cpp",
-    "experimental/svg/model/SkSVGPoly.cpp",
-    "experimental/svg/model/SkSVGRect.cpp",
-    "experimental/svg/model/SkSVGRenderContext.cpp",
-    "experimental/svg/model/SkSVGSVG.cpp",
-    "experimental/svg/model/SkSVGShape.cpp",
-    "experimental/svg/model/SkSVGTransformableNode.cpp",
-    "experimental/svg/model/SkSVGValue.cpp",
-  ]
-  deps = [
-    ":skia",
-  ]
-}
+  test_lib("experimental_svg_model") {
+    public_include_dirs = [ "experimental/svg/model" ]
+    sources = [
+      "experimental/svg/model/SkSVGAttribute.cpp",
+      "experimental/svg/model/SkSVGAttributeParser.cpp",
+      "experimental/svg/model/SkSVGCircle.cpp",
+      "experimental/svg/model/SkSVGContainer.cpp",
+      "experimental/svg/model/SkSVGDOM.cpp",
+      "experimental/svg/model/SkSVGEllipse.cpp",
+      "experimental/svg/model/SkSVGLine.cpp",
+      "experimental/svg/model/SkSVGNode.cpp",
+      "experimental/svg/model/SkSVGPath.cpp",
+      "experimental/svg/model/SkSVGPoly.cpp",
+      "experimental/svg/model/SkSVGRect.cpp",
+      "experimental/svg/model/SkSVGRenderContext.cpp",
+      "experimental/svg/model/SkSVGSVG.cpp",
+      "experimental/svg/model/SkSVGShape.cpp",
+      "experimental/svg/model/SkSVGTransformableNode.cpp",
+      "experimental/svg/model/SkSVGValue.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+  }
 
-if (!is_component_build) {  # Our test tools use many non-SK_API APIs...
   executable("dm") {
     sources = [
       "dm/DM.cpp",
