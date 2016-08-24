@@ -67,6 +67,11 @@ public:
      */
     static sk_sp<SkColorSpace> NewICC(const void*, size_t);
 
+    /**
+     *  Create an SkColorSpace with the same gamut as this color space, but with linear gamma.
+     */
+    sk_sp<SkColorSpace> makeLinearGamma();
+
     GammaNamed gammaNamed() const { return fGammaNamed; }
 
     /**

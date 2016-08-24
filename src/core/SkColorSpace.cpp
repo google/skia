@@ -161,6 +161,10 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
     return nullptr;
 }
 
+sk_sp<SkColorSpace> SkColorSpace::makeLinearGamma() {
+    return SkColorSpace_Base::NewRGB(kLinear_GammaNamed, fToXYZD50);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum Version {
