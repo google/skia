@@ -4,8 +4,13 @@
 # found in the LICENSE file.
 
 declare_args() {
+  skia_use_expat = true
   skia_use_giflib = !is_fuchsia
+  skia_use_libjpeg_turbo = true
+  skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
+  skia_use_sfntly = !is_fuchsia
+  skia_use_zlib = true
 }
 
 skia_public_includes = [
@@ -60,15 +65,7 @@ config("skia_private") {
     "third_party/ktx",
   ]
 
-  defines = [
-    "SK_GAMMA_APPLY_TO_A8",
-
-    "SK_HAS_JPEG_LIBRARY",
-    "SK_HAS_PNG_LIBRARY",
-
-    # TODO(halcanary): make this the default; this is the value Android uses.
-    "SK_SFNTLY_SUBSETTER=\"sample/chromium/font_subsetter.h\"",
-  ]
+  defines = [ "SK_GAMMA_APPLY_TO_A8" ]
   if (is_linux) {
     defines += [ "SK_SAMPLES_FOR_X" ]
   }
@@ -219,6 +216,57 @@ optional("gif") {
   ]
 }
 
+optional("jpeg") {
+  enabled = skia_use_libjpeg_turbo
+  public_defines = [ "SK_HAS_JPEG_LIBRARY" ]
+
+  configs += skia_library_configs
+  deps = [
+    "//third_party/libjpeg-turbo:libjpeg",
+  ]
+  sources = [
+    "src/codec/SkJpegCodec.cpp",
+    "src/codec/SkJpegDecoderMgr.cpp",
+    "src/codec/SkJpegUtility.cpp",
+    "src/images/SkJPEGImageEncoder.cpp",
+    "src/images/SkJPEGWriteUtility.cpp",
+  ]
+}
+
+optional("pdf") {
+  enabled = skia_use_zlib
+  public_defines = []
+
+  configs += skia_library_configs
+  deps = [
+    "//third_party/zlib",
+  ]
+  sources = pdf_gypi.sources
+
+  if (skia_use_sfntly) {
+    deps += [ "//third_party/sfntly" ]
+    public_defines += [
+      # TODO(halcanary): make this the default; this is the value Android uses.
+      "SK_SFNTLY_SUBSETTER=\"sample/chromium/font_subsetter.h\"",
+    ]
+  }
+}
+
+optional("png") {
+  enabled = skia_use_libpng
+  public_defines = [ "SK_HAS_PNG_LIBRARY" ]
+
+  configs += skia_library_configs
+  deps = [
+    "//third_party/libpng",
+  ]
+  sources = [
+    "src/codec/SkIcoCodec.cpp",
+    "src/codec/SkPngCodec.cpp",
+    "src/images/SkPNGImageEncoder.cpp",
+  ]
+}
+
 optional("webp") {
   enabled = skia_use_libwebp
   public_defines = [ "SK_HAS_WEBP_LIBRARY" ]
@@ -234,18 +282,32 @@ optional("webp") {
   ]
 }
 
+optional("xml") {
+  enabled = skia_use_expat
+  public_defines = []
+
+  configs += skia_library_configs
+  deps = [
+    "//third_party/expat",
+  ]
+  sources = [
+    "src/xml/SkDOM.cpp",
+    "src/xml/SkXMLParser.cpp",
+    "src/xml/SkXMLWriter.cpp",
+  ]
+}
+
 component("skia") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
 
   deps = [
     ":gif",
+    ":jpeg",
+    ":pdf",
+    ":png",
     ":webp",
-    "//third_party/expat",
-    "//third_party/libjpeg-turbo:libjpeg",
-    "//third_party/libpng",
-    "//third_party/sfntly",
-    "//third_party/zlib",
+    ":xml",
   ]
   if (is_x86) {
     deps += [
@@ -267,7 +329,6 @@ component("skia") {
   sources += core_gypi.sources
   sources += effects_gypi.sources
   sources += gpu_gypi.skgpu_sources
-  sources += pdf_gypi.sources
   sources += utils_gypi.sources
   sources += [
     "src/android/SkBitmapRegionCodec.cpp",
@@ -279,13 +340,8 @@ component("skia") {
     "src/codec/SkBmpStandardCodec.cpp",
     "src/codec/SkCodec.cpp",
     "src/codec/SkCodecImageGenerator.cpp",
-    "src/codec/SkIcoCodec.cpp",
-    "src/codec/SkJpegCodec.cpp",
-    "src/codec/SkJpegDecoderMgr.cpp",
-    "src/codec/SkJpegUtility.cpp",
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
-    "src/codec/SkPngCodec.cpp",
     "src/codec/SkSampledCodec.cpp",
     "src/codec/SkSampler.cpp",
     "src/codec/SkSwizzler.cpp",
@@ -293,10 +349,7 @@ component("skia") {
     "src/gpu/gl/GrGLDefaultInterface_native.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/images/SkImageEncoder_Factory.cpp",
-    "src/images/SkJPEGImageEncoder.cpp",
-    "src/images/SkJPEGWriteUtility.cpp",
     "src/images/SkKTXImageEncoder.cpp",
-    "src/images/SkPNGImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
     "src/ports/SkGlobalInitialization_default.cpp",
     "src/ports/SkImageGenerator_skia.cpp",
@@ -307,9 +360,6 @@ component("skia") {
     "src/svg/SkSVGCanvas.cpp",
     "src/svg/SkSVGDevice.cpp",
     "src/utils/mac/SkStream_mac.cpp",
-    "src/xml/SkDOM.cpp",
-    "src/xml/SkXMLParser.cpp",
-    "src/xml/SkXMLWriter.cpp",
     "third_party/etc1/etc1.cpp",
     "third_party/ktx/ktx.cpp",
   ]

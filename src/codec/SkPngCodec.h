@@ -14,7 +14,11 @@
 #include "SkRefCnt.h"
 #include "SkSwizzler.h"
 
-#include "png.h"
+// Instead of including png.h here, forward declare the few types we refer to.
+struct png_struct_def;
+struct png_info_def;
+typedef png_struct_def png_struct;
+typedef png_info_def png_info;
 
 class SkStream;
 
@@ -47,11 +51,11 @@ protected:
                          int startRow) = 0;
 
     SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStream*, SkPngChunkReader*,
-            png_structp, png_infop, int, int);
+               png_struct*, png_info*, int, int);
 
     SkAutoTUnref<SkPngChunkReader>     fPngChunkReader;
-    png_structp                        fPng_ptr;
-    png_infop                          fInfo_ptr;
+    png_struct*                        fPng_ptr;
+    png_info*                          fInfo_ptr;
 
     // These are stored here so they can be used both by normal decoding and scanline decoding.
     SkAutoTUnref<SkColorTable>         fColorTable;    // May be unpremul.

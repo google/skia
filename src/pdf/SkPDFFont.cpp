@@ -142,9 +142,11 @@ static bool can_embed(const SkAdvancedTypefaceMetrics& metrics) {
     return !SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
 }
 
+#ifdef SK_SFNTLY_SUBSETTER
 static bool can_subset(const SkAdvancedTypefaceMetrics& metrics) {
     return !SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag);
 }
+#endif
 
 int SkPDFFont::glyphsToPDFFontEncoding(SkGlyphID* glyphIDs, int numGlyphs) const {
     // A font with multibyte glyphs will support all glyph IDs in a single font.
@@ -415,7 +417,7 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
                 return;
             }
 
-            #ifdef SK_SFNTLY_SUBSETTER
+        #ifdef SK_SFNTLY_SUBSETTER
             if (can_subset(metrics)) {
                 // Generate glyph id array. in format needed by sfntly
                 SkTDArray<uint32_t> glyphIDs;
@@ -432,7 +434,7 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
                 // If subsetting fails, fall back to original font data.
                 fontAsset.reset(face->openStream(&ttcIndex));
             }
-            #endif  // SK_SFNTLY_SUBSETTER
+        #endif  // SK_SFNTLY_SUBSETTER
             auto fontStream = sk_make_sp<SkPDFSharedStream>(std::move(fontAsset));
             fontStream->dict()->insertInt("Length1", fontSize);
             descriptor->insertObjRef("FontFile2", std::move(fontStream));
