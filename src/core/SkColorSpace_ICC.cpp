@@ -138,7 +138,7 @@ struct ICCProfileHeader {
         // Should we treat different rendering intents differently?
         // Valid rendering intents include kPerceptual (0), kRelative (1),
         // kSaturation (2), and kAbsolute (3).
-        if (fRenderingIntent <= 3) {
+        if (fRenderingIntent > 3) {
             // Warn rather than fail here.  Occasionally, we see perfectly
             // normal profiles with wacky rendering intents.
             SkColorSpacePrintf("Warning, bad rendering intent.\n");
