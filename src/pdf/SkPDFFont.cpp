@@ -25,7 +25,7 @@
 #if defined (SK_SFNTLY_SUBSETTER)
     #if defined (GOOGLE3)
         // #including #defines doesn't work with this build system.
-        #include "typography/font/sfntly/src/sample/chromium/font_subsetter.h"
+        #include "sample/chromium/font_subsetter.h"
     #else
         #include SK_SFNTLY_SUBSETTER
     #endif
