@@ -21,8 +21,8 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
                        const float red[], const float green[], const float blue[],
                        const SkColorSpace::GammaNamed expectedGamma) {
 
+    REPORTER_ASSERT(r, nullptr != space);
     REPORTER_ASSERT(r, expectedGamma == space->gammaNamed());
-
 
     const SkMatrix44& mat = space->xyz();
     const float src[] = {
@@ -39,42 +39,15 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
     }
 }
 
-const float g_sRGB_XYZ[] = { 0.4358f, 0.2224f, 0.0139f,   // R
-                             0.3853f, 0.7170f, 0.0971f,   // G
-                             0.1430f, 0.0606f, 0.7139f }; // B
-
-DEF_TEST(ColorSpace_sRGB, r) {
-    test_space(r, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named).get(),
-               g_sRGB_XYZ, &g_sRGB_XYZ[3], &g_sRGB_XYZ[6], SkColorSpace::kSRGB_GammaNamed);
-
-}
-
 static SkStreamAsset* resource(const char path[]) {
     SkString fullPath = GetResourcePath(path);
     return SkStream::NewFromFile(fullPath.c_str());
 }
 
-DEF_TEST(ColorSpaceParsePngICCProfile, r) {
-    SkAutoTDelete<SkStream> stream(resource("color_wheel_with_profile.png"));
-    REPORTER_ASSERT(r, nullptr != stream);
-    if (!stream) {
-        return;
-    }
-
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
-    REPORTER_ASSERT(r, nullptr != codec);
-
-#if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
-    SkColorSpace* colorSpace = codec->getInfo().colorSpace();
-    REPORTER_ASSERT(r, nullptr != colorSpace);
-
-    test_space(r, colorSpace, &g_sRGB_XYZ[0], &g_sRGB_XYZ[3], &g_sRGB_XYZ[6],
-               SkColorSpace::kSRGB_GammaNamed);
-#endif
-}
-
-DEF_TEST(ColorSpaceParseJpegICCProfile, r) {
-    SkAutoTDelete<SkStream> stream(resource("icc-v2-gbr.jpg"));
+static void test_path(skiatest::Reporter* r, const char* path,
+                      const float red[], const float green[], const float blue[],
+                      const SkColorSpace::GammaNamed expectedGamma) {
+    SkAutoTDelete<SkStream> stream(resource(path));
     REPORTER_ASSERT(r, nullptr != stream);
     if (!stream) {
         return;
@@ -87,12 +60,39 @@ DEF_TEST(ColorSpaceParseJpegICCProfile, r) {
     }
 
     SkColorSpace* colorSpace = codec->getInfo().colorSpace();
-    REPORTER_ASSERT(r, nullptr != colorSpace);
+    test_space(r, colorSpace, red, green, blue, expectedGamma);
+}
+
+const float g_sRGB_XYZ[] = { 0.4358f, 0.2224f, 0.0139f,   // R
+                             0.3853f, 0.7170f, 0.0971f,   // G
+                             0.1430f, 0.0606f, 0.7139f }; // B
+
+DEF_TEST(ColorSpace_sRGB, r) {
+    test_space(r, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named).get(),
+               g_sRGB_XYZ, &g_sRGB_XYZ[3], &g_sRGB_XYZ[6], SkColorSpace::kSRGB_GammaNamed);
+
+}
+
+DEF_TEST(ColorSpaceParseICCProfiles, r) {
+
+#if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
+    test_path(r, "color_wheel_with_profile.png", &g_sRGB_XYZ[0], &g_sRGB_XYZ[3], &g_sRGB_XYZ[6],
+              SkColorSpace::kSRGB_GammaNamed);
+#endif
 
     const float red[] = { 0.385117f, 0.716904f, 0.0970612f };
     const float green[] = { 0.143051f, 0.0606079f, 0.713913f };
     const float blue[] = { 0.436035f, 0.222488f, 0.013916f };
-    test_space(r, colorSpace, red, green, blue, SkColorSpace::k2Dot2Curve_GammaNamed);
+    test_path(r, "icc-v2-gbr.jpg", red, green, blue, SkColorSpace::k2Dot2Curve_GammaNamed);
+
+    test_path(r, "webp-color-profile-crash.webp",
+            red, green, blue, SkColorSpace::kNonStandard_GammaNamed);
+    test_path(r, "webp-color-profile-lossless.webp",
+            red, green, blue, SkColorSpace::kNonStandard_GammaNamed);
+    test_path(r, "webp-color-profile-lossy.webp",
+            red, green, blue, SkColorSpace::kNonStandard_GammaNamed);
+    test_path(r, "webp-color-profile-lossy-alpha.webp",
+            red, green, blue, SkColorSpace::kNonStandard_GammaNamed);
 }
 
 DEF_TEST(ColorSpaceSRGBCompare, r) {

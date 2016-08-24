@@ -18,6 +18,7 @@
 // If moving libwebp out of skia source tree, path for webp headers must be
 // updated accordingly. Here, we enforce using local copy in webp sub-directory.
 #include "webp/decode.h"
+#include "webp/demux.h"
 #include "webp/encode.h"
 
 bool SkWebpCodec::IsWebp(const void* buf, size_t bytesRead) {
@@ -97,18 +98,35 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
             return nullptr;
     }
 
+    // FIXME (msarett):
+    // Temporary strategy for getting ICC profiles from webps.  Once the incremental decoding
+    // API lands, we will use the WebPDemuxer to manage the entire decode.
+    sk_sp<SkColorSpace> colorSpace = nullptr;
+    const void* memory = stream->getMemoryBase();
+    if (memory) {
+        WebPData data = { (const uint8_t*) memory, stream->getLength() };
+        WebPDemuxState state;
+        SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> demux(WebPDemuxPartial(&data, &state));
+
+        WebPChunkIterator chunkIterator;
+        SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
+        if (demux && WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
+            colorSpace = SkColorSpace::NewICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
+        }
+    }
+
+    if (!colorSpace) {
+        colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    }
+
     SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    return new SkWebpCodec(features.width, features.height, info, streamDeleter.release());
+    return new SkWebpCodec(features.width, features.height, info, colorSpace,
+                           streamDeleter.release());
 }
 
 // This version is slightly different from SkCodecPriv's version of conversion_possible. It
 // supports both byte orders for 8888.
 static bool webp_conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
-    // FIXME: skbug.com/4895
-    // Currently, we ignore the SkColorProfileType on the SkImageInfo.  We
-    // will treat the encoded data as linear regardless of what the client
-    // requests.
-
     if (!valid_alpha(dst.alphaType(), src.alphaType())) {
         return false;
     }
@@ -271,7 +289,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     }
 }
 
-SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream)
-    // The spec says an unmarked image is sRGB, so we return that space here.
-    // TODO: Add support for parsing ICC profiles from webps.
-    : INHERITED(width, height, info, stream, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)) {}
+SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,
+                         sk_sp<SkColorSpace> colorSpace, SkStream* stream)
+    : INHERITED(width, height, info, stream, colorSpace)
+{}
