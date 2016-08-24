@@ -52,7 +52,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
     SkBitmap bitmap;
     bitmap.allocPixels(info, rowBytes);
     memset(bitmap.getPixels(), 1, rowBytes * desc.fHeight);
-    atlas->lockRow(bitmap);
+    int row = atlas->lockRow(bitmap);
     if (!context->caps()->preferVRAMUseOverFlushes())
         REPORTER_ASSERT(reporter, texture == atlas->getTexture());
 
@@ -65,6 +65,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
                     !memcmp(pixels.get(), actualPixels.get(),
                             sizeof(uint32_t) * desc.fWidth * desc.fHeight));
     target->unref();
+    atlas->unlockRow(row);
 }
 
 #endif
