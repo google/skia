@@ -6976,7 +6976,7 @@ path.lineTo(SkBits2Float(0x68395b2d), SkBits2Float(0xf0682955));  // 3.50128e+24
 path.close();
 
     SkPath path2(path);
-    testPathOpSkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
+    testPathOpFlakySkipAssert(reporter, path1, path2, (SkPathOp) 0, filename);
 }
 
 static void fuzz763_20(skiatest::Reporter* reporter, const char* filename) {
