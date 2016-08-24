@@ -428,7 +428,10 @@ component("skia") {
   }
 
   if (is_fuchsia) {
-    sources += [ "src/ports/SkFontMgr_empty_factory.cpp" ]
+    sources += [
+      "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
+      "src/ports/SkFontMgr_empty_factory.cpp",
+    ]
   }
 }
 
