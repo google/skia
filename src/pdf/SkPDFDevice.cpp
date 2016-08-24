@@ -1079,6 +1079,14 @@ void SkPDFDevice::internalDrawText(
         // making text unreadable (e.g. same text twice when using CSS shadows).
         return;
     }
+    NOT_IMPLEMENTED(srcPaint.isVerticalText(), false);
+    if (srcPaint.isVerticalText()) {
+        // Don't pretend we support drawing vertical text.  It is not
+        // clear to me how to switch to "vertical writing" mode in PDF.
+        // Currently neither Chromium or Android set this flag.
+        // https://bug.skia.org/5665
+        return;
+    }
     SkPaint paint = calculate_text_paint(srcPaint);
     replace_srcmode_on_opaque_paint(&paint);
     if (!paint.getTypeface()) {
@@ -1126,7 +1134,6 @@ void SkPDFDevice::internalDrawText(
     SkAutoGlyphCache glyphCache(paint, nullptr, nullptr);
 
     SkPaint::Align alignment = paint.getTextAlign();
-    bool verticalText = paint.isVerticalText();
     if (defaultPositioning && alignment != SkPaint::kLeft_Align) {
         SkScalar advance{0};
         for (int i = 0; i < glyphCount; ++i) {
@@ -1134,7 +1141,7 @@ void SkPDFDevice::internalDrawText(
         }
         SkScalar m = alignment == SkPaint::kCenter_Align
             ? 0.5f * advance : advance;
-        offset -= verticalText ? SkPoint{0, m} : SkPoint{m, 0};
+        offset -= SkPoint{m, 0};
     }
     ScopedContentEntry content(this, d, paint, true);
     if (!content.entry()) {
@@ -1200,7 +1207,7 @@ void SkPDFDevice::internalDrawText(
                 if (alignment != SkPaint::kLeft_Align) {
                     SkScalar m = alignment == SkPaint::kCenter_Align
                         ? 0.5f * advance : advance;
-                    xy -= verticalText ? SkPoint{0, m} : SkPoint{m, 0};
+                    xy -= SkPoint{m, 0};
                 }
                 (void)font->glyphsToPDFFontEncoding(glyphs, 1);
                 glyphPositioner.writeGlyph(xy.x(), xy.y(), advance, *glyphs);
