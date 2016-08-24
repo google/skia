@@ -12,6 +12,8 @@
 #include "SkRect.h"
 #include "SkTypes.h"
 
+I am a syntax error
+
 class GrContext;
 class SkBigPicture;
 class SkBitmap;
