@@ -594,6 +594,14 @@ void GrContext::flushSurfaceWrites(GrSurface* surface) {
     }
 }
 
+void GrContext::flushSurfaceIO(GrSurface* surface) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    if (surface->surfacePriv().hasPendingIO()) {
+        this->flush();
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 int GrContext::getRecommendedSampleCount(GrPixelConfig config,
                                          SkScalar dpi) const {

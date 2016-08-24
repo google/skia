@@ -943,9 +943,9 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrTextureStripAtlas.h"
 #include "GrContext.h"
 #include "GrInvariantOutput.h"
+#include "GrTextureStripAtlas.h"
 #include "gl/GrGLContext.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

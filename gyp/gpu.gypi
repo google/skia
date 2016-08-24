@@ -66,6 +66,7 @@
       '<(skia_include_path)/private/GrRenderTargetProxy.h',
       '<(skia_include_path)/private/GrSurfaceProxy.h',
       '<(skia_include_path)/private/GrTextureProxy.h',
+      '<(skia_include_path)/private/GrTextureStripAtlas.h',
 
       '<(skia_src_path)/gpu/GrAppliedClip.h',
       '<(skia_src_path)/gpu/GrAuditTrail.cpp',
@@ -306,7 +307,6 @@
       '<(skia_src_path)/gpu/effects/GrTextureDomain.cpp',
       '<(skia_src_path)/gpu/effects/GrTextureDomain.h',
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.cpp',
-      '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.h',
       '<(skia_src_path)/gpu/effects/GrXfermodeFragmentProcessor.cpp',
       '<(skia_src_path)/gpu/effects/GrYUVEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrYUVEffect.h',
