@@ -99,8 +99,8 @@ public:
     T* getMaybeNull() const { return fPtr; }
 
 private:
-    T* fPtr; // nullptr or fStorage
     SkAlignedSTStorage<1, T> fStorage;
+    T*                       fPtr; // nullptr or fStorage
 };
 
 /**
