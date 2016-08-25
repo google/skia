@@ -16,6 +16,7 @@
 #include "SkLatticeIter.h"
 #include "SkMetaData.h"
 #include "SkPatchUtils.h"
+#include "SkPathPriv.h"
 #include "SkPathMeasure.h"
 #include "SkRasterClip.h"
 #include "SkRSXform.h"
@@ -74,16 +75,10 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
 
 void SkBaseDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar startAngle,
                            SkScalar sweepAngle, bool useCenter, const SkPaint& paint) {
-    SkASSERT(SkScalarAbs(sweepAngle) >= 0.f && SkScalarAbs(sweepAngle) < 360.f);
     SkPath path;
-    if (useCenter) {
-        path.moveTo(oval.centerX(), oval.centerY());
-    }
-    path.arcTo(oval, startAngle, sweepAngle, !useCenter);
-    if (useCenter) {
-        path.close();
-    }
-    path.setIsVolatile(true);
+    bool isFillNoPathEffect = SkPaint::kFill_Style == paint.getStyle() && !paint.getPathEffect();
+    SkPathPriv::CreateDrawArcPath(&path, oval, startAngle, sweepAngle, useCenter,
+                                  isFillNoPathEffect);
     this->drawPath(draw, path, paint);
 }
 

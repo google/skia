@@ -1023,14 +1023,8 @@ void GrDrawContext::drawArc(const GrClip& clip,
         }
     }
     SkPath path;
-    path.setIsVolatile(true);
-    if (useCenter) {
-        path.moveTo(oval.centerX(), oval.centerY());
-    }
-    path.arcTo(oval, startAngle, sweepAngle, !useCenter);
-    if (useCenter) {
-        path.close();
-    }
+    SkPathPriv::CreateDrawArcPath(&path, oval, startAngle, sweepAngle, useCenter,
+                                  style.isSimpleFill());
     this->internalDrawPath(clip, paint, viewMatrix, path, style);
     return;
 }

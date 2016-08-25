@@ -2027,7 +2027,12 @@ GrDrawBatch* GrOvalRenderer::CreateArcBatch(GrColor color,
                                             bool useCenter,
                                             const GrStyle& style,
                                             const GrShaderCaps* shaderCaps) {
+    SkASSERT(!oval.isEmpty());
+    SkASSERT(sweepAngle);
     SkScalar width = oval.width();
+    if (SkScalarAbs(sweepAngle) >= 360.f) {
+        return nullptr;
+    }
     if (!SkScalarNearlyEqual(width, oval.height()) || !circle_stays_circle(viewMatrix)) {
         return nullptr;
     }

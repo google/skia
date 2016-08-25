@@ -737,14 +737,17 @@ public:
                     const SkPaint& paint);
 
     /** Draw the specified arc, which will be scaled to fit inside the
-        specified oval. If the sweep angle is >= 360, then the oval is drawn
-        completely. Note that this differs slightly from SkPath::arcTo, which
-        treats the sweep angle mod 360.
+        specified oval. Sweep angles are not treated as modulo 360 and thus can
+        exceed a full sweep of the oval. Note that this differs slightly from
+        SkPath::arcTo, which treats the sweep angle mod 360. If the oval is empty
+        or the sweep angle is zero nothing is drawn. If useCenter is true the oval
+        center is inserted into the implied path before the arc and the path is
+        closed back to the, center forming a wedge. Otherwise, the implied path
+        contains just the arc and is not closed.
         @param oval The bounds of oval used to define the shape of the arc.
         @param startAngle Starting angle (in degrees) where the arc begins
         @param sweepAngle Sweep angle (in degrees) measured clockwise.
-        @param useCenter true means include the center of the oval. For filling
-                         this will draw a wedge. False means just use the arc.
+        @param useCenter true means include the center of the oval.
         @param paint    The paint used to draw the arc
     */
     void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,

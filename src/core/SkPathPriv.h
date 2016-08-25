@@ -91,6 +91,13 @@ public:
      */
     static bool IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Direction* direction,
                                    unsigned* start);
+
+    /**
+     * Creates a path from arc params using the semantics of SkCanvas::drawArc. This function
+     * assumes empty ovals and zero sweeps have already been filtered out.
+     */
+    static void CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar startAngle,
+                                  SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
 };
 
 #endif

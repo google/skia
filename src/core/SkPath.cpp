@@ -3341,3 +3341,42 @@ bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Di
     }
     return true;
 }
+
+void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar startAngle,
+                                   SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect) {
+    SkASSERT(!oval.isEmpty());
+    SkASSERT(sweepAngle);
+
+    path->reset();
+    path->setIsVolatile(true);
+    path->setFillType(SkPath::kWinding_FillType);
+    if (isFillNoPathEffect && SkScalarAbs(sweepAngle) >= 360.f) {
+        path->addOval(oval);
+        return;
+    }
+    if (useCenter) {
+        path->moveTo(oval.centerX(), oval.centerY());
+    }
+    // Arc to mods at 360 and drawArc is not supposed to.
+    bool forceMoveTo = !useCenter;
+    while (sweepAngle <= -360.f) {
+        path->arcTo(oval, startAngle, -180.f, forceMoveTo);
+        startAngle -= 180.f;
+        path->arcTo(oval, startAngle, -180.f, false);
+        startAngle -= 180.f;
+        forceMoveTo = false;
+        sweepAngle += 360.f;
+    }
+    while (sweepAngle >= 360.f) {
+        path->arcTo(oval, startAngle, 180.f, forceMoveTo);
+        startAngle += 180.f;
+        path->arcTo(oval, startAngle, 180.f, false);
+        startAngle += 180.f;
+        forceMoveTo = false;
+        sweepAngle -= 360.f;
+    }
+    path->arcTo(oval, startAngle, sweepAngle, forceMoveTo);
+    if (useCenter) {
+        path->close();
+    }
+}

@@ -7,6 +7,7 @@
 
 #include <functional>
 #include "SkCanvas.h"
+#include "SkDashPathEffect.h"
 #include "gm.h"
 
 static constexpr SkScalar kStarts[] = {0.f, 10.f, 30.f, 45.f, 90.f, 165.f, 180.f, 270.f};
@@ -124,4 +125,88 @@ DEF_ARC_GM(stroke_and_fill_round) {
         p->setStrokeCap(SkPaint::kRound_Cap);
     };
     draw_arcs(canvas, setStroke);
+}
+
+DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
+    static constexpr SkScalar kS = 50;
+    struct Arc {
+        SkRect   fOval;
+        SkScalar fStart;
+        SkScalar fSweep;
+    };
+    static const Arc noDrawArcs[] = {
+        // no sweep
+        {SkRect::MakeWH(kS, kS),  0,  0},
+        // empty rect in x
+        {SkRect::MakeWH(-kS, kS), 0, 90},
+        // empty rect in y
+        {SkRect::MakeWH(kS, -kS), 0, 90},
+        // empty rect in x and y
+        {SkRect::MakeWH( 0,   0), 0, 90},
+    };
+    static const Arc arcs[] = {
+        // large start
+        {SkRect::MakeWH(kS, kS),   810.f,   90.f},
+        // large negative start
+        {SkRect::MakeWH(kS, kS),  -810.f,   90.f},
+        // exactly 360 sweep
+        {SkRect::MakeWH(kS, kS),     0.f,  360.f},
+        // exactly -360 sweep
+        {SkRect::MakeWH(kS, kS),     0.f, -360.f},
+        // exactly 540 sweep
+        {SkRect::MakeWH(kS, kS),     0.f,  540.f},
+        // exactly -540 sweep
+        {SkRect::MakeWH(kS, kS),     0.f, -540.f},
+        // generic large sweep and large start
+        {SkRect::MakeWH(kS, kS),  1125.f,  990.f},
+    };
+    SkTArray<SkPaint> paints;
+    // fill
+    paints.push_back();
+    // stroke
+    paints.push_back().setStyle(SkPaint::kStroke_Style);
+    paints.back().setStrokeWidth(kS / 6.f);
+    // hairline
+    paints.push_back().setStyle(SkPaint::kStroke_Style);
+    paints.back().setStrokeWidth(0.f);
+    // stroke and fill
+    paints.push_back().setStyle(SkPaint::kStrokeAndFill_Style);
+    paints.back().setStrokeWidth(kS / 6.f);
+    // dash effect
+    paints.push_back().setStyle(SkPaint::kStroke_Style);
+    paints.back().setStrokeWidth(kS / 6.f);
+    static constexpr SkScalar kDashIntervals[] = {kS / 15, 2 * kS / 15};
+    paints.back().setPathEffect(SkDashPathEffect::Make(kDashIntervals, 2, 0.f));
+
+    canvas->translate(kPad, kPad);
+    // This loop should draw nothing.
+    for (auto arc : noDrawArcs) {
+        for (auto paint : paints) {
+            paint.setAntiAlias(true);
+            canvas->drawArc(arc.fOval, arc.fStart, arc.fSweep, false, paint);
+            canvas->drawArc(arc.fOval, arc.fStart, arc.fSweep, true, paint);
+        }
+    }
+
+    SkPaint linePaint;
+    linePaint.setAntiAlias(true);
+    linePaint.setColor(SK_ColorRED);
+    SkScalar midX   = SK_ARRAY_COUNT(arcs) * (kS + kPad) - kPad/2.f;
+    SkScalar height = paints.count() * (kS + kPad);
+    canvas->drawLine(midX, -kPad, midX, height, linePaint);
+
+    for (auto paint : paints) {
+        paint.setAntiAlias(true);
+        canvas->save();
+        for (auto arc : arcs) {
+            canvas->drawArc(arc.fOval, arc.fStart, arc.fSweep, false, paint);
+            canvas->translate(kS + kPad, 0.f);
+        }
+        for (auto arc : arcs) {
+            canvas->drawArc(arc.fOval, arc.fStart, arc.fSweep, true, paint);
+            canvas->translate(kS + kPad, 0.f);
+        }
+        canvas->restore();
+        canvas->translate(0, kS + kPad);
+    }
 }
