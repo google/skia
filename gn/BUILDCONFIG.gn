@@ -73,6 +73,9 @@ set_defaults("shared_library") {
 
 set_defaults("component") {
   configs = default_configs
+  if (!is_component_build) {
+    complete_static_lib = true
+  }
 }
 
 # For now, we support GCC-like toolchains, including Clang.

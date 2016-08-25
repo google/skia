@@ -139,43 +139,62 @@ utils_gypi = exec_script("gn/gypi_to_gn.py",
                          "scope",
                          [ "gyp/utils.gypi" ])
 
-source_set("opts_none") {
-  configs += skia_library_configs
-  sources = opts_gypi.none_sources
+# Use for CPU-specific Skia code that needs particular compiler flags.
+template("opts") {
+  if (invoker.enabled) {
+    source_set(target_name) {
+      forward_variables_from(invoker, "*")
+      configs += skia_library_configs
+    }
+  } else {
+    # If not enabled, a phony empty target that swallows all otherwise unused variables.
+    source_set(target_name) {
+      forward_variables_from(invoker,
+                             "*",
+                             [
+                               "sources",
+                               "cflags",
+                             ])
+    }
+  }
 }
 
 is_x86 = current_cpu == "x64" || current_cpu == "x86"
 
-if (is_x86) {
-  source_set("opts_sse2") {
-    configs += skia_library_configs
-    sources = opts_gypi.sse2_sources
-    cflags = [ "-msse2" ]
-  }
+opts("none") {
+  enabled = !is_x86
+  sources = opts_gypi.none_sources
+  cflags = []
+}
 
-  source_set("opts_ssse3") {
-    configs += skia_library_configs
-    sources = opts_gypi.ssse3_sources
-    cflags = [ "-mssse3" ]
-  }
+opts("sse2") {
+  enabled = is_x86
+  sources = opts_gypi.sse2_sources
+  cflags = [ "-msse2" ]
+}
 
-  source_set("opts_sse41") {
-    configs += skia_library_configs
-    sources = opts_gypi.sse41_sources
-    cflags = [ "-msse4.1" ]
-  }
+opts("ssse3") {
+  enabled = is_x86
+  sources = opts_gypi.ssse3_sources
+  cflags = [ "-mssse3" ]
+}
 
-  source_set("opts_sse42") {
-    configs += skia_library_configs
-    sources = opts_gypi.sse42_sources
-    cflags = [ "-msse4.2" ]
-  }
+opts("sse41") {
+  enabled = is_x86
+  sources = opts_gypi.sse41_sources
+  cflags = [ "-msse4.1" ]
+}
 
-  source_set("opts_avx") {
-    configs += skia_library_configs
-    sources = opts_gypi.avx_sources
-    cflags = [ "-mavx" ]
-  }
+opts("sse42") {
+  enabled = is_x86
+  sources = opts_gypi.sse42_sources
+  cflags = [ "-msse4.2" ]
+}
+
+opts("avx") {
+  enabled = is_x86
+  sources = opts_gypi.avx_sources
+  cflags = [ "-mavx" ]
 }
 
 # Any feature of Skia that requires third-party code should be optional and use this template.
@@ -187,6 +206,7 @@ template("optional") {
     source_set(target_name) {
       forward_variables_from(invoker, "*", [ "public_defines" ])
       all_dependent_configs = [ ":" + target_name + "_public" ]
+      configs += skia_library_configs
     }
   } else {
     # If not enabled, a phony empty target that swallows all otherwise unused variables.
@@ -195,22 +215,17 @@ template("optional") {
                              "*",
                              [
                                "public_defines",
-                               "configs",
                                "deps",
                                "sources",
                              ])
     }
   }
 }
-set_defaults("optional") {
-  configs = default_configs
-}
 
 optional("gif") {
   enabled = skia_use_giflib
   public_defines = [ "SK_HAS_GIF_LIBRARY" ]
 
-  configs += skia_library_configs
   deps = [
     "//third_party/giflib",
   ]
@@ -223,7 +238,6 @@ optional("jpeg") {
   enabled = skia_use_libjpeg_turbo
   public_defines = [ "SK_HAS_JPEG_LIBRARY" ]
 
-  configs += skia_library_configs
   deps = [
     "//third_party/libjpeg-turbo:libjpeg",
   ]
@@ -240,7 +254,6 @@ optional("pdf") {
   enabled = skia_use_zlib
   public_defines = []
 
-  configs += skia_library_configs
   deps = [
     "//third_party/zlib",
   ]
@@ -259,7 +272,6 @@ optional("png") {
   enabled = skia_use_libpng
   public_defines = [ "SK_HAS_PNG_LIBRARY" ]
 
-  configs += skia_library_configs
   deps = [
     "//third_party/libpng",
   ]
@@ -274,7 +286,6 @@ optional("webp") {
   enabled = skia_use_libwebp
   public_defines = [ "SK_HAS_WEBP_LIBRARY" ]
 
-  configs += skia_library_configs
   deps = [
     "//third_party/libwebp",
   ]
@@ -289,7 +300,6 @@ optional("xml") {
   enabled = skia_use_expat
   public_defines = []
 
-  configs += skia_library_configs
   deps = [
     "//third_party/expat",
   ]
@@ -305,24 +315,19 @@ component("skia") {
   configs += skia_library_configs
 
   deps = [
+    ":avx",
     ":gif",
     ":jpeg",
+    ":none",
     ":pdf",
     ":png",
+    ":sse2",
+    ":sse41",
+    ":sse42",
+    ":ssse3",
     ":webp",
     ":xml",
   ]
-  if (is_x86) {
-    deps += [
-      ":opts_avx",
-      ":opts_sse2",
-      ":opts_sse41",
-      ":opts_sse42",
-      ":opts_ssse3",
-    ]
-  } else {
-    deps += [ ":opts_none" ]
-  }
 
   if (!is_win) {
     libs = [ "pthread" ]

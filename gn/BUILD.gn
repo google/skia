@@ -4,7 +4,6 @@
 # found in the LICENSE file.
 
 declare_args() {
-  ar = "ar"
   cc = "cc"
   cxx = "c++"
 
@@ -97,13 +96,13 @@ toolchain("gcc_like") {
   }
 
   tool("alink") {
-    command = "rm -f {{output}} && $ar rcs {{output}} {{inputs}}"
+    command = "rm -f {{output}} && ar rcs {{output}} {{inputs}}"
     outputs = [
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
     default_output_extension = ".a"
     output_prefix = "lib"
-    description = "$ar {{output}} ..."
+    description = "ar {{output}} ..."
   }
 
   tool("solink") {
