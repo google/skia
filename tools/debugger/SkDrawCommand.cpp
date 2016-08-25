@@ -30,6 +30,7 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_MATRIX            "matrix"
 #define SKDEBUGCANVAS_ATTRIBUTE_DRAWDEPTHTRANS    "drawDepthTranslation"
 #define SKDEBUGCANVAS_ATTRIBUTE_COORDS            "coords"
+#define SKDEBUGCANVAS_ATTRIBUTE_HINTING           "hinting"
 #define SKDEBUGCANVAS_ATTRIBUTE_BOUNDS            "bounds"
 #define SKDEBUGCANVAS_ATTRIBUTE_PAINT             "paint"
 #define SKDEBUGCANVAS_ATTRIBUTE_OUTER             "outer"
@@ -160,6 +161,11 @@
 #define SKDEBUGCANVAS_FILTERQUALITY_LOW           "low"
 #define SKDEBUGCANVAS_FILTERQUALITY_MEDIUM        "medium"
 #define SKDEBUGCANVAS_FILTERQUALITY_HIGH          "high"
+
+#define SKDEBUGCANVAS_HINTING_NONE                "none"
+#define SKDEBUGCANVAS_HINTING_SLIGHT              "slight"
+#define SKDEBUGCANVAS_HINTING_NORMAL              "normal"
+#define SKDEBUGCANVAS_HINTING_FULL                "full"
 
 typedef SkDrawCommand* (*FROM_JSON)(Json::Value&, UrlDataManager&);
 
@@ -867,6 +873,26 @@ bool SkDrawCommand::flatten(const SkBitmap& bitmap, Json::Value* target,
     return success;
 }
 
+static void apply_paint_hinting(const SkPaint& paint, Json::Value* target) {
+    SkPaint::Hinting hinting = paint.getHinting();
+    if (hinting != SkPaintDefaults_Hinting) {
+        switch (hinting) {
+            case SkPaint::kNo_Hinting:
+                (*target)[SKDEBUGCANVAS_ATTRIBUTE_HINTING] = SKDEBUGCANVAS_HINTING_NONE;
+                break;
+            case SkPaint::kSlight_Hinting:
+                (*target)[SKDEBUGCANVAS_ATTRIBUTE_HINTING] = SKDEBUGCANVAS_HINTING_SLIGHT;
+                break;
+            case SkPaint::kNormal_Hinting:
+                (*target)[SKDEBUGCANVAS_ATTRIBUTE_HINTING] = SKDEBUGCANVAS_HINTING_NORMAL;
+                break;
+            case SkPaint::kFull_Hinting:
+                (*target)[SKDEBUGCANVAS_ATTRIBUTE_HINTING] = SKDEBUGCANVAS_HINTING_FULL;
+                break;
+        }
+    }
+}
+
 static void apply_paint_color(const SkPaint& paint, Json::Value* target) {
     SkColor color = paint.getColor();
     if (color != SK_ColorBLACK) {
@@ -1128,6 +1154,7 @@ Json::Value SkDrawCommand::MakeJsonPaint(const SkPaint& paint, UrlDataManager& u
                  SkPaintDefaults_TextSize);
     store_scalar(&result, SKDEBUGCANVAS_ATTRIBUTE_TEXTSCALEX, paint.getTextScaleX(), SK_Scalar1);
     store_scalar(&result, SKDEBUGCANVAS_ATTRIBUTE_TEXTSCALEX, paint.getTextSkewX(), 0.0f);
+    apply_paint_hinting(paint, &result);
     apply_paint_color(paint, &result);
     apply_paint_style(paint, &result);
     apply_paint_cap(paint, &result);
@@ -1250,6 +1277,21 @@ static void extract_json_paint_typeface(Json::Value& jsonPaint, UrlDataManager& 
         Json::ArrayIndex length = decode_data(jsonData, urlDataManager, &data);
         SkMemoryStream buffer(data, length);
         target->setTypeface(SkTypeface::MakeDeserialize(&buffer));
+    }
+}
+
+static void extract_json_paint_hinting(Json::Value& jsonPaint, SkPaint* target) {
+    if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_HINTING)) {
+        const char* hinting = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_HINTING].asCString();
+        if (!strcmp(hinting, SKDEBUGCANVAS_HINTING_NONE)) {
+            target->setHinting(SkPaint::kNo_Hinting);
+        } else if (!strcmp(hinting, SKDEBUGCANVAS_HINTING_SLIGHT)) {
+            target->setHinting(SkPaint::kSlight_Hinting);
+        } else if (!strcmp(hinting, SKDEBUGCANVAS_HINTING_NORMAL)) {
+            target->setHinting(SkPaint::kNormal_Hinting);
+        } else if (!strcmp(hinting, SKDEBUGCANVAS_HINTING_FULL)) {
+            target->setHinting(SkPaint::kFull_Hinting);
+        }
     }
 }
 
@@ -1442,6 +1484,7 @@ static void extract_json_paint_textskewx(Json::Value& jsonPaint, SkPaint* target
 
 static void extract_json_paint(Json::Value& paint, UrlDataManager& urlDataManager,
                                SkPaint* result) {
+    extract_json_paint_hinting(paint, result);
     extract_json_paint_color(paint, result);
     extract_json_paint_shader(paint, urlDataManager, result);
     extract_json_paint_patheffect(paint, urlDataManager, result);
