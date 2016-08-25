@@ -161,8 +161,32 @@ template("opts") {
 
 is_x86 = current_cpu == "x64" || current_cpu == "x86"
 
+opts("armv7") {
+  enabled = current_cpu == "arm"
+  sources = opts_gypi.armv7_sources
+  cflags = []
+}
+
+opts("neon") {
+  enabled = current_cpu == "arm"
+  sources = opts_gypi.neon_sources
+  cflags = [ "-mfpu=neon" ]
+}
+
+opts("arm64") {
+  enabled = current_cpu == "arm64"
+  sources = opts_gypi.arm64_sources
+  cflags = []
+}
+
+opts("crc32") {
+  enabled = current_cpu == "arm64"
+  sources = opts_gypi.crc32_sources
+  cflags = [ "-march=armv8-a+crc" ]
+}
+
 opts("none") {
-  enabled = !is_x86
+  enabled = !is_x86 && current_cpu != "arm" && current_cpu != "arm64"
   sources = opts_gypi.none_sources
   cflags = []
 }
@@ -315,9 +339,13 @@ component("skia") {
   configs += skia_library_configs
 
   deps = [
+    ":arm64",
+    ":armv7",
     ":avx",
+    ":crc32",
     ":gif",
     ":jpeg",
+    ":neon",
     ":none",
     ":pdf",
     ":png",
