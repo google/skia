@@ -1335,7 +1335,40 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const uint16_t gRRectIndices[] = {
+// We have three possible cases for geometry for a roundrect. 
+//
+// In the case of a normal fill or a stroke, we draw the roundrect as a 9-patch:
+//    ____________
+//   |_|________|_|
+//   | |        | |
+//   | |        | |
+//   | |        | |
+//   |_|________|_|
+//   |_|________|_|
+//
+// For strokes, we don't draw the center quad.
+//
+// For circular roundrects, in the case where the stroke width is greater than twice
+// the corner radius (overstroke), we add additional geometry to mark out the rectangle
+// in the center:
+//    ____________
+//   |_|________|_|
+//   | |\ ____ /| |
+//   | | |    | | |
+//   | | |____| | |
+//   |_|/______\|_|
+//   |_|________|_|
+//
+// We don't draw the center quad from the fill rect in this case.
+
+static const uint16_t gRRectOverstrokeIndices[] = {
+    // overstroke quads
+    // we place this at the beginning so that we can skip these indices when rendering normally
+    5, 6, 17, 5, 17, 16,
+    17, 6, 10, 17, 10, 19,
+    10, 9, 18, 10, 18, 19,
+    18, 9, 5, 18, 5, 16,
+
     // corners
     0, 1, 5, 0, 5, 4,
     2, 3, 7, 2, 7, 6,
@@ -1349,31 +1382,49 @@ static const uint16_t gRRectIndices[] = {
     9, 10, 14, 9, 14, 13,
 
     // center
-    // we place this at the end so that we can ignore these indices when rendering stroke-only
-    5, 6, 10, 5, 10, 9
+    // we place this at the end so that we can ignore these indices when not rendering as filled
+    5, 6, 10, 5, 10, 9,
 };
 
-static const int kIndicesPerStrokeRRect = SK_ARRAY_COUNT(gRRectIndices) - 6;
-static const int kIndicesPerRRect = SK_ARRAY_COUNT(gRRectIndices);
-static const int kVertsPerRRect = 16;
+static const uint16_t* gRRectIndices = gRRectOverstrokeIndices + 6*4;
+
+// overstroke count is arraysize 
+static const int kIndicesPerOverstrokeRRect = SK_ARRAY_COUNT(gRRectOverstrokeIndices) - 6;
+static const int kIndicesPerFillRRect = kIndicesPerOverstrokeRRect - 6*4 + 6;
+static const int kIndicesPerStrokeRRect = kIndicesPerFillRRect - 6;
+static const int kVertsPerStandardRRect = 16;
+static const int kVertsPerOverstrokeRRect = 20;
 static const int kNumRRectsInIndexBuffer = 256;
+
+enum RRectType {
+    kFill_RRectType,
+    kStroke_RRectType,
+    kOverstroke_RRectType
+};
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
-static const GrBuffer* ref_rrect_index_buffer(bool strokeOnly,
+GR_DECLARE_STATIC_UNIQUE_KEY(gOverstrokeRRectOnlyIndexBufferKey);
+static const GrBuffer* ref_rrect_index_buffer(RRectType type,
                                               GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
     GR_DEFINE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
-    if (strokeOnly) {
-        return resourceProvider->findOrCreateInstancedIndexBuffer(
-            gRRectIndices, kIndicesPerStrokeRRect, kNumRRectsInIndexBuffer, kVertsPerRRect,
-            gStrokeRRectOnlyIndexBufferKey);
-    } else {
-        return resourceProvider->findOrCreateInstancedIndexBuffer(
-            gRRectIndices, kIndicesPerRRect, kNumRRectsInIndexBuffer, kVertsPerRRect,
-            gRRectOnlyIndexBufferKey);
-
-    }
+    GR_DEFINE_STATIC_UNIQUE_KEY(gOverstrokeRRectOnlyIndexBufferKey);
+    switch (type) {
+        case kFill_RRectType:
+        default:
+            return resourceProvider->findOrCreateInstancedIndexBuffer(
+                gRRectIndices, kIndicesPerFillRRect, kNumRRectsInIndexBuffer,
+                kVertsPerStandardRRect, gRRectOnlyIndexBufferKey);
+        case kStroke_RRectType:
+            return resourceProvider->findOrCreateInstancedIndexBuffer(
+                gRRectIndices, kIndicesPerStrokeRRect, kNumRRectsInIndexBuffer,
+                kVertsPerStandardRRect, gStrokeRRectOnlyIndexBufferKey);
+        case kOverstroke_RRectType:
+            return resourceProvider->findOrCreateInstancedIndexBuffer(
+                gRRectOverstrokeIndices, kIndicesPerOverstrokeRRect, kNumRRectsInIndexBuffer,
+                kVertsPerOverstrokeRRect, gOverstrokeRRectOnlyIndexBufferKey);
+    };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1393,7 +1444,7 @@ public:
         SkScalar innerRadius = 0.0f;
         SkScalar outerRadius = devRadius;
         SkScalar halfWidth = 0;
-        fStroked = false;
+        fType = kFill_RRectType;
         if (devStrokeWidth > 0) {
             if (SkScalarNearlyZero(devStrokeWidth)) {
                 halfWidth = SK_ScalarHalf;
@@ -1402,8 +1453,15 @@ public:
             }
 
             if (strokeOnly) {
-                innerRadius = devRadius - halfWidth;
-                fStroked = innerRadius >= 0;
+                // Outset stroke by 1/4 pixel
+                devStrokeWidth += 0.25f;
+                // If stroke is greater than width or height, this is still a fill
+                // Otherwise we compute stroke params
+                if (devStrokeWidth <= devRect.width() &&
+                    devStrokeWidth <= devRect.height()) {
+                    innerRadius = devRadius - halfWidth;
+                    fType = (innerRadius >= 0) ? kStroke_RRectType : kOverstroke_RRectType;
+                }
             }
             outerRadius += halfWidth;
             bounds.outset(halfWidth, halfWidth);
@@ -1426,6 +1484,21 @@ public:
     }
 
     const char* name() const override { return "RRectCircleBatch"; }
+
+    SkString dumpInfo() const override {
+        SkString string;
+        for (int i = 0; i < fGeoData.count(); ++i) {
+            string.appendf("Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
+                           "InnerRad: %.2f, OuterRad: %.2f\n",
+                           fGeoData[i].fColor,
+                           fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
+                           fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
+                           fGeoData[i].fInnerRadius,
+                           fGeoData[i].fOuterRadius);
+        }
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
 
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
@@ -1452,7 +1525,8 @@ private:
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(fStroked, false, false,
+        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(kStroke_RRectType == fType,
+                                                                         false, false,
                                                                          false, localMatrix));
 
         struct CircleVertex {
@@ -1469,13 +1543,20 @@ private:
         SkASSERT(vertexStride == sizeof(CircleVertex));
 
         // drop out the middle quad if we're stroked
-        int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerRRect;
+        int indicesPerInstance = kIndicesPerFillRRect;
+        if (kStroke_RRectType == fType) {
+            indicesPerInstance = kIndicesPerStrokeRRect;
+        } else if (kOverstroke_RRectType == fType) {
+            indicesPerInstance = kIndicesPerOverstrokeRRect;
+        }
         SkAutoTUnref<const GrBuffer> indexBuffer(
-            ref_rrect_index_buffer(fStroked, target->resourceProvider()));
+            ref_rrect_index_buffer(fType, target->resourceProvider()));
 
         InstancedHelper helper;
+        int vertexCount = (kOverstroke_RRectType == fType) ? kVertsPerOverstrokeRRect 
+                                                           : kVertsPerStandardRRect;
         CircleVertex* verts = reinterpret_cast<CircleVertex*>(helper.init(target,
-            kTriangles_GrPrimitiveType, vertexStride, indexBuffer, kVertsPerRRect,
+            kTriangles_GrPrimitiveType, vertexStride, indexBuffer, vertexCount,
             indicesPerInstance, instanceCount));
         if (!verts || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
@@ -1529,6 +1610,48 @@ private:
                 verts->fInnerRadius = innerRadius;
                 verts++;
             }
+            // Add the additional vertices for overstroked rrects.
+            //
+            // Note that args.fInnerRadius is negative in this case.
+            // Also, the offset is a constant vector pointing to the right, which guarantees
+            // that the distance value along the inner rectangle is constant, which
+            // is what we want to get nice anti-aliasing.
+            if (kOverstroke_RRectType == fType) {
+                // outerRadius = originalOuter + 0.5, and innerRadius = originalInner - 0.5.
+                // What we want is originalOuter - originalInner + 0.5, so we subtract 0.5.
+                SkScalar inset = outerRadius - args.fInnerRadius - SK_ScalarHalf;
+                verts->fPos = SkPoint::Make(bounds.fLeft + inset,
+                                            bounds.fTop + inset);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(1, 0);
+                verts->fOuterRadius = outerRadius;
+                verts->fInnerRadius = innerRadius;
+                verts++;
+
+                verts->fPos = SkPoint::Make(bounds.fRight - inset,
+                                            bounds.fTop + inset);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(1, 0);
+                verts->fOuterRadius = outerRadius;
+                verts->fInnerRadius = innerRadius;
+                verts++;
+
+                verts->fPos = SkPoint::Make(bounds.fLeft + inset,
+                                            bounds.fBottom - inset);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(1, 0);
+                verts->fOuterRadius = outerRadius;
+                verts->fInnerRadius = innerRadius;
+                verts++;
+
+                verts->fPos = SkPoint::Make(bounds.fRight - inset,
+                                            bounds.fBottom - inset);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(1, 0);
+                verts->fOuterRadius = outerRadius;
+                verts->fInnerRadius = innerRadius;
+                verts++;
+            }
         }
 
         helper.recordDraw(target, gp);
@@ -1541,7 +1664,7 @@ private:
             return false;
         }
 
-        if (fStroked != that->fStroked) {
+        if (fType != that->fType) {
             return false;
         }
 
@@ -1561,7 +1684,7 @@ private:
         SkRect fDevBounds;
     };
 
-    bool                         fStroked;
+    RRectType                    fType;
     SkMatrix                     fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
@@ -1666,14 +1789,15 @@ private:
         SkASSERT(vertexStride == sizeof(EllipseVertex));
 
         // drop out the middle quad if we're stroked
-        int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerRRect;
+        int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerFillRRect;
         SkAutoTUnref<const GrBuffer> indexBuffer(
-            ref_rrect_index_buffer(fStroked, target->resourceProvider()));
+            ref_rrect_index_buffer(fStroked ? kStroke_RRectType : kFill_RRectType,
+                                   target->resourceProvider()));
 
         InstancedHelper helper;
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
             helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer,
-            kVertsPerRRect, indicesPerInstance, instanceCount));
+                        kVertsPerStandardRRect, indicesPerInstance, instanceCount));
         if (!verts || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -1809,6 +1933,7 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
                         SkStrokeRec::kHairline_Style == style;
     bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == style;
 
+    bool isCircular = (xRadius == yRadius);
     if (hasStroke) {
         if (SkStrokeRec::kHairline_Style == style) {
             scaledStroke.set(1, 1);
@@ -1819,8 +1944,11 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
                                                        viewMatrix[SkMatrix::kMScaleY]));
         }
 
-        // if half of strokewidth is greater than radius, we don't handle that right now
-        if (SK_ScalarHalf*scaledStroke.fX > xRadius || SK_ScalarHalf*scaledStroke.fY > yRadius) {
+        isCircular = isCircular && scaledStroke.fX == scaledStroke.fY;
+        // for non-circular rrects, if half of strokewidth is greater than radius,
+        // we don't handle that right now
+        if (!isCircular &&
+            (SK_ScalarHalf*scaledStroke.fX > xRadius || SK_ScalarHalf*scaledStroke.fY > yRadius)) {
             return nullptr;
         }
     }
@@ -1835,7 +1963,7 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
     }
 
     // if the corners are circles, use the circle renderer
-    if ((!hasStroke || scaledStroke.fX == scaledStroke.fY) && xRadius == yRadius) {
+    if (isCircular) {
         return new RRectCircleRendererBatch(color, viewMatrix, bounds, xRadius, scaledStroke.fX,
                                             isStrokeOnly);
     // otherwise we use the ellipse renderer
