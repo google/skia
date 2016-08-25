@@ -64,7 +64,7 @@ static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
     return img ? img->encode() : nullptr;
 }
 
-#if defined(__linux)
+#if defined(__linux) && !defined(__ANDROID__)
     #include <GL/osmesa.h>
     static sk_sp<GrContext> create_grcontext() {
         // We just leak the OSMesaContext... the process will die soon anyway.

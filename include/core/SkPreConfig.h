@@ -26,7 +26,7 @@
 
     #if defined(_WIN32) || defined(__SYMBIAN32__)
         #define SK_BUILD_FOR_WIN32
-    #elif defined(ANDROID)
+    #elif defined(ANDROID) || defined(__ANDROID__)
         #define SK_BUILD_FOR_ANDROID
     #elif defined(linux) || defined(__linux) || defined(__FreeBSD__) || \
           defined(__OpenBSD__) || defined(__sun) || defined(__NetBSD__) || \
