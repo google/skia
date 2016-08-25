@@ -9,11 +9,7 @@
 #include "SkData.h"
 #include "SkDeflate.h"
 
-#ifdef ZLIB_INCLUDE
-    #include ZLIB_INCLUDE
-#else
-    #include "zlib.h"
-#endif
+#include "zlib.h"
 
 namespace {
 

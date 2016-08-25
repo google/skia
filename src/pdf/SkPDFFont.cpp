@@ -22,13 +22,13 @@
 #include "SkTypes.h"
 #include "SkUtils.h"
 
-#if defined (SK_SFNTLY_SUBSETTER)
-    #if defined (GOOGLE3)
-        // #including #defines doesn't work with this build system.
-        #include "sample/chromium/font_subsetter.h"
-    #else
-        #include SK_SFNTLY_SUBSETTER
-    #endif
+// TODO(halcanary): Switch Chrome from SK_SFNTLY_SUBSETTER to SK_PDF_USE_SFNTLY.
+#if defined(SK_SFNTLY_SUBSETTER) && !defined(SK_PDF_USE_SFNTLY)
+    #define SK_PDF_USE_SFNTLY
+#endif
+
+#ifdef SK_PDF_USE_SFNTLY
+    #include "sample/chromium/font_subsetter.h"
 #endif
 
 namespace {
@@ -142,7 +142,7 @@ static bool can_embed(const SkAdvancedTypefaceMetrics& metrics) {
     return !SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
 }
 
-#ifdef SK_SFNTLY_SUBSETTER
+#ifdef SK_PDF_USE_SFNTLY
 static bool can_subset(const SkAdvancedTypefaceMetrics& metrics) {
     return !SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag);
 }
@@ -336,7 +336,7 @@ void SkPDFType0Font::emitObject(SkWStream* stream,
 }
 #endif
 
-#ifdef SK_SFNTLY_SUBSETTER
+#ifdef SK_PDF_USE_SFNTLY
 // if possible, make no copy.
 static sk_sp<SkData> stream_to_data(std::unique_ptr<SkStreamAsset> stream) {
     SkASSERT(stream);
@@ -387,7 +387,7 @@ static sk_sp<SkPDFObject> get_subset_font_stream(
     subsetStream->dict()->insertInt("Length1", subsetFontSize);
     return subsetStream;
 }
-#endif  // SK_SFNTLY_SUBSETTER
+#endif  // SK_PDF_USE_SFNTLY
 
 void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
     const SkAdvancedTypefaceMetrics* metricsPtr =
@@ -417,7 +417,7 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
                 return;
             }
 
-        #ifdef SK_SFNTLY_SUBSETTER
+        #ifdef SK_PDF_USE_SFNTLY
             if (can_subset(metrics)) {
                 // Generate glyph id array. in format needed by sfntly
                 SkTDArray<uint32_t> glyphIDs;
@@ -434,7 +434,7 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
                 // If subsetting fails, fall back to original font data.
                 fontAsset.reset(face->openStream(&ttcIndex));
             }
-        #endif  // SK_SFNTLY_SUBSETTER
+        #endif  // SK_PDF_USE_SFNTLY
             auto fontStream = sk_make_sp<SkPDFSharedStream>(std::move(fontAsset));
             fontStream->dict()->insertInt("Length1", fontSize);
             descriptor->insertObjRef("FontFile2", std::move(fontStream));

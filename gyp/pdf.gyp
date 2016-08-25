@@ -38,13 +38,15 @@
       'conditions': [
         [ 'skia_pdf_use_sfntly and not skia_android_framework and \
            skia_os in ["win", "android", "linux", "mac"]',
-          { 'dependencies': [ 'sfntly.gyp:sfntly' ] }
+          {
+            'dependencies': [ 'sfntly.gyp:sfntly' ],
+            'defines': [ 'SK_PDF_USE_SFNTLY' ],
+          }
         ],
         [ 'skia_android_framework', {
             # Add SFTNLY support for PDF (which in turns depends on ICU)
-            'include_dirs': [
-              'external/sfntly/cpp/src',
-            ],
+            'include_dirs': [ 'external/sfntly/cpp/src' ],
+            'defines': [ 'SK_PDF_USE_SFNTLY' ],
             'libraries': [
               'libsfntly.a',
               '-licuuc',

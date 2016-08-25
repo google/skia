@@ -285,10 +285,7 @@ optional("pdf") {
 
   if (skia_use_sfntly) {
     deps += [ "//third_party/sfntly" ]
-    public_defines += [
-      # TODO(halcanary): make this the default; this is the value Android uses.
-      "SK_SFNTLY_SUBSETTER=\"sample/chromium/font_subsetter.h\"",
-    ]
+    public_defines += [ "SK_PDF_USE_SFNTLY" ]
   }
 }
 

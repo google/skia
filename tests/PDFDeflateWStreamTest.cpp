@@ -11,11 +11,7 @@
 
 namespace {
 
-#ifdef ZLIB_INCLUDE
-    #include ZLIB_INCLUDE
-#else
-    #include "zlib.h"
-#endif
+#include "zlib.h"
 
 // Different zlib implementations use different T.
 // We've seen size_t and unsigned.
