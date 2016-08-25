@@ -60,9 +60,10 @@ protected:
 
     void onDrawShadowedPicture(const SkPicture* picture,
                                const SkMatrix* matrix,
-                               const SkPaint* paint) {
+                               const SkPaint* paint,
+                               const SkShadowParams& params) {
 #ifdef SK_EXPERIMENTAL_SHADOWING
-        this->SkCanvas::onDrawShadowedPicture(picture, matrix, paint);
+        this->SkCanvas::onDrawShadowedPicture(picture, matrix, paint, params);
 #else
         this->SkCanvas::onDrawPicture(picture, matrix, paint);
 #endif
@@ -620,8 +621,9 @@ void SkDebugCanvas::onDrawPicture(const SkPicture* picture,
 
 void SkDebugCanvas::onDrawShadowedPicture(const SkPicture* picture,
                                           const SkMatrix* matrix,
-                                          const SkPaint* paint) {
-    this->addDrawCommand(new SkBeginDrawShadowedPictureCommand(picture, matrix, paint));
+                                          const SkPaint* paint,
+                                          const SkShadowParams& params) {
+    this->addDrawCommand(new SkBeginDrawShadowedPictureCommand(picture, matrix, paint, params));
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
     picture->playback(this);
     this->addDrawCommand(new SkEndDrawShadowedPictureCommand(SkToBool(matrix) || SkToBool(paint)));

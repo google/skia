@@ -38,13 +38,31 @@ public:
         fTestRects[2].fDepth = 240;
         fTestRects[2].fGeometry = SkRect::MakeLTRB(100,100,250,250);
 
+        fSliders[0].fGeometry = SkRect::MakeLTRB(20, 400, 30, 420);
+        fSliders[0].fOffset = 0.0f;
+        fSliders[0].fScale = 0.1f;
+
+        fSliders[1].fGeometry = SkRect::MakeLTRB(100, 420, 110, 440);
+        fSliders[1].fOffset = 0.0f;
+        fSliders[1].fScale = 10.0f;
+
+        fSliders[2].fGeometry = SkRect::MakeLTRB(0, 440, 10, 460);
+        fSliders[2].fOffset = 0.0f;
+        fSliders[2].fScale = 0.0025f;
+
         fSceneChanged = true;
         fLightsChanged = true;
 
         fSelectedRect = -1;
+        fSelectedSlider = -1;
         fMoveLight = false;
 
         fClearShadowMaps = false;
+
+        fShadowParams.fShadowRadius = 2.0f;
+        fShadowParams.fBiasingConstant = 0.3f;
+        fShadowParams.fMinVariance = 1024;
+        fShadowParams.fType = SkShadowParams::kVariance_ShadowType;
     }
 
 protected:
@@ -66,6 +84,15 @@ protected:
                     // We override the 'd' keypress so that when the device is cycled,
                     // the shadow maps will be re-generated according to the new backend.
                     fClearShadowMaps = true;
+                    break;
+                case 'B':
+                    if (SkShadowParams::kVariance_ShadowType == fShadowParams.fType) {
+                        fShadowParams.fType = SkShadowParams::kNoBlur_ShadowType;
+                    } else if (SkShadowParams::kNoBlur_ShadowType ==
+                               fShadowParams.fType) {
+                        fShadowParams.fType = SkShadowParams::kVariance_ShadowType;
+                    }
+                    fLightsChanged = true;
                     break;
                 default:
                     break;
@@ -113,17 +140,44 @@ protected:
             for (int i = 0; i < fLights->numLights(); i++) {
                 fLights->light(i).setShadowMap(nullptr);
             }
+
             fSceneChanged = false;
             fLightsChanged = false;
             fClearShadowMaps = false;
         }
 
         canvas->setLights(fLights);
-        canvas->drawShadowedPicture(fPicture, nullptr, nullptr);
+        canvas->drawShadowedPicture(fPicture, nullptr, nullptr, fShadowParams);
+
+        for (int i = 0; i < kNumSliders; i++) {
+            SkPaint paint;
+            paint.setColor(SK_ColorBLACK);
+            canvas->drawRect(fSliders[i].fGeometry, paint);
+        }
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         return new SkView::Click(this);
+    }
+
+    void updateFromSelectedSlider() {
+        SkScalar newValue = fSliders[fSelectedSlider].fGeometry.fLeft *
+                            fSliders[fSelectedSlider].fScale +
+                            fSliders[fSelectedSlider].fOffset;
+
+        switch (fSelectedSlider) {
+            case 0:
+                fShadowParams.fShadowRadius = newValue;
+                break;
+            case 1:
+                fShadowParams.fMinVariance = newValue;
+                break;
+            case 2:
+                fShadowParams.fBiasingConstant = newValue;
+                break;
+            default:
+                break;
+        }
     }
 
     bool onClick(Click *click) override {
@@ -161,6 +215,7 @@ protected:
 
         if (click->fState == Click::State::kUp_State) {
             fSelectedRect = -1;
+            fSelectedSlider = -1;
             return true;
         }
 
@@ -168,6 +223,16 @@ protected:
             fTestRects[fSelectedRect].fGeometry.offset(dx, dy);
 
             fSceneChanged = true;
+            this->inval(nullptr);
+            return true;
+        }
+
+        if (fSelectedSlider > -1) {
+            fSliders[fSelectedSlider].fGeometry.offset(dx, 0);
+
+            this->updateFromSelectedSlider();
+
+            fLightsChanged = true;
             this->inval(nullptr);
             return true;
         }
@@ -184,30 +249,51 @@ protected:
             }
         }
 
+        for (int i = 0; i <= kNumSliders; i++) {
+            if (fSliders[i].fGeometry.contains(SkRect::MakeXYWH(x, y, 1, 1))) {
+                fSelectedSlider = i;
+                fSliders[i].fGeometry.offset(dx, 0);
+
+                this->updateFromSelectedSlider();
+
+                fLightsChanged = true;
+
+                this->inval(nullptr);
+                break;
+            }
+        }
+
         return true;
     }
 
 private:
     static constexpr int kNumTestRects = 3;
+    static constexpr int kNumSliders = 3;
 
     static const int kWidth = 400;
     static const int kHeight = 400;
-    bool fClearShadowMaps;
 
     struct {
         SkRect  fGeometry;
         int     fDepth;
         SkColor fColor;
     } fTestRects[kNumTestRects];
-
     int fSelectedRect;
+
+    struct {
+        SkRect   fGeometry;
+        SkScalar fOffset;
+        SkScalar fScale;
+    } fSliders[kNumSliders];
+    int fSelectedSlider;
+
+    bool fClearShadowMaps;
     bool fMoveLight;
-
-    sk_sp<SkPicture> fPicture;
-
     bool fSceneChanged;
     bool fLightsChanged;
 
+    sk_sp<SkPicture> fPicture;
+    SkShadowParams fShadowParams;
     sk_sp<SkLights> fLights;
 
     typedef SampleView INHERITED;

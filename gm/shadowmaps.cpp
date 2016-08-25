@@ -76,6 +76,11 @@ public:
                                                      SkVector3::Make(0.1f, 0.2f, 1.0f)));
         builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
         fLights = builder.finish();
+
+        fShadowParams.fShadowRadius = 4.0f;
+        fShadowParams.fBiasingConstant = 0.3f;
+        fShadowParams.fMinVariance = 1024;
+        fShadowParams.fType = SkShadowParams::kVariance_ShadowType;
     }
 
 protected:
@@ -95,11 +100,12 @@ protected:
         // It's used to generate the depth maps.
         sk_sp<SkPicture> pic(make_test_picture(kWidth, kHeight));
         canvas->setLights(fLights);
-        canvas->drawShadowedPicture(pic, nullptr, nullptr);
+        canvas->drawShadowedPicture(pic, nullptr, nullptr, fShadowParams);
     }
 
 private:
     sk_sp<SkLights> fLights;
+    SkShadowParams fShadowParams;
     typedef GM INHERITED;
 };
 

@@ -189,6 +189,7 @@ void SkLiteRecorder::didTranslateZ(SkScalar dz) {
 }
 void SkLiteRecorder::onDrawShadowedPicture(const SkPicture* picture,
                                            const SkMatrix* matrix,
-                                           const SkPaint* paint) {
-    fDL->drawShadowedPicture(picture, matrix, paint);
+                                           const SkPaint* paint,
+                                           const SkShadowParams& params) {
+    fDL->drawShadowedPicture(picture, matrix, paint, params);
 }

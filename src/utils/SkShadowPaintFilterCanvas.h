@@ -35,6 +35,7 @@ public:
     static SkISize ComputeDepthMapSize(const SkLights::Light& light, int maxDepth,
                                        int width, int height);
 
+    void setShadowParams(const SkShadowParams &params);
 protected:
     void onDrawPicture(const SkPicture *picture, const SkMatrix *matrix,
                        const SkPaint *paint) override;
@@ -107,6 +108,7 @@ protected:
     void onDrawTextBlob(const SkTextBlob *blob, SkScalar x,
                         SkScalar y, const SkPaint &paint) override;
 private:
+    SkShadowParams fShadowParams;
     typedef SkPaintFilterCanvas INHERITED;
 };
 

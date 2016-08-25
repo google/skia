@@ -270,17 +270,20 @@ namespace {
     };
     struct DrawShadowedPicture final : Op {
         static const auto kType = Type::DrawShadowedPicture;
-        DrawShadowedPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint)
+        DrawShadowedPicture(const SkPicture* picture, const SkMatrix* matrix,
+                            const SkPaint* paint, const SkShadowParams& params)
             : picture(sk_ref_sp(picture)) {
             if (matrix) { this->matrix = *matrix; }
             if (paint)  { this->paint  = *paint;  }
+            this->params = params;
         }
         sk_sp<const SkPicture> picture;
         SkMatrix               matrix = SkMatrix::I();
         SkPaint                paint;
+        SkShadowParams         params;
         void draw(SkCanvas* c, const SkMatrix&) {
         #ifdef SK_EXPERIMENTAL_SHADOWING
-            c->drawShadowedPicture(picture.get(), &matrix, &paint);
+            c->drawShadowedPicture(picture.get(), &matrix, &paint, params);
         #endif
         }
         void makeThreadsafe() { make_threadsafe(nullptr, &matrix); }
@@ -615,9 +618,9 @@ void SkLiteDL::drawPicture(const SkPicture* picture,
                            const SkMatrix* matrix, const SkPaint* paint) {
     this->push<DrawPicture>(0, picture, matrix, paint);
 }
-void SkLiteDL::drawShadowedPicture(const SkPicture* picture,
-                                   const SkMatrix* matrix, const SkPaint* paint) {
-    this->push<DrawShadowedPicture>(0, picture, matrix, paint);
+void SkLiteDL::drawShadowedPicture(const SkPicture* picture, const SkMatrix* matrix,
+                                   const SkPaint* paint, const SkShadowParams& params) {
+    push<DrawShadowedPicture>(0, picture, matrix, paint, params);
 }
 
 void SkLiteDL::drawBitmap(const SkBitmap& bm, SkScalar x, SkScalar y, const SkPaint* paint) {

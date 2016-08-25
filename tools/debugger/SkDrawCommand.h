@@ -480,7 +480,8 @@ class SkBeginDrawShadowedPictureCommand : public SkDrawCommand {
 public:
     SkBeginDrawShadowedPictureCommand(const SkPicture* picture,
                                       const SkMatrix* matrix,
-                                      const SkPaint* paint);
+                                      const SkPaint* paint,
+                                      const SkShadowParams& params);
 
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
@@ -489,6 +490,9 @@ private:
     SkAutoTUnref<const SkPicture> fPicture;
     SkTLazy<SkMatrix>             fMatrix;
     SkTLazy<SkPaint>              fPaint;
+#ifdef SK_EXPERIMENTAL_SHADOWING
+    SkShadowParams                fShadowParams;
+#endif
 
     typedef SkDrawCommand INHERITED;
 };
@@ -796,3 +800,4 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 #endif
+

@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkLights.h"
+#include "SkCanvas.h"
 #include "SkReadBuffer.h"
 #include "SkShadowShader.h"
-#include "SkPoint3.h"
 
 ////////////////////////////////////////////////////////////////////////////
 #ifdef SK_EXPERIMENTAL_SHADOWING
@@ -26,12 +24,14 @@ public:
     SkShadowShaderImpl(sk_sp<SkShader> povDepthShader,
                        sk_sp<SkShader> diffuseShader,
                        sk_sp<SkLights> lights,
-                       int diffuseWidth, int diffuseHeight)
+                       int diffuseWidth, int diffuseHeight,
+                       const SkShadowParams& params)
             : fPovDepthShader(std::move(povDepthShader))
             , fDiffuseShader(std::move(diffuseShader))
             , fLights(std::move(lights))
             , fDiffuseWidth(diffuseWidth)
-            , fDiffuseHeight(diffuseHeight) { }
+            , fDiffuseHeight(diffuseHeight)
+            , fShadowParams(params) { }
 
     bool isOpaque() const override;
 
@@ -80,6 +80,8 @@ private:
     int fDiffuseWidth;
     int fDiffuseHeight;
 
+    SkShadowParams fShadowParams;
+
     friend class SkShadowShader;
 
     typedef SkShader INHERITED;
@@ -106,6 +108,7 @@ public:
              sk_sp<GrFragmentProcessor> diffuse,
              sk_sp<SkLights> lights,
              int diffuseWidth, int diffuseHeight,
+             const SkShadowParams& params,
              GrContext* context) {
 
         // fuse all ambient lights into a single one
@@ -137,7 +140,9 @@ public:
         fWidth = diffuseWidth;
         fHeight = diffuseHeight;
 
-        this->registerChildProcessor(std::move(povDepth)); 
+        fShadowParams = params;
+
+        this->registerChildProcessor(std::move(povDepth));
         this->registerChildProcessor(std::move(diffuse));
         this->initClassID<ShadowFP>();
     }
@@ -154,6 +159,8 @@ public:
             // add uniforms
             int32_t numLights = args.fFp.cast<ShadowFP>().fNumDirLights;
             SkASSERT(numLights <= SkShadowShader::kMaxNonAmbientLights);
+
+            int blurAlgorithm = args.fFp.cast<ShadowFP>().fShadowParams.fType;
 
             const char* lightDirUniName[SkShadowShader::kMaxNonAmbientLights] = {nullptr};
             const char* lightColorUniName[SkShadowShader::kMaxNonAmbientLights] = {nullptr};
@@ -203,6 +210,17 @@ public:
                                                    &depthMapHeightUniName[i]);
             }
 
+            const char* shBiasUniName = nullptr;
+            const char* minVarianceUniName = nullptr;
+
+            fBiasingConstantUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kFloat_GrSLType,
+                                                             kDefault_GrSLPrecision,
+                                                             "shadowBias", &shBiasUniName);
+            fMinVarianceUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                         kFloat_GrSLType,
+                                                         kDefault_GrSLPrecision,
+                                                         "minVariance", &minVarianceUniName);
 
             const char* widthUniName = nullptr;
             const char* heightUniName = nullptr;
@@ -254,17 +272,17 @@ public:
                 fragBuilder->codeAppendf("vec2 %s = 1 - %s;\n",
                                          scaleOffsetVec.c_str(), scaleVec.c_str());
 
-
                 fragBuilder->codeAppendf("vec2 %s = (vMatrixCoord_0_1_Stage0 + "
-                                                    "vec2(%s.x, 0 - %s.y)) "
-                                                   " * %s + vec2(0,1) * %s;\n",
-
+                                                 "vec2(%s.x, 0 - %s.y)) "
+                                                 " * %s + vec2(0,1) * %s;\n",
                                          povCoord.c_str(), offset.c_str(), offset.c_str(),
                                          scaleVec.c_str(), scaleOffsetVec.c_str());
 
                 fragBuilder->appendTextureLookup(&depthMaps[i], args.fTexSamplers[i],
                                                  povCoord.c_str(),
                                                  kVec2f_GrSLType);
+
+
             }
 
             const char* ambientColorUniName = nullptr;
@@ -274,25 +292,58 @@ public:
 
             fragBuilder->codeAppendf("vec4 resultDiffuseColor = %s;", diffuseColor.c_str());
 
-            // Essentially,
-            // diffColor * (ambientLightTot + foreachDirLight(lightColor * (N . L)))
             SkString totalLightColor("totalLightColor");
-            fragBuilder->codeAppendf("vec3 %s = vec3(0);", totalLightColor.c_str());
+            fragBuilder->codeAppendf("vec3 %s = vec3(0,0,0);", totalLightColor.c_str());
+
+            fragBuilder->codeAppendf("float lightProbability;");
+            fragBuilder->codeAppendf("float variance;");
+            fragBuilder->codeAppendf("float d;");
 
             for (int i = 0; i < numLights; i++) {
-                fragBuilder->codeAppendf("if (%s.b >= %s.b) {",
+                fragBuilder->codeAppendf("lightProbability = 1;");
+
+                // 1/512 is less than half a pixel; imperceptible
+                fragBuilder->codeAppendf("if (%s.b <= %s.b + 1/512) {",
                                          povDepth.c_str(), depthMaps[i].c_str());
-                // Note that dot(vec3(0,0,1), %s) == %s.z * %s
-                fragBuilder->codeAppendf("%s += %s.z * %s;",
+                if (blurAlgorithm == SkShadowParams::kVariance_ShadowType) {
+                    fragBuilder->codeAppendf("vec2 moments = vec2(%s.b * 255,  %s.g * 255 * 256 );",
+                                             depthMaps[i].c_str(), depthMaps[i].c_str());
+
+                    // variance biasing lessens light bleeding
+                    fragBuilder->codeAppendf("variance = max(moments.y - (moments.x * moments.x),"
+                                                     "%s);", minVarianceUniName);
+
+                    fragBuilder->codeAppendf("d = (%s.b * 255) - moments.x;", povDepth.c_str());
+                    fragBuilder->codeAppendf("lightProbability = "
+                                             "(variance / (variance + d * d));");
+
+                    SkString clamp("clamp");
+                    clamp.appendf("%d", i);
+
+                    // choosing between light artifacts or correct shape shadows
+                    // linstep
+                    fragBuilder->codeAppendf("float %s = clamp((lightProbability - %s) /"
+                                                              "(1 - %s), 0, 1);",
+                                             clamp.c_str(), shBiasUniName, shBiasUniName);
+
+                    fragBuilder->codeAppendf("lightProbability = %s;", clamp.c_str());
+                } else {
+                    fragBuilder->codeAppendf("if (%s.b >= %s.b) {",
+                                             povDepth.c_str(), depthMaps[i].c_str());
+                    fragBuilder->codeAppendf("lightProbability = 1;");
+                    fragBuilder->codeAppendf("} else { lightProbability = 0; }");
+                }
+
+                // VSM: The curved shadows near plane edges are mostly light bleeding.
+                fragBuilder->codeAppendf("}");
+
+                fragBuilder->codeAppendf("%s += dot(vec3(0,0,1), %s) * %s * lightProbability;",
                                          totalLightColor.c_str(),
                                          lightDirUniName[i],
                                          lightColorUniName[i]);
-                fragBuilder->codeAppendf("}");
             }
 
-            fragBuilder->codeAppendf("%s += %s;",
-                                     totalLightColor.c_str(),
-                                     ambientColorUniName);
+            fragBuilder->codeAppendf("%s += %s;", totalLightColor.c_str(), ambientColorUniName);
 
             fragBuilder->codeAppendf("resultDiffuseColor *= vec4(%s, 1);",
                                      totalLightColor.c_str());
@@ -304,15 +355,14 @@ public:
                            GrProcessorKeyBuilder* b) {
             const ShadowFP& shadowFP = proc.cast<ShadowFP>();
             b->add32(shadowFP.fNumDirLights);
+            b->add32(shadowFP.fShadowParams.fType);
         }
 
     protected:
         void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
             const ShadowFP &shadowFP = proc.cast<ShadowFP>();
 
-            fNumDirLights = shadowFP.numLights();
-
-            for (int i = 0; i < fNumDirLights; i++) {
+            for (int i = 0; i < shadowFP.fNumDirLights; i++) {
                 const SkVector3& lightDir = shadowFP.lightDir(i);
                 if (lightDir != fLightDir[i]) {
                     pdman.set3fv(fLightDirUni[i], 1, &lightDir.fX);
@@ -334,6 +384,18 @@ public:
                     pdman.set1i(fDepthMapHeightUni[i], depthMapHeight);
                     fDepthMapHeight[i] = depthMapHeight;
                 }
+            }
+
+            SkScalar biasingConstant = shadowFP.shadowParams().fBiasingConstant;
+            if (biasingConstant != fBiasingConstant) {
+                pdman.set1f(fBiasingConstantUni, biasingConstant);
+                fBiasingConstant = biasingConstant;
+            }
+
+            SkScalar minVariance = shadowFP.shadowParams().fMinVariance;
+            if (minVariance != fMinVariance) {
+                pdman.set1f(fMinVarianceUni, minVariance);
+                fMinVariance = minVariance;
             }
 
             int width = shadowFP.width();
@@ -376,10 +438,13 @@ public:
         int fHeight;
         GrGLSLProgramDataManager::UniformHandle fHeightUni;
 
+        SkScalar fBiasingConstant;
+        GrGLSLProgramDataManager::UniformHandle fBiasingConstantUni;
+        SkScalar fMinVariance;
+        GrGLSLProgramDataManager::UniformHandle fMinVarianceUni;
+
         SkColor3f fAmbientColor;
         GrGLSLProgramDataManager::UniformHandle fAmbientColorUni;
-
-        int fNumDirLights;
     };
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
@@ -412,6 +477,8 @@ public:
     }
     int width() const {return fWidth; }
     int height() const {return fHeight; }
+
+    const SkShadowParams& shadowParams() const {return fShadowParams; }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLShadowFP; }
@@ -454,6 +521,8 @@ private:
     int              fHeight;
     int              fWidth;
 
+    SkShadowParams   fShadowParams;
+
     SkColor3f        fAmbientColor;
 };
 
@@ -469,7 +538,7 @@ sk_sp<GrFragmentProcessor> SkShadowShaderImpl::asFragmentProcessor(const AsFPArg
                                                                std::move(diffuseFP),
                                                                std::move(fLights),
                                                                fDiffuseWidth, fDiffuseHeight,
-                                                               fpargs.fContext);
+                                                               fShadowParams, fpargs.fContext);
     return shadowfp;
 }
 
@@ -594,6 +663,12 @@ sk_sp<SkFlattenable> SkShadowShaderImpl::CreateProc(SkReadBuffer& buf) {
 
     sk_sp<SkLights> lights = SkLights::MakeFromBuffer(buf);
 
+    SkShadowParams params;
+    params.fMinVariance = buf.readScalar();
+    params.fBiasingConstant = buf.readScalar();
+    params.fType = (SkShadowParams::ShadowType) buf.readInt();
+    params.fShadowRadius = buf.readScalar();
+
     int diffuseWidth = buf.readInt();
     int diffuseHeight = buf.readInt();
 
@@ -603,13 +678,19 @@ sk_sp<SkFlattenable> SkShadowShaderImpl::CreateProc(SkReadBuffer& buf) {
     return sk_make_sp<SkShadowShaderImpl>(std::move(povDepthShader),
                                           std::move(diffuseShader),
                                           std::move(lights),
-                                          diffuseWidth, diffuseHeight);
+                                          diffuseWidth, diffuseHeight,
+                                          params);
 }
 
 void SkShadowShaderImpl::flatten(SkWriteBuffer& buf) const {
     this->INHERITED::flatten(buf);
 
     fLights->flatten(buf);
+
+    buf.writeScalar(fShadowParams.fMinVariance);
+    buf.writeScalar(fShadowParams.fBiasingConstant);
+    buf.writeInt(fShadowParams.fType);
+    buf.writeScalar(fShadowParams.fShadowRadius);
 
     buf.writeInt(fDiffuseWidth);
     buf.writeInt(fDiffuseHeight);
@@ -656,7 +737,8 @@ SkShader::Context* SkShadowShaderImpl::onCreateContext(const ContextRec& rec,
 sk_sp<SkShader> SkShadowShader::Make(sk_sp<SkShader> povDepthShader,
                                      sk_sp<SkShader> diffuseShader,
                                      sk_sp<SkLights> lights,
-                                     int diffuseWidth, int diffuseHeight) {
+                                     int diffuseWidth, int diffuseHeight,
+                                     const SkShadowParams& params) {
     if (!povDepthShader || !diffuseShader) {
         // TODO: Use paint's color in absence of a diffuseShader
         // TODO: Use a default implementation of normalSource instead
@@ -666,7 +748,8 @@ sk_sp<SkShader> SkShadowShader::Make(sk_sp<SkShader> povDepthShader,
     return sk_make_sp<SkShadowShaderImpl>(std::move(povDepthShader),
                                           std::move(diffuseShader),
                                           std::move(lights),
-                                          diffuseWidth, diffuseHeight);
+                                          diffuseWidth, diffuseHeight,
+                                          params);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

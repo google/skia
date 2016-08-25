@@ -38,13 +38,13 @@
 #include "SkTextFormatParams.h"
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
-
 #include <new>
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrRenderTarget.h"
 #include "SkGrPriv.h"
+
 #endif
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
@@ -3163,17 +3163,19 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
 #ifdef SK_EXPERIMENTAL_SHADOWING
 void SkCanvas::drawShadowedPicture(const SkPicture* picture,
                                    const SkMatrix* matrix,
-                                   const SkPaint* paint) {
+                                   const SkPaint* paint,
+                                   const SkShadowParams& params) {
     RETURN_ON_NULL(picture);
 
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawShadowedPicture()");
 
-    this->onDrawShadowedPicture(picture, matrix, paint);
+    this->onDrawShadowedPicture(picture, matrix, paint, params);
 }
 
 void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
                                      const SkMatrix* matrix,
-                                     const SkPaint* paint) {
+                                     const SkPaint* paint,
+                                     const SkShadowParams& params) {
     if (!paint || paint->canComputeFastBounds()) {
         SkRect bounds = picture->cullRect();
         if (paint) {
@@ -3189,6 +3191,11 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
 
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
 
+    sk_sp<SkImage> povDepthMap;
+    sk_sp<SkImage> diffuseMap;
+
+    // TODO: pass the depth to the shader in vertices, or uniforms
+    //       so we don't have to render depth and color separately
     for (int i = 0; i < fLights->numLights(); ++i) {
         // skip over ambient lights; they don't cast shadows
         // lights that have shadow maps do not need updating (because lights are immutable)
@@ -3217,23 +3224,36 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
         // Wrap another SPFCanvas around the surface
         sk_sp<SkShadowPaintFilterCanvas> depthMapCanvas =
                 sk_make_sp<SkShadowPaintFilterCanvas>(surf->getCanvas());
+        depthMapCanvas->setShadowParams(params);
 
         // set the depth map canvas to have the light we're drawing.
         SkLights::Builder builder;
         builder.add(fLights->light(i));
         sk_sp<SkLights> curLight = builder.finish();
-
         depthMapCanvas->setLights(std::move(curLight));
+
         depthMapCanvas->drawPicture(picture);
+        sk_sp<SkImage> depthMap = surf->makeImageSnapshot();
 
-        fLights->light(i).setShadowMap(surf->makeImageSnapshot());
+        if (params.fType == SkShadowParams::kNoBlur_ShadowType) {
+            fLights->light(i).setShadowMap(std::move(depthMap));
+        } else if (params.fType == SkShadowParams::kVariance_ShadowType) {
+            // we blur the variance map
+            SkPaint blurPaint;
+            blurPaint.setImageFilter(SkImageFilter::MakeBlur(params.fShadowRadius,
+                                                             params.fShadowRadius, nullptr));
+
+            SkImageInfo blurInfo = SkImageInfo::Make(shMapSize.fWidth, shMapSize.fHeight,
+                                                     kBGRA_8888_SkColorType,
+                                                     kOpaque_SkAlphaType);
+
+            sk_sp<SkSurface> blurSurf(this->makeSurface(blurInfo));
+
+            blurSurf->getCanvas()->drawImage(std::move(depthMap), 0, 0, &blurPaint);
+
+            fLights->light(i).setShadowMap(blurSurf->makeImageSnapshot());
+        }
     }
-
-    sk_sp<SkImage> povDepthMap;
-    sk_sp<SkImage> diffuseMap;
-
-    // TODO: pass the depth to the shader in vertices, or uniforms
-    //       so we don't have to render depth and color separately
 
     // povDepthMap
     {
@@ -3259,7 +3279,6 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
         depthMapCanvas->setLights(std::move(povLight));
 
         depthMapCanvas->drawPicture(picture);
-
         povDepthMap = surf->makeImageSnapshot();
     }
 
@@ -3275,20 +3294,18 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
 
         diffuseMap = surf->makeImageSnapshot();
     }
-
     SkPaint shadowPaint;
 
     sk_sp<SkShader> povDepthShader = povDepthMap->makeShader(SkShader::kClamp_TileMode,
                                                              SkShader::kClamp_TileMode);
-
     sk_sp<SkShader> diffuseShader = diffuseMap->makeShader(SkShader::kClamp_TileMode,
                                                            SkShader::kClamp_TileMode);
-
     sk_sp<SkShader> shadowShader = SkShadowShader::Make(std::move(povDepthShader),
                                                         std::move(diffuseShader),
                                                         std::move(fLights),
                                                         diffuseMap->width(),
-                                                        diffuseMap->height());
+                                                        diffuseMap->height(),
+                                                        params);
 
     shadowPaint.setShader(shadowShader);
 

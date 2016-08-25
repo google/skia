@@ -141,11 +141,13 @@ public:
 #ifdef SK_EXPERIMENTAL_SHADOWING
     void onDrawShadowedPicture(const SkPicture*,
                                const SkMatrix*,
-                               const SkPaint*) override;
+                               const SkPaint*,
+                               const SkShadowParams& params) override;
 #else
     void onDrawShadowedPicture(const SkPicture*,
                                const SkMatrix*,
-                               const SkPaint*);
+                               const SkPaint*,
+                               const SkShadowParams& params);
 #endif
 
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;

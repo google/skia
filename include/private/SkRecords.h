@@ -268,7 +268,8 @@ RECORD(DrawPicture, kDraw_Tag|kHasPaint_Tag,
 RECORD(DrawShadowedPicture, kDraw_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkPicture> picture;
-        TypedMatrix matrix);
+        TypedMatrix matrix;
+        const SkShadowParams& params);
 RECORD(DrawPoints, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkCanvas::PointMode mode;

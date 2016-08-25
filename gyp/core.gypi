@@ -443,6 +443,7 @@
         '<(skia_include_path)/private/SkOnce.h',
         '<(skia_include_path)/private/SkRecords.h',
         '<(skia_include_path)/private/SkSemaphore.h',
+        '<(skia_include_path)/private/SkShadowParams.h',
         '<(skia_include_path)/private/SkSpinlock.h',
         '<(skia_include_path)/private/SkTemplates.h',
         '<(skia_include_path)/private/SkTArray.h',

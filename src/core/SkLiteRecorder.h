@@ -76,10 +76,12 @@ public:
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     void didTranslateZ(SkScalar) override;
-    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*,
+                               const SkPaint*, const SkShadowParams& params) override;
 #else
     void didTranslateZ(SkScalar);
-    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*, const SkPaint*);
+    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*,
+                               const SkPaint*, const SkShadowParams& params);
 #endif
 
 private:

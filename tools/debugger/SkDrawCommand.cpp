@@ -2449,14 +2449,35 @@ void SkEndDrawPictureCommand::execute(SkCanvas* canvas) const {
 
 SkBeginDrawShadowedPictureCommand::SkBeginDrawShadowedPictureCommand(const SkPicture* picture,
                                                                      const SkMatrix* matrix,
-                                                                     const SkPaint* paint)
+                                                                     const SkPaint* paint,
+                                                                     const SkShadowParams& params)
         : INHERITED(kBeginDrawShadowedPicture_OpType)
+#ifdef SK_EXPERIMENTAL_SHADOWING
+        , fPicture(SkRef(picture))
+        , fShadowParams(params) {
+#else
         , fPicture(SkRef(picture)) {
-
+#endif
     SkString* str = new SkString;
-    str->appendf("SkPicture: L: %f T: %f R: %f B: %f",
+    str->appendf("SkPicture: L: %f T: %f R: %f B: %f\n",
                  picture->cullRect().fLeft, picture->cullRect().fTop,
                  picture->cullRect().fRight, picture->cullRect().fBottom);
+    str->appendf("SkShadowParams: bias:%f, minVariance:%f, shRadius:%f, shType:",
+                   params.fBiasingConstant,
+                   params.fMinVariance,
+                   params.fShadowRadius);
+
+    SkASSERT(SkShadowParams::kShadowTypeCount == 2);
+
+    switch (params.fType) {
+        case SkShadowParams::ShadowType::kNoBlur_ShadowType:
+            str->append("kNoBlur_ShadowType\n");
+            break;
+        case SkShadowParams::ShadowType::kVariance_ShadowType:
+            str->append("kVariance_ShadowType\n");
+            break;
+    }
+
     fInfo.push(str);
 
     if (matrix) {
@@ -2492,9 +2513,11 @@ bool SkBeginDrawShadowedPictureCommand::render(SkCanvas* canvas) const {
     canvas->save();
 
     xlate_and_scale_to_bounds(canvas, fPicture->cullRect());
-
-    canvas->drawPicture(fPicture.get());
-
+#ifdef SK_EXPERIMENTAL_SHADOWING
+    canvas->drawShadowedPicture(fPicture.get(), fMatrix.get(), fPaint.get(), fShadowParams);
+#else
+    canvas->drawPicture(fPicture.get(), fMatrix.get(), fPaint.get());
+#endif
     canvas->restore();
 
     return true;

@@ -23,7 +23,8 @@ public:
     static sk_sp<SkShader> Make(sk_sp<SkShader> povDepthShader,
                                 sk_sp<SkShader> diffuseShader,
                                 sk_sp<SkLights> lights,
-                                int diffuseWidth, int diffuseHeight);
+                                int diffuseWidth, int diffuseHeight,
+                                const SkShadowParams& params);
 
     // The shadow shader supports any number of ambient lights, but only
     // 4 non-ambient lights (currently just refers to directional lights).

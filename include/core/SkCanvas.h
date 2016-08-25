@@ -18,6 +18,7 @@
 #include "SkSurfaceProps.h"
 #include "SkXfermode.h"
 #include "SkLights.h"
+#include "../private/SkShadowParams.h"
 
 class GrContext;
 class GrDrawContext;
@@ -1073,7 +1074,7 @@ public:
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     /**
-     *  Draw the picture into this canvas.
+     *  Draw the picture into this canvas, with shadows!
      *
      *  We will use the canvas's lights along with the picture information (draw depths of
      *  objects, etc) to first create a set of shadowmaps for the light-picture pairs, and
@@ -1088,14 +1089,33 @@ public:
      *  This is logically equivalent to
      *      saveLayer(paint)/drawPicture/restore
      *
+     *  We also support using variance shadow maps for blurred shadows; the user can specify
+     *  what shadow mapping algorithm to use with params.
+     *    - Variance Shadow Mapping works by storing both the depth and depth^2 in the shadow map.
+     *    - Then, the shadow map can be blurred, and when reading from it, the fragment shader
+     *      can calculate the variance of the depth at a position by doing E(x^2) - E(x)^2.
+     *    - We can then use the depth variance and depth at a fragment to arrive at an upper bound
+     *      of the probability that the current surface is shadowed by using Chebyshev's
+     *      inequality, and then use that to shade the fragment.
+     *
+     *    - There are a few problems with VSM.
+     *      * Light Bleeding | Areas with high variance, such as near the edges of high up rects,
+     *                         will cause their shadow penumbras to overwrite otherwise solid
+     *                         shadows.
+     *      * Shape Distortion | We can combat Light Bleeding by biasing the shadow (setting
+     *                           mostly shaded fragments to completely shaded) and increasing
+     *                           the minimum allowed variance. However, this warps and rounds
+     *                           out the shape of the shadow.
      */
     void drawShadowedPicture(const SkPicture*,
                              const SkMatrix* matrix,
-                             const SkPaint* paint);
+                             const SkPaint* paint,
+                             const SkShadowParams& params);
     void drawShadowedPicture(const sk_sp<SkPicture>& picture,
                              const SkMatrix* matrix,
-                             const SkPaint* paint) {
-        this->drawShadowedPicture(picture.get(), matrix, paint);
+                             const SkPaint* paint,
+                             const SkShadowParams& params) {
+        this->drawShadowedPicture(picture.get(), matrix, paint, params);
     }
 #endif
 
@@ -1434,7 +1454,8 @@ protected:
 #ifdef SK_EXPERIMENTAL_SHADOWING
     virtual void onDrawShadowedPicture(const SkPicture*,
                                        const SkMatrix*,
-                                       const SkPaint*);
+                                       const SkPaint*,
+                                       const SkShadowParams& params);
 #endif
     
     // Returns the canvas to be used by DrawIter. Default implementation

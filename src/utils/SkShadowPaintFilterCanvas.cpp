@@ -11,7 +11,12 @@
 #ifdef SK_EXPERIMENTAL_SHADOWING
 
 SkShadowPaintFilterCanvas::SkShadowPaintFilterCanvas(SkCanvas *canvas)
-        : SkPaintFilterCanvas(canvas) { }
+        : SkPaintFilterCanvas(canvas) {
+    fShadowParams.fShadowRadius = 0.0f;
+    fShadowParams.fType = SkShadowParams::kNoBlur_ShadowType;
+    fShadowParams.fBiasingConstant = 0.0f;
+    fShadowParams.fMinVariance = 0.0f;
+}
 
 // TODO use a shader instead
 bool SkShadowPaintFilterCanvas::onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const {
@@ -24,6 +29,17 @@ bool SkShadowPaintFilterCanvas::onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Ty
 
         SkColor color = 0xFF000000; // init color to opaque black
         color |= z; // Put the index into the blue component
+
+        if (fShadowParams.fType == SkShadowParams::kVariance_ShadowType) {
+            int z2 = z * z;
+            if (z2 > 255 * 256) {
+                color |= 0xff00;
+            } else {
+                // Let's only store the more significant bits of z2 to save space.
+                // In practice, this should barely impact shadow blur quality.
+                color |= z2 & 0x0000ff00;
+            }
+        }
         newPaint.setColor(color);
 
         *paint->writable() = newPaint;
@@ -42,6 +58,9 @@ SkISize SkShadowPaintFilterCanvas::ComputeDepthMapSize(const SkLights::Light& li
     return SkISize::Make(dMapWidth, dMapHeight);
 }
 
+void SkShadowPaintFilterCanvas::setShadowParams(const SkShadowParams &params) {
+    fShadowParams = params;
+}
 
 void SkShadowPaintFilterCanvas::onDrawPicture(const SkPicture *picture, const SkMatrix *matrix,
                                               const SkPaint *paint) {

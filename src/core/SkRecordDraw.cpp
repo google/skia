@@ -118,7 +118,7 @@ DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.xmode, r.paint));
 DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint));
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
-DRAW(DrawShadowedPicture, drawShadowedPicture(r.picture.get(), &r.matrix, r.paint));
+DRAW(DrawShadowedPicture, drawShadowedPicture(r.picture.get(), &r.matrix, r.paint, r.params));
 #else
 template <> void Draw::draw(const DrawShadowedPicture& r) { }
 #endif
