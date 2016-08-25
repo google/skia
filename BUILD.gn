@@ -37,6 +37,9 @@ skia_public_includes = [
 config("skia_public") {
   include_dirs = skia_public_includes
   defines = [ "SKIA_DLL" ]
+  if (is_linux) {
+    defines += [ "SK_SAMPLES_FOR_X" ]
+  }
 }
 
 # Skia internal APIs, used by Skia itself and a few test tools.
@@ -68,9 +71,6 @@ config("skia_private") {
   ]
 
   defines = [ "SK_GAMMA_APPLY_TO_A8" ]
-  if (is_linux) {
-    defines += [ "SK_SAMPLES_FOR_X" ]
-  }
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
