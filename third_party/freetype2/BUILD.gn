@@ -1,0 +1,63 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+if (is_android) {
+  third_party("freetype2") {
+    public_include_dirs = [ "../externals/freetype/include" ]
+
+    deps = [
+      "//third_party/libpng",
+    ]
+
+    include_dirs = [ "../freetype" ]
+    defines = [
+      "FT2_BUILD_LIBRARY",
+      "FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>",
+      "FT_CONFIG_OPTIONS_H=<include/freetype-android/ftoption.h>",
+    ]
+
+    sources = [
+      "../externals/freetype/src/autofit/autofit.c",
+      "../externals/freetype/src/base/ftbase.c",
+      "../externals/freetype/src/base/ftbbox.c",
+      "../externals/freetype/src/base/ftbitmap.c",
+      "../externals/freetype/src/base/ftdebug.c",
+      "../externals/freetype/src/base/ftfntfmt.c",
+      "../externals/freetype/src/base/ftfstype.c",
+      "../externals/freetype/src/base/ftgasp.c",
+      "../externals/freetype/src/base/ftglyph.c",
+      "../externals/freetype/src/base/ftinit.c",
+      "../externals/freetype/src/base/ftlcdfil.c",
+      "../externals/freetype/src/base/ftmm.c",
+      "../externals/freetype/src/base/ftpatent.c",
+      "../externals/freetype/src/base/ftstroke.c",
+      "../externals/freetype/src/base/ftsynth.c",
+      "../externals/freetype/src/base/ftsystem.c",
+      "../externals/freetype/src/base/fttype1.c",
+      "../externals/freetype/src/base/ftwinfnt.c",
+      "../externals/freetype/src/cff/cff.c",
+      "../externals/freetype/src/gzip/ftgzip.c",
+      "../externals/freetype/src/pshinter/pshinter.c",
+      "../externals/freetype/src/psnames/psnames.c",
+      "../externals/freetype/src/raster/raster.c",
+      "../externals/freetype/src/sfnt/sfnt.c",
+      "../externals/freetype/src/smooth/smooth.c",
+      "../externals/freetype/src/truetype/truetype.c",
+    ]
+  }
+} else {
+  config("system_freetype2") {
+    include_dirs = [ "/usr/include/freetype2" ]
+    libs = [ "freetype" ]
+  }
+  group("freetype2") {
+    public_configs = [ ":system_freetype2" ]
+  }
+}

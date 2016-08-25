@@ -8,11 +8,15 @@
 declare_args() {
   is_debug = true
   is_component_build = false
+  ndk = ""
 }
 
 # Platform detection
 if (target_os == "") {
   target_os = host_os
+  if (ndk != "") {
+    target_os = "android"
+  }
 }
 if (current_os == "") {
   current_os = target_os
@@ -20,6 +24,9 @@ if (current_os == "") {
 
 if (target_cpu == "") {
   target_cpu = host_cpu
+  if (ndk != "") {
+    target_cpu = "arm64"
+  }
 }
 if (current_cpu == "") {
   current_cpu = target_cpu
@@ -33,6 +40,22 @@ is_mac = current_os == "mac"
 is_win = current_os == "win"
 
 is_posix = !is_win
+
+if (is_android) {
+  ndk_host = ""
+  ndk_target = ""
+  ndk_platform = ""
+  ndk_stdlib = ""
+
+  if (host_os == "linux" && host_cpu == "x64") {
+    ndk_host = "linux-x86_64"
+  }
+  if (target_cpu == "arm64") {
+    ndk_target = "aarch64-linux-android"
+    ndk_platform = "android-21/arch-arm64"
+    ndk_stdlib = "arm64-v8a"
+  }
+}
 
 # A component is either a static or a shared library.
 template("component") {

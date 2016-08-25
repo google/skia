@@ -7,6 +7,11 @@ declare_args() {
   cc = "cc"
   cxx = "c++"
 
+  if (is_android) {
+    cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
+    cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
+  }
+
   extra_cflags = ""
   extra_cflags_c = ""
   extra_cflags_cc = ""
@@ -42,6 +47,41 @@ config("default") {
 
     "-Wnon-virtual-dtor",
   ]
+  if (current_cpu == "arm") {
+    cflags += [ "-mfpu=neon" ]
+  }
+
+  if (is_android) {
+    asmflags = [ "--target=$ndk_target" ]
+    cflags += [
+      "--sysroot=$ndk/platforms/$ndk_platform",
+      "--target=$ndk_target",
+    ]
+    cflags_cc += [
+      "-isystem$ndk/sources/android/support/include",
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++/libcxx/include",
+    ]
+    ldflags = [
+      "--sysroot=$ndk/platforms/$ndk_platform",
+      "--target=$ndk_target",
+      "-B$ndk/toolchains/$ndk_target-4.9/prebuilt/$ndk_host/$ndk_target/bin",
+      "-pie",
+    ]
+    lib_dirs = [
+      "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
+      "$ndk/toolchains/$ndk_target-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
+    ]
+    libs = [
+      # Order matters here!  Keep these three in exactly this order.
+      "c++_static",
+      "c++abi",
+      "android_support",
+    ]
+  }
+
+  if (is_linux) {
+    libs = [ "pthread" ]
+  }
 }
 
 config("release") {

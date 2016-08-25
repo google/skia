@@ -161,16 +161,16 @@ template("opts") {
 
 is_x86 = current_cpu == "x64" || current_cpu == "x86"
 
-opts("armv7") {
-  enabled = current_cpu == "arm"
-  sources = opts_gypi.armv7_sources
+opts("none") {
+  enabled = !is_x86 && current_cpu != "arm" && current_cpu != "arm64"
+  sources = opts_gypi.none_sources
   cflags = []
 }
 
-opts("neon") {
+opts("armv7") {
   enabled = current_cpu == "arm"
-  sources = opts_gypi.neon_sources
-  cflags = [ "-mfpu=neon" ]
+  sources = opts_gypi.armv7_sources + opts_gypi.neon_sources
+  cflags = []
 }
 
 opts("arm64") {
@@ -183,12 +183,6 @@ opts("crc32") {
   enabled = current_cpu == "arm64"
   sources = opts_gypi.crc32_sources
   cflags = [ "-march=armv8-a+crc" ]
-}
-
-opts("none") {
-  enabled = !is_x86 && current_cpu != "arm" && current_cpu != "arm64"
-  sources = opts_gypi.none_sources
-  cflags = []
 }
 
 opts("sse2") {
@@ -342,7 +336,6 @@ component("skia") {
     ":crc32",
     ":gif",
     ":jpeg",
-    ":neon",
     ":none",
     ":pdf",
     ":png",
@@ -353,10 +346,6 @@ component("skia") {
     ":webp",
     ":xml",
   ]
-
-  if (!is_win) {
-    libs = [ "pthread" ]
-  }
 
   sources = []
   sources += core_gypi.sources
@@ -401,6 +390,8 @@ component("skia") {
     "src/gpu/gl/GrGLDefaultInterface_none.cpp",
   ]
 
+  libs = []
+
   if (is_win) {
     sources += [
       "src/ports/SkDebug_win.cpp",
@@ -418,17 +409,38 @@ component("skia") {
     sources -= [ "src/utils/SkThreadUtils_pthread.cpp" ]
   } else {
     sources += [
-      "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkOSFile_posix.cpp",
       "src/ports/SkTLS_pthread.cpp",
       "src/xps/SkDocument_XPS_None.cpp",
     ]
   }
 
+  if (is_android) {
+    deps += [
+      "//third_party/cpu-features",
+      "//third_party/expat",
+      "//third_party/freetype2",
+    ]
+    sources += [
+      "src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp",
+      "src/ports/SkDebug_android.cpp",
+      "src/ports/SkFontHost_FreeType.cpp",
+      "src/ports/SkFontHost_FreeType_common.cpp",
+      "src/ports/SkFontMgr_android.cpp",
+      "src/ports/SkFontMgr_android_factory.cpp",
+      "src/ports/SkFontMgr_android_parser.cpp",
+    ]
+    libs += [
+      "EGL",
+      "GLESv2",
+      "log",
+    ]
+  }
+
   if (is_linux) {
     deps += [
       "third_party:fontconfig",
-      "third_party:freetype2",
+      "//third_party/freetype2",
     ]
     libs += [
       "GL",
@@ -437,6 +449,7 @@ component("skia") {
     ]
     sources += [
       "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp",
+      "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkFontConfigInterface_direct.cpp",
       "src/ports/SkFontConfigInterface_direct_factory.cpp",
       "src/ports/SkFontHost_FreeType.cpp",
@@ -450,6 +463,7 @@ component("skia") {
   if (is_mac) {
     sources += [
       "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp",
+      "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkFontHost_mac.cpp",
       "src/ports/SkImageEncoder_CG.cpp",
       "src/ports/SkImageGeneratorCG.cpp",
@@ -463,6 +477,7 @@ component("skia") {
   if (is_fuchsia) {
     sources += [
       "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
+      "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkFontMgr_empty_factory.cpp",
     ]
   }
@@ -547,7 +562,9 @@ if (skia_enable_tools) {
     ]
     libs = []
 
-    if (is_linux) {
+    if (is_android) {
+      sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
+    } else if (is_linux) {
       sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
     } else if (is_mac) {
       sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
