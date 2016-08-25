@@ -640,6 +640,7 @@ if (skia_enable_tools) {
           rebase_path("tests/skia_test.cpp"),  # alternate main
         ]
     deps = [
+      ":experimental_svg_model",
       ":flags",
       ":gpu_tool_utils",
       ":skia",
