@@ -78,8 +78,6 @@
         '../experimental/svg/model/SkSVGTypes.h',
         '../experimental/svg/model/SkSVGValue.h',
         '../experimental/svg/model/SkSVGValue.cpp',
-
-        '../experimental/svg/model/SkPEG.h',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
