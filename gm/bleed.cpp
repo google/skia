@@ -111,7 +111,7 @@ static bool make_ringed_color_bitmap(TestPixels* result, int width, int height) 
     static const SkPMColor kRed   = SkPreMultiplyColor(SK_ColorRED);
     static const SkPMColor kBlack = SkPreMultiplyColor(SK_ColorBLACK);
     static const SkPMColor kWhite = SkPreMultiplyColor(SK_ColorWHITE);
-    return make_ringed_bitmap<SkPMColor>(result, width, height, kBGRA_8888_SkColorType,
+    return make_ringed_bitmap<SkPMColor>(result, width, height, kN32_SkColorType,
                                          kPremul_SkAlphaType, kBlue, kRed, kBlack, kWhite);
 }
 
