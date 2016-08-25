@@ -171,13 +171,10 @@ sk_sp<GrDrawContext> SkGpuDevice::MakeDrawContext(GrContext* context,
         at = kPremul_SkAlphaType;  // force this setting
     }
 
-    GrPixelConfig origConfig = SkImageInfo2GrPixelConfig(ct, at, cs, *context->caps());
-    if (!context->caps()->isConfigRenderable(origConfig, sampleCount > 0)) {
-        // Fall back from whatever ct was to default of kRGBA or kBGRA which is aliased as kN32
-        ct = kN32_SkColorType;
-    }
-
     GrPixelConfig config = SkImageInfo2GrPixelConfig(ct, at, cs, *context->caps());
+    if (!context->caps()->isConfigRenderable(config, sampleCount > 0)) {
+        return nullptr;
+    }
 
     return context->makeDrawContext(SkBackingFit::kExact,               // Why exact?
                                     origInfo.width(), origInfo.height(),
