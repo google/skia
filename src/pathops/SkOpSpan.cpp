@@ -180,7 +180,9 @@ void SkOpPtT::setDeleted() {
 // please keep this in sync with debugAddOppAndMerge
 // If the added points envelop adjacent spans, merge them in.
 void SkOpSpanBase::addOppAndMerge(SkOpSpanBase* opp) {
-    if (this->ptT()->addOpp(opp->ptT())) {
+    SkOpPtT* oppPrev = this->ptT()->oppPrev(opp->ptT());
+    if (oppPrev) {
+        this->ptT()->addOpp(opp->ptT(), oppPrev);
         this->checkForCollapsedCoincidence();
     }
     // compute bounds of points in span

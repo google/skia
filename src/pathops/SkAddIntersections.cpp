@@ -505,11 +505,12 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                 SkASSERT(ts[0][pt] >= 0 && ts[0][pt] <= 1);
                 SkASSERT(ts[1][pt] >= 0 && ts[1][pt] <= 1);
                 wt.segment()->debugValidate();
-                SkOpPtT* testTAt = wt.segment()->addT(ts[swap][pt], nullptr);
+                SkOpPtT* testTAt = wt.segment()->addT(ts[swap][pt]);
                 wn.segment()->debugValidate();
-                SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt], nullptr);
-                if (testTAt->addOpp(nextTAt)) {
-                    testTAt->span()->checkForCollapsedCoincidence();
+                SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt]);
+                SkOpPtT* oppPrev = testTAt->oppPrev(nextTAt);
+                if (oppPrev) {
+                    testTAt->addOpp(nextTAt, oppPrev);
                 }
                 if (testTAt->fPt != nextTAt->fPt) {
                     testTAt->span()->unaligned();

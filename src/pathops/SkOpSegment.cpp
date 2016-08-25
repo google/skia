@@ -251,53 +251,39 @@ bool SkOpSegment::addExpanded(double newT, const SkOpSpanBase* test, bool* start
     if (this->contains(newT)) {
         return true;
     }
-    SkOpPtT* newPtT = this->addT(newT, startOver);
+    this->globalState()->resetAllocatedOpSpan();
+    SkOpPtT* newPtT = this->addT(newT);
+    *startOver |= this->globalState()->allocatedOpSpan();
     if (!newPtT) {
         return false;
     }
     newPtT->fPt = this->ptAtT(newT);
     // const cast away to change linked list; pt/t values stays unchanged
-    SkOpSpanBase* writableTest = const_cast<SkOpSpanBase*>(test);
-    if (writableTest->ptT()->addOpp(newPtT)) {
+    SkOpPtT* oppPrev = test->ptT()->oppPrev(newPtT);
+    if (oppPrev) {
+        SkOpSpanBase* writableTest = const_cast<SkOpSpanBase*>(test);
+        writableTest->ptT()->addOpp(newPtT, oppPrev);
         writableTest->checkForCollapsedCoincidence();
     }
     return true;
 }
 
 // Please keep this in sync with debugAddT()
-SkOpPtT* SkOpSegment::addT(double t, bool* allocated) {
+SkOpPtT* SkOpSegment::addT(double t) {
     debugValidate();
     SkPoint pt = this->ptAtT(t);
-    SkOpSpanBase* span = &fHead;
+    SkOpSpanBase* spanBase = &fHead;
     do {
-        SkOpPtT* result = span->ptT();
-        SkOpPtT* loop;
-        bool duplicatePt;
-        if (t == result->fT) {
-            goto bumpSpan;
-        }
-        if (this->match(result, this, t, pt)) {
-            // see if any existing alias matches segment, pt, and t
-            loop = result->next();
-            duplicatePt = false;
-            while (loop != result) {
-                bool ptMatch = loop->fPt == pt;
-                if (loop->segment() == this && loop->fT == t && ptMatch) {
-                    goto bumpSpan;
-                }
-                duplicatePt |= ptMatch;
-                loop = loop->next();
-            }
-    bumpSpan:
-            span->bumpSpanAdds();
+        SkOpPtT* result = spanBase->ptT();
+        if (t == result->fT || this->match(result, this, t, pt)) {
+            spanBase->bumpSpanAdds();
             return result;
         }
         if (t < result->fT) {
             SkOpSpan* prev = result->span()->prev();
-            if (!prev) {
-                return nullptr;
-            }
-            SkOpSpan* span = insert(prev);
+            FAIL_WITH_NULL_IF(!prev);
+            // marks in global state that new op span has been allocated
+            SkOpSpan* span = this->insert(prev);
             span->init(this, prev, t, pt);
             this->debugValidate();
 #if DEBUG_ADD_T
@@ -305,17 +291,12 @@ SkOpPtT* SkOpSegment::addT(double t, bool* allocated) {
                     span->segment()->debugID(), span->debugID());
 #endif
             span->bumpSpanAdds();
-            if (allocated) {
-                *allocated = true;
-            }
             return span->ptT();
         }
-        if (span == &fTail) {
-            return nullptr;
-        }
-    } while ((span = span->upCast()->next()));
+        FAIL_WITH_NULL_IF(spanBase == &fTail);
+    } while ((spanBase = spanBase->upCast()->next()));
     SkASSERT(0);
-    return nullptr;
+    return nullptr;  // we never get here, but need this to satisfy compiler
 }
 
 void SkOpSegment::calcAngles() {

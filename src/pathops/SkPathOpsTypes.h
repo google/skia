@@ -45,6 +45,10 @@ public:
         kMaxWindingTries = 10
     };
 
+    bool allocatedOpSpan() const {
+        return fAllocatedOpSpan;
+    }
+
     SkChunkAlloc* allocator() {
         return fAllocator;
     }
@@ -127,6 +131,14 @@ public:
     Phase phase() const {
         return fPhase;
     }
+    
+    void resetAllocatedOpSpan() {
+        fAllocatedOpSpan = false;
+    }
+
+    void setAllocatedOpSpan() {
+        fAllocatedOpSpan = true;
+    }
 
     void setAngleCoincidence() {
         fAngleCoincidence = true;
@@ -159,6 +171,7 @@ private:
     SkOpCoincidence* fCoincidence;
     SkOpContourHead* fContourHead;
     int fNested;
+    bool fAllocatedOpSpan;
     bool fWindingFailed;
     bool fAngleCoincidence;
     Phase fPhase;

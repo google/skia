@@ -582,39 +582,21 @@ void SkDRect::debugInit() {
 
 #if DEBUG_COINCIDENCE
 // commented-out lines keep this in sync with addT()
- const SkOpPtT* SkOpSegment::debugAddT(double t, bool* allocated) const {
+ const SkOpPtT* SkOpSegment::debugAddT(double t) const {
     debugValidate();
     SkPoint pt = this->ptAtT(t);
     const SkOpSpanBase* span = &fHead;
     do {
         const SkOpPtT* result = span->ptT();
-        const SkOpPtT* loop;
-        bool duplicatePt;
-        if (t == result->fT) {
-            goto bumpSpan;
-        }
-        if (this->match(result, this, t, pt)) {
-            // see if any existing alias matches segment, pt, and t
-            loop = result->next();
-            duplicatePt = false;
-            while (loop != result) {
-                bool ptMatch = loop->fPt == pt;
-                if (loop->segment() == this && loop->fT == t && ptMatch) {
-                    goto bumpSpan;
-                }
-                duplicatePt |= ptMatch;
-                loop = loop->next();
-            }
-    bumpSpan:
+        if (t == result->fT || this->match(result, this, t, pt)) {
 //             span->bumpSpanAdds();
              return result;
         }
         if (t < result->fT) {
             const SkOpSpan* prev = result->span()->prev();
-            if (!prev) {
-                return nullptr;  // FIXME: this is a fail case; nullptr return elsewhere means result was allocated in non-const version
-            }
-//             SkOpSpan* span = insert(prev, allocator);
+            FAIL_WITH_NULL_IF(!prev);
+            // marks in global state that new op span has been allocated
+            this->globalState()->setAllocatedOpSpan();
 //             span->init(this, prev, t, pt);
             this->debugValidate();
 // #if DEBUG_ADD_T
@@ -622,15 +604,12 @@ void SkDRect::debugInit() {
 //                     span->segment()->debugID(), span->debugID());
 // #endif
 //             span->bumpSpanAdds();
-            if (allocated) {
-                *allocated = true;
-            }
             return nullptr;
         }
-        SkASSERT(span != &fTail);
+        FAIL_WITH_NULL_IF(span != &fTail);
     } while ((span = span->upCast()->next()));
     SkASSERT(0);
-    return nullptr;
+    return nullptr;  // we never get here, but need this to satisfy compiler
 }
 #endif
 
@@ -1493,9 +1472,9 @@ void SkOpCoincidence::debugAddOrOverlap(const SkOpSegment* coinSeg, const SkOpSe
     this->debugValidate();
     if (!cs || !os) {
         if (!cs)
-            cs = coinSeg->debugAddT(coinTs, nullptr);
+            cs = coinSeg->debugAddT(coinTs);
         if (!os)
-            os = oppSeg->debugAddT(oppTs, nullptr);
+            os = oppSeg->debugAddT(oppTs);
         if (cs && os) cs->span()->debugAddOppAndMerge(id, log, os->span(), &csDeleted, &osDeleted);
 //         cs = csWritable;
 //         os = osWritable;
@@ -1505,9 +1484,9 @@ void SkOpCoincidence::debugAddOrOverlap(const SkOpSegment* coinSeg, const SkOpSe
     }
     if (!ce || !oe) {
         if (!ce)
-            ce = coinSeg->debugAddT(coinTe, nullptr);
+            ce = coinSeg->debugAddT(coinTe);
         if (!oe)
-            oe = oppSeg->debugAddT(oppTe, nullptr);
+            oe = oppSeg->debugAddT(oppTe);
         if (ce && oe) ce->span()->debugAddOppAndMerge(id, log, oe->span(), &ceDeleted, &oeDeleted);
 //         ce = ceWritable;
 //         oe = oeWritable;
@@ -2059,7 +2038,9 @@ void SkOpSegment::debugValidate() const {
 // Commented-out lines keep this in sync with addOppAndMerge()
 // If the added points envelop adjacent spans, merge them in.
 void SkOpSpanBase::debugAddOppAndMerge(const char* id, SkPathOpsDebug::GlitchLog* log, const SkOpSpanBase* opp, bool* spanDeleted, bool* oppDeleted) const {
-    if (this->ptT()->debugAddOpp(opp->ptT())) {
+    const SkOpPtT* oppPrev = this->ptT()->debugOppPrev(opp->ptT());
+    if (oppPrev) {
+        this->ptT()->debugAddOpp(opp->ptT(), oppPrev);
         this->debugCheckForCollapsedCoincidence(id, log);
     }
     // compute bounds of points in span
@@ -2315,24 +2296,12 @@ int SkIntersections::debugCoincidentUsed() const {
 #include "SkOpContour.h"
 
 // Commented-out lines keep this in sync with addOpp()
-bool SkOpPtT::debugAddOpp(const SkOpPtT* opp) const {
-    // find the fOpp ptr to opp
-    const SkOpPtT* oppPrev = opp->fNext;
-    if (oppPrev == this) {
-        return false;
-    }
-    while (oppPrev->fNext != opp) {
-        oppPrev = oppPrev->fNext;
-        if (oppPrev == this) {
-            return false;
-        }
-    }
-//    const SkOpPtT* oldNext = this->fNext;
+void SkOpPtT::debugAddOpp(const SkOpPtT* opp, const SkOpPtT* oppPrev) const {
+    SkDEBUGCODE(const SkOpPtT* oldNext = this->fNext);
     SkASSERT(this != opp);
 //    this->fNext = opp;
-//    SkASSERT(oppPrev != oldNext);
+    SkASSERT(oppPrev != oldNext);
 //    oppPrev->fNext = oldNext;
-    return true;
 }
 
 bool SkOpPtT::debugContains(const SkOpPtT* check) const {
@@ -2401,6 +2370,10 @@ int SkOpPtT::debugLoopLimit(bool report) const {
         }
     } while ((next = next->fNext) && next != this);
     return 0;
+}
+
+const SkOpPtT* SkOpPtT::debugOppPrev(const SkOpPtT* opp) const {
+    return this->oppPrev(const_cast<SkOpPtT*>(opp));
 }
 
 void SkOpPtT::debugResetCoinT() const {

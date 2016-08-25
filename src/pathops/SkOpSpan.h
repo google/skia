@@ -29,24 +29,12 @@ public:
     };
 
     // please keep in sync with debugAddOpp()
-    bool addOpp(SkOpPtT* opp) {
-        // find the fOpp ptr to opp
-        SkOpPtT* oppPrev = opp->fNext;
-        if (oppPrev == this) {
-            return false;
-        }
-        while (oppPrev->fNext != opp) {
-            oppPrev = oppPrev->fNext;
-            if (oppPrev == this) {
-                return false;
-            }
-        }
+    void addOpp(SkOpPtT* opp, SkOpPtT* oppPrev) {
         SkOpPtT* oldNext = this->fNext;
         SkASSERT(this != opp);
         this->fNext = opp;
         SkASSERT(oppPrev != oldNext);
         oppPrev->fNext = oldNext;
-        return true;
     }
 
     bool alias() const;
@@ -62,7 +50,7 @@ public:
         return SkDEBUGRELEASE(fID, -1);
     }
 
-    bool debugAddOpp(const SkOpPtT* opp) const;
+    void debugAddOpp(const SkOpPtT* opp, const SkOpPtT* oppPrev) const;
     const SkOpAngle* debugAngle(int id) const;
     const SkOpCoincidence* debugCoincidence() const;
     bool debugContains(const SkOpPtT* ) const;
@@ -70,6 +58,7 @@ public:
     SkOpContour* debugContour(int id);
     int debugLoopLimit(bool report) const;
     bool debugMatchID(int id) const;
+    const SkOpPtT* debugOppPrev(const SkOpPtT* opp) const;
     const SkOpPtT* debugPtT(int id) const;
     void debugResetCoinT() const;
     const SkOpSegment* debugSegment(int id) const;
@@ -108,6 +97,21 @@ public:
     }
 
     bool onEnd() const;
+
+    SkOpPtT* oppPrev(SkOpPtT* opp) const {
+        // find the fOpp ptr to opp
+        SkOpPtT* oppPrev = opp->fNext;
+        if (oppPrev == this) {
+            return nullptr;
+        }
+        while (oppPrev->fNext != opp) {
+            oppPrev = oppPrev->fNext;
+            if (oppPrev == this) {
+                return nullptr;
+            }
+        }
+        return oppPrev;
+    }
 
     static bool Overlaps(const SkOpPtT* s1, const SkOpPtT* e1, const SkOpPtT* s2,
             const SkOpPtT* e2, const SkOpPtT** sOut, const SkOpPtT** eOut) {

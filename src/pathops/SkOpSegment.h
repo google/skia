@@ -92,7 +92,7 @@ public:
         return this;
     }
 
-    SkOpPtT* addT(double t, bool* allocated);
+    SkOpPtT* addT(double t);
 
     template<typename T> T* allocateArray(int count) {
         return SkOpTAllocator<T>::AllocateArray(this->globalState()->allocator(), count);
@@ -128,7 +128,7 @@ public:
     }
 
     void debugAddAngle(double startT, double endT);
-    const SkOpPtT* debugAddT(double t, bool* allocated) const;
+    const SkOpPtT* debugAddT(double t) const;
     const SkOpAngle* debugAngle(int id) const;
 #if DEBUG_ANGLE
     void debugCheckAngleCoin() const;
@@ -231,7 +231,9 @@ public:
     void init(SkPoint pts[], SkScalar weight, SkOpContour* parent, SkPath::Verb verb);
 
     SkOpSpan* insert(SkOpSpan* prev) {
-        SkOpSpan* result = SkOpTAllocator<SkOpSpan>::Allocate(this->globalState()->allocator());
+        SkOpGlobalState* globalState = this->globalState();
+        globalState->setAllocatedOpSpan();
+        SkOpSpan* result = SkOpTAllocator<SkOpSpan>::Allocate(globalState->allocator());
         SkOpSpanBase* next = prev->next();
         result->setPrev(prev);
         prev->setNext(result);
