@@ -9,8 +9,6 @@
 #include "SkOpSegment.h"
 #include "SkPathWriter.h"
 
-#define FAIL_IF(cond) do { if (cond) return false; } while (false)
-
 /*
 After computing raw intersections, post process all segments to:
 - find small collections of points that can be collapsed to a single point
@@ -163,10 +161,7 @@ bool SkOpSegment::activeWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* sum
 
 bool SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
         SkPathWriter* path) const {
-    if (start->starter(end)->alreadyAdded()) {
-        SkDEBUGF(("same curve added twice aborted pathops\n"));
-        return false;
-    }
+    FAIL_IF(start->starter(end)->alreadyAdded());
     SkOpCurve edge;
     const SkPoint* ePtr;
     SkScalar eWeight;

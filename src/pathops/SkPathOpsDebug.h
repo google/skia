@@ -49,6 +49,7 @@
 #define DEBUG_ANGLE 0
 #define DEBUG_ASSEMBLE 0
 #define DEBUG_COINCIDENCE 0
+#define DEBUG_COINCIDENCE_ORDER 0
 #define DEBUG_COINCIDENCE_VERBOSE 0
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 0
@@ -67,7 +68,6 @@
 #define DEBUG_WINDING 0
 #define DEBUG_WINDING_AT_T 0
 
-
 #else
 
 #define DEBUG_ACTIVE_OP 1
@@ -78,6 +78,7 @@
 #define DEBUG_ANGLE 1
 #define DEBUG_ASSEMBLE 1
 #define DEBUG_COINCIDENCE 01
+#define DEBUG_COINCIDENCE_ORDER 0
 #define DEBUG_COINCIDENCE_VERBOSE 01
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 1
@@ -154,6 +155,13 @@
 #if DEBUG_SHOW_TEST_NAME
 #include "SkTLS.h"
 #endif
+
+#define FAIL_IF(cond) do { bool fail = (cond); SkOPASSERT(!fail); if (fail) return false; } \
+        while (false)
+
+#define RETURN_FALSE_IF(abort, cond) \
+        do { bool fail = (cond); SkOPASSERT(!(abort) || !fail); if (fail) return false; } \
+        while (false)
 
 class SkPathOpsDebug {
 public:

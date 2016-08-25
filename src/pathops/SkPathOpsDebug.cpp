@@ -975,6 +975,26 @@ void SkOpSegment::debugReset() {
     this->init(this->fPts, this->fWeight, this->contour(), this->verb());
 }
 
+#if DEBUG_COINCIDENCE_ORDER
+void SkOpSegment::debugSetCoinT(int index, SkScalar t) const {
+    if (fDebugBaseMax < 0 || fDebugBaseIndex == index) {
+        fDebugBaseIndex = index;
+        fDebugBaseMin = SkTMin(t, fDebugBaseMin);
+        fDebugBaseMax = SkTMax(t, fDebugBaseMax);
+        return;
+    } 
+    SkASSERT(fDebugBaseMin >= t || t >= fDebugBaseMax);
+    if (fDebugLastMax < 0 || fDebugLastIndex == index) {
+        fDebugLastIndex = index;
+        fDebugLastMin = SkTMin(t, fDebugLastMin);
+        fDebugLastMax = SkTMax(t, fDebugLastMax);
+        return;
+    }
+    SkASSERT(fDebugLastMin >= t || t >= fDebugLastMax);
+    SkASSERT((t - fDebugBaseMin > 0) == (fDebugLastMin - fDebugBaseMin > 0));
+}
+#endif
+
 #if DEBUG_ACTIVE_SPANS
 void SkOpSegment::debugShowActiveSpans() const {
     debugValidate();
@@ -1290,6 +1310,7 @@ bool SkCoincidentSpans::debugExpand(const char* id, SkPathOpsDebug::GlitchLog* l
     return expanded;
 }
 
+#undef FAIL_IF
 #define FAIL_IF(cond)  do { if (cond) log->record(kAddExpandedFail_Glitch, id, coin); } while (false)
 
 /* Commented-out lines keep this in sync with addExpanded */
@@ -1976,7 +1997,31 @@ void SkOpContour::debugMissingCoincidence(const char* id, SkPathOpsDebug::Glitch
 }
 #endif
 
+#if DEBUG_COINCIDENCE_ORDER
+void SkOpSegment::debugResetCoinT() const {
+    fDebugBaseIndex = -1;
+    fDebugBaseMin = 1;
+    fDebugBaseMax = -1;
+    fDebugLastIndex = -1;
+    fDebugLastMin = 1;
+    fDebugLastMax = -1;
+}
+#endif
+
 void SkOpSegment::debugValidate() const {
+#if DEBUG_COINCIDENCE_ORDER
+    {
+        const SkOpSpanBase* span = &fHead;
+        do {
+            span->debugResetCoinT();
+        } while (!span->final() && (span = span->upCast()->next()));
+        span = &fHead;
+        int index = 0;
+        do {
+            span->debugSetCoinT(index++);
+        } while (!span->final() && (span = span->upCast()->next()));
+    }
+#endif
 #if DEBUG_COINCIDENCE
     if (this->globalState()->debugCheckHealth()) {
         return;
@@ -2126,6 +2171,28 @@ void SkOpSpanBase::debugMergeContained(const char* id, SkPathOpsDebug::GlitchLog
 #endif
 }
 #endif
+
+void SkOpSpanBase::debugResetCoinT() const {
+#if DEBUG_COINCIDENCE_ORDER
+    const SkOpPtT* ptT = &fPtT;
+    do {
+        ptT->debugResetCoinT();
+        ptT = ptT->next();
+    } while (ptT != &fPtT);
+#endif
+}
+
+void SkOpSpanBase::debugSetCoinT(int index) const {
+#if DEBUG_COINCIDENCE_ORDER
+    const SkOpPtT* ptT = &fPtT;
+    do {
+        if (!ptT->deleted()) {
+            ptT->debugSetCoinT(index);
+        }
+        ptT = ptT->next();
+    } while (ptT != &fPtT);
+#endif
+}
 
 const SkOpSpan* SkOpSpanBase::debugStarter(SkOpSpanBase const** endPtr) const {
     const SkOpSpanBase* end = *endPtr;
@@ -2334,6 +2401,18 @@ int SkOpPtT::debugLoopLimit(bool report) const {
         }
     } while ((next = next->fNext) && next != this);
     return 0;
+}
+
+void SkOpPtT::debugResetCoinT() const {
+#if DEBUG_COINCIDENCE_ORDER
+    this->segment()->debugResetCoinT(); 
+#endif
+}
+
+void SkOpPtT::debugSetCoinT(int index) const {
+#if DEBUG_COINCIDENCE_ORDER
+    this->segment()->debugSetCoinT(index, fT); 
+#endif
 }
 
 void SkOpPtT::debugValidate() const {

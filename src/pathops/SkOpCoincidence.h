@@ -264,7 +264,8 @@ private:
     }
 
     bool addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
-                      double coinTs, double coinTe, double oppTs, double oppTe);
+                      double coinTs, double coinTe, double oppTs, double oppTe
+                      SkDEBUGPARAMS(bool callerAborts));
     bool addOverlap(const SkOpSegment* seg1, const SkOpSegment* seg1o,
                     const SkOpSegment* seg2, const SkOpSegment* seg2o,
                     const SkOpPtT* overS, const SkOpPtT* overE);

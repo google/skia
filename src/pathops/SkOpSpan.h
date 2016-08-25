@@ -71,7 +71,9 @@ public:
     int debugLoopLimit(bool report) const;
     bool debugMatchID(int id) const;
     const SkOpPtT* debugPtT(int id) const;
+    void debugResetCoinT() const;
     const SkOpSegment* debugSegment(int id) const;
+    void debugSetCoinT(int ) const;
     const SkOpSpanBase* debugSpan(int id) const;
     void debugValidate() const;
 
@@ -235,7 +237,9 @@ public:
                              const SkPathOpsBounds& bounds, bool* deleted) const;
 #endif
     const SkOpPtT* debugPtT(int id) const;
+    void debugResetCoinT() const;
     const SkOpSegment* debugSegment(int id) const;
+    void debugSetCoinT(int ) const;
     const SkOpSpanBase* debugSpan(int id) const;
     const SkOpSpan* debugStarter(SkOpSpanBase const** endPtr) const;
     SkOpGlobalState* globalState() const;

@@ -166,8 +166,13 @@ public:
     const SkOpSpanBase* debugSpan(int id) const;
     void debugValidate() const;
 
+#if DEBUG_COINCIDENCE_ORDER
+    void debugResetCoinT() const; 
+    void debugSetCoinT(int, SkScalar ) const; 
+#endif
+
 #if DEBUG_COINCIDENCE
-    static void SkOpSegment::DebugClearVisited(const SkOpSpanBase* span);
+    static void DebugClearVisited(const SkOpSpanBase* span);
 
     bool debugVisited() const {
         if (!fDebugVisited) {
@@ -435,6 +440,14 @@ private:
     bool fVisited;  // used by missing coincidence check
 #if DEBUG_COINCIDENCE
     mutable bool fDebugVisited;  // used by debug missing coincidence check
+#endif
+#if DEBUG_COINCIDENCE_ORDER
+    mutable int fDebugBaseIndex;
+    mutable SkScalar fDebugBaseMin;  // if > 0, the 1st t value in this seg vis-a-vis the ref seg
+    mutable SkScalar fDebugBaseMax;
+    mutable int fDebugLastIndex;
+    mutable SkScalar fDebugLastMin;  // if > 0, the last t -- next t val - base has same sign
+    mutable SkScalar fDebugLastMax;
 #endif
     SkDEBUGCODE(int fID);
 };
