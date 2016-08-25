@@ -91,7 +91,6 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
     auto skiaAndroidApp = (SkiaAndroidApp*)data;
     Message message;
     skiaAndroidApp->readMessage(&message);
-    SkDebugf("message_callback %d", message.fType);
     SkASSERT(message.fType != kUndefined);
 
     switch (message.fType) {
