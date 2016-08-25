@@ -469,6 +469,14 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawRect(rect, *paint);
             }
         } break;
+        case DRAW_REGION: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            SkRegion region;
+            reader->readRegion(&region);
+            if (paint) {
+                canvas->drawRegion(region, *paint);
+            }
+        } break;
         case DRAW_RRECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             SkRRect rrect;

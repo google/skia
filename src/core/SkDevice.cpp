@@ -73,6 +73,29 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
     return geo;
 }
 
+static inline bool is_int(float x) {
+    return x == (float) sk_float_round2int(x);
+}
+
+void SkBaseDevice::drawRegion(const SkDraw& draw, const SkRegion& region, const SkPaint& paint) {
+    bool isNonTranslate = draw.fMatrix->getType() & ~(SkMatrix::kTranslate_Mask);
+    bool complexPaint = paint.getStyle() != SkPaint::kFill_Style || paint.getMaskFilter() ||
+                        paint.getPathEffect();
+    bool antiAlias = paint.isAntiAlias() && (!is_int(draw.fMatrix->getTranslateX()) ||
+                                             !is_int(draw.fMatrix->getTranslateY()));
+    if (isNonTranslate || complexPaint || antiAlias) {
+        SkPath path;
+        region.getBoundaryPath(&path);
+        return this->drawPath(draw, path, paint, nullptr, false);
+    }
+
+    SkRegion::Iterator it(region);
+    while (!it.done()) {
+        this->drawRect(draw, SkRect::Make(it.rect()), paint);
+        it.next();
+    }
+}
+
 void SkBaseDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar startAngle,
                            SkScalar sweepAngle, bool useCenter, const SkPaint& paint) {
     SkPath path;

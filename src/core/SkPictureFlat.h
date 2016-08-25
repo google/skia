@@ -93,8 +93,9 @@ enum DrawType {
     DRAW_SHADOWED_PICTURE_LIGHTS,
     DRAW_IMAGE_LATTICE,
     DRAW_ARC,
+    DRAW_REGION,
 
-    LAST_DRAWTYPE_ENUM = DRAW_ARC
+    LAST_DRAWTYPE_ENUM = DRAW_REGION
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

@@ -2250,6 +2250,26 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     }
 }
 
+void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
+    SkRect storage;
+    SkRect regionRect = SkRect::Make(region.getBounds());
+    const SkRect* bounds = nullptr;
+    if (paint.canComputeFastBounds()) {
+        if (this->quickReject(paint.computeFastBounds(regionRect, &storage))) {
+            return;
+        }
+        bounds = &regionRect;
+    }
+
+    LOOPER_BEGIN(paint, SkDrawFilter::kRect_Type, bounds)
+
+    while (iter.next()) {
+        iter.fDevice->drawRegion(iter, region, looper.paint());
+    }
+
+    LOOPER_END
+}
+
 void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawOval()");
     SkRect storage;

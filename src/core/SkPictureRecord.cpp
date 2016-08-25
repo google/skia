@@ -451,6 +451,16 @@ void SkPictureRecord::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
+    // op + paint index + region
+    size_t regionBytes = region.writeToMemory(nullptr);
+    size_t size = 2 * kUInt32Size + regionBytes;
+    size_t initialOffset = this->addDraw(DRAW_REGION, &size);
+    this->addPaint(paint);
+    fWriter.writeRegion(region);
+    this->validate(initialOffset, size);
+}
+
 void SkPictureRecord::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     // op + paint index + rrect
     size_t size = 2 * kUInt32Size + SkRRect::kSizeInMemory;

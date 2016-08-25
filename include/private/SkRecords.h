@@ -75,6 +75,7 @@ namespace SkRecords {
     M(DrawTextRSXform)                                              \
     M(DrawRRect)                                                    \
     M(DrawRect)                                                     \
+    M(DrawRegion)                                                   \
     M(DrawTextBlob)                                                 \
     M(DrawAtlas)                                                    \
     M(DrawVertices)                                                 \
@@ -292,6 +293,9 @@ RECORD(DrawRRect, kDraw_Tag|kHasPaint_Tag,
 RECORD(DrawRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRect rect);
+RECORD(DrawRegion, kDraw_Tag|kHasPaint_Tag,
+        SkPaint paint;
+        SkRegion region);
 RECORD(DrawText, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<char> text;

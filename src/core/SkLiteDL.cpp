@@ -54,8 +54,8 @@ namespace {
     M(Save) M(Restore) M(SaveLayer)                                             \
     M(Concat) M(SetMatrix) M(Translate) M(TranslateZ)                           \
     M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                          \
-    M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawOval) M(DrawArc) M(DrawRRect)    \
-    M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture)              \
+    M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawRegion) M(DrawOval) M(DrawArc)   \
+    M(DrawRRect) M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture) \
     M(DrawShadowedPicture)                                                      \
     M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice)          \
     M(DrawText) M(DrawPosText) M(DrawPosTextH)                                  \
@@ -188,6 +188,13 @@ namespace {
         SkRect  rect;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) { c->drawRect(rect, paint); }
+    };
+    struct DrawRegion final : Op {
+        static const auto kType = Type::DrawRegion;
+        DrawRegion(const SkRegion& region, const SkPaint& paint) : region(region), paint(paint) {}
+        SkRegion region;
+        SkPaint  paint;
+        void draw(SkCanvas* c, const SkMatrix&) { c->drawRegion(region, paint); }
     };
     struct DrawOval final : Op {
         static const auto kType = Type::DrawOval;
@@ -591,6 +598,9 @@ void SkLiteDL::drawPath(const SkPath& path, const SkPaint& paint) {
 }
 void SkLiteDL::drawRect(const SkRect& rect, const SkPaint& paint) {
     this->push<DrawRect>(0, rect, paint);
+}
+void SkLiteDL::drawRegion(const SkRegion& region, const SkPaint& paint) {
+    this->push<DrawRegion>(0, region, paint);
 }
 void SkLiteDL::drawOval(const SkRect& oval, const SkPaint& paint) {
     this->push<DrawOval>(0, oval, paint);

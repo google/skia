@@ -145,6 +145,10 @@ void SkRecorder::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     APPEND(DrawRect, paint, rect);
 }
 
+void SkRecorder::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
+    APPEND(DrawRegion, paint, region);
+}
+
 void SkRecorder::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     APPEND(DrawOval, paint, oval);
 }

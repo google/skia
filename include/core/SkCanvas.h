@@ -703,6 +703,14 @@ public:
     void drawRectCoords(SkScalar left, SkScalar top, SkScalar right,
                         SkScalar bottom, const SkPaint& paint);
 
+    /** Draw the outline of the specified region using the specified paint.
+        @param region   The region to be drawn
+        @param paint    The paint used to draw the region
+    */
+    void drawRegion(const SkRegion& region, const SkPaint& paint) {
+        this->onDrawRegion(region, paint);
+    }
+
     /** Draw the specified oval using the specified paint. The oval will be
         filled or framed based on the Style in the paint.
         @param oval     The rectangle bounds of the oval to be drawn
@@ -1412,6 +1420,7 @@ protected:
 
     virtual void onDrawPaint(const SkPaint&);
     virtual void onDrawRect(const SkRect&, const SkPaint&);
+    virtual void onDrawRegion(const SkRegion& region, const SkPaint& paint);
     virtual void onDrawOval(const SkRect&, const SkPaint&);
     virtual void onDrawArc(const SkRect&, SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
                            const SkPaint&);

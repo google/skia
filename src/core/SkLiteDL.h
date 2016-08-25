@@ -40,6 +40,7 @@ public:
     void drawPaint (const SkPaint&);
     void drawPath  (const SkPath&, const SkPaint&);
     void drawRect  (const SkRect&, const SkPaint&);
+    void drawRegion(const SkRegion&, const SkPaint&);
     void drawOval  (const SkRect&, const SkPaint&);
     void drawArc   (const SkRect&, SkScalar, SkScalar, bool, const SkPaint&);
     void drawRRect (const SkRRect&, const SkPaint&);

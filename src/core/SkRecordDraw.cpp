@@ -128,6 +128,7 @@ DRAW(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
 DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
 DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
 DRAW(DrawRect, drawRect(r.rect, r.paint));
+DRAW(DrawRegion, drawRegion(r.region, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint));
 DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
@@ -413,6 +414,10 @@ private:
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
+    Bounds bounds(const DrawRegion& op) const {
+        SkRect rect = SkRect::Make(op.region.getBounds());
+        return this->adjustAndMap(rect, &op.paint);
+    }
     Bounds bounds(const DrawOval& op) const { return this->adjustAndMap(op.oval, &op.paint); }
     // Tighter arc bounds?
     Bounds bounds(const DrawArc& op) const { return this->adjustAndMap(op.oval, &op.paint); }

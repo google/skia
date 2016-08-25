@@ -55,6 +55,9 @@ void SkLiteRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
 void SkLiteRecorder::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     fDL->drawRect(rect, paint);
 }
+void SkLiteRecorder::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
+    fDL->drawRegion(region, paint);
+}
 void SkLiteRecorder::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     fDL->drawOval(oval, paint);
 }
