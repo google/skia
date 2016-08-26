@@ -27,7 +27,7 @@ def zip(target_dir, zip_file, blacklist=None):  # pylint: disable=W0622
   if not os.path.isdir(target_dir):
     raise IOError('%s does not exist!' % target_dir)
   blacklist = blacklist or []
-  with zipfile.ZipFile(zip_file, 'w') as z:
+  with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED, True) as z:
     for r, d, f in os.walk(target_dir, topdown=True):
       d[:] = filtered(d, blacklist)
       for filename in filtered(f, blacklist):
@@ -36,7 +36,7 @@ def zip(target_dir, zip_file, blacklist=None):  # pylint: disable=W0622
         zi.filename = os.path.relpath(filepath, target_dir)
         perms = os.stat(filepath).st_mode
         zi.external_attr = perms << 16L
-        zi.compress_type = zipfile.ZIP_STORED
+        zi.compress_type = zipfile.ZIP_DEFLATED
         with open(filepath, 'rb') as f:
           content = f.read()
         z.writestr(zi, content)
@@ -49,7 +49,7 @@ def unzip(zip_file, target_dir):
   """Unzip the given zip file into the target dir."""
   if not os.path.isdir(target_dir):
     os.makedirs(target_dir)
-  with zipfile.ZipFile(zip_file, 'r') as z:
+  with zipfile.ZipFile(zip_file, 'r', zipfile.ZIP_DEFLATED, True) as z:
     for zi in z.infolist():
       dst_path = os.path.join(target_dir, zi.filename)
       if zi.filename.endswith('/'):
