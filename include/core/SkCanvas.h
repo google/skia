@@ -708,6 +708,10 @@ public:
         @param paint    The paint used to draw the region
     */
     void drawRegion(const SkRegion& region, const SkPaint& paint) {
+        if (region.isEmpty()) {
+            return;
+        }
+
         this->onDrawRegion(region, paint);
     }
 

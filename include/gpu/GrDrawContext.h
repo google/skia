@@ -216,7 +216,21 @@ public:
                    const SkRSXform xform[],
                    const SkRect texRect[],
                    const SkColor colors[]);
-    
+
+    /**
+     * Draws a region.
+     *
+     * @param paint         describes how to color pixels
+     * @param viewMatrix    transformation matrix
+     * @param region        the region to be drawn
+     * @param style         style to apply to the region
+     */
+    void drawRegion(const GrClip&,
+                    const GrPaint& paint,
+                    const SkMatrix& viewMatrix,
+                    const SkRegion& region,
+                    const GrStyle& style);
+
     /**
      * Draws an oval.
      *

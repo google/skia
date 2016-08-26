@@ -259,6 +259,8 @@
       '<(skia_src_path)/gpu/batches/GrPLSPathRenderer.h',
       '<(skia_src_path)/gpu/batches/GrRectBatchFactory.h',
       '<(skia_src_path)/gpu/batches/GrRectBatchFactory.cpp',
+      '<(skia_src_path)/gpu/batches/GrRegionBatch.cpp',
+      '<(skia_src_path)/gpu/batches/GrRegionBatch.h',
       '<(skia_src_path)/gpu/batches/GrStencilAndCoverPathRenderer.cpp',
       '<(skia_src_path)/gpu/batches/GrStencilAndCoverPathRenderer.h',
       '<(skia_src_path)/gpu/batches/GrStencilPathBatch.h',

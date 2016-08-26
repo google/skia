@@ -523,6 +523,21 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
 
 /////////////////////////////////////////////////////////////////////////////
 
+void SkGpuDevice::drawRegion(const SkDraw& draw, const SkRegion& region, const SkPaint& paint) {
+    if (paint.getMaskFilter()) {
+        SkPath path;
+        region.getBoundaryPath(&path);
+        return this->drawPath(draw, path, paint, nullptr, false);
+    }
+
+    GrPaint grPaint;
+    if (!SkPaintToGrPaint(this->context(), fDrawContext.get(), paint, *draw.fMatrix, &grPaint)) {
+        return;
+    }
+
+    fDrawContext->drawRegion(fClip, grPaint, *draw.fMatrix, region, GrStyle(paint));
+}
+
 void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawOval", fContext);

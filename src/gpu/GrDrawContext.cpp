@@ -26,6 +26,7 @@
 #include "batches/GrDrawVerticesBatch.h"
 #include "batches/GrRectBatchFactory.h"
 #include "batches/GrNinePatch.h" // TODO Factory
+#include "batches/GrRegionBatch.h"
 
 #include "effects/GrRRectEffect.h"
 
@@ -943,6 +944,35 @@ void GrDrawContext::drawDRRect(const GrClip& clip,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static inline bool is_int(float x) {
+    return x == (float) sk_float_round2int(x);
+}
+
+void GrDrawContext::drawRegion(const GrClip& clip,
+                               const GrPaint& paint,
+                               const SkMatrix& viewMatrix,
+                               const SkRegion& region,
+                               const GrStyle& style) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawRegion");
+
+    bool isNonTranslate = SkToBool(viewMatrix.getType() & ~(SkMatrix::kTranslate_Mask));
+    bool complexStyle = !style.isSimpleFill();
+    bool antiAlias = paint.isAntiAlias() && (!is_int(viewMatrix.getTranslateX()) ||
+                                             !is_int(viewMatrix.getTranslateY()));
+    if (isNonTranslate || complexStyle || antiAlias) {
+        SkPath path;
+        region.getBoundaryPath(&path);
+        return this->drawPath(clip, paint, viewMatrix, path, style);
+    }
+
+    SkAutoTUnref<GrDrawBatch> batch(GrRegionBatch::Create(paint.getColor(), viewMatrix, region));
+    GrPipelineBuilder pipelineBuilder(paint, false);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
+}
 
 void GrDrawContext::drawOval(const GrClip& clip,
                              const GrPaint& paint,
