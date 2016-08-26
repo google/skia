@@ -10,13 +10,13 @@
 #include "SkFixed.h"
 #include "SkFontMgr.h"
 #include "SkFontMgr_android_parser.h"
+#include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTSearch.h"
 #include "SkTemplates.h"
 #include "SkTLogic.h"
 
-#include <dirent.h>
 #include <expat.h>
 
 #include <stdlib.h>
@@ -676,12 +676,9 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
                                                      const char* dir,
                                                      const SkString& basePath)
 {
-    SkAutoTCallIProc<DIR, closedir> fontDirectory(opendir(dir));
-    if (nullptr == fontDirectory) {
-        return;
-    }
-
-    for (struct dirent* dirEntry; (dirEntry = readdir(fontDirectory));) {
+    SkOSFile::Iter iter(dir, nullptr);
+    SkString fileName;
+    while (iter.next(&fileName, false)) {
         // The size of the prefix and suffix.
         static const size_t fixedLen = sizeof(LOCALE_FALLBACK_FONTS_PREFIX) - 1
                                      + sizeof(LOCALE_FALLBACK_FONTS_SUFFIX) - 1;
@@ -689,7 +686,6 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
         // The size of the prefix, suffix, and a minimum valid language code
         static const size_t minSize = fixedLen + 2;
 
-        SkString fileName(dirEntry->d_name);
         if (fileName.size() < minSize ||
             !fileName.startsWith(LOCALE_FALLBACK_FONTS_PREFIX) ||
             !fileName.endsWith(LOCALE_FALLBACK_FONTS_SUFFIX))
