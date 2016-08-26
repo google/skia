@@ -262,16 +262,6 @@ def dm_flags(bot):
     blacklist.extend([   '2ndpic-8888', 'gm', '_', test])
     blacklist.extend(['serialize-8888', 'gm', '_', test])
 
-  # SaveLayerDrawRestoreNooper diffs
-  for test in ['car.svg',
-               'gallardo.svg',
-               'rg1024_green_grapes.svg',
-               'Seal_of_Kansas.svg']:
-    blacklist.extend([       'sp-8888', 'svg', '_', test])
-    blacklist.extend([      'pic-8888', 'svg', '_', test])
-    blacklist.extend([   '2ndpic-8888', 'svg', '_', test])
-    blacklist.extend(['serialize-8888', 'svg', '_', test])
-
   # Extensions for RAW images
   r = ["arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
        "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW"]
