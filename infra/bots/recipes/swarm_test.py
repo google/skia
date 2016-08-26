@@ -217,7 +217,8 @@ def dm_flags(bot):
                        'fontmgr_bounds_1_-0.25',
                        'fontmgr_bounds',
                        'fontmgr_match',
-                       'fontmgr_iter']
+                       'fontmgr_iter',
+                       'imagemasksubset']
 
   # skia:5589
   bad_serialize_gms.extend(['bitmapfilters',
