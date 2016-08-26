@@ -234,6 +234,10 @@ def CheckChangeOnUpload(input_api, output_api):
   * Check change has one and only one EOL.
   """
   results = []
+  results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
+  results.extend(_CheckOwnerIsInAuthorsFile(input_api, output_api))
+  return results
+
   results.extend(_CommonChecks(input_api, output_api))
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
   # coverage installed.
@@ -280,14 +284,20 @@ def _CheckTreeStatus(input_api, output_api, json_url):
   return tree_status_results
 
 
+def _GetOwnerEmail(input_api, issue):
+  if input_api.gerrit:
+    return input_api.gerrit.GetChangeOwner(issue)
+  elif input_api.rietveld:
+    issue_properties = input_api.rietveld.get_issue_properties(
+        issue=int(issue), messages=False)
+    return issue_properties['owner_email']
+
+
 def _CheckOwnerIsInAuthorsFile(input_api, output_api):
   results = []
   issue = input_api.change.issue
-  if issue and input_api.rietveld:
-    issue_properties = input_api.rietveld.get_issue_properties(
-        issue=int(issue), messages=False)
-    owner_email = issue_properties['owner_email']
-
+  if issue:
+    owner_email = _GetOwnerEmail(input_api, issue)
     try:
       authors_content = ''
       for line in open(AUTHORS_FILE_NAME):
@@ -336,6 +346,10 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
 
   lgtm_from_owner = False
   issue = input_api.change.issue
+  # rmistry
+  print input_api.gerrit
+  print 'HERE HERE'
+  import pdb; pdb.set_trace();
   if issue and input_api.rietveld:
     issue_properties = input_api.rietveld.get_issue_properties(
         issue=int(issue), messages=True)
