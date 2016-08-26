@@ -34,8 +34,7 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
-      'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-      'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot',
+      'Build-Mac-Clang-Arm64-Release-Android',
       'Build-Mac-Clang-x86_64-Release',
       'Build-Ubuntu-GCC-Arm64-Debug-Android_Vulkan',
       'Build-Ubuntu-GCC-x86_64-Debug',
@@ -44,20 +43,22 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-x86_64-Release-Trybot',
       'Build-Win-MSVC-x86_64-Release',
       'Build-Win-MSVC-x86_64-Release-Vulkan',
-      'Housekeeper-PerCommit',
       'Housekeeper-Nightly-RecreateSKPs_Canary',
+      'Housekeeper-PerCommit',
       'Infra-PerCommit',
       'Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot',
       'Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs',
-      'Test-Android-GCC-Nexus7v2-GPU-Tegra3-Arm7-Release',
       'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
-      'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release',
+      'Test-Android-GCC-Nexus7v2-GPU-Tegra3-Arm7-Release',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release',
+      'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
+      'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release',
       'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release',
+      'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release',
     ],
   },
 }
@@ -355,6 +356,10 @@ def compile_steps_swarm(api, builder_cfg, got_revision, infrabots_dir):
   # Android bots require a toolchain.
   if 'Android' in api.properties['buildername']:
     cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_sdk'))
+    if 'Mac' in api.properties['buildername']:
+      cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_darwin'))
+    else:
+      cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_linux'))
 
   # Windows bots require a toolchain.
   if 'Win' in builder_name:

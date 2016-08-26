@@ -271,6 +271,16 @@
     "cmd": [
       "python",
       "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/android_ndk_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "read android_ndk_linux VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
       "[SLAVE_BUILD]/swarming_temp_dir",
       "511"
@@ -378,6 +388,8 @@
       "--idempotent",
       "--cipd-package",
       "android_sdk:skia/bots/android_sdk:version:0",
+      "--cipd-package",
+      "android_ndk_linux:skia/bots/android_ndk_linux:version:0",
       "[dummy hash for compile_skia]",
       "--",
       "--workdir",
