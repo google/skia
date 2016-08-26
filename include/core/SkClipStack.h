@@ -365,6 +365,21 @@ public:
     bool isWideOpen() const { return this->getTopmostGenID() == kWideOpenGenID; }
 
     /**
+     * This method quickly and conservatively determines whether the entire stack is equivalent to
+     * intersection with a rrect given a bounds, where the rrect must not contain the entire bounds.
+     *
+     * @param bounds   A bounds on what will be drawn through the clip. The clip only need be
+     *                 equivalent to a intersection with a rrect for draws within the bounds. The
+     *                 returned rrect must intersect the bounds but need not be contained by the
+     *                 bounds.
+     * @param rrect    If return is true rrect will contain the rrect equivalent to the stack.
+     * @param aa       If return is true aa will indicate whether the equivalent rrect clip is
+     *                 antialiased.
+     * @return true if the stack is equivalent to a single rrect intersect clip, false otherwise.
+     */
+    bool isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const;
+
+    /**
      * The generation ID has three reserved values to indicate special
      * (potentially ignorable) cases
      */

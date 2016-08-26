@@ -38,6 +38,8 @@ public:
     bool apply(GrContext*, GrDrawContext*, bool useHWAA, bool hasUserStencilSettings,
                GrAppliedClip* out) const final;
 
+    bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const override;
+
 private:
     static bool PathNeedsSWRenderer(GrContext* context,
                                     bool hasUserStencilSettings,

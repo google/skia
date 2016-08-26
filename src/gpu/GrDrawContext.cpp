@@ -251,6 +251,20 @@ void GrDrawContext::drawPaint(const GrClip& clip,
               SkIntToScalar(fRenderTarget->height()));
     SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
 
+    SkRRect rrect;
+    bool aaRRect;
+    // Check if we can replace a clipRRect()/drawPaint() with a drawRRect(). We only do the
+    // transformation for non-rect rrects. Rects caused a performance regression on an Android
+    // test that needs investigation. We also skip cases where there are fragment processors
+    // because they may depend on having correct local coords and this path draws in device space
+    // without a local matrix.
+    if (!paint->numTotalFragmentProcessors() &&
+        clip.isRRect(r, &rrect, &aaRRect) && !rrect.isRect()) {
+        paint.writable()->setAntiAlias(aaRRect);
+        this->drawRRect(GrNoClip(), *paint, SkMatrix::I(), rrect, GrStyle::SimpleFill());
+        return;
+    }
+
     // by definition this fills the entire clip, no need for AA
     if (paint->isAntiAlias()) {
         paint.writable()->setAntiAlias(false);

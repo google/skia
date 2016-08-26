@@ -862,6 +862,50 @@ void SkClipStack::getConservativeBounds(int offsetX,
     }
 }
 
+bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const {
+    // We limit to 5 elements. This means the back element will be bounds checked at most 4 times if
+    // it is an rrect.
+    int cnt = fDeque.count();
+    if (!cnt || cnt > 5) {
+        return false;
+    }
+    const Element* back = static_cast<const Element*>(fDeque.back());
+    if (back->getType() != SkClipStack::Element::kRect_Type &&
+        back->getType() != SkClipStack::Element::kRRect_Type) {
+        return false;
+    }
+    if (back->getOp() == SkRegion::kReplace_Op) {
+        *rrect = back->asRRect();
+        *aa = back->isAA();
+        return true;
+    }
+
+    if (back->getOp() == SkRegion::kIntersect_Op) {
+        SkRect backBounds;
+        if (!backBounds.intersect(bounds, back->asRRect().rect())) {
+            return false;
+        }
+        if (cnt > 1) {
+            SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
+            SkAssertResult(static_cast<const Element*>(iter.prev()) == back);
+            while (const Element* prior = (const Element*)iter.prev()) {
+                if ((prior->getOp() != SkRegion::kIntersect_Op &&
+                     prior->getOp() != SkRegion::kReplace_Op) ||
+                    !prior->contains(backBounds)) {
+                    return false;
+                }
+                if (prior->getOp() == SkRegion::kReplace_Op) {
+                    break;
+                }
+            }
+        }
+        *rrect = back->asRRect();
+        *aa = back->isAA();
+        return true;
+    }
+    return false;
+}
+
 int32_t SkClipStack::GetNextGenID() {
     // TODO: handle overflow.
     return sk_atomic_inc(&gGenID);

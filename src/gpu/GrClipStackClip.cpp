@@ -41,6 +41,27 @@ bool GrClipStackClip::quickContains(const SkRRect& rrect) const {
                                                   SkIntToScalar(fOrigin.fY)));
 }
 
+bool GrClipStackClip::isRRect(const SkRect& origRTBounds, SkRRect* rr, bool* aa) const {
+    if (!fStack) {
+        return false;
+    }
+    const SkRect* rtBounds = &origRTBounds;
+    SkRect tempRTBounds;
+    bool origin = fOrigin.fX || fOrigin.fY;
+    if (origin) {
+        tempRTBounds = origRTBounds;
+        tempRTBounds.offset(SkIntToScalar(fOrigin.fX), SkIntToScalar(fOrigin.fY));
+        rtBounds = &tempRTBounds;
+    }
+    if (fStack->isRRect(*rtBounds, rr, aa)) {
+        if (origin) {
+            rr->offset(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
+        }
+        return true;
+    }
+    return false;
+}
+
 void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devResult,
                                             bool* isIntersectionOfRects) const {
     if (!fStack) {

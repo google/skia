@@ -39,6 +39,22 @@ public:
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final;
 
+    bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const override {
+        if (fHasStencilClip) {
+            return false;
+        }
+        if (fScissorState.enabled()) {
+            SkRect rect = SkRect::Make(fScissorState.rect());
+            if (!rect.intersects(rtBounds)) {
+                return false;
+            }
+            rr->setRect(rect);
+            *aa = false;
+            return true;
+        }
+        return false;
+    };
+
 private:
     bool apply(GrContext*, GrDrawContext*, bool useHWAA, bool hasUserStencilSettings,
                GrAppliedClip* out) const final;

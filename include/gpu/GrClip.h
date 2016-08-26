@@ -33,6 +33,21 @@ public:
     virtual ~GrClip() {}
 
     /**
+     * This method quickly and conservatively determines whether the entire clip is equivalent to
+     * intersection with a rrect. This will only return true if the rrect does not fully contain
+     * the render target bounds. Moreover, the returned rrect need not be contained by the render
+     * target bounds. We assume all draws will be implicitly clipped by the render target bounds.
+     *
+     * @param rtBounds The bounds of the render target that the clip will be applied to.
+     * @param rrect    If return is true rrect will contain the rrect equivalent to the clip within
+     *                 rtBounds.
+     * @param aa       If return is true aa will indicate whether the rrect clip is antialiased.
+     * @return true if the clip is equivalent to a single rrect, false otherwise.
+     *
+     */
+    virtual bool isRRect(const SkRect& rtBounds, SkRRect* rrect, bool* aa) const = 0;
+
+    /**
      * This is the maximum distance that a draw may extend beyond a clip's boundary and still count
      * count as "on the other side". We leave some slack because floating point rounding error is
      * likely to blame. The rationale for 1e-3 is that in the coverage case (and barring unexpected
@@ -122,6 +137,7 @@ private:
     bool apply(GrContext*, GrDrawContext*, bool, bool, GrAppliedClip*) const final {
         return true;
     }
+    bool isRRect(const SkRect&, SkRRect*, bool*) const override { return false; };
 };
 
 #endif
