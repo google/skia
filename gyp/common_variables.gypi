@@ -75,6 +75,7 @@
       'arm_version%': '<(arm_version)',
       'arm_neon%': '<(arm_neon)',
       'skia_egl%': '<(skia_egl)',
+      'use_ozone%': 0, # ANGLE requires this to be defined.
       'vulkan_merged_into_skia%': '<(vulkan_merged_into_skia)',
       'conditions': [
         [ 'skia_android_framework == 1', {
