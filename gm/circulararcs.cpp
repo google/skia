@@ -210,3 +210,26 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
         canvas->translate(0, kS + kPad);
     }
 }
+
+DEF_SIMPLE_GM(onebadarc, canvas, 100, 100) {
+    SkPath path;
+    path.moveTo(SkBits2Float(0x41a00000), SkBits2Float(0x41a00000));  // 20, 20
+    path.lineTo(SkBits2Float(0x4208918c), SkBits2Float(0x4208918c));  // 34.1421f, 34.1421f
+    path.conicTo(SkBits2Float(0x41a00000), SkBits2Float(0x42412318),  // 20, 48.2843f
+            SkBits2Float(0x40bb73a0), SkBits2Float(0x4208918c),       // 5.85786f, 34.1421f
+            SkBits2Float(0x3f3504f3));                                // 0.707107f
+    path.quadTo(SkBits2Float(0x40bb73a0), SkBits2Float(0x4208918c),   // 5.85786f, 34.1421f
+            SkBits2Float(0x40bb73a2), SkBits2Float(0x4208918c));      // 5.85787f, 34.1421f
+    path.lineTo(SkBits2Float(0x41a00000), SkBits2Float(0x41a00000));  // 20, 20
+    path.close();
+    SkPaint p0;
+    p0.setColor(SK_ColorRED);
+    p0.setStrokeWidth(15.f);
+    p0.setStyle(SkPaint::kStroke_Style);
+    p0.setAlpha(100);
+    canvas->translate(20, 0);
+    canvas->drawPath(path, p0);
+
+    SkRect kRect = { 60, 0, 100, 40};
+    canvas->drawArc(kRect, 45, 90, true, p0);
+}

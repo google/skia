@@ -1351,8 +1351,10 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
         //
         const SkScalar cosThetaOver2 = SkScalarSqrt((1 + dot) / 2);
         offCurve.setLength(SkScalarInvert(cosThetaOver2));
-        dst[conicCount].set(lastQ, offCurve, finalP, cosThetaOver2);
-        conicCount += 1;
+        if (!lastQ.equalsWithinTolerance(offCurve)) {
+            dst[conicCount].set(lastQ, offCurve, finalP, cosThetaOver2);
+            conicCount += 1;
+        } 
     }
 
     // now handle counter-clockwise and the initial unitStart rotation
