@@ -29,9 +29,10 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
 
+    compiler_prefix = ""
     ccache = self.m.run.ccache()
     if ccache:
-      cc, cxx = '%s %s' % (ccache, cc), '%s %s' % (ccache, cxx)
+      compiler_prefix = ccache
       if compiler == 'Clang':
         # Stifle "argument unused during compilation: ..." warnings.
         extra_cflags.append('-Qunused-arguments')
@@ -45,6 +46,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in {
         'cc': quote(cc),
         'cxx': quote(cxx),
+        'compiler_prefix': quote(compiler_prefix),
         'extra_cflags': quote(' '.join(extra_cflags)),
         'is_debug': 'true' if configuration == 'Debug' else 'false',
     }.iteritems())

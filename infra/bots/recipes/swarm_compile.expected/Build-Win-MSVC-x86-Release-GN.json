@@ -93,7 +93,7 @@
       "gn",
       "gen",
       "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN\\Release",
-      "--args=cc=\"cc\" cxx=\"c++\" is_debug=false extra_cflags=\"\""
+      "--args=cc=\"cc\" cxx=\"c++\" is_debug=false extra_cflags=\"\" compiler_prefix=\"\""
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {

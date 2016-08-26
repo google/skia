@@ -125,7 +125,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Debug-GN/Debug",
-      "--args=cc=\"/usr/bin/ccache gcc\" cxx=\"/usr/bin/ccache g++\" is_debug=true extra_cflags=\"\""
+      "--args=cc=\"gcc\" cxx=\"g++\" is_debug=true extra_cflags=\"\" compiler_prefix=\"/usr/bin/ccache\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

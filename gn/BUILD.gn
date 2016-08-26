@@ -17,6 +17,8 @@ declare_args() {
   extra_cflags = ""
   extra_cflags_c = ""
   extra_cflags_cc = ""
+
+  compiler_prefix = ""
 }
 
 config("no_rtti") {
@@ -125,32 +127,34 @@ toolchain("gcc_like") {
 
   tool("cc") {
     depfile = "{{output}}.d"
-    command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} $extra_cflags $extra_cflags_c -c {{source}} -o {{output}}"
+    command = "$compiler_prefix $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} $extra_cflags $extra_cflags_c -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description = "$cc ... $extra_cflags $extra_cflags_c -o {{output}}"
+    description =
+        "$compiler_prefix $cc ... $extra_cflags $extra_cflags_c -o {{output}}"
   }
 
   tool("cxx") {
     depfile = "{{output}}.d"
-    command = "$cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} $extra_cflags $extra_cflags_cc -c {{source}} -o {{output}}"
+    command = "$compiler_prefix $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} $extra_cflags $extra_cflags_cc -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description = "$cxx ... $extra_cflags $extra_cflags_cc -o {{output}}"
+    description =
+        "$compiler_prefix $cxx ... $extra_cflags $extra_cflags_cc -o {{output}}"
   }
 
   tool("asm") {
     depfile = "{{output}}.d"
-    command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
+    command = "$compiler_prefix $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description = "$cc ... -o {{output}}"
+    description = "$compiler_prefix $cc ... -o {{output}}"
   }
 
   tool("alink") {
@@ -171,22 +175,22 @@ toolchain("gcc_like") {
       rpath = "-Wl,-install_name,@rpath/$soname"
     }
 
-    command = "$cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath -o {{output}}"
+    command = "$compiler_prefix $cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath -o {{output}}"
     outputs = [
       "{{root_out_dir}}/$soname",
     ]
     output_prefix = "lib"
     default_output_extension = ".so"
-    description = "$cxx -shared ... -o {{output}}"
+    description = "$compiler_prefix $cxx -shared ... -o {{output}}"
     pool = ":link_pool"
   }
 
   tool("link") {
-    command = "$cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} -o {{output}}"
+    command = "$compiler_prefix $cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} -o {{output}}"
     outputs = [
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
-    description = "$cxx ... -o {{output}}"
+    description = "$compiler_prefix $cxx ... -o {{output}}"
     pool = ":link_pool"
   }
 
