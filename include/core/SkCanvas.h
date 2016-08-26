@@ -707,13 +707,7 @@ public:
         @param region   The region to be drawn
         @param paint    The paint used to draw the region
     */
-    void drawRegion(const SkRegion& region, const SkPaint& paint) {
-        if (region.isEmpty()) {
-            return;
-        }
-
-        this->onDrawRegion(region, paint);
-    }
+    void drawRegion(const SkRegion& region, const SkPaint& paint);
 
     /** Draw the specified oval using the specified paint. The oval will be
         filled or framed based on the Style in the paint.

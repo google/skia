@@ -1975,6 +1975,18 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
     this->onDrawRect(r, paint);
 }
 
+void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
+    if (region.isEmpty()) {
+        return;
+    }
+
+    if (region.isRect()) {
+        return this->drawIRect(region.getBounds(), paint);
+    }
+
+    this->onDrawRegion(region, paint);
+}
+
 void SkCanvas::drawOval(const SkRect& r, const SkPaint& paint) {
     this->onDrawOval(r, paint);
 }
