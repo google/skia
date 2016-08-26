@@ -15,16 +15,17 @@
 
 class ShadowingView : public SampleView {
 public:
-    ShadowingView() {
-
+    ShadowingView()
+        : fSceneChanged(true)
+        , fLightsChanged(true)
+        , fMoveLight(false)
+        , fClearShadowMaps(false)
+        , fSelectedRectID(-1)
+        , fSelectedSliderID(-1)
+        , fLightDepth(300.0f)  {
         this->setBGColor(0xFFCCCCCC);
-        SkLights::Builder builder;
-        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.2f, 0.3f, 0.4f),
-                                                     SkVector3::Make(0.2f, 0.05f, 1.0f)));
-        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.4f, 0.3f, 0.2f),
-                                                     SkVector3::Make(0.05f, 0.2f, 1.0f)));
-        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
-        fLights = builder.finish();
+
+        this->updateLights(200, 200);
 
         fTestRects[0].fColor = 0xFFEE8888;
         fTestRects[0].fDepth = 80;
@@ -50,16 +51,7 @@ public:
         fSliders[2].fOffset = 0.0f;
         fSliders[2].fScale = 0.0025f;
 
-        fSceneChanged = true;
-        fLightsChanged = true;
-
-        fSelectedRect = -1;
-        fSelectedSlider = -1;
-        fMoveLight = false;
-
-        fClearShadowMaps = false;
-
-        fShadowParams.fShadowRadius = 2.0f;
+        fShadowParams.fShadowRadius = 4.0f;
         fShadowParams.fBiasingConstant = 0.3f;
         fShadowParams.fMinVariance = 1024;
         fShadowParams.fType = SkShadowParams::kVariance_ShadowType;
@@ -85,6 +77,9 @@ protected:
                     // the shadow maps will be re-generated according to the new backend.
                     fClearShadowMaps = true;
                     break;
+                case 'q':
+                    fLightDepth += 5.0f;
+                    fMoveLight = true;
                 case 'B':
                     if (SkShadowParams::kVariance_ShadowType == fShadowParams.fType) {
                         fShadowParams.fType = SkShadowParams::kNoBlur_ShadowType;
@@ -93,6 +88,10 @@ protected:
                         fShadowParams.fType = SkShadowParams::kVariance_ShadowType;
                     }
                     fLightsChanged = true;
+                    break;
+                case 'w':
+                    fLightDepth -= 5.0f;
+                    fMoveLight = true;
                     break;
                 default:
                     break;
@@ -160,12 +159,29 @@ protected:
         return new SkView::Click(this);
     }
 
-    void updateFromSelectedSlider() {
-        SkScalar newValue = fSliders[fSelectedSlider].fGeometry.fLeft *
-                            fSliders[fSelectedSlider].fScale +
-                            fSliders[fSelectedSlider].fOffset;
+    void updateLights(int x, int y) {
+        SkLights::Builder builder;
+        builder.add(SkLights::Light::MakePoint(SkColor3f::Make(0.2f, 0.4f, 0.6f),
+                                               SkVector3::Make(x - 50,
+                                                               350 - y,
+                                                               fLightDepth),
+                                               1024));
+        builder.add(SkLights::Light::MakePoint(SkColor3f::Make(0.6f, 0.4f, 0.2f),
+                                               SkVector3::Make(x + 50,
+                                                               450 - y,
+                                                               fLightDepth),
+                                               1024));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.2f, 0.2f, 0.2f),
+                                                     SkVector3::Make(0.2f, 0.2f, 1.0f)));
+        fLights = builder.finish();
+    }
 
-        switch (fSelectedSlider) {
+    void updateFromSelectedSlider() {
+        SkScalar newValue = fSliders[fSelectedSliderID].fGeometry.fLeft *
+                            fSliders[fSelectedSliderID].fScale +
+                            fSliders[fSelectedSliderID].fOffset;
+
+        switch (fSelectedSliderID) {
             case 0:
                 fShadowParams.fShadowRadius = newValue;
                 break;
@@ -189,24 +205,7 @@ protected:
 
         if (fMoveLight) {
             if (dx != 0 || dy != 0) {
-                float recipX = 1.0f / kWidth;
-                float recipY = 1.0f / kHeight;
-
-                SkLights::Builder builder;
-                builder.add(SkLights::Light::MakeDirectional(
-                        SkColor3f::Make(0.2f, 0.3f, 0.4f),
-                        SkVector3::Make(0.2f + (200.0f - x) * recipX,
-                                        0.05f + (200.0f - y) * recipY,
-                                        1.0f)));
-                builder.add(SkLights::Light::MakeDirectional(
-                        SkColor3f::Make(0.4f, 0.3f, 0.2f),
-                        SkVector3::Make(0.05f + (200.0f - x) * recipX,
-                                        0.2f + (200.0f - y) * recipY,
-                                        1.0f)));
-                builder.add(SkLights::Light::MakeAmbient(
-                        SkColor3f::Make(0.4f, 0.4f, 0.4f)));
-                fLights = builder.finish();
-
+                this->updateLights(x, y);
                 fLightsChanged = true;
                 this->inval(nullptr);
             }
@@ -214,21 +213,21 @@ protected:
         }
 
         if (click->fState == Click::State::kUp_State) {
-            fSelectedRect = -1;
-            fSelectedSlider = -1;
+            fSelectedRectID = -1;
+            fSelectedSliderID = -1;
             return true;
         }
 
-        if (fSelectedRect > -1) {
-            fTestRects[fSelectedRect].fGeometry.offset(dx, dy);
+        if (fSelectedRectID > -1) {
+            fTestRects[fSelectedRectID].fGeometry.offset(dx, dy);
 
             fSceneChanged = true;
             this->inval(nullptr);
             return true;
         }
 
-        if (fSelectedSlider > -1) {
-            fSliders[fSelectedSlider].fGeometry.offset(dx, 0);
+        if (fSelectedSliderID > -1) {
+            fSliders[fSelectedSliderID].fGeometry.offset(dx, 0);
 
             this->updateFromSelectedSlider();
 
@@ -240,7 +239,7 @@ protected:
         // assume last elements are highest
         for (int i = kNumTestRects - 1; i >= 0; i--) {
             if (fTestRects[i].fGeometry.contains(SkRect::MakeXYWH(x, y, 1, 1))) {
-                fSelectedRect = i;
+                fSelectedRectID = i;
                 fTestRects[i].fGeometry.offset(dx, dy);
 
                 fSceneChanged = true;
@@ -251,7 +250,7 @@ protected:
 
         for (int i = 0; i <= kNumSliders; i++) {
             if (fSliders[i].fGeometry.contains(SkRect::MakeXYWH(x, y, 1, 1))) {
-                fSelectedSlider = i;
+                fSelectedSliderID = i;
                 fSliders[i].fGeometry.offset(dx, 0);
 
                 this->updateFromSelectedSlider();
@@ -273,24 +272,26 @@ private:
     static const int kWidth = 400;
     static const int kHeight = 400;
 
+    bool fSceneChanged;
+    bool fLightsChanged;
+    bool fMoveLight;
+    bool fClearShadowMaps;
+
     struct {
         SkRect  fGeometry;
         int     fDepth;
         SkColor fColor;
     } fTestRects[kNumTestRects];
-    int fSelectedRect;
+    int fSelectedRectID;
 
     struct {
         SkRect   fGeometry;
         SkScalar fOffset;
         SkScalar fScale;
     } fSliders[kNumSliders];
-    int fSelectedSlider;
+    int fSelectedSliderID;
 
-    bool fClearShadowMaps;
-    bool fMoveLight;
-    bool fSceneChanged;
-    bool fLightsChanged;
+    SkScalar fLightDepth;
 
     sk_sp<SkPicture> fPicture;
     SkShadowParams fShadowParams;

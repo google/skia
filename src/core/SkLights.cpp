@@ -29,6 +29,10 @@ sk_sp<SkLights> SkLights::MakeFromBuffer(SkReadBuffer& buf) {
             if (!buf.readScalarArray(&dirOrPos.fX, 3)) {
                 return nullptr;
             }
+            SkScalar intensity = 0.0f;
+            if (isPoint) {
+                intensity = buf.readScalar();
+            }
 
             sk_sp<SkImage> depthMap;
             bool hasShadowMap = buf.readBool();
@@ -39,7 +43,7 @@ sk_sp<SkLights> SkLights::MakeFromBuffer(SkReadBuffer& buf) {
             }
 
             if (isPoint) {
-                Light light = Light::MakePoint(color, dirOrPos);
+                Light light = Light::MakePoint(color, dirOrPos, intensity);
                 light.setShadowMap(depthMap);
                 builder.add(light);
             } else {
@@ -66,7 +70,12 @@ void SkLights::flatten(SkWriteBuffer& buf) const {
         buf.writeBool(isPoint);
         buf.writeScalarArray(&light.color().fX, 3);
         if (!isAmbient) {
-            buf.writeScalarArray(&light.dir().fX, 3);
+            if (isPoint) {
+                buf.writeScalarArray(&light.pos().fX, 3);
+                buf.writeScalar(light.intensity());
+            } else {
+                buf.writeScalarArray(&light.dir().fX, 3);
+            }
             bool hasShadowMap = light.getShadowMap() != nullptr;
             buf.writeBool(hasShadowMap);
             if (hasShadowMap) {

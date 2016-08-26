@@ -30,14 +30,16 @@ public:
         Light(const Light& other)
             : fType(other.fType)
             , fColor(other.fColor)
-            , fDirection(other.fDirection)
+            , fDirOrPos(other.fDirOrPos)
+            , fIntensity(other.fIntensity)
             , fShadowMap(other.fShadowMap) {
         }
 
         Light(Light&& other)
             : fType(other.fType)
             , fColor(other.fColor)
-            , fDirection(other.fDirection)
+            , fDirOrPos(other.fDirOrPos)
+            , fIntensity(other.fIntensity)
             , fShadowMap(std::move(other.fShadowMap)) {
         }
 
@@ -47,25 +49,29 @@ public:
 
         static Light MakeDirectional(const SkColor3f& color, const SkVector3& dir) {
             Light light(kDirectional_LightType, color, dir);
-            if (!light.fDirection.normalize()) {
-                light.fDirection.set(0.0f, 0.0f, 1.0f);
+            if (!light.fDirOrPos.normalize()) {
+                light.fDirOrPos.set(0.0f, 0.0f, 1.0f);
             }
             return light;
         }
 
-        static Light MakePoint(const SkColor3f& color, const SkPoint3& pos) {
-            return Light(kPoint_LightType, color, pos);
+        static Light MakePoint(const SkColor3f& color, const SkPoint3& pos, SkScalar intensity) {
+            return Light(kPoint_LightType, color, pos, intensity);
         }
 
         LightType type() const { return fType; }
         const SkColor3f& color() const { return fColor; }
         const SkVector3& dir() const {
             SkASSERT(kDirectional_LightType == fType);
-            return fDirection;
+            return fDirOrPos;
         }
         const SkPoint3& pos() const {
             SkASSERT(kPoint_LightType == fType);
-            return fDirection;
+            return fDirOrPos;
+        }
+        SkScalar intensity() const {
+            SkASSERT(kPoint_LightType == fType);
+            return fIntensity;
         }
 
         void setShadowMap(sk_sp<SkImage> shadowMap) {
@@ -83,7 +89,8 @@ public:
 
             fColor = b.fColor;
             fType = b.fType;
-            fDirection = b.fDirection;
+            fDirOrPos = b.fDirOrPos;
+            fIntensity = b.fIntensity;
             fShadowMap = b.fShadowMap;
             return *this;
         }
@@ -95,8 +102,9 @@ public:
 
             return (fColor     == b.fColor) &&
                    (fType      == b.fType) &&
-                   (fDirection == b.fDirection) &&
-                   (fShadowMap == b.fShadowMap);
+                   (fDirOrPos  == b.fDirOrPos) &&
+                   (fShadowMap == b.fShadowMap) &&
+                   (fIntensity == b.fIntensity);
         }
 
         bool operator!= (const Light& b) { return !(this->operator==(b)); }
@@ -104,16 +112,22 @@ public:
     private:
         LightType   fType;
         SkColor3f   fColor;           // linear (unpremul) color. Range is 0..1 in each channel.
-        SkVector3   fDirection;       // For directional lights, holds the direction towards the
+
+        SkVector3   fDirOrPos;        // For directional lights, holds the direction towards the
                                       // light (+Z is out of the screen).
                                       // If degenerate, it will be replaced with (0, 0, 1).
                                       // For point lights, holds location of point light
+
+        SkScalar    fIntensity;       // For point lights, dictates the light intensity.
+                                      // Simply a multiplier to the final light output value.
         sk_sp<SkImage> fShadowMap;
 
-        Light(LightType type, const SkColor3f& color, const SkVector3& dir) {
+        Light(LightType type, const SkColor3f& color,
+              const SkVector3& dir, SkScalar intensity = 0.0f) {
             fType = type;
             fColor = color;
-            fDirection = dir;
+            fDirOrPos = dir;
+            fIntensity = intensity;
         }
     };
 

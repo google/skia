@@ -51,6 +51,10 @@ bool SkShadowPaintFilterCanvas::onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Ty
 SkISize SkShadowPaintFilterCanvas::ComputeDepthMapSize(const SkLights::Light& light, int maxDepth,
                                                        int width, int height) {
     SkASSERT(light.type() != SkLights::Light::kAmbient_LightType);
+    if (light.type() != SkLights::Light::kDirectional_LightType) {
+        return SkISize::Make(width *2 , height * 2);
+    }
+
     int dMapWidth = SkMin32(maxDepth * fabs(light.dir().fX) + width,
                             width * 2);
     int dMapHeight = SkMin32(maxDepth * fabs(light.dir().fY) + height,
@@ -75,7 +79,7 @@ void SkShadowPaintFilterCanvas::updateMatrix() {
 
     //  It is up to the user to set the 0th light in fLights to
     //  the light the want to render the depth map with.
-    if (this->fLights->light(0).type() != SkLights::Light::kAmbient_LightType) {
+    if (this->fLights->light(0).type() == SkLights::Light::kDirectional_LightType) {
         const SkVector3& lightDir = this->fLights->light(0).dir();
         SkScalar x = lightDir.fX * this->getZ();
         SkScalar y = lightDir.fY * this->getZ();
