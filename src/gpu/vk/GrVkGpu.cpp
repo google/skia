@@ -401,7 +401,7 @@ void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target) {
                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
                                         false);
 
-        fCurrentCmdBuffer->resolveImage(this, *rt, *rt->msaaImage(), 1, &resolveInfo);
+        fCurrentCmdBuffer->resolveImage(this, *rt->msaaImage(), *rt, 1, &resolveInfo);
 
         rt->flagAsResolved();
     }
@@ -1800,6 +1800,6 @@ void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
     fCurrentCmdBuffer->executeCommands(this, buffer);
     fCurrentCmdBuffer->endRenderPass(this);
 
-    this->didWriteToSurface(target, pBounds);
+    this->didWriteToSurface(target, &bounds);
 }
 

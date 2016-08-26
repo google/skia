@@ -239,7 +239,7 @@ void GrVkRenderTarget::createFramebuffer(GrVkGpu* gpu) {
     const GrVkImageView* stencilView = this->stencilAttachmentView();
     fFramebuffer = GrVkFramebuffer::Create(gpu, this->width(), this->height(),
                                            fCachedSimpleRenderPass, fColorAttachmentView,
-                                           fResolveAttachmentView, stencilView);
+                                           stencilView);
     SkASSERT(fFramebuffer);
 }
 
@@ -253,12 +253,6 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
     desc->fColor.fSamples = colorSamples ? colorSamples : 1;
     *attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
-    if (colorSamples > 0) {
-        desc->fResolve.fFormat = colorFormat;
-        desc->fResolve.fSamples = 1;
-        *attachmentFlags |= GrVkRenderPass::kResolve_AttachmentFlag;
-        ++attachmentCount;
-    }
 
     const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
     if (stencil) {
@@ -284,12 +278,9 @@ GrVkRenderTarget::~GrVkRenderTarget() {
 
 void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer) const {
     commandBuffer.addResource(this->framebuffer());
-    commandBuffer.addResource(this->resource());
     commandBuffer.addResource(this->colorAttachmentView());
-    if (this->msaaImageResource()) {
-        commandBuffer.addResource(this->msaaImageResource());
-        commandBuffer.addResource(this->resolveAttachmentView());
-    }
+    commandBuffer.addResource(this->msaaImageResource() ? this->msaaImageResource()
+                                                        : this->resource());
     if (this->stencilImageResource()) {
         commandBuffer.addResource(this->stencilImageResource());
         commandBuffer.addResource(this->stencilAttachmentView());

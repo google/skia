@@ -43,13 +43,11 @@ public:
     void init(const GrVkGpu* gpu,
               const GrVkRenderTarget& target,
               const LoadStoreOps& colorOp,
-              const LoadStoreOps& resolveOp,
               const LoadStoreOps& stencilOp);
 
     void init(const GrVkGpu* gpu,
               const GrVkRenderPass& compatibleRenderPass,
               const LoadStoreOps& colorOp,
-              const LoadStoreOps& resolveOp,
               const LoadStoreOps& stencilOp);
 
     struct AttachmentsDescriptor {
@@ -75,15 +73,13 @@ public:
             }
         };
         AttachmentDesc fColor;
-        AttachmentDesc fResolve;
         AttachmentDesc fStencil;
         uint32_t       fAttachmentCount;
     };
 
     enum AttachmentFlags {
         kColor_AttachmentFlag = 0x1,
-        kResolve_AttachmentFlag = 0x2,
-        kStencil_AttachmentFlag = 0x4,
+        kStencil_AttachmentFlag = 0x2,
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(AttachmentFlags);
 
@@ -91,7 +87,6 @@ public:
     // If the render pass does not have the given attachment it will return false and not set the
     // index value.
     bool colorAttachmentIndex(uint32_t* index) const;
-    bool resolveAttachmentIndex(uint32_t* index) const;
     bool stencilAttachmentIndex(uint32_t* index) const;
 
     // Sets the VkRenderPassBeginInfo and VkRenderPassContents need to begin a render pass.
@@ -113,7 +108,6 @@ public:
     bool isCompatible(const GrVkRenderPass& renderPass) const;
 
     bool equalLoadStoreOps(const LoadStoreOps& colorOps,
-                           const LoadStoreOps& resolveOps,
                            const LoadStoreOps& stencilOps) const;
 
     VkRenderPass vkRenderPass() const { return fRenderPass; }
@@ -133,7 +127,6 @@ private:
 
     void init(const GrVkGpu* gpu,
               const LoadStoreOps& colorOps,
-              const LoadStoreOps& resolveOps,
               const LoadStoreOps& stencilOps);
 
     bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;

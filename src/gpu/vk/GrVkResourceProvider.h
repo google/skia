@@ -209,7 +209,6 @@ private:
 
         GrVkRenderPass* getRenderPass(const GrVkGpu* gpu,
                                       const GrVkRenderPass::LoadStoreOps& colorOps,
-                                      const GrVkRenderPass::LoadStoreOps& resolveOps,
                                       const GrVkRenderPass::LoadStoreOps& stencilOps);
 
         void releaseResources(const GrVkGpu* gpu);

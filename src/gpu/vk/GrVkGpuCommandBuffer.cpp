@@ -100,12 +100,15 @@ void GrVkGpuCommandBuffer::end() {
 }
 
 void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
-    // Change layout of our render target so it can be used as the color attachment
-    fRenderTarget->setImageLayout(fGpu,
-                                  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                  false);
+    // Change layout of our render target so it can be used as the color attachment. Currently
+    // we don't attach the resolve to the framebuffer so no need to change its layout.
+    GrVkImage* targetImage = fRenderTarget->msaaImage() ? fRenderTarget->msaaImage() 
+                                                        : fRenderTarget;
+    targetImage->setImageLayout(fGpu,
+                                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                false);
 
     // If we are using a stencil attachment we also need to update its layout
     if (GrStencilAttachment* stencil = fRenderTarget->renderTargetPriv().getStencilAttachment()) {
@@ -114,14 +117,6 @@ void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
                                   VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                   VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
                                   VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                  false);
-    }
-
-    if (GrVkImage* msaaImage = fRenderTarget->msaaImage()) {
-        msaaImage->setImageLayout(fGpu,
-                                  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
                                   VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                   false);
     }

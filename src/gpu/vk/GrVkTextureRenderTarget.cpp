@@ -53,6 +53,7 @@ GrVkTextureRenderTarget* GrVkTextureRenderTarget::Create(GrVkGpu* gpu,
         msImageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
         if (!GrVkImage::InitImageInfo(gpu, msImageDesc, &msInfo)) {
+            imageView->unref(gpu);
             return nullptr;
         }
 
