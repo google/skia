@@ -1350,7 +1350,8 @@ private:
 //
 // For circular roundrects, in the case where the stroke width is greater than twice
 // the corner radius (overstroke), we add additional geometry to mark out the rectangle
-// in the center:
+// in the center. The shared vertices are duplicated so we can set a different outer radius
+// for the fill calculation.
 //    ____________
 //   |_|________|_|
 //   | |\ ____ /| |
@@ -1364,10 +1365,10 @@ private:
 static const uint16_t gRRectOverstrokeIndices[] = {
     // overstroke quads
     // we place this at the beginning so that we can skip these indices when rendering normally
-    5, 6, 17, 5, 17, 16,
-    17, 6, 10, 17, 10, 19,
-    10, 9, 18, 10, 18, 19,
-    18, 9, 5, 18, 5, 16,
+    16, 17, 19, 16, 19, 18,
+    19, 17, 23, 19, 23, 21,
+    21, 23, 22, 21, 22, 20,
+    22, 16, 18, 22, 18, 20,
 
     // corners
     0, 1, 5, 0, 5, 4,
@@ -1393,7 +1394,7 @@ static const int kIndicesPerOverstrokeRRect = SK_ARRAY_COUNT(gRRectOverstrokeInd
 static const int kIndicesPerFillRRect = kIndicesPerOverstrokeRRect - 6*4 + 6;
 static const int kIndicesPerStrokeRRect = kIndicesPerFillRRect - 6;
 static const int kVertsPerStandardRRect = 16;
-static const int kVertsPerOverstrokeRRect = 20;
+static const int kVertsPerOverstrokeRRect = 24;
 static const int kNumRRectsInIndexBuffer = 256;
 
 enum RRectType {
@@ -1611,20 +1612,34 @@ private:
                 verts++;
             }
             // Add the additional vertices for overstroked rrects.
+            // Effectively this is an additional rrect, drawn inside out,
+            // with outerRadius == -innerRadius. This will give us correct AA in the center.
             //
             // Note that args.fInnerRadius is negative in this case.
             // Also, the offset is a constant vector pointing to the right, which guarantees
             // that the distance value along the inner rectangle is constant, which
             // is what we want to get nice anti-aliasing.
             if (kOverstroke_RRectType == fType) {
-                // outerRadius = originalOuter + 0.5, and innerRadius = originalInner - 0.5.
-                // What we want is originalOuter - originalInner + 0.5, so we subtract 0.5.
-                SkScalar inset = outerRadius - args.fInnerRadius - SK_ScalarHalf;
+                verts->fPos = SkPoint::Make(bounds.fLeft + outerRadius, yCoords[1]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = -args.fInnerRadius;
+                verts->fInnerRadius = innerRadius;
+                verts++;
+
+                verts->fPos = SkPoint::Make(bounds.fRight - outerRadius, yCoords[1]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = -args.fInnerRadius;
+                verts->fInnerRadius = innerRadius;
+                verts++;
+
+                SkScalar inset = outerRadius - args.fInnerRadius;
                 verts->fPos = SkPoint::Make(bounds.fLeft + inset,
                                             bounds.fTop + inset);
                 verts->fColor = color;
                 verts->fOffset = SkPoint::Make(1, 0);
-                verts->fOuterRadius = outerRadius;
+                verts->fOuterRadius = -args.fInnerRadius;
                 verts->fInnerRadius = innerRadius;
                 verts++;
 
@@ -1632,7 +1647,7 @@ private:
                                             bounds.fTop + inset);
                 verts->fColor = color;
                 verts->fOffset = SkPoint::Make(1, 0);
-                verts->fOuterRadius = outerRadius;
+                verts->fOuterRadius = -args.fInnerRadius;
                 verts->fInnerRadius = innerRadius;
                 verts++;
 
@@ -1640,7 +1655,7 @@ private:
                                             bounds.fBottom - inset);
                 verts->fColor = color;
                 verts->fOffset = SkPoint::Make(1, 0);
-                verts->fOuterRadius = outerRadius;
+                verts->fOuterRadius = -args.fInnerRadius;
                 verts->fInnerRadius = innerRadius;
                 verts++;
 
@@ -1648,7 +1663,21 @@ private:
                                             bounds.fBottom - inset);
                 verts->fColor = color;
                 verts->fOffset = SkPoint::Make(1, 0);
-                verts->fOuterRadius = outerRadius;
+                verts->fOuterRadius = -args.fInnerRadius;
+                verts->fInnerRadius = innerRadius;
+                verts++;
+
+                verts->fPos = SkPoint::Make(bounds.fLeft + outerRadius, yCoords[2]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = -args.fInnerRadius;
+                verts->fInnerRadius = innerRadius;
+                verts++;
+
+                verts->fPos = SkPoint::Make(bounds.fRight - outerRadius, yCoords[2]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = -args.fInnerRadius;
                 verts->fInnerRadius = innerRadius;
                 verts++;
             }
