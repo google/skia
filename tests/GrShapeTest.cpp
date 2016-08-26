@@ -37,6 +37,10 @@ static bool paths_fill_same(const SkPath& a, const SkPath& b) {
 }
 
 static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds) {
+    // We test the bounds by rasterizing the path into a kRes by kRes grid. The bounds is
+    // mapped to the range kRes/4 to 3*kRes/4 in x and y. A difference clip is used to avoid
+    // rendering within the bounds (with a tolerance). Then we render the path and check that
+    // everything got clipped out.
     static constexpr int kRes = 2000;
     // This tolerance is in units of 1/kRes fractions of the bounds width/height.
     static constexpr int kTol = 0;
@@ -61,7 +65,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
 #else
     static constexpr uint8_t kZeros[kRes] = {0};
 #endif
-    for (int y = 0; y < kRes/4; ++y) {
+    for (int y = 0; y < kRes; ++y) {
         const uint8_t* row = pixmap.addr8(0, y);
         if (0 != memcmp(kZeros, row, kRes)) {
             return false;
