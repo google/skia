@@ -234,6 +234,10 @@ def CheckChangeOnUpload(input_api, output_api):
   * Check change has one and only one EOL.
   """
   results = []
+  results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
+  results.extend(_CheckOwnerIsInAuthorsFile(input_api, output_api))
+  return results
+
   results.extend(_CommonChecks(input_api, output_api))
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
   # coverage installed.
@@ -283,6 +287,9 @@ def _CheckTreeStatus(input_api, output_api, json_url):
 def _CheckOwnerIsInAuthorsFile(input_api, output_api):
   results = []
   issue = input_api.change.issue
+  print 'HERE HERE'
+  print issue
+  print input_api.rietveld
   if issue and input_api.rietveld:
     issue_properties = input_api.rietveld.get_issue_properties(
         issue=int(issue), messages=False)
