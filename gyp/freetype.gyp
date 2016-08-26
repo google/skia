@@ -63,7 +63,6 @@
                     ],
                   },
                   'include_dirs': [
-                    'external/expat/lib',
                     'external/freetype/include',
                   ],
                   'libraries': [
