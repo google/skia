@@ -37,6 +37,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        canvas->translate(10, 10);
+
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         paint.setColor(0xFFFF00FF);

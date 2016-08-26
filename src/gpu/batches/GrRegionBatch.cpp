@@ -17,31 +17,26 @@
 static const int kVertsPerInstance = 4;
 static const int kIndicesPerInstance = 6;
 
-static sk_sp<GrGeometryProcessor> make_gp(bool readsCoverage) {
+static sk_sp<GrGeometryProcessor> make_gp(bool readsCoverage, const SkMatrix& viewMatrix) {
     using namespace GrDefaultGeoProcFactory;
     Color color(Color::kAttribute_Type);
     Coverage coverage(readsCoverage ? Coverage::kSolid_Type : Coverage::kNone_Type);
 
-    LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
-    return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
+    LocalCoords localCoords(LocalCoords::kUsePosition_Type);
+    return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, viewMatrix);
 }
 
-static int tesselate_region(intptr_t vertices,
+static void tesselate_region(intptr_t vertices,
                             size_t vertexStride,
                             GrColor color,
-                            const SkMatrix& viewMatrix,
                             const SkRegion& region) {
     SkRegion::Iterator iter(region);
 
     intptr_t verts = vertices;
     while (!iter.done()) {
-        SkIRect rect = iter.rect();
+        SkRect rect = SkRect::Make(iter.rect());
         SkPoint* position = (SkPoint*) verts;
-        position->setIRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
-
-        static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
-        SkPoint* localPosition = (SkPoint*) (verts + kLocalOffset);
-        localPosition->setIRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
+        position->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
 
         static const int kColorOffset = sizeof(SkPoint);
         GrColor* vertColor = reinterpret_cast<GrColor*>(verts + kColorOffset);
@@ -53,13 +48,6 @@ static int tesselate_region(intptr_t vertices,
         verts += vertexStride * kVertsPerInstance;
         iter.next();
     }
-
-    SkPoint* positions = reinterpret_cast<SkPoint*>(vertices);
-    int numRects = region.computeRegionComplexity();
-    SkMatrixPriv::MapPointsWithStride(viewMatrix, positions, vertexStride,
-                                      numRects * kVertsPerInstance);
-
-    return numRects;
 }
 
 class RegionBatch : public GrVertexBatch {
@@ -67,11 +55,11 @@ public:
     DEFINE_BATCH_CLASS_ID
 
     RegionBatch(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region)
-            : INHERITED(ClassID()) {
-
+            : INHERITED(ClassID())
+            , fViewMatrix(viewMatrix)
+    {
         RegionInfo& info = fRegions.push_back();
         info.fColor = color;
-        info.fViewMatrix = viewMatrix;
         info.fRegion = region;
 
         SkRect bounds = SkRect::Make(region.getBounds());
@@ -108,13 +96,12 @@ public:
 private:
 
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(fOverrides.readsCoverage());
+        sk_sp<GrGeometryProcessor> gp = make_gp(fOverrides.readsCoverage(), fViewMatrix);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
-        SkASSERT(gp->getVertexStride() ==
-                sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr));
+        SkASSERT(gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
 
         int numRegions = fRegions.count();
         int numRects = 0;
@@ -134,8 +121,8 @@ private:
 
         intptr_t verts = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < numRegions; i++) {
-            int numRectsInRegion = tesselate_region(verts, vertexStride, fRegions[i].fColor,
-                                                    fRegions[i].fViewMatrix, fRegions[i].fRegion);
+            tesselate_region(verts, vertexStride, fRegions[i].fColor, fRegions[i].fRegion);
+            int numRectsInRegion = fRegions[i].fRegion.computeRegionComplexity();
             verts += numRectsInRegion * kVertsPerInstance * vertexStride;
         }
         helper.recordDraw(target, gp.get());
@@ -148,6 +135,10 @@ private:
             return false;
         }
 
+        if (fViewMatrix != that->fViewMatrix) {
+            return false;
+        }
+
         fRegions.push_back_n(that->fRegions.count(), that->fRegions.begin());
         this->joinBounds(*that);
         return true;
@@ -155,10 +146,10 @@ private:
 
     struct RegionInfo {
         GrColor fColor;
-        SkMatrix fViewMatrix;
         SkRegion fRegion;
     };
 
+    SkMatrix fViewMatrix;
     GrXPOverridesForBatch fOverrides;
     SkSTArray<1, RegionInfo, true> fRegions;
 
