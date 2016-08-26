@@ -22,16 +22,6 @@ if (current_os == "") {
   current_os = target_os
 }
 
-if (target_cpu == "") {
-  target_cpu = host_cpu
-  if (ndk != "") {
-    target_cpu = "arm64"
-  }
-}
-if (current_cpu == "") {
-  current_cpu = target_cpu
-}
-
 is_android = current_os == "android"
 is_fuchsia = current_os == "fuchsia"
 is_ios = current_os == "ios"
@@ -39,21 +29,59 @@ is_linux = current_os == "linux"
 is_mac = current_os == "mac"
 is_win = current_os == "win"
 
-is_posix = !is_win
+if (target_cpu == "") {
+  target_cpu = host_cpu
+  if (is_android) {
+    target_cpu = "arm64"
+  }
+}
+if (current_cpu == "") {
+  current_cpu = target_cpu
+}
 
 if (is_android) {
   ndk_host = ""
   ndk_target = ""
   ndk_platform = ""
   ndk_stdlib = ""
+  nkd_gccdir = ""
 
-  if (host_os == "linux" && host_cpu == "x64") {
+  if (host_os == "linux") {
     ndk_host = "linux-x86_64"
+  } else if (host_os == "mac") {
+    ndk_host = "darwin-x86_64"
   }
+
   if (target_cpu == "arm64") {
     ndk_target = "aarch64-linux-android"
     ndk_platform = "android-21/arch-arm64"
     ndk_stdlib = "arm64-v8a"
+    ndk_gccdir = ndk_target
+  } else if (target_cpu == "arm") {
+    ndk_target = "arm-linux-androideabi"
+    ndk_platform = "android-18/arch-arm"
+    ndk_stdlib = "armeabi-v7a"
+    ndk_gccdir = ndk_target
+  } else if (target_cpu == "mips64el") {
+    ndk_target = "mips64el-linux-android"
+    ndk_platform = "android-21/arch-mips64"
+    ndk_stdlib = "mips64"
+    ndk_gccdir = ndk_target
+  } else if (target_cpu == "mipsel") {
+    ndk_target = "mipsel-linux-android"
+    ndk_platform = "android-18/arch-mips"
+    ndk_stdlib = "mips"
+    ndk_gccdir = ndk_target
+  } else if (target_cpu == "x64") {
+    ndk_target = "x86_64-linux-android"
+    ndk_platform = "android-21/arch-x86_64"
+    ndk_stdlib = "x86_64"
+    ndk_gccdir = ndk_stdlib
+  } else if (target_cpu == "x86") {
+    ndk_target = "i686-linux-android"
+    ndk_platform = "android-18/arch-x86"
+    ndk_stdlib = "x86"
+    ndk_gccdir = ndk_stdlib
   }
 }
 

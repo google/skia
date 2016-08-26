@@ -215,6 +215,12 @@ opts("avx") {
   cflags = [ "-mavx" ]
 }
 
+opts("dsp") {
+  enabled = current_cpu == "mipsel"
+  sources = opts_gypi.mips_dsp_sources
+  cflags = [ "-Wno-deprecated-register" ]  # FIXME
+}
+
 # Any feature of Skia that requires third-party code should be optional and use this template.
 template("optional") {
   if (invoker.enabled) {
@@ -334,6 +340,7 @@ component("skia") {
     ":armv7",
     ":avx",
     ":crc32",
+    ":dsp",
     ":gif",
     ":jpeg",
     ":none",
