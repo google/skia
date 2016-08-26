@@ -205,6 +205,8 @@
     'skia_os%': '<(skia_os)',
     'os_posix%': '<(os_posix)',
 
+    'pkg-config%': 'pkg-config',
+
     'skia_freetype_static%': '<(skia_freetype_static)',
     'skia_no_fontconfig%': '<(skia_no_fontconfig)',
     'skia_embedded_fonts%': '<(skia_embedded_fonts)',
