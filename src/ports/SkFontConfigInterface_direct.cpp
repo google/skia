@@ -496,6 +496,10 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
 ///////////////////////////////////////////////////////////////////////////////
 
 #define kMaxFontFamilyLength    2048
+#ifdef SK_FONT_CONFIG_INTERFACE_ONLY_ALLOW_SFNT_FONTS
+const char* kFontFormatTrueType = "TrueType";
+const char* kFontFormatCFF = "CFF";
+#endif
 
 SkFontConfigInterfaceDirect::SkFontConfigInterfaceDirect() {
     FCLocker lock;
@@ -520,6 +524,16 @@ bool SkFontConfigInterfaceDirect::isValidPattern(FcPattern* pattern) {
     FcBool is_scalable;
     if (FcPatternGetBool(pattern, FC_SCALABLE, 0, &is_scalable) != FcResultMatch
         || !is_scalable) {
+        return false;
+    }
+#endif
+
+#ifdef SK_FONT_CONFIG_INTERFACE_ONLY_ALLOW_SFNT_FONTS
+    const char* font_format = get_name(pattern, FC_FONTFORMAT);
+    if (font_format
+        && strcmp(font_format, kFontFormatTrueType) != 0
+        && strcmp(font_format, kFontFormatCFF) != 0)
+    {
         return false;
     }
 #endif
@@ -592,6 +606,11 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     fcpattern_from_skfontstyle(style, pattern);
 
     FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
+
+#ifdef SK_FONT_CONFIG_INTERFACE_ONLY_ALLOW_SFNT_FONTS
+    FcPatternAddString(pattern, FC_FONTFORMAT, reinterpret_cast<const FcChar8*>(kFontFormatTrueType));
+    FcPatternAddString(pattern, FC_FONTFORMAT, reinterpret_cast<const FcChar8*>(kFontFormatCFF));
+#endif
 
     FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
