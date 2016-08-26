@@ -7365,7 +7365,38 @@ path.conicTo(SkBits2Float(0x556a2d21), SkBits2Float(0x21088c2a), SkBits2Float(0x
     testPathOpFail(reporter, path1, path2, (SkPathOp) 0, filename);
 }
 
+static void fuzz763_30(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x1f2108c0), SkBits2Float(0x4b7b0321));  // 3.41003e-20f, 1.64503e+07f
+path.lineTo(SkBits2Float(0x6829ed27), SkBits2Float(0x2d555b2d));  // 3.20982e+24f, 1.21279e-11f
+path.moveTo(SkBits2Float(0x68305b2d), SkBits2Float(0xf0685527));  // 3.33127e+24f, -2.87614e+29f
+path.conicTo(SkBits2Float(0x2a8c555b), SkBits2Float(0x6e2a1f72), SkBits2Float(0x0321082a), SkBits2Float(0x2a4b7bc0), SkBits2Float(0x68295b2d));  // 2.49282e-13f, 1.31626e+28f, 4.7323e-37f, 1.8073e-13f, 3.19905e+24f
+path.lineTo(SkBits2Float(0x5b2d2968), SkBits2Float(0x212a8c55));  // 4.87407e+16f, 5.7784e-19f
+path.moveTo(SkBits2Float(0x0321081f), SkBits2Float(0x4b7b28c0));  // 4.7323e-37f, 1.646e+07f
+path.lineTo(SkBits2Float(0x2a8ced7a), SkBits2Float(0x2d081f21));  // 2.50338e-13f, 7.73762e-12f
+path.moveTo(SkBits2Float(0x68556829), SkBits2Float(0x555b2d29));  // 4.03114e+24f, 1.50617e+13f
+path.moveTo(SkBits2Float(0x1f2a312a), SkBits2Float(0xc0032108));  // 3.60396e-20f, -2.04889f
+path.cubicTo(SkBits2Float(0x69392d55), SkBits2Float(0x2d5b684b), SkBits2Float(0x8c5527f0), SkBits2Float(0x212a1f2a), SkBits2Float(0x0321082a), SkBits2Float(0x6a4b7bc0));  // 1.39916e+25f, 1.24719e-11f, -1.64209e-31f, 5.76395e-19f, 4.7323e-37f, 6.14991e+25f
+path.conicTo(SkBits2Float(0x212a8ced), SkBits2Float(0xed7a6a1f), SkBits2Float(0x3a214793), SkBits2Float(0x3328282a), SkBits2Float(0x3a8a3adf));  // 5.77848e-19f, -4.84372e+27f, 0.000615233f, 3.91521e-08f, 0.00105461f
+path.conicTo(SkBits2Float(0x4be80304), SkBits2Float(0xdcdcdc15), SkBits2Float(0xdcdcdcdc), SkBits2Float(0x71dcdcdc), SkBits2Float(0x6c107164));  // 3.04102e+07f, -4.97332e+17f, -4.97339e+17f, 2.18732e+30f, 6.98483e+26f
+path.conicTo(SkBits2Float(0x6c0f1d6c), SkBits2Float(0x8e406c6e), SkBits2Float(0x6c6c0200), SkBits2Float(0x6c6ce46c), SkBits2Float(0x6c6c6c6c));  // 6.92061e+26f, -2.3718e-30f, 1.14126e+27f, 1.14554e+27f, 1.14327e+27f
+path.lineTo(SkBits2Float(0x1f2a312a), SkBits2Float(0xc0032108));  // 3.60396e-20f, -2.04889f
+path.close();
+path.moveTo(SkBits2Float(0x1f2a312a), SkBits2Float(0xc0032108));  // 3.60396e-20f, -2.04889f
+path.quadTo(SkBits2Float(0x3ab38a28), SkBits2Float(0x3ac22c21), SkBits2Float(0x6c401057), SkBits2Float(0x6d6d6b64));  // 0.00136978f, 0.00148142f, 9.28764e+26f, 4.59236e+27f
+path.cubicTo(SkBits2Float(0x6d6d6d6d), SkBits2Float(0x6d6d6d6d), SkBits2Float(0x286d6d6d), SkBits2Float(0x081d2a29), SkBits2Float(0x6d690321), SkBits2Float(0x6b6b026d));  // 4.59251e+27f, 4.59251e+27f, 1.31799e-14f, 4.7295e-34f, 4.50711e+27f, 2.84109e+26f
+
+    SkPath path2(path);
+    testPathOpSkipAssert(reporter, path1, path2, (SkPathOp) 2, filename);
+}
+
 static struct TestDesc failTests[] = {
+    TEST(fuzz763_30),
     TEST(fuzz763_29),
     TEST(fuzz763_28),
     TEST(fuzz763_27),

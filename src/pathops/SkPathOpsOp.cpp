@@ -46,7 +46,15 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
         if (sortable) {
             segment = angle->segment();
             sumMiWinding = segment->updateWindingReverse(angle);
+            if (sumMiWinding == SK_MinS32) {
+                SkASSERT(segment->globalState()->debugSkipAssert());
+                return nullptr;
+            }
             sumSuWinding = segment->updateOppWindingReverse(angle);
+            if (sumSuWinding == SK_MinS32) {
+                SkASSERT(segment->globalState()->debugSkipAssert());
+                return nullptr;
+            }
             if (segment->operand()) {
                 SkTSwap<int>(sumMiWinding, sumSuWinding);
             }
