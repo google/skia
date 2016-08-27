@@ -77,7 +77,6 @@ find_dirs = [
     'gm',
     'tests',
     'third_party/externals/icu/source/common',
-    'third_party/externals/nanomsg/src',
     'third_party/externals/sfntly/sfntly',
     'third_party/externals/shaderc2',
     'tools/VisualBench',
