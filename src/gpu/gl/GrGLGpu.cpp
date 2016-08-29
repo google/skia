@@ -2762,28 +2762,40 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
 
         const GrMesh& mesh = meshes[i];
         GrMesh::Iterator iter;
-        const GrNonInstancedMesh* nonIdxMesh = iter.init(mesh);
+        const GrNonInstancedMesh* nonInstMesh = iter.init(mesh);
         do {
             size_t indexOffsetInBytes = 0;
-            this->setupGeometry(primProc, *nonIdxMesh, &indexOffsetInBytes);
-            if (nonIdxMesh->isIndexed()) {
+            this->setupGeometry(primProc, *nonInstMesh, &indexOffsetInBytes);
+            if (nonInstMesh->isIndexed()) {
                 GrGLvoid* indices =
-                    reinterpret_cast<GrGLvoid*>(indexOffsetInBytes + sizeof(uint16_t) *
-                    nonIdxMesh->startIndex());
+                    reinterpret_cast<GrGLvoid*>(indexOffsetInBytes +
+                                                sizeof(uint16_t) * nonInstMesh->startIndex());
                 // info.startVertex() was accounted for by setupGeometry.
-                GL_CALL(DrawElements(gPrimitiveType2GLMode[nonIdxMesh->primitiveType()],
-                                     nonIdxMesh->indexCount(),
-                                     GR_GL_UNSIGNED_SHORT,
-                                     indices));
+                if (this->glCaps().drawRangeElementsSupport()) {
+                    // We assume here that the batch that generated the mesh used the full
+                    // 0..vertexCount()-1 range.
+                    int start = 0;
+                    int end = nonInstMesh->vertexCount() - 1;
+                    GL_CALL(DrawRangeElements(gPrimitiveType2GLMode[nonInstMesh->primitiveType()],
+                                              start, end,
+                                              nonInstMesh->indexCount(),
+                                              GR_GL_UNSIGNED_SHORT,
+                                              indices));
+                } else {
+                    GL_CALL(DrawElements(gPrimitiveType2GLMode[nonInstMesh->primitiveType()],
+                                         nonInstMesh->indexCount(),
+                                         GR_GL_UNSIGNED_SHORT,
+                                         indices));
+                }
             } else {
                 // Pass 0 for parameter first. We have to adjust glVertexAttribPointer() to account
                 // for startVertex in the DrawElements case. So we always rely on setupGeometry to
                 // have accounted for startVertex.
-                GL_CALL(DrawArrays(gPrimitiveType2GLMode[nonIdxMesh->primitiveType()], 0,
-                                   nonIdxMesh->vertexCount()));
+                GL_CALL(DrawArrays(gPrimitiveType2GLMode[nonInstMesh->primitiveType()], 0,
+                                   nonInstMesh->vertexCount()));
             }
             fStats.incNumDraws();
-        } while ((nonIdxMesh = iter.next()));
+        } while ((nonInstMesh = iter.next()));
     }
 
     if (fHWPLSEnabled && plsState == GrPixelLocalStorageState::kFinish_GrPixelLocalStorageState) {

@@ -307,6 +307,9 @@ public:
     /// draw commands cannot be used unless we have base instance support.
     bool multiDrawIndirectSupport() const { return fMultiDrawIndirectSupport; }
 
+    /// Is there support for glDrawRangeElements?
+    bool drawRangeElementsSupport() const { return fDrawRangeElementsSupport; }
+
     /// Are the baseInstance fields supported in indirect draw commands?
     bool baseInstanceSupport() const { return fBaseInstanceSupport; }
 
@@ -400,6 +403,7 @@ private:
     bool fES2CompatibilitySupport : 1;
     bool fDrawInstancedSupport : 1;
     bool fDrawIndirectSupport : 1;
+    bool fDrawRangeElementsSupport : 1;
     bool fMultiDrawIndirectSupport : 1;
     bool fBaseInstanceSupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;

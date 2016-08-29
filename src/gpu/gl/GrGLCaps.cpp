@@ -525,12 +525,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                     (fDrawIndirectSupport &&
                                      !fBaseInstanceSupport && // The ARB extension has no base inst.
                                      ctxInfo.hasExtension("GL_ARB_multi_draw_indirect"));
+        fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     } else {
         fDrawIndirectSupport = version >= GR_GL_VER(3,1);
         fMultiDrawIndirectSupport = fDrawIndirectSupport &&
                                     ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
         fBaseInstanceSupport = fDrawIndirectSupport &&
                                ctxInfo.hasExtension("GL_EXT_base_instance");
+        fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     }
 
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);

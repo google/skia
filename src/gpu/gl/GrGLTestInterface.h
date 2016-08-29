@@ -66,6 +66,7 @@ public:
     virtual GrGLvoid drawElements(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid* indices) {}
     virtual GrGLvoid drawElementsInstanced(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid *indices, GrGLsizei primcount) {}
     virtual GrGLvoid drawElementsIndirect(GrGLenum mode, GrGLenum type, const GrGLvoid* indirect) {}
+    virtual GrGLvoid drawRangeElements(GrGLenum mode, GrGLuint start, GrGLuint end, GrGLsizei count, GrGLenum type, const GrGLvoid* indices) {}
     virtual GrGLvoid enable(GrGLenum cap) {}
     virtual GrGLvoid enableVertexAttribArray(GrGLuint index) {}
     virtual GrGLvoid endQuery(GrGLenum target) {}

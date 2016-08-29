@@ -155,6 +155,7 @@ public:
         GrGLFunction<GrGLDrawElementsProc> fDrawElements;
         GrGLFunction<GrGLDrawElementsIndirectProc> fDrawElementsIndirect;
         GrGLFunction<GrGLDrawElementsInstancedProc> fDrawElementsInstanced;
+        GrGLFunction<GrGLDrawRangeElementsProc> fDrawRangeElements;
         GrGLFunction<GrGLEnableProc> fEnable;
         GrGLFunction<GrGLEnableVertexAttribArrayProc> fEnableVertexAttribArray;
         GrGLFunction<GrGLEndQueryProc> fEndQuery;

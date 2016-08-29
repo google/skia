@@ -65,6 +65,7 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fDrawElements = bind_to_member(this, &GrGLTestInterface::drawElements);
     fFunctions.fDrawElementsInstanced = bind_to_member(this, &GrGLTestInterface::drawElementsInstanced);
     fFunctions.fDrawElementsIndirect = bind_to_member(this, &GrGLTestInterface::drawElementsIndirect);
+    fFunctions.fDrawRangeElements = bind_to_member(this, &GrGLTestInterface::drawRangeElements);
     fFunctions.fEnable = bind_to_member(this, &GrGLTestInterface::enable);
     fFunctions.fEnableVertexAttribArray = bind_to_member(this, &GrGLTestInterface::enableVertexAttribArray);
     fFunctions.fEndQuery = bind_to_member(this, &GrGLTestInterface::endQuery);

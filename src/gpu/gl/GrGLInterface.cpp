@@ -793,5 +793,15 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    if (kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(2,0)) {
+        if (nullptr == fFunctions.fDrawRangeElements) {
+            RETURN_FALSE_INTERFACE;
+        }
+    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0)) {
+        if (nullptr == fFunctions.fDrawRangeElements) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
+
     return true;
 }

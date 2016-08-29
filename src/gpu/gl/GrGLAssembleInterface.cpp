@@ -148,7 +148,9 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(DrawArraysIndirect);
         GET_PROC(DrawElementsIndirect);
     }
-
+    if (glVer >= GR_GL_VER(2,0)) {
+        GET_PROC(DrawRangeElements);
+    }
     GET_PROC(Enable);
     GET_PROC(EnableVertexAttribArray);
     GET_PROC(EndQuery);
@@ -615,6 +617,9 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     }
 
     GET_PROC(DrawElements);
+    if (version >= GR_GL_VER(3,0)) {
+        GET_PROC(DrawRangeElements);
+    }
     GET_PROC(Enable);
     GET_PROC(EnableVertexAttribArray);
     GET_PROC(Finish);
