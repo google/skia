@@ -210,12 +210,6 @@ uint32_t SkValidatingReadBuffer::getArrayCount() {
     return fError ? 0 : *(uint32_t*)fReader.peek();
 }
 
-SkTypeface* SkValidatingReadBuffer::readTypeface() {
-    SkASSERT(false);
-    // TODO: Implement this (securely) when needed
-    return nullptr;
-}
-
 bool SkValidatingReadBuffer::validateAvailable(size_t size) {
     return this->validate((size <= SK_MaxU32) && fReader.isAvailable(static_cast<uint32_t>(size)));
 }

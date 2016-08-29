@@ -1958,7 +1958,7 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     this->setTextEncoding(static_cast<TextEncoding>((tmp >> 0) & 0xFF));
 
     if (flatFlags & kHasTypeface_FlatFlag) {
-        this->setTypeface(sk_ref_sp(buffer.readTypeface()));
+        this->setTypeface(buffer.readTypeface());
     } else {
         this->setTypeface(nullptr);
     }

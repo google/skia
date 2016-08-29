@@ -297,14 +297,13 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
     return image ? image : MakeEmptyImage(width, height);
 }
 
-SkTypeface* SkReadBuffer::readTypeface() {
-
+sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
     uint32_t index = fReader.readU32();
     if (0 == index || index > (unsigned)fTFCount) {
         return nullptr;
     } else {
         SkASSERT(fTFArray);
-        return fTFArray[index - 1];
+        return sk_ref_sp(fTFArray[index - 1]);
     }
 }
 

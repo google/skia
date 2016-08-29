@@ -166,14 +166,9 @@ public:
     // helpers to get info about arrays and binary data
     virtual uint32_t getArrayCount();
 
-    /**
-     *  Returns false if the image could not be completely read. In that case, it will be set
-     *  to have width/height, but no pixels.
-     */
     sk_sp<SkImage> readBitmapAsImage();
     sk_sp<SkImage> readImage();
-
-    virtual SkTypeface* readTypeface();
+    virtual sk_sp<SkTypeface> readTypeface();
 
     void setTypefaceArray(SkTypeface* array[], int count) {
         fTFArray = array;

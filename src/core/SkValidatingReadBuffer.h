@@ -62,9 +62,6 @@ public:
     // helpers to get info about arrays and binary data
     uint32_t getArrayCount() override;
 
-    // TODO: Implement this (securely) when needed
-    SkTypeface* readTypeface() override;
-
     bool validate(bool isValid) override;
     bool isValid() const override;
 
