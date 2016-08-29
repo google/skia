@@ -117,10 +117,6 @@ config("executable") {
   }
 }
 
-pool("link_pool") {
-  depth = 0  #unlimited
-}
-
 toolchain("gcc_like") {
   lib_switch = "-l"
   lib_dir_switch = "-L"
@@ -182,7 +178,6 @@ toolchain("gcc_like") {
     output_prefix = "lib"
     default_output_extension = ".so"
     description = "$compiler_prefix $cxx -shared ... -o {{output}}"
-    pool = ":link_pool"
   }
 
   tool("link") {
@@ -191,7 +186,6 @@ toolchain("gcc_like") {
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
     description = "$compiler_prefix $cxx ... -o {{output}}"
-    pool = ":link_pool"
   }
 
   tool("stamp") {
