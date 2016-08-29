@@ -101,7 +101,7 @@ protected:
         }
         SkString type;
         this->appendName(&type);
-        fName.printf("patch_%s_%s_[%f,%f]", type.c_str(), vertexMode.c_str(),
+        fName.printf("patch_%s_%s_%fx%f", type.c_str(), vertexMode.c_str(),
                     fScale.x(), fScale.y());
         return fName.c_str();
     }
