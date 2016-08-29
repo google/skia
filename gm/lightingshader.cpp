@@ -52,7 +52,7 @@ public:
                                                      SkVector3::Make(SK_ScalarRoot2Over2,
                                                                      0.0f,
                                                                      SK_ScalarRoot2Over2)));
-        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
 
         fLights = builder.finish();
     }

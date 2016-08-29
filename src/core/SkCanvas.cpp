@@ -3231,8 +3231,7 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
         // skip over ambient lights; they don't cast shadows
         // lights that have shadow maps do not need updating (because lights are immutable)
 
-        if (SkLights::Light::kAmbient_LightType == fLights->light(i).type() ||
-            fLights->light(i).getShadowMap() != nullptr) {
+        if (fLights->light(i).getShadowMap() != nullptr) {
             continue;
         }
 
