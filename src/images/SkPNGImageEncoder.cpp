@@ -76,6 +76,7 @@ static transform_scanline_proc choose_proc(SkColorType ct, bool hasAlpha) {
         { kARGB_4444_SkColorType,   false,  transform_scanline_444 },
         { kARGB_4444_SkColorType,   true,   transform_scanline_4444 },
         { kIndex_8_SkColorType,     false,  transform_scanline_memcpy },
+        { kGray_8_SkColorType,      false,  transform_scanline_memcpy },
     };
 
     for (int i = SK_ARRAY_COUNT(gMap) - 1; i >= 0; --i) {
@@ -178,13 +179,13 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream,
     const SkBitmap* bitmap = &originalBitmap;
     switch (originalBitmap.colorType()) {
         case kIndex_8_SkColorType:
+        case kGray_8_SkColorType:
         case kN32_SkColorType:
         case kARGB_4444_SkColorType:
         case kRGB_565_SkColorType:
             break;
         default:
             // TODO(scroggo): support 8888-but-not-N32 natively.
-            // TODO(scroggo): support kGray_8 directly.
             // TODO(scroggo): support Alpha_8 as Grayscale(black)+Alpha
             if (originalBitmap.copyTo(&copy, kN32_SkColorType)) {
                 bitmap = &copy;
@@ -193,43 +194,47 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream,
     SkColorType ct = bitmap->colorType();
 
     const bool hasAlpha = !bitmap->isOpaque();
-    int colorType = PNG_COLOR_MASK_COLOR;
     int bitDepth = 8;   // default for color
     png_color_8 sig_bit;
+    sk_bzero(&sig_bit, sizeof(png_color_8));
 
+    int colorType;
     switch (ct) {
         case kIndex_8_SkColorType:
-            colorType |= PNG_COLOR_MASK_PALETTE;
-            // fall through to the ARGB_8888 case
+            sig_bit.red = 8;
+            sig_bit.green = 8;
+            sig_bit.blue = 8;
+            sig_bit.alpha = 8;
+            colorType = PNG_COLOR_TYPE_PALETTE;
+            break;
+        case kGray_8_SkColorType:
+            sig_bit.gray = 8;
+            colorType = PNG_COLOR_TYPE_GRAY;
+            SkASSERT(!hasAlpha);
+            break;
         case kN32_SkColorType:
             sig_bit.red = 8;
             sig_bit.green = 8;
             sig_bit.blue = 8;
             sig_bit.alpha = 8;
+            colorType = hasAlpha ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB;
             break;
         case kARGB_4444_SkColorType:
             sig_bit.red = 4;
             sig_bit.green = 4;
             sig_bit.blue = 4;
             sig_bit.alpha = 4;
+            colorType = hasAlpha ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB;
             break;
         case kRGB_565_SkColorType:
             sig_bit.red = 5;
             sig_bit.green = 6;
             sig_bit.blue = 5;
-            sig_bit.alpha = 0;
+            colorType = PNG_COLOR_TYPE_RGB;
+            SkASSERT(!hasAlpha);
             break;
         default:
             return false;
-    }
-
-    if (hasAlpha) {
-        // don't specify alpha if we're a palette, even if our ctable has alpha
-        if (!(colorType & PNG_COLOR_MASK_PALETTE)) {
-            colorType |= PNG_COLOR_MASK_ALPHA;
-        }
-    } else {
-        sig_bit.alpha = 0;
     }
 
     SkAutoLockPixels alp(*bitmap);
@@ -306,9 +311,8 @@ bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
             png_set_tRNS(png_ptr, info_ptr, trans, numTrans, nullptr);
         }
     }
-#ifdef PNG_sBIT_SUPPORTED
+
     png_set_sBIT(png_ptr, info_ptr, &sig_bit);
-#endif
     png_write_info(png_ptr, info_ptr);
 
     const char* srcImage = (const char*)bitmap.getPixels();

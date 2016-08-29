@@ -1074,7 +1074,31 @@ DEF_TEST(Codec_ColorXform, r) {
     check_color_xform(r, "mandrill_512.png");
 }
 
-DEF_TEST(Codec_Png565, r) {
+static void check_round_trip(skiatest::Reporter* r, const SkBitmap& bm1) {
+    SkColorType origColorType = bm1.colorType();
+    SkAlphaType origAlphaType = bm1.alphaType();
+
+    // Encode the image to png.
+    sk_sp<SkData> data =
+            sk_sp<SkData>(SkImageEncoder::EncodeData(bm1, SkImageEncoder::kPNG_Type, 100));
+
+    // Prepare to decode.  The codec should recognize that the PNG is 565.
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
+    REPORTER_ASSERT(r, origColorType == codec->getInfo().colorType());
+    REPORTER_ASSERT(r, origAlphaType == codec->getInfo().alphaType());
+
+    SkBitmap bm2;
+    bm2.allocPixels(codec->getInfo());
+    SkCodec::Result result = codec->getPixels(codec->getInfo(), bm2.getPixels(), bm2.rowBytes());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+
+    SkMD5::Digest d1, d2;
+    md5(bm1, &d1);
+    md5(bm2, &d2);
+    REPORTER_ASSERT(r, d1 == d2);
+}
+
+DEF_TEST(Codec_PngRoundTrip, r) {
     // Create an arbitrary 565 bitmap.
     const char* path = "mandrill_512_q075.jpg";
     SkAutoTDelete<SkStream> stream(resource(path));
@@ -1084,23 +1108,15 @@ DEF_TEST(Codec_Png565, r) {
     bm1.allocPixels(info565);
     SkCodec::Result result = codec->getPixels(info565, bm1.getPixels(), bm1.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+    check_round_trip(r, bm1);
 
-    // Encode the image to png.
-    sk_sp<SkData> data =
-            sk_sp<SkData>(SkImageEncoder::EncodeData(bm1, SkImageEncoder::kPNG_Type, 100));
-
-    // Prepare to decode.  The codec should recognize that the PNG is 565.
-    codec.reset(SkCodec::NewFromData(data.get()));
-    REPORTER_ASSERT(r, kRGB_565_SkColorType == codec->getInfo().colorType());
-    REPORTER_ASSERT(r, kOpaque_SkAlphaType == codec->getInfo().alphaType());
-
+    // Create an arbitrary gray bitmap.
+    path = "grayscale.jpg";
+    stream.reset(resource(path));
+    codec.reset(SkCodec::NewFromStream(stream.release()));
     SkBitmap bm2;
     bm2.allocPixels(codec->getInfo());
     result = codec->getPixels(codec->getInfo(), bm2.getPixels(), bm2.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
-
-    SkMD5::Digest d1, d2;
-    md5(bm1, &d1);
-    md5(bm2, &d2);
-    REPORTER_ASSERT(r, d1 == d2);
+    check_round_trip(r, bm2);
 }
