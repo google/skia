@@ -84,9 +84,15 @@ namespace {
 static SkSpinlock gProcessorSpinlock;
 class MemoryPoolAccessor {
 public:
-    MemoryPoolAccessor() { gProcessorSpinlock.acquire(); }
 
+// We know in the Android framework there is only one GrContext.
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+    MemoryPoolAccessor() {}
+    ~MemoryPoolAccessor() {}
+#else
+    MemoryPoolAccessor() { gProcessorSpinlock.acquire(); }
     ~MemoryPoolAccessor() { gProcessorSpinlock.release(); }
+#endif
 
     GrMemoryPool* pool() const {
         static GrMemoryPool gPool(4096, 4096);
