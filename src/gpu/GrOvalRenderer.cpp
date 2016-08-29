@@ -1535,7 +1535,7 @@ private:
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(fAllFill,
+        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(!fAllFill,
                                                                          false, false,
                                                                          false, localMatrix));
         struct CircleVertex {
