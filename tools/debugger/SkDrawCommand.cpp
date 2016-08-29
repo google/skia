@@ -97,6 +97,10 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_SWEEPANGLE        "sweepAngle"
 #define SKDEBUGCANVAS_ATTRIBUTE_USECENTER         "useCenter"
 #define SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC         "shortDesc"
+#define SKDEBUGCANVAS_ATTRIBUTE_UNIQUE_ID         "uniqueID"
+#define SKDEBUGCANVAS_ATTRIBUTE_WIDTH             "width"
+#define SKDEBUGCANVAS_ATTRIBUTE_HEIGHT            "height"
+#define SKDEBUGCANVAS_ATTRIBUTE_ALPHA             "alpha"
 
 #define SKDEBUGCANVAS_VERB_MOVE                   "move"
 #define SKDEBUGCANVAS_VERB_LINE                   "line"
@@ -156,6 +160,7 @@
 #define SKDEBUGCANVAS_ALPHATYPE_OPAQUE            "opaque"
 #define SKDEBUGCANVAS_ALPHATYPE_PREMUL            "premul"
 #define SKDEBUGCANVAS_ALPHATYPE_UNPREMUL          "unpremul"
+#define SKDEBUGCANVAS_ALPHATYPE_UNKNOWN           "unknown"
 
 #define SKDEBUGCANVAS_FILTERQUALITY_NONE          "none"
 #define SKDEBUGCANVAS_FILTERQUALITY_LOW           "low"
@@ -2130,6 +2135,24 @@ Json::Value SkDrawImageCommand::toJSON(UrlDataManager& urlDataManager) const {
         result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonPoint(fLeft, fTop);
         if (fPaint.isValid()) {
             result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(*fPaint.get(), urlDataManager);
+        }
+
+        result[SKDEBUGCANVAS_ATTRIBUTE_UNIQUE_ID] = fImage->uniqueID();
+        result[SKDEBUGCANVAS_ATTRIBUTE_WIDTH] = fImage->width();
+        result[SKDEBUGCANVAS_ATTRIBUTE_HEIGHT] = fImage->height();
+        switch (fImage->alphaType()) {
+            case kOpaque_SkAlphaType:
+                result[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = SKDEBUGCANVAS_ALPHATYPE_OPAQUE;
+                break;
+            case kPremul_SkAlphaType:
+                result[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = SKDEBUGCANVAS_ALPHATYPE_PREMUL;
+                break;
+            case kUnpremul_SkAlphaType:
+                result[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = SKDEBUGCANVAS_ALPHATYPE_UNPREMUL;
+                break;
+            default:
+                result[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = SKDEBUGCANVAS_ALPHATYPE_UNKNOWN;
+                break;
         }
     }
     return result;
