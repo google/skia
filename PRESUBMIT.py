@@ -280,14 +280,62 @@ def _CheckTreeStatus(input_api, output_api, json_url):
   return tree_status_results
 
 
+class CodeReview(object):
+  """Abstracts which codereview tool is used for the specified issue."""
+
+  def __init__(self, input_api):
+    self._issue = input_api.change.issue
+    self._gerrit = input_api.gerrit
+    self._rietveld_properties = None
+    if not self._gerrit:
+      self._rietveld_properties = input_api.rietveld.get_issue_properties(
+          issue=int(self._issue), messages=True)
+
+  def GetOwnerEmail(self):
+    if self._gerrit:
+      return self._gerrit.GetChangeOwner(self._issue)
+    else:
+      return self._rietveld_properties['owner_email']
+
+  def GetSubject(self):
+    if self._gerrit:
+      return self._gerrit.GetChangeInfo(self._issue)['subject']
+    else:
+      return self._rietveld_properties['subject']
+
+  def GetDescription(self):
+    if self._gerrit:
+      return self._gerrit.GetChangeDescription(self._issue)
+    else:
+      return self._rietveld_properties['description']
+
+  def IsDryRun(self):
+    if self._gerrit:
+      return self._gerrit.GetChangeInfo(
+          self._issue)['labels']['Commit-Queue'].get('value', 0) == 1
+    else:
+      return self._rietveld_properties['cq_dry_run']
+
+  def GetApprovers(self):
+    approvers = []
+    if self._gerrit:
+      for m in self._gerrit.GetChangeInfo(
+                   self._issue)['labels']['Code-Review']['all']:
+        if m.get("value") == 1:
+          approvers.append(m["email"])
+    else:
+      for m in self._rietveld_properties.get('messages', []):
+        if 'lgtm' in m['text'].lower():
+          approvers.append(m['sender'])
+    return approvers
+
+
 def _CheckOwnerIsInAuthorsFile(input_api, output_api):
   results = []
-  issue = input_api.change.issue
-  if issue and input_api.rietveld:
-    issue_properties = input_api.rietveld.get_issue_properties(
-        issue=int(issue), messages=False)
-    owner_email = issue_properties['owner_email']
+  if input_api.change.issue:
+    cr = CodeReview(input_api)
 
+    owner_email = cr.GetOwnerEmail()
     try:
       authors_content = ''
       for line in open(AUTHORS_FILE_NAME):
@@ -335,20 +383,19 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
     return results
 
   lgtm_from_owner = False
-  issue = input_api.change.issue
-  if issue and input_api.rietveld:
-    issue_properties = input_api.rietveld.get_issue_properties(
-        issue=int(issue), messages=True)
-    if re.match(REVERT_CL_SUBJECT_PREFIX, issue_properties['subject'], re.I):
+  if input_api.change.issue:
+    cr = CodeReview(input_api)
+
+    if re.match(REVERT_CL_SUBJECT_PREFIX, cr.GetSubject(), re.I):
       # It is a revert CL, ignore the public api owners check.
       return results
 
-    if issue_properties['cq_dry_run']:
+    if cr.IsDryRun():
       # Ignore public api owners check for dry run CLs since they are not
       # going to be committed.
       return results
 
-    match = re.search(r'^TBR=(.*)$', issue_properties['description'], re.M)
+    match = re.search(r'^TBR=(.*)$', cr.GetDescription(), re.M)
     if match:
       tbr_entries = match.group(1).strip().split(',')
       for owner in PUBLIC_API_OWNERS:
@@ -357,18 +404,15 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
           # api owners check.
           return results
 
-    if issue_properties['owner_email'] in PUBLIC_API_OWNERS:
+    if cr.GetOwnerEmail() in PUBLIC_API_OWNERS:
       # An owner created the CL that is an automatic LGTM.
       lgtm_from_owner = True
 
-    messages = issue_properties.get('messages')
-    if messages:
-      for message in messages:
-        if (message['sender'] in PUBLIC_API_OWNERS and
-            'lgtm' in message['text'].lower()):
-          # Found an lgtm in a message from an owner.
-          lgtm_from_owner = True
-          break
+    for approver in cr.GetApprovers():
+      if approver in PUBLIC_API_OWNERS:
+        # Found an lgtm in a message from an owner.
+        lgtm_from_owner = True
+        break
 
   if not lgtm_from_owner:
     results.append(
@@ -399,6 +443,12 @@ def PostUploadHook(cl, change, output_api):
   """
 
   results = []
+  if cl.IsGerrit():
+    results.append(
+        output_api.PresubmitNotifyResult(
+            'Post upload hooks are not yet supported for Gerrit CLs'))
+    return results
+
   atleast_one_docs_change = False
   all_docs_changes = True
   for affected_file in change.AffectedFiles():
