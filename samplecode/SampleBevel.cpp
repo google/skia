@@ -749,7 +749,7 @@ protected:
                                                                         fLightDefs[i].fDirXY.fY,
                                                                         fLightDefs[i].fDirZ)));
         }
-        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
+        builder.setAmbientLightColor(SkColor3f::Make(0.4f, 0.4f, 0.4f));
         fLights = builder.finish();
 
         // Draw shapes

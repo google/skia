@@ -22,7 +22,6 @@ public:
     class Light {
     public:
         enum LightType {
-            kAmbient_LightType,       // only 'fColor' is used
             kDirectional_LightType,
             kPoint_LightType
         };
@@ -41,10 +40,6 @@ public:
             , fDirOrPos(other.fDirOrPos)
             , fIntensity(other.fIntensity)
             , fShadowMap(std::move(other.fShadowMap)) {
-        }
-
-        static Light MakeAmbient(const SkColor3f& color) {
-            return Light(kAmbient_LightType, color, SkVector3::Make(0.0f, 0.0f, 1.0f));
         }
 
         static Light MakeDirectional(const SkColor3f& color, const SkVector3& dir) {
@@ -123,17 +118,17 @@ public:
         sk_sp<SkImage> fShadowMap;
 
         Light(LightType type, const SkColor3f& color,
-              const SkVector3& dir, SkScalar intensity = 0.0f) {
+              const SkVector3& dirOrPos, SkScalar intensity = 0.0f) {
             fType = type;
             fColor = color;
-            fDirOrPos = dir;
+            fDirOrPos = dirOrPos;
             fIntensity = intensity;
         }
     };
 
     class Builder {
     public:
-        Builder() : fLights(new SkLights) { }
+        Builder() : fLights(new SkLights) {}
 
         void add(const Light& light) {
             if (fLights) {
@@ -144,6 +139,12 @@ public:
         void add(Light&& light) {
             if (fLights) {
                 fLights->fLights.push_back(std::move(light));
+            }
+        }
+
+        void setAmbientLightColor(const SkColor3f& color) {
+            if (fLights) {
+                fLights->fAmbientLightColor = color;
             }
         }
 
@@ -167,13 +168,20 @@ public:
         return fLights[index];
     }
 
+    const SkColor3f& ambientLightColor() const {
+        return fAmbientLightColor;
+    }
+
     static sk_sp<SkLights> MakeFromBuffer(SkReadBuffer& buf);
 
     void flatten(SkWriteBuffer& buf) const;
 
 private:
-    SkLights() {}
+    SkLights() {
+        fAmbientLightColor.set(0.0f, 0.0f, 0.0f);
+    }
     SkTArray<Light> fLights;
+    SkColor3f fAmbientLightColor;
     typedef SkRefCnt INHERITED;
 };
 

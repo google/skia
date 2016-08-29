@@ -22,7 +22,7 @@ static sk_sp<SkLights> create_lights(SkScalar angle, SkScalar blue) {
     SkLights::Builder builder;
 
     builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, blue), dir));
-    builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.1f, 0.1f, 0.1f)));
+    builder.setAmbientLightColor(SkColor3f::Make(0.1f, 0.1f, 0.1f));
 
     return builder.finish();
 }

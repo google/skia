@@ -47,12 +47,12 @@ protected:
         SkLights::Builder builder;
         builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, 1.0f),
                                                      kLightFromUpperRight));
-        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
         fLights = builder.finish();
 
         // No directional lights
         SkLights::Builder builderNoDir;
-        builderNoDir.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builderNoDir.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
         fLightsNoDir = builderNoDir.finish();
 
         // Two directional lights
@@ -61,7 +61,7 @@ protected:
                                                            kLightFromUpperRight));
         builderTwoDir.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.0f, 1.0f, 1.0f),
                                                            kLightFromUpperLeft));
-        builderTwoDir.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builderTwoDir.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
         fLightsTwoDir = builderTwoDir.finish();
 
         fRect = SkRect::MakeIWH(kTexSize, kTexSize);

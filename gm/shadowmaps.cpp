@@ -74,7 +74,7 @@ public:
                                                      SkVector3::Make(0.2f, 0.1f, 1.0f)));
         builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.4f, 0.3f, 0.2f),
                                                      SkVector3::Make(0.1f, 0.2f, 1.0f)));
-        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.4f, 0.4f, 0.4f)));
+        builder.setAmbientLightColor(SkColor3f::Make(0.4f, 0.4f, 0.4f));
         fLights = builder.finish();
 
         fShadowParams.fShadowRadius = 4.0f;
