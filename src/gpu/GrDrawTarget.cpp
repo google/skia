@@ -571,6 +571,9 @@ GrBatch* GrDrawTarget::recordBatch(GrBatch* batch, const SkRect& clippedBounds) 
 }
 
 void GrDrawTarget::forwardCombine() {
+    if (fMaxBatchLookahead <= 0) {
+        return;
+    }
     for (int i = 0; i < fRecordedBatches.count() - 2; ++i) {
         GrBatch* batch = fRecordedBatches[i].fBatch.get();
         const SkRect& batchBounds = fRecordedBatches[i].fClippedBounds;
