@@ -1153,27 +1153,6 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
                                        1, &barrier));
             initialLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
-            // Make sure buffer has finished the unmap
-            VkBufferMemoryBarrier bufBarrier;
-            memset(&barrier, 0, sizeof(VkImageMemoryBarrier));
-            bufBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-            bufBarrier.pNext = nullptr;
-            bufBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
-            bufBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-            bufBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            bufBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            bufBarrier.buffer = buffer;
-            bufBarrier.offset = 0;
-            bufBarrier.size = bufInfo.size;
-
-            VK_CALL(CmdPipelineBarrier(cmdBuffer,
-                                       VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                       0,
-                                       0, nullptr,
-                                       1, &bufBarrier,
-                                       0, nullptr));
-
             // Submit copy command
             VkBufferImageCopy region;
             memset(&region, 0, sizeof(VkBufferImageCopy));
