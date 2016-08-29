@@ -17,6 +17,8 @@ declare_args() {
   skia_use_zlib = true
 }
 
+fontmgr_android_enabled = skia_use_expat && skia_use_freetype
+
 skia_public_includes = [
   "include/android",
   "include/c",
@@ -248,6 +250,21 @@ template("optional") {
   }
 }
 
+optional("fontmgr_android") {
+  enabled = fontmgr_android_enabled
+  public_defines = []
+
+  deps = [
+    "//third_party/expat",
+    "//third_party/freetype2",
+  ]
+  sources = [
+    "src/ports/SkFontMgr_android.cpp",
+    "src/ports/SkFontMgr_android_factory.cpp",
+    "src/ports/SkFontMgr_android_parser.cpp",
+  ]
+}
+
 optional("fontmgr_fontconfig") {
   enabled = skia_use_freetype && skia_use_fontconfig
   public_defines = []
@@ -373,6 +390,7 @@ component("skia") {
     ":avx",
     ":crc32",
     ":dsp",
+    ":fontmgr_android",
     ":fontmgr_fontconfig",
     ":gif",
     ":jpeg",
@@ -464,9 +482,6 @@ component("skia") {
     sources += [
       "src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp",
       "src/ports/SkDebug_android.cpp",
-      "src/ports/SkFontMgr_android.cpp",
-      "src/ports/SkFontMgr_android_factory.cpp",
-      "src/ports/SkFontMgr_android_parser.cpp",
     ]
     libs += [
       "EGL",
@@ -671,15 +686,16 @@ if (skia_enable_tools) {
 
   test_lib("tests") {
     public_include_dirs = [ "tests" ]
-    sources =
-        tests_sources - [
-          rebase_path("tests/FontMgrAndroidParserTest.cpp"),  # Android only
-          rebase_path("tests/PathOpsSkpClipTest.cpp"),  # alternate main
-          rebase_path("tests/SkSLErrorTest.cpp"),  # TODO: make work
-          rebase_path("tests/SkSLGLSLTest.cpp"),  # TODO: make work
-          rebase_path("tests/SkpSkGrTest.cpp"),  # doesn't compile
-          rebase_path("tests/skia_test.cpp"),  # alternate main
-        ]
+    sources = tests_sources - [
+                rebase_path("tests/PathOpsSkpClipTest.cpp"),  # alternate main
+                rebase_path("tests/SkSLErrorTest.cpp"),  # TODO: make work
+                rebase_path("tests/SkSLGLSLTest.cpp"),  # TODO: make work
+                rebase_path("tests/SkpSkGrTest.cpp"),  # doesn't compile
+                rebase_path("tests/skia_test.cpp"),  # alternate main
+              ]
+    if (!fontmgr_android_enabled) {
+      sources -= [ rebase_path("tests/FontMgrAndroidParserTest.cpp") ]
+    }
     deps = [
       ":experimental_svg_model",
       ":flags",
