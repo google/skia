@@ -7,6 +7,8 @@ declare_args() {
   skia_enable_tools = !is_fuchsia && !is_component_build
 
   skia_use_expat = true
+  skia_use_fontconfig = is_linux
+  skia_use_freetype = is_android || is_linux
   skia_use_giflib = !is_fuchsia
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
@@ -246,6 +248,23 @@ template("optional") {
   }
 }
 
+optional("fontmgr_fontconfig") {
+  enabled = skia_use_freetype && skia_use_fontconfig
+  public_defines = []
+
+  deps = [
+    "//third_party:fontconfig",
+    "//third_party/freetype2",
+  ]
+  sources = [
+    "src/ports/SkFontConfigInterface_direct.cpp",
+    "src/ports/SkFontConfigInterface_direct_factory.cpp",
+    "src/ports/SkFontMgr_FontConfigInterface.cpp",
+    "src/ports/SkFontMgr_fontconfig.cpp",
+    "src/ports/SkFontMgr_fontconfig_factory.cpp",
+  ]
+}
+
 optional("gif") {
   enabled = skia_use_giflib
   public_defines = [ "SK_HAS_GIF_LIBRARY" ]
@@ -303,6 +322,19 @@ optional("png") {
   ]
 }
 
+optional("typeface_freetype") {
+  enabled = skia_use_freetype
+  public_defines = []
+
+  deps = [
+    "//third_party/freetype2",
+  ]
+  sources = [
+    "src/ports/SkFontHost_FreeType.cpp",
+    "src/ports/SkFontHost_FreeType_common.cpp",
+  ]
+}
+
 optional("webp") {
   enabled = skia_use_libwebp
   public_defines = [ "SK_HAS_WEBP_LIBRARY" ]
@@ -341,6 +373,7 @@ component("skia") {
     ":avx",
     ":crc32",
     ":dsp",
+    ":fontmgr_fontconfig",
     ":gif",
     ":jpeg",
     ":none",
@@ -350,6 +383,7 @@ component("skia") {
     ":sse41",
     ":sse42",
     ":ssse3",
+    ":typeface_freetype",
     ":webp",
     ":xml",
   ]
@@ -426,13 +460,10 @@ component("skia") {
     deps += [
       "//third_party/cpu-features",
       "//third_party/expat",
-      "//third_party/freetype2",
     ]
     sources += [
       "src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp",
       "src/ports/SkDebug_android.cpp",
-      "src/ports/SkFontHost_FreeType.cpp",
-      "src/ports/SkFontHost_FreeType_common.cpp",
       "src/ports/SkFontMgr_android.cpp",
       "src/ports/SkFontMgr_android_factory.cpp",
       "src/ports/SkFontMgr_android_parser.cpp",
@@ -445,10 +476,6 @@ component("skia") {
   }
 
   if (is_linux) {
-    deps += [
-      "third_party:fontconfig",
-      "//third_party/freetype2",
-    ]
     libs += [
       "GL",
       "GLU",
@@ -457,13 +484,6 @@ component("skia") {
     sources += [
       "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp",
       "src/ports/SkDebug_stdio.cpp",
-      "src/ports/SkFontConfigInterface_direct.cpp",
-      "src/ports/SkFontConfigInterface_direct_factory.cpp",
-      "src/ports/SkFontHost_FreeType.cpp",
-      "src/ports/SkFontHost_FreeType_common.cpp",
-      "src/ports/SkFontMgr_FontConfigInterface.cpp",
-      "src/ports/SkFontMgr_fontconfig.cpp",
-      "src/ports/SkFontMgr_fontconfig_factory.cpp",
     ]
   }
 
