@@ -1,0 +1,204 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[CUSTOM_/_B_WORK]",
+      "511"
+    ],
+    "name": "makedirs checkout_path",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "config",
+      "--spec",
+      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': 'DEPS', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]\ntarget_os = ['llvm']"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android"
+    },
+    "name": "gclient setup"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "sync",
+      "--nohooks",
+      "--force",
+      "--verbose",
+      "--delete_unversioned_trees",
+      "--revision",
+      "skia@abc123",
+      "--output-json",
+      "/path/to/tmp/json"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android"
+    },
+    "name": "gclient sync",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"solutions\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"skia/\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"revision\": 164710@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@164710@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import json\nimport subprocess\nimport sys\n\nccache = None\ntry:\n  ccache = subprocess.check_output(['which', 'ccache']).rstrip()\nexcept:\n  pass\nprint json.dumps({'ccache': ccache})\n"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android"
+    },
+    "name": "has ccache?",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"ccache\": \"/usr/bin/ccache\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@ccache = None@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  ccache = subprocess.check_output(['which', 'ccache']).rstrip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@except:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  pass@@@",
+      "@@@STEP_LOG_LINE@python.inline@print json.dumps({'ccache': ccache})@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "GYP_DEFINES": "skia_clang_build=1 skia_warnings_as_errors=1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android"
+    },
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "gn",
+      "gen",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android/Release",
+      "--args=is_debug=false compiler_prefix=\"/usr/bin/ccache\" ndk=\"[SLAVE_BUILD]/android_ndk_linux\" target_cpu=\"arm64\""
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "GYP_DEFINES": "skia_clang_build=1 skia_warnings_as_errors=1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-C",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android/Release"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "GYP_DEFINES": "skia_clang_build=1 skia_warnings_as_errors=1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android"
+    },
+    "name": "ninja"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['dm', 'dm.exe', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'lib/*.so', 'iOSShell.app', 'iOSShell.ipa', 'visualbench', 'visualbench.exe', 'vulkan-1.dll']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android/Release",
+      "[CUSTOM_[SWARM_OUT_DIR]]/out/Release"
+    ],
+    "name": "copy build products",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import errno@@@",
+      "@@@STEP_LOG_LINE@python.inline@import glob@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import shutil@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@dst = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@build_products_whitelist = ['dm', 'dm.exe', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'lib/*.so', 'iOSShell.app', 'iOSShell.ipa', 'visualbench', 'visualbench.exe', 'vulkan-1.dll']@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(dst)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except OSError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if e.errno != errno.EEXIST:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for pattern in build_products_whitelist:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  path = os.path.join(src, pattern)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in glob.glob(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    dst_path = os.path.join(dst, os.path.relpath(f, src))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not os.path.isdir(os.path.dirname(dst_path)):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      os.makedirs(os.path.dirname(dst_path))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Copying build product %s to %s' % (f, dst_path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    shutil.move(f, dst_path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

@@ -24,8 +24,10 @@ TEST_BUILDERS = {
     'skiabot-linux-swarm-000': [
       'Build-Mac-Clang-Arm7-Debug-Android',
       'Build-Mac-Clang-Arm7-Release-iOS',
+      'Build-Mac-Clang-mipsel-Debug-GN_Android',
       'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
       'Build-Mac-Clang-x86_64-Release-CMake',
+      'Build-Ubuntu-Clang-arm64-Release-GN_Android',
       'Build-Ubuntu-Clang-x86_64-Debug-GN',
       'Build-Ubuntu-GCC-Arm7-Debug-Android-Trybot',
       'Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs',
@@ -33,8 +35,8 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-Arm7-Release-Android',
       'Build-Ubuntu-GCC-Arm7-Release-Android_Vulkan',
       'Build-Ubuntu-GCC-x86-Debug',
-      'Build-Ubuntu-GCC-x86_64-Debug-MSAN',
       'Build-Ubuntu-GCC-x86_64-Debug-GN',
+      'Build-Ubuntu-GCC-x86_64-Debug-MSAN',
       'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
       'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
       'Build-Ubuntu-GCC-x86_64-Release-CMake',
@@ -246,7 +248,7 @@ def GenTests(api):
           ccache = '/usr/bin/ccache'
           test += api.step_data('has ccache?',
                                 stdout=api.json.output({'ccache':ccache}))
-        if 'Android' in builder:
+        if 'Android' in builder and 'GN_Android' not in builder:
           test += api.step_data(
             'which adb',
             retcode=1)

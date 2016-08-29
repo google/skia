@@ -12,6 +12,7 @@ from . import android_flavor
 from . import cmake_flavor
 from . import coverage_flavor
 from . import default_flavor
+from . import gn_android_flavor
 from . import gn_flavor
 from . import ios_flavor
 from . import pdfium_flavor
@@ -62,6 +63,10 @@ def is_xsan(builder_cfg):
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, builder_cfg):
     """Return a flavor utils object specific to the given builder."""
+    gn_android = gn_android_flavor.GNAndroidFlavorUtils(self.m)
+    if gn_android.supported():
+      return gn_android
+
     gn = gn_flavor.GNFlavorUtils(self.m)
     if gn.supported():
       return gn
