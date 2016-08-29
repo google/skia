@@ -113,6 +113,10 @@ void applySvgPaint(const SkSVGPaint& svgPaint, SkPaint* p) {
     }
 }
 
+inline uint8_t opacity_to_alpha(SkScalar o) {
+    return SkTo<uint8_t>(SkScalarRoundToInt(o * 255));
+}
+
 // Commit the selected attribute to the paint cache.
 template <SkSVGAttribute>
 void commitToPaint(const SkSVGPresentationAttributes&,
@@ -137,7 +141,7 @@ template <>
 void commitToPaint<SkSVGAttribute::kFillOpacity>(const SkSVGPresentationAttributes& attrs,
                                                  const SkSVGLengthContext&,
                                                  SkSVGPresentationContext* pctx) {
-    pctx->fFillPaint.setAlpha(static_cast<uint8_t>(*attrs.fFillOpacity.get() * 255));
+    pctx->fFillPaint.setAlpha(opacity_to_alpha(*attrs.fFillOpacity.get()));
 }
 
 template <>
@@ -164,7 +168,7 @@ template <>
 void commitToPaint<SkSVGAttribute::kStrokeOpacity>(const SkSVGPresentationAttributes& attrs,
                                                    const SkSVGLengthContext&,
                                                    SkSVGPresentationContext* pctx) {
-    pctx->fStrokePaint.setAlpha(static_cast<uint8_t>(*attrs.fStrokeOpacity.get() * 255));
+    pctx->fStrokePaint.setAlpha(opacity_to_alpha(*attrs.fStrokeOpacity.get()));
 }
 
 template <>
@@ -246,7 +250,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 
     if (auto* opacity = attrs.fOpacity.getMaybeNull()) {
         SkPaint opacityPaint;
-        opacityPaint.setAlpha(static_cast<uint8_t>(opacity->value() * 255));
+        opacityPaint.setAlpha(opacity_to_alpha(opacity->value()));
         // Balanced in the destructor, via restoreToCount().
         fCanvas->saveLayer(nullptr, &opacityPaint);
     }
