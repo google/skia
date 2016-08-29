@@ -1362,7 +1362,7 @@ private:
 //
 // We don't draw the center quad from the fill rect in this case.
 
-static const uint16_t gRRectOverstrokeIndices[] = {
+static const uint16_t gOverstrokeRRectIndices[] = {
     // overstroke quads
     // we place this at the beginning so that we can skip these indices when rendering normally
     16, 17, 19, 16, 19, 18,
@@ -1386,46 +1386,52 @@ static const uint16_t gRRectOverstrokeIndices[] = {
     // we place this at the end so that we can ignore these indices when not rendering as filled
     5, 6, 10, 5, 10, 9,
 };
+// fill and standard stroke indices skip the overstroke "ring"
+static const uint16_t* gStandardRRectIndices = gOverstrokeRRectIndices + 6*4;
 
-static const uint16_t* gRRectIndices = gRRectOverstrokeIndices + 6*4;
-
-// overstroke count is arraysize 
-static const int kIndicesPerOverstrokeRRect = SK_ARRAY_COUNT(gRRectOverstrokeIndices) - 6;
+// overstroke count is arraysize minus the center indices
+static const int kIndicesPerOverstrokeRRect = SK_ARRAY_COUNT(gOverstrokeRRectIndices) - 6;
+// fill count skips overstroke indices and includes center
 static const int kIndicesPerFillRRect = kIndicesPerOverstrokeRRect - 6*4 + 6;
+// stroke count is fill count minus center indices
 static const int kIndicesPerStrokeRRect = kIndicesPerFillRRect - 6;
 static const int kVertsPerStandardRRect = 16;
 static const int kVertsPerOverstrokeRRect = 24;
-static const int kNumRRectsInIndexBuffer = 256;
 
 enum RRectType {
     kFill_RRectType,
     kStroke_RRectType,
-    kOverstroke_RRectType
+    kOverstroke_RRectType,
 };
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
-GR_DECLARE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
-GR_DECLARE_STATIC_UNIQUE_KEY(gOverstrokeRRectOnlyIndexBufferKey);
-static const GrBuffer* ref_rrect_index_buffer(RRectType type,
-                                              GrResourceProvider* resourceProvider) {
-    GR_DEFINE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
-    GR_DEFINE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
-    GR_DEFINE_STATIC_UNIQUE_KEY(gOverstrokeRRectOnlyIndexBufferKey);
-    switch (type) {
-        case kFill_RRectType:
-        default:
-            return resourceProvider->findOrCreateInstancedIndexBuffer(
-                gRRectIndices, kIndicesPerFillRRect, kNumRRectsInIndexBuffer,
-                kVertsPerStandardRRect, gRRectOnlyIndexBufferKey);
-        case kStroke_RRectType:
-            return resourceProvider->findOrCreateInstancedIndexBuffer(
-                gRRectIndices, kIndicesPerStrokeRRect, kNumRRectsInIndexBuffer,
-                kVertsPerStandardRRect, gStrokeRRectOnlyIndexBufferKey);
-        case kOverstroke_RRectType:
-            return resourceProvider->findOrCreateInstancedIndexBuffer(
-                gRRectOverstrokeIndices, kIndicesPerOverstrokeRRect, kNumRRectsInIndexBuffer,
-                kVertsPerOverstrokeRRect, gOverstrokeRRectOnlyIndexBufferKey);
+static int rrect_type_to_vert_count(RRectType type) {
+    static const int kTypeToVertCount[] = {
+        kVertsPerStandardRRect,
+        kVertsPerStandardRRect,
+        kVertsPerOverstrokeRRect,
     };
+
+    return kTypeToVertCount[type];
+}
+
+static int rrect_type_to_index_count(RRectType type) {
+    static const int kTypeToIndexCount[] = {
+        kIndicesPerFillRRect,
+        kIndicesPerStrokeRRect,
+        kIndicesPerOverstrokeRRect,
+    };
+
+    return kTypeToIndexCount[type];
+}
+
+static const uint16_t* rrect_type_to_indices(RRectType type) {
+    static const uint16_t* kTypeToIndices[] = {
+        gStandardRRectIndices,
+        gStandardRRectIndices,
+        gOverstrokeRRectIndices,
+    };
+
+    return kTypeToIndices[type];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1445,7 +1451,7 @@ public:
         SkScalar innerRadius = 0.0f;
         SkScalar outerRadius = devRadius;
         SkScalar halfWidth = 0;
-        fType = kFill_RRectType;
+        RRectType type = kFill_RRectType;
         if (devStrokeWidth > 0) {
             if (SkScalarNearlyZero(devStrokeWidth)) {
                 halfWidth = SK_ScalarHalf;
@@ -1461,7 +1467,7 @@ public:
                 if (devStrokeWidth <= devRect.width() &&
                     devStrokeWidth <= devRect.height()) {
                     innerRadius = devRadius - halfWidth;
-                    fType = (innerRadius >= 0) ? kStroke_RRectType : kOverstroke_RRectType;
+                    type = (innerRadius >= 0) ? kStroke_RRectType : kOverstroke_RRectType;
                 }
             }
             outerRadius += halfWidth;
@@ -1481,7 +1487,10 @@ public:
         // Expand the rect for aa to generate correct vertices.
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
 
-        fGeoData.emplace_back(Geometry { color, innerRadius, outerRadius, bounds });
+        fGeoData.emplace_back(Geometry{ color, innerRadius, outerRadius, bounds, type });
+        fVertCount = rrect_type_to_vert_count(type);
+        fIndexCount = rrect_type_to_index_count(type);
+        fAllFill = (kFill_RRectType == type);
     }
 
     const char* name() const override { return "RRectCircleBatch"; }
@@ -1526,10 +1535,9 @@ private:
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(kFill_RRectType != fType,
+        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(fAllFill,
                                                                          false, false,
                                                                          false, localMatrix));
-
         struct CircleVertex {
             SkPoint  fPos;
             GrColor  fColor;
@@ -1541,29 +1549,27 @@ private:
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
-        SkASSERT(vertexStride == sizeof(CircleVertex));
+        SkASSERT(sizeof(CircleVertex) == vertexStride);
 
-        // drop out the middle quad if we're stroked
-        int indicesPerInstance = kIndicesPerFillRRect;
-        if (kStroke_RRectType == fType) {
-            indicesPerInstance = kIndicesPerStrokeRRect;
-        } else if (kOverstroke_RRectType == fType) {
-            indicesPerInstance = kIndicesPerOverstrokeRRect;
-        }
-        SkAutoTUnref<const GrBuffer> indexBuffer(
-            ref_rrect_index_buffer(fType, target->resourceProvider()));
+        const GrBuffer* vertexBuffer;
+        int firstVertex;
 
-        InstancedHelper helper;
-        int vertexCount = (kOverstroke_RRectType == fType) ? kVertsPerOverstrokeRRect 
-                                                           : kVertsPerStandardRRect;
-        CircleVertex* verts = reinterpret_cast<CircleVertex*>(helper.init(target,
-            kTriangles_GrPrimitiveType, vertexStride, indexBuffer, vertexCount,
-            indicesPerInstance, instanceCount));
-        if (!verts || !indexBuffer) {
+        CircleVertex* verts = (CircleVertex*) target->makeVertexSpace(vertexStride, fVertCount,
+                                                                      &vertexBuffer, &firstVertex);
+        if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
+        const GrBuffer* indexBuffer = nullptr;
+        int firstIndex = 0;
+        uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
+        if (!indices) {
+            SkDebugf("Could not allocate indices\n");
+            return;
+        }
+
+        int currStartVertex = 0;
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& args = fGeoData[i];
 
@@ -1581,7 +1587,10 @@ private:
 
             SkScalar yOuterRadii[4] = {-1, 0, 0, 1 };
             // The inner radius in the vertex data must be specified in normalized space.
-            SkScalar innerRadius = args.fInnerRadius / args.fOuterRadius;
+            // For fills, specifying -1/outerRadius guarantees an alpha of 1.0 at the inner radius.
+            SkScalar innerRadius = args.fType != kFill_RRectType
+                                   ? args.fInnerRadius / args.fOuterRadius
+                                   : -1.0f / args.fOuterRadius;
             for (int i = 0; i < 4; ++i) {
                 verts->fPos = SkPoint::Make(bounds.fLeft, yCoords[i]);
                 verts->fColor = color;
@@ -1619,11 +1628,11 @@ private:
             //
             // Also, the outer offset is a constant vector pointing to the right, which
             // guarantees that the distance value along the outer rectangle is constant.
-            if (kOverstroke_RRectType == fType) {
+            if (kOverstroke_RRectType == args.fType) {
                 SkScalar overstrokeOuterRadius = outerRadius - args.fInnerRadius;
                 // this is the normalized distance from the outer rectangle of this
                 // geometry to the outer edge
-                SkScalar maxOffset = -args.fInnerRadius/overstrokeOuterRadius;
+                SkScalar maxOffset = -args.fInnerRadius / overstrokeOuterRadius;
 
                 verts->fPos = SkPoint::Make(bounds.fLeft + outerRadius, yCoords[1]);
                 verts->fColor = color;
@@ -1685,9 +1694,20 @@ private:
                 verts->fInnerRadius = 0;
                 verts++;
             }
+
+            const uint16_t* primIndices = rrect_type_to_indices(args.fType);
+            const int primIndexCount = rrect_type_to_index_count(args.fType);
+            for (int i = 0; i < primIndexCount; ++i) {
+                *indices++ = primIndices[i] + currStartVertex;
+            }
+
+            currStartVertex += rrect_type_to_vert_count(args.fType);
         }
 
-        helper.recordDraw(target, gp);
+        GrMesh mesh;
+        mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
+                         firstIndex, fVertCount, fIndexCount);
+        target->draw(gp.get(), mesh);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -1697,16 +1717,15 @@ private:
             return false;
         }
 
-        if (fType != that->fType) {
-            return false;
-        }
-
         if (!fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
             return false;
         }
 
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(*that);
+        fVertCount += that->fVertCount;
+        fIndexCount += that->fIndexCount;
+        fAllFill = fAllFill && that->fAllFill;
         return true;
     }
 
@@ -1715,14 +1734,40 @@ private:
         SkScalar fInnerRadius;
         SkScalar fOuterRadius;
         SkRect fDevBounds;
+        RRectType fType;
     };
 
-    RRectType                    fType;
-    SkMatrix                     fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
+    SkMatrix                     fViewMatrixIfUsingLocalCoords;
+    int                          fVertCount;
+    int                          fIndexCount;
+    bool                         fAllFill;
 
     typedef GrVertexBatch INHERITED;
 };
+
+static const int kNumRRectsInIndexBuffer = 256;
+
+GR_DECLARE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
+GR_DECLARE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
+static const GrBuffer* ref_rrect_index_buffer(RRectType type,
+                                              GrResourceProvider* resourceProvider) {
+    GR_DEFINE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
+    GR_DEFINE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
+    switch (type) {
+        case kFill_RRectType:
+            return resourceProvider->findOrCreateInstancedIndexBuffer(
+                gStandardRRectIndices, kIndicesPerFillRRect, kNumRRectsInIndexBuffer,
+                kVertsPerStandardRRect, gRRectOnlyIndexBufferKey);
+        case kStroke_RRectType:
+            return resourceProvider->findOrCreateInstancedIndexBuffer(
+                gStandardRRectIndices, kIndicesPerStrokeRRect, kNumRRectsInIndexBuffer,
+                kVertsPerStandardRRect, gStrokeRRectOnlyIndexBufferKey);
+        default:
+            SkASSERT(false);
+            return nullptr;
+    };
+}
 
 class RRectEllipseRendererBatch : public GrVertexBatch {
 public:
