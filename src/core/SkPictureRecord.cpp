@@ -867,18 +867,24 @@ void SkPictureRecord::onDrawAnnotation(const SkRect& rect, const char key[], SkD
 
 ///////////////////////////////////////////////////////////////////////////////
 
+template <typename T> int find_or_append_uniqueID(SkTDArray<const T*>& array, const T* obj) {
+    int index = array.select([&](const T* elem) {
+        return elem->uniqueID() == obj->uniqueID();
+    });
+    if (index < 0) {
+        index = array.count();
+        *array.append() = SkRef(obj);
+    }
+    return index;
+}
+
 sk_sp<SkSurface> SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {
     return nullptr;
 }
 
 void SkPictureRecord::addImage(const SkImage* image) {
-    int index = fImageRefs.find(image);
-    if (index >= 0) {
-        this->addInt(index);
-    } else {
-        *fImageRefs.append() = SkRef(image);
-        this->addInt(fImageRefs.count()-1);
-    }
+    // convention for images is 0-based index
+    this->addInt(find_or_append_uniqueID(fImageRefs, image));
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
@@ -914,14 +920,8 @@ void SkPictureRecord::addPatch(const SkPoint cubics[12]) {
 }
 
 void SkPictureRecord::addPicture(const SkPicture* picture) {
-    int index = fPictureRefs.find(picture);
-    if (index < 0) {    // not found
-        index = fPictureRefs.count();
-        *fPictureRefs.append() = picture;
-        picture->ref();
-    }
     // follow the convention of recording a 1-based index
-    this->addInt(index + 1);
+    this->addInt(find_or_append_uniqueID(fPictureRefs, picture) + 1);
 }
 
 void SkPictureRecord::addDrawable(SkDrawable* drawable) {
@@ -982,12 +982,9 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
     fWriter.writePad(text, byteLength);
 }
 
-void SkPictureRecord::addTextBlob(const SkTextBlob *blob) {
-    int index = fTextBlobRefs.count();
-    *fTextBlobRefs.append() = blob;
-    blob->ref();
+void SkPictureRecord::addTextBlob(const SkTextBlob* blob) {
     // follow the convention of recording a 1-based index
-    this->addInt(index + 1);
+    this->addInt(find_or_append_uniqueID(fTextBlobRefs, blob) + 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
