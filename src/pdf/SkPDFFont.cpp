@@ -167,7 +167,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
     if (!metrics) {
         metrics = sk_make_sp<SkAdvancedTypefaceMetrics>();
         metrics->fLastGlyphID = SkToU16(count - 1);
-    } 
+    }
     SkASSERT(metrics->fLastGlyphID == SkToU16(count - 1));
     return *canon->fTypefaceMetrics.set(id, metrics.release());
 }
@@ -603,6 +603,11 @@ static void add_type3_font_info(SkPDFCanon* canon,
                                 SkGlyphID firstGlyphID,
                                 SkGlyphID lastGlyphID) {
     SkASSERT(lastGlyphID >= firstGlyphID);
+    // Remove unused glyphs at the end of the range.
+    // Keep the lastGlyphID >= firstGlyphID invariant true.
+    while (lastGlyphID > firstGlyphID && !subset.has(lastGlyphID)) {
+        --lastGlyphID;
+    }
     SkASSERT(emSize > 0.0f);
     SkAutoGlyphCache cache = vector_cache(typeface, emSize);
     font->insertName("Subtype", "Type3");
