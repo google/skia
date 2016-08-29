@@ -1526,7 +1526,7 @@ private:
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(kStroke_RRectType == fType,
+        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(kFill_RRectType != fType,
                                                                          false, false,
                                                                          false, localMatrix));
 
@@ -1612,73 +1612,77 @@ private:
                 verts++;
             }
             // Add the additional vertices for overstroked rrects.
-            // Effectively this is an additional rrect, drawn inside out,
-            // with outerRadius == -innerRadius. This will give us correct AA in the center.
+            // Effectively this is an additional stroked rrect, with its
+            // outer radius = outerRadius - innerRadius, and inner radius = 0.
+            // This will give us correct AA in the center and the correct
+            // distance to the outer edge.
             //
-            // Note that args.fInnerRadius is negative in this case.
-            // Also, the offset is a constant vector pointing to the right, which guarantees
-            // that the distance value along the inner rectangle is constant, which
-            // is what we want to get nice anti-aliasing.
+            // Also, the outer offset is a constant vector pointing to the right, which
+            // guarantees that the distance value along the outer rectangle is constant.
             if (kOverstroke_RRectType == fType) {
+                SkScalar overstrokeOuterRadius = outerRadius - args.fInnerRadius;
+                // this is the normalized distance from the outer rectangle of this
+                // geometry to the outer edge
+                SkScalar maxOffset = -args.fInnerRadius/overstrokeOuterRadius;
+
                 verts->fPos = SkPoint::Make(bounds.fLeft + outerRadius, yCoords[1]);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(0, 0);
-                verts->fOuterRadius = -args.fInnerRadius;
-                verts->fInnerRadius = innerRadius;
+                verts->fOffset = SkPoint::Make(maxOffset, 0);
+                verts->fOuterRadius = overstrokeOuterRadius;
+                verts->fInnerRadius = 0;
                 verts++;
 
                 verts->fPos = SkPoint::Make(bounds.fRight - outerRadius, yCoords[1]);
                 verts->fColor = color;
+                verts->fOffset = SkPoint::Make(maxOffset, 0);
+                verts->fOuterRadius = overstrokeOuterRadius;
+                verts->fInnerRadius = 0;
+                verts++;
+
+                verts->fPos = SkPoint::Make(bounds.fLeft + overstrokeOuterRadius,
+                                            bounds.fTop + overstrokeOuterRadius);
+                verts->fColor = color;
                 verts->fOffset = SkPoint::Make(0, 0);
-                verts->fOuterRadius = -args.fInnerRadius;
-                verts->fInnerRadius = innerRadius;
+                verts->fOuterRadius = overstrokeOuterRadius;
+                verts->fInnerRadius = 0;
                 verts++;
 
-                SkScalar inset = outerRadius - args.fInnerRadius;
-                verts->fPos = SkPoint::Make(bounds.fLeft + inset,
-                                            bounds.fTop + inset);
+                verts->fPos = SkPoint::Make(bounds.fRight - overstrokeOuterRadius,
+                                            bounds.fTop + overstrokeOuterRadius);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(1, 0);
-                verts->fOuterRadius = -args.fInnerRadius;
-                verts->fInnerRadius = innerRadius;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = overstrokeOuterRadius;
+                verts->fInnerRadius = 0;
                 verts++;
 
-                verts->fPos = SkPoint::Make(bounds.fRight - inset,
-                                            bounds.fTop + inset);
+                verts->fPos = SkPoint::Make(bounds.fLeft + overstrokeOuterRadius,
+                                            bounds.fBottom - overstrokeOuterRadius);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(1, 0);
-                verts->fOuterRadius = -args.fInnerRadius;
-                verts->fInnerRadius = innerRadius;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = overstrokeOuterRadius;
+                verts->fInnerRadius = 0;
                 verts++;
 
-                verts->fPos = SkPoint::Make(bounds.fLeft + inset,
-                                            bounds.fBottom - inset);
+                verts->fPos = SkPoint::Make(bounds.fRight - overstrokeOuterRadius,
+                                            bounds.fBottom - overstrokeOuterRadius);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(1, 0);
-                verts->fOuterRadius = -args.fInnerRadius;
-                verts->fInnerRadius = innerRadius;
-                verts++;
-
-                verts->fPos = SkPoint::Make(bounds.fRight - inset,
-                                            bounds.fBottom - inset);
-                verts->fColor = color;
-                verts->fOffset = SkPoint::Make(1, 0);
-                verts->fOuterRadius = -args.fInnerRadius;
-                verts->fInnerRadius = innerRadius;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = overstrokeOuterRadius;
+                verts->fInnerRadius = 0;
                 verts++;
 
                 verts->fPos = SkPoint::Make(bounds.fLeft + outerRadius, yCoords[2]);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(0, 0);
-                verts->fOuterRadius = -args.fInnerRadius;
-                verts->fInnerRadius = innerRadius;
+                verts->fOffset = SkPoint::Make(maxOffset, 0);
+                verts->fOuterRadius = overstrokeOuterRadius;
+                verts->fInnerRadius = 0;
                 verts++;
 
                 verts->fPos = SkPoint::Make(bounds.fRight - outerRadius, yCoords[2]);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(0, 0);
-                verts->fOuterRadius = -args.fInnerRadius;
-                verts->fInnerRadius = innerRadius;
+                verts->fOffset = SkPoint::Make(maxOffset, 0);
+                verts->fOuterRadius = overstrokeOuterRadius;
+                verts->fInnerRadius = 0;
                 verts++;
             }
         }

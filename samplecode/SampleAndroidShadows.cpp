@@ -143,44 +143,46 @@ protected:
             return;
         }
 
-        SkRect pathRect;
-        SkRRect pathRRect;
-        if ((!path.isOval(&pathRect) || pathRect.width() != pathRect.height()) &&
-            (!path.isRRect(&pathRRect) || !pathRRect.allCornersCircular()) &&
-            !path.isRect(&pathRect)) {
-            this->drawAmbientShadow(canvas, path, zValue, ambientAlpha);
-            return;
-        }
-
         const SkScalar kHeightFactor = 1.f / 128.f;
         const SkScalar kGeomFactor = 64;
 
         SkScalar umbraAlpha = 1 / (1 + SkMaxScalar(zValue*kHeightFactor, 0));
         SkScalar radius = zValue*kHeightFactor*kGeomFactor;
 
-        // For all of these, we outset the rect by the radius to get our coverage shape.
+        SkRect pathRect;
+        SkRRect pathRRect;
+        if (radius >= 64 ||
+            !((path.isOval(&pathRect) && pathRect.width() == pathRect.height()) ||
+              (path.isRRect(&pathRRect) && pathRRect.allCornersCircular()) ||
+              path.isRect(&pathRect))) {
+            this->drawAmbientShadow(canvas, path, zValue, ambientAlpha);
+            return;
+        }
+
+        // For all of these, we outset the rect by half the radius to get our stroke shape.
+        SkScalar halfRadius = SK_ScalarHalf*radius;
         if (path.isOval(nullptr)) {
-            pathRect.outset(radius, radius);
+            pathRect.outset(halfRadius, halfRadius);
             pathRRect = SkRRect::MakeOval(pathRect);
         } else if (path.isRect(nullptr)) {
-            pathRect.outset(radius, radius);
-            pathRRect = SkRRect::MakeRectXY(pathRect, radius, radius);
+            pathRect.outset(halfRadius, halfRadius);
+            pathRRect = SkRRect::MakeRectXY(pathRect, halfRadius, halfRadius);
         } else {
-            pathRRect.outset(radius, radius);
+            pathRRect.outset(halfRadius, halfRadius);
         }
 
         SkPaint paint;
         paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        // we outset the stroke a little to cover up AA on the interior edge
+        paint.setStrokeWidth(radius + 1);
         // handle scale of radius due to CTM
         SkScalar maxScale = canvas->getTotalMatrix().getMaxScale();
         radius *= maxScale;
         unsigned char gray = (unsigned char)(ambientAlpha*umbraAlpha*255.999f);
-        SkASSERT(radius < 256);
-        // convert the radius to fixed point 8.8 and
-        // place it in the G,B components of the color
-        unsigned char intPart = (unsigned char)radius;
-        SkScalar fracPart = radius - intPart;
-        paint.setColor(SkColorSetARGB(1, gray, intPart, (unsigned char)(fracPart*256.f)));
+        SkASSERT(radius < 64);
+        // Convert radius to 6.2 fixed point and place in the G component.
+        paint.setColor(SkColorSetARGB(1, gray, (unsigned char)(4.0f*radius), 0));
 
         sk_sp<SkShader> gaussShader = SkGaussianEdgeShader::Make();
         paint.setShader(gaussShader);
@@ -265,15 +267,6 @@ protected:
             return;
         }
 
-        SkRect pathRect;
-        SkRRect pathRRect;
-        if ((!path.isOval(&pathRect) || pathRect.width() != pathRect.height()) &&
-            (!path.isRRect(&pathRRect) || !pathRRect.allCornersCircular()) &&
-            !path.isRect(&pathRect)) {
-            this->drawSpotShadow(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
-            return;
-        }
-
         SkScalar zRatio = zValue / (lightPos.fZ - zValue);
         if (zRatio < 0.0f) {
             zRatio = 0.0f;
@@ -282,15 +275,26 @@ protected:
         }
         SkScalar radius = lightWidth*zRatio;
 
-        // For all of these, we outset the rect by the radius to get our coverage shape.
+        SkRect pathRect;
+        SkRRect pathRRect;
+        if (radius >= 64 ||
+            !((path.isOval(&pathRect) && pathRect.width() == pathRect.height()) ||
+              (path.isRRect(&pathRRect) && pathRRect.allCornersCircular()) ||
+              path.isRect(&pathRect))) {
+            this->drawSpotShadow(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
+            return;
+        }
+
+        // For all of these, we outset the rect by half the radius to get our stroke shape.
+        SkScalar halfRadius = SK_ScalarHalf*radius;
         if (path.isOval(nullptr)) {
-            pathRect.outset(radius, radius);
+            pathRect.outset(halfRadius, halfRadius);
             pathRRect = SkRRect::MakeOval(pathRect);
         } else if (path.isRect(nullptr)) {
-            pathRect.outset(radius, radius);
-            pathRRect = SkRRect::MakeRectXY(pathRect, radius, radius);
+            pathRect.outset(halfRadius, halfRadius);
+            pathRRect = SkRRect::MakeRectXY(pathRect, halfRadius, halfRadius);
         } else {
-            pathRRect.outset(radius, radius);
+            pathRRect.outset(halfRadius, halfRadius);
         }
 
         // compute the transformation params
@@ -302,18 +306,34 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
+        // We outset the stroke by the length of the translation so the shadow extends to
+        // the edge of the shape. We also add 1/2 to cover up AA on the interior edge.
+        SkScalar pad = offset.length() + 0.5f;
+        // compute area
+        SkScalar strokeWidth = radius + 2.0f*pad;
+        SkScalar strokedArea = 2.0f*strokeWidth*(pathRRect.width() + pathRRect.height());
+        SkScalar filledArea = (pathRRect.height() + radius)*(pathRRect.width() + radius);
+        // If the area of the stroked geometry is larger than the fill geometry, or
+        // if our pad is too big to convert to 6.2 fixed point, just fill it.
+        if (strokedArea > filledArea || pad >= 64) {
+            pad = 0;
+            paint.setStyle(SkPaint::kStrokeAndFill_Style);
+            paint.setStrokeWidth(radius);
+        } else {
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(strokeWidth);
+        }
         sk_sp<SkShader> gaussShader = SkGaussianEdgeShader::Make();
         paint.setShader(gaussShader);
         // handle scale of radius due to CTM
         SkScalar maxScale = canvas->getTotalMatrix().getMaxScale();
         radius *= maxScale;
         unsigned char gray = (unsigned char)(spotAlpha*255.999f);
-        SkASSERT(radius < 256);
-        // convert the radius to fixed point 8.8 and
-        // place it in the G,B components of the color
-        unsigned char intPart = (unsigned char)radius;
-        SkScalar fracPart = radius - intPart;
-        paint.setColor(SkColorSetARGB(1, gray, intPart, (unsigned char)(fracPart*256.f)));
+        SkASSERT(radius < 64);
+        SkASSERT(pad < 64);
+        // Convert radius and pad to 6.2 fixed point and place in the G & B components.
+        paint.setColor(SkColorSetARGB(1, gray, (unsigned char)(radius*4.0f),
+                                     (unsigned char)(pad*4.0f)));
 
         // apply transformation to shadow
         canvas->translate(offset.fX, offset.fY);

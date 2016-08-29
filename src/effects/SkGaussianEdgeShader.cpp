@@ -12,9 +12,10 @@
  /** \class SkGaussianEdgeShaderImpl
  This subclass of shader applies a Gaussian to shadow edge
 
- The radius of the Gaussian blur is specified by the g and b values of the color,
- where g is the integer component and b is the fractional component. The r value
- represents the max final alpha.
+ The radius of the Gaussian blur is specified by the g value of the color, in 6.2 fixed point.
+ For spot shadows, we increase the stroke width to set the shadow against the shape. This pad
+ is specified by b, also in 6.2 fixed point. The r value represents the max final alpha.
+ The incoming alpha should be 1.
  */
 class SkGaussianEdgeShaderImpl : public SkShader {
 public:
@@ -70,9 +71,10 @@ public:
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-            fragBuilder->codeAppend("float radius = color.g*255.0 + color.b;");
+            fragBuilder->codeAppend("float radius = color.g*64.0;");
+            fragBuilder->codeAppend("float pad = color.b*64.0;");
 
-            fragBuilder->codeAppendf("float factor = 1.0 - clamp(%s.z/radius, 0.0, 1.0);",
+            fragBuilder->codeAppendf("float factor = 1.0 - clamp((%s.z - pad)/radius, 0.0, 1.0);",
                                      fragBuilder->distanceVectorName());
             fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
             fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.r);", args.fOutputColor);
