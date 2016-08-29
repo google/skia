@@ -111,23 +111,24 @@ public:
              const SkShadowParams& params,
              GrContext* context) {
 
-        fAmbientColor = lights->ambientLightColor();
+        // fuse all ambient lights into a single one
+        fAmbientColor.set(0.0f, 0.0f, 0.0f);
 
         fNumNonAmbLights = 0; // count of non-ambient lights
         for (int i = 0; i < lights->numLights(); ++i) {
-            if (fNumNonAmbLights < SkShadowShader::kMaxNonAmbientLights) {
+            if (SkLights::Light::kAmbient_LightType == lights->light(i).type()) {
+                fAmbientColor += lights->light(i).color();
+            } else if (fNumNonAmbLights < SkShadowShader::kMaxNonAmbientLights) {
                 fLightColor[fNumNonAmbLights] = lights->light(i).color();
-
-                if (SkLights::Light::kDirectional_LightType == lights->light(i).type()) {
-                    fLightDirOrPos[fNumNonAmbLights] = lights->light(i).dir();
-                    fLightIntensity[fNumNonAmbLights] = 0.0f;
-                } else if (SkLights::Light::kPoint_LightType == lights->light(i).type()) {
+                if (lights->light(i).type() == SkLights::Light::kPoint_LightType) {
                     fLightDirOrPos[fNumNonAmbLights] = lights->light(i).pos();
                     fLightIntensity[fNumNonAmbLights] = lights->light(i).intensity();
+                } else {
+                    fLightDirOrPos[fNumNonAmbLights] = lights->light(i).dir();
+                    fLightIntensity[fNumNonAmbLights] = 0.0f;
                 }
-
                 fIsPointLight[fNumNonAmbLights] =
-                        SkLights::Light::kPoint_LightType == lights->light(i).type();
+                         SkLights::Light::kPoint_LightType == lights->light(i).type();
 
                 SkImage_Base* shadowMap = ((SkImage_Base*)lights->light(i).getShadowMap());
 
@@ -696,28 +697,27 @@ void SkShadowShaderImpl::ShadowShaderContext::shadeSpan(int x, int y,
 
             SkColor3f accum = SkColor3f::Make(0.0f, 0.0f, 0.0f);
             // This is all done in linear unpremul color space (each component 0..255.0f though)
-
-            accum.fX += lightShader.fLights->ambientLightColor().fX * SkColorGetR(diffColor);
-            accum.fY += lightShader.fLights->ambientLightColor().fY * SkColorGetG(diffColor);
-            accum.fZ += lightShader.fLights->ambientLightColor().fZ * SkColorGetB(diffColor);
-
             for (int l = 0; l < lightShader.fLights->numLights(); ++l) {
                 const SkLights::Light& light = lightShader.fLights->light(l);
 
-                if (SkLights::Light::kDirectional_LightType == light.type()) {
+                if (SkLights::Light::kAmbient_LightType == light.type()) {
+                    accum.fX += light.color().fX * SkColorGetR(diffColor);
+                    accum.fY += light.color().fY * SkColorGetG(diffColor);
+                    accum.fZ += light.color().fZ * SkColorGetB(diffColor);
+                } else if (SkLights::Light::kDirectional_LightType == light.type()) {
                     // scaling by fZ accounts for lighting direction
                     accum.fX += light.color().makeScale(light.dir().fZ).fX *
-                                SkColorGetR(diffColor);
+                                                        SkColorGetR(diffColor);
                     accum.fY += light.color().makeScale(light.dir().fZ).fY *
-                                SkColorGetG(diffColor);
+                                                        SkColorGetG(diffColor);
                     accum.fZ += light.color().makeScale(light.dir().fZ).fZ *
-                                SkColorGetB(diffColor);
+                                                        SkColorGetB(diffColor);
                 } else {
+                    // TODO: do point lights for raster, currently treated like ambient
                     accum.fX += light.color().fX * SkColorGetR(diffColor);
                     accum.fY += light.color().fY * SkColorGetG(diffColor);
                     accum.fZ += light.color().fZ * SkColorGetB(diffColor);
                 }
-
             }
 
             result[i] = convert(accum, SkColorGetA(diffColor));

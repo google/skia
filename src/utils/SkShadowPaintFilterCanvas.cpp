@@ -50,6 +50,7 @@ bool SkShadowPaintFilterCanvas::onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Ty
 
 SkISize SkShadowPaintFilterCanvas::ComputeDepthMapSize(const SkLights::Light& light, int maxDepth,
                                                        int width, int height) {
+    SkASSERT(light.type() != SkLights::Light::kAmbient_LightType);
     if (light.type() != SkLights::Light::kDirectional_LightType) {
         return SkISize::Make(width *2 , height * 2);
     }

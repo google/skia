@@ -122,9 +122,11 @@ public:
     LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights) {
 
         // fuse all ambient lights into a single one
-        fAmbientColor = lights->ambientLightColor();
+        fAmbientColor.set(0.0f, 0.0f, 0.0f);
         for (int i = 0; i < lights->numLights(); ++i) {
-            if (SkLights::Light::kDirectional_LightType == lights->light(i).type()) {
+            if (SkLights::Light::kAmbient_LightType == lights->light(i).type()) {
+                fAmbientColor += lights->light(i).color();
+            } else if (SkLights::Light::kDirectional_LightType == lights->light(i).type()) {
                 fDirectionalLights.push_back(lights->light(i));
                 // TODO get the handle to the shadow map if there is one
             } else {
