@@ -105,7 +105,7 @@ config("default") {
 }
 
 config("release") {
-  cflags = [ "-Os" ]
+  cflags = [ "-O3" ]
   defines = [ "NDEBUG" ]
 }
 
