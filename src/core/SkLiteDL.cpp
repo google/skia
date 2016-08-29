@@ -11,9 +11,7 @@
 #include "SkLiteDL.h"
 #include "SkMath.h"
 #include "SkPicture.h"
-#include "SkMutex.h"
 #include "SkRSXform.h"
-#include "SkSpinlock.h"
 #include "SkTextBlob.h"
 
 #ifndef SKLITEDL_PAGE
