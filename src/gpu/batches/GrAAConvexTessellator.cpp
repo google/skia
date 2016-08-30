@@ -30,7 +30,7 @@ static const SkScalar kConicTolerance = 0.5f;
 static const SkScalar kRoundCapThreshold = 0.8f;
 
 // dot product above which we consider two adjacent curves to be part of the "same" curve
-static const SkScalar kCurveConnectionThreshold = 0.95f;
+static const SkScalar kCurveConnectionThreshold = 0.8f;
 
 static SkScalar intersect(const SkPoint& p0, const SkPoint& n0,
                           const SkPoint& p1, const SkPoint& n1) {
