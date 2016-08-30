@@ -290,7 +290,7 @@ class SkPicturePlayback(object):
       run_benchmark_cmd = (
           'PYTHONPATH=%s:%s:$PYTHONPATH' % (page_set_dir, self._catapult_dir),
           'DISPLAY=%s' % X11_DISPLAY,
-          'timeout', '300',
+          'timeout', '600',
           os.path.join(self._telemetry_binaries_dir, 'run_benchmark'),
           '--extra-browser-args="%s"' % self._browser_args,
           '--browser=exact',
