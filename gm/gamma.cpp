@@ -11,11 +11,11 @@
 #include "SkGradientShader.h"
 #include "SkPM4fPriv.h"
 
-DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
+DEF_SIMPLE_GM(gamma, canvas, 650, 200) {
     SkPaint p;
     const SkScalar sz = 50.0f;
     const int szInt = SkScalarTruncToInt(sz);
-    const SkScalar tx = sz + 5.0f;
+    const SkScalar tx = sz + 15.0f;
     const SkRect r = SkRect::MakeXYWH(0, 0, sz, sz);
     SkShader::TileMode rpt = SkShader::kRepeat_TileMode;
     auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
@@ -49,7 +49,9 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     mipmapPixels[1] = mipmapPixels[2] = SkPackARGB32(0xFF, s75, s75, s75);
 
     SkPaint textPaint;
+    textPaint.setAntiAlias(true);
     textPaint.setColor(SK_ColorWHITE);
+    sk_tool_utils::set_portable_typeface(&textPaint);
 
     // Helpers:
     auto advance = [&]() {
@@ -125,8 +127,8 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("MipMaps", 0);
 
-    // 50% grey via paint color.
-    p.setColor(0xff7f7f7f);
+    // 50% grey via paint color. Paint color (SkColor) is specified to be sRGB!
+    p.setColor(0xffbcbcbc);
     nextRect("Color", 0);
 
     // Black -> White gradient, scaled to sample just the middle.
@@ -160,10 +162,6 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     canvas->restore();
     canvas->translate(0, 2 * sz);
 
-    const U8CPU sqrtHalf = 0xB4;
-    const SkColor sqrtHalfAlpha = SkColorSetARGB(sqrtHalf, 0, 0, 0);
-    const SkColor sqrtHalfWhite = SkColorSetARGB(0xFF, sqrtHalf, sqrtHalf, sqrtHalf);
-
     // Xfermode tests, all done off-screen so certain modes work...
 
     canvas->saveLayer(nullptr, nullptr);
@@ -174,11 +172,12 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     nextXferRect(SK_ColorBLACK, SkXfermode::kDstOver_Mode, 0x7fffffff);
     nextXferRect(SK_ColorWHITE, SkXfermode::kSrcIn_Mode, 0x7fff00ff);
     nextXferRect(0x7fff00ff, SkXfermode::kDstIn_Mode, SK_ColorWHITE);
-    nextXferRect(sqrtHalfWhite, SkXfermode::kSrcIn_Mode, sqrtHalfAlpha);
-    nextXferRect(sqrtHalfAlpha, SkXfermode::kDstIn_Mode, sqrtHalfWhite);
 
-    nextXferRect(0xff3f3f3f, SkXfermode::kPlus_Mode, 0xff3f3f3f);
-    nextXferRect(sqrtHalfWhite, SkXfermode::kModulate_Mode, sqrtHalfWhite);
+    // 0x89 = 255 * linear_to_srgb(0.25)
+    nextXferRect(0xff898989, SkXfermode::kPlus_Mode, 0xff898989);
+
+    // 0xDB = 255 * linear_to_srgb(sqrt(0.5))
+    nextXferRect(0xffdbdbdb, SkXfermode::kModulate_Mode, 0xffdbdbdb);
 
     canvas->restore();
 }
