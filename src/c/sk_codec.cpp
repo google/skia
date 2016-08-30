@@ -36,11 +36,6 @@ void sk_codec_get_info(sk_codec_t* codec, sk_imageinfo_t* info)
     from_sk(AsCodec(codec)->getInfo(), info);
 }
 
-sk_colorspace_t* sk_codec_get_color_space(sk_codec_t* codec)
-{
-    return ToColorSpace(AsCodec(codec)->getColorSpace());
-}
-
 sk_codec_origin_t sk_codec_get_origin(sk_codec_t* codec)
 {
     return (sk_codec_origin_t)AsCodec(codec)->getOrigin();
