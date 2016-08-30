@@ -1280,8 +1280,6 @@ static void test_abandoned(skiatest::Reporter* reporter) {
 
     // Call all the public methods on resource in the abandoned state. They shouldn't crash.
 
-    int foo = 4132;
-    sk_sp<SkData> data(SkData::MakeWithCopy(&foo, sizeof(foo)));
     resource->getUniqueID();
     resource->getUniqueKey();
     resource->wasDestroyed();
