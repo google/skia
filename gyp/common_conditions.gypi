@@ -464,9 +464,6 @@
             ],
             'ldflags': [ '-fsanitize=<(skia_sanitizer)' ],
             'conditions' : [
-              [ 'skia_sanitizer == "thread"', {
-                'defines': [ 'THREAD_SANITIZER' ],
-              }],
               [ 'skia_sanitizer == "memory"', {
                 'cflags': [
                     '-O1',
