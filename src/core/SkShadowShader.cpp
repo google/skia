@@ -729,6 +729,7 @@ void SkShadowShaderImpl::ShadowShaderContext::shadeSpan(int x, int y,
                     int shY = SkClampMax(y + yOffset, light.getShadowMap()->height() - 1);
 
                     int shDepth = 0;
+                    int shDepthsq = 0;
 
                     // pixmaps that point to things have nonzero heights
                     if (fShadowMapPixels[l].height() > 0) {
@@ -736,17 +737,34 @@ void SkShadowShaderImpl::ShadowShaderContext::shadeSpan(int x, int y,
                         SkColor shColor(pix);
 
                         shDepth = SkColorGetB(shColor);
+                        shDepthsq = SkColorGetG(shColor) * 256;
                     } else {
                         // Make lights w/o a shadow map receive the full light contribution
                         shDepth = pvDepth;
                     }
 
-                    if (pvDepth >= shDepth) {
-                        // assume object normals are pointing straight up
-                        totalLight.fX += light.dir().fZ * light.color().fX;
-                        totalLight.fY += light.dir().fZ * light.color().fY;
-                        totalLight.fZ += light.dir().fZ * light.color().fZ;
+                    SkScalar lightProb = 1.0f;
+                    if (pvDepth < shDepth) {
+                        if (lightShader.fShadowParams.fType ==
+                            SkShadowParams::ShadowType::kVariance_ShadowType) {
+                            int variance = SkMaxScalar(shDepthsq - shDepth * shDepth,
+                                                       lightShader.fShadowParams.fMinVariance);
+                            int d = pvDepth - shDepth;
+
+                            lightProb = (SkScalar) variance / ((SkScalar) (variance + d * d));
+
+                            SkScalar bias = lightShader.fShadowParams.fBiasingConstant;
+
+                            lightProb = SkMaxScalar((lightProb - bias) / (1.0f - bias), 0.0f);
+                        } else {
+                            lightProb = 0.0f;
+                        }
                     }
+
+                    // assume object normals are pointing straight up
+                    totalLight.fX += light.dir().fZ * light.color().fX * lightProb;
+                    totalLight.fY += light.dir().fZ * light.color().fY * lightProb;
+                    totalLight.fZ += light.dir().fZ * light.color().fZ * lightProb;
                 } else {
                     totalLight += light.color();
                 }
