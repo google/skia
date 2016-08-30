@@ -21,11 +21,6 @@
 #include "SkTypes.h"
 #include "SkUtils.h"
 
-// TODO(halcanary): Switch Chrome from SK_SFNTLY_SUBSETTER to SK_PDF_USE_SFNTLY.
-#if defined(SK_SFNTLY_SUBSETTER) && !defined(SK_PDF_USE_SFNTLY)
-    #define SK_PDF_USE_SFNTLY
-#endif
-
 #ifdef SK_PDF_USE_SFNTLY
     #include "sample/chromium/font_subsetter.h"
 #endif
