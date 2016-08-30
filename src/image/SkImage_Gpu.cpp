@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include <cstddef>
+#include <cstring>
+#include <type_traits>
+
 #include "SkAutoPixmapStorage.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrImageIDTextureAdjuster.h"
+#include "GrTexturePriv.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
 #include "SkBitmapCache.h"
@@ -358,35 +363,84 @@ struct MipMapLevelData {
 };
 
 struct DeferredTextureImage {
-    uint32_t    fContextUniqueID;
+    uint32_t               fContextUniqueID;
+    // Right now, the gamma treatment is only considered when generating mipmaps
+    SkSourceGammaTreatment fGammaTreatment;
     // We don't store a SkImageInfo because it contains a ref-counted SkColorSpace.
-    int         fWidth;
-    int         fHeight;
-    SkColorType fColorType;
-    SkAlphaType fAlphaType;
-    void*       fColorSpace;
-    size_t      fColorSpaceSize;
-    int         fColorTableCnt;
-    uint32_t*   fColorTableData;
-    int         fMipMapLevelCount;
+    int                    fWidth;
+    int                    fHeight;
+    SkColorType            fColorType;
+    SkAlphaType            fAlphaType;
+    void*                  fColorSpace;
+    size_t                 fColorSpaceSize;
+    int                    fColorTableCnt;
+    uint32_t*              fColorTableData;
+    int                    fMipMapLevelCount;
     // The fMipMapLevelData array may contain more than 1 element.
     // It contains fMipMapLevelCount elements.
     // That means this struct's size is not known at compile-time.
-    MipMapLevelData fMipMapLevelData[1];
+    MipMapLevelData        fMipMapLevelData[1];
 };
 }  // anonymous namespace
 
+static bool should_use_mip_maps(const SkImage::DeferredTextureImageUsageParams & param) {
+    bool shouldUseMipMaps = false;
+
+    // Use mipmaps if either
+    // 1.) it is a perspective matrix, or
+    // 2.) the quality is med/high and the scale is < 1
+    if (param.fMatrix.hasPerspective()) {
+        shouldUseMipMaps = true;
+    }
+    if (param.fQuality == kMedium_SkFilterQuality ||
+        param.fQuality == kHigh_SkFilterQuality) {
+        SkScalar minAxisScale = param.fMatrix.getMinScale();
+        if (minAxisScale != -1.f && minAxisScale < 1.f) {
+            shouldUseMipMaps = true;
+        }
+    }
+
+
+    return shouldUseMipMaps;
+}
+
+namespace {
+
+class DTIBufferFiller
+{
+public:
+    explicit DTIBufferFiller(intptr_t bufferAsInt)
+        : bufferAsInt_(bufferAsInt) {}
+
+    void fillMember(const void* source, size_t memberOffset, size_t size) {
+        memcpy(reinterpret_cast<void*>(bufferAsInt_ + memberOffset), source, size);
+    }
+
+private:
+
+    intptr_t bufferAsInt_;
+};
+}
+
+#define FILL_MEMBER(bufferFiller, member, source) \
+    bufferFiller.fillMember(source, \
+               offsetof(DeferredTextureImage, member), \
+               sizeof(DeferredTextureImage::member));
+
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& proxy,
                                             const DeferredTextureImageUsageParams params[],
-                                            int paramCnt, void* buffer) const {
+                                            int paramCnt, void* buffer,
+                                            SkSourceGammaTreatment gammaTreatment) const {
     // Extract relevant min/max values from the params array.
     int lowestPreScaleMipLevel = params[0].fPreScaleMipLevel;
     SkFilterQuality highestFilterQuality = params[0].fQuality;
+    bool useMipMaps = should_use_mip_maps(params[0]);
     for (int i = 1; i < paramCnt; ++i) {
         if (lowestPreScaleMipLevel > params[i].fPreScaleMipLevel)
             lowestPreScaleMipLevel = params[i].fPreScaleMipLevel;
         if (highestFilterQuality < params[i].fQuality)
             highestFilterQuality = params[i].fQuality;
+        useMipMaps |= should_use_mip_maps(params[i]);
     }
 
     const bool fillMode = SkToBool(buffer);
@@ -455,11 +509,35 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
             SkASSERT(!pixmap.ctable());
         }
     }
+    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
     int mipMapLevelCount = 1;
+    if (useMipMaps) {
+        // SkMipMap only deals with the mipmap levels it generates, which does
+        // not include the base level.
+        // That means it generates and holds levels 1-x instead of 0-x.
+        // So the total mipmap level count is 1 more than what
+        // SkMipMap::ComputeLevelCount returns.
+        mipMapLevelCount = SkMipMap::ComputeLevelCount(scaledSize.width(), scaledSize.height()) + 1;
+
+        // We already initialized pixelSize to the size of the base level.
+        // SkMipMap will generate the extra mipmap levels. Their sizes need to
+        // be added to the total.
+        // Index 0 here does not refer to the base mipmap level -- it is
+        // SkMipMap's first generated mipmap level (level 1).
+        for (int currentMipMapLevelIndex = mipMapLevelCount - 2; currentMipMapLevelIndex >= 0;
+             currentMipMapLevelIndex--) {
+            SkISize mipSize = SkMipMap::ComputeLevelSize(scaledSize.width(), scaledSize.height(),
+                                                         currentMipMapLevelIndex);
+            SkImageInfo mipInfo = SkImageInfo::MakeN32(mipSize.fWidth, mipSize.fHeight, at);
+            pixelSize += SkAlign8(SkAutoPixmapStorage::AllocSize(mipInfo, nullptr));
+        }
+    }
     size_t size = 0;
     size_t dtiSize = SkAlign8(sizeof(DeferredTextureImage));
     size += dtiSize;
-    size += mipMapLevelCount * sizeof(MipMapLevelData);
+    size += (mipMapLevelCount - 1) * sizeof(MipMapLevelData);
+    // We subtract 1 because DeferredTextureImage already includes the base
+    // level in its size
     size_t pixelOffset = size;
     size += pixelSize;
     size_t ctOffset = size;
@@ -475,37 +553,106 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         return size;
     }
     intptr_t bufferAsInt = reinterpret_cast<intptr_t>(buffer);
-    void* pixels = reinterpret_cast<void*>(bufferAsInt + pixelOffset);
-    SkPMColor* ct = nullptr;
+    intptr_t pixelsAsInt = bufferAsInt + pixelOffset;
+    void* pixels = reinterpret_cast<void*>(pixelsAsInt);
+    void* ct = nullptr;
     if (ctSize) {
-        ct = reinterpret_cast<SkPMColor*>(bufferAsInt + ctOffset);
+        ct = reinterpret_cast<void*>(bufferAsInt + ctOffset);
     }
 
-    memcpy(pixels, pixmap.addr(), pixmap.getSafeSize());
+    memcpy(reinterpret_cast<void*>(SkAlign8(pixelsAsInt)), pixmap.addr(), pixmap.getSafeSize());
     if (ctSize) {
         memcpy(ct, pixmap.ctable()->readColors(), ctSize);
     }
 
     SkASSERT(info == pixmap.info());
     size_t rowBytes = pixmap.rowBytes();
-    DeferredTextureImage* dti = new (buffer) DeferredTextureImage();
-    dti->fContextUniqueID = proxy.fContextUniqueID;
-    dti->fWidth = info.width();
-    dti->fHeight = info.height();
-    dti->fColorType = info.colorType();
-    dti->fAlphaType = info.alphaType();
-    dti->fColorTableCnt = ctCount;
-    dti->fColorTableData = ct;
-    dti->fMipMapLevelCount = mipMapLevelCount;
-    dti->fMipMapLevelData[0].fPixelData = pixels;
-    dti->fMipMapLevelData[0].fRowBytes = rowBytes;
+    static_assert(std::is_standard_layout<DeferredTextureImage>::value,
+                  "offsetof, which we use below, requires the type have standard layout");
+    auto dtiBufferFiller = DTIBufferFiller{bufferAsInt};
+    FILL_MEMBER(dtiBufferFiller, fGammaTreatment, &gammaTreatment);
+    FILL_MEMBER(dtiBufferFiller, fContextUniqueID, &proxy.fContextUniqueID);
+    int width = info.width();
+    FILL_MEMBER(dtiBufferFiller, fWidth, &width);
+    int height = info.height();
+    FILL_MEMBER(dtiBufferFiller, fHeight, &height);
+    SkColorType colorType = info.colorType();
+    FILL_MEMBER(dtiBufferFiller, fColorType, &colorType);
+    SkAlphaType alphaType = info.alphaType();
+    FILL_MEMBER(dtiBufferFiller, fAlphaType, &alphaType);
+    FILL_MEMBER(dtiBufferFiller, fColorTableCnt, &ctCount);
+    FILL_MEMBER(dtiBufferFiller, fColorTableData, &ct);
+    FILL_MEMBER(dtiBufferFiller, fMipMapLevelCount, &mipMapLevelCount);
+//    FILL_MEMBER(dtiBufferFiller, fMipMapLevelCount[0].fPixelData, &pixels);
+    memcpy(reinterpret_cast<void*>(bufferAsInt +
+                                  offsetof(DeferredTextureImage, fMipMapLevelData[0].fPixelData)),
+           &pixels, sizeof(pixels));
+    memcpy(reinterpret_cast<void*>(bufferAsInt +
+                                  offsetof(DeferredTextureImage, fMipMapLevelData[0].fRowBytes)),
+           &rowBytes, sizeof(rowBytes));
     if (colorSpaceSize) {
-        dti->fColorSpace = reinterpret_cast<void*>(bufferAsInt + colorSpaceOffset);
-        dti->fColorSpaceSize = colorSpaceSize;
-        info.colorSpace()->writeToMemory(dti->fColorSpace);
+        void* colorSpace = reinterpret_cast<void*>(bufferAsInt + colorSpaceOffset);
+        FILL_MEMBER(dtiBufferFiller, fColorSpace, &colorSpace);
+        FILL_MEMBER(dtiBufferFiller, fColorSpaceSize, &colorSpaceSize);
+        info.colorSpace()->writeToMemory(reinterpret_cast<void*>(bufferAsInt + colorSpaceOffset));
     } else {
-        dti->fColorSpace = nullptr;
-        dti->fColorSpaceSize = 0;
+        memset(reinterpret_cast<void*>(bufferAsInt +
+                                       offsetof(DeferredTextureImage, fColorSpace)),
+               0, sizeof(DeferredTextureImage::fColorSpace));
+        memset(reinterpret_cast<void*>(bufferAsInt +
+                                       offsetof(DeferredTextureImage, fColorSpaceSize)),
+               0, sizeof(DeferredTextureImage::fColorSpaceSize));
+    }
+
+    // Fill in the mipmap levels if they exist
+    intptr_t mipLevelPtr = bufferAsInt + pixelOffset + SkAlign8(pixmap.getSafeSize());
+
+    if (useMipMaps) {
+        // offsetof, which we use below, requires the type have standard layout
+        SkASSERT(std::is_standard_layout<MipMapLevelData>::value);
+
+        SkAutoTDelete<SkMipMap> mipmaps(SkMipMap::Build(pixmap, gammaTreatment, nullptr));
+        // SkMipMap holds only the mipmap levels it generates.
+        // A programmer can use the data they provided to SkMipMap::Build as level 0.
+        // So the SkMipMap provides levels 1-x but it stores them in its own
+        // range 0-(x-1).
+        for (int generatedMipLevelIndex = 0; generatedMipLevelIndex < mipMapLevelCount - 1;
+             generatedMipLevelIndex++) {
+            SkISize mipSize = SkMipMap::ComputeLevelSize(scaledSize.width(), scaledSize.height(),
+                                                         generatedMipLevelIndex);
+
+            SkImageInfo mipInfo = SkImageInfo::MakeN32(mipSize.fWidth, mipSize.fHeight, at);
+            SkMipMap::Level mipLevel;
+            mipmaps->getLevel(generatedMipLevelIndex, &mipLevel);
+
+            // Make sure the mipmap data is after the start of the buffer
+            SkASSERT(mipLevelPtr > bufferAsInt);
+            // Make sure the mipmap data starts before the end of the buffer
+            SkASSERT(static_cast<size_t>(mipLevelPtr) < bufferAsInt + pixelOffset + pixelSize);
+            // Make sure the mipmap data ends before the end of the buffer
+            SkASSERT(mipLevelPtr + mipLevel.fPixmap.getSafeSize() <=
+                     bufferAsInt + pixelOffset + pixelSize);
+
+            // getSafeSize includes rowbyte padding except for the last row,
+            // right?
+
+            memcpy(reinterpret_cast<void*>(mipLevelPtr), mipLevel.fPixmap.addr(),
+                       mipLevel.fPixmap.getSafeSize());
+
+            memcpy(reinterpret_cast<void*>(bufferAsInt +
+                offsetof(DeferredTextureImage, fMipMapLevelData) +
+                sizeof(MipMapLevelData) * (generatedMipLevelIndex + 1) +
+                offsetof(MipMapLevelData, fPixelData)),
+                   &mipLevelPtr, sizeof(void*));
+            size_t rowBytes = mipLevel.fPixmap.rowBytes();
+            memcpy(reinterpret_cast<void*>(bufferAsInt +
+                offsetof(DeferredTextureImage, fMipMapLevelData) +
+                sizeof(MipMapLevelData) * (generatedMipLevelIndex + 1) +
+                offsetof(MipMapLevelData, fRowBytes)),
+                   &rowBytes, sizeof(rowBytes));
+
+            mipLevelPtr += SkAlign8(mipLevel.fPixmap.getSafeSize());
+        }
     }
     return size;
 }
@@ -525,24 +672,38 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
         SkASSERT(dti->fColorTableData);
         colorTable.reset(new SkColorTable(dti->fColorTableData, dti->fColorTableCnt));
     }
-    SkASSERT(dti->fMipMapLevelCount == 1);
+    int mipLevelCount = dti->fMipMapLevelCount;
+    SkASSERT(mipLevelCount >= 1);
     sk_sp<SkColorSpace> colorSpace;
     if (dti->fColorSpaceSize) {
         colorSpace = SkColorSpace::Deserialize(dti->fColorSpace, dti->fColorSpaceSize);
     }
     SkImageInfo info = SkImageInfo::Make(dti->fWidth, dti->fHeight,
                                          dti->fColorType, dti->fAlphaType, colorSpace);
-    SkPixmap pixmap;
-    pixmap.reset(info, dti->fMipMapLevelData[0].fPixelData,
-                 dti->fMipMapLevelData[0].fRowBytes, colorTable.get());
-    return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
+    if (mipLevelCount == 1) {
+        SkPixmap pixmap;
+        pixmap.reset(info, dti->fMipMapLevelData[0].fPixelData,
+                     dti->fMipMapLevelData[0].fRowBytes, colorTable.get());
+        return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
+    } else {
+        SkAutoTDeleteArray<GrMipLevel> texels(new GrMipLevel[mipLevelCount]);
+        for (int i = 0; i < mipLevelCount; i++) {
+            texels[i].fPixels = dti->fMipMapLevelData[i].fPixelData;
+            texels[i].fRowBytes = dti->fMipMapLevelData[i].fRowBytes;
+        }
+
+        return SkImage::MakeTextureFromMipMap(context, info, texels.get(),
+                                              mipLevelCount, SkBudgeted::kYes,
+                                              dti->fGammaTreatment);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo& info,
                                               const GrMipLevel* texels, int mipLevelCount,
-                                              SkBudgeted budgeted) {
+                                              SkBudgeted budgeted,
+                                              SkSourceGammaTreatment gammaTreatment) {
     if (!ctx) {
         return nullptr;
     }
@@ -550,6 +711,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
     if (!texture) {
         return nullptr;
     }
+    texture->texturePriv().setGammaTreatment(gammaTreatment);
     return sk_make_sp<SkImage_Gpu>(texture->width(), texture->height(), kNeedNewImageUniqueID,
                                    info.alphaType(), texture, sk_ref_sp(info.colorSpace()),
                                    budgeted);
