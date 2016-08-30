@@ -8,7 +8,7 @@
 #include "Test.h"
 // This is a GR test
 #if SK_SUPPORT_GPU
-#include "GrClipMaskManager.h"
+#include "GrClipStackClip.h"
 #include "GrContext.h"
 
 // Ensure that the 'getConservativeBounds' calls are returning bounds clamped

@@ -13,7 +13,7 @@ special coordination with the Blink gardener using these steps:
    detail on running the Blink layout tests\).
 2. Check in your code to the Skia repo.
 3. Ahead of the Skia auto roll including your change, manually push a change to the
-   Blink LayoutTests/TestExpectations [file](http://src.chromium.org/viewvc/blink/trunk/LayoutTests/TestExpectations),
+   Blink LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/master/third_party/WebKit/LayoutTests/TestExpectations),
    flagging tests expected to fail as a result of your change with \[ NeedsManualRebaseline \].
 4. Wait for the Skia roll to land successfully.
 5. Check in another change to the Blink TestExpectations file changing the flags to
@@ -29,17 +29,9 @@ Follow the instructions below:
 In the following the term 'code suppression' means a build flag \(a\.k\.a\. define\).
 Such code suppressions should be given a name with the form SK\_IGNORE\_xxx\_FIX.
 
-There are dependency revisions which must be updated in this process. Updating
-a dependency revision is called a 'roll'.  There are two different rolls which
-concern this process, each of which happens via an Auto Roll Bot multiple
-times per day, and can also be done manually:
-
-  * Skia roll into Chromium. See
-https://chromium.googlesource.com/chromium/src/+log/master/DEPS and search for
-skia\-deps\-roller.
-  * Blink roll into Chromium. See
-https://chromium.googlesource.com/chromium/src/+log/master/DEPS and search for
-blink\-deps\-roller.
+Updating the version of Skia in Chromium is called a 'roll'.
+The Auto Roll Bot performs this roll multiple times per day, and can also be done manually.
+See https://chromium.googlesource.com/chromium/src/+log/master/DEPS and search for skia\-deps\-roller.
 
 ### Setup
 #### Code suppression does not yet exist \- Direct method
@@ -47,29 +39,22 @@ blink\-deps\-roller.
 2. Put the change behind a code suppression.
 3. Check in the change to the Skia repository.
 4. Manually roll Skia or append the autoroll with the code suppression to
-   Chromium's 'skia/skia\_common\.gypi'
-5. Add code suppression to Blink's 'public/blink\_skia\_config\.gyp'.
-6. Wait for Blink roll into Chromium.
-7. Remove code suppression from Chromium's 'skia/skia\_common\.gypi'.
+   Chromium's 'skia/chromium\_skia\_defines\.gypi'
 
 #### Code suppression does not yet exist \- Alternate method
-1. Add code suppression to Blink's 'public/blink\_skia\_config\.gyp' before making code
+1. Add code suppression to Chromium's 'skia/chromium\_skia\_defines\.gypi' before making code
    changes in Skia.
 2. Make a change in Skia which will change many Blink layout tests.
 3. Put the change behind a code suppression.
-4. Wait for Blink roll into Chromium.
-5. Check in the change to the Skia repository.
-6. Wait for Skia roll into Chromium.
+4. Check in the change to the Skia repository.
+5. Wait for Skia roll into Chromium.
 
 #### Code suppression exists in header
 1. Remove code suppression from header file in Chromium and add code suppression to
-   Chromium's 'skia/skia\_common\.gypi'.
+   Chromium's 'skia/chromium\_skia\_defines\.gypi'.
    The code suppression cannot be in a header file and a defined in a gyp file at the
    same time or a multiple definition warning will be treated as an error and break
    the Chromium build.
-2. Add code suppression to Blink's 'public/blink\_skia\_config\.gyp'.
-3. Wait for Blink roll into Chromium.
-4. Remove code suppression from Chromium's 'skia/skia\_common\.gypi'.
 
 ### Rebaseline
 1. Choose a time when the Blink tree is likely to be quiet. Avoid PST afternoons in
@@ -77,9 +62,9 @@ blink\-deps\-roller.
    determine who the Blink gardener is and notify them. You will be making the
    Chromium\.WebKit tree very red for an extended period, and the gardener needs to
    know that they are not expected to fix it.
-2. Create a CL removing the code suppression from Blink's
-   public/blink_skia_config.gyp while simultaneously adding [ NeedsRebaseline ]
-   lines to Blink's LayoutTests/TestExpectations [file](http://src.chromium.org/viewvc/blink/trunk/LayoutTests/TestExpectations).
+2. Create a CL removing the code suppression from Chromium's
+   skia/chromium\_skia\_defines\.gypi while simultaneously adding [ NeedsRebaseline ]
+   lines to Blink's LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/master/third_party/WebKit/LayoutTests/TestExpectations).
    Then the auto rebaseline bot will take care of the work of actually checking in the
    new images. This is generally acceptable for up to 600 or so rebaselined images.
    Above that you might still use [ NeedsRebaseline ], but it's best to coordinate with
@@ -94,10 +79,8 @@ blink\-deps\-roller.
    123456\." and assign it to the individual responsible for the cleanup step.
 
 ### Cleanup
-1. Wait for Blink roll into Chromium, so that Chromium is using the new Skia code
-   and new Blink baselines.
-2. Remove the now unused old code from Skia and any defines which were introduced
+1. Remove the now unused old code from Skia and any defines which were introduced
    to suppress the new code.
-3. Check in the cleanup change to the Skia repository.
-4. Wait for Skia roll into Chromium.
+2. Check in the cleanup change to the Skia repository.
+3. Wait for Skia roll into Chromium.
 

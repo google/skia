@@ -88,13 +88,15 @@ static bool gfFunctionsLoadedSuccessfully = false;
 namespace {
 static void load_command_buffer_functions() {
     if (!gLibrary) {
+        static constexpr const char* libName =
 #if defined _WIN32
-        gLibrary = DynamicLoadLibrary("command_buffer_gles2.dll");
+        "command_buffer_gles2.dll";
 #elif defined SK_BUILD_FOR_MAC
-        gLibrary = DynamicLoadLibrary("libcommand_buffer_gles2.dylib");
+        "libcommand_buffer_gles2.dylib";
 #else
-        gLibrary = DynamicLoadLibrary("libcommand_buffer_gles2.so");
+        "libcommand_buffer_gles2.so";
 #endif // defined _WIN32
+        gLibrary = DynamicLoadLibrary(libName);
         if (gLibrary) {
             gfGetDisplay = (GetDisplayProc)GetProcedureAddress(gLibrary, "eglGetDisplay");
             gfInitialize = (InitializeProc)GetProcedureAddress(gLibrary, "eglInitialize");
@@ -116,6 +118,8 @@ static void load_command_buffer_functions() {
                                             gfCreateContext && gfDestroyContext && gfMakeCurrent &&
                                             gfSwapBuffers && gfGetProcAddress;
 
+        } else {
+            SkDebugf("Could not load %s.\n", libName);
         }
     }
 }

@@ -2095,7 +2095,7 @@ public:
 
         XPS_GLYPH_INDEX* xpsGlyph = fXpsGlyphs->append();
         uint16_t glyphID = glyph.getGlyphID();
-        fGlyphUse->setBit(glyphID, true);
+        fGlyphUse->set(glyphID);
         xpsGlyph->index = glyphID;
         if (1 == fXpsGlyphs->count()) {
             xpsGlyph->advanceWidth = 0.0f;

@@ -20,7 +20,7 @@
 #elif defined(SK_BUILD_FOR_UNIX)
 #include <GL/gl.h>
 #elif defined(SK_BUILD_FOR_MAC)
-#include <gl.h>
+#include <OpenGL/gl.h>
 #endif
 
 /*
@@ -206,15 +206,14 @@ int main(int argc, char** argv) {
     GrGLint buffer;
     GR_GL_GetIntegerv(interface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
     desc.fRenderTargetHandle = buffer;
-    SkAutoTUnref<GrRenderTarget>
-            renderTarget(grContext->textureProvider()->wrapBackendRenderTarget(desc));
 
     // setup SkSurface
     // To use distance field text, use commented out SkSurfaceProps instead
     // SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
     //                      SkSurfaceProps::kLegacyFontHost_InitType);
     SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(renderTarget, &props));
+
+    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext, desc, &props));
 
     SkCanvas* canvas = surface->getCanvas();
 
@@ -225,7 +224,7 @@ int main(int argc, char** argv) {
     SkPaint paint;
 
     // create a surface for CPU rasterization
-    SkAutoTUnref<SkSurface> cpuSurface(SkSurface::NewRaster(canvas->imageInfo()));
+    sk_sp<SkSurface> cpuSurface(SkSurface::MakeRaster(canvas->imageInfo()));
 
     SkCanvas* offscreen = cpuSurface->getCanvas();
     offscreen->save();
@@ -233,7 +232,7 @@ int main(int argc, char** argv) {
     offscreen->drawPath(create_star(), paint);
     offscreen->restore();
 
-    SkAutoTUnref<SkImage> image(cpuSurface->newImageSnapshot());
+    sk_sp<SkImage> image = cpuSurface->makeImageSnapshot();
 
     int rotation = 0;
     while (!state.fQuit) { // Our application loop

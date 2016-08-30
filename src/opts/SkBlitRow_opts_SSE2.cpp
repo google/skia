@@ -26,12 +26,11 @@ void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
     }
 
     uint32_t src_scale = SkAlpha255To256(alpha);
-    uint32_t dst_scale = 256 - src_scale;
 
     if (count >= 4) {
         SkASSERT(((size_t)dst & 0x03) == 0);
         while (((size_t)dst & 0x0F) != 0) {
-            *dst = SkAlphaMulQ(*src, src_scale) + SkAlphaMulQ(*dst, dst_scale);
+            *dst = SkPMLerp(*src, *dst, src_scale);
             src++;
             dst++;
             count--;
@@ -45,11 +44,7 @@ void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
             __m128i src_pixel = _mm_loadu_si128(s);
             __m128i dst_pixel = _mm_load_si128(d);
 
-            src_pixel = SkAlphaMulQ_SSE2(src_pixel, src_scale);
-            dst_pixel = SkAlphaMulQ_SSE2(dst_pixel, dst_scale);
-
-            // Add result
-            __m128i result = _mm_add_epi8(src_pixel, dst_pixel);
+            __m128i result = SkPMLerp_SSE2(src_pixel, dst_pixel, src_scale);
             _mm_store_si128(d, result);
             s++;
             d++;
@@ -60,7 +55,7 @@ void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
     }
 
     while (count > 0) {
-        *dst = SkAlphaMulQ(*src, src_scale) + SkAlphaMulQ(*dst, dst_scale);
+        *dst = SkPMLerp(*src, *dst, src_scale);
         src++;
         dst++;
         count--;

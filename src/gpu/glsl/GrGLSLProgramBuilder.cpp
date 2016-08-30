@@ -87,6 +87,14 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     this->nameExpression(outputColor, "outputColor");
     this->nameExpression(outputCoverage, "outputCoverage");
 
+    const char* distanceVectorName = nullptr;
+    if (this->fPipeline.usesDistanceVectorField() && proc.implementsDistanceVector()) {
+        distanceVectorName = fFS.distanceVectorName();
+        fFS.codeAppend( "// Normalized vector to the closest geometric edge (in device space)\n");
+        fFS.codeAppend( "// Distance to the edge encoded in the z-component\n");
+        fFS.codeAppendf("vec4 %s;", distanceVectorName);
+    }
+
     // Enclose custom code in a block to avoid namespace conflicts
     SkString openBrace;
     openBrace.printf("{ // Stage %d, %s\n", fStageIndex, proc.name());
@@ -108,6 +116,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
                                            proc,
                                            outputColor->c_str(),
                                            outputCoverage->c_str(),
+                                           distanceVectorName,
                                            texSamplers.begin(),
                                            bufferSamplers.begin(),
                                            fCoordTransforms,
@@ -161,7 +170,9 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
                                            input.isOnes() ? nullptr : input.c_str(),
                                            fOutCoords[index],
                                            texSamplers.begin(),
-                                           bufferSamplers.begin());
+                                           bufferSamplers.begin(),
+                                           this->primitiveProcessor().implementsDistanceVector());
+
     fragProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
@@ -227,7 +238,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
     for (int t = 0; t < numTextures; ++t) {
         const GrTextureAccess& access = processor.textureAccess(t);
         GrSLType samplerType = access.getTexture()->samplerType();
-        if (kSamplerExternal_GrSLType == samplerType) {
+        if (kTextureExternalSampler_GrSLType == samplerType) {
             const char* externalFeatureString = this->glslCaps()->externalTextureExtensionString();
             // We shouldn't ever create a GrGLTexture that requires external sampler type
             SkASSERT(externalFeatureString);
@@ -247,7 +258,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
         for (int b = 0; b < numBuffers; ++b) {
             const GrBufferAccess& access = processor.bufferAccess(b);
             name.printf("BufferSampler%d", b);
-            this->emitSampler(kSamplerBuffer_GrSLType, access.texelConfig(), name.c_str(),
+            this->emitSampler(kTextureBufferSampler_GrSLType, access.texelConfig(), name.c_str(),
                               access.visibility(), outBufferSamplers);
             texelBufferVisibility |= access.visibility();
         }

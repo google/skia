@@ -82,6 +82,8 @@
           'skia_chrome_utils%': 0,
           'skia_use_android_framework_defines%': 1,
           'skia_use_system_json%': 1,
+          'skia_vulkan%': 1,
+          'skia_vulkan_debug_layers%': 0,
         }, {
           'skia_os%': '<(skia_os)',
           'skia_chrome_utils%': 1,
@@ -144,6 +146,7 @@
       'skia_pdf%': 1,
       'skia_profile_enabled%': 0,
       'skia_vulkan%': 0,
+      'skia_vulkan_debug_layers%': 1,
       'skia_win_debuggers_path%': '',
       'skia_shared_lib%': 0,
       'skia_force_distance_field_text%': 0,
@@ -225,6 +228,7 @@
     'skia_gdi%': '<(skia_gdi)',
     'skia_gpu%': '<(skia_gpu)',
     'skia_vulkan%': '<(skia_vulkan)',
+    'skia_vulkan_debug_layers%': '<(skia_vulkan_debug_layers)',
     'skia_win_exceptions%': 0,
     'skia_win_ltcg%': '<(skia_is_bot)',
     'skia_osx_deployment_target%': '<(skia_osx_deployment_target)',
@@ -250,6 +254,7 @@
         #'-ffast-math',           # Optimize float math even when it breaks IEEE compliance.
         #'-flto'                  # Enable link-time optimization.
     ],
+    'skia_experimental_shadowing': 0,       # for experimental shadow-drawing
 
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
     #

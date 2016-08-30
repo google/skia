@@ -4,23 +4,38 @@
 # found in the LICENSE file.
 
 declare_args() {
+  skia_enable_tools = !is_fuchsia && !is_component_build
+
+  skia_use_expat = true
+  skia_use_giflib = !is_fuchsia
+  skia_use_libjpeg_turbo = true
+  skia_use_libpng = true
+  skia_use_libwebp = !is_fuchsia
+  skia_use_sfntly = !is_fuchsia
+  skia_use_zlib = true
 }
+
+skia_public_includes = [
+  "include/android",
+  "include/c",
+  "include/codec",
+  "include/config",
+  "include/core",
+  "include/effects",
+  "include/gpu",
+  "include/gpu/gl",
+  "include/images",
+  "include/pathops",
+  "include/ports",
+  "include/svg",
+  "include/utils",
+  "include/utils/mac",
+  "include/xml",
+]
 
 # Skia public API, generally provided by :skia.
 config("skia_public") {
-  include_dirs = [
-    "include/c",
-    "include/config",
-    "include/core",
-    "include/effects",
-    "include/gpu",
-    "include/images",
-    "include/lazy",
-    "include/pathops",
-    "include/ports",
-    "include/utils",
-    "include/utils/mac",
-  ]
+  include_dirs = skia_public_includes
   defines = [ "SKIA_DLL" ]
 }
 
@@ -31,36 +46,36 @@ config("skia_private") {
   include_dirs = [
     "include/private",
     "src/c",
+    "src/codec",
     "src/config",
     "src/core",
     "src/effects",
+    "src/effects/gradients",
+    "src/fonts",
     "src/gpu",
     "src/image",
     "src/images",
     "src/lazy",
     "src/opts",
     "src/pathops",
+    "src/pdf",
     "src/ports",
     "src/sfnt",
     "src/utils",
+    "src/utils/win",
     "third_party/etc1",
     "third_party/ktx",
   ]
+
+  defines = [ "SK_GAMMA_APPLY_TO_A8" ]
+  if (is_linux) {
+    defines += [ "SK_SAMPLES_FOR_X" ]
+  }
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
 config("skia_library") {
   visibility = [ ":*" ]
-
-  cflags = [
-    "-Winit-self",
-    "-Wpointer-arith",
-    "-Wsign-compare",
-    "-Wvla",
-    "-fstrict-aliasing",
-  ]
-  cflags_cc = [ "-Wnon-virtual-dtor" ]
-
   defines = [ "SKIA_IMPLEMENTATION=1" ]
 }
 
@@ -70,13 +85,7 @@ skia_library_configs = [
   ":skia_library",
 ]
 
-# Chrome's GN environment is mostly helpful, but a couple default configs tend to get in the way.
-unwanted_configs = [
-  "//build/config/clang:find_bad_constructs",  # Chrome style checks.
-  "//build/config:feature_flags",  # A bunch of #defines we don't care about.
-]
-
-core_gypi = exec_script("build/gypi_to_gn.py",
+core_gypi = exec_script("gn/gypi_to_gn.py",
                         [
                           rebase_path("gyp/core.gypi"),
                           "--replace=<(skia_include_path)=include",
@@ -85,7 +94,7 @@ core_gypi = exec_script("build/gypi_to_gn.py",
                         "scope",
                         [ "gyp/core.gypi" ])
 
-effects_gypi = exec_script("build/gypi_to_gn.py",
+effects_gypi = exec_script("gn/gypi_to_gn.py",
                            [
                              rebase_path("gyp/effects.gypi"),
                              "--replace=<(skia_include_path)=include",
@@ -94,7 +103,7 @@ effects_gypi = exec_script("build/gypi_to_gn.py",
                            "scope",
                            [ "gyp/effects.gypi" ])
 
-gpu_gypi = exec_script("build/gypi_to_gn.py",
+gpu_gypi = exec_script("gn/gypi_to_gn.py",
                        [
                          rebase_path("gyp/gpu.gypi"),
                          "--replace=<(skia_include_path)=include",
@@ -103,7 +112,7 @@ gpu_gypi = exec_script("build/gypi_to_gn.py",
                        "scope",
                        [ "gyp/gpu.gypi" ])
 
-opts_gypi = exec_script("build/gypi_to_gn.py",
+opts_gypi = exec_script("gn/gypi_to_gn.py",
                         [
                           rebase_path("gyp/opts.gypi"),
                           "--replace=<(skia_include_path)=include",
@@ -112,7 +121,7 @@ opts_gypi = exec_script("build/gypi_to_gn.py",
                         "scope",
                         [ "gyp/opts.gypi" ])
 
-pdf_gypi = exec_script("build/gypi_to_gn.py",
+pdf_gypi = exec_script("gn/gypi_to_gn.py",
                        [
                          rebase_path("gyp/pdf.gypi"),
                          "--replace=<(skia_include_path)=include",
@@ -121,7 +130,7 @@ pdf_gypi = exec_script("build/gypi_to_gn.py",
                        "scope",
                        [ "gyp/pdf.gypi" ])
 
-utils_gypi = exec_script("build/gypi_to_gn.py",
+utils_gypi = exec_script("gn/gypi_to_gn.py",
                          [
                            rebase_path("gyp/utils.gypi"),
                            "--replace=<(skia_include_path)=include",
@@ -130,64 +139,241 @@ utils_gypi = exec_script("build/gypi_to_gn.py",
                          "scope",
                          [ "gyp/utils.gypi" ])
 
-source_set("opts_ssse3") {
-  configs += skia_library_configs
-  configs -= unwanted_configs
+# Use for CPU-specific Skia code that needs particular compiler flags.
+template("opts") {
+  if (invoker.enabled) {
+    source_set(target_name) {
+      forward_variables_from(invoker, "*")
+      configs += skia_library_configs
+    }
+  } else {
+    # If not enabled, a phony empty target that swallows all otherwise unused variables.
+    source_set(target_name) {
+      forward_variables_from(invoker,
+                             "*",
+                             [
+                               "sources",
+                               "cflags",
+                             ])
+    }
+  }
+}
 
+is_x86 = current_cpu == "x64" || current_cpu == "x86"
+
+opts("none") {
+  enabled = !is_x86
+  sources = opts_gypi.none_sources
+  cflags = []
+}
+
+opts("sse2") {
+  enabled = is_x86
+  sources = opts_gypi.sse2_sources
+  cflags = [ "-msse2" ]
+}
+
+opts("ssse3") {
+  enabled = is_x86
   sources = opts_gypi.ssse3_sources
   cflags = [ "-mssse3" ]
 }
 
-source_set("opts_sse41") {
-  configs += skia_library_configs
-  configs -= unwanted_configs
-
+opts("sse41") {
+  enabled = is_x86
   sources = opts_gypi.sse41_sources
   cflags = [ "-msse4.1" ]
 }
 
-source_set("opts_avx") {
-  configs += skia_library_configs
-  configs -= unwanted_configs
+opts("sse42") {
+  enabled = is_x86
+  sources = opts_gypi.sse42_sources
+  cflags = [ "-msse4.2" ]
+}
 
+opts("avx") {
+  enabled = is_x86
   sources = opts_gypi.avx_sources
   cflags = [ "-mavx" ]
+}
+
+# Any feature of Skia that requires third-party code should be optional and use this template.
+template("optional") {
+  if (invoker.enabled) {
+    config(target_name + "_public") {
+      defines = invoker.public_defines
+    }
+    source_set(target_name) {
+      forward_variables_from(invoker, "*", [ "public_defines" ])
+      all_dependent_configs = [ ":" + target_name + "_public" ]
+      configs += skia_library_configs
+    }
+  } else {
+    # If not enabled, a phony empty target that swallows all otherwise unused variables.
+    source_set(target_name) {
+      forward_variables_from(invoker,
+                             "*",
+                             [
+                               "public_defines",
+                               "deps",
+                               "sources",
+                             ])
+    }
+  }
+}
+
+optional("gif") {
+  enabled = skia_use_giflib
+  public_defines = [ "SK_HAS_GIF_LIBRARY" ]
+
+  deps = [
+    "//third_party/giflib",
+  ]
+  sources = [
+    "src/codec/SkGifCodec.cpp",
+  ]
+}
+
+optional("jpeg") {
+  enabled = skia_use_libjpeg_turbo
+  public_defines = [ "SK_HAS_JPEG_LIBRARY" ]
+
+  deps = [
+    "//third_party/libjpeg-turbo:libjpeg",
+  ]
+  sources = [
+    "src/codec/SkJpegCodec.cpp",
+    "src/codec/SkJpegDecoderMgr.cpp",
+    "src/codec/SkJpegUtility.cpp",
+    "src/images/SkJPEGImageEncoder.cpp",
+    "src/images/SkJPEGWriteUtility.cpp",
+  ]
+}
+
+optional("pdf") {
+  enabled = skia_use_zlib
+  public_defines = []
+
+  deps = [
+    "//third_party/zlib",
+  ]
+  sources = pdf_gypi.sources
+
+  if (skia_use_sfntly) {
+    deps += [ "//third_party/sfntly" ]
+    public_defines += [
+      # TODO(halcanary): make this the default; this is the value Android uses.
+      "SK_SFNTLY_SUBSETTER=\"sample/chromium/font_subsetter.h\"",
+    ]
+  }
+}
+
+optional("png") {
+  enabled = skia_use_libpng
+  public_defines = [ "SK_HAS_PNG_LIBRARY" ]
+
+  deps = [
+    "//third_party/libpng",
+  ]
+  sources = [
+    "src/codec/SkIcoCodec.cpp",
+    "src/codec/SkPngCodec.cpp",
+    "src/images/SkPNGImageEncoder.cpp",
+  ]
+}
+
+optional("webp") {
+  enabled = skia_use_libwebp
+  public_defines = [ "SK_HAS_WEBP_LIBRARY" ]
+
+  deps = [
+    "//third_party/libwebp",
+  ]
+  sources = [
+    "src/codec/SkWebpAdapterCodec.cpp",
+    "src/codec/SkWebpCodec.cpp",
+    "src/images/SkWEBPImageEncoder.cpp",
+  ]
+}
+
+optional("xml") {
+  enabled = skia_use_expat
+  public_defines = []
+
+  deps = [
+    "//third_party/expat",
+  ]
+  sources = [
+    "src/xml/SkDOM.cpp",
+    "src/xml/SkXMLParser.cpp",
+    "src/xml/SkXMLWriter.cpp",
+  ]
 }
 
 component("skia") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
-  configs -= unwanted_configs
 
   deps = [
-    ":opts_avx",
-    ":opts_sse41",
-    ":opts_ssse3",
-    "third_party:zlib",
+    ":avx",
+    ":gif",
+    ":jpeg",
+    ":none",
+    ":pdf",
+    ":png",
+    ":sse2",
+    ":sse41",
+    ":sse42",
+    ":ssse3",
+    ":webp",
+    ":xml",
   ]
 
-  libs = []
+  if (!is_win) {
+    libs = [ "pthread" ]
+  }
 
   sources = []
   sources += core_gypi.sources
   sources += effects_gypi.sources
   sources += gpu_gypi.skgpu_sources
-  sources += opts_gypi.sse2_sources
-  sources += pdf_gypi.sources
   sources += utils_gypi.sources
   sources += [
+    "src/android/SkBitmapRegionCodec.cpp",
+    "src/android/SkBitmapRegionDecoder.cpp",
+    "src/codec/SkAndroidCodec.cpp",
+    "src/codec/SkBmpCodec.cpp",
+    "src/codec/SkBmpMaskCodec.cpp",
+    "src/codec/SkBmpRLECodec.cpp",
+    "src/codec/SkBmpStandardCodec.cpp",
+    "src/codec/SkCodec.cpp",
+    "src/codec/SkCodecImageGenerator.cpp",
+    "src/codec/SkMaskSwizzler.cpp",
+    "src/codec/SkMasks.cpp",
+    "src/codec/SkSampledCodec.cpp",
+    "src/codec/SkSampler.cpp",
+    "src/codec/SkSwizzler.cpp",
+    "src/codec/SkWbmpCodec.cpp",
+    "src/gpu/gl/GrGLDefaultInterface_native.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/images/SkImageEncoder_Factory.cpp",
+    "src/images/SkKTXImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
     "src/ports/SkGlobalInitialization_default.cpp",
-    "src/ports/SkImageGenerator_none.cpp",
+    "src/ports/SkImageGenerator_skia.cpp",
     "src/ports/SkMemory_malloc.cpp",
     "src/ports/SkOSFile_stdio.cpp",
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
+    "src/svg/SkSVGCanvas.cpp",
+    "src/svg/SkSVGDevice.cpp",
     "src/utils/mac/SkStream_mac.cpp",
     "third_party/etc1/etc1.cpp",
     "third_party/ktx/ktx.cpp",
+  ]
+  sources -= [
+    "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
+    "src/gpu/gl/GrGLDefaultInterface_none.cpp",
   ]
 
   if (is_win) {
@@ -202,12 +388,15 @@ component("skia") {
       "src/ports/SkScalerContext_win_dw.cpp",
       "src/ports/SkTLS_win.cpp",
       "src/ports/SkTypeface_win_dw.cpp",
+      "src/xps/SkDocument_XPS.cpp",
     ]
+    sources -= [ "src/utils/SkThreadUtils_pthread.cpp" ]
   } else {
     sources += [
       "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkOSFile_posix.cpp",
       "src/ports/SkTLS_pthread.cpp",
+      "src/xps/SkDocument_XPS_None.cpp",
     ]
   }
 
@@ -215,44 +404,330 @@ component("skia") {
     deps += [
       "third_party:fontconfig",
       "third_party:freetype2",
-      "third_party:libjpeg-turbo",
-      "third_party:libpng",
+    ]
+    libs += [
+      "GL",
+      "GLU",
+      "X11",
     ]
     sources += [
-      "src/fonts/SkFontMgr_fontconfig.cpp",
-      "src/images/SkJPEGImageEncoder.cpp",
-      "src/images/SkJPEGWriteUtility.cpp",
-      "src/images/SkPNGImageEncoder.cpp",
+      "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp",
       "src/ports/SkFontConfigInterface_direct.cpp",
       "src/ports/SkFontConfigInterface_direct_factory.cpp",
       "src/ports/SkFontHost_FreeType.cpp",
       "src/ports/SkFontHost_FreeType_common.cpp",
-      "src/ports/SkFontHost_fontconfig.cpp",
+      "src/ports/SkFontMgr_FontConfigInterface.cpp",
+      "src/ports/SkFontMgr_fontconfig.cpp",
+      "src/ports/SkFontMgr_fontconfig_factory.cpp",
     ]
   }
 
   if (is_mac) {
     sources += [
+      "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp",
       "src/ports/SkFontHost_mac.cpp",
       "src/ports/SkImageEncoder_CG.cpp",
       "src/ports/SkImageGeneratorCG.cpp",
     ]
-    libs += [ "ApplicationServices.framework" ]
+    libs += [
+      "ApplicationServices.framework",
+      "OpenGL.framework",
+    ]
+  }
+
+  if (is_fuchsia) {
+    sources += [
+      "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
+      "src/ports/SkFontMgr_empty_factory.cpp",
+    ]
   }
 }
 
-executable("example") {
-  configs -= unwanted_configs
+skia_h_headers = exec_script("gyp/find.py",
+                             [ "*.h" ] + rebase_path(skia_public_includes),
+                             "list lines",
+                             []) -
+                 [
+                   rebase_path("include/gpu/gl/GrGLConfig_chrome.h"),
+                   rebase_path("include/gpu/vk/GrVkBackendContext.h"),
+                   rebase_path("include/gpu/vk/GrVkDefines.h"),
+                   rebase_path("include/gpu/vk/GrVkInterface.h"),
+                   rebase_path("include/gpu/vk/GrVkTypes.h"),
+                   rebase_path("include/ports/SkFontMgr_fontconfig.h"),
+                 ]
+
+action("skia.h") {
+  script = "gn/echo_headers.py"
+  args = [ rebase_path("$target_gen_dir/skia.h", root_build_dir) ] +
+         rebase_path(skia_h_headers, target_gen_dir)
+  outputs = [
+    "$target_gen_dir/skia.h",
+  ]
+}
+
+executable("fiddle") {
+  include_dirs = [ "$target_gen_dir" ]
+  libs = []
+  if (is_linux) {
+    libs += [ "OSMesa" ]
+  }
 
   sources = [
-    "cmake/example.cpp",
+    "src/images/SkForceLinking.cpp",
+    "tools/fiddle/draw.cpp",
+    "tools/fiddle/fiddle_main.cpp",
   ]
   deps = [
     ":skia",
+    ":skia.h",
   ]
+}
 
-  libs = []
-  if (is_mac) {
-    libs += [ "OpenGL.framework" ]
+# Targets guarded by skia_enable_tools may use //third_party freely.
+if (skia_enable_tools) {
+  template("test_lib") {
+    config(target_name + "_config") {
+      include_dirs = invoker.public_include_dirs
+    }
+    source_set(target_name) {
+      forward_variables_from(invoker, "*", [ "public_include_dirs" ])
+      public_configs = [
+        ":" + target_name + "_config",
+        ":skia_private",
+      ]
+
+      if (!defined(deps)) {
+        deps = []
+      }
+      deps += [ ":skia" ]
+      testonly = true
+    }
+  }
+
+  test_lib("gpu_tool_utils") {
+    public_include_dirs = [ "tools/gpu" ]
+    sources = [
+      "tools/gpu/GrContextFactory.cpp",
+      "tools/gpu/GrTest.cpp",
+      "tools/gpu/TestContext.cpp",
+      "tools/gpu/gl/GLTestContext.cpp",
+      "tools/gpu/gl/debug/DebugGLTestContext.cpp",
+      "tools/gpu/gl/debug/GrBufferObj.cpp",
+      "tools/gpu/gl/debug/GrFrameBufferObj.cpp",
+      "tools/gpu/gl/debug/GrProgramObj.cpp",
+      "tools/gpu/gl/debug/GrShaderObj.cpp",
+      "tools/gpu/gl/debug/GrTextureObj.cpp",
+      "tools/gpu/gl/debug/GrTextureUnitObj.cpp",
+      "tools/gpu/gl/null/NullGLTestContext.cpp",
+    ]
+    libs = []
+
+    if (is_linux) {
+      sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
+    } else if (is_mac) {
+      sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
+    }
+  }
+
+  test_lib("flags") {
+    public_include_dirs = [ "tools/flags" ]
+    sources = [
+      "tools/flags/SkCommandLineFlags.cpp",
+      "tools/flags/SkCommonFlags.cpp",
+      "tools/flags/SkCommonFlagsConfig.cpp",
+    ]
+    deps = [
+      ":gpu_tool_utils",
+    ]
+  }
+
+  test_lib("tool_utils") {
+    public_include_dirs = [
+      "tools",
+      "tools/debugger",
+      "tools/timer",
+    ]
+    sources = [
+      "src/images/SkForceLinking.cpp",
+      "src/utils/SkMultiPictureDocumentReader.cpp",  # TODO(halcanary): move to tools?
+      "tools/CrashHandler.cpp",
+      "tools/ProcStats.cpp",
+      "tools/Resources.cpp",
+      "tools/ThermalManager.cpp",
+      "tools/UrlDataManager.cpp",
+      "tools/debugger/SkDebugCanvas.cpp",
+      "tools/debugger/SkDrawCommand.cpp",
+      "tools/debugger/SkJsonWriteBuffer.cpp",
+      "tools/debugger/SkObjectParser.cpp",
+      "tools/debugger/SkOverdrawMode.cpp",
+      "tools/picture_utils.cpp",
+      "tools/random_parse_path.cpp",
+      "tools/sk_tool_utils.cpp",
+      "tools/sk_tool_utils_font.cpp",
+      "tools/timer/Timer.cpp",
+    ]
+    deps = [
+      ":flags",
+      "//third_party/libpng",
+    ]
+    public_deps = [
+      "//third_party/jsoncpp",
+    ]
+  }
+
+  gm_sources = exec_script("gyp/find.py",
+                           [
+                             "*.c*",
+                             rebase_path("gm"),
+                           ],
+                           "list lines",
+                           [])
+  test_lib("gm") {
+    public_include_dirs = [ "gm" ]
+    sources = gm_sources
+    deps = [
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+    ]
+  }
+
+  tests_sources = exec_script("gyp/find.py",
+                              [
+                                "*.c*",
+                                rebase_path("tests"),
+                              ],
+                              "list lines",
+                              [])
+
+  test_lib("tests") {
+    public_include_dirs = [ "tests" ]
+    sources =
+        tests_sources - [
+          rebase_path("tests/FontMgrAndroidParserTest.cpp"),  # Android only
+          rebase_path("tests/PathOpsSkpClipTest.cpp"),  # alternate main
+          rebase_path("tests/SkSLErrorTest.cpp"),  # TODO: make work
+          rebase_path("tests/SkSLGLSLTest.cpp"),  # TODO: make work
+          rebase_path("tests/SkpSkGrTest.cpp"),  # doesn't compile
+          rebase_path("tests/skia_test.cpp"),  # alternate main
+        ]
+    deps = [
+      ":experimental_svg_model",
+      ":flags",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+      "//third_party/libpng",
+      "//third_party/zlib",
+    ]
+  }
+
+  bench_sources = exec_script("gyp/find.py",
+                              [
+                                "*.c*",
+                                rebase_path("bench"),
+                              ],
+                              "list lines",
+                              [])
+
+  test_lib("bench") {
+    public_include_dirs = [ "bench" ]
+    sources = bench_sources
+    sources -= [
+      rebase_path("bench/nanobench.cpp"),
+      rebase_path("bench/nanobenchAndroid.cpp"),
+    ]
+    deps = [
+      ":flags",
+      ":gm",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+    ]
+  }
+
+  test_lib("experimental_svg_model") {
+    public_include_dirs = [ "experimental/svg/model" ]
+    sources = [
+      "experimental/svg/model/SkSVGAttribute.cpp",
+      "experimental/svg/model/SkSVGAttributeParser.cpp",
+      "experimental/svg/model/SkSVGCircle.cpp",
+      "experimental/svg/model/SkSVGContainer.cpp",
+      "experimental/svg/model/SkSVGDOM.cpp",
+      "experimental/svg/model/SkSVGEllipse.cpp",
+      "experimental/svg/model/SkSVGLine.cpp",
+      "experimental/svg/model/SkSVGNode.cpp",
+      "experimental/svg/model/SkSVGPath.cpp",
+      "experimental/svg/model/SkSVGPoly.cpp",
+      "experimental/svg/model/SkSVGRect.cpp",
+      "experimental/svg/model/SkSVGRenderContext.cpp",
+      "experimental/svg/model/SkSVGSVG.cpp",
+      "experimental/svg/model/SkSVGShape.cpp",
+      "experimental/svg/model/SkSVGTransformableNode.cpp",
+      "experimental/svg/model/SkSVGValue.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+  }
+
+  executable("dm") {
+    sources = [
+      "dm/DM.cpp",
+      "dm/DMJsonWriter.cpp",
+      "dm/DMSrcSink.cpp",
+    ]
+    include_dirs = [ "tests" ]
+    deps = [
+      ":experimental_svg_model",
+      ":flags",
+      ":gm",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tests",
+      ":tool_utils",
+      "//third_party/jsoncpp",
+      "//third_party/libpng",
+    ]
+    testonly = true
+  }
+
+  executable("monobench") {
+    sources = [
+      "tools/monobench.cpp",
+    ]
+    deps = [
+      ":bench",
+      ":skia",
+    ]
+    testonly = true
+  }
+
+  executable("nanobench") {
+    sources = [
+      "bench/nanobench.cpp",
+    ]
+    deps = [
+      ":bench",
+      ":flags",
+      ":gm",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+      "//third_party/jsoncpp",
+    ]
+    testonly = true
+  }
+
+  executable("sktexttopdf") {
+    sources = [
+      "tools/SkShaper_harfbuzz.cpp",
+      "tools/using_skia_and_harfbuzz.cpp",
+    ]
+    deps = [
+      ":skia",
+      "//third_party/harfbuzz",
+    ]
+    testonly = true
   }
 }

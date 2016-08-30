@@ -7,6 +7,7 @@
 
 #include "SkImage_Base.h"
 #include "SkBitmap.h"
+#include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkColorTable.h"
 #include "SkData.h"
@@ -16,6 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrImageIDTextureAdjuster.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #endif
@@ -77,9 +79,14 @@ public:
     SkImageInfo onImageInfo() const override {
         return fBitmap.info();
     }
+    SkAlphaType onAlphaType() const override {
+        return fBitmap.alphaType();
+    }
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     bool onPeekPixels(SkPixmap*) const override;
+    const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
+
     SkData* onRefEncoded(GrContext*) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
@@ -91,10 +98,9 @@ public:
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
-    bool isOpaque() const override;
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
 
-    SkImage_Raster(const SkBitmap& bm)
+    SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false)
         : INHERITED(bm.width(), bm.height(),
                     is_not_subset(bm) ? bm.getGenerationID()
                                       : (uint32_t)kNeedNewImageUniqueID)
@@ -105,15 +111,27 @@ public:
             // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
             fBitmap.lockPixels();
         }
-        SkASSERT(fBitmap.isImmutable());
+        SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
     }
 
     bool onIsLazyGenerated() const override {
         return fBitmap.pixelRef() && fBitmap.pixelRef()->isLazyGenerated();
     }
 
+#if SK_SUPPORT_GPU
+    sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override;
+    void onPinAsTexture(GrContext*) const override;
+    void onUnpinAsTexture(GrContext*) const override;
+#endif
+
 private:
     SkBitmap fBitmap;
+
+#if SK_SUPPORT_GPU
+    mutable sk_sp<GrTexture> fPinnedTexture;
+    mutable int32_t fPinnedCount = 0;
+    mutable uint32_t fPinnedUniqueID = 0;
+#endif
 
     typedef SkImage_Base INHERITED;
 };
@@ -146,7 +164,11 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, const SkIPoint&
     SkASSERT(fBitmap.isImmutable());
 }
 
-SkImage_Raster::~SkImage_Raster() {}
+SkImage_Raster::~SkImage_Raster() {
+#if SK_SUPPORT_GPU
+    SkASSERT(nullptr == fPinnedTexture.get());  // want the caller to have manually unpinned
+#endif
+}
 
 bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                                   int srcX, int srcY, CachingHint) const {
@@ -182,11 +204,63 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& p
         return nullptr;
     }
 
+    uint32_t uniqueID;
+    sk_sp<GrTexture> tex = this->refPinnedTexture(&uniqueID);
+    if (tex) {
+        GrTextureAdjuster adjuster(fPinnedTexture.get(), fBitmap.alphaType(), fBitmap.bounds(),
+                                   fPinnedUniqueID, fBitmap.colorSpace());
+        return adjuster.refTextureSafeForParams(params, gammaTreatment, nullptr);
+    }
+
     return GrRefCachedBitmapTexture(ctx, fBitmap, params, gammaTreatment);
 #endif
 
     return nullptr;
 }
+
+#if SK_SUPPORT_GPU
+
+sk_sp<GrTexture> SkImage_Raster::refPinnedTexture(uint32_t* uniqueID) const {
+    if (fPinnedTexture) {
+        SkASSERT(fPinnedCount > 0);
+        SkASSERT(fPinnedUniqueID != 0);
+        *uniqueID = fPinnedUniqueID;
+        return fPinnedTexture;
+    }
+    return nullptr;
+}
+
+void SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
+    if (fPinnedTexture) {
+        SkASSERT(fPinnedCount > 0);
+        SkASSERT(fPinnedUniqueID != 0);
+        SkASSERT(fPinnedTexture->getContext() == ctx);
+    } else {
+        SkASSERT(fPinnedCount == 0);
+        SkASSERT(fPinnedUniqueID == 0);
+        fPinnedTexture.reset(GrRefCachedBitmapTexture(ctx, fBitmap,
+                                                      GrTextureParams::ClampNoFilter(),
+                                                      SkSourceGammaTreatment::kRespect));
+        fPinnedUniqueID = fBitmap.getGenerationID();
+    }
+    // Note: we always increment, even if we failed to create the pinned texture
+    ++fPinnedCount;
+}
+
+void SkImage_Raster::onUnpinAsTexture(GrContext* ctx) const {
+    // Note: we always decrement, even if fPinnedTexture is null
+    SkASSERT(fPinnedCount > 0);
+    SkASSERT(fPinnedUniqueID != 0);
+    if (fPinnedTexture) {
+        SkASSERT(fPinnedTexture->getContext() == ctx);
+    }
+
+    if (0 == --fPinnedCount) {
+        fPinnedTexture.reset(nullptr);
+        fPinnedUniqueID = 0;
+    }
+}
+#endif
 
 sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset) const {
     // TODO : could consider heurist of sharing pixels, if subset is pretty close to complete
@@ -212,7 +286,7 @@ sk_sp<SkImage> SkImage::MakeRasterCopy(const SkPixmap& pmap) {
     }
 
     // Here we actually make a copy of the caller's pixel data
-    sk_sp<SkData> data(SkData::NewWithCopy(pmap.addr(), size));
+    sk_sp<SkData> data(SkData::MakeWithCopy(pmap.addr(), size));
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
 }
 
@@ -240,7 +314,7 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
         return nullptr;
     }
 
-    sk_sp<SkData> data(SkData::NewWithProc(pmap.addr(), size, proc, ctx));
+    sk_sp<SkData> data(SkData::MakeWithProc(pmap.addr(), size, proc, ctx));
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
 }
 
@@ -252,9 +326,8 @@ sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
     return sk_make_sp<SkImage_Raster>(info, pr, pixelRefOrigin, rowBytes);
 }
 
-sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode forceCopy) {
-    SkASSERT(nullptr == bm.getTexture());
-
+sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm,
+                                           SkTBlitterAllocator* allocator) {
     bool hasColorTable = false;
     if (kIndex_8_SkColorType == bm.colorType()) {
         SkAutoLockPixels autoLockPixels(bm);
@@ -266,7 +339,7 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode for
     }
 
     sk_sp<SkImage> image;
-    if (kYes_ForceCopyMode == forceCopy || !bm.isImmutable()) {
+    if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
         SkBitmap tmp(bm);
         tmp.lockPixels();
         SkPixmap pmap;
@@ -274,17 +347,18 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode for
             image = SkImage::MakeRasterCopy(pmap);
         }
     } else {
-        image = sk_make_sp<SkImage_Raster>(bm);
+        if (allocator) {
+            image.reset(allocator->createT<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm));
+            image.get()->ref(); // account for the allocator being an owner
+        } else {
+            image = sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
+        }
     }
     return image;
 }
 
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
     return ((const SkImage_Raster*)image)->getPixelRef();
-}
-
-bool SkImage_Raster::isOpaque() const {
-    return fBitmap.isOpaque();
 }
 
 bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {

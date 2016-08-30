@@ -57,7 +57,7 @@ GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, SkScalar 
     , fTotalPathCount(instanceData->count())
     , fScale(scale) {
     fDraws.addToHead()->set(instanceData, x, y);
-    fBounds = bounds;
+    this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
 bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
@@ -112,7 +112,7 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
         draw->fY = head->fY;
         that->fDraws.popHead();
     }
-    this->joinBounds(that->fBounds);
+    this->joinBounds(*that);
     return true;
 }
 

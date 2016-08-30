@@ -213,10 +213,16 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
     big.setAll(2.39394089e+36f, 8.85347779e+36f, 9.26526204e+36f,
                3.9159619e+36f, 1.44823453e+37f, 1.51559342e+37f,
                0.f, 0.f, 1.f);
-    REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMinScale());
-    REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMaxScale());
     success = big.getMinMaxScales(scales);
     REPORTER_ASSERT(reporter, !success);
+
+    // skbug.com/4718
+    SkMatrix givingNegativeNearlyZeros;
+    givingNegativeNearlyZeros.setAll(0.00436534f, 0.114138f, 0.37141f,
+                                     0.00358857f, 0.0936228f, -0.0174198f,
+                                     0.f, 0.f, 1.f);
+    success = givingNegativeNearlyZeros.getMinMaxScales(scales);
+    REPORTER_ASSERT(reporter, success && 0 == scales[0]);
 
     SkMatrix perspY;
     perspY.reset();
@@ -233,8 +239,8 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
     SkMatrix mats[2*SK_ARRAY_COUNT(baseMats)];
     for (size_t i = 0; i < SK_ARRAY_COUNT(baseMats); ++i) {
         mats[i] = baseMats[i];
-        bool invertable = mats[i].invert(&mats[i + SK_ARRAY_COUNT(baseMats)]);
-        REPORTER_ASSERT(reporter, invertable);
+        bool invertible = mats[i].invert(&mats[i + SK_ARRAY_COUNT(baseMats)]);
+        REPORTER_ASSERT(reporter, invertible);
     }
     SkRandom rand;
     for (int m = 0; m < 1000; ++m) {
@@ -939,6 +945,11 @@ DEF_TEST(Matrix, reporter) {
     test_set9(reporter);
 
     test_decompScale(reporter);
+
+    mat.setScaleTranslate(2, 3, 1, 4);
+    mat2.setScale(2, 3);
+    mat2.postTranslate(1, 4);
+    REPORTER_ASSERT(reporter, mat == mat2);
 }
 
 DEF_TEST(Matrix_Concat, r) {
@@ -952,4 +963,30 @@ DEF_TEST(Matrix_Concat, r) {
     expected.setConcat(a,b);
 
     REPORTER_ASSERT(r, expected == SkMatrix::Concat(a, b));
+}
+
+// Test that all variants of maprect are correct.
+DEF_TEST(Matrix_maprects, r) {
+    const SkScalar scale = 1000;
+    
+    SkMatrix mat;
+    mat.setScale(2, 3);
+    mat.postTranslate(1, 4);
+
+    SkRandom rand;
+    for (int i = 0; i < 10000; ++i) {
+        SkRect src = SkRect::MakeLTRB(rand.nextSScalar1() * scale,
+                                      rand.nextSScalar1() * scale,
+                                      rand.nextSScalar1() * scale,
+                                      rand.nextSScalar1() * scale);
+        SkRect dst[3];
+        
+        mat.mapPoints((SkPoint*)&dst[0].fLeft, (SkPoint*)&src.fLeft, 2);
+        dst[0].sort();
+        mat.mapRect(&dst[1], src);
+        mat.mapRectScaleTranslate(&dst[2], src);
+
+        REPORTER_ASSERT(r, dst[0] == dst[1]);
+        REPORTER_ASSERT(r, dst[0] == dst[2]);
+    }
 }

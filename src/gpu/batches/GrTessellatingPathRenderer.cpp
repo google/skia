@@ -14,6 +14,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMesh.h"
 #include "GrPathUtils.h"
+#include "GrPipelineBuilder.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrTessellator.h"
@@ -186,8 +187,7 @@ private:
         TessInfo info;
         info.fTolerance = isLinear ? 0 : tol;
         info.fCount = count;
-        SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
-        key.setCustomData(data.get());
+        key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, allocator.vertexBuffer());
     }
 
@@ -238,12 +238,8 @@ private:
         // Because the clip bounds are used to add a contour for inverse fills, they must also
         // include the path bounds.
         fClipBounds.join(pathBounds);
-        if (shape.inverseFilled()) {
-            fBounds = fClipBounds;
-        } else {
-            fBounds = pathBounds;
-        }
-        viewMatrix.mapRect(&fBounds);
+        const SkRect& srcBounds = shape.inverseFilled() ? fClipBounds : pathBounds;
+        this->setTransformedBounds(srcBounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     GrColor                 fColor;
@@ -271,7 +267,8 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     vmi.mapRect(&clipBounds);
     SkPath path;
     args.fShape->asPath(&path);
-    SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fShape,
+    SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fPaint->getColor(),
+                                                                  *args.fShape,
                                                                   *args.fViewMatrix, clipBounds));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->mustUseHWAA(*args.fPaint));

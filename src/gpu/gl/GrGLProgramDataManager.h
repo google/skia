@@ -54,6 +54,7 @@ public:
     *  array of uniforms. arrayCount must be <= the array count of the uniform.
     */
     void set1i(UniformHandle, int32_t) const override;
+    void set1iv(UniformHandle, int arrayCount, const int v[]) const override;
     void set1f(UniformHandle, float v0) const override;
     void set1fv(UniformHandle, int arrayCount, const float v[]) const override;
     void set2f(UniformHandle, float, float) const override;

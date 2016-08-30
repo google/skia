@@ -71,7 +71,7 @@ longer document with a bunch of other pages.
 PDF Objects and Document Structure
 ----------------------------------
 
-![PDF Logical Document Structure](PdfLogicalDocumentStructure.png)
+![PDF Logical Document Structure](/dev/design/PdfLogicalDocumentStructure.png)
 
 **Background**: The PDF file format has a header, a set of objects and
 then a footer that contains a table of contents for all of the objects

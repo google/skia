@@ -8,6 +8,7 @@
 #ifndef SkTypeface_DEFINED
 #define SkTypeface_DEFINED
 
+#include "../private/SkBitmaskEnum.h"
 #include "../private/SkOnce.h"
 #include "../private/SkWeakRefCnt.h"
 #include "SkFontStyle.h"
@@ -188,7 +189,7 @@ public:
      *          from the beginning of chars. This value is valid, even if the
      *          glyphs parameter is NULL.
      */
-    int charsToGlyphs(const void* chars, Encoding encoding, uint16_t glyphs[],
+    int charsToGlyphs(const void* chars, Encoding encoding, SkGlyphID glyphs[],
                       int glyphCount) const;
 
     /**
@@ -262,7 +263,7 @@ public:
      *  array will be in an undefined state (possibly some values may have been
      *  written, but none of them should be interpreted as valid values).
      */
-    bool getKerningPairAdjustments(const uint16_t glyphs[], int count,
+    bool getKerningPairAdjustments(const SkGlyphID glyphs[], int count,
                                    int32_t adjustments[]) const;
 
     struct LocalizedString {
@@ -332,20 +333,20 @@ protected:
     // The type of advance data wanted.
     enum PerGlyphInfo {
         kNo_PerGlyphInfo         = 0x0, // Don't populate any per glyph info.
-        kHAdvance_PerGlyphInfo   = 0x1, // Populate horizontal advance data.
-        kVAdvance_PerGlyphInfo   = 0x2, // Populate vertical advance data.
-        kGlyphNames_PerGlyphInfo = 0x4, // Populate glyph names (Type 1 only).
-        kToUnicode_PerGlyphInfo  = 0x8  // Populate ToUnicode table, ignored
-        // for Type 1 fonts
+        kGlyphNames_PerGlyphInfo = 0x1, // Populate glyph names (Type 1 only).
+        kToUnicode_PerGlyphInfo  = 0x2  // Populate ToUnicode table, ignored
+                                        // for Type 1 fonts
     };
 
     /** uniqueID must be unique and non-zero
     */
-    SkTypeface(const SkFontStyle& style, SkFontID uniqueID, bool isFixedPitch = false);
+    SkTypeface(const SkFontStyle& style, bool isFixedPitch = false);
     virtual ~SkTypeface();
 
     /** Sets the fixedPitch bit. If used, must be called in the constructor. */
     void setIsFixedPitch(bool isFixedPitch) { fIsFixedPitch = isFixedPitch; }
+    /** Sets the font style. If used, must be called in the constructor. */
+    void setFontStyle(SkFontStyle style) { fStyle = style; }
 
     friend class SkScalerContext;
     static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
@@ -364,12 +365,12 @@ protected:
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
-    virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
+    virtual int onCharsToGlyphs(const void* chars, Encoding, SkGlyphID glyphs[],
                                 int glyphCount) const = 0;
     virtual int onCountGlyphs() const = 0;
 
     virtual int onGetUPEM() const = 0;
-    virtual bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
+    virtual bool onGetKerningPairAdjustments(const SkGlyphID glyphs[], int count,
                                              int32_t adjustments[]) const;
 
     /** Returns the family name of the typeface as known by its font manager.
@@ -390,7 +391,6 @@ private:
     friend class SkGTypeface;
     friend class SkRandomTypeface;
     friend class SkPDFFont;
-    friend class SkPDFCIDFont;
     friend class GrPathRendering;
     friend class GrGLPathRendering;
 
@@ -421,5 +421,9 @@ private:
 
     typedef SkWeakRefCnt INHERITED;
 };
+
+namespace skstd {
+template <> struct is_bitmask_enum<SkTypeface::PerGlyphInfo> : std::true_type {};
+}
 
 #endif

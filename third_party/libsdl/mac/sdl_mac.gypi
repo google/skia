@@ -5,17 +5,14 @@
 # Mac specific files and settings for SDL
 
 {
- #TODO what is really necessary here
+
  'link_settings': {
    'libraries': [ 
-     '-lm',
-     '-liconv',
-     '-lobjc',
-     '-lpthread',
      '$(SDKROOT)/System/Library/Frameworks/CoreVideo.framework',
      '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
      '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
      '$(SDKROOT)/System/Library/Frameworks/IOKit.framework',
+     '/usr/lib/libiconv.dylib',
    ],
  },
  'sources': [

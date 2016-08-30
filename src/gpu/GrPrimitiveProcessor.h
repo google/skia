@@ -156,8 +156,7 @@ public:
             : fName(nullptr)
             , fType(kFloat_GrVertexAttribType)
             , fOffset(0) {}
-        Attribute(const char* name, GrVertexAttribType type,
-                  GrSLPrecision precision = kDefault_GrSLPrecision)
+        Attribute(const char* name, GrVertexAttribType type, GrSLPrecision precision)
             : fName(name)
             , fType(type)
             , fOffset(SkAlign4(GrVertexAttribTypeSize(type)))
@@ -220,6 +219,10 @@ public:
     virtual float getSampleShading() const {
         return 0.0;
     }
+
+    /* Sub-class should override and return true if this primitive processor implements the distance
+     * vector field, a field of vectors to the nearest point in the edge of the shape.  */
+    virtual bool implementsDistanceVector() const { return false; }
 
 protected:
     GrPrimitiveProcessor() : fVertexStride(0) {}

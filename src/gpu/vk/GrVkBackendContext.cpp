@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Helper code to set up Vulkan context objects
 
-#ifdef ENABLE_VK_LAYERS
+#ifdef SK_ENABLE_VK_LAYERS
 const char* kDebugLayerNames[] = {
     // elements of VK_LAYER_LUNARG_standard_validation
     "VK_LAYER_GOOGLE_threading",
@@ -40,9 +40,7 @@ const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
 
 // Create the base Vulkan objects needed by the GrVkGpu object
 const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndexPtr,
-                             bool(*canPresent)(VkInstance, VkPhysicalDevice, uint32_t queueIndex,
-                                               void* platformData),
-                             void* platformData) {
+                                                     CanPresentFn canPresent) {
     VkPhysicalDevice physDev;
     VkDevice device;
     VkInstance inst;
@@ -64,7 +62,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     SkTArray<const char*> instanceLayerNames;
     SkTArray<const char*> instanceExtensionNames;
     uint32_t extensionFlags = 0;
-#ifdef ENABLE_VK_LAYERS
+#ifdef SK_ENABLE_VK_LAYERS
     for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
         if (extensions.hasInstanceLayer(kDebugLayerNames[i])) {
             instanceLayerNames.push_back(kDebugLayerNames[i]);
@@ -161,7 +159,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     uint32_t presentQueueIndex = graphicsQueueIndex;
     if (presentQueueIndexPtr && canPresent) {
         for (uint32_t i = 0; i < queueCount; i++) {
-            if (canPresent(inst, physDev, i, platformData)) {
+            if (canPresent(inst, physDev, i)) {
                 presentQueueIndex = i;
                 break;
             }
@@ -174,7 +172,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
 
     SkTArray<const char*> deviceLayerNames;
     SkTArray<const char*> deviceExtensionNames;
-#ifdef ENABLE_VK_LAYERS
+#ifdef SK_ENABLE_VK_LAYERS
     for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
         if (extensions.hasDeviceLayer(kDebugLayerNames[i])) {
             deviceLayerNames.push_back(kDebugLayerNames[i]);

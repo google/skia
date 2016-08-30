@@ -65,8 +65,6 @@ Make sure the following have been installed:
 
 *   GL, such as **freeglut3-dev**
 
-*   QT4, used by the [Skia Debugger](/dev/tools/debugger): **libqt4-dev**
-
 Check out the source code
 -------------------------
 

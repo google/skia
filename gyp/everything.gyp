@@ -19,6 +19,7 @@
       'dependencies': [
         'most.gyp:most',
         'skiaserve.gyp:skiaserve',
+        'tools.gyp:monobench',
       ],
       'conditions': [
         ['skia_os in ("ios", "android")', {
@@ -31,7 +32,7 @@
         }],
         ['skia_os == "android"', {
           'dependencies': [
-            'android_system.gyp:SampleApp_APK',
+            'android_system.gyp:Viewer_APK',
           ],
         }],
       ],

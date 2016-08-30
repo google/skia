@@ -29,7 +29,7 @@
         'skia_lib.gyp:skia_lib',
       ],
       'sources': [
-        '<!@(python find.py ../tools/gpu "*")'
+        '<!@(python find.py "*" ../tools/gpu)'
       ],
       'conditions': [
         [ 'skia_mesa', { 'dependencies': [ 'osmesa' ] } ],

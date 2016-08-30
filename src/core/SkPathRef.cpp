@@ -675,7 +675,6 @@ uint8_t SkPathRef::Iter::peek() const {
 
 #ifdef SK_DEBUG
 void SkPathRef::validate() const {
-    this->INHERITED::validate();
     SkASSERT(static_cast<ptrdiff_t>(fFreeSpace) >= 0);
     SkASSERT(reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints) >= 0);
     SkASSERT((nullptr == fPoints) == (nullptr == fVerbs));

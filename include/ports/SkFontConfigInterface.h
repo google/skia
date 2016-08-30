@@ -111,7 +111,7 @@ public:
 
     // New APIS, which have default impls for now (which do nothing)
 
-    virtual SkDataTable* getFamilyNames() { return SkDataTable::NewEmpty(); }
+    virtual sk_sp<SkDataTable> getFamilyNames() { return SkDataTable::MakeEmpty(); }
     typedef SkRefCnt INHERITED;
 };
 

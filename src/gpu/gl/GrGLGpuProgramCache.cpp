@@ -12,12 +12,12 @@
 #include "GrGLPathRendering.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "SkRTConf.h"
+#include "glsl/GrGLSLProgramDesc.h"
 #include "SkTSearch.h"
 
 #ifdef PROGRAM_CACHE_STATS
-SK_CONF_DECLARE(bool, c_DisplayCache, "gpu.displayCache", false,
-                "Display program cache usage.");
+// Display program cache usage
+static const bool c_DisplayCache{false};
 #endif
 
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
@@ -112,8 +112,8 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
 #endif
 
     // Get GrGLProgramDesc
-    GrGLProgramDesc desc;
-    if (!GrGLProgramDescBuilder::Build(&desc, primProc, pipeline, *gpu->glCaps().glslCaps())) {
+    GrGLSLProgramDesc desc;
+    if (!GrGLSLProgramDescBuilder::Build(&desc, primProc, pipeline, *gpu->glCaps().glslCaps())) {
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }

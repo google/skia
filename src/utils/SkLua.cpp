@@ -221,6 +221,11 @@ static void setarray_scalar(lua_State* L, int index, SkScalar value) {
     setarray_number(L, index, SkScalarToLua(value));
 }
 
+static void setarray_string(lua_State* L, int index, const char str[]) {
+    lua_pushstring(L, str);
+    lua_rawseti(L, -2, index);
+}
+
 void SkLua::pushBool(bool value, const char key[]) {
     lua_pushboolean(fL, value);
     CHECK_SETFIELD(key);
@@ -638,24 +643,10 @@ static int lcanvas_getClipStack(lua_State* L) {
 int SkLua::lcanvas_getReducedClipStack(lua_State* L) {
 #if SK_SUPPORT_GPU
     const SkCanvas* canvas = get_ref<SkCanvas>(L, 1);
-    SkIRect queryBounds = canvas->getTopLayerBounds();
+    SkRect queryBounds = SkRect::Make(canvas->getTopLayerBounds());
+    const GrReducedClip reducedClip(*canvas->getClipStack(), queryBounds);
 
-    GrReducedClip::ElementList elements;
-    GrReducedClip::InitialState initialState;
-    int32_t genID;
-    SkIRect resultBounds;
-
-    const SkClipStack& stack = *canvas->getClipStack();
-
-    GrReducedClip::ReduceClipStack(stack,
-                                   queryBounds,
-                                   &elements,
-                                   &genID,
-                                   &initialState,
-                                   &resultBounds,
-                                   nullptr);
-
-    GrReducedClip::ElementList::Iter iter(elements);
+    GrReducedClip::ElementList::Iter iter(reducedClip.elements());
     int i = 0;
     lua_newtable(L);
     while(iter.get()) {
@@ -1160,6 +1151,19 @@ static int lpaint_getPathEffect(lua_State* L) {
     return 0;
 }
 
+static int lpaint_getFillPath(lua_State* L) {
+    const SkPaint* paint = get_obj<SkPaint>(L, 1);
+    const SkPath* path = get_obj<SkPath>(L, 2);
+
+    SkPath fillpath;
+    paint->getFillPath(*path, &fillpath);
+
+    SkLua lua(L);
+    lua.pushPath(fillpath);
+
+    return 1;
+}
+
 static int lpaint_gc(lua_State* L) {
     get_obj<SkPaint>(L, 1)->~SkPaint();
     return 0;
@@ -1218,6 +1222,7 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "getShader", lpaint_getShader },
     { "setShader", lpaint_setShader },
     { "getPathEffect", lpaint_getPathEffect },
+    { "getFillPath", lpaint_getFillPath },
     { "__gc", lpaint_gc },
     { nullptr, nullptr }
 };
@@ -1275,23 +1280,10 @@ static int lshader_asAGradient(lua_State* L) {
             info.fColorOffsets = pos.get();
             shader->asAGradient(&info);
 
-            bool containsHardStops = false;
-            bool isEvenlySpaced    = true;
-            for (int i = 1; i < info.fColorCount; i++) {
-                if (SkScalarNearlyEqual(info.fColorOffsets[i], info.fColorOffsets[i-1])) {
-                    containsHardStops = true;
-                }
-                if (!SkScalarNearlyEqual(info.fColorOffsets[i], i/(info.fColorCount - 1.0f))) {
-                    isEvenlySpaced = false;
-                }
-            }
-
             lua_newtable(L);
-            setfield_string(L,  "type",               gradtype2string(t));
-            setfield_string(L,  "tile",               mode2string(info.fTileMode));
-            setfield_number(L,  "colorCount",         info.fColorCount);
-            setfield_boolean(L, "containsHardStops",  containsHardStops);
-            setfield_boolean(L, "isEvenlySpaced",     isEvenlySpaced);
+            setfield_string(L,  "type",           gradtype2string(t));
+            setfield_string(L,  "tile",           mode2string(info.fTileMode));
+            setfield_number(L,  "colorCount",     info.fColorCount);
 
             lua_newtable(L);
             for (int i = 0; i < info.fColorCount; i++) {
@@ -1600,6 +1592,45 @@ static int lpath_countPoints(lua_State* L) {
     return 1;
 }
 
+static int lpath_getVerbs(lua_State* L) {
+    const SkPath* path = get_obj<SkPath>(L, 1);
+    SkPath::Iter iter(*path, false);
+    SkPoint pts[4];
+
+    lua_newtable(L);
+
+    bool done = false;
+    int i = 0;
+    do {
+        switch (iter.next(pts, true)) {
+            case SkPath::kMove_Verb:
+                setarray_string(L, ++i, "move");
+                break;
+            case SkPath::kClose_Verb:
+                setarray_string(L, ++i, "close");
+                break;
+            case SkPath::kLine_Verb:
+                setarray_string(L, ++i, "line");
+                break;
+            case SkPath::kQuad_Verb:
+                setarray_string(L, ++i, "quad");
+                break;
+            case SkPath::kConic_Verb:
+                setarray_string(L, ++i, "conic");
+                break;
+            case SkPath::kCubic_Verb:
+                setarray_string(L, ++i, "cubic");
+                break;
+            case SkPath::kDone_Verb:
+                setarray_string(L, ++i, "done");
+                done = true;
+                break;
+        }
+    } while (!done);
+
+    return 1;
+}
+
 static int lpath_reset(lua_State* L) {
     get_obj<SkPath>(L, 1)->reset();
     return 0;
@@ -1642,6 +1673,7 @@ static const struct luaL_Reg gSkPath_Methods[] = {
     { "getBounds", lpath_getBounds },
     { "getFillType", lpath_getFillType },
     { "getSegmentTypes", lpath_getSegmentTypes },
+    { "getVerbs", lpath_getVerbs },
     { "isConvex", lpath_isConvex },
     { "isEmpty", lpath_isEmpty },
     { "isRect", lpath_isRect },

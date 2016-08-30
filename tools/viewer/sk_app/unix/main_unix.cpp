@@ -13,8 +13,6 @@
 
 using sk_app::Application;
 
-static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
-
 void finishWindow(sk_app::Window_unix* win) {
     win->finishResize();
     win->finishPaint();
@@ -26,17 +24,15 @@ int main(int argc, char**argv) {
 
     Application* app = Application::Create(argc, argv, (void*)display);
 
-    double currentTime = 0.0;
-    double previousTime = 0.0;
-
     // Get the file descriptor for the X display
     int x11_fd = ConnectionNumber(display);
-    fd_set in_fds;
+    int count = x11_fd + 1;
 
     SkTHashSet<sk_app::Window_unix*> pendingWindows;
     bool done = false;
     while (!done) {
         // Create a file description set containing x11_fd
+        fd_set in_fds;
         FD_ZERO(&in_fds);
         FD_SET(x11_fd, &in_fds);
 
@@ -45,12 +41,15 @@ int main(int argc, char**argv) {
         tv.tv_usec = 100;
         tv.tv_sec = 0;
 
-        // Wait for an event on the file descriptor or for timer expiration
-        (void) select(1, &in_fds, NULL, NULL, &tv);
+        while (!XPending(display)) {
+            // Wait for an event on the file descriptor or for timer expiration
+            (void) select(count, &in_fds, NULL, NULL, &tv);
+        }
 
         // Handle XEvents (if any) and flush the input 
-        XEvent event;
-        while (XPending(display) && !done) {
+        int count = XPending(display);
+        while (count-- && !done) {
+            XEvent event;
             XNextEvent(display, &event);
 
             sk_app::Window_unix* win = sk_app::Window_unix::gWindowMap.find(event.xany.window);
@@ -75,11 +74,11 @@ int main(int argc, char**argv) {
         
         pendingWindows.foreach(finishWindow);
         if (pendingWindows.count() > 0) {
-            previousTime = currentTime;
-            currentTime = now_ms();
-            app->onIdle(currentTime - previousTime);        
+            app->onIdle();
         }
         pendingWindows.reset();
+
+        XFlush(display);
     }
 
     delete app;

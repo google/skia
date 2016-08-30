@@ -13,15 +13,17 @@
 class SK_API SkFontStyle {
 public:
     enum Weight {
-        kThin_Weight        = 100,
-        kExtraLight_Weight  = 200,
-        kLight_Weight       = 300,
-        kNormal_Weight      = 400,
-        kMedium_Weight      = 500,
-        kSemiBold_Weight    = 600,
-        kBold_Weight        = 700,
-        kExtraBold_Weight   = 800,
-        kBlack_Weight       = 900
+        kInvisible_Weight   =    0,
+        kThin_Weight        =  100,
+        kExtraLight_Weight  =  200,
+        kLight_Weight       =  300,
+        kNormal_Weight      =  400,
+        kMedium_Weight      =  500,
+        kSemiBold_Weight    =  600,
+        kBold_Weight        =  700,
+        kExtraBold_Weight   =  800,
+        kBlack_Weight       =  900,
+        kExtraBlack_Weight  = 1000,
     };
 
     enum Width {
@@ -33,7 +35,7 @@ public:
         kSemiExpanded_Width     = 6,
         kExpanded_Width         = 7,
         kExtraExpanded_Width    = 8,
-        kUltaExpanded_Width     = 9
+        kUltraExpanded_Width    = 9,
     };
 
     enum Slant {

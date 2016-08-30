@@ -530,6 +530,8 @@ DEF_TEST(Math, reporter) {
         REPORTER_ASSERT(reporter, result == SK_Fixed1);
         result = SkFixedDiv(1, SK_Fixed1);
         REPORTER_ASSERT(reporter, result == 1);
+        result = SkFixedDiv(10 - 1, SK_Fixed1 * 3);
+        REPORTER_ASSERT(reporter, result == 3);
     }
 
     unittest_fastfloat(reporter);

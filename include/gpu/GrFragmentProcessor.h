@@ -48,6 +48,12 @@ public:
     static sk_sp<GrFragmentProcessor> OverrideInput(sk_sp<GrFragmentProcessor>, GrColor);
 
     /**
+     *  Returns a fragment processor that premuls the input before calling the passed in fragment
+     *  processor.
+     */
+    static sk_sp<GrFragmentProcessor> PremulInput(sk_sp<GrFragmentProcessor>);
+
+    /**
      * Returns a fragment processor that runs the passed in array of fragment processors in a
      * series. The original input is passed to the first, the first's output is passed to the
      * second, etc. The output of the returned processor is the output of the last processor of the
@@ -59,6 +65,7 @@ public:
 
     GrFragmentProcessor()
         : INHERITED()
+        , fUsesDistanceVectorField(false)
         , fUsesLocalCoords(false)
         , fNumTexturesExclChildren(0)
         , fNumBuffersExclChildren(0)
@@ -103,6 +110,9 @@ public:
 
     /** Do any of the coordtransforms for this processor require local coords? */
     bool usesLocalCoords() const { return fUsesLocalCoords; }
+
+    /** Does this FP need a vector to the nearest edge? */
+    bool usesDistanceVectorField() const { return fUsesDistanceVectorField; }
 
     /** Returns true if this and other processor conservatively draw identically. It can only return
         true when the two processor are of the same subclass (i.e. they return the same object from
@@ -166,6 +176,11 @@ protected:
      * procs' output invariants; computeInvariantOutput will not be recursive.
      */
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const = 0;
+
+    /* Sub-classes should set this to true in their constructors if they need access to a distance
+     * vector field to the nearest edge
+     */
+    bool fUsesDistanceVectorField;
 
 private:
     void notifyRefCntIsZero() const final;

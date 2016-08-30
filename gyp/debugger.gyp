@@ -140,6 +140,7 @@
         'skia_lib.gyp:skia_lib',
         'jsoncpp.gyp:jsoncpp',
         'libpng.gyp:libpng',
+        'tools.gyp:picture_utils',
         'tools.gyp:url_data_manager',
       ],
       'cflags': [

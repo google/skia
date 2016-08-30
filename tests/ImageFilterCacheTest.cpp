@@ -222,13 +222,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
 
     sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeFromGpu(full,
                                                               kNeedNewImageUniqueID_SpecialImage,
-                                                              srcTexture));
+                                                              srcTexture, nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeFromGpu(subset,
                                                                 kNeedNewImageUniqueID_SpecialImage,
-                                                                srcTexture));
+                                                                srcTexture, nullptr));
 
     test_find_existing(reporter, fullImg, subsetImg);
     test_dont_find_if_diff_key(reporter, fullImg, subsetImg);

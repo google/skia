@@ -20,6 +20,7 @@
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "SkTime.h"
 
 using namespace sk_app;
 
@@ -57,15 +58,22 @@ DEFINE_string2(match, m, nullptr,
                "^ and $ requires an exact match\n"
                "If a bench does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
+
+#ifdef SK_VULKAN
+#    define BACKENDS_STR "\"sw\", \"gl\", and \"vk\""
+#else
+#    define BACKENDS_STR "\"sw\" and \"gl\""
+#endif
+
 #ifdef SK_BUILD_FOR_ANDROID
 DEFINE_string(skps, "/data/local/tmp/skia", "Directory to read skps from.");
 DEFINE_string(jpgs, "/data/local/tmp/skia", "Directory to read jpgs from.");
-DEFINE_bool(vulkan, false, "Run with Vulkan.");
 #else
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
-DEFINE_bool(vulkan, true, "Run with Vulkan.");
 #endif
+
+DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     " [OpenGL]",
@@ -74,6 +82,22 @@ const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
 #endif
     " [Raster]"
 };
+
+static sk_app::Window::BackendType get_backend_type(const char* str) {
+#ifdef SK_VULKAN
+    if (0 == strcmp(str, "vk")) {
+        return sk_app::Window::kVulkan_BackendType;
+    } else
+#endif
+    if (0 == strcmp(str, "gl")) {
+        return sk_app::Window::kNativeGL_BackendType;
+    } else if (0 == strcmp(str, "sw")) {
+        return sk_app::Window::kRaster_BackendType;
+    } else {
+        SkDebugf("Unknown backend type, %s, defaulting to sw.", str);
+        return sk_app::Window::kRaster_BackendType;
+    }
+}
 
 const char* kName = "name";
 const char* kValue = "value";
@@ -86,10 +110,12 @@ const char* kFpsStateName = "FPS";
 const char* kSplitScreenStateName = "Split screen";
 const char* kON = "ON";
 const char* kOFF = "OFF";
+const char* kRefreshStateName = "Refresh";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
     , fDisplayStats(false)
+    , fRefresh(false)
     , fSplitScreen(false)
     , fBackendType(sk_app::Window::kNativeGL_BackendType)
     , fZoomCenterX(0.0f)
@@ -107,12 +133,13 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     SkCommandLineFlags::Parse(argc, argv);
 
-#ifdef SK_VULKAN
-    fBackendType = FLAGS_vulkan ? sk_app::Window::kVulkan_BackendType
-                                : sk_app::Window::kNativeGL_BackendType;
-#endif
+    fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Window::CreateNativeWindow(platformData);
     fWindow->attach(fBackendType, DisplayParams());
+#if defined(SK_VULKAN) && defined(SK_BUILD_FOR_UNIX)
+    // Vulkan doesn't seem to handle a single refresh properly on Linux
+    fRefresh = (sk_app::Window::kVulkan_BackendType == fBackendType);
+#endif
 
     // register callbacks
     fCommands.attach(fWindow);
@@ -157,24 +184,46 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->changeZoomLevel(-1.f / 32.f);
         fWindow->inval();
     });
-#if 0  // this doesn't seem to work on any platform right now
-#ifndef SK_BUILD_FOR_ANDROID
+#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
     fCommands.addCommand('d', "Modes", "Change rendering backend", [this]() {
+        if (sk_app::Window::kRaster_BackendType == fBackendType) {
+            fBackendType = sk_app::Window::kNativeGL_BackendType;
+#ifdef SK_VULKAN
+        } else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
+            fBackendType = sk_app::Window::kVulkan_BackendType;
+#endif
+        } else {
+            fBackendType = sk_app::Window::kRaster_BackendType;
+        }
+
         fWindow->detach();
 
+#ifdef SK_VULKAN
+        // Switching from OpenGL to Vulkan in the same window is problematic at this point,
+        // so we just delete the window and recreate it.
+        // On Windows, only tearing down the window when going from OpenGL to Vulkan works fine.
+        // On Linux, we may need to tear down the window for the Vulkan to OpenGL case as well.
         if (sk_app::Window::kVulkan_BackendType == fBackendType) {
-            fBackendType = sk_app::Window::kNativeGL_BackendType;
-        } 
-        // TODO: get Vulkan -> OpenGL working on Windows without swapchain creation failure
-        //else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
-        //    fBackendType = sk_app::Window::kVulkan_BackendType;
-        //}
+            delete fWindow;
+            fWindow = Window::CreateNativeWindow(nullptr);
 
+            // re-register callbacks
+            fCommands.attach(fWindow);
+            fWindow->registerPaintFunc(on_paint_handler, this);
+            fWindow->registerTouchFunc(on_touch_handler, this);
+            fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
+        }
+#endif
         fWindow->attach(fBackendType, DisplayParams());
+#if defined(SK_VULKAN) && defined(SK_BUILD_FOR_UNIX)
+        // Vulkan doesn't seem to handle a single refresh properly on Linux
+        fRefresh = (sk_app::Window::kVulkan_BackendType == fBackendType);
+#endif
+
         this->updateTitle();
         fWindow->inval();
+        fWindow->show();
     });
-#endif
 #endif
 
     // set up slides
@@ -215,7 +264,9 @@ void Viewer::initSlides() {
     const SkViewRegister* reg = SkViewRegister::Head();
     while (reg) {
         sk_sp<Slide> slide(new SampleSlide(reg->factory()));
-        fSlides.push_back(slide);
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
+            fSlides.push_back(slide);
+        }
         reg = reg->next();
     }
 
@@ -253,6 +304,10 @@ void Viewer::initSlides() {
         SkOSFile::Iter it(FLAGS_jpgs[i], ".jpg");
         SkString jpgName;
         while (it.next(&jpgName)) {
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, jpgName.c_str())) {
+                continue;
+            }
+
             SkString path = SkOSPath::Join(FLAGS_jpgs[i], jpgName.c_str());
             sk_sp<ImageSlide> slide(new ImageSlide(jpgName, path));
             if (slide) {
@@ -400,6 +455,9 @@ void Viewer::drawSlide(SkCanvas* canvas, bool inSplitScreen) {
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
+    // Record measurements
+    double startTime = SkTime::GetMSecs();
+
     drawSlide(canvas, false);
     if (fSplitScreen && fWindow->supportsContentRect()) {
         drawSlide(canvas, true);
@@ -409,6 +467,11 @@ void Viewer::onPaint(SkCanvas* canvas) {
         drawStats(canvas);
     }
     fCommands.drawHelp(canvas);
+
+    fMeasurements[fCurrentMeasurement++] = SkTime::GetMSecs() - startTime;
+    fCurrentMeasurement &= (kMeasurementCount - 1);  // fast mod
+    SkASSERT(fCurrentMeasurement < kMeasurementCount);
+    updateUIState(); // Update the FPS
 }
 
 bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y) {
@@ -480,16 +543,10 @@ void Viewer::drawStats(SkCanvas* canvas) {
     canvas->restore();
 }
 
-void Viewer::onIdle(double ms) {
-    // Record measurements
-    fMeasurements[fCurrentMeasurement++] = ms;
-    fCurrentMeasurement &= (kMeasurementCount - 1);  // fast mod
-    SkASSERT(fCurrentMeasurement < kMeasurementCount);
-
+void Viewer::onIdle() {
     fAnimTimer.updateTime();
-    if (fSlides[fCurrentSlide]->animate(fAnimTimer) || fDisplayStats) {
+    if (fSlides[fCurrentSlide]->animate(fAnimTimer) || fDisplayStats || fRefresh) {
         fWindow->inval();
-        updateUIState(); // Update the FPS
     }
 }
 
@@ -596,6 +653,10 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
             fWindow->inval();
             updateUIState();
         }
+    } else if (stateName.equals(kRefreshStateName)) {
+        // This state is actually NOT in the UI state.
+        // We use this to allow Android to quickly set bool fRefresh.
+        fRefresh = stateValue.equals(kON);
     } else {
         SkDebugf("Unknown stateName: %s", stateName.c_str());
     }

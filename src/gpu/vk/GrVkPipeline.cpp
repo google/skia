@@ -11,7 +11,6 @@
 #include "GrPipeline.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkGpu.h"
-#include "GrVkProgramDesc.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkUtil.h"
 
@@ -356,19 +355,19 @@ void setup_color_blend_state(const GrVkGpu* gpu,
     // colorBlendInfo->blendConstants is set dynamically
 }
 
-VkCullModeFlags draw_face_to_vk_cull_mode(GrPipelineBuilder::DrawFace drawFace) {
+VkCullModeFlags draw_face_to_vk_cull_mode(GrDrawFace drawFace) {
     // Assumes that we've set the front face to be ccw
     static const VkCullModeFlags gTable[] = {
         VK_CULL_MODE_NONE,              // kBoth_DrawFace
         VK_CULL_MODE_BACK_BIT,          // kCCW_DrawFace, cull back face
         VK_CULL_MODE_FRONT_BIT,         // kCW_DrawFace, cull front face
     };
-    GR_STATIC_ASSERT(0 == GrPipelineBuilder::kBoth_DrawFace);
-    GR_STATIC_ASSERT(1 == GrPipelineBuilder::kCCW_DrawFace);
-    GR_STATIC_ASSERT(2 == GrPipelineBuilder::kCW_DrawFace);
-    SkASSERT((unsigned)drawFace <= 2);
+    GR_STATIC_ASSERT(0 == (int)GrDrawFace::kBoth);
+    GR_STATIC_ASSERT(1 == (int)GrDrawFace::kCCW);
+    GR_STATIC_ASSERT(2 == (int)GrDrawFace::kCW);
+    SkASSERT(-1 < (int)drawFace && (int)drawFace <= 2);
 
-    return gTable[drawFace];
+    return gTable[(int)drawFace];
 }
 
 void setup_raster_state(const GrVkGpu* gpu,
@@ -495,7 +494,7 @@ void set_dynamic_scissor_state(GrVkGpu* gpu,
         !scissorState.rect().contains(0, 0, target.width(), target.height())) {
         // This all assumes the scissorState has previously been clipped to the device space render
         // target.
-        scissor.offset.x = scissorState.rect().fLeft;
+        scissor.offset.x = SkTMax(scissorState.rect().fLeft, 0);
         scissor.extent.width = scissorState.rect().width();
         if (kTopLeft_GrSurfaceOrigin == target.origin()) {
             scissor.offset.y = scissorState.rect().fTop;
@@ -503,12 +502,11 @@ void set_dynamic_scissor_state(GrVkGpu* gpu,
             SkASSERT(kBottomLeft_GrSurfaceOrigin == target.origin());
             scissor.offset.y = target.height() - scissorState.rect().fBottom;
         }
+        scissor.offset.y = SkTMax(scissor.offset.y, 0);
         scissor.extent.height = scissorState.rect().height();
 
         SkASSERT(scissor.offset.x >= 0);
-        SkASSERT(scissor.offset.x + scissor.extent.width <= (uint32_t)target.width());
         SkASSERT(scissor.offset.y >= 0);
-        SkASSERT(scissor.offset.y + scissor.extent.height <= (uint32_t)target.height());
     } else {
         scissor.extent.width = target.width();
         scissor.extent.height = target.height();

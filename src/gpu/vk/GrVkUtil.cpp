@@ -30,7 +30,9 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             *format = VK_FORMAT_R5G6B5_UNORM_PACK16;
             break;
         case kRGBA_4444_GrPixelConfig:
-            *format = VK_FORMAT_R4G4B4A4_UNORM_PACK16;
+            // R4G4B4A4 is not required to be supported so we actually
+            // store the data is if it was B4G4R4A4 and swizzle in shaders
+            *format = VK_FORMAT_B4G4R4A4_UNORM_PACK16;
             break;
         case kIndex_8_GrPixelConfig:
             // No current vulkan support for this config
@@ -88,7 +90,9 @@ bool GrVkFormatToPixelConfig(VkFormat format, GrPixelConfig* config) {
         case VK_FORMAT_R5G6B5_UNORM_PACK16:
             *config = kRGB_565_GrPixelConfig;
             break;
-        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
+            // R4G4B4A4 is not required to be supported so we actually
+            // store RGBA_4444 data as B4G4R4A4.
             *config = kRGBA_4444_GrPixelConfig;
             break;
         case VK_FORMAT_R8_UNORM:
@@ -227,19 +231,19 @@ bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSam
             *vkSamples = VK_SAMPLE_COUNT_2_BIT;
             return true;
         case 4:
-            *vkSamples = VK_SAMPLE_COUNT_2_BIT;
+            *vkSamples = VK_SAMPLE_COUNT_4_BIT;
             return true;
         case 8:
-            *vkSamples = VK_SAMPLE_COUNT_2_BIT;
+            *vkSamples = VK_SAMPLE_COUNT_8_BIT;
             return true;
         case 16:
-            *vkSamples = VK_SAMPLE_COUNT_2_BIT;
+            *vkSamples = VK_SAMPLE_COUNT_16_BIT;
             return true;
         case 32:
-            *vkSamples = VK_SAMPLE_COUNT_2_BIT;
+            *vkSamples = VK_SAMPLE_COUNT_32_BIT;
             return true;
         case 64:
-            *vkSamples = VK_SAMPLE_COUNT_2_BIT;
+            *vkSamples = VK_SAMPLE_COUNT_64_BIT;
             return true;
         default:
             return false;

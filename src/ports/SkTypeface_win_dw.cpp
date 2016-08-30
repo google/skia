@@ -45,6 +45,7 @@ void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     sk_get_locale_string(familyNames.get(), nullptr/*fMgr->fLocaleName.get()*/, &utf8FamilyName);
 
     desc->setFamilyName(utf8FamilyName.c_str());
+    desc->setStyle(this->fontStyle());
     *isLocalStream = SkToBool(fDWriteFontFileLoader.get());
 }
 
@@ -312,22 +313,6 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
     SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1).swap(*glyphToUnicode);
 }
 
-static bool getWidthAdvance(IDWriteFontFace* fontFace, int gId, int16_t* advance) {
-    SkASSERT(advance);
-
-    UINT16 glyphId = gId;
-    DWRITE_GLYPH_METRICS gm;
-    HRESULT hr = fontFace->GetDesignGlyphMetrics(&glyphId, 1, &gm);
-
-    if (FAILED(hr)) {
-        *advance = 0;
-        return false;
-    }
-
-    *advance = gm.advanceWidth;
-    return true;
-}
-
 SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
         PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
@@ -398,14 +383,25 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     if (os2Table->version.v0.fsSelection.field.Italic) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
     }
-    //Script
-    if (SkPanose::FamilyType::Script == os2Table->version.v0.panose.bFamilyType.value) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
     //Serif
-    } else if (SkPanose::FamilyType::TextAndDisplay == os2Table->version.v0.panose.bFamilyType.value &&
-               SkPanose::Data::TextAndDisplay::SerifStyle::Triangle <= os2Table->version.v0.panose.data.textAndDisplay.bSerifStyle.value &&
-               SkPanose::Data::TextAndDisplay::SerifStyle::NoFit != os2Table->version.v0.panose.data.textAndDisplay.bSerifStyle.value) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+    using SerifStyle = SkPanose::Data::TextAndDisplay::SerifStyle;
+    SerifStyle serifStyle = os2Table->version.v0.panose.data.textAndDisplay.bSerifStyle;
+    if (SkPanose::FamilyType::TextAndDisplay == os2Table->version.v0.panose.bFamilyType) {
+        if (SerifStyle::Cove == serifStyle ||
+            SerifStyle::ObtuseCove == serifStyle ||
+            SerifStyle::SquareCove == serifStyle ||
+            SerifStyle::ObtuseSquareCove == serifStyle ||
+            SerifStyle::Square == serifStyle ||
+            SerifStyle::Thin == serifStyle ||
+            SerifStyle::Bone == serifStyle ||
+            SerifStyle::Exaggerated == serifStyle ||
+            SerifStyle::Triangle == serifStyle)
+        {
+            info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+        }
+    //Script
+    } else if (SkPanose::FamilyType::Script == os2Table->version.v0.panose.bFamilyType) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
     }
 
     info->fItalicAngle = SkEndian_SwapBE32(postTable->italicAngle) >> 16;
@@ -418,50 +414,6 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
                                     (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMax),
                                     (int32_t)SkEndian_SwapBE16((uint16_t)headTable->xMax),
                                     (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMin));
-
-    //TODO: is this even desired? It seems PDF only wants this value for Type1
-    //fonts, and we only get here for TrueType fonts.
-    info->fStemV = 0;
-    /*
-    // Figure out a good guess for StemV - Min width of i, I, !, 1.
-    // This probably isn't very good with an italic font.
-    int16_t min_width = SHRT_MAX;
-    info->fStemV = 0;
-    char stem_chars[] = {'i', 'I', '!', '1'};
-    for (size_t i = 0; i < SK_ARRAY_COUNT(stem_chars); i++) {
-        ABC abcWidths;
-        if (GetCharABCWidths(hdc, stem_chars[i], stem_chars[i], &abcWidths)) {
-            int16_t width = abcWidths.abcB;
-            if (width > 0 && width < min_width) {
-                min_width = width;
-                info->fStemV = min_width;
-            }
-        }
-    }
-    */
-
-    if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
-        if (fixedWidth) {
-            SkAdvancedTypefaceMetrics::WidthRange range(0);
-            int16_t advance;
-            getWidthAdvance(fDWriteFontFace.get(), 1, &advance);
-            range.fAdvance.append(1, &advance);
-            SkAdvancedTypefaceMetrics::FinishRange(
-                    &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
-            info->fGlyphWidths.emplace_back(std::move(range));
-        } else {
-            IDWriteFontFace* borrowedFontFace = fDWriteFontFace.get();
-            info->setGlyphWidths(
-                glyphCount,
-                glyphIDs,
-                glyphIDsCount,
-                SkAdvancedTypefaceMetrics::GetAdvance([borrowedFontFace](int gId, int16_t* data) {
-                    return getWidthAdvance(borrowedFontFace, gId, data);
-                })
-            );
-        }
-    }
-
     return info;
 }
 #endif//defined(SK_BUILD_FOR_WIN32)

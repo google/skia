@@ -49,7 +49,9 @@ void GrBatch::operator delete(void* target) {
 GrBatch::GrBatch(uint32_t classID)
     : fClassID(classID)
     , fUniqueID(kIllegalBatchID) {
+    SkASSERT(classID == SkToU32(fClassID));
     SkDEBUGCODE(fUsed = false;)
+    SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
 }
 
 GrBatch::~GrBatch() {}

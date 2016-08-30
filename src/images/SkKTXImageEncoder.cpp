@@ -46,13 +46,13 @@ bool SkKTXImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap, int)
     if (!bitmap.pixelRef()) {
         return false;
     }
-    SkAutoDataUnref data(bitmap.pixelRef()->refEncodedData());
+    sk_sp<SkData> data(bitmap.pixelRef()->refEncodedData());
 
     // Is this even encoded data?
     if (data) {
         const uint8_t *bytes = data->bytes();
         if (etc1_pkm_is_valid(bytes)) {
-            return this->encodePKM(stream, data);
+            return this->encodePKM(stream, data.get());
         }
 
         // Is it a KTX file??

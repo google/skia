@@ -738,7 +738,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
 
 static SkImageFilter* make_serialized_image_filter() {
     sk_sp<SkImageFilter> filter(make_image_filter(false));
-    SkAutoTUnref<SkData> data(SkValidatingSerializeFlattenable(filter.get()));
+    sk_sp<SkData> data(SkValidatingSerializeFlattenable(filter.get()));
     const unsigned char* ptr = static_cast<const unsigned char*>(data->data());
     size_t len = data->size();
 #ifdef SK_ADD_RANDOM_BIT_FLIPS

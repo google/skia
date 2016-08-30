@@ -125,28 +125,10 @@ void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* S
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-class GrGLSweepGradient : public GrGLGradientEffect {
-public:
-
-    GrGLSweepGradient(const GrProcessor&) {}
-    virtual ~GrGLSweepGradient() { }
-
-    virtual void emitCode(EmitArgs&) override;
-
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(processor));
-    }
-
-private:
-
-    typedef GrGLGradientEffect INHERITED;
-
-};
-
-/////////////////////////////////////////////////////////////////////
-
 class GrSweepGradient : public GrGradientEffect {
 public:
+    class GLSLSweepProcessor;
+
     static sk_sp<GrFragmentProcessor> Make(GrContext* ctx, const SkSweepGradient& shader,
                                            const SkMatrix& m) {
         return sk_sp<GrFragmentProcessor>(new GrSweepGradient(ctx, shader, m));
@@ -163,19 +145,45 @@ private:
         this->initClassID<GrSweepGradient>();
     }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GrGLSweepGradient(*this);
-    }
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override {
-        GrGLSweepGradient::GenKey(*this, caps, b);
-    }
+                                       GrProcessorKeyBuilder* b) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrGradientEffect INHERITED;
 };
+
+/////////////////////////////////////////////////////////////////////
+
+class GrSweepGradient::GLSLSweepProcessor : public GrGradientEffect::GLSLProcessor {
+public:
+    GLSLSweepProcessor(const GrProcessor&) {}
+    virtual ~GLSLSweepProcessor() { }
+
+    virtual void emitCode(EmitArgs&) override;
+
+    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+        b->add32(GenBaseGradientKey(processor));
+    }
+
+private:
+    typedef GrGradientEffect::GLSLProcessor INHERITED;
+
+};
+
+/////////////////////////////////////////////////////////////////////
+
+GrGLSLFragmentProcessor* GrSweepGradient::onCreateGLSLInstance() const {
+    return new GrSweepGradient::GLSLSweepProcessor(*this);
+}
+
+void GrSweepGradient::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                            GrProcessorKeyBuilder* b) const {
+    GrSweepGradient::GLSLSweepProcessor::GenKey(*this, caps, b);
+}
+
 
 /////////////////////////////////////////////////////////////////////
 
@@ -191,17 +199,17 @@ sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tmIgnored);
     sk_sp<SkShader> shader(SkGradientShader::MakeSweep(center.fX, center.fY,  colors, stops,
                                                        colorCount));
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
-                                                                GrTest::TestMatrix(d->fRandom),
-                                                                NULL, kNone_SkFilterQuality,
-                                                                SkSourceGammaTreatment::kRespect);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, nullptr,
+        SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLSweepGradient::emitCode(EmitArgs& args) {
+void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
     const GrSweepGradient& ge = args.fFp.cast<GrSweepGradient>();
     this->emitUniforms(args.fUniformHandler, ge);
     SkString coords2D = args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0);
@@ -210,10 +218,10 @@ void GrGLSweepGradient::emitCode(EmitArgs& args) {
     // On Intel GPU there is an issue where it reads the second arguement to atan "- %s.x" as an int
     // thus must us -1.0 * %s.x to work correctly
     if (args.fGLSLCaps->mustForceNegatedAtanParamToFloat()){
-        t.printf("atan(- %s.y, -1.0 * %s.x) * 0.1591549430918 + 0.5",
+        t.printf("(atan(- %s.y, -1.0 * %s.x) * 0.1591549430918 + 0.5)",
                  coords2D.c_str(), coords2D.c_str());
     } else {
-        t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5",
+        t.printf("(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5)",
                  coords2D.c_str(), coords2D.c_str());
     }
     this->emitColor(args.fFragBuilder,
@@ -227,27 +235,22 @@ void GrGLSweepGradient::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
-                                                    GrContext* context,
-                                                    const SkMatrix& viewM,
-                                                    const SkMatrix* localMatrix,
-                                                    SkFilterQuality,
-                                                    SkSourceGammaTreatment) const {
+sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& args) const {
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return nullptr;
     }
-    if (localMatrix) {
+    if (args.fLocalMatrix) {
         SkMatrix inv;
-        if (!localMatrix->invert(&inv)) {
+        if (!args.fLocalMatrix->invert(&inv)) {
             return nullptr;
         }
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
 
-    sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(context, *this, matrix));
+    sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(args.fContext, *this, matrix));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

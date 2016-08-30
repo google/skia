@@ -20,6 +20,7 @@ class SkBitmap;
 class SkCanvas;
 class SkPaint;
 class SkPath;
+class SkRRect;
 class SkShader;
 class SkTestFont;
 class SkTextBlobBuilder;
@@ -129,6 +130,10 @@ namespace sk_tool_utils {
     // Return a blurred version of 'src'. This doesn't use a separable filter
     // so it is slow!
     SkBitmap slow_blur(const SkBitmap& src, float sigma);
+
+    SkRect compute_central_occluder(const SkRRect& rr);
+    SkRect compute_widest_occluder(const SkRRect& rr);
+    SkRect compute_tallest_occluder(const SkRRect& rr);
 
     // A helper object to test the topological sorting code (TopoSortBench.cpp & TopoSortTest.cpp)
     class TopoTestNode {

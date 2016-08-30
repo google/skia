@@ -71,7 +71,7 @@ const char* platform_os_emoji() {
     if (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu")) {
         return "CBDT";
     }
-    if (!strncmp(osName, "Mac", 3)) {
+    if (!strncmp(osName, "Mac", 3) || !strncmp(osName, "iOS", 3)) {
         return "SBIX";
     }
     if (!strncmp(osName, "Win", 3)) {
@@ -462,5 +462,87 @@ SkBitmap slow_blur(const SkBitmap& src, float sigma) {
 
     return dst;
 }
+
+// compute the intersection point between the diagonal and the ellipse in the
+// lower right corner
+static SkPoint intersection(SkScalar w, SkScalar h) {
+    SkASSERT(w > 0.0f || h > 0.0f);
+
+    return SkPoint::Make(w / SK_ScalarSqrt2, h / SK_ScalarSqrt2);
+}
+
+// Use the intersection of the corners' diagonals with their ellipses to shrink
+// the bounding rect
+SkRect compute_central_occluder(const SkRRect& rr) {
+    const SkRect r = rr.getBounds();
+
+    SkScalar newL = r.fLeft, newT = r.fTop, newR = r.fRight, newB = r.fBottom;
+
+    SkVector radii = rr.radii(SkRRect::kUpperLeft_Corner);
+    if (!radii.isZero()) {
+        SkPoint p = intersection(radii.fX, radii.fY);
+
+        newL = SkTMax(newL, r.fLeft + radii.fX - p.fX);
+        newT = SkTMax(newT, r.fTop + radii.fY - p.fY);
+    }
+
+    radii = rr.radii(SkRRect::kUpperRight_Corner);
+    if (!radii.isZero()) {
+        SkPoint p = intersection(radii.fX, radii.fY);
+
+        newR = SkTMin(newR, r.fRight + p.fX - radii.fX);
+        newT = SkTMax(newT, r.fTop + radii.fY - p.fY);
+    }
+
+    radii = rr.radii(SkRRect::kLowerRight_Corner);
+    if (!radii.isZero()) {
+        SkPoint p = intersection(radii.fX, radii.fY);
+
+        newR = SkTMin(newR, r.fRight + p.fX - radii.fX);
+        newB = SkTMin(newB, r.fBottom - radii.fY + p.fY);
+    }
+
+    radii = rr.radii(SkRRect::kLowerLeft_Corner);
+    if (!radii.isZero()) {
+        SkPoint p = intersection(radii.fX, radii.fY);
+
+        newL = SkTMax(newL, r.fLeft + radii.fX - p.fX);
+        newB = SkTMin(newB, r.fBottom - radii.fY + p.fY);
+    }
+
+    return SkRect::MakeLTRB(newL, newT, newR, newB);
+}
+
+// The widest inset rect
+SkRect compute_widest_occluder(const SkRRect& rr) {
+    const SkRect& r = rr.getBounds();
+
+    const SkVector& ul = rr.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& ur = rr.radii(SkRRect::kUpperRight_Corner);
+    const SkVector& lr = rr.radii(SkRRect::kLowerRight_Corner);
+    const SkVector& ll = rr.radii(SkRRect::kLowerLeft_Corner);
+
+    SkScalar maxT = SkTMax(ul.fY, ur.fY);
+    SkScalar maxB = SkTMax(ll.fY, lr.fY);
+
+    return SkRect::MakeLTRB(r.fLeft, r.fTop + maxT, r.fRight, r.fBottom - maxB);
+
+}
+
+// The tallest inset rect
+SkRect compute_tallest_occluder(const SkRRect& rr) {
+    const SkRect& r = rr.getBounds();
+
+    const SkVector& ul = rr.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& ur = rr.radii(SkRRect::kUpperRight_Corner);
+    const SkVector& lr = rr.radii(SkRRect::kLowerRight_Corner);
+    const SkVector& ll = rr.radii(SkRRect::kLowerLeft_Corner);
+
+    SkScalar maxL = SkTMax(ul.fX, ll.fX);
+    SkScalar maxR = SkTMax(ur.fX, lr.fX);
+
+    return SkRect::MakeLTRB(r.fLeft + maxL, r.fTop, r.fRight - maxR, r.fBottom);
+}
+
 
 }  // namespace sk_tool_utils

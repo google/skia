@@ -24,7 +24,8 @@ struct GrContextOptions {
         , fMaxBatchLookback(-1)
         , fMaxBatchLookahead(-1)
         , fUseShaderSwizzling(false)
-        , fDoManualMipmapping(false) {}
+        , fDoManualMipmapping(false)
+        , fEnableInstancedRendering(false) {}
 
     // Suppress prints for the GrContext.
     bool fSuppressPrints;
@@ -73,6 +74,10 @@ struct GrContextOptions {
         the driver's implementation (glGenerateMipmap) contains bugs. This requires mipmap
         level and LOD control (ie desktop or ES3). */
     bool fDoManualMipmapping;
+
+    /** Enable instanced rendering as long as all required functionality is supported by the HW.
+        Instanced rendering is still experimental at this point and disabled by default. */
+    bool fEnableInstancedRendering;
 };
 
 #endif

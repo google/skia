@@ -32,11 +32,11 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
     // for the moment we only support 1:1 color to stencil
-    , GrRenderTarget(gpu, desc, kUnified_SampleConfig)
-    , fFramebuffer(nullptr)
+    , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(new GrVkImage(msaaInfo, GrVkImage::kNot_Wrapped))
     , fResolveAttachmentView(resolveAttachmentView)
+    , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(desc.fSampleCnt);
     // The plus 1 is to account for the resolve texture.
@@ -57,11 +57,11 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
     // for the moment we only support 1:1 color to stencil
-    , GrRenderTarget(gpu, desc, kUnified_SampleConfig)
-    , fFramebuffer(nullptr)
+    , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(new GrVkImage(msaaInfo, GrVkImage::kNot_Wrapped))
     , fResolveAttachmentView(resolveAttachmentView)
+    , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(desc.fSampleCnt);
     // The plus 1 is to account for the resolve texture.
@@ -79,11 +79,11 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
-    , GrRenderTarget(gpu, desc, kUnified_SampleConfig)
-    , fFramebuffer(nullptr)
+    , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(nullptr)
     , fResolveAttachmentView(nullptr)
+    , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(!desc.fSampleCnt);
     fColorValuesPerPixel = 1;
@@ -100,11 +100,11 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
-    , GrRenderTarget(gpu, desc, kUnified_SampleConfig)
-    , fFramebuffer(nullptr)
+    , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(nullptr)
     , fResolveAttachmentView(nullptr)
+    , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(!desc.fSampleCnt);
     fColorValuesPerPixel = 1;
@@ -117,6 +117,7 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
                          const GrSurfaceDesc& desc,
                          const GrVkImageInfo& info,
                          GrVkImage::Wrapped wrapped) {
+    SkASSERT(1 == info.fLevelCount);
     VkFormat pixelFormat;
     GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat);
 

@@ -347,28 +347,9 @@ SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
 
 /////////////////////////////////////////////////////////////////////
 
-class GrGLLinearGradient : public GrGLGradientEffect {
-public:
-
-    GrGLLinearGradient(const GrProcessor&) {}
-
-    virtual ~GrGLLinearGradient() { }
-
-    virtual void emitCode(EmitArgs&) override;
-
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(processor));
-    }
-
-private:
-
-    typedef GrGLGradientEffect INHERITED;
-};
-
-/////////////////////////////////////////////////////////////////////
-
 class GrLinearGradient : public GrGradientEffect {
 public:
+    class GLSLLinearProcessor;
 
     static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
                                            const SkLinearGradient& shader,
@@ -390,19 +371,44 @@ private:
         this->initClassID<GrLinearGradient>();
     }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GrGLLinearGradient(*this);
-    }
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override {
-        GrGLLinearGradient::GenKey(*this, caps, b);
-    }
+                                       GrProcessorKeyBuilder* b) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrGradientEffect INHERITED;
 };
+
+/////////////////////////////////////////////////////////////////////
+
+class GrLinearGradient::GLSLLinearProcessor : public GrGradientEffect::GLSLProcessor {
+public:
+    GLSLLinearProcessor(const GrProcessor&) {}
+
+    virtual ~GLSLLinearProcessor() { }
+
+    virtual void emitCode(EmitArgs&) override;
+
+    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+        b->add32(GenBaseGradientKey(processor));
+    }
+
+private:
+    typedef GrGradientEffect::GLSLProcessor INHERITED;
+};
+
+/////////////////////////////////////////////////////////////////////
+
+GrGLSLFragmentProcessor* GrLinearGradient::onCreateGLSLInstance() const {
+    return new GrLinearGradient::GLSLLinearProcessor(*this);
+}
+
+void GrLinearGradient::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                             GrProcessorKeyBuilder* b) const {
+    GrLinearGradient::GLSLLinearProcessor::GenKey(*this, caps, b);
+}
 
 /////////////////////////////////////////////////////////////////////
 
@@ -418,16 +424,17 @@ sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) 
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeLinear(points, colors, stops, colorCount, tm);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
-        SkSourceGammaTreatment::kRespect);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, nullptr,
+        SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLLinearGradient::emitCode(EmitArgs& args) {
+void GrLinearGradient::GLSLLinearProcessor::emitCode(EmitArgs& args) {
     const GrLinearGradient& ge = args.fFp.cast<GrLinearGradient>();
     this->emitUniforms(args.fUniformHandler, ge);
     SkString t = args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0);
@@ -435,7 +442,8 @@ void GrGLLinearGradient::emitCode(EmitArgs& args) {
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,
                     args.fGLSLCaps,
-                    ge, t.c_str(),
+                    ge,
+                    t.c_str(),
                     args.fOutputColor,
                     args.fInputColor,
                     args.fTexSamplers);
@@ -443,28 +451,24 @@ void GrGLLinearGradient::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
-                                                 GrContext* context,
-                                                 const SkMatrix& viewm,
-                                                 const SkMatrix* localMatrix,
-                                                 SkFilterQuality,
-                                                 SkSourceGammaTreatment) const {
-    SkASSERT(context);
+sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(const AsFPArgs& args) const {
+    SkASSERT(args.fContext);
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return nullptr;
     }
-    if (localMatrix) {
+    if (args.fLocalMatrix) {
         SkMatrix inv;
-        if (!localMatrix->invert(&inv)) {
+        if (!args.fLocalMatrix->invert(&inv)) {
             return nullptr;
         }
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
 
-    sk_sp<GrFragmentProcessor> inner(GrLinearGradient::Make(context, *this, matrix, fTileMode));
+    sk_sp<GrFragmentProcessor> inner(
+        GrLinearGradient::Make(args.fContext, *this, matrix, fTileMode));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

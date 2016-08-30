@@ -27,6 +27,7 @@
         'pathops_skpclip.gyp:*',
         'dm.gyp:dm',
         'fuzz.gyp:fuzz',
+        'skslc.gyp:skslc',
       ],
       'conditions': [
         [ 'skia_gpu == 0', {
@@ -42,6 +43,11 @@
         ['skia_os == "android" and skia_vulkan == 1', {
           'dependencies': [
             'android_system.gyp:Viewer_APK',
+          ],
+        }],
+        ['skia_os == "android"', {
+          'dependencies!': [
+            'SampleApp.gyp:SampleApp',
           ],
         }],
         ['skia_os == "ios"', {
@@ -61,7 +67,7 @@
             'skiaserve.gyp:skiaserve',
           ],
         }],
-        [ 'skia_os in ["win", "linux", "android"]', {
+        [ 'skia_os in ["win", "linux", "android", "mac"]', {
           'dependencies': [
             'viewer.gyp:viewer',
           ],

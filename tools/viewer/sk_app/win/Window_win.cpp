@@ -12,7 +12,7 @@
 #include <windowsx.h>
 
 #include "SkUtils.h"
-#include "../GLWindowContext.h"
+#include "WindowContextFactory_win.h"
 #ifdef SK_VULKAN
 #include "../VulkanWindowContext.h"
 #endif
@@ -33,29 +33,34 @@ Window* Window::CreateNativeWindow(void* platformData) {
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+
 bool Window_win::init(HINSTANCE hInstance) {
     fHInstance = hInstance ? hInstance : GetModuleHandle(nullptr);
 
-    WNDCLASSEX wcex;
     // The main window class name
     static const TCHAR gSZWindowClass[] = _T("SkiaApp");
 
-    wcex.cbSize = sizeof(WNDCLASSEX);
+    static WNDCLASSEX wcex;
+    static bool wcexInit = false;
+    if (!wcexInit) {
+        wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-    wcex.lpfnWndProc = WndProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = fHInstance;
-    wcex.hIcon = LoadIcon(fHInstance, (LPCTSTR)IDI_WINLOGO);
-    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);;
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = nullptr;
-    wcex.lpszClassName = gSZWindowClass;
-    wcex.hIconSm = LoadIcon(fHInstance, (LPCTSTR)IDI_WINLOGO);;
+        wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+        wcex.lpfnWndProc = WndProc;
+        wcex.cbClsExtra = 0;
+        wcex.cbWndExtra = 0;
+        wcex.hInstance = fHInstance;
+        wcex.hIcon = LoadIcon(fHInstance, (LPCTSTR)IDI_WINLOGO);
+        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);;
+        wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+        wcex.lpszMenuName = nullptr;
+        wcex.lpszClassName = gSZWindowClass;
+        wcex.hIconSm = LoadIcon(fHInstance, (LPCTSTR)IDI_WINLOGO);;
 
-    if (!RegisterClassEx(&wcex)) {
-        return false;
+        if (!RegisterClassEx(&wcex)) {
+            return false;
+        }
+        wcexInit = true;
     }
 
    /*
@@ -175,7 +180,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case WM_CLOSE:
-        case WM_DESTROY:
             PostQuitMessage(0);
             eventHandled = true;
             break;
@@ -268,18 +272,16 @@ void Window_win::show() {
 
 
 bool Window_win::attach(BackendType attachType, const DisplayParams& params) {
-    ContextPlatformData_win platformData;
-    platformData.fHInstance = fHInstance;
-    platformData.fHWnd = fHWnd;
-
     switch (attachType) {
         case kNativeGL_BackendType:
-        default:
-            fWindowContext = GLWindowContext::Create((void*)&platformData, params);
+            fWindowContext = window_context_factory::NewGLForWin(fHWnd, params);
+            break;
+        case kRaster_BackendType:
+            fWindowContext = window_context_factory::NewRasterForWin(fHWnd, params);
             break;
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = VulkanWindowContext::Create((void*)&platformData, params);
+            fWindowContext = window_context_factory::NewVulkanForWin(fHWnd, params);
             break;
 #endif
     }

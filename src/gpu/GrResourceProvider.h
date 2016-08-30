@@ -100,7 +100,12 @@ public:
          *  will occur out of order WRT the operations being flushed.
          *  Make this automatic: https://bug.skia.org/4156
          */
-        kNoPendingIO_Flag = kNoPendingIO_ScratchTextureFlag,
+        kNoPendingIO_Flag = 0x1,
+
+        /** Normally the caps may indicate a preference for client-side buffers. Set this flag when
+         *  creating a buffer to guarantee it resides in GPU memory.
+         */
+        kRequireGpuMemory_Flag = 0x2,
     };
 
     /**

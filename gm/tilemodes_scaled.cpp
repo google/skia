@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "SkColorFilter.h"
+#include "SkMaskFilter.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkColorFilter.h"
 
 // effects
 #include "SkGradientShader.h"

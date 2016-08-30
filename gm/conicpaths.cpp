@@ -147,3 +147,18 @@ DEF_SIMPLE_GM(arccirclegap, canvas, 250, 250) {
     paint.setColor(0xff007f00);
     canvas->drawPath(path, paint);
 }
+
+DEF_SIMPLE_GM(crbug_640176, canvas, 250, 250) {
+    SkPath path;
+    path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
+    path.lineTo(SkBits2Float(0x42cfd89a), SkBits2Float(0xc2700000));  // 103.923f, -60
+    path.lineTo(SkBits2Float(0x42cfd899), SkBits2Float(0xc2700006));  // 103.923f, -60
+    path.conicTo(SkBits2Float(0x42f00000), SkBits2Float(0xc2009d9c),
+            SkBits2Float(0x42f00001), SkBits2Float(0x00000000),
+            SkBits2Float(0x3f7746ea));  // 120, -32.1539f, 120, 0, 0.965926f
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas->translate(125, 125);
+    canvas->drawPath(path, paint);
+}

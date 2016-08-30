@@ -95,7 +95,7 @@ private:
     mutable SkTArray<DataEntry> fDataCache;
     mutable SkMutex fDataCacheMutex;
 
-    mutable SkAutoTUnref<SkDataTable> fFamilyNames;
+    mutable sk_sp<SkDataTable> fFamilyNames;
     mutable SkOnce fFamilyNamesInitOnce;
     static void set_up_family_names(const SkFontMgr_Indirect* self);
 

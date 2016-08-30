@@ -290,7 +290,12 @@ void SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
         return;
     }
 
-    if (this->hasPerspective()) {
+    if (fTypeMask <= kTranslate_Mask) {
+        fMat[kMTransX] += dx;
+        fMat[kMTransY] += dy;
+        this->setTypeMask((fMat[kMTransX] != 0 || fMat[kMTransY] != 0) ? kTranslate_Mask
+                                                                       : kIdentity_Mask);
+    } else if (this->hasPerspective()) {
         SkMatrix    m;
         m.setTranslate(dx, dy);
         this->preConcat(m);
@@ -1097,12 +1102,40 @@ void SkMatrix::mapVectors(SkPoint dst[], const SkPoint src[], int count) const {
     }
 }
 
+static Sk4f sort_as_rect(const Sk4f& ltrb) {
+    Sk4f rblt(ltrb[2], ltrb[3], ltrb[0], ltrb[1]);
+    Sk4f min = Sk4f::Min(ltrb, rblt);
+    Sk4f max = Sk4f::Max(ltrb, rblt);
+    // We can extract either pair [0,1] or [2,3] from min and max and be correct, but on
+    // ARM this sequence generates the fastest (a single instruction).
+    return Sk4f(min[2], min[3], max[0], max[1]);
+}
+
+void SkMatrix::mapRectScaleTranslate(SkRect* dst, const SkRect& src) const {
+    SkASSERT(dst);
+    SkASSERT(this->isScaleTranslate());
+
+    SkScalar sx = fMat[kMScaleX];
+    SkScalar sy = fMat[kMScaleY];
+    SkScalar tx = fMat[kMTransX];
+    SkScalar ty = fMat[kMTransY];
+    Sk4f scale(sx, sy, sx, sy);
+    Sk4f trans(tx, ty, tx, ty);
+    sort_as_rect(Sk4f::Load(&src.fLeft) * scale + trans).store(&dst->fLeft);
+}
+
 bool SkMatrix::mapRect(SkRect* dst, const SkRect& src) const {
     SkASSERT(dst);
 
-    if (this->rectStaysRect()) {
-        this->mapPoints((SkPoint*)dst, (const SkPoint*)&src, 2);
-        dst->sort();
+    if (this->getType() <= kTranslate_Mask) {
+        SkScalar tx = fMat[kMTransX];
+        SkScalar ty = fMat[kMTransY];
+        Sk4f trans(tx, ty, tx, ty);
+        sort_as_rect(Sk4f::Load(&src.fLeft) + trans).store(&dst->fLeft);
+        return true;
+    }
+    if (this->isScaleTranslate()) {
+        this->mapRectScaleTranslate(dst, src);
         return true;
     } else {
         SkPoint quad[4];
@@ -1548,16 +1581,25 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
             results[1] = apluscdiv2 + x;
         }
     }
-    if (SkScalarIsNaN(results[0])) {
+    if (!SkScalarIsFinite(results[0])) {
         return false;
     }
-    SkASSERT(results[0] >= 0);
+    // Due to the floating point inaccuracy, there might be an error in a, b, c
+    // calculated by sdot, further deepened by subsequent arithmetic operations
+    // on them. Therefore, we allow and cap the nearly-zero negative values.
+    SkASSERT(results[0] >= -SK_ScalarNearlyZero);
+    if (results[0] < 0) {
+        results[0] = 0;
+    }
     results[0] = SkScalarSqrt(results[0]);
     if (kBoth_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
-        if (SkScalarIsNaN(results[1])) {
+        if (!SkScalarIsFinite(results[1])) {
             return false;
         }
-        SkASSERT(results[1] >= 0);
+        SkASSERT(results[1] >= -SK_ScalarNearlyZero);
+        if (results[1] < 0) {
+            results[1] = 0;
+        }
         results[1] = SkScalarSqrt(results[1]);
     }
     return true;

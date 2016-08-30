@@ -20,9 +20,6 @@ class SkRecord;
 // An implementation of SkPicture supporting an arbitrary number of drawing commands.
 class SkBigPicture final : public SkPicture {
 public:
-    // AccelData provides a base class for device-specific acceleration data.
-    class AccelData : public SkRefCnt { };
-
     // An array of refcounted const SkPicture pointers.
     class SnapshotArray : ::SkNoncopyable {
     public:
@@ -40,7 +37,6 @@ public:
                  SkRecord*,            // We take ownership of the caller's ref.
                  SnapshotArray*,       // We take exclusive ownership.
                  SkBBoxHierarchy*,     // We take ownership of the caller's ref.
-                 AccelData*,           // We take ownership of the caller's ref.
                  size_t approxBytesUsedBySubPictures);
 
 
@@ -60,7 +56,6 @@ public:
 // Used by GrRecordReplaceDraw
     const SkBBoxHierarchy* bbh() const { return fBBH; }
     const SkRecord*     record() const { return fRecord; }
-    const AccelData* accelData() const { return fAccelData; }
 
 private:
     struct Analysis {
@@ -84,7 +79,6 @@ private:
     SkAutoTUnref<const SkRecord>          fRecord;
     SkAutoTDelete<const SnapshotArray>    fDrawablePicts;
     SkAutoTUnref<const SkBBoxHierarchy>   fBBH;
-    SkAutoTUnref<const AccelData>         fAccelData;
 };
 
 #endif//SkBigPicture_DEFINED

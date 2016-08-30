@@ -90,7 +90,7 @@ public:
         memcpy(fLocaleName.get(), localeName, localeNameLength * sizeof(WCHAR));
     }
 
-    SkDataTable* getFamilyNames() const override {
+    sk_sp<SkDataTable> getFamilyNames() const override {
         int count = fFontCollection->GetFontFamilyCount();
 
         SkDataTableBuilder names(1024);

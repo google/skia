@@ -69,7 +69,7 @@ public:
 private:
 
     // The blob holding the file data.
-    SkAutoTUnref<SkData> fData;
+    sk_sp<SkData> fData;
 
     // This header captures all of the data that describes the format
     // of the image data in a KTX file.

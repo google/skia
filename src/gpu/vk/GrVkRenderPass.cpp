@@ -145,6 +145,11 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
                                                              &createInfo,
                                                              nullptr,
                                                              &fRenderPass));
+
+    // Get granularity for this render pass
+    GR_VK_CALL(gpu->vkInterface(), GetRenderAreaGranularity(gpu->device(),
+                                                            fRenderPass,
+                                                            &fGranularity));
 }
 
 void GrVkRenderPass::init(const GrVkGpu* gpu,

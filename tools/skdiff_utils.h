@@ -22,7 +22,7 @@ bool are_buffers_equal(SkData* skdata1, SkData* skdata2);
 /** Reads the file at the given path and returns its complete contents as an
  *  SkData object (or returns nullptr on error).
  */
-SkData* read_file(const char* file_path);
+sk_sp<SkData> read_file(const char* file_path);
 
 /** Decodes the fileBits into the resource.fBitmap. Returns false on failure. */
 bool get_bitmap(SkData* fileBits, DiffResource& resource, bool sizeOnly);

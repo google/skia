@@ -37,6 +37,9 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
     private static final String OPTIONS = "options";
     private static final String BACKEND_STATE_NAME = "Backend";
     private static final String FPS_STATE_NAME = "FPS";
+    private static final String REFRESH_STATE_NAME = "Refresh";
+    private static final String ON = "ON";
+    private static final String OFF = "OFF";
     private static final int FILTER_LENGTH = 20;
 
     private ViewerActivity mViewerActivity;
@@ -103,6 +106,8 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         mFPSFloatText.setVisibility(isChecked ? View.VISIBLE : View.INVISIBLE);
+                        // Quickly set the bool fRefresh in native Viewer app for continuous refresh
+                        mViewerActivity.onStateChanged(REFRESH_STATE_NAME, isChecked ? ON : OFF);
                     }
                 });
                 return view;

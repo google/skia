@@ -18,6 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrFixedClip.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "SkGr.h"
@@ -474,6 +475,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
                                               SkISize radius) {
     sk_sp<GrTexture> srcTexture(input->asTextureRef(context));
     SkASSERT(srcTexture);
+    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(input->getColorSpace());
 
     // setup new clip
     const GrFixedClip clip(SkIRect::MakeWH(srcTexture->width(), srcTexture->height()));
@@ -484,9 +486,10 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
     if (radius.fWidth > 0) {
-        sk_sp<GrDrawContext> dstDrawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                                    rect.width(), rect.height(),
-                                                                    kSkia8888_GrPixelConfig));
+        sk_sp<GrDrawContext> dstDrawContext(context->makeDrawContext(SkBackingFit::kApprox,
+                                                                     rect.width(), rect.height(),
+                                                                     kSkia8888_GrPixelConfig,
+                                                                     colorSpace));
         if (!dstDrawContext) {
             return nullptr;
         }
@@ -505,9 +508,10 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        sk_sp<GrDrawContext> dstDrawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                                    rect.width(), rect.height(),
-                                                                    kSkia8888_GrPixelConfig));
+        sk_sp<GrDrawContext> dstDrawContext(context->makeDrawContext(SkBackingFit::kApprox,
+                                                                     rect.width(), rect.height(),
+                                                                     kSkia8888_GrPixelConfig,
+                                                                     colorSpace));
         if (!dstDrawContext) {
             return nullptr;
         }
@@ -521,7 +525,8 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(rect.width(), rect.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       std::move(srcTexture), &input->props());
+                                       std::move(srcTexture), std::move(colorSpace),
+                                       &input->props());
 }
 #endif
 

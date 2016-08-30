@@ -6,51 +6,53 @@
  * found in the LICENSE file.
  */
 
-#include "GLWindowContext_win.h"
-
+#include "WindowContextFactory_win.h"
 #include <GL/gl.h>
 
  // windows stuff
 #include "win/SkWGL.h"
-#include "Window_win.h"
 
-namespace sk_app {
+#include "../GLWindowContext.h"
 
-// platform-dependent create
-GLWindowContext* GLWindowContext::Create(void* platformData, const DisplayParams& params) {
-    GLWindowContext_win* ctx = new GLWindowContext_win(platformData, params);
-    if (!ctx->isValid()) {
-        delete ctx;
-        return nullptr;
-    }
-    return ctx;
-}
+using sk_app::GLWindowContext;
+using sk_app::DisplayParams;
 
-GLWindowContext_win::GLWindowContext_win(void* platformData, const DisplayParams& params)
-    : GLWindowContext(platformData, params)
-    , fHWND(0)
+namespace {
+
+class GLWindowContext_win : public GLWindowContext {
+public:
+    GLWindowContext_win(HWND, const DisplayParams&);
+    ~GLWindowContext_win() override;
+
+protected:
+    void onSwapBuffers() override;
+
+    void onInitializeContext() override;
+    void onDestroyContext() override;
+
+private:
+    HWND              fHWND;
+    HGLRC             fHGLRC;
+};
+
+GLWindowContext_win::GLWindowContext_win(HWND wnd, const DisplayParams& params)
+    : GLWindowContext(params)
+    , fHWND(wnd)
     , fHGLRC(NULL) {
 
     // any config code here (particularly for msaa)?
 
-    this->initializeContext(platformData, params);
+    this->initializeContext();
 }
 
 GLWindowContext_win::~GLWindowContext_win() {
     this->destroyContext();
 }
 
-void GLWindowContext_win::onInitializeContext(void* platformData, const DisplayParams& params) {
-
-    ContextPlatformData_win* winPlatformData =
-        reinterpret_cast<ContextPlatformData_win*>(platformData);
-
-    if (winPlatformData) {
-        fHWND = winPlatformData->fHWnd;
-    }
+void GLWindowContext_win::onInitializeContext() {
     HDC dc = GetDC(fHWND);
 
-    fHGLRC = SkCreateWGLContext(dc, params.fMSAASampleCount, params.fDeepColor,
+    fHGLRC = SkCreateWGLContext(dc, fDisplayParams.fMSAASampleCount, fDisplayParams.fDeepColor,
                                 kGLPreferCompatibilityProfile_SkWGLContextRequest);
     if (NULL == fHGLRC) {
         return;
@@ -94,7 +96,6 @@ void GLWindowContext_win::onInitializeContext(void* platformData, const DisplayP
 
 
 void GLWindowContext_win::onDestroyContext() {
-    wglMakeCurrent(wglGetCurrentDC(), NULL);
     wglDeleteContext(fHGLRC);
     fHGLRC = NULL;
 }
@@ -107,4 +108,19 @@ void GLWindowContext_win::onSwapBuffers() {
 }
 
 
-}   //namespace sk_app
+}  // anonymous namespace
+
+namespace sk_app {
+namespace window_context_factory {
+
+WindowContext* NewGLForWin(HWND wnd, const DisplayParams& params) {
+    GLWindowContext_win* ctx = new GLWindowContext_win(wnd, params);
+    if (!ctx->isValid()) {
+        delete ctx;
+        return nullptr;
+    }
+    return ctx;
+}
+
+}  // namespace window_context_factory
+}  // namespace sk_app

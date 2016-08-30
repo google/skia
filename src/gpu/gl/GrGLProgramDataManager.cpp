@@ -102,6 +102,21 @@ void GrGLProgramDataManager::set1i(UniformHandle u, int32_t i) const {
     }
 }
 
+void GrGLProgramDataManager::set1iv(UniformHandle u,
+                                    int arrayCount,
+                                    const int v[]) const {
+    const Uniform& uni = fUniforms[u.toIndex()];
+    SkASSERT(uni.fType == kInt_GrSLType);
+    SkASSERT(arrayCount > 0);
+    ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
+    if (kUnusedUniform != uni.fFSLocation) {
+        GR_GL_CALL(fGpu->glInterface(), Uniform1iv(uni.fFSLocation, arrayCount, v));
+    }
+    if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
+        GR_GL_CALL(fGpu->glInterface(), Uniform1iv(uni.fVSLocation, arrayCount, v));
+    }
+}
+
 void GrGLProgramDataManager::set1f(UniformHandle u, float v0) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);

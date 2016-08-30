@@ -14,9 +14,9 @@
 #include "SkTHash.h"
 #include "SkTypes.h"
 
+class SkData;
 class SkPDFObjNumMap;
 class SkPDFObject;
-class SkPDFSubstituteMap;
 class SkStreamAsset;
 class SkString;
 class SkWStream;
@@ -40,16 +40,14 @@ public:
      *  @param stream   The writable output stream to send the output to.
      */
     virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) const = 0;
+                            const SkPDFObjNumMap& objNumMap) const = 0;
 
     /**
      *  Adds all transitive dependencies of this object to the
      *  catalog.  Implementations should respect the catalog's object
      *  substitution map.
      */
-    virtual void addResources(SkPDFObjNumMap* catalog,
-                              const SkPDFSubstituteMap& substitutes) const {}
+    virtual void addResources(SkPDFObjNumMap* catalog) const {}
 
     /**
      *  Release all resources associated with this SkPDFObject.  It is
@@ -90,6 +88,8 @@ public:
 
     static SkPDFUnion Scalar(SkScalar);
 
+    static SkPDFUnion ColorComponent(uint8_t);
+
     /** These two functions do NOT take ownership of char*, and do NOT
         copy the string.  Suitable for passing in static const
         strings. For example:
@@ -118,10 +118,8 @@ public:
 
     /** These two non-virtual methods mirror SkPDFObject's
         corresponding virtuals. */
-    void emitObject(SkWStream*,
-                    const SkPDFObjNumMap&,
-                    const SkPDFSubstituteMap&) const;
-    void addResources(SkPDFObjNumMap*, const SkPDFSubstituteMap&) const;
+    void emitObject(SkWStream*, const SkPDFObjNumMap&) const;
+    void addResources(SkPDFObjNumMap*) const;
 
     bool isName() const;
 
@@ -139,6 +137,7 @@ private:
             kDestroyed object. */
         kDestroyed = 0,
         kInt,
+        kColorComponent,
         kBool,
         kScalar,
         kName,
@@ -167,9 +166,8 @@ static_assert(sizeof(SkString) == sizeof(void*), "SkString_size");
 class SkPDFAtom final : public SkPDFObject {
 public:
     void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& substitutes) final;
-    void addResources(SkPDFObjNumMap*, const SkPDFSubstituteMap&) const final;
+                    const SkPDFObjNumMap& objNumMap) final;
+    void addResources(SkPDFObjNumMap* const final;
     SkPDFAtom(SkPDFUnion&& v) : fValue(std::move(v) {}
 
 private:
@@ -193,10 +191,8 @@ public:
 
     // The SkPDFObject interface.
     void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& substitutes) const override;
-    void addResources(SkPDFObjNumMap*,
-                      const SkPDFSubstituteMap&) const override;
+                    const SkPDFObjNumMap& objNumMap) const override;
+    void addResources(SkPDFObjNumMap*) const override;
     void drop() override;
 
     /** The size of the array.
@@ -212,6 +208,7 @@ public:
      *  @param value The value to add to the array.
      */
     void appendInt(int32_t);
+    void appendColorComponent(uint8_t);
     void appendBool(bool);
     void appendScalar(SkScalar);
     void appendName(const char[]);
@@ -242,10 +239,8 @@ public:
 
     // The SkPDFObject interface.
     void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& substitutes) const override;
-    void addResources(SkPDFObjNumMap*,
-                      const SkPDFSubstituteMap&) const override;
+                    const SkPDFObjNumMap& objNumMap) const override;
+    void addResources(SkPDFObjNumMap*) const override;
     void drop() override;
 
     /** The size of the dictionary.
@@ -277,16 +272,15 @@ public:
     /** Emit the dictionary, without the "<<" and ">>".
      */
     void emitAll(SkWStream* stream,
-                 const SkPDFObjNumMap& objNumMap,
-                 const SkPDFSubstituteMap& substitutes) const;
+                 const SkPDFObjNumMap& objNumMap) const;
 
 private:
     struct Record {
         SkPDFUnion fKey;
         SkPDFUnion fValue;
         Record(SkPDFUnion&&, SkPDFUnion&&);
-        Record(Record&&);
-        Record& operator=(Record&&);
+        Record(Record&&) = default;
+        Record& operator=(Record&&) = default;
         Record(const Record&) = delete;
         Record& operator=(const Record&) = delete;
     };
@@ -303,22 +297,59 @@ private:
  */
 class SkPDFSharedStream final : public SkPDFObject {
 public:
-    // Takes ownership of asset.
-    SkPDFSharedStream(SkStreamAsset* data);
+    SkPDFSharedStream(std::unique_ptr<SkStreamAsset> data);
     ~SkPDFSharedStream();
-    SkPDFDict* dict() { return fDict.get(); }
+    SkPDFDict* dict() { return &fDict; }
     void emitObject(SkWStream*,
-                    const SkPDFObjNumMap&,
-                    const SkPDFSubstituteMap&) const override;
-    void addResources(SkPDFObjNumMap*,
-                      const SkPDFSubstituteMap&) const override;
+                    const SkPDFObjNumMap&) const override;
+    void addResources(SkPDFObjNumMap*) const override;
     void drop() override;
 
 private:
     std::unique_ptr<SkStreamAsset> fAsset;
-    sk_sp<SkPDFDict> fDict;
-    SkDEBUGCODE(bool fDumped;)
+    SkPDFDict fDict;
     typedef SkPDFObject INHERITED;
+};
+
+/** \class SkPDFStream
+
+    This class takes an asset and assumes that it is the only owner of
+    the asset's data.  It immediately compresses the asset to save
+    memory.
+ */
+
+class SkPDFStream final : public SkPDFObject {
+
+public:
+    /** Create a PDF stream. A Length entry is automatically added to the
+     *  stream dictionary.
+     *  @param data   The data part of the stream.
+     *  @param stream The data part of the stream. */
+    explicit SkPDFStream(sk_sp<SkData> data);
+    explicit SkPDFStream(std::unique_ptr<SkStreamAsset> stream);
+    virtual ~SkPDFStream();
+
+    SkPDFDict* dict() { return &fDict; }
+
+    // The SkPDFObject interface.
+    void emitObject(SkWStream* stream,
+                    const SkPDFObjNumMap& objNumMap) const override;
+    void addResources(SkPDFObjNumMap*) const final;
+    void drop() override;
+
+protected:
+    /* Create a PDF stream with no data.  The setData method must be called to
+     * set the data. */
+    SkPDFStream();
+
+    /** Only call this function once. */
+    void setData(std::unique_ptr<SkStreamAsset> stream);
+
+private:
+    std::unique_ptr<SkStreamAsset> fCompressedData;
+    SkPDFDict fDict;
+
+    typedef SkPDFDict INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -338,9 +369,8 @@ public:
 
     /** Add the passed object to the catalog, as well as all its dependencies.
      *  @param obj   The object to add.  If nullptr, this is a noop.
-     *  @param subs  Will be passed to obj->addResources().
      */
-    void addObjectRecursively(SkPDFObject* obj, const SkPDFSubstituteMap& subs);
+    void addObjectRecursively(SkPDFObject* obj);
 
     /** Get the object number for the passed object.
      *  @param obj         The object of interest.
@@ -355,32 +385,6 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-
-/** \class SkPDFSubstituteMap
-
-    The PDF Substitute Map manages substitute objects and owns the
-    substitutes.
-*/
-class SkPDFSubstituteMap : SkNoncopyable {
-public:
-    ~SkPDFSubstituteMap();
-    /** Set substitute object for the passed object.
-        Refs substitute.
-     */
-    void setSubstitute(SkPDFObject* original, SkPDFObject* substitute);
-
-    /** Find and return any substitute object set for the passed object. If
-     *  there is none, return the passed object.
-     */
-    SkPDFObject* getSubstitute(SkPDFObject* object) const;
-
-    SkPDFObject* operator()(SkPDFObject* o) const {
-        return this->getSubstitute(o);
-    }
-
-private:
-    SkTHashMap<SkPDFObject*, SkPDFObject*> fSubstituteMap;
-};
 
 #ifdef SK_PDF_IMAGE_STATS
 extern SkAtomic<int> gDrawImageCalls;

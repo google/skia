@@ -7,13 +7,15 @@
 
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
-#include "SkView.h"
+#include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkLightingShader.h"
 #include "SkLights.h"
+#include "SkNormalSource.h"
 #include "SkRandom.h"
 #include "SkRSXform.h"
+#include "SkView.h"
 
 #include "sk_tool_utils.h"
 
@@ -128,12 +130,14 @@ protected:
             SkMatrix m;
             m.setRSXform(xforms[i]);
 
-            // TODO: correctly pull out the pure rotation
-            SkVector invNormRotation = { m[SkMatrix::kMScaleX], m[SkMatrix::kMSkewY] };
-            SkASSERT(SkScalarNearlyEqual(invNormRotation.lengthSqd(), SK_Scalar1));
-
-            paint.setShader(SkLightingShader::Make(fAtlas, fAtlas, fLights,
-                                                   invNormRotation, &diffMat, &normalMat));
+            sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(fAtlas, SkShader::kClamp_TileMode,
+                    SkShader::kClamp_TileMode, &normalMat);
+            sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(
+                    std::move(normalMap), m);
+            sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(fAtlas,
+                    SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &diffMat);
+            paint.setShader(SkLightingShader::Make(std::move(diffuseShader),
+                    std::move(normalSource), fLights));
 
             canvas->save();
                 canvas->setMatrix(m);
@@ -178,8 +182,9 @@ private:
     void updateLights() {        
         SkLights::Builder builder;
 
-        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f), fLightDir));
-        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.add(SkLights::Light::MakeDirectional(
+                SkColor3f::Make(1.0f, 1.0f, 1.0f), fLightDir));
+        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
 
         fLights = builder.finish();
     }

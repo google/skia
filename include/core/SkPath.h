@@ -183,7 +183,7 @@ public:
      */
     bool isOval(SkRect* rect, Direction* dir = nullptr,
                 unsigned* start = nullptr) const {
-        bool isCCW;
+        bool isCCW = false;
         bool result = fPathRef->isOval(rect, &isCCW, start);
         if (dir && result) {
             *dir = isCCW ? kCCW_Direction : kCW_Direction;
@@ -205,7 +205,7 @@ public:
      */
     bool isRRect(SkRRect* rrect, Direction* dir = nullptr,
                  unsigned* start = nullptr) const {
-        bool isCCW;
+        bool isCCW = false;
         bool result = fPathRef->isRRect(rrect, &isCCW, start);
         if (dir && result) {
             *dir = isCCW ? kCCW_Direction : kCW_Direction;

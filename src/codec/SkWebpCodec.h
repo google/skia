@@ -34,7 +34,7 @@ protected:
 
     bool onGetValidSubset(SkIRect* /* desiredSubset */) const override;
 private:
-    SkWebpCodec(int width, int height, const SkEncodedInfo&, SkStream*);
+    SkWebpCodec(int width, int height, const SkEncodedInfo&, sk_sp<SkColorSpace>, SkStream*);
 
     typedef SkCodec INHERITED;
 };

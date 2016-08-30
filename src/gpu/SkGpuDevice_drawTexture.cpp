@@ -201,19 +201,16 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         }
         textureMatrix = &tempMatrix;
     }
-    bool gammaCorrect = this->surfaceProps().isGammaCorrect();
-    SkSourceGammaTreatment gammaTreatment = gammaCorrect
-        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
     sk_sp<GrFragmentProcessor> fp(producer->createFragmentProcessor(
         *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode,
-        gammaTreatment));
+        fDrawContext->getColorSpace(), fDrawContext->sourceGammaTreatment()));
     if (!fp) {
         return;
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(fContext, paint, viewMatrix, fp, producer->isAlphaOnly(),
-                                     gammaCorrect, &grPaint)) {
+    if (!SkPaintToGrPaintWithTexture(fContext, fDrawContext.get(), paint, viewMatrix, fp,
+                                     producer->isAlphaOnly(), &grPaint)) {
         return;
     }
 
@@ -228,18 +225,23 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     }
 
     // First see if we can do the draw + mask filter direct to the dst.
-    SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
-    SkRRect rrect;
-    rrect.setRect(clippedDstRect);
-    if (mf->directFilterRRectMaskGPU(fContext->textureProvider(),
-                                      fDrawContext.get(),
-                                      &grPaint,
-                                      clip,
-                                      viewMatrix,
-                                      rec,
-                                      rrect)) {
-        return;
+    if (viewMatrix.isScaleTranslate()) {
+        SkRect devClippedDstRect;
+        viewMatrix.mapRectScaleTranslate(&devClippedDstRect, clippedDstRect);
+
+        SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
+        if (mf->directFilterRRectMaskGPU(fContext,
+                                          fDrawContext.get(),
+                                          &grPaint,
+                                          clip,
+                                          viewMatrix,
+                                          rec,
+                                          SkRRect::MakeRect(clippedDstRect),
+                                          SkRRect::MakeRect(devClippedDstRect))) {
+            return;
+        }
     }
+
     SkPath rectPath;
     rectPath.addRect(clippedDstRect);
     rectPath.setIsVolatile(true);

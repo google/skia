@@ -124,6 +124,11 @@ void SkAndroidSDKCanvas::onDrawOval(const SkRect& r, const SkPaint& paint) {
     FILTER(paint);
     fProxyTarget->drawOval(r, filteredPaint);
 }
+void SkAndroidSDKCanvas::onDrawArc(const SkRect& r, SkScalar startAngle, SkScalar sweepAngle,
+                                   bool useCenter, const SkPaint& paint) {
+    FILTER(paint);
+    fProxyTarget->drawArc(r, startAngle, sweepAngle, useCenter, filteredPaint);
+}
 void SkAndroidSDKCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     FILTER(paint);
     fProxyTarget->drawRect(r, filteredPaint);
@@ -200,12 +205,18 @@ void SkAndroidSDKCanvas::onDrawPosTextH(const void* text,
     fProxyTarget->drawPosTextH(text, byteLength, xpos, constY, filteredPaint);
 }
 void SkAndroidSDKCanvas::onDrawTextOnPath(const void* text,
-                                                   size_t byteLength,
-                                                   const SkPath& path,
-                                                   const SkMatrix* matrix,
-                                                   const SkPaint& paint) {
+                                          size_t byteLength,
+                                          const SkPath& path,
+                                          const SkMatrix* matrix,
+                                          const SkPaint& paint) {
     FILTER(paint);
     fProxyTarget->drawTextOnPath(text, byteLength, path, matrix, filteredPaint);
+}
+void SkAndroidSDKCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
+                                           const SkRSXform xform[], const SkRect* cull,
+                                           const SkPaint& paint) {
+    FILTER(paint);
+    fProxyTarget->drawTextRSXform(text, byteLength, xform, cull, filteredPaint);
 }
 void SkAndroidSDKCanvas::onDrawTextBlob(const SkTextBlob* blob,
                                                  SkScalar x,

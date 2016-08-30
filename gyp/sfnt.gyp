@@ -42,10 +42,8 @@
         '../src/sfnt/SkOTTable_post.h',
         '../src/sfnt/SkPanose.h',
         '../src/sfnt/SkOTUtils.h',
-        '../src/sfnt/SkPreprocessorSeq.h',
         '../src/sfnt/SkSFNTHeader.h',
         '../src/sfnt/SkTTCFHeader.h',
-        '../src/sfnt/SkTypedEnum.h',
 
         '../src/sfnt/SkOTTable_name.cpp',
         '../src/sfnt/SkOTUtils.cpp',

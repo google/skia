@@ -7,6 +7,7 @@
 
 #include "DumpRecord.h"
 #include "SkCommandLineFlags.h"
+#include "SkDeferredCanvas.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkRecordDraw.h"
@@ -22,6 +23,7 @@ DEFINE_bool(optimize2, false, "Run SkRecordOptimize2 before dumping.");
 DEFINE_int32(tile, 1000000000, "Simulated tile size.");
 DEFINE_bool(timeWithCommand, false, "If true, print time next to command, else in first column.");
 DEFINE_string2(write, w, "", "Write the (optimized) picture to the named file.");
+DEFINE_bool(defer, false, "Defer clips and translates");
 
 static void dump(const char* name, int w, int h, const SkRecord& record) {
     SkBitmap bitmap;
@@ -53,6 +55,12 @@ int tool_main(int argc, char** argv) {
         if (!src) {
             SkDebugf("Could not read %s as an SkPicture.\n", FLAGS_skps[i]);
             return 1;
+        }
+        if (FLAGS_defer) {
+            SkPictureRecorder recorder;
+            SkDeferredCanvas deferred(recorder.beginRecording(src->cullRect()));
+            src->playback(&deferred);
+            src = recorder.finishRecordingAsPicture();
         }
         const int w = SkScalarCeilToInt(src->cullRect().width());
         const int h = SkScalarCeilToInt(src->cullRect().height());

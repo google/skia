@@ -21,7 +21,7 @@ public:
                     const char* name,
                     uint32_t binding,
                     uint32_t set) : INHERITED(visibility, config), fBinding(binding) {
-        SkASSERT(GrSLTypeIsSamplerType(type));
+        SkASSERT(GrSLTypeIsCombinedSamplerType(type));
         fShaderVar.setType(type);
         fShaderVar.setTypeModifier(GrGLSLShaderVar::kUniform_TypeModifier);
         fShaderVar.setPrecision(precision);

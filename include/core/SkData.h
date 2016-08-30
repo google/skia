@@ -14,14 +14,12 @@
 
 class SkStream;
 
-#define SK_SUPPORT_LEGACY_DATA_FACTORIES
-
 /**
  *  SkData holds an immutable data buffer. Not only is the data immutable,
  *  but the actual ptr that is returned (by data() or bytes()) is guaranteed
  *  to always be the same for the life of this instance.
  */
-class SK_API SkData : public SkRefCnt {
+class SK_API SkData final : public SkNVRefCnt<SkData> {
 public:
     /**
      *  Returns the number of bytes stored.
@@ -69,7 +67,6 @@ public:
      *  effectively returning 0 == memcmp(...)
      */
     bool equals(const SkData* other) const;
-    bool equals(sk_sp<const SkData>& other) const { return this->equals(other.get()); }
 
     /**
      *  Function that, if provided, will be called when the SkData goes out
@@ -82,7 +79,7 @@ public:
      */
     static sk_sp<SkData> MakeWithCopy(const void* data, size_t length);
 
-    
+
     /**
      *  Create a new data with uninitialized contents. The caller should call writable_data()
      *  to write into the buffer, but this must be done before another ref() is made.
@@ -160,38 +157,8 @@ public:
      */
     static sk_sp<SkData> MakeEmpty();
 
-#ifdef SK_SUPPORT_LEGACY_DATA_FACTORIES
-    static SkData* NewWithCopy(const void* data, size_t length) {
-        return MakeWithCopy(data, length).release();
-    }
-    static SkData* NewUninitialized(size_t length) {
-        return MakeUninitialized(length).release();
-    }
-    static SkData* NewWithCString(const char cstr[]) {
-        return MakeWithCString(cstr).release();
-    }
-    static SkData* NewWithProc(const void* ptr, size_t length, ReleaseProc proc, void* context) {
-        return MakeWithProc(ptr, length, proc, context).release();
-    }
-    static SkData* NewWithoutCopy(const void* data, size_t length) {
-        return MakeWithoutCopy(data, length).release();
-    }
-    static SkData* NewFromMalloc(const void* data, size_t length) {
-        return MakeFromMalloc(data, length).release();
-    }
-    static SkData* NewFromFileName(const char path[]) { return MakeFromFileName(path).release(); }
-    static SkData* NewFromFILE(FILE* f) { return MakeFromFILE(f).release(); }
-    static SkData* NewFromFD(int fd) { return MakeFromFD(fd).release(); }
-    static SkData* NewFromStream(SkStream* stream, size_t size) {
-        return MakeFromStream(stream, size).release();
-    }
-    static SkData* NewSubset(const SkData* src, size_t offset, size_t length) {
-        return MakeSubset(src, offset, length).release();
-    }
-    static SkData* NewEmpty() { return MakeEmpty().release(); }
-#endif
-
 private:
+    friend class SkNVRefCnt<SkData>;
     ReleaseProc fReleaseProc;
     void*       fReleaseProcContext;
     void*       fPtr;
@@ -199,7 +166,7 @@ private:
 
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);
     explicit SkData(size_t size);   // inplace new/delete
-    virtual ~SkData();
+    ~SkData();
 
 
     // Objects of this type are sometimes created in a custom fashion using sk_malloc_throw and
@@ -220,10 +187,5 @@ private:
 
     typedef SkRefCnt INHERITED;
 };
-
-#ifdef SK_SUPPORT_LEGACY_DATA_FACTORIES
-/** Typedef of SkAutoTUnref<SkData> for automatically unref-ing a SkData. */
-typedef SkAutoTUnref<SkData> SkAutoDataUnref;
-#endif
 
 #endif

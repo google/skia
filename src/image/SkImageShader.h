@@ -10,11 +10,12 @@
 
 #include "SkImage.h"
 #include "SkShader.h"
+#include "SkBitmapProcShader.h"
 
 class SkImageShader : public SkShader {
 public:
-    static sk_sp<SkShader> Make(const SkImage*, TileMode tx, TileMode ty,
-                                const SkMatrix* localMatrix);
+    static sk_sp<SkShader> Make(sk_sp<SkImage>, TileMode tx, TileMode ty,
+                                const SkMatrix* localMatrix, SkTBlitterAllocator* = nullptr);
 
     bool isOpaque() const override;
 
@@ -22,22 +23,24 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageShader)
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, const SkMatrix& viewM,
-                                                   const SkMatrix*, SkFilterQuality,
-                                                   SkSourceGammaTreatment) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
+
+    SkImageShader(sk_sp<SkImage>, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
     size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
+    bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
+    SkImage* onIsAImage(SkMatrix*, TileMode*) const override;
 
-    SkAutoTUnref<const SkImage> fImage;
-    const TileMode              fTileModeX;
-    const TileMode              fTileModeY;
+    sk_sp<SkImage>  fImage;
+    const TileMode  fTileModeX;
+    const TileMode  fTileModeY;
 
 private:
-    SkImageShader(const SkImage*, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
+    friend class SkShader;
 
     typedef SkShader INHERITED;
 };

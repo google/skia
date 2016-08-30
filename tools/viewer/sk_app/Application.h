@@ -16,7 +16,7 @@ public:
 
     virtual ~Application() {}
 
-    virtual void onIdle(double ms) = 0;
+    virtual void onIdle() = 0;
 };
 
 }   // namespace sk_app

@@ -71,6 +71,7 @@
 
         [ 'skia_arch_type == "arm64"', {
           'sources': [ '<@(arm64_sources)' ],
+          'dependencies': [ 'opts_crc32' ]
         }],
 
         [ 'skia_android_framework', {
@@ -80,6 +81,22 @@
             '-fomit-frame-pointer',
           ]
         }],
+      ],
+    },
+    {
+      'target_name': 'opts_crc32',
+      'product_name': 'skia_opts_crc32',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'dependencies': [ 'core.gyp:*' ],
+      'include_dirs': [
+          '../include/private',
+          '../src/core',
+          '../src/utils',
+      ],
+      'sources': [ '<@(crc32_sources)' ],
+      'conditions': [
+        [ 'not skia_android_framework', { 'cflags': [ '-march=armv8-a+crc' ] }],
       ],
     },
     {

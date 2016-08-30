@@ -118,6 +118,8 @@ public:
 
     struct DashInfo {
         DashInfo() : fIntervals(NULL), fCount(0), fPhase(0) {}
+        DashInfo(SkScalar* intervals, int32_t count, SkScalar phase)
+            : fIntervals(intervals), fCount(count), fPhase(phase) {}
 
         SkScalar*   fIntervals;         //!< Length of on/off intervals for dashed lines
                                         //   Even values represent ons, and odds offs

@@ -183,12 +183,7 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(
-                                                     GrContext* context,
-                                                     const SkMatrix& viewM,
-                                                     const SkMatrix* localMatrix,
-                                                     SkFilterQuality fq,
-                                                     SkSourceGammaTreatment gammaTreatment) const {
+sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& args) const {
     // Fragment processor will only support SkXfermode::Mode modes currently.
     SkXfermode::Mode mode;
     if (!(SkXfermode::AsMode(fMode, &mode))) {
@@ -201,19 +196,17 @@ sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(
                                                GrConstColorProcessor::kIgnore_InputMode);
             break;
         case SkXfermode::kSrc_Mode:
-            return fShaderB->asFragmentProcessor(context, viewM, localMatrix, fq, gammaTreatment);
+            return fShaderB->asFragmentProcessor(args);
             break;
         case SkXfermode::kDst_Mode:
-            return fShaderA->asFragmentProcessor(context, viewM, localMatrix, fq, gammaTreatment);
+            return fShaderA->asFragmentProcessor(args);
             break;
         default:
-            sk_sp<GrFragmentProcessor> fpA(fShaderA->asFragmentProcessor(context,
-                                           viewM, localMatrix, fq, gammaTreatment));
+            sk_sp<GrFragmentProcessor> fpA(fShaderA->asFragmentProcessor(args));
             if (!fpA) {
                 return nullptr;
             }
-            sk_sp<GrFragmentProcessor> fpB(fShaderB->asFragmentProcessor(context,
-                                           viewM, localMatrix, fq, gammaTreatment));
+            sk_sp<GrFragmentProcessor> fpB(fShaderB->asFragmentProcessor(args));
             if (!fpB) {
                 return nullptr;
             }

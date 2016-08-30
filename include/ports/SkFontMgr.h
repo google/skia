@@ -199,7 +199,6 @@ protected:
 
 private:
     static SkFontMgr* Factory();    // implemented by porting layer
-    friend SkFontMgr* sk_fontmgr_create_default();
 
     typedef SkRefCnt INHERITED;
 };

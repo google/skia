@@ -460,6 +460,9 @@ public:
         GrGLFunction<GrGLPopDebugGroupProc> fPopDebugGroup;
         GrGLFunction<GrGLObjectLabelProc> fObjectLabel;
 
+        /* EXT_window_rectangles */
+        GrGLFunction<GrGLWindowRectanglesProc> fWindowRectangles;
+
         /* EGL functions */
         GrGLFunction<GrEGLCreateImageProc> fEGLCreateImage;
         GrGLFunction<GrEGLDestroyImageProc> fEGLDestroyImage;

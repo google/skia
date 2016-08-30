@@ -77,23 +77,25 @@ public:
      * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
      */
     void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix));
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
     }
 
     void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix));
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
     }
 
     void addColorTextureProcessor(GrTexture* texture,
                                   const SkMatrix& matrix,
                                   const GrTextureParams& params) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix, params));
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
+                                                                    params));
     }
 
     void addCoverageTextureProcessor(GrTexture* texture,
                                      const SkMatrix& matrix,
                                      const GrTextureParams& params) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix, params));
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
+                                                                       params));
     }
 
     /**
@@ -219,7 +221,13 @@ public:
          */
         kAllowSRGBInputs_Flag = 0x08,
 
-        kLast_Flag = kAllowSRGBInputs_Flag,
+        /**
+         * Signals that one or more FPs need access to the distance vector field to the nearest
+         * edge
+         */
+        kUsesDistanceVectorField_Flag = 0x10,
+
+        kLast_Flag = kUsesDistanceVectorField_Flag,
     };
 
     bool isHWAntialias() const { return SkToBool(fFlags & kHWAntialias_Flag); }
@@ -229,6 +237,8 @@ public:
         return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag); }
     bool getAllowSRGBInputs() const {
         return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
+    bool getUsesDistanceVectorField() const {
+        return SkToBool(fFlags & kUsesDistanceVectorField_Flag); }
 
     /**
      * Enable render state settings.
@@ -264,27 +274,19 @@ public:
     /// @name Face Culling
     ////
 
-    enum DrawFace {
-        kInvalid_DrawFace = -1,
-
-        kBoth_DrawFace,
-        kCCW_DrawFace,
-        kCW_DrawFace,
-    };
-
     /**
      * Gets whether the target is drawing clockwise, counterclockwise,
      * or both faces.
      * @return the current draw face(s).
      */
-    DrawFace getDrawFace() const { return fDrawFace; }
+    GrDrawFace getDrawFace() const { return fDrawFace; }
 
     /**
      * Controls whether clockwise, counterclockwise, or both faces are drawn.
      * @param face  the face(s) to draw.
      */
-    void setDrawFace(DrawFace face) {
-        SkASSERT(kInvalid_DrawFace != face);
+    void setDrawFace(GrDrawFace face) {
+        SkASSERT(GrDrawFace::kInvalid != face);
         fDrawFace = face;
     }
 
@@ -303,7 +305,7 @@ private:
 
     uint32_t                                fFlags;
     const GrUserStencilSettings*            fUserStencilSettings;
-    DrawFace                                fDrawFace;
+    GrDrawFace                              fDrawFace;
     mutable sk_sp<GrXPFactory>              fXPFactory;
     FragmentProcessorArray                  fColorFragmentProcessors;
     FragmentProcessorArray                  fCoverageFragmentProcessors;

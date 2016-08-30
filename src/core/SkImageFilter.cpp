@@ -21,6 +21,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrFixedClip.h"
 #endif
 
 #ifndef SK_IGNORE_TO_STRING
@@ -275,14 +276,16 @@ bool SkImageFilter::canComputeFastBounds() const {
 #if SK_SUPPORT_GPU
 sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
                                                 sk_sp<GrFragmentProcessor> fp,
-                                                const SkIRect& bounds) {
+                                                const SkIRect& bounds,
+                                                sk_sp<SkColorSpace> colorSpace) {
     GrPaint paint;
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                             bounds.width(), bounds.height(),
-                                                             kRGBA_8888_GrPixelConfig));
+    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
+                                                              bounds.width(), bounds.height(),
+                                                              kRGBA_8888_GrPixelConfig,
+                                                              std::move(colorSpace)));
     if (!drawContext) {
         return nullptr;
     }
@@ -294,7 +297,8 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
     return SkSpecialImage::MakeFromGpu(dstIRect, kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture());
+                                       drawContext->asTexture(),
+                                       sk_ref_sp(drawContext->getColorSpace()));
 }
 #endif
 

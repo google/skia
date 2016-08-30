@@ -37,6 +37,6 @@ int InfoHandler::handle(Request* request, MHD_Connection* connection,
         sscanf(commands[1].c_str(), "%d", &n);
     }
 
-    SkAutoTUnref<SkData> data(request->getJsonInfo(n));
-    return SendData(connection, data, "application/json");
+    sk_sp<SkData> data(request->getJsonInfo(n));
+    return SendData(connection, data.get(), "application/json");
 }

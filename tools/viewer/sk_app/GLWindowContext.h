@@ -12,7 +12,6 @@
 #include "gl/GrGLInterface.h"
 
 #include "SkRefCnt.h"
-#include "GrRenderTarget.h"
 #include "SkSurface.h"
 
 #include "WindowContext.h"
@@ -23,14 +22,11 @@ namespace sk_app {
 
 class GLWindowContext : public WindowContext {
 public:
-    // This is defined in the platform .cpp file
-    static GLWindowContext* Create(void* platformData, const DisplayParams& params);
-
     sk_sp<SkSurface> getBackbufferSurface() override;
 
     bool isValid() override { return SkToBool(fBackendContext.get()); }
 
-    void resize(uint32_t w, uint32_t h) override;
+    void resize(int w, int h) override;
     void swapBuffers() override;
 
     void setDisplayParams(const DisplayParams& params) override;
@@ -40,15 +36,21 @@ public:
     }
 
 protected:
-    GLWindowContext(void*, const DisplayParams&);
-    void initializeContext(void*, const DisplayParams&);
-    virtual void onInitializeContext(void*, const DisplayParams&) = 0;
+    GLWindowContext(const DisplayParams&);
+    // This should be called by subclass constructor. It is also called when window/display
+    // parameters change. This will in turn call onInitializeContext().
+    void initializeContext();
+    virtual void onInitializeContext() = 0;
+
+    // This should be called by subclass destructor. It is also called when window/display
+    // parameters change prior to initializing a new GL context. This will in turn call
+    // onDestroyContext().
     void destroyContext();
     virtual void onDestroyContext() = 0;
+
     virtual void onSwapBuffers() = 0;
 
     SkAutoTUnref<const GrGLInterface> fBackendContext;
-    sk_sp<GrRenderTarget>             fRenderTarget;
     sk_sp<SkSurface>                  fSurface;
 
     // parameters obtained from the native window

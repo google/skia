@@ -117,7 +117,7 @@ public:
      * Returns an SkImageInfo with Skia color and alpha types that are the
      * closest possible match to the encoded info.
      */
-    SkImageInfo makeImageInfo(int width, int height, const sk_sp<SkColorSpace>& colorSpace) const {
+    SkImageInfo makeImageInfo(int width, int height, sk_sp<SkColorSpace> colorSpace) const {
         switch (fColor) {
             case kGray_Color:
                 SkASSERT(kOpaque_Alpha == fAlpha);
@@ -147,7 +147,7 @@ public:
             case kYUVA_Color:
                 SkASSERT(kOpaque_Alpha != fAlpha);
                 return SkImageInfo::Make(width, height, kN32_SkColorType,
-                                         kUnpremul_SkAlphaType, colorSpace);
+                                         kUnpremul_SkAlphaType, std::move(colorSpace));
             default:
                 SkASSERT(false);
                 return SkImageInfo::MakeUnknown();

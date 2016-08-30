@@ -310,10 +310,9 @@ private:
     int                     fLevel;
 };
 
-const SkDOM::Node* SkDOM::build(const char doc[], size_t len)
-{
+const SkDOM::Node* SkDOM::build(SkStream& docStream) {
     SkDOMParser parser(&fAlloc);
-    if (!parser.parse(doc, len))
+    if (!parser.parse(docStream))
     {
         SkDEBUGCODE(SkDebugf("xml parse error, line %d\n", parser.fParserError.getLineNumber());)
         fRoot = nullptr;
@@ -473,42 +472,6 @@ void SkDOM::dump(const Node* node, int level) const
     SkDebugWStream debugStream;
     SkXMLStreamWriter xmlWriter(&debugStream);
     xmlWriter.writeDOM(*this, node, false);
-}
-
-void SkDOM::UnitTest()
-{
-#ifdef SK_SUPPORT_UNITTEST
-    static const char gDoc[] =
-        "<root a='1' b='2'>"
-            "<elem1 c='3' />"
-            "<elem2 d='4' />"
-            "<elem3 e='5'>"
-                "<subelem1/>"
-                "<subelem2 f='6' g='7'/>"
-            "</elem3>"
-            "<elem4 h='8'/>"
-        "</root>"
-        ;
-
-    SkDOM   dom;
-
-    SkASSERT(dom.getRootNode() == nullptr);
-
-    const Node* root = dom.build(gDoc, sizeof(gDoc) - 1);
-    SkASSERT(root && dom.getRootNode() == root);
-
-    const char* v = dom.findAttr(root, "a");
-    SkASSERT(v && !strcmp(v, "1"));
-    v = dom.findAttr(root, "b");
-    SkASSERT(v && !strcmp(v, "2"));
-    v = dom.findAttr(root, "c");
-    SkASSERT(v == nullptr);
-
-    SkASSERT(dom.getFirstChild(root, "elem1"));
-    SkASSERT(!dom.getFirstChild(root, "subelem1"));
-
-    dom.dump();
-#endif
 }
 
 #endif

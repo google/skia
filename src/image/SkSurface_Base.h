@@ -43,7 +43,7 @@ public:
      *  must faithfully represent the current contents, even if the surface
      *  is changed after this called (e.g. it is drawn to via its canvas).
      */
-    virtual sk_sp<SkImage> onNewImageSnapshot(SkBudgeted, ForceCopyMode) = 0;
+    virtual sk_sp<SkImage> onNewImageSnapshot(SkBudgeted, SkCopyPixelsMode) = 0;
 
     /**
      *  Default implementation:
@@ -122,9 +122,9 @@ sk_sp<SkImage> SkSurface_Base::refCachedImage(SkBudgeted budgeted, ForceUnique u
     if (snap) {
         return sk_ref_sp(snap);
     }
-    ForceCopyMode fcm = (kYes_ForceUnique == unique) ? kYes_ForceCopyMode :
-                                                       kNo_ForceCopyMode;
-    snap = this->onNewImageSnapshot(budgeted, fcm).release();
+    SkCopyPixelsMode cpm = (kYes_ForceUnique == unique) ? kAlways_SkCopyPixelsMode :
+                                                          kIfMutable_SkCopyPixelsMode;
+    snap = this->onNewImageSnapshot(budgeted, cpm).release();
     if (kNo_ForceUnique == unique) {
         SkASSERT(!fCachedImage);
         fCachedImage = SkSafeRef(snap);

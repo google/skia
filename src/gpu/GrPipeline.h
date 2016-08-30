@@ -13,14 +13,19 @@
 #include "GrGpu.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingProgramElement.h"
-#include "GrPipelineBuilder.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProcOptInfo.h"
 #include "GrProgramDesc.h"
 #include "GrStencilSettings.h"
 #include "GrTypesPriv.h"
+#include "GrWindowRectangles.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
+
+#include "effects/GrCoverageSetOpXP.h"
+#include "effects/GrDisableColorXP.h"
+#include "effects/GrPorterDuffXferProcessor.h"
+#include "effects/GrSimpleTextureEffect.h"
 
 class GrBatch;
 class GrDrawContext;
@@ -55,6 +60,7 @@ public:
         const GrCaps*               fCaps;
         GrPipelineOptimizations     fOpts;
         const GrScissorState*       fScissor;
+        const GrWindowRectangles*   fWindowRects;
         bool                        fHasStencilClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
@@ -148,6 +154,8 @@ public:
 
     const GrScissorState& getScissorState() const { return fScissorState; }
 
+    const GrWindowRectangles& getWindowRectangles() const { return fWindowRects; }
+
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
     bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
     bool getDisableOutputConversionToSRGB() const {
@@ -155,6 +163,9 @@ public:
     }
     bool getAllowSRGBInputs() const {
         return SkToBool(fFlags & kAllowSRGBInputs_Flag);
+    }
+    bool usesDistanceVectorField() const {
+        return SkToBool(fFlags & kUsesDistanceVectorField_Flag);
     }
     bool hasStencilClip() const {
         return SkToBool(fFlags & kHasStencilClip_Flag);
@@ -169,7 +180,7 @@ public:
      * or both faces.
      * @return the current draw face(s).
      */
-    GrPipelineBuilder::DrawFace getDrawFace() const { return fDrawFace; }
+    GrDrawFace getDrawFace() const { return fDrawFace; }
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -202,7 +213,8 @@ private:
         kSnapVertices_Flag                  = 0x2,
         kDisableOutputConversionToSRGB_Flag = 0x4,
         kAllowSRGBInputs_Flag               = 0x8,
-        kHasStencilClip_Flag                = 0x10
+        kUsesDistanceVectorField_Flag       = 0x10,
+        kHasStencilClip_Flag                = 0x20,
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
@@ -211,8 +223,9 @@ private:
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
+    GrWindowRectangles                  fWindowRects;
     GrStencilSettings                   fStencilSettings;
-    GrPipelineBuilder::DrawFace         fDrawFace;
+    GrDrawFace                          fDrawFace;
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
     FragmentProcessorArray              fFragmentProcessors;

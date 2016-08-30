@@ -69,7 +69,7 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
     const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
     const GrGLSLSampler& sampler = fProgramBuilder->getSampler(samplerHandle);
     GrSLType samplerType = sampler.type();
-    if (samplerType == kSampler2DRect_GrSLType) {
+    if (samplerType == kTexture2DRectSampler_GrSLType) {
         if (varyingType == kVec2f_GrSLType) {
             out->appendf("%s(%s, textureSize(%s) * %s)",
                          GrGLSLTexture2DFunctionName(varyingType, samplerType,
@@ -116,7 +116,7 @@ void GrGLSLShaderBuilder::appendTexelFetch(SkString* out,
                                            const char* coordExpr) const {
     const GrGLSLSampler& sampler = fProgramBuilder->getSampler(samplerHandle);
     SkASSERT(fProgramBuilder->glslCaps()->texelFetchSupport());
-    SkASSERT(GrSLTypeIsSamplerType(sampler.type()));
+    SkASSERT(GrSLTypeIsCombinedSamplerType(sampler.type()));
 
     out->appendf("texelFetch(%s, %s)", sampler.getSamplerNameForTexelFetch(), coordExpr);
 

@@ -24,11 +24,13 @@ public:
     virtual SkImageInfo onImageInfo() const override {
         return fCache->info();
     }
+    SkAlphaType onAlphaType() const override {
+        return fCache->info().alphaType();
+    }
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     SkImageCacherator* peekCacherator() const override { return fCache; }
     SkData* onRefEncoded(GrContext*) const override;
-    bool isOpaque() const override { return fCache->info().isOpaque(); }
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
@@ -84,7 +86,7 @@ sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
     // For now, we do effectively what we did before, make it a raster
 
     const SkImageInfo info = SkImageInfo::MakeN32(subset.width(), subset.height(),
-                                      this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+                                                  this->alphaType());
     auto surface(SkSurface::MakeRaster(info));
     if (!surface) {
         return nullptr;

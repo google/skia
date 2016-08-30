@@ -8,50 +8,53 @@
 
 #include <GLES/gl.h> 
 
-#include "GLWindowContext_android.h"
+#include "WindowContextFactory_android.h"
+#include "../GLWindowContext.h"
+#include <EGL/egl.h>
 
-#include <android/native_window_jni.h>
+using sk_app::GLWindowContext;
+using sk_app::DisplayParams;
 
-namespace sk_app {
+namespace {
+class GLWindowContext_android : public GLWindowContext {
+public:
 
-// Most of the following 3 functions (GLWindowContext::Create, constructor, desctructor)
-// are copied from Unix/Win platform with unix/win changed to android
+    GLWindowContext_android(ANativeWindow*, const DisplayParams&);
 
-// platform-dependent create
-GLWindowContext* GLWindowContext::Create(void* platformData, const DisplayParams& params) {
-    GLWindowContext_android* ctx = new GLWindowContext_android(platformData, params);
-    if (!ctx->isValid()) {
-        delete ctx;
-        return nullptr;
-    }
-    return ctx;
-}
+    ~GLWindowContext_android() override;
 
-GLWindowContext_android::GLWindowContext_android(void* platformData, const DisplayParams& params)
-    : GLWindowContext(platformData, params)
+    void onSwapBuffers() override;
+
+    void onInitializeContext() override;
+    void onDestroyContext() override;
+
+private:
+
+    EGLDisplay fDisplay;
+    EGLContext fEGLContext;
+    EGLSurface fSurface;
+
+    // For setDisplayParams and resize which call onInitializeContext with null platformData
+    ANativeWindow* fNativeWindow = nullptr;
+};
+
+GLWindowContext_android::GLWindowContext_android(ANativeWindow* window, const DisplayParams& params)
+    : GLWindowContext(params)
     , fDisplay(EGL_NO_DISPLAY)
     , fEGLContext(EGL_NO_CONTEXT)
-    , fSurface(EGL_NO_SURFACE) {
+    , fSurface(EGL_NO_SURFACE)
+    , fNativeWindow(window) {
 
     // any config code here (particularly for msaa)?
 
-    this->initializeContext(platformData, params);
+    this->initializeContext();
 }
 
 GLWindowContext_android::~GLWindowContext_android() {
     this->destroyContext();
 }
 
-void GLWindowContext_android::onInitializeContext(void* platformData, const DisplayParams& params) {
-    if (platformData != nullptr) {
-        ContextPlatformData_android* androidPlatformData =
-                reinterpret_cast<ContextPlatformData_android*>(platformData);
-        fNativeWindow = androidPlatformData->fNativeWindow;
-    } else {
-        SkASSERT(fNativeWindow);
-    }
-
-
+void GLWindowContext_android::onInitializeContext() {
     fWidth = ANativeWindow_getWidth(fNativeWindow);
     fHeight = ANativeWindow_getHeight(fNativeWindow);
 
@@ -100,7 +103,7 @@ void GLWindowContext_android::onInitializeContext(void* platformData, const Disp
     };
     const EGLint* windowAttribs = nullptr;
     auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    if (srgbColorSpace == params.fColorSpace && majorVersion == 1 && minorVersion >= 2) {
+    if (srgbColorSpace == fDisplayParams.fColorSpace && majorVersion == 1 && minorVersion >= 2) {
         windowAttribs = srgbWindowAttribs;
     }
 
@@ -146,4 +149,19 @@ void GLWindowContext_android::onSwapBuffers() {
     }
 }
 
+}  // anonymous namespace
+
+namespace sk_app {
+namespace window_context_factory {
+
+WindowContext* NewGLForAndroid(ANativeWindow* window, const DisplayParams& params) {
+    WindowContext* ctx = new GLWindowContext_android(window, params);
+    if (!ctx->isValid()) {
+        delete ctx;
+        return nullptr;
+    }
+    return ctx;
 }
+
+}  // namespace window_context_factory
+}  // namespace sk_app

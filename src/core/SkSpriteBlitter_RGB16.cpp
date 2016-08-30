@@ -30,7 +30,11 @@ static inline void D16_S32A_Blend_Pixel_helper(uint16_t* dst, SkPMColor sc,
         dg = SkAlphaBlend(SkPacked32ToG16(sc), SkGetPackedG16(dc), src_scale);
         db = SkAlphaBlend(SkPacked32ToB16(sc), SkGetPackedB16(dc), src_scale);
     } else {
+#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
         unsigned dst_scale = 255 - SkAlphaMul(sa, src_scale);
+#else
+        unsigned dst_scale = SkAlphaMulInv256(sa, src_scale);
+#endif
         dr = (SkPacked32ToR16(sc) * src_scale + SkGetPackedR16(dc) * dst_scale) >> 8;
         dg = (SkPacked32ToG16(sc) * src_scale + SkGetPackedG16(dc) * dst_scale) >> 8;
         db = (SkPacked32ToB16(sc) * src_scale + SkGetPackedB16(dc) * dst_scale) >> 8;

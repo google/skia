@@ -12,18 +12,18 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'qcms.gyp:qcms',
       ],
-      'export_dependent_settings': [ 'qcms.gyp:qcms', ],
       'include_dirs': [
         '../include/effects',
         '../include/client/android',
+        '../include/gpu',
         '../include/images',
         '../include/ports',
         '../include/private',
         '../include/utils',
         '../include/utils/win',
         '../src/core',
+        '../src/gpu',
         '../src/image',
         '../src/lazy',
         '../src/ports',
@@ -40,6 +40,7 @@
         '../src/ports/SkFontMgr_android_factory.cpp',
         '../src/ports/SkFontMgr_custom_directory_factory.cpp',
         '../src/ports/SkFontMgr_custom_embedded_factory.cpp',
+        '../src/ports/SkFontMgr_FontConfigInterface_factory.cpp',
         '../src/ports/SkFontMgr_fontconfig_factory.cpp',
         '../src/ports/SkFontMgr_win_dw.cpp',
         '../src/ports/SkFontMgr_win_dw_factory.cpp',
@@ -76,6 +77,10 @@
         ['exclude', 'SkFontMgr_.+_factory\\.cpp$'],
       ],
       'conditions': [
+        [ 'skia_android_framework == 0', {
+          'dependencies': [ 'qcms.gyp:qcms', ],
+          'export_dependent_settings': [ 'qcms.gyp:qcms', ],
+        }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android"]', {
           'sources': [
             '../src/ports/SkFontHost_FreeType.cpp',
@@ -83,16 +88,15 @@
             '../src/ports/SkFontMgr_android.cpp',
             '../src/ports/SkFontMgr_android_parser.cpp',
             '../src/ports/SkFontMgr_custom.cpp',
+            '../src/ports/SkFontMgr_FontConfigInterface.cpp',
           ],
           'dependencies': [
             'freetype.gyp:freetype',
+            'expat.gyp:expat',
           ],
           'conditions': [
-            [ 'skia_android_framework', {
-              'link_settings': { 'libraries': [ '-lexpat' ] },
-            }, {
+            [ 'skia_android_framework == 0', {
               'link_settings': { 'libraries': [ '-ldl' ] },
-              'dependencies': [ 'expat.gyp:expat' ],
             }],
             [ 'skia_embedded_fonts', {
               'variables': {

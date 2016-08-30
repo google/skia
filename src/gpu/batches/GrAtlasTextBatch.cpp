@@ -158,7 +158,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
             args.fViewMatrix.mapRect(&rect);
         }
         // Allow for small numerical error in the bounds.
-        SkRect bounds = fBounds;
+        SkRect bounds = this->bounds();
         bounds.outset(0.001f, 0.001f);
         SkASSERT(bounds.contains(rect));
 #endif
@@ -239,7 +239,7 @@ bool GrAtlasTextBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     that->fGeoCount = 0;
     fGeoCount = newGeoCount;
 
-    this->joinBounds(that->bounds());
+    this->joinBounds(*that);
     return true;
 }
 

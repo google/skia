@@ -19,6 +19,10 @@
 #include "SkShader.h"
 #include "SkOnce.h"
 
+#if SK_SUPPORT_GPU
+    #define GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS 1
+#endif
+
 static inline void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
                                int count) {
     if (count > 0) {
@@ -128,7 +132,8 @@ public:
         bool getDither() const { return fCacheDither; }
 
     private:
-        // Working pointers. If either is nullptr, we need to recompute the corresponding cache values.
+        // Working pointers. If either is nullptr, we need to recompute the corresponding
+        // cache values.
         uint16_t*   fCache16;
         SkPMColor*  fCache32;
 
@@ -197,17 +202,6 @@ public:
         kDitherStride16 = kCache16Count,
     };
 
-    enum GpuColorType {
-        kTwo_GpuColorType,
-        kThree_GpuColorType, // Symmetric three color
-        kTexture_GpuColorType
-    };
-
-    // Determines and returns the gradient is a two color gradient, symmetric three color gradient
-    // or other (texture gradient). If it is two or symmetric three color, the colors array will
-    // also be filled with the gradient colors
-    GpuColorType getGpuColorType(SkColor colors[3]) const;
-
     uint32_t getGradFlags() const { return fGradFlags; }
 
 protected:
@@ -220,7 +214,6 @@ protected:
     const SkMatrix fPtsToUnit;
     TileMode    fTileMode;
     TileProc    fTileProc;
-    int         fColorCount;
     uint8_t     fGradFlags;
 
     struct Rec {
@@ -254,8 +247,12 @@ private:
 public:
     SkColor*    fOrigColors; // original colors, before modulation by paint in context.
     SkScalar*   fOrigPos;   // original positions
+    int         fColorCount;
 
     bool colorsAreOpaque() const { return fColorsAreOpaque; }
+
+    TileMode getTileMode() const { return fTileMode; }
+    Rec* getRecs() const { return fRecs; }
 
 private:
     bool        fColorsAreOpaque;
@@ -326,6 +323,7 @@ class GrInvariantOutput;
 // Base class for Gr gradient effects
 class GrGradientEffect : public GrFragmentProcessor {
 public:
+    class GLSLProcessor;
 
     GrGradientEffect(GrContext* ctx,
                      const SkGradientShaderBase& shader,
@@ -335,9 +333,30 @@ public:
     virtual ~GrGradientEffect();
 
     bool useAtlas() const { return SkToBool(-1 != fRow); }
-    SkScalar getYCoord() const { return fYCoord; };
+    SkScalar getYCoord() const { return fYCoord; }
 
-    SkGradientShaderBase::GpuColorType getColorType() const { return fColorType; }
+    enum ColorType {
+        kTwo_ColorType,
+        kThree_ColorType, // Symmetric three color
+        kTexture_ColorType,
+
+#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
+        kHardStopCentered_ColorType,   // 0, 0.5, 0.5, 1
+        kHardStopLeftEdged_ColorType,  // 0, 0, 1
+        kHardStopRightEdged_ColorType, // 0, 1, 1
+#endif
+    };
+
+    ColorType getColorType() const { return fColorType; }
+
+    // Determines the type of gradient, one of:
+    //    - Two-color
+    //    - Symmetric three-color
+    //    - Texture
+    //    - Centered hard stop
+    //    - Left-edged hard stop
+    //    - Right-edged hard stop
+    ColorType determineColorType(const SkGradientShaderBase& shader);
 
     enum PremulType {
         kBeforeInterp_PremulType,
@@ -347,19 +366,18 @@ public:
     PremulType getPremulType() const { return fPremulType; }
 
     const SkColor* getColors(int pos) const {
-        SkASSERT(fColorType != SkGradientShaderBase::kTexture_GpuColorType);
-        SkASSERT((pos-1) <= fColorType);
+        SkASSERT(fColorType != kTexture_ColorType);
+        SkASSERT(pos < fColors.count());
         return &fColors[pos];
     }
 
 protected:
-
     /** Populates a pair of arrays with colors and stop info to construct a random gradient.
         The function decides whether stop values should be used or not. The return value indicates
         the number of colors, which will be capped by kMaxRandomGradientColors. colors should be
         sized to be at least kMaxRandomGradientColors. stops is a pointer to an array of at least
-        size kMaxRandomGradientColors. It may be updated to nullptr, indicating that nullptr should be
-        passed to the gradient factory rather than the array.
+        size kMaxRandomGradientColors. It may be updated to nullptr, indicating that nullptr should
+        be passed to the gradient factory rather than the array.
     */
     static const int kMaxRandomGradientColors = 4;
     static int RandomGradientParams(SkRandom* r,
@@ -376,16 +394,19 @@ protected:
 private:
     static const GrCoordSet kCoordSet = kLocal_GrCoordSet;
 
+    SkTDArray<SkColor>  fColors;
+    SkTDArray<SkScalar> fPositions;
+    SkShader::TileMode  fTileMode;
+
     GrCoordTransform fCoordTransform;
     GrTextureAccess fTextureAccess;
     SkScalar fYCoord;
     GrTextureStripAtlas* fAtlas;
     int fRow;
     bool fIsOpaque;
-    SkGradientShaderBase::GpuColorType fColorType;
-    SkColor fColors[3]; // More than 3 colors we use texture
-    PremulType fPremulType; // This only changes behavior for two and three color special cases.
-                            // It is already baked into to the table for texture gradients.
+    ColorType fColorType;
+    PremulType fPremulType; // This is already baked into the table for texture gradients, and
+                            // only changes behavior for gradients that don't use a texture.
     typedef GrFragmentProcessor INHERITED;
 
 };
@@ -393,9 +414,11 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 // Base class for GL gradient effects
-class GrGLGradientEffect : public GrGLSLFragmentProcessor {
+class GrGradientEffect::GLSLProcessor : public GrGLSLFragmentProcessor {
 public:
-    GrGLGradientEffect();
+    GLSLProcessor() {
+        fCachedYCoord = SK_ScalarMax;
+    }
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -412,10 +435,10 @@ protected:
     // should call this method from their emitCode().
     void emitUniforms(GrGLSLUniformHandler*, const GrGradientEffect&);
 
-
-    // emit code that gets a fragment's color from an expression for t; Has branches for 3 separate
-    // control flows inside -- 2 color gradients, 3 color symmetric gradients (both using
-    // native GLSL mix), and 4+ color gradients that use the traditional texture lookup.
+    // Emit code that gets a fragment's color from an expression for t; has branches for
+    // several control flows inside -- 2-color gradients, 3-color symmetric gradients, 4+
+    // color gradients that use the traditional texture lookup, as well as several varieties
+    // of hard stop gradients
     void emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
                    GrGLSLUniformHandler* uniformHandler,
                    const GrGLSLCaps* caps,
@@ -427,26 +450,31 @@ protected:
 
 private:
     enum {
-        kPremulTypeKeyBitCnt = 1,
-        kPremulTypeMask = 1,
-        kPremulBeforeInterpKey = kPremulTypeMask,
+        // First bit for premul before/after interp
+        kPremulBeforeInterpKey  =  1,
 
-        kTwoColorKey = 2 << kPremulTypeKeyBitCnt,
-        kThreeColorKey = 3 << kPremulTypeKeyBitCnt,
-        kColorKeyMask = kTwoColorKey | kThreeColorKey,
-        kColorKeyBitCnt = 2,
+        // Next three bits for 2/3 color type or different special
+        // hard stop cases (neither means using texture atlas)
+        kTwoColorKey            =  2,
+        kThreeColorKey          =  4,
+#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
+        kHardStopCenteredKey    =  6,
+        kHardStopZeroZeroOneKey =  8,
+        kHardStopZeroOneOneKey  = 10,
 
-        // Subclasses must shift any key bits they produce up by this amount
-        // and combine with the result of GenBaseGradientKey.
-        kBaseKeyBitCnt = (kPremulTypeKeyBitCnt + kColorKeyBitCnt)
+        // Next two bits for tile mode
+        kClampTileMode          = 16,
+        kRepeatTileMode         = 32,
+        kMirrorTileMode         = 48,
+
+        // Lower six bits for premul, 2/3 color type, and tile mode
+        kReservedBits           = 6,
+#endif
     };
-    GR_STATIC_ASSERT(kBaseKeyBitCnt <= 32);
 
     SkScalar fCachedYCoord;
+    GrGLSLProgramDataManager::UniformHandle fColorsUni;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
-    GrGLSLProgramDataManager::UniformHandle fColorStartUni;
-    GrGLSLProgramDataManager::UniformHandle fColorMidUni;
-    GrGLSLProgramDataManager::UniformHandle fColorEndUni;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };

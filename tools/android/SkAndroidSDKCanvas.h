@@ -37,6 +37,8 @@ protected:
     void onDrawPoints(PointMode pMode, size_t count, const SkPoint pts[],
                       const SkPaint& paint) override;
     void onDrawOval(const SkRect& r, const SkPaint& paint) override;
+    void onDrawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
+                   const SkPaint& paint) override;
     void onDrawRect(const SkRect& r, const SkPaint& paint) override;
     void onDrawRRect(const SkRRect& r, const SkPaint& paint) override;
     void onDrawPath(const SkPath& path, const SkPaint& paint) override;
@@ -62,6 +64,8 @@ protected:
                         SkScalar constY, const SkPaint& paint) override;
     void onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                           const SkMatrix* matrix, const SkPaint& paint) override;
+    void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                           const SkRect* cull, const SkPaint& paint) override;
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override;
 

@@ -303,8 +303,7 @@ DEF_GM( return new ScalePixelsGM; )
 #include "SkImageGenerator.h"
 
 static SkImageInfo make_info(SkImage* img) {
-    return SkImageInfo::MakeN32(img->width(), img->height(),
-                                img->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+    return SkImageInfo::MakeN32(img->width(), img->height(), img->alphaType());
 }
 
 // Its simple, but I wonder if we should expose this formally?
@@ -349,14 +348,14 @@ static SkImageGenerator* gen_picture(const SkImageInfo& info) {
 
 static SkImageGenerator* gen_png(const SkImageInfo& info) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
-    SkAutoTUnref<SkData> data(image->encode(SkImageEncoder::kPNG_Type, 100));
-    return SkImageGenerator::NewFromEncoded(data);
+    sk_sp<SkData> data(image->encode(SkImageEncoder::kPNG_Type, 100));
+    return SkImageGenerator::NewFromEncoded(data.get());
 }
 
 static SkImageGenerator* gen_jpg(const SkImageInfo& info) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
-    SkAutoTUnref<SkData> data(image->encode(SkImageEncoder::kJPEG_Type, 100));
-    return SkImageGenerator::NewFromEncoded(data);
+    sk_sp<SkData> data(image->encode(SkImageEncoder::kJPEG_Type, 100));
+    return SkImageGenerator::NewFromEncoded(data.get());
 }
 
 typedef SkImageGenerator* (*GeneratorMakerProc)(const SkImageInfo&);

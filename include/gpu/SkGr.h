@@ -71,6 +71,9 @@ static inline GrColor SkPMColorToGrColor(SkPMColor c) {
 GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&,
                                     SkSourceGammaTreatment);
 
+sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&,
+                                           SkSourceGammaTreatment);
+
 // TODO: Move SkImageInfo2GrPixelConfig to SkGrPriv.h (requires cleanup to SkWindow its subclasses).
 GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, const SkColorSpace*,
                                         const GrCaps&);
@@ -83,13 +86,5 @@ GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
                                                             const SkMatrix& viewM,
                                                             const SkMatrix& localM,
                                                             bool* doBicubic);
-
-////////////////////////////////////////////////////////////////////////////////
-
-SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque);
-
-// Using the dreaded SkGrPixelRef ...
-SK_API void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque,
-                                  SkBitmap* dst);
 
 #endif

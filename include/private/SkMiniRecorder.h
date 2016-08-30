@@ -20,8 +20,6 @@ public:
     ~SkMiniRecorder();
 
     // Try to record an op.  Returns false on failure.
-    bool drawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst,
-                        const SkPaint*, SkCanvas::SrcRectConstraint);
     bool drawPath(const SkPath&, const SkPaint&);
     bool drawRect(const SkRect&, const SkPaint&);
     bool drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y, const SkPaint&);
@@ -38,7 +36,6 @@ public:
 private:
     enum class State {
         kEmpty,
-        kDrawBitmapRectFixedSize,
         kDrawPath,
         kDrawRect,
         kDrawTextBlob,
@@ -50,10 +47,9 @@ private:
     struct Max { static const size_t val = A > B ? A : B; };
 
     static const size_t kInlineStorage =
-        Max<sizeof(SkRecords::DrawBitmapRectFixedSize),
         Max<sizeof(SkRecords::DrawPath),
         Max<sizeof(SkRecords::DrawRect),
-            sizeof(SkRecords::DrawTextBlob)>::val>::val>::val;
+            sizeof(SkRecords::DrawTextBlob)>::val>::val;
     SkAlignedSStorage<kInlineStorage> fBuffer;
 };
 

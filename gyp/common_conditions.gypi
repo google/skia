@@ -10,7 +10,7 @@
     'SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=<(skia_static_initializers)',
     'SK_SUPPORT_GPU=<(skia_gpu)',
     'SK_FORCE_DISTANCE_FIELD_TEXT=<(skia_force_distance_field_text)',
-    
+
     # Indicate that all dependency libraries are present.  Clients that
     # are missing some of the required decoding libraries may choose
     # not to define these.  This will disable some decoder and encoder
@@ -19,11 +19,9 @@
     'SK_HAS_JPEG_LIBRARY',
     'SK_HAS_PNG_LIBRARY',
     'SK_HAS_WEBP_LIBRARY',
+
     'SKIA_DLL',
     'SKIA_IMPLEMENTATION=1',
-
-    # Temporarily test against the QCMS library.
-    'SK_TEST_QCMS',
   ],
   'conditions' : [
     [ 'skia_is_bot', {
@@ -32,6 +30,12 @@
     [ 'skia_codec_decodes_raw', {
       'defines': [
         'SK_CODEC_DECODES_RAW',
+      ],
+    }],
+    [ 'skia_android_framework == 0', {
+      'defines': [
+        # Temporarily test against the QCMS library.
+        'SK_TEST_QCMS',
       ],
     }],
     ['skia_pic', {
@@ -64,9 +68,7 @@
     [ 'skia_os == "win"',
       {
         'defines': [
-          'SK_BUILD_FOR_WIN32',
           '_CRT_SECURE_NO_WARNINGS',
-          'GR_GL_FUNCTION_TYPE=__stdcall',
           '_HAS_EXCEPTIONS=0',
           'WIN32_LEAN_AND_MEAN',
           'NOMINMAX',
@@ -631,13 +633,9 @@
         'defines': [
           'SK_BUILD_FOR_ANDROID',
 
-          # Android Text Tuning
+          # Android defines a fixed text gamma exponent instead of using SRGB
           'SK_GAMMA_EXPONENT=1.4',
           'SK_GAMMA_CONTRAST=0.0',
-        ],
-        # Android defines a fixed gamma exponent instead of using SRGB
-        'defines!': [
-          'SK_GAMMA_SRGB',
         ],
         'configurations': {
           'Release': {

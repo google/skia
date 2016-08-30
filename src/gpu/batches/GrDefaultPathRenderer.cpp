@@ -11,6 +11,7 @@
 #include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrFixedClip.h"
 #include "GrMesh.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
@@ -97,16 +98,17 @@ class DefaultPathBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    struct Geometry {
-        GrColor fColor;
-        SkPath fPath;
-        SkScalar fTolerance;
-    };
+    DefaultPathBatch(GrColor color, const SkPath& path, SkScalar tolerance,
+                     uint8_t coverage, const SkMatrix& viewMatrix, bool isHairline,
+                     const SkRect& devBounds)
+            : INHERITED(ClassID()) {
+        fBatch.fCoverage = coverage;
+        fBatch.fIsHairline = isHairline;
+        fBatch.fViewMatrix = viewMatrix;
+        fGeoData.emplace_back(Geometry{color, path, tolerance});
 
-    static GrDrawBatch* Create(const Geometry& geometry, uint8_t coverage,
-                               const SkMatrix& viewMatrix, bool isHairline,
-                               const SkRect& devBounds) {
-        return new DefaultPathBatch(geometry, coverage, viewMatrix, isHairline, devBounds);
+        this->setBounds(devBounds, HasAABloat::kNo,
+                        isHairline ? IsZeroArea::kYes : IsZeroArea::kNo);
     }
 
     const char* name() const override { return "DefaultPathBatch"; }
@@ -256,25 +258,6 @@ private:
         target->putBackVertices((size_t)(maxVertices - vertexOffset), (size_t)vertexStride);
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    DefaultPathBatch(const Geometry& geometry, uint8_t coverage, const SkMatrix& viewMatrix,
-                     bool isHairline, const SkRect& devBounds)
-        : INHERITED(ClassID()) {
-        fBatch.fCoverage = coverage;
-        fBatch.fIsHairline = isHairline;
-        fBatch.fViewMatrix = viewMatrix;
-        fGeoData.push_back(geometry);
-
-        this->setBounds(devBounds);
-
-        // This is b.c. hairlines are notionally infinitely thin so without expansion
-        // two overlapping lines could be reordered even though they hit the same pixels.
-        if (isHairline) {
-            fBounds.outset(0.5f, 0.5f);
-        }
-    }
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         DefaultPathBatch* that = t->cast<DefaultPathBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -298,8 +281,8 @@ private:
             return false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
-        this->joinBounds(that->bounds());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
+        this->joinBounds(*that);
         return true;
     }
 
@@ -417,6 +400,12 @@ private:
         bool fIsHairline;
     };
 
+    struct Geometry {
+        GrColor fColor;
+        SkPath fPath;
+        SkScalar fTolerance;
+    };
+
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 
@@ -425,9 +414,8 @@ private:
 
 bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                              const GrPaint& paint,
-                                             const GrUserStencilSettings* userStencilSettings,
+                                             const GrUserStencilSettings& userStencilSettings,
                                              const GrClip& clip,
-                                             GrColor color,
                                              const SkMatrix& viewMatrix,
                                              const GrShape& shape,
                                              bool stencilOnly) {
@@ -446,7 +434,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 
     int                          passCount = 0;
     const GrUserStencilSettings* passes[3];
-    GrPipelineBuilder::DrawFace  drawFace[3];
+    GrDrawFace                   drawFace[3];
     bool                         reverse = false;
     bool                         lastPassIsBounds;
 
@@ -455,19 +443,19 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
         } else {
-            passes[0] = nullptr;
+            passes[0] = &userStencilSettings;
         }
         lastPassIsBounds = false;
-        drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
+        drawFace[0] = GrDrawFace::kBoth;
     } else {
         if (single_pass_shape(shape)) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
             } else {
-                passes[0] = nullptr;
+                passes[0] = &userStencilSettings;
             }
-            drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
+            drawFace[0] = GrDrawFace::kBoth;
             lastPassIsBounds = false;
         } else {
             switch (path.getFillType()) {
@@ -488,7 +476,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                             passes[1] = &gEOColorPass;
                         }
                     }
-                    drawFace[0] = drawFace[1] = GrPipelineBuilder::kBoth_DrawFace;
+                    drawFace[0] = drawFace[1] = GrDrawFace::kBoth;
                     break;
 
                 case SkPath::kInverseWinding_FillType:
@@ -502,7 +490,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                             passes[0] = &gWindStencilSeparateNoWrap;
                         }
                         passCount = 2;
-                        drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
+                        drawFace[0] = GrDrawFace::kBoth;
                     } else {
                         if (fStencilWrapOps) {
                             passes[0] = &gWindSingleStencilWithWrapInc;
@@ -512,8 +500,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                             passes[1] = &gWindSingleStencilNoWrapDec;
                         }
                         // which is cw and which is ccw is arbitrary.
-                        drawFace[0] = GrPipelineBuilder::kCW_DrawFace;
-                        drawFace[1] = GrPipelineBuilder::kCCW_DrawFace;
+                        drawFace[0] = GrDrawFace::kCW;
+                        drawFace[1] = GrDrawFace::kCCW;
                         passCount = 3;
                     }
                     if (stencilOnly) {
@@ -521,7 +509,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                         --passCount;
                     } else {
                         lastPassIsBounds = true;
-                        drawFace[passCount-1] = GrPipelineBuilder::kBoth_DrawFace;
+                        drawFace[passCount-1] = GrDrawFace::kBoth;
                         if (reverse) {
                             passes[passCount-1] = &gInvWindColorPass;
                         } else {
@@ -564,35 +552,24 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
             SkAutoTUnref<GrDrawBatch> batch(
-                    GrRectBatchFactory::CreateNonAAFill(color, viewM, bounds, nullptr,
+                    GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
                                                         &localMatrix));
 
+            SkASSERT(GrDrawFace::kBoth == drawFace[p]);
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
-            if (passes[p]) {
-                pipelineBuilder.setUserStencil(passes[p]);
-            } else {
-                pipelineBuilder.setUserStencil(userStencilSettings);
-            }
+            pipelineBuilder.setUserStencil(passes[p]);
 
             drawContext->drawBatch(pipelineBuilder, clip, batch);
         } else {
-            DefaultPathBatch::Geometry geometry;
-            geometry.fColor = color;
-            geometry.fPath = path;
-            geometry.fTolerance = srcSpaceTol;
-
-            SkAutoTUnref<GrDrawBatch> batch(DefaultPathBatch::Create(geometry, newCoverage,
-                                                                     viewMatrix, isHairline,
-                                                                     devBounds));
+            SkAutoTUnref<GrDrawBatch> batch(new DefaultPathBatch(paint.getColor(), path,
+                                                                 srcSpaceTol,
+                                                                 newCoverage, viewMatrix,
+                                                                 isHairline, devBounds));
 
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
-            if (passes[p]) {
-                pipelineBuilder.setUserStencil(passes[p]);
-            } else {
-                pipelineBuilder.setUserStencil(userStencilSettings);
-            }
+            pipelineBuilder.setUserStencil(passes[p]);
             if (passCount > 1) {
                 pipelineBuilder.setDisableColorXPFactory();
             }
@@ -615,9 +592,8 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
                               "GrDefaultPathRenderer::onDrawPath");
     return this->internalDrawPath(args.fDrawContext,
                                   *args.fPaint,
-                                  args.fUserStencilSettings,
+                                  *args.fUserStencilSettings,
                                   *args.fClip,
-                                  args.fColor,
                                   *args.fViewMatrix,
                                   *args.fShape,
                                   false);
@@ -632,8 +608,8 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     paint.setXPFactory(GrDisableColorXPFactory::Make());
     paint.setAntiAlias(args.fIsAA);
 
-    this->internalDrawPath(args.fDrawContext, paint, &GrUserStencilSettings::kUnused, *args.fClip,
-                           GrColor_WHITE, *args.fViewMatrix, *args.fShape, true);
+    this->internalDrawPath(args.fDrawContext, paint, GrUserStencilSettings::kUnused, *args.fClip,
+                           *args.fViewMatrix, *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -654,14 +630,9 @@ DRAW_BATCH_TEST_DEFINE(DefaultPathBatch) {
     SkScalar tol = GrPathUtils::kDefaultTolerance;
     SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, bounds);
 
-    DefaultPathBatch::Geometry geometry;
-    geometry.fColor = color;
-    geometry.fPath = path;
-    geometry.fTolerance = srcSpaceTol;
-
     viewMatrix.mapRect(&bounds);
     uint8_t coverage = GrRandomCoverage(random);
-    return DefaultPathBatch::Create(geometry, coverage, viewMatrix, true, bounds);
+    return new DefaultPathBatch(color, path, srcSpaceTol, coverage, viewMatrix, true, bounds);
 }
 
 #endif

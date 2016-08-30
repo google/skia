@@ -100,13 +100,10 @@ static inline float sk_float_pow(float base, float exp) {
 #define sk_double_round2int(x)      (int)floor((x) + 0.5f)
 #define sk_double_ceil2int(x)       (int)ceil(x)
 
-extern const uint32_t gIEEENotANumber;
-extern const uint32_t gIEEEInfinity;
-extern const uint32_t gIEEENegativeInfinity;
-
-#define SK_FloatNaN                 (*SkTCast<const float*>(&gIEEENotANumber))
-#define SK_FloatInfinity            (*SkTCast<const float*>(&gIEEEInfinity))
-#define SK_FloatNegativeInfinity    (*SkTCast<const float*>(&gIEEENegativeInfinity))
+static const uint32_t kIEEENotANumber = 0x7fffffff;
+#define SK_FloatNaN                 (*SkTCast<const float*>(&kIEEENotANumber))
+#define SK_FloatInfinity            (+(float)INFINITY)
+#define SK_FloatNegativeInfinity    (-(float)INFINITY)
 
 static inline float sk_float_rsqrt_portable(float x) {
     // Get initial estimate.

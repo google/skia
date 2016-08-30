@@ -70,20 +70,6 @@ SkMiniRecorder::~SkMiniRecorder() {
     new (fBuffer.get()) Type{__VA_ARGS__};         \
     return true
 
-bool SkMiniRecorder::drawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* p, SkCanvas::SrcRectConstraint constraint) {
-    SkRect bounds;
-    if (!src) {
-        bm.getBounds(&bounds);
-        src = &bounds;
-    }
-    SkTLazy<SkPaint> defaultPaint;
-    if (!p) {
-        p = defaultPaint.init();
-    }
-    TRY_TO_STORE(DrawBitmapRectFixedSize, *p, bm, *src, dst, constraint);
-}
-
 bool SkMiniRecorder::drawRect(const SkRect& rect, const SkPaint& paint) {
     TRY_TO_STORE(DrawRect, paint, rect);
 }
@@ -93,7 +79,7 @@ bool SkMiniRecorder::drawPath(const SkPath& path, const SkPaint& paint) {
 }
 
 bool SkMiniRecorder::drawTextBlob(const SkTextBlob* b, SkScalar x, SkScalar y, const SkPaint& p) {
-    TRY_TO_STORE(DrawTextBlob, p, b, x, y);
+    TRY_TO_STORE(DrawTextBlob, p, sk_ref_sp(b), x, y);
 }
 #undef TRY_TO_STORE
 
@@ -111,7 +97,6 @@ sk_sp<SkPicture> SkMiniRecorder::detachAsPicture(const SkRect& cull) {
         case State::kEmpty:
             once([]{ empty = new SkEmptyPicture; });
             return sk_ref_sp(empty);
-        CASE(DrawBitmapRectFixedSize);
         CASE(DrawPath);
         CASE(DrawRect);
         CASE(DrawTextBlob);
@@ -132,7 +117,6 @@ void SkMiniRecorder::flushAndReset(SkCanvas* canvas) {
 
     switch (fState) {
         case State::kEmpty: return;
-        CASE(DrawBitmapRectFixedSize);
         CASE(DrawPath);
         CASE(DrawRect);
         CASE(DrawTextBlob);

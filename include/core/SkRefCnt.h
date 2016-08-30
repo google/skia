@@ -101,15 +101,12 @@ public:
 protected:
     /**
      *  Allow subclasses to call this if they've overridden internal_dispose
-     *  so they can reset fRefCnt before the destructor is called. Should only
-     *  be called right before calling through to inherited internal_dispose()
-     *  or before calling the destructor.
+     *  so they can reset fRefCnt before the destructor is called or if they
+     *  choose not to call the destructor (e.g. using a free list).
      */
     void internal_dispose_restore_refcnt_to_1() const {
-#ifdef SK_DEBUG
         SkASSERT(0 == getRefCnt());
         fRefCnt.store(1, std::memory_order_relaxed);
-#endif
     }
 
 private:

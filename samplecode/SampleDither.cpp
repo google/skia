@@ -37,10 +37,7 @@ static void draw_sweep(SkCanvas* c, int width, int height, SkScalar angle) {
                                             colors, nullptr, SK_ARRAY_COUNT(colors)));
 
     SkAutoCanvasRestore acr(c, true);
-
-    c->translate(r.centerX(), r.centerY());
-    c->rotate(angle);
-    c->translate(-r.centerX(), -r.centerY());
+    c->rotate(angle, r.centerX(), r.centerY());
 
     SkRect bounds = r;
     r.inset(p.getStrokeWidth(), p.getStrokeWidth());

@@ -10,7 +10,8 @@
 
 #include "GrColor.h"
 #include "GrTypesPriv.h"
-#include "SkChecksum.h"
+#include "SkOpts.h"
+#include "SkTArray.h"
 
 /** This class describes a program to generate. It also serves as a program cache key. Very little
     of this is GL-specific. The GL-specific parts could be factored out into a subclass. */
@@ -112,7 +113,7 @@ protected:
 
         uint32_t* checksum = this->atOffset<uint32_t, GrProgramDesc::kChecksumOffset>();
         *checksum = 0;  // We'll hash through these bytes, so make sure they're initialized.
-        *checksum = SkChecksum::Murmur3(fKey.begin(), keyLength);
+        *checksum = SkOpts::hash(fKey.begin(), keyLength);
     }
 
     // The key, stored in fKey, is composed of four parts:

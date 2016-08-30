@@ -3292,81 +3292,52 @@ bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Di
     if (rectPts[0] != rectPts[4]) {
         return false;
     }
-    int verticalCnt = 0;
-    int horizontalCnt = 0;
-    // dirs are 0 - right, 1 - down, 2 - left, 3 - up.
-    int firstDir = 0;
-    int secondDir = 0;
-    SkRect tempRect;
-    for (int i = 0; i < 4; ++i) {
-        int sameCnt = 0;
-        if (rectPts[i].fX == rectPts[i + 1].fX) {
-            verticalCnt += 1;
-            sameCnt = 1;
-            if (0 == i) {
-                if (rectPts[1].fY > rectPts[0].fY) {
-                    firstDir = 1;
-                    tempRect.fTop = rectPts[0].fY;
-                    tempRect.fBottom = rectPts[1].fY;
-                } else {
-                    firstDir = 3;
-                    tempRect.fTop = rectPts[1].fY;
-                    tempRect.fBottom = rectPts[0].fY;
-                }
-            } else if (1 == i) {
-                if (rectPts[2].fY > rectPts[1].fY) {
-                    secondDir = 1;
-                    tempRect.fTop = rectPts[1].fY;
-                    tempRect.fBottom = rectPts[2].fY;
-                } else {
-                    secondDir = 3;
-                    tempRect.fTop = rectPts[2].fY;
-                    tempRect.fBottom = rectPts[1].fY;
-                }
-            }
-        }
-        if (rectPts[i].fY == rectPts[i + 1].fY) {
-            horizontalCnt += 1;
-            sameCnt += 1;
-            if (0 == i) {
-                if (rectPts[1].fX > rectPts[0].fX) {
-                    firstDir = 0;
-                    tempRect.fLeft = rectPts[0].fX;
-                    tempRect.fRight = rectPts[1].fX;
-                } else {
-                    firstDir = 2;
-                    tempRect.fLeft = rectPts[1].fX;
-                    tempRect.fRight = rectPts[0].fX;
-                }
-            } else if (1 == i) {
-                if (rectPts[2].fX > rectPts[1].fX) {
-                    secondDir = 0;
-                    tempRect.fLeft = rectPts[1].fX;
-                    tempRect.fRight = rectPts[2].fX;
-                } else {
-                    secondDir = 2;
-                    tempRect.fLeft = rectPts[2].fX;
-                    tempRect.fRight = rectPts[1].fX;
-                }
-            }
-        }
-        if (sameCnt != 1) {
+    // Check for two cases of rectangles: pts 0 and 3 form a vertical edge or a horizontal edge (
+    // and pts 1 and 2 the opposite vertical or horizontal edge).
+    bool vec03IsVertical;
+    if (rectPts[0].fX == rectPts[3].fX && rectPts[1].fX == rectPts[2].fX &&
+        rectPts[0].fY == rectPts[1].fY && rectPts[3].fY == rectPts[2].fY) {
+        // Make sure it has non-zero width and height
+        if (rectPts[0].fX == rectPts[1].fX || rectPts[0].fY == rectPts[3].fY) {
             return false;
         }
-    }
-    if (2 != horizontalCnt || 2 != verticalCnt) {
+        vec03IsVertical = true;
+    } else if (rectPts[0].fY == rectPts[3].fY && rectPts[1].fY == rectPts[2].fY &&
+               rectPts[0].fX == rectPts[1].fX && rectPts[3].fX == rectPts[2].fX) {
+        // Make sure it has non-zero width and height
+        if (rectPts[0].fY == rectPts[1].fY || rectPts[0].fX == rectPts[3].fX) {
+            return false;
+        }
+        vec03IsVertical = false;
+    } else {
         return false;
     }
-    // low bit indicates a vertical dir
-    SkASSERT((firstDir ^ secondDir) & 0b1);
-    if (((firstDir + 1) & 0b11) == secondDir) {
-        *direction = SkPath::kCW_Direction;
-        *start = firstDir;
-    } else {
-        SkASSERT(((secondDir + 1) & 0b11) == firstDir);
-        *direction = SkPath::kCCW_Direction;
-        *start = secondDir;
+    // Set sortFlags so that it has the low bit set if pt index 0 is on right edge and second bit
+    // set if it is on the bottom edge.
+    unsigned sortFlags =
+            ((rectPts[0].fX < rectPts[2].fX) ? 0b00 : 0b01) |
+            ((rectPts[0].fY < rectPts[2].fY) ? 0b00 : 0b10);
+    switch (sortFlags) {
+        case 0b00:
+            rect->set(rectPts[0].fX, rectPts[0].fY, rectPts[2].fX, rectPts[2].fY);
+            *direction = vec03IsVertical ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
+            *start = 0;
+            break;
+        case 0b01:
+            rect->set(rectPts[2].fX, rectPts[0].fY, rectPts[0].fX, rectPts[2].fY);
+            *direction = vec03IsVertical ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
+            *start = 1;
+            break;
+        case 0b10:
+            rect->set(rectPts[0].fX, rectPts[2].fY, rectPts[2].fX, rectPts[0].fY);
+            *direction = vec03IsVertical ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
+            *start = 3;
+            break;
+        case 0b11:
+            rect->set(rectPts[2].fX, rectPts[2].fY, rectPts[0].fX, rectPts[0].fY);
+            *direction = vec03IsVertical ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
+            *start = 2;
+            break;
     }
-    *rect = tempRect;
     return true;
 }

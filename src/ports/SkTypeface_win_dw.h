@@ -39,14 +39,14 @@ static SkFontStyle get_style(IDWriteFont* font) {
 
 class DWriteFontTypeface : public SkTypeface {
 private:
-    DWriteFontTypeface(const SkFontStyle& style, SkFontID fontID,
+    DWriteFontTypeface(const SkFontStyle& style,
                        IDWriteFactory* factory,
                        IDWriteFontFace* fontFace,
                        IDWriteFont* font,
                        IDWriteFontFamily* fontFamily,
                        IDWriteFontFileLoader* fontFileLoader = nullptr,
                        IDWriteFontCollectionLoader* fontCollectionLoader = nullptr)
-        : SkTypeface(style, fontID, false)
+        : SkTypeface(style, false)
         , fFactory(SkRefComPtr(factory))
         , fDWriteFontCollectionLoader(SkSafeRefComPtr(fontCollectionLoader))
         , fDWriteFontFileLoader(SkSafeRefComPtr(fontFileLoader))
@@ -80,8 +80,7 @@ public:
                                       IDWriteFontFamily* fontFamily,
                                       IDWriteFontFileLoader* fontFileLoader = nullptr,
                                       IDWriteFontCollectionLoader* fontCollectionLoader = nullptr) {
-        SkFontID fontID = SkTypefaceCache::NewFontID();
-        return new DWriteFontTypeface(get_style(font), fontID, factory, fontFace, font, fontFamily,
+        return new DWriteFontTypeface(get_style(font), factory, fontFace, font, fontFamily,
                                       fontFileLoader, fontCollectionLoader);
     }
 

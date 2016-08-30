@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
 /**
  *  This function's sole purpose is to trick the linker into not discarding
  *  SkImageDecoder subclasses just because we do not directly call them.

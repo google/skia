@@ -12,6 +12,7 @@
 #include "GrGLContext.h"
 #include "GrGLRenderTarget.h"
 #include "glsl/GrGLSLCaps.h"
+#include "instanced/GLInstancedRendering.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
@@ -37,11 +38,10 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDirectStateAccessSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
+    fDrawInstancedSupport = false;
     fDrawIndirectSupport = false;
     fMultiDrawIndirectSupport = false;
     fBaseInstanceSupport = false;
-    fCanDrawIndirectToFloat = false;
-    fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
     fRectangleTextureSupport = false;
@@ -132,18 +132,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fImagingSupport = kGL_GrGLStandard == standard &&
                       ctxInfo.hasExtension("GL_ARB_imaging");
 
-    // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
-    // frequently changing VBOs. We've measured a performance increase using non-VBO vertex
-    // data for dynamic content on these GPUs. Perhaps we should read the renderer string and
-    // limit this decision to specific GPU families rather than basing it on the vendor alone.
-    if (!GR_GL_MUST_USE_VBO &&
-        !fIsCoreProfile &&
-        (kARM_GrGLVendor == ctxInfo.vendor() ||
-         kImagination_GrGLVendor == ctxInfo.vendor() ||
-         kQualcomm_GrGLVendor == ctxInfo.vendor())) {
-        fUseNonVBOVertexAndIndexDynamicData = true;
-    }
-
     // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are blacklisting this extension for now on Adreno4xx devices.
     if (kAdreno4xx_GrGLRenderer != ctxInfo.renderer() &&
@@ -205,11 +193,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     }
 
-#if 0 // Disabled due to https://bug.skia.org/4454
     fBindUniformLocationSupport = ctxInfo.hasExtension("GL_CHROMIUM_bind_uniform_location");
-#else
-    fBindUniformLocationSupport = false;
-#endif
 
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(3, 1) || ctxInfo.hasExtension("GL_ARB_texture_rectangle")) {
@@ -344,6 +328,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     }
 
+    // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
+    // frequently changing VBOs. We've measured a performance increase using non-VBO vertex
+    // data for dynamic content on these GPUs. Perhaps we should read the renderer string and
+    // limit this decision to specific GPU families rather than basing it on the vendor alone.
+    if (!GR_GL_MUST_USE_VBO &&
+        !fIsCoreProfile &&
+        (kARM_GrGLVendor == ctxInfo.vendor() ||
+         kImagination_GrGLVendor == ctxInfo.vendor() ||
+         kQualcomm_GrGLVendor == ctxInfo.vendor())) {
+        fPreferClientSideDynamicBuffers = true;
+    }
+
     // fUsesMixedSamples must be set before calling initFSAASupport.
     this->initFSAASupport(ctxInfo, gli);
     this->initBlendEqationSupport(ctxInfo);
@@ -443,8 +439,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
 
     // Disable scratch texture reuse on Mali and Adreno devices
-    fReuseScratchTextures = kARM_GrGLVendor != ctxInfo.vendor() &&
-                            kQualcomm_GrGLVendor != ctxInfo.vendor();
+    fReuseScratchTextures = kARM_GrGLVendor != ctxInfo.vendor();
 
 #if 0
     fReuseScratchBuffers = kARM_GrGLVendor != ctxInfo.vendor() &&
@@ -465,6 +460,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fMaxStencilSampleCount = SkTMin(fMaxStencilSampleCount, fMaxRasterSamples);
     }
     fMaxColorSampleCount = fMaxStencilSampleCount;
+
+    if (ctxInfo.hasExtension("GL_EXT_window_rectangles")) {
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
+    }
 
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
@@ -507,12 +506,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (kGL_GrGLStandard == standard) {
         // 3.1 has draw_instanced but not instanced_arrays, for the time being we only care about
         // instanced arrays, but we could make this more granular if we wanted
-        fSupportsInstancedDraws =
+        fDrawInstancedSupport =
                 version >= GR_GL_VER(3, 2) ||
                 (ctxInfo.hasExtension("GL_ARB_draw_instanced") &&
                  ctxInfo.hasExtension("GL_ARB_instanced_arrays"));
     } else {
-        fSupportsInstancedDraws =
+        fDrawInstancedSupport =
                 version >= GR_GL_VER(3, 0) ||
                 (ctxInfo.hasExtension("GL_EXT_draw_instanced") &&
                  ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
@@ -523,21 +522,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                ctxInfo.hasExtension("GL_ARB_draw_indirect");
         fBaseInstanceSupport = version >= GR_GL_VER(4,2);
         fMultiDrawIndirectSupport = version >= GR_GL_VER(4,3) ||
-                                    (!fBaseInstanceSupport && // The ARB extension has no base inst.
+                                    (fDrawIndirectSupport &&
+                                     !fBaseInstanceSupport && // The ARB extension has no base inst.
                                      ctxInfo.hasExtension("GL_ARB_multi_draw_indirect"));
     } else {
         fDrawIndirectSupport = version >= GR_GL_VER(3,1);
-        fMultiDrawIndirectSupport = ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
-        fBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
+        fMultiDrawIndirectSupport = fDrawIndirectSupport &&
+                                    ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
+        fBaseInstanceSupport = fDrawIndirectSupport &&
+                               ctxInfo.hasExtension("GL_EXT_base_instance");
     }
-
-    // OS X doesn't seem to write correctly to floating point textures when using glDraw*Indirect,
-    // regardless of the underlying GPU.
-#ifndef SK_BUILD_FOR_MAC
-    if (fDrawIndirectSupport) {
-        fCanDrawIndirectToFloat = true;
-    }
-#endif
 
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
 
@@ -798,6 +792,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     if (kIntel_GrGLVendor == ctxInfo.vendor()) {
         glslCaps->fMustForceNegatedAtanParamToFloat = true;
     }
+
+    // On Adreno devices with framebuffer fetch support, there is a bug where they always return
+    // the original dst color when reading the outColor even after being written to. By using a
+    // local outColor we can work around this bug.
+    if (glslCaps->fFBFetchSupport && kQualcomm_GrGLVendor == ctxInfo.vendor()) {
+        glslCaps->fRequiresLocalOutputColorForFBFetch = true;
+    }
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
@@ -981,8 +982,9 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
 
     SkASSERT(this->advancedBlendEquationSupport());
 
-    if (kNVIDIA_GrGLDriver == ctxInfo.driver()) {
-        // Blacklist color-dodge and color-burn on NVIDIA until the fix is released.
+    if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
+        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(355,00)) {
+        // Blacklist color-dodge and color-burn on pre-355.00 NVIDIA.
         fAdvBlendEqBlacklist |= (1 << kColorDodge_GrBlendEquation) |
                                 (1 << kColorBurn_GrBlendEquation);
     }
@@ -1118,12 +1120,10 @@ SkString GrGLCaps::dump() const {
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
     r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
     r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
+    r.appendf("Draw instanced support: %s\n", (fDrawInstancedSupport ? "YES" : "NO"));
     r.appendf("Draw indirect support: %s\n", (fDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));
-    r.appendf("Can draw indirect to float: %s\n", (fCanDrawIndirectToFloat ? "YES" : "NO"));
-    r.appendf("Use non-VBO for dynamic data: %s\n",
-             (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
     r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow ? "YES" : "NO"));
     r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));
@@ -1942,4 +1942,13 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 #endif
 }
 
-void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {}
+void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
+    if (options.fEnableInstancedRendering) {
+        fInstancedSupport = gr_instanced::GLInstancedRendering::CheckSupport(*this);
+#ifndef SK_BUILD_FOR_MAC
+        // OS X doesn't seem to write correctly to floating point textures when using
+        // glDraw*Indirect, regardless of the underlying GPU.
+        fAvoidInstancedDrawsToFPTargets = true;
+#endif
+    }
+}

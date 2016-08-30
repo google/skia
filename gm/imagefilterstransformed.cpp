@@ -140,18 +140,14 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
 
         canvas->translate(150, 0);
         canvas->save();
-            canvas->translate(100, 100);
-            canvas->rotate(30);
-            canvas->translate(-100, -100);
+            canvas->rotate(30, 100, 100);
             canvas->drawRect(r, paint);
         canvas->restore();
 
         paint.setAntiAlias(true);
         canvas->translate(150, 0);
         canvas->save();
-            canvas->translate(100, 100);
-            canvas->rotate(30);
-            canvas->translate(-100, -100);
+            canvas->rotate(30, 100, 100);
             canvas->drawRect(r, paint);
         canvas->restore();
 

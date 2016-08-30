@@ -23,26 +23,12 @@ class VulkanWindowContext : public WindowContext {
 public:
     ~VulkanWindowContext() override;
 
-    // each platform will have to implement these in its CPP file
-    static VkSurfaceKHR createVkSurface(VkInstance, void* platformData);
-    static bool canPresent(VkInstance, VkPhysicalDevice, uint32_t queueFamilyIndex,
-                           void* platformData);
-
-    static VulkanWindowContext* Create(void* platformData, const DisplayParams& params) {
-        VulkanWindowContext* ctx = new VulkanWindowContext(platformData, params);
-        if (!ctx->isValid()) {
-            delete ctx;
-            return nullptr;
-        }
-        return ctx;
-    }
-
     sk_sp<SkSurface> getBackbufferSurface() override;
     void swapBuffers() override;
 
     bool isValid() override { return SkToBool(fBackendContext.get()); }
 
-    void resize(uint32_t w, uint32_t h) override {
+    void resize(int w, int h) override {
         this->createSwapchain(w, h, fDisplayParams);
     }
 
@@ -54,9 +40,14 @@ public:
         return (GrBackendContext) fBackendContext.get(); 
     }
 
+    /** Platform specific function that creates a VkSurfaceKHR for a window */
+    using CreateVkSurfaceFn = std::function<VkSurfaceKHR(VkInstance)>;
+    /** Platform specific function that determines whether presentation will succeed. */
+    using CanPresentFn = GrVkBackendContext::CanPresentFn;
+
+    VulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn);
+
 private:
-    VulkanWindowContext(void*, const DisplayParams&);
-    void initializeContext(void*, const DisplayParams&);
     void destroyContext();
 
     struct BackbufferInfo {
@@ -68,7 +59,7 @@ private:
     };
 
     BackbufferInfo* getAvailableBackbuffer();
-    bool createSwapchain(uint32_t width, uint32_t height, const DisplayParams& params);
+    bool createSwapchain(int width, int height, const DisplayParams& params);
     void createBuffers(VkFormat format);
     void destroyBuffers();
 
@@ -106,7 +97,6 @@ private:
     uint32_t               fImageCount;
     VkImage*               fImages;         // images in the swapchain
     VkImageLayout*         fImageLayouts;   // layouts of these images when not color attachment
-    sk_sp<GrRenderTarget>* fRenderTargets;  // wrapped rendertargets for those images
     sk_sp<SkSurface>*      fSurfaces;       // surfaces client renders to (may not be based on rts)
     VkCommandPool          fCommandPool;
     BackbufferInfo*        fBackbuffers;

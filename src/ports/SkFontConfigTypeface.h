@@ -50,14 +50,14 @@ protected:
                    const SkFontConfigInterface::FontIdentity& fi,
                    const SkString& familyName,
                    const SkFontStyle& style)
-            : INHERITED(style, SkTypefaceCache::NewFontID(), false)
+            : INHERITED(style, false)
             , fFCI(SkRef(fci))
             , fIdentity(fi)
             , fFamilyName(familyName)
             , fLocalStream(nullptr) {}
 
     SkTypeface_FCI(const SkFontStyle& style, bool fixedWidth, SkStreamAsset* localStream, int index)
-            : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth)
+            : INHERITED(style, fixedWidth)
             , fLocalStream(localStream)
     {
         fIdentity.fTTCIndex = index;

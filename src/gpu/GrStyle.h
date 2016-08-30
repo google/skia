@@ -51,7 +51,9 @@ public:
      */
     enum KeyFlags {
         // The shape being styled has no open contours.
-        kClosed_KeyFlag = 0x1
+        kClosed_KeyFlag = 0x1,
+        // The shape being styled doesn't have any joins and so isn't affected by join type.
+        kNoJoins_KeyFlag = 0x2
     };
 
     /**

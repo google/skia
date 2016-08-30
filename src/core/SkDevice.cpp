@@ -12,8 +12,9 @@
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
+#include "SkImagePriv.h"
+#include "SkLatticeIter.h"
 #include "SkMetaData.h"
-#include "SkNinePatchIter.h"
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
 #include "SkRasterClip.h"
@@ -23,11 +24,9 @@
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
 
-SkBaseDevice::SkBaseDevice(const SkSurfaceProps& surfaceProps)
-    : fSurfaceProps(surfaceProps)
-#ifdef SK_DEBUG
-    , fAttachedToCanvas(false)
-#endif
+SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
+    : fInfo(info)
+    , fSurfaceProps(surfaceProps)
 {
     fOrigin.setZero();
     fMetaData = nullptr;
@@ -44,10 +43,7 @@ SkMetaData& SkBaseDevice::getMetaData() {
     return *fMetaData;
 }
 
-SkImageInfo SkBaseDevice::imageInfo() const {
-    return SkImageInfo::MakeUnknown();
-}
-
+#ifdef SK_SUPPORT_LEGACY_ACCESSBITMAP
 const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
     const SkBitmap& bitmap = this->onAccessBitmap();
     if (changePixels) {
@@ -55,6 +51,7 @@ const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
     }
     return bitmap;
 }
+#endif
 
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info,
                                                          TileUsage tileUsage,
@@ -75,12 +72,28 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
     return geo;
 }
 
+void SkBaseDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar startAngle,
+                           SkScalar sweepAngle, bool useCenter, const SkPaint& paint) {
+    SkASSERT(SkScalarAbs(sweepAngle) >= 0.f && SkScalarAbs(sweepAngle) < 360.f);
+    SkPath path;
+    if (useCenter) {
+        path.moveTo(oval.centerX(), oval.centerY());
+    }
+    path.arcTo(oval, startAngle, sweepAngle, !useCenter);
+    if (useCenter) {
+        path.close();
+    }
+    path.setIsVolatile(true);
+    this->drawPath(draw, path, paint);
+}
+
 void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
                               const SkRRect& inner, const SkPaint& paint) {
     SkPath path;
     path.addRRect(outer);
     path.addRRect(inner);
     path.setFillType(SkPath::kEvenOdd_FillType);
+    path.setIsVolatile(true);
 
     const SkMatrix* preMatrix = nullptr;
     const bool pathIsMutable = true;
@@ -167,7 +180,7 @@ void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const
 
 void SkBaseDevice::drawImageNine(const SkDraw& draw, const SkImage* image, const SkIRect& center,
                                  const SkRect& dst, const SkPaint& paint) {
-    SkNinePatchIter iter(image->width(), image->height(), center, dst);
+    SkLatticeIter iter(image->width(), image->height(), center, dst);
 
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
@@ -177,7 +190,29 @@ void SkBaseDevice::drawImageNine(const SkDraw& draw, const SkImage* image, const
 
 void SkBaseDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
                                   const SkRect& dst, const SkPaint& paint) {
-    SkNinePatchIter iter(bitmap.width(), bitmap.height(), center, dst);
+    SkLatticeIter iter(bitmap.width(), bitmap.height(), center, dst);
+
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        this->drawBitmapRect(draw, bitmap, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+    }
+}
+
+void SkBaseDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
+                                    const SkCanvas::Lattice& lattice, const SkRect& dst,
+                                    const SkPaint& paint) {
+    SkLatticeIter iter(image->width(), image->height(), lattice, dst);
+
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        this->drawImageRect(draw, image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+    }
+}
+
+void SkBaseDevice::drawBitmapLattice(const SkDraw& draw, const SkBitmap& bitmap,
+                                     const SkCanvas::Lattice& lattice, const SkRect& dst,
+                                     const SkPaint& paint) {
+    SkLatticeIter iter(bitmap.width(), bitmap.height(), lattice, dst);
 
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
@@ -221,6 +256,13 @@ void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkR
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+void SkBaseDevice::drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&) {}
+sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) { return nullptr; }
+sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkImage*) { return nullptr; }
+sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() { return nullptr; }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowBytes, int x, int y) {
 #ifdef SK_DEBUG
     SkASSERT(info.width() > 0 && info.height() > 0);
@@ -255,12 +297,6 @@ bool SkBaseDevice::onWritePixels(const SkImageInfo&, const void*, size_t, int, i
 }
 
 bool SkBaseDevice::onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) {
-    return false;
-}
-
-bool SkBaseDevice::EXPERIMENTAL_drawPicture(SkCanvas*, const SkPicture*, const SkMatrix*,
-                                            const SkPaint*) {
-    // The base class doesn't perform any accelerated picture rendering
     return false;
 }
 
@@ -403,37 +439,48 @@ void SkBaseDevice::drawTextOnPath(const SkDraw& draw, const void* text, size_t b
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
+#include "SkUtils.h"
+typedef int (*CountTextProc)(const char* text);
+static int count_utf16(const char* text) {
+    const uint16_t* prev = (uint16_t*)text;
+    (void)SkUTF16_NextUnichar(&prev);
+    return SkToInt((const char*)prev - text);
+}
+static int return_4(const char* text) { return 4; }
+static int return_2(const char* text) { return 2; }
 
-void SkBaseDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitmap,
-                                        int x, int y,
-                                        const SkPaint& paint) {
-    SkImageFilter* filter = paint.getImageFilter();
-    SkASSERT(filter);
-
-    SkIPoint offset = SkIPoint::Make(0, 0);
-    SkMatrix matrix = *draw.fMatrix;
-    matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
-    const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-x, -y);
-    SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
-    SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
-
-    sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(bitmap, &this->surfaceProps()));
-    if (!srcImg) {
-        return; // something disastrous happened
+void SkBaseDevice::drawTextRSXform(const SkDraw& draw, const void* text, size_t len,
+                                   const SkRSXform xform[], const SkPaint& paint) {
+    CountTextProc proc = nullptr;
+    switch (paint.getTextEncoding()) {
+        case SkPaint::kUTF8_TextEncoding:
+            proc = SkUTF8_CountUTF8Bytes;
+            break;
+        case SkPaint::kUTF16_TextEncoding:
+            proc = count_utf16;
+            break;
+        case SkPaint::kUTF32_TextEncoding:
+            proc = return_4;
+            break;
+        case SkPaint::kGlyphID_TextEncoding:
+            proc = return_2;
+            break;
     }
 
-    sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
-    if (resultImg) {
-        SkPaint tmpUnfiltered(paint);
-        tmpUnfiltered.setImageFilter(nullptr);
-        SkBitmap resultBM;
-        if (resultImg->internal_getBM(&resultBM)) {
-            // TODO: add drawSprite(SkSpecialImage) to SkDevice? (see skbug.com/5073)
-            this->drawSprite(draw, resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
-        }
+    SkDraw localD(draw);
+    SkMatrix localM, currM;
+    const void* stopText = (const char*)text + len;
+    while ((const char*)text < (const char*)stopText) {
+        localM.setRSXform(*xform++);
+        currM.setConcat(*draw.fMatrix, localM);
+        localD.fMatrix = &currM;
+        int subLen = proc((const char*)text);
+        this->drawText(localD, text, subLen, 0, 0, paint);
+        text = (const char*)text + subLen;
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
 
 uint32_t SkBaseDevice::filterTextFlags(const SkPaint& paint) const {
     uint32_t flags = paint.getFlags();

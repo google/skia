@@ -56,8 +56,10 @@ private:
         , fSrc(src)
         , fSrcRect(srcRect)
         , fDstPoint(dstPoint) {
-        fBounds = SkRect::MakeXYWH(SkIntToScalar(dstPoint.fX), SkIntToScalar(dstPoint.fY),
-                                   SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
+        SkRect bounds =
+                SkRect::MakeXYWH(SkIntToScalar(dstPoint.fX), SkIntToScalar(dstPoint.fY),
+                                 SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
+        this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     bool onCombineIfPossible(GrBatch* that, const GrCaps& caps) override { return false; }

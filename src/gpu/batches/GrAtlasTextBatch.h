@@ -82,9 +82,12 @@ public:
     void init() {
         const Geometry& geo = fGeoData[0];
         fBatch.fColor = geo.fColor;
-
-        geo.fBlob->computeSubRunBounds(&fBounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX,
+        SkRect bounds;
+        geo.fBlob->computeSubRunBounds(&bounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX,
                                        geo.fY);
+        // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
+        // we treat this as a set of non-AA rects rendered with a texture.
+        this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "TextBatch"; }

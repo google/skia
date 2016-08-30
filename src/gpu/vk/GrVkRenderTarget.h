@@ -48,6 +48,7 @@ public:
         }
         return nullptr;
     }
+    GrVkImage* msaaImage() { return fMSAAImage; }
     const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView; }
     const GrVkResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
@@ -59,7 +60,10 @@ public:
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
-        return kCanResolve_ResolveType;
+        if (this->numColorSamples() > 1) {
+            return kCanResolve_ResolveType;
+        }
+        return kAutoResolves_ResolveType;
     }
 
     bool canAttemptStencilAttachment() const override {
@@ -102,6 +106,12 @@ protected:
         return fColorValuesPerPixel * fDesc.fWidth * fDesc.fHeight * colorBytes;
     }
 
+    void createFramebuffer(GrVkGpu* gpu);
+
+    const GrVkImageView*       fColorAttachmentView;
+    GrVkImage*                 fMSAAImage;
+    const GrVkImageView*       fResolveAttachmentView;
+
 private:
     GrVkRenderTarget(GrVkGpu* gpu,
                      SkBudgeted,
@@ -124,15 +134,10 @@ private:
 
     bool completeStencilAttachment() override;
 
-    void createFramebuffer(GrVkGpu* gpu);
-
     void releaseInternalObjects();
     void abandonInternalObjects();
 
     const GrVkFramebuffer*     fFramebuffer;
-    const GrVkImageView*       fColorAttachmentView;
-    GrVkImage*                 fMSAAImage;
-    const GrVkImageView*       fResolveAttachmentView;
     int                        fColorValuesPerPixel;
 
     // This is a cached pointer to a simple render pass. The render target should unref it

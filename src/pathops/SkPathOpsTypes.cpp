@@ -25,6 +25,13 @@ static bool equal_ulps(float a, float b, int epsilon, int depsilon) {
     return aBits < bBits + epsilon && bBits < aBits + epsilon;
 }
 
+static bool equal_ulps_no_normal_check(float a, float b, int epsilon, int depsilon) {
+    int aBits = SkFloatAs2sCompliment(a);
+    int bBits = SkFloatAs2sCompliment(b);
+    // Find the difference in ULPs.
+    return aBits < bBits + epsilon && bBits < aBits + epsilon;
+}
+
 static bool equal_ulps_pin(float a, float b, int epsilon, int depsilon) {
     if (!SkScalarIsFinite(a) || !SkScalarIsFinite(b)) {
         return false;
@@ -120,6 +127,11 @@ bool AlmostEqualUlps(float a, float b) {
     return equal_ulps(a, b, UlpsEpsilon, UlpsEpsilon);
 }
 
+bool AlmostEqualUlpsNoNormalCheck(float a, float b) {
+    const int UlpsEpsilon = 16;
+    return equal_ulps_no_normal_check(a, b, UlpsEpsilon, UlpsEpsilon);
+}
+
 bool AlmostEqualUlps_Pin(float a, float b) {
     const int UlpsEpsilon = 16;
     return equal_ulps_pin(a, b, UlpsEpsilon, UlpsEpsilon);
@@ -212,10 +224,12 @@ double SkDCubeRoot(double x) {
     return result;
 }
 
-SkOpGlobalState::SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head
+SkOpGlobalState::SkOpGlobalState(SkOpContourHead* head,
+                                 SkChunkAlloc* allocator
                                  SkDEBUGPARAMS(bool debugSkipAssert)
                                  SkDEBUGPARAMS(const char* testName))
-    : fCoincidence(coincidence)
+    : fAllocator(allocator)
+    , fCoincidence(nullptr)
     , fContourHead(head)
     , fNested(0)
     , fWindingFailed(false)
@@ -227,13 +241,9 @@ SkOpGlobalState::SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* 
     SkDEBUGPARAMS(fContourID(0))
     SkDEBUGPARAMS(fPtTID(0))
     SkDEBUGPARAMS(fSegmentID(0))
-    SkDEBUGPARAMS(fSpanID(0))
-    SkDEBUGPARAMS(fDebugSkipAssert(debugSkipAssert)) {
-    if (coincidence) {
-        coincidence->debugSetGlobalState(this);
-    }
+SkDEBUGPARAMS(fSpanID(0))
+SkDEBUGPARAMS(fDebugSkipAssert(debugSkipAssert)) {
 #if DEBUG_T_SECT_LOOP_COUNT
     debugResetLoopCounts();
 #endif
 }
-

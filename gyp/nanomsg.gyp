@@ -26,7 +26,7 @@
     },
 
     'sources': [
-      '<!@(python find.py ../third_party/externals/nanomsg/src "*.c")'
+      '<!@(python find.py "*.c" ../third_party/externals/nanomsg/src)'
     ],
 
     # TODO(mtklein): Support Windows?

@@ -29,7 +29,7 @@ public:
     // Returns the string to be used for the sampler in glsl 2D texture functions (texture,
     // texture2D, etc.)
     const char* getSamplerNameForTexture2D() const {
-        SkASSERT(GrSLTypeIs2DTextureType(this->type()));
+        SkASSERT(GrSLTypeIs2DCombinedSamplerType(this->type()));
         return this->onGetSamplerNameForTexture2D();
     }
 

@@ -91,7 +91,7 @@ protected:
 // This macro declares a global (i.e., non-class owned) creation entry point
 // for each encoder (e.g., CreateJPEGImageEncoder)
 #define DECLARE_ENCODER_CREATOR(codec)          \
-    SkImageEncoder *Create ## codec ();
+    SK_API SkImageEncoder *Create ## codec ();
 
 // This macro defines the global creation entry point for each encoder. Each
 // encoder implementation that registers with the encoder factory must call it.
@@ -100,22 +100,17 @@ protected:
 
 // All the encoders known by Skia. Note that, depending on the compiler settings,
 // not all of these will be available
-/** An ARGBImageEncoder will always write out
- *  bitmap.width() * bitmap.height() * 4
- *  bytes.
- */
-DECLARE_ENCODER_CREATOR(ARGBImageEncoder);
 DECLARE_ENCODER_CREATOR(JPEGImageEncoder);
 DECLARE_ENCODER_CREATOR(PNGImageEncoder);
 DECLARE_ENCODER_CREATOR(KTXImageEncoder);
 DECLARE_ENCODER_CREATOR(WEBPImageEncoder);
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-DECLARE_ENCODER_CREATOR(PNGImageEncoder_CG);
+SkImageEncoder* CreateImageEncoder_CG(SkImageEncoder::Type type);
 #endif
 
 #if defined(SK_BUILD_FOR_WIN)
-DECLARE_ENCODER_CREATOR(ImageEncoder_WIC);
+SkImageEncoder* CreateImageEncoder_WIC(SkImageEncoder::Type type);
 #endif
 
 // Typedef to make registering encoder callback easier

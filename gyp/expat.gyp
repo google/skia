@@ -4,22 +4,47 @@
 # found in the LICENSE file.
 
 # Build expat from source.
-# Used on Linux bots for testing the Android FontMgr xml parsing.
-# This is mostly important for the MSAN bot's instrumentation.
 
 {
-    'targets': [{
-        'target_name': 'expat',
+    'targets': [
+    {
+      'target_name': 'expat',
+      'type': 'none',
+      'conditions': [
+        [ 'skia_android_framework', {
+            'dependencies':              [ 'android_deps.gyp:expat_android' ],
+            'export_dependent_settings': [ 'android_deps.gyp:expat_android' ],
+        },{
+            'dependencies':              [ 'expat.gyp:expat_static' ],
+            'export_dependent_settings': [ 'expat.gyp:expat_static' ],
+        }]
+      ]
+    },
+    {
+        'target_name': 'expat_static',
         'type': 'static_library',
-        'cflags': [ '-w' ],
-        'defines': [ 'HAVE_MEMMOVE' ],
+        'cflags': [ '-Wno-missing-field-initializers' ],
+        'xcode_settings': { 'WARNING_CFLAGS': [ '-Wno-missing-field-initializers', ], },
+        'msvs_disabled_warnings': [4244],
+        'defines': [
+            'HAVE_EXPAT_CONFIG_H',
+            'XML_STATIC', # Compile for static linkage.
+        ],
+        'include_dirs': [
+            '../third_party/externals/expat',
+        ],
         'sources': [
             '../third_party/externals/expat/lib/xmlparse.c',
             '../third_party/externals/expat/lib/xmlrole.c',
             '../third_party/externals/expat/lib/xmltok.c',
         ],
         'direct_dependent_settings': {
-            'include_dirs': [ '../third_party/externals/expat/lib' ],
+            'include_dirs': [
+                '../third_party/externals/expat/lib',
+            ],
+            'defines': [
+                'XML_STATIC',  # Tell dependants to expect static linkage.
+            ],
         },
     }]
 }

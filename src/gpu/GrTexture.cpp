@@ -51,7 +51,7 @@ size_t GrTexture::onGpuMemorySize() const {
     }
 
     SkASSERT(!SkToBool(fDesc.fFlags & kRenderTarget_GrSurfaceFlag));
-    SkASSERT(textureSize <= WorseCaseSize(fDesc));
+    SkASSERT(textureSize <= WorstCaseSize(fDesc));
 
     return textureSize;
 }

@@ -18,7 +18,6 @@
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
-#include "SkRTConf.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -567,10 +566,6 @@ private:
 };
 
 static bool initTest() {
-#if !defined SK_BUILD_FOR_WIN && !defined SK_BUILD_FOR_MAC
-    SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true);
-    SK_CONF_SET("images.png.suppressDecoderWarnings", true);
-#endif
     return make_out_dirs();
 }
 

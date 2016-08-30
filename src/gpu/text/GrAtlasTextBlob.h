@@ -14,6 +14,7 @@
 #include "GrMemoryPool.h"
 #include "SkDescriptor.h"
 #include "SkMaskFilter.h"
+#include "SkOpts.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
 #include "SkSurfaceProps.h"
@@ -89,7 +90,7 @@ public:
     }
 
     static uint32_t Hash(const Key& key) {
-        return SkChecksum::Murmur3(&key, sizeof(Key));
+        return SkOpts::hash(&key, sizeof(Key));
     }
 
     void operator delete(void* p) {
@@ -293,8 +294,8 @@ private:
     void appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
                           SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
 
-    inline void flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBuilder, const GrClip&,
-                         int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
+    inline void flushRun(GrDrawContext* dc, const GrPaint&, const GrClip&,
+                         int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                          const SkPaint& skPaint, const SkSurfaceProps& props,
                          const GrDistanceFieldAdjustTable* distanceAdjustTable,
                          GrBatchFontCache* cache);

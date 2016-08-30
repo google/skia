@@ -12,6 +12,7 @@
 
 class GrDrawBatch;
 class GrShaderCaps;
+class GrStyle;
 class SkMatrix;
 struct SkRect;
 class SkRRect;
@@ -26,28 +27,21 @@ public:
                                         const SkMatrix& viewMatrix,
                                         const SkRect& oval,
                                         const SkStrokeRec& stroke,
-                                        GrShaderCaps* shaderCaps);
+                                        const GrShaderCaps* shaderCaps);
     static GrDrawBatch* CreateRRectBatch(GrColor,
                                          const SkMatrix& viewMatrix,
                                          const SkRRect& rrect,
                                          const SkStrokeRec& stroke,
-                                         GrShaderCaps* shaderCaps);
+                                         const GrShaderCaps* shaderCaps);
 
-private:
-    GrOvalRenderer();
-
-    static GrDrawBatch* CreateEllipseBatch(GrColor,
-                                           const SkMatrix& viewMatrix,
-                                           const SkRect& ellipse,
-                                           const SkStrokeRec& stroke);
-    static GrDrawBatch* CreateDIEllipseBatch(GrColor,
-                                             const SkMatrix& viewMatrix,
-                                             const SkRect& ellipse,
-                                             const SkStrokeRec& stroke);
-    static GrDrawBatch* CreateCircleBatch(GrColor,
-                                          const SkMatrix& viewMatrix,
-                                          const SkRect& circle,
-                                          const SkStrokeRec& stroke);
+    static GrDrawBatch* CreateArcBatch(GrColor,
+                                       const SkMatrix& viewMatrix,
+                                       const SkRect& oval,
+                                       SkScalar startAngle,
+                                       SkScalar sweepAngle,
+                                       bool useCenter,
+                                       const GrStyle&,
+                                       const GrShaderCaps* shaderCaps);
 };
 
 #endif // GrOvalRenderer_DEFINED

@@ -48,7 +48,6 @@ SkV8ExampleWindow::SkV8ExampleWindow(void* hwnd, JsContext* context)
 #if SK_SUPPORT_GPU
     , fCurContext(NULL)
     , fCurIntf(NULL)
-    , fCurRenderTarget(NULL)
     , fCurSurface(NULL)
 #endif
 {
@@ -64,7 +63,6 @@ SkV8ExampleWindow::~SkV8ExampleWindow() {
 #if SK_SUPPORT_GPU
     SkSafeUnref(fCurContext);
     SkSafeUnref(fCurIntf);
-    SkSafeUnref(fCurRenderTarget);
     SkSafeUnref(fCurSurface);
 #endif
 }
@@ -99,10 +97,9 @@ void SkV8ExampleWindow::windowSizeChanged() {
         GR_GL_GetIntegerv(fCurIntf, GR_GL_FRAMEBUFFER_BINDING, &buffer);
         desc.fRenderTargetHandle = buffer;
 
-        SkSafeUnref(fCurRenderTarget);
-        fCurRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
         SkSafeUnref(fCurSurface);
-        fCurSurface = SkSurface::NewRenderTargetDirect(fCurRenderTarget);
+        fCurSurface = SkSurface::MakeFromBackendRenderTarget(fCurContext, desc,
+                                                             nullptr, nullptr).release();
     }
 }
 #endif
@@ -203,9 +200,9 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
             "    canvas.inval();                    \n"
             "}                                      \n";
 
-    SkAutoTUnref<SkData> data;
+    sk_sp<SkData> data;
     if (FLAGS_infile.count()) {
-        data.reset(SkData::NewFromFileName(FLAGS_infile[0]));
+        data = SkData::MakeFromFileName(FLAGS_infile[0]);
         script = static_cast<const char*>(data->data());
     }
     if (NULL == script) {

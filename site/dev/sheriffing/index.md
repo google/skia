@@ -31,10 +31,32 @@ Below is a brief summary of what the sheriff does for each task:
 ### Skia tree
 * Understand the [buildbots infrastructure](https://skia.org/dev/testing/buildbot).
 * Start watching the [status page](https://status.skia.org) for bot breakages.
-* Track down people responsible for breakages and revert broken changes if there is no easy fix.
+* Track down people responsible for breakages and revert broken changes if there is no easy fix. You can use [blamer](#blamer) to help track down such changes.
 * Close and open the [tree](http://skia-tree-status.appspot.com).
 * Keep the builder comments on the [status page](https://status.skia.org) up to date.
 * File or follow up with [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
+
+<a name="blamer"></a>
+### Blamer
+If you have Go installed, a command-line tool is available to search through
+git history and do text searches on the full patch text and the commit
+message. To install blamer run:
+
+    go get go.skia.org/infra/blamer/go/blamer
+
+Then run blamer from within a Skia checkout. For example, to search if the
+string "SkDevice" has appeared in the last 10 commits:
+
+    $ $GOPATH/bin/blamer --match SkDevice --num 10
+
+    commit ea70c4bb22394c8dcc29a369d3422a2b8f3b3e80
+    Author: robertphillips <robertphillips@google.com>
+    Date:   Wed Jul 20 08:54:31 2016 -0700
+
+        Remove SkDevice::accessRenderTarget virtual
+        GOLD_TRYBOT_URL= https://gold.skia.org/search?issue=2167723002
+
+        Review-Url: https://codereview.chromium.org/2167723002
 
 <a name="deps_rolls"></a>
 ### DEPS rolls

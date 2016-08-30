@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkLayerInfo.h"
 #include "SkRecordDraw.h"
 #include "SkPatchUtils.h"
 
@@ -78,46 +77,66 @@ template <> void Draw::draw(const NoOp&) {}
 #define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
 DRAW(Restore, restore());
 DRAW(Save, save());
-DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds, r.paint, r.backdrop, r.saveLayerFlags)));
+DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
+                                                 r.paint,
+                                                 r.backdrop.get(),
+                                                 r.saveLayerFlags)));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 DRAW(Concat, concat(r.matrix));
+DRAW(Translate, translate(r.dx, r.dy));
 
 DRAW(ClipPath, clipPath(r.path, r.opAA.op, r.opAA.aa));
 DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op, r.opAA.aa));
 DRAW(ClipRect, clipRect(r.rect, r.opAA.op, r.opAA.aa));
 DRAW(ClipRegion, clipRegion(r.region, r.op));
 
-DRAW(DrawBitmap, drawBitmap(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
-DRAW(DrawBitmapNine, drawBitmapNine(r.bitmap.shallowCopy(), r.center, r.dst, r.paint));
-DRAW(DrawBitmapRect,
-        legacy_drawBitmapRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
-                             SkCanvas::kStrict_SrcRectConstraint));
-DRAW(DrawBitmapRectFast,
-        legacy_drawBitmapRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
-                       SkCanvas::kFast_SrcRectConstraint));
-DRAW(DrawBitmapRectFixedSize,
-        legacy_drawBitmapRect(r.bitmap.shallowCopy(), &r.src, r.dst, &r.paint, r.constraint));
+#ifdef SK_EXPERIMENTAL_SHADOWING
+DRAW(TranslateZ, SkCanvas::translateZ(r.z));
+#else
+template <> void Draw::draw(const TranslateZ& r) { }
+#endif
+
+DRAW(DrawArc, drawArc(r.oval, r.startAngle, r.sweepAngle, r.useCenter, r.paint));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
-DRAW(DrawImage, drawImage(r.image, r.left, r.top, r.paint));
-DRAW(DrawImageRect, legacy_drawImageRect(r.image, r.src, r.dst, r.paint, r.constraint));
-DRAW(DrawImageNine, drawImageNine(r.image, r.center, r.dst, r.paint));
+DRAW(DrawImage, drawImage(r.image.get(), r.left, r.top, r.paint));
+
+template <> void Draw::draw(const DrawImageLattice& r) {
+    SkCanvas::Lattice lattice;
+    lattice.fXCount = r.xCount;
+    lattice.fXDivs = r.xDivs;
+    lattice.fYCount = r.yCount;
+    lattice.fYDivs = r.yDivs;
+    fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.paint);
+}
+
+DRAW(DrawImageRect, legacy_drawImageRect(r.image.get(), r.src, r.dst, r.paint, r.constraint));
+DRAW(DrawImageNine, drawImageNine(r.image.get(), r.center, r.dst, r.paint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
 DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.xmode, r.paint));
-DRAW(DrawPicture, drawPicture(r.picture, &r.matrix, r.paint));
+DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint));
+
+#ifdef SK_EXPERIMENTAL_SHADOWING
+DRAW(DrawShadowedPicture, drawShadowedPicture(r.picture.get(), &r.matrix, r.paint));
+#else
+template <> void Draw::draw(const DrawShadowedPicture& r) { }
+#endif
+
 DRAW(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint));
 DRAW(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
 DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
 DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
 DRAW(DrawRect, drawRect(r.rect, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
-DRAW(DrawTextBlob, drawTextBlob(r.blob, r.x, r.y, r.paint));
+DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint));
 DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
-DRAW(DrawAtlas, drawAtlas(r.atlas, r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
+DRAW(DrawTextRSXform, drawTextRSXform(r.text, r.byteLength, r.xforms, r.cull, r.paint));
+DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
+                          r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
 DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
                                 r.xmode, r.indices, r.indexCount, r.paint));
-DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value));
+DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()));
 #undef DRAW
 
 template <> void Draw::draw(const DrawDrawable& r) {
@@ -224,11 +243,12 @@ private:
         SkMatrix ctm;
     };
 
-    // Only Restore, SetMatrix, and Concat change the CTM.
+    // Only Restore, SetMatrix, Concat, and Translate change the CTM.
     template <typename T> void updateCTM(const T&) {}
     void updateCTM(const Restore& op)   { fCTM = op.matrix; }
     void updateCTM(const SetMatrix& op) { fCTM = op.matrix; }
     void updateCTM(const Concat& op)    { fCTM.preConcat(op.matrix); }
+    void updateCTM(const Translate& op) { fCTM.preTranslate(op.dx, op.dy); }
 
     // Most ops don't change the clip.
     template <typename T> void updateClipBounds(const T&) {}
@@ -282,10 +302,13 @@ private:
 
     void trackBounds(const SetMatrix&)         { this->pushControl(); }
     void trackBounds(const Concat&)            { this->pushControl(); }
+    void trackBounds(const Translate&)         { this->pushControl(); }
+    void trackBounds(const TranslateZ&)        { this->pushControl(); }
     void trackBounds(const ClipRect&)          { this->pushControl(); }
     void trackBounds(const ClipRRect&)         { this->pushControl(); }
     void trackBounds(const ClipPath&)          { this->pushControl(); }
     void trackBounds(const ClipRegion&)        { this->pushControl(); }
+
 
     // For all other ops, we can calculate and store the bounds directly now.
     template <typename T> void trackBounds(const T& op) {
@@ -391,6 +414,8 @@ private:
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
     Bounds bounds(const DrawOval& op) const { return this->adjustAndMap(op.oval, &op.paint); }
+    // Tighter arc bounds?
+    Bounds bounds(const DrawArc& op) const { return this->adjustAndMap(op.oval, &op.paint); }
     Bounds bounds(const DrawRRect& op) const {
         return this->adjustAndMap(op.rrect.rect(), &op.paint);
     }
@@ -398,10 +423,13 @@ private:
         return this->adjustAndMap(op.outer.rect(), &op.paint);
     }
     Bounds bounds(const DrawImage& op) const {
-        const SkImage* image = op.image;
+        const SkImage* image = op.image.get();
         SkRect rect = SkRect::MakeXYWH(op.left, op.top, image->width(), image->height());
 
         return this->adjustAndMap(rect, op.paint);
+    }
+    Bounds bounds(const DrawImageLattice& op) const {
+        return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawImageRect& op) const {
         return this->adjustAndMap(op.dst, op.paint);
@@ -409,24 +437,6 @@ private:
     Bounds bounds(const DrawImageNine& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
-    Bounds bounds(const DrawBitmapRect& op) const {
-        return this->adjustAndMap(op.dst, op.paint);
-    }
-    Bounds bounds(const DrawBitmapRectFast& op) const {
-        return this->adjustAndMap(op.dst, op.paint);
-    }
-    Bounds bounds(const DrawBitmapRectFixedSize& op) const {
-        return this->adjustAndMap(op.dst, &op.paint);
-    }
-    Bounds bounds(const DrawBitmapNine& op) const {
-        return this->adjustAndMap(op.dst, op.paint);
-    }
-    Bounds bounds(const DrawBitmap& op) const {
-        return this->adjustAndMap(
-                SkRect::MakeXYWH(op.left, op.top, op.bitmap.width(), op.bitmap.height()),
-                op.paint);
-    }
-
     Bounds bounds(const DrawPath& op) const {
         return op.path.isInverseFillType() ? fCurrentClipBounds
                                            : this->adjustAndMap(op.path.getBounds(), &op.paint);
@@ -454,6 +464,8 @@ private:
 
     Bounds bounds(const DrawAtlas& op) const {
         if (op.cull) {
+            // TODO: <reed> can we pass nullptr for the paint? Isn't cull already "correct"
+            // for the paint (by the caller)?
             return this->adjustAndMap(*op.cull, op.paint);
         } else {
             return fCurrentClipBounds;
@@ -461,6 +473,12 @@ private:
     }
 
     Bounds bounds(const DrawPicture& op) const {
+        SkRect dst = op.picture->cullRect();
+        op.matrix.mapRect(&dst);
+        return this->adjustAndMap(dst, op.paint);
+    }
+
+    Bounds bounds(const DrawShadowedPicture& op) const {
         SkRect dst = op.picture->cullRect();
         op.matrix.mapRect(&dst);
         return this->adjustAndMap(dst, op.paint);
@@ -506,6 +524,14 @@ private:
         dst.outset(pad.fRight, pad.fRight);
 
         return this->adjustAndMap(dst, &op.paint);
+    }
+
+    Bounds bounds(const DrawTextRSXform& op) const {
+        if (op.cull) {
+            return this->adjustAndMap(*op.cull, nullptr);
+        } else {
+            return fCurrentClipBounds;
+        }
     }
 
     Bounds bounds(const DrawTextBlob& op) const {
@@ -594,203 +620,6 @@ private:
     SkTDArray<int>   fControlIndices;
 };
 
-// SkRecord visitor to gather saveLayer/restore information.
-class CollectLayers : SkNoncopyable {
-public:
-    CollectLayers(const SkRect& cullRect, const SkRecord& record, SkRect bounds[],
-                  const SkBigPicture::SnapshotArray* pictList, SkLayerInfo* accelData)
-        : fSaveLayersInStack(0)
-        , fAccelData(accelData)
-        , fPictList(pictList)
-        , fFillBounds(cullRect, record, bounds)
-    {}
-
-    void cleanUp() {
-        // fFillBounds must perform its cleanUp first so that all the bounding
-        // boxes associated with unbalanced restores are updated (prior to
-        // fetching their bound in popSaveLayerInfo).
-        fFillBounds.cleanUp();
-        while (!fSaveLayerStack.isEmpty()) {
-            this->popSaveLayerInfo();
-        }
-    }
-
-    void setCurrentOp(int currentOp) { fFillBounds.setCurrentOp(currentOp); }
-
-
-    template <typename T> void operator()(const T& op) {
-        fFillBounds(op);
-        this->trackSaveLayers(op);
-    }
-
-private:
-    struct SaveLayerInfo {
-        SaveLayerInfo() { }
-        SaveLayerInfo(int opIndex, bool isSaveLayer, const SkRect* bounds, const SkPaint* paint)
-            : fStartIndex(opIndex)
-            , fIsSaveLayer(isSaveLayer)
-            , fHasNestedSaveLayer(false)
-            , fBounds(bounds ? *bounds : SkRect::MakeEmpty())
-            , fPaint(paint) {
-        }
-
-        int                fStartIndex;
-        bool               fIsSaveLayer;
-        bool               fHasNestedSaveLayer;
-        SkRect             fBounds;
-        const SkPaint*     fPaint;
-    };
-
-    template <typename T> void trackSaveLayers(const T& op) {
-        /* most ops aren't involved in saveLayers */
-    }
-    void trackSaveLayers(const Save& s) { this->pushSaveLayerInfo(false, nullptr, nullptr); }
-    void trackSaveLayers(const SaveLayer& sl) { this->pushSaveLayerInfo(true, sl.bounds, sl.paint); }
-    void trackSaveLayers(const Restore& r) { this->popSaveLayerInfo(); }
-
-    void trackSaveLayersForPicture(const SkPicture* picture, const SkPaint* paint) {
-        // For sub-pictures, we wrap their layer information within the parent
-        // picture's rendering hierarchy
-        const SkLayerInfo* childData = nullptr;
-        if (const SkBigPicture* bp = picture->asSkBigPicture()) {
-            childData = static_cast<const SkLayerInfo*>(bp->accelData());
-        }
-        if (!childData) {
-            // If the child layer hasn't been generated with saveLayer data we
-            // assume the worst (i.e., that it does contain layers which nest
-            // inside existing layers). Layers within sub-pictures that don't
-            // have saveLayer data cannot be hoisted.
-            // TODO: could the analysis data be use to fine tune this?
-            this->updateStackForSaveLayer();
-            return;
-        }
-
-        for (int i = 0; i < childData->numBlocks(); ++i) {
-            const SkLayerInfo::BlockInfo& src = childData->block(i);
-
-            FillBounds::Bounds newBound = fFillBounds.adjustAndMap(src.fBounds, paint);
-            if (newBound.isEmpty()) {
-                continue;
-            }
-
-            this->updateStackForSaveLayer();
-
-            SkLayerInfo::BlockInfo& dst = fAccelData->addBlock();
-
-            // If src.fPicture is nullptr the layer is in dp.picture; otherwise
-            // it belongs to a sub-picture.
-            dst.fPicture = src.fPicture ? src.fPicture : picture;
-            dst.fPicture->ref();
-            dst.fBounds = newBound;
-            dst.fSrcBounds = src.fSrcBounds;
-            dst.fLocalMat = src.fLocalMat;
-            dst.fPreMat = src.fPreMat;
-            dst.fPreMat.postConcat(fFillBounds.ctm());
-            if (src.fPaint) {
-                dst.fPaint = new SkPaint(*src.fPaint);
-            }
-            dst.fSaveLayerOpID = src.fSaveLayerOpID;
-            dst.fRestoreOpID = src.fRestoreOpID;
-            dst.fHasNestedLayers = src.fHasNestedLayers;
-            dst.fIsNested = fSaveLayersInStack > 0 || src.fIsNested;
-
-            // Store 'saveLayer ops from enclosing picture' + drawPict op + 'ops from sub-picture'
-            dst.fKeySize = fSaveLayerOpStack.count() + src.fKeySize + 1;
-            dst.fKey = new int[dst.fKeySize];
-            sk_careful_memcpy(dst.fKey, fSaveLayerOpStack.begin(),
-                              fSaveLayerOpStack.count() * sizeof(int));
-            dst.fKey[fSaveLayerOpStack.count()] = fFillBounds.currentOp();
-            memcpy(&dst.fKey[fSaveLayerOpStack.count()+1], src.fKey, src.fKeySize * sizeof(int));
-        }
-    }
-
-    void trackSaveLayers(const DrawPicture& dp) {
-        this->trackSaveLayersForPicture(dp.picture, dp.paint);
-    }
-
-    void trackSaveLayers(const DrawDrawable& dp) {
-        SkASSERT(fPictList);
-        SkASSERT(dp.index >= 0 && dp.index < fPictList->count());
-        const SkPaint* paint = nullptr;    // drawables don't get a side-car paint
-        this->trackSaveLayersForPicture(fPictList->begin()[dp.index], paint);
-    }
-
-    // Inform all the saveLayers already on the stack that they now have a
-    // nested saveLayer inside them
-    void updateStackForSaveLayer() {
-        for (int index = fSaveLayerStack.count() - 1; index >= 0; --index) {
-            if (fSaveLayerStack[index].fHasNestedSaveLayer) {
-                break;
-            }
-            fSaveLayerStack[index].fHasNestedSaveLayer = true;
-            if (fSaveLayerStack[index].fIsSaveLayer) {
-                break;
-            }
-        }
-    }
-
-    void pushSaveLayerInfo(bool isSaveLayer, const SkRect* bounds, const SkPaint* paint) {
-        if (isSaveLayer) {
-            this->updateStackForSaveLayer();
-            ++fSaveLayersInStack;
-            fSaveLayerOpStack.push(fFillBounds.currentOp());
-        }
-
-        fSaveLayerStack.push(SaveLayerInfo(fFillBounds.currentOp(), isSaveLayer, bounds, paint));
-    }
-
-    void popSaveLayerInfo() {
-        if (fSaveLayerStack.count() <= 0) {
-            SkASSERT(false);
-            return;
-        }
-
-        SkASSERT(fSaveLayersInStack == fSaveLayerOpStack.count());
-
-        SaveLayerInfo sli;
-        fSaveLayerStack.pop(&sli);
-
-        if (!sli.fIsSaveLayer) {
-            return;
-        }
-
-        --fSaveLayersInStack;
-
-        SkLayerInfo::BlockInfo& block = fAccelData->addBlock();
-
-        SkASSERT(nullptr == block.fPicture);  // This layer is in the top-most picture
-
-        block.fBounds = fFillBounds.getBounds(sli.fStartIndex);
-        block.fLocalMat = fFillBounds.ctm();
-        block.fPreMat = SkMatrix::I();
-        if (sli.fPaint) {
-            block.fPaint = new SkPaint(*sli.fPaint);
-        }
-
-        block.fSrcBounds = sli.fBounds;
-        block.fSaveLayerOpID = sli.fStartIndex;
-        block.fRestoreOpID = fFillBounds.currentOp();
-        block.fHasNestedLayers = sli.fHasNestedSaveLayer;
-        block.fIsNested = fSaveLayersInStack > 0;
-
-        block.fKeySize = fSaveLayerOpStack.count();
-        block.fKey = new int[block.fKeySize];
-        memcpy(block.fKey, fSaveLayerOpStack.begin(), block.fKeySize * sizeof(int));
-
-        fSaveLayerOpStack.pop();
-    }
-
-    // Used to collect saveLayer information for layer hoisting
-    int                      fSaveLayersInStack;
-    SkTDArray<SaveLayerInfo> fSaveLayerStack;
-    // The op code indices of all the currently active saveLayers
-    SkTDArray<int>           fSaveLayerOpStack;
-    SkLayerInfo*             fAccelData;
-    const SkBigPicture::SnapshotArray* fPictList;
-
-    SkRecords::FillBounds fFillBounds;
-};
-
 }  // namespace SkRecords
 
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkRect bounds[]) {
@@ -802,12 +631,3 @@ void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkRect b
     visitor.cleanUp();
 }
 
-void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record, SkRect bounds[],
-                           const SkBigPicture::SnapshotArray* pictList, SkLayerInfo* data) {
-    SkRecords::CollectLayers visitor(cullRect, record, bounds, pictList, data);
-    for (int curOp = 0; curOp < record.count(); curOp++) {
-        visitor.setCurrentOp(curOp);
-        record.visit(curOp, visitor);
-    }
-    visitor.cleanUp();
-}

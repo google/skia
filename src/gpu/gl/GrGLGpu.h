@@ -17,7 +17,6 @@
 #include "GrGLTexture.h"
 #include "GrGLVertexArray.h"
 #include "GrGpu.h"
-#include "GrPipelineBuilder.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "SkTArray.h"
@@ -27,6 +26,8 @@ class GrGLBuffer;
 class GrPipeline;
 class GrNonInstancedMesh;
 class GrSwizzle;
+
+namespace gr_instanced { class GLInstancedRendering; }
 
 #ifdef SK_DEBUG
 #define PROGRAM_CACHE_STATS
@@ -53,8 +54,6 @@ public:
         SkASSERT(glCaps().shaderCaps()->pathRenderingSupport());
         return static_cast<GrGLPathRendering*>(pathRendering());
     }
-
-    void discard(GrRenderTarget*);
 
     // Used by GrGLProgram to configure OpenGL state.
     void bindTexture(int unitIdx, const GrTextureParams& params, bool allowSRGBInputs,
@@ -90,7 +89,7 @@ public:
     // returns the GL target the buffer was bound to.
     // When 'type' is kIndex_GrBufferType, this function will also implicitly bind the default VAO.
     // If the caller wishes to bind an index buffer to a specific VAO, it can call glBind directly.
-    GrGLenum bindBuffer(GrBufferType type, const GrGLBuffer*);
+    GrGLenum bindBuffer(GrBufferType type, const GrBuffer*);
 
     // Called by GrGLBuffer after its buffer object has been destroyed.
     void notifyBufferReleased(const GrGLBuffer*);
@@ -164,6 +163,9 @@ private:
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                               GrWrapOwnership) override;
     GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override;
+
+    gr_instanced::InstancedRendering* onCreateInstancedRendering() override;
+
     // Given a GrPixelConfig return the index into the stencil format array on GrGLCaps to a
     // compatible stencil format, or negative if there is no compatible stencil format.
     int getCompatibleStencilIndex(GrPixelConfig config);
@@ -218,10 +220,8 @@ private:
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
-    void onGetMultisampleSpecs(GrRenderTarget*,
-                               const GrStencilSettings&,
-                               int* effectiveSampleCnt,
-                               SkAutoTDeleteArray<SkPoint>* sampleLocations) override;
+    void onGetMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&,
+                               int* effectiveSampleCnt, SamplePattern*) override;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
@@ -303,7 +303,7 @@ private:
     };
 
     void flushColorWrite(bool writeColor);
-    void flushDrawFace(GrPipelineBuilder::DrawFace face);
+    void flushDrawFace(GrDrawFace face);
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
@@ -313,6 +313,9 @@ private:
 
     // disables the scissor
     void disableScissor();
+
+    void flushWindowRectangles(const GrWindowRectangles&, const GrGLRenderTarget*);
+    void disableWindowRectangles();
 
     void initFSAASupport();
 
@@ -419,6 +422,42 @@ private:
         }
     } fHWScissorSettings;
 
+    class {
+    public:
+        bool valid() const { return kInvalidOrigin != fOrigin; }
+        void invalidate() { fOrigin = kInvalidOrigin; }
+
+        bool disabled() const {
+            return this->valid() && Mode::kExclusive == fWindows.mode() && !fWindows.count();
+        }
+        void setDisabled() { fOrigin = kDefault_GrSurfaceOrigin, fWindows.reset(); }
+
+        bool equal(GrSurfaceOrigin org, const GrGLIRect& viewp,
+                   const GrWindowRectangles& windows) const {
+            if (!this->valid()) {
+                return false;
+            }
+            if (fWindows.count() && (fOrigin != org || fViewport != viewp)) {
+                return false;
+            }
+            return fWindows == windows;
+        }
+
+        void set(GrSurfaceOrigin org, const GrGLIRect& viewp, const GrWindowRectangles& windows) {
+            fOrigin = org;
+            fViewport = viewp;
+            fWindows = windows;
+        }
+
+    private:
+        typedef GrWindowRectangles::Mode Mode;
+        enum { kInvalidOrigin = -1 };
+
+        int                  fOrigin;
+        GrGLIRect            fViewport;
+        GrWindowRectangles   fWindows;
+    } fHWWindowRects;
+
     GrGLIRect                   fHWViewport;
 
     /**
@@ -467,7 +506,7 @@ private:
          *
          * The returned GrGLAttribArrayState should be used to set vertex attribute arrays.
          */
-        GrGLAttribArrayState* bindInternalVertexArray(GrGLGpu*, const GrGLBuffer* ibuff = nullptr);
+        GrGLAttribArrayState* bindInternalVertexArray(GrGLGpu*, const GrBuffer* ibuff = nullptr);
 
     private:
         GrGLuint                fBoundVertexArrayID;
@@ -516,7 +555,7 @@ private:
     TriState                    fHWStencilTestEnabled;
 
 
-    GrPipelineBuilder::DrawFace fHWDrawFace;
+    GrDrawFace                  fHWDrawFace;
     TriState                    fHWWriteToColor;
     uint32_t                    fHWBoundRenderTargetUniqueID;
     TriState                    fHWSRGBFramebuffer;
@@ -599,6 +638,7 @@ private:
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.
+    friend class gr_instanced::GLInstancedRendering; // For accessing flushGLState.
 };
 
 #endif

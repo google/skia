@@ -10,7 +10,6 @@
       'type': 'static_library',
       'dependencies': [ 'skia_lib.gyp:skia_lib', ],
       'sources': [ '<(skia_src_path)/pdf/SkDocument_PDF_None.cpp', ],
-      'defines': [ 'SK_SUPPORT_PDF=0', ],
     },
     {
       'target_name': 'pdf',
@@ -19,7 +18,6 @@
       'standalone_static_library': 1,
       'variables': {
         'skia_pdf_use_sfntly%': 1,
-        'skia_pdf_less_compression%': 0,  # enable for debugging only
       },
       'dependencies': [
         'skia_lib.gyp:skia_lib',
@@ -42,9 +40,6 @@
            skia_os in ["win", "android", "linux", "mac"]',
           { 'dependencies': [ 'sfntly.gyp:sfntly' ] }
         ],
-        [ 'skia_pdf_less_compression',
-          {'defines': ['SK_PDF_LESS_COMPRESSION'] }
-        ],
         [ 'skia_android_framework', {
             # Add SFTNLY support for PDF (which in turns depends on ICU)
             'include_dirs': [
@@ -59,7 +54,6 @@
         ],
       ],
       'direct_dependent_settings': {
-        'defines': [ 'SK_SUPPORT_PDF=1', ],
         'include_dirs': [
           '../include/core',  # SkDocument.h
         ],

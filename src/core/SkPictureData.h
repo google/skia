@@ -64,7 +64,7 @@ public:
     // Does not affect ownership of SkStream.
     static SkPictureData* CreateFromStream(SkStream*,
                                            const SkPictInfo&,
-                                           SkPicture::InstallPixelRefProc,
+                                           SkImageDeserializer*,
                                            SkTypefacePlayback*);
     static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
@@ -85,13 +85,13 @@ protected:
     explicit SkPictureData(const SkPictInfo& info);
 
     // Does not affect ownership of SkStream.
-    bool parseStream(SkStream*, SkPicture::InstallPixelRefProc, SkTypefacePlayback*);
+    bool parseStream(SkStream*, SkImageDeserializer*, SkTypefacePlayback*);
     bool parseBuffer(SkReadBuffer& buffer);
 
 public:
-    const SkBitmap& getBitmap(SkReadBuffer* reader) const {
+    const SkImage* getBitmapAsImage(SkReadBuffer* reader) const {
         const int index = reader->readInt();
-        return reader->validateIndex(index, fBitmaps.count()) ? fBitmaps[index] : fEmptyBitmap;
+        return reader->validateIndex(index, fBitmapImageCount) ? fBitmapImageRefs[index] : nullptr;
     }
 
     const SkImage* getImage(SkReadBuffer* reader) const {
@@ -149,11 +149,10 @@ private:
     // these help us with reading/writing
     // Does not affect ownership of SkStream.
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size,
-                        SkPicture::InstallPixelRefProc, SkTypefacePlayback*);
+                        SkImageDeserializer*, SkTypefacePlayback*);
     bool parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
 
-    SkTArray<SkBitmap> fBitmaps;
     SkTArray<SkPaint>  fPaints;
     SkTArray<SkPath>   fPaths;
 
@@ -170,6 +169,8 @@ private:
     int fTextBlobCount;
     const SkImage** fImageRefs;
     int fImageCount;
+    const SkImage** fBitmapImageRefs;
+    int fBitmapImageCount;
 
     SkPictureContentInfo fContentInfo;
 

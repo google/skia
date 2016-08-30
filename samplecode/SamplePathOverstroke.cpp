@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
+#include <iostream>
 #include <cmath>
 
 #define PI SK_ScalarPI
@@ -21,11 +22,13 @@ class OverstrokeView : public SampleView {
     int fPathType;  // super lazy enum
     bool fClosePath;
     bool fDrawFillPath;
+    bool fDumpHex;
     OverstrokeView() {
         fStroke = 5;
         fPathType = 0;
         fClosePath = false;
         fDrawFillPath = false;
+        fDumpHex = false;
         this->setBGColor(0xFFFFFFFF);
     }
 
@@ -47,7 +50,7 @@ class OverstrokeView : public SampleView {
                     this->inval(nullptr);
                     return true;
                 case 'x':
-                    fPathType = (fPathType + 1) % 3;
+                    fPathType = (fPathType + 1) % 4;
                     this->inval(nullptr);
                     return true;
                 case 'c':
@@ -56,6 +59,10 @@ class OverstrokeView : public SampleView {
                     return true;
                 case 'f':
                     fDrawFillPath = !fDrawFillPath;
+                    this->inval(nullptr);
+                    return true;
+                case 'D':
+                    fDumpHex = !fDumpHex;
                     this->inval(nullptr);
                     return true;
                 default:
@@ -75,6 +82,20 @@ class OverstrokeView : public SampleView {
         SkPoint p3 = SkPoint::Make((p1.x() + p2.x()) / 2.0f, p1.y() * 0.7f);
 
         path.quadTo(p3, p1);
+
+        return path;
+    }
+
+    SkPath cubicPath(SkPoint p1, SkPoint p2) {
+        SkASSERT(p1.y() == p2.y());
+
+        SkPath path;
+        path.moveTo(p1);
+
+        SkPoint p3 = SkPoint::Make((p1.x() + p2.x()) / 3.0f, p1.y() * 0.7f);
+        SkPoint p4 = SkPoint::Make(2.0f*(p1.x() + p2.x()) / 3.0f, p1.y() * 1.5f);
+
+        path.cubicTo(p3, p4, p2);
 
         return path;
     }
@@ -123,10 +144,13 @@ class OverstrokeView : public SampleView {
                 path = quadPath(p1, p2);
                 break;
             case 1:
-                path = linSemicirclePath(p1, p2);
+                path = cubicPath(p1, p2);
                 break;
             case 2:
                 path = rectPath(p1);
+                break;
+            case 3:
+                path = linSemicirclePath(p1, p2);
                 break;
             default:
                 path = quadPath(p1, p2);
@@ -145,17 +169,37 @@ class OverstrokeView : public SampleView {
 
         canvas->drawPath(path, p);
 
+        if (fDumpHex) {
+            std::cerr << "path dumpHex" << std::endl;
+            path.dumpHex();
+        }
+
+        SkPaint hairp;
+        hairp.setColor(SK_ColorBLACK);
+        hairp.setAntiAlias(true);
+        hairp.setStyle(SkPaint::kStroke_Style);
+
         if (fDrawFillPath) {
             SkPath fillpath;
             p.getFillPath(path, &fillpath);
 
-            SkPaint fillp;
-            fillp.setColor(SK_ColorBLACK);
-            fillp.setAntiAlias(true);
-            fillp.setStyle(SkPaint::kStroke_Style);
+            canvas->drawPath(fillpath, hairp);
 
-            canvas->drawPath(fillpath, fillp);
+            if (fDumpHex) {
+                std::cerr << "fillpath dumpHex" << std::endl;
+                fillpath.dumpHex();
+            }
         }
+
+        if (fDumpHex) {
+            std::cerr << std::endl;
+
+            fDumpHex = false;
+        }
+
+        // draw original path with green hairline
+        hairp.setColor(SK_ColorGREEN);
+        canvas->drawPath(path, hairp);
     }
 
    private:

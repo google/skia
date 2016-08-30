@@ -42,6 +42,7 @@ public:
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
+                 const char* distanceVectorName,
                  const SamplerHandle* texSamplers,
                  const SamplerHandle* bufferSamplers,
                  const TransformsIn& transformsIn,
@@ -54,6 +55,7 @@ public:
             , fGP(gp)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
+            , fDistanceVectorName(distanceVectorName)
             , fTexSamplers(texSamplers)
             , fBufferSamplers(bufferSamplers)
             , fTransformsIn(transformsIn)
@@ -66,6 +68,7 @@ public:
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;
+        const char* fDistanceVectorName;
         const SamplerHandle* fTexSamplers;
         const SamplerHandle* fBufferSamplers;
         const TransformsIn& fTransformsIn;
@@ -77,7 +80,6 @@ public:
      * This allows the effect subclass to emit vertex code.
      */
     virtual void emitCode(EmitArgs&) = 0;
-
 
     /** A GrGLSLPrimitiveProcessor instance can be reused with any GrGLSLPrimitiveProcessor that
         produces the same stage key; this function reads data from a GrGLSLPrimitiveProcessor and

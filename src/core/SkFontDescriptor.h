@@ -50,14 +50,14 @@ private:
 
 class SkFontDescriptor : SkNoncopyable {
 public:
-    SkFontDescriptor(SkTypeface::Style = SkTypeface::kNormal);
+    SkFontDescriptor();
     // Does not affect ownership of SkStream.
     static bool Deserialize(SkStream*, SkFontDescriptor* result);
 
     void serialize(SkWStream*);
 
-    SkTypeface::Style getStyle() { return fStyle; }
-    void setStyle(SkTypeface::Style style) { fStyle = style; }
+    SkFontStyle getStyle() { return fStyle; }
+    void setStyle(SkFontStyle style) { fStyle = style; }
 
     const char* getFamilyName() const { return fFamilyName.c_str(); }
     const char* getFullName() const { return fFullName.c_str(); }
@@ -78,7 +78,7 @@ private:
     SkString fPostscriptName;
     SkAutoTDelete<SkFontData> fFontData;
 
-    SkTypeface::Style fStyle;
+    SkFontStyle fStyle;
 };
 
 #endif // SkFontDescriptor_DEFINED

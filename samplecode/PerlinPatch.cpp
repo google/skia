@@ -71,6 +71,8 @@ class PerlinPatchView : public SampleView {
     SkScalar fTexY;
     SkScalar fTexScale;
     SkMatrix fInvMatrix;
+    bool     fShowGrid = false;
+
 public:
     PerlinPatchView() : fXFreq(0.025f), fYFreq(0.025f), fSeed(0.0f),
                         fTexX(100.0), fTexY(50.0), fTexScale(1.0f) {
@@ -114,6 +116,13 @@ protected:
             SampleCode::TitleR(evt, "PerlinPatch");
             return true;
         }
+        SkUnichar uni;
+        if (SampleCode::CharQ(*evt, &uni)) {
+            switch (uni) {
+                case 'g': fShowGrid = !fShowGrid; this->inval(nullptr); return true;
+                default: break;
+            }
+        }
         return this->INHERITED::onQuery(evt);
     }
 
@@ -147,7 +156,12 @@ protected:
         fShaderCompose = SkShader::MakeComposeShader(fShader0, fShader1, nullptr);
 
         paint.setShader(fShaderCompose);
-        canvas->drawPatch(fPts, nullptr, texCoords, xfer, paint);
+
+        const SkPoint* tex = texCoords;
+        if (fShowGrid) {
+            tex = nullptr;
+        }
+        canvas->drawPatch(fPts, nullptr, tex, xfer, paint);
 
         draw_control_points(canvas, fPts);
     }

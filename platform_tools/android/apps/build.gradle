@@ -111,5 +111,9 @@ def constructBuildCommand(variant, buildTarget) {
     if (variant.name.endsWith("Release")) {
         cmdLine += " --release"
     }
+
+    if (variant.name.indexOf("vulkan") != -1) {
+        cmdLine += " --vulkan"
+    }
     return cmdLine
 }

@@ -115,7 +115,7 @@ void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
 }
 
 SkTestTypeface::SkTestTypeface(SkTestFont* testFont, const SkFontStyle& style)
-    : SkTypeface(style, SkTypefaceCache::NewFontID(), false)
+    : SkTypeface(style, false)
     , fTestFont(testFont) {
 }
 
@@ -156,6 +156,7 @@ SkAdvancedTypefaceMetrics* SkTestTypeface::onGetAdvancedTypefaceMetrics(
 
 void SkTestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const {
     desc->setFamilyName(fTestFont->fName);
+    desc->setStyle(this->fontStyle());
     *isLocal = false;
 }
 

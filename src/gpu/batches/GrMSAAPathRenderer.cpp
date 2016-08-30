@@ -11,6 +11,7 @@
 #include "GrBatchFlushState.h"
 #include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrFixedClip.h"
 #include "GrPathStencilSettings.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
@@ -122,7 +123,6 @@ public:
     const Attribute* inUV() const { return fInUV; }
     const Attribute* inColor() const { return fInColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
-    const SkMatrix& localMatrix() const { return SkMatrix::I(); }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
@@ -177,13 +177,6 @@ public:
             }
         }
 
-        void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLSLProgramDataManager& pdman,
-                              int index,
-                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<MSAAQuadProcessor>(primProc, pdman, index, transforms);
-        }
-
     private:
         typedef GrGLSLGeometryProcessor INHERITED;
 
@@ -203,11 +196,10 @@ private:
     MSAAQuadProcessor(const SkMatrix& viewMatrix)
         : fViewMatrix(viewMatrix) {
         this->initClassID<MSAAQuadProcessor>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                       kHigh_GrSLPrecision));
-        fInUV = &this->addVertexAttrib(Attribute("inUV", kVec2f_GrVertexAttribType,
-                                                 kHigh_GrSLPrecision));
-        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
+        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                             kHigh_GrSLPrecision);
+        fInUV = &this->addVertexAttrib("inUV", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
         this->setSampleShading(1.0f);
     }
 
@@ -225,15 +217,17 @@ class MSAAPathBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    struct Geometry {
-        GrColor fColor;
-        SkPath fPath;
-        SkScalar fTolerance;
-    };
-
-    static MSAAPathBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
-                               const SkRect& devBounds) {
-        return new MSAAPathBatch(geometry, viewMatrix, devBounds);
+    MSAAPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix,
+                  const SkRect& devBounds)
+            : INHERITED(ClassID())
+            , fViewMatrix(viewMatrix) {
+        fPaths.emplace_back(PathInfo{color, path});
+        this->setBounds(devBounds, HasAABloat::kNo, IsZeroArea::kNo);
+        int contourCount;
+        this->computeWorstCasePointCount(path, &contourCount, &fMaxLineVertices, &fMaxQuadVertices);
+        fMaxLineIndices = fMaxLineVertices * 3;
+        fMaxQuadIndices = fMaxQuadVertices * 3;
+        fIsIndexed = contourCount > 1;
     }
 
     const char* name() const override { return "MSAAPathBatch"; }
@@ -241,8 +235,8 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fGeoData[0].fColor);
+        // When this is called on a batch, there is only one path
+        color->setKnownFourComponents(fPaths[0].fColor);
         coverage->setKnownSingleComponent(0xff);
     }
 
@@ -254,13 +248,13 @@ private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
         if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
+            fPaths[0].fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fPaths[0].fColor);
     }
 
-    void computeWorstCasePointCount(const SkPath& path, int* subpaths, SkScalar tol,
-                                    int* outLinePointCount, int* outQuadPointCount) const {
+    void computeWorstCasePointCount(const SkPath& path, int* subpaths, int* outLinePointCount,
+                                    int* outQuadPointCount) const {
         int linePointCount = 0;
         int quadPointCount = 0;
         *subpaths = 1;
@@ -370,15 +364,14 @@ private:
         }
 
         // fill buffers
-        for (int i = 0; i < fGeoData.count(); i++) {
-            const Geometry& args = fGeoData[i];
+        for (int i = 0; i < fPaths.count(); i++) {
+            const PathInfo& pathInfo = fPaths[i];
 
             if (!this->createGeom(lines,
                                   quads,
-                                  args.fPath,
-                                  args.fTolerance,
+                                  pathInfo.fPath,
                                   fViewMatrix,
-                                  args.fColor,
+                                  pathInfo.fColor,
                                   fIsIndexed)) {
                 return;
             }
@@ -442,21 +435,6 @@ private:
         }
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    MSAAPathBatch(const Geometry& geometry, const SkMatrix& viewMatrix, const SkRect& devBounds)
-        : INHERITED(ClassID())
-        , fViewMatrix(viewMatrix) {
-        fGeoData.push_back(geometry);
-        this->setBounds(devBounds);
-        int contourCount;
-        this->computeWorstCasePointCount(geometry.fPath, &contourCount, kTolerance,
-                                         &fMaxLineVertices, &fMaxQuadVertices);
-        fMaxLineIndices = fMaxLineVertices * 3;
-        fMaxQuadIndices = fMaxQuadVertices * 3;
-        fIsIndexed = contourCount > 1;
-    }
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         MSAAPathBatch* that = t->cast<MSAAPathBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -473,8 +451,8 @@ private:
             return false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
-        this->joinBounds(that->bounds());
+        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
+        this->joinBounds(*that);
         fIsIndexed = true;
         fMaxLineVertices += that->fMaxLineVertices;
         fMaxQuadVertices += that->fMaxQuadVertices;
@@ -486,7 +464,6 @@ private:
     bool createGeom(MSAALineVertices& lines,
                     MSAAQuadVertices& quads,
                     const SkPath& path,
-                    SkScalar srcSpaceTol,
                     const SkMatrix& m,
                     SkColor color,
                     bool isIndexed) const {
@@ -523,8 +500,7 @@ private:
                     case SkPath::kConic_Verb: {
                         SkScalar weight = iter.conicWeight();
                         SkAutoConicToQuads converter;
-                        const SkPoint* quadPts = converter.computeQuads(pts, weight,
-                                                                        kTolerance);
+                        const SkPoint* quadPts = converter.computeQuads(pts, weight, kTolerance);
                         for (int i = 0; i < converter.countQuads(); ++i) {
                             add_quad(lines, quads, quadPts + i * 2, color, isIndexed,
                                      subpathIdxStart);
@@ -555,7 +531,12 @@ private:
         return true;
     }
 
-    SkSTArray<1, Geometry, true> fGeoData;
+    struct PathInfo {
+        GrColor  fColor;
+        SkPath   fPath;
+    };
+
+    SkSTArray<1, PathInfo, true> fPaths;
 
     SkMatrix fViewMatrix;
     int fMaxLineVertices;
@@ -569,9 +550,8 @@ private:
 
 bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                           const GrPaint& paint,
-                                          const GrUserStencilSettings* userStencilSettings,
+                                          const GrUserStencilSettings& userStencilSettings,
                                           const GrClip& clip,
-                                          GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const GrShape& shape,
                                           bool stencilOnly) {
@@ -579,9 +559,10 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
     SkPath path;
     shape.asPath(&path);
 
+    static const int kMaxNumPasses = 2;
+
     int                          passCount = 0;
-    const GrUserStencilSettings* passes[3];
-    GrPipelineBuilder::DrawFace  drawFace[3];
+    const GrUserStencilSettings* passes[kMaxNumPasses];
     bool                         reverse = false;
     bool                         lastPassIsBounds;
 
@@ -590,9 +571,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
         } else {
-            passes[0] = nullptr;
+            passes[0] = &userStencilSettings;
         }
-        drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
         lastPassIsBounds = false;
     } else {
         switch (path.getFillType()) {
@@ -613,7 +593,6 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                         passes[1] = &gEOColorPass;
                     }
                 }
-                drawFace[0] = drawFace[1] = GrPipelineBuilder::kBoth_DrawFace;
                 break;
 
             case SkPath::kInverseWinding_FillType:
@@ -622,17 +601,15 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             case SkPath::kWinding_FillType:
                 passes[0] = &gWindStencilSeparateWithWrap;
                 passCount = 2;
-                drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
                 if (stencilOnly) {
                     lastPassIsBounds = false;
-                    --passCount;
+                    passCount = 1;
                 } else {
                     lastPassIsBounds = true;
-                    drawFace[passCount-1] = GrPipelineBuilder::kBoth_DrawFace;
                     if (reverse) {
-                        passes[passCount-1] = &gInvWindColorPass;
+                        passes[1] = &gInvWindColorPass;
                     } else {
-                        passes[passCount-1] = &gWindColorPass;
+                        passes[1] = &gWindColorPass;
                     }
                 }
                 break;
@@ -644,6 +621,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
 
     SkRect devBounds;
     GetPathDevBounds(path, drawContext->width(), drawContext->height(), viewMatrix, &devBounds);
+
+    SkASSERT(passCount <= kMaxNumPasses);
 
     for (int p = 0; p < passCount; ++p) {
         if (lastPassIsBounds && (p == passCount-1)) {
@@ -667,37 +646,22 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
             SkAutoTUnref<GrDrawBatch> batch(
-                    GrRectBatchFactory::CreateNonAAFill(color, viewM, bounds, nullptr,
+                    GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
                                                         &localMatrix));
 
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
-            pipelineBuilder.setDrawFace(drawFace[p]);
-            if (passes[p]) {
-                pipelineBuilder.setUserStencil(passes[p]);
-            } else {
-                pipelineBuilder.setUserStencil(userStencilSettings);
-            }
+            pipelineBuilder.setUserStencil(passes[p]);
 
             drawContext->drawBatch(pipelineBuilder, clip, batch);
         } else {
-            MSAAPathBatch::Geometry geometry;
-            geometry.fColor = color;
-            geometry.fPath = path;
-            geometry.fTolerance = kTolerance;
-
-            SkAutoTUnref<MSAAPathBatch> batch(MSAAPathBatch::Create(geometry, viewMatrix,
-                                                                    devBounds));
+            SkAutoTUnref<MSAAPathBatch> batch(new MSAAPathBatch(paint.getColor(), path,
+                                                                viewMatrix, devBounds));
             if (!batch->isValid()) {
                 return false;
             }
 
             GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
-            pipelineBuilder.setDrawFace(drawFace[p]);
-            if (passes[p]) {
-                pipelineBuilder.setUserStencil(passes[p]);
-            } else {
-                pipelineBuilder.setUserStencil(userStencilSettings);
-            }
+            pipelineBuilder.setUserStencil(passes[p]);
             if (passCount > 1) {
                 pipelineBuilder.setDisableColorXPFactory();
             }
@@ -727,9 +691,8 @@ bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     return this->internalDrawPath(args.fDrawContext,
                                   *args.fPaint,
-                                  args.fUserStencilSettings,
+                                  *args.fUserStencilSettings,
                                   *args.fClip,
-                                  args.fColor,
                                   *args.fViewMatrix,
                                   *shape,
                                   false);
@@ -745,8 +708,8 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     paint.setXPFactory(GrDisableColorXPFactory::Make());
     paint.setAntiAlias(args.fIsAA);
 
-    this->internalDrawPath(args.fDrawContext, paint, &GrUserStencilSettings::kUnused, *args.fClip,
-                           GrColor_WHITE, *args.fViewMatrix, *args.fShape, true);
+    this->internalDrawPath(args.fDrawContext, paint, GrUserStencilSettings::kUnused, *args.fClip,
+                           *args.fViewMatrix, *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

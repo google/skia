@@ -14,6 +14,7 @@
 #include "SkImageSource.h"
 #include "SkLightingShader.h"
 #include "SkMallocPixelRef.h"
+#include "SkNormalSource.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkTableColorFilter.h"
@@ -555,9 +556,9 @@ DEF_TEST(Serialization, reporter) {
 
         SkLights::Builder builder;
 
-        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                    SkVector3::Make(1.0f, 0.0f, 0.0f)));
-        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, 1.0f),
+                                                     SkVector3::Make(1.0f, 0.0f, 0.0f)));
+        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
 
         sk_sp<SkLights> fLights = builder.finish();
 
@@ -573,15 +574,47 @@ DEF_TEST(Serialization, reporter) {
         SkRect r = SkRect::MakeWH(SkIntToScalar(kTexSize), SkIntToScalar(kTexSize));
         matrix.setRectToRect(bitmapBounds, r, SkMatrix::kFill_ScaleToFit);
 
-        SkVector invNormRotation = { SkScalarSqrt(0.3f), SkScalarSqrt(0.7f) };
+        SkMatrix ctm;
+        ctm.setRotate(45);
         SkBitmap normals;
         normals.allocN32Pixels(kTexSize, kTexSize);
 
         sk_tool_utils::create_frustum_normal_map(&normals, SkIRect::MakeWH(kTexSize, kTexSize));
-        sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuse, normals, fLights,
-                invNormRotation, &matrix, &matrix);
+        sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(normals, SkShader::kClamp_TileMode,
+                SkShader::kClamp_TileMode, &matrix);
+        sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
+                                                                               ctm);
+        sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(diffuse,
+                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix);
 
+        sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuseShader,
+                                                                normalSource,
+                                                                fLights);
         SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+
+        lightingShader = SkLightingShader::Make(std::move(diffuseShader),
+                                                nullptr,
+                                                fLights);
+        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+
+        lightingShader = SkLightingShader::Make(nullptr,
+                                                std::move(normalSource),
+                                                fLights);
+        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+
+        lightingShader = SkLightingShader::Make(nullptr,
+                                                nullptr,
+                                                fLights);
+        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+    }
+
+    // Test NormalBevelSource serialization
+    {
+        sk_sp<SkNormalSource> bevelSource = SkNormalSource::MakeBevel(
+                SkNormalSource::BevelType::kLinear, 2.0f, 5.0f);
+
+        SkAutoTUnref<SkNormalSource>(TestFlattenableSerialization(bevelSource.get(), true,
+                                                                  reporter));
         // TODO test equality?
 
     }
@@ -600,7 +633,7 @@ static sk_sp<SkPicture> copy_picture_via_serialization(SkPicture* src) {
 struct AnnotationRec {
     const SkRect    fRect;
     const char*     fKey;
-    SkData*         fValue;
+    sk_sp<SkData>   fValue;
 };
 
 class TestAnnotationCanvas : public SkCanvas {
@@ -627,7 +660,7 @@ protected:
         REPORTER_ASSERT(fReporter, fCurrIndex < fCount);
         REPORTER_ASSERT(fReporter, rect == fRec[fCurrIndex].fRect);
         REPORTER_ASSERT(fReporter, !strcmp(key, fRec[fCurrIndex].fKey));
-        REPORTER_ASSERT(fReporter, value->equals(fRec[fCurrIndex].fValue));
+        REPORTER_ASSERT(fReporter, value->equals(fRec[fCurrIndex].fValue.get()));
         fCurrIndex += 1;
     }
 };
@@ -642,23 +675,23 @@ DEF_TEST(Annotations, reporter) {
 
     const char* str0 = "rect-with-url";
     const SkRect r0 = SkRect::MakeWH(10, 10);
-    SkAutoTUnref<SkData> d0(SkData::NewWithCString(str0));
-    SkAnnotateRectWithURL(recordingCanvas, r0, d0);
+    sk_sp<SkData> d0(SkData::MakeWithCString(str0));
+    SkAnnotateRectWithURL(recordingCanvas, r0, d0.get());
 
     const char* str1 = "named-destination";
     const SkRect r1 = SkRect::MakeXYWH(5, 5, 0, 0); // collapsed to a point
-    SkAutoTUnref<SkData> d1(SkData::NewWithCString(str1));
-    SkAnnotateNamedDestination(recordingCanvas, {r1.x(), r1.y()}, d1);
+    sk_sp<SkData> d1(SkData::MakeWithCString(str1));
+    SkAnnotateNamedDestination(recordingCanvas, {r1.x(), r1.y()}, d1.get());
 
     const char* str2 = "link-to-destination";
     const SkRect r2 = SkRect::MakeXYWH(20, 20, 5, 6);
-    SkAutoTUnref<SkData> d2(SkData::NewWithCString(str2));
-    SkAnnotateLinkToDestination(recordingCanvas, r2, d2);
+    sk_sp<SkData> d2(SkData::MakeWithCString(str2));
+    SkAnnotateLinkToDestination(recordingCanvas, r2, d2.get());
 
     const AnnotationRec recs[] = {
-        { r0, SkAnnotationKeys::URL_Key(),                  d0 },
-        { r1, SkAnnotationKeys::Define_Named_Dest_Key(),    d1 },
-        { r2, SkAnnotationKeys::Link_Named_Dest_Key(),      d2 },
+        { r0, SkAnnotationKeys::URL_Key(),                  std::move(d0) },
+        { r1, SkAnnotationKeys::Define_Named_Dest_Key(),    std::move(d1) },
+        { r2, SkAnnotationKeys::Link_Named_Dest_Key(),      std::move(d2) },
     };
 
     sk_sp<SkPicture> pict0(recorder.finishRecordingAsPicture());

@@ -64,7 +64,7 @@ DEF_TEST(CompressAlphaFailDimensions, reporter) {
         if (!compresses_a8(fmt)) {
             continue;
         }
-        SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
+        sk_sp<SkData> data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
         REPORTER_ASSERT(reporter, nullptr == data);
     }
 }
@@ -93,7 +93,7 @@ DEF_TEST(CompressAlphaFailColorType, reporter) {
         if (!compresses_a8(fmt)) {
             continue;
         }
-        SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
+        sk_sp<SkData> data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
         REPORTER_ASSERT(reporter, nullptr == data);
     }
 }
@@ -154,7 +154,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
             continue;
         }
 
-        SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
+        sk_sp<SkData> data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
         REPORTER_ASSERT(reporter, data);
         if (nullptr == data) {
             continue;
@@ -212,7 +212,7 @@ DEF_TEST(CompressLATC, reporter) {
             pixels[i] = lum;
         }
 
-        SkAutoDataUnref latcData(
+        sk_sp<SkData> latcData(
             SkTextureCompressor::CompressBitmapToFormat(pixmap, kLATCFormat));
         REPORTER_ASSERT(reporter, latcData);
         if (nullptr == latcData) {

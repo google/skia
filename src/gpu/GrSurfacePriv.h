@@ -32,11 +32,6 @@ public:
                                       int* left, int* top, int* width, int* height,
                                       const void** data,
                                       size_t* rowBytes);
-    /**
-     * Derive a SkImageInfo from the surface's descriptor. The caller must provide the alpha type as
-     * GrSurface has no equivalent.
-     */
-    SkImageInfo info(SkAlphaType alphaType) const { return fSurface->info(alphaType); }
 
     /**
      * Write the contents of the surface to a PNG. Returns true if successful.

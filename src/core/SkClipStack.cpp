@@ -237,10 +237,10 @@ void SkClipStack::Element::combineBoundsDiff(FillCombo combination, const SkRect
             // is erased, so the only pixels that can remain set
             // occur w/in the intersection of the two finite bounds
             if (!fFiniteBound.intersect(prevFinite)) {
-                this->setEmpty();
-            } else {
-                fFiniteBoundType = kNormal_BoundsType;
+                fFiniteBound.setEmpty();
+                fGenID = kEmptyGenID;
             }
+            fFiniteBoundType = kNormal_BoundsType;
             break;
         case kPrev_Cur_FillCombo:
             // The most conservative result bound is that of the
@@ -621,7 +621,7 @@ void SkClipStack::getBounds(SkRect* canvFiniteBound,
     }
 }
 
-bool SkClipStack::quickContains(const SkRect& rect) const {
+bool SkClipStack::internalQuickContains(const SkRect& rect) const {
 
     Iter iter(*this, Iter::kTop_IterStart);
     const Element* element = iter.prev();
@@ -635,6 +635,31 @@ bool SkClipStack::quickContains(const SkRect& rect) const {
             }
         } else {
             if (!element->contains(rect)) {
+                return false;
+            }
+        }
+        if (SkRegion::kReplace_Op == element->getOp()) {
+            break;
+        }
+        element = iter.prev();
+    }
+    return true;
+}
+
+bool SkClipStack::internalQuickContains(const SkRRect& rrect) const {
+
+    Iter iter(*this, Iter::kTop_IterStart);
+    const Element* element = iter.prev();
+    while (element != nullptr) {
+        if (SkRegion::kIntersect_Op != element->getOp() && SkRegion::kReplace_Op != element->getOp())
+            return false;
+        if (element->isInverseFilled()) {
+            // Part of 'rrect' could be trimmed off by the inverse-filled clip element
+            if (SkRect::Intersects(element->getBounds(), rrect.getBounds())) {
+                return false;
+            }
+        } else {
+            if (!element->contains(rrect)) {
                 return false;
             }
         }
@@ -744,10 +769,6 @@ void SkClipStack::clipEmpty() {
     new (fDeque.push_back()) Element(fSaveCount);
 
     ((Element*)fDeque.back())->fGenID = kEmptyGenID;
-}
-
-bool SkClipStack::isWideOpen() const {
-    return this->getTopmostGenID() == kWideOpenGenID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

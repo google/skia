@@ -13,6 +13,7 @@
 #include "GrRenderTarget.h"
 #include "SkScalar.h"
 
+class GrGLCaps;
 class GrGLGpu;
 class GrGLStencilAttachment;
 
@@ -23,11 +24,11 @@ public:
     enum { kUnresolvableFBOID = 0 };
 
     struct IDDesc {
-        GrGLuint                     fRTFBOID;
-        GrBackendObjectOwnership     fRTFBOOwnership;
-        GrGLuint                     fTexFBOID;
-        GrGLuint                     fMSColorRenderbufferID;
-        GrRenderTarget::SampleConfig fSampleConfig;
+        GrGLuint                   fRTFBOID;
+        GrBackendObjectOwnership   fRTFBOOwnership;
+        GrGLuint                   fTexFBOID;
+        GrGLuint                   fMSColorRenderbufferID;
+        bool                       fIsMixedSampled;
     };
 
     static GrGLRenderTarget* CreateWrapped(GrGLGpu*,
@@ -82,6 +83,8 @@ protected:
 private:
     // Constructor for instances wrapping backend objects.
     GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, GrGLStencilAttachment*);
+
+    static Flags ComputeFlags(const GrGLCaps&, const IDDesc&);
 
     GrGLGpu* getGLGpu() const;
     bool completeStencilAttachment() override;

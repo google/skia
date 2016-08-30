@@ -206,10 +206,6 @@ public:
 
     bool requestLock(const LockRequest&, LockResult*);
 
-    /** Are we really wrapping a texture instead of a bitmap?
-     */
-    virtual GrTexture* getTexture() { return NULL; }
-
     /**
      *  If this can efficiently return YUV data, this should return true.
      *  Otherwise this returns false and does not modify any of the parameters.
@@ -237,20 +233,6 @@ public:
 
     /** Populates dst with the pixels of this pixelRef, converting them to colorType. */
     bool readPixels(SkBitmap* dst, SkColorType colorType, const SkIRect* subset = NULL);
-
-    /**
-     *  Makes a deep copy of this PixelRef, respecting the requested config.
-     *  @param colorType Desired colortype.
-     *  @param profileType Desired colorprofiletype.
-     *  @param subset Subset of this PixelRef to copy. Must be fully contained within the bounds of
-     *         of this PixelRef.
-     *  @return A new SkPixelRef, or NULL if either there is an error (e.g. the destination could
-     *          not be created with the given config), or this PixelRef does not support deep
-     *          copies.
-     */
-    virtual SkPixelRef* deepCopy(SkColorType, SkColorSpace*, const SkIRect* /*subset*/) {
-        return NULL;
-    }
 
     // Register a listener that may be called the next time our generation ID changes.
     //

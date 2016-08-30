@@ -30,10 +30,9 @@ SkWindow::~SkWindow() {
     fMenus.deleteAll();
 }
 
-SkSurface* SkWindow::createSurface() {
+sk_sp<SkSurface> SkWindow::makeSurface() {
     const SkBitmap& bm = this->getBitmap();
-    return SkSurface::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes(),
-                                       &fSurfaceProps).release();
+    return SkSurface::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes(), &fSurfaceProps);
 }
 
 void SkWindow::setMatrix(const SkMatrix& matrix) {
@@ -70,14 +69,6 @@ void SkWindow::resize(int width, int height) {
 void SkWindow::setColorType(SkColorType ct, sk_sp<SkColorSpace> cs) {
     const SkImageInfo& info = fBitmap.info();
     this->resize(SkImageInfo::Make(info.width(), info.height(), ct, kPremul_SkAlphaType, cs));
-
-    // Set the global flag that enables or disables "legacy" mode, depending on our format.
-    // With sRGB 32-bit or linear FP 16, we turn on gamma-correct handling of inputs:
-    SkSurfaceProps props = this->getSurfaceProps();
-    uint32_t flags = (props.flags() & ~SkSurfaceProps::kGammaCorrect_Flag) |
-        (SkColorAndColorSpaceAreGammaCorrect(ct, cs.get())
-         ? SkSurfaceProps::kGammaCorrect_Flag : 0);
-    this->setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
 }
 
 bool SkWindow::handleInval(const SkRect* localR) {
@@ -114,7 +105,7 @@ extern bool gEnableControlledThrow;
 
 bool SkWindow::update(SkIRect* updateArea) {
     if (!fDirtyRgn.isEmpty()) {
-        SkAutoTUnref<SkSurface> surface(this->createSurface());
+        sk_sp<SkSurface> surface(this->makeSurface());
         SkCanvas* canvas = surface->getCanvas();
 
         canvas->clipRegion(fDirtyRgn);
@@ -330,11 +321,16 @@ bool SkWindow::onDispatchClick(int x, int y, Click::State state,
 #include "gl/GrGLUtil.h"
 #include "SkGr.h"
 
-GrRenderTarget* SkWindow::renderTarget(const AttachmentInfo& attachmentInfo,
-        const GrGLInterface* interface, GrContext* grContext) {
+sk_sp<SkSurface> SkWindow::makeGpuBackedSurface(const AttachmentInfo& attachmentInfo,
+                                                const GrGLInterface* interface,
+                                                GrContext* grContext) {
     GrBackendRenderTargetDesc desc;
     desc.fWidth = SkScalarRoundToInt(this->width());
     desc.fHeight = SkScalarRoundToInt(this->height());
+    if (0 == desc.fWidth || 0 == desc.fHeight) {
+        return nullptr;
+    }
+
     // TODO: Query the actual framebuffer for sRGB capable. However, to
     // preserve old (fake-linear) behavior, we don't do this. Instead, rely
     // on the flag (currently driven via 'C' mode in SampleApp).
@@ -355,7 +351,11 @@ GrRenderTarget* SkWindow::renderTarget(const AttachmentInfo& attachmentInfo,
     GrGLint buffer;
     GR_GL_GetIntegerv(interface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
     desc.fRenderTargetHandle = buffer;
-    return grContext->textureProvider()->wrapBackendRenderTarget(desc);
+
+    sk_sp<SkColorSpace> colorSpace =
+        grContext->caps()->srgbSupport() && SkImageInfoIsGammaCorrect(info())
+        ? SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
+    return SkSurface::MakeFromBackendRenderTarget(grContext, desc, colorSpace, &fSurfaceProps);
 }
 
 #endif

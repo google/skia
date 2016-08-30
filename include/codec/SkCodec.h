@@ -109,13 +109,6 @@ public:
 
     const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
 
-    /**
-     *  Returns the color space associated with the codec.
-     *  Does not affect ownership.
-     *  Might be NULL.
-     */
-    SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
-
     enum Origin {
         kTopLeft_Origin     = 1, // Default
         kTopRight_Origin    = 2, // Reflected across y-axis
@@ -292,6 +285,12 @@ public:
      *         A size that does not match getInfo() implies a request
      *         to scale. If the generator cannot perform this scale,
      *         it will return kInvalidScale.
+     *
+     *         If the info contains a non-null SkColorSpace, the codec
+     *         will perform the appropriate color space transformation.
+     *         If the caller passes in the same color space that was
+     *         reported by the codec, the color space transformation is
+     *         a no-op.
      *
      *  If info is kIndex8_SkColorType, then the caller must provide storage for up to 256
      *  SkPMColor values in ctable. On success the generator must copy N colors into that storage,
@@ -527,6 +526,15 @@ protected:
             sk_sp<SkColorSpace> = nullptr,
             Origin = kTopLeft_Origin);
 
+    /**
+     *  Takes ownership of SkStream*
+     *  Allows the subclass to set the recommended SkImageInfo
+     */
+    SkCodec(const SkEncodedInfo&,
+            const SkImageInfo&,
+            SkStream*,
+            Origin = kTopLeft_Origin);
+
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.
         return this->getInfo().dimensions();
@@ -662,7 +670,6 @@ private:
     const SkImageInfo           fSrcInfo;
     SkAutoTDelete<SkStream>     fStream;
     bool                        fNeedsRewind;
-    sk_sp<SkColorSpace>         fColorSpace;
     const Origin                fOrigin;
 
     // These fields are only meaningful during scanline decodes.

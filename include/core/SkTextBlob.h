@@ -19,7 +19,7 @@ class SkWriteBuffer;
 
     SkTextBlob combines multiple text runs into an immutable, ref-counted structure.
 */
-class SK_API SkTextBlob : public SkRefCnt {
+class SK_API SkTextBlob final : public SkNVRefCnt<SkTextBlob> {
 public:
     /**
      *  Returns a conservative blob bounding box.
@@ -43,7 +43,11 @@ public:
      *  @return A new SkTextBlob representing the serialized data, or NULL if the buffer is
      *          invalid.
      */
-    static const SkTextBlob* CreateFromBuffer(SkReadBuffer&);
+    static sk_sp<SkTextBlob> MakeFromBuffer(SkReadBuffer&);
+
+    static const SkTextBlob* CreateFromBuffer(SkReadBuffer& buffer) {
+        return MakeFromBuffer(buffer).release();
+    }
 
     enum GlyphPositioning {
         kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
@@ -52,11 +56,12 @@ public:
     };
 
 private:
+    friend class SkNVRefCnt<SkTextBlob>;
     class RunRecord;
 
     SkTextBlob(int runCount, const SkRect& bounds);
 
-    virtual ~SkTextBlob();
+    ~SkTextBlob();
 
     // Memory for objects of this class is created with sk_malloc rather than operator new and must
     // be freed with sk_free.
@@ -98,7 +103,11 @@ public:
      *  Returns an immutable SkTextBlob for the current runs/glyphs. The builder is reset and
      *  can be reused.
      */
-    const SkTextBlob* build();
+    sk_sp<SkTextBlob> make();
+
+    const SkTextBlob* build() {
+        return this->make().release();
+    }
 
     /**
      *  Glyph and position buffers associated with a run.
@@ -106,7 +115,7 @@ public:
      *  A run is a sequence of glyphs sharing the same font metrics and positioning mode.
      */
     struct RunBuffer {
-        uint16_t* glyphs;
+        SkGlyphID* glyphs;
         SkScalar* pos;
     };
 

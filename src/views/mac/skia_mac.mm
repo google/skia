@@ -9,6 +9,7 @@
 #include <crt_externs.h>
 #import <Cocoa/Cocoa.h>
 #include "SkApplication.h"
+#include "SkGraphics.h"
 #include "SkNSView.h"
 
 @interface MainView : SkNSView {
@@ -55,48 +56,49 @@
 @end
 
 int main(int argc, char *argv[]) {
+    SkGraphics::Init();
     signal(SIGPIPE, SIG_IGN);
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    
+
     NSApplication* app = [NSApplication sharedApplication];
 
     NSUInteger windowStyle = (NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask | NSMiniaturizableWindowMask);
-    
+
     NSRect windowRect = NSMakeRect(100, 100, 1000, 1000);
     NSWindow* window = [[NSWindow alloc] initWithContentRect:windowRect styleMask:windowStyle backing:NSBackingStoreBuffered defer:NO];
-   
+
     NSRect rect = [NSWindow contentRectForFrameRect:windowRect styleMask:windowStyle];
     MainView* customView = [[MainView alloc] initWithFrame:rect];
     [customView setTranslatesAutoresizingMaskIntoConstraints:NO];
     NSView* contentView = window.contentView;
     [contentView addSubview:customView];
     NSDictionary *views = NSDictionaryOfVariableBindings(customView);
-    
+
     [contentView addConstraints:
      [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[customView]|"
                                              options:0
                                              metrics:nil
                                                views:views]];
-    
+
     [contentView addConstraints:
      [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[customView]|"
                                              options:0
                                              metrics:nil
                                                views:views]];
-    
+
     [customView begin];
     [customView release];
-    
+
     [window makeKeyAndOrderFront:NSApp];
 
     AppDelegate * appDelegate = [[[AppDelegate alloc] init] autorelease];
-    
+
     app.delegate = appDelegate;
-    
+
     NSMenu* menu=[[NSMenu alloc] initWithTitle:@"AMainMenu"];
     NSMenuItem* item;
     NSMenu* subMenu;
-    
+
     //Create the application menu.
     item=[[NSMenuItem alloc] initWithTitle:@"Apple" action:NULL keyEquivalent:@""];
     [menu addItem:item];
@@ -107,18 +109,18 @@ int main(int argc, char *argv[]) {
     [subMenu addItem:item];
     [item release];
     [subMenu release];
-    
+
     //Add the menu to the app.
     [app setMenu:menu];
-    
+
     [app setActivationPolicy:NSApplicationActivationPolicyRegular];
-    
+
     [app run];
 
     [menu release];
     [appDelegate release];
     [window release];
     [pool release];
-    
+
     return EXIT_SUCCESS;
 }

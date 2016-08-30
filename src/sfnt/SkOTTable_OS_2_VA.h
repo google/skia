@@ -12,7 +12,6 @@
 #include "SkIBMFamilyClass.h"
 #include "SkOTTableTypes.h"
 #include "SkPanose.h"
-#include "SkTypedEnum.h"
 
 #pragma pack(push, 1)
 
@@ -25,32 +24,32 @@ struct SkOTTableOS2_VA {
 
     SK_OT_SHORT xAvgCharWidth;
     struct WeightClass {
-        SK_TYPED_ENUM(Value, SK_OT_USHORT,
-            ((UltraLight, SkTEndian_SwapBE16(1)))
-            ((ExtraLight, SkTEndian_SwapBE16(2)))
-            ((Light, SkTEndian_SwapBE16(3)))
-            ((SemiLight, SkTEndian_SwapBE16(4)))
-            ((Medium, SkTEndian_SwapBE16(5)))
-            ((SemiBold, SkTEndian_SwapBE16(6)))
-            ((Bold, SkTEndian_SwapBE16(7)))
-            ((ExtraBold, SkTEndian_SwapBE16(8)))
-            ((UltraBold, SkTEndian_SwapBE16(9)))
+        enum Value : SK_OT_USHORT {
+            UltraLight = SkTEndian_SwapBE16(1),
+            ExtraLight = SkTEndian_SwapBE16(2),
+            Light = SkTEndian_SwapBE16(3),
+            SemiLight = SkTEndian_SwapBE16(4),
+            Medium = SkTEndian_SwapBE16(5),
+            SemiBold = SkTEndian_SwapBE16(6),
+            Bold = SkTEndian_SwapBE16(7),
+            ExtraBold = SkTEndian_SwapBE16(8),
+            UltraBold = SkTEndian_SwapBE16(9),
             SK_SEQ_END,
-        (value)SK_SEQ_END)
+        } value;
     } usWeightClass;
     struct WidthClass {
-        SK_TYPED_ENUM(Value, SK_OT_USHORT,
-            ((UltraCondensed, SkTEndian_SwapBE16(1)))
-            ((ExtraCondensed, SkTEndian_SwapBE16(2)))
-            ((Condensed, SkTEndian_SwapBE16(3)))
-            ((SemiCondensed, SkTEndian_SwapBE16(4)))
-            ((Medium, SkTEndian_SwapBE16(5)))
-            ((SemiExpanded, SkTEndian_SwapBE16(6)))
-            ((Expanded, SkTEndian_SwapBE16(7)))
-            ((ExtraExpanded, SkTEndian_SwapBE16(8)))
-            ((UltraExpanded, SkTEndian_SwapBE16(9)))
+        enum Value : SK_OT_USHORT {
+            UltraCondensed = SkTEndian_SwapBE16(1),
+            ExtraCondensed = SkTEndian_SwapBE16(2),
+            Condensed = SkTEndian_SwapBE16(3),
+            SemiCondensed = SkTEndian_SwapBE16(4),
+            Medium = SkTEndian_SwapBE16(5),
+            SemiExpanded = SkTEndian_SwapBE16(6),
+            Expanded = SkTEndian_SwapBE16(7),
+            ExtraExpanded = SkTEndian_SwapBE16(8),
+            UltraExpanded = SkTEndian_SwapBE16(9),
             SK_SEQ_END,
-        (value)SK_SEQ_END)
+        } value;
     } usWidthClass;
     union Type {
         struct Field {

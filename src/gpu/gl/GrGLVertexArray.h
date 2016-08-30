@@ -13,7 +13,7 @@
 #include "gl/GrGLTypes.h"
 #include "SkTArray.h"
 
-class GrGLBuffer;
+class GrBuffer;
 class GrGLGpu;
 
 /**
@@ -40,7 +40,7 @@ public:
      */
     void set(GrGLGpu*,
              int attribIndex,
-             const GrGLBuffer* vertexBuffer,
+             const GrBuffer* vertexBuffer,
              GrVertexAttribType type,
              GrGLsizei stride,
              GrGLvoid* offset);
@@ -103,7 +103,7 @@ public:
      * This is a version of the above function that also binds an index buffer to the vertex
      * array object.
      */
-    GrGLAttribArrayState* bindWithIndexBuffer(GrGLGpu* gpu, const GrGLBuffer* indexBuffer);
+    GrGLAttribArrayState* bindWithIndexBuffer(GrGLGpu* gpu, const GrBuffer* indexBuffer);
 
     GrGLuint arrayID() const { return fID; }
 

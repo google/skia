@@ -37,10 +37,10 @@ HB_BEGIN_DECLS
 
 
 #define HB_VERSION_MAJOR 1
-#define HB_VERSION_MINOR 2
-#define HB_VERSION_MICRO 7
+#define HB_VERSION_MINOR 3
+#define HB_VERSION_MICRO 0
 
-#define HB_VERSION_STRING "1.2.7"
+#define HB_VERSION_STRING "1.3.0"
 
 #define HB_VERSION_ATLEAST(major,minor,micro) \
 	((major)*10000+(minor)*100+(micro) <= \

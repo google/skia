@@ -248,7 +248,14 @@ bool SkDashPathEffect::asPoints(PointData* results,
                 len2 -= clampedInitialDashLength; // skip initial partial empty
             }
         }
-        int numMidPoints = SkScalarFloorToInt(len2 / fIntervalLength);
+        // Too many midpoints can cause results->fNumPoints to overflow or
+        // otherwise cause the results->fPoints allocation below to OOM.
+        // Cap it to a sane value.
+        SkScalar numIntervals = len2 / fIntervalLength;
+        if (!SkScalarIsFinite(numIntervals) || numIntervals > SkDashPath::kMaxDashCount) {
+            return false;
+        }
+        int numMidPoints = SkScalarFloorToInt(numIntervals);
         results->fNumPoints += numMidPoints;
         len2 -= numMidPoints * fIntervalLength;
         bool partialLast = false;

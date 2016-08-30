@@ -238,6 +238,19 @@ public:
     }
 
     /**
+     * Version of above that uses the move constructor to set n items.
+     */
+    T* move_back_n(int n, T* t) {
+        SkASSERT(n >= 0);
+        this->checkRealloc(n);
+        for (int i = 0; i < n; ++i) {
+            new (fItemArray + fCount + i) T(std::move(t[i]));
+        }
+        fCount += n;
+        return fItemArray + fCount - n;
+    }
+
+    /**
      * Removes the last element. Not safe to call when count() == 0.
      */
     void pop_back() {

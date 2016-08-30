@@ -30,14 +30,13 @@ struct NullWStream : public SkWStream {
 static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
     // SkDebugWStream wStream;
     NullWStream wStream;
-    SkPDFSubstituteMap substitutes;
     SkPDFObjNumMap objNumMap;
-    objNumMap.addObjectRecursively(object.get(), substitutes);
+    objNumMap.addObjectRecursively(object.get());
     for (int i = 0; i < objNumMap.objects().count(); ++i) {
         SkPDFObject* object = objNumMap.objects()[i].get();
         wStream.writeDecAsText(i + 1);
         wStream.writeText(" 0 obj\n");
-        object->emitObject(&wStream, objNumMap, substitutes);
+        object->emitObject(&wStream, objNumMap);
         wStream.writeText("\nendobj\n");
     }
 }
@@ -137,8 +136,9 @@ protected:
         SkASSERT(fAsset);
         if (!fAsset) { return; }
         while (loops-- > 0) {
-            sk_sp<SkPDFObject> object(
-                    new SkPDFSharedStream(fAsset->duplicate()));
+            sk_sp<SkPDFObject> object =
+                sk_make_sp<SkPDFSharedStream>(
+                        std::unique_ptr<SkStreamAsset>(fAsset->duplicate()));
             test_pdf_object_serialization(object);
         }
     }
@@ -160,6 +160,21 @@ struct PDFScalarBench : public Benchmark {
         while (loops-- > 0) {
             auto f = random.nextRangeF(-500.0f, 1500.0f);
             (void)SkPDFUtils::FloatToDecimal(f, dst);
+        }
+    }
+};
+
+struct PDFColorComponentBench : public Benchmark {
+    bool isSuitableFor(Backend b) override {
+        return b == kNonRendering_Backend;
+    }
+    const char* onGetName() override { return "PDFColorComponent"; }
+    void onDraw(int loops, SkCanvas*) override {
+        char dst[5];
+        while (loops-- > 0) {
+            for (int i = 0; i < 256; ++i) {
+                (void)SkPDFUtils::ColorToDecimal(SkToU8(i), dst);
+            }
         }
     }
 };
@@ -232,6 +247,7 @@ DEF_BENCH(return new PDFImageBench;)
 DEF_BENCH(return new PDFJpegImageBench;)
 DEF_BENCH(return new PDFCompressionBench;)
 DEF_BENCH(return new PDFScalarBench;)
+DEF_BENCH(return new PDFColorComponentBench;)
 DEF_BENCH(return new PDFShaderBench;)
 DEF_BENCH(return new WStreamWriteTextBenchmark;)
 DEF_BENCH(return new WritePDFTextBenchmark;)

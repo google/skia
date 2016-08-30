@@ -6,43 +6,45 @@
  * found in the LICENSE file.
  */
 
+#include "WindowContextFactory_android.h"
 #include "../VulkanWindowContext.h"
-#include "WindowContext_android.h"
-
-#include "vk/GrVkInterface.h"
-#include "vk/GrVkUtil.h"
 
 namespace sk_app {
 
-VkSurfaceKHR VulkanWindowContext::createVkSurface(VkInstance instance, void* platformData) {
-    static PFN_vkCreateAndroidSurfaceKHR createAndroidSurfaceKHR = nullptr;
-    if (!createAndroidSurfaceKHR) {
-        createAndroidSurfaceKHR = (PFN_vkCreateAndroidSurfaceKHR)vkGetInstanceProcAddr(instance,
-                                                                       "vkCreateAndroidSurfaceKHR");
+namespace window_context_factory {
+
+WindowContext* NewVulkanForAndroid(ANativeWindow* window, const DisplayParams& params) {
+    auto createVkSurface = [window] (VkInstance instance) -> VkSurfaceKHR {
+        PFN_vkCreateAndroidSurfaceKHR createAndroidSurfaceKHR =
+                (PFN_vkCreateAndroidSurfaceKHR)vkGetInstanceProcAddr(instance,
+                                                                     "vkCreateAndroidSurfaceKHR");
+
+        if (!window) {
+            return VK_NULL_HANDLE;
+        }
+        VkSurfaceKHR surface;
+
+        VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo;
+        memset(&surfaceCreateInfo, 0, sizeof(VkAndroidSurfaceCreateInfoKHR));
+        surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+        surfaceCreateInfo.pNext = nullptr;
+        surfaceCreateInfo.flags = 0;
+        surfaceCreateInfo.window = window;
+
+        VkResult res = createAndroidSurfaceKHR(instance, &surfaceCreateInfo,
+                                               nullptr, &surface);
+        return (VK_SUCCESS == res) ? surface : VK_NULL_HANDLE;
+    };
+
+    auto canPresent = [](VkInstance, VkPhysicalDevice, uint32_t) { return true; };
+
+    WindowContext* ctx = new VulkanWindowContext(params, createVkSurface, canPresent);
+    if (!ctx->isValid()) {
+        delete ctx;
+        return nullptr;
     }
-
-    if (!platformData) {
-        return VK_NULL_HANDLE;
-    }
-    ContextPlatformData_android* androidPlatformData =
-                                           reinterpret_cast<ContextPlatformData_android*>(platformData);
-    VkSurfaceKHR surface;
-
-    VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo;
-    memset(&surfaceCreateInfo, 0, sizeof(VkAndroidSurfaceCreateInfoKHR));
-    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
-    surfaceCreateInfo.pNext = nullptr;
-    surfaceCreateInfo.flags = 0;
-    surfaceCreateInfo.window = androidPlatformData->fNativeWindow;
-
-    VkResult res = createAndroidSurfaceKHR(instance, &surfaceCreateInfo,
-                                           nullptr, &surface);
-    return (VK_SUCCESS == res) ? surface : VK_NULL_HANDLE;
+    return ctx;
 }
 
-bool VulkanWindowContext::canPresent(VkInstance instance, VkPhysicalDevice physDev,
-                                     uint32_t queueFamilyIndex, void*) {
-    return true;
-}
-
-}   // namespace sk_app
+}  // namespace window_context_factory
+}  // namespace sk_app

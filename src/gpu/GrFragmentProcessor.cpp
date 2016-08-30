@@ -106,6 +106,9 @@ int GrFragmentProcessor::registerChildProcessor(sk_sp<GrFragmentProcessor> child
     if (child->usesLocalCoords()) {
         fUsesLocalCoords = true;
     }
+    if (child->usesDistanceVectorField()) {
+        fUsesDistanceVectorField = true;
+    }
 
     int index = fChildProcessors.count();
     fChildProcessors.push_back(child.release());
@@ -141,6 +144,46 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputAlpha(
     }
     return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(fp),
                                                              SkXfermode::kDstIn_Mode);
+}
+
+sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProcessor> fp) {
+
+    class PremulInputFragmentProcessor : public GrFragmentProcessor {
+    public:
+        PremulInputFragmentProcessor() {
+            this->initClassID<PremulInputFragmentProcessor>();
+        }
+
+        const char* name() const override { return "PremultiplyInput"; }
+
+    private:
+        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+            class GLFP : public GrGLSLFragmentProcessor {
+            public:
+                void emitCode(EmitArgs& args) override {
+                    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+
+                    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, args.fInputColor);
+                    fragBuilder->codeAppendf("%s.rgb *= %s.a;",
+                                             args.fOutputColor, args.fInputColor);
+                }
+            };
+            return new GLFP;
+        }
+
+        void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
+
+        bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
+
+        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
+            inout->premulFourChannelColor();
+        }
+    };
+    if (!fp) {
+        return nullptr;
+    }
+    sk_sp<GrFragmentProcessor> fpPipeline[] = { sk_make_sp<PremulInputFragmentProcessor>(), fp};
+    return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
 sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
@@ -310,9 +353,11 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 void emitCode(EmitArgs& args) override {
-                    SkString input(args.fInputColor);
-                    for (int i = 0; i < this->numChildProcessors() - 1; ++i) {
-                        SkString temp;
+                    // First guy's input might be nil.
+                    SkString temp("out0");
+                    this->emitChild(0, args.fInputColor, &temp, args);
+                    SkString input = temp;
+                    for (int i = 1; i < this->numChildProcessors() - 1; ++i) {
                         temp.printf("out%d", i);
                         this->emitChild(i, input.c_str(), &temp, args);
                         input = temp;

@@ -91,12 +91,17 @@ SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(PackedUnicharID packed
 uint16_t SkGlyphCache::unicharToGlyph(SkUnichar charCode) {
     VALIDATE();
     PackedUnicharID packedUnicharID = SkGlyph::MakeID(charCode);
-    const CharGlyphRec& rec = *this->getCharGlyphRec(packedUnicharID);
+    CharGlyphRec* rec = this->getCharGlyphRec(packedUnicharID);
 
-    if (rec.fPackedUnicharID == packedUnicharID) {
-        return SkGlyph::ID2Code(rec.fPackedGlyphID);
+    if (rec->fPackedUnicharID == packedUnicharID) {
+        // The glyph exists in the unichar to glyph mapping cache. Return it.
+        return SkGlyph::ID2Code(rec->fPackedGlyphID);
     } else {
-        return fScalerContext->charToGlyphID(charCode);
+        // The glyph is not in the unichar to glyph mapping cache. Insert it.
+        rec->fPackedUnicharID = packedUnicharID;
+        uint16_t glyphID = fScalerContext->charToGlyphID(charCode);
+        rec->fPackedGlyphID = SkGlyph::MakeID(glyphID);
+        return glyphID;
     }
 }
 

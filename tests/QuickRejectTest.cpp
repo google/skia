@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkDrawLooper.h"
+#include "SkLightingImageFilter.h"
 #include "SkTypes.h"
 #include "Test.h"
 
@@ -103,7 +104,68 @@ static void test_layers(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, false == canvas.quickReject(SkRect::MakeWH(60, 60)));
 }
 
+static void test_quick_reject(skiatest::Reporter* reporter) {
+    SkCanvas canvas(100, 100);
+    SkRect r0 = SkRect::MakeLTRB(-50.0f, -50.0f, 50.0f, 50.0f);
+    SkRect r1 = SkRect::MakeLTRB(-50.0f, 110.0f, 50.0f, 120.0f);
+    SkRect r2 = SkRect::MakeLTRB(110.0f, -50.0f, 120.0f, 50.0f);
+    SkRect r3 = SkRect::MakeLTRB(-120.0f, -50.0f, 120.0f, 50.0f);
+    SkRect r4 = SkRect::MakeLTRB(-50.0f, -120.0f, 50.0f, 120.0f);
+    SkRect r5 = SkRect::MakeLTRB(-120.0f, -120.0f, 120.0f, 120.0f);
+    SkRect r6 = SkRect::MakeLTRB(-120.0f, -120.0f, -110.0f, -110.0f);
+    SkRect r7 = SkRect::MakeLTRB(SK_ScalarNaN, -50.0f, 50.0f, 50.0f);
+    SkRect r8 = SkRect::MakeLTRB(-50.0f, SK_ScalarNaN, 50.0f, 50.0f);
+    SkRect r9 = SkRect::MakeLTRB(-50.0f, -50.0f, SK_ScalarNaN, 50.0f);
+    SkRect r10 = SkRect::MakeLTRB(-50.0f, -50.0f, 50.0f, SK_ScalarNaN);
+    REPORTER_ASSERT(reporter, false == canvas.quickReject(r0));
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(r1));
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(r2));
+    REPORTER_ASSERT(reporter, false == canvas.quickReject(r3));
+    REPORTER_ASSERT(reporter, false == canvas.quickReject(r4));
+    REPORTER_ASSERT(reporter, false == canvas.quickReject(r5));
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(r6));
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(r7));
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(r8));
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(r9));
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(r10));
+
+    SkMatrix m = SkMatrix::MakeScale(2.0f);
+    m.setTranslateX(10.0f);
+    m.setTranslateY(10.0f);
+    canvas.setMatrix(m);
+    SkRect r11 = SkRect::MakeLTRB(5.0f, 5.0f, 100.0f, 100.0f);
+    SkRect r12 = SkRect::MakeLTRB(5.0f, 50.0f, 100.0f, 100.0f);
+    SkRect r13 = SkRect::MakeLTRB(50.0f, 5.0f, 100.0f, 100.0f);
+    REPORTER_ASSERT(reporter, false == canvas.quickReject(r11));
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(r12));
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(r13));
+}
+
 DEF_TEST(QuickReject, reporter) {
     test_drawBitmap(reporter);
     test_layers(reporter);
+    test_quick_reject(reporter);
+}
+
+// Regression test to make sure that we keep fIsScaleTranslate up to date on the canvas.
+// It is possible to set a new matrix on the canvas without calling setMatrix().  This tests
+// that code path.
+DEF_TEST(QuickReject_MatrixState, reporter) {
+    SkCanvas canvas(100, 100);
+
+    SkMatrix matrix;
+    matrix.setRotate(45.0f);
+    canvas.setMatrix(matrix);
+
+    SkPaint paint;
+    sk_sp<SkImageFilter> filter = SkLightingImageFilter::MakeDistantLitDiffuse(
+            SkPoint3::Make(1.0f, 1.0f, 1.0f), 0xFF0000FF, 2.0f, 0.5f, nullptr);
+    REPORTER_ASSERT(reporter, filter);
+    paint.setImageFilter(filter);
+    SkCanvas::SaveLayerRec rec;
+    rec.fPaint = &paint;
+    canvas.saveLayer(rec);
+
+    // quickReject() will assert if the matrix is out of sync.
+    canvas.quickReject(SkRect::MakeWH(100.0f, 100.0f));
 }

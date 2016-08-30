@@ -21,7 +21,10 @@ Clone the Skia repository
 
 <!--?prettify lang=sh?-->
 
-    git clone https://skia.googlesource.com/skia.git
+    mkdir $SRC
+    cd $SRC
+    gclient config --unmanaged https://skia.googlesource.com/skia.git
+    gclient sync
     cd skia
 
 Getting started with Skia

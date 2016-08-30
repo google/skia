@@ -112,6 +112,11 @@ public:
         return fUsed > 0 && (t == 0 ? fT[0][0] == 0 : fT[0][fUsed - 1] == 1);
     }
 
+    bool hasOppT(double t) const {
+        SkASSERT(t == 0 || t == 1);
+        return fUsed > 0 && (fT[1][0] == t || fT[1][fUsed - 1] == t);
+    }
+
     int insertSwap(double one, double two, const SkDPoint& pt) {
         if (fSwap) {
             return insert(two, one, pt);
@@ -180,7 +185,6 @@ public:
         quad.set(a);
         SkDLine line;
         line.set(b);
-        fMax = 3; // 2;  permit small coincident segment + non-coincident intersection
         return intersect(quad, line);
     }
 
@@ -207,7 +211,7 @@ public:
     bool swapped() const {
         return fSwap;
     }
-    
+
     int used() const {
         return fUsed;
     }

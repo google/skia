@@ -118,7 +118,15 @@ public:
 
     VkRenderPass vkRenderPass() const { return fRenderPass; }
 
+    const VkExtent2D& granularity() const { return fGranularity; }
+
     void genKey(GrProcessorKeyBuilder* b) const;
+
+#ifdef SK_TRACE_VK_RESOURCES
+    void dumpInfo() const override {
+        SkDebugf("GrVkRenderPass: %d (%d refs)\n", fRenderPass, this->getRefCnt());
+    }
+#endif
 
 private:
     GrVkRenderPass(const GrVkRenderPass&);
@@ -135,6 +143,7 @@ private:
     VkRenderPass          fRenderPass;
     AttachmentFlags       fAttachmentFlags;
     AttachmentsDescriptor fAttachmentsDescriptor;
+    VkExtent2D            fGranularity;
 
     typedef GrVkResource INHERITED;
 };

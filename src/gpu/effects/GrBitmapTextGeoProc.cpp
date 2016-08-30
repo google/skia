@@ -98,7 +98,8 @@ public:
                           const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper<GrBitmapTextGeoProc>(primProc, pdman, index, transforms);
+        this->setTransformDataHelper(primProc.cast<GrBitmapTextGeoProc>().localMatrix(), pdman,
+                                     index, transforms);
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,
@@ -138,16 +139,15 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
     , fInColor(nullptr)
     , fMaskFormat(format) {
     this->initClassID<GrBitmapTextGeoProc>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType);
 
     bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
                           kA565_GrMaskFormat == fMaskFormat;
     if (hasVertexColor) {
-        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
+        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
     }
-    fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                        kVec2us_GrVertexAttribType,
-                                                        kHigh_GrSLPrecision));
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords",  kVec2us_GrVertexAttribType,
+                                              kHigh_GrSLPrecision);
     this->addTextureAccess(&fTextureAccess);
 }
 

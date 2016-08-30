@@ -12,6 +12,12 @@
 #include "SkTLogic.h"
 #include "SkTypes.h"
 
+// #include "SkOpts.h"
+// It's sort of pesky to be able to include SkOpts.h here, so we'll just re-declare what we need.
+namespace SkOpts {
+    extern uint32_t (*hash_fn)(const void*, size_t, uint32_t);
+}
+
 class SkChecksum : SkNoncopyable {
 public:
     /**
@@ -41,17 +47,6 @@ public:
         hash ^= hash >> 16;
         return hash;
     }
-
-    /**
-     * Calculate 32-bit Murmur hash (murmur3).
-     * See en.wikipedia.org/wiki/MurmurHash.
-     *
-     *  @param data Memory address of the data block to be processed.
-     *  @param size Size of the data block in bytes.
-     *  @param seed Initial hash seed. (optional)
-     *  @return hash result
-     */
-    static uint32_t Murmur3(const void* data, size_t bytes, uint32_t seed=0);
 };
 
 // SkGoodHash should usually be your first choice in hashing data.
@@ -64,11 +59,11 @@ struct SkGoodHash {
 
     template <typename K>
     SK_WHEN(sizeof(K) != 4, uint32_t) operator()(const K& k) const {
-        return SkChecksum::Murmur3(&k, sizeof(K));
+        return SkOpts::hash_fn(&k, sizeof(K), 0);
     }
 
     uint32_t operator()(const SkString& k) const {
-        return SkChecksum::Murmur3(k.c_str(), k.size());
+        return SkOpts::hash_fn(k.c_str(), k.size(), 0);
     }
 };
 

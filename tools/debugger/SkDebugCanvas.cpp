@@ -58,6 +58,16 @@ protected:
         this->SkCanvas::onDrawPicture(picture, matrix, paint);
     }
 
+    void onDrawShadowedPicture(const SkPicture* picture,
+                               const SkMatrix* matrix,
+                               const SkPaint* paint) {
+#ifdef SK_EXPERIMENTAL_SHADOWING
+        this->SkCanvas::onDrawShadowedPicture(picture, matrix, paint);
+#else
+        this->SkCanvas::onDrawPicture(picture, matrix, paint);
+#endif
+    }
+
 private:
     sk_sp<SkXfermode> fOverdrawXfermode;
 
@@ -345,7 +355,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         // get the render target of the top device so we can ignore batches drawn offscreen
         SkBaseDevice* bd = canvas->getDevice_just_for_deprecated_compatibility_testing();
         SkGpuDevice* gbd = reinterpret_cast<SkGpuDevice*>(bd);
-        uint32_t rtID = gbd->accessRenderTarget()->getUniqueID();
+        uint32_t rtID = gbd->accessDrawContext()->accessRenderTarget()->getUniqueID();
 
         // get the bounding boxes to draw
         SkTArray<GrAuditTrail::BatchInfo> childrenBounds;
@@ -586,6 +596,11 @@ void SkDebugCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawOvalCommand(oval, paint));
 }
 
+void SkDebugCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+                               bool useCenter, const SkPaint& paint) {
+    this->addDrawCommand(new SkDrawArcCommand(oval, startAngle, sweepAngle, useCenter, paint));
+}
+
 void SkDebugCanvas::onDrawPaint(const SkPaint& paint) {
     this->addDrawCommand(new SkDrawPaintCommand(paint));
 }
@@ -601,6 +616,15 @@ void SkDebugCanvas::onDrawPicture(const SkPicture* picture,
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
     picture->playback(this);
     this->addDrawCommand(new SkEndDrawPictureCommand(SkToBool(matrix) || SkToBool(paint)));
+}
+
+void SkDebugCanvas::onDrawShadowedPicture(const SkPicture* picture,
+                                          const SkMatrix* matrix,
+                                          const SkPaint* paint) {
+    this->addDrawCommand(new SkBeginDrawShadowedPictureCommand(picture, matrix, paint));
+    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
+    picture->playback(this);
+    this->addDrawCommand(new SkEndDrawShadowedPictureCommand(SkToBool(matrix) || SkToBool(paint)));
 }
 
 void SkDebugCanvas::onDrawPoints(PointMode mode, size_t count,
@@ -644,6 +668,11 @@ void SkDebugCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const 
         new SkDrawTextOnPathCommand(text, byteLength, path, matrix, paint));
 }
 
+void SkDebugCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                                      const SkRect* cull, const SkPaint& paint) {
+    this->addDrawCommand(new SkDrawTextRSXformCommand(text, byteLength, xform, cull, paint));
+}
+
 void SkDebugCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                    const SkPaint& paint) {
     this->addDrawCommand(new SkDrawTextBlobCommand(blob, x, y, paint));
@@ -683,6 +712,13 @@ SkCanvas::SaveLayerStrategy SkDebugCanvas::getSaveLayerStrategy(const SaveLayerR
 void SkDebugCanvas::didSetMatrix(const SkMatrix& matrix) {
     this->addDrawCommand(new SkSetMatrixCommand(matrix));
     this->INHERITED::didSetMatrix(matrix);
+}
+
+void SkDebugCanvas::didTranslateZ(SkScalar z) {
+#ifdef SK_EXPERIMENTAL_SHADOWING
+    this->addDrawCommand(new SkTranslateZCommand(z));
+    this->INHERITED::didTranslateZ(z);
+#endif
 }
 
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {

@@ -27,8 +27,6 @@ static char* tchar_to_utf8(const TCHAR* str) {
 #endif
 }
 
-static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
-
 // This file can work with GUI or CONSOLE subsystem types since we define _tWinMain and main().
 
 static int main_common(HINSTANCE hInstance, int show, int argc, char**argv);
@@ -66,18 +64,13 @@ static int main_common(HINSTANCE hInstance, int show, int argc, char**argv) {
 
     MSG msg = { 0 };
 
-    double currentTime = 0.0;
-    double previousTime = 0.0;
-
     // Main message loop
     while (WM_QUIT != msg.message) {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         } else {
-            previousTime = currentTime;
-            currentTime = now_ms();
-            app->onIdle(currentTime - previousTime);
+            app->onIdle();
         }
     }
 

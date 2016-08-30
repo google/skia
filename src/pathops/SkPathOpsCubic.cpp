@@ -277,7 +277,7 @@ bool SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
             for (int index = 0; index < roots; ++index) {
                 if (between(inflectionTs[0], maxCurvature[index], inflectionTs[1])) {
                     *t = maxCurvature[index];
-                    return true;
+                    return *t > 0 && *t < 1;
                 }
             }
         } else if (infTCount == 1) {
@@ -310,6 +310,7 @@ int SkDCubic::searchRoots(double extremeTs[6], int extrema, double axisIntercept
     extrema += findInflections(&extremeTs[extrema]);
     extremeTs[extrema++] = 0;
     extremeTs[extrema] = 1;
+    SkASSERT(extrema < 6);
     SkTQSort(extremeTs, extremeTs + extrema);
     int validCount = 0;
     for (int index = 0; index < extrema; ) {
@@ -320,6 +321,9 @@ int SkDCubic::searchRoots(double extremeTs[6], int extrema, double axisIntercept
         }
         double newT = binarySearch(min, max, axisIntercept, xAxis);
         if (newT >= 0) {
+            if (validCount >= 3) {
+                return 0;
+            }
             validRoots[validCount++] = newT;
         }
     }

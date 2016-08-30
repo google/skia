@@ -90,19 +90,18 @@ public:
                 next->pointSpan(span);
             }
         } else {
-            Span center = span.breakAt(fXMax, dx);
-
-            if (!span.isEmpty()) {
-                span.clampToSinglePixel({fXMax - 1, y});
-                next->pointSpan(span);
+            Span rightClamped = span.breakAt(fXMax, dx);
+            if (!rightClamped.isEmpty()) {
+                rightClamped.clampToSinglePixel({fXMax - 1, y});
+                next->pointSpan(rightClamped);
             }
-            Span leftEdge = center.breakAt(0.0f, dx);
+            Span center = span.breakAt(0.0f, dx);
             if (!center.isEmpty()) {
                 next->pointSpan(center);
             }
-            if (!leftEdge.isEmpty()) {
-                leftEdge.clampToSinglePixel({0.0f, y});
-                next->pointSpan(leftEdge);
+            if (!span.isEmpty()) {
+                span.clampToSinglePixel({0.0f, y});
+                next->pointSpan(span);
             }
         }
         return true;

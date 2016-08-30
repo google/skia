@@ -13,8 +13,6 @@
 #include "../Application.h"
 #include "Timer.h"
 
-static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
-
 using sk_app::Application;
 
 /**
@@ -35,9 +33,6 @@ void android_main(struct android_app* state) {
     std::unique_ptr<Application> vkApp(Application::Create(SK_ARRAY_COUNT(gCmdLine),
                                                            const_cast<char**>(gCmdLine),
                                                            state));
-
-    double currentTime = 0.0;
-    double previousTime = 0.0;
 
     // loop waiting for stuff to do.
     while (1) {
@@ -60,9 +55,7 @@ void android_main(struct android_app* state) {
                 return;
             }
 
-            previousTime = currentTime;
-            currentTime = now_ms();
-            vkApp->onIdle(currentTime - previousTime);
+            vkApp->onIdle();
         }
     }
 }

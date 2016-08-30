@@ -53,7 +53,8 @@ public:
                           const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper<GrConicEffect>(primProc, pdman, index, transforms);
+        this->setTransformDataHelper(primProc.cast<GrConicEffect>().localMatrix(), pdman, index,
+                                     transforms);
     }
 
 private:
@@ -262,10 +263,9 @@ GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t 
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
     this->initClassID<GrConicEffect>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                   kHigh_GrSLPrecision));
-    fInConicCoeffs = &this->addVertexAttrib(Attribute("inConicCoeffs",
-                                                      kVec4f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                         kHigh_GrSLPrecision);
+    fInConicCoeffs = &this->addVertexAttrib("inConicCoeffs", kVec4f_GrVertexAttribType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -327,7 +327,8 @@ public:
                           const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper<GrQuadEffect>(primProc, pdman, index, transforms);
+        this->setTransformDataHelper(primProc.cast<GrQuadEffect>().localMatrix(), pdman, index,
+                                     transforms);
     }
 
 private:
@@ -478,10 +479,9 @@ GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t co
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
     this->initClassID<GrQuadEffect>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                   kHigh_GrSLPrecision));
-    fInHairQuadEdge = &this->addVertexAttrib(Attribute("inHairQuadEdge",
-                                                        kVec4f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                                   kHigh_GrSLPrecision);
+    fInHairQuadEdge = &this->addVertexAttrib("inHairQuadEdge", kVec4f_GrVertexAttribType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -706,10 +706,9 @@ GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix,
     , fViewMatrix(viewMatrix)
     , fEdgeType(edgeType) {
     this->initClassID<GrCubicEffect>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                   kHigh_GrSLPrecision));
-    fInCubicCoeffs = &this->addVertexAttrib(Attribute("inCubicCoeffs",
-                                                        kVec4f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                         kHigh_GrSLPrecision);
+    fInCubicCoeffs = &this->addVertexAttrib("inCubicCoeffs", kVec4f_GrVertexAttribType);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -7,7 +7,6 @@
 
 #include "SkPaint.h"
 #include "SkAutoKern.h"
-#include "SkChecksum.h"
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDraw.h"
@@ -19,6 +18,7 @@
 #include "SkMutex.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
+#include "SkOpts.h"
 #include "SkPaintDefaults.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
@@ -27,12 +27,14 @@
 #include "SkShader.h"
 #include "SkStringUtils.h"
 #include "SkStroke.h"
+#include "SkStrokeRec.h"
+#include "SkSurfacePriv.h"
+#include "SkTextBlob.h"
+#include "SkTextBlobRunIterator.h"
 #include "SkTextFormatParams.h"
 #include "SkTextToPathIter.h"
 #include "SkTLazy.h"
 #include "SkTypeface.h"
-#include "SkStrokeRec.h"
-#include "SkSurfacePriv.h"
 #include "SkXfermode.h"
 
 static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
@@ -661,7 +663,9 @@ static const SkGlyph& sk_getAdvance_glyph_next(SkGlyphCache* cache,
     return cache->getGlyphIDAdvance(glyphID);
 }
 
-SkPaint::GlyphCacheProc SkPaint::getGlyphCacheProc(bool needFullMetrics) const {
+SkPaint::GlyphCacheProc SkPaint::GetGlyphCacheProc(TextEncoding encoding,
+                                                   bool isDevKern,
+                                                   bool needFullMetrics) {
     static const GlyphCacheProc gGlyphCacheProcs[] = {
         sk_getMetrics_utf8_next,
         sk_getMetrics_utf16_next,
@@ -674,9 +678,9 @@ SkPaint::GlyphCacheProc SkPaint::getGlyphCacheProc(bool needFullMetrics) const {
         sk_getAdvance_glyph_next,
     };
 
-    unsigned index = this->getTextEncoding();
+    unsigned index = encoding;
 
-    if (!needFullMetrics && !this->isDevKernText()) {
+    if (!needFullMetrics && !isDevKern) {
         index += 4;
     }
 
@@ -774,7 +778,9 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
         return 0;
     }
 
-    GlyphCacheProc glyphCacheProc = this->getGlyphCacheProc(nullptr != bounds);
+    GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(this->getTextEncoding(),
+                                                               this->isDevKernText(),
+                                                               nullptr != bounds);
 
     int xyIndex;
     JoinBoundsProc joinBoundsProc;
@@ -892,7 +898,9 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
     SkAutoGlyphCache    autoCache(paint, nullptr, nullptr);
     SkGlyphCache*       cache = autoCache.getCache();
 
-    GlyphCacheProc   glyphCacheProc = paint.getGlyphCacheProc(false);
+    GlyphCacheProc   glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
+                                                                 paint.isDevKernText(),
+                                                                 false);
     const int        xyIndex = paint.isVerticalText() ? 1 : 0;
     SkScalar         width = 0;
 
@@ -1005,7 +1013,9 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
 
     SkAutoGlyphCache    autoCache(paint, nullptr, nullptr);
     SkGlyphCache*       cache = autoCache.getCache();
-    GlyphCacheProc      glyphCacheProc = paint.getGlyphCacheProc(nullptr != bounds);
+    GlyphCacheProc      glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
+                                                                    paint.isDevKernText(),
+                                                                    nullptr != bounds);
 
     const char* text = (const char*)textData;
     const char* stop = text + byteLength;
@@ -1119,23 +1129,6 @@ void SkPaint::getTextPath(const void* textData, size_t length,
     }
 }
 
-int SkPaint::getTextIntercepts(const void* textData, size_t length,
-                               SkScalar x, SkScalar y, const SkScalar bounds[2],
-                               SkScalar* array) const {
-    SkASSERT(length == 0 || textData != nullptr);
-    if (!length) {
-        return 0;
-    }
-
-    const char* text = (const char*) textData;
-    SkTextInterceptsIter iter(text, length, *this, bounds, x, y,
-            SkTextInterceptsIter::TextType::kText);
-    int count = 0;
-    while (iter.next(array, &count)) {
-    }
-    return count;
-}
-
 void SkPaint::getPosTextPath(const void* textData, size_t length,
                              const SkPoint pos[], SkPath* path) const {
     SkASSERT(length == 0 || textData != nullptr);
@@ -1165,22 +1158,89 @@ void SkPaint::getPosTextPath(const void* textData, size_t length,
     }
 }
 
-int SkPaint::getPosTextIntercepts(const void* textData, size_t length, const SkPoint pos[],
-                                  const SkScalar bounds[2], SkScalar* array) const {
-    SkASSERT(length == 0 || textData != nullptr);
+template <SkTextInterceptsIter::TextType TextType, typename Func>
+int GetTextIntercepts(const SkPaint& paint, const void* text, size_t length,
+                      const SkScalar bounds[2], SkScalar* array, Func posMaker) {
+    SkASSERT(length == 0 || text != nullptr);
     if (!length) {
         return 0;
     }
 
-    const char* text = (const char*) textData;
-    SkTextInterceptsIter iter(text, length, *this, bounds, pos[0].fX, pos[0].fY,
-            SkTextInterceptsIter::TextType::kPosText);
+    const SkPoint pos0 = posMaker(0);
+    SkTextInterceptsIter iter(static_cast<const char*>(text), length, paint, bounds,
+                              pos0.x(), pos0.y(), TextType);
+
     int i = 0;
     int count = 0;
     while (iter.next(array, &count)) {
-        i++;
-        iter.setPosition(pos[i].fX, pos[i].fY);
+        if (TextType == SkTextInterceptsIter::TextType::kPosText) {
+            const SkPoint pos = posMaker(++i);
+            iter.setPosition(pos.x(), pos.y());
+        }
     }
+
+    return count;
+}
+
+int SkPaint::getTextIntercepts(const void* textData, size_t length,
+                               SkScalar x, SkScalar y, const SkScalar bounds[2],
+                               SkScalar* array) const {
+
+    return GetTextIntercepts<SkTextInterceptsIter::TextType::kText>(
+        *this, textData, length, bounds, array, [&x, &y] (int) -> SkPoint {
+            return SkPoint::Make(x, y);
+        });
+}
+
+int SkPaint::getPosTextIntercepts(const void* textData, size_t length, const SkPoint pos[],
+                                  const SkScalar bounds[2], SkScalar* array) const {
+
+    return GetTextIntercepts<SkTextInterceptsIter::TextType::kPosText>(
+        *this, textData, length, bounds, array, [&pos] (int i) -> SkPoint {
+            return pos[i];
+        });
+}
+
+int SkPaint::getPosTextHIntercepts(const void* textData, size_t length, const SkScalar xpos[],
+                                   SkScalar constY, const SkScalar bounds[2],
+                                   SkScalar* array) const {
+
+    return GetTextIntercepts<SkTextInterceptsIter::TextType::kPosText>(
+        *this, textData, length, bounds, array, [&xpos, &constY] (int i) -> SkPoint {
+            return SkPoint::Make(xpos[i], constY);
+        });
+}
+
+int SkPaint::getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
+                                   SkScalar* intervals) const {
+    int count = 0;
+    SkPaint runPaint(*this);
+
+    SkTextBlobRunIterator it(blob);
+    while (!it.done()) {
+        it.applyFontToPaint(&runPaint);
+        const size_t runByteCount = it.glyphCount() * sizeof(SkGlyphID);
+        SkScalar* runIntervals = intervals ? intervals + count : nullptr;
+
+        switch (it.positioning()) {
+        case SkTextBlob::kDefault_Positioning:
+            count += runPaint.getTextIntercepts(it.glyphs(), runByteCount, it.offset().x(),
+                                                it.offset().y(), bounds, runIntervals);
+            break;
+        case SkTextBlob::kHorizontal_Positioning:
+            count += runPaint.getPosTextHIntercepts(it.glyphs(), runByteCount, it.pos(),
+                                                    it.offset().y(), bounds, runIntervals);
+            break;
+        case SkTextBlob::kFull_Positioning:
+            count += runPaint.getPosTextIntercepts(it.glyphs(), runByteCount,
+                                                   reinterpret_cast<const SkPoint*>(it.pos()),
+                                                   bounds, runIntervals);
+            break;
+        }
+
+        it.next();
+    }
+
     return count;
 }
 
@@ -2182,7 +2242,9 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
                                    const SkPaint& paint,
                                    bool applyStrokeAndPathEffects)
     : fPaint(paint) {
-    fGlyphCacheProc = paint.getGlyphCacheProc(true);
+    fGlyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
+                                                 paint.isDevKernText(),
+                                                 true);
 
     fPaint.setLinearText(true);
     fPaint.setMaskFilter(nullptr);   // don't want this affecting our path-cache lookup
@@ -2326,6 +2388,6 @@ uint32_t SkPaint::getHash() const {
     // so fBitfields should be 10 pointers and 6 32-bit values from the start.
     static_assert(offsetof(SkPaint, fBitfields) == 9 * sizeof(void*) + 6 * sizeof(uint32_t),
                   "SkPaint_notPackedTightly");
-    return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(this),
-                               offsetof(SkPaint, fBitfields) + sizeof(fBitfields));
+    return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
+                        offsetof(SkPaint, fBitfields) + sizeof(fBitfields));
 }

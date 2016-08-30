@@ -288,7 +288,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 
 #ifdef SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
     // 3. Ask the generator to return a compressed form that the GPU might support
-    SkAutoTUnref<SkData> data(this->refEncoded(ctx));
+    sk_sp<SkData> data(this->refEncoded(ctx));
     if (data) {
         GrTexture* tex = load_compressed_into_texture(ctx, data, desc);
         if (tex) {

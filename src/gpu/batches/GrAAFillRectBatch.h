@@ -36,19 +36,6 @@ GrDrawBatch* CreateWithLocalRect(GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const SkRect& rect,
                                  const SkRect& localRect);
-
-void Append(GrBatch*,
-            GrColor,
-            const SkMatrix& viewMatrix,
-            const SkRect& rect,
-            const SkRect& devRect);
-
-void Append(GrBatch*,
-            GrColor,
-            const SkMatrix& viewMatrix,
-            const SkMatrix& localMatrix,
-            const SkRect& rect,
-            const SkRect& devRect);
 };
 
 #endif

@@ -14,6 +14,7 @@
 class GrFragmentProcessor;
 class GrTexture;
 class GrXPFactory;
+class SkRasterPipeline;
 class SkString;
 
 struct SkPM4f;
@@ -164,6 +165,8 @@ public:
 
     virtual SkXfermodeProc4f getProc4f() const;
 
+    bool appendStages(SkRasterPipeline*) const;
+
     /**
      *  If the specified mode can be represented by a pair of Coeff, then return
      *  true and set (if not NULL) the corresponding coeffs. If the mode is
@@ -216,15 +219,15 @@ public:
 #if SK_SUPPORT_GPU
     /** Used by the SkXfermodeImageFilter to blend two colors via a GrFragmentProcessor.
         The input to the returned FP is the src color. The dst color is
-        provided by the dst param which becomes a child FP of the returned FP. 
+        provided by the dst param which becomes a child FP of the returned FP.
         It is legal for the function to return a null output. This indicates that
         the output of the blend is simply the src color.
      */
     virtual sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
                                                             sk_sp<GrFragmentProcessor> dst) const;
 
-    /** A subclass must implement this factory function to work with the GPU backend. 
-        The xfermode will return a factory for which the caller will get a ref. It is up 
+    /** A subclass must implement this factory function to work with the GPU backend.
+        The xfermode will return a factory for which the caller will get a ref. It is up
         to the caller to install it. XferProcessors cannot use a background texture.
       */
     virtual sk_sp<GrXPFactory> asXPFactory() const;
@@ -281,6 +284,7 @@ protected:
 
     virtual D32Proc onGetD32Proc(uint32_t flags) const;
     virtual F16Proc onGetF16Proc(uint32_t flags) const;
+    virtual bool onAppendStages(SkRasterPipeline*) const;
 
 private:
     enum {

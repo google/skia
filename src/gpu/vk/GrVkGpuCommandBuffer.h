@@ -32,7 +32,7 @@ public:
 
     void end() override;
 
-    void discard(GrRenderTarget* rt) override {}
+    void discard(GrRenderTarget* rt) override;
 
 private:
     GrGpu* gpu() override;

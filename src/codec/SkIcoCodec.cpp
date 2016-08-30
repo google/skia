@@ -128,13 +128,12 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         bytesRead = offset;
 
         // Create a new stream for the embedded codec
-        SkAutoTUnref<SkData> data(
-                SkData::NewFromStream(inputStream.get(), size));
+        sk_sp<SkData> data(SkData::MakeFromStream(inputStream.get(), size));
         if (nullptr == data.get()) {
             SkCodecPrintf("Warning: could not create embedded stream.\n");
             break;
         }
-        SkAutoTDelete<SkMemoryStream> embeddedStream(new SkMemoryStream(data.get()));
+        SkAutoTDelete<SkMemoryStream> embeddedStream(new SkMemoryStream(data));
         bytesRead += size;
 
         // Check if the embedded codec is bmp or png and create the codec

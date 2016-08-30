@@ -13,7 +13,6 @@
 #include "SkMatrix.h"
 #include "SkMutex.h"
 #include "SkPaint.h"
-#include "SkRTConf.h"
 #include "SkStream.h"
 
 #include <stdlib.h>
@@ -21,6 +20,15 @@
 #ifdef SK_BUILD_FOR_MAC
 #include <sys/sysctl.h>
 #endif
+
+bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
+             SkDEBUGPARAMS(bool skipAssert)
+             SkDEBUGPARAMS(const char* testName));
+
+bool SimplifyDebug(const SkPath& one, SkPath* result
+                   SkDEBUGPARAMS(bool skipAssert)
+                   SkDEBUGPARAMS(const char* testName));
+
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -38,7 +46,7 @@ static const char* opStrs[] = {
     "kDifference_SkPathOp",
     "kIntersect_SkPathOp",
     "kUnion_SkPathOp",
-    "kXor_PathOp",
+    "kXOR_PathOp",
     "kReverseDifference_SkPathOp",
 };
 
@@ -47,6 +55,24 @@ static const char* opSuffixes[] = {
     "i",
     "u",
     "o",
+    "r",
+};
+
+enum class ExpectSuccess {
+    kNo,
+    kYes,
+    kFlaky
+};
+
+enum class SkipAssert {
+    kNo,
+    kYes
+};
+
+enum class ExpectMatch {
+    kNo,
+    kYes,
+    kFlaky
 };
 
 #if DEBUG_SHOW_TEST_NAME
@@ -324,11 +350,11 @@ SK_DECLARE_STATIC_MUTEX(compareDebugOut3);
 static int comparePaths(skiatest::Reporter* reporter, const char* testName, const SkPath& one,
         const SkPath& scaledOne, const SkPath& two, const SkPath& scaledTwo, SkBitmap& bitmap,
         const SkPath& a, const SkPath& b, const SkPathOp shapeOp, const SkMatrix& scale,
-        bool expectSuccess) {
+        ExpectMatch expectMatch) {
     int errors2x2;
     const int MAX_ERRORS = 8;
     (void) pathsDrawTheSame(bitmap, scaledOne, scaledTwo, errors2x2);
-    if (!expectSuccess) {
+    if (ExpectMatch::kNo == expectMatch) {
         if (errors2x2 < MAX_ERRORS) {
             REPORTER_ASSERT(reporter, 0);
         }
@@ -337,7 +363,7 @@ static int comparePaths(skiatest::Reporter* reporter, const char* testName, cons
     if (errors2x2 == 0) {
         return 0;
     }
-    if (errors2x2 >= MAX_ERRORS) {
+    if (ExpectMatch::kYes == expectMatch && errors2x2 >= MAX_ERRORS) {
         SkAutoMutexAcquire autoM(compareDebugOut3);
         showPathOpPath(testName, one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
         SkDebugf("\n/*");
@@ -444,25 +470,33 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
 }
 
 static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename,
-        bool checkFail) {
+        ExpectSuccess expectSuccess, SkipAssert skipAssert, ExpectMatch expectMatch) {
 #if 0 && DEBUG_SHOW_TEST_NAME
     showPathData(path);
 #endif
     SkPath out;
-    if (!Simplify(path, &out)) {
-        SkDebugf("%s did not expect %s failure\n", __FUNCTION__, filename);
-        REPORTER_ASSERT(reporter, 0);
+    if (!SimplifyDebug(path, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
+            SkDEBUGPARAMS(testName))) {
+        if (ExpectSuccess::kYes == expectSuccess) {
+            SkDebugf("%s did not expect %s failure\n", __FUNCTION__, filename);
+            REPORTER_ASSERT(reporter, 0);
+        }
         return false;
+    } else {
+        if (ExpectSuccess::kNo == expectSuccess) {
+            SkDebugf("%s %s unexpected success\n", __FUNCTION__, filename);
+            REPORTER_ASSERT(reporter, 0);
+        }
     }
     SkBitmap bitmap;
     int errors = comparePaths(reporter, filename, path, out, bitmap);
-    if (!checkFail) {
+    if (ExpectMatch::kNo == expectMatch) {
         if (!errors) {
             SkDebugf("%s failing test %s now succeeds\n", __FUNCTION__, filename);
             REPORTER_ASSERT(reporter, 0);
             return false;
         }
-    } else if (errors) {
+    } else if (ExpectMatch::kYes == expectMatch && errors) {
         REPORTER_ASSERT(reporter, 0);
     }
     reporter->bumpTestCount();
@@ -470,12 +504,19 @@ static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, con
 }
 
 bool testSimplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename) {
-    return inner_simplify(reporter, path, filename, true);
+    return inner_simplify(reporter, path, filename, ExpectSuccess::kYes, SkipAssert::kNo,
+            ExpectMatch::kYes);
+}
+
+bool testSimplifyFailSkipAssert(skiatest::Reporter* reporter, const SkPath& path, const char* filename) {
+    return inner_simplify(reporter, path, filename, ExpectSuccess::kNo, SkipAssert::kYes,
+            ExpectMatch::kNo);
 }
 
 bool testSimplifyCheck(skiatest::Reporter* reporter, const SkPath& path, const char* filename,
         bool checkFail) {
-    return inner_simplify(reporter, path, filename, checkFail);
+    return inner_simplify(reporter, path, filename, checkFail ?
+            ExpectSuccess::kYes : ExpectSuccess::kNo, SkipAssert::kNo, ExpectMatch::kNo);
 }
 
 #if DEBUG_SHOW_TEST_NAME
@@ -487,23 +528,25 @@ static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
 }
 #endif
 
-bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
-             SkDEBUGPARAMS(bool skipAssert)
-             SkDEBUGPARAMS(const char* testName));
-
 static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-        const SkPathOp shapeOp, const char* testName, bool expectSuccess, bool skipAssert) {
+        const SkPathOp shapeOp, const char* testName, ExpectSuccess expectSuccess,
+        SkipAssert skipAssert, ExpectMatch expectMatch) {
 #if 0 && DEBUG_SHOW_TEST_NAME
     showName(a, b, shapeOp);
 #endif
     SkPath out;
-    if (!OpDebug(a, b, shapeOp, &out  SkDEBUGPARAMS(skipAssert)
+    if (!OpDebug(a, b, shapeOp, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
             SkDEBUGPARAMS(testName))) {
-        if (expectSuccess) {
-            SkDebugf("%s did not expect failure\n", __FUNCTION__);
+        if (ExpectSuccess::kYes == expectSuccess) {
+            SkDebugf("%s %s did not expect failure\n", __FUNCTION__, testName);
             REPORTER_ASSERT(reporter, 0);
         }
         return false;
+    } else {
+        if (ExpectSuccess::kNo == expectSuccess) {
+                SkDebugf("%s %s unexpected success\n", __FUNCTION__, testName);
+                REPORTER_ASSERT(reporter, 0);
+        }
     }
     if (!reporter->verbose()) {
         return true;
@@ -533,37 +576,48 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     scaledOut.addPath(out, scale);
     scaledOut.setFillType(out.getFillType());
     int result = comparePaths(reporter, testName, pathOut, scaledPathOut, out, scaledOut, bitmap,
-            a, b, shapeOp, scale, expectSuccess);
+            a, b, shapeOp, scale, expectMatch);
     reporter->bumpTestCount();
     return result == 0;
 }
 
 bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, true, false);
+    return innerPathOp(reporter, a, b, shapeOp, testName, ExpectSuccess::kYes, SkipAssert::kNo,
+            ExpectMatch::kYes);
 }
 
 bool testPathOpCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName, bool checkFail) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, checkFail, false);
+    return innerPathOp(reporter, a, b, shapeOp, testName, checkFail ?
+            ExpectSuccess::kYes : ExpectSuccess::kNo, SkipAssert::kNo, ExpectMatch::kNo);
 }
 
 bool testPathOpFailCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, false, false);
+    return innerPathOp(reporter, a, b, shapeOp, testName, ExpectSuccess::kNo, SkipAssert::kNo,
+            ExpectMatch::kNo);
 }
 
-bool testPathSkipAssertOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+bool testPathOpSkipAssert(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, true, true);
+    return innerPathOp(reporter, a, b, shapeOp, testName, ExpectSuccess::kYes, SkipAssert::kYes,
+            ExpectMatch::kYes);
 }
 
-bool testPathFailSkipAssertOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+bool testPathOpFailSkipAssert(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, false, true);
+    return innerPathOp(reporter, a, b, shapeOp, testName, ExpectSuccess::kNo, SkipAssert::kYes,
+            ExpectMatch::kNo);
 }
 
-bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+bool testPathOpFlakySkipAssert(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+        const SkPathOp shapeOp, const char* testName) {
+    return innerPathOp(reporter, a, b, shapeOp, testName, ExpectSuccess::kFlaky, SkipAssert::kYes,
+            ExpectMatch::kFlaky);
+}
+
+bool testPathOpFail(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                  const SkPathOp shapeOp, const char* testName) {
 #if DEBUG_SHOW_TEST_NAME
     showName(a, b, shapeOp);
@@ -583,10 +637,6 @@ bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath&
 SK_DECLARE_STATIC_MUTEX(gMutex);
 
 void initializeTests(skiatest::Reporter* reporter, const char* test) {
-#if 0  // doesn't work yet
-    SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true);
-    SK_CONF_SET("images.png.suppressDecoderWarnings", true);
-#endif
     if (reporter->verbose()) {
         SkAutoMutexAcquire lock(gMutex);
         testName = test;

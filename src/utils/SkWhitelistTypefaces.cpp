@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkChecksum.h"
 #include "SkFontDescriptor.h"
+#include "SkOpts.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "../sfnt/SkOTUtils.h"
 
-#include "SkWhitelistChecksums.cpp"
+#include "SkWhitelistChecksums.inc"
 
 #define WHITELIST_DEBUG 0
 
@@ -80,15 +80,16 @@ static uint32_t compute_checksum(const SkTypeface* tf) {
     if (!fontStream->peek(data.begin(), length)) {
         return 0;
     }
-    return SkChecksum::Murmur3(data.begin(), length);
+    return SkOpts::hash(data.begin(), length);
 }
 
-static void serialize_sub(const char* fontName, SkTypeface::Style style, SkWStream* wstream) {
-    SkFontDescriptor desc(style);
+static void serialize_sub(const char* fontName, SkFontStyle style, SkWStream* wstream) {
+    SkFontDescriptor desc;
     SkString subName(SUBNAME_PREFIX);
     subName.append(fontName);
     const char* familyName = subName.c_str();
     desc.setFamilyName(familyName);
+    desc.setStyle(style);
     desc.serialize(wstream);
 #if WHITELIST_DEBUG
     for (int i = 0; i < whitelistCount; ++i) {
@@ -105,14 +106,14 @@ static void serialize_sub(const char* fontName, SkTypeface::Style style, SkWStre
 
 static bool is_local(const SkTypeface* tf) {
     bool isLocal = false;
-    SkFontDescriptor desc(tf->style());
+    SkFontDescriptor desc;
     tf->getFontDescriptor(&desc, &isLocal);
     return isLocal;
 }
 
 static void serialize_full(const SkTypeface* tf, SkWStream* wstream) {
     bool isLocal = false;
-    SkFontDescriptor desc(tf->style());
+    SkFontDescriptor desc;
     tf->getFontDescriptor(&desc, &isLocal);
 
     // Embed font data if it's a local font.
@@ -124,7 +125,7 @@ static void serialize_full(const SkTypeface* tf, SkWStream* wstream) {
 
 static void serialize_name_only(const SkTypeface* tf, SkWStream* wstream) {
     bool isLocal = false;
-    SkFontDescriptor desc(tf->style());
+    SkFontDescriptor desc;
     tf->getFontDescriptor(&desc, &isLocal);
     SkASSERT(!isLocal);
 #if WHITELIST_DEBUG
@@ -180,7 +181,7 @@ void WhitelistSerializeTypeface(const SkTypeface* tf, SkWStream* wstream) {
 #endif
         whitelist[whitelistIndex].fChecksum = checksum;
     }
-    serialize_sub(fontName, tf->style(), wstream);
+    serialize_sub(fontName, tf->fontStyle(), wstream);
 }
 
 sk_sp<SkTypeface> WhitelistDeserializeTypeface(SkStream* stream) {
@@ -200,7 +201,7 @@ sk_sp<SkTypeface> WhitelistDeserializeTypeface(SkStream* stream) {
     if (!strncmp(SUBNAME_PREFIX, familyName, sizeof(SUBNAME_PREFIX) - 1)) {
         familyName += sizeof(SUBNAME_PREFIX) - 1;
     }
-    return SkTypeface::MakeFromName(familyName, SkFontStyle::FromOldStyle(desc.getStyle()));
+    return SkTypeface::MakeFromName(familyName, desc.getStyle());
 }
 
 bool CheckChecksums() {
@@ -215,7 +216,7 @@ bool CheckChecksums() {
     return true;
 }
 
-const char checksumFileName[] = "SkWhitelistChecksums.cpp";
+const char checksumFileName[] = "SkWhitelistChecksums.inc";
 
 const char checksumHeader[] =
 "/*"                                                                        "\n"

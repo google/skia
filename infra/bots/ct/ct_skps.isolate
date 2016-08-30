@@ -1,0 +1,30 @@
+# Copyright (c) 2015 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+{
+  'includes': [                                                                 
+    '../resources.isolate',                                                        
+  ],
+  'conditions': [
+    ['OS=="linux"', {
+      'variables': {
+        'files': [
+          '<(TOOL_NAME)',
+          'run_ct_skps.py',
+          '../../../../skps/<(BUILDER)/slave<(SLAVE_NUM)/',
+        ],
+        'command': [
+          'python',
+          'run_ct_skps.py',
+          '--slave_num', '<(SLAVE_NUM)',
+          '--tool', '<(TOOL_NAME)',
+          '--git_hash', '<(GIT_HASH)',
+          '--isolated_outdir', '${ISOLATED_OUTDIR}',
+          '--configuration', '<(CONFIGURATION)',
+          '--builder', '<(BUILDER)',
+        ],
+      },
+    }],
+  ]
+}

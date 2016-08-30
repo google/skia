@@ -16,14 +16,12 @@ SkBigPicture::SkBigPicture(const SkRect& cull,
                            SkRecord* record,
                            SnapshotArray* drawablePicts,
                            SkBBoxHierarchy* bbh,
-                           AccelData* accelData,
                            size_t approxBytesUsedBySubPictures)
     : fCullRect(cull)
     , fApproxBytesUsedBySubPictures(approxBytesUsedBySubPictures)
     , fRecord(record)               // Take ownership of caller's ref.
     , fDrawablePicts(drawablePicts) // Take ownership.
     , fBBH(bbh)                     // Take ownership of caller's ref.
-    , fAccelData(accelData)         // Take ownership of caller's ref.
 {}
 
 void SkBigPicture::playback(SkCanvas* canvas, AbortCallback* callback) const {

@@ -89,7 +89,7 @@ def parse_dictionary(var_dict, d, current_target_name, dest_dir):
     var_dict.LOCAL_CPPFLAGS.add(flag)
 
   for include in d.get('include_dirs', []):
-    if include.startswith('external'):
+    if include.startswith('external') or include.startswith('frameworks'):
       # This path is relative to the Android root. Leave it alone.
       rel_include = include
     else:

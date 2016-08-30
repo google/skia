@@ -97,6 +97,20 @@ static void make_path_crbug364224_simplified(SkPath* path) {
     path->close();
 }
 
+static void test_sect_with_horizontal_needs_pinning() {
+    // Test that sect_with_horizontal in SkLineClipper.cpp needs to pin after computing the
+    // intersection.
+    SkPath path;
+    path.reset();
+    path.moveTo(-540000, -720000);
+    path.lineTo(-9.10000017e-05f, 9.99999996e-13f);
+    path.lineTo(1, 1);
+
+    // Without the pinning code in sect_with_horizontal(), this would assert in the lineclipper
+    SkPaint paint;
+    SkSurface::MakeRasterN32Premul(10, 10)->getCanvas()->drawPath(path, paint);
+}
+
 static void test_path_crbug364224() {
     SkPath path;
     SkPaint paint;
@@ -2108,6 +2122,42 @@ static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
             check_simple_closed_rect(reporter, path2, testRect, swapDir, kYSwapStarts[start]);
         }
     }
+    // down, up, left, close
+    path.reset();
+    path.moveTo(1, 1);
+    path.lineTo(1, 2);
+    path.lineTo(1, 1);
+    path.lineTo(0, 1);
+    SkRect rect;
+    SkPath::Direction  dir;
+    unsigned start;
+    path.close();
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+    // right, left, up, close
+    path.reset();
+    path.moveTo(1, 1);
+    path.lineTo(2, 1);
+    path.lineTo(1, 1);
+    path.lineTo(1, 0);
+    path.close();
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+    // parallelogram with horizontal edges
+    path.reset();
+    path.moveTo(1, 0);
+    path.lineTo(3, 0);
+    path.lineTo(2, 1);
+    path.lineTo(0, 1);
+    path.close();
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+    // parallelogram with vertical edges
+    path.reset();
+    path.moveTo(0, 1);
+    path.lineTo(0, 3);
+    path.lineTo(1, 2);
+    path.lineTo(1, 0);
+    path.close();
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+
 }
 
 static void test_isNestedFillRects(skiatest::Reporter* reporter) {
@@ -4014,7 +4064,7 @@ static void compare_dump(skiatest::Reporter* reporter, const SkPath& path, bool 
         bool dumpAsHex, const char* str) {
     SkDynamicMemoryWStream wStream;
     path.dump(&wStream, force, dumpAsHex);
-    SkAutoDataUnref data(wStream.copyToData());
+    sk_sp<SkData> data(wStream.copyToData());
     REPORTER_ASSERT(reporter, data->size() == strlen(str));
     if (strlen(str) > 0) {
         REPORTER_ASSERT(reporter, !memcmp(data->data(), str, strlen(str)));
@@ -4206,6 +4256,7 @@ DEF_TEST(PathContains, reporter) {
 }
 
 DEF_TEST(Paths, reporter) {
+    test_sect_with_horizontal_needs_pinning();
     test_crbug_629455(reporter);
     test_fuzz_crbug_627414(reporter);
     test_path_crbug364224();

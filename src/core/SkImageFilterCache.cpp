@@ -7,9 +7,9 @@
 
 #include "SkImageFilterCache.h"
 
-#include "SkChecksum.h"
 #include "SkMutex.h"
 #include "SkOnce.h"
+#include "SkOpts.h"
 #include "SkRefCnt.h"
 #include "SkSpecialImage.h"
 #include "SkTDynamicHash.h"
@@ -47,7 +47,7 @@ public:
             return v.fKey;
         }
         static uint32_t Hash(const Key& key) {
-            return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
+            return SkOpts::hash(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
         }
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Value);
     };

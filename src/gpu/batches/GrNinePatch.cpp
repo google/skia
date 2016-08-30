@@ -12,7 +12,7 @@
 #include "GrResourceProvider.h"
 #include "GrVertexBatch.h"
 #include "SkBitmap.h"
-#include "SkNinePatchIter.h"
+#include "SkLatticeIter.h"
 #include "SkRect.h"
 
 static sk_sp<GrGeometryProcessor> create_gp(bool readsCoverage) {
@@ -29,29 +29,21 @@ public:
 
     static const int kVertsPerRect = 4;
     static const int kIndicesPerRect = 6;
-    static const int kRectsPerInstance = 9; // We could skip empty rects
-
-    struct Geometry {
-        SkMatrix fViewMatrix;
-        SkIRect fCenter;
-        SkRect fDst;
-        GrColor fColor;
-    };
 
     GrNonAANinePatchBatch(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
-                          int imageHeight, const SkIRect& center, const SkRect &dst)
+                          int imageHeight, std::unique_ptr<SkLatticeIter> iter, const SkRect &dst)
         : INHERITED(ClassID()) {
-        Geometry& geo = fGeoData.push_back();
-        geo.fViewMatrix = viewMatrix;
-        geo.fColor = color;
-        geo.fCenter = center;
-        geo.fDst = dst;
+        Patch& patch = fPatches.push_back();
+        patch.fViewMatrix = viewMatrix;
+        patch.fColor = color;
+        patch.fIter = std::move(iter);
+        patch.fDst = dst;
 
         fImageWidth = imageWidth;
         fImageHeight = imageHeight;
 
         // setup bounds
-        geo.fViewMatrix.mapRect(&fBounds, geo.fDst);
+        this->setTransformedBounds(patch.fDst, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "NonAANinePatchBatch"; }
@@ -59,15 +51,12 @@ public:
     SkString dumpInfo() const override {
         SkString str;
 
-        for (int i = 0; i < fGeoData.count(); ++i) {
-            str.appendf("%d: Color: 0x%08x Center [L: %d, T: %d, R: %d, B: %d], "
-                        "Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+        for (int i = 0; i < fPatches.count(); ++i) {
+            str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
                         i,
-                        fGeoData[i].fColor,
-                        fGeoData[i].fCenter.fLeft, fGeoData[i].fCenter.fTop,
-                        fGeoData[i].fCenter.fRight, fGeoData[i].fCenter.fBottom,
-                        fGeoData[i].fDst.fLeft, fGeoData[i].fDst.fTop,
-                        fGeoData[i].fDst.fRight, fGeoData[i].fDst.fBottom);
+                        fPatches[i].fColor,
+                        fPatches[i].fDst.fLeft, fPatches[i].fDst.fTop,
+                        fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
         }
 
         str.append(INHERITED::dumpInfo());
@@ -81,8 +70,6 @@ public:
         coverage->setKnownSingleComponent(0xff);
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
 private:
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp(create_gp(fOverrides.readsCoverage()));
@@ -92,35 +79,40 @@ private:
         }
 
         size_t vertexStride = gp->getVertexStride();
-        int instanceCount = fGeoData.count();
+        int patchCnt = fPatches.count();
+        int numRects = 0;
+        for (int i = 0; i < patchCnt; i++) {
+            numRects += fPatches[i].fIter->numRects();
+        }
 
         SkAutoTUnref<const GrBuffer> indexBuffer(
                 target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
                                      indexBuffer, kVertsPerRect,
-                                     kIndicesPerRect, instanceCount * kRectsPerInstance);
+                                     kIndicesPerRect, numRects);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
-        for (int i = 0; i < instanceCount; i++) {
-            intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
-                             i * kRectsPerInstance * kVertsPerRect * vertexStride;
+        intptr_t verts = reinterpret_cast<intptr_t>(vertices);
+        for (int i = 0; i < patchCnt; i++) {
+            const Patch& patch = fPatches[i];
 
-            const Geometry& geo = fGeoData[i];
-            SkNinePatchIter iter(fImageWidth, fImageHeight, geo.fCenter, geo.fDst);
+            // Apply the view matrix here if it is scale-translate.  Otherwise, we need to
+            // wait until we've created the dst rects.
+            bool isScaleTranslate = patch.fViewMatrix.isScaleTranslate();
+            if (isScaleTranslate) {
+                patch.fIter->mapDstScaleTranslate(patch.fViewMatrix);
+            }
 
             SkRect srcR, dstR;
-            while (iter.next(&srcR, &dstR)) {
+            intptr_t patchVerts = verts;
+            while (patch.fIter->next(&srcR, &dstR)) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(verts);
-
                 positions->setRectFan(dstR.fLeft, dstR.fTop,
                                       dstR.fRight, dstR.fBottom, vertexStride);
-
-                SkASSERT(!geo.fViewMatrix.hasPerspective());
-                geo.fViewMatrix.mapPointsWithStride(positions, vertexStride, kVertsPerRect);
 
                 // Setup local coords
                 static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
@@ -130,17 +122,24 @@ private:
                 static const int kColorOffset = sizeof(SkPoint);
                 GrColor* vertColor = reinterpret_cast<GrColor*>(verts + kColorOffset);
                 for (int j = 0; j < 4; ++j) {
-                    *vertColor = geo.fColor;
+                    *vertColor = patch.fColor;
                     vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
                 }
                 verts += kVertsPerRect * vertexStride;
+            }
+
+            // If we didn't handle it above, apply the matrix here.
+            if (!isScaleTranslate) {
+                SkPoint* positions = reinterpret_cast<SkPoint*>(patchVerts);
+                patch.fViewMatrix.mapPointsWithStride(positions, vertexStride,
+                                                      kVertsPerRect * patch.fIter->numRects());
             }
         }
         helper.recordDraw(target, gp.get());
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fPatches[0].fColor);
         fOverrides = overrides;
     }
 
@@ -160,22 +159,30 @@ private:
             fOverrides = that->fOverrides;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
-        this->joinBounds(that->bounds());
+        fPatches.move_back_n(that->fPatches.count(), that->fPatches.begin());
+        this->joinBounds(*that);
         return true;
     }
+
+    struct Patch {
+        SkMatrix fViewMatrix;
+        std::unique_ptr<SkLatticeIter> fIter;
+        SkRect fDst;
+        GrColor fColor;
+    };
 
     GrXPOverridesForBatch fOverrides;
     int fImageWidth;
     int fImageHeight;
-    SkSTArray<1, Geometry, true> fGeoData;
+    SkSTArray<1, Patch, true> fPatches;
 
     typedef GrVertexBatch INHERITED;
 };
 
 namespace GrNinePatch {
 GrDrawBatch* CreateNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth, int imageHeight,
-                         const SkIRect& center, const SkRect& dst) {
-    return new GrNonAANinePatchBatch(color, viewMatrix, imageWidth, imageHeight, center, dst);
+                         std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
+    return new GrNonAANinePatchBatch(color, viewMatrix, imageWidth, imageHeight, std::move(iter),
+                                     dst);
 }
 };
