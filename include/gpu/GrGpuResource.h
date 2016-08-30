@@ -10,7 +10,6 @@
 
 #include "GrResourceKey.h"
 #include "GrTypesPriv.h"
-#include "SkData.h"
 
 class GrContext;
 class GrGpu;
@@ -188,20 +187,6 @@ public:
     const GrUniqueKey& getUniqueKey() const { return fUniqueKey; }
 
     /**
-     * Attach a custom data object to this resource. The data will remain attached
-     * for the lifetime of this resource (until it is abandoned or released).
-     * Takes a ref on data. Previously attached data, if any, is unrefed.
-     * Returns the data argument, for convenience.
-     */
-    const SkData* setCustomData(const SkData* data);
-
-    /**
-     * Returns the custom data object that was attached to this resource by
-     * calling setCustomData.
-     */
-    const SkData* getCustomData() const { return fData.get(); }
-
-    /**
      * Internal-only helper class used for manipulations of the resource by the cache.
      */
     class CacheAccess;
@@ -316,8 +301,6 @@ private:
     SkBudgeted                  fBudgeted;
     bool                        fRefsWrappedObjects;
     const uint32_t              fUniqueID;
-
-    SkAutoTUnref<const SkData>  fData;
 
     typedef GrIORef<GrGpuResource> INHERITED;
     friend class GrIORef<GrGpuResource>; // to access notifyAllCntsAreZero and notifyRefCntIsZero.

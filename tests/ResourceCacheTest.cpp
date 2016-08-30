@@ -1282,8 +1282,6 @@ static void test_abandoned(skiatest::Reporter* reporter) {
 
     int foo = 4132;
     sk_sp<SkData> data(SkData::MakeWithCopy(&foo, sizeof(foo)));
-    resource->setCustomData(data.get());
-    resource->getCustomData();
     resource->getUniqueID();
     resource->getUniqueKey();
     resource->wasDestroyed();

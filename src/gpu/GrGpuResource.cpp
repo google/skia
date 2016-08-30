@@ -83,12 +83,6 @@ void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) con
     this->setMemoryBacking(traceMemoryDump, dumpName);
 }
 
-const SkData* GrGpuResource::setCustomData(const SkData* data) {
-    SkSafeRef(data);
-    fData.reset(data);
-    return data;
-}
-
 const GrContext* GrGpuResource::getContext() const {
     if (fGpu) {
         return fGpu->getContext();
