@@ -349,3 +349,40 @@ DEF_TEST(TextBlob_builder, reporter) {
 DEF_TEST(TextBlob_paint, reporter) {
     TextBlobTester::TestPaintProps(reporter);
 }
+
+DEF_TEST(TextBlob_extended, reporter) {
+    SkTextBlobBuilder textBlobBuilder;
+    SkPaint paint;
+    const char text1[] = "Foo";
+    const char text2[] = "Bar";
+
+    int glyphCount = paint.textToGlyphs(text1, strlen(text1), nullptr);
+    SkAutoTMalloc<uint16_t> glyphs(glyphCount);
+    (void)paint.textToGlyphs(text1, strlen(text1), glyphs.get());
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    auto run = textBlobBuilder.allocRunText(
+            paint, glyphCount, 0, 0, SkToInt(strlen(text2)), SkString(), nullptr);
+    memcpy(run.glyphs, glyphs.get(), sizeof(uint16_t) * glyphCount);
+    memcpy(run.utf8text, text2, strlen(text2));
+    for (int i = 0; i < glyphCount; ++i) {
+        run.clusters[i] = SkTMin(SkToU32(i), SkToU32(strlen(text2)));
+    }
+    sk_sp<const SkTextBlob> blob(textBlobBuilder.build());
+    REPORTER_ASSERT(reporter, blob);
+
+    for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+        REPORTER_ASSERT(reporter, it.glyphCount() == (uint32_t)glyphCount);
+        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+            REPORTER_ASSERT(reporter, it.glyphs()[i] == glyphs[i]);
+        }
+        REPORTER_ASSERT(reporter, SkTextBlob::kDefault_Positioning == it.positioning());
+        REPORTER_ASSERT(reporter, (SkPoint{0.0f, 0.0f}) == it.offset());
+        REPORTER_ASSERT(reporter, it.textSize() > 0);
+        REPORTER_ASSERT(reporter, it.clusters());
+        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+            REPORTER_ASSERT(reporter, i == it.clusters()[i]);
+        }
+        REPORTER_ASSERT(reporter, 0 == strncmp(text2, it.text(), it.textSize()));
+    }
+}
