@@ -4,20 +4,19 @@
 # found in the LICENSE file.
 {
   'include_dirs': [
-    '../include',
-    '../include/config',
-    '../include/core',
-    '../include/private',
-    '../src/sksl',
+    '<(skia_include_path)/config',
+    '<(skia_include_path)/core',
+    '<(skia_include_path)/private',
+    '<(skia_src_path)/sksl',
   ],
   'sources': [
-    '../src/sksl/SkSLCompiler.cpp',
-    '../src/sksl/SkSLIRGenerator.cpp',
-    '../src/sksl/SkSLParser.cpp',
-    '../src/sksl/SkSLGLSLCodeGenerator.cpp',
-    '../src/sksl/SkSLSPIRVCodeGenerator.cpp',
-    '../src/sksl/SkSLUtil.cpp',
-    '../src/sksl/ir/SkSLSymbolTable.cpp',
-    '../src/sksl/ir/SkSLType.cpp',
+    '<(skia_src_path)/sksl/SkSLCompiler.cpp',
+    '<(skia_src_path)/sksl/SkSLIRGenerator.cpp',
+    '<(skia_src_path)/sksl/SkSLParser.cpp',
+    '<(skia_src_path)/sksl/SkSLGLSLCodeGenerator.cpp',
+    '<(skia_src_path)/sksl/SkSLSPIRVCodeGenerator.cpp',
+    '<(skia_src_path)/sksl/SkSLUtil.cpp',
+    '<(skia_src_path)/sksl/ir/SkSLSymbolTable.cpp',
+    '<(skia_src_path)/sksl/ir/SkSLType.cpp',
   ],
 }
