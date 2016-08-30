@@ -133,9 +133,44 @@ void SkSurface_Gpu::onPrepareForExternalIO() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
+    switch (info.colorType()) {
+        case kRGBA_F16_SkColorType:
+            return info.colorSpace() &&
+                   SkColorSpace::kLinear_GammaNamed == info.colorSpace()->gammaNamed();
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            return !info.colorSpace() || info.colorSpace()->gammaCloseToSRGB();
+        default:
+            return !info.colorSpace();
+    }
+}
+
+bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace* colorSpace) {
+    switch (config) {
+        case kRGBA_half_GrPixelConfig:
+            return colorSpace && SkColorSpace::kLinear_GammaNamed == colorSpace->gammaNamed();
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+            return context->caps()->srgbSupport() && colorSpace && colorSpace->gammaCloseToSRGB();
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+            // If we don't have sRGB support, we may get here with a color space. It still needs
+            // to be sRGB-like (so that the application will work correctly on sRGB devices.)
+            return !colorSpace ||
+                (!context->caps()->srgbSupport() && colorSpace->gammaCloseToSRGB());
+        default:
+            return !colorSpace;
+    }
+}
+
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
                                              GrSurfaceOrigin origin, const SkSurfaceProps* props) {
+    if (!SkSurface_Gpu::Valid(info)) {
+        return nullptr;
+    }
+
     sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
             ctx, budgeted, info, sampleCount, origin, props, SkGpuDevice::kClear_InitContents));
     if (!device) {
@@ -152,6 +187,9 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
         return nullptr;
     }
     if (!SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
+        return nullptr;
+    }
+    if (!SkSurface_Gpu::Valid(context, desc.fConfig, colorSpace.get())) {
         return nullptr;
     }
 
@@ -179,6 +217,9 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     if (!context) {
         return nullptr;
     }
+    if (!SkSurface_Gpu::Valid(context, desc.fConfig, colorSpace.get())) {
+        return nullptr;
+    }
 
     sk_sp<GrDrawContext> dc(context->contextPriv().makeBackendRenderTargetDrawContext(
                                                                             desc,
@@ -202,6 +243,9 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
                                                                  sk_sp<SkColorSpace> colorSpace,
                                                                  const SkSurfaceProps* props) {
     if (!context) {
+        return nullptr;
+    }
+    if (!SkSurface_Gpu::Valid(context, desc.fConfig, colorSpace.get())) {
         return nullptr;
     }
 

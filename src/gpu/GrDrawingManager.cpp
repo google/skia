@@ -11,6 +11,7 @@
 #include "GrPathRenderingDrawContext.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
+#include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 
 #include "instanced/InstancedRendering.h"
@@ -191,6 +192,12 @@ sk_sp<GrDrawContext> GrDrawingManager::makeDrawContext(sk_sp<GrRenderTarget> rt,
         return nullptr;
     }
 
+    // SkSurface catches bad color space usage at creation. This check handles anything that slips
+    // by, including internal usage. We allow a null color space here, for read/write pixels and
+    // other special code paths. If a color space is provided, though, enforce all other rules.
+    if (colorSpace && !SkSurface_Gpu::Valid(fContext, rt->config(), colorSpace.get())) {
+        return nullptr;
+    }
 
     bool useDIF = false;
     if (surfaceProps) {

@@ -7,6 +7,7 @@
 
 #include <functional>
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkData.h"
 #include "SkDevice.h"
 #include "SkImage_Base.h"
@@ -21,6 +22,7 @@
 #include "GrDrawContext.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
+#include <vector>
 #endif
 
 #include <initializer_list>
@@ -907,6 +909,108 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
                             ctxInfo.grContext()->resourceProvider()->attachStencilAttachment(rt));
             gpu->deleteTestingOnlyBackendTexture(textureObject);
         }
+    }
+}
+#endif
+
+static void test_surface_creation_and_snapshot_with_color_space(
+    skiatest::Reporter* reporter,
+    const char* prefix,
+    bool f16Support,
+    std::function<sk_sp<SkSurface>(const SkImageInfo&)> surfaceMaker) {
+
+    auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    auto adobeColorSpace = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
+    SkMatrix44 srgbMatrix = srgbColorSpace->xyz();
+    const float oddGamma[] = { 2.4f, 2.4f, 2.4f };
+    auto oddColorSpace = SkColorSpace_Base::NewRGB(oddGamma, srgbMatrix);
+    auto linearColorSpace = srgbColorSpace->makeLinearGamma();
+
+    const struct {
+        SkColorType         fColorType;
+        sk_sp<SkColorSpace> fColorSpace;
+        bool                fShouldWork;
+        const char*         fDescription;
+    } testConfigs[] = {
+        { kN32_SkColorType,       nullptr,          true,  "N32-nullptr" },
+        { kN32_SkColorType,       linearColorSpace, false, "N32-linear"  },
+        { kN32_SkColorType,       srgbColorSpace,   true,  "N32-srgb"    },
+        { kN32_SkColorType,       adobeColorSpace,  true,  "N32-adobe"   },
+        { kN32_SkColorType,       oddColorSpace,    false, "N32-odd"     },
+        { kRGBA_F16_SkColorType,  nullptr,          false, "F16-nullptr" },
+        { kRGBA_F16_SkColorType,  linearColorSpace, true,  "F16-linear"  },
+        { kRGBA_F16_SkColorType,  srgbColorSpace,   false, "F16-srgb"    },
+        { kRGBA_F16_SkColorType,  adobeColorSpace,  false, "F16-adobe"   },
+        { kRGBA_F16_SkColorType,  oddColorSpace,    false, "F16-odd"     },
+        { kRGB_565_SkColorType,   srgbColorSpace,   false, "565-srgb"    },
+        { kAlpha_8_SkColorType,   srgbColorSpace,   false, "A8-srgb"     },
+    };
+
+    for (auto& testConfig : testConfigs) {
+        SkString fullTestName = SkStringPrintf("%s-%s", prefix, testConfig.fDescription);
+        SkImageInfo info = SkImageInfo::Make(10, 10, testConfig.fColorType, kPremul_SkAlphaType,
+                                             testConfig.fColorSpace);
+
+        // For some GPU contexts (eg ANGLE), we don't have f16 support, so we should fail to create
+        // any surface of that type:
+        bool shouldWork = testConfig.fShouldWork &&
+                          (f16Support || kRGBA_F16_SkColorType != testConfig.fColorType);
+
+        auto surface(surfaceMaker(info));
+        REPORTER_ASSERT_MESSAGE(reporter, SkToBool(surface) == shouldWork, fullTestName.c_str());
+
+        if (shouldWork && surface) {
+            sk_sp<SkImage> image(surface->makeImageSnapshot());
+            REPORTER_ASSERT_MESSAGE(reporter, image, testConfig.fDescription);
+            SkColorSpace* imageColorSpace = as_IB(image)->onImageInfo().colorSpace();
+            REPORTER_ASSERT_MESSAGE(reporter, imageColorSpace == testConfig.fColorSpace.get(),
+                                    fullTestName.c_str());
+        }
+    }
+}
+
+DEF_TEST(SurfaceCreationWithColorSpace, reporter) {
+    auto surfaceMaker = [](const SkImageInfo& info) {
+        return SkSurface::MakeRaster(info);
+    };
+
+    test_surface_creation_and_snapshot_with_color_space(reporter, "raster", true, surfaceMaker);
+}
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    bool f16Support = context->caps()->isConfigRenderable(kRGBA_half_GrPixelConfig, false);
+    auto surfaceMaker = [context](const SkImageInfo& info) {
+        return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
+    };
+
+    test_surface_creation_and_snapshot_with_color_space(reporter, "gpu", f16Support, surfaceMaker);
+
+    std::vector<GrBackendObject> textureHandles;
+    auto wrappedSurfaceMaker = [context,&textureHandles](const SkImageInfo& info) {
+        GrBackendTextureDesc desc;
+        desc.fConfig = SkImageInfo2GrPixelConfig(info, *context->caps());
+        desc.fWidth = 10;
+        desc.fHeight = 10;
+        desc.fFlags = kRenderTarget_GrBackendTextureFlag;
+        desc.fTextureHandle = context->getGpu()->createTestingOnlyBackendTexture(
+            nullptr, desc.fWidth, desc.fHeight, desc.fConfig, true);
+
+        if (!desc.fTextureHandle) {
+            return sk_sp<SkSurface>(nullptr);
+        }
+        textureHandles.push_back(desc.fTextureHandle);
+
+        return SkSurface::MakeFromBackendTexture(context, desc, sk_ref_sp(info.colorSpace()),
+                                                 nullptr);
+    };
+
+    test_surface_creation_and_snapshot_with_color_space(reporter, "wrapped", f16Support,
+                                                        wrappedSurfaceMaker);
+
+    for (auto textureHandle : textureHandles) {
+        context->getGpu()->deleteTestingOnlyBackendTexture(textureHandle);
     }
 }
 #endif

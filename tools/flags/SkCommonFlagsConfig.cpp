@@ -298,7 +298,7 @@ static bool parse_option_gpu_color(const SkString& value,
     }
     if (value.equals("f16")) {
         *outColorType = kRGBA_F16_SkColorType;
-        *outColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        *outColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)->makeLinearGamma();
         return true;
     }
     if (value.equals("srgb")) {

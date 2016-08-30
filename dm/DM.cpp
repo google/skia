@@ -865,7 +865,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
         SINK("565",  RasterSink, kRGB_565_SkColorType);
         SINK("8888", RasterSink, kN32_SkColorType);
         SINK("srgb", RasterSink, kN32_SkColorType, srgbColorSpace);
-        SINK("f16",  RasterSink, kRGBA_F16_SkColorType, srgbColorSpace);
+        SINK("f16",  RasterSink, kRGBA_F16_SkColorType, srgbColorSpace->makeLinearGamma());
         SINK("pdf",  PDFSink);
         SINK("skp",  SKPSink);
         SINK("svg",  SVGSink);

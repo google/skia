@@ -471,7 +471,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         CPU_CONFIG(srgb, kRaster_Backend,
                    kN32_SkColorType,  kPremul_SkAlphaType, srgbColorSpace)
         CPU_CONFIG(f16,  kRaster_Backend,
-                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbColorSpace)
+                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbColorSpace->makeLinearGamma())
     }
 
     #undef CPU_CONFIG

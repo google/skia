@@ -1556,9 +1556,12 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         return true;
     }
     if (SkOSMenu::FindListIndex(evt, "ColorType", &selected)) {
-        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        auto colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        if (kRGBA_F16_SkColorType == gConfig[selected].fColorType) {
+            colorSpace = colorSpace->makeLinearGamma();
+        }
         this->setDeviceColorType(gConfig[selected].fColorType,
-                                 gConfig[selected].fSRGB ? srgbColorSpace : nullptr);
+                                 gConfig[selected].fSRGB ? colorSpace : nullptr);
         return true;
     }
     if (SkOSMenu::FindSwitchState(evt, "Slide Show", nullptr)) {

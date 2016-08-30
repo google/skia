@@ -174,9 +174,12 @@ ColorAndProfile ColorModes[] = {
 SkSurface* Request::createCPUSurface() {
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
-    auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    auto colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    if (kRGBA_F16_SkColorType == cap.fColorType) {
+        colorSpace = colorSpace->makeLinearGamma();
+    }
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
-                                         kPremul_SkAlphaType, cap.fSRGB ? srgbColorSpace : nullptr);
+                                         kPremul_SkAlphaType, cap.fSRGB ? colorSpace : nullptr);
     return SkSurface::MakeRaster(info).release();
 }
 
@@ -184,9 +187,12 @@ SkSurface* Request::createGPUSurface() {
     GrContext* context = this->getContext();
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
-    auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    auto colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    if (kRGBA_F16_SkColorType == cap.fColorType) {
+        colorSpace = colorSpace->makeLinearGamma();
+    }
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
-                                         kPremul_SkAlphaType, cap.fSRGB ? srgbColorSpace : nullptr);
+                                         kPremul_SkAlphaType, cap.fSRGB ? colorSpace: nullptr);
     SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info).release();
     return surface;
 }
