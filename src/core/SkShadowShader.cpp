@@ -61,6 +61,10 @@ public:
 
         void* fHeapAllocated;
 
+        int fNonAmbLightCnt;
+        SkPixmap* fShadowMapPixels;
+
+
         typedef SkShader::Context INHERITED;
     };
 
@@ -642,9 +646,23 @@ SkShadowShaderImpl::ShadowShaderContext::ShadowShaderContext(
     }
 
     fFlags = flags;
+
+    const SkShadowShaderImpl& lightShader = static_cast<const SkShadowShaderImpl&>(fShader);
+
+    fNonAmbLightCnt = lightShader.fLights->numLights();
+    fShadowMapPixels = new SkPixmap[fNonAmbLightCnt];
+
+    for (int i = 0; i < fNonAmbLightCnt; i++) {
+        if (lightShader.fLights->light(i).type() == SkLights::Light::kDirectional_LightType) {
+            lightShader.fLights->light(i).getShadowMap()->
+                    peekPixels(&fShadowMapPixels[i]);
+        }
+    }
 }
 
 SkShadowShaderImpl::ShadowShaderContext::~ShadowShaderContext() {
+    delete[] fShadowMapPixels;
+
     // The dependencies have been created outside of the context on memory that was allocated by
     // the onCreateContext() method. Call the destructors and free the memory.
     fPovDepthContext->~Context();
@@ -683,44 +701,62 @@ void SkShadowShaderImpl::ShadowShaderContext::shadeSpan(int x, int y,
     const SkShadowShaderImpl& lightShader = static_cast<const SkShadowShaderImpl&>(fShader);
 
     SkPMColor diffuse[BUFFER_MAX];
+    SkPMColor povDepth[BUFFER_MAX];
 
     do {
         int n = SkTMin(count, BUFFER_MAX);
 
-        fPovDepthContext->shadeSpan(x, y, diffuse, n);
         fDiffuseContext->shadeSpan(x, y, diffuse, n);
+        fPovDepthContext->shadeSpan(x, y, povDepth, n);
 
         for (int i = 0; i < n; ++i) {
-
             SkColor diffColor = SkUnPreMultiply::PMColorToColor(diffuse[i]);
+            SkColor povDepthColor = povDepth[i];
 
-            SkColor3f accum = SkColor3f::Make(0.0f, 0.0f, 0.0f);
+            SkColor3f totalLight = lightShader.fLights->ambientLightColor();
             // This is all done in linear unpremul color space (each component 0..255.0f though)
-
-            accum.fX += lightShader.fLights->ambientLightColor().fX * SkColorGetR(diffColor);
-            accum.fY += lightShader.fLights->ambientLightColor().fY * SkColorGetG(diffColor);
-            accum.fZ += lightShader.fLights->ambientLightColor().fZ * SkColorGetB(diffColor);
 
             for (int l = 0; l < lightShader.fLights->numLights(); ++l) {
                 const SkLights::Light& light = lightShader.fLights->light(l);
 
-                if (SkLights::Light::kDirectional_LightType == light.type()) {
-                    // scaling by fZ accounts for lighting direction
-                    accum.fX += light.color().makeScale(light.dir().fZ).fX *
-                                SkColorGetR(diffColor);
-                    accum.fY += light.color().makeScale(light.dir().fZ).fY *
-                                SkColorGetG(diffColor);
-                    accum.fZ += light.color().makeScale(light.dir().fZ).fZ *
-                                SkColorGetB(diffColor);
-                } else {
-                    accum.fX += light.color().fX * SkColorGetR(diffColor);
-                    accum.fY += light.color().fY * SkColorGetG(diffColor);
-                    accum.fZ += light.color().fZ * SkColorGetB(diffColor);
-                }
+                if (light.type() == SkLights::Light::kDirectional_LightType) {
+                    int pvDepth = SkColorGetB(povDepthColor); // depth stored in blue channel
 
+                    int xOffset = SkScalarRoundToInt(light.dir().fX * pvDepth);
+                    int yOffset = SkScalarRoundToInt(light.dir().fY * pvDepth);
+
+                    int shX = SkClampMax(x + i + xOffset, light.getShadowMap()->width() - 1);
+                    int shY = SkClampMax(y + yOffset, light.getShadowMap()->height() - 1);
+
+                    int shDepth = 0;
+
+                    // pixmaps that point to things have nonzero heights
+                    if (fShadowMapPixels[l].height() > 0) {
+                        uint32_t pix = *fShadowMapPixels[l].addr32(shX, shY);
+                        SkColor shColor(pix);
+
+                        shDepth = SkColorGetB(shColor);
+                    } else {
+                        // Make lights w/o a shadow map receive the full light contribution
+                        shDepth = pvDepth;
+                    }
+
+                    if (pvDepth >= shDepth) {
+                        // assume object normals are pointing straight up
+                        totalLight.fX += light.dir().fZ * light.color().fX;
+                        totalLight.fY += light.dir().fZ * light.color().fY;
+                        totalLight.fZ += light.dir().fZ * light.color().fZ;
+                    }
+                } else {
+                    totalLight += light.color();
+                }
             }
 
-            result[i] = convert(accum, SkColorGetA(diffColor));
+            SkColor3f totalColor = SkColor3f::Make(SkColorGetR(diffColor) * totalLight.fX,
+                                                   SkColorGetG(diffColor) * totalLight.fY,
+                                                   SkColorGetB(diffColor) * totalLight.fZ);
+
+            result[i] = convert(totalColor, SkColorGetA(diffColor));
         }
 
         result += n;
