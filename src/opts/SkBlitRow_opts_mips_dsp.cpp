@@ -14,8 +14,8 @@
 static void S32_D565_Blend_mips_dsp(uint16_t* SK_RESTRICT dst,
                                     const SkPMColor* SK_RESTRICT src, int count,
                                     U8CPU alpha, int /*x*/, int /*y*/) {
-    register uint32_t t0, t1, t2, t3, t4, t5, t6;
-    register uint32_t s0, s1, s2, s4, s5, s6;
+    uint32_t t0, t1, t2, t3, t4, t5, t6;
+    uint32_t s0, s1, s2, s4, s5, s6;
 
     alpha += 1;
     if (count >= 2) {
@@ -118,8 +118,8 @@ static void S32A_D565_Opaque_Dither_mips_dsp(uint16_t* __restrict__ dst,
         : "memory"
     );
 
-    register int32_t t0, t1, t2, t3, t4, t5, t6;
-    register int32_t t7, t8, t9, s0, s1, s2, s3;
+    int32_t t0, t1, t2, t3, t4, t5, t6;
+    int32_t t7, t8, t9, s0, s1, s2, s3;
     const uint16_t dither_scan = gDitherMatrix_3Bit_16[(y) & 3];
 
     if (count >= 2) {
@@ -266,8 +266,8 @@ static void S32_D565_Opaque_Dither_mips_dsp(uint16_t* __restrict__ dst,
                                             const SkPMColor* __restrict__ src,
                                             int count, U8CPU alpha, int x, int y) {
     uint16_t dither_scan = gDitherMatrix_3Bit_16[(y) & 3];
-    register uint32_t t0, t1, t2, t3, t4, t5;
-    register uint32_t t6, t7, t8, t9, s0;
+    uint32_t t0, t1, t2, t3, t4, t5;
+    uint32_t t6, t7, t8, t9, s0;
     int dither[4];
     int i;
 
@@ -375,11 +375,11 @@ static void S32_D565_Opaque_Dither_mips_dsp(uint16_t* __restrict__ dst,
 static void S32_D565_Blend_Dither_mips_dsp(uint16_t* dst,
                                            const SkPMColor* src,
                                            int count, U8CPU alpha, int x, int y) {
-    register int32_t t0, t1, t2, t3, t4, t5, t6;
-    register int32_t s0, s1, s2, s3;
-    register int x1 = 0;
-    register uint32_t sc_mul;
-    register uint32_t sc_add;
+    int32_t t0, t1, t2, t3, t4, t5, t6;
+    int32_t s0, s1, s2, s3;
+    int x1 = 0;
+    uint32_t sc_mul;
+    uint32_t sc_add;
 #ifdef ENABLE_DITHER_MATRIX_4X4
     const uint8_t* dither_scan = gDitherMatrix_3Bit_4X4[(y) & 3];
 #else // ENABLE_DITHER_MATRIX_4X4
@@ -547,11 +547,11 @@ static void S32A_D565_Opaque_mips_dsp(uint16_t* __restrict__ dst,
         : "memory"
     );
 
-    register uint32_t t0, t1, t2, t3, t4, t5, t6, t7, t8;
-    register uint32_t t16;
-    register uint32_t add_x10 = 0x100010;
-    register uint32_t add_x20 = 0x200020;
-    register uint32_t sa = 0xff00ff;
+    uint32_t t0, t1, t2, t3, t4, t5, t6, t7, t8;
+    uint32_t t16;
+    uint32_t add_x10 = 0x100010;
+    uint32_t add_x20 = 0x200020;
+    uint32_t sa = 0xff00ff;
 
     __asm__ volatile (
         ".set           push                            \n\t"
@@ -658,9 +658,9 @@ static void S32A_D565_Opaque_mips_dsp(uint16_t* __restrict__ dst,
 static void S32A_D565_Blend_mips_dsp(uint16_t* SK_RESTRICT dst,
                                      const SkPMColor* SK_RESTRICT src, int count,
                                      U8CPU alpha, int /*x*/, int /*y*/) {
-    register uint32_t t0, t1, t2, t3, t4, t5, t6, t7, t8, t9;
-    register uint32_t  s0, s1, s2, s3;
-    register unsigned dst_scale = 0;
+    uint32_t t0, t1, t2, t3, t4, t5, t6, t7, t8, t9;
+    uint32_t  s0, s1, s2, s3;
+    unsigned dst_scale = 0;
 
     __asm__ volatile (
         ".set            push                                       \n\t"
@@ -765,7 +765,7 @@ static void S32A_D565_Blend_mips_dsp(uint16_t* SK_RESTRICT dst,
 static void S32_Blend_BlitRow32_mips_dsp(SkPMColor* SK_RESTRICT dst,
                                          const SkPMColor* SK_RESTRICT src,
                                          int count, U8CPU alpha) {
-    register int32_t t0, t1, t2, t3, t4, t5, t6, t7;
+    int32_t t0, t1, t2, t3, t4, t5, t6, t7;
 
     __asm__ volatile (
         ".set            push                         \n\t"
@@ -814,7 +814,7 @@ static void S32_Blend_BlitRow32_mips_dsp(SkPMColor* SK_RESTRICT dst,
 void blitmask_d565_opaque_mips(int width, int height, uint16_t* device,
                                unsigned deviceRB, const uint8_t* alpha,
                                uint32_t expanded32, unsigned maskRB) {
-    register uint32_t s0, s1, s2, s3;
+    uint32_t s0, s1, s2, s3;
 
     __asm__ volatile (
         ".set            push                                    \n\t"

@@ -232,7 +232,7 @@ opts("avx") {
 opts("dsp") {
   enabled = current_cpu == "mipsel"
   sources = opts_gypi.mips_dsp_sources
-  cflags = [ "-Wno-deprecated-register" ]  # FIXME
+  cflags = []
 }
 
 # Any feature of Skia that requires third-party code should be optional and use this template.
