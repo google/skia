@@ -205,36 +205,14 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
                                int x, int y) {
     ASSERT_SINGLE_OWNER
 
-    // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-
-    uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
-        flags = GrContext::kUnpremul_PixelOpsFlag;
-    }
-    return fDrawContext->accessRenderTarget()->readPixels(x, y,
-                                                          dstInfo.width(), dstInfo.height(),
-                                                          config, dstPixels,
-                                                          dstRowBytes, flags);
+    return fDrawContext->readPixels(dstInfo, dstPixels, dstRowBytes, x, y);
 }
 
-bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
-                                int x, int y) {
+bool SkGpuDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
+                                size_t srcRowBytes, int x, int y) {
     ASSERT_SINGLE_OWNER
-    // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-    uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == info.alphaType()) {
-        flags = GrContext::kUnpremul_PixelOpsFlag;
-    }
-    return fDrawContext->accessRenderTarget()->writePixels(x, y, info.width(), info.height(),
-                                                           config, pixels, rowBytes, flags);
+
+    return fDrawContext->writePixels(srcInfo, srcPixels, srcRowBytes, x, y);
 }
 
 bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {

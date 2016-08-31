@@ -285,6 +285,34 @@ public:
      */
     void prepareForExternalIO();
 
+    /**
+     * Reads a rectangle of pixels from the draw context.
+     * @param dstInfo       image info for the destination
+     * @param dstBuffer     destination pixels for the read
+     * @param dstRowBytes   bytes in a row of 'dstBuffer'
+     * @param x             x offset w/in the draw context from which to read
+     * @param y             y offset w/in the draw context from which to read
+     *
+     * @return true if the read succeeded, false if not. The read can fail because of an
+     *              unsupported pixel config.
+     */
+    bool readPixels(const SkImageInfo& dstInfo, void* dstBuffer, size_t dstRowBytes, int x, int y);
+
+    /**
+     * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the 
+     * drawContext at the specified position.
+     * @param srcInfo       image info for the source pixels
+     * @param srcBuffer     source for the write
+     * @param srcRowBytes   bytes in a row of 'srcBuffer'
+     * @param x             x offset w/in the draw context at which to write
+     * @param y             y offset w/in the draw context at which to write
+     *
+     * @return true if the write succeeded, false if not. The write can fail because of an
+     *              unsupported pixel config.
+     */
+    bool writePixels(const SkImageInfo& srcInfo, const void* srcBuffer, size_t srcRowBytes,
+                     int x, int y);
+
     bool isStencilBufferMultisampled() const {
         return fRenderTarget->isStencilBufferMultisampled();
     }
