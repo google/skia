@@ -1195,6 +1195,22 @@ static void test_flush(skiatest::Reporter* reporter) {
     }
 
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+
+    // Verify that calling flush() on a GrContext with nothing to do will not trigger resource
+    // eviction.
+    context->flush();
+    for (int i = 0; i < 10; ++i) {
+        TestResource* r = new TestResource(context->getGpu());
+        GrUniqueKey k;
+        make_unique_key<1>(&k, i);
+        r->resourcePriv().setUniqueKey(k);
+        r->unref();
+    }
+    REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
+    for (int i = 0; i < 10 * kFlushCount; ++i) {
+        context->flush();
+    }
+    REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
 }
 
 static void test_large_resource_count(skiatest::Reporter* reporter) {

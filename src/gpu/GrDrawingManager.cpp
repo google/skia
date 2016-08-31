@@ -74,12 +74,12 @@ void GrDrawingManager::reset() {
     fFlushState.reset();
 }
 
-void GrDrawingManager::flush() {
+bool GrDrawingManager::flush() {
     if (fFlushing || this->wasAbandoned()) {
-        return;
+        return false;
     }
     fFlushing = true;
-
+    bool flushed = false;
     SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrDrawTarget, GrDrawTarget::TopoSortTraits>(&fDrawTargets);
     SkASSERT(result);
@@ -99,7 +99,9 @@ void GrDrawingManager::flush() {
     fFlushState.preIssueDraws();
 
     for (int i = 0; i < fDrawTargets.count(); ++i) {
-        fDrawTargets[i]->drawBatches(&fFlushState);
+        if (fDrawTargets[i]->drawBatches(&fFlushState)) {
+            flushed = true;
+        }
     }
 
     SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
@@ -125,6 +127,7 @@ void GrDrawingManager::flush() {
 
     fFlushState.reset();
     fFlushing = false;
+    return flushed;
 }
 
 GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {

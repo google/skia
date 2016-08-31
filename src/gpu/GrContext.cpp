@@ -228,13 +228,15 @@ void GrContext::TextBlobCacheOverBudgetCB(void* data) {
 void GrContext::flush(int flagsBitfield) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
-
+    bool flushed = false;
     if (kDiscard_FlushBit & flagsBitfield) {
         fDrawingManager->reset();
     } else {
-        fDrawingManager->flush();
+        flushed = fDrawingManager->flush();
     }
-    fResourceCache->notifyFlushOccurred();
+    if (flushed) {
+        fResourceCache->notifyFlushOccurred();
+    }
     fFlushToReduceCacheSize = false;
 }
 

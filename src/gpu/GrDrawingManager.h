@@ -68,7 +68,8 @@ private:
     void abandon();
     void cleanup();
     void reset();
-    void flush();
+    /** Returns true if there was anything to flush and false otherwise */
+    bool flush();
 
     friend class GrContext;  // for access to: ctor, abandon, reset & flush
 

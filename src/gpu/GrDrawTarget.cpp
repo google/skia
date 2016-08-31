@@ -221,9 +221,9 @@ void GrDrawTarget::prepareBatches(GrBatchFlushState* flushState) {
     }
 }
 
-void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
+bool GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
     if (0 == fRecordedBatches.count()) {
-        return;
+        return false;
     }
     // Draw all the generated geometry.
     SkRandom random;
@@ -286,6 +286,7 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
     }
 
     fGpu->finishDrawTarget();
+    return true;
 }
 
 void GrDrawTarget::reset() {
