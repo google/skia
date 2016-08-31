@@ -29,6 +29,11 @@ public:
     uint32_t uniqueID() const { return fUniqueID; }
 
     /**
+     * Helper that gets the width and height of the surface as a bounding rectangle.
+     */
+    SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
+  
+    /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
      */
     virtual GrTextureProxy* asTextureProxy() { return nullptr; }
@@ -39,6 +44,11 @@ public:
      */
     virtual GrRenderTargetProxy* asRenderTargetProxy() { return nullptr; }
     virtual const GrRenderTargetProxy* asRenderTargetProxy() const { return nullptr; }
+
+    /**
+     * Does the resource count against the resource budget?
+     */
+    SkBudgeted isBudgeted() const { return fBudgeted; }
 
 protected:
     // Deferred version

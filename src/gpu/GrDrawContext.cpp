@@ -256,10 +256,8 @@ void GrDrawContext::drawPaint(const GrClip& clip,
 
     // set rect to be big enough to fill the space, but not super-huge, so we
     // don't overflow fixed-point implementations
-    SkRect r;
-    r.setLTRB(0, 0,
-              SkIntToScalar(fRenderTarget->width()),
-              SkIntToScalar(fRenderTarget->height()));
+
+    SkRect r = fRenderTarget->getBoundsRect();
     SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
 
     SkRRect rrect;
@@ -332,7 +330,7 @@ static bool should_apply_coverage_aa(const GrPaint& paint, GrRenderTarget* rt,
 
 // Attempts to crop a rect and optional local rect to the clip boundaries.
 // Returns false if the draw can be skipped entirely.
-static bool crop_filled_rect(const GrRenderTarget* rt, const GrClip& clip,
+static bool crop_filled_rect(int width, int height, const GrClip& clip,
                              const SkMatrix& viewMatrix, SkRect* rect,
                              SkRect* localRect = nullptr) {
     if (!viewMatrix.rectStaysRect()) {
@@ -342,7 +340,7 @@ static bool crop_filled_rect(const GrRenderTarget* rt, const GrClip& clip,
     SkIRect clipDevBounds;
     SkRect clipBounds;
 
-    clip.getConservativeBounds(rt->width(), rt->height(), &clipDevBounds);
+    clip.getConservativeBounds(width, height, &clipDevBounds);
     if (!SkMatrixPriv::InverseMapRect(viewMatrix, &clipBounds, SkRect::Make(clipDevBounds))) {
         return false;
     }
@@ -381,7 +379,7 @@ bool GrDrawContext::drawFilledRect(const GrClip& clip,
                                    const SkRect& rect,
                                    const GrUserStencilSettings* ss) {
     SkRect croppedRect = rect;
-    if (!crop_filled_rect(fRenderTarget.get(), clip, viewMatrix, &croppedRect)) {
+    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
         return true;
     }
 
@@ -453,8 +451,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
         if (!fContext->caps()->useDrawInsteadOfClear()) {
             // Check if this is a full RT draw and can be replaced with a clear. We don't bother
             // checking cases where the RT is fully inside a stroke.
-            SkRect rtRect;
-            fRenderTarget->getBoundsRect(&rtRect);
+            SkRect rtRect = fRenderTarget->getBoundsRect();
             // Does the clip contain the entire RT?
             if (clip.quickContains(rtRect)) {
                 SkMatrix invM;
@@ -631,7 +628,8 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
 
     SkRect croppedRect = rectToDraw;
     SkRect croppedLocalRect = localRect;
-    if (!crop_filled_rect(fRenderTarget.get(), clip, viewMatrix, &croppedRect, &croppedLocalRect)) {
+    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix,
+                          &croppedRect, &croppedLocalRect)) {
         return;
     }
 
@@ -690,7 +688,7 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::fillRectWithLocalMatrix");
 
     SkRect croppedRect = rectToDraw;
-    if (!crop_filled_rect(fRenderTarget.get(), clip, viewMatrix, &croppedRect)) {
+    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
         return;
     }
 
@@ -1301,9 +1299,9 @@ bool GrDrawContextPriv::drawAndStencilPath(const GrClip& clip,
     // the src color (either the input alpha or in the frag shader) to implement
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
-    bool useCoverageAA = doAA && !fDrawContext->fRenderTarget->isUnifiedMultisampled();
+    bool useCoverageAA = doAA && !fDrawContext->isUnifiedMultisampled();
     bool hasUserStencilSettings = !ss->isUnused();
-    bool isStencilBufferMSAA = fDrawContext->fRenderTarget->isStencilBufferMultisampled();
+    bool isStencilBufferMSAA = fDrawContext->isStencilBufferMultisampled();
 
     const GrPathRendererChain::DrawType type =
         useCoverageAA ? GrPathRendererChain::kColorAntiAlias_DrawType
@@ -1364,7 +1362,7 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
 
     bool useCoverageAA = should_apply_coverage_aa(paint, fRenderTarget.get());
     constexpr bool kHasUserStencilSettings = false;
-    bool isStencilBufferMSAA = fRenderTarget->isStencilBufferMultisampled();
+    bool isStencilBufferMSAA = this->isStencilBufferMultisampled();
 
     const GrPathRendererChain::DrawType type =
         useCoverageAA ? GrPathRendererChain::kColorAntiAlias_DrawType

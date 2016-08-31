@@ -38,7 +38,7 @@ public:
 
 private:
     bool onCombineIfPossible(GrBatch* that, const GrCaps& caps) override {
-        return fRenderTarget == that->cast<GrDiscardBatch>()->fRenderTarget;
+        return this->renderTargetUniqueID() == that->renderTargetUniqueID();
     }
 
     void onPrepare(GrBatchFlushState*) override {}
