@@ -12,7 +12,7 @@ deps = {
 
   "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@55033e583ba1bc5cbfafbab11d3255fecdfe9056",
   "third_party/externals/cmake"   : "https://cmake.googlesource.com/cmake.git@v3.3.1",
-  "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@6a19a7d332c5446542196e5aeda0ede109ef097b",
+  "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@4d3f7ca8cedbddad40b9e93a82926618e3fb4265",
   "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@87ac4d0e63fc7dd8152a350327fea8dcf031bf56",
   "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@1.3.0",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
