@@ -18,19 +18,22 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     assert compiler == 'Clang'  # At this rate we might not ever support GCC.
 
     compiler_prefix = ''
+    extra_cflags = []
     ccache = self.m.run.ccache()
     if ccache:
       compiler_prefix = ccache
+      extra_cflags.append('-Qunused-arguments')
 
     ndk_asset = 'android_ndk_linux' if os == 'Ubuntu' else 'android_ndk_darwin'
 
     quote = lambda x: '"%s"' % x
-    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in {
+    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted({
         'compiler_prefix': quote(compiler_prefix),
+        'extra_cflags': quote(' '.join(extra_cflags)),
         'is_debug': 'true' if configuration == 'Debug' else 'false',
         'ndk': quote(self.m.vars.slave_dir.join(ndk_asset)),
         'target_cpu': quote(target_arch),
-    }.iteritems())
+    }.iteritems()))
 
     run = lambda title, cmd: self.m.run(self.m.step, title, cmd=cmd,
                                         cwd=self.m.vars.skia_dir, **kwargs)

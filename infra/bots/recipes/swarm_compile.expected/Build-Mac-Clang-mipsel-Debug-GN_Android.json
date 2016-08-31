@@ -127,7 +127,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-mipsel-Debug-GN_Android/Debug",
-      "--args=is_debug=true compiler_prefix=\"/usr/bin/ccache\" ndk=\"[SLAVE_BUILD]/android_ndk_darwin\" target_cpu=\"mipsel\""
+      "--args=compiler_prefix=\"/usr/bin/ccache\" extra_cflags=\"-Qunused-arguments\" is_debug=true ndk=\"[SLAVE_BUILD]/android_ndk_darwin\" target_cpu=\"mipsel\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
