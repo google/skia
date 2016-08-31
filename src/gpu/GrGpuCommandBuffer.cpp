@@ -8,6 +8,7 @@
 #include "GrGpuCommandBuffer.h"
 
 #include "GrCaps.h"
+#include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrRenderTarget.h"
@@ -18,17 +19,19 @@ void GrGpuCommandBuffer::submit(const SkIRect& bounds) {
     this->onSubmit(bounds);
 }
 
-void GrGpuCommandBuffer::clear(const SkIRect& rect, GrColor color, GrRenderTarget* renderTarget) {
-    SkASSERT(renderTarget);
-    SkASSERT(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()).contains(rect));
-    this->onClear(renderTarget, rect, color);
+void GrGpuCommandBuffer::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt) {
+    SkASSERT(rt);
+    SkASSERT(!clip.scissorEnabled() ||
+             (SkIRect::MakeWH(rt->width(), rt->height()).contains(clip.scissorRect()) &&
+              SkIRect::MakeWH(rt->width(), rt->height()) != clip.scissorRect()));
+    this->onClear(rt, clip, color);
 }
 
-void GrGpuCommandBuffer::clearStencilClip(const SkIRect& rect,
-                                          bool insideClip,
-                                          GrRenderTarget* renderTarget) {
-    SkASSERT(renderTarget);
-    this->onClearStencilClip(renderTarget, rect, insideClip);
+void GrGpuCommandBuffer::clearStencilClip(const GrFixedClip& clip,
+                                          bool insideStencilMask,
+                                          GrRenderTarget* rt) {
+    SkASSERT(rt);
+    this->onClearStencilClip(rt, clip, insideStencilMask);
 }
 
 

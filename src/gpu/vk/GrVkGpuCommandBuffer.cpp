@@ -7,6 +7,7 @@
 
 #include "GrVkGpuCommandBuffer.h"
 
+#include "GrFixedClip.h"
 #include "GrMesh.h"
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
@@ -166,8 +167,8 @@ void GrVkGpuCommandBuffer::discard(GrRenderTarget* target) {
 }
 
 void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,
-                                              const SkIRect& rect,
-                                              bool insideClip) {
+                                              const GrFixedClip& clip,
+                                              bool insideStencilMask) {
     SkASSERT(target);
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
@@ -182,7 +183,7 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,
 
     VkClearDepthStencilValue vkStencilColor;
     memset(&vkStencilColor, 0, sizeof(VkClearDepthStencilValue));
-    if (insideClip) {
+    if (insideStencilMask) {
         vkStencilColor.stencil = (1 << (stencilBitCount - 1));
     } else {
         vkStencilColor.stencil = 0;
@@ -190,11 +191,15 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,
 
     VkClearRect clearRect;
     // Flip rect if necessary
-    SkIRect vkRect = rect;
-
-    if (kBottomLeft_GrSurfaceOrigin == vkRT->origin()) {
-        vkRect.fTop = vkRT->height() - rect.fBottom;
-        vkRect.fBottom = vkRT->height() - rect.fTop;
+    SkIRect vkRect;
+    if (!clip.scissorEnabled()) {
+        vkRect.setXYWH(0, 0, vkRT->width(), vkRT->height());
+    } else if (kBottomLeft_GrSurfaceOrigin != vkRT->origin()) {
+        vkRect = clip.scissorRect();
+    } else {
+        const SkIRect& scissor = clip.scissorRect();
+        vkRect.setLTRB(scissor.fLeft, vkRT->height() - scissor.fBottom,
+                       scissor.fRight, vkRT->height() - scissor.fTop);
     }
 
     clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
@@ -215,7 +220,7 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,
     fIsEmpty = false;
 }
 
-void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color) {
+void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const GrFixedClip& clip, GrColor color) {
     // parent class should never let us get here with no RT
     SkASSERT(target);
 
@@ -224,7 +229,7 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const SkIRect& rect, 
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
 
-    if (fIsEmpty && rect.width() == target->width() && rect.height() == target->height()) {
+    if (fIsEmpty && !clip.scissorEnabled()) {
         // We will change the render pass to do a clear load instead
         GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_CLEAR,
                                                 VK_ATTACHMENT_STORE_OP_STORE);
@@ -259,10 +264,15 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const SkIRect& rect, 
     // We always do a sub rect clear with clearAttachments since we are inside a render pass
     VkClearRect clearRect;
     // Flip rect if necessary
-    SkIRect vkRect = rect;
-    if (kBottomLeft_GrSurfaceOrigin == vkRT->origin()) {
-        vkRect.fTop = vkRT->height() - rect.fBottom;
-        vkRect.fBottom = vkRT->height() - rect.fTop;
+    SkIRect vkRect;
+    if (!clip.scissorEnabled()) {
+        vkRect.setXYWH(0, 0, vkRT->width(), vkRT->height());
+    } else if (kBottomLeft_GrSurfaceOrigin != vkRT->origin()) {
+        vkRect = clip.scissorRect();
+    } else {
+        const SkIRect& scissor = clip.scissorRect();
+        vkRect.setLTRB(scissor.fLeft, vkRT->height() - scissor.fBottom,
+                       scissor.fRight, vkRT->height() - scissor.fTop);
     }
     clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
     clearRect.rect.extent = { (uint32_t)vkRect.width(), (uint32_t)vkRect.height() };

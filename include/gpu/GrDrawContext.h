@@ -25,6 +25,7 @@ class GrDrawContextPriv;
 class GrDrawPathBatchBase;
 class GrDrawingManager;
 class GrDrawTarget;
+class GrFixedClip;
 class GrPaint;
 class GrPathProcessor;
 class GrPipelineBuilder;
@@ -352,6 +353,8 @@ private:
     friend class GrMSAAPathRenderer;             // for access to drawBatch
     friend class GrStencilAndCoverPathRenderer;  // for access to drawBatch
     friend class GrTessellatingPathRenderer;     // for access to drawBatch
+
+    void internalClear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
     bool drawFilledDRRect(const GrClip& clip,
                           const GrPaint& paint,

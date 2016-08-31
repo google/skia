@@ -11,6 +11,7 @@
 #include "GrGLGpuCommandBuffer.h"
 #include "GrGLStencilAttachment.h"
 #include "GrGLTextureRenderTarget.h"
+#include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
 #include "GrMesh.h"
 #include "GrPipeline.h"
@@ -2197,17 +2198,15 @@ void GrGLGpu::disableScissor() {
     }
 }
 
-void GrGLGpu::clear(const SkIRect& rect, GrColor color, GrRenderTarget* target) {
+void GrGLGpu::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* target) {
     this->handleDirtyContext();
 
     // parent class should never let us get here with no RT
     SkASSERT(target);
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
-    this->flushRenderTarget(glRT, &rect);
-    GrScissorState scissorState;
-    scissorState.set(rect);
-    this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
+    this->flushRenderTarget(glRT, clip.scissorEnabled() ? &clip.scissorRect() : nullptr);
+    this->flushScissor(clip.scissorState(), glRT->getViewport(), glRT->origin());
     this->disableWindowRectangles();
 
     GrGLfloat r, g, b, a;
@@ -2240,7 +2239,9 @@ void GrGLGpu::clearStencil(GrRenderTarget* target) {
     fHWStencilSettings.invalidate();
 }
 
-void GrGLGpu::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* target) {
+void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
+                               bool insideStencilMask,
+                               GrRenderTarget* target) {
     SkASSERT(target);
     this->handleDirtyContext();
 
@@ -2261,7 +2262,7 @@ void GrGLGpu::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTar
     static const GrGLint clipStencilMask  = ~0;
 #endif
     GrGLint value;
-    if (insideClip) {
+    if (insideStencilMask) {
         value = (1 << (stencilBitCount - 1));
     } else {
         value = 0;
@@ -2269,9 +2270,7 @@ void GrGLGpu::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTar
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
-    GrScissorState scissorState;
-    scissorState.set(rect);
-    this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
+    this->flushScissor(clip.scissorState(), glRT->getViewport(), glRT->origin());
     this->disableWindowRectangles();
 
     GL_CALL(StencilMask((uint32_t) clipStencilMask));

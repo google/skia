@@ -10,13 +10,6 @@
 #include "GrAppliedClip.h"
 #include "GrDrawContext.h"
 
-bool GrFixedClip::quickContains(const SkRect& rect) const {
-    if (fHasStencilClip) {
-        return false;
-    }
-    return !fScissorState.enabled() || GrClip::IsInsideClip(fScissorState.rect(), rect);
-}
-
 void GrFixedClip::getConservativeBounds(int width, int height, SkIRect* devResult,
                                         bool* isIntersectionOfRects) const {
     devResult->setXYWH(0, 0, width, height);
@@ -46,9 +39,10 @@ bool GrFixedClip::apply(GrContext*, GrDrawContext* drawContext, bool isHWAntiAli
         }
     }
 
-    if (fHasStencilClip) {
-        out->addStencilClip();
-    }
-
     return true;
+}
+
+const GrFixedClip& GrFixedClip::Disabled() {
+    static const GrFixedClip disabled = GrFixedClip();
+    return disabled;
 }

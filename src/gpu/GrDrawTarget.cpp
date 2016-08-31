@@ -459,9 +459,7 @@ void GrDrawTarget::fullClear(GrRenderTarget* renderTarget, GrColor color) {
         fLastFullClearBatch->setColor(color);
         return;
     }
-    sk_sp<GrClearBatch> batch(GrClearBatch::Make(SkIRect::MakeWH(renderTarget->width(),
-                                                                 renderTarget->height()),
-                                                 color, renderTarget));
+    sk_sp<GrClearBatch> batch(GrClearBatch::Make(GrFixedClip::Disabled(), color, renderTarget));
     if (batch.get() == this->recordBatch(batch.get(), batch->bounds())) {
         fLastFullClearBatch = batch.get();
     }
@@ -619,8 +617,10 @@ void GrDrawTarget::forwardCombine() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrDrawTarget::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* rt) {
-    GrBatch* batch = new GrClearStencilClipBatch(rect, insideClip, rt);
+void GrDrawTarget::clearStencilClip(const GrFixedClip& clip,
+                                    bool insideStencilMask,
+                                    GrRenderTarget* rt) {
+    GrBatch* batch = new GrClearStencilClipBatch(clip, insideStencilMask, rt);
     this->recordBatch(batch, batch->bounds());
     batch->unref();
 }

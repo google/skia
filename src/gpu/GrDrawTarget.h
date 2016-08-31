@@ -215,7 +215,7 @@ private:
     void addDependency(GrDrawTarget* dependedOn);
 
     // Used only by drawContextPriv.
-    void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
+    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
 
     struct RecordedBatch {
         sk_sp<GrBatch> fBatch;

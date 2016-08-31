@@ -10,6 +10,7 @@
 
 #include "GrColor.h"
 
+class GrFixedClip;
 class GrGpu;
 class GrMesh;
 class GrPipeline;
@@ -65,9 +66,9 @@ public:
     /**
     * Clear the passed in render target. Ignores the draw state and clip.
     */
-    void clear(const SkIRect& rect, GrColor color, GrRenderTarget* renderTarget);
+    void clear(const GrFixedClip&, GrColor, GrRenderTarget*);
 
-    void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* renderTarget);
+    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
     /**
     * Discards the contents render target. nullptr indicates that the current render target should
     * be discarded.
@@ -86,9 +87,11 @@ private:
                         int meshCount) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
-    virtual void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) = 0;
+    virtual void onClear(GrRenderTarget*, const GrFixedClip&, GrColor) = 0;
 
-    virtual void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) = 0;
+    virtual void onClearStencilClip(GrRenderTarget*,
+                                    const GrFixedClip&,
+                                    bool insideStencilMask) = 0;
 
 };
 

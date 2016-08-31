@@ -185,7 +185,7 @@ public:
     struct StencilPathArgs {
         GrResourceProvider* fResourceProvider;
         GrDrawContext*      fDrawContext;
-        const GrFixedClip*  fClip;
+        const GrClip*       fClip;
         const SkMatrix*     fViewMatrix;
         bool                fIsAA;
         const GrShape*      fShape;

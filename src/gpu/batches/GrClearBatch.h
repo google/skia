@@ -10,6 +10,7 @@
 
 #include "GrBatch.h"
 #include "GrBatchFlushState.h"
+#include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrRenderTarget.h"
@@ -18,8 +19,12 @@ class GrClearBatch final : public GrBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    static sk_sp<GrClearBatch> Make(const SkIRect& rect,  GrColor color, GrRenderTarget* rt) {
-        return sk_sp<GrClearBatch>(new GrClearBatch(rect, color, rt));
+    static sk_sp<GrClearBatch> Make(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt) {
+        sk_sp<GrClearBatch> batch(new GrClearBatch(clip, color, rt));
+        if (!batch->renderTarget()) {
+            return nullptr; // The clip did not contain any pixels within the render target.
+        }
+        return batch;
     }
 
     const char* name() const override { return "Clear"; }
@@ -28,10 +33,12 @@ public:
     GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
-        SkString string;
-        string.printf("Color: 0x%08x, Rect [L: %d, T: %d, R: %d, B: %d], RT: %d",
-                      fColor, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
-                      fRenderTarget.get()->getUniqueID());
+        SkString string("Scissor [");
+        if (fClip.scissorEnabled()) {
+            const SkIRect& r = fClip.scissorRect();
+            string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
+        }
+        string.appendf("], Color: 0x%08x, RT: %d", fColor, fRenderTarget.get()->getUniqueID());
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -39,12 +46,23 @@ public:
     void setColor(GrColor color) { fColor = color; }
 
 private:
-    GrClearBatch(const SkIRect& rect,  GrColor color, GrRenderTarget* rt)
+    GrClearBatch(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt)
         : INHERITED(ClassID())
-        , fRect(rect)
-        , fColor(color)
-        , fRenderTarget(rt) {
-        this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsZeroArea::kNo);
+        , fClip(clip)
+        , fColor(color) {
+        SkIRect rtRect = SkIRect::MakeWH(rt->width(), rt->height());
+        if (fClip.scissorEnabled()) {
+            // Don't let scissors extend outside the RT. This may improve batching.
+            if (!fClip.intersect(rtRect)) {
+                return;
+            }
+            if (fClip.scissorRect() == rtRect) {
+                fClip.disableScissor();
+            }
+        }
+        this->setBounds(SkRect::Make(fClip.scissorEnabled() ? fClip.scissorRect() : rtRect),
+                        HasAABloat::kNo, IsZeroArea::kNo);
+        fRenderTarget.reset(rt);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -53,24 +71,31 @@ private:
         // same color.
         GrClearBatch* cb = t->cast<GrClearBatch>();
         SkASSERT(cb->fRenderTarget == fRenderTarget);
-        if (cb->fRect.contains(fRect)) {
-            fRect = cb->fRect;
+        if (cb->contains(this)) {
+            fClip = cb->fClip;
             this->replaceBounds(*t);
             fColor = cb->fColor;
             return true;
-        } else if (cb->fColor == fColor && fRect.contains(cb->fRect)) {
+        } else if (cb->fColor == fColor && this->contains(cb)) {
             return true;
         }
         return false;
     }
 
+    bool contains(const GrClearBatch* that) const {
+        // The constructor ensures that scissor gets disabled on any clip that fills the entire RT.
+        return !fClip.scissorEnabled() ||
+               (that->fClip.scissorEnabled() &&
+                fClip.scissorRect().contains(that->fClip.scissorRect()));
+    }
+
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override {
-        state->commandBuffer()->clear(fRect, fColor, fRenderTarget.get());
+        state->commandBuffer()->clear(fClip, fColor, fRenderTarget.get());
     }
 
-    SkIRect                                                 fRect;
+    GrFixedClip                                             fClip;
     GrColor                                                 fColor;
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
 

@@ -196,44 +196,54 @@ void GrDrawContext::clear(const SkIRect* rect,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::clear");
 
     AutoCheckFlush acf(fDrawingManager);
+    this->internalClear(rect ? GrFixedClip(*rect) : GrFixedClip::Disabled(), color, canIgnoreRect);
+}
 
-    const SkIRect rtRect = SkIRect::MakeWH(this->width(), this->height());
-    SkIRect clippedRect;
-    bool isFull = false;
-    if (!rect ||
-        (canIgnoreRect && fContext->caps()->fullClearIsFree()) ||
-        rect->contains(rtRect)) {
-        rect = &rtRect;
-        isFull = true;
-    } else {
-        clippedRect = *rect;
-        if (!clippedRect.intersect(rtRect)) {
-            return;
-        }
-        rect = &clippedRect;
-    }
+void GrDrawContextPriv::clear(const GrFixedClip& clip,
+                              const GrColor color,
+                              bool canIgnoreClip) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkDEBUGCODE(fDrawContext->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContextPriv::clear");
+
+    AutoCheckFlush acf(fDrawContext->fDrawingManager);
+    fDrawContext->internalClear(clip, color, canIgnoreClip);
+}
+
+void GrDrawContext::internalClear(const GrFixedClip& clip,
+                                  const GrColor color,
+                                  bool canIgnoreClip) {
+    bool isFull = !clip.scissorEnabled() ||
+                  (canIgnoreClip && fContext->caps()->fullClearIsFree()) ||
+                  clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
 
     if (fContext->caps()->useDrawInsteadOfClear()) {
         // This works around a driver bug with clear by drawing a rect instead.
         // The driver will ignore a clear if it is the only thing rendered to a
         // target before the target is read.
-        if (rect == &rtRect) {
+        SkRect clearRect = SkRect::MakeIWH(this->width(), this->height());
+        if (isFull) {
             this->discard();
+        } else if (!clearRect.intersect(SkRect::Make(clip.scissorRect()))) {
+            return;
         }
 
         GrPaint paint;
         paint.setColor4f(GrColor4f::FromGrColor(color));
         paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
-        this->drawRect(GrNoClip(), paint, SkMatrix::I(), SkRect::Make(*rect));
+        this->drawRect(clip, paint, SkMatrix::I(), clearRect);
     } else if (isFull) {
         this->getDrawTarget()->fullClear(this->accessRenderTarget(), color);
     } else {
-        sk_sp<GrBatch> batch(GrClearBatch::Make(*rect, color, this->accessRenderTarget()));
+        sk_sp<GrBatch> batch(GrClearBatch::Make(clip, color, this->accessRenderTarget()));
+        if (!batch) {
+            return;
+        }
         this->getDrawTarget()->addBatch(std::move(batch));
     }
 }
-
 
 void GrDrawContext::drawPaint(const GrClip& clip,
                               const GrPaint& origPaint,
@@ -543,14 +553,14 @@ void GrDrawContext::drawRect(const GrClip& clip,
     this->internalDrawPath(clip, paint, viewMatrix, path, *style);
 }
 
-void GrDrawContextPriv::clearStencilClip(const SkIRect& rect, bool insideClip) {
+void GrDrawContextPriv::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fDrawContext->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContextPriv::clearStencilClip");
 
     AutoCheckFlush acf(fDrawContext->fDrawingManager);
-    fDrawContext->getDrawTarget()->clearStencilClip(rect, insideClip,
+    fDrawContext->getDrawTarget()->clearStencilClip(clip, insideStencilMask,
                                                     fDrawContext->accessRenderTarget());
 }
 
@@ -561,7 +571,7 @@ void GrDrawContextPriv::stencilPath(const GrClip& clip,
     fDrawContext->getDrawTarget()->stencilPath(fDrawContext, clip, useHWAA, viewMatrix, path);
 }
 
-void GrDrawContextPriv::stencilRect(const GrFixedClip& clip,
+void GrDrawContextPriv::stencilRect(const GrClip& clip,
                                     const GrUserStencilSettings* ss,
                                     bool useHWAA,
                                     const SkMatrix& viewMatrix,
@@ -580,7 +590,7 @@ void GrDrawContextPriv::stencilRect(const GrFixedClip& clip,
     fDrawContext->drawNonAAFilledRect(clip, paint, viewMatrix, rect, nullptr, nullptr, ss, useHWAA);
 }
 
-bool GrDrawContextPriv::drawAndStencilRect(const GrFixedClip& clip,
+bool GrDrawContextPriv::drawAndStencilRect(const GrClip& clip,
                                            const GrUserStencilSettings* ss,
                                            SkRegion::Op op,
                                            bool invert,
@@ -1232,7 +1242,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
     this->internalDrawPath(clip, paint, viewMatrix, path, style);
 }
 
-bool GrDrawContextPriv::drawAndStencilPath(const GrFixedClip& clip,
+bool GrDrawContextPriv::drawAndStencilPath(const GrClip& clip,
                                            const GrUserStencilSettings* ss,
                                            SkRegion::Op op,
                                            bool invert,

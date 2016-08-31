@@ -12,37 +12,30 @@
 #include "GrTypesPriv.h"
 
 /**
- * GrFixedClip is a clip that can be represented by fixed-function hardware. It never modifies the
- * stencil buffer itself, but can be configured to use whatever clip is already there.
+ * GrFixedClip is a clip that gets implemented by fixed-function hardware.
  */
 class GrFixedClip final : public GrClip {
 public:
-    GrFixedClip() : fHasStencilClip(false) {}
-    GrFixedClip(const SkIRect& scissorRect)
-        : fScissorState(scissorRect)
-        , fHasStencilClip(false) {}
+    GrFixedClip() = default;
+    explicit GrFixedClip(const SkIRect& scissorRect) : fScissorState(scissorRect) {}
 
-    void reset() {
-        fScissorState.setDisabled();
-        fHasStencilClip = false;
+    const GrScissorState& scissorState() const { return fScissorState; }
+    bool scissorEnabled() const { return fScissorState.enabled(); }
+    const SkIRect& scissorRect() const { SkASSERT(scissorEnabled()); return fScissorState.rect(); }
+
+    void disableScissor() { fScissorState.setDisabled(); }
+
+    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& irect) {
+        return fScissorState.intersect(irect);
     }
 
-    void reset(const SkIRect& scissorRect) {
-        fScissorState.set(scissorRect);
-        fHasStencilClip = false;
+    bool quickContains(const SkRect& rect) const final {
+        return !fScissorState.enabled() || GrClip::IsInsideClip(fScissorState.rect(), rect);
     }
-
-    void enableStencilClip() { fHasStencilClip = true; }
-    void disableStencilClip() { fHasStencilClip = false; }
-
-    bool quickContains(const SkRect&) const final;
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final;
 
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const override {
-        if (fHasStencilClip) {
-            return false;
-        }
         if (fScissorState.enabled()) {
             SkRect rect = SkRect::Make(fScissorState.rect());
             if (!rect.intersects(rtBounds)) {
@@ -55,12 +48,13 @@ public:
         return false;
     };
 
-private:
     bool apply(GrContext*, GrDrawContext*, bool useHWAA, bool hasUserStencilSettings,
                GrAppliedClip* out) const final;
 
+    static const GrFixedClip& Disabled();
+
+private:
     GrScissorState   fScissorState;
-    bool             fHasStencilClip;
 };
 
 #endif

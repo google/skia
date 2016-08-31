@@ -10,6 +10,7 @@
 
 #include "GrBatch.h"
 #include "GrBatchFlushState.h"
+#include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrRenderTarget.h"
@@ -18,12 +19,14 @@ class GrClearStencilClipBatch final : public GrBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    GrClearStencilClipBatch(const SkIRect& rect, bool insideClip, GrRenderTarget* rt)
+    GrClearStencilClipBatch(const GrFixedClip& clip, bool insideStencilMask, GrRenderTarget* rt)
         : INHERITED(ClassID())
-        , fRect(rect)
-        , fInsideClip(insideClip)
+        , fClip(clip)
+        , fInsideStencilMask(insideStencilMask)
         , fRenderTarget(rt) {
-        this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsZeroArea::kNo);
+        const SkRect& bounds = fClip.scissorEnabled() ? SkRect::Make(fClip.scissorRect())
+                                                      : SkRect::MakeIWH(rt->width(), rt->height());
+        this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "ClearStencilClip"; }
@@ -32,10 +35,12 @@ public:
     GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
-        SkString string;
-        string.printf("Rect [L: %d, T: %d, R: %d, B: %d], IC: %d, RT: %d",
-                      fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom, fInsideClip,
-                      fRenderTarget.get()->getUniqueID());
+        SkString string("Scissor [");
+        if (fClip.scissorEnabled()) {
+            const SkIRect& r = fClip.scissorRect();
+            string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
+        }
+        string.appendf("], IC: %d, RT: %d", fInsideStencilMask, fRenderTarget.get()->getUniqueID());
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -46,11 +51,11 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override {
-        state->commandBuffer()->clearStencilClip(fRect, fInsideClip, fRenderTarget.get());
+        state->commandBuffer()->clearStencilClip(fClip, fInsideStencilMask, fRenderTarget.get());
     }
 
-    SkIRect                                                 fRect;
-    bool                                                    fInsideClip;
+    const GrFixedClip                                       fClip;
+    const bool                                              fInsideStencilMask;
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
 
     typedef GrBatch INHERITED;
