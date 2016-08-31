@@ -353,8 +353,10 @@ void GrVkRenderTarget::onAbandon() {
 
 
 GrBackendObject GrVkRenderTarget::getRenderTargetHandle() const {
-    // Currently just passing back the pointer to the main Image::Resource as the handle
-    return (GrBackendObject)&fResource;
+    // If the render target is multisampled, we currently return the ImageInfo for the resolved
+    // image. If we only wrap the msaa target (currently not implemented) we should return a handle
+    // to that instead.
+    return (GrBackendObject)&fInfo;
 }
 
 const GrVkResource* GrVkRenderTarget::stencilImageResource() const {

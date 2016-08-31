@@ -12,6 +12,7 @@
 #include "VulkanWindowContext.h"
 
 #include "vk/GrVkInterface.h"
+#include "vk/GrVkMemory.h"
 #include "vk/GrVkUtil.h"
 #include "vk/GrVkTypes.h"
 
@@ -262,7 +263,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         GrVkImageInfo info;
         info.fImage = fImages[i];
         info.fAlloc = { VK_NULL_HANDLE, 0, 0 };
-        info.fImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        info.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         info.fFormat = format;
         info.fLevelCount = 1;
@@ -459,6 +460,7 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
 
     // set up layout transfer from initial to color attachment
     VkImageLayout layout = fImageLayouts[backbuffer->fImageIndex];
+    SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED == layout || VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout);
     VkPipelineStageFlags srcStageMask = (VK_IMAGE_LAYOUT_UNDEFINED == layout) ?
                                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT :
                                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -514,17 +516,29 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
                         QueueSubmit(fBackendContext->fQueue, 1, &submitInfo,
                                     backbuffer->fUsageFences[0]));
 
-    return sk_ref_sp(fSurfaces[backbuffer->fImageIndex].get());
+    GrVkImageInfo* imageInfo;
+    SkSurface* surface = fSurfaces[backbuffer->fImageIndex].get();
+    surface->getRenderTargetHandle((GrBackendObject*)&imageInfo,
+                                   SkSurface::kFlushRead_BackendHandleAccess);
+    imageInfo->updateImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+    return sk_ref_sp(surface);
 }
 
 void VulkanWindowContext::swapBuffers() {
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
+    GrVkImageInfo* imageInfo;
+    SkSurface* surface = fSurfaces[backbuffer->fImageIndex].get();
+    surface->getRenderTargetHandle((GrBackendObject*)&imageInfo,
+                                   SkSurface::kFlushRead_BackendHandleAccess);
+    // Check to make sure we never change the actually wrapped image
+    SkASSERT(imageInfo->fImage == fImages[backbuffer->fImageIndex]);
 
-    VkImageLayout layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    VkImageLayout layout = imageInfo->fImageLayout;
+    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    VkAccessFlags srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
     VkAccessFlags dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 
     VkImageMemoryBarrier imageMemoryBarrier = {
