@@ -29,7 +29,7 @@ namespace {
 // PDF's notion of symbolic vs non-symbolic is related to the character set, not
 // symbols vs. characters.  Rarely is a font the right character set to call it
 // non-symbolic, so always call it symbolic.  (PDF 1.4 spec, section 5.7.1)
-static const int kPdfSymbolic = 4;
+static const int32_t kPdfSymbolic = 4;
 
 struct SkPDFType0Font final : public SkPDFFont {
     SkPDFType0Font(SkPDFFont::Info, const SkAdvancedTypefaceMetrics&);
@@ -426,8 +426,9 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
     }
 
     auto sysInfo = sk_make_sp<SkPDFDict>();
-    sysInfo->insertString("Registry", "Adobe");
-    sysInfo->insertString("Ordering", "Identity");
+    sysInfo->insertString("Registry", "Skia");
+    // TODO: Registry+Ordering should be globally unique!
+    sysInfo->insertString("Ordering", "SkiaOrdering");
     sysInfo->insertInt("Supplement", 0);
     newCIDFont->insertObject("CIDSystemInfo", std::move(sysInfo));
 
@@ -597,6 +598,7 @@ static void add_type3_font_info(SkPDFCanon* canon,
                                 const SkBitSet& subset,
                                 SkGlyphID firstGlyphID,
                                 SkGlyphID lastGlyphID) {
+    const SkAdvancedTypefaceMetrics* metrics = SkPDFFont::GetMetrics(typeface, canon);
     SkASSERT(lastGlyphID >= firstGlyphID);
     // Remove unused glyphs at the end of the range.
     // Keep the lastGlyphID >= firstGlyphID invariant true.
@@ -684,8 +686,7 @@ static void add_type3_font_info(SkPDFCanon* canon,
     fontBBox->appendInt(bbox.top());
     font->insertObject("FontBBox", std::move(fontBBox));
     font->insertName("CIDToGIDMap", "Identity");
-    const SkAdvancedTypefaceMetrics* metrics = SkPDFFont::GetMetrics(typeface, canon);
-    if (metrics /* && metrics->fGlyphToUnicode.count() > 0 */) {
+    if (metrics && metrics->fGlyphToUnicode.count() > 0) {
         font->insertObjRef("ToUnicode",
                            SkPDFMakeToUnicodeCmap(metrics->fGlyphToUnicode,
                                                   &subset,
@@ -693,6 +694,16 @@ static void add_type3_font_info(SkPDFCanon* canon,
                                                   firstGlyphID,
                                                   lastGlyphID));
     }
+    auto descriptor = sk_make_sp<SkPDFDict>("FontDescriptor");
+    int32_t fontDescriptorFlags = kPdfSymbolic;
+    if (metrics) {
+        // Type3 FontDescriptor does not require all the same fields.
+        descriptor->insertName("FontName", metrics->fFontName);
+        descriptor->insertInt("ItalicAngle", metrics->fItalicAngle);
+        fontDescriptorFlags |= (int32_t)metrics->fStyle;
+    }
+    descriptor->insertInt("Flags", fontDescriptorFlags);
+    font->insertObjRef("FontDescriptor", std::move(descriptor));
     font->insertObject("Widths", std::move(widthArray));
     font->insertObject("Encoding", std::move(encoding));
     font->insertObject("CharProcs", std::move(charProcs));

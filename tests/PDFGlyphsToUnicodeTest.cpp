@@ -125,11 +125,11 @@ endbfchar\n";
 
     char expectedResultSingleBytes[] =
 "2 beginbfchar\n\
-<0001> <0000>\n\
-<0002> <0000>\n\
+<01> <0000>\n\
+<02> <0000>\n\
 endbfchar\n\
 1 beginbfrange\n\
-<0003> <0006> <1010>\n\
+<03> <06> <1010>\n\
 endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0,

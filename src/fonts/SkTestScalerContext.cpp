@@ -150,7 +150,15 @@ SkAdvancedTypefaceMetrics* SkTestTypeface::onGetAdvancedTypefaceMetrics(
 // pdf only
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     info->fFontName.set(fTestFont->fName);
-    info->fLastGlyphID = SkToU16(onCountGlyphs() - 1);
+    int glyphCount = this->onCountGlyphs();
+    info->fLastGlyphID = SkToU16(glyphCount - 1);
+
+    SkTDArray<SkUnichar>& toUnicode = info->fGlyphToUnicode;
+    toUnicode.setCount(glyphCount);
+    SkASSERT(glyphCount == SkToInt(fTestFont->fCharCodesCount));
+    for (int gid = 0; gid < glyphCount; ++gid) {
+        toUnicode[gid] = SkToS32(fTestFont->fCharCodes[gid]);
+    }
     return info;
 }
 
