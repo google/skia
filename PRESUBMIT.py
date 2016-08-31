@@ -46,8 +46,8 @@ PATH_PREFIX_TO_EXTRA_TRYBOTS = {
     'src/opts/': 'master.client.skia:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD-Trybot',
 
     'include/private/SkAtomics.h': ('master.client.skia:'
-      'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN-Trybot,'
-      'Test-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-TSAN-Trybot'
+      'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN-Trybot,'
+      'Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN-Trybot'
     ),
 
     # Below are examples to show what is possible with this feature.
