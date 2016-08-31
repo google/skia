@@ -430,11 +430,7 @@ private:
     GrAuditTrail                            fAuditTrail;
 
     // TODO: have the GrClipStackClip use drawContexts and rm this friending
-    friend class GrClipStackClip;  // for access to drawingManager
-    friend class GrDrawingManager; // for access to drawingManager for ProgramUnitTest
     friend class GrContextPriv;
-
-    GrDrawingManager* drawingManager() { return fDrawingManager; }
 
     GrContext(); // init must be called after the constructor.
     bool init(GrBackend, GrBackendContext, const GrContextOptions& options);

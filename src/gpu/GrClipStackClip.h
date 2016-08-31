@@ -49,28 +49,17 @@ private:
                                     GrPathRenderer** prOut,
                                     bool needsStencil);
 
-    // Draws the clip into the stencil buffer
-    static bool CreateStencilClipMask(GrContext*,
-                                      GrDrawContext*,
-                                      const GrReducedClip&,
-                                      const SkIPoint& clipSpaceToStencilOffset);
-
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
-    static sk_sp<GrTexture> CreateAlphaClipMask(GrContext*,
-                                                const GrReducedClip&,
-                                                const SkVector& clipToMaskOffset);
+    static sk_sp<GrTexture> CreateAlphaClipMask(GrContext*, const GrReducedClip&);
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
-    static sk_sp<GrTexture> CreateSoftwareClipMask(GrTextureProvider*,
-                                                   const GrReducedClip&,
-                                                   const SkVector& clipToMaskOffset);
+    static sk_sp<GrTexture> CreateSoftwareClipMask(GrTextureProvider*, const GrReducedClip&);
 
    static bool UseSWOnlyPath(GrContext*,
                              bool hasUserStencilSettings,
                              const GrDrawContext*,
-                             const SkVector& clipToMaskOffset,
-                             const GrReducedClip::ElementList& elements);
+                             const GrReducedClip&);
 
     static GrTexture* CreateCachedMask(int width, int height, const GrUniqueKey& key,
                                        bool renderTarget);

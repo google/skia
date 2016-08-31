@@ -627,9 +627,9 @@ sk_sp<GrDrawContext> GrContextPriv::makeWrappedDrawContext(sk_sp<GrRenderTarget>
                                                            sk_sp<SkColorSpace> colorSpace,
                                                            const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
-    return fContext->drawingManager()->makeDrawContext(std::move(rt),
-                                                       std::move(colorSpace),
-                                                       surfaceProps);
+    return this->drawingManager()->makeDrawContext(std::move(rt),
+                                                   std::move(colorSpace),
+                                                   surfaceProps);
 }
 
 sk_sp<GrDrawContext> GrContextPriv::makeBackendTextureDrawContext(const GrBackendTextureDesc& desc, 
@@ -644,8 +644,8 @@ sk_sp<GrDrawContext> GrContextPriv::makeBackendTextureDrawContext(const GrBacken
         return nullptr;
     }
 
-    return fContext->drawingManager()->makeDrawContext(sk_ref_sp(surface->asRenderTarget()),
-                                                       std::move(colorSpace), props);
+    return this->drawingManager()->makeDrawContext(sk_ref_sp(surface->asRenderTarget()),
+                                                   std::move(colorSpace), props);
 }
 
 sk_sp<GrDrawContext> GrContextPriv::makeBackendRenderTargetDrawContext(
@@ -659,9 +659,9 @@ sk_sp<GrDrawContext> GrContextPriv::makeBackendRenderTargetDrawContext(
         return nullptr;
     }
 
-    return fContext->drawingManager()->makeDrawContext(std::move(rt),
-                                                       std::move(colorSpace),
-                                                       surfaceProps);
+    return this->drawingManager()->makeDrawContext(std::move(rt),
+                                                   std::move(colorSpace),
+                                                   surfaceProps);
 }
 
 sk_sp<GrDrawContext> GrContextPriv::makeBackendTextureAsRenderTargetDrawContext(
@@ -676,9 +676,9 @@ sk_sp<GrDrawContext> GrContextPriv::makeBackendTextureAsRenderTargetDrawContext(
         return nullptr;
     }
 
-    return fContext->drawingManager()->makeDrawContext(sk_ref_sp(surface->asRenderTarget()),
-                                                       std::move(colorSpace),
-                                                       surfaceProps);
+    return this->drawingManager()->makeDrawContext(sk_ref_sp(surface->asRenderTarget()),
+                                                   std::move(colorSpace),
+                                                   surfaceProps);
 }
 
 sk_sp<GrDrawContext> GrContext::makeDrawContext(SkBackingFit fit,

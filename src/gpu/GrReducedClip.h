@@ -11,6 +11,9 @@
 #include "SkClipStack.h"
 #include "SkTLList.h"
 
+class GrContext;
+class GrDrawContext;
+
 /**
  * This class takes a clip stack and produces a reduced set of elements that are equivalent to
  * applying that full stack within a specified query rectangle.
@@ -59,6 +62,9 @@ public:
     };
 
     InitialState initialState() const { return fInitialState; }
+
+    bool drawAlphaClipMask(GrDrawContext*) const;
+    bool drawStencilClipMask(GrContext*, GrDrawContext*, const SkIPoint& clipOrigin) const;
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds);

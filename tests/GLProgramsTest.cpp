@@ -14,6 +14,7 @@
 #include "GrAutoLocaleSetter.h"
 #include "GrBatchTest.h"
 #include "GrContextFactory.h"
+#include "GrContextPriv.h"
 #include "GrDrawContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrInvariantOutput.h"
@@ -288,7 +289,7 @@ static const GrUserStencilSettings* get_random_stencil(SkRandom* random) {
 }
 
 bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
-    GrDrawingManager* drawingManager = context->drawingManager();
+    GrDrawingManager* drawingManager = context->contextPriv().drawingManager();
 
     // setup dummy textures
     GrSurfaceDesc dummyDesc;

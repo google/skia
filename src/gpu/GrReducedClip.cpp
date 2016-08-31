@@ -7,7 +7,17 @@
 
 #include "GrReducedClip.h"
 
+#include "GrAppliedClip.h"
 #include "GrClip.h"
+#include "GrColor.h"
+#include "GrContextPriv.h"
+#include "GrDrawContext.h"
+#include "GrDrawContextPriv.h"
+#include "GrDrawingManager.h"
+#include "GrFixedClip.h"
+#include "GrPathRenderer.h"
+#include "GrStyle.h"
+#include "GrUserStencilSettings.h"
 
 typedef SkClipStack::Element Element;
 
@@ -418,6 +428,319 @@ inline bool GrReducedClip::intersectIBounds(const SkIRect& irect) {
         fRequiresAA = false;
         fInitialState = InitialState::kAllOut;
         return false;
+    }
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Create a 8-bit clip mask in alpha
+
+static bool stencil_element(GrDrawContext* dc,
+                            const GrFixedClip& clip,
+                            const GrUserStencilSettings* ss,
+                            const SkMatrix& viewMatrix,
+                            const SkClipStack::Element* element) {
+
+    // TODO: Draw rrects directly here.
+    switch (element->getType()) {
+        case Element::kEmpty_Type:
+            SkDEBUGFAIL("Should never get here with an empty element.");
+            break;
+        case Element::kRect_Type:
+            return dc->drawContextPriv().drawAndStencilRect(clip, ss,
+                                                            element->getOp(),
+                                                            element->isInverseFilled(),
+                                                            element->isAA(),
+                                                            viewMatrix, element->getRect());
+            break;
+        default: {
+            SkPath path;
+            element->asPath(&path);
+            if (path.isInverseFillType()) {
+                path.toggleInverseFillType();
+            }
+
+            return dc->drawContextPriv().drawAndStencilPath(clip, ss,
+                                                            element->getOp(),
+                                                            element->isInverseFilled(),
+                                                            element->isAA(), viewMatrix, path);
+            break;
+        }
+    }
+
+    return false;
+}
+
+static void draw_element(GrDrawContext* dc,
+                         const GrClip& clip, // TODO: can this just always be WideOpen?
+                         const GrPaint &paint,
+                         const SkMatrix& viewMatrix,
+                         const SkClipStack::Element* element) {
+
+    // TODO: Draw rrects directly here.
+    switch (element->getType()) {
+        case Element::kEmpty_Type:
+            SkDEBUGFAIL("Should never get here with an empty element.");
+            break;
+        case Element::kRect_Type:
+            dc->drawRect(clip, paint, viewMatrix, element->getRect());
+            break;
+        default: {
+            SkPath path;
+            element->asPath(&path);
+            if (path.isInverseFillType()) {
+                path.toggleInverseFillType();
+            }
+
+            dc->drawPath(clip, paint, viewMatrix, path, GrStyle::SimpleFill());
+            break;
+        }
+    }
+}
+
+bool GrReducedClip::drawAlphaClipMask(GrDrawContext* dc) const {
+    // The texture may be larger than necessary, this rect represents the part of the texture
+    // we populate with a rasterization of the clip.
+    GrFixedClip clip(SkIRect::MakeWH(fIBounds.width(), fIBounds.height()));
+
+    // The scratch texture that we are drawing into can be substantially larger than the mask. Only
+    // clear the part that we care about.
+    GrColor initialCoverage = InitialState::kAllIn == this->initialState() ? -1 : 0;
+    dc->drawContextPriv().clear(clip, initialCoverage, true);
+
+    // Set the matrix so that rendered clip elements are transformed to mask space from clip space.
+    SkMatrix translate;
+    translate.setTranslate(SkIntToScalar(-fIBounds.left()), SkIntToScalar(-fIBounds.top()));
+
+    // walk through each clip element and perform its set op
+    for (ElementList::Iter iter(fElements); iter.get(); iter.next()) {
+        const Element* element = iter.get();
+        SkRegion::Op op = element->getOp();
+        bool invert = element->isInverseFilled();
+        if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
+            // draw directly into the result with the stencil set to make the pixels affected
+            // by the clip shape be non-zero.
+            static constexpr GrUserStencilSettings kStencilInElement(
+                 GrUserStencilSettings::StaticInit<
+                     0xffff,
+                     GrUserStencilTest::kAlways,
+                     0xffff,
+                     GrUserStencilOp::kReplace,
+                     GrUserStencilOp::kReplace,
+                     0xffff>()
+            );
+            if (!stencil_element(dc, clip, &kStencilInElement, translate, element)) {
+                return false;
+            }
+
+            // Draw to the exterior pixels (those with a zero stencil value).
+            static constexpr GrUserStencilSettings kDrawOutsideElement(
+                 GrUserStencilSettings::StaticInit<
+                     0x0000,
+                     GrUserStencilTest::kEqual,
+                     0xffff,
+                     GrUserStencilOp::kZero,
+                     GrUserStencilOp::kZero,
+                     0xffff>()
+            );
+            if (!dc->drawContextPriv().drawAndStencilRect(clip, &kDrawOutsideElement,
+                                                          op, !invert, false,
+                                                          translate,
+                                                          SkRect::Make(fIBounds))) {
+                return false;
+            }
+        } else {
+            // all the remaining ops can just be directly draw into the accumulation buffer
+            GrPaint paint;
+            paint.setAntiAlias(element->isAA());
+            paint.setCoverageSetOpXPFactory(op, false);
+
+            draw_element(dc, clip, paint, translate, element);
+        }
+    }
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Create a 1-bit clip mask in the stencil buffer.
+
+class StencilClip final : public GrClip {
+public:
+    StencilClip(const SkIRect& scissorRect) : fFixedClip(scissorRect) {}
+    const GrFixedClip& fixedClip() const { return fFixedClip; }
+
+private:
+    bool quickContains(const SkRect&) const final {
+        return false;
+    }
+    void getConservativeBounds(int width, int height, SkIRect* devResult, bool* iior) const final {
+        fFixedClip.getConservativeBounds(width, height, devResult, iior);
+    }
+    bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const final {
+        return false;
+    }
+    bool apply(GrContext* context, GrDrawContext* drawContext, bool useHWAA,
+               bool hasUserStencilSettings, GrAppliedClip* out) const final {
+        if (!fFixedClip.apply(context, drawContext, useHWAA, hasUserStencilSettings, out)) {
+            return false;
+        }
+        out->addStencilClip();
+        return true;
+    }
+
+    GrFixedClip fFixedClip;
+
+    typedef GrClip INHERITED;
+};
+
+bool GrReducedClip::drawStencilClipMask(GrContext* context,
+                                        GrDrawContext* drawContext,
+                                        const SkIPoint& clipOrigin) const {
+    // We set the current clip to the bounds so that our recursive draws are scissored to them.
+    StencilClip stencilClip(fIBounds.makeOffset(-clipOrigin.x(), -clipOrigin.y()));
+
+    bool initialState = InitialState::kAllIn == this->initialState();
+    drawContext->drawContextPriv().clearStencilClip(stencilClip.fixedClip(), initialState);
+
+    // Set the matrix so that rendered clip elements are transformed from clip to stencil space.
+    SkMatrix viewMatrix;
+    viewMatrix.setTranslate(SkIntToScalar(-clipOrigin.x()), SkIntToScalar(-clipOrigin.y()));
+
+    // walk through each clip element and perform its set op
+    // with the existing clip.
+    for (ElementList::Iter iter(fElements); iter.get(); iter.next()) {
+        const Element* element = iter.get();
+        bool useHWAA = element->isAA() && drawContext->isStencilBufferMultisampled();
+
+        bool fillInverted = false;
+
+        // This will be used to determine whether the clip shape can be rendered into the
+        // stencil with arbitrary stencil settings.
+        GrPathRenderer::StencilSupport stencilSupport;
+
+        SkRegion::Op op = element->getOp();
+
+        GrPathRenderer* pr = nullptr;
+        SkPath clipPath;
+        if (Element::kRect_Type == element->getType()) {
+            stencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
+            fillInverted = false;
+        } else {
+            element->asPath(&clipPath);
+            fillInverted = clipPath.isInverseFillType();
+            if (fillInverted) {
+                clipPath.toggleInverseFillType();
+            }
+
+            GrShape shape(clipPath, GrStyle::SimpleFill());
+            GrPathRenderer::CanDrawPathArgs canDrawArgs;
+            canDrawArgs.fShaderCaps = context->caps()->shaderCaps();
+            canDrawArgs.fViewMatrix = &viewMatrix;
+            canDrawArgs.fShape = &shape;
+            canDrawArgs.fAntiAlias = false;
+            canDrawArgs.fHasUserStencilSettings = false;
+            canDrawArgs.fIsStencilBufferMSAA = drawContext->isStencilBufferMultisampled();
+
+            GrDrawingManager* dm = context->contextPriv().drawingManager();
+            pr = dm->getPathRenderer(canDrawArgs, false,
+                                     GrPathRendererChain::kStencilOnly_DrawType,
+                                     &stencilSupport);
+            if (!pr) {
+                return false;
+            }
+        }
+
+        bool canRenderDirectToStencil =
+            GrPathRenderer::kNoRestriction_StencilSupport == stencilSupport;
+        bool drawDirectToClip; // Given the renderer, the element,
+                               // fill rule, and set operation should
+                               // we render the element directly to
+                               // stencil bit used for clipping.
+        GrUserStencilSettings const* const* stencilPasses =
+            GrStencilSettings::GetClipPasses(op, canRenderDirectToStencil, fillInverted,
+                                             &drawDirectToClip);
+
+        // draw the element to the client stencil bits if necessary
+        if (!drawDirectToClip) {
+            static constexpr GrUserStencilSettings kDrawToStencil(
+                 GrUserStencilSettings::StaticInit<
+                     0x0000,
+                     GrUserStencilTest::kAlways,
+                     0xffff,
+                     GrUserStencilOp::kIncMaybeClamp,
+                     GrUserStencilOp::kIncMaybeClamp,
+                     0xffff>()
+            );
+            if (Element::kRect_Type == element->getType()) {
+                drawContext->drawContextPriv().stencilRect(stencilClip.fixedClip(),
+                                                           &kDrawToStencil, useHWAA,
+                                                           viewMatrix, element->getRect());
+            } else {
+                if (!clipPath.isEmpty()) {
+                    GrShape shape(clipPath, GrStyle::SimpleFill());
+                    if (canRenderDirectToStencil) {
+                        GrPaint paint;
+                        paint.setXPFactory(GrDisableColorXPFactory::Make());
+                        paint.setAntiAlias(element->isAA());
+
+                        GrPathRenderer::DrawPathArgs args;
+                        args.fResourceProvider = context->resourceProvider();
+                        args.fPaint = &paint;
+                        args.fUserStencilSettings = &kDrawToStencil;
+                        args.fDrawContext = drawContext;
+                        args.fClip = &stencilClip.fixedClip();
+                        args.fViewMatrix = &viewMatrix;
+                        args.fShape = &shape;
+                        args.fAntiAlias = false;
+                        args.fGammaCorrect = false;
+                        pr->drawPath(args);
+                    } else {
+                        GrPathRenderer::StencilPathArgs args;
+                        args.fResourceProvider = context->resourceProvider();
+                        args.fDrawContext = drawContext;
+                        args.fClip = &stencilClip.fixedClip();
+                        args.fViewMatrix = &viewMatrix;
+                        args.fIsAA = element->isAA();
+                        args.fShape = &shape;
+                        pr->stencilPath(args);
+                    }
+                }
+            }
+        }
+
+        // now we modify the clip bit by rendering either the clip
+        // element directly or a bounding rect of the entire clip.
+        for (GrUserStencilSettings const* const* pass = stencilPasses; *pass; ++pass) {
+            if (drawDirectToClip) {
+                if (Element::kRect_Type == element->getType()) {
+                    drawContext->drawContextPriv().stencilRect(stencilClip, *pass, useHWAA,
+                                                               viewMatrix, element->getRect());
+                } else {
+                    GrShape shape(clipPath, GrStyle::SimpleFill());
+                    GrPaint paint;
+                    paint.setXPFactory(GrDisableColorXPFactory::Make());
+                    paint.setAntiAlias(element->isAA());
+                    GrPathRenderer::DrawPathArgs args;
+                    args.fResourceProvider = context->resourceProvider();
+                    args.fPaint = &paint;
+                    args.fUserStencilSettings = *pass;
+                    args.fDrawContext = drawContext;
+                    args.fClip = &stencilClip;
+                    args.fViewMatrix = &viewMatrix;
+                    args.fShape = &shape;
+                    args.fAntiAlias = false;
+                    args.fGammaCorrect = false;
+                    pr->drawPath(args);
+                }
+            } else {
+                // The view matrix is setup to do clip space -> stencil space translation, so
+                // draw rect in clip space.
+                drawContext->drawContextPriv().stencilRect(stencilClip, *pass,
+                                                           false, viewMatrix,
+                                                           SkRect::Make(fIBounds));
+            }
+        }
     }
     return true;
 }
