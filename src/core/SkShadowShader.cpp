@@ -699,8 +699,9 @@ void SkShadowShaderImpl::ShadowShaderContext::shadeSpan(int x, int y,
             for (int l = 0; l < lightShader.fLights->numLights(); ++l) {
                 const SkLights::Light& light = lightShader.fLights->light(l);
 
+                int pvDepth = SkColorGetB(povDepthColor); // depth stored in blue channel
+
                 if (light.type() == SkLights::Light::kDirectional_LightType) {
-                    int pvDepth = SkColorGetB(povDepthColor); // depth stored in blue channel
 
                     int xOffset = SkScalarRoundToInt(light.dir().fX * pvDepth);
                     int yOffset = SkScalarRoundToInt(light.dir().fY * pvDepth);
@@ -745,8 +746,26 @@ void SkShadowShaderImpl::ShadowShaderContext::shadeSpan(int x, int y,
                     totalLight.fX += light.dir().fZ * light.color().fX * lightProb;
                     totalLight.fY += light.dir().fZ * light.color().fY * lightProb;
                     totalLight.fZ += light.dir().fZ * light.color().fZ * lightProb;
+
                 } else {
-                    totalLight += light.color();
+                    // right now we only expect directional and point light types.
+                    SkASSERT(light.type() == SkLights::Light::kPoint_LightType);
+
+                    int height = lightShader.fDiffuseHeight;
+
+                    SkVector3 fragToLight = SkVector3::Make(light.pos().fX - x - i,
+                                                            light.pos().fY - (height - y),
+                                                            light.pos().fZ - pvDepth);
+
+                    SkScalar dist = fragToLight.length();
+                    SkScalar normalizedZ = fragToLight.fZ / dist;
+
+                    SkScalar distAttenuation = light.intensity() / (1.0f + dist * dist);
+
+                    // assume object normals are pointing straight up
+                    totalLight.fX += normalizedZ * light.color().fX * distAttenuation;
+                    totalLight.fY += normalizedZ * light.color().fY * distAttenuation;
+                    totalLight.fZ += normalizedZ * light.color().fZ * distAttenuation;
                 }
             }
 
