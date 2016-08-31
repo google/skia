@@ -36,6 +36,7 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context) {
     if (caps.sampleShadingSupport()) {
         this->addPathRenderer(new GrMSAAPathRenderer)->unref();
     }
+    this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
     this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
     this->addPathRenderer(new GrAAConvexPathRenderer)->unref();
     this->addPathRenderer(new GrAALinearizingConvexPathRenderer)->unref();
@@ -43,7 +44,6 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context) {
         this->addPathRenderer(new GrPLSPathRenderer)->unref();
     }
     this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
-    this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
     this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
                                                     caps.stencilWrapOpsSupport()))->unref();
 }

@@ -24,7 +24,7 @@ namespace GrDefaultGeoProcFactory {
 
     struct PositionCoverageAttr {
         SkPoint fPosition;
-        float   fCoverage;
+        GrColor fCoverage;
     };
 
     struct PositionColorAttr {
@@ -35,7 +35,7 @@ namespace GrDefaultGeoProcFactory {
     struct PositionColorCoverageAttr {
         SkPoint fPosition;
         SkColor fColor;
-        float   fCoverage;
+        GrColor fCoverage;
     };
 
     struct PositionLocalCoordAttr {
@@ -46,7 +46,7 @@ namespace GrDefaultGeoProcFactory {
     struct PositionLocalCoordCoverageAttr {
         SkPoint fPosition;
         SkPoint fLocalCoord;
-        float   fCoverage;
+        GrColor fCoverage;
     };
 
     struct PositionColorLocalCoordAttr {
@@ -59,7 +59,7 @@ namespace GrDefaultGeoProcFactory {
         SkPoint fPosition;
         GrColor fColor;
         SkPoint fLocalCoord;
-        float   fCoverage;
+        GrColor fCoverage;
     };
 
     struct Color {
