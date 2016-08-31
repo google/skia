@@ -366,42 +366,55 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     return success;
 }
 
+void GrVkGpu::resolveImage(GrVkRenderTarget* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
+                           const SkIPoint& dstPoint) {
+    SkASSERT(dst);
+    SkASSERT(src && src->numColorSamples() > 1 && src->msaaImage());
+
+    // Flip rect if necessary
+    SkIRect srcVkRect = srcRect;
+    int32_t dstY = dstPoint.fY;
+
+    if (kBottomLeft_GrSurfaceOrigin == src->origin()) {
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == dst->origin());
+        srcVkRect.fTop = src->height() - srcRect.fBottom;
+        srcVkRect.fBottom = src->height() - srcRect.fTop;
+        dstY = dst->height() - dstPoint.fY - srcVkRect.height();
+    }
+
+    VkImageResolve resolveInfo;
+    resolveInfo.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    resolveInfo.srcOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
+    resolveInfo.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    resolveInfo.dstOffset = { dstPoint.fX, dstY, 0 };
+    // By the spec the depth of the extent should be ignored for 2D images, but certain devices
+    // (e.g. nexus 5x) currently fail if it is not 1
+    resolveInfo.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
+
+    dst->setImageLayout(this,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        VK_ACCESS_TRANSFER_WRITE_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        false);
+
+    src->msaaImage()->setImageLayout(this,
+                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                     VK_ACCESS_TRANSFER_READ_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     false);
+
+    fCurrentCmdBuffer->resolveImage(this, *src->msaaImage(), *dst, 1, &resolveInfo);
+}
+
 void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target) {
     if (target->needsResolve()) {
         SkASSERT(target->numColorSamples() > 1);
         GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
         SkASSERT(rt->msaaImage());
+        
+        const SkIRect& srcRect = rt->getResolveRect();
 
-        // Flip rect if necessary
-        SkIRect srcVkRect = rt->getResolveRect();
-
-        if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
-            srcVkRect.fTop = rt->height() - rt->getResolveRect().fBottom;
-            srcVkRect.fBottom =  rt->height() - rt->getResolveRect().fTop;
-        }
-
-        VkImageResolve resolveInfo;
-        resolveInfo.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-        resolveInfo.srcOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
-        resolveInfo.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-        resolveInfo.dstOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
-        // By the spec the depth of the extent should be ignored for 2D images, but certain devices
-        // (e.g. nexus 5x) currently fail if it is not 1
-        resolveInfo.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
-
-        rt->setImageLayout(this,
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                           VK_ACCESS_TRANSFER_WRITE_BIT,
-                           VK_PIPELINE_STAGE_TRANSFER_BIT,
-                           false);
-
-        rt->msaaImage()->setImageLayout(this,
-                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                        VK_ACCESS_TRANSFER_READ_BIT,
-                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                        false);
-
-        fCurrentCmdBuffer->resolveImage(this, *rt->msaaImage(), *rt, 1, &resolveInfo);
+        this->resolveImage(rt, rt, srcRect, SkIPoint::Make(srcRect.fLeft, srcRect.fTop));
 
         rt->flagAsResolved();
     }
@@ -1333,10 +1346,20 @@ void GrVkGpu::clearStencil(GrRenderTarget* target) {
 inline bool can_copy_image(const GrSurface* dst,
                            const GrSurface* src,
                            const GrVkGpu* gpu) {
-    // Currently we don't support msaa
-    if ((dst->asRenderTarget() && dst->asRenderTarget()->numColorSamples() > 1) ||
-        (src->asRenderTarget() && src->asRenderTarget()->numColorSamples() > 1)) {
-        return false;
+    const GrRenderTarget* dstRT = dst->asRenderTarget();
+    const GrRenderTarget* srcRT = src->asRenderTarget();
+    if (dstRT && srcRT) {
+        if (srcRT->numColorSamples() != dstRT->numColorSamples()) {
+            return false;
+        }
+    } else if (dstRT) {
+        if (dstRT->numColorSamples() > 1) {
+            return false;
+        }
+    } else if (srcRT) {
+        if (srcRT->numColorSamples() > 1) {
+            return false;
+        }
     }
 
     // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src 
@@ -1345,9 +1368,6 @@ inline bool can_copy_image(const GrSurface* dst,
         GrBytesPerPixel(src->config()) == GrBytesPerPixel(dst->config())) {
         return true;
     }
-
-    // How does msaa play into this? If a VkTexture is multisampled, are we copying the multisampled
-    // or the resolved image here? Im multisampled, Vulkan requires sample counts to be the same.
 
     return false;
 }
@@ -1500,6 +1520,37 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
     this->didWriteToSurface(dst, &dstRect);
 }
 
+inline bool can_copy_as_resolve(const GrSurface* dst,
+                                const GrSurface* src,
+                                const GrVkGpu* gpu) {
+    // Our src must be a multisampled render target
+    if (!src->asRenderTarget() || src->asRenderTarget()->numColorSamples() <= 1) {
+        return false;
+    }
+
+    // The dst must be a render target but not multisampled
+    if (!dst->asRenderTarget() || dst->asRenderTarget()->numColorSamples() > 1) {
+        return false;
+    }
+
+    // Surfaces must have the same origin.
+    if (src->origin() != dst->origin()) {
+        return false;
+    }
+
+    return true;
+}
+
+void GrVkGpu::copySurfaceAsResolve(GrSurface* dst,
+                                   GrSurface* src,
+                                   const SkIRect& srcRect,
+                                   const SkIPoint& dstPoint) {
+    GrVkRenderTarget* dstRT = static_cast<GrVkRenderTarget*>(dst->asRenderTarget());
+    GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget());
+    SkASSERT(dstRT && dstRT->numColorSamples() <= 1);
+    this->resolveImage(dstRT, srcRT, srcRect, dstPoint);
+}
+
 inline bool can_copy_as_draw(const GrSurface* dst,
                              const GrSurface* src,
                              const GrVkGpu* gpu) {
@@ -1517,19 +1568,27 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
                             GrSurface* src,
                             const SkIRect& srcRect,
                             const SkIPoint& dstPoint) {
+    if (can_copy_as_resolve(dst, src, this)) {
+        this->copySurfaceAsResolve(dst, src, srcRect, dstPoint);
+    }
+
     GrVkImage* dstImage;
     GrVkImage* srcImage;
-    if (dst->asTexture()) {
+    GrRenderTarget* dstRT = dst->asRenderTarget();
+    if (dstRT) {
+        GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(dstRT);
+        dstImage = vkRT->numColorSamples() > 1 ? vkRT->msaaImage() : vkRT;
+    } else {
+        SkASSERT(dst->asTexture());
         dstImage = static_cast<GrVkTexture*>(dst->asTexture());
-    } else {
-        SkASSERT(dst->asRenderTarget());
-        dstImage = static_cast<GrVkRenderTarget*>(dst->asRenderTarget());
     }
-    if (src->asTexture()) {
-        srcImage = static_cast<GrVkTexture*>(src->asTexture());
+    GrRenderTarget* srcRT = src->asRenderTarget();
+    if (srcRT) {
+        GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(srcRT);
+        srcImage = vkRT->numColorSamples() > 1 ? vkRT->msaaImage() : vkRT;
     } else {
-        SkASSERT(src->asRenderTarget());
-        srcImage = static_cast<GrVkRenderTarget*>(src->asRenderTarget());
+        SkASSERT(src->asTexture());
+        srcImage = static_cast<GrVkTexture*>(src->asTexture());
     }
 
     if (can_copy_image(dst, src, this)) {
@@ -1550,17 +1609,13 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
     return false;
 }
 
-bool GrVkGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const {
-    // Currently we don't support msaa
-    if (src->asRenderTarget() && src->asRenderTarget()->numColorSamples() > 1) {
-        return false;
-    }
-
-    // This will support copying the dst as CopyImage since all of our surfaces require transferSrc
-    // and transferDst usage flags in Vulkan.
+bool GrVkGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
+    // We can always succeed here with either a CopyImage (none msaa src) or ResolveImage (msaa).
+    // For CopyImage we can make a simple texture, for ResolveImage we require the dst to be a
+    // render target as well.
     desc->fOrigin = src->origin();
     desc->fConfig = src->config();
-    desc->fFlags = kNone_GrSurfaceFlags;
+    desc->fFlags = src->numColorSamples() > 1 ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     return true;
 }
 

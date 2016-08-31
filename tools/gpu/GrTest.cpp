@@ -306,7 +306,7 @@ public:
         *effectiveSampleCnt = rt->desc().fSampleCnt;
     }
 
-    bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override {
+    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override {
         return false;
     }
 

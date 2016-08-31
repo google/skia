@@ -82,7 +82,7 @@ public:
     void onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                int* effectiveSampleCnt, SamplePattern*) override;
 
-    bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override;
+    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
@@ -220,6 +220,11 @@ private:
                            const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
 
+    void copySurfaceAsResolve(GrSurface* dst,
+                              GrSurface* src,
+                              const SkIRect& srcRect,
+                              const SkIPoint& dstPoint);
+
     void copySurfaceAsDraw(GrSurface* dst,
                            GrSurface* src,
                            const SkIRect& srcRect,
@@ -235,6 +240,11 @@ private:
                               int left, int top, int width, int height,
                               GrPixelConfig dataConfig,
                               const SkTArray<GrMipLevel>&);
+
+    void resolveImage(GrVkRenderTarget* dst,
+                      GrVkRenderTarget* src,
+                      const SkIRect& srcRect,
+                      const SkIPoint& dstPoint);
 
     SkAutoTUnref<const GrVkBackendContext> fBackendContext;
     SkAutoTUnref<GrVkCaps>                 fVkCaps;

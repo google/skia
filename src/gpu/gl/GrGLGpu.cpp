@@ -3586,7 +3586,7 @@ void GrGLGpu::unbindTextureFBOForCopy(GrGLenum fboTarget, GrSurface* surface) {
     }
 }
 
-bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const {
+bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
     if (src->asTexture() && this->caps()->isConfigRenderable(src->config(), false)) {
@@ -3625,13 +3625,10 @@ bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) 
             return true;
         }
         return false;
-    } else if (nullptr == src->asRenderTarget()) {
-        // CopyTexSubImage2D or fbo blit would require creating a temp fbo for the src.
-        return false;
     }
 
-    const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src->asRenderTarget());
-    if (srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
+    const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src);
+    if (srcRT->renderFBOID() != srcRT->textureFBOID()) {
         // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO blit or
         // fail.
         if (this->caps()->isConfigRenderable(src->config(), false)) {
