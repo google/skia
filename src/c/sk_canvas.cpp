@@ -229,3 +229,22 @@ void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
 sk_canvas_t* sk_canvas_new_from_bitmap(const sk_bitmap_t* bitmap) {
     return ToCanvas(new SkCanvas(AsBitmap(*bitmap)));
 }
+
+void sk_canvas_draw_bitmap_lattice(sk_canvas_t* ccanvas, 
+                                   const sk_bitmap_t* bitmap, 
+                                   const int* xDivs, int xCount, const int* yDivs, int yCount, 
+                                   const sk_rect_t* dst, 
+                                   const sk_paint_t* paint) {
+    SkCanvas::Lattice lattice = { xDivs, xCount, yDivs, yCount };
+    AsCanvas(ccanvas)->drawBitmapLattice(AsBitmap(*bitmap), lattice, AsRect(*dst), AsPaint(paint));
+}
+
+void sk_canvas_draw_image_lattice(sk_canvas_t* ccanvas, 
+                                  const sk_image_t* image, 
+                                  const int* xDivs, int xCount, const int* yDivs, int yCount, 
+                                  const sk_rect_t* dst, 
+                                  const sk_paint_t* paint) {
+    SkCanvas::Lattice lattice = { xDivs, xCount, yDivs, yCount };
+    AsCanvas(ccanvas)->drawImageLattice(AsImage(image), lattice, AsRect(*dst), AsPaint(paint));
+}
+

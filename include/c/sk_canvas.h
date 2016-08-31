@@ -330,6 +330,9 @@ SK_API bool sk_canvas_get_clip_device_bounds(sk_canvas_t* t, sk_irect_t* cbounds
 
 SK_API sk_canvas_t* sk_canvas_new_from_bitmap(const sk_bitmap_t* bitmap);
 
+SK_API void sk_canvas_draw_bitmap_lattice(sk_canvas_t* t, const sk_bitmap_t* bitmap, const int* xDivs, int xCount, const int* yDivs, int yCount, const sk_rect_t* dst, const sk_paint_t* paint);
+SK_API void sk_canvas_draw_image_lattice(sk_canvas_t* t, const sk_image_t* image, const int* xDivs, int xCount, const int* yDivs, int yCount, const sk_rect_t* dst, const sk_paint_t* paint);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
