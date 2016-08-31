@@ -37,7 +37,7 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
 
 void SkRasterPipeline::run(size_t x, size_t n) {
     // It's fastest to start uninitialized if the compilers all let us.  If not, next fastest is 0.
-    Sk4f v;
+    Sk4f v = { };
 
     while (n >= 4) {
         fBodyStart(fBody.begin(), x, v,v,v,v, v,v,v,v);
