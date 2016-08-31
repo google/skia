@@ -124,7 +124,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE/Debug",
-      "--args=cc=\"gcc\" cxx=\"g++\" is_debug=true extra_cflags=\"-DSK_USE_DISCARDABLE_SCALEDIMAGECACHE\" compiler_prefix=\"\""
+      "--args=cc=\"gcc\" compiler_prefix=\"\" cxx=\"g++\" extra_cflags=\"-DSK_USE_DISCARDABLE_SCALEDIMAGECACHE\" is_debug=true"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

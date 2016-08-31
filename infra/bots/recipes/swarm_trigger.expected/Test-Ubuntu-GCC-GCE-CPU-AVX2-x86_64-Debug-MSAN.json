@@ -261,6 +261,16 @@
     "cmd": [
       "python",
       "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/clang_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "read clang_linux VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
       "[SLAVE_BUILD]/swarming_temp_dir",
       "511"
@@ -366,6 +376,8 @@
       "--tag",
       "stepname:compile_skia on Ubuntu",
       "--idempotent",
+      "--cipd-package",
+      "clang_linux:skia/bots/clang_linux:version:0",
       "[dummy hash for compile_skia]",
       "--",
       "--workdir",

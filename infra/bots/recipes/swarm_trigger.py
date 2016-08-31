@@ -354,12 +354,16 @@ def compile_steps_swarm(api, builder_cfg, got_revision, infrabots_dir):
   cipd_packages = []
 
   # Android bots require a toolchain.
-  if 'Android' in api.properties['buildername']:
+  if 'Android' in builder_name:
     cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_sdk'))
-    if 'Mac' in api.properties['buildername']:
+    if 'Mac' in builder_name:
       cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_darwin'))
     else:
       cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_linux'))
+
+  if 'Ubuntu' in builder_name and (
+      'SAN' in builder_name or 'Clang' in builder_name):
+    cipd_packages.append(cipd_pkg(api, infrabots_dir, 'clang_linux'))
 
   # Windows bots require a toolchain.
   if 'Win' in builder_name:

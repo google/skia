@@ -27,6 +27,7 @@ TEST_BUILDERS = {
       'Build-Mac-Clang-mipsel-Debug-GN_Android',
       'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
       'Build-Mac-Clang-x86_64-Release-CMake',
+      'Build-Mac-Clang-x86_64-Release-GN',
       'Build-Ubuntu-Clang-arm64-Release-GN_Android',
       'Build-Ubuntu-Clang-x86_64-Debug-GN',
       'Build-Ubuntu-GCC-Arm7-Debug-Android-Trybot',

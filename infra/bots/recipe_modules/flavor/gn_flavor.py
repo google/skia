@@ -20,11 +20,15 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     compiler      = self.m.vars.builder_cfg.get('compiler',      '')
     configuration = self.m.vars.builder_cfg.get('configuration', '')
     extra_config  = self.m.vars.builder_cfg.get('extra_config',  '')
+    os            = self.m.vars.builder_cfg.get('os',            '')
 
     cc, cxx = 'cc', 'c++'
     extra_cflags = []
 
-    if compiler == 'Clang':
+    if compiler == 'Clang' and os == 'Ubuntu':
+      cc  = self.m.vars.slave_dir.join('clang_linux', 'bin', 'clang')
+      cxx = self.m.vars.slave_dir.join('clang_linux', 'bin', 'clang++')
+    elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
@@ -43,13 +47,13 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_cflags.append('-D' + extra_config)
 
     quote = lambda x: '"%s"' % x
-    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in {
+    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted({
         'cc': quote(cc),
         'cxx': quote(cxx),
         'compiler_prefix': quote(compiler_prefix),
         'extra_cflags': quote(' '.join(extra_cflags)),
         'is_debug': 'true' if configuration == 'Debug' else 'false',
-    }.iteritems())
+    }.iteritems()))
 
     run = lambda title, cmd: self.m.run(self.m.step, title, cmd=cmd,
                                         cwd=self.m.vars.skia_dir, **kwargs)
