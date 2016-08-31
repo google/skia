@@ -239,15 +239,21 @@ opts("dsp") {
 template("optional") {
   if (invoker.enabled) {
     config(target_name + "_public") {
-      defines = invoker.public_defines
+      if (defined(invoker.public_defines)) {
+        defines = invoker.public_defines
+      }
     }
     source_set(target_name) {
-      forward_variables_from(invoker, "*", [ "public_defines" ])
+      forward_variables_from(invoker,
+                             "*",
+                             [
+                               "public_defines",
+                               "sources_when_disabled",
+                             ])
       all_dependent_configs = [ ":" + target_name + "_public" ]
       configs += skia_library_configs
     }
   } else {
-    # If not enabled, a phony empty target that swallows all otherwise unused variables.
     source_set(target_name) {
       forward_variables_from(invoker,
                              "*",
@@ -255,14 +261,18 @@ template("optional") {
                                "public_defines",
                                "deps",
                                "sources",
+                               "sources_when_disabled",
                              ])
+      if (defined(invoker.sources_when_disabled)) {
+        sources = invoker.sources_when_disabled
+      }
+      configs += skia_library_configs
     }
   }
 }
 
 optional("fontmgr_android") {
   enabled = fontmgr_android_enabled
-  public_defines = []
 
   deps = [
     "//third_party/expat",
@@ -277,7 +287,6 @@ optional("fontmgr_android") {
 
 optional("fontmgr_fontconfig") {
   enabled = skia_use_freetype && skia_use_fontconfig
-  public_defines = []
 
   deps = [
     "//third_party:fontconfig",
@@ -322,16 +331,16 @@ optional("jpeg") {
 
 optional("pdf") {
   enabled = skia_use_zlib
-  public_defines = []
 
   deps = [
     "//third_party/zlib",
   ]
   sources = pdf_gypi.sources
+  sources_when_disabled = [ "src/pdf/SkDocument_PDF_None.cpp" ]
 
   if (skia_use_sfntly) {
     deps += [ "//third_party/sfntly" ]
-    public_defines += [ "SK_PDF_USE_SFNTLY" ]
+    public_defines = [ "SK_PDF_USE_SFNTLY" ]
   }
 }
 
@@ -351,7 +360,6 @@ optional("png") {
 
 optional("typeface_freetype") {
   enabled = skia_use_freetype
-  public_defines = []
 
   deps = [
     "//third_party/freetype2",
@@ -378,7 +386,6 @@ optional("webp") {
 
 optional("xml") {
   enabled = skia_use_expat
-  public_defines = []
 
   deps = [
     "//third_party/expat",

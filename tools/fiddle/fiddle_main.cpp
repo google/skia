@@ -136,10 +136,12 @@ int main() {
     if (options.pdf) {
         SkDynamicMemoryWStream pdfStream;
         sk_sp<SkDocument> document(SkDocument::MakePDF(&pdfStream));
-        srand(0);
-        draw(document->beginPage(options.size.width(), options.size.height()));
-        document->close();
-        pdfData.reset(pdfStream.copyToData());
+        if (document) {
+            srand(0);
+            draw(document->beginPage(options.size.width(), options.size.height()));
+            document->close();
+            pdfData.reset(pdfStream.copyToData());
+        }
     }
     if (options.skp) {
         SkSize size;
