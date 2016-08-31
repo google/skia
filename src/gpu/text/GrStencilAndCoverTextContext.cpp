@@ -620,10 +620,10 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         );
 
         SkAutoTUnref<GrPathRange> glyphs(this->createGlyphs(ctx));
-        if (fLastDrawnGlyphsID != glyphs->getUniqueID()) {
+        if (fLastDrawnGlyphsID != glyphs->uniqueID()) {
             // Either this is the first draw or the glyphs object was purged since last draw.
             glyphs->loadPathsIfNeeded(fInstanceData->indices(), fInstanceData->count());
-            fLastDrawnGlyphsID = glyphs->getUniqueID();
+            fLastDrawnGlyphsID = glyphs->uniqueID();
         }
 
         // Don't compute a bounding box. For dst copy texture, we'll opt instead for it to just copy

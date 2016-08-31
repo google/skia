@@ -69,7 +69,7 @@ void GrGpuResource::abandon() {
 void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     // Dump resource as "skia/gpu_resources/resource_#".
     SkString dumpName("skia/gpu_resources/resource_");
-    dumpName.appendS32(this->getUniqueID());
+    dumpName.appendS32(this->uniqueID());
 
     traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", this->gpuMemorySize());
 

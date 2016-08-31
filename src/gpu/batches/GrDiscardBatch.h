@@ -26,12 +26,12 @@ public:
 
     const char* name() const override { return "Discard"; }
 
-    uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->getUniqueID(); }
+    uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->uniqueID(); }
     GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
         SkString string;
-        string.printf("RT: %d", fRenderTarget.get()->getUniqueID());
+        string.printf("RT: %d", fRenderTarget.get()->uniqueID());
         string.append(INHERITED::dumpInfo());
         return string;
     }

@@ -34,7 +34,7 @@ public:
 
     uint32_t renderTargetUniqueID() const override {
         GrRenderTarget* rt = fDst.get()->asRenderTarget();
-        return rt ? rt->getUniqueID() : 0;
+        return rt ? rt->uniqueID() : 0;
     }
     GrRenderTarget* renderTarget() const override { return nullptr; }
 

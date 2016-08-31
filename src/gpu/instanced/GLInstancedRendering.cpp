@@ -264,7 +264,7 @@ void GLInstancedRendering::flushInstanceAttribs(int baseInstance) {
     this->glGpu()->bindVertexArray(fVertexArrayID);
 
     SkASSERT(fInstanceBuffer);
-    if (fInstanceAttribsBufferUniqueId != fInstanceBuffer->getUniqueID() ||
+    if (fInstanceAttribsBufferUniqueId != fInstanceBuffer->uniqueID() ||
         fInstanceAttribsBaseInstance != baseInstance) {
         Instance* offsetInBuffer = (Instance*) nullptr + baseInstance;
 
@@ -298,7 +298,7 @@ void GLInstancedRendering::flushInstanceAttribs(int baseInstance) {
                                     sizeof(Instance), &offsetInBuffer->fLocalRect));
         GL_CALL(VertexAttribDivisor((int)Attrib::kLocalRect, 1));
 
-        fInstanceAttribsBufferUniqueId = fInstanceBuffer->getUniqueID();
+        fInstanceAttribsBufferUniqueId = fInstanceBuffer->uniqueID();
         fInstanceAttribsBaseInstance = baseInstance;
     }
 }

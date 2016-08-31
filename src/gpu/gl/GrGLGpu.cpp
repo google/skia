@@ -2149,7 +2149,7 @@ GrGLenum GrGLGpu::bindBuffer(GrBufferType type, const GrBuffer* buffer) {
     SkASSERT(type >= 0 && type <= kLast_GrBufferType);
     auto& bufferState = fHWBufferState[type];
 
-    if (buffer->getUniqueID() != bufferState.fBoundBufferUniqueID) {
+    if (buffer->uniqueID() != bufferState.fBoundBufferUniqueID) {
         if (buffer->isCPUBacked()) {
             if (!bufferState.fBufferZeroKnownBound) {
                 GL_CALL(BindBuffer(bufferState.fGLTarget, 0));
@@ -2159,7 +2159,7 @@ GrGLenum GrGLGpu::bindBuffer(GrBufferType type, const GrBuffer* buffer) {
             GL_CALL(BindBuffer(bufferState.fGLTarget, glBuffer->bufferID()));
         }
         bufferState.fBufferZeroKnownBound = buffer->isCPUBacked();
-        bufferState.fBoundBufferUniqueID = buffer->getUniqueID();
+        bufferState.fBoundBufferUniqueID = buffer->uniqueID();
     }
 
     return bufferState.fGLTarget;
@@ -2168,7 +2168,7 @@ GrGLenum GrGLGpu::bindBuffer(GrBufferType type, const GrBuffer* buffer) {
 void GrGLGpu::notifyBufferReleased(const GrGLBuffer* buffer) {
     if (buffer->hasAttachedToTexture()) {
         // Detach this buffer from any textures to ensure the underlying memory is freed.
-        uint32_t uniqueID = buffer->getUniqueID();
+        uint32_t uniqueID = buffer->uniqueID();
         for (int i = fHWMaxUsedBufferTextureUnit; i >= 0; --i) {
             auto& buffTex = fHWBufferTextures[i];
             if (uniqueID != buffTex.fAttachedBufferUniqueID) {
@@ -2656,7 +2656,7 @@ void GrGLGpu::finishDrawTarget() {
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds, bool disableSRGB) {
     SkASSERT(target);
 
-    uint32_t rtID = target->getUniqueID();
+    uint32_t rtID = target->uniqueID();
     if (fHWBoundRenderTargetUniqueID != rtID) {
         fStats.incRenderTargetBinds();
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, target->renderFBOID()));
@@ -3178,7 +3178,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool allow
         this->onResolveRenderTarget(texRT);
     }
 
-    uint32_t textureID = texture->getUniqueID();
+    uint32_t textureID = texture->uniqueID();
     GrGLenum target = texture->target();
     if (fHWBoundTextureUniqueIDs[unitIdx] != textureID) {
         this->setTextureUnit(unitIdx);
@@ -3296,7 +3296,7 @@ void GrGLGpu::bindTexelBuffer(int unitIdx, GrPixelConfig texelConfig, GrGLBuffer
         buffTex.fKnownBound = true;
     }
 
-    if (buffer->getUniqueID() != buffTex.fAttachedBufferUniqueID ||
+    if (buffer->uniqueID() != buffTex.fAttachedBufferUniqueID ||
         buffTex.fTexelConfig != texelConfig) {
 
         this->setTextureUnit(unitIdx);
@@ -3305,7 +3305,7 @@ void GrGLGpu::bindTexelBuffer(int unitIdx, GrPixelConfig texelConfig, GrGLBuffer
                           buffer->bufferID()));
 
         buffTex.fTexelConfig = texelConfig;
-        buffTex.fAttachedBufferUniqueID = buffer->getUniqueID();
+        buffTex.fAttachedBufferUniqueID = buffer->uniqueID();
 
         if (this->glCaps().textureSwizzleSupport() &&
             this->glCaps().configSwizzle(texelConfig) != buffTex.fSwizzle) {

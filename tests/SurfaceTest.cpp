@@ -310,7 +310,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
                 ERRORF(reporter, "Not texture backed.");
                 return static_cast<intptr_t>(0);
             }
-            return static_cast<intptr_t>(texture->getUniqueID());
+            return static_cast<intptr_t>(texture->uniqueID());
         };
 
         auto surfaceBackingStore = [reporter](SkSurface* surface) {
@@ -320,7 +320,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
                 ERRORF(reporter, "Not render target backed.");
                 return static_cast<intptr_t>(0);
             }
-            return static_cast<intptr_t>(rt->getUniqueID());
+            return static_cast<intptr_t>(rt->uniqueID());
         };
 
         test_unique_image_snap(reporter, surface.get(), false, imageBackingStore,

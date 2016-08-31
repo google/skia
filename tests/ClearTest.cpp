@@ -40,14 +40,14 @@ static bool check_rect(GrDrawContext* dc, const SkIRect& rect, uint32_t expected
 static bool reset_dc(sk_sp<GrDrawContext>* dc, GrContext* context, int w, int h) {
     SkDEBUGCODE(uint32_t oldID = 0;)
     if (*dc) {
-        SkDEBUGCODE(oldID = (*dc)->accessRenderTarget()->getUniqueID();)
+        SkDEBUGCODE(oldID = (*dc)->accessRenderTarget()->uniqueID();)
         dc->reset(nullptr);
     }
     context->freeGpuResources();
 
     *dc = context->makeDrawContext(SkBackingFit::kExact, w, h, kRGBA_8888_GrPixelConfig, nullptr);
 
-    SkASSERT((*dc)->accessRenderTarget()->getUniqueID() != oldID);
+    SkASSERT((*dc)->accessRenderTarget()->uniqueID() != oldID);
 
     return *dc != nullptr;
 }

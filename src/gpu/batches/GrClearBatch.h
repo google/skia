@@ -29,7 +29,7 @@ public:
 
     const char* name() const override { return "Clear"; }
 
-    uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->getUniqueID(); }
+    uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->uniqueID(); }
     GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
@@ -38,7 +38,7 @@ public:
             const SkIRect& r = fClip.scissorRect();
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         }
-        string.appendf("], Color: 0x%08x, RT: %d", fColor, fRenderTarget.get()->getUniqueID());
+        string.appendf("], Color: 0x%08x, RT: %d", fColor, fRenderTarget.get()->uniqueID());
         string.append(INHERITED::dumpInfo());
         return string;
     }

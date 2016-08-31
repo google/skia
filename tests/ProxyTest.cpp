@@ -15,15 +15,20 @@
 #include "GrTextureProxy.h"
 #include "GrRenderTargetProxy.h"
 
+// Check that the surface proxy's member vars are set as expected
 static void check_surface(skiatest::Reporter* reporter,
                           GrSurfaceProxy* proxy,
                           GrSurfaceOrigin origin,
                           int width, int height, 
-                          GrPixelConfig config) {
+                          GrPixelConfig config,
+                          uint32_t uniqueID) {
     REPORTER_ASSERT(reporter, proxy->origin() == origin);
     REPORTER_ASSERT(reporter, proxy->width() == width);
     REPORTER_ASSERT(reporter, proxy->height() == height);
     REPORTER_ASSERT(reporter, proxy->config() == config);
+    if (SK_InvalidUniqueID != uniqueID) {
+        REPORTER_ASSERT(reporter, proxy->uniqueID() == uniqueID);    
+    }
 }
 
 static void check_rendertarget(skiatest::Reporter* reporter,
@@ -77,7 +82,7 @@ static void check_texture(skiatest::Reporter* reporter,
 }
 
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
     GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
 
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
@@ -104,7 +109,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
                                                                     fit,
                                                                     budgeted));
                                 check_surface(reporter, rtProxy.get(), origin,
-                                              widthHeight, widthHeight, config);
+                                              widthHeight, widthHeight, config, SK_InvalidUniqueID);
                                 check_rendertarget(reporter, provider, rtProxy.get(), fit);
                             }
 
@@ -114,7 +119,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
                                                                                 fit,
                                                                                 budgeted));
                             check_surface(reporter, texProxy.get(), origin,
-                                          widthHeight, widthHeight, config);
+                                          widthHeight, widthHeight, config, SK_InvalidUniqueID);
                             check_texture(reporter, provider, texProxy.get(), fit);
                         }
                     }
@@ -162,7 +167,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         sk_sp<GrRenderTargetProxy> rtProxy(
                             GrRenderTargetProxy::Make(caps, defaultFBO));
                         check_surface(reporter, rtProxy.get(), origin,
-                                      kWidthHeight, kWidthHeight, config);
+                                      kWidthHeight, kWidthHeight, config, defaultFBO->uniqueID());
                         check_rendertarget(reporter, provider, rtProxy.get(), SkBackingFit::kExact);
                     }
 
@@ -178,7 +183,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
                         sk_sp<GrRenderTargetProxy> rtProxy(GrRenderTargetProxy::Make(caps, rt));
                         check_surface(reporter, rtProxy.get(), origin,
-                                      kWidthHeight, kWidthHeight, config);
+                                      kWidthHeight, kWidthHeight, config, rt->uniqueID());
                         check_rendertarget(reporter, provider, rtProxy.get(), SkBackingFit::kExact);
                     }
 
@@ -190,7 +195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
                     sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(tex));
                     check_surface(reporter, texProxy.get(), origin,
-                                  kWidthHeight, kWidthHeight, config);
+                                  kWidthHeight, kWidthHeight, config, tex->uniqueID());
                     check_texture(reporter, provider, texProxy.get(), SkBackingFit::kExact);
                 }
             }

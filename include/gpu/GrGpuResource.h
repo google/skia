@@ -180,7 +180,7 @@ public:
      * not change when the content of the GrGpuResource object changes. This will never return
      * 0.
      */
-    uint32_t getUniqueID() const { return fUniqueID; }
+    uint32_t uniqueID() const { return fUniqueID; }
 
     /** Returns the current unique key for the resource. It will be invalid if the resource has no
         associated unique key. */
@@ -216,6 +216,8 @@ public:
      * need to override setMemoryBacking.
      **/
     virtual void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
+
+    static uint32_t CreateUniqueID();
 
 protected:
     // This must be called by every non-wrapped GrGpuObject. It should be called once the object is
@@ -279,9 +281,6 @@ private:
 #ifdef SK_DEBUG
     friend class GrGpu; // for assert in GrGpu to access getGpu
 #endif
-
-    static uint32_t CreateUniqueID();
-
     // An index into a heap when this resource is purgeable or an array when not. This is maintained
     // by the cache.
     int                         fCacheArrayIndex;

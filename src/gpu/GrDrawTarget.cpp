@@ -116,7 +116,7 @@ void GrDrawTarget::addDependency(GrSurface* dependedOn) {
 #ifdef SK_DEBUG
 void GrDrawTarget::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("node: %d -> RT: %d\n", fDebugID, fRenderTarget ? fRenderTarget->getUniqueID() : -1);
+    SkDebugf("node: %d -> RT: %d\n", fDebugID, fRenderTarget ? fRenderTarget->uniqueID() : -1);
     SkDebugf("relies On (%d): ", fDependencies.count());
     for (int i = 0; i < fDependencies.count(); ++i) {
         SkDebugf("%d, ", fDependencies[i]->fDebugID);
@@ -452,7 +452,7 @@ void GrDrawTarget::fullClear(GrRenderTarget* renderTarget, GrColor color) {
     // remove all the previously recorded batches and change the load op to clear with supplied
     // color.
     if (fLastFullClearBatch &&
-        fLastFullClearBatch->renderTargetUniqueID() == renderTarget->getUniqueID()) {
+        fLastFullClearBatch->renderTargetUniqueID() == renderTarget->uniqueID()) {
         // As currently implemented, fLastFullClearBatch should be the last batch because we would
         // have cleared it when another batch was recorded.
         SkASSERT(fRecordedBatches.back().fBatch.get() == fLastFullClearBatch);

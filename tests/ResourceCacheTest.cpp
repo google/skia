@@ -1296,7 +1296,7 @@ static void test_abandoned(skiatest::Reporter* reporter) {
 
     // Call all the public methods on resource in the abandoned state. They shouldn't crash.
 
-    resource->getUniqueID();
+    resource->uniqueID();
     resource->getUniqueKey();
     resource->wasDestroyed();
     resource->gpuMemorySize();

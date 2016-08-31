@@ -41,11 +41,21 @@ public:
     virtual const GrRenderTargetProxy* asRenderTargetProxy() const { return nullptr; }
 
 protected:
+    // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted)
         : fDesc(desc)
         , fFit(fit)
         , fBudgeted(budgeted)
-        , fUniqueID(CreateUniqueID()) {
+        , fUniqueID(GrGpuResource::CreateUniqueID()) {
+    }
+
+    // Wrapped version
+    GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, 
+                   SkBudgeted budgeted, uint32_t uniqueID)
+        : fDesc(desc)
+        , fFit(fit)
+        , fBudgeted(budgeted)
+        , fUniqueID(uniqueID) {
     }
 
     virtual ~GrSurfaceProxy() {}
@@ -54,10 +64,9 @@ protected:
     const GrSurfaceDesc fDesc;
     const SkBackingFit  fFit;      // always exact for wrapped resources
     const SkBudgeted    fBudgeted; // set from the backing resource for wrapped resources
-    const uint32_t      fUniqueID;
+    const uint32_t      fUniqueID; // set from the backing resource for wrapped resources
 
 private:
-    static uint32_t CreateUniqueID();
 
     // See comment in GrGpuResource.h.
     void notifyAllCntsAreZero(CntType) const { delete this; }
