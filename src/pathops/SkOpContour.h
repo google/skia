@@ -124,7 +124,7 @@ public:
     void debugCheckHealth(const char* id, SkPathOpsDebug::GlitchLog* ) const;
 #endif
 
-    SkOpContour* debugContour(int id) {
+    SkOpContour* debugContour(int id) const {
         return SkDEBUGRELEASE(this->globalState()->debugContour(id), nullptr);
     }
 

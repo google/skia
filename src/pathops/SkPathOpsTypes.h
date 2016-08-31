@@ -76,7 +76,7 @@ public:
 #ifdef SK_DEBUG
     const class SkOpAngle* debugAngle(int id) const;
     const SkOpCoincidence* debugCoincidence() const;
-    SkOpContour* debugContour(int id);
+    SkOpContour* debugContour(int id) const;
     const class SkOpPtT* debugPtT(int id) const;
     bool debugRunFail() const;
     const class SkOpSegment* debugSegment(int id) const;
@@ -197,10 +197,16 @@ private:
 };
 
 #ifdef SK_DEBUG
+#if DEBUG_COINCIDENCE
 #define SkOPASSERT(cond) SkASSERT((this->globalState() && \
-        this->globalState()->debugSkipAssert()) || cond)
+        (this->globalState()->debugCheckHealth() || \
+        this->globalState()->debugSkipAssert())) || (cond))
+#else
+#define SkOPASSERT(cond) SkASSERT((this->globalState() && \
+        this->globalState()->debugSkipAssert()) || (cond))
+#endif
 #define SkOPOBJASSERT(obj, cond) SkASSERT((obj->debugGlobalState() && \
-        obj->debugGlobalState()->debugSkipAssert()) || cond)
+        obj->debugGlobalState()->debugSkipAssert()) || (cond))
 #else
 #define SkOPASSERT(cond)
 #define SkOPOBJASSERT(obj, cond)
@@ -527,10 +533,6 @@ inline bool roughly_between(double a, double b, double c) {
 
 inline bool more_roughly_equal(double x, double y) {
     return fabs(x - y) < MORE_ROUGH_EPSILON;
-}
-
-inline bool way_roughly_equal(double x, double y) {
-    return fabs(x - y) < WAY_ROUGH_EPSILON;
 }
 
 struct SkDPoint;

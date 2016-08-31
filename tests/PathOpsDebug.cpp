@@ -806,7 +806,7 @@ const SkOpCoincidence* SkOpAngle::debugCoincidence() const {
     return this->segment()->debugCoincidence();
 }
 
-SkOpContour* SkOpAngle::debugContour(int id) {
+SkOpContour* SkOpAngle::debugContour(int id) const {
     return this->segment()->debugContour(id);
 }
 
@@ -940,7 +940,7 @@ const SkOpAngle* SkOpPtT::debugAngle(int id) const {
     return this->span()->debugAngle(id);
 }
 
-SkOpContour* SkOpPtT::debugContour(int id) {
+SkOpContour* SkOpPtT::debugContour(int id) const {
     return this->span()->debugContour(id);
 }
 
@@ -1000,7 +1000,7 @@ const SkOpCoincidence* SkOpSpanBase::debugCoincidence() const {
     return this->segment()->debugCoincidence();
 }
 
-SkOpContour* SkOpSpanBase::debugContour(int id) {
+SkOpContour* SkOpSpanBase::debugContour(int id) const {
     return this->segment()->debugContour(id);
 }
 
@@ -1041,7 +1041,7 @@ void SkOpSpanBase::dumpBase() const {
         SkDebugf(" chased");
     }
 #ifdef SK_DEBUG
-    if (this->fDeleted) {
+    if (this->fDebugDeleted) {
         SkDebugf(" deleted");
     }
 #endif
@@ -1111,7 +1111,7 @@ const SkOpCoincidence* SkOpSegment::debugCoincidence() const {
     return this->contour()->debugCoincidence();
 }
 
-SkOpContour* SkOpSegment::debugContour(int id) {
+SkOpContour* SkOpSegment::debugContour(int id) const {
     return this->contour()->debugContour(id);
 }
 
@@ -1389,7 +1389,7 @@ const SkOpAngle* SkOpGlobalState::debugAngle(int id) const {
     return nullptr;
 }
 
-SkOpContour* SkOpGlobalState::debugContour(int id) {
+SkOpContour* SkOpGlobalState::debugContour(int id) const {
     SkOpContour* contour = fContourHead;
     do {
         if (contour->debugID() == id) {

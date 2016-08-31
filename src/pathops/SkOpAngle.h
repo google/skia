@@ -30,7 +30,7 @@ public:
 
     const SkOpAngle* debugAngle(int id) const;
     const SkOpCoincidence* debugCoincidence() const;
-    SkOpContour* debugContour(int id);
+    SkOpContour* debugContour(int id) const;
 
     int debugID() const {
         return SkDEBUGRELEASE(fID, -1);

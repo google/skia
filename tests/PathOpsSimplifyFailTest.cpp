@@ -103,7 +103,7 @@ static void fuzz_59(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(SkBits2Float(0x428c0000), SkBits2Float(0xce58f419));  // 70, -9.09969e+08f
     path.lineTo(SkBits2Float(0x430c0000), SkBits2Float(0xce58f41c));  // 140, -9.09969e+08f
     path.close();
-    testSimplifyCheck(reporter, path, filename, true);
+    testSimplifyFuzz(reporter, path, filename);
 }
 
 static void fuzz_x1(skiatest::Reporter* reporter, const char* filename) {

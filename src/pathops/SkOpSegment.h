@@ -108,6 +108,7 @@ public:
 
     void calcAngles();
     bool collapsed() const;
+    bool collapsed(double startT, double endT) const;
     static void ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
                               SkOpAngle::IncludeType );
     static void ComputeOneSumReverse(SkOpAngle* baseAngle, SkOpAngle* nextAngle,
@@ -128,7 +129,9 @@ public:
     }
 
     void debugAddAngle(double startT, double endT);
-    const SkOpPtT* debugAddT(double t) const;
+#if DEBUG_COINCIDENCE_VERBOSE
+    const SkOpPtT* debugAddT(double t, const char* id, SkPathOpsDebug::GlitchLog* ) const;
+#endif
     const SkOpAngle* debugAngle(int id) const;
 #if DEBUG_ANGLE
     void debugCheckAngleCoin() const;
@@ -139,7 +142,7 @@ public:
     void debugClearOne(const SkOpSpan* span, const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
 #endif
     const SkOpCoincidence* debugCoincidence() const;
-    SkOpContour* debugContour(int id);
+    SkOpContour* debugContour(int id) const;
 
     int debugID() const {
         return SkDEBUGRELEASE(fID, -1);

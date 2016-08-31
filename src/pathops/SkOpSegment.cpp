@@ -262,6 +262,7 @@ bool SkOpSegment::addExpanded(double newT, const SkOpSpanBase* test, bool* start
     SkOpPtT* oppPrev = test->ptT()->oppPrev(newPtT);
     if (oppPrev) {
         SkOpSpanBase* writableTest = const_cast<SkOpSpanBase*>(test);
+        writableTest->mergeMatches(newPtT->span());
         writableTest->ptT()->addOpp(newPtT, oppPrev);
         writableTest->checkForCollapsedCoincidence();
     }
@@ -353,6 +354,16 @@ bool SkOpSegment::collapsed() const {
     // FIXME: cubics can have also collapsed -- need to check if the
     // control points are on a line with the end points
     return fVerb < SkPath::kCubic_Verb && fHead.pt() == fTail.pt();
+}
+
+bool SkOpSegment::collapsed(double s, double e) const {
+    const SkOpSpanBase* span = &fHead;
+    do {
+        if (span->collapsed(s, e)) {
+            return true;
+        }
+    } while (span->upCastable() && (span = span->upCast()->next()));
+    return false;
 }
 
 void SkOpSegment::ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
@@ -1300,13 +1311,8 @@ bool SkOpSegment::moveMultiples() {
                     goto tryNextSpan;
             foundMatch:  // merge oppTest and oppSpan
                     oppSegment->debugValidate();
-                    if (oppTest == &oppSegment->fTail || oppTest == &oppSegment->fHead) {
-                        SkASSERT(oppSpan != &oppSegment->fHead); // don't expect collapse
-                        SkASSERT(oppSpan != &oppSegment->fTail);
-                        oppTest->merge(oppSpan->upCast());
-                    } else {
-                        oppSpan->merge(oppTest->upCast());
-                    }
+                    oppTest->mergeMatches(oppSpan);
+                    oppTest->addOpp(oppSpan);
                     oppSegment->debugValidate();
                     goto checkNextSpan;
                 }
@@ -1326,14 +1332,14 @@ bool SkOpSegment::spansNearby(const SkOpSpanBase* refSpan, const SkOpSpanBase* c
     const SkOpPtT* refHead = refSpan->ptT();
     const SkOpPtT* checkHead = checkSpan->ptT();
 // if the first pt pair from adjacent spans are far apart, assume that all are far enough apart
-    if (!SkDPoint::RoughlyEqual(refHead->fPt, checkHead->fPt)) {
+    if (!SkDPoint::WayRoughlyEqual(refHead->fPt, checkHead->fPt)) {
 #if DEBUG_COINCIDENCE
         // verify that no combination of points are close
         const SkOpPtT* dBugRef = refHead;
         do {
             const SkOpPtT* dBugCheck = checkHead;
             do {
-                SkASSERT(!SkDPoint::ApproximatelyEqual(dBugRef->fPt, dBugCheck->fPt));
+                SkOPASSERT(!SkDPoint::ApproximatelyEqual(dBugRef->fPt, dBugCheck->fPt));
                 dBugCheck = dBugCheck->next();
             } while (dBugCheck != checkHead);
             dBugRef = dBugRef->next();
@@ -1684,7 +1690,7 @@ bool SkOpSegment::testForCoincidence(const SkOpPtT* priorPtT, const SkOpPtT* ptT
                 continue;
             }
             SkDPoint oppPt = i.pt(index);
-            if (oppPt.approximatelyEqual(midPt)) {
+            if (oppPt.approximatelyDEqual(midPt)) {
                 // the coincidence can occur at almost any angle
                 coincident = true;
             }

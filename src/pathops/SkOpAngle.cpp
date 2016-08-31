@@ -905,8 +905,10 @@ void SkOpAngle::setSpans() {
     if (verb != SkPath::kLine_Verb
             && !(fIsCurve = fSweep[0].crossCheck(fSweep[1]) != 0)) {
         SkDLine lineHalf;
+        fCurvePart[1] = fCurvePart[SkPathOpsVerbToPoints(verb)];
+        fOriginalCurvePart[1] = fCurvePart[1];
         lineHalf[0].set(fCurvePart[0].asSkPoint());
-        lineHalf[1].set(fCurvePart[SkPathOpsVerbToPoints(verb)].asSkPoint());
+        lineHalf[1].set(fCurvePart[1].asSkPoint());
         fTangentHalf.lineEndPoints(lineHalf);
         fSide = 0;
     }

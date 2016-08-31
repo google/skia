@@ -37,7 +37,7 @@
         if (!SkPathOpsDebug::ValidWind(x)) strcpy(x##Str, "?"); \
         else SK_SNPRINTF(x##Str, sizeof(x##Str), "%d", x)
 
-#define DEBUG_UNDER_DEVELOPMENT 01
+#define DEBUG_UNDER_DEVELOPMENT 1
 
 #if FORCE_RELEASE
 
@@ -78,7 +78,7 @@
 #define DEBUG_ANGLE 1
 #define DEBUG_ASSEMBLE 1
 #define DEBUG_COINCIDENCE 01
-#define DEBUG_COINCIDENCE_ORDER 0
+#define DEBUG_COINCIDENCE_ORDER 01
 #define DEBUG_COINCIDENCE_VERBOSE 01
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 1

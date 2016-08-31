@@ -485,7 +485,7 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     // look for coincidence present in A-B and A-C but missing in B-C
     while (coincidence->addMissing()) {
         if (!--safetyHatch) {
-            SkASSERT(0);  // FIXME: take this out after verifying std tests don't trigger
+            SkASSERT(globalState->debugSkipAssert());
             return false;
         }
         DEBUG_COINCIDENCE_HEALTH(contourList, "addMissing");
@@ -517,7 +517,6 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     DEBUG_COINCIDENCE_HEALTH(contourList, "expand2");
     // the expanded ranges may not align -- add the missing spans
     if (!coincidence->addExpanded()) {
-        SkASSERT(globalState->debugSkipAssert());
         return false;
     }
     DEBUG_COINCIDENCE_HEALTH(contourList, "addExpanded3");

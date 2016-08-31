@@ -156,9 +156,9 @@ public:
 #if DEBUG_COINCIDENCE_VERBOSE
     void debugAddExpanded(const char* id, SkPathOpsDebug::GlitchLog* ) const;
     void debugAddMissing(const char* id, SkPathOpsDebug::GlitchLog* ) const;
-    void debugAddOrOverlap(const SkOpSegment* coinSeg, const SkOpSegment* oppSeg,
-                           double coinTs, double coinTe, double oppTs, double oppTe,
-                           const char* id, SkPathOpsDebug::GlitchLog* log) const;
+    void debugAddOrOverlap(const char* id, SkPathOpsDebug::GlitchLog* log,
+                           const SkOpSegment* coinSeg, const SkOpSegment* oppSeg,
+                           double coinTs, double coinTe, double oppTs, double oppTe) const;
 #endif
 
     const SkOpAngle* debugAngle(int id) const {
@@ -170,7 +170,7 @@ public:
     void debugCheckValid(const char* id, SkPathOpsDebug::GlitchLog* log) const;
 #endif
 
-    SkOpContour* debugContour(int id) {
+    SkOpContour* debugContour(int id) const {
         return SkDEBUGRELEASE(fGlobalState->debugContour(id), nullptr);
     }
 
@@ -193,6 +193,8 @@ public:
 #if DEBUG_COINCIDENCE_VERBOSE
     void debugRemoveCollapsed(const char* id, SkPathOpsDebug::GlitchLog* ) const;
     void debugReorder(const char* id, SkPathOpsDebug::GlitchLog* ) const;
+    void debugRelease(const char* id, SkPathOpsDebug::GlitchLog* , const SkCoincidentSpans* ,
+                      const SkCoincidentSpans* ) const;
     void debugRelease(const char* id, SkPathOpsDebug::GlitchLog* , const SkOpSegment* ) const;
 #endif
     void debugShowCoincidence() const;
@@ -227,6 +229,7 @@ public:
 
     static bool Ordered(const SkOpSegment* coin, const SkOpSegment* opp);
     void release(const SkOpSegment* );
+    void releaseDeleted();
     bool removeCollapsed();
     bool reorder();
 
@@ -294,6 +297,7 @@ private:
                  const SkOpPtT* coinStart2, const SkOpPtT* coinEnd2,
                  double* overS, double* overE) const;
     bool release(SkCoincidentSpans* coin, SkCoincidentSpans* );
+    void releaseDeleted(SkCoincidentSpans* );
     void restoreHead();
     bool testForCoincidence(const SkCoincidentSpans* outer, const SkOpPtT* testS,
                             const SkOpPtT* testE) const;
