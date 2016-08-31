@@ -22,7 +22,7 @@ public:
         , fClearShadowMaps(false)
         , fSelectedRectID(-1)
         , fSelectedSliderID(-1)
-        , fLightDepth(300.0f)  {
+        , fLightDepth(600.0f)  {
         this->setBGColor(0xFFCCCCCC);
 
         this->updateLights(200, 200);
@@ -80,6 +80,7 @@ protected:
                 case 'q':
                     fLightDepth += 5.0f;
                     fMoveLight = true;
+                    break;
                 case 'B':
                     if (SkShadowParams::kVariance_ShadowType == fShadowParams.fType) {
                         fShadowParams.fType = SkShadowParams::kNoBlur_ShadowType;
@@ -165,12 +166,12 @@ protected:
                                                SkVector3::Make(x - 50,
                                                                350 - y,
                                                                fLightDepth),
-                                               1024));
+                                               100000));
         builder.add(SkLights::Light::MakePoint(SkColor3f::Make(0.6f, 0.4f, 0.2f),
                                                SkVector3::Make(x + 50,
                                                                450 - y,
                                                                fLightDepth),
-                                               1024));
+                                               100000));
         builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.2f, 0.2f, 0.2f),
                                                      SkVector3::Make(0.2f, 0.2f, 1.0f)));
         fLights = builder.finish();
