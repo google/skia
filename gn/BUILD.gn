@@ -17,6 +17,7 @@ declare_args() {
   extra_cflags = ""
   extra_cflags_c = ""
   extra_cflags_cc = ""
+  extra_ldflags = ""
 
   compiler_prefix = ""
 }
@@ -171,7 +172,7 @@ toolchain("gcc_like") {
       rpath = "-Wl,-install_name,@rpath/$soname"
     }
 
-    command = "$compiler_prefix $cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath -o {{output}}"
+    command = "$compiler_prefix $cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath $extra_ldflags -o {{output}}"
     outputs = [
       "{{root_out_dir}}/$soname",
     ]
@@ -181,7 +182,7 @@ toolchain("gcc_like") {
   }
 
   tool("link") {
-    command = "$compiler_prefix $cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} -o {{output}}"
+    command = "$compiler_prefix $cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} $extra_ldflags -o {{output}}"
     outputs = [
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
