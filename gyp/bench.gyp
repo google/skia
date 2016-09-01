@@ -14,6 +14,7 @@
       'type': 'executable',
       'sources': [
         '../gm/gm.cpp',
+        '../tools/LsanSuppressions.cpp',
       ],
       'includes': [
         'bench.gypi',

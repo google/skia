@@ -653,6 +653,7 @@ if (skia_enable_tools) {
       "src/images/SkForceLinking.cpp",
       "src/utils/SkMultiPictureDocumentReader.cpp",  # TODO(halcanary): move to tools?
       "tools/CrashHandler.cpp",
+      "tools/LsanSuppressions.cpp",
       "tools/ProcStats.cpp",
       "tools/Resources.cpp",
       "tools/ThermalManager.cpp",
