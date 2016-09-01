@@ -37,11 +37,11 @@ struct GradData {
     const SkScalar* fPos;
 };
 
-static const SkColor gColors[] = {
+constexpr SkColor gColors[] = {
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK
 };
 
-static const GradData gGradData[] = {
+constexpr GradData gGradData[] = {
     { 2, gColors, nullptr },
     { 5, gColors, nullptr },
 };
@@ -79,7 +79,7 @@ static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, 
 
 typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm);
 
-static const GradMaker gGradMakers[] = {
+constexpr GradMaker gGradMakers[] = {
     MakeLinear, MakeRadial, MakeSweep, Make2Conical
 };
 
@@ -119,9 +119,9 @@ protected:
             SkShader::kMirror_TileMode
         };
 
-        static const int gradCount = SK_ARRAY_COUNT(gGradData) *
+        constexpr int gradCount = SK_ARRAY_COUNT(gGradData) *
                                      SK_ARRAY_COUNT(gGradMakers);
-        static const int bmpCount = SK_ARRAY_COUNT(tileModes) *
+        constexpr int bmpCount = SK_ARRAY_COUNT(tileModes) *
                                     SK_ARRAY_COUNT(tileModes);
         sk_sp<SkShader> shaders[gradCount + bmpCount];
 
@@ -158,9 +158,9 @@ protected:
                                     false);
         path.close();
 
-        static const int testsPerCol = 8;
-        static const int rowHeight = 60;
-        static const int colWidth = 300;
+        constexpr int testsPerCol = 8;
+        constexpr int rowHeight = 60;
+        constexpr int colWidth = 300;
         canvas->save();
         for (int s = 0; s < static_cast<int>(SK_ARRAY_COUNT(shaders)); s++) {
             canvas->save();

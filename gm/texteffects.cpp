@@ -146,7 +146,7 @@ static void r9(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
 
 typedef void (*raster_proc)(SkLayerRasterizer::Builder*, SkPaint&);
 
-static const raster_proc gRastProcs[] = {
+constexpr raster_proc gRastProcs[] = {
     r0, r1, r2, r3, r4, r5, r6, r7, r8, r9
 };
 

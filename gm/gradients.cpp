@@ -17,21 +17,21 @@ struct GradData {
     const SkScalar* fPos;
 };
 
-static const SkColor gColors[] = {
+constexpr SkColor gColors[] = {
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK
 };
-static const SkScalar gPos0[] = { 0, SK_Scalar1 };
-static const SkScalar gPos1[] = { SK_Scalar1/4, SK_Scalar1*3/4 };
-static const SkScalar gPos2[] = {
+constexpr SkScalar gPos0[] = { 0, SK_Scalar1 };
+constexpr SkScalar gPos1[] = { SK_Scalar1/4, SK_Scalar1*3/4 };
+constexpr SkScalar gPos2[] = {
     0, SK_Scalar1/8, SK_Scalar1/2, SK_Scalar1*7/8, SK_Scalar1
 };
 
-static const SkScalar gPosClamp[]   = {0.0f, 0.0f, 1.0f, 1.0f};
-static const SkColor  gColorClamp[] = {
+constexpr SkScalar gPosClamp[]   = {0.0f, 0.0f, 1.0f, 1.0f};
+constexpr SkColor  gColorClamp[] = {
     SK_ColorRED, SK_ColorGREEN, SK_ColorGREEN, SK_ColorBLUE
 };
 
-static const GradData gGradData[] = {
+constexpr GradData gGradData[] = {
     { 2, gColors, nullptr },
     { 2, gColors, gPos0 },
     { 2, gColors, gPos1 },
@@ -91,7 +91,7 @@ static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data,
 
 typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data,
                                      SkShader::TileMode tm, const SkMatrix& localMatrix);
-static const GradMaker gGradMakers[] = {
+constexpr GradMaker gGradMakers[] = {
     MakeLinear, MakeRadial, MakeSweep, Make2Radial, Make2Conical
 };
 

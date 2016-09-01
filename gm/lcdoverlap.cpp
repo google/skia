@@ -17,8 +17,8 @@
 
 namespace skiagm {
 
-static const int kWidth = 750;
-static const int kHeight = 750;
+constexpr int kWidth = 750;
+constexpr int kHeight = 750;
 
 class LcdOverlapGM : public skiagm::GM {
 public:

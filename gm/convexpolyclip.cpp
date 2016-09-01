@@ -60,7 +60,7 @@ static SkBitmap make_bmp(int w, int h) {
     paint.setTextSize(wScalar / 2.2f);
     paint.setShader(0);
     paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
-    static const char kTxt[] = "Skia";
+    constexpr char kTxt[] = "Skia";
     SkPoint texPos = { wScalar / 17, hScalar / 2 + paint.getTextSize() / 2.5f };
     canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
     paint.setColor(SK_ColorBLACK);
@@ -103,7 +103,7 @@ protected:
         fClips.addToTail()->setPath(tri);
 
         SkPath hexagon;
-        static const SkScalar kRadius = 45.f;
+        constexpr SkScalar kRadius = 45.f;
         const SkPoint center = { kRadius, kRadius };
         for (int i = 0; i < 6; ++i) {
             SkScalar angle = 2 * SK_ScalarPI * i / 6;
@@ -139,14 +139,14 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar y = 0;
-        static const SkScalar kMargin = 10.f;
+        constexpr SkScalar kMargin = 10.f;
 
         SkPaint bgPaint;
         bgPaint.setAlpha(0x15);
         SkISize size = canvas->getDeviceSize();
         canvas->drawBitmapRect(fBmp, SkRect::MakeIWH(size.fWidth, size.fHeight), &bgPaint);
 
-        static const char kTxt[] = "Clip Me!";
+        constexpr char kTxt[] = "Clip Me!";
         SkPaint txtPaint;
         txtPaint.setTextSize(23.f);
         txtPaint.setAntiAlias(true);

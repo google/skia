@@ -74,8 +74,8 @@ private:
     SkScalar                   fSign;
     sk_sp<GrGeometryProcessor> fGeometryProcessor;
 
-    static const int kVertsPerCubic = 4;
-    static const int kIndicesPerCubic = 6;
+    static constexpr int kVertsPerCubic = 4;
+    static constexpr int kIndicesPerCubic = 6;
 
     typedef GrTestBatch INHERITED;
 };
@@ -115,7 +115,7 @@ protected:
             float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
         };
 
-        static const int kNumCubics = 15;
+        constexpr int kNumCubics = 15;
         SkRandom rand;
 
         // Mult by 3 for each edge effect type
@@ -125,7 +125,7 @@ protected:
         SkScalar h = SkIntToScalar(drawContext->height()) / numRows;
         int row = 0;
         int col = 0;
-        static const GrColor color = 0xff000000;
+        constexpr GrColor color = 0xff000000;
 
         for (int i = 0; i < kNumCubics; ++i) {
             SkPoint baseControlPts[] = {
@@ -247,7 +247,7 @@ protected:
             float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
         };
 
-        static const int kNumConics = 10;
+        constexpr int kNumConics = 10;
         SkRandom rand;
 
         // Mult by 3 for each edge effect type
@@ -257,7 +257,7 @@ protected:
         SkScalar h = SkIntToScalar(drawContext->height()) / numRows;
         int row = 0;
         int col = 0;
-        static const GrColor color = 0xff000000;
+        constexpr GrColor color = 0xff000000;
 
         for (int i = 0; i < kNumConics; ++i) {
             SkPoint baseControlPts[] = {
@@ -416,8 +416,8 @@ private:
     GrPathUtils::QuadUVMatrix  fDevToUV;
     sk_sp<GrGeometryProcessor> fGeometryProcessor;
 
-    static const int kVertsPerCubic = 4;
-    static const int kIndicesPerCubic = 6;
+    static constexpr int kVertsPerCubic = 4;
+    static constexpr int kIndicesPerCubic = 6;
 
     typedef GrTestBatch INHERITED;
 };
@@ -458,7 +458,7 @@ protected:
             float   fUV[4]; // The last two values are ignored. The effect expects a vec4f.
         };
 
-        static const int kNumQuads = 5;
+        constexpr int kNumQuads = 5;
         SkRandom rand;
 
         int numCols = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(kNumQuads*3)));
@@ -467,7 +467,7 @@ protected:
         SkScalar h = SkIntToScalar(drawContext->height()) / numRows;
         int row = 0;
         int col = 0;
-        static const GrColor color = 0xff000000;
+        constexpr GrColor color = 0xff000000;
 
         for (int i = 0; i < kNumQuads; ++i) {
             SkPoint baseControlPts[] = {

@@ -158,14 +158,14 @@ protected:
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
-        static const SkScalar kDesiredDurationSecs = 15.0f;
+        constexpr SkScalar kDesiredDurationSecs = 15.0f;
 
         fAzimuth = kStartAzimuth + timer.scaled(360.0f/kDesiredDurationSecs, 360.0f);
         return true;
     }
 
 private:
-    static const int kStartAzimuth = 225;
+    static constexpr int kStartAzimuth = 225;
 
     SkBitmap fBitmap;
     SkScalar fAzimuth;

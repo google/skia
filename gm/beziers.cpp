@@ -13,7 +13,7 @@
 #define H   400
 #define N   10
 
-static const SkScalar SH = SkIntToScalar(H);
+constexpr SkScalar SH = SkIntToScalar(H);
 
 static void rnd_quad(SkPath* p, SkPaint* paint, SkRandom& rand) {
     p->moveTo(rand.nextRangeScalar(0,  W), rand.nextRangeScalar(0,  H));

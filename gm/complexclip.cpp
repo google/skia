@@ -12,9 +12,9 @@
 
 namespace skiagm {
 
-static const SkColor gPathColor = SK_ColorBLACK;
-static const SkColor gClipAColor = SK_ColorBLUE;
-static const SkColor gClipBColor = SK_ColorRED;
+constexpr SkColor gPathColor = SK_ColorBLACK;
+constexpr SkColor gClipAColor = SK_ColorBLUE;
+constexpr SkColor gClipBColor = SK_ColorRED;
 
 class ComplexClipGM : public GM {
 public:
@@ -85,7 +85,7 @@ protected:
         sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(SkIntToScalar(20));
 
-        static const struct {
+        constexpr struct {
             SkRegion::Op fOp;
             const char*  fName;
         } gOps[] = { //extra spaces in names for measureText

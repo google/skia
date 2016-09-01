@@ -141,7 +141,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
-        static const struct {
+        const struct {
             SkColor         fColor;
             const char*     fName;
             SkRegion::Op    fOp;

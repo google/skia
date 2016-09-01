@@ -68,11 +68,11 @@ protected:
     }
 
 private:
-    static const int kWidth = 800;
-    static const int kHeight = 800;
-    static const int kHalfOuterClipSize = 100;
-    static const int kHalfSquareSize = 50;
-    static const int kOffsetToOutsideClip = kHalfSquareSize + kHalfOuterClipSize + 1;
+    static constexpr int kWidth = 800;
+    static constexpr int kHeight = 800;
+    static constexpr int kHalfOuterClipSize = 100;
+    static constexpr int kHalfSquareSize = 50;
+    static constexpr int kOffsetToOutsideClip = kHalfSquareSize + kHalfOuterClipSize + 1;
 
     static const SkPoint gBlurOffsets[4];
     static const SkColor gColors[4];
@@ -111,7 +111,7 @@ private:
     }
 
     static sk_sp<SkMaskFilter> MakeBlur() {
-        static const SkScalar kBlurSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(25));
+        const SkScalar kBlurSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(25));
 
         return SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kBlurSigma,
                                       SkBlurMaskFilter::kHighQuality_BlurFlag);

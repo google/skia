@@ -132,7 +132,7 @@ protected:
 
         struct Circle : public Prim {
             SkRect draw(SkCanvas* canvas, const SkPaint& paint) override {
-                static const SkScalar radius = 25;
+                constexpr SkScalar radius = 25;
                 canvas->drawCircle(radius, radius, radius, paint);
                 return SkRect::MakeXYWH(0, 0, 2 * radius, 2 * radius);
             }
@@ -195,7 +195,7 @@ protected:
                 paint.setTextSize(30.f);
                 this->setFont(&paint);
                 const char* text = this->text();
-                static const SkVector offset = SkVector::Make(10, 10);
+                const SkVector offset = SkVector::Make(10, 10);
                 canvas->drawText(text, strlen(text), offset.fX, offset.fY, paint);
                 SkRect bounds;
                 paint.measureText(text, strlen(text), &bounds);
@@ -245,7 +245,7 @@ protected:
         canvas->translate(10, 20);
         canvas->save();
         SkScalar tx = 0, maxTy = 0;
-        static const SkScalar kW = 900;
+        constexpr SkScalar kW = 900;
 
         for (int aa = 0; aa < 2; ++aa) {
             for (int i = 0; i < fPrims.count(); ++i) {

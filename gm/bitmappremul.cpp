@@ -18,9 +18,9 @@
  * This tests both the ARGB4444 and ARGB8888 bitmap configurations.
  */
 
-static const int SLIDE_SIZE = 256;
-static const int PIXEL_SIZE_8888 = SLIDE_SIZE / 256;
-static const int PIXEL_SIZE_4444 = SLIDE_SIZE / 16;
+constexpr int SLIDE_SIZE = 256;
+constexpr int PIXEL_SIZE_8888 = SLIDE_SIZE / 256;
+constexpr int PIXEL_SIZE_4444 = SLIDE_SIZE / 16;
 
 static void init_bitmap(SkColorType ct, SkBitmap* bitmap) {
     bitmap->allocPixels(SkImageInfo::Make(SLIDE_SIZE, SLIDE_SIZE, ct,

@@ -155,8 +155,8 @@ private:
     const char* fEmojiText;
     SkAutoTUnref<const SkTextBlob> fBlob;
 
-    static const int kWidth = 1250;
-    static const int kHeight = 700;
+    static constexpr int kWidth = 1250;
+    static constexpr int kHeight = 700;
 
     typedef GM INHERITED;
 };

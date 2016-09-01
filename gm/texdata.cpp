@@ -17,7 +17,7 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-static const int S = 200;
+constexpr int S = 200;
 
 DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
     GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
@@ -32,13 +32,13 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
     }
 
     SkAutoTArray<SkPMColor> gTextureData((2 * S) * (2 * S));
-    static const int stride = 2 * S;
-    static const SkPMColor gray  = SkPackARGB32(0x40, 0x40, 0x40, 0x40);
-    static const SkPMColor white = SkPackARGB32(0xff, 0xff, 0xff, 0xff);
-    static const SkPMColor red   = SkPackARGB32(0x80, 0x80, 0x00, 0x00);
-    static const SkPMColor blue  = SkPackARGB32(0x80, 0x00, 0x00, 0x80);
-    static const SkPMColor green = SkPackARGB32(0x80, 0x00, 0x80, 0x00);
-    static const SkPMColor black = SkPackARGB32(0x00, 0x00, 0x00, 0x00);
+    constexpr int stride = 2 * S;
+    const SkPMColor gray  = SkPackARGB32(0x40, 0x40, 0x40, 0x40);
+    const SkPMColor white = SkPackARGB32(0xff, 0xff, 0xff, 0xff);
+    const SkPMColor red   = SkPackARGB32(0x80, 0x80, 0x00, 0x00);
+    const SkPMColor blue  = SkPackARGB32(0x80, 0x00, 0x00, 0x80);
+    const SkPMColor green = SkPackARGB32(0x80, 0x00, 0x80, 0x00);
+    const SkPMColor black = SkPackARGB32(0x00, 0x00, 0x00, 0x00);
     for (int i = 0; i < 2; ++i) {
         int offset = 0;
         // fill upper-left

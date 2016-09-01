@@ -20,9 +20,9 @@
  * Spits out a dummy gradient to test blur with shader on paint
  */
 static sk_sp<SkShader> MakeLinear() {
-    static const SkPoint     kPts[] = { { 0, 0 }, { 32, 32 } };
-    static const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
-    static const SkColor kColors[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
+    constexpr SkPoint     kPts[] = { { 0, 0 }, { 32, 32 } };
+    constexpr SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
+    constexpr SkColor kColors[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
     return SkGradientShader::MakeLinear(kPts, kColors, kPos, SK_ARRAY_COUNT(kColors),
                                         SkShader::kClamp_TileMode);
 }
@@ -77,7 +77,7 @@ protected:
         const char* text = emojiFont.text;
 
         // draw text at different point sizes
-        static constexpr SkScalar textSizes[] = { 10, 30, 50, };
+        constexpr SkScalar textSizes[] = { 10, 30, 50, };
         SkPaint::FontMetrics metrics;
         SkScalar y = 0;
         for (const SkScalar& textSize : textSizes) {
@@ -137,7 +137,7 @@ protected:
         SkRect interiorClip = bounds;
         interiorClip.inset(boundsQuarterWidth, boundsQuarterHeight);
 
-        static const SkRect clipRects[] = { bounds, upperLeftClip, lowerRightClip, interiorClip };
+        const SkRect clipRects[] = { bounds, upperLeftClip, lowerRightClip, interiorClip };
 
         SkPaint clipHairline;
         clipHairline.setColor(SK_ColorWHITE);

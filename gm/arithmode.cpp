@@ -82,8 +82,8 @@ protected:
         SkBitmap src = make_src();
         SkBitmap dst = make_dst();
 
-        const SkScalar one = SK_Scalar1;
-        static const SkScalar K[] = {
+        constexpr SkScalar one = SK_Scalar1;
+        constexpr SkScalar K[] = {
             0, 0, 0, 0,
             0, 0, 0, one,
             0, one, 0, 0,

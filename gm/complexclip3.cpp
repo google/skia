@@ -10,7 +10,7 @@
 
 namespace skiagm {
 
-static const SkColor gPathColor = SK_ColorYELLOW;
+constexpr SkColor gPathColor = SK_ColorYELLOW;
 
 class ComplexClip3GM : public GM {
 public:
@@ -51,7 +51,7 @@ protected:
         sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(SkIntToScalar(20));
 
-        static const struct {
+        constexpr struct {
             SkRegion::Op fOp;
             const char*  fName;
         } gOps[] = {

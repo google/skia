@@ -10,7 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkShader.h"
 
-static const struct {
+constexpr struct {
     SkXfermode::Mode  fMode;
     const char*         fLabel;
 } gModes[] = {
@@ -88,7 +88,7 @@ namespace skiagm {
 
         void onDraw(SkCanvas* canvas) override {
             const SkRect bounds = SkRect::MakeWH(W, H);
-            static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
+            constexpr SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 
             canvas->translate(SkIntToScalar(4), SkIntToScalar(4));
 

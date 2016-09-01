@@ -71,7 +71,7 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
     canvas->drawPosText(glyphs, glyphCount * sizeof(uint16_t), pos, glyphPaint);
 }
 
-static const struct {
+constexpr struct {
     const char* fName;
     SkTypeface::Style   fStyle;
 } gFaceStyles[] = {
@@ -89,7 +89,7 @@ static const struct {
     { "monospace", SkTypeface::kBoldItalic },
 };
 
-static const int gFaceStylesCount = SK_ARRAY_COUNT(gFaceStyles);
+constexpr int gFaceStylesCount = SK_ARRAY_COUNT(gFaceStyles);
 
 class TypefaceStylesGM : public skiagm::GM {
     sk_sp<SkTypeface> fFaces[gFaceStylesCount];

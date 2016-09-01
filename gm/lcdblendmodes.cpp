@@ -17,10 +17,10 @@
 
 namespace skiagm {
 
-static const int kColWidth = 180;
-static const int kNumCols = 4;
-static const int kWidth = kColWidth * kNumCols;
-static const int kHeight = 750;
+constexpr int kColWidth = 180;
+constexpr int kNumCols = 4;
+constexpr int kWidth = kColWidth * kNumCols;
+constexpr int kHeight = 750;
 
 static sk_sp<SkShader> make_shader(const SkRect& bounds) {
     const SkPoint pts[] = {

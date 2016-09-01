@@ -89,8 +89,8 @@ protected:
         p.setShader(fShader);
 
         SkISize sz = this->onISize();
-        static const int kXCount = 4;
-        static const int kYCount = 3;
+        constexpr int kXCount = 4;
+        constexpr int kYCount = 3;
         for (int i = 0; i < kXCount; ++i) {
             for (int j = 0; j < kYCount; ++j) {
                 canvas->drawTextBlob(fBlob,

@@ -138,8 +138,8 @@ protected:
 private:
     SkAutoTUnref<const SkTextBlob> fBlob;
 
-    static const int kWidth = 2000;
-    static const int kHeight = 1600;
+    static constexpr int kWidth = 2000;
+    static constexpr int kHeight = 1600;
 
     typedef GM INHERITED;
 };

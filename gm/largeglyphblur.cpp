@@ -23,7 +23,7 @@ DEF_SIMPLE_GM(largeglyphblur, canvas, 1920, 600) {
         paint.setAntiAlias(true);
 
         // setup up maskfilter
-        static const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(40));
+        const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(40));
 
         SkPaint blurPaint(paint);
         blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kSigma));

@@ -48,13 +48,13 @@ protected:
         labelP.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&labelP);
 
-        static const SkColor kSolidColors[] = {
+        constexpr SkColor kSolidColors[] = {
             SK_ColorTRANSPARENT,
             SK_ColorBLUE,
             0x80808000
         };
 
-        static const SkColor kBmpAlphas[] = {
+        constexpr SkColor kBmpAlphas[] = {
             0xff,
             0x80,
         };
@@ -63,7 +63,7 @@ protected:
 
         int test = 0;
         int x = 0, y = 0;
-        static const struct { SkPaint::Style fStyle; SkScalar fWidth; } kStrokes[] = {
+        constexpr struct { SkPaint::Style fStyle; SkScalar fWidth; } kStrokes[] = {
             {SkPaint::kFill_Style, 0},
             {SkPaint::kStroke_Style, SkIntToScalar(kSize) / 2},
         };
@@ -173,7 +173,7 @@ private:
     }
 
     void onOnceBeforeDraw() override {
-        static const uint32_t kCheckData[] = {
+        const uint32_t kCheckData[] = {
             SkPackARGB32(0xFF, 0x42, 0x41, 0x42),
             SkPackARGB32(0xFF, 0xD6, 0xD3, 0xD6),
             SkPackARGB32(0xFF, 0xD6, 0xD3, 0xD6),

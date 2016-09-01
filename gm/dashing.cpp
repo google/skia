@@ -57,7 +57,7 @@ protected:
     SkISize onISize() { return SkISize::Make(640, 340); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        static const struct {
+        constexpr struct {
             int fOnInterval;
             int fOffInterval;
         } gData[] = {
@@ -145,7 +145,7 @@ protected:
     SkISize onISize() { return SkISize::Make(640, 480); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        static const int gIntervals[] = {
+        constexpr int gIntervals[] = {
             3,  // 3 dashes: each count [0] followed by intervals [1..count]
             2,  10, 10,
             4,  20, 5, 5, 5,
@@ -334,7 +334,7 @@ protected:
     SkISize onISize() { return SkISize::Make(640, 950); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        static const struct {
+        constexpr struct {
             int fOnInterval;
             int fOffInterval;
         } gData[] = {
@@ -420,11 +420,11 @@ protected:
     SkISize onISize() override { return SkISize::Make(400, 200); }
 
     void onDraw(SkCanvas* canvas) override {
-        static const int kOn = 4;
-        static const int kOff = 4;
-        static const int kIntervalLength = kOn + kOff;
+        constexpr int kOn = 4;
+        constexpr int kOff = 4;
+        constexpr int kIntervalLength = kOn + kOff;
 
-        static const SkColor gColors[kIntervalLength] = {
+        constexpr SkColor gColors[kIntervalLength] = {
             SK_ColorRED,
             SK_ColorGREEN,
             SK_ColorBLUE,

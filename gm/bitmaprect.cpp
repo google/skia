@@ -153,9 +153,9 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 static void make_big_bitmap(SkBitmap* bitmap) {
 
-    static const int gXSize = 4096;
-    static const int gYSize = 4096;
-    static const int gBorderWidth = 10;
+    constexpr int gXSize = 4096;
+    constexpr int gYSize = 4096;
+    constexpr int gBorderWidth = 10;
 
     bitmap->allocN32Pixels(gXSize, gYSize);
     for (int y = 0; y < gYSize; ++y) {

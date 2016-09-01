@@ -11,7 +11,7 @@
 typedef SkScalar (*MakePathProc)(SkPath*);
 
 static SkScalar make_triangle(SkPath* path) {
-    static const int gCoord[] = {
+    constexpr int gCoord[] = {
         10, 20, 15, 5, 30, 30
     };
     path->moveTo(SkIntToScalar(gCoord[0]), SkIntToScalar(gCoord[1]));
@@ -154,7 +154,7 @@ static SkScalar make_battery2(SkPath* path) {
     return SkIntToScalar(70);
 }
 
-static const MakePathProc gProcs[] = {
+constexpr MakePathProc gProcs[] = {
     make_triangle,
     make_rect,
     make_oval,
@@ -167,7 +167,7 @@ static const MakePathProc gProcs[] = {
     make_battery2
 };
 
-static const SkScalar gWidths[] = {
+constexpr SkScalar gWidths[] = {
     2.0f,
     3.0f,
     4.0f,
@@ -180,7 +180,7 @@ static const SkScalar gWidths[] = {
     0.0f,
 };
 
-static const SkScalar gMiters[] = {
+constexpr SkScalar gMiters[] = {
     2.0f,
     3.0f,
     3.0f,

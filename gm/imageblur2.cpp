@@ -14,7 +14,7 @@
 #define WIDTH 500
 #define HEIGHT 500
 
-static const float kBlurSigmas[] = {
+constexpr float kBlurSigmas[] = {
         0.0, 0.3f, 0.5f, 2.0f, 32.0f, 80.0f };
 
 const char* kTestStrings[] = {

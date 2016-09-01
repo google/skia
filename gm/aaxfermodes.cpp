@@ -23,11 +23,11 @@ enum {
     kSubtitleSpacing = 5 * kShapeSpacing / 8
 };
 
-static const SkColor kBGColor = SkColorSetARGB(200, 210, 184, 135);
+constexpr SkColor kBGColor = 0xc8d2b887;
 
-static const SkColor kShapeColors[2] = {
-    SkColorSetARGB(130, 255, 0, 128),   // input color unknown
-    SkColorSetARGB(255, 0, 255, 255)   // input color opaque
+constexpr SkColor kShapeColors[2] = {
+    0x82ff0080,   // input color unknown
+    0xff00ffff,   // input color opaque
 };
 
 enum Shape {
@@ -73,7 +73,7 @@ protected:
         fLabelPaint.setTextSize(5 * kShapeSize/8);
         fLabelPaint.setSubpixelText(true);
 
-        static const SkScalar radius = -1.4f * kShapeSize/2;
+        constexpr SkScalar radius = -1.4f * kShapeSize/2;
         SkPoint pts[4] = {
             {-radius, 0},
             {0, -1.33f * radius},

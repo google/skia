@@ -32,8 +32,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        static const int kBig = 65536;
-        static const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4));
+        constexpr int kBig = 65536;
+        const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4));
 
         const SkRect bigRect = SkRect::MakeWH(SkIntToScalar(kBig), SkIntToScalar(kBig));
         SkRect insetRect = bigRect;
@@ -46,8 +46,8 @@ protected:
 
         // The blur extends 3*kSigma out from the big rect.
         // Offset the close-up windows so we get the entire blur
-        static const SkScalar kLeftTopPad  = 3*kSigma;   // use on left & up of big rect
-        static const SkScalar kRightBotPad = kCloseUpSize-3*kSigma; // use on right and bot sides
+        const SkScalar kLeftTopPad  = 3*kSigma;   // use on left & up of big rect
+        const SkScalar kRightBotPad = kCloseUpSize-3*kSigma; // use on right and bot sides
 
         // UL hand corners of the rendered closeups
         const SkPoint origins[] = {
@@ -103,9 +103,9 @@ protected:
     }
 
 private:
-    static const int kCloseUpSize = 64;
-    static const int kWidth = 5 * kCloseUpSize;
-    static const int kHeight = 2 * (kLastEnum_SkBlurStyle + 1) * kCloseUpSize;
+    static constexpr int kCloseUpSize = 64;
+    static constexpr int kWidth = 5 * kCloseUpSize;
+    static constexpr int kHeight = 2 * (kLastEnum_SkBlurStyle + 1) * kCloseUpSize;
 
     typedef GM INHERITED;
 };

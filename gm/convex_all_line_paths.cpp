@@ -278,7 +278,7 @@ protected:
         const SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
         const SkPath::Direction dirs[2] = { SkPath::kCW_Direction, SkPath::kCCW_Direction };
         const float scales[] = { 1.0f, 0.75f, 0.5f, 0.25f, 0.1f, 0.01f, 0.001f };
-        const SkPaint::Join joins[3] = { SkPaint::kRound_Join, 
+        const SkPaint::Join joins[3] = { SkPaint::kRound_Join,
                                          SkPaint::kBevel_Join,
                                          SkPaint::kMiter_Join };
 
@@ -336,11 +336,11 @@ protected:
     }
 
 private:
-    static const int kStrokeWidth   = 10;
-    static const int kNumPaths      = 20;
-    static const int kMaxPathHeight = 100;
-    static const int kGMWidth       = 512;
-    static const int kGMHeight      = 512;
+    static constexpr int kStrokeWidth   = 10;
+    static constexpr int kNumPaths      = 20;
+    static constexpr int kMaxPathHeight = 100;
+    static constexpr int kGMWidth       = 512;
+    static constexpr int kGMHeight      = 512;
 
     bool fDoStrokeAndFill;
 

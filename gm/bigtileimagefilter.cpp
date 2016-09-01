@@ -94,9 +94,9 @@ protected:
     }
 
 private:
-    static const int kWidth = 512;
-    static const int kHeight = 512;
-    static const int kBitmapSize = 64;
+    static constexpr int kWidth = 512;
+    static constexpr int kHeight = 512;
+    static constexpr int kBitmapSize = 64;
 
     sk_sp<SkImage> fRedImage;
     sk_sp<SkImage> fGreenImage;

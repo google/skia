@@ -148,7 +148,7 @@ protected:
             y += fBitmap.height() + MARGIN;
         }
         // Test cropping
-        static const size_t nbSamples = 3;
+        constexpr size_t nbSamples = 3;
         SkXfermode::Mode sampledModes[nbSamples] = {SkXfermode::kOverlay_Mode,
                                                     SkXfermode::kSrcOver_Mode,
                                                     SkXfermode::kPlus_Mode};

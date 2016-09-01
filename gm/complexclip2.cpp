@@ -102,10 +102,10 @@ protected:
         }
     }
 
-    static const int kRows = 5;
-    static const int kCols = 5;
-    static const int kPadX = 20;
-    static const int kPadY = 20;
+    static constexpr int kRows = 5;
+    static constexpr int kCols = 5;
+    static constexpr int kPadX = 20;
+    static constexpr int kPadY = 20;
 
     static const char* ClipStr(Clip clip) {
         switch (clip) {

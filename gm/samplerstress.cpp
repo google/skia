@@ -42,8 +42,8 @@ protected:
             return;
         }
 
-        static const int xSize = 16;
-        static const int ySize = 16;
+        constexpr int xSize = 16;
+        constexpr int ySize = 16;
 
         fTexture.allocN32Pixels(xSize, ySize);
         SkPMColor* addr = fTexture.getAddr32(0, 0);

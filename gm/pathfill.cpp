@@ -23,7 +23,7 @@ static SkScalar make_frame(SkPath* path) {
 }
 
 static SkScalar make_triangle(SkPath* path) {
-    static const int gCoord[] = {
+    constexpr int gCoord[] = {
         10, 20, 15, 5, 30, 30
     };
     path->moveTo(SkIntToScalar(gCoord[0]), SkIntToScalar(gCoord[1]));
@@ -102,7 +102,7 @@ static SkScalar make_line(SkPath* path) {
     return SkIntToScalar(40);
 }
 
-static const MakePathProc gProcs[] = {
+constexpr MakePathProc gProcs[] = {
     make_frame,
     make_triangle,
     make_rect,

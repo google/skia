@@ -32,8 +32,8 @@ DEF_SIMPLE_GM(rrect_clip_draw_paint, canvas, 256, 256) {
     canvas->drawPaint(p);
     canvas->restore();
 
-    static constexpr SkPoint kPts[] = {{0.f, 0.f}, {256.f, 256.f}};
-    static constexpr SkColor kColors1[] = {SK_ColorCYAN, SK_ColorGREEN};
+    constexpr SkPoint kPts[] = {{0.f, 0.f}, {256.f, 256.f}};
+    constexpr SkColor kColors1[] = {SK_ColorCYAN, SK_ColorGREEN};
     p.setShader(SkGradientShader::MakeLinear(kPts, kColors1, nullptr, 2,
                                              SkShader::kClamp_TileMode));
     canvas->concat(zoomOut);
@@ -42,7 +42,7 @@ DEF_SIMPLE_GM(rrect_clip_draw_paint, canvas, 256, 256) {
     canvas->drawPaint(p);
     canvas->restore();
 
-    static constexpr SkColor kColors2[] = {SK_ColorMAGENTA, SK_ColorGRAY};
+    constexpr SkColor kColors2[] = {SK_ColorMAGENTA, SK_ColorGRAY};
     p.setShader(SkGradientShader::MakeRadial({128.f, 128.f}, 128.f, kColors2, nullptr, 2,
                                              SkShader::kClamp_TileMode));
     canvas->concat(zoomOut);

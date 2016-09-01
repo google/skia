@@ -27,9 +27,9 @@ protected:
 
     // Create an image consisting of lines radiating from its center
     void onOnceBeforeDraw() override {
-        static const int kNumLines = 100;
-        static const SkScalar kAngleStep = 360.0f / kNumLines;
-        static const int kInnerOffset = 10;
+        constexpr int kNumLines = 100;
+        constexpr SkScalar kAngleStep = 360.0f / kNumLines;
+        constexpr int kInnerOffset = 10;
 
         fBM.allocN32Pixels(kImageSize, kImageSize, true);
 
@@ -97,9 +97,9 @@ protected:
     }
 
 private:
-    static const int kImageSize     = 256;
-    static const int kSpacer        = 10;
-    static const int kNumVertImages = 5;
+    static constexpr int kImageSize     = 256;
+    static constexpr int kSpacer        = 10;
+    static constexpr int kNumVertImages = 5;
 
     SkBitmap         fBM;
     SkFilterQuality  fFilterQuality;

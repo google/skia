@@ -65,8 +65,8 @@ protected:
     }
 
 private:
-    static const int kWidth = 200;
-    static const int kHeight = 200;
+    static constexpr int kWidth = 200;
+    static constexpr int kHeight = 200;
 
     typedef GM INHERITED;
 };

@@ -138,18 +138,14 @@ protected:
     }
 
 private:
-    static const SkScalar kDrawPad;
-    static const SkScalar kTestPad;
-    static const int      kTargetWidth = 100;
-    static const int      kTargetHeight = 100;
+    static constexpr SkScalar kDrawPad = 10.f;
+    static constexpr SkScalar kTestPad = 10.f;;
+    static constexpr int      kTargetWidth = 100;
+    static constexpr int      kTargetHeight = 100;
     SkBitmap fBmp;
 
     typedef GM INHERITED;
 };
-
-// Windows builds did not like SkScalar initialization in class :(
-const SkScalar TextureDomainEffect::kDrawPad = 10.f;
-const SkScalar TextureDomainEffect::kTestPad = 10.f;
 
 DEF_GM(return new TextureDomainEffect;)
 }

@@ -44,8 +44,8 @@ protected:
     void drawShape(SkCanvas* canvas,
                    SkPaint* paint,
                    ShapeType type) {
-        static const SkRect kRect = SkRect::MakeXYWH(SkIntToScalar(-50), SkIntToScalar(-50),
-                                                     SkIntToScalar(75), SkIntToScalar(105));
+        const SkRect kRect = SkRect::MakeXYWH(SkIntToScalar(-50), SkIntToScalar(-50),
+                                              SkIntToScalar(75), SkIntToScalar(105));
         switch (type) {
             case kCircle_ShapeType:
                 canvas->drawCircle(0, 0, 50, *paint);
@@ -183,8 +183,8 @@ private:
     SkAutoTUnref<SkShader> fBG;
     SkPath                 fConcavePath;
     SkPath                 fConvexPath;
-    static const int kWidth = 900;
-    static const int kHeight = 400;
+    static constexpr int kWidth = 900;
+    static constexpr int kHeight = 400;
     typedef GM INHERITED;
 };
 

@@ -254,7 +254,7 @@ protected:
     }
 
 private:
-    static const int kTexSize = 96;
+    static constexpr int kTexSize = 96;
 
     sk_sp<SkShader> fOpaqueDiffuse;
     sk_sp<SkShader> fTranslucentDiffuse;

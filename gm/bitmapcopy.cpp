@@ -18,7 +18,7 @@ static const char* gColorTypeNames[] = {
     "Index8",
 };
 
-static const SkColorType gColorTypes[] = {
+constexpr SkColorType gColorTypes[] = {
     kRGB_565_SkColorType,
     kARGB_4444_SkColorType,
     kN32_SkColorType,

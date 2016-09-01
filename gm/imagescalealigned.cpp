@@ -138,8 +138,8 @@ private:
         return pt;
     }
 
-    static const unsigned  kSegLen = 15;
-    static const unsigned  kStretchFactor = 4;
+    static constexpr unsigned  kSegLen = 15;
+    static constexpr unsigned  kStretchFactor = 4;
     SkSTArray<2, ImageSet> fSets;
 
     typedef GM INHERITED;

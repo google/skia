@@ -107,10 +107,10 @@ bool make_ringed_bitmap(TestPixels* result, int width, int height,
 /** Create a black and white checked bitmap with 2 1-pixel rings around the outside edge.
     The inner ring is red and the outer ring is blue. */
 static bool make_ringed_color_bitmap(TestPixels* result, int width, int height) {
-    static const SkPMColor kBlue  = SkPreMultiplyColor(SK_ColorBLUE);
-    static const SkPMColor kRed   = SkPreMultiplyColor(SK_ColorRED);
-    static const SkPMColor kBlack = SkPreMultiplyColor(SK_ColorBLACK);
-    static const SkPMColor kWhite = SkPreMultiplyColor(SK_ColorWHITE);
+    const SkPMColor kBlue  = SkPreMultiplyColor(SK_ColorBLUE);
+    const SkPMColor kRed   = SkPreMultiplyColor(SK_ColorRED);
+    const SkPMColor kBlack = SkPreMultiplyColor(SK_ColorBLACK);
+    const SkPMColor kWhite = SkPreMultiplyColor(SK_ColorWHITE);
     return make_ringed_bitmap<SkPMColor>(result, width, height, kN32_SkColorType,
                                          kPremul_SkAlphaType, kBlue, kRed, kBlack, kWhite);
 }
@@ -119,10 +119,10 @@ static bool make_ringed_color_bitmap(TestPixels* result, int width, int height) 
     checker board of 3/4 and 1/2. The inner checkers are large enough to fill the interior with
     the 2x2 checker grid. */
 static bool make_ringed_alpha_bitmap(TestPixels* result, int width, int height) {
-    static const uint8_t kZero = 0x00;
-    static const uint8_t kHalf = 0x80;
-    static const uint8_t k3Q   = 0xC0;
-    static const uint8_t kOne  = 0xFF;
+    constexpr uint8_t kZero = 0x00;
+    constexpr uint8_t kHalf = 0x80;
+    constexpr uint8_t k3Q   = 0xC0;
+    constexpr uint8_t kOne  = 0xFF;
     return make_ringed_bitmap<uint8_t>(result, width, height, kAlpha_8_SkColorType,
                                        kPremul_SkAlphaType, kZero, kOne, k3Q, kHalf);
 }
@@ -155,8 +155,8 @@ bool make_ringed_alpha_image(TestPixels* result, int width, int height) {
 }
 
 static sk_sp<SkShader> make_shader() {
-    static const SkPoint pts[] = { {0, 0}, {20, 20} };
-    static const SkColor colors[] = { SK_ColorGREEN, SK_ColorYELLOW };
+    constexpr SkPoint pts[] = { {0, 0}, {20, 20} };
+    constexpr SkColor colors[] = { SK_ColorGREEN, SK_ColorYELLOW };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
 }
 
@@ -322,7 +322,7 @@ protected:
 
         // Draw with rotation and scale down in x, up in y.
         SkMatrix m;
-        static const SkScalar kBottom = SkIntToScalar(kRow4Y + kBlockSize + kBlockSpacing);
+        constexpr SkScalar kBottom = SkIntToScalar(kRow4Y + kBlockSize + kBlockSpacing);
         m.setTranslate(0, kBottom);
         m.preRotate(15.f, 0, kBottom + kBlockSpacing);
         m.preScale(0.71f, 1.22f);
@@ -407,25 +407,25 @@ protected:
 #endif
 
 private:
-    static const int kBlockSize = 70;
-    static const int kBlockSpacing = 12;
+    static constexpr int kBlockSize = 70;
+    static constexpr int kBlockSpacing = 12;
 
-    static const int kCol0X = kBlockSpacing;
-    static const int kCol1X = 2*kBlockSpacing + kBlockSize;
-    static const int kCol2X = 3*kBlockSpacing + 2*kBlockSize;
-    static const int kCol3X = 4*kBlockSpacing + 3*kBlockSize;
-    static const int kCol4X = 5*kBlockSpacing + 4*kBlockSize;
-    static const int kCol5X = 6*kBlockSpacing + 5*kBlockSize;
-    static const int kWidth = 7*kBlockSpacing + 6*kBlockSize;
+    static constexpr int kCol0X = kBlockSpacing;
+    static constexpr int kCol1X = 2*kBlockSpacing + kBlockSize;
+    static constexpr int kCol2X = 3*kBlockSpacing + 2*kBlockSize;
+    static constexpr int kCol3X = 4*kBlockSpacing + 3*kBlockSize;
+    static constexpr int kCol4X = 5*kBlockSpacing + 4*kBlockSize;
+    static constexpr int kCol5X = 6*kBlockSpacing + 5*kBlockSize;
+    static constexpr int kWidth = 7*kBlockSpacing + 6*kBlockSize;
 
-    static const int kRow0Y = kBlockSpacing;
-    static const int kRow1Y = 2*kBlockSpacing + kBlockSize;
-    static const int kRow2Y = 3*kBlockSpacing + 2*kBlockSize;
-    static const int kRow3Y = 4*kBlockSpacing + 3*kBlockSize;
-    static const int kRow4Y = 5*kBlockSpacing + 4*kBlockSize;
+    static constexpr int kRow0Y = kBlockSpacing;
+    static constexpr int kRow1Y = 2*kBlockSpacing + kBlockSize;
+    static constexpr int kRow2Y = 3*kBlockSpacing + 2*kBlockSize;
+    static constexpr int kRow3Y = 4*kBlockSpacing + 3*kBlockSize;
+    static constexpr int kRow4Y = 5*kBlockSpacing + 4*kBlockSize;
 
-    static const int kSmallSize = 6;
-    static const int kMaxTileSize = 32;
+    static constexpr int kSmallSize = 6;
+    static constexpr int kMaxTileSize = 32;
 
     TestPixels      fBigTestPixels;
     TestPixels      fSmallTestPixels;

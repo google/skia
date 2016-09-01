@@ -84,8 +84,8 @@ public:
     }
 
 protected:
-    static const int kWidth = 400;
-    static const int kHeight = 400;
+    constexpr int kWidth = 400;
+    constexpr int kHeight = 400;
 
     SkString onShortName() override {
         return SkString("shadowmaps");

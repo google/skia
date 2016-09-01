@@ -162,11 +162,11 @@ protected:
     }
 
 private:
-    static const int kNumXferModes = 29;
-    static const int kNumColors = 4;
-    static const int kAtlasSize = 30;
-    static const int kPad = 2;
-    static const int kTextPad = 8;
+    static constexpr int kNumXferModes = 29;
+    static constexpr int kNumColors = 4;
+    static constexpr int kAtlasSize = 30;
+    static constexpr int kPad = 2;
+    static constexpr int kTextPad = 8;
 
 
     sk_sp<SkImage> fAtlas;

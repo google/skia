@@ -84,7 +84,7 @@ protected:
 
 private:
     void onOnceBeforeDraw() override {
-        static const uint32_t kCheckData[] = {
+        const uint32_t kCheckData[] = {
             SkPackARGB32(0xFF, 0x42, 0x41, 0x42),
             SkPackARGB32(0xFF, 0xD6, 0xD3, 0xD6),
             SkPackARGB32(0xFF, 0xD6, 0xD3, 0xD6),

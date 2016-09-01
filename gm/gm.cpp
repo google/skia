@@ -80,7 +80,7 @@ void GM::DrawGpuOnlyMessage(SkCanvas* canvas) {
     paint.setTextSize(20);
     paint.setColor(SK_ColorRED);
     sk_tool_utils::set_portable_typeface(&paint);
-    static const char kTxt[] = "GPU Only";
+    constexpr char kTxt[] = "GPU Only";
     bmpCanvas.drawText(kTxt, strlen(kTxt), 20, 40, paint);
     SkMatrix localM;
     localM.setRotate(35.f);

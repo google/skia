@@ -38,7 +38,7 @@ protected:
         whitePaint.setAntiAlias(true);
 
         // This scale exercises precision limits in the circle blur effect (crbug.com/560651)
-        static const float kScale = 2.0f;
+        constexpr float kScale = 2.0f;
         canvas->scale(kScale, kScale);
 
         canvas->save();
@@ -80,8 +80,8 @@ protected:
     }
 
 private:
-    static const int kWidth = 1164;
-    static const int kHeight = 802;
+    static constexpr int kWidth = 1164;
+    static constexpr int kHeight = 802;
 
     typedef GM INHERITED;
 };

@@ -58,7 +58,7 @@ static void test4(SkCanvas* canvas) {
     canvas->drawPath(path, paint);
 }
 
-static const struct {
+constexpr struct {
     SkXfermode::Mode  fMode;
     const char*         fLabel;
 } gModes[] = {
@@ -140,7 +140,7 @@ namespace skiagm {
                 test4(canvas);
             }
             const SkRect bounds = SkRect::MakeWH(W, H);
-            static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
+            constexpr SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 
             canvas->translate(SkIntToScalar(4), SkIntToScalar(4));
 

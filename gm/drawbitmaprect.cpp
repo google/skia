@@ -131,8 +131,8 @@ static void imagesubsetproc(SkCanvas* canvas, SkImage* image, const SkBitmap& bm
 typedef void DrawRectRectProc(SkCanvas*, SkImage*, const SkBitmap&, const SkIRect&, const SkRect&,
                               const SkPaint*);
 
-static const int gSize = 1024;
-static const int gBmpSize = 2048;
+constexpr int gSize = 1024;
+constexpr int gBmpSize = 2048;
 
 class DrawBitmapRectGM : public skiagm::GM {
 public:
@@ -163,10 +163,10 @@ protected:
         }
 
         SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};
-        static const int kMaxSrcRectSize = 1 << (SkNextLog2(gBmpSize) + 2);
+        const int kMaxSrcRectSize = 1 << (SkNextLog2(gBmpSize) + 2);
 
-        static const int kPadX = 30;
-        static const int kPadY = 40;
+        const int kPadX = 30;
+        const int kPadY = 40;
         SkPaint paint;
         paint.setAlpha(0x20);
         canvas->drawImageRect(fImage, SkRect::MakeIWH(gSize, gSize), &paint);

@@ -10,13 +10,13 @@
 #include "SkDashPathEffect.h"
 #include "gm.h"
 
-static constexpr SkScalar kStarts[] = {0.f, 10.f, 30.f, 45.f, 90.f, 165.f, 180.f, 270.f};
-static constexpr SkScalar kSweeps[] = {1.f, 45.f, 90.f, 130.f, 180.f, 184.f, 300.f, 355.f};
-static constexpr SkScalar kDiameter = 40.f;
-static constexpr SkRect kRect = {0.f, 0.f, kDiameter, kDiameter};
-static constexpr int kW = 1000;
-static constexpr int kH = 1000;
-static constexpr SkScalar kPad = 20.f;
+constexpr SkScalar kStarts[] = {0.f, 10.f, 30.f, 45.f, 90.f, 165.f, 180.f, 270.f};
+constexpr SkScalar kSweeps[] = {1.f, 45.f, 90.f, 130.f, 180.f, 184.f, 300.f, 355.f};
+constexpr SkScalar kDiameter = 40.f;
+constexpr SkRect kRect = {0.f, 0.f, kDiameter, kDiameter};
+constexpr int kW = 1000;
+constexpr int kH = 1000;
+constexpr SkScalar kPad = 20.f;
 
 void draw_arcs(SkCanvas* canvas, std::function<void(SkPaint*)> configureStyle) {
     // Draws grid of arcs with different start/sweep angles in red and their complement arcs in
@@ -50,8 +50,8 @@ void draw_arcs(SkCanvas* canvas, std::function<void(SkPaint*)> configureStyle) {
         canvas->restore();
     };
     // Draw a grids for combo of enabling/disabling aa and using center.
-    static constexpr SkScalar kGridW = kW / 2.f;
-    static constexpr SkScalar kGridH = kH / 2.f;
+    constexpr SkScalar kGridW = kW / 2.f;
+    constexpr SkScalar kGridH = kH / 2.f;
     drawGrid(0.f   , 0.f   , false, false);
     drawGrid(kGridW, 0.f   , true , false);
     drawGrid(0.f   , kGridH, false, true );
@@ -128,13 +128,13 @@ DEF_ARC_GM(stroke_and_fill_round) {
 }
 
 DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
-    static constexpr SkScalar kS = 50;
+    constexpr SkScalar kS = 50;
     struct Arc {
         SkRect   fOval;
         SkScalar fStart;
         SkScalar fSweep;
     };
-    static const Arc noDrawArcs[] = {
+    const Arc noDrawArcs[] = {
         // no sweep
         {SkRect::MakeWH(kS, kS),  0,  0},
         // empty rect in x
@@ -144,7 +144,7 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
         // empty rect in x and y
         {SkRect::MakeWH( 0,   0), 0, 90},
     };
-    static const Arc arcs[] = {
+    const Arc arcs[] = {
         // large start
         {SkRect::MakeWH(kS, kS),   810.f,   90.f},
         // large negative start
@@ -175,7 +175,7 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
     // dash effect
     paints.push_back().setStyle(SkPaint::kStroke_Style);
     paints.back().setStrokeWidth(kS / 6.f);
-    static constexpr SkScalar kDashIntervals[] = {kS / 15, 2 * kS / 15};
+    constexpr SkScalar kDashIntervals[] = {kS / 15, 2 * kS / 15};
     paints.back().setPathEffect(SkDashPathEffect::Make(kDashIntervals, 2, 0.f));
 
     canvas->translate(kPad, kPad);
