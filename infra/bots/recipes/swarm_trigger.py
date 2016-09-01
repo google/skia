@@ -53,8 +53,8 @@ TEST_BUILDERS = {
       'Test-Android-GCC-Nexus7v2-GPU-Tegra3-Arm7-Release',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release',
       'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot',
+      'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
-      'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
       'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release',
@@ -364,8 +364,7 @@ def compile_steps_swarm(api, builder_cfg, got_revision, infrabots_dir):
     else:
       cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_linux'))
 
-  if 'Ubuntu' in builder_name and (
-      'SAN' in builder_name or 'Clang' in builder_name):
+  if 'Ubuntu' in builder_name and 'Clang' in builder_name:
     cipd_packages.append(cipd_pkg(api, infrabots_dir, 'clang_linux'))
 
   # Windows bots require a toolchain.
