@@ -426,6 +426,9 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   return results
 
 
+# Get description
+# Get target ref
+# Update description
 def PostUploadHook(cl, change, output_api):
   """git cl upload will call this hook after the issue is created/modified.
 
@@ -447,6 +450,17 @@ def PostUploadHook(cl, change, output_api):
     results.append(
         output_api.PresubmitNotifyResult(
             'Post upload hooks are not yet supported for Gerrit CLs'))
+    # get description.
+    # Get trget ref
+    # update description!
+    # rmistry
+    print 'DEBUGGING'
+    # remote, remote_branch = cl.GetRemoteBranch()
+    # target_ref = GetTargetRef(remote, remote_branch, None, None)
+    cl.GetTargetRef()
+    import pdb; pdb.set_trace();
+    cl.UpdateDescriptionRemote(cl.GetDescription() + 'boo')
+
     return results
 
   atleast_one_docs_change = False
