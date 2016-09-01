@@ -426,9 +426,8 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
     }
 
     auto sysInfo = sk_make_sp<SkPDFDict>();
-    sysInfo->insertString("Registry", "Skia");
-    // TODO: Registry+Ordering should be globally unique!
-    sysInfo->insertString("Ordering", "SkiaOrdering");
+    sysInfo->insertString("Registry", "Adobe");
+    sysInfo->insertString("Ordering", "Identity");
     sysInfo->insertInt("Supplement", 0);
     newCIDFont->insertObject("CIDSystemInfo", std::move(sysInfo));
 

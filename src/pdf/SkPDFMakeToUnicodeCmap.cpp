@@ -25,8 +25,8 @@ static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
     // different. This is not a reference object.
     const char* kSysInfo =
         "/CIDSystemInfo\n"
-        "<<  /Registry (Skia)\n"
-        "/Ordering (SkiaOrdering)\n"
+        "<<  /Registry (Adobe)\n"
+        "/Ordering (UCS)\n"
         "/Supplement 0\n"
         ">> def\n";
     cmap->writeText(kSysInfo);
@@ -35,7 +35,7 @@ static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
     // /CMapType 2 means ToUnicode.
     // Codespace range just tells the PDF processor the valid range.
     const char* kTypeInfoHeader =
-        "/CMapName /Skia-Identity-SkiaOrdering def\n"
+        "/CMapName /Adobe-Identity-UCS def\n"
         "/CMapType 2 def\n"
         "1 begincodespacerange\n";
     cmap->writeText(kTypeInfoHeader);
