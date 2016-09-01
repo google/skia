@@ -462,9 +462,8 @@ def PostUploadHook(cl, change, output_api):
       break
 
   issue = cl.issue
-  rietveld_obj = cl.RpcServer()
-  if issue and rietveld_obj:
-    original_description = rietveld_obj.get_description(issue)
+  if issue:
+    original_description = cl.GetDescription()
     new_description = original_description
 
     # Add GOLD_TRYBOT_URL if it does not exist yet.
@@ -499,9 +498,8 @@ def PostUploadHook(cl, change, output_api):
 
     # If the target ref is not master then add NOTREECHECKS=true and NOTRY=true
     # to the CL's description if it does not already exist there.
-    target_ref = rietveld_obj.get_issue_properties(issue, False).get(
-        'target_ref', '')
-    if target_ref != 'refs/heads/master':
+    target_ref = cl.GetRemoteBranch()[1]
+    if target_ref != 'refs/remotes/origin/master':
       if not re.search(
           r'^NOTREECHECKS=true$', new_description, re.M | re.I):
         new_description += "\nNOTREECHECKS=true"
@@ -543,7 +541,7 @@ def PostUploadHook(cl, change, output_api):
 
     # If the description has changed update it.
     if new_description != original_description:
-      rietveld_obj.update_description(issue, new_description)
+      cl.UpdateDescription(new_description)
 
     return results
 
