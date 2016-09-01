@@ -33,9 +33,11 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context) {
                                                                    caps)) {
         this->addPathRenderer(pr)->unref();
     }
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     if (caps.sampleShadingSupport()) {
         this->addPathRenderer(new GrMSAAPathRenderer)->unref();
     }
+#endif
     this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
     this->addPathRenderer(new GrAAConvexPathRenderer)->unref();
     this->addPathRenderer(new GrAALinearizingConvexPathRenderer)->unref();
