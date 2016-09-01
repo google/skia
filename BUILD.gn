@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("//gn/shared_sources.gni")
+
 declare_args() {
   skia_enable_tools = !is_fuchsia && !is_component_build
 
@@ -90,69 +92,6 @@ skia_library_configs = [
   ":skia_library",
 ]
 
-core_gypi = exec_script("gn/gypi_to_gn.py",
-                        [
-                          rebase_path("gyp/core.gypi"),
-                          "--replace=<(skia_include_path)=include",
-                          "--replace=<(skia_src_path)=src",
-                        ],
-                        "scope",
-                        [ "gyp/core.gypi" ])
-
-effects_gypi = exec_script("gn/gypi_to_gn.py",
-                           [
-                             rebase_path("gyp/effects.gypi"),
-                             "--replace=<(skia_include_path)=include",
-                             "--replace=<(skia_src_path)=src",
-                           ],
-                           "scope",
-                           [ "gyp/effects.gypi" ])
-
-gpu_gypi = exec_script("gn/gypi_to_gn.py",
-                       [
-                         rebase_path("gyp/gpu.gypi"),
-                         "--replace=<(skia_include_path)=include",
-                         "--replace=<(skia_src_path)=src",
-                       ],
-                       "scope",
-                       [ "gyp/gpu.gypi" ])
-
-opts_gypi = exec_script("gn/gypi_to_gn.py",
-                        [
-                          rebase_path("gyp/opts.gypi"),
-                          "--replace=<(skia_include_path)=include",
-                          "--replace=<(skia_src_path)=src",
-                        ],
-                        "scope",
-                        [ "gyp/opts.gypi" ])
-
-pdf_gypi = exec_script("gn/gypi_to_gn.py",
-                       [
-                         rebase_path("gyp/pdf.gypi"),
-                         "--replace=<(skia_include_path)=include",
-                         "--replace=<(skia_src_path)=src",
-                       ],
-                       "scope",
-                       [ "gyp/pdf.gypi" ])
-
-sksl_gypi = exec_script("gn/gypi_to_gn.py",
-                        [
-                          rebase_path("gyp/sksl.gypi"),
-                          "--replace=<(skia_include_path)=include",
-                          "--replace=<(skia_src_path)=src",
-                        ],
-                        "scope",
-                        [ "gyp/sksl.gypi" ])
-
-utils_gypi = exec_script("gn/gypi_to_gn.py",
-                         [
-                           rebase_path("gyp/utils.gypi"),
-                           "--replace=<(skia_include_path)=include",
-                           "--replace=<(skia_src_path)=src",
-                         ],
-                         "scope",
-                         [ "gyp/utils.gypi" ])
-
 # Use for CPU-specific Skia code that needs particular compiler flags.
 template("opts") {
   if (invoker.enabled) {
@@ -177,61 +116,61 @@ is_x86 = current_cpu == "x64" || current_cpu == "x86"
 
 opts("none") {
   enabled = !is_x86 && current_cpu != "arm" && current_cpu != "arm64"
-  sources = opts_gypi.none_sources
+  sources = skia_opts.none_sources
   cflags = []
 }
 
 opts("armv7") {
   enabled = current_cpu == "arm"
-  sources = opts_gypi.armv7_sources + opts_gypi.neon_sources
+  sources = skia_opts.armv7_sources + skia_opts.neon_sources
   cflags = []
 }
 
 opts("arm64") {
   enabled = current_cpu == "arm64"
-  sources = opts_gypi.arm64_sources
+  sources = skia_opts.arm64_sources
   cflags = []
 }
 
 opts("crc32") {
   enabled = current_cpu == "arm64"
-  sources = opts_gypi.crc32_sources
+  sources = skia_opts.crc32_sources
   cflags = [ "-march=armv8-a+crc" ]
 }
 
 opts("sse2") {
   enabled = is_x86
-  sources = opts_gypi.sse2_sources
+  sources = skia_opts.sse2_sources
   cflags = [ "-msse2" ]
 }
 
 opts("ssse3") {
   enabled = is_x86
-  sources = opts_gypi.ssse3_sources
+  sources = skia_opts.ssse3_sources
   cflags = [ "-mssse3" ]
 }
 
 opts("sse41") {
   enabled = is_x86
-  sources = opts_gypi.sse41_sources
+  sources = skia_opts.sse41_sources
   cflags = [ "-msse4.1" ]
 }
 
 opts("sse42") {
   enabled = is_x86
-  sources = opts_gypi.sse42_sources
+  sources = skia_opts.sse42_sources
   cflags = [ "-msse4.2" ]
 }
 
 opts("avx") {
   enabled = is_x86
-  sources = opts_gypi.avx_sources
+  sources = skia_opts.avx_sources
   cflags = [ "-mavx" ]
 }
 
 opts("dsp") {
   enabled = current_cpu == "mipsel"
-  sources = opts_gypi.mips_dsp_sources
+  sources = skia_opts.mips_dsp_sources
   cflags = []
 }
 
@@ -335,7 +274,7 @@ optional("pdf") {
   deps = [
     "//third_party/zlib",
   ]
-  sources = pdf_gypi.sources
+  sources = skia_pdf_sources
   sources_when_disabled = [ "src/pdf/SkDocument_PDF_None.cpp" ]
 
   if (skia_use_sfntly) {
@@ -424,11 +363,11 @@ component("skia") {
   ]
 
   sources = []
-  sources += core_gypi.sources
-  sources += effects_gypi.sources
-  sources += gpu_gypi.skgpu_sources
-  sources += sksl_gypi.sources
-  sources += utils_gypi.sources
+  sources += skia_core_sources
+  sources += skia_effects_sources
+  sources += skia_gpu_sources
+  sources += skia_sksl_sources
+  sources += skia_utils_sources
   sources += [
     "src/android/SkBitmapRegionCodec.cpp",
     "src/android/SkBitmapRegionDecoder.cpp",
@@ -462,10 +401,15 @@ component("skia") {
     "third_party/etc1/etc1.cpp",
     "third_party/ktx/ktx.cpp",
   ]
-  sources -= [
-    "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
-    "src/gpu/gl/GrGLDefaultInterface_none.cpp",
-  ]
+
+  # These paths need to be absolute to match the ones produced by
+  # shared_sources.gni, but this file may be used from different directory
+  # locations.
+  sources -= get_path_info([
+                             "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
+                             "src/gpu/gl/GrGLDefaultInterface_none.cpp",
+                           ],
+                           "abspath")
 
   libs = []
 

@@ -2,6 +2,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# THIS FILE IS OBSOLETE. It will be deleted pending a two-sided update to
+# Chromium. Please update the new list in gn/shared_sources.gni.
+
 # This file is included by chrome's skia/skia_common.gypi, and is intended to
 # augment the skia flags that are set there.
 
