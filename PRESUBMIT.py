@@ -426,6 +426,9 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   return results
 
 
+# Get description
+# Get target ref
+# Update description
 def PostUploadHook(cl, change, output_api):
   """git cl upload will call this hook after the issue is created/modified.
 
@@ -447,6 +450,7 @@ def PostUploadHook(cl, change, output_api):
     results.append(
         output_api.PresubmitNotifyResult(
             'Post upload hooks are not yet supported for Gerrit CLs'))
+    import pdb; pdb.set_trace();
     return results
 
   atleast_one_docs_change = False
@@ -462,9 +466,8 @@ def PostUploadHook(cl, change, output_api):
       break
 
   issue = cl.issue
-  rietveld_obj = cl.RpcServer()
-  if issue and rietveld_obj:
-    original_description = rietveld_obj.get_description(issue)
+  if issue:
+    original_description = cl.GetDescription()
     new_description = original_description
 
     # Add GOLD_TRYBOT_URL if it does not exist yet.
@@ -499,6 +502,7 @@ def PostUploadHook(cl, change, output_api):
 
     # If the target ref is not master then add NOTREECHECKS=true and NOTRY=true
     # to the CL's description if it does not already exist there.
+    # rmistry
     target_ref = rietveld_obj.get_issue_properties(issue, False).get(
         'target_ref', '')
     if target_ref != 'refs/heads/master':
