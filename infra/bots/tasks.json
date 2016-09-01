@@ -1,0 +1,53 @@
+{
+  "tasks": {
+    "Build-Ubuntu-GCC-x86_64-Release-GN": {
+      "cipd_packages": [],
+      "dependencies": [],
+      "dimensions": ["pool:Skia", "os:Ubuntu", "gpu:none"],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "cipd_packages": [{
+        "name": "skia/bots/skimage",
+        "path": "skimage",
+        "version": 4
+      },
+      {
+        "name": "skia/bots/skp",
+        "path": "skp",
+        "version": 6
+      },
+      {
+        "name": "skia/bots/svg",
+        "path": "svg",
+        "version": 1
+      }],
+      "dependencies": ["Build-Ubuntu-GCC-x86_64-Release-GN"],
+      "dimensions": ["pool:Skia", "os:Ubuntu", "cpu:x86-64-avx2", "gpu:none"],
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "cipd_packages": [{
+        "name": "skia/bots/skimage",
+        "path": "skimage",
+        "version": 4
+      },
+      { 
+        "name": "skia/bots/skp",
+        "path": "skp",
+        "version": 6
+      },
+      {
+        "name": "skia/bots/svg",
+        "path": "svg",
+        "version": 1
+      }],
+      "dependencies": ["Build-Ubuntu-GCC-x86_64-Release-GN"],
+      "dimensions": ["pool:Skia", "os:Ubuntu", "cpu:x86-64-avx2", "gpu:none"],
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    }
+  }
+}
