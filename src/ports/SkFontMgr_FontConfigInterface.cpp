@@ -19,12 +19,24 @@
 SkStreamAsset* SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
     *ttcIndex =  this->getIdentity().fTTCIndex;
 
-    SkStreamAsset* stream = this->getLocalStream();
-    if (stream) {
+    if (fFontData) {
+        SkStreamAsset* stream = fFontData->getStream();
+        if (!stream) {
+            return nullptr;
+        }
         return stream->duplicate();
     }
 
     return fFCI->openStream(this->getIdentity());
+}
+
+SkFontData* SkTypeface_FCI::onCreateFontData() const {
+    if (fFontData) {
+        return new SkFontData(*fFontData.get());
+    }
+
+    const SkFontConfigInterface::FontIdentity& id = this->getIdentity();
+    return new SkFontData( fFCI->openStream(id), id.fTTCIndex, nullptr, 0);
 }
 
 void SkTypeface_FCI::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocalStream) const {
@@ -32,7 +44,7 @@ void SkTypeface_FCI::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocalSt
     this->getFamilyName(&name);
     desc->setFamilyName(name.c_str());
     desc->setStyle(this->fontStyle());
-    *isLocalStream = SkToBool(this->getLocalStream());
+    *isLocalStream = SkToBool(fFontData);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -198,12 +210,47 @@ protected:
 
         // TODO should the caller give us the style or should we get it from freetype?
         SkFontStyle style;
-        bool isFixedWidth = false;
-        if (!fScanner.scanFont(stream, 0, nullptr, &style, &isFixedWidth, nullptr)) {
+        bool isFixedPitch = false;
+        if (!fScanner.scanFont(stream, 0, nullptr, &style, &isFixedPitch, nullptr)) {
             return nullptr;
         }
 
-        return SkTypeface_FCI::Create(style, isFixedWidth, stream.release(), ttcIndex);
+        std::unique_ptr<SkFontData> fontData(new SkFontData(stream.release(), ttcIndex,
+                                                            nullptr, 0));
+        return SkTypeface_FCI::Create(std::move(fontData), style, isFixedPitch);
+    }
+
+    SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
+        using Scanner = SkTypeface_FreeType::Scanner;
+        SkAutoTDelete<SkStreamAsset> stream(s);
+        const size_t length = stream->getLength();
+        if (!length) {
+            return nullptr;
+        }
+        if (length >= 1024 * 1024 * 1024) {
+            return nullptr;  // don't accept too large fonts (>= 1GB) for safety.
+        }
+
+        bool isFixedPitch;
+        SkFontStyle style;
+        SkString name;
+        Scanner::AxisDefinitions axisDefinitions;
+        if (!fScanner.scanFont(stream, params.getCollectionIndex(), &name, &style, &isFixedPitch,
+                               &axisDefinitions))
+        {
+            return nullptr;
+        }
+
+        int paramAxisCount;
+        const FontParameters::Axis* paramAxes = params.getAxes(&paramAxisCount);
+        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
+        Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
+
+        std::unique_ptr<SkFontData> fontData(new SkFontData(stream.release(),
+                                                            params.getCollectionIndex(),
+                                                            axisValues.get(),
+                                                            axisDefinitions.count()));
+        return SkTypeface_FCI::Create(std::move(fontData), style, isFixedPitch);
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
