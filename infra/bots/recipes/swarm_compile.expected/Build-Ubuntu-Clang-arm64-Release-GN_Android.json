@@ -112,13 +112,7 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
-      "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_clang_build=1 skia_warnings_as_errors=1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "fetch-gn"
   },
@@ -131,13 +125,7 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
-      "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_clang_build=1 skia_warnings_as_errors=1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
@@ -149,13 +137,7 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
-      "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
-      "GYP_DEFINES": "skia_clang_build=1 skia_warnings_as_errors=1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "ninja"
   },
