@@ -25,8 +25,6 @@
 
 #include <stdio.h>
 
-#define SK_DISABLE_SCREENSPACE_TESS_AA_PATH_RENDERER
-
 /*
  * This path renderer tessellates the path into triangles using GrTessellator, uploads the
  * triangles to a vertex buffer, and renders them with a single draw call. It can do screenspace
