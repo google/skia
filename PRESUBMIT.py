@@ -458,6 +458,9 @@ def PostUploadHook(cl, change, output_api):
   issue = cl.issue
   if issue:
     original_description = cl.GetDescription()
+
+    print re.search(r'^Change-Id: (\w+)\n\Z', original_description, re.M | re.I).groups()
+    import pdb; pdb.set_trace();
     new_description = original_description
 
     # Add GOLD_TRYBOT_URL if it does not exist yet.
