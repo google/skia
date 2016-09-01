@@ -316,7 +316,7 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
                 type = new Type(name, Type::kArray_Kind, *type, (int) columns);
                 fTypes.takeOwnership((Type*) type);
             }
-            fields.push_back(Type::Field(decl->fModifiers, decl->fNames[i], *type));
+            fields.push_back(Type::Field(decl->fModifiers, decl->fNames[i], type));
             if (decl->fValues[i]) {
                 this->error(decl->fPosition, "initializers are not permitted on struct fields");
             }
@@ -608,7 +608,8 @@ std::unique_ptr<ASTStatement> Parser::statement() {
             return this->block();
         case Token::SEMICOLON:
             this->nextToken(); 
-            return std::unique_ptr<ASTStatement>(new ASTBlock(start.fPosition, {}));
+            return std::unique_ptr<ASTStatement>(new ASTBlock(start.fPosition, 
+                                                     std::vector<std::unique_ptr<ASTStatement>>()));
         case Token::CONST:   // fall through
         case Token::HIGHP:   // fall through
         case Token::MEDIUMP: // fall through

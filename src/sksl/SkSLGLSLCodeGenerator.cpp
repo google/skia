@@ -68,7 +68,7 @@ void GLSLCodeGenerator::writeType(const Type& type) {
         for (const auto& f : type.fields()) {
             this->writeModifiers(f.fModifiers);
             // sizes (which must be static in structs) are part of the type name here
-            this->writeType(f.fType);
+            this->writeType(*f.fType);
             this->writeLine(" " + f.fName + ";");
         }
         fIndentation--;
@@ -306,7 +306,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     fIndentation++;
     for (const auto& f : intf.fVariable.fType.fields()) {
         this->writeModifiers(f.fModifiers);
-        this->writeType(f.fType);
+        this->writeType(*f.fType);
         this->writeLine(" " + f.fName + ";");
     }
     fIndentation--;

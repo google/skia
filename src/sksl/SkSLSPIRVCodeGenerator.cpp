@@ -973,7 +973,7 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, SpvId resultId) {
     // in the middle of writing the struct instruction
     std::vector<SpvId> types;
     for (const auto& f : type.fields()) {
-        types.push_back(this->getType(f.fType));
+        types.push_back(this->getType(*f.fType));
     }
     this->writeOpCode(SpvOpTypeStruct, 2 + (int32_t) types.size(), fConstantBuffer);
     this->writeWord(resultId, fConstantBuffer);
@@ -982,8 +982,8 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, SpvId resultId) {
     }
     size_t offset = 0;
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
-        size_t size = type.fields()[i].fType.size();
-        size_t alignment = type.fields()[i].fType.alignment();
+        size_t size = type.fields()[i].fType->size();
+        size_t alignment = type.fields()[i].fType->alignment();
         size_t mod = offset % alignment;
         if (mod != 0) {
             offset += alignment - mod;
@@ -995,14 +995,14 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, SpvId resultId) {
             this->writeInstruction(SpvOpMemberDecorate, resultId, (SpvId) i, SpvDecorationOffset, 
                                    (SpvId) offset, fDecorationBuffer);
         }
-        if (type.fields()[i].fType.kind() == Type::kMatrix_Kind) {
+        if (type.fields()[i].fType->kind() == Type::kMatrix_Kind) {
             this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationColMajor, 
                                    fDecorationBuffer);
             this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationMatrixStride, 
-                                   (SpvId) type.fields()[i].fType.stride(), fDecorationBuffer);
+                                   (SpvId) type.fields()[i].fType->stride(), fDecorationBuffer);
         }
         offset += size;
-        Type::Kind kind = type.fields()[i].fType.kind();
+        Type::Kind kind = type.fields()[i].fType->kind();
         if ((kind == Type::kArray_Kind || kind == Type::kStruct_Kind) && offset % alignment != 0) {
             offset += alignment - offset % alignment;
         }

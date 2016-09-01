@@ -26,18 +26,18 @@ class Context;
 class Type : public Symbol {
 public:
     struct Field {
-        Field(Modifiers modifiers, std::string name, const Type& type)
+        Field(Modifiers modifiers, std::string name, const Type* type)
         : fModifiers(modifiers)
         , fName(std::move(name))
         , fType(std::move(type)) {}
 
         const std::string description() const {
-            return fType.description() + " " + fName + ";";
+            return fType->description() + " " + fName + ";";
         }
 
-        const Modifiers fModifiers;
-        const std::string fName;
-        const Type& fType;
+        Modifiers fModifiers;
+        std::string fName;
+        const Type* fType;
     };
 
     enum Kind {
@@ -259,7 +259,7 @@ public:
             case kStruct_Kind: {
                 size_t result = 16;
                 for (size_t i = 0; i < fFields.size(); i++) {
-                    size_t alignment = fFields[i].fType.alignment();
+                    size_t alignment = fFields[i].fType->alignment();
                     if (alignment > result) {
                         result = alignment;
                     }
@@ -302,13 +302,13 @@ public:
             case kStruct_Kind: {
                 size_t total = 0;
                 for (size_t i = 0; i < fFields.size(); i++) {
-                    size_t alignment = fFields[i].fType.alignment();
+                    size_t alignment = fFields[i].fType->alignment();
                     if (total % alignment != 0) {
                         total += alignment - total % alignment;
                     }
                     ASSERT(false);
                     ASSERT(total % alignment == 0);
-                    total += fFields[i].fType.size();
+                    total += fFields[i].fType->size();
                 }
                 return total;
             }
@@ -329,10 +329,10 @@ private:
     const Kind fTypeKind;
     const bool fIsNumber = false;
     const Type* fComponentType = nullptr;
-    const std::vector<const Type*> fCoercibleTypes = { };
+    const std::vector<const Type*> fCoercibleTypes;
     const int fColumns = -1;
     const int fRows = -1;
-    const std::vector<Field> fFields = { };
+    const std::vector<Field> fFields;
     const SpvDim_ fDimensions = SpvDim1D;
     const bool fIsDepth = false;
     const bool fIsArrayed = false;

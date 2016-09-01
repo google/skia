@@ -487,7 +487,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                                                                          Variable::kGlobal_Storage);
         for (size_t j = 0; j < decl->fVars.size(); j++) {
             fields.push_back(Type::Field(decl->fVars[j]->fModifiers, decl->fVars[j]->fName, 
-                                         decl->fVars[j]->fType));
+                                         &decl->fVars[j]->fType));
             if (decl->fValues[j]) {
                 fErrors.error(decl->fPosition, 
                               "initializers are not permitted on interface block fields");
