@@ -55,15 +55,11 @@ class XSanFlavorUtils(default_flavor.DefaultFlavorUtils):
   def step(self, name, cmd, env=None, **kwargs):
     """Wrapper for the Step API; runs a step as appropriate for this flavor."""
     skia_dir = self.m.vars.skia_dir
-    lsan_suppressions = skia_dir.join('tools', 'lsan.supp')
     tsan_suppressions = skia_dir.join('tools', 'tsan.supp')
-    ubsan_suppressions = skia_dir.join('tools', 'ubsan.supp')
     env = dict(env or {})
     env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
-    env['LSAN_OPTIONS'] = ('symbolize=1 print_suppressions=1 suppressions=%s' %
-                           lsan_suppressions)
+    env['LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
     env['TSAN_OPTIONS'] = 'suppressions=%s' % tsan_suppressions
-    env['UBSAN_OPTIONS'] = 'suppressions=%s' % ubsan_suppressions
     self.m.vars.default_env['PATH'] = '%%(PATH)s:%s' % (
         self.m.vars.slave_dir.join('llvm-build', 'Release+Asserts', 'bin'))
     env['LD_LIBRARY_PATH'] = self.m.vars.slave_dir.join(

@@ -320,11 +320,10 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[SLAVE_BUILD]/third_party/externals/llvm/msan_out/lib",
-      "LSAN_OPTIONS": "symbolize=1 print_suppressions=1 suppressions=[SLAVE_BUILD]/skia/tools/lsan.supp",
+      "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
       "PATH": "%(PATH)s:[SLAVE_BUILD]/llvm-build/Release+Asserts/bin",
       "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "TSAN_OPTIONS": "suppressions=[SLAVE_BUILD]/skia/tools/tsan.supp",
-      "UBSAN_OPTIONS": "suppressions=[SLAVE_BUILD]/skia/tools/ubsan.supp"
+      "TSAN_OPTIONS": "suppressions=[SLAVE_BUILD]/skia/tools/tsan.supp"
     },
     "name": "dm"
   },
