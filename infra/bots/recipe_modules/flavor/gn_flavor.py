@@ -29,10 +29,12 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     cc, cxx = 'cc', 'c++'
     extra_cflags = []
+    extra_ldflags = []
 
     if compiler == 'Clang' and os == 'Ubuntu':
       cc  = self.m.vars.slave_dir.join('clang_linux', 'bin', 'clang')
       cxx = self.m.vars.slave_dir.join('clang_linux', 'bin', 'clang++')
+      extra_ldflags.append('-fuse-ld=lld')
     elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
     elif compiler == 'GCC':
@@ -57,6 +59,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         'cxx': quote(cxx),
         'compiler_prefix': quote(compiler_prefix),
         'extra_cflags': quote(' '.join(extra_cflags)),
+        'extra_ldflags': quote(' '.join(extra_ldflags)),
         'is_debug': 'true' if configuration == 'Debug' else 'false',
     }.iteritems()))
 

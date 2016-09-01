@@ -121,7 +121,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-GN/Debug",
-      "--args=cc=\"[SLAVE_BUILD]/clang_linux/bin/clang\" compiler_prefix=\"/usr/bin/ccache\" cxx=\"[SLAVE_BUILD]/clang_linux/bin/clang++\" extra_cflags=\"-Qunused-arguments\" is_debug=true"
+      "--args=cc=\"[SLAVE_BUILD]/clang_linux/bin/clang\" compiler_prefix=\"/usr/bin/ccache\" cxx=\"[SLAVE_BUILD]/clang_linux/bin/clang++\" extra_cflags=\"-Qunused-arguments\" extra_ldflags=\"-fuse-ld=lld\" is_debug=true"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

@@ -22,6 +22,7 @@ def create_asset(target_dir):
   subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "llvm"])
   os.chdir("llvm/tools")
   subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "clang"])
+  subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "lld"])
   os.chdir("../projects")
   subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "compiler-rt"])
   subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "libcxx"])
