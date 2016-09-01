@@ -458,6 +458,14 @@ def PostUploadHook(cl, change, output_api):
   issue = cl.issue
   if issue:
     original_description = cl.GetDescription()
+    changeIdLine = None
+    if cl.IsGerrit():
+      # Remove Change-Id from description and add it back at the end.
+      regex = re.compile(r'^(Change-Id: (\w+))(\n*)\Z', re.M | re.I)
+      changeIdLine = re.search(regex, original_description).group(0)
+      original_description = re.sub(regex, '', original_description)
+      original_description = re.sub('\n+\Z', '\n', original_description)
+
     new_description = original_description
 
     # Add GOLD_TRYBOT_URL if it does not exist yet.
@@ -535,6 +543,9 @@ def PostUploadHook(cl, change, output_api):
 
     # If the description has changed update it.
     if new_description != original_description:
+      if changeIdLine:
+        # The Change-Id line must have two newlines before it.
+        new_description += '\n\n' + changeIdLine
       cl.UpdateDescription(new_description)
 
     return results
