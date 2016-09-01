@@ -241,3 +241,15 @@ int sk_path_get_points(const sk_path_t* cpath, sk_point_t* cpoints, int max) {
     const SkPath& path = AsPath(*cpath);
     return path.getPoints(AsPoint(cpoints), max);
 }
+
+bool sk_path_contains (const sk_path_t* cpath, float x, float y) {
+    return AsPath(*cpath).contains(x, y);
+}
+
+bool sk_path_get_last_point (const sk_path_t* cpath, sk_point_t* point) {
+    if (point) {
+        return AsPath(*cpath).getLastPt(AsPoint(point));
+    } else {
+        return false;
+    }
+}

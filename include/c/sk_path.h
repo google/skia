@@ -213,6 +213,10 @@ SK_API void sk_path_get_point (const sk_path_t* cpath, int index, sk_point_t* po
 
 SK_API int sk_path_get_points (const sk_path_t* cpath, sk_point_t* points, int max);
 
+SK_API bool sk_path_contains (const sk_path_t* cpath, float x, float y);
+
+SK_API bool sk_path_get_last_point (const sk_path_t* cpath, sk_point_t* point);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
