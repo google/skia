@@ -48,6 +48,7 @@ TEST_BUILDERS = {
       'Infra-PerCommit',
       'Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot',
       'Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs',
+      'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android',
       'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
       'Test-Android-GCC-Nexus7v2-GPU-Tegra3-Arm7-Release',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release',
@@ -75,6 +76,8 @@ def derive_compile_bot_name(api):
     if task_os == 'Android':
       if extra_config == 'Vulkan':
         extra_config = '%s_%s' % (task_os, 'Vulkan')
+      elif extra_config == 'GN_Android':
+        pass  # i.e. extra_config stays GN_Android
       else:
         extra_config = task_os
       task_os = 'Ubuntu'
