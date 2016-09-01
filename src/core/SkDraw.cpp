@@ -1933,7 +1933,6 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
         if (nullptr == textures) {
             // just colors (no texture)
             p.setShader(triShader);
-            shader = p.getShader();
         } else {
             // colors * texture
             SkASSERT(shader);
