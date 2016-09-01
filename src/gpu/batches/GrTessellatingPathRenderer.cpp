@@ -380,8 +380,9 @@ DRAW_BATCH_TEST_DEFINE(TesselatingPathBatch) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPath(random);
-    SkIRect devClipBounds = SkIRect::MakeXYWH(
+    SkIRect devClipBounds = SkIRect::MakeLTRB(
         random->nextU(), random->nextU(), random->nextU(), random->nextU());
+    devClipBounds.sort();
     bool antiAlias = random->nextBool();
     GrStyle style;
     do {
