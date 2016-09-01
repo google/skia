@@ -11,6 +11,3 @@ race:third_party/externals/libwebp
 #              race:SkGLContextHelper::init
 # Maybe because it's diagnosed as a use-after-free, not as a race?
 race:SkGLContextHelper
-
-# Not threadsafe, should be fixed.
-race:SkString
