@@ -443,12 +443,6 @@ def PostUploadHook(cl, change, output_api):
   """
 
   results = []
-  if cl.IsGerrit():
-    results.append(
-        output_api.PresubmitNotifyResult(
-            'Post upload hooks are not yet supported for Gerrit CLs'))
-    return results
-
   atleast_one_docs_change = False
   all_docs_changes = True
   for affected_file in change.AffectedFiles():
