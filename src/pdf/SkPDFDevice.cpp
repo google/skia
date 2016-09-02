@@ -13,6 +13,7 @@
 #include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkGlyphCache.h"
+#include "SkMakeUnique.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkPathOps.h"
@@ -1344,11 +1345,11 @@ std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
         entry.fContent.writeToStream(&buffer);
     }
     gsState.drainStack();
-
-    return std::unique_ptr<SkStreamAsset>(
-            buffer.bytesWritten() > 0
-            ? buffer.detachAsStream()
-            : new SkMemoryStream);
+    if (buffer.bytesWritten() > 0) {
+        return std::unique_ptr<SkStreamAsset>(buffer.detachAsStream());
+    } else {
+        return skstd::make_unique<SkMemoryStream>();
+    }
 }
 
 /* Draws an inverse filled path by using Path Ops to compute the positive

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
 #include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"
@@ -167,7 +168,6 @@ static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
     return std::move(curNodes[0]);
 }
 
-template <typename T> static T* clone(const T* o) { return o ? new T(*o) : nullptr; }
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFDocument::SkPDFDocument(SkWStream* stream,
@@ -466,7 +466,7 @@ sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
 
 sk_sp<SkDocument> SkDocument::MakePDF(const char path[], SkScalar dpi) {
     auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
-    std::unique_ptr<SkFILEWStream> stream(new SkFILEWStream(path));
+    auto stream = skstd::make_unique<SkFILEWStream>(path);
     return stream->isValid()
                    ? SkPDFMakeDocument(stream.release(), delete_wstream, dpi,
                                        SkDocument::PDFMetadata(), nullptr,
