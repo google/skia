@@ -52,9 +52,12 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     // Create the image info for the decode
     SkColorType dstColorType = fCodec->computeOutputColorType(prefColorType);
     SkAlphaType dstAlphaType = fCodec->computeOutputAlphaType(requireUnpremul);
-    SkImageInfo decodeInfo = fCodec->getInfo().makeWH(scaledSize.width(), scaledSize.height())
-                                              .makeColorType(dstColorType)
-                                              .makeAlphaType(dstAlphaType);
+
+    // Enable legacy behavior to avoid any gamma correction.  Android's assets are
+    // adjusted to expect a non-gamma correct premultiply.
+    sk_sp<SkColorSpace> colorSpace = nullptr;
+    SkImageInfo decodeInfo = SkImageInfo::Make(scaledSize.width(), scaledSize.height(),
+                                               dstColorType, dstAlphaType, colorSpace);
 
     // Construct a color table for the decode if necessary
     SkAutoTUnref<SkColorTable> colorTable(nullptr);
