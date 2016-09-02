@@ -178,7 +178,8 @@ toolchain("gcc_like") {
     ]
     output_prefix = "lib"
     default_output_extension = ".so"
-    description = "$compiler_prefix $cxx -shared ... -o {{output}}"
+    description =
+        "$compiler_prefix $cxx -shared ... $extra_ldflags -o {{output}}"
   }
 
   tool("link") {
@@ -186,7 +187,7 @@ toolchain("gcc_like") {
     outputs = [
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
-    description = "$compiler_prefix $cxx ... -o {{output}}"
+    description = "$compiler_prefix $cxx ... $extra_ldflags -o {{output}}"
   }
 
   tool("stamp") {
