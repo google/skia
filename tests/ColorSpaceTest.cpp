@@ -149,17 +149,15 @@ DEF_TEST(ColorSpaceWriteICC, r) {
 DEF_TEST(ColorSpace_Named, r) {
     const struct {
         SkColorSpace::Named fNamed;
-        bool fExpectedToSucceed;
         bool fIsSRGB;
     } recs[] {
-        { SkColorSpace::kUnknown_Named,  false, false },
-        { SkColorSpace::kSRGB_Named,     true,  true },
-        { SkColorSpace::kAdobeRGB_Named, true,  false },
+        { SkColorSpace::kSRGB_Named,     true },
+        { SkColorSpace::kAdobeRGB_Named, false },
     };
 
     for (auto rec : recs) {
         auto cs = SkColorSpace::NewNamed(rec.fNamed);
-        REPORTER_ASSERT(r, !cs == !rec.fExpectedToSucceed);
+        REPORTER_ASSERT(r, cs);
         if (cs) {
             if (rec.fIsSRGB) {
                 REPORTER_ASSERT(r, SkColorSpace::kSRGB_GammaNamed == cs->gammaNamed());
