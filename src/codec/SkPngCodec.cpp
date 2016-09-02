@@ -380,18 +380,40 @@ static bool png_conversion_possible(const SkImageInfo& dst, const SkImageInfo& s
     }
 }
 
-void SkPngCodec::allocateStorage() {
-    size_t colorXformBytes = fColorXform ? fSwizzler->swizzleWidth() * sizeof(uint32_t) : 0;
-
-    fStorage.reset(SkAlign4(fSrcRowBytes) + colorXformBytes);
-    fSwizzlerSrcRow = fStorage.get();
-    fColorXformSrcRow =
-            fColorXform ? SkTAddOffset<uint32_t>(fSwizzlerSrcRow, SkAlign4(fSrcRowBytes)) : 0;
+void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
+    switch (fXformMode) {
+        case kSwizzleOnly_XformMode:
+            fStorage.reset(SkAlign4(fSrcRowBytes));
+            fSwizzlerSrcRow = fStorage.get();
+            break;
+        case kColorOnly_XformMode:
+            // Intentional fall through.  A swizzler hasn't been created yet, but one will
+            // be created later if we are sampling.  We'll go ahead and allocate
+            // enough memory to swizzle if necessary.
+        case kSwizzleColor_XformMode: {
+            size_t colorXformBytes = dstInfo.width() * sizeof(uint32_t);
+            fStorage.reset(SkAlign4(fSrcRowBytes) + colorXformBytes);
+            fSwizzlerSrcRow = fStorage.get();
+            fColorXformSrcRow = SkTAddOffset<uint32_t>(fSwizzlerSrcRow, SkAlign4(fSrcRowBytes));
+            break;
+        }
+    }
 }
 
-static inline bool apply_xform_on_decode(SkColorType dstColorType, SkEncodedInfo::Color srcColor) {
-    // We will apply the color xform when reading the color table, unless F16 is requested.
-    return SkEncodedInfo::kPalette_Color != srcColor || kRGBA_F16_SkColorType == dstColorType;
+void SkPngCodec::applyXformRow(void* dst, const void* src, SkColorType colorType,
+                               SkAlphaType alphaType, int width) {
+    switch (fXformMode) {
+        case kSwizzleOnly_XformMode:
+            fSwizzler->swizzle(dst, (const uint8_t*) src);
+            break;
+        case kColorOnly_XformMode:
+            fColorXform->apply(dst, (const uint32_t*) src, width, colorType, alphaType);
+            break;
+        case kSwizzleColor_XformMode:
+            fSwizzler->swizzle(fColorXformSrcRow, (const uint8_t*) src);
+            fColorXform->apply(dst, fColorXformSrcRow, width, colorType, alphaType);
+            break;
+    }
 }
 
 class SkPngNormalCodec : public SkPngCodec {
@@ -410,7 +432,7 @@ public:
             return kInvalidConversion;
         }
 
-        this->allocateStorage();
+        this->allocateStorage(dstInfo);
         return kSuccess;
     }
 
@@ -425,29 +447,14 @@ public:
             return y;
         }
 
-        void* swizzlerDstRow = dst;
-        size_t swizzlerDstRowBytes = rowBytes;
-
-        bool colorXform = fColorXform &&
-                apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color());
-        if (colorXform) {
-            swizzlerDstRow = fColorXformSrcRow;
-            swizzlerDstRowBytes = 0;
-        }
-
         SkAlphaType xformAlphaType = xform_alpha_type(dstInfo.alphaType(),
                                                       this->getInfo().alphaType());
+        int width = fSwizzler ? fSwizzler->swizzleWidth() : dstInfo.width();
+
         for (; y < count; y++) {
             png_read_row(fPng_ptr, fSwizzlerSrcRow, nullptr);
-            fSwizzler->swizzle(swizzlerDstRow, fSwizzlerSrcRow);
-
-            if (colorXform) {
-                fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow, fSwizzler->swizzleWidth(),
-                                   dstInfo.colorType(), xformAlphaType);
-                dst = SkTAddOffset<void>(dst, rowBytes);
-            }
-
-            swizzlerDstRow = SkTAddOffset<void>(swizzlerDstRow, swizzlerDstRowBytes);
+            this->applyXformRow(dst, fSwizzlerSrcRow, dstInfo.colorType(), xformAlphaType, width);
+            dst = SkTAddOffset<void>(dst, rowBytes);
         }
 
         return y;
@@ -492,7 +499,7 @@ public:
             return kInvalidConversion;
         }
 
-        this->allocateStorage();
+        this->allocateStorage(dstInfo);
         fCanSkipRewind = true;
         return SkCodec::kSuccess;
     }
@@ -526,31 +533,14 @@ public:
             }
         }
 
-        // Swizzle and xform the rows we care about
-        void* swizzlerDstRow = dst;
-        size_t swizzlerDstRowBytes = rowBytes;
-
-        bool colorXform = fColorXform &&
-                apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color());
-        if (colorXform) {
-            swizzlerDstRow = fColorXformSrcRow;
-            swizzlerDstRowBytes = 0;
-        }
-
         SkAlphaType xformAlphaType = xform_alpha_type(dstInfo.alphaType(),
                                                       this->getInfo().alphaType());
+        int width = fSwizzler ? fSwizzler->swizzleWidth() : dstInfo.width();
         srcRow = storage.get();
         for (int y = 0; y < count; y++) {
-            fSwizzler->swizzle(swizzlerDstRow, srcRow);
+            this->applyXformRow(dst, srcRow, dstInfo.colorType(), xformAlphaType, width);
             srcRow = SkTAddOffset<uint8_t>(srcRow, fSrcRowBytes);
-
-            if (colorXform) {
-                fColorXform->apply(dst, (const uint32_t*) swizzlerDstRow, fSwizzler->swizzleWidth(),
-                                   dstInfo.colorType(), xformAlphaType);
-                dst = SkTAddOffset<void>(dst, rowBytes);
-            }
-
-            swizzlerDstRow = SkTAddOffset<void>(swizzlerDstRow, swizzlerDstRowBytes);
+            dst = SkTAddOffset<void>(dst, rowBytes);
         }
 
         return count;
@@ -816,26 +806,17 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     }
     png_read_update_info(fPng_ptr, fInfo_ptr);
 
-    // It's important to reset fColorXform to nullptr.  We don't do this on rewinding
-    // because the interlaced scanline decoder may need to rewind.
+    // Reset fSwizzler and fColorXform.  We can't do this in onRewind() because the
+    // interlaced scanline decoder may need to rewind.
+    fSwizzler.reset(nullptr);
     fColorXform = nullptr;
-    SkImageInfo swizzlerInfo = dstInfo;
-    Options swizzlerOptions = options;
+
     bool needsColorXform = needs_color_xform(dstInfo, this->getInfo());
     if (needsColorXform) {
-        switch (dstInfo.colorType()) {
-            case kRGBA_8888_SkColorType:
-            case kBGRA_8888_SkColorType:
-            case kRGBA_F16_SkColorType:
-                swizzlerInfo = swizzlerInfo.makeColorType(kRGBA_8888_SkColorType);
-                if (kPremul_SkAlphaType == dstInfo.alphaType()) {
-                    swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
-                }
-                break;
-            case kIndex_8_SkColorType:
-                break;
-            default:
-                return false;
+        if (kGray_8_SkColorType == dstInfo.colorType() ||
+            kRGB_565_SkColorType == dstInfo.colorType())
+        {
+            return false;
         }
 
         fColorXform = SkColorSpaceXform::New(sk_ref_sp(this->getInfo().colorSpace()),
@@ -844,12 +825,16 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
         if (!fColorXform && kRGBA_F16_SkColorType == dstInfo.colorType()) {
             return false;
         }
+    }
 
-        // When there is a color xform, we swizzle into temporary memory, which is not
-        // zero initialized.
-        // FIXME (msarett):
-        // Is this a problem?
-        swizzlerOptions.fZeroInitialized = kNo_ZeroInitialized;
+    // If the image is RGBA and we have a color xform, we can skip the swizzler.
+    // FIXME (msarett):
+    // Support more input types to fColorXform (ex: RGB, Gray) and skip the swizzler more often.
+    if (fColorXform && SkEncodedInfo::kRGBA_Color == this->getEncodedInfo().color() &&
+        !options.fSubset)
+    {
+        fXformMode = kColorOnly_XformMode;
+        return true;
     }
 
     if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
@@ -858,15 +843,49 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
         }
     }
 
-    // Copy the color table to the client if they request kIndex8 mode
-    copy_color_table(swizzlerInfo, fColorTable, ctable, ctableCount);
+    // Copy the color table to the client if they request kIndex8 mode.
+    copy_color_table(dstInfo, fColorTable, ctable, ctableCount);
 
-    // Create the swizzler.  SkPngCodec retains ownership of the color table.
+    this->initializeSwizzler(dstInfo, options);
+    return true;
+}
+
+static inline bool apply_xform_on_decode(SkColorType dstColorType, SkEncodedInfo::Color srcColor) {
+    // We will apply the color xform when reading the color table, unless F16 is requested.
+    return SkEncodedInfo::kPalette_Color != srcColor || kRGBA_F16_SkColorType == dstColorType;
+}
+
+void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
+    SkImageInfo swizzlerInfo = dstInfo;
+    Options swizzlerOptions = options;
+    fXformMode = kSwizzleOnly_XformMode;
+    if (fColorXform && apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color())) {
+        swizzlerInfo = swizzlerInfo.makeColorType(kRGBA_8888_SkColorType);
+        if (kPremul_SkAlphaType == dstInfo.alphaType()) {
+            swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
+        }
+
+        fXformMode = kSwizzleColor_XformMode;
+
+        // Here, we swizzle into temporary memory, which is not zero initialized.
+        // FIXME (msarett):
+        // Is this a problem?
+        swizzlerOptions.fZeroInitialized = kNo_ZeroInitialized;
+    }
+
     const SkPMColor* colors = get_color_ptr(fColorTable.get());
     fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colors, swizzlerInfo,
                                                swizzlerOptions));
     SkASSERT(fSwizzler);
-    return true;
+}
+
+SkSampler* SkPngCodec::getSampler(bool createIfNecessary) {
+    if (fSwizzler || !createIfNecessary) {
+        return fSwizzler;
+    }
+
+    this->initializeSwizzler(this->dstInfo(), this->options());
+    return fSwizzler;
 }
 
 bool SkPngCodec::onRewind() {
@@ -902,7 +921,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
         return kUnimplemented;
     }
 
-    this->allocateStorage();
+    this->allocateStorage(dstInfo);
     int count = this->readRows(dstInfo, dst, rowBytes, dstInfo.height(), 0);
     if (count > dstInfo.height()) {
         *rowsDecoded = count;

@@ -46,13 +46,12 @@ protected:
     uint32_t onGetFillValue(SkColorType) const override;
 
     // Helper to set up swizzler, color xforms, and color table. Also calls png_read_update_info.
-    bool initializeXforms(const SkImageInfo& requestedInfo, const Options&, SkPMColor* colorPtr,
+    bool initializeXforms(const SkImageInfo& dstInfo, const Options&, SkPMColor* colorPtr,
                           int* colorCount);
-    SkSampler* getSampler(bool createIfNecessary) override {
-        SkASSERT(fSwizzler);
-        return fSwizzler;
-    }
-    void allocateStorage();
+    void initializeSwizzler(const SkImageInfo& dstInfo, const Options&);
+    SkSampler* getSampler(bool createIfNecessary) override;
+    void allocateStorage(const SkImageInfo& dstInfo);
+    void applyXformRow(void* dst, const void* src, SkColorType, SkAlphaType, int width);
 
     virtual int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count,
                          int startRow) = 0;
@@ -77,8 +76,22 @@ protected:
     int                                fBitDepth;
 
 private:
+
+    enum XformMode {
+        // Requires only a swizzle pass.
+        kSwizzleOnly_XformMode,
+
+        // Requires only a color xform pass.
+        kColorOnly_XformMode,
+
+        // Requires a swizzle and a color xform.
+        kSwizzleColor_XformMode,
+    };
+
     bool createColorTable(const SkImageInfo& dstInfo, int* ctableCount);
     void destroyReadStruct();
+
+    XformMode fXformMode;
 
     typedef SkCodec INHERITED;
 };
