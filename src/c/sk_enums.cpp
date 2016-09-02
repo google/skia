@@ -254,9 +254,6 @@ static_assert ((int)SkCanvas::PointMode::kLines_PointMode     == (int)LINES_SK_P
 static_assert ((int)SkCanvas::PointMode::kPolygon_PointMode   == (int)POLYGON_SK_POINT_MODE,   ASSERT_MSG(SkCanvas::PointMode, sk_point_mode_t));
 
 // sk_surfaceprops_flags_t
-static_assert ((int)SkSurfaceProps::Flags::kDisallowAntiAlias_Flag           == (int)DISALLOW_ANTIALIAS_GR_SURFACE_PROPS_FLAGS,             ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
-static_assert ((int)SkSurfaceProps::Flags::kDisallowDither_Flag              == (int)DISALLOW_DITHER_GR_SURFACE_PROPS_FLAGS,                ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
-static_assert ((int)SkSurfaceProps::Flags::kGammaCorrect_Flag                == (int)GAMMA_CORRECT_GR_SURFACE_PROPS_FLAGS,                  ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
 static_assert ((int)SkSurfaceProps::Flags::kUseDeviceIndependentFonts_Flag   == (int)USE_DEVICE_INDEPENDENT_FONTS_GR_SURFACE_PROPS_FLAGS,   ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
 
 // gr_surfaceorigin_t

@@ -92,10 +92,7 @@ typedef struct {
 } sk_imageinfo_t;
 
 typedef enum {
-    DISALLOW_ANTIALIAS_GR_SURFACE_PROPS_FLAGS           = 1 << 0,
-    DISALLOW_DITHER_GR_SURFACE_PROPS_FLAGS              = 1 << 1,
-    USE_DEVICE_INDEPENDENT_FONTS_GR_SURFACE_PROPS_FLAGS = 1 << 2,
-    GAMMA_CORRECT_GR_SURFACE_PROPS_FLAGS                = 1 << 3,
+    USE_DEVICE_INDEPENDENT_FONTS_GR_SURFACE_PROPS_FLAGS = 1 << 0,
 } sk_surfaceprops_flags_t;
 
 typedef struct {
