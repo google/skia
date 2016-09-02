@@ -24,8 +24,6 @@
 #include "SkMatrixConvolutionImageFilter.h"
 #include "Sk1DPathEffect.h"
 #include "SkFontStyle.h"
-#include "GrContext.h"
-#include "gl/GrGLInterface.h"
 
 #include "sk_path.h"
 #include "sk_paint.h"
@@ -442,50 +440,6 @@ static inline const sk_pixelref_factory_t* ToColorTable(const SkPixelRefFactory*
     return reinterpret_cast<const sk_pixelref_factory_t*>(p);
 }
 
-static inline sk_surface_t* ToSurface(SkSurface* p) {
-    return reinterpret_cast<sk_surface_t*>(p);
-}
-
-static inline SkSurface* AsSurface(sk_surface_t* p) {
-    return reinterpret_cast<SkSurface*>(p);
-}
-
-static inline gr_context_t* ToGrContext(GrContext* p) {
-    return reinterpret_cast<gr_context_t*>(p);
-}
-
-static inline GrContext* AsGrContext(gr_context_t* p) {
-    return reinterpret_cast<GrContext*>(p);
-}
-static inline const GrContextOptions& AsGrContextOptions(const gr_context_options_t& p) {
-    return reinterpret_cast<const GrContextOptions&>(p);
-}
-
-static inline const GrBackendRenderTargetDesc& AsGrBackendRenderTargetDesc(const gr_backend_rendertarget_desc_t& p) {
-    return reinterpret_cast<const GrBackendRenderTargetDesc&>(p);
-}
-
-static inline const GrBackendTextureDesc& AsGrBackendTextureDesc(const gr_backend_texture_desc_t& p) {
-    return reinterpret_cast<const GrBackendTextureDesc&>(p);
-}
-
-
-static inline gr_glinterface_t* ToGrGLInterface(GrGLInterface* p) {
-    return reinterpret_cast<gr_glinterface_t*>(p);
-}
-
-static inline GrGLInterface* AsGrGLInterface(gr_glinterface_t* p) {
-    return reinterpret_cast<GrGLInterface*>(p);
-}
-
-static inline const gr_glinterface_t* ToGrGLInterface(const GrGLInterface* p) {
-    return reinterpret_cast<const gr_glinterface_t*>(p);
-}
-
-static inline const GrGLInterface* AsGrGLInterface(const gr_glinterface_t* p) {
-    return reinterpret_cast<const GrGLInterface*>(p);
-}
-
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(
         cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
@@ -530,9 +484,5 @@ static inline bool from_sk(const SkImageInfo& info, sk_imageinfo_t* cinfo) {
     } 
     return true; 
 } 
-
-static inline void from_c(const sk_surfaceprops_t* cprops, SkSurfaceProps* props) {
-    *props = SkSurfaceProps(cprops->flags, (SkPixelGeometry)cprops->pixelGeometry);
-}
 
 #endif
