@@ -245,7 +245,11 @@
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(SK_UNUSED)
-#  define SK_UNUSED SK_ATTRIBUTE(unused)
+#  if defined(_MSC_VER)
+#    define SK_UNUSED __pragma(warning(suppress:4189))
+#  else
+#    define SK_UNUSED SK_ATTRIBUTE(unused)
+#  endif
 #endif
 
 #if !defined(SK_ATTR_DEPRECATED)
