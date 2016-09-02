@@ -20,17 +20,17 @@
       "cipd_packages": [{
         "name": "skia/bots/skimage",
         "path": "skimage",
-        "version": 4
+        "version": "version:4"
       },
       {
         "name": "skia/bots/skp",
         "path": "skp",
-        "version": 6
+        "version": "version:6"
       },
       {
         "name": "skia/bots/svg",
         "path": "svg",
-        "version": 1
+        "version": "version:1"
       }],
       "dependencies": ["Build-Ubuntu-GCC-x86_64-Release-GN"],
       "dimensions": ["pool:Skia", "os:Ubuntu", "cpu:x86-64-avx2", "gpu:none"],
@@ -50,17 +50,17 @@
       "cipd_packages": [{
         "name": "skia/bots/skimage",
         "path": "skimage",
-        "version": 4
+        "version": "version:4"
       },
       { 
         "name": "skia/bots/skp",
         "path": "skp",
-        "version": 6
+        "version": "version:6"
       },
       {
         "name": "skia/bots/svg",
         "path": "svg",
-        "version": 1
+        "version": "version:1"
       }],
       "dependencies": ["Build-Ubuntu-GCC-x86_64-Release-GN"],
       "dimensions": ["pool:Skia", "os:Ubuntu", "cpu:x86-64-avx2", "gpu:none"],
