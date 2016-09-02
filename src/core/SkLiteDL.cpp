@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkDrawFilter.h"
 #include "SkImageFilter.h"
 #include "SkLiteDL.h"
 #include "SkMath.h"
@@ -52,7 +53,7 @@ static void make_threadsafe(SkPath* path, SkMatrix* matrix) {
 
 namespace {
 #define TYPES(M)                                                                \
-    M(Save) M(Restore) M(SaveLayer)                                             \
+    M(SetDrawFilter) M(Save) M(Restore) M(SaveLayer)                            \
     M(Concat) M(SetMatrix) M(Translate) M(TranslateZ)                           \
     M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                          \
     M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawRegion) M(DrawOval) M(DrawArc)   \
@@ -74,6 +75,19 @@ namespace {
         uint32_t skip : 24;
     };
     static_assert(sizeof(Op) == 4, "");
+
+    struct SetDrawFilter final : Op {
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+        static const auto kType = Type::SetDrawFilter;
+        SetDrawFilter(SkDrawFilter* df) : drawFilter(sk_ref_sp(df)) {}
+        sk_sp<SkDrawFilter> drawFilter;
+#endif
+        void draw(SkCanvas* c, const SkMatrix&) {
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+            c->setDrawFilter(drawFilter.get());
+#endif
+        }
+    };
 
     struct Save final : Op {
         static const auto kType = Type::Save;
@@ -565,6 +579,12 @@ inline void SkLiteDL::map(const Fn fns[], Args... args) {
         ptr += skip;
     }
 }
+
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+void SkLiteDL::setDrawFilter(SkDrawFilter* df) {
+    this->push<SetDrawFilter>(0, df);
+}
+#endif
 
 void SkLiteDL::   save() { this->push   <Save>(0); }
 void SkLiteDL::restore() { this->push<Restore>(0); }

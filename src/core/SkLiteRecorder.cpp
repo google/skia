@@ -22,6 +22,13 @@ sk_sp<SkSurface> SkLiteRecorder::onNewSurface(const SkImageInfo&, const SkSurfac
     return nullptr;
 }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+SkDrawFilter* SkLiteRecorder::setDrawFilter(SkDrawFilter* df) {
+    fDL->setDrawFilter(df);
+    return SkCanvas::setDrawFilter(df);
+}
+#endif
+
 void SkLiteRecorder::willSave() { fDL->save(); }
 SkCanvas::SaveLayerStrategy SkLiteRecorder::getSaveLayerStrategy(const SaveLayerRec& rec) {
     fDL->saveLayer(rec.fBounds, rec.fPaint, rec.fBackdrop, rec.fSaveLayerFlags);

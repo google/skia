@@ -23,6 +23,10 @@ public:
     void makeThreadsafe();
     bool empty() const { return fUsed == 0; }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+    void setDrawFilter(SkDrawFilter*);
+#endif
+
     void save();
     void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, SkCanvas::SaveLayerFlags);
     void restore();

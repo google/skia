@@ -19,6 +19,10 @@ public:
 
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+    SkDrawFilter* setDrawFilter(SkDrawFilter*) override;
+#endif
+
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     void willRestore() override;
