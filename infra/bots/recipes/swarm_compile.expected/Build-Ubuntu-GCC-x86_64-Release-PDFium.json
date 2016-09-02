@@ -100,7 +100,7 @@
       "gn",
       "gen",
       "out/skia",
-      "--args=pdf_use_skia=true pdf_is_standalone=true clang_use_chrome_plugins=false"
+      "--args=pdf_use_skia=true pdf_is_standalone=true clang_use_chrome_plugins=false is_component_build=false is_debug=false"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
     "env": {

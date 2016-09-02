@@ -25,8 +25,15 @@ class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
         **kwargs)
 
     # Setup gn args.
-    gn_args = ['pdf_use_skia=true', 'pdf_is_standalone=true',
-               'clang_use_chrome_plugins=false']
+    gn_args = [
+        'pdf_use_skia=true',
+        'pdf_is_standalone=true',
+        'clang_use_chrome_plugins=false',
+        'is_component_build=false',
+        'is_debug=false',
+        ]
+
+
     env = kwargs.pop('env', {})
     env['CHROMIUM_BUILDTOOLS_PATH'] = str(pdfium_dir.join('buildtools'))
     self.m.run(
