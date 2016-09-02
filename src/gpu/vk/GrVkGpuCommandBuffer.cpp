@@ -103,7 +103,7 @@ void GrVkGpuCommandBuffer::end() {
 void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
     // Change layout of our render target so it can be used as the color attachment. Currently
     // we don't attach the resolve to the framebuffer so no need to change its layout.
-    GrVkImage* targetImage = fRenderTarget->msaaImage() ? fRenderTarget->msaaImage() 
+    GrVkImage* targetImage = fRenderTarget->msaaImage() ? fRenderTarget->msaaImage()
                                                         : fRenderTarget;
     targetImage->setImageLayout(fGpu,
                                 VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
@@ -120,14 +120,6 @@ void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
                                   VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
                                   VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                   false);
-    }
-
-    for (int i = 0; i < fSampledImages.count(); ++i) {
-        fSampledImages[i]->setImageLayout(fGpu,
-                                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                          VK_ACCESS_SHADER_READ_BIT,
-                                          VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                          false);
     }
 
     fGpu->submitSecondaryCommandBuffer(fCommandBuffer, fRenderPass, &fColorClearValue,
@@ -341,35 +333,35 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
     return pipelineState;
 }
 
-static void append_sampled_images(const GrProcessor& processor,
-                                  GrVkGpu* gpu,
-                                  SkTArray<GrVkImage*>* sampledImages) {
-    if (int numTextures = processor.numTextures()) {
-        GrVkImage** images = sampledImages->push_back_n(numTextures);
-        int i = 0;
-        do {
-            const GrTextureAccess& texAccess = processor.textureAccess(i);
-            GrVkTexture* vkTexture = static_cast<GrVkTexture*>(processor.texture(i));
-            SkASSERT(vkTexture);
+static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
+    for (int i = 0; i < processor.numTextures(); ++i) {
+        const GrTextureAccess& texAccess = processor.textureAccess(i);
+        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(processor.texture(i));
+        SkASSERT(vkTexture);
 
-            // We may need to resolve the texture first if it is also a render target
-            GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
-            if (texRT) {
-                gpu->onResolveRenderTarget(texRT);
+        // We may need to resolve the texture first if it is also a render target
+        GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
+        if (texRT) {
+            gpu->onResolveRenderTarget(texRT);
+        }
+
+        const GrTextureParams& params = texAccess.getParams();
+        // Check if we need to regenerate any mip maps
+        if (GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
+            if (vkTexture->texturePriv().mipMapsAreDirty()) {
+                gpu->generateMipmap(vkTexture);
+                vkTexture->texturePriv().dirtyMipMaps(false);
             }
+        }
 
-            const GrTextureParams& params = texAccess.getParams();
-            // Check if we need to regenerate any mip maps
-            if (GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
-                if (vkTexture->texturePriv().mipMapsAreDirty()) {
-                    gpu->generateMipmap(vkTexture);
-                    vkTexture->texturePriv().dirtyMipMaps(false);
-                }
-            }
-
-            images[i] = vkTexture;
-        } while (++i < numTextures);
-
+        // TODO: If we ever decide to create the secondary command buffers ahead of time before we
+        // are actually going to submit them, we will need to track the sampled images and delay
+        // adding the layout change/barrier until we are ready to submit.
+        vkTexture->setImageLayout(gpu,
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  VK_ACCESS_SHADER_READ_BIT,
+                                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                  false);
     }
 }
 
@@ -385,11 +377,11 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
     SkASSERT(renderPass);
 
-    append_sampled_images(primProc, fGpu, &fSampledImages);
+    prepare_sampled_images(primProc, fGpu);
     for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        append_sampled_images(pipeline.getFragmentProcessor(i), fGpu, &fSampledImages);
+        prepare_sampled_images(pipeline.getFragmentProcessor(i), fGpu);
     }
-    append_sampled_images(pipeline.getXferProcessor(), fGpu, &fSampledImages);
+    prepare_sampled_images(pipeline.getXferProcessor(), fGpu);
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,

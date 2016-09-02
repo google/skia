@@ -62,8 +62,6 @@ private:
     GrVkRenderTarget*           fRenderTarget;
     VkClearValue                fColorClearValue;
 
-    SkTArray<GrVkImage*>        fSampledImages;
-
     bool                        fIsEmpty;
 
     typedef GrGpuCommandBuffer INHERITED;
