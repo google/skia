@@ -15,21 +15,15 @@ class GrWindowRectangles {
 public:
     constexpr static int kMaxWindows = 8;
 
-    enum class Mode : bool {
-        kExclusive,
-        kInclusive
-    };
-
-    GrWindowRectangles(Mode mode = Mode::kExclusive) : fMode(mode), fCount(0) {}
+    GrWindowRectangles() : fCount(0) {}
     GrWindowRectangles(const GrWindowRectangles& that) : fCount(0) { *this = that; }
     ~GrWindowRectangles() { SkSafeUnref(this->rec()); }
 
-    Mode mode() const { return fMode; }
+    bool empty() const { return !fCount; }
     int count() const { return fCount; }
-    bool disabled() const { return Mode::kExclusive == fMode && !fCount; }
     const SkIRect* data() const;
 
-    void reset(Mode = Mode::kExclusive);
+    void reset();
     GrWindowRectangles& operator=(const GrWindowRectangles&);
 
     SkIRect& addWindow(const SkIRect& window) { return this->addWindow() = window; }
@@ -44,8 +38,7 @@ private:
 
     const Rec* rec() const { return fCount <= kNumLocalWindows ? nullptr : fRec; }
 
-    Mode      fMode;
-    uint8_t   fCount;
+    int fCount;
     union {
         SkIRect   fLocalWindows[kNumLocalWindows]; // If fCount <= kNumLocalWindows.
         Rec*      fRec;                            // If fCount > kNumLocalWindows.
@@ -65,15 +58,13 @@ inline const SkIRect* GrWindowRectangles::data() const {
     return fCount <= kNumLocalWindows ? fLocalWindows : fRec->fData;
 }
 
-inline void GrWindowRectangles::reset(Mode mode) {
+inline void GrWindowRectangles::reset() {
     SkSafeUnref(this->rec());
-    fMode = mode;
     fCount = 0;
 }
 
 inline GrWindowRectangles& GrWindowRectangles::operator=(const GrWindowRectangles& that) {
     SkSafeUnref(this->rec());
-    fMode = that.fMode;
     fCount = that.fCount;
     if (fCount <= kNumLocalWindows) {
         memcpy(fLocalWindows, that.fLocalWindows, fCount * sizeof(SkIRect));
@@ -98,7 +89,7 @@ inline SkIRect& GrWindowRectangles::addWindow() {
 }
 
 inline bool GrWindowRectangles::operator==(const GrWindowRectangles& that) const {
-    if (fMode != that.fMode || fCount != that.fCount) {
+    if (fCount != that.fCount) {
         return false;
     }
     if (fCount > kNumLocalWindows && fRec == that.fRec) {

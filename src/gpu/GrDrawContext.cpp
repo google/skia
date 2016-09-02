@@ -215,9 +215,12 @@ void GrDrawContextPriv::clear(const GrFixedClip& clip,
 void GrDrawContext::internalClear(const GrFixedClip& clip,
                                   const GrColor color,
                                   bool canIgnoreClip) {
-    bool isFull = !clip.scissorEnabled() ||
-                  (canIgnoreClip && fContext->caps()->fullClearIsFree()) ||
-                  clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
+    bool isFull = false;
+    if (!clip.hasWindowRectangles()) {
+        isFull = !clip.scissorEnabled() ||
+                 (canIgnoreClip && fContext->caps()->fullClearIsFree()) ||
+                 clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
+    }
 
     if (fContext->caps()->useDrawInsteadOfClear()) {
         // This works around a driver bug with clear by drawing a rect instead.

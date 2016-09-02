@@ -16,9 +16,9 @@
 #include "GrPrimitiveProcessor.h"
 #include "GrProcOptInfo.h"
 #include "GrProgramDesc.h"
+#include "GrScissorState.h"
 #include "GrStencilSettings.h"
-#include "GrTypesPriv.h"
-#include "GrWindowRectangles.h"
+#include "GrWindowRectsState.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
@@ -60,7 +60,7 @@ public:
         const GrCaps*               fCaps;
         GrPipelineOptimizations     fOpts;
         const GrScissorState*       fScissor;
-        const GrWindowRectangles*   fWindowRects;
+        const GrWindowRectsState*   fWindowRectsState;
         bool                        fHasStencilClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
@@ -154,7 +154,7 @@ public:
 
     const GrScissorState& getScissorState() const { return fScissorState; }
 
-    const GrWindowRectangles& getWindowRectangles() const { return fWindowRects; }
+    const GrWindowRectsState& getWindowRectsState() const { return fWindowRectsState; }
 
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
     bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
@@ -223,7 +223,7 @@ private:
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
-    GrWindowRectangles                  fWindowRects;
+    GrWindowRectsState                  fWindowRectsState;
     GrStencilSettings                   fStencilSettings;
     GrDrawFace                          fDrawFace;
     uint32_t                            fFlags;

@@ -9,7 +9,8 @@
 #define GrFixedClip_DEFINED
 
 #include "GrClip.h"
-#include "GrTypesPriv.h"
+#include "GrScissorState.h"
+#include "GrWindowRectsState.h"
 
 /**
  * GrFixedClip is a clip that gets implemented by fixed-function hardware.
@@ -29,32 +30,26 @@ public:
         return fScissorState.intersect(irect);
     }
 
-    bool quickContains(const SkRect& rect) const final {
-        return !fScissorState.enabled() || GrClip::IsInsideClip(fScissorState.rect(), rect);
+    const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
+    bool hasWindowRectangles() const { return fWindowRectsState.enabled(); }
+
+    void disableWindowRectangles() { fWindowRectsState.setDisabled(); }
+
+    void setWindowRectangles(const GrWindowRectangles& windows, const SkIPoint& origin,
+                             GrWindowRectsState::Mode mode) {
+        fWindowRectsState.set(windows, origin, mode);
     }
-    void getConservativeBounds(int width, int height, SkIRect* devResult,
-                               bool* isIntersectionOfRects) const final;
 
-    bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const override {
-        if (fScissorState.enabled()) {
-            SkRect rect = SkRect::Make(fScissorState.rect());
-            if (!rect.intersects(rtBounds)) {
-                return false;
-            }
-            rr->setRect(rect);
-            *aa = false;
-            return true;
-        }
-        return false;
-    };
-
-    bool apply(GrContext*, GrDrawContext*, bool useHWAA, bool hasUserStencilSettings,
-               GrAppliedClip* out) const final;
+    bool quickContains(const SkRect&) const override;
+    void getConservativeBounds(int w, int h, SkIRect* devResult, bool* iior) const override;
+    bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const override;
+    bool apply(GrContext*, GrDrawContext*, bool, bool, GrAppliedClip* out) const override;
 
     static const GrFixedClip& Disabled();
 
 private:
-    GrScissorState   fScissorState;
+    GrScissorState       fScissorState;
+    GrWindowRectsState   fWindowRectsState;
 };
 
 #endif
