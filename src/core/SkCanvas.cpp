@@ -215,7 +215,7 @@ struct DeviceCM {
     }
 
     void updateMC(const SkMatrix& totalMatrix, const SkRasterClip& totalClip,
-                  const SkClipStack& clipStack, SkRasterClip* updateClip) {
+                  SkRasterClip* updateClip) {
         int x = fDevice->getOrigin().x();
         int y = fDevice->getOrigin().y();
         int width = fDevice->width();
@@ -241,8 +241,6 @@ struct DeviceCM {
             updateClip->op(SkIRect::MakeXYWH(x, y, width, height),
                            SkRegion::kDifference_Op);
         }
-
-        fDevice->setMatrixClip(*fMatrix, fClip.forceGetBW(), clipStack);
 
 #ifdef SK_DEBUG
         if (!fClip.isEmpty()) {
@@ -962,11 +960,11 @@ void SkCanvas::updateDeviceCMCache() {
         DeviceCM*       layer = fMCRec->fTopLayer;
 
         if (nullptr == layer->fNext) {   // only one layer
-            layer->updateMC(totalMatrix, totalClip, *fClipStack, nullptr);
+            layer->updateMC(totalMatrix, totalClip, nullptr);
         } else {
             SkRasterClip clip(totalClip);
             do {
-                layer->updateMC(totalMatrix, clip, *fClipStack, &clip);
+                layer->updateMC(totalMatrix, clip, &clip);
             } while ((layer = layer->fNext) != nullptr);
         }
         fDeviceCMDirty = false;

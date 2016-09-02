@@ -130,25 +130,6 @@ protected:
 
     virtual bool onShouldDisableLCD(const SkPaint&) const { return false; }
 
-    /**
-     *
-     *  DEPRECATED: This will be removed in a future change. Device subclasses
-     *  should use the matrix and clip from the SkDraw passed to draw functions.
-     *
-     *  Called with the correct matrix and clip before this device is drawn
-     *  to using those settings. If your subclass overrides this, be sure to
-     *  call through to the base class as well.
-     *
-     *  The clipstack is another view of the clip. It records the actual
-     *  geometry that went into building the region. It is present for devices
-     *  that want to parse it, but is not required: the region is a complete
-     *  picture of the current clip. (i.e. if you regionize all of the geometry
-     *  in the clipstack, you will arrive at an equivalent region to the one
-     *  passed in).
-     */
-     virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
-                                const SkClipStack&) {};
-
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
      and are handling any looping from the paint, and any effects from the
