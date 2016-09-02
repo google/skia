@@ -44,10 +44,7 @@ static D* pod(T* op, size_t offset = 0) {
 
 // Pre-cache lazy non-threadsafe fields on SkPath and/or SkMatrix.
 static void make_threadsafe(SkPath* path, SkMatrix* matrix) {
-    if (path) {
-        path->updateBoundsCache();
-        (void)path->getConvexity();
-    }
+    if (path)   { path->updateBoundsCache(); }
     if (matrix) { (void)matrix->getType(); }
 }
 
