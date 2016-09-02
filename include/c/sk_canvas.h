@@ -328,6 +328,13 @@ SK_API bool sk_canvas_get_clip_bounds(sk_canvas_t* t, sk_rect_t* cbounds);
 */
 SK_API bool sk_canvas_get_clip_device_bounds(sk_canvas_t* t, sk_irect_t* cbounds);
 
+/**
+    Trigger the immediate execution of all pending draw operations. For the GPU
+    backend this will resolve all rendering to the GPU surface backing the
+    SkSurface that owns this canvas.
+*/
+SK_API void sk_canvas_flush(sk_canvas_t* ccanvas);
+
 SK_API sk_canvas_t* sk_canvas_new_from_bitmap(const sk_bitmap_t* bitmap);
 
 SK_C_PLUS_PLUS_END_GUARD

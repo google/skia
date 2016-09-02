@@ -253,4 +253,44 @@ static_assert ((int)SkCanvas::PointMode::kPoints_PointMode    == (int)POINTS_SK_
 static_assert ((int)SkCanvas::PointMode::kLines_PointMode     == (int)LINES_SK_POINT_MODE,     ASSERT_MSG(SkCanvas::PointMode, sk_point_mode_t));
 static_assert ((int)SkCanvas::PointMode::kPolygon_PointMode   == (int)POLYGON_SK_POINT_MODE,   ASSERT_MSG(SkCanvas::PointMode, sk_point_mode_t));
 
+// sk_surfaceprops_flags_t
+static_assert ((int)SkSurfaceProps::Flags::kDisallowAntiAlias_Flag           == (int)DISALLOW_ANTIALIAS_GR_SURFACE_PROPS_FLAGS,             ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
+static_assert ((int)SkSurfaceProps::Flags::kDisallowDither_Flag              == (int)DISALLOW_DITHER_GR_SURFACE_PROPS_FLAGS,                ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
+static_assert ((int)SkSurfaceProps::Flags::kGammaCorrect_Flag                == (int)GAMMA_CORRECT_GR_SURFACE_PROPS_FLAGS,                  ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
+static_assert ((int)SkSurfaceProps::Flags::kUseDeviceIndependentFonts_Flag   == (int)USE_DEVICE_INDEPENDENT_FONTS_GR_SURFACE_PROPS_FLAGS,   ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
+
+// gr_surfaceorigin_t
+static_assert ((int)GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin   == (int)BOTTOM_LEFT_GR_SURFACE_ORIGIN,   ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
+static_assert ((int)GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin      == (int)TOP_LEFT_GR_SURFACE_ORIGIN,      ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
+
+// gr_pixelconfig_t
+static_assert ((int)GrPixelConfig::kUnknown_GrPixelConfig      == (int)UNKNOWN_GR_PIXEL_CONFIG,      ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kAlpha_8_GrPixelConfig      == (int)ALPHA_8_GR_PIXEL_CONFIG,      ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kIndex_8_GrPixelConfig      == (int)INDEX_8_GR_PIXEL_CONFIG,      ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGB_565_GrPixelConfig      == (int)RGB_565_GR_PIXEL_CONFIG,      ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGBA_4444_GrPixelConfig    == (int)RGBA_4444_GR_PIXEL_CONFIG,    ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGBA_8888_GrPixelConfig    == (int)RGBA_8888_GR_PIXEL_CONFIG,    ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kBGRA_8888_GrPixelConfig    == (int)BGRA_8888_GR_PIXEL_CONFIG,    ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kSRGBA_8888_GrPixelConfig   == (int)SRGBA_8888_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kSBGRA_8888_GrPixelConfig   == (int)SBGRA_8888_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kETC1_GrPixelConfig         == (int)ETC1_GR_PIXEL_CONFIG,         ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kLATC_GrPixelConfig         == (int)LATC_GR_PIXEL_CONFIG,         ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kR11_EAC_GrPixelConfig      == (int)R11_EAC_GR_PIXEL_CONFIG,      ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kASTC_12x12_GrPixelConfig   == (int)ASTC_12X12_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGBA_float_GrPixelConfig   == (int)RGBA_FLOAT_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kAlpha_half_GrPixelConfig   == (int)ALPHA_HALF_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGBA_half_GrPixelConfig    == (int)RGBA_HALF_GR_PIXEL_CONFIG,    ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+
+// gr_backendtexture_flags_t
+static_assert ((int)GrBackendTextureFlags::kNone_GrBackendTextureFlag           == (int)NONE_GR_BACKEND_TEXTURE_FLAGS,            ASSERT_MSG(GrBackendTextureFlags, gr_backendtexture_flags_t));
+static_assert ((int)GrBackendTextureFlags::kRenderTarget_GrBackendTextureFlag   == (int)RENDER_TARGET_GR_BACKEND_TEXTURE_FLAGS,   ASSERT_MSG(GrBackendTextureFlags, gr_backendtexture_flags_t));
+
+// gr_backend_t
+static_assert ((int)GrBackend::kOpenGL_GrBackend   == (int)OPENGL_GR_BACKEND,   ASSERT_MSG(GrBackendTextureFlags, gr_backend_t));
+static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   ASSERT_MSG(GrBackendTextureFlags, gr_backend_t));
+
+// SkBudgeted
+static_assert ((bool)SkBudgeted::kNo    == (bool)false,   ASSERT_MSG(SkBudgeted, bool));
+static_assert ((bool)SkBudgeted::kYes   == (bool)true,    ASSERT_MSG(SkBudgeted, bool));
+
 #endif

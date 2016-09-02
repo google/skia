@@ -27,6 +27,7 @@
         '../include/private',
         '../include/utils',
         '../include/images',
+        '../include/gpu',
         '../src/core',
         '../src/sfnt',
         '../src/image',
