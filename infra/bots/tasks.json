@@ -4,6 +4,15 @@
       "cipd_packages": [],
       "dependencies": [],
       "dimensions": ["pool:Skia", "os:Ubuntu", "gpu:none"],
+      "extra_args": [
+        "--workdir", "../../..", "swarm_compile",
+        "buildername=<(TASK_NAME)",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)"
+      ],
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
@@ -25,6 +34,15 @@
       }],
       "dependencies": ["Build-Ubuntu-GCC-x86_64-Release-GN"],
       "dimensions": ["pool:Skia", "os:Ubuntu", "cpu:x86-64-avx2", "gpu:none"],
+      "extra_args": [
+        "--workdir",  "../../..", "swarm_test",
+        "buildername=<(TASK_NAME)",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)"
+      ],
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
@@ -46,6 +64,15 @@
       }],
       "dependencies": ["Build-Ubuntu-GCC-x86_64-Release-GN"],
       "dimensions": ["pool:Skia", "os:Ubuntu", "cpu:x86-64-avx2", "gpu:none"],
+      "extra_args": [
+        "--workdir",  "../../..", "swarm_perf", 
+        "buildername=<(TASK_NAME)",
+        "mastername=fake-master", 
+        "buildnumber=2",
+        "slavename=fake-buildslave", 
+        "swarm_out_dir=${ISOLATED_OUTDIR}", 
+        "revision=<(REVISION)"
+      ],
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     }
