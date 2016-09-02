@@ -31,7 +31,11 @@ void sk_abort_no_print() {
     // do not display a system dialog before aborting the process
     _set_abort_behavior(0, _WRITE_ABORT_MSG);
 #endif
+#if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN)
+    __debugbreak();
+#else
     abort();
+#endif
 }
 
 void sk_out_of_memory(void) {

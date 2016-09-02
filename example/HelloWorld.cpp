@@ -29,7 +29,6 @@ void application_term() {
 HelloWorldWindow::HelloWorldWindow(void* hwnd)
     : INHERITED(hwnd) {
     fType = kGPU_DeviceType;
-    fRenderTarget = NULL;
     fRotationAngle = 0;
     this->setTitle();
     this->setUpBackend();
@@ -46,8 +45,7 @@ void HelloWorldWindow::tearDownBackend() {
     SkSafeUnref(fInterface);
     fInterface = NULL;
 
-    SkSafeUnref(fRenderTarget);
-    fRenderTarget = NULL;
+    fGpuSurface = nullptr;
 
     INHERITED::release();
 }
@@ -70,19 +68,17 @@ bool HelloWorldWindow::setUpBackend() {
     }
 
     fInterface = GrGLCreateNativeInterface();
-
     SkASSERT(NULL != fInterface);
 
     fContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)fInterface);
     SkASSERT(NULL != fContext);
 
-    this->setUpRenderTarget();
+    this->setUpGpuBackedSurface();
     return true;
 }
 
-void HelloWorldWindow::setUpRenderTarget() {
-    SkSafeUnref(fRenderTarget);
-    fRenderTarget = this->renderTarget(fAttachmentInfo, fInterface, fContext);
+void HelloWorldWindow::setUpGpuBackedSurface() {
+    fGpuSurface = this->makeGpuBackedSurface(fAttachmentInfo, fInterface, fContext);
 }
 
 void HelloWorldWindow::drawContents(SkCanvas* canvas) {
@@ -142,7 +138,7 @@ void HelloWorldWindow::drawContents(SkCanvas* canvas) {
 }
 
 void HelloWorldWindow::draw(SkCanvas* canvas) {
-    drawContents(canvas);
+    this->drawContents(canvas);
     // in case we have queued drawing calls
     fContext->flush();
     // Invalidate the window to force a redraw. Poor man's animation mechanism.
@@ -150,21 +146,22 @@ void HelloWorldWindow::draw(SkCanvas* canvas) {
 
     if (kRaster_DeviceType == fType) {
         // need to send the raster bits to the (gpu) window
-        sk_sp<SkImage> snap = fSurface->makeImageSnapshot();
+        sk_sp<SkImage> snap = fRasterSurface->makeImageSnapshot();
         SkPixmap pmap;
         if (snap->peekPixels(&pmap)) {
             const SkImageInfo& info = pmap.info();
-            fRenderTarget->writePixels(0, 0, snap->width(), snap->height(),
-                                       SkImageInfo2GrPixelConfig(info, *fContext->caps()),
-                                       pmap.addr(), pmap.rowBytes(),
-                                       GrContext::kFlushWrites_PixelOp);
+
+            SkCanvas* canvas = fGpuSurface->getCanvas();
+
+            canvas->writePixels(info, pmap.addr(), pmap.rowBytes(), 0, 0);
+            canvas->flush();
         }
     }
     INHERITED::present();
 }
 
 void HelloWorldWindow::onSizeChange() {
-    setUpRenderTarget();
+    this->setUpGpuBackedSurface();
 }
 
 bool HelloWorldWindow::onHandleChar(SkUnichar unichar) {

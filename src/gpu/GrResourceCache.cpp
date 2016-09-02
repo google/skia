@@ -11,9 +11,9 @@
 #include "GrCaps.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrTracing.h"
-#include "SkChecksum.h"
 #include "SkGr.h"
 #include "SkMessageBus.h"
+#include "SkOpts.h"
 #include "SkTSort.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
@@ -43,7 +43,7 @@ GrUniqueKey::Domain GrUniqueKey::GenerateDomain() {
 }
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size) {
-    return SkChecksum::Murmur3(data, size);
+    return SkOpts::hash(data, size);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -687,7 +687,7 @@ void GrResourceCache::validate() const {
                 SkASSERT(SkBudgeted::kNo == resource->resourcePriv().isBudgeted() ||
                          uniqueKey.isValid());
                 if (!uniqueKey.isValid()) {
-                    ++fCouldBeScratch;                
+                    ++fCouldBeScratch;
                     SkASSERT(fScratchMap->countForKey(scratchKey));
                 }
                 SkASSERT(!resource->resourcePriv().refsWrappedObjects());

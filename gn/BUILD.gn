@@ -1,0 +1,142 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  cc = "cc"
+  cxx = "c++"
+
+  extra_cflags = ""
+  extra_cflags_c = ""
+  extra_cflags_cc = ""
+}
+
+config("no_rtti") {
+  cflags_cc = [ "-fno-rtti" ]
+}
+
+config("default") {
+  cflags = [
+    "-g",
+    "-fstrict-aliasing",
+    "-fPIC",
+    "-fvisibility=hidden",
+
+    "-Werror",
+    "-Wall",
+    "-Wextra",
+    "-Winit-self",
+    "-Wpointer-arith",
+    "-Wsign-compare",
+    "-Wvla",
+
+    "-Wno-deprecated-declarations",
+    "-Wno-unused-parameter",
+  ]
+  cflags_cc = [
+    "-std=c++11",
+    "-fno-exceptions",
+    "-fno-threadsafe-statics",
+    "-fvisibility-inlines-hidden",
+
+    "-Wnon-virtual-dtor",
+  ]
+}
+
+config("release") {
+  cflags = [ "-Os" ]
+  defines = [ "NDEBUG" ]
+}
+
+config("executable") {
+  if (is_mac) {
+    ldflags = [ "-Wl,-rpath,@loader_path/." ]
+  } else if (is_linux) {
+    ldflags = [ "-Wl,-rpath,\$ORIGIN" ]
+  }
+}
+
+pool("link_pool") {
+  depth = 0  #unlimited
+}
+
+toolchain("gcc_like") {
+  lib_switch = "-l"
+  lib_dir_switch = "-L"
+
+  tool("cc") {
+    depfile = "{{output}}.d"
+    command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} $extra_cflags $extra_cflags_c -c {{source}} -o {{output}}"
+    depsformat = "gcc"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
+    ]
+    description = "$cc ... $extra_cflags $extra_cflags_c -o {{output}}"
+  }
+
+  tool("cxx") {
+    depfile = "{{output}}.d"
+    command = "$cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} $extra_cflags $extra_cflags_cc -c {{source}} -o {{output}}"
+    depsformat = "gcc"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
+    ]
+    description = "$cxx ... $extra_cflags $extra_cflags_cc -o {{output}}"
+  }
+
+  tool("asm") {
+    depfile = "{{output}}.d"
+    command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
+    depsformat = "gcc"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
+    ]
+    description = "$cc ... -o {{output}}"
+  }
+
+  tool("alink") {
+    command = "rm -f {{output}} && ar rcs {{output}} {{inputs}}"
+    outputs = [
+      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
+    ]
+    default_output_extension = ".a"
+    output_prefix = "lib"
+    description = "ar {{output}} ..."
+  }
+
+  tool("solink") {
+    soname = "{{target_output_name}}{{output_extension}}"
+
+    rpath = "-Wl,-soname,$soname"
+    if (is_mac) {
+      rpath = "-Wl,-install_name,@rpath/$soname"
+    }
+
+    command = "$cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath -o {{output}}"
+    outputs = [
+      "{{root_out_dir}}/$soname",
+    ]
+    output_prefix = "lib"
+    default_output_extension = ".so"
+    description = "$cxx -shared ... -o {{output}}"
+    pool = ":link_pool"
+  }
+
+  tool("link") {
+    command = "$cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} -o {{output}}"
+    outputs = [
+      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
+    ]
+    description = "$cxx ... -o {{output}}"
+    pool = ":link_pool"
+  }
+
+  tool("stamp") {
+    command = "touch {{output}}"
+  }
+
+  tool("copy") {
+    command = "ln -f {{source}} {{output}} 2>/dev/null || (rm -rf {{output}} && cp -af {{source}} {{output}})"
+  }
+}

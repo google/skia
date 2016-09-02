@@ -4,12 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "DecodeFile.h"
 #include "SampleCode.h"
 #include "Resources.h"
-
 #include "SkCanvas.h"
 #include "SkLightingShader.h"
+#include "SkNormalSource.h"
 #include "SkPoint3.h"
 
 static sk_sp<SkLights> create_lights(SkScalar angle, SkScalar blue) {
@@ -20,8 +21,8 @@ static sk_sp<SkLights> create_lights(SkScalar angle, SkScalar blue) {
 
     SkLights::Builder builder;
 
-    builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, blue), dir));
-    builder.add(SkLights::Light(SkColor3f::Make(0.1f, 0.1f, 0.1f)));
+    builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, blue), dir));
+    builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.1f, 0.1f, 0.1f)));
 
     return builder.finish();
 }
@@ -64,9 +65,14 @@ protected:
 
         sk_sp<SkLights> lights(create_lights(fLightAngle, fColorFactor));
         SkPaint paint;
-        paint.setShader(SkLightingShader::Make(fDiffuseBitmap, fNormalBitmap,
-                                               std::move(lights), SkVector::Make(1.0f, 0.0f),
-                                               nullptr, nullptr));
+        sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(fNormalBitmap,
+            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr);
+        sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(
+                std::move(normalMap), SkMatrix::I());
+        sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(fDiffuseBitmap,
+                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr);
+        paint.setShader(SkLightingShader::Make(std::move(diffuseShader), std::move(normalSource),
+                                               std::move(lights)));
         paint.setColor(SK_ColorBLACK);
 
         SkRect r = SkRect::MakeWH((SkScalar)fDiffuseBitmap.width(),

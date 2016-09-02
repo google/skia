@@ -10,9 +10,11 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrTexture.h"
-#include "GrTextureProvider.h"
 
+#include "SkCanvas.h"
+#include "SkGammaColorFilter.h"
+#include "SkPixmap.h"
+#include "SkSurface.h"
 #include "SkUtils.h"
 
  // using anonymous namespace because these functions are used as template params.
@@ -78,75 +80,63 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
     baseDesc.fWidth = kW;
     baseDesc.fHeight = kH;
 
+    const SkImageInfo ii = SkImageInfo::MakeN32Premul(kW, kH);
+
     SkAutoTMalloc<uint32_t> srcPixels(kW * kH);
     for (int i = 0; i < kW * kH; ++i) {
         srcPixels.get()[i] = i;
     }
 
-    SkAutoTMalloc<uint32_t> dstPixels(kW * kH);
-    for (int i = 0; i < kW * kH; ++i) {
-        dstPixels.get()[i] = ~i;
-    }
+    SkPixmap pm(ii, srcPixels.get(), kRowBytes);
 
     SkAutoTMalloc<uint32_t> read(kW * kH);
 
     // We allow more error on GPUs with lower precision shader variables.
     float error = context->caps()->shaderCaps()->floatPrecisionVaries() ? 1.2f : 0.5f;
 
-    for (auto sOrigin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
-        for (auto dOrigin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
-            for (auto sFlags : { kRenderTarget_GrSurfaceFlag, kNone_GrSurfaceFlags }) {
-                for (auto gamma : { 1.0f, 1.0f / 1.8f, 1.0f / 2.2f }) {
-                    GrSurfaceDesc srcDesc = baseDesc;
-                    srcDesc.fOrigin = sOrigin;
-                    srcDesc.fFlags = sFlags;
-                    GrSurfaceDesc dstDesc = baseDesc;
-                    dstDesc.fOrigin = dOrigin;
-                    dstDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    for (auto dOrigin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
+        for (auto gamma : { 1.0f, 1.0f / 1.8f, 1.0f / 2.2f }) {
+            sk_sp<SkImage> src(SkImage::MakeTextureFromPixmap(context, pm, SkBudgeted::kNo));
 
-                    SkAutoTUnref<GrTexture> src(
-                        context->textureProvider()->createTexture(srcDesc, SkBudgeted::kNo,
-                                                                  srcPixels.get(),
-                                                                  kRowBytes));
-                    SkAutoTUnref<GrTexture> dst(
-                        context->textureProvider()->createTexture(dstDesc, SkBudgeted::kNo,
-                                                                  dstPixels.get(),
-                                                                  kRowBytes));
-                    if (!src || !dst) {
-                        ERRORF(reporter, "Could not create surfaces for copy surface test.");
-                        continue;
-                    }
+            sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, 
+                                                             ii, 0, dOrigin, nullptr));
 
-                    bool result = context->applyGamma(dst->asRenderTarget(), src, gamma);
+            if (!src || !dst) {
+                ERRORF(reporter, "Could not create surfaces for copy surface test.");
+                continue;
+            }
 
-                    // To make the copied src rect correct we would apply any dst clipping
-                    // back to the src rect, but we don't use it again so don't bother.
-                    if (!result) {
-                        ERRORF(reporter, "Unexpected failure from applyGamma.");
-                        continue;
-                    }
+            SkCanvas* dstCanvas = dst->getCanvas();
 
-                    sk_memset32(read.get(), 0, kW * kH);
-                    if (!dst->readPixels(0, 0, kW, kH, baseDesc.fConfig, read.get(), kRowBytes)) {
-                        ERRORF(reporter, "Error calling readPixels");
-                        continue;
-                    }
+            dstCanvas->clear(SK_ColorRED);
+            dstCanvas->flush();
 
-                    bool abort = false;
-                    // Validate that pixels were copied/transformed correctly.
-                    for (int y = 0; y < kH && !abort; ++y) {
-                        for (int x = 0; x < kW && !abort; ++x) {
-                            uint32_t r = read.get()[y * kW + x];
-                            uint32_t s = srcPixels.get()[y * kW + x];
-                            uint32_t expected;
-                            if (!check_gamma(s, r, gamma, error, &expected)) {
-                                ERRORF(reporter, "Expected dst %d,%d to contain 0x%08x "
-                                       "from src 0x%08x and gamma %f. Got %08x",
-                                       x, y, expected, s, gamma, r);
-                                abort = true;
-                                break;
-                            }
-                        }
+            SkPaint gammaPaint;
+            gammaPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
+            gammaPaint.setColorFilter(SkGammaColorFilter::Make(gamma));
+
+            dstCanvas->drawImage(src, 0, 0, &gammaPaint);
+            dstCanvas->flush();
+
+            sk_memset32(read.get(), 0, kW * kH);
+            if (!dstCanvas->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
+                ERRORF(reporter, "Error calling readPixels");
+                continue;
+            }
+
+            bool abort = false;
+            // Validate that pixels were copied/transformed correctly.
+            for (int y = 0; y < kH && !abort; ++y) {
+                for (int x = 0; x < kW && !abort; ++x) {
+                    uint32_t r = read.get()[y * kW + x];
+                    uint32_t s = srcPixels.get()[y * kW + x];
+                    uint32_t expected;
+                    if (!check_gamma(s, r, gamma, error, &expected)) {
+                        ERRORF(reporter, "Expected dst %d,%d to contain 0x%08x "
+                                "from src 0x%08x and gamma %f. Got %08x",
+                                x, y, expected, s, gamma, r);
+                        abort = true;
+                        break;
                     }
                 }
             }

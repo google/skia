@@ -9,6 +9,7 @@
 #include "SkColorMatrixFilter.h"
 #include "SkLumaColorFilter.h"
 #include "SkTableColorFilter.h"
+#include "SkGammaColorFilter.h"
 
 #include "sk_colorfilter.h"
 
@@ -60,6 +61,12 @@ sk_colorfilter_t* sk_colorfilter_new_color_matrix(const float array[20]) {
 sk_colorfilter_t* sk_colorfilter_new_luma_color() {
 
     sk_sp<SkColorFilter> filter = SkLumaColorFilter::Make();
+    return ToColorFilter(filter.release());
+}
+
+sk_colorfilter_t* sk_colorfilter_new_gamma(float gamma) {
+
+    sk_sp<SkColorFilter> filter = SkGammaColorFilter::Make(gamma);
     return ToColorFilter(filter.release());
 }
 

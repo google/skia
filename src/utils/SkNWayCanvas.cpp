@@ -161,6 +161,14 @@ void SkNWayCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
+void SkNWayCanvas::onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                             bool useCenter, const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawArc(rect, startAngle, sweepAngle, useCenter, paint);
+    }
+}
+
 void SkNWayCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
@@ -251,6 +259,14 @@ void SkNWayCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const S
     Iter iter(fList);
     while (iter.next()) {
         iter->drawTextOnPath(text, byteLength, path, matrix, paint);
+    }
+}
+
+void SkNWayCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                                     const SkRect* cull, const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawTextRSXform(text, byteLength, xform, cull, paint);
     }
 }
 

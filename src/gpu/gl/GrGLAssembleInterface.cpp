@@ -511,6 +511,10 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(ObjectLabel);
     }
 
+    if (extensions.has("GL_EXT_window_rectangles")) {
+        GET_PROC_SUFFIX(WindowRectangles, EXT);
+    }
+
     if (extensions.has("EGL_KHR_image") || extensions.has("EGL_KHR_image_base")) {
         GET_EGL_PROC_SUFFIX(CreateImage, KHR);
         GET_EGL_PROC_SUFFIX(DestroyImage, KHR);
@@ -895,6 +899,10 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
 
     if (extensions.has("GL_CHROMIUM_bind_uniform_location")) {
         GET_PROC_SUFFIX(BindUniformLocation, CHROMIUM);
+    }
+
+    if (extensions.has("GL_EXT_window_rectangles")) {
+        GET_PROC_SUFFIX(WindowRectangles, EXT);
     }
 
     if (extensions.has("EGL_KHR_image") || extensions.has("EGL_KHR_image_base")) {

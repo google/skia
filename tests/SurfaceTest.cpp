@@ -56,7 +56,7 @@ static sk_sp<SkSurface> create_gpu_surface(GrContext* context, SkAlphaType at = 
     if (requestedInfo) {
         *requestedInfo = info;
     }
-    return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
+    return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
 }
 static sk_sp<SkSurface> create_gpu_scratch_surface(GrContext* context,
                                                    SkAlphaType at = kPremul_SkAlphaType,
@@ -65,7 +65,7 @@ static sk_sp<SkSurface> create_gpu_scratch_surface(GrContext* context,
     if (requestedInfo) {
         *requestedInfo = info;
     }
-    return SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 0, nullptr);
+    return SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
 }
 #endif
 
@@ -79,8 +79,7 @@ DEF_TEST(SurfaceEmpty, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceEmpty_Gpu, reporter, ctxInfo) {
     const SkImageInfo info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
     REPORTER_ASSERT(reporter, nullptr ==
-                    SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info, 0,
-                                                nullptr));
+                    SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info));
 }
 #endif
 
@@ -128,65 +127,32 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCanvasPeek_Gpu, reporter, ctxInfo) {
 }
 #endif
 
-// For compatibility with clients that still call accessBitmap(), we need to ensure that we bump
-// the bitmap's genID when we draw to it, else they won't know it has new values. When they are
-// exclusively using surface/image, and we can hide accessBitmap from device, we can remove this
-// test.
-void test_access_pixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>& surface) {
-    SkCanvas* canvas = surface->getCanvas();
-    canvas->clear(0);
-
-    SkBaseDevice* device = canvas->getDevice_just_for_deprecated_compatibility_testing();
-    SkBitmap bm = device->accessBitmap(false);
-    uint32_t genID0 = bm.getGenerationID();
-    // Now we draw something, which needs to "dirty" the genID (sorta like copy-on-write)
-    canvas->drawColor(SK_ColorBLUE);
-    // Now check that we get a different genID
-    uint32_t genID1 = bm.getGenerationID();
-    REPORTER_ASSERT(reporter, genID0 != genID1);
-}
-DEF_TEST(SurfaceAccessPixels, reporter) {
-    for (auto& surface_func : { &create_surface, &create_direct_surface }) {
-        auto surface(surface_func(kPremul_SkAlphaType, nullptr));
-        test_access_pixels(reporter, surface);
-    }
-}
-#if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAccessPixels_Gpu, reporter, ctxInfo) {
-    for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
-        auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
-        test_access_pixels(reporter, surface);
-    }
-}
-#endif
-
 static void test_snapshot_alphatype(skiatest::Reporter* reporter, const sk_sp<SkSurface>& surface,
-                                    bool expectOpaque) {
+                                    SkAlphaType expectedAlphaType) {
     REPORTER_ASSERT(reporter, surface);
     if (surface) {
         sk_sp<SkImage> image(surface->makeImageSnapshot());
         REPORTER_ASSERT(reporter, image);
         if (image) {
-            REPORTER_ASSERT(reporter, image->isOpaque() == SkToBool(expectOpaque));
+            REPORTER_ASSERT(reporter, image->alphaType() == expectedAlphaType);
         }
     }
 }
 DEF_TEST(SurfaceSnapshotAlphaType, reporter) {
     for (auto& surface_func : { &create_surface, &create_direct_surface }) {
-        for (auto& isOpaque : { true, false }) {
-            SkAlphaType alphaType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-            auto surface(surface_func(alphaType, nullptr));
-            test_snapshot_alphatype(reporter, surface, isOpaque);
+        for (auto& at: { kOpaque_SkAlphaType, kPremul_SkAlphaType, kUnpremul_SkAlphaType }) {
+            auto surface(surface_func(at, nullptr));
+            test_snapshot_alphatype(reporter, surface, at);
         }
     }
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceSnapshotAlphaType_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
-        for (auto& isOpaque : { true, false }) {
-            SkAlphaType alphaType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-            auto surface(surface_func(ctxInfo.grContext(), alphaType, nullptr));
-            test_snapshot_alphatype(reporter, surface, isOpaque);
+        // GPU doesn't support creating unpremul surfaces, so only test opaque + premul
+        for (auto& at : { kOpaque_SkAlphaType, kPremul_SkAlphaType }) {
+            auto surface(surface_func(ctxInfo.grContext(), at, nullptr));
+            test_snapshot_alphatype(reporter, surface, at);
         }
     }
 }
@@ -367,49 +333,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
         desc.fHeight = 10;
         desc.fFlags = kRenderTarget_GrBackendTextureFlag;
         desc.fTextureHandle = textureObject;
-        GrTexture* texture = context->textureProvider()->wrapBackendTexture(desc);
+
         {
-            auto surface(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget()));
+            sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTexture(context, desc, nullptr));
             test_unique_image_snap(reporter, surface.get(), true, imageBackingStore,
                                    surfaceBackingStore);
         }
-        texture->unref();
+
         context->getGpu()->deleteTestingOnlyBackendTexture(textureObject);
     }
 }
 #endif
 
 #if SK_SUPPORT_GPU
-// May we (soon) eliminate the need to keep testing this, by hiding the bloody device!
-static uint32_t get_legacy_gen_id(SkSurface* surface) {
-    SkBaseDevice* device =
-            surface->getCanvas()->getDevice_just_for_deprecated_compatibility_testing();
-    return device->accessBitmap(false).getGenerationID();
-}
-/*
- *  Test legacy behavor of bumping the surface's device's bitmap's genID when we access its
- *  texture handle for writing.
- *
- *  Note: this needs to be tested separately from checking makeImageSnapshot, as calling that
- *  can also incidentally bump the genID (when a new backing surface is created).
- */
-static void test_backend_handle_gen_id(
-    skiatest::Reporter* reporter, SkSurface* surface,
-    GrBackendObject (*func)(SkSurface*, SkSurface::BackendHandleAccess)) {
-    const uint32_t gen0 = get_legacy_gen_id(surface);
-    func(surface, SkSurface::kFlushRead_BackendHandleAccess);
-    const uint32_t gen1 = get_legacy_gen_id(surface);
-    REPORTER_ASSERT(reporter, gen0 == gen1);
 
-    func(surface, SkSurface::kFlushWrite_BackendHandleAccess);
-    const uint32_t gen2 = get_legacy_gen_id(surface);
-    REPORTER_ASSERT(reporter, gen0 != gen2);
-
-    func(surface, SkSurface::kDiscardWrite_BackendHandleAccess);
-    const uint32_t gen3 = get_legacy_gen_id(surface);
-    REPORTER_ASSERT(reporter, gen0 != gen3);
-    REPORTER_ASSERT(reporter, gen2 != gen3);
-}
 static void test_backend_handle_unique_id(
     skiatest::Reporter* reporter, SkSurface* surface,
     GrBackendObject (*func)(SkSurface*, SkSurface::BackendHandleAccess)) {
@@ -436,7 +373,7 @@ static void test_backend_handle_unique_id(
 // No CPU test.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendHandleAccessIDs_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
-        for (auto& test_func : { &test_backend_handle_unique_id, &test_backend_handle_gen_id }) {
+        for (auto& test_func : { &test_backend_handle_unique_id }) {
             for (auto& handle_access_func :
                 { &get_surface_backend_texture_handle, &get_surface_backend_render_target_handle}) {
                 auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
@@ -627,7 +564,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
 
 static SkBudgeted is_budgeted(const sk_sp<SkSurface>& surf) {
     SkSurface_Gpu* gsurf = (SkSurface_Gpu*)surf.get();
-    return gsurf->getDevice()->accessRenderTarget()->resourcePriv().isBudgeted();
+    return gsurf->getDevice()->accessDrawContext()->accessRenderTarget()->resourcePriv().isBudgeted();
 }
 
 static SkBudgeted is_budgeted(SkImage* image) {
@@ -751,6 +688,18 @@ DEF_TEST(surface_rowbytes, reporter) {
     REPORTER_ASSERT(reporter, nullptr == s);
 }
 
+DEF_TEST(surface_raster_zeroinitialized, reporter) {
+    sk_sp<SkSurface> s(SkSurface::MakeRasterN32Premul(100, 100));
+    SkPixmap pixmap;
+    REPORTER_ASSERT(reporter, s->peekPixels(&pixmap));
+
+    for (int i = 0; i < pixmap.info().width(); ++i) {
+        for (int j = 0; j < pixmap.info().height(); ++j) {
+            REPORTER_ASSERT(reporter, *pixmap.addr32(i, j) == 0);
+        }
+    }
+}
+
 #if SK_SUPPORT_GPU
 static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendObject* outTexture) {
@@ -844,10 +793,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         [] (SkSurface* s){
             GrDrawContext* dc = s->getCanvas()->internal_private_accessTopLayerDrawContext();
             return dc->accessRenderTarget(); },
-        [] (SkSurface* s){
-            SkBaseDevice* d =
-                s->getCanvas()->getDevice_just_for_deprecated_compatibility_testing();
-            return d->accessRenderTarget(); },
         [] (SkSurface* s){ sk_sp<SkImage> i(s->makeImageSnapshot());
                            return as_IB(i)->peekTexture(); }
     };

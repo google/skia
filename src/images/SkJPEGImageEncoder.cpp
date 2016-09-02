@@ -13,7 +13,6 @@
 #include "SkTemplates.h"
 #include "SkTime.h"
 #include "SkUtils.h"
-#include "SkRTConf.h"
 #include "SkRect.h"
 #include "SkCanvas.h"
 

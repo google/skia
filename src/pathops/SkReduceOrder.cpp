@@ -78,10 +78,12 @@ int SkReduceOrder::reduce(const SkDQuad& quad) {
             minYSet |= 1 << index;
         }
     }
+    if ((minXSet & 0x05) == 0x5 && (minYSet & 0x05) == 0x5) { // test for degenerate
+        // this quad starts and ends at the same place, so never contributes
+        // to the fill
+        return coincident_line(quad, fQuad);
+    }
     if (minXSet == 0x7) {  // test for vertical line
-        if (minYSet == 0x7) {  // return 1 if all three are coincident
-            return coincident_line(quad, fQuad);
-        }
         return vertical_line(quad, fQuad);
     }
     if (minYSet == 0x7) {  // test for horizontal line

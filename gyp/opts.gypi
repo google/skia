@@ -29,6 +29,9 @@
             '<(skia_src_path)/opts/SkBlitRow_opts_arm.cpp',
             '<(skia_src_path)/opts/SkBlitRow_opts_arm_neon.cpp',
         ],
+        'crc32_sources': [
+            '<(skia_src_path)/opts/SkOpts_crc32.cpp',
+        ],
 
         'mips_dsp_sources': [
             '<(skia_src_path)/opts/SkBitmapProcState_opts_mips_dsp.cpp',
@@ -49,13 +52,13 @@
         'sse41_sources': [
             '<(skia_src_path)/opts/SkOpts_sse41.cpp',
         ],
+        'sse42_sources': [
+            '<(skia_src_path)/opts/SkOpts_sse42.cpp',
+        ],
         'avx_sources': [
             '<(skia_src_path)/opts/SkOpts_avx.cpp',
         ],
         # These targets are empty, but XCode doesn't like that, so add an empty file to each.
-        'sse42_sources': [
-            '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
-        ],
         'avx2_sources': [
             '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
         ],

@@ -31,6 +31,7 @@
 
 class GrAuditTrail;
 class GrBatch;
+class GrClearBatch;
 class GrClip;
 class GrCaps;
 class GrPath;
@@ -57,6 +58,7 @@ public:
     ~GrDrawTarget() override;
 
     void makeClosed() {
+        fLastFullClearBatch = nullptr;
         // We only close drawTargets When MDB is enabled. When MDB is disabled there is only
         // ever one drawTarget and all calls will be funnelled into it.
 #ifdef ENABLE_MDB
@@ -106,25 +108,23 @@ public:
 
     void drawBatch(const GrPipelineBuilder&, GrDrawContext*, const GrClip&, GrDrawBatch*);
 
-    /**
-     * Draws path into the stencil buffer. The fill must be either even/odd or
-     * winding (not inverse or hairline). It will respect the HW antialias flag
-     * on the GrPipelineBuilder (if possible in the 3D API).  Note, we will never have an inverse
-     * fill with stencil path
-     */
-    void stencilPath(const GrPipelineBuilder&, GrDrawContext*,
-                     const GrClip&, const SkMatrix& viewMatrix,
-                     const GrPath*, GrPathRendering::FillType);
+    void addBatch(sk_sp<GrBatch>);
 
     /**
-     * Clear the passed in drawContext. Ignores the GrPipelineBuilder and clip. Clears the whole
-     * thing if rect is nullptr, otherwise just the rect. If canIgnoreRect is set then the entire
-     * drawContext can be optionally cleared.
+     * Draws the path into user stencil bits. Upon return, all user stencil values
+     * inside the path will be nonzero. The path's fill must be either even/odd or
+     * winding (notnverse or hairline).It will respect the HW antialias boolean (if
+     * possible in the 3D API).  Note, we will never have an inverse fill with
+     * stencil path.
      */
-    void clear(const SkIRect* rect,
-               GrColor color,
-               bool canIgnoreRect,
-               GrDrawContext*);
+    void stencilPath(GrDrawContext*,
+                     const GrClip&,
+                     bool useHWAA,
+                     const SkMatrix& viewMatrix,
+                     const GrPath*);
+
+    /** Clears the entire render target */
+    void fullClear(GrRenderTarget*, GrColor color);
 
     /** Discards the contents render target. */
     void discard(GrRenderTarget*);
@@ -143,6 +143,11 @@ public:
                      GrSurface* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
+
+    gr_instanced::InstancedRendering* instancedRendering() const {
+        SkASSERT(fInstancedRendering);
+        return fInstancedRendering;
+    }
 
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
@@ -191,7 +196,9 @@ private:
         }
     };
 
-    void recordBatch(GrBatch*);
+    // Returns the batch that the input batch was combined with or the input batch if it wasn't
+    // combined.
+    GrBatch* recordBatch(GrBatch*, const SkRect& clippedBounds);
     void forwardCombine();
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
@@ -209,24 +216,31 @@ private:
     // Used only by drawContextPriv.
     void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
 
-    SkSTArray<256, SkAutoTUnref<GrBatch>, true> fBatches;
-    // The context is only in service of the clip mask manager, remove once CMM doesn't need this.
-    GrContext*                                  fContext;
-    GrGpu*                                      fGpu;
-    GrResourceProvider*                         fResourceProvider;
-    GrAuditTrail*                               fAuditTrail;
+    struct RecordedBatch {
+        sk_sp<GrBatch> fBatch;
+        SkRect         fClippedBounds;
+    };
+    SkSTArray<256, RecordedBatch, true>             fRecordedBatches;
+    GrClearBatch*                                   fLastFullClearBatch;
+    // The context is only in service of the GrClip, remove once it doesn't need this.
+    GrContext*                                      fContext;
+    GrGpu*                                          fGpu;
+    GrResourceProvider*                             fResourceProvider;
+    GrAuditTrail*                                   fAuditTrail;
 
-    SkDEBUGCODE(int                             fDebugID;)
-    uint32_t                                    fFlags;
+    SkDEBUGCODE(int                                 fDebugID;)
+    uint32_t                                        fFlags;
 
     // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
-    SkTDArray<GrDrawTarget*>                    fDependencies;
-    GrRenderTarget*                             fRenderTarget;
+    SkTDArray<GrDrawTarget*>                        fDependencies;
+    GrRenderTarget*                                 fRenderTarget;
 
-    bool                                        fClipBatchToBounds;
-    bool                                        fDrawBatchBounds;
-    int                                         fMaxBatchLookback;
-    int                                         fMaxBatchLookahead;
+    bool                                            fClipBatchToBounds;
+    bool                                            fDrawBatchBounds;
+    int                                             fMaxBatchLookback;
+    int                                             fMaxBatchLookahead;
+
+    SkAutoTDelete<gr_instanced::InstancedRendering> fInstancedRendering;
 
     typedef SkRefCnt INHERITED;
 };

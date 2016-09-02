@@ -19,8 +19,6 @@ public:
         this->setBGColor(0xFFFFFFFF);
     }
 
-    virtual ~FontScalerDistortableGM() { }
-
 protected:
 
     SkString onShortName() override {
@@ -29,12 +27,6 @@ protected:
 
     SkISize onISize() override {
         return SkISize::Make(550, 700);
-    }
-
-    static void rotate_about(SkCanvas* canvas, SkScalar degrees, SkScalar px, SkScalar py) {
-        canvas->translate(px, py);
-        canvas->rotate(degrees);
-        canvas->translate(-px, -py);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -63,7 +55,7 @@ protected:
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(30 + i * 100), SkIntToScalar(20));
-                rotate_about(canvas, SkIntToScalar(i * 5), x, y * 10);
+                canvas->rotate(SkIntToScalar(i * 5), x, y * 10);
 
                 {
                     SkPaint p;

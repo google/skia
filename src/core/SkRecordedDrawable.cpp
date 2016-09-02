@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkLayerInfo.h"
 #include "SkMatrix.h"
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
@@ -33,15 +32,6 @@ SkPicture* SkRecordedDrawable::onNewPictureSnapshot() {
         pictList = fDrawableList->newDrawableSnapshot();
     }
 
-    SkAutoTUnref<SkLayerInfo> saveLayerData;
-    if (fBBH && fDoSaveLayerInfo) {
-        // TODO: can we avoid work by not allocating / filling these bounds?
-        SkAutoTMalloc<SkRect> scratchBounds(fRecord->count());
-        saveLayerData.reset(new SkLayerInfo);
-
-        SkRecordComputeLayers(fBounds, *fRecord, scratchBounds, pictList, saveLayerData);
-    }
-
     size_t subPictureBytes = 0;
     for (int i = 0; pictList && i < pictList->count(); i++) {
         subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
@@ -49,7 +39,7 @@ SkPicture* SkRecordedDrawable::onNewPictureSnapshot() {
     // SkBigPicture will take ownership of a ref on both fRecord and fBBH.
     // We're not willing to give up our ownership, so we must ref them for SkPicture.
     return new SkBigPicture(fBounds, SkRef(fRecord.get()), pictList, SkSafeRef(fBBH.get()),
-                            saveLayerData.release(), subPictureBytes);
+                            subPictureBytes);
 }
 
 void SkRecordedDrawable::flatten(SkWriteBuffer& buffer) const {

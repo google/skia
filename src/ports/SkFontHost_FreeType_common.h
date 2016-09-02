@@ -31,9 +31,8 @@ protected:
         : INHERITED(typeface, effects, desc)
     {}
 
-    void generateGlyphImage(FT_Face face, const SkGlyph& glyph);
+    void generateGlyphImage(FT_Face face, const SkGlyph& glyph, const SkMatrix& bitmapTransform);
     void generateGlyphPath(FT_Face face, SkPath* path);
-
 private:
     typedef SkScalerContext INHERITED;
 };
@@ -71,8 +70,8 @@ public:
     };
 
 protected:
-    SkTypeface_FreeType(const SkFontStyle& style, SkFontID uniqueID, bool isFixedPitch)
-        : INHERITED(style, uniqueID, isFixedPitch)
+    SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch)
+        : INHERITED(style, isFixedPitch)
     {}
 
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,

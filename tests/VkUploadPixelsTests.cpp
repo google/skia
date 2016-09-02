@@ -66,7 +66,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     // the expectation is that the given config is texturable/renderable with optimal tiling
     // but may not be with linear tiling
     if (linearTiling) {
-        if (!caps->isConfigTexurableLinearly(config) ||
+        if (!caps->isConfigTexturableLinearly(config) ||
             (renderTarget && !caps->isConfigRenderableLinearly(config, false))) {
             canCreate = false;
         }

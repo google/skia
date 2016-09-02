@@ -25,35 +25,31 @@ static void test_is_equal(skiatest::Reporter* reporter,
     }
 }
 
-static void test_datatable_is_empty(skiatest::Reporter* reporter,
-                                    SkDataTable* table) {
+static void test_datatable_is_empty(skiatest::Reporter* reporter, SkDataTable* table) {
     REPORTER_ASSERT(reporter, table->isEmpty());
     REPORTER_ASSERT(reporter, 0 == table->count());
 }
 
 static void test_emptytable(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkDataTable> table0(SkDataTable::NewEmpty());
-    SkAutoTUnref<SkDataTable> table1(SkDataTable::NewCopyArrays(nullptr, nullptr, 0));
-    SkAutoTUnref<SkDataTable> table2(SkDataTable::NewCopyArray(nullptr, 0, 0));
-    SkAutoTUnref<SkDataTable> table3(SkDataTable::NewArrayProc(nullptr, 0, 0,
-                                                               nullptr, nullptr));
+    sk_sp<SkDataTable> table0(SkDataTable::MakeEmpty());
+    sk_sp<SkDataTable> table1(SkDataTable::MakeCopyArrays(nullptr, nullptr, 0));
+    sk_sp<SkDataTable> table2(SkDataTable::MakeCopyArray(nullptr, 0, 0));
+    sk_sp<SkDataTable> table3(SkDataTable::MakeArrayProc(nullptr, 0, 0, nullptr, nullptr));
 
-    test_datatable_is_empty(reporter, table0);
-    test_datatable_is_empty(reporter, table1);
-    test_datatable_is_empty(reporter, table2);
-    test_datatable_is_empty(reporter, table3);
+    test_datatable_is_empty(reporter, table0.get());
+    test_datatable_is_empty(reporter, table1.get());
+    test_datatable_is_empty(reporter, table2.get());
+    test_datatable_is_empty(reporter, table3.get());
 
-    test_is_equal(reporter, table0, table1);
-    test_is_equal(reporter, table0, table2);
-    test_is_equal(reporter, table0, table3);
+    test_is_equal(reporter, table0.get(), table1.get());
+    test_is_equal(reporter, table0.get(), table2.get());
+    test_is_equal(reporter, table0.get(), table3.get());
 }
 
 static void test_simpletable(skiatest::Reporter* reporter) {
     const int idata[] = { 1, 4, 9, 16, 25, 63 };
     int icount = SK_ARRAY_COUNT(idata);
-    SkAutoTUnref<SkDataTable> itable(SkDataTable::NewCopyArray(idata,
-                                                               sizeof(idata[0]),
-                                                               icount));
+    sk_sp<SkDataTable> itable(SkDataTable::MakeCopyArray(idata, sizeof(idata[0]), icount));
     REPORTER_ASSERT(reporter, itable->count() == icount);
     for (int i = 0; i < icount; ++i) {
         size_t size;
@@ -73,8 +69,7 @@ static void test_vartable(skiatest::Reporter* reporter) {
         sizes[i] = strlen(str[i]) + 1;
     }
 
-    SkAutoTUnref<SkDataTable> table(SkDataTable::NewCopyArrays(
-                                        (const void*const*)str, sizes, count));
+    sk_sp<SkDataTable> table(SkDataTable::MakeCopyArrays((const void*const*)str, sizes, count));
 
     REPORTER_ASSERT(reporter, table->count() == count);
     for (int i = 0; i < count; ++i) {
@@ -100,7 +95,7 @@ static void test_tablebuilder(skiatest::Reporter* reporter) {
     for (int i = 0; i < count; ++i) {
         builder.append(str[i], strlen(str[i]) + 1);
     }
-    SkAutoTUnref<SkDataTable> table(builder.detachDataTable());
+    sk_sp<SkDataTable> table(builder.detachDataTable());
 
     REPORTER_ASSERT(reporter, table->count() == count);
     for (int i = 0; i < count; ++i) {
@@ -121,8 +116,8 @@ static void test_globaltable(skiatest::Reporter* reporter) {
     };
     int count = SK_ARRAY_COUNT(gData);
 
-    SkAutoTUnref<SkDataTable> table(SkDataTable::NewArrayProc(gData,
-                                          sizeof(gData[0]), count, nullptr, nullptr));
+    sk_sp<SkDataTable> table(
+        SkDataTable::MakeArrayProc(gData, sizeof(gData[0]), count, nullptr, nullptr));
 
     REPORTER_ASSERT(reporter, table->count() == count);
     for (int i = 0; i < count; ++i) {
@@ -149,11 +144,11 @@ static void delete_int_proc(const void* ptr, void* context) {
     delete[] data;
 }
 
-static void assert_len(skiatest::Reporter* reporter, SkData* ref, size_t len) {
+static void assert_len(skiatest::Reporter* reporter, const sk_sp<SkData>& ref, size_t len) {
     REPORTER_ASSERT(reporter, ref->size() == len);
 }
 
-static void assert_data(skiatest::Reporter* reporter, SkData* ref,
+static void assert_data(skiatest::Reporter* reporter, const sk_sp<SkData>& ref,
                         const void* data, size_t len) {
     REPORTER_ASSERT(reporter, ref->size() == len);
     REPORTER_ASSERT(reporter, !memcmp(ref->data(), data, len));
@@ -163,12 +158,12 @@ static void test_cstring(skiatest::Reporter* reporter) {
     const char str[] = "Hello world";
     size_t     len = strlen(str);
 
-    SkAutoTUnref<SkData> r0(SkData::NewWithCopy(str, len + 1));
-    SkAutoTUnref<SkData> r1(SkData::NewWithCString(str));
+    sk_sp<SkData> r0(SkData::MakeWithCopy(str, len + 1));
+    sk_sp<SkData> r1(SkData::MakeWithCString(str));
 
-    REPORTER_ASSERT(reporter, r0->equals(r1));
+    REPORTER_ASSERT(reporter, r0->equals(r1.get()));
 
-    SkAutoTUnref<SkData> r2(SkData::NewWithCString(nullptr));
+    sk_sp<SkData> r2(SkData::MakeWithCString(nullptr));
     REPORTER_ASSERT(reporter, 1 == r2->size());
     REPORTER_ASSERT(reporter, 0 == *r2->bytes());
 }
@@ -192,13 +187,13 @@ static void test_files(skiatest::Reporter* reporter) {
     }
 
     FILE* file = sk_fopen(path.c_str(), kRead_SkFILE_Flag);
-    SkAutoTUnref<SkData> r1(SkData::NewFromFILE(file));
+    sk_sp<SkData> r1(SkData::MakeFromFILE(file));
     REPORTER_ASSERT(reporter, r1.get() != nullptr);
     REPORTER_ASSERT(reporter, r1->size() == 26);
     REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r1->data()), s, 26) == 0);
 
     int fd = sk_fileno(file);
-    SkAutoTUnref<SkData> r2(SkData::NewFromFD(fd));
+    sk_sp<SkData> r2(SkData::MakeFromFD(fd));
     REPORTER_ASSERT(reporter, r2.get() != nullptr);
     REPORTER_ASSERT(reporter, r2->size() == 26);
     REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r2->data()), s, 26) == 0);
@@ -208,11 +203,10 @@ DEF_TEST(Data, reporter) {
     const char* str = "We the people, in order to form a more perfect union.";
     const int N = 10;
 
-    SkAutoTUnref<SkData> r0(SkData::NewEmpty());
-    SkAutoTUnref<SkData> r1(SkData::NewWithCopy(str, strlen(str)));
-    SkAutoTUnref<SkData> r2(SkData::NewWithProc(new int[N], N*sizeof(int),
-                                           delete_int_proc, gGlobal));
-    SkAutoTUnref<SkData> r3(SkData::NewSubset(r1, 7, 6));
+    sk_sp<SkData> r0(SkData::MakeEmpty());
+    sk_sp<SkData> r1(SkData::MakeWithCopy(str, strlen(str)));
+    sk_sp<SkData> r2(SkData::MakeWithProc(new int[N], N*sizeof(int), delete_int_proc, gGlobal));
+    sk_sp<SkData> r3(SkData::MakeSubset(r1.get(), 7, 6));
 
     assert_len(reporter, r0, 0);
     assert_len(reporter, r1, strlen(str));
@@ -222,12 +216,10 @@ DEF_TEST(Data, reporter) {
     assert_data(reporter, r1, str, strlen(str));
     assert_data(reporter, r3, "people", 6);
 
-    SkData* tmp = SkData::NewSubset(r1, strlen(str), 10);
+    sk_sp<SkData> tmp(SkData::MakeSubset(r1.get(), strlen(str), 10));
     assert_len(reporter, tmp, 0);
-    tmp->unref();
-    tmp = SkData::NewSubset(r1, 0, 0);
+    tmp = SkData::MakeSubset(r1.get(), 0, 0);
     assert_len(reporter, tmp, 0);
-    tmp->unref();
 
     test_cstring(reporter);
     test_files(reporter);

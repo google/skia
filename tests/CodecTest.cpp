@@ -11,6 +11,7 @@
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkData.h"
+#include "SkImageEncoder.h"
 #include "SkFrontBufferedStream.h"
 #include "SkMD5.h"
 #include "SkRandom.h"
@@ -208,8 +209,8 @@ static void check(skiatest::Reporter* r,
     bool isIncomplete = supportsIncomplete;
     if (isIncomplete) {
         size_t size = stream->getLength();
-        SkAutoTUnref<SkData> data((SkData::NewFromStream(stream, 2 * size / 3)));
-        codec.reset(SkCodec::NewFromData(data));
+        sk_sp<SkData> data((SkData::MakeFromStream(stream, 2 * size / 3)));
+        codec.reset(SkCodec::NewFromData(data.get()));
     } else {
         codec.reset(SkCodec::NewFromStream(stream.release()));
     }
@@ -337,8 +338,8 @@ static void check(skiatest::Reporter* r,
         SkAutoTDelete<SkAndroidCodec> androidCodec(nullptr);
         if (isIncomplete) {
             size_t size = stream->getLength();
-            SkAutoTUnref<SkData> data((SkData::NewFromStream(stream, 2 * size / 3)));
-            androidCodec.reset(SkAndroidCodec::NewFromData(data));
+            sk_sp<SkData> data((SkData::MakeFromStream(stream, 2 * size / 3)));
+            androidCodec.reset(SkAndroidCodec::NewFromData(data.get()));
         } else {
             androidCodec.reset(SkAndroidCodec::NewFromStream(stream.release()));
         }
@@ -356,8 +357,9 @@ static void check(skiatest::Reporter* r,
     if (!isIncomplete) {
         // Test SkCodecImageGenerator
         SkAutoTDelete<SkStream> stream(resource(path));
-        SkAutoTUnref<SkData> fullData(SkData::NewFromStream(stream, stream->getLength()));
-        SkAutoTDelete<SkImageGenerator> gen(SkCodecImageGenerator::NewFromEncodedCodec(fullData));
+        sk_sp<SkData> fullData(SkData::MakeFromStream(stream, stream->getLength()));
+        SkAutoTDelete<SkImageGenerator> gen(
+                SkCodecImageGenerator::NewFromEncodedCodec(fullData.get()));
         SkBitmap bm;
         bm.allocPixels(info);
         SkAutoLockPixels autoLockPixels(bm);
@@ -365,8 +367,8 @@ static void check(skiatest::Reporter* r,
         compare_to_good_digest(r, codecDigest, bm);
 
         // Test using SkFrontBufferedStream, as Android does
-        SkStream* bufferedStream = SkFrontBufferedStream::Create(new SkMemoryStream(fullData),
-                SkCodec::MinBufferedBytesNeeded());
+        SkStream* bufferedStream = SkFrontBufferedStream::Create(
+                new SkMemoryStream(std::move(fullData)), SkCodec::MinBufferedBytesNeeded());
         REPORTER_ASSERT(r, bufferedStream);
         codec.reset(SkCodec::NewFromStream(bufferedStream));
         REPORTER_ASSERT(r, codec);
@@ -822,8 +824,8 @@ DEF_TEST(Codec_pngChunkReader, r) {
     ChunkReader chunkReader(r);
 
     // Now read the file with SkCodec.
-    SkAutoTUnref<SkData> data(wStream.copyToData());
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data, &chunkReader));
+    sk_sp<SkData> data(wStream.copyToData());
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get(), &chunkReader));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;
@@ -887,7 +889,7 @@ private:
 // Stream that is not an asset stream (!hasPosition() or !hasLength())
 class NotAssetMemStream : public SkStream {
 public:
-    NotAssetMemStream(SkData* data) : fStream(data) {}
+    NotAssetMemStream(sk_sp<SkData> data) : fStream(std::move(data)) {}
 
     bool hasPosition() const override {
         return false;
@@ -920,13 +922,13 @@ private:
 DEF_TEST(Codec_raw_notseekable, r) {
     const char* path = "dng_with_preview.dng";
     SkString fullPath(GetResourcePath(path));
-    SkAutoTUnref<SkData> data(SkData::NewFromFileName(fullPath.c_str()));
+    sk_sp<SkData> data(SkData::MakeFromFileName(fullPath.c_str()));
     if (!data) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
 
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(new NotAssetMemStream(data)));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(new NotAssetMemStream(std::move(data))));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
@@ -1011,4 +1013,94 @@ DEF_TEST(Codec_wbmp_max_size, r) {
     codec.reset(SkCodec::NewFromStream(stream.release()));
 
     REPORTER_ASSERT(r, !codec);
+}
+
+DEF_TEST(Codec_jpeg_rewind, r) {
+    const char* path = "mandrill_512_q075.jpg";
+    SkAutoTDelete<SkStream> stream(resource(path));
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    if (!codec) {
+        ERRORF(r, "Unable to create codec '%s'.", path);
+        return;
+    }
+
+    const int width = codec->getInfo().width();
+    const int height = codec->getInfo().height();
+    size_t rowBytes = sizeof(SkPMColor) * width;
+    SkAutoMalloc pixelStorage(height * rowBytes);
+
+    // Perform a sampled decode.
+    SkAndroidCodec::AndroidOptions opts;
+    opts.fSampleSize = 12;
+    codec->getAndroidPixels(codec->getInfo().makeWH(width / 12, height / 12), pixelStorage.get(),
+                            rowBytes, &opts);
+
+    // Rewind the codec and perform a full image decode.
+    SkCodec::Result result = codec->getPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+}
+
+static void check_color_xform(skiatest::Reporter* r, const char* path) {
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(resource(path)));
+
+    SkAndroidCodec::AndroidOptions opts;
+    opts.fSampleSize = 3;
+    const int subsetWidth = codec->getInfo().width() / 2;
+    const int subsetHeight = codec->getInfo().height() / 2;
+    SkIRect subset = SkIRect::MakeWH(subsetWidth, subsetHeight);
+    opts.fSubset = &subset;
+
+    const int dstWidth = subsetWidth / opts.fSampleSize;
+    const int dstHeight = subsetHeight / opts.fSampleSize;
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::NewICC(data->data(), data->size());
+    SkImageInfo dstInfo = codec->getInfo().makeWH(dstWidth, dstHeight)
+                                          .makeColorType(kN32_SkColorType)
+                                          .makeColorSpace(colorSpace);
+
+    size_t rowBytes = dstInfo.minRowBytes();
+    SkAutoMalloc pixelStorage(dstInfo.getSafeSize(rowBytes));
+    SkCodec::Result result = codec->getAndroidPixels(dstInfo, pixelStorage.get(), rowBytes, &opts);
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+}
+
+DEF_TEST(Codec_ColorXform, r) {
+    check_color_xform(r, "mandrill_512_q075.jpg");
+    check_color_xform(r, "mandrill_512.png");
+}
+
+DEF_TEST(Codec_Png565, r) {
+    // Create an arbitrary 565 bitmap.
+    const char* path = "mandrill_512_q075.jpg";
+    SkAutoTDelete<SkStream> stream(resource(path));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    SkImageInfo info565 = codec->getInfo().makeColorType(kRGB_565_SkColorType);
+    SkBitmap bm1;
+    bm1.allocPixels(info565);
+    SkCodec::Result result = codec->getPixels(info565, bm1.getPixels(), bm1.rowBytes());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+
+    // Encode the image to png.
+    sk_sp<SkData> data =
+            sk_sp<SkData>(SkImageEncoder::EncodeData(bm1, SkImageEncoder::kPNG_Type, 100));
+
+    // Prepare to decode.  The codec should recognize that the PNG is 565.
+    codec.reset(SkCodec::NewFromData(data.get()));
+    REPORTER_ASSERT(r, kRGB_565_SkColorType == codec->getInfo().colorType());
+    REPORTER_ASSERT(r, kOpaque_SkAlphaType == codec->getInfo().alphaType());
+
+    SkBitmap bm2;
+    bm2.allocPixels(codec->getInfo());
+    result = codec->getPixels(codec->getInfo(), bm2.getPixels(), bm2.rowBytes());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+
+    SkMD5::Digest d1, d2;
+    md5(bm1, &d1);
+    md5(bm2, &d2);
+    REPORTER_ASSERT(r, d1 == d2);
 }

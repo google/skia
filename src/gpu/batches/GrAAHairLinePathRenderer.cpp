@@ -683,13 +683,8 @@ public:
                     SkIRect devClipBounds) : INHERITED(ClassID()) {
         fGeoData.emplace_back(Geometry{color, coverage, viewMatrix, path, devClipBounds});
 
-        // compute bounds
-        fBounds = path.getBounds();
-        viewMatrix.mapRect(&fBounds);
-
-        // This is b.c. hairlines are notionally infinitely thin so without expansion
-        // two overlapping lines could be reordered even though they hit the same pixels.
-        fBounds.outset(0.5f, 0.5f);
+        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes,
+                                   IsZeroArea::kYes);
     }
 
     const char* name() const override { return "AAHairlineBatch"; }
@@ -759,7 +754,7 @@ private:
         }
 
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 
@@ -968,7 +963,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     SkPath path;
     args.fShape->asPath(&path);
-    SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, path,
+    SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fPaint->getColor(),
+                                                          *args.fViewMatrix, path,
                                                           args.fShape->style(), devClipBounds));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint);

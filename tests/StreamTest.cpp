@@ -117,7 +117,7 @@ static void TestWStream(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, ds.getOffset() == 100 * 26);
 
     {
-        SkAutoTUnref<SkData> data(ds.copyToData());
+        sk_sp<SkData> data(ds.copyToData());
         REPORTER_ASSERT(reporter, 100 * 26 == data->size());
         REPORTER_ASSERT(reporter, memcmp(dst, data->data(), data->size()) == 0);
     }
@@ -174,7 +174,7 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
 static void TestDereferencingData(SkMemoryStream* memStream) {
     memStream->read(nullptr, 0);
     memStream->getMemoryBase();
-    SkAutoDataUnref data(memStream->copyToData());
+    sk_sp<SkData> data(memStream->copyToData());
 }
 
 static void TestNullData() {
@@ -361,7 +361,7 @@ DEF_TEST(StreamPeek_BlockMemoryStream, rep) {
         dynamicMemoryWStream.write(buffer, size);
     }
     SkAutoTDelete<SkStreamAsset> asset(dynamicMemoryWStream.detachAsStream());
-    SkAutoTUnref<SkData> expected(SkData::NewUninitialized(asset->getLength()));
+    sk_sp<SkData> expected(SkData::MakeUninitialized(asset->getLength()));
     uint8_t* expectedPtr = static_cast<uint8_t*>(expected->writable_data());
     valueSource.setSeed(kSeed);  // reseed.
     // We want the exact same same "random" string of numbers to put
@@ -370,7 +370,7 @@ DEF_TEST(StreamPeek_BlockMemoryStream, rep) {
     for (size_t i = 0; i < asset->getLength(); ++i) {
         expectedPtr[i] = valueSource.nextU() & 0xFF;
     }
-    stream_peek_test(rep, asset, expected);
+    stream_peek_test(rep, asset, expected.get());
 }
 
 namespace {
@@ -404,7 +404,7 @@ static void stream_copy_test(skiatest::Reporter* reporter,
         ERRORF(reporter, "SkStreamCopy failed");
         return;
     }
-    SkAutoTUnref<SkData> data(tgt.copyToData());
+    sk_sp<SkData> data(tgt.copyToData());
     tgt.reset();
     if (data->size() != N) {
         ERRORF(reporter, "SkStreamCopy incorrect size");

@@ -176,6 +176,7 @@ public:
         SkScalar ptCount = SkScalarMulDiv(pathLength,
                                           SkIntToScalar(intervalCount),
                                           intervalLength);
+        ptCount = SkTMin(ptCount, SkDashPath::kMaxDashCount);
         int n = SkScalarCeilToInt(ptCount) << 2;
         dst->incReserve(n);
 
@@ -185,7 +186,7 @@ public:
     }
 
     void addSegment(SkScalar d0, SkScalar d1, SkPath* path) const {
-        SkASSERT(d0 < fPathLength);
+        SkASSERT(d0 <= fPathLength);
         // clamp the segment to our length
         if (d1 > fPathLength) {
             d1 = fPathLength;
@@ -255,7 +256,6 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
         // 90 million dash segments and crashing the memory allocator. A limit of 1 million
         // segments seems reasonable: at 2 verbs per segment * 9 bytes per verb, this caps the
         // maximum dash memory overhead at roughly 17MB per path.
-        static const SkScalar kMaxDashCount = 1000000;
         dashCount += length * (count >> 1) / intervalLength;
         if (dashCount > kMaxDashCount) {
             dst->reset();

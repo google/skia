@@ -12,10 +12,6 @@
 
 #include "vk/GrVkDefines.h"
 
-#ifdef SK_DEBUG
-#define ENABLE_VK_LAYERS
-#endif
-
 struct GrVkInterface;
 
 enum GrVkExtensionFlags {
@@ -51,13 +47,14 @@ struct GrVkBackendContext : public SkRefCnt {
     uint32_t                          fFeatures;
     SkAutoTUnref<const GrVkInterface> fInterface;
 
+    using CanPresentFn = std::function<bool(VkInstance, VkPhysicalDevice,
+                                            uint32_t queueFamilyIndex)>;
+
     // Helper function to create the default Vulkan objects needed by the GrVkGpu object
     // If presentQueueIndex is non-NULL, will try to set up presentQueue as part of device
-    // creation. canPresent() is a device-dependent function.
+    // creation using the platform-specific canPresent() function.
     static const GrVkBackendContext* Create(uint32_t* presentQueueIndex = nullptr,
-                    bool(*canPresent)(VkInstance, VkPhysicalDevice, uint32_t queueIndex,
-                                      void* platformData) = nullptr,
-                    void* platformData = nullptr);
+                                            CanPresentFn = CanPresentFn());
 
     ~GrVkBackendContext() override;
 };

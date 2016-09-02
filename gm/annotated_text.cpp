@@ -16,8 +16,8 @@ static void draw_url_annotated_text_with_box(
     SkRect bounds;
     (void)paint.measureText(text, byteLength, &bounds);
     bounds.offset(x, y);
-    SkAutoTUnref<SkData> urlData(SkData::NewWithCString(url));
-    SkAnnotateRectWithURL(canvas, bounds, urlData);
+    sk_sp<SkData> urlData(SkData::MakeWithCString(url));
+    SkAnnotateRectWithURL(canvas, bounds, urlData.get());
     SkPaint shade;
     shade.setColor(0x80346180);
     canvas->drawRect(bounds, shade);

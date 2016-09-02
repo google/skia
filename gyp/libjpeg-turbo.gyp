@@ -19,13 +19,24 @@
   'targets': [
     {
       'target_name': 'yasm-win',
-      'type': 'executable',
+      'type': 'none',
       'sources': [
         '../third_party/externals/yasm/binaries/win/yasm.exe',
       ],
       'copies' : [{
         'destination': '<(PRODUCT_DIR)',
         'files': [ '../third_party/externals/yasm/binaries/win/yasm.exe' ],
+      }],
+    },
+    {
+      'target_name': 'yasm-android',
+      'type': 'none',
+      'sources': [
+        '../third_party/yasm/android/yasm-android',
+      ],
+      'copies' : [{
+        'destination': '<(PRODUCT_DIR)',
+        'files': [ '../third_party/yasm/android/yasm-android' ],
       }],
     },
     {
@@ -249,10 +260,10 @@
         [ 'skia_os == "android" and host_os == "linux" and \
           (skia_arch_type == "x86" or skia_arch_type == "x86_64")', {
           'dependencies': [
-            'yasm.gyp:yasm#host',
+            'yasm-android',
           ],
           'variables': {
-            'yasm_path': '<(PRODUCT_DIR)/yasm',
+            'yasm_path': '<(PRODUCT_DIR)/yasm-android',
             'conditions': [
               [ 'skia_arch_type == "x86"', {
                 'yasm_format': '-felf',

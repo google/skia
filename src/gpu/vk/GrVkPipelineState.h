@@ -10,16 +10,18 @@
 #define GrVkPipelineState_DEFINED
 
 #include "GrStencilSettings.h"
+#include "GrVkDescriptorSetManager.h"
 #include "GrVkImage.h"
-#include "GrVkProgramDesc.h"
 #include "GrVkPipelineStateDataManager.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDesc.h"
 
 #include "vk/GrVkDefines.h"
 
 class GrPipeline;
 class GrVkCommandBuffer;
 class GrVkDescriptorPool;
+class GrVkDescriptorSet;
 class GrVkGpu;
 class GrVkImageView;
 class GrVkPipeline;
@@ -70,7 +72,7 @@ public:
      * For Vulkan we want to cache the entire VkPipeline for reuse of draws. The Desc here holds all
      * the information needed to differentiate one pipeline from another.
      *
-     * The GrVkProgramDesc contains all the information need to create the actual shaders for the
+     * The GrGLSLProgramDesc contains all the information need to create the actual shaders for the
      * pipeline.
      *
      * The fStateKey is used to store all the inputs for the rest of the state stored on the
@@ -84,7 +86,7 @@ public:
      */
     struct Desc {
         uint32_t                fChecksum;
-        GrVkProgramDesc         fProgramDesc;
+        GrGLSLProgramDesc       fProgramDesc;
 
         enum {
             kRenderPassKeyAlloc = 12, // This is typical color attachment with no stencil or msaa
@@ -150,7 +152,7 @@ private:
                       const GrVkPipelineState::Desc&,
                       GrVkPipeline* pipeline,
                       VkPipelineLayout layout,
-                      VkDescriptorSetLayout dsSamplerLayout,
+                      const GrVkDescriptorSetManager::Handle& samplerDSHandle,
                       const BuiltinUniformHandles& builtinUniformHandles,
                       const UniformInfoArray& uniforms,
                       uint32_t vertexUniformSize,
@@ -256,6 +258,13 @@ private:
     // GrVkPipelineState since we update the descriptor sets and bind them at separate times;
     VkDescriptorSet fDescriptorSets[2];
 
+    // Once we move samplers over to use the resource provider for descriptor sets we will not need
+    // the above array and instead just use GrVkDescriptorSet like the uniform one here.
+    const GrVkDescriptorSet* fUniformDescriptorSet;
+    const GrVkDescriptorSet* fSamplerDescriptorSet;
+
+    const GrVkDescriptorSetManager::Handle fSamplerDSHandle;
+
     // Meta data so we know which descriptor sets we are using and need to bind.
     int fStartDS;
     int fDSCount;
@@ -280,9 +289,6 @@ private:
     Desc fDesc;
 
     GrVkPipelineStateDataManager fDataManager;
-
-    DescriptorPoolManager fSamplerPoolManager;
-    const GrVkDescriptorPool*   fCurrentUniformDescPool;
 
     int fNumSamplers;
 

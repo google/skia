@@ -97,20 +97,14 @@ void SkColorFilterShader::FilterShaderContext::shadeSpan4f(int x, int y, SkPM4f 
 #if SK_SUPPORT_GPU
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
-                                                     GrContext* context,
-                                                     const SkMatrix& viewM,
-                                                     const SkMatrix* localMatrix,
-                                                     SkFilterQuality fq,
-                                                     SkSourceGammaTreatment gammaTreatment) const {
+sk_sp<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(const AsFPArgs& args) const {
 
-    sk_sp<GrFragmentProcessor> fp1(fShader->asFragmentProcessor(context, viewM, localMatrix, fq,
-                                                                gammaTreatment));
+    sk_sp<GrFragmentProcessor> fp1(fShader->asFragmentProcessor(args));
     if (!fp1) {
         return nullptr;
     }
 
-    sk_sp<GrFragmentProcessor> fp2(fFilter->asFragmentProcessor(context));
+    sk_sp<GrFragmentProcessor> fp2(fFilter->asFragmentProcessor(args.fContext));
     if (!fp2) {
         return fp1;
     }

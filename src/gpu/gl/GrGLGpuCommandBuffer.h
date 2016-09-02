@@ -25,7 +25,7 @@ public:
 
     void end() override {}
 
-    void discard(GrRenderTarget* rt) override { fGpu->discard(rt); }
+    void discard(GrRenderTarget* rt) override {}
 
 private:
     GrGpu* gpu() override { return fGpu; }

@@ -8,6 +8,8 @@
 #include "gm.h"
 #include "SkBlurDrawLooper.h"
 #include "SkBlurMask.h"
+#include "SkColorFilter.h"
+#include "SkMaskFilter.h"
 #include "SkPath.h"
 
 namespace skiagm {

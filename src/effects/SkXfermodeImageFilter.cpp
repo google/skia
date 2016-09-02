@@ -185,10 +185,10 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
     if (backgroundTex) {
         SkMatrix backgroundMatrix;
         backgroundMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
-        backgroundMatrix.preTranslate(SkIntToScalar(-backgroundOffset.fX),
-                                      SkIntToScalar(-backgroundOffset.fY));
+        backgroundMatrix.preTranslate(-SkIntToScalar(backgroundOffset.fX),
+                                      -SkIntToScalar(backgroundOffset.fY));
         bgFP = GrTextureDomainEffect::Make(
-                            backgroundTex.get(), backgroundMatrix,
+                            backgroundTex.get(), nullptr, backgroundMatrix,
                             GrTextureDomain::MakeTexelDomain(backgroundTex.get(),
                                                              background->subset()),
                             GrTextureDomain::kDecal_Mode,
@@ -201,13 +201,13 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
     if (foregroundTex) {
         SkMatrix foregroundMatrix;
         foregroundMatrix.setIDiv(foregroundTex->width(), foregroundTex->height());
-        foregroundMatrix.preTranslate(SkIntToScalar(-foregroundOffset.fX),
-                                      SkIntToScalar(-foregroundOffset.fY));
+        foregroundMatrix.preTranslate(-SkIntToScalar(foregroundOffset.fX),
+                                      -SkIntToScalar(foregroundOffset.fY));
 
         sk_sp<GrFragmentProcessor> foregroundFP;
 
         foregroundFP = GrTextureDomainEffect::Make(
-                            foregroundTex.get(), foregroundMatrix,
+                            foregroundTex.get(), nullptr, foregroundMatrix,
                             GrTextureDomain::MakeTexelDomain(foregroundTex.get(), 
                                                              foreground->subset()),
                             GrTextureDomain::kDecal_Mode,
@@ -241,9 +241,10 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                             bounds.width(), bounds.height(),
-                                                             kSkia8888_GrPixelConfig));
+    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
+                                                              bounds.width(), bounds.height(),
+                                                              kSkia8888_GrPixelConfig,
+                                                              sk_ref_sp(source->getColorSpace())));
     if (!drawContext) {
         return nullptr;
     }
@@ -254,7 +255,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture());
+                                       drawContext->asTexture(),
+                                       sk_ref_sp(drawContext->getColorSpace()));
 }
 
 #endif

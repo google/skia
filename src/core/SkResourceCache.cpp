@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkChecksum.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkMutex.h"
+#include "SkOpts.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
 #include "SkTraceMemoryDump.h"
@@ -46,9 +46,9 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataS
     fSharedID_lo = (uint32_t)sharedID;
     fSharedID_hi = (uint32_t)(sharedID >> 32);
     fNamespace = nameSpace;
-    // skip unhashed fields when computing the murmur
-    fHash = SkChecksum::Murmur3(this->as32() + kUnhashedLocal32s,
-                                (fCount32 - kUnhashedLocal32s) << 2);
+    // skip unhashed fields when computing the hash
+    fHash = SkOpts::hash(this->as32() + kUnhashedLocal32s,
+                         (fCount32 - kUnhashedLocal32s) << 2);
 }
 
 #include "SkTDynamicHash.h"

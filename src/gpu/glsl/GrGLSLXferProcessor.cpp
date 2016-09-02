@@ -22,6 +22,8 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     const char* dstColor = fragBuilder->dstColor();
 
+    bool needsLocalOutColor = false;
+
     if (args.fXP.getDstTexture()) {
         bool topDown = kTopLeft_GrSurfaceOrigin == args.fXP.getDstTexture()->origin();
 
@@ -59,6 +61,15 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         fragBuilder->codeAppendf("vec4 %s = ", dstColor);
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "_dstTexCoord", kVec2f_GrSLType);
         fragBuilder->codeAppend(";");
+    } else {
+        needsLocalOutColor = args.fGLSLCaps->requiresLocalOutputColorForFBFetch();
+    }
+
+    const char* outColor = "_localColorOut";
+    if (!needsLocalOutColor) {
+        outColor = args.fOutputPrimary;
+    } else {
+        fragBuilder->codeAppendf("vec4 %s;", outColor);
     }
 
     this->emitBlendCodeForDstRead(fragBuilder,
@@ -66,9 +77,12 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
                                   args.fInputColor,
                                   args.fInputCoverage,
                                   dstColor,
-                                  args.fOutputPrimary,
+                                  outColor,
                                   args.fOutputSecondary,
                                   args.fXP);
+    if (needsLocalOutColor) {
+        fragBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, outColor);
+    }
 }
 
 void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {

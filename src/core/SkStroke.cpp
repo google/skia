@@ -1267,6 +1267,7 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
 SkStroke::SkStroke() {
     fWidth      = SK_Scalar1;
     fMiterLimit = SkPaintDefaults_MiterLimit;
+    fResScale   = 1;
     fCap        = SkPaint::kDefault_Cap;
     fJoin       = SkPaint::kDefault_Join;
     fDoFill     = false;
@@ -1275,6 +1276,7 @@ SkStroke::SkStroke() {
 SkStroke::SkStroke(const SkPaint& p) {
     fWidth      = p.getStrokeWidth();
     fMiterLimit = p.getStrokeMiter();
+    fResScale   = 1;
     fCap        = (uint8_t)p.getStrokeCap();
     fJoin       = (uint8_t)p.getStrokeJoin();
     fDoFill     = SkToU8(p.getStyle() == SkPaint::kStrokeAndFill_Style);
@@ -1283,6 +1285,7 @@ SkStroke::SkStroke(const SkPaint& p) {
 SkStroke::SkStroke(const SkPaint& p, SkScalar width) {
     fWidth      = width;
     fMiterLimit = p.getStrokeMiter();
+    fResScale   = 1;
     fCap        = (uint8_t)p.getStrokeCap();
     fJoin       = (uint8_t)p.getStrokeJoin();
     fDoFill     = SkToU8(p.getStyle() == SkPaint::kStrokeAndFill_Style);

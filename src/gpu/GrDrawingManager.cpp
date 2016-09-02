@@ -13,8 +13,12 @@
 #include "GrSoftwarePathRenderer.h"
 #include "SkTTopoSort.h"
 
+#include "instanced/InstancedRendering.h"
+
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
+
+using gr_instanced::InstancedRendering;
 
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fDrawTargets.count(); ++i) {
@@ -40,6 +44,12 @@ GrDrawingManager::~GrDrawingManager() {
 
 void GrDrawingManager::abandon() {
     fAbandoned = true;
+    for (int i = 0; i < fDrawTargets.count(); ++i) {
+        if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+            InstancedRendering* ir = fDrawTargets[i]->instancedRendering();
+            ir->resetGpuResources(InstancedRendering::ResetType::kAbandon);
+        }
+    }
     this->cleanup();
 }
 
@@ -48,6 +58,12 @@ void GrDrawingManager::freeGpuResources() {
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
+    for (int i = 0; i < fDrawTargets.count(); ++i) {
+        if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+            InstancedRendering* ir = fDrawTargets[i]->instancedRendering();
+            ir->resetGpuResources(InstancedRendering::ResetType::kDestroy);
+        }
+    }
 }
 
 void GrDrawingManager::reset() {
@@ -134,6 +150,14 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     return SkRef(dt);
 }
 
+GrAtlasTextContext* GrDrawingManager::getAtlasTextContext() {
+    if (!fAtlasTextContext) {
+        fAtlasTextContext.reset(GrAtlasTextContext::Create());
+    }
+
+    return fAtlasTextContext.get();
+}
+
 /*
  * This method finds a path renderer that can draw the specified path on
  * the provided target.
@@ -160,8 +184,9 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     return pr;
 }
 
-sk_sp<GrDrawContext> GrDrawingManager::drawContext(sk_sp<GrRenderTarget> rt,
-                                                   const SkSurfaceProps* surfaceProps) {
+sk_sp<GrDrawContext> GrDrawingManager::makeDrawContext(sk_sp<GrRenderTarget> rt,
+                                                       sk_sp<SkColorSpace> colorSpace,
+                                                       const SkSurfaceProps* surfaceProps) {
     if (this->wasAbandoned()) {
         return nullptr;
     }
@@ -177,13 +202,14 @@ sk_sp<GrDrawContext> GrDrawingManager::drawContext(sk_sp<GrRenderTarget> rt,
         GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt.get());
         if (sb) {
             return sk_sp<GrDrawContext>(new GrPathRenderingDrawContext(
-                                                        fContext, this, std::move(rt), 
-                                                        surfaceProps,
+                                                        fContext, this, std::move(rt),
+                                                        std::move(colorSpace), surfaceProps,
                                                         fContext->getAuditTrail(), fSingleOwner));
         }
     }
 
-    return sk_sp<GrDrawContext>(new GrDrawContext(fContext, this, std::move(rt), surfaceProps,
+    return sk_sp<GrDrawContext>(new GrDrawContext(fContext, this, std::move(rt),
+                                                  std::move(colorSpace), surfaceProps,
                                                   fContext->getAuditTrail(),
                                                   fSingleOwner));
 }

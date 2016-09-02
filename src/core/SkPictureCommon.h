@@ -45,18 +45,12 @@ struct SkBitmapHunter {
 
     // Most draws-type ops have paints.
     template <typename T>
-    static SK_WHEN(T::kTags & SkRecords::kDraw_Tag, bool) CheckPaint(const T& op) {
+    static SK_WHEN(T::kTags & SkRecords::kHasPaint_Tag, bool) CheckPaint(const T& op) {
         return PaintHasBitmap(AsPtr(op.paint));
     }
 
-    // SaveLayers also have a paint to check.
-    static bool CheckPaint(const SkRecords::SaveLayer& op) {
-        return PaintHasBitmap(AsPtr(op.paint));
-    }
-
-    // Shouldn't be any non-Draw non-SaveLayer ops with paints.
     template <typename T>
-    static SK_WHEN(!(T::kTags & SkRecords::kDraw_Tag), bool) CheckPaint(const T&) {
+    static SK_WHEN(!(T::kTags & SkRecords::kHasPaint_Tag), bool) CheckPaint(const T&) {
         return false;
     }
 

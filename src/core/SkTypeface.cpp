@@ -14,9 +14,10 @@
 #include "SkOnce.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
+#include "SkTypefaceCache.h"
 
-SkTypeface::SkTypeface(const SkFontStyle& style, SkFontID fontID, bool isFixedPitch)
-    : fUniqueID(fontID), fStyle(style), fIsFixedPitch(isFixedPitch) { }
+SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
+    : fUniqueID(SkTypefaceCache::NewFontID()), fStyle(style), fIsFixedPitch(isFixedPitch) { }
 
 SkTypeface::~SkTypeface() { }
 
@@ -40,7 +41,7 @@ class SkEmptyTypeface : public SkTypeface {
 public:
     static SkEmptyTypeface* Create() { return new SkEmptyTypeface; }
 protected:
-    SkEmptyTypeface() : SkTypeface(SkFontStyle(), 0, true) { }
+    SkEmptyTypeface() : SkTypeface(SkFontStyle(), true) { }
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
@@ -167,7 +168,7 @@ void SkTypeface::serialize(SkWStream* wstream) const {
         return;
     }
     bool isLocal = false;
-    SkFontDescriptor desc(this->style());
+    SkFontDescriptor desc;
     this->onGetFontDescriptor(&desc, &isLocal);
 
     // Embed font data if it's a local font.
@@ -195,8 +196,7 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
         }
     }
 
-    return SkTypeface::MakeFromName(desc.getFamilyName(),
-                                    SkFontStyle::FromOldStyle(desc.getStyle()));
+    return SkTypeface::MakeFromName(desc.getFamilyName(), desc.getStyle());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -291,21 +291,15 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
     SkAdvancedTypefaceMetrics* result =
             this->onGetAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);
     if (result && result->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
-        struct SkOTTableOS2 os2table;
-        if (this->getTableData(SkTEndian_SwapBE32(SkOTTableOS2::TAG), 0,
-                               sizeof(os2table), &os2table) > 0) {
-            if (os2table.version.v2.fsType.field.Bitmap ||
-                (os2table.version.v2.fsType.field.Restricted &&
-                 !(os2table.version.v2.fsType.field.PreviewPrint ||
-                   os2table.version.v2.fsType.field.Editable))) {
-                result->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
-                        result->fFlags,
-                        SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
+        SkOTTableOS2::Version::V2::Type::Field fsType;
+        constexpr SkFontTableTag os2Tag = SkTEndian_SwapBE32(SkOTTableOS2::TAG);
+        constexpr size_t fsTypeOffset = offsetof(SkOTTableOS2::Version::V2, fsType);
+        if (this->getTableData(os2Tag, fsTypeOffset, sizeof(fsType), &fsType) == sizeof(fsType)) {
+            if (fsType.Bitmap || (fsType.Restricted && !(fsType.PreviewPrint || fsType.Editable))) {
+                result->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
             }
-            if (os2table.version.v2.fsType.field.NoSubsetting) {
-                result->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
-                        result->fFlags,
-                        SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag);
+            if (fsType.NoSubsetting) {
+                result->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
             }
         }
     }

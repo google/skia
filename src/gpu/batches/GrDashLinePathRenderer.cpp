@@ -7,8 +7,9 @@
 
 #include "GrDashLinePathRenderer.h"
 
-#include "GrGpu.h"
 #include "GrAuditTrail.h"
+#include "GrGpu.h"
+#include "GrPipelineBuilder.h"
 #include "effects/GrDashingEffect.h"
 
 bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
@@ -38,7 +39,7 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     SkPoint pts[2];
     SkAssertResult(args.fShape->asLine(pts, nullptr));
-    SkAutoTUnref<GrDrawBatch> batch(GrDashingEffect::CreateDashLineBatch(args.fColor,
+    SkAutoTUnref<GrDrawBatch> batch(GrDashingEffect::CreateDashLineBatch(args.fPaint->getColor(),
                                                                          *args.fViewMatrix,
                                                                          pts,
                                                                          aaMode,

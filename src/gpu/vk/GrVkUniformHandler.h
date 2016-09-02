@@ -90,6 +90,7 @@ private:
     uint32_t         fCurrentSamplerBinding;
 
     friend class GrVkPipelineStateBuilder;
+    friend class GrVkDescriptorSetManager;
 
     typedef GrGLSLUniformHandler INHERITED;
 };

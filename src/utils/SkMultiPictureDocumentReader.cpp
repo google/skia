@@ -9,6 +9,8 @@
 #include "SkMultiPictureDocumentReader.h"
 #include "SkPicture.h"
 #include "SkStream.h"
+#include "SkPictureRecorder.h"
+#include "SkNWayCanvas.h"
 
 bool SkMultiPictureDocumentReader::init(SkStreamSeekable* stream) {
     if (!stream) {
@@ -24,26 +26,68 @@ bool SkMultiPictureDocumentReader::init(SkStreamSeekable* stream) {
     }
     bool good = true;
     uint32_t versionNumber = stream->readU32();
-    if (versionNumber != 1) {
+    if (versionNumber != SkMultiPictureDocumentProtocol::kVersion) {
         return false;
     }
     uint32_t pageCount = stream->readU32();
     fSizes.reset(pageCount);
-    fOffsets.reset(pageCount);
     for (uint32_t i = 0; i < pageCount; ++i) {
-        SkMultiPictureDocumentProtocol::Entry entry;
-        good &= sizeof(entry) == stream->read(&entry, sizeof(entry));
-        fSizes[i] = SkSize::Make(entry.sizeX, entry.sizeY);
-        good &= SkTFitsIn<size_t>(entry.offset);
-        fOffsets[i] = static_cast<size_t>(entry.offset);
+        SkSize size;
+        good &= sizeof(size) == stream->read(&size, sizeof(size));
+        fSizes[i] = size;
     }
+    fOffset = stream->getPosition();
     return good;
 }
+
+namespace {
+struct PagerCanvas : public SkNWayCanvas {
+    SkPictureRecorder fRecorder;
+    const SkTArray<SkSize>* fSizes;
+    SkTArray<sk_sp<SkPicture>>* fDest;
+    PagerCanvas(SkISize  wh,
+                const SkTArray<SkSize>* s,
+                SkTArray<sk_sp<SkPicture>>* d)
+        : SkNWayCanvas(wh.width(), wh.height()), fSizes(s), fDest(d) {
+        this->nextCanvas();
+    }
+    void nextCanvas() {
+        int i = fDest->count();
+        if (i < fSizes->count()) {
+            SkRect bounds = SkRect::MakeSize((*fSizes)[i]);
+            this->addCanvas(fRecorder.beginRecording(bounds));
+        }
+    }
+    void onDrawAnnotation(const SkRect& r, const char* key, SkData* d) override {
+        if (0 == strcmp(key, SkMultiPictureDocumentProtocol::kEndPage)) {
+            this->removeAll();
+            if (fRecorder.getRecordingCanvas()) {
+                fDest->emplace_back(fRecorder.finishRecordingAsPicture());
+            }
+            this->nextCanvas();
+        } else {
+            this->SkNWayCanvas::onDrawAnnotation(r, key, d);
+        }
+    }
+};
+}  // namespace
 
 sk_sp<SkPicture> SkMultiPictureDocumentReader::readPage(SkStreamSeekable* stream,
                                                         int pageNumber) const {
     SkASSERT(pageNumber >= 0);
-    SkASSERT(pageNumber < fOffsets.count());
-    SkAssertResult(stream->seek(fOffsets[pageNumber]));
-    return SkPicture::MakeFromStream(stream);
+    SkASSERT(pageNumber < fSizes.count());
+    if (0 == fPages.count()) {
+        stream->seek(fOffset); // jump to beginning of skp
+        auto picture = SkPicture::MakeFromStream(stream);
+        SkISize size = SkMultiPictureDocumentProtocol::Join(fSizes).toCeil();
+        PagerCanvas canvas(size, &fSizes, &this->fPages);
+        // Must call playback(), not drawPicture() to reach
+        // PagerCanvas::onDrawAnnotation().
+        picture->playback(&canvas);
+        if (fPages.count() != fSizes.count()) {
+            SkDEBUGF(("Malformed SkMultiPictureDocument\n"));
+        }
+    }
+    // Allow for malformed document.
+    return pageNumber < fPages.count() ? fPages[pageNumber] : nullptr;
 }

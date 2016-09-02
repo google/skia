@@ -10,6 +10,7 @@
 
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
+#include "SkImageInfo.h"
 
 class SkColorSpaceXform : SkNoncopyable {
 public:
@@ -26,41 +27,33 @@ public:
 
     /**
      *  Apply the color conversion to a src buffer, storing the output in the dst buffer.
-     *  The src is opaque and stored in RGBA_8888, and the dst is also opaque and stored
-     *  in 8888 platform format.
+     *  The src is stored as RGBA (8888).  The dst is stored in the format indicated by
+     *  |dstColorType| and is premultiplied by alpha if |premul| is set.
      */
-    virtual void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const = 0;
+    virtual void apply(void* dst, const uint32_t* src, int len, SkColorType dstColorType,
+                       SkAlphaType dstAlphaType) const = 0;
 
     virtual ~SkColorSpaceXform() {}
 };
 
-template <SkColorSpace::GammaNamed Src, SkColorSpace::GammaNamed Dst>
-class SkFastXform : public SkColorSpaceXform {
-public:
-
-    void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
-
-private:
-    SkFastXform(const SkMatrix44& srcToDst);
-
-    float fSrcToDst[12];
-
-    friend class SkColorSpaceXform;
+enum ColorSpaceMatch {
+    kNone_ColorSpaceMatch,
+    kGamut_ColorSpaceMatch,
+    kFull_ColorSpaceMatch,
 };
 
-/**
- *  Works for any valid src and dst profiles.
- */
-class SkDefaultXform : public SkColorSpaceXform {
+template <SkColorSpace::GammaNamed kDst, ColorSpaceMatch kCSM>
+class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
 
-    void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
-
-private:
-    SkDefaultXform(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
-                   const sk_sp<SkColorSpace>& dstSpace);
+    void apply(void* dst, const uint32_t* src, int len, SkColorType dstColorType,
+               SkAlphaType dstAlphaType) const override;
 
     static constexpr int      kDstGammaTableSize = 1024;
+
+private:
+    SkColorSpaceXform_Base(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
+                           const sk_sp<SkColorSpace>& dstSpace);
 
     sk_sp<SkColorLookUpTable> fColorLUT;
 
@@ -68,13 +61,17 @@ private:
     const float*              fSrcGammaTables[3];
     float                     fSrcGammaTableStorage[3 * 256];
 
-    const SkMatrix44          fSrcToDst;
+    float                     fSrcToDst[16];
 
     // May contain pointers into storage or pointers into precomputed tables.
     const uint8_t*            fDstGammaTables[3];
     uint8_t                   fDstGammaTableStorage[3 * kDstGammaTableSize];
 
     friend class SkColorSpaceXform;
+    friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(const sk_sp<SkColorSpace>& space);
 };
+
+// For testing.  Bypasses opts for when src and dst color spaces are equal.
+std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(const sk_sp<SkColorSpace>& space);
 
 #endif

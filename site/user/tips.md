@@ -103,14 +103,10 @@ Capture a `.skp` file on a web page in Chromium
 3.  Execute: `chrome.gpuBenchmarking.printToSkPicture('/tmp')`
     This returns "undefined" on success.
 
-Open the resulting file in the Skia Debugger, rasterize it with `dm`,
+Open the resulting file in the [Skia Debugger](/dev/tools/debugger), rasterize it with `dm`,
 or use Skia's `SampleApp` to view it:
 
 <!--?prettify lang=sh?-->
-
-    bin/sync-and-gyp
-    ninja -C out/Release debugger dm SampleApp
-    out/Release/debugger /tmp/layer_0.skp &
 
     out/Release/dm --src skp --skps /tmp/layer_0.skp -w /tmp \
         --config 8888 gpu pdf --verbose

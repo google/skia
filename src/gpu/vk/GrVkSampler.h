@@ -28,6 +28,13 @@ public:
 
     static const uint16_t& GetKey(const GrVkSampler& sampler) { return sampler.fKey; }
     static uint32_t Hash(const uint16_t& key) { return key; }
+
+#ifdef SK_TRACE_VK_RESOURCES
+    void dumpInfo() const override {
+        SkDebugf("GrVkSampler: %d (%d refs)\n", fSampler, this->getRefCnt());
+    }
+#endif
+
 private:
     GrVkSampler(VkSampler sampler, uint16_t key) : INHERITED(), fSampler(sampler), fKey(key) {}
 

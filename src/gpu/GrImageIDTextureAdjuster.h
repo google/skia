@@ -15,38 +15,6 @@ class SkBitmap;
 class SkImage_Base;
 class SkImageCacherator;
 
-/** Implementation for texture-backed SkBitmaps. The bitmap must stay in scope and unmodified
-    while this object exists. */
-class GrBitmapTextureAdjuster : public GrTextureAdjuster {
-public:
-    explicit GrBitmapTextureAdjuster(const SkBitmap* bmp);
-
-private:
-    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
-
-    void didCacheCopy(const GrUniqueKey& copyKey) override;
-
-    const SkBitmap* fBmp;
-
-    typedef GrTextureAdjuster INHERITED;
-};
-
-/** Implementation for texture-backed SkImages. The image must stay in scope and unmodified while
-    this object exists. */
-class GrImageTextureAdjuster : public GrTextureAdjuster {
-public:
-    explicit GrImageTextureAdjuster(const SkImage_Base* img);
-
-private:
-    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
-
-    void didCacheCopy(const GrUniqueKey& copyKey) override;
-
-    const SkImage_Base* fImageBase;
-
-    typedef GrTextureAdjuster INHERITED;
-};
-
 /** This class manages the conversion of SW-backed bitmaps to GrTextures. If the input bitmap is
     non-volatile the texture is cached using a key created from the pixels' image id and the
     subset of the pixelref specified by the bitmap. */
@@ -60,6 +28,9 @@ protected:
     void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override;
 
     void didCacheCopy(const GrUniqueKey& copyKey) override;
+
+    SkAlphaType alphaType() const override;
+    SkColorSpace* getColorSpace() override;
 
 private:
     const SkBitmap  fBitmap;
@@ -83,6 +54,9 @@ protected:
     GrTexture* refOriginalTexture(bool willBeMipped, SkSourceGammaTreatment) override;
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;
+
+    SkAlphaType alphaType() const override;
+    SkColorSpace* getColorSpace() override;
 
 private:
     SkImageCacherator*      fCacher;

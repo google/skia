@@ -44,13 +44,16 @@ bool FixWinding(SkPath* path) {
     }
     SkChunkAlloc allocator(4096);
     SkOpContourHead contourHead;
-    SkOpGlobalState globalState(nullptr, &contourHead  SkDEBUGPARAMS(false)
+    SkOpGlobalState globalState(&contourHead, &allocator  SkDEBUGPARAMS(false)
             SkDEBUGPARAMS(nullptr));
-    SkOpEdgeBuilder builder(*path, &contourHead, &allocator, &globalState);
-    builder.finish(&allocator);
-    if (!contourHead.next()) {
+    SkOpEdgeBuilder builder(*path, &contourHead, &globalState);
+    if (builder.unparseable() || !builder.finish()) {
         return false;
     }
+    if (!contourHead.count()) {
+        return true;
+    }
+    SkASSERT(contourHead.next());
     contourHead.resetReverse();
     bool writePath = false;
     SkOpSpan* topSpan;
@@ -67,7 +70,7 @@ bool FixWinding(SkPath* path) {
             topContour->setReverse();
             writePath = true;
         }
-        topContour->markDone();
+        topContour->markAllDone();
         globalState.clearNested();
     }
     if (!writePath) {

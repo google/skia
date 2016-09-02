@@ -13,18 +13,18 @@
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
 #include "SkBitmapCache.h"
-#include "SkGrPixelRef.h"
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
-                         SkBudgeted budgeted)
+                         sk_sp<SkColorSpace> colorSpace, SkBudgeted budgeted)
     : INHERITED(w, h, uniqueID)
     , fTexture(SkRef(tex))
     , fAlphaType(at)
     , fBudgeted(budgeted)
+    , fColorSpace(std::move(colorSpace))
     , fAddedRasterVersionToCache(false)
 {
     SkASSERT(tex->width() == w);
@@ -38,13 +38,21 @@ SkImage_Gpu::~SkImage_Gpu() {
 }
 
 extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
-    if (as_IB(image)->peekTexture()) {
+    if (image->isTextureBacked()) {
         ((SkImage_Gpu*)image)->applyBudgetDecision();
     }
 }
 
-static SkImageInfo make_info(int w, int h, bool isOpaque) {
-    return SkImageInfo::MakeN32(w, h, isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+SkImageInfo SkImage_Gpu::onImageInfo() const {
+    SkColorType ct;
+    if (!GrPixelConfigToColorType(fTexture->config(), &ct)) {
+        ct = kUnknown_SkColorType;
+    }
+    return SkImageInfo::Make(fTexture->width(), fTexture->height(), ct, fAlphaType, fColorSpace);
+}
+
+static SkImageInfo make_info(int w, int h, SkAlphaType at, sk_sp<SkColorSpace> colorSpace) {
+    return SkImageInfo::MakeN32(w, h, at, std::move(colorSpace));
 }
 
 bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
@@ -55,7 +63,8 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
         return true;
     }
 
-    if (!dst->tryAllocPixels(make_info(this->width(), this->height(), this->isOpaque()))) {
+    if (!dst->tryAllocPixels(make_info(this->width(), this->height(), this->alphaType(),
+                                       this->fColorSpace))) {
         return false;
     }
     if (!fTexture->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
@@ -71,21 +80,11 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
     return true;
 }
 
-bool SkImage_Gpu::asBitmapForImageFilters(SkBitmap* bitmap) const {
-    bitmap->setInfo(make_info(this->width(), this->height(), this->isOpaque()));
-    bitmap->setPixelRef(new SkGrPixelRef(bitmap->info(), fTexture))->unref();
-    bitmap->pixelRef()->setImmutableWithID(this->uniqueID());
-    return true;
-}
-
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params,
                                      SkSourceGammaTreatment gammaTreatment) const {
-    return GrImageTextureAdjuster(as_IB(this)).refTextureSafeForParams(params, gammaTreatment,
-                                                                       nullptr);
-}
-
-bool SkImage_Gpu::isOpaque() const {
-    return GrPixelConfigIsOpaque(fTexture->config()) || fAlphaType == kOpaque_SkAlphaType;
+    GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(), this->uniqueID(),
+                               this->onImageInfo().colorSpace());
+    return adjuster.refTextureSafeForParams(params, gammaTreatment, nullptr);
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -147,13 +146,14 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
     }
     ctx->copySurface(subTx.get(), fTexture, subset, SkIPoint::Make(0, 0));
     return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                   fAlphaType, subTx.get(), fBudgeted);
+                                   fAlphaType, subTx.get(), fColorSpace, fBudgeted);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                                 SkAlphaType at, GrWrapOwnership ownership,
+                                                 SkAlphaType at, sk_sp<SkColorSpace> colorSpace,
+                                                 GrWrapOwnership ownership,
                                                  SkImage::TextureReleaseProc releaseProc,
                                                  SkImage::ReleaseContext releaseCtx) {
     if (desc.fWidth <= 0 || desc.fHeight <= 0) {
@@ -169,46 +169,28 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx, const GrBackend
 
     const SkBudgeted budgeted = SkBudgeted::kNo;
     return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                   at, tex, budgeted);
+                                   at, tex, colorSpace, budgeted);
 }
 
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                        SkAlphaType at, TextureReleaseProc releaseP,
-                                        ReleaseContext releaseC) {
-    return new_wrapped_texture_common(ctx, desc, at, kBorrow_GrWrapOwnership, releaseP, releaseC);
+                                        SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                        TextureReleaseProc releaseP, ReleaseContext releaseC) {
+    return new_wrapped_texture_common(ctx, desc, at, std::move(cs), kBorrow_GrWrapOwnership,
+                                      releaseP, releaseC);
 }
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                               SkAlphaType at) {
-    return new_wrapped_texture_common(ctx, desc, at, kAdopt_GrWrapOwnership, nullptr, nullptr);
-}
-
-sk_sp<SkImage> SkImage::MakeFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                            SkAlphaType at) {
-    if (desc.fWidth <= 0 || desc.fHeight <= 0) {
-        return nullptr;
-    }
-
-    SkAutoTUnref<GrTexture> src(ctx->textureProvider()->wrapBackendTexture(
-        desc, kBorrow_GrWrapOwnership));
-    if (!src) {
-        return nullptr;
-    }
-
-    SkAutoTUnref<GrTexture> dst(GrDeepCopyTexture(src, SkBudgeted::kYes));
-    if (!dst) {
-        return nullptr;
-    }
-
-    return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, dst,
-                                   SkBudgeted::kYes);
+                                               SkAlphaType at, sk_sp<SkColorSpace> cs) {
+    return new_wrapped_texture_common(ctx, desc, at, std::move(cs), kAdopt_GrWrapOwnership,
+                                      nullptr, nullptr);
 }
 
 static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                   bool nv12,
                                                   const GrBackendObject yuvTextureHandles[],
                                                   const SkISize yuvSizes[],
-                                                  GrSurfaceOrigin origin) {
+                                                  GrSurfaceOrigin origin,
+                                                  sk_sp<SkColorSpace> imageColorSpace) {
     const SkBudgeted budgeted = SkBudgeted::kYes;
 
     if (yuvSizes[0].fWidth <= 0 || yuvSizes[0].fHeight <= 0 || yuvSizes[1].fWidth <= 0 ||
@@ -264,11 +246,12 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     const int height = yuvSizes[0].fHeight;
 
     // Needs to be a render target in order to draw to it for the yuv->rgb conversion.
-    sk_sp<GrDrawContext> drawContext(ctx->newDrawContext(SkBackingFit::kExact,
-                                                         width, height,
-                                                         kRGBA_8888_GrPixelConfig,
-                                                         0,
-                                                         origin));
+    sk_sp<GrDrawContext> drawContext(ctx->makeDrawContext(SkBackingFit::kExact,
+                                                          width, height,
+                                                          kRGBA_8888_GrPixelConfig,
+                                                          std::move(imageColorSpace),
+                                                          0,
+                                                          origin));
     if (!drawContext) {
         return nullptr;
     }
@@ -283,21 +266,25 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), rect);
     ctx->flushSurfaceWrites(drawContext->accessRenderTarget());
     return sk_make_sp<SkImage_Gpu>(width, height, kNeedNewImageUniqueID,
-                                   kOpaque_SkAlphaType,
-                                   drawContext->asTexture().get(), budgeted);
+                                   kOpaque_SkAlphaType, drawContext->asTexture().get(),
+                                   sk_ref_sp(drawContext->getColorSpace()), budgeted);
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                 const GrBackendObject yuvTextureHandles[3],
-                                                const SkISize yuvSizes[3], GrSurfaceOrigin origin) {
-    return make_from_yuv_textures_copy(ctx, colorSpace, false, yuvTextureHandles, yuvSizes, origin);
+                                                const SkISize yuvSizes[3], GrSurfaceOrigin origin,
+                                                sk_sp<SkColorSpace> imageColorSpace) {
+    return make_from_yuv_textures_copy(ctx, colorSpace, false, yuvTextureHandles, yuvSizes, origin,
+                                       std::move(imageColorSpace));
 }
 
 sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                  const GrBackendObject yuvTextureHandles[2],
                                                  const SkISize yuvSizes[2],
-                                                 GrSurfaceOrigin origin) {
-    return make_from_yuv_textures_copy(ctx, colorSpace, true, yuvTextureHandles, yuvSizes, origin);
+                                                 GrSurfaceOrigin origin,
+                                                 sk_sp<SkColorSpace> imageColorSpace) {
+    return make_from_yuv_textures_copy(ctx, colorSpace, true, yuvTextureHandles, yuvSizes, origin,
+                                       std::move(imageColorSpace));
 }
 
 static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, uint32_t id) {
@@ -307,7 +294,7 @@ static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType
         return nullptr;
     }
     return sk_make_sp<SkImage_Gpu>(texture->width(), texture->height(), id, at, texture,
-                                   SkBudgeted::kNo);
+                                   sk_ref_sp(maker->getColorSpace()), SkBudgeted::kNo);
 }
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context) const {
@@ -317,19 +304,35 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context) const {
     if (GrTexture* peek = as_IB(this)->peekTexture()) {
         return peek->getContext() == context ? sk_ref_sp(const_cast<SkImage*>(this)) : nullptr;
     }
-    // No way to check whether a image is premul or not?
-    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
 
     if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
         GrImageTextureMaker maker(context, cacher, this, kDisallow_CachingHint);
-        return create_image_from_maker(&maker, at, this->uniqueID());
+        return create_image_from_maker(&maker, this->alphaType(), this->uniqueID());
     }
-    SkBitmap bmp;
-    if (!this->asLegacyBitmap(&bmp, kRO_LegacyBitmapMode)) {
+
+    if (const SkBitmap* bmp = as_IB(this)->onPeekBitmap()) {
+        GrBitmapTextureMaker maker(context, *bmp);
+        return create_image_from_maker(&maker, this->alphaType(), this->uniqueID());
+    }
+    return nullptr;
+}
+
+sk_sp<SkImage> SkImage::makeNonTextureImage() const {
+    if (!this->isTextureBacked()) {
+        return sk_ref_sp(const_cast<SkImage*>(this));
+    }
+    SkImageInfo info = as_IB(this)->onImageInfo();
+    size_t rowBytes = info.minRowBytes();
+    size_t size = info.getSafeSize(rowBytes);
+    auto data = SkData::MakeUninitialized(size);
+    if (!data) {
         return nullptr;
     }
-    GrBitmapTextureMaker maker(context, bmp);
-    return create_image_from_maker(&maker, at, this->uniqueID());
+    SkPixmap pm(info, data->writable_data(), rowBytes);
+    if (!this->readPixels(pm, 0, 0, kDisallow_CachingHint)) {
+        return nullptr;
+    }
+    return MakeRasterData(info, data, rowBytes);
 }
 
 sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext* ctx, const SkPixmap& pixmap,
@@ -342,35 +345,36 @@ sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext* ctx, const SkPixmap& pi
         return nullptr;
     }
     return sk_make_sp<SkImage_Gpu>(texture->width(), texture->height(), kNeedNewImageUniqueID,
-                                   pixmap.alphaType(), texture, budgeted);
+                                   pixmap.alphaType(), texture,
+                                   sk_ref_sp(pixmap.info().colorSpace()), budgeted);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class DeferredTextureImage {
-public:
-    SkImage* newImage(GrContext* context, SkBudgeted) const;
-
-private:
-    uint32_t fContextUniqueID;
-    struct MipMapLevelData {
-        void* fPixelData;
-        size_t fRowBytes;
-    };
-    struct Data {
-        SkImageInfo fInfo;
-        int         fColorTableCnt;
-        uint32_t*   fColorTableData;
-        int         fMipMapLevelCount;
-        // The fMipMapLevelData array may contain more than 1 element.
-        // It contains fMipMapLevelCount elements.
-        // That means this struct's size is not known at compile-time.
-        MipMapLevelData fMipMapLevelData[1];
-    };
-    Data fData;
-
-    friend class SkImage;
+namespace {
+struct MipMapLevelData {
+    void* fPixelData;
+    size_t fRowBytes;
 };
+
+struct DeferredTextureImage {
+    uint32_t    fContextUniqueID;
+    // We don't store a SkImageInfo because it contains a ref-counted SkColorSpace.
+    int         fWidth;
+    int         fHeight;
+    SkColorType fColorType;
+    SkAlphaType fAlphaType;
+    void*       fColorSpace;
+    size_t      fColorSpaceSize;
+    int         fColorTableCnt;
+    uint32_t*   fColorTableData;
+    int         fMipMapLevelCount;
+    // The fMipMapLevelData array may contain more than 1 element.
+    // It contains fMipMapLevelCount elements.
+    // That means this struct's size is not known at compile-time.
+    MipMapLevelData fMipMapLevelData[1];
+};
+}  // anonymous namespace
 
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& proxy,
                                             const DeferredTextureImageUsageParams params[],
@@ -430,12 +434,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         // Here we're just using presence of data to know whether there is a codec behind the image.
         // In the future we will access the cacherator and get the exact data that we want to (e.g.
         // yuv planes) upload.
-        SkAutoTUnref<SkData> data(this->refEncoded());
+        sk_sp<SkData> data(this->refEncoded());
         if (!data && !this->peekPixels(nullptr)) {
             return 0;
         }
-        SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-        info = SkImageInfo::MakeN32(scaledSize.width(), scaledSize.height(), at);
+        info = SkImageInfo::MakeN32(scaledSize.width(), scaledSize.height(), this->alphaType());
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
             pixmap.alloc(info);
@@ -456,11 +459,18 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size_t size = 0;
     size_t dtiSize = SkAlign8(sizeof(DeferredTextureImage));
     size += dtiSize;
-    size += mipMapLevelCount * sizeof(DeferredTextureImage::MipMapLevelData);
+    size += mipMapLevelCount * sizeof(MipMapLevelData);
     size_t pixelOffset = size;
     size += pixelSize;
     size_t ctOffset = size;
     size += ctSize;
+    size_t colorSpaceOffset = 0;
+    size_t colorSpaceSize = 0;
+    if (info.colorSpace()) {
+        colorSpaceOffset = size;
+        colorSpaceSize = info.colorSpace()->writeToMemory(nullptr);
+        size += colorSpaceSize;
+    }
     if (!fillMode) {
         return size;
     }
@@ -480,12 +490,23 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size_t rowBytes = pixmap.rowBytes();
     DeferredTextureImage* dti = new (buffer) DeferredTextureImage();
     dti->fContextUniqueID = proxy.fContextUniqueID;
-    dti->fData.fInfo = info;
-    dti->fData.fColorTableCnt = ctCount;
-    dti->fData.fColorTableData = ct;
-    dti->fData.fMipMapLevelCount = mipMapLevelCount;
-    dti->fData.fMipMapLevelData[0].fPixelData = pixels;
-    dti->fData.fMipMapLevelData[0].fRowBytes = rowBytes;
+    dti->fWidth = info.width();
+    dti->fHeight = info.height();
+    dti->fColorType = info.colorType();
+    dti->fAlphaType = info.alphaType();
+    dti->fColorTableCnt = ctCount;
+    dti->fColorTableData = ct;
+    dti->fMipMapLevelCount = mipMapLevelCount;
+    dti->fMipMapLevelData[0].fPixelData = pixels;
+    dti->fMipMapLevelData[0].fRowBytes = rowBytes;
+    if (colorSpaceSize) {
+        dti->fColorSpace = reinterpret_cast<void*>(bufferAsInt + colorSpaceOffset);
+        dti->fColorSpaceSize = colorSpaceSize;
+        info.colorSpace()->writeToMemory(dti->fColorSpace);
+    } else {
+        dti->fColorSpace = nullptr;
+        dti->fColorSpaceSize = 0;
+    }
     return size;
 }
 
@@ -500,34 +521,24 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
         return nullptr;
     }
     SkAutoTUnref<SkColorTable> colorTable;
-    if (dti->fData.fColorTableCnt) {
-        SkASSERT(dti->fData.fColorTableData);
-        colorTable.reset(new SkColorTable(dti->fData.fColorTableData, dti->fData.fColorTableCnt));
+    if (dti->fColorTableCnt) {
+        SkASSERT(dti->fColorTableData);
+        colorTable.reset(new SkColorTable(dti->fColorTableData, dti->fColorTableCnt));
     }
-    SkASSERT(dti->fData.fMipMapLevelCount == 1);
+    SkASSERT(dti->fMipMapLevelCount == 1);
+    sk_sp<SkColorSpace> colorSpace;
+    if (dti->fColorSpaceSize) {
+        colorSpace = SkColorSpace::Deserialize(dti->fColorSpace, dti->fColorSpaceSize);
+    }
+    SkImageInfo info = SkImageInfo::Make(dti->fWidth, dti->fHeight,
+                                         dti->fColorType, dti->fAlphaType, colorSpace);
     SkPixmap pixmap;
-    pixmap.reset(dti->fData.fInfo, dti->fData.fMipMapLevelData[0].fPixelData,
-                 dti->fData.fMipMapLevelData[0].fRowBytes, colorTable.get());
+    pixmap.reset(info, dti->fMipMapLevelData[0].fPixelData,
+                 dti->fMipMapLevelData[0].fRowBytes, colorTable.get());
     return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted budgeted) {
-    GrContext* ctx = src->getContext();
-
-    GrSurfaceDesc desc = src->desc();
-    GrTexture* dst = ctx->textureProvider()->createTexture(desc, budgeted, nullptr, 0);
-    if (!dst) {
-        return nullptr;
-    }
-
-    const SkIRect srcR = SkIRect::MakeWH(desc.fWidth, desc.fHeight);
-    const SkIPoint dstP = SkIPoint::Make(0, 0);
-    ctx->copySurface(dst, src, srcR, dstP);
-    ctx->flushSurfaceWrites(dst);
-    return dst;
-}
 
 sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo& info,
                                               const GrMipLevel* texels, int mipLevelCount,
@@ -540,5 +551,6 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
         return nullptr;
     }
     return sk_make_sp<SkImage_Gpu>(texture->width(), texture->height(), kNeedNewImageUniqueID,
-                                   info.alphaType(), texture, budgeted);
+                                   info.alphaType(), texture, sk_ref_sp(info.colorSpace()),
+                                   budgeted);
 }

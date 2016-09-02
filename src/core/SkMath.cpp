@@ -11,10 +11,6 @@
 #include "SkFloatingPoint.h"
 #include "SkScalar.h"
 
-const uint32_t gIEEENotANumber = 0x7FFFFFFF;
-const uint32_t gIEEEInfinity = 0x7F800000;
-const uint32_t gIEEENegativeInfinity = 0xFF800000;
-
 #define sub_shift(zeros, x, n)  \
     zeros -= n;                 \
     x >>= n

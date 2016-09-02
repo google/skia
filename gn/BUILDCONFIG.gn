@@ -1,0 +1,82 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# It's best to keep the names and defaults of is_foo flags consistent with Chrome.
+
+declare_args() {
+  is_debug = true
+  is_component_build = false
+}
+
+# Platform detection
+if (target_os == "") {
+  target_os = host_os
+}
+if (current_os == "") {
+  current_os = target_os
+}
+
+if (target_cpu == "") {
+  target_cpu = host_cpu
+}
+if (current_cpu == "") {
+  current_cpu = target_cpu
+}
+
+is_android = current_os == "android"
+is_fuchsia = current_os == "fuchsia"
+is_ios = current_os == "ios"
+is_linux = current_os == "linux"
+is_mac = current_os == "mac"
+is_win = current_os == "win"
+
+is_posix = !is_win
+
+# A component is either a static or a shared library.
+template("component") {
+  _component_mode = "static_library"
+  if (is_component_build) {
+    _component_mode = "shared_library"
+  }
+
+  target(_component_mode, target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+
+# Default configs
+default_configs = [
+  "//gn:default",
+  "//gn:no_rtti",
+]
+if (!is_debug) {
+  default_configs += [ "//gn:release" ]
+}
+
+set_defaults("executable") {
+  configs = default_configs + [ "//gn:executable" ]
+}
+
+set_defaults("source_set") {
+  configs = default_configs
+}
+
+set_defaults("static_library") {
+  configs = default_configs
+}
+
+set_defaults("shared_library") {
+  configs = default_configs
+}
+
+set_defaults("component") {
+  configs = default_configs
+  if (!is_component_build) {
+    complete_static_lib = true
+  }
+}
+
+# For now, we support GCC-like toolchains, including Clang.
+set_default_toolchain("//gn:gcc_like")

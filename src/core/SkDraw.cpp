@@ -83,7 +83,9 @@ public:
                               const SkMatrix* localMatrix = nullptr)
             : fPaint(paint) /* makes a copy of the paint */ {
         fPaint.setShader(SkMakeBitmapShader(src, SkShader::kClamp_TileMode,
-                                            SkShader::kClamp_TileMode, localMatrix, &fAllocator));
+                                            SkShader::kClamp_TileMode, localMatrix,
+                                            kNever_SkCopyPixelsMode,
+                                            &fAllocator));
         // we deliberately left the shader with an owner-count of 2
         fPaint.getShader()->ref();
         SkASSERT(2 == fPaint.getShader()->getRefCnt());
@@ -1006,7 +1008,10 @@ SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
         SkScalar sx = SkPoint::Length(matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewY]);
         SkScalar sy = SkPoint::Length(matrix[SkMatrix::kMSkewX],  matrix[SkMatrix::kMScaleY]);
         if (SkScalarsAreFinite(sx, sy)) {
-            return SkTMax(sx, sy);
+            SkScalar scale = SkTMax(sx, sy);
+            if (scale > 0) {
+                return scale;
+            }
         }
     }
     return 1;
@@ -1014,6 +1019,27 @@ SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
 
 void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
                          SkBlitter* customBlitter, bool doFill) const {
+    // Do a conservative quick-reject test, since a looper or other modifier may have moved us
+    // out of range.
+    if (!devPath.isInverseFillType()) {
+        // If we're a H or V line, our bounds will be empty. So we bloat here just so we don't
+        // appear empty to the intersects call. This also gives us slop in case we're antialiasing
+        SkRect pathBounds = devPath.getBounds().makeOutset(1, 1);
+
+        if (paint.getMaskFilter()) {
+            paint.getMaskFilter()->computeFastBounds(pathBounds, &pathBounds);
+
+            // Need to outset the path to work-around a bug in blurmaskfilter. When that is fixed
+            // we can remove this hack. See skbug.com/5542
+            pathBounds.outset(7, 7);
+        }
+
+        // Now compare against the clip's bounds
+        if (!SkRect::Make(fRC->getBounds()).intersects(pathBounds)) {
+            return;
+        }
+    }
+
     SkBlitter* blitter = nullptr;
     SkAutoBlitterChoose blitterStorage;
     if (nullptr == customBlitter) {
@@ -1561,8 +1587,7 @@ private:
 
 uint32_t SkDraw::scalerContextFlags() const {
     uint32_t flags = SkPaint::kBoostContrast_ScalerContextFlag;
-    // TODO: how should we handle non-srgb, non-linear gamma?
-    if (!fDevice->imageInfo().gammaCloseToSRGB()) {
+    if (!SkImageInfoIsGammaCorrect(fDevice->imageInfo())) {
         flags |= SkPaint::kFakeGamma_ScalerContextFlag;
     }
     return flags;
@@ -1614,7 +1639,9 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
     paint.setStyle(SkPaint::kFill_Style);
     paint.setPathEffect(nullptr);
 
-    SkPaint::GlyphCacheProc glyphCacheProc = paint.getGlyphCacheProc(true);
+    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
+                                                                        paint.isDevKernText(),
+                                                                        true);
     SkAutoGlyphCache cache(paint, &fDevice->surfaceProps(), this->scalerContextFlags(), nullptr);
 
     const char*        stop = text + byteLength;

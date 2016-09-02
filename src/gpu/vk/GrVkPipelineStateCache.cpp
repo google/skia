@@ -11,13 +11,13 @@
 #include "GrProcessor.h"
 #include "GrVkPipelineState.h"
 #include "GrVkPipelineStateBuilder.h"
-#include "SkRTConf.h"
+#include "SkOpts.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
-SK_CONF_DECLARE(bool, c_DisplayVkPipelineCache, "gpu.displayyVkPipelineCache", false,
-                "Display pipeline state cache usage.");
+// Display pipeline state cache usage
+static const bool c_DisplayVkPipelineCache{false};
 #endif
 
 struct GrVkResourceProvider::PipelineStateCache::Entry {
@@ -99,10 +99,10 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 #endif
     // Get GrVkProgramDesc
     GrVkPipelineState::Desc desc;
-    if (!GrVkProgramDescBuilder::Build(&desc.fProgramDesc,
-                                       primProc,
-                                       pipeline,
-                                       *fGpu->vkCaps().glslCaps())) {
+    if (!GrGLSLProgramDescBuilder::Build(&desc.fProgramDesc,
+                                         primProc,
+                                         pipeline,
+                                         *fGpu->vkCaps().glslCaps())) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }
@@ -113,8 +113,8 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
     int keyLength = desc.fStateKey.count();
     SkASSERT(0 == (keyLength % 4));
     // Seed the checksum with the checksum of the programDesc then add the vulkan key to it.
-    desc.fChecksum = SkChecksum::Murmur3(desc.fStateKey.begin(), keyLength,
-                                         desc.fProgramDesc.getChecksum());
+    desc.fChecksum = SkOpts::hash(desc.fStateKey.begin(), keyLength,
+                                  desc.fProgramDesc.getChecksum());
 
     Entry* entry = nullptr;
     if (Entry** entryptr = fHashTable.find(desc)) {

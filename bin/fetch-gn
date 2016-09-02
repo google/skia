@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import subprocess
+import sys
+
+def quiet(*cmd):
+  cmd = ' '.join(cmd).split()
+  subprocess.check_output(cmd)
+
+def gn_path():
+  if 'linux' in sys.platform:
+    return 'buildtools/linux64/gn'
+  if 'darwin' in sys.platform:
+    return 'buildtools/mac/gn'
+  return 'buildtools/win/gn.exe'
+
+def download_tool():
+	if 'linux' in sys.platform or 'darwin' in sys.platform:
+		return 'download_from_google_storage'
+	return 'download_from_google_storage.bat'
+	 
+quiet(download_tool(),
+      '--no_resume --no_auth --bucket chromium-gn',
+      '-s ', gn_path() + '.sha1')

@@ -7,12 +7,11 @@
 
 //#include <tchar.h>
 
+#include "WindowContextFactory_unix.h"
+
 #include "SkUtils.h"
 #include "Timer.h"
 #include "../GLWindowContext.h"
-#ifdef SK_VULKAN
-#include "../VulkanWindowContext.h"
-#endif
 #include "Window_unix.h"
 
 extern "C" {
@@ -48,7 +47,7 @@ bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
     // we already have a window
     if (fDisplay) {
         return true;
-    } 
+    }
     fDisplay = display;
 
     fWidth = 1280;
@@ -273,19 +272,21 @@ void Window_unix::show() {
 bool Window_unix::attach(BackendType attachType, const DisplayParams& params) {
     this->initWindow(fDisplay, &params);
 
-    ContextPlatformData_unix platformData;
-    platformData.fDisplay = fDisplay;
-    platformData.fWindow = fWindow;
-    platformData.fVisualInfo = fVisualInfo;
+    window_context_factory::XlibWindowInfo winInfo;
+    winInfo.fDisplay = fDisplay;
+    winInfo.fWindow = fWindow;
+    winInfo.fVisualInfo = fVisualInfo;
     switch (attachType) {
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = VulkanWindowContext::Create((void*)&platformData, params);
+            fWindowContext = window_context_factory::NewVulkanForXlib(winInfo, params);
             break;
 #endif
         case kNativeGL_BackendType:
-        default:
-            fWindowContext = GLWindowContext::Create((void*)&platformData, params);
+            fWindowContext = window_context_factory::NewGLForXlib(winInfo, params);
+            break;
+        case kRaster_BackendType:
+            fWindowContext = window_context_factory::NewRasterForXlib(winInfo, params);
             break;
     }
 

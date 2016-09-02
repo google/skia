@@ -15,12 +15,11 @@
 #include "GrVkUniformHandler.h"
 #include "GrVkVaryingHandler.h"
 
-#include "shaderc/shaderc.h"
 #include "vk/GrVkDefines.h"
 
 class GrVkGpu;
 class GrVkRenderPass;
-class GrVkProgramDesc;
+class GrGLSLProgramDesc;
 
 class GrVkPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
@@ -49,7 +48,7 @@ private:
     GrVkPipelineStateBuilder(GrVkGpu*,
                              const GrPipeline&,
                              const GrPrimitiveProcessor&,
-                             const GrVkProgramDesc&);
+                             const GrGLSLProgramDesc&);
 
     GrVkPipelineState* finalize(GrPrimitiveType primitiveType,
                                 const GrVkRenderPass& renderPass,

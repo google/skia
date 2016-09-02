@@ -155,8 +155,7 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
 }
 
 bool SkWbmpCodec::IsWbmp(const void* buffer, size_t bytesRead) {
-    SkAutoTUnref<SkData> data(SkData::NewWithoutCopy(buffer, bytesRead));
-    SkMemoryStream stream(data);
+    SkMemoryStream stream(buffer, bytesRead, false);
     return read_header(&stream, nullptr);
 }
 

@@ -1,0 +1,21 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+third_party("expat") {
+  public_include_dirs = [ "../externals/expat/lib" ]
+
+  defines = [ "HAVE_MEMMOVE" ]
+
+  sources = [
+    "../externals/expat/lib/xmlparse.c",
+    "../externals/expat/lib/xmlrole.c",
+    "../externals/expat/lib/xmltok.c",
+  ]
+}

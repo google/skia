@@ -10,10 +10,11 @@
 
 #include "Benchmark.h"
 #include "SkPicture.h"
+#include "SkLiteDL.h"
 
 class RecordingBench : public Benchmark {
 public:
-    RecordingBench(const char* name, const SkPicture*, bool useBBH);
+    RecordingBench(const char* name, const SkPicture*, bool useBBH, bool lite);
 
 protected:
     const char* onGetName() override;
@@ -22,8 +23,9 @@ protected:
     SkIPoint onGetSize() override;
 
 private:
-    SkAutoTUnref<const SkPicture> fSrc;
+    sk_sp<const SkPicture> fSrc;
     SkString fName;
+    sk_sp<SkLiteDL> fDL;
     bool fUseBBH;
 
     typedef Benchmark INHERITED;

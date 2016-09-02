@@ -195,19 +195,11 @@ static void test_diagonal(skiatest::Reporter* reporter) {
     };
 
     static const SkColor gDstBG[] = { 0, 0xFFFFFFFF };
-
-    SkPaint paint;
+    const SkRect srcR = SkRect::MakeIWH(W, H);
 
     SkBitmap srcBM;
     srcBM.allocN32Pixels(W, H);
-    SkRect srcR = {
-        0, 0, SkIntToScalar(srcBM.width()), SkIntToScalar(srcBM.height()) };
-
-    // cons up a mesh to draw the bitmap with
-    Mesh mesh(srcBM, &paint);
-
-    SkImageInfo info = SkImageInfo::Make(W, H, kUnknown_SkColorType,
-                                         kPremul_SkAlphaType);
+    SkImageInfo info = SkImageInfo::Make(W, H, kUnknown_SkColorType, kPremul_SkAlphaType);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gDstColorType); i++) {
         info = info.makeColorType(gDstColorType[i]);
@@ -224,7 +216,10 @@ static void test_diagonal(skiatest::Reporter* reporter) {
             bgColor = gDstBG[j];
 
             for (int c = 0; c <= 0xFF; c++) {
+                // cons up a mesh to draw the bitmap with
+                SkPaint paint;
                 srcBM.eraseARGB(0xFF, c, c, c);
+                Mesh mesh(srcBM, &paint);
 
                 for (int k = 0; k < 4; k++) {
                     bool dither = (k & 1) != 0;

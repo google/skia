@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkNinePatchIter.h"
+#include "SkLatticeIter.h"
 #include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"
 
@@ -35,7 +35,7 @@ void SkPDFCanvas::onDrawBitmapNine(const SkBitmap& bitmap,
                                    const SkIRect& center,
                                    const SkRect& dst,
                                    const SkPaint* paint) {
-    SkNinePatchIter iter(bitmap.width(), bitmap.height(), center, dst);
+    SkLatticeIter iter(bitmap.width(), bitmap.height(), center, dst);
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
         this->drawBitmapRect(bitmap, srcR, dstR, paint);
@@ -46,7 +46,7 @@ void SkPDFCanvas::onDrawImageNine(const SkImage* image,
                                   const SkIRect& center,
                                   const SkRect& dst,
                      const SkPaint* paint) {
-    SkNinePatchIter iter(image->width(), image->height(), center, dst);
+    SkLatticeIter iter(image->width(), image->height(), center, dst);
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
         this->drawImageRect(image, srcR, dstR, paint);
@@ -84,3 +84,26 @@ void SkPDFCanvas::onDrawBitmapRect(const SkBitmap& bitmap,
                                  SkMatrix::kFill_ScaleToFit));
     this->drawBitmap(bitmap, 0, 0, paint);
 }
+
+void SkPDFCanvas::onDrawImageLattice(const SkImage* image,
+                                     const Lattice& lattice,
+                                     const SkRect& dst,
+                                     const SkPaint* paint) {
+    SkLatticeIter iter(image->width(), image->height(), lattice, dst);
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        this->drawImageRect(image, srcR, dstR, paint);
+    }
+}
+
+void SkPDFCanvas::onDrawBitmapLattice(const SkBitmap& bitmap,
+                                      const Lattice& lattice,
+                                      const SkRect& dst,
+                                      const SkPaint* paint) {
+    SkLatticeIter iter(bitmap.width(), bitmap.height(), lattice, dst);
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        this->drawBitmapRect(bitmap, srcR, dstR, paint);
+    }
+}
+

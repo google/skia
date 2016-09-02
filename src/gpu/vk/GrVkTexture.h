@@ -32,7 +32,7 @@ public:
 
     const GrVkImageView* textureView(bool allowSRGB);
 
-    bool reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels);
+    bool reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels);
 
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, const GrVkImageView*,

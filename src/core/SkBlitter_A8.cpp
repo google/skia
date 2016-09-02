@@ -276,7 +276,7 @@ static inline uint8_t aa_blend8(SkPMColor src, U8CPU da, int aa) {
 
     int src_scale = SkAlpha255To256(aa);
     int sa = SkGetPackedA32(src);
-    int dst_scale = 256 - SkAlphaMul(sa, src_scale);
+    int dst_scale = SkAlphaMulInv256(sa, src_scale);
 
     return SkToU8((sa * src_scale + da * dst_scale) >> 8);
 }

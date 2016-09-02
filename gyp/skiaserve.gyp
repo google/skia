@@ -19,7 +19,7 @@
         '../tools/debugger',
         '../tools/json',
       ],
-      'sources': [ 
+      'sources': [
         # Stuff for the debug canvas
         '../tools/debugger/SkDrawCommand.h',
         '../tools/debugger/SkDrawCommand.cpp',
@@ -31,8 +31,7 @@
         '../tools/debugger/SkObjectParser.cpp',
         '../tools/debugger/SkOverdrawMode.h',
         '../tools/debugger/SkOverdrawMode.cpp',
-        '<!@(python find.py ../tools/skiaserve "*.cpp")',
-        '<!@(python find.py ../tools/skiaserve/urlhandlers "*.cpp")',
+        '<!@(python find.py "*.cpp" ../tools/skiaserve ../tools/skiaserve/urlhandlers)',
       ],
       'dependencies': [
         'flags.gyp:flags',

@@ -18,6 +18,7 @@
 
 class SkColorFilter;
 class SkColorSpace;
+class SkImage;
 class SkPath;
 class SkPicture;
 class SkXfermode;
@@ -242,6 +243,18 @@ public:
     }
 
     /**
+     *  Iff this shader is backed by a single SkImage, return its ptr (the caller must ref this
+     *  if they want to keep it longer than the lifetime of the shader). If not, return nullptr.
+     */
+    SkImage* isAImage(SkMatrix* localMatrix, TileMode xy[2]) const {
+        return this->onIsAImage(localMatrix, xy);
+    }
+
+    bool isAImage() const {
+        return this->isAImage(nullptr, nullptr) != nullptr;
+    }
+
+    /**
      *  If the shader subclass can be represented as a gradient, asAGradient
      *  returns the matching GradientType enum (or kNone_GradientType if it
      *  cannot). Also, if info is not null, asAGradient populates info with
@@ -311,6 +324,28 @@ public:
     virtual bool asACompose(ComposeRec*) const { return false; }
 
 #if SK_SUPPORT_GPU
+    struct AsFPArgs {
+        AsFPArgs(GrContext* context,
+                 const SkMatrix* viewMatrix,
+                 const SkMatrix* localMatrix,
+                 SkFilterQuality filterQuality,
+                 SkColorSpace* dstColorSpace,
+                 SkSourceGammaTreatment gammaTreatment)
+            : fContext(context)
+            , fViewMatrix(viewMatrix)
+            , fLocalMatrix(localMatrix)
+            , fFilterQuality(filterQuality)
+            , fDstColorSpace(dstColorSpace)
+            , fGammaTreatment(gammaTreatment) {}
+
+        GrContext*             fContext;
+        const SkMatrix*        fViewMatrix;
+        const SkMatrix*        fLocalMatrix;
+        SkFilterQuality        fFilterQuality;
+        SkColorSpace*          fDstColorSpace;
+        SkSourceGammaTreatment fGammaTreatment;
+    };
+
     /**
      *  Returns a GrFragmentProcessor that implements the shader for the GPU backend. NULL is
      *  returned if there is no GPU implementation.
@@ -324,11 +359,7 @@ public:
      *  The returned GrFragmentProcessor should expect an unpremultiplied input color and
      *  produce a premultiplied output.
      */
-    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
-                                                           const SkMatrix& viewMatrix,
-                                                           const SkMatrix* localMatrix,
-                                                           SkFilterQuality,
-                                                           SkSourceGammaTreatment) const;
+    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const;
 #endif
 
     /**
@@ -468,6 +499,7 @@ public:
 
     SK_TO_STRING_VIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -494,6 +526,10 @@ protected:
         return false;
     }
 
+    virtual SkImage* onIsAImage(SkMatrix*, TileMode[2]) const {
+        return nullptr;
+    }
+
 private:
     // This is essentially const, but not officially so it can be modified in
     // constructors.
@@ -501,7 +537,7 @@ private:
 
     // So the SkLocalMatrixShader can whack fLocalMatrix in its SkReadBuffer constructor.
     friend class SkLocalMatrixShader;
-    friend class SkBitmapProcShader;    // for computeTotalInverse()
+    friend class SkBitmapProcLegacyShader;    // for computeTotalInverse()
 
     typedef SkFlattenable INHERITED;
 };

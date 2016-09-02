@@ -1,0 +1,42 @@
+/*
+ * Copyright 2016 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkSVGPoly_DEFINED
+#define SkSVGPoly_DEFINED
+
+#include "SkPath.h"
+#include "SkSVGShape.h"
+
+// Handles <polygon> and <polyline> elements.
+class SkSVGPoly final : public SkSVGShape {
+public:
+    virtual ~SkSVGPoly() = default;
+
+    static sk_sp<SkSVGPoly> MakePolygon() {
+        return sk_sp<SkSVGPoly>(new SkSVGPoly(SkSVGTag::kPolygon));
+    }
+
+    static sk_sp<SkSVGPoly> MakePolyline() {
+        return sk_sp<SkSVGPoly>(new SkSVGPoly(SkSVGTag::kPolyline));
+    }
+
+    void setPoints(const SkSVGPointsType&);
+
+protected:
+    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
+
+    void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&) const override;
+
+private:
+    SkSVGPoly(SkSVGTag);
+
+    SkPath fPath;
+
+    typedef SkSVGShape INHERITED;
+};
+
+#endif // SkSVGPoly_DEFINED

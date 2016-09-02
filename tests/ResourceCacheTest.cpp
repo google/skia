@@ -871,8 +871,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
         make_unique_key<0>(&key2, 0);
         SkAutoTUnref<TestResource> d(new TestResource(context->getGpu()));
         int foo = 4132;
-        SkAutoTUnref<SkData> data(SkData::NewWithCopy(&foo, sizeof(foo)));
-        key2.setCustomData(data.get());
+        key2.setCustomData(SkData::MakeWithCopy(&foo, sizeof(foo)));
         d->resourcePriv().setUniqueKey(key2);
     }
 
@@ -1262,8 +1261,7 @@ static void test_custom_data(skiatest::Reporter* reporter) {
     make_unique_key<0>(&key1, 1);
     make_unique_key<0>(&key2, 2);
     int foo = 4132;
-    SkAutoTUnref<SkData> data(SkData::NewWithCopy(&foo, sizeof(foo)));
-    key1.setCustomData(data.get());
+    key1.setCustomData(SkData::MakeWithCopy(&foo, sizeof(foo)));
     REPORTER_ASSERT(reporter, *(int*) key1.getCustomData()->data() == 4132);
     REPORTER_ASSERT(reporter, key2.getCustomData() == nullptr);
 
@@ -1283,7 +1281,7 @@ static void test_abandoned(skiatest::Reporter* reporter) {
     // Call all the public methods on resource in the abandoned state. They shouldn't crash.
 
     int foo = 4132;
-    SkAutoTUnref<SkData> data(SkData::NewWithCopy(&foo, sizeof(foo)));
+    sk_sp<SkData> data(SkData::MakeWithCopy(&foo, sizeof(foo)));
     resource->setCustomData(data.get());
     resource->getCustomData();
     resource->getUniqueID();

@@ -5,10 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkDumpCanvas.h"
-
-#ifdef SK_DEBUG
 #include "SkData.h"
+#include "SkDumpCanvas.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkPixelRef.h"
@@ -310,6 +308,14 @@ void SkDumpCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     this->dump(kDrawOval_Verb, &paint, "drawOval(%s)", str.c_str());
 }
 
+void SkDumpCanvas::onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                             bool useCenter, const SkPaint& paint) {
+    SkString str;
+    toString(rect, &str);
+    this->dump(kDrawArc_Verb, &paint, "drawArc(%s, %g, %g, %d)", str.c_str(), startAngle,
+               sweepAngle, useCenter);
+}
+
 void SkDumpCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     SkString str;
     toString(rect, &str);
@@ -428,6 +434,14 @@ void SkDumpCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const S
     SkString str;
     toString(text, byteLength, paint.getTextEncoding(), &str);
     this->dump(kDrawText_Verb, &paint, "drawTextOnPath(%s [%d])",
+               str.c_str(), byteLength);
+}
+
+void SkDumpCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                                     const SkRect* cull, const SkPaint& paint) {
+    SkString str;
+    toString(text, byteLength, paint.getTextEncoding(), &str);
+    this->dump(kDrawText_Verb, &paint, "drawTextRSXform(%s [%d])",
                str.c_str(), byteLength);
 }
 
@@ -553,5 +567,3 @@ static void dumpToDebugf(const char text[], void*) {
 }
 
 SkDebugfDumper::SkDebugfDumper() : INHERITED(dumpToDebugf, nullptr) {}
-
-#endif

@@ -126,6 +126,7 @@ bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_USE_CG_ENCODER
 static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
     switch (t) {
         case SkImageEncoder::kICO_Type:
@@ -141,14 +142,10 @@ static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
 }
 
 static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_cg_factory);
+#endif
 
-class SkPNGImageEncoder_CG : public SkImageEncoder_CG {
-public:
-    SkPNGImageEncoder_CG()
-        : SkImageEncoder_CG(kPNG_Type) {
-    }
-};
-
-DEFINE_ENCODER_CREATOR(PNGImageEncoder_CG);
+SkImageEncoder* CreateImageEncoder_CG(SkImageEncoder::Type type) {
+    return new SkImageEncoder_CG(type);
+}
 
 #endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

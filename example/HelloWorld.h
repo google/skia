@@ -33,14 +33,15 @@ public:
     DeviceType getDeviceType() const { return fType; }
 
 protected:
-    SkSurface* createSurface() override {
+    sk_sp<SkSurface> makeSurface() override {
         SkSurfaceProps props(INHERITED::getSurfaceProps());
         if (kGPU_DeviceType == fType) {
-            return SkSurface::MakeRenderTargetDirect(fRenderTarget, &props).release();
+            return fGpuSurface;
         }
-        static const SkImageInfo info = SkImageInfo::MakeN32Premul(
-                SkScalarRoundToInt(this->width()), SkScalarRoundToInt(this->height()));
-        return fSurface = SkSurface::MakeRaster(info, &props).release();
+        const SkImageInfo info = SkImageInfo::MakeN32Premul(SkScalarRoundToInt(this->width()),
+                                                            SkScalarRoundToInt(this->height()));
+        fRasterSurface = SkSurface::MakeRaster(info, &props);
+        return fRasterSurface;
     }
 
     void draw(SkCanvas* canvas) override;
@@ -51,7 +52,7 @@ protected:
 private:
     bool findNextMatch();  // Set example to the first one that matches FLAGS_match.
     void setTitle();
-    void setUpRenderTarget();
+    void setUpGpuBackedSurface();
     bool onHandleChar(SkUnichar unichar) override;
     void tearDownBackend();
 
@@ -60,9 +61,9 @@ private:
 
     // support framework
     DeviceType fType;
-    SkSurface* fSurface;
+    sk_sp<SkSurface> fRasterSurface;
     GrContext* fContext;
-    GrRenderTarget* fRenderTarget;
+    sk_sp<SkSurface> fGpuSurface;
     AttachmentInfo fAttachmentInfo;
     const GrGLInterface* fInterface;
 

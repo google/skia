@@ -39,6 +39,16 @@ protected:
                           const SkPaint*,
                           SkCanvas::SrcRectConstraint) override;
 
+    void onDrawImageLattice(const SkImage*,
+                            const Lattice&,
+                            const SkRect&,
+                            const SkPaint*) override;
+
+    void onDrawBitmapLattice(const SkBitmap&,
+                             const Lattice&,
+                             const SkRect&,
+                             const SkPaint*) override;
+
 private:
     typedef SkCanvas INHERITED;
 };

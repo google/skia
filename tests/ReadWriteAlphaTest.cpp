@@ -41,12 +41,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
     bool match;
     static const size_t kRowBytes[] = {0, X_SIZE, X_SIZE + 1, 2 * X_SIZE - 1};
-    for (int rt = 0; rt < 2; ++rt) {
+    {
         GrSurfaceDesc desc;
-        // let Skia know we will be using this texture as a render target
-        desc.fFlags     = rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-        // it is a single channel texture
-        desc.fConfig    = kAlpha_8_GrPixelConfig;
+        desc.fFlags     = kNone_GrSurfaceFlags;
+        desc.fConfig    = kAlpha_8_GrPixelConfig;    // it is a single channel texture
         desc.fWidth     = X_SIZE;
         desc.fHeight    = Y_SIZE;
 
@@ -54,13 +52,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         memset(alphaData, 0, X_SIZE * Y_SIZE);
         SkAutoTUnref<GrTexture> texture(
             ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo, alphaData,
-                                                                 0));
+                                                                  0));
         if (!texture) {
-            if (!rt) {
-                ERRORF(reporter, "Could not create alpha texture.");
-            }
-            continue;
+            ERRORF(reporter, "Could not create alpha texture.");
+            return;
         }
+
+        const SkImageInfo ii = SkImageInfo::MakeA8(X_SIZE, Y_SIZE);
+        sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
+                                                          SkBudgeted::kNo, ii));
 
         // create a distinctive texture
         for (int y = 0; y < Y_SIZE; ++y) {
@@ -87,13 +87,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             // make sure the original & read back versions match
             SkString msg;
-            msg.printf("rt:%d, rb:%d A8", rt, SkToU32(rowBytes));
+            msg.printf("rb:%d A8", SkToU32(rowBytes));
             validate_alpha_data(reporter, X_SIZE, Y_SIZE, readback.get(), nonZeroRowBytes,
                                 alphaData, msg);
 
-            // Now try writing on the single channel texture (if we could create as a RT).
-            if (texture->asRenderTarget()) {
-                sk_sp<SkSurface> surf(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget()));
+            // Now try writing to a single channel surface (if we could create one).
+            if (surf) {
                 SkCanvas* canvas = surf->getCanvas();
 
                 SkPaint paint;
@@ -105,8 +104,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 canvas->drawRect(rect, paint);
 
                 memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
-                result = texture->readPixels(0, 0, desc.fWidth, desc.fHeight, 
-                                             desc.fConfig, readback.get(), rowBytes);
+                result = surf->readPixels(ii, readback.get(), nonZeroRowBytes, 0, 0);
                 REPORTER_ASSERT_MESSAGE(reporter, result, "A8 readPixels after clear failed");
 
                 match = true;

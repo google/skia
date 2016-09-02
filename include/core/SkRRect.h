@@ -47,6 +47,10 @@ class SkMatrix;
 */
 class SK_API SkRRect {
 public:
+    SkRRect() { /* unititialized */ }
+    SkRRect(const SkRRect&) = default;
+    SkRRect& operator=(const SkRRect&) = default;
+
     /**
      * Enum to capture the various possible subtypes of RR. Accessed
      * by type(). The subtypes become progressively less restrictive.
@@ -274,6 +278,10 @@ public:
         fRect.offset(dx, dy);
     }
 
+    SkRRect SK_WARN_UNUSED_RESULT makeOffset(SkScalar dx, SkScalar dy) const {
+        return SkRRect(fRect.makeOffset(dx, dy), fRadii, fType);
+    }
+
     /**
      *  Returns true if 'rect' is wholy inside the RR, and both
      *  are not empty.
@@ -322,6 +330,11 @@ public:
     void dumpHex() const { this->dump(true); }
 
 private:
+    SkRRect(const SkRect& rect, const SkVector radii[4], int32_t type)
+        : fRect(rect)
+        , fRadii{radii[0], radii[1], radii[2], radii[3]}
+        , fType(type) {}
+
     SkRect fRect;
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
     SkVector fRadii[4];

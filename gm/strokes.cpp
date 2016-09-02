@@ -290,12 +290,6 @@ protected:
         return SkISize::Make(W, H*2);
     }
 
-    static void rotate(SkScalar angle, SkScalar px, SkScalar py, SkCanvas* canvas) {
-        SkMatrix matrix;
-        matrix.setRotate(angle, px, py);
-        canvas->concat(matrix);
-    }
-
     void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
@@ -316,7 +310,7 @@ protected:
             for (int i = 0; i < N/2; i++) {
                 SkRect r;
                 rnd_rect(&r, &paint, rand);
-                rotate(SkIntToScalar(15), SW/2, SH/2, canvas);
+                canvas->rotate(SkIntToScalar(15), SW/2, SH/2);
                 canvas->drawPath(fPath, paint);
             }
         }

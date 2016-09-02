@@ -6,14 +6,28 @@
  */
 
 #include "RecordingBench.h"
-
 #include "SkBBHFactory.h"
+#include "SkLiteDL.h"
+#include "SkLiteRecorder.h"
 #include "SkPictureRecorder.h"
 
-RecordingBench::RecordingBench(const char* name, const SkPicture* pic, bool useBBH)
-    : fSrc(SkRef(pic))
-    , fName(name)
-    , fUseBBH(useBBH) {}
+RecordingBench::RecordingBench(const char* name, const SkPicture* pic, bool useBBH, bool lite)
+    : fName(name)
+    , fUseBBH(useBBH) {
+    // Flatten the source picture in case it's trivially nested (useless for timing).
+    SkPictureRecorder rec;
+    pic->playback(rec.beginRecording(pic->cullRect(), nullptr,
+                                     SkPictureRecorder::kPlaybackDrawPicture_RecordFlag));
+    fSrc = rec.finishRecordingAsPicture();
+
+    // If we're recording into an SkLiteDL, also record _from_ one.
+    if (lite) {
+        fDL = SkLiteDL::New(pic->cullRect());
+        SkLiteRecorder r;
+        r.reset(fDL.get());
+        fSrc->playback(&r);
+    }
+}
 
 const char* RecordingBench::onGetName() {
     return fName.c_str();
@@ -29,15 +43,21 @@ SkIPoint RecordingBench::onGetSize() {
 }
 
 void RecordingBench::onDraw(int loops, SkCanvas*) {
-    SkRTreeFactory factory;
-    const SkScalar w = fSrc->cullRect().width(),
-                   h = fSrc->cullRect().height();
+    if (fDL) {
+        SkLiteRecorder rec;
+        while (loops --> 0) {
+            sk_sp<SkLiteDL> dl = SkLiteDL::New(fSrc->cullRect());
+            rec.reset(dl.get());
+            fDL->draw(&rec);
+            dl->makeThreadsafe();
+        }
 
-    uint32_t flags = SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag
-                   | SkPictureRecorder::kPlaybackDrawPicture_RecordFlag;
-    for (int i = 0; i < loops; i++) {
+    } else {
+        SkRTreeFactory factory;
         SkPictureRecorder recorder;
-        fSrc->playback(recorder.beginRecording(w, h, fUseBBH ? &factory : nullptr, flags));
-        (void)recorder.finishRecordingAsPicture();
+        while (loops --> 0) {
+            fSrc->playback(recorder.beginRecording(fSrc->cullRect(), fUseBBH ? &factory : nullptr));
+            (void)recorder.finishRecordingAsPicture();
+        }
     }
 }

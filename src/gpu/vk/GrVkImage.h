@@ -43,6 +43,7 @@ public:
     VkImage image() const { return fInfo.fImage; }
     const GrVkAlloc& alloc() const { return fInfo.fAlloc; }
     VkFormat imageFormat() const { return fInfo.fFormat; }
+    uint32_t mipLevels() const { return fInfo.fLevelCount; }
     const Resource* resource() const { return fResource; }
     bool isLinearTiled() const {
         return SkToBool(VK_IMAGE_TILING_LINEAR == fInfo.fImageTiling);
@@ -107,6 +108,11 @@ private:
 
         ~Resource() override {}
 
+#ifdef SK_TRACE_VK_RESOURCES
+        void dumpInfo() const override {
+            SkDebugf("GrVkImage: %d (%d refs)\n", fImage, this->getRefCnt());
+        }
+#endif
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
 

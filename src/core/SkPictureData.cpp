@@ -43,7 +43,6 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 
     fContentInfo.set(record.fContentInfo);
 
-    fBitmaps = record.fBitmaps;
     fPaints  = record.fPaints;
 
     fPaths.reset(record.fPaths.count());
@@ -135,7 +134,7 @@ SkPictureData::~SkPictureData() {
 }
 
 bool SkPictureData::containsBitmaps() const {
-    if (fBitmaps.count() > 0 || fImageCount > 0) {
+    if (fBitmapImageCount > 0 || fImageCount > 0) {
         return true;
     }
     for (int i = 0; i < fPictureCount; ++i) {
@@ -222,13 +221,6 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
 
 void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
     int i, n;
-
-    if ((n = fBitmaps.count()) > 0) {
-        write_tag_size(buffer, SK_PICT_BITMAP_BUFFER_TAG, n);
-        for (i = 0; i < n; i++) {
-            buffer.writeBitmap(fBitmaps[i]);
-        }
-    }
 
     if ((n = fPaints.count()) > 0) {
         write_tag_size(buffer, SK_PICT_PAINT_BUFFER_TAG, n);
@@ -365,7 +357,7 @@ static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
 bool SkPictureData::parseStreamTag(SkStream* stream,
                                    uint32_t tag,
                                    uint32_t size,
-                                   SkPicture::InstallPixelRefProc proc,
+                                   SkImageDeserializer* factory,
                                    SkTypefacePlayback* topLevelTFPlayback) {
     /*
      *  By the time we encounter BUFFER_SIZE_TAG, we need to have already seen
@@ -418,7 +410,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             fPictureCount = 0;
             fPictureRefs = new const SkPicture* [size];
             for (uint32_t i = 0; i < size; i++) {
-                fPictureRefs[i] = SkPicture::MakeFromStream(stream, proc, topLevelTFPlayback).release();
+                fPictureRefs[i] = SkPicture::MakeFromStream(stream, factory, topLevelTFPlayback).release();
                 if (!fPictureRefs[i]) {
                     return false;
                 }
@@ -440,7 +432,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                 return false;
             }
             fFactoryPlayback->setupBuffer(buffer);
-            buffer.setBitmapDecoder(proc);
+            buffer.setImageDeserializer(factory);
 
             if (fTFPlayback.count() > 0) {
                 // .skp files <= v43 have typefaces serialized with each sub picture.
@@ -467,7 +459,11 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
 }
 
 static const SkImage* create_image_from_buffer(SkReadBuffer& buffer) {
-    return buffer.readImage();
+    return buffer.readImage().release();
+}
+
+static const SkImage* create_bitmap_image_from_buffer(SkReadBuffer& buffer) {
+    return buffer.readBitmapAsImage().release();
 }
 
 // Need a shallow wrapper to return const SkPicture* to match the other factories,
@@ -516,18 +512,12 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
 
 bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t size) {
     switch (tag) {
-        case SK_PICT_BITMAP_BUFFER_TAG: {
-            const int count = SkToInt(size);
-            fBitmaps.reset(count);
-            for (int i = 0; i < count; ++i) {
-                SkBitmap* bm = &fBitmaps[i];
-                if (buffer.readBitmap(bm)) {
-                    bm->setImmutable();
-                } else {
-                    return false;
-                }
+        case SK_PICT_BITMAP_BUFFER_TAG:
+            if (!new_array_from_buffer(buffer, size, &fBitmapImageRefs, &fBitmapImageCount,
+                                       create_bitmap_image_from_buffer)) {
+                return false;
             }
-        } break;
+            break;
         case SK_PICT_PAINT_BUFFER_TAG: {
             const int count = SkToInt(size);
             fPaints.reset(count);
@@ -585,14 +575,14 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
 
 SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
                                                const SkPictInfo& info,
-                                               SkPicture::InstallPixelRefProc proc,
+                                               SkImageDeserializer* factory,
                                                SkTypefacePlayback* topLevelTFPlayback) {
     SkAutoTDelete<SkPictureData> data(new SkPictureData(info));
     if (!topLevelTFPlayback) {
         topLevelTFPlayback = &data->fTFPlayback;
     }
 
-    if (!data->parseStream(stream, proc, topLevelTFPlayback)) {
+    if (!data->parseStream(stream, factory, topLevelTFPlayback)) {
         return nullptr;
     }
     return data.release();
@@ -610,7 +600,7 @@ SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
 }
 
 bool SkPictureData::parseStream(SkStream* stream,
-                                SkPicture::InstallPixelRefProc proc,
+                                SkImageDeserializer* factory,
                                 SkTypefacePlayback* topLevelTFPlayback) {
     for (;;) {
         uint32_t tag = stream->readU32();
@@ -619,7 +609,7 @@ bool SkPictureData::parseStream(SkStream* stream,
         }
 
         uint32_t size = stream->readU32();
-        if (!this->parseStreamTag(stream, tag, size, proc, topLevelTFPlayback)) {
+        if (!this->parseStreamTag(stream, tag, size, factory, topLevelTFPlayback)) {
             return false; // we're invalid
         }
     }

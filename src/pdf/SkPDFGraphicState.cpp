@@ -135,18 +135,16 @@ sk_sp<SkPDFStream> SkPDFGraphicState::MakeInvertFunction() {
 
     static const char psInvert[] = "{1 exch sub}";
     // Do not copy the trailing '\0' into the SkData.
-    sk_sp<SkData> psInvertStream(
-            SkData::NewWithoutCopy(psInvert, strlen(psInvert)));
-
-    auto invertFunction = sk_make_sp<SkPDFStream>(psInvertStream.get());
-    invertFunction->insertInt("FunctionType", 4);
-    invertFunction->insertObject("Domain", domainAndRange);
-    invertFunction->insertObject("Range", std::move(domainAndRange));
+    auto invertFunction = sk_make_sp<SkPDFStream>(
+            SkData::MakeWithoutCopy(psInvert, strlen(psInvert)));
+    invertFunction->dict()->insertInt("FunctionType", 4);
+    invertFunction->dict()->insertObject("Domain", domainAndRange);
+    invertFunction->dict()->insertObject("Range", std::move(domainAndRange));
     return invertFunction;
 }
 
 sk_sp<SkPDFDict> SkPDFGraphicState::GetSMaskGraphicState(
-        SkPDFFormXObject* sMask,
+        sk_sp<SkPDFObject> sMask,
         bool invert,
         SkPDFSMaskMode sMaskMode,
         SkPDFCanon* canon) {
@@ -158,7 +156,7 @@ sk_sp<SkPDFDict> SkPDFGraphicState::GetSMaskGraphicState(
     } else if (sMaskMode == kLuminosity_SMaskMode) {
         sMaskDict->insertName("S", "Luminosity");
     }
-    sMaskDict->insertObjRef("G", sk_ref_sp(sMask));
+    sMaskDict->insertObjRef("G", std::move(sMask));
     if (invert) {
         // Instead of calling SkPDFGraphicState::MakeInvertFunction,
         // let the canon deduplicate this object.
@@ -178,8 +176,7 @@ sk_sp<SkPDFDict> SkPDFGraphicState::MakeNoSmaskGraphicState() {
 
 void SkPDFGraphicState::emitObject(
         SkWStream* stream,
-        const SkPDFObjNumMap& objNumMap,
-        const SkPDFSubstituteMap& substitutes) const {
+        const SkPDFObjNumMap& objNumMap) const {
     auto dict = sk_make_sp<SkPDFDict>("ExtGState");
     dict->insertName("Type", "ExtGState");
 
@@ -209,5 +206,5 @@ void SkPDFGraphicState::emitObject(
     dict->insertScalar("ML", fStrokeMiter);
     dict->insertBool("SA", true);  // SA = Auto stroke adjustment.
     dict->insertName("BM", as_blend_mode(xferMode));
-    dict->emitObject(stream, objNumMap, substitutes);
+    dict->emitObject(stream, objNumMap);
 }

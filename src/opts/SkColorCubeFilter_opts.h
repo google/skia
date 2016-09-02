@@ -11,13 +11,13 @@
 
 namespace SK_OPTS_NS {
 
-void color_cube_filter_span(const SkPMColor src[],
-                            int count,
-                            SkPMColor dst[],
-                            const int* colorToIndex[2],
-                            const SkScalar* colorToFactors[2],
-                            int dim,
-                            const SkColor* colorCube) {
+static void color_cube_filter_span(const SkPMColor src[],
+                                   int count,
+                                   SkPMColor dst[],
+                                   const int* colorToIndex[2],
+                                   const SkScalar* colorToFactors[2],
+                                   int dim,
+                                   const SkColor* colorCube) {
     uint8_t r, g, b, a;
 
     for (int i = 0; i < count; ++i) {

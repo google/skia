@@ -27,9 +27,9 @@ public:
                       SkDrawFilter*, const SkIRect& clipBounds) override;
 protected:
     GrPathRenderingDrawContext(GrContext* ctx, GrDrawingManager* mgr, sk_sp<GrRenderTarget> rt,
-                               const SkSurfaceProps* surfaceProps, GrAuditTrail* at,
-                               GrSingleOwner* so)
-        : INHERITED(ctx, mgr, std::move(rt), surfaceProps, at, so) {}
+                               sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* surfaceProps,
+                               GrAuditTrail* at, GrSingleOwner* so)
+        : INHERITED(ctx, mgr, std::move(rt), std::move(colorSpace), surfaceProps, at, so) {}
 
 private:
     SkAutoTDelete<GrStencilAndCoverTextContext> fStencilAndCoverTextContext;

@@ -209,6 +209,10 @@ void GrTextureStripAtlas::lockTexture() {
         if (!fTexture) {
             return;
         }
+
+        // We will be issuing writes to the surface using kDontFlush_PixelOpsFlag, so we
+        // need to make sure any existing IO is flushed
+        fDesc.fContext->flushSurfaceIO(fTexture);
         fDesc.fContext->textureProvider()->assignUniqueKeyToTexture(key, fTexture);
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();

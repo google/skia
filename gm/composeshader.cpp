@@ -221,6 +221,44 @@ private:
     typedef GM INHERITED;
 };
 
+DEF_SIMPLE_GM(composeshader_bitmap2, canvas, 200, 200) {
+    int width = 255;
+    int height = 255;
+    SkTDArray<uint8_t> dst8Storage;
+    dst8Storage.setCount(width * height);
+    SkTDArray<uint32_t> dst32Storage;
+    dst32Storage.setCount(width * height * sizeof(int32_t));
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            dst8Storage[y * width + x] = (y + x) / 2;
+            dst32Storage[y * width + x] = SkPackARGB32(0xFF, x, y, 0);
+        }
+    }
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorBLUE);
+    SkRect r = {0, 0, SkIntToScalar(width), SkIntToScalar(height)};
+    canvas->drawRect(r, paint);
+    SkBitmap skBitmap, skMask;
+    SkImageInfo imageInfo = SkImageInfo::Make(width, height,
+            SkColorType::kN32_SkColorType, kPremul_SkAlphaType);
+    skBitmap.installPixels(imageInfo, dst32Storage.begin(), width * sizeof(int32_t),
+            nullptr, nullptr, nullptr);
+    imageInfo = SkImageInfo::Make(width, height,
+            SkColorType::kAlpha_8_SkColorType, kPremul_SkAlphaType);
+    skMask.installPixels(imageInfo, dst8Storage.begin(), width, nullptr, nullptr, nullptr);
+    sk_sp<SkImage> skSrc = SkImage::MakeFromBitmap(skBitmap);
+    sk_sp<SkShader> skSrcShader =
+        skSrc->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+    sk_sp<SkImage> skMaskImage = SkImage::MakeFromBitmap(skMask);
+    sk_sp<SkShader> skMaskShader = skMaskImage->makeShader(
+        SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+    sk_sp<SkXfermode> dstInMode = SkXfermode::Make(SkXfermode::kSrcIn_Mode);
+    paint.setShader(
+        SkShader::MakeComposeShader(skMaskShader, skSrcShader, dstInMode));
+    canvas->drawRect(r, paint);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new ComposeShaderGM; )

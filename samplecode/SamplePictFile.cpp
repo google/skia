@@ -55,9 +55,14 @@ public:
         fCount = 0;
     }
 
-    virtual ~PictFileView() {
+    ~PictFileView() override {
+        this->freePictures();
+    }
+    
+    void freePictures() {
         for (int i = 0; i < kBBoxTypeCount; ++i) {
             SkSafeUnref(fPictures[i]);
+            fPictures[i] = nullptr;
         }
     }
 
@@ -94,6 +99,12 @@ protected:
                 case 'n': fCount += 1; this->inval(nullptr); return true;
                 case 'p': fCount -= 1; this->inval(nullptr); return true;
                 case 's': fCount =  0; this->inval(nullptr); return true;
+                case 'F':
+                    fFilterQuality = (kNone_SkFilterQuality == fFilterQuality) ?
+                                     kHigh_SkFilterQuality : kNone_SkFilterQuality;
+                    this->freePictures();
+                    this->inval(nullptr);
+                    return true;
                 default: break;
             }
         }
@@ -148,18 +159,19 @@ private:
     BBoxType    fBBox;
     SkSize      fTileSize;
     int         fCount;
+    SkFilterQuality fFilterQuality = kNone_SkFilterQuality;
 
     sk_sp<SkPicture> LoadPicture(const char path[], BBoxType bbox) {
         sk_sp<SkPicture> pic;
 
-        SkBitmap bm;
-        if (decode_file(path, &bm)) {
-            bm.setImmutable();
+        if (sk_sp<SkImage> img = decode_file(path)) {
             SkPictureRecorder recorder;
-            SkCanvas* can = recorder.beginRecording(SkIntToScalar(bm.width()),
-                                                    SkIntToScalar(bm.height()),
+            SkCanvas* can = recorder.beginRecording(SkIntToScalar(img->width()),
+                                                    SkIntToScalar(img->height()),
                                                     nullptr, 0);
-            can->drawBitmap(bm, 0, 0, nullptr);
+            SkPaint paint;
+            paint.setFilterQuality(fFilterQuality);
+            can->drawImage(img, 0, 0, &paint);
             pic = recorder.finishRecordingAsPicture();
         } else {
             SkFILEStream stream(path);

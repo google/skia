@@ -113,9 +113,11 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
             }
     }
 
-    sk_sp<GrDrawContext> drawContext(ctx->newDrawContext(SkBackingFit::kExact,
-                                                         desc.fWidth, desc.fHeight,
-                                                         desc.fConfig, desc.fSampleCnt));
+    // We never want to perform color-space conversion during the decode
+    sk_sp<GrDrawContext> drawContext(ctx->makeDrawContext(SkBackingFit::kExact,
+                                                          desc.fWidth, desc.fHeight,
+                                                          desc.fConfig, nullptr,
+                                                          desc.fSampleCnt));
     if (!drawContext) {
         return nullptr;
     }

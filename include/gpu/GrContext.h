@@ -24,13 +24,13 @@
 struct GrBatchAtlasConfig;
 class GrBatchFontCache;
 struct GrContextOptions;
+class GrContextPriv;
 class GrContextThreadSafeProxy;
 class GrDrawingManager;
 class GrDrawContext;
 class GrFragmentProcessor;
 class GrGpu;
 class GrIndexBuffer;
-class GrLayerCache;
 class GrOvalRenderer;
 class GrPath;
 class GrPipelineBuilder;
@@ -181,29 +181,18 @@ public:
     int getRecommendedSampleCount(GrPixelConfig config, SkScalar dpi) const;
 
     /**
-     * Returns a helper object to orchestrate draws.
-     * Callers assume the creation ref of the drawContext
-     * NULL will be returned if the context has been abandoned.
-     *
-     * @param  rt           the render target receiving the draws
-     * @param  surfaceProps the surface properties (mainly defines text drawing)
-     *
-     * @return a draw context
-     */
-    sk_sp<GrDrawContext> drawContext(sk_sp<GrRenderTarget> rt, const SkSurfaceProps* = nullptr);
-
-    /**
      * Create both a GrRenderTarget and a matching GrDrawContext to wrap it.
      * We guarantee that "asTexture" will succeed for drawContexts created
      * via this entry point.
      */
-    sk_sp<GrDrawContext> newDrawContext(SkBackingFit fit, 
-                                        int width, int height,
-                                        GrPixelConfig config,
-                                        int sampleCnt = 0,
-                                        GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
-                                        const SkSurfaceProps* surfaceProps = nullptr,
-                                        SkBudgeted = SkBudgeted::kYes);
+    sk_sp<GrDrawContext> makeDrawContext(SkBackingFit fit, 
+                                         int width, int height,
+                                         GrPixelConfig config,
+                                         sk_sp<SkColorSpace> colorSpace,
+                                         int sampleCnt = 0,
+                                         GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
+                                         const SkSurfaceProps* surfaceProps = nullptr,
+                                         SkBudgeted = SkBudgeted::kYes);
 
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
@@ -294,15 +283,6 @@ public:
                             uint32_t pixelOpsFlags = 0);
 
     /**
-     * Copies contents of src to dst, while applying a gamma curve. Fails if the two surfaces
-     * are not identically sized.
-     * @param dst           the surface to copy to.
-     * @param src           the texture to copy from.
-     * @param gamma         the gamma value to apply.
-     */
-    bool applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma);
-
-    /**
      * Copies a rectangle of texels from src to dst.
      * @param dst           the surface to copy to.
      * @param src           the surface to copy from.
@@ -327,6 +307,12 @@ public:
     void flushSurfaceWrites(GrSurface* surface);
 
     /**
+     * After this returns any pending reads or writes to the surface will have been issued to the
+     * backend 3D API.
+     */
+    void flushSurfaceIO(GrSurface* surface);
+
+    /**
      * Finalizes all pending reads and writes to the surface and also performs an MSAA resolve
      * if necessary.
      *
@@ -346,7 +332,6 @@ public:
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
     GrBatchFontCache* getBatchFontCache() { return fBatchFontCache; }
-    GrLayerCache* getLayerCache() { return fLayerCache.get(); }
     GrTextBlobCache* getTextBlobCache() { return fTextBlobCache; }
     bool abandoned() const;
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
@@ -388,6 +373,10 @@ public:
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fSingleOwner; } )
 
+    // Provides access to functions that aren't part of the public API.
+    GrContextPriv contextPriv();
+    const GrContextPriv contextPriv() const;
+
 private:
     GrGpu*                                  fGpu;
     const GrCaps*                           fCaps;
@@ -402,7 +391,6 @@ private:
     SkAutoTUnref<GrContextThreadSafeProxy>  fThreadSafeProxy;
 
     GrBatchFontCache*                       fBatchFontCache;
-    SkAutoTDelete<GrLayerCache>             fLayerCache;
     SkAutoTDelete<GrTextBlobCache>          fTextBlobCache;
 
     // Set by OverbudgetCB() to request that GrContext flush before exiting a draw.
@@ -441,9 +429,11 @@ private:
 
     GrAuditTrail                            fAuditTrail;
 
-    // TODO: have the CMM use drawContexts and rm this friending
-    friend class GrClipMaskManager; // the CMM is friended just so it can call 'drawingManager'
-    friend class GrDrawingManager;  // for access to drawingManager for ProgramUnitTest
+    // TODO: have the GrClipStackClip use drawContexts and rm this friending
+    friend class GrClipStackClip;  // for access to drawingManager
+    friend class GrDrawingManager; // for access to drawingManager for ProgramUnitTest
+    friend class GrContextPriv;
+
     GrDrawingManager* drawingManager() { return fDrawingManager; }
 
     GrContext(); // init must be called after the constructor.

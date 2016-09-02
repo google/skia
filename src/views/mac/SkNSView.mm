@@ -134,7 +134,7 @@ static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
 - (void)drawSkia {
     fRedrawRequestPending = false;
     if (fWind) {
-        SkAutoTUnref<SkSurface> surface(fWind->createSurface());
+        sk_sp<SkSurface> surface(fWind->makeSurface());
         fWind->draw(surface->getCanvas());
 #ifdef FORCE_REDRAW
         fWind->inval(NULL);
@@ -171,13 +171,13 @@ static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
 
 #include "SkKey.h"
 enum {
-	SK_MacReturnKey		= 36,
-	SK_MacDeleteKey		= 51,
-	SK_MacEndKey		= 119,
-	SK_MacLeftKey		= 123,
-	SK_MacRightKey		= 124,
-	SK_MacDownKey		= 125,
-	SK_MacUpKey			= 126,
+    SK_MacReturnKey		= 36,
+    SK_MacDeleteKey		= 51,
+    SK_MacEndKey		= 119,
+    SK_MacLeftKey		= 123,
+    SK_MacRightKey		= 124,
+    SK_MacDownKey		= 125,
+    SK_MacUpKey			= 126,
     SK_Mac0Key          = 0x52,
     SK_Mac1Key          = 0x53,
     SK_Mac2Key          = 0x54,
@@ -192,17 +192,17 @@ enum {
 
 static SkKey raw2key(UInt32 raw)
 {
-	static const struct {
-		UInt32  fRaw;
-		SkKey   fKey;
-	} gKeys[] = {
-		{ SK_MacUpKey,		kUp_SkKey		},
-		{ SK_MacDownKey,	kDown_SkKey		},
-		{ SK_MacLeftKey,	kLeft_SkKey		},
-		{ SK_MacRightKey,   kRight_SkKey	},
-		{ SK_MacReturnKey,  kOK_SkKey		},
-		{ SK_MacDeleteKey,  kBack_SkKey		},
-		{ SK_MacEndKey,		kEnd_SkKey		},
+    static const struct {
+        UInt32  fRaw;
+        SkKey   fKey;
+    } gKeys[] = {
+        { SK_MacUpKey,		kUp_SkKey		},
+        { SK_MacDownKey,	kDown_SkKey		},
+        { SK_MacLeftKey,	kLeft_SkKey		},
+        { SK_MacRightKey,   kRight_SkKey	},
+        { SK_MacReturnKey,  kOK_SkKey		},
+        { SK_MacDeleteKey,  kBack_SkKey		},
+        { SK_MacEndKey,		kEnd_SkKey		},
         { SK_Mac0Key,       k0_SkKey        },
         { SK_Mac1Key,       k1_SkKey        },
         { SK_Mac2Key,       k2_SkKey        },
@@ -213,12 +213,12 @@ static SkKey raw2key(UInt32 raw)
         { SK_Mac7Key,       k7_SkKey        },
         { SK_Mac8Key,       k8_SkKey        },
         { SK_Mac9Key,       k9_SkKey        }
-	};
+    };
     
-	for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
-		if (gKeys[i].fRaw == raw)
-			return gKeys[i].fKey;
-	return kNONE_SkKey;
+    for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
+        if (gKeys[i].fRaw == raw)
+            return gKeys[i].fKey;
+    return kNONE_SkKey;
 }
 
 - (void)keyDown:(NSEvent *)event {

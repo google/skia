@@ -47,18 +47,17 @@ namespace SkRecords {
     M(Save)                                                         \
     M(SaveLayer)                                                    \
     M(SetMatrix)                                                    \
+    M(Translate)                                                    \
+    M(TranslateZ)                                                   \
     M(Concat)                                                       \
     M(ClipPath)                                                     \
     M(ClipRRect)                                                    \
     M(ClipRect)                                                     \
     M(ClipRegion)                                                   \
-    M(DrawBitmap)                                                   \
-    M(DrawBitmapNine)                                               \
-    M(DrawBitmapRect)                                               \
-    M(DrawBitmapRectFast)                                           \
-    M(DrawBitmapRectFixedSize)                                      \
+    M(DrawArc)                                                      \
     M(DrawDrawable)                                                 \
     M(DrawImage)                                                    \
+    M(DrawImageLattice)                                             \
     M(DrawImageRect)                                                \
     M(DrawImageNine)                                                \
     M(DrawDRRect)                                                   \
@@ -67,11 +66,13 @@ namespace SkRecords {
     M(DrawPath)                                                     \
     M(DrawPatch)                                                    \
     M(DrawPicture)                                                  \
+    M(DrawShadowedPicture)                                          \
     M(DrawPoints)                                                   \
     M(DrawPosText)                                                  \
     M(DrawPosTextH)                                                 \
     M(DrawText)                                                     \
     M(DrawTextOnPath)                                               \
+    M(DrawTextRSXform)                                              \
     M(DrawRRect)                                                    \
     M(DrawRect)                                                     \
     M(DrawTextBlob)                                                 \
@@ -87,22 +88,6 @@ enum Type { SK_RECORD_TYPES(ENUM) };
 #define ACT_AS_PTR(ptr)                 \
     operator T*() const { return ptr; } \
     T* operator->() const { return ptr; }
-
-template <typename T>
-class RefBox : SkNoncopyable {
-public:
-    RefBox() {}
-    RefBox(T* obj) : fObj(SkSafeRef(obj)) {}
-    RefBox(RefBox&& o) : fObj(o.fObj) {
-        o.fObj = nullptr;
-    }
-    ~RefBox() { SkSafeUnref(fObj); }
-
-    ACT_AS_PTR(fObj);
-
-private:
-    T* fObj;
-};
 
 // An Optional doesn't own the pointer's memory, but may need to destroy non-POD data.
 template <typename T>
@@ -152,25 +137,6 @@ private:
 
 #undef ACT_AS_PTR
 
-// Like SkBitmap, but deep copies pixels if they're not immutable.
-// Using this, we guarantee the immutability of all bitmaps we record.
-class ImmutableBitmap : SkNoncopyable {
-public:
-    ImmutableBitmap() {}
-    ImmutableBitmap(const SkBitmap& bitmap);
-    ImmutableBitmap(ImmutableBitmap&& o) {
-        fBitmap.swap(o.fBitmap);
-    }
-
-    int width()  const { return fBitmap.width();  }
-    int height() const { return fBitmap.height(); }
-
-    // While the pixels are immutable, SkBitmap itself is not thread-safe, so return a copy.
-    SkBitmap shallowCopy() const { return fBitmap; }
-private:
-    SkBitmap fBitmap;
-};
-
 // SkPath::getBounds() isn't thread safe unless we precache the bounds in a singlethreaded context.
 // SkPath::cheapComputeDirection() is similar.
 // Recording is a convenient time to cache these, or we can delay it to between record and playback.
@@ -190,6 +156,7 @@ enum Tags {
     kDraw_Tag      = 1,   // May draw something (usually named DrawFoo).
     kHasImage_Tag  = 2,   // Contains an SkImage or SkBitmap.
     kHasText_Tag   = 4,   // Contains text.
+    kHasPaint_Tag  = 8,   // May have an SkPaint field, at least optionally.
 };
 
 // A macro to make it a little easier to define a struct that can be stored in SkRecord.
@@ -206,16 +173,21 @@ RECORD(Restore, 0,
         TypedMatrix matrix);
 RECORD(Save, 0);
 
-RECORD(SaveLayer, 0,
+RECORD(SaveLayer, kHasPaint_Tag,
        Optional<SkRect> bounds;
        Optional<SkPaint> paint;
-       RefBox<const SkImageFilter> backdrop;
+       sk_sp<const SkImageFilter> backdrop;
        SkCanvas::SaveLayerFlags saveLayerFlags);
 
 RECORD(SetMatrix, 0,
         TypedMatrix matrix);
 RECORD(Concat, 0,
         TypedMatrix matrix);
+
+RECORD(Translate, 0,
+        SkScalar dx;
+        SkScalar dy);
+RECORD(TranslateZ, 0, SkScalar z);
 
 struct RegionOpAndAA {
     RegionOpAndAA() {}
@@ -243,33 +215,13 @@ RECORD(ClipRegion, 0,
         SkRegion::Op op);
 
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
-RECORD(DrawBitmap, kDraw_Tag|kHasImage_Tag,
-        Optional<SkPaint> paint;
-        ImmutableBitmap bitmap;
-        SkScalar left;
-        SkScalar top);
-RECORD(DrawBitmapNine, kDraw_Tag|kHasImage_Tag,
-        Optional<SkPaint> paint;
-        ImmutableBitmap bitmap;
-        SkIRect center;
-        SkRect dst);
-RECORD(DrawBitmapRect, kDraw_Tag|kHasImage_Tag,
-        Optional<SkPaint> paint;
-        ImmutableBitmap bitmap;
-        Optional<SkRect> src;
-        SkRect dst);
-RECORD(DrawBitmapRectFast, kDraw_Tag|kHasImage_Tag,
-        Optional<SkPaint> paint;
-        ImmutableBitmap bitmap;
-        Optional<SkRect> src;
-        SkRect dst);
-RECORD(DrawBitmapRectFixedSize, kDraw_Tag|kHasImage_Tag,
-        SkPaint paint;
-        ImmutableBitmap bitmap;
-        SkRect src;
-        SkRect dst;
-        SkCanvas::SrcRectConstraint constraint);
-RECORD(DrawDRRect, kDraw_Tag,
+RECORD(DrawArc, kDraw_Tag|kHasPaint_Tag,
+       SkPaint paint;
+       SkRect oval;
+       SkScalar startAngle;
+       SkScalar sweepAngle;
+       unsigned useCenter);
+RECORD(DrawDRRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRRect outer;
         SkRRect inner);
@@ -277,102 +229,120 @@ RECORD(DrawDrawable, kDraw_Tag,
         Optional<SkMatrix> matrix;
         SkRect worstCaseBounds;
         int32_t index);
-RECORD(DrawImage, kDraw_Tag|kHasImage_Tag,
+RECORD(DrawImage, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkImage> image;
+        sk_sp<const SkImage> image;
         SkScalar left;
         SkScalar top);
-RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag,
+RECORD(DrawImageLattice, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkImage> image;
+        sk_sp<const SkImage> image;
+        int xCount;
+        PODArray<int> xDivs;
+        int yCount;
+        PODArray<int> yDivs;
+        SkRect dst);
+RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
+        Optional<SkPaint> paint;
+        sk_sp<const SkImage> image;
         Optional<SkRect> src;
         SkRect dst;
         SkCanvas::SrcRectConstraint constraint);
-RECORD(DrawImageNine, kDraw_Tag|kHasImage_Tag,
+RECORD(DrawImageNine, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkImage> image;
+        sk_sp<const SkImage> image;
         SkIRect center;
         SkRect dst);
-RECORD(DrawOval, kDraw_Tag,
+RECORD(DrawOval, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRect oval);
-RECORD(DrawPaint, kDraw_Tag,
+RECORD(DrawPaint, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint);
-RECORD(DrawPath, kDraw_Tag,
+RECORD(DrawPath, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         PreCachedPath path);
-RECORD(DrawPicture, kDraw_Tag,
+RECORD(DrawPicture, kDraw_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkPicture> picture;
+        sk_sp<const SkPicture> picture;
         TypedMatrix matrix);
-RECORD(DrawPoints, kDraw_Tag,
+RECORD(DrawShadowedPicture, kDraw_Tag|kHasPaint_Tag,
+        Optional<SkPaint> paint;
+        sk_sp<const SkPicture> picture;
+        TypedMatrix matrix);
+RECORD(DrawPoints, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkCanvas::PointMode mode;
         unsigned count;
         SkPoint* pts);
-RECORD(DrawPosText, kDraw_Tag|kHasText_Tag,
+RECORD(DrawPosText, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<char> text;
         size_t byteLength;
         PODArray<SkPoint> pos);
-RECORD(DrawPosTextH, kDraw_Tag|kHasText_Tag,
+RECORD(DrawPosTextH, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<char> text;
         unsigned byteLength;
         SkScalar y;
         PODArray<SkScalar> xpos);
-RECORD(DrawRRect, kDraw_Tag,
+RECORD(DrawRRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRRect rrect);
-RECORD(DrawRect, kDraw_Tag,
+RECORD(DrawRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRect rect);
-RECORD(DrawText, kDraw_Tag|kHasText_Tag,
+RECORD(DrawText, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<char> text;
         size_t byteLength;
         SkScalar x;
         SkScalar y);
-RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag,
+RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkPaint paint;
-        RefBox<const SkTextBlob> blob;
+        sk_sp<const SkTextBlob> blob;
         SkScalar x;
         SkScalar y);
-RECORD(DrawTextOnPath, kDraw_Tag|kHasText_Tag,
+RECORD(DrawTextOnPath, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<char> text;
         size_t byteLength;
         PreCachedPath path;
         TypedMatrix matrix);
-RECORD(DrawPatch, kDraw_Tag,
+RECORD(DrawTextRSXform, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
+        SkPaint paint;
+        PODArray<char> text;
+        size_t byteLength;
+        PODArray<SkRSXform> xforms;
+        Optional<SkRect> cull);
+RECORD(DrawPatch, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<SkPoint> cubics;
         PODArray<SkColor> colors;
         PODArray<SkPoint> texCoords;
-        RefBox<SkXfermode> xmode);
-RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag,
+        sk_sp<SkXfermode> xmode);
+RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
-        RefBox<const SkImage> atlas;
+        sk_sp<const SkImage> atlas;
         PODArray<SkRSXform> xforms;
         PODArray<SkRect> texs;
         PODArray<SkColor> colors;
         int count;
         SkXfermode::Mode mode;
         Optional<SkRect> cull);
-RECORD(DrawVertices, kDraw_Tag,
+RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkCanvas::VertexMode vmode;
         int vertexCount;
         PODArray<SkPoint> vertices;
         PODArray<SkPoint> texs;
         PODArray<SkColor> colors;
-        RefBox<SkXfermode> xmode;
+        sk_sp<SkXfermode> xmode;
         PODArray<uint16_t> indices;
         int indexCount);
-RECORD(DrawAnnotation, 0,
+RECORD(DrawAnnotation, 0,  // TODO: kDraw_Tag, skia:5548
        SkRect rect;
        SkString key;
-       RefBox<SkData> value);
+       sk_sp<SkData> value);
 #undef RECORD
 
 }  // namespace SkRecords

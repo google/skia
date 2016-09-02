@@ -12,6 +12,10 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+#ifdef SK_BUILD_FOR_UNIX
+#include <unistd.h>
+#endif
+
 #ifdef _WIN32
 #include <direct.h>
 #include <io.h>

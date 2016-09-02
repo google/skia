@@ -44,7 +44,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     VkImageAspectFlags aspectFlags = vk_format_to_aspect_flags(fInfo.fFormat);
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
-        NULL,                                            // pNext
+        nullptr,                                         // pNext
         srcAccessMask,                                   // outputMask
         dstAccessMask,                                   // inputMask
         currentLayout,                                   // oldLayout

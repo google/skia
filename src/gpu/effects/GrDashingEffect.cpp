@@ -282,13 +282,17 @@ private:
         // compute bounds
         SkScalar halfStrokeWidth = 0.5f * geometry.fSrcStrokeWidth;
         SkScalar xBloat = SkPaint::kButt_Cap == cap ? 0 : halfStrokeWidth;
-        fBounds.set(geometry.fPtsRot[0], geometry.fPtsRot[1]);
-        fBounds.outset(xBloat, halfStrokeWidth);
+        SkRect bounds;
+        bounds.set(geometry.fPtsRot[0], geometry.fPtsRot[1]);
+        bounds.outset(xBloat, halfStrokeWidth);
 
         // Note, we actually create the combined matrix here, and save the work
         SkMatrix& combinedMatrix = fGeoData[0].fSrcRotInv;
         combinedMatrix.postConcat(geometry.fViewMatrix);
-        combinedMatrix.mapRect(&fBounds);
+
+        IsZeroArea zeroArea = geometry.fSrcStrokeWidth ? IsZeroArea::kNo : IsZeroArea::kYes;
+        HasAABloat aaBloat = (aaMode == AAMode::kNone) ? HasAABloat ::kNo : HasAABloat::kYes;
+        this->setTransformedBounds(bounds, combinedMatrix, aaBloat, zeroArea);
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
@@ -655,7 +659,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
-        this->joinBounds(that->bounds());
+        this->joinBounds(*that);
         return true;
     }
 
@@ -819,7 +823,8 @@ public:
                           const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper<DashingCircleEffect>(primProc, pdman, index, transforms);
+        this->setTransformDataHelper(primProc.cast<DashingCircleEffect>().localMatrix(), pdman,
+                                     index, transforms);
     }
 
 private:
@@ -945,10 +950,9 @@ DashingCircleEffect::DashingCircleEffect(GrColor color,
     , fUsesLocalCoords(usesLocalCoords)
     , fAAMode(aaMode) {
     this->initClassID<DashingCircleEffect>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
-    fInDashParams = &this->addVertexAttrib(Attribute("inDashParams", kVec3f_GrVertexAttribType));
-    fInCircleParams = &this->addVertexAttrib(Attribute("inCircleParams",
-                                                       kVec2f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType);
+    fInDashParams = &this->addVertexAttrib("inDashParams", kVec3f_GrVertexAttribType);
+    fInCircleParams = &this->addVertexAttrib("inCircleParams", kVec2f_GrVertexAttribType);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
@@ -1039,7 +1043,8 @@ public:
                           const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper<DashingLineEffect>(primProc, pdman, index, transforms);
+        this->setTransformDataHelper(primProc.cast<DashingLineEffect>().localMatrix(), pdman, index,
+                                     transforms);
     }
 
 private:
@@ -1178,9 +1183,9 @@ DashingLineEffect::DashingLineEffect(GrColor color,
     , fUsesLocalCoords(usesLocalCoords)
     , fAAMode(aaMode) {
     this->initClassID<DashingLineEffect>();
-    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
-    fInDashParams = &this->addVertexAttrib(Attribute("inDashParams", kVec3f_GrVertexAttribType));
-    fInRectParams = &this->addVertexAttrib(Attribute("inRect", kVec4f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType);
+    fInDashParams = &this->addVertexAttrib("inDashParams", kVec3f_GrVertexAttribType);
+    fInRectParams = &this->addVertexAttrib("inRect", kVec4f_GrVertexAttribType);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);
@@ -1240,7 +1245,7 @@ DRAW_BATCH_TEST_DEFINE(DashBatch) {
     }
 
     // pick random cap
-    SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::Cap::kCapCount));
+    SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::kCapCount));
 
     SkScalar intervals[2];
 

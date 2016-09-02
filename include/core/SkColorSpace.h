@@ -42,10 +42,14 @@ public:
 
         /**
          *  Gamma is represented by a look-up table, a parametric curve, or an uncommon
-         *  exponential curve.  Or there is an additional pre-processing step before the
-         *  applying the gamma.
+         *  exponential curve.  Or the R, G, and B gammas do not match.
          */
         kNonStandard_GammaNamed,
+
+        /**
+         *  To be used by UMA code only.  ICC profiles lacks valid gamma representation.
+         */
+        kInvalid_GammaNamed,
     };
 
     /**
@@ -63,6 +67,11 @@ public:
      */
     static sk_sp<SkColorSpace> NewICC(const void*, size_t);
 
+    /**
+     *  Create an SkColorSpace with the same gamut as this color space, but with linear gamma.
+     */
+    sk_sp<SkColorSpace> makeLinearGamma();
+
     GammaNamed gammaNamed() const { return fGammaNamed; }
 
     /**
@@ -78,12 +87,33 @@ public:
     }
 
     /**
+     *  To be used only by UMA code.
+     */
+    bool gammasAreMatching() const;
+    bool gammasAreNamed() const;
+    bool gammasAreValues() const;
+    bool gammasAreTables() const;
+    bool gammasAreParams() const;
+
+    /**
      *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and
      *  the data is too large to serialize.
      */
     sk_sp<SkData> serialize() const;
 
+    /**
+     *  If |memory| is nullptr, returns the size required to serialize.
+     *  Otherwise, serializes into |memory| and returns the size.
+     */
+    size_t writeToMemory(void* memory) const;
+
     static sk_sp<SkColorSpace> Deserialize(const void* data, size_t length);
+
+    /**
+     *  If both are null, we return true.  If one is null and the other is not, we return false.
+     *  If both are non-null, we do a deeper compare.
+     */
+    static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
 protected:
     SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50, Named named);

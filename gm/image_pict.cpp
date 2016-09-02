@@ -332,6 +332,7 @@ protected:
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
         SkAutoTUnref<SkImage> image(new SkImage_Gpu(cache->info().width(), cache->info().height(),
                                                     cache->uniqueID(), kPremul_SkAlphaType, texture,
+                                                    sk_ref_sp(cache->info().colorSpace()),
                                                     SkBudgeted::kNo));
         canvas->drawImage(image, x, y);
 #endif

@@ -167,6 +167,7 @@ class GrTextureDomainEffect : public GrSingleTextureEffect {
 
 public:
     static sk_sp<GrFragmentProcessor> Make(GrTexture*,
+                                           sk_sp<GrColorSpaceXform>,
                                            const SkMatrix&,
                                            const SkRect& domain,
                                            GrTextureDomain::Mode,
@@ -193,6 +194,7 @@ protected:
 
 private:
     GrTextureDomainEffect(GrTexture*,
+                          sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
                           const SkRect& domain,
                           GrTextureDomain::Mode,

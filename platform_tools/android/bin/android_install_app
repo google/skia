@@ -3,13 +3,12 @@
 # android_install_app: installs the Skia development apps on the device.
 
 function print_usage {
-  echo "USAGE: android_install_app [options] AppName"
+  echo "USAGE: android_install_app [options]"
   echo " Options:         -f  Forces the package to be installed by removing any"
   echo "                      previously installed packages"
   echo "                  -h  Prints this help message"
   echo "            --release Install the release build of Skia"
   echo "      -s [device_s/n] Serial number of the device to be used"
-  echo "              AppName Can be either SampleApp or Viewer"
 }
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -18,7 +17,6 @@ source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
 forceRemoval="false"
-app=""
 
 for arg in ${APP_ARGS[@]}; do
   if [[ "${arg}" == "-f" ]]; then
@@ -32,20 +30,8 @@ for arg in ${APP_ARGS[@]}; do
     echo "ERROR: unrecognized option ${arg}"
     print_usage
     exit 1;
-  else
-    if [[ ${app} != "" ]]; then
-      echo "ERROR: app already defined ${app}"
-      exit 1;
-    else
-      app=${arg}
-    fi
   fi
 done
-
-if [[ ${app} == "" ]]; then
-  echo "Defaulting to installing SampleApp."
-  app="SampleApp"
-fi
 
 
 if [[ "$forceRemoval" == "true" ]];
@@ -61,11 +47,7 @@ else
     apk_suffix="debug.apk"
 fi
 
-if [[ ${app} == 'SampleApp' ]]; then
-    app="sample_app"
-fi
-
-APP_LC=$(echo $app | tr "[:upper:]" "[:lower:]")
+APP_LC=$(echo Viewer | tr "[:upper:]" "[:lower:]")
 
 echo "Installing ${APP_LC} from ${APP_LC}/build/outputs/apk/${APP_LC}-${ANDROID_ARCH}-${apk_suffix}"
 $ADB ${DEVICE_SERIAL} install -r ${SCRIPT_DIR}/../apps/${APP_LC}/build/outputs/apk/${APP_LC}-${ANDROID_ARCH}-${apk_suffix}

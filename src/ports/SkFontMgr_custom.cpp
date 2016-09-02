@@ -30,7 +30,7 @@ class SkTypeface_Custom : public SkTypeface_FreeType {
 public:
     SkTypeface_Custom(const SkFontStyle& style, bool isFixedPitch,
                       bool sysFont, const SkString familyName, int index)
-        : INHERITED(style, SkTypefaceCache::NewFontID(), isFixedPitch)
+        : INHERITED(style, isFixedPitch)
         , fIsSysFont(sysFont), fFamilyName(familyName), fIndex(index)
     { }
 
@@ -43,6 +43,7 @@ protected:
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override {
         desc->setFamilyName(fFamilyName.c_str());
+        desc->setStyle(this->fontStyle());
         *isLocal = !this->isSysFont();
     }
 

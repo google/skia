@@ -10,6 +10,8 @@
 #include "SkDashPathEffect.h"
 #include "SkWriteBuffer.h"
 #include "SkStrokeRec.h"
+#include "SkCanvas.h"
+#include "SkSurface.h"
 
 // crbug.com/348821 was rooted in SkDashPathEffect refusing to flatten and unflatten itself when
 // the effect is nonsense.  Here we test that it fails when passed nonsense parameters.
@@ -98,4 +100,18 @@ DEF_TEST(DashPath_bug4871, r) {
 
     SkPath fill;
     paint.getFillPath(path, &fill);
+}
+
+// Verify that long lines with many dashes don't cause overflows/OOMs.
+DEF_TEST(DashPathEffectTest_asPoints_limit, r) {
+    sk_sp<SkSurface> surface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(256, 256)));
+    SkCanvas* canvas = surface->getCanvas();
+
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    // force the bounds to outset by a large amount
+    p.setStrokeWidth(5.0e10f);
+    const SkScalar intervals[] = { 1, 1 };
+    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+    canvas->drawLine(1, 1, 1, 5.0e10f, p);
 }

@@ -47,8 +47,10 @@ private:
     void createRenderTarget();
     SkAutoTUnref<const GrGLInterface> fCurIntf;
     SkAutoTUnref<GrContext> fCurContext;
-    SkAutoTUnref<SkGpuDevice> fGpuDevice;
-    SkAutoTUnref<SkCanvas> fCanvas;
+
+    sk_sp<SkSurface> fGpuSurface;
+    SkCanvas*        fCanvas;
+
     SkDebugger* fDebugger;
     GrBackendRenderTargetDesc getDesc(int w, int h);
 };

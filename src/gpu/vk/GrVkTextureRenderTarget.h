@@ -33,6 +33,8 @@ public:
                                                                      GrWrapOwnership,
                                                                      const GrVkImageInfo*);
 
+    bool updateForMipmap(GrVkGpu* gpu, const GrVkImageInfo& newInfo);
+
 protected:
     void onAbandon() override {
         GrVkRenderTarget::onAbandon();

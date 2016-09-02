@@ -14,10 +14,7 @@
 
 template <typename T> class SkTDArray {
 public:
-    SkTDArray() {
-        fReserve = fCount = 0;
-        fArray = NULL;
-    }
+    SkTDArray() : fArray(nullptr), fReserve(0), fCount(0) {}
     SkTDArray(const T src[], int count) {
         SkASSERT(src || count == 0);
 
@@ -29,11 +26,12 @@ public:
             fReserve = fCount = count;
         }
     }
-    SkTDArray(const SkTDArray<T>& src) {
-        fReserve = fCount = 0;
-        fArray = NULL;
+    SkTDArray(const SkTDArray<T>& src) : fArray(nullptr), fReserve(0), fCount(0) {
         SkTDArray<T> tmp(src.fArray, src.fCount);
         this->swap(tmp);
+    }
+    SkTDArray(SkTDArray<T>&& src) : fArray(nullptr), fReserve(0), fCount(0) {
+        this->swap(src);
     }
     ~SkTDArray() {
         sk_free(fArray);
@@ -48,6 +46,13 @@ public:
                 sk_careful_memcpy(fArray, src.fArray, sizeof(T) * src.fCount);
                 fCount = src.fCount;
             }
+        }
+        return *this;
+    }
+    SkTDArray<T>& operator=(SkTDArray<T>&& src) {
+        if (this != &src) {
+            this->swap(src);
+            src.reset();
         }
         return *this;
     }

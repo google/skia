@@ -28,11 +28,10 @@ def main():
       help='path to copy the command buffer shared library to')
   parser.add_argument('--make-output-dir', default=False, action='store_true',
       help='Makes the output directory if it does not already exist.')
-  parser.add_argument('-f', '--fetch', action='store_true', default=False,
-      help=('Create Chromium src directory and fetch chromium checkout (if '
-            'directory does not already exist)'))
-  parser.add_argument('--chrome-build-type', default='Release',
-      help='Type of build for the command buffer (e.g. Debug or Release)')
+  parser.add_argument('-t', '--chrome-build-type', default='Release',
+      help='Type of build for the command buffer (e.g. Debug or Release). The '
+            'output dir to build will be <chrome-dir>/out/<chrome-build-type> '
+            'and must already be initialized by gn.')
   parser.add_argument('--extra-ninja-args', default='',
       help=('Extra arguments to pass to ninja when building the command '
             'buffer shared library'))
@@ -40,10 +39,16 @@ def main():
       help='Revision (hash, branch, tag) of Chromium to use.')
   parser.add_argument('--no-sync', action='store_true', default=False,
       help='Don\'t run git fetch or gclient sync in the Chromium tree')
+  parser.add_argument('--no-hooks', action='store_true', default=False,
+      help='Don\'t run gclient runhooks in the Chromium tree. Implies '
+           '--no-sync')
   args = parser.parse_args()
 
   args.chrome_dir = os.path.abspath(args.chrome_dir)
   args.output_dir = os.path.abspath(args.output_dir)
+
+  if args.no_hooks:
+     args.no_sync = True
 
   if os.path.isfile(args.chrome_dir):
     sys.exit(args.chrome_dir + ' exists but is a file.')
@@ -52,26 +57,6 @@ def main():
     sys.exit(args.output_dir + ' exists but is a file.')
 
   chrome_src_dir = os.path.join(args.chrome_dir, 'src')
-
-  if os.path.isfile(chrome_src_dir):
-    sys.exit(chrome_src_dir + ' exists but is a file.')
-  elif not os.path.isdir(chrome_src_dir):
-    if args.fetch:
-      if os.path.isdir(args.chrome_dir):
-        # If chrome_dir is a dir but chrome_src_dir does not exist we will only
-        # fetch into chrome_dir if it is empty.
-        if os.listdir(args.chrome_dir):
-          sys.exit(args.chrome_dir + ' is not a chromium checkout and is not '
-              'empty.')
-      else:
-        os.makedirs(args.chrome_dir)
-      if not os.path.isdir(args.chrome_dir):
-        sys.exit('Could not create ' + args.chrome_dir)
-      try:
-        subprocess.check_call(['fetch', 'chromium'], cwd=args.chrome_dir)
-      except subprocess.CalledProcessError as error:
-        sys.exit('Error (ret code: %s) calling "%s" in %s' % error.returncode,
-            error.cmd, args.chrome_dir)
 
   if not os.path.isdir(chrome_src_dir):
     sys.exit(chrome_src_dir + ' is not a directory.')
@@ -123,11 +108,35 @@ def main():
 
     try:
       os.environ['GYP_GENERATORS'] = 'ninja'
-      subprocess.check_call([gclient, 'sync', '--reset', '--force'],
+      subprocess.check_call([gclient, 'sync', '--reset', '--force',
+                             '--nohooks'],
           cwd=chrome_src_dir)
     except subprocess.CalledProcessError as error:
       sys.exit('Error (ret code: %s) calling "%s" in %s' % (error.returncode,
           error.cmd, chrome_src_dir))
+
+  if not args.no_hooks:
+    try:
+      subprocess.check_call([gclient, 'runhooks'], cwd=chrome_src_dir)
+    except subprocess.CalledProcessError as error:
+      sys.exit('Error (ret code: %s) calling "%s" in %s' % (
+          error.returncode, error.cmd, chrome_src_dir))
+
+  gn = 'gn'
+  platform = 'linux64'
+  if sys.platform == 'darwin':
+    platform = 'mac'
+  elif sys.platform == 'win32':
+    platform = 'win'
+    gn = 'gn.exe'
+  gn = os.path.join(chrome_src_dir, 'buildtools', platform, gn)
+  try:
+    subprocess.check_call([gn, 'gen', chrome_target_dir_rel,
+                           '--args=is_component_build=false'],
+                          cwd=chrome_src_dir)
+  except subprocess.CalledProcessError as error:
+    sys.exit('Error (ret code: %s) calling "%s" in %s' % (
+        error.returncode, error.cmd, chrome_src_dir))
 
   try:
     subprocess.check_call(['ninja'] + shlex.split(args.extra_ninja_args) +
@@ -137,8 +146,7 @@ def main():
     sys.exit('Error (ret code: %s) calling "%s" in %s' % (error.returncode,
         error.cmd, chrome_src_dir))
 
-  shared_lib_src_dir = os.path.join(chrome_src_dir, chrome_target_dir_rel,
-                                    shared_lib_subdir)
+  shared_lib_src_dir = os.path.join(chrome_src_dir, chrome_target_dir_rel)
   shared_lib_dst_dir = os.path.join(args.output_dir, shared_lib_subdir)
   # Make the subdir for the dst if does not exist
   if shared_lib_subdir and not os.path.isdir(shared_lib_dst_dir):

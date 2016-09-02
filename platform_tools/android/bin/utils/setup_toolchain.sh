@@ -35,14 +35,14 @@ function default_toolchain() {
   TOOLCHAINS=${SCRIPT_DIR}/../toolchains
 
   ANDROID_ARCH=${ANDROID_ARCH-arm}
-  NDK=r11c
+  NDK=r12b
 
   if [[ $ANDROID_ARCH == *64* ]]; then
       API=21  # Android 5.0
   else
       API=14  # Android 4.0
   fi
-  
+
   if [ "$SKIA_VULKAN" == "true" ]; then
       API=24  # Android N Preview
   fi
@@ -142,6 +142,15 @@ else
   exportVar RANLIB "$ANDROID_TOOLCHAIN_PREFIX-ranlib"
   exportVar OBJCOPY "$ANDROID_TOOLCHAIN_PREFIX-objcopy"
   exportVar STRIP "$ANDROID_TOOLCHAIN_PREFIX-strip"
+fi
+
+# GCC doesn't seem to put this on its include path when setting -march=mips32r2.
+# Oddly, it does for mips32, mips32r3, and mips32r5, but it's gone again for mips32r6.
+# Clang's fine.
+if [ "$USE_CLANG" != "true" ]; then
+    if [ "$ANDROID_ARCH" == "mips" ]; then
+        exportVar CXX_target "$CXX_target -isystem $ANDROID_TOOLCHAIN/include/c++/4.9.x/mipsel-linux-android"
+    fi
 fi
 
 # Create symlinks for nm & readelf and add them to the path so that the ninja

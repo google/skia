@@ -84,8 +84,8 @@ GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu,
 
     GrColorToRGBAFloat(colorInfo.fClearColor, fColorClearValue.color.float32);
 
-    fCommandBuffer = GrVkSecondaryCommandBuffer::Create(gpu, gpu->cmdPool(), fRenderPass);
-    fCommandBuffer->begin(gpu, target->framebuffer());
+    fCommandBuffer = gpu->resourceProvider().findOrCreateSecondaryCommandBuffer();
+    fCommandBuffer->begin(gpu, target->framebuffer(), fRenderPass);
 }
 
 GrVkGpuCommandBuffer::~GrVkGpuCommandBuffer() {
@@ -118,6 +118,14 @@ void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
                                   false);
     }
 
+    if (GrVkImage* msaaImage = fRenderTarget->msaaImage()) {
+        msaaImage->setImageLayout(fGpu,
+                                  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                  false);
+    }
+
     for (int i = 0; i < fSampledImages.count(); ++i) {
         fSampledImages[i]->setImageLayout(fGpu,
                                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -128,6 +136,38 @@ void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
 
     fGpu->submitSecondaryCommandBuffer(fCommandBuffer, fRenderPass, &fColorClearValue,
                                        fRenderTarget, bounds);
+}
+
+void GrVkGpuCommandBuffer::discard(GrRenderTarget* target) {
+    if (fIsEmpty) {
+        // We will change the render pass to do a clear load instead
+        GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                                                VK_ATTACHMENT_STORE_OP_STORE);
+        GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                                                  VK_ATTACHMENT_STORE_OP_STORE);
+        GrVkRenderPass::LoadStoreOps vkResolveOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                                                  VK_ATTACHMENT_STORE_OP_STORE);
+
+        const GrVkRenderPass* oldRP = fRenderPass;
+
+        GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
+        const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
+            vkRT->compatibleRenderPassHandle();
+        if (rpHandle.isValid()) {
+            fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
+                                                                  vkColorOps,
+                                                                  vkResolveOps,
+                                                                  vkStencilOps);
+        } else {
+            fRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
+                                                                  vkColorOps,
+                                                                  vkResolveOps,
+                                                                  vkStencilOps);
+        }
+
+        SkASSERT(fRenderPass->isCompatible(*oldRP));
+        oldRP->unref(fGpu);
+    }
 }
 
 void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,
@@ -255,6 +295,7 @@ void GrVkGpuCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
     // When a command buffer is submitted to a queue, there is an implicit memory barrier that
     // occurs for all host writes. Additionally, BufferMemoryBarriers are not allowed inside of
     // an active RenderPass.
+    SkASSERT(!mesh.vertexBuffer()->isCPUBacked());
     GrVkVertexBuffer* vbuf;
     vbuf = (GrVkVertexBuffer*)mesh.vertexBuffer();
     SkASSERT(vbuf);
@@ -263,6 +304,7 @@ void GrVkGpuCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
     fCommandBuffer->bindVertexBuffer(fGpu, vbuf);
 
     if (mesh.isIndexed()) {
+        SkASSERT(!mesh.indexBuffer()->isCPUBacked());
         GrVkIndexBuffer* ibuf = (GrVkIndexBuffer*)mesh.indexBuffer();
         SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());
@@ -295,7 +337,7 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
 }
 
 static void append_sampled_images(const GrProcessor& processor,
-                                  const GrVkGpu* gpu,
+                                  GrVkGpu* gpu,
                                   SkTArray<GrVkImage*>* sampledImages) {
     if (int numTextures = processor.numTextures()) {
         GrVkImage** images = sampledImages->push_back_n(numTextures);
@@ -304,6 +346,13 @@ static void append_sampled_images(const GrProcessor& processor,
             const GrTextureAccess& texAccess = processor.textureAccess(i);
             GrVkTexture* vkTexture = static_cast<GrVkTexture*>(processor.texture(i));
             SkASSERT(vkTexture);
+
+            // We may need to resolve the texture first if it is also a render target
+            GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
+            if (texRT) {
+                gpu->onResolveRenderTarget(texRT);
+            }
+
             const GrTextureParams& params = texAccess.getParams();
             // Check if we need to regenerate any mip maps
             if (GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
@@ -331,6 +380,12 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
     SkASSERT(renderPass);
 
+    append_sampled_images(primProc, fGpu, &fSampledImages);
+    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
+        append_sampled_images(pipeline.getFragmentProcessor(i), fGpu, &fSampledImages);
+    }
+    append_sampled_images(pipeline.getXferProcessor(), fGpu, &fSampledImages);
+
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
                                                                     primProc,
@@ -339,12 +394,6 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     if (!pipelineState) {
         return;
     }
-
-    append_sampled_images(primProc, fGpu, &fSampledImages);
-    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        append_sampled_images(pipeline.getFragmentProcessor(i), fGpu, &fSampledImages);
-    }
-    append_sampled_images(pipeline.getXferProcessor(), fGpu, &fSampledImages);
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];

@@ -153,10 +153,7 @@ T sk_atomic_exchange(T* ptr, T val, sk_memory_order mo) {
 // We use the default sequentially-consistent memory order to make things simple
 // and to match the practical reality of our old _sync and _win implementations.
 
-inline int32_t sk_atomic_inc(int32_t* ptr)            { return sk_atomic_fetch_add(ptr, +1); }
-inline int32_t sk_atomic_dec(int32_t* ptr)            { return sk_atomic_fetch_add(ptr, -1); }
-inline int32_t sk_atomic_add(int32_t* ptr, int32_t v) { return sk_atomic_fetch_add(ptr,  v); }
-
-inline int64_t sk_atomic_inc(int64_t* ptr) { return sk_atomic_fetch_add<int64_t>(ptr, +1); }
+inline int32_t sk_atomic_inc(int32_t* ptr) { return sk_atomic_fetch_add(ptr, +1); }
+inline int32_t sk_atomic_dec(int32_t* ptr) { return sk_atomic_fetch_add(ptr, -1); }
 
 #endif//SkAtomics_DEFINED

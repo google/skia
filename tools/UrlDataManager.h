@@ -8,8 +8,8 @@
 #ifndef SkUrlDataManager_DEFINED
 #define SkUrlDataManager_DEFINED
 
-#include "SkChecksum.h"
 #include "SkData.h"
+#include "SkOpts.h"
 #include "SkString.h"
 #include "SkTDynamicHash.h"
 
@@ -33,7 +33,7 @@ public:
     struct UrlData : public SkRefCnt {
         SkString fUrl;
         SkString fContentType;
-        SkAutoTUnref<SkData> fData;
+        sk_sp<SkData> fData;
     };
 
     /*
@@ -52,7 +52,7 @@ private:
         }
 
         static uint32_t Hash(const SkData& key) {
-            return SkChecksum::Murmur3(key.bytes(), key.size());
+            return SkOpts::hash(key.bytes(), key.size());
         }
     };
 
@@ -62,7 +62,7 @@ private:
         }
 
         static uint32_t Hash(const SkString& key) {
-            return SkChecksum::Murmur3(key.c_str(), strlen(key.c_str()));
+            return SkOpts::hash(key.c_str(), strlen(key.c_str()));
         }
     };
 

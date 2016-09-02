@@ -95,9 +95,7 @@ public:
             fColor = floats_to_color(values);
 
             canvas->save();
-            canvas->translate(fR.centerX(), fR.centerY());
-            canvas->rotate(values[4]);
-            canvas->translate(-fR.centerX(), -fR.centerY());
+            canvas->rotate(values[4], fR.centerX(), fR.centerY());
 
             switch (res) {
                 case SkInterpolator::kFreezeEnd_Result:

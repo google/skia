@@ -49,8 +49,8 @@
         '../src/animator/SkBoundable.cpp',
         '../src/animator/SkBoundable.h',
         '../src/animator/SkBuildCondensedInfo.cpp',
-        #'../src/animator/SkCondensedDebug.cpp', fails on windows
-        #'../src/animator/SkCondensedRelease.cpp',
+        #'../src/animator/SkCondensedDebug.inc', fails on windows
+        #'../src/animator/SkCondensedRelease.inc',
         '../src/animator/SkDisplayable.cpp',
         '../src/animator/SkDisplayable.h',
         '../src/animator/SkDisplayAdd.cpp',

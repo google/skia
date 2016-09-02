@@ -11,11 +11,20 @@ bool TightBounds(const SkPath& path, SkRect* result) {
     SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
-    SkOpGlobalState globalState(nullptr, contourList  SkDEBUGPARAMS(false)
+    SkOpGlobalState globalState(contourList, &allocator  SkDEBUGPARAMS(false)
             SkDEBUGPARAMS(nullptr));
     // turn path into list of segments
-    SkOpEdgeBuilder builder(path, &contour, &allocator, &globalState);
-    if (!builder.finish(&allocator)) {
+    SkScalar scaleFactor = ScaleFactor(path);
+    SkPath scaledPath;
+    const SkPath* workingPath;
+    if (scaleFactor > SK_Scalar1) {
+        ScalePath(path, 1.f / scaleFactor, &scaledPath);
+        workingPath = &scaledPath;
+    } else {
+        workingPath = &path;
+    }
+    SkOpEdgeBuilder builder(*workingPath, &contour, &globalState);
+    if (!builder.finish()) {
         return false;
     }
     if (!SortContourList(&contourList, false, false)) {

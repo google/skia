@@ -232,6 +232,23 @@ static SkPath create_path_15() {
     return path;
 }
 
+// Reduction of Nebraska-StateSeal.svg. Floating point error causes the
+// same edge to be added to more than one poly on the same side.
+static SkPath create_path_16() {
+    SkPath path;
+    path.moveTo(170.8199920654296875,   491.86700439453125);
+    path.lineTo(173.7649993896484375,    489.7340087890625);
+    path.lineTo(174.1450958251953125,  498.545989990234375);
+    path.lineTo( 171.998992919921875,   500.88201904296875);
+    path.moveTo(168.2922515869140625,   498.66265869140625);
+    path.lineTo(169.8589935302734375,   497.94500732421875);
+    path.lineTo(                 172,   500.88299560546875);
+    path.moveTo( 169.555267333984375,   490.70111083984375);
+    path.lineTo(173.7649993896484375,    489.7340087890625);
+    path.lineTo(  170.82000732421875,   491.86700439453125);
+    return path;
+}
+
 static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const SkPath& path) {
     GrTessellatingPathRenderer tess;
 
@@ -246,7 +263,6 @@ static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const 
     args.fDrawContext = drawContext;
     args.fClip = &noClip;
     args.fResourceProvider = rp;
-    args.fColor = GrColor_WHITE;
     args.fViewMatrix = &SkMatrix::I();
     GrShape shape(path, style);
     args.fShape = &shape;
@@ -255,34 +271,36 @@ static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const 
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
-    sk_sp<GrDrawContext> drawContext(ctxInfo.grContext()->newDrawContext(SkBackingFit::kApprox,
-                                                                         800, 800,
-                                                                         kSkia8888_GrPixelConfig,
-                                                                         0,
-                                                                         kTopLeft_GrSurfaceOrigin));
-    if (!drawContext) {
+    sk_sp<GrDrawContext> dc(ctxInfo.grContext()->makeDrawContext(SkBackingFit::kApprox,
+                                                                 800, 800,
+                                                                 kSkia8888_GrPixelConfig,
+                                                                 nullptr,
+                                                                 0,
+                                                                 kTopLeft_GrSurfaceOrigin));
+    if (!dc) {
         return;
     }
 
     GrTestTarget tt;
-    ctxInfo.grContext()->getTestTarget(&tt, drawContext);
+    ctxInfo.grContext()->getTestTarget(&tt, dc);
     GrResourceProvider* rp = tt.resourceProvider();
 
-    test_path(drawContext.get(), rp, create_path_0());
-    test_path(drawContext.get(), rp, create_path_1());
-    test_path(drawContext.get(), rp, create_path_2());
-    test_path(drawContext.get(), rp, create_path_3());
-    test_path(drawContext.get(), rp, create_path_4());
-    test_path(drawContext.get(), rp, create_path_5());
-    test_path(drawContext.get(), rp, create_path_6());
-    test_path(drawContext.get(), rp, create_path_7());
-    test_path(drawContext.get(), rp, create_path_8());
-    test_path(drawContext.get(), rp, create_path_9());
-    test_path(drawContext.get(), rp, create_path_10());
-    test_path(drawContext.get(), rp, create_path_11());
-    test_path(drawContext.get(), rp, create_path_12());
-    test_path(drawContext.get(), rp, create_path_13());
-    test_path(drawContext.get(), rp, create_path_14());
-    test_path(drawContext.get(), rp, create_path_15());
+    test_path(dc.get(), rp, create_path_0());
+    test_path(dc.get(), rp, create_path_1());
+    test_path(dc.get(), rp, create_path_2());
+    test_path(dc.get(), rp, create_path_3());
+    test_path(dc.get(), rp, create_path_4());
+    test_path(dc.get(), rp, create_path_5());
+    test_path(dc.get(), rp, create_path_6());
+    test_path(dc.get(), rp, create_path_7());
+    test_path(dc.get(), rp, create_path_8());
+    test_path(dc.get(), rp, create_path_9());
+    test_path(dc.get(), rp, create_path_10());
+    test_path(dc.get(), rp, create_path_11());
+    test_path(dc.get(), rp, create_path_12());
+    test_path(dc.get(), rp, create_path_13());
+    test_path(dc.get(), rp, create_path_14());
+    test_path(dc.get(), rp, create_path_15());
+    test_path(dc.get(), rp, create_path_16());
 }
 #endif

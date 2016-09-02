@@ -24,7 +24,7 @@ public:
     ~Viewer() override;
 
     void onPaint(SkCanvas* canvas);
-    void onIdle(double ms) override;
+    void onIdle() override;
     bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y);
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
 
@@ -52,6 +52,7 @@ private:
     int                    fCurrentSlide;
 
     bool                   fDisplayStats;
+    bool                   fRefresh; // whether to continuously refresh for measuring render time
 
     // whether to split the screen and draw two copies of the slide, one with sRGB and one without
     bool                   fSplitScreen;

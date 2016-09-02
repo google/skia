@@ -15,10 +15,10 @@
 
 namespace sk_tool_utils {
 
-#include "test_font_monospace.cpp"
-#include "test_font_sans_serif.cpp"
-#include "test_font_serif.cpp"
-#include "test_font_index.cpp"
+#include "test_font_monospace.inc"
+#include "test_font_sans_serif.inc"
+#include "test_font_serif.inc"
+#include "test_font_index.inc"
 
 void release_portable_typefaces() {
     for (int index = 0; index < gTestFontsCount; ++index) {

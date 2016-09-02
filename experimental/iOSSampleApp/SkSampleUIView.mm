@@ -123,10 +123,12 @@ public:
 #if SK_SUPPORT_GPU
         if (SampleWindow::IsGpuDeviceType(dType) && fCurContext) {
             SkSurfaceProps props(win->getSurfaceProps());
-            return SkSurface::NewRenderTargetDirect(fCurRenderTarget, &props);
+            return SkSurface::MakeRenderTargetDirect(fCurRenderTarget,
+                                                     sk_ref_sp(win->info().colorSpace()),
+                                                     &props).release();
         }
 #endif
-        return NULL;
+        return nullptr;
     }
 
     virtual void publishCanvas(SampleWindow::DeviceType dType,

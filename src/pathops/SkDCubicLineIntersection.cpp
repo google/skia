@@ -6,6 +6,7 @@
  */
 #include "SkIntersections.h"
 #include "SkPathOpsCubic.h"
+#include "SkPathOpsCurve.h"
 #include "SkPathOpsLine.h"
 
 /*
@@ -86,7 +87,7 @@ public:
         , fLine(l)
         , fIntersections(i)
         , fAllowNear(true) {
-        i->setMax(3);
+        i->setMax(4);
     }
 
     void allowNear(bool allow) {
@@ -291,6 +292,22 @@ public:
             }
             fIntersections->insert(cubicT, lineT, fCubic[cIndex]);
         }
+        this->addLineNearEndPoints();
+    }
+
+    void addLineNearEndPoints() {
+        for (int lIndex = 0; lIndex < 2; ++lIndex) {
+            double lineT = (double) lIndex;
+            if (fIntersections->hasOppT(lineT)) {
+                continue;
+            }
+            double cubicT = ((SkDCurve*) &fCubic)->nearPoint(SkPath::kCubic_Verb,
+                fLine[lIndex], fLine[!lIndex]);
+            if (cubicT < 0) {
+                continue;
+            }
+            fIntersections->insert(cubicT, lineT, fLine[lIndex]);
+        }
     }
 
     void addExactHorizontalEndPoints(double left, double right, double y) {
@@ -316,7 +333,7 @@ public:
             }
             fIntersections->insert(cubicT, lineT, fCubic[cIndex]);
         }
-        // FIXME: see if line end is nearly on cubic
+        this->addLineNearEndPoints();
     }
 
     void addExactVerticalEndPoints(double top, double bottom, double x) {
@@ -342,7 +359,7 @@ public:
             }
             fIntersections->insert(cubicT, lineT, fCubic[cIndex]);
         }
-        // FIXME: see if line end is nearly on cubic
+        this->addLineNearEndPoints();
     }
 
     double findLineT(double t) {

@@ -32,7 +32,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkAutoTUnref<SkData> name(SkData::NewWithCString("target-a"));
+        sk_sp<SkData> name(SkData::MakeWithCString("target-a"));
 
         canvas->save();
         canvas->translate(SkIntToScalar(100), SkIntToScalar(100));

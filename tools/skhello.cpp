@@ -38,8 +38,8 @@ static bool do_surface(int w, int h, const char path[], const char text[],
     doDraw(surface->getCanvas(), paint, text);
 
     sk_sp<SkImage> image(surface->makeImageSnapshot());
-    SkAutoDataUnref data(image->encode());
-    if (nullptr == data.get()) {
+    sk_sp<SkData> data(image->encode());
+    if (!data) {
         return false;
     }
     SkFILEWStream stream(path);

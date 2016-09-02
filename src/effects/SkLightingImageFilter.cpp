@@ -17,6 +17,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrFixedClip.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrPaint.h"
@@ -408,10 +409,11 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
     sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
     SkASSERT(inputTexture);
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
-                                                             offsetBounds.width(),
-                                                             offsetBounds.height(),
-                                                             kRGBA_8888_GrPixelConfig));
+    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
+                                                              offsetBounds.width(),
+                                                              offsetBounds.height(),
+                                                              kRGBA_8888_GrPixelConfig,
+                                                              sk_ref_sp(source->getColorSpace())));
     if (!drawContext) {
         return nullptr;
     }
@@ -455,7 +457,8 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture());
+                                       drawContext->asTexture(),
+                                       sk_ref_sp(drawContext->getColorSpace()));
 }
 #endif
 
@@ -1699,7 +1702,7 @@ GrLightingEffect::GrLightingEffect(GrTexture* texture,
                                    const SkMatrix& matrix,
                                    BoundaryMode boundaryMode,
                                    const SkIRect* srcBounds)
-    : INHERITED(texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
+    : INHERITED(texture, nullptr, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
     , fLight(light)
     , fSurfaceScale(surfaceScale)
     , fFilterMatrix(matrix)

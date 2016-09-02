@@ -9,12 +9,11 @@
 #ifndef SkPDFGraphicState_DEFINED
 #define SkPDFGraphicState_DEFINED
 
-#include "SkPDFStream.h"
-#include "SkChecksum.h"
+#include "SkPDFTypes.h"
+#include "SkOpts.h"
 
 class SkPaint;
 class SkPDFCanon;
-class SkPDFFormXObject;
 
 /** \class SkPDFGraphicState
     SkPaint objects roughly correspond to graphic state dictionaries that can
@@ -32,8 +31,7 @@ public:
     // Override emitObject so that we can populate the dictionary on
     // demand.
     void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& substitutes) const override;
+                    const SkPDFObjNumMap& objNumMap) const override;
 
     /** Get the graphic state for the passed SkPaint. The reference count of
      *  the object is incremented and it is the caller's responsibility to
@@ -52,7 +50,7 @@ public:
      *
      *  These are not de-duped.
      */
-    static sk_sp<SkPDFDict> GetSMaskGraphicState(SkPDFFormXObject* sMask,
+    static sk_sp<SkPDFDict> GetSMaskGraphicState(sk_sp<SkPDFObject> sMask,
                                                  bool invert,
                                                  SkPDFSMaskMode sMaskMode,
                                                  SkPDFCanon* canon);
@@ -64,7 +62,7 @@ public:
     bool operator==(const SkPDFGraphicState& rhs) const {
         return 0 == memcmp(&fStrokeWidth, &rhs.fStrokeWidth, 12);
     }
-    uint32_t hash() const { return SkChecksum::Murmur3(&fStrokeWidth, 12); }
+    uint32_t hash() const { return SkOpts::hash(&fStrokeWidth, 12); }
 
 private:
     const SkScalar fStrokeWidth;

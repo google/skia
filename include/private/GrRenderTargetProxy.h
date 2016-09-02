@@ -9,6 +9,7 @@
 #define GrRenderTargetProxy_DEFINED
 
 #include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "GrSurfaceProxy.h"
 #include "GrTypes.h"
 
@@ -25,7 +26,7 @@ public:
      */
     static sk_sp<GrRenderTargetProxy> Make(const GrCaps&, const GrSurfaceDesc&,
                                            SkBackingFit, SkBudgeted);
-    static sk_sp<GrRenderTargetProxy> Make(sk_sp<GrRenderTarget> rt);
+    static sk_sp<GrRenderTargetProxy> Make(const GrCaps&, sk_sp<GrRenderTarget>);
 
     ~GrRenderTargetProxy() override;
 
@@ -36,78 +37,51 @@ public:
     // Actually instantiate the backing rendertarget, if necessary.
     GrRenderTarget* instantiate(GrTextureProvider* texProvider);
 
-    /**
-     * @return true  if the surface is multisampled in all buffers,
-     *         false otherwise
-     */
-    bool isUnifiedMultisampled() const {
-        if (fSampleConfig != GrRenderTarget::kUnified_SampleConfig) {
-            return false;
-        }
-        return 0 != fDesc.fSampleCnt;
-    }
+    bool isStencilBufferMultisampled() const { return fDesc.fSampleCnt > 0; }
 
     /**
-     * @return true if the surface is multisampled in the stencil buffer,
-     *         false otherwise
+     * For our purposes, "Mixed Sampled" means the stencil buffer is multisampled but the color
+     * buffer is not.
      */
-    bool isStencilBufferMultisampled() const {
-        return 0 != fDesc.fSampleCnt;
-    }
+    bool isMixedSampled() const { return fFlags & GrRenderTargetPriv::Flags::kMixedSampled; }
 
     /**
-     * @return the number of color samples-per-pixel, or zero if non-MSAA or
-     *         multisampled in the stencil buffer only.
+     * "Unified Sampled" means the stencil and color buffers are both multisampled.
      */
-    int numColorSamples() const {
-        if (fSampleConfig == GrRenderTarget::kUnified_SampleConfig) {
-            return fDesc.fSampleCnt;
-        }
-        return 0;
-    }
+    bool isUnifiedMultisampled() const { return fDesc.fSampleCnt > 0 && !this->isMixedSampled(); }
 
     /**
-     * @return the number of stencil samples-per-pixel, or zero if non-MSAA.
+     * Returns the number of samples/pixel in the stencil buffer (Zero if non-MSAA).
      */
-    int numStencilSamples() const {
-        return fDesc.fSampleCnt;
-    }
+    int numStencilSamples() const { return fDesc.fSampleCnt; }
 
     /**
-     * @return true if the surface is mixed sampled, false otherwise.
+     * Returns the number of samples/pixel in the color buffer (Zero if non-MSAA or mixed sampled).
      */
-    bool hasMixedSamples() const {
-        SkASSERT(GrRenderTarget::kStencil_SampleConfig != fSampleConfig ||
-                 this->isStencilBufferMultisampled());
-        return GrRenderTarget::kStencil_SampleConfig == fSampleConfig;
-    }
+    int numColorSamples() const { return this->isMixedSampled() ? 0 : fDesc.fSampleCnt; }
 
     void setLastDrawTarget(GrDrawTarget* dt);
     GrDrawTarget* getLastDrawTarget() { return fLastDrawTarget; }
 
+    GrRenderTargetPriv::Flags testingOnly_getFlags() const;
+
 private:
-    // TODO: we can probably munge the 'desc' in both the wrapped and deferred 
-    // cases to make the sampleConfig/numSamples stuff more rational.
-    GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc& desc,
-                        SkBackingFit fit, SkBudgeted budgeted)
-        : INHERITED(desc, fit, budgeted)
-        , fTarget(nullptr)
-        , fSampleConfig(GrRenderTarget::ComputeSampleConfig(caps, desc.fSampleCnt))
-        , fLastDrawTarget(nullptr) {
-    }
+    // Deferred version
+    GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, SkBackingFit, SkBudgeted);
 
     // Wrapped version
-    GrRenderTargetProxy(sk_sp<GrRenderTarget> rt);
+    GrRenderTargetProxy(const GrCaps&, sk_sp<GrRenderTarget> rt);
 
     // For wrapped render targets we store it here.
     // For deferred proxies we will fill this in when we need to instantiate the deferred resource
-    sk_sp<GrRenderTarget>        fTarget;
+    sk_sp<GrRenderTarget>       fTarget;
 
-    // The sample config doesn't usually get computed until the render target is instantiated but
-    // the render target proxy may need to answer queries about it before then. For this reason
-    // we precompute it in the deferred case. In the wrapped case we just copy the wrapped
+    // These don't usually get computed until the render target is instantiated, but the render
+    // target proxy may need to answer queries about it before then. And since in the deferred case
+    // we know the newly created render target will be internal, we are able to precompute what the
+    // flags will ultimately end up being. In the wrapped case we just copy the wrapped
     // rendertarget's info here.
-    GrRenderTarget::SampleConfig fSampleConfig;
+    GrRenderTargetPriv::Flags   fFlags;
 
     // The last drawTarget that wrote to or is currently going to write to this renderTarget
     // The drawTarget can be closed (e.g., no draw context is currently bound

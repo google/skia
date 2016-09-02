@@ -95,7 +95,7 @@ void JsonWriter::DumpJson() {
 }
 
 bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
-    SkAutoTUnref<SkData> json(SkData::NewFromFileName(path));
+    sk_sp<SkData> json(SkData::MakeFromFileName(path));
     if (!json) {
         return false;
     }

@@ -238,7 +238,7 @@ public:
 
     GrUniqueKey& operator=(const GrUniqueKey& that) {
         this->INHERITED::operator=(that);
-        this->setCustomData(that.getCustomData());
+        this->setCustomData(sk_ref_sp(that.getCustomData()));
         return *this;
     }
 
@@ -247,11 +247,10 @@ public:
     }
     bool operator!=(const GrUniqueKey& that) const { return !(*this == that); }
 
-    void setCustomData(const SkData* data) {
-        SkSafeRef(data);
-        fData.reset(data);
+    void setCustomData(sk_sp<SkData> data) {
+        fData = std::move(data);
     }
-    const SkData* getCustomData() const {
+    SkData* getCustomData() const {
         return fData.get();
     }
 
@@ -280,7 +279,7 @@ public:
     };
 
 private:
-    SkAutoTUnref<const SkData> fData;
+    sk_sp<SkData> fData;
 };
 
 /**

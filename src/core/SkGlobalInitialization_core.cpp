@@ -29,13 +29,11 @@
  */
 void SkFlattenable::PrivateInitializer::InitCore() {
     // Shader
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapProcShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColor4Shader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmptyShader)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLocalMatrixShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPictureShader)
 
@@ -47,6 +45,8 @@ void SkFlattenable::PrivateInitializer::InitCore() {
 
     // ColorFilter
     SkColorFilter::InitializeFlattenables();
+
+    SkShader::InitializeFlattenables();
 
     // Xfermode
     SkXfermode::InitializeFlattenables();

@@ -11,6 +11,7 @@
 #include "../private/SkTArray.h"
 #include "../private/SkTemplates.h"
 #include "../private/SkMutex.h"
+#include "SkColorSpace.h"
 #include "SkFilterQuality.h"
 #include "SkFlattenable.h"
 #include "SkMatrix.h"
@@ -131,7 +132,8 @@ public:
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> DrawWithFP(GrContext* context, 
                                             sk_sp<GrFragmentProcessor> fp,
-                                            const SkIRect& bounds);
+                                            const SkIRect& bounds,
+                                            sk_sp<SkColorSpace> colorSpace);
 #endif
 
     /**
@@ -149,6 +151,10 @@ public:
     bool asColorFilter(SkColorFilter** filterPtr) const {
         return this->isColorFilterNode(filterPtr);
     }
+
+    static sk_sp<SkImageFilter> MakeBlur(SkScalar sigmaX, SkScalar sigmaY,
+                                         sk_sp<SkImageFilter> input,
+                                         const CropRect* cropRect = nullptr);
 
     /**
      *  Returns true (and optionally returns a ref'd filter) if this imagefilter can be completely
@@ -227,6 +233,7 @@ public:
 
     SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 protected:
     class Common {

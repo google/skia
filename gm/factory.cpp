@@ -29,15 +29,15 @@ protected:
     void onOnceBeforeDraw() override {
         // Copyright-free file from http://openclipart.org/detail/29213/paper-plane-by-ddoo
         SkString pngFilename = GetResourcePath("plane.png");
-        SkAutoDataUnref data(SkData::NewFromFileName(pngFilename.c_str()));
-        if (data.get()) {
+        sk_sp<SkData> data(SkData::MakeFromFileName(pngFilename.c_str()));
+        if (data) {
             // Create a cache which will boot the pixels out anytime the
             // bitmap is unlocked.
             SkAutoTUnref<SkDiscardableMemoryPool> pool(
                 SkDiscardableMemoryPool::Create(1));
             SkAssertResult(SkDEPRECATED_InstallDiscardablePixelRef(
-                                                        SkImageGenerator::NewFromEncoded(data),
-                                                        nullptr, &fBitmap, pool));
+                                                       SkImageGenerator::NewFromEncoded(data.get()),
+                                                       nullptr, &fBitmap, pool));
         }
     }
 

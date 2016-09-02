@@ -75,7 +75,7 @@ public:
                                              const SkMatrix* matrix);
 
     // This utility routine is used to add a shape's mask to some other draw.
-    // The ClipMaskManager uses it to accumulate clip masks while the
+    // The GrClipStackClip uses it to accumulate clip masks while the
     // GrSoftwarePathRenderer uses it to fulfill a drawPath call.
     // It draws with "texture" as a path mask into "target" using "rect" as
     // geometry and the current drawState. The current drawState is altered to
@@ -86,10 +86,9 @@ public:
     // output of DrawPathMaskToTexture.
     static void DrawToTargetWithShapeMask(GrTexture* texture,
                                           GrDrawContext*,
-                                          const GrPaint* paint,
-                                          const GrUserStencilSettings* userStencilSettings,
+                                          const GrPaint& paint,
+                                          const GrUserStencilSettings& userStencilSettings,
                                           const GrClip&,
-                                          GrColor,
                                           const SkMatrix& viewMatrix,
                                           const SkIRect& rect);
 

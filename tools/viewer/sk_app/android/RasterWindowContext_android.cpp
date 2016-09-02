@@ -6,30 +6,38 @@
  * found in the LICENSE file.
  */
 
-#include "RasterWindowContext_android.h"
-
+#include "WindowContextFactory_android.h"
+#include "../RasterWindowContext.h"
 #include "SkSurface.h"
 #include "SkTypes.h"
 
-#include "Window_android.h"
+using sk_app::RasterWindowContext;
+using sk_app::DisplayParams;
 
-namespace sk_app {
+namespace {
+class RasterWindowContext_android : public RasterWindowContext {
+public:
+    RasterWindowContext_android(ANativeWindow*, const DisplayParams& params);
 
-RasterWindowContext* RasterWindowContext::Create(void* platformData, const DisplayParams& params) {
-    RasterWindowContext* ctx = new RasterWindowContext_android(platformData, params);
-    if (!ctx->isValid()) {
-        delete ctx;
-        ctx = nullptr;
-    }
-    return ctx;
-}
+    sk_sp<SkSurface> getBackbufferSurface() override;
+    void swapBuffers() override;
 
-RasterWindowContext_android::RasterWindowContext_android(
-        void* platformData, const DisplayParams& params) {
+    bool isValid() override { return SkToBool(fNativeWindow); }
+    void resize(int w, int h) override;
+    void setDisplayParams(const DisplayParams& params) override;
+
+private:
+    void setBuffersGeometry();
+    sk_sp<SkSurface> fBackbufferSurface = nullptr;
+    ANativeWindow* fNativeWindow = nullptr;
+    ANativeWindow_Buffer fBuffer;
+    ARect fBounds;
+};
+
+RasterWindowContext_android::RasterWindowContext_android(ANativeWindow* window,
+                                                         const DisplayParams& params) {
     fDisplayParams = params;
-    ContextPlatformData_android* androidPlatformData =
-            reinterpret_cast<ContextPlatformData_android*>(platformData);
-    fNativeWindow = androidPlatformData->fNativeWindow;
+    fNativeWindow = window;
     fWidth = ANativeWindow_getWidth(fNativeWindow);
     fHeight = ANativeWindow_getHeight(fNativeWindow);
     this->setBuffersGeometry();
@@ -55,7 +63,7 @@ void RasterWindowContext_android::setDisplayParams(const DisplayParams& params) 
     this->setBuffersGeometry();
 }
 
-void RasterWindowContext_android::resize(uint32_t w, uint32_t h) {
+void RasterWindowContext_android::resize(int w, int h) {
     fWidth = w;
     fHeight = h;
     this->setBuffersGeometry();
@@ -80,5 +88,19 @@ void RasterWindowContext_android::swapBuffers() {
     ANativeWindow_unlockAndPost(fNativeWindow);
     fBackbufferSurface.reset(nullptr);
 }
+}  // anonymous namespace
 
+namespace sk_app {
+namespace window_context_factory {
+
+WindowContext* NewRasterForAndroid(ANativeWindow* window, const DisplayParams& params) {
+    WindowContext* ctx = new RasterWindowContext_android(window, params);
+    if (!ctx->isValid()) {
+        delete ctx;
+        return nullptr;
+    }
+    return ctx;
+}
+
+}
 }   // namespace sk_app

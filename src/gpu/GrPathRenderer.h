@@ -8,6 +8,7 @@
 #ifndef GrPathRenderer_DEFINED
 #define GrPathRenderer_DEFINED
 
+#include "GrCaps.h"
 #include "GrDrawContext.h"
 #include "GrPaint.h"
 #include "GrResourceProvider.h"
@@ -130,7 +131,6 @@ public:
 
         GrDrawContext*              fDrawContext;
         const GrClip*               fClip;
-        GrColor                     fColor;
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
         bool                        fAntiAlias;
@@ -196,7 +196,7 @@ public:
             SkASSERT(fDrawContext);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
-            SkASSERT(fShape->style().isSimpleFill())
+            SkASSERT(fShape->style().isSimpleFill());
             SkPath path;
             fShape->asPath(&path);
             SkASSERT(!path.isInverseFillType());
@@ -281,7 +281,6 @@ private:
         drawArgs.fPaint = &paint;
         drawArgs.fUserStencilSettings = &kIncrementStencil;
         drawArgs.fDrawContext = args.fDrawContext;
-        drawArgs.fColor = GrColor_WHITE;
         drawArgs.fViewMatrix = args.fViewMatrix;
         drawArgs.fShape = args.fShape;
         drawArgs.fAntiAlias = false;  // In this case the MSAA handles the AA so we want to draw BW

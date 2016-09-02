@@ -21,19 +21,15 @@
 
 namespace sk_app {
 
-GLWindowContext::GLWindowContext(void* platformData, const DisplayParams& params) 
+GLWindowContext::GLWindowContext(const DisplayParams& params)
     : WindowContext()
     , fBackendContext(nullptr)
-    , fRenderTarget(nullptr)
     , fSurface(nullptr) {
+    fDisplayParams = params;
 }
 
-void GLWindowContext::initializeContext(void* platformData, const DisplayParams& params) {
-
-    this->onInitializeContext(platformData, params);
-
-    fDisplayParams = params;
-
+void GLWindowContext::initializeContext() {
+    this->onInitializeContext();
     SkAutoTUnref<const GrGLInterface> glInterface;
     glInterface.reset(GrGLCreateNativeInterface());
     fBackendContext.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
@@ -54,7 +50,6 @@ void GLWindowContext::initializeContext(void* platformData, const DisplayParams&
 
 void GLWindowContext::destroyContext() {
     fSurface.reset(nullptr);
-    fRenderTarget.reset(nullptr);
 
     if (fContext) {
         // in case we have outstanding refs to this guy (lua?)
@@ -83,9 +78,8 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
             GrGLint buffer;
             GR_GL_CALL(fBackendContext, GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
             desc.fRenderTargetHandle = buffer;
-            fRenderTarget.reset(fContext->textureProvider()->wrapBackendRenderTarget(desc));
 
-            fSurface = this->createRenderSurface(fRenderTarget, fActualColorBits);
+            fSurface = this->createRenderSurface(desc, fActualColorBits);
         }
     }
 
@@ -93,20 +87,18 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
 }
 
 void GLWindowContext::swapBuffers() {
-    this->presentRenderSurface(fSurface, fRenderTarget, fActualColorBits);
     this->onSwapBuffers();
 }
 
-void GLWindowContext::resize(uint32_t w, uint32_t h) {
+void GLWindowContext::resize(int  w, int h) {
     this->destroyContext();
-
-    this->initializeContext(nullptr, fDisplayParams);
+    this->initializeContext();
 }
 
 void GLWindowContext::setDisplayParams(const DisplayParams& params) {
     this->destroyContext();
-
-    this->initializeContext(nullptr, params);
+    fDisplayParams = params;
+    this->initializeContext();
 }
 
 }   //namespace sk_app

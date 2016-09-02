@@ -17,6 +17,7 @@
 #include "SkStrokeRec.h"
 
 class GrClip;
+class GrContext;
 class GrDrawContext;
 class GrPaint;
 class GrRenderTarget;
@@ -122,13 +123,14 @@ public:
      *  Try to directly render a rounded rect mask filter into the target.  Returns
      *  true if drawing was successful.
      */
-    virtual bool directFilterRRectMaskGPU(GrTextureProvider* texProvider,
+    virtual bool directFilterRRectMaskGPU(GrContext*,
                                           GrDrawContext* drawContext,
                                           GrPaint* grp,
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,
                                           const SkStrokeRec& strokeRec,
-                                          const SkRRect& rrect) const;
+                                          const SkRRect& rrect,
+                                          const SkRRect& devRRect) const;
 
     /**
      * This function is used to implement filters that require an explicit src mask. It should only

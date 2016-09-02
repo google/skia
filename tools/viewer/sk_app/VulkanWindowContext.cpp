@@ -25,7 +25,9 @@
 
 namespace sk_app {
 
-VulkanWindowContext::VulkanWindowContext(void* platformData, const DisplayParams& params)
+VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
+                                         CreateVkSurfaceFn createVkSurface,
+                                         CanPresentFn canPresent)
     : WindowContext()
     , fSurface(VK_NULL_HANDLE)
     , fSwapchain(VK_NULL_HANDLE)
@@ -36,13 +38,7 @@ VulkanWindowContext::VulkanWindowContext(void* platformData, const DisplayParams
     , fBackbuffers(nullptr) {
 
     // any config code here (particularly for msaa)?
-
-    this->initializeContext(platformData, params);
-}
-
-void VulkanWindowContext::initializeContext(void* platformData, const DisplayParams& params) {
-    fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent, 
-                                                     platformData));
+    fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent));
 
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
         !(fBackendContext->fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {
@@ -65,7 +61,7 @@ void VulkanWindowContext::initializeContext(void* platformData, const DisplayPar
 
     fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext) fBackendContext.get());
 
-    fSurface = createVkSurface(instance, platformData);
+    fSurface = createVkSurface(instance);
     if (VK_NULL_HANDLE == fSurface) {
         fBackendContext.reset(nullptr);
         return;
@@ -89,7 +85,7 @@ void VulkanWindowContext::initializeContext(void* platformData, const DisplayPar
     vkGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
 }
 
-bool VulkanWindowContext::createSwapchain(uint32_t width, uint32_t height,
+bool VulkanWindowContext::createSwapchain(int width, int height,
                                           const DisplayParams& params) {
     // check for capabilities
     VkSurfaceCapabilitiesKHR caps;
@@ -258,7 +254,6 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
 
     // set up initial image layouts and create surfaces
     fImageLayouts = new VkImageLayout[fImageCount];
-    fRenderTargets = new sk_sp<GrRenderTarget>[fImageCount];
     fSurfaces = new sk_sp<SkSurface>[fImageCount];
     for (uint32_t i = 0; i < fImageCount; ++i) {
         fImageLayouts[i] = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -278,9 +273,8 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         desc.fSampleCnt = 0;
         desc.fStencilBits = 0;
         desc.fRenderTargetHandle = (GrBackendObject) &info;
-        fRenderTargets[i].reset(fContext->textureProvider()->wrapBackendRenderTarget(desc));
 
-        fSurfaces[i] = this->createRenderSurface(fRenderTargets[i], 24);
+        fSurfaces[i] = this->createRenderSurface(desc, 24);
     }
 
     // create the command pool for the command buffers
@@ -372,8 +366,6 @@ void VulkanWindowContext::destroyBuffers() {
     // Does this actually free the surfaces?
     delete[] fSurfaces;
     fSurfaces = nullptr;
-    delete[] fRenderTargets;
-    fRenderTargets = nullptr;
     delete[] fImageLayouts;
     fImageLayouts = nullptr;
     delete[] fImages;
@@ -410,7 +402,6 @@ void VulkanWindowContext::destroyContext() {
         fSurface = VK_NULL_HANDLE;
     }
 
-    fContext->abandonContext();
     fContext->unref();
 
     fBackendContext.reset(nullptr);
@@ -530,9 +521,6 @@ void VulkanWindowContext::swapBuffers() {
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
 
-    this->presentRenderSurface(fSurfaces[backbuffer->fImageIndex],
-                               fRenderTargets[backbuffer->fImageIndex], 24);
-
     VkImageLayout layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -599,7 +587,6 @@ void VulkanWindowContext::swapBuffers() {
     };
 
     fQueuePresentKHR(fPresentQueue, &presentInfo);
-
 }
 
 }   //namespace sk_app

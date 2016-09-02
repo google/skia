@@ -35,17 +35,17 @@
     [ 'not skia_pdf', {
       'dependencies!': [ 'pdf.gyp:pdf', 'zlib.gyp:zlib' ],
       'dependencies': [ 'pdf.gyp:nopdf' ],
-      'sources!': [ '<!@(python find.py ../tests "PDF*.c*")', ],
+      'sources!': [ '<!@(python find.py "PDF*.c*" ../tests)', ],
     }],
     [ 'skia_gpu_extra_tests_path', {
       'sources': [
-        '<!@(python find.py <(skia_gpu_extra_tests_path) "*.c*")',
+        '<!@(python find.py "*.c*" <(skia_gpu_extra_tests_path))',
       ],
     }],
   ],
   'sources': [
     '../tests/Test.h',
-    '<!@(python find.py ../tests "*.c*")',
+    '<!@(python find.py "*.c*" ../tests)',
     '../tools/debugger/SkDrawCommand.h',
     '../tools/debugger/SkDrawCommand.cpp',
     '../tools/debugger/SkDebugCanvas.h',

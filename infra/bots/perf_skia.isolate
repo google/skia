@@ -1,9 +1,9 @@
 {
   'includes': [
     'android_bin.isolate',
-    'infrabots.isolate',
     'ios_bin.isolate',
     'resources.isolate',
+    'swarm_recipe.isolate',
   ],
   'variables': {
     'files': [

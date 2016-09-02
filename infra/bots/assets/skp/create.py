@@ -50,6 +50,8 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
     ]
     if upload_to_partner_bucket:
       webpages_playback_cmd.append('--upload_to_partner_bucket')
+    print 'Running webpages_playback command:\n$ %s' % (
+        ' '.join(webpages_playback_cmd))
     try:
       subprocess.check_call(webpages_playback_cmd)
     finally:

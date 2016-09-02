@@ -14,6 +14,7 @@
 
 class GrDrawBatch;
 struct SkRect;
+class SkStrokeRec;
 class SkMatrix;
 
 namespace GrNonAAStrokeRectBatch {
@@ -21,15 +22,9 @@ namespace GrNonAAStrokeRectBatch {
 GrDrawBatch* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
-                    SkScalar strokeWidth,
+                    const SkStrokeRec&,
                     bool snapToPixelCenters);
 
-void Append(GrColor color,
-            const SkMatrix& viewMatrix,
-            const SkRect& rect,
-            SkScalar strokeWidth,
-            bool snapToPixelCenters);
-
-};
+}
 
 #endif

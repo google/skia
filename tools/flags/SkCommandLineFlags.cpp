@@ -335,7 +335,7 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                 flag = flag->next();
             }
             if (!flagMatched) {
-#if SK_BUILD_FOR_MAC
+#if defined(SK_BUILD_FOR_MAC)
                 if (SkStrStartsWith(argv[i], "NSDocumentRevisions")
                         || SkStrStartsWith(argv[i], "-NSDocumentRevisions")) {
                     i++;  // skip YES

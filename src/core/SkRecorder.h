@@ -60,6 +60,13 @@ public:
 
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
+    void didTranslate(SkScalar, SkScalar) override;
+
+#ifdef SK_EXPERIMENTAL_SHADOWING
+    void didTranslateZ(SkScalar) override;
+#else
+    void didTranslateZ(SkScalar);
+#endif
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
@@ -82,6 +89,11 @@ public:
                           const SkPath& path,
                           const SkMatrix* matrix,
                           const SkPaint& paint) override;
+    void onDrawTextRSXform(const void* text,
+                           size_t byteLength,
+                           const SkRSXform[],
+                           const SkRect* cull,
+                           const SkPaint& paint) override;
     void onDrawTextBlob(const SkTextBlob* blob,
                         SkScalar x,
                         SkScalar y,
@@ -94,6 +106,7 @@ public:
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
     void onDrawRect(const SkRect&, const SkPaint&) override;
     void onDrawOval(const SkRect&, const SkPaint&) override;
+    void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
     void onDrawRRect(const SkRRect&, const SkPaint&) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
@@ -106,6 +119,10 @@ public:
                          const SkPaint*) override;
     void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                           const SkPaint*) override;
+    void onDrawImageLattice(const SkImage*, const Lattice& lattice, const SkRect& dst,
+                            const SkPaint*) override;
+    void onDrawBitmapLattice(const SkBitmap&, const Lattice& lattice, const SkRect& dst,
+                             const SkPaint*) override;
     void onDrawVertices(VertexMode vmode, int vertexCount,
                         const SkPoint vertices[], const SkPoint texs[],
                         const SkColor colors[], SkXfermode* xmode,
@@ -120,6 +137,17 @@ public:
     void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+
+#ifdef SK_EXPERIMENTAL_SHADOWING
+    void onDrawShadowedPicture(const SkPicture*,
+                               const SkMatrix*,
+                               const SkPaint*) override;
+#else
+    void onDrawShadowedPicture(const SkPicture*,
+                               const SkMatrix*,
+                               const SkPaint*);
+#endif
+
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;

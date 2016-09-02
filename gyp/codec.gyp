@@ -22,11 +22,6 @@
         'libpng.gyp:libpng',
         'libwebp.gyp:libwebp',
       ],
-      'cflags':[   
-        # FIXME: This gets around a warning: "Argument might be clobbered by longjmp". 
-        '-Wno-clobbered',
-        '-Wno-unknown-warning-option',
-      ],
       'include_dirs': [
         '../include/codec',
         '../include/private',
@@ -64,13 +59,6 @@
           '../include/codec',
         ],
       },
-      'defines': [
-        # Turn on libjpeg-turbo optimizations since we know that the
-        # appropriate version of libjpeg-turbo is present.
-        'TURBO_HAS_CROP',
-        'TURBO_HAS_SKIP',
-        'TURBO_HAS_565',
-      ],
       'conditions': [
         ['skia_codec_decodes_raw', {
           'dependencies': [

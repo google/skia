@@ -119,12 +119,12 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    SkAutoTUnref<SkData> data(SkData::NewFromFileName(input));
+    sk_sp<SkData> data(SkData::MakeFromFileName(input));
     if (!data) {
         SkDebugf("Cannot find input image.\n");
         return -1;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
     if (!codec) {
         SkDebugf("Invalid input image.\n");
         return -1;
@@ -151,7 +151,7 @@ int main(int argc, char** argv) {
     }
 
     // Draw gamut for the input image.
-    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(codec->getColorSpace());
+    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
     if (!colorSpace) {
         SkDebugf("Image had no embedded color space information.  Defaulting to sRGB.\n");
         colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
     draw_gamut(&canvas, colorSpace->xyz(), input, 0xFF000000, true);
 
     // Finally, encode the result to the output file.
-    SkAutoTUnref<SkData> out(SkImageEncoder::EncodeData(gamut, SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> out(SkImageEncoder::EncodeData(gamut, SkImageEncoder::kPNG_Type, 100));
     if (!out) {
         SkDebugf("Failed to encode gamut output.\n");
         return -1;

@@ -30,7 +30,7 @@ protected:
 
 private:
     SkString                fName;
-    SkAutoTUnref<SkData>    fData;
+    sk_sp<SkData>           fData;
     const int               fSampleSize;
     SkImageInfo             fInfo;          // Set in onDelayedSetup.
     SkAutoMalloc            fPixelStorage;  // Set in onDelayedSetup.

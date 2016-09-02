@@ -21,6 +21,9 @@ static void test_far_from_origin(GrDrawContext* drawContext, GrPathRenderer* pr,
                                  GrResourceProvider* rp) {
     SkPath path;
     path.lineTo(49.0255089839f, 0.473541f);
+    // This extra line wasn't in the original bug but was added to fake out GrShape's special
+    // handling of single line segments.
+    path.rLineTo(0.015f, 0.015f);
     static constexpr SkScalar mvals[] = {14.0348252854f, 2.13026182736f,
                                          13.6122547187f, 118.309922702f,
                                          1912337682.09f, 2105391889.87f};
@@ -52,7 +55,6 @@ static void test_far_from_origin(GrDrawContext* drawContext, GrPathRenderer* pr,
     args.fShape = &shape;
     args.fAntiAlias = true;
     args.fGammaCorrect = false;
-    args.fColor = 0x0;
     pr->drawPath(args);
 }
 
@@ -61,21 +63,22 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(AADistanceFieldPathRenderer, reporter, ctxInfo) 
     if (!ctxInfo.grContext()->caps()->shaderCaps()->shaderDerivativeSupport()) {
         return;
     }
-    sk_sp<GrDrawContext> drawContext(ctxInfo.grContext()->newDrawContext(SkBackingFit::kApprox,
-                                                                         800, 800,
-                                                                         kSkia8888_GrPixelConfig,
-                                                                         0,
-                                                                         kTopLeft_GrSurfaceOrigin));
-    if (!drawContext) {
+    sk_sp<GrDrawContext> dc(ctxInfo.grContext()->makeDrawContext(SkBackingFit::kApprox,
+                                                                 800, 800,
+                                                                 kSkia8888_GrPixelConfig,
+                                                                 nullptr,
+                                                                 0,
+                                                                 kTopLeft_GrSurfaceOrigin));
+    if (!dc) {
         return;
     }
 
     GrAADistanceFieldPathRenderer dfpr;
     GrTestTarget tt;
-    ctxInfo.grContext()->getTestTarget(&tt, drawContext);
+    ctxInfo.grContext()->getTestTarget(&tt, dc);
     GrResourceProvider* rp = tt.resourceProvider();
 
-    test_far_from_origin(drawContext.get(), &dfpr, rp);
+    test_far_from_origin(dc.get(), &dfpr, rp);
     ctxInfo.grContext()->flush();
 }
 #endif

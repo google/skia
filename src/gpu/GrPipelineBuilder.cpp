@@ -18,7 +18,7 @@
 GrPipelineBuilder::GrPipelineBuilder()
     : fFlags(0x0)
     , fUserStencilSettings(&GrUserStencilSettings::kUnused)
-    , fDrawFace(kBoth_DrawFace) {
+    , fDrawFace(GrDrawFace::kBoth) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
@@ -41,6 +41,8 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool useHWAA)
                    paint.getDisableOutputConversionToSRGB());
     this->setState(GrPipelineBuilder::kAllowSRGBInputs_Flag,
                    paint.getAllowSRGBInputs());
+    this->setState(GrPipelineBuilder::kUsesDistanceVectorField_Flag,
+                   paint.usesDistanceVectorField());
 }
 
 //////////////////////////////////////////////////////////////////////////////s

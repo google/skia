@@ -15,6 +15,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
+#include "SkGammaColorFilter.h"
 #include "SkGraphics.h"
 #include "SkImage_Base.h"
 #include "SkImageEncoder.h"
@@ -36,7 +37,6 @@
 #if SK_SUPPORT_GPU
 #   include "gl/GrGLInterface.h"
 #   include "gl/GrGLUtil.h"
-#   include "GrRenderTarget.h"
 #   include "GrContext.h"
 #   include "SkGr.h"
 #   if SK_ANGLE
@@ -53,7 +53,7 @@ const struct {
 } gConfig[] = {
     { kN32_SkColorType,      false, "L32" },
     { kN32_SkColorType,       true, "S32" },
-    { kRGBA_F16_SkColorType, false, "F16" },
+    { kRGBA_F16_SkColorType,  true, "F16" },
 };
 
 static const char* find_config_name(const SkImageInfo& info) {
@@ -77,6 +77,17 @@ public:
     PictFileFactory(const SkString& filename) : fFilename(filename) {}
     SkView* operator() () const override {
         return CreateSamplePictFileView(fFilename.c_str());
+    }
+};
+
+extern SampleView* CreateSampleSVGFileView(const SkString& filename);
+
+class SVGFileFactory : public SkViewFactory {
+    SkString fFilename;
+public:
+    SVGFileFactory(const SkString& filename) : fFilename(filename) {}
+    SkView* operator() () const override {
+        return CreateSampleSVGFileView(fFilename);
     }
 };
 
@@ -176,7 +187,6 @@ public:
 #if SK_SUPPORT_GPU
         fCurContext = nullptr;
         fCurIntf = nullptr;
-        fCurRenderTarget = nullptr;
         fMSAASampleCount = 0;
         fDeepColor = false;
         fActualColorBits = 0;
@@ -188,7 +198,6 @@ public:
 #if SK_SUPPORT_GPU
         SkSafeUnref(fCurContext);
         SkSafeUnref(fCurIntf);
-        SkSafeUnref(fCurRenderTarget);
 #endif
     }
 
@@ -261,7 +270,7 @@ public:
             win->release();
         }
 #endif // SK_SUPPORT_GPU
-        // call windowSizeChanged to create the render target
+        // call windowSizeChanged to create the gpu-backed Surface
         this->windowSizeChanged(win);
     }
 
@@ -277,14 +286,13 @@ public:
         SkSafeUnref(fCurIntf);
         fCurIntf = nullptr;
 
-        SkSafeUnref(fCurRenderTarget);
-        fCurRenderTarget = nullptr;
+        fGpuSurface = nullptr;
 #endif
         win->release();
         fBackend = kNone_BackEndType;
     }
 
-    SkSurface* createSurface(SampleWindow::DeviceType dType, SampleWindow* win) override {
+    sk_sp<SkSurface> makeSurface(SampleWindow::DeviceType dType, SampleWindow* win) override {
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && fCurContext) {
             SkSurfaceProps props(win->getSurfaceProps());
@@ -295,9 +303,9 @@ public:
                 // If we're using a deep (10-bit or higher) surface, we probably need an off-screen
                 // surface. 10-bit, in particular, has strange gamma behavior.
                 return SkSurface::MakeRenderTarget(fCurContext, SkBudgeted::kNo, win->info(),
-                                                   fMSAASampleCount, &props).release();
+                                                   fMSAASampleCount, &props);
             } else {
-                return SkSurface::MakeRenderTargetDirect(fCurRenderTarget, &props).release();
+                return fGpuSurface;
             }
         }
 #endif
@@ -305,33 +313,37 @@ public:
     }
 
     void publishCanvas(SampleWindow::DeviceType dType,
-                       SkCanvas* canvas, SampleWindow* win) override {
+                       SkCanvas* renderingCanvas, SampleWindow* win) override {
 #if SK_SUPPORT_GPU
-        if (fCurContext) {
-            // in case we have queued drawing calls
-            fCurContext->flush();
-        }
-
         if (!IsGpuDeviceType(dType) ||
             kRGBA_F16_SkColorType == win->info().colorType() ||
             fActualColorBits > 24) {
             // We made/have an off-screen surface. Get the contents as an SkImage:
             SkBitmap bm;
             bm.allocPixels(win->info());
-            canvas->readPixels(&bm, 0, 0);
+            renderingCanvas->readPixels(&bm, 0, 0);
             SkPixmap pm;
             bm.peekPixels(&pm);
             sk_sp<SkImage> image(SkImage::MakeTextureFromPixmap(fCurContext, pm,
                                                                 SkBudgeted::kNo));
-            GrTexture* texture = as_IB(image)->peekTexture();
-            SkASSERT(texture);
+
+            SkCanvas* gpuCanvas = fGpuSurface->getCanvas();
 
             // With ten-bit output, we need to manually apply the gamma of the output device
             // (unless we're in non-gamma correct mode, in which case our data is already
             // fake-sRGB, like we're expected to put in the 10-bit buffer):
             bool doGamma = (fActualColorBits == 30) && SkImageInfoIsGammaCorrect(win->info());
-            fCurContext->applyGamma(fCurRenderTarget, texture, doGamma ? 1.0f / 2.2f : 1.0f);
+
+            SkPaint gammaPaint;
+            gammaPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
+            if (doGamma) {
+                gammaPaint.setColorFilter(SkGammaColorFilter::Make(1.0f / 2.2f));
+            }
+
+            gpuCanvas->drawImage(image, 0, 0, &gammaPaint);
         }
+
+        fGpuSurface->prepareForExternalIO();
 #endif
 
         win->present();
@@ -342,9 +354,8 @@ public:
         if (fCurContext) {
             AttachmentInfo attachmentInfo;
             win->attach(fBackend, fMSAASampleCount, fDeepColor, &attachmentInfo);
-            SkSafeUnref(fCurRenderTarget);
             fActualColorBits = SkTMax(attachmentInfo.fColorBits, 24);
-            fCurRenderTarget = win->renderTarget(attachmentInfo, fCurIntf, fCurContext);
+            fGpuSurface = win->makeGpuBackedSurface(attachmentInfo, fCurIntf, fCurContext);
         }
 #endif
     }
@@ -357,12 +368,8 @@ public:
 #endif
     }
 
-    GrRenderTarget* getGrRenderTarget() override {
-#if SK_SUPPORT_GPU
-        return fCurRenderTarget;
-#else
-        return nullptr;
-#endif
+    int numColorSamples() const override {
+        return fMSAASampleCount;
     }
 
     int getColorBits() override {
@@ -378,7 +385,7 @@ private:
 #if SK_SUPPORT_GPU
     GrContext*              fCurContext;
     const GrGLInterface*    fCurIntf;
-    GrRenderTarget*         fCurRenderTarget;
+    sk_sp<SkSurface>        fGpuSurface;
     int fMSAASampleCount;
     bool fDeepColor;
     int fActualColorBits;
@@ -676,6 +683,8 @@ DEFINE_int32(msaa, 0, "Request multisampling with this count.");
 DEFINE_bool(deepColor, false, "Request deep color (10-bit/channel or more) display buffer.");
 DEFINE_string(pictureDir, "", "Read pictures from here.");
 DEFINE_string(picture, "", "Path to single picture.");
+DEFINE_string(svg, "", "Path to single SVG file.");
+DEFINE_string(svgDir, "", "Read SVGs from here.");
 DEFINE_string(sequence, "", "Path to file containing the desired samples/gms to show.");
 DEFINE_bool(sort, false, "Sort samples by title.");
 DEFINE_bool(list, false, "List samples?");
@@ -708,6 +717,19 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         SkString path(FLAGS_picture[0]);
         fCurrIndex = fSamples.count();
         *fSamples.append() = new PictFileFactory(path);
+    }
+    if (!FLAGS_svg.isEmpty()) {
+        SkString path(FLAGS_svg[0]);
+        fCurrIndex = fSamples.count();
+        *fSamples.append() = new SVGFileFactory(path);
+    }
+    if (!FLAGS_svgDir.isEmpty()) {
+        SkOSFile::Iter iter(FLAGS_svgDir[0], "svg");
+        SkString filename;
+        while (iter.next(&filename)) {
+            *fSamples.append() = new SVGFileFactory(
+                SkOSPath::Join(FLAGS_svgDir[0], filename.c_str()));
+        }
     }
 #ifdef SAMPLE_PDF_FILE_VIEWER
     if (!FLAGS_pdfPath.isEmpty()) {
@@ -804,6 +826,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fRequestGrabImage = false;
     fTilingMode = kNo_Tiling;
     fMeasureFPS = false;
+    fUseDeferredCanvas = false;
     fLCDState = SkOSMenu::kMixedState;
     fAAState = SkOSMenu::kMixedState;
     fSubpixelState = SkOSMenu::kMixedState;
@@ -814,7 +837,9 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     fMouseX = fMouseY = 0;
     fFatBitsScale = 8;
-    fTypeface = SkTypeface::MakeFromTypeface(nullptr, SkTypeface::kBold);
+    fTypeface = SkTypeface::MakeFromName("Courier", SkFontStyle(SkFontStyle::kBold_Weight,
+                                                                SkFontStyle::kNormal_Width,
+                                                                SkFontStyle::kUpright_Slant));
     fShowZoomer = false;
 
     fZoomLevel = 0;
@@ -976,16 +1001,15 @@ static void drawText(SkCanvas* canvas, SkString str, SkScalar left, SkScalar top
     SkScalar inset = SkIntToScalar(-2);
     bounds.inset(inset, inset);
     canvas->drawRect(bounds, paint);
-    if (desiredColor != SK_ColorBLACK) {
-        paint.setColor(SK_ColorBLACK);
-        canvas->drawText(c_str, size, left + SK_Scalar1, top + SK_Scalar1, paint);
-    }
     paint.setColor(desiredColor);
     canvas->drawText(c_str, size, left, top, paint);
 }
 
 #define XCLIP_N  8
 #define YCLIP_N  8
+
+#include "SkDeferredCanvas.h"
+#include "SkDumpCanvas.h"
 
 void SampleWindow::draw(SkCanvas* canvas) {
     gAnimTimer.updateTime();
@@ -1001,7 +1025,11 @@ void SampleWindow::draw(SkCanvas* canvas) {
     SkSize tile = this->tileSize();
 
     if (kNo_Tiling == fTilingMode) {
-        this->INHERITED::draw(canvas); // no looping or surfaces needed
+        SkDebugfDumper dumper;
+        SkDumpCanvas dump(&dumper);
+        SkDeferredCanvas deferred(canvas);
+        SkCanvas* c = fUseDeferredCanvas ? &deferred : canvas;
+        this->INHERITED::draw(c); // no looping or surfaces needed
     } else {
         const SkScalar w = SkScalarCeilToScalar(tile.width());
         const SkScalar h = SkScalarCeilToScalar(tile.height());
@@ -1217,6 +1245,7 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
     // Identify the pixel and its color on screen
     paint.setTypeface(fTypeface);
     paint.setAntiAlias(true);
+    paint.setTextSize(18);
     SkScalar lineHeight = paint.getFontMetrics(nullptr);
     SkString string;
     string.appendf("(%i, %i)", fMouseX, fMouseY);
@@ -1238,7 +1267,7 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
     i += SK_Scalar1;
     string.reset();
     string.appendf("G: %X", SkColorGetG(color));
-    paint.setColor(SK_ColorGREEN);
+    paint.setColor(0xFF008800);
     drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
     // Blue
     i += SK_Scalar1;
@@ -1256,10 +1285,8 @@ void SampleWindow::onDraw(SkCanvas* canvas) {
 
 void SampleWindow::saveToPdf()
 {
-#if SK_SUPPORT_PDF
     fSaveToPdf = true;
     this->inval(nullptr);
-#endif  // SK_SUPPORT_PDF
 }
 
 SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
@@ -1364,9 +1391,7 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     if (fRotate) {
         SkScalar cx = this->width() / 2;
         SkScalar cy = this->height() / 2;
-        canvas->translate(cx, cy);
-        canvas->rotate(gAnimTimer.scaled(10));
-        canvas->translate(-cx, -cy);
+        canvas->rotate(gAnimTimer.scaled(10), cx, cy);
     }
 
     if (fPerspAnim) {
@@ -1666,6 +1691,10 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'D':
             toggleDistanceFieldFonts();
+            break;
+        case 'E':
+            fUseDeferredCanvas = !fUseDeferredCanvas;
+            this->inval(nullptr);
             break;
         case 'f':
             // only
@@ -2020,6 +2049,9 @@ void SampleWindow::updateTitle() {
     if (fUsePicture) {
         title.prepend("<P> ");
     }
+    if (fUseDeferredCanvas) {
+        title.prepend("<E> ");
+    }
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));
     title.prepend(trystate_str(fAAState, "AA ", "aa "));
@@ -2044,10 +2076,9 @@ void SampleWindow::updateTitle() {
 #if SK_SUPPORT_GPU
     if (IsGpuDeviceType(fDeviceType) &&
         fDevManager &&
-        fDevManager->getGrRenderTarget() &&
-        fDevManager->getGrRenderTarget()->numColorSamples() > 0) {
+        fDevManager->numColorSamples() > 0) {
         title.appendf(" [MSAA: %d]",
-                       fDevManager->getGrRenderTarget()->numColorSamples());
+                       fDevManager->numColorSamples());
     }
 #endif
 

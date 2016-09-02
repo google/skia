@@ -16,6 +16,7 @@
 class GrContext;
 class GrFragmentProcessor;
 class SkBitmap;
+class SkRasterPipeline;
 
 /**
  *  ColorFilters are optional objects in the drawing pipeline. When present in
@@ -69,6 +70,8 @@ public:
     virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[]) const = 0;
 
     virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const;
+
+    bool appendStages(SkRasterPipeline*) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
@@ -167,6 +170,8 @@ public:
 
 protected:
     SkColorFilter() {}
+
+    virtual bool onAppendStages(SkRasterPipeline*) const;
 
 private:
     /*

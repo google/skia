@@ -10,26 +10,53 @@
 
 #include "Benchmark.h"
 #include "SkCanvas.h"
+#include "SkLiteDL.h"
+#include "SkLiteRecorder.h"
 #include "SkPictureRecorder.h"
 
-template <bool kDraw>
+template <int kDraws, bool kLite>
 struct PictureOverheadBench : public Benchmark {
-    const char* onGetName() override {
-        return kDraw ? "picture_overhead_draw" : "picture_overhead_nodraw";
+    PictureOverheadBench() {
+        fName.appendf("picture_overhead_%d%s\n", kDraws, kLite ? "_lite" : "");
     }
+    const char* onGetName() override { return fName.c_str(); }
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
     void onDraw(int loops, SkCanvas*) override {
+        SkLiteRecorder lite;
         SkPictureRecorder rec;
         for (int i = 0; i < loops; i++) {
-            rec.beginRecording(SkRect::MakeWH(2000,3000));
-            if (kDraw) {
-                rec.getRecordingCanvas()->drawRect(SkRect::MakeXYWH(10, 10, 1000, 1000), SkPaint());
+            SkRect bounds{0,0, 2000,3000};
+
+            sk_sp<SkLiteDL> liteDL;
+            SkCanvas* canvas;
+            if (kLite) {
+                liteDL = SkLiteDL::New(bounds);
+                lite.reset(liteDL.get());
+                canvas = &lite;
+            } else {
+                rec.beginRecording(bounds);
+                canvas = rec.getRecordingCanvas();
             }
-            (void)rec.finishRecordingAsPicture();
+
+            for (int i = 0; i < kDraws; i++) {
+                canvas->drawRect({10,10, 1000, 1000}, SkPaint{});
+            }
+
+            if (!kLite) {
+                (void)rec.finishRecordingAsPicture();
+            }
         }
     }
+
+    SkString fName;
 };
 
-DEF_BENCH(return (new PictureOverheadBench<false>);)
-DEF_BENCH(return (new PictureOverheadBench< true>);)
+DEF_BENCH(return (new PictureOverheadBench<0, false>);)
+DEF_BENCH(return (new PictureOverheadBench<1, false>);)
+DEF_BENCH(return (new PictureOverheadBench<2, false>);)
+DEF_BENCH(return (new PictureOverheadBench<10,false>);)
+DEF_BENCH(return (new PictureOverheadBench<0,  true>);)
+DEF_BENCH(return (new PictureOverheadBench<1,  true>);)
+DEF_BENCH(return (new PictureOverheadBench<2,  true>);)
+DEF_BENCH(return (new PictureOverheadBench<10, true>);)

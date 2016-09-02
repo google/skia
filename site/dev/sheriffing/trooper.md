@@ -60,8 +60,9 @@ Tips for troopers
   failing.)
 
 - Where machines are located:
-  - Machine name like "skia-vm-NNN" -> GCE
+  - Machine name like "skia-vm-NNN", "ct-vm-NNN" -> GCE
   - Machine name ends with "a3", "a4", "m3" -> Chrome Golo
+  - Machine name ends with "m5" -> CT bare-metal bots in Chrome Golo
   - Machine name starts with "skiabot-" -> Chapel Hill lab
   - Machine name starts with "win8" -> Chapel Hill lab (Windows machine
     names can't be very long, so the "skiabot-shuttle-" prefix is dropped.)
@@ -94,6 +95,8 @@ Tips for troopers
     - Machine name ends with "a3" or "a4" -> ssh command looks like `ssh
       build3-a3.chrome`
     - Machine name ends with "m3" -> ssh command looks like `ssh build5-m3.golo`
+    - Machine name ends with "m5" -> ssh command looks like `ssh build1-m5.golo`.
+      [Example bug](https://bugs.chromium.org/p/chromium/issues/detail?id=638193) to file to Infra Labs.
     - For MacOS and Windows bots, you will be prompted for a password, which is
       stored on [Valentine](https://valentine.corp.google.com/) as "Chrome Golo,
       Perf, GPU bots - chrome-bot".
@@ -112,3 +115,5 @@ Tips for troopers
   disconnected, you may need to start it manually. On Mac and Linux, check using
   `ps aux | grep python` that neither buildbot nor gclient are running, then run
   `~/skiabot-slave-start-on-boot.sh`.
+
+- Sometimes iOS builds fail with 'The service is invalid'. Try rebooting the iOS host to fix this.

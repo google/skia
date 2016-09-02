@@ -85,9 +85,9 @@ int tool_main(int argc, char** argv) {
     SkLua L(summary);
 
     for (int i = 0; i < FLAGS_luaFile.count(); ++i) {
-        SkAutoDataUnref data(SkData::NewFromFileName(FLAGS_luaFile[i]));
-        if (nullptr == data.get()) {
-            data.reset(SkData::NewEmpty());
+        sk_sp<SkData> data(SkData::MakeFromFileName(FLAGS_luaFile[i]));
+        if (!data) {
+            data = SkData::MakeEmpty();
         }
         if (!FLAGS_quiet) {
             SkDebugf("loading %s...\n", FLAGS_luaFile[i]);

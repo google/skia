@@ -9,6 +9,23 @@
 #define SkTypes_DEFINED
 
 // IWYU pragma: begin_exports
+
+// In at least two known scenarios when using GCC with libc++:
+//  * GCC 4.8 targeting ARMv7 with NEON
+//  * GCC 4.9 targeting ARMv8 64 bit
+// we need to typedef float float32_t (or include <arm_neon.h> which does that)
+// before #including <memory>. This makes no sense.  I'm not very interested in
+// understanding why... these are old, bizarre platform configuration that we
+// should just let die.
+// See https://llvm.org/bugs/show_bug.cgi?id=25608 .
+#include <ciso646>  // Include something innocuous to define _LIBCPP_VERISON if it's libc++.
+#if defined(__GNUC__) && __GNUC__ == 4 \
+ && ((defined(__arm__) && (defined(__ARM_NEON__) || defined(__ARM_NEON))) || defined(__aarch64__)) \
+ && defined(_LIBCPP_VERSION)
+    typedef float float32_t;
+    #include <memory>
+#endif
+
 #include "SkPreConfig.h"
 #include "SkUserConfig.h"
 #include "SkPostConfig.h"
@@ -122,26 +139,32 @@ inline void operator delete(void* p) {
     SK_API void SkDebugf(const char format[], ...);
 #endif
 
-#define SkASSERT_RELEASE(cond)          if(!(cond)) { SK_ABORT(#cond); }
+#define SkREQUIRE_SEMICOLON_AFTER(code) do { code } while (false)
+
+#define SkASSERT_RELEASE(cond) \
+    SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { SK_ABORT(#cond); } )
 
 #ifdef SK_DEBUG
-    #if defined SK_BUILD_FOR_WIN
-        #define SkASSERT(cond)          if(!(cond)) { __debugbreak(); }
-    #else
-        #define SkASSERT(cond)          SkASSERT_RELEASE(cond)
-    #endif
-    #define SkDEBUGFAIL(message)        SkASSERT(false && message)
+    #define SkASSERT(cond) \
+        SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { SK_ABORT("assert(" #cond ")"); })
+    #define SkASSERTF(cond, fmt, ...) \
+        SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { \
+                                      SkDebugf(fmt"\n", __VA_ARGS__); \
+                                      SK_ABORT("assert(" #cond ")"); \
+                                  })
+    #define SkDEBUGFAIL(message)        SK_ABORT(message)
     #define SkDEBUGFAILF(fmt, ...)      SkASSERTF(false, fmt, ##__VA_ARGS__)
-    #define SkDEBUGCODE(code)           code
+    #define SkDEBUGCODE(...)            __VA_ARGS__
     #define SkDECLAREPARAM(type, var)   , type var
     #define SkPARAM(var)                , var
-//  #define SkDEBUGF(args       )       SkDebugf##args
     #define SkDEBUGF(args       )       SkDebugf args
     #define SkAssertResult(cond)        SkASSERT(cond)
 #else
     #define SkASSERT(cond)
+    #define SkASSERTF(cond, fmt, ...)
     #define SkDEBUGFAIL(message)
-    #define SkDEBUGCODE(code)
+    #define SkDEBUGFAILF(fmt, ...)
+    #define SkDEBUGCODE(...)
     #define SkDEBUGF(args)
     #define SkDECLAREPARAM(type, var)
     #define SkPARAM(var)
@@ -154,11 +177,6 @@ inline void operator delete(void* p) {
 // Legacy macro names for SK_ABORT
 #define SkFAIL(message)                 SK_ABORT(message)
 #define sk_throw()                      SK_ABORT("sk_throw")
-
-// We want to evaluate cond only once, and inside the SkASSERT somewhere so we see its string form.
-// So we use the comma operator to make an SkDebugf that always returns false: we'll evaluate cond,
-// and if it's true the assert passes; if it's false, we'll print the message and the assert fails.
-#define SkASSERTF(cond, fmt, ...)       SkASSERT((cond) || (SkDebugf(fmt"\n", __VA_ARGS__), false))
 
 #ifdef SK_IGNORE_TO_STRING
     #define SK_TO_STRING_NONVIRT()
@@ -335,6 +353,10 @@ typedef uint32_t SkFourByteTag;
 /** 32 bit integer to hold a unicode value
 */
 typedef int32_t SkUnichar;
+
+/** 16 bit unsigned integer to hold a glyph index
+*/
+typedef uint16_t SkGlyphID;
 
 /** 32 bit value to hold a millisecond duration
  *  Note that SK_MSecMax is about 25 days.

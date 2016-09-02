@@ -570,12 +570,12 @@ SkBaseDevice* SkSVGDevice::Create(const SkISize& size, SkXMLWriter* writer) {
 }
 
 SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer)
-    : INHERITED(SkSurfaceProps(0, kUnknown_SkPixelGeometry))
+    : INHERITED(SkImageInfo::MakeUnknown(size.fWidth, size.fHeight),
+                SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fWriter(writer)
-    , fResourceBucket(new ResourceBucket) {
+    , fResourceBucket(new ResourceBucket)
+{
     SkASSERT(writer);
-
-    fLegacyBitmap.setInfo(SkImageInfo::MakeUnknown(size.width(), size.height()));
 
     fWriter->writeHeader();
 
@@ -589,14 +589,6 @@ SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer)
 }
 
 SkSVGDevice::~SkSVGDevice() {
-}
-
-SkImageInfo SkSVGDevice::imageInfo() const {
-    return fLegacyBitmap.info();
-}
-
-const SkBitmap& SkSVGDevice::onAccessBitmap() {
-    return fLegacyBitmap;
 }
 
 void SkSVGDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {

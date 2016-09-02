@@ -107,7 +107,7 @@ static void test_three_encodings(skiatest::Reporter* reporter,
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(types); i++) {
         SkImageEncoder::Type type = types[i];
-        SkAutoDataUnref encoded(create_data_from_bitmap(original, type));
+        sk_sp<SkData> encoded(create_data_from_bitmap(original, type));
         REPORTER_ASSERT(reporter, encoded.get() != nullptr);
         if (nullptr == encoded.get()) {
             continue;

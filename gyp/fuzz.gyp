@@ -11,13 +11,18 @@
         'defines': [
           'SK_FUZZ_LOGGING',
         ],
-        'sources': [ '<!@(python find.py ../fuzz "*.cpp")' ],
+        'sources': [
+          '<!@(python find.py "*.cpp" ../fuzz)',
+          '../tests/PathOpsDebug.cpp',
+        ],
         'dependencies': [
             'flags.gyp:flags',
             'skia_lib.gyp:skia_lib',
         ],
         'include_dirs': [
+            '../include/private',
             '../src/core',
+            '../src/pathops',
         ],
     }],
 }

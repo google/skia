@@ -14,6 +14,8 @@
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
 #include "SkPicture.h"
+#include "SkPicture.h"
+#include "SkPicture.h"
 #include "SkStream.h"
 
 #include <cmath>
@@ -42,31 +44,31 @@ int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     const char* path = FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0];
-    SkAutoTUnref<SkData> bytes(SkData::NewFromFileName(path));
+    sk_sp<SkData> bytes(SkData::MakeFromFileName(path));
     if (!bytes) {
         SkDebugf("Could not read %s\n", path);
         return 2;
     }
 
-    uint8_t option = calculate_option(bytes);
+    uint8_t option = calculate_option(bytes.get());
 
     if (!FLAGS_type.isEmpty()) {
         switch (FLAGS_type[0][0]) {
-            case 'a': return fuzz_api(bytes);
+            case 'a': return fuzz_api(bytes.get());
 
-            case 'c': return fuzz_color_deserialize(bytes);
+            case 'c': return fuzz_color_deserialize(bytes.get());
 
             case 'i':
                 if (FLAGS_type[0][1] == 'c') { //icc
-                    return fuzz_icc(bytes);
+                    return fuzz_icc(bytes.get());
                 }
                 // We only allow one degree of freedom to avoid a search space explosion for afl-fuzz.
                 if (FLAGS_type[0][6] == 's') { // image_scale
-                    return fuzz_img(bytes, option, 0);
+                    return fuzz_img(bytes.get(), option, 0);
                 }
                 // image_mode
-                return fuzz_img(bytes, 0, option);
-            case 's': return fuzz_skp(bytes);
+                return fuzz_img(bytes.get(), 0, option);
+            case 's': return fuzz_skp(bytes.get());
         }
     }
     return printUsage(argv[0]);
@@ -403,6 +405,12 @@ Fuzz::Fuzz(SkData* bytes) : fBytes(SkSafeRef(bytes)), fNextByte(0) {}
 
 void Fuzz::signalBug   () { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
 void Fuzz::signalBoring() { SkDebugf("Signal boring\n"); exit(0); }
+
+size_t Fuzz::size() { return fBytes->size(); }
+
+size_t Fuzz::remaining() {
+    return fBytes->size() - fNextByte;
+}
 
 template <typename T>
 T Fuzz::nextT() {

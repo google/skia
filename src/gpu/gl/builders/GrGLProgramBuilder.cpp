@@ -12,17 +12,16 @@
 #include "GrGLProgramBuilder.h"
 #include "GrSwizzle.h"
 #include "GrTexture.h"
-#include "SkRTConf.h"
 #include "SkTraceEvent.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"
-#include "gl/GrGLProgramDesc.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/builders/GrGLShaderStringBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLProgramDesc.h"
 #include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
@@ -31,7 +30,7 @@
 
 GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
                                                const GrPrimitiveProcessor& primProc,
-                                               const GrGLProgramDesc& desc,
+                                               const GrGLSLProgramDesc& desc,
                                                GrGLGpu* gpu) {
     GrAutoLocaleSetter als("C");
 
@@ -57,7 +56,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
                                        const GrPipeline& pipeline,
                                        const GrPrimitiveProcessor& primProc,
-                                       const GrGLProgramDesc& desc)
+                                       const GrGLSLProgramDesc& desc)
     : INHERITED(pipeline, primProc, desc)
     , fGpu(gpu)
     , fVaryingHandler(this)

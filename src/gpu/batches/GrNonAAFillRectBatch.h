@@ -28,12 +28,6 @@ GrDrawBatch* CreateWithPerspective(GrColor color,
                                    const SkRect* localRect,
                                    const SkMatrix* localMatrix);
 
-bool Append(GrColor color,
-            const SkMatrix& viewMatrix,
-            const SkRect& rect,
-            const SkRect* localRect,
-            const SkMatrix* localMatrix);
-
 };
 
 #endif

@@ -7,8 +7,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "SkForceLinking.h"
 
-#include <GL/osmesa.h>
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 #include "fiddle_main.h"
 
@@ -63,38 +64,36 @@ static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
     return img ? img->encode() : nullptr;
 }
 
-static OSMesaContext create_osmesa_context() {
-    OSMesaContext osMesaContext =
-        OSMesaCreateContextExt(OSMESA_BGRA, 0, 0, 0, nullptr);
-    if (osMesaContext != nullptr) {
-        static uint32_t buffer[16 * 16];
-        OSMesaMakeCurrent(osMesaContext, &buffer, GL_UNSIGNED_BYTE, 16, 16);
-    }
-    return osMesaContext;
-}
+#if defined(__linux)
+    #include <GL/osmesa.h>
+    static sk_sp<GrContext> create_grcontext() {
+        // We just leak the OSMesaContext... the process will die soon anyway.
+        if (OSMesaContext osMesaContext = OSMesaCreateContextExt(OSMESA_BGRA, 0, 0, 0, nullptr)) {
+            static uint32_t buffer[16 * 16];
+            OSMesaMakeCurrent(osMesaContext, &buffer, GL_UNSIGNED_BYTE, 16, 16);
+        }
 
-static sk_sp<GrContext> create_mesa_grcontext() {
-    if (nullptr == OSMesaGetCurrentContext()) {
-        return nullptr;
+        auto osmesa_get = [](void* ctx, const char name[]) {
+            SkASSERT(nullptr == ctx);
+            SkASSERT(OSMesaGetCurrentContext());
+            return OSMesaGetProcAddress(name);
+        };
+        sk_sp<const GrGLInterface> mesa(GrGLAssembleInterface(nullptr, osmesa_get));
+        if (!mesa) {
+            return nullptr;
+        }
+        return sk_sp<GrContext>(GrContext::Create(
+                                        kOpenGL_GrBackend,
+                                        reinterpret_cast<intptr_t>(mesa.get())));
     }
-    auto osmesa_get = [](void* ctx, const char name[]) {
-        SkASSERT(nullptr == ctx);
-        SkASSERT(OSMesaGetCurrentContext());
-        return OSMesaGetProcAddress(name);
-    };
-    sk_sp<const GrGLInterface> mesa(GrGLAssembleInterface(nullptr, osmesa_get));
-    if (!mesa) {
-        return nullptr;
-    }
-    return sk_sp<GrContext>(GrContext::Create(
-                                    kOpenGL_GrBackend,
-                                    reinterpret_cast<intptr_t>(mesa.get())));
-}
+#else
+    static sk_sp<GrContext> create_grcontext() { return nullptr; }
+#endif
 
 int main() {
     const DrawOptions options = GetDrawOptions();
     if (options.source) {
-        sk_sp<SkData> data(SkData::NewFromFileName(options.source));
+        sk_sp<SkData> data(SkData::MakeFromFileName(options.source));
         if (!data) {
             perror(options.source);
             return 1;
@@ -117,10 +116,9 @@ int main() {
         rasterData.reset(encode_snapshot(rasterSurface));
     }
     if (options.gpu) {
-        OSMesaContext osMesaContext = create_osmesa_context();
-        auto grContext = create_mesa_grcontext();
+        auto grContext = create_grcontext();
         if (!grContext) {
-            fputs("Unable to get Mesa GrContext.\n", stderr);
+            fputs("Unable to get GrContext.\n", stderr);
         } else {
             auto surface = SkSurface::MakeRenderTarget(
                     grContext.get(),
@@ -133,9 +131,6 @@ int main() {
             srand(0);
             draw(surface->getCanvas());
             gpuData.reset(encode_snapshot(surface));
-        }
-        if (osMesaContext) {
-            OSMesaDestroyContext(osMesaContext);
         }
     }
     if (options.pdf) {

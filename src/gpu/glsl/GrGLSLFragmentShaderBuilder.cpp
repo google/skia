@@ -15,7 +15,7 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
 
-const char* GrGLSLFragmentShaderBuilder::kDstTextureColorName = "_dstColor";
+const char* GrGLSLFragmentShaderBuilder::kDstColorName = "_dstColor";
 
 static const char* sample_offset_array_name(GrGLSLFPFragmentBuilder::Coordinates coords) {
     static const char* kArrayNames[] = {
@@ -189,6 +189,10 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
     }
 }
 
+const char* GrGLSLFragmentShaderBuilder::distanceVectorName() const {
+    return "fsDistanceVector";
+}
+
 void GrGLSLFragmentShaderBuilder::appendOffsetToSample(const char* sampleIdx, Coordinates coords) {
     SkASSERT(fProgramBuilder->header().fSamplePatternKey);
     SkDEBUGCODE(fUsedProcessorFeatures |= GrProcessor::kSampleLocations_RequiredFeature);
@@ -260,11 +264,13 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
             this->enableCustomOutput();
             fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
             fbFetchColorName = DeclaredColorOutputName();
+            // Set the dstColor to an intermediate variable so we don't override it with the output
+            this->codeAppendf("vec4 %s = %s;", kDstColorName, fbFetchColorName);
+        } else {
+            return fbFetchColorName;
         }
-        return fbFetchColorName;
-    } else {
-        return kDstTextureColorName;
     }
+    return kDstColorName;
 }
 
 void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEquation equation) {
@@ -365,7 +371,7 @@ void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(const char* name, cons
     const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline.getStencil());
     SkSTArray<16, SkPoint, true> offsets;
     offsets.push_back_n(specs.fEffectiveSampleCnt);
-    m.mapPoints(offsets.begin(), specs.fSampleLocations.get(), specs.fEffectiveSampleCnt);
+    m.mapPoints(offsets.begin(), specs.fSampleLocations, specs.fEffectiveSampleCnt);
     this->definitions().append("const ");
     if (fProgramBuilder->glslCaps()->usesPrecisionModifiers()) {
         this->definitions().append("highp ");

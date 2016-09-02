@@ -12,7 +12,7 @@
 
 GrVkTransferBuffer* GrVkTransferBuffer::Create(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type) {
     GrVkBuffer::Desc desc;
-    desc.fDynamic = false;
+    desc.fDynamic = true;
     SkASSERT(GrVkBuffer::kCopyRead_Type == type || GrVkBuffer::kCopyWrite_Type == type);
     desc.fType = type;
     desc.fSizeInBytes = size;
@@ -34,7 +34,7 @@ GrVkTransferBuffer::GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& des
     : INHERITED(gpu, desc.fSizeInBytes,
                 kCopyRead_Type == desc.fType ?
                     kXferCpuToGpu_GrBufferType : kXferGpuToCpu_GrBufferType,
-                kStream_GrAccessPattern, false)
+                kStream_GrAccessPattern)
     , GrVkBuffer(desc, bufferResource) {
     this->registerWithCache(SkBudgeted::kYes);
 }

@@ -26,25 +26,27 @@ static void S32_Blend_BlitRow32(SkPMColor* SK_RESTRICT dst,
     SkASSERT(alpha <= 255);
     if (count > 0) {
         unsigned src_scale = SkAlpha255To256(alpha);
-        unsigned dst_scale = 256 - src_scale;
 
 #ifdef UNROLL
         if (count & 1) {
-            *dst = SkAlphaMulQ(*(src++), src_scale) + SkAlphaMulQ(*dst, dst_scale);
+            *dst = SkPMLerp(*src, *dst, src_scale);
+            src += 1;
             dst += 1;
             count -= 1;
         }
 
         const SkPMColor* SK_RESTRICT srcEnd = src + count;
         while (src != srcEnd) {
-            *dst = SkAlphaMulQ(*(src++), src_scale) + SkAlphaMulQ(*dst, dst_scale);
+            *dst = SkPMLerp(*src, *dst, src_scale);
+            src += 1;
             dst += 1;
-            *dst = SkAlphaMulQ(*(src++), src_scale) + SkAlphaMulQ(*dst, dst_scale);
+            *dst = SkPMLerp(*src, *dst, src_scale);
+            src += 1;
             dst += 1;
         }
 #else
         do {
-            *dst = SkAlphaMulQ(*src, src_scale) + SkAlphaMulQ(*dst, dst_scale);
+            *dst = SkPMLerp(*src, *dst, src_scale);
             src += 1;
             dst += 1;
         } while (--count > 0);

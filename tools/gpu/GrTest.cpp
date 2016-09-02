@@ -12,6 +12,8 @@
 #include "GrDrawContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
+#include "GrPipelineBuilder.h"
+#include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
 
 #include "SkGpuDevice.h"
@@ -138,8 +140,7 @@ void SkGpuDevice::drawTexture(GrTexture* tex, const SkRect& dst, const SkPaint& 
     GrPaint grPaint;
     SkMatrix mat;
     mat.reset();
-    if (!SkPaintToGrPaint(this->context(), paint, mat,
-                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
+    if (!SkPaintToGrPaint(this->context(), fDrawContext.get(), paint, mat, &grPaint)) {
         return;
     }
     SkMatrix textureMat;
@@ -149,7 +150,7 @@ void SkGpuDevice::drawTexture(GrTexture* tex, const SkRect& dst, const SkPaint& 
     textureMat[SkMatrix::kMTransX] = -dst.fLeft/dst.width();
     textureMat[SkMatrix::kMTransY] = -dst.fTop/dst.height();
 
-    grPaint.addColorTextureProcessor(tex, textureMat);
+    grPaint.addColorTextureProcessor(tex, nullptr, textureMat);
 
     fDrawContext->drawRect(GrNoClip(), grPaint, mat, dst);
 }
@@ -258,6 +259,12 @@ void GrDrawContextPriv::testingOnly_drawBatch(const GrPaint& paint,
 #undef RETURN_IF_ABANDONED
 
 ///////////////////////////////////////////////////////////////////////////////
+
+GrRenderTargetPriv::Flags GrRenderTargetProxy::testingOnly_getFlags() const {
+    return fFlags;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Code for the mock context. It's built on a mock GrGpu class that does nothing.
 ////
 
@@ -294,10 +301,8 @@ public:
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override { return false; };
 
-    void onGetMultisampleSpecs(GrRenderTarget* rt,
-                               const GrStencilSettings&,
-                               int* effectiveSampleCnt,
-                               SkAutoTDeleteArray<SkPoint>*) override {
+    void onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
+                               int* effectiveSampleCnt, SamplePattern*) override {
         *effectiveSampleCnt = rt->desc().fSampleCnt;
     }
 
@@ -343,6 +348,8 @@ private:
     GrBuffer* onCreateBuffer(size_t, GrBufferType, GrAccessPattern, const void*) override {
         return nullptr;
     }
+
+    gr_instanced::InstancedRendering* onCreateInstancedRendering() override { return nullptr; }
 
     bool onReadPixels(GrSurface* surface,
                       int left, int top, int width, int height,

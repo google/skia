@@ -109,18 +109,16 @@ struct DstTraits<DstType::S32, premul> {
     using Type = SkPMColor;
 
     static Sk4f load(const SkPM4f& c) {
-        // Prescaling by (255^2, 255^2, 255^2, 255) on load, to avoid a 255 multiply on
-        // each store (S32 conversion yields a uniform 255 factor).
-        return c.to4f_pmorder() * Sk4f(255 * 255, 255 * 255, 255 * 255, 255);
+        return c.to4f_pmorder();
     }
 
     static void store(const Sk4f& c, Type* dst) {
         // FIXME: this assumes opaque colors.  Handle unpremultiplication.
-        *dst = to_4b(linear_to_srgb(PM::apply(c)));
+        *dst = Sk4f_toS32(PM::apply(c));
     }
 
     static void store(const Sk4f& c, Type* dst, int n) {
-        sk_memset32(dst, to_4b(linear_to_srgb(PM::apply(c))), n);
+        sk_memset32(dst, Sk4f_toS32(PM::apply(c)), n);
     }
 
     static void store4x(const Sk4f& c0, const Sk4f& c1,
@@ -143,11 +141,13 @@ struct DstTraits<DstType::F16, premul> {
     }
 
     static void store(const Sk4f& c, Type* dst) {
-        *dst = SkFloatToHalf_01(PM::apply(c));
+        SkFloatToHalf_finite_ftz(PM::apply(c)).store(dst);
     }
 
     static void store(const Sk4f& c, Type* dst, int n) {
-        sk_memset64(dst, SkFloatToHalf_01(PM::apply(c)), n);
+        uint64_t color;
+        SkFloatToHalf_finite_ftz(PM::apply(c)).store(&color);
+        sk_memset64(dst, color, n);
     }
 
     static void store4x(const Sk4f& c0, const Sk4f& c1,

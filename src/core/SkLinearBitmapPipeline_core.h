@@ -8,6 +8,7 @@
 #ifndef SkLinearBitmapPipeline_core_DEFINED
 #define SkLinearBitmapPipeline_core_DEFINED
 
+#include <algorithm>
 #include <cmath>
 #include "SkNx.h"
 
@@ -20,15 +21,6 @@
 //  - edge span predicate.
 //  - introduce new point API
 //  - Add tile for new api.
-
-// Tweak ABI of functions that pass Sk4f by value to pass them via registers.
-#if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #define VECTORCALL __vectorcall
-#elif defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON)
-    #define VECTORCALL __attribute__((pcs("aapcs-vfp")))
-#else
-    #define VECTORCALL
-#endif
 
 namespace {
 struct X {
@@ -186,6 +178,15 @@ void span_fallback(Span span, Stage* stage) {
         stage->pointListFew(count, xs, ys);
     }
 }
+
+inline Sk4f SK_VECTORCALL check_pixel(const Sk4f& pixel) {
+    SkASSERTF(0.0f <= pixel[0] && pixel[0] <= 1.0f, "pixel[0]: %f", pixel[0]);
+    SkASSERTF(0.0f <= pixel[1] && pixel[1] <= 1.0f, "pixel[1]: %f", pixel[1]);
+    SkASSERTF(0.0f <= pixel[2] && pixel[2] <= 1.0f, "pixel[2]: %f", pixel[2]);
+    SkASSERTF(0.0f <= pixel[3] && pixel[3] <= 1.0f, "pixel[3]: %f", pixel[3]);
+    return pixel;
+}
+
 }  // namespace
 
 class SkLinearBitmapPipeline::PointProcessorInterface {
@@ -194,9 +195,9 @@ public:
     // Take the first n (where 0 < n && n < 4) items from xs and ys and sample those points. For
     // nearest neighbor, that means just taking the floor xs and ys. For bilerp, this means
     // to expand the bilerp filter around the point and sample using that filter.
-    virtual void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) = 0;
+    virtual void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) = 0;
     // Same as pointListFew, but n = 4.
-    virtual void VECTORCALL pointList4(Sk4s xs, Sk4s ys) = 0;
+    virtual void SK_VECTORCALL pointList4(Sk4s xs, Sk4s ys) = 0;
     // A span is a compact form of sample points that are obtained by mapping points from
     // destination space to source space. This is used for horizontal lines only, and is mainly
     // used to take advantage of memory coherence for horizontal spans.
@@ -209,26 +210,6 @@ public:
     // Used for nearest neighbor when scale factor is 1.0. The span can just be repeated with no
     // edge pixel alignment problems. This is for handling a very common case.
     virtual void repeatSpan(Span span, int32_t repeatCount) = 0;
-
-    // The x's and y's are setup in the following order:
-    // +--------+--------+
-    // |        |        |
-    // |  px00  |  px10  |
-    // |    0   |    1   |
-    // +--------+--------+
-    // |        |        |
-    // |  px01  |  px11  |
-    // |    2   |    3   |
-    // +--------+--------+
-    // These pixels coordinates are arranged in the following order in xs and ys:
-    // px00  px10  px01  px11
-    virtual void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) = 0;
-
-    // A span represents sample points that have been mapped from destination space to source
-    // space. Each sample point is then expanded to the four bilerp points by add +/- 0.5. The
-    // resulting Y values my be off the tile. When y +/- 0.5 are more than 1 apart because of
-    // tiling, the second Y is used to denote the retiled Y value.
-    virtual void bilerpSpan(Span span, SkScalar y) = 0;
 };
 
 class SkLinearBitmapPipeline::DestinationInterface {
@@ -243,8 +224,27 @@ public:
 class SkLinearBitmapPipeline::BlendProcessorInterface
     : public SkLinearBitmapPipeline::DestinationInterface {
 public:
-    virtual void VECTORCALL blendPixel(Sk4f pixel0) = 0;
-    virtual void VECTORCALL blend4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) = 0;
+    virtual void SK_VECTORCALL blendPixel(Sk4f pixel0) = 0;
+    virtual void SK_VECTORCALL blend4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) = 0;
+};
+
+class SkLinearBitmapPipeline::PixelAccessorInterface {
+public:
+    virtual ~PixelAccessorInterface() { }
+    virtual void SK_VECTORCALL getFewPixels(
+        int n, Sk4i xs, Sk4i ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) const = 0;
+
+    virtual void SK_VECTORCALL get4Pixels(
+        Sk4i xs, Sk4i ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const = 0;
+
+    virtual void get4Pixels(
+        const void* src, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const = 0;
+
+    virtual Sk4f getPixelFromRow(const void* row, int index) const = 0;
+
+    virtual Sk4f getPixelAt(int index) const = 0;
+
+    virtual const void* row(int y) const = 0;
 };
 
 #endif // SkLinearBitmapPipeline_core_DEFINED

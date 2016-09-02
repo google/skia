@@ -12,15 +12,14 @@
 #endif
 
 #if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
-                                        GrContext* context, const SkMatrix& viewM,
-                                        const SkMatrix* localMatrix, SkFilterQuality fq,
-                                        SkSourceGammaTreatment gammaTreatment) const {
+sk_sp<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(const AsFPArgs& args) const {
     SkMatrix tmp = this->getLocalMatrix();
-    if (localMatrix) {
-        tmp.preConcat(*localMatrix);
+    if (args.fLocalMatrix) {
+        tmp.preConcat(*args.fLocalMatrix);
     }
-    return fProxyShader->asFragmentProcessor(context, viewM, &tmp, fq, gammaTreatment);
+    return fProxyShader->asFragmentProcessor(AsFPArgs(
+        args.fContext, args.fViewMatrix, &tmp, args.fFilterQuality, args.fDstColorSpace,
+        args.fGammaTreatment));
 }
 #endif
 

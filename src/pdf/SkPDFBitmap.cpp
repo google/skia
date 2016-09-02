@@ -32,8 +32,7 @@ void image_get_ro_pixels(const SkImage* image, SkBitmap* dst) {
         }
     }
     // no pixels or wrong size: fill with zeros.
-    SkAlphaType at = image->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    dst->setInfo(SkImageInfo::MakeN32(image->width(), image->height(), at));
+    dst->setInfo(SkImageInfo::MakeN32(image->width(), image->height(), image->alphaType()));
 }
 
 bool image_compute_is_opaque(const SkImage* image) {
@@ -347,8 +346,7 @@ static void emit_image_xobject(SkWStream* stream,
                                const SkImage* image,
                                bool alpha,
                                const sk_sp<SkPDFObject>& smask,
-                               const SkPDFObjNumMap& objNumMap,
-                               const SkPDFSubstituteMap& substitutes) {
+                               const SkPDFObjNumMap& objNumMap) {
     SkBitmap bitmap;
     image_get_ro_pixels(image, &bitmap);      // TODO(halcanary): test
     SkAutoLockPixels autoLockPixels(bitmap);  // with malformed images.
@@ -386,7 +384,7 @@ static void emit_image_xobject(SkWStream* stream,
     pdfDict.insertInt("BitsPerComponent", 8);
     pdfDict.insertName("Filter", "FlateDecode");
     pdfDict.insertInt("Length", asset->getLength());
-    pdfDict.emitObject(stream, objNumMap, substitutes);
+    pdfDict.emitObject(stream, objNumMap);
 
     pdf_stream_begin(stream);
     stream->writeStream(asset.get(), asset->getLength());
@@ -401,10 +399,9 @@ class PDFAlphaBitmap final : public SkPDFObject {
 public:
     PDFAlphaBitmap(sk_sp<SkImage> image) : fImage(std::move(image)) { SkASSERT(fImage); }
     void emitObject(SkWStream*  stream,
-                    const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& subs) const override {
+                    const SkPDFObjNumMap& objNumMap) const override {
         SkASSERT(fImage);
-        emit_image_xobject(stream, fImage.get(), true, nullptr, objNumMap, subs);
+        emit_image_xobject(stream, fImage.get(), true, nullptr, objNumMap);
     }
     void drop() override { fImage = nullptr; }
 
@@ -420,19 +417,12 @@ namespace {
 class PDFDefaultBitmap final : public SkPDFObject {
 public:
     void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& subs) const override {
+                    const SkPDFObjNumMap& objNumMap) const override {
         SkASSERT(fImage);
-        emit_image_xobject(stream, fImage.get(), false, fSMask, objNumMap, subs);
+        emit_image_xobject(stream, fImage.get(), false, fSMask, objNumMap);
     }
-    void addResources(SkPDFObjNumMap* catalog,
-                      const SkPDFSubstituteMap& subs) const override {
-        SkASSERT(fImage);
-        if (fSMask.get()) {
-            SkPDFObject* obj = subs.getSubstitute(fSMask.get());
-            SkASSERT(obj);
-            catalog->addObjectRecursively(obj, subs);
-        }
+    void addResources(SkPDFObjNumMap* catalog) const override {
+        catalog->addObjectRecursively(fSMask.get());
     }
     void drop() override { fImage = nullptr; fSMask = nullptr; }
     PDFDefaultBitmap(sk_sp<SkImage> image, sk_sp<SkPDFObject> smask)
@@ -459,15 +449,12 @@ public:
     bool fIsYUV;
     PDFJpegBitmap(SkISize size, SkData* data, bool isYUV)
         : fSize(size), fData(SkRef(data)), fIsYUV(isYUV) { SkASSERT(data); }
-    void emitObject(SkWStream*,
-                    const SkPDFObjNumMap&,
-                    const SkPDFSubstituteMap&) const override;
+    void emitObject(SkWStream*, const SkPDFObjNumMap&) const override;
     void drop() override { fData = nullptr; }
 };
 
 void PDFJpegBitmap::emitObject(SkWStream* stream,
-                               const SkPDFObjNumMap& objNumMap,
-                               const SkPDFSubstituteMap& substituteMap) const {
+                               const SkPDFObjNumMap& objNumMap) const {
     SkASSERT(fData);
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
@@ -482,7 +469,7 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
     pdfDict.insertName("Filter", "DCTDecode");
     pdfDict.insertInt("ColorTransform", 0);
     pdfDict.insertInt("Length", SkToInt(fData->size()));
-    pdfDict.emitObject(stream, objNumMap, substituteMap);
+    pdfDict.emitObject(stream, objNumMap);
     pdf_stream_begin(stream);
     stream->write(fData->data(), fData->size());
     pdf_stream_end(stream);

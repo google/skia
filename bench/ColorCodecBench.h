@@ -36,7 +36,8 @@ private:
 
     SkString                                             fName;
     sk_sp<SkData>                                        fEncoded;
-    SkImageInfo                                          fInfo;
+    SkImageInfo                                          fSrcInfo;
+    SkImageInfo                                          fDstInfo;
     SkAutoMalloc                                         fDst;
     SkAutoMalloc                                         fSrc;
     sk_sp<SkColorSpace>                                  fDstSpace;

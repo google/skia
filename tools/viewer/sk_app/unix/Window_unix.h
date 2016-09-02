@@ -18,12 +18,6 @@ typedef Window XWindow;
 
 namespace sk_app {
 
-struct ContextPlatformData_unix {
-    Display*     fDisplay;
-    XWindow      fWindow;
-    XVisualInfo* fVisualInfo;
-};
-
 class Window_unix : public Window {
 public:
     Window_unix() : Window()
@@ -63,10 +57,12 @@ public:
         }
     }
 
-    void markPendingResize(int width, int height) { 
-        fPendingWidth = width; 
-        fPendingHeight = height;
-        fPendingResize = true;
+    void markPendingResize(int width, int height) {
+        if (width != fWidth || height != fHeight){
+            fPendingResize = true;
+            fPendingWidth = width;
+            fPendingHeight = height;
+        }
     }
     void finishResize() { 
         if (fPendingResize) {

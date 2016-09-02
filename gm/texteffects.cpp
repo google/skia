@@ -9,6 +9,7 @@
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkReadBuffer.h"
+#include "SkTextBlob.h"
 #include "SkWriteBuffer.h"
 #include "SkLayerRasterizer.h"
 
@@ -267,7 +268,7 @@ DEF_SIMPLE_GM(fancyunderline, canvas, 900, 1350) {
     const char* fam[] = { "sans-serif", "serif", "monospace" };
     const char test[] = "aAjJgGyY_|{-(~[,]qQ}pP}zZ";
     SkPoint textPt = { 10, 80 };
-    for (int font = 0; font < 3; ++font) {
+    for (size_t font = 0; font < SK_ARRAY_COUNT(fam); ++font) {
         sk_tool_utils::set_portable_typeface(&paint, fam[font]);
         for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
             paint.setTextSize(textSize);
@@ -311,7 +312,7 @@ DEF_SIMPLE_GM(fancyposunderline, canvas, 900, 1350) {
     const char* fam[] = { "sans-serif", "serif", "monospace" };
     const char test[] = "aAjJgGyY_|{-(~[,]qQ}pP}zZ";
     SkPoint textPt = { 10, 80 };
-    for (int font = 0; font < 3; ++font) {
+    for (size_t font = 0; font < SK_ARRAY_COUNT(fam); ++font) {
         sk_tool_utils::set_portable_typeface(&paint, fam[font]);
         for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
             paint.setTextSize(textSize);
@@ -344,6 +345,114 @@ DEF_SIMPLE_GM(fancyposunderline, canvas, 900, 1350) {
 
             canvas->translate(0, textSize * 1.3f);
         }
+        canvas->translate(0, 60);
+    }
+}
+
+namespace {
+
+sk_sp<const SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
+    SkPaint blobPaint(paint);
+
+    const size_t textLen = strlen(text);
+    const int glyphCount = blobPaint.textToGlyphs(text, textLen, nullptr);
+    SkAutoTArray<SkGlyphID> glyphs(glyphCount);
+    blobPaint.textToGlyphs(text, textLen, glyphs.get());
+
+    blobPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    const size_t glyphTextBytes = SkTo<uint32_t>(glyphCount) * sizeof(SkGlyphID);
+    const int widthCount = blobPaint.getTextWidths(glyphs.get(), glyphTextBytes, nullptr);
+    SkAssertResult(widthCount == glyphCount);
+
+    SkAutoTArray<SkScalar> widths(glyphCount);
+    blobPaint.getTextWidths(glyphs.get(), glyphTextBytes, widths.get());
+
+    SkTextBlobBuilder blobBuilder;
+    int glyphIndex = 0;
+    SkScalar advance = 0;
+
+    // Default-positioned run.
+    {
+        const int defaultRunLen = glyphCount / 3;
+        const SkTextBlobBuilder::RunBuffer& buf = blobBuilder.allocRun(blobPaint,
+                                                                       defaultRunLen,
+                                                                       advance, 0);
+        memcpy(buf.glyphs, glyphs.get(), SkTo<uint32_t>(defaultRunLen) * sizeof(SkGlyphID));
+
+        for (int i = 0; i < defaultRunLen; ++i) {
+            advance += widths[glyphIndex++];
+        }
+    }
+
+    // Horizontal-positioned run.
+    {
+        const int horizontalRunLen = glyphCount / 3;
+        const SkTextBlobBuilder::RunBuffer& buf = blobBuilder.allocRunPosH(blobPaint,
+                                                                           horizontalRunLen,
+                                                                           0);
+        memcpy(buf.glyphs, glyphs.get() + glyphIndex,
+               SkTo<uint32_t>(horizontalRunLen) * sizeof(SkGlyphID));
+        for (int i = 0; i < horizontalRunLen; ++i) {
+            buf.pos[i] = advance;
+            advance += widths[glyphIndex++];
+        }
+    }
+
+    // Full-positioned run.
+    {
+        const int fullRunLen = glyphCount - glyphIndex;
+        const SkTextBlobBuilder::RunBuffer& buf = blobBuilder.allocRunPos(blobPaint, fullRunLen);
+        memcpy(buf.glyphs, glyphs.get() + glyphIndex,
+               SkTo<uint32_t>(fullRunLen) * sizeof(SkGlyphID));
+        for (int i = 0; i < fullRunLen; ++i) {
+            buf.pos[i * 2 + 0] = advance; // x offset
+            buf.pos[i * 2 + 1] = 0;       // y offset
+            advance += widths[glyphIndex++];
+        }
+    }
+
+    return sk_sp<const SkTextBlob>(blobBuilder.build());
+}
+
+} // anonymous ns
+
+DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const char* fam[] = { "sans-serif", "serif", "monospace" };
+    const char test[] = "aAjJgGyY_|{-(~[,]qQ}pP}zZ";
+    const SkPoint blobOffset = { 10, 80 };
+
+    for (size_t font = 0; font < SK_ARRAY_COUNT(fam); ++font) {
+        sk_tool_utils::set_portable_typeface(&paint, fam[font]);
+        for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
+            paint.setTextSize(textSize);
+            const SkScalar uWidth = textSize / 15;
+            paint.setStrokeWidth(uWidth);
+            paint.setStyle(SkPaint::kFill_Style);
+
+            sk_sp<const SkTextBlob> blob = MakeFancyBlob(paint, test);
+            canvas->drawTextBlob(blob.get(), blobOffset.x(), blobOffset.y(), paint);
+
+            const SkScalar uPos = uWidth;
+            const SkScalar bounds[2] = { uPos - uWidth / 2, uPos + uWidth / 2 };
+            const int interceptCount = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);
+            SkASSERT(!(interceptCount % 2));
+
+            SkTDArray<SkScalar> intercepts;
+            intercepts.setCount(interceptCount);
+            paint.getTextBlobIntercepts(blob.get(), bounds, intercepts.begin());
+
+            const SkScalar start = blob->bounds().left();
+            const SkScalar end = blob->bounds().right();
+            SkPath underline = create_underline(intercepts, start, end, uPos, uWidth, textSize);
+            underline.offset(blobOffset.x(), blobOffset.y());
+            paint.setStyle(SkPaint::kStroke_Style);
+            canvas->drawPath(underline, paint);
+
+            canvas->translate(0, textSize * 1.3f);
+        }
+
         canvas->translate(0, 60);
     }
 }

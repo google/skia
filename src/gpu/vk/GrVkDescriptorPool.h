@@ -31,6 +31,13 @@ public:
     // not in use by another draw, to support the requested type and count.
     bool isCompatible(VkDescriptorType type, uint32_t count) const;
 
+#ifdef SK_TRACE_VK_RESOURCES
+    void dumpInfo() const override {
+        SkDebugf("GrVkDescriptorPool: %d, type %d (%d refs)\n", fDescPool, fType, 
+                 this->getRefCnt());
+    }
+#endif
+
 private:
     void freeGPUData(const GrVkGpu* gpu) const override;
 

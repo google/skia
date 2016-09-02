@@ -19,7 +19,8 @@ class SkOpSegment;
 class SkOpSpanBase;
 class SkOpSpan;
 
-struct SkOpAngle {
+class SkOpAngle {
+public:
     enum IncludeType {
         kUnaryWinding,
         kUnaryXor,
@@ -27,14 +28,8 @@ struct SkOpAngle {
         kBinaryOpp,
     };
 
-    bool after(SkOpAngle* test);
-    int allOnOneSide(const SkOpAngle* test);
-    bool checkCrossesZero() const;
-    bool checkParallel(SkOpAngle* );
-    bool computeSector();
-    int convexHullOverlaps(const SkOpAngle* ) const;
-
     const SkOpAngle* debugAngle(int id) const;
+    const SkOpCoincidence* debugCoincidence() const;
     SkOpContour* debugContour(int id);
 
     int debugID() const {
@@ -46,6 +41,7 @@ struct SkOpAngle {
 #endif
 
 #if DEBUG_ANGLE
+    bool debugCheckCoincidence() const { return fCheckCoincidence; }
     void debugCheckNearCoincidence() const;
     SkString debugPart() const;
 #endif
@@ -53,7 +49,7 @@ struct SkOpAngle {
     const SkOpSegment* debugSegment(int id) const;
     int debugSign() const;
     const SkOpSpanBase* debugSpan(int id) const;
-    void debugValidate() const; 
+    void debugValidate() const;
     void debugValidateNext() const;  // in debug builds, verify that angle loop is uncorrupted
     double distEndRatio(double dist) const;
     // available to testing only
@@ -68,62 +64,56 @@ struct SkOpAngle {
         return fEnd;
     }
 
-    bool endsIntersect(SkOpAngle* );
-    bool endToSide(const SkOpAngle* rh, bool* inside) const;
-    int findSector(SkPath::Verb verb, double x, double y) const;
-    SkOpGlobalState* globalState() const;
     void insert(SkOpAngle* );
     SkOpSpanBase* lastMarked() const;
     bool loopContains(const SkOpAngle* ) const;
     int loopCount() const;
-    bool merge(SkOpAngle* );
-    double midT() const;
-    bool midToSide(const SkOpAngle* rh, bool* inside) const;
 
     SkOpAngle* next() const {
         return fNext;
     }
 
-    bool oppositePlanes(const SkOpAngle* rh) const;
-    bool orderable(SkOpAngle* rh);  // false == this < rh ; true == this > rh
     SkOpAngle* previous() const;
-
-    int sectorEnd() const {
-        return fSectorEnd;
-    }
-
-    int sectorStart() const {
-        return fSectorStart;
-    }
-
     SkOpSegment* segment() const;
-
     void set(SkOpSpanBase* start, SkOpSpanBase* end);
-    void setCurveHullSweep();
-
-    void setID(int id) {
-        SkDEBUGCODE(fID = id);
-    }
 
     void setLastMarked(SkOpSpanBase* marked) {
         fLastMarked = marked;
     }
-
-    void setSector();
-    void setSpans();
 
     SkOpSpanBase* start() const {
         return fStart;
     }
 
     SkOpSpan* starter();
-    bool tangentsDiverge(const SkOpAngle* rh, double s0xt0) const;
 
     bool unorderable() const {
         return fUnorderable;
     }
 
-    SkDCurve fCurvePart;  // the curve from start to end
+private:
+    bool after(SkOpAngle* test);
+    int allOnOneSide(const SkOpAngle* test);
+    bool checkCrossesZero() const;
+    bool checkParallel(SkOpAngle* );
+    bool computeSector();
+    int convexHullOverlaps(const SkOpAngle* ) const;
+    bool endToSide(const SkOpAngle* rh, bool* inside) const;
+    bool endsIntersect(SkOpAngle* );
+    int findSector(SkPath::Verb verb, double x, double y) const;
+    SkOpGlobalState* globalState() const;
+    bool merge(SkOpAngle* );
+    double midT() const;
+    bool midToSide(const SkOpAngle* rh, bool* inside) const;
+    bool oppositePlanes(const SkOpAngle* rh) const;
+    bool orderable(SkOpAngle* rh);  // false == this < rh ; true == this > rh
+    void setCurveHullSweep();
+    void setSector();
+    void setSpans();
+    bool tangentsDiverge(const SkOpAngle* rh, double s0xt0) const;
+
+    SkDCurve fOriginalCurvePart;  // the curve from start to end
+    SkDCurve fCurvePart;  // the curve from start to end offset as needed
     double fSide;
     SkLineParameters fTangentHalf;  // used only to sort a pair of lines or line-like sections
     SkOpAngle* fNext;
@@ -143,6 +133,7 @@ struct SkOpAngle {
     bool fCheckCoincidence;
     SkDEBUGCODE(int fID);
 
+    friend class PathOpsAngleTester;
 };
 
 

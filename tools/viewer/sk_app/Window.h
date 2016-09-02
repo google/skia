@@ -25,7 +25,7 @@ class Window {
 public:
     static Window* CreateNativeWindow(void* platformData);
 
-    virtual ~Window() {};
+    virtual ~Window() { this->detach(); };
 
     virtual void setTitle(const char*) = 0;
     virtual void show() = 0;
@@ -156,10 +156,10 @@ public:
     bool onTouch(intptr_t owner, InputState state, float x, float y);  // multi-owner = multi-touch
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
     void onPaint();
-    void onResize(uint32_t width, uint32_t height);
+    void onResize(int width, int height);
 
-    uint32_t width() { return fWidth; }
-    uint32_t height() { return fHeight;  }
+    int width() { return fWidth; }
+    int height() { return fHeight;  }
 
     virtual const DisplayParams& getDisplayParams();
     void setDisplayParams(const DisplayParams& params);
@@ -170,8 +170,8 @@ public:
 protected:
     Window();
 
-    uint32_t     fWidth;
-    uint32_t     fHeight;
+    int          fWidth;
+    int          fHeight;
 
     OnCharFunc   fCharFunc;
     void*        fCharUserData;

@@ -160,6 +160,7 @@ public:
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
     bool usesMixedSamples() const { return fUsesMixedSamples; }
+    bool preferClientSideDynamicBuffers() const { return fPreferClientSideDynamicBuffers; }
 
     bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
     bool useDrawInsteadOfPartialRenderTargetWrite() const {
@@ -171,6 +172,21 @@ public:
     }
 
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
+
+    /**
+     * Indicates the level of support for gr_instanced::* functionality. A higher level includes
+     * all functionality from the levels below it.
+     */
+    enum class InstancedSupport {
+        kNone,
+        kBasic,
+        kMultisampled,
+        kMixedSampled
+    };
+
+    InstancedSupport instancedSupport() const { return fInstancedSupport; }
+
+    bool avoidInstancedDrawsToFPTargets() const { return fAvoidInstancedDrawsToFPTargets; }
 
     /**
      * Indicates the capabilities of the fixed function blend unit.
@@ -248,6 +264,7 @@ public:
         }
     }
 
+    int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
     virtual bool isConfigTexturable(GrPixelConfig config) const = 0;
     virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
@@ -259,10 +276,6 @@ public:
     size_t bufferMapThreshold() const {
         SkASSERT(fBufferMapThreshold >= 0);
         return fBufferMapThreshold;
-    }
-
-    bool supportsInstancedDraws() const {
-        return fSupportsInstancedDraws;
     }
 
     bool fullClearIsFree() const { return fFullClearIsFree; }
@@ -297,7 +310,7 @@ protected:
     bool fSampleLocationsSupport                     : 1;
     bool fMultisampleDisableSupport                  : 1;
     bool fUsesMixedSamples                           : 1;
-    bool fSupportsInstancedDraws                     : 1;
+    bool fPreferClientSideDynamicBuffers             : 1;
     bool fFullClearIsFree                            : 1;
     bool fMustClearUploadedBufferData                : 1;
 
@@ -305,11 +318,14 @@ protected:
     bool fUseDrawInsteadOfClear                      : 1;
     bool fUseDrawInsteadOfPartialRenderTargetWrite   : 1;
     bool fUseDrawInsteadOfAllRenderTargetWrites      : 1;
+    bool fAvoidInstancedDrawsToFPTargets             : 1;
 
     // ANGLE workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
 
     bool fSampleShadingSupport                       : 1;
+
+    InstancedSupport fInstancedSupport;
 
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fAdvBlendEqBlacklist;
@@ -325,6 +341,7 @@ protected:
     int fMaxColorSampleCount;
     int fMaxStencilSampleCount;
     int fMaxRasterSamples;
+    int fMaxWindowRectangles;
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {};

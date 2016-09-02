@@ -22,6 +22,7 @@ SK_API sk_colorfilter_t* sk_colorfilter_new_compose(sk_colorfilter_t* outer, sk_
 SK_API sk_colorfilter_t* sk_colorfilter_new_color_cube(sk_data_t* cubeData, int cubeDimension);
 SK_API sk_colorfilter_t* sk_colorfilter_new_color_matrix(const float array[20]);
 SK_API sk_colorfilter_t* sk_colorfilter_new_luma_color();
+SK_API sk_colorfilter_t* sk_colorfilter_new_gamma(float gamma);
 SK_API sk_colorfilter_t* sk_colorfilter_new_table(const uint8_t table[256]);
 SK_API sk_colorfilter_t* sk_colorfilter_new_table_argb(const uint8_t tableA[256], const uint8_t tableR[256], const uint8_t tableG[256], const uint8_t tableB[256]);
 

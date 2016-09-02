@@ -687,7 +687,7 @@ void SkScalerContextRec::getSingleMatrix(SkMatrix* m) const {
     m->postConcat(deviceMatrix);
 }
 
-void SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector* s, SkMatrix* sA,
+bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector* s, SkMatrix* sA,
                                          SkMatrix* GsA, SkMatrix* G_inv, SkMatrix* A_out)
 {
     // A is the 'total' matrix.
@@ -723,7 +723,7 @@ void SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
         if (G_inv) {
             G_inv->reset();
         }
-        return;
+        return false;
     }
 
     // GA is the matrix A with rotation removed.
@@ -803,6 +803,8 @@ void SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
          // G is rotational so reorders with the scale.
         GsA->preScale(SkScalarInvert(s->fX), SkScalarInvert(s->fY));
     }
+
+    return true;
 }
 
 SkAxisAlignment SkScalerContext::computeAxisAlignmentForHText() {

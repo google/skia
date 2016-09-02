@@ -22,10 +22,10 @@ public:
     /** Return to factory settings. */
     void reset() {
         fSizes.reset();
-        fOffsets.reset();
+        fPages.reset();
     }
 
-    /** Call this after calling init() */
+    /** Call this after calling init() (otherwise you'll always get zero). */
     int pageCount() const { return fSizes.count(); }
 
     /** Deserialize a page from the stream.  Call init() first.  The
@@ -39,7 +39,8 @@ public:
 
 private:
     SkTArray<SkSize> fSizes;
-    SkTArray<size_t> fOffsets;
+    size_t fOffset;
+    mutable SkTArray<sk_sp<SkPicture>> fPages;
 };
 
 #endif  // SkMultiPictureDocumentReader_DEFINED

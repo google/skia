@@ -80,7 +80,7 @@ static sk_sp<SkPicture> recv_picture(int socket, PictureHeader* header) {
 
 static void client(const char* skpPath, const char* dataEndpoint) {
     // Read the .skp.
-    SkAutoTUnref<const SkData> skp(SkData::NewFromFileName(skpPath));
+    sk_sp<SkData> skp(SkData::MakeFromFileName(skpPath));
     if (!skp) {
         SkDebugf("Couldn't read %s\n", skpPath);
         exit(1);

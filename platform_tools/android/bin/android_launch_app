@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# android_launch_app: Launches the skia sampleApp on the device.
+# android_launch_app: Launches the skia Viewer app on the device.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
@@ -12,19 +12,5 @@ if [[ -n $RESOURCE_PATH ]]; then
   adb_push_if_needed "${SKIA_SRC_DIR}/resources" $RESOURCE_PATH
 fi
 
-app=${APP_ARGS[0]}
-if [[ ${app} == '-'* ]]; then
-    echo "Defaulting to running SampleApp."
-    app="SampleApp"
-    APP_ARGS=( "SampleApp" ${APP_ARGS[*]} )
-fi
-
-if [[ ${app} == 'SampleApp' ]]; then
-    activity="com.skia.sample_app/com.skia.SkiaSampleActivity"
-elif [[ ${app} == "Viewer" ]] ; then
-    activity="org.skia.viewer/org.skia.viewer.ViewerActivity"
-else
-    echo "ERROR: supports either 'SampleApp' or 'Viewer' as valid apps"
-    exit 1
-fi
+activity="org.skia.viewer/org.skia.viewer.ViewerActivity"
 $ADB ${DEVICE_SERIAL} shell "am start -S -n ${activity} --es cmdLineFlags \"${APP_ARGS[*]:1}\""

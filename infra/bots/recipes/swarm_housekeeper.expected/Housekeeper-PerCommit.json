@@ -1,0 +1,107 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[SLAVE_BUILD]/tmp",
+      "511"
+    ],
+    "name": "makedirs tmp_dir",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "[SLAVE_BUILD]/skia/platform_tools/android/tests/run_all.py"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "android platform self-tests"
+  },
+  {
+    "cmd": [
+      "python",
+      "RECIPE_MODULE[skia::core]/resources/generate_and_upload_doxygen.py",
+      "[DEPOT_TOOLS]/third_party/gsutil/gsutil"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "generate and upload doxygen"
+  },
+  {
+    "cmd": [
+      "python",
+      "RECIPE_MODULE[skia::core]/resources/run_binary_size_analysis.py",
+      "--library",
+      "[SLAVE_BUILD]/out/Release/lib/libskia.so",
+      "--githash",
+      "abc123",
+      "--gsutil_path",
+      "[DEPOT_TOOLS]/third_party/gsutil/gsutil"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "generate and upload binary size data"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/go/go/bin/go",
+      "get",
+      "go.skia.org/infra/comments/go/extract_comments"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "GOPATH": "[SLAVE_BUILD]/tmp/golib",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "compile extract_comments"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/tmp/golib/bin/extract_comments",
+      "--dir",
+      "gm",
+      "--dest",
+      "gs://skia-doc/gm/comments.json"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "GOPATH": "[SLAVE_BUILD]/tmp/golib",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "run extract_comments"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

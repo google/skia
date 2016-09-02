@@ -424,10 +424,6 @@ void SkBitmap::notifyPixelsChanged() const {
     }
 }
 
-GrTexture* SkBitmap::getTexture() const {
-    return fPixelRef ? fPixelRef->getTexture() : nullptr;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /** We explicitly use the same allocator for our pixels that SkMask does,
@@ -539,6 +535,9 @@ void* SkBitmap::getAddr(int x, int y) const {
     if (base) {
         base += y * this->rowBytes();
         switch (this->colorType()) {
+            case kRGBA_F16_SkColorType:
+                base += x << 3;
+                break;
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType:
                 base += x << 2;
@@ -601,7 +600,7 @@ SkColor SkBitmap::getColor(int x, int y) const {
         }
         case kRGBA_F16_SkColorType: {
             const uint64_t* addr = (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
-            Sk4f p4 = SkHalfToFloat_01(addr[0]);
+            Sk4f p4 = SkHalfToFloat_finite_ftz(addr[0]);
             if (p4[3]) {
                 float inva = 1 / p4[3];
                 p4 = p4 * Sk4f(inva, inva, inva, 1);
@@ -738,20 +737,6 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     srcRect.set(0, 0, this->width(), this->height());
     if (!r.intersect(srcRect, subset)) {
         return false;   // r is empty (i.e. no intersection)
-    }
-
-    if (fPixelRef->getTexture() != nullptr) {
-        // Do a deep copy
-        SkPixelRef* pixelRef = fPixelRef->deepCopy(this->colorType(), this->colorSpace(), &subset);
-        if (pixelRef != nullptr) {
-            SkBitmap dst;
-            dst.setInfo(this->info().makeWH(subset.width(), subset.height()));
-            dst.setIsVolatile(this->isVolatile());
-            dst.setPixelRef(pixelRef)->unref();
-            SkDEBUGCODE(dst.validate());
-            result->swap(dst);
-            return true;
-        }
     }
 
     // If the upper left of the rectangle was outside the bounds of this SkBitmap, we should have
@@ -909,46 +894,14 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     return true;
 }
 
+// TODO: can we merge this with copyTo?
 bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
     const SkColorType dstCT = this->colorType();
-    SkColorSpace* dstCS = this->colorSpace();
 
     if (!this->canCopyTo(dstCT)) {
         return false;
     }
-
-    // If we have a PixelRef, and it supports deep copy, use it.
-    // Currently supported only by texture-backed bitmaps.
-    if (fPixelRef) {
-        SkPixelRef* pixelRef = fPixelRef->deepCopy(dstCT, dstCS, nullptr);
-        if (pixelRef) {
-            uint32_t rowBytes;
-            if (this->colorType() == dstCT && this->colorSpace() == dstCS) {
-                // Since there is no subset to pass to deepCopy, and deepCopy
-                // succeeded, the new pixel ref must be identical.
-                SkASSERT(fPixelRef->info() == pixelRef->info());
-                pixelRef->cloneGenID(*fPixelRef);
-                // Use the same rowBytes as the original.
-                rowBytes = fRowBytes;
-            } else {
-                // With the new config, an appropriate fRowBytes will be computed by setInfo.
-                rowBytes = 0;
-            }
-
-            const SkImageInfo info = fInfo.makeColorType(dstCT);
-            if (!dst->setInfo(info, rowBytes)) {
-                return false;
-            }
-            dst->setPixelRef(pixelRef, fPixelRefOrigin)->unref();
-            return true;
-        }
-    }
-
-    if (this->getTexture()) {
-        return false;
-    } else {
-        return this->copyTo(dst, dstCT, nullptr);
-    }
+    return this->copyTo(dst, dstCT, nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1145,7 +1098,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     SkImageInfo info;
     info.unflatten(*buffer);
 
-    // If there was an error reading "info" or if it is bogus, 
+    // If there was an error reading "info" or if it is bogus,
     // don't use it to compute minRowBytes()
     if (!buffer->validate(SkColorTypeValidateAlphaType(info.colorType(),
                                                        info.alphaType()))) {

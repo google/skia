@@ -29,6 +29,7 @@ static const char configHelp[] =
     "Options: 565 8888 debug gpu gl gpudebug gpudft gpunull "
     "msaa16 msaa4 glmsaa4 gpuf16 gpusrgb glsrgb nonrendering null nullgpu "
     "nvpr16 nvpr4 nvprdit16 nvprdit4 glnvpr4 glnvprdit4 pdf skp svg xps"
+    "glinst glinst4 glinstdit4 glinst16 glinstdit16 esinst esinst4 esinsdit4"
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     " angle"
@@ -54,7 +55,7 @@ static const char configExtendedHelp[] =
     "Possible backends and options:\n"
 #if SK_SUPPORT_GPU
     "\n"
-    "gpu(api=string,color=string,dit=bool,nvpr=bool,samples=int)\tGPU backend\n"
+    "gpu(api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int)\tGPU backend\n"
     "\tapi\ttype: string\tdefault: native.\n"
     "\t    Select graphics API to use with gpu backend.\n"
     "\t    Options:\n"
@@ -126,6 +127,8 @@ static const char configExtendedHelp[] =
 #ifdef SK_VULKAN
     "\tvk        \t= gpu(api=vulkan)\n"
     "\tvksrgb    \t= gpu(api=vulkan,color=srgb)\n"
+    "\tvkmsaa4   \t= gpu(api=gl,samples=4)\n"
+    "\tvkmsaa16  \t= gpu(api=gl,samples=16)\n"
 #endif
 #endif
     ;
@@ -138,25 +141,33 @@ static const struct {
     const char* options;
 } gPredefinedConfigs[] = {
 #if SK_SUPPORT_GPU
-    { "gpu",        "gpu", "" },
-    { "gl",         "gpu", "api=gl" },
-    { "msaa4",      "gpu", "samples=4" },
-    { "glmsaa4",    "gpu", "api=gl,samples=4" },
-    { "msaa16",     "gpu", "samples=16" },
-    { "nvpr4",      "gpu", "nvpr=true,samples=4" },
-    { "glnvpr4",    "gpu", "api=gl,nvpr=true,samples=4" },
-    { "nvpr16",     "gpu", "nvpr=true,samples=16" },
-    { "nvprdit4",   "gpu", "nvpr=true,samples=4,dit=true" },
-    { "glnvprdit4", "gpu", "api=gl,nvpr=true,samples=4,dit=true" },
-    { "nvprdit16",  "gpu", "nvpr=true,samples=16,dit=true" },
-    { "gpuf16",     "gpu", "color=f16" },
-    { "gpusrgb",    "gpu", "color=srgb" },
-    { "glsrgb",     "gpu", "api=gl,color=srgb" },
-    { "gpudft",     "gpu", "dit=true" },
-    { "gpudebug",   "gpu", "api=debug" },
-    { "gpunull",    "gpu", "api=null" },
-    { "debug",      "gpu", "api=debug" },
-    { "nullgpu",    "gpu", "api=null" }
+    { "gpu",         "gpu", "" },
+    { "gl",          "gpu", "api=gl" },
+    { "msaa4",       "gpu", "samples=4" },
+    { "glmsaa4",     "gpu", "api=gl,samples=4" },
+    { "msaa16",      "gpu", "samples=16" },
+    { "nvpr4",       "gpu", "nvpr=true,samples=4" },
+    { "glnvpr4",     "gpu", "api=gl,nvpr=true,samples=4" },
+    { "nvpr16",      "gpu", "nvpr=true,samples=16" },
+    { "nvprdit4",    "gpu", "nvpr=true,samples=4,dit=true" },
+    { "glnvprdit4",  "gpu", "api=gl,nvpr=true,samples=4,dit=true" },
+    { "nvprdit16",   "gpu", "nvpr=true,samples=16,dit=true" },
+    { "glinst",      "gpu", "api=gl,inst=true" },
+    { "glinst4",     "gpu", "api=gl,inst=true,samples=4" },
+    { "glinstdit4",  "gpu", "api=gl,inst=true,samples=4,dit=true" },
+    { "glinst16",    "gpu", "api=gl,inst=true,samples=16" },
+    { "glinstdit16", "gpu", "api=gl,inst=true,samples=16,dit=true" },
+    { "esinst",      "gpu", "api=gles,inst=true" },
+    { "esinst4",     "gpu", "api=gles,inst=true,samples=4" },
+    { "esinstdit4",  "gpu", "api=gles,inst=true,samples=4,dit=true" },
+    { "gpuf16",      "gpu", "color=f16" },
+    { "gpusrgb",     "gpu", "color=srgb" },
+    { "glsrgb",      "gpu", "api=gl,color=srgb" },
+    { "gpudft",      "gpu", "dit=true" },
+    { "gpudebug",    "gpu", "api=debug" },
+    { "gpunull",     "gpu", "api=null" },
+    { "debug",       "gpu", "api=debug" },
+    { "nullgpu",     "gpu", "api=null" }
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     , { "angle",      "gpu", "api=angle" }
@@ -170,8 +181,10 @@ static const struct {
     , { "mesa", "gpu", "api=mesa" }
 #endif
 #ifdef SK_VULKAN
-    , { "vk", "gpu", "api=vulkan" }
-    , { "vksrgb", "gpu", "api=vulkan,color=srgb" }
+    , { "vk",       "gpu", "api=vulkan" }
+    , { "vksrgb",   "gpu", "api=vulkan,color=srgb" }
+    , { "vkmsaa4",  "gpu", "api=vulkan,samples=4" }
+    , { "vkmsaa16", "gpu", "api=vulkan,samples=16" }
 #endif
 
 #else
@@ -190,12 +203,13 @@ SkCommandLineConfig::~SkCommandLineConfig() {
 
 #if SK_SUPPORT_GPU
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(
-    const SkString& tag, const SkTArray<SkString>& viaParts,
-    ContextType contextType, bool useNVPR, bool useDIText, int samples,
-    SkColorType colorType, sk_sp<SkColorSpace> colorSpace)
+    const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType, bool useNVPR,
+    bool useInstanced, bool useDIText, int samples, SkColorType colorType,
+    sk_sp<SkColorSpace> colorSpace)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fUseNVPR(useNVPR)
+        , fUseInstanced(useInstanced)
         , fUseDIText(useDIText)
         , fSamples(samples)
         , fColorType(colorType)
@@ -284,7 +298,7 @@ static bool parse_option_gpu_color(const SkString& value,
     }
     if (value.equals("f16")) {
         *outColorType = kRGBA_F16_SkColorType;
-        *outColorSpace = nullptr;
+        *outColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
         return true;
     }
     if (value.equals("srgb")) {
@@ -303,6 +317,8 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     SkCommandLineConfigGpu::ContextType contextType = GrContextFactory::kNativeGL_ContextType;
     bool seenUseNVPR = false;
     bool useNVPR = false;
+    bool seenUseInstanced = false;
+    bool useInstanced = false;
     bool seenUseDIText =false;
     bool useDIText = false;
     bool seenSamples = false;
@@ -328,6 +344,9 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         } else if (key.equals("nvpr") && !seenUseNVPR) {
             valueOk = parse_option_bool(value, &useNVPR);
             seenUseNVPR = true;
+        } else if (key.equals("inst") && !seenUseInstanced) {
+            valueOk = parse_option_bool(value, &useInstanced);
+            seenUseInstanced = true;
         } else if (key.equals("dit") && !seenUseDIText) {
             valueOk = parse_option_bool(value, &useDIText);
             seenUseDIText = true;
@@ -342,8 +361,8 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
             return nullptr;
         }
     }
-    return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText, samples,
-                                      colorType, colorSpace);
+    return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useInstanced, useDIText,
+                                      samples, colorType, colorSpace);
 }
 #endif
 

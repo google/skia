@@ -37,6 +37,14 @@ sk_sp<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*) const 
 }
 #endif
 
+bool SkColorFilter::appendStages(SkRasterPipeline* pipeline) const {
+    return this->onAppendStages(pipeline);
+}
+
+bool SkColorFilter::onAppendStages(SkRasterPipeline*) const {
+    return false;
+}
+
 void SkColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const {
     const int N = 128;
     SkPMColor tmp[N];

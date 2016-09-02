@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBigPicture.h"
 #include "SkBBoxHierarchy.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
@@ -16,7 +17,6 @@
 #include "SkError.h"
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
-#include "SkLayerInfo.h"
 #include "SkMD5.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
@@ -318,209 +318,6 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
 }
 
 #endif // SK_SUPPORT_GPU
-
-static void test_savelayer_extraction(skiatest::Reporter* reporter) {
-    static const int kWidth = 100;
-    static const int kHeight = 100;
-
-    // Create complex paint that the bounding box computation code can't
-    // optimize away
-    SkScalar blueToRedMatrix[20] = { 0 };
-    blueToRedMatrix[2] = blueToRedMatrix[18] = SK_Scalar1;
-    sk_sp<SkColorFilter> blueToRed(SkColorFilter::MakeMatrixFilterRowMajor255(blueToRedMatrix));
-    sk_sp<SkImageFilter> filter(SkColorFilterImageFilter::Make(std::move(blueToRed), nullptr));
-
-    SkPaint complexPaint;
-    complexPaint.setImageFilter(std::move(filter));
-
-    sk_sp<SkPicture> pict, child;
-    SkRTreeFactory bbhFactory;
-
-    {
-        SkPictureRecorder recorder;
-
-        SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight),
-                                              &bbhFactory,
-                                              SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
-
-        c->saveLayer(nullptr, &complexPaint);
-        c->restore();
-
-        child = recorder.finishRecordingAsPicture();
-    }
-
-    // create a picture with the structure:
-    // 1)
-    //      SaveLayer
-    //      Restore
-    // 2)
-    //      SaveLayer
-    //          Translate
-    //          SaveLayer w/ bound
-    //          Restore
-    //      Restore
-    // 3)
-    //      SaveLayer w/ copyable paint
-    //      Restore
-    // 4)
-    //      SaveLayer
-    //          DrawPicture (which has a SaveLayer/Restore pair)
-    //      Restore
-    // 5)
-    //      SaveLayer
-    //          DrawPicture with Matrix & Paint (with SaveLayer/Restore pair)
-    //      Restore
-    {
-        SkPictureRecorder recorder;
-
-        SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth),
-                                              SkIntToScalar(kHeight),
-                                              &bbhFactory,
-                                              SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
-        // 1)
-        c->saveLayer(nullptr, &complexPaint); // layer #0
-        c->restore();
-
-        // 2)
-        c->saveLayer(nullptr, nullptr); // layer #1
-            c->translate(kWidth / 2.0f, kHeight / 2.0f);
-            SkRect r = SkRect::MakeXYWH(0, 0, kWidth/2, kHeight/2);
-            c->saveLayer(&r, &complexPaint); // layer #2
-            c->restore();
-        c->restore();
-
-        // 3)
-        {
-            c->saveLayer(nullptr, &complexPaint); // layer #3
-            c->restore();
-        }
-
-        SkPaint layerPaint;
-        layerPaint.setColor(SK_ColorRED);  // Non-alpha only to avoid SaveLayerDrawRestoreNooper
-        // 4)
-        {
-            c->saveLayer(nullptr, &layerPaint);  // layer #4
-                c->drawPicture(child);  // layer #5 inside picture
-            c->restore();
-        }
-        // 5
-        {
-            SkPaint picturePaint;
-            SkMatrix trans;
-            trans.setTranslate(10, 10);
-
-            c->saveLayer(nullptr, &layerPaint);  // layer #6
-                c->drawPicture(child, &trans, &picturePaint); // layer #7 inside picture
-            c->restore();
-        }
-
-        pict = recorder.finishRecordingAsPicture();
-    }
-
-    // Now test out the SaveLayer extraction
-    if (!SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds()) {
-        const SkBigPicture* bp = pict->asSkBigPicture();
-        REPORTER_ASSERT(reporter, bp);
-
-        const SkBigPicture::AccelData* data = bp->accelData();
-        REPORTER_ASSERT(reporter, data);
-
-        const SkLayerInfo *gpuData = static_cast<const SkLayerInfo*>(data);
-        REPORTER_ASSERT(reporter, 8 == gpuData->numBlocks());
-
-        const SkLayerInfo::BlockInfo& info0 = gpuData->block(0);
-        // The parent/child layers appear in reverse order
-        const SkLayerInfo::BlockInfo& info1 = gpuData->block(2);
-        const SkLayerInfo::BlockInfo& info2 = gpuData->block(1);
-
-        const SkLayerInfo::BlockInfo& info3 = gpuData->block(3);
-
-        // The parent/child layers appear in reverse order
-        const SkLayerInfo::BlockInfo& info4 = gpuData->block(5);
-        const SkLayerInfo::BlockInfo& info5 = gpuData->block(4);
-
-        // The parent/child layers appear in reverse order
-        const SkLayerInfo::BlockInfo& info6 = gpuData->block(7);
-        const SkLayerInfo::BlockInfo& info7 = gpuData->block(6);
-
-        REPORTER_ASSERT(reporter, nullptr == info0.fPicture);
-        REPORTER_ASSERT(reporter, kWidth == info0.fBounds.width() &&
-                                  kHeight == info0.fBounds.height());
-        REPORTER_ASSERT(reporter, info0.fLocalMat.isIdentity());
-        REPORTER_ASSERT(reporter, info0.fPreMat.isIdentity());
-        REPORTER_ASSERT(reporter, 0 == info0.fBounds.fLeft && 0 == info0.fBounds.fTop);
-        REPORTER_ASSERT(reporter, nullptr != info0.fPaint);
-        REPORTER_ASSERT(reporter, !info0.fIsNested && !info0.fHasNestedLayers);
-
-        REPORTER_ASSERT(reporter, nullptr == info1.fPicture);
-        REPORTER_ASSERT(reporter, kWidth/2.0 == info1.fBounds.width() &&
-                                  kHeight/2.0 == info1.fBounds.height());
-        REPORTER_ASSERT(reporter, info1.fLocalMat.isIdentity());
-        REPORTER_ASSERT(reporter, info1.fPreMat.isIdentity());
-        REPORTER_ASSERT(reporter, kWidth/2.0 == info1.fBounds.fLeft &&
-                                  kHeight/2.0 == info1.fBounds.fTop);
-        REPORTER_ASSERT(reporter, nullptr == info1.fPaint);
-        REPORTER_ASSERT(reporter, !info1.fIsNested &&
-                                  info1.fHasNestedLayers); // has a nested SL
-
-        REPORTER_ASSERT(reporter, nullptr == info2.fPicture);
-        REPORTER_ASSERT(reporter, kWidth / 2 == info2.fBounds.width() &&
-                                  kHeight / 2 == info2.fBounds.height()); // bound reduces size
-        REPORTER_ASSERT(reporter, !info2.fLocalMat.isIdentity());
-        REPORTER_ASSERT(reporter, info2.fPreMat.isIdentity());
-        REPORTER_ASSERT(reporter, kWidth / 2 == info2.fBounds.fLeft &&   // translated
-                                  kHeight / 2 == info2.fBounds.fTop);
-        REPORTER_ASSERT(reporter, nullptr != info2.fPaint);
-        REPORTER_ASSERT(reporter, info2.fIsNested && !info2.fHasNestedLayers); // is nested
-
-        REPORTER_ASSERT(reporter, nullptr == info3.fPicture);
-        REPORTER_ASSERT(reporter, kWidth == info3.fBounds.width() &&
-                                  kHeight == info3.fBounds.height());
-        REPORTER_ASSERT(reporter, info3.fLocalMat.isIdentity());
-        REPORTER_ASSERT(reporter, info3.fPreMat.isIdentity());
-        REPORTER_ASSERT(reporter, 0 == info3.fBounds.fLeft && 0 == info3.fBounds.fTop);
-        REPORTER_ASSERT(reporter, info3.fPaint);
-        REPORTER_ASSERT(reporter, !info3.fIsNested && !info3.fHasNestedLayers);
-
-        REPORTER_ASSERT(reporter, nullptr == info4.fPicture);
-        REPORTER_ASSERT(reporter, kWidth == info4.fBounds.width() &&
-                                  kHeight == info4.fBounds.height());
-        REPORTER_ASSERT(reporter, 0 == info4.fBounds.fLeft && 0 == info4.fBounds.fTop);
-        REPORTER_ASSERT(reporter, info4.fLocalMat.isIdentity());
-        REPORTER_ASSERT(reporter, info4.fPreMat.isIdentity());
-        REPORTER_ASSERT(reporter, info4.fPaint);
-        REPORTER_ASSERT(reporter, !info4.fIsNested &&
-                                  info4.fHasNestedLayers); // has a nested SL
-
-        REPORTER_ASSERT(reporter, child.get() == info5.fPicture); // in a child picture
-        REPORTER_ASSERT(reporter, kWidth == info5.fBounds.width() &&
-                                  kHeight == info5.fBounds.height());
-        REPORTER_ASSERT(reporter, 0 == info5.fBounds.fLeft && 0 == info5.fBounds.fTop);
-        REPORTER_ASSERT(reporter, info5.fLocalMat.isIdentity());
-        REPORTER_ASSERT(reporter, info5.fPreMat.isIdentity());
-        REPORTER_ASSERT(reporter, nullptr != info5.fPaint);
-        REPORTER_ASSERT(reporter, info5.fIsNested && !info5.fHasNestedLayers); // is nested
-
-        REPORTER_ASSERT(reporter, nullptr == info6.fPicture);
-        REPORTER_ASSERT(reporter, kWidth-10 == info6.fBounds.width() &&
-                                  kHeight-10 == info6.fBounds.height());
-        REPORTER_ASSERT(reporter, 10 == info6.fBounds.fLeft && 10 == info6.fBounds.fTop);
-        REPORTER_ASSERT(reporter, info6.fLocalMat.isIdentity());
-        REPORTER_ASSERT(reporter, info6.fPreMat.isIdentity());
-        REPORTER_ASSERT(reporter, info6.fPaint);
-        REPORTER_ASSERT(reporter, !info6.fIsNested &&
-                                  info6.fHasNestedLayers); // has a nested SL
-
-        REPORTER_ASSERT(reporter, child.get() == info7.fPicture); // in a child picture
-        REPORTER_ASSERT(reporter, kWidth == info7.fBounds.width() &&
-                                  kHeight == info7.fBounds.height());
-        REPORTER_ASSERT(reporter, 0 == info7.fBounds.fLeft && 0 == info7.fBounds.fTop);
-        REPORTER_ASSERT(reporter, info7.fLocalMat.isIdentity());
-        REPORTER_ASSERT(reporter, info7.fPreMat.isIdentity());
-        REPORTER_ASSERT(reporter, nullptr != info7.fPaint);
-        REPORTER_ASSERT(reporter, info7.fIsNested && !info7.fHasNestedLayers); // is nested
-    }
-}
 
 static void set_canvas_to_save_count_4(SkCanvas* canvas) {
     canvas->restoreToCount(1);
@@ -824,7 +621,7 @@ static void test_bad_bitmap() {
 }
 #endif
 
-static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
+static sk_sp<SkData> serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(bitmap.width()),
                                                SkIntToScalar(bitmap.height()));
@@ -835,7 +632,7 @@ static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkAutoTUnref<SkPixelSerializer> serializer(
             SkImageEncoder::CreatePixelSerializer());
     picture->serialize(&wStream, serializer);
-    return wStream.copyToData();
+    return sk_sp<SkData>(wStream.copyToData());
 }
 
 struct ErrorContext {
@@ -873,18 +670,18 @@ DEF_TEST(Picture_EncodedData, reporter) {
     if (!SkImageEncoder::EncodeStream(&wStream, original, SkImageEncoder::kPNG_Type, 100)) {
         return;
     }
-    SkAutoDataUnref data(wStream.copyToData());
+    sk_sp<SkData> data(wStream.copyToData());
 
     SkBitmap bm;
-    bool installSuccess = SkDEPRECATED_InstallDiscardablePixelRef(data, &bm);
+    bool installSuccess = SkDEPRECATED_InstallDiscardablePixelRef(data.get(), &bm);
     REPORTER_ASSERT(reporter, installSuccess);
 
     // Write both bitmaps to pictures, and ensure that the resulting data streams are the same.
     // Flattening original will follow the old path of performing an encode, while flattening bm
     // will use the already encoded data.
-    SkAutoDataUnref picture1(serialized_picture_from_bitmap(original));
-    SkAutoDataUnref picture2(serialized_picture_from_bitmap(bm));
-    REPORTER_ASSERT(reporter, picture1->equals(picture2));
+    sk_sp<SkData> picture1(serialized_picture_from_bitmap(original));
+    sk_sp<SkData> picture2(serialized_picture_from_bitmap(bm));
+    REPORTER_ASSERT(reporter, picture1->equals(picture2.get()));
 
     // Now test that a parse error was generated when trying to create a new SkPicture without
     // providing a function to decode the bitmap.
@@ -892,9 +689,9 @@ DEF_TEST(Picture_EncodedData, reporter) {
     context.fErrors = 0;
     context.fReporter = reporter;
     SkSetErrorCallback(assert_one_parse_error_cb, &context);
-    SkMemoryStream pictureStream(picture1);
+    SkMemoryStream pictureStream(std::move(picture1));
     SkClearLastError();
-    sk_sp<SkPicture> pictureFromStream(SkPicture::MakeFromStream(&pictureStream, nullptr));
+    sk_sp<SkPicture> pictureFromStream(SkPicture::MakeFromStream(&pictureStream));
     REPORTER_ASSERT(reporter, pictureFromStream.get() != nullptr);
     SkClearLastError();
     SkSetErrorCallback(nullptr, nullptr);
@@ -1190,7 +987,6 @@ DEF_TEST(Picture, reporter) {
     test_clip_expansion(reporter);
     test_hierarchical(reporter);
     test_gen_id(reporter);
-    test_savelayer_extraction(reporter);
     test_cull_rect_reset(reporter);
 }
 
@@ -1198,12 +994,17 @@ static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
     const SkPaint paint;
     const SkRect rect = { 5.0f, 5.0f, 8.0f, 8.0f };
     const SkIRect irect =  { 2, 2, 3, 3 };
+    int divs[] = { 2, 3 };
+    SkCanvas::Lattice lattice;
+    lattice.fXCount = lattice.fYCount = 2;
+    lattice.fXDivs = lattice.fYDivs = divs;
 
     // Don't care what these record, as long as they're legal.
     canvas->drawBitmap(bitmap, 0.0f, 0.0f, &paint);
     canvas->drawBitmapRect(bitmap, rect, rect, &paint, SkCanvas::kStrict_SrcRectConstraint);
     canvas->drawBitmapNine(bitmap, irect, rect, &paint);
     canvas->drawBitmap(bitmap, 1, 1);   // drawSprite
+    canvas->drawBitmapLattice(bitmap, lattice, rect, &paint);
 }
 
 static void test_draw_bitmaps(SkCanvas* canvas) {
@@ -1447,3 +1248,67 @@ DEF_TEST(PictureGpuAnalyzer, r) {
 }
 
 #endif // SK_SUPPORT_GPU
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Disable until we properly fix https://bugs.chromium.org/p/skia/issues/detail?id=5548
+#if 0
+static void empty_ops(SkCanvas* canvas) {
+}
+static void clip_ops(SkCanvas* canvas) {
+    canvas->save();
+    canvas->clipRect(SkRect::MakeWH(20, 20));
+    canvas->restore();
+}
+static void matrix_ops(SkCanvas* canvas) {
+    canvas->save();
+    canvas->scale(2, 3);
+    canvas->restore();
+}
+static void matrixclip_ops(SkCanvas* canvas) {
+    canvas->save();
+    canvas->scale(2, 3);
+    canvas->clipRect(SkRect::MakeWH(20, 20));
+    canvas->restore();
+}
+typedef void (*CanvasProc)(SkCanvas*);
+
+// Test the kReturnNullForEmpty_FinishFlag option when recording
+//
+DEF_TEST(Picture_RecordEmpty, r) {
+    const SkRect cull = SkRect::MakeWH(100, 100);
+
+    CanvasProc procs[] { empty_ops, clip_ops, matrix_ops, matrixclip_ops };
+
+    for (auto proc : procs) {
+        {
+            SkPictureRecorder rec;
+            proc(rec.beginRecording(cull));
+            sk_sp<SkPicture> pic = rec.finishRecordingAsPicture(0);
+            REPORTER_ASSERT(r, pic.get());
+            REPORTER_ASSERT(r, pic->approximateOpCount() == 0);
+        }
+        {
+            SkPictureRecorder rec;
+            proc(rec.beginRecording(cull));
+            sk_sp<SkPicture> pic = rec.finishRecordingAsPicture(
+                                                 SkPictureRecorder::kReturnNullForEmpty_FinishFlag);
+            REPORTER_ASSERT(r, !pic.get());
+        }
+        {
+            SkPictureRecorder rec;
+            proc(rec.beginRecording(cull));
+            sk_sp<SkDrawable> dr = rec.finishRecordingAsDrawable(0);
+            REPORTER_ASSERT(r, dr.get());
+        }
+        {
+            SkPictureRecorder rec;
+            proc(rec.beginRecording(cull));
+            sk_sp<SkDrawable> dr = rec.finishRecordingAsDrawable(
+                                                 SkPictureRecorder::kReturnNullForEmpty_FinishFlag);
+            REPORTER_ASSERT(r, !dr.get());
+        }
+    }
+}
+#endif
+

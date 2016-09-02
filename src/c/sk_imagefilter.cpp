@@ -83,7 +83,7 @@ sk_imagefilter_t* sk_imagefilter_new_blur(
     sk_imagefilter_t* input /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
 
-    sk_sp<SkImageFilter> filter = SkBlurImageFilter::Make(sigmaX, sigmaY, sk_ref_sp(AsImageFilter(input)), AsImageFilterCropRect(cropRect));
+    sk_sp<SkImageFilter> filter = SkImageFilter::MakeBlur(sigmaX, sigmaY, sk_ref_sp(AsImageFilter(input)), AsImageFilterCropRect(cropRect));
     return ToImageFilter(filter.release());
 }
 

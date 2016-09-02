@@ -38,7 +38,7 @@ private:
     SkCodecImageGenerator(SkCodec* codec, SkData* data);
 
     SkAutoTDelete<SkCodec> fCodec;
-    SkAutoTUnref<SkData> fData;
+    sk_sp<SkData> fData;
 
     typedef SkImageGenerator INHERITED;
 };

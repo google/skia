@@ -206,12 +206,10 @@ static unsigned calculateUPEM(HDC hdc, const LOGFONT& lf) {
 class LogFontTypeface : public SkTypeface {
 public:
     LogFontTypeface(const SkFontStyle& style, const LOGFONT& lf, bool serializeAsStream)
-        : SkTypeface(style, SkTypefaceCache::NewFontID(), false)
+        : SkTypeface(style, false)
         , fLogFont(lf)
         , fSerializeAsStream(serializeAsStream)
     {
-
-        // If the font has cubic outlines, it will not be rendered with ClearType.
         HFONT font = CreateFontIndirect(&lf);
 
         HDC deviceContext = ::CreateCompatibleDC(nullptr);
@@ -234,9 +232,11 @@ public:
 
         // The fixed pitch bit is set if the font is *not* fixed pitch.
         this->setIsFixedPitch((textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH) == 0);
+        this->setFontStyle(SkFontStyle(textMetric.tmWeight, style.width(), style.slant()));
 
         // Used a logfont on a memory context, should never get a device font.
         // Therefore all TMPF_DEVICE will be PostScript (cubic) fonts.
+        // If the font has cubic outlines, it will not be rendered with ClearType.
         fCanBeLCD = !((textMetric.tmPitchAndFamily & TMPF_VECTOR) &&
                       (textMetric.tmPitchAndFamily & TMPF_DEVICE));
     }
@@ -1714,6 +1714,7 @@ void LogFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     SkString familyName;
     this->onGetFamilyName(&familyName);
     desc->setFamilyName(familyName.c_str());
+    desc->setStyle(this->fontStyle());
     *isLocalStream = this->fSerializeAsStream;
 }
 
@@ -1760,9 +1761,7 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
     // If bit 1 is clear, the font can be embedded.
     // If bit 2 is set, the embedding is read-only.
     if (otm.otmfsType & 0x1) {
-        info->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
-                info->fFlags,
-                SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
+        info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
     }
 
     if (perGlyphInfo & kToUnicode_PerGlyphInfo) {
@@ -1814,37 +1813,6 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
                 min_width = width;
                 info->fStemV = min_width;
             }
-        }
-    }
-
-    if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
-        if (info->fStyle & SkAdvancedTypefaceMetrics::kFixedPitch_Style) {
-            SkAdvancedTypefaceMetrics::WidthRange range(0);
-            range.fAdvance.append(1, &min_width);
-            SkAdvancedTypefaceMetrics::FinishRange(
-                    &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
-            info->fGlyphWidths.emplace_back(std::move(range));
-        } else {
-            info->setGlyphWidths(
-                glyphCount,
-                glyphIDs,
-                glyphIDsCount,
-                SkAdvancedTypefaceMetrics::GetAdvance([hdc](int gId, int16_t* advance) {
-                    // Initialize the MAT2 structure to
-                    // the identify transformation matrix.
-                    static const MAT2 mat2 = {
-                        SkScalarToFIXED(1), SkScalarToFIXED(0),
-                        SkScalarToFIXED(0), SkScalarToFIXED(1)};
-                    int flags = GGO_METRICS | GGO_GLYPH_INDEX;
-                    GLYPHMETRICS gm;
-                    if (GDI_ERROR == GetGlyphOutline(hdc, gId, flags, &gm, 0, nullptr, &mat2)) {
-                        return false;
-                    }
-                    SkASSERT(advance);
-                    *advance = gm.gmCellIncX;
-                    return true;
-                })
-            );
         }
     }
 
@@ -1937,7 +1905,7 @@ static SkTypeface* create_from_stream(SkStreamAsset* stream) {
     }
 
     // Change the name of the font.
-    SkAutoTUnref<SkData> rewrittenFontData(SkOTUtils::RenameFont(stream, familyName, familyNameSize-1));
+    sk_sp<SkData> rewrittenFontData(SkOTUtils::RenameFont(stream, familyName, familyNameSize-1));
     if (nullptr == rewrittenFontData.get()) {
         return nullptr;
     }

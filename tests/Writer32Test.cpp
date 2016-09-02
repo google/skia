@@ -267,13 +267,13 @@ DEF_TEST(Writer32_misc, reporter) {
 
 DEF_TEST(Writer32_data, reporter) {
     const char* str = "0123456789";
-    SkAutoTUnref<SkData> data0(SkData::NewWithCString(str));
-    SkAutoTUnref<SkData> data1(SkData::NewEmpty());
+    sk_sp<SkData> data0(SkData::MakeWithCString(str));
+    sk_sp<SkData> data1(SkData::MakeEmpty());
 
     const size_t sizes[] = {
         SkWriter32::WriteDataSize(nullptr),
-        SkWriter32::WriteDataSize(data0),
-        SkWriter32::WriteDataSize(data1),
+        SkWriter32::WriteDataSize(data0.get()),
+        SkWriter32::WriteDataSize(data1.get()),
     };
 
     SkSWriter32<1000> writer;
@@ -283,11 +283,11 @@ DEF_TEST(Writer32_data, reporter) {
     sizeWritten += sizes[0];
     REPORTER_ASSERT(reporter, sizeWritten == writer.bytesWritten());
 
-    writer.writeData(data0);
+    writer.writeData(data0.get());
     sizeWritten += sizes[1];
     REPORTER_ASSERT(reporter, sizeWritten == writer.bytesWritten());
 
-    writer.writeData(data1);
+    writer.writeData(data1.get());
     sizeWritten += sizes[2];
     REPORTER_ASSERT(reporter, sizeWritten == writer.bytesWritten());
 

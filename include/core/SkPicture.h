@@ -16,6 +16,9 @@ class GrContext;
 class SkBigPicture;
 class SkBitmap;
 class SkCanvas;
+class SkData;
+class SkImage;
+class SkImageDeserializer;
 class SkPath;
 class SkPictureData;
 class SkPixelSerializer;
@@ -49,6 +52,7 @@ public:
      */
     typedef bool (*InstallPixelRefProc)(const void* src, size_t length, SkBitmap* dst);
 
+#ifdef SK_SUPPORT_LEGACY_PICTUREINSTALLPIXELREF
     /**
      *  Recreate a picture that was serialized into a stream.
      *  @param SkStream Serialized picture data. Ownership is unchanged by this call.
@@ -58,17 +62,18 @@ public:
      *          invalid.
      */
     static sk_sp<SkPicture> MakeFromStream(SkStream*, InstallPixelRefProc proc);
+    static sk_sp<SkPicture> MakeFromStream(SkStream* stream, std::nullptr_t) {
+        return MakeFromStream(stream);
+    }
+#endif
 
     /**
      *  Recreate a picture that was serialized into a stream.
      *
-     *  Any serialized images in the stream will be passed to
-     *  SkImageGenerator::NewFromEncoded.
-     *
-     *  @param SkStream Serialized picture data. Ownership is unchanged by this call.
-     *  @return A new SkPicture representing the serialized data, or NULL if the stream is
-     *          invalid.
+     *  Any serialized images in the stream will be passed the image-deserializer, or if that is
+     *  null, to the default deserializer that will call SkImage::MakeFromEncoded().
      */
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, SkImageDeserializer*);
     static sk_sp<SkPicture> MakeFromStream(SkStream*);
 
     /**
@@ -188,7 +193,7 @@ private:
     template <typename> friend class SkMiniPicture;
 
     void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet* typefaces) const;
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, InstallPixelRefProc, SkTypefacePlayback*);
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, SkImageDeserializer*, SkTypefacePlayback*);
     friend class SkPictureData;
 
     virtual int numSlowPaths() const = 0;
@@ -206,10 +211,12 @@ private:
     // V43: Added DRAW_IMAGE and DRAW_IMAGE_RECT opt codes to serialized data
     // V44: Move annotations from paint to drawAnnotation
     // V45: Add invNormRotation to SkLightingShader.
+    // V46: Add drawTextRSXform
+    // V47: Add occluder rect to SkBlurMaskFilter
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 35;     // Produced by Chrome M39.
-    static const uint32_t CURRENT_PICTURE_VERSION = 45;
+    static const uint32_t CURRENT_PICTURE_VERSION = 47;
 
     static_assert(MIN_PICTURE_VERSION <= 41,
                   "Remove kFontFileName and related code from SkFontDescriptor.cpp.");
@@ -219,7 +226,10 @@ private:
 
     static_assert(MIN_PICTURE_VERSION <= 43,
                   "Remove SkBitmapSourceDeserializer.");
-    
+
+    static_assert(MIN_PICTURE_VERSION <= 45,
+                  "Remove decoding of old SkTypeface::Style from SkFontDescriptor.cpp.");
+
     static bool IsValidPictInfo(const SkPictInfo& info);
     static sk_sp<SkPicture> Forwardport(const SkPictInfo&,
                                         const SkPictureData*,

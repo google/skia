@@ -13,7 +13,7 @@
 #include "GrRect.h"
 #include "GrShape.h"
 
-#include "SkChecksum.h"
+#include "SkOpts.h"
 #include "SkTDynamicHash.h"
 
 class GrContext;
@@ -81,7 +81,7 @@ private:
         }
 
         static inline uint32_t Hash(Key key) {
-            return SkChecksum::Murmur3(key.data(), sizeof(uint32_t) * key.count32());
+            return SkOpts::hash(key.data(), sizeof(uint32_t) * key.count32());
         }
     };
 

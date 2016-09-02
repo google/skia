@@ -59,7 +59,7 @@ private:
     , fScissor(scissor)
     , fRenderTarget(renderTarget)
     , fPath(path) {
-        fBounds = path->getBounds();
+        this->setBounds(path->getBounds(), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }

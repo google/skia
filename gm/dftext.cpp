@@ -33,14 +33,6 @@ protected:
         return SkISize::Make(1024, 768);
     }
 
-    static void rotate_about(SkCanvas* canvas,
-        SkScalar degrees,
-        SkScalar px, SkScalar py) {
-        canvas->translate(px, py);
-        canvas->rotate(degrees);
-        canvas->translate(-px, -py);
-    }
-
     virtual void onDraw(SkCanvas* inputCanvas) override {
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
         SkScalar scales[] = { 2.0f*5.0f, 5.0f, 2.0f, 1.0f };
@@ -51,10 +43,7 @@ protected:
         SkISize size = onISize();
         SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(), kPremul_SkAlphaType,
                                                 sk_ref_sp(inputCanvas->imageInfo().colorSpace()));
-        SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
-        uint32_t gammaCorrect = inputCanvas->getProps(&canvasProps)
-            ? canvasProps.flags() & SkSurfaceProps::kGammaCorrect_Flag : 0;
-        SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag | gammaCorrect,
+        SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                              SkSurfaceProps::kLegacyFontHost_InitType);
         auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props));
         SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
@@ -95,7 +84,7 @@ protected:
 
             SkAutoCanvasRestore acr(canvas, true);
             canvas->translate(SkIntToScalar(10 + i * 200), -80);
-            rotate_about(canvas, SkIntToScalar(i * 5), rotX, rotY);
+            canvas->rotate(SkIntToScalar(i * 5), rotX, rotY);
             for (int ps = 6; ps <= 32; ps += 3) {
                 paint.setTextSize(SkIntToScalar(ps));
                 canvas->drawText(text, textLen, rotX, rotY, paint);

@@ -15,30 +15,26 @@ class GrGpu;
 class GrBuffer : public GrGpuResource {
 public:
     /**
-     * Computes a scratch key for a buffer with a "dynamic" access pattern. (Buffers with "static"
-     * and "stream" access patterns are disqualified by nature from being cached and reused.)
+     * Creates a client-side buffer.
      */
-    static void ComputeScratchKeyForDynamicBuffer(size_t size, GrBufferType intendedType,
-                                                  GrScratchKey* key) {
-        static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
-        GrScratchKey::Builder builder(key, kType, 1 + (sizeof(size_t) + 3) / 4);
-        // TODO: There's not always reason to cache a buffer by type. In some (all?) APIs it's just
-        // a chunk of memory we can use/reuse for any type of data. We really only need to
-        // differentiate between the "read" types (e.g. kGpuToCpu_BufferType) and "draw" types.
-        builder[0] = intendedType;
-        builder[1] = (uint32_t)size;
-        if (sizeof(size_t) > 4) {
-            builder[2] = (uint32_t)((uint64_t)size >> 32);
-        }
-    }
+    static SK_WARN_UNUSED_RESULT GrBuffer* CreateCPUBacked(GrGpu*, size_t sizeInBytes, GrBufferType,
+                                                           const void* data = nullptr);
+
+    /**
+     * Computes a scratch key for a GPU-side buffer with a "dynamic" access pattern. (Buffers with
+     * "static" and "stream" patterns are disqualified by nature from being cached and reused.)
+     */
+    static void ComputeScratchKeyForDynamicVBO(size_t size, GrBufferType, GrScratchKey*);
 
     GrAccessPattern accessPattern() const { return fAccessPattern; }
+    size_t sizeInBytes() const { return fSizeInBytes; }
 
     /**
      * Returns true if the buffer is a wrapper around a CPU array. If true it
      * indicates that map will always succeed and will be free.
      */
-    bool isCPUBacked() const { return fCPUBacked; }
+    bool isCPUBacked() const { return SkToBool(fCPUData); }
+    size_t baseOffset() const { return reinterpret_cast<size_t>(fCPUData); }
 
     /**
      * Maps the buffer to be written by the CPU.
@@ -103,40 +99,37 @@ public:
      */
     bool updateData(const void* src, size_t srcSizeInBytes) {
         SkASSERT(!this->isMapped());
-        SkASSERT(srcSizeInBytes <= fGpuMemorySize);
+        SkASSERT(srcSizeInBytes <= fSizeInBytes);
         return this->onUpdateData(src, srcSizeInBytes);
     }
 
-protected:
-    GrBuffer(GrGpu* gpu, size_t gpuMemorySize, GrBufferType intendedType,
-             GrAccessPattern accessPattern, bool cpuBacked)
-        : INHERITED(gpu),
-          fMapPtr(nullptr),
-          fGpuMemorySize(gpuMemorySize), // TODO: Zero for cpu backed buffers?
-          fAccessPattern(accessPattern),
-          fCPUBacked(cpuBacked),
-          fIntendedType(intendedType) {
+    ~GrBuffer() override {
+        sk_free(fCPUData);
     }
 
-    void computeScratchKey(GrScratchKey* key) const override {
-        if (!fCPUBacked && SkIsPow2(fGpuMemorySize) && kDynamic_GrAccessPattern == fAccessPattern) {
-            ComputeScratchKeyForDynamicBuffer(fGpuMemorySize, fIntendedType, key);
-        }
-    }
+protected:
+    GrBuffer(GrGpu*, size_t sizeInBytes, GrBufferType, GrAccessPattern);
 
     void* fMapPtr;
 
 private:
-    size_t onGpuMemorySize() const override { return fGpuMemorySize; }
+    /**
+     * Internal constructor to make a CPU-backed buffer.
+     */
+    GrBuffer(GrGpu*, size_t sizeInBytes, GrBufferType, void* cpuData);
 
-    virtual void onMap() = 0;
-    virtual void onUnmap() = 0;
-    virtual bool onUpdateData(const void* src, size_t srcSizeInBytes) = 0;
+    virtual void onMap() { SkASSERT(this->isCPUBacked()); fMapPtr = fCPUData; }
+    virtual void onUnmap() { SkASSERT(this->isCPUBacked()); }
+    virtual bool onUpdateData(const void* src, size_t srcSizeInBytes);
 
-    size_t            fGpuMemorySize;
+    size_t onGpuMemorySize() const override { return fSizeInBytes; } // TODO: zero for cpu backed?
+    void computeScratchKey(GrScratchKey* key) const override;
+
+    size_t            fSizeInBytes;
     GrAccessPattern   fAccessPattern;
-    bool              fCPUBacked;
+    void*             fCPUData;
     GrBufferType      fIntendedType;
+
     typedef GrGpuResource INHERITED;
 };
 

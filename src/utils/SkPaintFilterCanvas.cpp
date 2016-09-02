@@ -87,6 +87,14 @@ void SkPaintFilterCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
+void SkPaintFilterCanvas::onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                                    bool useCenter, const SkPaint& paint) {
+    AutoPaintFilter apf(this, kArc_Type, paint);
+    if (apf.shouldDraw()) {
+        this->INHERITED::onDrawArc(rect, startAngle, sweepAngle, useCenter, *apf.paint());
+    }
+}
+
 void SkPaintFilterCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     AutoPaintFilter apf(this, kPath_Type, paint);
     if (apf.shouldDraw()) {
@@ -201,6 +209,15 @@ void SkPaintFilterCanvas::onDrawTextOnPath(const void* text, size_t byteLength, 
     AutoPaintFilter apf(this, kText_Type, paint);
     if (apf.shouldDraw()) {
         this->INHERITED::onDrawTextOnPath(text, byteLength, path, matrix, *apf.paint());
+    }
+}
+
+void SkPaintFilterCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
+                                            const SkRSXform xform[], const SkRect* cull,
+                                            const SkPaint& paint) {
+    AutoPaintFilter apf(this, kText_Type, paint);
+    if (apf.shouldDraw()) {
+        this->INHERITED::onDrawTextRSXform(text, byteLength, xform, cull, *apf.paint());
     }
 }
 

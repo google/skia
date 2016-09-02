@@ -13,10 +13,9 @@
   'target_defaults': {
     'defines': [
       'SK_INTERNAL',
-      'SK_GAMMA_SRGB',
       'SK_GAMMA_APPLY_TO_A8',
       'QT_NO_KEYWORDS',
-      # The discardable resource cache is tested via a special bot. This is 
+      # The discardable resource cache is tested via a special bot. This is
       # disabled here so we test the non-discardable use case.
       # 'SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
     ],
@@ -70,6 +69,13 @@
             'SK_VULKAN',
           ],
         },
+        'conditions': [
+          [ 'skia_vulkan_debug_layers', {
+            'configurations': {
+              'Debug':   { 'defines': [ 'SK_ENABLE_VK_LAYERS' ] },
+            },
+          }],
+        ],
       }],
       [ 'skia_command_buffer', {
         'defines': [
@@ -112,6 +118,13 @@
           },
         },
       }],
+      [ 'skia_experimental_shadowing',
+        {
+          'defines': [
+            'SK_EXPERIMENTAL_SHADOWING',
+          ],
+        },
+      ],
     ],
   }, # end 'target_defaults'
 }

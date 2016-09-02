@@ -242,28 +242,10 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-class GrGLRadialGradient : public GrGLGradientEffect {
-public:
-
-    GrGLRadialGradient(const GrProcessor&) {}
-    virtual ~GrGLRadialGradient() { }
-
-    virtual void emitCode(EmitArgs&) override;
-
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(processor));
-    }
-
-private:
-
-    typedef GrGLGradientEffect INHERITED;
-
-};
-
-/////////////////////////////////////////////////////////////////////
-
 class GrRadialGradient : public GrGradientEffect {
 public:
+    class GLSLRadialProcessor;
+
     static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
                                            const SkRadialGradient& shader,
                                            const SkMatrix& matrix,
@@ -284,19 +266,44 @@ private:
         this->initClassID<GrRadialGradient>();
     }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GrGLRadialGradient(*this);
-    }
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override {
-        GrGLRadialGradient::GenKey(*this, caps, b);
-    }
+                                       GrProcessorKeyBuilder* b) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrGradientEffect INHERITED;
 };
+
+/////////////////////////////////////////////////////////////////////
+
+class GrRadialGradient::GLSLRadialProcessor : public GrGradientEffect::GLSLProcessor {
+public:
+    GLSLRadialProcessor(const GrProcessor&) {}
+    virtual ~GLSLRadialProcessor() { }
+
+    virtual void emitCode(EmitArgs&) override;
+
+    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+        b->add32(GenBaseGradientKey(processor));
+    }
+
+private:
+    typedef GrGradientEffect::GLSLProcessor INHERITED;
+
+};
+
+/////////////////////////////////////////////////////////////////////
+
+GrGLSLFragmentProcessor* GrRadialGradient::onCreateGLSLInstance() const {
+    return new GrRadialGradient::GLSLRadialProcessor(*this);
+}
+
+void GrRadialGradient::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                             GrProcessorKeyBuilder* b) const {
+    GrRadialGradient::GLSLRadialProcessor::GenKey(*this, caps, b);
+}
 
 /////////////////////////////////////////////////////////////////////
 
@@ -312,16 +319,17 @@ sk_sp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) 
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeRadial(center, radius, colors, stops, colorCount, tm);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
-        SkSourceGammaTreatment::kRespect);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, nullptr,
+        SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
 }
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLRadialGradient::emitCode(EmitArgs& args) {
+void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
     const GrRadialGradient& ge = args.fFp.cast<GrRadialGradient>();
     this->emitUniforms(args.fUniformHandler, ge);
     SkString t("length(");
@@ -338,27 +346,23 @@ void GrGLRadialGradient::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
-                                                 GrContext* context,
-                                                 const SkMatrix& viewM,
-                                                 const SkMatrix* localMatrix,
-                                                 SkFilterQuality,
-                                                 SkSourceGammaTreatment) const {
-    SkASSERT(context);
+sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs& args) const {
+    SkASSERT(args.fContext);
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return nullptr;
     }
-    if (localMatrix) {
+    if (args.fLocalMatrix) {
         SkMatrix inv;
-        if (!localMatrix->invert(&inv)) {
+        if (!args.fLocalMatrix->invert(&inv)) {
             return nullptr;
         }
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-    sk_sp<GrFragmentProcessor> inner(GrRadialGradient::Make(context, *this, matrix, fTileMode));
+    sk_sp<GrFragmentProcessor> inner(
+        GrRadialGradient::Make(args.fContext, *this, matrix, fTileMode));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

@@ -13,16 +13,10 @@
 
 namespace sk_app {
 
-// for Windows
-struct ContextPlatformData_win {
-    HINSTANCE fHInstance;
-    HWND      fHWnd;
-};
-
 class Window_win : public Window {
 public:
     Window_win() : Window() {}
-    ~Window_win() override {}
+    ~Window_win() override { DestroyWindow(fHWnd); }
 
     bool init(HINSTANCE instance);
 

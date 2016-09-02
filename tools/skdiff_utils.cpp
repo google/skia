@@ -25,8 +25,8 @@ bool are_buffers_equal(SkData* skdata1, SkData* skdata2) {
     return (0 == memcmp(skdata1->data(), skdata2->data(), skdata1->size()));
 }
 
-SkData* read_file(const char* file_path) {
-    SkData* data = SkData::NewFromFileName(file_path);
+sk_sp<SkData> read_file(const char* file_path) {
+    sk_sp<SkData> data(SkData::MakeFromFileName(file_path));
     if (!data) {
         SkDebugf("WARNING: could not open file <%s> for reading\n", file_path);
     }
