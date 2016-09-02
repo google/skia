@@ -934,21 +934,35 @@ public:
      *  Specifies coordinates to divide a bitmap into (xCount*yCount) rects.
      */
     struct Lattice {
-        // An array of x-coordinates that divide the bitmap vertically.
-        // These must be unique, increasing, and in the set [0, width].
-        // Does not have ownership.
-        const int* fXDivs;
+        enum Flags : uint8_t {
+            // If set, indicates that we should not draw corresponding rect.
+            kTransparent_Flags = 1 << 0,
+        };
 
-        // The number of fXDivs.
-        int        fXCount;
+        // An array of x-coordinates that divide the bitmap vertically.
+        // These must be unique, increasing, and in the set [0, width).
+        // Does not have ownership.
+        const int*   fXDivs;
 
         // An array of y-coordinates that divide the bitmap horizontally.
-        // These must be unique, increasing, and in the set [0, height].
+        // These must be unique, increasing, and in the set [0, height).
         // Does not have ownership.
-        const int* fYDivs;
+        const int*   fYDivs;
+
+        // If non-null, the length of this array must be equal to
+        // (fXCount + 1) * (fYCount + 1).  Note that we allow the first rect
+        // in each direction to empty (divs[0] = 0).  In this case, the
+        // caller still must specify a flag (as a placeholder) for these
+        // empty rects.
+        // The flags correspond to the rects in the lattice, first moving
+        // left to right and then top to bottom.
+        const Flags* fFlags;
+
+        // The number of fXDivs.
+        int          fXCount;
 
         // The number of fYDivs.
-        int        fYCount;
+        int          fYCount;
     };
 
     /**

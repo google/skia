@@ -352,19 +352,21 @@ namespace {
     };
     struct DrawImageLattice final : Op {
         static const auto kType = Type::DrawImageLattice;
-        DrawImageLattice(sk_sp<const SkImage>&& image, int xs, int ys,
+        DrawImageLattice(sk_sp<const SkImage>&& image, int xs, int ys, int fs,
                          const SkRect& dst, const SkPaint* paint)
-            : image(std::move(image)), xs(xs), ys(ys), dst(dst) {
+            : image(std::move(image)), xs(xs), ys(ys), fs(fs), dst(dst) {
             if (paint) { this->paint = *paint; }
         }
         sk_sp<const SkImage> image;
-        int                  xs, ys;
+        int                  xs, ys, fs;
         SkRect               dst;
         SkPaint              paint;
         void draw(SkCanvas* c, const SkMatrix&) {
             auto xdivs = pod<int>(this, 0),
                  ydivs = pod<int>(this, xs*sizeof(int));
-            c->drawImageLattice(image.get(), {xdivs, xs, ydivs, ys}, dst, &paint);
+            auto flags = (0 == fs) ? nullptr :
+                                     pod<SkCanvas::Lattice::Flags>(this, (xs+ys)*sizeof(int));
+            c->drawImageLattice(image.get(), {xdivs, ydivs, flags, xs, ys}, dst, &paint);
         }
     };
 
@@ -665,11 +667,13 @@ void SkLiteDL::drawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRec
 void SkLiteDL::drawBitmapLattice(const SkBitmap& bm, const SkCanvas::Lattice& lattice,
                                  const SkRect& dst, const SkPaint* paint) {
     int xs = lattice.fXCount, ys = lattice.fYCount;
-    size_t bytes = (xs + ys) * sizeof(int);
-    void* pod = this->push<DrawImageLattice>(bytes, SkImage::MakeFromBitmap(bm), xs, ys, dst,
+    int fs = lattice.fFlags ? (xs + 1) * (ys + 1) : 0;
+    size_t bytes = (xs + ys) * sizeof(int) + fs * sizeof(SkCanvas::Lattice::Flags);
+    void* pod = this->push<DrawImageLattice>(bytes, SkImage::MakeFromBitmap(bm), xs, ys, fs, dst,
                                              paint);
     copy_v(pod, lattice.fXDivs, xs,
-                lattice.fYDivs, ys);
+                lattice.fYDivs, ys,
+                lattice.fFlags, fs);
 }
 
 void SkLiteDL::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
@@ -686,10 +690,12 @@ void SkLiteDL::drawImageRect(const SkImage* image, const SkRect* src, const SkRe
 void SkLiteDL::drawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,
                                 const SkRect& dst, const SkPaint* paint) {
     int xs = lattice.fXCount, ys = lattice.fYCount;
-    size_t bytes = (xs + ys) * sizeof(int);
-    void* pod = this->push<DrawImageLattice>(bytes, sk_ref_sp(image), xs, ys, dst, paint);
+    int fs = lattice.fFlags ? (xs + 1) * (ys + 1) : 0;
+    size_t bytes = (xs + ys) * sizeof(int) + fs * sizeof(SkCanvas::Lattice::Flags);
+    void* pod = this->push<DrawImageLattice>(bytes, sk_ref_sp(image), xs, ys, fs, dst, paint);
     copy_v(pod, lattice.fXDivs, xs,
-                lattice.fYDivs, ys);
+                lattice.fYDivs, ys,
+                lattice.fFlags, fs);
 }
 
 void SkLiteDL::drawText(const void* text, size_t bytes,

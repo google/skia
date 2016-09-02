@@ -538,7 +538,9 @@ void SkPictureRecord::onDrawImageNine(const SkImage* img, const SkIRect& center,
 void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
                                          const SkRect& dst, const SkPaint* paint) {
     // xCount + xDivs + yCount+ yDivs
-    size_t latticeSize = (1 + lattice.fXCount + 1 + lattice.fYCount) * kUInt32Size;
+    int flagCount = (nullptr == lattice.fFlags) ? 0 : (lattice.fXCount + 1) * (lattice.fYCount + 1);
+    size_t latticeSize = (1 + lattice.fXCount + 1 + lattice.fYCount + 1) * kUInt32Size +
+                         SkAlign4(flagCount * sizeof(SkCanvas::Lattice::Flags));
 
     // op + paint index + image index + lattice + dst rect
     size_t size = 3 * kUInt32Size + latticeSize + sizeof(dst);
@@ -549,6 +551,8 @@ void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& la
     fWriter.writePad(lattice.fXDivs, lattice.fXCount * kUInt32Size);
     this->addInt(lattice.fYCount);
     fWriter.writePad(lattice.fYDivs, lattice.fYCount * kUInt32Size);
+    this->addInt(flagCount);
+    fWriter.writePad(lattice.fFlags, flagCount * sizeof(SkCanvas::Lattice::Flags));
     this->addRect(dst);
     this->validate(initialOffset, size);
 }

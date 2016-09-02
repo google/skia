@@ -12,13 +12,9 @@
  *  Divs must be in increasing order with no duplicates.
  */
 static bool valid_divs(const int* divs, int count, int len) {
-    if (count <= 0) {
-        return false;
-    }
-
     int prev = -1;
     for (int i = 0; i < count; i++) {
-        if (prev >= divs[i] || divs[i] > len) {
+        if (prev >= divs[i] || divs[i] >= len) {
             return false;
         }
     }
@@ -27,6 +23,12 @@ static bool valid_divs(const int* divs, int count, int len) {
 }
 
 bool SkLatticeIter::Valid(int width, int height, const SkCanvas::Lattice& lattice) {
+    bool zeroXDivs = lattice.fXCount <= 0 || (1 == lattice.fXCount && 0 == lattice.fXDivs[0]);
+    bool zeroYDivs = lattice.fYCount <= 0 || (1 == lattice.fYCount && 0 == lattice.fYDivs[0]);
+    if (zeroXDivs && zeroYDivs) {
+        return false;
+    }
+
     return valid_divs(lattice.fXDivs, lattice.fXCount, width) &&
            valid_divs(lattice.fYDivs, lattice.fYCount, height);
 }
@@ -104,9 +106,9 @@ SkLatticeIter::SkLatticeIter(int srcWidth, int srcHeight, const SkCanvas::Lattic
                              const SkRect& dst)
 {
     const int* xDivs = lattice.fXDivs;
-    int xCount = lattice.fXCount;
+    const int origXCount = lattice.fXCount;
     const int* yDivs = lattice.fYDivs;
-    int yCount = lattice.fYCount;
+    const int origYCount = lattice.fYCount;
 
     // In the x-dimension, the first rectangle always starts at x = 0 and is "scalable".
     // If xDiv[0] is 0, it indicates that the first rectangle is degenerate, so the
@@ -117,27 +119,20 @@ SkLatticeIter::SkLatticeIter(int srcWidth, int srcHeight, const SkCanvas::Lattic
     // As we move left to right across the image, alternating patches will be "fixed" or
     // "scalable" in the x-direction.  Similarly, as move top to bottom, alternating
     // patches will be "fixed" or "scalable" in the y-direction.
-    SkASSERT(xCount > 0 && yCount > 0);
-    bool xIsScalable = (0 == xDivs[0]);
+    int xCount = origXCount;
+    int yCount = origYCount;
+    bool xIsScalable = (xCount > 0 && 0 == xDivs[0]);
     if (xIsScalable) {
         // Once we've decided that the first patch is "scalable", we don't need the
         // xDiv.  It is always implied that we start at zero.
         xDivs++;
         xCount--;
     }
-    bool yIsScalable = (0 == yDivs[0]);
+    bool yIsScalable = (yCount > 0 && 0 == yDivs[0]);
     if (yIsScalable) {
         // Once we've decided that the first patch is "scalable", we don't need the
         // yDiv.  It is always implied that we start at zero.
         yDivs++;
-        yCount--;
-    }
-
-    // We never need the final xDiv/yDiv if it is equal to the width/height.  This is implied.
-    if (xCount > 0 && srcWidth == xDivs[xCount - 1]) {
-        xCount--;
-    }
-    if (yCount > 0 && srcHeight == yDivs[yCount - 1]) {
         yCount--;
     }
 
@@ -158,8 +153,42 @@ SkLatticeIter::SkLatticeIter(int srcWidth, int srcHeight, const SkCanvas::Lattic
                dst.fTop, dst.fBottom, yIsScalable);
 
     fCurrX = fCurrY = 0;
-    fDone = false;
-    fNumRects = (xCount + 1) * (yCount + 1);
+    fNumRectsInLattice = (xCount + 1) * (yCount + 1);
+    fNumRectsToDraw = fNumRectsInLattice;
+
+    if (lattice.fFlags) {
+        fFlags.push_back_n(fNumRectsInLattice);
+
+        const SkCanvas::Lattice::Flags* flags = lattice.fFlags;
+
+        bool hasPadRow = (yCount != origYCount);
+        bool hasPadCol = (xCount != origXCount);
+        if (hasPadRow) {
+            // The first row of rects are all empty, skip the first row of flags.
+            flags += origXCount + 1;
+        }
+
+        int i = 0;
+        for (int y = 0; y < yCount + 1; y++) {
+            for (int x = 0; x < origXCount + 1; x++) {
+                if (0 == x && hasPadCol) {
+                    // The first column of rects are all empty.  Skip a rect.
+                    flags++;
+                    continue;
+                }
+
+                fFlags[i] = *flags;
+                flags++;
+                i++;
+            }
+        }
+
+        for (int j = 0; j < fFlags.count(); j++) {
+            if (SkCanvas::Lattice::kTransparent_Flags == fFlags[j]) {
+                fNumRectsToDraw--;
+            }
+        }
+    }
 }
 
 bool SkLatticeIter::Valid(int width, int height, const SkIRect& center) {
@@ -205,12 +234,13 @@ SkLatticeIter::SkLatticeIter(int w, int h, const SkIRect& c, const SkRect& dst) 
     }
 
     fCurrX = fCurrY = 0;
-    fDone = false;
-    fNumRects = 9;
+    fNumRectsInLattice = 9;
+    fNumRectsToDraw = 9;
 }
 
 bool SkLatticeIter::next(SkRect* src, SkRect* dst) {
-    if (fDone) {
+    int currRect = fCurrX + fCurrY * (fSrcX.count() - 1);
+    if (currRect == fNumRectsInLattice) {
         return false;
     }
 
@@ -219,15 +249,17 @@ bool SkLatticeIter::next(SkRect* src, SkRect* dst) {
     SkASSERT(x >= 0 && x < fSrcX.count() - 1);
     SkASSERT(y >= 0 && y < fSrcY.count() - 1);
 
-    src->set(fSrcX[x], fSrcY[y], fSrcX[x + 1], fSrcY[y + 1]);
-    dst->set(fDstX[x], fDstY[y], fDstX[x + 1], fDstY[y + 1]);
     if (fSrcX.count() - 1 == ++fCurrX) {
         fCurrX = 0;
         fCurrY += 1;
-        if (fCurrY >= fSrcY.count() - 1) {
-            fDone = true;
-        }
     }
+
+    if (fFlags.count() > 0 && SkToBool(SkCanvas::Lattice::kTransparent_Flags & fFlags[currRect])) {
+        return this->next(src, dst);
+    }
+
+    src->set(fSrcX[x], fSrcY[y], fSrcX[x + 1], fSrcY[y + 1]);
+    dst->set(fDstX[x], fDstY[y], fDstX[x + 1], fDstY[y + 1]);
     return true;
 }
 

@@ -238,9 +238,11 @@ void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,
 
 void SkRecorder::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint) {
+    int flagCount = lattice.fFlags ? (lattice.fXCount + 1) * (lattice.fYCount + 1) : 0;
     APPEND(DrawImageLattice, this->copy(paint), sk_ref_sp(image),
            lattice.fXCount, this->copy(lattice.fXDivs, lattice.fXCount),
-           lattice.fYCount, this->copy(lattice.fYDivs, lattice.fYCount), dst);
+           lattice.fYCount, this->copy(lattice.fYDivs, lattice.fYCount),
+           flagCount, this->copy(lattice.fFlags, flagCount), dst);
 }
 
 void SkRecorder::onDrawText(const void* text, size_t byteLength,

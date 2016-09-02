@@ -113,6 +113,7 @@ protected:
         lattice.fXDivs = xDivs + 1;
         lattice.fYCount = 4;
         lattice.fYDivs = yDivs + 1;
+        lattice.fFlags = nullptr;
 
         for (int iy = 0; iy < 2; ++iy) {
             for (int ix = 0; ix < 2; ++ix) {
@@ -129,6 +130,15 @@ protected:
         lattice.fXDivs = xDivs;
         lattice.fYCount = 5;
         lattice.fYDivs = yDivs;
+
+        // Let's skip a few rects.
+        SkCanvas::Lattice::Flags flags[36];
+        sk_bzero(flags, 36 * sizeof(SkCanvas::Lattice::Flags));
+        flags[4] = SkCanvas::Lattice::kTransparent_Flags;
+        flags[9] = SkCanvas::Lattice::kTransparent_Flags;
+        flags[12] = SkCanvas::Lattice::kTransparent_Flags;
+        flags[19] = SkCanvas::Lattice::kTransparent_Flags;
+        lattice.fFlags = flags;
 
         canvas->translate(400, 0);
         for (int iy = 0; iy < 2; ++iy) {

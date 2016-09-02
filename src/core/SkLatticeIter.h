@@ -41,10 +41,10 @@ public:
     void mapDstScaleTranslate(const SkMatrix& matrix);
 
     /**
-     *  Returns the total number of rects that will be drawn.
+     *  Returns the number of rects that will actually be drawn.
      */
-    int numRects() const {
-        return fNumRects;
+    int numRectsToDraw() const {
+        return fNumRectsToDraw;
     }
 
 private:
@@ -52,11 +52,12 @@ private:
     SkTArray<SkScalar> fSrcY;
     SkTArray<SkScalar> fDstX;
     SkTArray<SkScalar> fDstY;
+    SkTArray<SkCanvas::Lattice::Flags> fFlags;
 
     int  fCurrX;
     int  fCurrY;
-    bool fDone;
-    int  fNumRects;
+    int  fNumRectsInLattice;
+    int  fNumRectsToDraw;
 };
 
 #endif
