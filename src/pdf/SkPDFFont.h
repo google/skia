@@ -55,23 +55,37 @@ public:
         return (gid >= fFirstGlyphID && gid <= fLastGlyphID) || gid == 0;
     }
 
-    /** Convert (in place) the input glyph IDs into the font encoding.  If the
-     *  font has more glyphs than can be encoded (like a type 1 font with more
-     *  than 255 glyphs) this method only converts up to the first out of range
-     *  glyph ID.
-     *  @param glyphIDs       The input text as glyph IDs.
-     *  @param numGlyphs      The number of input glyphs.
-     *  @return               Returns the number of glyphs consumed.
-     */
-    int glyphsToPDFFontEncoding(SkGlyphID* glyphIDs, int numGlyphs) const;
-    /**
-     * Like above, but does not modify glyphIDs array.
-     */
-    int glyphsToPDFFontEncodingCount(const SkGlyphID* glyphIDs,
-                                     int numGlyphs) const;
+    /** Convert the input glyph ID into the font encoding.  */
+    SkGlyphID glyphToPDFFontEncoding(SkGlyphID gid) const {
+        if (this->multiByteGlyphs() || gid == 0) {
+            return gid;
+        }
+        SkASSERT(gid >= fFirstGlyphID && gid <= fLastGlyphID);
+        SkASSERT(fFirstGlyphID > 0);
+        return gid - fFirstGlyphID + 1;
+    }
 
-    void noteGlyphUsage(const SkGlyphID* glyphs, int count) {
-        fGlyphUsage.setAll(glyphs, count);
+    /** Count the number of glyphIDs that can be encoded with this font.
+     *  glyphIDs > maxGlyphID are considered okay. */
+    int countStretch(const SkGlyphID* glyphIDs,
+                     int numGlyphs,
+                     SkGlyphID maxGlyphID) const {
+        if (this->multiByteGlyphs()) {
+            return numGlyphs;
+        }
+        for (int i = 0; i < numGlyphs; i++) {
+            SkGlyphID gid = glyphIDs[i];
+            if (gid != 0 && gid <= maxGlyphID &&
+                (gid < fFirstGlyphID || gid > fLastGlyphID)) {
+                return i;
+            }
+        }
+        return numGlyphs;
+    }
+
+    void noteGlyphUsage(SkGlyphID glyph) {
+        SkASSERT(this->hasGlyph(glyph));
+        fGlyphUsage.set(glyph);
     }
 
     /** Get the font resource for the passed typeface and glyphID. The
@@ -79,14 +93,18 @@ public:
      *  responsibility to unreference it when done.  This is needed to
      *  accommodate the weak reference pattern used when the returned object
      *  is new and has no other references.
-     *  @param typeface  The typeface to find.
+     *  @param typeface  The typeface to find, not nullptr.
      *  @param glyphID   Specify which section of a large font is of interest.
      */
     static SkPDFFont* GetFontResource(SkPDFCanon* canon,
                                       SkTypeface* typeface,
                                       SkGlyphID glyphID);
 
-    // Uses (kGlyphNames_PerGlyphInfo | kToUnicode_PerGlyphInfo).
+    /** Uses (kGlyphNames_PerGlyphInfo | kToUnicode_PerGlyphInfo) to get 
+     *  SkAdvancedTypefaceMetrics, and caches the result.
+     *  @param typeface can not be nullptr.
+     *  @return nullptr only when typeface is bad.
+     */
     static const SkAdvancedTypefaceMetrics* GetMetrics(SkTypeface* typeface,
                                                        SkPDFCanon* canon);
 
@@ -97,7 +115,7 @@ public:
 
     /**
      *  Return false iff the typeface has its NotEmbeddable flag set.
-     *  If typeface is NULL, the default typeface is checked.
+     *  typeface is not nullptr
      */
     static bool CanEmbedTypeface(SkTypeface*, SkPDFCanon*);
 
@@ -124,9 +142,9 @@ private:
 
     // The glyph IDs accessible with this font.  For Type1 (non CID) fonts,
     // this will be a subset if the font has more than 255 glyphs.
-    SkGlyphID fFirstGlyphID;
-    SkGlyphID fLastGlyphID;
-    SkAdvancedTypefaceMetrics::FontType fFontType;
+    const SkGlyphID fFirstGlyphID;
+    const SkGlyphID fLastGlyphID;
+    const SkAdvancedTypefaceMetrics::FontType fFontType;
 
     typedef SkPDFDict INHERITED;
 };

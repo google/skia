@@ -6,6 +6,7 @@
  */
 #include "Test.h"
 #include "SkTemplates.h"
+#include "SkScopeExit.h"
 #include <utility>
 
 namespace {
@@ -54,4 +55,13 @@ DEF_TEST(CPlusPlusEleven_default_move, r) {
     TestClass c(std::move(a));
     REPORTER_ASSERT(r, b.fFoo.fCopied);
     REPORTER_ASSERT(r, !c.fFoo.fCopied);
+}
+
+DEF_TEST(SkAtScopeExit, r) {
+    int x = 5;
+    {
+        SK_AT_SCOPE_EXIT(x--);
+        REPORTER_ASSERT(r, x == 5);
+    }
+    REPORTER_ASSERT(r, x == 4);
 }

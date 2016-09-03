@@ -18,7 +18,6 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkStream.h"
-#include "SkTypefacePriv.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
 
@@ -148,63 +147,28 @@ static bool can_subset(const SkAdvancedTypefaceMetrics& metrics) {
 }
 #endif
 
-int SkPDFFont::glyphsToPDFFontEncoding(SkGlyphID* glyphIDs, int numGlyphs) const {
-    // A font with multibyte glyphs will support all glyph IDs in a single font.
-    if (this->multiByteGlyphs()) {
-        return numGlyphs;
-    }
-
-    for (int i = 0; i < numGlyphs; i++) {
-        if (glyphIDs[i] == 0) {
-            continue;
-        }
-        if (glyphIDs[i] < fFirstGlyphID || glyphIDs[i] > fLastGlyphID) {
-            return i;
-        }
-        glyphIDs[i] -= (fFirstGlyphID - 1);
-    }
-
-    return numGlyphs;
-}
-
-int SkPDFFont::glyphsToPDFFontEncodingCount(const SkGlyphID* glyphIDs,
-                                            int numGlyphs) const {
-    if (this->multiByteGlyphs()) {    // A font with multibyte glyphs will
-        return numGlyphs;             // support all glyph IDs in a single font.
-    }
-    for (int i = 0; i < numGlyphs; i++) {
-        if (glyphIDs[i] != 0 &&
-            (glyphIDs[i] < fFirstGlyphID || glyphIDs[i] > fLastGlyphID)) {
-            return i;
-        }
-    }
-    return numGlyphs;
-}
-
-
 const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
                                                        SkPDFCanon* canon) {
-    SkFontID id = SkTypeface::UniqueID(typeface);
+    SkASSERT(typeface);
+    SkFontID id = typeface->uniqueID();
     if (SkAdvancedTypefaceMetrics** ptr = canon->fTypefaceMetrics.find(id)) {
         return *ptr;
     }
-    sk_sp<SkTypeface> defaultFace;
-    if (!typeface) {
-        defaultFace = SkTypeface::MakeDefault();
-        typeface = defaultFace.get();
+    int count = typeface->countGlyphs();
+    if (count <= 0 || count > 1 + SK_MaxU16) {
+        // Cache nullptr to skip this check.  Use SkSafeUnref().
+        canon->fTypefaceMetrics.set(id, nullptr);
+        return nullptr;
     }
     sk_sp<SkAdvancedTypefaceMetrics> metrics(
             typeface->getAdvancedTypefaceMetrics(
                     SkTypeface::kGlyphNames_PerGlyphInfo | SkTypeface::kToUnicode_PerGlyphInfo,
                     nullptr, 0));
     if (!metrics) {
-        if (typeface->countGlyphs() > 0) {
-            metrics = sk_make_sp<SkAdvancedTypefaceMetrics>();
-        } else {
-            SkDEBUGF(("SkPDF: SkTypeface:getAdvancedTypefaceMetrics() returned null.\n"));
-        }
-    }
-    // May cache null to skip this check.  use SkSafeUnref.
+        metrics = sk_make_sp<SkAdvancedTypefaceMetrics>();
+        metrics->fLastGlyphID = SkToU16(count - 1);
+    } 
+    SkASSERT(metrics->fLastGlyphID == SkToU16(count - 1));
     return *canon->fTypefaceMetrics.set(id, metrics.release());
 }
 
@@ -216,7 +180,7 @@ SkAdvancedTypefaceMetrics::FontType font_type(const SkAdvancedTypefaceMetrics& m
     return metrics.fType;
 }
 
-static SkGlyphID first_glyph_for_single_byte_encoding(SkGlyphID gid) {
+static SkGlyphID first_nonzero_glyph_for_single_byte_encoding(SkGlyphID gid) {
     return gid != 0 ? gid - (gid - 1) % 255 : 1;
 }
 
@@ -224,40 +188,37 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFCanon* canon,
                                       SkTypeface* face,
                                       SkGlyphID glyphID) {
     SkASSERT(canon);
+    SkASSERT(face);  // All SkPDFDevice::internalDrawText ensures this.
     const SkAdvancedTypefaceMetrics* fontMetrics = SkPDFFont::GetMetrics(face, canon);
-    if (!fontMetrics) {
-        return nullptr;  // bad font, return early.
-    }
+    SkASSERT(fontMetrics);  // SkPDFDevice::internalDrawText ensures the typeface is good.
+                            // GetMetrics only returns null to signify a bad typeface.
     const SkAdvancedTypefaceMetrics& metrics = *fontMetrics;
     SkAdvancedTypefaceMetrics::FontType type = font_type(metrics);
     bool multibyte = SkPDFFont::IsMultiByte(type);
-    SkGlyphID firstGlyph = multibyte ? 0 : first_glyph_for_single_byte_encoding(glyphID);
-    uint64_t fontID = (SkTypeface::UniqueID(face) << 16) | firstGlyph;
+    SkGlyphID subsetCode = multibyte ? 0 : first_nonzero_glyph_for_single_byte_encoding(glyphID);
+    uint64_t fontID = (SkTypeface::UniqueID(face) << 16) | subsetCode;
 
     if (SkPDFFont** found = canon->fFontMap.find(fontID)) {
-        SkASSERT(multibyte == (*found)->multiByteGlyphs());
-        return SkRef(*found);
+        SkPDFFont* foundFont = *found;
+        SkASSERT(foundFont && multibyte == foundFont->multiByteGlyphs());
+        return SkRef(foundFont);
     }
 
-    sk_sp<SkTypeface> typeface(face ? sk_ref_sp(face) : SkTypeface::MakeDefault());
+    sk_sp<SkTypeface> typeface(sk_ref_sp(face));
     SkASSERT(typeface);
-    int glyphCount = typeface->countGlyphs();
-    // Validate typeface + glyph;
-    if (glyphCount < 1 ||  // typeface lacks even a NOTDEF glyph.
-        glyphCount > 1 + SK_MaxU16 ||  // invalid glyphCount
-        glyphID >= glyphCount) {  // invalid glyph
-        return nullptr;
-    }
+
+    SkGlyphID lastGlyph = metrics.fLastGlyphID;
+    SkASSERT(typeface->countGlyphs() == SkToInt(1 + metrics.fLastGlyphID));
+
+    // should be caught by SkPDFDevice::internalDrawText
+    SkASSERT(glyphID <= lastGlyph);
 
     SkGlyphID firstNonZeroGlyph;
-    SkGlyphID lastGlyph;
     if (multibyte) {
         firstNonZeroGlyph = 1;
-        lastGlyph = SkToU16(glyphCount - 1);
     } else {
-        firstNonZeroGlyph = firstGlyph;
-        lastGlyph = SkToU16(SkTMin<int>(glyphCount - 1,
-                                        254 + (int)firstGlyph));
+        firstNonZeroGlyph = subsetCode;
+        lastGlyph = SkToU16(SkTMin<int>((int)lastGlyph, 254 + (int)subsetCode));
     }
     SkPDFFont::Info info = {std::move(typeface), firstNonZeroGlyph, lastGlyph, type};
     sk_sp<SkPDFFont> font;
