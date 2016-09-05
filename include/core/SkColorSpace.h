@@ -45,11 +45,6 @@ public:
          *  exponential curve.  Or the R, G, and B gammas do not match.
          */
         kNonStandard_GammaNamed,
-
-        /**
-         *  To be used by UMA code only.  ICC profiles lacks valid gamma representation.
-         */
-        kInvalid_GammaNamed,
     };
 
     /**

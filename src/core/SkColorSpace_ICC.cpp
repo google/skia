@@ -594,7 +594,9 @@ static size_t gamma_alloc_size(SkGammas::Type type, const SkGammas::Data& data) 
 static void handle_invalid_gamma(SkGammas::Type* type, SkGammas::Data* data) {
     if (SkGammas::Type::kNone_Type == *type) {
         *type = SkGammas::Type::kNamed_Type;
-        data->fNamed = SkColorSpace::kInvalid_GammaNamed;
+
+        // Guess sRGB in the case of a malformed transfer function.
+        data->fNamed = SkColorSpace::kSRGB_GammaNamed;
     }
 }
 
@@ -892,7 +894,8 @@ static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkColorSpace::GammaNa
             (*gammas)->fBlueData = bData;
         }
     } else {
-        *gammaNamed = SkColorSpace::kInvalid_GammaNamed;
+        // Guess sRGB if the chunk is missing a transfer function.
+        *gammaNamed = SkColorSpace::kSRGB_GammaNamed;
     }
 
     if (SkColorSpace::kNonStandard_GammaNamed == *gammaNamed) {
@@ -1092,7 +1095,8 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                         gammas->fBlueData = bData;
                     }
                 } else {
-                    gammaNamed = kInvalid_GammaNamed;
+                    // Guess sRGB if the profile is missing transfer functions.
+                    gammaNamed = kSRGB_GammaNamed;
                 }
 
                 if (kNonStandard_GammaNamed == gammaNamed) {
