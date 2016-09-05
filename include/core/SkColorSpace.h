@@ -19,21 +19,13 @@ public:
     /**
      *  Common, named profiles that we can recognize.
      */
-    enum Named : uint8_t {
-        /**
-         *  By far the most common color space.
-         *  This is the default space for images, unmarked content, and monitors.
-         */
+    enum Named {
+        kUnknown_Named,
         kSRGB_Named,
-
-        /**
-         *  Very common wide gamut color space.
-         *  Often used by images and monitors.
-         */
         kAdobeRGB_Named,
     };
 
-    enum GammaNamed : uint8_t {
+    enum GammaNamed {
         kLinear_GammaNamed,
 
         /**
@@ -124,10 +116,11 @@ public:
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
 protected:
-    SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+    SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50, Named named);
 
     const GammaNamed fGammaNamed;
     const SkMatrix44 fToXYZD50;
+    const Named      fNamed;
 };
 
 #endif
