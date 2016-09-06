@@ -8,7 +8,6 @@
 #ifndef GrReducedClip_DEFINED
 #define GrReducedClip_DEFINED
 
-#include "GrWindowRectangles.h"
 #include "SkClipStack.h"
 #include "SkTLList.h"
 
@@ -21,11 +20,11 @@ class GrDrawContext;
  */
 class SK_API GrReducedClip {
 public:
-    GrReducedClip(const SkClipStack&, const SkRect& queryBounds, int maxWindowRectangles = 0);
+    GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds);
 
     /**
-     * If hasIBounds() is true, this is the bounding box within which the clip elements are valid.
-     * The caller must not modify any pixels outside this box. Undefined if hasIBounds() is false.
+     * If hasIBounds() is true, this is the bounding box within which the reduced clip is valid, and
+     * the caller must not modify any pixels outside this box. Undefined if hasIBounds() is false.
      */
     const SkIRect& ibounds() const { SkASSERT(fHasIBounds); return fIBounds; }
     int left() const { return this->ibounds().left(); }
@@ -39,16 +38,10 @@ public:
      */
     bool hasIBounds() const { return fHasIBounds; }
 
-    /**
-     * If nonempty, this is a set of "exclusive" windows within which the clip elements are NOT
-     * valid. The caller must not modify any pixels inside these windows.
-     */
-    const GrWindowRectangles& windowRectangles() const { return fWindowRects; }
-
     typedef SkTLList<SkClipStack::Element, 16> ElementList;
 
     /**
-     * Populated with a minimal list of elements required to fully implement the clip.
+     * Populated with a minimal list of elements that implement the clip.
      */
     const ElementList& elements() const { return fElements; }
 
@@ -74,18 +67,15 @@ public:
     bool drawStencilClipMask(GrContext*, GrDrawContext*, const SkIPoint& clipOrigin) const;
 
 private:
-    void walkStack(const SkClipStack&, const SkRect& queryBounds, int maxWindowRectangles);
-    void addInteriorWindowRectangles(int maxWindowRectangles);
-    void addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA);
+    void walkStack(const SkClipStack&, const SkRect& queryBounds);
     bool intersectIBounds(const SkIRect&);
 
-    SkIRect              fIBounds;
-    bool                 fHasIBounds;
-    GrWindowRectangles   fWindowRects;
-    ElementList          fElements;
-    int32_t              fElementsGenID;
-    bool                 fRequiresAA;
-    InitialState         fInitialState;
+    SkIRect        fIBounds;
+    bool           fHasIBounds;
+    ElementList    fElements;
+    int32_t        fElementsGenID;
+    bool           fRequiresAA;
+    InitialState   fInitialState;
 };
 
 #endif

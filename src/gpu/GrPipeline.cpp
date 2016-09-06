@@ -27,7 +27,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     pipeline->fRenderTarget.reset(rt);
     SkASSERT(pipeline->fRenderTarget);
     pipeline->fScissorState = *args.fScissor;
-    pipeline->fWindowRectsState = *args.fWindowRectsState;
+    pipeline->fWindowRects = *args.fWindowRects;
     if (builder.hasUserStencilSettings() || args.fHasStencilClip) {
         const GrRenderTargetPriv& rtPriv = rt->renderTargetPriv();
         pipeline->fStencilSettings.reset(*builder.getUserStencil(), args.fHasStencilClip,
@@ -230,7 +230,7 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
         a.fFragmentProcessors.count() != b.fFragmentProcessors.count() ||
         a.fNumColorProcessors != b.fNumColorProcessors ||
         a.fScissorState != b.fScissorState ||
-        !a.fWindowRectsState.cheapEqualTo(b.fWindowRectsState) ||
+        a.fWindowRects != b.fWindowRects ||
         a.fFlags != b.fFlags ||
         a.fStencilSettings != b.fStencilSettings ||
         a.fDrawFace != b.fDrawFace ||

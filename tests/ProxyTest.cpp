@@ -162,8 +162,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         GrGpu* gpu = ctxInfo.grContext()->getGpu();
                         sk_sp<GrRenderTarget> defaultFBO(
                             gpu->wrapBackendRenderTarget(backendDesc, kBorrow_GrWrapOwnership));
-                        REPORTER_ASSERT(reporter,
-                                        !defaultFBO->renderTargetPriv().maxWindowRectangles());
+                        SkASSERT(!defaultFBO->renderTargetPriv().supportsWindowRectangles());
 
                         sk_sp<GrRenderTargetProxy> rtProxy(
                             GrRenderTargetProxy::Make(caps, defaultFBO));
@@ -179,9 +178,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         desc.fFlags = kRenderTarget_GrSurfaceFlag;
                         tex.reset(provider->createTexture(desc, budgeted));
                         sk_sp<GrRenderTarget> rt(sk_ref_sp(tex->asRenderTarget()));
-                        REPORTER_ASSERT(reporter,
-                                        caps.maxWindowRectangles() ==
-                                        rt->renderTargetPriv().maxWindowRectangles());
+                        SkASSERT(caps.maxWindowRectangles() <= 0 ||
+                                rt->renderTargetPriv().supportsWindowRectangles());
 
                         sk_sp<GrRenderTargetProxy> rtProxy(GrRenderTargetProxy::Make(caps, rt));
                         check_surface(reporter, rtProxy.get(), origin,

@@ -9,7 +9,6 @@
 #define GrSurfaceProxy_DEFINED
 
 #include "GrGpuResource.h"
-#include "SkRect.h"
 
 class GrTextureProxy;
 class GrRenderTargetProxy;

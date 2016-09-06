@@ -127,8 +127,3 @@ const GrGpu::MultisampleSpecs&
 GrRenderTargetPriv::getMultisampleSpecs(const GrStencilSettings& stencil) const {
     return fRenderTarget->getGpu()->getMultisampleSpecs(fRenderTarget, stencil);
 }
-
-int GrRenderTargetPriv::maxWindowRectangles() const {
-    return (this->flags() & Flags::kWindowRectsSupport) ?
-           fRenderTarget->getGpu()->caps()->maxWindowRectangles() : 0;
-}

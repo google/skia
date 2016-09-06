@@ -18,7 +18,6 @@
 #include "GrGLVertexArray.h"
 #include "GrGpu.h"
 #include "GrTypes.h"
-#include "GrWindowRectsState.h"
 #include "GrXferProcessor.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
@@ -315,7 +314,7 @@ private:
     // disables the scissor
     void disableScissor();
 
-    void flushWindowRectangles(const GrWindowRectsState&, const GrGLRenderTarget*);
+    void flushWindowRectangles(const GrWindowRectangles&, const GrGLRenderTarget*);
     void disableWindowRectangles();
 
     void initFSAASupport();
@@ -425,36 +424,39 @@ private:
 
     class {
     public:
-        bool valid() const { return kInvalidSurfaceOrigin != fRTOrigin; }
-        void invalidate() { fRTOrigin = kInvalidSurfaceOrigin; }
-        bool knownDisabled() const { return this->valid() && !fWindowState.enabled(); }
-        void setDisabled() { fRTOrigin = kDefault_GrSurfaceOrigin, fWindowState.setDisabled(); }
+        bool valid() const { return kInvalidOrigin != fOrigin; }
+        void invalidate() { fOrigin = kInvalidOrigin; }
 
-        void set(GrSurfaceOrigin rtOrigin, const GrGLIRect& viewport,
-                 const GrWindowRectsState& windowState) {
-            fRTOrigin = rtOrigin;
-            fViewport = viewport;
-            fWindowState = windowState;
+        bool disabled() const {
+            return this->valid() && Mode::kExclusive == fWindows.mode() && !fWindows.count();
         }
+        void setDisabled() { fOrigin = kDefault_GrSurfaceOrigin, fWindows.reset(); }
 
-        bool knownEqualTo(GrSurfaceOrigin rtOrigin, const GrGLIRect& viewport,
-                          const GrWindowRectsState& windowState) const {
+        bool equal(GrSurfaceOrigin org, const GrGLIRect& viewp,
+                   const GrWindowRectangles& windows) const {
             if (!this->valid()) {
                 return false;
             }
-            if (fWindowState.numWindows() && (fRTOrigin != rtOrigin || fViewport != viewport)) {
+            if (fWindows.count() && (fOrigin != org || fViewport != viewp)) {
                 return false;
             }
-            return fWindowState.cheapEqualTo(windowState);
+            return fWindows == windows;
+        }
+
+        void set(GrSurfaceOrigin org, const GrGLIRect& viewp, const GrWindowRectangles& windows) {
+            fOrigin = org;
+            fViewport = viewp;
+            fWindows = windows;
         }
 
     private:
-        enum { kInvalidSurfaceOrigin = -1 };
+        typedef GrWindowRectangles::Mode Mode;
+        enum { kInvalidOrigin = -1 };
 
-        int                  fRTOrigin;
+        int                  fOrigin;
         GrGLIRect            fViewport;
-        GrWindowRectsState   fWindowState;
-    } fHWWindowRectsState;
+        GrWindowRectangles   fWindows;
+    } fHWWindowRects;
 
     GrGLIRect                   fHWViewport;
 
