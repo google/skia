@@ -69,14 +69,27 @@ _pdf_gypi = exec_script("gypi_to_gn.py",
                         [ "../gyp/pdf.gypi" ])
 skia_pdf_sources = _pdf_gypi.sources
 
-_sources_gypi = exec_script("gypi_to_gn.py",
+# SKSL.
+_sksl_gypi = exec_script("gypi_to_gn.py",
                          [
-                           rebase_path("../gyp/skia_sources.gypi"),
+                           rebase_path("../gyp/sksl.gypi"),
+                           "--replace=<(skia_include_path)=$_path_to_include",
+                           "--replace=<(skia_src_path)=$_path_to_src",
                          ],
                          "scope",
-                         [ "../gyp/skia_sources.gypi" ])
-skia_sksl_sources = get_path_info(_sources_gypi.sksl_sources, "abspath")
-skia_utils_sources = get_path_info(_sources_gypi.utils_sources, "abspath")
+                         [ "../gyp/sksl.gypi" ])
+skia_sksl_sources = _sksl_gypi.sources
+
+# Utils.
+_utils_gypi = exec_script("gypi_to_gn.py",
+                          [
+                            rebase_path("../gyp/utils.gypi"),
+                            "--replace=<(skia_include_path)=$_path_to_include",
+                            "--replace=<(skia_src_path)=$_path_to_src",
+                          ],
+                          "scope",
+                          [ "../gyp/utils.gypi" ])
+skia_utils_sources = _utils_gypi.sources
 
 # Skia Chromium defines. These flags will be defined in chromium If these
 # become 'permanent', they should be moved into Chrome's skia build file.

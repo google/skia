@@ -6,16 +6,14 @@
   'includes': [
     'apptype_console.gypi',
   ],
-  'variables': {
-    'includes': [ 'skia_sources.gypi' ],
-  },
   'targets': [
     {
       'target_name': 'skslc',
       'type': 'executable',
-      'include_dirs': [ '<@(sksl_include_dirs)' ],
+      'includes' : [
+        'sksl.gypi',
+      ],
       'sources': [
-        '<@(sksl_sources)',
         '../src/sksl/SkSLMain.cpp',
       ],
       'configurations': {

@@ -4,9 +4,6 @@
 # found in the LICENSE file.
 # Gyp for utils.
 {
-  'variables': {
-    'includes': [ 'skia_sources.gypi' ],
-  },
   'targets': [
     {
       'target_name': 'utils',
@@ -16,6 +13,9 @@
       'dependencies': [
         'core.gyp:*',
         'etc1.gyp:libetc1',
+      ],
+      'includes': [
+        'utils.gypi',
       ],
       'include_dirs': [
         '../include/effects',
@@ -33,7 +33,7 @@
         '../src/utils/win',
       ],
       'sources': [
-        '<@(utils_sources)',  # Makes the sources appear in IDEs (but does not modify the build).
+        'utils.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
       ],
       'conditions': [
         [ 'skia_os == "mac"', {
