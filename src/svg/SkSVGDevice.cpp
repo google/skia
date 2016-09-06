@@ -652,6 +652,11 @@ void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint
                            const SkMatrix* prePathMatrix, bool pathIsMutable) {
     AutoElement elem("path", fWriter, fResourceBucket, draw, paint);
     elem.addPathAttributes(path);
+
+    // TODO: inverse fill types?
+    if (path.getFillType() == SkPath::kEvenOdd_FillType) {
+        elem.addAttribute("fill-rule", "evenodd");
+    }
 }
 
 void SkSVGDevice::drawBitmapCommon(const SkDraw& draw, const SkBitmap& bm,
