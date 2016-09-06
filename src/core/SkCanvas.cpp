@@ -314,6 +314,11 @@ public:
     }
 };
 
+static SkIRect compute_device_bounds(SkBaseDevice* device) {
+    return SkIRect::MakeXYWH(device->getOrigin().x(), device->getOrigin().y(),
+                             device->width(), device->height());
+}
+
 class SkDrawIter : public SkDraw {
 public:
     SkDrawIter(SkCanvas* canvas) {
@@ -322,9 +327,27 @@ public:
 
         fClipStack = canvas->fClipStack;
         fCurrLayer = canvas->fMCRec->fTopLayer;
+
+        fMultiDeviceCS = nullptr;
+        if (fCurrLayer->fNext) {
+            fMultiDeviceCS = canvas->fClipStack;
+            fMultiDeviceCS->save();
+        }
+    }
+
+    ~SkDrawIter() {
+        if (fMultiDeviceCS) {
+            fMultiDeviceCS->restore();
+        }
     }
 
     bool next() {
+        if (fMultiDeviceCS && fDevice) {
+            // remove the previous device's bounds
+            fMultiDeviceCS->clipDevRect(compute_device_bounds(fDevice),
+                                        SkRegion::kDifference_Op);
+        }
+
         // skip over recs with empty clips
         while (fCurrLayer && fCurrLayer->fClip.isEmpty()) {
             fCurrLayer = fCurrLayer->fNext;
@@ -360,6 +383,7 @@ public:
 private:
     const DeviceCM* fCurrLayer;
     const SkPaint*  fPaint;     // May be null.
+    SkClipStack*    fMultiDeviceCS;
 
     typedef SkDraw INHERITED;
 };
@@ -1047,11 +1071,7 @@ void SkCanvas::internalSave() {
 }
 
 bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     return !(saveLayerFlags & SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag);
-#else
-    return true;
-#endif
 }
 
 bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlags,
@@ -1167,10 +1187,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     const SkRect* bounds = rec.fBounds;
     const SkPaint* paint = rec.fPaint;
     SaveLayerFlags saveLayerFlags = rec.fSaveLayerFlags;
-
-#ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-    saveLayerFlags &= ~kDontClipToLayer_PrivateSaveLayerFlag;
-#endif
 
     SkLazyPaint lazyP;
     SkImageFilter* imageFilter = paint ? paint->getImageFilter() : NULL;

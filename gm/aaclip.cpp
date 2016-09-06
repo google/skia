@@ -9,6 +9,47 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
+static void do_draw(SkCanvas* canvas, const SkRect& r) {
+    SkPaint paint;
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setColor(0x800000FF);
+    canvas->drawRect(r, paint);
+}
+
+/**
+ *  Exercise kDontClipToLayer_Legacy_SaveLayerFlag flag, which does not limit the clip to the
+ *  layer's bounds. Thus when a draw occurs, it can (depending on "where" it is) draw into the layer
+ *  and/or draw onto the surrounding portions of the canvas, or both.
+ *
+ *  This GM has a 100x100 rectangle (r), which its going to draw. However first it creates a layer
+ *  with this flag covering 1/2 of the rectangle (upper half). Then it draws the rect in SRC mode.
+ *
+ *  The portion of the draw that intersects the layer should see the SRC draw, apply it to the layer
+ *  and then during restore, it will SRC_OVER that layer onto the canvas (SRC_OVER since the layer
+ *  has no paint, so it gets the default xfermode during restore).
+ *
+ *  The portion of the draw below the layer draws directly into the canvas. Since it is in SRC mode,
+ *  it will wrote 0x80 to the canvas' alpha, making it appear darker when shown in the window.
+ *  The portion in the layer, will end up SRC_OVERing the 0x80 layer pixels onto the canvas, so
+ *  they will appear lighter (since the canvas was erased to white initially).
+ *
+ *  Thus the expected result is the upper half to be light-blue w/ 0xFF for its alpha, and
+ *  the lower half to be darker blue with 0x80 for its alpha.
+ */
+DEF_SIMPLE_GM(dont_clip_to_layer, canvas, 120, 120) {
+    SkRect r { 10, 10, 110, 110 };
+    SkRect r0 = SkRect::MakeXYWH(r.left(), r.top(), r.width(), r.height()/2);
+
+    SkCanvas::SaveLayerRec rec;
+    rec.fPaint = nullptr;
+    rec.fBounds = &r0;
+    rec.fBackdrop = nullptr;
+    rec.fSaveLayerFlags = 1 << 31;//SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag;
+    canvas->saveLayer(rec);
+    do_draw(canvas, r);
+    canvas->restore();
+}
+
 /** Draw a 2px border around the target, then red behind the target;
     set the clip to match the target, then draw >> the target in blue.
 */
