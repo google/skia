@@ -250,22 +250,9 @@ private:
         return addIfMissing(outer, const_cast<SkOpPtT*>(over1s), const_cast<SkOpPtT*>(over1e));
     }
 
-    bool addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over1e,
-                      const SkOpPtT* over2s, const SkOpPtT* over2e,
-                      double tStart, double tEnd,
-                      SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
-                      SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd);
-
-    bool addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over1e,
-                      const SkOpPtT* over2s, const SkOpPtT* over2e,
-                      double tStart, double tEnd,
-                      const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
-                      const SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd) {
-        return addIfMissing(over1s, over1e, over2s, over2e, tStart, tEnd,
-                const_cast<SkOpPtT*>(coinPtTStart), coinPtTEnd,
-                const_cast<SkOpPtT*>(oppPtTStart), oppPtTEnd);
-    }
-
+    bool addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over2s,
+                      double tStart, double tEnd, SkOpSegment* coinSeg, SkOpSegment* oppSeg
+                      SkDEBUGPARAMS(const SkOpPtT* over1e) SkDEBUGPARAMS(const SkOpPtT* over2e));
     bool addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
                       double coinTs, double coinTe, double oppTs, double oppTe
                       SkDEBUGPARAMS(bool callerAborts));
@@ -282,14 +269,14 @@ private:
     bool contains(const SkCoincidentSpans* coin, const SkOpSegment* seg,
                   const SkOpSegment* opp, double oppT) const;
 #if DEBUG_COINCIDENCE_VERBOSE
-    void debugAddIfMissing(const SkCoincidentSpans* outer, const SkOpPtT* over1s,
-                           const SkOpPtT* over1e, const char* id, SkPathOpsDebug::GlitchLog*) const;
-    void debugAddIfMissing(const SkOpPtT* over1s, const SkOpPtT* over1e,
-                           const SkOpPtT* over2s, const SkOpPtT* over2e,
+    void debugAddIfMissing(const char* id, SkPathOpsDebug::GlitchLog* ,
+                           const SkCoincidentSpans* outer, const SkOpPtT* over1s,
+                           const SkOpPtT* over1e) const;
+    void debugAddIfMissing(const char* id, SkPathOpsDebug::GlitchLog* ,
+                           const SkOpPtT* over1s, const SkOpPtT* over2s,
                            double tStart, double tEnd,
-                           const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
-                           const SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd,
-                           const char* id, SkPathOpsDebug::GlitchLog*) const;
+                           const SkOpSegment* coinSeg, const SkOpSegment* oppSeg,
+                           const SkOpPtT* over1e, const SkOpPtT* over2e) const;
 #endif
     void fixUp(SkCoincidentSpans* coin, SkOpPtT* deleted, const SkOpPtT* kept);
     void markCollapsed(SkCoincidentSpans* head, SkOpPtT* test);
@@ -301,9 +288,9 @@ private:
     void restoreHead();
     bool testForCoincidence(const SkCoincidentSpans* outer, const SkOpPtT* testS,
                             const SkOpPtT* testE) const;
-    static void TRange(const SkOpPtT* overS, const SkOpPtT* overE, double tStart,
-                       double tEnd, const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
-                       double* coinTs, double* coinTe);
+    // return coinPtT->segment()->t mapped from overS->fT <= t <= overE->fT
+    static double TRange(const SkOpPtT* overS, double t, const SkOpSegment* coinPtT
+                         SkDEBUGPARAMS(const SkOpPtT* overE));
 
     SkCoincidentSpans* fHead;
     SkCoincidentSpans* fTop;

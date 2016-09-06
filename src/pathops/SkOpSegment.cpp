@@ -258,9 +258,9 @@ bool SkOpSegment::addExpanded(double newT, const SkOpSpanBase* test, bool* start
         return false;
     }
     newPtT->fPt = this->ptAtT(newT);
-    // const cast away to change linked list; pt/t values stays unchanged
     SkOpPtT* oppPrev = test->ptT()->oppPrev(newPtT);
     if (oppPrev) {
+        // const cast away to change linked list; pt/t values stays unchanged
         SkOpSpanBase* writableTest = const_cast<SkOpSpanBase*>(test);
         writableTest->mergeMatches(newPtT->span());
         writableTest->ptT()->addOpp(newPtT, oppPrev);

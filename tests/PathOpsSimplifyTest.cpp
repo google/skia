@@ -5256,7 +5256,7 @@ static void tiger8a_h_1(skiatest::Reporter* reporter, const char* filename) {
 #if DEBUG_UNDER_DEVELOPMENT  // tiger
     return;
 #endif
-    uint64_t testlines = 0x0000004310528845;  // best so far: 0x0000001d14c14bb1;
+    uint64_t testlines = 0x0000001d14c14bb1;  // best so far: 0x0000001d14c14bb1;
     tiger8a_x(reporter, filename, testlines);
 }
 

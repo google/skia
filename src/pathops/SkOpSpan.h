@@ -58,6 +58,7 @@ public:
     bool debugContains(const SkOpPtT* ) const;
     const SkOpPtT* debugContains(const SkOpSegment* check) const;
     SkOpContour* debugContour(int id) const;
+    const SkOpPtT* debugEnder(const SkOpPtT* end) const;
     int debugLoopLimit(bool report) const;
     bool debugMatchID(int id) const;
     const SkOpPtT* debugOppPrev(const SkOpPtT* opp) const;
