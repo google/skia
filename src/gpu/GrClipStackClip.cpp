@@ -287,11 +287,14 @@ bool GrClipStackClip::apply(GrContext* context, GrDrawContext* drawContext, bool
         return false;
     }
 
+    GrRenderTarget* rt = drawContext->accessRenderTarget();
+
     const SkScalar clipX = SkIntToScalar(fOrigin.x()),
                    clipY = SkIntToScalar(fOrigin.y());
 
     SkRect clipSpaceDevBounds = devBounds.makeOffset(clipX, clipY);
-    const GrReducedClip reducedClip(*fStack, clipSpaceDevBounds);
+    const GrReducedClip reducedClip(*fStack, clipSpaceDevBounds,
+                                    rt->renderTargetPriv().maxWindowRectangles());
 
     if (reducedClip.hasIBounds() &&
         !GrClip::IsInsideClip(reducedClip.ibounds(), clipSpaceDevBounds)) {
@@ -300,28 +303,16 @@ bool GrClipStackClip::apply(GrContext* context, GrDrawContext* drawContext, bool
         out->addScissor(scissorSpaceIBounds);
     }
 
+    if (!reducedClip.windowRectangles().empty()) {
+        out->addWindowRectangles(reducedClip.windowRectangles(), fOrigin,
+                                 GrWindowRectsState::Mode::kExclusive);
+    }
+
     if (reducedClip.elements().isEmpty()) {
         return InitialState::kAllIn == reducedClip.initialState();
     }
 
     SkASSERT(reducedClip.hasIBounds());
-
-    // Attempt to implement difference clip rects with window rectangles. This will eventually
-    // become more comprehensive.
-    if (drawContext->accessRenderTarget()->renderTargetPriv().supportsWindowRectangles() &&
-        1 == reducedClip.elements().count() && !reducedClip.requiresAA() &&
-        InitialState::kAllIn == reducedClip.initialState()) {
-        const Element* element = reducedClip.elements().head();
-        SkRegion::Op op = element->getOp();
-        if (Element::kRect_Type == element->getType() &&
-            (SkRegion::kDifference_Op == op || SkRegion::kXOR_Op == op)) {
-            SkIRect window;
-            element->getRect().round(&window);
-            window.offset(-fOrigin);
-            out->addWindowRectangle(window);
-            return true;
-        }
-    }
 
     // An element count of 4 was chosen because of the common pattern in Blink of:
     //   isect RR
@@ -377,12 +368,15 @@ bool GrClipStackClip::apply(GrContext* context, GrDrawContext* drawContext, bool
     // use the stencil clip if we can't represent the clip as a rectangle.
     // TODO: these need to be swapped over to using a StencilAttachmentProxy
     GrStencilAttachment* stencilAttachment =
-        context->resourceProvider()->attachStencilAttachment(drawContext->accessRenderTarget());
+        context->resourceProvider()->attachStencilAttachment(rt);
     if (nullptr == stencilAttachment) {
         SkDebugf("WARNING: failed to attach stencil buffer for clip mask. Clip will be ignored.\n");
         return true;
     }
 
+    // This relies on the property that a reduced sub-rect of the last clip will contain all the
+    // relevant window rectangles that were in the last clip. This subtle requirement will go away
+    // after clipping is overhauled.
     if (stencilAttachment->mustRenderClip(reducedClip.elementsGenID(), reducedClip.ibounds(),
                                           fOrigin)) {
         reducedClip.drawStencilClipMask(context, drawContext, fOrigin);

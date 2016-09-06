@@ -71,6 +71,9 @@ private:
         // same color.
         GrClearBatch* cb = t->cast<GrClearBatch>();
         SkASSERT(cb->fRenderTarget == fRenderTarget);
+        if (!fClip.windowRectsState().cheapEqualTo(cb->fClip.windowRectsState())) {
+            return false;
+        }
         if (cb->contains(this)) {
             fClip = cb->fClip;
             this->replaceBounds(*t);

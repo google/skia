@@ -28,7 +28,8 @@ typedef SkClipStack::Element Element;
  * based on later intersect operations, and perhaps remove intersect-rects. We could optionally
  * take a rect in case the caller knows a bound on what is to be drawn through this clip.
  */
-GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds) {
+GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds,
+                             int maxWindowRectangles) {
     SkASSERT(!queryBounds.isEmpty());
     fHasIBounds = false;
 
@@ -94,10 +95,15 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
 
     // Now that we have determined the bounds to use and filtered out the trivial cases, call the
     // helper that actually walks the stack.
-    this->walkStack(stack, tighterQuery);
+    this->walkStack(stack, tighterQuery, maxWindowRectangles);
+
+    if (fWindowRects.count() < maxWindowRectangles) {
+        this->addInteriorWindowRectangles(maxWindowRectangles);
+    }
 }
 
-void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBounds) {
+void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBounds,
+                              int maxWindowRectangles) {
     // walk backwards until we get to:
     //  a) the beginning
     //  b) an operation that is known to make the bounds all inside/outside
@@ -155,6 +161,10 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                         initialTriState = InitialTriState::kAllOut;
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                        skippable = true;
+                    } else if (fWindowRects.count() < maxWindowRectangles && !embiggens &&
+                               !element->isAA() && Element::kRect_Type == element->getType()) {
+                        this->addWindowRectangle(element->getRect(), false);
                         skippable = true;
                     }
                 }
@@ -420,10 +430,88 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
     fInitialState = static_cast<GrReducedClip::InitialState>(initialTriState);
 }
 
+static bool element_is_pure_subtract(SkRegion::Op op) {
+    SkASSERT(op >= 0);
+    return op <= SkRegion::kIntersect_Op;
+
+    GR_STATIC_ASSERT(0 == SkRegion::kDifference_Op);
+    GR_STATIC_ASSERT(1 == SkRegion::kIntersect_Op);
+}
+
+void GrReducedClip::addInteriorWindowRectangles(int maxWindowRectangles) {
+    SkASSERT(fWindowRects.count() < maxWindowRectangles);
+    // Walk backwards through the element list and add window rectangles to the interiors of
+    // "difference" elements. Quit if we encounter an element that may grow the clip.
+    ElementList::Iter iter(fElements, ElementList::Iter::kTail_IterStart);
+    for (; iter.get() && element_is_pure_subtract(iter.get()->getOp()); iter.prev()) {
+        const Element* element = iter.get();
+        if (SkRegion::kDifference_Op != element->getOp()) {
+            continue;
+        }
+
+        if (Element::kRect_Type == element->getType()) {
+            SkASSERT(element->isAA());
+            this->addWindowRectangle(element->getRect(), true);
+            if (fWindowRects.count() >= maxWindowRectangles) {
+                return;
+            }
+            continue;
+        }
+
+        if (Element::kRRect_Type == element->getType()) {
+            // For round rects we add two overlapping windows in the shape of a plus.
+            const SkRRect& clipRRect = element->getRRect();
+            SkVector insetTL = clipRRect.radii(SkRRect::kUpperLeft_Corner);
+            SkVector insetBR = clipRRect.radii(SkRRect::kLowerRight_Corner);
+            if (SkRRect::kComplex_Type == clipRRect.getType()) {
+                const SkVector& insetTR = clipRRect.radii(SkRRect::kUpperRight_Corner);
+                const SkVector& insetBL = clipRRect.radii(SkRRect::kLowerLeft_Corner);
+                insetTL.fX = SkTMax(insetTL.x(), insetBL.x());
+                insetTL.fY = SkTMax(insetTL.y(), insetTR.y());
+                insetBR.fX = SkTMax(insetBR.x(), insetTR.x());
+                insetBR.fY = SkTMax(insetBR.y(), insetBL.y());
+            }
+            const SkRect& bounds = clipRRect.getBounds();
+            if (insetTL.x() + insetBR.x() >= bounds.width() ||
+                insetTL.y() + insetBR.y() >= bounds.height()) {
+                continue; // The interior "plus" is empty.
+            }
+
+            SkRect horzRect = SkRect::MakeLTRB(bounds.left(), bounds.top() + insetTL.y(),
+                                               bounds.right(), bounds.bottom() - insetBR.y());
+            this->addWindowRectangle(horzRect, element->isAA());
+            if (fWindowRects.count() >= maxWindowRectangles) {
+                return;
+            }
+
+            SkRect vertRect = SkRect::MakeLTRB(bounds.left() + insetTL.x(), bounds.top(),
+                                               bounds.right() - insetBR.x(), bounds.bottom());
+            this->addWindowRectangle(vertRect, element->isAA());
+            if (fWindowRects.count() >= maxWindowRectangles) {
+                return;
+            }
+            continue;
+        }
+    }
+}
+
+inline void GrReducedClip::addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA) {
+    SkIRect window;
+    if (!elementIsAA) {
+        elementInteriorRect.round(&window);
+    } else {
+        elementInteriorRect.roundIn(&window);
+    }
+    if (!window.isEmpty()) { // Skip very thin windows that round to zero or negative dimensions.
+        fWindowRects.addWindow(window);
+    }
+}
+
 inline bool GrReducedClip::intersectIBounds(const SkIRect& irect) {
     SkASSERT(fHasIBounds);
     if (!fIBounds.intersect(irect)) {
         fHasIBounds = false;
+        fWindowRects.reset();
         fElements.reset();
         fRequiresAA = false;
         fInitialState = InitialState::kAllOut;
@@ -503,6 +591,11 @@ bool GrReducedClip::drawAlphaClipMask(GrDrawContext* dc) const {
     // we populate with a rasterization of the clip.
     GrFixedClip clip(SkIRect::MakeWH(fIBounds.width(), fIBounds.height()));
 
+    if (!fWindowRects.empty()) {
+        clip.setWindowRectangles(fWindowRects, {fIBounds.left(), fIBounds.top()},
+                                 GrWindowRectsState::Mode::kExclusive);
+    }
+
     // The scratch texture that we are drawing into can be substantially larger than the mask. Only
     // clear the part that we care about.
     GrColor initialCoverage = InitialState::kAllIn == this->initialState() ? -1 : 0;
@@ -570,18 +663,23 @@ public:
     StencilClip(const SkIRect& scissorRect) : fFixedClip(scissorRect) {}
     const GrFixedClip& fixedClip() const { return fFixedClip; }
 
+    void setWindowRectangles(const GrWindowRectangles& windows, const SkIPoint& origin,
+                             GrWindowRectsState::Mode mode) {
+        fFixedClip.setWindowRectangles(windows, origin, mode);
+    }
+
 private:
-    bool quickContains(const SkRect&) const final {
+    bool quickContains(const SkRect&) const override {
         return false;
     }
-    void getConservativeBounds(int width, int height, SkIRect* devResult, bool* iior) const final {
-        fFixedClip.getConservativeBounds(width, height, devResult, iior);
+    void getConservativeBounds(int width, int height, SkIRect* bounds, bool* iior) const override {
+        fFixedClip.getConservativeBounds(width, height, bounds, iior);
     }
-    bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const final {
+    bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const override {
         return false;
     }
     bool apply(GrContext* context, GrDrawContext* drawContext, bool useHWAA,
-               bool hasUserStencilSettings, GrAppliedClip* out) const final {
+               bool hasUserStencilSettings, GrAppliedClip* out) const override {
         if (!fFixedClip.apply(context, drawContext, useHWAA, hasUserStencilSettings, out)) {
             return false;
         }
@@ -599,6 +697,11 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                                         const SkIPoint& clipOrigin) const {
     // We set the current clip to the bounds so that our recursive draws are scissored to them.
     StencilClip stencilClip(fIBounds.makeOffset(-clipOrigin.x(), -clipOrigin.y()));
+
+    if (!fWindowRects.empty()) {
+        stencilClip.setWindowRectangles(fWindowRects, clipOrigin,
+                                        GrWindowRectsState::Mode::kExclusive);
+    }
 
     bool initialState = InitialState::kAllIn == this->initialState();
     drawContext->drawContextPriv().clearStencilClip(stencilClip.fixedClip(), initialState);

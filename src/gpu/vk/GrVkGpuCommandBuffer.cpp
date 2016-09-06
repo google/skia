@@ -162,6 +162,7 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,
                                               const GrFixedClip& clip,
                                               bool insideStencilMask) {
     SkASSERT(target);
+    SkASSERT(!clip.hasWindowRectangles());
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
     GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
@@ -215,6 +216,7 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,
 void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const GrFixedClip& clip, GrColor color) {
     // parent class should never let us get here with no RT
     SkASSERT(target);
+    SkASSERT(!clip.hasWindowRectangles());
 
     VkClearColorValue vkColor;
     GrColorToRGBAFloat(color, vkColor.float32);
