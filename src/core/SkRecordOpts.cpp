@@ -10,6 +10,7 @@
 #include "SkRecordPattern.h"
 #include "SkRecords.h"
 #include "SkTDArray.h"
+#include "SkXfermode.h"
 
 using namespace SkRecords;
 
@@ -171,6 +172,19 @@ void SkRecordNoopSaveRestores(SkRecord* record) {
     while (apply(&onlyDraws, record) || apply(&noDraws, record));
 }
 
+static bool effectively_srcover(const SkPaint* paint) {
+    if (!paint) {
+        return true;
+    }
+    SkXfermode* mode = paint->getXfermode();
+    if (SkXfermode::IsMode(mode, SkXfermode::kSrcOver_Mode)) {
+        return true;
+    }
+    // src-mode with opaque and no effects (which might change opaqueness) is ok too.
+    return !paint->getShader() && !paint->getColorFilter() && !paint->getImageFilter() &&
+           0xFF == paint->getAlpha() && SkXfermode::IsMode(mode, SkXfermode::kSrc_Mode);
+}
+
 // For some SaveLayer-[drawing command]-Restore patterns, merge the SaveLayer's alpha into the
 // draw, and no-op the SaveLayer and Restore.
 struct SaveLayerDrawRestoreNooper {
@@ -184,12 +198,13 @@ struct SaveLayerDrawRestoreNooper {
 
         // A SaveLayer's bounds field is just a hint, so we should be free to ignore it.
         SkPaint* layerPaint = match->first<SaveLayer>()->paint;
-        if (nullptr == layerPaint) {
+        SkPaint* drawPaint = match->second<SkPaint>();
+
+        if (nullptr == layerPaint && effectively_srcover(drawPaint)) {
             // There wasn't really any point to this SaveLayer at all.
             return KillSaveLayerAndRestore(record, begin);
         }
 
-        SkPaint* drawPaint = match->second<SkPaint>();
         if (drawPaint == nullptr) {
             // We can just give the draw the SaveLayer's paint.
             // TODO(mtklein): figure out how to do this clearly
