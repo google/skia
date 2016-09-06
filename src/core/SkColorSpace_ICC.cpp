@@ -262,14 +262,6 @@ static float read_big_endian_16_dot_16(const uint8_t buf[4]) {
     return SkFixedToFloat(read_big_endian_i32(buf));
 }
 
-static inline float srgb_fn(float x) {
-    if (x <= 0.04045f) {
-        return x * (1.0f / 12.92f);
-    }
-
-    return powf(x * (1.0f / 1.055f) + (0.055f / 1.055f), 2.4f);
-}
-
 /**
  *  @param outData     Set to the appropriate value on success.  If we have table or
  *                     parametric gamma, it is the responsibility of the caller to set
@@ -378,35 +370,9 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
                 }
             }
 
-            // Perform a more robust check for sRGB.  See if the table is a close
-            // match to an sRGB table.  This is in addition to the previous sRGB
-            // checks for a couple reasons:
-            // (1) It is much slower.
-            // (2) The 26 entry "sRGB" curve is actually so inaccurate that it fails
-            //     this check.  But it still wants to be sRGB.
-            float x = 0.0f;
-            float dx = 1.0f / ((float) (count - 1));
-            for (uint32_t i = 0; i < count; i++) {
-                float y = srgb_fn(x);
-
-                // Convert y to the same format as the table (0.16 fixed point), so we can
-                // compare values.
-                uint16_t srgbY = sk_float_round2int(y * (float) (1 << 16));
-                uint16_t actualY = read_big_endian_u16((const uint8_t*) &table[i]);
-
-                // We allow "off by 1" curves to try to not be affected by rounding decisions.
-                if (SkTAbs((int32_t) srgbY - (int32_t) actualY) > 1) {
-                    // Curve is not sRGB, will use table representation.
-                    outData->fTable.fSize = count;
-                    return SkGammas::Type::kTable_Type;
-                }
-
-                x += dx;
-            }
-
-            outData->fNamed = SkColorSpace::kSRGB_GammaNamed;
-            return SkGammas::Type::kNamed_Type;
-
+            // Otherwise, we will represent gamma with a table.
+            outData->fTable.fSize = count;
+            return SkGammas::Type::kTable_Type;
         }
         case kTAG_ParaCurveType: {
             enum ParaCurveType {
