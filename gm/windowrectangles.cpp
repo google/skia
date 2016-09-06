@@ -23,7 +23,6 @@
 constexpr static SkIRect kDeviceRect = {0, 0, 600, 600};
 constexpr static SkIRect kLayerRect = {25, 25, 575, 575};
 constexpr static SkIRect kCoverRect = {50, 50, 550, 550};
-constexpr static int kNumWindows = 8;
 
 namespace skiagm {
 
@@ -106,6 +105,8 @@ DEF_GM( return new WindowRectanglesGM(); )
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
+
+constexpr static int kNumWindows = 8;
 
 /**
  * Visualizes the mask (alpha or stencil) for a clip with several window rectangles. The purpose of
