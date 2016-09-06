@@ -1133,7 +1133,7 @@ static void test_flush(skiatest::Reporter* reporter) {
             make_unique_key<1>(&k, i);
             r->resourcePriv().setUniqueKey(k);
             r->unref();
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
+            cache->notifyFlushOccurred();
         }
 
         // Send flush notifications to the cache. Each flush should purge the oldest resource.
@@ -1147,7 +1147,7 @@ static void test_flush(skiatest::Reporter* reporter) {
                 REPORTER_ASSERT(reporter, !SkToBool(r));
                 SkSafeUnref(r);
             }
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
+            cache->notifyFlushOccurred();
         }
 
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -1169,13 +1169,13 @@ static void test_flush(skiatest::Reporter* reporter) {
             } else {
                 r->unref();
             }
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
+            cache->notifyFlushOccurred();
         }
 
         for (int i = 0; i < kFlushCount; ++i) {
             // Should get a resource purged every other flush.
             REPORTER_ASSERT(reporter, kFlushCount - i/2 - 1 == cache->getResourceCount());
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
+            cache->notifyFlushOccurred();
         }
 
         // Unref all the resources that we kept refs on in the first loop.
@@ -1187,7 +1187,7 @@ static void test_flush(skiatest::Reporter* reporter) {
         // get kFlushCount additional flushes. Then everything should be purged.
         for (int i = 0; i < kFlushCount; ++i) {
             REPORTER_ASSERT(reporter, kFlushCount >> 1 == cache->getResourceCount());
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
+            cache->notifyFlushOccurred();
         }
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
 

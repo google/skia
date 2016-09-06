@@ -5,10 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawingManager.h"
-
-#include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrDrawingManager.h"
 #include "GrDrawTarget.h"
 #include "GrPathRenderingDrawContext.h"
 #include "GrResourceProvider.h"
@@ -76,9 +74,9 @@ void GrDrawingManager::reset() {
     fFlushState.reset();
 }
 
-void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
+bool GrDrawingManager::flush() {
     if (fFlushing || this->wasAbandoned()) {
-        return;
+        return false;
     }
     fFlushing = true;
     bool flushed = false;
@@ -128,11 +126,8 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
 #endif
 
     fFlushState.reset();
-    // We always have to notify the cache when it requested a flush so it can reset its state.
-    if (flushed || type == GrResourceCache::FlushType::kCacheRequested) {
-        fContext->getResourceCache()->notifyFlushOccurred(type);
-    }
     fFlushing = false;
+    return flushed;
 }
 
 GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {

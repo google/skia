@@ -59,7 +59,7 @@ public:
     AutoCheckFlush(GrDrawingManager* drawingManager) : fDrawingManager(drawingManager) {
         SkASSERT(fDrawingManager);
     }
-    ~AutoCheckFlush() { fDrawingManager->flushIfNecessary(); }
+    ~AutoCheckFlush() { fDrawingManager->getContext()->flushIfNecessary(); }
 
 private:
     GrDrawingManager* fDrawingManager;
