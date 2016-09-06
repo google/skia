@@ -58,45 +58,48 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
         sk_sp<GrDrawContext> uDrawContext;
         sk_sp<GrDrawContext> vDrawContext;
 
-        GrPixelConfig singleChannelPixelConfig;
-        if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
-            singleChannelPixelConfig = kAlpha_8_GrPixelConfig;
-        } else {
-            singleChannelPixelConfig = kRGBA_8888_GrPixelConfig;
-        }
-
         // We issue draw(s) to convert from RGBA to Y, U, and V. All three planes may have different
         // sizes however we optimize for two other cases - all planes are the same (1 draw to YUV),
         // and U and V are the same but Y differs (2 draws, one for Y, one for UV).
         if (sizes[0] == sizes[1] && sizes[1] == sizes[2]) {
-            yuvDrawContext = context->makeDrawContext(SkBackingFit::kApprox,
-                                                      sizes[0].fWidth, sizes[0].fHeight,
-                                                      kRGBA_8888_GrPixelConfig, nullptr);
+            yuvDrawContext = context->makeDrawContextWithFallback(SkBackingFit::kApprox,
+                                                                  sizes[0].fWidth,
+                                                                  sizes[0].fHeight,
+                                                                  kRGBA_8888_GrPixelConfig,
+                                                                  nullptr);
             if (!yuvDrawContext) {
                 return false;
             }
         } else {
-            yDrawContext = context->makeDrawContext(SkBackingFit::kApprox,
-                                                    sizes[0].fWidth, sizes[0].fHeight,
-                                                    singleChannelPixelConfig, nullptr);
+            yDrawContext = context->makeDrawContextWithFallback(SkBackingFit::kApprox,
+                                                                sizes[0].fWidth,
+                                                                sizes[0].fHeight,
+                                                                kAlpha_8_GrPixelConfig,
+                                                                nullptr);
             if (!yDrawContext) {
                 return false;
             }
             if (sizes[1] == sizes[2]) {
                 // TODO: Add support for GL_RG when available.
-                uvDrawContext = context->makeDrawContext(SkBackingFit::kApprox,
-                                                         sizes[1].fWidth, sizes[1].fHeight,
-                                                         kRGBA_8888_GrPixelConfig, nullptr);
+                uvDrawContext = context->makeDrawContextWithFallback(SkBackingFit::kApprox,
+                                                                     sizes[1].fWidth,
+                                                                     sizes[1].fHeight,
+                                                                     kRGBA_8888_GrPixelConfig,
+                                                                     nullptr);
                 if (!uvDrawContext) {
                     return false;
                 }
             } else {
-                uDrawContext = context->makeDrawContext(SkBackingFit::kApprox,
-                                                        sizes[1].fWidth, sizes[1].fHeight,
-                                                        singleChannelPixelConfig, nullptr);
-                vDrawContext = context->makeDrawContext(SkBackingFit::kApprox,
-                                                        sizes[2].fWidth, sizes[2].fHeight,
-                                                        singleChannelPixelConfig, nullptr);
+                uDrawContext = context->makeDrawContextWithFallback(SkBackingFit::kApprox,
+                                                                    sizes[1].fWidth,
+                                                                    sizes[1].fHeight,
+                                                                    kAlpha_8_GrPixelConfig,
+                                                                    nullptr);
+                vDrawContext = context->makeDrawContextWithFallback(SkBackingFit::kApprox,
+                                                                    sizes[2].fWidth,
+                                                                    sizes[2].fHeight,
+                                                                    kAlpha_8_GrPixelConfig,
+                                                                    nullptr);
                 if (!uDrawContext || !vDrawContext) {
                     return false;
                 }

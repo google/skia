@@ -681,6 +681,62 @@ sk_sp<GrDrawContext> GrContextPriv::makeBackendTextureAsRenderTargetDrawContext(
                                                    surfaceProps);
 }
 
+static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
+    static const GrPixelConfig kFallback[] = {
+        kUnknown_GrPixelConfig,        // kUnknown_GrPixelConfig
+        kRGBA_8888_GrPixelConfig,      // kAlpha_8_GrPixelConfig
+        kUnknown_GrPixelConfig,        // kIndex_8_GrPixelConfig
+        kRGBA_8888_GrPixelConfig,      // kRGB_565_GrPixelConfig
+        kRGBA_8888_GrPixelConfig,      // kRGBA_4444_GrPixelConfig
+        kUnknown_GrPixelConfig,        // kRGBA_8888_GrPixelConfig
+        kRGBA_8888_GrPixelConfig,      // kBGRA_8888_GrPixelConfig
+        kUnknown_GrPixelConfig,        // kSRGBA_8888_GrPixelConfig
+        kSRGBA_8888_GrPixelConfig,     // kSBGRA_8888_GrPixelConfig
+        kUnknown_GrPixelConfig,        // kETC1_GrPixelConfig
+        kUnknown_GrPixelConfig,        // kLATC_GrPixelConfig
+        kUnknown_GrPixelConfig,        // kR11_EAC_GrPixelConfig
+        kUnknown_GrPixelConfig,        // kASTC_12x12_GrPixelConfig
+        kUnknown_GrPixelConfig,        // kRGBA_float_GrPixelConfig
+        kRGBA_half_GrPixelConfig,      // kAlpha_half_GrPixelConfig
+        kUnknown_GrPixelConfig,        // kRGBA_half_GrPixelConfig
+    };
+    return kFallback[config];
+
+    GR_STATIC_ASSERT(0  == kUnknown_GrPixelConfig);
+    GR_STATIC_ASSERT(1  == kAlpha_8_GrPixelConfig);
+    GR_STATIC_ASSERT(2  == kIndex_8_GrPixelConfig);
+    GR_STATIC_ASSERT(3  == kRGB_565_GrPixelConfig);
+    GR_STATIC_ASSERT(4  == kRGBA_4444_GrPixelConfig);
+    GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(9  == kETC1_GrPixelConfig);
+    GR_STATIC_ASSERT(10  == kLATC_GrPixelConfig);
+    GR_STATIC_ASSERT(11  == kR11_EAC_GrPixelConfig);
+    GR_STATIC_ASSERT(12 == kASTC_12x12_GrPixelConfig);
+    GR_STATIC_ASSERT(13 == kRGBA_float_GrPixelConfig);
+    GR_STATIC_ASSERT(14 == kAlpha_half_GrPixelConfig);
+    GR_STATIC_ASSERT(15 == kRGBA_half_GrPixelConfig);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFallback) == kGrPixelConfigCnt);
+}
+
+sk_sp<GrDrawContext> GrContext::makeDrawContextWithFallback(SkBackingFit fit,
+                                                            int width, int height,
+                                                            GrPixelConfig config,
+                                                            sk_sp<SkColorSpace> colorSpace,
+                                                            int sampleCnt,
+                                                            GrSurfaceOrigin origin,
+                                                            const SkSurfaceProps* surfaceProps,
+                                                            SkBudgeted budgeted) {
+    if (!this->caps()->isConfigRenderable(config, sampleCnt > 0)) {
+        config = GrPixelConfigFallback(config);
+    }
+
+    return this->makeDrawContext(fit, width, height, config, std::move(colorSpace),
+                                 sampleCnt, origin, surfaceProps, budgeted);
+}
+
 sk_sp<GrDrawContext> GrContext::makeDrawContext(SkBackingFit fit,
                                                 int width, int height,
                                                 GrPixelConfig config,
@@ -689,6 +745,10 @@ sk_sp<GrDrawContext> GrContext::makeDrawContext(SkBackingFit fit,
                                                 GrSurfaceOrigin origin,
                                                 const SkSurfaceProps* surfaceProps,
                                                 SkBudgeted budgeted) {
+    if (!this->caps()->isConfigRenderable(config, sampleCnt > 0)) {
+        return nullptr;
+    }
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = origin;

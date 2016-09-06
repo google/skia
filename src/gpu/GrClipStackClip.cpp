@@ -407,16 +407,11 @@ sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
         return sk_sp<GrTexture>(texture);
     }
 
-    // There's no texture in the cache. Let's try to allocate it then.
-    GrPixelConfig config = kRGBA_8888_GrPixelConfig;
-    if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
-        config = kAlpha_8_GrPixelConfig;
-    }
-
-    sk_sp<GrDrawContext> dc(context->makeDrawContext(SkBackingFit::kApprox,
-                                                     reducedClip.width(),
-                                                     reducedClip.height(),
-                                                     config, nullptr));
+    sk_sp<GrDrawContext> dc(context->makeDrawContextWithFallback(SkBackingFit::kApprox,
+                                                                 reducedClip.width(),
+                                                                 reducedClip.height(),
+                                                                 kAlpha_8_GrPixelConfig,
+                                                                 nullptr));
     if (!dc) {
         return nullptr;
     }

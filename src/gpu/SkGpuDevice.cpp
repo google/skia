@@ -172,9 +172,6 @@ sk_sp<GrDrawContext> SkGpuDevice::MakeDrawContext(GrContext* context,
     }
 
     GrPixelConfig config = SkImageInfo2GrPixelConfig(ct, at, cs, *context->caps());
-    if (!context->caps()->isConfigRenderable(config, sampleCount > 0)) {
-        return nullptr;
-    }
 
     return context->makeDrawContext(SkBackingFit::kExact,               // Why exact?
                                     origInfo.width(), origInfo.height(),

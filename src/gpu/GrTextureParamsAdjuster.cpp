@@ -33,35 +33,13 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
     SkASSERT(!subset || !subset->isEmpty());
     GrContext* context = inputTexture->getContext();
     SkASSERT(context);
-    const GrCaps* caps = context->caps();
 
     GrPixelConfig config = GrMakePixelConfigUncompressed(inputTexture->config());
 
-    // If the config isn't renderable try converting to either A8 or an 32 bit config. Otherwise,
-    // fail.
-    if (!caps->isConfigRenderable(config, false)) {
-        if (GrPixelConfigIsAlphaOnly(config)) {
-            if (caps->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
-                config = kAlpha_8_GrPixelConfig;
-            } else if (caps->isConfigRenderable(kSkia8888_GrPixelConfig, false)) {
-                config = kSkia8888_GrPixelConfig;
-            } else {
-                return nullptr;
-            }
-        } else if (kRGB_GrColorComponentFlags ==
-                (kRGB_GrColorComponentFlags & GrPixelConfigComponentMask(config))) {
-            if (caps->isConfigRenderable(kSkia8888_GrPixelConfig, false)) {
-                config = kSkia8888_GrPixelConfig;
-            } else {
-                return nullptr;
-            }
-        } else {
-            return nullptr;
-        }
-    }
-
-    sk_sp<GrDrawContext> copyDC = context->makeDrawContext(SkBackingFit::kExact, copyParams.fWidth,
-                                                           copyParams.fHeight, config, nullptr);
+    sk_sp<GrDrawContext> copyDC = context->makeDrawContextWithFallback(SkBackingFit::kExact,
+                                                                       copyParams.fWidth,
+                                                                       copyParams.fHeight,
+                                                                       config, nullptr);
     if (!copyDC) {
         return nullptr;
     }

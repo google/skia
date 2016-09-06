@@ -104,19 +104,12 @@ static sk_sp<GrTexture> create_mask_GPU(GrContext* context,
         sampleCnt = 0;
     }
 
-    // We actually only need A8, but it often isn't supported as a
-    // render target so default to RGBA_8888
-    GrPixelConfig config = kRGBA_8888_GrPixelConfig;
-    if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, sampleCnt > 0)) {
-        config = kAlpha_8_GrPixelConfig;
-    }
-
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
-                                                              maskRect.width(), 
-                                                              maskRect.height(),
-                                                              config,
-                                                              nullptr,
-                                                              sampleCnt));
+    sk_sp<GrDrawContext> drawContext(context->makeDrawContextWithFallback(SkBackingFit::kApprox,
+                                                                          maskRect.width(), 
+                                                                          maskRect.height(),
+                                                                          kAlpha_8_GrPixelConfig,
+                                                                          nullptr,
+                                                                          sampleCnt));
     if (!drawContext) {
         return nullptr;
     }
