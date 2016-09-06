@@ -71,7 +71,8 @@ private:
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
         , fFlushState(context->getGpu(), context->resourceProvider())
-        , fFlushing(false) {
+        , fFlushing(false)
+        , fIsImmediateMode(isImmediateMode) {
     }
 
     void abandon();
