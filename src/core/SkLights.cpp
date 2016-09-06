@@ -42,14 +42,15 @@ sk_sp<SkLights> SkLights::MakeFromBuffer(SkReadBuffer& buf) {
             }
         }
 
+        bool isRadial = buf.readBool();
         if (isPoint) {
-            SkScalar intensity = 0.0f;
+            SkScalar intensity;
             intensity = buf.readScalar();
-            Light light = Light::MakePoint(color, dirOrPos, intensity);
+            Light light = Light::MakePoint(color, dirOrPos, intensity, isRadial);
             light.setShadowMap(depthMap);
             builder.add(light);
         } else {
-            Light light = Light::MakeDirectional(color, dirOrPos);
+            Light light = Light::MakeDirectional(color, dirOrPos, isRadial);
             light.setShadowMap(depthMap);
             builder.add(light);
         }
@@ -70,8 +71,13 @@ void SkLights::flatten(SkWriteBuffer& buf) const {
         buf.writeBool(isPoint);
         buf.writeScalarArray(&light.color().fX, 3);
         buf.writeScalarArray(&light.dir().fX, 3);
+
         bool hasShadowMap = light.getShadowMap() != nullptr;
         buf.writeBool(hasShadowMap);
+
+        bool isRadial = light.isRadial();
+        buf.writeBool(isRadial);
+
         if (hasShadowMap) {
             buf.writeImage(light.getShadowMap());
         }

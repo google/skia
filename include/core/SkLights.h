@@ -31,7 +31,8 @@ public:
             , fColor(other.fColor)
             , fDirOrPos(other.fDirOrPos)
             , fIntensity(other.fIntensity)
-            , fShadowMap(other.fShadowMap) {
+            , fShadowMap(other.fShadowMap)
+            , fIsRadial(other.fIsRadial) {
         }
 
         Light(Light&& other)
@@ -39,19 +40,22 @@ public:
             , fColor(other.fColor)
             , fDirOrPos(other.fDirOrPos)
             , fIntensity(other.fIntensity)
-            , fShadowMap(std::move(other.fShadowMap)) {
+            , fShadowMap(std::move(other.fShadowMap))
+            , fIsRadial(other.fIsRadial)  {
         }
 
-        static Light MakeDirectional(const SkColor3f& color, const SkVector3& dir) {
-            Light light(kDirectional_LightType, color, dir);
+        static Light MakeDirectional(const SkColor3f& color, const SkVector3& dir,
+                                     bool isRadial = false) {
+            Light light(kDirectional_LightType, color, dir, isRadial);
             if (!light.fDirOrPos.normalize()) {
                 light.fDirOrPos.set(0.0f, 0.0f, 1.0f);
             }
             return light;
         }
 
-        static Light MakePoint(const SkColor3f& color, const SkPoint3& pos, SkScalar intensity) {
-            return Light(kPoint_LightType, color, pos, intensity);
+        static Light MakePoint(const SkColor3f& color, const SkPoint3& pos, SkScalar intensity,
+                               bool isRadial = false) {
+            return Light(kPoint_LightType, color, pos, intensity, isRadial);
         }
 
         LightType type() const { return fType; }
@@ -77,6 +81,8 @@ public:
             return fShadowMap.get();
         }
 
+        bool isRadial() const { return fIsRadial; }
+
         Light& operator= (const Light& b) {
             if (this == &b) {
                 return *this;
@@ -87,6 +93,7 @@ public:
             fDirOrPos = b.fDirOrPos;
             fIntensity = b.fIntensity;
             fShadowMap = b.fShadowMap;
+            fIsRadial = b.fIsRadial;
             return *this;
         }
 
@@ -99,7 +106,8 @@ public:
                    (fType      == b.fType) &&
                    (fDirOrPos  == b.fDirOrPos) &&
                    (fShadowMap == b.fShadowMap) &&
-                   (fIntensity == b.fIntensity);
+                   (fIntensity == b.fIntensity) &&
+                   (fIsRadial  == b.fIsRadial);
         }
 
         bool operator!= (const Light& b) { return !(this->operator==(b)); }
@@ -116,13 +124,16 @@ public:
         SkScalar    fIntensity;       // For point lights, dictates the light intensity.
                                       // Simply a multiplier to the final light output value.
         sk_sp<SkImage> fShadowMap;
+        bool        fIsRadial;        // Whether the light is radial or not. Radial lights will
+                                      // cast shadows and lights radially outwards.
 
-        Light(LightType type, const SkColor3f& color,
-              const SkVector3& dirOrPos, SkScalar intensity = 0.0f) {
+        Light(LightType type, const SkColor3f& color, const SkVector3& dirOrPos,
+              SkScalar intensity = 0.0f, bool isRadial = false) {
             fType = type;
             fColor = color;
             fDirOrPos = dirOrPos;
             fIntensity = intensity;
+            fIsRadial = isRadial;
         }
     };
 
