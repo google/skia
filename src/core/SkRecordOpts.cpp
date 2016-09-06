@@ -87,7 +87,7 @@ struct SaveOnlyDrawsRestoreNooper {
     }
 };
 
-static bool fold_opacity_layer_color_to_paint(const SkPaint& layerPaint,
+static bool fold_opacity_layer_color_to_paint(const SkPaint* layerPaint,
                                               bool isSaveLayer,
                                               SkPaint* paint) {
     // We assume layerPaint is always from a saveLayer.  If isSaveLayer is
@@ -121,25 +121,26 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint& layerPaint,
         return false;
     }
 
-    const uint32_t layerColor = layerPaint.getColor();
-    // The layer paint color must have only alpha component.
-    if (SK_ColorTRANSPARENT != SkColorSetA(layerColor, SK_AlphaTRANSPARENT)) {
-        return false;
-    }
+    if (layerPaint) {
+        const uint32_t layerColor = layerPaint->getColor();
+        // The layer paint color must have only alpha component.
+        if (SK_ColorTRANSPARENT != SkColorSetA(layerColor, SK_AlphaTRANSPARENT)) {
+            return false;
+        }
 
-    // The layer paint can not have any effects.
-    if (layerPaint.getPathEffect() ||
-        layerPaint.getShader()      ||
-        layerPaint.getXfermode()    ||
-        layerPaint.getMaskFilter()  ||
-        layerPaint.getColorFilter() ||
-        layerPaint.getRasterizer()  ||
-        layerPaint.getLooper()      ||
-        layerPaint.getImageFilter()) {
-        return false;
+        // The layer paint can not have any effects.
+        if (layerPaint->getPathEffect() ||
+            layerPaint->getShader()      ||
+            layerPaint->getXfermode()    ||
+            layerPaint->getMaskFilter()  ||
+            layerPaint->getColorFilter() ||
+            layerPaint->getRasterizer()  ||
+            layerPaint->getLooper()      ||
+            layerPaint->getImageFilter()) {
+            return false;
+        }
+        paint->setAlpha(SkMulDiv255Round(paint->getAlpha(), SkColorGetA(layerColor)));
     }
-
-    paint->setAlpha(SkMulDiv255Round(paint->getAlpha(), SkColorGetA(layerColor)));
 
     return true;
 }
@@ -211,7 +212,7 @@ struct SaveLayerDrawRestoreNooper {
             return false;
         }
 
-        if (!fold_opacity_layer_color_to_paint(*layerPaint, false /*isSaveLayer*/, drawPaint)) {
+        if (!fold_opacity_layer_color_to_paint(layerPaint, false /*isSaveLayer*/, drawPaint)) {
             return false;
         }
 
@@ -264,7 +265,7 @@ struct SvgOpacityAndFilterLayerMergePass {
             return false;
         }
 
-        if (!fold_opacity_layer_color_to_paint(*opacityPaint, true /*isSaveLayer*/,
+        if (!fold_opacity_layer_color_to_paint(opacityPaint, true /*isSaveLayer*/,
                                                filterLayerPaint)) {
             return false;
         }
