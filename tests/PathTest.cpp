@@ -138,6 +138,25 @@ static void test_fuzz_crbug_638223() {
     canvas->drawPath(path, paint);
 }
 
+static void test_fuzz_crbug_643933() {
+    auto surface(SkSurface::MakeRasterN32Premul(250, 250));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPath path;
+    path.moveTo(0, 0);
+    path.conicTo(SkBits2Float(0x002001f2), SkBits2Float(0x4161ffff),  // 2.93943e-39f, 14.125f
+            SkBits2Float(0x49f7224d), SkBits2Float(0x45eec8df), // 2.02452e+06f, 7641.11f
+            SkBits2Float(0x721aee0c));  // 3.0687e+30f
+    canvas->drawPath(path, paint);
+    path.reset();
+    path.moveTo(0, 0);
+    path.conicTo(SkBits2Float(0x00007ff2), SkBits2Float(0x4169ffff),  // 4.58981e-41f, 14.625f
+        SkBits2Float(0x43ff2261), SkBits2Float(0x41eeea04),  // 510.269f, 29.8643f
+        SkBits2Float(0x5d06eff8));  // 6.07704e+17f
+    canvas->drawPath(path, paint);
+}
+
 /**
  * In debug mode, this path was causing an assertion to fail in
  * SkPathStroker::preJoinTo() and, in Release, the use of an unitialized value.
@@ -4256,6 +4275,7 @@ DEF_TEST(PathContains, reporter) {
 }
 
 DEF_TEST(Paths, reporter) {
+    test_fuzz_crbug_643933();
     test_sect_with_horizontal_needs_pinning();
     test_crbug_629455(reporter);
     test_fuzz_crbug_627414(reporter);

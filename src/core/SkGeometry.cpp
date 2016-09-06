@@ -1176,7 +1176,8 @@ int SkConic::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
         SkConic dst[2];
         this->chop(dst);
         // check to see if the first chop generates a pair of lines
-        if (dst[0].fPts[1] == dst[0].fPts[2] && dst[1].fPts[0] == dst[1].fPts[1]) {
+        if (dst[0].fPts[1].equalsWithinTolerance(dst[0].fPts[2])
+                && dst[1].fPts[0].equalsWithinTolerance(dst[1].fPts[1])) {
             pts[1] = pts[2] = pts[3] = dst[0].fPts[1];  // set ctrl == end to make lines
             pts[4] = dst[1].fPts[2];
             pow2 = 1;
