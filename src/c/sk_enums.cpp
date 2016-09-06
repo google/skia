@@ -290,4 +290,8 @@ static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   
 static_assert ((bool)SkBudgeted::kNo    == (bool)false,   ASSERT_MSG(SkBudgeted, bool));
 static_assert ((bool)SkBudgeted::kYes   == (bool)true,    ASSERT_MSG(SkBudgeted, bool));
 
+// gr_context_flushbits_t
+static_assert ((int)0                                         == (int)NONE_GR_CONTEXT_FLUSHBITS,      ASSERT_MSG(GrContext::FlushBits, gr_context_flushbits_t));
+static_assert ((int)GrContext::FlushBits::kDiscard_FlushBit   == (int)DISCARD_GR_CONTEXT_FLUSHBITS,   ASSERT_MSG(GrContext::FlushBits, gr_context_flushbits_t));
+
 #endif

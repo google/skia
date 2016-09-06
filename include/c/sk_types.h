@@ -560,6 +560,11 @@ typedef enum {
     RGBA_HALF_GR_PIXEL_CONFIG,
 } gr_pixelconfig_t;
 
+typedef enum {
+    NONE_GR_CONTEXT_FLUSHBITS = 0,
+    DISCARD_GR_CONTEXT_FLUSHBITS = 0x2,
+} gr_context_flushbits_t;
+
 typedef intptr_t gr_backendobject_t;
 
 typedef struct {
