@@ -28,16 +28,28 @@ static void do_draw(SkCanvas* canvas, const SkRect& r) {
  *  and then during restore, it will SRC_OVER that layer onto the canvas (SRC_OVER since the layer
  *  has no paint, so it gets the default xfermode during restore).
  *
- *  The portion of the draw below the layer draws directly into the canvas. Since it is in SRC mode,
- *  it will wrote 0x80 to the canvas' alpha, making it appear darker when shown in the window.
- *  The portion in the layer, will end up SRC_OVERing the 0x80 layer pixels onto the canvas, so
- *  they will appear lighter (since the canvas was erased to white initially).
+ *  Note: when we talk about drawing directly into the "canvas", in fact we are drawing into an
+ *        "outer" layer we created (filled with red). This is a testing detail, so that our final
+ *        output image is itself opaque, otherwise we make it harder to view the GM as a PNG.
  *
- *  Thus the expected result is the upper half to be light-blue w/ 0xFF for its alpha, and
- *  the lower half to be darker blue with 0x80 for its alpha.
+ *  The portion of the draw below the layer draws directly into the canvas. Since it is in SRC mode,
+ *  it will write 0x80 to the canvas' alpha, overwriting the "red", which then gets blended with
+ *  the GM's white background.
+ *
+ *  The portion in the layer, will end up SRC_OVERing the 0x80 layer pixels onto the canvas' red
+ *  pixels, making magenta.
+ *
+ *  Thus the expected result is the upper half to be magenta 0xFF7F0080, and the lower half to be
+ *  light blue 0xFF7F7FFF.
  */
 DEF_SIMPLE_GM(dont_clip_to_layer, canvas, 120, 120) {
-    SkRect r { 10, 10, 110, 110 };
+    const SkRect r { 10, 10, 110, 110 };
+
+    // Wrap the entire test inside a red layer, so we don't punch the actual gm's alpha with
+    // kSrc_Mode, which makes it hard to view (we like our GMs to have opaque pixels).
+    canvas->saveLayer(&r, nullptr);
+    canvas->drawColor(SK_ColorRED);
+
     SkRect r0 = SkRect::MakeXYWH(r.left(), r.top(), r.width(), r.height()/2);
 
     SkCanvas::SaveLayerRec rec;
@@ -48,6 +60,8 @@ DEF_SIMPLE_GM(dont_clip_to_layer, canvas, 120, 120) {
     canvas->saveLayer(rec);
     do_draw(canvas, r);
     canvas->restore();
+
+    canvas->restore();  // red-layer
 }
 
 /** Draw a 2px border around the target, then red behind the target;
