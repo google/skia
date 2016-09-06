@@ -256,26 +256,6 @@ void SkPDFDocument::reset() {
     fFonts.reset();
 }
 
-#ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
-void SkPDFDocument::setMetadata(const SkDocument::Attribute info[],
-                                int infoCount,
-                                const SkTime::DateTime* creationDate,
-                                const SkTime::DateTime* modifiedDate) {
-    for (int i = 0; i < infoCount; ++i) {
-        const SkDocument::Attribute& kv = info[i];
-        SkPDFMetadata::SetMetadataByKey(kv.fKey, kv.fValue, &fMetadata);
-    }
-    if (creationDate) {
-        fMetadata.fCreation.fEnabled = true;
-        fMetadata.fCreation.fDateTime = *creationDate;
-    }
-    if (modifiedDate) {
-        fMetadata.fModified.fEnabled = true;
-        fMetadata.fModified.fDateTime = *modifiedDate;
-    }
-}
-#endif  // SK_SUPPORT_LEGACY_DOCUMENT_API
-
 static sk_sp<SkData> SkSrgbIcm() {
     // Source: http://www.argyllcms.com/icclibsrc.html
     static const char kProfile[] =

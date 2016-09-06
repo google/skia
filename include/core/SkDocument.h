@@ -19,8 +19,6 @@
 class SkCanvas;
 class SkWStream;
 
-#define SK_SUPPORT_LEGACY_DOCUMENT_API
-
 /** SK_ScalarDefaultDPI is 72 DPI.
 */
 #define SK_ScalarDefaultRasterDPI           72.0f
@@ -157,65 +155,6 @@ public:
     static sk_sp<SkDocument> MakeXPS(const char path[],
                                      SkScalar dpi = SK_ScalarDefaultRasterDPI);
 
-#ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
-
-    /**
-     *  Create a PDF-backed document, writing the results into a SkWStream.
-     *
-     *  PDF pages are sized in point units. 1 pt == 1/72 inch == 127/360 mm.
-     *
-     *  @param SkWStream* A PDF document will be written to this
-     *         stream.  The document may write to the stream at
-     *         anytime during its lifetime, until either close() is
-     *         called or the document is deleted.
-     *  @param dpi The DPI (pixels-per-inch) at which features without
-     *         native PDF support will be rasterized (e.g. draw image
-     *         with perspective, draw text with perspective, ...)  A
-     *         larger DPI would create a PDF that reflects the
-     *         original intent with better fidelity, but it can make
-     *         for larger PDF files too, which would use more memory
-     *         while rendering, and it would be slower to be processed
-     *         or sent online or to printer.
-     *  @returns NULL if there is an error, otherwise a newly created
-     *           PDF-backed SkDocument.
-     */
-    static SkDocument* CreatePDF(SkWStream* stream,
-                                 SkScalar dpi = SK_ScalarDefaultRasterDPI) {
-        return SkDocument::MakePDF(stream, dpi, SkDocument::PDFMetadata(),
-                                   nullptr, false).release();
-    }
-
-    /**
-     *  @param jpegEncoder For PDF documents, if a jpegEncoder is set,
-     *         use it to encode SkImages and SkBitmaps as [JFIF]JPEGs.
-     *         This feature is deprecated and is only supplied for
-     *         backwards compatability.
-     *
-     *         The prefered method to create PDFs with JPEG images is
-     *         to use SkImage::NewFromEncoded() and not jpegEncoder.
-     *         Chromium uses NewFromEncoded.
-     *
-     *         If the encoder is unset, or if jpegEncoder->onEncode()
-     *         returns NULL, fall back on encoding images losslessly
-     *         with Deflate.
-     */
-    static SkDocument* CreatePDF(SkWStream* stream,
-                                 SkScalar dpi,
-                                 SkPixelSerializer* jpegEncoder) {
-        return SkDocument::MakePDF(stream, dpi, SkDocument::PDFMetadata(),
-                                   sk_ref_sp(jpegEncoder), false).release();
-    }
-
-    /**
-     *  Create a PDF-backed document, writing the results into a file.
-     */
-    static SkDocument* CreatePDF(const char outputFilePath[],
-                                 SkScalar dpi = SK_ScalarDefaultRasterDPI) {
-        return SkDocument::MakePDF(outputFilePath, dpi).release();
-    }
-
-#endif  // SK_SUPPORT_LEGACY_DOCUMENT_API
-
     /**
      *  Begin a new page for the document, returning the canvas that will draw
      *  into the page. The document owns this canvas, and it will go out of
@@ -245,36 +184,6 @@ public:
      *  The stream output must be ignored, and should not be trusted.
      */
     void abort();
-
-#ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
-    /**
-     *  Set the document's metadata, if supported by the document
-     *  type.  The creationDate and modifiedDate parameters can be
-     *  nullptr.  For example:
-     *
-     *  SkDocument* make_doc(SkWStream* output) {
-     *      std::vector<SkDocument::Attribute> info;
-     *      info.emplace_back(SkString("Title"), SkString("..."));
-     *      info.emplace_back(SkString("Author"), SkString("..."));
-     *      info.emplace_back(SkString("Subject"), SkString("..."));
-     *      info.emplace_back(SkString("Keywords"), SkString("..."));
-     *      info.emplace_back(SkString("Creator"), SkString("..."));
-     *      SkTime::DateTime now;
-     *      SkTime::GetDateTime(&now);
-     *      SkDocument* doc = SkDocument::CreatePDF(output);
-     *      doc->setMetadata(&info[0], (int)info.size(), &now, &now);
-     *      return doc;
-     *  }
-     */
-    struct Attribute {
-        SkString fKey, fValue;
-        Attribute(const SkString& k, const SkString& v) : fKey(k), fValue(v) {}
-    };
-    virtual void setMetadata(const SkDocument::Attribute[],
-                             int /* attributeCount */,
-                             const SkTime::DateTime* /* creationDate */,
-                             const SkTime::DateTime* /* modifiedDate */) {}
-#endif  // SK_SUPPORT_LEGACY_DOCUMENT_API
 
 protected:
     SkDocument(SkWStream*, void (*)(SkWStream*, bool aborted));

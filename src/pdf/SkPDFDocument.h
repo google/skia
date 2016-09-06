@@ -55,12 +55,7 @@ public:
     void onEndPage() override;
     bool onClose(SkWStream*) override;
     void onAbort() override;
-#ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
-    void setMetadata(const SkDocument::Attribute[],
-                     int,
-                     const SkTime::DateTime*,
-                     const SkTime::DateTime*) override;
-#endif  // SK_SUPPORT_LEGACY_DOCUMENT_API
+
     /**
        Serialize the object, as well as any other objects it
        indirectly refers to.  If any any other objects have been added
