@@ -12,6 +12,7 @@
 #include "SkPaint.h"
 #include "SkPoint.h"
 #include "SkScalar.h"
+#include "SkStrokeRec.h"
 #include "SkTDArray.h"
 
 class SkCanvas;
@@ -31,11 +32,13 @@ class GrAAConvexTessellator;
 // computeDepthFromEdge requests.
 class GrAAConvexTessellator {
 public:
-    GrAAConvexTessellator(SkScalar strokeWidth = -1.0f,
+    GrAAConvexTessellator(SkStrokeRec::Style style = SkStrokeRec::kFill_Style,
+                          SkScalar strokeWidth = -1.0f,
                           SkPaint::Join join = SkPaint::Join::kBevel_Join,
                           SkScalar miterLimit = 0.0f)
         : fSide(SkPoint::kOn_Side)
         , fStrokeWidth(strokeWidth)
+        , fStyle(style)
         , fJoin(join)
         , fMiterLimit(miterLimit) {
     }
@@ -134,6 +137,13 @@ private:
             struct PointData* pt = fPts.push();
             pt->fIndex = index;
             pt->fOrigEdgeId = origEdgeId;
+        }
+
+        // Upgrade this ring so that it can behave like an originating ring
+        void makeOriginalRing() {
+            for (int i = 0; i < fPts.count(); ++i) {
+                fPts[i].fOrigEdgeId = fPts[i].fIndex;
+            }            
         }
 
         // init should be called after all the indices have been added (via addIdx)
@@ -267,8 +277,9 @@ private:
 #endif
     CandidateVerts        fCandidateVerts;
 
-    // < 0 means filling rather than stroking
+    // the stroke width is only used for stroke or stroke-and-fill styles
     SkScalar              fStrokeWidth;
+    SkStrokeRec::Style    fStyle;
 
     SkPaint::Join         fJoin;
 
