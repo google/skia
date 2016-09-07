@@ -148,60 +148,6 @@ void GraphicStackState::pop() {
     fStackDepth--;
 }
 
-// This function initializes iter to be an iterator on the "stack" argument
-// and then skips over the leading entries as specified in prefix.  It requires
-// and asserts that "prefix" will be a prefix to "stack."
-static void skip_clip_stack_prefix(const SkClipStack& prefix,
-                                   const SkClipStack& stack,
-                                   SkClipStack::Iter* iter) {
-    SkClipStack::B2TIter prefixIter(prefix);
-    iter->reset(stack, SkClipStack::Iter::kBottom_IterStart);
-
-    const SkClipStack::Element* prefixEntry;
-    const SkClipStack::Element* iterEntry;
-
-    for (prefixEntry = prefixIter.next(); prefixEntry;
-            prefixEntry = prefixIter.next()) {
-        iterEntry = iter->next();
-        SkASSERT(iterEntry);
-        // Because of SkClipStack does internal intersection, the last clip
-        // entry may differ.
-        if (*prefixEntry != *iterEntry) {
-            SkASSERT(prefixEntry->getOp() == SkRegion::kIntersect_Op);
-            SkASSERT(iterEntry->getOp() == SkRegion::kIntersect_Op);
-            SkASSERT(iterEntry->getType() == prefixEntry->getType());
-            // back up the iterator by one
-            iter->prev();
-            prefixEntry = prefixIter.next();
-            break;
-        }
-    }
-
-    SkASSERT(prefixEntry == nullptr);
-}
-
-static void emit_clip(SkPath* clipPath, SkRect* clipRect,
-                      SkWStream* contentStream) {
-    SkASSERT(clipPath || clipRect);
-
-    SkPath::FillType clipFill;
-    if (clipPath) {
-        SkPDFUtils::EmitPath(*clipPath, SkPaint::kFill_Style, contentStream);
-        clipFill = clipPath->getFillType();
-    } else {
-        SkPDFUtils::AppendRectangle(*clipRect, contentStream);
-        clipFill = SkPath::kWinding_FillType;
-    }
-
-    NOT_IMPLEMENTED(clipFill == SkPath::kInverseEvenOdd_FillType, false);
-    NOT_IMPLEMENTED(clipFill == SkPath::kInverseWinding_FillType, false);
-    if (clipFill == SkPath::kEvenOdd_FillType) {
-        contentStream->writeText("W* n\n");
-    } else {
-        contentStream->writeText("W n\n");
-    }
-}
-
 /* Calculate an inverted path's equivalent non-inverted path, given the
  * canvas bounds.
  * outPath may alias with invPath (since this is supported by PathOps).
@@ -309,59 +255,18 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
 
     SkPath clipPath;
     if (get_clip_stack_path(transform, clipStack, clipRegion, &clipPath)) {
-        emit_clip(&clipPath, nullptr, fContentStream);
-        return;
-    }
-
-    // gsState->initialEntry()->fClipStack/Region specifies the clip that has
-    // already been applied.  (If this is a top level device, then it specifies
-    // a clip to the content area.  If this is a layer, then it specifies
-    // the clip in effect when the layer was created.)  There's no need to
-    // reapply that clip; SKCanvas's SkDrawIter will draw anything outside the
-    // initial clip on the parent layer.  (This means there's a bug if the user
-    // expands the clip and then uses any xfer mode that uses dst:
-    // http://code.google.com/p/skia/issues/detail?id=228 )
-    SkClipStack::Iter iter;
-    skip_clip_stack_prefix(fEntries[0].fClipStack, clipStack, &iter);
-
-    // If the clip stack does anything other than intersect or if it uses
-    // an inverse fill type, we have to fall back to the clip region.
-    bool needRegion = false;
-    const SkClipStack::Element* clipEntry;
-    for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
-        if (clipEntry->getOp() != SkRegion::kIntersect_Op ||
-                clipEntry->isInverseFilled()) {
-            needRegion = true;
-            break;
+        SkPDFUtils::EmitPath(clipPath, SkPaint::kFill_Style, fContentStream);
+        SkPath::FillType clipFill = clipPath.getFillType();
+        NOT_IMPLEMENTED(clipFill == SkPath::kInverseEvenOdd_FillType, false);
+        NOT_IMPLEMENTED(clipFill == SkPath::kInverseWinding_FillType, false);
+        if (clipFill == SkPath::kEvenOdd_FillType) {
+            fContentStream->writeText("W* n\n");
+        } else {
+            fContentStream->writeText("W n\n");
         }
     }
-
-    if (needRegion) {
-        SkPath clipPath;
-        SkAssertResult(clipRegion.getBoundaryPath(&clipPath));
-        emit_clip(&clipPath, nullptr, fContentStream);
-    } else {
-        skip_clip_stack_prefix(fEntries[0].fClipStack, clipStack, &iter);
-        const SkClipStack::Element* clipEntry;
-        for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
-            SkASSERT(clipEntry->getOp() == SkRegion::kIntersect_Op);
-            switch (clipEntry->getType()) {
-                case SkClipStack::Element::kRect_Type: {
-                    SkRect translatedClip;
-                    transform.mapRect(&translatedClip, clipEntry->getRect());
-                    emit_clip(nullptr, &translatedClip, fContentStream);
-                    break;
-                }
-                default: {
-                    SkPath translatedPath;
-                    clipEntry->asPath(&translatedPath);
-                    translatedPath.transform(transform, &translatedPath);
-                    emit_clip(&translatedPath, nullptr, fContentStream);
-                    break;
-                }
-            }
-        }
-    }
+    // If Op() fails (pathological case; e.g. input values are
+    // extremely large or NaN), emit no clip at all.
 }
 
 void GraphicStackState::updateMatrix(const SkMatrix& matrix) {
