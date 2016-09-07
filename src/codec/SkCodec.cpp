@@ -142,8 +142,8 @@ SkCodec::~SkCodec() {}
 
 bool SkCodec::rewindIfNeeded() {
     if (!fStream) {
-        // Some codecs do not have a stream, but they hold others that do. They
-        // must handle rewinding themselves.
+        // Some codecs do not have a stream.  They may hold onto their own data or another codec.
+        // They must handle rewinding themselves.
         return true;
     }
 

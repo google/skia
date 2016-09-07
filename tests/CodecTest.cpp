@@ -879,7 +879,7 @@ public:
         return fStream.rewind();
     }
     bool isAtEnd() const override {
-        return false;
+        return fStream.isAtEnd();
     }
 private:
     SkMemoryStream fStream;
