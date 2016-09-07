@@ -38,6 +38,7 @@ def get_device(api):
       'Nexus10':       'arm_v7_neon',
       'Nexus5':        'arm_v7_neon',
       'Nexus6':        'arm_v7_neon',
+      'Nexus6p':       'arm_v7_neon',
       'Nexus7':        'arm_v7_neon',
       'Nexus7v2':      'arm_v7_neon',
       'Nexus9':        'arm64',
