@@ -24,6 +24,14 @@ class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
         cwd=pdfium_dir,
         **kwargs)
 
+    # Install the sysroot.
+    self.m.run(
+        self.m.step,
+        'sysroot',
+        cmd=['python', 'build/linux/sysroot_scripts/install-sysroot.py',
+             '--arch=amd64'],
+        cwd=pdfium_dir)
+
     # Setup gn args.
     gn_args = [
         'pdf_use_skia=true',
