@@ -9,12 +9,12 @@
 #ifndef GrVkPipelineState_DEFINED
 #define GrVkPipelineState_DEFINED
 
+#include "GrProgramDesc.h"
 #include "GrStencilSettings.h"
 #include "GrVkDescriptorSetManager.h"
 #include "GrVkImage.h"
 #include "GrVkPipelineStateDataManager.h"
 #include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLProgramDesc.h"
 
 #include "vk/GrVkDefines.h"
 
@@ -86,7 +86,7 @@ public:
      */
     struct Desc {
         uint32_t                fChecksum;
-        GrGLSLProgramDesc       fProgramDesc;
+        GrProgramDesc           fProgramDesc;
 
         enum {
             kRenderPassKeyAlloc = 12, // This is typical color attachment with no stencil or msaa

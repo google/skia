@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "GrGLSLProgramDesc.h"
+#include "GrProgramDesc.h"
 
 #include "GrProcessor.h"
 #include "GrPipeline.h"
@@ -104,27 +104,25 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
                                                                fp.numTransformsExclChildren()), b);
 }
 
-bool GrGLSLProgramDescBuilder::Build(GrProgramDesc* desc,
-                                     const GrPrimitiveProcessor& primProc,
-                                     const GrPipeline& pipeline,
-                                     const GrGLSLCaps& glslCaps) {
+bool GrProgramDesc::Build(GrProgramDesc* desc,
+                          const GrPrimitiveProcessor& primProc,
+                          const GrPipeline& pipeline,
+                          const GrGLSLCaps& glslCaps) {
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set
     // to a canonical value to avoid duplicate programs with different keys.
 
-    GrGLSLProgramDesc* glDesc = (GrGLSLProgramDesc*)desc;
-
     GR_STATIC_ASSERT(0 == kProcessorKeysOffset % sizeof(uint32_t));
     // Make room for everything up to the effect keys.
-    glDesc->key().reset();
-    glDesc->key().push_back_n(kProcessorKeysOffset);
+    desc->key().reset();
+    desc->key().push_back_n(kProcessorKeysOffset);
 
-    GrProcessorKeyBuilder b(&glDesc->key());
+    GrProcessorKeyBuilder b(&desc->key());
 
     primProc.getGLSLProcessorKey(glslCaps, &b);
     if (!gen_meta_key(primProc, glslCaps, 0, &b)) {
-        glDesc->key().reset();
+        desc->key().reset();
         return false;
     }
     GrProcessor::RequiredFeatures requiredFeatures = primProc.requiredFeatures();
@@ -132,7 +130,7 @@ bool GrGLSLProgramDescBuilder::Build(GrProgramDesc* desc,
     for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
         const GrFragmentProcessor& fp = pipeline.getFragmentProcessor(i);
         if (!gen_frag_proc_and_meta_keys(primProc, fp, glslCaps, &b)) {
-            glDesc->key().reset();
+            desc->key().reset();
             return false;
         }
         requiredFeatures |= fp.requiredFeatures();
@@ -141,7 +139,7 @@ bool GrGLSLProgramDescBuilder::Build(GrProgramDesc* desc,
     const GrXferProcessor& xp = pipeline.getXferProcessor();
     xp.getGLSLProcessorKey(glslCaps, &b);
     if (!gen_meta_key(xp, glslCaps, 0, &b)) {
-        glDesc->key().reset();
+        desc->key().reset();
         return false;
     }
     requiredFeatures |= xp.requiredFeatures();
@@ -149,7 +147,7 @@ bool GrGLSLProgramDescBuilder::Build(GrProgramDesc* desc,
     // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
     // below here.
-    KeyHeader* header = glDesc->atOffset<KeyHeader, kHeaderOffset>();
+    KeyHeader* header = desc->atOffset<KeyHeader, kHeaderOffset>();
 
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
@@ -182,6 +180,5 @@ bool GrGLSLProgramDescBuilder::Build(GrProgramDesc* desc,
     header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
     header->fColorEffectCnt = pipeline.numColorFragmentProcessors();
     header->fCoverageEffectCnt = pipeline.numCoverageFragmentProcessors();
-    glDesc->finalize();
     return true;
 }

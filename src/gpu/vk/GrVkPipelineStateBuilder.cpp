@@ -39,7 +39,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
                                                    const GrPipeline& pipeline,
                                                    const GrPrimitiveProcessor& primProc,
-                                                   const GrGLSLProgramDesc& desc)
+                                                   const GrProgramDesc& desc)
     : INHERITED(pipeline, primProc, desc)
     , fGpu(gpu)
     , fVaryingHandler(this)

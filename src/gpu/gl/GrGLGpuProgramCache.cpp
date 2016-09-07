@@ -9,10 +9,10 @@
 
 #include "builders/GrGLProgramBuilder.h"
 #include "GrProcessor.h"
+#include "GrProgramDesc.h"
 #include "GrGLPathRendering.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLProgramDesc.h"
 #include "SkTSearch.h"
 
 #ifdef PROGRAM_CACHE_STATS
@@ -112,11 +112,12 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
 #endif
 
     // Get GrGLProgramDesc
-    GrGLSLProgramDesc desc;
-    if (!GrGLSLProgramDescBuilder::Build(&desc, primProc, pipeline, *gpu->glCaps().glslCaps())) {
+    GrProgramDesc desc;
+    if (!GrProgramDesc::Build(&desc, primProc, pipeline, *gpu->glCaps().glslCaps())) {
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }
+    desc.finalize();
 
     Entry* entry = nullptr;
 
