@@ -18,6 +18,7 @@ REPO = "https://llvm.googlesource.com/"
 BRANCH = "release_39"
 
 def create_asset(target_dir):
+  # Build Clang, lld, compiler-rt (sanitizer support) and libc++.
   os.chdir(tempfile.mkdtemp())
   subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "llvm"])
   os.chdir("llvm/tools")
@@ -35,13 +36,24 @@ def create_asset(target_dir):
                          "-DCMAKE_INSTALL_PREFIX=" + target_dir,
                          "-DLLVM_INSTALL_TOOLCHAIN_ONLY=ON",
                          "-DLLVM_ENABLE_TERMINFO=OFF"])
-  subprocess.check_call(["cmake", "--build", "."])
-  subprocess.check_call(["cmake", "--build", ".", "--target", "install"])
-  subprocess.check_call(["cp", "bin/llvm-symbolizer", target_dir + "/bin"])
+  subprocess.check_call(["ninja", "install"])
 
+  # Copy a couple extra files we need.
+  subprocess.check_call(["cp", "bin/llvm-symbolizer", target_dir + "/bin"])
   libstdcpp = subprocess.check_output(["c++",
                                        "-print-file-name=libstdc++.so.6"])
   subprocess.check_call(["cp", libstdcpp.strip(), target_dir + "/lib"])
+
+  # Finally, build libc++ for MSAN bots using the Clang we just built.
+  os.mkdir("../msan_out")
+  os.chdir("../msan_out")
+  subprocess.check_call(["cmake", "..", "-G", "Ninja",
+                         "-DCMAKE_BUILD_TYPE=MinSizeRel",
+                         "-DCMAKE_C_COMPILER="   + target_dir + "/bin/clang",
+                         "-DCMAKE_CXX_COMPILER=" + target_dir + "/bin/clang++",
+                         "-DLLVM_USE_SANITIZER=MemoryWithOrigins"])
+  subprocess.check_call(["ninja", "cxx"])
+  subprocess.check_call(["cp", "-r", "lib",  target_dir + "/msan"])
 
 
 def main():
