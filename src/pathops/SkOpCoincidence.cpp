@@ -551,6 +551,9 @@ double SkOpCoincidence::TRange(const SkOpPtT* overS, double t,
     do {
         const SkOpPtT* contained = work->contains(coinSeg);
         if (!contained) {
+            if (work->t() >= t) {
+                return 1;
+            }
             continue;
         }
         if (work->t() <= t) {
@@ -795,7 +798,9 @@ bool SkOpCoincidence::addMissing() {
         const SkOpSegment* outerCoin = ocs->segment();
         SkASSERT(!outerCoin->done());  // if it's done, should have already been removed from list
         const SkOpPtT* oos = outer->oppPtTStart();
-        SkASSERT(!oos->deleted());
+        if (oos->deleted()) {
+            return false;
+        }
         const SkOpSegment* outerOpp = oos->segment();
         SkASSERT(!outerOpp->done());
         SkOpSegment* outerCoinWritable = const_cast<SkOpSegment*>(outerCoin);
@@ -816,7 +821,9 @@ bool SkOpCoincidence::addMissing() {
             SkOpSegment* innerOppWritable = const_cast<SkOpSegment*>(innerOpp);
             if (outerCoin == innerCoin) {
                 const SkOpPtT* oce = outer->coinPtTEnd();
-                SkASSERT(!oce->deleted());
+                if (oce->deleted()) {
+                    return false;
+                }
                 const SkOpPtT* ice = inner->coinPtTEnd();
                 SkASSERT(!ice->deleted());
                 if (outerOpp != innerOpp && this->overlap(ocs, oce, ics, ice, &overS, &overE)) {
@@ -852,7 +859,9 @@ bool SkOpCoincidence::addMissing() {
                 const SkOpPtT* ooe = outer->oppPtTEnd();
                 SkASSERT(!ooe->deleted());
                 const SkOpPtT* ioe = inner->oppPtTEnd();
-                SkASSERT(!ioe->deleted());
+                if (ioe->deleted()) {
+                    return false;
+                }
                 SkASSERT(outerCoin != innerCoin);
                 if (this->overlap(oos, ooe, ios, ioe, &overS, &overE)) {
                     added |= this->addIfMissing(oos->starter(ooe), ios->starter(ioe),
@@ -1394,7 +1403,7 @@ bool SkOpCoincidence::removeCollapsed() {
 }
 
 void SkOpCoincidence::fixUp(SkOpPtT* deleted, const SkOpPtT* kept) {
-    SkASSERT(deleted != kept);
+    SkOPASSERT(deleted != kept);
     if (fHead) {
         this->fixUp(fHead, deleted, kept);
     }
@@ -1453,7 +1462,9 @@ bool SkOpCoincidence::mark() {
         SkOpSpanBase* end = coin->coinPtTEndWritable()->span();
         SkASSERT(!end->deleted());
         SkOpSpanBase* oStart = coin->oppPtTStartWritable()->span();
-        SkASSERT(!oStart->deleted());
+        if (oStart->deleted()) {
+            return false;
+        }
         SkOpSpanBase* oEnd = coin->oppPtTEndWritable()->span();
         SkASSERT(!oEnd->deleted());
         bool flipped = coin->flipped();

@@ -394,7 +394,7 @@ void SkOpSpanBase::mergeMatches(SkOpSpanBase* opp) {
             if (!zero_or_one(inner->fT)) {
                 innerBase->upCast()->release(test);
             } else {
-                SkASSERT(inner->fT != test->fT);
+                SkOPASSERT(inner->fT != test->fT);
                 if (!zero_or_one(test->fT)) {
                     testBase->upCast()->release(inner);
                 } else {
@@ -491,7 +491,7 @@ bool SkOpSpan::insertCoincidence(const SkOpSegment* segment, bool flipped) {
 
 void SkOpSpan::release(const SkOpPtT* kept) {
     SkDEBUGCODE(fDebugDeleted = true);
-    SkASSERT(kept->span() != this);
+    SkOPASSERT(kept->span() != this);
     SkASSERT(!final());
     SkOpSpan* prev = this->prev();
     SkASSERT(prev);
