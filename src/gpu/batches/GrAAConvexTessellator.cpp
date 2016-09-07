@@ -32,17 +32,11 @@ static const SkScalar kRoundCapThreshold = 0.8f;
 // dot product above which we consider two adjacent curves to be part of the "same" curve
 static const SkScalar kCurveConnectionThreshold = 0.8f;
 
-static bool intersect(const SkPoint& p0, const SkPoint& n0,
-                      const SkPoint& p1, const SkPoint& n1,
-                      SkScalar* t) {
+static SkScalar intersect(const SkPoint& p0, const SkPoint& n0,
+                          const SkPoint& p1, const SkPoint& n1) {
     const SkPoint v = p1 - p0;
     SkScalar perpDot = n0.fX * n1.fY - n0.fY * n1.fX;
-    if (SkScalarNearlyZero(perpDot)) {
-        return false;
-    }
-    *t = (v.fX * n1.fY - v.fY * n1.fX) / perpDot;
-    SkASSERT(SkScalarIsFinite(*t));
-    return true;
+    return (v.fX * n1.fY - v.fY * n1.fX) / perpDot;
 }
 
 // This is a special case version of intersect where we have the vector
@@ -224,44 +218,7 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
 
     SkScalar coverage = 1.0f;
     SkScalar scaleFactor = 0.0f;
-
-    if (SkStrokeRec::kStrokeAndFill_Style == fStyle) {
-        SkASSERT(m.isSimilarity());
-        scaleFactor = m.getMaxScale(); // x and y scale are the same
-        SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;
-        Ring outerStrokeAndAARing;
-        this->createOuterRing(fInitialRing,
-                              effectiveStrokeWidth / 2 + kAntialiasingRadius, 0.0,
-                              &outerStrokeAndAARing);
-
-        // discard all the triangles added between the originating ring and the new outer ring
-        fIndices.rewind();
-
-        outerStrokeAndAARing.init(*this);
-
-        outerStrokeAndAARing.makeOriginalRing();
-
-        // Add the outer stroke ring's normals to the originating ring's normals
-        // so it can also act as an originating ring
-        fNorms.setReserve(fNorms.count() + outerStrokeAndAARing.numPts());
-        for (int i = 0; i < outerStrokeAndAARing.numPts(); ++i) {
-            fNorms.push(outerStrokeAndAARing.norm(i));
-        }
-
-        // the bisectors are only needed for the computation of the outer ring
-        fBisectors.rewind();
-
-        Ring* insetAARing;
-        this->createInsetRings(outerStrokeAndAARing,
-                               0.0f, 0.0f, 2*kAntialiasingRadius, 1.0f,
-                               &insetAARing);
-
-        SkDEBUGCODE(this->validate();)
-        return true;
-    }
-
-    if (SkStrokeRec::kStroke_Style == fStyle) {
-        SkASSERT(fStrokeWidth >= 0.0f);
+    if (fStrokeWidth >= 0.0f) {
         SkASSERT(m.isSimilarity());
         scaleFactor = m.getMaxScale(); // x and y scale are the same
         SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;
@@ -278,16 +235,15 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
 
     // the bisectors are only needed for the computation of the outer ring
     fBisectors.rewind();
-    if (SkStrokeRec::kStroke_Style == fStyle && fInitialRing.numPts() > 2) {
-        SkASSERT(fStrokeWidth >= 0.0f);
+    if (fStrokeWidth >= 0.0f && fInitialRing.numPts() > 2) {
         SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;
         Ring* insetStrokeRing;
         SkScalar strokeDepth = effectiveStrokeWidth / 2 - kAntialiasingRadius;
         if (this->createInsetRings(fInitialRing, 0.0f, coverage, strokeDepth, coverage,
-                                   &insetStrokeRing)) {
+                             &insetStrokeRing)) {
             Ring* insetAARing;
             this->createInsetRings(*insetStrokeRing, strokeDepth, coverage, strokeDepth +
-                                   kAntialiasingRadius * 2, 0.0f, &insetAARing);
+                             kAntialiasingRadius * 2, 0.0f, &insetAARing);
         }
     } else {
         Ring* insetAARing;
@@ -434,7 +390,7 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
         this->computeBisectors();
     } else if (this->numPts() == 2) {
         // We've got two points, so we're degenerate.
-        if (fStyle == SkStrokeRec::kFill_Style) {
+        if (fStrokeWidth < 0.0f) {
             // it's a fill, so we don't need to worry about degenerate paths
             return false;
         }
@@ -630,7 +586,7 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
 // Something went wrong in the creation of the next ring. If we're filling the shape, just go ahead
 // and fan it.
 void GrAAConvexTessellator::terminate(const Ring& ring) {
-    if (fStyle != SkStrokeRec::kStroke_Style) {
+    if (fStrokeWidth < 0.0f) {
         this->fanRing(ring);
     }
 }
@@ -660,14 +616,8 @@ bool GrAAConvexTessellator::createInsetRing(const Ring& lastRing, Ring* nextRing
 
     for (int cur = 0; cur < lastRing.numPts(); ++cur) {
         int next = (cur + 1) % lastRing.numPts();
-
-        SkScalar t;
-        bool result = intersect(this->point(lastRing.index(cur)),  lastRing.bisector(cur),
-                                this->point(lastRing.index(next)), lastRing.bisector(next),
-                                &t);
-        if (!result) {
-            continue;
-        }
+        SkScalar t = intersect(this->point(lastRing.index(cur)),  lastRing.bisector(cur),
+                               this->point(lastRing.index(next)), lastRing.bisector(next));
         SkScalar dist = -t * lastRing.norm(cur).dot(lastRing.bisector(cur));
 
         if (minDist > dist) {
@@ -795,8 +745,8 @@ bool GrAAConvexTessellator::createInsetRing(const Ring& lastRing, Ring* nextRing
         this->addTri(lastRing.index(i), dst[next], dst[i]);
     }
 
-    if (done && fStyle != SkStrokeRec::kStroke_Style) {
-        // fill or stroke-and-fill
+    if (done && fStrokeWidth < 0.0f) {
+        // fill
         this->fanRing(*nextRing);
     }
 
@@ -910,7 +860,7 @@ void GrAAConvexTessellator::lineTo(SkPoint p, CurveState curve) {
             return;
         }
     }
-    SkScalar initialRingCoverage = (SkStrokeRec::kFill_Style == fStyle) ? 0.5f : 1.0f;
+    SkScalar initialRingCoverage = fStrokeWidth < 0.0f ? 0.5f : 1.0f;
     this->addPt(p, 0.0f, initialRingCoverage, false, curve);
     if (this->numPts() > 1) {
         *fNorms.push() = fPts.top() - fPts[fPts.count()-2];
