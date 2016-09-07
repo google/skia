@@ -133,6 +133,7 @@ sk_sp<SkFlattenable> SkGaussianEdgeShaderImpl::CreateProc(SkReadBuffer& buf) {
 }
 
 void SkGaussianEdgeShaderImpl::flatten(SkWriteBuffer& buf) const {
+    this->INHERITED::flatten(buf);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

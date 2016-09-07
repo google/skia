@@ -24,7 +24,6 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkEmbossMaskFilter.h"
-#include "SkGaussianEdgeShader.h"
 #include "SkGradientShader.h"
 #include "SkImageSource.h"
 #include "SkLayerDrawLooper.h"
@@ -90,7 +89,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SkGradientShader::InitializeFlattenables();
     SkLightingShader::InitializeFlattenables();
     SkNormalSource::InitializeFlattenables();
-    SkGaussianEdgeShader::InitializeFlattenables();
+
 
     // PathEffect
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkArcToPathEffect)
