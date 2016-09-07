@@ -11,6 +11,7 @@
 #include "GrGpuResource.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
+#include "GrResourceCache.h"
 #include "GrResourceKey.h"
 #include "SkMessageBus.h"
 #include "SkRefCnt.h"
@@ -163,23 +164,16 @@ public:
     /** Purges all resources that don't have external owners. */
     void purgeAllUnlocked();
 
-    /**
-     * The callback function used by the cache when it is still over budget after a purge. The
-     * passed in 'data' is the same 'data' handed to setOverbudgetCallback.
-     */
-    typedef void (*PFOverBudgetCB)(void* data);
+    /** Returns true if the cache would like a flush to occur in order to make more resources
+        purgeable. */
+    bool requestsFlush() const { return fRequestFlush; }
 
-    /**
-     * Set the callback the cache should use when it is still over budget after a purge. The 'data'
-     * provided here will be passed back to the callback. Note that the cache will attempt to purge
-     * any resources newly freed by the callback.
-     */
-    void setOverBudgetCallback(PFOverBudgetCB overBudgetCB, void* data) {
-        fOverBudgetCB = overBudgetCB;
-        fOverBudgetData = data;
-    }
-
-    void notifyFlushOccurred();
+    enum FlushType {
+        kExternal,
+        kImmediateMode,
+        kCacheRequested,
+    };
+    void notifyFlushOccurred(FlushType);
 
 #if GR_CACHE_STATS
     struct Stats {
@@ -326,8 +320,7 @@ private:
     int                                 fBudgetedCount;
     size_t                              fBudgetedBytes;
 
-    PFOverBudgetCB                      fOverBudgetCB;
-    void*                               fOverBudgetData;
+    bool                                fRequestFlush;
 
     // We keep track of the "timestamps" of the last n flushes. If a resource hasn't been used in
     // that time then we well preemptively purge it to reduce memory usage.

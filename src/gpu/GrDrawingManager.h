@@ -13,6 +13,7 @@
 #include "GrBatchFlushState.h"
 #include "GrPathRendererChain.h"
 #include "GrPathRenderer.h"
+#include "GrResourceCache.h"
 #include "SkTDArray.h"
 
 class GrContext;
@@ -49,11 +50,19 @@ public:
                                     GrPathRendererChain::DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport = NULL);
 
+    void flushIfNecessary() {
+        if (fContext->getResourceCache()->requestsFlush()) {
+            this->internalFlush(GrResourceCache::kCacheRequested);
+        } else if (fIsImmediateMode) {
+            this->internalFlush(GrResourceCache::kImmediateMode);
+        }
+    }
+
     static bool ProgramUnitTest(GrContext* context, int maxStages);
 
 private:
     GrDrawingManager(GrContext* context, const GrDrawTarget::Options& optionsForDrawTargets,
-                     GrSingleOwner* singleOwner)
+                     bool isImmediateMode, GrSingleOwner* singleOwner)
         : fContext(context)
         , fOptionsForDrawTargets(optionsForDrawTargets)
         , fSingleOwner(singleOwner)
@@ -62,14 +71,15 @@ private:
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
         , fFlushState(context->getGpu(), context->resourceProvider())
-        , fFlushing(false) {
+        , fFlushing(false)
+        , fIsImmediateMode(isImmediateMode) {
     }
 
     void abandon();
     void cleanup();
     void reset();
-    /** Returns true if there was anything to flush and false otherwise */
-    bool flush();
+    void flush() { this->internalFlush(GrResourceCache::FlushType::kExternal); }
+    void internalFlush(GrResourceCache::FlushType);
 
     friend class GrContext;  // for access to: ctor, abandon, reset & flush
 
@@ -92,6 +102,8 @@ private:
 
     GrBatchFlushState                 fFlushState;
     bool                              fFlushing;
+
+    bool                              fIsImmediateMode;
 };
 
 #endif

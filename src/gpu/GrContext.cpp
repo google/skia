@@ -66,7 +66,6 @@ GrContext::GrContext() : fUniqueID(next_id()) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fBatchFontCache = nullptr;
-    fFlushToReduceCacheSize = false;
 }
 
 bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
@@ -87,7 +86,6 @@ void GrContext::initCommon(const GrContextOptions& options) {
 
     fCaps = SkRef(fGpu->caps());
     fResourceCache = new GrResourceCache(fCaps);
-    fResourceCache->setOverBudgetCallback(OverBudgetCB, this);
     fResourceProvider = new GrResourceProvider(fGpu, fResourceCache, &fSingleOwner);
 
     fDidTestPMConversions = false;
@@ -97,7 +95,8 @@ void GrContext::initCommon(const GrContextOptions& options) {
     dtOptions.fDrawBatchBounds = options.fDrawBatchBounds;
     dtOptions.fMaxBatchLookback = options.fMaxBatchLookback;
     dtOptions.fMaxBatchLookahead = options.fMaxBatchLookahead;
-    fDrawingManager.reset(new GrDrawingManager(this, dtOptions, &fSingleOwner));
+    fDrawingManager.reset(new GrDrawingManager(this, dtOptions, options.fImmediateMode,
+                                               &fSingleOwner));
 
     // GrBatchFontCache will eventually replace GrFontCache
     fBatchFontCache = new GrBatchFontCache(this);
@@ -203,41 +202,21 @@ void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::OverBudgetCB(void* data) {
-    SkASSERT(data);
-
-    GrContext* context = reinterpret_cast<GrContext*>(data);
-
-    // Flush the GrBufferedDrawTarget to possibly free up some textures
-    context->fFlushToReduceCacheSize = true;
-}
-
 void GrContext::TextBlobCacheOverBudgetCB(void* data) {
     SkASSERT(data);
-
-    // Unlike the GrResourceCache, TextBlobs are drawn at the SkGpuDevice level, therefore they
-    // cannot use fFlushTorReduceCacheSize because it uses AutoCheckFlush.  The solution is to move
-    // drawText calls to below the GrContext level, but this is not trivial because they call
-    // drawPath on SkGpuDevice
+    // TextBlobs are drawn at the SkGpuDevice level, therefore they cannot rely on GrDrawContext
+    // to perform a necessary flush.  The solution is to move drawText calls to below the GrContext
+    // level, but this is not trivial because they call drawPath on SkGpuDevice.
     GrContext* context = reinterpret_cast<GrContext*>(data);
     context->flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::flush(int flagsBitfield) {
+void GrContext::flush() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
-    bool flushed = false;
-    if (kDiscard_FlushBit & flagsBitfield) {
-        fDrawingManager->reset();
-    } else {
-        flushed = fDrawingManager->flush();
-    }
-    if (flushed) {
-        fResourceCache->notifyFlushOccurred();
-    }
-    fFlushToReduceCacheSize = false;
+    fDrawingManager->flush();
 }
 
 bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,

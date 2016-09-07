@@ -1008,7 +1008,6 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     if (nullptr == texture) {
         return;
     }
-
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(bitmap.colorSpace(), fDrawContext->getColorSpace(),
                                 bitmap.alphaType());

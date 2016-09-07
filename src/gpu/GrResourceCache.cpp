@@ -73,8 +73,7 @@ GrResourceCache::GrResourceCache(const GrCaps* caps)
     , fBytes(0)
     , fBudgetedCount(0)
     , fBudgetedBytes(0)
-    , fOverBudgetCB(nullptr)
-    , fOverBudgetData(nullptr)
+    , fRequestFlush(false)
     , fFlushTimestamps(nullptr)
     , fLastFlushTimestampIndex(0)
     , fPreferVRAMUseOverFlushes(caps->preferVRAMUseOverFlushes()) {
@@ -503,10 +502,9 @@ void GrResourceCache::purgeAsNeeded() {
     this->validate();
 
     if (stillOverbudget) {
-        // Despite the purge we're still over budget. Call our over budget callback. If this frees
-        // any resources then we'll get notified and take appropriate action.
-        (*fOverBudgetCB)(fOverBudgetData);
-        this->validate();
+        // Set this so that GrDrawingManager will issue a flush to free up resources with pending
+        // IO that we were unable to purge in this pass.
+        fRequestFlush = true;
     }
 }
 
@@ -621,16 +619,26 @@ uint32_t GrResourceCache::getNextTimestamp() {
     return fTimestamp++;
 }
 
-void GrResourceCache::notifyFlushOccurred() {
-    if (fFlushTimestamps) {
-        SkASSERT(SkIsPow2(fMaxUnusedFlushes));
-        fLastFlushTimestampIndex = (fLastFlushTimestampIndex + 1) & (fMaxUnusedFlushes - 1);
-        // get the timestamp before accessing fFlushTimestamps because getNextTimestamp will
-        // reallocate fFlushTimestamps on timestamp overflow.
-        uint32_t timestamp = this->getNextTimestamp();
-        fFlushTimestamps[fLastFlushTimestampIndex] = timestamp;
-        this->purgeAsNeeded();
+void GrResourceCache::notifyFlushOccurred(FlushType type) {
+    switch (type) {
+        case FlushType::kImmediateMode:
+            break;
+        case FlushType::kCacheRequested:
+            SkASSERT(fRequestFlush);
+            fRequestFlush = false;
+            break;
+        case FlushType::kExternal:
+            if (fFlushTimestamps) {
+                SkASSERT(SkIsPow2(fMaxUnusedFlushes));
+                fLastFlushTimestampIndex = (fLastFlushTimestampIndex + 1) & (fMaxUnusedFlushes - 1);
+                // get the timestamp before accessing fFlushTimestamps because getNextTimestamp will
+                // reallocate fFlushTimestamps on timestamp overflow.
+                uint32_t timestamp = this->getNextTimestamp();
+                fFlushTimestamps[fLastFlushTimestampIndex] = timestamp;
+            }
+            break;
     }
+    this->purgeAsNeeded();
 }
 
 void GrResourceCache::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
