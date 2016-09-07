@@ -262,6 +262,14 @@ def dm_flags(bot):
     blacklist.extend([   '2ndpic-8888', 'gm', '_', test])
     blacklist.extend(['serialize-8888', 'gm', '_', test])
 
+  # GM that requires raster-backed canvas
+  for test in ['gamut']:
+    blacklist.extend([       'sp-8888', 'gm', '_', test])
+    blacklist.extend([      'pic-8888', 'gm', '_', test])
+    blacklist.extend([     'lite-8888', 'gm', '_', test])
+    blacklist.extend([   '2ndpic-8888', 'gm', '_', test])
+    blacklist.extend(['serialize-8888', 'gm', '_', test])
+
   # Extensions for RAW images
   r = ["arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
        "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW"]
