@@ -30,6 +30,8 @@ public:
         return str;
     }
 
+    GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
+
 protected:
     /** unfiltered, clamp mode */
     GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,

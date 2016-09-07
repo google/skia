@@ -1010,7 +1010,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     }
 
     sk_sp<GrColorSpaceXform> colorSpaceXform =
-        GrColorSpaceXform::Make(bitmap.colorSpace(), fDrawContext->getColorSpace());
+        GrColorSpaceXform::Make(bitmap.colorSpace(), fDrawContext->getColorSpace(),
+                                bitmap.alphaType());
 
     SkScalar iw = 1.f / texture->width();
     SkScalar ih = 1.f / texture->height();
@@ -1134,8 +1135,12 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
     SkPaint tmpUnfiltered(paint);
     tmpUnfiltered.setImageFilter(nullptr);
 
+    sk_sp<GrColorSpaceXform> colorSpaceXform =
+        GrColorSpaceXform::Make(result->getColorSpace(), fDrawContext->getColorSpace(),
+                                result->alphaType());
     GrPaint grPaint;
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), nullptr,
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(),
+                                                              std::move(colorSpaceXform),
                                                               SkMatrix::I()));
     if (GrPixelConfigIsAlphaOnly(texture->config())) {
         fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));

@@ -8,12 +8,13 @@
 #ifndef GrGLSLColorSpaceXformHelper_DEFINED
 #define GrGLSLColorSpaceXformHelper_DEFINED
 
+#include "GrColorSpaceXform.h"
 #include "GrGLSLUniformHandler.h"
-
-class GrColorSpaceXform;
 
 /**
  * Stack helper class to assist with using GrColorSpaceXform within an FP's emitCode function.
+ * This injects the uniform declaration, and stores the information needed to generate correct
+ * gamut-transformation shader code.
  */
 class GrGLSLColorSpaceXformHelper : public SkNoncopyable {
 public:
@@ -25,15 +26,18 @@ public:
             *handle = uniformHandler->addUniform(kFragment_GrShaderFlag, kMat44f_GrSLType,
                                                  kDefault_GrSLPrecision, "ColorXform",
                                                  &fXformMatrix);
+            fAlphaType = colorSpaceXform->alphaType();
         } else {
             fXformMatrix = nullptr;
         }
     }
 
     const char* getXformMatrix() const { return fXformMatrix; }
+    SkAlphaType alphaType() const { return fAlphaType; }
 
 private:
     const char* fXformMatrix;
+    SkAlphaType fAlphaType;
 };
 
 #endif

@@ -30,7 +30,7 @@ public:
                               GrProcessorKeyBuilder* b) {
         const GrBicubicEffect& bicubicEffect = effect.cast<GrBicubicEffect>();
         b->add32(GrTextureDomain::GLDomain::DomainKey(bicubicEffect.domain()));
-        b->add32(SkToInt(SkToBool(bicubicEffect.colorSpaceXform())));
+        b->add32(GrColorSpaceXform::XformKey(bicubicEffect.colorSpaceXform()));
     }
 
 protected:
@@ -114,7 +114,9 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     SkString bicubicColor;
     bicubicColor.printf("%s(%s, f.y, s0, s1, s2, s3)", cubicBlendName.c_str(), coeff);
     if (colorSpaceHelper.getXformMatrix()) {
-        bicubicColor.appendf(" * %s", colorSpaceHelper.getXformMatrix());
+        SkString xformedColor;
+        fragBuilder->appendColorGamutXform(&xformedColor, bicubicColor.c_str(), &colorSpaceHelper);
+        bicubicColor.swap(xformedColor);
     }
     fragBuilder->codeAppendf("\t%s = %s;\n",
                              args.fOutputColor, (GrGLSLExpr4(bicubicColor.c_str()) *
