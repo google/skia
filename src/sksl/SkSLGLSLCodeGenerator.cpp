@@ -313,24 +313,24 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine("};");
 }
 
-void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& decl) {
+void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl) {
     ASSERT(decl.fVars.size() > 0);
-    this->writeModifiers(decl.fVars[0]->fModifiers);
+    this->writeModifiers(decl.fVars[0].fVar->fModifiers);
     this->writeType(decl.fBaseType);
     std::string separator = " ";
-    for (size_t i = 0; i < decl.fVars.size(); i++) {
-        ASSERT(decl.fVars[i]->fModifiers == decl.fVars[0]->fModifiers);
+    for (const auto& var : decl.fVars) {
+        ASSERT(var.fVar->fModifiers == decl.fVars[0].fVar->fModifiers);
         this->write(separator);
         separator = ", ";
-        this->write(decl.fVars[i]->fName);
-        for (const auto& size : decl.fSizes[i]) {
+        this->write(var.fVar->fName);
+        for (const auto& size : var.fSizes) {
             this->write("[");
             this->writeExpression(*size, kTopLevel_Precedence);
             this->write("]");
         }
-        if (decl.fValues[i]) {
+        if (var.fValue) {
             this->write(" = ");
-            this->writeExpression(*decl.fValues[i], kTopLevel_Precedence);
+            this->writeExpression(*var.fValue, kTopLevel_Precedence);
         }
     }
     this->write(";");
@@ -348,8 +348,8 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
         case Statement::kReturn_Kind: 
             this->writeReturnStatement((ReturnStatement&) s);
             break;
-        case Statement::kVarDeclaration_Kind:
-            this->writeVarDeclaration(*((VarDeclarationStatement&) s).fDeclaration);
+        case Statement::kVarDeclarations_Kind:
+            this->writeVarDeclarations(*((VarDeclarationsStatement&) s).fDeclaration);
             break;
         case Statement::kIf_Kind:
             this->writeIfStatement((IfStatement&) s);
@@ -455,9 +455,10 @@ void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) 
                 this->writeExtension((Extension&) *e);
                 break;
             case ProgramElement::kVar_Kind: {
-                VarDeclaration& decl = (VarDeclaration&) *e;
-                if (decl.fVars.size() > 0 && decl.fVars[0]->fModifiers.fLayout.fBuiltin == -1) {
-                    this->writeVarDeclaration(decl);
+                VarDeclarations& decl = (VarDeclarations&) *e;
+                if (decl.fVars.size() > 0 && 
+                    decl.fVars[0].fVar->fModifiers.fLayout.fBuiltin == -1) {
+                    this->writeVarDeclarations(decl);
                     this->writeLine();
                 }
                 break;

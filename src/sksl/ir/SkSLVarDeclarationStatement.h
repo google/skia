@@ -14,18 +14,18 @@
 namespace SkSL {
 
 /**
- * A variable declaration appearing as a statement within a function.
+ * One or more variable declarations appearing as a statement within a function.
  */
-struct VarDeclarationStatement : public Statement {
-    VarDeclarationStatement(std::unique_ptr<VarDeclaration> decl)
-    : INHERITED(decl->fPosition, kVarDeclaration_Kind) 
+struct VarDeclarationsStatement : public Statement {
+    VarDeclarationsStatement(std::unique_ptr<VarDeclarations> decl)
+    : INHERITED(decl->fPosition, kVarDeclarations_Kind) 
     , fDeclaration(std::move(decl)) {}
 
     std::string description() const override {
         return fDeclaration->description();
     }
 
-    const std::shared_ptr<VarDeclaration> fDeclaration;
+    const std::shared_ptr<VarDeclarations> fDeclaration;
 
     typedef Statement INHERITED;
 };

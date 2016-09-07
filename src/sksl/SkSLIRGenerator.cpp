@@ -129,35 +129,32 @@ std::unique_ptr<Block> IRGenerator::convertBlock(const ASTBlock& block) {
 
 std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(
                                                               const ASTVarDeclarationStatement& s) {
-    auto decl = this->convertVarDeclaration(*s.fDeclaration, Variable::kLocal_Storage);
+    auto decl = this->convertVarDeclarations(*s.fDeclarations, Variable::kLocal_Storage);
     if (!decl) {
         return nullptr;
     }
-    return std::unique_ptr<Statement>(new VarDeclarationStatement(std::move(decl)));
+    return std::unique_ptr<Statement>(new VarDeclarationsStatement(std::move(decl)));
 }
 
 Modifiers IRGenerator::convertModifiers(const ASTModifiers& modifiers) {
     return Modifiers(modifiers);
 }
 
-std::unique_ptr<VarDeclaration> IRGenerator::convertVarDeclaration(const ASTVarDeclaration& decl,
-                                                                   Variable::Storage storage) {
-    std::vector<const Variable*> variables;
-    std::vector<std::vector<std::unique_ptr<Expression>>> sizes;
-    std::vector<std::unique_ptr<Expression>> values;
+std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVarDeclarations& decl,
+                                                                     Variable::Storage storage) {
+    std::vector<VarDeclaration> variables;
     const Type* baseType = this->convertType(*decl.fType);
     if (!baseType) {
         return nullptr;
     }
-    for (size_t i = 0; i < decl.fNames.size(); i++) {
+    for (const auto& varDecl : decl.fVars) {
         Modifiers modifiers = this->convertModifiers(decl.fModifiers);
         const Type* type = baseType;
         ASSERT(type->kind() != Type::kArray_Kind);
-        std::vector<std::unique_ptr<Expression>> currentVarSizes;
-        for (size_t j = 0; j < decl.fSizes[i].size(); j++) {
-            if (decl.fSizes[i][j]) {
-                ASTExpression& rawSize = *decl.fSizes[i][j];
-                auto size = this->coerce(this->convertExpression(rawSize), *fContext.fInt_Type);
+        std::vector<std::unique_ptr<Expression>> sizes;
+        for (const auto& rawSize : varDecl.fSizes) {
+            if (rawSize) {
+                auto size = this->coerce(this->convertExpression(*rawSize), *fContext.fInt_Type);
                 if (!size) {
                     return nullptr;
                 }
@@ -175,39 +172,35 @@ std::unique_ptr<VarDeclaration> IRGenerator::convertVarDeclaration(const ASTVarD
                 }
                 type = new Type(name, Type::kArray_Kind, *type, (int) count);
                 fSymbolTable->takeOwnership((Type*) type);
-                currentVarSizes.push_back(std::move(size));
+                sizes.push_back(std::move(size));
             } else {
                 type = new Type(type->fName + "[]", Type::kArray_Kind, *type, -1);
                 fSymbolTable->takeOwnership((Type*) type);
-                currentVarSizes.push_back(nullptr);
+                sizes.push_back(nullptr);
             }
         }
-        auto var = std::unique_ptr<Variable>(new Variable(decl.fPosition, modifiers, decl.fNames[i], 
+        auto var = std::unique_ptr<Variable>(new Variable(decl.fPosition, modifiers, varDecl.fName, 
                                                           *type, storage));
         std::unique_ptr<Expression> value;
-        if (decl.fValues[i]) {
-            value = this->convertExpression(*decl.fValues[i]);
+        if (varDecl.fValue) {
+            value = this->convertExpression(*varDecl.fValue);
             if (!value) {
                 return nullptr;
             }
             value = this->coerce(std::move(value), *type);
         }
-        if ("gl_FragCoord" == decl.fNames[i] && (*fSymbolTable)[decl.fNames[i]]) {
+        if ("gl_FragCoord" == varDecl.fName && (*fSymbolTable)[varDecl.fName]) {
             // already defined, just update the modifiers
-            Variable* old = (Variable*) (*fSymbolTable)[decl.fNames[i]];
+            Variable* old = (Variable*) (*fSymbolTable)[varDecl.fName];
             old->fModifiers = var->fModifiers;
         } else {
-            variables.push_back(var.get());
-            fSymbolTable->add(decl.fNames[i], std::move(var));
-            values.push_back(std::move(value));
-            sizes.push_back(std::move(currentVarSizes));
+            variables.emplace_back(var.get(), std::move(sizes), std::move(value));
+            fSymbolTable->add(varDecl.fName, std::move(var));
         }
     }
-    return std::unique_ptr<VarDeclaration>(new VarDeclaration(decl.fPosition, 
-                                                              baseType,
-                                                              std::move(variables), 
-                                                              std::move(sizes), 
-                                                              std::move(values)));
+    return std::unique_ptr<VarDeclarations>(new VarDeclarations(decl.fPosition, 
+                                                                baseType,
+                                                                std::move(variables)));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTIfStatement& s) {
@@ -482,21 +475,21 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
     Modifiers mods = this->convertModifiers(intf.fModifiers);
     std::vector<Type::Field> fields;
     for (size_t i = 0; i < intf.fDeclarations.size(); i++) {
-        std::unique_ptr<VarDeclaration> decl = this->convertVarDeclaration(
+        std::unique_ptr<VarDeclarations> decl = this->convertVarDeclarations(
                                                                          *intf.fDeclarations[i], 
                                                                          Variable::kGlobal_Storage);
-        for (size_t j = 0; j < decl->fVars.size(); j++) {
-            fields.push_back(Type::Field(decl->fVars[j]->fModifiers, decl->fVars[j]->fName, 
-                                         &decl->fVars[j]->fType));
-            if (decl->fValues[j]) {
+        for (const auto& var : decl->fVars) {
+            fields.push_back(Type::Field(var.fVar->fModifiers, var.fVar->fName, 
+                                         &var.fVar->fType));
+            if (var.fValue) {
                 fErrors.error(decl->fPosition, 
                               "initializers are not permitted on interface block fields");
             }
-            if (decl->fVars[j]->fModifiers.fFlags & (Modifiers::kIn_Flag |
-                                                     Modifiers::kOut_Flag |
-                                                     Modifiers::kUniform_Flag |
-                                                     Modifiers::kConst_Flag)) {
-                fErrors.error(decl->fPosition, 
+            if (var.fVar->fModifiers.fFlags & (Modifiers::kIn_Flag |
+                                               Modifiers::kOut_Flag |
+                                               Modifiers::kUniform_Flag |
+                                               Modifiers::kConst_Flag)) {
+                fErrors.error(decl->fPosition,
                               "interface block fields may not have storage qualifiers");
             }
         }        

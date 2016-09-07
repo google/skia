@@ -115,9 +115,9 @@ private:
 
     SpvId writeFunction(const FunctionDefinition& f, std::ostream& out);
 
-    void writeGlobalVars(const VarDeclaration& v, std::ostream& out);
+    void writeGlobalVars(const VarDeclarations& v, std::ostream& out);
 
-    void writeVarDeclaration(const VarDeclaration& decl, std::ostream& out);
+    void writeVarDeclarations(const VarDeclarations& decl, std::ostream& out);
 
     SpvId writeVariableReference(const VariableReference& ref, std::ostream& out);
 

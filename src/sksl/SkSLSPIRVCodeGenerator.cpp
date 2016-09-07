@@ -2363,23 +2363,25 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     return result;
 }
 
-void SPIRVCodeGenerator::writeGlobalVars(const VarDeclaration& decl, std::ostream& out) {
+void SPIRVCodeGenerator::writeGlobalVars(const VarDeclarations& decl, std::ostream& out) {
     for (size_t i = 0; i < decl.fVars.size(); i++) {
-        if (!decl.fVars[i]->fIsReadFrom && !decl.fVars[i]->fIsWrittenTo &&
-                !(decl.fVars[i]->fModifiers.fFlags & (Modifiers::kIn_Flag |
-                                                      Modifiers::kOut_Flag |
-                                                      Modifiers::kUniform_Flag))) {
+        const VarDeclaration& varDecl = decl.fVars[i];
+        const Variable* var = varDecl.fVar;
+        if (!var->fIsReadFrom && !var->fIsWrittenTo &&
+                !(var->fModifiers.fFlags & (Modifiers::kIn_Flag |
+                                            Modifiers::kOut_Flag |
+                                            Modifiers::kUniform_Flag))) {
             // variable is dead and not an input / output var (the Vulkan debug layers complain if
             // we elide an interface var, even if it's dead)
             continue;
         }
         SpvStorageClass_ storageClass;
-        if (decl.fVars[i]->fModifiers.fFlags & Modifiers::kIn_Flag) {
+        if (var->fModifiers.fFlags & Modifiers::kIn_Flag) {
             storageClass = SpvStorageClassInput;
-        } else if (decl.fVars[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
+        } else if (var->fModifiers.fFlags & Modifiers::kOut_Flag) {
             storageClass = SpvStorageClassOutput;
-        } else if (decl.fVars[i]->fModifiers.fFlags & Modifiers::kUniform_Flag) {
-            if (decl.fVars[i]->fType.kind() == Type::kSampler_Kind) {
+        } else if (var->fModifiers.fFlags & Modifiers::kUniform_Flag) {
+            if (var->fType.kind() == Type::kSampler_Kind) {
                 storageClass = SpvStorageClassUniformConstant;
             } else {
                 storageClass = SpvStorageClassUniform;
@@ -2388,36 +2390,37 @@ void SPIRVCodeGenerator::writeGlobalVars(const VarDeclaration& decl, std::ostrea
             storageClass = SpvStorageClassPrivate;
         }
         SpvId id = this->nextId();
-        fVariableMap[decl.fVars[i]] = id;
-        SpvId type = this->getPointerType(decl.fVars[i]->fType, storageClass);
+        fVariableMap[var] = id;
+        SpvId type = this->getPointerType(var->fType, storageClass);
         this->writeInstruction(SpvOpVariable, type, id, storageClass, fConstantBuffer);
-        this->writeInstruction(SpvOpName, id, decl.fVars[i]->fName.c_str(), fNameBuffer);
-        if (decl.fVars[i]->fType.kind() == Type::kMatrix_Kind) {
+        this->writeInstruction(SpvOpName, id, var->fName.c_str(), fNameBuffer);
+        if (var->fType.kind() == Type::kMatrix_Kind) {
             this->writeInstruction(SpvOpMemberDecorate, id, (SpvId) i, SpvDecorationColMajor, 
                                    fDecorationBuffer);
             this->writeInstruction(SpvOpMemberDecorate, id, (SpvId) i, SpvDecorationMatrixStride, 
-                                   (SpvId) decl.fVars[i]->fType.stride(), fDecorationBuffer);
+                                   (SpvId) var->fType.stride(), fDecorationBuffer);
         }
-        if (decl.fValues[i]) {
+        if (varDecl.fValue) {
             ASSERT(!fCurrentBlock);
             fCurrentBlock = -1;
-            SpvId value = this->writeExpression(*decl.fValues[i], fGlobalInitializersBuffer);
+            SpvId value = this->writeExpression(*varDecl.fValue, fGlobalInitializersBuffer);
             this->writeInstruction(SpvOpStore, id, value, fGlobalInitializersBuffer);
             fCurrentBlock = 0;
         }
-        this->writeLayout(decl.fVars[i]->fModifiers.fLayout, id);
+        this->writeLayout(var->fModifiers.fLayout, id);
     }
 }
 
-void SPIRVCodeGenerator::writeVarDeclaration(const VarDeclaration& decl, std::ostream& out) {
-    for (size_t i = 0; i < decl.fVars.size(); i++) {
+void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, std::ostream& out) {
+    for (const auto& varDecl : decl.fVars) {
+        const Variable* var = varDecl.fVar;
         SpvId id = this->nextId();
-        fVariableMap[decl.fVars[i]] = id;
-        SpvId type = this->getPointerType(decl.fVars[i]->fType, SpvStorageClassFunction);
+        fVariableMap[var] = id;
+        SpvId type = this->getPointerType(var->fType, SpvStorageClassFunction);
         this->writeInstruction(SpvOpVariable, type, id, SpvStorageClassFunction, fVariableBuffer);
-        this->writeInstruction(SpvOpName, id, decl.fVars[i]->fName.c_str(), fNameBuffer);
-        if (decl.fValues[i]) {
-            SpvId value = this->writeExpression(*decl.fValues[i], out);
+        this->writeInstruction(SpvOpName, id, var->fName.c_str(), fNameBuffer);
+        if (varDecl.fValue) {
+            SpvId value = this->writeExpression(*varDecl.fValue, out);
             this->writeInstruction(SpvOpStore, id, value, out);
         }
     }
@@ -2434,8 +2437,8 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, std::ostream& out) {
         case Statement::kReturn_Kind: 
             this->writeReturnStatement((ReturnStatement&) s, out);
             break;
-        case Statement::kVarDeclaration_Kind:
-            this->writeVarDeclaration(*((VarDeclarationStatement&) s).fDeclaration, out);
+        case Statement::kVarDeclarations_Kind:
+            this->writeVarDeclarations(*((VarDeclarationsStatement&) s).fDeclaration, out);
             break;
         case Statement::kIf_Kind:
             this->writeIfStatement((IfStatement&) s, out);
@@ -2559,7 +2562,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, std::ostream&
     }
     for (size_t i = 0; i < program.fElements.size(); i++) {
         if (program.fElements[i]->fKind == ProgramElement::kVar_Kind) {
-            this->writeGlobalVars(((VarDeclaration&) *program.fElements[i]), body);
+            this->writeGlobalVars(((VarDeclarations&) *program.fElements[i]), body);
         }
     }
     for (size_t i = 0; i < program.fElements.size(); i++) {

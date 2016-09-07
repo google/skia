@@ -56,8 +56,8 @@ public:
     IRGenerator(const Context* context, std::shared_ptr<SymbolTable> root, 
                 ErrorReporter& errorReporter);
 
-    std::unique_ptr<VarDeclaration> convertVarDeclaration(const ASTVarDeclaration& decl, 
-                                                          Variable::Storage storage);
+    std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTVarDeclarations& decl, 
+                                                            Variable::Storage storage);
     std::unique_ptr<FunctionDefinition> convertFunction(const ASTFunction& f);
     std::unique_ptr<Statement> convertStatement(const ASTStatement& statement);
     std::unique_ptr<Expression> convertExpression(const ASTExpression& expression);
