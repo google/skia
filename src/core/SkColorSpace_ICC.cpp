@@ -240,12 +240,12 @@ static constexpr uint32_t kTAG_ParaCurveType = SkSetFourByteTag('p', 'a', 'r', '
 
 static SkGammas::Type set_gamma_value(SkGammas::Data* data, float value) {
     if (color_space_almost_equal(2.2f, value)) {
-        data->fNamed = SkColorSpace::k2Dot2Curve_GammaNamed;
+        data->fNamed = k2Dot2Curve_SkGammaNamed;
         return SkGammas::Type::kNamed_Type;
     }
 
     if (color_space_almost_equal(1.0f, value)) {
-        data->fNamed = SkColorSpace::kLinear_GammaNamed;
+        data->fNamed = kLinear_SkGammaNamed;
         return SkGammas::Type::kNamed_Type;
     }
 
@@ -310,7 +310,7 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
                 // Some tags require a gamma curve, but the author doesn't actually want
                 // to transform the data.  In this case, it is common to see a curve with
                 // a count of 0.
-                outData->fNamed = SkColorSpace::kLinear_GammaNamed;
+                outData->fNamed = kLinear_SkGammaNamed;
                 return SkGammas::Type::kNamed_Type;
             }
 
@@ -339,7 +339,7 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
                         14116 == read_big_endian_u16((const uint8_t*) &table[513]) &&
                         34318 == read_big_endian_u16((const uint8_t*) &table[768]) &&
                         65535 == read_big_endian_u16((const uint8_t*) &table[1023])) {
-                    outData->fNamed = SkColorSpace::kSRGB_GammaNamed;
+                    outData->fNamed = kSRGB_SkGammaNamed;
                     return SkGammas::Type::kNamed_Type;
                 }
             }
@@ -352,7 +352,7 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
                         12824 == read_big_endian_u16((const uint8_t*) &table[12]) &&
                         31237 == read_big_endian_u16((const uint8_t*) &table[18]) &&
                         65535 == read_big_endian_u16((const uint8_t*) &table[25])) {
-                    outData->fNamed = SkColorSpace::kSRGB_GammaNamed;
+                    outData->fNamed = kSRGB_SkGammaNamed;
                     return SkGammas::Type::kNamed_Type;
                 }
             }
@@ -365,7 +365,7 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
                         3342 == read_big_endian_u16((const uint8_t*) &table[1025]) &&
                         14079 == read_big_endian_u16((const uint8_t*) &table[2051]) &&
                         65535 == read_big_endian_u16((const uint8_t*) &table[4095])) {
-                    outData->fNamed = SkColorSpace::kSRGB_GammaNamed;
+                    outData->fNamed = kSRGB_SkGammaNamed;
                     return SkGammas::Type::kNamed_Type;
                 }
             }
@@ -486,7 +486,7 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
                     color_space_almost_equal(0.0774f, e) &&
                     color_space_almost_equal(0.0000f, f) &&
                     color_space_almost_equal(2.4000f, g)) {
-                outData->fNamed = SkColorSpace::kSRGB_GammaNamed;
+                outData->fNamed = kSRGB_SkGammaNamed;
                 return SkGammas::Type::kNamed_Type;
             }
 
@@ -562,7 +562,7 @@ static void handle_invalid_gamma(SkGammas::Type* type, SkGammas::Data* data) {
         *type = SkGammas::Type::kNamed_Type;
 
         // Guess sRGB in the case of a malformed transfer function.
-        data->fNamed = SkColorSpace::kSRGB_GammaNamed;
+        data->fNamed = kSRGB_SkGammaNamed;
     }
 }
 
@@ -718,7 +718,7 @@ static bool load_matrix(SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     return true;
 }
 
-static inline SkColorSpace::GammaNamed is_named(const sk_sp<SkGammas>& gammas) {
+static inline SkGammaNamed is_named(const sk_sp<SkGammas>& gammas) {
     if (gammas->isNamed(0) && gammas->isNamed(1) && gammas->isNamed(2) &&
         gammas->fRedData.fNamed == gammas->fGreenData.fNamed &&
         gammas->fRedData.fNamed == gammas->fBlueData.fNamed)
@@ -726,11 +726,11 @@ static inline SkColorSpace::GammaNamed is_named(const sk_sp<SkGammas>& gammas) {
         return gammas->fRedData.fNamed;
     }
 
-    return SkColorSpace::kNonStandard_GammaNamed;
+    return kNonStandard_SkGammaNamed;
 }
 
 
-static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkColorSpace::GammaNamed* gammaNamed,
+static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkGammaNamed* gammaNamed,
                       sk_sp<SkGammas>* gammas, SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     if (len < 32) {
         SkColorSpacePrintf("A to B tag is too small (%d bytes).", len);
@@ -861,12 +861,12 @@ static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkColorSpace::GammaNa
         }
     } else {
         // Guess sRGB if the chunk is missing a transfer function.
-        *gammaNamed = SkColorSpace::kSRGB_GammaNamed;
+        *gammaNamed = kSRGB_SkGammaNamed;
     }
 
-    if (SkColorSpace::kNonStandard_GammaNamed == *gammaNamed) {
+    if (kNonStandard_SkGammaNamed == *gammaNamed) {
         *gammaNamed = is_named(*gammas);
-        if (SkColorSpace::kNonStandard_GammaNamed != *gammaNamed) {
+        if (kNonStandard_SkGammaNamed != *gammaNamed) {
             // No need to keep the gammas struct, the enum is enough.
             *gammas = nullptr;
         }
@@ -985,7 +985,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                     }
                 }
 
-                GammaNamed gammaNamed = kNonStandard_GammaNamed;
+                SkGammaNamed gammaNamed = kNonStandard_SkGammaNamed;
                 sk_sp<SkGammas> gammas = nullptr;
                 size_t tagBytes;
                 if (r && g && b) {
@@ -1062,14 +1062,14 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                     }
                 } else {
                     // Guess sRGB if the profile is missing transfer functions.
-                    gammaNamed = kSRGB_GammaNamed;
+                    gammaNamed = kSRGB_SkGammaNamed;
                 }
 
-                if (kNonStandard_GammaNamed == gammaNamed) {
+                if (kNonStandard_SkGammaNamed == gammaNamed) {
                     // It's possible that we'll initially detect non-matching gammas, only for
                     // them to evaluate to the same named gamma curve.
                     gammaNamed = is_named(gammas);
-                    if (kNonStandard_GammaNamed == gammaNamed) {
+                    if (kNonStandard_SkGammaNamed == gammaNamed) {
                         return sk_sp<SkColorSpace>(new SkColorSpace_Base(nullptr, gammaNamed,
                                                                          std::move(gammas), mat,
                                                                          std::move(data)));
@@ -1082,7 +1082,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
             // Recognize color profile specified by A2B0 tag.
             const ICCTag* a2b0 = ICCTag::Find(tags.get(), tagCount, kTAG_A2B0);
             if (a2b0) {
-                GammaNamed gammaNamed = kNonStandard_GammaNamed;
+                SkGammaNamed gammaNamed = kNonStandard_SkGammaNamed;
                 sk_sp<SkGammas> gammas = nullptr;
                 sk_sp<SkColorLookUpTable> colorLUT = nullptr;
                 SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
@@ -1091,7 +1091,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                     return_null("Failed to parse A2B0 tag");
                 }
 
-                if (colorLUT || kNonStandard_GammaNamed == gammaNamed) {
+                if (colorLUT || kNonStandard_SkGammaNamed == gammaNamed) {
                     return sk_sp<SkColorSpace>(new SkColorSpace_Base(std::move(colorLUT),
                                                                      gammaNamed, std::move(gammas),
                                                                      toXYZ, std::move(data)));
@@ -1277,8 +1277,8 @@ sk_sp<SkData> SkColorSpace_Base::writeToICC() const {
     ptr += kTAG_XYZ_Bytes;
 
     // Write TRC tags
-    GammaNamed gammaNamed = this->gammaNamed();
-    if (kNonStandard_GammaNamed == gammaNamed) {
+    SkGammaNamed gammaNamed = this->gammaNamed();
+    if (kNonStandard_SkGammaNamed == gammaNamed) {
         // FIXME (msarett):
         // Write the correct gamma representation rather than 2.2f.
         write_trc_tag((uint32_t*) ptr, 2.2f);
@@ -1289,12 +1289,12 @@ sk_sp<SkData> SkColorSpace_Base::writeToICC() const {
         ptr += SkAlign4(kTAG_TRC_Bytes);
     } else {
         switch (gammaNamed) {
-            case SkColorSpace::kSRGB_GammaNamed:
+            case kSRGB_SkGammaNamed:
                 // FIXME (msarett):
                 // kSRGB cannot be represented by a value.  Here we fall through to 2.2f,
                 // which is a close guess.  To be more accurate, we need to represent sRGB
                 // gamma with a parametric curve.
-            case SkColorSpace::k2Dot2Curve_GammaNamed:
+            case k2Dot2Curve_SkGammaNamed:
                 write_trc_tag((uint32_t*) ptr, 2.2f);
                 ptr += SkAlign4(kTAG_TRC_Bytes);
                 write_trc_tag((uint32_t*) ptr, 2.2f);
@@ -1302,7 +1302,7 @@ sk_sp<SkData> SkColorSpace_Base::writeToICC() const {
                 write_trc_tag((uint32_t*) ptr, 2.2f);
                 ptr += SkAlign4(kTAG_TRC_Bytes);
                 break;
-            case SkColorSpace::kLinear_GammaNamed:
+            case kLinear_SkGammaNamed:
                 write_trc_tag((uint32_t*) ptr, 1.0f);
                 ptr += SkAlign4(kTAG_TRC_Bytes);
                 write_trc_tag((uint32_t*) ptr, 1.0f);

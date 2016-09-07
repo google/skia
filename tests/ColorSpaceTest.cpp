@@ -19,10 +19,10 @@ static bool almost_equal(float a, float b) {
 
 static void test_space(skiatest::Reporter* r, SkColorSpace* space,
                        const float red[], const float green[], const float blue[],
-                       const SkColorSpace::GammaNamed expectedGamma) {
+                       const SkGammaNamed expectedGamma) {
 
     REPORTER_ASSERT(r, nullptr != space);
-    REPORTER_ASSERT(r, expectedGamma == space->gammaNamed());
+    REPORTER_ASSERT(r, expectedGamma == as_CSB(space)->gammaNamed());
 
     const SkMatrix44& mat = space->xyz();
     const float src[] = {
@@ -46,7 +46,7 @@ static SkStreamAsset* resource(const char path[]) {
 
 static void test_path(skiatest::Reporter* r, const char* path,
                       const float red[], const float green[], const float blue[],
-                      const SkColorSpace::GammaNamed expectedGamma) {
+                      const SkGammaNamed expectedGamma) {
     SkAutoTDelete<SkStream> stream(resource(path));
     REPORTER_ASSERT(r, nullptr != stream);
     if (!stream) {
@@ -69,7 +69,7 @@ const float g_sRGB_XYZ[] = { 0.4358f, 0.2224f, 0.0139f,   // R
 
 DEF_TEST(ColorSpace_sRGB, r) {
     test_space(r, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named).get(),
-               g_sRGB_XYZ, &g_sRGB_XYZ[3], &g_sRGB_XYZ[6], SkColorSpace::kSRGB_GammaNamed);
+               g_sRGB_XYZ, &g_sRGB_XYZ[3], &g_sRGB_XYZ[6], kSRGB_SkGammaNamed);
 
 }
 
@@ -77,22 +77,22 @@ DEF_TEST(ColorSpaceParseICCProfiles, r) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
     test_path(r, "color_wheel_with_profile.png", &g_sRGB_XYZ[0], &g_sRGB_XYZ[3], &g_sRGB_XYZ[6],
-              SkColorSpace::kSRGB_GammaNamed);
+              kSRGB_SkGammaNamed);
 #endif
 
     const float red[] = { 0.385117f, 0.716904f, 0.0970612f };
     const float green[] = { 0.143051f, 0.0606079f, 0.713913f };
     const float blue[] = { 0.436035f, 0.222488f, 0.013916f };
-    test_path(r, "icc-v2-gbr.jpg", red, green, blue, SkColorSpace::k2Dot2Curve_GammaNamed);
+    test_path(r, "icc-v2-gbr.jpg", red, green, blue, k2Dot2Curve_SkGammaNamed);
 
     test_path(r, "webp-color-profile-crash.webp",
-            red, green, blue, SkColorSpace::kNonStandard_GammaNamed);
+            red, green, blue, kNonStandard_SkGammaNamed);
     test_path(r, "webp-color-profile-lossless.webp",
-            red, green, blue, SkColorSpace::kNonStandard_GammaNamed);
+            red, green, blue, kNonStandard_SkGammaNamed);
     test_path(r, "webp-color-profile-lossy.webp",
-            red, green, blue, SkColorSpace::kNonStandard_GammaNamed);
+            red, green, blue, kNonStandard_SkGammaNamed);
     test_path(r, "webp-color-profile-lossy-alpha.webp",
-            red, green, blue, SkColorSpace::kNonStandard_GammaNamed);
+            red, green, blue, kNonStandard_SkGammaNamed);
 }
 
 DEF_TEST(ColorSpaceSRGBCompare, r) {
@@ -126,7 +126,7 @@ DEF_TEST(ColorSpaceWriteICC, r) {
     sk_sp<SkData> namedData = ColorSpaceTest::WriteToICC(namedColorSpace.get());
     sk_sp<SkColorSpace> iccColorSpace = SkColorSpace::NewICC(namedData->data(), namedData->size());
     test_space(r, iccColorSpace.get(), g_sRGB_XYZ, &g_sRGB_XYZ[3], &g_sRGB_XYZ[6],
-               SkColorSpace::k2Dot2Curve_GammaNamed);
+               k2Dot2Curve_SkGammaNamed);
     // FIXME (msarett): Test disabled.  sRGB profiles are written approximately as 2.2f curves.
     // REPORTER_ASSERT(r, iccColorSpace == namedColorSpace);
 
@@ -143,7 +143,7 @@ DEF_TEST(ColorSpaceWriteICC, r) {
     sk_sp<SkColorSpace> newMonitorSpace = SkColorSpace::NewICC(newMonitorData->data(),
                                                                newMonitorData->size());
     REPORTER_ASSERT(r, monitorSpace->xyz() == newMonitorSpace->xyz());
-    REPORTER_ASSERT(r, monitorSpace->gammaNamed() == newMonitorSpace->gammaNamed());
+    REPORTER_ASSERT(r, as_CSB(monitorSpace)->gammaNamed() == as_CSB(newMonitorSpace)->gammaNamed());
 }
 
 DEF_TEST(ColorSpace_Named, r) {
@@ -160,9 +160,9 @@ DEF_TEST(ColorSpace_Named, r) {
         REPORTER_ASSERT(r, cs);
         if (cs) {
             if (rec.fIsSRGB) {
-                REPORTER_ASSERT(r, SkColorSpace::kSRGB_GammaNamed == cs->gammaNamed());
+                REPORTER_ASSERT(r, kSRGB_SkGammaNamed == as_CSB(cs)->gammaNamed());
             } else {
-                REPORTER_ASSERT(r, SkColorSpace::k2Dot2Curve_GammaNamed == cs->gammaNamed());
+                REPORTER_ASSERT(r, k2Dot2Curve_SkGammaNamed == as_CSB(cs)->gammaNamed());
             }
         }
     }

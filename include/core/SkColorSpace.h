@@ -37,22 +37,10 @@ public:
         kLinear_GammaNamed,
 
         /**
-         *  Gamma curve is a close match to the canonical sRGB curve, which has
-         *  a short linear segment followed by a 2.4f exponential.
+         *  Transfer function is the canonical sRGB curve, which has a short linear segment
+         *  followed by a 2.4f exponential.
          */
         kSRGB_GammaNamed,
-
-        /**
-         *  Gamma curve is a close match to the 2.2f exponential curve.  This is
-         *  used by Adobe RGB profiles and is common on monitors as well.
-         */
-        k2Dot2Curve_GammaNamed,
-
-        /**
-         *  Gamma is represented by a look-up table, a parametric curve, or an uncommon
-         *  exponential curve.  Or the R, G, and B gammas do not match.
-         */
-        kNonStandard_GammaNamed,
     };
 
     /**
@@ -76,11 +64,6 @@ public:
     sk_sp<SkColorSpace> makeLinearGamma();
 
     /**
-     *  DO NOT USE: Will be deleted.
-     */
-    GammaNamed gammaNamed() const { return fGammaNamed; }
-
-    /**
      *  Returns the matrix used to transform src gamut to XYZ D50.
      */
     const SkMatrix44& xyz() const { return fToXYZD50; }
@@ -88,16 +71,12 @@ public:
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
      */
-    bool gammaCloseToSRGB() const {
-        return kSRGB_GammaNamed == fGammaNamed || k2Dot2Curve_GammaNamed == fGammaNamed;
-    }
+    bool gammaCloseToSRGB() const;
 
     /**
      *  Returns true if the color space gamma is linear.
      */
-    bool gammaIsLinear() const {
-        return kLinear_GammaNamed == fGammaNamed;
-    }
+    bool gammaIsLinear() const;
 
     /**
      *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and
@@ -120,9 +99,8 @@ public:
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
 protected:
-    SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+    SkColorSpace(const SkMatrix44& toXYZD50);
 
-    const GammaNamed fGammaNamed;
     const SkMatrix44 fToXYZD50;
 };
 

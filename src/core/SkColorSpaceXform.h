@@ -42,7 +42,7 @@ enum ColorSpaceMatch {
     kFull_ColorSpaceMatch,
 };
 
-template <SkColorSpace::GammaNamed kDst, ColorSpaceMatch kCSM>
+template <SkGammaNamed kDst, ColorSpaceMatch kCSM>
 class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
 

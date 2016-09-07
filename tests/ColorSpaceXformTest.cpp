@@ -18,7 +18,7 @@ public:
     static std::unique_ptr<SkColorSpaceXform> CreateIdentityXform(const sk_sp<SkGammas>& gammas) {
         // Logically we can pass any matrix here.  For simplicty, pass I(), i.e. D50 XYZ gamut.
         sk_sp<SkColorSpace> space(new SkColorSpace_Base(
-                nullptr, SkColorSpace::kNonStandard_GammaNamed, gammas, SkMatrix::I(), nullptr));
+                nullptr, kNonStandard_SkGammaNamed, gammas, SkMatrix::I(), nullptr));
 
         // Use special testing entry point, so we don't skip the xform, even though src == dst.
         return SlowIdentityXform(space);
