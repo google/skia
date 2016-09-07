@@ -22,10 +22,10 @@ public:
         , fClearShadowMaps(false)
         , fSelectedRectID(-1)
         , fSelectedSliderID(-1)
-        , fLightDepth(600.0f)  {
+        , fLightDepth(400.0f)  {
         this->setBGColor(0xFFCCCCCC);
 
-        this->updateLights(200, 200);
+        this->updateLights(100, 100);
 
         fTestRects[0].fColor = 0xFFEE8888;
         fTestRects[0].fDepth = 80;
@@ -53,7 +53,7 @@ public:
 
         fShadowParams.fShadowRadius = 4.0f;
         fShadowParams.fBiasingConstant = 0.3f;
-        fShadowParams.fMinVariance = 1024;
+        fShadowParams.fMinVariance = 2048; // we need a higher min variance for point lights
         fShadowParams.fType = SkShadowParams::kVariance_ShadowType;
     }
 
@@ -162,6 +162,7 @@ protected:
 
     void updateLights(int x, int y) {
         SkLights::Builder builder;
+        builder.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
         builder.add(SkLights::Light::MakePoint(SkColor3f::Make(0.2f, 0.4f, 0.6f),
                                                SkVector3::Make(x - 50,
                                                                350 - y,
@@ -172,8 +173,6 @@ protected:
                                                                450 - y,
                                                                fLightDepth),
                                                100000));
-        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(0.2f, 0.2f, 0.2f),
-                                                     SkVector3::Make(0.2f, 0.2f, 1.0f)));
         fLights = builder.finish();
     }
 

@@ -37,10 +37,10 @@ public:
 
     void setShadowParams(const SkShadowParams &params);
 protected:
+    void updateMatrix();
+
     void onDrawPicture(const SkPicture *picture, const SkMatrix *matrix,
                        const SkPaint *paint) override;
-
-    void updateMatrix();
 
     void onDrawPaint(const SkPaint &paint) override;
 
