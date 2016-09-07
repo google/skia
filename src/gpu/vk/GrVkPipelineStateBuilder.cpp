@@ -23,7 +23,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
                                                                const GrVkRenderPass& renderPass) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkPipelineStateBuilder builder(gpu, pipeline, primProc, desc.fProgramDesc);
+    GrVkPipelineStateBuilder builder(gpu, pipeline, primProc, desc);
 
     GrGLSLExpr4 inputColor;
     GrGLSLExpr4 inputCoverage;

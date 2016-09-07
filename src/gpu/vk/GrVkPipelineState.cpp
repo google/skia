@@ -483,14 +483,16 @@ uint32_t get_blend_info_key(const GrPipeline& pipeline) {
     return key;
 }
 
-void GrVkPipelineState::BuildStateKey(const GrPipeline& pipeline, GrPrimitiveType primitiveType,
-                                      SkTArray<uint8_t, true>* key) {
-    // Save room for the key length and key header
-    key->reset();
-    key->push_back_n(kData_StateKeyOffset);
+bool GrVkPipelineState::Desc::Build(Desc* desc,
+                                    const GrPrimitiveProcessor& primProc,
+                                    const GrPipeline& pipeline,
+                                    GrPrimitiveType primitiveType,
+                                    const GrGLSLCaps& caps) {
+    if (!INHERITED::Build(desc, primProc, pipeline, caps)) {
+        return false;
+    }
 
-    GrProcessorKeyBuilder b(key);
-
+    GrProcessorKeyBuilder b(&desc->key());
     GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.getRenderTarget();
     vkRT->simpleRenderPass()->genKey(&b);
 
@@ -503,8 +505,5 @@ void GrVkPipelineState::BuildStateKey(const GrPipeline& pipeline, GrPrimitiveTyp
 
     b.add32(primitiveType);
 
-    // Set key length
-    int keyLength = key->count();
-    SkASSERT(0 == (keyLength % 4));
-    *reinterpret_cast<uint32_t*>(key->begin()) = SkToU32(keyLength);
+    return true;
 }

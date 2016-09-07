@@ -29,7 +29,7 @@ struct GrVkResourceProvider::PipelineStateCache::Entry {
     }
 
     static uint32_t Hash(const GrVkPipelineState::Desc& key) {
-        return key.fChecksum;
+        return key.getChecksum();
     }
 
     sk_sp<GrVkPipelineState> fPipelineState;
@@ -99,20 +99,12 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 #endif
     // Get GrVkProgramDesc
     GrVkPipelineState::Desc desc;
-    if (!GrProgramDesc::Build(&desc.fProgramDesc, primProc, pipeline, *fGpu->vkCaps().glslCaps())) {
+    if (!GrVkPipelineState::Desc::Build(&desc, primProc, pipeline, primitiveType,
+                                        *fGpu->vkCaps().glslCaps())) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }
-    desc.fProgramDesc.finalize();
-
-    // Get vulkan specific descriptor key
-    GrVkPipelineState::BuildStateKey(pipeline, primitiveType, &desc.fStateKey);
-    // Get checksum of entire PipelineDesc
-    int keyLength = desc.fStateKey.count();
-    SkASSERT(0 == (keyLength % 4));
-    // Seed the checksum with the checksum of the programDesc then add the vulkan key to it.
-    desc.fChecksum = SkOpts::hash(desc.fStateKey.begin(), keyLength,
-                                  desc.fProgramDesc.getChecksum());
+    desc.finalize();
 
     Entry* entry = nullptr;
     if (Entry** entryptr = fHashTable.find(desc)) {
