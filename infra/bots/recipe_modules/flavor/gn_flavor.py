@@ -40,14 +40,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
 
-    compiler_prefix = ""
-    ccache = self.m.run.ccache()
-    if ccache:
-      compiler_prefix = ccache
-      if compiler == 'Clang':
-        # Stifle "argument unused during compilation: ..." warnings.
-        extra_cflags.append('-Qunused-arguments')
-
     if extra_config == 'Fast':
       extra_cflags.extend(['-march=native', '-fomit-frame-pointer', '-O3'])
     if extra_config.startswith('SK'):
@@ -57,7 +49,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted({
         'cc': quote(cc),
         'cxx': quote(cxx),
-        'compiler_prefix': quote(compiler_prefix),
         'extra_cflags': quote(' '.join(extra_cflags)),
         'extra_ldflags': quote(' '.join(extra_ldflags)),
         'is_debug': 'true' if configuration == 'Debug' else 'false',

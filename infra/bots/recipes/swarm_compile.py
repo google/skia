@@ -245,7 +245,7 @@ def GenTests(api):
           test += api.platform('mac', 64)
         else:
           test += api.platform('linux', 64)
-        if 'Android' in builder or ('GN' in builder and 'Win' not in builder):
+        if 'Android' in builder and 'GN' not in builder:
           ccache = '/usr/bin/ccache'
           test += api.step_data('has ccache?',
                                 stdout=api.json.output({'ccache':ccache}))

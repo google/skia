@@ -76,36 +76,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "import json\nimport subprocess\nimport sys\n\nccache = None\ntry:\n  ccache = subprocess.check_output(['which', 'ccache']).rstrip()\nexcept:\n  pass\nprint json.dumps({'ccache': ccache})\n"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
-    },
-    "name": "has ccache?",
-    "stdout": "/path/to/tmp/json",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output (invalid)@null@@@",
-      "@@@STEP_LOG_END@json.output (invalid)@@@",
-      "@@@STEP_LOG_LINE@python.inline@import json@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@ccache = None@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  ccache = subprocess.check_output(['which', 'ccache']).rstrip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@except:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  pass@@@",
-      "@@@STEP_LOG_LINE@python.inline@print json.dumps({'ccache': ccache})@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
       "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
@@ -119,7 +89,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE/Debug",
-      "--args=cc=\"gcc\" compiler_prefix=\"\" cxx=\"g++\" extra_cflags=\"-DSK_USE_DISCARDABLE_SCALEDIMAGECACHE\" extra_ldflags=\"\" is_debug=true"
+      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=\"-DSK_USE_DISCARDABLE_SCALEDIMAGECACHE\" extra_ldflags=\"\" is_debug=true"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
