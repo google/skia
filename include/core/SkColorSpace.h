@@ -75,6 +75,9 @@ public:
      */
     sk_sp<SkColorSpace> makeLinearGamma();
 
+    /**
+     *  DO NOT USE: Will be deleted.
+     */
     GammaNamed gammaNamed() const { return fGammaNamed; }
 
     /**
@@ -90,13 +93,11 @@ public:
     }
 
     /**
-     *  To be used only by UMA code.
+     *  Returns true if the color space gamma is linear.
      */
-    bool gammasAreMatching() const;
-    bool gammasAreNamed() const;
-    bool gammasAreValues() const;
-    bool gammasAreTables() const;
-    bool gammasAreParams() const;
+    bool gammaIsLinear() const {
+        return kLinear_GammaNamed == fGammaNamed;
+    }
 
     /**
      *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and
