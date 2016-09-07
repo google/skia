@@ -224,6 +224,18 @@ optional("fontmgr_android") {
   ]
 }
 
+optional("fontmgr_custom") {
+  enabled = is_linux && skia_use_freetype && !skia_use_fontconfig
+
+  deps = [
+    "//third_party/freetype2",
+  ]
+  sources = [
+    "src/ports/SkFontMgr_custom.cpp",
+    "src/ports/SkFontMgr_custom_directory_factory.cpp",
+  ]
+}
+
 optional("fontmgr_fontconfig") {
   enabled = skia_use_freetype && skia_use_fontconfig
 
@@ -347,6 +359,7 @@ component("skia") {
     ":crc32",
     ":dsp",
     ":fontmgr_android",
+    ":fontmgr_custom",
     ":fontmgr_fontconfig",
     ":gif",
     ":jpeg",
