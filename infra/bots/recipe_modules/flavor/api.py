@@ -17,7 +17,6 @@ from . import gn_flavor
 from . import ios_flavor
 from . import pdfium_flavor
 from . import valgrind_flavor
-from . import xsan_flavor
 
 
 TEST_EXPECTED_SKP_VERSION = '42'
@@ -54,12 +53,6 @@ def is_valgrind(builder_cfg):
   return 'Valgrind' in builder_cfg.get('extra_config', '')
 
 
-def is_xsan(builder_cfg):
-  return ('ASAN' in builder_cfg.get('extra_config', '') or
-          'MSAN' in builder_cfg.get('extra_config', '') or
-          'TSAN' in builder_cfg.get('extra_config', ''))
-
-
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, builder_cfg):
     """Return a flavor utils object specific to the given builder."""
@@ -81,8 +74,6 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       return pdfium_flavor.PDFiumFlavorUtils(self.m)
     elif is_valgrind(builder_cfg):
       return valgrind_flavor.ValgrindFlavorUtils(self.m)
-    elif is_xsan(builder_cfg):
-      return xsan_flavor.XSanFlavorUtils(self.m)
     elif builder_cfg.get('configuration') == 'Coverage':
       return coverage_flavor.CoverageFlavorUtils(self.m)
     else:

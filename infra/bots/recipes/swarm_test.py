@@ -39,6 +39,7 @@ TEST_BUILDERS = {
       'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
+      'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-ASAN',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',

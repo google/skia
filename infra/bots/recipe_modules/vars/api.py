@@ -82,16 +82,14 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.tmp_dir = self.m.path['slave_build'].join('tmp')
 
     # Some bots also require a checkout of chromium.
-    self.need_chromium_checkout = 'CommandBuffer' in self.builder_name
+    self.need_chromium_checkout = False
     if 'CommandBuffer' in self.builder_name:
-      self.gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
-    if ((self.is_compile_bot and
-         'SAN' in self.builder_name) or
-        'RecreateSKPs' in self.builder_name):
       self.need_chromium_checkout = True
-      if 'RecreateSKPs' in self.builder_name:
-        self.gclient_env['CPPFLAGS'] = (
-            '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')
+      self.gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
+    if 'RecreateSKPs' in self.builder_name:
+      self.need_chromium_checkout = True
+      self.gclient_env['CPPFLAGS'] = (
+          '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')
 
     # Some bots also require a checkout of PDFium.
     self.need_pdfium_checkout = 'PDFium' in self.builder_name

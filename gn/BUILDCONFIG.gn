@@ -9,6 +9,7 @@ declare_args() {
   is_debug = true
   is_component_build = false
   ndk = ""
+  sanitize = ""
 }
 
 # Platform detection

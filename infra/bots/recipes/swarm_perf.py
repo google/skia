@@ -24,18 +24,19 @@ TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
       'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release',
+      'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
       'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Debug',
       'Perf-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Release',
       'Perf-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
       'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
-      'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
-      'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
       'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
+      'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-VisualBench',
-      'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
+      'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
+      'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
     ],
   },
 }

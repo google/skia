@@ -8,7 +8,8 @@ declare_args() {
 
 import("../third_party.gni")
 
-if (is_android) {
+# TODO: build from source all the time?
+if (is_android || sanitize == "MSAN") {
   third_party("freetype2") {
     public_include_dirs = [ "../externals/freetype/include" ]
 

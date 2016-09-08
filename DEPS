@@ -53,14 +53,7 @@ deps = {
 }
 
 deps_os = {
-  'llvm': {
-    # xSAN bots build Clang from scratch.
-    "third_party/externals/llvm": "https://llvm.googlesource.com/llvm@release_38",
-    "third_party/externals/llvm/tools/clang": "https://llvm.googlesource.com/clang@release_38",
-    "third_party/externals/llvm/projects/compiler-rt": "https://llvm.googlesource.com/compiler-rt@release_38",
-    "third_party/externals/llvm/projects/libcxx": "https://llvm.googlesource.com/libcxx@release_38",
-    "third_party/externals/llvm/projects/libcxxabi": "https://llvm.googlesource.com/libcxxabi@release_38",
-  }
+  'llvm': { }
 }
 
 recursedeps = [ "common" ]

@@ -29,6 +29,7 @@ TEST_BUILDERS = {
       'Build-Mac-Clang-x86_64-Release-CMake',
       'Build-Mac-Clang-x86_64-Release-GN',
       'Build-Ubuntu-Clang-arm64-Release-GN_Android',
+      'Build-Ubuntu-Clang-x86_64-Debug-ASAN',
       'Build-Ubuntu-Clang-x86_64-Debug-GN',
       'Build-Ubuntu-GCC-Arm7-Debug-Android-Trybot',
       'Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs',

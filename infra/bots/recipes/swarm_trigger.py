@@ -670,26 +670,27 @@ def RunSteps(api):
 
   extra_hashes = []
 
+  builder_name = api.properties['buildername']
+
   # Get ready to compile.
   infrabots_dir = api.path['checkout'].join('infra', 'bots')
-  if 'Infra' in api.properties['buildername']:
+  if 'Infra' in builder_name:
     return infra_swarm(api, got_revision, infrabots_dir, extra_hashes)
 
-  builder_cfg = api.builder_name_schema.DictForBuilderName(
-      api.properties['buildername'])
+  builder_cfg = api.builder_name_schema.DictForBuilderName(builder_name)
 
-  if 'RecreateSKPs' in api.properties['buildername']:
+  if 'RecreateSKPs' in builder_name:
     recreate_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
                         extra_hashes)
     return
 
-  if '-CT_' in api.properties['buildername']:
+  if '-CT_' in builder_name:
     ct_skps_swarm(api, builder_cfg, got_revision, infrabots_dir, extra_hashes)
     return
 
   # Compile.
   do_compile_steps = True
-  if 'Coverage' in api.properties['buildername']:
+  if 'Coverage' in builder_name:
     do_compile_steps = False
   if do_compile_steps:
     extra_hashes.append(compile_steps_swarm(
@@ -717,6 +718,10 @@ def RunSteps(api):
   cipd_packages.append(cipd_pkg(api, infrabots_dir, 'skp'))
   cipd_packages.append(cipd_pkg(api, infrabots_dir, 'skimage'))
   cipd_packages.append(cipd_pkg(api, infrabots_dir, 'svg'))
+
+  # To find llvm-symbolizer and/or MSAN-compiled libc++.
+  if 'Ubuntu' in builder_name and 'SAN' in builder_name:
+    cipd_packages.append(cipd_pkg(api, infrabots_dir, 'clang_linux'))
 
   # Trigger test and perf tasks.
   test_task = None

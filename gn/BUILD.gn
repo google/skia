@@ -23,7 +23,9 @@ declare_args() {
 }
 
 config("no_rtti") {
-  cflags_cc = [ "-fno-rtti" ]
+  if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
+    cflags_cc = [ "-fno-rtti" ]
+  }
 }
 
 config("default") {
@@ -53,6 +55,8 @@ config("default") {
 
     "-Wnon-virtual-dtor",
   ]
+  ldflags = []
+
   if (current_cpu == "arm") {
     cflags += [
       "-march=armv7-a",
@@ -80,7 +84,7 @@ config("default") {
       "-isystem$ndk/sources/android/support/include",
       "-isystem$ndk/sources/cxx-stl/llvm-libc++/libcxx/include",
     ]
-    ldflags = [
+    ldflags += [
       "--sysroot=$ndk/platforms/$ndk_platform",
       "--target=$ndk_target",
       "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
@@ -103,6 +107,31 @@ config("default") {
 
   if (is_linux) {
     libs = [ "pthread" ]
+  }
+
+  if (sanitize != "") {
+    # You can either pass the sanitizers directly, e.g. "address,undefined",
+    # or pass one of the couple common aliases used by the bots.
+    sanitizers = sanitize
+    if (sanitize == "ASAN") {
+      sanitizers = "address,bool,function,integer-divide-by-zero,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
+    } else if (sanitize == "TSAN") {
+      sanitizers = "thread"
+    } else if (sanitize == "MSAN") {
+      sanitizers = "memory"
+    }
+
+    cflags += [
+      "-fsanitize=$sanitizers",
+      "-fno-sanitize-recover=$sanitizers",
+      "-fsanitize-blacklist=" + rebase_path("../tools/xsan.blacklist"),
+    ]
+    ldflags += [ "-fsanitize=$sanitizers" ]
+    if (sanitizers == "memory") {
+      cflags += [ "-fsanitize-memory-track-origins" ]
+      cflags_cc += [ "-stdlib=libc++" ]
+      ldflags += [ "-stdlib=libc++" ]
+    }
   }
 }
 

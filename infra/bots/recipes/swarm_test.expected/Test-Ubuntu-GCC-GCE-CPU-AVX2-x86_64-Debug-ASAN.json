@@ -61,7 +61,7 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/out/Release/dm",
+      "[SLAVE_BUILD]/out/Debug/dm",
       "--undefok",
       "--resourcePath",
       "[SLAVE_BUILD]/skia/resources",
@@ -78,7 +78,7 @@
       "master",
       "client.skia",
       "builder",
-      "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN",
+      "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-ASAN",
       "build_number",
       "5",
       "--svgs",
@@ -89,13 +89,13 @@
       "compiler",
       "GCC",
       "configuration",
-      "Release",
+      "Debug",
       "cpu_or_gpu",
       "CPU",
       "cpu_or_gpu_value",
       "AVX2",
       "extra_config",
-      "TSAN",
+      "ASAN",
       "model",
       "GCE",
       "os",
@@ -330,13 +330,14 @@
       "serialize-8888",
       "gm",
       "_",
-      "gamut",
-      "--match",
-      "~ReadWriteAlpha"
+      "gamut"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "env": {
-      "PATH": "%(PATH)s:[SLAVE_BUILD]/clang_linux/bin"
+      "ASAN_OPTIONS": "symbolize=1 detect_leaks=1",
+      "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
+      "PATH": "%(PATH)s:[SLAVE_BUILD]/clang_linux/bin",
+      "UBSAN_OPTIONS": "symbolize=1 print_stacktrace=1"
     },
     "name": "dm"
   },
