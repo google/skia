@@ -94,6 +94,10 @@ private:
 };
 #define AutoCleanPng(...) SK_REQUIRE_LOCAL_VAR(AutoCleanPng)
 
+static inline SkAlphaType xform_alpha_type(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
+    return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
+}
+
 // Note: SkColorTable claims to store SkPMColors, which is not necessarily the case here.
 bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) {
 
@@ -151,8 +155,8 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) 
     if (fColorXform && kRGBA_F16_SkColorType != dstInfo.colorType()) {
         SkColorType xformColorType = is_rgba(dstInfo.colorType()) ?
                 kRGBA_8888_SkColorType : kBGRA_8888_SkColorType;
-        SkAlphaType xformAlphaType = select_alpha_xform(dstInfo.alphaType(),
-                                                        this->getInfo().alphaType());
+        SkAlphaType xformAlphaType = xform_alpha_type(dstInfo.alphaType(),
+                                                      this->getInfo().alphaType());
         fColorXform->apply(colorTable, colorTable, numColors, xformColorType, xformAlphaType);
     }
 
@@ -443,8 +447,8 @@ public:
             return y;
         }
 
-        SkAlphaType xformAlphaType = select_alpha_xform(dstInfo.alphaType(),
-                                                        this->getInfo().alphaType());
+        SkAlphaType xformAlphaType = xform_alpha_type(dstInfo.alphaType(),
+                                                      this->getInfo().alphaType());
         int width = fSwizzler ? fSwizzler->swizzleWidth() : dstInfo.width();
 
         for (; y < count; y++) {
@@ -529,8 +533,8 @@ public:
             }
         }
 
-        SkAlphaType xformAlphaType = select_alpha_xform(dstInfo.alphaType(),
-                                                        this->getInfo().alphaType());
+        SkAlphaType xformAlphaType = xform_alpha_type(dstInfo.alphaType(),
+                                                      this->getInfo().alphaType());
         int width = fSwizzler ? fSwizzler->swizzleWidth() : dstInfo.width();
         srcRow = storage.get();
         for (int y = 0; y < count; y++) {
