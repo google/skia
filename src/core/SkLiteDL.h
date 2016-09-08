@@ -27,6 +27,13 @@ public:
     void setDrawFilter(SkDrawFilter*);
 #endif
 
+    // Draws as if...
+    //   SkRect bounds = this->getBounds();
+    //   canvas->saveLayer(&bounds, paint);
+    //       this->draw(canvas, matrix);
+    //   canvas->restore();
+    void drawAsLayer(SkCanvas*, const SkMatrix*, const SkPaint*);
+
     void save();
     void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, SkCanvas::SaveLayerFlags);
     void restore();

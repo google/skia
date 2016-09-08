@@ -816,3 +816,16 @@ void SkLiteDL::reset(SkRect bounds) {
     fUsed   = 0;
     fBounds = bounds;
 }
+
+void SkLiteDL::drawAsLayer(SkCanvas* canvas, const SkMatrix* matrix, const SkPaint* paint) {
+    auto fallback_plan = [&] {
+        SkRect bounds = this->getBounds();
+        canvas->saveLayer(&bounds, paint);
+            this->draw(canvas, matrix);
+        canvas->restore();
+    };
+
+    // TODO: single-draw specializations
+
+    return fallback_plan();
+}
