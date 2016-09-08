@@ -61,11 +61,7 @@ def build_targets_from_builder_dict(builder_dict):
   """Return a list of targets to build, depending on the builder type."""
   if builder_dict.get('extra_config') == 'iOS':
     return ['iOSShell']
-  if 'SAN' in builder_dict.get('extra_config', ''):
-    # 'most' does not compile under MSAN.
-    return ['dm', 'nanobench']
-  else:
-    return ['most']
+  return ['most']
 
 
 def get_extra_env_vars(builder_dict):
