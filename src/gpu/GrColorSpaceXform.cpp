@@ -7,6 +7,7 @@
 
 #include "GrColorSpaceXform.h"
 #include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
 #include "SkMatrix44.h"
 
 static inline bool sk_float_almost_equals(float x, float y, float tol) {
@@ -51,11 +52,8 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
         return nullptr;
     }
 
-    SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
-    if (!dst->xyz().invert(&srcToDst)) {
-        return nullptr;
-    }
-    srcToDst.postConcat(src->xyz());
+    SkMatrix44 srcToDst = as_CSB(dst)->fromXYZD50();
+    srcToDst.postConcat(src->toXYZD50());
 
     if (matrix_is_almost_identity(srcToDst)) {
         return nullptr;

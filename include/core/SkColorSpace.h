@@ -66,7 +66,7 @@ public:
     /**
      *  Returns the matrix used to transform src gamut to XYZ D50.
      */
-    const SkMatrix44& xyz() const { return fToXYZD50; }
+    const SkMatrix44& toXYZD50() const { return fToXYZD50; }
 
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.

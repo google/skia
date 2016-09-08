@@ -10,6 +10,7 @@
 
 #include "SkColorSpace.h"
 #include "SkData.h"
+#include "SkOnce.h"
 #include "SkTemplates.h"
 
 enum SkGammaNamed : uint8_t {
@@ -188,6 +189,8 @@ public:
 
     const SkColorLookUpTable* colorLUT() const { return fColorLUT.get(); }
 
+    const SkMatrix44& fromXYZD50() const;
+
 private:
 
     /**
@@ -210,6 +213,9 @@ private:
     const SkGammaNamed        fGammaNamed;
     sk_sp<SkGammas>           fGammas;
     sk_sp<SkData>             fProfileData;
+
+    mutable SkMatrix44        fFromXYZD50;
+    mutable SkOnce            fFromXYZOnce;
 
     friend class SkColorSpace;
     friend class ColorSpaceXformTest;

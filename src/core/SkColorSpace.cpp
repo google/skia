@@ -19,6 +19,7 @@ SkColorSpace_Base::SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& 
     , fGammaNamed(gammaNamed)
     , fGammas(nullptr)
     , fProfileData(nullptr)
+    , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
 {}
 
 SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, SkGammaNamed gammaNamed,
@@ -29,6 +30,7 @@ SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, SkGamma
     , fGammaNamed(gammaNamed)
     , fGammas(std::move(gammas))
     , fProfileData(std::move(profileData))
+    , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
 {}
 
 static constexpr float gSRGB_toXYZD50[] {
@@ -180,6 +182,20 @@ bool SkColorSpace::gammaCloseToSRGB() const {
 
 bool SkColorSpace::gammaIsLinear() const {
     return kLinear_SkGammaNamed == as_CSB(this)->fGammaNamed;
+}
+
+const SkMatrix44& SkColorSpace_Base::fromXYZD50() const {
+    fFromXYZOnce([this] {
+        if (!fToXYZD50.invert(&fFromXYZD50)) {
+            // If a client gives us a dst gamut with a transform that we can't invert, we will
+            // simply give them back a transform to sRGB gamut.
+            SkDEBUGFAIL("Non-invertible XYZ matrix, defaulting to sRGB");
+            SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
+            srgbToxyzD50.set3x3RowMajorf(gSRGB_toXYZD50);
+            srgbToxyzD50.invert(&fFromXYZD50);
+        }
+    });
+    return fFromXYZD50;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

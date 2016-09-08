@@ -446,14 +446,10 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static inline bool compute_gamut_xform(SkMatrix44* srcToDst, const SkMatrix44& srcToXYZ,
-                                       const SkMatrix44& dstToXYZ) {
-    if (!dstToXYZ.invert(srcToDst)) {
-        return false;
-    }
-
-    srcToDst->postConcat(srcToXYZ);
-    return true;
+static inline void compute_gamut_xform(SkMatrix44* srcToDst, const SkColorSpace* src,
+                                       const SkColorSpace* dst) {
+    *srcToDst = as_CSB(dst)->fromXYZD50();
+    srcToDst->postConcat(src->toXYZD50());
 }
 
 static inline bool is_almost_identity(const SkMatrix44& srcToDst) {
@@ -482,11 +478,13 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
     if (SkColorSpace::Equals(srcSpace.get(), dstSpace.get())) {
         srcToDst.setIdentity();
         csm = kFull_ColorSpaceMatch;
-    } else if (!compute_gamut_xform(&srcToDst, srcSpace->xyz(), dstSpace->xyz())) {
-        return nullptr;
-    } else if (is_almost_identity(srcToDst)) {
-        srcToDst.setIdentity();
-        csm = kGamut_ColorSpaceMatch;
+    } else {
+        compute_gamut_xform(&srcToDst, srcSpace.get(), dstSpace.get());
+
+        if (is_almost_identity(srcToDst)) {
+            srcToDst.setIdentity();
+            csm = kGamut_ColorSpaceMatch;
+        }
     }
 
     switch (csm) {

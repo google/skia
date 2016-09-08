@@ -125,8 +125,8 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace());
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace()->gammaIsLinear());
-    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace()->xyz() ==
-                              srgbColorSpace->xyz());
+    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace()->toXYZD50() ==
+                              srgbColorSpace->toXYZD50());
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorType() == kN32_SkColorType);
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
     REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getContextType() ==
