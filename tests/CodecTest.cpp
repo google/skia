@@ -1120,33 +1120,3 @@ DEF_TEST(Codec_PngRoundTrip, r) {
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     check_round_trip(r, bm2);
 }
-
-static void test_conversion_possible(skiatest::Reporter* r, const char* path,
-                                     bool testScanlineDecoder) {
-    SkAutoTDelete<SkStream> stream(resource(path));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
-    SkImageInfo infoF16 = codec->getInfo().makeColorType(kRGBA_F16_SkColorType);
-
-    SkBitmap bm;
-    bm.allocPixels(infoF16);
-    SkCodec::Result result = codec->getPixels(infoF16, bm.getPixels(), bm.rowBytes());
-    REPORTER_ASSERT(r, SkCodec::kInvalidConversion == result);
-    if (testScanlineDecoder) {
-        result = codec->startScanlineDecode(infoF16);
-        REPORTER_ASSERT(r, SkCodec::kInvalidConversion == result);
-    }
-
-    infoF16 = infoF16.makeColorSpace(infoF16.colorSpace()->makeLinearGamma());
-    result = codec->getPixels(infoF16, bm.getPixels(), bm.rowBytes());
-    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
-    if (testScanlineDecoder) {
-        result = codec->startScanlineDecode(infoF16);
-        REPORTER_ASSERT(r, SkCodec::kSuccess == result);
-    }
-}
-
-DEF_TEST(Codec_F16ConversionPossible, r) {
-    test_conversion_possible(r, "color_wheel.webp", false);
-    test_conversion_possible(r, "mandrill_512_q075.jpg", true);
-    test_conversion_possible(r, "yellow_rose.png", true);
-}

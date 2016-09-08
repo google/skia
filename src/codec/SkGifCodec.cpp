@@ -450,8 +450,9 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, SkPMColor* inp
 SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
         int* inputColorCount, const Options& opts) {
     // Check for valid input parameters
-    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
-        return gif_error("Cannot convert input type to output type.\n", kInvalidConversion);
+    if (!conversion_possible(dstInfo, this->getInfo())) {
+        return gif_error("Cannot convert input type to output type.\n",
+                kInvalidConversion);
     }
 
     // Initialize color table and copy to the client if necessary

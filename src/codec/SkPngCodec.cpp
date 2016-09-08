@@ -357,6 +357,25 @@ static int bytes_per_pixel(int bitsPerPixel) {
     return bitsPerPixel / 8;
 }
 
+static bool png_conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+    // Ensure the alpha type is valid
+    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
+        return false;
+    }
+
+    // Check for supported color types
+    switch (dst.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kRGBA_F16_SkColorType:
+            return true;
+        case kRGB_565_SkColorType:
+            return kOpaque_SkAlphaType == src.alphaType();
+        default:
+            return dst.colorType() == src.colorType();
+    }
+}
+
 void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
     switch (fXformMode) {
         case kSwizzleOnly_XformMode:
@@ -403,7 +422,7 @@ public:
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
             SkPMColor ctable[], int* ctableCount) override {
-        if (!conversion_possible(dstInfo, this->getInfo()) ||
+        if (!png_conversion_possible(dstInfo, this->getInfo()) ||
             !this->initializeXforms(dstInfo, options, ctable, ctableCount))
         {
             return kInvalidConversion;
@@ -470,7 +489,7 @@ public:
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
             SkPMColor ctable[], int* ctableCount) override {
-        if (!conversion_possible(dstInfo, this->getInfo()) ||
+        if (!png_conversion_possible(dstInfo, this->getInfo()) ||
             !this->initializeXforms(dstInfo, options, ctable, ctableCount))
         {
             return kInvalidConversion;
@@ -788,10 +807,20 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     fSwizzler.reset(nullptr);
     fColorXform = nullptr;
 
-    if (needs_color_xform(dstInfo, this->getInfo())) {
+    bool needsColorXform = needs_color_xform(dstInfo, this->getInfo());
+    if (needsColorXform) {
+        if (kGray_8_SkColorType == dstInfo.colorType() ||
+            kRGB_565_SkColorType == dstInfo.colorType())
+        {
+            return false;
+        }
+
         fColorXform = SkColorSpaceXform::New(sk_ref_sp(this->getInfo().colorSpace()),
                                              sk_ref_sp(dstInfo.colorSpace()));
-        SkASSERT(fColorXform);
+
+        if (!fColorXform && kRGBA_F16_SkColorType == dstInfo.colorType()) {
+            return false;
+        }
     }
 
     // If the image is RGBA and we have a color xform, we can skip the swizzler.
@@ -878,7 +907,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
                                         size_t rowBytes, const Options& options,
                                         SkPMColor ctable[], int* ctableCount,
                                         int* rowsDecoded) {
-    if (!conversion_possible(dstInfo, this->getInfo()) ||
+    if (!png_conversion_possible(dstInfo, this->getInfo()) ||
         !this->initializeXforms(dstInfo, options, ctable, ctableCount))
     {
         return kInvalidConversion;

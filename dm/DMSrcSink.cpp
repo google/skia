@@ -896,9 +896,6 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     if (kUnpremul_SkAlphaType == decodeInfo.alphaType()) {
         decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
     }
-    if (kRGBA_F16_SkColorType == fColorType) {
-        decodeInfo = decodeInfo.makeColorSpace(decodeInfo.colorSpace()->makeLinearGamma());
-    }
 
     SkImageInfo bitmapInfo = decodeInfo;
     if (kRGBA_8888_SkColorType == decodeInfo.colorType() ||
