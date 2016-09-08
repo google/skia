@@ -100,6 +100,9 @@ namespace skiagm {
         }
 
         bool animate(const SkAnimTimer&);
+        bool handleKey(SkUnichar uni) {
+            return this->onHandleKey(uni);
+        }
 
         virtual void modifyGrContextOptions(GrContextOptions* options) {}
 
@@ -114,6 +117,7 @@ namespace skiagm {
         virtual SkString onShortName() = 0;
 
         virtual bool onAnimate(const SkAnimTimer&) { return false; }
+        virtual bool onHandleKey(SkUnichar uni) { return false; }
         virtual SkMatrix onGetInitialTransform() const { return SkMatrix::I(); }
 
     private:

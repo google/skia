@@ -26,6 +26,15 @@ bool GMSampleView::onQuery(SkEvent* evt) {
         SampleCode::TitleR(evt, name.c_str());
         return true;
     }
+
+    SkUnichar uni;
+    if (SampleCode::CharQ(*evt, &uni)) {
+        if (fGM->handleKey(uni)) {
+            this->inval(nullptr);
+            return true;
+        }
+    }
+
     return this->INHERITED::onQuery(evt);
 }
 

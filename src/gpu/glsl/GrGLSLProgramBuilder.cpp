@@ -89,6 +89,9 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
 
     const char* distanceVectorName = nullptr;
     if (this->fPipeline.usesDistanceVectorField() && proc.implementsDistanceVector()) {
+        // Each individual user (FP) of the distance vector must be able to handle having this
+        // variable be undeclared. There is no single default value that will yield a reasonable
+        // result for all users.
         distanceVectorName = fFS.distanceVectorName();
         fFS.codeAppend( "// Normalized vector to the closest geometric edge (in device space)\n");
         fFS.codeAppend( "// Distance to the edge encoded in the z-component\n");

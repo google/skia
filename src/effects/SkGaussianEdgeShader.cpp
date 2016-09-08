@@ -67,17 +67,25 @@ public:
         GLSLGaussianEdgeFP() {}
 
         void emitCode(EmitArgs& args) override {
-
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-            fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-            fragBuilder->codeAppend("float radius = color.g*64.0;");
-            fragBuilder->codeAppend("float pad = color.b*64.0;");
+            if (!args.fGpImplementsDistanceVector) {
+                fragBuilder->codeAppendf("// GP does not implement fsDistanceVector - "
+                                         " returning grey in GLSLGaussianEdgeFP\n");
+                fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
+                fragBuilder->codeAppendf("%s = vec4(0, 0, 0, color.r);", args.fOutputColor);
+            } else {
+                fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
+                fragBuilder->codeAppend("float radius = color.g*64.0;");
+                fragBuilder->codeAppend("float pad = color.b*64.0;");
 
-            fragBuilder->codeAppendf("float factor = 1.0 - clamp((%s.z - pad)/radius, 0.0, 1.0);",
-                                     fragBuilder->distanceVectorName());
-            fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-            fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.r);", args.fOutputColor);
+                fragBuilder->codeAppendf("float factor = 1.0 - clamp((%s.z - pad)/radius,"
+                                                                    "0.0, 1.0);",
+                                         fragBuilder->distanceVectorName());
+                fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
+                fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.r);",
+                                         args.fOutputColor);
+            }
         }
 
         static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
@@ -133,7 +141,6 @@ sk_sp<SkFlattenable> SkGaussianEdgeShaderImpl::CreateProc(SkReadBuffer& buf) {
 }
 
 void SkGaussianEdgeShaderImpl::flatten(SkWriteBuffer& buf) const {
-    this->INHERITED::flatten(buf);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
