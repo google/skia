@@ -74,3 +74,10 @@ desired `target_cpu`:
     gn gen out/x86      --args='ndk="/tmp/ndk" target_cpu="x86"'
 
 Other arguments like `is_debug` and `is_component_build` continue to work.
+
+To test on a locally connected Android device, you can use our `droid` convenience script:
+
+<!--?prettify lang=sh?-->
+
+    ninja -C out/arm64
+    bin/droid out/arm64/dm --src gm --config gpu
