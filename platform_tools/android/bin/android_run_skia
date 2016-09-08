@@ -27,7 +27,7 @@ if [[ -n $RESOURCE_PATH ]]; then
 fi
 
 if [ $LOGCAT ]; then
-   verbose "clearing the device logs..." 
+   verbose "clearing the device logs..."
   $ADB $DEVICE_SERIAL logcat -c;
 fi
 STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"
@@ -44,7 +44,7 @@ $ADB ${DEVICE_SERIAL} push ${CMD_FILENAME} /data/local/tmp
 rm ${CMD_FILENAME}
 verbose "preparing to run ${APP_ARGS[0]} on the device..."
 $ADB ${DEVICE_SERIAL} shell sh /data/local/tmp/${CMD_FILENAME}
-    
+
 if [ -z "$($ADB $DEVICE_SERIAL shell 'if [ -f $STATUS_FILENAME ]; then echo exists; fi')" ]; then
   if [ $LOGCAT ]; then $ADB $DEVICE_SERIAL logcat -d; fi
   echo "***********************************************************************"
@@ -66,7 +66,7 @@ if [[ ${EXIT_CODE} == *${STATUS_FILENAME}* ]]; then
 fi
 
 echo "EXIT_CODE is ${EXIT_CODE}"
-if [ $'0\r' != "${EXIT_CODE}" ]; then
+if [[ "${EXIT_CODE}" != 0* ]]; then
   if [ $LOGCAT ]; then $ADB $DEVICE_SERIAL logcat -d; fi
   exit 1
 fi
