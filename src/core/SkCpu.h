@@ -80,7 +80,7 @@ inline bool SkCpu::Supports(uint32_t mask) {
     features |= NEON|NEON_FMA|VFP_FP16;
     #endif
 
-    #if defined(__ARM_FEATURE_CRC32)
+    #if defined(SK_ARM_HAS_CRC32)
     features |= CRC32;
     #endif
 

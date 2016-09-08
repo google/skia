@@ -11,7 +11,7 @@
 #include "SkOpts.h"
 
 #if defined(SK_ARM_HAS_NEON)
-    #if defined(__ARM_FEATURE_CRC32)
+    #if defined(SK_ARM_HAS_CRC32)
         #define SK_OPTS_NS neon_and_crc32
     #else
         #define SK_OPTS_NS neon
