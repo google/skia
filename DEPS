@@ -52,8 +52,4 @@ deps = {
   "third_party/externals/shaderc2/third_party/spirv-tools" : "https://github.com/KhronosGroup/SPIRV-Tools.git@009c4358b5a1c93203166b3ed60a548f63522e81",
 }
 
-deps_os = {
-  'llvm': { }
-}
-
 recursedeps = [ "common" ]

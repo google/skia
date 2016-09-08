@@ -28,7 +28,7 @@
       "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
       "config",
       "--spec",
-      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': 'DEPS', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}, {'deps_file': 'DEPS', 'managed': False, 'name': 'src', 'url': 'https://chromium.googlesource.com/chromium/src.git'}]\ntarget_os = ['llvm']"
+      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': 'DEPS', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}, {'deps_file': 'DEPS', 'managed': False, 'name': 'src', 'url': 'https://chromium.googlesource.com/chromium/src.git'}]"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {

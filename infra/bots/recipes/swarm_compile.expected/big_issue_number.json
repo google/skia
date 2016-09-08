@@ -28,7 +28,7 @@
       "RECIPE_PACKAGE_REPO[depot_tools]\\gclient.py",
       "config",
       "--spec",
-      "cache_dir = '[CUSTOM_C:\\\\_B_CACHE]'\nsolutions = [{'deps_file': 'DEPS', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]\ntarget_os = ['llvm']"
+      "cache_dir = '[CUSTOM_C:\\\\_B_CACHE]'\nsolutions = [{'deps_file': 'DEPS', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]",
     "env": {
