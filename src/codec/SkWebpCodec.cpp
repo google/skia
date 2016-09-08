@@ -6,6 +6,7 @@
  */
 
 #include "SkCodecPriv.h"
+#include "SkColorSpaceXform.h"
 #include "SkWebpCodec.h"
 #include "SkStreamPriv.h"
 #include "SkTemplates.h"
@@ -143,20 +144,20 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
                            streamDeleter.release(), demux.release(), std::move(data));
 }
 
-// This version is slightly different from SkCodecPriv's version of conversion_possible. It
-// supports both byte orders for 8888.
-static bool webp_conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+static bool webp_conversion_possible(const SkImageInfo& dst, const SkImageInfo& src,
+                                     SkColorSpaceXform* colorXform) {
     if (!valid_alpha(dst.alphaType(), src.alphaType())) {
         return false;
     }
 
     switch (dst.colorType()) {
-        // Both byte orders are supported.
+        case kRGBA_F16_SkColorType:
+            return nullptr != colorXform;
         case kBGRA_8888_SkColorType:
         case kRGBA_8888_SkColorType:
             return true;
         case kRGB_565_SkColorType:
-            return src.alphaType() == kOpaque_SkAlphaType;
+            return nullptr == colorXform && src.alphaType() == kOpaque_SkAlphaType;
         default:
             return false;
     }
@@ -210,8 +211,15 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, SkPMColor*, int*,
-                                         int* rowsDecoded) {
-    if (!webp_conversion_possible(dstInfo, this->getInfo())) {
+                                         int* rowsDecodedPtr) {
+
+    std::unique_ptr<SkColorSpaceXform> colorXform = nullptr;
+    if (needs_color_xform(dstInfo, this->getInfo())) {
+        colorXform = SkColorSpaceXform::New(sk_ref_sp(this->getInfo().colorSpace()),
+                                            sk_ref_sp(dstInfo.colorSpace()));
+    }
+
+    if (!webp_conversion_possible(dstInfo, this->getInfo(), colorXform.get())) {
         return kInvalidConversion;
     }
 
@@ -269,12 +277,27 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         config.options.scaled_height = dstDimensions.height();
     }
 
-    config.output.colorspace = webp_decode_mode(dstInfo.colorType(),
-            dstInfo.alphaType() == kPremul_SkAlphaType);
-    config.output.u.RGBA.rgba = (uint8_t*) dst;
-    config.output.u.RGBA.stride = (int) rowBytes;
-    config.output.u.RGBA.size = dstInfo.getSafeSize(rowBytes);
+    // FIXME (msarett):
+    // Lossless webp is encoded as BGRA.  In that case, it would be more efficient to
+    // to decode BGRA and apply the color xform to a BGRA buffer.
+    config.output.colorspace = colorXform ? MODE_RGBA :
+            webp_decode_mode(dstInfo.colorType(), dstInfo.alphaType() == kPremul_SkAlphaType);
     config.output.is_external_memory = 1;
+
+    // We will decode the entire image and then perform the color transform.  libwebp
+    // does not provide a row-by-row API.  This is a shame particularly in the F16 case,
+    // where we need to allocate an extra image-sized buffer.
+    SkAutoTMalloc<uint32_t> pixels;
+    if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
+        pixels.reset(dstDimensions.width() * dstDimensions.height());
+        config.output.u.RGBA.rgba = (uint8_t*) pixels.get();
+        config.output.u.RGBA.stride = (int) dstDimensions.width() * sizeof(uint32_t);
+        config.output.u.RGBA.size = config.output.u.RGBA.stride * dstDimensions.height();
+    } else {
+        config.output.u.RGBA.rgba = (uint8_t*) dst;
+        config.output.u.RGBA.stride = (int) rowBytes;
+        config.output.u.RGBA.size = dstInfo.getSafeSize(rowBytes);
+    }
 
     WebPIterator frame;
     SkAutoTCallVProc<WebPIterator, WebPDemuxReleaseIterator> autoFrame(&frame);
@@ -286,15 +309,36 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         return kInvalidInput;
     }
 
+    int rowsDecoded;
+    SkCodec::Result result;
     switch (WebPIUpdate(idec, frame.fragment.bytes, frame.fragment.size)) {
         case VP8_STATUS_OK:
-            return kSuccess;
+            rowsDecoded = dstInfo.height();
+            result = kSuccess;
+            break;
         case VP8_STATUS_SUSPENDED:
-            WebPIDecGetRGB(idec, rowsDecoded, nullptr, nullptr, nullptr);
-            return kIncompleteInput;
+            WebPIDecGetRGB(idec, rowsDecodedPtr, nullptr, nullptr, nullptr);
+            rowsDecoded = *rowsDecodedPtr;
+            result = kIncompleteInput;
+            break;
         default:
             return kInvalidInput;
     }
+
+    if (colorXform) {
+        SkAlphaType xformAlphaType = select_alpha_xform(dstInfo.alphaType(),
+                                                        this->getInfo().alphaType());
+
+        uint32_t* src = (uint32_t*) config.output.u.RGBA.rgba;
+        size_t srcRowBytes = config.output.u.RGBA.stride;
+        for (int y = 0; y < rowsDecoded; y++) {
+            colorXform->apply(dst, src, dstInfo.width(), dstInfo.colorType(), xformAlphaType);
+            dst = SkTAddOffset<void>(dst, rowBytes);
+            src = SkTAddOffset<uint32_t>(src, srcRowBytes);
+        }
+    }
+
+    return result;
 }
 
 SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,

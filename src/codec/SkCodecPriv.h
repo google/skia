@@ -331,4 +331,8 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageIn
     return !isLegacy && (needsPremul || isF16 || srcDstNotEqual);
 }
 
+static inline SkAlphaType select_alpha_xform(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
+    return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
+}
+
 #endif // SkCodecPriv_DEFINED
