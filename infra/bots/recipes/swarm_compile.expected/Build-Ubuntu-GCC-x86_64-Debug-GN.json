@@ -89,7 +89,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Debug-GN/Debug",
-      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=\"\" extra_ldflags=\"\" is_debug=true"
+      "--args=cc=\"gcc\" cxx=\"g++\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

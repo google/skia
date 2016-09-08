@@ -27,7 +27,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     extra_config  = self.m.vars.builder_cfg.get('extra_config',  '')
     os            = self.m.vars.builder_cfg.get('os',            '')
 
-    cc, cxx = 'cc', 'c++'
+    cc, cxx = None, None
     extra_cflags = []
     extra_ldflags = []
 
@@ -45,14 +45,21 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if extra_config.startswith('SK'):
       extra_cflags.append('-D' + extra_config)
 
-    quote = lambda x: '"%s"' % x
-    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted({
-        'cc': quote(cc),
-        'cxx': quote(cxx),
-        'extra_cflags': quote(' '.join(extra_cflags)),
-        'extra_ldflags': quote(' '.join(extra_ldflags)),
-        'is_debug': 'true' if configuration == 'Debug' else 'false',
-    }.iteritems()))
+    args = {}
+
+    if configuration != 'Debug':
+      args['is_debug'] = 'false'
+
+    for (k,v) in {
+      'cc':  cc,
+      'cxx': cxx,
+      'extra_cflags':  ' '.join(extra_cflags),
+      'extra_ldflags': ' '.join(extra_ldflags),
+    }.iteritems():
+      if v:
+        args[k] = '"%s"' % v
+
+    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
 
     self._run('fetch-gn', [self.m.vars.skia_dir.join('bin', 'fetch-gn')])
     self._run('gn gen', ['gn', 'gen', self.out_dir, '--args=' + gn_args])

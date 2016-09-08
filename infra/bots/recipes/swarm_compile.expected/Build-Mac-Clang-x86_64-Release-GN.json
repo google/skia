@@ -89,7 +89,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Release-GN/Release",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=\"\" extra_ldflags=\"\" is_debug=false"
+      "--args=cc=\"clang\" cxx=\"clang++\" is_debug=false"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
