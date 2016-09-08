@@ -121,11 +121,11 @@ sk_sp<SkColorSpace> SkColorSpace_Base::NewRGB(SkGammaNamed gammaNamed, const SkM
     return sk_sp<SkColorSpace>(new SkColorSpace_Base(gammaNamed, toXYZD50));
 }
 
-sk_sp<SkColorSpace> SkColorSpace::NewRGB(GammaNamed gammaNamed, const SkMatrix44& toXYZD50) {
-    switch (gammaNamed) {
-        case kLinear_GammaNamed:
+sk_sp<SkColorSpace> SkColorSpace::NewRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50) {
+    switch (gamma) {
+        case kLinear_RenderTargetGamma:
             return SkColorSpace_Base::NewRGB(kLinear_SkGammaNamed, toXYZD50);
-        case kSRGB_GammaNamed:
+        case kSRGB_RenderTargetGamma:
             return SkColorSpace_Base::NewRGB(kSRGB_SkGammaNamed, toXYZD50);
         default:
             return nullptr;

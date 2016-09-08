@@ -33,20 +33,23 @@ public:
         kAdobeRGB_Named,
     };
 
-    enum GammaNamed : uint8_t {
-        kLinear_GammaNamed,
+    enum RenderTargetGamma : uint8_t {
+        kLinear_RenderTargetGamma,
 
         /**
          *  Transfer function is the canonical sRGB curve, which has a short linear segment
          *  followed by a 2.4f exponential.
          */
-        kSRGB_GammaNamed,
+        kSRGB_RenderTargetGamma,
+
+        // DO NOT USE: Being deleted.
+        kLinear_GammaNamed = kLinear_RenderTargetGamma,
     };
 
     /**
-     *  Create an SkColorSpace from the src gamma and a transform from src gamut to D50 XYZ.
+     *  Create an SkColorSpace from a transfer function and a color gamut transform to D50 XYZ.
      */
-    static sk_sp<SkColorSpace> NewRGB(GammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> NewRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
 
     /**
      *  Create a common, named SkColorSpace.

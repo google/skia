@@ -329,7 +329,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
         // Default to sRGB gamma if the image has color space information,
         // but does not specify gamma.
-        return SkColorSpace::NewRGB(SkColorSpace::kSRGB_GammaNamed, toXYZD50);
+        return SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZD50);
     }
 
     // Last, check for gamma.

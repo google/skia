@@ -102,14 +102,14 @@ DEF_TEST(ColorSpaceSRGBCompare, r) {
     // Create an sRGB color space by value
     SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
     srgbToxyzD50.set3x3RowMajorf(g_sRGB_XYZ);
-    sk_sp<SkColorSpace> rgbColorSpace = SkColorSpace::NewRGB(SkColorSpace::kSRGB_GammaNamed,
-                                                             srgbToxyzD50);
+    sk_sp<SkColorSpace> rgbColorSpace =
+            SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma, srgbToxyzD50);
     REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
 
     // Change a single value from the sRGB matrix
     srgbToxyzD50.set(2, 2, 0.5f);
-    sk_sp<SkColorSpace> strangeColorSpace = SkColorSpace::NewRGB(SkColorSpace::kSRGB_GammaNamed,
-                                                                 srgbToxyzD50);
+    sk_sp<SkColorSpace> strangeColorSpace =
+            SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma, srgbToxyzD50);
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }
 

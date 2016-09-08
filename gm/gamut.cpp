@@ -117,7 +117,8 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<SkAutoTDelete<CellRendere
     // Use the original canvas' color type, but account for gamma requirements
     SkImageInfo origInfo = canvas->imageInfo();
     auto srgbCS = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    auto wideCS = SkColorSpace::NewRGB(SkColorSpace::kSRGB_GammaNamed, wideGamutRGB_toXYZD50);
+    auto wideCS = SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                       wideGamutRGB_toXYZD50);
     switch (origInfo.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
