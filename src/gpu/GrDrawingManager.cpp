@@ -13,6 +13,7 @@
 #include "GrPathRenderingDrawContext.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
+#include "GrSurfacePriv.h"
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 
@@ -133,6 +134,23 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
         fContext->getResourceCache()->notifyFlushOccurred(type);
     }
     fFlushing = false;
+}
+
+void GrDrawingManager::prepareSurfaceForExternalIO(GrSurface* surface) {
+    if (this->wasAbandoned()) {
+        return;
+    }
+    SkASSERT(surface);
+    SkASSERT(surface->getContext() == fContext);
+
+    if (surface->surfacePriv().hasPendingIO()) {
+        this->flush();
+    }
+
+    GrRenderTarget* rt = surface->asRenderTarget();
+    if (fContext->getGpu() && rt) {
+        fContext->getGpu()->resolveRenderTarget(rt);
+    }
 }
 
 GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {

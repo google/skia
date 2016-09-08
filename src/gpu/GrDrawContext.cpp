@@ -1115,7 +1115,7 @@ void GrDrawContext::prepareForExternalIO() {
 
     ASSERT_OWNED_RESOURCE(fRenderTarget);
 
-    fDrawingManager->getContext()->prepareSurfaceForExternalIO(fRenderTarget.get());
+    fDrawingManager->prepareSurfaceForExternalIO(fRenderTarget.get());
 }
 
 void GrDrawContext::drawNonAAFilledRect(const GrClip& clip,

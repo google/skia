@@ -60,6 +60,8 @@ public:
 
     static bool ProgramUnitTest(GrContext* context, int maxStages);
 
+    void prepareSurfaceForExternalIO(GrSurface*);
+
 private:
     GrDrawingManager(GrContext* context, const GrDrawTarget::Options& optionsForDrawTargets,
                      bool isImmediateMode, GrSingleOwner* singleOwner)

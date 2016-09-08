@@ -518,13 +518,7 @@ void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     RETURN_IF_ABANDONED
     SkASSERT(surface);
     ASSERT_OWNED_RESOURCE(surface);
-    if (surface->surfacePriv().hasPendingIO()) {
-        this->flush();
-    }
-    GrRenderTarget* rt = surface->asRenderTarget();
-    if (fGpu && rt) {
-        fGpu->resolveRenderTarget(rt);
-    }
+    fDrawingManager->prepareSurfaceForExternalIO(surface);
 }
 
 bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
