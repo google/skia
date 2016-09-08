@@ -683,7 +683,7 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
                                         size_t dstRowBytes, const Options& options,
                                         SkPMColor ctable[], int* ctableCount,
                                         int* rowsDecoded) {
-    if (!conversion_possible(requestedInfo, this->getInfo())) {
+    if (!conversion_possible_ignore_color_space(requestedInfo, this->getInfo())) {
         SkCodecPrintf("Error: cannot convert input type to output type.\n");
         return kInvalidConversion;
     }

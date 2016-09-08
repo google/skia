@@ -144,25 +144,6 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
                            streamDeleter.release(), demux.release(), std::move(data));
 }
 
-static bool webp_conversion_possible(const SkImageInfo& dst, const SkImageInfo& src,
-                                     SkColorSpaceXform* colorXform) {
-    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
-        return false;
-    }
-
-    switch (dst.colorType()) {
-        case kRGBA_F16_SkColorType:
-            return nullptr != colorXform;
-        case kBGRA_8888_SkColorType:
-        case kRGBA_8888_SkColorType:
-            return true;
-        case kRGB_565_SkColorType:
-            return nullptr == colorXform && src.alphaType() == kOpaque_SkAlphaType;
-        default:
-            return false;
-    }
-}
-
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
     SkISize dim = this->getInfo().dimensions();
     // SkCodec treats zero dimensional images as errors, so the minimum size
@@ -212,15 +193,15 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, SkPMColor*, int*,
                                          int* rowsDecodedPtr) {
+    if (!conversion_possible(dstInfo, this->getInfo())) {
+        return kInvalidConversion;
+    }
 
     std::unique_ptr<SkColorSpaceXform> colorXform = nullptr;
     if (needs_color_xform(dstInfo, this->getInfo())) {
         colorXform = SkColorSpaceXform::New(sk_ref_sp(this->getInfo().colorSpace()),
                                             sk_ref_sp(dstInfo.colorSpace()));
-    }
-
-    if (!webp_conversion_possible(dstInfo, this->getInfo(), colorXform.get())) {
-        return kInvalidConversion;
+        SkASSERT(colorXform);
     }
 
     WebPDecoderConfig config;
