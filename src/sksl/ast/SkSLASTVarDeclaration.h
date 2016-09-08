@@ -44,7 +44,7 @@ struct ASTVarDeclaration {
         return result;        
     }
 
-    const std::string fName;
+    std::string fName;
 
     // array sizes, if any. e.g. 'foo[3][]' has sizes [3, null]
     std::vector<std::unique_ptr<ASTExpression>> fSizes;
