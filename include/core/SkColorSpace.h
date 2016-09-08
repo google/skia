@@ -41,9 +41,6 @@ public:
          *  followed by a 2.4f exponential.
          */
         kSRGB_RenderTargetGamma,
-
-        // DO NOT USE: Being deleted.
-        kLinear_GammaNamed = kLinear_RenderTargetGamma,
     };
 
     /**
