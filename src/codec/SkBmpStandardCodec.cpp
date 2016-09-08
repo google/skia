@@ -48,7 +48,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         SkCodecPrintf("Error: scaling not supported.\n");
         return kInvalidScale;
     }
-    if (!conversion_possible(dstInfo, this->getInfo())) {
+    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
         SkCodecPrintf("Error: cannot convert input type to output type.\n");
         return kInvalidConversion;
     }

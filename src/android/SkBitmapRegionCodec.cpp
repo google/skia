@@ -135,5 +135,8 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
 }
 
 bool SkBitmapRegionCodec::conversionSupported(SkColorType colorType) {
-    return conversion_possible(fCodec->getInfo().makeColorType(colorType), fCodec->getInfo());
+    // Enable legacy behavior.
+    sk_sp<SkColorSpace> colorSpace = nullptr;
+    SkImageInfo dstInfo = fCodec->getInfo().makeColorType(colorType).makeColorSpace(colorSpace);
+    return conversion_possible_ignore_color_space(dstInfo, fCodec->getInfo());
 }

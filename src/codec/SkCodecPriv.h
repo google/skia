@@ -107,14 +107,18 @@ static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
 }
 
 /*
+ * Original version of conversion_possible that does not account for color spaces.
+ * Used by codecs that have not been updated to support color spaces.
+ *
  * Most of our codecs support the same conversions:
  * - opaque to any alpha type
  * - 565 only if opaque
  * - premul to unpremul and vice versa
- * - always support N32
+ * - always support RGBA, BGRA
  * - otherwise match the src color type
  */
-static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+static inline bool conversion_possible_ignore_color_space(const SkImageInfo& dst,
+                                                          const SkImageInfo& src) {
     // Ensure the alpha type is valid
     if (!valid_alpha(dst.alphaType(), src.alphaType())) {
         return false;
@@ -333,6 +337,40 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageIn
 
 static inline SkAlphaType select_alpha_xform(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
     return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
+}
+
+/*
+ * Alpha Type Conversions
+ * - kOpaque to kOpaque, kUnpremul, kPremul is valid
+ * - kUnpremul to kUnpremul, kPremul is valid
+ *
+ * Color Type Conversions
+ * - Always support kRGBA_8888, kBGRA_8888
+ * - Support kRGBA_F16 when there is a linear dst color space
+ * - Support kIndex8 if it matches the src
+ * - Support k565, kGray8 if kOpaque and color correction is not required
+ */
+static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+    // Ensure the alpha type is valid.
+    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
+        return false;
+    }
+
+    // Check for supported color types.
+    switch (dst.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            return true;
+        case kRGBA_F16_SkColorType:
+            return dst.colorSpace() && dst.colorSpace()->gammaIsLinear();
+        case kIndex_8_SkColorType:
+            return kIndex_8_SkColorType == src.colorType();
+        case kRGB_565_SkColorType:
+        case kGray_8_SkColorType:
+            return kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src);
+        default:
+            return false;
+    }
 }
 
 #endif // SkCodecPriv_DEFINED

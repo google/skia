@@ -357,7 +357,7 @@ bool SkJpegCodec::onRewind() {
  * image has been implemented
  * Sets the output color space
  */
-bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo, bool needsColorXform) {
+bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
     if (kUnknown_SkAlphaType == dstInfo.alphaType()) {
         return false;
     }
@@ -384,7 +384,7 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo, bool needsColo
         case kBGRA_8888_SkColorType:
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
-            } else if (needsColorXform) {
+            } else if (fColorXform) {
                 // Our color transformation code requires RGBA order inputs, but it'll swizzle
                 // to BGRA for us.
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
@@ -393,7 +393,7 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo, bool needsColo
             }
             return true;
         case kRGB_565_SkColorType:
-            if (needsColorXform) {
+            if (fColorXform) {
                 return false;
             }
 
@@ -405,14 +405,17 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo, bool needsColo
             }
             return true;
         case kGray_8_SkColorType:
-            if (needsColorXform || JCS_GRAYSCALE != encodedColorType) {
+            if (fColorXform || JCS_GRAYSCALE != encodedColorType) {
                 return false;
             }
 
             fDecoderMgr->dinfo()->out_color_space = JCS_GRAYSCALE;
             return true;
         case kRGBA_F16_SkColorType:
-            SkASSERT(needsColorXform);
+            SkASSERT(fColorXform);
+            if (!dstInfo.colorSpace()->gammaIsLinear()) {
+                return false;
+            }
 
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
@@ -545,14 +548,11 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
-    // Check if we can decode to the requested destination and set the output color space
-    bool needsColorXform = needs_color_xform(dstInfo, this->getInfo());
-    if (!this->setOutputColorSpace(dstInfo, needsColorXform)) {
-        return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
-    }
+    this->initializeColorXform(dstInfo);
 
-    if (!this->initializeColorXform(dstInfo, needsColorXform)) {
-        return fDecoderMgr->returnFailure("initializeColorXform", kInvalidParameters);
+    // Check if we can decode to the requested destination and set the output color space
+    if (!this->setOutputColorSpace(dstInfo)) {
+        return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
     }
 
     if (!jpeg_start_decompress(dinfo)) {
@@ -630,16 +630,12 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     SkASSERT(fSwizzler);
 }
 
-bool SkJpegCodec::initializeColorXform(const SkImageInfo& dstInfo, bool needsColorXform) {
-    if (needsColorXform) {
+void SkJpegCodec::initializeColorXform(const SkImageInfo& dstInfo) {
+    if (needs_color_xform(dstInfo, this->getInfo())) {
         fColorXform = SkColorSpaceXform::New(sk_ref_sp(this->getInfo().colorSpace()),
                                              sk_ref_sp(dstInfo.colorSpace()));
-        if (!fColorXform && kRGBA_F16_SkColorType == dstInfo.colorType()) {
-            return false;
-        }
+        SkASSERT(fColorXform);
     }
-
-    return true;
 }
 
 SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
@@ -661,14 +657,11 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidInput;
     }
 
-    // Check if we can decode to the requested destination and set the output color space
-    bool needsColorXform = needs_color_xform(dstInfo, this->getInfo());
-    if (!this->setOutputColorSpace(dstInfo, needsColorXform)) {
-        return kInvalidConversion;
-    }
+    this->initializeColorXform(dstInfo);
 
-    if (!this->initializeColorXform(dstInfo, needsColorXform)) {
-        return fDecoderMgr->returnFailure("initializeColorXform", kInvalidParameters);
+    // Check if we can decode to the requested destination and set the output color space
+    if (!this->setOutputColorSpace(dstInfo)) {
+        return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
     }
 
     if (!jpeg_start_decompress(fDecoderMgr->dinfo())) {
