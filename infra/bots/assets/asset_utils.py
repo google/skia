@@ -220,7 +220,7 @@ class MultiStore(object):
     self._gs.upload(name, version, target_dir)
 
   def download(self, name, version, target_dir):
-    self._cipd.download(name, version, target_dir)
+    self._gs.download(name, version, target_dir)
 
   def delete_contents(self, name):
     self._cipd.delete_contents(name)
