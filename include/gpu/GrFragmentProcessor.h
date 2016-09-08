@@ -45,7 +45,7 @@ public:
      *  The parent will ignore its input color and instead feed the passed in color as input to the
      *  child.
      */
-    static sk_sp<GrFragmentProcessor> OverrideInput(sk_sp<GrFragmentProcessor>, GrColor);
+    static sk_sp<GrFragmentProcessor> OverrideInput(sk_sp<GrFragmentProcessor>, GrColor4f);
 
     /**
      *  Returns a fragment processor that premuls the input before calling the passed in fragment

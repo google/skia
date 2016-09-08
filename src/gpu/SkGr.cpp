@@ -569,9 +569,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             // The geometry processor will insert the primitive color to start the color chain, so
             // the GrPaint color will be ignored.
 
-            GrColor shaderInput = origColor.opaque().toGrColor();
-
-            // SRGBTODO: Preserve 4f on this code path
+            GrColor4f shaderInput = origColor.opaque();
             shaderFP = GrFragmentProcessor::OverrideInput(shaderFP, shaderInput);
             if (primitiveIsSrc) {
                 shaderFP = GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(shaderFP),
