@@ -28,6 +28,7 @@ config("no_rtti") {
 
 config("default") {
   cflags = [
+    "-O1",
     "-g",
     "-fstrict-aliasing",
     "-fPIC",
