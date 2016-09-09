@@ -113,6 +113,15 @@ DEF_TEST(ColorSpaceXform_ExponentialGamma, r) {
     test_identity_xform(r, gammas);
 }
 
+DEF_TEST(ColorSpaceXform_NamedGamma, r) {
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new SkGammas());
+    gammas->fRedType = gammas->fGreenType = gammas->fBlueType = SkGammas::Type::kNamed_Type;
+    gammas->fRedData.fNamed = kSRGB_SkGammaNamed;
+    gammas->fGreenData.fNamed = k2Dot2Curve_SkGammaNamed;
+    gammas->fBlueData.fNamed = kLinear_SkGammaNamed;
+    test_identity_xform(r, gammas);
+}
+
 DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     constexpr size_t tableSize = 10;
     void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(float) * tableSize +
