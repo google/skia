@@ -142,7 +142,9 @@ public:
 
             // Modify the input texture coordinates to index into our 1D output
             fragBuilder->codeAppend("float distHere;");
-            fragBuilder->codeAppend("float closestDistHere = 0;");
+
+            // we use a max shadow distance of 2 times the max of width/height
+            fragBuilder->codeAppend("float closestDistHere = 2;");
             fragBuilder->codeAppend("vec2 coords = vMatrixCoord_0_0_Stage0;");
             fragBuilder->codeAppend("coords.y = 0;");
             fragBuilder->codeAppend("vec2 destCoords = vec2(0,0);");

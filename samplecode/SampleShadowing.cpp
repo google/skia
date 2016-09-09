@@ -166,7 +166,7 @@ protected:
                                                SkVector3::Make(x,
                                                                kHeight - y,
                                                                fLightDepth),
-                                               100000, true));
+                                               400, true));
         fLights = builder.finish();
     }
 

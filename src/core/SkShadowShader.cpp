@@ -290,9 +290,8 @@ public:
                 if (shadowFP.fIsPointLight[i]) {
                     fragBuilder->codeAppendf("vec3 fragToLight%d = %s - worldCor;",
                                              i, lightDirOrPosUniName[i]);
-                    fragBuilder->codeAppendf("float distsq%d = dot(fragToLight%d, "
-                                                     "fragToLight%d);",
-                                             i, i, i);
+                    fragBuilder->codeAppendf("float dist%d = length(fragToLight%d);",
+                                             i, i);
                     fragBuilder->codeAppendf("%s = vec2(-fragToLight%d) * povDepth.b;",
                                              offset.c_str(), i);
                     fragBuilder->codeAppendf("fragToLight%d = normalize(fragToLight%d);",
@@ -383,7 +382,9 @@ public:
 
                     fragBuilder->codeAppendf("lightProbability = step(r, depth);");
 
-                    fragBuilder->codeAppendf("if (%s.b != 0 || depth == 0) {"
+                    // 2 is the maximum depth. If this is reached, probably we have
+                    // not intersected anything. So values after this should be unshadowed.
+                    fragBuilder->codeAppendf("if (%s.b != 0 || depth == 2) {"
                                                      "lightProbability = 1.0; }",
                                              povDepth.c_str());
                 } else {
@@ -431,7 +432,7 @@ public:
 
                 if (shadowFP.isPointLight(i)) {
                     fragBuilder->codeAppendf("totalLightColor += max(fragToLight%d.z, 0) * %s /"
-                                                     "(1 + distsq%d) * lightProbability;",
+                                                     "(1 + dist%d) * lightProbability;",
                                              i, lightColorUniName[i], i);
                 } else {
                     fragBuilder->codeAppendf("totalLightColor += %s.z * %s * lightProbability;",
@@ -818,7 +819,7 @@ void SkShadowShaderImpl::ShadowShaderContext::shadeSpan(int x, int y,
                     SkScalar dist = fragToLight.length();
                     SkScalar normalizedZ = fragToLight.fZ / dist;
 
-                    SkScalar distAttenuation = light.intensity() / (1.0f + dist * dist);
+                    SkScalar distAttenuation = light.intensity() / (1.0f + dist);
 
                     // assume object normals are pointing straight up
                     totalLight.fX += normalizedZ * light.color().fX * distAttenuation;
