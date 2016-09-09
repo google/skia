@@ -426,6 +426,10 @@ public:
         return false;
     }
 
+    bool checkAlreadyAdded() const {
+        return fAlreadyAdded;
+    }
+
     bool clearCoincident() {
         SkASSERT(!final());
         if (fCoincident == this) {
@@ -464,7 +468,7 @@ public:
     }
 
     void init(SkOpSegment* parent, SkOpSpan* prev, double t, const SkPoint& pt);
-    bool insertCoincidence(const SkOpSegment* , bool flipped);
+    bool insertCoincidence(const SkOpSegment* , bool flipped, bool ordered);
 
     // Please keep this in sync with debugInsertCoincidence()
     void insertCoincidence(SkOpSpan* coin) {

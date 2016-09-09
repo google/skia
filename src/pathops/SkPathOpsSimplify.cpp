@@ -36,7 +36,10 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple, bo
                         if (!unsortable && simple->hasMove()
                                 && current->verb() != SkPath::kLine_Verb
                                 && !simple->isClosed()) {
-                            if (!current->addCurveTo(start, end, simple)) {
+                            // FIXME: put in the next two lines to avoid handling already added
+                            if (start->starter(end)->checkAlreadyAdded()) {
+                                simple->close();
+                            } else if (!current->addCurveTo(start, end, simple)) {
                                 return false;
                             }
                             if (!simple->isClosed()) {

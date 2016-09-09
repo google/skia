@@ -510,7 +510,7 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                 SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt]);
                 if (!testTAt->contains(nextTAt)) {
                     SkOpPtT* oppPrev = testTAt->oppPrev(nextTAt);  //  Returns nullptr if pair 
-                    if (oppPrev) {                                 //  already shares a pt-t loop.
+                    if (oppPrev) {                                 //  already share a pt-t loop.
                         testTAt->span()->mergeMatches(nextTAt->span());
                         testTAt->addOpp(nextTAt, oppPrev);
                     }
@@ -543,6 +543,14 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                     SkTSwap(testTAt, nextTAt);
                 }
                 SkASSERT(coinPtT[0]->span()->t() < testTAt->span()->t());
+                if (coinPtT[0]->span()->deleted()) {
+                    coinIndex = -1;
+                    continue;
+                }
+                if (testTAt->span()->deleted()) {
+                    coinIndex = -1;
+                    continue;
+                }
                 coincidence->add(coinPtT[0], testTAt, coinPtT[1], nextTAt);
                 wt.segment()->debugValidate();
                 wn.segment()->debugValidate();

@@ -146,6 +146,37 @@ int SkCoincidentSpans::spanCount() const {
     return coinIntervals == oppIntervals ? coinIntervals : -1;
 }
 
+// A coincident span is unordered if the pairs of points in the main and opposite curves'
+// t values do not ascend or descend. For instance, if a tightly arced quadratic is
+// coincident with another curve, it may intersect it out of order.
+bool SkCoincidentSpans::ordered() const {
+    const SkOpSpanBase* start = this->coinPtTStart()->span();
+    const SkOpSpanBase* end = this->coinPtTEnd()->span();
+    const SkOpSpanBase* next = start->upCast()->next();
+    if (next == end) {
+        return true;
+    }
+    bool flipped = this->flipped();
+    const SkOpSegment* oppSeg = this->oppPtTStart()->segment();
+    double oppLastT = fOppPtTStart->fT;
+    do {
+        const SkOpPtT* opp = next->contains(oppSeg);
+        if (!opp) {
+            SkASSERT(0);  // may assert if coincident span isn't fully processed
+            continue;
+        }
+        if ((oppLastT > opp->fT) != flipped) {
+            return false;
+        }
+        oppLastT = opp->fT;
+        if (next == end) {
+            break;
+        }
+        next = next->upCast()->next();
+    } while (true);
+    return true;
+}
+
 // returns true if the point is on a coincident edge, and if it is the start of that edge
 bool SkOpCoincidence::edge(const SkOpPtT* test, bool* start) const {
     SkCoincidentSpans* coinRec = fHead;
@@ -324,8 +355,8 @@ bool SkOpCoincidence::addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase*
                 SkTSwap(coinTs, coinTe);
                 SkTSwap(oppTs, oppTe);
             }
-            if (!this->addOrOverlap(coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe
-                    SkDEBUGPARAMS(true) /* do assert if addOrOverlap fails */ )) {
+            bool added;
+            if (!this->addOrOverlap(coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, &added)) {
                 return false;
             }
         }
@@ -606,7 +637,7 @@ bool SkOpCoincidence::checkOverlap(SkCoincidentSpans* check,
         double oCheckTe = check->oppPtTEnd()->fT;
         if (swapOpp) {
             if (oCheckTs <= oCheckTe) {
-              return false;
+                return false;
             }
             SkTSwap(oCheckTs, oCheckTe);
         }
@@ -616,8 +647,8 @@ bool SkOpCoincidence::checkOverlap(SkCoincidentSpans* check,
         }
         bool coinInside = coinTe <= checkTe && coinTs >= checkTs;
         bool oppInside = oppTe <= oCheckTe && oppTs >= oCheckTs;
-        if (coinInside && oppInside) {
-            return false;  // complete overlap, already included, do nothing
+        if (coinInside && oppInside) {  // already included, do nothing
+            return false;
         }
         *overlaps->append() = check; // partial overlap, extend existing entry
     } while ((check = check->next()));
@@ -627,7 +658,7 @@ bool SkOpCoincidence::checkOverlap(SkCoincidentSpans* check,
 /* Please keep this in sync with debugAddIfMissing() */
 // note that over1s, over1e, over2s, over2e are ordered
 bool SkOpCoincidence::addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over2s,
-        double tStart, double tEnd, SkOpSegment* coinSeg, SkOpSegment* oppSeg  
+        double tStart, double tEnd, SkOpSegment* coinSeg, SkOpSegment* oppSeg, bool* added  
         SkDEBUGPARAMS(const SkOpPtT* over1e) SkDEBUGPARAMS(const SkOpPtT* over2e)) {
     SkASSERT(tStart < tEnd);
     SkASSERT(over1s->fT < over1e->fT);
@@ -646,35 +677,33 @@ bool SkOpCoincidence::addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over2s,
     coinTs = TRange(over1s, tStart, coinSeg  SkDEBUGPARAMS(over1e));
     coinTe = TRange(over1s, tEnd, coinSeg  SkDEBUGPARAMS(over1e));
     if (coinSeg->collapsed(coinTs, coinTe)) {
-        return false;
+        return true;
     }
     oppTs = TRange(over2s, tStart, oppSeg  SkDEBUGPARAMS(over2e));
     oppTe = TRange(over2s, tEnd, oppSeg  SkDEBUGPARAMS(over2e));
     if (oppSeg->collapsed(oppTs, oppTe)) {
-        return false;
+        return true;
     }
     if (coinTs > coinTe) {
         SkTSwap(coinTs, coinTe);
         SkTSwap(oppTs, oppTe);
     }
-    return this->addOrOverlap(coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe
-            SkDEBUGPARAMS(false) /* don't assert if addOrOverlap fails */ );
+    return this->addOrOverlap(coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, added);
 }
 
 /* Please keep this in sync with debugAddOrOverlap() */
 // If this is called by addEndMovedSpans(), a returned false propogates out to an abort.
 // If this is called by AddIfMissing(), a returned false indicates there was nothing to add
 bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
-        double coinTs, double coinTe, double oppTs, double oppTe
-        SkDEBUGPARAMS(bool callerAborts)) {
+        double coinTs, double coinTe, double oppTs, double oppTe, bool* added) {
     SkTDArray<SkCoincidentSpans*> overlaps;
-    RETURN_FALSE_IF(callerAborts, !fTop);
+    FAIL_IF(!fTop);
     if (!this->checkOverlap(fTop, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, &overlaps)) {
-        return false;
+        return true;
     }
     if (fHead && !this->checkOverlap(fHead, coinSeg, oppSeg, coinTs,
             coinTe, oppTs, oppTe, &overlaps)) {
-        return false;
+        return true;
     }
     SkCoincidentSpans* overlap = overlaps.count() ? overlaps[0] : nullptr;
     for (int index = 1; index < overlaps.count(); ++index) { // combine overlaps before continuing
@@ -701,28 +730,32 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
     }
     const SkOpPtT* cs = coinSeg->existing(coinTs, oppSeg);
     const SkOpPtT* ce = coinSeg->existing(coinTe, oppSeg);
-    RETURN_FALSE_IF(callerAborts, overlap && cs && ce && overlap->contains(cs, ce));
-    RETURN_FALSE_IF(callerAborts, cs == ce && cs);
+    if (overlap && cs && ce && overlap->contains(cs, ce)) {
+        return true;
+    }
+    FAIL_IF(cs == ce && cs);
     const SkOpPtT* os = oppSeg->existing(oppTs, coinSeg);
     const SkOpPtT* oe = oppSeg->existing(oppTe, coinSeg);
-    RETURN_FALSE_IF(callerAborts, overlap && os && oe && overlap->contains(os, oe));
+    if (overlap && os && oe && overlap->contains(os, oe)) {
+        return true;
+    }
     SkASSERT(!cs || !cs->deleted());
     SkASSERT(!os || !os->deleted());
     SkASSERT(!ce || !ce->deleted());
     SkASSERT(!oe || !oe->deleted());
     const SkOpPtT* csExisting = !cs ? coinSeg->existing(coinTs, nullptr) : nullptr;
     const SkOpPtT* ceExisting = !ce ? coinSeg->existing(coinTe, nullptr) : nullptr;
-    RETURN_FALSE_IF(callerAborts, csExisting && csExisting == ceExisting);
-    RETURN_FALSE_IF(callerAborts, csExisting && (csExisting == ce ||
+    FAIL_IF(csExisting && csExisting == ceExisting);
+    FAIL_IF(csExisting && (csExisting == ce ||
             csExisting->contains(ceExisting ? ceExisting : ce)));
-    RETURN_FALSE_IF(callerAborts, ceExisting && (ceExisting == cs ||
+    FAIL_IF(ceExisting && (ceExisting == cs ||
             ceExisting->contains(csExisting ? csExisting : cs)));
     const SkOpPtT* osExisting = !os ? oppSeg->existing(oppTs, nullptr) : nullptr;
     const SkOpPtT* oeExisting = !oe ? oppSeg->existing(oppTe, nullptr) : nullptr;
-    RETURN_FALSE_IF(callerAborts, osExisting && osExisting == oeExisting);
-    RETURN_FALSE_IF(callerAborts, osExisting && (osExisting == oe ||
+    FAIL_IF(osExisting && osExisting == oeExisting);
+    FAIL_IF(osExisting && (osExisting == oe ||
             osExisting->contains(oeExisting ? oeExisting : oe)));
-    RETURN_FALSE_IF(callerAborts, oeExisting && (oeExisting == os ||
+    FAIL_IF(oeExisting && (oeExisting == os ||
             oeExisting->contains(osExisting ? osExisting : os)));
     // extra line in debug code
     this->debugValidate();
@@ -731,11 +764,11 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
             : coinSeg->addT(coinTs);
         SkOpPtT* osWritable = os ? const_cast<SkOpPtT*>(os)
             : oppSeg->addT(oppTs);
-        RETURN_FALSE_IF(callerAborts, !csWritable || !osWritable);
+        FAIL_IF(!csWritable || !osWritable);
         csWritable->span()->addOpp(osWritable->span());
         cs = csWritable;
         os = osWritable->active();
-        RETURN_FALSE_IF(callerAborts, (ce && ce->deleted()) || (oe && oe->deleted()));
+        FAIL_IF((ce && ce->deleted()) || (oe && oe->deleted()));
     }
     if (!ce || !oe) {
         SkOpPtT* ceWritable = ce ? const_cast<SkOpPtT*>(ce)
@@ -747,11 +780,11 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
         oe = oeWritable;
     }
     this->debugValidate();
-    RETURN_FALSE_IF(callerAborts, cs->deleted());
-    RETURN_FALSE_IF(callerAborts, os->deleted());
-    RETURN_FALSE_IF(callerAborts, ce->deleted());
-    RETURN_FALSE_IF(callerAborts, oe->deleted());
-    RETURN_FALSE_IF(callerAborts, cs->contains(ce) || os->contains(oe));
+    FAIL_IF(cs->deleted());
+    FAIL_IF(os->deleted());
+    FAIL_IF(ce->deleted());
+    FAIL_IF(oe->deleted());
+    FAIL_IF(cs->contains(ce) || os->contains(oe));
     bool result = true;
     if (overlap) {
         if (overlap->coinPtTStart()->segment() == coinSeg) {
@@ -775,19 +808,22 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
 #endif
     }
     this->debugValidate();
-    return result;
+    if (result) {
+        *added = true;
+    }
+    return true;
 }
 
 // Please keep this in sync with debugAddMissing()
 /* detects overlaps of different coincident runs on same segment */
 /* does not detect overlaps for pairs without any segments in common */
 // returns true if caller should loop again
-bool SkOpCoincidence::addMissing() {
+bool SkOpCoincidence::addMissing(bool* added) {
     SkCoincidentSpans* outer = fHead;
+    *added = false;
     if (!outer) {
-        return false;
+        return true;
     }
-    bool added = false;
     fTop = outer;
     fHead = nullptr;
     do {
@@ -800,7 +836,7 @@ bool SkOpCoincidence::addMissing() {
         SkASSERT(!outerCoin->done());  // if it's done, should have already been removed from list
         const SkOpPtT* oos = outer->oppPtTStart();
         if (oos->deleted()) {
-            return false;
+            return true;
         }
         const SkOpSegment* outerOpp = oos->segment();
         SkASSERT(!outerOpp->done());
@@ -823,13 +859,13 @@ bool SkOpCoincidence::addMissing() {
             if (outerCoin == innerCoin) {
                 const SkOpPtT* oce = outer->coinPtTEnd();
                 if (oce->deleted()) {
-                    return false;
+                    return true;
                 }
                 const SkOpPtT* ice = inner->coinPtTEnd();
                 SkASSERT(!ice->deleted());
                 if (outerOpp != innerOpp && this->overlap(ocs, oce, ics, ice, &overS, &overE)) {
-                    added |= this->addIfMissing(ocs->starter(oce), ics->starter(ice),
-                            overS, overE, outerOppWritable, innerOppWritable
+                    (void) this->addIfMissing(ocs->starter(oce), ics->starter(ice),
+                            overS, overE, outerOppWritable, innerOppWritable, added
                             SkDEBUGPARAMS(ocs->debugEnder(oce))
                             SkDEBUGPARAMS(ics->debugEnder(ice)));
                 }
@@ -839,8 +875,8 @@ bool SkOpCoincidence::addMissing() {
                 const SkOpPtT* ioe = inner->oppPtTEnd();
                 SkASSERT(!ioe->deleted());
                 if (outerOpp != innerCoin && this->overlap(ocs, oce, ios, ioe, &overS, &overE)) {
-                    added |= this->addIfMissing(ocs->starter(oce), ios->starter(ioe),
-                            overS, overE, outerOppWritable, innerCoinWritable
+                    (void) this->addIfMissing(ocs->starter(oce), ios->starter(ioe),
+                            overS, overE, outerOppWritable, innerCoinWritable, added
                             SkDEBUGPARAMS(ocs->debugEnder(oce))
                             SkDEBUGPARAMS(ios->debugEnder(ioe)));
                 }
@@ -851,8 +887,8 @@ bool SkOpCoincidence::addMissing() {
                 SkASSERT(!ice->deleted());
                 SkASSERT(outerCoin != innerOpp);
                 if (this->overlap(oos, ooe, ics, ice, &overS, &overE)) {
-                    added |= this->addIfMissing(oos->starter(ooe), ics->starter(ice),
-                            overS, overE, outerCoinWritable, innerOppWritable
+                    (void) this->addIfMissing(oos->starter(ooe), ics->starter(ice),
+                            overS, overE, outerCoinWritable, innerOppWritable, added
                             SkDEBUGPARAMS(oos->debugEnder(ooe))
                             SkDEBUGPARAMS(ics->debugEnder(ice)));
                 }
@@ -861,12 +897,12 @@ bool SkOpCoincidence::addMissing() {
                 SkASSERT(!ooe->deleted());
                 const SkOpPtT* ioe = inner->oppPtTEnd();
                 if (ioe->deleted()) {
-                    return false;
+                    return true;
                 }
                 SkASSERT(outerCoin != innerCoin);
                 if (this->overlap(oos, ooe, ios, ioe, &overS, &overE)) {
-                    added |= this->addIfMissing(oos->starter(ooe), ios->starter(ioe),
-                            overS, overE, outerCoinWritable, innerCoinWritable
+                    (void) this->addIfMissing(oos->starter(ooe), ios->starter(ioe),
+                            overS, overE, outerCoinWritable, innerCoinWritable, added
                             SkDEBUGPARAMS(oos->debugEnder(ooe))
                             SkDEBUGPARAMS(ios->debugEnder(ioe)));
                 }
@@ -875,7 +911,7 @@ bool SkOpCoincidence::addMissing() {
         }
     } while ((outer = outer->next()));
     this->restoreHead();
-    return added;
+    return true;
 }
 
 bool SkOpCoincidence::addOverlap(const SkOpSegment* seg1, const SkOpSegment* seg1o,
@@ -1455,17 +1491,13 @@ bool SkOpCoincidence::mark() {
         return true;
     }
     do {
-        if (!coin->coinPtTStartWritable()->span()->upCastable()) {
-            return false;
-        }
+        FAIL_IF(!coin->coinPtTStartWritable()->span()->upCastable());
         SkOpSpan* start = coin->coinPtTStartWritable()->span()->upCast();
         SkASSERT(!start->deleted());
         SkOpSpanBase* end = coin->coinPtTEndWritable()->span();
         SkASSERT(!end->deleted());
         SkOpSpanBase* oStart = coin->oppPtTStartWritable()->span();
-        if (oStart->deleted()) {
-            return false;
-        }
+        FAIL_IF(oStart->deleted());
         SkOpSpanBase* oEnd = coin->oppPtTEndWritable()->span();
         SkASSERT(!oEnd->deleted());
         bool flipped = coin->flipped();
@@ -1480,19 +1512,16 @@ bool SkOpCoincidence::mark() {
         const SkOpSegment* oSegment = oStart->segment();
         SkOpSpanBase* next = start;
         SkOpSpanBase* oNext = oStart;
+        bool ordered = coin->ordered();
         while ((next = next->upCast()->next()) != end) {
-            if (!next->upCastable()) {
-                return false;
-            }
-            if (!next->upCast()->insertCoincidence(oSegment, flipped)) {
+            FAIL_IF(!next->upCastable());
+            if (!next->upCast()->insertCoincidence(oSegment, flipped, ordered)) {
                 return false;
             }
         }
         while ((oNext = oNext->upCast()->next()) != oEnd) {
-            if (!oNext->upCastable()) {
-                return false;
-            }
-            if (!oNext->upCast()->insertCoincidence(segment, flipped)) {
+            FAIL_IF(!oNext->upCastable());
+            if (!oNext->upCast()->insertCoincidence(segment, flipped, ordered)) {
                 return false;
             }
         }

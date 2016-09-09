@@ -109,7 +109,7 @@ public:
                     || !fIntersections->debugGlobalState()->debugSkipAssert()) {
                 SkDEBUGCODE(SkDPoint conicPt = fConic.ptAtT(conicT));
                 SkDEBUGCODE(SkDPoint linePt = fLine->ptAtT(lineT));
-                SkASSERT(conicPt.approximatelyEqual(linePt));
+                SkASSERT(conicPt.approximatelyDEqual(linePt));
             }
 #endif
             SkDPoint pt;

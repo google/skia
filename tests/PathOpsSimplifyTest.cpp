@@ -5256,8 +5256,83 @@ static void tiger8a_h_1(skiatest::Reporter* reporter, const char* filename) {
 #if DEBUG_UNDER_DEVELOPMENT  // tiger
     return;
 #endif
-    uint64_t testlines = 0x0000001d14c14bb1;  // best so far: 0x0000001d14c14bb1;
+    uint64_t testlines = 0x0000000a01900c00;  // best so far: 0x0000001d14c14bb1;
     tiger8a_x(reporter, filename, testlines);
+}
+
+static void tiger8b_x(skiatest::Reporter* reporter, const char* filename, uint64_t testlines) {
+#if DEBUG_UNDER_DEVELOPMENT // tiger
+    return;
+#endif
+    SkPath path;
+uint64_t i = 0;
+if (testlines & (1LL << i++)) path.moveTo(SkBits2Float(0x43f72ca1), SkBits2Float(0x43609572));  // 494.349f, 224.584f
+if (testlines & (1LL << i++)) path.conicTo(SkBits2Float(0x43f72ebd), SkBits2Float(0x4360a219), SkBits2Float(0x43f7302e), SkBits2Float(0x4360af1f), SkBits2Float(0x3f7fa741));  // 494.365f, 224.633f, 494.376f, 224.684f, 0.998646f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f63333), SkBits2Float(0x4360e667));  // 492.4f, 224.9f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f63333), SkBits2Float(0x4360ca4b), SkBits2Float(0x43f6363f), SkBits2Float(0x4360aede));  // 492.4f, 224.79f, 492.424f, 224.683f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f64377), SkBits2Float(0x436037ee), SkBits2Float(0x43f679f5), SkBits2Float(0x4360016e));  // 492.527f, 224.218f, 492.953f, 224.006f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f6df06), SkBits2Float(0x435f9c5c), SkBits2Float(0x43f71db4), SkBits2Float(0x43605866));  // 493.742f, 223.611f, 494.232f, 224.345f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f722f8), SkBits2Float(0x43606830), SkBits2Float(0x43f72704), SkBits2Float(0x43607966));  // 494.273f, 224.407f, 494.305f, 224.474f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f72ae0), SkBits2Float(0x436089cd), SkBits2Float(0x43f72d8a), SkBits2Float(0x43609b1e));  // 494.335f, 224.538f, 494.356f, 224.606f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f72e8e), SkBits2Float(0x4360a1b8), SkBits2Float(0x43f72f61), SkBits2Float(0x4360a850));  // 494.364f, 224.632f, 494.37f, 224.657f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f72f68), SkBits2Float(0x4360a88a), SkBits2Float(0x43f72f83), SkBits2Float(0x4360a964));  // 494.37f, 224.658f, 494.371f, 224.662f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f72fbb), SkBits2Float(0x4360ab2a), SkBits2Float(0x43f72ff4), SkBits2Float(0x4360ad1d));  // 494.373f, 224.669f, 494.375f, 224.676f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f73000), SkBits2Float(0x4360ad83), SkBits2Float(0x43f73009), SkBits2Float(0x4360add5));  // 494.375f, 224.678f, 494.375f, 224.679f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f7300b), SkBits2Float(0x4360ade9), SkBits2Float(0x43f73022), SkBits2Float(0x4360aeb5));  // 494.375f, 224.679f, 494.376f, 224.682f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f7301f), SkBits2Float(0x4360ae97));  // 494.376f, 224.682f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f73027), SkBits2Float(0x4360aee3));  // 494.376f, 224.683f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f73028), SkBits2Float(0x4360aeeb));  // 494.376f, 224.683f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f73027), SkBits2Float(0x4360aedf));  // 494.376f, 224.683f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f73021), SkBits2Float(0x4360aeaa));  // 494.376f, 224.682f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f73016), SkBits2Float(0x4360ae50));  // 494.376f, 224.681f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f73007), SkBits2Float(0x4360adc1));  // 494.375f, 224.679f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f72ff9), SkBits2Float(0x4360ad4d));  // 494.375f, 224.677f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f7300d), SkBits2Float(0x4360adf7), SkBits2Float(0x43f73031), SkBits2Float(0x4360af12));  // 494.375f, 224.68f, 494.376f, 224.684f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f730f0), SkBits2Float(0x4360b4f1), SkBits2Float(0x43f7320a), SkBits2Float(0x4360bc94));  // 494.382f, 224.707f, 494.391f, 224.737f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f73625), SkBits2Float(0x4360d8fe), SkBits2Float(0x43f73c59), SkBits2Float(0x4360fa4a));  // 494.423f, 224.848f, 494.471f, 224.978f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f75132), SkBits2Float(0x43616a36), SkBits2Float(0x43f772ac), SkBits2Float(0x4361d738));  // 494.634f, 225.415f, 494.896f, 225.841f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f7de60), SkBits2Float(0x436335ea), SkBits2Float(0x43f89f25), SkBits2Float(0x4363e779));  // 495.737f, 227.211f, 497.243f, 227.904f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43fb3d30), SkBits2Float(0x436650a0), SkBits2Float(0x44005a14), SkBits2Float(0x43602133));  // 502.478f, 230.315f, 513.407f, 224.13f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x4400799a), SkBits2Float(0x4360ffff));  // 513.9f, 225
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x44003ca2), SkBits2Float(0x43614dd5));  // 512.947f, 225.304f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43ff92b8), SkBits2Float(0x435ba8f8), SkBits2Float(0x43fee825), SkBits2Float(0x4353aa15));  // 511.146f, 219.66f, 509.814f, 211.664f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43ff6667), SkBits2Float(0x43537fff));  // 510.8f, 211.5f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43ffcaf2), SkBits2Float(0x43541e6d));  // 511.586f, 212.119f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43fd4888), SkBits2Float(0x435a7d38), SkBits2Float(0x43f8d864), SkBits2Float(0x435b4bbf));  // 506.567f, 218.489f, 497.691f, 219.296f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f8cccd), SkBits2Float(0x435a4ccc));  // 497.6f, 218.3f
+if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f8e5e7), SkBits2Float(0x435b47d3));  // 497.796f, 219.281f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f84300), SkBits2Float(0x435b88fd), SkBits2Float(0x43f7b75b), SkBits2Float(0x435c5e8e));  // 496.523f, 219.535f, 495.432f, 220.369f
+if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f6b984), SkBits2Float(0x435de2c4), SkBits2Float(0x43f72ca1), SkBits2Float(0x43609572));  // 493.449f, 221.886f, 494.349f, 224.584f
+if (testlines & (1LL << i++)) path.close();
+testSimplify(reporter, path, filename);
+}
+
+static void tiger8b_h(skiatest::Reporter* reporter, const char* filename) {
+#if DEBUG_UNDER_DEVELOPMENT  // tiger
+    return;
+#endif
+    SkRandom r;
+    for (int samples = 2; samples < 37; ++samples) {
+        for (int tests = 0; tests < 10000; ++tests) {
+            uint64_t testlines = 0;
+            for (int i = 0; i < samples; ++i) {
+                int bit;
+                do {
+                    bit = r.nextRangeU(0, 38);
+                } while (testlines & (1LL << bit));
+                testlines |= 1LL << bit;
+            }
+            tiger8b_x(reporter, filename, testlines);
+        }
+    }
+}
+
+static void tiger8b_h_1(skiatest::Reporter* reporter, const char* filename) {
+#if DEBUG_UNDER_DEVELOPMENT  // tiger
+    return;
+#endif
+    uint64_t testlines = 0x0000000001000893;  // best so far: 0x0000000001000893
+    tiger8b_x(reporter, filename, testlines);
 }
 
 // tries to add same edge twice
@@ -5785,13 +5860,15 @@ static void testQuads72(skiatest::Reporter* reporter, const char* filename) {
 }
 
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = tiger8b_h_1;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
     TEST(tiger8a_h_1),
     TEST(tiger8a_h),
     TEST(tiger8a),
+    TEST(tiger8b_h_1),
+    TEST(tiger8b_h),
     TEST(tiger8b),
     TEST(tiger8),
     TEST(testQuads72),

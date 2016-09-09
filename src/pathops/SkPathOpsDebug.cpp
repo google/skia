@@ -269,7 +269,8 @@ void SkPathOpsDebug::CheckHealth(SkOpContourHead* contourList, const char* id) {
         contour->debugMissingCoincidence(id, &glitches);
     } while ((contour = contour->next()));
     coincidence->debugRemoveCollapsed(id, &glitches);
-    coincidence->debugAddMissing(id, &glitches);
+    bool added;
+    coincidence->debugAddMissing(id, &glitches, &added);
     coincidence->debugExpand(id, &glitches);
     coincidence->debugAddExpanded(id, &glitches);
     coincidence->debugMark(id, &glitches);
@@ -1393,7 +1394,7 @@ void SkOpCoincidence::debugAddIfMissing(const char* id, SkPathOpsDebug::GlitchLo
 /* Commented-out lines keep this in sync addIfMissing() */
 // note that over1s, over1e, over2s, over2e are ordered
 void SkOpCoincidence::debugAddIfMissing(const char* id, SkPathOpsDebug::GlitchLog* log, const SkOpPtT* over1s, const SkOpPtT* over2s,
-        double tStart, double tEnd, const SkOpSegment* coinSeg, const SkOpSegment* oppSeg,
+        double tStart, double tEnd, const SkOpSegment* coinSeg, const SkOpSegment* oppSeg, bool* added,
         const SkOpPtT* over1e, const SkOpPtT* over2e) const {
     SkASSERT(tStart < tEnd);
     SkASSERT(over1s->fT < over1e->fT);
@@ -1423,7 +1424,7 @@ void SkOpCoincidence::debugAddIfMissing(const char* id, SkPathOpsDebug::GlitchLo
         SkTSwap(coinTs, coinTe);
         SkTSwap(oppTs, oppTe);
     }
-    return this->debugAddOrOverlap(id, log, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe
+    return this->debugAddOrOverlap(id, log, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, added
             );
 }
 
@@ -1432,10 +1433,11 @@ void SkOpCoincidence::debugAddIfMissing(const char* id, SkPathOpsDebug::GlitchLo
 // If this is called by AddIfMissing(), a returned false indicates there was nothing to add
 void SkOpCoincidence::debugAddOrOverlap(const char* id, SkPathOpsDebug::GlitchLog* log,
         const SkOpSegment* coinSeg, const SkOpSegment* oppSeg,
-        double coinTs, double coinTe, double oppTs, double oppTe) const {
+        double coinTs, double coinTe, double oppTs, double oppTe, bool* added) const {
     SkTDArray<SkCoincidentSpans*> overlaps;
     SkASSERT(!fTop);   // this is (correctly) reversed in addifMissing()
-    if (fTop && !this->checkOverlap(fTop, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, &overlaps)) {
+    if (fTop && !this->checkOverlap(fTop, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe,
+            &overlaps)) {
         return;
     }
     if (fHead && !this->checkOverlap(fHead, coinSeg, oppSeg, coinTs,
@@ -1548,7 +1550,7 @@ void SkOpCoincidence::debugAddOrOverlap(const char* id, SkPathOpsDebug::GlitchLo
 /* detects overlaps of different coincident runs on same segment */
 /* does not detect overlaps for pairs without any segments in common */
 // returns true if caller should loop again
-void SkOpCoincidence::debugAddMissing(const char* id, SkPathOpsDebug::GlitchLog* log) const {
+void SkOpCoincidence::debugAddMissing(const char* id, SkPathOpsDebug::GlitchLog* log, bool* added) const {
     const SkCoincidentSpans* outer = fHead;
     if (!outer) {
         return;
@@ -1591,7 +1593,7 @@ void SkOpCoincidence::debugAddMissing(const char* id, SkPathOpsDebug::GlitchLog*
                 SkASSERT(!ice->deleted());
                 if (outerOpp != innerOpp && this->overlap(ocs, oce, ics, ice, &overS, &overE)) {
                     this->debugAddIfMissing(id, log, ocs->starter(oce), ics->starter(ice),
-                            overS, overE, outerOpp, innerOpp,
+                            overS, overE, outerOpp, innerOpp, added,
                             ocs->debugEnder(oce),
                             ics->debugEnder(ice));
                 }
@@ -1602,7 +1604,7 @@ void SkOpCoincidence::debugAddMissing(const char* id, SkPathOpsDebug::GlitchLog*
                 SkASSERT(!ioe->deleted());
                 if (outerOpp != innerCoin && this->overlap(ocs, oce, ios, ioe, &overS, &overE)) {
                     this->debugAddIfMissing(id, log, ocs->starter(oce), ios->starter(ioe),
-                            overS, overE, outerOpp, innerCoin,
+                            overS, overE, outerOpp, innerCoin, added,
                             ocs->debugEnder(oce),
                             ios->debugEnder(ioe));
                 }
@@ -1614,7 +1616,7 @@ void SkOpCoincidence::debugAddMissing(const char* id, SkPathOpsDebug::GlitchLog*
                 SkASSERT(outerCoin != innerOpp);
                 if (this->overlap(oos, ooe, ics, ice, &overS, &overE)) {
                     this->debugAddIfMissing(id, log, oos->starter(ooe), ics->starter(ice),
-                            overS, overE, outerCoin, innerOpp,
+                            overS, overE, outerCoin, innerOpp, added,
                             oos->debugEnder(ooe),
                             ics->debugEnder(ice));
                 }
@@ -1626,7 +1628,7 @@ void SkOpCoincidence::debugAddMissing(const char* id, SkPathOpsDebug::GlitchLog*
                 SkASSERT(outerCoin != innerCoin);
                 if (this->overlap(oos, ooe, ios, ioe, &overS, &overE)) {
                     this->debugAddIfMissing(id, log, oos->starter(ooe), ios->starter(ioe),
-                            overS, overE, outerCoin, innerCoin,
+                            overS, overE, outerCoin, innerCoin, added,
                             oos->debugEnder(ooe),
                             ios->debugEnder(ioe));
                 }
@@ -1972,13 +1974,6 @@ static void DebugCheckOverlapTop(const SkCoincidentSpans* head, const SkCoincide
         test = next;
     }
 }
-
-#if DEBUG_COINCIDENCE_VERBOSE
-void SkOpCoincidence::debugCheckOverlap(const char* id, SkPathOpsDebug::GlitchLog* log) const {
-    DebugCheckOverlapTop(fHead, fTop, id, log);
-    DebugCheckOverlapTop(fTop, nullptr, id, log);
-}
-#endif
 
 static void DebugValidate(const SkCoincidentSpans* head, const SkCoincidentSpans* opt,
         const char* id, SkPathOpsDebug::GlitchLog* log) {
