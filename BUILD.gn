@@ -78,6 +78,12 @@ config("skia_private") {
   ]
 
   defines = [ "SK_GAMMA_APPLY_TO_A8" ]
+  if (is_android) {
+    defines += [
+      "SK_GAMMA_EXPONENT=1.4",
+      "SK_GAMMA_CONTRAST=0.0",
+    ]
+  }
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
@@ -609,6 +615,7 @@ if (skia_enable_tools) {
     sources = [
       "src/images/SkForceLinking.cpp",
       "src/utils/SkMultiPictureDocumentReader.cpp",  # TODO(halcanary): move to tools?
+      "tools/AndroidSkDebugToStdOut.cpp",
       "tools/CrashHandler.cpp",
       "tools/LsanSuppressions.cpp",
       "tools/ProcStats.cpp",
