@@ -149,7 +149,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
                             "\tcolor.rgb = color.rgb / nonZeroAlpha;\n");
     }
     // Gamut xform, clamp to destination gamut
-    functionBody.append("\tcolor.rgb = clamp((vec4(color.rgb, 1.0) * xform).rgb, 0.0, 1.0);\n");
+    functionBody.append("\tcolor.rgb = clamp((xform * vec4(color.rgb, 1.0)).rgb, 0.0, 1.0);\n");
     if (kPremul_SkAlphaType == colorXformHelper->alphaType()) {
         // Re-multiply by alpha
         functionBody.append("\tcolor.rgb = color.rgb * nonZeroAlpha;\n");

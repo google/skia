@@ -37,8 +37,7 @@ static inline bool matrix_is_almost_identity(const SkMatrix44& m,
 
 GrColorSpaceXform::GrColorSpaceXform(const SkMatrix44& srcToDst, SkAlphaType srcAlphaType)
     : fSrcAlphaType(srcAlphaType) {
-    // TODO: Fix this, and store things as column major!
-    srcToDst.asRowMajorf(fSrcToDst);
+    srcToDst.asColMajorf(fSrcToDst);
 }
 
 sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace* dst,
