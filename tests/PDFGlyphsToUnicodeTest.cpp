@@ -25,7 +25,7 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
     return memcmp(data->bytes() + offset, buffer, len) == 0;
 }
 
-DEF_TEST(ToUnicode, reporter) {
+DEF_TEST(SkPDF_ToUnicode, reporter) {
     SkTDArray<SkUnichar> glyphToUnicode;
     SkTDArray<uint16_t> glyphsInSubset;
     SkBitSet subset(kMaximumGlyphCount);

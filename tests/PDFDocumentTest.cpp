@@ -105,7 +105,7 @@ static void test_close(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, stream.bytesWritten() != 0);
 }
 
-DEF_TEST(document_tests, reporter) {
+DEF_TEST(SkPDF_document_tests, reporter) {
     REQUIRE_PDF_DOCUMENT(document_tests, reporter);
     test_empty(reporter);
     test_abort(reporter);
@@ -147,8 +147,8 @@ size_t count_bytes(const SkBitmap& bm, bool useDCT) {
     return stream.bytesWritten();
 }
 
-DEF_TEST(document_dct_encoder, r) {
-    REQUIRE_PDF_DOCUMENT(document_dct_encoder, r);
+DEF_TEST(SkPDF_document_dct_encoder, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_document_dct_encoder, r);
     SkBitmap bm;
     if (GetResourceAsBitmap("mandrill_64.png", &bm)) {
         // Lossy encoding works better on photographs.
@@ -156,8 +156,8 @@ DEF_TEST(document_dct_encoder, r) {
     }
 }
 
-DEF_TEST(document_skbug_4734, r) {
-    REQUIRE_PDF_DOCUMENT(document_skbug_4734, r);
+DEF_TEST(SkPDF_document_skbug_4734, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_document_skbug_4734, r);
     SkDynamicMemoryWStream stream;
     sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
     SkCanvas* canvas = doc->beginPage(64, 64);
@@ -166,4 +166,64 @@ DEF_TEST(document_skbug_4734, r) {
     canvas->rotate(30.0f);
     const char text[] = "HELLO";
     canvas->drawText(text, strlen(text), 0, 0, SkPaint());
+}
+
+static bool contains(const uint8_t* result, size_t size, const char expectation[]) {
+    size_t len = strlen(expectation);
+    size_t N = 1 + size - len;
+    for (size_t i = 0; i < N; ++i) {
+        if (0 == memcmp(result + i, expectation, len)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// verify that the PDFA flag does something.
+DEF_TEST(SkPDF_pdfa_document, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_pdfa_document, r);
+
+    SkDocument::PDFMetadata pdfMetadata;
+    pdfMetadata.fTitle = "test document";
+    pdfMetadata.fCreation.fEnabled = true;
+    pdfMetadata.fCreation.fDateTime = {0, 1999, 12, 5, 31, 23, 59, 59};
+
+    SkDynamicMemoryWStream buffer;
+    auto doc = SkDocument::MakePDF(&buffer, SK_ScalarDefaultRasterDPI,
+                                   pdfMetadata, nullptr, /* pdfa = */ true);
+    doc->beginPage(64, 64)->drawColor(SK_ColorRED);
+    doc->close();
+    sk_sp<SkData> data(buffer.copyToData());
+    buffer.reset();
+    static const char* expectations[] = {
+        "sRGB IEC61966-2.1",
+        "<dc:title><rdf:Alt><rdf:li xml:lang=\"x-default\">test document",
+        "<xmp:CreateDate>1999-12-31T23:59:59+00:00</xmp:CreateDate>",
+        "/Subtype /XML",
+        "/CreationDate (D:19991231235959+00'00')>>",
+    };
+    for (const char* expectation : expectations) {
+        if (!contains(data->bytes(), data->size(), expectation)) {
+            ERRORF(r, "PDFA expectation missing: '%s'.", expectation);
+        }
+    }
+    pdfMetadata.fProducer = "phoney library";
+    doc = SkDocument::MakePDF(&buffer, SK_ScalarDefaultRasterDPI,
+                              pdfMetadata, nullptr, /* pdfa = */ true);
+    doc->beginPage(64, 64)->drawColor(SK_ColorRED);
+    doc->close();
+    data.reset(buffer.copyToData());
+    buffer.reset();
+
+    static const char* moreExpectations[] = {
+        "/Producer (phoney library)",
+        "/ProductionLibrary (Skia/PDF m",
+        "<!-- <skia:ProductionLibrary>Skia/PDF m",
+        "<pdf:Producer>phoney library</pdf:Producer>",
+    };
+    for (const char* expectation : moreExpectations) {
+        if (!contains(data->bytes(), data->size(), expectation)) {
+            ERRORF(r, "PDFA expectation missing: '%s'.", expectation);
+        }
+    }
 }

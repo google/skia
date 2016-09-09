@@ -101,7 +101,7 @@ SkStreamAsset* stream_inflate(skiatest::Reporter* reporter, SkStream* src) {
 }
 }  // namespace
 
-DEF_TEST(SkDeflateWStream, r) {
+DEF_TEST(SkPDF_DeflateWStream, r) {
     SkRandom random(123456);
     for (int i = 0; i < 50; ++i) {
         uint32_t size = random.nextULessThan(10000);
@@ -123,6 +123,7 @@ DEF_TEST(SkDeflateWStream, r) {
                 }
                 j += writeSize;
             }
+            REPORTER_ASSERT(r, deflateWStream.bytesWritten() == size);
         }
         SkAutoTDelete<SkStreamAsset> compressed(
                 dynamicMemoryWStream.detachAsStream());
@@ -159,4 +160,6 @@ DEF_TEST(SkDeflateWStream, r) {
             }
         }
     }
+    SkDeflateWStream emptyDeflateWStream(nullptr);
+    REPORTER_ASSERT(r, !emptyDeflateWStream.writeText("FOO"));
 }

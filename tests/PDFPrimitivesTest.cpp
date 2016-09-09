@@ -334,7 +334,7 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
     assert_eq(reporter, result, "<</Type /DType\n/n1 1 0 R>>");
 }
 
-DEF_TEST(PDFPrimitives, reporter) {
+DEF_TEST(SkPDF_Primitives, reporter) {
     TestPDFUnion(reporter);
     TestPDFArray(reporter);
     TestPDFDict(reporter);
@@ -389,7 +389,8 @@ void DummyImageFilter::toString(SkString* str) const {
 
 // Check that PDF rendering of image filters successfully falls back to
 // CPU rasterization.
-DEF_TEST(PDFImageFilter, reporter) {
+DEF_TEST(SkPDF_ImageFilter, reporter) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_ImageFilter, reporter);
     SkDynamicMemoryWStream stream;
     sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
@@ -409,7 +410,7 @@ DEF_TEST(PDFImageFilter, reporter) {
 
 // Check that PDF rendering of image filters successfully falls back to
 // CPU rasterization.
-DEF_TEST(PDFFontCanEmbedTypeface, reporter) {
+DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
     SkPDFCanon canon;
 
     const char resource[] = "fonts/Roboto2-Regular_NoEmbed.ttf";
@@ -453,7 +454,7 @@ static void check_pdf_scalar_serialization(
 }
 
 // Test SkPDFUtils::AppendScalar for accuracy.
-DEF_TEST(PDFPrimitives_Scalar, reporter) {
+DEF_TEST(SkPDF_Primitives_Scalar, reporter) {
     SkRandom random(0x5EED);
     int iterationCount = 512;
     while (iterationCount-- > 0) {
@@ -474,7 +475,7 @@ DEF_TEST(PDFPrimitives_Scalar, reporter) {
 }
 
 // Test SkPDFUtils:: for accuracy.
-DEF_TEST(PDFPrimitives_Color, reporter) {
+DEF_TEST(SkPDF_Primitives_Color, reporter) {
     char buffer[5];
     for (int i = 0; i < 256; ++i) {
         size_t len = SkPDFUtils::ColorToDecimal(i, buffer);
