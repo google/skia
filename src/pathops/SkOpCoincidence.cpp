@@ -551,8 +551,8 @@ double SkOpCoincidence::TRange(const SkOpPtT* overS, double t,
     do {
         const SkOpPtT* contained = work->contains(coinSeg);
         if (!contained) {
-            if (work->t() >= t) {
-                return 1;
+            if (work->final()) {
+                break;
             }
             continue;
         }
@@ -567,8 +567,9 @@ double SkOpCoincidence::TRange(const SkOpPtT* overS, double t,
         }
         SkASSERT(work->ptT() != overE);
     } while ((work = work->upCast()->next()));
-    SkASSERT(coinStart);
-    SkASSERT(coinEnd);
+    if (!coinStart || !coinEnd) {
+        return 1;
+    }
     // while overS->fT <=t and overS contains coinSeg
     double denom = foundEnd->fT - foundStart->fT;
     double sRatio = denom ? (t - foundStart->fT) / denom : 1;
