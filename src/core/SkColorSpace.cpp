@@ -34,15 +34,15 @@ SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, SkGamma
 {}
 
 static constexpr float gSRGB_toXYZD50[] {
-    0.4358f, 0.2224f, 0.0139f,    // * R
-    0.3853f, 0.7170f, 0.0971f,    // * G
-    0.1430f, 0.0606f, 0.7139f,    // * B
+    0.4358f, 0.3853f, 0.1430f,    // Rx, Gx, Bx
+    0.2224f, 0.7170f, 0.0606f,    // Ry, Gy, Gz
+    0.0139f, 0.0971f, 0.7139f,    // Rz, Gz, Bz
 };
 
 static constexpr float gAdobeRGB_toXYZD50[] {
-    0.6098f, 0.3111f, 0.0195f,    // * R
-    0.2052f, 0.6257f, 0.0609f,    // * G
-    0.1492f, 0.0632f, 0.7448f,    // * B
+    0.6098f, 0.2052f, 0.1492f,    // Rx, Gx, Bx
+    0.3111f, 0.6257f, 0.0632f,    // Ry, Gy, By
+    0.0195f, 0.0609f, 0.7448f,    // Rz, Gz, Bz
 };
 
 /**
@@ -281,7 +281,7 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                             ColorSpaceHeader::Pack(k0_Version, 0, as_CSB(this)->fGammaNamed,
                                                    ColorSpaceHeader::kMatrix_Flag);
                     memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
-                    fToXYZD50.as4x3ColMajorf((float*) memory);
+                    fToXYZD50.as3x4RowMajorf((float*) memory);
                 }
                 return sizeof(ColorSpaceHeader) + 12 * sizeof(float);
             }
@@ -303,7 +303,7 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                     *(((float*) memory) + 2) = gammas->fBlueData.fValue;
                     memory = SkTAddOffset<void>(memory, 3 * sizeof(float));
 
-                    fToXYZD50.as4x3ColMajorf((float*) memory);
+                    fToXYZD50.as3x4RowMajorf((float*) memory);
                 }
                 return sizeof(ColorSpaceHeader) + 15 * sizeof(float);
         }
@@ -362,7 +362,7 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
             }
 
             SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
-            toXYZ.set4x3ColMajorf((const float*) data);
+            toXYZ.set3x4RowMajorf((const float*) data);
             return SkColorSpace_Base::NewRGB((SkGammaNamed) header.fGammaNamed, toXYZ);
         }
         default:
@@ -396,7 +396,7 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
             data = SkTAddOffset<const void>(data, 3 * sizeof(float));
 
             SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
-            toXYZ.set4x3ColMajorf((const float*) data);
+            toXYZ.set3x4RowMajorf((const float*) data);
             return SkColorSpace_Base::NewRGB(gammas, toXYZ);
         }
         default:

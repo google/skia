@@ -195,9 +195,9 @@ static float png_inverted_fixed_point_to_float(png_fixed_point x) {
 }
 
 static constexpr float gSRGB_toXYZD50[] {
-    0.4358f, 0.2224f, 0.0139f,    // * R
-    0.3853f, 0.7170f, 0.0971f,    // * G
-    0.1430f, 0.0606f, 0.7139f,    // * B
+    0.4358f, 0.3853f, 0.1430f,    // Rx, Gx, Bx
+    0.2224f, 0.7170f, 0.0606f,    // Ry, Gy, Gz
+    0.0139f, 0.0971f, 0.7139f,    // Rz, Gz, Bz
 };
 
 static bool convert_to_D50(SkMatrix44* toXYZD50, float toXYZ[9], float whitePoint[2]) {
@@ -251,8 +251,9 @@ static bool convert_to_D50(SkMatrix44* toXYZD50, float toXYZ[9], float whitePoin
                     toXYZ[8]);
     toXYZ3x3.postConcat(DXToD50);
 
-    toXYZD50->set3x3(toXYZ3x3[0], toXYZ3x3[1], toXYZ3x3[2], toXYZ3x3[3], toXYZ3x3[4], toXYZ3x3[5],
-                     toXYZ3x3[6], toXYZ3x3[7], toXYZ3x3[8]);
+    toXYZD50->set3x3(toXYZ3x3[0], toXYZ3x3[3], toXYZ3x3[6],
+                     toXYZ3x3[1], toXYZ3x3[4], toXYZ3x3[7],
+                     toXYZ3x3[2], toXYZ3x3[5], toXYZ3x3[8]);
     return true;
 }
 

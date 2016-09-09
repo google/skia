@@ -30,12 +30,13 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
         0, 1, 0, 1,
         0, 0, 1, 1,
     };
+    const float* ref[3] = { red, green, blue };
     float dst[4];
     for (int i = 0; i < 3; ++i) {
         mat.mapScalars(&src[i*4], dst);
-        REPORTER_ASSERT(r, almost_equal(red[i],   dst[0]));
-        REPORTER_ASSERT(r, almost_equal(green[i], dst[1]));
-        REPORTER_ASSERT(r, almost_equal(blue[i],  dst[2]));
+        REPORTER_ASSERT(r, almost_equal(ref[i][0], dst[0]));
+        REPORTER_ASSERT(r, almost_equal(ref[i][1], dst[1]));
+        REPORTER_ASSERT(r, almost_equal(ref[i][2], dst[2]));
     }
 }
 
@@ -63,20 +64,26 @@ static void test_path(skiatest::Reporter* r, const char* path,
     test_space(r, colorSpace, red, green, blue, expectedGamma);
 }
 
-const float g_sRGB_XYZ[] = { 0.4358f, 0.2224f, 0.0139f,   // R
-                             0.3853f, 0.7170f, 0.0971f,   // G
-                             0.1430f, 0.0606f, 0.7139f }; // B
+static constexpr float g_sRGB_XYZ[]{
+    0.4358f, 0.3853f, 0.1430f,    // Rx, Gx, Bx
+    0.2224f, 0.7170f, 0.0606f,    // Ry, Gy, Gz
+    0.0139f, 0.0971f, 0.7139f,    // Rz, Gz, Bz
+};
+
+static constexpr float g_sRGB_R[]{ 0.4358f, 0.2224f, 0.0139f };
+static constexpr float g_sRGB_G[]{ 0.3853f, 0.7170f, 0.0971f };
+static constexpr float g_sRGB_B[]{ 0.1430f, 0.0606f, 0.7139f };
 
 DEF_TEST(ColorSpace_sRGB, r) {
     test_space(r, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named).get(),
-               g_sRGB_XYZ, &g_sRGB_XYZ[3], &g_sRGB_XYZ[6], kSRGB_SkGammaNamed);
+               g_sRGB_R, g_sRGB_G, g_sRGB_B, kSRGB_SkGammaNamed);
 
 }
 
 DEF_TEST(ColorSpaceParseICCProfiles, r) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
-    test_path(r, "color_wheel_with_profile.png", &g_sRGB_XYZ[0], &g_sRGB_XYZ[3], &g_sRGB_XYZ[6],
+    test_path(r, "color_wheel_with_profile.png", g_sRGB_R, g_sRGB_G, g_sRGB_B,
               kSRGB_SkGammaNamed);
 #endif
 
@@ -125,8 +132,7 @@ DEF_TEST(ColorSpaceWriteICC, r) {
     sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     sk_sp<SkData> namedData = ColorSpaceTest::WriteToICC(namedColorSpace.get());
     sk_sp<SkColorSpace> iccColorSpace = SkColorSpace::NewICC(namedData->data(), namedData->size());
-    test_space(r, iccColorSpace.get(), g_sRGB_XYZ, &g_sRGB_XYZ[3], &g_sRGB_XYZ[6],
-               k2Dot2Curve_SkGammaNamed);
+    test_space(r, iccColorSpace.get(), g_sRGB_R, g_sRGB_G, g_sRGB_B, k2Dot2Curve_SkGammaNamed);
     // FIXME (msarett): Test disabled.  sRGB profiles are written approximately as 2.2f curves.
     // REPORTER_ASSERT(r, iccColorSpace == namedColorSpace);
 

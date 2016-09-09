@@ -106,9 +106,9 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<SkAutoTDelete<CellRendere
     // We want our colors in our wide gamut to be obviously visibly distorted from sRGB, so we use
     // Wide Gamut RGB (with sRGB gamma, for HW acceleration) as the working space for this test:
     const float gWideGamutRGB_toXYZD50[]{
-        0.7161046f, 0.2581874f, 0.0000000f,  // * R
-        0.1009296f, 0.7249378f, 0.0517813f,  // * G
-        0.1471858f, 0.0168748f, 0.7734287f,  // * B
+        0.7161046f, 0.1009296f, 0.1471858f,  // -> X
+        0.2581874f, 0.7249378f, 0.0168748f,  // -> Y
+        0.0000000f, 0.0517813f, 0.7734287f,  // -> Z
     };
 
     SkMatrix44 wideGamutRGB_toXYZD50(SkMatrix44::kUninitialized_Constructor);

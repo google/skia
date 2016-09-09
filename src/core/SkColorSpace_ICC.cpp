@@ -714,7 +714,7 @@ static bool load_matrix(SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     array[13] = 0.0f;
     array[14] = 0.0f;
     array[15] = 1.0f;
-    toXYZ->setColMajorf(array);
+    toXYZ->setRowMajorf(array);
     return true;
 }
 
@@ -962,7 +962,9 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                     return_null("Need valid rgb tags for XYZ space");
                 }
                 SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
-                mat.set3x3RowMajorf(toXYZ);
+                mat.set3x3(toXYZ[0], toXYZ[1], toXYZ[2],
+                           toXYZ[3], toXYZ[4], toXYZ[5],
+                           toXYZ[6], toXYZ[7], toXYZ[8]);
 
                 r = ICCTag::Find(tags.get(), tagCount, kTAG_rTRC);
                 g = ICCTag::Find(tags.get(), tagCount, kTAG_gTRC);
@@ -1213,12 +1215,12 @@ static constexpr uint32_t gEmptyTextTag[3] {
     0,                                // Zero records
 };
 
-static void write_xyz_tag(uint32_t* ptr, const SkMatrix44& toXYZ, int row) {
+static void write_xyz_tag(uint32_t* ptr, const SkMatrix44& toXYZ, int col) {
     ptr[0] = SkEndian_SwapBE32(kXYZ_PCSSpace);
     ptr[1] = 0;
-    ptr[2] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(row, 0)));
-    ptr[3] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(row, 1)));
-    ptr[4] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(row, 2)));
+    ptr[2] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(0, col)));
+    ptr[3] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(1, col)));
+    ptr[4] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(2, col)));
 }
 
 static void write_trc_tag(uint32_t* ptr, float value) {

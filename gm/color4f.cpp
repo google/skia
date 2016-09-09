@@ -96,7 +96,7 @@ DEF_SIMPLE_GM(color4shader, canvas, 1024, 260) {
 
     SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
     // red -> blue, green -> red, blue -> green
-    mat.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
+    mat.set3x3(0, 0, 1, 1, 0, 0, 0, 1, 0);
 
     const SkColor4f colors[] {
         { 1, 0, 0, 1 },

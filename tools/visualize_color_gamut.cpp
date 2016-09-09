@@ -32,15 +32,15 @@ static void load_gamut(SkPoint rgb[], const SkMatrix44& xyz) {
     // rx = rX / (rX + rY + rZ)
     // ry = rX / (rX + rY + rZ)
     // gx, gy, bx, and gy are calulcated similarly.
-    float rSum = xyz.get(0, 0) + xyz.get(0, 1) + xyz.get(0, 2);
-    float gSum = xyz.get(1, 0) + xyz.get(1, 1) + xyz.get(1, 2);
-    float bSum = xyz.get(2, 0) + xyz.get(2, 1) + xyz.get(2, 2);
+    float rSum = xyz.get(0, 0) + xyz.get(1, 0) + xyz.get(2, 0);
+    float gSum = xyz.get(0, 1) + xyz.get(1, 1) + xyz.get(2, 1);
+    float bSum = xyz.get(0, 2) + xyz.get(1, 2) + xyz.get(2, 2);
     rgb[0].fX = xyz.get(0, 0) / rSum;
-    rgb[0].fY = xyz.get(0, 1) / rSum;
-    rgb[1].fX = xyz.get(1, 0) / gSum;
+    rgb[0].fY = xyz.get(1, 0) / rSum;
+    rgb[1].fX = xyz.get(0, 1) / gSum;
     rgb[1].fY = xyz.get(1, 1) / gSum;
-    rgb[2].fX = xyz.get(2, 0) / bSum;
-    rgb[2].fY = xyz.get(2, 1) / bSum;
+    rgb[2].fX = xyz.get(0, 2) / bSum;
+    rgb[2].fY = xyz.get(1, 2) / bSum;
 }
 
 /**
@@ -57,10 +57,10 @@ static void draw_gamut(SkCanvas* canvas, const SkMatrix44& xyz, const char* name
                        bool label) {
     // Report the XYZ values.
     SkDebugf("%s\n", name);
-    SkDebugf("          X     Y     Z\n");
-    SkDebugf("Red   %.3f %.3f %.3f\n", xyz.get(0, 0), xyz.get(0, 1), xyz.get(0, 2));
-    SkDebugf("Green %.3f %.3f %.3f\n", xyz.get(1, 0), xyz.get(1, 1), xyz.get(1, 2));
-    SkDebugf("Blue  %.3f %.3f %.3f\n", xyz.get(2, 0), xyz.get(2, 1), xyz.get(2, 2));
+    SkDebugf("       R     G     B\n");
+    SkDebugf("X  %.3f %.3f %.3f\n", xyz.get(0, 0), xyz.get(0, 1), xyz.get(0, 2));
+    SkDebugf("Y  %.3f %.3f %.3f\n", xyz.get(1, 0), xyz.get(1, 1), xyz.get(1, 2));
+    SkDebugf("Z  %.3f %.3f %.3f\n", xyz.get(2, 0), xyz.get(2, 1), xyz.get(2, 2));
 
     // Calculate the points in the gamut from the XYZ values.
     SkPoint rgb[4];

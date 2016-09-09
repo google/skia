@@ -328,12 +328,6 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static inline void compute_gamut_xform(SkMatrix44* srcToDst, const SkColorSpace* src,
-                                       const SkColorSpace* dst) {
-    *srcToDst = as_CSB(dst)->fromXYZD50();
-    srcToDst->postConcat(src->toXYZD50());
-}
-
 static inline bool is_almost_identity(const SkMatrix44& srcToDst) {
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -361,7 +355,7 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
         srcToDst.setIdentity();
         csm = kFull_ColorSpaceMatch;
     } else {
-        compute_gamut_xform(&srcToDst, srcSpace.get(), dstSpace.get());
+        srcToDst.setConcat(as_CSB(dstSpace)->fromXYZD50(), srcSpace->toXYZD50());
 
         if (is_almost_identity(srcToDst)) {
             srcToDst.setIdentity();
@@ -984,7 +978,7 @@ SkColorSpaceXform_Base<kDst, kCSM>::SkColorSpaceXform_Base(const sk_sp<SkColorSp
                                                            const sk_sp<SkColorSpace>& dstSpace)
     : fColorLUT(sk_ref_sp((SkColorLookUpTable*) as_CSB(srcSpace)->colorLUT()))
 {
-    srcToDst.asRowMajorf(fSrcToDst);
+    srcToDst.asColMajorf(fSrcToDst);
     build_gamma_tables(fSrcGammaTables, fSrcGammaTableStorage, 256, srcSpace, kToLinear);
     build_gamma_tables(fDstGammaTables, fDstGammaTableStorage, kDstGammaTableSize, dstSpace,
                        kFromLinear);
