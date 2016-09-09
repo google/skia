@@ -26,6 +26,7 @@
 #include "SkPaintPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
+#include "SkRadialShadowMapShader.h"
 #include "SkRasterClip.h"
 #include "SkReadPixelsRec.h"
 #include "SkRRect.h"
@@ -3239,66 +3240,6 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
     sk_sp<SkImage> povDepthMap;
     sk_sp<SkImage> diffuseMap;
 
-    // TODO: pass the depth to the shader in vertices, or uniforms
-    //       so we don't have to render depth and color separately
-    for (int i = 0; i < fLights->numLights(); ++i) {
-        // skip over ambient lights; they don't cast shadows
-        // lights that have shadow maps do not need updating (because lights are immutable)
-
-        if (fLights->light(i).getShadowMap() != nullptr) {
-            continue;
-        }
-
-        // TODO: compute the correct size of the depth map from the light properties
-        // TODO: maybe add a kDepth_8_SkColorType
-        // TODO: find actual max depth of picture
-        SkISize shMapSize = SkShadowPaintFilterCanvas::ComputeDepthMapSize(
-                                    fLights->light(i), 255,
-                                    picture->cullRect().width(),
-                                    picture->cullRect().height());
-
-        SkImageInfo info = SkImageInfo::Make(shMapSize.fWidth, shMapSize.fHeight,
-                                             kBGRA_8888_SkColorType,
-                                             kOpaque_SkAlphaType);
-
-        // Create a new surface (that matches the backend of canvas)
-        // for each shadow map
-        sk_sp<SkSurface> surf(this->makeSurface(info));
-
-        // Wrap another SPFCanvas around the surface
-        sk_sp<SkShadowPaintFilterCanvas> depthMapCanvas =
-                sk_make_sp<SkShadowPaintFilterCanvas>(surf->getCanvas());
-        depthMapCanvas->setShadowParams(params);
-
-        // set the depth map canvas to have the light we're drawing.
-        SkLights::Builder builder;
-        builder.add(fLights->light(i));
-        sk_sp<SkLights> curLight = builder.finish();
-        depthMapCanvas->setLights(std::move(curLight));
-
-        depthMapCanvas->drawPicture(picture);
-        sk_sp<SkImage> depthMap = surf->makeImageSnapshot();
-
-        if (params.fType == SkShadowParams::kNoBlur_ShadowType) {
-            fLights->light(i).setShadowMap(std::move(depthMap));
-        } else if (params.fType == SkShadowParams::kVariance_ShadowType) {
-            // we blur the variance map
-            SkPaint blurPaint;
-            blurPaint.setImageFilter(SkImageFilter::MakeBlur(params.fShadowRadius,
-                                                             params.fShadowRadius, nullptr));
-
-            SkImageInfo blurInfo = SkImageInfo::Make(shMapSize.fWidth, shMapSize.fHeight,
-                                                     kBGRA_8888_SkColorType,
-                                                     kOpaque_SkAlphaType);
-
-            sk_sp<SkSurface> blurSurf(this->makeSurface(blurInfo));
-
-            blurSurf->getCanvas()->drawImage(std::move(depthMap), 0, 0, &blurPaint);
-
-            fLights->light(i).setShadowMap(blurSurf->makeImageSnapshot());
-        }
-    }
-
     // povDepthMap
     {
         SkLights::Builder builder;
@@ -3338,15 +3279,116 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
 
         diffuseMap = surf->makeImageSnapshot();
     }
-    SkPaint shadowPaint;
 
     sk_sp<SkShader> povDepthShader = povDepthMap->makeShader(SkShader::kClamp_TileMode,
                                                              SkShader::kClamp_TileMode);
     sk_sp<SkShader> diffuseShader = diffuseMap->makeShader(SkShader::kClamp_TileMode,
                                                            SkShader::kClamp_TileMode);
+
+    // TODO: pass the depth to the shader in vertices, or uniforms
+    //       so we don't have to render depth and color separately
+    for (int i = 0; i < fLights->numLights(); ++i) {
+        // skip over ambient lights; they don't cast shadows
+        // lights that have shadow maps do not need updating (because lights are immutable)
+        sk_sp<SkImage> depthMap;
+        SkISize shMapSize;
+
+        if (fLights->light(i).getShadowMap() != nullptr) {
+            continue;
+        }
+
+        if (fLights->light(i).isRadial()) {
+            shMapSize.fHeight = 1;
+            shMapSize.fWidth = (int) picture->cullRect().width();
+
+            SkImageInfo info = SkImageInfo::Make(diffuseMap->width(), 1,
+                                                 kBGRA_8888_SkColorType,
+                                                 kOpaque_SkAlphaType);
+
+            // Create new surface (that matches the backend of canvas)
+            // for each shadow map
+            sk_sp<SkSurface> surf(this->makeSurface(info));
+
+            // Wrap another SPFCanvas around the surface
+            SkCanvas* depthMapCanvas = surf->getCanvas();
+
+            SkLights::Builder builder;
+            builder.add(fLights->light(i));
+            sk_sp<SkLights> curLight = builder.finish();
+
+            sk_sp<SkShader> shadowMapShader;
+            shadowMapShader = SkRadialShadowMapShader::Make(
+                    povDepthShader, curLight,
+                    (int) picture->cullRect().width(),
+                    (int) picture->cullRect().height());
+
+            SkPaint shadowMapPaint;
+            shadowMapPaint.setShader(std::move(shadowMapShader));
+
+            depthMapCanvas->setLights(curLight);
+
+            depthMapCanvas->drawRect(SkRect::MakeIWH(diffuseMap->width(),
+                                                     diffuseMap->height()),
+                                     shadowMapPaint);
+
+            depthMap = surf->makeImageSnapshot();
+
+        } else {
+            // TODO: compute the correct size of the depth map from the light properties
+            // TODO: maybe add a kDepth_8_SkColorType
+            // TODO: find actual max depth of picture
+            shMapSize = SkShadowPaintFilterCanvas::ComputeDepthMapSize(
+                    fLights->light(i), 255,
+                    (int) picture->cullRect().width(),
+                    (int) picture->cullRect().height());
+
+            SkImageInfo info = SkImageInfo::Make(shMapSize.fWidth, shMapSize.fHeight,
+                                                 kBGRA_8888_SkColorType,
+                                                 kOpaque_SkAlphaType);
+
+            // Create a new surface (that matches the backend of canvas)
+            // for each shadow map
+            sk_sp<SkSurface> surf(this->makeSurface(info));
+
+            // Wrap another SPFCanvas around the surface
+            sk_sp<SkShadowPaintFilterCanvas> depthMapCanvas =
+                    sk_make_sp<SkShadowPaintFilterCanvas>(surf->getCanvas());
+            depthMapCanvas->setShadowParams(params);
+
+            // set the depth map canvas to have the light we're drawing.
+            SkLights::Builder builder;
+            builder.add(fLights->light(i));
+            sk_sp<SkLights> curLight = builder.finish();
+            depthMapCanvas->setLights(std::move(curLight));
+
+            depthMapCanvas->drawPicture(picture);
+            depthMap = surf->makeImageSnapshot();
+        }
+
+        if (params.fType == SkShadowParams::kNoBlur_ShadowType) {
+            fLights->light(i).setShadowMap(std::move(depthMap));
+        } else if (params.fType == SkShadowParams::kVariance_ShadowType) {
+            // we blur the variance map
+            SkPaint blurPaint;
+            blurPaint.setImageFilter(SkImageFilter::MakeBlur(params.fShadowRadius,
+                                                             params.fShadowRadius, nullptr));
+
+            SkImageInfo blurInfo = SkImageInfo::Make(shMapSize.fWidth, shMapSize.fHeight,
+                                                     kBGRA_8888_SkColorType,
+                                                     kOpaque_SkAlphaType);
+
+            sk_sp<SkSurface> blurSurf(this->makeSurface(blurInfo));
+
+            blurSurf->getCanvas()->drawImage(std::move(depthMap), 0, 0, &blurPaint);
+
+            fLights->light(i).setShadowMap(blurSurf->makeImageSnapshot());
+        }
+    }
+
+    SkPaint shadowPaint;
     sk_sp<SkShader> shadowShader = SkShadowShader::Make(std::move(povDepthShader),
                                                         std::move(diffuseShader),
-                                                        std::move(fLights),
+                                                        fLights,
                                                         diffuseMap->width(),
                                                         diffuseMap->height(),
                                                         params);

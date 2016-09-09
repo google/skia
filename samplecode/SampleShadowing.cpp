@@ -29,15 +29,15 @@ public:
 
         fTestRects[0].fColor = 0xFFEE8888;
         fTestRects[0].fDepth = 80;
-        fTestRects[0].fGeometry = SkRect::MakeLTRB(200,150,350,300);
+        fTestRects[0].fGeometry = SkRect::MakeLTRB(300,200,350,250);
 
         fTestRects[1].fColor = 0xFF88EE88;
         fTestRects[1].fDepth = 160;
-        fTestRects[1].fGeometry = SkRect::MakeLTRB(150,200,300,350);
+        fTestRects[1].fGeometry = SkRect::MakeLTRB(200,300,250,350);
 
         fTestRects[2].fColor = 0xFF8888EE;
         fTestRects[2].fDepth = 240;
-        fTestRects[2].fGeometry = SkRect::MakeLTRB(100,100,250,250);
+        fTestRects[2].fGeometry = SkRect::MakeLTRB(100,100,150,150);
 
         fSliders[0].fGeometry = SkRect::MakeLTRB(20, 400, 30, 420);
         fSliders[0].fOffset = 0.0f;
@@ -54,7 +54,7 @@ public:
         fShadowParams.fShadowRadius = 4.0f;
         fShadowParams.fBiasingConstant = 0.3f;
         fShadowParams.fMinVariance = 2048; // we need a higher min variance for point lights
-        fShadowParams.fType = SkShadowParams::kVariance_ShadowType;
+        fShadowParams.fType = SkShadowParams::kNoBlur_ShadowType;
     }
 
 protected:
@@ -162,17 +162,11 @@ protected:
 
     void updateLights(int x, int y) {
         SkLights::Builder builder;
-        builder.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
-        builder.add(SkLights::Light::MakePoint(SkColor3f::Make(0.2f, 0.4f, 0.6f),
-                                               SkVector3::Make(x - 50,
-                                                               350 - y,
+        builder.add(SkLights::Light::MakePoint(SkColor3f::Make(1.0f, 1.0f, 1.0f),
+                                               SkVector3::Make(x,
+                                                               kHeight - y,
                                                                fLightDepth),
-                                               100000));
-        builder.add(SkLights::Light::MakePoint(SkColor3f::Make(0.6f, 0.4f, 0.2f),
-                                               SkVector3::Make(x + 50,
-                                                               450 - y,
-                                                               fLightDepth),
-                                               100000));
+                                               100000, true));
         fLights = builder.finish();
     }
 

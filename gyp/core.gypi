@@ -240,6 +240,8 @@
         '<(skia_src_path)/core/SkPtrRecorder.cpp',
         '<(skia_src_path)/core/SkQuadClipper.cpp',
         '<(skia_src_path)/core/SkQuadClipper.h',
+        '<(skia_src_path)/core/SkRadialShadowMapShader.cpp',
+        '<(skia_src_path)/core/SkRadialShadowMapShader.h',
         '<(skia_src_path)/core/SkRasterClip.cpp',
         '<(skia_src_path)/core/SkRasterPipeline.cpp',
         '<(skia_src_path)/core/SkRasterPipelineBlitter.cpp',

@@ -132,6 +132,8 @@ public:
                 fIsPointLight[fNumNonAmbLights] =
                         SkLights::Light::kPoint_LightType == lights->light(i).type();
 
+                fIsRadialLight[fNumNonAmbLights] = lights->light(i).isRadial();
+
                 SkImage_Base* shadowMap = ((SkImage_Base*)lights->light(i).getShadowMap());
 
                 // gets deleted when the ShadowFP is destroyed, and frees the GrTexture*
@@ -281,62 +283,82 @@ public:
                 SkString povCoord("povCoord");
                 povCoord.appendf("%d", i);
 
-                // povDepth.b * 255 scales it to 0 - 255, bringing it to world space,
-                // and the / vec2(width, height) brings it back to a sampler coordinate
                 SkString offset("offset");
                 offset.appendf("%d", i);
-
-                SkString scaleVec("scaleVec");
-                scaleVec.appendf("%d", i);
-
                 fragBuilder->codeAppendf("vec2 %s;", offset.c_str());
 
-                // note that we flip the y-coord of the offset and then later add
-                // a value just to the y-coord of povCoord. This is to account for
-                // the shifted origins from switching from raster into GPU.
                 if (shadowFP.fIsPointLight[i]) {
                     fragBuilder->codeAppendf("vec3 fragToLight%d = %s - worldCor;",
                                              i, lightDirOrPosUniName[i]);
                     fragBuilder->codeAppendf("float distsq%d = dot(fragToLight%d, "
-                                                                  "fragToLight%d);",
+                                                     "fragToLight%d);",
                                              i, i, i);
                     fragBuilder->codeAppendf("%s = vec2(-fragToLight%d) * povDepth.b;",
                                              offset.c_str(), i);
                     fragBuilder->codeAppendf("fragToLight%d = normalize(fragToLight%d);",
                                              i, i);
+                }
 
-                    // the 0.375s are precalculated transform values, given that the depth
-                    // maps for pt lights are 4x the size (linearly) as diffuse maps.
-                    // The vec2(0.375, -0.375) is used to transform us to the center of the map.
-                    fragBuilder->codeAppendf("vec2 %s = ((vec2(%s, %s) *"
-                                                     "vMatrixCoord_0_1_Stage0 +"
-                                                     "vec2(0,%s - %s)"
-                                                     "+ %s) / (vec2(%s, %s))) +"
-                                                     "vec2(0.375, -0.375);",
-                                             povCoord.c_str(),
-                                             widthUniName, heightUniName,
-                                             depthMapHeightUniName[i], heightUniName,
-                                             offset.c_str(),
-                                             depthMapWidthUniName[i], depthMapWidthUniName[i]);
+                if (shadowFP.fIsRadialLight[i]) {
+                    fragBuilder->codeAppendf("vec2 %s = vec2(vMatrixCoord_0_1_Stage0.x, "
+                                                            "1 - vMatrixCoord_0_1_Stage0.y);\n",
+                                             povCoord.c_str());
+
+                    fragBuilder->codeAppendf("%s = (%s) * 2.0 - 1.0 + (vec2(%s)/vec2(%s,%s) - 0.5)"
+                                                                      "* vec2(-2.0, 2.0);\n",
+                                             povCoord.c_str(), povCoord.c_str(),
+                                             lightDirOrPosUniName[i],
+                                             widthUniName, heightUniName);
+
+                    fragBuilder->codeAppendf("float theta = atan(%s.y, %s.x);",
+                                             povCoord.c_str(), povCoord.c_str());
+                    fragBuilder->codeAppendf("float r = length(%s);", povCoord.c_str());
+
+                    // map output of atan to [0, 1]
+                    fragBuilder->codeAppendf("%s.x = (theta + 3.1415) / (2.0 * 3.1415);",
+                                             povCoord.c_str());
+                    fragBuilder->codeAppendf("%s.y = 0.0;", povCoord.c_str());
                 } else {
-                    fragBuilder->codeAppendf("%s = vec2(%s) * povDepth.b * vec2(255.0, -255.0);",
-                                             offset.c_str(), lightDirOrPosUniName[i]);
+                    // note that we flip the y-coord of the offset and then later add
+                    // a value just to the y-coord of povCoord. This is to account for
+                    // the shifted origins from switching from raster into GPU.
+                    if (shadowFP.fIsPointLight[i]) {
+                        // the 0.375s are precalculated transform values, given that the depth
+                        // maps for pt lights are 4x the size (linearly) as diffuse maps.
+                        // The vec2(0.375, -0.375) is used to transform us to
+                        // the center of the map.
+                        fragBuilder->codeAppendf("vec2 %s = ((vec2(%s, %s) *"
+                                                         "vMatrixCoord_0_1_Stage0 +"
+                                                         "vec2(0,%s - %s)"
+                                                         "+ %s) / (vec2(%s, %s))) +"
+                                                         "vec2(0.375, -0.375);",
+                                                 povCoord.c_str(),
+                                                 widthUniName, heightUniName,
+                                                 depthMapHeightUniName[i], heightUniName,
+                                                 offset.c_str(),
+                                                 depthMapWidthUniName[i],
+                                                 depthMapWidthUniName[i]);
+                    } else {
+                        fragBuilder->codeAppendf("%s = vec2(%s) * povDepth.b * "
+                                                      "vec2(255.0, -255.0);",
+                                                 offset.c_str(), lightDirOrPosUniName[i]);
 
-                    fragBuilder->codeAppendf("vec2 %s = ((vec2(%s, %s) *"
-                                                     "vMatrixCoord_0_1_Stage0 +"
-                                                     "vec2(0,%s - %s)"
-                                                     "+ %s) / vec2(%s, %s));",
-                                             povCoord.c_str(),
-                                             widthUniName, heightUniName,
-                                             depthMapHeightUniName[i], heightUniName,
-                                             offset.c_str(),
-                                             depthMapWidthUniName[i], depthMapWidthUniName[i]);
+                        fragBuilder->codeAppendf("vec2 %s = ((vec2(%s, %s) *"
+                                                         "vMatrixCoord_0_1_Stage0 +"
+                                                         "vec2(0,%s - %s)"
+                                                         "+ %s) / vec2(%s, %s));",
+                                                 povCoord.c_str(),
+                                                 widthUniName, heightUniName,
+                                                 depthMapHeightUniName[i], heightUniName,
+                                                 offset.c_str(),
+                                                 depthMapWidthUniName[i],
+                                                 depthMapWidthUniName[i]);
+                    }
                 }
 
                 fragBuilder->appendTextureLookup(&depthMaps[i], args.fTexSamplers[i],
                                                  povCoord.c_str(),
                                                  kVec2f_GrSLType);
-
             }
 
             // helper variables for calculating shadowing
@@ -352,73 +374,88 @@ public:
             for (int i = 0; i < numLights; i++) {
                 fragBuilder->codeAppendf("lightProbability = 1;");
 
-                // 1/512 == .00195... is less than half a pixel; imperceptible
-                fragBuilder->codeAppendf("if (%s.b <= %s.b + .001953125) {",
-                                         povDepth.c_str(), depthMaps[i].c_str());
-                if (blurAlgorithm == SkShadowParams::kVariance_ShadowType) {
-                    // We mess with depth and depth^2 in their given scales.
-                    // (i.e. between 0 and 1)
-                    fragBuilder->codeAppendf("vec2 moments%d = vec2(%s.b, %s.g);",
-                                             i, depthMaps[i].c_str(), depthMaps[i].c_str());
+                if (shadowFP.fIsRadialLight[i]) {
+                    fragBuilder->codeAppend("totalLightColor = vec3(0);");
 
-                    // variance biasing lessens light bleeding
-                    fragBuilder->codeAppendf("variance = max(moments%d.y - "
-                                                            "(moments%d.x * moments%d.x),"
-                                                            "%s);", i, i, i,
-                                             minVarianceUniName);
+                    fragBuilder->codeAppend("vec2 tc = vec2(povCoord0.x, 0.0);");
+                    fragBuilder->codeAppend("float depth = texture(uTextureSampler0_Stage1,"
+                                                                  "povCoord0).b * 2.0;");
 
-                    fragBuilder->codeAppendf("d = (%s.b) - moments%d.x;",
-                                             povDepth.c_str(), i);
-                    fragBuilder->codeAppendf("lightProbability = "
-                                                     "(variance / (variance + d * d));");
+                    fragBuilder->codeAppendf("lightProbability = step(r, depth);");
 
-                    SkString clamp("clamp");
-                    clamp.appendf("%d", i);
-
-                    // choosing between light artifacts or correct shape shadows
-                    // linstep
-                    fragBuilder->codeAppendf("float %s = clamp((lightProbability - %s) /"
-                                                              "(1 - %s), 0, 1);",
-                                             clamp.c_str(), shBiasUniName, shBiasUniName);
-
-                    fragBuilder->codeAppendf("lightProbability = %s;", clamp.c_str());
+                    fragBuilder->codeAppendf("if (%s.b != 0 || depth == 0) {"
+                                                     "lightProbability = 1.0; }",
+                                             povDepth.c_str());
                 } else {
-                    fragBuilder->codeAppendf("if (%s.b >= %s.b) {",
+                    // 1/512 == .00195... is less than half a pixel; imperceptible
+                    fragBuilder->codeAppendf("if (%s.b <= %s.b + .001953125) {",
                                              povDepth.c_str(), depthMaps[i].c_str());
-                    fragBuilder->codeAppendf("lightProbability = 1;");
-                    fragBuilder->codeAppendf("} else { lightProbability = 0; }");
-                }
+                    if (blurAlgorithm == SkShadowParams::kVariance_ShadowType) {
+                        // We mess with depth and depth^2 in their given scales.
+                        // (i.e. between 0 and 1)
+                        fragBuilder->codeAppendf("vec2 moments%d = vec2(%s.b, %s.g);",
+                                                 i, depthMaps[i].c_str(), depthMaps[i].c_str());
 
-                // VSM: The curved shadows near plane edges are artifacts from blurring
-                // lightDir.z is equal to the lightDir dot the surface normal.
-                fragBuilder->codeAppendf("}");
+                        // variance biasing lessens light bleeding
+                        fragBuilder->codeAppendf("variance = max(moments%d.y - "
+                                                         "(moments%d.x * moments%d.x),"
+                                                         "%s);", i, i, i,
+                                                 minVarianceUniName);
+
+                        fragBuilder->codeAppendf("d = (%s.b) - moments%d.x;",
+                                                 povDepth.c_str(), i);
+                        fragBuilder->codeAppendf("lightProbability = "
+                                                         "(variance / (variance + d * d));");
+
+                        SkString clamp("clamp");
+                        clamp.appendf("%d", i);
+
+                        // choosing between light artifacts or correct shape shadows
+                        // linstep
+                        fragBuilder->codeAppendf("float %s = clamp((lightProbability - %s) /"
+                                                         "(1 - %s), 0, 1);",
+                                                 clamp.c_str(), shBiasUniName, shBiasUniName);
+
+                        fragBuilder->codeAppendf("lightProbability = %s;", clamp.c_str());
+                    } else {
+                        fragBuilder->codeAppendf("if (%s.b >= %s.b) {",
+                                                 povDepth.c_str(), depthMaps[i].c_str());
+                        fragBuilder->codeAppendf("lightProbability = 1;");
+                        fragBuilder->codeAppendf("} else { lightProbability = 0; }");
+                    }
+
+                    // VSM: The curved shadows near plane edges are artifacts from blurring
+                    // lightDir.z is equal to the lightDir dot the surface normal.
+                    fragBuilder->codeAppendf("}");
+                }
 
                 if (shadowFP.isPointLight(i)) {
                     fragBuilder->codeAppendf("totalLightColor += max(fragToLight%d.z, 0) * %s /"
-                                                                "(1 + distsq%d) *"
-                                                                "lightProbability;",
+                                                     "(1 + distsq%d) * lightProbability;",
                                              i, lightColorUniName[i], i);
                 } else {
                     fragBuilder->codeAppendf("totalLightColor += %s.z * %s * lightProbability;",
                                              lightDirOrPosUniName[i],
                                              lightColorUniName[i]);
                 }
+
+                fragBuilder->codeAppendf("totalLightColor += %s;", ambientColorUniName);
+                fragBuilder->codeAppendf("%s = resultDiffuseColor * vec4(totalLightColor, 1);",
+                                         args.fOutputColor);
             }
 
-            fragBuilder->codeAppendf("totalLightColor += %s;", ambientColorUniName);
-            fragBuilder->codeAppendf("%s = resultDiffuseColor * vec4(totalLightColor, 1);",
-                                     args.fOutputColor);
         }
 
         static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
             const ShadowFP& shadowFP = proc.cast<ShadowFP>();
             b->add32(shadowFP.fNumNonAmbLights);
-            int isPL = 0;
+            int isPLR = 0;
             for (int i = 0; i < SkShadowShader::kMaxNonAmbientLights; i++) {
-                isPL = isPL | ((shadowFP.fIsPointLight[i] ? 1 : 0) << i);
+                isPLR = isPLR | ((shadowFP.fIsPointLight[i] ? 1 : 0) << i);
+                isPLR = isPLR | ((shadowFP.fIsRadialLight[i] ? 1 : 0) << (i+4));
             }
-            b->add32(isPL);
+            b->add32(isPLR);
             b->add32(shadowFP.fShadowParams.fType);
         }
 
@@ -528,6 +565,10 @@ public:
         SkASSERT(i < fNumNonAmbLights);
         return fIsPointLight[i];
     }
+    bool isRadialLight(int i) const {
+        SkASSERT(i < fNumNonAmbLights);
+        return fIsRadialLight[i];
+    }
     const SkVector3& lightDirOrPos(int i) const {
         SkASSERT(i < fNumNonAmbLights);
         return fLightDirOrPos[i];
@@ -566,7 +607,8 @@ private:
         for (int i = 0; i < fNumNonAmbLights; i++) {
             if (fLightDirOrPos[i] != shadowFP.fLightDirOrPos[i] ||
                 fLightColor[i] != shadowFP.fLightColor[i] ||
-                fIsPointLight[i] != shadowFP.fIsPointLight[i]) {
+                fIsPointLight[i] != shadowFP.fIsPointLight[i] ||
+                fIsRadialLight[i] != shadowFP.fIsRadialLight[i]) {
                 return false;
             }
 
@@ -582,6 +624,7 @@ private:
     int              fNumNonAmbLights;
 
     bool             fIsPointLight[SkShadowShader::kMaxNonAmbientLights];
+    bool             fIsRadialLight[SkShadowShader::kMaxNonAmbientLights];
     SkVector3        fLightDirOrPos[SkShadowShader::kMaxNonAmbientLights];
     SkColor3f        fLightColor[SkShadowShader::kMaxNonAmbientLights];
     GrTextureAccess  fDepthMapAccess[SkShadowShader::kMaxNonAmbientLights];
