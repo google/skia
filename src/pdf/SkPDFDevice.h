@@ -111,6 +111,8 @@ public:
     void drawPosText(const SkDraw&, const void* text, size_t len,
                      const SkScalar pos[], int scalarsPerPos,
                      const SkPoint& offset, const SkPaint&) override;
+    void drawTextBlob(const SkDraw&, const SkTextBlob*, SkScalar x, SkScalar y,
+                      const SkPaint &, SkDrawFilter*) override;
     void drawVertices(const SkDraw&, SkCanvas::VertexMode,
                       int vertexCount, const SkPoint verts[],
                       const SkPoint texs[], const SkColor colors[],
@@ -286,8 +288,8 @@ private:
 
 
     void internalDrawText(const SkDraw&, const void*, size_t, const SkScalar pos[],
-                          SkTextBlob::GlyphPositioning, SkPoint, const SkPaint&);
-
+                          SkTextBlob::GlyphPositioning, SkPoint, const SkPaint&,
+                          const uint32_t*, uint32_t, const char*);
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
 

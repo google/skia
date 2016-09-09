@@ -6,12 +6,14 @@
  */
 
 #include "SkPDFDevice.h"
+
 #include "SkAnnotationKeys.h"
 #include "SkBitmapDevice.h"
 #include "SkBitmapKey.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkDraw.h"
+#include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
 #include "SkMakeUnique.h"
 #include "SkPath.h"
@@ -32,8 +34,9 @@
 #include "SkScopeExit.h"
 #include "SkString.h"
 #include "SkSurface.h"
-#include "SkTextFormatParams.h"
 #include "SkTemplates.h"
+#include "SkTextBlobRunIterator.h"
+#include "SkTextFormatParams.h"
 #include "SkXfermodeInterpretation.h"
 
 #define DPI_FOR_RASTER_SCALE_ONE 72
@@ -969,7 +972,8 @@ static void draw_transparent_text(SkPDFDevice* device,
 void SkPDFDevice::internalDrawText(
         const SkDraw& d, const void* sourceText, size_t sourceByteCount,
         const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
-        SkPoint offset, const SkPaint& srcPaint) {
+        SkPoint offset, const SkPaint& srcPaint, const uint32_t* clusters,
+        uint32_t textByteLength, const char* utf8Text) {
     NOT_IMPLEMENTED(srcPaint.getMaskFilter() != nullptr, false);
     if (srcPaint.getMaskFilter() != nullptr) {
         // Don't pretend we support drawing MaskFilters, it makes for artifacts
@@ -984,6 +988,19 @@ void SkPDFDevice::internalDrawText(
         // https://bug.skia.org/5665
         return;
     }
+    // TODO(halcanary): implement /ActualText with these values.
+    (void)clusters;
+    (void)textByteLength;
+    (void)utf8Text;
+    if (textByteLength > 0) {
+        SkASSERT(clusters);
+        SkASSERT(utf8Text);
+        SkASSERT(srcPaint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
+    } else {
+        SkASSERT(nullptr == clusters);
+        SkASSERT(nullptr == utf8Text);
+    }
+
     SkPaint paint = calculate_text_paint(srcPaint);
     replace_srcmode_on_opaque_paint(&paint);
     if (!paint.getTypeface()) {
@@ -1124,14 +1141,30 @@ void SkPDFDevice::internalDrawText(
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
     this->internalDrawText(d, text, len, nullptr, SkTextBlob::kDefault_Positioning,
-                           SkPoint{x, y}, paint);
+                           SkPoint{x, y}, paint, nullptr, 0, nullptr);
 }
 
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
                               const SkPoint& offset, const SkPaint& paint) {
     this->internalDrawText(d, text, len, pos, (SkTextBlob::GlyphPositioning)scalarsPerPos,
-                           offset, paint);
+                           offset, paint, nullptr, 0, nullptr);
+}
+
+void SkPDFDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkScalar x, SkScalar y,
+                               const SkPaint &paint, SkDrawFilter* drawFilter) {
+    for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
+        SkPaint runPaint(paint);
+        it.applyFontToPaint(&runPaint);
+        if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
+            continue;
+        }
+        runPaint.setFlags(this->filterTextFlags(runPaint));
+        SkPoint offset = it.offset() + SkPoint{x, y};
+        this->internalDrawText(draw, it.glyphs(), sizeof(SkGlyphID) * it.glyphCount(),
+                               it.pos(), it.positioning(), offset, runPaint,
+                               it.clusters(), it.textSize(), it.text());
+    }
 }
 
 void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
