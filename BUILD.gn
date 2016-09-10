@@ -786,7 +786,7 @@ if (skia_enable_tools) {
   }
 
   if (current_cpu != "mipsel") {  # Clang 3.8 crashes while compiling hb-icu.cc for mipsel.
-    executable("sktexttopdf") {
+    executable("sktexttopdf-hb") {
       sources = [
         "tools/SkShaper_harfbuzz.cpp",
         "tools/using_skia_and_harfbuzz.cpp",
@@ -797,5 +797,15 @@ if (skia_enable_tools) {
       ]
       testonly = true
     }
+  }
+  executable("sktexttopdf") {
+    sources = [
+      "tools/SkShaper_primitive.cpp",
+      "tools/using_skia_and_harfbuzz.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+    testonly = true
   }
 }
