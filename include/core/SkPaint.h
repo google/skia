@@ -653,19 +653,18 @@ public:
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
      *  reference count.
      */
-    SkDrawLooper* getLooper() const { return fLooper.get(); }
-
+    SkDrawLooper* getDrawLooper() const { return fDrawLooper.get(); }
+    SkDrawLooper* getLooper() const { return fDrawLooper.get(); }
     /**
      *  Set or clear the looper object.
      *  <p />
      *  Pass NULL to clear any previous looper.
-     *  As a convenience, the parameter passed is also returned.
      *  If a previous looper exists in the paint, its reference count is
      *  decremented. If looper is not NULL, its reference count is
      *  incremented.
      *  @param looper May be NULL. The new looper to be installed in the paint.
-     *  @return looper
      */
+    void setDrawLooper(sk_sp<SkDrawLooper>);
 #ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
     SkDrawLooper* setLooper(SkDrawLooper* looper);
 #endif
@@ -1095,7 +1094,7 @@ private:
     sk_sp<SkMaskFilter>   fMaskFilter;
     sk_sp<SkColorFilter>  fColorFilter;
     sk_sp<SkRasterizer>   fRasterizer;
-    sk_sp<SkDrawLooper>   fLooper;
+    sk_sp<SkDrawLooper>   fDrawLooper;
     sk_sp<SkImageFilter>  fImageFilter;
 
     SkScalar        fTextSize;

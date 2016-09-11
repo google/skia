@@ -73,7 +73,7 @@ SkPaint::SkPaint(const SkPaint& src)
     , COPY(fMaskFilter)
     , COPY(fColorFilter)
     , COPY(fRasterizer)
-    , COPY(fLooper)
+    , COPY(fDrawLooper)
     , COPY(fImageFilter)
     , COPY(fTextSize)
     , COPY(fTextScaleX)
@@ -94,7 +94,7 @@ SkPaint::SkPaint(SkPaint&& src) {
     MOVE(fMaskFilter);
     MOVE(fColorFilter);
     MOVE(fRasterizer);
-    MOVE(fLooper);
+    MOVE(fDrawLooper);
     MOVE(fImageFilter);
     MOVE(fTextSize);
     MOVE(fTextScaleX);
@@ -121,7 +121,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     ASSIGN(fMaskFilter);
     ASSIGN(fColorFilter);
     ASSIGN(fRasterizer);
-    ASSIGN(fLooper);
+    ASSIGN(fDrawLooper);
     ASSIGN(fImageFilter);
     ASSIGN(fTextSize);
     ASSIGN(fTextScaleX);
@@ -148,7 +148,7 @@ SkPaint& SkPaint::operator=(SkPaint&& src) {
     MOVE(fMaskFilter);
     MOVE(fColorFilter);
     MOVE(fRasterizer);
-    MOVE(fLooper);
+    MOVE(fDrawLooper);
     MOVE(fImageFilter);
     MOVE(fTextSize);
     MOVE(fTextScaleX);
@@ -171,7 +171,7 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
         && EQUAL(fMaskFilter)
         && EQUAL(fColorFilter)
         && EQUAL(fRasterizer)
-        && EQUAL(fLooper)
+        && EQUAL(fDrawLooper)
         && EQUAL(fImageFilter)
         && EQUAL(fTextSize)
         && EQUAL(fTextScaleX)
@@ -363,8 +363,9 @@ MOVE_FIELD(ColorFilter)
 MOVE_FIELD(Xfermode)
 MOVE_FIELD(PathEffect)
 MOVE_FIELD(MaskFilter)
+MOVE_FIELD(DrawLooper)
 #undef MOVE_FIELD
-void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fLooper = std::move(looper); }
+void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fDrawLooper = std::move(looper); }
 
 #define SET_PTR(Field)                              \
     Sk##Field* SkPaint::set##Field(Sk##Field* f) {  \
@@ -2359,7 +2360,7 @@ static bool affects_alpha(const SkImageFilter* imf) {
 }
 
 bool SkPaint::nothingToDraw() const {
-    if (fLooper) {
+    if (fDrawLooper) {
         return false;
     }
     SkXfermode::Mode mode;
