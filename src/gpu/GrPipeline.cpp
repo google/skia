@@ -222,8 +222,7 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
-                          bool ignoreCoordTransforms) {
+bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
     SkASSERT(&a != &b);
 
     if (a.getRenderTarget() != b.getRenderTarget() ||
@@ -246,7 +245,7 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
     }
 
     for (int i = 0; i < a.numFragmentProcessors(); i++) {
-        if (!a.getFragmentProcessor(i).isEqual(b.getFragmentProcessor(i), ignoreCoordTransforms)) {
+        if (!a.getFragmentProcessor(i).isEqual(b.getFragmentProcessor(i))) {
             return false;
         }
     }

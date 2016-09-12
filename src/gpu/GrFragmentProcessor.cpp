@@ -24,17 +24,12 @@ GrFragmentProcessor::~GrFragmentProcessor() {
     }
 }
 
-bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that,
-                                  bool ignoreCoordTransforms) const {
+bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     if (this->classID() != that.classID() ||
         !this->hasSameSamplers(that)) {
         return false;
     }
-    if (ignoreCoordTransforms) {
-        if (this->numTransforms() != that.numTransforms()) {
-            return false;
-        }
-    } else if (!this->hasSameTransforms(that)) {
+    if (!this->hasSameTransforms(that)) {
         return false;
     }
     if (!this->onIsEqual(that)) {
@@ -44,7 +39,7 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that,
         return false;
     }
     for (int i = 0; i < this->numChildProcessors(); ++i) {
-        if (!this->childProcessor(i).isEqual(that.childProcessor(i), ignoreCoordTransforms)) {
+        if (!this->childProcessor(i).isEqual(that.childProcessor(i))) {
             return false;
         }
     }

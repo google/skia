@@ -121,7 +121,7 @@ public:
         A return value of true from isEqual() should not be used to test whether the processor would
         generate the same shader code. To test for identical code generation use getGLSLProcessorKey
      */
-    bool isEqual(const GrFragmentProcessor& that, bool ignoreCoordTransforms) const;
+    bool isEqual(const GrFragmentProcessor& that) const;
 
     /**
      * This function is used to perform optimizations. When called the invarientOuput param

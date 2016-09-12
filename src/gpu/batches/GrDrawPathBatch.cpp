@@ -69,7 +69,7 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
         !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
         return false;
     }
-    if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline(), false)) {
+    if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline())) {
         return false;
     }
     switch (fDraws.head()->fInstanceData->transformType()) {
