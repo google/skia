@@ -3,7 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//gn/shared_sources.gni")
+import("gn/shared_sources.gni")
 
 declare_args() {
   skia_enable_tools = !is_fuchsia && !is_component_build
