@@ -185,7 +185,8 @@ void Parser::precision() {
     this->expect(Token::SEMICOLON, "';'");
 }
 
-/* DIRECTIVE(#version) INT_LITERAL | DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */
+/* DIRECTIVE(#version) INT_LITERAL ("es" | "compatibility")? | 
+   DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */
 std::unique_ptr<ASTDeclaration> Parser::directive() {
     Token start;
     if (!this->expect(Token::DIRECTIVE, "a directive", &start)) {
@@ -193,7 +194,12 @@ std::unique_ptr<ASTDeclaration> Parser::directive() {
     }
     if (start.fText == "#version") {
         this->expect(Token::INT_LITERAL, "a version number");
-        // ignored for now
+        Token next = this->peek();
+        if (next.fText == "es" || next.fText == "compatibility") {
+            this->nextToken();
+        }
+        // version is ignored for now; it will eventually become an error when we stop pretending
+        // to be GLSL
         return nullptr;
     } else if (start.fText == "#extension") {
         Token name;

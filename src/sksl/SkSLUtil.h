@@ -19,11 +19,15 @@ namespace SkSL {
 
 // our own definitions of certain std:: functions, because they are not always present on Android
 
-template <typename T> std::string to_string(T value) {
-    std::stringstream buffer;
-    buffer << std::setprecision(std::numeric_limits<T>::digits10) << value;
-    return buffer.str();
-}
+std::string to_string(double value);
+
+std::string to_string(int32_t value);
+
+std::string to_string(uint32_t value);
+
+std::string to_string(int64_t value);
+
+std::string to_string(uint64_t value);
 
 #if _MSC_VER
 #define NORETURN __declspec(noreturn)

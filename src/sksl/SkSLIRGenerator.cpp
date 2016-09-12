@@ -419,8 +419,9 @@ std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFuncti
                     for (size_t i = 0; i < parameters.size(); i++) {
                         if (parameters[i]->fModifiers != other->fParameters[i]->fModifiers) {
                             fErrors.error(f.fPosition, "modifiers on parameter " + 
-                                                       to_string(i + 1) + " differ between " +
-                                                       "declaration and definition");
+                                                       to_string((uint64_t) i + 1) + 
+                                                       " differ between declaration and "
+                                                       "definition");
                             return nullptr;
                         }
                     }
@@ -616,8 +617,9 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         ASSERT(ctor);
         return this->call(Position(), std::move(ctor), std::move(args));
     }
-    ABORT("cannot coerce %s to %s", expr->fType.description().c_str(), 
-          type.description().c_str());
+    std::vector<std::unique_ptr<Expression>> args;
+    args.push_back(std::move(expr));
+    return std::unique_ptr<Expression>(new Constructor(Position(), type, std::move(args)));
 }
 
 static bool is_matrix_multiply(const Type& left, const Type& right) {
@@ -832,12 +834,12 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
     if (function.fParameters.size() != arguments.size()) {
         std::string msg = "call to '" + function.fName + "' expected " + 
-                                 to_string(function.fParameters.size()) + 
+                                 to_string((uint64_t) function.fParameters.size()) + 
                                  " argument";
         if (function.fParameters.size() != 1) {
             msg += "s";
         }
-        msg += ", but found " + to_string(arguments.size());
+        msg += ", but found " + to_string((uint64_t) arguments.size());
         fErrors.error(position, msg);
         return nullptr;
     }
@@ -938,7 +940,7 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
         if (args.size() != 1) {
             fErrors.error(position, "invalid arguments to '" + type.description() + 
                                     "' constructor, (expected exactly 1 argument, but found " +
-                                    to_string(args.size()) + ")");
+                                    to_string((uint64_t) args.size()) + ")");
         }
         if (args[0]->fType == *fContext.fBool_Type) {
             std::unique_ptr<IntLiteral> zero(new IntLiteral(fContext, position, 0));
