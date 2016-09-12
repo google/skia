@@ -29,7 +29,7 @@ DEF_TEST(SkPDF_Metadata, r) {
                                                 metadata, nullptr, false);
     doc->beginPage(612.0f, 792.0f);
     doc->close();
-    sk_sp<SkData> data(pdf.copyToData());
+    sk_sp<SkData> data = pdf.detachAsData();
     static const char* expectations[] = {
         "/Title (A1)",
         "/Author (A2)",

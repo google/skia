@@ -40,7 +40,7 @@ bool ColorCodecBench::isSuitableFor(Backend backend) {
 }
 
 void ColorCodecBench::decodeAndXform() {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded));
     SkASSERT(codec);
 
 #ifdef SK_DEBUG
@@ -52,7 +52,7 @@ void ColorCodecBench::decodeAndXform() {
 
 #if defined(SK_TEST_QCMS)
 void ColorCodecBench::decodeAndXformQCMS() {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded));
 #ifdef SK_DEBUG
     const SkCodec::Result result =
 #endif
@@ -135,7 +135,7 @@ void ColorCodecBench::xformOnlyQCMS() {
 #endif
 
 void ColorCodecBench::onDelayedSetup() {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded));
     fSrcData = codec->getICCData();
     sk_sp<SkData> dstData = SkData::MakeFromFileName(
             GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());

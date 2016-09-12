@@ -496,7 +496,7 @@ static void push_codec_srcs(Path path) {
         info("Couldn't read %s.", path.c_str());
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         info("Couldn't create codec for %s.", path.c_str());
         return;

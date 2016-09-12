@@ -107,7 +107,7 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
     return nullptr;
 }
 
-SkCodec* SkCodec::NewFromData(SkData* data, SkPngChunkReader* reader) {
+SkCodec* SkCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader* reader) {
     if (!data) {
         return nullptr;
     }

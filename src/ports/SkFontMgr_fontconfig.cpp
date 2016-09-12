@@ -903,7 +903,7 @@ protected:
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
-        return this->createFromStream(new SkMemoryStream(data), ttcIndex);
+        return this->createFromStream(new SkMemoryStream(sk_ref_sp(data)), ttcIndex);
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {

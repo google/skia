@@ -707,11 +707,10 @@ bool SkDrawCommand::flatten(const SkImage& image, Json::Value* target,
     SkDynamicMemoryWStream out;
     SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->bytes(), image.width(), image.height(),
                             out, false);
-    SkData* encoded = out.copyToData();
+    sk_sp<SkData> encoded = out.detachAsData();
     Json::Value jsonData;
     encode_data(encoded->data(), encoded->size(), "image/png", urlDataManager, &jsonData);
     (*target)[SKDEBUGCANVAS_ATTRIBUTE_DATA] = jsonData;
-    encoded->unref();
     return true;
 }
 

@@ -929,7 +929,7 @@ SkTypeface* SkFontMgr_DirectWrite::onCreateFromStream(SkStreamAsset* stream, int
 }
 
 SkTypeface* SkFontMgr_DirectWrite::onCreateFromData(SkData* data, int ttcIndex) const {
-    return this->createFromStream(new SkMemoryStream(data), ttcIndex);
+    return this->createFromStream(new SkMemoryStream(sk_ref_sp(data)), ttcIndex);
 }
 
 SkTypeface* SkFontMgr_DirectWrite::onCreateFromFile(const char path[], int ttcIndex) const {

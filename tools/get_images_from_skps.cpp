@@ -54,7 +54,7 @@ struct Sniffer : public SkPixelSerializer {
         gSeen.add(digest);
 
         sk_sp<SkData> data(SkData::MakeWithoutCopy(ptr, len));
-        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
+        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
         if (!codec) {
             // FIXME: This code is currently unreachable because we create an empty generator when
             //        we fail to create a codec.

@@ -51,7 +51,7 @@ DEF_TEST(Annotation_PdfLink, reporter) {
     SkAnnotateRectWithURL(canvas, r, data.get());
 
     REPORTER_ASSERT(reporter, doc->close());
-    sk_sp<SkData> out(outStream.copyToData());
+    sk_sp<SkData> out = outStream.detachAsData();
     const char* rawOutput = (const char*)out->data();
 
     REPORTER_ASSERT(reporter, ContainsString(rawOutput, out->size(), "/Annots "));
@@ -69,7 +69,7 @@ DEF_TEST(Annotation_NamedDestination, reporter) {
     SkAnnotateNamedDestination(canvas, p, data.get());
 
     REPORTER_ASSERT(reporter, doc->close());
-    sk_sp<SkData> out(outStream.copyToData());
+    sk_sp<SkData> out = outStream.detachAsData();
     const char* rawOutput = (const char*)out->data();
 
     REPORTER_ASSERT(reporter,

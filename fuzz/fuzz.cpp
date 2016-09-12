@@ -34,11 +34,11 @@ static int printUsage(const char* name) {
 }
 static uint8_t calculate_option(SkData*);
 
-static int fuzz_api(SkData*);
-static int fuzz_img(SkData*, uint8_t, uint8_t);
-static int fuzz_skp(SkData*);
-static int fuzz_icc(SkData*);
-static int fuzz_color_deserialize(SkData*);
+static int fuzz_api(sk_sp<SkData>);
+static int fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
+static int fuzz_skp(sk_sp<SkData>);
+static int fuzz_icc(sk_sp<SkData>);
+static int fuzz_color_deserialize(sk_sp<SkData>);
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
@@ -54,21 +54,21 @@ int main(int argc, char** argv) {
 
     if (!FLAGS_type.isEmpty()) {
         switch (FLAGS_type[0][0]) {
-            case 'a': return fuzz_api(bytes.get());
+            case 'a': return fuzz_api(bytes);
 
-            case 'c': return fuzz_color_deserialize(bytes.get());
+            case 'c': return fuzz_color_deserialize(bytes);
 
             case 'i':
                 if (FLAGS_type[0][1] == 'c') { //icc
-                    return fuzz_icc(bytes.get());
+                    return fuzz_icc(bytes);
                 }
                 // We only allow one degree of freedom to avoid a search space explosion for afl-fuzz.
                 if (FLAGS_type[0][6] == 's') { // image_scale
-                    return fuzz_img(bytes.get(), option, 0);
+                    return fuzz_img(bytes, option, 0);
                 }
                 // image_mode
-                return fuzz_img(bytes.get(), 0, option);
-            case 's': return fuzz_skp(bytes.get());
+                return fuzz_img(bytes, 0, option);
+            case 's': return fuzz_skp(bytes);
         }
     }
     return printUsage(argv[0]);
@@ -88,7 +88,7 @@ static uint8_t calculate_option(SkData* bytes) {
     return total;
 }
 
-int fuzz_api(SkData* bytes) {
+int fuzz_api(sk_sp<SkData> bytes) {
     const char* name = FLAGS_name.isEmpty() ? "" : FLAGS_name[0];
 
     for (auto r = SkTRegistry<Fuzzable>::Head(); r; r = r->next()) {
@@ -117,7 +117,7 @@ static void dump_png(SkBitmap bitmap) {
     }
 }
 
-int fuzz_img(SkData* bytes, uint8_t scale, uint8_t mode) {
+int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     // We can scale 1x, 2x, 4x, 8x, 16x
     scale = scale % 5;
     float fscale = (float)pow(2.0f, scale);
@@ -360,7 +360,7 @@ int fuzz_img(SkData* bytes, uint8_t scale, uint8_t mode) {
     return 0;
 }
 
-int fuzz_skp(SkData* bytes) {
+int fuzz_skp(sk_sp<SkData> bytes) {
     SkMemoryStream stream(bytes);
     SkDebugf("Decoding\n");
     sk_sp<SkPicture> pic(SkPicture::MakeFromStream(&stream));
@@ -381,7 +381,7 @@ int fuzz_skp(SkData* bytes) {
     return 0;
 }
 
-int fuzz_icc(SkData* bytes) {
+int fuzz_icc(sk_sp<SkData> bytes) {
     sk_sp<SkColorSpace> space(SkColorSpace::NewICC(bytes->data(), bytes->size()));
     if (!space) {
         SkDebugf("[terminated] Couldn't decode ICC.\n");
@@ -391,7 +391,7 @@ int fuzz_icc(SkData* bytes) {
     return 0;
 }
 
-int fuzz_color_deserialize(SkData* bytes) {
+int fuzz_color_deserialize(sk_sp<SkData> bytes) {
     sk_sp<SkColorSpace> space(SkColorSpace::Deserialize(bytes->data(), bytes->size()));
     if (!space) {
         SkDebugf("[terminated] Couldn't deserialize Colorspace.\n");
@@ -401,7 +401,7 @@ int fuzz_color_deserialize(SkData* bytes) {
     return 0;
 }
 
-Fuzz::Fuzz(SkData* bytes) : fBytes(SkSafeRef(bytes)), fNextByte(0) {}
+Fuzz::Fuzz(sk_sp<SkData> bytes) : fBytes(bytes), fNextByte(0) {}
 
 void Fuzz::signalBug   () { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
 void Fuzz::signalBoring() { SkDebugf("Signal boring\n"); exit(0); }

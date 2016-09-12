@@ -306,6 +306,7 @@ SkMemoryStream::SkMemoryStream(sk_sp<SkData> data) : fData(std::move(data)) {
     fOffset = 0;
 }
 
+#ifdef SK_SUPPORT_LEGACY_STREAM_DATA
 SkMemoryStream::SkMemoryStream(SkData* data) {
     if (nullptr == data) {
         fData = SkData::MakeEmpty();
@@ -314,6 +315,7 @@ SkMemoryStream::SkMemoryStream(SkData* data) {
     }
     fOffset = 0;
 }
+#endif
 
 void SkMemoryStream::setMemoryOwned(const void* src, size_t size) {
     fData = SkData::MakeFromMalloc(src, size);
@@ -325,18 +327,13 @@ void SkMemoryStream::setMemory(const void* src, size_t size, bool copyData) {
     fOffset = 0;
 }
 
-SkData* SkMemoryStream::copyToData() const {
-    return SkSafeRef(fData.get());
-}
-
-SkData* SkMemoryStream::setData(SkData* data) {
+void SkMemoryStream::setData(sk_sp<SkData> data) {
     if (nullptr == data) {
         fData = SkData::MakeEmpty();
     } else {
-        fData = sk_ref_sp(data);
+        fData = data;
     }
     fOffset = 0;
-    return data;
 }
 
 void SkMemoryStream::skipToAlign4() {
@@ -642,14 +639,20 @@ void SkDynamicMemoryWStream::padToAlign4()
     write(&zero, padBytes);
 }
 
-SkData* SkDynamicMemoryWStream::copyToData() const {
+sk_sp<SkData> SkDynamicMemoryWStream::snapshotAsData() const {
     if (nullptr == fCopy) {
         auto data = SkData::MakeUninitialized(fBytesWritten);
         // be sure to call copyTo() before we assign to fCopy
         this->copyTo(data->writable_data());
         fCopy = std::move(data);
     }
-    return SkRef(fCopy.get());
+    return fCopy;
+}
+
+sk_sp<SkData> SkDynamicMemoryWStream::detachAsData() {
+    sk_sp<SkData> data = this->snapshotAsData();
+    this->reset();
+    return data;
 }
 
 void SkDynamicMemoryWStream::invalidateCopy() {
@@ -882,7 +885,7 @@ sk_sp<SkData> SkCopyStreamToData(SkStream* stream) {
         size_t bytesRead = stream->read(buffer, bufferSize);
         tempStream.write(buffer, bytesRead);
     } while (!stream->isAtEnd());
-    return sk_sp<SkData>(tempStream.copyToData());
+    return tempStream.detachAsData();
 }
 
 bool SkStreamCopy(SkWStream* out, SkStream* input) {

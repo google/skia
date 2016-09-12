@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
         SkDebugf("Cannot find input image.\n");
         return -1;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
     if (!codec) {
         SkDebugf("Invalid input image.\n");
         return -1;

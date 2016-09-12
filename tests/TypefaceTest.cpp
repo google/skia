@@ -21,12 +21,11 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
                                uint16_t weight, uint16_t width, SkData* data)
 {
     sk_sp<SkData> dataCopy;
-    SkData* dataToUse = data;
-    if (!dataToUse->unique()) {
+    if (!data->unique()) {
         dataCopy = SkData::MakeWithCopy(data->data(), data->size());
-        dataToUse = dataCopy.get();
+        data = dataCopy.get();
     }
-    SkSFNTHeader* sfntHeader = static_cast<SkSFNTHeader*>(dataToUse->writable_data());
+    SkSFNTHeader* sfntHeader = static_cast<SkSFNTHeader*>(data->writable_data());
 
     SkSFNTHeader::TableDirectoryEntry* tableEntry =
         SkTAfter<SkSFNTHeader::TableDirectoryEntry>(sfntHeader);
@@ -46,7 +45,7 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
     using WidthType = SkOTTableOS2_V0::WidthClass::Value;
     os2Table->usWidthClass.value = static_cast<WidthType>(SkEndian_SwapBE16(width));
 
-    sk_sp<SkTypeface> newTypeface(SkTypeface::MakeFromStream(new SkMemoryStream(dataToUse)));
+    sk_sp<SkTypeface> newTypeface(SkTypeface::MakeFromStream(new SkMemoryStream(sk_ref_sp(data))));
     SkASSERT_RELEASE(newTypeface);
 
     SkFontStyle newStyle = newTypeface->fontStyle();

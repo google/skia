@@ -662,7 +662,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         HRM(E_FAIL, "Unable to encode bitmap as png.");
     }
     SkMemoryStream* read = new SkMemoryStream;
-    read->setData(write.copyToData())->unref();
+    read->setData(write.detachAsData());
     SkTScopedComPtr<IStream> readWrapper;
     HRM(SkIStream::CreateFromSkStream(read, true, &readWrapper),
         "Could not create stream from png data.");

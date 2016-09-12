@@ -632,7 +632,7 @@ static sk_sp<SkData> serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkAutoTUnref<SkPixelSerializer> serializer(
             SkImageEncoder::CreatePixelSerializer());
     picture->serialize(&wStream, serializer);
-    return sk_sp<SkData>(wStream.copyToData());
+    return wStream.detachAsData();
 }
 
 struct ErrorContext {
@@ -670,7 +670,7 @@ DEF_TEST(Picture_EncodedData, reporter) {
     if (!SkImageEncoder::EncodeStream(&wStream, original, SkImageEncoder::kPNG_Type, 100)) {
         return;
     }
-    sk_sp<SkData> data(wStream.copyToData());
+    sk_sp<SkData> data = wStream.detachAsData();
 
     SkBitmap bm;
     bool installSuccess = SkDEPRECATED_InstallDiscardablePixelRef(data.get(), &bm);

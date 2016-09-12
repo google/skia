@@ -210,7 +210,7 @@ static void check(skiatest::Reporter* r,
     if (isIncomplete) {
         size_t size = stream->getLength();
         sk_sp<SkData> data((SkData::MakeFromStream(stream, 2 * size / 3)));
-        codec.reset(SkCodec::NewFromData(data.get()));
+        codec.reset(SkCodec::NewFromData(data));
     } else {
         codec.reset(SkCodec::NewFromStream(stream.release()));
     }
@@ -339,7 +339,7 @@ static void check(skiatest::Reporter* r,
         if (isIncomplete) {
             size_t size = stream->getLength();
             sk_sp<SkData> data((SkData::MakeFromStream(stream, 2 * size / 3)));
-            androidCodec.reset(SkAndroidCodec::NewFromData(data.get()));
+            androidCodec.reset(SkAndroidCodec::NewFromData(data));
         } else {
             androidCodec.reset(SkAndroidCodec::NewFromStream(stream.release()));
         }
@@ -824,8 +824,7 @@ DEF_TEST(Codec_pngChunkReader, r) {
     ChunkReader chunkReader(r);
 
     // Now read the file with SkCodec.
-    sk_sp<SkData> data(wStream.copyToData());
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get(), &chunkReader));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(wStream.detachAsData(), &chunkReader));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;
@@ -865,8 +864,8 @@ DEF_TEST(Codec_pngChunkReader, r) {
 // Stream that can only peek up to a limit
 class LimitedPeekingMemStream : public SkStream {
 public:
-    LimitedPeekingMemStream(SkData* data, size_t limit)
-        : fStream(data)
+    LimitedPeekingMemStream(sk_sp<SkData> data, size_t limit)
+        : fStream(std::move(data))
         , fLimit(limit) {}
 
     size_t peek(void* buf, size_t bytes) const override {
@@ -948,13 +947,13 @@ DEF_TEST(Codec_webp_peek, r) {
 
     // The limit is less than webp needs to peek or read.
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(
-                                 new LimitedPeekingMemStream(data.get(), 25)));
+                                 new LimitedPeekingMemStream(data, 25)));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
 
     // Similarly, a stream which does not peek should still succeed.
-    codec.reset(SkCodec::NewFromStream(new LimitedPeekingMemStream(data.get(), 0)));
+    codec.reset(SkCodec::NewFromStream(new LimitedPeekingMemStream(data, 0)));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
@@ -978,7 +977,7 @@ DEF_TEST(Codec_wbmp, r) {
     writeableData[1] = static_cast<uint8_t>(~0x9F);
 
     // SkCodec should support this.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;
@@ -1083,7 +1082,7 @@ static void check_round_trip(skiatest::Reporter* r, const SkBitmap& bm1) {
             sk_sp<SkData>(SkImageEncoder::EncodeData(bm1, SkImageEncoder::kPNG_Type, 100));
 
     // Prepare to decode.  The codec should recognize that the PNG is 565.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
     REPORTER_ASSERT(r, origColorType == codec->getInfo().colorType());
     REPORTER_ASSERT(r, origAlphaType == codec->getInfo().alphaType());
 

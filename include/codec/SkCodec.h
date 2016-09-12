@@ -95,10 +95,11 @@ public:
      *      failure to decode the image.
      *      If the PNG does not contain unknown chunks, the SkPngChunkReader
      *      will not be used or modified.
-     *
-     *  Will take a ref if it returns a codec, else will not affect the data.
      */
-    static SkCodec* NewFromData(SkData*, SkPngChunkReader* = NULL);
+    static SkCodec* NewFromData(sk_sp<SkData>, SkPngChunkReader* = NULL);
+    static SkCodec* NewFromData(SkData* data, SkPngChunkReader* reader) {
+        return NewFromData(sk_ref_sp(data), reader);
+    }
 
     virtual ~SkCodec();
 

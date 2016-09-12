@@ -529,7 +529,7 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     return target;
 }
 
-static bool valid_brd_bench(SkData* encoded, SkColorType colorType, uint32_t sampleSize,
+static bool valid_brd_bench(sk_sp<SkData> encoded, SkColorType colorType, uint32_t sampleSize,
         uint32_t minOutputSize, int* width, int* height) {
     SkAutoTDelete<SkBitmapRegionDecoder> brd(
             SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy));
@@ -756,7 +756,7 @@ public:
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
+            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -840,7 +840,7 @@ public:
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-            SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded.get()));
+            SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -896,7 +896,7 @@ public:
 
                         int width = 0;
                         int height = 0;
-                        if (!valid_brd_bench(encoded.get(), colorType, sampleSize, minOutputSize,
+                        if (!valid_brd_bench(encoded, colorType, sampleSize, minOutputSize,
                                 &width, &height)) {
                             break;
                         }

@@ -31,7 +31,7 @@ SkImageGenerator* SkImageGeneratorWIC::NewFromEncodedWIC(SkData* data) {
     SkTScopedComPtr<IStream> iStream;
     // Note that iStream will take ownership of the new memory stream because
     // we set |deleteOnRelease| to true.
-    hr = SkIStream::CreateFromSkStream(new SkMemoryStream(data), true, &iStream);
+    hr = SkIStream::CreateFromSkStream(new SkMemoryStream(sk_ref_sp(data)), true, &iStream);
     if (FAILED(hr)) {
         return nullptr;
     }
