@@ -10,7 +10,7 @@ declare_args() {
 
   skia_use_expat = true
   skia_use_fontconfig = is_linux
-  skia_use_freetype = is_android || is_linux
+  skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_giflib = !is_fuchsia
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
@@ -258,6 +258,18 @@ optional("fontmgr_fontconfig") {
   ]
 }
 
+optional("fontmgr_fuchsia") {
+  enabled = is_fuchsia && skia_use_freetype
+
+  deps = [
+    "//third_party/freetype2",
+  ]
+  sources = [
+    "src/ports/SkFontMgr_custom.cpp",
+    "src/ports/SkFontMgr_custom_empty_factory.cpp",
+  ]
+}
+
 optional("gif") {
   enabled = skia_use_giflib
   public_defines = [ "SK_HAS_GIF_LIBRARY" ]
@@ -367,6 +379,7 @@ component("skia") {
     ":fontmgr_android",
     ":fontmgr_custom",
     ":fontmgr_fontconfig",
+    ":fontmgr_fuchsia",
     ":gif",
     ":jpeg",
     ":none",
@@ -498,11 +511,7 @@ component("skia") {
   }
 
   if (is_fuchsia) {
-    sources += [
-      "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
-      "src/ports/SkDebug_stdio.cpp",
-      "src/ports/SkFontMgr_empty_factory.cpp",
-    ]
+    sources += [ "src/gpu/gl/GrGLCreateNativeInterface_none.cpp" ]
   }
 }
 
