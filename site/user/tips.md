@@ -4,6 +4,7 @@ Tips & FAQ
 +   [Gyp Options](#gypdefines)
 +   [Bitmap Subsetting](#bitmap-subsetting)
 +   [Capture a `.skp` file on a web page in Chromium](#skp-capture)
++   [Capture a `.mskp` file on a web page in Chromium](#mskp-capture)
 +   [How to add hardware acceleration in Skia](#hw-acceleration)
 +   [Does Skia support Font hinting?](#font-hinting)
 +   [Does Skia shape text (kerning)?](#kerning)
@@ -113,6 +114,34 @@ or use Skia's `SampleApp` to view it:
     ls -l /tmp/*/skp/layer_0.skp.*
 
     out/Release/SampleApp --picture /tmp/layer_0.skp
+
+* * *
+
+<span id="mskp-capture"></span>
+
+Capture a `.mskp` file on a web page in Chromium
+-----------------------------------------------
+
+Multipage Skia Picture files capture the commands sent to produce PDFs
+and printed documents.
+
+1.  Launch Chrome or Chromium with `--no-sandbox --enable-gpu-benchmarking`
+2.  Open the JS console (ctrl-shift-J)
+3.  Execute: `chrome.gpuBenchmarking.printPagesToSkPictures('/tmp/filename.mskp')`
+    This returns "undefined" on success.
+
+Open the resulting file in the [Skia Debugger](/dev/tools/debugger) or
+process it with `dm`.
+
+<!--?prettify lang=sh?-->
+
+    experimental/tools/mskp_parser.py /tmp/filename.mskp /tmp/filename.mskp.skp
+    ls -l /tmp/filename.mskp.skp
+    # open filename.mskp.skp in the debugger.
+
+    out/Release/dm --src mskp --mskps /tmp/filename.mskp -w /tmp \
+        --config pdf --verbose
+    ls -l /tmp/pdf/mskp/filename.mskp
 
 * * *
 
