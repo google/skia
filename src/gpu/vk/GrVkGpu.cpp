@@ -1702,27 +1702,41 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
                           VK_PIPELINE_STAGE_TRANSFER_BIT,
                           false);
 
-    GrVkTransferBuffer* transferBuffer =
-        static_cast<GrVkTransferBuffer*>(this->createBuffer(rowBytes * height,
-                                                            kXferGpuToCpu_GrBufferType,
-                                                            kStream_GrAccessPattern));
-
+    size_t bpp = GrBytesPerPixel(config);
+    size_t tightRowBytes = bpp * width;
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
-    VkOffset3D offset = {
-        left,
-        flipY ? surface->height() - top - height : top,
-        0
-    };
 
-    // Copy the image to a buffer so we can map it to cpu memory
     VkBufferImageCopy region;
     memset(&region, 0, sizeof(VkBufferImageCopy));
+
+    bool copyFromOrigin = this->vkCaps().mustDoCopiesFromOrigin();
+    if (copyFromOrigin) {
+        region.imageOffset = { 0, 0, 0 };
+        region.imageExtent = { (uint32_t)(left + width),
+                               (uint32_t)(flipY ? surface->height() - top : top + height),
+                               1
+                             };
+    } else {
+        VkOffset3D offset = {
+            left,
+            flipY ? surface->height() - top - height : top,
+            0
+        };
+        region.imageOffset = offset;
+        region.imageExtent = { (uint32_t)width, (uint32_t)height, 1 };
+    }
+
+    size_t transBufferRowBytes = bpp * region.imageExtent.width;
+    GrVkTransferBuffer* transferBuffer =
+            static_cast<GrVkTransferBuffer*>(this->createBuffer(transBufferRowBytes * height,
+                                                                kXferGpuToCpu_GrBufferType,
+                                                                kStream_GrAccessPattern));
+
+    // Copy the image to a buffer so we can map it to cpu memory
     region.bufferOffset = transferBuffer->offset();
     region.bufferRowLength = 0; // Forces RowLength to be width. We handle the rowBytes below.
     region.bufferImageHeight = 0; // Forces height to be tightly packed. Only useful for 3d images.
     region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-    region.imageOffset = offset;
-    region.imageExtent = { (uint32_t)width, (uint32_t)height, 1 };
 
     fCurrentCmdBuffer->copyImageToBuffer(this,
                                          image,
@@ -1745,26 +1759,30 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
 
     void* mappedMemory = transferBuffer->map();
 
-    size_t tightRowBytes = GrBytesPerPixel(config) * width;
+    if (copyFromOrigin) {
+        uint32_t skipRows = region.imageExtent.height - height;
+        mappedMemory = (char*)mappedMemory + transBufferRowBytes * skipRows + bpp * left;
+    }
+
     if (flipY) {
         const char* srcRow = reinterpret_cast<const char*>(mappedMemory);
         char* dstRow = reinterpret_cast<char*>(buffer)+(height - 1) * rowBytes;
         for (int y = 0; y < height; y++) {
             memcpy(dstRow, srcRow, tightRowBytes);
-            srcRow += tightRowBytes;
+            srcRow += transBufferRowBytes;
             dstRow -= rowBytes;
         }
     } else {
-        if (tightRowBytes == rowBytes) {
+        if (transBufferRowBytes == rowBytes) {
             memcpy(buffer, mappedMemory, rowBytes*height);
         } else {
-            SkRectMemcpy(buffer, rowBytes, mappedMemory, tightRowBytes, tightRowBytes, height);
+            SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes,
+                         height);
         }
     }
 
     transferBuffer->unmap();
     transferBuffer->unref();
-
     return true;
 }
 

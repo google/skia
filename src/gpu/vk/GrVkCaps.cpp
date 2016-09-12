@@ -16,6 +16,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
                    VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags)
     : INHERITED(contextOptions) {
     fCanUseGLSLForShaderModule = false;
+    fMustDoCopiesFromOrigin = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -64,6 +65,10 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         // Currently disabling this feature since it does not play well with validation layers which
         // expect a SPIR-V shader
         // fCanUseGLSLForShaderModule = true;
+    }
+
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        fMustDoCopiesFromOrigin = true;
     }
 
     this->applyOptionsOverrides(contextOptions);
