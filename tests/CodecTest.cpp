@@ -1073,22 +1073,53 @@ DEF_TEST(Codec_ColorXform, r) {
     check_color_xform(r, "mandrill_512.png");
 }
 
-static void check_round_trip(skiatest::Reporter* r, const SkBitmap& bm1) {
-    SkColorType origColorType = bm1.colorType();
-    SkAlphaType origAlphaType = bm1.alphaType();
+static bool color_type_match(SkColorType origColorType, SkColorType codecColorType) {
+    switch (origColorType) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            return kRGBA_8888_SkColorType == codecColorType ||
+                   kBGRA_8888_SkColorType == codecColorType;
+        default:
+            return origColorType == codecColorType;
+    }
+}
+
+static bool alpha_type_match(SkAlphaType origAlphaType, SkAlphaType codecAlphaType) {
+    switch (origAlphaType) {
+        case kUnpremul_SkAlphaType:
+        case kPremul_SkAlphaType:
+            return kUnpremul_SkAlphaType == codecAlphaType ||
+                    kPremul_SkAlphaType == codecAlphaType;
+        default:
+            return origAlphaType == codecAlphaType;
+    }
+}
+
+static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const SkImageInfo& info) {
+    SkBitmap bm1;
+    SkPMColor colors[256];
+    SkAutoTUnref<SkColorTable> colorTable1(new SkColorTable(colors, 256));
+    bm1.allocPixels(info, nullptr, colorTable1.get());
+    int numColors;
+    SkCodec::Result result = origCodec->getPixels(info, bm1.getPixels(), bm1.rowBytes(), nullptr,
+                                                  const_cast<SkPMColor*>(colorTable1->readColors()),
+                                                  &numColors);
+    // This will fail to update colorTable1->count() but is fine for the purpose of this test.
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 
     // Encode the image to png.
     sk_sp<SkData> data =
             sk_sp<SkData>(SkImageEncoder::EncodeData(bm1, SkImageEncoder::kPNG_Type, 100));
 
-    // Prepare to decode.  The codec should recognize that the PNG is 565.
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
-    REPORTER_ASSERT(r, origColorType == codec->getInfo().colorType());
-    REPORTER_ASSERT(r, origAlphaType == codec->getInfo().alphaType());
+    REPORTER_ASSERT(r, color_type_match(info.colorType(), codec->getInfo().colorType()));
+    REPORTER_ASSERT(r, alpha_type_match(info.alphaType(), codec->getInfo().alphaType()));
 
     SkBitmap bm2;
-    bm2.allocPixels(codec->getInfo());
-    SkCodec::Result result = codec->getPixels(codec->getInfo(), bm2.getPixels(), bm2.rowBytes());
+    SkAutoTUnref<SkColorTable> colorTable2(new SkColorTable(colors, 256));
+    bm2.allocPixels(info, nullptr, colorTable2.get());
+    result = codec->getPixels(info, bm2.getPixels(), bm2.rowBytes(), nullptr,
+                              const_cast<SkPMColor*>(colorTable2->readColors()), &numColors);
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 
     SkMD5::Digest d1, d2;
@@ -1098,26 +1129,52 @@ static void check_round_trip(skiatest::Reporter* r, const SkBitmap& bm1) {
 }
 
 DEF_TEST(Codec_PngRoundTrip, r) {
-    // Create an arbitrary 565 bitmap.
     const char* path = "mandrill_512_q075.jpg";
     SkAutoTDelete<SkStream> stream(resource(path));
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
-    SkImageInfo info565 = codec->getInfo().makeColorType(kRGB_565_SkColorType);
-    SkBitmap bm1;
-    bm1.allocPixels(info565);
-    SkCodec::Result result = codec->getPixels(info565, bm1.getPixels(), bm1.rowBytes());
-    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
-    check_round_trip(r, bm1);
 
-    // Create an arbitrary gray bitmap.
+    SkColorType colorTypesOpaque[] = {
+            kRGB_565_SkColorType, kRGBA_8888_SkColorType, kBGRA_8888_SkColorType
+    };
+    for (SkColorType colorType : colorTypesOpaque) {
+        SkImageInfo newInfo = codec->getInfo().makeColorType(colorType);
+        check_round_trip(r, codec.get(), newInfo);
+    }
+
     path = "grayscale.jpg";
     stream.reset(resource(path));
     codec.reset(SkCodec::NewFromStream(stream.release()));
-    SkBitmap bm2;
-    bm2.allocPixels(codec->getInfo());
-    result = codec->getPixels(codec->getInfo(), bm2.getPixels(), bm2.rowBytes());
-    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
-    check_round_trip(r, bm2);
+    check_round_trip(r, codec.get(), codec->getInfo());
+
+    path = "yellow_rose.png";
+    stream.reset(resource(path));
+    codec.reset(SkCodec::NewFromStream(stream.release()));
+
+    SkColorType colorTypesWithAlpha[] = {
+            kRGBA_8888_SkColorType, kBGRA_8888_SkColorType
+    };
+    SkAlphaType alphaTypes[] = {
+            kUnpremul_SkAlphaType, kPremul_SkAlphaType
+    };
+    for (SkColorType colorType : colorTypesWithAlpha) {
+        for (SkAlphaType alphaType : alphaTypes) {
+            // Set color space to nullptr because color correct premultiplies do not round trip.
+            SkImageInfo newInfo = codec->getInfo().makeColorType(colorType)
+                                                  .makeAlphaType(alphaType)
+                                                  .makeColorSpace(nullptr);
+            check_round_trip(r, codec.get(), newInfo);
+        }
+    }
+
+    path = "index8.png";
+    stream.reset(resource(path));
+    codec.reset(SkCodec::NewFromStream(stream.release()));
+
+    for (SkAlphaType alphaType : alphaTypes) {
+        SkImageInfo newInfo = codec->getInfo().makeAlphaType(alphaType)
+                                              .makeColorSpace(nullptr);
+        check_round_trip(r, codec.get(), newInfo);
+    }
 }
 
 static void test_conversion_possible(skiatest::Reporter* r, const char* path,
