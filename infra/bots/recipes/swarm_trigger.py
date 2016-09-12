@@ -113,6 +113,8 @@ def swarm_dimensions(builder_cfg):
       # For Android, the device type is a better dimension than CPU or GPU.
       dimensions['device_type'] = {
         'AndroidOne':    'sprout',
+        'GalaxyS3':      'm0',  #'smdk4x12', Detected incorrectly by swarming?
+        'GalaxyS4':      None,  # TODO(borenet,kjlubick)
         'GalaxyS7':      'heroqlteatt',
         'NVIDIA_Shield': 'foster',
         'Nexus10':       'manta',

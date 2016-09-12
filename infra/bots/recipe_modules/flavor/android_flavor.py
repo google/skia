@@ -32,6 +32,8 @@ def get_device(api):
     # Test/Perf bots.
     return {
       'AndroidOne':    'arm_v7_neon',
+      'GalaxyS3':      'arm_v7_neon',
+      'GalaxyS4':      'arm_v7_neon',
       'GalaxyS7':      'arm64',
       'NVIDIA_Shield': 'arm64',
       'Nexus10':       'arm_v7_neon',
