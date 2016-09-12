@@ -35,13 +35,10 @@ static inline bool matrix_is_almost_identity(const SkMatrix44& m,
         sk_float_almost_equals(m.getFloat(3, 3), 1.0f, tol);
 }
 
-GrColorSpaceXform::GrColorSpaceXform(const SkMatrix44& srcToDst, SkAlphaType srcAlphaType)
-    : fSrcAlphaType(srcAlphaType) {
-    srcToDst.asColMajorf(fSrcToDst);
-}
+GrColorSpaceXform::GrColorSpaceXform(const SkMatrix44& srcToDst) 
+    : fSrcToDst(srcToDst) {}
 
-sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace* dst,
-                                                 SkAlphaType srcAlphaType) {
+sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace* dst) {
     if (!src || !dst) {
         // Invalid
         return nullptr;
@@ -59,5 +56,5 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
         return nullptr;
     }
 
-    return sk_make_sp<GrColorSpaceXform>(srcToDst, srcAlphaType);
+    return sk_make_sp<GrColorSpaceXform>(srcToDst);
 }

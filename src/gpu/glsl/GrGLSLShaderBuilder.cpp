@@ -133,27 +133,14 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
                                                 GrGLSLColorSpaceXformHelper* colorXformHelper) {
     // Our color is (r, g, b, a), but we want to multiply (r, g, b, 1) by our matrix, then
     // re-insert the original alpha. The supplied srcColor is likely to be of the form
-    // "texture(...)", and we don't want to evaluate that twice.
-    //
-    // Worse: We can't do the transformation on premultiplied colors, so if the source is premul,
-    // we need to unpremul, transform, then multiply again. Anyways, we wrap all of the work in a
-    // function.
+    // "texture(...)", and we don't want to evaluate that twice, so wrap everything in a function.
     static const GrGLSLShaderVar gColorGamutXformArgs[] = {
         GrGLSLShaderVar("color", kVec4f_GrSLType),
         GrGLSLShaderVar("xform", kMat44f_GrSLType),
     };
     SkString functionBody;
-    if (kPremul_SkAlphaType == colorXformHelper->alphaType()) {
-        // Unpremultiply
-        functionBody.append("\tfloat nonZeroAlpha = max(color.a, 0.00001);\n"
-                            "\tcolor.rgb = color.rgb / nonZeroAlpha;\n");
-    }
     // Gamut xform, clamp to destination gamut
     functionBody.append("\tcolor.rgb = clamp((xform * vec4(color.rgb, 1.0)).rgb, 0.0, 1.0);\n");
-    if (kPremul_SkAlphaType == colorXformHelper->alphaType()) {
-        // Re-multiply by alpha
-        functionBody.append("\tcolor.rgb = color.rgb * nonZeroAlpha;\n");
-    }
     functionBody.append("\treturn color;");
     SkString colorGamutXformFuncName;
     this->emitFunction(kVec4f_GrSLType,

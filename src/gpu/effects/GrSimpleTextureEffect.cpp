@@ -40,7 +40,7 @@ protected:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& processor) override {
         const GrSimpleTextureEffect& textureEffect = processor.cast<GrSimpleTextureEffect>();
         if (SkToBool(textureEffect.colorSpaceXform())) {
-            pdman.setMatrix4f(fColorSpaceXformUni, textureEffect.colorSpaceXform()->srcToDst());
+            pdman.setSkMatrix44(fColorSpaceXformUni, textureEffect.colorSpaceXform()->srcToDst());
         }
     }
 
