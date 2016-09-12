@@ -4,6 +4,4 @@ STRINGIFY(
 
 layout(builtin=15) in vec4 gl_FragCoord;
 
-layout(builtin=10001) vec4 sk_FragColor;
-
 )
