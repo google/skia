@@ -24,15 +24,15 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
+      'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android',
       'Test-Android-GCC-AndroidOne-GPU-Mali400MP2-Arm7-Release',
       'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
+      'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug',
       'Test-Android-GCC-Nexus10-GPU-MaliT604-Arm7-Release',
       'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
       'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Debug',
       'Test-Android-GCC-Nexus9-CPU-Denver-Arm64-Debug',
       'Test-Android-GCC-NexusPlayer-CPU-SSE4-x86-Release',
-      'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug',
-      'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
       'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
@@ -47,6 +47,7 @@ TEST_BUILDERS = {
       'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
       'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot',
       'Test-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
+      'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
     ],
   },
 }
@@ -492,9 +493,11 @@ def test_steps(api):
 
 def RunSteps(api):
   api.core.setup()
-  api.flavor.install()
-  test_steps(api)
-  api.flavor.cleanup_steps()
+  try:
+    api.flavor.install()
+    test_steps(api)
+  finally:
+    api.flavor.cleanup_steps()
   api.run.check_failure()
 
 
@@ -557,6 +560,7 @@ def GenTests(api):
         )
         if ('Android' in builder and
             ('Test' in builder or 'Perf' in builder) and
+            not 'GN' in builder and
             not 'Appurify' in builder):
           test += AndroidTestData(builder)
         if 'Trybot' in builder:

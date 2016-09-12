@@ -1,0 +1,635 @@
+[
+  {
+    "cmd": [
+      "adb",
+      "reboot"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "reboot"
+  },
+  {
+    "cmd": [
+      "adb",
+      "wait-for-usb-device"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "wait for device"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/data/local/tmp/*"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "TEMPORARY clear /data/local/tmp"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/data/local/tmp/resources"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "mkdir /data/local/tmp/resources"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "[SLAVE_BUILD]/skia/resources",
+      "/data/local/tmp/resources"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/skia/resources/* /data/local/tmp/resources",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/skp/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded SKP VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[SLAVE_BUILD]/tmp/SKP_VERSION"
+    ],
+    "name": "write SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "cat",
+      "/data/local/tmp/tmp/SKP_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "read /data/local/tmp/tmp/SKP_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-f",
+      "/data/local/tmp/tmp/SKP_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /data/local/tmp/tmp/SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/data/local/tmp/skps"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /data/local/tmp/skps"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/data/local/tmp/skps"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "mkdir /data/local/tmp/skps"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "[SLAVE_BUILD]/skp",
+      "/data/local/tmp/skps"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/skp/* /data/local/tmp/skps",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/tmp/SKP_VERSION",
+      "/data/local/tmp/tmp/SKP_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/tmp/SKP_VERSION /data/local/tmp/tmp/SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/skimage/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded skimage VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION"
+    ],
+    "name": "write SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "cat",
+      "/data/local/tmp/tmp/SK_IMAGE_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "read /data/local/tmp/tmp/SK_IMAGE_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-f",
+      "/data/local/tmp/tmp/SK_IMAGE_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /data/local/tmp/tmp/SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/data/local/tmp/images"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /data/local/tmp/images"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/data/local/tmp/images"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "mkdir /data/local/tmp/images"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "[SLAVE_BUILD]/skimage",
+      "/data/local/tmp/images"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/skimage/* /data/local/tmp/images",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION",
+      "/data/local/tmp/tmp/SK_IMAGE_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/tmp/SK_IMAGE_VERSION /data/local/tmp/tmp/SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[SLAVE_BUILD]/skia/infra/bots/assets/svg/VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded SVG VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[SLAVE_BUILD]/tmp/SVG_VERSION"
+    ],
+    "name": "write SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "cat",
+      "/data/local/tmp/tmp/SVG_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "read /data/local/tmp/tmp/SVG_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-f",
+      "/data/local/tmp/tmp/SVG_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /data/local/tmp/tmp/SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/data/local/tmp/svgs"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /data/local/tmp/svgs"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/data/local/tmp/svgs"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "mkdir /data/local/tmp/svgs"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "[SLAVE_BUILD]/svg",
+      "/data/local/tmp/svgs"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/svg/* /data/local/tmp/svgs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/tmp/SVG_VERSION",
+      "/data/local/tmp/tmp/SVG_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/tmp/SVG_VERSION /data/local/tmp/tmp/SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+    ],
+    "env": {
+      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+    },
+    "name": "rmtree dm",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm",
+      "511"
+    ],
+    "name": "makedirs dm",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/data/local/tmp/dm_out"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /data/local/tmp/dm_out"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/data/local/tmp/dm_out"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "mkdir /data/local/tmp/dm_out"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[SLAVE_BUILD]/tmp",
+      "511"
+    ],
+    "name": "makedirs tmp_dir",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = 'https://gold.skia.org/_/hashes'\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[1], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
+      "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "get uninteresting hashes",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import contextlib@@@",
+      "@@@STEP_LOG_LINE@python.inline@import math@@@",
+      "@@@STEP_LOG_LINE@python.inline@import socket@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@HASHES_URL = 'https://gold.skia.org/_/hashes'@@@",
+      "@@@STEP_LOG_LINE@python.inline@RETRIES = 5@@@",
+      "@@@STEP_LOG_LINE@python.inline@TIMEOUT = 60@@@",
+      "@@@STEP_LOG_LINE@python.inline@WAIT_BASE = 15@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@socket.setdefaulttimeout(TIMEOUT)@@@",
+      "@@@STEP_LOG_LINE@python.inline@for retry in range(RETRIES):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    with contextlib.closing(@@@",
+      "@@@STEP_LOG_LINE@python.inline@        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      hashes = w.read()@@@",
+      "@@@STEP_LOG_LINE@python.inline@      with open(sys.argv[1], 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@        f.write(hashes)@@@",
+      "@@@STEP_LOG_LINE@python.inline@        break@@@",
+      "@@@STEP_LOG_LINE@python.inline@  except Exception as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print e@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if retry == RETRIES:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@    waittime = WAIT_BASE * math.pow(2, retry)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Retry in %d seconds.' % waittime@@@",
+      "@@@STEP_LOG_LINE@python.inline@    time.sleep(waittime)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt",
+      "/data/local/tmp/tmp/uninteresting_hashes.txt"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/tmp/uninteresting_hashes.txt /data/local/tmp/tmp/uninteresting_hashes.txt"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/out/Release/dm",
+      "/data/local/tmp"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push dm"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "set -x; /data/local/tmp/dm --undefok --resourcePath /data/local/tmp/resources --skps /data/local/tmp/skps --images /data/local/tmp/images/dm --colorImages /data/local/tmp/images/colorspace --nameByHash --properties gitHash abc123 master client.skia builder Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android build_number 5 --svgs /data/local/tmp/svgs --key arch arm compiler Clang configuration Release cpu_or_gpu CPU cpu_or_gpu_value MT6582 extra_config GN_Android model AndroidOne os Android --uninterestingHashesFile /data/local/tmp/tmp/uninteresting_hashes.txt --writePath /data/local/tmp/dm_out --nogpu --config 565 8888 gpu gpusrgb msaa4 serialize-8888 tiles_rt-8888 pic-8888 --src tests gm image colorImage svg --blacklist f16 _ _ dstreadshuffle f16 image _ _ srgb image _ _ gpusrgb image _ _ _ test _ GrShape serialize-8888 gm _ bleed_image serialize-8888 gm _ c_gms serialize-8888 gm _ colortype serialize-8888 gm _ colortype_xfermodes serialize-8888 gm _ drawfilter serialize-8888 gm _ fontmgr_bounds_0.75_0 serialize-8888 gm _ fontmgr_bounds_1_-0.25 serialize-8888 gm _ fontmgr_bounds serialize-8888 gm _ fontmgr_match serialize-8888 gm _ fontmgr_iter serialize-8888 gm _ imagemasksubset serialize-8888 gm _ bitmapfilters serialize-8888 gm _ bitmapshaders serialize-8888 gm _ bleed serialize-8888 gm _ bleed_alpha_bmp serialize-8888 gm _ bleed_alpha_bmp_shader serialize-8888 gm _ convex_poly_clip serialize-8888 gm _ extractalpha serialize-8888 gm _ filterbitmap_checkerboard_32_32_g8 serialize-8888 gm _ filterbitmap_image_mandrill_64 serialize-8888 gm _ shadows serialize-8888 gm _ simpleaaclip_aaclip serialize-8888 gm _ composeshader_bitmap serialize-8888 gm _ scaled_tilemodes_npot serialize-8888 gm _ scaled_tilemodes serialize-8888 gm _ bleed_alpha_image serialize-8888 gm _ bleed_alpha_image_shader serialize-8888 gm _ verylargebitmap serialize-8888 gm _ verylarge_picture_image sp-8888 gm _ drawfilter pic-8888 gm _ drawfilter 2ndpic-8888 gm _ drawfilter lite-8888 gm _ drawfilter sp-8888 gm _ image-cacherator-from-picture pic-8888 gm _ image-cacherator-from-picture 2ndpic-8888 gm _ image-cacherator-from-picture serialize-8888 gm _ image-cacherator-from-picture sp-8888 gm _ image-cacherator-from-raster pic-8888 gm _ image-cacherator-from-raster 2ndpic-8888 gm _ image-cacherator-from-raster serialize-8888 gm _ image-cacherator-from-raster sp-8888 gm _ image-cacherator-from-ctable pic-8888 gm _ image-cacherator-from-ctable 2ndpic-8888 gm _ image-cacherator-from-ctable serialize-8888 gm _ image-cacherator-from-ctable sp-8888 gm _ gamut pic-8888 gm _ gamut lite-8888 gm _ gamut 2ndpic-8888 gm _ gamut serialize-8888 gm _ gamut --match ~WritePixels; echo $? >/data/local/tmp/rc",
+      "[SLAVE_BUILD]/tmp/dm.sh"
+    ],
+    "name": "write dm.sh"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/tmp/dm.sh",
+      "/data/local/tmp"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push dm.sh"
+  },
+  {
+    "cmd": [
+      "adb",
+      "logcat",
+      "-c"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "clear log"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "sh",
+      "/data/local/tmp/dm.sh"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "dm"
+  },
+  {
+    "cmd": [
+      "adb",
+      "logcat",
+      "-d"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "dump log "
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nsys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',\n                                      '/data/local/tmp/rc'])))\n"
+    ],
+    "name": "check dm rc",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                                      '/data/local/tmp/rc'])))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "pull",
+      "/data/local/tmp/dm_out",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "pull /data/local/tmp/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/data/local/tmp/*"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "TEMPORARY clear /data/local/tmp (2)"
+  },
+  {
+    "cmd": [
+      "adb",
+      "reboot"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "TEMPORARY reboot"
+  },
+  {
+    "cmd": [
+      "adb",
+      "kill-server"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "kill adb server"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

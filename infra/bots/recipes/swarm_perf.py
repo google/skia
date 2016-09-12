@@ -58,7 +58,8 @@ def nanobench_flags(bot):
     args.extend(['--skps', 'ignore_skps'])
 
   config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui' ]
-  config += [ 'f16', 'srgb' ]
+  if 'AndroidOne' not in bot:
+    config += [ 'f16', 'srgb' ]
   # The S4 crashes and the NP produces a long error stream when we run with
   # MSAA.
   if ('GalaxyS4'    not in bot and
@@ -235,9 +236,11 @@ def perf_steps(api):
 
 def RunSteps(api):
   api.core.setup()
-  api.flavor.install()
-  perf_steps(api)
-  api.flavor.cleanup_steps()
+  try:
+    api.flavor.install()
+    perf_steps(api)
+  finally:
+    api.flavor.cleanup_steps()
   api.run.check_failure()
 
 
