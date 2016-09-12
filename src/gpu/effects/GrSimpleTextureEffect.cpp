@@ -24,8 +24,8 @@ public:
         fragBuilder->codeAppendf("%s = ", args.fOutputColor);
         fragBuilder->appendTextureLookupAndModulate(args.fInputColor,
                                                     args.fTexSamplers[0],
-                                                    args.fCoords[0].c_str(),
-                                                    args.fCoords[0].getType(),
+                                                    args.fTransformedCoords[0].c_str(),
+                                                    args.fTransformedCoords[0].getType(),
                                                     &colorSpaceHelper);
         fragBuilder->codeAppend(";");
     }

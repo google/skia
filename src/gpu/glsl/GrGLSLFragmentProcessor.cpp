@@ -82,11 +82,11 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
         firstTextureAt += args.fFp.childProcessor(i).numTextures();
         firstBufferAt += args.fFp.childProcessor(i).numBuffers();
     }
-    GrGLSLTransformedCoordsArray childCoords;
+    SkTArray<GrShaderVar> childCoords;
     const SamplerHandle* childTexSamplers = nullptr;
     const SamplerHandle* childBufferSamplers =  nullptr;
     if (childProc.numTransforms() > 0) {
-        childCoords.push_back_n(childProc.numTransforms(), &args.fCoords[firstCoordAt]);
+        childCoords.push_back_n(childProc.numTransforms(), &args.fTransformedCoords[firstCoordAt]);
     }
     if (childProc.numTextures() > 0) {
         childTexSamplers = &args.fTexSamplers[firstTextureAt];

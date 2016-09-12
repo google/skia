@@ -31,8 +31,8 @@ public:
         fragBuilder->codeAppendf("%s;", tmpDecl.c_str());
 
         fragBuilder->codeAppendf("%s = ", tmpVar.c_str());
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], args.fCoords[0].c_str(),
-                                       args.fCoords[0].getType());
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], args.fTransformedCoords[0].c_str(),
+                                         args.fTransformedCoords[0].getType());
         fragBuilder->codeAppend(";");
 
         if (GrConfigConversionEffect::kNone_PMConversion == pmConversion) {

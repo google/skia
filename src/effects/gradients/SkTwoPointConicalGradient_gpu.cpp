@@ -243,19 +243,21 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::emitCode(EmitArgs& args)
     p2.appendf("%s.z", uniformHandler->getUniformVariable(fParamUni).getName().c_str());
 
     // We interpolate the linear component in coords[1].
-    SkASSERT(args.fCoords[0].getType() == args.fCoords[1].getType());
+    SkASSERT(args.fTransformedCoords[0].getType() == args.fTransformedCoords[1].getType());
     const char* coords2D;
     SkString bVar;
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    if (kVec3f_GrSLType == args.fCoords[0].getType()) {
+    if (kVec3f_GrSLType == args.fTransformedCoords[0].getType()) {
         fragBuilder->codeAppendf("\tvec3 interpolants = vec3(%s.xy / %s.z, %s.x / %s.z);\n",
-                               args.fCoords[0].c_str(), args.fCoords[0].c_str(),
-                               args.fCoords[1].c_str(), args.fCoords[1].c_str());
+                                 args.fTransformedCoords[0].c_str(),
+                                 args.fTransformedCoords[0].c_str(),
+                                 args.fTransformedCoords[1].c_str(),
+                                 args.fTransformedCoords[1].c_str());
         coords2D = "interpolants.xy";
         bVar = "interpolants.z";
     } else {
-        coords2D = args.fCoords[0].c_str();
-        bVar.printf("%s.x", args.fCoords[1].c_str());
+        coords2D = args.fTransformedCoords[0].c_str();
+        bVar.printf("%s.x", args.fTransformedCoords[1].c_str());
     }
 
     // output will default to transparent black (we simply won't write anything
@@ -523,7 +525,7 @@ void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::emitCode
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2DString = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString coords2DString = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     const char* coords2D = coords2DString.c_str();
 
     // t = p.x * focal.x +/- sqrt(p.x^2 + (1 - focal.x^2) * p.y^2)
@@ -731,7 +733,7 @@ void FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::emitCode(E
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2DString = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString coords2DString = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     const char* coords2D = coords2DString.c_str();
 
     // t = p.x * focalX + length(p)
@@ -994,7 +996,7 @@ void CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::emitCode
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2DString = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString coords2DString = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     const char* coords2D = coords2DString.c_str();
 
     // p = coords2D
@@ -1237,7 +1239,7 @@ void CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::emitCo
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2DString = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString coords2DString = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     const char* coords2D = coords2DString.c_str();
 
     // output will default to transparent black (we simply won't write anything

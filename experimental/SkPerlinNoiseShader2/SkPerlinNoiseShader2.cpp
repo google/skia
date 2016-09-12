@@ -739,7 +739,7 @@ void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
 
     GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    SkString vCoords = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString vCoords = fsBuilder->ensureCoords2D(args.fTransformedCoords[0]);
 
     fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
@@ -1145,7 +1145,7 @@ sk_sp<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTe
 void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    SkString vCoords = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString vCoords = fsBuilder->ensureCoords2D(args.fTransformedCoords[0]);
 
     fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,

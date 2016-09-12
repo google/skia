@@ -9,7 +9,6 @@
 #define GrGLSLPrimitiveProcessor_DEFINED
 
 #include "GrPrimitiveProcessor.h"
-#include "glsl/GrGLSLProcessorTypes.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLSampler.h"
 
@@ -31,7 +30,7 @@ public:
 
     typedef SkSTArray<2, const GrCoordTransform*, true> ProcCoords;
     typedef SkSTArray<8, ProcCoords> TransformsIn;
-    typedef SkSTArray<8, GrGLSLTransformedCoordsArray> TransformsOut;
+    typedef SkSTArray<8, SkTArray<GrShaderVar>> TransformsOut;
 
     struct EmitArgs {
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,

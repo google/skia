@@ -9,7 +9,7 @@
 #define GrGLSLFragmentProcessor_DEFINED
 
 #include "GrFragmentProcessor.h"
-#include "glsl/GrGLSLProcessorTypes.h"
+#include "GrShaderVar.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLSampler.h"
 
@@ -37,21 +37,27 @@ public:
         shader will be in its own block ({}) and so locally scoped names will not collide across
         stages.
 
-        @param builder      Interface used to emit code in the shaders.
-        @param processor    The processor that generated this program stage.
-        @param key          The key that was computed by GenKey() from the generating GrProcessor.
-        @param outputColor  A predefined vec4 in the FS in which the stage should place its output
-                            color (or coverage).
-        @param inputColor   A vec4 that holds the input color to the stage in the FS. This may be
-                            nullptr in which case the implied input is solid white (all ones).
-                            TODO: Better system for communicating optimization info (e.g. input
-                            color is solid white, trans black, known to be opaque, etc.) that allows
-                            the processor to communicate back similar known info about its output.
-        @param samplers     Contains one entry for each GrTextureAccess of the GrProcessor. These
-                            can be passed to the builder to emit texture reads in the generated
-                            code.
+        @param fragBuilder       Interface used to emit code in the shaders.
+        @param fp                The processor that generated this program stage.
+        @param key               The key that was computed by GenKey() from the generating
+                                 GrProcessor.
+        @param outputColor       A predefined vec4 in the FS in which the stage should place its
+                                 output color (or coverage).
+        @param inputColor        A vec4 that holds the input color to the stage in the FS. This may
+                                 be nullptr in which case the implied input is solid white (all
+                                 ones). TODO: Better system for communicating optimization info
+                                 (e.g. input color is solid white, trans black, known to be opaque,
+                                 etc.) that allows the processor to communicate back similar known
+                                 info about its output.
+        @param transformedCoords Fragment shader variables containing the coords computed using
+                                 each of the GrFragmentProcessor's Coord Transforms.
+        @param texSamplers       Contains one entry for each GrTextureAccess of the GrProcessor.
+                                 These can be passed to the builder to emit texture reads in the
+                                 generated code.
+        @param bufferSamplers    Contains one entry for each GrBufferAccess of the GrProcessor.
+                                 These can be passed to the builder to emit buffer reads in the
+                                 generated code.
      */
-
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
                  GrGLSLUniformHandler* uniformHandler,
@@ -59,7 +65,7 @@ public:
                  const GrFragmentProcessor& fp,
                  const char* outputColor,
                  const char* inputColor,
-                 const GrGLSLTransformedCoordsArray& coords,
+                 const SkTArray<GrShaderVar>& transformedCoords,
                  const SamplerHandle* texSamplers,
                  const SamplerHandle* bufferSamplers,
                  bool gpImplementsDistanceVector)
@@ -69,17 +75,17 @@ public:
             , fFp(fp)
             , fOutputColor(outputColor)
             , fInputColor(inputColor)
-            , fCoords(coords)
+            , fTransformedCoords(transformedCoords)
             , fTexSamplers(texSamplers)
             , fBufferSamplers(bufferSamplers)
-            , fGpImplementsDistanceVector(gpImplementsDistanceVector){}
+            , fGpImplementsDistanceVector(gpImplementsDistanceVector) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrGLSLCaps* fGLSLCaps;
         const GrFragmentProcessor& fFp;
         const char* fOutputColor;
         const char* fInputColor;
-        const GrGLSLTransformedCoordsArray& fCoords;
+        const SkTArray<GrShaderVar>& fTransformedCoords;
         const SamplerHandle* fTexSamplers;
         const SamplerHandle* fBufferSamplers;
         bool fGpImplementsDistanceVector;

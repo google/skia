@@ -99,8 +99,8 @@ void GrGLAlphaThresholdFragmentProcessor::emitCode(EmitArgs& args) {
                                                     "outer_threshold");
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
-    SkString maskCoords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 1);
+    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+    SkString maskCoords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[1]);
 
     fragBuilder->codeAppendf("vec2 coord = %s;", coords2D.c_str());
     fragBuilder->codeAppendf("vec2 mask_coord = %s;", maskCoords2D.c_str());

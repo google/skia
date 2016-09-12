@@ -191,7 +191,7 @@ void GrGLTextureDomainEffect::emitCode(EmitArgs& args) {
     const GrTextureDomain& domain = textureDomainEffect.textureDomain();
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     fGLDomain.sampleTexture(fragBuilder,
                             args.fUniformHandler,
                             args.fGLSLCaps,

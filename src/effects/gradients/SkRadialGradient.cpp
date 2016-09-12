@@ -333,7 +333,7 @@ void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
     const GrRadialGradient& ge = args.fFp.cast<GrRadialGradient>();
     this->emitUniforms(args.fUniformHandler, ge);
     SkString t("length(");
-    t.append(args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0));
+    t.append(args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0]));
     t.append(")");
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,

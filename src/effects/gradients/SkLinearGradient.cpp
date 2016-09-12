@@ -437,7 +437,7 @@ sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) 
 void GrLinearGradient::GLSLLinearProcessor::emitCode(EmitArgs& args) {
     const GrLinearGradient& ge = args.fFp.cast<GrLinearGradient>();
     this->emitUniforms(args.fUniformHandler, ge);
-    SkString t = args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString t = args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     t.append(".x");
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,

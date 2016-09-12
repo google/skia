@@ -65,8 +65,8 @@ public:
         class DCGLFP : public GrGLSLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
-                fragBuilder->codeAppendf("vec2 c = %s;",
-                                         fragBuilder->ensureFSCoords2D(args.fCoords, 0).c_str());
+                SkString coords2d = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+                fragBuilder->codeAppendf("vec2 c = %s;", coords2d.c_str());
                 fragBuilder->codeAppend("vec2 r = mod(c, vec2(20.0));");
                 fragBuilder->codeAppend("vec4 color = vec4(0.5*sin(c.x / 15.0) + 0.5,"
                                                       "0.5*cos((c.x + c.y) / 15.0) + 0.5,"

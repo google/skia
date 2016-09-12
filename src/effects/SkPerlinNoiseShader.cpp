@@ -603,7 +603,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    SkString vCoords = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
 
     fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
