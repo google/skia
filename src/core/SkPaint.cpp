@@ -398,7 +398,7 @@ SET_PTR(MaskFilter)
 
 #ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
 SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
-    fLooper.reset(SkSafeRef(looper));
+    fDrawLooper.reset(SkSafeRef(looper));
     return looper;
 }
 #endif
