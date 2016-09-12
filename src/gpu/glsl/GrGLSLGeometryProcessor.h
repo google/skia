@@ -70,13 +70,6 @@ protected:
                         const TransformsIn&,
                         TransformsOut*);
 
-    // caller has emitted transforms via attributes
-    void emitTransforms(GrGLSLVertexBuilder*,
-                        GrGLSLVaryingHandler*,
-                        const char* localCoords,
-                        const TransformsIn& tin,
-                        TransformsOut* tout);
-
     struct GrGPArgs {
         // The variable used by a GP to store its position. It can be
         // either a vec2 or a vec3 depending on the presence of perspective.
