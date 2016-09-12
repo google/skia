@@ -85,9 +85,7 @@ SkPDFDevice::GraphicStateEntry::GraphicStateEntry()
     , fTextScaleX(SK_Scalar1)
     , fTextFill(SkPaint::kFill_Style)
     , fShaderIndex(-1)
-    , fGraphicStateIndex(-1)
-    , fFont(nullptr)
-    , fTextSize(SK_ScalarNaN) {
+    , fGraphicStateIndex(-1) {
     fMatrix.reset();
 }
 
@@ -861,20 +859,10 @@ public:
                     bool defaultPositioning,
                     SkPoint origin)
         : fContent(content)
-        , fCurrentMatrixOrigin{0.0f, 0.0f}
-        , fXAdvance(0.0f)
+        , fCurrentMatrixOrigin(origin)
+        , fTextSkewX(textSkewX)
         , fWideChars(wideChars)
-        , fInText(false)
         , fDefaultPositioning(defaultPositioning) {
-        // Flip the text about the x-axis to account for origin swap and include
-        // the passed parameters.
-        fContent->writeText("1 0 ");
-        SkPDFUtils::AppendScalar(0 - textSkewX, fContent);
-        fContent->writeText(" -1 ");
-        SkPDFUtils::AppendScalar(origin.x(), fContent);
-        fContent->writeText(" ");
-        SkPDFUtils::AppendScalar(origin.y(), fContent);
-        fContent->writeText(" Tm\n");
     }
     ~GlyphPositioner() { this->flush(); }
     void flush() {
@@ -883,16 +871,22 @@ public:
             fInText = false;
         }
     }
-    void setWideChars(bool wideChars) {
-        if (fWideChars != wideChars) {
-            SkASSERT(!fInText);
-            SkASSERT(fWideChars == wideChars);
-            fWideChars = wideChars;
-        }
-    }
     void writeGlyph(SkPoint xy,
                     SkScalar advanceWidth,
                     uint16_t glyph) {
+        if (!fInitialized) {
+            // Flip the text about the x-axis to account for origin swap and include
+            // the passed parameters.
+            fContent->writeText("1 0 ");
+            SkPDFUtils::AppendScalar(-fTextSkewX, fContent);
+            fContent->writeText(" -1 ");
+            SkPDFUtils::AppendScalar(fCurrentMatrixOrigin.x(), fContent);
+            fContent->writeText(" ");
+            SkPDFUtils::AppendScalar(fCurrentMatrixOrigin.y(), fContent);
+            fContent->writeText(" Tm\n");
+            fCurrentMatrixOrigin.set(0.0f, 0.0f);
+            fInitialized = true;
+        }
         if (!fDefaultPositioning) {
             SkPoint position = xy - fCurrentMatrixOrigin;
             if (position != SkPoint{fXAdvance, 0}) {
@@ -921,9 +915,11 @@ public:
 private:
     SkDynamicMemoryWStream* fContent;
     SkPoint fCurrentMatrixOrigin;
-    SkScalar fXAdvance;
+    SkScalar fXAdvance = 0.0f;
+    SkScalar fTextSkewX;
     bool fWideChars;
-    bool fInText;
+    bool fInText = false;
+    bool fInitialized = false;
     const bool fDefaultPositioning;
 };
 }  // namespace
@@ -967,6 +963,16 @@ static void draw_transparent_text(SkPDFDevice* device,
         default:
             SkFAIL("unknown text encoding");
     }
+}
+
+static void update_font(SkWStream* wStream, int fontIndex, SkScalar textSize) {
+    wStream->writeText("/");
+    char prefix = SkPDFResourceDict::GetResourceTypePrefix(SkPDFResourceDict::kFont_ResourceType);
+    wStream->write(&prefix, 1);
+    wStream->writeDecAsText(fontIndex);
+    wStream->writeText(" ");
+    SkPDFUtils::AppendScalar(textSize, wStream);
+    wStream->writeText(" Tf\n");
 }
 
 void SkPDFDevice::internalDrawText(
@@ -1067,74 +1073,50 @@ void SkPDFDevice::internalDrawText(
     SkDynamicMemoryWStream* out = &content.entry()->fContent;
     SkScalar textSize = paint.getTextSize();
 
-    int index = 0;
-    while (glyphs[index] > maxGlyphID) {  // Invalid glyphID for this font.
-        ++index;  // Skip this glyphID
-        if (index == glyphCount) {
-            return;  // all glyphIDs were bad.
-        }
-    }
-
     out->writeText("BT\n");
     SK_AT_SCOPE_EXIT(out->writeText("ET\n"));
 
-    SkPDFFont* font = this->updateFont(
-            typeface, textSize, glyphs[index], content.entry());
-    SkASSERT(font);  // All preconditions for SkPDFFont::GetFontResource are met.
-    if (!font) { return; }
-
+    bool multiByteGlyphs = SkPDFFont::IsMultiByte(SkPDFFont::FontType(*metrics));
     GlyphPositioner glyphPositioner(out,
                                     paint.getTextSkewX(),
-                                    font->multiByteGlyphs(),
+                                    multiByteGlyphs,
                                     defaultPositioning,
                                     offset);
-
-    while (index < glyphCount) {
-        int stretch = font->countStretch(&glyphs[index], glyphCount - index, maxGlyphID);
-        SkASSERT(index + stretch <= glyphCount);
-        if (stretch < 1) {
-            // The current pdf font cannot encode the next glyph.
-            // Try to get a pdf font which can encode the next glyph.
+    SkPDFFont* font = nullptr;
+    for (int index = 0; index < glyphCount; ++index) {
+        SkGlyphID gid = glyphs[index];
+        if (gid > maxGlyphID) {
+            continue;  // Skip this invalid glyphID.
+        }
+        if (!font || !font->hasGlyph(gid)) {
+            // Either this is the first loop iteration or the current
+            // PDFFont cannot encode this glyph.
             glyphPositioner.flush();
-            // first, validate the next glyph
-            while (glyphs[index] > maxGlyphID) {
-                ++index;  // Skip this glyphID
-                if (index == glyphCount) {
-                    return;  // all remainng glyphIDs were bad.
-                }
-            }
-            SkASSERT(index < glyphCount);
-            font = this->updateFont(typeface, textSize, glyphs[index], content.entry());
-            SkASSERT(font);  // preconditions for SkPDFFont::GetFontResource met.
+            // Try to get a font which can encode the glyph.
+            int fontIndex = this->getFontResourceIndex(typeface, gid);
+            SkASSERT(fontIndex >= 0);
+            if (fontIndex < 0) { return; }
+            update_font(out, fontIndex, textSize);
+            font = fFontResources[fontIndex];
+            SkASSERT(font);  // All preconditions for SkPDFFont::GetFontResource are met.
             if (!font) { return; }
-            glyphPositioner.setWideChars(font->multiByteGlyphs());
-            // Get stretch for this new font.
-            stretch = font->countStretch(&glyphs[index], glyphCount - index, maxGlyphID);
-            if (stretch < 1) {
-                SkDEBUGFAIL("PDF could not encode glyph.");
-                return;
+            SkASSERT(font->multiByteGlyphs() == multiByteGlyphs);
+        }
+        font->noteGlyphUsage(gid);
+        SkScalar advance{0.0f};
+        SkPoint xy{0.0f, 0.0f};
+        if (!defaultPositioning) {
+            advance = glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
+            xy = SkTextBlob::kFull_Positioning == positioning
+               ? SkPoint{pos[2 * index], pos[2 * index + 1]}
+               : SkPoint{pos[index], 0};
+            if (alignment != SkPaint::kLeft_Align) {
+                xy.offset(alignmentFactor * advance, 0);
             }
         }
-        while (stretch-- > 0) {
-            SkGlyphID gid = glyphs[index];
-            if (gid <= maxGlyphID) {
-                font->noteGlyphUsage(gid);
-                SkGlyphID encodedGlyph = font->glyphToPDFFontEncoding(gid);
-                if (defaultPositioning) {
-                    glyphPositioner.writeGlyph(SkPoint{0, 0}, 0, encodedGlyph);
-                } else {
-                    SkScalar advance = glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
-                    SkPoint xy = SkTextBlob::kFull_Positioning == positioning
-                               ? SkPoint{pos[2 * index], pos[2 * index + 1]}
-                               : SkPoint{pos[index], 0};
-                    if (alignment != SkPaint::kLeft_Align) {
-                        xy.offset(alignmentFactor * advance, 0);
-                    }
-                    glyphPositioner.writeGlyph(xy, advance, encodedGlyph);
-                }
-            }
-            ++index;
-        }
+        SkGlyphID encodedGlyph =
+            multiByteGlyphs ? gid : font->glyphToPDFFontEncoding(gid);
+        glyphPositioner.writeGlyph(xy, advance, encodedGlyph);
     }
 }
 
@@ -1835,30 +1817,6 @@ int SkPDFDevice::addXObjectResource(SkPDFObject* xObject) {
         fXObjectResources.push(SkRef(xObject));
     }
     return result;
-}
-
-SkPDFFont* SkPDFDevice::updateFont(SkTypeface* typeface,
-                                   SkScalar textSize,
-                                   uint16_t glyphID,
-                                   SkPDFDevice::ContentEntry* contentEntry) {
-    if (contentEntry->fState.fFont == nullptr ||
-            contentEntry->fState.fTextSize != textSize ||
-            !contentEntry->fState.fFont->hasGlyph(glyphID)) {
-        int fontIndex = getFontResourceIndex(typeface, glyphID);
-        if (fontIndex < 0) {
-            SkDebugf("SkPDF: Font error.");
-            return nullptr;
-        }
-        contentEntry->fContent.writeText("/");
-        contentEntry->fContent.writeText(SkPDFResourceDict::getResourceName(
-                SkPDFResourceDict::kFont_ResourceType,
-                fontIndex).c_str());
-        contentEntry->fContent.writeText(" ");
-        SkPDFUtils::AppendScalar(textSize, &contentEntry->fContent);
-        contentEntry->fContent.writeText(" Tf\n");
-        contentEntry->fState.fFont = fFontResources[fontIndex];
-    }
-    return contentEntry->fState.fFont;
 }
 
 int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {

@@ -170,13 +170,6 @@ public:
         SkPaint::Style fTextFill;  // Only if TextScaleX is non-zero.
         int fShaderIndex;
         int fGraphicStateIndex;
-
-        // We may change the font (i.e. for Type1 support) within a
-        // ContentEntry.  This is the one currently in effect, or nullptr if none.
-        SkPDFFont* fFont;
-        // In PDF, text size has no default value. It is only valid if fFont is
-        // not nullptr.
-        SkScalar fTextSize;
     };
 
 protected:
@@ -279,11 +272,6 @@ private:
     int addGraphicStateResource(SkPDFObject* gs);
     int addXObjectResource(SkPDFObject* xObject);
 
-    // returns nullptr when a valid SkFont can not be produced
-    SkPDFFont* updateFont(SkTypeface* typeface,
-                          SkScalar textSize,
-                          uint16_t glyphID,
-                          ContentEntry* contentEntry);
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
 
 

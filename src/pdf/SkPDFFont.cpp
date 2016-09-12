@@ -161,7 +161,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
     return *canon->fTypefaceMetrics.set(id, metrics.release());
 }
 
-SkAdvancedTypefaceMetrics::FontType font_type(const SkAdvancedTypefaceMetrics& metrics) {
+SkAdvancedTypefaceMetrics::FontType SkPDFFont::FontType(const SkAdvancedTypefaceMetrics& metrics) {
     if (SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag)) {
         // force Type3 fallback.
         return SkAdvancedTypefaceMetrics::kOther_Font;
@@ -182,7 +182,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFCanon* canon,
     SkASSERT(fontMetrics);  // SkPDFDevice::internalDrawText ensures the typeface is good.
                             // GetMetrics only returns null to signify a bad typeface.
     const SkAdvancedTypefaceMetrics& metrics = *fontMetrics;
-    SkAdvancedTypefaceMetrics::FontType type = font_type(metrics);
+    SkAdvancedTypefaceMetrics::FontType type = SkPDFFont::FontType(metrics);
     bool multibyte = SkPDFFont::IsMultiByte(type);
     SkGlyphID subsetCode = multibyte ? 0 : first_nonzero_glyph_for_single_byte_encoding(glyphID);
     uint64_t fontID = (SkTypeface::UniqueID(face) << 16) | subsetCode;
