@@ -56,10 +56,8 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor,
     for (int i = 0; i < this->pipeline().numFragmentProcessors(); i++) {
         const GrFragmentProcessor& processor = this->pipeline().getFragmentProcessor(i);
 
-        if (!primProc.hasTransformedLocalCoords()) {
-            SkTArray<const GrCoordTransform*, true>& procCoords = fCoordTransforms.push_back();
-            processor.gatherCoordTransforms(&procCoords);
-        }
+        SkTArray<const GrCoordTransform*, true>& procCoords = fCoordTransforms.push_back();
+        processor.gatherCoordTransforms(&procCoords);
     }
 
     this->emitAndInstallPrimProc(primProc, inputColor, inputCoverage);
