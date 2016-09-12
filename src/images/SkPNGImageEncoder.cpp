@@ -182,11 +182,10 @@ private:
 };
 
 bool SkPNGImageEncoder::onEncode(SkWStream* stream,
-                                 const SkBitmap& originalBitmap,
+                                 const SkBitmap& bitmap,
                                  int /*quality*/) {
-    SkBitmap copy;
-    const SkBitmap* bitmap = &originalBitmap;
-    switch (originalBitmap.colorType()) {
+    const SkColorType ct = bitmap.colorType();
+    switch (ct) {
         case kIndex_8_SkColorType:
         case kGray_8_SkColorType:
         case kRGBA_8888_SkColorType:
@@ -195,14 +194,10 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream,
         case kRGB_565_SkColorType:
             break;
         default:
-            // TODO(scroggo): support Alpha_8 as Grayscale(black)+Alpha
-            if (originalBitmap.copyTo(&copy, kN32_SkColorType)) {
-                bitmap = &copy;
-            }
+            return false;
     }
-    SkColorType ct = bitmap->colorType();
 
-    const SkAlphaType alphaType = bitmap->alphaType();
+    const SkAlphaType alphaType = bitmap.alphaType();
     switch (alphaType) {
         case kUnpremul_SkAlphaType:
             if (kARGB_4444_SkColorType == ct) {
@@ -262,14 +257,14 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream,
             return false;
     }
 
-    SkAutoLockPixels alp(*bitmap);
+    SkAutoLockPixels alp(bitmap);
     // readyToDraw checks for pixels (and colortable if that is required)
-    if (!bitmap->readyToDraw()) {
+    if (!bitmap.readyToDraw()) {
         return false;
     }
 
     // we must do this after we have locked the pixels
-    SkColorTable* ctable = bitmap->getColorTable();
+    SkColorTable* ctable = bitmap.getColorTable();
     if (ctable) {
         if (ctable->count() == 0) {
             return false;
@@ -278,7 +273,7 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream,
         bitDepth = computeBitDepth(ctable->count());
     }
 
-    return doEncode(stream, *bitmap, alphaType, colorType, bitDepth, ct, sig_bit);
+    return doEncode(stream, bitmap, alphaType, colorType, bitDepth, ct, sig_bit);
 }
 
 bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
