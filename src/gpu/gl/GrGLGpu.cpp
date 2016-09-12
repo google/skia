@@ -979,7 +979,8 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
  * @param desc           The surface descriptor for the texture being created.
  * @param interface      The GL interface in use.
  * @param caps           The capabilities of the GL device.
- * @param internalFormat The data format used for the internal storage of the texture.
+ * @param internalFormat The data format used for the internal storage of the texture. May be sized.
+ * @param internalFormatForTexStorage The data format used for the TexStorage API. Must be sized.
  * @param externalFormat The data format used for the external storage of the texture.
  * @param externalType   The type of the data used for the external storage of the texture.
  * @param texels         The texel data of the texture being created.
@@ -993,6 +994,7 @@ static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
                                                        const GrGLCaps& caps,
                                                        GrGLenum target,
                                                        GrGLenum internalFormat,
+                                                       GrGLenum internalFormatForTexStorage,
                                                        GrGLenum externalFormat,
                                                        GrGLenum externalType,
                                                        const SkTArray<GrMipLevel>& texels,
@@ -1012,7 +1014,7 @@ static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
         GL_ALLOC_CALL(&interface,
                       TexStorage2D(target,
                                    texels.count(),
-                                   internalFormat,
+                                   internalFormatForTexStorage,
                                    desc.fWidth, desc.fHeight));
         GrGLenum error = check_alloc_error(desc, &interface);
         if (error != GR_GL_NO_ERROR) {
@@ -1254,6 +1256,9 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
                                            &externalFormat, &externalType)) {
         return false;
     }
+    // TexStorage requires a sized format, and internalFormat may or may not be
+    GrGLenum internalFormatForTexStorage = this->glCaps().configSizedInternalFormat(desc.fConfig);
+
     /*
      *  Check whether to allocate a temporary buffer for flipping y or
      *  because our srcData has extra bytes past each row. If so, we need
@@ -1356,9 +1361,10 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height) {
         succeeded = allocate_and_populate_uncompressed_texture(desc, *interface, caps, target,
-                                                               internalFormat, externalFormat,
-                                                               externalType, texelsShallowCopy,
-                                                               width, height);
+                                                               internalFormat,
+                                                               internalFormatForTexStorage,
+                                                               externalFormat, externalType,
+                                                               texelsShallowCopy, width, height);
     } else {
         if (swFlipY || glFlipY) {
             top = desc.fHeight - (top + height);
