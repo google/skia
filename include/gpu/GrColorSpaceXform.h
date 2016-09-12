@@ -8,6 +8,7 @@
 #ifndef GrColorSpaceXform_DEFINED
 #define GrColorSpaceXform_DEFINED
 
+#include "GrColor.h"
 #include "SkMatrix44.h"
 #include "SkRefCnt.h"
 
@@ -32,6 +33,8 @@ public:
         // Code generation changes if there is an xform, but it otherwise constant
         return SkToBool(xform) ? 1 : 0;
     }
+
+    GrColor4f apply(const GrColor4f& srcColor);
 
 private:
     SkMatrix44 fSrcToDst;

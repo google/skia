@@ -335,6 +335,7 @@ public:
     }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
+    GrColorSpaceXform* getColorXformFromSRGB() const { return fColorXformFromSRGB.get(); }
     GrSurfaceOrigin origin() const { return fRenderTarget->origin(); }
 
     bool wasAbandoned() const;
@@ -425,6 +426,7 @@ private:
     GrInstancedPipelineInfo           fInstancedPipelineInfo;
 
     sk_sp<SkColorSpace>               fColorSpace;
+    sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;
     SkSurfaceProps                    fSurfaceProps;
     GrAuditTrail*                     fAuditTrail;
 

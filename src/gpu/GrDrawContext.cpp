@@ -86,12 +86,18 @@ GrDrawContext::GrDrawContext(GrContext* context,
     , fContext(context)
     , fInstancedPipelineInfo(fRenderTarget.get())
     , fColorSpace(std::move(colorSpace))
+    , fColorXformFromSRGB(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
     , fAuditTrail(auditTrail)
 #ifdef SK_DEBUG
     , fSingleOwner(singleOwner)
 #endif
 {
+    if (fColorSpace) {
+        // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
+        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
+    }
     SkDEBUGCODE(this->validate();)
 }
 

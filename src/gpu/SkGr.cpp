@@ -537,6 +537,10 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         origColor.fRGBA[0] = exact_srgb_to_linear(origColor.fRGBA[0]);
         origColor.fRGBA[1] = exact_srgb_to_linear(origColor.fRGBA[1]);
         origColor.fRGBA[2] = exact_srgb_to_linear(origColor.fRGBA[2]);
+
+        if (dc->getColorXformFromSRGB()) {
+            origColor = dc->getColorXformFromSRGB()->apply(origColor);
+        }
     }
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not

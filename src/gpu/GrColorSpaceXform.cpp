@@ -58,3 +58,9 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
 
     return sk_make_sp<GrColorSpaceXform>(srcToDst);
 }
+
+GrColor4f GrColorSpaceXform::apply(const GrColor4f& srcColor) {
+    GrColor4f result;
+    fSrcToDst.mapScalars(srcColor.fRGBA, result.fRGBA);
+    return result;
+}
