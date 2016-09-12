@@ -9,6 +9,7 @@
 #include "SkAnimTimer.h"
 #include "SkBlurMaskFilter.h"
 #include "SkGaussianEdgeShader.h"
+#include "SkRRectsGaussianEdgeShader.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkRRect.h"
@@ -22,211 +23,246 @@ constexpr SkScalar kPeriod = 8.0f;
 constexpr int kClipOffset = 32;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-typedef SkPath (*PFDrawMthd)(SkCanvas*, const SkRect&, bool);
 
-static SkPath draw_rrect(SkCanvas* canvas, const SkRect& r, bool stroked) {
-    SkRRect rr = SkRRect::MakeRectXY(r, 2*kPad, 2*kPad);
+class Object {
+public:
+    virtual ~Object() {}
+    virtual bool asRRect(SkRRect* rr) const = 0;
+    virtual SkPath asPath() const = 0;
+    virtual void draw(SkCanvas* canvas, const SkPaint& paint) const = 0;
+    virtual void clip(SkCanvas* canvas) const = 0;
+    virtual bool contains(const SkRect& r) const = 0;
+    virtual const SkRect& bounds() const = 0;
+};
 
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    if (stroked) {
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(SK_ColorRED);
-    } else {
-        // G channel is an F6.2 radius
-        paint.setColor(SkColorSetARGB(255, 255, (unsigned char)(4*kPad), 0));
-        paint.setShader(SkGaussianEdgeShader::Make());
+typedef Object* (*PFMakeMthd)(const SkRect& r);
+
+class RRect : public Object {
+public:
+    RRect(const SkRect& r) {
+        fRRect = SkRRect::MakeRectXY(r, 4*kPad, 4*kPad);
     }
-    canvas->drawRRect(rr, paint);
 
-    SkPath p;
-    p.addRoundRect(r, 2*kPad, 2*kPad);
-    return p;
-}
+    bool asRRect(SkRRect* rr) const override {
+        *rr = fRRect;
+        return true;
+    }
 
-static SkPath draw_stroked_rrect(SkCanvas* canvas, const SkRect& r, bool stroked) {
-    SkRect insetRect = r;
-    insetRect.inset(kPad, kPad);
-    SkRRect rr = SkRRect::MakeRectXY(insetRect, 2*kPad, 2*kPad);
+    SkPath asPath() const override { 
+        SkPath p;
+        p.addRRect(fRRect);
+        return p;
+    }
 
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(kPad);
+    void draw(SkCanvas* canvas, const SkPaint& paint) const override {
+        canvas->drawRRect(fRRect, paint);
+    }
 
-    if (stroked) {
-        // In this case we want to draw a stroked representation of the stroked rrect
+    void clip(SkCanvas* canvas) const override {
+        canvas->clipRRect(fRRect);
+    }
+
+    bool contains(const SkRect& r) const override {
+        return fRRect.contains(r);
+    }
+
+    const SkRect& bounds() const override {
+        return fRRect.getBounds();
+    }
+
+    static Object* Make(const SkRect& r) {
+        return new RRect(r);
+    }
+
+private:
+    SkRRect  fRRect;
+};
+
+class StrokedRRect : public Object {
+public:
+    StrokedRRect(const SkRect& r) {
+        fRRect = SkRRect::MakeRectXY(r, 2*kPad, 2*kPad);
+        fStrokedBounds = r.makeOutset(kPad, kPad);
+    }
+
+    bool asRRect(SkRRect* rr) const override {
+        return false;
+    }
+
+    SkPath asPath() const override {
+        // In this case we want the outline of the stroked rrect
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(kPad);
+
         SkPath p, stroked;
-        p.addRRect(rr);
+        p.addRRect(fRRect);
         SkStroke stroke(paint);
         stroke.strokePath(p, &stroked);
-
-        paint.setStrokeWidth(0);
-        paint.setColor(SK_ColorRED);
-        canvas->drawPath(stroked, paint);
-    } else {
-        // G channel is an F6.2 radius
-        paint.setColor(SkColorSetARGB(255, 255, (unsigned char)(4*kPad), 0));
-        paint.setShader(SkGaussianEdgeShader::Make());
-
-        canvas->drawRRect(rr, paint);
+        return stroked;
     }
 
-    SkPath p;
-    insetRect.outset(kPad/2.0f, kPad/2.0f);
-    p.addRoundRect(insetRect, 2*kPad, 2*kPad);
-    return p;
-}
+    void draw(SkCanvas* canvas, const SkPaint& paint) const override {
+        SkPaint stroke(paint);
+        stroke.setStyle(SkPaint::kStroke_Style);
+        stroke.setStrokeWidth(kPad);
 
-static SkPath draw_oval(SkCanvas* canvas, const SkRect& r, bool stroked) {
-    SkRRect rr = SkRRect::MakeOval(r);
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    if (stroked) {
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(SK_ColorRED);
-    } else {
-        // G channel is an F6.2 radius
-        paint.setColor(SkColorSetARGB(255, 255, (unsigned char)(4*kPad), 0));
-        paint.setShader(SkGaussianEdgeShader::Make());
-    }
-    canvas->drawRRect(rr, paint);
-
-    SkPath p;
-    p.addOval(r);
-    return p;
-}
-
-static SkPath draw_square(SkCanvas* canvas, const SkRect& r, bool stroked) {
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    if (stroked) {
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(SK_ColorRED);
-    } else {
-        // G channel is an F6.2 radius
-        paint.setColor(SkColorSetARGB(255, 255, (unsigned char)(4*kPad), 0));
-        paint.setShader(SkGaussianEdgeShader::Make());
-    }
-    canvas->drawRect(r, paint);
-
-    SkPath p;
-    p.addRect(r);
-    return p;
-}
-
-static SkPath draw_pentagon(SkCanvas* canvas, const SkRect& r, bool stroked) {
-    SkPath p;
-
-    SkPoint points[5] = {
-        {  0.000000f, -1.000000f },
-        { -0.951056f, -0.309017f },
-        { -0.587785f,  0.809017f },
-        {  0.587785f,  0.809017f },
-        {  0.951057f, -0.309017f },
-    };
-
-    SkScalar height = r.height()/2.0f;
-    SkScalar width = r.width()/2.0f;
-
-    p.moveTo(r.centerX() + points[0].fX * width, r.centerY() + points[0].fY * height);
-    p.lineTo(r.centerX() + points[1].fX * width, r.centerY() + points[1].fY * height);
-    p.lineTo(r.centerX() + points[2].fX * width, r.centerY() + points[2].fY * height);
-    p.lineTo(r.centerX() + points[3].fX * width, r.centerY() + points[3].fY * height);
-    p.lineTo(r.centerX() + points[4].fX * width, r.centerY() + points[4].fY * height);
-    p.close();
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    if (stroked) {
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(SK_ColorRED);
-    } else {
-        // G channel is an F6.2 radius
-        paint.setColor(SkColorSetARGB(255, 255, (unsigned char)(4*kPad), 0));
-        // This currently goes through the GrAAConvexPathRenderer and produces a
-        // AAConvexPathBatch (i.e., it doesn't have a analytic distance)
-        // paint.setShader(SkGaussianEdgeShader::Make());
-    }
-    canvas->drawPath(p, paint);
-
-    return p;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-typedef void (*PFClipMthd)(SkCanvas* canvas, const SkPoint&, SkScalar);
-
-static void circle_clip(SkCanvas* canvas, const SkPoint& center, SkScalar rad) {
-    SkRect r = SkRect::MakeLTRB(center.fX - rad, center.fY - rad, center.fX + rad, center.fY + rad);
-    SkRRect rr = SkRRect::MakeOval(r);
-
-    canvas->clipRRect(rr);
-}
-
-static void square_clip(SkCanvas* canvas, const SkPoint& center, SkScalar size) {
-    SkScalar newSize = SK_ScalarRoot2Over2 * size;
-    SkRect r = SkRect::MakeLTRB(center.fX - newSize, center.fY - newSize,
-                                center.fX + newSize, center.fY + newSize);
-
-    canvas->clipRect(r);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// These are stand alone methods (rather than just, say, returning the SkPath for the clip 
-// object) so that we can catch the clip-contains-victim case.
-typedef SkPath (*PFGeometricClipMthd)(const SkPoint&, SkScalar, const SkPath&);
-
-static SkPath circle_geometric_clip(const SkPoint& center, SkScalar rad, const SkPath& victim) {
-    const SkRect bound = victim.getBounds();
-    SkPoint pts[4];
-    bound.toQuad(pts);
-
-    bool clipContainsVictim = true;
-    for (int i = 0; i < 4; ++i) {
-        SkScalar distSq = (pts[i].fX - center.fX) * (pts[i].fX - center.fX) +
-                          (pts[i].fY - center.fY) * (pts[i].fY - center.fY);
-        if (distSq >= rad*rad) {
-            clipContainsVictim = false;
-        }
+        canvas->drawRRect(fRRect, stroke);
     }
 
-    if (clipContainsVictim) {
-        return victim;
+    void clip(SkCanvas* canvas) const override {
+        canvas->clipPath(this->asPath());
     }
 
-    // Add victim contains clip test?
-
-    SkPath clipPath;
-    clipPath.addCircle(center.fX, center.fY, rad);
-
-    SkPath result;
-    SkAssertResult(Op(clipPath, victim, kIntersect_SkPathOp, &result));
-
-    return result;
-}
-
-static SkPath square_geometric_clip(const SkPoint& center, SkScalar size, const SkPath& victim) {
-    SkScalar newSize = SK_ScalarRoot2Over2 * size;
-    SkRect r = SkRect::MakeLTRB(center.fX - newSize, center.fY - newSize,
-                                center.fX + newSize, center.fY + newSize);
-
-    const SkRect bound = victim.getBounds();
-
-    if (r.contains(bound)) {
-        return victim;
+    bool contains(const SkRect& r) const override {
+        return false;
     }
 
-    // Add victim contains clip test?
+    const SkRect& bounds() const override {
+        return fStrokedBounds;
+    }
 
-    SkPath clipPath;
-    clipPath.addRect(r);
+    static Object* Make(const SkRect& r) {
+        return new StrokedRRect(r);
+    }
 
-    SkPath result;
-    SkAssertResult(Op(clipPath, victim, kIntersect_SkPathOp, &result));
+private:
+    SkRRect  fRRect;
+    SkRect   fStrokedBounds;
+};
 
-    return result;
-}
+class Oval : public Object {
+public:
+    Oval(const SkRect& r) {
+        fRRect = SkRRect::MakeOval(r);
+    }
+
+    bool asRRect(SkRRect* rr) const override {
+        *rr = fRRect;
+        return true;
+    }
+
+    SkPath asPath() const override { 
+        SkPath p;
+        p.addRRect(fRRect);
+        return p;
+    }
+
+    void draw(SkCanvas* canvas, const SkPaint& paint) const override {
+        canvas->drawRRect(fRRect, paint);
+    }
+
+    void clip(SkCanvas* canvas) const override {
+        canvas->clipRRect(fRRect);
+    }
+
+    bool contains(const SkRect& r) const override {
+        return fRRect.contains(r);
+    }
+
+    const SkRect& bounds() const override {
+        return fRRect.getBounds();
+    }
+
+    static Object* Make(const SkRect& r) {
+        return new Oval(r);
+    }
+
+private:
+    SkRRect  fRRect;
+};
+
+class Rect : public Object {
+public:
+    Rect(const SkRect& r) : fRect(r) { }
+
+    bool asRRect(SkRRect* rr) const override {
+        *rr = SkRRect::MakeRect(fRect);
+        return true;
+    }
+
+    SkPath asPath() const override { 
+        SkPath p;
+        p.addRect(fRect);
+        return p;
+    }
+
+    void draw(SkCanvas* canvas, const SkPaint& paint) const override {
+        canvas->drawRect(fRect, paint);
+    }
+
+    void clip(SkCanvas* canvas) const override {
+        canvas->clipRect(fRect);
+    }
+
+    bool contains(const SkRect& r) const override {
+        return fRect.contains(r);
+    }
+
+    const SkRect& bounds() const override {
+        return fRect;
+    }
+
+    static Object* Make(const SkRect& r) {
+        return new Rect(r);
+    }
+
+private:
+    SkRect  fRect;
+};
+
+class Pentagon : public Object {
+public:
+    Pentagon(const SkRect& r) {
+        SkPoint points[5] = {
+            {  0.000000f, -1.000000f },
+            { -0.951056f, -0.309017f },
+            { -0.587785f,  0.809017f },
+            {  0.587785f,  0.809017f },
+            {  0.951057f, -0.309017f },
+        };
+
+        SkScalar height = r.height()/2.0f;
+        SkScalar width = r.width()/2.0f;
+
+        fPath.moveTo(r.centerX() + points[0].fX * width, r.centerY() + points[0].fY * height);
+        fPath.lineTo(r.centerX() + points[1].fX * width, r.centerY() + points[1].fY * height);
+        fPath.lineTo(r.centerX() + points[2].fX * width, r.centerY() + points[2].fY * height);
+        fPath.lineTo(r.centerX() + points[3].fX * width, r.centerY() + points[3].fY * height);
+        fPath.lineTo(r.centerX() + points[4].fX * width, r.centerY() + points[4].fY * height);
+        fPath.close();
+    }
+
+    bool asRRect(SkRRect* rr) const override {
+        return false;
+    }
+
+    SkPath asPath() const override { return fPath; }
+
+    void draw(SkCanvas* canvas, const SkPaint& paint) const override {
+        canvas->drawPath(fPath, paint);
+    }
+
+    void clip(SkCanvas* canvas) const override {
+        canvas->clipPath(this->asPath());
+    }
+
+    bool contains(const SkRect& r) const override {
+        return false;
+    }
+
+    const SkRect& bounds() const override {
+        return fPath.getBounds();
+    }
+
+    static Object* Make(const SkRect& r) {
+        return new Pentagon(r);
+    }
+
+private:
+    SkPath fPath;
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 namespace skiagm {
@@ -234,7 +270,17 @@ namespace skiagm {
 // This GM attempts to mimic Android's reveal animation
 class RevealGM : public GM {
 public:
-    RevealGM() : fFraction(0.5f), fDrawWithGaussianEdge(true) {
+    enum Mode {
+        kGaussianEdge_Mode,
+        kBlurMask_Mode,
+        kRRectsGaussianEdge_Mode,
+
+        kLast_Mode = kRRectsGaussianEdge_Mode
+    };
+
+    static const int kModeCount = kLast_Mode + 1;
+
+    RevealGM() : fFraction(0.5f), fMode(kRRectsGaussianEdge_Mode) {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
     }
 
@@ -249,17 +295,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        PFClipMthd clips[kNumCols] = { circle_clip, square_clip };
-        PFGeometricClipMthd geometricClips[kNumCols] = {
-            circle_geometric_clip, 
-            square_geometric_clip
-        };
-        PFDrawMthd draws[kNumRows] = {
-            draw_rrect,
-            draw_stroked_rrect,
-            draw_oval,
-            draw_square,
-            draw_pentagon
+        PFMakeMthd clipMakes[kNumCols] = { Oval::Make, Rect::Make };
+        PFMakeMthd drawMakes[kNumRows] = {
+            RRect::Make, StrokedRRect::Make, Oval::Make, Rect::Make, Pentagon::Make
         };
 
         SkPaint strokePaint;
@@ -274,32 +312,79 @@ protected:
                                                SkIntToScalar(kCellSize),
                                                SkIntToScalar(kCellSize));
 
+                canvas->save();
+                canvas->clipRect(cell);
+
                 cell.inset(kPad, kPad);
                 SkPoint clipCenter = SkPoint::Make(cell.centerX() - kClipOffset,
                                                    cell.centerY() + kClipOffset);
-
                 SkScalar curSize = kCellSize * fFraction;
+                const SkRect clipRect = SkRect::MakeLTRB(clipCenter.fX - curSize,
+                                                         clipCenter.fY - curSize,
+                                                         clipCenter.fX + curSize,
+                                                         clipCenter.fY + curSize);
+
+                SkAutoTDelete<Object> clipObj((*clipMakes[x])(clipRect));
+                SkAutoTDelete<Object> drawObj((*drawMakes[y])(cell));
 
                 // The goal is to replace this clipped draw (which clips the 
                 // shadow) with a draw using the geometric clip
-                if (fDrawWithGaussianEdge) {
+                if (kGaussianEdge_Mode == fMode) {
                     canvas->save();
-                          (*clips[x])(canvas, clipCenter, curSize);
-                          (*draws[y])(canvas, cell, false);
+                        clipObj->clip(canvas);
+
+                        // Draw with GaussianEdgeShader
+                        SkPaint paint;
+                        paint.setAntiAlias(true);
+                        // G channel is an F6.2 radius
+                        paint.setColor(SkColorSetARGB(255, 255, (unsigned char)(4*kPad), 0));
+                        paint.setShader(SkGaussianEdgeShader::Make());
+                        drawObj->draw(canvas, paint);
                     canvas->restore();
-                }
+                } else if (kBlurMask_Mode == fMode) {
+                    SkPath clippedPath;
 
-                SkPath drawnPath = (*draws[y])(canvas, cell, true);
+                    if (clipObj->contains(drawObj->bounds())) {
+                        clippedPath = drawObj->asPath();
+                    } else {
+                        SkPath drawnPath = drawObj->asPath();
+                        SkPath clipPath  = clipObj->asPath();
 
-                if (!fDrawWithGaussianEdge) {
-                    SkPath clippedPath = (*geometricClips[x])(clipCenter, curSize, drawnPath);
-                    SkASSERT(clippedPath.isConvex());
+                        SkAssertResult(Op(clipPath, drawnPath, kIntersect_SkPathOp, &clippedPath));
+                    }
 
                     SkPaint blurPaint;
                     blurPaint.setAntiAlias(true);
                     blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 3.0f));
                     canvas->drawPath(clippedPath, blurPaint);
+                } else {
+                    SkASSERT(kRRectsGaussianEdge_Mode == fMode);
+
+                    SkRect cover = drawObj->bounds();
+                    SkAssertResult(cover.intersect(clipObj->bounds()));
+
+                    SkPaint paint;
+
+                    SkRRect clipRR, drawnRR;
+
+                    if (clipObj->asRRect(&clipRR) && drawObj->asRRect(&drawnRR)) {
+                        paint.setShader(SkRRectsGaussianEdgeShader::Make(clipRR, drawnRR,
+                                                                         kPad, 0.0f));
+                    }
+
+                    canvas->drawRect(cover, paint);
                 }
+
+                // Draw the clip and draw objects for reference
+                SkPaint strokePaint;
+                strokePaint.setStyle(SkPaint::kStroke_Style);
+                strokePaint.setStrokeWidth(0);
+                strokePaint.setColor(SK_ColorRED);
+                canvas->drawPath(drawObj->asPath(), strokePaint);
+                strokePaint.setColor(SK_ColorGREEN);
+                canvas->drawPath(clipObj->asPath(), strokePaint);
+
+                canvas->restore();
             }
         }
     }
@@ -307,7 +392,7 @@ protected:
     bool onHandleKey(SkUnichar uni) override {
         switch (uni) {
             case 'C':
-                fDrawWithGaussianEdge = !fDrawWithGaussianEdge;
+                fMode = (Mode)((fMode + 1) % kModeCount);
                 return true;
         }        
     
@@ -321,7 +406,7 @@ protected:
 
 private:
     SkScalar fFraction;
-    bool     fDrawWithGaussianEdge;
+    Mode     fMode;
 
     typedef GM INHERITED;
 };
