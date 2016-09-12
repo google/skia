@@ -100,12 +100,6 @@ protected:
                            GrGLSLUniformHandler* uniformHandler,
                            const char* outputName,
                            UniformHandle* colorUniform);
-
-    struct Transform {
-        Transform() : fType(kVoid_GrSLType) { fCurrentValue = SkMatrix::InvalidMatrix(); }
-        SkMatrix       fCurrentValue;
-        GrSLType       fType;
-    };
 };
 
 #endif

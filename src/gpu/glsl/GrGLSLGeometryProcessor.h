@@ -36,7 +36,7 @@ protected:
                                 const GrGLSLProgramDataManager& pdman,
                                 int index,
                                 const SkTArray<const GrCoordTransform*, true>& transforms) {
-        SkSTArray<2, UniformTransform, true>& procTransforms = fInstalledTransforms[index];
+        SkTArray<TransformUniform, true>& procTransforms = fInstalledTransforms[index];
         int numTransforms = transforms.count();
         for (int t = 0; t < numTransforms; ++t) {
             SkASSERT(procTransforms[t].fHandle.isValid());
@@ -105,12 +105,12 @@ protected:
 private:
     virtual void onEmitCode(EmitArgs&, GrGPArgs*) = 0;
 
-    struct UniformTransform : public Transform {
-        UniformTransform() : Transform() {}
+    struct TransformUniform {
         UniformHandle  fHandle;
+        SkMatrix       fCurrentValue = SkMatrix::InvalidMatrix();
     };
 
-    SkSTArray<8, SkSTArray<2, UniformTransform, true> > fInstalledTransforms;
+    SkSTArray<8, SkSTArray<2, TransformUniform, true> > fInstalledTransforms;
 
     typedef GrGLSLPrimitiveProcessor INHERITED;
 };

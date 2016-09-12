@@ -96,7 +96,7 @@ public:
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& coordTransforms) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
-        SkSTArray<2, VaryingTransform, true>& transforms = fInstalledTransforms[index];
+        SkTArray<TransformVarying, true>& transforms = fInstalledTransforms[index];
         int numTransforms = transforms.count();
         for (int t = 0; t < numTransforms; ++t) {
             SkASSERT(transforms[t].fHandle.isValid());
@@ -116,12 +116,13 @@ public:
 
 private:
     typedef GrGLSLProgramDataManager::VaryingHandle VaryingHandle;
-    struct VaryingTransform : public Transform {
-        VaryingTransform() : Transform() {}
+    struct TransformVarying {
         VaryingHandle  fHandle;
+        SkMatrix       fCurrentValue = SkMatrix::InvalidMatrix();
+        GrSLType       fType = kVoid_GrSLType;
     };
 
-    SkSTArray<8, SkSTArray<2, VaryingTransform, true> > fInstalledTransforms;
+    SkSTArray<8, SkSTArray<2, TransformVarying, true> > fInstalledTransforms;
 
     UniformHandle fColorUniform;
     GrColor fColor;
