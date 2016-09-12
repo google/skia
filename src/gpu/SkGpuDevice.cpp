@@ -281,7 +281,7 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 }
 
 // must be in SkCanvas::PointMode order
-static const GrPrimitiveType gPointMode2PrimtiveType[] = {
+static const GrPrimitiveType gPointMode2PrimitiveType[] = {
     kPoints_GrPrimitiveType,
     kLines_GrPrimitiveType,
     kLineStrip_GrPrimitiveType
@@ -335,23 +335,42 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         return;
     }
 
+    SkScalar scales[2];
+    bool isHairline = (0 == width) || (1 == width && draw.fMatrix->getMinMaxScales(scales) &&
+                                       SkScalarNearlyEqual(scales[0], 1.f) &&
+                                       SkScalarNearlyEqual(scales[1], 1.f));
     // we only handle non-antialiased hairlines and paints without path effects or mask filters,
     // else we let the SkDraw call our drawPath()
-    if (width > 0 || paint.getPathEffect() || paint.getMaskFilter() ||
+    if (!isHairline || paint.getPathEffect() || paint.getMaskFilter() ||
         (paint.isAntiAlias() && needs_antialiasing(mode, count, pts))) {
         draw.drawPoints(mode, count, pts, paint, true);
         return;
     }
 
+    GrPrimitiveType primitiveType = gPointMode2PrimitiveType[mode];
+
+    const SkMatrix* viewMatrix = draw.fMatrix;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // This offsetting in device space matches the expectations of the Android framework for non-AA
+    // points and lines.
+    SkMatrix tempMatrix;
+    if (GrIsPrimTypeLines(primitiveType) || kPoints_GrPrimitiveType == primitiveType) {
+        tempMatrix = *viewMatrix;
+        static const SkScalar kOffset = 0.063f; // Just greater than 1/16.
+        tempMatrix.postTranslate(kOffset, kOffset);
+        viewMatrix = &tempMatrix;
+    }
+#endif
+
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fDrawContext.get(), paint, *draw.fMatrix, &grPaint)) {
+    if (!SkPaintToGrPaint(this->context(), fDrawContext.get(), paint, *viewMatrix, &grPaint)) {
         return;
     }
 
     fDrawContext->drawVertices(fClip,
                                grPaint,
-                               *draw.fMatrix,
-                               gPointMode2PrimtiveType[mode],
+                               *viewMatrix,
+                               primitiveType,
                                SkToS32(count),
                                (SkPoint*)pts,
                                nullptr,
