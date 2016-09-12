@@ -86,26 +86,26 @@ public:
                 fragBuilder->codeAppendf("// GP does not implement fsDistanceVector - "
                                          " returning grey in GLSLGaussianEdgeFP\n");
                 fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-                fragBuilder->codeAppendf("%s = vec4(0, 0, 0, color.r);", args.fOutputColor);
+                fragBuilder->codeAppendf("%s = vec4(0.0, 0.0, 0.0, color.r);", args.fOutputColor);
             } else if (fLargerBlur) {
                 fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-                fragBuilder->codeAppend("float radius = color.r*256*64 + color.g*64;");
-                fragBuilder->codeAppend("float pad = color.b*64;");
+                fragBuilder->codeAppend("float radius = color.r*256.0*64.0 + color.g*64.0;");
+                fragBuilder->codeAppend("float pad = color.b*64.0;");
 
-                fragBuilder->codeAppendf("float factor = 1 - clamp((%s.z - pad)/radius, 0, 1);",
+                fragBuilder->codeAppendf("float factor = 1.0 - clamp((%s.z - pad)/radius, 0.0, 1.0);",
                                          fragBuilder->distanceVectorName());
-                fragBuilder->codeAppend("factor = exp(-factor * factor * 4) - 0.018;");
-                fragBuilder->codeAppendf("%s = factor*vec4(0, 0, 0, color.a);",
+                fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
+                fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.a);",
                                          args.fOutputColor);
             } else {
                 fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-                fragBuilder->codeAppend("float radius = color.g*64;");
-                fragBuilder->codeAppend("float pad = color.b*64;");
+                fragBuilder->codeAppend("float radius = color.g*64.0;");
+                fragBuilder->codeAppend("float pad = color.b*64.0;");
 
-                fragBuilder->codeAppendf("float factor = 1 - clamp((%s.z - pad)/radius, 0, 1);",
+                fragBuilder->codeAppendf("float factor = 1.0 - clamp((%s.z - pad)/radius, 0.0, 1.0);",
                                          fragBuilder->distanceVectorName());
-                fragBuilder->codeAppend("factor = exp(-factor * factor * 4) - 0.018;");
-                fragBuilder->codeAppendf("%s = factor*vec4(0, 0, 0, color.r);",
+                fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
+                fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.r);",
                                          args.fOutputColor);
             }
         }
