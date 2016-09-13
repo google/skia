@@ -9,8 +9,9 @@
 #include "SkClipStack.h"
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
-#include "SkPaintFilterCanvas.h"
 #include "SkOverdrawMode.h"
+#include "SkPaintFilterCanvas.h"
+#include "SkTextBlob.h"
 
 #if SK_SUPPORT_GPU
 #include "GrAuditTrail.h"
@@ -677,7 +678,8 @@ void SkDebugCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const
 
 void SkDebugCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                    const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawTextBlobCommand(blob, x, y, paint));
+    this->addDrawCommand(new SkDrawTextBlobCommand(sk_ref_sp(const_cast<SkTextBlob*>(blob)),
+                                                   x, y, paint));
 }
 
 void SkDebugCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],

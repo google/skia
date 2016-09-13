@@ -44,7 +44,7 @@ protected:
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
     }
 
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
@@ -90,7 +90,7 @@ protected:
 
 private:
     SkScalar fTextHeight;
-    SkAutoTUnref<const SkTextBlob> fBlob;
+    sk_sp<SkTextBlob> fBlob;
     typedef skiagm::GM INHERITED;
 };
 

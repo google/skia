@@ -92,7 +92,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         for (unsigned b = 0; b < SK_ARRAY_COUNT(blobConfigs); ++b) {
-            SkAutoTUnref<const SkTextBlob> blob(this->makeBlob(b));
+            sk_sp<SkTextBlob> blob(this->makeBlob(b));
 
             SkPaint p;
             SkPoint offset = SkPoint::Make(SkIntToScalar(10 + 300 * (b % 2)),
@@ -110,7 +110,7 @@ protected:
     }
 
 private:
-    const SkTextBlob* makeBlob(unsigned blobIndex) {
+    sk_sp<SkTextBlob> makeBlob(unsigned blobIndex) {
         SkTextBlobBuilder builder;
 
         SkPaint font;
@@ -177,7 +177,7 @@ private:
             }
         }
 
-        return builder.build();
+        return builder.make();
     }
 
     SkTDArray<uint16_t> fGlyphs;

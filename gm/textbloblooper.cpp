@@ -148,7 +148,7 @@ protected:
         paint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&paint);
         add_to_text_blob(&builder, text, paint, 0, 0);
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
 
         // create a looper which sandwhiches an effect in two normal draws
         LooperSettings looperSandwhich[] = {
@@ -245,7 +245,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<const SkTextBlob> fBlob;
+    sk_sp<SkTextBlob> fBlob;
     SkTArray<sk_sp<SkDrawLooper>, true> fLoopers;
 
     typedef GM INHERITED;

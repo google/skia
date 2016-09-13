@@ -2076,8 +2076,7 @@ static int lsk_newTextBlob(lua_State* L) {
     box.setText(text, strlen(text), paint);
 
     SkScalar newBottom;
-    SkAutoTUnref<SkTextBlob> blob(box.snapshotTextBlob(&newBottom));
-    push_ref<SkTextBlob>(L, blob);
+    push_ref<SkTextBlob>(L, box.snapshotTextBlob(&newBottom));
     SkLua(L).pushScalar(newBottom);
     return 2;
 }

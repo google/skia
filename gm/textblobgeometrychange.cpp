@@ -40,7 +40,7 @@ protected:
 
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 10, 10);
 
-        SkAutoTUnref<const SkTextBlob> blob(builder.build());
+        sk_sp<SkTextBlob> blob(builder.make());
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200);
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
@@ -55,12 +55,12 @@ protected:
         SkPaint rectPaint;
         rectPaint.setColor(0xffffffff);
         canvas->drawRect(rect, rectPaint);
-        canvas->drawTextBlob(blob.get(), 10, 50, paint);
+        canvas->drawTextBlob(blob, 10, 50, paint);
 
         // This should not look garbled since we should disable LCD text in this case
         // (i.e., unknown pixel geometry)
         c->clear(0x00ffffff);
-        c->drawTextBlob(blob.get(), 10, 150, paint);
+        c->drawTextBlob(blob, 10, 150, paint);
         surface->draw(canvas, 0, 0, nullptr);
     }
 

@@ -97,18 +97,18 @@ private:
         GrPathRange* createGlyphs(GrContext*) const;
         void appendGlyph(const SkGlyph&, const SkPoint&, FallbackBlobBuilder*);
 
-        GrStyle                          fStyle;
-        SkPaint                          fFont;
-        SkScalar                         fTextRatio;
-        float                            fTextInverseRatio;
-        bool                             fUsingRawGlyphPaths;
-        GrUniqueKey                      fGlyphPathsKey;
-        int                              fTotalGlyphCount;
-        SkAutoTUnref<InstanceData>       fInstanceData;
-        int                              fFallbackGlyphCount;
-        SkAutoTUnref<const SkTextBlob>   fFallbackTextBlob;
-        mutable SkGlyphCache*            fDetachedGlyphCache;
-        mutable uint32_t                 fLastDrawnGlyphsID;
+        GrStyle                    fStyle;
+        SkPaint                    fFont;
+        SkScalar                   fTextRatio;
+        float                      fTextInverseRatio;
+        bool                       fUsingRawGlyphPaths;
+        GrUniqueKey                fGlyphPathsKey;
+        int                        fTotalGlyphCount;
+        SkAutoTUnref<InstanceData> fInstanceData;
+        int                        fFallbackGlyphCount;
+        sk_sp<SkTextBlob>          fFallbackTextBlob;
+        mutable SkGlyphCache*      fDetachedGlyphCache;
+        mutable uint32_t           fLastDrawnGlyphsID;
     };
 
     // Text blobs/caches.

@@ -94,7 +94,7 @@ protected:
         text = "aA";
         paint.setTypeface(fReallyBigATypeface);
         sk_tool_utils::add_to_text_blob(&builder, text, paint, corruptedAx, corruptedAy);
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
     }
 
     SkString onShortName() override {
@@ -138,7 +138,7 @@ protected:
 
         size_t count = sizeof(clipRects) / sizeof(SkRect);
         for (size_t x = 0; x < count; ++x) {
-            draw_blob(canvas, fBlob, paint, clipRects[x]);
+            draw_blob(canvas, fBlob.get(), paint, clipRects[x]);
             if (x == (count >> 1) - 1) {
                 canvas->translate(SkScalarFloorToScalar(bounds.width() + SkIntToScalar(25)),
                                   -(x * SkScalarFloorToScalar(bounds.height() +
@@ -153,7 +153,7 @@ private:
     sk_sp<SkTypeface> fEmojiTypeface;
     sk_sp<SkTypeface> fReallyBigATypeface;
     const char* fEmojiText;
-    SkAutoTUnref<const SkTextBlob> fBlob;
+    sk_sp<SkTextBlob> fBlob;
 
     static constexpr int kWidth = 1250;
     static constexpr int kHeight = 700;

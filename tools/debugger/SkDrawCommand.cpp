@@ -2796,10 +2796,10 @@ static const char* gPositioningLabels[] = {
     "kFull_Positioning",
 };
 
-SkDrawTextBlobCommand::SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x, SkScalar y,
+SkDrawTextBlobCommand::SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x, SkScalar y,
                                              const SkPaint& paint)
     : INHERITED(kDrawTextBlob_OpType)
-    , fBlob(SkRef(blob))
+    , fBlob(std::move(blob))
     , fXPos(x)
     , fYPos(y)
     , fPaint(paint) {
@@ -2813,7 +2813,7 @@ SkDrawTextBlobCommand::SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x,
 
     unsigned runs = 0;
     SkPaint runPaint(paint);
-    SkTextBlobRunIterator iter(blob);
+    SkTextBlobRunIterator iter(blob.get());
     while (!iter.done()) {
         SkAutoTDelete<SkString> tmpStr(new SkString);
         tmpStr->printf("==== Run [%d] ====", runs++);
@@ -2846,7 +2846,7 @@ bool SkDrawTextBlobCommand::render(SkCanvas* canvas) const {
     SkRect bounds = fBlob->bounds().makeOffset(fXPos, fYPos);
     xlate_and_scale_to_bounds(canvas, bounds);
 
-    canvas->drawTextBlob(fBlob.get(), fXPos, fYPos, fPaint);
+    canvas->drawTextBlob(fBlob, fXPos, fYPos, fPaint);
 
     canvas->restore();
 
@@ -2949,7 +2949,7 @@ SkDrawTextBlobCommand* SkDrawTextBlobCommand::fromJSON(Json::Value& command,
     SkScalar y = command[SKDEBUGCANVAS_ATTRIBUTE_Y].asFloat();
     SkPaint paint;
     extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
-    return new SkDrawTextBlobCommand(builder.build(), x, y, paint);
+    return new SkDrawTextBlobCommand(builder.make(), x, y, paint);
 }
 
 SkDrawPatchCommand::SkDrawPatchCommand(const SkPoint cubics[12], const SkColor colors[4],

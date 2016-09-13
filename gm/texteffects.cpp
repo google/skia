@@ -351,7 +351,7 @@ DEF_SIMPLE_GM(fancyposunderline, canvas, 900, 1350) {
 
 namespace {
 
-sk_sp<const SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
+sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
     SkPaint blobPaint(paint);
 
     const size_t textLen = strlen(text);
@@ -411,7 +411,7 @@ sk_sp<const SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
         }
     }
 
-    return sk_sp<const SkTextBlob>(blobBuilder.build());
+    return blobBuilder.make();
 }
 
 } // anonymous ns
@@ -431,8 +431,8 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
             paint.setStrokeWidth(uWidth);
             paint.setStyle(SkPaint::kFill_Style);
 
-            sk_sp<const SkTextBlob> blob = MakeFancyBlob(paint, test);
-            canvas->drawTextBlob(blob.get(), blobOffset.x(), blobOffset.y(), paint);
+            sk_sp<SkTextBlob> blob = MakeFancyBlob(paint, test);
+            canvas->drawTextBlob(blob, blobOffset.x(), blobOffset.y(), paint);
 
             const SkScalar uPos = uWidth;
             const SkScalar bounds[2] = { uPos - uWidth / 2, uPos + uWidth / 2 };

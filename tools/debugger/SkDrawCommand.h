@@ -625,7 +625,7 @@ private:
 
 class SkDrawTextBlobCommand : public SkDrawCommand {
 public:
-    SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint);
+    SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x, SkScalar y, const SkPaint& paint);
 
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
@@ -633,10 +633,10 @@ public:
     static SkDrawTextBlobCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
-    SkAutoTUnref<const SkTextBlob> fBlob;
-    SkScalar                       fXPos;
-    SkScalar                       fYPos;
-    SkPaint                        fPaint;
+    sk_sp<SkTextBlob> fBlob;
+    SkScalar          fXPos;
+    SkScalar          fYPos;
+    SkPaint           fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
