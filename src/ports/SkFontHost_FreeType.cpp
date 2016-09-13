@@ -447,7 +447,10 @@ static void populate_glyph_to_unicode(FT_Face& face, SkTDArray<SkUnichar>* glyph
     SkUnichar charCode = FT_Get_First_Char(face, &glyphIndex);
     while (glyphIndex) {
         SkASSERT(glyphIndex < SkToUInt(numGlyphs));
-        (*glyphToUnicode)[glyphIndex] = charCode;
+        // Use the first character that maps to this glyphID. https://crbug.com/359065
+        if (0 == (*glyphToUnicode)[glyphIndex]) {
+            (*glyphToUnicode)[glyphIndex] = charCode;
+        }
         charCode = FT_Get_Next_Char(face, charCode, &glyphIndex);
     }
 }
