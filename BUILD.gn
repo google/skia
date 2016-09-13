@@ -511,7 +511,10 @@ component("skia") {
   }
 
   if (is_fuchsia) {
-    sources += [ "src/gpu/gl/GrGLCreateNativeInterface_none.cpp" ]
+    sources += [
+      "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
+      "src/ports/SkDebug_stdio.cpp",
+    ]
   }
 }
 
