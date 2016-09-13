@@ -22,7 +22,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         tmp_dir       = prefix + 'tmp')
 
   def supported(self):
-    return 'GN_Android' == self.m.vars.builder_cfg.get('extra_config', '')
+    return 'GN_Android' in self.m.vars.builder_cfg.get('extra_config', '')
 
   def _run(self, title, *cmd, **kwargs):
     self.m.vars.default_env = {k: v for (k,v)
@@ -41,6 +41,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def compile(self, unused_target, **kwargs):
     compiler      = self.m.vars.builder_cfg.get('compiler')
     configuration = self.m.vars.builder_cfg.get('configuration')
+    extra_config  = self.m.vars.builder_cfg.get('extra_config', '')
     os            = self.m.vars.builder_cfg.get('os')
     target_arch   = self.m.vars.builder_cfg.get('target_arch')
 
@@ -49,11 +50,18 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     ndk_asset = 'android_ndk_linux' if os == 'Ubuntu' else 'android_ndk_darwin'
 
     quote = lambda x: '"%s"' % x
-    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted({
-        'is_debug': 'true' if configuration == 'Debug' else 'false',
+    args = {
         'ndk': quote(self.m.vars.slave_dir.join(ndk_asset)),
         'target_cpu': quote(target_arch),
-    }.iteritems()))
+    }
+
+    if configuration != 'Debug':
+      args['is_debug'] = 'false'
+    if 'Vulkan' in extra_config:
+      args['skia_use_vulkan'] = 'true'
+      args['ndk_api'] = 24
+
+    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
 
     self._run('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'),
               infra_step=True)
