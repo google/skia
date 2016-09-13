@@ -6,6 +6,7 @@
  */
 
 #include "SkCommonFlagsConfig.h"
+#include "SkImageInfo.h"
 
 #include <stdlib.h>
 
@@ -208,12 +209,20 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     sk_sp<SkColorSpace> colorSpace)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
-        , fUseNVPR(useNVPR)
-        , fUseInstanced(useInstanced)
+        , fContextOptions(ContextOptions::kNone)
         , fUseDIText(useDIText)
         , fSamples(samples)
         , fColorType(colorType)
         , fColorSpace(std::move(colorSpace)) {
+    if (useNVPR) {
+        fContextOptions |= ContextOptions::kEnableNVPR;
+    }
+    if (useInstanced) {
+        fContextOptions |= ContextOptions::kUseInstanced;
+    }
+    if (SkColorAndColorSpaceAreGammaCorrect(colorType, colorSpace.get())) {
+        fContextOptions |= ContextOptions::kRequireSRGBSupport;
+    }
 }
 static bool parse_option_int(const SkString& value, int* outInt) {
     if (value.isEmpty()) {

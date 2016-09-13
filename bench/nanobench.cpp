@@ -390,7 +390,7 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
 
 #if SK_SUPPORT_GPU
 #define kBogusContextType GrContextFactory::kNativeGL_ContextType
-#define kBogusContextOptions GrContextFactory::kNone_ContextOptions
+#define kBogusContextOptions GrContextFactory::ContextOptions::kNone
 #else
 #define kBogusContextType 0
 #define kBogusContextOptions 0
@@ -403,21 +403,8 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         if (!FLAGS_gpu)
             return;
 
-        auto ctxOptions = GrContextFactory::kNone_ContextOptions;
-        if (gpuConfig->getUseNVPR()) {
-            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
-                ctxOptions | GrContextFactory::kEnableNVPR_ContextOptions);
-        }
-        if (gpuConfig->getUseInstanced()) {
-            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
-                ctxOptions | GrContextFactory::kUseInstanced_ContextOptions);
-        }
-        if (SkColorAndColorSpaceAreGammaCorrect(gpuConfig->getColorType(),
-                                                gpuConfig->getColorSpace())) {
-            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
-                ctxOptions | GrContextFactory::kRequireSRGBSupport_ContextOptions);
-        }
         const auto ctxType = gpuConfig->getContextType();
+        const auto ctxOptions = gpuConfig->getContextOptions();
         const auto sampleCount = gpuConfig->getSamples();
 
         if (const GrContext* ctx = gGrFactory->get(ctxType, ctxOptions)) {

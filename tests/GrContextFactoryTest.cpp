@@ -23,7 +23,7 @@ DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter,
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         GrContext* context = testFactory.get(ctxType,
-                                             GrContextFactory::kEnableNVPR_ContextOptions);
+                                             GrContextFactory::ContextOptions::kEnableNVPR);
         if (!context) {
             continue;
         }
@@ -57,7 +57,7 @@ DEF_GPUTEST(GrContextFactory_RequiredSRGBSupport, reporter, /*factory*/) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         GrContext* context =
-            testFactory.get(ctxType, GrContextFactory::kRequireSRGBSupport_ContextOptions);
+            testFactory.get(ctxType, GrContextFactory::ContextOptions::kRequireSRGBSupport);
 
         if (context) {
             REPORTER_ASSERT(reporter, context->caps()->srgbSupport());

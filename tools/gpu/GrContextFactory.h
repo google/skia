@@ -89,11 +89,11 @@ public:
      * Options for GL context creation. For historical and testing reasons the options will default
      * to not using GL_NV_path_rendering extension  even when the driver supports it.
      */
-    enum ContextOptions {
-        kNone_ContextOptions                = 0x0,
-        kEnableNVPR_ContextOptions          = 0x1,
-        kUseInstanced_ContextOptions        = 0x2,
-        kRequireSRGBSupport_ContextOptions  = 0x4,
+    enum class ContextOptions {
+        kNone                = 0x0,
+        kEnableNVPR          = 0x1,
+        kUseInstanced        = 0x2,
+        kRequireSRGBSupport  = 0x4,
     };
 
     static ContextType NativeContextTypeForBackend(GrBackend backend) {
@@ -163,11 +163,11 @@ public:
      * Get a context initialized with a type of GL context. It also makes the GL context current.
      */
     ContextInfo getContextInfo(ContextType type,
-                               ContextOptions options = kNone_ContextOptions);
+                               ContextOptions options = ContextOptions::kNone);
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(ContextType type, ContextOptions options = kNone_ContextOptions) {
+    GrContext* get(ContextType type, ContextOptions options = ContextOptions::kNone) {
         return this->getContextInfo(type, options).grContext();
     }
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
@@ -186,4 +186,7 @@ private:
     const GrContextOptions          fGlobalOptions;
 };
 }  // namespace sk_gpu_test
+
+GR_MAKE_BITFIELD_CLASS_OPS(sk_gpu_test::GrContextFactory::ContextOptions);
+
 #endif

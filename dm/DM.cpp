@@ -825,21 +825,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
     if (gpu_supported()) {
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
             GrContextFactory::ContextType contextType = gpuConfig->getContextType();
-            GrContextFactory::ContextOptions contextOptions =
-                    GrContextFactory::kNone_ContextOptions;
-            if (gpuConfig->getUseNVPR()) {
-                contextOptions = static_cast<GrContextFactory::ContextOptions>(
-                    contextOptions | GrContextFactory::kEnableNVPR_ContextOptions);
-            }
-            if (gpuConfig->getUseInstanced()) {
-                contextOptions = static_cast<GrContextFactory::ContextOptions>(
-                    contextOptions | GrContextFactory::kUseInstanced_ContextOptions);
-            }
-            if (SkColorAndColorSpaceAreGammaCorrect(gpuConfig->getColorType(),
-                                                    gpuConfig->getColorSpace())) {
-                contextOptions = static_cast<GrContextFactory::ContextOptions>(
-                    contextOptions | GrContextFactory::kRequireSRGBSupport_ContextOptions);
-            }
+            GrContextFactory::ContextOptions contextOptions = gpuConfig->getContextOptions();
             GrContextFactory testFactory;
             if (!testFactory.get(contextType, contextOptions)) {
                 info("WARNING: can not create GPU context for config '%s'. "
@@ -1429,7 +1415,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
             (*test)(reporter, ctxInfo);
         }
         ctxInfo = factory->getContextInfo(contextType,
-                                          GrContextFactory::kEnableNVPR_ContextOptions);
+                                          GrContextFactory::ContextOptions::kEnableNVPR);
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
         }

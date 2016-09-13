@@ -31,7 +31,7 @@ GrContextFactory::GrContextFactory() { }
 
 GrContextFactory::GrContextFactory(const GrContextOptions& opts)
     : fGlobalOptions(opts) {
-    // In this factory, instanced rendering is specified with kUseInstanced_ContextOptions.
+    // In this factory, instanced rendering is specified with ContextOptions::kUseInstanced.
     SkASSERT(!fGlobalOptions.fEnableInstancedRendering);
 }
 
@@ -139,7 +139,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                     break;
 #endif
                 case kNullGL_ContextType:
-                    glCtx = CreateNullGLTestContext(kEnableNVPR_ContextOptions & options);
+                    glCtx = CreateNullGLTestContext(ContextOptions::kEnableNVPR & options);
                     break;
                 case kDebugGL_ContextType:
                     glCtx = CreateDebugGLTestContext();
@@ -154,7 +154,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
             glInterface.reset(SkRef(glCtx->gl()));
             // Block NVPR from non-NVPR types. We don't block NVPR from contexts that will use
             // instanced rendering because that would prevent us from testing mixed samples.
-            if (!((kEnableNVPR_ContextOptions | kUseInstanced_ContextOptions) & options)) {
+            if (!((ContextOptions::kEnableNVPR | ContextOptions::kUseInstanced) & options)) {
                 glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
                 if (!glInterface) {
                     return ContextInfo();
@@ -166,7 +166,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
 #ifdef SK_VULKAN
         case kVulkan_GrBackend:
             SkASSERT(kVulkan_ContextType == type);
-            if (kEnableNVPR_ContextOptions & options) {
+            if (ContextOptions::kEnableNVPR & options) {
                 return ContextInfo();
             }
             testCtx.reset(CreatePlatformVkTestContext());
@@ -192,24 +192,24 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
     testCtx->makeCurrent();
     SkASSERT(testCtx && testCtx->backend() == backend);
     GrContextOptions grOptions = fGlobalOptions;
-    if (kUseInstanced_ContextOptions & options) {
+    if (ContextOptions::kUseInstanced & options) {
         grOptions.fEnableInstancedRendering = true;
     }
     grCtx.reset(GrContext::Create(backend, backendContext, grOptions));
     if (!grCtx.get()) {
         return ContextInfo();
     }
-    if (kEnableNVPR_ContextOptions & options) {
+    if (ContextOptions::kEnableNVPR & options) {
         if (!grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
             return ContextInfo();
         }
     }
-    if (kUseInstanced_ContextOptions & options) {
+    if (ContextOptions::kUseInstanced & options) {
         if (GrCaps::InstancedSupport::kNone == grCtx->caps()->instancedSupport()) {
             return ContextInfo();
         }
     }
-    if (kRequireSRGBSupport_ContextOptions & options) {
+    if (ContextOptions::kRequireSRGBSupport & options) {
         if (!grCtx->caps()->srgbSupport()) {
             return ContextInfo();
         }
