@@ -11,6 +11,7 @@
 #include "SkColorSpace.h"
 #include "SkData.h"
 #include "SkGifCodec.h"
+#include "SkHalf.h"
 #include "SkIcoCodec.h"
 #include "SkJpegCodec.h"
 #ifdef SK_HAS_PNG_LIBRARY
@@ -353,8 +354,24 @@ int SkCodec::onOutputScanline(int inputScanline) const {
     }
 }
 
+uint64_t SkCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
+    switch (dstInfo.colorType()) {
+        case kRGBA_F16_SkColorType: {
+            static constexpr uint64_t transparentColor = 0;
+            static constexpr uint64_t opaqueColor = ((uint64_t) SK_Half1) << 48;
+            return (kOpaque_SkAlphaType == fSrcInfo.alphaType()) ? opaqueColor : transparentColor;
+        }
+        default: {
+            // This not only handles the kN32 case, but also k565, kGray8, kIndex8, since
+            // the low bits are zeros.
+            return (kOpaque_SkAlphaType == fSrcInfo.alphaType()) ?
+                    SK_ColorBLACK : SK_ColorTRANSPARENT;
+        }
+    }
+}
+
 static void fill_proc(const SkImageInfo& info, void* dst, size_t rowBytes,
-        uint32_t colorOrIndex, SkCodec::ZeroInitialized zeroInit, SkSampler* sampler) {
+        uint64_t colorOrIndex, SkCodec::ZeroInitialized zeroInit, SkSampler* sampler) {
     if (sampler) {
         sampler->fill(info, dst, rowBytes, colorOrIndex, zeroInit);
     } else {
@@ -366,7 +383,7 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
         ZeroInitialized zeroInit, int linesRequested, int linesDecoded) {
 
     void* fillDst;
-    const uint32_t fillValue = this->getFillValue(info.colorType());
+    const uint64_t fillValue = this->getFillValue(info);
     const int linesRemaining = linesRequested - linesDecoded;
     SkSampler* sampler = this->getSampler(false);
 

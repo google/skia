@@ -899,12 +899,15 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
     return kSuccess;
 }
 
-uint32_t SkPngCodec::onGetFillValue(SkColorType colorType) const {
+uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     if (colorPtr) {
-        return get_color_table_fill_value(colorType, colorPtr, 0);
+        SkAlphaType alphaType = select_alpha_xform(dstInfo.alphaType(),
+                                                   this->getInfo().alphaType());
+        return get_color_table_fill_value(dstInfo.colorType(), alphaType, colorPtr, 0,
+                                          fColorXform.get());
     }
-    return INHERITED::onGetFillValue(colorType);
+    return INHERITED::onGetFillValue(dstInfo);
 }
 
 SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {

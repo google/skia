@@ -43,7 +43,7 @@ protected:
             override;
     SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
     bool onRewind() override;
-    uint32_t onGetFillValue(SkColorType) const override;
+    uint64_t onGetFillValue(const SkImageInfo&) const override;
 
     // Helper to set up swizzler, color xforms, and color table. Also calls png_read_update_info.
     bool initializeXforms(const SkImageInfo& dstInfo, const Options&, SkPMColor* colorPtr,

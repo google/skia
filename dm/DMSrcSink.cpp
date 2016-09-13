@@ -915,7 +915,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
     size_t rowBytes = bitmap.rowBytes();
     SkCodec::Result r = codec->getPixels(decodeInfo, bitmap.getPixels(), rowBytes);
-    if (SkCodec::kSuccess != r) {
+    if (SkCodec::kSuccess != r && SkCodec::kIncompleteInput != r) {
         return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
     }
 

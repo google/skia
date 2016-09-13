@@ -9,6 +9,7 @@
 #define SkCodecPriv_DEFINED
 
 #include "SkColorPriv.h"
+#include "SkColorSpaceXform.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkTypes.h"
@@ -146,8 +147,8 @@ static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
 /*
  * Given that the encoded image uses a color table, return the fill value
  */
-static inline uint32_t get_color_table_fill_value(SkColorType colorType, const SkPMColor* colorPtr,
-        uint8_t fillIndex) {
+static inline uint64_t get_color_table_fill_value(SkColorType colorType, SkAlphaType alphaType,
+        const SkPMColor* colorPtr, uint8_t fillIndex, SkColorSpaceXform* colorXform) {
     SkASSERT(nullptr != colorPtr);
     switch (colorType) {
         case kRGBA_8888_SkColorType:
@@ -157,6 +158,13 @@ static inline uint32_t get_color_table_fill_value(SkColorType colorType, const S
             return SkPixel32ToPixel16(colorPtr[fillIndex]);
         case kIndex_8_SkColorType:
             return fillIndex;
+        case kRGBA_F16_SkColorType: {
+            SkASSERT(colorXform);
+            uint64_t dstColor;
+            uint32_t srcColor = colorPtr[fillIndex];
+            colorXform->apply(&dstColor, &srcColor, 1, colorType, alphaType);
+            return dstColor;
+        }
         default:
             SkASSERT(false);
             return 0;
