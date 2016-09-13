@@ -118,7 +118,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         subprocess.check_call(['adb', 'push',
                                os.path.realpath(os.path.join(host, p, f)),
                                os.path.join(device, p, f)])
-    """, args=[host, device], cwd=self.m.vars.skia_dir)
+    """, args=[host, device], cwd=self.m.vars.skia_dir, infra_step=True)
 
   def copy_directory_contents_to_host(self, device, host):
     self._adb('pull %s %s' % (device, host), 'pull', device, host)
