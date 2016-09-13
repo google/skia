@@ -34,6 +34,9 @@
 #include "SkWindow.h"
 #include "sk_tool_utils.h"
 
+#include "SkReadBuffer.h"
+#include "SkStream.h"
+
 #if SK_SUPPORT_GPU
 #   include "gl/GrGLInterface.h"
 #   include "gl/GrGLUtil.h"
@@ -540,6 +543,26 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class SampleTFSerializer : public SkTypefaceSerializer {
+public:
+    sk_sp<SkData> serialize(SkTypeface* tf) override {
+        tf->ref();
+        return SkData::MakeWithCopy(&tf, sizeof(tf));
+    }
+};
+
+class SampleTFDeserializer : public SkTypefaceDeserializer {
+public:
+    sk_sp<SkTypeface> deserialize(const void* data, size_t size) override {
+        SkASSERT(sizeof(SkTypeface*) == size);
+        SkTypeface* tf;
+        memcpy(&tf, data, size);
+        return sk_sp<SkTypeface>(tf);   // this was ref'd in SampleTFSerializer
+    }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 enum TilingMode {
     kNo_Tiling,
     kAbs_128x128_Tiling,
@@ -696,10 +719,13 @@ DEFINE_string(pdfPath, "", "Path to direcotry of pdf files.");
 #endif
 
 #include "SkTaskGroup.h"
+#include "SkForceLinking.h"
 
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager)
     : INHERITED(hwnd)
     , fDevManager(nullptr) {
+
+    SkForceLinking(false);
 
     SkCommandLineFlags::Parse(argc, argv);
 
@@ -850,6 +876,11 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     fSaveToPdf = false;
     fSaveToSKP = false;
+
+    if (true) {
+        fPipeSerializer.setTypefaceSerializer(new SampleTFSerializer);
+        fPipeDeserializer.setTypefaceDeserializer(new SampleTFDeserializer);
+    }
 
     int sinkID = this->getSinkID();
     fAppMenu = new SkOSMenu;
@@ -1304,7 +1335,10 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     } else if (fSaveToSKP) {
         canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
     } else if (fUsePicture) {
-        canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
+        fPipeStream.reset(new SkDynamicMemoryWStream);
+        canvas = fPipeSerializer.beginWrite(SkRect::MakeWH(this->width(), this->height()),
+                                            fPipeStream.get());
+//        canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
     } else {
         canvas = this->INHERITED::beforeChildren(canvas);
     }
@@ -1366,17 +1400,15 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     }
 
     if (fUsePicture) {
-        sk_sp<SkPicture> picture(fRecorder.finishRecordingAsPicture());
-
-        // serialize/deserialize?
-        if (false) {
-            SkDynamicMemoryWStream wstream;
-            picture->serialize(&wstream);
-
-            SkAutoTDelete<SkStream> rstream(wstream.detachAsStream());
-            picture = SkPicture::MakeFromStream(rstream);
+        if (true) {
+            fPipeSerializer.endWrite();
+            sk_sp<SkData> data(fPipeStream->detachAsData());
+            fPipeDeserializer.playback(data->data(), data->size(), orig);
+            fPipeStream.reset();
+        } else {
+            sk_sp<SkPicture> picture(fRecorder.finishRecordingAsPicture());
+            orig->drawPicture(picture.get());
         }
-        orig->drawPicture(picture.get());
     }
 
     // Do this after presentGL and other finishing, rather than in afterChild

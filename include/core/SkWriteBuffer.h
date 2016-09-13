@@ -19,6 +19,7 @@
 #include "../private/SkTHash.h"
 
 class SkBitmap;
+class SkDeduper;
 class SkFactorySet;
 class SkFlattenable;
 class SkRefCntSet;
@@ -60,12 +61,17 @@ public:
     virtual void writeImage(const SkImage*) = 0;
     virtual void writeTypeface(SkTypeface* typeface) = 0;
     virtual void writePaint(const SkPaint& paint) = 0;
+
+    void setDeduper(SkDeduper* deduper) { fDeduper = deduper; }
+
+protected:
+    SkDeduper* fDeduper = nullptr;
 };
 
 /**
  * Concrete implementation that serializes to a flat binary blob.
  */
-class SkBinaryWriteBuffer final : public SkWriteBuffer {
+class SkBinaryWriteBuffer : public SkWriteBuffer {
 public:
     enum Flags {
         kCrossProcess_Flag = 1 << 0,
@@ -77,6 +83,10 @@ public:
 
     bool isCrossProcess() const override {
         return SkToBool(fFlags & kCrossProcess_Flag);
+    }
+
+    void write(const void* buffer, size_t bytes) {
+        fWriter.write(buffer, bytes);
     }
 
     void reset(void* storage = NULL, size_t storageSize = 0) {

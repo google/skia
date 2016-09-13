@@ -6,6 +6,7 @@
  */
 
 #include "SkBitmap.h"
+#include "SkDeduper.h"
 #include "SkErrorInternals.h"
 #include "SkImage.h"
 #include "SkImageDeserializer.h"
@@ -258,6 +259,11 @@ sk_sp<SkImage> SkReadBuffer::readBitmapAsImage() {
 }
 
 sk_sp<SkImage> SkReadBuffer::readImage() {
+    if (fInflator) {
+        SkImage* img = fInflator->getImage(this->read32());
+        return img ? sk_ref_sp(img) : nullptr;
+    }
+
     int width = this->read32();
     int height = this->read32();
     if (width <= 0 || height <= 0) {    // SkImage never has a zero dimension
@@ -298,6 +304,10 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
 }
 
 sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
+    if (fInflator) {
+        return sk_ref_sp(fInflator->getTypeface(this->read32()));
+    }
+    
     uint32_t index = fReader.readU32();
     if (0 == index || index > (unsigned)fTFCount) {
         return nullptr;
@@ -314,7 +324,12 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
 
     SkFlattenable::Factory factory = nullptr;
 
-    if (fFactoryCount > 0) {
+    if (fInflator) {
+        factory = fInflator->getFactory(this->read32());
+        if (!factory) {
+            return nullptr;
+        }
+    } else if (fFactoryCount > 0) {
         int32_t index = fReader.readU32();
         if (0 == index) {
             return nullptr; // writer failed to give us the flattenable

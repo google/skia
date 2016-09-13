@@ -27,6 +27,7 @@
 
 class SkBitmap;
 class SkImage;
+class SkInflator;
 
 #if defined(SK_DEBUG) && defined(SK_BUILD_FOR_MAC)
     #define DEBUG_NON_DETERMINISTIC_ASSERT
@@ -131,7 +132,7 @@ public:
     virtual void readRegion(SkRegion* region);
 
     virtual void readPath(SkPath* path);
-    void readPaint(SkPaint* paint) { paint->unflatten(*this); }
+    virtual void readPaint(SkPaint* paint) { paint->unflatten(*this); }
 
     virtual SkFlattenable* readFlattenable(SkFlattenable::Type);
     template <typename T> sk_sp<T> readFlattenable() {
@@ -210,6 +211,11 @@ public:
         return this->validate(index >= 0 && index < count);
     }
 
+    SkInflator* getInflator() const { return fInflator; }
+    void setInflator(SkInflator* inf) { fInflator = inf; }
+
+//    sk_sp<SkImage> inflateImage();
+    
 protected:
     /**
      *  Allows subclass to check if we are using factories for expansion
@@ -256,6 +262,8 @@ private:
     // have decoded.
     int fDecodedBitmapIndex;
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
+
+    SkInflator* fInflator = nullptr;
 };
 
 #endif // SkReadBuffer_DEFINED

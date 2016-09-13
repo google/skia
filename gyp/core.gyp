@@ -29,6 +29,7 @@
         '../src/sfnt',
         '../src/image',
         '../src/opts',
+        '../src/pipe',
         '../src/utils',
       ],
       'sources': [

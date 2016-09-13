@@ -868,6 +868,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
         SINK("f16",  RasterSink, kRGBA_F16_SkColorType, srgbColorSpace->makeLinearGamma());
         SINK("pdf",  PDFSink);
         SINK("skp",  SKPSink);
+        SINK("pipe", PipeSink);
         SINK("svg",  SVGSink);
         SINK("null", NullSink);
         SINK("xps",  XPSSink);
@@ -880,6 +881,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) { return new via(__VA_ARGS__); }
     VIA("lite",      ViaLite,              wrapped);
+    VIA("pipe",      ViaPipe,              wrapped);
     VIA("twice",     ViaTwice,             wrapped);
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);
