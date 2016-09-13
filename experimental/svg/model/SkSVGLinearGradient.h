@@ -19,6 +19,7 @@ public:
     }
 
     void setHref(const SkSVGStringType&);
+    void setGradientTransform(const SkSVGTransformType&);
     void setSpreadMethod(const SkSVGSpreadMethod&);
     void setX1(const SkSVGLength&);
     void setY1(const SkSVGLength&);
@@ -42,8 +43,9 @@ private:
     SkSVGLength fX2 = SkSVGLength(100, SkSVGLength::Unit::kPercentage);
     SkSVGLength fY2 = SkSVGLength(0  , SkSVGLength::Unit::kPercentage);
 
-    SkSVGStringType   fHref;
-    SkSVGSpreadMethod fSpreadMethod = SkSVGSpreadMethod(SkSVGSpreadMethod::Type::kPad);
+    SkSVGStringType    fHref;
+    SkSVGTransformType fGradientTransform = SkSVGTransformType(SkMatrix::I());
+    SkSVGSpreadMethod  fSpreadMethod = SkSVGSpreadMethod(SkSVGSpreadMethod::Type::kPad);
 
     typedef SkSVGHiddenContainer INHERITED;
 };

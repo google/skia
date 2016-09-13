@@ -19,6 +19,7 @@ enum class SkSVGAttribute {
     kD,
     kFill,
     kFillOpacity,
+    kGradientTransform,
     kHeight,
     kHref,
     kOffset,

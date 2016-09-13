@@ -17,6 +17,10 @@ void SkSVGLinearGradient::setHref(const SkSVGStringType& href) {
     fHref = std::move(href);
 }
 
+void SkSVGLinearGradient::setGradientTransform(const SkSVGTransformType& t) {
+    fGradientTransform = t;
+}
+
 void SkSVGLinearGradient::setSpreadMethod(const SkSVGSpreadMethod& spread) {
     fSpreadMethod = spread;
 }
@@ -39,6 +43,11 @@ void SkSVGLinearGradient::setY2(const SkSVGLength& y2) {
 
 void SkSVGLinearGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
+    case SkSVGAttribute::kGradientTransform:
+        if (const auto* t = v.as<SkSVGTransformValue>()) {
+            this->setGradientTransform(*t);
+        }
+        break;
     case SkSVGAttribute::kHref:
         if (const auto* href = v.as<SkSVGStringValue>()) {
             this->setHref(*href);
@@ -130,6 +139,6 @@ bool SkSVGLinearGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* pain
     const auto tileMode = static_cast<SkShader::TileMode>(fSpreadMethod.type());
 
     paint->setShader(SkGradientShader::MakeLinear(pts, colors.begin(), pos.begin(), colors.count(),
-                                                  tileMode));
+                                                  tileMode, 0, &fGradientTransform.value()));
     return true;
 }
