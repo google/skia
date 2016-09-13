@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAdvancedTypefaceMetrics.h"
 #include "SkDataTable.h"
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
@@ -482,6 +483,20 @@ public:
             rec->fFlags |= SkScalerContext::kEmbolden_Flag;
         }
         this->INHERITED::onFilterRec(rec);
+    }
+
+    SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(PerGlyphInfo perGlyphInfo,
+                                                            const uint32_t* glyphIDs,
+                                                            uint32_t glyphIDsCount) const override
+    {
+        SkAdvancedTypefaceMetrics* info =
+            this->INHERITED::onGetAdvancedTypefaceMetrics(perGlyphInfo, glyphIDs, glyphIDsCount);
+
+        // Simulated fonts shouldn't be considered to be of the type of their data.
+        if (get_matrix(fPattern, FC_MATRIX) || get_bool(fPattern, FC_EMBOLDEN)) {
+            info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
+        }
+        return info;
     }
 
     virtual ~SkTypeface_fontconfig() {
