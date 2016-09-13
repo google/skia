@@ -63,15 +63,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def install(self):
     self._adb('reboot', 'reboot')
     self._adb('wait for device', 'wait-for-usb-device')
-    self._adb('TEMPORARY clear /data/local/tmp',
-              'shell', 'rm', '-rf', '/data/local/tmp/*')
     self._adb('mkdir /data/local/tmp/resources',
               'shell', 'mkdir', '-p', '/data/local/tmp/resources')
 
   def cleanup_steps(self):
     if self._ever_ran_adb:
-      self._adb('TEMPORARY clear /data/local/tmp',
-                'shell', 'rm', '-rf', '/data/local/tmp/*')
       self._adb('TEMPORARY reboot', 'reboot')
       self._adb('kill adb server', 'kill-server')
 

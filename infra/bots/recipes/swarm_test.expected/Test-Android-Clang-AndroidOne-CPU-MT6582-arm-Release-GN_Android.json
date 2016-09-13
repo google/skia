@@ -19,17 +19,6 @@
     "cmd": [
       "adb",
       "shell",
-      "rm",
-      "-rf",
-      "/data/local/tmp/*"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "TEMPORARY clear /data/local/tmp"
-  },
-  {
-    "cmd": [
-      "adb",
-      "shell",
       "mkdir",
       "-p",
       "/data/local/tmp/resources"
@@ -599,17 +588,6 @@
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "name": "pull /data/local/tmp/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
-  },
-  {
-    "cmd": [
-      "adb",
-      "shell",
-      "rm",
-      "-rf",
-      "/data/local/tmp/*"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "TEMPORARY clear /data/local/tmp (2)"
   },
   {
     "cmd": [
