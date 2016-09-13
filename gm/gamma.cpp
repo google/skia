@@ -11,7 +11,7 @@
 #include "SkGradientShader.h"
 #include "SkPM4fPriv.h"
 
-DEF_SIMPLE_GM(gamma, canvas, 650, 200) {
+DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;
     const SkScalar sz = 50.0f;
     const int szInt = SkScalarTruncToInt(sz);
@@ -131,16 +131,57 @@ DEF_SIMPLE_GM(gamma, canvas, 650, 200) {
     p.setColor(0xffbcbcbc);
     nextRect("Color", 0);
 
-    // Black -> White gradient, scaled to sample just the middle.
-    // Tests gradient interpolation.
-    SkPoint points[2] = {
-        SkPoint::Make(0 - (sz * 10), 0),
-        SkPoint::Make(sz + (sz * 10), 0)
-    };
-    SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
-    p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
-                                             SkShader::kClamp_TileMode));
-    nextRect("Gradient", 0);
+    {
+        // Black -> White gradient, scaled to sample just the middle.
+        // Tests gradient interpolation.
+        SkPoint points[2] = {
+            SkPoint::Make(0 - (sz * 10), 0),
+            SkPoint::Make(sz + (sz * 10), 0)
+        };
+        SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
+                                                 SkShader::kClamp_TileMode));
+        nextRect("Gradient", "Interpolation");
+    }
+
+    {
+        // Shallow gradient around 50% (perceptual) gray. Endpoints are SkColor, so sRGB.
+        // Tests gamma-correction of gradient stops before interpolation in two-stop case
+        SkPoint points[2] = {
+            SkPoint::Make(0, 0),
+            SkPoint::Make(sz, 0)
+        };
+        SkColor colors[2] = { 0xffbbbbbb, 0xffbdbdbd };
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
+                                                 SkShader::kClamp_TileMode));
+        nextRect("Gradient", "Endpoints");
+    }
+
+    {
+        // Shallow 3-stop gradient around 50% (perceptual) gray. Endpoints are SkColor, so sRGB.
+        // Tests gamma-correction of gradient stops before interpolation in three-stop case
+        SkPoint points[2] = {
+            SkPoint::Make(0, 0),
+            SkPoint::Make(sz, 0)
+        };
+        SkColor colors[3] = { 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb };
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 3,
+                                                 SkShader::kClamp_TileMode));
+        nextRect("Gradient", "3-Stop");
+    }
+
+    {
+        // Shallow N-stop gradient around 50% (perceptual) gray. Endpoints are SkColor, so sRGB.
+        // Tests gamma-correction of gradient stops before interpolation in texture implementation
+        SkPoint points[2] = {
+            SkPoint::Make(0, 0),
+            SkPoint::Make(sz, 0)
+        };
+        SkColor colors[5] = { 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb };
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 5,
+                                                 SkShader::kClamp_TileMode));
+        nextRect("Gradient", "Texture");
+    }
 
     // 50% grey from linear bitmap, with drawBitmap
     nextBitmap(linearGreyBmp, "Lnr BMP");
