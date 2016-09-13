@@ -1120,10 +1120,17 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
 
     sk_sp<GrTexture> mask(context->textureProvider()->findAndRefTextureByUniqueKey(key));
     if (!mask) {
+        GrPixelConfig config;
+        if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
+            config = kAlpha_8_GrPixelConfig;
+        } else {
+            config = kRGBA_8888_GrPixelConfig;
+        }
+
         // TODO: this could be approx but the texture coords will need to be updated
         sk_sp<GrDrawContext> dc(context->makeDrawContext(SkBackingFit::kExact,
                                                          size.fWidth, size.fHeight,
-                                                         kAlpha_8_GrPixelConfig, nullptr));
+                                                         config, nullptr));
         if (!dc) {
             return nullptr;
         }
