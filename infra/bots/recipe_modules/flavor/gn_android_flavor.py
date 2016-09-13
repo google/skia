@@ -33,6 +33,9 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def _adb(self, title, *cmd, **kwargs):
     self._ever_ran_adb = True
+    # The only non-infra adb call (check rc) happens to not use _adb().
+    if 'infra_step' not in kwargs:
+      kwargs['infra_step'] = True
     return self._run(title, 'adb', *cmd, **kwargs)
 
   def compile(self, unused_target, **kwargs):
@@ -52,7 +55,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         'target_cpu': quote(target_arch),
     }.iteritems()))
 
-    self._run('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
+    self._run('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'),
+              infra_step=True)
     self._run('gn gen', 'gn', 'gen', self.out_dir, '--args=' + gn_args)
     self._run('ninja', 'ninja', '-C', self.out_dir)
 

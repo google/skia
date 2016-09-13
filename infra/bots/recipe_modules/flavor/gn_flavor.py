@@ -16,11 +16,12 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_config.startswith('SK')
     ])
 
-  def _run(self, title, cmd, env=None):
+  def _run(self, title, cmd, env=None, infra_step=False):
     self.m.vars.default_env = {k: v for (k,v)
                                in self.m.vars.default_env.iteritems()
                                if k in ['PATH']}
-    self.m.run(self.m.step, title, cmd=cmd, env=env, cwd=self.m.vars.skia_dir)
+    self.m.run(self.m.step, title, cmd=cmd,
+               env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
 
   def compile(self, unused_target, **kwargs):
     """Build Skia with GN."""
@@ -70,7 +71,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
 
-    self._run('fetch-gn', [self.m.vars.skia_dir.join('bin', 'fetch-gn')])
+    self._run('fetch-gn', [self.m.vars.skia_dir.join('bin', 'fetch-gn')],
+              infra_step=True)
     self._run('gn gen', ['gn', 'gen', self.out_dir, '--args=' + gn_args])
     self._run('ninja', ['ninja', '-C', self.out_dir])
 
