@@ -20,11 +20,15 @@ enum class SkSVGAttribute {
     kFill,
     kFillOpacity,
     kHeight,
+    kHref,
+    kOffset,
     kOpacity,
     kPoints,
     kR,  // <circle>: radius
     kRx, // <ellipse>,<rect>: horizontal (corner) radius
     kRy, // <ellipse>,<rect>: vertical (corner) radius
+    kStopColor,
+    kStopOpacity,
     kStroke,
     kStrokeOpacity,
     kStrokeLineCap,

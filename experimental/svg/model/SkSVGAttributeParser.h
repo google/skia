@@ -23,6 +23,7 @@ public:
     bool parseLineCap(SkSVGLineCap*);
     bool parseLineJoin(SkSVGLineJoin*);
     bool parsePoints(SkSVGPointsType*);
+    bool parseIRI(SkSVGStringType*);
 
 private:
     // Stack-only
@@ -41,6 +42,9 @@ private:
     bool parseLengthUnitToken(SkSVGLength::Unit*);
     bool parseNamedColorToken(SkColor*);
     bool parseHexColorToken(SkColor*);
+    bool parseColorComponentToken(int32_t*);
+    bool parseRGBColorToken(SkColor*);
+    bool parseFuncIRI(SkSVGStringType*);
 
     // Transform helpers
     bool parseMatrixToken(SkMatrix*);

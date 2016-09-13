@@ -11,15 +11,18 @@
 #include "SkString.h"
 #include "SkSVGAttributeParser.h"
 #include "SkSVGCircle.h"
+#include "SkSVGDefs.h"
 #include "SkSVGDOM.h"
 #include "SkSVGEllipse.h"
 #include "SkSVGG.h"
 #include "SkSVGLine.h"
+#include "SkSVGLinearGradient.h"
 #include "SkSVGNode.h"
 #include "SkSVGPath.h"
 #include "SkSVGPoly.h"
 #include "SkSVGRect.h"
 #include "SkSVGRenderContext.h"
+#include "SkSVGStop.h"
 #include "SkSVGSVG.h"
 #include "SkSVGTypes.h"
 #include "SkSVGValue.h"
@@ -32,14 +35,34 @@ bool SetPaintAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     SkSVGPaint paint;
     SkSVGAttributeParser parser(stringValue);
     if (!parser.parsePaint(&paint)) {
-        // Until we have paint server support, failing here will cause default/all-black rendering.
-        // It's better to just not draw for now.
-        paint = SkSVGPaint(SkSVGPaint::Type::kNone);
-
-        // return false;
+        return false;
     }
 
     node->setAttribute(attr, SkSVGPaintValue(paint));
+    return true;
+}
+
+bool SetColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                       const char* stringValue) {
+    SkSVGColorType color;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseColor(&color)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGColorValue(color));
+    return true;
+}
+
+bool SetIRIAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                      const char* stringValue) {
+    SkSVGStringType iri;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseIRI(&iri)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGStringValue(iri));
     return true;
 }
 
@@ -222,11 +245,14 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "fill"           , { SkSVGAttribute::kFill          , SetPaintAttribute     }},
     { "fill-opacity"   , { SkSVGAttribute::kFillOpacity   , SetNumberAttribute    }},
     { "height"         , { SkSVGAttribute::kHeight        , SetLengthAttribute    }},
+    { "offset"         , { SkSVGAttribute::kOffset        , SetLengthAttribute    }},
     { "opacity"        , { SkSVGAttribute::kOpacity       , SetNumberAttribute    }},
     { "points"         , { SkSVGAttribute::kPoints        , SetPointsAttribute    }},
     { "r"              , { SkSVGAttribute::kR             , SetLengthAttribute    }},
     { "rx"             , { SkSVGAttribute::kRx            , SetLengthAttribute    }},
     { "ry"             , { SkSVGAttribute::kRy            , SetLengthAttribute    }},
+    { "stop-color"     , { SkSVGAttribute::kStopColor     , SetColorAttribute     }},
+    { "stop-opacity"   , { SkSVGAttribute::kStopOpacity   , SetNumberAttribute    }},
     { "stroke"         , { SkSVGAttribute::kStroke        , SetPaintAttribute     }},
     { "stroke-linecap" , { SkSVGAttribute::kStrokeLineCap , SetLineCapAttribute   }},
     { "stroke-linejoin", { SkSVGAttribute::kStrokeLineJoin, SetLineJoinAttribute  }},
@@ -239,29 +265,34 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "x"              , { SkSVGAttribute::kX             , SetLengthAttribute    }},
     { "x1"             , { SkSVGAttribute::kX1            , SetLengthAttribute    }},
     { "x2"             , { SkSVGAttribute::kX2            , SetLengthAttribute    }},
+    { "xlink:href"     , { SkSVGAttribute::kHref          , SetIRIAttribute       }},
     { "y"              , { SkSVGAttribute::kY             , SetLengthAttribute    }},
     { "y1"             , { SkSVGAttribute::kY1            , SetLengthAttribute    }},
     { "y2"             , { SkSVGAttribute::kY2            , SetLengthAttribute    }},
 };
 
 SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
-    { "circle"  , []() -> sk_sp<SkSVGNode> { return SkSVGCircle::Make();       }},
-    { "ellipse" , []() -> sk_sp<SkSVGNode> { return SkSVGEllipse::Make();      }},
-    { "g"       , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();            }},
-    { "line"    , []() -> sk_sp<SkSVGNode> { return SkSVGLine::Make();         }},
-    { "path"    , []() -> sk_sp<SkSVGNode> { return SkSVGPath::Make();         }},
-    { "polygon" , []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolygon();  }},
-    { "polyline", []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolyline(); }},
-    { "rect"    , []() -> sk_sp<SkSVGNode> { return SkSVGRect::Make();         }},
-    { "svg"     , []() -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();          }},
+    { "circle"        , []() -> sk_sp<SkSVGNode> { return SkSVGCircle::Make();         }},
+    { "defs"          , []() -> sk_sp<SkSVGNode> { return SkSVGDefs::Make();           }},
+    { "ellipse"       , []() -> sk_sp<SkSVGNode> { return SkSVGEllipse::Make();        }},
+    { "g"             , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},
+    { "line"          , []() -> sk_sp<SkSVGNode> { return SkSVGLine::Make();           }},
+    { "linearGradient", []() -> sk_sp<SkSVGNode> { return SkSVGLinearGradient::Make(); }},
+    { "path"          , []() -> sk_sp<SkSVGNode> { return SkSVGPath::Make();           }},
+    { "polygon"       , []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolygon();    }},
+    { "polyline"      , []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolyline();   }},
+    { "rect"          , []() -> sk_sp<SkSVGNode> { return SkSVGRect::Make();           }},
+    { "stop"          , []() -> sk_sp<SkSVGNode> { return SkSVGStop::Make();           }},
+    { "svg"           , []() -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();            }},
 };
 
 struct ConstructionContext {
-    ConstructionContext() : fParent(nullptr) { }
+    ConstructionContext(SkSVGIDMapper* mapper) : fParent(nullptr), fIDMapper(mapper) {}
     ConstructionContext(const ConstructionContext& other, const sk_sp<SkSVGNode>& newParent)
-        : fParent(newParent.get()) { }
+        : fParent(newParent.get()), fIDMapper(other.fIDMapper) {}
 
     const SkSVGNode* fParent;
+    SkSVGIDMapper*   fIDMapper;
 };
 
 void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value) {
@@ -285,10 +316,15 @@ void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const 
 }
 
 void parse_node_attributes(const SkDOM& xmlDom, const SkDOM::Node* xmlNode,
-                           const sk_sp<SkSVGNode>& svgNode) {
+                           const sk_sp<SkSVGNode>& svgNode, SkSVGIDMapper* mapper) {
     const char* name, *value;
     SkDOM::AttrIter attrIter(xmlDom, xmlNode);
     while ((name = attrIter.next(&value))) {
+        // We're handling id attributes out of band for now.
+        if (!strcmp(name, "id")) {
+            mapper->set(SkString(value), svgNode);
+            continue;
+        }
         set_string_attribute(svgNode, name, value);
     }
 }
@@ -318,7 +354,7 @@ sk_sp<SkSVGNode> construct_svg_node(const SkDOM& dom, const ConstructionContext&
 
     SkASSERT(SkTo<size_t>(tagIndex) < SK_ARRAY_COUNT(gTagFactories));
     sk_sp<SkSVGNode> node = gTagFactories[tagIndex].fValue();
-    parse_node_attributes(dom, xmlNode, node);
+    parse_node_attributes(dom, xmlNode, node, ctx.fIDMapper);
 
     ConstructionContext localCtx(ctx, node);
     for (auto* child = dom.getFirstChild(xmlNode, nullptr); child;
@@ -341,7 +377,7 @@ SkSVGDOM::SkSVGDOM(const SkSize& containerSize)
 sk_sp<SkSVGDOM> SkSVGDOM::MakeFromDOM(const SkDOM& xmlDom, const SkSize& containerSize) {
     sk_sp<SkSVGDOM> dom = sk_make_sp<SkSVGDOM>(containerSize);
 
-    ConstructionContext ctx;
+    ConstructionContext ctx(&dom->fIDMapper);
     dom->fRoot = construct_svg_node(xmlDom, ctx, xmlDom.getRootNode());
 
     return dom;
@@ -359,6 +395,7 @@ sk_sp<SkSVGDOM> SkSVGDOM::MakeFromStream(SkStream& svgStream, const SkSize& cont
 void SkSVGDOM::render(SkCanvas* canvas) const {
     if (fRoot) {
         SkSVGRenderContext ctx(canvas,
+                               fIDMapper,
                                SkSVGLengthContext(fContainerSize),
                                SkSVGPresentationContext());
         fRoot->render(ctx);

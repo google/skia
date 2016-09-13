@@ -13,6 +13,7 @@
 #include "SkPoint.h"
 #include "SkRect.h"
 #include "SkScalar.h"
+#include "SkString.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
@@ -42,6 +43,7 @@ private:
 
 using SkSVGColorType      = SkSVGPrimitiveTypeWrapper<SkColor >;
 using SkSVGNumberType     = SkSVGPrimitiveTypeWrapper<SkScalar>;
+using SkSVGStringType     = SkSVGPrimitiveTypeWrapper<SkString>;
 using SkSVGViewBoxType    = SkSVGPrimitiveTypeWrapper<SkRect  >;
 using SkSVGTransformType  = SkSVGPrimitiveTypeWrapper<SkMatrix>;
 using SkSVGPointsType     = SkSVGPrimitiveTypeWrapper<SkTDArray<SkPoint>>;
@@ -88,27 +90,33 @@ public:
         kCurrentColor,
         kColor,
         kInherit,
+        kIRI,
     };
 
-    constexpr SkSVGPaint() : fType(Type::kInherit), fColor(SK_ColorBLACK) {}
-    explicit constexpr SkSVGPaint(Type t) : fType(t), fColor(SK_ColorBLACK) {}
-    explicit constexpr SkSVGPaint(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
+    SkSVGPaint() : fType(Type::kInherit), fColor(SK_ColorBLACK) {}
+    explicit SkSVGPaint(Type t) : fType(t), fColor(SK_ColorBLACK) {}
+    explicit SkSVGPaint(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
+    explicit SkSVGPaint(const SkString& iri)
+        : fType(Type::kIRI), fColor(SK_ColorBLACK), fIRI(iri) {}
 
     SkSVGPaint(const SkSVGPaint&)            = default;
     SkSVGPaint& operator=(const SkSVGPaint&) = default;
 
     bool operator==(const SkSVGPaint& other) const {
-        return fType == other.fType && fColor == other.fColor;
+        return fType == other.fType && fColor == other.fColor && fIRI == other.fIRI;
     }
     bool operator!=(const SkSVGPaint& other) const { return !(*this == other); }
 
     Type type() const { return fType; }
     const SkSVGColorType& color() const { SkASSERT(fType == Type::kColor); return fColor; }
+    const SkString& iri() const { SkASSERT(fType == Type::kIRI); return fIRI; }
 
 private:
     Type fType;
 
+    // Logical union.
     SkSVGColorType fColor;
+    SkString       fIRI;
 };
 
 class SkSVGLineCap {

@@ -113,6 +113,7 @@ bool SkSVGAttributeParser::parseLengthUnitToken(SkSVGLength::Unit* unit) {
     return false;
 }
 
+// https://www.w3.org/TR/SVG/types.html#DataTypeColor
 bool SkSVGAttributeParser::parseNamedColorToken(SkColor* c) {
     if (const char* next = SkParse::FindNamedColor(fCurPos, strlen(fCurPos), c)) {
         fCurPos = next;
@@ -148,7 +149,38 @@ bool SkSVGAttributeParser::parseHexColorToken(SkColor* c) {
     return true;
 }
 
-// https://www.w3.org/TR/SVG/types.html#DataTypeColor
+bool SkSVGAttributeParser::parseColorComponentToken(int32_t* c) {
+    fCurPos = SkParse::FindS32(fCurPos, c);
+    if (!fCurPos) {
+        return false;
+    }
+
+    if (*fCurPos == '%') {
+        *c = SkScalarRoundToInt(*c * 255.0f / 100);
+        fCurPos++;
+    }
+
+    return true;
+}
+
+bool SkSVGAttributeParser::parseRGBColorToken(SkColor* c) {
+    return this->parseParenthesized("rgb", [this](SkColor* c) -> bool {
+        int32_t r, g, b;
+        if (this->parseColorComponentToken(&r) &&
+            this->parseSepToken() &&
+            this->parseColorComponentToken(&g) &&
+            this->parseSepToken() &&
+            this->parseColorComponentToken(&b)) {
+
+            *c = SkColorSetRGB(static_cast<uint8_t>(r),
+                               static_cast<uint8_t>(g),
+                               static_cast<uint8_t>(b));
+            return true;
+        }
+        return false;
+    }, c);
+}
+
 bool SkSVGAttributeParser::parseColor(SkSVGColorType* color) {
     SkColor c;
 
@@ -157,7 +189,9 @@ bool SkSVGAttributeParser::parseColor(SkSVGColorType* color) {
 
     // TODO: rgb(...)
     bool parsedValue = false;
-    if (this->parseHexColorToken(&c) || this->parseNamedColorToken(&c)) {
+    if (this->parseHexColorToken(&c)
+        || this->parseNamedColorToken(&c)
+        || this->parseRGBColorToken(&c)) {
         *color = SkSVGColorType(c);
         parsedValue = true;
 
@@ -166,6 +200,31 @@ bool SkSVGAttributeParser::parseColor(SkSVGColorType* color) {
     }
 
     return parsedValue && this->parseEOSToken();
+}
+
+// https://www.w3.org/TR/SVG/linking.html#IRIReference
+bool SkSVGAttributeParser::parseIRI(SkSVGStringType* iri) {
+    // consume preceding whitespace
+    this->parseWSToken();
+
+    // we only support local fragments
+    if (!this->parseExpectedStringToken("#")) {
+        return false;
+    }
+    const auto* start = fCurPos;
+    this->advanceWhile([](char c) -> bool { return !is_eos(c) && c != ')'; });
+    if (start == fCurPos) {
+        return false;
+    }
+    *iri = SkString(start, fCurPos - start);
+    return true;
+}
+
+// https://www.w3.org/TR/SVG/types.html#DataTypeFuncIRI
+bool SkSVGAttributeParser::parseFuncIRI(SkSVGStringType* iri) {
+    return this->parseParenthesized("url", [this](SkSVGStringType* iri) -> bool {
+        return this->parseIRI(iri);
+    }, iri);
 }
 
 // https://www.w3.org/TR/SVG/types.html#DataTypeNumber
@@ -363,6 +422,7 @@ bool SkSVGAttributeParser::parseTransform(SkSVGTransformType* t) {
 // https://www.w3.org/TR/SVG/painting.html#SpecifyingPaint
 bool SkSVGAttributeParser::parsePaint(SkSVGPaint* paint) {
     SkSVGColorType c;
+    SkSVGStringType iri;
     bool parsedValue = false;
     if (this->parseColor(&c)) {
         *paint = SkSVGPaint(c);
@@ -375,6 +435,9 @@ bool SkSVGAttributeParser::parsePaint(SkSVGPaint* paint) {
         parsedValue = true;
     } else if (this->parseExpectedStringToken("inherit")) {
         *paint = SkSVGPaint(SkSVGPaint::Type::kInherit);
+        parsedValue = true;
+    } else if (this->parseFuncIRI(&iri)) {
+        *paint = SkSVGPaint(iri.value());
         parsedValue = true;
     }
     return parsedValue && this->parseEOSToken();

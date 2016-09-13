@@ -18,13 +18,14 @@ public:
     void appendChild(sk_sp<SkSVGNode>) override;
 
 protected:
-    SkSVGContainer(SkSVGTag);
+    explicit SkSVGContainer(SkSVGTag);
 
     void onRender(const SkSVGRenderContext&) const override;
 
-private:
+    // TODO: add some sort of child iterator, and hide the container.
     SkSTArray<1, sk_sp<SkSVGNode>, true> fChildren;
 
+private:
     typedef SkSVGTransformableNode INHERITED;
 };
 

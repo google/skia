@@ -10,6 +10,7 @@
 
 #include "SkRefCnt.h"
 #include "SkSize.h"
+#include "SkSVGIDMapper.h"
 #include "SkTemplates.h"
 
 class SkCanvas;
@@ -33,6 +34,7 @@ public:
 private:
     SkSize           fContainerSize;
     sk_sp<SkSVGNode> fRoot;
+    SkSVGIDMapper    fIDMapper;
 
     typedef SkRefCnt INHERITED;
 };
