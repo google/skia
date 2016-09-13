@@ -61,14 +61,12 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     self._run('ninja', 'ninja', '-C', self.out_dir)
 
   def install(self):
-    self._adb('reboot', 'reboot')
-    self._adb('wait for device', 'wait-for-usb-device')
     self._adb('mkdir /data/local/tmp/resources',
               'shell', 'mkdir', '-p', '/data/local/tmp/resources')
 
   def cleanup_steps(self):
     if self._ever_ran_adb:
-      self._adb('TEMPORARY reboot', 'reboot')
+      self._adb('reboot', 'reboot')
       self._adb('kill adb server', 'kill-server')
 
   def step(self, name, cmd, env=None, **kwargs):

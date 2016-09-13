@@ -2,22 +2,6 @@
   {
     "cmd": [
       "adb",
-      "reboot"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "reboot"
-  },
-  {
-    "cmd": [
-      "adb",
-      "wait-for-usb-device"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "wait for device"
-  },
-  {
-    "cmd": [
-      "adb",
       "shell",
       "mkdir",
       "-p",
@@ -595,7 +579,7 @@
       "reboot"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "TEMPORARY reboot"
+    "name": "reboot"
   },
   {
     "cmd": [
