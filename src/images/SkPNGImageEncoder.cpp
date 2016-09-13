@@ -103,70 +103,66 @@ static int computeBitDepth(int colorCount) {
 #endif
 }
 
-/*  Pack palette[] with the corresponding colors, and if hasAlpha is true, also
-    pack trans[] and return the number of trans[] entries written. If hasAlpha
-    is false, the return value will always be 0.
-
-    Note: this routine takes care of unpremultiplying the RGB values when we
-    have alpha in the colortable, since png doesn't support premul colors
+/*  Pack palette[] with the corresponding colors, and if the image has alpha, also
+    pack trans[] and return the number of alphas[] entries written. If the image is
+    opaque, the return value will always be 0.
 */
-static inline int pack_palette(SkColorTable* ctable,
-                               png_color* SK_RESTRICT palette,
-                               png_byte* SK_RESTRICT trans, SkAlphaType alphaType) {
-    const SkPMColor* SK_RESTRICT colors = ctable ? ctable->readColors() : nullptr;
-    const int ctCount = ctable->count();
-    int i, num_trans = 0;
-
+static inline int pack_palette(SkColorTable* ctable, png_color* SK_RESTRICT palette,
+                               png_byte* SK_RESTRICT alphas, SkAlphaType alphaType) {
+    const SkPMColor* SK_RESTRICT colors = ctable->readColors();
+    const int count = ctable->count();
+    int numWithAlpha = 0;
     if (kOpaque_SkAlphaType != alphaType) {
-        /*  first see if we have some number of fully opaque at the end of the
-            ctable. PNG allows num_trans < num_palette, but all of the trans
-            entries must come first in the palette. If I was smarter, I'd
-            reorder the indices and ctable so that all non-opaque colors came
-            first in the palette. But, since that would slow down the encode,
-            I'm leaving the indices and ctable order as is, and just looking
-            at the tail of the ctable for opaqueness.
-        */
-        num_trans = ctCount;
-        for (i = ctCount - 1; i >= 0; --i) {
-            if (SkGetPackedA32(colors[i]) != 0xFF) {
-                break;
+        auto getUnpremulColor = [alphaType](uint8_t color, uint8_t alpha) {
+            if (kPremul_SkAlphaType == alphaType) {
+                const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
+                const SkUnPreMultiply::Scale scale = table[alpha];
+                return (uint8_t) SkUnPreMultiply::ApplyScale(scale, color);
+            } else {
+                return color;
             }
-            num_trans -= 1;
-        }
+        };
 
-        if (kPremul_SkAlphaType == alphaType) {
-            const SkUnPreMultiply::Scale* SK_RESTRICT table = SkUnPreMultiply::GetScaleTable();
-            for (i = 0; i < num_trans; i++) {
-                const SkPMColor c = *colors++;
-                const unsigned a = SkGetPackedA32(c);
-                const SkUnPreMultiply::Scale s = table[a];
-                trans[i] = a;
-                palette[i].red = SkUnPreMultiply::ApplyScale(s, SkGetPackedR32(c));
-                palette[i].green = SkUnPreMultiply::ApplyScale(s,SkGetPackedG32(c));
-                palette[i].blue = SkUnPreMultiply::ApplyScale(s, SkGetPackedB32(c));
-            }
-        } else {
-            for (i = 0; i < num_trans; i++) {
-                const SkPMColor c = *colors++;
-                trans[i] = SkGetPackedA32(c);
-                palette[i].red = SkGetPackedR32(c);
-                palette[i].green = SkGetPackedG32(c);
-                palette[i].blue = SkGetPackedB32(c);
+        // PNG requires that all non-opaque colors come first in the palette.  Write these first.
+        for (int i = 0; i < count; i++) {
+            uint8_t alpha = SkGetPackedA32(colors[i]);
+            if (0xFF != alpha) {
+                alphas[numWithAlpha] = alpha;
+                palette[numWithAlpha].red   = getUnpremulColor(SkGetPackedR32(colors[i]), alpha);
+                palette[numWithAlpha].green = getUnpremulColor(SkGetPackedG32(colors[i]), alpha);
+                palette[numWithAlpha].blue  = getUnpremulColor(SkGetPackedB32(colors[i]), alpha);
+                numWithAlpha++;
             }
         }
 
-        // now fall out of this if-block to use common code for the trailing
-        // opaque entries
     }
 
-    // these (remaining) entries are opaque
-    for (i = num_trans; i < ctCount; i++) {
-        SkPMColor c = *colors++;
-        palette[i].red = SkGetPackedR32(c);
-        palette[i].green = SkGetPackedG32(c);
-        palette[i].blue = SkGetPackedB32(c);
+    if (0 == numWithAlpha) {
+        // All of the entries are opaque.
+        for (int i = 0; i < count; i++) {
+            SkPMColor c = *colors++;
+            palette[i].red   = SkGetPackedR32(c);
+            palette[i].green = SkGetPackedG32(c);
+            palette[i].blue  = SkGetPackedB32(c);
+        }
+    } else {
+        // We have already written the non-opaque colors.  Now just write the opaque colors.
+        int currIndex = numWithAlpha;
+        int i = 0;
+        while (currIndex != count) {
+            uint8_t alpha = SkGetPackedA32(colors[i]);
+            if (0xFF == alpha) {
+                palette[currIndex].red   = SkGetPackedR32(colors[i]);
+                palette[currIndex].green = SkGetPackedG32(colors[i]);
+                palette[currIndex].blue  = SkGetPackedB32(colors[i]);
+                currIndex++;
+            }
+
+            i++;
+        }
     }
-    return num_trans;
+
+    return numWithAlpha;
 }
 
 class SkPNGImageEncoder : public SkImageEncoder {
@@ -325,6 +321,7 @@ bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
     png_byte trans[256];
     if (kIndex_8_SkColorType == ct) {
         SkColorTable* colorTable = bitmap.getColorTable();
+        SkASSERT(colorTable);
         int numTrans = pack_palette(colorTable, paletteColors, trans, alphaType);
         png_set_PLTE(png_ptr, info_ptr, paletteColors, colorTable->count());
         if (numTrans > 0) {
