@@ -28,7 +28,7 @@ class Object {
 public:
     virtual ~Object() {}
     virtual bool asRRect(SkRRect* rr) const = 0;
-    virtual SkPath asPath() const = 0;
+    virtual SkPath asPath(SkScalar inset) const = 0;
     virtual void draw(SkCanvas* canvas, const SkPaint& paint) const = 0;
     virtual void clip(SkCanvas* canvas) const = 0;
     virtual bool contains(const SkRect& r) const = 0;
@@ -48,9 +48,11 @@ public:
         return true;
     }
 
-    SkPath asPath() const override { 
+    SkPath asPath(SkScalar inset) const override {
+        SkRRect tmp = fRRect;
+        tmp.inset(inset, inset);
         SkPath p;
-        p.addRRect(fRRect);
+        p.addRRect(tmp);
         return p;
     }
 
@@ -89,7 +91,10 @@ public:
         return false;
     }
 
-    SkPath asPath() const override {
+    SkPath asPath(SkScalar inset) const override {
+        SkRRect tmp = fRRect;
+        tmp.inset(inset, inset);
+
         // In this case we want the outline of the stroked rrect
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -97,7 +102,7 @@ public:
         paint.setStrokeWidth(kPad);
 
         SkPath p, stroked;
-        p.addRRect(fRRect);
+        p.addRRect(tmp);
         SkStroke stroke(paint);
         stroke.strokePath(p, &stroked);
         return stroked;
@@ -112,7 +117,7 @@ public:
     }
 
     void clip(SkCanvas* canvas) const override {
-        canvas->clipPath(this->asPath());
+        canvas->clipPath(this->asPath(0.0f));
     }
 
     bool contains(const SkRect& r) const override {
@@ -143,9 +148,12 @@ public:
         return true;
     }
 
-    SkPath asPath() const override { 
+    SkPath asPath(SkScalar inset) const override { 
+        SkRRect tmp = fRRect;
+        tmp.inset(inset, inset);
+
         SkPath p;
-        p.addRRect(fRRect);
+        p.addRRect(tmp);
         return p;
     }
 
@@ -182,9 +190,12 @@ public:
         return true;
     }
 
-    SkPath asPath() const override { 
+    SkPath asPath(SkScalar inset) const override { 
+        SkRect tmp = fRect;
+        tmp.inset(inset, inset);
+
         SkPath p;
-        p.addRect(fRect);
+        p.addRect(tmp);
         return p;
     }
 
@@ -238,14 +249,14 @@ public:
         return false;
     }
 
-    SkPath asPath() const override { return fPath; }
+    SkPath asPath(SkScalar inset) const override { return fPath; }
 
     void draw(SkCanvas* canvas, const SkPaint& paint) const override {
         canvas->drawPath(fPath, paint);
     }
 
     void clip(SkCanvas* canvas) const override {
-        canvas->clipPath(this->asPath());
+        canvas->clipPath(this->asPath(0.0f));
     }
 
     bool contains(const SkRect& r) const override {
@@ -280,7 +291,7 @@ public:
 
     static const int kModeCount = kLast_Mode + 1;
 
-    RevealGM() : fFraction(0.5f), fMode(kRRectsGaussianEdge_Mode) {
+    RevealGM() : fFraction(0.5f), fMode(kRRectsGaussianEdge_Mode), fPause(false) {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
     }
 
@@ -344,18 +355,20 @@ protected:
                 } else if (kBlurMask_Mode == fMode) {
                     SkPath clippedPath;
 
+                    SkScalar sigma = kPad / 4.0f;
+
                     if (clipObj->contains(drawObj->bounds())) {
-                        clippedPath = drawObj->asPath();
+                        clippedPath = drawObj->asPath(2.0f*sigma);
                     } else {
-                        SkPath drawnPath = drawObj->asPath();
-                        SkPath clipPath  = clipObj->asPath();
+                        SkPath drawnPath = drawObj->asPath(2.0f*sigma);
+                        SkPath clipPath  = clipObj->asPath(2.0f*sigma);
 
                         SkAssertResult(Op(clipPath, drawnPath, kIntersect_SkPathOp, &clippedPath));
                     }
 
                     SkPaint blurPaint;
                     blurPaint.setAntiAlias(true);
-                    blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 3.0f));
+                    blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma));
                     canvas->drawPath(clippedPath, blurPaint);
                 } else {
                     SkASSERT(kRRectsGaussianEdge_Mode == fMode);
@@ -380,9 +393,9 @@ protected:
                 strokePaint.setStyle(SkPaint::kStroke_Style);
                 strokePaint.setStrokeWidth(0);
                 strokePaint.setColor(SK_ColorRED);
-                canvas->drawPath(drawObj->asPath(), strokePaint);
+                canvas->drawPath(drawObj->asPath(0.0f), strokePaint);
                 strokePaint.setColor(SK_ColorGREEN);
-                canvas->drawPath(clipObj->asPath(), strokePaint);
+                canvas->drawPath(clipObj->asPath(0.0f), strokePaint);
 
                 canvas->restore();
             }
@@ -394,19 +407,25 @@ protected:
             case 'C':
                 fMode = (Mode)((fMode + 1) % kModeCount);
                 return true;
+            case 'p':
+                fPause = !fPause;
+                return true;
         }        
     
         return false;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
-        fFraction = timer.pingPong(kPeriod, 0.0f, 0.0f, 1.0f);
+        if (!fPause) {
+            fFraction = timer.pingPong(kPeriod, 0.0f, 0.0f, 1.0f);
+        }
         return true;
     }
 
 private:
     SkScalar fFraction;
     Mode     fMode;
+    bool     fPause;
 
     typedef GM INHERITED;
 };

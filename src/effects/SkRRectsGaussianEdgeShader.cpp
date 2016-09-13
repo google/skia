@@ -104,31 +104,34 @@ public:
     public:
         GLSLRRectsGaussianEdgeFP() { }
 
+        // This method emits code so that, for each shape, the distance from the edge is returned
+        // in 'outputName' clamped to 0..1 with positive distance being towards the center of the
+        // shape. The distance will have been normalized by the radius.
         void emitModeCode(Mode mode,
                           GrGLSLFPFragmentBuilder* fragBuilder,
                           const char* posName,
                           const char* sizesName,
                           const char* radiiName,
+                          const char* padRadName,
                           const char* outputName,
                           const char  indices[2]) { // how to access the params for the 2 rrects
 
             // positive distance is towards the center of the circle
             fragBuilder->codeAppendf("vec2 delta = %s.xy - %s.%s;",
-                                     fragBuilder->fragmentPosition(),
-                                     posName, indices);
+                                     fragBuilder->fragmentPosition(), posName, indices);
 
             switch (mode) {
             case kCircle_Mode:
-                fragBuilder->codeAppendf("%s = %s.%c - length(delta);",
-                                         outputName,
-                                         sizesName, indices[0]);
+                fragBuilder->codeAppendf("%s = clamp((%s.%c - length(delta))/%s.y, 0.0, 1.0);",
+                                         outputName, sizesName, indices[0], padRadName);
                 break;
             case kRect_Mode:
-                fragBuilder->codeAppendf("float xDist = %s.%c - abs(delta.x);",
-                                         sizesName, indices[0]);
-                fragBuilder->codeAppendf("float yDist = %s.%c - abs(delta.y);",
-                                         sizesName, indices[1]);
-                fragBuilder->codeAppendf("%s = min(xDist, yDist);", outputName);
+                fragBuilder->codeAppendf(
+                    "vec2 rectDist = vec2(1.0 - clamp((%s.%c - abs(delta.x))/%s.y, 0.0, 1.0),"
+                                         "1.0 - clamp((%s.%c - abs(delta.y))/%s.y, 0.0, 1.0));",
+                    sizesName, indices[0], padRadName,
+                    sizesName, indices[1], padRadName);
+                fragBuilder->codeAppendf("%s = 1.0 - length(rectDist);", outputName);
                 break;
             case kSimpleCircular_Mode:
                 // For the circular round rect we first compute the distance
@@ -136,28 +139,28 @@ public:
                 // point is in one of the circular corners. We then compute the
                 // distance from the corner and then use the multiplier to mask
                 // between the two distances.
-                fragBuilder->codeAppendf("float xDist = %s.%c - abs(delta.x);",
-                                         sizesName, indices[0]);
-                fragBuilder->codeAppendf("float yDist = %s.%c - abs(delta.y);",
-                                         sizesName, indices[1]);
+                fragBuilder->codeAppendf("float xDist = clamp((%s.%c - abs(delta.x))/%s.y,"
+                                                             " 0.0, 1.0);",
+                                         sizesName, indices[0], padRadName);
+                fragBuilder->codeAppendf("float yDist = clamp((%s.%c - abs(delta.y))/%s.y,"
+                                                             "0.0, 1.0);",
+                                         sizesName, indices[1], padRadName);
                 fragBuilder->codeAppend("float rectDist = min(xDist, yDist);");
 
                 fragBuilder->codeAppendf("vec2 cornerCenter = %s.%s - %s.%s;",
-                                         sizesName, indices,
-                                         radiiName, indices);
+                                         sizesName, indices, radiiName, indices);
                 fragBuilder->codeAppend("delta = vec2(abs(delta.x) - cornerCenter.x,"
                                                      "abs(delta.y) - cornerCenter.y);");
-                fragBuilder->codeAppendf("xDist = %s.%c - abs(delta.x);",
-                                         radiiName, indices[0]);
-                fragBuilder->codeAppendf("yDist = %s.%c - abs(delta.y);",
-                                         radiiName, indices[1]);
+                fragBuilder->codeAppendf("xDist = %s.%c - abs(delta.x);", radiiName, indices[0]);
+                fragBuilder->codeAppendf("yDist = %s.%c - abs(delta.y);", radiiName, indices[1]);
                 fragBuilder->codeAppend("float cornerDist = min(xDist, yDist);");
                 fragBuilder->codeAppend("float multiplier = step(0.0, cornerDist);");
 
                 fragBuilder->codeAppendf("delta += %s.%s;", radiiName, indices);
 
-                fragBuilder->codeAppendf("cornerDist = 2.0 * %s.%c - length(delta);",
-                                         radiiName, indices[0]);
+                fragBuilder->codeAppendf("cornerDist = clamp((2.0 * %s.%c - length(delta))/%s.y,"
+                                                             "0.0, 1.0);",
+                                         radiiName, indices[0], padRadName);
 
                 fragBuilder->codeAppendf("%s = (multiplier * cornerDist) +"
                                               "((1.0-multiplier) * rectDist);",
@@ -180,9 +183,11 @@ public:
                                                    kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                    "Sizes", &sizesUniName);
             const char* radiiUniName = nullptr;
-            fRadiiUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                   kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                                   "Radii", &radiiUniName);
+            if (fp.fFirstMode == kSimpleCircular_Mode || fp.fSecondMode == kSimpleCircular_Mode) {
+                fRadiiUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                       "Radii", &radiiUniName);
+            }
             const char* padRadUniName = nullptr;
             fPadRadUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
@@ -191,25 +196,22 @@ public:
             fragBuilder->codeAppend("float firstDist;");
             fragBuilder->codeAppend("{");
             this->emitModeCode(fp.firstMode(), fragBuilder,
-                               positionsUniName, sizesUniName, radiiUniName, "firstDist", "xy");
+                               positionsUniName, sizesUniName, radiiUniName,
+                               padRadUniName, "firstDist", "xy");
             fragBuilder->codeAppend("}");
 
             fragBuilder->codeAppend("float secondDist;");
             fragBuilder->codeAppend("{");
             this->emitModeCode(fp.secondMode(), fragBuilder,
-                               positionsUniName, sizesUniName, radiiUniName, "secondDist", "zw");
+                               positionsUniName, sizesUniName, radiiUniName,
+                               padRadUniName, "secondDist", "zw");
             fragBuilder->codeAppend("}");
 
-            // Here use the sign of the distance to the two round rects to mask off the different
-            // cases.
-            fragBuilder->codeAppend("float in1 = step(0.0f, firstDist);");
-            fragBuilder->codeAppend("float in2 = step(0.0f, secondDist);");
-            fragBuilder->codeAppend("float dist = "
-                                             "in1*in2             * min(firstDist, secondDist);"
-                                             "in1*(1.0-in2)       * firstDist +"
-                                             "(1.0-in1)*in2       * secondDist;");
+            fragBuilder->codeAppendf("float dist = %s.y * firstDist * secondDist;",
+                                     padRadUniName);
 
             // Finally use the distance to apply the Gaussian edge
+            // TODO: we undo the multiply by the radius here - we should just skip both
             fragBuilder->codeAppendf("float factor = 1.0 - clamp((dist - %s.x)/%s.y, 0.0, 1.0);",
                                      padRadUniName, padRadUniName);
             fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
@@ -243,13 +245,16 @@ public:
                         0.5f * second.rect().width(),
                         0.5f * second.rect().height());
 
-            // This is a bit of overkill since fX should equal fY for both round rects but it
-            // makes the shader code simpler.
-            pdman.set4f(fRadiiUni, 
-                         0.5f * first.getSimpleRadii().fX,
-                         0.5f * first.getSimpleRadii().fY,
-                         0.5f * second.getSimpleRadii().fX,
-                         0.5f * second.getSimpleRadii().fY);
+            if (edgeFP.firstMode() == kSimpleCircular_Mode ||
+                edgeFP.secondMode() == kSimpleCircular_Mode) {
+                // This is a bit of overkill since fX should equal fY for both round rects but it
+                // makes the shader code simpler.
+                pdman.set4f(fRadiiUni, 
+                             0.5f * first.getSimpleRadii().fX,
+                             0.5f * first.getSimpleRadii().fY,
+                             0.5f * second.getSimpleRadii().fX,
+                             0.5f * second.getSimpleRadii().fY);
+            }
 
             pdman.set2f(fPadRadUni, edgeFP.pad(), edgeFP.radius());
         }
