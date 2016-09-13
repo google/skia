@@ -491,6 +491,29 @@ bool SkSVGAttributeParser::parseLineJoin(SkSVGLineJoin* join) {
     return parsedValue && this->parseEOSToken();
 }
 
+// https://www.w3.org/TR/SVG/pservers.html#LinearGradientElementSpreadMethodAttribute
+bool SkSVGAttributeParser::parseSpreadMethod(SkSVGSpreadMethod* spread) {
+    static const struct {
+        SkSVGSpreadMethod::Type fType;
+        const char*             fName;
+    } gSpreadInfo[] = {
+        { SkSVGSpreadMethod::Type::kPad    , "pad"     },
+        { SkSVGSpreadMethod::Type::kReflect, "reflect" },
+        { SkSVGSpreadMethod::Type::kRepeat , "repeat"  },
+    };
+
+    bool parsedValue = false;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gSpreadInfo); ++i) {
+        if (this->parseExpectedStringToken(gSpreadInfo[i].fName)) {
+            *spread = SkSVGSpreadMethod(gSpreadInfo[i].fType);
+            parsedValue = true;
+            break;
+        }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
 // https://www.w3.org/TR/SVG/shapes.html#PolygonElementPointsAttribute
 bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
     SkTDArray<SkPoint> pts;

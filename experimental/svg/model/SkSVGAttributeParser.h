@@ -24,6 +24,7 @@ public:
     bool parseLineJoin(SkSVGLineJoin*);
     bool parsePoints(SkSVGPointsType*);
     bool parseIRI(SkSVGStringType*);
+    bool parseSpreadMethod(SkSVGSpreadMethod*);
 
 private:
     // Stack-only

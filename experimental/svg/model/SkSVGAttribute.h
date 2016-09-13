@@ -27,6 +27,7 @@ enum class SkSVGAttribute {
     kR,  // <circle>: radius
     kRx, // <ellipse>,<rect>: horizontal (corner) radius
     kRy, // <ellipse>,<rect>: vertical (corner) radius
+    kSpreadMethod,
     kStopColor,
     kStopOpacity,
     kStroke,

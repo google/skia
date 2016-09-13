@@ -17,6 +17,10 @@ void SkSVGLinearGradient::setHref(const SkSVGStringType& href) {
     fHref = std::move(href);
 }
 
+void SkSVGLinearGradient::setSpreadMethod(const SkSVGSpreadMethod& spread) {
+    fSpreadMethod = spread;
+}
+
 void SkSVGLinearGradient::setX1(const SkSVGLength& x1) {
     fX1 = x1;
 }
@@ -38,6 +42,11 @@ void SkSVGLinearGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& 
     case SkSVGAttribute::kHref:
         if (const auto* href = v.as<SkSVGStringValue>()) {
             this->setHref(*href);
+        }
+        break;
+    case SkSVGAttribute::kSpreadMethod:
+        if (const auto* spread = v.as<SkSVGSpreadMethodValue>()) {
+            this->setSpreadMethod(*spread);
         }
         break;
     case SkSVGAttribute::kX1:
@@ -110,10 +119,17 @@ bool SkSVGLinearGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* pain
     //       * stop (lazy?) sorting
     //       * href loop detection
     //       * href attribute inheritance (not just color stops)
-    //       * spreadMethods support
     //       * objectBoundingBox units support
 
+    static_assert(static_cast<SkShader::TileMode>(SkSVGSpreadMethod::Type::kPad) ==
+                  SkShader::kClamp_TileMode, "SkSVGSpreadMethod::Type is out of sync");
+    static_assert(static_cast<SkShader::TileMode>(SkSVGSpreadMethod::Type::kRepeat) ==
+                  SkShader::kRepeat_TileMode, "SkSVGSpreadMethod::Type is out of sync");
+    static_assert(static_cast<SkShader::TileMode>(SkSVGSpreadMethod::Type::kReflect) ==
+                  SkShader::kMirror_TileMode, "SkSVGSpreadMethod::Type is out of sync");
+    const auto tileMode = static_cast<SkShader::TileMode>(fSpreadMethod.type());
+
     paint->setShader(SkGradientShader::MakeLinear(pts, colors.begin(), pos.begin(), colors.count(),
-                                                  SkShader::kClamp_TileMode));
+                                                  tileMode));
     return true;
 }

@@ -167,4 +167,28 @@ private:
     Type fType;
 };
 
+class SkSVGSpreadMethod {
+public:
+    // These values must match Skia's SkShader::TileMode enum.
+    enum class Type {
+        kPad,       // kClamp_TileMode
+        kRepeat,    // kRepeat_TileMode
+        kReflect,   // kMirror_TileMode
+    };
+
+    constexpr SkSVGSpreadMethod() : fType(Type::kPad) {}
+    constexpr explicit SkSVGSpreadMethod(Type t) : fType(t) {}
+
+    SkSVGSpreadMethod(const SkSVGSpreadMethod&)            = default;
+    SkSVGSpreadMethod& operator=(const SkSVGSpreadMethod&) = default;
+
+    bool operator==(const SkSVGSpreadMethod& other) const { return fType == other.fType; }
+    bool operator!=(const SkSVGSpreadMethod& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+private:
+    Type fType;
+};
+
 #endif // SkSVGTypes_DEFINED

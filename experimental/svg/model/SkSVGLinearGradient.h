@@ -19,6 +19,7 @@ public:
     }
 
     void setHref(const SkSVGStringType&);
+    void setSpreadMethod(const SkSVGSpreadMethod&);
     void setX1(const SkSVGLength&);
     void setY1(const SkSVGLength&);
     void setX2(const SkSVGLength&);
@@ -41,7 +42,8 @@ private:
     SkSVGLength fX2 = SkSVGLength(100, SkSVGLength::Unit::kPercentage);
     SkSVGLength fY2 = SkSVGLength(0  , SkSVGLength::Unit::kPercentage);
 
-    SkSVGStringType fHref;
+    SkSVGStringType   fHref;
+    SkSVGSpreadMethod fSpreadMethod = SkSVGSpreadMethod(SkSVGSpreadMethod::Type::kPad);
 
     typedef SkSVGHiddenContainer INHERITED;
 };

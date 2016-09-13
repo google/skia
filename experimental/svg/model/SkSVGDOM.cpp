@@ -149,6 +149,18 @@ bool SetLineJoinAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetSpreadMethodAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                             const char* stringValue) {
+    SkSVGSpreadMethod spread;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseSpreadMethod(&spread)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGSpreadMethodValue(spread));
+    return true;
+}
+
 bool SetPointsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                         const char* stringValue) {
     SkSVGPointsType points;
@@ -239,36 +251,37 @@ struct AttrParseInfo {
 };
 
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
-    { "cx"             , { SkSVGAttribute::kCx            , SetLengthAttribute    }},
-    { "cy"             , { SkSVGAttribute::kCy            , SetLengthAttribute    }},
-    { "d"              , { SkSVGAttribute::kD             , SetPathDataAttribute  }},
-    { "fill"           , { SkSVGAttribute::kFill          , SetPaintAttribute     }},
-    { "fill-opacity"   , { SkSVGAttribute::kFillOpacity   , SetNumberAttribute    }},
-    { "height"         , { SkSVGAttribute::kHeight        , SetLengthAttribute    }},
-    { "offset"         , { SkSVGAttribute::kOffset        , SetLengthAttribute    }},
-    { "opacity"        , { SkSVGAttribute::kOpacity       , SetNumberAttribute    }},
-    { "points"         , { SkSVGAttribute::kPoints        , SetPointsAttribute    }},
-    { "r"              , { SkSVGAttribute::kR             , SetLengthAttribute    }},
-    { "rx"             , { SkSVGAttribute::kRx            , SetLengthAttribute    }},
-    { "ry"             , { SkSVGAttribute::kRy            , SetLengthAttribute    }},
-    { "stop-color"     , { SkSVGAttribute::kStopColor     , SetColorAttribute     }},
-    { "stop-opacity"   , { SkSVGAttribute::kStopOpacity   , SetNumberAttribute    }},
-    { "stroke"         , { SkSVGAttribute::kStroke        , SetPaintAttribute     }},
-    { "stroke-linecap" , { SkSVGAttribute::kStrokeLineCap , SetLineCapAttribute   }},
-    { "stroke-linejoin", { SkSVGAttribute::kStrokeLineJoin, SetLineJoinAttribute  }},
-    { "stroke-opacity" , { SkSVGAttribute::kStrokeOpacity , SetNumberAttribute    }},
-    { "stroke-width"   , { SkSVGAttribute::kStrokeWidth   , SetLengthAttribute    }},
-    { "style"          , { SkSVGAttribute::kUnknown       , SetStyleAttributes    }},
-    { "transform"      , { SkSVGAttribute::kTransform     , SetTransformAttribute }},
-    { "viewBox"        , { SkSVGAttribute::kViewBox       , SetViewBoxAttribute   }},
-    { "width"          , { SkSVGAttribute::kWidth         , SetLengthAttribute    }},
-    { "x"              , { SkSVGAttribute::kX             , SetLengthAttribute    }},
-    { "x1"             , { SkSVGAttribute::kX1            , SetLengthAttribute    }},
-    { "x2"             , { SkSVGAttribute::kX2            , SetLengthAttribute    }},
-    { "xlink:href"     , { SkSVGAttribute::kHref          , SetIRIAttribute       }},
-    { "y"              , { SkSVGAttribute::kY             , SetLengthAttribute    }},
-    { "y1"             , { SkSVGAttribute::kY1            , SetLengthAttribute    }},
-    { "y2"             , { SkSVGAttribute::kY2            , SetLengthAttribute    }},
+    { "cx"             , { SkSVGAttribute::kCx            , SetLengthAttribute       }},
+    { "cy"             , { SkSVGAttribute::kCy            , SetLengthAttribute       }},
+    { "d"              , { SkSVGAttribute::kD             , SetPathDataAttribute     }},
+    { "fill"           , { SkSVGAttribute::kFill          , SetPaintAttribute        }},
+    { "fill-opacity"   , { SkSVGAttribute::kFillOpacity   , SetNumberAttribute       }},
+    { "height"         , { SkSVGAttribute::kHeight        , SetLengthAttribute       }},
+    { "offset"         , { SkSVGAttribute::kOffset        , SetLengthAttribute       }},
+    { "opacity"        , { SkSVGAttribute::kOpacity       , SetNumberAttribute       }},
+    { "points"         , { SkSVGAttribute::kPoints        , SetPointsAttribute       }},
+    { "r"              , { SkSVGAttribute::kR             , SetLengthAttribute       }},
+    { "rx"             , { SkSVGAttribute::kRx            , SetLengthAttribute       }},
+    { "ry"             , { SkSVGAttribute::kRy            , SetLengthAttribute       }},
+    { "spreadMethod"   , { SkSVGAttribute::kSpreadMethod  , SetSpreadMethodAttribute }},
+    { "stop-color"     , { SkSVGAttribute::kStopColor     , SetColorAttribute        }},
+    { "stop-opacity"   , { SkSVGAttribute::kStopOpacity   , SetNumberAttribute       }},
+    { "stroke"         , { SkSVGAttribute::kStroke        , SetPaintAttribute        }},
+    { "stroke-linecap" , { SkSVGAttribute::kStrokeLineCap , SetLineCapAttribute      }},
+    { "stroke-linejoin", { SkSVGAttribute::kStrokeLineJoin, SetLineJoinAttribute     }},
+    { "stroke-opacity" , { SkSVGAttribute::kStrokeOpacity , SetNumberAttribute       }},
+    { "stroke-width"   , { SkSVGAttribute::kStrokeWidth   , SetLengthAttribute       }},
+    { "style"          , { SkSVGAttribute::kUnknown       , SetStyleAttributes       }},
+    { "transform"      , { SkSVGAttribute::kTransform     , SetTransformAttribute    }},
+    { "viewBox"        , { SkSVGAttribute::kViewBox       , SetViewBoxAttribute      }},
+    { "width"          , { SkSVGAttribute::kWidth         , SetLengthAttribute       }},
+    { "x"              , { SkSVGAttribute::kX             , SetLengthAttribute       }},
+    { "x1"             , { SkSVGAttribute::kX1            , SetLengthAttribute       }},
+    { "x2"             , { SkSVGAttribute::kX2            , SetLengthAttribute       }},
+    { "xlink:href"     , { SkSVGAttribute::kHref          , SetIRIAttribute          }},
+    { "y"              , { SkSVGAttribute::kY             , SetLengthAttribute       }},
+    { "y1"             , { SkSVGAttribute::kY1            , SetLengthAttribute       }},
+    { "y2"             , { SkSVGAttribute::kY2            , SetLengthAttribute       }},
 };
 
 SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
