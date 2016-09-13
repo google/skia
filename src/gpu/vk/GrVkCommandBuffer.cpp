@@ -186,7 +186,7 @@ void GrVkCommandBuffer::bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pip
     GR_VK_CALL(gpu->vkInterface(), CmdBindPipeline(fCmdBuffer,
                                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
                                                    pipeline->pipeline()));
-    addResource(pipeline);
+    this->addResource(pipeline);
 }
 
 void GrVkCommandBuffer::drawIndexed(const GrVkGpu* gpu,

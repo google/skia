@@ -57,7 +57,8 @@ GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu,
                                            const LoadAndStoreInfo& stencilInfo)
     : fGpu(gpu)
     , fRenderTarget(target)
-    , fIsEmpty(true) {
+    , fIsEmpty(true)
+    , fStartsWithClear(false) {
     VkAttachmentLoadOp vkLoadOp;
     VkAttachmentStoreOp vkStoreOp;
 
@@ -101,6 +102,12 @@ void GrVkGpuCommandBuffer::end() {
 }
 
 void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
+    if (fIsEmpty && !fStartsWithClear) {
+        // We have sumbitted no actual draw commands to the command buffer and we are not using
+        // the render pass to do a clear so there is no need to submit anything.
+        return;
+    }
+
     // Change layout of our render target so it can be used as the color attachment. Currently
     // we don't attach the resolve to the framebuffer so no need to change its layout.
     GrVkImage* targetImage = fRenderTarget->msaaImage() ? fRenderTarget->msaaImage()
@@ -155,6 +162,7 @@ void GrVkGpuCommandBuffer::discard(GrRenderTarget* target) {
 
         SkASSERT(fRenderPass->isCompatible(*oldRP));
         oldRP->unref(fGpu);
+        fStartsWithClear = false;
     }
 }
 
@@ -252,6 +260,7 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const GrFixedClip& cl
         oldRP->unref(fGpu);
 
         GrColorToRGBAFloat(color, fColorClearValue.color.float32);
+        fStartsWithClear = true;
         return;
     }
 

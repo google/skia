@@ -1570,6 +1570,7 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
                             const SkIPoint& dstPoint) {
     if (can_copy_as_resolve(dst, src, this)) {
         this->copySurfaceAsResolve(dst, src, srcRect, dstPoint);
+        return true;
     }
 
     GrVkImage* dstImage;
