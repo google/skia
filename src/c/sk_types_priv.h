@@ -25,6 +25,8 @@
 #include "Sk1DPathEffect.h"
 #include "SkFontStyle.h"
 #include "GrContext.h"
+#include "SkPathOps.h"
+#include "SkTypeface.h"
 #include "gl/GrGLInterface.h"
 
 #include "sk_path.h"
@@ -484,6 +486,14 @@ static inline const gr_glinterface_t* ToGrGLInterface(const GrGLInterface* p) {
 
 static inline const GrGLInterface* AsGrGLInterface(const gr_glinterface_t* p) {
     return reinterpret_cast<const GrGLInterface*>(p);
+}
+
+static inline sk_opbuilder_t* ToOpBuilder(SkOpBuilder* p) {
+    return reinterpret_cast<sk_opbuilder_t*>(p);
+}
+
+static inline SkOpBuilder* AsOpBuilder(sk_opbuilder_t* p) {
+    return reinterpret_cast<SkOpBuilder*>(p);
 }
 
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {

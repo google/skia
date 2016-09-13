@@ -217,6 +217,20 @@ SK_API bool sk_path_contains (const sk_path_t* cpath, float x, float y);
 
 SK_API bool sk_path_get_last_point (const sk_path_t* cpath, sk_point_t* point);
 
+SK_API bool sk_pathop_op(const sk_path_t* one, const sk_path_t* two, sk_pathop_t op, sk_path_t* result);
+
+SK_API bool sk_pathop_simplify(const sk_path_t* path, sk_path_t* result);
+
+SK_API bool sk_pathop_tight_bounds(const sk_path_t* path, sk_rect_t* result);
+
+SK_API sk_opbuilder_t* sk_opbuilder_new();
+
+SK_API void sk_opbuilder_destroy(sk_opbuilder_t* builder);
+
+SK_API void sk_opbuilder_add(sk_opbuilder_t* builder, const sk_path_t* path, sk_pathop_t op);
+
+SK_API bool sk_opbuilder_resolve(sk_opbuilder_t* builder, sk_path_t* result);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

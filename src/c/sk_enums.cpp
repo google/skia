@@ -5,9 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypeface.h"
-#include "SkFontStyle.h"
-
 #include "sk_types_priv.h"
 
 #if __cplusplus >= 199711L
@@ -293,5 +290,12 @@ static_assert ((bool)SkBudgeted::kYes   == (bool)true,    ASSERT_MSG(SkBudgeted,
 // gr_context_flushbits_t
 static_assert ((int)0                                         == (int)NONE_GR_CONTEXT_FLUSHBITS,      ASSERT_MSG(GrContext::FlushBits, gr_context_flushbits_t));
 static_assert ((int)GrContext::FlushBits::kDiscard_FlushBit   == (int)DISCARD_GR_CONTEXT_FLUSHBITS,   ASSERT_MSG(GrContext::FlushBits, gr_context_flushbits_t));
+
+// sk_pathop_t
+static_assert ((int)SkPathOp::kDifference_SkPathOp          == (int)DIFFERENCE_SK_PATHOP,           ASSERT_MSG(SkPathOp, sk_pathop_t));
+static_assert ((int)SkPathOp::kIntersect_SkPathOp           == (int)INTERSECT_SK_PATHOP,            ASSERT_MSG(SkPathOp, sk_pathop_t));
+static_assert ((int)SkPathOp::kUnion_SkPathOp               == (int)UNION_SK_PATHOP,                ASSERT_MSG(SkPathOp, sk_pathop_t));
+static_assert ((int)SkPathOp::kXOR_SkPathOp                 == (int)XOR_SK_PATHOP,                  ASSERT_MSG(SkPathOp, sk_pathop_t));
+static_assert ((int)SkPathOp::kReverseDifference_SkPathOp   == (int)REVERSE_DIFFERENCE_SK_PATHOP,   ASSERT_MSG(SkPathOp, sk_pathop_t));
 
 #endif

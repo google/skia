@@ -6,6 +6,7 @@
  */
 
 #include "SkPath.h"
+#include "SkPathOps.h"
 
 #include "sk_path.h"
 
@@ -252,4 +253,32 @@ bool sk_path_get_last_point (const sk_path_t* cpath, sk_point_t* point) {
     } else {
         return false;
     }
+}
+
+bool sk_pathop_op(const sk_path_t* one, const sk_path_t* two, sk_pathop_t op, sk_path_t* result) {
+    return Op(AsPath(*one), AsPath(*two), (SkPathOp)op, AsPath(result));
+}
+
+bool sk_pathop_simplify(const sk_path_t* path, sk_path_t* result) {
+    return Simplify(AsPath(*path), AsPath(result));
+}
+
+bool sk_pathop_tight_bounds(const sk_path_t* path, sk_rect_t* result) {
+    return TightBounds(AsPath(*path), AsRect(result));
+}
+
+sk_opbuilder_t* sk_opbuilder_new() {
+    return ToOpBuilder(new SkOpBuilder());
+}
+
+void sk_opbuilder_destroy(sk_opbuilder_t* builder) {
+    delete AsOpBuilder(builder);
+}
+
+void sk_opbuilder_add(sk_opbuilder_t* builder, const sk_path_t* path, sk_pathop_t op) {
+    AsOpBuilder(builder)->add(AsPath(*path), (SkPathOp)op);
+}
+
+bool sk_opbuilder_resolve(sk_opbuilder_t* builder, sk_path_t* result) {
+    return AsOpBuilder(builder)->resolve(AsPath(result));
 }

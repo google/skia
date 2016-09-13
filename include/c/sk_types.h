@@ -622,6 +622,16 @@ typedef struct gr_glinterface_t gr_glinterface_t;
 typedef void (*gr_gl_func_ptr)();
 typedef gr_gl_func_ptr (*gr_gl_get_proc)(void* ctx, const char* name);
 
+typedef enum {
+    DIFFERENCE_SK_PATHOP,
+    INTERSECT_SK_PATHOP,
+    UNION_SK_PATHOP,
+    XOR_SK_PATHOP,
+    REVERSE_DIFFERENCE_SK_PATHOP,
+} sk_pathop_t;
+
+typedef struct sk_opbuilder_t sk_opbuilder_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
