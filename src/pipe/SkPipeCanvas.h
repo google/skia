@@ -23,7 +23,7 @@ public:
     void reset() { fArray.reset(); }
 
     // returns the found index or 0
-    int find(const T& key) {
+    int find(const T& key) const {
         const Rec* stop = fArray.end();
         for (const Rec* curr = fArray.begin(); curr < stop; ++curr) {
             if (key == curr->fKey) {
@@ -63,6 +63,9 @@ public:
     void setCanvas(SkPipeCanvas* canvas) { fPipeCanvas = canvas; }
     void setStream(SkWStream* stream) { fStream = stream; }
     void setTypefaceSerializer(SkTypefaceSerializer* tfs) { fTFSerializer = tfs; }
+
+    // returns 0 if not found
+    int findImage(SkImage* image) const { return fImages.find(image->uniqueID()); }
 
     int findOrDefineImage(SkImage*) override;
     int findOrDefinePicture(SkPicture*) override;

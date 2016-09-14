@@ -49,7 +49,7 @@ static bool deep_equal(SkImage* a, SkImage* b) {
     return true;
 }
 
-DEF_TEST(Pipe_image, reporter) {
+DEF_TEST(Pipe_image_draw_first, reporter) {
     sk_sp<SkImage> img = GetResourceAsImage("mandrill_128.png");
     SkASSERT(img.get());
 
@@ -85,4 +85,31 @@ DEF_TEST(Pipe_image, reporter) {
     REPORTER_ASSERT(reporter, offset3 <= 32);
     auto img2 = drain_as_image(&deserializer, &stream);
     REPORTER_ASSERT(reporter, img1.get() == img2.get());
+}
+
+DEF_TEST(Pipe_image_draw_second, reporter) {
+    sk_sp<SkImage> img = GetResourceAsImage("mandrill_128.png");
+    SkASSERT(img.get());
+
+    SkPipeSerializer serializer;
+    SkPipeDeserializer deserializer;
+    SkDynamicMemoryWStream stream;
+
+    serializer.write(img.get(), &stream);
+    size_t offset0 = stream.bytesWritten();
+    REPORTER_ASSERT(reporter, offset0 > 100);   // the raw image must be sorta big
+    drain_as_image(&deserializer, &stream);
+
+    // The 2nd image should be nice and small
+    serializer.write(img.get(), &stream);
+    size_t offset1 = stream.bytesWritten();
+    REPORTER_ASSERT(reporter, offset1 <= 32);
+    drain_as_image(&deserializer, &stream);
+
+    // Now try drawing the image, it should also be small
+    SkCanvas* wc = serializer.beginWrite(SkRect::MakeWH(100, 100), &stream);
+    wc->drawImage(img, 0, 0, nullptr);
+    serializer.endWrite();
+    size_t offset2 = stream.bytesWritten();
+    REPORTER_ASSERT(reporter, offset2 <= 32);
 }

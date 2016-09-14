@@ -689,7 +689,7 @@ static sk_sp<SkImage> make_from_encoded(const sk_sp<SkData>& data) {
     return image;
 }
 
-static void defineImage_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
+static void defineImage_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas*) {
     SkASSERT(SkPipeVerb::kDefineImage == unpack_verb(packedVerb));
     SkPipeInflator* inflator = (SkPipeInflator*)reader.getInflator();
     uint32_t extra = unpack_verb_extra(packedVerb);
@@ -867,21 +867,32 @@ sk_sp<SkPicture> SkPipeDeserializer::readPicture(const void* data, size_t size) 
 
 sk_sp<SkImage> SkPipeDeserializer::readImage(const void* data, size_t size) {
     if (size < sizeof(uint32_t)) {
+        SkDebugf("-------- data length too short for readImage %d\n", size);
         return nullptr;
     }
 
-    uint32_t header;
-    memcpy(&header, data, 4); size -= 4; data = (const char*)data + 4;
-    if (kDefineImage_ExtPipeVerb != header) {
+    const uint32_t* ptr = (const uint32_t*)data;
+    uint32_t packedVerb = *ptr++;
+    size -= 4;
+
+    if (SkPipeVerb::kDefineImage == unpack_verb(packedVerb)) {
+        SkPipeInflator inflator(&fImpl->fImages, &fImpl->fPictures,
+                                &fImpl->fTypefaces, &fImpl->fFactories,
+                                fImpl->fTFDeserializer);
+        SkPipeReader reader(this, ptr, size);
+        reader.setInflator(&inflator);
+        defineImage_handler(reader, packedVerb, nullptr);
+        packedVerb = reader.read32();  // read the next verb
+    }
+    if (SkPipeVerb::kWriteImage != unpack_verb(packedVerb)) {
+        SkDebugf("-------- unexpected verb for readImage %d\n", unpack_verb(packedVerb));
         return nullptr;
     }
-
-    SkPipeInflator inflator(&fImpl->fImages, &fImpl->fPictures,
-                            &fImpl->fTypefaces, &fImpl->fFactories,
-                            fImpl->fTFDeserializer);
-    SkPipeReader reader(this, data, size);
-    reader.setInflator(&inflator);
-    return sk_sp<SkImage>(reader.readImage());
+    int index = unpack_verb_extra(packedVerb);
+    if (0 == index) {
+        return nullptr; // writer failed
+    }
+    return sk_ref_sp(fImpl->fImages.get(index - 1));
 }
 
 static bool do_playback(SkPipeReader& reader, SkCanvas* canvas, int* endPictureIndex) {

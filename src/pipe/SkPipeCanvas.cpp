@@ -1037,9 +1037,13 @@ void SkPipeSerializer::write(SkPicture* picture, SkWStream* stream) {
 }
 
 void SkPipeSerializer::write(SkImage* image, SkWStream* stream) {
-    stream->write32(kDefineImage_ExtPipeVerb);
-    SkPipeWriter writer(stream, &fImpl->fDeduper);
-    writer.writeImage(image);
+    int index = fImpl->fDeduper.findImage(image);
+    if (0 == index) {
+        // Try to define the image
+        fImpl->fDeduper.setStream(stream);
+        index = fImpl->fDeduper.findOrDefineImage(image);
+    }
+    stream->write32(pack_verb(SkPipeVerb::kWriteImage, index));
 }
 
 SkCanvas* SkPipeSerializer::beginWrite(const SkRect& cull, SkWStream* stream) {
@@ -1053,4 +1057,5 @@ SkCanvas* SkPipeSerializer::beginWrite(const SkRect& cull, SkWStream* stream) {
 void SkPipeSerializer::endWrite() {
     fImpl->fCanvas->restoreToCount(1);
     fImpl->fCanvas.reset(nullptr);
+    fImpl->fDeduper.setCanvas(nullptr);
 }
