@@ -77,15 +77,12 @@ private:
 
     sk_sp<SkColorLookUpTable> fColorLUT;
 
-    // May contain pointers into storage or pointers into precomputed tables.
+    // Contain pointers into storage or pointers into precomputed tables.
     const float*              fSrcGammaTables[3];
-    float                     fSrcGammaTableStorage[3 * 256];
+    const uint8_t*            fDstGammaTables[3];
+    SkAutoMalloc              fStorage;
 
     float                     fSrcToDst[16];
-
-    // May contain pointers into storage or pointers into precomputed tables.
-    const uint8_t*            fDstGammaTables[3];
-    uint8_t                   fDstGammaTableStorage[3 * kDstGammaTableSize];
 
     friend class SkColorSpaceXform;
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(const sk_sp<SkColorSpace>& space);

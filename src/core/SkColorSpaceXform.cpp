@@ -256,7 +256,8 @@ static const GammaFns<uint8_t> kFromLinear {
 // Build tables to transform src gamma to linear.
 template <typename T>
 static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage, int gammaTableSize,
-                               const sk_sp<SkColorSpace>& space, const GammaFns<T>& fns) {
+                               const sk_sp<SkColorSpace>& space, const GammaFns<T>& fns,
+                               bool gammasAreMatching) {
     switch (as_CSB(space)->gammaNamed()) {
         case kSRGB_SkGammaNamed:
             outGammaTables[0] = outGammaTables[1] = outGammaTables[2] = fns.fSRGBTable;
@@ -271,18 +272,7 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
             const SkGammas* gammas = as_CSB(space)->gammas();
             SkASSERT(gammas);
 
-            for (int i = 0; i < 3; i++) {
-                if (i > 0) {
-                    // Check if this curve matches the first curve.  In this case, we can
-                    // share the same table pointer.  This should almost always be true.
-                    // I've never seen a profile where all three gamma curves didn't match.
-                    // But it is possible that they won't.
-                    if (gammas->type(0) == gammas->type(i) && gammas->data(0) == gammas->data(i)) {
-                        outGammaTables[i] = outGammaTables[0];
-                        continue;
-                    }
-                }
-
+            auto build_table = [=](int i) {
                 if (gammas->isNamed(i)) {
                     switch (gammas->data(i).fNamed) {
                         case kSRGB_SkGammaNamed:
@@ -319,7 +309,19 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
                                            params.fF);
                     outGammaTables[i] = &gammaTableStorage[i * gammaTableSize];
                 }
+            };
+
+            if (gammasAreMatching) {
+                build_table(0);
+                outGammaTables[1] = outGammaTables[0];
+                outGammaTables[2] = outGammaTables[0];
+            } else {
+                build_table(0);
+                build_table(1);
+                build_table(2);
             }
+
+            break;
         }
     }
 }
@@ -1159,6 +1161,28 @@ static void color_xform_RGBA(void* dst, const uint32_t* src, int len,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+static inline int num_tables(SkColorSpace* space) {
+    switch (as_CSB(space)->gammaNamed()) {
+        case kSRGB_SkGammaNamed:
+        case k2Dot2Curve_SkGammaNamed:
+        case kLinear_SkGammaNamed:
+            return 0;
+        default: {
+            const SkGammas* gammas = as_CSB(space)->gammas();
+            SkASSERT(gammas);
+
+            bool gammasAreMatching = (gammas->type(0) == gammas->type(1)) &&
+                                     (gammas->data(0) == gammas->data(1)) &&
+                                     (gammas->type(0) == gammas->type(2)) &&
+                                     (gammas->data(0) == gammas->data(2));
+
+            // It's likely that each component will have the same gamma.  In this case,
+            // we only need to build one table.
+            return gammasAreMatching ? 1 : 3;
+        }
+    }
+}
+
 template <SrcGamma kSrc, DstGamma kDst, ColorSpaceMatch kCSM>
 SkColorSpaceXform_Base<kSrc, kDst, kCSM>
 ::SkColorSpaceXform_Base(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
@@ -1166,10 +1190,23 @@ SkColorSpaceXform_Base<kSrc, kDst, kCSM>
     : fColorLUT(sk_ref_sp((SkColorLookUpTable*) as_CSB(srcSpace)->colorLUT()))
 {
     srcToDst.asColMajorf(fSrcToDst);
-    build_gamma_tables(fSrcGammaTables, fSrcGammaTableStorage, 256, srcSpace, kToLinear);
-    build_gamma_tables(fDstGammaTables, fDstGammaTableStorage, kDstGammaTableSize, dstSpace,
-                       kFromLinear);
+
+    const int numSrcTables = num_tables(srcSpace.get());
+    const int numDstTables = num_tables(dstSpace.get());
+    const size_t srcTableBytes = numSrcTables * 256 * sizeof(float);
+    const size_t dstTableBytes = numDstTables * kDstGammaTableSize * sizeof(uint8_t);
+    fStorage.reset(srcTableBytes + dstTableBytes);
+    float* srcStorage = (float*) fStorage.get();
+    uint8_t* dstStorage = SkTAddOffset<uint8_t>(fStorage.get(), srcTableBytes);
+
+    const bool srcGammasAreMatching = (1 >= numSrcTables);
+    const bool dstGammasAreMatching = (1 >= numDstTables);
+    build_gamma_tables(fSrcGammaTables, srcStorage, 256, srcSpace, kToLinear, srcGammasAreMatching);
+    build_gamma_tables(fDstGammaTables, dstStorage, kDstGammaTableSize, dstSpace, kFromLinear,
+                       dstGammasAreMatching);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <SrcFormat kSrc, DstFormat kDst, ColorSpaceMatch kCSM, SwapRB kSwap>
 static inline void apply_set_alpha(void* dst, const uint32_t* src, int len, SkAlphaType alphaType,
@@ -1290,6 +1327,8 @@ const
             return;
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(const sk_sp<SkColorSpace>& space) {
         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_Base
