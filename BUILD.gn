@@ -85,6 +85,10 @@ config("skia_private") {
       "SK_GAMMA_CONTRAST=0.0",
     ]
   }
+  if (is_official_build || is_android) {
+    # TODO(bsalomon): it'd be nice to make Android normal.
+    defines += [ "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0" ]
+  }
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.

@@ -6,12 +6,17 @@
 # It's best to keep the names and defaults of is_foo flags consistent with Chrome.
 
 declare_args() {
-  is_debug = true
+  is_official_build = false
   is_component_build = false
   ndk = ""
   ndk_api = 0  # 0 == picked automatically for target_cpu.
   sanitize = ""
 }
+declare_args() {
+  is_debug = !is_official_build
+}
+
+assert(!(is_debug && is_official_build))
 
 # Platform detection
 if (target_os == "") {
@@ -114,6 +119,9 @@ default_configs = [
 ]
 if (!is_debug) {
   default_configs += [ "//gn:release" ]
+}
+if (!is_official_build) {
+  default_configs += [ "//gn:debug_symbols" ]
 }
 
 set_defaults("executable") {

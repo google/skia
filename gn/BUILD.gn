@@ -28,6 +28,16 @@ config("no_rtti") {
   }
 }
 
+config("debug_symbols") {
+  # It's annoying to wait for full debug symbols to push over
+  # to Android devices.  -gline-tables-only is a lot slimmer.
+  if (is_android) {
+    cflags = [ "-gline-tables-only" ]
+  } else {
+    cflags = [ "-g" ]
+  }
+}
+
 config("default") {
   cflags = [
     "-O1",
@@ -55,14 +65,6 @@ config("default") {
     "-Wnon-virtual-dtor",
   ]
   ldflags = []
-
-  # It's annoying to wait for full debug symbols to push over
-  # to Android devices.  -gline-tables-only is a lot slimmer.
-  if (is_android) {
-    cflags += [ "-gline-tables-only" ]
-  } else {
-    cflags += [ "-g" ]
-  }
 
   if (current_cpu == "arm") {
     cflags += [
