@@ -5,21 +5,25 @@
 import default_flavor
 import subprocess
 
+# Data should go under in _data_dir, which may be preserved across runs.
+_data_dir = '/sdcard/revenge_of_the_skiabot/'
+# Executables go under _bin_dir, which, well, allows executable files.
+_bin_dir  = '/data/local/tmp/'
+
 """GN Android flavor utils, used for building Skia for Android with GN."""
 class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def __init__(self, m):
     super(GNAndroidFlavorUtils, self).__init__(m)
     self._ever_ran_adb = False
 
-    prefix = '/data/local/tmp/'
     self.device_dirs = default_flavor.DeviceDirs(
-        dm_dir        = prefix + 'dm_out',
-        perf_data_dir = prefix + 'perf',
-        resource_dir  = prefix + 'resources',
-        images_dir    = prefix + 'images',
-        skp_dir       = prefix + 'skps',
-        svg_dir       = prefix + 'svgs',
-        tmp_dir       = prefix + 'tmp')
+        dm_dir        = _data_dir + 'dm_out',
+        perf_data_dir = _data_dir + 'perf',
+        resource_dir  = _data_dir + 'resources',
+        images_dir    = _data_dir + 'images',
+        skp_dir       = _data_dir + 'skps',
+        svg_dir       = _data_dir + 'svgs',
+        tmp_dir       = _data_dir)
 
   def supported(self):
     return 'GN_Android' in self.m.vars.builder_cfg.get('extra_config', '')
@@ -69,8 +73,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     self._run('ninja', 'ninja', '-C', self.out_dir)
 
   def install(self):
-    self._adb('mkdir /data/local/tmp/resources',
-              'shell', 'mkdir', '-p', '/data/local/tmp/resources')
+    self._adb('mkdir ' + self.device_dirs.resource_dir,
+              'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
 
   def cleanup_steps(self):
     if self._ever_ran_adb:
@@ -80,25 +84,25 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def step(self, name, cmd, env=None, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     self._adb('push %s' % cmd[0],
-              'push', app, '/data/local/tmp')
+              'push', app, _bin_dir)
 
     sh = '%s.sh' % cmd[0]
     self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
-        'set -x; /data/local/tmp/%s; echo $? >/data/local/tmp/rc' %
-        subprocess.list2cmdline(map(str, cmd)))
+        'set -x; %s%s; echo $? >%src' %
+        (_bin_dir, subprocess.list2cmdline(map(str, cmd)), _bin_dir))
     self._adb('push %s' % sh,
-              'push', self.m.vars.tmp_dir.join(sh), '/data/local/tmp')
+              'push', self.m.vars.tmp_dir.join(sh), _bin_dir)
 
     self._adb('clear log', 'logcat', '-c')
-    self._adb(cmd[0], 'shell', 'sh', '/data/local/tmp/' + sh)
+    self._adb(cmd[0], 'shell', 'sh', _bin_dir + sh)
     self._adb('dump log ', 'logcat', '-d')
 
     self.m.python.inline('check %s rc' % cmd[0], """
     import subprocess
     import sys
     sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',
-                                          '/data/local/tmp/rc'])))
-    """)
+                                          '%src'])))
+    """ % _bin_dir)
 
   def copy_file_to_device(self, host, device):
     self._adb('push %s %s' % (host, device), 'push', host, device)

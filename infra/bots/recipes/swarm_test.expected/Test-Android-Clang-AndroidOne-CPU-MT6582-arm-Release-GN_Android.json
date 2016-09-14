@@ -5,10 +5,10 @@
       "shell",
       "mkdir",
       "-p",
-      "/data/local/tmp/resources"
+      "/sdcard/revenge_of_the_skiabot/resources"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "mkdir /data/local/tmp/resources"
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
   },
   {
     "cmd": [
@@ -16,10 +16,10 @@
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[SLAVE_BUILD]/skia/resources",
-      "/data/local/tmp/resources"
+      "/sdcard/revenge_of_the_skiabot/resources"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/skia/resources/* /data/local/tmp/resources",
+    "name": "push [SLAVE_BUILD]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -64,10 +64,10 @@
       "adb",
       "shell",
       "cat",
-      "/data/local/tmp/tmp/SKP_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "read /data/local/tmp/tmp/SKP_VERSION",
+    "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION",
     "stdout": "/path/to/tmp/"
   },
   {
@@ -76,10 +76,10 @@
       "shell",
       "rm",
       "-f",
-      "/data/local/tmp/tmp/SKP_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "rm /data/local/tmp/tmp/SKP_VERSION"
+    "name": "rm /sdcard/revenge_of_the_skiabot/SKP_VERSION"
   },
   {
     "cmd": [
@@ -87,10 +87,10 @@
       "shell",
       "rm",
       "-rf",
-      "/data/local/tmp/skps"
+      "/sdcard/revenge_of_the_skiabot/skps"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "rm /data/local/tmp/skps"
+    "name": "rm /sdcard/revenge_of_the_skiabot/skps"
   },
   {
     "cmd": [
@@ -98,10 +98,10 @@
       "shell",
       "mkdir",
       "-p",
-      "/data/local/tmp/skps"
+      "/sdcard/revenge_of_the_skiabot/skps"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "mkdir /data/local/tmp/skps"
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/skps"
   },
   {
     "cmd": [
@@ -109,10 +109,10 @@
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[SLAVE_BUILD]/skp",
-      "/data/local/tmp/skps"
+      "/sdcard/revenge_of_the_skiabot/skps"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/skp/* /data/local/tmp/skps",
+    "name": "push [SLAVE_BUILD]/skp/* /sdcard/revenge_of_the_skiabot/skps",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -137,10 +137,10 @@
       "adb",
       "push",
       "[SLAVE_BUILD]/tmp/SKP_VERSION",
-      "/data/local/tmp/tmp/SKP_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/tmp/SKP_VERSION /data/local/tmp/tmp/SKP_VERSION"
+    "name": "push [SLAVE_BUILD]/tmp/SKP_VERSION /sdcard/revenge_of_the_skiabot/SKP_VERSION"
   },
   {
     "cmd": [
@@ -167,10 +167,10 @@
       "adb",
       "shell",
       "cat",
-      "/data/local/tmp/tmp/SK_IMAGE_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "read /data/local/tmp/tmp/SK_IMAGE_VERSION",
+    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
     "stdout": "/path/to/tmp/"
   },
   {
@@ -179,10 +179,10 @@
       "shell",
       "rm",
       "-f",
-      "/data/local/tmp/tmp/SK_IMAGE_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "rm /data/local/tmp/tmp/SK_IMAGE_VERSION"
+    "name": "rm /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -190,10 +190,10 @@
       "shell",
       "rm",
       "-rf",
-      "/data/local/tmp/images"
+      "/sdcard/revenge_of_the_skiabot/images"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "rm /data/local/tmp/images"
+    "name": "rm /sdcard/revenge_of_the_skiabot/images"
   },
   {
     "cmd": [
@@ -201,10 +201,10 @@
       "shell",
       "mkdir",
       "-p",
-      "/data/local/tmp/images"
+      "/sdcard/revenge_of_the_skiabot/images"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "mkdir /data/local/tmp/images"
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/images"
   },
   {
     "cmd": [
@@ -212,10 +212,10 @@
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[SLAVE_BUILD]/skimage",
-      "/data/local/tmp/images"
+      "/sdcard/revenge_of_the_skiabot/images"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/skimage/* /data/local/tmp/images",
+    "name": "push [SLAVE_BUILD]/skimage/* /sdcard/revenge_of_the_skiabot/images",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -240,10 +240,10 @@
       "adb",
       "push",
       "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION",
-      "/data/local/tmp/tmp/SK_IMAGE_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/tmp/SK_IMAGE_VERSION /data/local/tmp/tmp/SK_IMAGE_VERSION"
+    "name": "push [SLAVE_BUILD]/tmp/SK_IMAGE_VERSION /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -270,10 +270,10 @@
       "adb",
       "shell",
       "cat",
-      "/data/local/tmp/tmp/SVG_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "read /data/local/tmp/tmp/SVG_VERSION",
+    "name": "read /sdcard/revenge_of_the_skiabot/SVG_VERSION",
     "stdout": "/path/to/tmp/"
   },
   {
@@ -282,10 +282,10 @@
       "shell",
       "rm",
       "-f",
-      "/data/local/tmp/tmp/SVG_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "rm /data/local/tmp/tmp/SVG_VERSION"
+    "name": "rm /sdcard/revenge_of_the_skiabot/SVG_VERSION"
   },
   {
     "cmd": [
@@ -293,10 +293,10 @@
       "shell",
       "rm",
       "-rf",
-      "/data/local/tmp/svgs"
+      "/sdcard/revenge_of_the_skiabot/svgs"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "rm /data/local/tmp/svgs"
+    "name": "rm /sdcard/revenge_of_the_skiabot/svgs"
   },
   {
     "cmd": [
@@ -304,10 +304,10 @@
       "shell",
       "mkdir",
       "-p",
-      "/data/local/tmp/svgs"
+      "/sdcard/revenge_of_the_skiabot/svgs"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "mkdir /data/local/tmp/svgs"
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/svgs"
   },
   {
     "cmd": [
@@ -315,10 +315,10 @@
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[SLAVE_BUILD]/svg",
-      "/data/local/tmp/svgs"
+      "/sdcard/revenge_of_the_skiabot/svgs"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/svg/* /data/local/tmp/svgs",
+    "name": "push [SLAVE_BUILD]/svg/* /sdcard/revenge_of_the_skiabot/svgs",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -343,10 +343,10 @@
       "adb",
       "push",
       "[SLAVE_BUILD]/tmp/SVG_VERSION",
-      "/data/local/tmp/tmp/SVG_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/tmp/SVG_VERSION /data/local/tmp/tmp/SVG_VERSION"
+    "name": "push [SLAVE_BUILD]/tmp/SVG_VERSION /sdcard/revenge_of_the_skiabot/SVG_VERSION"
   },
   {
     "cmd": [
@@ -398,10 +398,10 @@
       "shell",
       "rm",
       "-rf",
-      "/data/local/tmp/dm_out"
+      "/sdcard/revenge_of_the_skiabot/dm_out"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "rm /data/local/tmp/dm_out"
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out"
   },
   {
     "cmd": [
@@ -409,10 +409,10 @@
       "shell",
       "mkdir",
       "-p",
-      "/data/local/tmp/dm_out"
+      "/sdcard/revenge_of_the_skiabot/dm_out"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "mkdir /data/local/tmp/dm_out"
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/dm_out"
   },
   {
     "cmd": [
@@ -484,17 +484,17 @@
       "adb",
       "push",
       "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt",
-      "/data/local/tmp/tmp/uninteresting_hashes.txt"
+      "/sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/tmp/uninteresting_hashes.txt /data/local/tmp/tmp/uninteresting_hashes.txt"
+    "name": "push [SLAVE_BUILD]/tmp/uninteresting_hashes.txt /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
   },
   {
     "cmd": [
       "adb",
       "push",
       "[SLAVE_BUILD]/out/Release/dm",
-      "/data/local/tmp"
+      "/data/local/tmp/"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "name": "push dm"
@@ -504,7 +504,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "set -x; /data/local/tmp/dm --undefok --resourcePath /data/local/tmp/resources --skps /data/local/tmp/skps --images /data/local/tmp/images/dm --colorImages /data/local/tmp/images/colorspace --nameByHash --properties gitHash abc123 master client.skia builder Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android build_number 5 --svgs /data/local/tmp/svgs --key arch arm compiler Clang configuration Release cpu_or_gpu CPU cpu_or_gpu_value MT6582 extra_config GN_Android model AndroidOne os Android --uninterestingHashesFile /data/local/tmp/tmp/uninteresting_hashes.txt --writePath /data/local/tmp/dm_out --nogpu --config 565 8888 gpu gpusrgb msaa4 serialize-8888 tiles_rt-8888 pic-8888 --src tests gm image colorImage svg --blacklist f16 _ _ dstreadshuffle f16 image _ _ srgb image _ _ gpusrgb image _ _ _ test _ GrShape serialize-8888 gm _ bleed_image serialize-8888 gm _ c_gms serialize-8888 gm _ colortype serialize-8888 gm _ colortype_xfermodes serialize-8888 gm _ drawfilter serialize-8888 gm _ fontmgr_bounds_0.75_0 serialize-8888 gm _ fontmgr_bounds_1_-0.25 serialize-8888 gm _ fontmgr_bounds serialize-8888 gm _ fontmgr_match serialize-8888 gm _ fontmgr_iter serialize-8888 gm _ imagemasksubset serialize-8888 gm _ bitmapfilters serialize-8888 gm _ bitmapshaders serialize-8888 gm _ bleed serialize-8888 gm _ bleed_alpha_bmp serialize-8888 gm _ bleed_alpha_bmp_shader serialize-8888 gm _ convex_poly_clip serialize-8888 gm _ extractalpha serialize-8888 gm _ filterbitmap_checkerboard_32_32_g8 serialize-8888 gm _ filterbitmap_image_mandrill_64 serialize-8888 gm _ shadows serialize-8888 gm _ simpleaaclip_aaclip serialize-8888 gm _ composeshader_bitmap serialize-8888 gm _ scaled_tilemodes_npot serialize-8888 gm _ scaled_tilemodes serialize-8888 gm _ bleed_alpha_image serialize-8888 gm _ bleed_alpha_image_shader serialize-8888 gm _ verylargebitmap serialize-8888 gm _ verylarge_picture_image sp-8888 gm _ drawfilter pic-8888 gm _ drawfilter 2ndpic-8888 gm _ drawfilter lite-8888 gm _ drawfilter sp-8888 gm _ image-cacherator-from-picture pic-8888 gm _ image-cacherator-from-picture 2ndpic-8888 gm _ image-cacherator-from-picture serialize-8888 gm _ image-cacherator-from-picture sp-8888 gm _ image-cacherator-from-raster pic-8888 gm _ image-cacherator-from-raster 2ndpic-8888 gm _ image-cacherator-from-raster serialize-8888 gm _ image-cacherator-from-raster sp-8888 gm _ image-cacherator-from-ctable pic-8888 gm _ image-cacherator-from-ctable 2ndpic-8888 gm _ image-cacherator-from-ctable serialize-8888 gm _ image-cacherator-from-ctable sp-8888 gm _ gamut pic-8888 gm _ gamut lite-8888 gm _ gamut 2ndpic-8888 gm _ gamut serialize-8888 gm _ gamut --match ~WritePixels; echo $? >/data/local/tmp/rc",
+      "set -x; /data/local/tmp/dm --undefok --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --nameByHash --properties gitHash abc123 master client.skia builder Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android build_number 5 --svgs /sdcard/revenge_of_the_skiabot/svgs --key arch arm compiler Clang configuration Release cpu_or_gpu CPU cpu_or_gpu_value MT6582 extra_config GN_Android model AndroidOne os Android --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out --nogpu --config 565 8888 gpu gpusrgb msaa4 serialize-8888 tiles_rt-8888 pic-8888 --src tests gm image colorImage svg --blacklist f16 _ _ dstreadshuffle f16 image _ _ srgb image _ _ gpusrgb image _ _ _ test _ GrShape serialize-8888 gm _ bleed_image serialize-8888 gm _ c_gms serialize-8888 gm _ colortype serialize-8888 gm _ colortype_xfermodes serialize-8888 gm _ drawfilter serialize-8888 gm _ fontmgr_bounds_0.75_0 serialize-8888 gm _ fontmgr_bounds_1_-0.25 serialize-8888 gm _ fontmgr_bounds serialize-8888 gm _ fontmgr_match serialize-8888 gm _ fontmgr_iter serialize-8888 gm _ imagemasksubset serialize-8888 gm _ bitmapfilters serialize-8888 gm _ bitmapshaders serialize-8888 gm _ bleed serialize-8888 gm _ bleed_alpha_bmp serialize-8888 gm _ bleed_alpha_bmp_shader serialize-8888 gm _ convex_poly_clip serialize-8888 gm _ extractalpha serialize-8888 gm _ filterbitmap_checkerboard_32_32_g8 serialize-8888 gm _ filterbitmap_image_mandrill_64 serialize-8888 gm _ shadows serialize-8888 gm _ simpleaaclip_aaclip serialize-8888 gm _ composeshader_bitmap serialize-8888 gm _ scaled_tilemodes_npot serialize-8888 gm _ scaled_tilemodes serialize-8888 gm _ bleed_alpha_image serialize-8888 gm _ bleed_alpha_image_shader serialize-8888 gm _ verylargebitmap serialize-8888 gm _ verylarge_picture_image sp-8888 gm _ drawfilter pic-8888 gm _ drawfilter 2ndpic-8888 gm _ drawfilter lite-8888 gm _ drawfilter sp-8888 gm _ image-cacherator-from-picture pic-8888 gm _ image-cacherator-from-picture 2ndpic-8888 gm _ image-cacherator-from-picture serialize-8888 gm _ image-cacherator-from-picture sp-8888 gm _ image-cacherator-from-raster pic-8888 gm _ image-cacherator-from-raster 2ndpic-8888 gm _ image-cacherator-from-raster serialize-8888 gm _ image-cacherator-from-raster sp-8888 gm _ image-cacherator-from-ctable pic-8888 gm _ image-cacherator-from-ctable 2ndpic-8888 gm _ image-cacherator-from-ctable serialize-8888 gm _ image-cacherator-from-ctable sp-8888 gm _ gamut pic-8888 gm _ gamut lite-8888 gm _ gamut 2ndpic-8888 gm _ gamut serialize-8888 gm _ gamut --match ~WritePixels; echo $? >/data/local/tmp/rc",
       "[SLAVE_BUILD]/tmp/dm.sh"
     ],
     "name": "write dm.sh"
@@ -514,7 +514,7 @@
       "adb",
       "push",
       "[SLAVE_BUILD]/tmp/dm.sh",
-      "/data/local/tmp"
+      "/data/local/tmp/"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "name": "push dm.sh"
@@ -567,11 +567,11 @@
     "cmd": [
       "adb",
       "pull",
-      "/data/local/tmp/dm_out",
+      "/sdcard/revenge_of_the_skiabot/dm_out",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "pull /data/local/tmp/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
   },
   {
     "cmd": [
