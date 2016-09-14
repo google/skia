@@ -73,8 +73,6 @@ DEFINE_int32(shard,  0, "Which shard do I run?");
 
 DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 
-DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
-
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;

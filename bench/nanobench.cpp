@@ -127,8 +127,6 @@ DEFINE_string(sourceType, "",
 DEFINE_string(benchType,  "",
         "Apply usual --match rules to bench type: micro, recording, playback, skcodec, etc.");
 
-DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
-
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 static SkString humanize(double ms) {
