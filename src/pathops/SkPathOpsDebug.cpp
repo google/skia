@@ -1152,20 +1152,20 @@ SkString SkOpAngle::debugPart() const {
     SkString result;
     switch (this->segment()->verb()) {
         case SkPath::kLine_Verb:
-            result.printf(LINE_DEBUG_STR " id=%d", LINE_DEBUG_DATA(fCurvePart),
+            result.printf(LINE_DEBUG_STR " id=%d", LINE_DEBUG_DATA(fPart.fCurve),
                     this->segment()->debugID());
             break;
         case SkPath::kQuad_Verb:
-            result.printf(QUAD_DEBUG_STR " id=%d", QUAD_DEBUG_DATA(fCurvePart),
+            result.printf(QUAD_DEBUG_STR " id=%d", QUAD_DEBUG_DATA(fPart.fCurve),
                     this->segment()->debugID());
             break;
         case SkPath::kConic_Verb:
             result.printf(CONIC_DEBUG_STR " id=%d",
-                    CONIC_DEBUG_DATA(fCurvePart, fCurvePart.fConic.fWeight),
+                    CONIC_DEBUG_DATA(fPart.fCurve, fPart.fCurve.fConic.fWeight),
                     this->segment()->debugID());
             break;
         case SkPath::kCubic_Verb:
-            result.printf(CUBIC_DEBUG_STR " id=%d", CUBIC_DEBUG_DATA(fCurvePart),
+            result.printf(CUBIC_DEBUG_STR " id=%d", CUBIC_DEBUG_DATA(fPart.fCurve),
                     this->segment()->debugID());
             break;
         default:

@@ -54,6 +54,7 @@ bool FixWinding(SkPath* path) {
         return true;
     }
     SkASSERT(contourHead.next());
+    contourHead.joinAllSegments();
     contourHead.resetReverse();
     bool writePath = false;
     SkOpSpan* topSpan;

@@ -82,6 +82,19 @@ struct SkDCurve {
                        double s, double e, SkPathOpsBounds*);
 };
 
+class SkDCurveSweep {
+public:
+    bool isCurve() const { return fIsCurve; }
+    bool isOrdered() const { return fOrdered; }
+    void setCurveHullSweep(SkPath::Verb verb);
+
+    SkDCurve fCurve;
+    SkDVector fSweep[2];
+private:
+    bool fIsCurve;
+    bool fOrdered;  // cleared when a cubic's control point isn't between the sweep vectors
+
+};
 
 extern SkDPoint (SkDCurve::* const Top[])(const SkPoint curve[], SkScalar cWeight,
     double tStart, double tEnd, double* topT);

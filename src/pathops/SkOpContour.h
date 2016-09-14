@@ -63,18 +63,6 @@ public:
         return *result;
     }
 
-    SkOpContour* appendContour() {
-        SkOpContour* contour = SkOpTAllocator<SkOpContour>::New(this->globalState()->allocator());
-        contour->setNext(nullptr);
-        SkOpContour* prev = this;
-        SkOpContour* next;
-        while ((next = prev->next())) {
-            prev = next;
-        }
-        prev->setNext(contour);
-        return contour;
-    }
-
     const SkPathOpsBounds& bounds() const {
         return fBounds;
     }
@@ -219,6 +207,15 @@ public:
         return fXor;
     }
 
+    void joinSegments() {
+        SkOpSegment* segment = &fHead;
+        SkOpSegment* next;
+        do {
+            next = segment->next();
+            segment->joinEnds(next ? next : &fHead);
+        } while ((segment = next));
+    }
+
     void markAllDone() {
         SkOpSegment* segment = &fHead;
         do {
@@ -288,22 +285,6 @@ public:
     }
 
     void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkChunkAlloc* );
-
-    void remove(SkOpContour* contour) {
-        if (contour == this) {
-            SkASSERT(fCount == 0);
-            return;
-        }
-        SkASSERT(contour->fNext == nullptr);
-        SkOpContour* prev = this;
-        SkOpContour* next;
-        while ((next = prev->next()) != contour) {
-            SkASSERT(next);
-            prev = next;
-        }
-        SkASSERT(prev);
-        prev->setNext(nullptr);
-    }
 
     void reset() {
         fTail = nullptr;
@@ -416,6 +397,42 @@ private:
 };
 
 class SkOpContourHead : public SkOpContour {
+public:
+    SkOpContour* appendContour() {
+        SkOpContour* contour = SkOpTAllocator<SkOpContour>::New(this->globalState()->allocator());
+        contour->setNext(nullptr);
+        SkOpContour* prev = this;
+        SkOpContour* next;
+        while ((next = prev->next())) {
+            prev = next;
+        }
+        prev->setNext(contour);
+        return contour;
+    }
+
+    void joinAllSegments() {
+        SkOpContour* next = this;
+        do {
+            next->joinSegments();
+        } while ((next = next->next()));
+    }
+
+    void remove(SkOpContour* contour) {
+        if (contour == this) {
+            SkASSERT(this->count() == 0);
+            return;
+        }
+        SkASSERT(contour->next() == nullptr);
+        SkOpContour* prev = this;
+        SkOpContour* next;
+        while ((next = prev->next()) != contour) {
+            SkASSERT(next);
+            prev = next;
+        }
+        SkASSERT(prev);
+        prev->setNext(nullptr);
+    }
+
 };
 
 #endif

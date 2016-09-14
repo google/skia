@@ -26,16 +26,6 @@ void SkOpEdgeBuilder::addOperand(const SkPath& path) {
     preFetch();
 }
 
-int SkOpEdgeBuilder::count() const {
-    SkOpContour* contour = fContoursHead;
-    int count = 0;
-    while (contour) {
-        count += contour->count() > 0;
-        contour = contour->next();
-    }
-    return count;
-}
-
 bool SkOpEdgeBuilder::finish() {
     fOperand = false;
     if (fUnparseable || !walk()) {

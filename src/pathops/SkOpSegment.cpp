@@ -162,55 +162,28 @@ bool SkOpSegment::activeWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* sum
 bool SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
         SkPathWriter* path) const {
     FAIL_IF(start->starter(end)->alreadyAdded());
-    SkOpCurve edge;
-    const SkPoint* ePtr;
-    SkScalar eWeight;
-    if ((start == &fHead && end == &fTail) || (start == &fTail && end == &fHead)) {
-        ePtr = fPts;
-        eWeight = fWeight;
-    } else {
-    // OPTIMIZE? if not active, skip remainder and return xyAtT(end)
-        subDivide(start, end, &edge);
-        ePtr = edge.fPts;
-        eWeight = edge.fWeight;
-    }
-    bool reverse = ePtr == fPts && start != &fHead;
-    if (reverse) {
-        path->deferredMoveLine(ePtr[SkPathOpsVerbToPoints(fVerb)]);
-        switch (fVerb) {
-            case SkPath::kLine_Verb:
-                path->deferredLine(ePtr[0]);
-                break;
-            case SkPath::kQuad_Verb:
-                path->quadTo(ePtr[1], ePtr[0]);
-                break;
-            case SkPath::kConic_Verb:
-                path->conicTo(ePtr[1], ePtr[0], eWeight);
-                break;
-            case SkPath::kCubic_Verb:
-                path->cubicTo(ePtr[2], ePtr[1], ePtr[0]);
-                break;
-            default:
-                SkASSERT(0);
-        }
-    } else {
-        path->deferredMoveLine(ePtr[0]);
-        switch (fVerb) {
-            case SkPath::kLine_Verb:
-                path->deferredLine(ePtr[1]);
-                break;
-            case SkPath::kQuad_Verb:
-                path->quadTo(ePtr[1], ePtr[2]);
-                break;
-            case SkPath::kConic_Verb:
-                path->conicTo(ePtr[1], ePtr[2], eWeight);
-                break;
-            case SkPath::kCubic_Verb:
-                path->cubicTo(ePtr[1], ePtr[2], ePtr[3]);
-                break;
-            default:
-                SkASSERT(0);
-        }
+    SkDCurveSweep curvePart;
+    start->segment()->subDivide(start, end, &curvePart.fCurve);
+    curvePart.setCurveHullSweep(fVerb);
+    SkPath::Verb verb = curvePart.isCurve() ? fVerb : SkPath::kLine_Verb;
+    path->deferredMove(start->ptT());
+    switch (verb) {
+        case SkPath::kLine_Verb:
+            path->deferredLine(end->ptT());
+            break;
+        case SkPath::kQuad_Verb:
+            path->quadTo(curvePart.fCurve.fQuad.fPts[1].asSkPoint(), end->ptT());
+            break;
+        case SkPath::kConic_Verb:
+            path->conicTo(curvePart.fCurve.fConic.fPts[1].asSkPoint(), end->ptT(),
+                    curvePart.fCurve.fConic.fWeight);
+            break;
+        case SkPath::kCubic_Verb:
+            path->cubicTo(curvePart.fCurve.fCubic.fPts[1].asSkPoint(),
+                    curvePart.fCurve.fCubic.fPts[2].asSkPoint(), end->ptT());
+            break;
+        default:
+            SkASSERT(0);
     }
     return true;
 }

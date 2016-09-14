@@ -38,23 +38,21 @@ SkOpSegment* SkOpContour::addCurve(SkPath::Verb verb, const SkPoint pts[4]) {
 }
 
 void SkOpContour::toPath(SkPathWriter* path) const {
-    const SkPoint& pt = fHead.pts()[0];
-    path->deferredMove(pt);
     const SkOpSegment* segment = &fHead;
     do {
         SkAssertResult(segment->addCurveTo(segment->head(), segment->tail(), path));
     } while ((segment = segment->next()));
-    path->close();
+    path->finishContour();
+    path->assemble();
 }
 
 void SkOpContour::toReversePath(SkPathWriter* path) const {
-    const SkPoint& pt = fTail->pts()[0];
-    path->deferredMove(pt);
     const SkOpSegment* segment = fTail;
     do {
         SkAssertResult(segment->addCurveTo(segment->tail(), segment->head(), path));
     } while ((segment = segment->prev()));
-    path->close();
+    path->finishContour();
+    path->assemble();
 }
 
 SkOpSegment* SkOpContour::undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr) {

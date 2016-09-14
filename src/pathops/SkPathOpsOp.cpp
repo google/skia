@@ -152,7 +152,7 @@ static bool bridgeOp(SkOpContourHead* contourList, const SkPathOp op,
                         current->markDone(spanStart);
                     }
                 }
-                simple->close();
+                simple->finishContour();
             } else {
                 SkOpSpanBase* last = current->markAndChaseDone(start, end);
                 if (last && !last->chased()) {
@@ -175,7 +175,7 @@ static bool bridgeOp(SkOpContourHead* contourList, const SkPathOp op,
             }
         } while (true);
     } while (true);
-    return simple->someAssemblyRequired();
+    return true;
 }
 
 // pretty picture:
@@ -286,7 +286,7 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
     // turn path into list of segments
-    SkOpEdgeBuilder builder(*minuend, &contour, &globalState);
+    SkOpEdgeBuilder builder(*minuend, contourList, &globalState);
     if (builder.unparseable()) {
         return false;
     }
@@ -327,15 +327,10 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     result->reset();
     result->setFillType(fillType);
     SkPathWriter wrapper(*result);
-    bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper);
-    {  // if some edges could not be resolved, assemble remaining fragments
-        SkPath temp;
-        temp.setFillType(fillType);
-        SkPathWriter assembled(temp);
-        Assemble(wrapper, &assembled);
-        *result = *assembled.nativePath();
-        result->setFillType(fillType);
+    if (!bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper)) {
+        return false;
     }
+    wrapper.assemble();  // if some edges could not be resolved, assemble remaining
 #if DEBUG_T_SECT_LOOP_COUNT
     {
         SkAutoMutexAcquire autoM(debugWorstLoop);

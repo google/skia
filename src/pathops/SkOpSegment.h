@@ -268,6 +268,10 @@ public:
 
     bool isXor() const;
 
+    void joinEnds(SkOpSegment* start) {
+        fTail.ptT()->addOpp(start->fHead.ptT(), start->fHead.ptT());
+    }
+
     const SkPoint& lastPt() const {
         return fPts[SkPathOpsVerbToPoints(fVerb)];
     }

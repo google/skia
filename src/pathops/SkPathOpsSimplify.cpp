@@ -10,7 +10,7 @@
 #include "SkPathOpsCommon.h"
 #include "SkPathWriter.h"
 
-static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple, bool* closable) {
+static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple) {
     bool unsortable = false;
     do {
         SkOpSpan* span = FindSortableTop(contourList);
@@ -38,7 +38,7 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple, bo
                                 && !simple->isClosed()) {
                             // FIXME: put in the next two lines to avoid handling already added
                             if (start->starter(end)->checkAlreadyAdded()) {
-                                simple->close();
+                                simple->finishContour();
                             } else if (!current->addCurveTo(start, end, simple)) {
                                 return false;
                             }
@@ -69,7 +69,7 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple, bo
                         current->markDone(spanStart);
                     }
                 }
-                simple->close();
+                simple->finishContour();
             } else {
                 SkOpSpanBase* last = current->markAndChaseDone(start, end);
                 if (last && !last->chased()) {
@@ -92,17 +92,15 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple, bo
             }
         } while (true);
     } while (true);
-    *closable = !simple->someAssemblyRequired();
     return true;
 }
 
 // returns true if all edges were processed
-static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple, bool* closable) {
+static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple) {
     SkOpSegment* current;
     SkOpSpanBase* start;
     SkOpSpanBase* end;
     bool unsortable = false;
-    *closable = true;
     while ((current = FindUndone(contourList, &start, &end))) {
         do {
             if (!unsortable && current->done()) {
@@ -146,9 +144,8 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple, bool* 
                 }
                 current->markDone(spanStart);
             }
-            *closable = false;
         }
-        simple->close();
+        simple->finishContour();
         SkPathOpsDebug::ShowActiveSpans(contourList);
     }
     return true;
@@ -186,7 +183,7 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
 #if DEBUG_SORT
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
-    SkOpEdgeBuilder builder(*workingPath, &contour, &globalState);
+    SkOpEdgeBuilder builder(*workingPath, contourList, &globalState);
     if (!builder.finish()) {
         return false;
     }
@@ -218,21 +215,11 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
     result->reset();
     result->setFillType(fillType);
     SkPathWriter wrapper(*result);
-    bool closable SK_INIT_TO_AVOID_WARNING;
-    if (builder.xorMask() == kWinding_PathOpsMask
-            ? !bridgeWinding(contourList, &wrapper, &closable)
-            : !bridgeXor(contourList, &wrapper, &closable)) {
+    if (builder.xorMask() == kWinding_PathOpsMask ? !bridgeWinding(contourList, &wrapper)
+            : !bridgeXor(contourList, &wrapper)) {
         return false;
     }
-    if (!closable)
-    {  // if some edges could not be resolved, assemble remaining fragments
-        SkPath temp;
-        temp.setFillType(fillType);
-        SkPathWriter assembled(temp);
-        Assemble(wrapper, &assembled);
-        *result = *assembled.nativePath();
-        result->setFillType(fillType);
-    }
+    wrapper.assemble();  // if some edges could not be resolved, assemble remaining
     if (scaleFactor > 1) {
         ScalePath(*result, scaleFactor, result);
     }

@@ -23,7 +23,7 @@ bool TightBounds(const SkPath& path, SkRect* result) {
     } else {
         workingPath = &path;
     }
-    SkOpEdgeBuilder builder(*workingPath, &contour, &globalState);
+    SkOpEdgeBuilder builder(*workingPath, contourList, &globalState);
     if (!builder.finish()) {
         return false;
     }

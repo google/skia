@@ -896,7 +896,7 @@ void SkOpAngle::dumpCurves() const {
     const SkOpAngle* first = this;
     const SkOpAngle* next = this;
     do {
-        next->fCurvePart.dumpID(next->segment()->debugID());
+        next->fPart.fCurve.dumpID(next->segment()->debugID());
         next = next->fNext;
     } while (next && next != first);
 }
