@@ -530,36 +530,26 @@
   },
   {
     "cmd": [
-      "adb",
-      "shell",
-      "sh",
-      "/data/local/tmp/dm.sh"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "dm"
-  },
-  {
-    "cmd": [
-      "adb",
-      "logcat",
-      "-d"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "dump log "
-  },
-  {
-    "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nsys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',\n                                      '/data/local/tmp/rc'])))\n"
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "/data/local/tmp/",
+      "dm.sh"
     ],
-    "name": "check dm rc",
+    "name": "dm",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                                      '/data/local/tmp/rc'])))@@@",
+      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
+      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -572,6 +562,15 @@
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
+  },
+  {
+    "cmd": [
+      "adb",
+      "logcat",
+      "-d"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "dump log"
   },
   {
     "cmd": [

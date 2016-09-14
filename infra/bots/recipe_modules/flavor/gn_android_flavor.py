@@ -37,7 +37,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def _adb(self, title, *cmd, **kwargs):
     self._ever_ran_adb = True
-    # The only non-infra adb call (check rc) happens to not use _adb().
+    # The only non-infra adb steps (dm / nanobench) happen to not use _adb().
     if 'infra_step' not in kwargs:
       kwargs['infra_step'] = True
     return self._run(title, 'adb', *cmd, **kwargs)
@@ -78,6 +78,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def cleanup_steps(self):
     if self._ever_ran_adb:
+      self._adb('dump log', 'logcat', '-d')
       self._adb('reboot', 'reboot')
       self._adb('kill adb server', 'kill-server')
 
@@ -94,15 +95,19 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
               'push', self.m.vars.tmp_dir.join(sh), _bin_dir)
 
     self._adb('clear log', 'logcat', '-c')
-    self._adb(cmd[0], 'shell', 'sh', _bin_dir + sh)
-    self._adb('dump log ', 'logcat', '-d')
-
-    self.m.python.inline('check %s rc' % cmd[0], """
+    self.m.python.inline('%s' % cmd[0], """
     import subprocess
     import sys
-    sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',
-                                          '%src'])))
-    """ % _bin_dir)
+    bin_dir = sys.argv[1]
+    sh      = sys.argv[2]
+    subprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])
+    try:
+      sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',
+                                            bin_dir + 'rc'])))
+    except ValueError:
+      print "Couldn't read the return code.  Probably killed for OOM."
+      sys.exit(1)
+    """, args=[_bin_dir, sh])
 
   def copy_file_to_device(self, host, device):
     self._adb('push %s %s' % (host, device), 'push', host, device)
