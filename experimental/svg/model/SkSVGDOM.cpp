@@ -384,26 +384,29 @@ sk_sp<SkSVGNode> construct_svg_node(const SkDOM& dom, const ConstructionContext&
 
 } // anonymous namespace
 
-SkSVGDOM::SkSVGDOM(const SkSize& containerSize)
-    : fContainerSize(containerSize) {
+SkSVGDOM::SkSVGDOM()
+    : fContainerSize(SkSize::Make(0, 0)) {
 }
 
-sk_sp<SkSVGDOM> SkSVGDOM::MakeFromDOM(const SkDOM& xmlDom, const SkSize& containerSize) {
-    sk_sp<SkSVGDOM> dom = sk_make_sp<SkSVGDOM>(containerSize);
+sk_sp<SkSVGDOM> SkSVGDOM::MakeFromDOM(const SkDOM& xmlDom) {
+    sk_sp<SkSVGDOM> dom = sk_make_sp<SkSVGDOM>();
 
     ConstructionContext ctx(&dom->fIDMapper);
     dom->fRoot = construct_svg_node(xmlDom, ctx, xmlDom.getRootNode());
 
+    // Reset the default container size to match the intrinsic SVG size.
+    dom->setContainerSize(dom->intrinsicSize());
+
     return dom;
 }
 
-sk_sp<SkSVGDOM> SkSVGDOM::MakeFromStream(SkStream& svgStream, const SkSize& containerSize) {
+sk_sp<SkSVGDOM> SkSVGDOM::MakeFromStream(SkStream& svgStream) {
     SkDOM xmlDom;
     if (!xmlDom.build(svgStream)) {
         return nullptr;
     }
 
-    return MakeFromDOM(xmlDom, containerSize);
+    return MakeFromDOM(xmlDom);
 }
 
 void SkSVGDOM::render(SkCanvas* canvas) const {
@@ -414,6 +417,20 @@ void SkSVGDOM::render(SkCanvas* canvas) const {
                                SkSVGPresentationContext());
         fRoot->render(ctx);
     }
+}
+
+SkSize SkSVGDOM::intrinsicSize() const {
+    if (!fRoot || fRoot->tag() != SkSVGTag::kSvg) {
+        return SkSize::Make(0, 0);
+    }
+
+    // Intrinsic sizes are never relative, so the viewport size is irrelevant.
+    const SkSVGLengthContext lctx(SkSize::Make(0, 0));
+    return static_cast<const SkSVGSVG*>(fRoot.get())->intrinsicSize(lctx);
+}
+
+const SkSize& SkSVGDOM::containerSize() const {
+    return fContainerSize;
 }
 
 void SkSVGDOM::setContainerSize(const SkSize& containerSize) {

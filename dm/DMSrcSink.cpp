@@ -1043,11 +1043,12 @@ Error SVGSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Unable to open file: %s", fPath.c_str());
     }
 
-    sk_sp<SkSVGDOM> dom = SkSVGDOM::MakeFromStream(stream, kSVGSize);
+    sk_sp<SkSVGDOM> dom = SkSVGDOM::MakeFromStream(stream);
     if (!dom) {
         return SkStringPrintf("Unable to parse file: %s", fPath.c_str());
     }
 
+    dom->setContainerSize(kSVGSize);
     dom->render(canvas);
 
     return "";

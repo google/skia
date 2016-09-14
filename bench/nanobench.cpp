@@ -651,16 +651,21 @@ public:
             return nullptr;
         }
 
-        // TODO: use intrinsic size? make tunable via flag?
-        static const SkSize kContainerSize = SkSize::Make(128, 128);
-        sk_sp<SkSVGDOM> svgDom = SkSVGDOM::MakeFromStream(stream, kContainerSize);
+        sk_sp<SkSVGDOM> svgDom = SkSVGDOM::MakeFromStream(stream);
         if (!svgDom) {
             SkDebugf("Could not parse %s.\n", path);
             return nullptr;
         }
 
+        // Use the intrinsic SVG size if available, otherwise fall back to a default value.
+        static const SkSize kDefaultContainerSize = SkSize::Make(128, 128);
+        if (svgDom->containerSize().isEmpty()) {
+            svgDom->setContainerSize(kDefaultContainerSize);
+        }
+
         SkPictureRecorder recorder;
-        svgDom->render(recorder.beginRecording(kContainerSize.width(), kContainerSize.height()));
+        svgDom->render(recorder.beginRecording(svgDom->containerSize().width(),
+                                               svgDom->containerSize().height()));
         return recorder.finishRecordingAsPicture();
     }
 
