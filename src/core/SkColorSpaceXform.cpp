@@ -857,9 +857,9 @@ static inline void store_linear(void* dst, const uint32_t* src,
         kRShift = 16;
     }
 
-    dr = sk_clamp_0_255(dr);
-    dg = sk_clamp_0_255(dg);
-    db = sk_clamp_0_255(db);
+    dr = sk_clamp_0_255(255.0f * dr);
+    dg = sk_clamp_0_255(255.0f * dg);
+    db = sk_clamp_0_255(255.0f * db);
 
     Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
@@ -874,7 +874,7 @@ template <SwapRB kSwapRB>
 static inline void store_linear_1(void* dst, const uint32_t* src,
                                   Sk4f& rgba, const Sk4f&,
                                   const uint8_t* const[3]) {
-    rgba = sk_clamp_0_255(rgba);
+    rgba = sk_clamp_0_255(255.0f * rgba);
 
     uint32_t tmp;
     SkNx_cast<uint8_t>(Sk4f_round(rgba)).store(&tmp);
