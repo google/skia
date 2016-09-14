@@ -40,6 +40,7 @@
 #include "SkPictureUtils.h"
 #include "SkString.h"
 #include "SkSurface.h"
+#include "SkSVGDOM.h"
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
 #include "ThermalManager.h"
@@ -125,6 +126,8 @@ DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
 DEFINE_string(benchType,  "",
         "Apply usual --match rules to bench type: micro, recording, playback, skcodec, etc.");
+
+DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
@@ -550,6 +553,21 @@ static void cleanup_run(Target* target) {
 #endif
 }
 
+static void collect_files(const SkCommandLineFlags::StringArray& paths, const char* ext,
+                          SkTArray<SkString>* list) {
+    for (int i = 0; i < paths.count(); ++i) {
+        if (SkStrEndsWith(paths[i], ext)) {
+            list->push_back(SkString(paths[i]));
+        } else {
+            SkOSFile::Iter it(paths[i], ext);
+            SkString path;
+            while (it.next(&path)) {
+                list->push_back(SkOSPath::Join(paths[i], path.c_str()));
+            }
+        }
+    }
+}
+
 class BenchmarkStream {
 public:
     BenchmarkStream() : fBenches(BenchRegistry::Head())
@@ -557,6 +575,7 @@ public:
                       , fCurrentRecording(0)
                       , fCurrentScale(0)
                       , fCurrentSKP(0)
+                      , fCurrentSVG(0)
                       , fCurrentUseMPD(0)
                       , fCurrentCodec(0)
                       , fCurrentAndroidCodec(0)
@@ -567,17 +586,8 @@ public:
                       , fCurrentSubsetType(0)
                       , fCurrentSampleSize(0)
                       , fCurrentAnimSKP(0) {
-        for (int i = 0; i < FLAGS_skps.count(); i++) {
-            if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
-                fSKPs.push_back() = FLAGS_skps[i];
-            } else {
-                SkOSFile::Iter it(FLAGS_skps[i], ".skp");
-                SkString path;
-                while (it.next(&path)) {
-                    fSKPs.push_back() = SkOSPath::Join(FLAGS_skps[0], path.c_str());
-                }
-            }
-        }
+        collect_files(FLAGS_skps, ".skp", &fSKPs);
+        collect_files(FLAGS_svgs, ".svg", &fSVGs);
 
         if (4 != sscanf(FLAGS_clip[0], "%d,%d,%d,%d",
                         &fClip.fLeft, &fClip.fTop, &fClip.fRight, &fClip.fBottom)) {
@@ -634,6 +644,26 @@ public:
         }
 
         return SkPicture::MakeFromStream(stream.get());
+    }
+
+    static sk_sp<SkPicture> ReadSVGPicture(const char* path) {
+        SkFILEStream stream(path);
+        if (!stream.isValid()) {
+            SkDebugf("Could not read %s.\n", path);
+            return nullptr;
+        }
+
+        // TODO: use intrinsic size? make tunable via flag?
+        static const SkSize kContainerSize = SkSize::Make(128, 128);
+        sk_sp<SkSVGDOM> svgDom = SkSVGDOM::MakeFromStream(stream, kContainerSize);
+        if (!svgDom) {
+            SkDebugf("Could not parse %s.\n", path);
+            return nullptr;
+        }
+
+        SkPictureRecorder recorder;
+        svgDom->render(recorder.beginRecording(kContainerSize.width(), kContainerSize.height()));
+        return recorder.finishRecordingAsPicture();
     }
 
     Benchmark* next() {
@@ -712,7 +742,19 @@ public:
                 fCurrentUseMPD = 0;
                 fCurrentSKP++;
             }
+
+            while (fCurrentSVG++ < fSVGs.count()) {
+                const char* path = fSVGs[fCurrentSVG - 1].c_str();
+                if (sk_sp<SkPicture> pic = ReadSVGPicture(path)) {
+                    fSourceType = "svg";
+                    fBenchType = "playback";
+                    return new SKPBench(SkOSPath::Basename(path).c_str(), pic.get(), fClip,
+                                        fScales[fCurrentScale], false, FLAGS_loopSKP);
+                }
+            }
+
             fCurrentSKP = 0;
+            fCurrentSVG = 0;
             fCurrentScale++;
         }
 
@@ -987,6 +1029,7 @@ private:
     SkIRect            fClip;
     SkTArray<SkScalar> fScales;
     SkTArray<SkString> fSKPs;
+    SkTArray<SkString> fSVGs;
     SkTArray<bool>     fUseMPDs;
     SkTArray<SkString> fImages;
     SkTArray<SkString> fColorImages;
@@ -1001,6 +1044,7 @@ private:
     int fCurrentRecording;
     int fCurrentScale;
     int fCurrentSKP;
+    int fCurrentSVG;
     int fCurrentUseMPD;
     int fCurrentCodec;
     int fCurrentAndroidCodec;

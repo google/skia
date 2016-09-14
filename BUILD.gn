@@ -803,6 +803,7 @@ if (skia_enable_tools) {
     ]
     deps = [
       ":bench",
+      ":experimental_svg_model",
       ":flags",
       ":gm",
       ":gpu_tool_utils",
