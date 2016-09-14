@@ -102,11 +102,17 @@ void GrVkGpuCommandBuffer::end() {
 }
 
 void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
+    // TODO: We can't add this optimization yet since many things create a scratch texture which
+    // adds the discard immediately, but then don't draw to it right away. This causes the discard
+    // to be ignored and we get yelled at for loading uninitialized data. However, once MDP lands,
+    // the discard will get reordered with the rest of the draw commands and we can re-enable this.
+#if 0
     if (fIsEmpty && !fStartsWithClear) {
         // We have sumbitted no actual draw commands to the command buffer and we are not using
         // the render pass to do a clear so there is no need to submit anything.
         return;
     }
+#endif
 
     // Change layout of our render target so it can be used as the color attachment. Currently
     // we don't attach the resolve to the framebuffer so no need to change its layout.
