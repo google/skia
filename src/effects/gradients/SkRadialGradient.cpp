@@ -246,11 +246,8 @@ class GrRadialGradient : public GrGradientEffect {
 public:
     class GLSLRadialProcessor;
 
-    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
-                                           const SkRadialGradient& shader,
-                                           const SkMatrix& matrix,
-                                           SkShader::TileMode tm) {
-        return sk_sp<GrFragmentProcessor>(new GrRadialGradient(ctx, shader, matrix, tm));
+    static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
+        return sk_sp<GrFragmentProcessor>(new GrRadialGradient(args));
     }
 
     virtual ~GrRadialGradient() { }
@@ -258,11 +255,8 @@ public:
     const char* name() const override { return "Radial Gradient"; }
 
 private:
-    GrRadialGradient(GrContext* ctx,
-                     const SkRadialGradient& shader,
-                     const SkMatrix& matrix,
-                     SkShader::TileMode tm)
-        : INHERITED(ctx, shader, matrix, tm) {
+    GrRadialGradient(const CreateArgs& args)
+        : INHERITED(args) {
         this->initClassID<GrRadialGradient>();
     }
 
@@ -361,8 +355,8 @@ sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs&
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-    sk_sp<GrFragmentProcessor> inner(
-        GrRadialGradient::Make(args.fContext, *this, matrix, fTileMode));
+    sk_sp<GrFragmentProcessor> inner(GrRadialGradient::Make(
+        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode)));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
