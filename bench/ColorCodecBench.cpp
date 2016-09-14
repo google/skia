@@ -161,13 +161,14 @@ void ColorCodecBench::onDelayedSetup() {
     }
 
     fSrcInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
+    fDstInfo = fSrcInfo;
 
     if (FLAGS_half) {
         fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
         fDstSpace = fDstSpace->makeLinearGamma();
     }
 
-    fDstInfo = fSrcInfo.makeColorSpace(fDstSpace);
+    fDstInfo = fDstInfo.makeColorSpace(fDstSpace);
 
     fDst.reset(fDstInfo.getSafeSize(fDstInfo.minRowBytes()));
 

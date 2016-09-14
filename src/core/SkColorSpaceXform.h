@@ -26,14 +26,34 @@ public:
                                                   const sk_sp<SkColorSpace>& dstSpace);
 
     /**
-     *  Apply the color conversion to a src buffer, storing the output in the dst buffer.
-     *  The src is stored as RGBA (8888).  The dst is stored in the format indicated by
-     *  |dstColorType| and is premultiplied by alpha if |premul| is set.
+     *  Apply the color conversion to a |src| buffer, storing the output in the |dst| buffer.
+     *
+     *  @param dst          Stored in the format described by |dstColorType| and |dstAlphaType|
+     *  @param src          Stored as RGBA_8888, kUnpremul (note kOpaque is a form of kUnpremul)
+     *  @param len          Number of pixels in the buffers
+     *  @param dstColorType Describes color type of |dst|
+     *  @param dstAlphaType Describes alpha type of |dst|
+     *                      kUnpremul preserves input alpha values
+     *                      kPremul   performs a premultiplication and also preserves alpha values
+     *                      kOpaque   optimization hint, |dst| alphas set to 1
+     *
      */
     virtual void apply(void* dst, const uint32_t* src, int len, SkColorType dstColorType,
                        SkAlphaType dstAlphaType) const = 0;
 
     virtual ~SkColorSpaceXform() {}
+};
+
+enum SrcGamma {
+    kLinear_SrcGamma,
+    kTable_SrcGamma,
+};
+
+enum DstGamma {
+    kLinear_DstGamma,
+    kSRGB_DstGamma,
+    k2Dot2_DstGamma,
+    kTable_DstGamma,
 };
 
 enum ColorSpaceMatch {
@@ -42,7 +62,7 @@ enum ColorSpaceMatch {
     kFull_ColorSpaceMatch,
 };
 
-template <SkGammaNamed kDst, ColorSpaceMatch kCSM>
+template <SrcGamma kSrc, DstGamma kDst, ColorSpaceMatch kCSM>
 class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
 
