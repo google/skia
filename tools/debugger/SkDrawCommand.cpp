@@ -2813,7 +2813,7 @@ SkDrawTextBlobCommand::SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x,
 
     unsigned runs = 0;
     SkPaint runPaint(paint);
-    SkTextBlobRunIterator iter(blob.get());
+    SkTextBlobRunIterator iter(fBlob.get());
     while (!iter.done()) {
         SkAutoTDelete<SkString> tmpStr(new SkString);
         tmpStr->printf("==== Run [%d] ====", runs++);
