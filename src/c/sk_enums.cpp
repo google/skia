@@ -298,4 +298,9 @@ static_assert ((int)SkPathOp::kUnion_SkPathOp               == (int)UNION_SK_PAT
 static_assert ((int)SkPathOp::kXOR_SkPathOp                 == (int)XOR_SK_PATHOP,                  ASSERT_MSG(SkPathOp, sk_pathop_t));
 static_assert ((int)SkPathOp::kReverseDifference_SkPathOp   == (int)REVERSE_DIFFERENCE_SK_PATHOP,   ASSERT_MSG(SkPathOp, sk_pathop_t));
 
+// sk_path_convexity_t
+static_assert ((int)SkPath::Convexity::kUnknown_Convexity   == (int)UNKNOWN_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
+static_assert ((int)SkPath::Convexity::kConvex_Convexity    == (int)CONVEX_SK_PATH_CONVEXITY,    ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
+static_assert ((int)SkPath::Convexity::kConcave_Convexity   == (int)CONCAVE_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
+
 #endif

@@ -215,6 +215,14 @@ SK_API int sk_path_get_points (const sk_path_t* cpath, sk_point_t* points, int m
 
 SK_API bool sk_path_contains (const sk_path_t* cpath, float x, float y);
 
+SK_API sk_path_convexity_t sk_path_get_convexity (const sk_path_t* cpath);
+
+SK_API void sk_path_set_convexity (sk_path_t* cpath, sk_path_convexity_t convexity);
+
+SK_API bool sk_path_parse_svg_string (sk_path_t* cpath, const char* str);
+
+SK_API void sk_path_to_svg_string (const sk_path_t* cpath, sk_string_t* str);
+
 SK_API bool sk_path_get_last_point (const sk_path_t* cpath, sk_point_t* point);
 
 SK_API bool sk_pathop_op(const sk_path_t* one, const sk_path_t* two, sk_pathop_t op, sk_path_t* result);

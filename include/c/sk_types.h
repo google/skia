@@ -632,6 +632,12 @@ typedef enum {
 
 typedef struct sk_opbuilder_t sk_opbuilder_t;
 
+typedef enum {
+    UNKNOWN_SK_PATH_CONVEXITY,
+    CONVEX_SK_PATH_CONVEXITY,
+    CONCAVE_SK_PATH_CONVEXITY,
+} sk_path_convexity_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
