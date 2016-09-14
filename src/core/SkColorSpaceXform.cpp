@@ -653,11 +653,12 @@ static inline void load_rgba_from_tables(const uint32_t* src,
 }
 
 static inline void load_rgb_linear(const uint32_t* src,
-                                   Sk4f& r, Sk4f& g, Sk4f& b, Sk4f&,
+                                   Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
                                    const float* const[3]) {
     r = (1.0f / 255.0f) * SkNx_cast<float>((Sk4u::Load(src)      ) & 0xFF);
     g = (1.0f / 255.0f) * SkNx_cast<float>((Sk4u::Load(src) >>  8) & 0xFF);
     b = (1.0f / 255.0f) * SkNx_cast<float>((Sk4u::Load(src) >> 16) & 0xFF);
+    a = 0.0f; // Don't let the compiler complain that |a| is uninitialized.
 }
 
 static inline void load_rgba_linear(const uint32_t* src,
