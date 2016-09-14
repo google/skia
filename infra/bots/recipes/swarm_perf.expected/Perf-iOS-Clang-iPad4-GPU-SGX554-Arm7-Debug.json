@@ -350,7 +350,6 @@
       "--skps",
       "ignore_skps",
       "--config",
-      "565",
       "8888",
       "gpu",
       "nonrendering",

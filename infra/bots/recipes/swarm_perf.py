@@ -57,9 +57,11 @@ def nanobench_flags(bot):
   if 'iOS' in bot:
     args.extend(['--skps', 'ignore_skps'])
 
-  config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui' ]
+  config = ['8888', 'gpu', 'nonrendering', 'angle', 'hwui' ]
   if 'AndroidOne' not in bot:
     config += [ 'f16', 'srgb' ]
+  if '-GCE-' in bot:
+    config += [ '565' ]
   # The S4 crashes and the NP produces a long error stream when we run with
   # MSAA.
   if ('GalaxyS4'    not in bot and

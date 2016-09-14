@@ -63,7 +63,7 @@ def dm_flags(bot):
 
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
-  configs = ['565', '8888', 'gpu', 'gpusrgb', 'pdf']
+  configs = ['8888', 'gpu', 'gpusrgb', 'pdf']
   # Add in either msaa4 or msaa16 to the canonical set of configs to run
   if 'Android' in bot or 'iOS' in bot:
     configs.append('msaa4')
@@ -85,6 +85,7 @@ def dm_flags(bot):
     configs.remove('pdf')
 
   if '-GCE-' in bot:
+    configs.extend(['565'])
     configs.extend(['f16', 'srgb'])              # Gamma-correct formats.
     configs.extend(['sp-8888', '2ndpic-8888'])   # Test niche uses of SkPicture.
     configs.extend(['lite-8888'])                # Experimental display list.

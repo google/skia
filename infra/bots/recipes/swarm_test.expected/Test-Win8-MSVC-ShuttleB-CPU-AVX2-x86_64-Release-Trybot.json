@@ -224,7 +224,6 @@
       "[CUSTOM_[SWARM_OUT_DIR]]\\dm",
       "--nogpu",
       "--config",
-      "565",
       "8888",
       "gpu",
       "gpusrgb",

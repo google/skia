@@ -528,7 +528,6 @@
       "skiabot/skia_dm",
       "--nocpu",
       "--config",
-      "565",
       "8888",
       "gpu",
       "gpusrgb",
