@@ -348,7 +348,7 @@ protected:
                         SkPaint paint;
                         paint.setAntiAlias(true);
                         // G channel is an F6.2 radius
-                        paint.setColor(SkColorSetARGB(255, 255, (unsigned char)(4*kPad), 0));
+                        paint.setColor(SkColorSetARGB(255, 0, (unsigned char)(4*kPad), 0));
                         paint.setShader(SkGaussianEdgeShader::Make());
                         drawObj->draw(canvas, paint);
                     canvas->restore();

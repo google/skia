@@ -199,7 +199,7 @@ protected:
         paint.setColor(SkColorSetARGB(alpha, iRadius >> 8, iRadius & 0xff,
                                       (unsigned char)(4.0f*pad)));
 
-        paint.setShader(SkGaussianEdgeShader::Make(true));
+        paint.setShader(SkGaussianEdgeShader::Make());
         canvas->drawRRect(pathRRect, paint);
     }
 
@@ -320,7 +320,7 @@ protected:
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(strokeWidth);
         }
-        paint.setShader(SkGaussianEdgeShader::Make(true));
+        paint.setShader(SkGaussianEdgeShader::Make());
         // handle scale of radius due to CTM
         radius *= scaleFactors[0];
         // don't need to scale pad as it was computed from the transformed offset
