@@ -72,12 +72,12 @@ def derive_compile_bot_name(api):
     return 'Build-Ubuntu-GCC-x86_64-Release-Shared'
   if builder_cfg['role'] in ('Test', 'Perf'):
     task_os = builder_cfg['os']
-    extra_config = builder_cfg.get('extra_config')
+    extra_config = builder_cfg.get('extra_config', '')
     if task_os == 'Android':
       if extra_config == 'Vulkan':
         extra_config = '%s_%s' % (task_os, 'Vulkan')
-      elif extra_config == 'GN_Android':
-        pass  # i.e. extra_config stays GN_Android
+      elif 'GN_Android' in extra_config:
+        pass  # i.e. extra_config stays GN_Android or GN_Android_Vulkan
       else:
         extra_config = task_os
       task_os = 'Ubuntu'
