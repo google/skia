@@ -16,6 +16,7 @@ declare_args() {
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
   skia_use_sfntly = !is_fuchsia
+  skia_use_vulkan = false
   skia_use_zlib = true
 }
 
@@ -205,6 +206,7 @@ template("optional") {
                              [
                                "public_defines",
                                "deps",
+                               "libs",
                                "sources",
                                "sources_when_disabled",
                              ])
@@ -339,6 +341,13 @@ optional("typeface_freetype") {
   ]
 }
 
+optional("vulkan") {
+  enabled = skia_use_vulkan
+  public_defines = [ "SK_VULKAN" ]
+  libs = [ "vulkan" ]
+  sources = skia_vk_sources
+}
+
 optional("webp") {
   enabled = skia_use_libwebp
   public_defines = [ "SK_HAS_WEBP_LIBRARY" ]
@@ -390,6 +399,7 @@ component("skia") {
     ":sse42",
     ":ssse3",
     ":typeface_freetype",
+    ":vulkan",
     ":webp",
     ":xml",
   ]
@@ -603,6 +613,10 @@ if (skia_enable_tools) {
       sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
     } else if (is_mac) {
       sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
+    }
+
+    if (skia_use_vulkan) {
+      sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
     }
   }
 

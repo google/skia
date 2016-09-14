@@ -44,6 +44,7 @@ _gpu_gypi = exec_script("gypi_to_gn.py",
                         [ "../gyp/gpu.gypi" ])
 skia_gpu_sources = _gpu_gypi.skgpu_sources
 skia_null_gpu_sources = _gpu_gypi.skgpu_null_gl_sources
+skia_vk_sources = _gpu_gypi.skgpu_vk_sources
 
 # Opts.
 #
