@@ -157,6 +157,7 @@ def dm_flags(bot):
   blacklist('f16 image _ _')
   blacklist('srgb image _ _')
   blacklist('gpusrgb image _ _')
+  blacklist('glsrgb image _ _')
 
   if 'Valgrind' in bot:
     # These take 18+ hours to run.
