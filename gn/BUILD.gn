@@ -39,6 +39,7 @@ config("debug_symbols") {
 }
 
 config("default") {
+  asmflags = []
   cflags = [
     "-O1",
     "-fstrict-aliasing",
@@ -77,10 +78,18 @@ config("default") {
       "-march=mips32r2",
       "-mdspr2",
     ]
+  } else if (current_cpu == "x86") {
+    asmflags += [ "-m32" ]
+    cflags += [
+      "-m32",
+      "-msse2",
+      "-mfpmath=sse",
+    ]
+    ldflags += [ "-m32" ]
   }
 
   if (is_android) {
-    asmflags = [
+    asmflags += [
       "--target=$ndk_target",
       "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
     ]
