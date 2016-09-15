@@ -8,15 +8,12 @@ import default_flavor
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
   def supported(self):
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
-    os           = self.m.vars.builder_cfg.get('os',           '')
-    target_arch  = self.m.vars.builder_cfg.get('target_arch',  '')
 
     return any([
       'SAN' in extra_config,
       extra_config == 'Fast',
       extra_config == 'GN',
-      extra_config.startswith('SK'),
-      os == 'Ubuntu' and target_arch == 'x86',
+      extra_config.startswith('SK')
     ])
 
   def _run(self, title, cmd, env=None, infra_step=False):
@@ -32,7 +29,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     configuration = self.m.vars.builder_cfg.get('configuration', '')
     extra_config  = self.m.vars.builder_cfg.get('extra_config',  '')
     os            = self.m.vars.builder_cfg.get('os',            '')
-    target_arch   = self.m.vars.builder_cfg.get('target_arch',   '')
 
     clang_linux = str(self.m.vars.slave_dir.join('clang_linux'))
 
@@ -69,7 +65,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       'extra_cflags':  ' '.join(extra_cflags),
       'extra_ldflags': ' '.join(extra_ldflags),
       'sanitize': extra_config if 'SAN' in extra_config else '',
-      'target_cpu': 'x86' if target_arch == 'x86' else '',
     }.iteritems():
       if v:
         args[k] = '"%s"' % v

@@ -39,7 +39,6 @@ config("debug_symbols") {
 }
 
 config("default") {
-  asmflags = []
   cflags = [
     "-O1",
     "-fstrict-aliasing",
@@ -78,14 +77,6 @@ config("default") {
       "-march=mips32r2",
       "-mdspr2",
     ]
-  } else if (current_cpu == "x86") {
-    asmflags += [ "-m32" ]
-    cflags += [
-      "-m32",
-      "-msse2",
-      "-mfpmath=sse",
-    ]
-    ldflags += [ "-m32" ]
   }
 
   if (is_android) {
