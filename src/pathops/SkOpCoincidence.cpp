@@ -746,8 +746,8 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
     const SkOpPtT* csExisting = !cs ? coinSeg->existing(coinTs, nullptr) : nullptr;
     const SkOpPtT* ceExisting = !ce ? coinSeg->existing(coinTe, nullptr) : nullptr;
     FAIL_IF(csExisting && csExisting == ceExisting);
-    FAIL_IF(csExisting && (csExisting == ce ||
-            csExisting->contains(ceExisting ? ceExisting : ce)));
+//    FAIL_IF(csExisting && (csExisting == ce ||
+//            csExisting->contains(ceExisting ? ceExisting : ce)));
     FAIL_IF(ceExisting && (ceExisting == cs ||
             ceExisting->contains(csExisting ? csExisting : cs)));
     const SkOpPtT* osExisting = !os ? oppSeg->existing(oppTs, nullptr) : nullptr;
@@ -762,6 +762,9 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
     if (!cs || !os) {
         SkOpPtT* csWritable = cs ? const_cast<SkOpPtT*>(cs)
             : coinSeg->addT(coinTs);
+        if (csWritable == ce) {
+            return true;
+        }
         SkOpPtT* osWritable = os ? const_cast<SkOpPtT*>(os)
             : oppSeg->addT(oppTs);
         FAIL_IF(!csWritable || !osWritable);

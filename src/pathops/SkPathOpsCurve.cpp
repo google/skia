@@ -14,7 +14,7 @@ double SkDCurve::nearPoint(SkPath::Verb verb, const SkDPoint& xy, const SkDPoint
     int count = SkPathOpsVerbToPoints(verb);
     double minX = fCubic.fPts[0].fX;
     double maxX = minX;
-    for (int index = 0; index < count; ++index) {
+    for (int index = 1; index <= count; ++index) {
         minX = SkTMin(minX, fCubic.fPts[index].fX);
         maxX = SkTMax(maxX, fCubic.fPts[index].fX);
     }
@@ -23,7 +23,7 @@ double SkDCurve::nearPoint(SkPath::Verb verb, const SkDPoint& xy, const SkDPoint
     }
     double minY = fCubic.fPts[0].fY;
     double maxY = minY;
-    for (int index = 0; index < count; ++index) {
+    for (int index = 1; index <= count; ++index) {
         minY = SkTMin(minY, fCubic.fPts[index].fY);
         maxY = SkTMax(maxY, fCubic.fPts[index].fY);
     }

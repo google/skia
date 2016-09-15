@@ -37,7 +37,7 @@
         if (!SkPathOpsDebug::ValidWind(x)) strcpy(x##Str, "?"); \
         else SK_SNPRINTF(x##Str, sizeof(x##Str), "%d", x)
 
-#define DEBUG_UNDER_DEVELOPMENT 01
+#define DEBUG_UNDER_DEVELOPMENT 1
 
 #if FORCE_RELEASE
 
@@ -77,7 +77,7 @@
 #define DEBUG_ALIGNMENT 0
 #define DEBUG_ANGLE 1
 #define DEBUG_ASSEMBLE 1
-#define DEBUG_COINCIDENCE 01
+#define DEBUG_COINCIDENCE 1
 #define DEBUG_COINCIDENCE_ORDER 0  // tight arc quads may generate out-of-order coincdence spans
 #define DEBUG_COINCIDENCE_VERBOSE 0
 #define DEBUG_CUBIC_BINARY_SEARCH 0
@@ -91,7 +91,7 @@
 #define DEBUG_SHOW_TEST_NAME 1
 #define DEBUG_SORT 1
 #define DEBUG_T_SECT 0
-#define DEBUG_T_SECT_DUMP 0
+#define DEBUG_T_SECT_DUMP 0  // Use 1 normally. Use 2 to number segments, 3 for script output
 #define DEBUG_T_SECT_LOOP_COUNT 0
 #define DEBUG_VALIDATE 1
 #define DEBUG_WINDING 1

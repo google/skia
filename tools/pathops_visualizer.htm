@@ -3,22 +3,87 @@
 <div height="0" hidden="true">
 
 <div id="tiger8b_h_1">
-seg=1 {{{494.348663f, 224.583771f}, {494.375946f, 224.681992f}}}
-seg=2 {{{494.375946f, 224.681992f}, {494.376221f, 224.683273f}}}
-seg=3 {{{494.376221f, 224.683273f}, {494.375397f, 224.67955f}, {494.376495f, 224.683868f}}}
-seg=4 {{{494.376495f, 224.683868f}, {494.348663f, 224.583771f}}}
-debugShowLineIntersection wtTs[0]=1 {{{494.348663,224.583771}, {494.375946,224.681992}}} {{494.375946,224.681992}} wnTs[0]=0 {{{494.375946,224.681992}, {494.376221,224.683273}}}
-debugShowQuadLineIntersection wtTs[0]=0.228424525 {{{494.376221,224.683273}, {494.375397,224.67955}, {494.376495,224.683868}}} {{494.375946,224.681992}} wnTs[0]=1 {{{494.348663,224.583771}, {494.375946,224.681992}}}
-SkOpSegment::addT insert t=0.228424525 segID=3 spanID=9
-debugShowLineIntersection wtTs[0]=0 {{{494.348663,224.583771}, {494.375946,224.681992}}} {{494.348663,224.583771}} wtTs[1]=1 {{494.375946,224.681992}} wnTs[0]=1 {{{494.376495,224.683868}, {494.348663,224.583771}}} wnTs[1]=0.0188208188
-SkOpSegment::addT insert t=0.0188208188 segID=4 spanID=10
-debugShowQuadLineIntersection wtTs[0]=0 {{{494.376221,224.683273}, {494.375397,224.67955}, {494.376495,224.683868}}} {{494.376221,224.683273}} wtTs[1]=0.228448008 {{494.375946,224.681992}} wnTs[0]=1 {{{494.375946,224.681992}, {494.376221,224.683273}}} wnTs[1]=0
-debugShowLineIntersection wtTs[0]=0 {{{494.375946,224.681992}, {494.376221,224.683273}}} {{494.375946,224.681992}} wtTs[1]=1 {{494.376221,224.683273}} wnTs[0]=0.0188208 {{{494.376495,224.683868}, {494.348663,224.583771}}} wnTs[1]=0.00622666983
-SkOpSegment::addT insert t=0.00622666983 segID=4 spanID=11
-debugShowQuadLineIntersection wtTs[0]=0 {{{494.376221,224.683273}, {494.375397,224.67955}, {494.376495,224.683868}}} {{494.376221,224.683273}} wtTs[1]=1 {{494.376495,224.683868}} wnTs[0]=0.00622667 {{{494.376495,224.683868}, {494.348663,224.583771}}} wnTs[1]=0
-c:\puregit\src\pathops\skpathopsdebug.cpp:988: fatal error: "assert((t - fDebugBaseMin > 0) == (fDebugLastMin - fDebugBaseMin > 0))"
-pathops_unittest.exe has triggered a breakpoint.
-
+seg=1 {{{{494.348663f, 224.583771f}, {494.365143f, 224.633194f}, {494.376404f, 224.684067f}}}, 0.998645842f}
+seg=2 {{{494.376404f, 224.684067f}, {492.527069f, 224.218475f}, {492.952789f, 224.005585f}}}
+seg=3 {{{492.952789f, 224.005585f}, {494.375336f, 224.679337f}, {494.376038f, 224.682449f}}}
+seg=4 {{{494.376038f, 224.682449f}, {494.37619f, 224.68309f}}}
+seg=5 {{{494.37619f, 224.68309f}, {494.634338f, 225.414886f}, {494.895874f, 225.840698f}}}
+seg=6 {{{494.895874f, 225.840698f}, {494.348663f, 224.583771f}}}
+debugShowConicQuadIntersection wtTs[0]=1 {{{{494.348663,224.583771}, {494.365143,224.633194}, {494.376404,224.684067}}}, 0.998645842} {{494.376404,224.684067}} wnTs[0]=0 {{{494.376404,224.684067}, {492.527069,224.218475}, {492.952789,224.005585}}}
+id=1 1=(0,1) [4] id=2 4=(0.5,1) [1]
+id=1 1=(0,1) [6] id=2 6=(0.75,1) [1]
+id=1 3=(0.5,1) [6] id=2 6=(0.75,1) [3]
+id=1 3=(0.5,1) [8] id=2 8=(0.875,1) [3]
+id=1 5=(0.75,1) [8] id=2 8=(0.875,1) [5]
+id=1 7=(0.875,1) [8] id=2 8=(0.875,1) [7]
+id=1 7=(0.875,1) [10] id=2 10=(0.9375,1) [7]
+id=1 (empty) id=2 (empty)
+debugShowConicQuadIntersection no intersect {{{{494.348663,224.583771}, {494.365143,224.633194}, {494.376404,224.684067}}}, 0.998645842} {{{492.952789,224.005585}, {494.375336,224.679337}, {494.376038,224.682449}}}
+debugShowConicLineIntersection wtTs[0]=0.988457533 {{{{494.348663,224.583771}, {494.365143,224.633194}, {494.376404,224.684067}}}, 0.998645842} {{494.376038,224.682449}} wnTs[0]=0 {{{494.376038,224.682449}, {494.37619,224.68309}}}
+SkOpSegment::addT insert t=0.988457533 segID=1 spanID=13
+debugShowConicQuadIntersection no intersect {{{{494.348663,224.583771}, {494.365143,224.633194}, {494.376404,224.684067}}}, 0.998645842} {{{494.37619,224.68309}, {494.634338,225.414886}, {494.895874,225.840698}}}
+debugShowConicLineIntersection wtTs[0]=0 {{{{494.348663,224.583771}, {494.365143,224.633194}, {494.376404,224.684067}}}, 0.998645842} {{494.348663,224.583771}} wnTs[0]=1 {{{494.895874,225.840698}, {494.348663,224.583771}}}
+debugShowQuadIntersection wtTs[0]=1 {{{494.376404,224.684067}, {492.527069,224.218475}, {492.952789,224.005585}}} {{492.952789,224.005585}} wnTs[0]=0 {{{492.952789,224.005585}, {494.375336,224.679337}, {494.376038,224.682449}}}
+debugShowQuadLineIntersection no intersect {{{494.376404,224.684067}, {492.527069,224.218475}, {492.952789,224.005585}}} {{{494.376038,224.682449}, {494.37619,224.68309}}}
+id=1 1=(0,0.5) [2] id=2 2=(0,1) [1]
+id=1 1=(0,0.25) [2] id=2 2=(0,1) [1]
+id=1 (empty) id=2 (empty)
+debugShowQuadIntersection no intersect {{{494.376404,224.684067}, {492.527069,224.218475}, {492.952789,224.005585}}} {{{494.37619,224.68309}, {494.634338,225.414886}, {494.895874,225.840698}}}
+debugShowQuadLineIntersection no intersect {{{494.376404,224.684067}, {492.527069,224.218475}, {492.952789,224.005585}}} {{{494.895874,225.840698}, {494.348663,224.583771}}}
+debugShowQuadLineIntersection wtTs[0]=1 {{{492.952789,224.005585}, {494.375336,224.679337}, {494.376038,224.682449}}} {{494.376038,224.682449}} wnTs[0]=0 {{{494.376038,224.682449}, {494.37619,224.68309}}}
+debugShowQuadLineIntersection no intersect {{{492.952789,224.005585}, {494.375336,224.679337}, {494.376038,224.682449}}} {{{494.895874,225.840698}, {494.348663,224.583771}}}
+debugShowQuadLineIntersection wtTs[0]=0 {{{494.37619,224.68309}, {494.634338,225.414886}, {494.895874,225.840698}}} {{494.37619,224.68309}} wnTs[0]=1 {{{494.376038,224.682449}, {494.37619,224.68309}}}
+debugShowLineIntersection no intersect {{{494.376038,224.682449}, {494.37619,224.68309}}} {{{494.895874,225.840698}, {494.348663,224.583771}}}
+debugShowQuadLineIntersection wtTs[0]=1 {{{494.37619,224.68309}, {494.634338,225.414886}, {494.895874,225.840698}}} {{494.895874,225.840698}} wnTs[0]=0 {{{494.895874,225.840698}, {494.348663,224.583771}}}
+SkOpSegment::markDone id=4 (494.376038,224.682449 494.37619,224.68309) t=0 [7] (494.376038,224.682449) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
+SkOpSegment::sortAngles [1] tStart=0.988457533 [13]
+SkOpAngle::after [1/1] 9/9 tStart=0.988457533 tEnd=0 < [3/3] 13/13 tStart=1 tEnd=0 < [1/2] 25/25 tStart=0.988457533 tEnd=1  T 4
+SkOpAngle::afterPart {{{{494.376038,224.682449}, {494.364861,224.63218}, {494.348663,224.583771}}}, 0.998676896} id=1
+SkOpAngle::afterPart {{{494.376038,224.682449}, {492.952789,224.005585}, {492.952789,224.005585}}} id=3
+SkOpAngle::afterPart {{{{494.376038,224.682449}, {494.376312,224.683624}, {494.376404,224.684067}}}, 0.999999821} id=1
+SkOpSegment::sortAngles [3] tStart=1 [6]
+SkOpSegment::debugShowActiveSpans id=1 (494.348663,224.583771 494.364952,224.632623 494.376129,224.682892 0.998676896f) t=0 tEnd=0.988457533 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=1 (494.376129,224.682892 494.376274,224.68348 494.376404,224.684067 0.999999821f) t=0.988457533 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=2 (494.376404,224.684067 492.527069,224.218475 492.952789,224.005585) t=0 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=3 (492.952789,224.005585 494.375336,224.679337 494.376038,224.682449) t=0 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=5 (494.37619,224.68309 494.634338,225.414886 494.895874,225.840698) t=0 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=6 (494.895874,225.840698 494.348663,224.583771) t=0 tEnd=1 windSum=? windValue=1
+SkOpSpan::sortableTop dir=kLeft seg=1 t=0.494228767 pt=(494.363678,224.63298)
+SkOpSpan::sortableTop [0] valid=1 operand=0 span=3 ccw=1 seg=2 {{{494.376404f, 224.684067f}, {492.527069f, 224.218475f}, {492.952789f, 224.005585f}}} t=0.0557039225 pt=(494.177429,224.63298) slope=(-1.72260523,-0.451515005)
+SkOpSpan::sortableTop [1] valid=1 operand=0 span=5 ccw=0 seg=3 {{{492.952789f, 224.005585f}, {494.375336f, 224.679337f}, {494.376038f, 224.682449f}}} t=0.733006652 pt=(494.274292,224.63298) slope=(0.380324923,0.182168955)
+SkOpSpan::sortableTop [2] valid=1 operand=0 span=1 ccw=0 seg=1 {{{{494.348663f, 224.583771f}, {494.365143f, 224.633194f}, {494.376404f, 224.684067f}}}, 0.998645842f} t=0.494228767 pt=(494.363678,224.63298) slope=(0.0138909232,0.050105697)
+SkOpSegment::markWinding id=2 (494.376404,224.684067 492.527069,224.218475 492.952789,224.005585) t=0 [3] (494.376404,224.684067) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
+SkOpSegment::markWinding id=3 (492.952789,224.005585 494.375336,224.679337 494.376038,224.682449) t=0 [5] (492.952789,224.005585) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::markWinding id=2 (494.376404,224.684067 492.527069,224.218475 492.952789,224.005585) t=0 [3] (494.376404,224.684067) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
+SkOpSegment::markWinding id=1 (494.348663,224.583771 494.365143,224.633194 494.376404,224.684067) t=0.988457533 [13] (494.376129,224.682892) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::markWinding id=1 (494.348663,224.583771 494.365143,224.633194 494.376404,224.684067) t=0 [1] (494.348663,224.583771) tEnd=0.988457533 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+SkOpSegment::markWinding id=1 (494.348663,224.583771 494.365143,224.633194 494.376404,224.684067) t=0 [1] (494.348663,224.583771) tEnd=0.988457533 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+SkOpSegment::markWinding id=6 (494.895874,225.840698 494.348663,224.583771) t=0 [11] (494.895874,225.840698) tEnd=1 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::markWinding id=5 (494.37619,224.68309 494.634338,225.414886 494.895874,225.840698) t=0 [9] (494.37619,224.68309) tEnd=1 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::findNextWinding simple
+SkOpSegment::markDone id=1 (494.348663,224.583771 494.365143,224.633194 494.376404,224.684067) t=0 [1] (494.348663,224.583771) tEnd=0.988457533 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+bridgeWinding current id=1 from=(494.376129,224.682892) to=(494.348663,224.583771)
+path.moveTo(494.376129,224.682892);
+path.conicTo(494.36496,224.632629, 494.348663,224.583771, 0.998676896);
+SkOpSegment::findNextWinding simple
+SkOpSegment::markDone id=6 (494.895874,225.840698 494.348663,224.583771) t=0 [11] (494.895874,225.840698) tEnd=1 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+bridgeWinding current id=6 from=(494.348663,224.583771) to=(494.895874,225.840698)
+SkOpSegment::markDone id=5 (494.37619,224.68309 494.634338,225.414886 494.895874,225.840698) t=0 [9] (494.37619,224.68309) tEnd=1 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+path.lineTo(494.895874,225.840698);
+SkOpSegment::debugShowActiveSpans id=1 (494.376129,224.682892 494.376274,224.68348 494.376404,224.684067 0.999999821f) t=0.988457533 tEnd=1 windSum=-1 oppSum=0 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=2 (494.376404,224.684067 492.527069,224.218475 492.952789,224.005585) t=0 tEnd=1 windSum=-1 oppSum=0 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=3 (492.952789,224.005585 494.375336,224.679337 494.376038,224.682449) t=0 tEnd=1 windSum=-1 oppSum=0 windValue=1 oppValue=0
+SkOpSegment::findNextWinding
+SkOpAngle::dumpOne [1/2] next=1/1 sect=25/25  s=0.988457533 [13] e=1 [2] sgn=-1 windVal=1 windSum=-1 oppVal=0 oppSum=0
+SkOpAngle::dumpOne [1/1] next=3/3 sect=9/9  s=0.988457533 [13] e=0 [1] sgn=1 windVal=1 windSum=1 oppVal=0 oppSum=0 done
+SkOpAngle::dumpOne [3/3] next=1/2 sect=13/13  s=1 [6] e=0 [5] sgn=1 windVal=1 windSum=-1 oppVal=0 oppSum=0
+SkOpSegment::markDone id=3 (492.952789,224.005585 494.375336,224.679337 494.376038,224.682449) t=0 [5] (492.952789,224.005585) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
+SkOpSegment::markDone id=2 (494.376404,224.684067 492.527069,224.218475 492.952789,224.005585) t=0 [3] (494.376404,224.684067) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
+SkOpSegment::markDone id=1 (494.348663,224.583771 494.365143,224.633194 494.376404,224.684067) t=0.988457533 [13] (494.376129,224.682892) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
+SkOpSegment::findNextWinding from:[1] to:[1] start=13259432 end=18937312
+bridgeWinding current id=1 from=(494.376404,224.684067) to=(494.376129,224.682892)
+path.moveTo(494.376404,224.684067);
+path.lineTo(494.376129,224.682892);
 </div>
 
 </div>

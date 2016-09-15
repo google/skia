@@ -5331,7 +5331,7 @@ static void tiger8b_h_1(skiatest::Reporter* reporter, const char* filename) {
 #if DEBUG_UNDER_DEVELOPMENT  // tiger
     return;
 #endif
-    uint64_t testlines = 0x0000000001000893;  // best so far: 0x0000000001000893
+    uint64_t testlines = 0x0000001000350204;  // best so far: 0x0000000104080223
     tiger8b_x(reporter, filename, testlines);
 }
 
@@ -5382,8 +5382,6 @@ path.close();
 testSimplify(reporter, path, filename);
 }
 
-// FIXME: this should not fail -- it was isolated looking for the root cause to fuzz763_4713
-// it fails with and without that change
 static void fuzz763_4713_b(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType((SkPath::FillType) 0);
@@ -5416,8 +5414,7 @@ path.quadTo(SkBits2Float(0x41dc55b6), SkBits2Float(0x41d924df), SkBits2Float(0x4
 path.quadTo(SkBits2Float(0x41dcaf1e), SkBits2Float(0x41d8ca01), SkBits2Float(0x41dcdc4c), SkBits2Float(0x41d89bf0));
 path.quadTo(SkBits2Float(0x41ef6c33), SkBits2Float(0x41c5aec5), SkBits2Float(0x4204f72e), SkBits2Float(0x41c56cd2));
 path.close();
-// DEBUG_UNDER_DEVELOPMENT  fuzz763_4713_b disable expectation check for now
-testSimplifyCheck(reporter, path, filename, !FLAGS_runFail);
+testSimplify(reporter, path, filename);
 }
 
 static void dean4(skiatest::Reporter* reporter, const char* filename) {
@@ -5859,11 +5856,25 @@ static void testQuads72(skiatest::Reporter* reporter, const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
+static void testQuads73(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(0, 1, 1, 2);
+    path.lineTo(0, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = tiger8b_h_1;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(testQuads73),
     TEST(tiger8a_h_1),
     TEST(tiger8a_h),
     TEST(tiger8a),

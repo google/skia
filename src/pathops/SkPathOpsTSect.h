@@ -795,11 +795,11 @@ void SkTSpan<TCurve, OppCurve>::validate() const {
 #endif
 #if DEBUG_T_SECT
     SkASSERT(fBounds.width() || fBounds.height() || fCollapsed);
-    SkASSERT(fBoundsMax == SkTMax(fBounds.width(), fBounds.height()));
+    SkASSERT(fBoundsMax == SkTMax(fBounds.width(), fBounds.height()) || fCollapsed == 0xFF);
     SkASSERT(0 <= fStartT);
     SkASSERT(fEndT <= 1);
     SkASSERT(fStartT <= fEndT);
-    SkASSERT(fBounded);
+    SkASSERT(fBounded || fCollapsed == 0xFF);
     if (fHasPerp) {
         if (fCoinStart.isCoincident()) {
             validatePerpT(fCoinStart.perpT());
