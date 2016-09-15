@@ -242,18 +242,19 @@ void GLInstancedRendering::onDraw(const GrPipeline& pipeline, const InstanceProc
     int emulatedBaseInstance = batch->fEmulatedBaseInstance;
     for (int i = 0; i < numCommands; ++i) {
         int glCmdIdx = batch->fGLDrawCmdsIdx + i;
-        const GLDrawCmdInfo& cmdInfo = fGLDrawCmdsInfo[glCmdIdx];
         this->flushInstanceAttribs(emulatedBaseInstance);
         if (fDrawIndirectBuffer) {
             GL_CALL(DrawElementsIndirect(GR_GL_TRIANGLES, GR_GL_UNSIGNED_BYTE,
                                          (GrGLDrawElementsIndirectCommand*) nullptr + glCmdIdx));
         } else {
+            const GLDrawCmdInfo& cmdInfo = fGLDrawCmdsInfo[glCmdIdx];
             GL_CALL(DrawElementsInstanced(GR_GL_TRIANGLES, cmdInfo.fGeometry.fCount,
                                           GR_GL_UNSIGNED_BYTE,
                                           (GrGLubyte*) nullptr + cmdInfo.fGeometry.fStart,
                                           cmdInfo.fInstanceCount));
         }
         if (!glCaps.baseInstanceSupport()) {
+            const GLDrawCmdInfo& cmdInfo = fGLDrawCmdsInfo[glCmdIdx];
             emulatedBaseInstance += cmdInfo.fInstanceCount;
         }
     }
