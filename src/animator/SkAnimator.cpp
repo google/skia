@@ -82,10 +82,10 @@ bool SkAnimator::decodeURI(const char uri[]) {
 //  SkDebugf("animator decode %s\n", uri);
 
 //    SkStream* stream = SkStream::GetURIStream(fMaker->fPrefix.c_str(), uri);
-    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(uri));
-    if (stream.get()) {
+    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(uri);
+    if (stream) {
         this->setURIBase(uri);
-        return decodeStream(stream);
+        return decodeStream(stream.get());
     } else {
         return false;
     }

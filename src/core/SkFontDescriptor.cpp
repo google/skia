@@ -6,6 +6,7 @@
  */
 
 #include "SkFontDescriptor.h"
+#include "SkMakeUnique.h"
 #include "SkStream.h"
 #include "SkData.h"
 
@@ -106,8 +107,8 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     if (length > 0) {
         sk_sp<SkData> data(SkData::MakeUninitialized(length));
         if (stream->read(data->writable_data(), length) == length) {
-            result->fFontData.reset(new SkFontData(new SkMemoryStream(data),
-                                                   index, axis, axisCount));
+            result->fFontData = skstd::make_unique<SkFontData>(
+                skstd::make_unique<SkMemoryStream>(data), index, axis, axisCount);
         } else {
             SkDEBUGFAIL("Could not read font data");
             return false;
@@ -138,10 +139,10 @@ void SkFontDescriptor::serialize(SkWStream* stream) {
     stream->writePackedUInt(kSentinel);
 
     if (fFontData.get() && fFontData->hasStream()) {
-        SkAutoTDelete<SkStreamAsset> fontData(fFontData->detachStream());
-        size_t length = fontData->getLength();
+        std::unique_ptr<SkStreamAsset> fontStream = fFontData->detachStream();
+        size_t length = fontStream->getLength();
         stream->writePackedUInt(length);
-        stream->writeStream(fontData, length);
+        stream->writeStream(fontStream.get(), length);
     } else {
         stream->writePackedUInt(0);
     }

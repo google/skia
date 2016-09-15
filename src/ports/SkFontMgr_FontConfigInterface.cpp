@@ -10,6 +10,7 @@
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
+#include "SkMakeUnique.h"
 #include "SkMutex.h"
 #include "SkString.h"
 #include "SkTypeface.h"
@@ -30,13 +31,14 @@ SkStreamAsset* SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
     return fFCI->openStream(this->getIdentity());
 }
 
-SkFontData* SkTypeface_FCI::onCreateFontData() const {
+std::unique_ptr<SkFontData> SkTypeface_FCI::onMakeFontData() const {
     if (fFontData) {
-        return new SkFontData(*fFontData.get());
+        return skstd::make_unique<SkFontData>(*fFontData);
     }
 
     const SkFontConfigInterface::FontIdentity& id = this->getIdentity();
-    return new SkFontData( fFCI->openStream(id), id.fTTCIndex, nullptr, 0);
+    return skstd::make_unique<SkFontData>(std::unique_ptr<SkStreamAsset>(fFCI->openStream(id)),
+                                          id.fTTCIndex, nullptr, 0);
 }
 
 void SkTypeface_FCI::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocalStream) const {
@@ -199,7 +201,7 @@ protected:
     SkTypeface* onCreateFromData(SkData*, int ttcIndex) const override { return nullptr; }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        SkAutoTDelete<SkStreamAsset> stream(bareStream);
+        std::unique_ptr<SkStreamAsset> stream(bareStream);
         const size_t length = stream->getLength();
         if (!length) {
             return nullptr;
@@ -211,18 +213,17 @@ protected:
         // TODO should the caller give us the style or should we get it from freetype?
         SkFontStyle style;
         bool isFixedPitch = false;
-        if (!fScanner.scanFont(stream, 0, nullptr, &style, &isFixedPitch, nullptr)) {
+        if (!fScanner.scanFont(stream.get(), 0, nullptr, &style, &isFixedPitch, nullptr)) {
             return nullptr;
         }
 
-        std::unique_ptr<SkFontData> fontData(new SkFontData(stream.release(), ttcIndex,
-                                                            nullptr, 0));
+        auto fontData = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
         return SkTypeface_FCI::Create(std::move(fontData), style, isFixedPitch);
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
-        SkAutoTDelete<SkStreamAsset> stream(s);
+        std::unique_ptr<SkStreamAsset> stream(s);
         const size_t length = stream->getLength();
         if (!length) {
             return nullptr;
@@ -235,8 +236,8 @@ protected:
         SkFontStyle style;
         SkString name;
         Scanner::AxisDefinitions axisDefinitions;
-        if (!fScanner.scanFont(stream, params.getCollectionIndex(), &name, &style, &isFixedPitch,
-                               &axisDefinitions))
+        if (!fScanner.scanFont(stream.get(), params.getCollectionIndex(),
+                               &name, &style, &isFixedPitch, &axisDefinitions))
         {
             return nullptr;
         }
@@ -246,15 +247,15 @@ protected:
         SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
         Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
 
-        std::unique_ptr<SkFontData> fontData(new SkFontData(stream.release(),
-                                                            params.getCollectionIndex(),
-                                                            axisValues.get(),
-                                                            axisDefinitions.count()));
+        auto fontData = skstd::make_unique<SkFontData>(std::move(stream),
+                                                       params.getCollectionIndex(),
+                                                       axisValues.get(),
+                                                       axisDefinitions.count());
         return SkTypeface_FCI::Create(std::move(fontData), style, isFixedPitch);
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
-        SkAutoTDelete<SkStreamAsset> stream(SkStream::NewFromFile(path));
+        std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path);
         return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
     }
 

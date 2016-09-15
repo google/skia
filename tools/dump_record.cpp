@@ -46,12 +46,12 @@ int tool_main(int argc, char** argv) {
             continue;
         }
 
-        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(FLAGS_skps[i]));
+        std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(FLAGS_skps[i]);
         if (!stream) {
             SkDebugf("Could not read %s.\n", FLAGS_skps[i]);
             return 1;
         }
-        sk_sp<SkPicture> src(SkPicture::MakeFromStream(stream));
+        sk_sp<SkPicture> src(SkPicture::MakeFromStream(stream.get()));
         if (!src) {
             SkDebugf("Could not read %s as an SkPicture.\n", FLAGS_skps[i]);
             return 1;

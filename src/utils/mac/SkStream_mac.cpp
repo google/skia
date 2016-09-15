@@ -48,13 +48,13 @@ static void release_info_proc(void* info) {
     delete (SkStream*)info;
 }
 
-CGDataProviderRef SkCreateDataProviderFromStream(SkStream* stream) {
+CGDataProviderRef SkCreateDataProviderFromStream(std::unique_ptr<SkStream> stream) {
     // TODO: Replace with SkStream::getData() when that is added. Then we only
     // have one version of CGDataProviderCreateWithData (i.e. same release proc)
     const void* addr = stream->getMemoryBase();
     if (addr) {
         // special-case when the stream is just a block of ram
-        return CGDataProviderCreateWithData(stream, addr, stream->getLength(),
+        return CGDataProviderCreateWithData(stream.release(), addr, stream->getLength(),
                                             delete_stream_proc);
     }
 
@@ -65,17 +65,15 @@ CGDataProviderRef SkCreateDataProviderFromStream(SkStream* stream) {
     rec.skipForward = skip_forward_proc;
     rec.rewind = rewind_proc;
     rec.releaseInfo = release_info_proc;
-    return CGDataProviderCreateSequential(stream, &rec);
+    return CGDataProviderCreateSequential(stream.release(), &rec);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkData.h"
 
-CGDataProviderRef SkCreateDataProviderFromData(SkData* data) {
-    data->ref();
-    return CGDataProviderCreateWithData(data, data->data(), data->size(),
-                                            unref_proc);
+CGDataProviderRef SkCreateDataProviderFromData(sk_sp<SkData> data) {
+    return CGDataProviderCreateWithData(data.release(), data->data(), data->size(), unref_proc);
 }
 
 #endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

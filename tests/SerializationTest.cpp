@@ -13,6 +13,7 @@
 #include "SkImage.h"
 #include "SkImageSource.h"
 #include "SkLightingShader.h"
+#include "SkMakeUnique.h"
 #include "SkMallocPixelRef.h"
 #include "SkNormalSource.h"
 #include "SkOSFile.h"
@@ -370,13 +371,13 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
 
     {
         // Load typeface as stream to create with axis settings.
-        SkAutoTDelete<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
         if (!distortable) {
             INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
         } else {
             SkFixed axis = SK_FixedSqrt2;
             sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(
-                new SkFontData(distortable.release(), 0, &axis, 1)));
+                skstd::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1)));
             if (!typeface) {
                 INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
             } else {

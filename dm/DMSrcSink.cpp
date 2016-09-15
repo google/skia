@@ -997,15 +997,15 @@ static const SkRect kSKPViewport = {0,0, 1000,1000};
 SKPSrc::SKPSrc(Path path) : fPath(path) {}
 
 Error SKPSrc::draw(SkCanvas* canvas) const {
-    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(fPath.c_str()));
+    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
     if (!stream) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream));
+    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get()));
     if (!pic) {
         return SkStringPrintf("Couldn't decode %s as a picture.", fPath.c_str());
     }
-    stream.reset((SkStream*)nullptr);  // Might as well drop this when we're done with it.
+    stream = nullptr;  // Might as well drop this when we're done with it.
 
     canvas->clipRect(kSKPViewport);
     canvas->drawPicture(pic);
@@ -1013,12 +1013,12 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize SKPSrc::size() const {
-    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(fPath.c_str()));
+    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
     if (!stream) {
         return SkISize::Make(0,0);
     }
     SkPictInfo info;
-    if (!SkPicture::InternalOnly_StreamIsSKP(stream, &info)) {
+    if (!SkPicture::InternalOnly_StreamIsSKP(stream.get(), &info)) {
         return SkISize::Make(0,0);
     }
     SkRect viewport = kSKPViewport;
@@ -1072,7 +1072,7 @@ bool SVGSrc::veto(SinkFlags flags) const {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 MSKPSrc::MSKPSrc(Path path) : fPath(path) {
-    std::unique_ptr<SkStreamAsset> stream(SkStream::NewFromFile(fPath.c_str()));
+    std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
     (void)fReader.init(stream.get());
 }
 
@@ -1083,7 +1083,7 @@ SkISize MSKPSrc::size(int i) const { return fReader.pageSize(i).toCeil(); }
 
 Error MSKPSrc::draw(SkCanvas* c) const { return this->draw(0, c); }
 Error MSKPSrc::draw(int i, SkCanvas* canvas) const {
-    std::unique_ptr<SkStreamAsset> stream(SkStream::NewFromFile(fPath.c_str()));
+    std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
     if (!stream) {
         return SkStringPrintf("Unable to open file: %s", fPath.c_str());
     }

@@ -150,10 +150,9 @@ public:
 #endif
 
     /** Return a new typeface given font data and configuration. If the data
-        is not valid font data, returns nullptr. Ownership of the font data is
-        transferred, so the caller must not reference it again.
+        is not valid font data, returns nullptr.
     */
-    static sk_sp<SkTypeface> MakeFromFontData(SkFontData*);
+    static sk_sp<SkTypeface> MakeFromFontData(std::unique_ptr<SkFontData>);
 
     /** Write a unique signature to a stream, sufficient to reconstruct a
         typeface referencing the same font when Deserialize is called.
@@ -300,10 +299,9 @@ public:
     SkStreamAsset* openStream(int* ttcIndex) const;
 
     /**
-     *  Return the font data, or NULL on failure.
-     *  The caller is responsible for deleting the font data.
+     *  Return the font data, or nullptr on failure.
      */
-    SkFontData* createFontData() const;
+    std::unique_ptr<SkFontData> makeFontData() const;
 
     /**
      *  Return a scalercontext for the given descriptor. If this fails, then
@@ -361,7 +359,7 @@ protected:
 
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
     // TODO: make pure virtual.
-    virtual SkFontData* onCreateFontData() const;
+    virtual std::unique_ptr<SkFontData> onMakeFontData() const;
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
