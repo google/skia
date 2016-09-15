@@ -306,67 +306,13 @@ SkGradientShaderBase::GradientShaderCache::GradientShaderCache(
     , fCacheDither(dither)
     , fShader(shader)
 {
-    // Only initialize the cache in getCache16/32.
-    fCache16 = nullptr;
+    // Only initialize the cache in getCache32.
     fCache32 = nullptr;
-    fCache16Storage = nullptr;
     fCache32PixelRef = nullptr;
 }
 
 SkGradientShaderBase::GradientShaderCache::~GradientShaderCache() {
-    sk_free(fCache16Storage);
     SkSafeUnref(fCache32PixelRef);
-}
-
-#define Fixed_To_Dot8(x)        (((x) + 0x80) >> 8)
-
-/** We take the original colors, not our premultiplied PMColors, since we can
-    build a 16bit table as long as the original colors are opaque, even if the
-    paint specifies a non-opaque alpha.
-*/
-void SkGradientShaderBase::GradientShaderCache::Build16bitCache(
-        uint16_t cache[], SkColor c0, SkColor c1, int count, bool dither) {
-    SkASSERT(count > 1);
-    SkASSERT(SkColorGetA(c0) == 0xFF);
-    SkASSERT(SkColorGetA(c1) == 0xFF);
-
-    SkFixed r = SkColorGetR(c0);
-    SkFixed g = SkColorGetG(c0);
-    SkFixed b = SkColorGetB(c0);
-
-    SkFixed dr = SkIntToFixed(SkColorGetR(c1) - r) / (count - 1);
-    SkFixed dg = SkIntToFixed(SkColorGetG(c1) - g) / (count - 1);
-    SkFixed db = SkIntToFixed(SkColorGetB(c1) - b) / (count - 1);
-
-    r = SkIntToFixed(r) + 0x8000;
-    g = SkIntToFixed(g) + 0x8000;
-    b = SkIntToFixed(b) + 0x8000;
-
-    if (dither) {
-        do {
-            unsigned rr = r >> 16;
-            unsigned gg = g >> 16;
-            unsigned bb = b >> 16;
-            cache[0] = SkPackRGB16(SkR32ToR16(rr), SkG32ToG16(gg), SkB32ToB16(bb));
-            cache[kCache16Count] = SkDitherPack888ToRGB16(rr, gg, bb);
-            cache += 1;
-            r += dr;
-            g += dg;
-            b += db;
-        } while (--count != 0);
-    } else {
-        do {
-            unsigned rr = r >> 16;
-            unsigned gg = g >> 16;
-            unsigned bb = b >> 16;
-            cache[0] = SkPackRGB16(SkR32ToR16(rr), SkG32ToG16(gg), SkB32ToB16(bb));
-            cache[kCache16Count] = cache[0];
-            cache += 1;
-            r += dr;
-            g += dg;
-            b += db;
-        } while (--count != 0);
-    }
 }
 
 /*
@@ -523,39 +469,6 @@ void SkGradientShaderBase::GradientShaderCache::Build32bitCache(
 static inline int SkFixedToFFFF(SkFixed x) {
     SkASSERT((unsigned)x <= SK_Fixed1);
     return x - (x >> 16);
-}
-
-const uint16_t* SkGradientShaderBase::GradientShaderCache::getCache16() {
-    fCache16InitOnce(SkGradientShaderBase::GradientShaderCache::initCache16, this);
-    SkASSERT(fCache16);
-    return fCache16;
-}
-
-void SkGradientShaderBase::GradientShaderCache::initCache16(GradientShaderCache* cache) {
-    // double the count for dither entries
-    const int entryCount = kCache16Count * 2;
-    const size_t allocSize = sizeof(uint16_t) * entryCount;
-
-    SkASSERT(nullptr == cache->fCache16Storage);
-    cache->fCache16Storage = (uint16_t*)sk_malloc_throw(allocSize);
-    cache->fCache16 = cache->fCache16Storage;
-    if (cache->fShader.fColorCount == 2) {
-        Build16bitCache(cache->fCache16, cache->fShader.fOrigColors[0],
-                        cache->fShader.fOrigColors[1], kCache16Count, cache->fCacheDither);
-    } else {
-        Rec* rec = cache->fShader.fRecs;
-        int prevIndex = 0;
-        for (int i = 1; i < cache->fShader.fColorCount; i++) {
-            int nextIndex = SkFixedToFFFF(rec[i].fPos) >> kCache16Shift;
-            SkASSERT(nextIndex < kCache16Count);
-
-            if (nextIndex > prevIndex)
-                Build16bitCache(cache->fCache16 + prevIndex, cache->fShader.fOrigColors[i-1],
-                                cache->fShader.fOrigColors[i], nextIndex - prevIndex + 1,
-                                cache->fCacheDither);
-            prevIndex = nextIndex;
-        }
-    }
 }
 
 const SkPMColor* SkGradientShaderBase::GradientShaderCache::getCache32() {

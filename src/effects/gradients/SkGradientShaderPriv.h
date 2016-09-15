@@ -117,13 +117,12 @@ public:
     SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit);
     virtual ~SkGradientShaderBase();
 
-    // The cache is initialized on-demand when getCache16/32 is called.
+    // The cache is initialized on-demand when getCache32 is called.
     class GradientShaderCache : public SkRefCnt {
     public:
         GradientShaderCache(U8CPU alpha, bool dither, const SkGradientShaderBase& shader);
         ~GradientShaderCache();
 
-        const uint16_t*     getCache16();
         const SkPMColor*    getCache32();
 
         SkMallocPixelRef* getCache32PixelRef() const { return fCache32PixelRef; }
@@ -132,12 +131,9 @@ public:
         bool getDither() const { return fCacheDither; }
 
     private:
-        // Working pointers. If either is nullptr, we need to recompute the corresponding
-        // cache values.
-        uint16_t*   fCache16;
+        // Working pointer. If it's nullptr, we need to recompute the cache values.
         SkPMColor*  fCache32;
 
-        uint16_t*         fCache16Storage;    // Storage for fCache16, allocated on demand.
         SkMallocPixelRef* fCache32PixelRef;
         const unsigned    fCacheAlpha;        // The alpha value we used when we computed the cache.
                                               // Larger than 8bits so we can store uninitialized
@@ -146,14 +142,11 @@ public:
 
         const SkGradientShaderBase& fShader;
 
-        // Make sure we only initialize the caches once.
-        SkOnce fCache16InitOnce,
-               fCache32InitOnce;
+        // Make sure we only initialize the cache once.
+        SkOnce fCache32InitOnce;
 
-        static void initCache16(GradientShaderCache* cache);
         static void initCache32(GradientShaderCache* cache);
 
-        static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count, bool dither);
         static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
                                     U8CPU alpha, uint32_t gradFlags, bool dither);
     };
@@ -184,13 +177,6 @@ public:
     enum {
         /// Seems like enough for visual accuracy. TODO: if pos[] deserves
         /// it, use a larger cache.
-        kCache16Bits    = 8,
-        kCache16Count = (1 << kCache16Bits),
-        kCache16Shift   = 16 - kCache16Bits,
-        kSqrt16Shift    = 8 - kCache16Bits,
-
-        /// Seems like enough for visual accuracy. TODO: if pos[] deserves
-        /// it, use a larger cache.
         kCache32Bits    = 8,
         kCache32Count   = (1 << kCache32Bits),
         kCache32Shift   = 16 - kCache32Bits,
@@ -199,7 +185,6 @@ public:
         /// This value is used to *read* the dither cache; it may be 0
         /// if dithering is disabled.
         kDitherStride32 = kCache32Count,
-        kDitherStride16 = kCache16Count,
     };
 
     uint32_t getGradFlags() const { return fGradFlags; }
@@ -274,14 +259,6 @@ static inline int init_dither_toggle(int x, int y) {
 
 static inline int next_dither_toggle(int toggle) {
     return toggle ^ SkGradientShaderBase::kDitherStride32;
-}
-
-static inline int init_dither_toggle16(int x, int y) {
-    return ((x ^ y) & 1) * SkGradientShaderBase::kDitherStride16;
-}
-
-static inline int next_dither_toggle16(int toggle) {
-    return toggle ^ SkGradientShaderBase::kDitherStride16;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
