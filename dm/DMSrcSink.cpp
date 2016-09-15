@@ -1428,10 +1428,7 @@ Error ViaSerialization::draw(
     sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
 
     // Serialize it and then deserialize it.
-    SkDynamicMemoryWStream wStream;
-    pic->serialize(&wStream);
-    SkAutoTDelete<SkStream> rStream(wStream.detachAsStream());
-    sk_sp<SkPicture> deserialized(SkPicture::MakeFromStream(rStream));
+    sk_sp<SkPicture> deserialized(SkPicture::MakeFromData(pic->serialize().get()));
 
     return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->drawPicture(deserialized);

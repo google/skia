@@ -75,6 +75,9 @@ public:
      */
     static sk_sp<SkPicture> MakeFromStream(SkStream*, SkImageDeserializer*);
     static sk_sp<SkPicture> MakeFromStream(SkStream*);
+    static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
+                                         SkImageDeserializer* = nullptr);
+    static sk_sp<SkPicture> MakeFromData(const SkData* data, SkImageDeserializer* = nullptr);
 
     /**
      *  Recreate a picture that was serialized into a buffer. If the creation requires bitmap
@@ -121,10 +124,16 @@ public:
     uint32_t uniqueID() const;
 
     /**
-     *  Serialize to a stream. If non NULL, serializer will be used to serialize
-     *  bitmaps and images in the picture.
+     *  Serialize the picture to SkData. If non nullptr, pixel-serializer will be used to
+     *  customize how images reference by the picture are serialized/compressed.
      */
-    void serialize(SkWStream*, SkPixelSerializer* = NULL) const;
+    sk_sp<SkData> serialize(SkPixelSerializer* = nullptr) const;
+
+    /**
+     *  Serialize to a stream. If non nullptr, pixel-serializer will be used to
+     *  customize how images reference by the picture are serialized/compressed.
+     */
+    void serialize(SkWStream*, SkPixelSerializer* = nullptr) const;
 
     /**
      *  Serialize to a buffer.

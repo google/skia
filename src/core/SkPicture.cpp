@@ -176,6 +176,20 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
     return MakeFromStream(stream, &factory);
 }
 
+sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
+                                         SkImageDeserializer* factory) {
+    SkMemoryStream stream(data, size);
+    return MakeFromStream(&stream, factory, nullptr);
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, SkImageDeserializer* factory) {
+    if (!data) {
+        return nullptr;
+    }
+    SkMemoryStream stream(data->data(), data->size());
+    return MakeFromStream(&stream, factory, nullptr);
+}
+
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory,
                                            SkTypefacePlayback* typefaces) {
     SkPictInfo info;
@@ -207,6 +221,12 @@ SkPictureData* SkPicture::backport() const {
 
 void SkPicture::serialize(SkWStream* stream, SkPixelSerializer* pixelSerializer) const {
     this->serialize(stream, pixelSerializer, nullptr);
+}
+
+sk_sp<SkData> SkPicture::serialize(SkPixelSerializer* pixelSerializer) const {
+    SkDynamicMemoryWStream stream;
+    this->serialize(&stream, pixelSerializer, nullptr);
+    return stream.detachAsData();
 }
 
 void SkPicture::serialize(SkWStream* stream,
