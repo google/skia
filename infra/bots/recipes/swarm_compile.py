@@ -265,7 +265,7 @@ def GenTests(api):
 
   mastername = 'client.skia.compile'
   slavename = 'skiabot-win-compile-000'
-  buildername = 'Build-Ubuntu-GCC-x86-Debug'
+  buildername = 'Build-Ubuntu-GCC-x86_64-Debug'
   yield (
       api.test('failed_compile') +
       api.properties(buildername=buildername,
