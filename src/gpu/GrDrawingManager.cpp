@@ -197,7 +197,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
                                                   GrPathRenderer::StencilSupport* stencilSupport) {
 
     if (!fPathRendererChain) {
-        fPathRendererChain = new GrPathRendererChain(fContext);
+        fPathRendererChain = new GrPathRendererChain(fContext, fOptionsForPathRendererChain);
     }
 
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);

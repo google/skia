@@ -23,7 +23,10 @@ class GrContext;
  */
 class GrPathRendererChain : public SkNoncopyable {
 public:
-    GrPathRendererChain(GrContext* context);
+    struct Options {
+        bool fDisableDistanceFieldRenderer = false;
+    };
+    GrPathRendererChain(GrContext* context, const Options&);
 
     ~GrPathRendererChain();
 

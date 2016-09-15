@@ -25,7 +25,7 @@
 #include "batches/GrStencilAndCoverPathRenderer.h"
 #include "batches/GrTessellatingPathRenderer.h"
 
-GrPathRendererChain::GrPathRendererChain(GrContext* context) {
+GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& options) {
     const GrCaps& caps = *context->caps();
     this->addPathRenderer(new GrDashLinePathRenderer)->unref();
 
@@ -44,7 +44,9 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context) {
     if (caps.shaderCaps()->plsPathRenderingSupport()) {
         this->addPathRenderer(new GrPLSPathRenderer)->unref();
     }
-    this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
+    if (!options.fDisableDistanceFieldRenderer) {
+        this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
+    }
     this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
     this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
                                                     caps.stencilWrapOpsSupport()))->unref();

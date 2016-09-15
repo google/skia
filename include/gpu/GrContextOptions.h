@@ -11,73 +11,64 @@
 #include "SkTypes.h"
 
 struct GrContextOptions {
-    GrContextOptions()
-        : fSuppressPrints(false)
-        , fMaxTextureSizeOverride(SK_MaxS32)
-        , fMaxTileSizeOverride(0)
-        , fSuppressDualSourceBlending(false)
-        , fBufferMapThreshold(-1)
-        , fUseDrawInsteadOfPartialRenderTargetWrite(false)
-        , fImmediateMode(false)
-        , fClipBatchToBounds(false)
-        , fDrawBatchBounds(false)
-        , fMaxBatchLookback(-1)
-        , fMaxBatchLookahead(-1)
-        , fUseShaderSwizzling(false)
-        , fDoManualMipmapping(false)
-        , fEnableInstancedRendering(false) {}
+    GrContextOptions() {};
 
     // Suppress prints for the GrContext.
-    bool fSuppressPrints;
+    bool fSuppressPrints = false;
 
     /** Overrides: These options override feature detection using backend API queries. These
         overrides can only reduce the feature set or limits, never increase them beyond the
         detected values. */
 
-    int  fMaxTextureSizeOverride;
+    int  fMaxTextureSizeOverride = SK_MaxS32;
+
     /** If non-zero, overrides the maximum size of a tile for sw-backed images and bitmaps rendered
         by SkGpuDevice. */
-    int  fMaxTileSizeOverride;
-    bool fSuppressDualSourceBlending;
+    int  fMaxTileSizeOverride = 0;
+    bool fSuppressDualSourceBlending = false;
 
     /** the threshold in bytes above which we will use a buffer mapping API to map vertex and index
         buffers to CPU memory in order to update them.  A value of -1 means the GrContext should
         deduce the optimal value for this platform. */
-    int  fBufferMapThreshold;
+    int  fBufferMapThreshold = -1;
 
     /** some gpus have problems with partial writes of the rendertarget */
-    bool fUseDrawInsteadOfPartialRenderTargetWrite;
+    bool fUseDrawInsteadOfPartialRenderTargetWrite = false;
 
     /** The GrContext operates in immediate mode. It will issue all draws to the backend API
         immediately. Intended to ease debugging. */
-    bool fImmediateMode;
+    bool fImmediateMode = false;
 
     /** For debugging purposes turn each GrBatch's bounds into a clip rect. This is used to
         verify that the clip bounds are conservative. */
-    bool fClipBatchToBounds;
+    bool fClipBatchToBounds = false;
 
     /** For debugging purposes draw a wireframe device bounds rect for each GrBatch. The wire
         frame rect is draw before the GrBatch in order to visualize batches that draw outside
         of their dev bounds. */
-    bool fDrawBatchBounds;
+    bool fDrawBatchBounds = false;
 
     /** For debugging, override the default maximum look-back or look-ahead window for GrBatch
         combining. */
-    int fMaxBatchLookback;
-    int fMaxBatchLookahead;
+    int fMaxBatchLookback = -1;
+    int fMaxBatchLookahead = -1;
 
     /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
         swizzling. */
-    bool fUseShaderSwizzling;
+    bool fUseShaderSwizzling = false;
 
     /** Construct mipmaps manually, via repeated downsampling draw-calls. This is used when
         the driver's implementation (glGenerateMipmap) contains bugs. This requires mipmap
         level and LOD control (ie desktop or ES3). */
-    bool fDoManualMipmapping;
+    bool fDoManualMipmapping = false;
 
     /** Enable instanced rendering as long as all required functionality is supported by the HW.
         Instanced rendering is still experimental at this point and disabled by default. */
-    bool fEnableInstancedRendering;
+    bool fEnableInstancedRendering = false;
+
+    /** Disables distance field rendering for paths. Distance field computation can be expensive
+        and yields no benefit if a path is not rendered multiple times with different transforms */
+    bool fDisableDistanceFieldPaths = false;
 };
 
 #endif
