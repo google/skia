@@ -66,6 +66,7 @@ public:
 
     // returns 0 if not found
     int findImage(SkImage* image) const { return fImages.find(image->uniqueID()); }
+    int findPicture(SkPicture* picture) const { return fPictures.find(picture->uniqueID()); }
 
     int findOrDefineImage(SkImage*) override;
     int findOrDefinePicture(SkPicture*) override;

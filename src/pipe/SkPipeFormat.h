@@ -57,6 +57,7 @@ enum class SkPipeVerb : uint8_t {
     kDefinePicture,     // extra == 0 or forget_index + 1 (0 means we're defining a new picture)
     kEndPicture,        // extra == picture_index
     kWriteImage,        // extra == image_index
+    kWritePicture,      // extra == picture_index
 };
 
 enum PaintUsage {

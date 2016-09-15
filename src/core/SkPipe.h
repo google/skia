@@ -8,7 +8,7 @@
 #ifndef SkPipe_DEFINED
 #define SkPipe_DEFINED
 
-#include "SkTypes.h"
+#include "SkData.h"
 
 class SkCanvas;
 class SkImage;
@@ -27,8 +27,11 @@ public:
 
     void resetCache();
 
-    void write(SkPicture*, SkWStream*);
-    void write(SkImage*, SkWStream*);
+    sk_sp<SkData> writeImage(SkImage*);
+    sk_sp<SkData> writePicture(SkPicture*);
+
+    void writeImage(SkImage*, SkWStream*);
+    void writePicture(SkPicture*, SkWStream*);
 
     SkCanvas* beginWrite(const SkRect& cullBounds, SkWStream*);
     void endWrite();
@@ -46,8 +49,23 @@ public:
     // Ownership is not transferred, so caller must ceep the deserializer alive
     void setTypefaceDeserializer(SkTypefaceDeserializer*);
 
-    sk_sp<SkPicture> readPicture(const void*, size_t);
+    sk_sp<SkImage> readImage(const SkData* data) {
+        if (!data) {
+            return nullptr;
+        }
+        return this->readImage(data->data(), data->size());
+    }
+
+    sk_sp<SkPicture> readPicture(const SkData* data) {
+        if (!data) {
+            return nullptr;
+        }
+        return this->readPicture(data->data(), data->size());
+    }
+
     sk_sp<SkImage> readImage(const void*, size_t);
+    sk_sp<SkPicture> readPicture(const void*, size_t);
+
     bool playback(const void*, size_t, SkCanvas*);
 
 private:

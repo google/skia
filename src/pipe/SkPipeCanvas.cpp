@@ -1028,15 +1028,30 @@ void SkPipeSerializer::resetCache() {
     fImpl->fDeduper.resetCaches();
 }
 
-void SkPipeSerializer::write(SkPicture* picture, SkWStream* stream) {
-    stream->write32(kDefinePicture_ExtPipeVerb);
-    SkRect cull = picture->cullRect();
-    stream->write(&cull.fLeft, sizeof(SkRect));
-    picture->playback(this->beginWrite(cull, stream));
-    this->endWrite();
+sk_sp<SkData> SkPipeSerializer::writeImage(SkImage* image) {
+    SkDynamicMemoryWStream stream;
+    this->writeImage(image, &stream);
+    return stream.detachAsData();
 }
 
-void SkPipeSerializer::write(SkImage* image, SkWStream* stream) {
+sk_sp<SkData> SkPipeSerializer::writePicture(SkPicture* picture) {
+    SkDynamicMemoryWStream stream;
+    this->writePicture(picture, &stream);
+    return stream.detachAsData();
+}
+
+void SkPipeSerializer::writePicture(SkPicture* picture, SkWStream* stream) {
+    int index = fImpl->fDeduper.findPicture(picture);
+    if (0 == index) {
+        // Try to define the picture
+        this->beginWrite(picture->cullRect(), stream);
+        index = fImpl->fDeduper.findOrDefinePicture(picture);
+        this->endWrite();
+    }
+    stream->write32(pack_verb(SkPipeVerb::kWritePicture, index));
+}
+
+void SkPipeSerializer::writeImage(SkImage* image, SkWStream* stream) {
     int index = fImpl->fDeduper.findImage(image);
     if (0 == index) {
         // Try to define the image
