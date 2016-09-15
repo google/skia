@@ -6,7 +6,6 @@
  */
 
 #include "SkTwoPointConicalGradient.h"
-#include "SkTwoPointConicalGradient_gpu.h"
 
 struct TwoPtRadialContext {
     const TwoPtRadial&  fRec;
@@ -355,13 +354,14 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
+#include "SkTwoPointConicalGradient_gpu.h"
 
 sk_sp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
         const AsFPArgs& args) const {
     SkASSERT(args.fContext);
     SkASSERT(fPtsToUnit.isIdentity());
-    sk_sp<GrFragmentProcessor> inner(
-        Gr2PtConicalGradientEffect::Make(args.fContext, *this, fTileMode, args.fLocalMatrix));
+    sk_sp<GrFragmentProcessor> inner(Gr2PtConicalGradientEffect::Make(
+        GrGradientEffect::CreateArgs(args.fContext, this, args.fLocalMatrix, fTileMode)));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
