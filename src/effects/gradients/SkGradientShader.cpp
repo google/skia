@@ -14,6 +14,7 @@
 
 void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColorArray(fColors, fCount);
+    // TODO: Flatten fColors4f and fColorSpace
     if (fPos) {
         buffer.writeBool(true);
         buffer.writeScalarArray(fPos, fCount);
@@ -31,6 +32,7 @@ void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
 }
 
 bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
+    // TODO: Unflatten fColors4f and fColorSpace
     fCount = buffer.getArrayCount();
     if (fCount > kStorageCount) {
         size_t allocSize = (sizeof(SkColor) + sizeof(SkScalar)) * fCount;
@@ -103,7 +105,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     }
 
     if (fColorCount > kColorStorageCount) {
-        size_t size = sizeof(SkColor) + sizeof(Rec);
+        size_t size = sizeof(SkColor) + sizeof(SkColor4f) + sizeof(Rec);
         if (desc.fPos) {
             size += sizeof(SkScalar);
         }
@@ -114,8 +116,14 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         fOrigColors = fStorage;
     }
 
-    // Now copy over the colors, adding the dummies as needed
-    {
+    fOrigColors4f = (SkColor4f*)(fOrigColors + fColorCount);
+
+    // We should have been supplied with either fColors *or* (fColors4f and fColorSpace)
+    if (desc.fColors) {
+        // TODO: Should we support alternate gamma-encoded colorspaces with SkColor inputs?
+        SkASSERT(!desc.fColors4f && !desc.fColorSpace);
+
+        // Now copy over the colors, adding the dummies as needed
         SkColor* origColors = fOrigColors;
         if (dummyFirst) {
             *origColors++ = desc.fColors[0];
@@ -125,14 +133,44 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
             origColors += desc.fCount;
             *origColors = desc.fColors[desc.fCount - 1];
         }
+
+        // Convert our SkColor colors to SkColor4f as well
+        for (int i = 0; i < fColorCount; ++i) {
+            fOrigColors4f[i] = SkColor4f::FromColor(fOrigColors[i]);
+        }
+
+        // Color space refers to fColors4f, so it's always linear gamma
+        fColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)->makeLinearGamma();
+    } else {
+        SkASSERT(desc.fColors4f && desc.fColorSpace && desc.fColorSpace->gammaIsLinear());
+
+        // Now copy over the colors, adding the dummies as needed
+        SkColor4f* origColors = fOrigColors4f;
+        if (dummyFirst) {
+            *origColors++ = desc.fColors4f[0];
+        }
+        memcpy(origColors, desc.fColors4f, desc.fCount * sizeof(SkColor4f));
+        if (dummyLast) {
+            origColors += desc.fCount;
+            *origColors = desc.fColors4f[desc.fCount - 1];
+        }
+
+        // Convert our SkColor4f colors to SkColor as well. Note that this is incorrect if the
+        // source colors are not in sRGB gamut. We would need to do a gamut transformation, but
+        // SkColorSpaceXform can't do that (yet). GrColorSpaceXform can, but we may not have GPU
+        // support compiled in here.
+        for (int i = 0; i < fColorCount; ++i) {
+            fOrigColors[i] = fOrigColors4f[i].toSkColor();
+        }
+        fColorSpace = desc.fColorSpace;
     }
 
     if (desc.fPos && fColorCount) {
-        fOrigPos = (SkScalar*)(fOrigColors + fColorCount);
+        fOrigPos = (SkScalar*)(fOrigColors4f + fColorCount);
         fRecs = (Rec*)(fOrigPos + fColorCount);
     } else {
         fOrigPos = nullptr;
-        fRecs = (Rec*)(fOrigColors + fColorCount);
+        fRecs = (Rec*)(fOrigColors4f + fColorCount);
     }
 
     if (fColorCount > 2) {
@@ -218,6 +256,8 @@ void SkGradientShaderBase::initCommon() {
 void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     Descriptor desc;
     desc.fColors = fOrigColors;
+    desc.fColors4f = fOrigColors4f;
+    desc.fColorSpace = fColorSpace;
     desc.fPos = fOrigPos;
     desc.fCount = fColorCount;
     desc.fTileMode = fTileMode;
@@ -661,6 +701,8 @@ static void desc_init(SkGradientShaderBase::Descriptor* desc,
     SkASSERT(colorCount > 1);
 
     desc->fColors       = colors;
+    desc->fColors4f     = nullptr;
+    desc->fColorSpace   = nullptr; // SkColor is always sRGB
     desc->fPos          = pos;
     desc->fCount        = colorCount;
     desc->fTileMode     = mode;
@@ -945,6 +987,52 @@ void GrGradientEffect::GLSLProcessor::emitUniforms(GrGLSLUniformHandler* uniform
     }
 }
 
+static inline void set_after_interp_color_uni_array(
+                                                  const GrGLSLProgramDataManager& pdman,
+                                                  const GrGLSLProgramDataManager::UniformHandle uni,
+                                                  const SkTDArray<SkColor4f>& colors,
+                                                  const GrColorSpaceXform* colorSpaceXform) {
+    int count = colors.count();
+    if (colorSpaceXform) {
+        constexpr int kSmallCount = 10;
+        SkAutoSTArray<4 * kSmallCount, float> vals(4 * count);
+
+        for (int i = 0; i < count; i++) {
+            colorSpaceXform->srcToDst().mapScalars(colors[i].vec(), &vals[4 * i]);
+        }
+
+        pdman.set4fv(uni, count, vals.get());
+    } else {
+        pdman.set4fv(uni, count, (float*)&colors[0]);
+    }
+}
+
+static inline void set_before_interp_color_uni_array(
+                                                  const GrGLSLProgramDataManager& pdman,
+                                                  const GrGLSLProgramDataManager::UniformHandle uni,
+                                                  const SkTDArray<SkColor4f>& colors,
+                                                  const GrColorSpaceXform* colorSpaceXform) {
+    int count = colors.count();
+    constexpr int kSmallCount = 10;
+    SkAutoSTArray<4 * kSmallCount, float> vals(4 * count);
+
+    for (int i = 0; i < count; i++) {
+        float a = colors[i].fA;
+        vals[4 * i + 0] = colors[i].fR * a;
+        vals[4 * i + 1] = colors[i].fG * a;
+        vals[4 * i + 2] = colors[i].fB * a;
+        vals[4 * i + 3] = a;
+    }
+
+    if (colorSpaceXform) {
+        for (int i = 0; i < count; i++) {
+            colorSpaceXform->srcToDst().mapScalars(&vals[4 * i]);
+        }
+    }
+
+    pdman.set4fv(uni, count, vals.get());
+}
+
 static inline void set_after_interp_color_uni_array(const GrGLSLProgramDataManager& pdman,
                                        const GrGLSLProgramDataManager::UniformHandle uni,
                                        const SkTDArray<SkColor>& colors) {
@@ -998,10 +1086,22 @@ void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& 
 #endif
         case GrGradientEffect::kTwo_ColorType:
         case GrGradientEffect::kThree_ColorType: {
-            if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
-                set_before_interp_color_uni_array(pdman, fColorsUni, e.fColors);
+            if (e.fColors4f.count() > 0) {
+                // Gamma-correct / color-space aware
+                if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
+                    set_before_interp_color_uni_array(pdman, fColorsUni, e.fColors4f,
+                                                      e.fColorSpaceXform.get());
+                } else {
+                    set_after_interp_color_uni_array(pdman, fColorsUni, e.fColors4f,
+                                                     e.fColorSpaceXform.get());
+                }
             } else {
-                set_after_interp_color_uni_array(pdman, fColorsUni, e.fColors);
+                // Legacy mode. Would be nice if we had converted the 8-bit colors to float earlier
+                if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
+                    set_before_interp_color_uni_array(pdman, fColorsUni, e.fColors);
+                } else {
+                    set_after_interp_color_uni_array(pdman, fColorsUni, e.fColors);
+                }
             }
 
             break;
@@ -1253,7 +1353,11 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
     fColorType = this->determineColorType(shader);
 
     if (kTexture_ColorType != fColorType) {
-        if (shader.fOrigColors) {
+        SkASSERT(shader.fOrigColors && shader.fOrigColors4f);
+        if (args.fGammaCorrect) {
+            fColors4f = SkTDArray<SkColor4f>(shader.fOrigColors4f, shader.fColorCount);
+            fColorSpaceXform = std::move(args.fColorSpaceXform);
+        } else {
             fColors = SkTDArray<SkColor>(shader.fOrigColors, shader.fColorCount);
         }
 
@@ -1353,7 +1457,8 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
             }
         } else {
             if (this->getPremulType() != ge.getPremulType() ||
-                this->fColors.count() != ge.fColors.count()) {
+                this->fColors.count() != ge.fColors.count() ||
+                this->fColors4f.count() != ge.fColors4f.count()) {
                 return false;
             }
 
@@ -1362,10 +1467,16 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
                     return false;
                 }
             }
+            for (int i = 0; i < this->fColors4f.count(); i++) {
+                if (*this->getColors4f(i) != *ge.getColors4f(i)) {
+                    return false;
+                }
+            }
         }
 
+
         SkASSERT(this->useAtlas() == ge.useAtlas());
-        return true;
+        return GrColorSpaceXform::Equals(this->fColorSpaceXform.get(), ge.fColorSpaceXform.get());
     }
 
     return false;

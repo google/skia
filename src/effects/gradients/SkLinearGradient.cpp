@@ -341,6 +341,7 @@ SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
 
 #if SK_SUPPORT_GPU
 
+#include "GrColorSpaceXform.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"
@@ -461,8 +462,11 @@ sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(const AsFPArgs&
     }
     matrix.postConcat(fPtsToUnit);
 
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
+                                                                       args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner(GrLinearGradient::Make(
-        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode)));
+        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
+                                     std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

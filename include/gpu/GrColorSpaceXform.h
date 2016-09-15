@@ -23,7 +23,7 @@ public:
 
     static sk_sp<GrColorSpaceXform> Make(SkColorSpace* src, SkColorSpace* dst);
 
-    const SkMatrix44& srcToDst() { return fSrcToDst; }
+    const SkMatrix44& srcToDst() const { return fSrcToDst; }
 
     /**
      * GrGLSLFragmentProcessor::GenKey() must call this and include the returned value in its
@@ -33,6 +33,8 @@ public:
         // Code generation changes if there is an xform, but it otherwise constant
         return SkToBool(xform) ? 1 : 0;
     }
+
+    static bool Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b);
 
     GrColor4f apply(const GrColor4f& srcColor);
 

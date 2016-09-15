@@ -12,6 +12,7 @@
 #include "SkGradientShader.h"
 #include "SkClampRange.h"
 #include "SkColorPriv.h"
+#include "SkColorSpace.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMallocPixelRef.h"
@@ -84,6 +85,8 @@ public:
 
         const SkMatrix*     fLocalMatrix;
         const SkColor*      fColors;
+        const SkColor4f*    fColors4f;
+        sk_sp<SkColorSpace> fColorSpace;
         const SkScalar*     fPos;
         int                 fCount;
         SkShader::TileMode  fTileMode;
@@ -226,13 +229,16 @@ private:
     enum {
         kColorStorageCount = 4, // more than this many colors, and we'll use sk_malloc for the space
 
-        kStorageSize = kColorStorageCount * (sizeof(SkColor) + sizeof(SkScalar) + sizeof(Rec))
+        kStorageSize = kColorStorageCount *
+                       (sizeof(SkColor) + sizeof(SkScalar) + sizeof(Rec) + sizeof(SkColor4f))
     };
-    SkColor     fStorage[(kStorageSize + 3) >> 2];
+    SkColor             fStorage[(kStorageSize + 3) >> 2];
 public:
-    SkColor*    fOrigColors; // original colors, before modulation by paint in context.
-    SkScalar*   fOrigPos;   // original positions
-    int         fColorCount;
+    SkColor*            fOrigColors;   // original colors, before modulation by paint in context.
+    SkColor4f*          fOrigColors4f; // original colors, as linear floats
+    SkScalar*           fOrigPos;      // original positions
+    int                 fColorCount;
+    sk_sp<SkColorSpace> fColorSpace; // color space of gradient stops
 
     bool colorsAreOpaque() const { return fColorsAreOpaque; }
 
@@ -240,7 +246,7 @@ public:
     Rec* getRecs() const { return fRecs; }
 
 private:
-    bool        fColorsAreOpaque;
+    bool                fColorsAreOpaque;
 
     GradientShaderCache* refCache(U8CPU alpha, bool dither) const;
     mutable SkMutex                           fCacheMutex;
@@ -265,6 +271,7 @@ static inline int next_dither_toggle(int toggle) {
 
 #if SK_SUPPORT_GPU
 
+#include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -304,16 +311,22 @@ public:
         CreateArgs(GrContext* context,
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
-                   SkShader::TileMode tileMode)
+                   SkShader::TileMode tileMode,
+                   sk_sp<GrColorSpaceXform> colorSpaceXform,
+                   bool gammaCorrect)
             : fContext(context)
             , fShader(shader)
             , fMatrix(matrix)
-            , fTileMode(tileMode) {}
+            , fTileMode(tileMode)
+            , fColorSpaceXform(std::move(colorSpaceXform))
+            , fGammaCorrect(gammaCorrect) {}
 
         GrContext*                  fContext;
         const SkGradientShaderBase* fShader;
         const SkMatrix*             fMatrix;
         SkShader::TileMode          fTileMode;
+        sk_sp<GrColorSpaceXform>    fColorSpaceXform;
+        bool                        fGammaCorrect;
     };
 
     class GLSLProcessor;
@@ -361,6 +374,12 @@ public:
         return &fColors[pos];
     }
 
+    const SkColor4f* getColors4f(int pos) const {
+        SkASSERT(fColorType != kTexture_ColorType);
+        SkASSERT(pos < fColors4f.count());
+        return &fColors4f[pos];
+    }
+
 protected:
     /** Populates a pair of arrays with colors and stop info to construct a random gradient.
         The function decides whether stop values should be used or not. The return value indicates
@@ -384,9 +403,15 @@ protected:
 private:
     static const GrCoordSet kCoordSet = kLocal_GrCoordSet;
 
-    SkTDArray<SkColor>  fColors;
-    SkTDArray<SkScalar> fPositions;
-    SkShader::TileMode  fTileMode;
+    // If we're in legacy mode, then fColors will be populated. If we're gamma-correct, then
+    // fColors4f and fColorSpaceXform will be populated.
+    SkTDArray<SkColor>       fColors;
+
+    SkTDArray<SkColor4f>     fColors4f;
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
+
+    SkTDArray<SkScalar>      fPositions;
+    SkShader::TileMode       fTileMode;
 
     GrCoordTransform fCoordTransform;
     GrTextureAccess fTextureAccess;
