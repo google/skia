@@ -40,6 +40,7 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-x86-Debug',
       'Build-Ubuntu-GCC-x86_64-Debug-GN',
       'Build-Ubuntu-GCC-x86_64-Debug-MSAN',
+      'Build-Ubuntu-GCC-x86_64-Debug-NoGPU',
       'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
       'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
       'Build-Ubuntu-GCC-x86_64-Release-CMake',
@@ -179,6 +180,10 @@ def get_gyp_defines(builder_dict):
   if builder_dict.get('extra_config') == 'Vulkan':
     gyp_defs['skia_vulkan'] = '1'
     gyp_defs['skia_vulkan_debug_layers'] = '0'
+
+  # NoGPU.
+  if 'NoGPU' in builder_dict.get('extra_config', ''):
+    gyp_defs['skia_gpu'] = 0
 
   return gyp_defs
 
