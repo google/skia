@@ -153,7 +153,10 @@ config("executable") {
   if (is_mac) {
     ldflags = [ "-Wl,-rpath,@loader_path/." ]
   } else if (is_linux) {
-    ldflags = [ "-Wl,-rpath,\$ORIGIN" ]
+    ldflags = [
+      "-rdynamic",
+      "-Wl,-rpath,\$ORIGIN",
+    ]
   }
 }
 
