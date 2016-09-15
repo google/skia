@@ -19,6 +19,7 @@ constexpr int kNumCols = 2;
 constexpr int kNumRows = 5;
 constexpr int kCellSize = 128;
 constexpr SkScalar kPad = 8.0f;
+constexpr SkScalar kBlurRadius = 8.0f;
 constexpr SkScalar kPeriod = 8.0f;
 constexpr int kClipOffset = 32;
 
@@ -348,14 +349,14 @@ protected:
                         SkPaint paint;
                         paint.setAntiAlias(true);
                         // G channel is an F6.2 radius
-                        paint.setColor(SkColorSetARGB(255, 0, (unsigned char)(4*kPad), 0));
+                        paint.setColor(SkColorSetARGB(255, 0, (unsigned char)(4*kBlurRadius), 0));
                         paint.setShader(SkGaussianEdgeShader::Make());
                         drawObj->draw(canvas, paint);
                     canvas->restore();
                 } else if (kBlurMask_Mode == fMode) {
                     SkPath clippedPath;
 
-                    SkScalar sigma = kPad / 4.0f;
+                    SkScalar sigma = kBlurRadius / 4.0f;
 
                     if (clipObj->contains(drawObj->bounds())) {
                         clippedPath = drawObj->asPath(2.0f*sigma);
@@ -382,7 +383,7 @@ protected:
 
                     if (clipObj->asRRect(&clipRR) && drawObj->asRRect(&drawnRR)) {
                         paint.setShader(SkRRectsGaussianEdgeShader::Make(clipRR, drawnRR,
-                                                                         kPad, 0.0f));
+                                                                         kBlurRadius));
                     }
 
                     canvas->drawRect(cover, paint);
