@@ -129,16 +129,19 @@ class GrSweepGradient : public GrGradientEffect {
 public:
     class GLSLSweepProcessor;
 
-    static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
-        return sk_sp<GrFragmentProcessor>(new GrSweepGradient(args));
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx, const SkSweepGradient& shader,
+                                           const SkMatrix& m) {
+        return sk_sp<GrFragmentProcessor>(new GrSweepGradient(ctx, shader, m));
     }
     virtual ~GrSweepGradient() { }
 
     const char* name() const override { return "Sweep Gradient"; }
 
 private:
-    GrSweepGradient(const CreateArgs& args)
-    : INHERITED(args) {
+    GrSweepGradient(GrContext* ctx,
+                    const SkSweepGradient& shader,
+                    const SkMatrix& matrix)
+    : INHERITED(ctx, shader, matrix, SkShader::kClamp_TileMode) {
         this->initClassID<GrSweepGradient>();
     }
 
@@ -247,8 +250,7 @@ sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& 
     }
     matrix.postConcat(fPtsToUnit);
 
-    sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(
-        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, SkShader::kClamp_TileMode)));
+    sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(args.fContext, *this, matrix));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

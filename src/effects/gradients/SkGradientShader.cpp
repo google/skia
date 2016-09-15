@@ -1332,8 +1332,10 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
 
 /////////////////////////////////////////////////////////////////////
 
-GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
-    const SkGradientShaderBase& shader(*args.fShader);
+GrGradientEffect::GrGradientEffect(GrContext* ctx,
+                                   const SkGradientShaderBase& shader,
+                                   const SkMatrix& matrix,
+                                   SkShader::TileMode tileMode) {
 
     fIsOpaque = shader.isOpaque();
 
@@ -1352,7 +1354,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
     }
 
 #if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
-    fTileMode = args.fTileMode;
+    fTileMode = tileMode;
 #endif
 
     switch (fColorType) {
@@ -1372,7 +1374,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
                 fPremulType = kAfterInterp_PremulType;
             }
 
-            fCoordTransform.reset(kCoordSet, *args.fMatrix);
+            fCoordTransform.reset(kCoordSet, matrix);
 
             break;
         case kTexture_ColorType:
@@ -1387,8 +1389,8 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
             desc.fWidth  = bitmap.width();
             desc.fHeight = 32;
             desc.fRowHeight = bitmap.height();
-            desc.fContext = args.fContext;
-            desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *args.fContext->caps());
+            desc.fContext = ctx;
+            desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *ctx->caps());
             fAtlas = GrTextureStripAtlas::GetAtlas(desc);
             SkASSERT(fAtlas);
 
@@ -1396,22 +1398,21 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
             // y-clamp.
             GrTextureParams params;
             params.setFilterMode(GrTextureParams::kBilerp_FilterMode);
-            params.setTileModeX(args.fTileMode);
+            params.setTileModeX(tileMode);
 
             fRow = fAtlas->lockRow(bitmap);
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
-                fCoordTransform.reset(kCoordSet, *args.fMatrix, fAtlas->getTexture(),
-                                      params.filterMode());
+                fCoordTransform.reset(kCoordSet, matrix, fAtlas->getTexture(), params.filterMode());
                 fTextureAccess.reset(fAtlas->getTexture(), params);
             } else {
                 SkAutoTUnref<GrTexture> texture(
-                    GrRefCachedBitmapTexture(args.fContext, bitmap, params,
+                    GrRefCachedBitmapTexture(ctx, bitmap, params,
                                              SkSourceGammaTreatment::kRespect));
                 if (!texture) {
                     return;
                 }
-                fCoordTransform.reset(kCoordSet, *args.fMatrix, texture, params.filterMode());
+                fCoordTransform.reset(kCoordSet, matrix, texture, params.filterMode());
                 fTextureAccess.reset(texture, params);
                 fYCoord = SK_ScalarHalf;
             }

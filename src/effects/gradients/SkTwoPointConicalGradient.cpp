@@ -360,8 +360,8 @@ sk_sp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
         const AsFPArgs& args) const {
     SkASSERT(args.fContext);
     SkASSERT(fPtsToUnit.isIdentity());
-    sk_sp<GrFragmentProcessor> inner(Gr2PtConicalGradientEffect::Make(
-        GrGradientEffect::CreateArgs(args.fContext, this, args.fLocalMatrix, fTileMode)));
+    sk_sp<GrFragmentProcessor> inner(
+        Gr2PtConicalGradientEffect::Make(args.fContext, *this, fTileMode, args.fLocalMatrix));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

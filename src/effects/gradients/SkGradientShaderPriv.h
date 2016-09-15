@@ -323,25 +323,12 @@ class GrInvariantOutput;
 // Base class for Gr gradient effects
 class GrGradientEffect : public GrFragmentProcessor {
 public:
-    struct CreateArgs {
-        CreateArgs(GrContext* context,
-                   const SkGradientShaderBase* shader,
-                   const SkMatrix* matrix,
-                   SkShader::TileMode tileMode)
-            : fContext(context)
-            , fShader(shader)
-            , fMatrix(matrix)
-            , fTileMode(tileMode) {}
-
-        GrContext*                  fContext;
-        const SkGradientShaderBase* fShader;
-        const SkMatrix*             fMatrix;
-        SkShader::TileMode          fTileMode;
-    };
-
     class GLSLProcessor;
 
-    GrGradientEffect(const CreateArgs&);
+    GrGradientEffect(GrContext* ctx,
+                     const SkGradientShaderBase& shader,
+                     const SkMatrix& matrix,
+                     SkShader::TileMode tileMode);
 
     virtual ~GrGradientEffect();
 
