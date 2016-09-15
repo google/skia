@@ -702,7 +702,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 }
 
 SkStreamAsset* SkFontConfigInterfaceDirect::openStream(const FontIdentity& identity) {
-    return SkStream::MakeFromFile(identity.fString.c_str()).release();
+    return SkStream::NewFromFile(identity.fString.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

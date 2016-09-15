@@ -933,7 +933,7 @@ SkTypeface* SkFontMgr_DirectWrite::onCreateFromData(SkData* data, int ttcIndex) 
 }
 
 SkTypeface* SkFontMgr_DirectWrite::onCreateFromFile(const char path[], int ttcIndex) const {
-    return this->createFromStream(SkStream::MakeFromFile(path).release(), ttcIndex);
+    return this->createFromStream(SkStream::NewFromFile(path), ttcIndex);
 }
 
 HRESULT SkFontMgr_DirectWrite::getByFamilyName(const WCHAR wideFamilyName[],

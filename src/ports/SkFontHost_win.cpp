@@ -2463,7 +2463,7 @@ protected:
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         // could be in base impl
-        return this->createFromStream(SkStream::MakeFromFile(path).release());
+        return this->createFromStream(SkStream::NewFromFile(path));
     }
 
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {

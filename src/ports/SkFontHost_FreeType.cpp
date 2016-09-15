@@ -234,11 +234,12 @@ struct SkFaceRec {
     SkFaceRec* fNext;
     FT_Face fFace;
     FT_StreamRec fFTStream;
-    std::unique_ptr<SkStreamAsset> fSkStream;
+    SkAutoTDelete<SkStreamAsset> fSkStream;
     uint32_t fRefCnt;
     uint32_t fFontID;
 
-    SkFaceRec(std::unique_ptr<SkStreamAsset> stream, uint32_t fontID);
+    // assumes ownership of the stream, will delete when its done
+    SkFaceRec(SkStreamAsset* strm, uint32_t fontID);
 };
 
 extern "C" {
@@ -261,12 +262,12 @@ extern "C" {
     static void sk_ft_stream_close(FT_Stream) {}
 }
 
-SkFaceRec::SkFaceRec(std::unique_ptr<SkStreamAsset> stream, uint32_t fontID)
-        : fNext(nullptr), fSkStream(std::move(stream)), fRefCnt(1), fFontID(fontID)
+SkFaceRec::SkFaceRec(SkStreamAsset* stream, uint32_t fontID)
+        : fNext(nullptr), fSkStream(stream), fRefCnt(1), fFontID(fontID)
 {
     sk_bzero(&fFTStream, sizeof(fFTStream));
     fFTStream.size = fSkStream->getLength();
-    fFTStream.descriptor.pointer = fSkStream.get();
+    fFTStream.descriptor.pointer = fSkStream;
     fFTStream.read  = sk_ft_stream_io;
     fFTStream.close = sk_ft_stream_close;
 }
@@ -318,11 +319,12 @@ static FT_Face ref_ft_face(const SkTypeface* typeface) {
         rec = rec->fNext;
     }
 
-    std::unique_ptr<SkFontData> data = typeface->makeFontData();
+    SkAutoTDelete<SkFontData> data(typeface->createFontData());
     if (nullptr == data || !data->hasStream()) {
         return nullptr;
     }
 
+    // this passes ownership of stream to the rec
     rec = new SkFaceRec(data->detachStream(), fontID);
 
     FT_Open_Args args;
@@ -1562,7 +1564,7 @@ SkTypeface_FreeType::Scanner::~Scanner() {
     }
 }
 
-FT_Face SkTypeface_FreeType::Scanner::openFace(SkStreamAsset* stream, int ttcIndex,
+FT_Face SkTypeface_FreeType::Scanner::openFace(SkStream* stream, int ttcIndex,
                                                FT_Stream ftStream) const
 {
     if (fLibrary == nullptr) {
@@ -1596,7 +1598,7 @@ FT_Face SkTypeface_FreeType::Scanner::openFace(SkStreamAsset* stream, int ttcInd
     return face;
 }
 
-bool SkTypeface_FreeType::Scanner::recognizedFont(SkStreamAsset* stream, int* numFaces) const {
+bool SkTypeface_FreeType::Scanner::recognizedFont(SkStream* stream, int* numFaces) const {
     SkAutoMutexAcquire libraryLock(fLibraryMutex);
 
     FT_StreamRec streamRec;
@@ -1613,7 +1615,7 @@ bool SkTypeface_FreeType::Scanner::recognizedFont(SkStreamAsset* stream, int* nu
 
 #include "SkTSearch.h"
 bool SkTypeface_FreeType::Scanner::scanFont(
-    SkStreamAsset* stream, int ttcIndex,
+    SkStream* stream, int ttcIndex,
     SkString* name, SkFontStyle* style, bool* isFixedPitch, AxisDefinitions* axes) const
 {
     SkAutoMutexAcquire libraryLock(fLibraryMutex);

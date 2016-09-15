@@ -176,6 +176,71 @@ void SkCGDrawBitmap(CGContextRef cg, const SkBitmap& bm, float x, float y) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkStream.h"
+
+class SkAutoPDFRelease {
+public:
+    SkAutoPDFRelease(CGPDFDocumentRef doc) : fDoc(doc) {}
+    ~SkAutoPDFRelease() {
+        if (fDoc) {
+            CGPDFDocumentRelease(fDoc);
+        }
+    }
+private:
+    CGPDFDocumentRef fDoc;
+};
+#define SkAutoPDFRelease(...) SK_REQUIRE_LOCAL_VAR(SkAutoPDFRelease)
+
+bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output) {
+    CGDataProviderRef data = SkCreateDataProviderFromStream(stream);
+    if (nullptr == data) {
+        return false;
+    }
+
+    CGPDFDocumentRef pdf = CGPDFDocumentCreateWithProvider(data);
+    CGDataProviderRelease(data);
+    if (nullptr == pdf) {
+        return false;
+    }
+    SkAutoPDFRelease releaseMe(pdf);
+
+    CGPDFPageRef page = CGPDFDocumentGetPage(pdf, 1);
+    if (nullptr == page) {
+        return false;
+    }
+
+    CGRect bounds = CGPDFPageGetBoxRect(page, kCGPDFMediaBox);
+
+    int w = (int)CGRectGetWidth(bounds);
+    int h = (int)CGRectGetHeight(bounds);
+
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocN32Pixels(w, h)) {
+        return false;
+    }
+    bitmap.eraseColor(SK_ColorWHITE);
+
+    size_t bitsPerComponent;
+    CGBitmapInfo info;
+    getBitmapInfo(bitmap, &bitsPerComponent, &info, nullptr);
+
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+    CGContextRef ctx = CGBitmapContextCreate(bitmap.getPixels(), w, h,
+                                             bitsPerComponent, bitmap.rowBytes(),
+                                             cs, info);
+    CGColorSpaceRelease(cs);
+
+    if (ctx) {
+        CGContextDrawPDFPage(ctx, page);
+        CGContextRelease(ctx);
+    }
+
+    output->swap(bitmap);
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SK_API bool SkCopyPixelsFromCGImage(const SkImageInfo& info, size_t rowBytes, void* pixels,

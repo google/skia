@@ -35,8 +35,8 @@ void SKPSlide::draw(SkCanvas* canvas) {
 }
 
 static sk_sp<SkPicture> read_picture(const char path[]) {
-    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
-    if (!stream) {
+    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
+    if (stream.get() == nullptr) {
         SkDebugf("Could not read %s.\n", path);
         return nullptr;
     }

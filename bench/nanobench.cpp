@@ -645,8 +645,8 @@ public:
             return nullptr;
         }
 
-        std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
-        if (!stream) {
+        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
+        if (stream.get() == nullptr) {
             SkDebugf("Could not read %s.\n", path);
             return nullptr;
         }

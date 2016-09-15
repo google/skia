@@ -41,11 +41,12 @@ sk_sp<SkImage> GetResourceAsImage(const char* resource) {
 SkStreamAsset* GetResourceAsStream(const char* resource) {
     SkString resourcePath = GetResourcePath(resource);
     SkAutoTDelete<SkFILEStream> stream(new SkFILEStream(resourcePath.c_str()));
-    if (!stream->isValid()) {
+    if (stream->isValid()) {
+        return stream.release();
+    } else {
         SkDebugf("Resource %s not found.\n", resource);
         return nullptr;
     }
-    return stream.release();
 }
 
 sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource) {

@@ -12,8 +12,6 @@
 #include "SkStream.h"
 #include "SkDOM.h"
 
-#include <memory>
-
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkAnimatorView : public SkView {
@@ -52,8 +50,8 @@ void SkAnimatorView::setURIBase(const char dir[]) {
 }
 
 bool SkAnimatorView::decodeFile(const char path[]) {
-    std::unique_ptr<SkStream> is = SkStream::MakeFromFile(path);
-    return is && this->decodeStream(is.get());
+    SkAutoTDelete<SkStream> is(SkStream::NewFromFile(path));
+    return is.get() != nullptr && this->decodeStream(is);
 }
 
 bool SkAnimatorView::decodeMemory(const void* buffer, size_t size) {

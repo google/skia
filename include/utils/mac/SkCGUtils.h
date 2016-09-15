@@ -65,12 +65,20 @@ static inline CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
 void SkCGDrawBitmap(CGContextRef, const SkBitmap&, float x, float y);
 
 /**
- *  Return a provider that wraps the specified stream.
+ *  Create an SkBitmap drawing of the encoded PDF document, returning true on
+ *  success. Deletes the stream when finished.
+ */
+bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output);
+
+/**
+ *  Return a provider that wraps the specified stream. It will become the only
+ *  owner of the stream, so the caller must stop referring to the stream.
+ *
  *  When the provider is finally deleted, it will delete the stream.
  */
-CGDataProviderRef SkCreateDataProviderFromStream(std::unique_ptr<SkStream>);
+CGDataProviderRef SkCreateDataProviderFromStream(SkStream*);
 
-CGDataProviderRef SkCreateDataProviderFromData(sk_sp<SkData>);
+CGDataProviderRef SkCreateDataProviderFromData(SkData*);
 
 #endif  // defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 #endif  // SkCGUtils_DEFINED

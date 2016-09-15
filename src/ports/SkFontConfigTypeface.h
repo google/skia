@@ -60,7 +60,7 @@ protected:
     void onGetFamilyName(SkString* familyName) const override { *familyName = fFamilyName; }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
-    std::unique_ptr<SkFontData> onMakeFontData() const override;
+    SkFontData* onCreateFontData() const override;
 
 private:
     typedef SkTypeface_FreeType INHERITED;

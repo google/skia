@@ -22,6 +22,11 @@
 
 #include "png.h"
 
+static SkStreamAsset* resource(const char path[]) {
+    SkString fullPath = GetResourcePath(path);
+    return SkStream::NewFromFile(fullPath.c_str());
+}
+
 static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
     SkAutoLockPixels autoLockPixels(bm);
     SkASSERT(bm.getPixels());
@@ -194,8 +199,9 @@ static void check(skiatest::Reporter* r,
                   bool supportsSubsetDecoding,
                   bool supportsIncomplete = true) {
 
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
         return;
     }
 
@@ -323,8 +329,9 @@ static void check(skiatest::Reporter* r,
     // SkAndroidCodec tests
     if (supportsScanlineDecoding || supportsSubsetDecoding) {
 
-        SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+        SkAutoTDelete<SkStream> stream(resource(path));
         if (!stream) {
+            SkDebugf("Missing resource '%s'\n", path);
             return;
         }
 
@@ -349,7 +356,7 @@ static void check(skiatest::Reporter* r,
 
     if (!isIncomplete) {
         // Test SkCodecImageGenerator
-        SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+        SkAutoTDelete<SkStream> stream(resource(path));
         sk_sp<SkData> fullData(SkData::MakeFromStream(stream, stream->getLength()));
         SkAutoTDelete<SkImageGenerator> gen(
                 SkCodecImageGenerator::NewFromEncodedCodec(fullData.get()));
@@ -442,10 +449,9 @@ DEF_TEST(Codec, r) {
 // Test interlaced PNG in stripes, similar to DM's kStripe_Mode
 DEF_TEST(Codec_stripes, r) {
     const char * path = "plane_interlaced.png";
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
-    REPORTER_ASSERT(r, stream);
+    SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
-        return;
+        SkDebugf("Missing resource '%s'\n", path);
     }
 
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
@@ -576,8 +582,9 @@ DEF_TEST(Codec_null, r) {
 
 static void test_dimensions(skiatest::Reporter* r, const char path[]) {
     // Create the codec from the resource file
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
         return;
     }
     SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
@@ -640,8 +647,9 @@ DEF_TEST(Codec_Dimensions, r) {
 }
 
 static void test_invalid(skiatest::Reporter* r, const char path[]) {
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
         return;
     }
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
@@ -665,8 +673,9 @@ DEF_TEST(Codec_Empty, r) {
 }
 
 static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
         return;
     }
     SkAutoTDelete<SkCodec> decoder(SkCodec::NewFromStream(stream.release()));
@@ -956,8 +965,9 @@ DEF_TEST(Codec_webp_peek, r) {
 // Test that SkCodec now supports an image with these bits set.
 DEF_TEST(Codec_wbmp, r) {
     const char* path = "mandrill.wbmp";
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
         return;
     }
 
@@ -1006,8 +1016,9 @@ DEF_TEST(Codec_wbmp_max_size, r) {
 
 DEF_TEST(Codec_jpeg_rewind, r) {
     const char* path = "mandrill_512_q075.jpg";
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
         return;
     }
     SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
@@ -1033,7 +1044,7 @@ DEF_TEST(Codec_jpeg_rewind, r) {
 }
 
 static void check_color_xform(skiatest::Reporter* r, const char* path) {
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(GetResourceAsStream(path)));
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(resource(path)));
 
     SkAndroidCodec::AndroidOptions opts;
     opts.fSampleSize = 3;
@@ -1119,7 +1130,7 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
 
 DEF_TEST(Codec_PngRoundTrip, r) {
     const char* path = "mandrill_512_q075.jpg";
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    SkAutoTDelete<SkStream> stream(resource(path));
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 
     SkColorType colorTypesOpaque[] = {
@@ -1131,12 +1142,12 @@ DEF_TEST(Codec_PngRoundTrip, r) {
     }
 
     path = "grayscale.jpg";
-    stream.reset(GetResourceAsStream(path));
+    stream.reset(resource(path));
     codec.reset(SkCodec::NewFromStream(stream.release()));
     check_round_trip(r, codec.get(), codec->getInfo());
 
     path = "yellow_rose.png";
-    stream.reset(GetResourceAsStream(path));
+    stream.reset(resource(path));
     codec.reset(SkCodec::NewFromStream(stream.release()));
 
     SkColorType colorTypesWithAlpha[] = {
@@ -1156,7 +1167,7 @@ DEF_TEST(Codec_PngRoundTrip, r) {
     }
 
     path = "index8.png";
-    stream.reset(GetResourceAsStream(path));
+    stream.reset(resource(path));
     codec.reset(SkCodec::NewFromStream(stream.release()));
 
     for (SkAlphaType alphaType : alphaTypes) {
@@ -1168,7 +1179,7 @@ DEF_TEST(Codec_PngRoundTrip, r) {
 
 static void test_conversion_possible(skiatest::Reporter* r, const char* path,
                                      bool testScanlineDecoder) {
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    SkAutoTDelete<SkStream> stream(resource(path));
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     SkImageInfo infoF16 = codec->getInfo().makeColorType(kRGBA_F16_SkColorType);
 

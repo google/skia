@@ -28,7 +28,6 @@
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkGlyph.h"
-#include "SkMakeUnique.h"
 #include "SkMaskGamma.h"
 #include "SkMathPriv.h"
 #include "SkMutex.h"
@@ -512,7 +511,7 @@ public:
 protected:
     int onGetUPEM() const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
-    std::unique_ptr<SkFontData> onMakeFontData() const override;
+    SkFontData* onCreateFontData() const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
@@ -1886,17 +1885,16 @@ static bool get_variations(CTFontRef fFontRef, CFIndex* cgAxisCount,
 
     return true;
 }
-std::unique_ptr<SkFontData> SkTypeface_Mac::onMakeFontData() const {
+SkFontData* SkTypeface_Mac::onCreateFontData() const {
     int index;
-    std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
+    SkAutoTDelete<SkStreamAsset> stream(this->onOpenStream(&index));
 
     CFIndex cgAxisCount;
     SkAutoSTMalloc<4, SkFixed> axisValues;
     if (get_variations(fFontRef, &cgAxisCount, &axisValues)) {
-        return skstd::make_unique<SkFontData>(std::move(stream), index,
-                                              axisValues.get(), cgAxisCount);
+        return new SkFontData(stream.release(), index, axisValues.get(), cgAxisCount);
     }
-    return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
+    return new SkFontData(stream.release(), index, nullptr, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2369,16 +2367,15 @@ protected:
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
-        AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromData(sk_ref_sp(data)));
+        AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromData(data));
         if (nullptr == pr) {
             return nullptr;
         }
         return create_from_dataProvider(pr);
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream(bareStream);
-        AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromStream(std::move(stream)));
+    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const override {
+        AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromStream(stream));
         if (nullptr == pr) {
             return nullptr;
         }
@@ -2496,9 +2493,8 @@ protected:
         }
         return dict;
     }
-    SkTypeface* onCreateFromStream(SkStreamAsset* bs, const FontParameters& params) const override {
-        std::unique_ptr<SkStreamAsset> s(bs);
-        AutoCFRelease<CGDataProviderRef> provider(SkCreateDataProviderFromStream(std::move(s)));
+    SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
+        AutoCFRelease<CGDataProviderRef> provider(SkCreateDataProviderFromStream(s));
         if (nullptr == provider) {
             return nullptr;
         }
@@ -2578,9 +2574,10 @@ protected:
         }
         return dict;
     }
-    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> fontData) const override {
-        AutoCFRelease<CGDataProviderRef> provider(
-                SkCreateDataProviderFromStream(fontData->detachStream()));
+    SkTypeface* onCreateFromFontData(SkFontData* data) const override {
+        SkAutoTDelete<SkFontData> fontData(data);
+        SkStreamAsset* stream = fontData->detachStream();
+        AutoCFRelease<CGDataProviderRef> provider(SkCreateDataProviderFromStream(stream));
         if (nullptr == provider) {
             return nullptr;
         }
@@ -2589,7 +2586,7 @@ protected:
             return nullptr;
         }
 
-        AutoCFRelease<CFDictionaryRef> cgVariations(get_axes(cg, fontData.get()));
+        AutoCFRelease<CFDictionaryRef> cgVariations(get_axes(cg, fontData));
         // The CGFontRef returned by CGFontCreateCopyWithVariations when the passed CGFontRef was
         // created from a data provider does not appear to have any ownership of the underlying
         // data. The original CGFontRef must be kept alive until the copy will no longer be used.

@@ -10,7 +10,6 @@
 #include "SkStreamPriv.h"
 #include "SkData.h"
 #include "SkFixed.h"
-#include "SkMakeUnique.h"
 #include "SkString.h"
 #include "SkOSFile.h"
 #include "SkTypes.h"
@@ -855,18 +854,20 @@ static sk_sp<SkData> mmap_filename(const char path[]) {
     return data;
 }
 
-std::unique_ptr<SkStreamAsset> SkStream::MakeFromFile(const char path[]) {
+SkStreamAsset* SkStream::NewFromFile(const char path[]) {
     auto data(mmap_filename(path));
     if (data) {
-        return skstd::make_unique<SkMemoryStream>(std::move(data));
+        return new SkMemoryStream(std::move(data));
     }
 
-    // If we get here, then our attempt at using mmap failed, so try normal file access.
-    auto stream = skstd::make_unique<SkFILEStream>(path);
+    // If we get here, then our attempt at using mmap failed, so try normal
+    // file access.
+    SkFILEStream* stream = new SkFILEStream(path);
     if (!stream->isValid()) {
-        return nullptr;
+        delete stream;
+        stream = nullptr;
     }
-    return std::move(stream);
+    return stream;
 }
 
 // Declared in SkStreamPriv.h:

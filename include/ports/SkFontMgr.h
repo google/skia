@@ -150,10 +150,11 @@ public:
 
     /**
      *  Create a typeface from the specified font data.
+     *  Takes ownership of the font data, so the caller should not reference it again.
      *  Will return NULL if the typeface could not be created.
      *  The caller must call unref() on the returned object if it is not null.
      */
-    SkTypeface* createFromFontData(std::unique_ptr<SkFontData>) const;
+    SkTypeface* createFromFontData(SkFontData*) const;
 
     /**
      *  Create a typeface for the specified fileName and TTC index
@@ -191,7 +192,7 @@ protected:
     virtual SkTypeface* onCreateFromStream(SkStreamAsset*, int ttcIndex) const = 0;
     // TODO: make pure virtual.
     virtual SkTypeface* onCreateFromStream(SkStreamAsset*, const FontParameters&) const;
-    virtual SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData>) const;
+    virtual SkTypeface* onCreateFromFontData(SkFontData*) const;
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const = 0;
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle) const = 0;

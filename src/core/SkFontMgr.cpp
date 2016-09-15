@@ -139,11 +139,11 @@ SkTypeface* SkFontMgr::createFromStream(SkStreamAsset* stream, const FontParamet
     return this->onCreateFromStream(stream, params);
 }
 
-SkTypeface* SkFontMgr::createFromFontData(std::unique_ptr<SkFontData> data) const {
+SkTypeface* SkFontMgr::createFromFontData(SkFontData* data) const {
     if (nullptr == data) {
         return nullptr;
     }
-    return this->onCreateFromFontData(std::move(data));
+    return this->onCreateFromFontData(data);
 }
 
 // This implementation is temporary until it can be made pure virtual.
@@ -152,8 +152,10 @@ SkTypeface* SkFontMgr::onCreateFromStream(SkStreamAsset* stream, const FontParam
 }
 
 // This implementation is temporary until it can be made pure virtual.
-SkTypeface* SkFontMgr::onCreateFromFontData(std::unique_ptr<SkFontData> data) const {
-    return this->createFromStream(data->detachStream().release(), data->getIndex());
+SkTypeface* SkFontMgr::onCreateFromFontData(SkFontData* data) const {
+    SkTypeface* ret = this->createFromStream(data->detachStream(), data->getIndex());
+    delete data;
+    return ret;
 }
 
 SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) const {
