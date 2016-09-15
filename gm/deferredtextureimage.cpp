@@ -7,11 +7,11 @@
 #include <vector>
 
 #include "gm.h"
-#include "GrContext.h"
 #include "SkMipMap.h"
 #include "Resources.h"
 
 #if SK_SUPPORT_GPU
+#include "GrContext.h"
 
 // Helper function that uploads the given SkImage using MakdeFromDeferredTextureImageData and then
 // draws the uploaded version at the specified coordinates.

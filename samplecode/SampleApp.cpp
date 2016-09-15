@@ -372,7 +372,11 @@ public:
     }
 
     int numColorSamples() const override {
+#if SK_SUPPORT_GPU
         return fMSAASampleCount;
+#else
+        return 0;
+#endif
     }
 
     int getColorBits() override {
