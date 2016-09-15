@@ -483,6 +483,12 @@ void create_configs(SkTArray<Config>* configs) {
     }
 }
 
+// disable warning : switch statement contains default but no 'case' labels
+#if defined _WIN32
+#pragma warning ( push )
+#pragma warning ( disable : 4065 )
+#endif
+
 // If bench is enabled for config, returns a Target* for it, otherwise nullptr.
 static Target* is_enabled(Benchmark* bench, const Config& config) {
     if (!bench->isSuitableFor(config.backend)) {
@@ -516,6 +522,10 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     }
     return target;
 }
+
+#if defined _WIN32
+#pragma warning ( pop )
+#endif
 
 static bool valid_brd_bench(sk_sp<SkData> encoded, SkColorType colorType, uint32_t sampleSize,
         uint32_t minOutputSize, int* width, int* height) {
