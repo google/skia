@@ -146,69 +146,74 @@ def dm_flags(bot):
   if 'GalaxyS' in bot:
     args.extend(('--threads', '0'))
 
-  blacklist = []
+  blacklisted = []
+  def blacklist(quad):
+    config, src, options, name = quad.split(' ') if type(quad) is str else quad
+    if config == '_' or config in configs:
+      blacklisted.extend([config, src, options, name])
 
   # TODO: ???
-  blacklist.extend('f16 _ _ dstreadshuffle'.split(' '))
-  blacklist.extend('f16 image _ _'.split(' '))
-  blacklist.extend('srgb image _ _'.split(' '))
-  blacklist.extend('gpusrgb image _ _'.split(' '))
+  blacklist('f16 _ _ dstreadshuffle')
+  blacklist('f16 image _ _')
+  blacklist('srgb image _ _')
+  blacklist('gpusrgb image _ _')
 
   if 'Valgrind' in bot:
     # These take 18+ hours to run.
-    blacklist.extend('pdf gm _ fontmgr_iter'.split(' '))
-    blacklist.extend('pdf _ _ PANO_20121023_214540.jpg'.split(' '))
-    blacklist.extend('pdf skp _ worldjournal'.split(' '))
-    blacklist.extend('pdf skp _ desk_baidu.skp'.split(' '))
-    blacklist.extend('pdf skp _ desk_wikipedia.skp'.split(' '))
+    blacklist('pdf gm _ fontmgr_iter')
+    blacklist('pdf _ _ PANO_20121023_214540.jpg')
+    blacklist('pdf skp _ worldjournal')
+    blacklist('pdf skp _ desk_baidu.skp')
+    blacklist('pdf skp _ desk_wikipedia.skp')
 
   if 'iOS' in bot:
-    blacklist.extend('gpu skp _ _ msaa skp _ _'.split(' '))
-    blacklist.extend('msaa16 gm _ tilemodesProcess'.split(' '))
+    blacklist('gpu skp _ _')
+    blacklist('msaa skp _ _')
+    blacklist('msaa16 gm _ tilemodesProcess')
 
   if 'Mac' in bot or 'iOS' in bot:
     # CG fails on questionable bmps
-    blacklist.extend('_ image gen_platf rgba32abf.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rgb24prof.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rgb24lprof.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 8bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 4bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 32bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 24bpp-pixeldata-cropped.bmp'.split(' '))
+    blacklist('_ image gen_platf rgba32abf.bmp')
+    blacklist('_ image gen_platf rgb24prof.bmp')
+    blacklist('_ image gen_platf rgb24lprof.bmp')
+    blacklist('_ image gen_platf 8bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 4bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 32bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 24bpp-pixeldata-cropped.bmp')
 
     # CG has unpredictable behavior on this questionable gif
     # It's probably using uninitialized memory
-    blacklist.extend('_ image gen_platf frame_larger_than_image.gif'.split(' '))
+    blacklist('_ image gen_platf frame_larger_than_image.gif')
 
   # WIC fails on questionable bmps
   if 'Win' in bot:
-    blacklist.extend('_ image gen_platf rle8-height-negative.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rle4-height-negative.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf pal8os2v2.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf pal8os2v2-16.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rgba32abf.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rgb24prof.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rgb24lprof.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 8bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 4bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 32bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 24bpp-pixeldata-cropped.bmp'.split(' '))
+    blacklist('_ image gen_platf rle8-height-negative.bmp')
+    blacklist('_ image gen_platf rle4-height-negative.bmp')
+    blacklist('_ image gen_platf pal8os2v2.bmp')
+    blacklist('_ image gen_platf pal8os2v2-16.bmp')
+    blacklist('_ image gen_platf rgba32abf.bmp')
+    blacklist('_ image gen_platf rgb24prof.bmp')
+    blacklist('_ image gen_platf rgb24lprof.bmp')
+    blacklist('_ image gen_platf 8bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 4bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 32bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 24bpp-pixeldata-cropped.bmp')
     if 'x86_64' in bot and 'CPU' in bot:
       # This GM triggers a SkSmallAllocator assert.
-      blacklist.extend('_ gm _ composeshader_bitmap'.split(' '))
+      blacklist('_ gm _ composeshader_bitmap')
 
   if 'Android' in bot or 'iOS' in bot:
     # This test crashes the N9 (perhaps because of large malloc/frees). It also
     # is fairly slow and not platform-specific. So we just disable it on all of
     # Android and iOS. skia:5438
-    blacklist.extend('_ test _ GrShape'.split(' '))
+    blacklist('_ test _ GrShape')
 
   if 'Win8' in bot:
     # bungeman: "Doesn't work on Windows anyway, produces unstable GMs with
     # 'Unexpected error' from DirectWrite"
-    blacklist.extend('_ gm _ fontscalerdistortable'.split(' '))
+    blacklist('_ gm _ fontscalerdistortable')
     # skia:5636
-    blacklist.extend('_ svg _ Nebraska-StateSeal.svg'.split(' '))
+    blacklist('_ svg _ Nebraska-StateSeal.svg')
 
   # skia:4095
   bad_serialize_gms = ['bleed_image',
@@ -240,38 +245,38 @@ def dm_flags(bot):
                             'scaled_tilemodes_npot',
                             'scaled_tilemodes'])
   for test in bad_serialize_gms:
-    blacklist.extend(['serialize-8888', 'gm', '_', test])
+    blacklist(['serialize-8888', 'gm', '_', test])
 
   if 'Mac' not in bot:
     for test in ['bleed_alpha_image', 'bleed_alpha_image_shader']:
-      blacklist.extend(['serialize-8888', 'gm', '_', test])
+      blacklist(['serialize-8888', 'gm', '_', test])
   # It looks like we skip these only for out-of-memory concerns.
   if 'Win' in bot or 'Android' in bot:
     for test in ['verylargebitmap', 'verylarge_picture_image']:
-      blacklist.extend(['serialize-8888', 'gm', '_', test])
+      blacklist(['serialize-8888', 'gm', '_', test])
 
   # skia:4769
   for test in ['drawfilter']:
-    blacklist.extend([    'sp-8888', 'gm', '_', test])
-    blacklist.extend([   'pic-8888', 'gm', '_', test])
-    blacklist.extend(['2ndpic-8888', 'gm', '_', test])
-    blacklist.extend([  'lite-8888', 'gm', '_', test])
+    blacklist([    'sp-8888', 'gm', '_', test])
+    blacklist([   'pic-8888', 'gm', '_', test])
+    blacklist(['2ndpic-8888', 'gm', '_', test])
+    blacklist([  'lite-8888', 'gm', '_', test])
   # skia:4703
   for test in ['image-cacherator-from-picture',
                'image-cacherator-from-raster',
                'image-cacherator-from-ctable']:
-    blacklist.extend([       'sp-8888', 'gm', '_', test])
-    blacklist.extend([      'pic-8888', 'gm', '_', test])
-    blacklist.extend([   '2ndpic-8888', 'gm', '_', test])
-    blacklist.extend(['serialize-8888', 'gm', '_', test])
+    blacklist([       'sp-8888', 'gm', '_', test])
+    blacklist([      'pic-8888', 'gm', '_', test])
+    blacklist([   '2ndpic-8888', 'gm', '_', test])
+    blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that requires raster-backed canvas
   for test in ['gamut']:
-    blacklist.extend([       'sp-8888', 'gm', '_', test])
-    blacklist.extend([      'pic-8888', 'gm', '_', test])
-    blacklist.extend([     'lite-8888', 'gm', '_', test])
-    blacklist.extend([   '2ndpic-8888', 'gm', '_', test])
-    blacklist.extend(['serialize-8888', 'gm', '_', test])
+    blacklist([       'sp-8888', 'gm', '_', test])
+    blacklist([      'pic-8888', 'gm', '_', test])
+    blacklist([     'lite-8888', 'gm', '_', test])
+    blacklist([   '2ndpic-8888', 'gm', '_', test])
+    blacklist(['serialize-8888', 'gm', '_', test])
 
   # Extensions for RAW images
   r = ["arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
@@ -281,20 +286,20 @@ def dm_flags(bot):
   # Blacklist RAW images (and a few large PNGs) on GPU bots
   # until we can resolve failures
   if 'GPU' in bot:
-    blacklist.extend('_ image _ interlaced1.png'.split(' '))
-    blacklist.extend('_ image _ interlaced2.png'.split(' '))
-    blacklist.extend('_ image _ interlaced3.png'.split(' '))
+    blacklist('_ image _ interlaced1.png')
+    blacklist('_ image _ interlaced2.png')
+    blacklist('_ image _ interlaced3.png')
     for raw_ext in r:
-      blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
+      blacklist('_ image _ .%s' % raw_ext)
 
   if 'Nexus9' in bot:
     for raw_ext in r:
-      blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
+      blacklist('_ image _ .%s' % raw_ext)
 
   # Large image that overwhelms older Mac bots
   if 'MacMini4.1-GPU' in bot:
-    blacklist.extend('_ image _ abnormal.wbmp'.split(' '))
-    blacklist.extend(['msaa16', 'gm', '_', 'blurcircles'])
+    blacklist('_ image _ abnormal.wbmp')
+    blacklist(['msaa16', 'gm', '_', 'blurcircles'])
 
   match = []
   if 'Valgrind' in bot: # skia:3021
@@ -321,9 +326,9 @@ def dm_flags(bot):
   if 'TSAN' in bot:
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
 
-  if blacklist:
+  if blacklisted:
     args.append('--blacklist')
-    args.extend(blacklist)
+    args.extend(blacklisted)
 
   if match:
     args.append('--match')
