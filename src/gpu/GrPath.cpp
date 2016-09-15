@@ -6,9 +6,8 @@
  */
 
 #include "GrPath.h"
-#include "GrStyle.h"
+#include "GrShape.h"
 
-namespace {
 // Verb count limit for generating path key from content of a volatile path.
 // The value should accomodate at least simple rects and rrects.
 static const int kSimpleVolatilePathVerbLimit = 10;
@@ -26,58 +25,14 @@ static inline void write_style_key(uint32_t* dst, const GrStyle& style) {
     GrStyle::WriteKey(dst, style, GrStyle::Apply::kPathEffectAndStrokeRec, SK_Scalar1);
 }
 
-
-inline static bool compute_key_for_line_path(const SkPath& path, const GrStyle& style,
-                                             GrUniqueKey* key) {
-    SkPoint pts[2];
-    if (!path.isLine(pts)) {
+// Encodes the full path data to the unique key for very small paths that wouldn't otherwise have a
+// key. This is typically hit when clipping stencils the clip stack.
+inline static bool compute_key_for_simple_path(const GrShape& shape, GrUniqueKey* key) {
+    if (shape.hasUnstyledKey()) {
         return false;
     }
-    static_assert((sizeof(pts) % sizeof(uint32_t)) == 0 && sizeof(pts) > sizeof(uint32_t),
-                  "pts_needs_padding");
-    int styleDataCnt = style_data_cnt(style);
-
-    const int kBaseData32Cnt = 1 + sizeof(pts) / sizeof(uint32_t);
-    static const GrUniqueKey::Domain kOvalPathDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kOvalPathDomain, kBaseData32Cnt + styleDataCnt);
-    builder[0] = path.getFillType();
-    memcpy(&builder[1], &pts, sizeof(pts));
-    if (styleDataCnt > 0) {
-        write_style_key(&builder[kBaseData32Cnt], style);
-    }
-    return true;
-}
-
-inline static bool compute_key_for_oval_path(const SkPath& path, const GrStyle& style,
-                                             GrUniqueKey* key) {
-    SkRect rect;
-    // Point order is significant when dashing, so we cannot devolve to a rect key.
-    if (style.pathEffect() || !path.isOval(&rect)) {
-        return false;
-    }
-    static_assert((sizeof(rect) % sizeof(uint32_t)) == 0 && sizeof(rect) > sizeof(uint32_t),
-                  "rect_needs_padding");
-
-    const int kBaseData32Cnt = 1 + sizeof(rect) / sizeof(uint32_t);
-    int styleDataCnt = style_data_cnt(style);
-    static const GrUniqueKey::Domain kOvalPathDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kOvalPathDomain, kBaseData32Cnt + styleDataCnt);
-    builder[0] = path.getFillType();
-    memcpy(&builder[1], &rect, sizeof(rect));
-    if (styleDataCnt > 0) {
-        write_style_key(&builder[kBaseData32Cnt], style);
-    }
-    return true;
-}
-
-// Encodes the full path data to the unique key for very small, volatile paths. This is typically
-// hit when clipping stencils the clip stack. Intention is that this handles rects too, since
-// SkPath::isRect seems to do non-trivial amount of work.
-inline static bool compute_key_for_simple_path(const SkPath& path, const GrStyle& style,
-                                               GrUniqueKey* key) {
-    if (!path.isVolatile()) {
-        return false;
-    }
+    SkPath path;
+    shape.asPath(&path);
     // The check below should take care of negative values casted positive.
     const int verbCnt = path.countVerbs();
     if (verbCnt > kSimpleVolatilePathVerbLimit) {
@@ -124,7 +79,7 @@ inline static bool compute_key_for_simple_path(const SkPath& path, const GrStyle
     // 2) stroke data (varying size)
 
     const int baseData32Cnt = 2 + verbData32Cnt + pointData32Cnt + conicWeightData32Cnt;
-    const int styleDataCnt = style_data_cnt(style);
+    const int styleDataCnt = style_data_cnt(shape.style());
     static const GrUniqueKey::Domain kSimpleVolatilePathDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey::Builder builder(key, kSimpleVolatilePathDomain, baseData32Cnt + styleDataCnt);
     int i = 0;
@@ -169,45 +124,33 @@ inline static bool compute_key_for_simple_path(const SkPath& path, const GrStyle
     }
     SkASSERT(i == baseData32Cnt);
     if (styleDataCnt > 0) {
-        write_style_key(&builder[baseData32Cnt], style);
+        write_style_key(&builder[baseData32Cnt], shape.style());
     }
     return true;
 }
 
-inline static void compute_key_for_general_path(const SkPath& path, const GrStyle& style,
-                                                GrUniqueKey* key) {
-    const int kBaseData32Cnt = 2;
-    int styleDataCnt = style_data_cnt(style);
+inline static bool compute_key_for_general_shape(const GrShape& shape, GrUniqueKey* key) {
+    int geoCnt = shape.unstyledKeySize();
+    int styleCnt = style_data_cnt(shape.style());
+    if (styleCnt < 0 || geoCnt < 0) {
+        return false;
+    }
     static const GrUniqueKey::Domain kGeneralPathDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kGeneralPathDomain, kBaseData32Cnt + styleDataCnt);
-    builder[0] = path.getGenerationID();
-    builder[1] = path.getFillType();
-    if (styleDataCnt > 0) {
-        write_style_key(&builder[kBaseData32Cnt], style);
+    GrUniqueKey::Builder builder(key, kGeneralPathDomain, geoCnt + styleCnt);
+    shape.writeUnstyledKey(&builder[0]);
+    if (styleCnt) {
+        write_style_key(&builder[geoCnt], shape.style());
     }
+    return true;
 }
 
-}
+void GrPath::ComputeKey(const GrShape& shape, GrUniqueKey* key, bool* outIsVolatile) {
 
-void GrPath::ComputeKey(const SkPath& path, const GrStyle& style, GrUniqueKey* key,
-                        bool* outIsVolatile) {
-    if (compute_key_for_line_path(path, style, key)) {
+    if (compute_key_for_simple_path(shape, key)) {
         *outIsVolatile = false;
         return;
     }
-
-    if (compute_key_for_oval_path(path, style, key)) {
-        *outIsVolatile = false;
-        return;
-    }
-
-    if (compute_key_for_simple_path(path, style, key)) {
-        *outIsVolatile = false;
-        return;
-    }
-
-    compute_key_for_general_path(path, style, key);
-    *outIsVolatile = path.isVolatile();
+    *outIsVolatile = !compute_key_for_general_shape(shape, key);
 }
 
 #ifdef SK_DEBUG

@@ -14,6 +14,8 @@
 #include "SkPath.h"
 #include "SkRect.h"
 
+class GrShape;
+
 class GrPath : public GrGpuResource {
 public:
     /**
@@ -30,8 +32,7 @@ public:
     {
     }
 
-    static void ComputeKey(const SkPath& path, const GrStyle& style, GrUniqueKey* key,
-                           bool* outIsVolatile);
+    static void ComputeKey(const GrShape&, GrUniqueKey* key, bool* outIsVolatile);
 
     const SkRect& getBounds() const { return fBounds; }
 

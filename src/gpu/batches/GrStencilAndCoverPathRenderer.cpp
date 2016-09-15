@@ -51,20 +51,28 @@ bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     }
 }
 
-static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const SkPath& skPath,
-                           const GrStyle& style) {
+static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const GrShape& shape) {
     GrUniqueKey key;
     bool isVolatile;
-    GrPath::ComputeKey(skPath, style, &key, &isVolatile);
-    SkAutoTUnref<GrPath> path(
-        static_cast<GrPath*>(resourceProvider->findAndRefResourceByUniqueKey(key)));
+    GrPath::ComputeKey(shape, &key, &isVolatile);
+    sk_sp<GrPath> path;
+    if (!isVolatile) {
+        path.reset(
+            static_cast<GrPath*>(resourceProvider->findAndRefResourceByUniqueKey(key)));
+    }
     if (!path) {
-        path.reset(resourceProvider->createPath(skPath, style));
+        SkPath skPath;
+        shape.asPath(&skPath);
+        path.reset(resourceProvider->createPath(skPath, shape.style()));
         if (!isVolatile) {
-            resourceProvider->assignUniqueKeyToResource(key, path);
+            resourceProvider->assignUniqueKeyToResource(key, path.get());
         }
     } else {
-        SkASSERT(path->isEqualTo(skPath, style));
+#ifdef SK_DEBUG
+        SkPath skPath;
+        shape.asPath(&skPath);
+        SkASSERT(path->isEqualTo(skPath, shape.style()));
+#endif
     }
     return path.release();
 }
@@ -73,10 +81,8 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrStencilAndCoverPathRenderer::onStencilPath");
     SkASSERT(!args.fIsAA || args.fDrawContext->isStencilBufferMultisampled());
-    SkPath path;
-    args.fShape->asPath(&path);
 
-    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, GrStyle::SimpleFill()));
+    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fShape));
     args.fDrawContext->drawContextPriv().stencilPath(*args.fClip, args.fIsAA, *args.fViewMatrix, p);
 }
 
@@ -91,7 +97,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, args.fShape->style()));
+    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fShape));
 
     if (path.isInverseFillType()) {
         SkMatrix invert = SkMatrix::I();
