@@ -148,7 +148,7 @@
       "patchset",
       "1",
       "patch_storage",
-      "",
+      "rietveld",
       "--svgs",
       "[SLAVE_BUILD]/svg",
       "--key",
@@ -447,7 +447,7 @@
       "patchset",
       "1",
       "patch_storage",
-      ""
+      "rietveld"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "env": {

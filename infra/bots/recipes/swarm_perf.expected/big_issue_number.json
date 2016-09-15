@@ -167,7 +167,7 @@
       "patchset",
       "1",
       "patch_storage",
-      "",
+      "rietveld",
       "--key",
       "arch",
       "x86_64",

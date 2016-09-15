@@ -200,7 +200,7 @@
       "patchset",
       "1",
       "patch_storage",
-      "",
+      "rietveld",
       "--svgs",
       "[SLAVE_BUILD]\\svg",
       "--key",

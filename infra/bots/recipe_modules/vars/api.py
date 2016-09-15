@@ -108,7 +108,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.default_env.update({'SKIA_OUT': self.skia_out,
                              'BUILDTYPE': self.configuration})
     self.is_trybot = self.builder_cfg['is_trybot']
-    self.patch_storage = self.m.properties.get('patch_storage', '')
+    self.patch_storage = self.m.properties.get('patch_storage', 'rietveld')
     self.issue = None
     self.patchset = None
     if self.is_trybot:
