@@ -68,7 +68,7 @@ public:
 
     virtual ~GrDistanceFieldA8TextGeoProc() {}
 
-    const char* name() const override { return "DistanceFieldTexture"; }
+    const char* name() const override { return "DistanceFieldA8Text"; }
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
@@ -129,7 +129,7 @@ public:
 
     virtual ~GrDistanceFieldPathGeoProc() {}
 
-    const char* name() const override { return "DistanceFieldTexture"; }
+    const char* name() const override { return "DistanceFieldPath"; }
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
@@ -197,7 +197,7 @@ public:
 
     virtual ~GrDistanceFieldLCDTextGeoProc() {}
 
-    const char* name() const override { return "DistanceFieldLCDTexture"; }
+    const char* name() const override { return "DistanceFieldLCDText"; }
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
