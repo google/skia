@@ -40,15 +40,10 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
     }
 }
 
-static SkStreamAsset* resource(const char path[]) {
-    SkString fullPath = GetResourcePath(path);
-    return SkStream::NewFromFile(fullPath.c_str());
-}
-
 static void test_path(skiatest::Reporter* r, const char* path,
                       const float red[], const float green[], const float blue[],
                       const SkGammaNamed expectedGamma) {
-    SkAutoTDelete<SkStream> stream(resource(path));
+    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
     REPORTER_ASSERT(r, nullptr != stream);
     if (!stream) {
         return;

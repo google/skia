@@ -89,6 +89,6 @@ SkMovie* SkMovie::DecodeMemory(const void* data, size_t length) {
 }
 
 SkMovie* SkMovie::DecodeFile(const char path[]) {
-    SkAutoTDelete<SkStreamRewindable> stream(SkStream::NewFromFile(path));
-    return stream.get() ? SkMovie::DecodeStream(stream) : nullptr;
+    std::unique_ptr<SkStreamRewindable> stream = SkStream::MakeFromFile(path);
+    return stream ? SkMovie::DecodeStream(stream.get()) : nullptr;
 }

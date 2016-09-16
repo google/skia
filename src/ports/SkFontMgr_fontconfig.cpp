@@ -12,6 +12,7 @@
 #include "SkFontHost_FreeType_common.h"
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
+#include "SkMakeUnique.h"
 #include "SkMath.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
@@ -405,9 +406,9 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
 class SkTypeface_stream : public SkTypeface_FreeType {
 public:
     /** @param data takes ownership of the font data.*/
-    SkTypeface_stream(SkFontData* data, const SkFontStyle& style, bool fixedWidth)
+    SkTypeface_stream(std::unique_ptr<SkFontData> data, const SkFontStyle& style, bool fixedWidth)
         : INHERITED(style, fixedWidth)
-        , fData(data)
+        , fData(std::move(data))
     { };
 
     void onGetFamilyName(SkString* familyName) const override {
@@ -420,15 +421,15 @@ public:
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
         *ttcIndex = fData->getIndex();
-        return fData->duplicateStream();
+        return fData->getStream()->duplicate();
     }
 
-    SkFontData* onCreateFontData() const override {
-        return new SkFontData(*fData.get());
+    std::unique_ptr<SkFontData> onMakeFontData() const override {
+        return skstd::make_unique<SkFontData>(*fData);
     }
 
 private:
-    const SkAutoTDelete<const SkFontData> fData;
+    const std::unique_ptr<const SkFontData> fData;
 
     typedef SkTypeface_FreeType INHERITED;
 };
@@ -457,7 +458,7 @@ public:
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
         FCLocker lock;
         *ttcIndex = get_int(fPattern, FC_INDEX, 0);
-        return SkStream::NewFromFile(get_string(fPattern, FC_FILE));
+        return SkStream::MakeFromFile(get_string(fPattern, FC_FILE)).release();
     }
 
     void onFilterRec(SkScalerContextRec* rec) const override {
@@ -878,7 +879,7 @@ protected:
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        SkAutoTDelete<SkStreamAsset> stream(bareStream);
+        std::unique_ptr<SkStreamAsset> stream(bareStream);
         const size_t length = stream->getLength();
         if (length <= 0 || (1u << 30) < length) {
             return nullptr;
@@ -886,23 +887,23 @@ protected:
 
         SkFontStyle style;
         bool isFixedWidth = false;
-        if (!fScanner.scanFont(stream, ttcIndex, nullptr, &style, &isFixedWidth, nullptr)) {
+        if (!fScanner.scanFont(stream.get(), ttcIndex, nullptr, &style, &isFixedWidth, nullptr)) {
             return nullptr;
         }
 
-        return new SkTypeface_stream(new SkFontData(stream.release(), ttcIndex, nullptr, 0), style,
-                                     isFixedWidth);
+        auto data = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
+        return new SkTypeface_stream(std::move(data), style, isFixedWidth);
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
-        SkAutoTDelete<SkStreamAsset> stream(s);
+        std::unique_ptr<SkStreamAsset> stream(s);
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
         Scanner::AxisDefinitions axisDefinitions;
-        if (!fScanner.scanFont(stream, params.getCollectionIndex(), &name, &style, &isFixedPitch,
-                               &axisDefinitions))
+        if (!fScanner.scanFont(stream.get(), params.getCollectionIndex(),
+                               &name, &style, &isFixedPitch, &axisDefinitions))
         {
             return nullptr;
         }
@@ -912,9 +913,9 @@ protected:
         SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
         Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
 
-        SkFontData* data(new SkFontData(stream.release(), params.getCollectionIndex(),
-                                        axisValues.get(), axisDefinitions.count()));
-        return new SkTypeface_stream(data, style, isFixedPitch);
+        auto data = skstd::make_unique<SkFontData>(std::move(stream), params.getCollectionIndex(),
+                                                   axisValues.get(), axisDefinitions.count());
+        return new SkTypeface_stream(std::move(data), style, isFixedPitch);
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
@@ -922,10 +923,10 @@ protected:
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
-        return this->createFromStream(SkStream::NewFromFile(path), ttcIndex);
+        return this->createFromStream(SkStream::MakeFromFile(path).release(), ttcIndex);
     }
 
-    SkTypeface* onCreateFromFontData(SkFontData* fontData) const override {
+    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> fontData) const override {
         SkStreamAsset* stream(fontData->getStream());
         const size_t length = stream->getLength();
         if (length <= 0 || (1u << 30) < length) {
@@ -939,7 +940,7 @@ protected:
             return nullptr;
         }
 
-        return new SkTypeface_stream(fontData, style, isFixedWidth);
+        return new SkTypeface_stream(std::move(fontData), style, isFixedWidth);
     }
 
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {

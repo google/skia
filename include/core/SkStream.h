@@ -40,11 +40,9 @@ public:
     virtual ~SkStream() {}
 
     /**
-     *  Attempts to open the specified file, and return a stream to it (using
-     *  mmap if available). On success, the caller is responsible for deleting.
-     *  On failure, returns NULL.
+     *  Attempts to open the specified file as a stream, returns nullptr on failure.
      */
-    static SkStreamAsset* NewFromFile(const char path[]);
+    static std::unique_ptr<SkStreamAsset> MakeFromFile(const char path[]);
 
     /** Reads or skips size number of bytes.
      *  If buffer == NULL, skip size bytes, return how many were skipped.
