@@ -192,9 +192,6 @@ protected:
     // TODO: make pure virtual.
     virtual SkTypeface* onCreateFromStream(SkStreamAsset*, const FontParameters&) const;
     virtual SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData>) const;
-#ifdef SK_DECLARE_LEGACY_CREATE_FROM_FONTDATA
-    virtual SkTypeface* onCreateFromFontData(SkFontData*) const { return nullptr; };
-#endif
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const = 0;
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle) const = 0;

@@ -360,9 +360,6 @@ protected:
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
     // TODO: make pure virtual.
     virtual std::unique_ptr<SkFontData> onMakeFontData() const;
-#ifdef SK_DECLARE_LEGACY_CREATE_FROM_FONTDATA
-    virtual SkFontData* onCreateFontData() const { return nullptr; };
-#endif
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
