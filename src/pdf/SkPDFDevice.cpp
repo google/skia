@@ -1023,20 +1023,42 @@ void SkPDFDevice::internalDrawText(
     if (!metrics) {
         return;
     }
+    int glyphCount = paint.textToGlyphs(sourceText, sourceByteCount, nullptr);
+    if (glyphCount <= 0) {
+        return;
+    }
     // TODO(halcanary): use metrics->fGlyphToUnicode to check Unicode mapping.
     const SkGlyphID maxGlyphID = metrics->fLastGlyphID;
     if (!SkPDFFont::CanEmbedTypeface(typeface, fDocument->canon())) {
         SkPath path; // https://bug.skia.org/3866
-        paint.getTextPath(sourceText, sourceByteCount,
-                          offset.x(), offset.y(), &path);
+        switch (positioning) {
+            case SkTextBlob::kDefault_Positioning:
+                srcPaint.getTextPath(sourceText, sourceByteCount,
+                                     offset.x(), offset.y(), &path);
+                break;
+            case SkTextBlob::kHorizontal_Positioning: {
+                SkAutoTMalloc<SkPoint> positionsBuffer(glyphCount);
+                for (int  i = 0; i < glyphCount; ++i) {
+                    positionsBuffer[i] = offset + SkPoint{pos[i], 0};
+                }
+                srcPaint.getPosTextPath(sourceText, sourceByteCount,
+                                        &positionsBuffer[0], &path);
+                break;
+            }
+            case SkTextBlob::kFull_Positioning: {
+                SkAutoTMalloc<SkPoint> positionsBuffer(glyphCount);
+                for (int  i = 0; i < glyphCount; ++i) {
+                    positionsBuffer[i] = offset + SkPoint{pos[2 * i], pos[2 * i + 1]};
+                }
+                srcPaint.getPosTextPath(sourceText, sourceByteCount,
+                                        &positionsBuffer[0], &path);
+                break;
+            }
+        }
         this->drawPath(d, path, srcPaint, &SkMatrix::I(), true);
         // Draw text transparently to make it copyable/searchable/accessable.
         draw_transparent_text(this, d, sourceText, sourceByteCount,
                               offset.x(), offset.y(), paint);
-        return;
-    }
-    int glyphCount = paint.textToGlyphs(sourceText, sourceByteCount, nullptr);
-    if (glyphCount <= 0) {
         return;
     }
     SkAutoSTMalloc<128, SkGlyphID> glyphStorage;
