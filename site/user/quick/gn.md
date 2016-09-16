@@ -27,22 +27,27 @@ guides.  We diverge where they'd first run some command with "gyp" in it.
     # After gclient sync, run fetch-gn to make sure you have GN.
     gclient sync && bin/fetch-gn
 
-    # Run GN to generate your build files.  Some examples.
+    # Run GN to generate your build files.
+    gn gen out/Static --args='is_official_build=true'
+    gn gen out/Shared --args='is_official_build=true is_component_build=true'
+
+    # GN allows fine-grained settings for developers and special situations.
     gn gen out/Debug
     gn gen out/Release  --args='is_debug=false'
     gn gen out/Clang    --args='cc="clang" cxx="clang++"'
-    gn gen out/Shared   --args='is_component_build=true'
     gn gen out/Cached   --args='compiler_prefix="ccache"'
-    gn gen out/Stripped --args='extra_cflags="-g0"'
     gn gen out/RTTI     --args='extra_cflags_cc="-frtti"'
 
+    # To see all the current GN arguments, run
+    gn args out/Debug --list
+
     # Build
+    ninja -C out/Static
+    ninja -C out/Shared
     ninja -C out/Debug
     ninja -C out/Release
     ninja -C out/Clang
-    ninja -C out/Shared
     ninja -C out/Cached
-    ninja -C out/Stripped
     ninja -C out/RTTI
 
 From here everything is pretty much business as usual.
@@ -74,6 +79,7 @@ desired `target_cpu`:
     gn gen out/x86      --args='ndk="/tmp/ndk" target_cpu="x86"'
 
 Other arguments like `is_debug` and `is_component_build` continue to work.
+Tweaking `ndk_api` gives you access to newer Android features like Vulkan.
 
 To test on a locally connected Android device, you can use our `droid` convenience script:
 
