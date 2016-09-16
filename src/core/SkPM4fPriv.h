@@ -55,4 +55,20 @@ static inline Sk4f Sk4f_from_SkColor(SkColor color) {
     return swizzle_rb(Sk4f_fromS32(color));
 }
 
+static inline void assert_unit(float x) {
+    SkASSERT(0 <= x && x <= 1);
+}
+
+static inline float exact_srgb_to_linear(float srgb) {
+    assert_unit(srgb);
+    float linear;
+    if (srgb <= 0.04045) {
+        linear = srgb / 12.92f;
+    } else {
+        linear = powf((srgb + 0.055f) / 1.055f, 2.4f);
+    }
+    assert_unit(linear);
+    return linear;
+}
+
 #endif

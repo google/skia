@@ -478,29 +478,4 @@ static inline void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk
     _mm_storeu_si128(((__m128i*) dst) + 1, hi);
 }
 
-static inline void Sk4f_load4(const void* ptr, Sk4f* r, Sk4f* g, Sk4f* b, Sk4f* a) {
-    __m128 v0 = _mm_loadu_ps(((float*)ptr) +  0),
-           v1 = _mm_loadu_ps(((float*)ptr) +  4),
-           v2 = _mm_loadu_ps(((float*)ptr) +  8),
-           v3 = _mm_loadu_ps(((float*)ptr) + 12);
-    _MM_TRANSPOSE4_PS(v0, v1, v2, v3);
-    *r = v0;
-    *g = v1;
-    *b = v2;
-    *a = v3;
-}
-
-static inline void Sk4f_store4(void* dst, const Sk4f& r, const Sk4f& g, const Sk4f& b,
-                               const Sk4f& a) {
-    __m128 v0 = r.fVec,
-           v1 = g.fVec,
-           v2 = b.fVec,
-           v3 = a.fVec;
-    _MM_TRANSPOSE4_PS(v0, v1, v2, v3);
-    _mm_storeu_ps(((float*) dst) +  0, v0);
-    _mm_storeu_ps(((float*) dst) +  4, v1);
-    _mm_storeu_ps(((float*) dst) +  8, v2);
-    _mm_storeu_ps(((float*) dst) + 12, v3);
-}
-
 #endif//SkNx_sse_DEFINED

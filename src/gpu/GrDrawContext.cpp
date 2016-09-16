@@ -37,7 +37,6 @@
 
 #include "../private/GrAuditTrail.h"
 
-#include "SkColorSpaceXform.h"
 #include "SkGr.h"
 #include "SkLatticeIter.h"
 #include "SkMatrixPriv.h"
@@ -97,7 +96,7 @@ GrDrawContext::GrDrawContext(GrContext* context,
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
         auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-        fColorXformFromSRGB = SkColorSpaceXform::New(srgbColorSpace, fColorSpace);
+        fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
     }
     SkDEBUGCODE(this->validate();)
 }

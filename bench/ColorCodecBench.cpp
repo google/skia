@@ -8,7 +8,6 @@
 #include "ColorCodecBench.h"
 #include "Resources.h"
 #include "SkCodec.h"
-#include "SkCodecPriv.h"
 #include "SkColorSpaceXform.h"
 #include "SkCommandLineFlags.h"
 
@@ -100,8 +99,8 @@ void ColorCodecBench::xformOnly() {
     void* dst = fDst.get();
     void* src = fSrc.get();
     for (int y = 0; y < fSrcInfo.height(); y++) {
-        xform->apply(dst, (uint32_t*) src, fSrcInfo.width(),
-                     select_xform_format(fDstInfo.colorType()), fDstInfo.alphaType());
+        xform->apply(dst, (uint32_t*) src, fSrcInfo.width(), fDstInfo.colorType(),
+                     fDstInfo.alphaType());
         dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
         src = SkTAddOffset<void>(src, fSrcInfo.minRowBytes());
     }

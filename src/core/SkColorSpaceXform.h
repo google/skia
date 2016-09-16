@@ -25,27 +25,20 @@ public:
     static std::unique_ptr<SkColorSpaceXform> New(const sk_sp<SkColorSpace>& srcSpace,
                                                   const sk_sp<SkColorSpace>& dstSpace);
 
-    enum ColorFormat : uint8_t {
-        kRGBA_8888_ColorFormat,
-        kBGRA_8888_ColorFormat,
-        kRGBA_F16_ColorFormat,
-        kRGBA_F32_ColorFormat,
-    };
-
     /**
      *  Apply the color conversion to a |src| buffer, storing the output in the |dst| buffer.
      *
-     *  @param dst            Stored in the format described by |dstColorType| and |dstAlphaType|
-     *  @param src            Stored as RGBA_8888, kUnpremul (note kOpaque is a form of kUnpremul)
-     *  @param len            Number of pixels in the buffers
-     *  @param dstColorFormat Describes color format of |dst|
-     *  @param dstAlphaType   Describes alpha type of |dst|
-     *                        kUnpremul preserves input alpha values
-     *                        kPremul   performs a premultiplication and also preserves alpha values
-     *                        kOpaque   optimization hint, |dst| alphas set to 1
+     *  @param dst          Stored in the format described by |dstColorType| and |dstAlphaType|
+     *  @param src          Stored as RGBA_8888, kUnpremul (note kOpaque is a form of kUnpremul)
+     *  @param len          Number of pixels in the buffers
+     *  @param dstColorType Describes color type of |dst|
+     *  @param dstAlphaType Describes alpha type of |dst|
+     *                      kUnpremul preserves input alpha values
+     *                      kPremul   performs a premultiplication and also preserves alpha values
+     *                      kOpaque   optimization hint, |dst| alphas set to 1
      *
      */
-    virtual void apply(void* dst, const uint32_t* src, int len, ColorFormat dstColorFormat,
+    virtual void apply(void* dst, const uint32_t* src, int len, SkColorType dstColorType,
                        SkAlphaType dstAlphaType) const = 0;
 
     virtual ~SkColorSpaceXform() {}
@@ -73,7 +66,7 @@ template <SrcGamma kSrc, DstGamma kDst, ColorSpaceMatch kCSM>
 class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
 
-    void apply(void* dst, const uint32_t* src, int len, ColorFormat dstColorFormat,
+    void apply(void* dst, const uint32_t* src, int len, SkColorType dstColorType,
                SkAlphaType dstAlphaType) const override;
 
     static constexpr int      kDstGammaTableSize = 1024;

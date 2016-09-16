@@ -64,7 +64,7 @@ protected:
     SkSwizzler* swizzler() { return fSwizzler; }
 
     // Initialize variables used by applyXformRow.
-    void initializeXformParams();
+    void initializeXformAlphaAndWidth();
 
     /**
      *  Pass available input to libpng to process it.
@@ -128,10 +128,9 @@ private:
     virtual void setRange(int firstRow, int lastRow, void* dst, size_t rowBytes) = 0;
     virtual Result decode(int* rowsDecoded) = 0;
 
-    XformMode                      fXformMode;
-    SkColorSpaceXform::ColorFormat fXformColorFormat;
-    SkAlphaType                    fXformAlphaType;
-    int                            fXformWidth;
+    XformMode   fXformMode;
+    SkAlphaType fXformAlphaType;
+    int         fXformWidth;
 
 #ifdef SK_GOOGLE3_PNG_HACK
     bool        fNeedsToRereadHeader;

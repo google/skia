@@ -23,7 +23,6 @@
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
 #include "SkCanvas.h"
-#include "SkColorSpaceXform.h"
 #include "SkData.h"
 #include "SkErrorInternals.h"
 #include "SkMessageBus.h"
@@ -530,20 +529,18 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     grPaint->setAntiAlias(skPaint.isAntiAlias());
     grPaint->setAllowSRGBInputs(dc->isGammaCorrect());
 
-    GrColor4f origColor;
+    // Raw translation of the SkPaint color to our 4f format:
+    GrColor4f origColor = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(skPaint.getColor()));
 
     // Linearize, if the color is meant to be in sRGB gamma:
     if (dc->isGammaCorrect()) {
-        SkColorSpaceXform* xform = dc->getColorXformFromSRGB();
-        SkASSERT(xform);
+        origColor.fRGBA[0] = exact_srgb_to_linear(origColor.fRGBA[0]);
+        origColor.fRGBA[1] = exact_srgb_to_linear(origColor.fRGBA[1]);
+        origColor.fRGBA[2] = exact_srgb_to_linear(origColor.fRGBA[2]);
 
-        // FIXME (msarett): Support BGRA inputs to SkColorSpaceXform?
-        uint32_t rgba = SkSwizzle_RB(skPaint.getColor());
-        xform->apply(&origColor, &rgba, 1, SkColorSpaceXform::kRGBA_F32_ColorFormat,
-                     kUnpremul_SkAlphaType);
-    } else {
-        // Raw translation of the SkPaint color to our 4f format:
-        origColor = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(skPaint.getColor()));
+        if (dc->getColorXformFromSRGB()) {
+            origColor = dc->getColorXformFromSRGB()->apply(origColor);
+        }
     }
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not

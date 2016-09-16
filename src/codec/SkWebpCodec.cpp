@@ -307,14 +307,13 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     }
 
     if (colorXform) {
-        SkColorSpaceXform::ColorFormat colorFormat = select_xform_format(dstInfo.colorType());
-        SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
+        SkAlphaType xformAlphaType = select_alpha_xform(dstInfo.alphaType(),
                                                         this->getInfo().alphaType());
 
         uint32_t* src = (uint32_t*) config.output.u.RGBA.rgba;
         size_t srcRowBytes = config.output.u.RGBA.stride;
         for (int y = 0; y < rowsDecoded; y++) {
-            colorXform->apply(dst, src, dstInfo.width(), colorFormat, xformAlphaType);
+            colorXform->apply(dst, src, dstInfo.width(), dstInfo.colorType(), xformAlphaType);
             dst = SkTAddOffset<void>(dst, rowBytes);
             src = SkTAddOffset<uint32_t>(src, srcRowBytes);
         }
