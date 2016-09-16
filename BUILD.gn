@@ -481,7 +481,8 @@ component("skia") {
       "src/ports/SkTypeface_win_dw.cpp",
       "src/xps/SkDocument_XPS.cpp",
     ]
-    sources -= [ get_path_info("src/utils/SkThreadUtils_pthread.cpp", "abspath") ]
+    sources -=
+        [ get_path_info("src/utils/SkThreadUtils_pthread.cpp", "abspath") ]
   } else {
     sources += [
       "src/ports/SkOSFile_posix.cpp",
