@@ -9,6 +9,7 @@
 #define GrDrawContext_DEFINED
 
 #include "GrColor.h"
+#include "GrContext.h"
 #include "GrPaint.h"
 #include "GrRenderTarget.h"
 #include "SkRefCnt.h"
@@ -19,7 +20,6 @@
 
 class GrAuditTrail;
 class GrClip;
-class GrContext;
 class GrDrawBatch;
 class GrDrawContextPriv;
 class GrDrawPathBatchBase;
@@ -324,6 +324,7 @@ public:
         return paint.isAntiAlias() && fRenderTarget->isUnifiedMultisampled();
     }
 
+    const GrCaps* caps() const { return fContext->caps(); }
     const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }
