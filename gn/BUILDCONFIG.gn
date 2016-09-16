@@ -147,5 +147,10 @@ set_defaults("component") {
   }
 }
 
-# For now, we support GCC-like toolchains, including Clang.
-set_default_toolchain("//gn:gcc_like")
+if (is_win) {
+  # Windows tool chain
+  set_default_toolchain("//gn:msvc")
+} else {
+  # GCC-like toolchains, including Clang.
+  set_default_toolchain("//gn:gcc_like")
+}

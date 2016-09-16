@@ -12,7 +12,11 @@ template("third_party") {
     public_configs = [ ":" + target_name + "_public" ]
 
     # Warnings are just noise if we're not maintaining the code.
-    cflags = [ "-w" ]
+    if (is_win) {
+      cflags = [ "/w" ]
+    } else {
+      cflags = [ "-w" ]
+    }
   }
 }
 

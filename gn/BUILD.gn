@@ -14,6 +14,8 @@ declare_args() {
     cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
   }
 
+  windk = ""
+
   extra_cflags = ""
   extra_cflags_c = ""
   extra_cflags_cc = ""
@@ -22,140 +24,162 @@ declare_args() {
   compiler_prefix = ""
 }
 
-config("no_rtti") {
-  if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
-    cflags_cc = [ "-fno-rtti" ]
+if (is_win) {
+  config("default") {
+    cflags = [
+      "/FS",      # Preserve previous PDB behavior.
+      "/bigobj",  # Some of our files are bigger than the regular limits.
+    ]
+    cflags_c = ["/TC"]
+    cflags_cc = ["/TP"]
+    defines = [
+          "_HAS_EXCEPTIONS=0",
+          "WIN32_LEAN_AND_MEAN",
+          "NOMINMAX",
+    ]
   }
-}
+  config("no_rtti") { }
 
-config("debug_symbols") {
-  # It's annoying to wait for full debug symbols to push over
-  # to Android devices.  -gline-tables-only is a lot slimmer.
-  if (is_android) {
-    cflags = [ "-gline-tables-only" ]
-  } else {
-    cflags = [ "-g" ]
-  }
-}
+  config("debug_symbols") { }
 
-config("default") {
-  asmflags = []
-  cflags = [
-    "-O1",
-    "-fstrict-aliasing",
-    "-fPIC",
-    "-fvisibility=hidden",
-
-    "-Werror",
-    "-Wall",
-    "-Wextra",
-    "-Winit-self",
-    "-Wpointer-arith",
-    "-Wsign-compare",
-    "-Wvla",
-
-    "-Wno-deprecated-declarations",
-    "-Wno-unused-parameter",
-  ]
-  cflags_cc = [
-    "-std=c++11",
-    "-fno-exceptions",
-    "-fno-threadsafe-statics",
-    "-fvisibility-inlines-hidden",
-
-    "-Wnon-virtual-dtor",
-  ]
-  ldflags = []
-
-  if (current_cpu == "arm") {
-    cflags += [
-      "-march=armv7-a",
-      "-mfpu=neon",
-      "-mthumb",
-    ]
-  } else if (current_cpu == "mipsel") {
-    cflags += [
-      "-march=mips32r2",
-      "-mdspr2",
-    ]
-  } else if (current_cpu == "x86") {
-    asmflags += [ "-m32" ]
-    cflags += [
-      "-m32",
-      "-msse2",
-      "-mfpmath=sse",
-    ]
-    ldflags += [ "-m32" ]
-  }
-
-  if (is_android) {
-    asmflags += [
-      "--target=$ndk_target",
-      "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
-    ]
-    cflags += [
-      "--sysroot=$ndk/platforms/$ndk_platform",
-      "--target=$ndk_target",
-      "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
-    ]
-    cflags_cc += [
-      "-isystem$ndk/sources/android/support/include",
-      "-isystem$ndk/sources/cxx-stl/llvm-libc++/libcxx/include",
-    ]
-    ldflags += [
-      "--sysroot=$ndk/platforms/$ndk_platform",
-      "--target=$ndk_target",
-      "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
-      "-pie",
-    ]
-    lib_dirs = [
-      "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
-      "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
-    ]
-    libs = [
-      # Order matters here!  Keep these three in exactly this order.
-      "c++_static",
-      "c++abi",
-      "android_support",
-    ]
-    if (target_cpu == "arm") {
-      libs += [ "unwind" ]
+} else {
+  config("debug_symbols") {
+    # It's annoying to wait for full debug symbols to push over
+    # to Android devices.  -gline-tables-only is a lot slimmer.
+    if (is_android) {
+      cflags = [ "-gline-tables-only" ]
+    } else {
+      cflags = [ "-g" ]
     }
   }
 
-  if (is_linux) {
-    libs = [ "pthread" ]
+  config("no_rtti") {
+    if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
+      cflags_cc = [ "-fno-rtti" ]
+    }
   }
 
-  if (sanitize != "") {
-    # You can either pass the sanitizers directly, e.g. "address,undefined",
-    # or pass one of the couple common aliases used by the bots.
-    sanitizers = sanitize
-    if (sanitize == "ASAN") {
-      sanitizers = "address,bool,function,integer-divide-by-zero,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
-    } else if (sanitize == "TSAN") {
-      sanitizers = "thread"
-    } else if (sanitize == "MSAN") {
-      sanitizers = "memory"
-    }
+  config("default") {
+    asmflags = []
+    cflags = [
+      "-O1",
+      "-fstrict-aliasing",
+      "-fPIC",
+      "-fvisibility=hidden",
 
-    cflags += [
-      "-fsanitize=$sanitizers",
-      "-fno-sanitize-recover=$sanitizers",
-      "-fsanitize-blacklist=" + rebase_path("../tools/xsan.blacklist"),
+      "-Werror",
+      "-Wall",
+      "-Wextra",
+      "-Winit-self",
+      "-Wpointer-arith",
+      "-Wsign-compare",
+      "-Wvla",
+
+      "-Wno-deprecated-declarations",
+      "-Wno-unused-parameter",
     ]
-    ldflags += [ "-fsanitize=$sanitizers" ]
-    if (sanitizers == "memory") {
-      cflags += [ "-fsanitize-memory-track-origins" ]
-      cflags_cc += [ "-stdlib=libc++" ]
-      ldflags += [ "-stdlib=libc++" ]
+    cflags_cc = [
+      "-std=c++11",
+      "-fno-exceptions",
+      "-fno-threadsafe-statics",
+      "-fvisibility-inlines-hidden",
+
+      "-Wnon-virtual-dtor",
+    ]
+    ldflags = []
+
+    if (current_cpu == "arm") {
+      cflags += [
+        "-march=armv7-a",
+        "-mfpu=neon",
+        "-mthumb",
+      ]
+    } else if (current_cpu == "mipsel") {
+      cflags += [
+        "-march=mips32r2",
+        "-mdspr2",
+      ]
+    } else if (current_cpu == "x86") {
+      asmflags += [ "-m32" ]
+      cflags += [
+        "-m32",
+        "-msse2",
+        "-mfpmath=sse",
+      ]
+      ldflags += [ "-m32" ]
+    }
+
+    if (is_android) {
+      asmflags += [
+        "--target=$ndk_target",
+        "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
+      ]
+      cflags += [
+        "--sysroot=$ndk/platforms/$ndk_platform",
+        "--target=$ndk_target",
+        "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
+      ]
+      cflags_cc += [
+        "-isystem$ndk/sources/android/support/include",
+        "-isystem$ndk/sources/cxx-stl/llvm-libc++/libcxx/include",
+      ]
+      ldflags += [
+        "--sysroot=$ndk/platforms/$ndk_platform",
+        "--target=$ndk_target",
+        "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
+        "-pie",
+      ]
+      lib_dirs = [
+        "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
+        "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
+      ]
+
+      libs = [
+        # Order matters here!  Keep these three in exactly this order.
+        "c++_static",
+        "c++abi",
+        "android_support",
+      ]
+      if (target_cpu == "arm") {
+        libs += [ "unwind" ]
+      }
+    }
+
+    if (is_linux) {
+      libs = [ "pthread" ]
+    }
+
+    if (sanitize != "") {
+      # You can either pass the sanitizers directly, e.g. "address,undefined",
+      # or pass one of the couple common aliases used by the bots.
+      sanitizers = sanitize
+      if (sanitize == "ASAN") {
+        sanitizers = "address,bool,function,integer-divide-by-zero,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
+      } else if (sanitize == "TSAN") {
+        sanitizers = "thread"
+      } else if (sanitize == "MSAN") {
+        sanitizers = "memory"
+      }
+
+      cflags += [
+        "-fsanitize=$sanitizers",
+        "-fno-sanitize-recover=$sanitizers",
+        "-fsanitize-blacklist=" + rebase_path("../tools/xsan.blacklist"),
+      ]
+      ldflags += [ "-fsanitize=$sanitizers" ]
+      if (sanitizers == "memory") {
+        cflags += [ "-fsanitize-memory-track-origins" ]
+        cflags_cc += [ "-stdlib=libc++" ]
+        ldflags += [ "-stdlib=libc++" ]
+      }
     }
   }
-}
 
-config("release") {
-  cflags = [ "-O3" ]
-  defines = [ "NDEBUG" ]
+  config("release") {
+    cflags = [ "-O3" ]
+    defines = [ "NDEBUG" ]
+  }
+
 }
 
 config("executable") {
@@ -168,6 +192,100 @@ config("executable") {
     ]
   }
 }
+
+toolchain("msvc") {
+  vc    = "$windk\VC\bin\amd64\cl.exe"
+  vlink = "$windk\VC\bin\amd64\link.exe"
+  vlib  = "$windk\VC\bin\amd64\lib.exe"
+  # TODO: add a python function that generates the includes using <VSPATH>/win_sdk/bin/SetEnv.<cpu>.json
+  windk_include_dirs = "/I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\um /I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\shared /I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\winrt /I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\ucrt /I$windk\win_sdk\bin\..\..\VC\include /I$windk\win_sdk\bin\..\..\VC\atlmfc\include "
+
+  tool("cc") {
+    rspfile = "{{output}}.rsp"
+    precompiled_header_type = "msvc"
+    pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
+
+    # Label names may have spaces in them so the pdbname must be quoted. The
+    # source and output don't need to be quoted because GN knows they're a
+    # full file name and will quote automatically when necessary.
+   
+    command = "$vc /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    depsformat = "msvc"
+    description = "CC {{output}}"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+      # "$object_subdir/{{source_name_part}}.obj",
+    ]
+    rspfile_content = "$windk_include_dirs {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}"
+  }
+
+  tool("cxx") {
+    rspfile = "{{output}}.rsp"
+    precompiled_header_type = "msvc"
+    pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
+
+    # Label names may have spaces in them so the pdbname must be quoted. The
+    # source and output don't need to be quoted because GN knows they're a
+    # full file name and will quote automatically when necessary.
+    command = "$vc /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    depsformat = "msvc"
+    description = "C++ {{output}}"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+    ]
+    rspfile_content = "$windk_include_dirs {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}"
+  }    
+
+  tool("alink") {
+    rspfile = "{{output}}.rsp"
+    # gyp_win_tool_path = rebase_path("../third_party/externals/gyp/pylib/gyp/win_tool.py")
+    command = "$vlib /nologo {{arflags}} /OUT:{{output}} @$rspfile"
+    description = "LIB {{output}}"
+    outputs = [
+      # Ignore {{output_extension}} and always use .lib, there's no reason to
+      # allow targets to override this extension on Windows.
+      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
+    ]
+    default_output_extension = ".lib"
+    default_output_dir = "{{target_out_dir}}"
+
+    # The use of inputs_newline is to work around a fixed per-line buffer
+    # size in the linker.
+    rspfile_content = "{{inputs_newline}}"
+  }
+
+  tool("link") {
+    exename = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
+    pdbname = "$exename.pdb"
+    rspfile = "$exename.rsp"
+
+    # gyp_win_tool_path = rebase_path("../third_party/externals/gyp/pylib/gyp/win_tool.py")
+    command = "$vlink /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+
+    default_output_extension = ".exe"
+    default_output_dir = "{{root_out_dir}}"
+    description = "LINK {{output}}"
+    outputs = [
+      #"{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
+      exename,
+    ]
+    #if (symbol_level != 0) {
+    #  outputs += [ pdbname ]
+    #}
+    #runtime_outputs = outputs
+
+    # The use of inputs_newline is to work around a fixed per-line buffer
+    # size in the linker.
+    rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
+  }
+
+
+  tool("stamp") {
+    win_stamp_path = rebase_path("win_stamp.py")
+    command = "python $win_stamp_path {{output}}"
+  }
+}
+
 
 toolchain("gcc_like") {
   lib_switch = "-l"
