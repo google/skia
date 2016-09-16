@@ -24,10 +24,10 @@ class SkPngChunkReader;
 class SkSampler;
 
 namespace DM {
+class CodecSrc;
 class ColorCodecSrc;
 }
 class ColorCodecBench;
-
 
 /**
  *  Abstraction layer directly on top of an image codec.
@@ -253,8 +253,8 @@ public:
          *  If the EncodedFormat is kWEBP_SkEncodedFormat (the only one which
          *  currently supports subsets), the top and left values must be even.
          *
-         *  In getPixels, we will attempt to decode the exact rectangular
-         *  subset specified by fSubset.
+         *  In getPixels and incremental decode, we will attempt to decode the
+         *  exact rectangular subset specified by fSubset.
          *
          *  In a scanline decode, it does not make sense to specify a subset
          *  top or subset height, since the client already controls which rows
@@ -352,6 +352,67 @@ public:
         }
 
         return this->onGetYUV8Planes(sizeInfo, planes);
+    }
+
+    /**
+     *  Prepare for an incremental decode with the specified options.
+     *
+     *  This may require a rewind.
+     *
+     *  @param dstInfo Info of the destination. If the dimensions do not match
+     *      those of getInfo, this implies a scale.
+     *  @param dst Memory to write to. Needs to be large enough to hold the subset,
+     *      if present, or the full image as described in dstInfo.
+     *  @param options Contains decoding options, including if memory is zero
+     *      initialized and whether to decode a subset.
+     *  @param ctable A pointer to a color table.  When dstInfo.colorType() is
+     *      kIndex8, this should be non-NULL and have enough storage for 256
+     *      colors.  The color table will be populated after decoding the palette.
+     *  @param ctableCount A pointer to the size of the color table.  When
+     *      dstInfo.colorType() is kIndex8, this should be non-NULL.  It will
+     *      be modified to the true size of the color table (<= 256) after
+     *      decoding the palette.
+     *  @return Enum representing success or reason for failure.
+     */
+    Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
+            const SkCodec::Options*, SkPMColor* ctable, int* ctableCount);
+
+    Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
+            const SkCodec::Options* options) {
+        return this->startIncrementalDecode(dstInfo, dst, rowBytes, options, nullptr, nullptr);
+    }
+
+    Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes) {
+        return this->startIncrementalDecode(dstInfo, dst, rowBytes, nullptr, nullptr, nullptr);
+    }
+
+    /**
+     *  Start/continue the incremental decode.
+     *
+     *  Not valid to call before calling startIncrementalDecode().
+     *
+     *  After the first call, should only be called again if more data has been
+     *  provided to the source SkStream.
+     *
+     *  Unlike getPixels and getScanlines, this does not do any filling. This is
+     *  left up to the caller, since they may be skipping lines or continuing the
+     *  decode later. In the latter case, they may choose to initialize all lines
+     *  first, or only initialize the remaining lines after the first call.
+     *
+     *  @param rowsDecoded Optional output variable returning the total number of
+     *      lines initialized. Only meaningful if this method returns kIncompleteInput.
+     *      Otherwise the implementation may not set it.
+     *      Note that some implementations may have initialized this many rows, but
+     *      not necessarily finished those rows (e.g. interlaced PNG). This may be
+     *      useful for determining what rows the client needs to initialize.
+     *  @return kSuccess if all lines requested in startIncrementalDecode have
+     *      been completely decoded. kIncompleteInput otherwise.
+     */
+    Result incrementalDecode(int* rowsDecoded = nullptr) {
+        if (!fStartedIncrementalDecode) {
+            return kInvalidParameters;
+        }
+        return this->onIncrementalDecode(rowsDecoded);
     }
 
     /**
@@ -474,17 +535,6 @@ public:
          * Interlaced gifs are an example.
          */
         kOutOfOrder_SkScanlineOrder,
-
-        /*
-         * Indicates that the entire image must be decoded in order to output
-         * any amount of scanlines.  In this case, it is a REALLY BAD IDEA to
-         * request scanlines 1-by-1 or in small chunks.  The client should
-         * determine which scanlines are needed and ask for all of them in
-         * a single call to getScanlines().
-         *
-         * Interlaced pngs are an example.
-         */
-        kNone_SkScanlineOrder,
     };
 
     /**
@@ -642,11 +692,6 @@ protected:
      */
     virtual SkScanlineOrder onGetScanlineOrder() const { return kTopDown_SkScanlineOrder; }
 
-    /**
-     *  Update the current scanline. Used by interlaced png.
-     */
-    void updateCurrScanline(int newY) { fCurrScanline = newY; }
-
     const SkImageInfo& dstInfo() const { return fDstInfo; }
 
     const SkCodec::Options& options() const { return fOptions; }
@@ -673,10 +718,13 @@ private:
     bool                        fNeedsRewind;
     const Origin                fOrigin;
 
-    // These fields are only meaningful during scanline decodes.
     SkImageInfo                 fDstInfo;
     SkCodec::Options            fOptions;
+
+    // Only meaningful during scanline decodes.
     int                         fCurrScanline;
+
+    bool                        fStartedIncrementalDecode;
 
     /**
      *  Return whether these dimensions are supported as a scale.
@@ -696,6 +744,16 @@ private:
             const SkCodec::Options& /*options*/, SkPMColor* /*ctable*/, int* /*ctableCount*/) {
         return kUnimplemented;
     }
+
+    virtual Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
+            const SkCodec::Options&, SkPMColor*, int*) {
+        return kUnimplemented;
+    }
+
+    virtual Result onIncrementalDecode(int*) {
+        return kUnimplemented;
+    }
+
 
     virtual bool onSkipScanlines(int /*countLines*/) { return false; }
 
@@ -733,6 +791,7 @@ private:
     friend class DM::ColorCodecSrc;
     friend class ColorCodecBench;
 
+    friend class DM::CodecSrc;  // for fillIncompleteImage
     friend class SkSampledCodec;
     friend class SkIcoCodec;
 };

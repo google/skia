@@ -446,31 +446,55 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             break;
         }
         case kScanline_Mode: {
-            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
-                                                                &colorCount)) {
-                return "Could not start scanline decoder";
-            }
-
             void* dst = pixels.get();
             uint32_t height = decodeInfo.height();
-            switch (codec->getScanlineOrder()) {
-                case SkCodec::kTopDown_SkScanlineOrder:
-                case SkCodec::kBottomUp_SkScanlineOrder:
-                case SkCodec::kNone_SkScanlineOrder:
-                    // We do not need to check the return value.  On an incomplete
-                    // image, memory will be filled with a default value.
-                    codec->getScanlines(dst, height, rowBytes);
-                    break;
-                case SkCodec::kOutOfOrder_SkScanlineOrder: {
-                    for (int y = 0; y < decodeInfo.height(); y++) {
-                        int dstY = codec->outputScanline(y);
-                        void* dstPtr = SkTAddOffset<void>(dst, rowBytes * dstY);
-                        // We complete the loop, even if this call begins to fail
-                        // due to an incomplete image.  This ensures any uninitialized
-                        // memory will be filled with the proper value.
-                        codec->getScanlines(dstPtr, 1, rowBytes);
+            const bool png = fPath.endsWith("png");
+            const bool ico = fPath.endsWith("ico");
+            bool useOldScanlineMethod = !png && !ico;
+            if (png || ico) {
+                if (SkCodec::kSuccess == codec->startIncrementalDecode(decodeInfo, dst,
+                        rowBytes, nullptr, colorPtr, &colorCount)) {
+                    int rowsDecoded;
+                    if (SkCodec::kIncompleteInput == codec->incrementalDecode(&rowsDecoded)) {
+                        codec->fillIncompleteImage(decodeInfo, dst, rowBytes,
+                                                   SkCodec::kNo_ZeroInitialized, height,
+                                                   rowsDecoded);
                     }
-                    break;
+                } else {
+                    if (png) {
+                        // Error: PNG should support incremental decode.
+                        return "Could not start incremental decode";
+                    }
+                    // Otherwise, this is an ICO. Since incremental failed, it must contain a BMP,
+                    // which should work via startScanlineDecode
+                    useOldScanlineMethod = true;
+                }
+            }
+
+            if (useOldScanlineMethod) {
+                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
+                                                                    &colorCount)) {
+                    return "Could not start scanline decoder";
+                }
+
+                switch (codec->getScanlineOrder()) {
+                    case SkCodec::kTopDown_SkScanlineOrder:
+                    case SkCodec::kBottomUp_SkScanlineOrder:
+                        // We do not need to check the return value.  On an incomplete
+                        // image, memory will be filled with a default value.
+                        codec->getScanlines(dst, height, rowBytes);
+                        break;
+                    case SkCodec::kOutOfOrder_SkScanlineOrder: {
+                        for (int y = 0; y < decodeInfo.height(); y++) {
+                            int dstY = codec->outputScanline(y);
+                            void* dstPtr = SkTAddOffset<void>(dst, rowBytes * dstY);
+                            // We complete the loop, even if this call begins to fail
+                            // due to an incomplete image.  This ensures any uninitialized
+                            // memory will be filled with the proper value.
+                            codec->getScanlines(dstPtr, 1, rowBytes);
+                        }
+                        break;
+                    }
                 }
             }
 
