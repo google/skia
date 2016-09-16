@@ -27,11 +27,7 @@
  */
 class SkGaussianEdgeShaderImpl : public SkShader {
 public:
-    SkGaussianEdgeShaderImpl()
-        : fLargerBlur(false) {}
-
-    SkGaussianEdgeShaderImpl(bool largerBlur)
-        : fLargerBlur(largerBlur) {}
+    SkGaussianEdgeShaderImpl() {}
 
     bool isOpaque() const override;
 
@@ -47,7 +43,6 @@ protected:
 
 private:
     friend class SkGaussianEdgeShader;
-    bool fLargerBlur;
 
     typedef SkShader INHERITED;
 };
@@ -68,7 +63,7 @@ private:
 
 class GaussianEdgeFP : public GrFragmentProcessor {
 public:
-    GaussianEdgeFP(bool largerBlur) : fLargerBlur(largerBlur) {
+    GaussianEdgeFP() {
         this->initClassID<GaussianEdgeFP>();
 
         // enable output of distance information for shape
@@ -77,7 +72,7 @@ public:
 
     class GLSLGaussianEdgeFP : public GrGLSLFragmentProcessor {
     public:
-        GLSLGaussianEdgeFP(bool largerBlur) : fLargerBlur(largerBlur) {}
+        GLSLGaussianEdgeFP() {}
 
         void emitCode(EmitArgs& args) override {
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -87,7 +82,7 @@ public:
                                          " returning grey in GLSLGaussianEdgeFP\n");
                 fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
                 fragBuilder->codeAppendf("%s = vec4(0.0, 0.0, 0.0, color.r);", args.fOutputColor);
-            } else if (fLargerBlur) {
+            } else {
                 fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
                 fragBuilder->codeAppend("float radius = color.r*256.0*64.0 + color.g*64.0;");
                 fragBuilder->codeAppend("float pad = color.b*64.0;");
@@ -97,23 +92,13 @@ public:
                 fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
                 fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.a);",
                                          args.fOutputColor);
-            } else {
-                fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-                fragBuilder->codeAppend("float radius = color.g*64.0;");
-                fragBuilder->codeAppend("float pad = color.b*64.0;");
-
-                fragBuilder->codeAppendf("float factor = 1.0 - clamp((%s.z - pad)/radius, 0.0, 1.0);",
-                                         fragBuilder->distanceVectorName());
-                fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-                fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.r);",
-                                         args.fOutputColor);
             }
         }
 
         static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
-            const GaussianEdgeFP& gefp = proc.cast<GaussianEdgeFP>();
-            b->add32(gefp.fLargerBlur ? 0x1 : 0x0);
+            // only one shader generated currently
+            b->add32(0x0);
         }
 
     protected:
@@ -134,18 +119,16 @@ public:
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLSLGaussianEdgeFP(fLargerBlur);
+        return new GLSLGaussianEdgeFP();
     }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override { return true; }
-
-    bool fLargerBlur;
 };
 
 ////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkGaussianEdgeShaderImpl::asFragmentProcessor(const AsFPArgs& args) const {
-    return sk_make_sp<GaussianEdgeFP>(fLargerBlur);
+sk_sp<GrFragmentProcessor> SkGaussianEdgeShaderImpl::asFragmentProcessor(const AsFPArgs&) const {
+    return sk_make_sp<GaussianEdgeFP>();
 }
 
 #endif
@@ -173,8 +156,8 @@ void SkGaussianEdgeShaderImpl::flatten(SkWriteBuffer& buf) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkShader> SkGaussianEdgeShader::Make(bool largerBlur) {
-    return sk_make_sp<SkGaussianEdgeShaderImpl>(largerBlur);
+sk_sp<SkShader> SkGaussianEdgeShader::Make() {
+    return sk_make_sp<SkGaussianEdgeShaderImpl>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

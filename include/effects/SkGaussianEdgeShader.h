@@ -16,7 +16,7 @@ public:
     * Currently this is only useable with Circle and RRect shapes on the GPU backend.
     * Raster will draw nothing.
     */
-    static sk_sp<SkShader> Make(bool largerBlur = true);
+    static sk_sp<SkShader> Make();
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
