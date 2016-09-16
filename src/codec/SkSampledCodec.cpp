@@ -257,10 +257,11 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
                 return SkCodec::kSuccess;
             }
             SkASSERT(incResult == SkCodec::kIncompleteInput);
-            const int lastRowInOutput = (rowsDecoded - startY) / sampleY;
-            // FIXME: Should this be info or nativeInfo? Does it make a difference?
+
+            // Count the rows that we decoded, and also did not skip.
+            const int trueRowsDecoded = (rowsDecoded + sampleY - 1) / sampleY;
             this->codec()->fillIncompleteImage(info, pixels, rowBytes, options.fZeroInitialized,
-                                               info.height(), lastRowInOutput);
+                                               info.height(), trueRowsDecoded);
             return SkCodec::kIncompleteInput;
         } else if (startResult != SkCodec::kUnimplemented) {
             return startResult;
