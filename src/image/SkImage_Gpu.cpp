@@ -583,7 +583,6 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     FILL_MEMBER(dtiBufferFiller, fColorTableCnt, &ctCount);
     FILL_MEMBER(dtiBufferFiller, fColorTableData, &ct);
     FILL_MEMBER(dtiBufferFiller, fMipMapLevelCount, &mipMapLevelCount);
-//    FILL_MEMBER(dtiBufferFiller, fMipMapLevelCount[0].fPixelData, &pixels);
     memcpy(reinterpret_cast<void*>(bufferAsInt +
                                   offsetof(DeferredTextureImage, fMipMapLevelData[0].fPixelData)),
            &pixels, sizeof(pixels));
@@ -605,11 +604,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     }
 
     // Fill in the mipmap levels if they exist
-    intptr_t mipLevelPtr = bufferAsInt + pixelOffset + SkAlign8(pixmap.getSafeSize());
+    intptr_t mipLevelPtr = pixelsAsInt + SkAlign8(pixmap.getSafeSize());
 
     if (useMipMaps) {
-        // offsetof, which we use below, requires the type have standard layout
-        SkASSERT(std::is_standard_layout<MipMapLevelData>::value);
+        static_assert(std::is_standard_layout<MipMapLevelData>::value,
+                      "offsetof, which we use below, requires the type have a standard layout");
 
         SkAutoTDelete<SkMipMap> mipmaps(SkMipMap::Build(pixmap, gammaTreatment, nullptr));
         // SkMipMap holds only the mipmap levels it generates.
@@ -626,11 +625,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
             mipmaps->getLevel(generatedMipLevelIndex, &mipLevel);
 
             // Make sure the mipmap data is after the start of the buffer
-            SkASSERT(mipLevelPtr > bufferAsInt);
+            SkASSERT_RELEASE(mipLevelPtr > bufferAsInt);
             // Make sure the mipmap data starts before the end of the buffer
-            SkASSERT(static_cast<size_t>(mipLevelPtr) < bufferAsInt + pixelOffset + pixelSize);
+            SkASSERT_RELEASE(static_cast<size_t>(mipLevelPtr) < bufferAsInt + pixelOffset + pixelSize);
             // Make sure the mipmap data ends before the end of the buffer
-            SkASSERT(mipLevelPtr + mipLevel.fPixmap.getSafeSize() <=
+            SkASSERT_RELEASE(mipLevelPtr + mipLevel.fPixmap.getSafeSize() <=
                      bufferAsInt + pixelOffset + pixelSize);
 
             // getSafeSize includes rowbyte padding except for the last row,
