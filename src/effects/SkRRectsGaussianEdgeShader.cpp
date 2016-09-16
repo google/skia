@@ -126,7 +126,8 @@ public:
                                          "1.0 - clamp((%s.%c - abs(delta.y))/%s, 0.0, 1.0));",
                     sizesName, indices[0], radName,
                     sizesName, indices[1], radName);
-                fragBuilder->codeAppendf("%s = 1.0 - length(rectDist);", outputName);
+                fragBuilder->codeAppendf("%s = clamp(1.0 - length(rectDist), 0.0, 1.0);",
+                                         outputName);
                 break;
             case kSimpleCircular_Mode:
                 // For the circular round rect we first compute the distance
@@ -202,11 +203,10 @@ public:
                                radUniName, "secondDist", "zw");
             fragBuilder->codeAppend("}");
 
-            fragBuilder->codeAppendf("float dist = %s * firstDist * secondDist;", radUniName);
+            fragBuilder->codeAppend("vec2 distVec = vec2(1.0 - firstDist, 1.0 - secondDist);");
 
             // Finally use the distance to apply the Gaussian edge
-            // TODO: we undo the multiply by the radius here - we should just skip both
-            fragBuilder->codeAppendf("float factor = 1.0 - clamp(dist/%s, 0.0, 1.0);", radUniName);
+            fragBuilder->codeAppend("float factor = clamp(length(distVec), 0.0, 1.0);");
             fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
             fragBuilder->codeAppendf("%s = factor*%s;",
                                      args.fOutputColor, args.fInputColor);
