@@ -640,10 +640,16 @@ if (skia_enable_tools) {
     public_include_dirs = [ "tools/flags" ]
     sources = [
       "tools/flags/SkCommandLineFlags.cpp",
+    ]
+  }
+  test_lib("common_flags") {
+    public_include_dirs = [ "tools/flags" ]
+    sources = [
       "tools/flags/SkCommonFlags.cpp",
       "tools/flags/SkCommonFlagsConfig.cpp",
     ]
     deps = [
+      ":flags",
       ":gpu_tool_utils",
     ]
   }
@@ -676,6 +682,7 @@ if (skia_enable_tools) {
       "tools/timer/Timer.cpp",
     ]
     deps = [
+      ":common_flags",
       ":flags",
       "//third_party/libpng",
     ]
@@ -789,6 +796,7 @@ if (skia_enable_tools) {
     ]
     include_dirs = [ "tests" ]
     deps = [
+      ":common_flags",
       ":experimental_svg_model",
       ":flags",
       ":gm",
@@ -819,6 +827,7 @@ if (skia_enable_tools) {
     ]
     deps = [
       ":bench",
+      ":common_flags",
       ":experimental_svg_model",
       ":flags",
       ":gm",
@@ -850,6 +859,18 @@ if (skia_enable_tools) {
     ]
     deps = [
       ":skia",
+    ]
+    testonly = true
+  }
+
+  executable("get_images_from_skps") {
+    sources = [
+      "tools/get_images_from_skps.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+      "//third_party/jsoncpp",
     ]
     testonly = true
   }
