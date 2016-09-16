@@ -272,6 +272,8 @@
       "/storage/emulated/legacy/skiabot/skia_resources",
       "--skps",
       "/storage/emulated/legacy/skiabot/skia_skp/skps",
+      "--svgs",
+      "/storage/emulated/legacy/skiabot/skia_svg/svgs",
       "--images",
       "/storage/emulated/legacy/skiabot/skia_images/nanobench",
       "--nocpu",

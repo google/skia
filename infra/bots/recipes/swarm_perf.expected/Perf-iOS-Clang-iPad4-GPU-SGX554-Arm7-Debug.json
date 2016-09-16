@@ -337,6 +337,8 @@
       "skiabot/skia_resources",
       "--skps",
       "skiabot/skia_skp/skps",
+      "--svgs",
+      "skiabot/skia_svg/svgs",
       "--images",
       "skiabot/skia_images/nanobench",
       "--nocpu",
