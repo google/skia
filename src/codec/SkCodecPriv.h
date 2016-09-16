@@ -144,6 +144,20 @@ static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
      return nullptr != colorTable ? colorTable->readColors() : nullptr;
 }
 
+static inline SkColorSpaceXform::ColorFormat select_xform_format(SkColorType colorType) {
+    switch (colorType) {
+        case kRGBA_8888_SkColorType:
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+        case kBGRA_8888_SkColorType:
+            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
+        case kRGBA_F16_SkColorType:
+            return SkColorSpaceXform::kRGBA_F16_ColorFormat;
+        default:
+            SkASSERT(false);
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+    }
+}
+
 /*
  * Given that the encoded image uses a color table, return the fill value
  */
@@ -162,7 +176,7 @@ static inline uint64_t get_color_table_fill_value(SkColorType colorType, SkAlpha
             SkASSERT(colorXform);
             uint64_t dstColor;
             uint32_t srcColor = colorPtr[fillIndex];
-            colorXform->apply(&dstColor, &srcColor, 1, colorType, alphaType);
+            colorXform->apply(&dstColor, &srcColor, 1, select_xform_format(colorType), alphaType);
             return dstColor;
         }
         default:
@@ -343,7 +357,7 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageIn
     return !isLegacy && (needsPremul || isF16 || srcDstNotEqual);
 }
 
-static inline SkAlphaType select_alpha_xform(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
+static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
     return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
 }
 

@@ -332,6 +332,28 @@ SI void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk4h& b, cons
     Sk4h(r[3], g[3], b[3], a[3]).store(dst64 + 3);
 }
 
+// Load 4 Sk4f and transpose them (512 bits total).
+SI void Sk4f_load4(const void* vptr, Sk4f* r, Sk4f* g, Sk4f* b, Sk4f* a) {
+    const float* ptr = (const float*) vptr;
+    auto p0 = Sk4f::Load(ptr +  0),
+         p1 = Sk4f::Load(ptr +  4),
+         p2 = Sk4f::Load(ptr +  8),
+         p3 = Sk4f::Load(ptr + 12);
+    *r = { p0[0], p1[0], p2[0], p3[0] };
+    *g = { p0[1], p1[1], p2[1], p3[1] };
+    *b = { p0[2], p1[2], p2[2], p3[2] };
+    *a = { p0[3], p1[3], p2[3], p3[3] };
+}
+
+// Transpose 4 Sk4f and store (512 bits total).
+SI void Sk4f_store4(void* vdst, const Sk4f& r, const Sk4f& g, const Sk4f& b, const Sk4f& a) {
+    float* dst = (float*) vdst;
+    Sk4f(r[0], g[0], b[0], a[0]).store(dst +  0);
+    Sk4f(r[1], g[1], b[1], a[1]).store(dst +  4);
+    Sk4f(r[2], g[2], b[2], a[2]).store(dst +  8);
+    Sk4f(r[3], g[3], b[3], a[3]).store(dst + 12);
+}
+
 #endif
 
 SI void Sk4f_ToBytes(uint8_t p[16], const Sk4f& a, const Sk4f& b, const Sk4f& c, const Sk4f& d) {

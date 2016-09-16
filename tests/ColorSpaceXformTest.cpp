@@ -7,6 +7,7 @@
 
 #include "Resources.h"
 #include "SkCodec.h"
+#include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
@@ -39,7 +40,8 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
 
     // Create and perform an identity xform.
     std::unique_ptr<SkColorSpaceXform> xform = ColorSpaceXformTest::CreateIdentityXform(gammas);
-    xform->apply(dstPixels, srcPixels, width, kN32_SkColorType, kOpaque_SkAlphaType);
+    xform->apply(dstPixels, srcPixels, width, select_xform_format(kN32_SkColorType),
+                 kOpaque_SkAlphaType);
 
     // Since the src->dst matrix is the identity, and the gamma curves match,
     // the pixels should be unchanged.

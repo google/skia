@@ -267,11 +267,12 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) 
     // If we are not decoding to F16, we can color xform now and store the results
     // in the color table.
     if (fColorXform && kRGBA_F16_SkColorType != dstInfo.colorType()) {
-        SkColorType xformColorType = is_rgba(dstInfo.colorType()) ?
-                kRGBA_8888_SkColorType : kBGRA_8888_SkColorType;
-        SkAlphaType xformAlphaType = select_alpha_xform(dstInfo.alphaType(),
+        SkColorSpaceXform::ColorFormat xformColorFormat = is_rgba(dstInfo.colorType()) ?
+                SkColorSpaceXform::kRGBA_8888_ColorFormat :
+                SkColorSpaceXform::kBGRA_8888_ColorFormat;
+        SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
                                                         this->getInfo().alphaType());
-        fColorXform->apply(colorTable, colorTable, numColors, xformColorType, xformAlphaType);
+        fColorXform->apply(colorTable, colorTable, numColors, xformColorFormat, xformAlphaType);
     }
 
     // Pad the color table with the last color in the table (or black) in the case that
@@ -492,17 +493,18 @@ void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
 }
 
 void SkPngCodec::applyXformRow(void* dst, const void* src) {
-    const SkColorType colorType = this->dstInfo().colorType();
     switch (fXformMode) {
         case kSwizzleOnly_XformMode:
             fSwizzler->swizzle(dst, (const uint8_t*) src);
             break;
         case kColorOnly_XformMode:
-            fColorXform->apply(dst, (const uint32_t*) src, fXformWidth, colorType, fXformAlphaType);
+            fColorXform->apply(dst, (const uint32_t*) src, fXformWidth, fXformColorFormat,
+                               fXformAlphaType);
             break;
         case kSwizzleColor_XformMode:
             fSwizzler->swizzle(fColorXformSrcRow, (const uint8_t*) src);
-            fColorXform->apply(dst, fColorXformSrcRow, fXformWidth, colorType, fXformAlphaType);
+            fColorXform->apply(dst, fColorXformSrcRow, fXformWidth, fXformColorFormat,
+                               fXformAlphaType);
             break;
     }
 }
@@ -1137,9 +1139,23 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     return true;
 }
 
-void SkPngCodec::initializeXformAlphaAndWidth() {
-    fXformAlphaType = select_alpha_xform(this->dstInfo().alphaType(), this->getInfo().alphaType());
-    fXformWidth = this->swizzler() ? this->swizzler()->swizzleWidth() : this->dstInfo().width();
+void SkPngCodec::initializeXformParams() {
+    switch (fXformMode) {
+        case kColorOnly_XformMode:
+            fXformColorFormat = select_xform_format(this->dstInfo().colorType());
+            fXformAlphaType = select_xform_alpha(this->dstInfo().alphaType(),
+                                                 this->getInfo().alphaType());
+            fXformWidth = this->dstInfo().width();
+            break;
+        case kSwizzleColor_XformMode:
+            fXformColorFormat = select_xform_format(this->dstInfo().colorType());
+            fXformAlphaType = select_xform_alpha(this->dstInfo().alphaType(),
+                                                 this->getInfo().alphaType());
+            fXformWidth = this->swizzler()->swizzleWidth();
+            break;
+        default:
+            break;
+    }
 }
 
 static inline bool apply_xform_on_decode(SkColorType dstColorType, SkEncodedInfo::Color srcColor) {
@@ -1226,7 +1242,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
     }
 
     this->allocateStorage(dstInfo);
-    this->initializeXformAlphaAndWidth();
+    this->initializeXformParams();
     return this->decodeAllRows(dst, rowBytes, rowsDecoded);
 }
 
@@ -1261,7 +1277,7 @@ SkCodec::Result SkPngCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
 
 SkCodec::Result SkPngCodec::onIncrementalDecode(int* rowsDecoded) {
     // FIXME: Only necessary on the first call.
-    this->initializeXformAlphaAndWidth();
+    this->initializeXformParams();
 
     return this->decode(rowsDecoded);
 }
@@ -1269,7 +1285,7 @@ SkCodec::Result SkPngCodec::onIncrementalDecode(int* rowsDecoded) {
 uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     if (colorPtr) {
-        SkAlphaType alphaType = select_alpha_xform(dstInfo.alphaType(),
+        SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
                                                    this->getInfo().alphaType());
         return get_color_table_fill_value(dstInfo.colorType(), alphaType, colorPtr, 0,
                                           fColorXform.get());

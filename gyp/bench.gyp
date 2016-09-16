@@ -21,6 +21,7 @@
         'gmslides.gypi',
       ],
       'include_dirs' : [
+        '../src/codec',
         '../src/image',
       ],
       'dependencies': [
