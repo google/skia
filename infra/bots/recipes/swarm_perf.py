@@ -188,7 +188,6 @@ def perf_steps(api):
       '--undefok',   # This helps branches that may not know new flags.
       '-i',       api.flavor.device_dirs.resource_dir,
       '--skps',   api.flavor.device_dirs.skp_dir,
-      '--svgs',   api.flavor.device_dirs.svg_dir,
       '--images', api.flavor.device_path_join(
           api.flavor.device_dirs.images_dir, 'nanobench'),
   ]

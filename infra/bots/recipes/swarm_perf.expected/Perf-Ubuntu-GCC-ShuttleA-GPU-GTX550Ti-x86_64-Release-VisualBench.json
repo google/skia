@@ -112,8 +112,6 @@
       "[SLAVE_BUILD]/skia/resources",
       "--skps",
       "[SLAVE_BUILD]/skp",
-      "--svgs",
-      "[SLAVE_BUILD]/svg",
       "--images",
       "[SLAVE_BUILD]/skimage/nanobench",
       "--nocpu",
