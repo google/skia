@@ -12,6 +12,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     target_arch  = self.m.vars.builder_cfg.get('target_arch',  '')
 
     return any([
+      'CT' in extra_config,
       'SAN' in extra_config,
       extra_config == 'Fast',
       extra_config == 'GN',
