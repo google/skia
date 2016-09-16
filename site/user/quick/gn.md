@@ -81,9 +81,12 @@ desired `target_cpu`:
 Other arguments like `is_debug` and `is_component_build` continue to work.
 Tweaking `ndk_api` gives you access to newer Android features like Vulkan.
 
-To test on a locally connected Android device, you can use our `droid` convenience script:
+To test on an Android device, push the binary and `resources` over,
+and run it as normal.  You may find `bin/droid` convenient.
 
 <!--?prettify lang=sh?-->
 
     ninja -C out/arm64
-    bin/droid out/arm64/dm --src gm --config gpu
+    adb push out/arm64/dm /data/local/tmp
+    adb push resources /data/local/tmp
+    adb shell "cd /data/local/tmp; ./dm --src gm --config gpu"
