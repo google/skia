@@ -845,19 +845,19 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
         return sk_make_sp<SkTwoPointConicalGradient>(start, startRadius, end, endRadius,
                                                      flipGradient, desc);
     } else {
-        SkAutoSTArray<8, SkColor> colorsNew(colorCount);
-        SkAutoSTArray<8, SkScalar> posNew(colorCount);
-        for (int i = 0; i < colorCount; ++i) {
-            colorsNew[i] = opt.fColors[colorCount - i - 1];
+        SkAutoSTArray<8, SkColor> colorsNew(opt.fCount);
+        SkAutoSTArray<8, SkScalar> posNew(opt.fCount);
+        for (int i = 0; i < opt.fCount; ++i) {
+            colorsNew[i] = opt.fColors[opt.fCount - i - 1];
         }
 
         if (pos) {
-            for (int i = 0; i < colorCount; ++i) {
-                posNew[i] = 1 - opt.fPos[colorCount - i - 1];
+            for (int i = 0; i < opt.fCount; ++i) {
+                posNew[i] = 1 - opt.fPos[opt.fCount - i - 1];
             }
-            desc_init(&desc, colorsNew.get(), posNew.get(), colorCount, mode, flags, localMatrix);
+            desc_init(&desc, colorsNew.get(), posNew.get(), opt.fCount, mode, flags, localMatrix);
         } else {
-            desc_init(&desc, colorsNew.get(), nullptr, colorCount, mode, flags, localMatrix);
+            desc_init(&desc, colorsNew.get(), nullptr, opt.fCount, mode, flags, localMatrix);
         }
 
         return sk_make_sp<SkTwoPointConicalGradient>(end, endRadius, start, startRadius,
