@@ -62,7 +62,6 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if configuration != 'Debug':
       args['is_debug'] = 'false'
     if 'Vulkan' in extra_config:
-      args['skia_use_vulkan'] = 'true'
       args['ndk_api'] = 24
 
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
