@@ -71,14 +71,21 @@ _pdf_gypi = exec_script("gypi_to_gn.py",
 skia_pdf_sources = _pdf_gypi.sources
 
 _sources_gypi = exec_script("gypi_to_gn.py",
-                         [
-                           rebase_path("../gyp/skia_sources.gypi"),
-                         ],
-                         "scope",
-                         [ "../gyp/skia_sources.gypi" ])
+                            [ rebase_path("../gyp/skia_sources.gypi") ],
+                            "scope",
+                            [ "../gyp/skia_sources.gypi" ])
 skia_sksl_sources = get_path_info(_sources_gypi.sksl_sources, "abspath")
 skia_utils_sources = get_path_info(_sources_gypi.utils_sources, "abspath")
 
 # Skia Chromium defines. These flags will be defined in chromium If these
 # become 'permanent', they should be moved into Chrome's skia build file.
 skia_for_chromium_defines = [ "SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS" ]
+
+_android_framework_defines =
+    exec_script(
+        "gypi_to_gn.py",
+        [ rebase_path("../gyp/skia_for_android_framework_defines.gypi") ],
+        "scope",
+        [ "../gyp/core.gypi" ])
+skia_android_framework_defines =
+    _android_framework_defines.skia_for_android_framework_defines

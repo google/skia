@@ -18,6 +18,8 @@ declare_args() {
   skia_use_sfntly = !is_fuchsia
   skia_use_vulkan = is_android && defined(ndk_api) && ndk_api >= 24
   skia_use_zlib = true
+
+  skia_enable_android_framework_defines = false
 }
 
 fontmgr_android_enabled = skia_use_expat && skia_use_freetype
@@ -222,6 +224,11 @@ template("optional") {
   }
 }
 
+optional("android_framework_defines") {
+  enabled = skia_enable_android_framework_defines
+  public_defines = skia_android_framework_defines
+}
+
 optional("fontmgr_android") {
   enabled = fontmgr_android_enabled
 
@@ -384,6 +391,7 @@ component("skia") {
   configs += skia_library_configs
 
   deps = [
+    ":android_framework_defines",
     ":arm64",
     ":armv7",
     ":avx",
