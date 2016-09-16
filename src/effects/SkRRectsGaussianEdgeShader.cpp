@@ -409,7 +409,7 @@ SkShader::Context* SkRRectsGaussianEdgeShaderImpl::onCreateContext(const Context
 
 sk_sp<SkShader> SkRRectsGaussianEdgeShader::Make(const SkRRect& first,
                                                  const SkRRect& second,
-                                                 SkScalar radius) {
+                                                 SkScalar radius, SkScalar unused) {
     if ((!first.isRect()  && !first.isCircle()  && !first.isSimpleCircular()) || 
         (!second.isRect() && !second.isCircle() && !second.isSimpleCircular())) {
         // we only deal with the shapes where the x & y radii are equal 

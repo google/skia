@@ -26,7 +26,7 @@ public:
      */
     static sk_sp<SkShader> Make(const SkRRect& first,
                                 const SkRRect& second,
-                                SkScalar radius);
+                                SkScalar radius, SkScalar unused = 0.0f);
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
