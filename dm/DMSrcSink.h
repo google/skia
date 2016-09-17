@@ -249,6 +249,12 @@ private:
 };
 
 #if defined(SK_XML)
+} // namespace DM
+
+class SkSVGDOM;
+
+namespace DM {
+
 class SVGSrc : public Src {
 public:
     explicit SVGSrc(Path path);
@@ -259,7 +265,11 @@ public:
     bool veto(SinkFlags) const override;
 
 private:
-    Path fPath;
+    Error ensureDom() const;
+
+    Path                    fPath;
+    mutable sk_sp<SkSVGDOM> fDom;
+    mutable SkScalar        fScale;
 
     typedef Src INHERITED;
 };

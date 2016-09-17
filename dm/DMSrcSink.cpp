@@ -1056,30 +1056,57 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 #if defined(SK_XML)
-// Should we try to use the SVG intrinsic size instead?
-static const SkSize kSVGSize = SkSize::Make(1000, 1000);
+// Used when the image doesn't have an intrinsic size.
+static const SkSize kDefaultSVGSize = SkSize::Make(1000, 1000);
 
-SVGSrc::SVGSrc(Path path) : fPath(path) {}
+// Used to force-scale tiny fixed-size images.
+static const SkSize kMinimumSVGSize = SkSize::Make(128, 128);
 
-Error SVGSrc::draw(SkCanvas* canvas) const {
-    SkFILEStream stream(fPath.c_str());
-    if (!stream.isValid()) {
-        return SkStringPrintf("Unable to open file: %s", fPath.c_str());
+SVGSrc::SVGSrc(Path path) : fPath(path), fScale(1) {}
+
+Error SVGSrc::ensureDom() const {
+    if (!fDom) {
+        SkFILEStream stream(fPath.c_str());
+        if (!stream.isValid()) {
+            return SkStringPrintf("Unable to open file: %s", fPath.c_str());
+        }
+        fDom = SkSVGDOM::MakeFromStream(stream);
+        if (!fDom) {
+            return SkStringPrintf("Unable to parse file: %s", fPath.c_str());
+        }
+
+        const SkSize& sz = fDom->containerSize();
+        if (sz.isEmpty()) {
+            // no intrinsic size
+            fDom->setContainerSize(kDefaultSVGSize);
+        } else {
+            fScale = SkTMax(1.f, SkTMax(kMinimumSVGSize.width()  / sz.width(),
+                                        kMinimumSVGSize.height() / sz.height()));
+        }
     }
-
-    sk_sp<SkSVGDOM> dom = SkSVGDOM::MakeFromStream(stream);
-    if (!dom) {
-        return SkStringPrintf("Unable to parse file: %s", fPath.c_str());
-    }
-
-    dom->setContainerSize(kSVGSize);
-    dom->render(canvas);
 
     return "";
 }
 
+Error SVGSrc::draw(SkCanvas* canvas) const {
+    Error err = this->ensureDom();
+    if (err.isEmpty()) {
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->scale(fScale, fScale);
+        fDom->render(canvas);
+    }
+
+    return err;
+}
+
 SkISize SVGSrc::size() const {
-    return kSVGSize.toRound();
+    Error err = this->ensureDom();
+    if (!err.isEmpty()) {
+        return SkISize::Make(0, 0);
+    }
+
+    return SkSize::Make(fDom->containerSize().width()  * fScale,
+                        fDom->containerSize().height() * fScale).toRound();
 }
 
 Name SVGSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
