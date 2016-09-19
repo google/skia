@@ -11,6 +11,7 @@
 #include "SkTypes.h"
 
 typedef void* SkPlatformGpuFence;
+constexpr static SkPlatformGpuFence kInvalidPlatformGpuFence = nullptr;
 
 /*
  * This class provides an interface to interact with fence syncs. A fence sync is an object that the

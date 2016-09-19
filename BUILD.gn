@@ -840,6 +840,19 @@ if (skia_enable_tools) {
     testonly = true
   }
 
+  executable("skpbench") {
+    sources = [
+      "tools/skpbench/skpbench.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+    ]
+    testonly = true
+  }
+
   if (current_cpu != "mipsel") {  # Clang 3.8 crashes while compiling hb-icu.cc for mipsel.
     executable("sktexttopdf-hb") {
       sources = [
