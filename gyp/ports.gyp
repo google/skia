@@ -70,6 +70,7 @@
         '../include/ports/SkFontMgr_android.h',
         '../include/ports/SkFontMgr_custom.h',
         '../include/ports/SkFontMgr_fontconfig.h',
+        '../include/ports/SkFontMgr_FontConfigInterface.h',
         '../include/ports/SkFontMgr_indirect.h',
         '../include/ports/SkRemotableFontMgr.h',
       ],
@@ -139,6 +140,7 @@
               },
               'sources': [
                 '../src/ports/SkFontMgr_fontconfig.cpp',
+                '../src/ports/SkFontConfigInterface.cpp',
                 '../src/ports/SkFontConfigInterface_direct.cpp',
                 '../src/ports/SkFontConfigInterface_direct_factory.cpp',
               ],

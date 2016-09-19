@@ -263,6 +263,7 @@ optional("fontmgr_fontconfig") {
     "//third_party/freetype2",
   ]
   sources = [
+    "src/ports/SkFontConfigInterface.cpp",
     "src/ports/SkFontConfigInterface_direct.cpp",
     "src/ports/SkFontConfigInterface_direct_factory.cpp",
     "src/ports/SkFontMgr_FontConfigInterface.cpp",

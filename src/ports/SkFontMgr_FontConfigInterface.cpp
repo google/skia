@@ -9,6 +9,7 @@
 #include "SkFontConfigTypeface.h"
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
+#include "SkFontMgr_FontConfigInterface.h"
 #include "SkFontStyle.h"
 #include "SkMakeUnique.h"
 #include "SkMutex.h"
@@ -152,7 +153,7 @@ static bool find_by_FontIdentity(SkTypeface* cachedTypeface, void* ctx) {
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkFontMgr_FCI : public SkFontMgr {
-    SkAutoTUnref<SkFontConfigInterface> fFCI;
+    sk_sp<SkFontConfigInterface> fFCI;
     sk_sp<SkDataTable> fFamilyNames;
     SkTypeface_FreeType::Scanner fScanner;
 
@@ -165,8 +166,8 @@ class SkFontMgr_FCI : public SkFontMgr {
     mutable SkFontRequestCache fCache;
 
 public:
-    SkFontMgr_FCI(SkFontConfigInterface* fci)
-        : fFCI(fci)
+    SkFontMgr_FCI(sk_sp<SkFontConfigInterface> fci)
+        : fFCI(std::move(fci))
         , fFamilyNames(fFCI->getFamilyNames())
         , fCache(kMaxSize)
     {}
@@ -295,7 +296,7 @@ protected:
     }
 };
 
-SK_API SkFontMgr* SkFontMgr_New_FCI(SkFontConfigInterface* fci) {
+SK_API SkFontMgr* SkFontMgr_New_FCI(sk_sp<SkFontConfigInterface> fci) {
     SkASSERT(fci);
-    return new SkFontMgr_FCI(fci);
+    return new SkFontMgr_FCI(std::move(fci));
 }

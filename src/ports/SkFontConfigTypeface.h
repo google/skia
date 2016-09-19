@@ -20,12 +20,12 @@ class SkTypeface_FCI : public SkTypeface_FreeType {
     std::unique_ptr<SkFontData> fFontData;
 
 public:
-    static SkTypeface_FCI* Create(SkFontConfigInterface* fci,
+    static SkTypeface_FCI* Create(sk_sp<SkFontConfigInterface> fci,
                                   const SkFontConfigInterface::FontIdentity& fi,
                                   const SkString& familyName,
                                   const SkFontStyle& style)
     {
-        return new SkTypeface_FCI(fci, fi, familyName, style);
+        return new SkTypeface_FCI(std::move(fci), fi, familyName, style);
     }
 
     static SkTypeface_FCI* Create(std::unique_ptr<SkFontData> data,
@@ -39,12 +39,12 @@ public:
     }
 
 protected:
-    SkTypeface_FCI(SkFontConfigInterface* fci,
+    SkTypeface_FCI(sk_sp<SkFontConfigInterface> fci,
                    const SkFontConfigInterface::FontIdentity& fi,
                    const SkString& familyName,
                    const SkFontStyle& style)
             : INHERITED(style, false)
-            , fFCI(SkRef(fci))
+            , fFCI(std::move(fci))
             , fIdentity(fi)
             , fFamilyName(familyName)
             , fFontData(nullptr) {}
