@@ -727,5 +727,7 @@ bool SkPDFFont::CanEmbedTypeface(SkTypeface* typeface, SkPDFCanon* canon) {
 
 void SkPDFFont::drop() {
     fTypeface = nullptr;
+    fGlyphUsage.~SkBitSet();
+    new (&fGlyphUsage) SkBitSet(0);
     this->SkPDFDict::drop();
 }
