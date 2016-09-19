@@ -839,7 +839,7 @@
       "5",
       "[SLAVE_BUILD]/perfdata/Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot/data",
       "abc123",
-      "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/depot_tools/third_party/gsutil/gsutil",
+      "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/depot_tools/gsutil.py",
       "500"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
