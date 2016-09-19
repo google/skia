@@ -625,11 +625,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
             mipmaps->getLevel(generatedMipLevelIndex, &mipLevel);
 
             // Make sure the mipmap data is after the start of the buffer
-            SkASSERT_RELEASE(mipLevelPtr > bufferAsInt);
+            SkASSERT(mipLevelPtr > bufferAsInt);
             // Make sure the mipmap data starts before the end of the buffer
-            SkASSERT_RELEASE(static_cast<size_t>(mipLevelPtr) < bufferAsInt + pixelOffset + pixelSize);
+            SkASSERT(static_cast<size_t>(mipLevelPtr) < bufferAsInt + pixelOffset + pixelSize);
             // Make sure the mipmap data ends before the end of the buffer
-            SkASSERT_RELEASE(mipLevelPtr + mipLevel.fPixmap.getSafeSize() <=
+            SkASSERT(mipLevelPtr + mipLevel.fPixmap.getSafeSize() <=
                      bufferAsInt + pixelOffset + pixelSize);
 
             // getSafeSize includes rowbyte padding except for the last row,
