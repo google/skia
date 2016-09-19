@@ -161,7 +161,8 @@ private:
                                  gpArgs->fPositionVar,
                                  cgp.fInPosition->fName,
                                  cgp.fLocalMatrix,
-                                 args.fFPCoordTransformHandler);
+                                 args.fTransformsIn,
+                                 args.fTransformsOut);
 
             fragBuilder->codeAppend("float d = length(circleEdge.xy);");
             fragBuilder->codeAppend("float distanceToOuterEdge = circleEdge.z * (1.0 - d);");
@@ -209,10 +210,14 @@ private:
             b->add32(key);
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     FPCoordTransformIter&& transformIter) override {
+        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
+
+        void setTransformData(const GrPrimitiveProcessor& primProc,
+                              const GrGLSLProgramDataManager& pdman,
+                              int index,
+                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
             this->setTransformDataHelper(primProc.cast<CircleGeometryProcessor>().fLocalMatrix,
-                                         pdman, &transformIter);
+                                         pdman, index, transforms);
         }
 
     private:
@@ -314,7 +319,8 @@ private:
                                  gpArgs->fPositionVar,
                                  egp.fInPosition->fName,
                                  egp.fLocalMatrix,
-                                 args.fFPCoordTransformHandler);
+                                 args.fTransformsIn,
+                                 args.fTransformsOut);
 
             // for outer curve
             fragBuilder->codeAppendf("vec2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
@@ -351,10 +357,15 @@ private:
             b->add32(key);
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     FPCoordTransformIter&& transformIter) override {
-            const EllipseGeometryProcessor& egp = primProc.cast<EllipseGeometryProcessor>();
-            this->setTransformDataHelper(egp.fLocalMatrix, pdman, &transformIter);
+        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
+        }
+
+        void setTransformData(const GrPrimitiveProcessor& primProc,
+                              const GrGLSLProgramDataManager& pdman,
+                              int index,
+                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
+            this->setTransformDataHelper(primProc.cast<EllipseGeometryProcessor>().fLocalMatrix,
+                                         pdman, index, transforms);
         }
 
     private:
@@ -461,7 +472,8 @@ private:
                                  uniformHandler,
                                  gpArgs->fPositionVar,
                                  diegp.fInPosition->fName,
-                                 args.fFPCoordTransformHandler);
+                                 args.fTransformsIn,
+                                 args.fTransformsOut);
 
             SkAssertResult(fragBuilder->enableFeature(
                     GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
@@ -513,8 +525,8 @@ private:
             b->add32(key);
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
-                     FPCoordTransformIter&& transformIter) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& gp) override {
             const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
 
             if (!diegp.fViewMatrix.isIdentity() && !fViewMatrix.cheapEqualTo(diegp.fViewMatrix)) {
@@ -523,7 +535,6 @@ private:
                 GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
             }
-            this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
         }
 
     private:

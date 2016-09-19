@@ -25,8 +25,8 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 FPCoordTransformIter&& transformIter) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& primProc) override {
         const GrConicEffect& ce = primProc.cast<GrConicEffect>();
 
         if (!ce.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(ce.viewMatrix())) {
@@ -47,7 +47,14 @@ public:
             pdman.set1f(fCoverageScaleUniform, GrNormalizeByteToFloat(ce.coverageScale()));
             fCoverageScale = ce.coverageScale();
         }
-        this->setTransformDataHelper(ce.localMatrix(), pdman, &transformIter);
+    }
+
+    void setTransformData(const GrPrimitiveProcessor& primProc,
+                          const GrGLSLProgramDataManager& pdman,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
+        this->setTransformDataHelper(primProc.cast<GrConicEffect>().localMatrix(), pdman, index,
+                                     transforms);
     }
 
 private:
@@ -102,7 +109,8 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          gpArgs->fPositionVar,
                          gp.inPosition()->fName,
                          gp.localMatrix(),
-                         args.fFPCoordTransformHandler);
+                         args.fTransformsIn,
+                         args.fTransformsOut);
 
     // TODO: this precision check should actually be a check on the number of bits
     // high and medium provide and the selection of the lowest level that suffices.
@@ -291,8 +299,8 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 FPCoordTransformIter&& transformIter) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& primProc) override {
         const GrQuadEffect& qe = primProc.cast<GrQuadEffect>();
 
         if (!qe.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(qe.viewMatrix())) {
@@ -313,7 +321,14 @@ public:
             pdman.set1f(fCoverageScaleUniform, GrNormalizeByteToFloat(qe.coverageScale()));
             fCoverageScale = qe.coverageScale();
         }
-        this->setTransformDataHelper(qe.localMatrix(), pdman, &transformIter);
+    }
+
+    void setTransformData(const GrPrimitiveProcessor& primProc,
+                          const GrGLSLProgramDataManager& pdman,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
+        this->setTransformDataHelper(primProc.cast<GrQuadEffect>().localMatrix(), pdman, index,
+                                     transforms);
     }
 
 private:
@@ -368,7 +383,8 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          gpArgs->fPositionVar,
                          gp.inPosition()->fName,
                          gp.localMatrix(),
-                         args.fFPCoordTransformHandler);
+                         args.fTransformsIn,
+                         args.fTransformsOut);
 
     fragBuilder->codeAppendf("float edgeAlpha;");
 
@@ -500,8 +516,8 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 FPCoordTransformIter&& transformIter) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& primProc) override {
         const GrCubicEffect& ce = primProc.cast<GrCubicEffect>();
 
         if (!ce.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(ce.viewMatrix())) {
@@ -517,7 +533,6 @@ public:
             pdman.set4fv(fColorUniform, 1, c);
             fColor = ce.color();
         }
-        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
     }
 
 private:
@@ -569,7 +584,8 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          uniformHandler,
                          gpArgs->fPositionVar,
                          gp.inPosition()->fName,
-                         args.fFPCoordTransformHandler);
+                         args.fTransformsIn,
+                         args.fTransformsOut);
 
 
     GrGLSLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);

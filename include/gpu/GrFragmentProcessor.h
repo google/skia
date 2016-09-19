@@ -14,7 +14,6 @@ class GrCoordTransform;
 class GrGLSLCaps;
 class GrGLSLFragmentProcessor;
 class GrInvariantOutput;
-class GrPipeline;
 class GrProcessorKeyBuilder;
 
 /** Provides custom fragment shader code. Fragment processors receive an input color (vec4f) and
@@ -69,7 +68,8 @@ public:
         , fUsesDistanceVectorField(false)
         , fUsesLocalCoords(false)
         , fNumTexturesExclChildren(0)
-        , fNumBuffersExclChildren(0) {}
+        , fNumBuffersExclChildren(0)
+        , fNumTransformsExclChildren(0) {}
 
     ~GrFragmentProcessor() override;
 
@@ -86,7 +86,9 @@ public:
 
     int numBuffersExclChildren() const { return fNumBuffersExclChildren; }
 
-    int numCoordTransforms() const { return fCoordTransforms.count(); }
+    int numTransformsExclChildren() const { return fNumTransformsExclChildren; }
+
+    int numTransforms() const { return fCoordTransforms.count(); }
 
     /** Returns the coordinate transformation at index. index must be valid according to
         numTransforms(). */
@@ -132,40 +134,6 @@ public:
     void computeInvariantOutput(GrInvariantOutput* inout) const {
         this->onComputeInvariantOutput(inout);
     }
-
-    /**
-     * Pre-order traversal of a FP hierarchy, or of the forest of FPs in a GrPipeline. In the latter
-     * case the tree rooted at each FP in the GrPipeline is visited successively.
-     * */
-    class Iter : public SkNoncopyable {
-    public:
-        explicit Iter(const GrFragmentProcessor* fp) { fFPStack.push_back(fp); }
-        explicit Iter(const GrPipeline& pipeline);
-        const GrFragmentProcessor* next();
-
-    private:
-        SkSTArray<4, const GrFragmentProcessor*, true> fFPStack;
-    };
-
-    /**
-     * Iterates over all the GrCoordTransforms in a GrPipeline's GrFragmentProcessors. FPs are
-     * visited in the same order as Iter and each of an FP's coord transforms are visited linearly.
-     */
-    class CoordTransformIter : public SkNoncopyable {
-    public:
-        explicit CoordTransformIter(const GrPipeline& pipeline)
-                : fCurrFP(nullptr)
-                , fCTIdx(0)
-                , fFPIter(pipeline) {
-            fCurrFP = fFPIter.next();
-        }
-        const GrCoordTransform* next();
-
-    private:
-        const GrFragmentProcessor*  fCurrFP;
-        int                         fCTIdx;
-        GrFragmentProcessor::Iter   fFPIter;
-    };
 
 protected:
     void addTextureAccess(const GrTextureAccess* textureAccess) override;
@@ -238,18 +206,15 @@ private:
 
     bool                                       fUsesLocalCoords;
 
-    SkSTArray<4, const GrCoordTransform*, true> fCoordTransforms;
-
     /**
-     * A processor stores the texture accesses of this proc, followed by all the accesses of this
-     * proc's children. In other words, each proc stores all the accesses of its subtree as if
+     * fCoordTransforms stores the transforms of this proc, followed by all the transforms of this
+     * proc's children. In other words, each proc stores all the transforms of its subtree as if
      * they were collected using preorder traversal.
      *
      * Example:
      * Suppose we have frag proc A, who has two children B and D. B has a child C, and D has
-     * two children E and F. Suppose procs A, B, C, D, E, F have 1, 2, 1, 1, 3, 2 accesses
-     * respectively. The following shows what the array of each proc's texture accesses would
-     * contain:
+     * two children E and F. Suppose procs A, B, C, D, E, F have 1, 2, 1, 1, 3, 2 transforms
+     * respectively. The following shows what the fCoordTransforms array of each proc would contain:
      *
      *                                   (A)
      *                        [a1,b1,b2,c1,d1,e1,e2,e3,f1,f2]
@@ -262,10 +227,12 @@ private:
      *                      (C)          (E)          (F)
      *                     [c1]      [e1,e2,e3]      [f1,f2]
      *
-     * The same goes for buffer accesses.
+     * The same goes for fTextureAccesses with textures.
      */
+    SkSTArray<4, const GrCoordTransform*, true> fCoordTransforms;
     int                                         fNumTexturesExclChildren;
     int                                         fNumBuffersExclChildren;
+    int                                         fNumTransformsExclChildren;
 
     /**
      * This is not SkSTArray<1, sk_sp<GrFragmentProcessor>> because this class holds strong

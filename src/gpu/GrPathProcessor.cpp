@@ -34,7 +34,7 @@ public:
         }
 
         // emit transforms
-        this->emitTransforms(args.fVaryingHandler, args.fFPCoordTransformHandler);
+        this->emitTransforms(args.fVaryingHandler, args.fTransformsIn, args.fTransformsOut);
 
         // Setup uniform color
         if (pathProc.overrides().readsColor()) {
@@ -54,30 +54,34 @@ public:
     }
 
     void emitTransforms(GrGLSLVaryingHandler* varyingHandler,
-                        FPCoordTransformHandler* transformHandler) {
-        int i = 0;
-        while (const GrCoordTransform* coordTransform = transformHandler->nextCoordTransform()) {
-            GrSLType varyingType =
-                    coordTransform->getMatrix().hasPerspective() ? kVec3f_GrSLType
-                                                                 : kVec2f_GrSLType;
+                        const TransformsIn& tin,
+                        TransformsOut* tout) {
+        tout->push_back_n(tin.count());
+        fInstalledTransforms.push_back_n(tin.count());
+        for (int i = 0; i < tin.count(); i++) {
+            const ProcCoords& coordTransforms = tin[i];
+            fInstalledTransforms[i].push_back_n(coordTransforms.count());
+            for (int t = 0; t < coordTransforms.count(); t++) {
+                GrSLType varyingType =
+                        coordTransforms[t]->getMatrix().hasPerspective() ? kVec3f_GrSLType :
+                                                                           kVec2f_GrSLType;
 
-            SkString strVaryingName;
-            strVaryingName.printf("TransformedCoord_%d", i);
-            GrGLSLVertToFrag v(varyingType);
-            GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*) varyingHandler;
-            fInstalledTransforms.push_back().fHandle =
-                    glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(),
-                                                               &v).toIndex();
-            fInstalledTransforms.back().fType = varyingType;
+                SkString strVaryingName("MatrixCoord");
+                strVaryingName.appendf("_%i_%i", i, t);
+                GrGLSLVertToFrag v(varyingType);
+                GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*) varyingHandler;
+                fInstalledTransforms[i][t].fHandle =
+                        glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(),
+                                                                   &v).toIndex();
+                fInstalledTransforms[i][t].fType = varyingType;
 
-            transformHandler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
-            ++i;
+                (*tout)[i].emplace_back(SkString(v.fsIn()), varyingType);
+            }
         }
     }
 
     void setData(const GrGLSLProgramDataManager& pd,
-                 const GrPrimitiveProcessor& primProc,
-                 FPCoordTransformIter&& transformIter) override {
+                 const GrPrimitiveProcessor& primProc) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
         if (pathProc.overrides().readsColor() && pathProc.color() != fColor) {
             float c[4];
@@ -85,21 +89,28 @@ public:
             pd.set4fv(fColorUniform, 1, c);
             fColor = pathProc.color();
         }
+    }
 
-        int t = 0;
-        while (const GrCoordTransform* coordTransform = transformIter.next()) {
-            SkASSERT(fInstalledTransforms[t].fHandle.isValid());
-            const SkMatrix& m = GetTransformMatrix(pathProc.localMatrix(), *coordTransform);
-            if (fInstalledTransforms[t].fCurrentValue.cheapEqualTo(m)) {
+    void setTransformData(const GrPrimitiveProcessor& primProc,
+                          const GrGLSLProgramDataManager& pdman,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& coordTransforms) override {
+        const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
+        SkTArray<TransformVarying, true>& transforms = fInstalledTransforms[index];
+        int numTransforms = transforms.count();
+        for (int t = 0; t < numTransforms; ++t) {
+            SkASSERT(transforms[t].fHandle.isValid());
+            const SkMatrix& transform = GetTransformMatrix(pathProc.localMatrix(),
+                                                           *coordTransforms[t]);
+            if (transforms[t].fCurrentValue.cheapEqualTo(transform)) {
                 continue;
             }
-            fInstalledTransforms[t].fCurrentValue = m;
+            transforms[t].fCurrentValue = transform;
 
-            SkASSERT(fInstalledTransforms[t].fType == kVec2f_GrSLType ||
-                     fInstalledTransforms[t].fType == kVec3f_GrSLType);
-            unsigned components = fInstalledTransforms[t].fType == kVec2f_GrSLType ? 2 : 3;
-            pd.setPathFragmentInputTransform(fInstalledTransforms[t].fHandle, components, m);
-            ++t;
+            SkASSERT(transforms[t].fType == kVec2f_GrSLType ||
+                     transforms[t].fType == kVec3f_GrSLType);
+            unsigned components = transforms[t].fType == kVec2f_GrSLType ? 2 : 3;
+            pdman.setPathFragmentInputTransform(transforms[t].fHandle, components, transform);
         }
     }
 
@@ -111,7 +122,7 @@ private:
         GrSLType       fType = kVoid_GrSLType;
     };
 
-    SkTArray<TransformVarying, true> fInstalledTransforms;
+    SkSTArray<8, SkSTArray<2, TransformVarying, true> > fInstalledTransforms;
 
     UniformHandle fColorUniform;
     GrColor fColor;

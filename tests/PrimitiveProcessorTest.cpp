@@ -70,8 +70,7 @@ private:
                         this->setupPosition(args.fVertBuilder, gpArgs, gp.fAttribs[0].fName);
                     }
                     void setData(const GrGLSLProgramDataManager& pdman,
-                                 const GrPrimitiveProcessor& primProc,
-                                 FPCoordTransformIter&&) override {}
+                                 const GrPrimitiveProcessor& primProc) override {}
                 };
                 return new GLSLGP();
             }

@@ -73,7 +73,8 @@ public:
                              uniformHandler,
                              gpArgs->fPositionVar,
                              dfTexEffect.inPosition()->fName,
-                             args.fFPCoordTransformHandler);
+                             args.fTransformsIn,
+                             args.fTransformsOut);
 
         // add varyings
         GrGLSLVertToFrag recipScale(kFloat_GrSLType);
@@ -178,8 +179,7 @@ public:
         fragBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
-                 FPCoordTransformIter&& transformIter) override {
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
 #ifdef SK_GAMMA_APPLY_TO_A8
         const GrDistanceFieldA8TextGeoProc& dfTexEffect = proc.cast<GrDistanceFieldA8TextGeoProc>();
         float distanceAdjust = dfTexEffect.getDistanceAdjust();
@@ -196,7 +196,6 @@ public:
             GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
-        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
@@ -346,7 +345,8 @@ public:
                              uniformHandler,
                              gpArgs->fPositionVar,
                              dfTexEffect.inPosition()->fName,
-                             args.fFPCoordTransformHandler);
+                             args.fTransformsIn,
+                             args.fTransformsOut);
 
         const char* textureSizeUniName = nullptr;
         fTextureSizeUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
@@ -433,8 +433,7 @@ public:
         fragBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
-                 FPCoordTransformIter&& transformIter) override {
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
         SkASSERT(fTextureSizeUni.isValid());
 
         GrTexture* texture = proc.texture(0);
@@ -454,7 +453,6 @@ public:
             GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
-        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
@@ -584,7 +582,8 @@ public:
                              uniformHandler,
                              gpArgs->fPositionVar,
                              dfTexEffect.inPosition()->fName,
-                             args.fFPCoordTransformHandler);
+                             args.fTransformsIn,
+                             args.fTransformsOut);
 
         // set up varyings
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
@@ -733,8 +732,8 @@ public:
         fragBuilder->codeAppendf("%s = val;", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& processor,
-                 FPCoordTransformIter&& transformIter) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& processor) override {
         SkASSERT(fDistanceAdjustUni.isValid());
 
         const GrDistanceFieldLCDTextGeoProc& dflcd = processor.cast<GrDistanceFieldLCDTextGeoProc>();
@@ -753,7 +752,6 @@ public:
             GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
-        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,

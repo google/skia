@@ -99,7 +99,8 @@ public:
                                      gpArgs->fPositionVar,
                                      gp.inLocalCoords()->fName,
                                      gp.localMatrix(),
-                                     args.fFPCoordTransformHandler);
+                                     args.fTransformsIn,
+                                     args.fTransformsOut);
             } else {
                 // emit transforms with position
                 this->emitTransforms(vertBuilder,
@@ -108,7 +109,8 @@ public:
                                      gpArgs->fPositionVar,
                                      gp.inPosition()->fName,
                                      gp.localMatrix(),
-                                     args.fFPCoordTransformHandler);
+                                     args.fTransformsIn,
+                                     args.fTransformsOut);
             }
 
             // Setup coverage as pass through
@@ -148,8 +150,7 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp,
-                     FPCoordTransformIter&& transformIter) override {
+                     const GrPrimitiveProcessor& gp) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
 
             if (!dgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dgp.viewMatrix())) {
@@ -171,7 +172,14 @@ public:
                 pdman.set1f(fCoverageUniform, GrNormalizeByteToFloat(dgp.coverage()));
                 fCoverage = dgp.coverage();
             }
-            this->setTransformDataHelper(dgp.fLocalMatrix, pdman, &transformIter);
+        }
+
+        void setTransformData(const GrPrimitiveProcessor& primProc,
+                              const GrGLSLProgramDataManager& pdman,
+                              int index,
+                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
+            this->setTransformDataHelper(primProc.cast<DefaultGeoProc>().fLocalMatrix, pdman, index,
+                                         transforms);
         }
 
     private:

@@ -47,16 +47,3 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLPPFragmentBuilder* fragBu
                                                &stagedLocalVarName);
     fragBuilder->codeAppendf("%s = %s;", outputName, stagedLocalVarName);
 }
-
-//////////////////////////////////////////////////////////////////////////////
-
-const GrCoordTransform* GrGLSLPrimitiveProcessor::FPCoordTransformHandler::nextCoordTransform() {
-#ifdef SK_DEBUG
-    SkASSERT(nullptr == fCurr || fAddedCoord);
-    fAddedCoord = false;
-    fCurr = fIter.next();
-    return fCurr;
-#else
-    return fIter.next();
-#endif
-}

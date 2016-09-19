@@ -60,7 +60,8 @@ public:
                              gpArgs->fPositionVar,
                              cte.inPosition()->fName,
                              cte.localMatrix(),
-                             args.fFPCoordTransformHandler);
+                             args.fTransformsIn,
+                             args.fTransformsOut);
 
         if (cte.maskFormat() == kARGB_GrMaskFormat) {
             fragBuilder->codeAppendf("%s = ", args.fOutputColor);
@@ -83,8 +84,7 @@ public:
         }
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
-                 FPCoordTransformIter&& transformIter) override {
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
         const GrBitmapTextGeoProc& btgp = gp.cast<GrBitmapTextGeoProc>();
         if (btgp.color() != fColor && !btgp.hasVertexColor()) {
             float c[4];
@@ -92,7 +92,14 @@ public:
             pdman.set4fv(fColorUniform, 1, c);
             fColor = btgp.color();
         }
-        this->setTransformDataHelper(btgp.localMatrix(), pdman, &transformIter);
+    }
+
+    void setTransformData(const GrPrimitiveProcessor& primProc,
+                          const GrGLSLProgramDataManager& pdman,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
+        this->setTransformDataHelper(primProc.cast<GrBitmapTextGeoProc>().localMatrix(), pdman,
+                                     index, transforms);
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,

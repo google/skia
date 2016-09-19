@@ -70,8 +70,7 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms
     int nextSamplerIdx = 0;
-    fGeometryProcessor->setData(fProgramDataManager, primProc,
-                                GrFragmentProcessor::CoordTransformIter(pipeline));
+    fGeometryProcessor->setData(fProgramDataManager, primProc);
     this->bindTextures(primProc, pipeline.getAllowSRGBInputs(), &nextSamplerIdx);
 
     this->setFragmentData(primProc, pipeline, &nextSamplerIdx);
@@ -108,10 +107,16 @@ void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
     for (int i = 0; i < numProcessors; ++i) {
         const GrFragmentProcessor& processor = pipeline.getFragmentProcessor(i);
         fFragmentProcessors[i]->setData(fProgramDataManager, processor);
+        this->setTransformData(primProc, processor, i);
         this->bindTextures(processor, pipeline.getAllowSRGBInputs(), nextSamplerIdx);
     }
 }
-
+void GrGLProgram::setTransformData(const GrPrimitiveProcessor& primProc,
+                                   const GrFragmentProcessor& processor,
+                                   int index) {
+    fGeometryProcessor->setTransformData(primProc, fProgramDataManager, index,
+                                         processor.coordTransforms());
+}
 
 void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
                                        const GrPipeline& pipeline) {

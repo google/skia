@@ -577,7 +577,8 @@ public:
                                  gpArgs->fPositionVar,
                                  qe.inPosition()->fName,
                                  qe.localMatrix(),
-                                 args.fFPCoordTransformHandler);
+                                 args.fTransformsIn,
+                                 args.fTransformsOut);
 
             SkAssertResult(fragBuilder->enableFeature(
                     GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
@@ -613,8 +614,7 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp,
-                     FPCoordTransformIter&& transformIter) override {
+                     const GrPrimitiveProcessor& gp) override {
             const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
             if (qe.color() != fColor) {
                 float c[4];
@@ -622,7 +622,14 @@ public:
                 pdman.set4fv(fColorUniform, 1, c);
                 fColor = qe.color();
             }
-            this->setTransformDataHelper(qe.fLocalMatrix, pdman, &transformIter);
+        }
+
+        void setTransformData(const GrPrimitiveProcessor& primProc,
+                              const GrGLSLProgramDataManager& pdman,
+                              int index,
+                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
+            this->setTransformDataHelper(primProc.cast<QuadEdgeEffect>().fLocalMatrix, pdman, index,
+                                         transforms);
         }
 
     private:

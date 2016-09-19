@@ -80,10 +80,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
 
 private:
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&& transformIter) override {
-        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
-    }
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
 
     class VertexInputs;
     class Backend;
@@ -391,7 +388,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     gpArgs->fPositionVar.set(positionType, "deviceCoords");
 
     this->emitTransforms(v, varyingHandler, uniHandler, gpArgs->fPositionVar, localCoords,
-                         args.fFPCoordTransformHandler);
+                         args.fTransformsIn, args.fTransformsOut);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -53,9 +53,19 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor,
     // be sent to the GrGLSLPrimitiveProcessor in its emitCode function
     const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
 
+    for (int i = 0; i < this->pipeline().numFragmentProcessors(); i++) {
+        const GrFragmentProcessor& processor = this->pipeline().getFragmentProcessor(i);
+
+        SkTArray<const GrCoordTransform*, true>& procCoords = fCoordTransforms.push_back();
+        processor.gatherCoordTransforms(&procCoords);
+    }
+
     this->emitAndInstallPrimProc(primProc, inputColor, inputCoverage);
 
-    this->emitAndInstallFragProcs(inputColor, inputCoverage);
+    int numProcs = this->pipeline().numFragmentProcessors();
+    this->emitAndInstallFragProcs(0, this->pipeline().numColorFragmentProcessors(), inputColor);
+    this->emitAndInstallFragProcs(this->pipeline().numColorFragmentProcessors(), numProcs,
+                                  inputCoverage);
     if (primProc.getPixelLocalStorageState() !=
         GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState) {
         this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor,
@@ -99,8 +109,6 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     SkSTArray<2, SamplerHandle> bufferSamplers(proc.numBuffers());
     this->emitSamplers(proc, &texSamplers, &bufferSamplers);
 
-    GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(fPipeline,
-                                                                       &fTransformedCoordVars);
     GrGLSLGeometryProcessor::EmitArgs args(&fVS,
                                            &fFS,
                                            this->varyingHandler(),
@@ -112,7 +120,8 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
                                            distanceVectorName,
                                            texSamplers.begin(),
                                            bufferSamplers.begin(),
-                                           &transformHandler);
+                                           fCoordTransforms,
+                                           &fOutCoords);
     fGeometryProcessor->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
@@ -122,21 +131,14 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     fFS.codeAppend("}");
 }
 
-void GrGLSLProgramBuilder::emitAndInstallFragProcs(GrGLSLExpr4* color, GrGLSLExpr4* coverage) {
-    int transformedCoordVarsIdx = 0;
-    GrGLSLExpr4** inOut = &color;
-    for (int i = 0; i < this->pipeline().numFragmentProcessors(); ++i) {
-        if (i == this->pipeline().numColorFragmentProcessors()) {
-            inOut = &coverage;
-        }
+void GrGLSLProgramBuilder::emitAndInstallFragProcs(int procOffset,
+                                                   int numProcs,
+                                                   GrGLSLExpr4* inOut) {
+    for (int i = procOffset; i < numProcs; ++i) {
         GrGLSLExpr4 output;
         const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
-        this->emitAndInstallFragProc(fp, i, transformedCoordVarsIdx, **inOut, &output);
-        GrFragmentProcessor::Iter iter(&fp);
-        while (const GrFragmentProcessor* fp = iter.next()) {
-            transformedCoordVarsIdx += fp->numCoordTransforms();
-        }
-        **inOut = output;
+        this->emitAndInstallFragProc(fp, i, *inOut, &output);
+        *inOut = output;
     }
 }
 
@@ -144,7 +146,6 @@ void GrGLSLProgramBuilder::emitAndInstallFragProcs(GrGLSLExpr4* color, GrGLSLExp
 // the fix is to allow effects to take the GrGLSLExpr4 directly
 void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
                                                   int index,
-                                                  int transformedCoordVarsIdx,
                                                   const GrGLSLExpr4& input,
                                                   GrGLSLExpr4* output) {
     // Program builders have a bit of state we need to clear with each effect
@@ -162,15 +163,13 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
     SkSTArray<2, SamplerHandle> bufferSamplers(fp.numBuffers());
     this->emitSamplers(fp, &texSamplers, &bufferSamplers);
 
-    const GrShaderVar* coordVars = fTransformedCoordVars.begin() + transformedCoordVarsIdx;
-    GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
                                            this->uniformHandler(),
                                            this->glslCaps(),
                                            fp,
                                            output->c_str(),
                                            input.isOnes() ? nullptr : input.c_str(),
-                                           coords,
+                                           fOutCoords[index],
                                            texSamplers.begin(),
                                            bufferSamplers.begin(),
                                            this->primitiveProcessor().implementsDistanceVector());
@@ -419,4 +418,5 @@ void GrGLSLProgramBuilder::finalizeShaders() {
     this->varyingHandler()->finalize();
     fVS.finalize(kVertex_GrShaderFlag);
     fFS.finalize(kFragment_GrShaderFlag);
+
 }

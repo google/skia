@@ -8,7 +8,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
-#include "GrPipeline.h"
 #include "GrProcOptInfo.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -82,10 +81,16 @@ void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
     fUsesLocalCoords = fUsesLocalCoords || transform->sourceCoords() == kLocal_GrCoordSet;
     SkDEBUGCODE(transform->setInProcessor();)
+    fNumTransformsExclChildren++;
 }
 
 int GrFragmentProcessor::registerChildProcessor(sk_sp<GrFragmentProcessor> child) {
-    // Append the child's textures array to our textures array
+    // Append the child's transforms to our transforms array and the child's textures array to our
+    // textures array
+    if (!child->fCoordTransforms.empty()) {
+        fCoordTransforms.push_back_n(child->fCoordTransforms.count(),
+                                     child->fCoordTransforms.begin());
+    }
     if (!child->fTextureAccesses.empty()) {
         fTextureAccesses.push_back_n(child->fTextureAccesses.count(),
                                      child->fTextureAccesses.begin());
@@ -115,10 +120,10 @@ void GrFragmentProcessor::notifyRefCntIsZero() const {
 }
 
 bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) const {
-    if (this->numCoordTransforms() != that.numCoordTransforms()) {
+    if (this->numTransforms() != that.numTransforms()) {
         return false;
     }
-    int count = this->numCoordTransforms();
+    int count = this->numTransforms();
     for (int i = 0; i < count; ++i) {
         if (this->coordTransform(i) != that.coordTransform(i)) {
             return false;
@@ -402,40 +407,4 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
         return series[0];
     }
     return sk_sp<GrFragmentProcessor>(new SeriesFragmentProcessor(series, cnt));
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-GrFragmentProcessor::Iter::Iter(const GrPipeline& pipeline) {
-    for (int i = pipeline.numFragmentProcessors() - 1; i >= 0; --i) {
-        fFPStack.push_back(&pipeline.getFragmentProcessor(i));
-    }
-}
-
-const GrFragmentProcessor* GrFragmentProcessor::Iter::next() {
-    if (fFPStack.empty()) {
-        return nullptr;
-    }
-    const GrFragmentProcessor* back = fFPStack.back();
-    fFPStack.pop_back();
-    for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
-        fFPStack.push_back(&back->childProcessor(i));
-    }
-    return back;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-const GrCoordTransform* GrFragmentProcessor::CoordTransformIter::next() {
-    if (!fCurrFP) {
-        return nullptr;
-    }
-    while (fCTIdx == fCurrFP->numCoordTransforms()) {
-        fCTIdx = 0;
-        fCurrFP = fFPIter.next();
-        if (!fCurrFP) {
-            return nullptr;
-        }
-    }
-    return &fCurrFP->coordTransform(fCTIdx++);
 }
