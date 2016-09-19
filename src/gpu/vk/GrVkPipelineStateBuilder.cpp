@@ -10,9 +10,6 @@
 #include "vk/GrVkDescriptorSetManager.h"
 #include "vk/GrVkGpu.h"
 #include "vk/GrVkRenderPass.h"
-#if USE_SKSL
-#include "SkSLCompiler.h"
-#endif
 
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
                                                                GrVkGpu* gpu,
@@ -61,23 +58,6 @@ void GrVkPipelineStateBuilder::finalizeFragmentSecondaryColor(GrGLSLShaderVar& o
     outputColor.setLayoutQualifier("location = 0, index = 1");
 }
 
-#if USE_SKSL
-SkSL::Program::Kind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) {
-    if (VK_SHADER_STAGE_VERTEX_BIT == stage) {
-        return SkSL::Program::kVertex_Kind;
-    }
-    SkASSERT(VK_SHADER_STAGE_FRAGMENT_BIT == stage);
-    return SkSL::Program::kFragment_Kind;
-}
-#else
-shaderc_shader_kind vk_shader_stage_to_shaderc_kind(VkShaderStageFlagBits stage) {
-    if (VK_SHADER_STAGE_VERTEX_BIT == stage) {
-        return shaderc_glsl_vertex_shader;
-    }
-    SkASSERT(VK_SHADER_STAGE_FRAGMENT_BIT == stage);
-    return shaderc_glsl_fragment_shader;
-}
-#endif
 
 bool GrVkPipelineStateBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
                                                     VkShaderStageFlagBits stage,
@@ -91,85 +71,7 @@ bool GrVkPipelineStateBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
             shaderString.append("\n");
         }
     }
-
-    VkShaderModuleCreateInfo moduleCreateInfo;
-    memset(&moduleCreateInfo, 0, sizeof(VkShaderModuleCreateInfo));
-    moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    moduleCreateInfo.pNext = nullptr;
-    moduleCreateInfo.flags = 0;
-
-#if USE_SKSL
-    std::string code;
-#else
-    shaderc_compilation_result_t result = nullptr;
-#endif
-
-    if (gpu->vkCaps().canUseGLSLForShaderModule()) {
-        moduleCreateInfo.codeSize = strlen(shaderString.c_str());
-        moduleCreateInfo.pCode = (const uint32_t*)shaderString.c_str();
-    } else {
-
-#if USE_SKSL
-        bool result = gpu->shaderCompiler()->toSPIRV(vk_shader_stage_to_skiasl_kind(stage),
-                                                     std::string(shaderString.c_str()),
-                                                     &code);
-        if (!result) {
-            SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
-            return false;
-        }
-        moduleCreateInfo.codeSize = code.size();
-        moduleCreateInfo.pCode = (const uint32_t*) code.c_str();
-#else
-        shaderc_compiler_t compiler = gpu->shadercCompiler();
-
-        shaderc_compile_options_t options = shaderc_compile_options_initialize();
-
-        shaderc_shader_kind shadercStage = vk_shader_stage_to_shaderc_kind(stage);
-        result = shaderc_compile_into_spv(compiler,
-                                          shaderString.c_str(),
-                                          strlen(shaderString.c_str()),
-                                          shadercStage,
-                                          "shader",
-                                          "main",
-                                          options);
-        shaderc_compile_options_release(options);
-#ifdef SK_DEBUG
-        if (shaderc_result_get_num_errors(result)) {
-            SkDebugf("%s\n", shaderString.c_str());
-            SkDebugf("%s\n", shaderc_result_get_error_message(result));
-            return false;
-        }
-#endif // SK_DEBUG
-
-        moduleCreateInfo.codeSize = shaderc_result_get_length(result);
-        moduleCreateInfo.pCode = (const uint32_t*)shaderc_result_get_bytes(result);
-#endif // USE_SKSL
-    }
-
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateShaderModule(gpu->device(),
-                                                                     &moduleCreateInfo,
-                                                                     nullptr,
-                                                                     shaderModule));
-
-    if (!gpu->vkCaps().canUseGLSLForShaderModule()) {
-#if !USE_SKSL
-        shaderc_result_release(result);
-#endif
-    }
-    if (err) {
-        return false;
-    }
-
-    memset(stageInfo, 0, sizeof(VkPipelineShaderStageCreateInfo));
-    stageInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    stageInfo->pNext = nullptr;
-    stageInfo->flags = 0;
-    stageInfo->stage = stage;
-    stageInfo->module = *shaderModule;
-    stageInfo->pName = "main";
-    stageInfo->pSpecializationInfo = nullptr;
-
-    return true;
+    return GrCompileVkShaderModule(gpu, shaderString.c_str(), stage, shaderModule, stageInfo);
 }
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveType,
