@@ -43,7 +43,6 @@ public:
         fStyle = kHair_Style;
         fGrid = false;
         fShowSkeleton = true;
-        fUseGPU = false;
         fUseClip = false;
         fRectAsOval = false;
         fUseTriangle = false;
@@ -63,13 +62,18 @@ public:
     bool getShowSkeleton() const { return fShowSkeleton; }
     void setShowSkeleton(bool ss) { fShowSkeleton = ss; }
 
-    bool getUseGPU() const { return fUseGPU; }
-    void setUseGPU(bool ug) { fUseGPU = ug; }
-
     bool getTriangle() const { return fUseTriangle; }
     void setTriangle(bool ut) { fUseTriangle = ut; }
 
     void toggleRectAsOval() { fRectAsOval = !fRectAsOval; }
+
+    void togglePixelColors() {
+        if (fShader == fShader0) {
+            fShader = fShader1;
+        } else {
+            fShader = fShader0;
+        }
+    }
 
     bool getUseClip() const { return fUseClip; }
     void setUseClip(bool uc) { fUseClip = uc; }
@@ -88,7 +92,9 @@ public:
         fBounds.set(0, 0, SkIntToScalar(width * zoom), SkIntToScalar(height * zoom));
         fMatrix.setScale(SkIntToScalar(zoom), SkIntToScalar(zoom));
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
-        fShader = sk_tool_utils::create_checkerboard_shader(0xFFCCCCCC, 0xFFFFFFFF, zoom);
+        fShader0 = sk_tool_utils::create_checkerboard_shader(0xFFDDDDDD, 0xFFFFFFFF, zoom);
+        fShader1 = SkShader::MakeColorShader(SK_ColorWHITE);
+        fShader = fShader0;
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
         fMinSurface = SkSurface::MakeRaster(info);
@@ -105,14 +111,16 @@ public:
     SkPaint::Cap fStrokeCap;
 
 private:
-    bool fAA, fGrid, fShowSkeleton, fUseGPU, fUseClip, fRectAsOval, fUseTriangle;
+    bool fAA, fGrid, fShowSkeleton, fUseClip, fRectAsOval, fUseTriangle;
     Style fStyle;
     int fW, fH, fZoom;
-    SkMatrix fMatrix, fInverse;
-    SkRect   fBounds, fClipRect;
-    sk_sp<SkShader> fShader;
-    sk_sp<SkSurface> fMinSurface;
-    sk_sp<SkSurface> fMaxSurface;
+    SkMatrix            fMatrix, fInverse;
+    SkRect              fBounds, fClipRect;
+    sk_sp<SkShader>     fShader0;
+    sk_sp<SkShader>     fShader1;
+    sk_sp<SkShader>     fShader;
+    sk_sp<SkSurface>    fMinSurface;
+    sk_sp<SkSurface>    fMaxSurface;
 
     void setupPaint(SkPaint* paint) {
         bool aa = this->getAA();
@@ -142,22 +150,7 @@ private:
         this->setupSkeletonPaint(&paint);
         SkPath path;
 
-        if (fUseGPU && fAA) {
-            SkRect rr = r;
-            rr.inset(SkIntToScalar(fZoom)/2, SkIntToScalar(fZoom)/2);
-            path.addRect(rr);
-            path.moveTo(rr.fLeft, rr.fTop);
-            path.lineTo(rr.fRight, rr.fBottom);
-            rr = r;
-            rr.inset(-SkIntToScalar(fZoom)/2, -SkIntToScalar(fZoom)/2);
-            path.addRect(rr);
-        } else {
-            fRectAsOval ? path.addOval(r) : path.addRect(r);
-            if (fUseGPU) {
-                path.moveTo(r.fLeft, r.fTop);
-                path.lineTo(r.fRight, r.fBottom);
-            }
-        }
+        fRectAsOval ? path.addOval(r) : path.addRect(r);
         max->drawPath(path, paint);
     }
 
@@ -234,34 +227,17 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
     path.moveTo(pts[0]);
     path.lineTo(pts[1]);
 
-    switch (fStyle) {
-        case kHair_Style:
-            if (fUseGPU) {
-                SkPaint p;
-                p.setStyle(SkPaint::kStroke_Style);
-                p.setStrokeWidth(SK_Scalar1 * fZoom);
-                SkPath dst;
-                p.getFillPath(path, &dst);
-                path.addPath(dst);
-            }
-            break;
-        case kStroke_Style: {
-            SkPaint p;
-            p.setStyle(SkPaint::kStroke_Style);
-            p.setStrokeWidth(SK_Scalar1 * fZoom);
-            p.setStrokeCap(fStrokeCap);
-            SkPath dst;
-            p.getFillPath(path, &dst);
-            path = dst;
+    if (fStyle == kStroke_Style) {
+        SkPaint p;
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeWidth(SK_Scalar1 * fZoom);
+        p.setStrokeCap(fStrokeCap);
+        SkPath dst;
+        p.getFillPath(path, &dst);
+        path = dst;
 
-            path.moveTo(pts[0]);
-            path.lineTo(pts[1]);
-
-            if (fUseGPU) {
-                path.moveTo(dst.getPoint(0));
-                path.lineTo(dst.getPoint(2));
-            }
-        } break;
+        path.moveTo(pts[0]);
+        path.lineTo(pts[1]);
     }
     max->drawPath(path, paint);
 }
@@ -383,20 +359,17 @@ public:
 };
 
 class DrawLineView : public SampleView {
-    enum {
-        kZoom = 96
-    };
-
     FatBits fFB;
     SkPoint fPts[3];
     bool    fIsRect;
+    int     fZoom = 64;
 public:
     DrawLineView() {
-        fFB.setWHZ(24, 16, kZoom);
+        fFB.setWHZ(24*2, 16*2, fZoom);
         fPts[0].set(1, 1);
         fPts[1].set(5, 4);
         fPts[2].set(2, 6);
-        SkMatrix::MakeScale(kZoom, kZoom).mapPoints(fPts, 3);
+        SkMatrix::MakeScale(SkIntToScalar(fZoom)).mapPoints(fPts, 3);
         fIsRect = false;
     }
 
@@ -454,7 +427,7 @@ protected:
                     this->inval(nullptr);
                     return true;
                 case 'g':
-                    fFB.setUseGPU(!fFB.getUseGPU());
+                    fFB.togglePixelColors();
                     this->inval(nullptr);
                     return true;
                 case 't':
@@ -480,10 +453,9 @@ protected:
 
         {
             SkString str;
-            str.printf("%s %s %s %s",
+            str.printf("%s %s %s",
                        fFB.getAA() ? "AA" : "BW",
                        FatBits::kHair_Style == fFB.getStyle() ? "Hair" : "Stroke",
-                       fFB.getUseGPU() ? "GPU" : "CPU",
                        fFB.getUseClip() ? "clip" : "noclip");
             SkPaint paint;
             paint.setAntiAlias(true);
