@@ -8,7 +8,6 @@
 from __future__ import print_function
 from _benchresult import BenchResult
 from argparse import ArgumentParser
-from os import path
 from queue import Queue
 from threading import Thread
 import collections
@@ -27,6 +26,10 @@ unacceptable stddev.
 
 """)
 
+__argparse.add_argument('--adb',
+    action='store_true', help='execute skpbench over adb')
+__argparse.add_argument('-s', '--device-serial',
+    help='if using adb, id of the specific device to target')
 __argparse.add_argument('-p', '--path',
     help='directory to execute ./skpbench from')
 __argparse.add_argument('-m', '--max-stddev',
@@ -51,6 +54,11 @@ __argparse.add_argument('skps',
     help='.skp files or directories to expand for .skp files')
 
 FLAGS = __argparse.parse_args()
+if FLAGS.adb:
+  import _adb_path as _path
+  _path.set_device_serial(FLAGS.device_serial)
+else:
+  import _os_path as _path
 
 
 class StddevException(Exception):
@@ -65,14 +73,19 @@ class Message:
 
 class SKPBench(Thread):
   ARGV = ['skpbench', '--verbosity', str(FLAGS.verbosity)]
-  if FLAGS.path:
-    ARGV[0] = path.join(FLAGS.path, ARGV[0])
   if FLAGS.samples:
     ARGV.extend(['--samples', str(FLAGS.samples)])
   if FLAGS.sample_ms:
     ARGV.extend(['--sampleMs', str(FLAGS.sample_ms)])
   if FLAGS.fps:
     ARGV.extend(['--fps', 'true'])
+  if FLAGS.path:
+    ARGV[0] = _path.join(FLAGS.path, ARGV[0])
+  if FLAGS.adb:
+    if FLAGS.device_serial is None:
+      ARGV = ['adb', 'shell'] + ARGV
+    else:
+      ARGV = ['adb', '-s', FLAGS.device_serial, 'shell'] + ARGV
 
   @classmethod
   def print_header(cls):
@@ -124,8 +137,8 @@ class SKPBench(Thread):
                                '--skp', self.skp,
                                '--suppressHeader', 'true']
     if (FLAGS.write_path):
-      pngfile = path.join(FLAGS.write_path, self.config,
-                          path.basename(self.skp) + '.png')
+      pngfile = _path.join(FLAGS.write_path, self.config,
+                           _path.basename(self.skp) + '.png')
       commandline.extend(['--png', pngfile])
     if (FLAGS.verbosity >= 3):
       print(' '.join(commandline), file=sys.stderr)
@@ -142,13 +155,7 @@ def main():
   # Delimiter is "," or " ", skip if nested inside parens (e.g. gpu(a=b,c=d)).
   DELIMITER = r'[, ](?!(?:[^(]*\([^)]*\))*[^()]*\))'
   configs = re.split(DELIMITER, FLAGS.config)
-
-  skps = list()
-  for skp in FLAGS.skps:
-    if (path.isdir(skp)):
-      skps.extend(glob.iglob(path.join(skp, '*.skp')))
-    else:
-      skps.append(skp)
+  skps = _path.find_skps(FLAGS.skps)
 
   benches = collections.deque([(skp, config, FLAGS.max_stddev)
                                for skp in skps
