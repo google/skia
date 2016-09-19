@@ -601,14 +601,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
 
     transferBuffer->unmap();
 
-    // make sure the unmap has finished
-    transferBuffer->addMemoryBarrier(this,
-                                     VK_ACCESS_HOST_WRITE_BIT,
-                                     VK_ACCESS_TRANSFER_READ_BIT,
-                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     false);
-
     // Change layout of our target so it can be copied to
     tex->setImageLayout(this,
                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
