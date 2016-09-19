@@ -194,14 +194,13 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
 
     SkSTArray<8, const GrTextureAccess*> textureBindings;
 
-    fGeometryProcessor->setData(fDataManager, primProc);
+    fGeometryProcessor->setData(fDataManager, primProc,
+                                GrFragmentProcessor::CoordTransformIter(pipeline));
     append_texture_bindings(primProc, &textureBindings);
 
     for (int i = 0; i < fFragmentProcessors.count(); ++i) {
         const GrFragmentProcessor& processor = pipeline.getFragmentProcessor(i);
         fFragmentProcessors[i]->setData(fDataManager, processor);
-        fGeometryProcessor->setTransformData(primProc, fDataManager, i,
-                                             processor.coordTransforms());
         append_texture_bindings(processor, &textureBindings);
     }
 

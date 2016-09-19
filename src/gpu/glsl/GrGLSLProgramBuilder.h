@@ -139,9 +139,10 @@ private:
     void emitAndInstallPrimProc(const GrPrimitiveProcessor&,
                                 GrGLSLExpr4* outputColor,
                                 GrGLSLExpr4* outputCoverage);
-    void emitAndInstallFragProcs(int procOffset, int numProcs, GrGLSLExpr4* inOut);
+    void emitAndInstallFragProcs(GrGLSLExpr4* colorInOut, GrGLSLExpr4* coverageInOut);
     void emitAndInstallFragProc(const GrFragmentProcessor&,
                                 int index,
+                                int transformedCoordVarsIdx,
                                 const GrGLSLExpr4& input,
                                 GrGLSLExpr4* output);
     void emitAndInstallXferProc(const GrXferProcessor&,
@@ -167,11 +168,10 @@ private:
     void verify(const GrFragmentProcessor&);
 #endif
 
-    GrGLSLPrimitiveProcessor::TransformsIn     fCoordTransforms;
-    GrGLSLPrimitiveProcessor::TransformsOut    fOutCoords;
-    int                                        fNumVertexSamplers;
-    int                                        fNumGeometrySamplers;
-    int                                        fNumFragmentSamplers;
+    int                         fNumVertexSamplers;
+    int                         fNumGeometrySamplers;
+    int                         fNumFragmentSamplers;
+    SkSTArray<4, GrShaderVar>   fTransformedCoordVars;
 };
 
 #endif

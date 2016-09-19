@@ -8,6 +8,7 @@
 #ifndef GrGLSLPrimitiveProcessor_DEFINED
 #define GrGLSLPrimitiveProcessor_DEFINED
 
+#include "GrFragmentProcessor.h"
 #include "GrPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLSampler.h"
@@ -23,14 +24,45 @@ class GrGLSLVertexBuilder;
 
 class GrGLSLPrimitiveProcessor {
 public:
+    using FPCoordTransformIter = GrFragmentProcessor::CoordTransformIter;
+
     virtual ~GrGLSLPrimitiveProcessor() {}
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
 
-    typedef SkSTArray<2, const GrCoordTransform*, true> ProcCoords;
-    typedef SkSTArray<8, ProcCoords> TransformsIn;
-    typedef SkSTArray<8, SkTArray<GrShaderVar>> TransformsOut;
+    /**
+     * This class provides access to the GrCoordTransforms across all GrFragmentProcessors in a
+     * GrPipeline. It is also used by the primitive processor to specify the fragment shader
+     * variable that will hold the transformed coords for each GrCoordTransform. It is required that
+     * the primitive processor iterate over each coord transform and insert a shader var result for
+     * each. The GrGLSLFragmentProcessors will reference these variables in their fragment code.
+     */
+    class FPCoordTransformHandler : public SkNoncopyable {
+    public:
+        FPCoordTransformHandler(const GrPipeline& pipeline,
+                                SkTArray<GrShaderVar>* transformedCoordVars)
+                : fIter(pipeline)
+                , fTransformedCoordVars(transformedCoordVars) {}
+
+        ~FPCoordTransformHandler() { SkASSERT(!this->nextCoordTransform());}
+
+        const GrCoordTransform* nextCoordTransform();
+
+        // 'args' are constructor params to GrShaderVar.
+        template<typename... Args>
+        void specifyCoordsForCurrCoordTransform(Args&&... args) {
+            SkASSERT(!fAddedCoord);
+            fTransformedCoordVars->emplace_back(std::forward<Args>(args)...);
+            SkDEBUGCODE(fAddedCoord = true;)
+        }
+
+    private:
+        GrFragmentProcessor::CoordTransformIter fIter;
+        SkDEBUGCODE(bool                        fAddedCoord = false;)
+        SkDEBUGCODE(const GrCoordTransform*     fCurr = nullptr;)
+        SkTArray<GrShaderVar>*                  fTransformedCoordVars;
+    };
 
     struct EmitArgs {
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
@@ -44,8 +76,7 @@ public:
                  const char* distanceVectorName,
                  const SamplerHandle* texSamplers,
                  const SamplerHandle* bufferSamplers,
-                 const TransformsIn& transformsIn,
-                 TransformsOut* transformsOut)
+                 FPCoordTransformHandler* transformHandler)
             : fVertBuilder(vertBuilder)
             , fFragBuilder(fragBuilder)
             , fVaryingHandler(varyingHandler)
@@ -57,8 +88,7 @@ public:
             , fDistanceVectorName(distanceVectorName)
             , fTexSamplers(texSamplers)
             , fBufferSamplers(bufferSamplers)
-            , fTransformsIn(transformsIn)
-            , fTransformsOut(transformsOut) {}
+            , fFPCoordTransformHandler(transformHandler) {}
         GrGLSLVertexBuilder* fVertBuilder;
         GrGLSLPPFragmentBuilder* fFragBuilder;
         GrGLSLVaryingHandler* fVaryingHandler;
@@ -70,8 +100,7 @@ public:
         const char* fDistanceVectorName;
         const SamplerHandle* fTexSamplers;
         const SamplerHandle* fBufferSamplers;
-        const TransformsIn& fTransformsIn;
-        TransformsOut* fTransformsOut;
+        FPCoordTransformHandler* fFPCoordTransformHandler;
     };
 
     /**
@@ -80,20 +109,21 @@ public:
      */
     virtual void emitCode(EmitArgs&) = 0;
 
-    /** A GrGLSLPrimitiveProcessor instance can be reused with any GrGLSLPrimitiveProcessor that
-        produces the same stage key; this function reads data from a GrGLSLPrimitiveProcessor and
-        uploads any uniform variables required  by the shaders created in emitCode(). The
-        GrPrimitiveProcessor parameter is guaranteed to be of the same type that created this
-        GrGLSLPrimitiveProcessor and to have an identical processor key as the one that created this
-        GrGLSLPrimitiveProcessor.  */
-    virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) = 0;
+    /**
+     * A GrGLSLPrimitiveProcessor instance can be reused with any GrGLSLPrimitiveProcessor that
+     * produces the same stage key; this function reads data from a GrGLSLPrimitiveProcessor and
+     * uploads any uniform variables required  by the shaders created in emitCode(). The
+     * GrPrimitiveProcessor parameter is guaranteed to be of the same type and to have an
+     * identical processor key as the GrPrimitiveProcessor that created this
+     * GrGLSLPrimitiveProcessor.
+     * The subclass may use the transform iterator to perform any setup required for the particular
+     * set of fp transform matrices, such as uploading via uniforms. The iterator will iterate over
+     * the transforms in the same order as the TransformHandler passed to emitCode.
+     */
+    virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
+                         FPCoordTransformIter&&) = 0;
 
     static SkMatrix GetTransformMatrix(const SkMatrix& localMatrix, const GrCoordTransform&);
-
-    virtual void setTransformData(const GrPrimitiveProcessor&,
-                                  const GrGLSLProgramDataManager& pdman,
-                                  int index,
-                                  const SkTArray<const GrCoordTransform*, true>& transforms) = 0;
 
 protected:
     void setupUniformColor(GrGLSLPPFragmentBuilder* fragBuilder,
