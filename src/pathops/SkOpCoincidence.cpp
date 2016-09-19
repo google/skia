@@ -172,6 +172,9 @@ bool SkCoincidentSpans::ordered() const {
         if (next == end) {
             break;
         }
+        if (!next->upCastable()) {
+            return false;
+        }
         next = next->upCast()->next();
     } while (true);
     return true;
@@ -449,7 +452,7 @@ bool SkOpCoincidence::addExpanded() {
         const SkOpPtT* oStartPtT = coin->oppPtTStart();
         double priorT = startPtT->fT;
         double oPriorT = oStartPtT->fT;
-        SkASSERT(startPtT->contains(oStartPtT));
+        FAIL_IF(!startPtT->contains(oStartPtT));
         SkOPASSERT(coin->coinPtTEnd()->contains(coin->oppPtTEnd()));
         const SkOpSpanBase* start = startPtT->span();
         const SkOpSpanBase* oStart = oStartPtT->span();
