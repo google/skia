@@ -267,7 +267,8 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 
     // Uninherited attributes.  Only apply to the current context.
 
-    if (auto* opacity = attrs.fOpacity.getMaybeNull()) {
+    auto* opacity = attrs.fOpacity.getMaybeNull();
+    if (opacity && opacity->value() < 1) {
         SkPaint opacityPaint;
         opacityPaint.setAlpha(opacity_to_alpha(opacity->value()));
         // Balanced in the destructor, via restoreToCount().
