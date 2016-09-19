@@ -50,8 +50,6 @@
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
-//#define SK_SUPPORT_PRECHECK_CLIPRECT
-
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
  *
@@ -123,7 +121,6 @@ bool SkCanvas::Internal_Private_GetTreatSpriteAsBitmap() {
 }
 
 // experimental for faster tiled drawing...
-//#define SK_ENABLE_CLIP_QUICKREJECT
 //#define SK_TRACE_SAVERESTORE
 
 #ifdef SK_TRACE_SAVERESTORE
@@ -1548,56 +1545,18 @@ void SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
         doAA = false;
     }
 
-#ifdef SK_SUPPORT_PRECHECK_CLIPRECT
-    // Check if we can quick-accept the clip call (and do nothing)
-    //
-    if (SkRegion::kIntersect_Op == op && !doAA && fMCRec->fMatrix.isScaleTranslate()) {
-        SkRect devR;
-        fMCRec->fMatrix.mapRectScaleTranslate(&devR, rect);
-        // NOTE: this check is CTM specific, since we might round differently with a different
-        //       CTM. Thus this is only 100% reliable if there is not global CTM scale to be
-        //       applied later (i.e. if this is going into a picture).
-        if (devR.round().contains(fMCRec->fRasterClip.getBounds())) {
-#if 0
-            SkDebugf("ignored clipRect [%g %g %g %g]\n",
-                     rect.left(), rect.top(), rect.right(), rect.bottom());
-#endif
-            return;
-        }
-    }
-#endif
-
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     this->onClipRect(rect, op, edgeStyle);
 }
 
 void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-#ifdef SK_ENABLE_CLIP_QUICKREJECT
-    if (SkRegion::kIntersect_Op == op) {
-        if (fMCRec->fRasterClip.isEmpty()) {
-            return;
-        }
-
-        if (this->quickReject(rect)) {
-            fDeviceCMDirty = true;
-            fCachedLocalClipBoundsDirty = true;
-
-            fClipStack->clipEmpty();
-            (void)fMCRec->fRasterClip.setEmpty();
-            fDeviceClipBounds.setEmpty();
-            return;
-        }
-    }
-#endif
-
     const bool isScaleTrans = fMCRec->fMatrix.isScaleTranslate();
     SkRect devR;
     if (isScaleTrans) {
         fMCRec->fMatrix.mapRectScaleTranslate(&devR, rect);
     }
 
-#ifndef SK_SUPPORT_PRECHECK_CLIPRECT
     if (SkRegion::kIntersect_Op == op &&
         kHard_ClipEdgeStyle == edgeStyle
         && isScaleTrans)
@@ -1610,7 +1569,6 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
             return;
         }
     }
-#endif
 
     AutoValidateClip avc(this);
 
@@ -1696,24 +1654,6 @@ void SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 }
 
 void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-#ifdef SK_ENABLE_CLIP_QUICKREJECT
-    if (SkRegion::kIntersect_Op == op && !path.isInverseFillType()) {
-        if (fMCRec->fRasterClip.isEmpty()) {
-            return;
-        }
-
-        if (this->quickReject(path.getBounds())) {
-            fDeviceCMDirty = true;
-            fCachedLocalClipBoundsDirty = true;
-
-            fClipStack->clipEmpty();
-            (void)fMCRec->fRasterClip.setEmpty();
-            fDeviceClipBounds.setEmpty();
-            return;
-        }
-    }
-#endif
-
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
