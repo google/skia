@@ -36,7 +36,6 @@ TEST_BUILDERS = {
       'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
-      'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-ASAN',

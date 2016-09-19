@@ -10,7 +10,6 @@ from recipe_engine import recipe_api
 
 from . import android_flavor
 from . import cmake_flavor
-from . import coverage_flavor
 from . import default_flavor
 from . import gn_android_flavor
 from . import gn_flavor
@@ -74,8 +73,6 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       return pdfium_flavor.PDFiumFlavorUtils(self.m)
     elif is_valgrind(builder_cfg):
       return valgrind_flavor.ValgrindFlavorUtils(self.m)
-    elif builder_cfg.get('configuration') == 'Coverage':
-      return coverage_flavor.CoverageFlavorUtils(self.m)
     else:
       return default_flavor.DefaultFlavorUtils(self.m)
 
