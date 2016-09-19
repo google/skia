@@ -79,7 +79,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "nonrendering", "null", "nullgpu", "nvpr16", "nvpr4", "nvprdit16", "nvprdit4", "pdf", "skp",
         "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui", "gpuf16", "gpusrgb",
         "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk", "glinst", "glinst4", "glinstdit4",
-        "glinst16", "glinstdit16", "esinst", "esinst4", "esinstdit4"
+        "glinst16", "glinstdit16", "esinst", "esinst4", "esinstdit4", "glwide"
     });
 
     SkCommandLineConfigArray configs;
@@ -129,6 +129,11 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
                               srgbColorSpace->toXYZD50());
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorType() == kN32_SkColorType);
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
+    REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
+    REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorSpace());
+    REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorSpace()->gammaIsLinear());
+    REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorSpace()->toXYZD50() !=
+                              srgbColorSpace->toXYZD50());
     REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getUseInstanced());

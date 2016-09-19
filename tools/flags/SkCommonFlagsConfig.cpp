@@ -28,8 +28,8 @@ static const char defaultConfigs[] =
 
 static const char configHelp[] =
     "Options: 565 8888 debug gpu gl gpudebug gpudft gpunull "
-    "msaa16 msaa4 glmsaa4 gpuf16 gpusrgb glsrgb nonrendering null nullgpu "
-    "nvpr16 nvpr4 nvprdit16 nvprdit4 glnvpr4 glnvprdit4 pdf skp svg xps"
+    "msaa16 msaa4 glmsaa4 gpuf16 gpusrgb glsrgb glwide nonrendering null nullgpu "
+    "nvpr16 nvpr4 nvprdit16 nvprdit4 glnvpr4 glnvprdit4 pdf skp svg xps "
     "glinst glinst4 glinstdit4 glinst16 glinstdit16 esinst esinst4 esinsdit4"
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
@@ -47,7 +47,7 @@ static const char configHelp[] =
     " hwui"
 #endif
 #ifdef SK_VULKAN
-    " vk vksrgb"
+    " vk vksrgb vkwide"
 #endif
     " or use extended form 'backend(option=value,...)'.\n";
 
@@ -84,8 +84,13 @@ static const char configExtendedHelp[] =
     "\t    Select framebuffer color format.\n"
     "\t    Options:\n"
     "\t\t8888\t\t\tLinear 8888.\n"
-    "\t\tf16 \t\t\tLinear 16-bit floating point.\n"
-    "\t\tsrgb\t\t\tsRGB 8888.\n"
+    "\t\tf16{_gamut}\t\tLinear 16-bit floating point.\n"
+    "\t\tsrgb{_gamut}\t\tsRGB 8888.\n"
+    "\t  gamut\ttype: string\tdefault: srgb.\n"
+    "\t    Select color gamut for f16 or sRGB format buffers.\n"
+    "\t    Options:\n"
+    "\t\tsrgb\t\t\tsRGB gamut.\n"
+    "\t\twide\t\t\tWide Gamut RGB.\n"
     "\tdit\ttype: bool\tdefault: false.\n"
     "\t    Use device independent text.\n"
     "\tnvpr\ttype: bool\tdefault: false.\n"
@@ -108,6 +113,7 @@ static const char configExtendedHelp[] =
     "\tgpuf16    \t= gpu(color=f16)\n"
     "\tgpusrgb   \t= gpu(color=srgb)\n"
     "\tglsrgb    \t= gpu(api=gl,color=srgb)\n"
+    "\tglwide    \t= gpu(api=gl,color=f16_wide)\n"
     "\tgpudft    \t= gpu(dit=true)\n"
     "\tgpudebug  \t= gpu(api=debug)\n"
     "\tgpunull   \t= gpu(api=null)\n"
@@ -128,6 +134,7 @@ static const char configExtendedHelp[] =
 #ifdef SK_VULKAN
     "\tvk        \t= gpu(api=vulkan)\n"
     "\tvksrgb    \t= gpu(api=vulkan,color=srgb)\n"
+    "\tvkwide    \t= gpu(api=vulkan,color=f16_wide)\n"
     "\tvkmsaa4   \t= gpu(api=gl,samples=4)\n"
     "\tvkmsaa16  \t= gpu(api=gl,samples=16)\n"
 #endif
@@ -164,6 +171,7 @@ static const struct {
     { "gpuf16",      "gpu", "color=f16" },
     { "gpusrgb",     "gpu", "color=srgb" },
     { "glsrgb",      "gpu", "api=gl,color=srgb" },
+    { "glwide",      "gpu", "api=gl,color=f16_wide" },
     { "gpudft",      "gpu", "dit=true" },
     { "gpudebug",    "gpu", "api=debug" },
     { "gpunull",     "gpu", "api=null" },
@@ -184,6 +192,7 @@ static const struct {
 #ifdef SK_VULKAN
     , { "vk",       "gpu", "api=vulkan" }
     , { "vksrgb",   "gpu", "api=vulkan,color=srgb" }
+    , { "vkwide",   "gpu", "api=vulkan,color=f16_wide" }
     , { "vkmsaa4",  "gpu", "api=vulkan,samples=4" }
     , { "vkmsaa16", "gpu", "api=vulkan,samples=16" }
 #endif
@@ -305,14 +314,44 @@ static bool parse_option_gpu_color(const SkString& value,
         *outColorSpace = nullptr;
         return true;
     }
-    if (value.equals("f16")) {
+
+    SkTArray<SkString> commands;
+    SkStrSplit(value.c_str(), "_", &commands);
+    if (commands.count() < 1 || commands.count() > 2) {
+        return false;
+    }
+
+    // First, figure out color gamut that we'll work in (default to sRGB)
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    if (commands.count() == 2) {
+        if (commands[1].equals("srgb")) {
+            // sRGB gamut (which is our default)
+        } else if (commands[1].equals("wide")) {
+            // WideGamut RGB
+            const float gWideGamutRGB_toXYZD50[]{
+                0.7161046f, 0.1009296f, 0.1471858f,  // -> X
+                0.2581874f, 0.7249378f, 0.0168748f,  // -> Y
+                0.0000000f, 0.0517813f, 0.7734287f,  // -> Z
+            };
+            SkMatrix44 wideGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
+            wideGamutRGBMatrix.set3x3RowMajorf(gWideGamutRGB_toXYZD50);
+            colorSpace = SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                              wideGamutRGBMatrix);
+        } else {
+            // Unknown color gamut
+            return false;
+        }
+    }
+
+    // Now pick a color type
+    if (commands[0].equals("f16")) {
         *outColorType = kRGBA_F16_SkColorType;
-        *outColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)->makeLinearGamma();
+        *outColorSpace = colorSpace->makeLinearGamma();
         return true;
     }
-    if (value.equals("srgb")) {
+    if (commands[0].equals("srgb")) {
         *outColorType = kN32_SkColorType;
-        *outColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        *outColorSpace = colorSpace;
         return true;
     }
     return false;
