@@ -350,58 +350,14 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
-    ],
-    "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
-    "name": "rmtree dm",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm",
-      "511"
-    ],
-    "name": "makedirs dm",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
       "adb",
       "shell",
       "rm",
       "-rf",
-      "/sdcard/revenge_of_the_skiabot/dm_out"
+      "/sdcard/revenge_of_the_skiabot/perf"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out"
+    "name": "rm /sdcard/revenge_of_the_skiabot/perf"
   },
   {
     "cmd": [
@@ -409,117 +365,40 @@
       "shell",
       "mkdir",
       "-p",
-      "/sdcard/revenge_of_the_skiabot/dm_out"
+      "/sdcard/revenge_of_the_skiabot/perf"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "mkdir /sdcard/revenge_of_the_skiabot/dm_out"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]/tmp",
-      "511"
-    ],
-    "name": "makedirs tmp_dir",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = 'https://gold.skia.org/_/hashes'\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[1], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
-      "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "get uninteresting hashes",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import contextlib@@@",
-      "@@@STEP_LOG_LINE@python.inline@import math@@@",
-      "@@@STEP_LOG_LINE@python.inline@import socket@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@HASHES_URL = 'https://gold.skia.org/_/hashes'@@@",
-      "@@@STEP_LOG_LINE@python.inline@RETRIES = 5@@@",
-      "@@@STEP_LOG_LINE@python.inline@TIMEOUT = 60@@@",
-      "@@@STEP_LOG_LINE@python.inline@WAIT_BASE = 15@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@socket.setdefaulttimeout(TIMEOUT)@@@",
-      "@@@STEP_LOG_LINE@python.inline@for retry in range(RETRIES):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    with contextlib.closing(@@@",
-      "@@@STEP_LOG_LINE@python.inline@        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      hashes = w.read()@@@",
-      "@@@STEP_LOG_LINE@python.inline@      with open(sys.argv[1], 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@        f.write(hashes)@@@",
-      "@@@STEP_LOG_LINE@python.inline@        break@@@",
-      "@@@STEP_LOG_LINE@python.inline@  except Exception as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print e@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if retry == RETRIES:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      raise@@@",
-      "@@@STEP_LOG_LINE@python.inline@    waittime = WAIT_BASE * math.pow(2, retry)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print 'Retry in %d seconds.' % waittime@@@",
-      "@@@STEP_LOG_LINE@python.inline@    time.sleep(waittime)@@@",
-      "@@@STEP_LOG_END@python.inline@@@",
-      "@@@STEP_EXCEPTION@@@"
-    ]
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/perf"
   },
   {
     "cmd": [
       "adb",
       "push",
-      "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt",
-      "/sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/tmp/uninteresting_hashes.txt /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
-  },
-  {
-    "cmd": [
-      "adb",
-      "push",
-      "[SLAVE_BUILD]/out/Debug/dm",
+      "[SLAVE_BUILD]/out/Release/nanobench",
       "/data/local/tmp/"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push dm"
+    "name": "push nanobench"
   },
   {
     "cmd": [
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "set -x; /data/local/tmp/dm --undefok --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --nameByHash --properties gitHash abc123 master client.skia builder Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android build_number 6 --svgs /sdcard/revenge_of_the_skiabot/svgs --key arch arm compiler Clang configuration Debug cpu_or_gpu GPU cpu_or_gpu_value Tegra3 extra_config GN_Android model Nexus7 os Android --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out --nocpu --config 8888 gpu gpusrgb serialize-8888 tiles_rt-8888 pic-8888 --src tests gm image colorImage svg --blacklist gpusrgb image _ _ _ test _ GrShape serialize-8888 gm _ bleed_image serialize-8888 gm _ c_gms serialize-8888 gm _ colortype serialize-8888 gm _ colortype_xfermodes serialize-8888 gm _ drawfilter serialize-8888 gm _ fontmgr_bounds_0.75_0 serialize-8888 gm _ fontmgr_bounds_1_-0.25 serialize-8888 gm _ fontmgr_bounds serialize-8888 gm _ fontmgr_match serialize-8888 gm _ fontmgr_iter serialize-8888 gm _ imagemasksubset serialize-8888 gm _ bitmapfilters serialize-8888 gm _ bitmapshaders serialize-8888 gm _ bleed serialize-8888 gm _ bleed_alpha_bmp serialize-8888 gm _ bleed_alpha_bmp_shader serialize-8888 gm _ convex_poly_clip serialize-8888 gm _ extractalpha serialize-8888 gm _ filterbitmap_checkerboard_32_32_g8 serialize-8888 gm _ filterbitmap_image_mandrill_64 serialize-8888 gm _ shadows serialize-8888 gm _ simpleaaclip_aaclip serialize-8888 gm _ composeshader_bitmap serialize-8888 gm _ scaled_tilemodes_npot serialize-8888 gm _ scaled_tilemodes serialize-8888 gm _ bleed_alpha_image serialize-8888 gm _ bleed_alpha_image_shader serialize-8888 gm _ verylargebitmap serialize-8888 gm _ verylarge_picture_image pic-8888 gm _ drawfilter pic-8888 gm _ image-cacherator-from-picture serialize-8888 gm _ image-cacherator-from-picture pic-8888 gm _ image-cacherator-from-raster serialize-8888 gm _ image-cacherator-from-raster pic-8888 gm _ image-cacherator-from-ctable serialize-8888 gm _ image-cacherator-from-ctable pic-8888 gm _ gamut serialize-8888 gm _ gamut _ image _ interlaced1.png _ image _ interlaced2.png _ image _ interlaced3.png _ image _ .arw _ image _ .cr2 _ image _ .dng _ image _ .nef _ image _ .nrw _ image _ .orf _ image _ .raf _ image _ .rw2 _ image _ .pef _ image _ .srw _ image _ .ARW _ image _ .CR2 _ image _ .DNG _ image _ .NEF _ image _ .NRW _ image _ .ORF _ image _ .RAF _ image _ .RW2 _ image _ .PEF _ image _ .SRW; echo $? >/data/local/tmp/rc",
-      "[SLAVE_BUILD]/tmp/dm.sh"
+      "set -x; /data/local/tmp/nanobench --undefok -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --nocpu --pre_log --images --gpuStatsDump true --useThermalManager 1,1,10,1000 --scales 1.0 1.1 --config 8888 gpu nonrendering angle hwui f16 srgb msaa4 nvpr4 nvprdit4 --match ~blurroundrect ~patch_grid ~desk_carsvg ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile /sdcard/revenge_of_the_skiabot/perf/nanobench_abc123.json --properties gitHash abc123 build_number 5 --key arch arm compiler Clang cpu_or_gpu GPU cpu_or_gpu_value Tegra3 extra_config GN_Android model Nexus7 os Android; echo $? >/data/local/tmp/rc",
+      "[SLAVE_BUILD]/tmp/nanobench.sh"
     ],
-    "name": "write dm.sh"
+    "name": "write nanobench.sh"
   },
   {
     "cmd": [
       "adb",
       "push",
-      "[SLAVE_BUILD]/tmp/dm.sh",
+      "[SLAVE_BUILD]/tmp/nanobench.sh",
       "/data/local/tmp/"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push dm.sh"
+    "name": "push nanobench.sh"
   },
   {
     "cmd": [
@@ -536,9 +415,9 @@
       "-u",
       "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
       "/data/local/tmp/",
-      "dm.sh"
+      "nanobench.sh"
     ],
-    "name": "dm",
+    "name": "nanobench",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -557,13 +436,35 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android/data",
+      "511"
+    ],
+    "name": "makedirs perf_dir",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "adb",
       "pull",
-      "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+      "/sdcard/revenge_of_the_skiabot/perf",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android/data"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
+    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android/data"
   },
   {
     "cmd": [

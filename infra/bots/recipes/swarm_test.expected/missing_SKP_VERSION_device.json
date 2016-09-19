@@ -1,198 +1,29 @@
 [
   {
     "cmd": [
-      "which",
-      "adb"
-    ],
-    "name": "which adb",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_EXCEPTION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_device"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for device (1)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_charge"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for charge (1)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "echo",
-      "$EXTERNAL_STORAGE"
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_install"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
-    "name": "get EXTERNAL_STORAGE dir",
-    "stdout": "/path/to/tmp/"
+    "name": "install iOSShell"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "root"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "adb root",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "sleep",
-      "10"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_device"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for device (2)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_charge"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for charge (2)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/android_kill_skia",
-      "--verbose"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "kill skia"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "stop"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "stop shell"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "dumpsys",
-      "batteryproperties"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "starting battery stats"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "cat",
-      "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "cat scaling_governor"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "cat",
-      "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "cat cpu_freq"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_push_if_needed",
-      "--verbose",
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_if_needed",
       "[SLAVE_BUILD]/skia/resources",
-      "/storage/emulated/legacy/skiabot/skia_resources"
+      "skiabot/skia_resources"
     ],
     "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
-    "name": "push resources"
+    "name": "push resources to skia_resources"
   },
   {
     "cmd": [
@@ -216,15 +47,14 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "cat",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SKP_VERSION"
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_cat_file",
+      "skiabot/skia_tmp_dir/SKP_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
     "name": "read SKP_VERSION",
     "stdout": "/path/to/tmp/",
@@ -235,101 +65,70 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "rm",
-      "-f",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SKP_VERSION"
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "skiabot/skia_tmp_dir/SKP_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
-    "name": "rm SKP_VERSION"
+    "name": "rm skiabot/skia_tmp_dir/SKP_VERSION"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "rm",
-      "-r",
-      "/storage/emulated/legacy/skiabot/skia_skp/skps"
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "skiabot/skia_skp/skps"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
-    "name": "rmdir skps"
+    "name": "rmdir skiabot/skia_skp/skps"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "if",
-      "[",
-      "-e",
-      "/storage/emulated/legacy/skiabot/skia_skp/skps",
-      "];",
-      "then",
-      "echo",
-      "FILE_EXISTS;",
-      "fi"
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_mkdir",
+      "skiabot/skia_skp/skps"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
-    "name": "exists skps",
-    "stdout": "/path/to/tmp/"
+    "name": "mkdir skiabot/skia_skp/skps"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "mkdir",
-      "-p",
-      "/storage/emulated/legacy/skiabot/skia_skp/skps"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "mkdir skps"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_push_if_needed",
-      "--verbose",
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_if_needed",
       "[SLAVE_BUILD]/skp",
-      "/storage/emulated/legacy/skiabot/skia_skp/skps"
+      "skiabot/skia_skp/skps"
     ],
     "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
-    "name": "push skp"
+    "name": "push skp to skps"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "push",
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_file",
       "[SLAVE_BUILD]/tmp/SKP_VERSION",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SKP_VERSION"
+      "skiabot/skia_tmp_dir/SKP_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
-    "name": "push SKP_VERSION"
+    "name": "push [SLAVE_BUILD]/tmp/SKP_VERSION"
   },
   {
     "cmd": [
@@ -353,18 +152,84 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "cat",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_cat_file",
+      "skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
     "name": "read SK_IMAGE_VERSION",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+    },
+    "name": "rm skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "skiabot/skia_images"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+    },
+    "name": "rmdir skiabot/skia_images"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_mkdir",
+      "skiabot/skia_images"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+    },
+    "name": "mkdir skiabot/skia_images"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[SLAVE_BUILD]/skimage",
+      "skiabot/skia_images"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+    },
+    "name": "push skimage to skia_images"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_file",
+      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION",
+      "skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+    },
+    "name": "push [SLAVE_BUILD]/tmp/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -388,18 +253,84 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "cat",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SVG_VERSION"
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_cat_file",
+      "skiabot/skia_tmp_dir/SVG_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
     "name": "read SVG_VERSION",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "skiabot/skia_tmp_dir/SVG_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+    },
+    "name": "rm skiabot/skia_tmp_dir/SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "skiabot/skia_svg/svgs"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+    },
+    "name": "rmdir skiabot/skia_svg/svgs"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_mkdir",
+      "skiabot/skia_svg/svgs"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+    },
+    "name": "mkdir skiabot/skia_svg/svgs"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[SLAVE_BUILD]/svg",
+      "skiabot/skia_svg/svgs"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+    },
+    "name": "push svg to svgs"
+  },
+  {
+    "cmd": [
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_file",
+      "[SLAVE_BUILD]/tmp/SVG_VERSION",
+      "skiabot/skia_tmp_dir/SVG_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+    },
+    "name": "push [SLAVE_BUILD]/tmp/SVG_VERSION"
   },
   {
     "cmd": [
@@ -447,55 +378,29 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "rm",
-      "-r",
-      "/storage/emulated/legacy/skiabot/skia_dm"
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "skiabot/skia_dm"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
-    "name": "rmdir skia_dm"
+    "name": "rmdir skiabot/skia_dm"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "if",
-      "[",
-      "-e",
-      "/storage/emulated/legacy/skiabot/skia_dm",
-      "];",
-      "then",
-      "echo",
-      "FILE_EXISTS;",
-      "fi"
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_mkdir",
+      "skiabot/skia_dm"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
-    "name": "exists skia_dm",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "mkdir",
-      "-p",
-      "/storage/emulated/legacy/skiabot/skia_dm"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "mkdir skia_dm"
+    "name": "mkdir skiabot/skia_dm"
   },
   {
     "cmd": [
@@ -569,37 +474,31 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "push",
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_file",
       "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/uninteresting_hashes.txt"
+      "skiabot/skia_tmp_dir/uninteresting_hashes.txt"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
-    "name": "push uninteresting_hashes.txt"
+    "name": "push [SLAVE_BUILD]/tmp/uninteresting_hashes.txt"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/android_run_skia",
-      "--verbose",
-      "--logcat",
-      "-d",
-      "arm_v7_neon",
-      "-t",
-      "Debug",
-      "dm",
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_run_skia",
+      "--dm",
       "--undefok",
       "--resourcePath",
-      "/storage/emulated/legacy/skiabot/skia_resources",
+      "skiabot/skia_resources",
       "--skps",
-      "/storage/emulated/legacy/skiabot/skia_skp/skps",
+      "skiabot/skia_skp/skps",
       "--images",
-      "/storage/emulated/legacy/skiabot/skia_images/dm",
+      "skiabot/skia_images/dm",
       "--colorImages",
-      "/storage/emulated/legacy/skiabot/skia_images/colorspace",
+      "skiabot/skia_images/colorspace",
       "--nameByHash",
       "--properties",
       "gitHash",
@@ -607,35 +506,36 @@
       "master",
       "client.skia",
       "builder",
-      "Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Debug",
+      "Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug",
       "build_number",
       "6",
       "--svgs",
-      "/storage/emulated/legacy/skiabot/skia_svg/svgs",
+      "skiabot/skia_svg/svgs",
       "--key",
       "arch",
       "Arm7",
       "compiler",
-      "GCC",
+      "Clang",
       "configuration",
       "Debug",
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
-      "Tegra3",
+      "SGX554",
       "model",
-      "Nexus7",
+      "iPad4",
       "os",
-      "Android",
+      "iOS",
       "--uninterestingHashesFile",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/uninteresting_hashes.txt",
+      "skiabot/skia_tmp_dir/uninteresting_hashes.txt",
       "--writePath",
-      "/storage/emulated/legacy/skiabot/skia_dm",
+      "skiabot/skia_dm",
       "--nocpu",
       "--config",
       "8888",
       "gpu",
       "gpusrgb",
+      "pdf",
       "serialize-8888",
       "tiles_rt-8888",
       "pic-8888",
@@ -650,6 +550,42 @@
       "image",
       "_",
       "_",
+      "gpu",
+      "skp",
+      "_",
+      "_",
+      "_",
+      "image",
+      "gen_platf",
+      "rgba32abf.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "rgb24prof.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "rgb24lprof.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "8bpp-pixeldata-cropped.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "4bpp-pixeldata-cropped.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "32bpp-pixeldata-cropped.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "24bpp-pixeldata-cropped.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "frame_larger_than_image.gif",
       "_",
       "test",
       "_",
@@ -762,14 +698,6 @@
       "gm",
       "_",
       "bleed_alpha_image_shader",
-      "serialize-8888",
-      "gm",
-      "_",
-      "verylargebitmap",
-      "serialize-8888",
-      "gm",
-      "_",
-      "verylarge_picture_image",
       "pic-8888",
       "gm",
       "_",
@@ -900,109 +828,51 @@
       ".SRW"
     ],
     "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
     "name": "dm"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_pull_if_needed",
-      "--verbose",
-      "/storage/emulated/legacy/skiabot/skia_dm",
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_pull_if_needed",
+      "skiabot/skia_dm",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
     "name": "pull skia_dm"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "dumpsys",
-      "batteryproperties"
+      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_restart"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "final battery stats"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "reboot"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
     "name": "reboot"
   },
   {
     "cmd": [
       "sleep",
-      "10"
+      "20"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[SLAVE_BUILD]/out",
+      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
     },
     "name": "wait for reboot"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_device"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for device (3)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_charge"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for charge (3)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "kill-server"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "kill-server"
   },
   {
     "name": "$result",

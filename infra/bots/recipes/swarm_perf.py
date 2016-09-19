@@ -23,12 +23,12 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
-      'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release',
-      'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
-      'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Debug',
-      'Perf-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Release',
-      'Perf-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
-      'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
+      ('Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug' +
+       '-GN_Android_Vulkan'),
+      'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android',
+      'Perf-Android-Clang-Nexus6-GPU-Adreno420-arm-Release-GN_Android',
+      'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android',
+      'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android',
       'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
       'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
@@ -126,11 +126,6 @@ def nanobench_flags(bot):
     match.append('~interlaced1.png')
     match.append('~interlaced2.png')
     match.append('~interlaced3.png')
-
-  # This low-end Android bot crashes about 25% of the time while running the
-  # (somewhat intense) shapes benchmarks.
-  if 'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release' in bot:
-    match.append('~shapes_')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -247,34 +242,6 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  def AndroidTestData(builder):
-    test_data = (
-        api.step_data(
-            'get EXTERNAL_STORAGE dir',
-            stdout=api.raw_io.output('/storage/emulated/legacy')) +
-        api.step_data(
-            'read SKP_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'read SK_IMAGE_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'read SVG_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'which adb',
-            retcode=1)
-    )
-    if not 'Debug' in builder:
-      test_data += api.step_data(
-          'exists skia_perf',
-          stdout=api.raw_io.output(''))
-    if not 'GalaxyS3' in builder:
-      test_data += api.step_data(
-          'adb root',
-          stdout=api.raw_io.output('restarting adbd as root'))
-    return test_data
-
   for mastername, slaves in TEST_BUILDERS.iteritems():
     for slavename, builders_by_slave in slaves.iteritems():
       for builder in builders_by_slave:
@@ -296,10 +263,6 @@ def GenTests(api):
               api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
           )
         )
-        if ('Android' in builder and
-            ('Test' in builder or 'Perf' in builder) and
-            not 'Appurify' in builder):
-          test += AndroidTestData(builder)
         if 'Trybot' in builder:
           test += api.properties(issue=500,
                                  patchset=1,

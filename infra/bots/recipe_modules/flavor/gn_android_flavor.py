@@ -63,6 +63,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['is_debug'] = 'false'
     if 'Vulkan' in extra_config:
       args['ndk_api'] = 24
+    if 'FrameworkDefs' in extra_config:
+      args['skia_enable_android_framework_defines'] = 'true'
 
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
 

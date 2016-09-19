@@ -8,7 +8,6 @@
 
 from recipe_engine import recipe_api
 
-from . import android_flavor
 from . import cmake_flavor
 from . import default_flavor
 from . import gn_android_flavor
@@ -27,12 +26,6 @@ VERSION_FILE_SKP = 'SKP_VERSION'
 VERSION_FILE_SVG = 'SVG_VERSION'
 
 VERSION_NONE = -1
-
-
-def is_android(builder_cfg):
-  """Determine whether the given builder is an Android builder."""
-  return ('Android' in builder_cfg.get('extra_config', '') or
-          builder_cfg.get('os') == 'Android')
 
 
 def is_cmake(builder_cfg):
@@ -63,9 +56,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     if gn.supported():
       return gn
 
-    if is_android(builder_cfg):
-      return android_flavor.AndroidFlavorUtils(self.m)
-    elif is_cmake(builder_cfg):
+    if is_cmake(builder_cfg):
       return cmake_flavor.CMakeFlavorUtils(self.m)
     elif is_ios(builder_cfg):
       return ios_flavor.iOSFlavorUtils(self.m)

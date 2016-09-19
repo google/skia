@@ -25,14 +25,14 @@ TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
       'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android',
-      'Test-Android-GCC-AndroidOne-GPU-Mali400MP2-Arm7-Release',
-      'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
-      'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug',
-      'Test-Android-GCC-Nexus10-GPU-MaliT604-Arm7-Release',
-      'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
-      'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Debug',
-      'Test-Android-GCC-Nexus9-CPU-Denver-Arm64-Debug',
-      'Test-Android-GCC-NexusPlayer-CPU-SSE4-x86-Release',
+      'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android',
+      'Test-Android-Clang-GalaxyS3-GPU-Mali400-arm-Debug-GN_Android',
+      'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android',
+      'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android',
+      'Test-Android-Clang-Nexus6-GPU-Adreno420-arm-Debug-GN_Android',
+      'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android',
+      'Test-Android-Clang-Nexus9-CPU-Denver-arm64-Debug-GN_Android',
+      'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-GN_Android',
       'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
@@ -508,39 +508,6 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  def AndroidTestData(builder, adb=None):
-    test_data = (
-        api.step_data(
-            'get EXTERNAL_STORAGE dir',
-            stdout=api.raw_io.output('/storage/emulated/legacy')) +
-        api.step_data(
-            'read SKP_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'read SK_IMAGE_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'read SVG_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'exists skia_dm',
-            stdout=api.raw_io.output(''))
-    )
-    if 'GalaxyS3' not in builder:
-      test_data += api.step_data(
-          'adb root',
-          stdout=api.raw_io.output('restarting adbd as root'))
-    if adb:
-      test_data += api.step_data(
-          'which adb',
-          stdout=api.raw_io.output(adb))
-    else:
-      test_data += api.step_data(
-        'which adb',
-        retcode=1)
-
-    return test_data
-
   for mastername, slaves in TEST_BUILDERS.iteritems():
     for slavename, builders_by_slave in slaves.iteritems():
       for builder in builders_by_slave:
@@ -564,11 +531,6 @@ def GenTests(api):
               api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
           )
         )
-        if ('Android' in builder and
-            ('Test' in builder or 'Perf' in builder) and
-            not 'GN' in builder and
-            not 'Appurify' in builder):
-          test += AndroidTestData(builder)
         if 'Trybot' in builder:
           test += api.properties(issue=500,
                                  patchset=1,
@@ -602,7 +564,7 @@ def GenTests(api):
     api.step_data('dm', retcode=1)
   )
 
-  builder = 'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Debug'
+  builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android'
   yield (
     api.test('failed_get_hashes') +
     api.properties(buildername=builder,
@@ -622,47 +584,10 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42')) +
     api.step_data('get uninteresting hashes', retcode=1)
   )
 
-  yield (
-    api.test('download_and_push_skps') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('2')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data(
-        'exists skps',
-        stdout=api.raw_io.output(''))
-  )
-
+  builder = 'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug'
   yield (
     api.test('missing_SKP_VERSION_device') +
     api.properties(buildername=builder,
@@ -682,168 +607,7 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  retcode=1) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data(
-        'exists skps',
-        stdout=api.raw_io.output(''))
-  )
-
-  yield (
-    api.test('download_and_push_skimage') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('2')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data(
-        'exists skia_images',
-        stdout=api.raw_io.output(''))
-  )
-
-  yield (
-    api.test('missing_SK_IMAGE_VERSION_device') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  retcode=1) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data(
-        'exists skia_images',
-        stdout=api.raw_io.output(''))
-  )
-
-  yield (
-    api.test('download_and_push_svgs') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('2')) +
-    api.step_data(
-        'exists svgs',
-        stdout=api.raw_io.output(''))
-  )
-
-  yield (
-    api.test('missing_SVG_VERSION_device') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  retcode=1) +
-    api.step_data(
-        'exists svgs',
-        stdout=api.raw_io.output(''))
-  )
-
-  yield (
-    api.test('adb_in_path') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder, adb='/usr/bin/adb') +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42'))
+    api.step_data('read SKP_VERSION', retcode=1)
   )
 
   builder = 'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot'
