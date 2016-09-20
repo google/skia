@@ -66,12 +66,21 @@ void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->unref(gpu);
     }
-    fTrackedResources.reset();
-
     for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
         fTrackedRecycledResources[i]->recycle(const_cast<GrVkGpu*>(gpu));
     }
-    fTrackedRecycledResources.reset();
+
+    if (++fNumResets > kNumRewindResetsBeforeFullReset) {
+        fTrackedResources.reset();
+        fTrackedRecycledResources.reset();
+        fTrackedResources.setReserve(kInitialTrackedResourcesCount);
+        fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
+        fNumResets = 0;
+    } else {
+        fTrackedResources.rewind();
+        fTrackedRecycledResources.rewind();
+    }
+
 
     this->invalidateState();
 
