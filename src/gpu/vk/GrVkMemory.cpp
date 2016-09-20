@@ -10,13 +10,12 @@
 #include "GrVkGpu.h"
 #include "GrVkUtil.h"
 
-static bool get_valid_memory_type_index(VkPhysicalDeviceMemoryProperties physDevMemProps,
+static bool get_valid_memory_type_index(const VkPhysicalDeviceMemoryProperties& physDevMemProps,
                                         uint32_t typeBits,
                                         VkMemoryPropertyFlags requestedMemFlags,
                                         uint32_t* typeIndex) {
-    uint32_t checkBit = 1;
-    for (uint32_t i = 0; i < 32; ++i) {
-        if (typeBits & checkBit) {
+    for (uint32_t i = 0; i < physDevMemProps.memoryTypeCount; ++i) {
+        if (typeBits & (1 << i)) {
             uint32_t supportedFlags = physDevMemProps.memoryTypes[i].propertyFlags &
                                       requestedMemFlags;
             if (supportedFlags == requestedMemFlags) {
@@ -24,7 +23,6 @@ static bool get_valid_memory_type_index(VkPhysicalDeviceMemoryProperties physDev
                 return true;
             }
         }
-        checkBit <<= 1;
     }
     return false;
 }
@@ -57,21 +55,32 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
     VkMemoryRequirements memReqs;
     GR_VK_CALL(iface, GetBufferMemoryRequirements(device, buffer, &memReqs));
 
-    VkMemoryPropertyFlags desiredMemProps = dynamic ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                                                      VK_MEMORY_PROPERTY_HOST_CACHED_BIT
-                                                    : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     uint32_t typeIndex = 0;
-    if (!get_valid_memory_type_index(gpu->physicalDeviceMemoryProperties(),
-                                     memReqs.memoryTypeBits,
-                                     desiredMemProps,
-                                     &typeIndex)) {
-        // this memory type should always be available
-        SkASSERT_RELEASE(get_valid_memory_type_index(gpu->physicalDeviceMemoryProperties(),
+    const VkPhysicalDeviceMemoryProperties& phDevMemProps = gpu->physicalDeviceMemoryProperties();
+    if (dynamic) {
+        // try to get cached and ideally non-coherent memory first
+        if (!get_valid_memory_type_index(phDevMemProps,
+                                         memReqs.memoryTypeBits,
+                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                         VK_MEMORY_PROPERTY_HOST_CACHED_BIT,
+                                         &typeIndex)) {
+            // some sort of host-visible memory type should always be available for dynamic buffers
+            SkASSERT_RELEASE(get_valid_memory_type_index(phDevMemProps,
+                                                         memReqs.memoryTypeBits,
+                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                                                         &typeIndex));
+        }
+
+        VkMemoryPropertyFlags mpf = phDevMemProps.memoryTypes[typeIndex].propertyFlags;
+        alloc->fFlags = mpf & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT ? 0x0
+                                                                   : GrVkAlloc::kNoncoherent_Flag;
+    } else {
+        // device-local memory should always be available for static buffers
+        SkASSERT_RELEASE(get_valid_memory_type_index(phDevMemProps,
                                                      memReqs.memoryTypeBits,
-                                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                                      &typeIndex));
+        alloc->fFlags = 0x0;
     }
 
     GrVkHeap* heap = gpu->getHeap(buffer_type_to_heap(type));
@@ -81,7 +90,7 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
         return false;
     }
 
-    // Bind Memory to device
+    // Bind buffer
     VkResult err = GR_VK_CALL(iface, BindBufferMemory(device, buffer,
                                                       alloc->fMemory, alloc->fOffset));
     if (err) {
@@ -122,25 +131,27 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
 
     uint32_t typeIndex = 0;
     GrVkHeap* heap;
+    const VkPhysicalDeviceMemoryProperties& phDevMemProps = gpu->physicalDeviceMemoryProperties();
     if (linearTiling) {
         VkMemoryPropertyFlags desiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
                                                 VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-        if (!get_valid_memory_type_index(gpu->physicalDeviceMemoryProperties(),
+        if (!get_valid_memory_type_index(phDevMemProps,
                                          memReqs.memoryTypeBits,
                                          desiredMemProps,
                                          &typeIndex)) {
-            // this memory type should always be available
-            SkASSERT_RELEASE(get_valid_memory_type_index(gpu->physicalDeviceMemoryProperties(),
+            // some sort of host-visible memory type should always be available
+            SkASSERT_RELEASE(get_valid_memory_type_index(phDevMemProps,
                                                          memReqs.memoryTypeBits,
-                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                                         VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
                                                          &typeIndex));
         }
         heap = gpu->getHeap(GrVkGpu::kLinearImage_Heap);
+        VkMemoryPropertyFlags mpf = phDevMemProps.memoryTypes[typeIndex].propertyFlags;
+        alloc->fFlags = mpf & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT ? 0x0
+                                                                   : GrVkAlloc::kNoncoherent_Flag;
     } else {
         // this memory type should always be available
-        SkASSERT_RELEASE(get_valid_memory_type_index(gpu->physicalDeviceMemoryProperties(),
+        SkASSERT_RELEASE(get_valid_memory_type_index(phDevMemProps,
                                                      memReqs.memoryTypeBits,
                                                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                                      &typeIndex));
@@ -149,6 +160,7 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
         } else {
             heap = gpu->getHeap(GrVkGpu::kOptimalImage_Heap);
         }
+        alloc->fFlags = 0x0;
     }
 
     if (!heap->alloc(memReqs.size, memReqs.alignment, typeIndex, alloc)) {
@@ -156,7 +168,7 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
         return false;
     }
 
-    // Bind Memory to device
+    // Bind image
     VkResult err = GR_VK_CALL(iface, BindImageMemory(device, image,
                               alloc->fMemory, alloc->fOffset));
     if (err) {
@@ -242,6 +254,32 @@ VkAccessFlags GrVkMemory::LayoutToSrcAccessMask(const VkImageLayout layout) {
         flags = VK_ACCESS_SHADER_READ_BIT;
     }
     return flags;
+}
+
+void GrVkMemory::FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc) {
+    if (alloc.fFlags & GrVkAlloc::kNoncoherent_Flag) {
+        VkMappedMemoryRange mappedMemoryRange;
+        memset(&mappedMemoryRange, 0, sizeof(VkMappedMemoryRange));
+        mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+        mappedMemoryRange.memory = alloc.fMemory;
+        mappedMemoryRange.offset = alloc.fOffset;
+        mappedMemoryRange.size = alloc.fSize;
+        GR_VK_CALL(gpu->vkInterface(), FlushMappedMemoryRanges(gpu->device(),
+                                                               1, &mappedMemoryRange));
+    }
+}
+
+void GrVkMemory::InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc) {
+    if (alloc.fFlags & GrVkAlloc::kNoncoherent_Flag) {
+        VkMappedMemoryRange mappedMemoryRange;
+        memset(&mappedMemoryRange, 0, sizeof(VkMappedMemoryRange));
+        mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+        mappedMemoryRange.memory = alloc.fMemory;
+        mappedMemoryRange.offset = alloc.fOffset;
+        mappedMemoryRange.size = alloc.fSize;
+        GR_VK_CALL(gpu->vkInterface(), InvalidateMappedMemoryRanges(gpu->device(),
+                                                               1, &mappedMemoryRange));
+    }
 }
 
 bool GrVkFreeListAlloc::alloc(VkDeviceSize requestedSize,

@@ -180,6 +180,7 @@ void GrVkBuffer::internalUnmap(GrVkGpu* gpu, size_t size) {
     SkASSERT(this->vkIsMapped());
 
     if (fDesc.fDynamic) {
+        GrVkMemory::FlushMappedAlloc(gpu, this->alloc());
         VK_CALL(gpu, UnmapMemory(gpu->device(), this->alloc().fMemory));
         fMapPtr = nullptr;
     } else {

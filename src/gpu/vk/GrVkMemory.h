@@ -37,6 +37,9 @@ namespace GrVkMemory {
     VkPipelineStageFlags LayoutToPipelineStageFlags(const VkImageLayout layout);
 
     VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
+
+    void FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc);
+    void InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc);
 }
 
 class GrVkFreeListAlloc {

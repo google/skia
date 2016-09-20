@@ -494,6 +494,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
         }
     }
 
+    GrVkMemory::FlushMappedAlloc(this, alloc);
     GR_VK_CALL(interface, UnmapMemory(fDevice, alloc.fMemory));
 
     return true;
@@ -606,6 +607,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         currentHeight = SkTMax(1, currentHeight/2);
     }
 
+    // no need to flush non-coherent memory, unmap will do that for us
     transferBuffer->unmap();
 
     // Change layout of our target so it can be copied to
@@ -963,12 +965,12 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool copy_testing_data(GrVkGpu* gpu, void* srcData, GrVkAlloc* alloc,
+bool copy_testing_data(GrVkGpu* gpu, void* srcData, const GrVkAlloc& alloc,
                        size_t srcRowBytes, size_t dstRowBytes, int h) {
     void* mapPtr;
     VkResult err = GR_VK_CALL(gpu->vkInterface(), MapMemory(gpu->device(),
-                                                            alloc->fMemory,
-                                                            alloc->fOffset,
+                                                            alloc.fMemory,
+                                                            alloc.fOffset,
                                                             dstRowBytes * h,
                                                             0,
                                                             &mapPtr));
@@ -984,7 +986,8 @@ bool copy_testing_data(GrVkGpu* gpu, void* srcData, GrVkAlloc* alloc,
         SkRectMemcpy(mapPtr, static_cast<size_t>(dstRowBytes), srcData, srcRowBytes,
                      srcRowBytes, h);
     }
-    GR_VK_CALL(gpu->vkInterface(), UnmapMemory(gpu->device(), alloc->fMemory));
+    GrVkMemory::FlushMappedAlloc(gpu, alloc);
+    GR_VK_CALL(gpu->vkInterface(), UnmapMemory(gpu->device(), alloc.fMemory));
     return true;
 }
 
@@ -1019,7 +1022,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     }
 
     VkImage image = VK_NULL_HANDLE;
-    GrVkAlloc alloc = { VK_NULL_HANDLE, 0, 0 };
+    GrVkAlloc alloc = { VK_NULL_HANDLE, 0, 0, 0 };
 
     VkImageTiling imageTiling = linearTiling ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
     VkImageLayout initialLayout = (VK_IMAGE_TILING_LINEAR == imageTiling)
@@ -1070,7 +1073,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
 
             VK_CALL(GetImageSubresourceLayout(fDevice, image, &subres, &layout));
 
-            if (!copy_testing_data(this, srcData, &alloc, rowCopyBytes,
+            if (!copy_testing_data(this, srcData, alloc, rowCopyBytes,
                                    static_cast<size_t>(layout.rowPitch), h)) {
                 GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
                 VK_CALL(DestroyImage(fDevice, image, nullptr));
@@ -1098,7 +1101,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
                 return 0;
             }
 
-            GrVkAlloc bufferAlloc = { VK_NULL_HANDLE, 0, 0 };
+            GrVkAlloc bufferAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
             if (!GrVkMemory::AllocAndBindBufferMemory(this, buffer, GrVkBuffer::kCopyRead_Type,
                                                       true, &bufferAlloc)) {
                 GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
@@ -1107,7 +1110,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
                 return 0;
             }
 
-            if (!copy_testing_data(this, srcData, &bufferAlloc, rowCopyBytes, rowCopyBytes, h)) {
+            if (!copy_testing_data(this, srcData, bufferAlloc, rowCopyBytes, rowCopyBytes, h)) {
                 GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
                 VK_CALL(DestroyImage(fDevice, image, nullptr));
                 GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
@@ -1756,7 +1759,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     // We need to submit the current command buffer to the Queue and make sure it finishes before
     // we can copy the data out of the buffer.
     this->submitCommandBuffer(kForce_SyncQueue);
-
+    GrVkMemory::InvalidateMappedAlloc(this, transferBuffer->alloc());
     void* mappedMemory = transferBuffer->map();
 
     if (copyFromOrigin) {
