@@ -33,6 +33,30 @@ public:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
 
+    /**
+     * When building a program from a GrPipeline this is used to provide the GrShaderVars that
+     * contain the resulting transformed coords from each of a GrFragmentProcessor's
+     * GrCoordTransforms. This allows the GrFragmentProcessor subclasses to refer to the transformed
+     * coords in fragment code.
+     */
+    class TransformedCoordVars {
+    public:
+        TransformedCoordVars(const GrFragmentProcessor* fp, const GrShaderVar* vars)
+                : fFP(fp)
+                , fTransformedVars(vars) {}
+
+        const GrShaderVar& operator[] (int i) const {
+            SkASSERT(i >= 0 && i < fFP->numCoordTransforms());
+            return fTransformedVars[i];
+        }
+
+        TransformedCoordVars childTransforms(int childIdx) const;
+
+    private:
+        const GrFragmentProcessor* fFP;
+        const GrShaderVar*         fTransformedVars;
+    };
+
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
         stages.
@@ -50,7 +74,7 @@ public:
                                  etc.) that allows the processor to communicate back similar known
                                  info about its output.
         @param transformedCoords Fragment shader variables containing the coords computed using
-                                 each of the GrFragmentProcessor's Coord Transforms.
+                                 each of the GrFragmentProcessor's GrCoordTransforms.
         @param texSamplers       Contains one entry for each GrTextureAccess of the GrProcessor.
                                  These can be passed to the builder to emit texture reads in the
                                  generated code.
@@ -65,7 +89,7 @@ public:
                  const GrFragmentProcessor& fp,
                  const char* outputColor,
                  const char* inputColor,
-                 const SkTArray<GrShaderVar>& transformedCoords,
+                 const TransformedCoordVars& transformedCoordVars,
                  const SamplerHandle* texSamplers,
                  const SamplerHandle* bufferSamplers,
                  bool gpImplementsDistanceVector)
@@ -75,7 +99,7 @@ public:
             , fFp(fp)
             , fOutputColor(outputColor)
             , fInputColor(inputColor)
-            , fTransformedCoords(transformedCoords)
+            , fTransformedCoords(transformedCoordVars)
             , fTexSamplers(texSamplers)
             , fBufferSamplers(bufferSamplers)
             , fGpImplementsDistanceVector(gpImplementsDistanceVector) {}
@@ -85,7 +109,7 @@ public:
         const GrFragmentProcessor& fFp;
         const char* fOutputColor;
         const char* fInputColor;
-        const SkTArray<GrShaderVar>& fTransformedCoords;
+        const TransformedCoordVars& fTransformedCoords;
         const SamplerHandle* fTexSamplers;
         const SamplerHandle* fBufferSamplers;
         bool fGpImplementsDistanceVector;

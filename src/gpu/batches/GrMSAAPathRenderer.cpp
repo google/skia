@@ -148,8 +148,8 @@ public:
 
             // emit transforms
             this->emitTransforms(vsBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,
-                                 qp.inPosition()->fName, SkMatrix::I(), args.fTransformsIn,
-                                 args.fTransformsOut);
+                                 qp.inPosition()->fName, SkMatrix::I(),
+                                 args.fFPCoordTransformHandler);
 
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             fsBuilder->codeAppendf("if (%s.x * %s.x >= %s.y) discard;", uv.fsIn(), uv.fsIn(),
@@ -167,14 +167,15 @@ public:
             b->add32(key);
         }
 
-        virtual void setData(const GrGLSLProgramDataManager& pdman,
-                             const GrPrimitiveProcessor& gp) override {
+        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
+                     FPCoordTransformIter&& transformIter) override {
             const MSAAQuadProcessor& qp = gp.cast<MSAAQuadProcessor>();
             if (!qp.viewMatrix().isIdentity()) {
                 float viewMatrix[3 * 3];
                 GrGLSLGetMatrix<3>(viewMatrix, qp.viewMatrix());
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
             }
+            this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
         }
 
     private:

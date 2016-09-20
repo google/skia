@@ -99,8 +99,7 @@ public:
                                      gpArgs->fPositionVar,
                                      gp.inLocalCoords()->fName,
                                      gp.localMatrix(),
-                                     args.fTransformsIn,
-                                     args.fTransformsOut);
+                                     args.fFPCoordTransformHandler);
             } else {
                 // emit transforms with position
                 this->emitTransforms(vertBuilder,
@@ -109,8 +108,7 @@ public:
                                      gpArgs->fPositionVar,
                                      gp.inPosition()->fName,
                                      gp.localMatrix(),
-                                     args.fTransformsIn,
-                                     args.fTransformsOut);
+                                     args.fFPCoordTransformHandler);
             }
 
             // Setup coverage as pass through
@@ -150,7 +148,8 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
+                     const GrPrimitiveProcessor& gp,
+                     FPCoordTransformIter&& transformIter) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
 
             if (!dgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dgp.viewMatrix())) {
@@ -172,14 +171,7 @@ public:
                 pdman.set1f(fCoverageUniform, GrNormalizeByteToFloat(dgp.coverage()));
                 fCoverage = dgp.coverage();
             }
-        }
-
-        void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLSLProgramDataManager& pdman,
-                              int index,
-                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper(primProc.cast<DefaultGeoProc>().fLocalMatrix, pdman, index,
-                                         transforms);
+            this->setTransformDataHelper(dgp.fLocalMatrix, pdman, &transformIter);
         }
 
     private:

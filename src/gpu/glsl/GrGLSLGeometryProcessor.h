@@ -22,31 +22,11 @@ public:
     /* Any general emit code goes in the base class emitCode.  Subclasses override onEmitCode */
     void emitCode(EmitArgs&) override;
 
-    // By default we use the identity matrix
-    void setTransformData(const GrPrimitiveProcessor&,
-                          const GrGLSLProgramDataManager& pdman,
-                          int index,
-                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper(SkMatrix::I(), pdman, index, transforms);
-    }
-
 protected:
     // A helper which subclasses can use if needed and used above in the default setTransformData().
     void setTransformDataHelper(const SkMatrix& localMatrix,
                                 const GrGLSLProgramDataManager& pdman,
-                                int index,
-                                const SkTArray<const GrCoordTransform*, true>& transforms) {
-        SkTArray<TransformUniform, true>& procTransforms = fInstalledTransforms[index];
-        int numTransforms = transforms.count();
-        for (int t = 0; t < numTransforms; ++t) {
-            SkASSERT(procTransforms[t].fHandle.isValid());
-            const SkMatrix& transform = GetTransformMatrix(localMatrix, *transforms[t]);
-            if (!procTransforms[t].fCurrentValue.cheapEqualTo(transform)) {
-                pdman.setSkMatrix(procTransforms[t].fHandle.toIndex(), transform);
-                procTransforms[t].fCurrentValue = transform;
-            }
-        }
-    }
+                                FPCoordTransformIter*);
 
     // Emit a uniform matrix for each coord transform.
     void emitTransforms(GrGLSLVertexBuilder* vb,
@@ -54,10 +34,9 @@ protected:
                         GrGLSLUniformHandler* uniformHandler,
                         const GrShaderVar& posVar,
                         const char* localCoords,
-                        const TransformsIn& tin,
-                        TransformsOut* tout) {
+                        FPCoordTransformHandler* handler) {
         this->emitTransforms(vb, varyingHandler, uniformHandler,
-                             posVar, localCoords, SkMatrix::I(), tin, tout);
+                             posVar, localCoords, SkMatrix::I(), handler);
     }
 
     // Emit pre-transformed coords as a vertex attribute per coord-transform.
@@ -67,8 +46,7 @@ protected:
                         const GrShaderVar& posVar,
                         const char* localCoords,
                         const SkMatrix& localMatrix,
-                        const TransformsIn&,
-                        TransformsOut*);
+                        FPCoordTransformHandler*);
 
     struct GrGPArgs {
         // The variable used by a GP to store its position. It can be
@@ -103,7 +81,7 @@ private:
         SkMatrix       fCurrentValue = SkMatrix::InvalidMatrix();
     };
 
-    SkSTArray<8, SkSTArray<2, TransformUniform, true> > fInstalledTransforms;
+    SkTArray<TransformUniform, true> fInstalledTransforms;
 
     typedef GrGLSLPrimitiveProcessor INHERITED;
 };

@@ -18,6 +18,7 @@
 #include "batches/GrVertexBatch.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
@@ -120,8 +121,7 @@ public:
                                  gpArgs->fPositionVar,
                                  rgp.inPosition()->fName,
                                  rgp.localMatrix(),
-                                 args.fTransformsIn,
-                                 args.fTransformsOut);
+                                 args.fFPCoordTransformHandler);
 
             // TODO: compute all these offsets, spans, and scales in the VS
             fragBuilder->codeAppendf("float insetW = min(1.0, %s.x) - 0.5;",
@@ -194,15 +194,10 @@ public:
             b->add32(0x0);
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {}
-
-        void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLSLProgramDataManager& pdman,
-                              int index,
-                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper(primProc.cast<RectGeometryProcessor>().fLocalMatrix, pdman,
-                                         index, transforms);
+        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
+                     FPCoordTransformIter&& transformIter) override {
+            const RectGeometryProcessor& rgp = primProc.cast<RectGeometryProcessor>();
+            this->setTransformDataHelper(rgp.fLocalMatrix, pdman,&transformIter);
         }
 
     private:
