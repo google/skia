@@ -16,6 +16,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       'SAN' in extra_config,
       extra_config == 'Fast',
       extra_config == 'GN',
+      extra_config == 'NoGPU',
       extra_config.startswith('SK'),
       os == 'Ubuntu' and target_arch == 'x86',
     ])
@@ -63,6 +64,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['is_debug'] = 'false'
     if extra_config == 'MSAN':
       args['skia_use_fontconfig'] = 'false'
+    if extra_config == 'NoGPU':
+      args['skia_enable_gpu'] = 'false'
 
     for (k,v) in {
       'cc':  cc,
