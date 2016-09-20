@@ -26,37 +26,88 @@ static const char defaultConfigs[] =
 #endif
     ;
 
-static const char configHelp[] =
-    "Options: 565 8888 debug gpu gl gpudebug gpudft gpunull "
-    "msaa16 msaa4 glmsaa4 gpuf16 gpusrgb glsrgb glwide nonrendering null nullgpu "
-    "nvpr16 nvpr4 nvprdit16 nvprdit4 glnvpr4 glnvprdit4 pdf skp svg xps "
-    "glinst glinst4 glinstdit4 glinst16 glinstdit16 esinst esinst4 esinsdit4"
+static const struct {
+    const char* predefinedConfig;
+    const char* backend;
+    const char* options;
+} gPredefinedConfigs[] ={
+#if SK_SUPPORT_GPU
+    { "gpu",         "gpu", "" },
+    { "gl",          "gpu", "api=gl" },
+    { "msaa4",       "gpu", "samples=4" },
+    { "glmsaa4",     "gpu", "api=gl,samples=4" },
+    { "msaa16",      "gpu", "samples=16" },
+    { "nvpr4",       "gpu", "nvpr=true,samples=4" },
+    { "glnvpr4",     "gpu", "api=gl,nvpr=true,samples=4" },
+    { "nvpr16",      "gpu", "nvpr=true,samples=16" },
+    { "nvprdit4",    "gpu", "nvpr=true,samples=4,dit=true" },
+    { "glnvprdit4",  "gpu", "api=gl,nvpr=true,samples=4,dit=true" },
+    { "nvprdit16",   "gpu", "nvpr=true,samples=16,dit=true" },
+    { "glinst",      "gpu", "api=gl,inst=true" },
+    { "glinst4",     "gpu", "api=gl,inst=true,samples=4" },
+    { "glinstdit4",  "gpu", "api=gl,inst=true,samples=4,dit=true" },
+    { "glinst16",    "gpu", "api=gl,inst=true,samples=16" },
+    { "glinstdit16", "gpu", "api=gl,inst=true,samples=16,dit=true" },
+    { "esinst",      "gpu", "api=gles,inst=true" },
+    { "esinst4",     "gpu", "api=gles,inst=true,samples=4" },
+    { "esinstdit4",  "gpu", "api=gles,inst=true,samples=4,dit=true" },
+    { "gpuf16",      "gpu", "color=f16" },
+    { "gpusrgb",     "gpu", "color=srgb" },
+    { "glsrgb",      "gpu", "api=gl,color=srgb" },
+    { "glwide",      "gpu", "api=gl,color=f16_wide" },
+    { "gpudft",      "gpu", "dit=true" },
+    { "gpudebug",    "gpu", "api=debug" },
+    { "gpunull",     "gpu", "api=null" },
+    { "debug",       "gpu", "api=debug" },
+    { "nullgpu",     "gpu", "api=null" }
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
-    " angle"
+    ,{ "angle",      "gpu", "api=angle" }
 #endif
-    " angle-gl"
+    ,{ "angle-gl",   "gpu", "api=angle-gl" }
 #endif
 #if SK_COMMAND_BUFFER
-    " commandbuffer"
+    ,{ "commandbuffer", "gpu", "api=commandbuffer" }
 #endif
 #if SK_MESA
-    " mesa"
+    ,{ "mesa", "gpu", "api=mesa" }
 #endif
+#ifdef SK_VULKAN
+    ,{ "vk",       "gpu", "api=vulkan" }
+    ,{ "vksrgb",   "gpu", "api=vulkan,color=srgb" }
+    ,{ "vkwide",   "gpu", "api=vulkan,color=f16_wide" }
+    ,{ "vkmsaa4",  "gpu", "api=vulkan,samples=4" }
+    ,{ "vkmsaa16", "gpu", "api=vulkan,samples=16" }
+#endif
+
+#else
+{ "", "", "" }
+#endif
+};
+
+static const char configHelp[] =
+    "Options: 565 8888 srgb f16 nonrendering null pdf pdfa skp pipe svg xps"
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     " hwui"
 #endif
-#ifdef SK_VULKAN
-    " vk vksrgb vkwide"
-#endif
-    " or use extended form 'backend(option=value,...)'.\n";
+    ;
+
+static const char* config_help_fn() {
+    static SkString helpString;
+    helpString.set(configHelp);
+    for (const auto& config : gPredefinedConfigs) {
+        helpString.appendf(" %s", config.predefinedConfig);
+    }
+    helpString.append(" or use extended form 'backend(option=value,...)'.\n");
+    return helpString.c_str();
+}
 
 static const char configExtendedHelp[] =
     "Extended form: 'backend(option=value,...)'\n\n"
     "Possible backends and options:\n"
 #if SK_SUPPORT_GPU
     "\n"
-    "gpu(api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int)\tGPU backend\n"
+    "gpu(api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int)\n"
     "\tapi\ttype: string\tdefault: native.\n"
     "\t    Select graphics API to use with gpu backend.\n"
     "\t    Options:\n"
@@ -99,108 +150,20 @@ static const char configExtendedHelp[] =
     "\t    Use multisampling with N samples.\n"
     "\n"
     "Predefined configs:\n\n"
-    "\tgpu       \t= gpu()\n"
-    "\tgl        \t= gpu(api=gl)\n"
-    "\tmsaa4     \t= gpu(samples=4)\n"
-    "\tglmsaa4   \t= gpu(api=gl,samples=4)\n"
-    "\tmsaa16    \t= gpu(samples=16)\n"
-    "\tnvpr4     \t= gpu(nvpr=true,samples=4)\n"
-    "\tglnvpr4   \t= gpu(api=gl,nvpr=true,samples=4)\n"
-    "\tnvpr16    \t= gpu(nvpr=true,samples=16)\n"
-    "\tnvprdit4  \t= gpu(nvpr=true,samples=4,dit=true)\n"
-    "\tglnvprdit4\t= gpu(api=gl,nvpr=true,samples=4,dit=true)\n"
-    "\tnvprdit16 \t= gpu(nvpr=true,samples=16,dit=true)\n"
-    "\tgpuf16    \t= gpu(color=f16)\n"
-    "\tgpusrgb   \t= gpu(color=srgb)\n"
-    "\tglsrgb    \t= gpu(api=gl,color=srgb)\n"
-    "\tglwide    \t= gpu(api=gl,color=f16_wide)\n"
-    "\tgpudft    \t= gpu(dit=true)\n"
-    "\tgpudebug  \t= gpu(api=debug)\n"
-    "\tgpunull   \t= gpu(api=null)\n"
-    "\tdebug     \t= gpu(api=debug)\n"
-    "\tnullgpu   \t= gpu(api=null)\n"
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
-    "\tangle     \t= gpu(api=angle)\n"
-#endif
-    "\tangle-gl  \t= gpu(api=angle-gl)\n"
-#endif
-#if SK_COMMAND_BUFFER
-    "\tcommandbuffer\t= gpu(api=commandbuffer)\n"
-#endif
-#if SK_MESA
-    "\tmesa      \t= gpu(api=mesa)\n"
-#endif
-#ifdef SK_VULKAN
-    "\tvk        \t= gpu(api=vulkan)\n"
-    "\tvksrgb    \t= gpu(api=vulkan,color=srgb)\n"
-    "\tvkwide    \t= gpu(api=vulkan,color=f16_wide)\n"
-    "\tvkmsaa4   \t= gpu(api=gl,samples=4)\n"
-    "\tvkmsaa16  \t= gpu(api=gl,samples=16)\n"
-#endif
+    // Help text for pre-defined configs is auto-generated from gPredefinedConfigs
 #endif
     ;
 
-DEFINE_extended_string(config, defaultConfigs, configHelp, configExtendedHelp);
+static const char* config_extended_help_fn() {
+    static SkString helpString;
+    helpString.set(configExtendedHelp);
+    for (const auto& config : gPredefinedConfigs) {
+        helpString.appendf("\t%-10s\t= gpu(%s)\n", config.predefinedConfig, config.options);
+    }
+    return helpString.c_str();
+}
 
-static const struct {
-    const char* predefinedConfig;
-    const char* backend;
-    const char* options;
-} gPredefinedConfigs[] = {
-#if SK_SUPPORT_GPU
-    { "gpu",         "gpu", "" },
-    { "gl",          "gpu", "api=gl" },
-    { "msaa4",       "gpu", "samples=4" },
-    { "glmsaa4",     "gpu", "api=gl,samples=4" },
-    { "msaa16",      "gpu", "samples=16" },
-    { "nvpr4",       "gpu", "nvpr=true,samples=4" },
-    { "glnvpr4",     "gpu", "api=gl,nvpr=true,samples=4" },
-    { "nvpr16",      "gpu", "nvpr=true,samples=16" },
-    { "nvprdit4",    "gpu", "nvpr=true,samples=4,dit=true" },
-    { "glnvprdit4",  "gpu", "api=gl,nvpr=true,samples=4,dit=true" },
-    { "nvprdit16",   "gpu", "nvpr=true,samples=16,dit=true" },
-    { "glinst",      "gpu", "api=gl,inst=true" },
-    { "glinst4",     "gpu", "api=gl,inst=true,samples=4" },
-    { "glinstdit4",  "gpu", "api=gl,inst=true,samples=4,dit=true" },
-    { "glinst16",    "gpu", "api=gl,inst=true,samples=16" },
-    { "glinstdit16", "gpu", "api=gl,inst=true,samples=16,dit=true" },
-    { "esinst",      "gpu", "api=gles,inst=true" },
-    { "esinst4",     "gpu", "api=gles,inst=true,samples=4" },
-    { "esinstdit4",  "gpu", "api=gles,inst=true,samples=4,dit=true" },
-    { "gpuf16",      "gpu", "color=f16" },
-    { "gpusrgb",     "gpu", "color=srgb" },
-    { "glsrgb",      "gpu", "api=gl,color=srgb" },
-    { "glwide",      "gpu", "api=gl,color=f16_wide" },
-    { "gpudft",      "gpu", "dit=true" },
-    { "gpudebug",    "gpu", "api=debug" },
-    { "gpunull",     "gpu", "api=null" },
-    { "debug",       "gpu", "api=debug" },
-    { "nullgpu",     "gpu", "api=null" }
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
-    , { "angle",      "gpu", "api=angle" }
-#endif
-    , { "angle-gl",   "gpu", "api=angle-gl" }
-#endif
-#if SK_COMMAND_BUFFER
-    , { "commandbuffer", "gpu", "api=commandbuffer" }
-#endif
-#if SK_MESA
-    , { "mesa", "gpu", "api=mesa" }
-#endif
-#ifdef SK_VULKAN
-    , { "vk",       "gpu", "api=vulkan" }
-    , { "vksrgb",   "gpu", "api=vulkan,color=srgb" }
-    , { "vkwide",   "gpu", "api=vulkan,color=f16_wide" }
-    , { "vkmsaa4",  "gpu", "api=vulkan,samples=4" }
-    , { "vkmsaa16", "gpu", "api=vulkan,samples=16" }
-#endif
-
-#else
-    { "", "", "" }
-#endif
-};
+DEFINE_extended_string(config, defaultConfigs, config_help_fn(), config_extended_help_fn());
 
 SkCommandLineConfig::SkCommandLineConfig(const SkString& tag, const SkString& backend,
                                          const SkTArray<SkString>& viaParts)
