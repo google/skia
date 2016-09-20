@@ -31,7 +31,8 @@ bool SkSVGNode::asPaint(const SkSVGRenderContext& ctx, SkPaint* paint) const {
 }
 
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
-    ctx->applyPresentationAttributes(fPresentationAttributes);
+    ctx->applyPresentationAttributes(fPresentationAttributes,
+                                     this->hasChildren() ? 0 : SkSVGRenderContext::kLeaf);
     return true;
 }
 

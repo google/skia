@@ -67,7 +67,10 @@ public:
 
     SkCanvas* canvas() const { return fCanvas; }
 
-    void applyPresentationAttributes(const SkSVGPresentationAttributes&);
+    enum ApplyFlags {
+        kLeaf = 1 << 0, // the target node doesn't have descendants
+    };
+    void applyPresentationAttributes(const SkSVGPresentationAttributes&, uint32_t flags);
 
     const SkSVGNode* findNodeById(const SkString&) const;
 
@@ -79,6 +82,8 @@ private:
     void* operator new(size_t)                               = delete;
     void* operator new(size_t, void*)                        = delete;
     SkSVGRenderContext& operator=(const SkSVGRenderContext&) = delete;
+
+    void applyOpacity(SkScalar opacity, uint32_t flags);
 
     const SkSVGIDMapper&                          fIDMapper;
     SkTCopyOnFirstWrite<SkSVGLengthContext>       fLengthContext;

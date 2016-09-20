@@ -69,6 +69,8 @@ protected:
 
     virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&);
 
+    virtual bool hasChildren() const { return false; }
+
 private:
     SkSVGTag                    fTag;
 
