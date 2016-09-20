@@ -409,7 +409,7 @@ namespace {
 class DTIBufferFiller
 {
 public:
-    explicit DTIBufferFiller(intptr_t bufferAsInt)
+    explicit DTIBufferFiller(uintptr_t bufferAsInt)
         : bufferAsInt_(bufferAsInt) {}
 
     void fillMember(const void* source, size_t memberOffset, size_t size) {
@@ -418,7 +418,7 @@ public:
 
 private:
 
-    intptr_t bufferAsInt_;
+    uintptr_t bufferAsInt_;
 };
 }
 
@@ -552,8 +552,8 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     if (!fillMode) {
         return size;
     }
-    intptr_t bufferAsInt = reinterpret_cast<intptr_t>(buffer);
-    intptr_t pixelsAsInt = bufferAsInt + pixelOffset;
+    uintptr_t bufferAsInt = reinterpret_cast<uintptr_t>(buffer);
+    uintptr_t pixelsAsInt = bufferAsInt + pixelOffset;
     void* pixels = reinterpret_cast<void*>(pixelsAsInt);
     void* ct = nullptr;
     if (ctSize) {
@@ -604,7 +604,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     }
 
     // Fill in the mipmap levels if they exist
-    intptr_t mipLevelPtr = pixelsAsInt + SkAlign8(pixmap.getSafeSize());
+    uintptr_t mipLevelPtr = pixelsAsInt + SkAlign8(pixmap.getSafeSize());
 
     if (useMipMaps) {
         static_assert(std::is_standard_layout<MipMapLevelData>::value,
