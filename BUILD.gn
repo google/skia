@@ -13,6 +13,7 @@ declare_args() {
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
+  skia_use_mesa = false
   skia_use_sfntly = !is_fuchsia
   skia_use_vulkan = is_android && defined(ndk_api) && ndk_api >= 24
   skia_use_zlib = true
@@ -595,6 +596,9 @@ if (skia_enable_tools) {
   template("test_lib") {
     config(target_name + "_config") {
       include_dirs = invoker.public_include_dirs
+      if (defined(invoker.public_defines)) {
+        defines = invoker.public_defines
+      }
     }
     source_set(target_name) {
       forward_variables_from(invoker, "*", [ "public_include_dirs" ])
@@ -612,6 +616,7 @@ if (skia_enable_tools) {
   }
 
   test_lib("gpu_tool_utils") {
+    public_defines = []
     public_include_dirs = [ "tools/gpu" ]
     sources = [
       "tools/gpu/GrContextFactory.cpp",
@@ -639,6 +644,11 @@ if (skia_enable_tools) {
 
     if (skia_use_vulkan) {
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
+    }
+    if (skia_use_mesa) {
+      public_defines += [ "SK_MESA" ]
+      sources += [ "tools/gpu/gl/mesa/GLTestContext_mesa.cpp" ]
+      libs += [ "OSMesa" ]
     }
   }
 
