@@ -30,6 +30,7 @@ TEST_BUILDERS = {
       'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android',
       'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android',
       'Test-Android-Clang-Nexus6-GPU-Adreno420-arm-Debug-GN_Android',
+      'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan',
       'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android',
       'Test-Android-Clang-Nexus9-CPU-Denver-arm64-Debug-GN_Android',
       'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-GN_Android',
@@ -343,6 +344,12 @@ def dm_flags(bot):
 
   if 'TSAN' in bot:
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
+
+  if 'Vulkan' in bot and 'Adreno' in bot:
+    # skia:5777
+    match.extend(['~XfermodeImageFilterCroppedInput',
+                  '~GrTextureStripAtlasFlush',
+                  '~CopySurface'])
 
   if blacklisted:
     args.append('--blacklist')
