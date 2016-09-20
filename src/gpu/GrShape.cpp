@@ -361,10 +361,6 @@ void GrShape::attemptToSimplifyPath() {
         } else {
             fPathData.fGenID = this->path().getGenerationID();
         }
-        if (this->style().isSimpleFill()) {
-            this->path().close();
-            this->path().setIsVolatile(true);
-        }
         if (!this->style().hasNonDashPathEffect()) {
             if (this->style().strokeRec().getStyle() == SkStrokeRec::kStroke_Style ||
                 this->style().strokeRec().getStyle() == SkStrokeRec::kHairline_Style) {
