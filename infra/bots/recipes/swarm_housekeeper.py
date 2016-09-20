@@ -42,8 +42,7 @@ def RunSteps(api):
 
   # TODO(borenet): Detect static initializers?
 
-  gsutil_path = api.path['depot_tools'].join('third_party', 'gsutil',
-                                             'gsutil')
+  gsutil_path = api.path['depot_tools'].join('gsutil.py')
   if not api.vars.is_trybot:
     api.run(
       api.step,

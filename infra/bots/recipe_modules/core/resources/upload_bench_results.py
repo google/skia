@@ -29,19 +29,12 @@ def _UploadJSONResults(builder_name, build_number, dest_gsbase, gs_subdir,
     gs_dir = '/'.join(('trybot', gs_dir, build_number, issue_number))
   full_path_to_upload = full_json_path
   file_to_upload = os.path.basename(full_path_to_upload)
-  http_header = ['Content-Type:application/json']
+  gzip_args = []
   if gzipped:
-    http_header.append('Content-Encoding:gzip')
-    gzipped_file = os.path.join(tempfile.gettempdir(), file_to_upload)
-    # Apply gzip.
-    with open(full_path_to_upload, 'rb') as f_in:
-      with gzip.open(gzipped_file, 'wb') as f_out:
-        f_out.writelines(f_in)
-    full_path_to_upload = gzipped_file
-  cmd = ['python', gsutil_path]
-  for header in http_header:
-    cmd.extend(['-h', header])
-  cmd.extend(['cp', '-a', 'public-read', full_path_to_upload,
+    gzip_args = ['-z', 'json']
+  cmd = ['python', gsutil_path, 'cp', '-a', 'public-read']
+  cmd.extend(gzip_args)
+  cmd.extend([full_path_to_upload,
               '/'.join((dest_gsbase, gs_dir, file_to_upload))])
   print ' '.join(cmd)
   subprocess.check_call(cmd)
