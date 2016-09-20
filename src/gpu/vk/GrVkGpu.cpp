@@ -177,8 +177,15 @@ GrVkGpu::~GrVkGpu() {
 #endif
 #endif
 
-    // VK_ERROR_DEVICE_LOST is acceptable when tearing down (see 4.2.4 in spec)
-    SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
+#ifdef SK_DEBUG
+    if (this->vkCaps().allowInitializationErrorOnTearDown()) {
+        SkASSERT(VK_SUCCESS == res ||
+                 VK_ERROR_DEVICE_LOST == res ||
+                 VK_ERROR_INITIALIZATION_FAILED == res);
+    } else {
+        SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
+    }
+#endif
 
     // must call this just before we destroy the VkDevice
     fResourceProvider.destroyResources();

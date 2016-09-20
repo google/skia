@@ -17,6 +17,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     : INHERITED(contextOptions) {
     fCanUseGLSLForShaderModule = false;
     fMustDoCopiesFromOrigin = false;
+    fAllowInitializationErrorOnTearDown = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -69,6 +70,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 
     if (kQualcomm_VkVendor == properties.vendorID) {
         fMustDoCopiesFromOrigin = true;
+        fAllowInitializationErrorOnTearDown = true;
     }
 
     this->applyOptionsOverrides(contextOptions);

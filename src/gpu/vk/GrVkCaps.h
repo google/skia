@@ -66,6 +66,10 @@ public:
         return fMustDoCopiesFromOrigin;
     }
 
+    bool allowInitializationErrorOnTearDown() const {
+        return fAllowInitializationErrorOnTearDown;
+    }
+
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
@@ -118,6 +122,11 @@ private:
     // On Adreno vulkan, they do not respect the imageOffset parameter at least in
     // copyImageToBuffer. This flag says that we must do the copy starting from the origin always.
     bool fMustDoCopiesFromOrigin;
+
+    // On Adreno, there is a bug where vkQueueWaitIdle will once in a while return
+    // VK_ERROR_INITIALIZATION_FAILED instead of the required VK_SUCCESS or VK_DEVICE_LOST. This
+    // flag says we will accept VK_ERROR_INITIALIZATION_FAILED as well.
+    bool fAllowInitializationErrorOnTearDown;
 
     typedef GrCaps INHERITED;
 };
