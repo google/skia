@@ -35,7 +35,7 @@ guides.  We diverge where they'd first run some command with "gyp" in it.
     gn gen out/Debug
     gn gen out/Release  --args='is_debug=false'
     gn gen out/Clang    --args='cc="clang" cxx="clang++"'
-    gn gen out/Cached   --args='compiler_prefix="ccache"'
+    gn gen out/Cached   --args='cc_wrapper="ccache"'
     gn gen out/RTTI     --args='extra_cflags_cc="-frtti"'
 
     # To see all the current GN arguments, run
