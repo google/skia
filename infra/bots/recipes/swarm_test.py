@@ -263,6 +263,8 @@ def dm_flags(bot):
   bad_serialize_gms.extend(['composeshader_bitmap',
                             'scaled_tilemodes_npot',
                             'scaled_tilemodes'])
+  # skia:5778
+  bad_serialize_gms.append('typefacerendering_pfaMac')
   for test in bad_serialize_gms:
     blacklist(['serialize-8888', 'gm', '_', test])
 
