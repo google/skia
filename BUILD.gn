@@ -303,6 +303,8 @@ optional("gif") {
 
 optional("gpu") {
   enabled = skia_enable_gpu
+  public_defines = []
+
   sources = skia_gpu_sources + [ "src/gpu/gl/GrGLDefaultInterface_native.cpp" ]
 
   # These paths need to be absolute to match the ones produced by shared_sources.gni.
@@ -319,6 +321,13 @@ optional("gpu") {
     sources += [ "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp" ]
   } else {
     sources += [ "src/gpu/gl/GrGLCreateNativeInterface_none.cpp" ]
+  }
+  libs = []
+
+  if (skia_use_vulkan) {
+    public_defines += [ "SK_VULKAN" ]
+    sources += skia_vk_sources
+    libs += [ "vulkan" ]
   }
 }
 
@@ -379,13 +388,6 @@ optional("typeface_freetype") {
   ]
 }
 
-optional("vulkan") {
-  enabled = skia_use_vulkan
-  public_defines = [ "SK_VULKAN" ]
-  libs = [ "vulkan" ]
-  sources = skia_vk_sources
-}
-
 optional("webp") {
   enabled = skia_use_libwebp
   public_defines = [ "SK_HAS_WEBP_LIBRARY" ]
@@ -438,7 +440,6 @@ component("skia") {
     ":sse42",
     ":ssse3",
     ":typeface_freetype",
-    ":vulkan",
     ":webp",
     ":xml",
   ]
