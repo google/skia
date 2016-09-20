@@ -185,6 +185,24 @@ def dm_flags(bot):
     # It's probably using uninitialized memory
     blacklist('_ image gen_platf frame_larger_than_image.gif')
 
+    # CG has unpredictable behavior on incomplete pngs
+    # skbug.com/5774
+    blacklist('_ image gen_platf inc0.png')
+    blacklist('_ image gen_platf inc1.png')
+    blacklist('_ image gen_platf inc2.png')
+    blacklist('_ image gen_platf inc3.png')
+    blacklist('_ image gen_platf inc4.png')
+    blacklist('_ image gen_platf inc5.png')
+    blacklist('_ image gen_platf inc6.png')
+    blacklist('_ image gen_platf inc7.png')
+    blacklist('_ image gen_platf inc8.png')
+    blacklist('_ image gen_platf inc9.png')
+    blacklist('_ image gen_platf inc10.png')
+    blacklist('_ image gen_platf inc11.png')
+    blacklist('_ image gen_platf inc12.png')
+    blacklist('_ image gen_platf inc13.png')
+    blacklist('_ image gen_platf inc14.png')
+
   # WIC fails on questionable bmps
   if 'Win' in bot:
     blacklist('_ image gen_platf rle8-height-negative.bmp')
