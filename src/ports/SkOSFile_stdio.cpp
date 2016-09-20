@@ -31,6 +31,7 @@ static FILE* ios_open_from_bundle(const char path[], const char* perm) {
     // Get a reference to the file's URL
     CFStringRef pathRef = CFStringCreateWithCString(NULL, path, kCFStringEncodingUTF8);
     CFURLRef imageURL = CFBundleCopyResourceURL(mainBundle, pathRef, NULL, NULL);
+    CFRelease(pathRef);
     if (!imageURL) {
         return nullptr;
     }
