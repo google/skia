@@ -1795,31 +1795,41 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
 void adjust_bounds_to_granularity(SkIRect* dstBounds, const SkIRect& srcBounds,
                                   const VkExtent2D& granularity, int maxWidth, int maxHeight) {
     // Adjust Width
-    // Start with the right side of rect so we know if we end up going pass the maxWidth.
-    int rightAdj = srcBounds.fRight % granularity.width;
-    if (rightAdj != 0) {
-        rightAdj = granularity.width - rightAdj;
-    }
-    dstBounds->fRight = srcBounds.fRight + rightAdj;
-    if (dstBounds->fRight > maxWidth) {
-        dstBounds->fRight = maxWidth;
-        dstBounds->fLeft = 0;
+    if ((0 != granularity.width && 1 != granularity.width)) {
+        // Start with the right side of rect so we know if we end up going pass the maxWidth.
+        int rightAdj = srcBounds.fRight % granularity.width;
+        if (rightAdj != 0) {
+            rightAdj = granularity.width - rightAdj;
+        }
+        dstBounds->fRight = srcBounds.fRight + rightAdj;
+        if (dstBounds->fRight > maxWidth) {
+            dstBounds->fRight = maxWidth;
+            dstBounds->fLeft = 0;
+        } else {
+            dstBounds->fLeft = srcBounds.fLeft - srcBounds.fLeft % granularity.width;
+        }
     } else {
-       dstBounds->fLeft = srcBounds.fLeft - srcBounds.fLeft % granularity.width;
+        dstBounds->fLeft = srcBounds.fLeft;
+        dstBounds->fRight = srcBounds.fRight;
     }
 
     // Adjust height
-    // Start with the bottom side of rect so we know if we end up going pass the maxHeight.
-    int bottomAdj = srcBounds.fBottom % granularity.height;
-    if (bottomAdj != 0) {
-        bottomAdj = granularity.height - bottomAdj;
-    }
-    dstBounds->fBottom = srcBounds.fBottom + bottomAdj;
-    if (dstBounds->fBottom > maxHeight) {
-        dstBounds->fBottom = maxHeight;
-        dstBounds->fTop = 0;
+    if ((0 != granularity.height && 1 != granularity.height)) {
+        // Start with the bottom side of rect so we know if we end up going pass the maxHeight.
+        int bottomAdj = srcBounds.fBottom % granularity.height;
+        if (bottomAdj != 0) {
+            bottomAdj = granularity.height - bottomAdj;
+        }
+        dstBounds->fBottom = srcBounds.fBottom + bottomAdj;
+        if (dstBounds->fBottom > maxHeight) {
+            dstBounds->fBottom = maxHeight;
+            dstBounds->fTop = 0;
+        } else {
+            dstBounds->fTop = srcBounds.fTop - srcBounds.fTop % granularity.height;
+        }
     } else {
-       dstBounds->fTop = srcBounds.fTop - srcBounds.fTop % granularity.height;
+        dstBounds->fTop = srcBounds.fTop;
+        dstBounds->fBottom = srcBounds.fBottom;
     }
 }
 
