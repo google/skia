@@ -390,7 +390,7 @@ void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
                                              const SkIRect& bounds) const {
     SkRect srcRect = dstRect.makeOffset(SkIntToScalar(bounds.x()), SkIntToScalar(bounds.y()));
     GrPaint paint;
-    // SRGBTODO: AllowSRGBInputs?
+    paint.setAllowSRGBInputs(drawContext->isGammaCorrect());
     sk_sp<GrFragmentProcessor> fp(this->makeFragmentProcessor(src, matrix, srcBounds,
                                                               boundaryMode));
     paint.addColorFragmentProcessor(std::move(fp));

@@ -179,7 +179,6 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
     }
 
     GrPaint paint;
-    // SRGBTODO: AllowSRGBInputs?
     sk_sp<GrFragmentProcessor> bgFP;
 
     if (backgroundTex) {
@@ -248,6 +247,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
     if (!drawContext) {
         return nullptr;
     }
+    paint.setAllowSRGBInputs(drawContext->isGammaCorrect());
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
