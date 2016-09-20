@@ -223,13 +223,7 @@ GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& 
         return nullptr;
     }
     this->handleDirtyContext();
-    auto res = this->onWrapBackendRenderTarget(desc, ownership);
-    if (desc.fStencilBits) {
-        // Our algorithms that use the stencil buffer assume it is
-        // initially cleared.
-        this->clearStencil(res);
-    }
-    return res;
+    return this->onWrapBackendRenderTarget(desc, ownership);
 }
 
 GrRenderTarget* GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc) {
