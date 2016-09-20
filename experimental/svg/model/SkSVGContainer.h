@@ -22,8 +22,6 @@ protected:
 
     void onRender(const SkSVGRenderContext&) const override;
 
-    bool hasChildren() const final;
-
     // TODO: add some sort of child iterator, and hide the container.
     SkSTArray<1, sk_sp<SkSVGNode>, true> fChildren;
 

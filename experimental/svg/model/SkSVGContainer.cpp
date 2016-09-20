@@ -14,10 +14,6 @@ void SkSVGContainer::appendChild(sk_sp<SkSVGNode> node) {
     fChildren.push_back(std::move(node));
 }
 
-bool SkSVGContainer::hasChildren() const {
-    return !fChildren.empty();
-}
-
 void SkSVGContainer::onRender(const SkSVGRenderContext& ctx) const {
     for (int i = 0; i < fChildren.count(); ++i) {
         fChildren[i]->render(ctx);

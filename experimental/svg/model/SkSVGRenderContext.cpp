@@ -239,8 +239,7 @@ const SkSVGNode* SkSVGRenderContext::findNodeById(const SkString& id) const {
     return v ? v->get() : nullptr;
 }
 
-void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttributes& attrs,
-                                                     uint32_t flags) {
+void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttributes& attrs) {
 
 #define ApplyLazyInheritedAttribute(ATTR)                                               \
     do {                                                                                \
@@ -268,36 +267,10 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 
     // Uninherited attributes.  Only apply to the current context.
 
-    if (auto* opacity = attrs.fOpacity.getMaybeNull()) {
-        this->applyOpacity(opacity->value(), flags);
-    }
-}
-
-void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
-    if (opacity >= 1) {
-        return;
-    }
-
-    const bool hasFill   = SkToBool(this->fillPaint());
-    const bool hasStroke = SkToBool(this->strokePaint());
-
-    // We can apply the opacity as paint alpha iif it only affects one atomic draw.
-    // For now, this means a) the target node doesn't have any descendants, and
-    // b) it only has a stroke or a fill (but not both).  Going forward, we may need
-    // to refine this heuristic (e.g. to accommodate markers).
-    if ((flags & kLeaf) && (hasFill ^ hasStroke)) {
-        auto* pctx = fPresentationContext.writable();
-        if (hasFill) {
-            pctx->fFillPaint.setAlpha(
-                SkScalarRoundToInt(opacity * pctx->fFillPaint.getAlpha()));
-        } else {
-            pctx->fStrokePaint.setAlpha(
-                SkScalarRoundToInt(opacity * pctx->fStrokePaint.getAlpha()));
-        }
-    } else {
-        // Expensive, layer-based fall back.
+    auto* opacity = attrs.fOpacity.getMaybeNull();
+    if (opacity && opacity->value() < 1) {
         SkPaint opacityPaint;
-        opacityPaint.setAlpha(opacity_to_alpha(opacity));
+        opacityPaint.setAlpha(opacity_to_alpha(opacity->value()));
         // Balanced in the destructor, via restoreToCount().
         fCanvas->saveLayer(nullptr, &opacityPaint);
     }
