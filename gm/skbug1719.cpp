@@ -65,6 +65,6 @@ DEF_SIMPLE_GM_BG(skbug1719, canvas, 300, 100,
                                    SkBlurMaskFilter::kHighQuality_BlurFlag));
         paint.setColorFilter(SkColorFilter::MakeModeFilter(0xBFFFFFFF, SkXfermode::kSrcIn_Mode));
 
-        canvas->clipPath(clipPath, SkRegion::kIntersect_Op, true);
+        canvas->clipPath(clipPath, SkCanvas::kIntersect_Op, true);
         canvas->drawPath(drawPath, paint);
 }

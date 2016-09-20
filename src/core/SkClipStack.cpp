@@ -83,7 +83,7 @@ void SkClipStack::Element::replay(SkCanvasClipVisitor* visitor) const {
             visitor->clipRect(this->getRect(), this->getOp(), this->isAA());
             break;
         case kEmpty_Type:
-            visitor->clipRect(kEmptyRect, SkRegion::kIntersect_Op, false);
+            visitor->clipRect(kEmptyRect, SkCanvas::kIntersect_Op, false);
             break;
     }
 }
@@ -111,7 +111,7 @@ void SkClipStack::Element::invertShapeFillType() {
     }
 }
 
-void SkClipStack::Element::initPath(int saveCount, const SkPath& path, SkRegion::Op op,
+void SkClipStack::Element::initPath(int saveCount, const SkPath& path, SkCanvas::ClipOp op,
                                     bool doAA) {
     if (!path.isInverseFillType()) {
         SkRect r;
@@ -176,16 +176,16 @@ void SkClipStack::Element::checkEmpty() const {
     SkASSERT(!fPath.isValid());
 }
 
-bool SkClipStack::Element::canBeIntersectedInPlace(int saveCount, SkRegion::Op op) const {
+bool SkClipStack::Element::canBeIntersectedInPlace(int saveCount, SkCanvas::ClipOp op) const {
     if (kEmpty_Type == fType &&
-        (SkRegion::kDifference_Op == op || SkRegion::kIntersect_Op == op)) {
+        (SkCanvas::kDifference_Op == op || SkCanvas::kIntersect_Op == op)) {
         return true;
     }
     // Only clips within the same save/restore frame (as captured by
     // the save count) can be merged
     return  fSaveCount == saveCount &&
-            SkRegion::kIntersect_Op == op &&
-            (SkRegion::kIntersect_Op == fOp || SkRegion::kReplace_Op == fOp);
+            SkCanvas::kIntersect_Op == op &&
+            (SkCanvas::kIntersect_Op == fOp || SkCanvas::kReplace_Op == fOp);
 }
 
 bool SkClipStack::Element::rectRectIntersectAllowed(const SkRect& newR, bool newAA) const {
@@ -399,9 +399,9 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
             fFiniteBound = this->getRect();
             fFiniteBoundType = kNormal_BoundsType;
 
-            if (SkRegion::kReplace_Op == fOp ||
-                (SkRegion::kIntersect_Op == fOp && nullptr == prior) ||
-                (SkRegion::kIntersect_Op == fOp && prior->fIsIntersectionOfRects &&
+            if (SkCanvas::kReplace_Op == fOp ||
+                (SkCanvas::kIntersect_Op == fOp && nullptr == prior) ||
+                (SkCanvas::kIntersect_Op == fOp && prior->fIsIntersectionOfRects &&
                     prior->rectRectIntersectAllowed(this->getRect(), fDoAA))) {
                 fIsIntersectionOfRects = true;
             }
@@ -460,28 +460,28 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
 
     // Now integrate with clip with the prior clips
     switch (fOp) {
-        case SkRegion::kDifference_Op:
+        case SkCanvas::kDifference_Op:
             this->combineBoundsDiff(combination, prevFinite);
             break;
-        case SkRegion::kXOR_Op:
+        case SkCanvas::kXOR_Op:
             this->combineBoundsXOR(combination, prevFinite);
             break;
-        case SkRegion::kUnion_Op:
+        case SkCanvas::kUnion_Op:
             this->combineBoundsUnion(combination, prevFinite);
             break;
-        case SkRegion::kIntersect_Op:
+        case SkCanvas::kIntersect_Op:
             this->combineBoundsIntersection(combination, prevFinite);
             break;
-        case SkRegion::kReverseDifference_Op:
+        case SkCanvas::kReverseDifference_Op:
             this->combineBoundsRevDiff(combination, prevFinite);
             break;
-        case SkRegion::kReplace_Op:
+        case SkCanvas::kReplace_Op:
             // Replace just ignores everything prior
             // The current clip's bound information is already filled in
             // so nothing to do
             break;
         default:
-            SkDebugf("SkRegion::Op error\n");
+            SkDebugf("SkCanvas::ClipOp error\n");
             SkASSERT(0);
             break;
     }
@@ -507,7 +507,7 @@ SkClipStack::SkClipStack(const SkRect& r)
     : fDeque(sizeof(Element), kDefaultElementAllocCnt)
     , fSaveCount(0) {
     if (!r.isEmpty()) {
-        this->clipDevRect(r, SkRegion::kReplace_Op, false);
+        this->clipDevRect(r, SkCanvas::kReplace_Op, false);
     }
 }
 
@@ -517,7 +517,7 @@ SkClipStack::SkClipStack(const SkIRect& r)
     if (!r.isEmpty()) {
         SkRect temp;
         temp.set(r);
-        this->clipDevRect(temp, SkRegion::kReplace_Op, false);
+        this->clipDevRect(temp, SkCanvas::kReplace_Op, false);
     }
 }
 
@@ -626,7 +626,7 @@ bool SkClipStack::internalQuickContains(const SkRect& rect) const {
     Iter iter(*this, Iter::kTop_IterStart);
     const Element* element = iter.prev();
     while (element != nullptr) {
-        if (SkRegion::kIntersect_Op != element->getOp() && SkRegion::kReplace_Op != element->getOp())
+        if (SkCanvas::kIntersect_Op != element->getOp() && SkCanvas::kReplace_Op != element->getOp())
             return false;
         if (element->isInverseFilled()) {
             // Part of 'rect' could be trimmed off by the inverse-filled clip element
@@ -638,7 +638,7 @@ bool SkClipStack::internalQuickContains(const SkRect& rect) const {
                 return false;
             }
         }
-        if (SkRegion::kReplace_Op == element->getOp()) {
+        if (SkCanvas::kReplace_Op == element->getOp()) {
             break;
         }
         element = iter.prev();
@@ -651,7 +651,7 @@ bool SkClipStack::internalQuickContains(const SkRRect& rrect) const {
     Iter iter(*this, Iter::kTop_IterStart);
     const Element* element = iter.prev();
     while (element != nullptr) {
-        if (SkRegion::kIntersect_Op != element->getOp() && SkRegion::kReplace_Op != element->getOp())
+        if (SkCanvas::kIntersect_Op != element->getOp() && SkCanvas::kReplace_Op != element->getOp())
             return false;
         if (element->isInverseFilled()) {
             // Part of 'rrect' could be trimmed off by the inverse-filled clip element
@@ -663,7 +663,7 @@ bool SkClipStack::internalQuickContains(const SkRRect& rrect) const {
                 return false;
             }
         }
-        if (SkRegion::kReplace_Op == element->getOp()) {
+        if (SkCanvas::kReplace_Op == element->getOp()) {
             break;
         }
         element = iter.prev();
@@ -684,8 +684,8 @@ bool SkClipStack::asPath(SkPath *path) const {
             element->asPath(&operand);
         }
 
-        SkRegion::Op elementOp = element->getOp();
-        if (elementOp == SkRegion::kReplace_Op) {
+        SkCanvas::ClipOp elementOp = element->getOp();
+        if (elementOp == SkCanvas::kReplace_Op) {
             *path = operand;
         } else {
             Op(*path, operand, (SkPathOp)elementOp, path);
@@ -736,7 +736,7 @@ void SkClipStack::pushElement(const Element& element) {
                     }
                     break;
             }
-        } else if (SkRegion::kReplace_Op == element.getOp()) {
+        } else if (SkCanvas::kReplace_Op == element.getOp()) {
             this->restoreTo(fSaveCount - 1);
             prior = (Element*) fDeque.back();
         }
@@ -745,17 +745,17 @@ void SkClipStack::pushElement(const Element& element) {
     newElement->updateBoundAndGenID(prior);
 }
 
-void SkClipStack::clipDevRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+void SkClipStack::clipDevRRect(const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA) {
     Element element(fSaveCount, rrect, op, doAA);
     this->pushElement(element);
 }
 
-void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+void SkClipStack::clipDevRect(const SkRect& rect, SkCanvas::ClipOp op, bool doAA) {
     Element element(fSaveCount, rect, op, doAA);
     this->pushElement(element);
 }
 
-void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+void SkClipStack::clipDevPath(const SkPath& path, SkCanvas::ClipOp op, bool doAA) {
     Element element(fSaveCount, path, op, doAA);
     this->pushElement(element);
 }
@@ -763,7 +763,7 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 void SkClipStack::clipEmpty() {
     Element* element = (Element*) fDeque.back();
 
-    if (element && element->canBeIntersectedInPlace(fSaveCount, SkRegion::kIntersect_Op)) {
+    if (element && element->canBeIntersectedInPlace(fSaveCount, SkCanvas::kIntersect_Op)) {
         element->setEmpty();
     }
     new (fDeque.push_back()) Element(fSaveCount);
@@ -789,7 +789,7 @@ const SkClipStack::Element* SkClipStack::Iter::prev() {
     return (const SkClipStack::Element*)fIter.prev();
 }
 
-const SkClipStack::Element* SkClipStack::Iter::skipToTopmost(SkRegion::Op op) {
+const SkClipStack::Element* SkClipStack::Iter::skipToTopmost(SkCanvas::ClipOp op) {
 
     if (nullptr == fStack) {
         return nullptr;
@@ -874,13 +874,13 @@ bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const 
         back->getType() != SkClipStack::Element::kRRect_Type) {
         return false;
     }
-    if (back->getOp() == SkRegion::kReplace_Op) {
+    if (back->getOp() == SkCanvas::kReplace_Op) {
         *rrect = back->asRRect();
         *aa = back->isAA();
         return true;
     }
 
-    if (back->getOp() == SkRegion::kIntersect_Op) {
+    if (back->getOp() == SkCanvas::kIntersect_Op) {
         SkRect backBounds;
         if (!backBounds.intersect(bounds, back->asRRect().rect())) {
             return false;
@@ -889,12 +889,12 @@ bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const 
             SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
             SkAssertResult(static_cast<const Element*>(iter.prev()) == back);
             while (const Element* prior = (const Element*)iter.prev()) {
-                if ((prior->getOp() != SkRegion::kIntersect_Op &&
-                     prior->getOp() != SkRegion::kReplace_Op) ||
+                if ((prior->getOp() != SkCanvas::kIntersect_Op &&
+                     prior->getOp() != SkCanvas::kReplace_Op) ||
                     !prior->contains(backBounds)) {
                     return false;
                 }
-                if (prior->getOp() == SkRegion::kReplace_Op) {
+                if (prior->getOp() == SkCanvas::kReplace_Op) {
                     break;
                 }
             }
@@ -946,12 +946,12 @@ void SkClipStack::Element::dump() const {
         "reverse-difference",
         "replace",
     };
-    static_assert(0 == SkRegion::kDifference_Op, "op_str");
-    static_assert(1 == SkRegion::kIntersect_Op, "op_str");
-    static_assert(2 == SkRegion::kUnion_Op, "op_str");
-    static_assert(3 == SkRegion::kXOR_Op, "op_str");
-    static_assert(4 == SkRegion::kReverseDifference_Op, "op_str");
-    static_assert(5 == SkRegion::kReplace_Op, "op_str");
+    static_assert(0 == SkCanvas::kDifference_Op, "op_str");
+    static_assert(1 == SkCanvas::kIntersect_Op, "op_str");
+    static_assert(2 == SkCanvas::kUnion_Op, "op_str");
+    static_assert(3 == SkCanvas::kXOR_Op, "op_str");
+    static_assert(4 == SkCanvas::kReverseDifference_Op, "op_str");
+    static_assert(5 == SkCanvas::kReplace_Op, "op_str");
     static_assert(SK_ARRAY_COUNT(kOpStrings) == SkRegion::kOpCnt, "op_str");
 
     SkDebugf("Type: %s, Op: %s, AA: %s, Save Count: %d\n", kTypeStrings[fType],

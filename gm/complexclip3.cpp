@@ -52,14 +52,14 @@ protected:
         paint.setTextSize(SkIntToScalar(20));
 
         constexpr struct {
-            SkRegion::Op fOp;
-            const char*  fName;
+            SkCanvas::ClipOp fOp;
+            const char*      fName;
         } gOps[] = {
-            {SkRegion::kIntersect_Op,         "I"},
-            {SkRegion::kDifference_Op,        "D" },
-            {SkRegion::kUnion_Op,             "U"},
-            {SkRegion::kXOR_Op,               "X"  },
-            {SkRegion::kReverseDifference_Op, "R"}
+            {SkCanvas::kIntersect_Op,         "I"},
+            {SkCanvas::kDifference_Op,        "D" },
+            {SkCanvas::kUnion_Op,             "U"},
+            {SkCanvas::kXOR_Op,               "X"  },
+            {SkCanvas::kReverseDifference_Op, "R"}
         };
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
@@ -84,7 +84,7 @@ protected:
                                                SkPath::kEvenOdd_FillType);
                         secondClip->setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
                                                 SkPath::kEvenOdd_FillType);
-                        canvas->clipPath(*firstClip, SkRegion::kIntersect_Op, doAAA);
+                        canvas->clipPath(*firstClip, SkCanvas::kIntersect_Op, doAAA);
                         canvas->clipPath(*secondClip, gOps[op].fOp, doAAB);
 
                         // draw rect clipped

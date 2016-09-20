@@ -125,7 +125,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::onFilterImage(SkSpecialImage* sourc
                          &paint);
     }
 
-    canvas->clipRect(SkRect::Make(foregroundBounds), SkRegion::kDifference_Op);
+    canvas->clipRect(SkRect::Make(foregroundBounds), SkCanvas::kDifference_Op);
     paint.setColor(SK_ColorTRANSPARENT);
     canvas->drawPaint(paint);
 

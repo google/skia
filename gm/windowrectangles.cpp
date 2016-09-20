@@ -42,19 +42,19 @@ void WindowRectanglesBaseGM::onDraw(SkCanvas* canvas) {
     canvas->saveLayer(SkRect::Make(kLayerRect), nullptr);
 
     SkClipStack stack;
-    stack.clipDevRect(SkRect::MakeXYWH(370.75, 80.25, 149, 100), SkRegion::kDifference_Op, false);
-    stack.clipDevRect(SkRect::MakeXYWH(80.25, 420.75, 150, 100), SkRegion::kDifference_Op, true);
+    stack.clipDevRect(SkRect::MakeXYWH(370.75, 80.25, 149, 100), SkCanvas::kDifference_Op, false);
+    stack.clipDevRect(SkRect::MakeXYWH(80.25, 420.75, 150, 100), SkCanvas::kDifference_Op, true);
     stack.clipDevRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(200, 200, 200, 200), 60, 45),
-                       SkRegion::kDifference_Op, true);
+                       SkCanvas::kDifference_Op, true);
 
     SkRRect nine;
     nine.setNinePatch(SkRect::MakeXYWH(550 - 30.25 - 100, 370.75, 100, 150), 12, 35, 23, 20);
-    stack.clipDevRRect(nine, SkRegion::kDifference_Op, true);
+    stack.clipDevRRect(nine, SkCanvas::kDifference_Op, true);
 
     SkRRect complx;
     SkVector complxRadii[4] = {{6, 4}, {8, 12}, {16, 24}, {48, 32}};
     complx.setRectRadii(SkRect::MakeXYWH(80.25, 80.75, 100, 149), complxRadii);
-    stack.clipDevRRect(complx, SkRegion::kDifference_Op, false);
+    stack.clipDevRRect(complx, SkCanvas::kDifference_Op, false);
 
     this->onCoverClipStack(stack, canvas);
 
@@ -77,7 +77,7 @@ private:
  */
 class ReplayClipStackVisitor final : public SkCanvasClipVisitor {
 public:
-    typedef SkRegion::Op Op;
+    typedef SkCanvas::ClipOp Op;
     ReplayClipStackVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
     void clipRect(const SkRect& r, Op op, bool aa) override { fCanvas->clipRect(r, op, aa); }
     void clipRRect(const SkRRect& rr, Op op, bool aa) override { fCanvas->clipRRect(rr, op, aa); }

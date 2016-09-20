@@ -405,7 +405,7 @@ void SkLua::pushClipStackElement(const SkClipStack::Element& element, const char
             this->pushPath(element.getPath(), "path");
             break;
     }
-    this->pushString(region_op(element.getOp()), "op");
+    this->pushString(region_op((SkRegion::Op)element.getOp()), "op");
     this->pushBool(element.isAA(), "aa");
     CHECK_SETFIELD(key);
 }

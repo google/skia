@@ -107,7 +107,7 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
     SkASSERT(!large.roundOut().isEmpty());
 #endif
     // call the base class' version to avoid adding a draw command
-    this->INHERITED::onClipRect(large, SkRegion::kReplace_Op, kHard_ClipEdgeStyle);
+    this->INHERITED::onClipRect(large, kReplace_Op, kHard_ClipEdgeStyle);
 }
 
 SkDebugCanvas::~SkDebugCanvas() {
@@ -155,21 +155,21 @@ class SkDebugClipVisitor : public SkCanvas::ClipVisitor {
 public:
     SkDebugClipVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
 
-    void clipRect(const SkRect& r, SkRegion::Op, bool doAA) override {
+    void clipRect(const SkRect& r, SkCanvas::ClipOp, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setStyle(SkPaint::kStroke_Style);
         p.setAntiAlias(doAA);
         fCanvas->drawRect(r, p);
     }
-    void clipRRect(const SkRRect& rr, SkRegion::Op, bool doAA) override {
+    void clipRRect(const SkRRect& rr, SkCanvas::ClipOp, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorGREEN);
         p.setStyle(SkPaint::kStroke_Style);
         p.setAntiAlias(doAA);
         fCanvas->drawRRect(rr, p);
     }
-    void clipPath(const SkPath& path, SkRegion::Op, bool doAA) override {
+    void clipPath(const SkPath& path, SkCanvas::ClipOp, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorBLUE);
         p.setStyle(SkPaint::kStroke_Style);
@@ -222,7 +222,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
     canvas->clear(SK_ColorWHITE);
     canvas->resetMatrix();
     if (!windowRect.isEmpty()) {
-        canvas->clipRect(windowRect, SkRegion::kReplace_Op);
+        canvas->clipRect(windowRect, SkCanvas::kReplace_Op);
     }
     this->applyUserTransform(canvas);
 
@@ -284,7 +284,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         canvas->save();
         #define LARGE_COORD 1000000000
         canvas->clipRect(SkRect::MakeLTRB(-LARGE_COORD, -LARGE_COORD, LARGE_COORD, LARGE_COORD),
-                       SkRegion::kReverseDifference_Op);
+                       SkCanvas::kReverseDifference_Op);
         SkPaint clipPaint;
         clipPaint.setColor(fClipVizColor);
         canvas->drawPaint(clipPaint);
@@ -299,7 +299,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         if (!windowRect.isEmpty()) {
             SkRect r = windowRect;
             r.outset(SK_Scalar1, SK_Scalar1);
-            canvas->clipRect(r, SkRegion::kReplace_Op);
+            canvas->clipRect(r, SkCanvas::kReplace_Op);
         }
         // visualize existing clips
         SkDebugClipVisitor visitor(canvas);
@@ -320,9 +320,9 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
             if (type != SkClipStack::Element::kEmpty_Type) {
                element->asPath(&operand);
             }
-            SkRegion::Op elementOp = element->getOp();
+            SkCanvas::ClipOp elementOp = element->getOp();
             this->addClipStackData(devPath, operand, elementOp);
-            if (elementOp == SkRegion::kReplace_Op) {
+            if (elementOp == SkCanvas::kReplace_Op) {
                 devPath = operand;
             } else {
                 Op(devPath, operand, (SkPathOp) elementOp, &devPath);
@@ -543,19 +543,19 @@ void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkFilterQual
     this->updatePaintFilterCanvas();
 }
 
-void SkDebugCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkDebugCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) {
     this->addDrawCommand(new SkClipPathCommand(path, op, kSoft_ClipEdgeStyle == edgeStyle));
 }
 
-void SkDebugCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkDebugCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
     this->addDrawCommand(new SkClipRectCommand(rect, op, kSoft_ClipEdgeStyle == edgeStyle));
 }
 
-void SkDebugCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkDebugCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
     this->addDrawCommand(new SkClipRRectCommand(rrect, op, kSoft_ClipEdgeStyle == edgeStyle));
 }
 
-void SkDebugCanvas::onClipRegion(const SkRegion& region, SkRegion::Op op) {
+void SkDebugCanvas::onClipRegion(const SkRegion& region, ClipOp op) {
     this->addDrawCommand(new SkClipRegionCommand(region, op));
 }
 
@@ -828,8 +828,8 @@ void SkDebugCanvas::addPathData(const SkPath& path, const char* pathName) {
 }
 
 void SkDebugCanvas::addClipStackData(const SkPath& devPath, const SkPath& operand,
-                                     SkRegion::Op elementOp) {
-    if (elementOp == SkRegion::kReplace_Op) {
+                                     SkCanvas::ClipOp elementOp) {
+    if (elementOp == SkCanvas::kReplace_Op) {
         if (!lastClipStackData(devPath)) {
             fSaveDevPath = operand;
         }

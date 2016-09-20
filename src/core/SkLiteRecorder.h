@@ -31,10 +31,10 @@ public:
     void didSetMatrix(const SkMatrix&) override;
     void didTranslate(SkScalar, SkScalar) override;
 
-    void onClipRect  (const   SkRect&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipRRect (const  SkRRect&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipPath  (const   SkPath&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipRegion(const SkRegion&, SkRegion::Op) override;
+    void onClipRect  (const   SkRect&, ClipOp, ClipEdgeStyle) override;
+    void onClipRRect (const  SkRRect&, ClipOp, ClipEdgeStyle) override;
+    void onClipPath  (const   SkPath&, ClipOp, ClipEdgeStyle) override;
+    void onClipRegion(const SkRegion&, ClipOp) override;
 
     void onDrawPaint (const SkPaint&) override;
     void onDrawPath  (const SkPath&, const SkPaint&) override;

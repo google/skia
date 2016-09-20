@@ -573,19 +573,19 @@ Json::Value SkDrawCommand::MakeJsonRegion(const SkRegion& region) {
     return Json::Value("<unimplemented>");
 }
 
-static Json::Value make_json_regionop(SkRegion::Op op) {
+static Json::Value make_json_regionop(SkCanvas::ClipOp op) {
     switch (op) {
-        case SkRegion::kDifference_Op:
+        case SkCanvas::kDifference_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_DIFFERENCE);
-        case SkRegion::kIntersect_Op:
+        case SkCanvas::kIntersect_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_INTERSECT);
-        case SkRegion::kUnion_Op:
+        case SkCanvas::kUnion_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_UNION);
-        case SkRegion::kXOR_Op:
+        case SkCanvas::kXOR_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_XOR);
-        case SkRegion::kReverseDifference_Op:
+        case SkCanvas::kReverseDifference_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_REVERSE_DIFFERENCE);
-        case SkRegion::kReplace_Op:
+        case SkCanvas::kReplace_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_REPLACE);
         default:
             SkASSERT(false);
@@ -1605,28 +1605,28 @@ static void extract_json_path(Json::Value& path, SkPath* result) {
     }
 }
 
-SkRegion::Op get_json_regionop(Json::Value& jsonOp) {
+SkCanvas::ClipOp get_json_clipop(Json::Value& jsonOp) {
     const char* op = jsonOp.asCString();
     if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_DIFFERENCE)) {
-        return SkRegion::kDifference_Op;
+        return SkCanvas::kDifference_Op;
     }
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_INTERSECT)) {
-        return SkRegion::kIntersect_Op;
+        return SkCanvas::kIntersect_Op;
     }
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_UNION)) {
-        return SkRegion::kUnion_Op;
+        return SkCanvas::kUnion_Op;
     }
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_XOR)) {
-        return SkRegion::kXOR_Op;
+        return SkCanvas::kXOR_Op;
     }
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_REVERSE_DIFFERENCE)) {
-        return SkRegion::kReverseDifference_Op;
+        return SkCanvas::kReverseDifference_Op;
     }
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_REPLACE)) {
-        return SkRegion::kReplace_Op;
+        return SkCanvas::kReplace_Op;
     }
     SkASSERT(false);
-    return SkRegion::kIntersect_Op;
+    return SkCanvas::kIntersect_Op;
 }
 
 SkClearCommand::SkClearCommand(SkColor color) : INHERITED(kDrawClear_OpType) {
@@ -1649,14 +1649,14 @@ Json::Value SkClearCommand::toJSON(UrlDataManager& urlDataManager) const {
     return new SkClearCommand(get_json_color(color));
 }
 
-SkClipPathCommand::SkClipPathCommand(const SkPath& path, SkRegion::Op op, bool doAA)
+SkClipPathCommand::SkClipPathCommand(const SkPath& path, SkCanvas::ClipOp op, bool doAA)
     : INHERITED(kClipPath_OpType) {
     fPath = path;
     fOp = op;
     fDoAA = doAA;
 
     fInfo.push(SkObjectParser::PathToString(path));
-    fInfo.push(SkObjectParser::RegionOpToString(op));
+    fInfo.push(SkObjectParser::ClipOpToString(op));
     fInfo.push(SkObjectParser::BoolToString(doAA));
 }
 
@@ -1681,17 +1681,17 @@ SkClipPathCommand* SkClipPathCommand::fromJSON(Json::Value& command,
                                                UrlDataManager& urlDataManager) {
     SkPath path;
     extract_json_path(command[SKDEBUGCANVAS_ATTRIBUTE_PATH], &path);
-    return new SkClipPathCommand(path, get_json_regionop(command[SKDEBUGCANVAS_ATTRIBUTE_REGIONOP]),
+    return new SkClipPathCommand(path, get_json_clipop(command[SKDEBUGCANVAS_ATTRIBUTE_REGIONOP]),
                                  command[SKDEBUGCANVAS_ATTRIBUTE_ANTIALIAS].asBool());
 }
 
-SkClipRegionCommand::SkClipRegionCommand(const SkRegion& region, SkRegion::Op op)
+SkClipRegionCommand::SkClipRegionCommand(const SkRegion& region, SkCanvas::ClipOp op)
     : INHERITED(kClipRegion_OpType) {
     fRegion = region;
     fOp = op;
 
     fInfo.push(SkObjectParser::RegionToString(region));
-    fInfo.push(SkObjectParser::RegionOpToString(op));
+    fInfo.push(SkObjectParser::ClipOpToString(op));
 }
 
 void SkClipRegionCommand::execute(SkCanvas* canvas) const {
@@ -1711,14 +1711,14 @@ SkClipRegionCommand* SkClipRegionCommand::fromJSON(Json::Value& command,
     return nullptr;
 }
 
-SkClipRectCommand::SkClipRectCommand(const SkRect& rect, SkRegion::Op op, bool doAA)
+SkClipRectCommand::SkClipRectCommand(const SkRect& rect, SkCanvas::ClipOp op, bool doAA)
     : INHERITED(kClipRect_OpType) {
     fRect = rect;
     fOp = op;
     fDoAA = doAA;
 
     fInfo.push(SkObjectParser::RectToString(rect));
-    fInfo.push(SkObjectParser::RegionOpToString(op));
+    fInfo.push(SkObjectParser::ClipOpToString(op));
     fInfo.push(SkObjectParser::BoolToString(doAA));
 }
 
@@ -1742,18 +1742,18 @@ SkClipRectCommand* SkClipRectCommand::fromJSON(Json::Value& command,
                                                UrlDataManager& urlDataManager) {
     SkRect rect;
     extract_json_rect(command[SKDEBUGCANVAS_ATTRIBUTE_COORDS], &rect);
-    return new SkClipRectCommand(rect, get_json_regionop(command[SKDEBUGCANVAS_ATTRIBUTE_REGIONOP]),
+    return new SkClipRectCommand(rect, get_json_clipop(command[SKDEBUGCANVAS_ATTRIBUTE_REGIONOP]),
                                  command[SKDEBUGCANVAS_ATTRIBUTE_ANTIALIAS].asBool());
 }
 
-SkClipRRectCommand::SkClipRRectCommand(const SkRRect& rrect, SkRegion::Op op, bool doAA)
+SkClipRRectCommand::SkClipRRectCommand(const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA)
     : INHERITED(kClipRRect_OpType) {
     fRRect = rrect;
     fOp = op;
     fDoAA = doAA;
 
     fInfo.push(SkObjectParser::RRectToString(rrect));
-    fInfo.push(SkObjectParser::RegionOpToString(op));
+    fInfo.push(SkObjectParser::ClipOpToString(op));
     fInfo.push(SkObjectParser::BoolToString(doAA));
 }
 
@@ -1779,7 +1779,7 @@ SkClipRRectCommand* SkClipRRectCommand::fromJSON(Json::Value& command,
     SkRRect rrect;
     extract_json_rrect(command[SKDEBUGCANVAS_ATTRIBUTE_COORDS], &rrect);
     return new SkClipRRectCommand(rrect,
-                                  get_json_regionop(command[SKDEBUGCANVAS_ATTRIBUTE_REGIONOP]),
+                                  get_json_clipop(command[SKDEBUGCANVAS_ATTRIBUTE_REGIONOP]),
                                   command[SKDEBUGCANVAS_ATTRIBUTE_ANTIALIAS].asBool());
 }
 

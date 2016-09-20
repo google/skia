@@ -8,7 +8,6 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
-#include "SkRegion.h"
 #include "SkSurface.h"
 #include "Test.h"
 
@@ -112,7 +111,7 @@ static SkBitmap make_src_bitmap() {
 static void fill_src_canvas(SkCanvas* canvas) {
     canvas->save();
     canvas->setMatrix(SkMatrix::I());
-    canvas->clipRect(DEV_RECT_S, SkRegion::kReplace_Op);
+    canvas->clipRect(DEV_RECT_S, SkCanvas::kReplace_Op);
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     canvas->drawBitmap(make_src_bitmap(), 0, 0, &paint);

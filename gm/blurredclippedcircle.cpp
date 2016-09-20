@@ -45,18 +45,18 @@ protected:
             SkRect clipRect1 = SkRect::MakeLTRB(0, 0,
                                                 SkIntToScalar(kWidth), SkIntToScalar(kHeight));
 
-            canvas->clipRect(clipRect1, SkRegion::kIntersect_Op, false);
+            canvas->clipRect(clipRect1);
 
             canvas->save();
 
-                canvas->clipRect(clipRect1, SkRegion::kIntersect_Op, false);
+                canvas->clipRect(clipRect1);
                 canvas->drawRect(clipRect1, whitePaint);
 
                 canvas->save();
 
                     SkRect clipRect2 = SkRect::MakeLTRB(8, 8, 288, 288);
                     SkRRect clipRRect = SkRRect::MakeOval(clipRect2);
-                    canvas->clipRRect(clipRRect, SkRegion::kDifference_Op, true);
+                    canvas->clipRRect(clipRRect, SkCanvas::kDifference_Op, true);
 
                     SkRect r = SkRect::MakeLTRB(4, 4, 292, 292);
                     SkRRect rr = SkRRect::MakeOval(r);

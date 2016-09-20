@@ -190,30 +190,30 @@ RECORD(Translate, 0,
         SkScalar dy);
 RECORD(TranslateZ, 0, SkScalar z);
 
-struct RegionOpAndAA {
-    RegionOpAndAA() {}
-    RegionOpAndAA(SkRegion::Op op, bool aa) : op(op), aa(aa) {}
-    SkRegion::Op op : 31;  // This really only needs to be 3, but there's no win today to do so.
-    unsigned     aa :  1;  // MSVC won't pack an enum with an bool, so we call this an unsigned.
+struct ClipOpAndAA {
+    ClipOpAndAA() {}
+    ClipOpAndAA(SkCanvas::ClipOp op, bool aa) : op(op), aa(aa) {}
+    SkCanvas::ClipOp op : 31;  // This really only needs to be 3, but there's no win today to do so.
+    unsigned         aa :  1;  // MSVC won't pack an enum with an bool, so we call this an unsigned.
 };
-static_assert(sizeof(RegionOpAndAA) == 4, "RegionOpAndAASize");
+static_assert(sizeof(ClipOpAndAA) == 4, "ClipOpAndAASize");
 
 RECORD(ClipPath, 0,
         SkIRect devBounds;
         PreCachedPath path;
-        RegionOpAndAA opAA);
+        ClipOpAndAA opAA);
 RECORD(ClipRRect, 0,
         SkIRect devBounds;
         SkRRect rrect;
-        RegionOpAndAA opAA);
+        ClipOpAndAA opAA);
 RECORD(ClipRect, 0,
         SkIRect devBounds;
         SkRect rect;
-        RegionOpAndAA opAA);
+        ClipOpAndAA opAA);
 RECORD(ClipRegion, 0,
         SkIRect devBounds;
         SkRegion region;
-        SkRegion::Op op);
+        SkCanvas::ClipOp op);
 
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
 RECORD(DrawArc, kDraw_Tag|kHasPaint_Tag,

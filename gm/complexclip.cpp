@@ -86,14 +86,14 @@ protected:
         paint.setTextSize(SkIntToScalar(20));
 
         constexpr struct {
-            SkRegion::Op fOp;
-            const char*  fName;
+            SkCanvas::ClipOp fOp;
+            const char*      fName;
         } gOps[] = { //extra spaces in names for measureText
-            {SkRegion::kIntersect_Op,         "Isect "},
-            {SkRegion::kDifference_Op,        "Diff " },
-            {SkRegion::kUnion_Op,             "Union "},
-            {SkRegion::kXOR_Op,               "Xor "  },
-            {SkRegion::kReverseDifference_Op, "RDiff "}
+            {SkCanvas::kIntersect_Op,         "Isect "},
+            {SkCanvas::kDifference_Op,        "Diff " },
+            {SkCanvas::kUnion_Op,             "Union "},
+            {SkCanvas::kXOR_Op,               "Xor "  },
+            {SkCanvas::kReverseDifference_Op, "RDiff "}
         };
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
@@ -130,7 +130,7 @@ protected:
                                       SkPath::kEvenOdd_FillType);
                     clipB.setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
                                       SkPath::kEvenOdd_FillType);
-                    canvas->clipPath(clipA, SkRegion::kIntersect_Op, fDoAAClip);
+                    canvas->clipPath(clipA, SkCanvas::kIntersect_Op, fDoAAClip);
                     canvas->clipPath(clipB, gOps[op].fOp, fDoAAClip);
 
                     // In the inverse case we need to prevent the draw from covering the whole

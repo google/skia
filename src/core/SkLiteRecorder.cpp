@@ -40,19 +40,19 @@ void SkLiteRecorder::didConcat   (const SkMatrix& matrix)   { fDL->   concat(mat
 void SkLiteRecorder::didSetMatrix(const SkMatrix& matrix)   { fDL->setMatrix(matrix); }
 void SkLiteRecorder::didTranslate(SkScalar dx, SkScalar dy) { fDL->translate(dx, dy); }
 
-void SkLiteRecorder::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle style) {
+void SkLiteRecorder::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle style) {
     fDL->clipRect(rect, op, style==kSoft_ClipEdgeStyle);
     SkCanvas::onClipRect(rect, op, style);
 }
-void SkLiteRecorder::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle style) {
+void SkLiteRecorder::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle style) {
     fDL->clipRRect(rrect, op, style==kSoft_ClipEdgeStyle);
     SkCanvas::onClipRRect(rrect, op, style);
 }
-void SkLiteRecorder::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle style) {
+void SkLiteRecorder::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle style) {
     fDL->clipPath(path, op, style==kSoft_ClipEdgeStyle);
     SkCanvas::onClipPath(path, op, style);
 }
-void SkLiteRecorder::onClipRegion(const SkRegion& region, SkRegion::Op op) {
+void SkLiteRecorder::onClipRegion(const SkRegion& region, ClipOp op) {
     fDL->clipRegion(region, op);
     SkCanvas::onClipRegion(region, op);
 }

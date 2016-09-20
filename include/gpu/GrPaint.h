@@ -99,7 +99,7 @@ public:
         fXPFactory = GrPorterDuffXPFactory::Make(mode);
     }
 
-    void setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage = false); 
+    void setCoverageSetOpXPFactory(SkRegion::Op, bool invertCoverage = false);
 
     /**
      * Appends an additional color processor to the color computation.

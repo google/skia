@@ -342,8 +342,7 @@ public:
     bool next() {
         if (fMultiDeviceCS && fDevice) {
             // remove the previous device's bounds
-            fMultiDeviceCS->clipDevRect(compute_device_bounds(fDevice),
-                                        SkRegion::kDifference_Op);
+            fMultiDeviceCS->clipDevRect(compute_device_bounds(fDevice), SkCanvas::kDifference_Op);
         }
 
         // skip over recs with empty clips
@@ -1108,7 +1107,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
 
     if (BoundsAffectsClip(saveLayerFlags)) {
         // Simplify the current clips since they will be applied properly during restore()
-        fClipStack->clipDevRect(ir, SkRegion::kReplace_Op);
+        fClipStack->clipDevRect(ir, kReplace_Op);
         fMCRec->fRasterClip.setRect(ir);
         fDeviceClipBounds = qr_clip_bounds(ir);
     }
@@ -1540,7 +1539,7 @@ sk_sp<SkLights> SkCanvas::getLights() const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+void SkCanvas::clipRect(const SkRect& rect, ClipOp op, bool doAA) {
     if (!fAllowSoftClip) {
         doAA = false;
     }
@@ -1550,17 +1549,14 @@ void SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     this->onClipRect(rect, op, edgeStyle);
 }
 
-void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
     const bool isScaleTrans = fMCRec->fMatrix.isScaleTranslate();
     SkRect devR;
     if (isScaleTrans) {
         fMCRec->fMatrix.mapRectScaleTranslate(&devR, rect);
     }
 
-    if (SkRegion::kIntersect_Op == op &&
-        kHard_ClipEdgeStyle == edgeStyle
-        && isScaleTrans)
-    {
+    if (kIntersect_Op == op && kHard_ClipEdgeStyle == edgeStyle && isScaleTrans) {
         if (devR.round().contains(fMCRec->fRasterClip.getBounds())) {
 #if 0
             SkDebugf("------- ignored clipRect [%g %g %g %g]\n",
@@ -1577,7 +1573,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
     if (isScaleTrans) {
         const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
         fClipStack->clipDevRect(devR, op, isAA);
-        fMCRec->fRasterClip.op(devR, this->getTopLayerBounds(), op, isAA);
+        fMCRec->fRasterClip.op(devR, this->getTopLayerBounds(), (SkRegion::Op)op, isAA);
     } else {
         // since we're rotated or some such thing, we convert the rect to a path
         // and clip against that, since it can handle any matrix. However, to
@@ -1593,7 +1589,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
-void SkCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+void SkCanvas::clipRRect(const SkRRect& rrect, ClipOp op, bool doAA) {
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     if (rrect.isRect()) {
@@ -1603,7 +1599,7 @@ void SkCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
     }
 }
 
-void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
     SkRRect transformedRRect;
     if (rrect.transform(fMCRec->fMatrix, &transformedRRect)) {
         AutoValidateClip avc(this);
@@ -1615,7 +1611,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle 
 
         fClipStack->clipDevRRect(transformedRRect, op, kSoft_ClipEdgeStyle == edgeStyle);
 
-        fMCRec->fRasterClip.op(transformedRRect, this->getTopLayerBounds(), op,
+        fMCRec->fRasterClip.op(transformedRRect, this->getTopLayerBounds(), (SkRegion::Op)op,
                                kSoft_ClipEdgeStyle == edgeStyle);
         fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
         return;
@@ -1628,7 +1624,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle 
     this->SkCanvas::onClipPath(path, op, edgeStyle);
 }
 
-void SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+void SkCanvas::clipPath(const SkPath& path, ClipOp op, bool doAA) {
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
 
@@ -1653,7 +1649,7 @@ void SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     this->onClipPath(path, op, edgeStyle);
 }
 
-void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) {
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
@@ -1688,19 +1684,19 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
             edgeStyle = kSoft_ClipEdgeStyle;
         }
 
-        op = SkRegion::kReplace_Op;
+        op = kReplace_Op;
     }
 
-    fMCRec->fRasterClip.op(devPath, this->getTopLayerBounds(), op, edgeStyle);
+    fMCRec->fRasterClip.op(devPath, this->getTopLayerBounds(), (SkRegion::Op)op, edgeStyle);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
-void SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
+void SkCanvas::clipRegion(const SkRegion& rgn, ClipOp op) {
     this->checkForDeferredSave();
     this->onClipRegion(rgn, op);
 }
 
-void SkCanvas::onClipRegion(const SkRegion& rgn, SkRegion::Op op) {
+void SkCanvas::onClipRegion(const SkRegion& rgn, ClipOp op) {
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
@@ -1709,7 +1705,7 @@ void SkCanvas::onClipRegion(const SkRegion& rgn, SkRegion::Op op) {
     // we have to ignore it, and use the region directly?
     fClipStack->clipDevRect(rgn.getBounds(), op);
 
-    fMCRec->fRasterClip.op(rgn, op);
+    fMCRec->fRasterClip.op(rgn, (SkRegion::Op)op);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
@@ -1732,7 +1728,7 @@ void SkCanvas::validateClip() const {
         switch (element->getType()) {
             case SkClipStack::Element::kRect_Type:
                 element->getRect().round(&ir);
-                tmpClip.op(ir, element->getOp());
+                tmpClip.op(ir, (SkRegion::Op)element->getOp());
                 break;
             case SkClipStack::Element::kEmpty_Type:
                 tmpClip.setEmpty();
@@ -1740,7 +1736,8 @@ void SkCanvas::validateClip() const {
             default: {
                 SkPath path;
                 element->asPath(&path);
-                tmpClip.op(path, this->getTopLayerBounds(), element->getOp(), element->isAA());
+                tmpClip.op(path, this->getTopLayerBounds(), (SkRegion::Op)element->getOp(),
+                           element->isAA());
                 break;
             }
         }
@@ -3451,3 +3448,19 @@ SkSurface* SkCanvas::newSurface(const SkImageInfo& info, const SkSurfaceProps* p
     return this->makeSurface(info, props).release();
 }
 #endif
+
+/////////////////////////////////
+
+const SkCanvas::ClipOp SkCanvas::kDifference_Op;
+const SkCanvas::ClipOp SkCanvas::kIntersect_Op;
+const SkCanvas::ClipOp SkCanvas::kUnion_Op;
+const SkCanvas::ClipOp SkCanvas::kXOR_Op;
+const SkCanvas::ClipOp SkCanvas::kReverseDifference_Op;
+const SkCanvas::ClipOp SkCanvas::kReplace_Op;
+
+static_assert((int)SkRegion::kDifference_Op         == (int)kDifference_SkClipOp, "");
+static_assert((int)SkRegion::kIntersect_Op          == (int)kIntersect_SkClipOp, "");
+static_assert((int)SkRegion::kUnion_Op              == (int)kUnion_SkClipOp, "");
+static_assert((int)SkRegion::kXOR_Op                == (int)kXOR_SkClipOp, "");
+static_assert((int)SkRegion::kReverseDifference_Op  == (int)kReverseDifference_SkClipOp, "");
+static_assert((int)SkRegion::kReplace_Op            == (int)kReplace_SkClipOp, "");

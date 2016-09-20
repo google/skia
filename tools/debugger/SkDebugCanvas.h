@@ -248,10 +248,10 @@ protected:
                          const SkPaint*, SrcRectConstraint) override;
     void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                           const SkPaint*) override;
-    void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipRegion(const SkRegion& region, SkRegion::Op) override;
+    void onClipRect(const SkRect&, ClipOp, ClipEdgeStyle) override;
+    void onClipRRect(const SkRRect&, ClipOp, ClipEdgeStyle) override;
+    void onClipPath(const SkPath&, ClipOp, ClipEdgeStyle) override;
+    void onClipRegion(const SkRegion& region, ClipOp) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 
@@ -310,7 +310,7 @@ private:
 
     void resetClipStackData() { fClipStackData.reset(); fCalledAddStackData = false; }
 
-    void addClipStackData(const SkPath& devPath, const SkPath& operand, SkRegion::Op elementOp);
+    void addClipStackData(const SkPath& devPath, const SkPath& operand, ClipOp elementOp);
     void addPathData(const SkPath& path, const char* pathName);
     bool lastClipStackData(const SkPath& devPath);
     void outputConicPoints(const SkPoint* pts, SkScalar weight);

@@ -164,43 +164,43 @@ protected:
 
         switch (fGeom) {
         case kRect_Geometry:
-            canvas->clipRect(create_rect(offset), SkRegion::kReplace_Op, useAA);
+            canvas->clipRect(create_rect(offset), SkCanvas::kReplace_Op, useAA);
             break;
         case kRRect_Geometry:
-            canvas->clipRRect(create_rrect(offset), SkRegion::kReplace_Op, useAA);
+            canvas->clipRRect(create_rrect(offset), SkCanvas::kReplace_Op, useAA);
             break;
         case kCircle_Geometry:
-            canvas->clipRRect(create_circle(offset), SkRegion::kReplace_Op, useAA);
+            canvas->clipRRect(create_circle(offset), SkCanvas::kReplace_Op, useAA);
             break;
         case kConvexPath_Geometry:
-            canvas->clipPath(create_convex_path(offset), SkRegion::kReplace_Op, useAA);
+            canvas->clipPath(create_convex_path(offset), SkCanvas::kReplace_Op, useAA);
             break;
         case kConcavePath_Geometry:
-            canvas->clipPath(create_concave_path(offset), SkRegion::kReplace_Op, useAA);
+            canvas->clipPath(create_concave_path(offset), SkCanvas::kReplace_Op, useAA);
             break;
         case kRectAndRect_Geometry: {
             SkRect r = create_rect(offset);
             r.offset(fSign * kXlate, fSign * kXlate);
-            canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
-            canvas->clipRect(create_rect(offset), SkRegion::kIntersect_Op, useAA);
+            canvas->clipRect(r, SkCanvas::kReplace_Op, true); // AA here forces shader clips
+            canvas->clipRect(create_rect(offset), SkCanvas::kIntersect_Op, useAA);
             } break;
         case kRectAndRRect_Geometry: {
             SkRect r = create_rect(offset);
             r.offset(fSign * kXlate, fSign * kXlate);
-            canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
-            canvas->clipRRect(create_rrect(offset), SkRegion::kIntersect_Op, useAA);
+            canvas->clipRect(r, SkCanvas::kReplace_Op, true); // AA here forces shader clips
+            canvas->clipRRect(create_rrect(offset), SkCanvas::kIntersect_Op, useAA);
             } break;
         case kRectAndConvex_Geometry: {
             SkRect r = create_rect(offset);
             r.offset(fSign * kXlate, fSign * kXlate);
-            canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
-            canvas->clipPath(create_convex_path(offset), SkRegion::kIntersect_Op, useAA);
+            canvas->clipRect(r, SkCanvas::kReplace_Op, true); // AA here forces shader clips
+            canvas->clipPath(create_convex_path(offset), SkCanvas::kIntersect_Op, useAA);
             } break;
         case kRectAndConcave_Geometry: {
             SkRect r = create_rect(offset);
             r.offset(fSign * kXlate, fSign * kXlate);
-            canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
-            canvas->clipPath(create_concave_path(offset), SkRegion::kIntersect_Op, useAA);
+            canvas->clipRect(r, SkCanvas::kReplace_Op, true); // AA here forces shader clips
+            canvas->clipPath(create_concave_path(offset), SkCanvas::kIntersect_Op, useAA);
             } break;
         }
 

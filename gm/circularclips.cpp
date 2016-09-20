@@ -36,13 +36,13 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRegion::Op ops[] = {
-            SkRegion::kDifference_Op,
-            SkRegion::kIntersect_Op,
-            SkRegion::kUnion_Op,
-            SkRegion::kXOR_Op,
-            SkRegion::kReverseDifference_Op,
-            SkRegion::kReplace_Op,
+        SkCanvas::ClipOp ops[] = {
+            SkCanvas::kDifference_Op,
+            SkCanvas::kIntersect_Op,
+            SkCanvas::kUnion_Op,
+            SkCanvas::kXOR_Op,
+            SkCanvas::kReverseDifference_Op,
+            SkCanvas::kReplace_Op,
         };
 
         SkRect rect = SkRect::MakeLTRB(fX1 - fR, fY - fR, fX2 + fR, fY + fR);
@@ -54,8 +54,8 @@ protected:
         canvas->save();
         canvas->scale(10, 10);
         canvas->translate(-((fX1 + fX2)/2 - fR), -(fY - 2*fR/3));
-        canvas->clipPath(fCircle1, SkRegion::kReplace_Op, true);
-        canvas->clipPath(fCircle2, SkRegion::kIntersect_Op, true);
+        canvas->clipPath(fCircle1, SkCanvas::kReplace_Op, true);
+        canvas->clipPath(fCircle2, SkCanvas::kIntersect_Op, true);
 
         canvas->drawRect(rect, fillPaint);
 
@@ -73,7 +73,7 @@ protected:
             for (size_t op = 0; op < SK_ARRAY_COUNT(ops); op++) {
                 canvas->save();
 
-                canvas->clipPath(fCircle1, SkRegion::kReplace_Op);
+                canvas->clipPath(fCircle1, SkCanvas::kReplace_Op);
                 canvas->clipPath(fCircle2, ops[op]);
 
                 canvas->drawRect(rect, fillPaint);

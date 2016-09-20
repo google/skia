@@ -126,11 +126,11 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case CLIP_PATH: {
             const SkPath& path = fPictureData->getPath(reader); 
             uint32_t packed = reader->readInt(); 
-            SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
+            SkCanvas::ClipOp clipOp = ClipParams_unpackRegionOp(packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
             SkASSERT(!offsetToRestore || offsetToRestore >= reader->offset());
-            canvas->clipPath(path, regionOp, doAA);
+            canvas->clipPath(path, clipOp, doAA);
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
             }
@@ -139,10 +139,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRegion region;
             reader->readRegion(&region);
             uint32_t packed = reader->readInt();
-            SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
+            SkCanvas::ClipOp clipOp = ClipParams_unpackRegionOp(packed);
             size_t offsetToRestore = reader->readInt();
             SkASSERT(!offsetToRestore || offsetToRestore >= reader->offset());
-            canvas->clipRegion(region, regionOp);
+            canvas->clipRegion(region, clipOp);
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
             }
@@ -151,11 +151,11 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRect rect;
             reader->readRect(&rect);
             uint32_t packed = reader->readInt();
-            SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
+            SkCanvas::ClipOp clipOp = ClipParams_unpackRegionOp(packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
             SkASSERT(!offsetToRestore || offsetToRestore >= reader->offset());
-            canvas->clipRect(rect, regionOp, doAA);
+            canvas->clipRect(rect, clipOp, doAA);
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
             }
@@ -164,11 +164,11 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRRect rrect;
             reader->readRRect(&rrect);
             uint32_t packed = reader->readInt();
-            SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
+            SkCanvas::ClipOp clipOp = ClipParams_unpackRegionOp(packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
             SkASSERT(!offsetToRestore || offsetToRestore >= reader->offset());
-            canvas->clipRRect(rrect, regionOp, doAA);
+            canvas->clipRRect(rrect, clipOp, doAA);
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
             }

@@ -1,13 +1,14 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #ifndef SkClipStack_DEFINED
 #define SkClipStack_DEFINED
 
+#include "SkCanvas.h"
 #include "SkDeque.h"
 #include "SkPath.h"
 #include "SkRect.h"
@@ -53,21 +54,21 @@ public:
         static const int kTypeCnt = kLastType + 1;
 
         Element() {
-            this->initCommon(0, SkRegion::kReplace_Op, false);
+            this->initCommon(0, SkCanvas::kReplace_Op, false);
             this->setEmpty();
         }
 
         Element(const Element&);
 
-        Element(const SkRect& rect, SkRegion::Op op, bool doAA) {
+        Element(const SkRect& rect, SkCanvas::ClipOp op, bool doAA) {
             this->initRect(0, rect, op, doAA);
         }
 
-        Element(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+        Element(const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA) {
             this->initRRect(0, rrect, op, doAA);
         }
 
-        Element(const SkPath& path, SkRegion::Op op, bool doAA) {
+        Element(const SkPath& path, SkCanvas::ClipOp op, bool doAA) {
             this->initPath(0, path, op, doAA);
         }
 
@@ -93,7 +94,7 @@ public:
         }
 
         //!< Call if getType() is not kEmpty to get the set operation used to combine this element.
-        SkRegion::Op getOp() const { return fOp; }
+        SkCanvas::ClipOp getOp() const { return fOp; }
 
         //!< Call to get the element as a path, regardless of its type.
         void asPath(SkPath* path) const;
@@ -109,7 +110,7 @@ public:
         void invertShapeFillType();
 
         //!< Sets the set operation represented by the element.
-        void setOp(SkRegion::Op op) { fOp = op; }
+        void setOp(SkCanvas::ClipOp op) { fOp = op; }
 
         /** The GenID can be used by clip stack clients to cache representations of the clip. The
             ID corresponds to the set of clip elements up to and including this element within the
@@ -201,7 +202,7 @@ public:
         SkTLazy<SkPath> fPath;
         SkRRect         fRRect;
         int             fSaveCount; // save count of stack when this element was added.
-        SkRegion::Op    fOp;
+        SkCanvas::ClipOp fOp;
         Type            fType;
         bool            fDoAA;
 
@@ -225,23 +226,23 @@ public:
         int                     fGenID;
 
         Element(int saveCount) {
-            this->initCommon(saveCount, SkRegion::kReplace_Op, false);
+            this->initCommon(saveCount, SkCanvas::kReplace_Op, false);
             this->setEmpty();
         }
 
-        Element(int saveCount, const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+        Element(int saveCount, const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA) {
             this->initRRect(saveCount, rrect, op, doAA);
         }
 
-        Element(int saveCount, const SkRect& rect, SkRegion::Op op, bool doAA) {
+        Element(int saveCount, const SkRect& rect, SkCanvas::ClipOp op, bool doAA) {
             this->initRect(saveCount, rect, op, doAA);
         }
 
-        Element(int saveCount, const SkPath& path, SkRegion::Op op, bool doAA) {
+        Element(int saveCount, const SkPath& path, SkCanvas::ClipOp op, bool doAA) {
             this->initPath(saveCount, path, op, doAA);
         }
 
-        void initCommon(int saveCount, SkRegion::Op op, bool doAA) {
+        void initCommon(int saveCount, SkCanvas::ClipOp op, bool doAA) {
             fSaveCount = saveCount;
             fOp = op;
             fDoAA = doAA;
@@ -253,13 +254,13 @@ public:
             fGenID = kInvalidGenID;
         }
 
-        void initRect(int saveCount, const SkRect& rect, SkRegion::Op op, bool doAA) {
+        void initRect(int saveCount, const SkRect& rect, SkCanvas::ClipOp op, bool doAA) {
             fRRect.setRect(rect);
             fType = kRect_Type;
             this->initCommon(saveCount, op, doAA);
         }
 
-        void initRRect(int saveCount, const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+        void initRRect(int saveCount, const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA) {
             SkRRect::Type type = rrect.getType();
             fRRect = rrect;
             if (SkRRect::kRect_Type == type || SkRRect::kEmpty_Type == type) {
@@ -270,13 +271,13 @@ public:
             this->initCommon(saveCount, op, doAA);
         }
 
-        void initPath(int saveCount, const SkPath& path, SkRegion::Op op, bool doAA);
+        void initPath(int saveCount, const SkPath& path, SkCanvas::ClipOp op, bool doAA);
 
         void setEmpty();
 
         // All Element methods below are only used within SkClipStack.cpp
         inline void checkEmpty() const;
-        inline bool canBeIntersectedInPlace(int saveCount, SkRegion::Op op) const;
+        inline bool canBeIntersectedInPlace(int saveCount, SkCanvas::ClipOp op) const;
         /* This method checks to see if two rect clips can be safely merged into one. The issue here
           is that to be strictly correct all the edges of the resulting rect must have the same
           anti-aliasing. */
@@ -347,14 +348,14 @@ public:
      */
     bool asPath(SkPath* path) const;
 
-    void clipDevRect(const SkIRect& ir, SkRegion::Op op) {
+    void clipDevRect(const SkIRect& ir, SkCanvas::ClipOp op) {
         SkRect r;
         r.set(ir);
         this->clipDevRect(r, op, false);
     }
-    void clipDevRect(const SkRect&, SkRegion::Op, bool doAA);
-    void clipDevRRect(const SkRRect&, SkRegion::Op, bool doAA);
-    void clipDevPath(const SkPath&, SkRegion::Op, bool doAA);
+    void clipDevRect(const SkRect&, SkCanvas::ClipOp, bool doAA);
+    void clipDevRRect(const SkRRect&, SkCanvas::ClipOp, bool doAA);
+    void clipDevPath(const SkPath&, SkCanvas::ClipOp, bool doAA);
     // An optimized version of clipDevRect(emptyRect, kIntersect, ...)
     void clipEmpty();
 
@@ -425,7 +426,7 @@ public:
          * Moves the iterator to the topmost element with the specified RegionOp and returns that
          * element. If no clip element with that op is found, the first element is returned.
          */
-        const Element* skipToTopmost(SkRegion::Op op);
+        const Element* skipToTopmost(SkCanvas::ClipOp op);
 
         /**
          * Restarts the iterator on a clip stack.
