@@ -9,11 +9,6 @@
 #include "SkFontMgr.h"
 #include "SkFontMgr_FontConfigInterface.h"
 
-#ifdef SK_ADDING_src_ports_SkFontConfigInterface_cpp
-// The code previously here is moving to SkFontConfigInterface.cpp
-#include "SkFontConfigInterface.cpp"
-#endif
-
 SkFontMgr* SkFontMgr::Factory() {
     sk_sp<SkFontConfigInterface> fci(SkFontConfigInterface::RefGlobal());
     if (!fci) {
