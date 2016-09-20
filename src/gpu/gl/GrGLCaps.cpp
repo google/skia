@@ -657,6 +657,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
         glslCaps->fUsesPrecisionModifiers = true;
     }
 
+    // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
+    // Galaxy S7.
+    // TODO: Once this is fixed we can update the check here to look at a driver version number too.
+    if (kAdreno5xx_GrGLRenderer == ctxInfo.renderer()) {
+        glslCaps->fFBFetchSupport = false;
+    }
+
     glslCaps->fBindlessTextureSupport = ctxInfo.hasExtension("GL_NV_bindless_texture");
 
     if (kGL_GrGLStandard == standard) {
