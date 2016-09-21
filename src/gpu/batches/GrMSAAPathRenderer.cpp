@@ -262,7 +262,7 @@ private:
 
         bool first = true;
 
-        SkPath::Iter iter(path, false);
+        SkPath::Iter iter(path, true);
         SkPath::Verb verb;
 
         SkPoint pts[4];
@@ -474,7 +474,7 @@ private:
             SkPoint pts[4];
 
             bool first = true;
-            SkPath::Iter iter(path, false);
+            SkPath::Iter iter(path, true);
 
             bool done = false;
             while (!done) {
