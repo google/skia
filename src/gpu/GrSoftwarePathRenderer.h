@@ -18,7 +18,9 @@ class GrTextureProvider;
  */
 class GrSoftwarePathRenderer : public GrPathRenderer {
 public:
-    GrSoftwarePathRenderer(GrTextureProvider* texProvider) : fTexProvider(texProvider) { }
+    GrSoftwarePathRenderer(GrTextureProvider* texProvider, bool allowCaching)
+            : fTexProvider(texProvider)
+            , fAllowCaching(allowCaching) {}
 private:
     static void DrawNonAARect(GrDrawContext* drawContext,
                               const GrPaint& paint,
@@ -45,6 +47,7 @@ private:
 
 private:
     GrTextureProvider*     fTexProvider;
+    bool                   fAllowCaching;
 
     typedef GrPathRenderer INHERITED;
 };

@@ -99,13 +99,17 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds, const SkMatrix* matrix) {
 /**
  * Get a texture (from the texture cache) of the correct size & format.
  */
-GrTexture* GrSWMaskHelper::createTexture() {
+GrTexture* GrSWMaskHelper::createTexture(TextureType textureType) {
     GrSurfaceDesc desc;
     desc.fWidth = fPixels.width();
     desc.fHeight = fPixels.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    return fTexProvider->createApproxTexture(desc);
+    if (TextureType::kApproximateFit == textureType) {
+        return fTexProvider->createApproxTexture(desc);
+    } else {
+        return fTexProvider->createTexture(desc, SkBudgeted::kYes);
+    }
 }
 
 /**
@@ -138,6 +142,7 @@ GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider
                                                   const GrShape& shape,
                                                   const SkIRect& resultBounds,
                                                   bool antiAlias,
+                                                  TextureType textureType,
                                                   const SkMatrix* matrix) {
     GrSWMaskHelper helper(texProvider);
 
@@ -147,7 +152,7 @@ GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider
 
     helper.drawShape(shape, SkRegion::kReplace_Op, antiAlias, 0xFF);
 
-    GrTexture* texture(helper.createTexture());
+    GrTexture* texture(helper.createTexture(textureType));
     if (!texture) {
         return nullptr;
     }
@@ -163,23 +168,22 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                                                const GrUserStencilSettings& userStencilSettings,
                                                const GrClip& clip,
                                                const SkMatrix& viewMatrix,
-                                               const SkIRect& rect) {
+                                               const SkIPoint& textureOriginInDeviceSpace,
+                                               const SkIRect& deviceSpaceRectToDraw) {
     SkMatrix invert;
     if (!viewMatrix.invert(&invert)) {
         return;
     }
 
-    SkRect dstRect = SkRect::MakeLTRB(SK_Scalar1 * rect.fLeft,
-                                      SK_Scalar1 * rect.fTop,
-                                      SK_Scalar1 * rect.fRight,
-                                      SK_Scalar1 * rect.fBottom);
+    SkRect dstRect = SkRect::Make(deviceSpaceRectToDraw);
 
     // We use device coords to compute the texture coordinates. We take the device coords and apply
     // a translation so that the top-left of the device bounds maps to 0,0, and then a scaling
     // matrix to normalized coords.
     SkMatrix maskMatrix;
     maskMatrix.setIDiv(texture->width(), texture->height());
-    maskMatrix.preTranslate(SkIntToScalar(-rect.fLeft), SkIntToScalar(-rect.fTop));
+    maskMatrix.preTranslate(SkIntToScalar(-textureOriginInDeviceSpace.fX),
+                            SkIntToScalar(-textureOriginInDeviceSpace.fY));
 
     GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
     pipelineBuilder.setUserStencil(&userStencilSettings);

@@ -69,6 +69,19 @@ struct GrContextOptions {
     /** Disables distance field rendering for paths. Distance field computation can be expensive
         and yields no benefit if a path is not rendered multiple times with different transforms */
     bool fDisableDistanceFieldPaths = false;
+
+    /**
+     * If true this allows path mask textures to be cached. This is only really useful if paths
+     * are commonly rendered at the same scale and fractional translation.
+     */
+    bool fAllowPathMaskCaching = false;
+
+    /**
+     * Force all path draws to go through through the sw-rasterize-to-texture code path (assuming
+     * the path is not recognized as a simpler shape (e.g. a rrect). This is intended for testing
+     * purposes.
+     */
+    bool fForceSWPathMasks = false;
 };
 
 #endif

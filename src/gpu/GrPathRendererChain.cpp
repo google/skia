@@ -26,30 +26,32 @@
 #include "batches/GrTessellatingPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& options) {
-    const GrCaps& caps = *context->caps();
-    this->addPathRenderer(new GrDashLinePathRenderer)->unref();
+    if (!options.fDisableAllPathRenderers) {
+        const GrCaps& caps = *context->caps();
+        this->addPathRenderer(new GrDashLinePathRenderer)->unref();
 
-    if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(context->resourceProvider(),
-                                                                   caps)) {
-        this->addPathRenderer(pr)->unref();
+        if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(context->resourceProvider(),
+                                                                       caps)) {
+            this->addPathRenderer(pr)->unref();
+        }
+    #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        if (caps.sampleShadingSupport()) {
+            this->addPathRenderer(new GrMSAAPathRenderer)->unref();
+        }
+    #endif
+        this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
+        this->addPathRenderer(new GrAAConvexPathRenderer)->unref();
+        this->addPathRenderer(new GrAALinearizingConvexPathRenderer)->unref();
+        if (caps.shaderCaps()->plsPathRenderingSupport()) {
+            this->addPathRenderer(new GrPLSPathRenderer)->unref();
+        }
+        if (!options.fDisableDistanceFieldRenderer) {
+            this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
+        }
+        this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
+        this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
+                                                        caps.stencilWrapOpsSupport()))->unref();
     }
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    if (caps.sampleShadingSupport()) {
-        this->addPathRenderer(new GrMSAAPathRenderer)->unref();
-    }
-#endif
-    this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
-    this->addPathRenderer(new GrAAConvexPathRenderer)->unref();
-    this->addPathRenderer(new GrAALinearizingConvexPathRenderer)->unref();
-    if (caps.shaderCaps()->plsPathRenderingSupport()) {
-        this->addPathRenderer(new GrPLSPathRenderer)->unref();
-    }
-    if (!options.fDisableDistanceFieldRenderer) {
-        this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
-    }
-    this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
-    this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
-                                                    caps.stencilWrapOpsSupport()))->unref();
 }
 
 GrPathRendererChain::~GrPathRendererChain() {

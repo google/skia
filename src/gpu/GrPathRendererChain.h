@@ -25,6 +25,8 @@ class GrPathRendererChain : public SkNoncopyable {
 public:
     struct Options {
         bool fDisableDistanceFieldRenderer = false;
+        bool fAllowPathMaskCaching = false;
+        bool fDisableAllPathRenderers = false;
     };
     GrPathRendererChain(GrContext* context, const Options&);
 

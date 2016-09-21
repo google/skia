@@ -203,7 +203,9 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
     if (!pr && allowSW) {
         if (!fSoftwarePathRenderer) {
-            fSoftwarePathRenderer = new GrSoftwarePathRenderer(fContext->textureProvider());
+            fSoftwarePathRenderer =
+                    new GrSoftwarePathRenderer(fContext->textureProvider(),
+                                               fOptionsForPathRendererChain.fAllowPathMaskCaching);
         }
         pr = fSoftwarePathRenderer;
     }
