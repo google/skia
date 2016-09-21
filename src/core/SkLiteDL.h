@@ -91,6 +91,8 @@ public:
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
                    SkXfermode::Mode, const SkRect*, const SkPaint*);
 
+    void setBounds(const SkRect& bounds);
+
 private:
     SkLiteDL(SkRect);
     ~SkLiteDL();

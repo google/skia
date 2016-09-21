@@ -829,3 +829,7 @@ void SkLiteDL::drawAsLayer(SkCanvas* canvas, const SkMatrix* matrix, const SkPai
 
     return fallback_plan();
 }
+
+void SkLiteDL::setBounds(const SkRect& bounds) {
+    fBounds = bounds;
+}
