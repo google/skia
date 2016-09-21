@@ -72,6 +72,49 @@ SkRect GrShape::styledBounds() const {
     return bounds;
 }
 
+// If the path is small enough to be keyed from its data this returns key length, otherwise -1.
+static int path_key_from_data_size(const SkPath& path) {
+    const int verbCnt = path.countVerbs();
+    if (verbCnt > GrShape::kMaxKeyFromDataVerbCnt) {
+        return -1;
+    }
+    const int pointCnt = path.countPoints();
+    const int conicWeightCnt = SkPathPriv::ConicWeightCnt(path);
+
+    GR_STATIC_ASSERT(sizeof(SkPoint) == 2 * sizeof(uint32_t));
+    GR_STATIC_ASSERT(sizeof(SkScalar) == sizeof(uint32_t));
+    // 2 is for the verb cnt and a fill type. Each verb is a byte but we'll pad the verb data out to
+    // a uint32_t length.
+    return 2 + (SkAlign4(verbCnt) >> 2) + 2 * pointCnt + conicWeightCnt;
+}
+
+// Writes the path data key into the passed pointer.
+static void write_path_key_from(const SkPath& path, uint32_t* origKey) {
+    uint32_t* key = origKey;
+    // The check below should take care of negative values casted positive.
+    const int verbCnt = path.countVerbs();
+    const int pointCnt = path.countPoints();
+    const int conicWeightCnt = SkPathPriv::ConicWeightCnt(path);
+    SkASSERT(verbCnt <= GrShape::kMaxKeyFromDataVerbCnt);
+    SkASSERT(pointCnt && verbCnt);
+    *key++ = path.getFillType();
+    *key++ = verbCnt;
+    memcpy(key, SkPathPriv::VerbData(path), verbCnt * sizeof(uint8_t));
+    int verbKeySize = SkAlign4(verbCnt);
+    // pad out to uint32_t alignment using value that will stand out when debugging.
+    uint8_t* pad = reinterpret_cast<uint8_t*>(key)+ verbCnt;
+    memset(pad, 0xDE, verbKeySize - verbCnt);
+    key += verbKeySize >> 2;
+
+    memcpy(key, SkPathPriv::PointData(path), sizeof(SkPoint) * pointCnt);
+    GR_STATIC_ASSERT(sizeof(SkPoint) == 2 * sizeof(uint32_t));
+    key += 2 * pointCnt;
+    memcpy(key, SkPathPriv::ConicWeightData(path), sizeof(SkScalar) * conicWeightCnt);
+    GR_STATIC_ASSERT(sizeof(SkScalar) == sizeof(uint32_t));
+    SkDEBUGCODE(key += conicWeightCnt);
+    SkASSERT(key - origKey == path_key_from_data_size(path));
+}
+
 int GrShape::unstyledKeySize() const {
     if (fInheritedKey.count()) {
         return fInheritedKey.count();
@@ -88,13 +131,17 @@ int GrShape::unstyledKeySize() const {
             GR_STATIC_ASSERT(2 * sizeof(uint32_t) == sizeof(SkPoint));
             // 4 for the end points and 1 for the inverseness
             return 5;
-        case Type::kPath:
+        case Type::kPath: {
+            int dataKeySize = path_key_from_data_size(fPathData.fPath);
+            if (dataKeySize >= 0) {
+                return dataKeySize;
+            }
             if (0 == fPathData.fGenID) {
                 return -1;
-            } else {
-                // The key is the path ID and fill type.
-                return 2;
             }
+            // The key is the path ID and fill type.
+            return 2;
+        }
     }
     SkFAIL("Should never get here.");
     return 0;
@@ -124,13 +171,19 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
                 key += 4;
                 *key++ = fLineData.fInverted ? 1 : 0;
                 break;
-            case Type::kPath:
+            case Type::kPath: {
+                int dataKeySize = path_key_from_data_size(fPathData.fPath);
+                if (dataKeySize >= 0) {
+                    write_path_key_from(fPathData.fPath, key);
+                    return;
+                }
                 SkASSERT(fPathData.fGenID);
                 *key++ = fPathData.fGenID;
                 // We could canonicalize the fill rule for paths that don't differentiate between
                 // even/odd or winding fill (e.g. convex).
                 *key++ = this->path().getFillType();
                 break;
+            }
         }
     }
     SkASSERT(key - origKey == this->unstyledKeySize());

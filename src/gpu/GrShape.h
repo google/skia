@@ -34,6 +34,10 @@
  */
 class GrShape {
 public:
+    // Keys for paths may be extracted from the path data for small paths. Clients aren't supposed
+    // to have to worry about this. This value is exposed for unit tests.
+    static constexpr int kMaxKeyFromDataVerbCnt = 10;
+
     GrShape() { this->initType(Type::kEmpty); }
 
     explicit GrShape(const SkPath& path) : GrShape(path, GrStyle::SimpleFill()) {}
