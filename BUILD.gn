@@ -28,8 +28,8 @@ declare_args() {
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
 }
 
-# Our tools require static linking (they use non-exported symbols) and GPU support (just lazy).
-skia_enable_tools = skia_enable_tools && skia_enable_gpu && !is_component_build
+# Our tools require static linking (they use non-exported symbols).
+skia_enable_tools = skia_enable_tools && !is_component_build
 
 fontmgr_android_enabled = skia_use_expat && skia_use_freetype
 
@@ -625,39 +625,42 @@ if (skia_enable_tools) {
   }
 
   test_lib("gpu_tool_utils") {
-    public_defines = []
-    public_include_dirs = [ "tools/gpu" ]
-    sources = [
-      "tools/gpu/GrContextFactory.cpp",
-      "tools/gpu/GrTest.cpp",
-      "tools/gpu/TestContext.cpp",
-      "tools/gpu/gl/GLTestContext.cpp",
-      "tools/gpu/gl/debug/DebugGLTestContext.cpp",
-      "tools/gpu/gl/debug/GrBufferObj.cpp",
-      "tools/gpu/gl/debug/GrFrameBufferObj.cpp",
-      "tools/gpu/gl/debug/GrProgramObj.cpp",
-      "tools/gpu/gl/debug/GrShaderObj.cpp",
-      "tools/gpu/gl/debug/GrTextureObj.cpp",
-      "tools/gpu/gl/debug/GrTextureUnitObj.cpp",
-      "tools/gpu/gl/null/NullGLTestContext.cpp",
-    ]
-    libs = []
+    public_include_dirs = []
+    if (skia_enable_gpu) {
+      public_defines = []
+      public_include_dirs += [ "tools/gpu" ]
+      sources = [
+        "tools/gpu/GrContextFactory.cpp",
+        "tools/gpu/GrTest.cpp",
+        "tools/gpu/TestContext.cpp",
+        "tools/gpu/gl/GLTestContext.cpp",
+        "tools/gpu/gl/debug/DebugGLTestContext.cpp",
+        "tools/gpu/gl/debug/GrBufferObj.cpp",
+        "tools/gpu/gl/debug/GrFrameBufferObj.cpp",
+        "tools/gpu/gl/debug/GrProgramObj.cpp",
+        "tools/gpu/gl/debug/GrShaderObj.cpp",
+        "tools/gpu/gl/debug/GrTextureObj.cpp",
+        "tools/gpu/gl/debug/GrTextureUnitObj.cpp",
+        "tools/gpu/gl/null/NullGLTestContext.cpp",
+      ]
+      libs = []
 
-    if (is_android) {
-      sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
-    } else if (is_linux) {
-      sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
-    } else if (is_mac) {
-      sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
-    }
+      if (is_android) {
+        sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
+      } else if (is_linux) {
+        sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
+      } else if (is_mac) {
+        sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
+      }
 
-    if (skia_use_vulkan) {
-      sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
-    }
-    if (skia_use_mesa) {
-      public_defines += [ "SK_MESA" ]
-      sources += [ "tools/gpu/gl/mesa/GLTestContext_mesa.cpp" ]
-      libs += [ "OSMesa" ]
+      if (skia_use_vulkan) {
+        sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
+      }
+      if (skia_use_mesa) {
+        public_defines += [ "SK_MESA" ]
+        sources += [ "tools/gpu/gl/mesa/GLTestContext_mesa.cpp" ]
+        libs += [ "OSMesa" ]
+      }
     }
   }
 
@@ -864,17 +867,19 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  executable("skpbench") {
-    sources = [
-      "tools/skpbench/skpbench.cpp",
-    ]
-    deps = [
-      ":flags",
-      ":gpu_tool_utils",
-      ":skia",
-      ":tool_utils",
-    ]
-    testonly = true
+  if (skia_enable_gpu) {
+    executable("skpbench") {
+      sources = [
+        "tools/skpbench/skpbench.cpp",
+      ]
+      deps = [
+        ":flags",
+        ":gpu_tool_utils",
+        ":skia",
+        ":tool_utils",
+      ]
+      testonly = true
+    }
   }
 
   if (current_cpu != "mipsel") {  # Clang 3.8 crashes while compiling hb-icu.cc for mipsel.
