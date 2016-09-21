@@ -89,7 +89,7 @@ static int path_key_from_data_size(const SkPath& path) {
 }
 
 // Writes the path data key into the passed pointer.
-static void write_path_key_from(const SkPath& path, uint32_t* origKey) {
+static void write_path_key_from_data(const SkPath& path, uint32_t* origKey) {
     uint32_t* key = origKey;
     // The check below should take care of negative values casted positive.
     const int verbCnt = path.countVerbs();
@@ -109,7 +109,7 @@ static void write_path_key_from(const SkPath& path, uint32_t* origKey) {
     memcpy(key, SkPathPriv::PointData(path), sizeof(SkPoint) * pointCnt);
     GR_STATIC_ASSERT(sizeof(SkPoint) == 2 * sizeof(uint32_t));
     key += 2 * pointCnt;
-    memcpy(key, SkPathPriv::ConicWeightData(path), sizeof(SkScalar) * conicWeightCnt);
+    sk_careful_memcpy(key, SkPathPriv::ConicWeightData(path), sizeof(SkScalar) * conicWeightCnt);
     GR_STATIC_ASSERT(sizeof(SkScalar) == sizeof(uint32_t));
     SkDEBUGCODE(key += conicWeightCnt);
     SkASSERT(key - origKey == path_key_from_data_size(path));
@@ -174,7 +174,7 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
             case Type::kPath: {
                 int dataKeySize = path_key_from_data_size(fPathData.fPath);
                 if (dataKeySize >= 0) {
-                    write_path_key_from(fPathData.fPath, key);
+                    write_path_key_from_data(fPathData.fPath, key);
                     return;
                 }
                 SkASSERT(fPathData.fGenID);
