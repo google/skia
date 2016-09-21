@@ -51,10 +51,6 @@ public:
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;
 
-    sk_sp<SkSurface> onNewSurface(const SkImageInfo& info) const override {
-        return SkSurface::MakeRenderTarget(fTexture->getContext(), SkBudgeted::kNo, info);
-    }
-
 private:
     SkAutoTUnref<GrTexture>     fTexture;
     const SkAlphaType           fAlphaType;

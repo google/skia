@@ -54,10 +54,6 @@ public:
     // but only inspect them (or encode them).
     virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
 
-    virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo& info) const {
-        return SkSurface::MakeRaster(info);
-    }
-
     // Caller must call unref when they are done.
     virtual GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
                                     SkSourceGammaTreatment) const = 0;
