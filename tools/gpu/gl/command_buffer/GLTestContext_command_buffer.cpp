@@ -14,9 +14,6 @@
 #include "../ports/SkOSEnvironment.h"
 #include "../ports/SkOSLibrary.h"
 
-#if defined SK_BUILD_FOR_MAC
-
-// EGL doesn't exist on the mac, so expose what we need to get the command buffer's EGL running.
 typedef void *EGLDisplay;
 typedef unsigned int EGLBoolean;
 typedef void *EGLConfig;
@@ -47,12 +44,6 @@ typedef void (*__eglMustCastToProperFunctionPointerType)(void);
 #define EGL_NONE 0x3038
 #define EGL_WIDTH 0x3057
 #define EGL_HEIGHT 0x3056
-
-#else
-
-#include <EGL/egl.h>
-
-#endif
 
 typedef EGLDisplay (*GetDisplayProc)(EGLNativeDisplayType display_id);
 typedef EGLBoolean (*InitializeProc)(EGLDisplay dpy, EGLint *major, EGLint *minor);

@@ -14,6 +14,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     return any([
       'CT' in extra_config,
       'SAN' in extra_config,
+      extra_config == 'CommandBuffer',
       extra_config == 'Fast',
       extra_config == 'GN',
       extra_config == 'Mesa',
@@ -28,6 +29,15 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
                                if k in ['PATH']}
     self.m.run(self.m.step, title, cmd=cmd,
                env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
+
+  def build_command_buffer(self):
+    self.m.run(self.m.python, 'build command_buffer',
+        script=self.m.vars.skia_dir.join('tools', 'build_command_buffer.py'),
+        args=[
+          '--chrome-dir', self.m.vars.checkout_root,
+          '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
+          '--chrome-build-type', self.m.vars.configuration,
+          '--no-sync', '--make-output-dir'])
 
   def compile(self, unused_target, **kwargs):
     """Build Skia with GN."""
@@ -63,6 +73,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
+    if extra_config == 'CommandBuffer':
+      self.m.run.run_once(self.build_command_buffer)
     if extra_config == 'MSAN':
       args['skia_use_fontconfig'] = 'false'
     if extra_config == 'Mesa':

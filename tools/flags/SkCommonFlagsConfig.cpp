@@ -66,9 +66,7 @@ static const struct {
 #endif
     ,{ "angle-gl",   "gpu", "api=angle-gl" }
 #endif
-#if SK_COMMAND_BUFFER
     ,{ "commandbuffer", "gpu", "api=commandbuffer" }
-#endif
 #if SK_MESA
     ,{ "mesa", "gpu", "api=mesa" }
 #endif
@@ -122,9 +120,7 @@ static const char configExtendedHelp[] =
 #endif
     "\t\tangle-gl\t\t\tUse ANGLE OpenGL.\n"
 #endif
-#if SK_COMMAND_BUFFER
     "\t\tcommandbuffer\t\tUse command buffer.\n"
-#endif
 #if SK_MESA
     "\t\tmesa\t\t\tUse MESA.\n"
 #endif
@@ -249,12 +245,10 @@ static bool parse_option_gpu_api(const SkString& value,
         return true;
     }
 #endif
-#if SK_COMMAND_BUFFER
     if (value.equals("commandbuffer")) {
         *outContextType = GrContextFactory::kCommandBuffer_ContextType;
         return true;
     }
-#endif
 #if SK_MESA
     if (value.equals("mesa")) {
         *outContextType = GrContextFactory::kMESA_ContextType;

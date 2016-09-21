@@ -12,9 +12,7 @@
 #if SK_ANGLE
     #include "gl/angle/GLTestContext_angle.h"
 #endif
-#if SK_COMMAND_BUFFER
-    #include "gl/command_buffer/GLTestContext_command_buffer.h"
-#endif
+#include "gl/command_buffer/GLTestContext_command_buffer.h"
 #include "gl/debug/DebugGLTestContext.h"
 #if SK_MESA
     #include "gl/mesa/GLTestContext_mesa.h"
@@ -128,11 +126,9 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                     glCtx = CreateANGLEOpenGLGLTestContext();
                     break;
 #endif
-#if SK_COMMAND_BUFFER
                 case kCommandBuffer_ContextType:
                     glCtx = CommandBufferGLTestContext::Create();
                     break;
-#endif
 #if SK_MESA
                 case kMESA_ContextType:
                     glCtx = CreateMesaGLTestContext();

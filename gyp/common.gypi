@@ -77,16 +77,6 @@
           }],
         ],
       }],
-      [ 'skia_command_buffer', {
-        'defines': [
-          'SK_COMMAND_BUFFER',
-        ],
-        'direct_dependent_settings': {
-          'defines': [
-            'SK_COMMAND_BUFFER',
-          ],
-        },
-      }],
       [ 'skia_win_debuggers_path and skia_os == "win"',
         {
           'defines': [

@@ -501,6 +501,7 @@ component("skia") {
       "src/ports/SkImageEncoder_WIC.cpp",
       "src/ports/SkImageGeneratorWIC.cpp",
       "src/ports/SkOSFile_win.cpp",
+      "src/ports/SkOSLibrary_win.cpp",
       "src/ports/SkScalerContext_win_dw.cpp",
       "src/ports/SkTLS_win.cpp",
       "src/ports/SkTypeface_win_dw.cpp",
@@ -511,6 +512,7 @@ component("skia") {
   } else {
     sources += [
       "src/ports/SkOSFile_posix.cpp",
+      "src/ports/SkOSLibrary_posix.cpp",
       "src/ports/SkTLS_pthread.cpp",
       "src/xps/SkDocument_XPS_None.cpp",
     ]
@@ -634,6 +636,7 @@ if (skia_enable_tools) {
         "tools/gpu/GrTest.cpp",
         "tools/gpu/TestContext.cpp",
         "tools/gpu/gl/GLTestContext.cpp",
+        "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
         "tools/gpu/gl/debug/DebugGLTestContext.cpp",
         "tools/gpu/gl/debug/GrBufferObj.cpp",
         "tools/gpu/gl/debug/GrFrameBufferObj.cpp",

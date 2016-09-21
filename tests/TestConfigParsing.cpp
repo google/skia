@@ -179,11 +179,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, !configs[20]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[21]->asConfigGpu());
 #endif
-#if SK_COMMAND_BUFFER
     REPORTER_ASSERT(reporter, configs[22]->asConfigGpu());
-#else
-    REPORTER_ASSERT(reporter, !configs[22]->asConfigGpu());
-#endif
 #if SK_MESA
     REPORTER_ASSERT(reporter, configs[23]->asConfigGpu());
 #else
@@ -252,13 +248,9 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
 #else
     REPORTER_ASSERT(reporter, !configs[3]->asConfigGpu());
 #endif
-#if SK_COMMAND_BUFFER
     REPORTER_ASSERT(reporter, configs[4]->asConfigGpu()->getContextType() ==
                     GrContextFactory::kCommandBuffer_ContextType);
 
-#else
-    REPORTER_ASSERT(reporter, !configs[4]->asConfigGpu());
-#endif
     REPORTER_ASSERT(reporter, configs[5]->asConfigGpu()->getContextType() ==
                     GrContextFactory::kNativeGL_ContextType);
     REPORTER_ASSERT(reporter, !configs[5]->asConfigGpu()->getUseNVPR());
