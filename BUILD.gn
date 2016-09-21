@@ -21,6 +21,9 @@ declare_args() {
   skia_enable_android_framework_defines = false
   skia_enable_gpu = true
   skia_enable_tools = !is_fuchsia
+
+  # TODO: Vulkan debug layers should be disabled for all client uses of skia as well.
+  skia_enable_vulkan_debug_layers = !is_fuchsia && is_debug
 }
 
 # Our tools require static linking (they use non-exported symbols) and GPU support (just lazy).
@@ -328,6 +331,9 @@ optional("gpu") {
     public_defines += [ "SK_VULKAN" ]
     sources += skia_vk_sources
     libs += [ "vulkan" ]
+    if (skia_enable_vulkan_debug_layers) {
+      public_defines += [ "SK_ENABLE_VK_LAYERS" ]
+    }
   }
 }
 
