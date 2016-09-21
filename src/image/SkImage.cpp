@@ -11,6 +11,7 @@
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkImageFilter.h"
+#include "SkImageFilterCache.h"
 #include "SkImageGenerator.h"
 #include "SkImagePriv.h"
 #include "SkImageShader.h"
@@ -334,40 +335,41 @@ sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize&
 sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                        const SkIRect& clipBounds, SkIRect* outSubset,
                                        SkIPoint* offset) const {
-  if (!filter || !outSubset || !offset || !this->bounds().contains(subset)) {
-      return nullptr;
-  }
-  sk_sp<SkSpecialImage> srcSpecialImage = SkSpecialImage::MakeFromImage(
-      subset, sk_ref_sp(const_cast<SkImage*>(this)));
-  if (!srcSpecialImage) {
-      return nullptr;
-  }
+    if (!filter || !outSubset || !offset || !this->bounds().contains(subset)) {
+        return nullptr;
+    }
+    sk_sp<SkSpecialImage> srcSpecialImage = SkSpecialImage::MakeFromImage(
+        subset, sk_ref_sp(const_cast<SkImage*>(this)));
+    if (!srcSpecialImage) {
+        return nullptr;
+    }
 
-  // FIXME: build a cache here.
-  SkImageFilter::Context context(SkMatrix::I(), clipBounds, nullptr);
-  sk_sp<SkSpecialImage> result =
-      filter->filterImage(srcSpecialImage.get(), context, offset);
+    SkAutoTUnref<SkImageFilterCache> cache(
+        SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
+    SkImageFilter::Context context(SkMatrix::I(), clipBounds, cache.get());
+    sk_sp<SkSpecialImage> result =
+        filter->filterImage(srcSpecialImage.get(), context, offset);
 
-  if (!result) {
-      return nullptr;
-  }
+    if (!result) {
+        return nullptr;
+    }
 
-  SkIRect fullSize = SkIRect::MakeWH(result->width(), result->height());
+    SkIRect fullSize = SkIRect::MakeWH(result->width(), result->height());
 #if SK_SUPPORT_GPU
-  if (result->isTextureBacked()) {
-    GrContext* context = result->getContext();
-    sk_sp<GrTexture> texture = result->asTextureRef(context);
-    fullSize = SkIRect::MakeWH(texture->width(), texture->height());
-  }
+    if (result->isTextureBacked()) {
+        GrContext* context = result->getContext();
+        sk_sp<GrTexture> texture = result->asTextureRef(context);
+        fullSize = SkIRect::MakeWH(texture->width(), texture->height());
+    }
 #endif
-  *outSubset = SkIRect::MakeWH(result->width(), result->height());
-  if (!outSubset->intersect(clipBounds.makeOffset(-offset->x(), -offset->y()))) {
-      return nullptr;
-  }
-  offset->fX += outSubset->x();
-  offset->fY += outSubset->y();
-  // This isn't really a "tight" subset, but includes any texture padding.
-  return result->makeTightSubset(fullSize);
+    *outSubset = SkIRect::MakeWH(result->width(), result->height());
+    if (!outSubset->intersect(clipBounds.makeOffset(-offset->x(), -offset->y()))) {
+        return nullptr;
+    }
+    offset->fX += outSubset->x();
+    offset->fY += outSubset->y();
+    // This isn't really a "tight" subset, but includes any texture padding.
+    return result->makeTightSubset(fullSize);
 }
 
 bool SkImage::isLazyGenerated() const {

@@ -53,8 +53,6 @@
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->debugSingleOwner());)
 
-enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
-
 #if 0
     extern bool (*gShouldDrawProc)();
     #define CHECK_SHOULD_DRAW(draw)                             \
@@ -1818,7 +1816,7 @@ SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
     ASSERT_SINGLE_OWNER
     // We always return a transient cache, so it is freed after each
     // filter traversal.
-    return SkImageFilterCache::Create(kDefaultImageFilterCacheSize);
+    return SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize);
 }
 
 #endif

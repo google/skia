@@ -16,6 +16,7 @@
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
+#include "SkImageFilterCache.h"
 #include "SkMakeUnique.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
@@ -2286,8 +2287,8 @@ void SkPDFDevice::drawSpecial(const SkDraw& draw, SkSpecialImage* srcImg, int x,
         SkMatrix matrix = *draw.fMatrix;
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
         const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-x, -y);
-//        SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
-        SkImageFilter::Context ctx(matrix, clipBounds, nullptr /*cache.get()*/);
+        SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
+        SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
 
         sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
         if (resultImg) {
@@ -2315,4 +2316,10 @@ sk_sp<SkSpecialImage> SkPDFDevice::makeSpecial(const SkImage* image) {
 
 sk_sp<SkSpecialImage> SkPDFDevice::snapSpecial() {
     return nullptr;
+}
+
+SkImageFilterCache* SkPDFDevice::getImageFilterCache() {
+    // We always return a transient cache, so it is freed after each
+    // filter traversal.
+    return SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize);
 }
