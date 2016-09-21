@@ -5,6 +5,10 @@
 
 import("gn/shared_sources.gni")
 
+if (!defined(is_skia_standalone)) {
+  is_skia_standalone = false
+}
+
 declare_args() {
   skia_use_expat = true
   skia_use_fontconfig = is_linux
@@ -20,10 +24,8 @@ declare_args() {
 
   skia_enable_android_framework_defines = false
   skia_enable_gpu = true
-  skia_enable_tools = !is_fuchsia
-
-  # TODO: Vulkan debug layers should be disabled for all client uses of skia as well.
-  skia_enable_vulkan_debug_layers = !is_fuchsia && is_debug
+  skia_enable_tools = is_skia_standalone
+  skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
 }
 
 # Our tools require static linking (they use non-exported symbols) and GPU support (just lazy).

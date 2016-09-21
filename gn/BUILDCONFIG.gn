@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+is_skia_standalone = true
+
 # It's best to keep the names and defaults of is_foo flags consistent with Chrome.
 
 declare_args() {
