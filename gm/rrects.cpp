@@ -124,7 +124,7 @@ protected:
 #endif
                     } else if (kBW_Clip_Type == fType || kAA_Clip_Type == fType) {
                         bool aaClip = (kAA_Clip_Type == fType);
-                        canvas->clipRRect(fRRects[curRRect], SkCanvas::kReplace_Op, aaClip);
+                        canvas->clipRRect(fRRects[curRRect], aaClip);
                         canvas->drawRect(kMaxTileBound, paint);
                     } else {
                         canvas->drawRRect(fRRects[curRRect], paint);

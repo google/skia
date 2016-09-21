@@ -130,7 +130,7 @@ protected:
                                       SkPath::kEvenOdd_FillType);
                     clipB.setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
                                       SkPath::kEvenOdd_FillType);
-                    canvas->clipPath(clipA, SkCanvas::kIntersect_Op, fDoAAClip);
+                    canvas->clipPath(clipA, fDoAAClip);
                     canvas->clipPath(clipB, gOps[op].fOp, fDoAAClip);
 
                     // In the inverse case we need to prevent the draw from covering the whole

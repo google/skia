@@ -54,8 +54,8 @@ protected:
         canvas->save();
         canvas->scale(10, 10);
         canvas->translate(-((fX1 + fX2)/2 - fR), -(fY - 2*fR/3));
-        canvas->clipPath(fCircle1, SkCanvas::kReplace_Op, true);
-        canvas->clipPath(fCircle2, SkCanvas::kIntersect_Op, true);
+        canvas->clipPath(fCircle1, true);
+        canvas->clipPath(fCircle2, true);
 
         canvas->drawRect(rect, fillPaint);
 
@@ -73,7 +73,7 @@ protected:
             for (size_t op = 0; op < SK_ARRAY_COUNT(ops); op++) {
                 canvas->save();
 
-                canvas->clipPath(fCircle1, SkCanvas::kReplace_Op);
+                canvas->clipPath(fCircle1);
                 canvas->clipPath(fCircle2, ops[op]);
 
                 canvas->drawRect(rect, fillPaint);

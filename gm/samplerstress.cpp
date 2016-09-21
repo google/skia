@@ -108,7 +108,7 @@ protected:
         SkPath path;
         path.addRoundRect(temp, SkIntToScalar(5), SkIntToScalar(5));
 
-        canvas->clipPath(path, SkCanvas::kReplace_Op, true); // AA is on
+        canvas->clipPath(path, true); // AA is on
 
         canvas->drawText("M", 1,
                          SkIntToScalar(100), SkIntToScalar(100),

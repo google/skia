@@ -167,7 +167,7 @@ private:
         } else {
             fClipS.transform(clipM, &clip);
         }
-        canvas->clipPath(clip, SkCanvas::kIntersect_Op, true);
+        canvas->clipPath(clip, true);
         canvas->scale(scale, scale);
         canvas->drawBitmap(offscreen, (bounds.fLeft - 17) / scale,
                     (bounds.fTop - 20 + 420) / scale);
@@ -180,7 +180,7 @@ private:
             clipM.postTranslate(bounds.fLeft - 17 - 275, bounds.fTop - 24.5f + 420);
             SkPath clip;
             fClipR.transform(clipM, &clip);
-            canvas->clipPath(clip, SkCanvas::kIntersect_Op, true);
+            canvas->clipPath(clip, true);
             canvas->scale(10.f, 10.f);
             canvas->drawBitmap(offscreen, (bounds.fLeft - 17 - 275
                     + (index >= 5 ? 5 : 0)) / scale, (bounds.fTop - 20 + 420) / scale);

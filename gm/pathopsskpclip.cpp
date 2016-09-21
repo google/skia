@@ -42,9 +42,9 @@ protected:
             SkIntToScalar(700)
         };
         p.addRoundRect(r, SkIntToScalar(50), SkIntToScalar(50));
-        rec->clipPath(p, SkCanvas::kIntersect_Op, true);
+        rec->clipPath(p, true);
         rec->translate(SkIntToScalar(250), SkIntToScalar(250));
-        rec->clipPath(p, SkCanvas::kIntersect_Op, true);
+        rec->clipPath(p, true);
         rec->drawColor(0xffff0000);
         sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
 

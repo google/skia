@@ -85,7 +85,7 @@ static void draw(SkCanvas* canvas, SkRect& target, int x, int y) {
     canvas->drawRect(target, borderPaint);
     target.inset(SkIntToScalar(2), SkIntToScalar(2));
     canvas->drawRect(target, backgroundPaint);
-    canvas->clipRect(target, SkCanvas::kIntersect_Op, true);
+    canvas->clipRect(target, true);
     target.inset(SkIntToScalar(-4), SkIntToScalar(-4));
     canvas->drawRect(target, foregroundPaint);
     canvas->restore();

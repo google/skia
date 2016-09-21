@@ -36,7 +36,7 @@ protected:
         SkRect rect = SkRect::MakeXYWH(20, 0, 100, 20);
 
         canvas->save();
-        canvas->clipRect(rect, SkCanvas::kReplace_Op, true);
+        canvas->clipRect(rect, true);
         canvas->drawRect(r, p);
         canvas->restore();
 
@@ -54,7 +54,7 @@ protected:
         SkRect rect2 = SkRect::MakeXYWH(20, 120, 100, 19);
 
         canvas->save();
-        canvas->clipRect(rect2, SkCanvas::kReplace_Op, true);
+        canvas->clipRect(rect2, true);
         canvas->drawRect(r2, p);
         canvas->restore();
 

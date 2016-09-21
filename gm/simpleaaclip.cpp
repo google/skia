@@ -106,11 +106,11 @@ protected:
         // create the clip mask with the supplied boolean op
         if (kPath_GeomType == fGeomType) {
             // path-based case
-            canvas->clipPath(fBasePath, SkCanvas::kReplace_Op, true);
+            canvas->clipPath(fBasePath, true);
             canvas->clipPath(fRectPath, op, true);
         } else {
             // rect-based case
-            canvas->clipRect(fBase, SkCanvas::kReplace_Op, true);
+            canvas->clipRect(fBase, true);
             canvas->clipRect(fRect, op, true);
         }
 

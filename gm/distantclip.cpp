@@ -39,7 +39,7 @@ protected:
         SkRect r = SkRect::MakeXYWH(-kExtents, kOffset - kExtents, 2 * kExtents, 2 * kExtents);
         SkPath p;
         p.addRoundRect(r, 5, 5);
-        rec->clipPath(p, SkCanvas::kIntersect_Op, true);
+        rec->clipPath(p, true);
         rec->drawColor(SK_ColorGREEN);
         rec->restore();
         sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());

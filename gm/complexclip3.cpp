@@ -84,7 +84,7 @@ protected:
                                                SkPath::kEvenOdd_FillType);
                         secondClip->setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
                                                 SkPath::kEvenOdd_FillType);
-                        canvas->clipPath(*firstClip, SkCanvas::kIntersect_Op, doAAA);
+                        canvas->clipPath(*firstClip, doAAA);
                         canvas->clipPath(*secondClip, gOps[op].fOp, doAAB);
 
                         // draw rect clipped

@@ -80,7 +80,7 @@ protected:
                                                        SkIntToScalar(kCloseUpSize),
                                                        SkIntToScalar(kCloseUpSize));
 
-                    canvas->clipRect(clipRect, SkCanvas::kReplace_Op, false);
+                    canvas->clipRect(clipRect);
 
                     canvas->translate(desiredX-origins[k].fX,
                                       desiredY-origins[k].fY);

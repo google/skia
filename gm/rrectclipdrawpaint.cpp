@@ -21,14 +21,14 @@ DEF_SIMPLE_GM(rrect_clip_draw_paint, canvas, 256, 256) {
 
     const SkRect layerRect = SkRect::MakeWH(256.f, 256.f);
     canvas->saveLayer(layerRect, nullptr);
-    canvas->clipRRect(rrect, SkCanvas::kIntersect_Op, true);
+    canvas->clipRRect(rrect, true);
     canvas->drawPaint(p);
     canvas->restore();
 
     canvas->concat(zoomOut);
     p.setColor(SK_ColorBLUE);
     canvas->saveLayer(layerRect, nullptr);
-    canvas->clipRRect(rrect, SkCanvas::kIntersect_Op, false);
+    canvas->clipRRect(rrect, false);
     canvas->drawPaint(p);
     canvas->restore();
 
@@ -38,7 +38,7 @@ DEF_SIMPLE_GM(rrect_clip_draw_paint, canvas, 256, 256) {
                                              SkShader::kClamp_TileMode));
     canvas->concat(zoomOut);
     canvas->saveLayer(layerRect, nullptr);
-    canvas->clipRRect(rrect, SkCanvas::kIntersect_Op, true);
+    canvas->clipRRect(rrect, true);
     canvas->drawPaint(p);
     canvas->restore();
 
@@ -47,7 +47,7 @@ DEF_SIMPLE_GM(rrect_clip_draw_paint, canvas, 256, 256) {
                                              SkShader::kClamp_TileMode));
     canvas->concat(zoomOut);
     canvas->saveLayer(layerRect, nullptr);
-    canvas->clipRRect(rrect, SkCanvas::kIntersect_Op, false);
+    canvas->clipRRect(rrect, false);
     canvas->drawPaint(p);
     canvas->restore();
 }

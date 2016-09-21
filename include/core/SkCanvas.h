@@ -499,7 +499,13 @@ public:
      *  @param op The region op to apply to the current clip
      *  @param doAntiAlias true if the clip should be antialiased
      */
-    void clipRect(const SkRect& rect, ClipOp op = kIntersect_Op, bool doAntiAlias = false);
+    void clipRect(const SkRect& rect, ClipOp, bool doAntiAlias);
+    void clipRect(const SkRect& rect, ClipOp op) {
+        this->clipRect(rect, op, false);
+    }
+    void clipRect(const SkRect& rect, bool doAntiAlias = false) {
+        this->clipRect(rect, kIntersect_Op, doAntiAlias);
+    }
 
     /**
      *  Modify the current clip with the specified SkRRect.
@@ -507,7 +513,13 @@ public:
      *  @param op The region op to apply to the current clip
      *  @param doAntiAlias true if the clip should be antialiased
      */
-    void clipRRect(const SkRRect& rrect, ClipOp op = kIntersect_Op, bool doAntiAlias = false);
+    void clipRRect(const SkRRect& rrect, ClipOp op, bool doAntiAlias);
+    void clipRRect(const SkRRect& rrect, ClipOp op) {
+        this->clipRRect(rrect, op, false);
+    }
+    void clipRRect(const SkRRect& rrect, bool doAntiAlias = false) {
+        this->clipRRect(rrect, kIntersect_Op, doAntiAlias);
+    }
 
     /**
      *  Modify the current clip with the specified path.
@@ -515,7 +527,13 @@ public:
      *  @param op The region op to apply to the current clip
      *  @param doAntiAlias true if the clip should be antialiased
      */
-    void clipPath(const SkPath& path, ClipOp op = kIntersect_Op, bool doAntiAlias = false);
+    void clipPath(const SkPath& path, ClipOp op, bool doAntiAlias);
+    void clipPath(const SkPath& path, ClipOp op) {
+        this->clipPath(path, op, false);
+    }
+    void clipPath(const SkPath& path, bool doAntiAlias = false) {
+        this->clipPath(path, kIntersect_Op, doAntiAlias);
+    }
 
     /** EXPERIMENTAL -- only used for testing
         Set to false to force clips to be hard, even if doAntiAlias=true is
