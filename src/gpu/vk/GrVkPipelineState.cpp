@@ -487,7 +487,8 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
                                     const GrPipeline& pipeline,
                                     GrPrimitiveType primitiveType,
                                     const GrGLSLCaps& caps) {
-    if (!INHERITED::Build(desc, primProc, pipeline, caps)) {
+    if (!INHERITED::Build(desc, primProc, primitiveType == kPoints_GrPrimitiveType, pipeline,
+                          caps)) {
         return false;
     }
 

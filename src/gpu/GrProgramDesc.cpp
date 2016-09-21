@@ -106,6 +106,7 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
 
 bool GrProgramDesc::Build(GrProgramDesc* desc,
                           const GrPrimitiveProcessor& primProc,
+                          bool hasPointSize,
                           const GrPipeline& pipeline,
                           const GrGLSLCaps& glslCaps) {
     // The descriptor is used as a cache key. Thus when a field of the
@@ -171,14 +172,16 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
 
     header->fOutputSwizzle = glslCaps.configOutputSwizzle(rt->config()).asKey();
 
-    if (pipeline.ignoresCoverage()) {
-        header->fIgnoresCoverage = 1;
-    } else {
-        header->fIgnoresCoverage = 0;
-    }
+    header->fIgnoresCoverage = pipeline.ignoresCoverage() ? 1 : 0;
 
     header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
-    header->fColorEffectCnt = pipeline.numColorFragmentProcessors();
-    header->fCoverageEffectCnt = pipeline.numCoverageFragmentProcessors();
+    header->fColorFragmentProcessorCnt = pipeline.numColorFragmentProcessors();
+    header->fCoverageFragmentProcessorCnt = pipeline.numCoverageFragmentProcessors();
+    // Fail if the client requested more processors than the key can fit.
+    if (header->fColorFragmentProcessorCnt != pipeline.numColorFragmentProcessors() ||
+        header->fCoverageFragmentProcessorCnt != pipeline.numCoverageFragmentProcessors()) {
+        return false;
+    }
+    header->fHasPointSize = hasPointSize ? 1 : 0;
     return true;
 }

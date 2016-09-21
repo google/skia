@@ -2054,8 +2054,10 @@ void GrGLGpu::flushMinSampleShading(float minSampleShading) {
     }
 }
 
-bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc) {
-    SkAutoTUnref<GrGLProgram> program(fProgramCache->refProgram(this, pipeline, primProc));
+bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
+                           bool willDrawPoints) {
+    SkAutoTUnref<GrGLProgram> program(fProgramCache->refProgram(this, pipeline, primProc,
+                                                                willDrawPoints));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -2743,11 +2745,18 @@ GrGLenum gPrimitiveType2GLMode[] = {
 
 void GrGLGpu::draw(const GrPipeline& pipeline,
                    const GrPrimitiveProcessor& primProc,
-                   const GrMesh* meshes,
+                   const GrMesh meshes[],
                    int meshCount) {
     this->handleDirtyContext();
 
-    if (!this->flushGLState(pipeline, primProc)) {
+    bool hasPoints = false;
+    for (int i = 0; i < meshCount; ++i) {
+        if (meshes[i].primitiveType() == kPoints_GrPrimitiveType) {
+            hasPoints = true;
+            break;
+        }
+    }
+    if (!this->flushGLState(pipeline, primProc, hasPoints)) {
         return;
     }
     GrPixelLocalStorageState plsState = primProc.getPixelLocalStorageState();
