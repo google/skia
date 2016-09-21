@@ -38,14 +38,16 @@ static FILE* ios_open_from_bundle(const char path[], const char* perm) {
 
     // Convert the URL reference into a string reference
     CFStringRef imagePath = CFURLCopyFileSystemPath(imageURL, kCFURLPOSIXPathStyle);
+    CFRelease(imageURL);
 
     // Get the system encoding method
     CFStringEncoding encodingMethod = CFStringGetSystemEncoding();
 
     // Convert the string reference into a C string
     const char *finalPath = CFStringGetCStringPtr(imagePath, encodingMethod);
-
-    return fopen(finalPath, perm);
+    FILE* fileHandle = fopen(finalPath, perm);
+    CFRelease(imagePath);
+    return fileHandle;
 }
 #endif
 
