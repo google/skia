@@ -22,6 +22,7 @@
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "SkGr.h"
+#include "SkGrPriv.h"
 #include "effects/Gr1DKernelEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -476,6 +477,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
     sk_sp<GrTexture> srcTexture(input->asTextureRef(context));
     SkASSERT(srcTexture);
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(input->getColorSpace());
+    GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());
 
     // setup new clip
     const GrFixedClip clip(SkIRect::MakeWH(srcTexture->width(), srcTexture->height()));
@@ -488,8 +490,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
     if (radius.fWidth > 0) {
         sk_sp<GrDrawContext> dstDrawContext(context->makeDrawContext(SkBackingFit::kApprox,
                                                                      rect.width(), rect.height(),
-                                                                     kSkia8888_GrPixelConfig,
-                                                                     colorSpace));
+                                                                     config, colorSpace));
         if (!dstDrawContext) {
             return nullptr;
         }
@@ -510,8 +511,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
     if (radius.fHeight > 0) {
         sk_sp<GrDrawContext> dstDrawContext(context->makeDrawContext(SkBackingFit::kApprox,
                                                                      rect.width(), rect.height(),
-                                                                     kSkia8888_GrPixelConfig,
-                                                                     colorSpace));
+                                                                     config, colorSpace));
         if (!dstDrawContext) {
             return nullptr;
         }

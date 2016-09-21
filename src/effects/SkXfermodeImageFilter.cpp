@@ -21,6 +21,7 @@
 #include "effects/GrTextureDomain.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "SkGr.h"
+#include "SkGrPriv.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -240,10 +241,10 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
-                                                              bounds.width(), bounds.height(),
-                                                              kSkia8888_GrPixelConfig,
-                                                              sk_ref_sp(source->getColorSpace())));
+    sk_sp<GrDrawContext> drawContext(
+        context->makeDrawContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
+                                 GrRenderableConfigForColorSpace(source->getColorSpace()),
+                                 sk_ref_sp(source->getColorSpace())));
     if (!drawContext) {
         return nullptr;
     }

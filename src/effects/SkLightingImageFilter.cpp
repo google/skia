@@ -22,6 +22,7 @@
 #include "GrInvariantOutput.h"
 #include "GrPaint.h"
 #include "SkGr.h"
+#include "SkGrPriv.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -409,11 +410,10 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
     sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
     SkASSERT(inputTexture);
 
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
-                                                              offsetBounds.width(),
-                                                              offsetBounds.height(),
-                                                              kRGBA_8888_GrPixelConfig,
-                                                              sk_ref_sp(source->getColorSpace())));
+    sk_sp<GrDrawContext> drawContext(
+        context->makeDrawContext(SkBackingFit::kApprox,offsetBounds.width(), offsetBounds.height(),
+                                 GrRenderableConfigForColorSpace(source->getColorSpace()),
+                                 sk_ref_sp(source->getColorSpace())));
     if (!drawContext) {
         return nullptr;
     }

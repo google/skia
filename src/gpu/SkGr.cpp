@@ -508,6 +508,19 @@ bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
     return true;
 }
 
+GrPixelConfig GrRenderableConfigForColorSpace(SkColorSpace* colorSpace) {
+    if (!colorSpace) {
+        return kRGBA_8888_GrPixelConfig;
+    } else if (colorSpace->gammaIsLinear()) {
+        return kRGBA_half_GrPixelConfig;
+    } else if (colorSpace->gammaCloseToSRGB()) {
+        return kSRGBA_8888_GrPixelConfig;
+    } else {
+        SkDEBUGFAIL("No renderable config exists for color space with strange gamma");
+        return kUnknown_GrPixelConfig;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 static inline bool blend_requires_shader(const SkXfermode::Mode mode, bool primitiveIsSrc) {

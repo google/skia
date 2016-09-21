@@ -19,6 +19,7 @@
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
 #include "SkGr.h"
+#include "SkGrPriv.h"
 #include "effects/GrTextureDomain.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -337,7 +338,8 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
 
         sk_sp<GrDrawContext> drawContext(
             context->makeDrawContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                                     kSkia8888_GrPixelConfig, sk_ref_sp(source->getColorSpace())));
+                                     GrRenderableConfigForColorSpace(source->getColorSpace()),
+                                     sk_ref_sp(source->getColorSpace())));
         if (!drawContext) {
             return nullptr;
         }
