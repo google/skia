@@ -256,8 +256,8 @@ static const GammaFns<uint8_t> kFromLinear {
 // Build tables to transform src gamma to linear.
 template <typename T>
 static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage, int gammaTableSize,
-                               const sk_sp<SkColorSpace>& space, const GammaFns<T>& fns,
-                               bool gammasAreMatching) {
+                               SkColorSpace* space, const GammaFns<T>& fns, bool gammasAreMatching)
+{
     switch (as_CSB(space)->gammaNamed()) {
         case kSRGB_SkGammaNamed:
             outGammaTables[0] = outGammaTables[1] = outGammaTables[2] = fns.fSRGBTable;
@@ -342,8 +342,8 @@ static inline bool is_almost_identity(const SkMatrix44& srcToDst) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpace>& srcSpace,
-                                                          const sk_sp<SkColorSpace>& dstSpace) {
+std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace,
+                                                          SkColorSpace* dstSpace) {
     if (!srcSpace || !dstSpace) {
         // Invalid input
         return nullptr;
@@ -351,7 +351,7 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
 
     ColorSpaceMatch csm = kNone_ColorSpaceMatch;
     SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
-    if (SkColorSpace::Equals(srcSpace.get(), dstSpace.get())) {
+    if (SkColorSpace::Equals(srcSpace, dstSpace)) {
         srcToDst.setIdentity();
         csm = kFull_ColorSpaceMatch;
     } else {
@@ -1210,14 +1210,13 @@ static inline int num_tables(SkColorSpace* space) {
 
 template <SrcGamma kSrc, DstGamma kDst, ColorSpaceMatch kCSM>
 SkColorSpaceXform_Base<kSrc, kDst, kCSM>
-::SkColorSpaceXform_Base(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
-                         const sk_sp<SkColorSpace>& dstSpace)
+::SkColorSpaceXform_Base(SkColorSpace* srcSpace, const SkMatrix44& srcToDst, SkColorSpace* dstSpace)
     : fColorLUT(sk_ref_sp((SkColorLookUpTable*) as_CSB(srcSpace)->colorLUT()))
 {
     srcToDst.asColMajorf(fSrcToDst);
 
-    const int numSrcTables = num_tables(srcSpace.get());
-    const int numDstTables = num_tables(dstSpace.get());
+    const int numSrcTables = num_tables(srcSpace);
+    const int numDstTables = num_tables(dstSpace);
     const size_t srcTableBytes = numSrcTables * 256 * sizeof(float);
     const size_t dstTableBytes = numDstTables * kDstGammaTableSize * sizeof(uint8_t);
     fStorage.reset(srcTableBytes + dstTableBytes);
@@ -1365,7 +1364,7 @@ const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(const sk_sp<SkColorSpace>& space) {
+std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace* space) {
         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_Base
                 <kTable_SrcGamma, kTable_DstGamma, kNone_ColorSpaceMatch>
                 (space, SkMatrix::I(), space));

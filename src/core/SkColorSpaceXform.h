@@ -22,8 +22,7 @@ public:
      *  @param dstSpace The destination color space.
      *
      */
-    static std::unique_ptr<SkColorSpaceXform> New(const sk_sp<SkColorSpace>& srcSpace,
-                                                  const sk_sp<SkColorSpace>& dstSpace);
+    static std::unique_ptr<SkColorSpaceXform> New(SkColorSpace* srcSpace, SkColorSpace* dstSpace);
 
     enum ColorFormat : uint8_t {
         kRGBA_8888_ColorFormat,
@@ -79,8 +78,8 @@ public:
     static constexpr int      kDstGammaTableSize = 1024;
 
 private:
-    SkColorSpaceXform_Base(const sk_sp<SkColorSpace>& srcSpace, const SkMatrix44& srcToDst,
-                           const sk_sp<SkColorSpace>& dstSpace);
+    SkColorSpaceXform_Base(SkColorSpace* srcSpace, const SkMatrix44& srcToDst,
+                           SkColorSpace* dstSpace);
 
     sk_sp<SkColorLookUpTable> fColorLUT;
 
@@ -92,10 +91,10 @@ private:
     float                     fSrcToDst[16];
 
     friend class SkColorSpaceXform;
-    friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(const sk_sp<SkColorSpace>& space);
+    friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace* space);
 };
 
 // For testing.  Bypasses opts for when src and dst color spaces are equal.
-std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(const sk_sp<SkColorSpace>& space);
+std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace* space);
 
 #endif

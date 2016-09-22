@@ -22,7 +22,7 @@ public:
                 nullptr, kNonStandard_SkGammaNamed, gammas, SkMatrix::I(), nullptr));
 
         // Use special testing entry point, so we don't skip the xform, even though src == dst.
-        return SlowIdentityXform(space);
+        return SlowIdentityXform(space.get());
     }
 };
 

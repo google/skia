@@ -94,7 +94,8 @@ void ColorCodecBench::xformOnly() {
     if (!srcSpace) {
         srcSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     }
-    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace, fDstSpace);
+    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace.get(),
+                                                                      fDstSpace.get());
     SkASSERT(xform);
 
     void* dst = fDst.get();

@@ -1111,8 +1111,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     fColorXform = nullptr;
 
     if (needs_color_xform(dstInfo, this->getInfo())) {
-        fColorXform = SkColorSpaceXform::New(sk_ref_sp(this->getInfo().colorSpace()),
-                                             sk_ref_sp(dstInfo.colorSpace()));
+        fColorXform = SkColorSpaceXform::New(this->getInfo().colorSpace(), dstInfo.colorSpace());
         SkASSERT(fColorXform);
     }
 

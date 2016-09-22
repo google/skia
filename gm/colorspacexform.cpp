@@ -37,9 +37,12 @@ protected:
 
         SkMatrix44 wideGamut(SkMatrix44::kUninitialized_Constructor);
         wideGamut.set3x3RowMajorf(kWideGamutRGB_toXYZD50);
-        std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(
-                SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named),
-                SkColorSpace::NewRGB(SkColorSpace::kLinear_RenderTargetGamma, wideGamut));
+
+        sk_sp<SkColorSpace> srcSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        sk_sp<SkColorSpace> dstSpace =
+                SkColorSpace::NewRGB(SkColorSpace::kLinear_RenderTargetGamma, wideGamut);
+        std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace.get(),
+                                                                          dstSpace.get());
 
         xform->apply(fWideGamutColors, colors, kNumColors,
                      SkColorSpaceXform::kRGBA_F32_ColorFormat, kOpaque_SkAlphaType);
