@@ -175,7 +175,13 @@ public:
 
     bool isOpaque() const override;
 
-    void getGradientTableBitmap(SkBitmap*) const;
+    enum class GradientBitmapType : uint8_t {
+        kLegacy,
+        kSRGB,
+        kHalfFloat,
+    };
+
+    void getGradientTableBitmap(SkBitmap*, GradientBitmapType bitmapType) const;
 
     enum {
         /// Seems like enough for visual accuracy. TODO: if pos[] deserves
@@ -213,6 +219,9 @@ protected:
     void commonAsAGradient(GradientInfo*, bool flipGrad = false) const;
 
     bool onAsLuminanceColor(SkColor*) const override;
+
+
+    void initLinearBitmap(SkBitmap* bitmap) const;
 
     /*
      * Takes in pointers to gradient color and Rec info as colorSrc and recSrc respectively.
@@ -490,6 +499,7 @@ private:
     SkScalar fCachedYCoord;
     GrGLSLProgramDataManager::UniformHandle fColorsUni;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
+    GrGLSLProgramDataManager::UniformHandle fColorSpaceXformUni;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
