@@ -186,13 +186,13 @@ int main(int argc, char** argv) {
     SkCommandLineConfigArray configs;
     ParseConfigs(FLAGS_config, &configs);
     if (configs.count() != 1 || !(config = configs[0]->asConfigGpu())) {
-        exitf(ExitErr::kUsage, "invalid config %s; must specify one (and only one) GPU config",
+        exitf(ExitErr::kUsage, "invalid config %s, must specify one (and only one) GPU config",
                                join(FLAGS_config).c_str());
     }
 
     // Parse the skp.
     if (FLAGS_skp.count() != 1) {
-        exitf(ExitErr::kUsage, "invalid skp \"%s\"; one (and only one) skp must be specified.",
+        exitf(ExitErr::kUsage, "invalid skp %s, must specify (and only one) skp path name.",
                                join(FLAGS_skp).c_str());
     }
     const char* skpfile = FLAGS_skp[0];
@@ -206,10 +206,11 @@ int main(int argc, char** argv) {
     }
     int width = SkTMin(SkScalarCeilToInt(skp->cullRect().width()), 2048),
         height = SkTMin(SkScalarCeilToInt(skp->cullRect().height()), 2048);
-    if (FLAGS_verbosity >= 2 &&
+    if (FLAGS_verbosity >= 3 &&
         (width != skp->cullRect().width() || height != skp->cullRect().height())) {
-        fprintf(stderr, "NOTE: %s is too large (%ix%i); cropping to %ix%i.\n",
-                        skpfile, SkScalarCeilToInt(skp->cullRect().width()),
+        fprintf(stderr, "%s is too large (%ix%i), cropping to %ix%i.\n",
+                        SkOSPath::Basename(skpfile).c_str(),
+                        SkScalarCeilToInt(skp->cullRect().width()),
                         SkScalarCeilToInt(skp->cullRect().height()), width, height);
     }
 

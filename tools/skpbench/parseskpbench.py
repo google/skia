@@ -18,7 +18,7 @@ import urllib
 import urlparse
 import webbrowser
 
-__argparse = ArgumentParser(description="""
+__argparse = ArgumentParser(description='''
 
 Parses output files from skpbench.py into csv.
 
@@ -31,21 +31,21 @@ This script can also be used to generate a Google sheet:
 
 (3) Run parseskpbench.py with the --open flag.
 
-""")
+''')
 
 __argparse.add_argument('-r', '--result',
     choices=['median', 'accum', 'max', 'min'], default='median',
-    help='result to use for cell values')
+    help="result to use for cell values")
 __argparse.add_argument('-f', '--force',
     action='store_true', help='silently ignore warnings')
 __argparse.add_argument('-o', '--open',
     action='store_true',
-    help='generate a temp file and open it (theoretically in a web browser)')
+    help="generate a temp file and open it (theoretically in a web browser)")
 __argparse.add_argument('-n', '--name',
     default='skpbench_%s' % datetime.now().strftime('%Y-%m-%d_%H.%M.%S.csv'),
-    help='if using --open, a name for the temp file')
+    help="if using --open, a name for the temp file")
 __argparse.add_argument('sources',
-    nargs='+', help='source files with skpbench results ("-" for stdin)')
+    nargs='+', help="source files with skpbench results ('-' for stdin)")
 
 FLAGS = __argparse.parse_args()
 
@@ -67,18 +67,18 @@ class Parser:
       if self.metric is None:
         self.metric = match.metric
       elif match.metric != self.metric:
-        raise ValueError('results have mismatched metrics (%s and %s)' %
+        raise ValueError("results have mismatched metrics (%s and %s)" %
                          (self.metric, match.metric))
       if self.samples is None:
         self.samples = match.samples
       elif not FLAGS.force and match.samples != self.samples:
-        raise ValueError('results have mismatched number of samples. '
-                         '(use --force to ignore)')
+        raise ValueError("results have mismatched number of samples. "
+                         "(use --force to ignore)")
       if self.sample_ms is None:
         self.sample_ms = match.sample_ms
       elif not FLAGS.force and match.sample_ms != self.sample_ms:
-        raise ValueError('results have mismatched sampling times. '
-                         '(use --force to ignore)')
+        raise ValueError("results have mismatched sampling times. "
+                         "(use --force to ignore)")
       if not match.config in self.configs:
         self.configs.append(match.config)
       self.rows[match.bench][match.config] = match.get_string(FLAGS.result)
@@ -102,7 +102,7 @@ class Parser:
         elif FLAGS.force:
           outfile.write(',')
         else:
-          raise ValueError('%s: missing value for %s. (use --force to ignore)' %
+          raise ValueError("%s: missing value for %s. (use --force to ignore)" %
                            (bench, config))
       outfile.write('\n')
 
