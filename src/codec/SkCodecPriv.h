@@ -161,10 +161,10 @@ static inline SkColorSpaceXform::ColorFormat select_xform_format(SkColorType col
 /*
  * Given that the encoded image uses a color table, return the fill value
  */
-static inline uint64_t get_color_table_fill_value(SkColorType colorType, SkAlphaType alphaType,
+static inline uint64_t get_color_table_fill_value(SkColorType dstColorType, SkAlphaType alphaType,
         const SkPMColor* colorPtr, uint8_t fillIndex, SkColorSpaceXform* colorXform) {
     SkASSERT(nullptr != colorPtr);
-    switch (colorType) {
+    switch (dstColorType) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
             return colorPtr[fillIndex];
@@ -176,7 +176,8 @@ static inline uint64_t get_color_table_fill_value(SkColorType colorType, SkAlpha
             SkASSERT(colorXform);
             uint64_t dstColor;
             uint32_t srcColor = colorPtr[fillIndex];
-            colorXform->apply(&dstColor, &srcColor, 1, select_xform_format(colorType), alphaType);
+            colorXform->apply(&dstColor, &srcColor, 1, select_xform_format(dstColorType),
+                              SkColorSpaceXform::kRGBA_8888_ColorFormat, alphaType);
             return dstColor;
         }
         default:

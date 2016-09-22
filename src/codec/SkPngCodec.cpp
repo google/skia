@@ -272,7 +272,8 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) 
                 SkColorSpaceXform::kBGRA_8888_ColorFormat;
         SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
                                                         this->getInfo().alphaType());
-        fColorXform->apply(colorTable, colorTable, numColors, xformColorFormat, xformAlphaType);
+        fColorXform->apply(colorTable, colorTable, numColors, xformColorFormat,
+                           SkColorSpaceXform::kRGBA_8888_ColorFormat, xformAlphaType);
     }
 
     // Pad the color table with the last color in the table (or black) in the case that
@@ -493,18 +494,19 @@ void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
 }
 
 void SkPngCodec::applyXformRow(void* dst, const void* src) {
+    const SkColorSpaceXform::ColorFormat srcColorFormat = SkColorSpaceXform::kRGBA_8888_ColorFormat;
     switch (fXformMode) {
         case kSwizzleOnly_XformMode:
             fSwizzler->swizzle(dst, (const uint8_t*) src);
             break;
         case kColorOnly_XformMode:
             fColorXform->apply(dst, (const uint32_t*) src, fXformWidth, fXformColorFormat,
-                               fXformAlphaType);
+                               srcColorFormat, fXformAlphaType);
             break;
         case kSwizzleColor_XformMode:
             fSwizzler->swizzle(fColorXformSrcRow, (const uint8_t*) src);
             fColorXform->apply(dst, fColorXformSrcRow, fXformWidth, fXformColorFormat,
-                               fXformAlphaType);
+                               srcColorFormat, fXformAlphaType);
             break;
     }
 }

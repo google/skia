@@ -34,18 +34,20 @@ public:
     /**
      *  Apply the color conversion to a |src| buffer, storing the output in the |dst| buffer.
      *
-     *  @param dst            Stored in the format described by |dstColorType| and |dstAlphaType|
-     *  @param src            Stored as RGBA_8888, kUnpremul (note kOpaque is a form of kUnpremul)
+     *  @param dst            Stored in the format described by |dstColorFormat|
+     *  @param src            Stored in the format described by |srcColorFormat|
      *  @param len            Number of pixels in the buffers
      *  @param dstColorFormat Describes color format of |dst|
-     *  @param dstAlphaType   Describes alpha type of |dst|
+     *  @param srcColorFormat Describes color format of |src|
+     *                        Must be kRGBA_8888 or kBGRA_8888
+     *  @param alphaType      Describes alpha properties of the |dst| (and |src|)
      *                        kUnpremul preserves input alpha values
      *                        kPremul   performs a premultiplication and also preserves alpha values
      *                        kOpaque   optimization hint, |dst| alphas set to 1
      *
      */
     virtual void apply(void* dst, const uint32_t* src, int len, ColorFormat dstColorFormat,
-                       SkAlphaType dstAlphaType) const = 0;
+                       ColorFormat srcColorFormat, SkAlphaType alphaType) const = 0;
 
     virtual ~SkColorSpaceXform() {}
 };
@@ -73,7 +75,7 @@ class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
 
     void apply(void* dst, const uint32_t* src, int len, ColorFormat dstColorFormat,
-               SkAlphaType dstAlphaType) const override;
+               ColorFormat srcColorFormat, SkAlphaType alphaType) const override;
 
     static constexpr int      kDstGammaTableSize = 1024;
 

@@ -257,10 +257,12 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         config.options.scaled_height = dstDimensions.height();
     }
 
-    // FIXME (msarett):
-    // Lossless webp is encoded as BGRA.  In that case, it would be more efficient to
-    // to decode BGRA and apply the color xform to a BGRA buffer.
-    config.output.colorspace = colorXform ? MODE_RGBA :
+    // Swizzling between RGBA and BGRA is zero cost in a color transform.  So when we have a
+    // color transform, we should decode to whatever is easiest for libwebp, and then let the
+    // color transform swizzle if necessary.
+    // Lossy webp is encoded as YUV (so RGBA and BGRA are the same cost).  Lossless webp is
+    // encoded as BGRA. This means decoding to BGRA is either faster or the same cost as RGBA.
+    config.output.colorspace = colorXform ? MODE_BGRA :
             webp_decode_mode(dstInfo.colorType(), dstInfo.alphaType() == kPremul_SkAlphaType);
     config.output.is_external_memory = 1;
 
@@ -306,14 +308,15 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     }
 
     if (colorXform) {
-        SkColorSpaceXform::ColorFormat colorFormat = select_xform_format(dstInfo.colorType());
+        SkColorSpaceXform::ColorFormat dstColorFormat = select_xform_format(dstInfo.colorType());
         SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
                                                         this->getInfo().alphaType());
 
         uint32_t* src = (uint32_t*) config.output.u.RGBA.rgba;
         size_t srcRowBytes = config.output.u.RGBA.stride;
         for (int y = 0; y < rowsDecoded; y++) {
-            colorXform->apply(dst, src, dstInfo.width(), colorFormat, xformAlphaType);
+            colorXform->apply(dst, src, dstInfo.width(), dstColorFormat,
+                              SkColorSpaceXform::kBGRA_8888_ColorFormat, xformAlphaType);
             dst = SkTAddOffset<void>(dst, rowBytes);
             src = SkTAddOffset<uint32_t>(src, srcRowBytes);
         }

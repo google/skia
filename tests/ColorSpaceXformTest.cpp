@@ -41,17 +41,17 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
     // Create and perform an identity xform.
     std::unique_ptr<SkColorSpaceXform> xform = ColorSpaceXformTest::CreateIdentityXform(gammas);
     xform->apply(dstPixels, srcPixels, width, select_xform_format(kN32_SkColorType),
-                 kOpaque_SkAlphaType);
+                 SkColorSpaceXform::kBGRA_8888_ColorFormat, kOpaque_SkAlphaType);
 
     // Since the src->dst matrix is the identity, and the gamma curves match,
     // the pixels should be unchanged.
     for (int i = 0; i < width; i++) {
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >>  0) & 0xFF),
-                                        SkGetPackedR32(dstPixels[i])));
+                                        SkGetPackedB32(dstPixels[i])));
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >>  8) & 0xFF),
                                         SkGetPackedG32(dstPixels[i])));
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 16) & 0xFF),
-                                        SkGetPackedB32(dstPixels[i])));
+                                        SkGetPackedR32(dstPixels[i])));
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 24) & 0xFF),
                                         SkGetPackedA32(dstPixels[i])));
     }

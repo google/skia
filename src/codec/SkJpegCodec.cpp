@@ -518,7 +518,7 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
 
         if (fColorXform) {
             fColorXform->apply(dst, swizzleDst, dstWidth, select_xform_format(dstInfo.colorType()),
-                               kOpaque_SkAlphaType);
+                               SkColorSpaceXform::kRGBA_8888_ColorFormat, kOpaque_SkAlphaType);
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
 

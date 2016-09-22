@@ -102,7 +102,8 @@ void ColorCodecBench::xformOnly() {
     void* src = fSrc.get();
     for (int y = 0; y < fSrcInfo.height(); y++) {
         xform->apply(dst, (uint32_t*) src, fSrcInfo.width(),
-                     select_xform_format(fDstInfo.colorType()), fDstInfo.alphaType());
+                     select_xform_format(fDstInfo.colorType()),
+                     SkColorSpaceXform::kRGBA_8888_ColorFormat, fDstInfo.alphaType());
         dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
         src = SkTAddOffset<void>(src, fSrcInfo.minRowBytes());
     }

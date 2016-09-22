@@ -24,9 +24,6 @@ protected:
 
         for (int i = 0; i < kNumColors; i++) {
             fSRGBColors[i] = SkColor4f::FromColor(colors[i]);
-
-            // FIXME (msarett): SkColorSpaceXform does not support BGRA.
-            colors[i] = SkSwizzle_RB(colors[i]);
         }
 
         static constexpr float kWideGamutRGB_toXYZD50[]{
@@ -45,7 +42,8 @@ protected:
                                                                           dstSpace.get());
 
         xform->apply(fWideGamutColors, colors, kNumColors,
-                     SkColorSpaceXform::kRGBA_F32_ColorFormat, kOpaque_SkAlphaType);
+                     SkColorSpaceXform::kRGBA_F32_ColorFormat,
+                     SkColorSpaceXform::kBGRA_8888_ColorFormat, kOpaque_SkAlphaType);
     }
 
     SkString onShortName() override {
