@@ -81,6 +81,9 @@ void SkPathWriter::deferredMove(const SkOpPtT* pt) {
 
 void SkPathWriter::finishContour() {
     if (!this->matchedLast(fDefer[0])) {
+        if (!fDefer[1]) {
+          return;
+        }
         this->lineTo();
     }
     if (fCurrent.isEmpty()) {
