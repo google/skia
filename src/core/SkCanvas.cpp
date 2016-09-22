@@ -2908,6 +2908,11 @@ void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
         return;
     }
 
+    this->onDrawPatch(cubics, colors, texCoords, xmode, paint);
+}
+
+void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                           const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
     // Since a patch is always within the convex hull of the control points, we discard it when its
     // bounding rectangle is completely outside the current clip.
     SkRect bounds;
@@ -2915,12 +2920,6 @@ void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
     if (this->quickReject(bounds)) {
         return;
     }
-
-    this->onDrawPatch(cubics, colors, texCoords, xmode, paint);
-}
-
-void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
 
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, nullptr)
 
