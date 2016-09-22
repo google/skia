@@ -395,7 +395,7 @@ static void apply_morphology_rect(GrDrawContext* drawContext,
                                   float bounds[2],
                                   Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
-    paint.setAllowSRGBInputs(drawContext->isGammaCorrect());
+    paint.setGammaCorrect(drawContext->isGammaCorrect());
     paint.addColorFragmentProcessor(GrMorphologyEffect::Make(texture,
                                                              direction,
                                                              radius,
@@ -415,7 +415,7 @@ static void apply_morphology_rect_no_bounds(GrDrawContext* drawContext,
                                             GrMorphologyEffect::MorphologyType morphType,
                                             Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
-    paint.setAllowSRGBInputs(drawContext->isGammaCorrect());
+    paint.setGammaCorrect(drawContext->isGammaCorrect());
     paint.addColorFragmentProcessor(GrMorphologyEffect::Make(texture, direction, radius,
                                                              morphType));
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);

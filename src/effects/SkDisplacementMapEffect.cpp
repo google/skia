@@ -344,6 +344,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         if (!drawContext) {
             return nullptr;
         }
+        paint.setGammaCorrect(drawContext->isGammaCorrect());
 
         drawContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(colorBounds));
 

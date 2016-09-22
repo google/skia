@@ -250,7 +250,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(
     if (!drawContext) {
         return nullptr;
     }
-    paint.setAllowSRGBInputs(drawContext->isGammaCorrect());
+    paint.setGammaCorrect(drawContext->isGammaCorrect());
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
