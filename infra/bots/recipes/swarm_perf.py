@@ -30,6 +30,7 @@ TEST_BUILDERS = {
       'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android',
       'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android',
       'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
+      'Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
       'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-VisualBench',
@@ -85,6 +86,8 @@ def nanobench_flags(bot):
   elif 'MacMini6.2' in bot:
     config.extend(['glinst', 'glinst16'])
 
+  if 'CommandBuffer' in bot:
+    config = ['commandbuffer']
   if 'Vulkan' in bot:
     config = ['vk']
 
