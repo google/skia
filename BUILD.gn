@@ -920,4 +920,36 @@ if (skia_enable_tools) {
     ]
     testonly = true
   }
+
+  executable("skiaserve") {
+    sources = [
+      "tools/skiaserve/Request.cpp",
+      "tools/skiaserve/Response.cpp",
+      "tools/skiaserve/skiaserve.cpp",
+      "tools/skiaserve/urlhandlers/BatchBoundsHandler.cpp",
+      "tools/skiaserve/urlhandlers/BatchesHandler.cpp",
+      "tools/skiaserve/urlhandlers/BreakHandler.cpp",
+      "tools/skiaserve/urlhandlers/ClipAlphaHandler.cpp",
+      "tools/skiaserve/urlhandlers/CmdHandler.cpp",
+      "tools/skiaserve/urlhandlers/ColorModeHandler.cpp",
+      "tools/skiaserve/urlhandlers/DataHandler.cpp",
+      "tools/skiaserve/urlhandlers/DownloadHandler.cpp",
+      "tools/skiaserve/urlhandlers/EnableGPUHandler.cpp",
+      "tools/skiaserve/urlhandlers/ImgHandler.cpp",
+      "tools/skiaserve/urlhandlers/InfoHandler.cpp",
+      "tools/skiaserve/urlhandlers/PostHandler.cpp",
+      "tools/skiaserve/urlhandlers/QuitHandler.cpp",
+      "tools/skiaserve/urlhandlers/RootHandler.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+      "//third_party/jsoncpp",
+      "//third_party/libmicrohttpd",
+      "//third_party/libpng",
+    ]
+    testonly = true
+  }
 }
