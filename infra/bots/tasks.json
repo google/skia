@@ -76,5 +76,19 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     }
+  },
+  "jobs": {
+    "Build-Ubuntu-GCC-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": ["Build-Ubuntu-GCC-x86_64-Release-GN"]
+    },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": ["Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"]
+    },
+    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": ["Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"]
+    }
   }
 }
