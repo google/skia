@@ -10,7 +10,7 @@ from _adb import Adb
 from _benchresult import BenchResult
 from _hardware import HardwareException, Hardware
 from argparse import ArgumentParser
-from queue import Queue
+from multiprocessing import Queue
 from threading import Thread, Timer
 import collections
 import glob
