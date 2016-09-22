@@ -1153,6 +1153,12 @@ int SkConic::computeQuadPOW2(SkScalar tol) const {
     return pow2;
 }
 
+// This was originally developed and tested for pathops: see SkOpTypes.h 
+// returns true if (a <= b <= c) || (a >= b >= c)
+static bool between(SkScalar a, SkScalar b, SkScalar c) {
+    return (a - b) * (c - b) <= 0;
+}
+
 static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
     SkASSERT(level >= 0);
 
@@ -1162,6 +1168,32 @@ static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
     } else {
         SkConic dst[2];
         src.chop(dst);
+        const SkScalar startY = src.fPts[0].fY;
+        const SkScalar endY = src.fPts[2].fY;
+        if (between(startY, src.fPts[1].fY, endY)) {
+            // If the input is monotonic and the output is not, the scan converter hangs.
+            // Ensure that the chopped conics maintain their y-order.
+            SkScalar midY = dst[0].fPts[2].fY;
+            if (!between(startY, midY, endY)) {
+                // If the computed midpoint is outside the ends, move it to the closer one.
+                SkScalar closerY = SkTAbs(midY - startY) < SkTAbs(midY - endY) ? startY : endY;
+                dst[0].fPts[2].fY = dst[1].fPts[0].fY = closerY;
+            }
+            if (!between(startY, dst[0].fPts[1].fY, dst[0].fPts[2].fY)) {
+                // If the 1st control is not between the start and end, put it at the start.
+                // This also reduces the quad to a line.
+                dst[0].fPts[1].fY = startY;
+            }
+            if (!between(dst[1].fPts[0].fY, dst[1].fPts[1].fY, endY)) {
+                // If the 2nd control is not between the start and end, put it at the end.
+                // This also reduces the quad to a line.
+                dst[1].fPts[1].fY = endY;
+            }
+            // Verify that all five points are in order.
+            SkASSERT(between(startY, dst[0].fPts[1].fY, dst[0].fPts[2].fY));
+            SkASSERT(between(dst[0].fPts[1].fY, dst[0].fPts[2].fY, dst[1].fPts[1].fY));
+            SkASSERT(between(dst[0].fPts[2].fY, dst[1].fPts[1].fY, endY));
+        }
         --level;
         pts = subdivide(dst[0], pts, level);
         return subdivide(dst[1], pts, level);
