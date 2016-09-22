@@ -407,14 +407,15 @@ void SkPathMeasure::buildSegments() {
         const Segment* stop = fSegments.end();
         unsigned        ptIndex = 0;
         SkScalar        distance = 0;
-
+        // limit the loop to a reasonable number; pathological cases can run for minutes
+        int             maxChecks = 10000000;  // set to INT_MAX to defeat the check
         while (seg < stop) {
             SkASSERT(seg->fDistance > distance);
             SkASSERT(seg->fPtIndex >= ptIndex);
             SkASSERT(seg->fTValue > 0);
 
             const Segment* s = seg;
-            while (s < stop - 1 && s[0].fPtIndex == s[1].fPtIndex) {
+            while (s < stop - 1 && s[0].fPtIndex == s[1].fPtIndex && --maxChecks > 0) {
                 SkASSERT(s[0].fType == s[1].fType);
                 SkASSERT(s[0].fTValue < s[1].fTValue);
                 s += 1;
