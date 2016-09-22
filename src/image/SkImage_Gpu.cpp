@@ -409,16 +409,16 @@ namespace {
 class DTIBufferFiller
 {
 public:
-    explicit DTIBufferFiller(uintptr_t bufferAsInt)
-        : bufferAsInt_(bufferAsInt) {}
+    explicit DTIBufferFiller(char* bufferAsCharPtr)
+        : bufferAsCharPtr_(bufferAsCharPtr) {}
 
     void fillMember(const void* source, size_t memberOffset, size_t size) {
-        memcpy(reinterpret_cast<void*>(bufferAsInt_ + memberOffset), source, size);
+        memcpy(bufferAsCharPtr_ + memberOffset, source, size);
     }
 
 private:
 
-    uintptr_t bufferAsInt_;
+    char* bufferAsCharPtr_;
 };
 }
 
@@ -552,15 +552,16 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     if (!fillMode) {
         return size;
     }
-    uintptr_t bufferAsInt = reinterpret_cast<uintptr_t>(buffer);
-    uintptr_t pixelsAsInt = bufferAsInt + pixelOffset;
-    void* pixels = reinterpret_cast<void*>(pixelsAsInt);
+    char* bufferAsCharPtr = reinterpret_cast<char*>(buffer);
+    char* pixelsAsCharPtr = bufferAsCharPtr + pixelOffset;
+    void* pixels = pixelsAsCharPtr;
     void* ct = nullptr;
     if (ctSize) {
-        ct = reinterpret_cast<void*>(bufferAsInt + ctOffset);
+        ct = bufferAsCharPtr + ctOffset;
     }
 
-    memcpy(reinterpret_cast<void*>(SkAlign8(pixelsAsInt)), pixmap.addr(), pixmap.getSafeSize());
+    memcpy(reinterpret_cast<void*>(SkAlign8(reinterpret_cast<uintptr_t>(pixelsAsCharPtr))),
+                                   pixmap.addr(), pixmap.getSafeSize());
     if (ctSize) {
         memcpy(ct, pixmap.ctable()->readColors(), ctSize);
     }
@@ -569,7 +570,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size_t rowBytes = pixmap.rowBytes();
     static_assert(std::is_standard_layout<DeferredTextureImage>::value,
                   "offsetof, which we use below, requires the type have standard layout");
-    auto dtiBufferFiller = DTIBufferFiller{bufferAsInt};
+    auto dtiBufferFiller = DTIBufferFiller{bufferAsCharPtr};
     FILL_MEMBER(dtiBufferFiller, fGammaTreatment, &gammaTreatment);
     FILL_MEMBER(dtiBufferFiller, fContextUniqueID, &proxy.fContextUniqueID);
     int width = info.width();
@@ -583,28 +584,24 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     FILL_MEMBER(dtiBufferFiller, fColorTableCnt, &ctCount);
     FILL_MEMBER(dtiBufferFiller, fColorTableData, &ct);
     FILL_MEMBER(dtiBufferFiller, fMipMapLevelCount, &mipMapLevelCount);
-    memcpy(reinterpret_cast<void*>(bufferAsInt +
-                                  offsetof(DeferredTextureImage, fMipMapLevelData[0].fPixelData)),
+    memcpy(bufferAsCharPtr + offsetof(DeferredTextureImage, fMipMapLevelData[0].fPixelData),
            &pixels, sizeof(pixels));
-    memcpy(reinterpret_cast<void*>(bufferAsInt +
-                                  offsetof(DeferredTextureImage, fMipMapLevelData[0].fRowBytes)),
+    memcpy(bufferAsCharPtr + offsetof(DeferredTextureImage, fMipMapLevelData[0].fRowBytes),
            &rowBytes, sizeof(rowBytes));
     if (colorSpaceSize) {
-        void* colorSpace = reinterpret_cast<void*>(bufferAsInt + colorSpaceOffset);
+        void* colorSpace = bufferAsCharPtr + colorSpaceOffset;
         FILL_MEMBER(dtiBufferFiller, fColorSpace, &colorSpace);
         FILL_MEMBER(dtiBufferFiller, fColorSpaceSize, &colorSpaceSize);
-        info.colorSpace()->writeToMemory(reinterpret_cast<void*>(bufferAsInt + colorSpaceOffset));
+        info.colorSpace()->writeToMemory(bufferAsCharPtr + colorSpaceOffset);
     } else {
-        memset(reinterpret_cast<void*>(bufferAsInt +
-                                       offsetof(DeferredTextureImage, fColorSpace)),
+        memset(bufferAsCharPtr + offsetof(DeferredTextureImage, fColorSpace),
                0, sizeof(DeferredTextureImage::fColorSpace));
-        memset(reinterpret_cast<void*>(bufferAsInt +
-                                       offsetof(DeferredTextureImage, fColorSpaceSize)),
+        memset(bufferAsCharPtr + offsetof(DeferredTextureImage, fColorSpaceSize),
                0, sizeof(DeferredTextureImage::fColorSpaceSize));
     }
 
     // Fill in the mipmap levels if they exist
-    uintptr_t mipLevelPtr = pixelsAsInt + SkAlign8(pixmap.getSafeSize());
+    char* mipLevelPtr = pixelsAsCharPtr + SkAlign8(pixmap.getSafeSize());
 
     if (useMipMaps) {
         static_assert(std::is_standard_layout<MipMapLevelData>::value,
@@ -625,30 +622,25 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
             mipmaps->getLevel(generatedMipLevelIndex, &mipLevel);
 
             // Make sure the mipmap data is after the start of the buffer
-            SkASSERT(mipLevelPtr > bufferAsInt);
+            SkASSERT(mipLevelPtr > bufferAsCharPtr);
             // Make sure the mipmap data starts before the end of the buffer
-            SkASSERT(static_cast<size_t>(mipLevelPtr) < bufferAsInt + pixelOffset + pixelSize);
+            SkASSERT(mipLevelPtr < bufferAsCharPtr + pixelOffset + pixelSize);
             // Make sure the mipmap data ends before the end of the buffer
             SkASSERT(mipLevelPtr + mipLevel.fPixmap.getSafeSize() <=
-                     bufferAsInt + pixelOffset + pixelSize);
+                     bufferAsCharPtr + pixelOffset + pixelSize);
 
             // getSafeSize includes rowbyte padding except for the last row,
             // right?
 
-            memcpy(reinterpret_cast<void*>(mipLevelPtr), mipLevel.fPixmap.addr(),
-                       mipLevel.fPixmap.getSafeSize());
+            memcpy(mipLevelPtr, mipLevel.fPixmap.addr(), mipLevel.fPixmap.getSafeSize());
 
-            memcpy(reinterpret_cast<void*>(bufferAsInt +
-                offsetof(DeferredTextureImage, fMipMapLevelData) +
-                sizeof(MipMapLevelData) * (generatedMipLevelIndex + 1) +
-                offsetof(MipMapLevelData, fPixelData)),
-                   &mipLevelPtr, sizeof(void*));
+            memcpy(bufferAsCharPtr + offsetof(DeferredTextureImage, fMipMapLevelData) +
+                   sizeof(MipMapLevelData) * (generatedMipLevelIndex + 1) +
+                   offsetof(MipMapLevelData, fPixelData), &mipLevelPtr, sizeof(void*));
             size_t rowBytes = mipLevel.fPixmap.rowBytes();
-            memcpy(reinterpret_cast<void*>(bufferAsInt +
-                offsetof(DeferredTextureImage, fMipMapLevelData) +
-                sizeof(MipMapLevelData) * (generatedMipLevelIndex + 1) +
-                offsetof(MipMapLevelData, fRowBytes)),
-                   &rowBytes, sizeof(rowBytes));
+            memcpy(bufferAsCharPtr + offsetof(DeferredTextureImage, fMipMapLevelData) +
+                   sizeof(MipMapLevelData) * (generatedMipLevelIndex + 1) +
+                   offsetof(MipMapLevelData, fRowBytes), &rowBytes, sizeof(rowBytes));
 
             mipLevelPtr += SkAlign8(mipLevel.fPixmap.getSafeSize());
         }
