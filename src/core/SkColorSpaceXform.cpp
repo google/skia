@@ -662,7 +662,7 @@ static inline void load_rgba_from_tables(const uint32_t* src,
           srcTables[0][(src[1] >> kRShift) & 0xFF],
           srcTables[0][(src[2] >> kRShift) & 0xFF],
           srcTables[0][(src[3] >> kRShift) & 0xFF], };
-    g = { srcTables[1][(src[0] >> kRShift) & 0xFF],
+    g = { srcTables[1][(src[0] >> kGShift) & 0xFF],
           srcTables[1][(src[1] >> kGShift) & 0xFF],
           srcTables[1][(src[2] >> kGShift) & 0xFF],
           srcTables[1][(src[3] >> kGShift) & 0xFF], };
