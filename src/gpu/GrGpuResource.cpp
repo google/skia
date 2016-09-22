@@ -20,7 +20,8 @@ static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
 }
 
 GrGpuResource::GrGpuResource(GrGpu* gpu)
-    : fGpu(gpu)
+    : fExternalFlushCntWhenBecamePurgeable(0)
+    , fGpu(gpu)
     , fGpuMemorySize(kInvalidGpuMemorySize)
     , fBudgeted(SkBudgeted::kNo)
     , fRefsWrappedObjects(false)
