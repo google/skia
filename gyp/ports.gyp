@@ -53,8 +53,6 @@
 
         '../src/ports/SkGlobalInitialization_default.cpp',
         '../src/ports/SkMemory_malloc.cpp',
-        '../src/ports/SkOSEnvironment.h',
-        '../src/ports/SkOSEnvironment.cpp',
         '../src/ports/SkOSFile_posix.cpp',
         '../src/ports/SkOSFile_stdio.cpp',
         '../src/ports/SkOSFile_win.cpp',

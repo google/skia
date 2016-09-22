@@ -11,7 +11,6 @@
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/command_buffer/GLTestContext_command_buffer.h"
-#include "../ports/SkOSEnvironment.h"
 #include "../ports/SkOSLibrary.h"
 
 typedef void *EGLDisplay;
