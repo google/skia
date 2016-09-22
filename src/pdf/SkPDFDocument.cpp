@@ -399,11 +399,11 @@ static sk_sp<SkPDFArray> make_srgb_output_intents() {
     return intentArray;
 }
 
-bool SkPDFDocument::onClose(SkWStream* stream) {
+void SkPDFDocument::onClose(SkWStream* stream) {
     SkASSERT(!fCanvas.get());
     if (fPages.empty()) {
         this->reset();
-        return false;
+        return;
     }
     auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
     if (fPDFA) {
@@ -428,7 +428,6 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
     fObjectSerializer.serializeObjects(this->getStream());
     fObjectSerializer.serializeFooter(this->getStream(), docCatalog, fID);
     this->reset();
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

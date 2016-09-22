@@ -53,7 +53,7 @@ public:
     virtual ~SkPDFDocument();
     SkCanvas* onBeginPage(SkScalar, SkScalar, const SkRect&) override;
     void onEndPage() override;
-    bool onClose(SkWStream*) override;
+    void onClose(SkWStream*) override;
     void onAbort() override;
 
     /**

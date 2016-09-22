@@ -515,8 +515,6 @@ static void TestPdfDevice(skiatest::Reporter* reporter, const TestData& d, Canva
     REPORTER_ASSERT(reporter, canvas);
     step->setAssertMessageFormat(kPdfAssertMessageFormat);
     step->draw(canvas, d, reporter);
-
-    REPORTER_ASSERT(reporter, doc->close());
 }
 
 /*

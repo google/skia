@@ -1263,9 +1263,7 @@ static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
         }
         doc->endPage();
     }
-    if (!doc->close()) {
-        return "SkDocument::close() returned false";
-    }
+    doc->close();
     dst->flush();
     return "";
 }
