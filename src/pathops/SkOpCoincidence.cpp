@@ -461,6 +461,7 @@ bool SkOpCoincidence::addExpanded() {
         FAIL_IF(oEnd->deleted());
         FAIL_IF(!start->upCastable());
         const SkOpSpanBase* test = start->upCast()->next();
+        FAIL_IF(!coin->flipped() && !oStart->upCastable());
         const SkOpSpanBase* oTest = coin->flipped() ? oStart->prev() : oStart->upCast()->next();
         FAIL_IF(!oTest);
         SkOpSegment* seg = start->segment();

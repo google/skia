@@ -39,7 +39,7 @@ bool SkOpPtT::collapsed(const SkOpPtT* check) const {
 }
 
 bool SkOpPtT::contains(const SkOpPtT* check) const {
-    SkASSERT(this != check);
+    SkOPASSERT(this != check);
     const SkOpPtT* ptT = this;
     const SkOpPtT* stopPtT = ptT;
     while ((ptT = ptT->next()) != stopPtT) {
