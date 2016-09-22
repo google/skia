@@ -278,11 +278,12 @@ bool SkImageFilter::canComputeFastBounds() const {
 sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
                                                 sk_sp<GrFragmentProcessor> fp,
                                                 const SkIRect& bounds,
-                                                sk_sp<SkColorSpace> colorSpace) {
+                                                const OutputProperties& outputProperties) {
     GrPaint paint;
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
+    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
     GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());
     sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
                                                               bounds.width(), bounds.height(),
@@ -416,7 +417,7 @@ SkIRect SkImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix&, M
 SkImageFilter::Context SkImageFilter::mapContext(const Context& ctx) const {
     SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(),
                                                   MapDirection::kReverse_MapDirection);
-    return Context(ctx.ctm(), clipBounds, ctx.cache());
+    return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.outputProperties());
 }
 
 sk_sp<SkImageFilter> SkImageFilter::MakeMatrixFilter(const SkMatrix& matrix,

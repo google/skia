@@ -360,7 +360,8 @@ protected:
     sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source, 
                                          SkSpecialImage* input,
                                          const SkIRect& bounds,
-                                         const SkMatrix& matrix) const;
+                                         const SkMatrix& matrix,
+                                         const OutputProperties& outputProperties) const;
     virtual sk_sp<GrFragmentProcessor> makeFragmentProcessor(GrTexture*,
                                                              const SkMatrix&,
                                                              const SkIRect* srcBounds,
@@ -399,10 +400,12 @@ void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 }
 
-sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialImage* source,
-                                                                    SkSpecialImage* input,
-                                                                    const SkIRect& offsetBounds,
-                                                                    const SkMatrix& matrix) const {
+sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
+                                                   SkSpecialImage* source,
+                                                   SkSpecialImage* input,
+                                                   const SkIRect& offsetBounds,
+                                                   const SkMatrix& matrix,
+                                                   const OutputProperties& outputProperties) const {
     SkASSERT(source->isTextureBacked());
 
     GrContext* context = source->getContext();
@@ -412,8 +415,8 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
 
     sk_sp<GrDrawContext> drawContext(
         context->makeDrawContext(SkBackingFit::kApprox,offsetBounds.width(), offsetBounds.height(),
-                                 GrRenderableConfigForColorSpace(source->getColorSpace()),
-                                 sk_ref_sp(source->getColorSpace())));
+                                 GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
+                                 sk_ref_sp(outputProperties.colorSpace())));
     if (!drawContext) {
         return nullptr;
     }
@@ -1260,7 +1263,7 @@ sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(SkSpecialImage
         SkMatrix matrix(ctx.ctm());
         matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
 
-        return this->filterImageGPU(source, input.get(), bounds, matrix);
+        return this->filterImageGPU(source, input.get(), bounds, matrix, ctx.outputProperties());
     }
 #endif
 
@@ -1425,7 +1428,7 @@ sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(SkSpecialImag
         SkMatrix matrix(ctx.ctm());
         matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
 
-        return this->filterImageGPU(source, input.get(), bounds, matrix);
+        return this->filterImageGPU(source, input.get(), bounds, matrix, ctx.outputProperties());
     }
 #endif
 

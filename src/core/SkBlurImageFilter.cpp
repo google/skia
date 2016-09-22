@@ -157,6 +157,9 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         offset->fY = dstBounds.fTop;
         inputBounds.offset(-inputOffset);
         dstBounds.offset(-inputOffset);
+        // We intentionally use the source's color space, not the destination's (from ctx). We
+        // always blur in the source's config, so we need a compatible color space. We also want to
+        // avoid doing gamut conversion on every fetch of the texture.
         sk_sp<GrDrawContext> drawContext(SkGpuBlurUtils::GaussianBlur(
                                                                 context,
                                                                 inputTexture.get(),

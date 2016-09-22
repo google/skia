@@ -38,7 +38,7 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(SkSpecialImage* source
     // filter requires as input. This matters if the outer filter moves pixels.
     SkIRect innerClipBounds;
     innerClipBounds = this->getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm());
-    Context innerContext(ctx.ctm(), innerClipBounds, ctx.cache());
+    Context innerContext(ctx.ctm(), innerClipBounds, ctx.cache(), ctx.outputProperties());
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> inner(this->filterInput(1, source, innerContext, &innerOffset));
     if (!inner) {
@@ -49,7 +49,7 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(SkSpecialImage* source
     outerMatrix.postTranslate(SkIntToScalar(-innerOffset.x()), SkIntToScalar(-innerOffset.y()));
     SkIRect clipBounds = ctx.clipBounds();
     clipBounds.offset(-innerOffset.x(), -innerOffset.y());
-    Context outerContext(outerMatrix, clipBounds, ctx.cache());
+    Context outerContext(outerMatrix, clipBounds, ctx.cache(), ctx.outputProperties());
 
     SkIPoint outerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> outer(this->filterInput(0, inner.get(), outerContext, &outerOffset));

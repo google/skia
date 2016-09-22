@@ -91,7 +91,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::onFilterImage(SkSpecialImage* sourc
         return this->filterImageGPU(source,
                                     background, backgroundOffset, 
                                     foreground, foregroundOffset,
-                                    bounds);
+                                    bounds, ctx.outputProperties());
     }
 #endif
 
@@ -159,12 +159,14 @@ void SkXfermodeImageFilter::toString(SkString* str) const {
 
 #include "SkXfermode_proccoeff.h"
 
-sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* source,
-                                                            sk_sp<SkSpecialImage> background,
-                                                            const SkIPoint& backgroundOffset,
-                                                            sk_sp<SkSpecialImage> foreground,
-                                                            const SkIPoint& foregroundOffset,
-                                                            const SkIRect& bounds) const {
+sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(
+                                                   SkSpecialImage* source,
+                                                   sk_sp<SkSpecialImage> background,
+                                                   const SkIPoint& backgroundOffset,
+                                                   sk_sp<SkSpecialImage> foreground,
+                                                   const SkIPoint& foregroundOffset,
+                                                   const SkIRect& bounds,
+                                                   const OutputProperties& outputProperties) const {
     SkASSERT(source->isTextureBacked());
 
     GrContext* context = source->getContext();
@@ -243,8 +245,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     sk_sp<GrDrawContext> drawContext(
         context->makeDrawContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                                 GrRenderableConfigForColorSpace(source->getColorSpace()),
-                                 sk_ref_sp(source->getColorSpace())));
+                                 GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
+                                 sk_ref_sp(outputProperties.colorSpace())));
     if (!drawContext) {
         return nullptr;
     }

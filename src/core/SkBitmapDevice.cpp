@@ -395,7 +395,8 @@ void SkBitmapDevice::drawSpecial(const SkDraw& draw, SkSpecialImage* srcImg, int
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
         const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-x, -y);
         SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
-        SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
+        SkImageFilter::OutputProperties outputProperties(fBitmap.colorSpace());
+        SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
         
         sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
         if (resultImg) {

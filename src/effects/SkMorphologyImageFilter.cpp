@@ -469,14 +469,16 @@ static void apply_morphology_pass(GrDrawContext* drawContext,
     }
 }
 
-static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
-                                              SkSpecialImage* input,
-                                              const SkIRect& rect,
-                                              GrMorphologyEffect::MorphologyType morphType,
-                                              SkISize radius) {
+static sk_sp<SkSpecialImage> apply_morphology(
+                                          GrContext* context,
+                                          SkSpecialImage* input,
+                                          const SkIRect& rect,
+                                          GrMorphologyEffect::MorphologyType morphType,
+                                          SkISize radius,
+                                          const SkImageFilter::OutputProperties& outputProperties) {
     sk_sp<GrTexture> srcTexture(input->asTextureRef(context));
     SkASSERT(srcTexture);
-    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(input->getColorSpace());
+    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
     GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());
 
     // setup new clip
@@ -571,7 +573,8 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
         auto type = (kDilate_Op == this->op()) ? GrMorphologyEffect::kDilate_MorphologyType
                                                : GrMorphologyEffect::kErode_MorphologyType;
         sk_sp<SkSpecialImage> result(apply_morphology(context, input.get(), srcBounds, type,
-                                                      SkISize::Make(width, height)));
+                                                      SkISize::Make(width, height),
+                                                      ctx.outputProperties()));
         if (result) {
             offset->fX = bounds.left();
             offset->fY = bounds.top();

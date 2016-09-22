@@ -346,7 +346,9 @@ sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRec
 
     SkAutoTUnref<SkImageFilterCache> cache(
         SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
-    SkImageFilter::Context context(SkMatrix::I(), clipBounds, cache.get());
+    SkImageFilter::OutputProperties outputProperties(as_IB(this)->onImageInfo().colorSpace());
+    SkImageFilter::Context context(SkMatrix::I(), clipBounds, cache.get(), outputProperties);
+
     sk_sp<SkSpecialImage> result =
         filter->filterImage(srcSpecialImage.get(), context, offset);
 

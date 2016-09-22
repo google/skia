@@ -63,7 +63,8 @@ protected:
                                          const SkIPoint& backgroundOffset,
                                          sk_sp<SkSpecialImage> foreground,
                                          const SkIPoint& foregroundOffset,
-                                         const SkIRect& bounds) const;
+                                         const SkIRect& bounds,
+                                         const OutputProperties& outputProperties) const;
 #endif
 
     SkXfermodeImageFilter(sk_sp<SkXfermode> mode, sk_sp<SkImageFilter> inputs[2],

@@ -189,7 +189,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(const SkDraw& draw,
     matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
     const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-left, -top);
     SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
-    SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
+    SkImageFilter::OutputProperties outputProperties(fDrawContext->getColorSpace());
+    SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
 
     return filter->filterImage(srcImg, ctx, offset);
 }

@@ -2288,7 +2288,10 @@ void SkPDFDevice::drawSpecial(const SkDraw& draw, SkSpecialImage* srcImg, int x,
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
         const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-x, -y);
         SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
-        SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
+        // TODO: Should PDF be operating in a specified color space? For now, run the filter
+        // in the same color space as the source (this is different from all other backends).
+        SkImageFilter::OutputProperties outputProperties(srcImg->getColorSpace());
+        SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
 
         sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
         if (resultImg) {
