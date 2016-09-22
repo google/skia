@@ -1498,8 +1498,8 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
                 } else if (args.fContext->caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
                     bitmapType = SkGradientShaderBase::GradientBitmapType::kSRGB;
                 } else {
-                    // This should never happen, but just fall back to legacy behavior
-                    SkDEBUGFAIL("Requesting a gamma-correct gradient FP without F16 or sRGB");
+                    // This can happen, but only if someone explicitly creates an unsupported
+                    // (eg sRGB) surface. Just fall back to legacy behavior.
                 }
             }
 
