@@ -171,8 +171,12 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
 }
 
 sk_sp<SkColorSpace> SkColorSpace::makeLinearGamma() {
+    if (this->gammaIsLinear()) {
+        return sk_ref_sp(this);
+    }
     return SkColorSpace_Base::NewRGB(kLinear_SkGammaNamed, fToXYZD50);
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkColorSpace::gammaCloseToSRGB() const {
