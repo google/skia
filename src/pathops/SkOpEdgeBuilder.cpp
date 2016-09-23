@@ -31,7 +31,7 @@ static bool can_add_curve(SkPath::Verb verb, SkPoint* curve) {
     if (SkPath::kMove_Verb == verb) {
         return false;
     }
-    for (int index = 0; index < SkPathOpsVerbToPoints(verb); ++index) {
+    for (int index = 0; index <= SkPathOpsVerbToPoints(verb); ++index) {
         force_small_to_zero(&curve[index]);
     }
     return SkPath::kLine_Verb != verb || !SkDPoint::ApproximatelyEqual(curve[0], curve[1]);
@@ -209,8 +209,8 @@ bool SkOpEdgeBuilder::walk() {
                         SkPoint cStorage[2][2];
                         SkPath::Verb v1 = SkReduceOrder::Quad(&pair[0], cStorage[0]);
                         SkPath::Verb v2 = SkReduceOrder::Quad(&pair[2], cStorage[1]);
-                        SkPoint* curve1 = v1 == SkPath::kQuad_Verb ? &pair[0] : cStorage[0];
-                        SkPoint* curve2 = v2 == SkPath::kQuad_Verb ? &pair[2] : cStorage[1];
+                        SkPoint* curve1 = v1 != SkPath::kLine_Verb ? &pair[0] : cStorage[0];
+                        SkPoint* curve2 = v2 != SkPath::kLine_Verb ? &pair[2] : cStorage[1];
                         if (can_add_curve(v1, curve1) && can_add_curve(v2, curve2)) {
                             fCurrentContour->addCurve(v1, curve1);
                             fCurrentContour->addCurve(v2, curve2);
@@ -235,8 +235,8 @@ bool SkOpEdgeBuilder::walk() {
                         SkPoint cStorage[2][3];
                         SkPath::Verb v1 = SkReduceOrder::Conic(pair[0], cStorage[0]);
                         SkPath::Verb v2 = SkReduceOrder::Conic(pair[1], cStorage[1]);
-                        SkPoint* curve1 = v1 == SkPath::kConic_Verb ? pair[0].fPts : cStorage[0];
-                        SkPoint* curve2 = v2 == SkPath::kConic_Verb ? pair[1].fPts : cStorage[1];
+                        SkPoint* curve1 = v1 != SkPath::kLine_Verb ? pair[0].fPts : cStorage[0];
+                        SkPoint* curve2 = v2 != SkPath::kLine_Verb ? pair[1].fPts : cStorage[1];
                         if (can_add_curve(v1, curve1) && can_add_curve(v2, curve2)) {
                             fCurrentContour->addCurve(v1, curve1, pair[0].fW);
                             fCurrentContour->addCurve(v2, curve2, pair[1].fW);

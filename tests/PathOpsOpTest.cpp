@@ -7990,12 +7990,10 @@ DEF_TEST(PathOpsFailOp, reporter) {
 }
 
 static struct TestDesc repTests[] = {
-    TEST(loops44i),
-    TEST(loops45i),
-    TEST(loops46i),
+    TEST(fuzz763_5a),
 };
 
 DEF_TEST(PathOpsRepOp, reporter) {
-  for (int index = 0; index < 2; ++index)
+  for (int index = 0; index < 1; ++index)
     RunTestSet(reporter, repTests, SK_ARRAY_COUNT(repTests), nullptr, nullptr, nullptr, false);
 }

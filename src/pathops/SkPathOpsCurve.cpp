@@ -54,7 +54,7 @@ double SkDCurve::nearPoint(SkPath::Verb verb, const SkDPoint& xy, const SkDPoint
 
 void SkDCurve::offset(SkPath::Verb verb, const SkDVector& off) {
     int count = SkPathOpsVerbToPoints(verb);
-    for (int index = 0; index < count; ++index) {
+    for (int index = 0; index <= count; ++index) {
         fCubic.fPts[index] += off;
     }
 }
@@ -101,7 +101,7 @@ void SkDCurveSweep::setCurveHullSweep(SkPath::Verb verb) {
     // OPTIMIZE: I do the following float check a lot -- probably need a
     // central place for this val-is-small-compared-to-curve check
     double maxVal = 0;
-    for (int index = 0; index < SkPathOpsVerbToPoints(verb); ++index) {
+    for (int index = 0; index <= SkPathOpsVerbToPoints(verb); ++index) {
         maxVal = SkTMax(maxVal, SkTMax(SkTAbs(fCurve[index].fX),
                 SkTAbs(fCurve[index].fY)));
     }
