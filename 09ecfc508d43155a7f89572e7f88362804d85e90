@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "703917b8_ec3f63e1",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2848,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-23T19:04:48Z",
+      "side": 1,
+      "message": ":( how can the fuzzer give us a null here?",
+      "range": {
+        "startLine": 2848,
+        "startChar": 8,
+        "endLine": 2848,
+        "endChar": 12
+      },
+      "revId": "09ecfc508d43155a7f89572e7f88362804d85e90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
