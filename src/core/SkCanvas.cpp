@@ -2845,35 +2845,35 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                         const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawText()");
-    if (byteLength) {
+    if (text && byteLength) {
         this->onDrawText(text, byteLength, x, y, paint);
     }
 }
 void SkCanvas::drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                            const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPosText()");
-    if (byteLength) {
+    if (text && byteLength) {
         this->onDrawPosText(text, byteLength, pos, paint);
     }
 }
 void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                             SkScalar constY, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPosTextH()");
-    if (byteLength) {
+    if (text && byteLength) {
         this->onDrawPosTextH(text, byteLength, xpos, constY, paint);
     }
 }
 void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                               const SkMatrix* matrix, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawTextOnPath()");
-    if (byteLength) {
+    if (text && byteLength) {
         this->onDrawTextOnPath(text, byteLength, path, matrix, paint);
     }
 }
 void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                const SkRect* cullRect, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawTextRSXform()");
-    if (byteLength) {
+    if (text && byteLength) {
         this->onDrawTextRSXform(text, byteLength, xform, cullRect, paint);
     }
 }

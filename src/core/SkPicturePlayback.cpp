@@ -108,6 +108,9 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
         fCurOffset = reader->offset();
         uint32_t size;
         DrawType op = ReadOpAndSize(reader, &size);
+        if (!reader->validate(op > UNUSED && op <= LAST_DRAWTYPE_ENUM)) {
+            return;
+        }
 
         this->handleOp(reader, op, size, canvas, initialMatrix);
     }
