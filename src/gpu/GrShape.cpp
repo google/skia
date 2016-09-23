@@ -132,12 +132,12 @@ int GrShape::unstyledKeySize() const {
             // 4 for the end points and 1 for the inverseness
             return 5;
         case Type::kPath: {
+            if (0 == fPathData.fGenID) {
+                return -1;
+            }
             int dataKeySize = path_key_from_data_size(fPathData.fPath);
             if (dataKeySize >= 0) {
                 return dataKeySize;
-            }
-            if (0 == fPathData.fGenID) {
-                return -1;
             }
             // The key is the path ID and fill type.
             return 2;
@@ -172,12 +172,12 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
                 *key++ = fLineData.fInverted ? 1 : 0;
                 break;
             case Type::kPath: {
+                SkASSERT(fPathData.fGenID);
                 int dataKeySize = path_key_from_data_size(fPathData.fPath);
                 if (dataKeySize >= 0) {
                     write_path_key_from_data(fPathData.fPath, key);
                     return;
                 }
-                SkASSERT(fPathData.fGenID);
                 *key++ = fPathData.fGenID;
                 // We could canonicalize the fill rule for paths that don't differentiate between
                 // even/odd or winding fill (e.g. convex).

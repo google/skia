@@ -1161,14 +1161,8 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
         // If the resulting path is small enough then it will have a key.
         REPORTER_ASSERT(reporter, paths_fill_same(a, b));
         REPORTER_ASSERT(reporter, paths_fill_same(a, c));
-        if (c.countVerbs() <= GrShape::kMaxKeyFromDataVerbCnt) {
-            REPORTER_ASSERT(reporter, !peCase.appliedPathEffectKey().empty());
-            REPORTER_ASSERT(reporter, peCase.appliedPathEffectKey() ==
-                                      peCase.appliedFullStyleKey());
-        } else {
-            REPORTER_ASSERT(reporter, peCase.appliedPathEffectKey().empty());
-            REPORTER_ASSERT(reporter, peCase.appliedFullStyleKey().empty());
-        }
+        REPORTER_ASSERT(reporter, peCase.appliedPathEffectKey().empty());
+        REPORTER_ASSERT(reporter, peCase.appliedFullStyleKey().empty());
     }
     REPORTER_ASSERT(reporter, peCase.appliedPathEffectShape().style().isSimpleHairline());
     REPORTER_ASSERT(reporter, peCase.appliedFullStyleShape().style().isSimpleHairline());
@@ -1184,8 +1178,8 @@ void test_volatile_path(skiatest::Reporter* reporter, const Geo& geo) {
     dashAndStroke.setStyle(SkPaint::kStroke_Style);
     TestCase volatileCase(reporter, vPath, dashAndStroke);
     // We expect a shape made from a volatile path to have a key iff the shape is recognized
-    // as a specialized geometry or it has a small verb count.
-    if (geo.isNonPath(dashAndStroke) || vPath.countVerbs() <= GrShape::kMaxKeyFromDataVerbCnt) {
+    // as a specialized geometry.
+    if (geo.isNonPath(dashAndStroke)) {
         REPORTER_ASSERT(reporter, SkToBool(volatileCase.baseKey().count()));
         // In this case all the keys should be identical to the non-volatile case.
         TestCase nonVolatileCase(reporter, geo.path(), dashAndStroke);
@@ -1788,19 +1782,19 @@ static void test_short_path_keys(skiatest::Reporter* r) {
     paints[3].setStyle(SkPaint::kStrokeAndFill_Style);
     paints[3].setStrokeWidth(5.f);
 
-    auto compare = [r, &paints] (SkPath* pathA, SkPath* pathB,
+    auto compare = [r, &paints] (const SkPath& pathA, const SkPath& pathB,
                                  TestCase::ComparisonExpecation expectation) {
+        SkPath volatileA = pathA;
+        SkPath volatileB = pathB;
+        volatileA.setIsVolatile(true);
+        volatileB.setIsVolatile(true);
         for (const SkPaint& paint : paints) {
+            REPORTER_ASSERT(r, !GrShape(volatileA, paint).hasUnstyledKey());
+            REPORTER_ASSERT(r, !GrShape(volatileB, paint).hasUnstyledKey());
             for (PathGeo::Invert invert : {PathGeo::Invert::kNo, PathGeo::Invert::kYes}) {
-                for (bool aIsVolatile : {false, true}) {
-                    for (bool bIsVolatile : {false, true}) {
-                        pathA->setIsVolatile(aIsVolatile);
-                        pathB->setIsVolatile(bIsVolatile);
-                        TestCase caseA(PathGeo(*pathA, invert), paint, r);
-                        TestCase caseB(PathGeo(*pathB, invert), paint, r);
-                        caseA.compare(r, caseB, expectation);
-                    }
-                }
+                TestCase caseA(PathGeo(pathA, invert), paint, r);
+                TestCase caseB(PathGeo(pathB, invert), paint, r);
+                caseA.compare(r, caseB, expectation);
             }
         }
     };
@@ -1814,33 +1808,33 @@ static void test_short_path_keys(skiatest::Reporter* r) {
 
     pathB.lineTo(10.f, 10.f);
     pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.7f);
-    compare(&pathA, &pathB, TestCase::kAllSame_ComparisonExpecation);
+    compare(pathA, pathB, TestCase::kAllSame_ComparisonExpecation);
 
     // Give path b a different point
     pathB.reset();
     pathB.lineTo(10.f, 10.f);
     pathB.conicTo(21.f, 20.f, 20.f, 30.f, 0.7f);
-    compare(&pathA, &pathB, TestCase::kAllDifferent_ComparisonExpecation);
+    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
 
     // Give path b a different conic weight
     pathB.reset();
     pathB.lineTo(10.f, 10.f);
     pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.6f);
-    compare(&pathA, &pathB, TestCase::kAllDifferent_ComparisonExpecation);
+    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
 
     // Give path b an extra lineTo verb
     pathB.reset();
     pathB.lineTo(10.f, 10.f);
     pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.6f);
     pathB.lineTo(50.f, 50.f);
-    compare(&pathA, &pathB, TestCase::kAllDifferent_ComparisonExpecation);
+    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
 
     // Give path b a close
     pathB.reset();
     pathB.lineTo(10.f, 10.f);
     pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.7f);
     pathB.close();
-    compare(&pathA, &pathB, TestCase::kAllDifferent_ComparisonExpecation);
+    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
 }
 
 DEF_TEST(GrShape, reporter) {

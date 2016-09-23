@@ -104,18 +104,15 @@ DEF_GPUTEST(GrPathKeys, reporter, /*factory*/) {
     for (const GrStyle& style : styles) {
         // Keys should not ignore conic weights.
         SkPath path1, path2;
-        path1.setIsVolatile(true);
-        path2.setIsVolatile(true);
         SkPoint p0 = SkPoint::Make(100, 0);
         SkPoint p1 = SkPoint::Make(100, 100);
 
         path1.conicTo(p0, p1, .5f);
         path2.conicTo(p0, p1, .7f);
 
-        bool isVolatile;
         GrUniqueKey key1, key2;
-        // Even though the paths are marked volatile, they should have keys based on the path data
-        // because they have a small amount of data.
+        // We expect these small paths to be keyed based on their data.
+        bool isVolatile;
         GrPath::ComputeKey(GrShape(path1, GrStyle::SimpleFill()), &key1, &isVolatile);
         REPORTER_ASSERT(reporter, !isVolatile);
         REPORTER_ASSERT(reporter, key1.isValid());
@@ -123,12 +120,19 @@ DEF_GPUTEST(GrPathKeys, reporter, /*factory*/) {
         REPORTER_ASSERT(reporter, !isVolatile);
         REPORTER_ASSERT(reporter, key1.isValid());
         REPORTER_ASSERT(reporter, key1 != key2);
+        {
+            GrUniqueKey tempKey;
+            path1.setIsVolatile(true);
+            GrPath::ComputeKey(GrShape(path1, style), &key1, &isVolatile);
+            REPORTER_ASSERT(reporter, isVolatile);
+            REPORTER_ASSERT(reporter, !tempKey.isValid());
+        }
 
         // Ensure that recreating the GrShape doesn't change the key.
         {
             GrUniqueKey tempKey;
-            GrPath::ComputeKey(GrShape(path1, GrStyle::SimpleFill()), &tempKey, &isVolatile);
-            REPORTER_ASSERT(reporter, key1 == tempKey);
+            GrPath::ComputeKey(GrShape(path2, GrStyle::SimpleFill()), &tempKey, &isVolatile);
+            REPORTER_ASSERT(reporter, key2 == tempKey);
         }
 
         // Try a large path that is too big to be keyed off its data.
