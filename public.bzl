@@ -438,7 +438,6 @@ DM_SRCS_ALL = struct(
         "tests/SkSL*.cpp",  # Excluded along with Vulkan.
         "tests/SVGDeviceTest.cpp",
         "tools/gpu/gl/angle/*",
-        "tools/gpu/gl/command_buffer/*",
         "tools/gpu/gl/egl/*",
         "tools/gpu/gl/glx/*",
         "tools/gpu/gl/iOS/*",
