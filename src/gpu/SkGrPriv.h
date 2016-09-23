@@ -108,7 +108,7 @@ bool GrPixelConfigToColorType(GrPixelConfig, SkColorType*);
 /** When image filter code needs to construct a draw context to do intermediate rendering, we need
     a renderable pixel config. The source (SkSpecialImage) may not be in a renderable format, but
     we want to preserve the color space of that source. This picks an appropriate format to use. */
-GrPixelConfig GrRenderableConfigForColorSpace(SkColorSpace*);
+GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace*);
 
 /**
  *  If the compressed data in the SkData is supported (as a texture format, this returns

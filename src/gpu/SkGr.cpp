@@ -508,7 +508,7 @@ bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
     return true;
 }
 
-GrPixelConfig GrRenderableConfigForColorSpace(SkColorSpace* colorSpace) {
+GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace* colorSpace) {
     if (!colorSpace) {
         return kRGBA_8888_GrPixelConfig;
     } else if (colorSpace->gammaIsLinear()) {
