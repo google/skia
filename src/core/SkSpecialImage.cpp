@@ -52,13 +52,11 @@ public:
 
     virtual sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const = 0;
 
-    virtual sk_sp<SkSpecialSurface> onMakeSurface(const SkImageFilter::OutputProperties& outProps,
-                                                  const SkISize& size, SkAlphaType at) const = 0;
+    virtual sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const = 0;
 
     virtual sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const = 0;
 
-    virtual sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
-                                                const SkISize& size, SkAlphaType at) const = 0;
+    virtual sk_sp<SkSurface> onMakeTightSurface(const SkImageInfo& info) const = 0;
 
 private:
     typedef SkSpecialImage INHERITED;
@@ -153,14 +151,12 @@ sk_sp<GrTexture> SkSpecialImage::asTextureRef(GrContext* context) const {
 }
 #endif
 
-sk_sp<SkSpecialSurface> SkSpecialImage::makeSurface(const SkImageFilter::OutputProperties& outProps,
-                                                    const SkISize& size, SkAlphaType at) const {
-    return as_SIB(this)->onMakeSurface(outProps, size, at);
+sk_sp<SkSpecialSurface> SkSpecialImage::makeSurface(const SkImageInfo& info) const {
+    return as_SIB(this)->onMakeSurface(info);
 }
 
-sk_sp<SkSurface> SkSpecialImage::makeTightSurface(const SkImageFilter::OutputProperties& outProps,
-                                                  const SkISize& size, SkAlphaType at) const {
-    return as_SIB(this)->onMakeTightSurface(outProps, size, at);
+sk_sp<SkSurface> SkSpecialImage::makeTightSurface(const SkImageInfo& info) const {
+    return as_SIB(this)->onMakeTightSurface(info);
 }
 
 sk_sp<SkSpecialImage> SkSpecialImage::makeSubset(const SkIRect& subset) const {
@@ -256,22 +252,7 @@ public:
     }
 #endif
 
-// TODO: The raster implementations of image filters all currently assume that the pixels are
-// legacy N32. Until they actually check the format and operate on sRGB or F16 data appropriately,
-// we can't enable this. (They will continue to produce incorrect results, but less-so).
-#define RASTER_IMAGE_FILTERS_SUPPORT_SRGB_AND_F16 0
-
-    sk_sp<SkSpecialSurface> onMakeSurface(const SkImageFilter::OutputProperties& outProps,
-                                          const SkISize& size, SkAlphaType at) const override {
-#if RASTER_IMAGE_FILTERS_SUPPORT_SRGB_AND_F16
-        SkColorSpace* colorSpace = outProps.colorSpace();
-#else
-        SkColorSpace* colorSpace = nullptr;
-#endif
-        SkColorType colorType = colorSpace && colorSpace->gammaIsLinear()
-            ? kRGBA_F16_SkColorType : kN32_SkColorType;
-        SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
-                                             sk_ref_sp(colorSpace));
+    sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const override {
         return SkSpecialSurface::MakeRaster(info, nullptr);
     }
 
@@ -297,17 +278,7 @@ public:
         return SkImage::MakeFromBitmap(subsetBM);
     }
 
-    sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
-                                        const SkISize& size, SkAlphaType at) const override {
-#if RASTER_IMAGE_FILTERS_SUPPORT_SRGB_AND_F16
-        SkColorSpace* colorSpace = outProps.colorSpace();
-#else
-        SkColorSpace* colorSpace = nullptr;
-#endif
-        SkColorType colorType = colorSpace && colorSpace->gammaIsLinear()
-            ? kRGBA_F16_SkColorType : kN32_SkColorType;
-        SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
-                                             sk_ref_sp(colorSpace));
+    sk_sp<SkSurface> onMakeTightSurface(const SkImageInfo& info) const override {
         return SkSurface::MakeRaster(info);
     }
 
@@ -411,16 +382,16 @@ public:
         return fColorSpace.get();
     }
 
-    sk_sp<SkSpecialSurface> onMakeSurface(const SkImageFilter::OutputProperties& outProps,
-                                          const SkISize& size, SkAlphaType at) const override {
+    sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const override {
         if (!fTexture->getContext()) {
             return nullptr;
         }
 
-        SkColorSpace* colorSpace = outProps.colorSpace();
-        return SkSpecialSurface::MakeRenderTarget(
-            fTexture->getContext(), size.width(), size.height(),
-            GrRenderableConfigForColorSpace(colorSpace), sk_ref_sp(colorSpace));
+        GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *fTexture->getContext()->caps());
+
+        return SkSpecialSurface::MakeRenderTarget(fTexture->getContext(),
+                                                  info.width(), info.height(),
+                                                  config, sk_ref_sp(info.colorSpace()));
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
@@ -457,13 +428,7 @@ public:
                                        fAlphaType, subTx.get(), fColorSpace, SkBudgeted::kYes);
     }
 
-    sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
-                                        const SkISize& size, SkAlphaType at) const override {
-        SkColorSpace* colorSpace = outProps.colorSpace();
-        SkColorType colorType = colorSpace && colorSpace->gammaIsLinear()
-            ? kRGBA_F16_SkColorType : kRGBA_8888_SkColorType;
-        SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
-                                             sk_ref_sp(colorSpace));
+    sk_sp<SkSurface> onMakeTightSurface(const SkImageInfo& info) const override {
         return SkSurface::MakeRenderTarget(fTexture->getContext(), SkBudgeted::kYes, info);
     }
 

@@ -279,18 +279,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
     }
 
     SkIPoint displOffset = SkIPoint::Make(0, 0);
-    // Creation of the displacement map should happen in a non-colorspace aware context. This
-    // texture is a purely mathematical construct, so we want to just operate on the stored
-    // values. Consider:
-    // User supplies an sRGB displacement map. If we're rendering to a wider gamut, then we could
-    // end up filtering the displacement map into that gamut, which has the effect of reducing
-    // the amount of displacement that it represents (as encoded values move away from the
-    // primaries).
-    // With a more complex DAG attached to this input, it's not clear that working in ANY specific
-    // color space makes sense, so we ignore color spaces (and gamma) entirely. This may not be
-    // ideal, but it's at least consistent and predictable.
-    Context displContext(ctx.ctm(), ctx.clipBounds(), ctx.cache(), OutputProperties(nullptr));
-    sk_sp<SkSpecialImage> displ(this->filterInput(0, source, displContext, &displOffset));
+    sk_sp<SkSpecialImage> displ(this->filterInput(0, source, ctx, &displOffset));
     if (!displ) {
         return nullptr;
     }

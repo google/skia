@@ -93,7 +93,11 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
 
     const SkIRect dstIRect = dstRect.roundOut();
 
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), dstIRect.size()));
+    // SRGBTODO: Propagate SkColorType?
+    const SkImageInfo info = SkImageInfo::MakeN32(dstIRect.width(), dstIRect.height(),
+                                                  kPremul_SkAlphaType);
+
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
     if (!surf) {
         return nullptr;
     }

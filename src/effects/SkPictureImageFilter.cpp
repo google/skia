@@ -118,7 +118,8 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source
 
     SkASSERT(!bounds.isEmpty());
 
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
+    SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(), kPremul_SkAlphaType);
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
     if (!surf) {
         return nullptr;
     }
@@ -166,8 +167,10 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(SkSpecialImage* source,
 
     sk_sp<SkSpecialImage> localImg;
     {                                                            
-        sk_sp<SkSpecialSurface> localSurface(source->makeSurface(ctx.outputProperties(),
-                                                                 localIBounds.size()));
+        const SkImageInfo info = SkImageInfo::MakeN32(localIBounds.width(), localIBounds.height(),
+                                                      kPremul_SkAlphaType);
+
+        sk_sp<SkSpecialSurface> localSurface(source->makeSurface(info));
         if (!localSurface) {
             return;
         }

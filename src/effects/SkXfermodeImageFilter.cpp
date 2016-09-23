@@ -95,7 +95,9 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::onFilterImage(SkSpecialImage* sourc
     }
 #endif
 
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
+    const SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(),
+                                                  kPremul_SkAlphaType);
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
     if (!surf) {
         return nullptr;
     }

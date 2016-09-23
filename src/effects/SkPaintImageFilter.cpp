@@ -43,7 +43,10 @@ sk_sp<SkSpecialImage> SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
         return nullptr;
     }
 
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
+    SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(),
+                                            kPremul_SkAlphaType);
+
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
     if (!surf) {
         return nullptr;
     }

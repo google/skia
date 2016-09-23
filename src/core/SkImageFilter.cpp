@@ -348,9 +348,9 @@ bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
 // around it.
 static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
                                        int newWidth, int newHeight, int offX, int offY) {
-    // We explicitly want to operate in the source's color space here
-    SkImageFilter::OutputProperties outProps(src->getColorSpace());
-    sk_sp<SkSpecialSurface> surf(src->makeSurface(outProps, SkISize::Make(newWidth, newHeight)));
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(newWidth, newHeight);
+    sk_sp<SkSpecialSurface> surf(src->makeSurface(info));
     if (!surf) {
         return nullptr;
     }
