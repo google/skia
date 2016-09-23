@@ -26,6 +26,12 @@ public:
         return Make(std::move(mode), std::move(background), nullptr, nullptr);
     }
 
+    static sk_sp<SkImageFilter> MakeArithmetic(float k1, float k2, float k3, float k4,
+                                               bool enforcePMColor,
+                                               sk_sp<SkImageFilter> background,
+                                               sk_sp<SkImageFilter> foreground,
+                                               const SkImageFilter::CropRect* cropRect);
+
 #ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
     static SkImageFilter* Create(SkXfermode* mode, SkImageFilter* background,
                                  SkImageFilter* foreground = NULL,
