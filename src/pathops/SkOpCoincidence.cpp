@@ -334,6 +334,9 @@ bool SkOpCoincidence::addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase*
             }
             SkOpSegment* writableSeg = const_cast<SkOpSegment*>(testSeg);
             SkOpPtT* oppStart = writableSeg->addT(t);
+            if (oppStart == testPtT) {
+                continue;
+            }
             SkOpSpan* writableBase = const_cast<SkOpSpan*>(base);
             oppStart->span()->addOpp(writableBase);
             if (oppStart->deleted()) {

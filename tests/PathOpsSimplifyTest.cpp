@@ -5256,7 +5256,7 @@ static void tiger8a_h_1(skiatest::Reporter* reporter, const char* filename) {
 #if DEBUG_UNDER_DEVELOPMENT  // tiger
     return;
 #endif
-    uint64_t testlines = 0x0000000a01900c00;  // best so far: 0x0000001d14c14bb1;
+    uint64_t testlines = 0x0000000000002008;  // best so far: 0x0000001d14c14bb1;
     tiger8a_x(reporter, filename, testlines);
 }
 
@@ -5331,7 +5331,7 @@ static void tiger8b_h_1(skiatest::Reporter* reporter, const char* filename) {
 #if DEBUG_UNDER_DEVELOPMENT  // tiger
     return;
 #endif
-    uint64_t testlines = 0x0000001000350204;  // best so far: 0x0000000104080223
+    uint64_t testlines = 0x000000201304b4a3;  // best so far: 0x000000201304b4a3
     tiger8b_x(reporter, filename, testlines);
 }
 
@@ -5870,11 +5870,10 @@ static void testQuads73(skiatest::Reporter* reporter, const char* filename) {
 }
 
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = tiger8b_h_1;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
-    TEST(testQuads73),
     TEST(tiger8a_h_1),
     TEST(tiger8a_h),
     TEST(tiger8a),
@@ -5882,6 +5881,7 @@ static TestDesc tests[] = {
     TEST(tiger8b_h),
     TEST(tiger8b),
     TEST(tiger8),
+    TEST(testQuads73),
     TEST(testQuads72),
     TEST(testQuads71),
     TEST(testQuads70),

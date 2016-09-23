@@ -1876,7 +1876,7 @@ static void DebugValidate(const SkOpSpanBase* next, const SkOpSpanBase* end,
     do {
         const SkOpPtT* ptT = next->ptT();
         int index = 0;
-        bool somethingBetween;
+        bool somethingBetween = false;
         do {
             ++index;
             ptT = ptT->next();

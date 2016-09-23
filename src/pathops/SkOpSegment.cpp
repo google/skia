@@ -249,7 +249,7 @@ SkOpPtT* SkOpSegment::addT(double t) {
     SkOpSpanBase* spanBase = &fHead;
     do {
         SkOpPtT* result = spanBase->ptT();
-        if (t == result->fT || this->match(result, this, t, pt)) {
+        if (t == result->fT || (!zero_or_one(t) && this->match(result, this, t, pt))) {
             spanBase->bumpSpanAdds();
             return result;
         }

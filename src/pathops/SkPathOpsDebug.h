@@ -19,6 +19,8 @@
 #define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
 #endif
 
+#define DEBUG_UNDER_DEVELOPMENT 1
+
 #define ONE_OFF_DEBUG 0
 #define ONE_OFF_DEBUG_MATHEMATICA 0
 
@@ -36,8 +38,6 @@
 #define WIND_AS_STRING(x) char x##Str[12]; \
         if (!SkPathOpsDebug::ValidWind(x)) strcpy(x##Str, "?"); \
         else SK_SNPRINTF(x##Str, sizeof(x##Str), "%d", x)
-
-#define DEBUG_UNDER_DEVELOPMENT 1
 
 #if FORCE_RELEASE
 

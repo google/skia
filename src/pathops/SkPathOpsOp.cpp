@@ -207,7 +207,7 @@ static void dump_path(FILE* file, const SkPath& path, bool force, bool dumpAsHex
     SkDynamicMemoryWStream wStream;
     path.dump(&wStream, force, dumpAsHex);
     sk_sp<SkData> data(wStream.detachAsData());
-    fprintf(file, "%.*s\n", (int) data->size(), data->data());
+    fprintf(file, "%.*s\n", (int) data->size(), (char*) data->data());
 }
 
 static int dumpID = 0;

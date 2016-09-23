@@ -542,7 +542,8 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                     SkTSwap(coinPtT[0], coinPtT[1]);
                     SkTSwap(testTAt, nextTAt);
                 }
-                SkASSERT(coinPtT[0]->span()->t() < testTAt->span()->t());
+                SkASSERT(coincidence->globalState()->debugSkipAssert()
+                        || coinPtT[0]->span()->t() < testTAt->span()->t());
                 if (coinPtT[0]->span()->deleted()) {
                     coinIndex = -1;
                     continue;

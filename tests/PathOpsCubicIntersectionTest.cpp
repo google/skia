@@ -165,6 +165,9 @@ static const SkDCubic testSet[] = {
 const int testSetCount = (int) SK_ARRAY_COUNT(testSet);
 
 static const SkDCubic newTestSet[] = {
+{ { { 130.0427549999999997, 11417.41309999999976 },{ 130.2331240000000037, 11418.3192999999992 },{ 131.0370790000000056, 11419 },{ 132, 11419 } } },
+{ { { 132, 11419 },{ 130.8954319999999996, 11419 },{ 130, 11418.10449999999946 },{ 130, 11417 } } },
+    
 {{{1,3}, {-1.0564518,1.79032254}, {1.45265341,0.229448318}, {1.45381773,0.22913377}}},
 {{{1.45381773,0.22913377}, {1.45425761,0.229014933}, {1.0967741,0.451612949}, {0,1}}},
 
@@ -698,7 +701,7 @@ DEF_TEST(PathOpsCubicCoinOneOff, reporter) {
 }
 
 DEF_TEST(PathOpsCubicIntersectionOneOff, reporter) {
-    newOneOff(reporter, 66, 70);
+    newOneOff(reporter, 0, 1);
 }
 
 DEF_TEST(PathOpsCubicIntersectionTestsOneOff, reporter) {

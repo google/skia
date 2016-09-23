@@ -41,7 +41,7 @@ public:
         appendSegment().addCubic(pts, this);
     }
 
-    SkOpSegment* addCurve(SkPath::Verb verb, const SkPoint pts[4]);
+    SkOpSegment* addCurve(SkPath::Verb verb, const SkPoint pts[4], SkScalar weight = 1);
 
     SkOpSegment* addLine(SkPoint pts[2]) {
         SkASSERT(pts[0] != pts[1]);
