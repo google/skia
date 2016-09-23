@@ -65,6 +65,14 @@ TEST_BUILDERS = {
 }
 
 
+UPLOAD_DIMENSIONS = {
+  'pool': 'Skia',
+  'os': 'Linux',
+  'cpu': 'x86-64-avx2',
+  'gpu': 'none',
+}
+
+
 def derive_compile_bot_name(api):
   builder_name = api.properties['buildername']
   builder_cfg = api.builder_name_schema.DictForBuilderName(builder_name)
@@ -184,7 +192,8 @@ for r, _, files in os.walk(os.getcwd()):
 def trigger_task(api, task_name, builder, master, slave, buildnumber,
                  builder_cfg, got_revision, infrabots_dir, idempotent=False,
                  store_output=True, extra_isolate_hashes=None, expiration=None,
-                 hard_timeout=None, io_timeout=None, cipd_packages=None):
+                 hard_timeout=None, io_timeout=None, cipd_packages=None,
+                 recipe_name=None, isolate_file=None, dimensions=None):
   """Trigger the given bot to run as a Swarming task."""
   # TODO(borenet): We're using Swarming directly to run the recipe through
   # recipes.py. Once it's possible to track the state of a Buildbucket build,
@@ -212,19 +221,19 @@ def trigger_task(api, task_name, builder, master, slave, buildnumber,
 
   extra_args = [
       '--workdir', '../../..',
-      'swarm_%s' % task_name,
+      recipe_name or 'swarm_%s' % task_name,
   ]
   for k, v in properties.iteritems():
     extra_args.append('%s=%s' % (k, v))
 
   isolate_base_dir = api.path['slave_build']
-  dimensions = swarm_dimensions(builder_cfg)
+  dimensions = dimensions or swarm_dimensions(builder_cfg)
   isolate_blacklist = ['.git', 'out', '*.pyc', '.recipe_deps']
   isolate_vars = {
     'WORKDIR': api.path['slave_build'],
   }
 
-  isolate_file = '%s_skia.isolate' % task_name
+  isolate_file = isolate_file or '%s_skia.isolate' % task_name
   if 'Coverage' == builder_cfg.get('configuration'):
     isolate_file = 'coverage_skia.isolate'
   if 'RecreateSKPs' in builder:
@@ -467,40 +476,36 @@ def perf_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
       cipd_packages=cipd_packages)
 
 
-def perf_steps_collect(api, task, got_revision, is_trybot):
+def perf_steps_collect(api, task, builder_cfg, got_revision, infrabots_dir):
   """Wait for perf steps to finish and upload results."""
   # Wait for nanobench to finish, download the results.
   api.run.rmtree(task.task_output_dir)
-  api.swarming.collect_swarming_task(task)
+  if not api.vars.upload_perf_results:  # pragma: nocover
+    api.swarming.collect_swarming_task(task)
+    return
+
+  perf_hash = api.swarming.collect_swarming_task_isolate_hash(task)
 
   # Upload the results.
-  if api.vars.upload_perf_results:
-    perf_data_dir = api.path['slave_build'].join(
-        'perfdata', api.properties['buildername'], 'data')
-    git_timestamp = api.git.get_timestamp(test_data='1408633190',
-                                          infra_step=True)
-    api.run.rmtree(perf_data_dir)
-    api.file.makedirs('perf_dir', perf_data_dir, infra_step=True)
-    src_results_file = task.task_output_dir.join(
-        '0', 'perfdata', api.properties['buildername'], 'data',
-        'nanobench_%s.json' % got_revision)
-    dst_results_file = perf_data_dir.join(
-        'nanobench_%s_%s.json' % (got_revision, git_timestamp))
-    api.file.copy('perf_results', src_results_file, dst_results_file,
-                  infra_step=True)
+  task = trigger_task(
+      api,
+      'upload_nano_results',
+      api.properties['buildername'],
+      api.properties['mastername'],
+      api.properties['slavename'],
+      api.properties['buildnumber'],
+      builder_cfg,
+      got_revision,
+      infrabots_dir,
+      idempotent=True,
+      store_output=False,
+      cipd_packages=None,
+      extra_isolate_hashes=[perf_hash],
+      recipe_name='upload_nano_results',
+      isolate_file='upload_nano_results.isolate',
+      dimensions=UPLOAD_DIMENSIONS)
 
-    gsutil_path = api.path['slave_build'].join(
-        'skia', 'infra', 'bots', '.recipe_deps', 'depot_tools', 'gsutil.py')
-    upload_args = [api.properties['buildername'], api.properties['buildnumber'],
-                   perf_data_dir, got_revision, gsutil_path]
-    if is_trybot:
-      upload_args.append(get_issue_num(api))
-    api.python(
-        'Upload perf results',
-        script=api.core.resource('upload_bench_results.py'),
-        args=upload_args,
-        cwd=api.path['checkout'],
-        infra_step=True)
+  return api.swarming.collect_swarming_task(task)
 
 
 def test_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
@@ -742,8 +747,8 @@ def RunSteps(api):
                        got_revision, is_trybot, builder_cfg)
 
   if perf_task:
-    perf_steps_collect(api, perf_task,
-                       got_revision, is_trybot)
+    perf_steps_collect(api, perf_task, builder_cfg,
+                       got_revision, infrabots_dir)
 
 
 def test_for_bot(api, builder, mastername, slavename, testname=None):
@@ -776,6 +781,9 @@ def test_for_bot(api, builder, mastername, slavename, testname=None):
   if 'Perf' in builder and '-CT_' not in builder:
     test += api.step_data(
         'upload new .isolated file for perf_skia',
+        stdout=api.raw_io.output('def456 XYZ.isolated'))
+    test += api.step_data(
+        'upload new .isolated file for upload_nano_results_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))
   if 'Housekeeper' in builder and 'RecreateSKPs' not in builder:
     test += api.step_data(
