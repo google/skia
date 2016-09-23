@@ -14,6 +14,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     return any([
       'CT' in extra_config,
       'SAN' in extra_config,
+      extra_config == 'ANGLE' and 'Win' not in os,
       extra_config == 'CommandBuffer',
       extra_config == 'Fast',
       extra_config == 'GN',
@@ -73,6 +74,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
+    if extra_config == 'ANGLE':
+      args['skia_use_angle'] = 'true'
     if extra_config == 'CommandBuffer':
       self.m.run.run_once(self.build_command_buffer)
     if extra_config == 'MSAN':

@@ -1,0 +1,115 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+angle_root = "../externals/angle2"
+
+import("../third_party.gni")
+
+third_party("angle2") {
+  public_include_dirs = [ "$angle_root/include" ]
+  deps = [
+    ":libEGL",
+    ":libGLESv2",
+  ]
+}
+
+compiler_gypi = exec_script("//gn/gypi_to_gn.py",
+                            [ rebase_path("$angle_root/src/compiler.gypi") ],
+                            "scope",
+                            [])
+
+gles_gypi = exec_script("//gn/gypi_to_gn.py",
+                        [ rebase_path("$angle_root/src/libGLESv2.gypi") ],
+                        "scope",
+                        [])
+
+config("common") {
+  cflags = [ "-w" ]
+  defines = [
+    "ANGLE_ENABLE_ESSL",
+    "ANGLE_ENABLE_GLSL",
+    "GL_GLEXT_PROTOTYPES",
+    "EGL_EGLEXT_PROTOTYPES",
+  ]
+  include_dirs = [
+    "$root_gen_dir/angle2",
+    "$angle_root/include",
+    "$angle_root/src",
+    "$angle_root/src/common/third_party/numerics",
+  ]
+
+  assert(is_linux)  # TODO: is_win, of course, maybe is_mac?
+  if (is_linux) {
+    defines += [
+      "ANGLE_ENABLE_OPENGL",
+      "ANGLE_USE_X11",
+      "GL_APICALL=__attribute__((visibility(\"default\")))",
+      "EGLAPI=__attribute__((visibility(\"default\")))",
+    ]
+  }
+}
+
+copy("commit_id") {
+  sources = [
+    "$angle_root/src/commit.h",
+  ]
+  outputs = [
+    "$root_gen_dir/angle2/id/commit.h",
+  ]
+}
+
+shared_library("libGLESv2") {
+  configs += [ ":common" ]
+  defines = [ "LIBGLESV2_IMPLEMENTATION" ]
+  deps = [
+    ":commit_id",
+  ]
+  libs = []
+  sources = rebase_path(compiler_gypi.angle_preprocessor_sources +
+                            compiler_gypi.angle_translator_lib_sources +
+                            compiler_gypi.angle_translator_lib_essl_sources +
+                            compiler_gypi.angle_translator_lib_glsl_sources +
+                            gles_gypi.libangle_sources +
+                            gles_gypi.libangle_common_sources +
+                            gles_gypi.libangle_image_util_sources +
+                            gles_gypi.libglesv2_sources,
+                        ".",
+                        "$angle_root/src") +
+            [
+              "$angle_root/src/compiler/translator/ShaderLang.cpp",
+              "$angle_root/src/compiler/translator/ShaderVars.cpp",
+            ]
+  if (!is_win) {
+    sources -= [ "$angle_root/src/libGLESv2/libGLESv2.def" ]
+  }
+
+  if (is_linux) {
+    libs += [
+      "X11",
+      "Xi",
+      "Xext",
+    ]
+    sources += rebase_path(gles_gypi.libangle_gl_sources +
+                               gles_gypi.libangle_gl_glx_sources,
+                           ".",
+                           "$angle_root/src") +
+               [ "$angle_root/src/third_party/libXNVCtrl/NVCtrl.c" ]
+  }
+}
+
+shared_library("libEGL") {
+  configs += [ ":common" ]
+  defines = [ "LIBEGL_IMPLEMENTATION" ]
+  deps = [
+    ":libGLESv2",
+  ]
+  sources = rebase_path(gles_gypi.libegl_sources, ".", "$angle_root/src")
+  if (!is_win) {
+    sources -= [ "$angle_root/src/libEGL/libEGL.def" ]
+  }
+}

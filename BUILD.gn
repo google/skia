@@ -10,6 +10,7 @@ if (!defined(is_skia_standalone)) {
 }
 
 declare_args() {
+  skia_use_angle = false
   skia_use_expat = true
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
@@ -631,6 +632,8 @@ if (skia_enable_tools) {
     if (skia_enable_gpu) {
       public_defines = []
       public_include_dirs += [ "tools/gpu" ]
+
+      deps = []
       sources = [
         "tools/gpu/GrContextFactory.cpp",
         "tools/gpu/GrTest.cpp",
@@ -656,13 +659,18 @@ if (skia_enable_tools) {
         sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
       }
 
-      if (skia_use_vulkan) {
-        sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
+      if (skia_use_angle) {
+        public_defines += [ "SK_ANGLE" ]
+        deps += [ "//third_party/angle2" ]
+        sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
       }
       if (skia_use_mesa) {
         public_defines += [ "SK_MESA" ]
         sources += [ "tools/gpu/gl/mesa/GLTestContext_mesa.cpp" ]
         libs += [ "OSMesa" ]
+      }
+      if (skia_use_vulkan) {
+        sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       }
     }
   }
