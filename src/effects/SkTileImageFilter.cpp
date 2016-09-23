@@ -55,9 +55,7 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
     }
 
     const SkIRect dstIRect = dstRect.roundOut();
-    int dstWidth = dstIRect.width();
-    int dstHeight = dstIRect.height();
-    if (!fSrcRect.width() || !fSrcRect.height() || !dstWidth || !dstHeight) {
+    if (!fSrcRect.width() || !fSrcRect.height() || !dstIRect.width() || !dstIRect.height()) {
         return nullptr;
     }
 
@@ -80,9 +78,7 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
             return nullptr;
         }
     } else {
-        const SkImageInfo info = SkImageInfo::MakeN32(srcIRect.width(), srcIRect.height(),
-                                                      kPremul_SkAlphaType);
-        sk_sp<SkSurface> surf(input->makeTightSurface(info));
+        sk_sp<SkSurface> surf(input->makeTightSurface(ctx.outputProperties(), srcIRect.size()));
         if (!surf) {
             return nullptr;
         }
@@ -102,9 +98,7 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
     SkASSERT(subset->width() == srcIRect.width());
     SkASSERT(subset->height() == srcIRect.height());
 
-    const SkImageInfo info = SkImageInfo::MakeN32(dstWidth, dstHeight, kPremul_SkAlphaType);
-
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), dstIRect.size()));
     if (!surf) {
         return nullptr;
     }
