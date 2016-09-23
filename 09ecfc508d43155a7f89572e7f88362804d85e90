@@ -22,6 +22,24 @@
       "revId": "09ecfc508d43155a7f89572e7f88362804d85e90",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "703917b8_0c07572a",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2848,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-09-23T19:23:42Z",
+      "side": 1,
+      "message": "I\u0027ve removed these checks and added them in SkPicturePlayback",
+      "parentUuid": "703917b8_ec3f63e1",
+      "revId": "09ecfc508d43155a7f89572e7f88362804d85e90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
