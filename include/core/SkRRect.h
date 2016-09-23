@@ -16,7 +16,6 @@ class SkMatrix;
 
 // Path forward:
 //   core work
-//      add validate method (all radii positive, all radii sums < rect size, etc.)
 //      add contains(SkRect&)  - for clip stack
 //      add contains(SkRRect&) - for clip stack
 //      add heart rect computation (max rect inside RR)
@@ -90,7 +89,7 @@ public:
      * Returns the RR's sub type.
      */
     Type getType() const {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         return static_cast<Type>(fType);
     }
 
@@ -124,7 +123,7 @@ public:
         memset(fRadii, 0, sizeof(fRadii));
         fType = kEmpty_Type;
 
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
     }
 
     /**
@@ -142,7 +141,7 @@ public:
         memset(fRadii, 0, sizeof(fRadii));
         fType = kRect_Type;
 
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
     }
 
     static SkRRect MakeEmpty() {
@@ -190,7 +189,7 @@ public:
         }
         fType = kOval_Type;
 
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
     }
 
     /**
@@ -288,7 +287,7 @@ public:
      */
     bool contains(const SkRect& rect) const;
 
-    SkDEBUGCODE(void validate() const;)
+    bool isValid() const;
 
     enum {
         kSizeInMemory = 12 * sizeof(SkScalar)

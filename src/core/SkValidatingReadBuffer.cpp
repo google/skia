@@ -144,6 +144,11 @@ void SkValidatingReadBuffer::readRRect(SkRRect* rrect) {
     const void* ptr = this->skip(sizeof(SkRRect));
     if (!fError) {
         memcpy(rrect, ptr, sizeof(SkRRect));
+        this->validate(rrect->isValid());
+    }
+
+    if (fError) {
+        rrect->setEmpty();
     }
 }
 
