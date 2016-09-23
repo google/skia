@@ -18,7 +18,7 @@ import urllib
 import urlparse
 import webbrowser
 
-__argparse = ArgumentParser(description='''
+__argparse = ArgumentParser(description="""
 
 Parses output files from skpbench.py into csv.
 
@@ -31,7 +31,7 @@ This script can also be used to generate a Google sheet:
 
 (3) Run parseskpbench.py with the --open flag.
 
-''')
+""")
 
 __argparse.add_argument('-r', '--result',
     choices=['median', 'accum', 'max', 'min'], default='median',

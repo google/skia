@@ -20,14 +20,14 @@ import subprocess
 import sys
 import time
 
-__argparse = ArgumentParser(description='''
+__argparse = ArgumentParser(description="""
 
 Executes the skpbench binary with various configs and skps.
 
 Also monitors the output in order to filter out and re-run results that have an
 unacceptable stddev.
 
-''')
+""")
 
 __argparse.add_argument('--adb',
     action='store_true', help="execute skpbench over adb")
@@ -82,7 +82,7 @@ class SubprocessMonitor(Thread):
     Thread.__init__(self)
 
   def run(self):
-    '''Runs on the background thread.'''
+    """Runs on the background thread."""
     for line in iter(self._proc.stdout.readline, b''):
       self._queue.put(Message(Message.READLINE, line.decode('utf-8').rstrip()))
     self._queue.put(Message(Message.EXIT))
@@ -243,8 +243,9 @@ def main():
   if FLAGS.adb:
     adb = Adb(FLAGS.device_serial)
     model = adb.get_device_model()
-    if False:
-      pass # TODO: unique subclasses tailored to individual platforms.
+    if model == 'Pixel C':
+      from _hardware_pixel_c import HardwarePixelC
+      hardware = HardwarePixelC(adb)
     else:
       from _hardware_android import HardwareAndroid
       print("WARNING: %s: don't know how to monitor this hardware; results "
