@@ -12,7 +12,8 @@
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
 
-#include "SkImageInfo.h" // for SkAlphaType
+#include "SkImageFilter.h" // for OutputProperties
+#include "SkImageInfo.h"   // for SkAlphaType
 
 class GrContext;
 class GrTexture;
@@ -86,13 +87,17 @@ public:
     /**
      *  Create a new special surface with a backend that is compatible with this special image.
      */
-    sk_sp<SkSpecialSurface> makeSurface(const SkImageInfo&) const;
+    sk_sp<SkSpecialSurface> makeSurface(const SkImageFilter::OutputProperties& outProps,
+                                        const SkISize& size,
+                                        SkAlphaType at = kPremul_SkAlphaType) const;
 
     /**
      * Create a new surface with a backend that is compatible with this special image.
      * TODO: switch this to makeSurface once we resolved the naming issue
      */
-    sk_sp<SkSurface> makeTightSurface(const SkImageInfo&) const;
+    sk_sp<SkSurface> makeTightSurface(const SkImageFilter::OutputProperties& outProps,
+                                      const SkISize& size,
+                                      SkAlphaType at = kPremul_SkAlphaType) const;
 
     /**
      * Extract a subset of this special image and return it as a special image.
