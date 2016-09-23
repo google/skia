@@ -24,35 +24,69 @@
 #include "SkGrPriv.h"
 #endif
 
+class SK_API SkXfermodeImageFilter_Base : public SkImageFilter {
+public:
+    SkXfermodeImageFilter_Base(sk_sp<SkXfermode> mode, sk_sp<SkImageFilter> inputs[2],
+                               const CropRect* cropRect);
+
+    SK_TO_STRING_OVERRIDE()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkXfermodeImageFilter_Base)
+
+protected:
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+
+#if SK_SUPPORT_GPU
+    sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source,
+                                         sk_sp<SkSpecialImage> background,
+                                         const SkIPoint& backgroundOffset,
+                                         sk_sp<SkSpecialImage> foreground,
+                                         const SkIPoint& foregroundOffset,
+                                         const SkIRect& bounds,
+                                         const OutputProperties& outputProperties) const;
+#endif
+
+    void flatten(SkWriteBuffer&) const override;
+
+
+private:
+    sk_sp<SkXfermode> fMode;
+
+    friend class SkXfermodeImageFilter;
+
+    typedef SkImageFilter INHERITED;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(sk_sp<SkXfermode> mode,
                                                  sk_sp<SkImageFilter> background,
                                                  sk_sp<SkImageFilter> foreground,
-                                                 const CropRect* cropRect) {
+                                                 const SkImageFilter::CropRect* cropRect) {
     sk_sp<SkImageFilter> inputs[2] = { std::move(background), std::move(foreground) };
-    return sk_sp<SkImageFilter>(new SkXfermodeImageFilter(mode, inputs, cropRect));
+    return sk_sp<SkImageFilter>(new SkXfermodeImageFilter_Base(mode, inputs, cropRect));
 }
 
-SkXfermodeImageFilter::SkXfermodeImageFilter(sk_sp<SkXfermode> mode,
+SkXfermodeImageFilter_Base::SkXfermodeImageFilter_Base(sk_sp<SkXfermode> mode,
                                              sk_sp<SkImageFilter> inputs[2],
                                              const CropRect* cropRect)
     : INHERITED(inputs, 2, cropRect)
     , fMode(std::move(mode)) {
 }
 
-sk_sp<SkFlattenable> SkXfermodeImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
     sk_sp<SkXfermode> mode(buffer.readXfermode());
-    return Make(std::move(mode), common.getInput(0), common.getInput(1), &common.cropRect());
+    return SkXfermodeImageFilter::Make(std::move(mode), common.getInput(0), common.getInput(1),
+                                       &common.cropRect());
 }
 
-void SkXfermodeImageFilter::flatten(SkWriteBuffer& buffer) const {
+void SkXfermodeImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fMode.get());
 }
 
-sk_sp<SkSpecialImage> SkXfermodeImageFilter::onFilterImage(SkSpecialImage* source,
+sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* source,
                                                            const Context& ctx,
                                                            SkIPoint* offset) const {
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
@@ -134,7 +168,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::onFilterImage(SkSpecialImage* sourc
 }
 
 #ifndef SK_IGNORE_TO_STRING
-void SkXfermodeImageFilter::toString(SkString* str) const {
+void SkXfermodeImageFilter_Base::toString(SkString* str) const {
     str->appendf("SkXfermodeImageFilter: (");
     str->appendf("xfermode: (");
     if (fMode) {
@@ -159,7 +193,7 @@ void SkXfermodeImageFilter::toString(SkString* str) const {
 
 #include "SkXfermode_proccoeff.h"
 
-sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(
+sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                                    SkSpecialImage* source,
                                                    sk_sp<SkSpecialImage> background,
                                                    const SkIPoint& backgroundOffset,
@@ -263,3 +297,12 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(
 }
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermodeImageFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkXfermodeImageFilter_Base)
+    // manually register the legacy serialized name "SkXfermodeImageFilter"
+    SkFlattenable::Register("SkXfermodeImageFilter", SkXfermodeImageFilter_Base::CreateProc,
+                            SkFlattenable::kSkImageFilter_Type);
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
