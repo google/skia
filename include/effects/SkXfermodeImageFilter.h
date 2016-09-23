@@ -13,13 +13,12 @@
 class SkBitmap;
 class SkXfermode;
 
+/**
+ * This filter takes an xfermode, and uses it to composite the foreground
+ * over the background.  If foreground or background is NULL, the input
+ * bitmap (src) is used instead.
+ */
 class SK_API SkXfermodeImageFilter : public SkImageFilter {
-    /**
-     * This filter takes an xfermode, and uses it to composite the foreground
-     * over the background.  If foreground or background is NULL, the input
-     * bitmap (src) is used instead.
-     */
-
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkXfermode> mode, sk_sp<SkImageFilter> background,
                                      sk_sp<SkImageFilter> foreground, const CropRect* cropRect);
@@ -50,30 +49,7 @@ public:
     }
 #endif
 
-    SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkXfermodeImageFilter)
-
-protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
-
-#if SK_SUPPORT_GPU
-    sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source,
-                                         sk_sp<SkSpecialImage> background,
-                                         const SkIPoint& backgroundOffset,
-                                         sk_sp<SkSpecialImage> foreground,
-                                         const SkIPoint& foregroundOffset,
-                                         const SkIRect& bounds,
-                                         const OutputProperties& outputProperties) const;
-#endif
-
-    SkXfermodeImageFilter(sk_sp<SkXfermode> mode, sk_sp<SkImageFilter> inputs[2],
-                          const CropRect* cropRect);
-    void flatten(SkWriteBuffer&) const override;
-
-private:
-    sk_sp<SkXfermode> fMode;
-    typedef SkImageFilter INHERITED;
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP();
 };
 
 #endif
