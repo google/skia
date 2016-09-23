@@ -45,7 +45,9 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& d
             bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             break;
     }
-    bufInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (!desc.fDynamic) {
+        bufInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    }
 
     bufInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     bufInfo.queueFamilyIndexCount = 0;

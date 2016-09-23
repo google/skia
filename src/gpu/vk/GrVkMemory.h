@@ -93,7 +93,7 @@ protected:
 
 class GrVkSubHeap : public GrVkFreeListAlloc {
 public:
-    GrVkSubHeap(const GrVkGpu* gpu, uint32_t memoryTypeIndex,
+    GrVkSubHeap(const GrVkGpu* gpu, uint32_t memoryTypeIndex, uint32_t heapIndex,
                 VkDeviceSize size, VkDeviceSize alignment);
     ~GrVkSubHeap();
 
@@ -105,6 +105,9 @@ public:
 
 private:
     const GrVkGpu* fGpu;
+#ifdef SK_DEBUG
+    uint32_t       fHeapIndex;
+#endif    
     uint32_t       fMemoryTypeIndex;
     VkDeviceMemory fAlloc;
 
@@ -135,21 +138,24 @@ public:
     VkDeviceSize allocSize() const { return fAllocSize; }
     VkDeviceSize usedSize() const { return fUsedSize; }
 
-    bool alloc(VkDeviceSize size, VkDeviceSize alignment, uint32_t memoryTypeIndex, 
-               GrVkAlloc* alloc) {
+    bool alloc(VkDeviceSize size, VkDeviceSize alignment, uint32_t memoryTypeIndex,
+               uint32_t heapIndex, GrVkAlloc* alloc) {
         SkASSERT(size > 0);
-        return (*this.*fAllocFunc)(size, alignment, memoryTypeIndex, alloc);
+        return (*this.*fAllocFunc)(size, alignment, memoryTypeIndex, heapIndex, alloc);
     }
     bool free(const GrVkAlloc& alloc);
 
 private:
-    typedef bool (GrVkHeap::*AllocFunc)(VkDeviceSize size, VkDeviceSize alignment, 
-                                        uint32_t memoryTypeIndex, GrVkAlloc* alloc);
+    typedef bool (GrVkHeap::*AllocFunc)(VkDeviceSize size, VkDeviceSize alignment,
+                                        uint32_t memoryTypeIndex, uint32_t heapIndex,
+                                        GrVkAlloc* alloc);
 
-    bool subAlloc(VkDeviceSize size, VkDeviceSize alignment, 
-                  uint32_t memoryTypeIndex, GrVkAlloc* alloc);
+    bool subAlloc(VkDeviceSize size, VkDeviceSize alignment,
+                  uint32_t memoryTypeIndex, uint32_t heapIndex,
+                  GrVkAlloc* alloc);
     bool singleAlloc(VkDeviceSize size, VkDeviceSize alignment,
-                     uint32_t memoryTypeIndex, GrVkAlloc* alloc);
+                     uint32_t memoryTypeIndex, uint32_t heapIndex,
+                     GrVkAlloc* alloc);
 
     const GrVkGpu*         fGpu;
     VkDeviceSize           fSubHeapSize;
