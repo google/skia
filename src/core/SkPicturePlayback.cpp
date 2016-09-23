@@ -108,6 +108,9 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
         fCurOffset = reader->offset();
         uint32_t size;
         DrawType op = ReadOpAndSize(reader, &size);
+        if (!reader->validate(op > UNUSED && op <= LAST_DRAWTYPE_ENUM)) {
+            return;
+        }
 
         this->handleOp(reader, op, size, canvas, initialMatrix);
     }
@@ -420,7 +423,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             get_text(reader, &text);
             size_t points = reader->readInt();
             const SkPoint* pos = (const SkPoint*)reader->skip(points * sizeof(SkPoint));
-            if (paint) {
+            if (paint && text.text()) {
                 canvas->drawPosText(text.text(), text.length(), pos, *paint);
             }
         } break;
@@ -434,7 +437,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkScalar bottom = reader->readScalar();
             SkRect clip;
             canvas->getClipBounds(&clip);
-            if (top < clip.fBottom && bottom > clip.fTop && paint) {
+            if (top < clip.fBottom && bottom > clip.fTop && paint && text.text()) {
                 canvas->drawPosText(text.text(), text.length(), pos, *paint);
             }
         } break;
@@ -445,7 +448,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             size_t xCount = reader->readInt();
             const SkScalar constY = reader->readScalar();
             const SkScalar* xpos = (const SkScalar*)reader->skip(xCount * sizeof(SkScalar));
-            if (paint) {
+            if (paint && text.text()) {
                 canvas->drawPosTextH(text.text(), text.length(), xpos, constY, *paint);
             }
         } break;
@@ -460,7 +463,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkScalar constY = *xpos++;
             SkRect clip;
             canvas->getClipBounds(&clip);
-            if (top < clip.fBottom && bottom > clip.fTop && paint) {
+            if (top < clip.fBottom && bottom > clip.fTop && paint && text.text()) {
                 canvas->drawPosTextH(text.text(), text.length(), xpos, constY, *paint);
             }
         } break;
@@ -501,7 +504,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             get_text(reader, &text);
             SkScalar x = reader->readScalar();
             SkScalar y = reader->readScalar();
-            if (paint) {
+            if (paint && text.text()) {
                 canvas->drawText(text.text(), text.length(), x, y, *paint);
             }
         } break;
@@ -527,7 +530,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             canvas->getClipBounds(&clip);
             float top = ptr[2];
             float bottom = ptr[3];
-            if (top < clip.fBottom && bottom > clip.fTop && paint) {
+            if (top < clip.fBottom && bottom > clip.fTop && paint && text.text()) {
                 canvas->drawText(text.text(), text.length(), ptr[0], ptr[1], *paint);
             }
         } break;
@@ -538,7 +541,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkPath& path = fPictureData->getPath(reader);
             SkMatrix matrix;
             reader->readMatrix(&matrix);
-            if (paint) {
+            if (paint && text.text()) {
                 canvas->drawTextOnPath(text.text(), text.length(), path, &matrix, *paint);
             }
         } break;
@@ -553,7 +556,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (flags & DRAW_TEXT_RSXFORM_HAS_CULL) {
                 cull = (const SkRect*)reader->skip(sizeof(SkRect));
             }
-            canvas->drawTextRSXform(text.text(), text.length(), xform, cull, *paint);
+            if (text.text()) {
+                canvas->drawTextRSXform(text.text(), text.length(), xform, cull, *paint);
+            }
         } break;
         case DRAW_VERTICES: {
             sk_sp<SkXfermode> xfer;
