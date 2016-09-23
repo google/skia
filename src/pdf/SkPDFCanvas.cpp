@@ -8,6 +8,7 @@
 #include "SkLatticeIter.h"
 #include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"
+#include "SkPixelRef.h"
 
 SkPDFCanvas::SkPDFCanvas(const sk_sp<SkPDFDevice>& dev)
     : SkCanvas(dev.get()) {}
@@ -62,10 +63,22 @@ void SkPDFCanvas::onDrawImageRect(const SkImage* image,
     SkRect src = srcPtr ? *srcPtr : bounds;
     SkAutoCanvasRestore autoCanvasRestore(this, true);
     if (src != bounds) {
-        this->clipRect(dst);
+        // Convert to bitmap to do subset-deduping via SkBitmapKey.
+        // https://fiddle.skia.org/c/@image_subsets_get_different_uids
+        SkBitmap bitmap;
+        if (image->asLegacyBitmap(&bitmap, SkImage::kRO_LegacyBitmapMode)) {
+            if (SkPixelRef* pr = bitmap.pixelRef()) {
+                if (bitmap.getSubset() == pr->info().bounds()) {
+                    pr->setImmutableWithID(image->uniqueID());
+                }
+            }
+            this->onDrawBitmapRect(bitmap, srcPtr, dst, paint, constraint);
+        }
+        return;
     }
-    this->concat(SkMatrix::MakeRectToRect(src, dst,
-                                 SkMatrix::kFill_ScaleToFit));
+    SkMatrix transform =
+        SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    this->concat(transform);
     this->drawImage(image, 0, 0, paint);
 }
 
@@ -77,12 +90,28 @@ void SkPDFCanvas::onDrawBitmapRect(const SkBitmap& bitmap,
     SkRect bounds = SkRect::Make(bitmap.bounds());
     SkRect src = srcPtr ? *srcPtr : bounds;
     SkAutoCanvasRestore autoCanvasRestore(this, true);
+    SkMatrix transform =
+        SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    SkBitmap subsetBitmap;
+    const SkBitmap* bitmapPtr = &bitmap;
     if (src != bounds) {
+        SkIRect subset;
+        src.roundOut(&subset);
+        if (subset.isEmpty() ||
+            !subset.intersect(bitmap.bounds()) ||
+            !bitmap.extractSubset(&subsetBitmap, subset)) {
+            return;
+        }
+        transform.preTranslate(SkIntToScalar(subset.x()),
+                               SkIntToScalar(subset.y()));
+        bitmapPtr = &subsetBitmap;
+        if (SkRect::Make(subset) != src) {
+            this->clipRect(dst);  // sub-pixel clipping
+        }
         this->clipRect(dst);
     }
-    this->concat(SkMatrix::MakeRectToRect(src, dst,
-                                 SkMatrix::kFill_ScaleToFit));
-    this->drawBitmap(bitmap, 0, 0, paint);
+    this->concat(transform);
+    this->drawBitmap(*bitmapPtr, 0, 0, paint);
 }
 
 void SkPDFCanvas::onDrawImageLattice(const SkImage* image,
