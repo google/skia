@@ -90,7 +90,7 @@ public:
      * Returns the RR's sub type.
      */
     Type getType() const {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->validate());
         return static_cast<Type>(fType);
     }
 
@@ -124,7 +124,7 @@ public:
         memset(fRadii, 0, sizeof(fRadii));
         fType = kEmpty_Type;
 
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->validate());
     }
 
     /**
@@ -142,7 +142,7 @@ public:
         memset(fRadii, 0, sizeof(fRadii));
         fType = kRect_Type;
 
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->validate());
     }
 
     static SkRRect MakeEmpty() {
@@ -190,7 +190,7 @@ public:
         }
         fType = kOval_Type;
 
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->validate());
     }
 
     /**
@@ -288,7 +288,7 @@ public:
      */
     bool contains(const SkRect& rect) const;
 
-    SkDEBUGCODE(void validate() const;)
+    bool validate() const;
 
     enum {
         kSizeInMemory = 12 * sizeof(SkScalar)
