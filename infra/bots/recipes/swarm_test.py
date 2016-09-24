@@ -77,7 +77,9 @@ def dm_flags(bot):
   if ('GalaxyS4'    in bot or
       'NexusPlayer' in bot or
       'Tegra3'      in bot or
-      'iOS'         in bot):
+      'iOS'         in bot or
+      # skia:5792
+      'iHD530'      in bot):
     configs = [x for x in configs if 'msaa' not in x]
 
   # Runs out of memory on Android bots and Daisy.  Everyone else seems fine.
