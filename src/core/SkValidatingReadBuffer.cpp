@@ -110,6 +110,13 @@ void SkValidatingReadBuffer::readString(SkString* string) {
     }
 }
 
+void SkValidatingReadBuffer::readColor4f(SkColor4f* color) {
+    const void* ptr = this->skip(sizeof(SkColor4f));
+    if (!fError) {
+        memcpy(color, ptr, sizeof(SkColor4f));
+    }
+}
+
 void SkValidatingReadBuffer::readPoint(SkPoint* point) {
     point->fX = this->readScalar();
     point->fY = this->readScalar();
@@ -195,6 +202,10 @@ bool SkValidatingReadBuffer::readByteArray(void* value, size_t size) {
 
 bool SkValidatingReadBuffer::readColorArray(SkColor* colors, size_t size) {
     return readArray(colors, size, sizeof(SkColor));
+}
+
+bool SkValidatingReadBuffer::readColor4fArray(SkColor4f* colors, size_t size) {
+    return readArray(colors, size, sizeof(SkColor4f));
 }
 
 bool SkValidatingReadBuffer::readIntArray(int32_t* values, size_t size) {

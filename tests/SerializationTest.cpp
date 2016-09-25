@@ -104,6 +104,15 @@ template<> struct SerializationUtils<SkColor> {
     }
 };
 
+template<> struct SerializationUtils<SkColor4f> {
+    static void Write(SkWriteBuffer& writer, SkColor4f* data, uint32_t arraySize) {
+        writer.writeColor4fArray(data, arraySize);
+    }
+    static bool Read(SkValidatingReadBuffer& reader, SkColor4f* data, uint32_t arraySize) {
+        return reader.readColor4fArray(data, arraySize);
+    }
+};
+
 template<> struct SerializationUtils<int32_t> {
     static void Write(SkWriteBuffer& writer, int32_t* data, uint32_t arraySize) {
         writer.writeIntArray(data, arraySize);
@@ -225,7 +234,7 @@ static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
     // This should write the length (in 4 bytes) and the array
     REPORTER_ASSERT(reporter, (4 + kArraySize * sizeof(T)) == bytesWritten);
 
-    unsigned char dataWritten[1024];
+    unsigned char dataWritten[2048];
     writer.writeToMemory(dataWritten);
 
     // Make sure this fails when it should
@@ -491,6 +500,17 @@ DEF_TEST(Serialization, reporter) {
     // Test readColorArray
     {
         SkColor data[kArraySize] = { SK_ColorBLACK, SK_ColorWHITE, SK_ColorRED };
+        TestArraySerialization(data, reporter);
+    }
+
+    // Test readColor4fArray
+    {
+        SkColor4f data[kArraySize] = {
+            SkColor4f::FromColor(SK_ColorBLACK),
+            SkColor4f::FromColor(SK_ColorWHITE),
+            SkColor4f::FromColor(SK_ColorRED),
+            { 1.f, 2.f, 4.f, 8.f }
+        };
         TestArraySerialization(data, reporter);
     }
 

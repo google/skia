@@ -142,6 +142,10 @@ void SkReadBuffer::readString(SkString* string) {
     string->set(strContents, len);
 }
 
+void SkReadBuffer::readColor4f(SkColor4f* color) {
+    memcpy(color, fReader.skip(sizeof(SkColor4f)), sizeof(SkColor4f));
+}
+
 void SkReadBuffer::readPoint(SkPoint* point) {
     point->fX = fReader.readScalar();
     point->fY = fReader.readScalar();
@@ -190,6 +194,10 @@ bool SkReadBuffer::readByteArray(void* value, size_t size) {
 
 bool SkReadBuffer::readColorArray(SkColor* colors, size_t size) {
     return readArray(colors, size, sizeof(SkColor));
+}
+
+bool SkReadBuffer::readColor4fArray(SkColor4f* colors, size_t size) {
+    return readArray(colors, size, sizeof(SkColor4f));
 }
 
 bool SkReadBuffer::readIntArray(int32_t* values, size_t size) {

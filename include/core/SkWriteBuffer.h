@@ -49,6 +49,8 @@ public:
     virtual void writeFlattenable(const SkFlattenable* flattenable) = 0;
     virtual void writeColor(SkColor color) = 0;
     virtual void writeColorArray(const SkColor* color, uint32_t count) = 0;
+    virtual void writeColor4f(const SkColor4f& color) = 0;
+    virtual void writeColor4fArray(const SkColor4f* color, uint32_t count) = 0;
     virtual void writePoint(const SkPoint& point) = 0;
     virtual void writePointArray(const SkPoint* point, uint32_t count) = 0;
     virtual void writeMatrix(const SkMatrix& matrix) = 0;
@@ -107,6 +109,8 @@ public:
     void writeFlattenable(const SkFlattenable* flattenable) override;
     void writeColor(SkColor color) override;
     void writeColorArray(const SkColor* color, uint32_t count) override;
+    void writeColor4f(const SkColor4f& color) override;
+    void writeColor4fArray(const SkColor4f* color, uint32_t count) override;
     void writePoint(const SkPoint& point) override;
     void writePointArray(const SkPoint* point, uint32_t count) override;
     void writeMatrix(const SkMatrix& matrix) override;

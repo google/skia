@@ -123,6 +123,7 @@ public:
     virtual void readString(SkString* string);
 
     // common data structures
+    virtual void readColor4f(SkColor4f* color);
     virtual void readPoint(SkPoint* point);
     SkPoint readPoint() { SkPoint p; this->readPoint(&p); return p; }
     virtual void readMatrix(SkMatrix* matrix);
@@ -150,6 +151,7 @@ public:
     // binary data and arrays
     virtual bool readByteArray(void* value, size_t size);
     virtual bool readColorArray(SkColor* colors, size_t size);
+    virtual bool readColor4fArray(SkColor4f* colors, size_t size);
     virtual bool readIntArray(int32_t* values, size_t size);
     virtual bool readPointArray(SkPoint* points, size_t size);
     virtual bool readScalarArray(SkScalar* values, size_t size);

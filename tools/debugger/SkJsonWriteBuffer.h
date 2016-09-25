@@ -35,6 +35,8 @@ public:
     void writeFlattenable(const SkFlattenable* flattenable) override;
     void writeColor(SkColor color) override;
     void writeColorArray(const SkColor* color, uint32_t count) override;
+    void writeColor4f(const SkColor4f& color) override;
+    void writeColor4fArray(const SkColor4f* color, uint32_t count) override;
     void writePoint(const SkPoint& point) override;
     void writePointArray(const SkPoint* point, uint32_t count) override;
     void writeMatrix(const SkMatrix& matrix) override;

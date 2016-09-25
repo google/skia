@@ -123,6 +123,7 @@ public:
 
     // Helper methods for converting things to JSON
     static Json::Value MakeJsonColor(const SkColor color);
+    static Json::Value MakeJsonColor4f(const SkColor4f& color);
     static Json::Value MakeJsonPoint(const SkPoint& point);
     static Json::Value MakeJsonPoint(SkScalar x, SkScalar y);
     static Json::Value MakeJsonRect(const SkRect& rect);

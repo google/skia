@@ -78,6 +78,15 @@ void SkBinaryWriteBuffer::writeColorArray(const SkColor* color, uint32_t count) 
     fWriter.write(color, count * sizeof(SkColor));
 }
 
+void SkBinaryWriteBuffer::writeColor4f(const SkColor4f& color) {
+    fWriter.write(&color, sizeof(SkColor4f));
+}
+
+void SkBinaryWriteBuffer::writeColor4fArray(const SkColor4f* color, uint32_t count) {
+    fWriter.write32(count);
+    fWriter.write(color, count * sizeof(SkColor4f));
+}
+
 void SkBinaryWriteBuffer::writePoint(const SkPoint& point) {
     fWriter.writeScalar(point.fX);
     fWriter.writeScalar(point.fY);
