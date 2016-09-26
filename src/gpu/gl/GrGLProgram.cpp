@@ -111,7 +111,8 @@ void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
     while (fp && glslFP) {
         glslFP->setData(fProgramDataManager, *fp);
         this->bindTextures(*fp, pipeline.getAllowSRGBInputs(), nextSamplerIdx);
-        fp = iter.next(), glslFP = glslIter.next();
+        fp = iter.next();
+        glslFP = glslIter.next();
     }
     SkASSERT(!fp && !glslFP);
 }

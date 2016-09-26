@@ -206,7 +206,8 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     while (fp && glslFP) {
         glslFP->setData(fDataManager, *fp);
         append_texture_bindings(*fp, &textureBindings);
-        fp = iter.next(), glslFP = glslIter.next();
+        fp = iter.next();
+        glslFP = glslIter.next();
     }
     SkASSERT(!fp && !glslFP);
 
