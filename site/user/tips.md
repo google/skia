@@ -12,10 +12,8 @@ Tips & FAQ
 
 * * *
 
-<span id="gypdefines"></span>
-
-Gyp Options
------------
+<span id="gypdefines">Gyp Options</span>
+----------------------------------------
 
 When running `sync-and-gyp`, the `GYP_DEFINES` environment variable can
 be used to change Skia’s compile-time settings, using a
@@ -74,10 +72,10 @@ two different compilers:
 
 * * *
 
-<span id="bitmap-subsetting"></span>
 
-Bitmap Subsetting
------------------
+
+<span id="bitmap-subsetting">Bitmap Subsetting</span>
+-----------------------------------------------------
 
 Taking a subset of a bitmap is effectively free - no pixels are copied or
 memory is allocated. This allows Skia to offer an API that typically operates
@@ -94,10 +92,8 @@ drawBitmapNine():
 
 * * *
 
-<span id="skp-capture"></span>
-
-Capture a `.skp` file on a web page in Chromium
------------------------------------------------
+<span id="skp-capture">Capture a `.skp` file on a web page in Chromium</span>
+-----------------------------------------------------------------------------
 
 1.  Launch Chrome or Chromium with `--no-sandbox --enable-gpu-benchmarking`
 2.  Open the JS console (ctrl-shift-J)
@@ -117,10 +113,8 @@ or use Skia's `SampleApp` to view it:
 
 * * *
 
-<span id="mskp-capture"></span>
-
-Capture a `.mskp` file on a web page in Chromium
------------------------------------------------
+<span id="mskp-capture">Capture a `.mskp` file on a web page in Chromium</span>
+-------------------------------------------------------------------------------
 
 Multipage Skia Picture files capture the commands sent to produce PDFs
 and printed documents.
@@ -141,14 +135,12 @@ process it with `dm`.
 
     out/Release/dm --src mskp --mskps /tmp/filename.mskp -w /tmp \
         --config pdf --verbose
-    ls -l /tmp/pdf/mskp/filename.mskp
+    ls -l /tmp/pdf/mskp/filename.mskp.pdf
 
 * * *
 
-<span id="hw-acceleration"></span>
-
-How to add hardware acceleration in Skia
-----------------------------------------
+<span id="hw-acceleration">How to add hardware acceleration in Skia</span>
+--------------------------------------------------------------------------
 
 There are two ways Skia takes advantage of specific hardware.
 
@@ -167,10 +159,8 @@ There are two ways Skia takes advantage of specific hardware.
 
 * * *
 
-<span id="font-hinting"></span>
-
-Does Skia support Font hinting?
--------------------------------
+<span id="font-hinting">Does Skia support Font hinting?</span>
+--------------------------------------------------------------
 
 Skia has a built-in font cache, but it does not know how to actual render font
 files like TrueType into its cache. For that it relies on the platform to
@@ -182,10 +172,8 @@ engines can easily be supported in a like manner.
 
 * * *
 
-<span id="kerning"></span>
-
-Does Skia shape text (kerning)?
--------------------------------
+<span id="kerning">Does Skia shape text (kerning)?</span>
+---------------------------------------------------------
 
 No.  Skia provides interfaces to draw glyphs, but does not implement a
 text shaper. Skia's client's often use
@@ -201,10 +189,8 @@ used to draw those glyphs.
 
 * * *
 
-<span id="text-shadow"></span>
-
-How do I add drop shadow on text?
----------------------------------
+<span id="text-shadow">How do I add drop shadow on text?</span>
+---------------------------------------------------------------
 
 <!--?prettify lang=cc?-->
 
