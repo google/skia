@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "703917b8_4f6a2184",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-09-26T12:22:53Z",
+      "side": 1,
+      "message": "Can we do w/o the \"sk_sp\u003cGrFragmentProcessor\u003e\" cast here ?",
+      "revId": "22e65c3477191b9547e583affd06a1019484bbab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "703917b8_8f741964",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-09-26T12:22:53Z",
+      "side": 1,
+      "message": "???",
+      "revId": "22e65c3477191b9547e583affd06a1019484bbab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
