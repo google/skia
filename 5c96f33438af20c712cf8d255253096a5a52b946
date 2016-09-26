@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "703917b8_b266a652",
+        "filename": "include/effects/SkXfermodeImageFilter.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-09-26T14:45:26Z",
+      "side": 1,
+      "message": "Do we need a std::move here ?",
+      "revId": "5c96f33438af20c712cf8d255253096a5a52b946",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
