@@ -15,7 +15,6 @@
 #define WW  100
 #define HH  32
 
-#ifdef SK_SUPPORT_LEGACY_ARITHMETICMODE
 static SkBitmap make_bm() {
     SkBitmap bm;
     bm.allocN32Pixels(WW, HH);
@@ -161,4 +160,3 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new ArithmodeGM; )
-#endif

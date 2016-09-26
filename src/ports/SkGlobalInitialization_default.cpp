@@ -8,7 +8,7 @@
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkAlphaThresholdFilter.h"
-#include "../../src/effects/SkArithmeticModePriv.h"
+#include "SkArithmeticMode.h"
 #include "SkArcToPathEffect.h"
 #include "SkBitmapSourceDeserializer.h"
 #include "SkBlurDrawLooper.h"
