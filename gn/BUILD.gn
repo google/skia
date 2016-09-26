@@ -92,7 +92,6 @@ config("default") {
         "-Wno-over-aligned",
         "-Wno-shadow",
         "-Wno-shift-sign-overflow",
-        "-Wno-undefined-func-template",
       ]
 
       cflags += [
@@ -141,6 +140,7 @@ config("default") {
       cflags_cc += [
         "-Wno-c++98-compat",
         "-Wno-c++98-compat-pedantic",
+        "-Wno-undefined-func-template",
       ]
     }
   }
