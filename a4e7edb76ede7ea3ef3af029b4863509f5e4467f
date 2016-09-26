@@ -16,6 +16,24 @@
       "revId": "a4e7edb76ede7ea3ef3af029b4863509f5e4467f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "703917b8_b2922601",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-26T15:29:03Z",
+      "side": 1,
+      "message": "different type: this one takes scan of src, the other has implicit src\u003d\u003d0",
+      "parentUuid": "703917b8_12f93246",
+      "revId": "a4e7edb76ede7ea3ef3af029b4863509f5e4467f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
