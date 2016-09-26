@@ -16,13 +16,15 @@
 constexpr SkScalar SH = SkIntToScalar(H);
 
 static void rnd_quad(SkPath* p, SkPaint* paint, SkRandom& rand) {
-    p->moveTo(rand.nextRangeScalar(0,  W), rand.nextRangeScalar(0,  H));
+    auto a = rand.nextRangeScalar(0,W),
+         b = rand.nextRangeScalar(0,H);
+    p->moveTo(a,b);
     for (int x = 0; x < 2; ++x) {
-        auto a = rand.nextRangeScalar(W/4, W),
-             b = rand.nextRangeScalar(  0, H),
-             c = rand.nextRangeScalar(  0, W),
-             d = rand.nextRangeScalar(H/4, H);
-        p->quadTo(a,b,c,d);
+        auto c = rand.nextRangeScalar(W/4, W),
+             d = rand.nextRangeScalar(  0, H),
+             e = rand.nextRangeScalar(  0, W),
+             f = rand.nextRangeScalar(H/4, H);
+        p->quadTo(c,d,e,f);
     }
     paint->setColor(rand.nextU());
     SkScalar width = rand.nextRangeScalar(1, 5);
