@@ -93,7 +93,6 @@ config("default") {
         "-Wno-shadow",
         "-Wno-shift-sign-overflow",
         "-Wno-undefined-func-template",
-        "-Wno-undefined-reinterpret-cast",
       ]
 
       cflags += [
