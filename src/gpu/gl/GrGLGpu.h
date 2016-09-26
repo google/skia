@@ -430,7 +430,10 @@ private:
         bool valid() const { return kInvalidSurfaceOrigin != fRTOrigin; }
         void invalidate() { fRTOrigin = kInvalidSurfaceOrigin; }
         bool knownDisabled() const { return this->valid() && !fWindowState.enabled(); }
-        void setDisabled() { fRTOrigin = kDefault_GrSurfaceOrigin, fWindowState.setDisabled(); }
+        void setDisabled() {
+            fRTOrigin = kDefault_GrSurfaceOrigin;
+            fWindowState.setDisabled();
+        }
 
         void set(GrSurfaceOrigin rtOrigin, const GrGLIRect& viewport,
                  const GrWindowRectsState& windowState) {
