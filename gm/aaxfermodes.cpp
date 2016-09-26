@@ -120,6 +120,9 @@ protected:
             canvas->translate(0, kSubtitleSpacing + kShapeSpacing/2);
 
             for (size_t m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
+                if (firstMode + m > SkXfermode::kLastMode) {
+                    break;
+                }
                 SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(firstMode + m);
                 canvas->save();
 
@@ -227,16 +230,10 @@ protected:
     }
 
     void drawShape(SkCanvas* canvas, Shape shape, const SkPaint& paint, SkXfermode::Mode mode) {
+        SkASSERT(mode <= SkXfermode::kLastMode);
         SkPaint shapePaint(paint);
         shapePaint.setAntiAlias(kSquare_Shape != shape);
-
-        sk_sp<SkXfermode> xfermode;
-        if (mode <= SkXfermode::kLastMode) {
-            xfermode = SkXfermode::Make(mode);
-        } else {
-            xfermode = SkArithmeticMode::Make(+1.0f, +0.25f, -0.5f, +0.1f);
-        }
-        shapePaint.setXfermode(std::move(xfermode));
+        shapePaint.setXfermode(SkXfermode::Make(mode));
 
         switch (shape) {
             case kSquare_Shape:

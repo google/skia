@@ -11,31 +11,6 @@
 #include "SkXfermode.h"
 #include "SkPM4f.h"
 
-#include "SkArithmeticMode.h"
-
-#define kCustomShift    16
-#define kCustomMask     (~0xFFFF)
-
-enum CustomModes {
-    kArithmetic_CustomMode  = 1 << kCustomShift,
-};
-
-static sk_sp<SkXfermode> make_custom(int customMode) {
-    switch (customMode) {
-        case kArithmetic_CustomMode: {
-            const SkScalar k1 = 0.25;
-            const SkScalar k2 = 0.75;
-            const SkScalar k3 = 0.75;
-            const SkScalar k4 = -0.25;
-            return SkArithmeticMode::Make(k1, k2, k3, k4);
-        }
-        default:
-            break;
-    }
-    SkASSERT(false);
-    return nullptr;
-}
-
 enum SrcType {
     //! A WxH image with a rectangle in the lower right.
     kRectangleImage_SrcType               = 0x01,
@@ -98,8 +73,6 @@ const struct {
     { SkXfermode::kSaturation_Mode,   "Saturation",   kBasic_SrcType },
     { SkXfermode::kColor_Mode,        "Color",        kBasic_SrcType },
     { SkXfermode::kLuminosity_Mode,   "Luminosity",   kBasic_SrcType },
-
-    { SkXfermode::Mode(0xFFFF),       "Arithmetic",   kBasic_SrcType + kArithmetic_CustomMode   },
 };
 
 static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
@@ -269,14 +242,8 @@ protected:
                 if ((gModes[i].fSourceTypeMask & sourceType) == 0) {
                     continue;
                 }
-                sk_sp<SkXfermode> mode;
-                if (gModes[i].fSourceTypeMask & kCustomMask) {
-                    mode = make_custom(gModes[i].fSourceTypeMask & kCustomMask);
-                } else {
-                    mode = SkXfermode::Make(gModes[i].fMode);
-                }
-                SkRect r;
-                r.set(x, y, x+w, y+h);
+                sk_sp<SkXfermode> mode = SkXfermode::Make(gModes[i].fMode);
+                SkRect r{ x, y, x+w, y+h };
 
                 SkPaint p;
                 p.setStyle(SkPaint::kFill_Style);
