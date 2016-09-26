@@ -841,11 +841,11 @@ void SkOpAngle::setSpans() {
     }
     const SkOpSegment* segment = fStart->segment();
     const SkPoint* pts = segment->pts();
-    SkDEBUGCODE(fPart.fCurve.fVerb = SkPath::kCubic_Verb);
+    SkDEBUGCODE(fPart.fCurve.fVerb = SkPath::kCubic_Verb);  // required for SkDCurve debug check
     SkDEBUGCODE(fPart.fCurve[2].fX = fPart.fCurve[2].fY = fPart.fCurve[3].fX = fPart.fCurve[3].fY
-            = SK_ScalarNaN);
-    SkDEBUGCODE(fPart.fCurve.fVerb = segment->verb());
-    segment->subDivide(fStart, fEnd, &fPart.fCurve);
+            = SK_ScalarNaN);   //  make the non-line part uninitialized
+    SkDEBUGCODE(fPart.fCurve.fVerb = segment->verb());  //  set the curve type for real
+    segment->subDivide(fStart, fEnd, &fPart.fCurve);  //  set at least the line part if not more
     fOriginalCurvePart = fPart.fCurve;
     const SkPath::Verb verb = segment->verb();
     fPart.setCurveHullSweep(verb);

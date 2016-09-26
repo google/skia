@@ -5331,7 +5331,7 @@ static void tiger8b_h_1(skiatest::Reporter* reporter, const char* filename) {
 #if DEBUG_UNDER_DEVELOPMENT  // tiger
     return;
 #endif
-    uint64_t testlines = 0x000000201304b4a3;  // best so far: 0x000000201304b4a3
+    uint64_t testlines = 0x000000000f27b9e3;  // best so far: 0x000000201304b4a3
     tiger8b_x(reporter, filename, testlines);
 }
 
@@ -5870,7 +5870,7 @@ static void testQuads73(skiatest::Reporter* reporter, const char* filename) {
 }
 
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = tiger8b_h_1;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {

@@ -1216,7 +1216,7 @@ bool SkOpCoincidence::apply() {
                 }
                 windValue = oppValue = 0;
             }
-#if DEBUG_COINCIDENCE
+#if 0 && DEBUG_COINCIDENCE
             SkDebugf("seg=%d span=%d windValue=%d oppValue=%d\n", segment->debugID(),
                     start->debugID(), windValue, oppValue);
             SkDebugf("seg=%d span=%d windValue=%d oppValue=%d\n", oSegment->debugID(),

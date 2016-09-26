@@ -9,16 +9,16 @@
 
 template<typename TCurve, typename OppCurve>
 char SkTCoincident<TCurve, OppCurve>::dumpIsCoincidentStr() const {
-    if (!!fCoincident != fCoincident) {
+    if (!!fMatch != fMatch) {
         return '?';
     }
-    return fCoincident ? '*' : 0;
+    return fMatch ? '*' : 0;
 }
 
 template<typename TCurve, typename OppCurve>
 void SkTCoincident<TCurve, OppCurve>::dump() const {
     SkDebugf("t=%1.9g pt=(%1.9g,%1.9g)%s\n", fPerpT, fPerpPt.fX, fPerpPt.fY,
-            fCoincident ? " coincident" : "");
+            fMatch ? " match" : "");
 }
 
 template<typename TCurve, typename OppCurve>

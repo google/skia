@@ -404,10 +404,10 @@ static void oneOff(skiatest::Reporter* reporter, const SkDCubic& cubic1, const S
         SkDebugf("sect%d,\n", index);
     }
 #endif
-    if (coin && intersections.used() != 2) {
+    if (coin && intersections.used() < 2) {
         SkDebugf("");
     }
-    REPORTER_ASSERT(reporter, !coin || intersections.used() == 2);
+    REPORTER_ASSERT(reporter, !coin || intersections.used() >= 2);
     double tt1, tt2;
     SkDPoint xy1, xy2;
     for (int pt3 = 0; pt3 < intersections.used(); ++pt3) {

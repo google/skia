@@ -168,6 +168,8 @@ public:
         return SkDEBUGRELEASE(fGlobalState->debugAngle(id), nullptr);
     }
 
+    void debugCheckBetween() const;
+
 #if DEBUG_COINCIDENCE_VERBOSE
     void debugCheckValid(const char* id, SkPathOpsDebug::GlitchLog* log) const;
 #endif

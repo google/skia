@@ -371,7 +371,7 @@ void SkPathOpsDebug::CheckHealth(SkOpContourHead* contourList, const char* id) {
         SkDebugf("\n");
     }
     contourList->globalState()->debugSetCheckHealth(false);
-#if 0 && DEBUG_ACTIVE_SPANS
+#if 01 && DEBUG_ACTIVE_SPANS
     SkDebugf("active after %s:\n", id);
     ShowActiveSpans(contourList);
 #endif
@@ -1846,11 +1846,9 @@ void SkOpCoincidence::debugMarkCollapsed(const char* id, SkPathOpsDebug::GlitchL
 #endif
 
 void SkCoincidentSpans::debugShow() const {
-    SkDebugf("%s - id=%d t=%1.9g tEnd=%1.9g\n", __FUNCTION__,
-            coinPtTStart()->segment()->debugID(),
+    SkDebugf("coinSpan - id=%d t=%1.9g tEnd=%1.9g\n", coinPtTStart()->segment()->debugID(),
             coinPtTStart()->fT, coinPtTEnd()->fT);
-    SkDebugf("%s + id=%d t=%1.9g tEnd=%1.9g\n", __FUNCTION__,
-            oppPtTStart()->segment()->debugID(),
+    SkDebugf("coinSpan + id=%d t=%1.9g tEnd=%1.9g\n", oppPtTStart()->segment()->debugID(),
             oppPtTStart()->fT, oppPtTEnd()->fT);
 }
 
@@ -1865,7 +1863,7 @@ void SkOpCoincidence::debugShowCoincidence() const {
 }
 
 #if DEBUG_COINCIDENCE
-static void DebugValidate(const SkOpSpanBase* next, const SkOpSpanBase* end,
+static void DebugCheckBetween(const SkOpSpanBase* next, const SkOpSpanBase* end,
         double oStart, double oEnd, const SkOpSegment* oSegment,
         const char* id, SkPathOpsDebug::GlitchLog* log) {
     SkASSERT(next != end);
@@ -1986,12 +1984,6 @@ static void DebugValidate(const SkCoincidentSpans* head, const SkCoincidentSpans
         SkASSERT(coin->coinPtTEnd()->span()->ptT() == coin->coinPtTEnd());
         SkASSERT(coin->oppPtTStart()->span()->ptT() == coin->oppPtTStart());
         SkASSERT(coin->oppPtTEnd()->span()->ptT() == coin->oppPtTEnd());
-        DebugValidate(coin->coinPtTStart()->span(), coin->coinPtTEnd()->span(),
-                coin->oppPtTStart()->fT, coin->oppPtTEnd()->fT, coin->oppPtTStart()->segment(),
-                id, log);
-        DebugValidate(coin->oppPtTStart()->span(), coin->oppPtTEnd()->span(),
-                coin->coinPtTStart()->fT, coin->coinPtTEnd()->fT, coin->coinPtTStart()->segment(),
-                id, log);
         coin = coin->next();
     }
     DebugCheckOverlapTop(head, opt, id, log);
@@ -2000,11 +1992,36 @@ static void DebugValidate(const SkCoincidentSpans* head, const SkCoincidentSpans
 
 void SkOpCoincidence::debugValidate() const {
 #if DEBUG_COINCIDENCE
- //   if (fGlobalState->debugCheckHealth()) {
-//        return;
-//    }
     DebugValidate(fHead, fTop, nullptr, nullptr);
     DebugValidate(fTop, nullptr, nullptr, nullptr);
+#endif
+}
+
+#if DEBUG_COINCIDENCE
+static void DebugCheckBetween(const SkCoincidentSpans* head, const SkCoincidentSpans* opt,
+        const char* id, SkPathOpsDebug::GlitchLog* log) {
+    // look for pts inside coincident spans that are not inside the opposite spans
+    const SkCoincidentSpans* coin = head;
+    while (coin) {
+        DebugCheckBetween(coin->coinPtTStart()->span(), coin->coinPtTEnd()->span(),
+                coin->oppPtTStart()->fT, coin->oppPtTEnd()->fT, coin->oppPtTStart()->segment(),
+                id, log);
+        DebugCheckBetween(coin->oppPtTStart()->span(), coin->oppPtTEnd()->span(),
+                coin->coinPtTStart()->fT, coin->coinPtTEnd()->fT, coin->coinPtTStart()->segment(),
+                id, log);
+        coin = coin->next();
+    }
+    DebugCheckOverlapTop(head, opt, id, log);
+}
+#endif
+
+void SkOpCoincidence::debugCheckBetween() const {
+#if DEBUG_COINCIDENCE
+    if (fGlobalState->debugCheckHealth()) {
+        return;
+    }
+    DebugCheckBetween(fHead, fTop, nullptr, nullptr);
+    DebugCheckBetween(fTop, nullptr, nullptr, nullptr);
 #endif
 }
 
