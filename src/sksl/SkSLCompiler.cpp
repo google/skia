@@ -15,6 +15,7 @@
 #include "SkSLSPIRVCodeGenerator.h"
 #include "ir/SkSLExpression.h"
 #include "ir/SkSLIntLiteral.h"
+#include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLSymbolTable.h"
 #include "ir/SkSLVarDeclaration.h"
 #include "SkMutex.h"
@@ -97,6 +98,7 @@ Compiler::Compiler()
     ADD_TYPE(Sampler1D);
     ADD_TYPE(Sampler2D);
     ADD_TYPE(Sampler3D);
+    ADD_TYPE(SamplerExternalOES);
     ADD_TYPE(SamplerCube);
     ADD_TYPE(Sampler2DRect);
     ADD_TYPE(Sampler1DArray);
@@ -130,6 +132,7 @@ Compiler::Compiler()
 
     std::vector<std::unique_ptr<ProgramElement>> ignored;
     this->internalConvertProgram(SKSL_INCLUDE, &ignored);
+    printf("%s", errorText().c_str());
     ASSERT(!fErrorCount);
 }
 
@@ -159,6 +162,14 @@ void Compiler::internalConvertProgram(std::string text,
             case ASTDeclaration::kFunction_Kind: {
                 std::unique_ptr<FunctionDefinition> f = fIRGenerator->convertFunction(
                                                                                (ASTFunction&) decl);
+                if (f) {
+                    result->push_back(std::move(f));
+                }
+                break;
+            }
+            case ASTDeclaration::kModifiers_Kind: {
+                std::unique_ptr<ModifiersDeclaration> f = fIRGenerator->convertModifiersDeclaration(
+                                                                   (ASTModifiersDeclaration&) decl);
                 if (f) {
                     result->push_back(std::move(f));
                 }
