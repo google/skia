@@ -1248,7 +1248,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
                                                 const char* gradientTValue,
                                                 const char* outputColor,
                                                 const char* inputColor,
-                                                const SamplerHandle* texSamplers) {
+                                                const TextureSamplers& texSamplers) {
     switch (ge.getColorType()) {
 #if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
         case kHardStopCentered_ColorType: {

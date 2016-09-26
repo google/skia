@@ -470,7 +470,7 @@ protected:
                    const char* gradientTValue,
                    const char* outputColor,
                    const char* inputColor,
-                   const SamplerHandle* texSamplers);
+                   const TextureSamplers&);
 
 private:
     enum {

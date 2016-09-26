@@ -176,15 +176,10 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 }
 
 static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
-    for (int i = 0; i < proc->numChildProcessors(); ++i) {
-        // need to recurse
-        add_dependencies_for_processor(&proc->childProcessor(i), rt);
-    }
-
-    for (int i = 0; i < proc->numTextures(); ++i) {
-        GrTexture* texture = proc->textureAccess(i).getTexture();
+    GrFragmentProcessor::TextureAccessIter iter(proc);
+    while (const GrTextureAccess* access = iter.next()) {
         SkASSERT(rt->getLastDrawTarget());
-        rt->getLastDrawTarget()->addDependency(texture);
+        rt->getLastDrawTarget()->addDependency(access->getTexture());
     }
 }
 

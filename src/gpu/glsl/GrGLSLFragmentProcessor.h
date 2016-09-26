@@ -33,29 +33,48 @@ public:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
 
+private:
     /**
-     * When building a program from a GrPipeline this is used to provide the GrShaderVars that
-     * contain the resulting transformed coords from each of a GrFragmentProcessor's
-     * GrCoordTransforms. This allows the GrFragmentProcessor subclasses to refer to the transformed
-     * coords in fragment code.
+     * This class allows the shader builder to provide each GrGLSLFragmentProcesor with an array of
+     * generated variables where each generated variable corresponds to an element of an array on
+     * the GrFragmentProcessor that generated the GLSLFP. For example, this is used to provide a
+     * variable holding transformed coords for each GrCoordTransform owned by the FP.
      */
-    class TransformedCoordVars {
+    template <typename T, typename FPBASE, int (FPBASE::*COUNT)() const>
+    class BuilderInputProvider {
     public:
-        TransformedCoordVars(const GrFragmentProcessor* fp, const GrShaderVar* vars)
-                : fFP(fp)
-                , fTransformedVars(vars) {}
+        BuilderInputProvider(const GrFragmentProcessor* fp, const T* ts) : fFP(fp) , fTs(ts) {}
 
-        const GrShaderVar& operator[] (int i) const {
-            SkASSERT(i >= 0 && i < fFP->numCoordTransforms());
-            return fTransformedVars[i];
+        const T& operator[] (int i) const {
+            SkASSERT(i >= 0 && i < (fFP->*COUNT)());
+            return fTs[i];
         }
 
-        TransformedCoordVars childTransforms(int childIdx) const;
+        BuilderInputProvider childInputs(int childIdx) const {
+            const GrFragmentProcessor* child = &fFP->childProcessor(childIdx);
+            GrFragmentProcessor::Iter iter(fFP);
+            int numToSkip = 0;
+            while (true) {
+                const GrFragmentProcessor* fp = iter.next();
+                if (fp == child) {
+                    return BuilderInputProvider(child, fTs + numToSkip);
+                }
+                numToSkip += (fp->*COUNT)();
+            }
+        }
 
     private:
         const GrFragmentProcessor* fFP;
-        const GrShaderVar*         fTransformedVars;
+        const T*                   fTs;
     };
+
+public:
+    using TransformedCoordVars = BuilderInputProvider<GrShaderVar, GrFragmentProcessor,
+                                                      &GrFragmentProcessor::numCoordTransforms>;
+    using TextureSamplers = BuilderInputProvider<SamplerHandle, GrProcessor,
+                                                 &GrProcessor::numTextures>;
+    using BufferSamplers = BuilderInputProvider<SamplerHandle, GrProcessor,
+                                                &GrProcessor::numBuffers>;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -90,8 +109,8 @@ public:
                  const char* outputColor,
                  const char* inputColor,
                  const TransformedCoordVars& transformedCoordVars,
-                 const SamplerHandle* texSamplers,
-                 const SamplerHandle* bufferSamplers,
+                 const TextureSamplers& textureSamplers,
+                 const BufferSamplers& bufferSamplers,
                  bool gpImplementsDistanceVector)
             : fFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
@@ -100,7 +119,7 @@ public:
             , fOutputColor(outputColor)
             , fInputColor(inputColor)
             , fTransformedCoords(transformedCoordVars)
-            , fTexSamplers(texSamplers)
+            , fTexSamplers(textureSamplers)
             , fBufferSamplers(bufferSamplers)
             , fGpImplementsDistanceVector(gpImplementsDistanceVector) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
@@ -110,8 +129,8 @@ public:
         const char* fOutputColor;
         const char* fInputColor;
         const TransformedCoordVars& fTransformedCoords;
-        const SamplerHandle* fTexSamplers;
-        const SamplerHandle* fBufferSamplers;
+        const TextureSamplers& fTexSamplers;
+        const BufferSamplers& fBufferSamplers;
         bool fGpImplementsDistanceVector;
     };
 
@@ -123,7 +142,7 @@ public:
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
-    GrGLSLFragmentProcessor* childProcessor(int index) const {
+    GrGLSLFragmentProcessor* childProcessor(int index) {
         return fChildProcessors[index];
     }
 
@@ -140,6 +159,24 @@ public:
 
     /** Variation that uses the parent's output color variable to hold the child's output.*/
     void emitChild(int childIndex, const char* inputColor, EmitArgs& parentArgs);
+
+    /**
+     * Pre-order traversal of a GLSLFP hierarchy, or of multiple trees with roots in an array of
+     * GLSLFPS. This agrees with the traversal order of GrFragmentProcessor::Iter
+     */
+    class Iter : public SkNoncopyable {
+    public:
+        explicit Iter(GrGLSLFragmentProcessor* fp) { fFPStack.push_back(fp); }
+        explicit Iter(GrGLSLFragmentProcessor* fps[], int cnt) {
+            for (int i = cnt - 1; i >= 0; --i) {
+                fFPStack.push_back(fps[i]);
+            }
+        }
+        GrGLSLFragmentProcessor* next();
+
+    private:
+        SkSTArray<4, GrGLSLFragmentProcessor*, true> fFPStack;
+    };
 
 protected:
     /** A GrGLSLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces

@@ -88,10 +88,9 @@ void GrGLProgram::generateMipmaps(const GrPrimitiveProcessor& primProc,
                                   const GrPipeline& pipeline) {
     this->generateMipmaps(primProc, pipeline.getAllowSRGBInputs());
 
-    int numProcessors = fFragmentProcessors.count();
-    for (int i = 0; i < numProcessors; ++i) {
-        const GrFragmentProcessor& processor = pipeline.getFragmentProcessor(i);
-        this->generateMipmaps(processor, pipeline.getAllowSRGBInputs());
+    GrFragmentProcessor::Iter iter(pipeline);
+    while (const GrFragmentProcessor* fp  = iter.next()) {
+        this->generateMipmaps(*fp, pipeline.getAllowSRGBInputs());
     }
 
     if (primProc.getPixelLocalStorageState() !=
@@ -104,12 +103,17 @@ void GrGLProgram::generateMipmaps(const GrPrimitiveProcessor& primProc,
 void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
                                   const GrPipeline& pipeline,
                                   int* nextSamplerIdx) {
-    int numProcessors = fFragmentProcessors.count();
-    for (int i = 0; i < numProcessors; ++i) {
-        const GrFragmentProcessor& processor = pipeline.getFragmentProcessor(i);
-        fFragmentProcessors[i]->setData(fProgramDataManager, processor);
-        this->bindTextures(processor, pipeline.getAllowSRGBInputs(), nextSamplerIdx);
+    GrFragmentProcessor::Iter iter(pipeline);
+    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.begin(),
+                                           fFragmentProcessors.count());
+    const GrFragmentProcessor* fp = iter.next();
+    GrGLSLFragmentProcessor* glslFP = glslIter.next();
+    while (fp && glslFP) {
+        glslFP->setData(fProgramDataManager, *fp);
+        this->bindTextures(*fp, pipeline.getAllowSRGBInputs(), nextSamplerIdx);
+        fp = iter.next(), glslFP = glslIter.next();
     }
+    SkASSERT(!fp && !glslFP);
 }
 
 

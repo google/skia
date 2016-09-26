@@ -158,12 +158,17 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
 
     GrGLSLFragmentProcessor* fragProc = fp.createGLSLInstance();
 
-    SkSTArray<4, SamplerHandle> texSamplers(fp.numTextures());
-    SkSTArray<2, SamplerHandle> bufferSamplers(fp.numBuffers());
-    this->emitSamplers(fp, &texSamplers, &bufferSamplers);
+    SkSTArray<4, SamplerHandle> textureSamplerArray(fp.numTextures());
+    SkSTArray<2, SamplerHandle> bufferSamplerArray(fp.numBuffers());
+    GrFragmentProcessor::Iter iter(&fp);
+    while (const GrFragmentProcessor* subFP = iter.next()) {
+        this->emitSamplers(*subFP, &textureSamplerArray, &bufferSamplerArray);
+    }
 
     const GrShaderVar* coordVars = fTransformedCoordVars.begin() + transformedCoordVarsIdx;
     GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
+    GrGLSLFragmentProcessor::TextureSamplers textureSamplers(&fp, textureSamplerArray.begin());
+    GrGLSLFragmentProcessor::BufferSamplers bufferSamplers(&fp, bufferSamplerArray.begin());
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
                                            this->uniformHandler(),
                                            this->glslCaps(),
@@ -171,8 +176,8 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
                                            output->c_str(),
                                            input.isOnes() ? nullptr : input.c_str(),
                                            coords,
-                                           texSamplers.begin(),
-                                           bufferSamplers.begin(),
+                                           textureSamplers,
+                                           bufferSamplers,
                                            this->primitiveProcessor().implementsDistanceVector());
 
     fragProc->emitCode(args);
@@ -248,7 +253,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
                              1 << GrGLSLShaderBuilder::kExternalTexture_GLSLPrivateFeature,
                              externalFeatureString);
         }
-        name.printf("TextureSampler%d", t);
+        name.printf("TextureSampler_%d", outTexSamplers->count());
         this->emitSampler(samplerType, access.getTexture()->config(),
                           name.c_str(), access.getVisibility(), outTexSamplers);
     }
@@ -259,7 +264,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
 
         for (int b = 0; b < numBuffers; ++b) {
             const GrBufferAccess& access = processor.bufferAccess(b);
-            name.printf("BufferSampler%d", b);
+            name.printf("BufferSampler_%d", outBufferSamplers->count());
             this->emitSampler(kTextureBufferSampler_GrSLType, access.texelConfig(), name.c_str(),
                               access.visibility(), outBufferSamplers);
             texelBufferVisibility |= access.visibility();

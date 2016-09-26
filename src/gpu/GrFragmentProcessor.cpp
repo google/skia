@@ -57,40 +57,20 @@ GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
 }
 
 void GrFragmentProcessor::addTextureAccess(const GrTextureAccess* textureAccess) {
-    // Can't add texture accesses after registering any children since their texture accesses have
-    // already been bubbled up into our fTextureAccesses array
-    SkASSERT(fChildProcessors.empty());
-
     INHERITED::addTextureAccess(textureAccess);
-    fNumTexturesExclChildren++;
 }
 
 void GrFragmentProcessor::addBufferAccess(const GrBufferAccess* bufferAccess) {
-    // Can't add buffer accesses after registering any children since their buffer accesses have
-    // already been bubbled up into our fBufferAccesses array
-    SkASSERT(fChildProcessors.empty());
-
     INHERITED::addBufferAccess(bufferAccess);
-    fNumBuffersExclChildren++;
 }
 
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
-    // Can't add transforms after registering any children since their transforms have already been
-    // bubbled up into our fCoordTransforms array
-    SkASSERT(fChildProcessors.empty());
-
     fCoordTransforms.push_back(transform);
     fUsesLocalCoords = fUsesLocalCoords || transform->sourceCoords() == kLocal_GrCoordSet;
     SkDEBUGCODE(transform->setInProcessor();)
 }
 
 int GrFragmentProcessor::registerChildProcessor(sk_sp<GrFragmentProcessor> child) {
-    // Append the child's textures array to our textures array
-    if (!child->fTextureAccesses.empty()) {
-        fTextureAccesses.push_back_n(child->fTextureAccesses.count(),
-                                     child->fTextureAccesses.begin());
-    }
-
     this->combineRequiredFeatures(*child);
 
     if (child->usesLocalCoords()) {
@@ -424,18 +404,3 @@ const GrFragmentProcessor* GrFragmentProcessor::Iter::next() {
     return back;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-const GrCoordTransform* GrFragmentProcessor::CoordTransformIter::next() {
-    if (!fCurrFP) {
-        return nullptr;
-    }
-    while (fCTIdx == fCurrFP->numCoordTransforms()) {
-        fCTIdx = 0;
-        fCurrFP = fFPIter.next();
-        if (!fCurrFP) {
-            return nullptr;
-        }
-    }
-    return &fCurrFP->coordTransform(fCTIdx++);
-}

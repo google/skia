@@ -395,8 +395,9 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     SkASSERT(renderPass);
 
     prepare_sampled_images(primProc, fGpu);
-    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        prepare_sampled_images(pipeline.getFragmentProcessor(i), fGpu);
+    GrFragmentProcessor::Iter iter(pipeline);
+    while (const GrFragmentProcessor* fp = iter.next()) {
+        prepare_sampled_images(*fp, fGpu);
     }
     prepare_sampled_images(pipeline.getXferProcessor(), fGpu);
 

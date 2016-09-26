@@ -198,11 +198,17 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
     append_texture_bindings(primProc, &textureBindings);
 
-    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        const GrFragmentProcessor& processor = pipeline.getFragmentProcessor(i);
-        fFragmentProcessors[i]->setData(fDataManager, processor);
-        append_texture_bindings(processor, &textureBindings);
+    GrFragmentProcessor::Iter iter(pipeline);
+    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.begin(),
+                                           fFragmentProcessors.count());
+    const GrFragmentProcessor* fp = iter.next();
+    GrGLSLFragmentProcessor* glslFP = glslIter.next();
+    while (fp && glslFP) {
+        glslFP->setData(fDataManager, *fp);
+        append_texture_bindings(*fp, &textureBindings);
+        fp = iter.next(), glslFP = glslIter.next();
     }
+    SkASSERT(!fp && !glslFP);
 
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor());
     append_texture_bindings(pipeline.getXferProcessor(), &textureBindings);
