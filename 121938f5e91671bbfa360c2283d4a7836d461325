@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45a453cb_9f98736f",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-09-26T22:52:11Z",
+      "side": 1,
+      "message": "If it makes things easier, I think I\u0027ll die before asmflags is not [].\nUnfortunately, the same cannot be said for never compiling assembly...",
+      "revId": "121938f5e91671bbfa360c2283d4a7836d461325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "45a453cb_ff99bf75",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-09-26T22:52:11Z",
+      "side": 1,
+      "message": "Thankfully, not in Skia to my knowledge.",
+      "revId": "121938f5e91671bbfa360c2283d4a7836d461325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
