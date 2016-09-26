@@ -412,7 +412,7 @@ VulkanWindowContext::BackbufferInfo* VulkanWindowContext::getAvailableBackbuffer
     SkASSERT(fBackbuffers);
 
     ++fCurrentBackbufferIndex;
-    if (fCurrentBackbufferIndex > fImageCount) {
+    if (fCurrentBackbufferIndex >= fImageCount) {
         fCurrentBackbufferIndex = 0;
     }
 
