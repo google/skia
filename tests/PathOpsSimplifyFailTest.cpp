@@ -161,7 +161,7 @@ path.quadTo(SkBits2Float(0xb6b6b6e9), SkBits2Float(0xb6b6b6b6), SkBits2Float(0xe
 #define TEST(test) test(reporter, #test)
 
 DEF_TEST(PathOpsSimplifyFail, reporter) {
-    TEST(fuzz763_1),
+    TEST(fuzz763_1);
     TEST(fuzz_x2);
     TEST(fuzz_x1);
     TEST(fuzz_59);

@@ -85,7 +85,6 @@ config("default") {
 
       # High priority to fix!
       cflags += [
-        "-Wno-comma",
         "-Wno-conditional-uninitialized",
         "-Wno-covered-switch-default",
         "-Wno-deprecated",
