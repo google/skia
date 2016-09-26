@@ -85,14 +85,16 @@ void SkPathMeasure_segTo(const SkPoint pts[], unsigned segType,
                     dst->conicTo(conic.fPts[1], conic.fPts[2], conic.fW);
                 } else {
                     SkConic tmp[2];
-                    conic.chopAt(stopT, tmp);
-                    dst->conicTo(tmp[0].fPts[1], tmp[0].fPts[2], tmp[0].fW);
+                    if (conic.chopAt(stopT, tmp)) {
+                        dst->conicTo(tmp[0].fPts[1], tmp[0].fPts[2], tmp[0].fW);
+                    }
                 }
             } else {
                 if (SK_Scalar1 == stopT) {
                     SkConic tmp1[2];
-                    conic.chopAt(startT, tmp1);
-                    dst->conicTo(tmp1[1].fPts[1], tmp1[1].fPts[2], tmp1[1].fW);
+                    if (conic.chopAt(startT, tmp1)) {
+                        dst->conicTo(tmp1[1].fPts[1], tmp1[1].fPts[2], tmp1[1].fW);
+                    }
                 } else {
                     SkConic tmp;
                     conic.chopAt(startT, stopT, &tmp);

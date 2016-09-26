@@ -165,7 +165,9 @@ static void chopBothWays(const SkDConic& dConic, double t, const char* name) {
     conic.fW = dConic.fWeight;
     SkConic chopped[2];
     SkDConic dChopped[2];
-    conic.chopAt(SkDoubleToScalar(t), chopped);
+    if (!conic.chopAt(SkDoubleToScalar(t), chopped)) {
+        return;
+    }
     dChopped[0] = dConic.subDivide(0, t);
     dChopped[1] = dConic.subDivide(t, 1);
 #if DEBUG_VISUALIZE_CONICS

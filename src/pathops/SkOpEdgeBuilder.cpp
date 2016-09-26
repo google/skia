@@ -231,7 +231,11 @@ bool SkOpEdgeBuilder::walk() {
                     if (maxCurvature > 0) {
                         SkConic conic(pointsPtr, weight);
                         SkConic pair[2];
-                        conic.chopAt(maxCurvature, pair);
+                        if (!conic.chopAt(maxCurvature, pair)) {
+                            // if result can't be computed, use original
+                            fCurrentContour->addConic(pointsPtr, weight);
+                            break;
+                        }
                         SkPoint cStorage[2][3];
                         SkPath::Verb v1 = SkReduceOrder::Conic(pair[0], cStorage[0]);
                         SkPath::Verb v2 = SkReduceOrder::Conic(pair[1], cStorage[1]);
