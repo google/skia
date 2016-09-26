@@ -133,9 +133,6 @@ public:
                     return fPath.get()->getBounds();
                 case kEmpty_Type:
                     return kEmpty;
-                default:
-                    SkDEBUGFAIL("Unexpected type.");
-                    return kEmpty;
             }
         }
 
@@ -153,9 +150,6 @@ public:
                     return fPath.get()->conservativelyContainsRect(rect);
                 case kEmpty_Type:
                     return false;
-                default:
-                    SkDEBUGFAIL("Unexpected type.");
-                    return false;
             }
         }
 
@@ -169,9 +163,6 @@ public:
                 case kPath_Type:
                     return fPath.get()->conservativelyContainsRect(rrect.getBounds());
                 case kEmpty_Type:
-                    return false;
-                default:
-                    SkDEBUGFAIL("Unexpected type.");
                     return false;
             }
         }

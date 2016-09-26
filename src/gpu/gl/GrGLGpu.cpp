@@ -1309,7 +1309,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         restoreGLRowLength = false;
 
         const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes;
-      
+
         // TODO: This optimization should be enabled with or without mips.
         // For use with mips, we must set GR_GL_UNPACK_ROW_LENGTH once per
         // mip level, before calling glTexImage2D.
@@ -2549,8 +2549,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
             fStats.incRenderTargetBinds();
             GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID()));
             break;
-        default:
-            SkFAIL("Unknown resolve type");
     }
 
     const GrGLIRect& glvp = renderTarget->getViewport();

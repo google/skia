@@ -84,8 +84,6 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
         case kGray_8_SkColorType:
             alphaType = kOpaque_SkAlphaType;
             break;
-        default:
-            return false;
     }
     if (canonical) {
         *canonical = alphaType;

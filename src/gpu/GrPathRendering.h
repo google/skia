@@ -58,10 +58,6 @@ public:
                 return 2;
             case kAffine_PathTransformType:
                 return 6;
-
-            default:
-                SkFAIL("Unknown path transform type");
-                return 0;
         }
     }
 

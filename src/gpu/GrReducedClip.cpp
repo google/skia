@@ -313,9 +313,6 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     embiggens = emsmallens = true;
                 }
                 break;
-            default:
-                SkDEBUGFAIL("Unexpected op.");
-                break;
         }
         if (!skippable) {
             if (0 == fElements.count()) {
@@ -408,9 +405,6 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                 case SkCanvas::kReplace_Op:
                     skippable = false; // we would have skipped it in the backwards walk if we
                                        // could've.
-                    break;
-                default:
-                    SkDEBUGFAIL("Unexpected op.");
                     break;
             }
             if (!skippable) {

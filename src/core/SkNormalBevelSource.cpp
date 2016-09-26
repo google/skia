@@ -199,8 +199,6 @@ public:
                     fb->codeAppendf("normal = vec3(normal_dz.x*dv_norm, normal_dz.y);");
 
                     break;
-                default:
-                    SkDEBUGFAIL("Invalid bevel type passed to emitMath");
             }
         }
 

@@ -95,9 +95,6 @@ static inline const char* GrGLSLPrecisionString(GrSLPrecision p) {
             return "mediump";
         case kHigh_GrSLPrecision:
             return "highp";
-        default:
-            SkFAIL("Unexpected precision type.");
-            return "";
     }
 }
 
@@ -140,9 +137,6 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "texture2D";
         case kSampler_GrSLType:
             return "sampler";
-        default:
-            SkFAIL("Unknown shader var type.");
-            return ""; // suppress warning
     }
 }
 

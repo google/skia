@@ -105,9 +105,6 @@ public:
                 SkASSERT(kOpaque_Alpha != alpha);
                 SkASSERT(8 == bitsPerComponent);
                 break;
-            default:
-                SkASSERT(false);
-                break;
         }
 
         return SkEncodedInfo(color, alpha, bitsPerComponent);
@@ -148,9 +145,6 @@ public:
                 SkASSERT(kOpaque_Alpha != fAlpha);
                 return SkImageInfo::Make(width, height, kN32_SkColorType,
                                          kUnpremul_SkAlphaType, std::move(colorSpace));
-            default:
-                SkASSERT(false);
-                return SkImageInfo::MakeUnknown();
         }
     }
 
@@ -177,9 +171,6 @@ public:
             case kInvertedCMYK_Color:
             case kYCCK_Color:
                 return 4 * fBitsPerComponent;
-            default:
-                SkASSERT(false);
-                return 0;
         }
     }
 

@@ -119,9 +119,6 @@ bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
                 this->addFeature(1 << kMultisampleInterpolation_GLSLFeature, extension);
             }
             return true;
-        default:
-            SkFAIL("Unexpected GLSLFeature requested.");
-            return false;
     }
 }
 
@@ -291,10 +288,10 @@ void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
     if (!fHasCustomColorOutput) {
         fHasCustomColorOutput = true;
         fCustomColorOutputIndex = fOutputs.count();
-        fOutputs.push_back().set(kVec4f_GrSLType,  
-                                 GrGLSLShaderVar::kOut_TypeModifier,   
-                                 DeclaredColorOutputName());   
-        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back()); 
+        fOutputs.push_back().set(kVec4f_GrSLType,
+                                 GrGLSLShaderVar::kOut_TypeModifier,
+                                 DeclaredColorOutputName());
+        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back());
     }
 }
 
