@@ -39,11 +39,13 @@ enum Shape {
     kLast_Shape = kConcave_Shape
 };
 
+namespace skiagm {
+
 /**
  * Verifies AA works properly on all Xfermodes, including arithmetic, with both opaque and unknown
  * src colors.
  */
-class AAXfermodesGM : public skiagm::GM {
+class AAXfermodesGM : public GM {
 public:
     AAXfermodesGM() {}
 
@@ -118,9 +120,6 @@ protected:
             canvas->translate(0, kSubtitleSpacing + kShapeSpacing/2);
 
             for (size_t m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
-                if (firstMode + m > SkXfermode::kLastMode) {
-                    break;
-                }
                 SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(firstMode + m);
                 canvas->save();
 
@@ -211,7 +210,7 @@ protected:
             if (maxSum > 255) {
                 SkPaint dimPaint;
                 dimPaint.setAntiAlias(false);
-                dimPaint.setXfermodeMode(SkXfermode::kDstIn_Mode);
+                dimPaint.setXfermode(SkXfermode::Make(SkXfermode::kDstIn_Mode));
                 if (255 != paint->getAlpha()) {
                     // Dim the src and dst colors.
                     dimPaint.setARGB(255 * 255 / maxSum, 0, 0, 0);
@@ -228,10 +227,16 @@ protected:
     }
 
     void drawShape(SkCanvas* canvas, Shape shape, const SkPaint& paint, SkXfermode::Mode mode) {
-        SkASSERT(mode <= SkXfermode::kLastMode);
         SkPaint shapePaint(paint);
         shapePaint.setAntiAlias(kSquare_Shape != shape);
-        shapePaint.setXfermodeMode(mode);
+
+        sk_sp<SkXfermode> xfermode;
+        if (mode <= SkXfermode::kLastMode) {
+            xfermode = SkXfermode::Make(mode);
+        } else {
+            xfermode = SkArithmeticMode::Make(+1.0f, +0.25f, -0.5f, +0.1f);
+        }
+        shapePaint.setXfermode(std::move(xfermode));
 
         switch (shape) {
             case kSquare_Shape:
@@ -268,6 +273,12 @@ private:
     SkPath    fOval;
     SkPath    fConcave;
 
-    typedef skiagm::GM INHERITED;
+    typedef GM INHERITED;
 };
-DEF_GM( return new AAXfermodesGM; )
+
+//////////////////////////////////////////////////////////////////////////////
+
+static GM* MyFactory(void*) { return new AAXfermodesGM; }
+static GMRegistry reg(MyFactory);
+
+}

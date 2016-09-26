@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkArithmeticModePriv.h"
+#include "SkArithmeticMode.h"
 #include "SkColorPriv.h"
 #include "SkNx.h"
 #include "SkRasterPipeline.h"

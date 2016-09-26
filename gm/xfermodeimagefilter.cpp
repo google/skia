@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "SkArithmeticMode.h"
 #include "SkImage.h"
 #include "SkImageSource.h"
 #include "SkOffsetImageFilter.h"
@@ -96,7 +97,9 @@ protected:
             }
         }
         // Test arithmetic mode as image filter
-        paint.setImageFilter(SkXfermodeImageFilter::MakeArithmetic(0, 1, 1, 0, true, background));
+        paint.setImageFilter(SkXfermodeImageFilter::Make(
+                         SkArithmeticMode::Make(0, SK_Scalar1, SK_Scalar1, 0),
+                         background));
         DrawClippedBitmap(canvas, fBitmap, paint, x, y);
         x += fBitmap.width() + MARGIN;
         if (x + fBitmap.width() > WIDTH) {
