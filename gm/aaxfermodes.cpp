@@ -234,7 +234,7 @@ protected:
         if (mode <= SkXfermode::kLastMode) {
             xfermode = SkXfermode::Make(mode);
         } else {
-            xfermode = SkArithmeticMode::Make(+1.0f, +0.25f, -0.5f, +0.1f);
+            xfermode = nullptr;//SkArithmeticMode::Make(+1.0f, +0.25f, -0.5f, +0.1f);
         }
         shapePaint.setXfermode(std::move(xfermode));
 
