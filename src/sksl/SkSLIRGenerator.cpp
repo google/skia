@@ -189,16 +189,10 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
             }
             value = this->coerce(std::move(value), *type);
         }
-        if ("sk_FragColor" == varDecl.fName && (*fSymbolTable)[varDecl.fName]) {
-            // already defined, ignore
-        } else if ((*fSymbolTable)[varDecl.fName] && 
-                   (*fSymbolTable)[varDecl.fName]->fKind == Symbol::kVariable_Kind && 
-                   ((Variable*) (*fSymbolTable)[varDecl.fName])->fModifiers.fLayout.fBuiltin >= 0) {
+        if ("gl_FragCoord" == varDecl.fName && (*fSymbolTable)[varDecl.fName]) {
             // already defined, just update the modifiers
             Variable* old = (Variable*) (*fSymbolTable)[varDecl.fName];
-            int builtin = old->fModifiers.fLayout.fBuiltin;
             old->fModifiers = var->fModifiers;
-            old->fModifiers.fLayout.fBuiltin = builtin;
         } else {
             variables.emplace_back(var.get(), std::move(sizes), std::move(value));
             fSymbolTable->add(varDecl.fName, std::move(var));
@@ -207,12 +201,6 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
     return std::unique_ptr<VarDeclarations>(new VarDeclarations(decl.fPosition, 
                                                                 baseType,
                                                                 std::move(variables)));
-}
-
-std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(
-                                                                 const ASTModifiersDeclaration& m) {
-    Modifiers modifiers = this->convertModifiers(m.fModifiers);
-    return std::unique_ptr<ModifiersDeclaration>(new ModifiersDeclaration(modifiers));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTIfStatement& s) {
@@ -431,9 +419,8 @@ std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFuncti
                     for (size_t i = 0; i < parameters.size(); i++) {
                         if (parameters[i]->fModifiers != other->fParameters[i]->fModifiers) {
                             fErrors.error(f.fPosition, "modifiers on parameter " + 
-                                                       to_string((uint64_t) i + 1) + 
-                                                       " differ between declaration and "
-                                                       "definition");
+                                                       to_string(i + 1) + " differ between " +
+                                                       "declaration and definition");
                             return nullptr;
                         }
                     }
@@ -629,9 +616,8 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         ASSERT(ctor);
         return this->call(Position(), std::move(ctor), std::move(args));
     }
-    std::vector<std::unique_ptr<Expression>> args;
-    args.push_back(std::move(expr));
-    return std::unique_ptr<Expression>(new Constructor(Position(), type, std::move(args)));
+    ABORT("cannot coerce %s to %s", expr->fType.description().c_str(), 
+          type.description().c_str());
 }
 
 static bool is_matrix_multiply(const Type& left, const Type& right) {
@@ -846,12 +832,12 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
     if (function.fParameters.size() != arguments.size()) {
         std::string msg = "call to '" + function.fName + "' expected " + 
-                                 to_string((uint64_t) function.fParameters.size()) + 
+                                 to_string(function.fParameters.size()) + 
                                  " argument";
         if (function.fParameters.size() != 1) {
             msg += "s";
         }
-        msg += ", but found " + to_string((uint64_t) arguments.size());
+        msg += ", but found " + to_string(arguments.size());
         fErrors.error(position, msg);
         return nullptr;
     }
@@ -935,8 +921,7 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
                                                     std::vector<std::unique_ptr<Expression>> args) {
     // FIXME: add support for structs and arrays
     Type::Kind kind = type.kind();
-    if (!type.isNumber() && kind != Type::kVector_Kind && kind != Type::kMatrix_Kind && 
-        kind != Type::kArray_Kind) {
+    if (!type.isNumber() && kind != Type::kVector_Kind && kind != Type::kMatrix_Kind) {
         fErrors.error(position, "cannot construct '" + type.description() + "'");
         return nullptr;
     }
@@ -953,7 +938,7 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
         if (args.size() != 1) {
             fErrors.error(position, "invalid arguments to '" + type.description() + 
                                     "' constructor, (expected exactly 1 argument, but found " +
-                                    to_string((uint64_t) args.size()) + ")");
+                                    to_string(args.size()) + ")");
         }
         if (args[0]->fType == *fContext.fBool_Type) {
             std::unique_ptr<IntLiteral> zero(new IntLiteral(fContext, position, 0));
@@ -967,18 +952,6 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
             fErrors.error(position, "invalid argument to '" + type.description() + 
                                     "' constructor (expected a number or bool, but found '" +
                                     args[0]->fType.description() + "')");
-        }
-        if (args[0]->fKind == Expression::kIntLiteral_Kind && (type == *fContext.fInt_Type || 
-            type == *fContext.fUInt_Type)) {
-            return std::unique_ptr<Expression>(new IntLiteral(fContext, 
-                                                              position, 
-                                                              ((IntLiteral&) *args[0]).fValue,
-                                                              &type));
-        }
-    } else if (kind == Type::kArray_Kind) {
-        const Type& base = type.componentType();
-        for (size_t i = 0; i < args.size(); i++) {
-            args[i] = this->coerce(std::move(args[i]), base);
         }
     } else {
         ASSERT(kind == Type::kVector_Kind || kind == Type::kMatrix_Kind);
@@ -1081,8 +1054,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
 
 std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression> base,
                                                       const ASTExpression& index) {
-    if (base->fType.kind() != Type::kArray_Kind && base->fType.kind() != Type::kMatrix_Kind &&
-            base->fType.kind() != Type::kVector_Kind) {
+    if (base->fType.kind() != Type::kArray_Kind && base->fType.kind() != Type::kMatrix_Kind) {
         fErrors.error(base->fPosition, "expected array, but found '" + base->fType.description() + 
                                        "'");
         return nullptr;
@@ -1091,11 +1063,9 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
     if (!converted) {
         return nullptr;
     }
-    if (converted->fType != *fContext.fUInt_Type) {
-        converted = this->coerce(std::move(converted), *fContext.fInt_Type);
-        if (!converted) {
-            return nullptr;
-        }
+    converted = this->coerce(std::move(converted), *fContext.fInt_Type);
+    if (!converted) {
+        return nullptr;
     }
     return std::unique_ptr<Expression>(new IndexExpression(fContext, std::move(base), 
                                                            std::move(converted)));
@@ -1173,21 +1143,9 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
         return nullptr;
     }
     switch (expression.fSuffix->fKind) {
-        case ASTSuffix::kIndex_Kind: {
-            const ASTExpression* expr = ((ASTIndexSuffix&) *expression.fSuffix).fExpression.get();
-            if (expr) {
-                return this->convertIndex(std::move(base), *expr);
-            } else if (base->fKind == Expression::kTypeReference_Kind) {
-                const Type& oldType = ((TypeReference&) *base).fValue;
-                Type* newType = new Type(oldType.name() + "[]", Type::kArray_Kind, oldType, 
-                                         -1);
-                fSymbolTable->takeOwnership(newType);
-                return std::unique_ptr<Expression>(new TypeReference(fContext, base->fPosition, 
-                                                                     *newType));
-            } else {
-                fErrors.error(expression.fPosition, "'[]' must follow a type name");
-            }
-        }
+        case ASTSuffix::kIndex_Kind:
+            return this->convertIndex(std::move(base), 
+                                      *((ASTIndexSuffix&) *expression.fSuffix).fExpression);
         case ASTSuffix::kCall_Kind: {
             auto rawArguments = &((ASTCallSuffix&) *expression.fSuffix).fArguments;
             std::vector<std::unique_ptr<Expression>> arguments;

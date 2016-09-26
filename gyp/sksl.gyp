@@ -18,7 +18,7 @@
       ],
       'all_dependent_settings': {
         'include_dirs': [
-          '<(skia_src_path)/sksl',
+          '../src/sksl',
         ],
       },
     },

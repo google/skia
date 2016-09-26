@@ -56,7 +56,6 @@
 #include "ast/SkSLASTIndexSuffix.h"
 #include "ast/SkSLASTInterfaceBlock.h"
 #include "ast/SkSLASTIntLiteral.h"
-#include "ast/SkSLASTModifiersDeclaration.h"
 #include "ast/SkSLASTParameter.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
@@ -186,8 +185,7 @@ void Parser::precision() {
     this->expect(Token::SEMICOLON, "';'");
 }
 
-/* DIRECTIVE(#version) INT_LITERAL ("es" | "compatibility")? | 
-   DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */
+/* DIRECTIVE(#version) INT_LITERAL | DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */
 std::unique_ptr<ASTDeclaration> Parser::directive() {
     Token start;
     if (!this->expect(Token::DIRECTIVE, "a directive", &start)) {
@@ -195,12 +193,7 @@ std::unique_ptr<ASTDeclaration> Parser::directive() {
     }
     if (start.fText == "#version") {
         this->expect(Token::INT_LITERAL, "a version number");
-        Token next = this->peek();
-        if (next.fText == "es" || next.fText == "compatibility") {
-            this->nextToken();
-        }
-        // version is ignored for now; it will eventually become an error when we stop pretending
-        // to be GLSL
+        // ignored for now
         return nullptr;
     } else if (start.fText == "#extension") {
         Token name;
@@ -233,10 +226,6 @@ std::unique_ptr<ASTDeclaration> Parser::declaration() {
     }
     if (lookahead.fKind == Token::STRUCT) {
         return this->structVarDeclaration(modifiers);
-    }
-    if (lookahead.fKind == Token::SEMICOLON) {
-        this->nextToken();
-        return std::unique_ptr<ASTDeclaration>(new ASTModifiersDeclaration(modifiers));
     }
     std::unique_ptr<ASTType> type(this->type());
     if (!type) {
@@ -488,13 +477,10 @@ ASTLayout Parser::layout() {
     int set = -1;
     int builtin = -1;
     bool originUpperLeft = false;
-    bool overrideCoverage = false;
-    bool blendSupportAllEquations = false;
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
-            return ASTLayout(location, binding, index, set, builtin, originUpperLeft,
-                             overrideCoverage, blendSupportAllEquations);
+            return ASTLayout(location, binding, index, set, builtin, originUpperLeft);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -510,10 +496,6 @@ ASTLayout Parser::layout() {
                 builtin = this->layoutInt();
             } else if (t.fText == "origin_upper_left") {
                 originUpperLeft = true;
-            } else if (t.fText == "override_coverage") {
-                overrideCoverage = true;
-            } else if (t.fText == "blend_support_all_equations") {
-                blendSupportAllEquations = true;
             } else {
                 this->error(t.fPosition, ("'" + t.fText + 
                                           "' is not a valid layout qualifier").c_str());
@@ -527,8 +509,7 @@ ASTLayout Parser::layout() {
             }
         }
     }
-    return ASTLayout(location, binding, index, set, builtin, originUpperLeft, overrideCoverage,
-                     blendSupportAllEquations);
+    return ASTLayout(location, binding, index, set, builtin, originUpperLeft);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE)* */
@@ -1273,16 +1254,12 @@ std::unique_ptr<ASTExpression> Parser::postfixExpression() {
     }
 }
 
-/* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN parameters RPAREN | 
+/* LBRACKET expression RBRACKET | DOT IDENTIFIER | LPAREN parameters RPAREN | 
    PLUSPLUS | MINUSMINUS */
 std::unique_ptr<ASTSuffix> Parser::suffix() {
     Token next = this->nextToken();
     switch (next.fKind) {
         case Token::LBRACKET: {
-            if (this->peek().fKind == Token::RBRACKET) {
-                this->nextToken();
-                return std::unique_ptr<ASTSuffix>(new ASTIndexSuffix(next.fPosition));
-            }
             std::unique_ptr<ASTExpression> e = this->expression();
             if (!e) {
                 return nullptr;

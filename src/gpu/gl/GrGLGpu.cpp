@@ -3790,11 +3790,20 @@ bool GrGLGpu::createCopyProgram(int progIdx) {
     fshaderTxt.append(";");
     uTexture.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";");
+    const char* fsOutName;
+    if (glslCaps->mustDeclareFragmentShaderOutput()) {
+        oFragColor.appendDecl(glslCaps, &fshaderTxt);
+        fshaderTxt.append(";");
+        fsOutName = oFragColor.c_str();
+    } else {
+        fsOutName = "gl_FragColor";
+    }
     fshaderTxt.appendf(
         "// Copy Program FS\n"
         "void main() {"
-        "  sk_FragColor = %s(u_texture, v_texCoord);"
+        "  %s = %s(u_texture, v_texCoord);"
         "}",
+        fsOutName,
         GrGLSLTexture2DFunctionName(kVec2f_GrSLType, kSamplerTypes[progIdx], this->glslGeneration())
     );
 
@@ -3927,6 +3936,14 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     }
     uTexture.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";");
+    const char* fsOutName;
+    if (glslCaps->mustDeclareFragmentShaderOutput()) {
+        oFragColor.appendDecl(glslCaps, &fshaderTxt);
+        fshaderTxt.append(";");
+        fsOutName = oFragColor.c_str();
+    } else {
+        fsOutName = "gl_FragColor";
+    }
     const char* sampleFunction = GrGLSLTexture2DFunctionName(kVec2f_GrSLType,
                                                              kTexture2DSampler_GrSLType,
                                                              this->glslGeneration());
@@ -3937,19 +3954,19 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
 
     if (oddWidth && oddHeight) {
         fshaderTxt.appendf(
-            "  sk_FragColor = (%s(u_texture, v_texCoord0) + %s(u_texture, v_texCoord1) + "
-            "                  %s(u_texture, v_texCoord2) + %s(u_texture, v_texCoord3)) * 0.25;",
-            sampleFunction, sampleFunction, sampleFunction, sampleFunction
+            "  %s = (%s(u_texture, v_texCoord0) + %s(u_texture, v_texCoord1) + "
+            "        %s(u_texture, v_texCoord2) + %s(u_texture, v_texCoord3)) * 0.25;",
+            fsOutName, sampleFunction, sampleFunction, sampleFunction, sampleFunction
         );
     } else if (oddWidth || oddHeight) {
         fshaderTxt.appendf(
-            "  sk_FragColor = (%s(u_texture, v_texCoord0) + %s(u_texture, v_texCoord1)) * 0.5;",
-            sampleFunction, sampleFunction
+            "  %s = (%s(u_texture, v_texCoord0) + %s(u_texture, v_texCoord1)) * 0.5;",
+            fsOutName, sampleFunction, sampleFunction
         );
     } else {
         fshaderTxt.appendf(
-            "  sk_FragColor = %s(u_texture, v_texCoord0);",
-            sampleFunction
+            "  %s = %s(u_texture, v_texCoord0);",
+            fsOutName, sampleFunction
         );
     }
 
@@ -4036,11 +4053,20 @@ bool GrGLGpu::createWireRectProgram() {
                                                  &fshaderTxt);
     uColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
     fshaderTxt.append(";");
+    const char* fsOutName;
+    if (this->glCaps().glslCaps()->mustDeclareFragmentShaderOutput()) {
+        oFragColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+        fshaderTxt.append(";");
+        fsOutName = oFragColor.c_str();
+    } else {
+        fsOutName = "gl_FragColor";
+    }
     fshaderTxt.appendf(
         "// Write Rect Program FS\n"
         "void main() {"
-        "  sk_FragColor = %s;"
+        "  %s = %s;"
         "}",
+        fsOutName,
         uColor.c_str()
     );
 

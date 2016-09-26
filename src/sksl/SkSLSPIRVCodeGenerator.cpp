@@ -15,7 +15,6 @@
 #include "ir/SkSLExtension.h"
 #include "ir/SkSLIndexExpression.h"
 #include "ir/SkSLVariableReference.h"
-#include "SkSLCompiler.h"
 
 namespace SkSL {
 
@@ -2322,7 +2321,7 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationDescriptorSet, layout.fSet, 
                                fDecorationBuffer);
     }
-    if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN) {
+    if (layout.fBuiltin >= 0) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationBuiltIn, layout.fBuiltin, 
                                fDecorationBuffer);
     }
@@ -2364,19 +2363,10 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     return result;
 }
 
-#define BUILTIN_IGNORE 9999
-void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclarations& decl, 
-                                         std::ostream& out) {
+void SPIRVCodeGenerator::writeGlobalVars(const VarDeclarations& decl, std::ostream& out) {
     for (size_t i = 0; i < decl.fVars.size(); i++) {
         const VarDeclaration& varDecl = decl.fVars[i];
         const Variable* var = varDecl.fVar;
-        if (var->fModifiers.fLayout.fBuiltin == BUILTIN_IGNORE) {
-            continue;
-        }
-        if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
-            kind != Program::kFragment_Kind) {
-            continue;
-        }
         if (!var->fIsReadFrom && !var->fIsWrittenTo &&
                 !(var->fModifiers.fFlags & (Modifiers::kIn_Flag |
                                             Modifiers::kOut_Flag |
@@ -2572,8 +2562,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, std::ostream&
     }
     for (size_t i = 0; i < program.fElements.size(); i++) {
         if (program.fElements[i]->fKind == ProgramElement::kVar_Kind) {
-            this->writeGlobalVars(program.fKind, ((VarDeclarations&) *program.fElements[i]), 
-                                  body);
+            this->writeGlobalVars(((VarDeclarations&) *program.fElements[i]), body);
         }
     }
     for (size_t i = 0; i < program.fElements.size(); i++) {
