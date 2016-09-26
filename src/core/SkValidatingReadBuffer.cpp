@@ -44,9 +44,11 @@ const void* SkValidatingReadBuffer::skip(size_t size) {
     size_t inc = SkAlign4(size);
     const void* addr = fReader.peek();
     this->validate(IsPtrAlign4(addr) && fReader.isAvailable(inc));
-    if (!fError) {
-        fReader.skip(size);
+    if (fError) {
+        return nullptr;
     }
+
+    fReader.skip(size);
     return addr;
 }
 

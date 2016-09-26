@@ -170,15 +170,15 @@ static void TestObjectSerializationNoAlign(T* testObj, skiatest::Reporter* repor
 
     // Make sure this succeeds when it should
     SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
-    const unsigned char* peekBefore = static_cast<const unsigned char*>(buffer2.skip(0));
+    size_t offsetBefore = buffer2.offset();
     T obj2;
     SerializationUtils<T>::Read(buffer2, &obj2);
-    const unsigned char* peekAfter = static_cast<const unsigned char*>(buffer2.skip(0));
+    size_t offsetAfter = buffer2.offset();
     // This should have succeeded, since there are enough bytes to read this
     REPORTER_ASSERT(reporter, buffer2.isValid() == !testInvalid);
     // Note: This following test should always succeed, regardless of whether the buffer is valid,
     // since if it is invalid, it will simply skip to the end, as if it had read the whole buffer.
-    REPORTER_ASSERT(reporter, static_cast<size_t>(peekAfter - peekBefore) == bytesWritten);
+    REPORTER_ASSERT(reporter, offsetAfter - offsetBefore == bytesWritten);
 }
 
 template<typename T>
