@@ -18,7 +18,7 @@ GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
     SkDEBUGCODE(fAllocBlockCnt = 0);
 
     minAllocSize = SkTMax<size_t>(minAllocSize, 1 << 10);
-    fMinAllocSize = GrSizeAlignUp(minAllocSize + kPerAllocPad, kAlignment),
+    fMinAllocSize = GrSizeAlignUp(minAllocSize + kPerAllocPad, kAlignment);
     fPreallocSize = GrSizeAlignUp(preallocSize + kPerAllocPad, kAlignment);
     fPreallocSize = SkTMax(fPreallocSize, fMinAllocSize);
     fSize = 0;
