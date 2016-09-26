@@ -156,7 +156,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release\\data\\nanobench_abc123.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release\\data\\nanobench_abc123_1337018001.json",
       "--properties",
       "gitHash",
       "abc123",

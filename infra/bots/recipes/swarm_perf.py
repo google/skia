@@ -14,6 +14,7 @@ DEPS = [
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
+  'recipe_engine/time',
   'run',
   'flavor',
   'vars',
@@ -41,6 +42,9 @@ TEST_BUILDERS = {
     ],
   },
 }
+
+
+import time
 
 
 def nanobench_flags(bot):
@@ -201,9 +205,11 @@ def perf_steps(api):
   args.extend(nanobench_flags(api.vars.builder_name))
 
   if api.vars.upload_perf_results:
+    now = api.time.utcnow()
+    ts = int(time.mktime(now.utctimetuple()))
     json_path = api.flavor.device_path_join(
         api.flavor.device_dirs.perf_data_dir,
-        'nanobench_%s.json' % api.vars.got_revision)
+        'nanobench_%s_%d.json' % (api.vars.got_revision, ts))
     args.extend(['--outResultsFile', json_path])
     args.extend(properties)
 

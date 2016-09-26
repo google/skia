@@ -473,13 +473,13 @@ def perf_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
       expiration=expiration,
       hard_timeout=hard_timeout,
       io_timeout=io_timeout,
-      cipd_packages=cipd_packages)
+      cipd_packages=cipd_packages,
+      store_output=False)
 
 
 def perf_steps_collect(api, task, builder_cfg, got_revision, infrabots_dir):
   """Wait for perf steps to finish and upload results."""
   # Wait for nanobench to finish, download the results.
-  api.run.rmtree(task.task_output_dir)
   if not api.vars.upload_perf_results:  # pragma: nocover
     api.swarming.collect_swarming_task(task)
     return

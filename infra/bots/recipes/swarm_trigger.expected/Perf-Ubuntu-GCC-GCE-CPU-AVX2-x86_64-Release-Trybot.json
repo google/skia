@@ -684,28 +684,6 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/perf_skia"
-    ],
-    "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
-    "name": "rmtree perf_skia",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "[SLAVE_BUILD]/swarming.client/swarming.py",
       "collect",
       "--swarming",
@@ -715,9 +693,7 @@
       "--json",
       "{\"base_task_name\": \"perf_skia/Ubuntu/def456/Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot/5\", \"tasks\": {\"perf_skia/Ubuntu/def456/Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot/5\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
-      "/path/to/tmp/json",
-      "--task-output-dir",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/perf_skia"
+      "/path/to/tmp/json"
     ],
     "name": "perf_skia on Ubuntu",
     "~followup_annotations": [

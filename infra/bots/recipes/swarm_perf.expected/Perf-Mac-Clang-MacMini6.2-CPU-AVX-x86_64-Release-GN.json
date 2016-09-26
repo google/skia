@@ -157,7 +157,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN/data/nanobench_abc123.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN/data/nanobench_abc123_1337018001.json",
       "--properties",
       "gitHash",
       "abc123",
