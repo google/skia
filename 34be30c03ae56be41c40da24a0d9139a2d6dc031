@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8573abcf_b9d2dfef",
+        "filename": "include/effects/SkArithmeticMode.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-09-26T13:58:19Z",
+      "side": 1,
+      "message": "Need to land this in Chromium first, right?",
+      "range": {
+        "startLine": 15,
+        "startChar": 7,
+        "endLine": 15,
+        "endChar": 39
+      },
+      "revId": "34be30c03ae56be41c40da24a0d9139a2d6dc031",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
