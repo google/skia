@@ -7,7 +7,6 @@
 
 #include "gm.h"
 
-#include "SkArithmeticMode.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
@@ -90,7 +89,7 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(
-                SkXfermodeImageFilter::Make(SkArithmeticMode::Make(0, SK_Scalar1, SK_Scalar1, 0),
+                SkXfermodeImageFilter::MakeArithmetic(0, 1, 1, 0, true,
                                             std::move(matrixFilter),
                                             std::move(offsetFilter),
                                             nullptr));

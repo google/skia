@@ -1,18 +1,16 @@
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef SkArithmeticMode_DEFINED
-#define SkArithmeticMode_DEFINED
+#ifndef SkArithmeticModePriv_DEFINED
+#define SkArithmeticModePriv_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkScalar.h"
-#include "SkXfermode.h"
+#include "SkArithmeticMode.h"
 
-#ifdef SK_SUPPORT_LEGACY_ARITHMETICMODE
+#ifndef SK_SUPPORT_LEGACY_ARITHMETICMODE
 
 class SK_API SkArithmeticMode {
 public:
