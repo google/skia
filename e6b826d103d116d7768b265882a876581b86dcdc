@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "703917b8_f2701e06",
+        "filename": "src/core/SkValidatingReadBuffer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-26T14:41:03Z",
+      "side": 1,
+      "message": "hope we\u0027re ready for this ... :)",
+      "range": {
+        "startLine": 48,
+        "startChar": 15,
+        "endLine": 48,
+        "endChar": 22
+      },
+      "revId": "e6b826d103d116d7768b265882a876581b86dcdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
