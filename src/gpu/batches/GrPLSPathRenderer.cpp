@@ -204,7 +204,6 @@ static bool get_geometry(const SkPath& path, const SkMatrix& m, PLSVertices& tri
             case SkPath::kDone_Verb:
                 done = true;
                 break;
-            default: SkASSERT(false);
         }
     }
     SkASSERT(quadPoints.count() % 3 == 0);

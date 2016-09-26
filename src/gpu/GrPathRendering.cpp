@@ -14,8 +14,6 @@
 
 const GrUserStencilSettings& GrPathRendering::GetStencilPassSettings(FillType fill) {
     switch (fill) {
-        default:
-            SkFAIL("Unexpected path fill.");
         case GrPathRendering::kWinding_FillType: {
             constexpr static GrUserStencilSettings kWindingStencilPass(
                 GrUserStencilSettings::StaticInit<
@@ -107,7 +105,7 @@ GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
     genericDesc->init();
     genericDesc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
     genericDesc->computeChecksum();
-    
+
     // No effects, so we make a dummy struct
     SkScalerContextEffects noEffects;
 

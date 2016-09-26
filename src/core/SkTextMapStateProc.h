@@ -66,8 +66,6 @@ inline void SkTextMapStateProc::operator()(const SkScalar pos[], SkPoint* loc) c
     case kOnlyTransX:
         loc->set(*pos + fOffset.x(), fOffset.y());
         break;
-    default:
-        SkASSERT(false);
     case kX:
         fProc(fMatrix, *pos + fOffset.x(), fOffset.y(), loc);
         break;

@@ -469,9 +469,6 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
                             <kTable_SrcGamma, kTable_DstGamma, kFull_ColorSpaceMatch>
                             (srcSpace, srcToDst, dstSpace));
             }
-        default:
-            SkASSERT(false);
-            return nullptr;
     }
 }
 
@@ -1346,9 +1343,6 @@ const
                     case kRGBA_F32_ColorFormat:
                         // There's still work to do to xform to linear floats.
                         break;
-                    default:
-                        SkASSERT(false);
-                        return;
                 }
         }
     }
@@ -1425,9 +1419,6 @@ const
                     SkASSERT(false);
                     return;
             }
-        default:
-            SkASSERT(false);
-            return;
     }
 }
 

@@ -227,9 +227,6 @@ private:
                 return "out";
             case kUniform_TypeModifier:
                 return "uniform";
-            default:
-                SkFAIL("Unknown shader variable type modifier.");
-                return ""; // suppress warning
         }
     }
 

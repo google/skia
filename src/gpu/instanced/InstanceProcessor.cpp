@@ -1693,8 +1693,6 @@ GLSLInstanceProcessor::Backend*
 GLSLInstanceProcessor::Backend::Create(const GrPipeline& pipeline, BatchInfo batchInfo,
                                        const VertexInputs& inputs) {
     switch (batchInfo.fAntialiasMode) {
-        default:
-            SkFAIL("Unexpected antialias mode.");
         case AntialiasMode::kNone:
             return new BackendNonAA(batchInfo, inputs);
         case AntialiasMode::kCoverage:

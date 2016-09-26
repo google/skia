@@ -517,9 +517,6 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                         }
                     }
                     break;
-                default:
-                    SkDEBUGFAIL("Unknown path fFill!");
-                    return false;
             }
         }
     }

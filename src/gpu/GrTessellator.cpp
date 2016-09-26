@@ -736,9 +736,6 @@ inline bool apply_fill_type(SkPath::FillType fillType, Poly* poly) {
             return winding == -1;
         case SkPath::kInverseEvenOdd_FillType:
             return (winding & 1) == 1;
-        default:
-            SkASSERT(false);
-            return false;
     }
 }
 
