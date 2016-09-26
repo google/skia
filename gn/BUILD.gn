@@ -84,20 +84,12 @@ config("default") {
       ]
 
       # High priority to fix!
-      cflags += [
-        "-Wno-conditional-uninitialized",
-        "-Wno-covered-switch-default",
-        "-Wno-deprecated",
-        "-Wno-format-nonliteral",
-        "-Wno-over-aligned",
-        "-Wno-shadow",
-        "-Wno-shift-sign-overflow",
-        "-Wno-undefined-func-template",
-      ]
+      cflags += [ "-Wno-over-aligned" ]
 
       cflags += [
         "-Wno-cast-align",
         "-Wno-class-varargs",
+        "-Wno-conditional-uninitialized",
         "-Wno-conversion",
         "-Wno-disabled-macro-expansion",
         "-Wno-documentation",
@@ -107,6 +99,7 @@ config("default") {
         "-Wno-extra-semi",
         "-Wno-float-conversion",
         "-Wno-float-equal",
+        "-Wno-format-nonliteral",
         "-Wno-global-constructors",  # TODO: OK outside libskia
         "-Wno-gnu-anonymous-struct",
         "-Wno-gnu-zero-variadic-macro-arguments",
@@ -116,6 +109,8 @@ config("default") {
         "-Wno-newline-eof",
         "-Wno-pedantic",
         "-Wno-reserved-id-macro",
+        "-Wno-shadow",
+        "-Wno-shift-sign-overflow",
         "-Wno-sign-conversion",
         "-Wno-switch-enum",
         "-Wno-undef",
@@ -133,6 +128,8 @@ config("default") {
 
       # We are unlikely to want to fix these.
       cflags += [
+        "-Wno-covered-switch-default",
+        "-Wno-deprecated",
         "-Wno-implicit-fallthrough",
         "-Wno-missing-noreturn",
         "-Wno-old-style-cast",
@@ -141,6 +138,7 @@ config("default") {
       cflags_cc += [
         "-Wno-c++98-compat",
         "-Wno-c++98-compat-pedantic",
+        "-Wno-undefined-func-template",
       ]
     }
   }
