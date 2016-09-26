@@ -76,6 +76,24 @@
     },
     {
       "key": {
+        "uuid": "703917b8_b2ca2642",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-26T14:36:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8573abcf_d9db1310",
+      "revId": "2c8d466121435475d8d912db59ea57512400da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8573abcf_99befbaa",
         "filename": "src/effects/SkXfermodeImageFilter.cpp",
         "patchSetId": 5
@@ -87,6 +105,24 @@
       "writtenOn": "2016-09-26T13:59:05Z",
       "side": 1,
       "message": "indent went wacky here",
+      "revId": "2c8d466121435475d8d912db59ea57512400da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "703917b8_12ba12bb",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-26T14:36:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8573abcf_99befbaa",
       "revId": "2c8d466121435475d8d912db59ea57512400da52",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -110,6 +146,24 @@
     },
     {
       "key": {
+        "uuid": "703917b8_f2d49ee5",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-26T14:36:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8573abcf_b9bbbfb9",
+      "revId": "2c8d466121435475d8d912db59ea57512400da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8573abcf_59e863a2",
         "filename": "src/effects/SkXfermodeImageFilter.cpp",
         "patchSetId": 5
@@ -121,6 +175,24 @@
       "writtenOn": "2016-09-26T13:59:05Z",
       "side": 1,
       "message": "Can src \u0026 srcBM go inside the \"if (img)\" block ?",
+      "revId": "2c8d466121435475d8d912db59ea57512400da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "703917b8_52c48a32",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-26T14:36:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8573abcf_59e863a2",
       "revId": "2c8d466121435475d8d912db59ea57512400da52",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -144,6 +216,42 @@
     },
     {
       "key": {
+        "uuid": "703917b8_72c18e21",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-26T14:36:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8573abcf_f9d85715",
+      "revId": "2c8d466121435475d8d912db59ea57512400da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "703917b8_92ee02b3",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-26T14:36:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8573abcf_f9d85715",
+      "revId": "2c8d466121435475d8d912db59ea57512400da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "703917b8_32ae3688",
         "filename": "src/effects/SkXfermodeImageFilter.cpp",
         "patchSetId": 5
@@ -155,6 +263,24 @@
       "writtenOn": "2016-09-26T14:07:21Z",
       "side": 1,
       "message": "Do we care about catching other modes done the hard way and simplifying (e.g., 0,1,0,0 -\u003e src; 0,0,1,0 -\u003e dst, etc.) ?",
+      "revId": "2c8d466121435475d8d912db59ea57512400da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "703917b8_b2f3069a",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-26T14:36:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "703917b8_32ae3688",
       "revId": "2c8d466121435475d8d912db59ea57512400da52",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
