@@ -360,18 +360,36 @@ SkMaskFilter
 
     <!--?prettify lang=cc?-->
 
-        canvas->drawText(text, strlen(text), 0, 160, paint);
+        const SkScalar blurSigma = 3.4;
+        const SkColor blurColor = SkColorSetRGB(96, 96, 0);
+        const uint8_t blurAlpha = 127;
+        const SkScalar xDrop = 5.0f;
+        const SkScalar yDrop = 5.0f;
+
+        const char text[] = "Skia";
+        const SkScalar x = 0.0f;
+        const SkScalar y = 160.0f;
+        const SkScalar textSize = 120.0f;
+
         canvas->drawColor(SK_ColorWHITE);
+
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setTextSize(120);
-        paint.setMaskFilter(SkBlurMaskFilter::Make(
-                kNormal_SkBlurStyle, 5.0f, 0));
-        const char text[] = "Skia";
-        canvas->drawText(text, strlen(text), 0, 160, paint);
+        paint.setTextSize(textSize);
 
-    <a href='https://fiddle.skia.org/c/@skpaint_blur_mask_filter'><img
-      src='https://fiddle.skia.org/i/@skpaint_blur_mask_filter_raster.png'></a>
+        SkPaint blur(paint);
+        blur.setColor(blurColor);
+        blur.setAlpha(blurAlpha);
+        blur.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, blurSigma, 0));
+
+        // Draw once with drop shadow blur;
+        canvas->drawText(text, strlen(text), x + xDrop, y + yDrop, blur);
+
+        // Overdraw with with no blur mask
+        canvas->drawText(text, strlen(text), x, y, paint);
+
+    <a href='https://fiddle.skia.org/c/@skpaint_blur_mask_filter_2'><img
+      src='https://fiddle.skia.org/i/@skpaint_blur_mask_filter_2_raster.png'></a>
 
 *   Emboss Mask Filter
 
