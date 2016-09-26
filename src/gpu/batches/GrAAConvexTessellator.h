@@ -213,11 +213,11 @@ private:
                                 int edgeIdx, SkScalar desiredDepth,
                                 SkPoint* result) const;
 
-    void lineTo(SkPoint p, CurveState curve);
+    void lineTo(const SkPoint& p, CurveState curve);
 
     void lineTo(const SkMatrix& m, SkPoint p, CurveState curve);
 
-    void quadTo(SkPoint pts[3]);
+    void quadTo(const SkPoint pts[3]);
 
     void quadTo(const SkMatrix& m, SkPoint pts[3]);
 
@@ -247,21 +247,20 @@ private:
 
     void validate() const;
 
-    // fPts, fCoverages & fMovable should always have the same # of elements
+    // fPts, fCoverages, fMovable & fCurveState should always have the same # of elements
     SkTDArray<SkPoint>    fPts;
     SkTDArray<SkScalar>   fCoverages;
     // movable points are those that can be slid further along their bisector
     SkTDArray<bool>       fMovable;
+    // Tracks whether a given point is interior to a curve. Such points are
+    // assumed to have shallow curvature.
+    SkTDArray<CurveState> fCurveState;
 
     // The outward facing normals for the original polygon
     SkTDArray<SkVector>   fNorms;
     // The inward facing bisector at each point in the original polygon. Only
     // needed for exterior ring creation and then handed off to the initial ring.
     SkTDArray<SkVector>   fBisectors;
-
-    // Tracks whether a given point is interior to a curve. Such points are
-    // assumed to have shallow curvature.
-    SkTDArray<CurveState> fCurveState;
 
     SkPoint::Side         fSide;    // winding of the original polygon
 

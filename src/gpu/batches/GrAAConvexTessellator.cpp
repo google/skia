@@ -88,6 +88,7 @@ void GrAAConvexTessellator::popLastPt() {
     fPts.pop();
     fCoverages.pop();
     fMovable.pop();
+    fCurveState.pop();
 
     this->validate();
 }
@@ -98,6 +99,7 @@ void GrAAConvexTessellator::popFirstPtShuffle() {
     fPts.removeShuffle(0);
     fCoverages.removeShuffle(0);
     fMovable.removeShuffle(0);
+    fCurveState.removeShuffle(0);
 
     this->validate();
 }
@@ -129,6 +131,7 @@ void GrAAConvexTessellator::rewind() {
     fMovable.rewind();
     fIndices.rewind();
     fNorms.rewind();
+    fCurveState.rewind();
     fInitialRing.rewind();
     fCandidateVerts.rewind();
 #if GR_AA_CONVEX_TESSELLATOR_VIZ
@@ -809,7 +812,10 @@ bool GrAAConvexTessellator::createInsetRing(const Ring& lastRing, Ring* nextRing
 
 void GrAAConvexTessellator::validate() const {
     SkASSERT(fPts.count() == fMovable.count());
+    SkASSERT(fPts.count() == fCoverages.count());
+    SkASSERT(fPts.count() == fCurveState.count());
     SkASSERT(0 == (fIndices.count() % 3));
+    SkASSERT(!fBisectors.count() || fBisectors.count() == fNorms.count());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -891,22 +897,20 @@ bool GrAAConvexTessellator::Ring::isConvex(const GrAAConvexTessellator& tess) co
 
 #endif
 
-void GrAAConvexTessellator::lineTo(SkPoint p, CurveState curve) {
+void GrAAConvexTessellator::lineTo(const SkPoint& p, CurveState curve) {
     if (this->numPts() > 0 && duplicate_pt(p, this->lastPoint())) {
         return;
     }
 
     SkASSERT(fPts.count() <= 1 || fPts.count() == fNorms.count()+1);
-    if (this->numPts() >= 2 &&
-        abs_dist_from_line(fPts.top(), fNorms.top(), p) < kClose) {
+    if (this->numPts() >= 2 && abs_dist_from_line(fPts.top(), fNorms.top(), p) < kClose) {
         // The old last point is on the line from the second to last to the new point
         this->popLastPt();
         fNorms.pop();
-        fCurveState.pop();
         // double-check that the new last point is not a duplicate of the new point. In an ideal
         // world this wouldn't be necessary (since it's only possible for non-convex paths), but
-        // floating point precision issues mean it can actually happen on paths that were determined
-        // to be convex.
+        // floating point precision issues mean it can actually happen on paths that were
+        // determined to be convex.
         if (duplicate_pt(p, this->lastPoint())) {
             return;
         }
@@ -926,26 +930,22 @@ void GrAAConvexTessellator::lineTo(const SkMatrix& m, SkPoint p, CurveState curv
     this->lineTo(p, curve);
 }
 
-void GrAAConvexTessellator::quadTo(SkPoint pts[3]) {
+void GrAAConvexTessellator::quadTo(const SkPoint pts[3]) {
     int maxCount = GrPathUtils::quadraticPointCount(pts, kQuadTolerance);
     fPointBuffer.setReserve(maxCount);
     SkPoint* target = fPointBuffer.begin();
     int count = GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
-            kQuadTolerance, &target, maxCount);
+                                                     kQuadTolerance, &target, maxCount);
     fPointBuffer.setCount(count);
     for (int i = 0; i < count - 1; i++) {
-        lineTo(fPointBuffer[i], kCurve_CurveState);
+        this->lineTo(fPointBuffer[i], kCurve_CurveState);
     }
-    lineTo(fPointBuffer[count - 1], kIndeterminate_CurveState);
+    this->lineTo(fPointBuffer[count - 1], kIndeterminate_CurveState);
 }
 
 void GrAAConvexTessellator::quadTo(const SkMatrix& m, SkPoint pts[3]) {
-    SkPoint transformed[3];
-    transformed[0] = pts[0];
-    transformed[1] = pts[1];
-    transformed[2] = pts[2];
-    m.mapPoints(transformed, 3);
-    quadTo(transformed);
+    m.mapPoints(pts, 3);
+    this->quadTo(pts);
 }
 
 void GrAAConvexTessellator::cubicTo(const SkMatrix& m, SkPoint pts[4]) {
@@ -957,9 +957,9 @@ void GrAAConvexTessellator::cubicTo(const SkMatrix& m, SkPoint pts[4]) {
             kCubicTolerance, &target, maxCount);
     fPointBuffer.setCount(count);
     for (int i = 0; i < count - 1; i++) {
-        lineTo(fPointBuffer[i], kCurve_CurveState);
+        this->lineTo(fPointBuffer[i], kCurve_CurveState);
     }
-    lineTo(fPointBuffer[count - 1], kIndeterminate_CurveState);
+    this->lineTo(fPointBuffer[count - 1], kIndeterminate_CurveState);
 }
 
 // include down here to avoid compilation errors caused by "-" overload in SkGeometry.h
@@ -976,7 +976,7 @@ void GrAAConvexTessellator::conicTo(const SkMatrix& m, SkPoint pts[3], SkScalar 
         quadPts[0] = lastPoint;
         quadPts[1] = quads[0];
         quadPts[2] = i == count - 1 ? pts[2] : quads[1];
-        quadTo(quadPts);
+        this->quadTo(quadPts);
         lastPoint = quadPts[2];
         quads += 2;
     }
