@@ -334,7 +334,7 @@ DEF_TEST(sk_sp, reporter) {
 
         struct StructB : public SkRefCnt {
             sk_sp<StructA> a;
-            ~StructB() override {}; // Some clang versions don't emit this implicitly.
+            ~StructB() override {} // Some clang versions don't emit this implicitly.
         };
 
         // Create a reference cycle.

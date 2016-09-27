@@ -42,7 +42,7 @@ public:
                                                                 xInvInset, yInvInset));
     }
 
-    ~GrMagnifierEffect() override {};
+    ~GrMagnifierEffect() override {}
 
     const char* name() const override { return "Magnifier"; }
 
@@ -311,9 +311,9 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
         offset->fY = bounds.top();
         bounds.offset(-inputOffset);
 
-        SkScalar yOffset = inputTexture->origin() == kTopLeft_GrSurfaceOrigin 
+        SkScalar yOffset = inputTexture->origin() == kTopLeft_GrSurfaceOrigin
             ? fSrcRect.y()
-            : inputTexture->height() - 
+            : inputTexture->height() -
                       fSrcRect.height() * inputTexture->height() / bounds.height() - fSrcRect.y();
         int boundsY = inputTexture->origin() == kTopLeft_GrSurfaceOrigin
             ? bounds.y()

@@ -11,7 +11,7 @@
 #include "GrFakeRefObj.h"
 
 class GrVertexArrayObj : public GrFakeRefObj {
-    GR_DEFINE_CREATOR(GrVertexArrayObj);
+    GR_DEFINE_CREATOR(GrVertexArrayObj)
 
 public:
     GrVertexArrayObj() : GrFakeRefObj() {}

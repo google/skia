@@ -99,7 +99,6 @@ config("default") {
         "-Wno-documentation-unknown-command",
         "-Wno-double-promotion",
         "-Wno-exit-time-destructors",  # TODO: OK outside libskia
-        "-Wno-extra-semi",
         "-Wno-float-conversion",
         "-Wno-float-equal",
         "-Wno-format-nonliteral",

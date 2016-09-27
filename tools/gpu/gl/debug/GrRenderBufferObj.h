@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 class GrRenderBufferObj : public GrFBBindableObj {
-    GR_DEFINE_CREATOR(GrRenderBufferObj);
+    GR_DEFINE_CREATOR(GrRenderBufferObj)
 
 public:
     GrRenderBufferObj()

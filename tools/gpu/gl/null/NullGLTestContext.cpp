@@ -21,7 +21,7 @@ public:
    ~NullGLContext() override { this->teardown(); }
 
 private:
-    void onPlatformMakeCurrent() const override {};
+    void onPlatformMakeCurrent() const override {}
     void onPlatformSwapBuffers() const override {}
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override { return nullptr; }
 };

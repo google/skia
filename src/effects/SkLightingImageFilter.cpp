@@ -357,7 +357,7 @@ protected:
     }
 
 #if SK_SUPPORT_GPU
-    sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source, 
+    sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source,
                                          SkSpecialImage* input,
                                          const SkIRect& bounds,
                                          const SkMatrix& matrix,
@@ -802,7 +802,7 @@ public:
 
     SkPoint3 surfaceToLight(int x, int y, int z, SkScalar surfaceScale) const {
         return fDirection;
-    };
+    }
     const SkPoint3& lightColor(const SkPoint3&) const { return this->color(); }
     LightType type() const override { return kDistant_LightType; }
     const SkPoint3& direction() const { return fDirection; }
@@ -861,7 +861,7 @@ public:
                                                                        surfaceScale));
         fast_normalize(&direction);
         return direction;
-    };
+    }
     const SkPoint3& lightColor(const SkPoint3&) const { return this->color(); }
     LightType type() const override { return kPoint_LightType; }
     const SkPoint3& location() const { return fLocation; }
@@ -966,7 +966,7 @@ public:
                                                                        surfaceScale));
         fast_normalize(&direction);
         return direction;
-    };
+    }
     SkPoint3 lightColor(const SkPoint3& surfaceToLight) const {
         SkScalar cosAngle = -surfaceToLight.dot(fS);
         SkScalar scale = 0;
@@ -1118,7 +1118,7 @@ sk_sp<SkImageFilter> SkLightingImageFilter::MakeDistantLitDiffuse(const SkPoint3
                                                                   sk_sp<SkImageFilter> input,
                                                                   const CropRect* cropRect) {
     sk_sp<SkImageFilterLight> light(new SkDistantLight(direction, lightColor));
-    return SkDiffuseLightingImageFilter::Make(std::move(light), surfaceScale, kd, 
+    return SkDiffuseLightingImageFilter::Make(std::move(light), surfaceScale, kd,
                                               std::move(input), cropRect);
 }
 
@@ -1212,7 +1212,7 @@ sk_sp<SkImageFilter> SkDiffuseLightingImageFilter::Make(sk_sp<SkImageFilterLight
     if (kd < 0) {
         return nullptr;
     }
-    return sk_sp<SkImageFilter>(new SkDiffuseLightingImageFilter(std::move(light), surfaceScale, 
+    return sk_sp<SkImageFilter>(new SkDiffuseLightingImageFilter(std::move(light), surfaceScale,
                                                                  kd, std::move(input), cropRect));
 }
 
