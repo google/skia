@@ -102,7 +102,6 @@ config("default") {
         "-Wno-float-equal",
         "-Wno-format-nonliteral",
         "-Wno-global-constructors",  # TODO: OK outside libskia
-        "-Wno-gnu-anonymous-struct",
         "-Wno-gnu-zero-variadic-macro-arguments",
         "-Wno-missing-prototypes",
         "-Wno-missing-variable-declarations",
