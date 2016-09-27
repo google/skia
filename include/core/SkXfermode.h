@@ -8,8 +8,9 @@
 #ifndef SkXfermode_DEFINED
 #define SkXfermode_DEFINED
 
-#include "SkFlattenable.h"
+#include "SkBlendMode.h"
 #include "SkColor.h"
+#include "SkFlattenable.h"
 
 class GrFragmentProcessor;
 class GrTexture;
@@ -156,6 +157,12 @@ public:
         return AsMode(xfer, mode);
     }
 #endif
+
+    static SkXfermode* Peek(SkBlendMode bm) {
+        sk_sp<SkXfermode> xfer = Make((Mode)bm);
+        SkASSERT(!xfer->unique());
+        return xfer.get();
+    }
 
     /** Return a function pointer to a routine that applies the specified
         porter-duff transfer mode.
