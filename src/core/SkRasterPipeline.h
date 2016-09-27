@@ -46,7 +46,13 @@
  * Some obvious stages that typically return are those that write a color to a destination pointer,
  * but any stage can short-circuit the rest of the pipeline by returning instead of calling next().
  *
- * TODO: explain EasyFn and SK_RASTER_STAGE
+ * Most simple pipeline stages can use the SK_RASTER_STAGE macro to define a static EasyFn,
+ * which simplifies the user interface a bit:
+ *    - the context pointer is available directly as the first parameter;
+ *    - instead of manually calling a next() function, just modify registers in place.
+ *
+ * To add an EasyFn stage to the pipeline, call append<fn>() instead of append(&fn).
+ * For the last stage of a pipeline, it's a slight performance benefit to call last<fn>().
  */
 
 class SkRasterPipeline {
@@ -106,12 +112,21 @@ public:
         this->append(Easy<body>, body_ctx,
                      Easy<tail>, tail_ctx);
     }
+    template <EasyFn body, EasyFn tail>
+    void last(const void* body_ctx, const void* tail_ctx) {
+        this->append(Last<body>, body_ctx,
+                     Last<tail>, tail_ctx);
+    }
 
     template <EasyFn fn>
     void append(const void* ctx = nullptr) { this->append<fn, fn>(ctx, ctx); }
+    template <EasyFn fn>
+    void last(const void* ctx = nullptr) { this->last<fn, fn>(ctx, ctx); }
 
     template <EasyFn body, EasyFn tail>
     void append(const void* ctx = nullptr) { this->append<body, tail>(ctx, ctx); }
+    template <EasyFn body, EasyFn tail>
+    void last(const void* ctx = nullptr) { this->last<body, tail>(ctx, ctx); }
 
 
     // Append all stages to this pipeline.
@@ -132,6 +147,13 @@ private:
                                    Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
         kernel(st->ctx<void*>(), x, r,g,b,a, dr,dg,db,da);
         st->next(x, r,g,b,a, dr,dg,db,da);
+    }
+
+    template <EasyFn kernel>
+    static void SK_VECTORCALL Last(SkRasterPipeline::Stage* st, size_t x,
+                                   Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                   Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+        kernel(st->ctx<void*>(), x, r,g,b,a, dr,dg,db,da);
     }
 
     Stages fBody,

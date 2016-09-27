@@ -361,14 +361,14 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p, void* dst) const
     switch (fDst.info().colorType()) {
         case kN32_SkColorType:
             if (fDst.info().gammaCloseToSRGB()) {
-                p->append<store_srgb, store_srgb_1>(dst);
+                p->last<store_srgb, store_srgb_1>(dst);
             }
             break;
         case kRGBA_F16_SkColorType:
-            p->append<store_f16, store_f16_1>(dst);
+            p->last<store_f16, store_f16_1>(dst);
             break;
         case kRGB_565_SkColorType:
-            p->append<store_565, store_565_1>(dst);
+            p->last<store_565, store_565_1>(dst);
             break;
         default: break;
     }
