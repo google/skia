@@ -849,15 +849,17 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  executable("monobench") {
-    sources = [
-      "tools/monobench.cpp",
-    ]
-    deps = [
-      ":bench",
-      ":skia",
-    ]
-    testonly = true
+  if (!is_debug) {  # I've benchmarked debug code once too many times...
+    executable("monobench") {
+      sources = [
+        "tools/monobench.cpp",
+      ]
+      deps = [
+        ":bench",
+        ":skia",
+      ]
+      testonly = true
+    }
   }
 
   executable("nanobench") {
