@@ -74,6 +74,10 @@ public:
         return fSupportsCopiesAsDraws;
     }
 
+    bool mustSubmitCommandsBeforeCopyOp() const {
+        return fMustSubmitCommandsBeforeCopyOp;
+    }
+
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
@@ -86,6 +90,7 @@ public:
 private:
     enum VkVendor {
         kQualcomm_VkVendor = 20803,
+        kNvidia_VkVendor = 4318,
     };
 
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
@@ -134,6 +139,11 @@ private:
 
     // Check whether we support using draws for copies.
     bool fSupportsCopiesAsDraws;
+
+    // On Nvidia there is a current bug where we must the current command buffer before copy
+    // operations or else the copy will not happen. This includes copies, blits, resolves, and copy
+    // as draws.
+    bool fMustSubmitCommandsBeforeCopyOp;
 
     typedef GrCaps INHERITED;
 };
