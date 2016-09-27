@@ -5,3 +5,4 @@ STRINGIFY(
 layout(builtin=15) in vec4 gl_FragCoord;
 
 )
+
