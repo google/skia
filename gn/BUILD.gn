@@ -91,7 +91,6 @@ config("default") {
 
       cflags += [
         "-Wno-cast-align",
-        "-Wno-class-varargs",
         "-Wno-conditional-uninitialized",
         "-Wno-conversion",
         "-Wno-disabled-macro-expansion",
