@@ -409,7 +409,7 @@ public:
     SkTypeface_stream(std::unique_ptr<SkFontData> data, const SkFontStyle& style, bool fixedWidth)
         : INHERITED(style, fixedWidth)
         , fData(std::move(data))
-    { };
+    { }
 
     void onGetFamilyName(SkString* familyName) const override {
         familyName->reset();
@@ -512,7 +512,7 @@ private:
         : INHERITED(skfontstyle_from_fcpattern(pattern),
                     FC_PROPORTIONAL != get_int(pattern, FC_SPACING, FC_PROPORTIONAL))
         , fPattern(pattern)
-    { };
+    { }
 
     typedef SkTypeface_FreeType INHERITED;
 };

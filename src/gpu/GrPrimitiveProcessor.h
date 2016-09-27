@@ -226,7 +226,7 @@ protected:
     size_t fVertexStride;
 
 private:
-    void notifyRefCntIsZero() const final {};
+    void notifyRefCntIsZero() const final {}
     virtual bool hasExplicitLocalCoords() const = 0;
 
     typedef GrProcessor INHERITED;

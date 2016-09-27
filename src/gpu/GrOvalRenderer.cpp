@@ -62,7 +62,7 @@ inline bool circle_stays_circle(const SkMatrix& m) {
  *             p is the position in the normalized space.
  *             outerRad is the outerRadius in device space.
  *             innerRad is the innerRadius in normalized space (ignored if not stroking).
- * If fUsesDistanceVectorField is set in fragment processors in the same program, then 
+ * If fUsesDistanceVectorField is set in fragment processors in the same program, then
  * an additional vertex attribute is available via args.fFragBuilder->distanceVectorName():
  *    vec4f : (v.xy, outerDistance, innerDistance)
  *             v is a normalized vector pointing to the outer edge
@@ -103,7 +103,7 @@ public:
         fStroke = stroke;
     }
 
-    bool implementsDistanceVector() const override { return !fInClipPlane; };
+    bool implementsDistanceVector() const override { return !fInClipPlane; }
 
     virtual ~CircleGeometryProcessor() {}
 
@@ -1324,7 +1324,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// We have three possible cases for geometry for a roundrect. 
+// We have three possible cases for geometry for a roundrect.
 //
 // In the case of a normal fill or a stroke, we draw the roundrect as a 9-patch:
 //    ____________

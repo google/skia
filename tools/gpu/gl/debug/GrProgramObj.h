@@ -15,7 +15,7 @@ class GrShaderObj;
 
 ////////////////////////////////////////////////////////////////////////////////
 class GrProgramObj : public GrFakeRefObj {
-    GR_DEFINE_CREATOR(GrProgramObj);
+    GR_DEFINE_CREATOR(GrProgramObj)
 
 public:
     GrProgramObj()

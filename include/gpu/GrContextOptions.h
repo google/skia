@@ -11,7 +11,7 @@
 #include "SkTypes.h"
 
 struct GrContextOptions {
-    GrContextOptions() {};
+    GrContextOptions() {}
 
     // Suppress prints for the GrContext.
     bool fSuppressPrints = false;

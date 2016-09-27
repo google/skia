@@ -22,7 +22,7 @@ public:
     static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPoint& center,
                                            SkScalar radius);
 
-    virtual ~CircleEffect() {};
+    virtual ~CircleEffect() {}
 
     const char* name() const override { return "Circle"; }
 
@@ -187,7 +187,7 @@ public:
     static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPoint& center,
                                            SkScalar rx, SkScalar ry);
 
-    virtual ~EllipseEffect() {};
+    virtual ~EllipseEffect() {}
 
     const char* name() const override { return "Ellipse"; }
 

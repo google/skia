@@ -137,7 +137,7 @@ private:
     bool apply(GrContext*, GrDrawContext*, bool, bool, GrAppliedClip*) const final {
         return true;
     }
-    bool isRRect(const SkRect&, SkRRect*, bool*) const override { return false; };
+    bool isRRect(const SkRect&, SkRRect*, bool*) const override { return false; }
 };
 
 #endif

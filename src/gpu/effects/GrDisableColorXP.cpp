@@ -20,7 +20,7 @@ class DisableColorXP : public GrXferProcessor {
 public:
     static GrXferProcessor* Create() { return new DisableColorXP; }
 
-    ~DisableColorXP() override {};
+    ~DisableColorXP() override {}
 
     const char* name() const override { return "Disable Color"; }
 

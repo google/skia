@@ -18,7 +18,7 @@
  */
 template <typename T> class GrPendingProgramElement : SkNoncopyable {
 public:
-    GrPendingProgramElement() : fObj(nullptr) { };
+    GrPendingProgramElement() : fObj(nullptr) { }
 
     // Adds a pending execution on obj.
     explicit GrPendingProgramElement(T* obj) : fObj(obj)  {

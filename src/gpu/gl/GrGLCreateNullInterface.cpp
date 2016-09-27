@@ -676,7 +676,7 @@ public:
                 SkFAIL("Unexpected pname to GetBufferParamateriv");
                 break;
         }
-    };
+    }
 
     // NV_path_rendering
     GrGLuint genPaths(GrGLsizei range) override {

@@ -48,7 +48,7 @@ public:
     static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, uint32_t circularCornerFlags,
                                            const SkRRect&);
 
-    virtual ~CircularRRectEffect() {};
+    virtual ~CircularRRectEffect() {}
 
     const char* name() const override { return "CircularRRect"; }
 
@@ -390,7 +390,7 @@ class EllipticalRRectEffect : public GrFragmentProcessor {
 public:
     static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkRRect&);
 
-    virtual ~EllipticalRRectEffect() {};
+    virtual ~EllipticalRRectEffect() {}
 
     const char* name() const override { return "EllipticalRRect"; }
 

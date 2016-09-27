@@ -30,7 +30,7 @@ class DCShader : public SkShader {
 public:
     DCShader(const SkMatrix& matrix) : fDeviceMatrix(matrix) {}
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DCShader);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DCShader)
 
     void flatten(SkWriteBuffer& buf) const override {
         buf.writeMatrix(fDeviceMatrix);

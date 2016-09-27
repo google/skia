@@ -33,7 +33,7 @@ public:
 
     class Provider {
     public:
-        virtual ~Provider() {};
+        virtual ~Provider() {}
 
         /** Called for each span of the object being drawn on the CPU. Your subclass should set
             the appropriate normals that correspond to the specified device coordinates.

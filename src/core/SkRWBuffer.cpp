@@ -19,7 +19,7 @@ struct SkBufferBlock {
 
     SkBufferBlock(size_t capacity) : fNext(nullptr), fUsed(0), fCapacity(capacity) {}
 
-    const void* startData() const { return this + 1; };
+    const void* startData() const { return this + 1; }
 
     size_t avail() const { return fCapacity - fUsed; }
     void* availData() { return (char*)this->startData() + fUsed; }
