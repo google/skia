@@ -15,8 +15,8 @@ DEF_TEST(OverAligned, r) {
     SkRandom rand;
     // Let's test that assertion.  We think it really should be providing 8-byte alignment.
     for (int i = 0; i < 1000; i++) {
-        void* p = malloc(rand.nextRangeU(0,100));
+        void* p = sk_malloc_throw(rand.nextRangeU(0,100));
         REPORTER_ASSERT(r, SkIsAlign8((uintptr_t)p));
-        free(p);
+        sk_free(p);
     }
 }
