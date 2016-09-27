@@ -89,7 +89,7 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* so
 
     SkPaint paint;
 
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     paint.setColorFilter(fColorFilter);
 
     // TODO: it may not be necessary to clear or drawPaint inside the input bounds

@@ -52,6 +52,7 @@ SkPaint::SkPaint() {
     fColor      = SK_ColorBLACK;
     fWidth      = 0;
     fMiterLimit = SkPaintDefaults_MiterLimit;
+    fBlendMode  = (unsigned)SkBlendMode::kSrcOver;
 
     // Zero all bitfields, then set some non-zero defaults.
     fBitfieldsUInt           = 0;
@@ -69,7 +70,9 @@ SkPaint::SkPaint(const SkPaint& src)
     : COPY(fTypeface)
     , COPY(fPathEffect)
     , COPY(fShader)
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
     , COPY(fXfermode)
+#endif
     , COPY(fMaskFilter)
     , COPY(fColorFilter)
     , COPY(fRasterizer)
@@ -81,6 +84,7 @@ SkPaint::SkPaint(const SkPaint& src)
     , COPY(fColor)
     , COPY(fWidth)
     , COPY(fMiterLimit)
+    , COPY(fBlendMode)
     , COPY(fBitfields)
 #undef COPY
 {}
@@ -90,7 +94,9 @@ SkPaint::SkPaint(SkPaint&& src) {
     MOVE(fTypeface);
     MOVE(fPathEffect);
     MOVE(fShader);
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
     MOVE(fXfermode);
+#endif
     MOVE(fMaskFilter);
     MOVE(fColorFilter);
     MOVE(fRasterizer);
@@ -102,6 +108,7 @@ SkPaint::SkPaint(SkPaint&& src) {
     MOVE(fColor);
     MOVE(fWidth);
     MOVE(fMiterLimit);
+    MOVE(fBlendMode);
     MOVE(fBitfields);
 #undef MOVE
 }
@@ -117,7 +124,9 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     ASSIGN(fTypeface);
     ASSIGN(fPathEffect);
     ASSIGN(fShader);
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
     ASSIGN(fXfermode);
+#endif
     ASSIGN(fMaskFilter);
     ASSIGN(fColorFilter);
     ASSIGN(fRasterizer);
@@ -129,6 +138,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     ASSIGN(fColor);
     ASSIGN(fWidth);
     ASSIGN(fMiterLimit);
+    ASSIGN(fBlendMode);
     ASSIGN(fBitfields);
 #undef ASSIGN
 
@@ -144,7 +154,9 @@ SkPaint& SkPaint::operator=(SkPaint&& src) {
     MOVE(fTypeface);
     MOVE(fPathEffect);
     MOVE(fShader);
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
     MOVE(fXfermode);
+#endif
     MOVE(fMaskFilter);
     MOVE(fColorFilter);
     MOVE(fRasterizer);
@@ -156,6 +168,7 @@ SkPaint& SkPaint::operator=(SkPaint&& src) {
     MOVE(fColor);
     MOVE(fWidth);
     MOVE(fMiterLimit);
+    MOVE(fBlendMode);
     MOVE(fBitfields);
 #undef MOVE
 
@@ -167,7 +180,9 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
     return EQUAL(fTypeface)
         && EQUAL(fPathEffect)
         && EQUAL(fShader)
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
         && EQUAL(fXfermode)
+#endif
         && EQUAL(fMaskFilter)
         && EQUAL(fColorFilter)
         && EQUAL(fRasterizer)
@@ -179,6 +194,7 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
         && EQUAL(fColor)
         && EQUAL(fWidth)
         && EQUAL(fMiterLimit)
+        && EQUAL(fBlendMode)
         && EQUAL(fBitfieldsUInt)
         ;
 #undef EQUAL
@@ -360,7 +376,9 @@ MOVE_FIELD(Rasterizer)
 MOVE_FIELD(ImageFilter)
 MOVE_FIELD(Shader)
 MOVE_FIELD(ColorFilter)
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
 MOVE_FIELD(Xfermode)
+#endif
 MOVE_FIELD(PathEffect)
 MOVE_FIELD(MaskFilter)
 MOVE_FIELD(DrawLooper)
@@ -403,10 +421,12 @@ SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
 }
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
 SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
     fXfermode = SkXfermode::Make(mode);
     return fXfermode.get(); // can/should we change this API to be void, like the other setters?
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

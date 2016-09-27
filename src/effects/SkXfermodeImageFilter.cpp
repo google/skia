@@ -55,7 +55,7 @@ protected:
 #endif
 
 private:
-    sk_sp<SkXfermode> fMode;
+    SkBlendMode fMode;
 
     friend class SkXfermodeImageFilter;
 
@@ -76,8 +76,8 @@ SkXfermodeImageFilter_Base::SkXfermodeImageFilter_Base(sk_sp<SkXfermode> mode,
                                              sk_sp<SkImageFilter> inputs[2],
                                              const CropRect* cropRect)
     : INHERITED(inputs, 2, cropRect)
-    , fMode(std::move(mode)) {
-}
+    , fMode(mode ? mode->blend() : SkBlendMode::kSrcOver)
+{}
 
 sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
@@ -88,7 +88,7 @@ sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer
 
 void SkXfermodeImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeFlattenable(fMode.get());
+    buffer.write32((unsigned)fMode);
 }
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* source,
@@ -147,7 +147,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
 
     if (background) {
         SkPaint paint;
-        paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+        paint.setBlendMode(SkBlendMode::kSrc);
         background->draw(canvas,
                          SkIntToScalar(backgroundOffset.fX), SkIntToScalar(backgroundOffset.fY),
                          &paint);

@@ -8,10 +8,13 @@
 #ifndef SkPaint_DEFINED
 #define SkPaint_DEFINED
 
+#include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFilterQuality.h"
 #include "SkMatrix.h"
 #include "SkXfermode.h"
+
+//#define SK_SUPPORT_LEGACY_XFERMODE_OBJECT
 
 class SkAutoDescriptor;
 class SkAutoGlyphCache;
@@ -525,6 +528,7 @@ public:
 #endif
     void setColorFilter(sk_sp<SkColorFilter>);
 
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
     /** Get the paint's xfermode object.
         <p />
       The xfermode's reference count is not affected.
@@ -552,6 +556,10 @@ public:
         the paint's xfermode is set to null.
      */
     SkXfermode* setXfermodeMode(SkXfermode::Mode);
+#endif
+
+    SkBlendMode getBlendMode() const;
+    void setBlendMode(SkBlendMode);
 
     /** Get the paint's patheffect object.
         <p />
@@ -1090,7 +1098,9 @@ private:
     sk_sp<SkTypeface>     fTypeface;
     sk_sp<SkPathEffect>   fPathEffect;
     sk_sp<SkShader>       fShader;
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
     sk_sp<SkXfermode>     fXfermode;
+#endif
     sk_sp<SkMaskFilter>   fMaskFilter;
     sk_sp<SkColorFilter>  fColorFilter;
     sk_sp<SkRasterizer>   fRasterizer;
@@ -1103,6 +1113,7 @@ private:
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
+    uint32_t        fBlendMode; // just need 5-6 bits for SkXfermode::Mode
     union {
         struct {
             // all of these bitfields should add up to 32
