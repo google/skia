@@ -25,7 +25,7 @@ namespace GrTest {
     GrContext. In the future this object may provide some guards to prevent this. */
 class GrTestTarget {
 public:
-    GrTestTarget() {};
+    GrTestTarget() {}
 
     void init(GrContext*, sk_sp<GrDrawContext>);
 

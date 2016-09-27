@@ -207,7 +207,7 @@ public:
     void get4Pixels(
         const void* src, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const {
         fPixelAccessor->get4Pixels(src, index, px0, px1, px2, px3);
-    };
+    }
 
     Sk4f getPixelFromRow(const void* row, int index) const {
         return fPixelAccessor->getPixelFromRow(row, index);
