@@ -24,10 +24,10 @@ public:
 
     bool isValid() const override { return NULL != this->vk(); }
 
-    const GrVkInterface* vk() const { return fVk->fInterface; };
+    const GrVkInterface* vk() const { return fVk->fInterface; }
 
 protected:
-    VkTestContext(sk_sp<const GrVkBackendContext> vk) : fVk(std::move(vk)) {};
+    VkTestContext(sk_sp<const GrVkBackendContext> vk) : fVk(std::move(vk)) {}
 
     sk_sp<const GrVkBackendContext> fVk;
 
