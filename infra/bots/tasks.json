@@ -46,6 +46,22 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "cipd_packages": [],
+      "dependencies": ["Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"],
+      "dimensions": ["pool:Skia", "os:Ubuntu", "cpu:x86-64-avx2", "gpu:none"],
+      "extra_args": [
+        "--workdir",  "../../..", "upload_dm_results",
+        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "revision=<(REVISION)",
+        "slavename=fake-buildslave",
+        "swarm_out_dir=${ISOLATED_OUTDIR}"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "cipd_packages": [{
         "name": "skia/bots/skimage",
@@ -75,6 +91,21 @@
       ],
       "isolate": "perf_skia.isolate",
       "priority": 0.8
+    },
+    "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "dependencies": ["Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"],
+      "dimensions": ["pool:Skia", "os:Ubuntu", "cpu:x86-64-avx2", "gpu:none"],
+      "extra_args": [ 
+        "--workdir",  "../../..", "upload_nano_results",
+        "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "revision=<(REVISION)",
+        "slavename=fake-buildslave",
+        "swarm_out_dir=${ISOLATED_OUTDIR}"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
     }
   },
   "jobs": {
@@ -84,11 +115,11 @@
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "priority": 0.8,
-      "tasks": ["Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"]
+      "tasks": ["Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"]
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "priority": 0.8,
-      "tasks": ["Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"]
+      "tasks": ["Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"]
     }
   }
 }
