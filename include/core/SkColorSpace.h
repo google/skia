@@ -31,6 +31,12 @@ public:
          *  Often used by images and monitors.
          */
         kAdobeRGB_Named,
+
+        /**
+         *  Colorspace with the sRGB primaries, but a linear (1.0) gamma. Commonly used for
+         *  half-float surfaces, and high precision individual colors (gradient stops, etc...)
+         */
+        kSRGBLinear_Named,
     };
 
     enum RenderTargetGamma : uint8_t {

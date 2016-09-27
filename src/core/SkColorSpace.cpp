@@ -113,6 +113,11 @@ sk_sp<SkColorSpace> SkColorSpace_Base::NewRGB(SkGammaNamed gammaNamed, const SkM
                 return SkColorSpace::NewNamed(kAdobeRGB_Named);
             }
             break;
+        case kLinear_SkGammaNamed:
+            if (xyz_almost_equal(toXYZD50, gSRGB_toXYZD50)) {
+                return SkColorSpace::NewNamed(kSRGBLinear_Named);
+            }
+            break;
         case kNonStandard_SkGammaNamed:
             // This is not allowed.
             return nullptr;
@@ -136,10 +141,12 @@ sk_sp<SkColorSpace> SkColorSpace::NewRGB(RenderTargetGamma gamma, const SkMatrix
 
 static SkColorSpace* gAdobeRGB;
 static SkColorSpace* gSRGB;
+static SkColorSpace* gSRGBLinear;
 
 sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
     static SkOnce sRGBOnce;
     static SkOnce adobeRGBOnce;
+    static SkOnce sRGBLinearOnce;
 
     switch (named) {
         case kSRGB_Named: {
@@ -163,6 +170,17 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
                 gAdobeRGB = new SkColorSpace_Base(k2Dot2Curve_SkGammaNamed, adobergbToxyzD50);
             });
             return sk_ref_sp<SkColorSpace>(gAdobeRGB);
+        }
+        case kSRGBLinear_Named: {
+            sRGBLinearOnce([] {
+                SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
+                srgbToxyzD50.set3x3RowMajorf(gSRGB_toXYZD50);
+
+                // Force the mutable type mask to be computed.  This avoids races.
+                (void)srgbToxyzD50.getType();
+                gSRGBLinear = new SkColorSpace_Base(kLinear_SkGammaNamed, srgbToxyzD50);
+            });
+            return sk_ref_sp<SkColorSpace>(gSRGBLinear);
         }
         default:
             break;
@@ -238,7 +256,7 @@ struct ColorSpaceHeader {
         SkASSERT(k0_Version == version);
         header.fVersion = (uint8_t) version;
 
-        SkASSERT(named <= SkColorSpace::kAdobeRGB_Named);
+        SkASSERT(named <= SkColorSpace::kSRGBLinear_Named);
         header.fNamed = (uint8_t) named;
 
         SkASSERT(gammaNamed <= kNonStandard_SkGammaNamed);
@@ -273,6 +291,14 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                         ColorSpaceHeader::Pack(k0_Version, kAdobeRGB_Named,
                                                as_CSB(this)->fGammaNamed, 0);
             }
+            return sizeof(ColorSpaceHeader);
+        } else if (this == gSRGBLinear) {
+            if (memory) {
+                *((ColorSpaceHeader*)memory) =
+                        ColorSpaceHeader::Pack(k0_Version, kSRGBLinear_Named,
+                                               as_CSB(this)->fGammaNamed, 0);
+            }
+            return sizeof(ColorSpaceHeader);
         }
 
         // If we have a named gamma, write the enum and the matrix.

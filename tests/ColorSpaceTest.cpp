@@ -115,6 +115,29 @@ DEF_TEST(ColorSpaceSRGBCompare, r) {
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }
 
+DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
+    // Create the linear sRGB color space by name
+    sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
+
+    // Create the linear sRGB color space via the sRGB color space's makeLinearGamma()
+    sk_sp<SkColorSpace> viaSrgbColorSpace =
+        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)->makeLinearGamma();
+    REPORTER_ASSERT(r, namedColorSpace == viaSrgbColorSpace);
+
+    // Create a linear sRGB color space by value
+    SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
+    srgbToxyzD50.set3x3RowMajorf(g_sRGB_XYZ);
+    sk_sp<SkColorSpace> rgbColorSpace =
+        SkColorSpace::NewRGB(SkColorSpace::kLinear_RenderTargetGamma, srgbToxyzD50);
+    REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
+
+    // Change a single value from the sRGB matrix
+    srgbToxyzD50.set(2, 2, 0.5f);
+    sk_sp<SkColorSpace> strangeColorSpace =
+        SkColorSpace::NewRGB(SkColorSpace::kLinear_RenderTargetGamma, srgbToxyzD50);
+    REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
+}
+
 class ColorSpaceTest {
 public:
     static sk_sp<SkData> WriteToICC(SkColorSpace* space) {
@@ -150,21 +173,18 @@ DEF_TEST(ColorSpaceWriteICC, r) {
 DEF_TEST(ColorSpace_Named, r) {
     const struct {
         SkColorSpace::Named fNamed;
-        bool fIsSRGB;
+        SkGammaNamed fExpectedGamma;
     } recs[] {
-        { SkColorSpace::kSRGB_Named,     true },
-        { SkColorSpace::kAdobeRGB_Named, false },
+        { SkColorSpace::kSRGB_Named,       kSRGB_SkGammaNamed },
+        { SkColorSpace::kAdobeRGB_Named,   k2Dot2Curve_SkGammaNamed },
+        { SkColorSpace::kSRGBLinear_Named, kLinear_SkGammaNamed },
     };
 
     for (auto rec : recs) {
         auto cs = SkColorSpace::NewNamed(rec.fNamed);
         REPORTER_ASSERT(r, cs);
         if (cs) {
-            if (rec.fIsSRGB) {
-                REPORTER_ASSERT(r, kSRGB_SkGammaNamed == as_CSB(cs)->gammaNamed());
-            } else {
-                REPORTER_ASSERT(r, k2Dot2Curve_SkGammaNamed == as_CSB(cs)->gammaNamed());
-            }
+            REPORTER_ASSERT(r, rec.fExpectedGamma == as_CSB(cs)->gammaNamed());
         }
     }
 
@@ -194,6 +214,7 @@ static void test_serialize(skiatest::Reporter* r, SkColorSpace* space, bool isNa
 DEF_TEST(ColorSpace_Serialize, r) {
     test_serialize(r, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named).get(), true);
     test_serialize(r, SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named).get(), true);
+    test_serialize(r, SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named).get(), true);
 
     sk_sp<SkData> monitorData = SkData::MakeFromFileName(
             GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());

@@ -60,8 +60,7 @@ protected:
 
             canvas->save();
             for (int i = 0; i < kNumColors; i++) {
-                sk_sp<SkColorSpace> space =
-                        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)->makeLinearGamma();
+                sk_sp<SkColorSpace> space = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
                 sk_sp<SkShader> s = SkShader::MakeColorShader(colors[i], space);
                 SkPaint paint;
                 paint.setShader(s);
