@@ -190,6 +190,32 @@ void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
     pipelineState->addUniformResources(*this);
 }
 
+void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
+                                           const SkTArray<const GrVkRecycledResource*>& recycled,
+                                           const SkTArray<const GrVkResource*>& resources,
+                                           VkPipelineLayout layout,
+                                           uint32_t firstSet,
+                                           uint32_t setCount,
+                                           const VkDescriptorSet* descriptorSets,
+                                           uint32_t dynamicOffsetCount,
+                                           const uint32_t* dynamicOffsets) {
+    SkASSERT(fIsActive);
+    GR_VK_CALL(gpu->vkInterface(), CmdBindDescriptorSets(fCmdBuffer,
+                                                         VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                                         layout,
+                                                         firstSet,
+                                                         setCount,
+                                                         descriptorSets,
+                                                         dynamicOffsetCount,
+                                                         dynamicOffsets));
+    for (int i = 0; i < recycled.count(); ++i) {
+        this->addRecycledResource(recycled[i]);
+    }
+    for (int i = 0; i < resources.count(); ++i) {
+        this->addResource(resources[i]);
+    }
+}
+
 void GrVkCommandBuffer::bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline) {
     SkASSERT(fIsActive);
     GR_VK_CALL(gpu->vkInterface(), CmdBindPipeline(fCmdBuffer,

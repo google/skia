@@ -9,6 +9,7 @@
 
 #include "GrTextureParams.h"
 #include "GrVkCommandBuffer.h"
+#include "GrVkCopyPipeline.h"
 #include "GrVkGLSLSampler.h"
 #include "GrVkPipeline.h"
 #include "GrVkRenderTarget.h"
@@ -67,6 +68,29 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPipeline& pipeline,
                                 primitiveType, renderPass, layout, fPipelineCache);
 }
 
+GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(
+        const GrVkRenderTarget* dst,
+        VkPipelineShaderStageCreateInfo* shaderStageInfo,
+        VkPipelineLayout pipelineLayout) {
+    // Find or Create a compatible pipeline
+    GrVkCopyPipeline* pipeline = nullptr;
+    for (int i = 0; i < fCopyPipelines.count() && !pipeline; ++i) {
+        if (fCopyPipelines[i]->isCompatible(*dst->simpleRenderPass())) {
+            pipeline = fCopyPipelines[i];
+        }
+    }
+    if (!pipeline) {
+        pipeline = GrVkCopyPipeline::Create(fGpu, shaderStageInfo,
+                                            pipelineLayout,
+                                            dst->numColorSamples(),
+                                            *dst->simpleRenderPass(),
+                                            fPipelineCache);
+        fCopyPipelines.push_back(pipeline);
+    }
+    SkASSERT(pipeline);
+    pipeline->ref();
+    return pipeline;
+}
 
 // To create framebuffers, we first need to create a simple RenderPass that is
 // only used for framebuffer creation. When we actually render we will create
@@ -307,6 +331,11 @@ void GrVkResourceProvider::destroyResources() {
     }
     fAvailableSecondaryCommandBuffers.reset();
 
+    // Release all copy pipelines
+    for (int i = 0; i < fCopyPipelines.count(); ++i) {
+        fCopyPipelines[i]->unref(fGpu);
+    }
+
     // loop over all render pass sets to make sure we destroy all the internal VkRenderPasses
     for (int i = 0; i < fRenderPassArray.count(); ++i) {
         fRenderPassArray[i].releaseResources(fGpu);
@@ -362,6 +391,11 @@ void GrVkResourceProvider::abandonResources() {
         fAvailableSecondaryCommandBuffers[i]->unrefAndAbandon();
     }
     fAvailableSecondaryCommandBuffers.reset();
+
+    // Abandon all copy pipelines
+    for (int i = 0; i < fCopyPipelines.count(); ++i) {
+        fCopyPipelines[i]->unrefAndAbandon();
+    }
 
     // loop over all render pass sets to make sure we destroy all the internal VkRenderPasses
     for (int i = 0; i < fRenderPassArray.count(); ++i) {

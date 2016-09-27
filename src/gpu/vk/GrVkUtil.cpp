@@ -312,7 +312,7 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
 
         shaderc_shader_kind shadercStage = vk_shader_stage_to_shaderc_kind(stage);
         result = shaderc_compile_into_spv(compiler,
-                                          shaderString.c_str(),
+                                          shaderString,
                                           strlen(shaderString),
                                           shadercStage,
                                           "shader",

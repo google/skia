@@ -187,6 +187,8 @@ GrVkGpu::~GrVkGpu() {
     }
 #endif
 
+    fCopyManager.destroyResources(this);
+
     // must call this just before we destroy the VkDevice
     fResourceProvider.destroyResources();
 
@@ -1575,6 +1577,10 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
         return true;
     }
 
+    if (fCopyManager.copySurfaceAsDraw(this, dst, src, srcRect, dstPoint)) {
+        return true;
+    }
+
     GrVkImage* dstImage;
     GrVkImage* srcImage;
     GrRenderTarget* dstRT = dst->asRenderTarget();
@@ -1604,11 +1610,6 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
         return true;
     }
 
-    if (can_copy_as_draw(dst, src, this)) {
-        this->copySurfaceAsDraw(dst, src, srcRect, dstPoint);
-        return true;
-    }
-
     return false;
 }
 
@@ -1618,7 +1619,14 @@ bool GrVkGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc)
     // render target as well.
     desc->fOrigin = src->origin();
     desc->fConfig = src->config();
-    desc->fFlags = src->numColorSamples() > 1 ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+    if (src->numColorSamples() > 1 ||
+        (src->asTexture() && this->vkCaps().supportsCopiesAsDraws())) {
+        desc->fFlags = kRenderTarget_GrSurfaceFlag;
+    } else {
+        // Just going to use CopyImage here
+        desc->fFlags = kNone_GrSurfaceFlags;
+    }
+
     return true;
 }
 

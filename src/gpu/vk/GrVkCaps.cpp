@@ -18,6 +18,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fCanUseGLSLForShaderModule = false;
     fMustDoCopiesFromOrigin = false;
     fAllowInitializationErrorOnTearDown = false;
+    fSupportsCopiesAsDraws = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields

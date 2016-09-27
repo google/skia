@@ -70,6 +70,10 @@ public:
         return fAllowInitializationErrorOnTearDown;
     }
 
+    bool supportsCopiesAsDraws() const {
+        return fSupportsCopiesAsDraws;
+    }
+
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
@@ -127,6 +131,9 @@ private:
     // VK_ERROR_INITIALIZATION_FAILED instead of the required VK_SUCCESS or VK_DEVICE_LOST. This
     // flag says we will accept VK_ERROR_INITIALIZATION_FAILED as well.
     bool fAllowInitializationErrorOnTearDown;
+
+    // Check whether we support using draws for copies.
+    bool fSupportsCopiesAsDraws;
 
     typedef GrCaps INHERITED;
 };

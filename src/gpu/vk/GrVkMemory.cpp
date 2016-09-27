@@ -242,7 +242,7 @@ VkPipelineStageFlags GrVkMemory::LayoutToPipelineStageFlags(const VkImageLayout 
                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout ||
                VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == layout ||
                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout) {
-        return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+        return VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
     } else if (VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
         return VK_PIPELINE_STAGE_HOST_BIT;
     }

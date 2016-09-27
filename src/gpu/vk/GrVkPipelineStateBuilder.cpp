@@ -58,7 +58,6 @@ void GrVkPipelineStateBuilder::finalizeFragmentSecondaryColor(GrGLSLShaderVar& o
     outputColor.setLayoutQualifier("location = 0, index = 1");
 }
 
-
 bool GrVkPipelineStateBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
                                                     VkShaderStageFlagBits stage,
                                                     const GrGLSLShaderBuilder& builder,

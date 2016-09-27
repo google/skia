@@ -26,6 +26,7 @@
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrTextureParams;
+class GrVkCopyPipeline;
 class GrVkGpu;
 class GrVkPipeline;
 class GrVkPrimaryCommandBuffer;
@@ -49,6 +50,10 @@ public:
                                  GrPrimitiveType primitiveType,
                                  const GrVkRenderPass& renderPass,
                                  VkPipelineLayout layout);
+
+    GrVkCopyPipeline* findOrCreateCopyPipeline(const GrVkRenderTarget* dst,
+                                               VkPipelineShaderStageCreateInfo*,
+                                               VkPipelineLayout);
 
     GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle);
 
@@ -223,6 +228,9 @@ private:
 
     // Central cache for creating pipelines
     VkPipelineCache fPipelineCache;
+
+    // Cache of previously created copy pipelines
+    SkTArray<GrVkCopyPipeline*> fCopyPipelines;
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 

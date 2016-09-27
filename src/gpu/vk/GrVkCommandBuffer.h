@@ -78,6 +78,16 @@ public:
                             uint32_t dynamicOffsetCount,
                             const uint32_t* dynamicOffsets);
 
+    void bindDescriptorSets(const GrVkGpu* gpu,
+                            const SkTArray<const GrVkRecycledResource*>&,
+                            const SkTArray<const GrVkResource*>&,
+                            VkPipelineLayout layout,
+                            uint32_t firstSet,
+                            uint32_t setCount,
+                            const VkDescriptorSet* descriptorSets,
+                            uint32_t dynamicOffsetCount,
+                            const uint32_t* dynamicOffsets);
+
     void setViewport(const GrVkGpu* gpu,
                      uint32_t firstViewport,
                      uint32_t viewportCount,
