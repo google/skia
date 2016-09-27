@@ -219,7 +219,7 @@ private:
         const ArithmeticXP& arith = processor.cast<ArithmeticXP>();
         pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
         fEnforcePMColor = arith.enforcePMColor();
-    };
+    }
 
     GrGLSLProgramDataManager::UniformHandle fKUni;
     bool fEnforcePMColor;

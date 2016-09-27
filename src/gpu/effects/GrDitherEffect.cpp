@@ -20,7 +20,7 @@ public:
         return sk_sp<GrFragmentProcessor>(new DitherEffect);
     }
 
-    virtual ~DitherEffect() {};
+    virtual ~DitherEffect() {}
 
     const char* name() const override { return "Dither"; }
 

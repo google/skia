@@ -45,7 +45,7 @@ struct SkChunkAlloc::Block {
             sk_free(block);
             block = next;
         }
-    };
+    }
 
     bool contains(const void* addr) const {
         const char* ptr = reinterpret_cast<const char*>(addr);

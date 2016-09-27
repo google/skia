@@ -138,8 +138,8 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
             }
             return 0;
         }
-        int onCountGlyphs() const override { return 0; };
-        int onGetUPEM() const override { return 0; };
+        int onCountGlyphs() const override { return 0; }
+        int onGetUPEM() const override { return 0; }
         class EmptyLocalizedStrings : public SkTypeface::LocalizedStrings {
         public:
             bool next(SkTypeface::LocalizedString*) override { return false; }
@@ -149,7 +149,7 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
         }
         SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
             return new EmptyLocalizedStrings;
-        };
+        }
         int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
         size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
             return 0;

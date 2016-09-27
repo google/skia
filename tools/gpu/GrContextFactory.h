@@ -24,7 +24,7 @@ public:
     ContextInfo() = default;
     ContextInfo& operator=(const ContextInfo&) = default;
 
-    GrBackend backend() const { return fBackend; };
+    GrBackend backend() const { return fBackend; }
 
     GrContext* grContext() const { return fGrContext; }
 
