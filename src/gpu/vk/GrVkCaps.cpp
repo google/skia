@@ -74,10 +74,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fAllowInitializationErrorOnTearDown = true;
     }
 
-    if (kNvidia_VkVendor == properties.vendorID) {
-        fSupportsCopiesAsDraws = true;
-    }
-
     this->applyOptionsOverrides(contextOptions);
     GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
     glslCaps->applyOptionsOverrides(contextOptions);

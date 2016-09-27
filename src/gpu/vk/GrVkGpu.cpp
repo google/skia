@@ -380,10 +380,6 @@ void GrVkGpu::resolveImage(GrVkRenderTarget* dst, GrVkRenderTarget* src, const S
     SkASSERT(dst);
     SkASSERT(src && src->numColorSamples() > 1 && src->msaaImage());
 
-#if defined(SK_BUILD_FOR_WIN)
-    this->submitCommandBuffer(GrVkGpu::kSkip_SyncQueue);
-#endif
-
     // Flip rect if necessary
     SkIRect srcVkRect = srcRect;
     int32_t dstY = dstPoint.fY;
@@ -846,10 +842,6 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) {
         !caps.mipMapSupport()) {
         return;
     }
-
-#if defined(SK_BUILD_FOR_WIN)
-    this->submitCommandBuffer(kSkip_SyncQueue);
-#endif
 
     // We may need to resolve the texture first if it is also a render target
     GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(tex->asRenderTarget());
@@ -1584,10 +1576,6 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
         this->copySurfaceAsResolve(dst, src, srcRect, dstPoint);
         return true;
     }
-
-#if defined(SK_BUILD_FOR_WIN)
-    this->submitCommandBuffer(GrVkGpu::kSkip_SyncQueue);
-#endif
 
     if (fCopyManager.copySurfaceAsDraw(this, dst, src, srcRect, dstPoint)) {
         return true;
