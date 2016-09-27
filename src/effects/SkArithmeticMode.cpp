@@ -30,10 +30,12 @@ public:
 
     void xfer32(SkPMColor[], const SkPMColor[], int count, const SkAlpha[]) const override;
 
+    /*
     bool onAppendStages(SkRasterPipeline* p) const override {
         p->append(&Stage, this);
         return true;
     }
+    */
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
@@ -74,6 +76,7 @@ sk_sp<SkFlattenable> SkArithmeticMode_scalar::CreateProc(SkReadBuffer& buffer) {
     return SkArithmeticMode::Make(k1, k2, k3, k4, enforcePMColor);
 }
 
+/*
 void SK_VECTORCALL SkArithmeticMode_scalar::Stage(SkRasterPipeline::Stage* st, size_t x,
                                                   Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
                                                   Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
@@ -93,6 +96,7 @@ void SK_VECTORCALL SkArithmeticMode_scalar::Stage(SkRasterPipeline::Stage* st, s
 
     st->next(x, r,g,b,a, dr,dg,db,da);
 }
+*/
 
 void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],
                                  int count, const SkAlpha aaCoverage[]) const {
