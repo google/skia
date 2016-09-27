@@ -41,6 +41,8 @@ public:
 
     void bindVertexBuffer(GrVkGpu* gpu, GrVkVertexBuffer* vbuffer) {
         VkBuffer vkBuffer = vbuffer->buffer();
+        // TODO: once vbuffer->offset() no longer always returns 0, we will need to track the offset
+        // to know if we can skip binding or not.
         if (!fBoundVertexBufferIsValid || vkBuffer != fBoundVertexBuffer) {
             VkDeviceSize offset = vbuffer->offset();
             GR_VK_CALL(gpu->vkInterface(), CmdBindVertexBuffers(fCmdBuffer,
@@ -56,6 +58,8 @@ public:
 
     void bindIndexBuffer(GrVkGpu* gpu, GrVkIndexBuffer* ibuffer) {
         VkBuffer vkBuffer = ibuffer->buffer();
+        // TODO: once ibuffer->offset() no longer always returns 0, we will need to track the offset
+        // to know if we can skip binding or not.
         if (!fBoundIndexBufferIsValid || vkBuffer != fBoundIndexBuffer) {
             GR_VK_CALL(gpu->vkInterface(), CmdBindIndexBuffer(fCmdBuffer,
                                                               vkBuffer,

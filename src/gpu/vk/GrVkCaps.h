@@ -86,6 +86,7 @@ public:
 private:
     enum VkVendor {
         kQualcomm_VkVendor = 20803,
+        kNvidia_VkVendor = 4318,
     };
 
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
