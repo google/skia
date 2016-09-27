@@ -83,8 +83,11 @@ config("default") {
         "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
       ]
 
-      # High priority to fix!
-      cflags += [ "-Wno-over-aligned" ]
+      if (is_android && target_cpu == "x86") {
+        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android.
+        # We're pretty sure it's actually 8-byte alignment.
+        cflags += [ "-Wno-over-aligned" ]
+      }
 
       cflags += [
         "-Wno-cast-align",
