@@ -43,7 +43,8 @@ sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
         if (!fontData) {
             // Once all legacy callers to portable fonts are converted, replace this with
             // SK_ABORT();
-            SkDebugf("missing %s %d\n", name, style);
+            SkDebugf("missing %s weight %d, width %d, slant %d\n",
+                     name, style.weight(), style.width(), style.slant());
             // If we called SkTypeface::CreateFromName() here we'd recurse infinitely,
             // so we reimplement its core logic here inline without the recursive aspect.
             SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
