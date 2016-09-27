@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5af63ab_a77d65ba",
+        "filename": "gm/arithmode.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-27T19:27:36Z",
+      "side": 1,
+      "message": "Ibid.",
+      "revId": "0530c88067211818f7ce7bbfc0e92f3bdebc1f2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5af63ab_87f38963",
+        "filename": "bench/XfermodeBench.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-27T19:27:36Z",
+      "side": 0,
+      "message": "Are there replacements for these benches?",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 0
+      },
+      "revId": "21112deff825f6603904e5d1882dd3c2dc4c1ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5af63ab_c79751f4",
+        "filename": "gm/aaxfermodes.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-27T19:27:36Z",
+      "side": 0,
+      "message": "... and this GM?",
+      "revId": "21112deff825f6603904e5d1882dd3c2dc4c1ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
