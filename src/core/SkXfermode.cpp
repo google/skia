@@ -1433,6 +1433,8 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkProcCoeffXfermode)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
+#if 0
+
 static Sk4f inv(const Sk4f& x) { return 1.0f - x; }
 
 // Most of these modes apply the same logic kernel to each channel.
@@ -1553,3 +1555,5 @@ bool SkProcCoeffXfermode::onAppendStages(SkRasterPipeline* p) const {
     }
     return false;
 }
+
+#endif
