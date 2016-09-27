@@ -192,7 +192,7 @@ private:
                                              outColorSecondary, proc);
     }
 
-    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override { };
+    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override { }
 
     typedef GrGLSLXferProcessor INHERITED;
 };

@@ -127,13 +127,13 @@ protected:
         SK_ABORT("unimplemented");
         return 0;
     }
-    int onCountGlyphs() const override { return 0; };
-    int onGetUPEM() const override { return 0; };
+    int onCountGlyphs() const override { return 0; }
+    int onGetUPEM() const override { return 0; }
     void onGetFamilyName(SkString* familyName) const override { familyName->reset(); }
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
         SK_ABORT("unimplemented");
         return nullptr;
-    };
+    }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override { return 0; }
 };

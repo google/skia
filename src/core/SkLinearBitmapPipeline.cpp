@@ -413,7 +413,7 @@ private:
         const uint32_t* src = this->pixelAddress(x, y);
         SkOpts::srcover_srgb_srgb(fDest, src, 1, 1);
         fDest += 1;
-    };
+    }
 
     const uint32_t* const fSrc;
     const int32_t         fWidth;

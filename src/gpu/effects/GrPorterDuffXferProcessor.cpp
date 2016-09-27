@@ -439,7 +439,7 @@ public:
         b->add32(xp.getBlendFormula().fPrimaryOutputType |
                  (xp.getBlendFormula().fSecondaryOutputType << 3));
         GR_STATIC_ASSERT(BlendFormula::kLast_OutputType < 8);
-    };
+    }
 
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
@@ -641,7 +641,7 @@ private:
                                  args.fInputCoverage);
     }
 
-    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {};
+    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
     typedef GrGLSLXferProcessor INHERITED;
 };

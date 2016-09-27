@@ -18,14 +18,14 @@
 // that can be set and checked.
 class A {
 public:
-    A() {};
+    A() {}
     virtual void setValues(int v) {
         fChar = static_cast<char>(v);
     }
     virtual bool checkValues(int v) {
         return fChar == static_cast<char>(v);
     }
-    virtual ~A() {};
+    virtual ~A() {}
 
     void* operator new(size_t size) {
         if (!gPool.get()) {
@@ -63,7 +63,7 @@ SkAutoTDelete<GrMemoryPool> A::gPool;
 
 class B : public A {
 public:
-    B() {};
+    B() {}
     virtual void setValues(int v) {
         fDouble = static_cast<double>(v);
         this->INHERITED::setValues(v);
@@ -72,7 +72,7 @@ public:
         return fDouble == static_cast<double>(v) &&
                this->INHERITED::checkValues(v);
     }
-    virtual ~B() {};
+    virtual ~B() {}
 
 private:
     double fDouble;
@@ -82,7 +82,7 @@ private:
 
 class C : public A {
 public:
-    C() {};
+    C() {}
     virtual void setValues(int v) {
         fInt64 = static_cast<int64_t>(v);
         this->INHERITED::setValues(v);
@@ -91,7 +91,7 @@ public:
         return fInt64 == static_cast<int64_t>(v) &&
                this->INHERITED::checkValues(v);
     }
-    virtual ~C() {};
+    virtual ~C() {}
 
 private:
     int64_t fInt64;

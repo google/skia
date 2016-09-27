@@ -101,7 +101,7 @@ public:
     }
     ~Optional() { if (fPtr) fPtr->~T(); }
 
-    ACT_AS_PTR(fPtr);
+    ACT_AS_PTR(fPtr)
 private:
     T* fPtr;
 };
@@ -118,7 +118,7 @@ public:
     }
     ~Adopted() { if (fPtr) fPtr->~T(); }
 
-    ACT_AS_PTR(fPtr);
+    ACT_AS_PTR(fPtr)
 private:
     T* fPtr;
 };
@@ -131,7 +131,7 @@ public:
     PODArray(T* ptr) : fPtr(ptr) {}
     // Default copy and assign.
 
-    ACT_AS_PTR(fPtr);
+    ACT_AS_PTR(fPtr)
 private:
     T* fPtr;
 };
