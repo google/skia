@@ -9,29 +9,21 @@
 
 SkRasterPipeline::SkRasterPipeline() {}
 
-void SkRasterPipeline::append(SkRasterPipeline::Fn body_fn, const void* body_ctx,
-                              SkRasterPipeline::Fn tail_fn, const void* tail_ctx) {
+void SkRasterPipeline::append(SkRasterPipeline::Fn fn, const void* ctx) {
     // Each stage holds its own context and the next function to call.
     // So the pipeline itself has to hold onto the first function that starts the pipeline.
-    (fBody.empty() ? fBodyStart : fBody.back().fNext) = body_fn;
-    (fTail.empty() ? fTailStart : fTail.back().fNext) = tail_fn;
+    (fStages.empty() ? fStart : fStages.back().fNext) = fn;
 
     // Each last stage starts with its next function set to JustReturn as a safety net.
     // It'll be overwritten by the next call to append().
-    fBody.push_back({ &JustReturn, const_cast<void*>(body_ctx) });
-    fTail.push_back({ &JustReturn, const_cast<void*>(tail_ctx) });
+    fStages.push_back({ &JustReturn, const_cast<void*>(ctx) });
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
-    SkASSERT(src.fBody.count() == src.fTail.count());
-
-    Fn body_fn = src.fBodyStart,
-       tail_fn = src.fTailStart;
-    for (int i = 0; i < src.fBody.count(); i++) {
-        this->append(body_fn, src.fBody[i].fCtx,
-                     tail_fn, src.fTail[i].fCtx);
-        body_fn = src.fBody[i].fNext;
-        tail_fn = src.fTail[i].fNext;
+    Fn fn = src.fStart;
+    for (int i = 0; i < src.fStages.count(); i++) {
+        this->append(fn, src.fStages[i].fCtx);
+        fn = src.fStages[i].fNext;
     }
 }
 
@@ -40,16 +32,14 @@ void SkRasterPipeline::run(size_t x, size_t n) {
     Sk4f v;
 
     while (n >= 4) {
-        fBodyStart(fBody.begin(), x, v,v,v,v, v,v,v,v);
+        fStart(fStages.begin(), x,0, v,v,v,v, v,v,v,v);
         x += 4;
         n -= 4;
     }
-    while (n > 0) {
-        fTailStart(fTail.begin(), x, v,v,v,v, v,v,v,v);
-        x += 1;
-        n -= 1;
+    if (n > 0) {
+        fStart(fStages.begin(), x,n, v,v,v,v, v,v,v,v);
     }
 }
 
-void SK_VECTORCALL SkRasterPipeline::JustReturn(Stage*, size_t, Sk4f,Sk4f,Sk4f,Sk4f,
-                                                                Sk4f,Sk4f,Sk4f,Sk4f) {}
+void SK_VECTORCALL SkRasterPipeline::JustReturn(Stage*, size_t, size_t, Sk4f,Sk4f,Sk4f,Sk4f,
+                                                                        Sk4f,Sk4f,Sk4f,Sk4f) {}
