@@ -72,8 +72,10 @@ int SkTestFont::codeToIndex(SkUnichar charCode) const {
             return (int) index;
         }
     }
-    SkDEBUGF(("missing '%c' (%d) from %s %d\n", (char) charCode, charCode,
-            fDebugName, fDebugStyle));
+
+    SkDEBUGF(("missing '%c' (%d) from %s (weight %d, width %d, slant %d)\n",
+              (char) charCode, charCode, fDebugName,
+              fDebugStyle.weight(), fDebugStyle.width(), fDebugStyle.slant()));
     return 0;
 }
 
