@@ -174,7 +174,7 @@ public:
         p.append<   scale_u8,    scale_u8_tail>(mask);
         p.append<load_d_srgb, load_d_srgb_tail>( dst);
         p.append<srcover>();
-        p.append< store_srgb,  store_srgb_tail>( dst);
+        p.last< store_srgb,  store_srgb_tail>( dst);
 
         p.run(N);
     }
