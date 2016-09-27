@@ -19,7 +19,7 @@ class SkCanvas;
 class SkMatrix;
 class SkPath;
 
-//#define GR_AA_CONVEX_TESSELLATOR_VIZ 1
+#define GR_AA_CONVEX_TESSELLATOR_VIZ 1
 
 // device space distance which we inset / outset points in order to create the soft antialiased edge
 static const SkScalar kAntialiasingRadius = 0.5f;
@@ -50,6 +50,58 @@ public:
     // The next five should only be called after tessellate to extract the result
     int numPts() const { return fPts.count(); }
     int numIndices() const { return fIndices.count(); }
+
+    //-------------
+    int numOutsetPts() const { return fOutsetPts.count(); }
+    void addOutsetPt(const SkPoint& p, int index) {
+        SkVector n;
+        if (fOutsetPts.count() > 0) {
+            n = p - fOutsetPts.top();
+            SkDEBUGCODE(SkScalar len =) SkPoint::Normalize(&n);
+            SkASSERT(len > 0.0f);
+            SkASSERT(SkScalarNearlyEqual(1.0f, n.length()));
+        } else {
+            n.set(0.0f, 0.0f);
+        }
+
+        *fOutsetPts.push() = p;
+        *fMap.push() = baz(index);
+        *fOutsetNorms.push() = n;
+    }
+    const SkPoint& lastOutsetPt() const { return fOutsetPts.top(); }
+
+    void fuse(int disappearingId, int stayingId) {
+        for (int i = fMap.count()-1; i >= 0; --i) {
+            if (fMap[i].f1 == disappearingId) {
+                fMap[i].f1 = stayingId;
+            } else {
+                break;
+            }
+        }
+    }
+    void rmLinearPt(int disapearingPt, int firstEndPt, int secondEndPt) {
+    
+    }
+
+    class baz {
+    public:
+        baz(int i1) : f1(i1), f2(-1) {}
+        int f1;
+        int f2;
+    };
+
+    SkTDArray<baz>        fMap;
+    SkTDArray<SkPoint>    fOutsetPts;
+    SkTDArray<SkVector>   fOutsetNorms;
+    void validate2() {
+        SkASSERT(fMap.count() == fOutsetPts.count());
+        for (int i = 0; i < fMap.count(); ++i) {
+            SkASSERT(fMap[i].f1 < fPts.count());
+            SkASSERT(fMap[i].f2 < fPts.count());
+        }
+    }
+
+    //-------------
 
     const SkPoint& lastPoint() const { return fPts.top(); }
     const SkPoint& point(int index) const { return fPts[index]; }
@@ -257,7 +309,7 @@ private:
     SkTDArray<CurveState> fCurveState;
 
     // The outward facing normals for the original polygon
-    SkTDArray<SkVector>   fNorms;
+    SkTDArray<SkVector>   fNorms1;
     // The inward facing bisector at each point in the original polygon. Only
     // needed for exterior ring creation and then handed off to the initial ring.
     SkTDArray<SkVector>   fBisectors;

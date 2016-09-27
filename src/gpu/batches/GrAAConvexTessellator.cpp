@@ -59,6 +59,12 @@ static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
     return distSq < kCloseSqd;
 }
 
+static bool is_duplicate_outset_pt(const SkPoint& p0, const SkPoint& p1) {
+    SkScalar distSq = p0.distanceToSqd(p1);
+    return SkScalarNearlyZero(distSq, SK_ScalarNearlyZero*SK_ScalarNearlyZero);
+
+}
+
 static SkScalar abs_dist_from_line(const SkPoint& p0, const SkVector& v, const SkPoint& test) {
     SkPoint testV = test - p0;
     SkScalar dist = testV.fX * v.fY - testV.fY * v.fX;
@@ -130,7 +136,7 @@ void GrAAConvexTessellator::rewind() {
     fCoverages.rewind();
     fMovable.rewind();
     fIndices.rewind();
-    fNorms.rewind();
+    fNorms1.rewind();
     fCurveState.rewind();
     fInitialRing.rewind();
     fCandidateVerts.rewind();
@@ -143,16 +149,16 @@ void GrAAConvexTessellator::rewind() {
 }
 
 void GrAAConvexTessellator::computeBisectors() {
-    fBisectors.setCount(fNorms.count());
+    fBisectors.setCount(fNorms1.count());
 
     int prev = fBisectors.count() - 1;
     for (int cur = 0; cur < fBisectors.count(); prev = cur, ++cur) {
-        fBisectors[cur] = fNorms[cur] + fNorms[prev];
+        fBisectors[cur] = fNorms1[cur] + fNorms1[prev];
         if (!fBisectors[cur].normalize()) {
             SkASSERT(SkPoint::kLeft_Side == fSide || SkPoint::kRight_Side == fSide);
-            fBisectors[cur].setOrthog(fNorms[cur], (SkPoint::Side)-fSide);
+            fBisectors[cur].setOrthog(fNorms1[cur], (SkPoint::Side)-fSide);
             SkVector other;
-            other.setOrthog(fNorms[prev], fSide);
+            other.setOrthog(fNorms1[prev], fSide);
             fBisectors[cur] += other;
             SkAssertResult(fBisectors[cur].normalize());
         } else {
@@ -162,7 +168,7 @@ void GrAAConvexTessellator::computeBisectors() {
             if (fCurveState[cur] == kSharp_CurveState) {
                 fCurveState[prev] = kSharp_CurveState;
             } else {
-                if (SkScalarAbs(fNorms[cur].dot(fNorms[prev])) > kCurveConnectionThreshold) {
+                if (SkScalarAbs(fNorms1[cur].dot(fNorms1[prev])) > kCurveConnectionThreshold) {
                     fCurveState[prev] = kCurve_CurveState;
                     fCurveState[cur]  = kCurve_CurveState;
                 } else {
@@ -246,10 +252,10 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
 
         // Add the outer stroke ring's normals to the originating ring's normals
         // so it can also act as an originating ring
-        fNorms.setCount(fNorms.count() + outerStrokeAndAARing.numPts());
+        fNorms1.setCount(fNorms1.count() + outerStrokeAndAARing.numPts());
         for (int i = 0; i < outerStrokeAndAARing.numPts(); ++i) {
-            SkASSERT(outerStrokeAndAARing.index(i) < fNorms.count());
-            fNorms[outerStrokeAndAARing.index(i)] = outerStrokeAndAARing.norm(i);
+            SkASSERT(outerStrokeAndAARing.index(i) < fNorms1.count());
+            fNorms1[outerStrokeAndAARing.index(i)] = outerStrokeAndAARing.norm(i);
         }
 
         // the bisectors are only needed for the computation of the outer ring
@@ -303,11 +309,19 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
 }
 
 SkScalar GrAAConvexTessellator::computeDepthFromEdge(int edgeIdx, const SkPoint& p) const {
-    SkASSERT(edgeIdx < fNorms.count());
+    SkASSERT(edgeIdx < fNorms1.count());
 
     SkPoint v = p - fPts[edgeIdx];
-    SkScalar depth = -fNorms[edgeIdx].dot(v);
+    SkScalar depth = -fNorms1[edgeIdx].dot(v);
     return depth;
+}
+
+static SkVector compute_normal(const SkVector& p0, const SkVector& p1) {
+    SkVector n = p0 - p1;
+    SkDEBUGCODE(SkScalar len =) SkPoint::Normalize(&n);
+    SkASSERT(len > 0.0f);
+    SkASSERT(SkScalarNearlyEqual(1.0f, n.length()));
+    return n;
 }
 
 // Find a point that is 'desiredDepth' away from the 'edgeIdx'-th edge and lies
@@ -317,7 +331,7 @@ bool GrAAConvexTessellator::computePtAlongBisector(int startIdx,
                                                    int edgeIdx,
                                                    SkScalar desiredDepth,
                                                    SkPoint* result) const {
-    const SkPoint& norm = fNorms[edgeIdx];
+    const SkPoint& norm = fNorms1[edgeIdx];
 
     // First find the point where the edge and the bisector intersect
     SkPoint newP;
@@ -357,7 +371,7 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     // Presumptive inner ring: 6*numPts + 6
     fIndices.setReserve(18*path.countPoints() + 6);
 
-    fNorms.setReserve(path.countPoints());
+    fNorms1.setReserve(path.countPoints());
 
     // TODO: is there a faster way to extract the points from the path? Perhaps
     // get all the points via a new entry point, transform them all in bulk
@@ -386,43 +400,50 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
         }
     }
 
+    // This isn't quite right for stroking
     if (this->numPts() < 2) {
         return false;
+    }
+
+    if (is_duplicate_outset_pt(fOutsetPts.top(), fOutsetPts[0])) {
+        fOutsetPts.pop();
+        fOutsetNorms.pop();
+        fMap.pop();
     }
 
     // check if last point is a duplicate of the first point. If so, remove it.
     if (duplicate_pt(fPts[this->numPts()-1], fPts[0])) {
         this->popLastPt();
-        fNorms.pop();
+        fNorms1.pop();
+        this->fuse(this->numPts(), 0);
     }
 
-    SkASSERT(fPts.count() == fNorms.count()+1);
+    SkASSERT(fPts.count() == fNorms1.count()+1);
     if (this->numPts() >= 3) {
-        if (abs_dist_from_line(fPts.top(), fNorms.top(), fPts[0]) < kClose) {
+        if (abs_dist_from_line(fPts.top(), fNorms1.top(), fPts[0]) < kClose) {
             // The last point is on the line from the second to last to the first point.
             this->popLastPt();
-            fNorms.pop();
+            fNorms1.pop();
+            this->rmLinearPt(this->numPts(), this->numPts()-1, 0);
         }
 
-        *fNorms.push() = fPts[0] - fPts.top();
-        SkDEBUGCODE(SkScalar len =) SkPoint::Normalize(&fNorms.top());
-        SkASSERT(len > 0.0f);
-        SkASSERT(fPts.count() == fNorms.count());
+        *fNorms1.push() = compute_normal(fPts[0], fPts.top());
+        SkASSERT(fPts.count() == fNorms1.count());
     }
 
-    if (this->numPts() >= 3 && abs_dist_from_line(fPts[0], fNorms.top(), fPts[1]) < kClose) {
+    if (this->numPts() >= 3 && abs_dist_from_line(fPts[0], fNorms1.top(), fPts[1]) < kClose) {
         // The first point is on the line from the last to the second.
         this->popFirstPtShuffle();
-        fNorms.removeShuffle(0);
-        fNorms[0] = fPts[1] - fPts[0];
-        SkDEBUGCODE(SkScalar len =) SkPoint::Normalize(&fNorms[0]);
-        SkASSERT(len > 0.0f);
-        SkASSERT(SkScalarNearlyEqual(1.0f, fNorms[0].length()));
+        this->rmLinearPt(0, this->numPts(), 1);
+        fNorms1.removeShuffle(0);
+        fNorms1[0] = compute_normal(fPts[1], fPts[0]);
     }
+
+    fOutsetNorms[0] = compute_normal(fOutsetPts[0], fOutsetPts.top());
 
     if (this->numPts() >= 3) {
         // Check the cross product of the final trio
-        SkScalar cross = SkPoint::CrossProduct(fNorms[0], fNorms.top());
+        SkScalar cross = SkPoint::CrossProduct(fNorms1[0], fNorms1.top());
         if (cross > 0.0f) {
             fSide = SkPoint::kRight_Side;
         } else {
@@ -430,12 +451,17 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
         }
 
         // Make all the normals face outwards rather than along the edge
-        for (int cur = 0; cur < fNorms.count(); ++cur) {
-            fNorms[cur].setOrthog(fNorms[cur], fSide);
-            SkASSERT(SkScalarNearlyEqual(1.0f, fNorms[cur].length()));
+        for (int cur = 0; cur < fNorms1.count(); ++cur) {
+            fNorms1[cur].setOrthog(fNorms1[cur], fSide);
+            SkASSERT(SkScalarNearlyEqual(1.0f, fNorms1[cur].length()));
         }
 
         this->computeBisectors();
+
+        for (int i = 0; i < fOutsetNorms.count(); ++i) {
+            fOutsetNorms[i].setOrthog(fOutsetNorms[i], fSide);
+        }
+
     } else if (this->numPts() == 2) {
         // We've got two points, so we're degenerate.
         if (fStyle == SkStrokeRec::kFill_Style) {
@@ -446,15 +472,19 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
         fSide = SkPoint::kLeft_Side;
 
         // Make all the normals face outwards rather than along the edge
-        for (int cur = 0; cur < fNorms.count(); ++cur) {
-            fNorms[cur].setOrthog(fNorms[cur], fSide);
-            SkASSERT(SkScalarNearlyEqual(1.0f, fNorms[cur].length()));
+        for (int cur = 0; cur < fNorms1.count(); ++cur) {
+            fNorms1[cur].setOrthog(fNorms1[cur], fSide);
+            SkASSERT(SkScalarNearlyEqual(1.0f, fNorms1[cur].length()));
         }
 
-        fNorms.push(SkPoint::Make(-fNorms[0].fX, -fNorms[0].fY));
+        fNorms1.push(SkPoint::Make(-fNorms1[0].fX, -fNorms1[0].fY));
         // we won't actually use the bisectors, so just push zeroes
         fBisectors.push(SkPoint::Make(0.0, 0.0));
         fBisectors.push(SkPoint::Make(0.0, 0.0));
+
+        for (int i = 0; i < fOutsetNorms.count(); ++i) {
+            fOutsetNorms[i].setOrthog(fOutsetNorms[i], fSide);
+        }
     } else {
         return false;
     }
@@ -464,7 +494,7 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     for (int i = 0; i < this->numPts(); ++i) {
         fInitialRing.addIdx(i, i);
     }
-    fInitialRing.init(fNorms, fBisectors);
+    fInitialRing.init(fNorms1, fBisectors);
 
     this->validate();
     return true;
@@ -815,7 +845,7 @@ void GrAAConvexTessellator::validate() const {
     SkASSERT(fPts.count() == fCoverages.count());
     SkASSERT(fPts.count() == fCurveState.count());
     SkASSERT(0 == (fIndices.count() % 3));
-    SkASSERT(!fBisectors.count() || fBisectors.count() == fNorms.count());
+    SkASSERT(!fBisectors.count() || fBisectors.count() == fNorms1.count());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -898,30 +928,43 @@ bool GrAAConvexTessellator::Ring::isConvex(const GrAAConvexTessellator& tess) co
 #endif
 
 void GrAAConvexTessellator::lineTo(const SkPoint& p, CurveState curve) {
-    if (this->numPts() > 0 && duplicate_pt(p, this->lastPoint())) {
+    if (this->numOutsetPts() > 0 && is_duplicate_outset_pt(p, this->lastOutsetPt())) {
+        // If it is a duplicate outset point it is definitely an duplicate inset point
         return;
     }
 
-    SkASSERT(fPts.count() <= 1 || fPts.count() == fNorms.count()+1);
-    if (this->numPts() >= 2 && abs_dist_from_line(fPts.top(), fNorms.top(), p) < kClose) {
+    SkScalar initialRingCoverage = (SkStrokeRec::kFill_Style == fStyle) ? 0.5f : 1.0f;
+    const int origMapGuess = this->numPts();
+    this->addOutsetPt(p, origMapGuess); //, 0.0f, initialRingCoverage, false, curve);
+
+    if (this->numPts() > 0 && duplicate_pt(p, this->lastPoint())) {
+        // The new outer point maps back to the last inner point
+        this->fuse(origMapGuess, this->numPts()-1);
+        return;
+    }
+
+    SkASSERT(fPts.count() <= 1 || fPts.count() == fNorms1.count()+1);
+    if (this->numPts() >= 2 && abs_dist_from_line(fPts.top(), fNorms1.top(), p) < kClose) {
         // The old last point is on the line from the second to last to the new point
         this->popLastPt();
-        fNorms.pop();
+        fNorms1.pop();
         // double-check that the new last point is not a duplicate of the new point. In an ideal
         // world this wouldn't be necessary (since it's only possible for non-convex paths), but
         // floating point precision issues mean it can actually happen on paths that were
         // determined to be convex.
         if (duplicate_pt(p, this->lastPoint())) {
+            // The new outer point maps back to the last inner point
+            this->fuse(origMapGuess, this->numPts()-1);
             return;
+        } else {
+            // What to do here? It should actually map to two points and emit a triangle.
+            //this->fix(this->numPts(), this->numPts()-1, this->numPts());
+            this->rmLinearPt(this->numPts(), this->numPts(), this->numPts()-1);
         }
     }
-    SkScalar initialRingCoverage = (SkStrokeRec::kFill_Style == fStyle) ? 0.5f : 1.0f;
     this->addPt(p, 0.0f, initialRingCoverage, false, curve);
     if (this->numPts() > 1) {
-        *fNorms.push() = fPts.top() - fPts[fPts.count()-2];
-        SkDEBUGCODE(SkScalar len =) SkPoint::Normalize(&fNorms.top());
-        SkASSERT(len > 0.0f);
-        SkASSERT(SkScalarNearlyEqual(1.0f, fNorms.top().length()));
+        *fNorms1.push() = compute_normal(fPts.top(), fPts[fPts.count()-2]);
     }
 }
 
@@ -984,27 +1027,17 @@ void GrAAConvexTessellator::conicTo(const SkMatrix& m, SkPoint pts[3], SkScalar 
 
 //////////////////////////////////////////////////////////////////////////////
 #if GR_AA_CONVEX_TESSELLATOR_VIZ
-static const SkScalar kPointRadius = 0.02f;
+static const SkScalar kPointRadius = 2.0f;
 static const SkScalar kArrowStrokeWidth = 0.0f;
 static const SkScalar kArrowLength = 0.2f;
 static const SkScalar kEdgeTextSize = 0.1f;
 static const SkScalar kPointTextSize = 0.02f;
 
-static void draw_point(SkCanvas* canvas, const SkPoint& p, SkScalar paramValue, bool stroke) {
+static void draw_point(SkCanvas* canvas, const SkPoint& p, SkColor color) {
     SkPaint paint;
-    SkASSERT(paramValue <= 1.0f);
-    int gs = int(255*paramValue);
-    paint.setARGB(255, gs, gs, gs);
+    paint.setColor(color);
 
     canvas->drawCircle(p.fX, p.fY, kPointRadius, paint);
-
-    if (stroke) {
-        SkPaint stroke;
-        stroke.setColor(SK_ColorYELLOW);
-        stroke.setStyle(SkPaint::kStroke_Style);
-        stroke.setStrokeWidth(kPointRadius/3.0f);
-        canvas->drawCircle(p.fX, p.fY, kPointRadius, stroke);
-    }
 }
 
 static void draw_line(SkCanvas* canvas, const SkPoint& p0, const SkPoint& p1, SkColor color) {
@@ -1081,22 +1114,25 @@ void GrAAConvexTessellator::draw(SkCanvas* canvas) const {
     }
 
     for (int i = 0; i < this->numPts(); ++i) {
-        draw_point(canvas,
-                   this->point(i), 0.5f + (this->depth(i)/(2 * kAntialiasingRadius)),
-                   !this->movable(i));
+        draw_point(canvas, this->point(i), SK_ColorRED);
 
         SkPaint paint;
         paint.setTextSize(kPointTextSize);
         paint.setTextAlign(SkPaint::kCenter_Align);
-        if (this->depth(i) <= -kAntialiasingRadius) {
-            paint.setColor(SK_ColorWHITE);
-        }
 
         SkString num;
         num.printf("%d", i);
         canvas->drawText(num.c_str(), num.size(),
-                         this->point(i).fX, this->point(i).fY+(kPointRadius/2.0f),
+                         this->point(i).fX,
+                         this->point(i).fY+(kPointRadius/2.0f),
                          paint);
+    }
+
+    for (int i = 0; i < fOutsetPts.count(); ++i) {
+        SkPoint pt = fOutsetPts[i];
+        pt.fX += fStrokeWidth * fOutsetNorms[i].fX;
+        pt.fY += fStrokeWidth * fOutsetNorms[i].fY;
+        draw_point(canvas, pt, SK_ColorMAGENTA);
     }
 }
 
