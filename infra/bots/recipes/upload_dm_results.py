@@ -28,8 +28,17 @@ VERBOSE_LOG = 'verbose.log'
 def RunSteps(api):
   builder_name = api.properties['buildername']
   revision = api.properties['revision']
-  issue = str(api.properties.get('issue', ''))
-  patchset = str(api.properties.get('patchset', ''))
+
+  patch_storage = api.properties.get('patch_storage', 'rietveld')
+  issue = None
+  patchset = None
+  if builder_name.endswith('-Trybot'):
+    if patch_storage == 'gerrit':
+      issue = str(api.properties['event.change.number'])
+      patchset = str(api.properties['event.patchSet.ref'].split('/')[-1])
+    else:
+      issue = str(api.properties['issue'])
+      patchset = str(api.properties['patchset'])
 
   results_dir = api.path['cwd'].join('dm')
 
@@ -103,4 +112,19 @@ def GenTests(api):
                    path_config='kitchen',
                    issue='12345',
                    patchset='1002')
+  )
+
+  gerrit_kwargs = {
+    'patch_storage': 'gerrit',
+    'repository': 'skia',
+    'event.patchSet.ref': 'refs/changes/00/2100/2',
+    'event.change.number': '2100',
+  }
+  yield (
+      api.test('recipe_with_gerrit_patch') +
+      api.properties(
+          buildername=builder,
+          revision='abc123',
+          path_config='kitchen',
+          **gerrit_kwargs)
   )
