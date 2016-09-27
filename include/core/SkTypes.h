@@ -332,45 +332,20 @@ template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
     #define SK_END_REQUIRE_DENSE
 #endif
 
-template <int N, typename T>
-struct SkAlign_traits {
-    static_assert (N > 0 && (N & (N-1)) == 0, "N must be a positive power of 2.");
-    constexpr static int Lg(int k) { return (k == 1) ? 0 : 1 + Lg(k/2); }
+#define SkAlign2(x)     (((x) + 1) >> 1 << 1)
+#define SkIsAlign2(x)   (0 == ((x) & 1))
 
-    constexpr static T Align(T x) { return (x + N-1) >> Lg(N) << Lg(N); }
-    constexpr static bool IsAligned(T x) { return 0 == (x & (N-1)); }
-};
+#define SkAlign4(x)     (((x) + 3) >> 2 << 2)
+#define SkIsAlign4(x)   (0 == ((x) & 3))
 
-template <int N, typename P>
-struct SkAlign_traits<N, P*> {
-    constexpr static P* Align(P* p) {
-        return (P*)SkAlign_traits<N, uintptr_t>::Align((uintptr_t)p);
-    }
-    constexpr static bool IsAligned(P* p) {
-        return SkAlign_traits<N, uintptr_t>::IsAligned((uintptr_t)p);
-    }
-};
+#define SkAlign8(x)     (((x) + 7) >> 3 << 3)
+#define SkIsAlign8(x)   (0 == ((x) & 7))
 
-template <int N, typename T>
-constexpr static inline T SkAlign(T x) { return SkAlign_traits<N,T>::Align(x); }
+#define SkAlign16(x)     (((x) + 15) >> 4 << 4)
+#define SkIsAlign16(x)   (0 == ((x) & 15))
 
-template <int N, typename T>
-constexpr static bool SkIsAligned(T x) { return SkAlign_traits<N,T>::IsAligned(x); }
-
-#define SkAlign2(x)     SkAlign<2>(x)
-#define SkIsAlign2(x)   SkIsAligned<2>(x)
-
-#define SkAlign4(x)     SkAlign<4>(x)
-#define SkIsAlign4(x)   SkIsAligned<4>(x)
-
-#define SkAlign8(x)     SkAlign<8>(x)
-#define SkIsAlign8(x)   SkIsAligned<8>(x)
-
-#define SkAlign16(x)     SkAlign<16>(x)
-#define SkIsAlign16(x)   SkIsAligned<16>(x)
-
-#define SkAlignPtr(x)   SkAlign<sizeof(void*)>(x)
-#define SkIsAlignPtr(x) SkIsAligned<sizeof(void*)>(x)
+#define SkAlignPtr(x)   (sizeof(void*) == 8 ?   SkAlign8(x) :   SkAlign4(x))
+#define SkIsAlignPtr(x) (sizeof(void*) == 8 ? SkIsAlign8(x) : SkIsAlign4(x))
 
 typedef uint32_t SkFourByteTag;
 #define SkSetFourByteTag(a, b, c, d)    (((a) << 24) | ((b) << 16) | ((c) << 8) | (d))

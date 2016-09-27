@@ -679,21 +679,3 @@ DEF_TEST(divmod_s32, r) {
 DEF_TEST(divmod_s64, r) {
     test_divmod<int64_t>(r);
 }
-
-DEF_TEST(SkAlign, r) {
-    int x = 6;
-    REPORTER_ASSERT(r,  SkIsAlign2(x));
-    REPORTER_ASSERT(r, !SkIsAlign4(x));
-    x = SkAlign4(x);
-    REPORTER_ASSERT(r,  SkIsAlign2(x));
-    REPORTER_ASSERT(r,  SkIsAlign4(x));
-
-    auto p = (char*)&x;
-    REPORTER_ASSERT(r,  SkIsAlign2(p));
-    REPORTER_ASSERT(r,  SkIsAlign4(p));
-    p += 2;
-    REPORTER_ASSERT(r,  SkIsAlign2(p));
-    REPORTER_ASSERT(r, !SkIsAlign4(p));
-    p = SkAlign4(p);
-    REPORTER_ASSERT(r, p == (char*)(&x+1));
-}
