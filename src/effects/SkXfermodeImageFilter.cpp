@@ -401,9 +401,9 @@ template<bool EnforcePMColor> void arith_transparent(const float k[], SkPMColor 
     }
 }
 
-static bool intersect(SkPixmap* dst, SkPixmap* src, SkIPoint srcOffset) {
+static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy) {
     SkIRect dstR = SkIRect::MakeWH(dst->width(), dst->height());
-    SkIRect srcR = SkIRect::MakeXYWH(srcOffset.x(), srcOffset.y(), src->width(), src->height());
+    SkIRect srcR = SkIRect::MakeXYWH(srcDx, srcDy, src->width(), src->height());
     SkIRect sect;
     if (!sect.intersect(dstR, srcR)) {
         return false;
@@ -412,7 +412,7 @@ static bool intersect(SkPixmap* dst, SkPixmap* src, SkIPoint srcOffset) {
                     dst->addr(sect.fLeft, sect.fTop),
                     dst->rowBytes());
     *src = SkPixmap(src->info().makeWH(sect.width(), sect.height()),
-                    src->addr(SkTMax(0, -srcOffset.x()), SkTMax(0, -srcOffset.y())),
+                    src->addr(SkTMax(0, -srcDx), SkTMax(0, -srcDy)),
                     src->rowBytes());
     return true;
 }
@@ -423,6 +423,11 @@ void SkArithmeticImageFilter::drawForeground(SkCanvas* canvas, SkSpecialImage* i
     if (!canvas->peekPixels(&dst)) {
         return;
     }
+
+    const SkMatrix& ctm = canvas->getTotalMatrix();
+    SkASSERT(ctm.getType() <= SkMatrix::kTranslate_Mask);
+    const int dx = SkScalarRoundToInt(ctm.getTranslateX());
+    const int dy = SkScalarRoundToInt(ctm.getTranslateY());
 
     if (img) {
         SkBitmap srcBM;
@@ -436,14 +441,8 @@ void SkArithmeticImageFilter::drawForeground(SkCanvas* canvas, SkSpecialImage* i
         }
 
         auto proc = fEnforcePMColor ? arith_span<true> : arith_span<false>;
-        const SkMatrix& ctm = canvas->getTotalMatrix();
-        SkASSERT(ctm.getType() <= SkMatrix::kTranslate_Mask);
-        SkIPoint offset {
-            fgBounds.fLeft + SkScalarRoundToInt(ctm.getTranslateX()),
-            fgBounds.fTop  + SkScalarRoundToInt(ctm.getTranslateY()),
-        };
         SkPixmap tmpDst = dst;
-        if (intersect(&tmpDst, &src, offset)) {
+        if (intersect(&tmpDst, &src, fgBounds.fLeft + dx, fgBounds.fTop + dy)) {
             for (int y = 0; y < tmpDst.height(); ++y) {
                 proc(fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), tmpDst.width());
             }
@@ -452,7 +451,7 @@ void SkArithmeticImageFilter::drawForeground(SkCanvas* canvas, SkSpecialImage* i
 
     // Now apply the mode with transparent-color to the outside of the fg image
     SkRegion outside(SkIRect::MakeWH(dst.width(), dst.height()));
-    outside.op(fgBounds, SkRegion::kDifference_Op);
+    outside.op(fgBounds.makeOffset(dx, dy), SkRegion::kDifference_Op);
     auto proc = fEnforcePMColor ? arith_transparent<true> : arith_transparent<false>;
     for (SkRegion::Iterator iter(outside); !iter.done(); iter.next()) {
         const SkIRect r = iter.rect();
