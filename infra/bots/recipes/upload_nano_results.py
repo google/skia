@@ -18,8 +18,8 @@ DEPS = [
 def RunSteps(api):
   # Upload the nanobench resuls.
   builder_name = api.properties['buildername']
-  issue = str(api.properties.get('issue'))
-  patchset = str(api.properties.get('patchset'))
+  issue = str(api.properties.get('issue', ''))
+  patchset = str(api.properties.get('patchset', ''))
 
   now = api.time.utcnow()
 

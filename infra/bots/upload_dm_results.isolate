@@ -1,0 +1,10 @@
+{
+  'includes': [
+    'swarm_recipe.isolate',
+  ],
+  'variables': {
+    'files': [
+      '../../../.gclient',
+    ],
+  },
+}
