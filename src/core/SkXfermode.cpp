@@ -1553,3 +1553,45 @@ bool SkProcCoeffXfermode::onAppendStages(SkRasterPipeline* p) const {
     }
     return false;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode mode) {
+    switch (mode) {
+        case SkBlendMode::kDst:
+        case SkBlendMode::kSrcOver:
+        case SkBlendMode::kDstOver:
+        case SkBlendMode::kDstOut:
+        case SkBlendMode::kSrcATop:
+        case SkBlendMode::kXor:
+        case SkBlendMode::kPlus:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+bool SkXfermode::IsOpaque(SkBlendMode mode, SrcColorOpacity opacity) {
+#if 0 // todo
+    if (SkXfermode::kDA_Coeff == fSrcCoeff || SkXfermode::kDC_Coeff == fSrcCoeff ||
+        SkXfermode::kIDA_Coeff == fSrcCoeff || SkXfermode::kIDC_Coeff == fSrcCoeff) {
+        return false;
+    }
+
+    switch (fDstCoeff) {
+        case SkXfermode::kZero_Coeff:
+            return true;
+        case SkXfermode::kISA_Coeff:
+            return SkXfermode::kOpaque_SrcColorOpacity == opacityType;
+        case SkXfermode::kSA_Coeff:
+            return SkXfermode::kTransparentBlack_SrcColorOpacity == opacityType ||
+            SkXfermode::kTransparentAlpha_SrcColorOpacity == opacityType;
+        case SkXfermode::kSC_Coeff:
+            return SkXfermode::kTransparentBlack_SrcColorOpacity == opacityType;
+        default:
+            return false;
+    }
+#endif
+    return false;
+}

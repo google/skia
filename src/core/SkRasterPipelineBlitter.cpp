@@ -306,8 +306,8 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     }
 
     SkRasterPipeline shader, colorFilter, xfermode;
-    if (!append_effect_stages(paint.getColorFilter(), &colorFilter) ||
-        !append_effect_stages(paint.getXfermode(),    &xfermode   )) {
+    if (!append_effect_stages(paint.getColorFilter(),                 &colorFilter) ||
+        !append_effect_stages(SkXfermode::Peek(paint.getBlendMode()), &xfermode   )) {
         return nullptr;
     }
 
@@ -328,7 +328,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     if (!paint.getShader()) {
         blitter->fShader.append<constant_color>(&blitter->fPaintColor);
     }
-    if (!paint.getXfermode()) {
+    if (SkBlendMode::kSrcOver == paint.getBlendMode()) {
         blitter->fXfermode.append<srcover>();
     }
 
