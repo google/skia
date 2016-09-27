@@ -1553,3 +1553,21 @@ bool SkProcCoeffXfermode::onAppendStages(SkRasterPipeline* p) const {
     }
     return false;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode mode) {
+    switch (mode) {
+        case SkBlendMode::kDst:
+        case SkBlendMode::kSrcOver:
+        case SkBlendMode::kDstOver:
+        case SkBlendMode::kDstOut:
+        case SkBlendMode::kSrcATop:
+        case SkBlendMode::kXor:
+        case SkBlendMode::kPlus:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
