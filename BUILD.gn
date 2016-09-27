@@ -56,7 +56,7 @@ skia_public_includes = [
 config("skia_public") {
   include_dirs = skia_public_includes
   defines = [ "SKIA_DLL" ]
-  if (is_linux) {
+  if (is_fuchsia || is_linux) {
     defines += [ "SK_SAMPLES_FOR_X" ]
   }
   if (skia_enable_android_framework_defines) {
