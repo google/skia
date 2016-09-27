@@ -541,3 +541,4 @@ void memoryBarrierImage();
 void groupMemoryBarrier();
 
 )
+
