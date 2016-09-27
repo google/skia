@@ -107,7 +107,6 @@ config("default") {
         "-Wno-missing-prototypes",
         "-Wno-missing-variable-declarations",
         "-Wno-nested-anon-types",
-        "-Wno-newline-eof",
         "-Wno-pedantic",
         "-Wno-reserved-id-macro",
         "-Wno-shadow",
