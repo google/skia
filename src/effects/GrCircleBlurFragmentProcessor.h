@@ -22,7 +22,7 @@ class GrTextureProvider;
 // profile that is just rotated about the origin of the circle.
 class GrCircleBlurFragmentProcessor : public GrFragmentProcessor {
 public:
-    ~GrCircleBlurFragmentProcessor() override {};
+    ~GrCircleBlurFragmentProcessor() override {}
 
     const char* name() const override { return "CircleBlur"; }
 

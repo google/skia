@@ -30,7 +30,7 @@ public:
 
         fID = ++fNextID;
     }
-    virtual ~GrFakeRefObj() {};
+    virtual ~GrFakeRefObj() {}
 
     void ref() {
         fRef++;

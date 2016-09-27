@@ -63,7 +63,7 @@ public:
         fInWidthHeight = &this->addVertexAttrib("inWidthHeight", kVec2f_GrVertexAttribType);
     }
 
-    bool implementsDistanceVector() const override { return true; };
+    bool implementsDistanceVector() const override { return true; }
 
     const Attribute* inPosition()    const { return fInPosition; }
     const Attribute* inColor()       const { return fInColor; }

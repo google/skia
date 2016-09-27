@@ -16,7 +16,7 @@ class GrTextureObj;
 // GL emulation objects they are derived from GrFakeRefObj to provide some
 // uniformity in how the debug interface class manages resources
 class GrTextureUnitObj : public GrFakeRefObj {
-    GR_DEFINE_CREATOR(GrTextureUnitObj);
+    GR_DEFINE_CREATOR(GrTextureUnitObj)
 
 public:
     GrTextureUnitObj()

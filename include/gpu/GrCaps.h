@@ -74,7 +74,7 @@ public:
     const PrecisionInfo& getFloatShaderPrecisionInfo(GrShaderType shaderType,
                                                      GrSLPrecision precision) const {
         return fFloatPrecisions[shaderType][precision];
-    };
+    }
 
     /**
     * Is there any difference between the float shader variable precision types? If this is true
@@ -84,7 +84,7 @@ public:
     bool floatPrecisionVaries() const { return fShaderPrecisionVaries; }
 
     /**
-     * PLS storage size in bytes (0 when not supported). The PLS spec defines a minimum size of 16 
+     * PLS storage size in bytes (0 when not supported). The PLS spec defines a minimum size of 16
      * bytes whenever PLS is supported.
      */
     int pixelLocalStorageSize() const { return fPixelLocalStorageSize; }
@@ -93,7 +93,7 @@ public:
      * True if this context supports the necessary extensions and features to enable the PLS path
      * renderer.
      */
-    bool plsPathRenderingSupport() const { 
+    bool plsPathRenderingSupport() const {
 #if GR_ENABLE_PLS_PATH_RENDERING
         return fPLSPathRenderingSupport;
 #else
@@ -120,7 +120,7 @@ protected:
     bool fPLSPathRenderingSupport;
 
 private:
-    virtual void onApplyOptionsOverrides(const GrContextOptions&) {};
+    virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     typedef SkRefCnt INHERITED;
 };
 
@@ -280,7 +280,7 @@ public:
 
     bool fullClearIsFree() const { return fFullClearIsFree; }
 
-    /** True in environments that will issue errors if memory uploaded to buffers 
+    /** True in environments that will issue errors if memory uploaded to buffers
         is not initialized (even if not read by draw calls). */
     bool mustClearUploadedBufferData() const { return fMustClearUploadedBufferData; }
 
@@ -344,7 +344,7 @@ protected:
     int fMaxWindowRectangles;
 
 private:
-    virtual void onApplyOptionsOverrides(const GrContextOptions&) {};
+    virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
 
     bool fSuppressPrints : 1;
     bool fImmediateFlush: 1;

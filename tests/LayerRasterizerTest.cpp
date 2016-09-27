@@ -33,7 +33,7 @@ public:
 
     static int GetCount() { return gCount; }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyRasterizer);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyRasterizer)
 
 private:
     static int gCount;
