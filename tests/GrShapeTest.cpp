@@ -84,7 +84,7 @@ namespace {
  */
 class Geo {
 public:
-    virtual ~Geo() {};
+    virtual ~Geo() {}
     virtual GrShape makeShape(const SkPaint&) const = 0;
     virtual SkPath path() const = 0;
     // These functions allow tests to check for special cases where style gets

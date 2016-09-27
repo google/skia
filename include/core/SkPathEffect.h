@@ -66,7 +66,7 @@ public:
             fSize.set(SK_Scalar1, SK_Scalar1);
             // 'asPoints' needs to initialize/fill-in 'fClipRect' if it sets
             // the kUseClip flag
-        };
+        }
         ~PointData() {
             delete [] fPoints;
         }

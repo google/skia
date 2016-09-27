@@ -74,7 +74,7 @@ private:
 static Display* get_display() {
     class AutoDisplay {
     public:
-        AutoDisplay() { fDisplay = XOpenDisplay(nullptr); };
+        AutoDisplay() { fDisplay = XOpenDisplay(nullptr); }
         ~AutoDisplay() {
             if (fDisplay) {
                 XCloseDisplay(fDisplay);

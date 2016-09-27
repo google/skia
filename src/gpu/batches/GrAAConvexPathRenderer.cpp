@@ -55,11 +55,11 @@ struct Segment {
     const SkPoint& endPt() const {
         GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
         return fPts[fType];
-    };
+    }
     const SkPoint& endNorm() const {
         GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
         return fNorms[fType];
-    };
+    }
 };
 
 typedef SkTArray<Segment, true> SegmentArray;
