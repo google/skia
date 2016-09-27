@@ -26,13 +26,9 @@ public:
         kInterpolateColorsInPremul_Flag = 1 << 0,
     };
 
-    /** Returns a shader that generates a linear gradient between the two
-        specified points.
+    /** Returns a shader that generates a linear gradient between the two specified points.
         <p />
-        CreateLinear returns a shader with a reference count of 1.
-        The caller should decrement the shader's reference count when done with the shader.
-        It is an error for count to be < 2.
-        @param  pts The start and end points for the gradient.
+        @param  pts     The start and end points for the gradient.
         @param  colors  The array[count] of colors, to be distributed between the two points
         @param  pos     May be NULL. array[count] of SkScalars, or NULL, of the relative position of
                         each corresponding color in the colors array. If this is NULL,
@@ -54,9 +50,6 @@ public:
 
     /** Returns a shader that generates a radial gradient given the center and radius.
         <p />
-        CreateRadial returns a shader with a reference count of 1.
-        The caller should decrement the shader's reference count when done with the shader.
-        It is an error for colorCount to be < 2, or for radius to be <= 0.
         @param  center  The center of the circle for this gradient
         @param  radius  Must be positive. The radius of the circle for this gradient
         @param  colors  The array[count] of colors, to be distributed between the center and edge of the circle
@@ -99,9 +92,6 @@ public:
 
     /** Returns a shader that generates a sweep gradient given a center.
         <p />
-        CreateSweep returns a shader with a reference count of 1.
-        The caller should decrement the shader's reference count when done with the shader.
-        It is an error for colorCount to be < 2.
         @param  cx      The X coordinate of the center of the sweep
         @param  cx      The Y coordinate of the center of the sweep
         @param  colors  The array[count] of colors, to be distributed around the center.
