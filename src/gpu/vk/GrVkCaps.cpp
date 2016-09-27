@@ -112,11 +112,11 @@ void GrVkCaps::initSampleCount(const VkPhysicalDeviceProperties& properties) {
 void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
                           const VkPhysicalDeviceMemoryProperties& memoryProperties,
                           uint32_t featureFlags) {
-    fMaxVertexAttributes = properties.limits.maxVertexInputAttributes;
+    fMaxVertexAttributes = SkTMin(properties.limits.maxVertexInputAttributes, (uint32_t)INT_MAX);
     // We could actually query and get a max size for each config, however maxImageDimension2D will
     // give the minimum max size across all configs. So for simplicity we will use that for now.
-    fMaxRenderTargetSize = properties.limits.maxImageDimension2D;
-    fMaxTextureSize = properties.limits.maxImageDimension2D;
+    fMaxRenderTargetSize = SkTMin(properties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
+    fMaxTextureSize = SkTMin(properties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
 
     this->initSampleCount(properties);
 
@@ -187,10 +187,12 @@ void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceProperties& properties,
 
     glslCaps->fMaxVertexSamplers =
     glslCaps->fMaxGeometrySamplers =
-    glslCaps->fMaxFragmentSamplers = SkTMin(properties.limits.maxPerStageDescriptorSampledImages,
-                                            properties.limits.maxPerStageDescriptorSamplers);
-    glslCaps->fMaxCombinedSamplers = SkTMin(properties.limits.maxDescriptorSetSampledImages,
-                                            properties.limits.maxDescriptorSetSamplers);
+    glslCaps->fMaxFragmentSamplers = SkTMin(SkTMin(properties.limits.maxPerStageDescriptorSampledImages,
+                                                   properties.limits.maxPerStageDescriptorSamplers),
+                                            (uint32_t)INT_MAX);
+    glslCaps->fMaxCombinedSamplers = SkTMin(SkTMin(properties.limits.maxDescriptorSetSampledImages,
+                                                   properties.limits.maxDescriptorSetSamplers),
+                                            (uint32_t)INT_MAX);
 }
 
 bool stencil_format_supported(const GrVkInterface* interface,
