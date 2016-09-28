@@ -10,7 +10,7 @@ deps = {
   # There is some duplication here that might be worth cleaning up:
   #   - can use use our existing t_p/e/libjpeg instead of pulling it for Android?
 
-  "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@55033e583ba1bc5cbfafbab11d3255fecdfe9056",
+  "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@d445357315299e30c18c756f657ff928653128c2",
   "third_party/externals/cmake"   : "https://cmake.googlesource.com/cmake.git@v3.3.1",
   "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@4d3f7ca8cedbddad40b9e93a82926618e3fb4265",
   "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@87ac4d0e63fc7dd8152a350327fea8dcf031bf56",
