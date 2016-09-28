@@ -65,6 +65,7 @@ SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
     return const_cast<SkImage*>(fImage.get());
 }
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
 bool SkImageShader::onIsABitmap(SkBitmap* texture, SkMatrix* texM, TileMode xy[]) const {
     const SkBitmap* bm = as_IB(fImage)->onPeekBitmap();
     if (!bm) {
@@ -83,6 +84,7 @@ bool SkImageShader::onIsABitmap(SkBitmap* texture, SkMatrix* texM, TileMode xy[]
     }
     return true;
 }
+#endif
 
 static bool bitmap_is_too_big(int w, int h) {
     // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer, as it

@@ -58,7 +58,7 @@ private:
     static bool PaintHasBitmap(const SkPaint* paint) {
         if (paint) {
             const SkShader* shader = paint->getShader();
-            if (shader && shader->isABitmap()) {
+            if (shader && shader->isAImage()) {
                 return true;
             }
         }
