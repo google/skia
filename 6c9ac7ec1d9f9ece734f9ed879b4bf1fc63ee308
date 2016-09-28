@@ -16,6 +16,24 @@
       "revId": "6c9ac7ec1d9f9ece734f9ed879b4bf1fc63ee308",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a566efce_fd9723f3",
+        "filename": "src/core/SkLocalMatrixShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-28T18:04:07Z",
+      "side": 1,
+      "message": "Wow, good catch. This was a bug before now!",
+      "parentUuid": "a566efce_bd8dabe7",
+      "revId": "6c9ac7ec1d9f9ece734f9ed879b4bf1fc63ee308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
