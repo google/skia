@@ -200,7 +200,7 @@ void write_pixels(SkCanvas* canvas, const SkBitmap& bitmap, int x, int y,
 
 sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size) {
     SkBitmap bm;
-    bm.allocPixels(SkImageInfo::MakeS32(2 * size, 2 * size, kPremul_SkAlphaType));
+    bm.allocN32Pixels(2 * size, 2 * size);
     bm.eraseColor(c1);
     bm.eraseArea(SkIRect::MakeLTRB(0, 0, size, size), c2);
     bm.eraseArea(SkIRect::MakeLTRB(size, size, 2 * size, 2 * size), c2);
@@ -210,7 +210,7 @@ sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size) {
 
 SkBitmap create_checkerboard_bitmap(int w, int h, SkColor c1, SkColor c2, int checkSize) {
     SkBitmap bitmap;
-    bitmap.allocPixels(SkImageInfo::MakeS32(w, h, kPremul_SkAlphaType));
+    bitmap.allocN32Pixels(w, h);
     SkCanvas canvas(bitmap);
 
     sk_tool_utils::draw_checkerboard(&canvas, c1, c2, checkSize);
