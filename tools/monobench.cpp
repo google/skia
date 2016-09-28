@@ -12,6 +12,7 @@
 #include <chrono>
 #include <regex>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <vector>
 
@@ -23,9 +24,9 @@ int main(int argc, char** argv) {
     using ns = std::chrono::duration<double, std::nano>;
 
     std::regex pattern;
-    if (argc > 1) {
-        pattern = argv[1];
-    }
+    int limit = 2147483647;
+    if (argc > 1) { pattern = argv[1]; }
+    if (argc > 2) { limit = atoi(argv[2]); }
 
     struct Bench {
         std::unique_ptr<Benchmark> b;
@@ -43,6 +44,11 @@ int main(int argc, char** argv) {
             bench->delayedSetup();
             benches.emplace_back(Bench{std::move(bench), name, ns{1.0/0.0}});
         }
+    }
+
+    if (benches.size() == 0) {
+        printf("No bench matched.\n");
+        return 1;
     }
 
     if (benches.size() > 1) {
@@ -78,7 +84,7 @@ int main(int argc, char** argv) {
     }
 
     int samples = 0;
-    for (;;) {
+    while (samples < limit) {
         for (auto& bench : benches) {
             for (int loops = 1; loops < 1000000000;) {
                 bench.b->preDraw(nullptr);
