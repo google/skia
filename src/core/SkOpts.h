@@ -8,6 +8,7 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
+#include "SkRasterPipeline.h"
 #include "SkTextureCompressor.h"
 #include "SkTypes.h"
 #include "SkXfermode.h"
@@ -71,6 +72,23 @@ namespace SkOpts {
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
         return hash_fn(data, bytes, seed);
     }
+
+    extern SkRasterPipeline::Fn srcover,
+                                constant_color,
+                                lerp_constant_float;
+
+    extern SkRasterPipeline::Fn load_d_srgb_body, load_d_srgb_tail,
+                                load_s_srgb_body, load_s_srgb_tail,
+                                 store_srgb_body,  store_srgb_tail,
+                                 load_d_f16_body,  load_d_f16_tail,
+                                 load_s_f16_body,  load_s_f16_tail,
+                                  store_f16_body,   store_f16_tail,
+                                 load_d_565_body,  load_d_565_tail,
+                                 load_s_565_body,  load_s_565_tail,
+                                  store_565_body,   store_565_tail,
+                                   scale_u8_body,    scale_u8_tail,
+                                    lerp_u8_body,     lerp_u8_tail,
+                                   lerp_565_body,    lerp_565_tail;
 }
 
 #endif//SkOpts_DEFINED
