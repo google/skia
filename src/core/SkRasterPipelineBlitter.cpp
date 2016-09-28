@@ -325,21 +325,28 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p, const void* dst
     }
 }
 
+template <SkRasterPipeline::EasyFn fn>
+static void clamp_01_premul_then(void* ctx, size_t x, size_t tail,
+                                 Sk4f&  r, Sk4f&  g, Sk4f&  b, Sk4f&  a,
+                                 Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da) {
+    clamp_01_premul(nullptr, x,tail, r,g,b,a, dr,dg,db,da);
+                 fn(    ctx, x,tail, r,g,b,a, dr,dg,db,da);
+}
+
 void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p, void* dst) const {
     SkASSERT(supported(fDst.info()));
 
-    p->append<clamp_01_premul>();
     switch (fDst.info().colorType()) {
         case kN32_SkColorType:
             if (fDst.info().gammaCloseToSRGB()) {
-                p->last<store_srgb>(dst);
+                p->last<clamp_01_premul_then<store_srgb>>(dst);
             }
             break;
         case kRGBA_F16_SkColorType:
-            p->last<store_f16>(dst);
+            p->last<clamp_01_premul_then<store_f16>>(dst);
             break;
         case kRGB_565_SkColorType:
-            p->last<store_565>(dst);
+            p->last<clamp_01_premul_then<store_565>>(dst);
             break;
         default: break;
     }
