@@ -8,22 +8,16 @@
 #include "Test.h"
 #include "SkRasterPipeline.h"
 
-// load needs two variants, one to load 4 values...
 SK_RASTER_STAGE(load) {
     auto ptr = (const float*)ctx + x;
-    r = Sk4f{ptr[0]};
-    g = Sk4f{ptr[1]};
-    b = Sk4f{ptr[2]};
-    a = Sk4f{ptr[3]};
+    switch(tail&3) {
+        case 0: a = Sk4f{ptr[3]};
+        case 3: b = Sk4f{ptr[2]};
+        case 2: g = Sk4f{ptr[1]};
+        case 1: r = Sk4f{ptr[0]};
+    }
 }
 
-// ...and one to load a single value.
-SK_RASTER_STAGE(load_tail) {
-    auto ptr = (const float*)ctx + x;
-    r = Sk4f{*ptr};
-}
-
-// square doesn't really care how many of its inputs are active, nor does it need a context.
 SK_RASTER_STAGE(square) {
     r *= r;
     g *= g;
@@ -31,26 +25,22 @@ SK_RASTER_STAGE(square) {
     a *= a;
 }
 
-// Like load, store has a _tail variant.
 SK_RASTER_STAGE(store) {
     auto ptr = (float*)ctx + x;
-    ptr[0] = r[0];
-    ptr[1] = g[0];
-    ptr[2] = b[0];
-    ptr[3] = a[0];
-}
-
-SK_RASTER_STAGE(store_tail) {
-    auto ptr = (float*)ctx + x;
-    *ptr = r[0];
+    switch (tail&3) {
+        case 0: ptr[3] = a[0];
+        case 3: ptr[2] = b[0];
+        case 2: ptr[1] = g[0];
+        case 1: ptr[0] = r[0];
+    }
 }
 
 DEF_TEST(SkRasterPipeline, r) {
     // We'll build up and run a simple pipeline that exercises the salient
     // mechanics of SkRasterPipeline:
-    //    - context pointers
-    //    - stages sensitive to the number of pixels
-    //    - stages insensitive to the number of pixels
+    //    - context pointers                           (load,store)
+    //    - stages sensitive to the number of pixels   (load,store)
+    //    - stages insensitive to the number of pixels (square)
     //
     // This pipeline loads up some values, squares them, then writes them back to memory.
 
@@ -58,9 +48,9 @@ DEF_TEST(SkRasterPipeline, r) {
     float       dst_vals[] = { 0,0,0,0,0 };
 
     SkRasterPipeline p;
-    p.append<load, load_tail>(src_vals);
+    p.append<load>(src_vals);
     p.append<square>();
-    p.append<store, store_tail>(dst_vals);
+    p.append<store>(dst_vals);
 
     p.run(5);
 

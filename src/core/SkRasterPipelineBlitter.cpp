@@ -57,6 +57,8 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     return SkRasterPipelineBlitter::Create(dst, paint, alloc);
 }
 
+/*
+
 // Clamp colors into [0,1] premul (e.g. just before storing back to memory).
 SK_RASTER_STAGE(clamp_01_premul) {
     a = Sk4f::Max(a, 0.0f);
@@ -437,4 +439,12 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
 
         p.run(x, clip.width());
     }
+}
+
+*/
+
+SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
+                                           const SkPaint& paint,
+                                           SkTBlitterAllocator* alloc) {
+    return nullptr;
 }
