@@ -614,6 +614,7 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_STREAM_DATA",
     "SK_SUPPORT_LEGACY_TEXTBLOB_BUILDER",
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
+    "SK_SUPPORT_LEGACY_SHADER_ISABITMAP",
 ]
 
 ################################################################################

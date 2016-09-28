@@ -229,6 +229,7 @@ public:
      */
     size_t contextSize(const ContextRec&) const;
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     /**
      *  Returns true if this shader is just a bitmap, and if not null, returns the bitmap,
      *  localMatrix, and tilemodes. If this is not a bitmap, returns false and ignores the
@@ -241,6 +242,7 @@ public:
     bool isABitmap() const {
         return this->isABitmap(nullptr, nullptr, nullptr);
     }
+#endif
 
     /**
      *  Iff this shader is backed by a single SkImage, return its ptr (the caller must ref this
@@ -522,9 +524,11 @@ protected:
         return false;
     }
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     virtual bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode[2]) const {
         return false;
     }
+#endif
 
     virtual SkImage* onIsAImage(SkMatrix*, TileMode[2]) const {
         return nullptr;
