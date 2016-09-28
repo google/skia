@@ -67,8 +67,9 @@ sk_sp<SkFlattenable> SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
     }
     const SkPoint center = buffer.readPoint();
     const SkScalar radius = buffer.readScalar();
-    return SkGradientShader::MakeRadial(center, radius, desc.fColors, desc.fPos, desc.fCount,
-                                        desc.fTileMode, desc.fGradFlags, desc.fLocalMatrix);
+    return SkGradientShader::MakeRadial(center, radius, desc.fColors, std::move(desc.fColorSpace),
+                                        desc.fPos, desc.fCount, desc.fTileMode, desc.fGradFlags,
+                                        desc.fLocalMatrix);
 }
 
 void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {

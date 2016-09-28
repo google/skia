@@ -68,6 +68,7 @@ public:
         kAnnotationsMovedToCanvas_Version  = 44,
         kLightingShaderWritesInvNormRotation = 45,
         kBlurMaskFilterWritesOccluder      = 47,
+        kGradientShaderFloatColor_Version  = 49,
     };
 
     /**

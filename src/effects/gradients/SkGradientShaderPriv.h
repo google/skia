@@ -84,8 +84,7 @@ public:
         }
 
         const SkMatrix*     fLocalMatrix;
-        const SkColor*      fColors;
-        const SkColor4f*    fColors4f;
+        const SkColor4f*    fColors;
         sk_sp<SkColorSpace> fColorSpace;
         const SkScalar*     fPos;
         int                 fCount;
@@ -103,14 +102,14 @@ public:
 
         // fColors and fPos always point into local memory, so they can be safely mutated
         //
-        SkColor* mutableColors() { return const_cast<SkColor*>(fColors); }
+        SkColor4f* mutableColors() { return const_cast<SkColor4f*>(fColors); }
         SkScalar* mutablePos() { return const_cast<SkScalar*>(fPos); }
 
     private:
         enum {
             kStorageCount = 16
         };
-        SkColor fColorStorage[kStorageCount];
+        SkColor4f fColorStorage[kStorageCount];
         SkScalar fPosStorage[kStorageCount];
         SkMatrix fLocalMatrixStorage;
         SkAutoMalloc fDynamicStorage;

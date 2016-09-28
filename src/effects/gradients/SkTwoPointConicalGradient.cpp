@@ -318,7 +318,7 @@ sk_sp<SkFlattenable> SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer)
         SkTSwap(c1, c2);
         SkTSwap(r1, r2);
 
-        SkColor* colors = desc.mutableColors();
+        SkColor4f* colors = desc.mutableColors();
         SkScalar* pos = desc.mutablePos();
         const int last = desc.fCount - 1;
         const int half = desc.fCount >> 1;
@@ -337,7 +337,8 @@ sk_sp<SkFlattenable> SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer)
         }
     }
 
-    return SkGradientShader::MakeTwoPointConical(c1, r1, c2, r2, desc.fColors, desc.fPos,
+    return SkGradientShader::MakeTwoPointConical(c1, r1, c2, r2, desc.fColors,
+                                                 std::move(desc.fColorSpace), desc.fPos,
                                                  desc.fCount, desc.fTileMode, desc.fGradFlags,
                                                  desc.fLocalMatrix);
 }

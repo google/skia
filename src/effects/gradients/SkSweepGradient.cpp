@@ -35,8 +35,9 @@ sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
     const SkPoint center = buffer.readPoint();
-    return SkGradientShader::MakeSweep(center.x(), center.y(), desc.fColors, desc.fPos,
-                                       desc.fCount, desc.fGradFlags, desc.fLocalMatrix);
+    return SkGradientShader::MakeSweep(center.x(), center.y(), desc.fColors,
+                                       std::move(desc.fColorSpace), desc.fPos, desc.fCount,
+                                       desc.fGradFlags, desc.fLocalMatrix);
 }
 
 void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
