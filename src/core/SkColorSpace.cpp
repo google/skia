@@ -10,26 +10,22 @@
 #include "SkColorSpacePriv.h"
 #include "SkOnce.h"
 
-SkColorSpace::SkColorSpace(const SkMatrix44& toXYZD50)
-    : fToXYZD50(toXYZD50)
-{}
-
 SkColorSpace_Base::SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
-    : INHERITED(toXYZD50)
-    , fGammaNamed(gammaNamed)
+    : fGammaNamed(gammaNamed)
     , fGammas(nullptr)
     , fProfileData(nullptr)
+    , fToXYZD50(toXYZD50)
     , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
 {}
 
 SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, SkGammaNamed gammaNamed,
                                      sk_sp<SkGammas> gammas, const SkMatrix44& toXYZD50,
                                      sk_sp<SkData> profileData)
-    : INHERITED(toXYZD50)
-    , fColorLUT(std::move(colorLUT))
+    : fColorLUT(std::move(colorLUT))
     , fGammaNamed(gammaNamed)
     , fGammas(std::move(gammas))
     , fProfileData(std::move(profileData))
+    , fToXYZD50(toXYZD50)
     , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
 {}
 
@@ -192,7 +188,7 @@ sk_sp<SkColorSpace> SkColorSpace::makeLinearGamma() {
     if (this->gammaIsLinear()) {
         return sk_ref_sp(this);
     }
-    return SkColorSpace_Base::NewRGB(kLinear_SkGammaNamed, fToXYZD50);
+    return SkColorSpace_Base::NewRGB(kLinear_SkGammaNamed, as_CSB(this)->fToXYZD50);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +307,7 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                             ColorSpaceHeader::Pack(k0_Version, 0, as_CSB(this)->fGammaNamed,
                                                    ColorSpaceHeader::kMatrix_Flag);
                     memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
-                    fToXYZD50.as3x4RowMajorf((float*) memory);
+                    as_CSB(this)->fToXYZD50.as3x4RowMajorf((float*) memory);
                 }
                 return sizeof(ColorSpaceHeader) + 12 * sizeof(float);
             }
@@ -333,7 +329,7 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                     *(((float*) memory) + 2) = gammas->fBlueData.fValue;
                     memory = SkTAddOffset<void>(memory, 3 * sizeof(float));
 
-                    fToXYZD50.as3x4RowMajorf((float*) memory);
+                    as_CSB(this)->fToXYZD50.as3x4RowMajorf((float*) memory);
                 }
                 return sizeof(ColorSpaceHeader) + 15 * sizeof(float);
         }
@@ -461,7 +457,7 @@ bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
         case k2Dot2Curve_SkGammaNamed:
         case kLinear_SkGammaNamed:
             return (as_CSB(src)->fGammaNamed == as_CSB(dst)->fGammaNamed) &&
-                   (src->fToXYZD50 == dst->fToXYZD50);
+                   (as_CSB(src)->fToXYZD50 == as_CSB(dst)->fToXYZD50);
         default:
             if (as_CSB(src)->fGammaNamed != as_CSB(dst)->fGammaNamed) {
                 return false;

@@ -10,7 +10,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
-#include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkImageEncoder.h"
@@ -141,13 +141,13 @@ int main(int argc, char** argv) {
     // Draw the sRGB gamut if requested.
     if (FLAGS_sRGB) {
         sk_sp<SkColorSpace> sRGBSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-        draw_gamut(&canvas, sRGBSpace->toXYZD50(), "sRGB", 0xFFFF9394, false);
+        draw_gamut(&canvas, as_CSB(sRGBSpace)->toXYZD50(), "sRGB", 0xFFFF9394, false);
     }
 
     // Draw the Adobe RGB gamut if requested.
     if (FLAGS_adobeRGB) {
         sk_sp<SkColorSpace> adobeRGBSpace = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
-        draw_gamut(&canvas, adobeRGBSpace->toXYZD50(), "Adobe RGB", 0xFF31a9e1, false);
+        draw_gamut(&canvas, as_CSB(adobeRGBSpace)->toXYZD50(), "Adobe RGB", 0xFF31a9e1, false);
     }
 
     // Draw gamut for the input image.
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
         SkDebugf("Image had no embedded color space information.  Defaulting to sRGB.\n");
         colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     }
-    draw_gamut(&canvas, colorSpace->toXYZD50(), input, 0xFF000000, true);
+    draw_gamut(&canvas, as_CSB(colorSpace)->toXYZD50(), input, 0xFF000000, true);
 
     // Finally, encode the result to the output file.
     sk_sp<SkData> out(SkImageEncoder::EncodeData(gamut, SkImageEncoder::kPNG_Type, 100));

@@ -24,7 +24,7 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
     REPORTER_ASSERT(r, nullptr != space);
     REPORTER_ASSERT(r, expectedGamma == as_CSB(space)->gammaNamed());
 
-    const SkMatrix44& mat = space->toXYZD50();
+    const SkMatrix44& mat = as_CSB(space)->toXYZD50();
     const float src[] = {
         1, 0, 0, 1,
         0, 1, 0, 1,
@@ -166,7 +166,7 @@ DEF_TEST(ColorSpaceWriteICC, r) {
     sk_sp<SkData> newMonitorData = ColorSpaceTest::WriteToICC(monitorSpace.get());
     sk_sp<SkColorSpace> newMonitorSpace = SkColorSpace::NewICC(newMonitorData->data(),
                                                                newMonitorData->size());
-    REPORTER_ASSERT(r, monitorSpace->toXYZD50() == newMonitorSpace->toXYZD50());
+    REPORTER_ASSERT(r, as_CSB(monitorSpace)->toXYZD50() == as_CSB(newMonitorSpace)->toXYZD50());
     REPORTER_ASSERT(r, as_CSB(monitorSpace)->gammaNamed() == as_CSB(newMonitorSpace)->gammaNamed());
 }
 

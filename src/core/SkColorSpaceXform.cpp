@@ -355,7 +355,7 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
         srcToDst.setIdentity();
         csm = kFull_ColorSpaceMatch;
     } else {
-        srcToDst.setConcat(as_CSB(dstSpace)->fromXYZD50(), srcSpace->toXYZD50());
+        srcToDst.setConcat(as_CSB(dstSpace)->fromXYZD50(), as_CSB(srcSpace)->toXYZD50());
 
         if (is_almost_identity(srcToDst)) {
             srcToDst.setIdentity();

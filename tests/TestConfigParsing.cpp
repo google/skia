@@ -6,7 +6,7 @@
  */
 
 #include "SkCommonFlagsConfig.h"
-#include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
 #include "Test.h"
 #include <initializer_list>
 
@@ -125,15 +125,15 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace());
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace()->gammaIsLinear());
-    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace()->toXYZD50() ==
-                              srgbColorSpace->toXYZD50());
+    REPORTER_ASSERT(reporter, as_CSB(configs[25]->asConfigGpu()->getColorSpace())->toXYZD50() ==
+                              as_CSB(srgbColorSpace)->toXYZD50());
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorType() == kRGBA_8888_SkColorType);
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
     REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
     REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorSpace());
     REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorSpace()->gammaIsLinear());
-    REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorSpace()->toXYZD50() !=
-                              srgbColorSpace->toXYZD50());
+    REPORTER_ASSERT(reporter, as_CSB(configs[41]->asConfigGpu()->getColorSpace())->toXYZD50() !=
+                              as_CSB(srgbColorSpace)->toXYZD50());
     REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getUseInstanced());
