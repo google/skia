@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c541232d_4bd6a5e7",
+        "filename": "src/pdf/SkPDFShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1232,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-28T15:50:05Z",
+      "side": 1,
+      "message": "isAImage + RO_Legacy should be just as efficient. Can you skip the call to isABitmap entirely?",
+      "range": {
+        "startLine": 1232,
+        "startChar": 16,
+        "endLine": 1232,
+        "endChar": 25
+      },
+      "revId": "6a5beed0f8c394d054784838a551907dc9c9d4be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
