@@ -30,6 +30,7 @@
 #include "SkGeometry.h"
 #include "SkGlyphCache.h"
 #include "SkHRESULT.h"
+#include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkIStream.h"
 #include "SkMaskFilter.h"
@@ -1080,7 +1081,8 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     SkBitmap outTexture;
     SkMatrix outMatrix;
     SkShader::TileMode xy[2];
-    if (shader->isABitmap(&outTexture, &outMatrix, xy)) {
+    SkImage* image = shader->isAImage(&outMatrix, xy);
+    if (image && image->asLegacyBitmap(&outTexture, SkImage::kRO_LegacyBitmapMode)) {
         //TODO: outMatrix??
         SkMatrix localMatrix = shader->getLocalMatrix();
         if (parentTransform) {
