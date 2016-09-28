@@ -96,7 +96,7 @@ static const char* config_help_fn() {
     for (const auto& config : gPredefinedConfigs) {
         helpString.appendf(" %s", config.predefinedConfig);
     }
-    helpString.append(" or use extended form 'backend(option=value,...)'.\n");
+    helpString.append(" or use extended form 'backend[option=value,...]'.\n");
     return helpString.c_str();
 }
 
@@ -105,7 +105,7 @@ static const char configExtendedHelp[] =
     "Possible backends and options:\n"
 #if SK_SUPPORT_GPU
     "\n"
-    "gpu(api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int)\n"
+    "gpu[api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int]\n"
     "\tapi\ttype: string\tdefault: native.\n"
     "\t    Select graphics API to use with gpu backend.\n"
     "\t    Options:\n"
@@ -382,10 +382,10 @@ void ParseConfigs(const SkCommandLineFlags::StringArray& configs,
 
         SkString tag(configs[i]);
         SkTArray<SkString> parts;
-        SkStrSplit(tag.c_str(), "(", kStrict_SkStrSplitMode, &parts);
+        SkStrSplit(tag.c_str(), "[", kStrict_SkStrSplitMode, &parts);
         if (parts.count() == 2) {
             SkTArray<SkString> parts2;
-            SkStrSplit(parts[1].c_str(), ")", kStrict_SkStrSplitMode, &parts2);
+            SkStrSplit(parts[1].c_str(), "]", kStrict_SkStrSplitMode, &parts2);
             if (parts2.count() == 2 && parts2[1].isEmpty()) {
                 SkStrSplit(parts[0].c_str(), "-", kStrict_SkStrSplitMode, &vias);
                 if (vias.count()) {
@@ -395,7 +395,7 @@ void ParseConfigs(const SkCommandLineFlags::StringArray& configs,
                     extendedBackend = parts[0];
                 }
                 extendedOptions = parts2[0];
-                simpleBackend.printf("%s(%s)", extendedBackend.c_str(), extendedOptions.c_str());
+                simpleBackend.printf("%s[%s]", extendedBackend.c_str(), extendedOptions.c_str());
             }
         }
 

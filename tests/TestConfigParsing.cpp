@@ -206,15 +206,15 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
 
 DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
-        "gpu(nvpr=true,dit=false)",
-        "gpu(api=angle)",
-        "gpu(api=angle-gl)",
-        "gpu(api=mesa,samples=77)",
-        "gpu(dit=true,api=commandbuffer)",
-        "gpu()",
-        "gpu(api=gles)",
-        "gpu(api=gl)",
-        "gpu(api=vulkan)",
+        "gpu[nvpr=true,dit=false]",
+        "gpu[api=angle]",
+        "gpu[api=angle-gl]",
+        "gpu[api=mesa,samples=77]",
+        "gpu[dit=true,api=commandbuffer]",
+        "gpu[]",
+        "gpu[api=gles]",
+        "gpu[api=gl]",
+        "gpu[api=vulkan]",
     });
 
     SkCommandLineConfigArray configs;
@@ -278,18 +278,18 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
 
 DEF_TEST(ParseConfigs_ExtendedGpuConfigsIncorrect, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
-        "gpu(nvpr=1)", // Number as bool.
-        "gpu(api=gl,)", // Trailing in comma.
-        "gpu(api=angle-glu)", // Unknown api.
-        "gpu(api=,samples=0)", // Empty api.
-        "gpu(samples=true)", // Value true as a number.
-        "gpu(samples=0,samples=0)", // Duplicate option key.
-        "gpu(,samples=0)", // Leading comma.
-        "gpu(samples=54", // Missing closing parenthesis.
+        "gpu[nvpr=1]", // Number as bool.
+        "gpu[api=gl,]", // Trailing in comma.
+        "gpu[api=angle-glu]", // Unknown api.
+        "gpu[api=,samples=0]", // Empty api.
+        "gpu[samples=true]", // Value true as a number.
+        "gpu[samples=0,samples=0]", // Duplicate option key.
+        "gpu[,samples=0]", // Leading comma.
+        "gpu[samples=54", // Missing closing parenthesis.
         ",,",
-        "gpu(", // Missing parenthesis.
+        "gpu[", // Missing bracket.
         "samples=54" // No backend.
-        "gpu(nvpr=true )", // Space.
+        "gpu[nvpr=true ]", // Space.
     });
 
     SkCommandLineConfigArray configs;
@@ -308,9 +308,9 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsSurprises, reporter) {
     // These just list explicitly some properties of the system.
     SkCommandLineFlags::StringArray config1 = make_string_array({
         // Options are not canonized -> two same configs have a different tag.
-        "gpu(nvpr=true,dit=true)", "gpu(dit=true,nvpr=true)",
-        "gpu(api=debug)", "gpu(api=gl)", "gpu(api=gles)", ""
-        "gpu", "gpu()", "gpu(samples=0)", "gpu(api=gles,samples=0)"
+        "gpu[nvpr=true,dit=true]", "gpu[dit=true,nvpr=true]",
+        "gpu[api=debug]", "gpu[api=gl]", "gpu[api=gles]", ""
+        "gpu", "gpu[]", "gpu[samples=0]", "gpu[api=gles,samples=0]"
     });
     SkCommandLineConfigArray configs;
     ParseConfigs(config1, &configs);
@@ -363,9 +363,9 @@ DEF_TEST(ParseConfigs_ViaParsing, reporter) {
 
 DEF_TEST(ParseConfigs_ViaParsingExtendedForm, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
-        "zz-qq-gpu(api=gles)",
-        "a-gpu(samples=1",
-        "abc-def-angle-gl(samples=1)",
+        "zz-qq-gpu[api=gles]",
+        "a-gpu[samples=1",
+        "abc-def-angle-gl[samples=1]",
     });
 
     SkCommandLineConfigArray configs;
@@ -377,11 +377,11 @@ DEF_TEST(ParseConfigs_ViaParsingExtendedForm, reporter) {
 #if SK_SUPPORT_GPU
         {"gpu", {"zz", "qq", nullptr}},
 #else
-        {"gpu(api=gles)", {"zz", "qq", nullptr}},
+        {"gpu[api=gles]", {"zz", "qq", nullptr}},
 #endif
-        {"gpu(samples=1", {"a", nullptr, nullptr}}, // This is not extended form, but via still
+        {"gpu[samples=1", {"a", nullptr, nullptr}}, // This is not extended form, but via still
                                                     // works as expected.
-        {"gl(samples=1)", {"abc", "def", "angle"}}  // This is not extended form.  Also
+        {"gl[samples=1]", {"abc", "def", "angle"}}  // This is not extended form.  Also
                                                     // angle-gl is not a "backend" in this case.
     };
     for (int i = 0; i < config1.count(); ++i) {
