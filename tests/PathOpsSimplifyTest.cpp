@@ -5542,11 +5542,21 @@ static void testQuads73(skiatest::Reporter* reporter, const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
+static void bug5169(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x4281c71c));  // 0, 64.8889f
+path.cubicTo(SkBits2Float(0x434e0000), SkBits2Float(0x4281c71c), SkBits2Float(0x00000000), SkBits2Float(0xc2a238e4), SkBits2Float(0x00000000), SkBits2Float(0x4281c71c));  // 206, 64.8889f, 0, -81.1111f, 0, 64.8889f
+path.moveTo(SkBits2Float(0x43300000), SkBits2Float(0x41971c72));  // 176, 18.8889f
+path.cubicTo(SkBits2Float(0xc29e0000), SkBits2Float(0xc25c71c7), SkBits2Float(0x42b20000), SkBits2Float(0x42fbc71c), SkBits2Float(0x43300000), SkBits2Float(0x41971c72));  // -79, -55.1111f, 89, 125.889f, 176, 18.8889f
+    testSimplify(reporter, path, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(bug5169),
     TEST(testQuads73),
     TEST(testQuads72),
     TEST(testQuads71),

@@ -53,7 +53,9 @@ bool FixWinding(SkPath* path) {
     if (!contourHead.count()) {
         return true;
     }
-    SkASSERT(contourHead.next());
+    if (!contourHead.next()) {
+        return false;
+    }
     contourHead.joinAllSegments();
     contourHead.resetReverse();
     bool writePath = false;

@@ -5395,6 +5395,17 @@ static void circlesOp4(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
 }
 
+static void bug5240(skiatest::Reporter* reporter, const char* filename) {
+ SkPath path;
+path.moveTo(815, 82);
+path.cubicTo(814.4794311523438f, 82.7868881225586f, 814.5330810546875f,
+82.6266555786133f, 814.5291137695312f, 82.6252212524414f);
+path.cubicTo(814.5229492187500f, 82.6230010986328f, 814.3790283203125f,
+83.0008087158203f, 813.8533935546875f, 82.7072601318359f);
+path.close();
+    testPathOp(reporter, path, path, kUnion_SkPathOp, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
@@ -5402,6 +5413,7 @@ static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 #define TEST(name) { name, #name }
 
 static struct TestDesc tests[] = {
+    TEST(bug5240),
     TEST(circlesOp4),
     TEST(loop17),
     TEST(cubicOp158),

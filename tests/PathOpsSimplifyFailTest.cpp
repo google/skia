@@ -87,10 +87,8 @@ static void dontFailOne(skiatest::Reporter* reporter, int index) {
     SkPath result;
     result.setFillType(SkPath::kWinding_FillType);
     bool success = Simplify(path, &result);
-    if (index != 17 && index != 31 && index != 38) {  // cubic fails to chop in two without creating NaNs
-        REPORTER_ASSERT(reporter, success);
-        REPORTER_ASSERT(reporter, result.getFillType() != SkPath::kWinding_FillType);
-    }
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, result.getFillType() != SkPath::kWinding_FillType);
     reporter->bumpTestCount();
 }
 
