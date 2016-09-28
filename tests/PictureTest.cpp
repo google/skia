@@ -82,7 +82,7 @@ static void test_analysis(skiatest::Reporter* reporter) {
         *(bitmap.getAddr32(0, 0)) = SK_ColorGREEN;
         paint.setShader(SkShader::MakeBitmapShader(bitmap, SkShader::kClamp_TileMode,
                                                    SkShader::kClamp_TileMode));
-        REPORTER_ASSERT(reporter, paint.getShader()->isABitmap());
+        REPORTER_ASSERT(reporter, paint.getShader()->isAImage());
 
         canvas->drawRect(SkRect::MakeWH(10, 10), paint);
     }
