@@ -1437,14 +1437,14 @@ static Sk4f inv(const Sk4f& x) { return 1.0f - x; }
 
 // Most of these modes apply the same logic kernel to each channel.
 template <Sk4f kernel(const Sk4f& s, const Sk4f& sa, const Sk4f& d, const Sk4f& da)>
-static void SK_VECTORCALL rgba(SkRasterPipeline::Stage* st, size_t x,
+static void SK_VECTORCALL rgba(SkRasterPipeline::Stage* st, size_t x, size_t tail,
                                Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
                                Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     r = kernel(r,a,dr,da);
     g = kernel(g,a,dg,da);
     b = kernel(b,a,db,da);
     a = kernel(a,a,da,da);
-    st->next(x, r,g,b,a, dr,dg,db,da);
+    st->next(x,tail, r,g,b,a, dr,dg,db,da);
 }
 
 #define KERNEL(name) static Sk4f name(const Sk4f& s, const Sk4f& sa, const Sk4f& d, const Sk4f& da)
@@ -1468,14 +1468,14 @@ KERNEL(xor_)     { return s*inv(da) + d*inv(sa); }
 // Most of the rest apply the same logic to each color channel, and srcover's logic to alpha.
 // (darken and lighten can actually go either way, but they're a little faster this way.)
 template <Sk4f kernel(const Sk4f& s, const Sk4f& sa, const Sk4f& d, const Sk4f& da)>
-static void SK_VECTORCALL rgb_srcover(SkRasterPipeline::Stage* st, size_t x,
+static void SK_VECTORCALL rgb_srcover(SkRasterPipeline::Stage* st, size_t x, size_t tail,
                                       Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
                                       Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     r = kernel(r,a,dr,da);
     g = kernel(g,a,dg,da);
     b = kernel(b,a,db,da);
     a = a + da*inv(a);
-    st->next(x, r,g,b,a, dr,dg,db,da);
+    st->next(x,tail, r,g,b,a, dr,dg,db,da);
 }
 
 KERNEL(colorburn) {
