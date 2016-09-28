@@ -47,9 +47,15 @@ protected:
         return fProxyShader->contextSize(rec);
     }
 
+    SkImage* onIsAImage(SkMatrix* matrix, TileMode* mode) const override {
+        return fProxyShader->isAImage(matrix, mode);
+    }
+
+#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     bool onIsABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode* mode) const override {
         return fProxyShader->isABitmap(bitmap, matrix, mode);
     }
+#endif
 
 private:
     SkAutoTUnref<SkShader> fProxyShader;
