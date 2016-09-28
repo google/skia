@@ -101,22 +101,29 @@ SK_RASTER_STAGE(lerp_constant_float) {
     a = lerp(da, a, c);
 }
 
-// s' = d(1-c) + sc, 4 pixels at a time for 8-bit coverage.
-SK_RASTER_STAGE(lerp_a8) {
-    auto ptr = (const uint8_t*)ctx + x;
-    Sk4f c = SkNx_cast<float>(Sk4b::Load(ptr)) * (1/255.0f);
-
-    r = lerp(dr, r, c);
-    g = lerp(dg, g, c);
-    b = lerp(db, b, c);
-    a = lerp(da, a, c);
+template <typename T>
+static SkNx<4,T> load_tail(size_t tail, const T* src) {
+    if (tail) {
+       return SkNx<4,T>(src[0], (tail>1 ? src[1] : 0), (tail>2 ? src[2] : 0), 0);
+    }
+    return SkNx<4,T>::Load(src);
 }
 
-// Tail variant of lerp_a8() handling 1 pixel at a time.
-SK_RASTER_STAGE(lerp_a8_1) {
-    auto ptr = (const uint8_t*)ctx + x;
-    Sk4f c = *ptr * (1/255.0f);
+template <typename T>
+static void store_tail(size_t tail, const SkNx<4,T>& v, T* dst) {
+    switch(tail) {
+        case 0: return v.store(dst);
+        case 3: dst[2] = v[2];
+        case 2: dst[1] = v[1];
+        case 1: dst[0] = v[0];
+    }
+}
 
+// s' = d(1-c) + sc for 8-bit c.
+SK_RASTER_STAGE(lerp_a8) {
+    auto ptr = (const uint8_t*)ctx + x;
+
+    Sk4f c = SkNx_cast<float>(load_tail(tail, ptr)) * (1/255.0f);
     r = lerp(dr, r, c);
     g = lerp(dg, g, c);
     b = lerp(db, b, c);
@@ -137,11 +144,11 @@ static Sk4h to_565(const Sk4f& r, const Sk4f& g, const Sk4f& b) {
                               | Sk4f_round(b * SK_B16_MASK) << SK_B16_SHIFT);
 }
 
-// s' = d(1-c) + sc, 4 pixels at a time for 565 coverage.
+// s' = d(1-c) + sc for 565 c.
 SK_RASTER_STAGE(lerp_lcd16) {
     auto ptr = (const uint16_t*)ctx + x;
     Sk4f cr, cg, cb;
-    from_565(Sk4h::Load(ptr), &cr, &cg, &cb);
+    from_565(load_tail(tail, ptr), &cr, &cg, &cb);
 
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
@@ -149,45 +156,18 @@ SK_RASTER_STAGE(lerp_lcd16) {
     a = 1.0f;
 }
 
-// Tail variant of lerp_lcd16() handling 1 pixel at a time.
-SK_RASTER_STAGE(lerp_lcd16_1) {
-    auto ptr = (const uint16_t*)ctx + x;
-    Sk4f cr, cg, cb;
-    from_565({*ptr,0,0,0}, &cr, &cg, &cb);
-
-    r = lerp(dr, r, cr);
-    g = lerp(dg, g, cg);
-    b = lerp(db, b, cb);
-    a = 1.0f;
-}
-
-// Load 4 565 dst pixels.
 SK_RASTER_STAGE(load_d_565) {
     auto ptr = (const uint16_t*)ctx + x;
-
-    from_565(Sk4h::Load(ptr), &dr,&dg,&db);
+    from_565(load_tail(tail, ptr), &dr,&dg,&db);
     da = 1.0f;
 }
 
-// Load 1 565 dst pixel.
-SK_RASTER_STAGE(load_d_565_1) {
-    auto ptr = (const uint16_t*)ctx + x;
-
-    from_565({*ptr,0,0,0}, &dr,&dg,&db);
-    da = 1.0f;
-}
-
-// Store 4 565 pixels.
 SK_RASTER_STAGE(store_565) {
     auto ptr = (uint16_t*)ctx + x;
-    to_565(r,g,b).store(ptr);
+    store_tail(tail, to_565(r,g,b), ptr);
 }
 
-// Store 1 565 pixel.
-SK_RASTER_STAGE(store_565_1) {
-    auto ptr = (uint16_t*)ctx + x;
-    *ptr = to_565(r,g,b)[0];
-}
+// BEGIN TODO
 
 // Load 4 F16 pixels.
 SK_RASTER_STAGE(load_d_f16) {
@@ -202,6 +182,7 @@ SK_RASTER_STAGE(load_d_f16) {
     da = SkHalfToFloat_finite_ftz(ah);
 }
 
+#if 0
 // Load 1 F16 pixel.
 SK_RASTER_STAGE(load_d_f16_1) {
     auto ptr = (const uint64_t*)ctx + x;
@@ -212,6 +193,7 @@ SK_RASTER_STAGE(load_d_f16_1) {
     db = { p0[2],0,0,0 };
     da = { p0[3],0,0,0 };
 }
+#endif
 
 // Store 4 F16 pixels.
 SK_RASTER_STAGE(store_f16) {
@@ -221,12 +203,14 @@ SK_RASTER_STAGE(store_f16) {
                      SkFloatToHalf_finite_ftz(b), SkFloatToHalf_finite_ftz(a));
 }
 
+#if 0
 // Store 1 F16 pixel.
 SK_RASTER_STAGE(store_f16_1) {
     auto ptr = (uint64_t*)ctx + x;
 
     SkFloatToHalf_finite_ftz({r[0], g[0], b[0], a[0]}).store(ptr);
 }
+#endif
 
 // Load 4 8-bit sRGB pixels from SkPMColor order to RGBA.
 SK_RASTER_STAGE(load_d_srgb) {
@@ -250,6 +234,7 @@ SK_RASTER_STAGE(load_d_srgb) {
     da = SkNx_cast<float>(Sk4u::Load(ptr) >> SK_A32_SHIFT) * (1/255.0f);
 }
 
+#if 0
 // Tail variant of load_d_srgb() handling 1 pixel at a time.
 SK_RASTER_STAGE(load_d_srgb_1) {
     auto ptr = (const uint32_t*)ctx + x;
@@ -259,6 +244,7 @@ SK_RASTER_STAGE(load_d_srgb_1) {
     db = { sk_linear_from_srgb[(*ptr >> SK_B32_SHIFT) & 0xff], 0,0,0 };
     da = {        (1/255.0f) * (*ptr >> SK_A32_SHIFT)        , 0,0,0 };
 }
+#endif
 
 // Write out 4 pixels as 8-bit SkPMColor-order sRGB.
 SK_RASTER_STAGE(store_srgb) {
@@ -269,6 +255,7 @@ SK_RASTER_STAGE(store_srgb) {
     |       Sk4f_round(255.0f * a) << SK_A32_SHIFT).store(ptr);
 }
 
+#if 0
 // Tail variant of store_srgb() handling 1 pixel at a time.
 SK_RASTER_STAGE(store_srgb_1) {
     auto ptr = (uint32_t*)ctx + x;
@@ -279,6 +266,9 @@ SK_RASTER_STAGE(store_srgb_1) {
     rgba |= (uint32_t)(255.0f * a[0] + 0.5f) << 24;
     *ptr = rgba;
 }
+#endif
+
+// END TODO
 
 static bool supported(const SkImageInfo& info) {
     switch (info.colorType()) {
@@ -341,14 +331,14 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p, const void* dst
     switch (fDst.info().colorType()) {
         case kN32_SkColorType:
             if (fDst.info().gammaCloseToSRGB()) {
-                p->append<load_d_srgb, load_d_srgb_1>(dst);
+                p->append<load_d_srgb>(dst);
             }
             break;
         case kRGBA_F16_SkColorType:
-            p->append<load_d_f16, load_d_f16_1>(dst);
+            p->append<load_d_f16>(dst);
             break;
         case kRGB_565_SkColorType:
-            p->append<load_d_565, load_d_565_1>(dst);
+            p->append<load_d_565>(dst);
             break;
         default: break;
     }
@@ -361,14 +351,14 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p, void* dst) const
     switch (fDst.info().colorType()) {
         case kN32_SkColorType:
             if (fDst.info().gammaCloseToSRGB()) {
-                p->last<store_srgb, store_srgb_1>(dst);
+                p->last<store_srgb>(dst);
             }
             break;
         case kRGBA_F16_SkColorType:
-            p->last<store_f16, store_f16_1>(dst);
+            p->last<store_f16>(dst);
             break;
         case kRGB_565_SkColorType:
-            p->last<store_565, store_565_1>(dst);
+            p->last<store_565>(dst);
             break;
         default: break;
     }
@@ -426,10 +416,10 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         p.extend(fXfermode);
         switch (mask.fFormat) {
             case SkMask::kA8_Format:
-                p.append<lerp_a8, lerp_a8_1>(mask.getAddr8(x,y)-x);
+                p.append<lerp_a8>(mask.getAddr8(x,y)-x);
                 break;
             case SkMask::kLCD16_Format:
-                p.append<lerp_lcd16, lerp_lcd16_1>(mask.getAddrLCD16(x,y)-x);
+                p.append<lerp_lcd16>(mask.getAddrLCD16(x,y)-x);
                 break;
             default: break;
         }

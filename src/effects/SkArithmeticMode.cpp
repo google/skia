@@ -45,7 +45,7 @@ public:
 #endif
 
 private:
-    static void SK_VECTORCALL Stage(SkRasterPipeline::Stage* st, size_t x,
+    static void SK_VECTORCALL Stage(SkRasterPipeline::Stage* st, size_t x, size_t tail,
                                     Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
                                     Sk4f dr, Sk4f dg, Sk4f db, Sk4f da);
 
@@ -74,7 +74,8 @@ sk_sp<SkFlattenable> SkArithmeticMode_scalar::CreateProc(SkReadBuffer& buffer) {
     return SkArithmeticMode::Make(k1, k2, k3, k4, enforcePMColor);
 }
 
-void SK_VECTORCALL SkArithmeticMode_scalar::Stage(SkRasterPipeline::Stage* st, size_t x,
+void SK_VECTORCALL SkArithmeticMode_scalar::Stage(SkRasterPipeline::Stage* st,
+                                                  size_t x, size_t tail,
                                                   Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
                                                   Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     auto self = st->ctx<const SkArithmeticMode_scalar*>();
@@ -91,7 +92,7 @@ void SK_VECTORCALL SkArithmeticMode_scalar::Stage(SkRasterPipeline::Stage* st, s
 
     // A later stage (clamp_01_premul) will pin and fEnforcePMColor for us.
 
-    st->next(x, r,g,b,a, dr,dg,db,da);
+    st->next(x,tail, r,g,b,a, dr,dg,db,da);
 }
 
 void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],
