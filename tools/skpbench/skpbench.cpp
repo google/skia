@@ -60,6 +60,20 @@ struct Sample {
     clock::duration fDuration;
 };
 
+class GpuSync {
+public:
+    GpuSync(const SkGpuFenceSync* fenceSync);
+    ~GpuSync();
+
+    void syncToPreviousFrame();
+
+private:
+    void updateFence();
+
+    const SkGpuFenceSync* const   fFenceSync;
+    SkPlatformGpuFence            fFence;
+};
+
 enum class ExitErr {
     kOk           = 0,
     kUsage        = 64,
@@ -70,32 +84,21 @@ enum class ExitErr {
 };
 
 static void draw_skp_and_flush(SkCanvas*, const SkPicture*);
-static SkPlatformGpuFence insert_verified_fence(const SkGpuFenceSync*);
-static void wait_fence_and_delete(const SkGpuFenceSync*, SkPlatformGpuFence);
 static bool mkdir_p(const SkString& name);
 static SkString join(const SkCommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
 
-static void run_benchmark(const SkGpuFenceSync* sync, SkCanvas* canvas, const SkPicture* skp,
+static void run_benchmark(const SkGpuFenceSync* fenceSync, SkCanvas* canvas, const SkPicture* skp,
                           std::vector<Sample>* samples) {
     using clock = Sample::clock;
     const clock::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
-    // Prime the graphics pipe.
-    SkPlatformGpuFence frameN_minus_2, frameN_minus_1;
-    {
-        draw_skp_and_flush(canvas, skp);
-        SkPlatformGpuFence frame0 = insert_verified_fence(sync);
+    draw_skp_and_flush(canvas, skp);
+    GpuSync gpuSync(fenceSync);
 
-        draw_skp_and_flush(canvas, skp);
-        frameN_minus_2 = insert_verified_fence(sync);
-
-        draw_skp_and_flush(canvas, skp);
-        frameN_minus_1 = insert_verified_fence(sync);
-
-        wait_fence_and_delete(sync, frame0);
-    }
+    draw_skp_and_flush(canvas, skp);
+    gpuSync.syncToPreviousFrame();
 
     clock::time_point now = clock::now();
     const clock::time_point endTime = now + benchDuration;
@@ -107,20 +110,13 @@ static void run_benchmark(const SkGpuFenceSync* sync, SkCanvas* canvas, const Sk
 
         do {
             draw_skp_and_flush(canvas, skp);
-
-            // Sync the GPU.
-            wait_fence_and_delete(sync, frameN_minus_2);
-            frameN_minus_2 = frameN_minus_1;
-            frameN_minus_1 = insert_verified_fence(sync);
+            gpuSync.syncToPreviousFrame();
 
             now = clock::now();
             sample.fDuration = now - sampleStart;
             ++sample.fFrames;
         } while (sample.fDuration < sampleDuration);
     } while (now < endTime || 0 == samples->size() % 2);
-
-    sync->deleteFence(frameN_minus_2);
-    sync->deleteFence(frameN_minus_1);
 }
 
 void print_result(const std::vector<Sample>& samples, const char* config, const char* bench)  {
@@ -276,24 +272,6 @@ static void draw_skp_and_flush(SkCanvas* canvas, const SkPicture* skp) {
     canvas->flush();
 }
 
-static SkPlatformGpuFence insert_verified_fence(const SkGpuFenceSync* sync) {
-    SkPlatformGpuFence fence = sync->insertFence();
-    if (kInvalidPlatformGpuFence == fence) {
-        exitf(ExitErr::kUnavailable, "failed to insert fence");
-    }
-    return fence;
-}
-
-static void wait_fence_and_delete(const SkGpuFenceSync* sync, SkPlatformGpuFence fence) {
-    if (kInvalidPlatformGpuFence == fence) {
-        exitf(ExitErr::kSoftware, "attempted to wait on invalid fence");
-    }
-    if (!sync->waitFence(fence)) {
-        exitf(ExitErr::kUnavailable, "failed to wait for fence");
-    }
-    sync->deleteFence(fence);
-}
-
 bool mkdir_p(const SkString& dirname) {
     if (dirname.isEmpty()) {
         return true;
@@ -317,4 +295,31 @@ static void exitf(ExitErr err, const char* format, ...) {
     va_end(args);
     fprintf(stderr, ExitErr::kSoftware == err ? "; this should never happen.\n": ".\n");
     exit((int)err);
+}
+
+GpuSync::GpuSync(const SkGpuFenceSync* fenceSync)
+    : fFenceSync(fenceSync) {
+    this->updateFence();
+}
+
+GpuSync::~GpuSync() {
+    fFenceSync->deleteFence(fFence);
+}
+
+void GpuSync::syncToPreviousFrame() {
+    if (kInvalidPlatformGpuFence == fFence) {
+        exitf(ExitErr::kSoftware, "attempted to sync with invalid fence");
+    }
+    if (!fFenceSync->waitFence(fFence)) {
+        exitf(ExitErr::kUnavailable, "failed to wait for fence");
+    }
+    fFenceSync->deleteFence(fFence);
+    this->updateFence();
+}
+
+void GpuSync::updateFence() {
+    fFence = fFenceSync->insertFence();
+    if (kInvalidPlatformGpuFence == fFence) {
+        exitf(ExitErr::kUnavailable, "failed to insert fence");
+    }
 }
