@@ -267,7 +267,7 @@ static bool parse_option_gpu_color(const SkString& value,
                                    SkColorType* outColorType,
                                    sk_sp<SkColorSpace>* outColorSpace) {
     if (value.equals("8888")) {
-        *outColorType = kN32_SkColorType;
+        *outColorType = kRGBA_8888_SkColorType;
         *outColorSpace = nullptr;
         return true;
     }
@@ -307,7 +307,7 @@ static bool parse_option_gpu_color(const SkString& value,
         return true;
     }
     if (commands[0].equals("srgb")) {
-        *outColorType = kN32_SkColorType;
+        *outColorType = kRGBA_8888_SkColorType;
         *outColorSpace = colorSpace;
         return true;
     }
@@ -329,7 +329,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     bool seenSamples = false;
     int samples = 0;
     bool seenColor = false;
-    SkColorType colorType = kN32_SkColorType;
+    SkColorType colorType = kRGBA_8888_SkColorType;
     sk_sp<SkColorSpace> colorSpace = nullptr;
 
     SkTArray<SkString> optionParts;

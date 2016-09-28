@@ -47,7 +47,7 @@ DEF_TEST(ParseConfigs_Gpu, reporter) {
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseInstanced() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseDIText() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 0);
-    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorType() == kN32_SkColorType);
+    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorType() == kRGBA_8888_SkColorType);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorSpace() == nullptr);
 #endif
 }
@@ -127,7 +127,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace()->gammaIsLinear());
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace()->toXYZD50() ==
                               srgbColorSpace->toXYZD50());
-    REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorType() == kN32_SkColorType);
+    REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorType() == kRGBA_8888_SkColorType);
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
     REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
     REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorSpace());
@@ -194,7 +194,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[30]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getColorType()  == kN32_SkColorType);
+    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getColorType()  == kRGBA_8888_SkColorType);
     REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
     REPORTER_ASSERT(reporter, configs[31]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[31]->asConfigGpu()->getSamples() == 4);
