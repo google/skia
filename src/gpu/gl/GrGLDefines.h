@@ -967,6 +967,14 @@
 #define GR_GL_INCLUSIVE                                     0x8f10
 #define GR_GL_EXCLUSIVE                                     0x8f11
 
+/* GL_ARB_sync */
+#define GR_GL_SYNC_GPU_COMMANDS_COMPLETE                    0x9117
+#define GR_GL_ALREADY_SIGNALED                              0x911A
+#define GR_GL_TIMEOUT_EXPIRED                               0x911B
+#define GR_GL_CONDITION_SATISFIED                           0x911C
+#define GR_GL_WAIT_FAILED                                   0x911D
+#define GR_GL_SYNC_FLUSH_COMMANDS_BIT                       0x00000001
+
 /* EGL Defines */
 #define GR_EGL_NO_DISPLAY                                   ((GrEGLDisplay)0)
 #define GR_EGL_EXTENSIONS                                   0x3055
