@@ -347,9 +347,24 @@ bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
 // Return a larger (newWidth x newHeight) copy of 'src' with black padding
 // around it.
 static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
+                                       const SkImageFilter::OutputProperties& outProps,
                                        int newWidth, int newHeight, int offX, int offY) {
-    // We explicitly want to operate in the source's color space here
-    SkImageFilter::OutputProperties outProps(src->getColorSpace());
+    // We would like to operate in the source's color space (so that we return an "identical"
+    // image, other than the padding. To achieve that, we'd create new output properties:
+    //
+    // SkImageFilter::OutputProperties outProps(src->getColorSpace());
+    //
+    // That fails in at least two ways. For formats that are texturable but not renderable (like
+    // F16 on some ES implementations), we can't create a surface to do the work. For sRGB, images
+    // may be tagged with an sRGB color space (which leads to an sRGB config in makeSurface). But
+    // the actual config of that sRGB image on a device with no sRGB support is non-sRGB.
+    //
+    // Rather than try to special case these situations, we execute the image padding in the
+    // destination color space. This should not affect the output of the DAG in (almost) any case,
+    // because the result of this call is going to be used as an input, where it would have been
+    // switched to the destination space anyway. The one exception would be a filter that expected
+    // to consume unclamped F16 data, but the padded version of the image is pre-clamped to 8888.
+    // We can revisit this logic if that ever becomes an actual problem.
     sk_sp<SkSpecialSurface> surf(src->makeSurface(outProps, SkISize::Make(newWidth, newHeight)));
     if (!surf) {
         return nullptr;
@@ -381,7 +396,7 @@ sk_sp<SkSpecialImage> SkImageFilter::applyCropRect(const Context& ctx,
     if (srcBounds.contains(*bounds)) {
         return sk_sp<SkSpecialImage>(SkRef(src));
     } else {
-        sk_sp<SkSpecialImage> img(pad_image(src,
+        sk_sp<SkSpecialImage> img(pad_image(src, ctx.outputProperties(),
                                             bounds->width(), bounds->height(),
                                             srcOffset->x() - bounds->x(),
                                             srcOffset->y() - bounds->y()));
