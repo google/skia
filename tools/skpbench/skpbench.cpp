@@ -30,14 +30,11 @@
  * No tiling, looping, or other fanciness is used; it just draws the skp whole into a size-matched
  * render target and syncs the GPU after each draw.
  *
- * The results consist of a fixed amount of samples (--samples). A sample is defined as the number
- * of frames rendered within a set amount of time (--sampleMs).
- *
  * Currently, only GPU configs are supported.
  */
 
-DEFINE_int32(samples, 101, "number of samples to collect");
-DEFINE_int32(sampleMs, 50, "duration of each sample");
+DEFINE_int32(duration, 5000, "number of milliseconds to run the benchmark");
+DEFINE_int32(sampleMs, 50, "minimum duration of a sample");
 DEFINE_bool(fps, false, "use fps instead of ms");
 DEFINE_string(skp, "", "path to a single .skp file to benchmark");
 DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
@@ -82,10 +79,8 @@ static void exitf(ExitErr, const char* format, ...);
 static void run_benchmark(const SkGpuFenceSync* sync, SkCanvas* canvas, const SkPicture* skp,
                           std::vector<Sample>* samples) {
     using clock = Sample::clock;
-    std::chrono::milliseconds sampleMs(FLAGS_sampleMs);
-
-    samples->clear();
-    samples->resize(FLAGS_samples);
+    const clock::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
+    const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
     // Prime the graphics pipe.
     SkPlatformGpuFence frameN_minus_2, frameN_minus_1;
@@ -102,10 +97,14 @@ static void run_benchmark(const SkGpuFenceSync* sync, SkCanvas* canvas, const Sk
         wait_fence_and_delete(sync, frame0);
     }
 
-    clock::time_point start = clock::now();
+    clock::time_point now = clock::now();
+    const clock::time_point endTime = now + benchDuration;
 
-    for (Sample& sample : *samples) {
-        clock::time_point end;
+    do {
+        clock::time_point sampleStart = now;
+        samples->emplace_back();
+        Sample& sample = samples->back();
+
         do {
             draw_skp_and_flush(canvas, skp);
 
@@ -114,18 +113,11 @@ static void run_benchmark(const SkGpuFenceSync* sync, SkCanvas* canvas, const Sk
             frameN_minus_2 = frameN_minus_1;
             frameN_minus_1 = insert_verified_fence(sync);
 
-            end = clock::now();
-            sample.fDuration = end - start;
+            now = clock::now();
+            sample.fDuration = now - sampleStart;
             ++sample.fFrames;
-        } while (sample.fDuration < sampleMs);
-
-        if (FLAGS_verbosity >= 5) {
-            fprintf(stderr, "%.4g%s [ms=%.4g frames=%i]\n",
-                            sample.value(), Sample::metric(), sample.ms(), sample.fFrames);
-        }
-
-        start = end;
-    }
+        } while (sample.fDuration < sampleDuration);
+    } while (now < endTime || 0 == samples->size() % 2);
 
     sync->deleteFence(frameN_minus_2);
     sync->deleteFence(frameN_minus_1);
@@ -145,19 +137,19 @@ void print_result(const std::vector<Sample>& samples, const char* config, const 
         values.push_back(sample.value());
     }
     std::sort(values.begin(), values.end());
-    const double median = values[values.size() / 2];
+    const double medianValue = values[values.size() / 2];
+    const double accumValue = accum.value();
 
-    const double meanValue = accum.value();
     double variance = 0;
-    for (const Sample& sample : samples) {
-        const double delta = sample.value() - meanValue;
+    for (double value : values) {
+        const double delta = value - accumValue;
         variance += delta * delta;
     }
-    variance /= samples.size();
+    variance /= values.size();
     // Technically, this is the relative standard deviation.
-    const double stddev = 100/*%*/ * sqrt(variance) / meanValue;
+    const double stddev = 100/*%*/ * sqrt(variance) / accumValue;
 
-    printf(resultFormat, median, accum.value(), values.back(), values.front(), stddev,
+    printf(resultFormat, medianValue, accumValue, values.back(), values.front(), stddev,
            Sample::metric(), values.size(), FLAGS_sampleMs, config, bench);
     printf("\n");
     fflush(stdout);
@@ -171,14 +163,8 @@ int main(int argc, char** argv) {
     if (!FLAGS_suppressHeader) {
         printf("%s\n", header);
     }
-    if (FLAGS_samples <= 0) {
+    if (FLAGS_duration <= 0) {
         exit(0); // This can be used to print the header and quit.
-    }
-    if (0 == FLAGS_samples % 2) {
-        fprintf(stderr, "WARNING: even number of samples requested (%i); "
-                        "using %i so there can be a true median.\n",
-                        FLAGS_samples, FLAGS_samples + 1);
-        ++FLAGS_samples;
     }
 
     // Parse the config.
@@ -251,8 +237,15 @@ int main(int argc, char** argv) {
                                      width, height, config->getTag().c_str());
     }
 
-    // Run the benchmark.
     std::vector<Sample> samples;
+    if (FLAGS_sampleMs > 0) {
+        // +1 because we might take one more sample in order to have an odd number.
+        samples.reserve(1 + (FLAGS_duration + FLAGS_sampleMs - 1) / FLAGS_sampleMs);
+    } else {
+        samples.reserve(2 * FLAGS_duration);
+    }
+
+    // Run the benchmark.
     SkCanvas* canvas = surface->getCanvas();
     canvas->translate(-skp->cullRect().x(), -skp->cullRect().y());
     run_benchmark(testCtx->fenceSync(), canvas, skp.get(), &samples);

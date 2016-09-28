@@ -56,7 +56,6 @@ class Parser:
     self.rows = collections.defaultdict(dict)
     self.cols = collections.defaultdict(dict)
     self.metric = None
-    self.samples = None
     self.sample_ms = None
 
   def parse_file(self, infile):
@@ -69,11 +68,6 @@ class Parser:
       elif match.metric != self.metric:
         raise ValueError("results have mismatched metrics (%s and %s)" %
                          (self.metric, match.metric))
-      if self.samples is None:
-        self.samples = match.samples
-      elif not FLAGS.force and match.samples != self.samples:
-        raise ValueError("results have mismatched number of samples. "
-                         "(use --force to ignore)")
       if self.sample_ms is None:
         self.sample_ms = match.sample_ms
       elif not FLAGS.force and match.sample_ms != self.sample_ms:

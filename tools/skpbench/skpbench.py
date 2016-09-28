@@ -44,10 +44,10 @@ __argparse.add_argument('-w','--write-path',
     help="directory to save .png proofs to disk.")
 __argparse.add_argument('-v','--verbosity',
     type=int, default=1, help="level of verbosity (0=none to 5=debug)")
-__argparse.add_argument('-n', '--samples',
-    type=int, help="number of samples to collect for each bench")
-__argparse.add_argument('-d', '--sample-ms',
-    type=int, help="duration of each sample")
+__argparse.add_argument('-d', '--duration',
+    type=int, help="number of milliseconds to run each benchmark")
+__argparse.add_argument('-l', '--sample-ms',
+    type=int, help="minimum duration of a sample")
 __argparse.add_argument('--fps',
     action='store_true', help="use fps instead of ms")
 __argparse.add_argument('-c', '--config',
@@ -89,8 +89,8 @@ class SubprocessMonitor(Thread):
 
 class SKPBench:
   ARGV = ['skpbench', '--verbosity', str(FLAGS.verbosity)]
-  if FLAGS.samples:
-    ARGV.extend(['--samples', str(FLAGS.samples)])
+  if FLAGS.duration:
+    ARGV.extend(['--duration', str(FLAGS.duration)])
   if FLAGS.sample_ms:
     ARGV.extend(['--sampleMs', str(FLAGS.sample_ms)])
   if FLAGS.fps:
@@ -105,7 +105,7 @@ class SKPBench:
 
   @classmethod
   def print_header(cls):
-    subprocess.call(cls.ARGV + ['--samples', '0'])
+    subprocess.call(cls.ARGV + ['--duration', '0'])
 
   def __init__(self, skp, config, max_stddev, best_result=None):
     self.skp = skp
