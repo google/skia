@@ -43,6 +43,7 @@
 #include "SkChecksum_opts.h"
 #include "SkColorCubeFilter_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
+#include "SkRasterPipeline_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkTextureCompressor_opts.h"
 #include "SkXfermode_opts.h"
@@ -87,6 +88,38 @@ namespace SkOpts {
     DEFINE_DEFAULT(srcover_srgb_srgb);
 
     DEFINE_DEFAULT(hash_fn);
+#undef DEFINE_DEFAULT
+
+// Stages that are not sensitive to the tail parameter can be represented by one function.
+#define DEFINE_DEFAULT(stage, kCallNext) \
+    decltype(stage) stage = body<SK_OPTS_NS::stage, kCallNext>
+
+    DEFINE_DEFAULT(srcover, true);
+    DEFINE_DEFAULT(constant_color, true);
+    DEFINE_DEFAULT(lerp_constant_float, true);
+#undef DEFINE_DEFAULT
+
+// Stages that are sensitive to the tail parameter need two versions, _body and _tail.
+#define DEFINE_DEFAULT(stage, kCallNext)                                      \
+    decltype(stage##_body) stage##_body = body<SK_OPTS_NS::stage, kCallNext>; \
+    decltype(stage##_tail) stage##_tail = tail<SK_OPTS_NS::stage, kCallNext>
+
+    DEFINE_DEFAULT(load_d_srgb, true);
+    DEFINE_DEFAULT(load_s_srgb, true);
+    DEFINE_DEFAULT( store_srgb, false);
+
+    DEFINE_DEFAULT(load_d_f16, true);
+    DEFINE_DEFAULT(load_s_f16, true);
+    DEFINE_DEFAULT( store_f16, false);
+
+    DEFINE_DEFAULT(load_d_565, true);
+    DEFINE_DEFAULT(load_s_565, true);
+    DEFINE_DEFAULT( store_565, false);
+
+    DEFINE_DEFAULT(scale_u8, true);
+
+    DEFINE_DEFAULT(lerp_u8,  true);
+    DEFINE_DEFAULT(lerp_565, true);
 #undef DEFINE_DEFAULT
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
