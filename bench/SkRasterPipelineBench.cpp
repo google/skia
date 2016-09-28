@@ -6,6 +6,7 @@
  */
 
 #include "Benchmark.h"
+#include "SkOpts.h"
 #include "SkRasterPipeline.h"
 #include "SkSRGB.h"
 
@@ -142,6 +143,16 @@ SK_RASTER_STAGE(store_srgb) {
         ptr = stack;
     }
 
+    a = Sk4f::Max(a, 0.0f);
+    r = Sk4f::Max(r, 0.0f);
+    g = Sk4f::Max(g, 0.0f);
+    b = Sk4f::Max(b, 0.0f);
+
+    a = Sk4f::Min(a, 1.0f);
+    r = Sk4f::Min(r, a);
+    g = Sk4f::Min(g, a);
+    b = Sk4f::Min(b, a);
+
     ( sk_linear_to_srgb(r)
     | sk_linear_to_srgb(g) << 8
     | sk_linear_to_srgb(b) << 16
@@ -192,11 +203,11 @@ public:
 
     void runPipeline() {
         SkRasterPipeline p;
-        p.append<load_s_srgb>(src);
-        p.append<   scale_u8>(mask);
-        p.append<load_d_srgb>(dst);
-        p.append<    srcover>();
-        p.last  < store_srgb>(dst);
+        p.append(SkOpts::load_s_srgb_body, SkOpts::load_s_srgb_tail, src);
+        p.append<scale_u8>(mask);
+        p.append(SkOpts::load_d_srgb_body, SkOpts::load_d_srgb_tail, dst);
+        p.append(SkOpts::srcover);
+        p.append(SkOpts::store_srgb_body, SkOpts::store_srgb_tail, dst);
         p.run(N);
     }
 
