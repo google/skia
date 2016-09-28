@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a566efce_9d770794",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 4705,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-09-28T19:10:41Z",
+      "side": 1,
+      "message": "I wonder if this value should be something passed into the function instead of declared both here and in vulkan. You could have a non virtual base function in GrGpu.h that sends the 1000 down to the sub classes.",
+      "range": {
+        "startLine": 4705,
+        "startChar": 29,
+        "endLine": 4705,
+        "endChar": 30
+      },
+      "revId": "d34bd6e61a581a6f594428e4b775ea12ad418a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
