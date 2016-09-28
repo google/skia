@@ -34,6 +34,24 @@
       "revId": "6c9ac7ec1d9f9ece734f9ed879b4bf1fc63ee308",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a566efce_9daf0733",
+        "filename": "src/core/SkLocalMatrixShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-09-28T18:06:19Z",
+      "side": 1,
+      "message": "I had found it in https://codereview.chromium.org/2375153002/, but your CL supersedes that one :)",
+      "parentUuid": "a566efce_fd9723f3",
+      "revId": "6c9ac7ec1d9f9ece734f9ed879b4bf1fc63ee308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
