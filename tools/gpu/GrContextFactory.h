@@ -68,18 +68,15 @@ public:
     // The availability of context types is subject to platform and build configuration
     // restrictions.
     enum ContextType {
-        kGL_ContextType,             //! OpenGL context.
-        kGLES_ContextType,           //! OpenGL ES context.
-        kANGLE_D3D9_ES2_ContextType, //! ANGLE on Direct3D9 OpenGL ES 2 context.
-        kANGLE_D3D11_ES2_ContextType,//! ANGLE on Direct3D11 OpenGL ES 2 context.
-        kANGLE_D3D11_ES3_ContextType,//! ANGLE on Direct3D11 OpenGL ES 3 context.
-        kANGLE_GL_ES2_ContextType,   //! ANGLE on OpenGL OpenGL ES 2 context.
-        kANGLE_GL_ES3_ContextType,   //! ANGLE on OpenGL OpenGL ES 3 context.
-        kCommandBuffer_ContextType,  //! Chromium command buffer OpenGL ES context.
-        kMESA_ContextType,           //! MESA OpenGL context
-        kNullGL_ContextType,         //! Non-rendering OpenGL mock context.
-        kDebugGL_ContextType,        //! Non-rendering, state verifying OpenGL context.
-        kVulkan_ContextType,         //! Vulkan
+        kGL_ContextType,            //! OpenGL context.
+        kGLES_ContextType,          //! OpenGL ES context.
+        kANGLE_ContextType,         //! ANGLE on DirectX OpenGL ES context.
+        kANGLE_GL_ContextType,      //! ANGLE on OpenGL OpenGL ES context.
+        kCommandBuffer_ContextType, //! Chromium command buffer OpenGL ES context.
+        kMESA_ContextType,          //! MESA OpenGL context
+        kNullGL_ContextType,        //! Non-rendering OpenGL mock context.
+        kDebugGL_ContextType,       //! Non-rendering, state verifying OpenGL context.
+        kVulkan_ContextType,        //! Vulkan
         kLastContextType = kVulkan_ContextType
     };
 
@@ -127,6 +124,29 @@ public:
                 return kVulkan_GrBackend;
             default:
                 return kOpenGL_GrBackend;
+        }
+    }
+
+    static const char* ContextTypeName(ContextType type) {
+        switch (type) {
+            case kGL_ContextType:
+                return "gl";
+            case kGLES_ContextType:
+                return "gles";
+            case kANGLE_ContextType:
+                return "angle";
+            case kANGLE_GL_ContextType:
+                return "angle-gl";
+            case kCommandBuffer_ContextType:
+                return "commandbuffer";
+            case kMESA_ContextType:
+                return "mesa";
+            case kNullGL_ContextType:
+                return "nullgl";
+            case kDebugGL_ContextType:
+                return "debuggl";
+            case kVulkan_ContextType:
+                return "vulkan";
         }
     }
 

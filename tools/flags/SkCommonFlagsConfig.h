@@ -24,7 +24,7 @@ class SkCommandLineConfigGpu;
 // The string has following form:
 // tag:
 //   [via-]*backend
-// where 'backend' consists of chars excluding hyphen
+// where 'backend' consists of chars excluding hyphen or "angle-gl"
 // and each 'via' consists of chars excluding hyphen.
 class SkCommandLineConfig {
   public:

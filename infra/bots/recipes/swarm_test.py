@@ -70,9 +70,6 @@ def dm_flags(bot):
   else:
     configs.append('msaa16')
 
-  if 'ANGLE' in bot:
-    configs.extend(['angle_gl_es2', 'angle_d3d11_es2'])
-
   # With msaa, the S4 crashes and the NP produces a long error stream when we
   # run with MSAA. The Tegra2 and Tegra3 just don't support it. No record of
   # why we're not running msaa on iOS, probably started with gpu config and just

@@ -26,9 +26,6 @@
 #define EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE     0x3208
 #define EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE    0x320D
 
-using sk_gpu_test::ANGLEBackend;
-using sk_gpu_test::ANGLEContextVersion;
-
 namespace {
 struct Libs {
     void* fGLLib;
@@ -48,7 +45,7 @@ static GrGLFuncPtr angle_get_gl_proc(void* ctx, const char name[]) {
     return eglGetProcAddress(name);
 }
 
-void* get_angle_egl_display(void* nativeDisplay, ANGLEBackend type) {
+void* get_angle_egl_display(void* nativeDisplay, bool useGLBackend) {
     PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT;
     eglGetPlatformDisplayEXT =
         (PFNEGLGETPLATFORMDISPLAYEXTPROC)eglGetProcAddress("eglGetPlatformDisplayEXT");
@@ -58,25 +55,38 @@ void* get_angle_egl_display(void* nativeDisplay, ANGLEBackend type) {
         return EGL_NO_DISPLAY;
     }
 
-    EGLint typeNum;
-    switch (type) {
-        case ANGLEBackend::kD3D9:
-            typeNum = EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE;
-            break;
-        case ANGLEBackend::kD3D11:
-            typeNum = EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE;
-            break;
-        case ANGLEBackend::kOpenGL:
-            typeNum = EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE;
-            break;
+    EGLDisplay display = EGL_NO_DISPLAY;
+    if (useGLBackend) {
+        EGLint attribs[3] = {
+            EGL_PLATFORM_ANGLE_TYPE_ANGLE,
+            EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE,
+            EGL_NONE
+        };
+        display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, nativeDisplay, attribs);
+    } else {
+        // Try for an ANGLE D3D11 context, fall back to D3D9.
+        EGLint attribs[3][3] = {
+            {
+                EGL_PLATFORM_ANGLE_TYPE_ANGLE,
+                EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
+                EGL_NONE
+            },
+            {
+                EGL_PLATFORM_ANGLE_TYPE_ANGLE,
+                EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE,
+                EGL_NONE
+            },
+        };
+        for (int i = 0; i < 3 && display == EGL_NO_DISPLAY; ++i) {
+            display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE,nativeDisplay, attribs[i]);
+        }
     }
-    const EGLint attribs[] = { EGL_PLATFORM_ANGLE_TYPE_ANGLE, typeNum, EGL_NONE };
-    return eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, nativeDisplay, attribs);
+    return display;
 }
 
 class ANGLEGLContext : public sk_gpu_test::GLTestContext {
 public:
-    ANGLEGLContext(ANGLEBackend, ANGLEContextVersion);
+    ANGLEGLContext(bool preferGLBackend);
     ~ANGLEGLContext() override;
 
     GrEGLImage texture2DToEGLImage(GrGLuint texID) const override;
@@ -91,19 +101,16 @@ private:
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
-    void*                       fContext;
-    void*                       fDisplay;
-    void*                       fSurface;
-    ANGLEBackend                fType;
-    ANGLEContextVersion         fVersion;
+    void* fContext;
+    void* fDisplay;
+    void* fSurface;
+    bool  fIsGLBackend;
 };
 
-ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version)
+ANGLEGLContext::ANGLEGLContext(bool useGLBackend)
     : fContext(EGL_NO_CONTEXT)
     , fDisplay(EGL_NO_DISPLAY)
-    , fSurface(EGL_NO_SURFACE)
-    , fType(type)
-    , fVersion(version) {
+    , fSurface(EGL_NO_SURFACE) {
 
     EGLint numConfigs;
     static const EGLint configAttribs[] = {
@@ -116,7 +123,8 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version)
         EGL_NONE
     };
 
-    fDisplay = get_angle_egl_display(EGL_DEFAULT_DISPLAY, type);
+    fIsGLBackend = useGLBackend;
+    fDisplay = get_angle_egl_display(EGL_DEFAULT_DISPLAY, useGLBackend);
     if (EGL_NO_DISPLAY == fDisplay) {
         SkDebugf("Could not create EGL display!");
         return;
@@ -129,9 +137,8 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version)
     EGLConfig surfaceConfig;
     eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs);
 
-    int versionNum = ANGLEContextVersion::kES2 == version ? 2 : 3;
-    const EGLint contextAttribs[] = {
-        EGL_CONTEXT_CLIENT_VERSION, versionNum,
+    static const EGLint contextAttribs[] = {
+        EGL_CONTEXT_CLIENT_VERSION, 2,
         EGL_NONE
     };
     fContext = eglCreateContext(fDisplay, surfaceConfig, nullptr, contextAttribs);
@@ -217,7 +224,13 @@ GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
 }
 
 sk_gpu_test::GLTestContext* ANGLEGLContext::createNew() const {
-    sk_gpu_test::GLTestContext* ctx = sk_gpu_test::CreateANGLETestContext(fType, fVersion);
+#ifdef SK_BUILD_FOR_WIN
+    sk_gpu_test::GLTestContext* ctx = fIsGLBackend
+        ? sk_gpu_test::CreateANGLEOpenGLGLTestContext()
+        : sk_gpu_test::CreateANGLEDirect3DGLTestContext();
+#else
+    sk_gpu_test::GLTestContext* ctx = sk_gpu_test::CreateANGLEOpenGLGLTestContext();
+#endif
     if (ctx) {
         ctx->makeCurrent();
     }
@@ -286,9 +299,19 @@ const GrGLInterface* CreateANGLEGLInterface() {
     return GrGLAssembleGLESInterface(&gLibs, angle_get_gl_proc);
 }
 
-GLTestContext* CreateANGLETestContext(ANGLEBackend type,
-                                      ANGLEContextVersion version) {
-    ANGLEGLContext* ctx = new ANGLEGLContext(type, version);
+#ifdef SK_BUILD_FOR_WIN
+GLTestContext* CreateANGLEDirect3DGLTestContext() {
+        ANGLEGLContext* ctx = new ANGLEGLContext(false);
+        if (!ctx->isValid()) {
+            delete ctx;
+            return NULL;
+        }
+        return ctx;
+    }
+#endif
+
+GLTestContext* CreateANGLEOpenGLGLTestContext() {
+    ANGLEGLContext* ctx = new ANGLEGLContext(true);
     if (!ctx->isValid()) {
         delete ctx;
         return NULL;

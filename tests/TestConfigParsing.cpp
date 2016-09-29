@@ -77,9 +77,9 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
         "565", "8888", "debug", "gpu", "gpudebug", "gpudft", "gpunull", "msaa16", "msaa4",
         "nonrendering", "null", "nullgpu", "nvpr16", "nvpr4", "nvprdit16", "nvprdit4", "pdf", "skp",
-        "svg", "xps", "angle_d3d11_es2", "angle_gl_es2", "commandbuffer", "mesa", "hwui", "gpuf16",
-        "gpusrgb", "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk", "glinst", "glinst4",
-        "glinstdit4", "glinst16", "glinstdit16", "esinst", "esinst4", "esinstdit4", "glwide"
+        "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui", "gpuf16", "gpusrgb",
+        "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk", "glinst", "glinst4", "glinstdit4",
+        "glinst16", "glinstdit16", "esinst", "esinst4", "esinstdit4", "glwide"
     });
 
     SkCommandLineConfigArray configs;
@@ -167,8 +167,18 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[40]->asConfigGpu()->getUseInstanced());
     REPORTER_ASSERT(reporter, configs[40]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[40]->asConfigGpu()->getSamples() == 4);
+
+#if SK_ANGLE
+#ifdef SK_BUILD_FOR_WIN
     REPORTER_ASSERT(reporter, configs[20]->asConfigGpu());
+#else
+    REPORTER_ASSERT(reporter, !configs[20]->asConfigGpu());
+#endif
     REPORTER_ASSERT(reporter, configs[21]->asConfigGpu());
+#else
+    REPORTER_ASSERT(reporter, !configs[20]->asConfigGpu());
+    REPORTER_ASSERT(reporter, !configs[21]->asConfigGpu());
+#endif
     REPORTER_ASSERT(reporter, configs[22]->asConfigGpu());
 #if SK_MESA
     REPORTER_ASSERT(reporter, configs[23]->asConfigGpu());
@@ -197,8 +207,8 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
 DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
         "gpu[nvpr=true,dit=false]",
-        "gpu[api=angle_d3d9_es2]",
-        "gpu[api=angle_gl_es3]",
+        "gpu[api=angle]",
+        "gpu[api=angle-gl]",
         "gpu[api=mesa,samples=77]",
         "gpu[dit=true,api=commandbuffer]",
         "gpu[]",
@@ -219,12 +229,19 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, !configs[0]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 0);
+#if SK_ANGLE
+#ifdef SK_BUILD_FOR_WIN
     REPORTER_ASSERT(reporter, configs[1]->asConfigGpu()->getContextType() ==
-                    GrContextFactory::kANGLE_D3D9_ES2_ContextType);
-    REPORTER_ASSERT(reporter, configs[1]->asConfigGpu());
+                    GrContextFactory::kANGLE_ContextType);
+#else
+    REPORTER_ASSERT(reporter, !configs[1]->asConfigGpu());
+#endif
     REPORTER_ASSERT(reporter, configs[2]->asConfigGpu()->getContextType() ==
-                    GrContextFactory::kANGLE_GL_ES3_ContextType);
-    REPORTER_ASSERT(reporter, configs[2]->asConfigGpu());
+                    GrContextFactory::kANGLE_GL_ContextType);
+#else
+    REPORTER_ASSERT(reporter, !configs[1]->asConfigGpu());
+    REPORTER_ASSERT(reporter, !configs[2]->asConfigGpu());
+#endif
 #if SK_MESA
     REPORTER_ASSERT(reporter, configs[3]->asConfigGpu()->getContextType() ==
                     GrContextFactory::kMESA_ContextType);
@@ -263,7 +280,7 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsIncorrect, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
         "gpu[nvpr=1]", // Number as bool.
         "gpu[api=gl,]", // Trailing in comma.
-        "gpu[api=angle_glu]", // Unknown api.
+        "gpu[api=angle-glu]", // Unknown api.
         "gpu[api=,samples=0]", // Empty api.
         "gpu[samples=true]", // Value true as a number.
         "gpu[samples=0,samples=0]", // Duplicate option key.
@@ -312,7 +329,7 @@ DEF_TEST(ParseConfigs_ViaParsing, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
         "a-b-c-8888",
         "zz-qq-gpu",
-        "a-angle_gl_es2"
+        "a-angle-gl"
     });
 
     SkCommandLineConfigArray configs;
@@ -323,7 +340,12 @@ DEF_TEST(ParseConfigs_ViaParsing, reporter) {
     } expectedConfigs[] = {
         {"8888", {"a", "b", "c"}},
         {"gpu", {"zz", "qq", nullptr}},
-        {"gpu", { "a", nullptr, nullptr }}
+#if SK_ANGLE
+        { "gpu",{ "a", nullptr, nullptr } }  // With SK_ANGLE, angle-gl becomes gpu(api=angle-gl)
+#else
+        { "angle-gl",{ "a", nullptr, nullptr } }  // The angle-gl tag is only tag that contains
+                                                  // hyphen.
+#endif
     };
     for (int i = 0; i < config1.count(); ++i) {
         REPORTER_ASSERT(reporter, configs[i]->getTag().equals(config1[i]));
@@ -342,9 +364,8 @@ DEF_TEST(ParseConfigs_ViaParsing, reporter) {
 DEF_TEST(ParseConfigs_ViaParsingExtendedForm, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
         "zz-qq-gpu[api=gles]",
-        "abc-nbc-cbs-gpu[api=angle_d3d9_es2,samples=1]",
         "a-gpu[samples=1",
-        "abc-def-angle_gl_es2[samples=1]",
+        "abc-def-angle-gl[samples=1]",
     });
 
     SkCommandLineConfigArray configs;
@@ -355,16 +376,13 @@ DEF_TEST(ParseConfigs_ViaParsingExtendedForm, reporter) {
     } expectedConfigs[] = {
 #if SK_SUPPORT_GPU
         {"gpu", {"zz", "qq", nullptr}},
-        {"gpu", {"abc", "nbc", "cbs"}},
 #else
         {"gpu[api=gles]", {"zz", "qq", nullptr}},
-        {"gpu[api=angle_d3d9_es2,samples=1]", {"abc", "nbc", "cbs"}},
 #endif
-        {"gpu[samples=1", {"a", nullptr, nullptr}}, // Missing bracket makes this is not extended
-                                                    // form but via still works as expected.
-        {"angle_gl_es2[samples=1]", {"abc", "def", nullptr}}  // This is not extended form.
-                                                              // angle_gl_es2 is an api type not a
-                                                              // backend.
+        {"gpu[samples=1", {"a", nullptr, nullptr}}, // This is not extended form, but via still
+                                                    // works as expected.
+        {"gl[samples=1]", {"abc", "def", "angle"}}  // This is not extended form.  Also
+                                                    // angle-gl is not a "backend" in this case.
     };
     for (int i = 0; i < config1.count(); ++i) {
         REPORTER_ASSERT(reporter, configs[i]->getTag().equals(config1[i]));
@@ -381,8 +399,7 @@ DEF_TEST(ParseConfigs_ViaParsingExtendedForm, reporter) {
     }
 #if SK_SUPPORT_GPU
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[1]->asConfigGpu());
+    REPORTER_ASSERT(reporter, !configs[1]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[2]->asConfigGpu());
-    REPORTER_ASSERT(reporter, !configs[3]->asConfigGpu());
 #endif
 }

@@ -117,24 +117,13 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                     glCtx = CreatePlatformGLTestContext(kGLES_GrGLStandard);
                     break;
 #if SK_ANGLE
-                case kANGLE_D3D9_ES2_ContextType:
-                    glCtx = CreateANGLETestContext(ANGLEBackend::kD3D9, ANGLEContextVersion::kES2);
+#   ifdef SK_BUILD_FOR_WIN
+                case kANGLE_ContextType:
+                    glCtx = CreateANGLEDirect3DGLTestContext();
                     break;
-                case kANGLE_D3D11_ES2_ContextType:
-                    glCtx = CreateANGLETestContext(ANGLEBackend::kD3D11,
-                                                   ANGLEContextVersion::kES2);
-                    break;
-                case kANGLE_D3D11_ES3_ContextType:
-                    glCtx = CreateANGLETestContext(ANGLEBackend::kD3D11,
-                                                   ANGLEContextVersion::kES3);
-                    break;
-                case kANGLE_GL_ES2_ContextType:
-                    glCtx = CreateANGLETestContext(ANGLEBackend::kOpenGL,
-                                                   ANGLEContextVersion::kES2);
-                    break;
-                case kANGLE_GL_ES3_ContextType:
-                    glCtx = CreateANGLETestContext(ANGLEBackend::kOpenGL,
-                                                   ANGLEContextVersion::kES3);
+#   endif
+                case kANGLE_GL_ContextType:
+                    glCtx = CreateANGLEOpenGLGLTestContext();
                     break;
 #endif
                 case kCommandBuffer_ContextType:
