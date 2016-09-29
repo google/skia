@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c541232d_0b081d3a",
+        "filename": "tests/ColorSpaceXformTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-09-29T15:28:51Z",
+      "side": 1,
+      "message": "nit: Just size_t here.",
+      "range": {
+        "startLine": 172,
+        "startChar": 10,
+        "endLine": 172,
+        "endChar": 21
+      },
+      "revId": "7172f3f0d9e348f4832caed3c5c82bfdbd357d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c541232d_2b05d920",
+        "filename": "tests/ColorSpaceXformTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-09-29T15:28:51Z",
+      "side": 1,
+      "message": "nit: maybe uint32_t or size_t here for consistency with above",
+      "range": {
+        "startLine": 175,
+        "startChar": 9,
+        "endLine": 175,
+        "endChar": 21
+      },
+      "revId": "7172f3f0d9e348f4832caed3c5c82bfdbd357d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c541232d_4b02251a",
+        "filename": "tests/ColorSpaceXformTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-09-29T15:28:51Z",
+      "side": 1,
+      "message": "This won\u0027t be the path to resources on all platforms.  Can you use GetResource* helpers in Resource.h?",
+      "range": {
+        "startLine": 179,
+        "startChar": 54,
+        "endLine": 179,
+        "endChar": 91
+      },
+      "revId": "7172f3f0d9e348f4832caed3c5c82bfdbd357d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
