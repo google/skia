@@ -81,7 +81,6 @@ static uint16_t compute_nondef(const SkPaint& paint, PaintUsage usage) {
         bits |= (paint.getMaskFilter()  ? kMaskFilter_NonDef : 0);
     }
 
-    bits |= (paint.getXfermode()    ? kXfermode_NonDef : 0);
     bits |= (paint.getColorFilter() ? kColorFilter_NonDef : 0);
     bits |= (paint.getImageFilter() ? kImageFilter_NonDef : 0);
     bits |= (paint.getDrawLooper()  ? kDrawLooper_NonDef : 0);
@@ -150,15 +149,8 @@ static void write_paint(SkWriteBuffer& writer, const SkPaint& paint, unsigned us
     writer.write32(packedFlags);
 
     unsigned nondef = compute_nondef(paint, (PaintUsage)usage);
-    SkXfermode::Mode mode;
-    if (SkXfermode::AsMode(paint.getXfermode(), &mode)) {
-        nondef &= ~kXfermode_NonDef;    // don't need to store a pointer since we have an enum
-    } else {
-        SkASSERT(nondef & kXfermode_NonDef);
-        mode = (SkXfermode::Mode)0;
-    }
     const uint8_t pad = 0;
-    writer.write32((nondef << 16) | ((unsigned)mode << 8) | pad);
+    writer.write32((nondef << 16) | ((unsigned)paint.getBlendMode() << 8) | pad);
 
     CHECK_WRITE_SCALAR(writer, nondef, paint, TextSize);
     CHECK_WRITE_SCALAR(writer, nondef, paint, TextScaleX);
@@ -179,7 +171,6 @@ static void write_paint(SkWriteBuffer& writer, const SkPaint& paint, unsigned us
 
     CHECK_WRITE_FLATTENABLE(writer, nondef, paint, PathEffect);
     CHECK_WRITE_FLATTENABLE(writer, nondef, paint, Shader);
-    CHECK_WRITE_FLATTENABLE(writer, nondef, paint, Xfermode);
     CHECK_WRITE_FLATTENABLE(writer, nondef, paint, MaskFilter);
     CHECK_WRITE_FLATTENABLE(writer, nondef, paint, ColorFilter);
     CHECK_WRITE_FLATTENABLE(writer, nondef, paint, Rasterizer);

@@ -259,7 +259,7 @@ bool SkImage_Base::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
     SkCanvas canvas(bm);
 
     SkPaint paint;
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     canvas.drawImage(this, -SkIntToScalar(srcX), -SkIntToScalar(srcY), &paint);
 
     return true;

@@ -71,32 +71,28 @@ static const char* as_blend_mode(SkXfermode::Mode mode) {
 
 // If a SkXfermode is unsupported in PDF, this function returns
 // SrcOver, otherwise, it returns that Xfermode as a Mode.
-static SkXfermode::Mode mode_for_pdf(const SkXfermode* xfermode) {
-    SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode;
-    if (xfermode) {
-        xfermode->asMode(&mode);
-    }
+static SkBlendMode mode_for_pdf(SkBlendMode mode) {
     switch (mode) {
-        case SkXfermode::kSrcOver_Mode:
-        case SkXfermode::kMultiply_Mode:
-        case SkXfermode::kScreen_Mode:
-        case SkXfermode::kOverlay_Mode:
-        case SkXfermode::kDarken_Mode:
-        case SkXfermode::kLighten_Mode:
-        case SkXfermode::kColorDodge_Mode:
-        case SkXfermode::kColorBurn_Mode:
-        case SkXfermode::kHardLight_Mode:
-        case SkXfermode::kSoftLight_Mode:
-        case SkXfermode::kDifference_Mode:
-        case SkXfermode::kExclusion_Mode:
-        case SkXfermode::kHue_Mode:
-        case SkXfermode::kSaturation_Mode:
-        case SkXfermode::kColor_Mode:
-        case SkXfermode::kLuminosity_Mode:
+        case SkBlendMode::kSrcOver:
+        case SkBlendMode::kMultiply:
+        case SkBlendMode::kScreen:
+        case SkBlendMode::kOverlay:
+        case SkBlendMode::kDarken:
+        case SkBlendMode::kLighten:
+        case SkBlendMode::kColorDodge:
+        case SkBlendMode::kColorBurn:
+        case SkBlendMode::kHardLight:
+        case SkBlendMode::kSoftLight:
+        case SkBlendMode::kDifference:
+        case SkBlendMode::kExclusion:
+        case SkBlendMode::kHue:
+        case SkBlendMode::kSaturation:
+        case SkBlendMode::kColor:
+        case SkBlendMode::kLuminosity:
             // Mode is suppported and handled by pdf graphics state.
             return mode;
         default:
-            return SkXfermode::kSrcOver_Mode;  // Default mode.
+            return SkBlendMode::kSrcOver;  // Default mode.
     }
 }
 
@@ -106,7 +102,7 @@ SkPDFGraphicState::SkPDFGraphicState(const SkPaint& p)
     , fAlpha(p.getAlpha())
     , fStrokeCap(SkToU8(p.getStrokeCap()))
     , fStrokeJoin(SkToU8(p.getStrokeJoin()))
-    , fMode(SkToU8(mode_for_pdf(p.getXfermode()))) {}
+    , fMode(SkToU8(mode_for_pdf(p.getBlendMode()))) {}
 
 // static
 SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
