@@ -185,7 +185,8 @@ void CommandBufferGLTestContext::initializeGLContext(void *nativeWindow, const i
                                                  const int *surfaceAttribs) {
     load_command_buffer_once();
     if (!gfFunctionsLoadedSuccessfully) {
-        SkDebugf("Command Buffer: Could not load EGL functions.\n");
+        static SkOnce once;
+        once([] { SkDebugf("Command Buffer: Could not load EGL functions.\n"); });
         return;
     }
 
