@@ -213,7 +213,7 @@ def run_benchmarks(configs, skps, hardware):
 
       except StddevException:
         retry_max_stddev = skpbench.max_stddev * math.sqrt(2)
-        if FLAGS.verbosity >= 2:
+        if FLAGS.verbosity >= 1:
           print("stddev is too high for %s/%s (%s%%, max=%.2f%%), "
                 "re-queuing with max=%.2f%%." %
                 (skpbench.best_result.config, skpbench.best_result.bench,

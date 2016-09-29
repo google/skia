@@ -42,10 +42,10 @@ DEFINE_int32(verbosity, 4, "level of verbosity (0=none to 5=debug)");
 DEFINE_bool(suppressHeader, false, "don't print a header row before the results");
 
 static const char* header =
-    "  median     accum       max       min   stddev  metric  samples  sample_ms  config    bench";
+    "   accum    median       max       min   stddev  samples  sample_ms  metric  config    bench";
 
 static const char* resultFormat =
-    "%8.4g  %8.4g  %8.4g  %8.4g  %6.3g%%  %-6s  %7li  %9i  %-9s %s";
+    "%8.4g  %8.4g  %8.4g  %8.4g  %6.3g%%  %7li  %9i  %-6s  %-9s %s";
 
 struct Sample {
     using clock = std::chrono::high_resolution_clock;
@@ -133,9 +133,8 @@ void print_result(const std::vector<Sample>& samples, const char* config, const 
         values.push_back(sample.value());
     }
     std::sort(values.begin(), values.end());
-    const double medianValue = values[values.size() / 2];
-    const double accumValue = accum.value();
 
+    const double accumValue = accum.value();
     double variance = 0;
     for (double value : values) {
         const double delta = value - accumValue;
@@ -145,8 +144,8 @@ void print_result(const std::vector<Sample>& samples, const char* config, const 
     // Technically, this is the relative standard deviation.
     const double stddev = 100/*%*/ * sqrt(variance) / accumValue;
 
-    printf(resultFormat, medianValue, accumValue, values.back(), values.front(), stddev,
-           Sample::metric(), values.size(), FLAGS_sampleMs, config, bench);
+    printf(resultFormat, accumValue, values[values.size() / 2], values.back(), values.front(),
+           stddev, values.size(), FLAGS_sampleMs, Sample::metric(), config, bench);
     printf("\n");
     fflush(stdout);
 }

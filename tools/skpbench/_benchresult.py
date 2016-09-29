@@ -11,22 +11,22 @@ import sys
 
 class BenchResult:
   FLOAT_REGEX = '[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?'
-  PATTERN = re.compile('^(?P<median_pad> *)'
-                       '(?P<median>' + FLOAT_REGEX + ')'
-                       '(?P<accum_pad> +)'
+  PATTERN = re.compile('^(?P<accum_pad> *)'
                        '(?P<accum>' + FLOAT_REGEX + ')'
+                       '(?P<median_pad> +)'
+                       '(?P<median>' + FLOAT_REGEX + ')'
                        '(?P<max_pad> +)'
                        '(?P<max>' + FLOAT_REGEX + ')'
                        '(?P<min_pad> +)'
                        '(?P<min>' + FLOAT_REGEX + ')'
                        '(?P<stddev_pad> +)'
                        '(?P<stddev>' + FLOAT_REGEX + '%)'
-                       '(?P<metric_pad> +)'
-                       '(?P<metric>ms|fps)'
                        '(?P<samples_pad> +)'
                        '(?P<samples>\d+)'
                        '(?P<sample_ms_pad> +)'
                        '(?P<sample_ms>\d+)'
+                       '(?P<metric_pad> +)'
+                       '(?P<metric>ms|fps)'
                        '(?P<config_pad> +)'
                        '(?P<config>[^\s]+)'
                        '(?P<bench_pad> +)'
@@ -38,14 +38,14 @@ class BenchResult:
     return cls(match) if match else None
 
   def __init__(self, match):
-    self.median = float(match.group('median'))
     self.accum = float(match.group('accum'))
+    self.median = float(match.group('median'))
     self.max = float(match.group('max'))
     self.min = float(match.group('min'))
     self.stddev = float(match.group('stddev')[:-1]) # Drop '%' sign.
-    self.metric = match.group('metric')
     self.samples = int(match.group('samples'))
     self.sample_ms = int(match.group('sample_ms'))
+    self.metric = match.group('metric')
     self.config = match.group('config')
     self.bench = match.group('bench')
     self._match = match
@@ -58,8 +58,8 @@ class BenchResult:
       print(self._match.group(0), file=outfile)
     else:
       values = list()
-      for name in ['median', 'accum', 'max', 'min', 'stddev',
-                   'metric', 'samples', 'sample_ms', 'config']:
+      for name in ['accum', 'median', 'max', 'min', 'stddev',
+                   'samples', 'sample_ms', 'metric', 'config']:
         values.append(self.get_string(name + '_pad'))
         values.append(self.get_string(name))
       values.append(config_suffix)

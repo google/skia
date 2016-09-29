@@ -34,7 +34,7 @@ This script can also be used to generate a Google sheet:
 """)
 
 __argparse.add_argument('-r', '--result',
-    choices=['median', 'accum', 'max', 'min'], default='median',
+    choices=['accum', 'median', 'max', 'min'], default='accum',
     help="result to use for cell values")
 __argparse.add_argument('-f', '--force',
     action='store_true', help='silently ignore warnings')
