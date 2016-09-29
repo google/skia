@@ -94,33 +94,6 @@ def WriteVariable(output, variable_name, prepend=None):
   output.write('}')
 
 
-def GetBaseName(target_name):
-  base_name = posixpath.basename(target_name)
-  sep = base_name.rfind(":")
-  if sep != -1:
-    base_name = base_name[sep+1:]
-  return base_name
-
-
-def GetOutputName(target_name, target_properties):
-  output_name = target_properties.get("output_name", None)
-  if output_name is None:
-    output_name = GetBaseName(target_name)
-  output_extension = target_properties.get("output_extension", None)
-  if output_extension is not None:
-    output_name = posixpath.splitext(output_name)[0]
-    if len(output_extension):
-      output_name += "." + output_extension
-  return output_name
-
-
-def GetAbsolutePath(root_path, path):
-  if path.startswith("//"):
-    return root_path + "/" + path[2:]
-  else:
-    return path
-
-
 # See GetSourceFileType in gn
 source_file_types = {
   '.cc': 'cxx',
@@ -153,6 +126,7 @@ cmake_target_types = {
   'shared_library': CMakeTargetType('add_library', 'SHARED', 'LIBRARY', True),
   'static_library': CMakeTargetType('add_library', 'STATIC', 'ARCHIVE', False),
   'source_set': CMakeTargetType('add_library', 'OBJECT', None, False),
+  'copy': CMakeTargetType.custom,
   'action': CMakeTargetType.custom,
   'action_foreach': CMakeTargetType.custom,
   'bundle_data': CMakeTargetType.custom,
@@ -160,33 +134,121 @@ cmake_target_types = {
 }
 
 
+def GetBaseName(gn_target_name):
+  base_name = posixpath.basename(gn_target_name)
+  sep = base_name.rfind(":")
+  if sep != -1:
+    base_name = base_name[sep+1:]
+  return base_name
+
+
+class Project(object):
+  def __init__(self, project_json):
+    self.targets = project_json['targets']
+    build_settings = project_json['build_settings']
+    self.root_path = build_settings['root_path']
+    self.build_path = posixpath.join(self.root_path,
+                                     build_settings['build_dir'][2:])
+
+  def GetAbsolutePath(self, path):
+    if path.startswith("//"):
+      return self.root_path + "/" + path[2:]
+    else:
+      return path
+
+  def GetObjectDependencies(self, gn_target_name, object_dependencies):
+    dependencies = self.targets[gn_target_name].get('deps', [])
+    for dependency in dependencies:
+      dependency_type = self.targets[dependency].get('type', None)
+      if dependency_type == 'source_set':
+        object_dependencies.add(dependency)
+      if dependency_type not in gn_target_types_that_absorb_objects:
+        self.GetObjectDependencies(dependency, object_dependencies)
+
+  def GetCMakeTargetName(self, gn_target_name):
+    target_properties = self.targets[gn_target_name]
+    output_name = target_properties.get("output_name", None)
+    if output_name is None:
+      output_name = GetBaseName(gn_target_name)
+    output_extension = target_properties.get("output_extension", None)
+    if output_extension is not None:
+      output_name = posixpath.splitext(output_name)[0]
+      if len(output_extension):
+        output_name += "." + output_extension
+    return output_name
+
+
 class Target(object):
-  def __init__(self, gn_name, targets):
-    self.gn_name = gn_name
-    self.properties = targets[self.gn_name]
-    self.cmake_name = GetOutputName(self.gn_name, self.properties)
+  def __init__(self, gn_target_name, project):
+    self.gn_name = gn_target_name
+    self.properties = project.targets[self.gn_name]
+    self.cmake_name = project.GetCMakeTargetName(self.gn_name)
     self.gn_type = self.properties.get('type', None)
     self.cmake_type = cmake_target_types.get(self.gn_type, None)
 
 
-def WriteCompilerFlags(out, target, targets, root_path, sources):
+def WriteAction(out, target, project, sources, synthetic_dependencies):
+  outputs = []
+  output_directories = set()
+  for output in target.properties.get('outputs', []):
+    output_abs_path = project.GetAbsolutePath(output)
+    outputs.append(output_abs_path)
+    output_directory = posixpath.dirname(output_abs_path)
+    if output_directory:
+      output_directories.add(output_directory)
+  outputs_name = target.cmake_name + '__output'
+  SetVariableList(out, outputs_name, outputs)
+
+  out.write('add_custom_command(OUTPUT ')
+  WriteVariable(out, outputs_name)
+  out.write('\n')
+
+  for directory in output_directories:
+    out.write('  COMMAND ${CMAKE_COMMAND} -E make_directory ')
+    out.write(directory)
+    out.write('\n')
+
+  out.write('  COMMAND python ')
+  out.write(project.GetAbsolutePath(target.properties['script']))
+  out.write(' ')
+  out.write(' '.join(target.properties['args']))
+  out.write('\n')
+
+  out.write('  DEPENDS ')
+  for sources_type_name in sources.values():
+    WriteVariable(out, sources_type_name, ' ')
+  out.write('\n')
+
+  out.write('  WORKING_DIRECTORY ')
+  out.write(project.build_path)
+  out.write('\n')
+
+  out.write('  COMMENT ')
+  out.write(target.cmake_name)
+  out.write('\n')
+
+  out.write('  VERBATIM)\n')
+
+  synthetic_dependencies.add(outputs_name)
+
+
+def WriteCompilerFlags(out, target, project, sources):
   # Hack, set linker language to c if no c or cxx files present.
   if not 'c' in sources and not 'cxx' in sources:
     SetTargetProperty(out, target.cmake_name, 'LINKER_LANGUAGE', ['C'])
 
   # Mark uncompiled sources as uncompiled.
+  if 'input' in sources:
+    SetFilesProperty(out, sources['input'], 'HEADER_FILE_ONLY', ('True',), '')
   if 'other' in sources:
-    out.write('set_source_files_properties(')
-    WriteVariable(out, sources['other'], '')
-    out.write(' PROPERTIES HEADER_FILE_ONLY "TRUE")\n')
+    SetFilesProperty(out, sources['other'], 'HEADER_FILE_ONLY', ('True',), '')
 
   # Mark object sources as linkable.
   if 'obj' in sources:
-    out.write('set_source_files_properties(')
-    WriteVariable(out, sources['obj'], '')
-    out.write(' PROPERTIES EXTERNAL_OBJECT "TRUE")\n')
+    SetFilesProperty(out, sources['obj'], 'EXTERNAL_OBJECT', ('True',), '')
 
   # TODO: 'output_name', 'output_dir', 'output_extension'
+  # This includes using 'source_outputs' to direct compiler output.
 
   # Includes
   includes = target.properties.get('include_dirs', [])
@@ -196,7 +258,7 @@ def WriteCompilerFlags(out, target, targets, root_path, sources):
     out.write(' APPEND PROPERTY INCLUDE_DIRECTORIES')
     for include_dir in includes:
       out.write('\n  "')
-      out.write(GetAbsolutePath(root_path, include_dir))
+      out.write(project.GetAbsolutePath(include_dir))
       out.write('"')
     out.write(')\n')
 
@@ -239,34 +301,38 @@ def WriteCompilerFlags(out, target, targets, root_path, sources):
     SetTargetProperty(out, target.cmake_name, 'LINK_FLAGS', ldflags, ' ')
 
 
-def GetObjectDependencies(object_dependencies, target_name, targets):
-  dependencies = targets[target_name].get('deps', [])
-  for dependency in dependencies:
-    if targets[dependency].get('type', None) == 'source_set':
-      object_dependencies.add(dependency)
-      GetObjectDependencies(object_dependencies, dependency, targets)
+gn_target_types_that_absorb_objects = (
+  'executable',
+  'loadable_module',
+  'shared_library',
+  'static_library'
+)
 
 
-def WriteSourceVariables(out, target, targets, root_path):
-  raw_sources = target.properties.get('sources', [])
-
+def WriteSourceVariables(out, target, project):
   # gn separates the sheep from the goats based on file extensions.
   # A full separation is done here because of flag handing (see Compile flags).
   source_types = {'cxx':[], 'c':[], 'asm':[],
-                  'obj':[], 'obj_target':[], 'other':[]}
-  for source in raw_sources:
+                  'obj':[], 'obj_target':[], 'input':[], 'other':[]}
+
+  # TODO .def files on Windows
+  for source in target.properties.get('sources', []):
     _, ext = posixpath.splitext(source)
-    source_abs_path = GetAbsolutePath(root_path, source)
+    source_abs_path = project.GetAbsolutePath(source)
     source_types[source_file_types.get(ext, 'other')].append(source_abs_path)
+
+  for input_path in target.properties.get('inputs', []):
+    input_abs_path = project.GetAbsolutePath(input_path)
+    source_types['input'].append(input_abs_path)
 
   # OBJECT library dependencies need to be listed as sources.
   # Only executables and non-OBJECT libraries may reference an OBJECT library.
   # https://gitlab.kitware.com/cmake/cmake/issues/14778
-  if target.cmake_type.modifier != 'OBJECT':
+  if target.gn_type in gn_target_types_that_absorb_objects:
     object_dependencies = set()
-    GetObjectDependencies(object_dependencies, target.gn_name, targets)
+    project.GetObjectDependencies(target.gn_name, object_dependencies)
     for dependency in object_dependencies:
-      cmake_dependency_name = GetOutputName(dependency, targets[dependency])
+      cmake_dependency_name = project.GetCMakeTargetName(dependency)
       obj_target_sources = '$<TARGET_OBJECTS:' + cmake_dependency_name + '>'
       source_types['obj_target'].append(obj_target_sources)
 
@@ -278,19 +344,21 @@ def WriteSourceVariables(out, target, targets, root_path):
   return sources
 
 
-def WriteTarget(out, target_name, root_path, targets):
+def WriteTarget(out, target, project):
   out.write('\n#')
-  out.write(target_name)
+  out.write(target.gn_name)
   out.write('\n')
-
-  target = Target(target_name, targets)
 
   if target.cmake_type is None:
     print ('Target %s has unknown target type %s, skipping.' %
-          (        target_name,               target.gn_type ) )
+          (        target.gn_name,            target.gn_type ) )
     return
 
-  sources = WriteSourceVariables(out, target, targets, root_path)
+  sources = WriteSourceVariables(out, target, project)
+
+  synthetic_dependencies = set()
+  if target.gn_type == 'action':
+    WriteAction(out, target, project, sources, synthetic_dependencies)
 
   out.write(target.cmake_type.command)
   out.write('(')
@@ -300,31 +368,37 @@ def WriteTarget(out, target_name, root_path, targets):
     out.write(target.cmake_type.modifier)
   for sources_type_name in sources.values():
     WriteVariable(out, sources_type_name, ' ')
+  if synthetic_dependencies:
+    out.write(' DEPENDS')
+    for synthetic_dependencie in synthetic_dependencies:
+      WriteVariable(out, synthetic_dependencie, ' ')
   out.write(')\n')
 
   if target.cmake_type.command != 'add_custom_target':
-    WriteCompilerFlags(out, target, targets, root_path, sources)
+    WriteCompilerFlags(out, target, project, sources)
 
   dependencies = target.properties.get('deps', [])
   libraries = []
   nonlibraries = []
   for dependency in dependencies:
-    gn_dependency_type = targets.get(dependency, {}).get('type', None)
+    gn_dependency_type = project.targets.get(dependency, {}).get('type', None)
     cmake_dependency_type = cmake_target_types.get(gn_dependency_type, None)
+    cmake_dependency_name = project.GetCMakeTargetName(dependency)
     if cmake_dependency_type.command != 'add_library':
-      nonlibraries.append(dependency)
+      nonlibraries.append(cmake_dependency_name)
     elif cmake_dependency_type.modifier != 'OBJECT':
-      libraries.append(GetOutputName(dependency, targets[dependency]))
+      if target.cmake_type.is_linkable:
+        libraries.append(cmake_dependency_name)
+      else:
+        nonlibraries.append(cmake_dependency_name)
 
   # Non-library dependencies.
   if nonlibraries:
     out.write('add_dependencies(')
     out.write(target.cmake_name)
-    out.write('\n')
     for nonlibrary in nonlibraries:
-      out.write('  ')
-      out.write(GetOutputName(nonlibrary, targets[nonlibrary]))
-      out.write('\n')
+      out.write('\n  ')
+      out.write(nonlibrary)
     out.write(')\n')
 
   # Non-OBJECT library dependencies.
@@ -333,7 +407,7 @@ def WriteTarget(out, target_name, root_path, targets):
     system_libraries = []
     for external_library in external_libraries:
       if '/' in external_library:
-        libraries.append(GetAbsolutePath(root_path, external_library))
+        libraries.append(project.GetAbsolutePath(external_library))
       else:
         if external_library.endswith('.framework'):
           external_library = external_library[:-len('.framework')]
@@ -356,11 +430,7 @@ def WriteTarget(out, target_name, root_path, targets):
 
 
 def WriteProject(project):
-  build_settings = project['build_settings']
-  root_path = build_settings['root_path']
-  build_path = os.path.join(root_path, build_settings['build_dir'][2:])
-
-  out = open(os.path.join(build_path, 'CMakeLists.txt'), 'w+')
+  out = open(posixpath.join(project.build_path, 'CMakeLists.txt'), 'w+')
   out.write('cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)\n')
   out.write('cmake_policy(VERSION 2.8.8)\n')
 
@@ -370,10 +440,9 @@ def WriteProject(project):
   # ASM-ATT does not support .S files.
   # output.write('enable_language(ASM-ATT)\n')
 
-  targets = project['targets']
-  for target_name in targets.keys():
+  for target_name in project.targets.keys():
     out.write('\n')
-    WriteTarget(out, target_name, root_path, targets)
+    WriteTarget(out, Target(target_name, project), project)
 
 
 def main():
@@ -386,7 +455,7 @@ def main():
   with open(json_path, 'r') as json_file:
     project = json.loads(json_file.read())
 
-  WriteProject(project)
+  WriteProject(Project(project))
 
 
 if __name__ == "__main__":
