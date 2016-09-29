@@ -54,35 +54,23 @@ void SkPDFCanvas::onDrawImageNine(const SkImage* image,
 }
 
 void SkPDFCanvas::onDrawImageRect(const SkImage* image,
-                                  const SkRect* srcPtr,
+                                  const SkRect* src,
                                   const SkRect& dst,
                                   const SkPaint* paint,
                                   SkCanvas::SrcRectConstraint constraint) {
-    SkRect bounds = SkRect::Make(image->bounds());
-    SkRect src = srcPtr ? *srcPtr : bounds;
     SkAutoCanvasRestore autoCanvasRestore(this, true);
-    if (src != bounds) {
-        this->clipRect(dst);
-    }
-    this->concat(SkMatrix::MakeRectToRect(src, dst,
-                                 SkMatrix::kFill_ScaleToFit));
-    this->drawImage(image, 0, 0, paint);
+    this->clipRect(dst);
+    this->SkCanvas::onDrawImageRect(image, src, dst, paint, constraint);
 }
 
 void SkPDFCanvas::onDrawBitmapRect(const SkBitmap& bitmap,
-                                   const SkRect* srcPtr,
+                                   const SkRect* src,
                                    const SkRect& dst,
                                    const SkPaint* paint,
                                    SkCanvas::SrcRectConstraint constraint) {
-    SkRect bounds = SkRect::Make(bitmap.bounds());
-    SkRect src = srcPtr ? *srcPtr : bounds;
     SkAutoCanvasRestore autoCanvasRestore(this, true);
-    if (src != bounds) {
-        this->clipRect(dst);
-    }
-    this->concat(SkMatrix::MakeRectToRect(src, dst,
-                                 SkMatrix::kFill_ScaleToFit));
-    this->drawBitmap(bitmap, 0, 0, paint);
+    this->clipRect(dst);
+    this->SkCanvas::onDrawBitmapRect(bitmap, src, dst, paint, constraint);
 }
 
 void SkPDFCanvas::onDrawImageLattice(const SkImage* image,

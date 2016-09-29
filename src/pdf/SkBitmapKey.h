@@ -10,58 +10,72 @@
 #include "SkBitmap.h"
 #include "SkImage.h"
 #include "SkCanvas.h"
+#include "SkPixelRef.h"
 
-class SkBitmapKey {
-public:
-    SkBitmapKey() : fSubset(SkIRect::MakeEmpty()), fID(0) {}
-    explicit SkBitmapKey(const SkBitmap& bm)
-        : fSubset(bm.getSubset()), fID(bm.getGenerationID()) {}
-    explicit SkBitmapKey(const SkImage* img)
-        : fSubset(img ? img->bounds() : SkIRect::MakeEmpty())
-        , fID(img ? img->uniqueID() : 0) {}
-    explicit SkBitmapKey(const sk_sp<SkImage> img)
-        : fSubset(img->bounds()), fID(img->uniqueID()) {}
+struct SkBitmapKey {
+    SkIRect fSubset;
+    uint32_t fID;
     bool operator==(const SkBitmapKey& rhs) const {
         return fID == rhs.fID && fSubset == rhs.fSubset;
     }
     bool operator!=(const SkBitmapKey& rhs) const { return !(*this == rhs); }
-    uint32_t id() const { return fID; }
-
-private:
-    SkIRect fSubset;
-    uint32_t fID;
 };
 
 /**
-   This wraps a thing that could either be a bitmap or a image and
-   abstracts out some common tasks.
+   This class has all the advantages of SkBitmaps and SkImages.
  */
-class SkImageBitmap {
+class SkImageSubset {
 public:
-    explicit SkImageBitmap(const SkBitmap& b) : fBitmap(b), fImage(nullptr) {}
-    explicit SkImageBitmap(SkImage* i) : fImage(i) { SkASSERT(fImage); }
-    SkIRect bounds() const { return fImage ? fImage->bounds() : fBitmap.bounds(); }
-    SkISize dimensions() const {
-        return fImage ? fImage->dimensions() : fBitmap.dimensions();
-    }
-    sk_sp<SkImage> makeImage() const {
-        return fImage ? sk_ref_sp(fImage) : SkImage::MakeFromBitmap(fBitmap);
-    }
-    SkBitmapKey getKey() const {
-        return fImage ? SkBitmapKey(fImage) : SkBitmapKey(fBitmap);
-    }
-    void draw(SkCanvas* canvas, SkPaint* paint) const {
+    explicit SkImageSubset(const SkBitmap& b) {
+        SkASSERT(!b.drawsNothing());
+        fSubset = b.getSubset();
+        SkAutoLockPixels autoLockPixels(b);
+        SkASSERT(b.pixelRef());
+        SkBitmap tmp;
+        tmp.setInfo(b.pixelRef()->info(), b.rowBytes());
+        tmp.setPixelRef(b.pixelRef());
+        tmp.lockPixels();
+        fImage = SkImage::MakeFromBitmap(tmp);
         if (fImage) {
-            canvas->drawImage(fImage, 0, 0, paint);
-        } else {
-            canvas->drawBitmap(fBitmap, 0, 0, paint);
+            SkASSERT(!b.isImmutable() || fImage->uniqueID() == b.getGenerationID());
+            SkASSERT(fImage->bounds().contains(fSubset));
+        }
+    }
+    explicit SkImageSubset(sk_sp<SkImage> i) : fImage(std::move(i)) {
+        SkASSERT(fImage);
+        fSubset = fImage->bounds();
+        SkASSERT(fImage->bounds().contains(fSubset));
+    }
+    SkImageSubset(sk_sp<SkImage> i, SkIRect subset)
+        : fSubset(subset), fImage(std::move(i)) {
+        SkASSERT(fImage);
+        if (!fSubset.intersect(fImage->bounds())) {
+            fImage = nullptr;
+            fSubset = {0, 0, 0, 0};
         }
     }
 
+    bool good() const { return fImage != nullptr; }
+    
+    SkIRect bounds() const { return SkIRect::MakeSize(this->dimensions()); }
+
+    SkISize dimensions() const { return fSubset.size(); }
+
+    sk_sp<SkImage> makeImage() const {
+        return fSubset == fImage->bounds() ? fImage : fImage->makeSubset(fSubset);
+    }
+
+    SkBitmapKey getKey() const { return SkBitmapKey{fSubset, fImage->uniqueID()}; }
+
+    void draw(SkCanvas* canvas, SkPaint* paint) const {
+        SkRect src = SkRect::Make(fSubset),
+               dst = SkRect::Make(this->bounds());
+        canvas->drawImageRect(fImage.get(), src, dst, paint);
+    }
+
 private:
-    SkBitmap fBitmap;
-    SkImage* fImage; // non-owning; when drawImage starts passing a sk_sp<>,
-                     // we can take a const ref to that sk_sp<>.
+    SkIRect fSubset;
+    sk_sp<SkImage> fImage;
 };
 
 #endif  // SkBitmapKey_DEFINED
