@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c541232d_6b6601b9",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1114,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-09-29T20:49:38Z",
+      "side": 1,
+      "message": "Why not use SkBlendMode here, and specify the size on the enum class?\n\n(enum class SkBlendMode : uin32_t { ... })",
+      "range": {
+        "startLine": 1114,
+        "startChar": 20,
+        "endLine": 1114,
+        "endChar": 30
+      },
+      "revId": "67773d7a2b9fea9ca12d0e6afb2d12a3dc872e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c541232d_eb70316b",
+        "filename": "include/core/SkXfermode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-09-29T20:49:38Z",
+      "side": 1,
+      "message": "Does this buy us anything over Make()?  AFAICT there\u0027s still refcount churn, might as well pass ownership to the caller.\n\n[later]\n\nHmm, I guess this is a convenient place to assert vs. clients that just want a raw ptr ATM.",
+      "range": {
+        "startLine": 161,
+        "startChar": 23,
+        "endLine": 161,
+        "endChar": 27
+      },
+      "revId": "67773d7a2b9fea9ca12d0e6afb2d12a3dc872e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c541232d_cb229560",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2385,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-09-29T20:49:38Z",
+      "side": 1,
+      "message": "nit: update comment also",
+      "range": {
+        "startLine": 2385,
+        "startChar": 30,
+        "endLine": 2385,
+        "endChar": 38
+      },
+      "revId": "67773d7a2b9fea9ca12d0e6afb2d12a3dc872e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c541232d_eb3e7175",
+        "filename": "src/core/SkSpriteBlitter_ARGB32.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-09-29T20:49:38Z",
+      "side": 1,
+      "message": "paint.isSrcOver()?",
+      "range": {
+        "startLine": 264,
+        "startChar": 53,
+        "endLine": 264,
+        "endChar": 65
+      },
+      "revId": "67773d7a2b9fea9ca12d0e6afb2d12a3dc872e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c541232d_4b2ea542",
+        "filename": "src/utils/SkDumpCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-09-29T20:49:38Z",
+      "side": 1,
+      "message": "!p-\u003eisSrcOver()?",
+      "range": {
+        "startLine": 543,
+        "startChar": 15,
+        "endLine": 543,
+        "endChar": 27
+      },
+      "revId": "67773d7a2b9fea9ca12d0e6afb2d12a3dc872e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
