@@ -134,7 +134,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast/Release",
-      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=\"-march=native -fomit-frame-pointer -O3\" is_debug=false"
+      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=\"-march=native -fomit-frame-pointer -O3 -ffp-contract=off\" is_debug=false"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
