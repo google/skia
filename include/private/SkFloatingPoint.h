@@ -107,9 +107,11 @@ static const uint32_t kIEEENotANumber = 0x7fffffff;
 
 static inline float sk_float_rsqrt_portable(float x) {
     // Get initial estimate.
-    int i = *SkTCast<int*>(&x);
+    int i;
+    memcpy(&i, &x, 4);
     i = 0x5F1FFFF9 - (i>>1);
-    float estimate = *SkTCast<float*>(&i);
+    float estimate;
+    memcpy(&estimate, &i, 4);
 
     // One step of Newton's method to refine.
     const float estimate_sq = estimate*estimate;
