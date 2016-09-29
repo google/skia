@@ -225,6 +225,8 @@
       "gpusrgb",
       "pdf",
       "msaa16",
+      "angle_gl_es2",
+      "angle_d3d11_es2",
       "serialize-8888",
       "tiles_rt-8888",
       "pic-8888",

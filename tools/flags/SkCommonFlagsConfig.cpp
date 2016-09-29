@@ -16,10 +16,8 @@ using sk_gpu_test::GrContextFactory;
 
 static const char defaultConfigs[] =
     "8888 gpu nonrendering"
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
-    " angle"
-#endif
+#if defined(SK_BUILD_FOR_WIN)
+    " angle_d3d11_es2"
 #endif
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     " hwui"
@@ -32,50 +30,46 @@ static const struct {
     const char* options;
 } gPredefinedConfigs[] ={
 #if SK_SUPPORT_GPU
-    { "gpu",         "gpu", "" },
-    { "gl",          "gpu", "api=gl" },
-    { "msaa4",       "gpu", "samples=4" },
-    { "glmsaa4",     "gpu", "api=gl,samples=4" },
-    { "msaa16",      "gpu", "samples=16" },
-    { "nvpr4",       "gpu", "nvpr=true,samples=4" },
-    { "glnvpr4",     "gpu", "api=gl,nvpr=true,samples=4" },
-    { "nvpr16",      "gpu", "nvpr=true,samples=16" },
-    { "nvprdit4",    "gpu", "nvpr=true,samples=4,dit=true" },
-    { "glnvprdit4",  "gpu", "api=gl,nvpr=true,samples=4,dit=true" },
-    { "nvprdit16",   "gpu", "nvpr=true,samples=16,dit=true" },
-    { "glinst",      "gpu", "api=gl,inst=true" },
-    { "glinst4",     "gpu", "api=gl,inst=true,samples=4" },
-    { "glinstdit4",  "gpu", "api=gl,inst=true,samples=4,dit=true" },
-    { "glinst16",    "gpu", "api=gl,inst=true,samples=16" },
-    { "glinstdit16", "gpu", "api=gl,inst=true,samples=16,dit=true" },
-    { "esinst",      "gpu", "api=gles,inst=true" },
-    { "esinst4",     "gpu", "api=gles,inst=true,samples=4" },
-    { "esinstdit4",  "gpu", "api=gles,inst=true,samples=4,dit=true" },
-    { "gpuf16",      "gpu", "color=f16" },
-    { "gpusrgb",     "gpu", "color=srgb" },
-    { "glsrgb",      "gpu", "api=gl,color=srgb" },
-    { "glwide",      "gpu", "api=gl,color=f16_wide" },
-    { "gpudft",      "gpu", "dit=true" },
-    { "gpudebug",    "gpu", "api=debug" },
-    { "gpunull",     "gpu", "api=null" },
-    { "debug",       "gpu", "api=debug" },
-    { "nullgpu",     "gpu", "api=null" }
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
-    ,{ "angle",      "gpu", "api=angle" }
-#endif
-    ,{ "angle-gl",   "gpu", "api=angle-gl" }
-#endif
-    ,{ "commandbuffer", "gpu", "api=commandbuffer" }
+    { "gpu",             "gpu", "" },
+    { "gl",              "gpu", "api=gl" },
+    { "msaa4",           "gpu", "samples=4" },
+    { "glmsaa4",         "gpu", "api=gl,samples=4" },
+    { "msaa16",          "gpu", "samples=16" },
+    { "nvpr4",           "gpu", "nvpr=true,samples=4" },
+    { "glnvpr4",         "gpu", "api=gl,nvpr=true,samples=4" },
+    { "nvpr16",          "gpu", "nvpr=true,samples=16" },
+    { "nvprdit4",        "gpu", "nvpr=true,samples=4,dit=true" },
+    { "glnvprdit4",      "gpu", "api=gl,nvpr=true,samples=4,dit=true" },
+    { "nvprdit16",       "gpu", "nvpr=true,samples=16,dit=true" },
+    { "glinst",          "gpu", "api=gl,inst=true" },
+    { "glinst4",         "gpu", "api=gl,inst=true,samples=4" },
+    { "glinstdit4",      "gpu", "api=gl,inst=true,samples=4,dit=true" },
+    { "glinst16",        "gpu", "api=gl,inst=true,samples=16" },
+    { "glinstdit16",     "gpu", "api=gl,inst=true,samples=16,dit=true" },
+    { "esinst",          "gpu", "api=gles,inst=true" },
+    { "esinst4",         "gpu", "api=gles,inst=true,samples=4" },
+    { "esinstdit4",      "gpu", "api=gles,inst=true,samples=4,dit=true" },
+    { "gpuf16",          "gpu", "color=f16" },
+    { "gpusrgb",         "gpu", "color=srgb" },
+    { "glsrgb",          "gpu", "api=gl,color=srgb" },
+    { "glwide",          "gpu", "api=gl,color=f16_wide" },
+    { "gpudft",          "gpu", "dit=true" },
+    { "gpudebug",        "gpu", "api=debug" },
+    { "gpunull",         "gpu", "api=null" },
+    { "debug",           "gpu", "api=debug" },
+    { "nullgpu",         "gpu", "api=null" },
+    { "angle_d3d11_es2", "gpu", "api=angle_d3d11_es2" },
+    { "angle_gl_es2",    "gpu", "api=angle_gl_es2" },
+    { "commandbuffer",   "gpu", "api=commandbuffer" }
 #if SK_MESA
-    ,{ "mesa", "gpu", "api=mesa" }
+    ,{ "mesa",           "gpu", "api=mesa" }
 #endif
 #ifdef SK_VULKAN
-    ,{ "vk",       "gpu", "api=vulkan" }
-    ,{ "vksrgb",   "gpu", "api=vulkan,color=srgb" }
-    ,{ "vkwide",   "gpu", "api=vulkan,color=f16_wide" }
-    ,{ "vkmsaa4",  "gpu", "api=vulkan,samples=4" }
-    ,{ "vkmsaa16", "gpu", "api=vulkan,samples=16" }
+    ,{ "vk",             "gpu", "api=vulkan" }
+    ,{ "vksrgb",         "gpu", "api=vulkan,color=srgb" }
+    ,{ "vkwide",         "gpu", "api=vulkan,color=f16_wide" }
+    ,{ "vkmsaa4",        "gpu", "api=vulkan,samples=4" }
+    ,{ "vkmsaa16",       "gpu", "api=vulkan,samples=16" }
 #endif
 
 #else
@@ -114,12 +108,11 @@ static const char configExtendedHelp[] =
     "\t\tgles  \t\t\tUse OpenGL ES.\n"
     "\t\tdebug \t\t\tUse debug OpenGL.\n"
     "\t\tnull  \t\t\tUse null OpenGL.\n"
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
-    "\t\tangle\t\t\tUse ANGLE DirectX.\n"
-#endif
-    "\t\tangle-gl\t\t\tUse ANGLE OpenGL.\n"
-#endif
+    "\t\tangle_d3d9_es2\t\t\tUse OpenGL ES2 on the ANGLE Direct3D9 backend.\n"
+    "\t\tangle_d3d11_es2\t\t\tUse OpenGL ES2 on the ANGLE Direct3D11 backend.\n"
+    "\t\tangle_d3d11_es3\t\t\tUse OpenGL ES3 on the ANGLE Direct3D11 backend.\n"
+    "\t\tangle_gl_es2\t\t\tUse OpenGL ES2 on the ANGLE OpenGL backend.\n"
+    "\t\tangle_gl_es3\t\t\tUse OpenGL ES3 on the ANGLE OpenGL backend.\n"
     "\t\tcommandbuffer\t\tUse command buffer.\n"
 #if SK_MESA
     "\t\tmesa\t\t\tUse MESA.\n"
@@ -233,18 +226,26 @@ static bool parse_option_gpu_api(const SkString& value,
         *outContextType = GrContextFactory::kNullGL_ContextType;
         return true;
     }
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
-    if (value.equals("angle")) {
-        *outContextType = GrContextFactory::kANGLE_ContextType;
+    if (value.equals("angle_d3d9_es2")) {
+        *outContextType = GrContextFactory::kANGLE_D3D9_ES2_ContextType;
         return true;
     }
-#endif
-    if (value.equals("angle-gl")) {
-        *outContextType = GrContextFactory::kANGLE_GL_ContextType;
+    if (value.equals("angle_d3d11_es2")) {
+        *outContextType = GrContextFactory::kANGLE_D3D11_ES2_ContextType;
         return true;
     }
-#endif
+    if (value.equals("angle_d3d11_es3")) {
+        *outContextType = GrContextFactory::kANGLE_D3D11_ES3_ContextType;
+        return true;
+    }
+    if (value.equals("angle_gl_es2")) {
+        *outContextType = GrContextFactory::kANGLE_GL_ES2_ContextType;
+        return true;
+    }
+    if (value.equals("angle_gl_es3")) {
+        *outContextType = GrContextFactory::kANGLE_GL_ES3_ContextType;
+        return true;
+    }
     if (value.equals("commandbuffer")) {
         *outContextType = GrContextFactory::kCommandBuffer_ContextType;
         return true;
@@ -406,13 +407,6 @@ void ParseConfigs(const SkCommandLineFlags::StringArray& configs,
                 simpleBackend = vias[vias.count() - 1];
                 vias.pop_back();
             }
-            // Note: no #if SK_ANGLE: this is a special rule in the via-tag grammar.
-            if (vias.count() && simpleBackend.equals("gl") &&
-                vias[vias.count() - 1].equals("angle")) {
-                simpleBackend = "angle-gl";
-                vias.pop_back();
-            }
-
             for (auto& predefinedConfig : gPredefinedConfigs) {
                 if (simpleBackend.equals(predefinedConfig.predefinedConfig)) {
                     extendedBackend = predefinedConfig.backend;
