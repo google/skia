@@ -30,11 +30,11 @@ public:
     void onDraw(int loops, SkCanvas*) override {
         while (loops --> 0) {
             SkRasterPipeline p;
-            p.append(SkOpts::load_s_srgb_body, SkOpts::load_s_srgb_tail, src);
-            p.append(SkOpts::scale_u8_body,    SkOpts::scale_u8_tail,    mask);
-            p.append(SkOpts::load_d_srgb_body, SkOpts::load_d_srgb_tail, dst);
-            p.append(SkOpts::srcover);
-            p.append(SkOpts::store_srgb_body,  SkOpts::store_srgb_tail,  dst);
+            p.append(SkRasterPipeline::load_s_srgb, src);
+            p.append(SkRasterPipeline::   scale_u8, mask);
+            p.append(SkRasterPipeline::load_d_srgb, dst);
+            p.append(SkRasterPipeline::    srcover);
+            p.append(SkRasterPipeline:: store_srgb, dst);
             p.run(N);
         }
     }
