@@ -90,37 +90,57 @@ namespace SkOpts {
     DEFINE_DEFAULT(hash_fn);
 #undef DEFINE_DEFAULT
 
-// Stages that are not sensitive to the tail parameter can be represented by one function.
-#define DEFINE_DEFAULT(stage, kCallNext) \
-    decltype(stage) stage = body<SK_OPTS_NS::stage, kCallNext>
+    // TODO: might be nice to only create one instance of tail-insensitive stages.
 
-    DEFINE_DEFAULT(srcover, true);
-    DEFINE_DEFAULT(constant_color, true);
-    DEFINE_DEFAULT(lerp_constant_float, true);
-#undef DEFINE_DEFAULT
+    SkRasterPipeline::Fn stages_4[] = {
+        stage_4<SK_OPTS_NS::store_565 , false>,
+        stage_4<SK_OPTS_NS::store_srgb, false>,
+        stage_4<SK_OPTS_NS::store_f16 , false>,
 
-// Stages that are sensitive to the tail parameter need two versions, _body and _tail.
-#define DEFINE_DEFAULT(stage, kCallNext)                                      \
-    decltype(stage##_body) stage##_body = body<SK_OPTS_NS::stage, kCallNext>; \
-    decltype(stage##_tail) stage##_tail = tail<SK_OPTS_NS::stage, kCallNext>
+        stage_4<SK_OPTS_NS::load_s_565 , true>,
+        stage_4<SK_OPTS_NS::load_s_srgb, true>,
+        stage_4<SK_OPTS_NS::load_s_f16 , true>,
 
-    DEFINE_DEFAULT(load_d_srgb, true);
-    DEFINE_DEFAULT(load_s_srgb, true);
-    DEFINE_DEFAULT( store_srgb, false);
+        stage_4<SK_OPTS_NS::load_d_565 , true>,
+        stage_4<SK_OPTS_NS::load_d_srgb, true>,
+        stage_4<SK_OPTS_NS::load_d_f16 , true>,
 
-    DEFINE_DEFAULT(load_d_f16, true);
-    DEFINE_DEFAULT(load_s_f16, true);
-    DEFINE_DEFAULT( store_f16, false);
+        stage_4<SK_OPTS_NS::scale_u8, true>,
 
-    DEFINE_DEFAULT(load_d_565, true);
-    DEFINE_DEFAULT(load_s_565, true);
-    DEFINE_DEFAULT( store_565, false);
+        stage_4<SK_OPTS_NS::lerp_u8            , true>,
+        stage_4<SK_OPTS_NS::lerp_565           , true>,
+        stage_4<SK_OPTS_NS::lerp_constant_float, true>,
 
-    DEFINE_DEFAULT(scale_u8, true);
+        stage_4<SK_OPTS_NS::constant_color, true>,
 
-    DEFINE_DEFAULT(lerp_u8,  true);
-    DEFINE_DEFAULT(lerp_565, true);
-#undef DEFINE_DEFAULT
+        stage_4<SK_OPTS_NS::srcover, true>,
+    };
+    static_assert(SK_ARRAY_COUNT(stages_4) == SkRasterPipeline::kNumStockStages, "");
+
+    SkRasterPipeline::Fn stages_1_3[] = {
+        stage_1_3<SK_OPTS_NS::store_565 , false>,
+        stage_1_3<SK_OPTS_NS::store_srgb, false>,
+        stage_1_3<SK_OPTS_NS::store_f16 , false>,
+
+        stage_1_3<SK_OPTS_NS::load_s_565 , true>,
+        stage_1_3<SK_OPTS_NS::load_s_srgb, true>,
+        stage_1_3<SK_OPTS_NS::load_s_f16 , true>,
+
+        stage_1_3<SK_OPTS_NS::load_d_565 , true>,
+        stage_1_3<SK_OPTS_NS::load_d_srgb, true>,
+        stage_1_3<SK_OPTS_NS::load_d_f16 , true>,
+
+        stage_1_3<SK_OPTS_NS::scale_u8, true>,
+
+        stage_1_3<SK_OPTS_NS::lerp_u8            , true>,
+        stage_1_3<SK_OPTS_NS::lerp_565           , true>,
+        stage_1_3<SK_OPTS_NS::lerp_constant_float, true>,
+
+        stage_1_3<SK_OPTS_NS::constant_color, true>,
+
+        stage_1_3<SK_OPTS_NS::srcover, true>,
+    };
+    static_assert(SK_ARRAY_COUNT(stages_1_3) == SkRasterPipeline::kNumStockStages, "");
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkOpts.h"
 #include "SkRasterPipeline.h"
 
 SkRasterPipeline::SkRasterPipeline() {}
@@ -21,6 +22,10 @@ void SkRasterPipeline::append(SkRasterPipeline::Fn body,
     // It'll be overwritten by the next call to append().
     fBody.push_back({ &JustReturn, const_cast<void*>(ctx) });
     fTail.push_back({ &JustReturn, const_cast<void*>(ctx) });
+}
+
+void SkRasterPipeline::append(StockStage stage, const void* ctx) {
+    this->append(SkOpts::stages_4[stage], SkOpts::stages_1_3[stage], ctx);
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
