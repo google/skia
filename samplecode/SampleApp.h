@@ -143,6 +143,7 @@ public:
     void postInvalDelay();
 
     DeviceType getDeviceType() const { return fDeviceType; }
+    int getColorConfigIndex() const { return fColorConfigIndex; }
 
 protected:
     void onDraw(SkCanvas* canvas) override;
@@ -219,6 +220,7 @@ private:
 
     int fMSAASampleCount;
     bool fDeepColor;
+    int fColorConfigIndex;
 
     SkScalar fZoomCenterX, fZoomCenterY;
 

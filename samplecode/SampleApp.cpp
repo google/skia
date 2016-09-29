@@ -49,25 +49,22 @@
 class GrContext;
 #endif
 
-const struct {
-    SkColorType         fColorType;
-    bool                fSRGB;
-    const char*         fName;
-} gConfig[] = {
-    { kN32_SkColorType,      false, "L32" },
-    { kN32_SkColorType,       true, "S32" },
-    { kRGBA_F16_SkColorType,  true, "F16" },
+enum OutputColorSpace {
+    kLegacy_OutputColorSpace,
+    kSRGB_OutputColorSpace,
+    kMonitor_OutputColorSpace,
 };
 
-static const char* find_config_name(const SkImageInfo& info) {
-    for (const auto& config : gConfig) {
-        if (config.fColorType == info.colorType() &&
-            config.fSRGB == (info.colorSpace() != nullptr)) {
-            return config.fName;
-        }
-    }
-    return "???";
-}
+const struct {
+    SkColorType         fColorType;
+    OutputColorSpace    fColorSpace;
+    const char*         fName;
+} gConfig[] = {
+    { kN32_SkColorType,      kLegacy_OutputColorSpace,  "L32" },
+    { kN32_SkColorType,      kSRGB_OutputColorSpace,    "S32" },
+    { kRGBA_F16_SkColorType, kSRGB_OutputColorSpace,    "F16" },
+    { kRGBA_F16_SkColorType, kMonitor_OutputColorSpace, "F16 Device" },
+};
 
 // Should be 3x + 1
 #define kMaxFatBitsScale    28
@@ -322,8 +319,20 @@ public:
             kRGBA_F16_SkColorType == win->info().colorType() ||
             fActualColorBits > 24) {
             // We made/have an off-screen surface. Get the contents as an SkImage:
+            SkImageInfo offscreenInfo = win->info();
+            if (kMonitor_OutputColorSpace == gConfig[win->getColorConfigIndex()].fColorSpace) {
+                // This is a big hack. We want our final output to be color "correct". If we snap
+                // an image in the gamut of the monitor, and then render to FBO0 (which we've tagged
+                // as sRGB), then we end up doing round-trip gamut conversion, and still seeing the
+                // same colors on-screen as if we weren't color managed at all.
+                // Instead, we readPixels into a buffer that we claim is sRGB (readPixels doesn't
+                // do gamut conversion), so these pixels then get thrown directly at the monitor,
+                // giving us the expected results (the output is adapted to the monitor's gamut).
+                auto srgb = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                offscreenInfo = offscreenInfo.makeColorSpace(srgb);
+            }
             SkBitmap bm;
-            bm.allocPixels(win->info());
+            bm.allocPixels(offscreenInfo);
             renderingCanvas->readPixels(&bm, 0, 0);
             SkPixmap pm;
             bm.peekPixels(&pm);
@@ -815,6 +824,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     fMSAASampleCount = FLAGS_msaa;
     fDeepColor = FLAGS_deepColor;
+    fColorConfigIndex = 0;
 
     if (FLAGS_list) {
         listTitles();
@@ -892,7 +902,11 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     int itemID;
 
     itemID = fAppMenu->appendList("ColorType", "ColorType", sinkID, 0,
-                                  gConfig[0].fName, gConfig[1].fName, gConfig[2].fName, nullptr);
+                                  gConfig[0].fName,
+                                  gConfig[1].fName,
+                                  gConfig[2].fName,
+                                  gConfig[3].fName,
+                                  nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'C');
 
     itemID = fAppMenu->appendList("Device Type", "Device Type", sinkID, 0,
@@ -1566,6 +1580,50 @@ void SampleWindow::postAnimatingEvent() {
     }
 }
 
+static sk_sp<SkColorSpace> getMonitorColorSpace() {
+#if defined(SK_BUILD_FOR_MAC)
+    CGColorSpaceRef cs = CGDisplayCopyColorSpace(CGMainDisplayID());
+    CFDataRef dataRef = CGColorSpaceCopyICCProfile(cs);
+    const uint8_t* data = CFDataGetBytePtr(dataRef);
+    size_t size = CFDataGetLength(dataRef);
+
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::NewICC(data, size);
+
+    CFRelease(cs);
+    CFRelease(dataRef);
+    return colorSpace;
+#elif defined(SK_BUILD_FOR_WIN)
+    DISPLAY_DEVICE dd = { sizeof(DISPLAY_DEVICE) };
+
+    // Chrome's code for this currently just gets the primary monitor's profile. This code iterates
+    // over all attached monitors, so it's "better" in that sense. Making intelligent use of this
+    // information (via things like MonitorFromWindow or MonitorFromRect to pick the correct
+    // profile for a particular window or region of a window), is an exercise left to the reader.
+    for (int i = 0; EnumDisplayDevices(NULL, i, &dd, 0); ++i) {
+        if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP) {
+            // There are other helpful things in dd at this point:
+            // dd.DeviceString has a longer name for the adapter
+            // dd.StateFlags indicates primary display, mirroring, etc...
+            HDC dc = CreateDC(NULL, dd.DeviceName, NULL, NULL);
+            if (dc) {
+                char icmPath[MAX_PATH + 1];
+                DWORD pathLength = MAX_PATH;
+                BOOL success = GetICMProfile(dc, &pathLength, icmPath);
+                DeleteDC(dc);
+                if (success) {
+                    sk_sp<SkData> iccData = SkData::MakeFromFileName(icmPath);
+                    return SkColorSpace::NewICC(iccData->data(), iccData->size());
+                }
+            }
+        }
+    }
+
+    return nullptr;
+#else
+    return nullptr;
+#endif
+}
+
 bool SampleWindow::onEvent(const SkEvent& evt) {
     if (evt.isType(gUpdateWindowTitleEvtName)) {
         this->updateTitle();
@@ -1592,12 +1650,29 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         return true;
     }
     if (SkOSMenu::FindListIndex(evt, "ColorType", &selected)) {
-        auto colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        fColorConfigIndex = selected;
+        sk_sp<SkColorSpace> colorSpace = nullptr;
+        switch (gConfig[selected].fColorSpace) {
+            case kSRGB_OutputColorSpace:
+                colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                break;
+            case kMonitor_OutputColorSpace:
+                colorSpace = getMonitorColorSpace();
+                if (!colorSpace) {
+                    // Fallback for platforms / machines where we can't get a monitor profile
+                    colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                }
+                break;
+            case kLegacy_OutputColorSpace:
+            default:
+                // Do nothing
+                break;
+        }
         if (kRGBA_F16_SkColorType == gConfig[selected].fColorType) {
+            SkASSERT(colorSpace);
             colorSpace = colorSpace->makeLinearGamma();
         }
-        this->setDeviceColorType(gConfig[selected].fColorType,
-                                 gConfig[selected].fSRGB ? colorSpace : nullptr);
+        this->setDeviceColorType(gConfig[selected].fColorType, colorSpace);
         return true;
     }
     if (SkOSMenu::FindSwitchState(evt, "Slide Show", nullptr)) {
@@ -2121,7 +2196,7 @@ void SampleWindow::updateTitle() {
     }
 #endif
 
-    title.appendf(" %s", find_config_name(this->info()));
+    title.appendf(" %s", gConfig[fColorConfigIndex].fName);
 
     if (fDevManager && fDevManager->getColorBits() > 24) {
         title.appendf(" %d bpc", fDevManager->getColorBits());
