@@ -463,15 +463,7 @@
       "serialize-8888",
       "gm",
       "_",
-      "image-cacherator-from-ctable",
-      "pic-8888",
-      "gm",
-      "_",
-      "gamut",
-      "serialize-8888",
-      "gm",
-      "_",
-      "gamut"
+      "image-cacherator-from-ctable"
     ],
     "env": {
       "BUILDTYPE": "Debug",

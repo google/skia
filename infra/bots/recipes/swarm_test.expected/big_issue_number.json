@@ -447,14 +447,6 @@
       "gm",
       "_",
       "image-cacherator-from-ctable",
-      "pic-8888",
-      "gm",
-      "_",
-      "gamut",
-      "serialize-8888",
-      "gm",
-      "_",
-      "gamut",
       "--noRAW_threading"
     ],
     "env": {
